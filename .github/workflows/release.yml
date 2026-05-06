@@ -433,6 +433,23 @@ jobs:
           fi
           echo "OK: app bundle is signed with a real identity."
 
+          # Notarization staple check. Without this the dmg signs but
+          # spctl rejects with "Unnotarized Developer ID" (v0.30.4
+          # exact bug). The check is gated on APPLE_API_KEY being
+          # present — local builds can still ship signed-but-not-
+          # notarized for testing. CI always has the secret, so a
+          # notarize regression turns into a hard CI failure.
+          if [[ -n "${APPLE_API_KEY:-}" ]]; then
+            echo "Verifying notarization staple..."
+            if ! xcrun stapler validate "$APP" 2>&1 | tee /dev/stderr | grep -q "validated"; then
+              echo "::error::AgentsMesh.app has no stapled notarization ticket. electron-builder either skipped notarization or it was rejected by Apple." >&2
+              exit 1
+            fi
+            echo "OK: notarization ticket is stapled."
+          else
+            echo "APPLE_API_KEY unset — skipping notarization check."
+          fi
+
       - name: Build :dist (Windows)
         if: matrix.os.runner == 'windows-latest'
         shell: bash

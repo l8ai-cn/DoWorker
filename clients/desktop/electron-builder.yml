@@ -63,10 +63,26 @@ mac:
         - x64
   hardenedRuntime: true
   gatekeeperAssess: false
+  # `notarize: { teamId: ... }` is required as of electron-builder 25.x
+  # — the older "auto-notarize when APPLE_API_* env is set" behaviour
+  # was removed. Without this block the dmg ships signed but
+  # *un-notarized*, so `spctl --assess` rejects with "Unnotarized
+  # Developer ID" and Gatekeeper shows the "unidentified developer"
+  # prompt on first launch (we hit this in v0.30.4: signing wired
+  # correctly, dmg simply never went through Apple's Notary API).
+  #
+  # `@electron/notarize` reads the API credentials from env:
+  #   APPLE_API_KEY               → file path to the .p8 private key
+  #   APPLE_API_KEY_ID            → key id (10-char alphanumeric)
+  #   APPLE_API_KEY_ISSUER_ID     → issuer uuid
+  # release.yml's "Set up macOS signing keychain" step decodes the .p8
+  # to disk and exposes all three.
+  notarize:
+    teamId: DCK4SSVH2H
   # codesign + notarization are driven by env vars in CI:
   #   CSC_LINK / CSC_KEY_PASSWORD              → Developer ID Application cert
   #   APPLE_API_KEY / APPLE_API_KEY_ID /
-  #   APPLE_API_ISSUER                         → notarytool API key path
+  #   APPLE_API_KEY_ISSUER_ID                  → notarytool API key path
   # Leave `identity` unset so electron-builder auto-discovers from CSC_LINK
   # (an explicit `null` here disables signing entirely — the cert env vars
   # are silently ignored, and the resulting .dmg/.zip won't pass Gatekeeper).
