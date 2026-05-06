@@ -170,6 +170,12 @@ def electron_builder_app(
         dependencies = dependencies,
         extra = {
             "description": "AgentsMesh Desktop — Electron-hosted client.",
+            # electron-builder's AppImage target rejects a package.json
+            # without `homepage` (Linux Build :dist fails fatally; mac
+            # dmg / win nsis are silent on the same field but read it for
+            # installer metadata). Synthesised here so a single source-
+            # tree config covers all three platforms.
+            "homepage": "https://agentsmesh.ai",
         },
     )
 

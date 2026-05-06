@@ -125,7 +125,7 @@ def napi_rust_library(
         }
         actual_map["//conditions:default"] = "_{}_rename_{}".format(
             name,
-            _PLATFORM_SUFFIXES["@platforms//cpu:arm64"].replace("-", "_"),
+            _PLATFORM_SUFFIXES["@platforms//os:macos"].replace("-", "_"),
         )
         native.alias(
             name = "_{}_rename".format(name),
@@ -153,10 +153,23 @@ def napi_rust_library(
         visibility = visibility or ["//visibility:public"],
     )
 
-# Maps Bazel platform constraint labels to the napi-rs convention
-# `<os>-<cpu>` triple that the generated index.js loader looks for.
-# Only the slices we currently ship are listed; add more as we gain
-# per-platform CI coverage.
+# Maps Bazel host-OS constraint labels to the napi-rs convention
+# `<os>-<cpu>[-abi]` triple that the generated index.js loader looks
+# for. Keyed by host OS only — CPU is implicit from CI runners (mac =
+# macos-14 = M1; linux = ubuntu-latest = x64; windows = windows-latest
+# = x64). When we add Intel macs / arm64 linux / arm64 windows runners,
+# the dict gains entries; consumers automatically pick them up via
+# the `select()` below.
+#
+# `//conditions:default` falls back to darwin-arm64 because the alias
+# must resolve on every platform Bazel analyzes — even when the addon
+# is never actually loaded (e.g. `//clients/web:image` on linux pulls
+# the configuration graph through node-bridge transitively). The
+# fallback target's cdylib is never built unless one of the matching
+# platform branches is selected, so the fallback string is just a
+# placeholder for graph completeness.
 _PLATFORM_SUFFIXES = {
-    "@platforms//cpu:arm64": "darwin-arm64",  # default macOS dev target
+    "@platforms//os:macos": "darwin-arm64",
+    "@platforms//os:linux": "linux-x64-gnu",
+    "@platforms//os:windows": "win32-x64-msvc",
 }

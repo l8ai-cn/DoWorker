@@ -1,75 +1,22 @@
-# Production release pipeline — triggered by main branch pushes and
-# version tags. Separate from bazel.yml (PR gate) because this workflow
-# runs against self-hosted deploy runners and coordinates dual-region
-# rollout (US West + CN) plus GoReleaser for the runner CLI.
+# Tag a versioned release: build runner CLI archives, create a GitHub
+# Release, package Desktop installers across mac/win/linux, attach
+# everything as Release assets.
 #
-# Image build strategy:
-#   All services (backend / runner / relay / web / web-admin) build via
-#   Bazel rules_oci. Each target exposes `//<path>:image_push_dockerhub`
-#   and `:image_push_agentsmesh`; the tag list (latest + version +
-#   minor) is stamped from `build_defs/workspace_status.sh`, which reads the
-#   IMAGE_VERSION + IMAGE_MINOR env vars this workflow sets.
+# Triggered ONLY on `vX.Y.Z` tags. Server-side OCI image build +
+# deploy + migrate live in `.github/workflows/deploy.yml` and run on
+# main pushes — they don't repeat for tag pushes (since v0.30.0
+# they did, wasting 5–15 min/tag for zero new artifacts).
 
 name: Release
 
 on:
   push:
-    branches: [main]
     tags:
       - "v*"
 
-env:
-  DOCKERHUB_REGISTRY: docker.io
-  AGENTSMESH_REGISTRY: registry.agentsmesh.ai
-
 jobs:
   # ===========================================================================
-  # Detect which services have changed files
-  # ===========================================================================
-
-  changes:
-    name: Detect Changes
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    outputs:
-      backend: ${{ steps.filter.outputs.backend }}
-      web: ${{ steps.filter.outputs.web }}
-      web-admin: ${{ steps.filter.outputs.web-admin }}
-      relay: ${{ steps.filter.outputs.relay }}
-      migrations: ${{ steps.filter.outputs.migrations }}
-    steps:
-      - uses: actions/checkout@v6
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            backend:
-              - 'backend/**'
-              - 'proto/**'
-              - 'agentfile/**'
-              - 'build_defs/docker/**'
-              - 'MODULE.bazel'
-              - 'MODULE.bazel.lock'
-            web:
-              - 'clients/web/**'
-              - 'build_defs/web/**'
-              - 'MODULE.bazel'
-              - 'MODULE.bazel.lock'
-            web-admin:
-              - 'clients/web-admin/**'
-              - 'build_defs/web/**'
-              - 'MODULE.bazel'
-              - 'MODULE.bazel.lock'
-            relay:
-              - 'relay/**'
-              - 'build_defs/docker/**'
-              - 'MODULE.bazel'
-              - 'MODULE.bazel.lock'
-            migrations:
-              - 'backend/migrations/**'
-
-  # ===========================================================================
-  # Compute version tag once — shared by every build-images matrix shard.
+  # Compute version from the pushed tag.
   # ===========================================================================
 
   version:
@@ -83,221 +30,23 @@ jobs:
       - id: compute
         run: |
           set -euo pipefail
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            # v1.2.3 → version=1.2.3, minor=1.2
-            full="${GITHUB_REF#refs/tags/v}"
-            minor="${full%.*}"
-          else
-            # main push → version=sha-abc1234, minor=latest (deduplicates
-            # against the always-on 'latest' tag but harmless)
-            full="sha-${GITHUB_SHA::7}"
-            minor="latest"
-          fi
+          # v1.2.3 → version=1.2.3, minor=1.2
+          full="${GITHUB_REF#refs/tags/v}"
+          minor="${full%.*}"
           echo "version=${full}" >> "$GITHUB_OUTPUT"
           echo "minor=${minor}" >> "$GITHUB_OUTPUT"
 
   # ===========================================================================
-  # Build + push Docker images via Bazel rules_oci (dual-registry).
-  # ===========================================================================
-
-  build-images:
-    name: Build ${{ matrix.service }}
-    runs-on: ubuntu-latest
-    needs: version
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - service: backend
-            target: //backend/cmd/server:image
-          - service: runner
-            target: //runner/cmd/runner:image
-          - service: relay
-            target: //relay/cmd/relay:image
-          - service: web
-            target: //clients/web:image
-          - service: web-admin
-            target: //clients/web-admin:image
-    outputs:
-      version: ${{ needs.version.outputs.version }}
-    steps:
-      - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
-        with:
-          bazelisk-cache: true
-          disk-cache: true
-          repository-cache: true
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.DOCKERHUB_REGISTRY }}
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Log in to AgentsMesh Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.AGENTSMESH_REGISTRY }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      # rules_oci's oci_push reads ~/.docker/config.json for auth, so
-      # the two `docker login` steps above already provisioned creds.
-      # bazel run invokes the push action which tags via the stamped
-      # build_defs/workspace_status.sh keys.
-      - name: Push to Docker Hub
-        env:
-          IMAGE_VERSION: ${{ needs.version.outputs.version }}
-          IMAGE_MINOR: ${{ needs.version.outputs.minor }}
-        run: |
-          bazel run \
-            --stamp \
-            --workspace_status_command=build_defs/workspace_status.sh \
-            ${{ matrix.target }}_push_dockerhub
-
-      - name: Push to AgentsMesh Registry
-        env:
-          IMAGE_VERSION: ${{ needs.version.outputs.version }}
-          IMAGE_MINOR: ${{ needs.version.outputs.minor }}
-        run: |
-          bazel run \
-            --stamp \
-            --workspace_status_command=build_defs/workspace_status.sh \
-            ${{ matrix.target }}_push_agentsmesh
-
-  # ===========================================================================
-  # Deploy US West production (independent parallel jobs, changes-based)
-  # ===========================================================================
-
-  deploy-uswest-backend:
-    name: Deploy US West Backend
-    needs: [changes, build-images]
-    if: always() && needs.changes.outputs.backend == 'true' && needs.build-images.result != 'failure'
-    runs-on: [self-hosted, deploy]
-    steps:
-      - run: |
-          VERSION="${{ needs.build-images.outputs.version }}"
-          ssh aliyun-us-west-001 "cd /opt/agentsmesh && ./deploy.sh uswest-prod --service backend --version ${VERSION}"
-          ssh aliyun-us-west-001 'docker image prune -af --filter "until=168h"' || true
-
-  deploy-uswest-web:
-    name: Deploy US West Web
-    needs: [changes, build-images]
-    if: always() && needs.changes.outputs.web == 'true' && needs.build-images.result != 'failure'
-    runs-on: [self-hosted, deploy]
-    steps:
-      - run: |
-          VERSION="${{ needs.build-images.outputs.version }}"
-          ssh aliyun-us-west-001 "cd /opt/agentsmesh && ./deploy.sh uswest-prod --service web --version ${VERSION}"
-          ssh aliyun-us-west-001 'docker image prune -af --filter "until=168h"' || true
-
-  deploy-uswest-web-admin:
-    name: Deploy US West Web-Admin
-    needs: [changes, build-images]
-    if: always() && needs.changes.outputs.web-admin == 'true' && needs.build-images.result != 'failure'
-    runs-on: [self-hosted, deploy]
-    steps:
-      - run: |
-          VERSION="${{ needs.build-images.outputs.version }}"
-          ssh aliyun-us-west-001 "cd /opt/agentsmesh && ./deploy.sh uswest-prod --service web-admin --version ${VERSION}"
-          ssh aliyun-us-west-001 'docker image prune -af --filter "until=168h"' || true
-
-  deploy-uswest-relay-01:
-    name: Deploy US West Relay 01
-    needs: [changes, build-images]
-    if: always() && needs.changes.outputs.relay == 'true' && needs.build-images.result != 'failure'
-    runs-on: [self-hosted, deploy]
-    steps:
-      - run: |
-          ssh aliyun-us-west-relay-001 "cd /opt/agentsmesh/relay && ./deploy.sh uswest-relay-01 --pull"
-          ssh aliyun-us-west-relay-001 'docker image prune -af --filter "until=168h"' || true
-
-  deploy-uswest-relay-beijing-02:
-    name: Deploy US West Relay Beijing 02
-    needs: [changes, build-images]
-    if: always() && needs.changes.outputs.relay == 'true' && needs.build-images.result != 'failure'
-    runs-on: [self-hosted, deploy]
-    steps:
-      - run: |
-          ssh aliyun-agentsmesh-us-relay-beijing-002 "cd /opt/agentsmesh/relay && ./deploy.sh uswest-relay-beijing-02 --pull"
-          ssh aliyun-agentsmesh-us-relay-beijing-002 'docker image prune -af --filter "until=168h"' || true
-
-  migrate-uswest:
-    name: Migrate US West
-    needs: [changes, deploy-uswest-backend]
-    if: always() && needs.changes.outputs.migrations == 'true' && needs.deploy-uswest-backend.result == 'success'
-    runs-on: [self-hosted, deploy]
-    steps:
-      - run: |
-          ssh aliyun-us-west-001 "cd /opt/agentsmesh && ./migrate.sh uswest-prod --direction up"
-
-  # ===========================================================================
-  # Deploy China production (independent parallel jobs, changes-based)
-  # ===========================================================================
-
-  deploy-cn-backend:
-    name: Deploy CN Backend
-    needs: [changes, build-images]
-    if: always() && needs.changes.outputs.backend == 'true' && needs.build-images.result != 'failure'
-    runs-on: [self-hosted, deploy]
-    steps:
-      - run: |
-          VERSION="${{ needs.build-images.outputs.version }}"
-          ssh aliyun-s001 "cd /opt/agentsmesh && ./deploy.sh cn-prod --service backend --version ${VERSION}"
-          ssh aliyun-s001 'docker image prune -af --filter "until=168h"' || true
-
-  deploy-cn-web:
-    name: Deploy CN Web
-    needs: [changes, build-images]
-    if: always() && needs.changes.outputs.web == 'true' && needs.build-images.result != 'failure'
-    runs-on: [self-hosted, deploy]
-    steps:
-      - run: |
-          VERSION="${{ needs.build-images.outputs.version }}"
-          ssh aliyun-s001 "cd /opt/agentsmesh && ./deploy.sh cn-prod --service web --version ${VERSION}"
-          ssh aliyun-s001 'docker image prune -af --filter "until=168h"' || true
-
-  deploy-cn-web-admin:
-    name: Deploy CN Web-Admin
-    needs: [changes, build-images]
-    if: always() && needs.changes.outputs.web-admin == 'true' && needs.build-images.result != 'failure'
-    runs-on: [self-hosted, deploy]
-    steps:
-      - run: |
-          VERSION="${{ needs.build-images.outputs.version }}"
-          ssh aliyun-s001 "cd /opt/agentsmesh && ./deploy.sh cn-prod --service web-admin --version ${VERSION}"
-          ssh aliyun-s001 'docker image prune -af --filter "until=168h"' || true
-
-  deploy-cn-relay-01:
-    name: Deploy CN Relay 01
-    needs: [changes, build-images]
-    if: always() && needs.changes.outputs.relay == 'true' && needs.build-images.result != 'failure'
-    runs-on: [self-hosted, deploy]
-    steps:
-      - run: |
-          ssh aliyun-cn-relay-01 "cd /opt/agentsmesh/relay && ./deploy.sh cn-relay-01 --pull"
-          ssh aliyun-cn-relay-01 'docker image prune -af --filter "until=168h"' || true
-
-  migrate-cn:
-    name: Migrate CN
-    needs: [changes, deploy-cn-backend]
-    if: always() && needs.changes.outputs.migrations == 'true' && needs.deploy-cn-backend.result == 'success'
-    runs-on: [self-hosted, deploy]
-    steps:
-      - run: |
-          ssh aliyun-s001 "cd /opt/agentsmesh && ./migrate.sh cn-prod --direction up"
-
-  # ===========================================================================
-  # Build Runner CLI + Create GitHub Release (tag only)
-  # Runner is a client-side binary distributed via GitHub Release, not Docker.
+  # Build Runner CLI release archives (6-platform tar.gz/zip + checksums)
+  # and publish a GitHub Release. Independent of OCI image build:
+  # `release_assets` is a host build via Bazel cross-compile, not a
+  # docker push — does not need the deploy.yml `build-images` step.
   # ===========================================================================
 
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build-images]
+    needs: [version]
     permissions:
       contents: write
     steps:
@@ -459,7 +208,6 @@ jobs:
 
   desktop-package:
     name: Desktop ${{ matrix.os.label }}
-    if: startsWith(github.ref, 'refs/tags/v')
     needs: [release]
     runs-on: ${{ matrix.os.runner }}
     timeout-minutes: 45
@@ -596,10 +344,17 @@ jobs:
       # Attach installers + electron-updater metadata to the GitHub
       # Release the `release` job created. Single matrix shard's worth
       # per call; `--clobber` lets reruns overwrite without erroring.
+      #
+      # `GH_REPO` short-circuits gh CLI's git-remote inference. Without
+      # it, gh runs `git config --get remote.origin.url` from the
+      # `working-directory` (a bazel-out subdir, not a git checkout) and
+      # fails with `not a git repository`. v0.30.0 hit this on macOS:
+      # dmg/zip built fine, upload to release errored at the very end.
       - name: Upload installers to Release
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         working-directory: bazel-bin/clients/desktop/dist
         run: |
           set -euo pipefail
