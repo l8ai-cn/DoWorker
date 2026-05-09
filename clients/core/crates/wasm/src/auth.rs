@@ -25,7 +25,6 @@ impl PersistentStorage for JsStorageBackend {
     fn get(&self, key: &str) -> Option<String> { JsStorageBackend::get(self, key) }
     fn set(&self, key: &str, value: &str) { JsStorageBackend::set(self, key, value); }
     fn remove(&self, key: &str) { JsStorageBackend::remove(self, key); }
-    fn clear(&self) { self.remove("agentsmesh-auth"); }
 }
 
 struct WebLocalStorage;
@@ -44,13 +43,22 @@ impl PersistentStorage for WebLocalStorage {
             let _ = s.remove_item(key);
         }
     }
-    fn clear(&self) { self.remove("agentsmesh-auth"); }
 }
 
 #[wasm_bindgen]
 pub struct WasmAuthManager {
-    manager: AuthManager,
+    manager: Arc<AuthManager>,
     base_url: String,
+}
+
+impl WasmAuthManager {
+    /// SSOT bridge: ApiClient consumes the same token store that AuthManager
+    /// owns, so token writes (login / refresh / bootstrap) propagate to API
+    /// calls without TS-side `set_token()` synchronization. AuthManager is
+    /// `AuthTokenStore + Send + Sync`, the unsized coercion is automatic.
+    pub(crate) fn token_store_arc(&self) -> Arc<dyn AuthTokenStore> {
+        self.manager.clone()
+    }
 }
 
 #[wasm_bindgen]
@@ -58,12 +66,18 @@ impl WasmAuthManager {
     #[wasm_bindgen(constructor)]
     pub fn new(base_url: String) -> Self {
         let storage: Arc<dyn PersistentStorage> = Arc::new(WebLocalStorage);
-        Self { manager: AuthManager::new(base_url.clone(), storage), base_url }
+        Self {
+            manager: Arc::new(AuthManager::new(base_url.clone(), storage)),
+            base_url,
+        }
     }
 
     pub fn new_with_storage(base_url: String, storage: JsStorageBackend) -> Self {
         let storage: Arc<dyn PersistentStorage> = Arc::new(storage);
-        Self { manager: AuthManager::new(base_url.clone(), storage), base_url }
+        Self {
+            manager: Arc::new(AuthManager::new(base_url.clone(), storage)),
+            base_url,
+        }
     }
 
     #[wasm_bindgen(getter)]
@@ -83,8 +97,12 @@ impl WasmAuthManager {
         serde_json::to_string(&tokens).map_err(agentsmesh_services::wire)
     }
 
-    pub fn restore_session(&self) -> Result<bool, String> {
-        self.manager.restore_session().map_err(agentsmesh_services::wire)
+    /// Hydrate auth from storage and verify token freshness end-to-end.
+    /// Returns BootstrapResult JSON: `{kind: "anonymous" | "authenticated" |
+    /// "anonymous_after_cleanup", ...}`. Caller must drive UI off of this.
+    pub async fn bootstrap(&self) -> Result<String, String> {
+        let result = self.manager.bootstrap().await;
+        serde_json::to_string(&result).map_err(agentsmesh_services::wire)
     }
 
     pub async fn fetch_organizations(&self) -> Result<String, String> {
@@ -137,11 +155,11 @@ impl WasmAuthManager {
     /// Set or clear current organization. Empty json string clears it.
     pub fn set_current_org(&self, org_json: &str) -> Result<(), String> {
         if org_json.is_empty() {
-            self.manager.set_current_org_direct(None);
+            self.manager.set_current_org(None);
         } else {
             let org: agentsmesh_types::Organization = serde_json::from_str(org_json)
                 .map_err(agentsmesh_services::wire)?;
-            self.manager.set_current_org_direct(Some(org));
+            self.manager.set_current_org(Some(org));
         }
         Ok(())
     }
@@ -151,6 +169,6 @@ impl WasmAuthManager {
         self.manager.clear();
     }
 
-    pub fn get_token(&self) -> Option<String> { AuthTokenStore::get_token(&self.manager) }
-    pub fn get_refresh_token(&self) -> Option<String> { AuthTokenStore::get_refresh_token(&self.manager) }
+    pub fn get_token(&self) -> Option<String> { self.manager.get_token() }
+    pub fn get_refresh_token(&self) -> Option<String> { self.manager.get_refresh_token() }
 }

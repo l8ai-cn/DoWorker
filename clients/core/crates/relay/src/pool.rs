@@ -4,7 +4,8 @@ use web_time::Instant;
 
 use agentsmesh_protocol::{encode_json_message, encode_message, MsgType};
 use agentsmesh_transport::runtime::{PlatformRuntime, Runtime, TaskHandle};
-use tokio::sync::{mpsc, RwLock};
+use futures::channel::mpsc;
+use parking_lot::RwLock;
 
 use crate::error::RelayError;
 use crate::retry;
@@ -35,7 +36,7 @@ impl RelayConnectionPool<PlatformRuntime> {
 
 impl<R: Runtime> RelayConnectionPool<R> {
     pub fn with_runtime(runtime: R) -> (Self, mpsc::UnboundedReceiver<(String, String)>) {
-        let (tx, rx) = mpsc::unbounded_channel();
+        let (tx, rx) = mpsc::unbounded();
         let inner = PoolInner {
             connections: HashMap::new(),
             status_listeners: HashMap::new(),
@@ -62,7 +63,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
         callback: OutputCallback,
     ) -> ConnectionHandle {
         let needs_connect = {
-            let mut inner = self.inner.write().await;
+            let mut inner = self.inner.write();
             let is_new = !inner.connections.contains_key(pod_key);
             let conn = inner
                 .connections
@@ -77,7 +78,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
 
             if !is_new && conn.status == RelayStatus::Connected {
                 if let Some(tx) = &conn.ws_write_tx {
-                    let _ = tx.send(encode_message(MsgType::Resync, &[]));
+                    let _ = tx.unbounded_send(encode_message(MsgType::Resync, &[]));
                 }
             }
             is_new
@@ -94,11 +95,11 @@ impl<R: Runtime> RelayConnectionPool<R> {
             }));
         }
 
-        let inner = self.inner.read().await;
+        let inner = self.inner.read();
         let conn = inner.connections.get(pod_key);
         let write_tx = conn
             .and_then(|c| c.ws_write_tx.clone())
-            .unwrap_or_else(|| mpsc::unbounded_channel().0);
+            .unwrap_or_else(|| mpsc::unbounded().0);
         ConnectionHandle::new(
             pod_key.to_string(),
             subscription_id.to_string(),
@@ -109,7 +110,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
 
     pub async fn unsubscribe(&self, pod_key: &str, subscription_id: &str) {
         let pool = self.inner.clone();
-        let mut inner = pool.write().await;
+        let mut inner = pool.write();
         let Some(conn) = inner.connections.get_mut(pod_key) else {
             return;
         };
@@ -122,7 +123,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
             conn.disconnect_handle = Some(self.runtime.spawn(Box::pin(async move {
                 rt.sleep(std::time::Duration::from_millis(retry::DISCONNECT_DELAY_MS))
                     .await;
-                let mut inner = pool_ref.write().await;
+                let mut inner = pool_ref.write();
                 if let Some(c) = inner.connections.get(pk.as_str()) {
                     if c.subscribers.is_empty() {
                         Self::disconnect_inner(&mut inner, &pk);
@@ -133,7 +134,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
     }
 
     pub async fn send(&self, pod_key: &str, data: &str) {
-        let mut inner = self.inner.write().await;
+        let mut inner = self.inner.write();
         let Some(conn) = inner.connections.get(pod_key) else {
             return;
         };
@@ -161,14 +162,14 @@ impl<R: Runtime> RelayConnectionPool<R> {
         }
 
         let msg = encode_message(MsgType::Input, data.as_bytes());
-        let _ = tx.send(msg);
+        let _ = tx.unbounded_send(msg);
     }
 
     pub async fn send_resize(&self, pod_key: &str, cols: u16, rows: u16) {
         if cols == 0 || rows == 0 {
             return;
         }
-        let mut inner = self.inner.write().await;
+        let mut inner = self.inner.write();
         if let Some(h) = inner.resize_debounce.remove(pod_key) {
             h.abort();
         }
@@ -178,7 +179,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
         let handle = self.runtime.spawn(Box::pin(async move {
             rt.sleep(std::time::Duration::from_millis(retry::RESIZE_DEBOUNCE_MS))
                 .await;
-            let inner = pool.read().await;
+            let inner = pool.read();
             if let Some(conn) = inner.connections.get(&pk) {
                 Self::do_send_resize(conn, cols, rows);
             }
@@ -191,7 +192,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
         pod_key: &str,
         command: &serde_json::Value,
     ) -> Result<(), RelayError> {
-        let inner = self.inner.read().await;
+        let inner = self.inner.read();
         let conn = inner
             .connections
             .get(pod_key)
@@ -201,7 +202,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
             .as_ref()
             .ok_or_else(|| RelayError::NotConnected(pod_key.into()))?;
         let msg = encode_json_message(MsgType::AcpCommand, command)?;
-        tx.send(msg)
+        tx.unbounded_send(msg)
             .map_err(|e| RelayError::Send(e.to_string()))?;
         Ok(())
     }

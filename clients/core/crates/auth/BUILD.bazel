@@ -1,7 +1,7 @@
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 
 # Auth manager — OAuth2 code exchange, refresh-token rotation, org switch.
-# Depends on api-client for HTTP and types for the wire shapes.
+# Refresh-lock uses futures::lock::Mutex; no direct tokio dep.
 rust_library(
     name = "auth",
     srcs = glob(["src/**/*.rs"]),
@@ -11,12 +11,13 @@ rust_library(
     deps = [
         "//clients/core/crates/api-client:api_client",
         "//clients/core/crates/types",
+        "@crates//:futures",
         "@crates//:reqwest",
         "@crates//:serde",
         "@crates//:serde_json",
         "@crates//:thiserror",
-        "@crates//:tokio",
         "@crates//:tracing",
+        "@crates//:web-time",
     ],
 )
 
@@ -25,6 +26,7 @@ rust_test(
     crate = ":auth",
     edition = "2021",
     deps = [
+        "@crates//:tokio",
         "@crates//:tokio-test",
         "@crates//:wiremock",
     ],

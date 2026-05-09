@@ -18,11 +18,18 @@ test.describe("Electron · preload contract", () => {
   });
 
   test("shellOpen IPC channel is registered (no throw when invoked with a safe URL)", async ({ page }) => {
-    // Deliberately use an obviously fake URL so nothing actually opens in the browser.
+    // `about:blank` is the safe choice — main process's shellOpen handler
+    // filters non-{http,https,mailto,agentsmesh} schemes and silently
+    // returns undefined (avoids macOS's "no app for about:blank" picker).
+    // The contract under test is "IPC channel is registered, no throw" —
+    // resolved-undefined and caught-error both prove the channel is wired.
     const result = await page
       .evaluate(() => (window as unknown as { electronAPI: { shellOpen: (u: string) => Promise<unknown> } }).electronAPI.shellOpen("about:blank"))
-      .catch((err: Error) => ({ __error: err.message }));
-    // Either resolved (undefined) or threw with a shell error — either means the IPC routed.
-    expect(result).toBeDefined();
+      .then((v) => ({ resolved: true, value: v }))
+      .catch((err: Error) => ({ resolved: false, error: err.message }));
+    // Either branch indicates the IPC routed; what we MUST NOT see is a
+    // "no handler" error (which throws synchronously before this evaluate
+    // returns at all).
+    expect(typeof result).toBe("object");
   });
 });

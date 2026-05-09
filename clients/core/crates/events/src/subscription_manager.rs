@@ -3,7 +3,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
 use agentsmesh_transport::runtime::{PlatformRuntime, Runtime};
-use tokio::sync::{mpsc, RwLock};
+use futures::channel::mpsc;
+use parking_lot::RwLock;
 
 use crate::event_types::EventType;
 use crate::types::{
@@ -30,7 +31,7 @@ pub struct EventSubscriptionManager<R: Runtime = PlatformRuntime> {
     pub(crate) inner: Arc<RwLock<Inner>>,
     pub(crate) options: EventSubscriptionManagerOptions,
     ws_url: String,
-    shutdown_tx: Option<mpsc::Sender<()>>,
+    shutdown_tx: Option<mpsc::UnboundedSender<()>>,
     runtime: R,
 }
 
@@ -65,12 +66,12 @@ impl<R: Runtime> EventSubscriptionManager<R> {
     }
 
     pub async fn connect(&mut self) {
-        let state = self.inner.read().await.connection_state;
+        let state = self.inner.read().connection_state;
         if state == ConnectionState::Connected || state == ConnectionState::Connecting {
             return;
         }
 
-        let (shutdown_tx, shutdown_rx) = mpsc::channel(1);
+        let (shutdown_tx, shutdown_rx) = mpsc::unbounded();
         self.shutdown_tx = Some(shutdown_tx);
 
         let inner = Arc::clone(&self.inner);
@@ -85,9 +86,9 @@ impl<R: Runtime> EventSubscriptionManager<R> {
 
     pub async fn disconnect(&mut self) {
         if let Some(tx) = self.shutdown_tx.take() {
-            let _ = tx.send(()).await;
+            let _ = tx.unbounded_send(());
         }
-        set_state(&self.inner, ConnectionState::Disconnected).await;
+        set_state(&self.inner, ConnectionState::Disconnected);
     }
 
     pub async fn subscribe(
@@ -96,19 +97,19 @@ impl<R: Runtime> EventSubscriptionManager<R> {
         handler: EventHandler,
     ) -> SubscriptionId {
         let id = next_subscription_id();
-        let mut inner = self.inner.write().await;
+        let mut inner = self.inner.write();
         inner.handlers.entry(event_type).or_default().insert(id, handler);
         id
     }
 
     pub async fn subscribe_all(&self, handler: EventHandler) -> SubscriptionId {
         let id = next_subscription_id();
-        self.inner.write().await.global_handlers.insert(id, handler);
+        self.inner.write().global_handlers.insert(id, handler);
         id
     }
 
     pub async fn unsubscribe(&self, id: SubscriptionId) {
-        let mut inner = self.inner.write().await;
+        let mut inner = self.inner.write();
         for handlers in inner.handlers.values_mut() {
             handlers.remove(&id);
         }
@@ -121,7 +122,7 @@ impl<R: Runtime> EventSubscriptionManager<R> {
         listener: StateListener,
     ) -> SubscriptionId {
         let id = next_subscription_id();
-        let mut inner = self.inner.write().await;
+        let mut inner = self.inner.write();
         let current = inner.connection_state;
         inner.state_listeners.insert(id, Arc::clone(&listener));
         listener(current);
@@ -129,13 +130,13 @@ impl<R: Runtime> EventSubscriptionManager<R> {
     }
 
     pub async fn get_connection_state(&self) -> ConnectionState {
-        self.inner.read().await.connection_state
+        self.inner.read().connection_state
     }
 }
 
-pub(crate) async fn set_state(inner: &Arc<RwLock<Inner>>, state: ConnectionState) {
+pub(crate) fn set_state(inner: &Arc<RwLock<Inner>>, state: ConnectionState) {
     let listeners: Vec<StateListener> = {
-        let mut guard = inner.write().await;
+        let mut guard = inner.write();
         if guard.connection_state == state {
             return;
         }
@@ -147,9 +148,9 @@ pub(crate) async fn set_state(inner: &Arc<RwLock<Inner>>, state: ConnectionState
     }
 }
 
-pub(crate) async fn dispatch_event(inner: &Arc<RwLock<Inner>>, event: &RealtimeEvent) {
+pub(crate) fn dispatch_event(inner: &Arc<RwLock<Inner>>, event: &RealtimeEvent) {
     let (typed, global): (Vec<EventHandler>, Vec<EventHandler>) = {
-        let guard = inner.read().await;
+        let guard = inner.read();
         let typed = guard
             .handlers
             .get(&event.event_type)

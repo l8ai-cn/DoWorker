@@ -1,7 +1,8 @@
 use crate::core::AgentsMeshCore;
 use crate::dto::{
     mark_messages_read_req, DeadLetterListResponseDto, DirectMessageDto,
-    DirectMessageListResponseDto, SendDirectMessageRequestDto, UnreadCountResponseDto,
+    DirectMessageListResponseDto, ReplayDeadLetterResponseDto, SendDirectMessageRequestDto,
+    UnreadCountResponseDto,
 };
 use crate::error::CoreError;
 
@@ -42,16 +43,16 @@ impl AgentsMeshCore {
         Ok(msg.into())
     }
 
-    pub async fn mark_mesh_messages_read(&self, message_ids: Vec<i64>) -> Result<(), CoreError> {
-        self.api
+    pub async fn mark_mesh_messages_read(&self, message_ids: Vec<i64>) -> Result<i64, CoreError> {
+        let resp = self.api
             .mark_mesh_messages_read(&mark_messages_read_req(message_ids))
             .await?;
-        Ok(())
+        Ok(resp.marked_count)
     }
 
-    pub async fn mark_all_mesh_messages_read(&self) -> Result<(), CoreError> {
-        self.api.mark_all_mesh_messages_read().await?;
-        Ok(())
+    pub async fn mark_all_mesh_messages_read(&self) -> Result<i64, CoreError> {
+        let resp = self.api.mark_all_mesh_messages_read().await?;
+        Ok(resp.marked_count)
     }
 
     pub async fn get_mesh_conversation(
@@ -81,8 +82,11 @@ impl AgentsMeshCore {
         Ok(resp.into())
     }
 
-    pub async fn replay_mesh_dead_letter(&self, entry_id: i64) -> Result<(), CoreError> {
-        self.api.replay_mesh_dead_letter(entry_id).await?;
-        Ok(())
+    pub async fn replay_mesh_dead_letter(
+        &self,
+        entry_id: i64,
+    ) -> Result<ReplayDeadLetterResponseDto, CoreError> {
+        let resp = self.api.replay_mesh_dead_letter(entry_id).await?;
+        Ok(resp.into())
     }
 }

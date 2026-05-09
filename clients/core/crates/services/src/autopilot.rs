@@ -155,10 +155,10 @@ impl AutopilotService {
     }
 
     pub async fn fetch_iterations(&self, key: &str) -> Result<String, String> {
-        let resp = self.client
+        let iterations = self.client
             .get_autopilot_iterations(key)
             .await.map_err(crate::wire)?;
-        self.state.write().unwrap().set_iterations(key.to_string(), resp.iterations.clone());
-        serde_json::to_string(&resp.iterations).map_err(crate::wire)
+        self.state.write().unwrap().set_iterations(key.to_string(), iterations.clone());
+        serde_json::to_string(&iterations).map_err(crate::wire)
     }
 }

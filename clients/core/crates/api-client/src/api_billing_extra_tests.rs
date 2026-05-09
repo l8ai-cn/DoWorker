@@ -12,7 +12,7 @@ mod api_billing_extra_tests {
     impl AuthTokenStore for MT {
         fn get_token(&self) -> Option<String> { Some("t".into()) }
         fn get_refresh_token(&self) -> Option<String> { None }
-        fn set_tokens(&self, _: String, _: String) {}
+        fn set_tokens(&self, _: String, _: String, _: Option<i64>) {}
         fn clear_tokens(&self) {}
         fn get_current_org_slug(&self) -> Option<String> { self.org.lock().unwrap().clone() }
     }

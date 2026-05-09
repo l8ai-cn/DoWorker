@@ -3,13 +3,25 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SkillRegistry {
     pub id: i64,
+    pub organization_id: Option<i64>,
     pub repository_url: Option<String>,
     pub branch: Option<String>,
     pub source_type: Option<String>,
+    pub detected_type: Option<String>,
     pub compatible_agents: Option<Vec<String>>,
-    pub is_disabled: Option<bool>,
+    pub auth_type: Option<String>,
     pub last_synced_at: Option<String>,
+    pub last_commit_sha: Option<String>,
+    pub sync_status: Option<String>,
+    pub sync_error: Option<String>,
+    pub skill_count: Option<i64>,
+    pub is_active: Option<bool>,
     pub created_at: Option<String>,
+    pub updated_at: Option<String>,
+    /// Legacy alias for `is_active` — kept readable so older clients sending
+    /// `is_disabled` continue to round-trip during a partial rollout.
+    #[serde(default)]
+    pub is_disabled: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -156,4 +168,48 @@ pub struct RepoSkillInstallListResponse {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RepoMcpServerInstallListResponse {
     pub mcp_servers: Vec<RepoMcpServerInstall>,
+}
+
+#[cfg(test)]
+mod skill_registry_tests {
+    use super::SkillRegistry;
+
+    const BACKEND_PAYLOAD: &str = r#"{
+        "id": 7,
+        "organization_id": 42,
+        "repository_url": "https://github.com/agentsmesh/skills-bundle",
+        "branch": "main",
+        "source_type": "auto",
+        "detected_type": "collection",
+        "compatible_agents": ["claude-code", "codex"],
+        "auth_type": "github_pat",
+        "last_synced_at": "2026-05-09T00:00:00Z",
+        "last_commit_sha": "abc123def456",
+        "sync_status": "success",
+        "skill_count": 12,
+        "is_active": true,
+        "created_at": "2026-05-08T00:00:00Z",
+        "updated_at": "2026-05-09T00:00:00Z"
+    }"#;
+
+    #[test]
+    fn skill_registry_decodes_backend_payload() {
+        let r: SkillRegistry = serde_json::from_str(BACKEND_PAYLOAD).unwrap();
+        assert_eq!(r.id, 7);
+        assert_eq!(r.sync_status.as_deref(), Some("success"));
+        assert_eq!(r.skill_count, Some(12));
+        assert_eq!(r.auth_type.as_deref(), Some("github_pat"));
+        assert_eq!(r.is_active, Some(true));
+    }
+
+    #[test]
+    fn skill_registry_wasm_relay_preserves_ui_fields() {
+        let typed: SkillRegistry = serde_json::from_str(BACKEND_PAYLOAD).unwrap();
+        let relayed = serde_json::to_string(&typed).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&relayed).unwrap();
+        for key in ["sync_status", "auth_type", "skill_count", "is_active",
+                    "last_commit_sha", "detected_type"] {
+            assert!(!parsed[key].is_null(), "field `{key}` dropped by relay");
+        }
+    }
 }

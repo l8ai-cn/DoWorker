@@ -1,78 +1,25 @@
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 
 use agentsmesh_api_client::{ApiClient, AuthTokenStore};
 use wasm_bindgen::prelude::*;
 
-struct WasmTokenStore {
-    token: RwLock<Option<String>>,
-    refresh_token: RwLock<Option<String>>,
-    org_slug: RwLock<Option<String>>,
-}
-
-impl WasmTokenStore {
-    fn new() -> Self {
-        Self {
-            token: RwLock::new(None),
-            refresh_token: RwLock::new(None),
-            org_slug: RwLock::new(None),
-        }
-    }
-}
-
-impl AuthTokenStore for WasmTokenStore {
-    fn get_token(&self) -> Option<String> {
-        self.token.read().unwrap_or_else(|e| e.into_inner()).clone()
-    }
-
-    fn get_refresh_token(&self) -> Option<String> {
-        self.refresh_token.read().unwrap_or_else(|e| e.into_inner()).clone()
-    }
-
-    fn set_tokens(&self, token: String, refresh_token: String) {
-        *self.token.write().unwrap_or_else(|e| e.into_inner()) = Some(token);
-        *self.refresh_token.write().unwrap_or_else(|e| e.into_inner()) = Some(refresh_token);
-    }
-
-    fn clear_tokens(&self) {
-        *self.token.write().unwrap_or_else(|e| e.into_inner()) = None;
-        *self.refresh_token.write().unwrap_or_else(|e| e.into_inner()) = None;
-    }
-
-    fn get_current_org_slug(&self) -> Option<String> {
-        self.org_slug.read().unwrap_or_else(|e| e.into_inner()).clone()
-    }
-}
-
 #[wasm_bindgen]
 pub struct WasmApiClient {
     client: Arc<ApiClient>,
-    token_store: Arc<WasmTokenStore>,
     base_url: String,
 }
 
 #[wasm_bindgen]
 impl WasmApiClient {
+    /// SSOT-aware constructor: ApiClient is wired to AuthManager's token
+    /// store so token writes (login / refresh / bootstrap) reach API calls
+    /// without TS-side `set_token()` glue. There is no other constructor —
+    /// every WasmApiClient is paired with an AuthManager.
     #[wasm_bindgen(constructor)]
-    pub fn new(base_url: String) -> Self {
-        let store = Arc::new(WasmTokenStore::new());
-        let client = Arc::new(ApiClient::new(
-            base_url.clone(),
-            store.clone() as Arc<dyn AuthTokenStore>,
-        ));
-        Self { client, token_store: store, base_url }
-    }
-
-    pub fn set_token(&self, token: String, refresh_token: String) {
-        self.token_store.set_tokens(token, refresh_token);
-    }
-
-    pub fn set_org_slug(&self, slug: String) {
-        *self.token_store.org_slug.write().unwrap_or_else(|e| e.into_inner()) = Some(slug);
-    }
-
-    pub fn clear_auth(&self) {
-        self.token_store.clear_tokens();
-        *self.token_store.org_slug.write().unwrap_or_else(|e| e.into_inner()) = None;
+    pub fn new(base_url: String, auth: &crate::auth::WasmAuthManager) -> Self {
+        let store: Arc<dyn AuthTokenStore> = auth.token_store_arc();
+        let client = Arc::new(ApiClient::new(base_url.clone(), store));
+        Self { client, base_url }
     }
 
     pub fn org_path(&self, path: &str) -> String {
@@ -82,14 +29,6 @@ impl WasmApiClient {
     #[wasm_bindgen(getter)]
     pub fn base_url(&self) -> String {
         self.base_url.clone()
-    }
-
-    pub fn get_token(&self) -> Option<String> {
-        self.token_store.get_token()
-    }
-
-    pub fn get_org_slug(&self) -> Option<String> {
-        self.token_store.get_current_org_slug()
     }
 
     pub async fn get(&self, endpoint: String) -> Result<String, String> {

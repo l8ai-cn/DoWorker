@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use agentsmesh_transport::runtime::{PlatformRuntime, Runtime};
-use tokio::sync::mpsc;
+use futures::channel::mpsc;
 
 use crate::pool::RelayConnectionPool;
 use crate::types::{
@@ -55,9 +55,9 @@ async fn handle_disconnect_sets_status_and_clears_ws() {
     let (pool, _rx) = RelayConnectionPool::new();
     let (cb, _) = make_output_cb();
 
-    let (ws_tx, _ws_rx) = mpsc::unbounded_channel();
+    let (ws_tx, _ws_rx) = mpsc::unbounded();
     {
-        let mut inner = pool.inner.write().await;
+        let mut inner = pool.inner.write();
         let mut conn = ConnectionState::new("ws://relay".into(), "tok".into());
         conn.status = RelayStatus::Connected;
         conn.ws_write_tx = Some(ws_tx);
@@ -84,7 +84,7 @@ async fn notify_status_includes_runner_disconnected() {
     let (cb, _) = make_output_cb();
 
     {
-        let mut inner = pool.inner.write().await;
+        let mut inner = pool.inner.write();
         let mut conn = ConnectionState::new("ws://relay".into(), "tok".into());
         conn.runner_disconnected = true;
         conn.subscribers.insert("s1".to_string(), cb);
@@ -159,11 +159,11 @@ async fn disconnect_inner_removes_all_state() {
     let (pool, _rx) = RelayConnectionPool::new();
     let (cb, _) = make_output_cb();
 
-    let (ws_tx, _ws_rx) = mpsc::unbounded_channel();
+    let (ws_tx, _ws_rx) = mpsc::unbounded();
     let resize_handle =
         rt().spawn(Box::pin(async { tokio::time::sleep(Duration::from_secs(3600)).await }));
     {
-        let mut inner = pool.inner.write().await;
+        let mut inner = pool.inner.write();
         let mut conn = ConnectionState::new("ws://relay".into(), "tok".into());
         conn.ws_write_tx = Some(ws_tx);
         conn.subscribers.insert("s1".to_string(), cb);
@@ -175,7 +175,7 @@ async fn disconnect_inner_removes_all_state() {
     }
 
     {
-        let mut inner = pool.inner.write().await;
+        let mut inner = pool.inner.write();
         RelayConnectionPool::disconnect_inner(&mut inner, "pod1");
         assert!(!inner.connections.contains_key("pod1"));
         assert!(!inner.last_inputs.contains_key("pod1"));
@@ -187,7 +187,7 @@ async fn disconnect_inner_removes_all_state() {
 
 #[tokio::test]
 async fn do_send_resize_sends_to_ws() {
-    let (ws_tx, mut ws_rx) = mpsc::unbounded_channel();
+    let (ws_tx, mut ws_rx) = mpsc::unbounded();
     let mut conn = ConnectionState::<PlatformRuntime>::new("ws://relay".into(), "tok".into());
     conn.ws_write_tx = Some(ws_tx);
 
@@ -207,9 +207,9 @@ fn do_send_resize_no_ws_tx_is_noop() {
 
 #[tokio::test]
 async fn connect_to_invalid_url_returns_error() {
-    let (msg_tx, _) = mpsc::unbounded_channel();
-    let (close_tx, _) = mpsc::unbounded_channel();
-    let (error_tx, _) = mpsc::unbounded_channel();
+    let (msg_tx, _) = mpsc::unbounded();
+    let (close_tx, _) = mpsc::unbounded();
+    let (error_tx, _) = mpsc::unbounded();
 
     let result = crate::connection::connect(
         &rt(),

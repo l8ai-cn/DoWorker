@@ -85,9 +85,6 @@ const stableClient = {
   put: vi.fn().mockResolvedValue('{}'),
   delete: vi.fn().mockResolvedValue('{}'),
   patch: vi.fn().mockResolvedValue('{}'),
-  set_token: vi.fn(),
-  set_org_slug: vi.fn(),
-  clear_auth: vi.fn(),
   org_path: vi.fn((p: string) => `/api/v1/orgs/test-org${p}`),
 };
 

@@ -61,6 +61,8 @@ pub struct AutopilotListResponse {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AutopilotIterationListResponse {
-    pub iterations: Vec<AutopilotIteration>,
+pub struct AutopilotActionResponse {
+    pub status: String,
+    #[serde(default)]
+    pub action: Option<String>,
 }

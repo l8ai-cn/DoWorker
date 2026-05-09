@@ -38,8 +38,8 @@ impl ApiClient {
         self.get_resource(&self.org_path(&format!("/pods/{key}")), "pod").await
     }
 
-    pub async fn create_pod(&self, data: &CreatePodRequest) -> Result<Pod, ApiError> {
-        self.post_resource(&self.org_path("/pods"), data, "pod").await
+    pub async fn create_pod(&self, data: &CreatePodRequest) -> Result<CreatePodResponse, ApiError> {
+        self.post(&self.org_path("/pods"), data).await
     }
 
     pub async fn terminate_pod(&self, key: &str) -> Result<EmptyResponse, ApiError> {

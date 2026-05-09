@@ -12,8 +12,7 @@ struct RefreshRequest {
 struct RefreshResponse {
     token: String,
     refresh_token: String,
-    #[allow(dead_code)]
-    expires_in: Option<u64>,
+    expires_in: Option<i64>,
 }
 
 impl ApiClient {
@@ -43,7 +42,7 @@ impl ApiClient {
         match result {
             Ok(resp) if resp.status().is_success() => match resp.json::<RefreshResponse>().await {
                 Ok(data) => {
-                    self.auth_store.set_tokens(data.token, data.refresh_token);
+                    self.auth_store.set_tokens(data.token, data.refresh_token, data.expires_in);
                     true
                 }
                 Err(e) => {

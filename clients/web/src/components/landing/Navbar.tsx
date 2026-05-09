@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { LanguageSwitcher } from "@/components/i18n";
-import { AuthButtons, Logo } from "@/components/common";
+import { LightAuthButtons as AuthButtons, Logo } from "@/components/common";
 import { useTranslations } from "next-intl";
 
 const GITHUB_URL = "https://github.com/AgentsMesh/AgentsMesh";

@@ -1,6 +1,7 @@
 use crate::core::AgentsMeshCore;
 use crate::dto::{
-    update_pod_alias_req, CreatePodRequestDto, PodConnectionInfoDto, PodDto, PodListResponseDto,
+    update_pod_alias_req, CreatePodRequestDto, CreatePodResponseDto, PodConnectionInfoDto, PodDto,
+    PodListResponseDto,
 };
 use crate::error::CoreError;
 
@@ -29,9 +30,9 @@ impl AgentsMeshCore {
         Ok(pod.into())
     }
 
-    pub async fn create_pod(&self, req: CreatePodRequestDto) -> Result<PodDto, CoreError> {
-        let pod = self.api.create_pod(&req.into()).await?;
-        Ok(pod.into())
+    pub async fn create_pod(&self, req: CreatePodRequestDto) -> Result<CreatePodResponseDto, CoreError> {
+        let resp = self.api.create_pod(&req.into()).await?;
+        Ok(resp.into())
     }
 
     pub async fn terminate_pod(&self, pod_key: String) -> Result<(), CoreError> {

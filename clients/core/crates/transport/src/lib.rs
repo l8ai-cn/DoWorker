@@ -9,7 +9,7 @@ mod wasm;
 
 pub use error::TransportError;
 pub use message::WsMessage;
-pub use runtime::{BoxFuture, PlatformRuntime, Runtime, TaskHandle};
+pub use runtime::{timeout, BoxFuture, Elapsed, PlatformRuntime, Runtime, TaskHandle};
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use native::{WebSocketConnection, WsReceiver, WsSender};

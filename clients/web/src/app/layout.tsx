@@ -1,11 +1,8 @@
-// AgentsMesh Web Frontend
-// Build version marker: 2025-01-20-ci-test
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Space_Grotesk, Manrope } from "next/font/google";
 import { ThemeProvider, ThemeColorMeta } from "@/components/theme";
 import { PWAProvider } from "@/components/pwa";
 import { PostHogProvider } from "@/providers/PostHogProvider";
-import { WasmProvider } from "@/providers/WasmProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
@@ -110,11 +107,9 @@ export default async function RootLayout({
         >
           <PostHogProvider>
             <NextIntlClientProvider locale={locale} messages={messages}>
-              <WasmProvider>
-                <PWAProvider>
-                  {children}
-                </PWAProvider>
-              </WasmProvider>
+              <PWAProvider>
+                {children}
+              </PWAProvider>
             </NextIntlClientProvider>
           </PostHogProvider>
           <ThemeColorMeta />

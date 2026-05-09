@@ -23,8 +23,8 @@ impl AgentsMeshCore {
     }
 
     pub async fn get_runner(&self, id: i64) -> Result<RunnerDto, CoreError> {
-        let runner = self.api.get_runner(id).await?;
-        Ok(runner.into())
+        let resp = self.api.get_runner(id).await?;
+        Ok(resp.runner.into())
     }
 
     pub async fn update_runner(

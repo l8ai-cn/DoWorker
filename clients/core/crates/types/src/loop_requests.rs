@@ -60,4 +60,24 @@ pub struct LoopListResponse {
 pub struct LoopRunListResponse {
     pub runs: Vec<LoopRunData>,
     pub total: Option<i64>,
+    #[serde(default)]
+    pub limit: Option<i64>,
+    #[serde(default)]
+    pub offset: Option<i64>,
+}
+
+#[cfg(test)]
+mod pagination_tests {
+    use super::*;
+
+    #[test]
+    fn run_list_relay_preserves_pagination() {
+        let backend = r#"{"runs":[],"total":120,"limit":25,"offset":50}"#;
+        let typed: LoopRunListResponse = serde_json::from_str(backend).unwrap();
+        let relayed = serde_json::to_string(&typed).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&relayed).unwrap();
+        assert_eq!(parsed["total"], serde_json::json!(120));
+        assert_eq!(parsed["limit"], serde_json::json!(25));
+        assert_eq!(parsed["offset"], serde_json::json!(50));
+    }
 }

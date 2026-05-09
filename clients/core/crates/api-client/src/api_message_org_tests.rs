@@ -16,7 +16,7 @@ mod api_message_org_tests {
     impl AuthTokenStore for Tok {
         fn get_token(&self) -> Option<String> { Some("tok".into()) }
         fn get_refresh_token(&self) -> Option<String> { None }
-        fn set_tokens(&self, _t: String, _r: String) {}
+        fn set_tokens(&self, _t: String, _r: String, _e: Option<i64>) {}
         fn clear_tokens(&self) {}
         fn get_current_org_slug(&self) -> Option<String> { self.0.lock().unwrap().clone() }
     }
@@ -74,7 +74,7 @@ mod api_message_org_tests {
         let s = MockServer::start().await;
         Mock::given(method("POST")).and(path("/api/v1/orgs/acme/messages/mark-read"))
             .and(body_json(json!({"message_ids":[1,2]})))
-            .respond_with(ok(json!({}))).expect(1).mount(&s).await;
+            .respond_with(ok(json!({"marked_count":2}))).expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), Tok::org("acme"));
         let data = agentsmesh_types::MarkMessagesReadRequest { message_ids: vec![1, 2] };
         let _ = c.mark_mesh_messages_read(&data).await.unwrap();
@@ -84,7 +84,7 @@ mod api_message_org_tests {
     async fn mark_all_mesh_messages_read() {
         let s = MockServer::start().await;
         Mock::given(method("POST")).and(path("/api/v1/orgs/acme/messages/mark-all-read"))
-            .respond_with(ok(json!({}))).expect(1).mount(&s).await;
+            .respond_with(ok(json!({"marked_count":0}))).expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), Tok::org("acme"));
         let _ = c.mark_all_mesh_messages_read().await.unwrap();
     }

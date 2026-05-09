@@ -38,17 +38,18 @@ import {
  * `lib/api/base.request`. Every raw HTTP method delegates to node-bridge IPC
  * handlers (`api_get` / `api_post` / ...), which call the shared Rust
  * `ApiClient` with auth token + org slug already bound on the native side.
+ *
+ * Plan I6 SSOT: orgSlug is read from the AuthManager (single source of
+ * truth) instead of being mirrored via `set_org_slug()`. ElectronAuthService
+ * caches the current org locally so `org_path()` stays synchronous.
  */
 class ElectronApiClientProxy {
-  private orgSlug: string | undefined;
-  set_token(_token: string, _refresh: string) {}
-  set_org_slug(slug: string) { this.orgSlug = slug || undefined; }
-  clear_auth() { this.orgSlug = undefined; }
-  get_org_slug(): string | undefined { return this.orgSlug; }
-  get_token(): string | undefined { return undefined; }
+  constructor(private readonly auth: ElectronAuthService) {}
+
   /** Must match Rust `ApiClient::org_path`. */
   org_path(path: string): string {
-    return this.orgSlug ? `/api/v1/orgs/${this.orgSlug}${path}` : `/api/v1${path}`;
+    const slug = this.auth.get_current_org_slug();
+    return slug ? `/api/v1/orgs/${slug}${path}` : `/api/v1${path}`;
   }
 
   async get(endpoint: string): Promise<string> {
@@ -82,10 +83,13 @@ export function createElectronServiceProvider(baseUrl = '') {
   const loopService = new ElectronLoopService();
   const autopilotService = new ElectronAutopilotService();
   const meshService = new ElectronMeshService();
+  // AuthManager is constructed first so ApiClient can borrow it as the org
+  // slug source (Plan I6 SSOT). Order matters here.
+  const authManager = new ElectronAuthService(baseUrl);
 
   return {
-    apiClient: new ElectronApiClientProxy(),
-    authManager: new ElectronAuthService(baseUrl),
+    apiClient: new ElectronApiClientProxy(authManager),
+    authManager,
     podService,
     runnerService,
     ticketService,

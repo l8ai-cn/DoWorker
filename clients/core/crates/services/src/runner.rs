@@ -86,11 +86,11 @@ impl RunnerService {
     }
 
     pub async fn fetch_runner(&self, id: i64) -> Result<String, String> {
-        let runner: Runner = self.client
+        let resp = self.client
             .get_runner(id)
             .await.map_err(crate::wire)?;
-        self.state.write().unwrap().set_current_runner(Some(runner.clone()));
-        serde_json::to_string(&runner).map_err(crate::wire)
+        self.state.write().unwrap().set_current_runner(Some(resp.runner.clone()));
+        serde_json::to_string(&resp).map_err(crate::wire)
     }
 
     pub async fn update_runner(&self, id: i64, request_json: &str) -> Result<String, String> {

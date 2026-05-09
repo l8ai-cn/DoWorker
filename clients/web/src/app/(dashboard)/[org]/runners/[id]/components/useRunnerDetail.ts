@@ -46,7 +46,7 @@ export function useRunnerDetail(t: (key: string) => string, runnerIdArg?: number
   const loadRunner = useCallback(async () => {
     try {
       const res = JSON.parse(await getRunnerService().fetch_runner(BigInt(runnerId)));
-      setRunner(res);
+      setRunner(res.runner);
       setRelayConnections(res.relay_connections || []);
       setLatestRunnerVersion(res.latest_runner_version);
     } catch (error) {

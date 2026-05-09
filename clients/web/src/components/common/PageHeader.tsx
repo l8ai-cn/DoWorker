@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { LanguageSwitcher } from "@/components/i18n";
-import { AuthButtons } from "./AuthButtons";
+import { LightAuthButtons as AuthButtons } from "./LightAuthButtons";
 import { Logo } from "./Logo";
 
 export function PageHeader() {

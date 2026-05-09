@@ -1,5 +1,5 @@
 import initWasm, {
-  version, WasmApiClient, WasmEventsManager, WasmWebSocket,
+  version, WasmApiClient, WasmAuthManager, WasmEventsManager, WasmWebSocket,
   relay_encode_input as _rei, relay_decode_message as _rdm,
   relay_encode_resize as _rer, relay_encode_ping as _rep,
   relay_encode_control as _rec, relay_encode_resync as _rers,
@@ -15,8 +15,11 @@ async function doWasmInit(): Promise<void> {
   await initWasm();
   let baseUrl = getApiBaseUrl();
   if (!baseUrl && typeof window !== "undefined") baseUrl = window.location.origin;
-  const apiClient = new WasmApiClient(baseUrl);
-  registerAll(apiClient, baseUrl);
+  // AuthManager owns the persisted token store; ApiClient borrows it.
+  // Plan I6 (single source of truth) — never two parallel auth instances.
+  const authManager = new WasmAuthManager(baseUrl);
+  const apiClient = new WasmApiClient(baseUrl, authManager);
+  registerAll(apiClient, authManager);
   activateWasmRelayBackend(WasmWebSocket);
   activateWasmEventsBackend(WasmWebSocket);
   markServiceReady();

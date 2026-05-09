@@ -27,6 +27,7 @@ def rust_wasm_library(
         name,
         crate,
         target = "web",
+        tags = None,
         visibility = None):
     """Compile a Rust crate to wasm + JS glue + TypeScript .d.ts.
 
@@ -39,11 +40,16 @@ def rust_wasm_library(
         name: Package name (also used as module prefix).
         crate: Label of the `rust_library(crate_type = "cdylib")` target.
         target: wasm-bindgen target, "web" (default) | "bundler" | "nodejs".
+        tags: Optional tags forwarded to the underlying rule (e.g. ["manual"]
+            to keep the target out of `bazel build //...` until upstream
+            crate manifests support per-triple cfg-gating; see
+            `clients/core/crates/wasm/BUILD.bazel` for the diagnosis).
         visibility: Standard visibility attribute.
     """
     rust_wasm_bindgen(
         name = name,
         target = target,
+        tags = tags,
         wasm_file = crate,
         visibility = visibility or ["//visibility:public"],
     )

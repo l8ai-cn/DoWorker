@@ -1,18 +1,23 @@
 mod api;
-pub mod error;
-pub mod manager;
+mod bootstrap;
+mod error;
+mod manager;
 mod org;
-pub mod state;
-pub mod storage;
+mod state;
+mod storage;
 mod token_store;
+#[cfg(test)]
+mod test_support;
 #[cfg(test)]
 mod auth_session_tests;
 #[cfg(test)]
 mod auth_org_token_tests;
 #[cfg(test)]
 mod auth_api_error_tests;
+#[cfg(test)]
+mod bootstrap_tests;
 
+pub use bootstrap::{BootstrapCleanupReason, BootstrapResult};
 pub use error::AuthError;
 pub use manager::AuthManager;
-pub use state::AuthState;
 pub use storage::PersistentStorage;

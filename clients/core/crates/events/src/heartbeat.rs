@@ -1,7 +1,8 @@
 use std::time::Duration;
 
 use agentsmesh_transport::runtime::{PlatformRuntime, Runtime, TaskHandle};
-use tokio::sync::mpsc;
+use futures::channel::mpsc;
+use futures::stream::StreamExt;
 use tracing::{debug, warn};
 
 pub(crate) enum HeartbeatCommand {
@@ -17,7 +18,7 @@ pub(crate) enum HeartbeatEvent {
 pub(crate) struct HeartbeatManager<R: Runtime = PlatformRuntime> {
     ping_interval: Duration,
     pong_timeout: Duration,
-    cmd_tx: Option<mpsc::Sender<HeartbeatCommand>>,
+    cmd_tx: Option<mpsc::UnboundedSender<HeartbeatCommand>>,
     task: Option<R::TaskHandle>,
     runtime: R,
 }
@@ -40,9 +41,9 @@ impl<R: Runtime> HeartbeatManager<R> {
         }
     }
 
-    pub fn start(&mut self, event_tx: mpsc::Sender<HeartbeatEvent>) {
+    pub fn start(&mut self, event_tx: mpsc::UnboundedSender<HeartbeatEvent>) {
         self.stop();
-        let (cmd_tx, cmd_rx) = mpsc::channel(16);
+        let (cmd_tx, cmd_rx) = mpsc::unbounded();
         self.cmd_tx = Some(cmd_tx);
 
         let ping_interval = self.ping_interval;
@@ -56,7 +57,7 @@ impl<R: Runtime> HeartbeatManager<R> {
 
     pub fn stop(&mut self) {
         if let Some(tx) = self.cmd_tx.take() {
-            let _ = tx.try_send(HeartbeatCommand::Stop);
+            let _ = tx.unbounded_send(HeartbeatCommand::Stop);
         }
         if let Some(task) = self.task.take() {
             task.abort();
@@ -65,7 +66,7 @@ impl<R: Runtime> HeartbeatManager<R> {
 
     pub fn pong_received(&self) {
         if let Some(tx) = &self.cmd_tx {
-            let _ = tx.try_send(HeartbeatCommand::PongReceived);
+            let _ = tx.unbounded_send(HeartbeatCommand::PongReceived);
         }
     }
 }
@@ -76,47 +77,57 @@ impl<R: Runtime> Drop for HeartbeatManager<R> {
     }
 }
 
+// Race a runtime sleep against a single command-channel recv. Returns the
+// command if it arrived first, or None if the timer fired.
+async fn recv_with_timeout<R: Runtime>(
+    runtime: &R,
+    duration: Duration,
+    cmd_rx: &mut mpsc::UnboundedReceiver<HeartbeatCommand>,
+) -> Option<Option<HeartbeatCommand>> {
+    use futures::future::{select, Either};
+    let sleep = runtime.sleep(duration);
+    let recv = cmd_rx.next();
+    futures::pin_mut!(sleep);
+    futures::pin_mut!(recv);
+    match select(sleep, recv).await {
+        Either::Left((_, _)) => None,
+        Either::Right((cmd, _)) => Some(cmd),
+    }
+}
+
 async fn heartbeat_loop<R: Runtime>(
     runtime: R,
     ping_interval: Duration,
     pong_timeout: Duration,
-    mut cmd_rx: mpsc::Receiver<HeartbeatCommand>,
-    event_tx: mpsc::Sender<HeartbeatEvent>,
+    mut cmd_rx: mpsc::UnboundedReceiver<HeartbeatCommand>,
+    event_tx: mpsc::UnboundedSender<HeartbeatEvent>,
 ) {
     runtime.sleep(ping_interval).await;
 
     loop {
-        if event_tx.send(HeartbeatEvent::SendPing).await.is_err() {
+        if event_tx.unbounded_send(HeartbeatEvent::SendPing).is_err() {
             break;
         }
         debug!("heartbeat: sending ping");
 
         // Wait for pong with timeout
-        tokio::select! {
-            _ = runtime.sleep(pong_timeout) => {
+        match recv_with_timeout(&runtime, pong_timeout, &mut cmd_rx).await {
+            None => {
                 warn!("heartbeat: pong timeout");
-                let _ = event_tx.send(HeartbeatEvent::PongTimeout).await;
+                let _ = event_tx.unbounded_send(HeartbeatEvent::PongTimeout);
                 break;
             }
-            cmd = cmd_rx.recv() => {
-                match cmd {
-                    Some(HeartbeatCommand::PongReceived) => {
-                        debug!("heartbeat: pong received");
-                    }
-                    Some(HeartbeatCommand::Stop) | None => break,
-                }
+            Some(Some(HeartbeatCommand::PongReceived)) => {
+                debug!("heartbeat: pong received");
             }
+            Some(Some(HeartbeatCommand::Stop)) | Some(None) => break,
         }
 
         // Wait for next ping interval, watching for stop
-        tokio::select! {
-            _ = runtime.sleep(ping_interval) => {}
-            cmd = cmd_rx.recv() => {
-                match cmd {
-                    Some(HeartbeatCommand::Stop) | None => break,
-                    Some(HeartbeatCommand::PongReceived) => {}
-                }
-            }
+        match recv_with_timeout(&runtime, ping_interval, &mut cmd_rx).await {
+            None => {}
+            Some(Some(HeartbeatCommand::Stop)) | Some(None) => break,
+            Some(Some(HeartbeatCommand::PongReceived)) => {}
         }
     }
 }
@@ -128,10 +139,10 @@ mod tests {
     #[tokio::test]
     async fn test_heartbeat_sends_ping() {
         let mut hb = HeartbeatManager::new(100, 5000);
-        let (event_tx, mut event_rx) = mpsc::channel(16);
+        let (event_tx, mut event_rx) = mpsc::unbounded();
         hb.start(event_tx);
 
-        match tokio::time::timeout(Duration::from_millis(300), event_rx.recv()).await {
+        match tokio::time::timeout(Duration::from_millis(300), event_rx.next()).await {
             Ok(Some(HeartbeatEvent::SendPing)) => {}
             other => panic!("expected SendPing, got {:?}", other.is_ok()),
         }
@@ -141,14 +152,14 @@ mod tests {
     #[tokio::test]
     async fn test_heartbeat_pong_timeout() {
         let mut hb = HeartbeatManager::new(200, 50);
-        let (event_tx, mut event_rx) = mpsc::channel(16);
+        let (event_tx, mut event_rx) = mpsc::unbounded();
         hb.start(event_tx);
 
-        match tokio::time::timeout(Duration::from_millis(500), event_rx.recv()).await {
+        match tokio::time::timeout(Duration::from_millis(500), event_rx.next()).await {
             Ok(Some(HeartbeatEvent::SendPing)) => {}
             _ => panic!("expected SendPing first"),
         }
-        match tokio::time::timeout(Duration::from_millis(300), event_rx.recv()).await {
+        match tokio::time::timeout(Duration::from_millis(300), event_rx.next()).await {
             Ok(Some(HeartbeatEvent::PongTimeout)) => {}
             other => panic!("expected PongTimeout, got {:?}", other.is_ok()),
         }
@@ -157,13 +168,13 @@ mod tests {
     #[tokio::test]
     async fn test_heartbeat_pong_clears_timeout() {
         let mut hb = HeartbeatManager::new(50, 80);
-        let (event_tx, mut event_rx) = mpsc::channel(16);
+        let (event_tx, mut event_rx) = mpsc::unbounded();
         hb.start(event_tx);
 
-        let _ = event_rx.recv().await; // SendPing
+        let _ = event_rx.next().await; // SendPing
         hb.pong_received();
 
-        match tokio::time::timeout(Duration::from_millis(200), event_rx.recv()).await {
+        match tokio::time::timeout(Duration::from_millis(200), event_rx.next()).await {
             Ok(Some(HeartbeatEvent::SendPing)) => {}
             other => panic!("expected second SendPing, got {:?}", other.is_ok()),
         }
@@ -173,11 +184,11 @@ mod tests {
     #[tokio::test]
     async fn test_heartbeat_stop() {
         let mut hb = HeartbeatManager::new(50, 50);
-        let (event_tx, mut event_rx) = mpsc::channel(16);
+        let (event_tx, mut event_rx) = mpsc::unbounded();
         hb.start(event_tx);
         hb.stop();
 
         tokio::time::sleep(Duration::from_millis(100)).await;
-        assert!(event_rx.try_recv().is_err());
+        assert!(event_rx.try_next().is_err() || event_rx.try_next().unwrap().is_none());
     }
 }

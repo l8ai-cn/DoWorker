@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import type { OrganizationData } from "@/lib/api/organization";
 
 interface AuthFormProps {
-  authToken: string | null;
+  isAuthenticated: boolean;
   userEmail?: string;
   authKey: string;
   organizations: OrganizationData[] | null;
@@ -19,7 +19,7 @@ interface AuthFormProps {
 }
 
 export function AuthForm({
-  authToken, userEmail, authKey, organizations, selectedOrg,
+  isAuthenticated, userEmail, authKey, organizations, selectedOrg,
   onSelectOrg, nodeIdInput, onNodeIdChange, authorizing, onAuthorize,
   error, t, tCommon,
 }: AuthFormProps) {
@@ -44,7 +44,7 @@ export function AuthForm({
         <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">{error}</div>
       )}
 
-      {!authToken || !userEmail ? (
+      {!isAuthenticated || !userEmail ? (
         <UnauthenticatedPrompt authKey={authKey} t={t} />
       ) : (
         <AuthenticatedForm

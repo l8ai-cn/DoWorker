@@ -187,7 +187,7 @@ async fn test_subscribe_receives_dispatched_event() {
     let _id = mgr.subscribe(EventType::PodCreated, handler).await;
 
     let event = make_event(EventType::PodCreated);
-    crate::subscription_manager::dispatch_event(&mgr.inner, &event).await;
+    crate::subscription_manager::dispatch_event(&mgr.inner, &event);
 
     assert_eq!(counter.load(Ordering::SeqCst), 1);
 }
@@ -205,8 +205,8 @@ async fn test_subscribe_all_receives_any_event() {
 
     let evt1 = make_event(EventType::PodCreated);
     let evt2 = make_event(EventType::RunnerOnline);
-    crate::subscription_manager::dispatch_event(&mgr.inner, &evt1).await;
-    crate::subscription_manager::dispatch_event(&mgr.inner, &evt2).await;
+    crate::subscription_manager::dispatch_event(&mgr.inner, &evt1);
+    crate::subscription_manager::dispatch_event(&mgr.inner, &evt2);
 
     assert_eq!(counter.load(Ordering::SeqCst), 2);
 }
@@ -224,7 +224,7 @@ async fn test_unsubscribe_stops_delivery() {
     mgr.unsubscribe(id).await;
 
     let event = make_event(EventType::PodCreated);
-    crate::subscription_manager::dispatch_event(&mgr.inner, &event).await;
+    crate::subscription_manager::dispatch_event(&mgr.inner, &event);
 
     assert_eq!(counter.load(Ordering::SeqCst), 0);
 }

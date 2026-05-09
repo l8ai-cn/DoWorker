@@ -10,7 +10,7 @@ public struct CoreClient: Sendable {
     public var login: @Sendable (_ email: String, _ password: String) async throws -> AuthSessionDto
     public var logout: @Sendable () async throws -> Void
     public var isAuthenticated: @Sendable () -> Bool
-    public var restoreSession: @Sendable () throws -> Bool
+    public var bootstrap: @Sendable () async throws -> BootstrapResultDto
     public var currentUser: @Sendable () -> UserDto?
     public var currentOrg: @Sendable () -> OrganizationDto?
     public var fetchOrganizations: @Sendable () async throws -> [OrganizationDto]
@@ -19,7 +19,7 @@ public struct CoreClient: Sendable {
     // ── Workspace (Pods + Runners)
     public var listPods: @Sendable (_ status: String?) async throws -> PodListResponseDto
     public var getPod: @Sendable (_ key: String) async throws -> PodDto
-    public var createPod: @Sendable (_ req: CreatePodRequestDto) async throws -> PodDto
+    public var createPod: @Sendable (_ req: CreatePodRequestDto) async throws -> CreatePodResponseDto
     public var terminatePod: @Sendable (_ key: String) async throws -> Void
     public var getPodRelayConnection: @Sendable (_ key: String) async throws -> PodConnectionInfoDto
     public var listRunners: @Sendable () async throws -> RunnerListResponseDto
@@ -62,7 +62,7 @@ extension CoreClient: DependencyKey {
             },
             logout: { try await core().logout() },
             isAuthenticated: { core().isAuthenticated() },
-            restoreSession: { try core().restoreSession() },
+            bootstrap: { try await core().bootstrap() },
             currentUser: { core().getCurrentUser() },
             currentOrg: { core().getCurrentOrg() },
             fetchOrganizations: { try await core().fetchOrganizations() },
@@ -118,7 +118,7 @@ extension CoreClient: DependencyKey {
         login: unimplemented("CoreClient.login"),
         logout: unimplemented("CoreClient.logout"),
         isAuthenticated: unimplemented("CoreClient.isAuthenticated", placeholder: false),
-        restoreSession: unimplemented("CoreClient.restoreSession", placeholder: false),
+        bootstrap: unimplemented("CoreClient.bootstrap", placeholder: .anonymous),
         currentUser: unimplemented("CoreClient.currentUser", placeholder: nil),
         currentOrg: unimplemented("CoreClient.currentOrg", placeholder: nil),
         fetchOrganizations: unimplemented("CoreClient.fetchOrganizations"),

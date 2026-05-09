@@ -14,8 +14,8 @@ impl ApiClient {
     pub async fn create_api_key(
         &self,
         data: &CreateApiKeyRequest,
-    ) -> Result<ApiKey, ApiError> {
-        self.post_resource(&self.org_path("/api-keys"), data, "api_key").await
+    ) -> Result<CreateApiKeyResponse, ApiError> {
+        self.post(&self.org_path("/api-keys"), data).await
     }
 
     pub async fn update_api_key(

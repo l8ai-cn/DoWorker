@@ -34,9 +34,18 @@ public struct AppFeature {
             switch action {
             case .onLaunch:
                 return .run { send in
-                    let restored = (try? core.restoreSession()) ?? false
-                    if restored {
+                    // Bootstrap = read storage + verify token + fetch identity
+                    // in one round-trip. Returns a strongly-typed
+                    // BootstrapResult enum — pattern match on the variant
+                    // to decide login vs dashboard.
+                    let result = (try? await core.bootstrap()) ?? .anonymous
+                    let restored: Bool
+                    switch result {
+                    case .authenticated:
+                        restored = true
                         _ = try? await core.fetchOrganizations()
+                    case .anonymous, .anonymousAfterCleanup:
+                        restored = false
                     }
                     await send(.sessionRestored(restored))
                 }

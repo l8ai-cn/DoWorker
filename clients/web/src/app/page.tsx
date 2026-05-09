@@ -3,7 +3,6 @@
 import { useEffect, useMemo } from "react";
 
 import { useRouter } from "next/navigation";
-import { useCurrentUser, useCurrentOrg, useAuthStore } from "@/stores/auth";
 import {
   Navbar,
   HeroSection,
@@ -15,16 +14,16 @@ import {
   Footer,
 } from "@/components/landing";
 import { getDefaultRoute } from "@/lib/default-route";
+import { useLightSession } from "@/hooks/useLightSession";
 
 export default function Home() {
   const router = useRouter();
-  const user = useCurrentUser();
-  const currentOrg = useCurrentOrg();
-  const _hasHydrated = useAuthStore((s) => s._hasHydrated);
+  const { session, hydrated } = useLightSession();
 
   // Determine if we should redirect based on auth state
   const shouldRedirect = useMemo(() => {
-    if (!_hasHydrated) return false;
+    if (!hydrated) return false;
+    if (!session?.isAuthenticated || !session.currentOrgSlug) return false;
 
     // Check if user navigated from within the site (internal navigation)
     // If referrer is from the same origin, user intentionally visited landing page
@@ -32,20 +31,20 @@ export default function Home() {
       const referrer = document.referrer;
       const isInternalNavigation = referrer && new URL(referrer).origin === window.location.origin;
       // Only redirect if user is authenticated with an org and came from external source
-      return !!(user && currentOrg && !isInternalNavigation);
+      return !isInternalNavigation;
     }
     return false;
-  }, [_hasHydrated, user, currentOrg]);
+  }, [hydrated, session]);
 
   // Handle redirect in effect
   useEffect(() => {
-    if (shouldRedirect && currentOrg) {
-      router.replace(getDefaultRoute(currentOrg.slug));
+    if (shouldRedirect && session?.currentOrgSlug) {
+      router.replace(getDefaultRoute(session.currentOrgSlug));
     }
-  }, [shouldRedirect, currentOrg, router]);
+  }, [shouldRedirect, session, router]);
 
   // Show loading state while hydrating or redirecting
-  if (!_hasHydrated || shouldRedirect) {
+  if (!hydrated || shouldRedirect) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />

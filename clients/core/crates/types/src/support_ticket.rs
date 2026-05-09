@@ -40,6 +40,13 @@ pub struct SupportTicketListResponse {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SupportTicketDetailResponse {
+    pub ticket: SupportTicket,
+    #[serde(default)]
+    pub messages: Vec<SupportTicketMessage>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AttachmentUrlResponse {
     pub url: String,
 }

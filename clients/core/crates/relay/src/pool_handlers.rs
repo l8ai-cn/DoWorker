@@ -17,7 +17,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
             }
         };
 
-        let mut inner = self.inner.write().await;
+        let mut inner = self.inner.write();
         let Some(conn) = inner.connections.get_mut(pod_key) else {
             return;
         };
@@ -66,7 +66,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
     }
 
     pub async fn on_status_change(&self, pod_key: &str, listener: StatusCallback) {
-        let mut inner = self.inner.write().await;
+        let mut inner = self.inner.write();
         let info = inner
             .connections
             .get(pod_key)
@@ -87,7 +87,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
     }
 
     pub async fn on_acp_message(&self, pod_key: &str, listener: AcpCallback) {
-        let mut inner = self.inner.write().await;
+        let mut inner = self.inner.write();
         inner
             .acp_listeners
             .entry(pod_key.to_string())
@@ -98,7 +98,6 @@ impl<R: Runtime> RelayConnectionPool<R> {
     pub async fn get_status(&self, pod_key: &str) -> RelayStatus {
         self.inner
             .read()
-            .await
             .connections
             .get(pod_key)
             .map(|c| c.status)
@@ -108,7 +107,6 @@ impl<R: Runtime> RelayConnectionPool<R> {
     pub async fn is_runner_disconnected(&self, pod_key: &str) -> bool {
         self.inner
             .read()
-            .await
             .connections
             .get(pod_key)
             .map(|c| c.runner_disconnected)
@@ -118,14 +116,13 @@ impl<R: Runtime> RelayConnectionPool<R> {
     pub async fn get_pod_size(&self, pod_key: &str) -> Option<(u16, u16)> {
         self.inner
             .read()
-            .await
             .connections
             .get(pod_key)
             .and_then(|c| c.pod_size)
     }
 
     pub async fn disconnect(&self, pod_key: &str) {
-        let mut inner = self.inner.write().await;
+        let mut inner = self.inner.write();
         Self::disconnect_inner(&mut inner, pod_key);
     }
 
@@ -133,7 +130,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
         if cols == 0 || rows == 0 {
             return;
         }
-        let mut inner = self.inner.write().await;
+        let mut inner = self.inner.write();
         if let Some(h) = inner.resize_debounce.remove(pod_key) {
             h.abort();
         }
@@ -143,7 +140,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
     }
 
     pub async fn disconnect_all(&self) {
-        let mut inner = self.inner.write().await;
+        let mut inner = self.inner.write();
         let keys: Vec<_> = inner.connections.keys().cloned().collect();
         for key in keys {
             Self::disconnect_inner(&mut inner, &key);
@@ -152,7 +149,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
 
     pub(crate) fn do_send_resize(conn: &ConnectionState<R>, cols: u16, rows: u16) {
         if let Some(tx) = &conn.ws_write_tx {
-            let _ = tx.send(agentsmesh_protocol::encode_resize(cols, rows));
+            let _ = tx.unbounded_send(agentsmesh_protocol::encode_resize(cols, rows));
         }
     }
 

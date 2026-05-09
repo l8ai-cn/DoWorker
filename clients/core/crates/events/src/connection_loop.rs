@@ -2,7 +2,10 @@ use std::sync::Arc;
 
 use agentsmesh_transport::runtime::Runtime;
 use agentsmesh_transport::{WebSocketConnection, WsMessage, WsReceiver, WsSender};
-use tokio::sync::{mpsc, RwLock};
+use futures::channel::mpsc;
+use futures::stream::StreamExt;
+use futures::FutureExt;
+use parking_lot::RwLock;
 use tracing::{debug, error, info, warn};
 
 use crate::event_types::EventType;
@@ -36,7 +39,7 @@ pub(crate) async fn connection_loop<R: Runtime>(
     inner: Arc<RwLock<Inner>>,
     url: String,
     opts: ManagerOpts,
-    mut shutdown_rx: mpsc::Receiver<()>,
+    mut shutdown_rx: mpsc::UnboundedReceiver<()>,
 ) {
     let mut reconnect_policy = ReconnectPolicy::new(
         opts.initial_reconnect_delay_ms,
@@ -45,7 +48,7 @@ pub(crate) async fn connection_loop<R: Runtime>(
     );
 
     loop {
-        set_state(&inner, ConnectionState::Connecting).await;
+        set_state(&inner, ConnectionState::Connecting);
         info!("events: connecting to {}", url);
 
         let conn = match WebSocketConnection::connect(&url).await {
@@ -61,7 +64,7 @@ pub(crate) async fn connection_loop<R: Runtime>(
             }
         };
 
-        set_state(&inner, ConnectionState::Connected).await;
+        set_state(&inner, ConnectionState::Connected);
         reconnect_policy.reset();
         info!("events: connected");
 
@@ -71,7 +74,7 @@ pub(crate) async fn connection_loop<R: Runtime>(
 
         if !reconnect::should_reconnect(close_code) {
             debug!("events: clean close (1000), not reconnecting");
-            set_state(&inner, ConnectionState::Disconnected).await;
+            set_state(&inner, ConnectionState::Disconnected);
             break;
         }
 
@@ -87,9 +90,9 @@ async fn run_session<R: Runtime>(
     sender: WsSender,
     receiver: &mut WsReceiver,
     opts: &ManagerOpts,
-    shutdown_rx: &mut mpsc::Receiver<()>,
+    shutdown_rx: &mut mpsc::UnboundedReceiver<()>,
 ) -> Option<u16> {
-    let (hb_event_tx, mut hb_event_rx) = mpsc::channel(16);
+    let (hb_event_tx, mut hb_event_rx) = mpsc::unbounded();
     let mut heartbeat =
         HeartbeatManager::with_runtime(runtime.clone(), opts.ping_interval_ms, opts.pong_timeout_ms);
     heartbeat.start(hb_event_tx);
@@ -97,11 +100,16 @@ async fn run_session<R: Runtime>(
     let close_code: Option<u16>;
 
     loop {
-        tokio::select! {
-            result = receiver.recv() => {
+        // `receiver.recv()` borrows `receiver` mutably; recreate per iteration
+        // so the unfinished future is dropped on every other arm's completion.
+        let recv_fut = receiver.recv().fuse();
+        futures::pin_mut!(recv_fut);
+
+        futures::select! {
+            result = recv_fut => {
                 match result {
                     Ok(WsMessage::Text(text)) => {
-                        handle_text_message(inner, &mut heartbeat, &text).await;
+                        handle_text_message(inner, &mut heartbeat, &text);
                     }
                     Ok(WsMessage::Close(code)) => {
                         close_code = code;
@@ -111,7 +119,7 @@ async fn run_session<R: Runtime>(
                     _ => {}
                 }
             }
-            hb_event = hb_event_rx.recv() => {
+            hb_event = hb_event_rx.next() => {
                 match hb_event {
                     Some(HeartbeatEvent::SendPing) => {
                         if !send_ping(&sender) { close_code = None; break; }
@@ -125,7 +133,7 @@ async fn run_session<R: Runtime>(
                     None => { close_code = None; break; }
                 }
             }
-            _ = shutdown_rx.recv() => {
+            _ = shutdown_rx.next() => {
                 sender.close();
                 close_code = Some(1000);
                 break;
@@ -137,7 +145,7 @@ async fn run_session<R: Runtime>(
     close_code
 }
 
-async fn handle_text_message<R: Runtime>(
+fn handle_text_message<R: Runtime>(
     inner: &Arc<RwLock<Inner>>,
     heartbeat: &mut HeartbeatManager<R>,
     text: &str,
@@ -148,7 +156,7 @@ async fn handle_text_message<R: Runtime>(
             if event.event_type == EventType::Pong {
                 heartbeat.pong_received();
             } else {
-                dispatch_event(inner, &event).await;
+                dispatch_event(inner, &event);
             }
         }
         Err(e) => warn!("events: parse error: {}", e),
@@ -168,28 +176,30 @@ async fn schedule_reconnect<R: Runtime>(
     runtime: &R,
     inner: &Arc<RwLock<Inner>>,
     policy: &mut ReconnectPolicy,
-    shutdown_rx: &mut mpsc::Receiver<()>,
+    shutdown_rx: &mut mpsc::UnboundedReceiver<()>,
 ) -> bool {
     match policy.next_delay() {
         Some(delay) => {
-            set_state(inner, ConnectionState::Reconnecting).await;
+            set_state(inner, ConnectionState::Reconnecting);
             info!(
                 "events: reconnecting in {:?} (attempt {}/{})",
                 delay,
                 policy.attempts(),
                 policy.max_attempts()
             );
-            tokio::select! {
-                _ = runtime.sleep(delay) => true,
-                _ = shutdown_rx.recv() => {
-                    set_state(inner, ConnectionState::Disconnected).await;
+            let sleep_fut = runtime.sleep(delay).fuse();
+            futures::pin_mut!(sleep_fut);
+            futures::select! {
+                _ = sleep_fut => true,
+                _ = shutdown_rx.next() => {
+                    set_state(inner, ConnectionState::Disconnected);
                     false
                 }
             }
         }
         None => {
             error!("events: max reconnect attempts reached");
-            set_state(inner, ConnectionState::Disconnected).await;
+            set_state(inner, ConnectionState::Disconnected);
             false
         }
     }

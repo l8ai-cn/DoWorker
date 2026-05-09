@@ -36,43 +36,36 @@ function OAuthCallbackContent() {
       }
 
       try {
-        // First, set the token so subsequent API calls work
-        // We'll get user info from the API
+        // Set the token first so ApiClient can include it in /users/me.
+        // This placeholder is overwritten with the real user as soon as
+        // getMe() succeeds — but if anything below throws, we MUST run
+        // logout() in catch to wipe it. Leaving a placeholder with token
+        // but invalid identity is what the v0.31 onboarding-loop bug
+        // was about.
         setAuth(token, { id: 0, email: "", username: "" }, refreshToken || undefined);
 
-        // Get user info
         const userResponse = await userApi.getMe();
         const user = userResponse.user;
-
-        // Update auth with actual user info
         setAuth(token, user, refreshToken || undefined);
 
-        // Get organizations
-        try {
-          const orgsResponse = await organizationApi.list();
-          if (orgsResponse.organizations && orgsResponse.organizations.length > 0) {
-            setOrganizations(orgsResponse.organizations);
-            setStatus("success");
-
-            // Redirect to first org's dashboard
-            setTimeout(() => {
-              router.push(`/${orgsResponse.organizations[0].slug}/workspace`);
-            }, 1500);
-          } else {
-            // No organizations, redirect to onboarding
-            setStatus("success");
-            setTimeout(() => {
-              router.push("/onboarding");
-            }, 1500);
-          }
-        } catch {
-          // Failed to get orgs, redirect to onboarding
+        const orgsResponse = await organizationApi.list();
+        if (orgsResponse.organizations && orgsResponse.organizations.length > 0) {
+          setOrganizations(orgsResponse.organizations);
+          setStatus("success");
+          setTimeout(() => {
+            router.push(`/${orgsResponse.organizations[0].slug}/workspace`);
+          }, 1500);
+        } else {
           setStatus("success");
           setTimeout(() => {
             router.push("/onboarding");
           }, 1500);
         }
       } catch (err: unknown) {
+        // Wipe the placeholder auth before surfacing the error — otherwise
+        // RootRedirect on the next mount would still see a token and route
+        // back to dashboard, creating an infinite loop.
+        useAuthStore.getState().logout();
         setStatus("error");
         if (err instanceof Error) {
           setErrorMessage(err.message);

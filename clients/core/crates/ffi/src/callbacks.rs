@@ -3,7 +3,6 @@ pub trait StorageCallback: Send + Sync {
     fn get(&self, key: String) -> Option<String>;
     fn set(&self, key: String, value: String);
     fn remove(&self, key: String);
-    fn clear(&self);
 }
 
 #[uniffi::export(callback_interface)]

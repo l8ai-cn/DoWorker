@@ -1,39 +1,12 @@
 #[cfg(test)]
 mod auth_api_error_tests {
-    use std::collections::HashMap;
-    use std::sync::{Arc, Mutex};
-
     use wiremock::matchers::{method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
     use crate::manager::AuthManager;
     use crate::state::AuthState;
     use crate::storage::PersistentStorage;
-
-    struct InMemoryStorage {
-        data: Mutex<HashMap<String, String>>,
-    }
-
-    impl InMemoryStorage {
-        fn new() -> Arc<Self> {
-            Arc::new(Self { data: Mutex::new(HashMap::new()) })
-        }
-    }
-
-    impl PersistentStorage for InMemoryStorage {
-        fn get(&self, key: &str) -> Option<String> {
-            self.data.lock().unwrap().get(key).cloned()
-        }
-        fn set(&self, key: &str, value: &str) {
-            self.data.lock().unwrap().insert(key.into(), value.into());
-        }
-        fn remove(&self, key: &str) {
-            self.data.lock().unwrap().remove(key);
-        }
-        fn clear(&self) {
-            self.data.lock().unwrap().clear();
-        }
-    }
+    use crate::test_support::InMemoryStorage;
 
     fn session_json() -> serde_json::Value {
         serde_json::json!({
@@ -194,53 +167,107 @@ mod auth_api_error_tests {
             status: 404, message: "not found".into(), code: Some("NOT_FOUND".into()),
         };
         assert_eq!(server.to_string(), "server error: 404 - not found");
-
-        let storage = crate::AuthError::Storage("disk full".into());
-        assert_eq!(storage.to_string(), "storage error: disk full");
     }
 
     #[test]
     fn auth_state_clear() {
-        let mut state = AuthState {
-            token: Some("t".into()),
-            refresh_token: Some("r".into()),
-            user: Some(agentsmesh_types::User {
+        let mut state = AuthState::default();
+        let session = agentsmesh_types::AuthSession {
+            token: "t".into(),
+            refresh_token: "r".into(),
+            user: agentsmesh_types::User {
                 id: 1, email: "e".into(), username: "u".into(),
-                name: None, avatar_url: None,
-            }),
-            current_org: None,
-            organizations: vec![],
+                name: None, avatar_url: None, is_email_verified: None,
+            },
+            expires_in: Some(3600), message: None,
         };
+        state.apply_session(&session, "http://localhost", 1000);
+        assert!(state.session.is_some());
+        assert!(state.user.is_some());
         state.clear();
-        assert!(state.token.is_none());
+        assert!(state.session.is_none());
         assert!(state.user.is_none());
     }
 
     #[test]
-    fn auth_state_apply_session() {
+    fn auth_state_apply_session_writes_persisted() {
         let mut state = AuthState::default();
         let session = agentsmesh_types::AuthSession {
             token: "t".into(), refresh_token: "r".into(),
             user: agentsmesh_types::User {
                 id: 1, email: "e".into(), username: "u".into(),
-                name: None, avatar_url: None,
+                name: None, avatar_url: None, is_email_verified: None,
             },
-            expires_in: None,
+            expires_in: Some(7200),
+            message: None,
         };
-        state.apply_session(&session);
-        assert_eq!(state.token, Some("t".into()));
+        state.apply_session(&session, "http://example", 1000);
+        let s = state.session.as_ref().unwrap();
+        assert_eq!(s.access_token, "t");
+        assert_eq!(s.refresh_token, "r");
+        assert_eq!(s.base_url, "http://example");
+        assert_eq!(s.expires_at, 1000 + 7200);
         assert_eq!(state.user.as_ref().unwrap().id, 1);
     }
 
     #[test]
-    fn auth_state_apply_tokens() {
+    fn auth_state_apply_tokens_updates_existing_session() {
+        let mut state = AuthState::default();
+        // 先 apply_session 建立 session
+        let session = agentsmesh_types::AuthSession {
+            token: "t1".into(), refresh_token: "r1".into(),
+            user: agentsmesh_types::User {
+                id: 1, email: "e".into(), username: "u".into(),
+                name: None, avatar_url: None, is_email_verified: None,
+            },
+            expires_in: Some(3600), message: None,
+        };
+        state.apply_session(&session, "http://example", 1000);
+
+        let tokens = agentsmesh_types::AuthTokens {
+            token: "t2".into(),
+            refresh_token: "r2".into(),
+            expires_in: Some(7200),
+        };
+        state.apply_tokens(&tokens, "http://example", 5000);
+        let s = state.session.as_ref().unwrap();
+        assert_eq!(s.access_token, "t2");
+        assert_eq!(s.refresh_token, "r2");
+        assert_eq!(s.expires_at, 5000 + 7200);
+        // user 不应被 apply_tokens 改写
+        assert_eq!(state.user.as_ref().unwrap().id, 1);
+    }
+
+    #[test]
+    fn auth_state_apply_tokens_creates_session_if_missing() {
         let mut state = AuthState::default();
         let tokens = agentsmesh_types::AuthTokens {
-            token: "new-t".into(), refresh_token: "new-r".into(), expires_in: Some(3600),
+            token: "t".into(),
+            refresh_token: "r".into(),
+            expires_in: None,
         };
-        state.apply_tokens(&tokens);
-        assert_eq!(state.token, Some("new-t".into()));
-        assert_eq!(state.refresh_token, Some("new-r".into()));
+        state.apply_tokens(&tokens, "http://x", 100);
+        let s = state.session.as_ref().unwrap();
+        assert_eq!(s.access_token, "t");
+        assert_eq!(s.expires_at, 100 + 3600);
+    }
+
+    #[test]
+    fn url_slug_normalizes_host() {
+        use crate::state::url_slug;
+        assert_eq!(url_slug("https://API.AgentsMesh.AI"), "https_api_agentsmesh_ai");
+        assert_eq!(
+            url_slug("https://agentsmesh.ai/"),
+            url_slug("https://agentsmesh.ai")
+        );
+        assert_ne!(
+            url_slug("https://agentsmesh.ai"),
+            url_slug("http://agentsmesh.ai")
+        );
+        assert_ne!(
+            url_slug("http://localhost:10000"),
+            url_slug("http://localhost:10050")
+        );
     }
 
     #[test]
@@ -253,11 +280,5 @@ mod auth_api_error_tests {
 
         storage.remove("key");
         assert!(storage.get("key").is_none());
-
-        storage.set("a", "1");
-        storage.set("b", "2");
-        storage.clear();
-        assert!(storage.get("a").is_none());
-        assert!(storage.get("b").is_none());
     }
 }

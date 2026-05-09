@@ -15,7 +15,7 @@ mod api_pod_runner_tests {
     impl AuthTokenStore for Tok {
         fn get_token(&self) -> Option<String> { Some("tok".into()) }
         fn get_refresh_token(&self) -> Option<String> { None }
-        fn set_tokens(&self, _t: String, _r: String) {}
+        fn set_tokens(&self, _t: String, _r: String, _e: Option<i64>) {}
         fn clear_tokens(&self) {}
         fn get_current_org_slug(&self) -> Option<String> { self.0.lock().unwrap().clone() }
     }
@@ -54,7 +54,7 @@ mod api_pod_runner_tests {
     async fn create_pod() {
         let s = MockServer::start().await;
         Mock::given(method("POST")).and(path("/api/v1/orgs/acme/pods"))
-            .respond_with(ok(pod_json("pod-new", "creating")))
+            .respond_with(ok(json!({"pod": pod_json("pod-new", "creating")})))
             .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), Tok::org("acme"));
         let data = agentsmesh_types::CreatePodRequest {
@@ -64,7 +64,7 @@ mod api_pod_runner_tests {
             resume_agent_session: None, perpetual: None,
         };
         let r = c.create_pod(&data).await.unwrap();
-        assert_eq!(r.key, "pod-new");
+        assert_eq!(r.pod.key, "pod-new");
     }
 
     #[tokio::test]
@@ -121,10 +121,11 @@ mod api_pod_runner_tests {
     async fn get_runner() {
         let s = MockServer::start().await;
         Mock::given(method("GET")).and(path("/api/v1/orgs/acme/runners/3"))
-            .respond_with(ok(runner_json(3))).expect(1).mount(&s).await;
+            .respond_with(ok(json!({"runner": runner_json(3)})))
+            .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), Tok::org("acme"));
         let r = c.get_runner(3).await.unwrap();
-        assert_eq!(r.id, 3);
+        assert_eq!(r.runner.id, 3);
     }
 
     #[tokio::test]

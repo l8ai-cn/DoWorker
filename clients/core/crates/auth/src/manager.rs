@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use agentsmesh_types::{Organization, User};
 
 use crate::error::AuthError;
-use crate::state::{AuthState, STORAGE_KEY};
+use crate::state::{session_storage_key, AuthState};
 use crate::storage::PersistentStorage;
 
 pub struct AuthManager {
@@ -11,6 +11,13 @@ pub struct AuthManager {
     pub(crate) storage: Arc<dyn PersistentStorage>,
     pub(crate) base_url: String,
     pub(crate) http: reqwest::Client,
+    /// Serializes concurrent calls to `refresh_token()` within this
+    /// process. Plan I6 invariant: bootstrap-triggered refresh and any
+    /// other in-flight refresh on the same `AuthManager` must not race.
+    /// Cross-process contention (e.g. two web tabs) is mediated by the
+    /// server's one-shot refresh-token rotation: whichever side loses
+    /// the race gets a 401 and lands on cleanup.
+    pub(crate) refresh_lock: futures::lock::Mutex<()>,
 }
 
 impl AuthManager {
@@ -20,73 +27,124 @@ impl AuthManager {
             storage,
             base_url: base_url.trim_end_matches('/').to_string(),
             http: reqwest::Client::new(),
+            refresh_lock: futures::lock::Mutex::new(()),
         }
     }
 
+    pub fn base_url(&self) -> &str {
+        &self.base_url
+    }
+
+    pub(crate) fn session_key(&self) -> String {
+        session_storage_key(&self.base_url)
+    }
+
     pub fn is_authenticated(&self) -> bool {
-        self.state.read().unwrap_or_else(|e| e.into_inner()).token.is_some()
+        let state = self.read_state();
+        match state.session.as_ref() {
+            Some(s) => s.expires_at > now_unix_secs(),
+            None => false,
+        }
+    }
+
+    /// Unix-seconds expiry of the current access token, or `None` if no
+    /// session is loaded. Exposed so platform adapters can mirror the
+    /// expiry locally and avoid recomputing it across IPC.
+    pub fn expires_at(&self) -> Option<i64> {
+        self.read_state().session.as_ref().map(|s| s.expires_at)
     }
 
     pub fn current_user(&self) -> Option<User> {
-        self.state.read().unwrap_or_else(|e| e.into_inner()).user.clone()
+        self.read_state().user.clone()
     }
 
-    /// Replace the organizations list. Promotes first to current_org if none set.
+    /// Replace the in-memory organizations list. If no current_org is
+    /// set, auto-promotes the first one (mirroring its slug into the
+    /// persisted session blob via `set_current_org`). Organizations
+    /// themselves are never persisted (per I2 — only `current_org_slug`
+    /// is, as a hint for the next bootstrap).
     pub fn replace_organizations(&self, orgs: Vec<Organization>) {
-        {
-            let mut s = self.state.write().unwrap_or_else(|e| e.into_inner());
+        let promote = {
+            let mut s = self.write_state();
             s.organizations = orgs.clone();
             if s.current_org.is_none() {
-                if let Some(first) = orgs.into_iter().next() {
-                    s.current_org = Some(first);
-                }
+                orgs.into_iter().next()
+            } else {
+                None
+            }
+        };
+        if let Some(first) = promote {
+            self.set_current_org(Some(first));
+        }
+    }
+
+    /// Set or clear the current organization. Mirrors the slug into the
+    /// persisted session blob so the next bootstrap restores the same
+    /// selection. Used by both internal flows (bootstrap auto-select,
+    /// switch_org) and external entry points (OAuth callback hydrate
+    /// from web/desktop, after the renderer already has the org payload).
+    pub fn set_current_org(&self, org: Option<Organization>) {
+        {
+            let mut s = self.write_state();
+            s.current_org = org.clone();
+            if let Some(sess) = s.session.as_mut() {
+                sess.current_org_slug = org.as_ref().map(|o| o.slug.clone());
             }
         }
         self.persist();
     }
 
-    /// Set or clear current organization (None clears).
-    pub fn set_current_org_direct(&self, org: Option<Organization>) {
-        self.state.write().unwrap_or_else(|e| e.into_inner()).current_org = org;
-        self.persist();
-    }
-
-    /// Clear entire auth state (token, user, orgs). Persists cleared state.
     pub fn clear(&self) {
-        self.state.write().unwrap_or_else(|e| e.into_inner()).clear();
-        self.persist();
+        self.reset_local();
     }
 
-    pub fn restore_session(&self) -> Result<bool, AuthError> {
-        let json = match self.storage.get(STORAGE_KEY) {
-            Some(v) => v,
-            None => return Ok(false),
-        };
-
-        let restored: AuthState = serde_json::from_str(&json)
-            .map_err(|e| AuthError::Storage(e.to_string()))?;
-
-        if restored.token.is_none() {
-            return Ok(false);
-        }
-
-        *self.state.write().unwrap_or_else(|e| e.into_inner()) = restored;
-        Ok(true)
+    /// Single source of truth for "drop everything we know locally":
+    /// in-memory session/user/org state + the on-disk session blob.
+    /// All four entry points (`clear`, `clear_tokens`, `logout`, bootstrap
+    /// `cleanup`) funnel through this so the two-step (memory + storage)
+    /// reset can never drift between callers.
+    pub(crate) fn reset_local(&self) {
+        self.write_state().clear();
+        self.storage.remove(&self.session_key());
     }
 
     pub(crate) fn persist(&self) {
-        let state = self.state.read().unwrap_or_else(|e| e.into_inner());
-        if let Ok(json) = serde_json::to_string(&*state) {
-            self.storage.set(STORAGE_KEY, &json);
+        let state = self.read_state();
+        let Some(session) = state.session.as_ref() else {
+            return;
+        };
+        if let Ok(json) = serde_json::to_string(session) {
+            self.storage.set(&self.session_key(), &json);
         }
     }
 
     pub(crate) fn bearer_header(&self) -> Result<String, AuthError> {
-        let state = self.state.read().unwrap_or_else(|e| e.into_inner());
+        let state = self.read_state();
         state
-            .token
+            .session
             .as_ref()
-            .map(|t| format!("Bearer {t}"))
+            .map(|s| format!("Bearer {}", s.access_token))
             .ok_or(AuthError::NotAuthenticated)
     }
+
+    /// Poison-tolerant read guard. Production code never recovers from a
+    /// panic that left the lock poisoned, so reading the snapshot is
+    /// always safe — the alternative (panic-propagate) is worse for IPC
+    /// callers since the napi/wasm boundary surfaces it as an opaque
+    /// runtime error. Centralized so all readers handle poison the same way.
+    pub(crate) fn read_state(&self) -> std::sync::RwLockReadGuard<'_, AuthState> {
+        self.state.read().unwrap_or_else(|e| e.into_inner())
+    }
+
+    pub(crate) fn write_state(&self) -> std::sync::RwLockWriteGuard<'_, AuthState> {
+        self.state.write().unwrap_or_else(|e| e.into_inner())
+    }
+}
+
+pub(crate) fn now_unix_secs() -> i64 {
+    use web_time::{SystemTime, UNIX_EPOCH};
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0)
 }

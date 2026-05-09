@@ -1,7 +1,8 @@
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 
-# Entity events WebSocket client. Depends on transport for the connection
-# layer and types for the event schema.
+# Entity events WebSocket client. Uses futures::channel::mpsc + parking_lot::RwLock
+# (runtime-agnostic, wasm-friendly); time/spawn go through transport's Runtime
+# abstraction. Tokio remains as a test-only dep for #[tokio::test].
 rust_library(
     name = "events",
     srcs = glob(["src/**/*.rs"]),
@@ -11,10 +12,12 @@ rust_library(
     deps = [
         "//clients/core/crates/transport",
         "//clients/core/crates/types",
+        "@crates//:futures",
+        "@crates//:futures-channel",
+        "@crates//:parking_lot",
         "@crates//:serde",
         "@crates//:serde_json",
         "@crates//:thiserror",
-        "@crates//:tokio",
         "@crates//:tracing",
         "@crates//:web-time",
     ],
@@ -24,4 +27,7 @@ rust_test(
     name = "events_test",
     crate = ":events",
     edition = "2021",
+    deps = [
+        "@crates//:tokio",
+    ],
 )

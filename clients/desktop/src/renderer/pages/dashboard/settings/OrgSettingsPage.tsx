@@ -78,7 +78,10 @@ function PersonalGeneralSettings() {
 
   const handleLogout = () => {
     logout();
-    router.push("/login");
+    // Hard reload — clears in-memory Zustand state for workspace / channels /
+    // pods / etc. so a subsequent login doesn't inherit stale caches from
+    // the previous account.
+    window.location.reload();
   };
 
   return (

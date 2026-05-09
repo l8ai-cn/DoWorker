@@ -22,7 +22,7 @@ mod api_core_tests {
     impl AuthTokenStore for MockTokenStore {
         fn get_token(&self) -> Option<String> { Some("tok".into()) }
         fn get_refresh_token(&self) -> Option<String> { None }
-        fn set_tokens(&self, _t: String, _r: String) {}
+        fn set_tokens(&self, _t: String, _r: String, _e: Option<i64>) {}
         fn clear_tokens(&self) {}
         fn get_current_org_slug(&self) -> Option<String> {
             self.org_slug.lock().unwrap().clone()
@@ -268,7 +268,7 @@ mod api_core_tests {
         let s = MockServer::start().await;
         Mock::given(method("POST"))
             .and(path("/api/v1/orgs/acme/autopilot-controllers/ctrl-1/pause"))
-            .respond_with(ok(json!({})))
+            .respond_with(ok(json!({"status":"ok"})))
             .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), MockTokenStore::with_org("acme"));
         let _ = c.pause_autopilot("ctrl-1").await.unwrap();
@@ -518,7 +518,7 @@ mod api_core_tests {
     async fn get_support_ticket_detail() {
         let s = MockServer::start().await;
         Mock::given(method("GET")).and(path("/api/v1/support-tickets/42"))
-            .respond_with(ok(json!({"id":42,"title":"help"})))
+            .respond_with(ok(json!({"ticket":{"id":42,"title":"help"},"messages":[]})))
             .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), MockTokenStore::no_org());
         let _ = c.get_support_ticket_detail(42).await.unwrap();

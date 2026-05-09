@@ -7,8 +7,8 @@ use crate::types::{
     ConnectionState, EventHandler, EventSubscriptionManagerOptions, PingMessage, RealtimeEvent,
 };
 use crate::EventType;
+use parking_lot::RwLock;
 use std::collections::HashMap;
-use tokio::sync::RwLock;
 
 fn make_inner() -> Arc<RwLock<Inner>> {
     Arc::new(RwLock::new(Inner {
@@ -78,13 +78,13 @@ async fn set_state_transitions_and_notifies() {
     });
 
     {
-        let mut guard = inner.write().await;
+        let mut guard = inner.write();
         guard
             .state_listeners
             .insert(crate::types::SubscriptionId(1), listener);
     }
 
-    set_state(&inner, ConnectionState::Connecting).await;
+    set_state(&inner, ConnectionState::Connecting);
     let states = received.lock().unwrap();
     assert_eq!(states.len(), 1);
     assert_eq!(states[0], ConnectionState::Connecting);
@@ -100,14 +100,14 @@ async fn set_state_same_state_is_noop() {
     });
 
     {
-        let mut guard = inner.write().await;
+        let mut guard = inner.write();
         guard
             .state_listeners
             .insert(crate::types::SubscriptionId(1), listener);
     }
 
     // inner starts as Disconnected; setting to Disconnected again should not notify
-    set_state(&inner, ConnectionState::Disconnected).await;
+    set_state(&inner, ConnectionState::Disconnected);
     assert_eq!(counter.load(Ordering::SeqCst), 0);
 }
 
@@ -123,7 +123,7 @@ async fn dispatch_event_calls_typed_handler() {
     });
 
     {
-        let mut guard = inner.write().await;
+        let mut guard = inner.write();
         guard
             .handlers
             .entry(EventType::PodCreated)
@@ -140,7 +140,7 @@ async fn dispatch_event_calls_typed_handler() {
     }))
     .unwrap();
 
-    dispatch_event(&inner, &event).await;
+    dispatch_event(&inner, &event);
     assert_eq!(counter.load(Ordering::SeqCst), 1);
 }
 
@@ -154,7 +154,7 @@ async fn dispatch_event_calls_global_handler() {
     });
 
     {
-        let mut guard = inner.write().await;
+        let mut guard = inner.write();
         guard
             .global_handlers
             .insert(crate::types::SubscriptionId(1), handler);
@@ -169,7 +169,7 @@ async fn dispatch_event_calls_global_handler() {
     }))
     .unwrap();
 
-    dispatch_event(&inner, &event).await;
+    dispatch_event(&inner, &event);
     assert_eq!(counter.load(Ordering::SeqCst), 1);
 }
 
@@ -190,7 +190,7 @@ async fn dispatch_event_calls_both_typed_and_global() {
     });
 
     {
-        let mut guard = inner.write().await;
+        let mut guard = inner.write();
         guard
             .handlers
             .entry(EventType::TicketCreated)
@@ -210,7 +210,7 @@ async fn dispatch_event_calls_both_typed_and_global() {
     }))
     .unwrap();
 
-    dispatch_event(&inner, &event).await;
+    dispatch_event(&inner, &event);
     assert_eq!(typed_count.load(Ordering::SeqCst), 1);
     assert_eq!(global_count.load(Ordering::SeqCst), 1);
 }
@@ -228,5 +228,5 @@ async fn dispatch_event_no_matching_handler_is_noop() {
     .unwrap();
 
     // no handlers registered — should not panic
-    dispatch_event(&inner, &event).await;
+    dispatch_event(&inner, &event);
 }

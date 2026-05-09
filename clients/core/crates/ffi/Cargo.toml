@@ -1,23 +1,9 @@
+# NOTE: This file exists *only* to satisfy uniffi's `#[uniffi::export]`
+# proc-macro, which reads `package.name` at compile time via
+# `$CARGO_MANIFEST_DIR/Cargo.toml`. Bazel is the SSOT for the actual
+# build graph (deps come from BUILD.bazel, version is irrelevant).
+# Do NOT add dependencies here — they will be silently ignored.
 [package]
 name = "agentsmesh-ffi"
-description = "FFI layer: UniFFI (Swift/Kotlin) + WASM bindgen"
-version.workspace = true
-edition.workspace = true
-
-[lib]
-# staticlib → iOS XCFramework; cdylib → desktop dynamic linking;
-# rlib → downstream Rust crates (tests, integration crates).
-crate-type = ["staticlib", "cdylib", "rlib"]
-
-[dependencies]
-agentsmesh-types = { workspace = true }
-agentsmesh-api-client = { workspace = true }
-agentsmesh-auth = { workspace = true }
-agentsmesh-protocol = { workspace = true }
-agentsmesh-services = { workspace = true }
-agentsmesh-state = { workspace = true }
-uniffi = { workspace = true, features = ["tokio"] }
-serde = { workspace = true }
-serde_json = { workspace = true }
-thiserror = { workspace = true }
-tokio = { workspace = true }
+version = "0.1.0"
+edition = "2021"

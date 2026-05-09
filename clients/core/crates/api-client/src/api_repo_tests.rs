@@ -16,7 +16,7 @@ mod api_repo_tests {
     impl AuthTokenStore for Tok {
         fn get_token(&self) -> Option<String> { Some("tok".into()) }
         fn get_refresh_token(&self) -> Option<String> { None }
-        fn set_tokens(&self, _t: String, _r: String) {}
+        fn set_tokens(&self, _t: String, _r: String, _e: Option<i64>) {}
         fn clear_tokens(&self) {}
         fn get_current_org_slug(&self) -> Option<String> { self.0.lock().unwrap().clone() }
     }

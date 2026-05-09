@@ -1,13 +1,9 @@
 use std::sync::Arc;
 
+use futures::lock::Mutex;
 use reqwest::{Client, Method};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-
-#[cfg(not(target_arch = "wasm32"))]
-use tokio::sync::Mutex;
-#[cfg(target_arch = "wasm32")]
-use futures::lock::Mutex;
 
 use crate::error::ApiError;
 use crate::request::RequestOptions;

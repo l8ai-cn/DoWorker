@@ -164,12 +164,12 @@ impl PodService {
     pub async fn create_pod(&self, request_json: &str) -> Result<String, String> {
         let req: CreatePodRequest = serde_json::from_str(request_json)
             .map_err(crate::wire)?;
-        let pod: Pod = self.client
+        let resp = self.client
             .create_pod(&req)
             .await
             .map_err(crate::wire)?;
-        self.state.write().unwrap().upsert_pod(pod.clone(), None);
-        serde_json::to_string(&pod).map_err(crate::wire)
+        self.state.write().unwrap().upsert_pod(resp.pod.clone(), None);
+        serde_json::to_string(&resp).map_err(crate::wire)
     }
 
     pub async fn terminate_pod(&self, pod_key: &str) -> Result<(), String> {

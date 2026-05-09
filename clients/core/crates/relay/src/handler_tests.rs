@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use agentsmesh_protocol::{encode_message, MsgType};
 use agentsmesh_transport::runtime::{PlatformRuntime, Runtime};
-use tokio::sync::mpsc;
+use futures::channel::mpsc;
 
 use crate::error::RelayError;
 use crate::pool::RelayConnectionPool;
@@ -20,7 +20,7 @@ async fn insert_with_subscriber(
     pod: &str,
     cb: OutputCallback,
 ) {
-    let mut inner = pool.inner.write().await;
+    let mut inner = pool.inner.write();
     let mut conn = ConnectionState::new("ws://relay".into(), "tok".into());
     conn.subscribers.insert("test-sub".to_string(), cb);
     inner.connections.insert(pod.to_string(), conn);
@@ -60,7 +60,7 @@ async fn handle_snapshot_sets_state() {
     let msgs = received.lock().unwrap();
     assert_eq!(msgs.len(), 2);
 
-    let inner = pool.inner.read().await;
+    let inner = pool.inner.read();
     let conn = inner.connections.get("pod1").unwrap();
     assert!(conn.snapshot_received);
     assert_eq!(conn.pod_size, Some((80, 24)));
@@ -89,7 +89,7 @@ async fn handle_snapshot_aborts_snapshot_handle() {
         tokio::time::sleep(std::time::Duration::from_secs(3600)).await;
     }));
     {
-        let mut inner = pool.inner.write().await;
+        let mut inner = pool.inner.write();
         inner.connections.get_mut("pod1").unwrap().snapshot_handle = Some(handle);
     }
 
@@ -97,7 +97,7 @@ async fn handle_snapshot_aborts_snapshot_handle() {
     let data = encode_message(MsgType::Snapshot, &serde_json::to_vec(&json).unwrap());
     pool.handle_ws_message("pod1", &data).await;
 
-    let inner = pool.inner.read().await;
+    let inner = pool.inner.read();
     assert!(inner.connections.get("pod1").unwrap().snapshot_handle.is_none());
 }
 
@@ -246,8 +246,8 @@ async fn get_pod_size_default() {
 
 #[tokio::test]
 async fn connection_handle_send_delivers() {
-    let (tx, mut rx) = mpsc::unbounded_channel();
-    let (unsub_tx, _) = mpsc::unbounded_channel();
+    let (tx, mut rx) = mpsc::unbounded();
+    let (unsub_tx, _) = mpsc::unbounded();
     let h = ConnectionHandle::new("pod1".into(), "s1".into(), tx, unsub_tx);
     h.send(vec![1, 2, 3]);
     assert_eq!(rx.recv().await.unwrap(), vec![1, 2, 3]);
@@ -255,8 +255,8 @@ async fn connection_handle_send_delivers() {
 
 #[tokio::test]
 async fn connection_handle_unsubscribe_sends_pair() {
-    let (tx, _) = mpsc::unbounded_channel();
-    let (unsub_tx, mut unsub_rx) = mpsc::unbounded_channel();
+    let (tx, _) = mpsc::unbounded();
+    let (unsub_tx, mut unsub_rx) = mpsc::unbounded();
     let h = ConnectionHandle::new("pod1".into(), "s1".into(), tx, unsub_tx);
     h.unsubscribe();
     let (pk, sid) = unsub_rx.recv().await.unwrap();

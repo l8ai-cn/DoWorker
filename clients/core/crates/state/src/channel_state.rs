@@ -83,7 +83,7 @@ impl ChannelState {
                     // Only update ID, preserve existing user if ID matches
                     self.current_user = Some(User {
                         id, email: String::new(), username: String::new(),
-                        name: None, avatar_url: None,
+                        name: None, avatar_url: None, is_email_verified: None,
                     });
                 }
             }

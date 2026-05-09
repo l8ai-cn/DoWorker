@@ -1,7 +1,7 @@
 import { test, expect } from "../../fixtures";
 import { LoginPage } from "../../pages/login.page";
-import { resolve } from "node:path";
-import { rmSync } from "node:fs";
+import { resolve, join } from "node:path";
+import { rmSync, existsSync, readdirSync, statSync } from "node:fs";
 
 // Fresh profile so the GitHub button click never lands on a dashboard
 // (would happen if a session restore from a previous test bled in).
@@ -101,5 +101,26 @@ test.describe("Auth · OAuth deep link", () => {
     const hash = await page.evaluate(() => window.location.hash);
     expect(hash).toContain(`token=${TOKEN}`);
     expect(hash).toContain(`refresh_token=${REFRESH}`);
+
+    // R6 regression guard: even though the deep-link delivers a token,
+    // the renderer's getMe() call against this fake token will 401, and
+    // the catch handler MUST run logout(). If it doesn't, a placeholder
+    // session file gets persisted and the user is trapped in
+    // /onboarding loop on next mount.
+    await page.waitForTimeout(2000);
+    const userData = await electronApp.evaluate(({ app }) => app.getPath("userData")) as string;
+    const namespaceRoot = join(userData, "agentsmesh", "agentsmesh-auth");
+    const walk = (root: string): string[] => {
+      if (!existsSync(root)) return [];
+      const out: string[] = [];
+      for (const name of readdirSync(root)) {
+        const p = join(root, name);
+        if (statSync(p).isDirectory()) out.push(...walk(p));
+        else if (statSync(p).isFile() && name === "session.json") out.push(p);
+      }
+      return out;
+    };
+    const sessionFiles = walk(namespaceRoot);
+    expect(sessionFiles.length, "OAuth callback failure must not leave a placeholder session file").toBe(0);
   });
 });

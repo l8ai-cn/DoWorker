@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks -- Playwright fixtures use function
    arguments named `use` which happen to trigger the React Hooks rule. */
 import { test as base, expect, BrowserContext, Page } from "@playwright/test";
-import { getApiBaseUrl, TEST_USER, TEST_ORG_SLUG } from "../helpers/env";
+import { getApiBaseUrl, getWebBaseUrl, TEST_USER, TEST_ORG_SLUG } from "../helpers/env";
 
 // E2E fixtures for Block Store specs. Provides:
 //   - `token` / `workspaceID`: authenticated session + default workspace id
@@ -241,10 +241,17 @@ async function installApiProxy(target: BrowserContext | Page): Promise<void> {
 
 // Inject the JWT into localStorage before Next.js boots so the Rust auth
 // manager (clients/core/crates/auth/src/state.rs) restores from storage and
-// hydrates as logged-in on first render. The key + shape match Rust's
-// AuthState — flat snake_case JSON, NOT zustand's wrapped {state, version}
-// envelope. Mismatches produce a `missing field 'organizations'` storage
-// error and the page hangs on the loading spinner.
+// hydrates as logged-in on first render. Storage is namespaced per
+// `base_url`: `agentsmesh-auth/<url_slug>/session`. The slug derivation
+// (`http_localhost_25357` from `http://localhost:25357`) mirrors Rust's
+// `url_slug()` in state.rs — non-alphanumerics → `_`, max 64 chars.
+function urlSlug(url: string): string {
+  const u = new URL(url);
+  const port = u.port ? `_${u.port}` : "";
+  const raw = `${u.protocol.replace(":", "")}_${u.hostname.toLowerCase()}${port}`;
+  return raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64);
+}
+
 async function seedAuth(target: BrowserContext | Page, token: string): Promise<void> {
   const me = await fetch(`${API_BASE}/api/v1/users/me`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -254,18 +261,29 @@ async function seedAuth(target: BrowserContext | Page, token: string): Promise<v
   }).then((r) => r.json());
   const current = (orgs.organizations ?? []).find((o: { slug: string }) => o.slug === ORG_SLUG);
 
+  // Page-side base_url is window.location.origin (the web port, not the API
+  // port) — that's what wasm-core.ts feeds into `new WasmAuthManager(baseUrl)`.
+  // Storage key + base_url field must agree, otherwise bootstrap's
+  // BaseUrlMismatch cleanup wipes the session and the test redirects to /login.
+  const webOrigin = getWebBaseUrl();
+  const storageKey = `agentsmesh-auth/${urlSlug(webOrigin)}/session`;
+
   await target.addInitScript(
-    ({ tok, user, org }) => {
-      const authState = {
-        token: tok,
-        refresh_token: null,
-        user,
-        current_org: org,
-        organizations: org ? [org] : [],
+    ({ tok, user, org, key, baseUrl }) => {
+      const session = {
+        access_token: tok,
+        refresh_token: "",
+        // Long-lived: 24 h matches the JWT exp the dev backend hands out.
+        // bootstrap's `near-expiry` lead is 60 s, so we never trigger refresh.
+        expires_at: Math.floor(Date.now() / 1000) + 86400,
+        base_url: baseUrl,
+        user_id: user?.id ?? 0,
+        current_org_slug: org?.slug ?? null,
+        schema_version: 1,
       };
-      window.localStorage.setItem("agentsmesh-auth", JSON.stringify(authState));
+      window.localStorage.setItem(key, JSON.stringify(session));
     },
-    { tok: token, user: me.user, org: current },
+    { tok: token, user: me.user, org: current, key: storageKey, baseUrl: webOrigin },
   );
 }
 

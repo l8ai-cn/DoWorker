@@ -1,5 +1,6 @@
 use agentsmesh_types::{
-    CreatePodRequest, Pod, PodAgentInfo, PodConnectionInfo, PodCreatedByInfo, PodListResponse,
+    CreatePodRequest, CreatePodResponse, Pod, PodAgentInfo, PodConnectionInfo, PodCreatedByInfo,
+    PodListResponse,
     PodLoopInfo, PodRepositoryInfo, PodRunnerInfo, PodStatus, PodTicketInfo, UpdatePodAliasRequest,
 };
 
@@ -276,6 +277,21 @@ impl From<PodListResponse> for PodListResponseDto {
         Self {
             pods: r.pods.into_iter().map(PodDto::from).collect(),
             total: r.total,
+        }
+    }
+}
+
+#[derive(Clone, Debug, uniffi::Record)]
+pub struct CreatePodResponseDto {
+    pub pod: PodDto,
+    pub warning: Option<String>,
+}
+
+impl From<CreatePodResponse> for CreatePodResponseDto {
+    fn from(r: CreatePodResponse) -> Self {
+        Self {
+            pod: r.pod.into(),
+            warning: r.warning,
         }
     }
 }

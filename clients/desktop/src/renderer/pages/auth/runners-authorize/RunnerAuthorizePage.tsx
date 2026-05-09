@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { useAuthStore } from "@/stores/auth";
+import { useAuthStore, useCurrentUser, useAuthOrganizations, useIsAuthenticated } from "@/stores/auth";
 import { runnerAuthApi, RunnerAuthStatus } from "@/lib/api/runner";
 import { organizationApi, OrganizationData } from "@/lib/api/organization";
 import { ApiError } from "@/lib/api/api-types";
@@ -17,7 +17,11 @@ export function RunnerAuthorizePage() {
   const searchParams = useSearchParams();
   const authKey = searchParams.get("key");
 
-  const { token: authToken, user, organizations, setOrganizations, _hasHydrated } = useAuthStore();
+  const setOrganizations = useAuthStore((s) => s.setOrganizations);
+  const _hasHydrated = useAuthStore((s) => s._hasHydrated);
+  const user = useCurrentUser();
+  const organizations = useAuthOrganizations();
+  const isAuthenticated = useIsAuthenticated();
 
   const [authStatus, setAuthStatus] = useState<RunnerAuthStatus | null>(null);
   const [selectedOrg, setSelectedOrg] = useState<OrganizationData | null>(null);
@@ -38,17 +42,17 @@ export function RunnerAuthorizePage() {
   }, [authKey, t]);
 
   const fetchOrganizations = useCallback(async () => {
-    if (!authToken) return;
+    if (!isAuthenticated) return;
     try {
       const { organizations: orgs } = await organizationApi.list();
       setOrganizations(orgs);
       const adminOrg = orgs.find((org) => org.subscription_status === "active" || org.subscription_plan);
       setSelectedOrg(adminOrg || orgs[0] || null);
     } catch { /* ignore */ }
-  }, [authToken, setOrganizations]);
+  }, [isAuthenticated, setOrganizations]);
 
   useEffect(() => { fetchAuthStatus(); }, [fetchAuthStatus]);
-  useEffect(() => { if (authToken) fetchOrganizations(); }, [authToken, fetchOrganizations]);
+  useEffect(() => { if (isAuthenticated) fetchOrganizations(); }, [isAuthenticated, fetchOrganizations]);
 
   const handleAuthorize = async () => {
     if (!authKey || !selectedOrg) return;
@@ -82,7 +86,7 @@ export function RunnerAuthorizePage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center"><BrandLogo /></div>
-        <AuthForm authToken={authToken} userEmail={user?.email} authKey={authKey!}
+        <AuthForm isAuthenticated={isAuthenticated} userEmail={user?.email} authKey={authKey!}
           organizations={organizations} selectedOrg={selectedOrg} onSelectOrg={setSelectedOrg}
           nodeIdInput={nodeIdInput} onNodeIdChange={setNodeIdInput} authorizing={authorizing}
           onAuthorize={handleAuthorize} error={error} t={t} tCommon={tCommon} />

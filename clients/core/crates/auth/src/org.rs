@@ -31,35 +31,21 @@ impl AuthManager {
             .map_err(|e| AuthError::InvalidResponse(e.to_string()))?;
         let orgs = wrapper.organizations;
 
-        {
-            let mut state = self.state.write().unwrap_or_else(|e| e.into_inner());
-            state.organizations = orgs.clone();
-            if state.current_org.is_none() {
-                if let Some(first) = orgs.first() {
-                    state.current_org = Some(first.clone());
-                }
-            }
-        }
-        self.persist();
+        self.replace_organizations(orgs.clone());
         Ok(orgs)
     }
 
     pub fn get_organizations(&self) -> Vec<Organization> {
-        self.state.read().unwrap_or_else(|e| e.into_inner()).organizations.clone()
+        self.read_state().organizations.clone()
     }
 
     pub fn get_current_org(&self) -> Option<Organization> {
-        self.state.read().unwrap_or_else(|e| e.into_inner()).current_org.clone()
-    }
-
-    pub fn set_current_org(&self, org: Organization) {
-        self.state.write().unwrap_or_else(|e| e.into_inner()).current_org = Some(org);
-        self.persist();
+        self.read_state().current_org.clone()
     }
 
     pub fn switch_org(&self, slug: &str) -> Result<(), AuthError> {
-        let mut state = self.state.write().unwrap_or_else(|e| e.into_inner());
-        let org = state
+        let org = self
+            .read_state()
             .organizations
             .iter()
             .find(|o| o.slug == slug)
@@ -67,10 +53,7 @@ impl AuthManager {
             .ok_or_else(|| {
                 AuthError::InvalidResponse(format!("organization '{slug}' not found"))
             })?;
-
-        state.current_org = Some(org);
-        drop(state);
-        self.persist();
+        self.set_current_org(Some(org));
         Ok(())
     }
 }

@@ -17,14 +17,11 @@ import {
 } from "agentsmesh-wasm";
 import { registerServiceProvider } from "@agentsmesh/service-runtime";
 
-export function registerAll(client: WasmApiClient, baseUrl: string) {
-  const authManager = new WasmAuthManager(baseUrl);
-  if (typeof window !== "undefined") {
-    const seg = window.location.pathname.split("/")[1];
-    if (seg && seg !== "login" && seg !== "register" && !seg.startsWith("_")) {
-      client.set_org_slug(seg);
-    }
-  }
+// AuthManager + ApiClient share the same token store (Plan I6).
+// Caller constructs AuthManager first, passes it to ApiClient, then both here.
+// org_slug is read from AuthManager's PersistedSession on every request — no
+// renderer-side `set_org_slug()` needed.
+export function registerAll(client: WasmApiClient, authManager: WasmAuthManager) {
   registerServiceProvider({
     apiClient: client,
     authManager,

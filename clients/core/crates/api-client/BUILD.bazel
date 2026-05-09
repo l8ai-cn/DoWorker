@@ -1,8 +1,8 @@
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 
-# HTTP API client (wraps reqwest + auth-aware request building). Has two
-# compile flavors — native uses rustls-tls, wasm32 uses reqwest's fetch
-# backend. The conditional dep is handled inside the crate via `cfg`.
+# HTTP API client (wraps reqwest + auth-aware request building). The
+# refresh-token serialization Mutex uses futures::lock::Mutex (runtime-
+# agnostic, wasm-friendly) — tokio is no longer needed in this crate.
 rust_library(
     name = "api_client",
     srcs = glob(["src/**/*.rs"]),
@@ -17,7 +17,6 @@ rust_library(
         "@crates//:serde",
         "@crates//:serde_json",
         "@crates//:thiserror",
-        "@crates//:tokio",
         "@crates//:tracing",
         "@crates//:urlencoding",
     ],
@@ -28,6 +27,7 @@ rust_test(
     crate = ":api_client",
     edition = "2021",
     deps = [
+        "@crates//:tokio",
         "@crates//:tokio-test",
         "@crates//:wiremock",
     ],

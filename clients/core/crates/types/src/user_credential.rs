@@ -134,10 +134,13 @@ pub struct RepositoryProviderListResponse {
 pub struct ProviderRepository {
     pub id: Option<String>,
     pub name: String,
-    pub full_name: Option<String>,
-    pub clone_url: Option<String>,
-    pub ssh_url: Option<String>,
+    pub slug: Option<String>,
+    pub description: Option<String>,
     pub default_branch: Option<String>,
+    pub visibility: Option<String>,
+    pub http_clone_url: Option<String>,
+    pub ssh_clone_url: Option<String>,
+    pub web_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -264,5 +267,43 @@ mod tests {
         let reserialized = serde_json::to_value(&resp).unwrap();
         assert_eq!(reserialized["providers"][0]["is_active"], serde_json::json!(true));
         assert_eq!(reserialized["providers"][1]["is_active"], serde_json::json!(false));
+    }
+
+    const PROVIDER_REPO_PAYLOAD: &str = r#"{
+        "id": "987654",
+        "name": "infra-tools",
+        "slug": "infra-tools",
+        "description": "Internal infrastructure helpers",
+        "default_branch": "main",
+        "visibility": "private",
+        "http_clone_url": "https://gitlab.example.com/group/infra-tools.git",
+        "ssh_clone_url": "git@gitlab.example.com:group/infra-tools.git",
+        "web_url": "https://gitlab.example.com/group/infra-tools"
+    }"#;
+
+    #[test]
+    fn provider_repository_decodes_backend_payload() {
+        let r: ProviderRepository = serde_json::from_str(PROVIDER_REPO_PAYLOAD).unwrap();
+        assert_eq!(r.name, "infra-tools");
+        assert_eq!(r.description.as_deref(), Some("Internal infrastructure helpers"));
+        assert_eq!(
+            r.http_clone_url.as_deref(),
+            Some("https://gitlab.example.com/group/infra-tools.git"),
+        );
+        assert_eq!(
+            r.ssh_clone_url.as_deref(),
+            Some("git@gitlab.example.com:group/infra-tools.git"),
+        );
+    }
+
+    #[test]
+    fn provider_repository_wasm_relay_preserves_import_fields() {
+        let typed: ProviderRepository = serde_json::from_str(PROVIDER_REPO_PAYLOAD).unwrap();
+        let relayed = serde_json::to_string(&typed).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&relayed).unwrap();
+        for key in ["name", "description", "http_clone_url", "ssh_clone_url",
+                    "default_branch", "visibility", "web_url", "slug"] {
+            assert!(!parsed[key].is_null(), "field `{key}` dropped by relay");
+        }
     }
 }

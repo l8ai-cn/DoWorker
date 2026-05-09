@@ -22,7 +22,7 @@ mod api_agent_billing_tests {
     impl AuthTokenStore for MockTokenStore {
         fn get_token(&self) -> Option<String> { Some("tok".into()) }
         fn get_refresh_token(&self) -> Option<String> { None }
-        fn set_tokens(&self, _t: String, _r: String) {}
+        fn set_tokens(&self, _t: String, _r: String, _e: Option<i64>) {}
         fn clear_tokens(&self) {}
         fn get_current_org_slug(&self) -> Option<String> {
             self.org_slug.lock().unwrap().clone()
@@ -166,7 +166,10 @@ mod api_agent_billing_tests {
     async fn create_api_key() {
         let s = MockServer::start().await;
         Mock::given(method("POST")).and(path("/api/v1/orgs/acme/api-keys"))
-            .respond_with(ok(json!({"id":1,"name":"new-key"})))
+            .respond_with(ok(json!({
+                "api_key": {"id":1,"name":"new-key"},
+                "raw_key": "amk_secret_value_here"
+            })))
             .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), MockTokenStore::with_org("acme"));
         let data = agentsmesh_types::CreateApiKeyRequest {
@@ -175,7 +178,10 @@ mod api_agent_billing_tests {
             scopes: None,
             expires_in: None,
         };
-        let _ = c.create_api_key(&data).await.unwrap();
+        // Verify raw_key is preserved end-to-end (issue #345 regression guard)
+        let resp = c.create_api_key(&data).await.unwrap();
+        assert_eq!(resp.raw_key, "amk_secret_value_here");
+        assert_eq!(resp.api_key.id, 1);
     }
 
     #[tokio::test]
@@ -244,7 +250,7 @@ mod api_agent_billing_tests {
         let s = MockServer::start().await;
         Mock::given(method("POST"))
             .and(path("/api/v1/orgs/acme/autopilot-controllers/ctrl-1/resume"))
-            .respond_with(ok(json!({})))
+            .respond_with(ok(json!({"status":"ok"})))
             .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), MockTokenStore::with_org("acme"));
         let _ = c.resume_autopilot("ctrl-1").await.unwrap();
@@ -255,7 +261,7 @@ mod api_agent_billing_tests {
         let s = MockServer::start().await;
         Mock::given(method("POST"))
             .and(path("/api/v1/orgs/acme/autopilot-controllers/ctrl-1/stop"))
-            .respond_with(ok(json!({})))
+            .respond_with(ok(json!({"status":"ok"})))
             .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), MockTokenStore::with_org("acme"));
         let _ = c.stop_autopilot("ctrl-1").await.unwrap();
@@ -266,7 +272,7 @@ mod api_agent_billing_tests {
         let s = MockServer::start().await;
         Mock::given(method("POST"))
             .and(path("/api/v1/orgs/acme/autopilot-controllers/ctrl-1/approve"))
-            .respond_with(ok(json!({})))
+            .respond_with(ok(json!({"status":"ok"})))
             .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), MockTokenStore::with_org("acme"));
         let data = agentsmesh_types::ApproveAutopilotRequest {
@@ -281,7 +287,7 @@ mod api_agent_billing_tests {
         let s = MockServer::start().await;
         Mock::given(method("POST"))
             .and(path("/api/v1/orgs/acme/autopilot-controllers/ctrl-1/takeover"))
-            .respond_with(ok(json!({})))
+            .respond_with(ok(json!({"status":"ok"})))
             .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), MockTokenStore::with_org("acme"));
         let _ = c.takeover_autopilot("ctrl-1").await.unwrap();
@@ -292,7 +298,7 @@ mod api_agent_billing_tests {
         let s = MockServer::start().await;
         Mock::given(method("POST"))
             .and(path("/api/v1/orgs/acme/autopilot-controllers/ctrl-1/handback"))
-            .respond_with(ok(json!({})))
+            .respond_with(ok(json!({"status":"ok"})))
             .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), MockTokenStore::with_org("acme"));
         let _ = c.handback_autopilot("ctrl-1").await.unwrap();
@@ -303,7 +309,7 @@ mod api_agent_billing_tests {
         let s = MockServer::start().await;
         Mock::given(method("GET"))
             .and(path("/api/v1/orgs/acme/autopilot-controllers/ctrl-1/iterations"))
-            .respond_with(ok(json!({"iterations":[]})))
+            .respond_with(ok(json!([])))
             .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), MockTokenStore::with_org("acme"));
         let _ = c.get_autopilot_iterations("ctrl-1").await.unwrap();
@@ -360,7 +366,7 @@ mod api_agent_billing_tests {
         let s = MockServer::start().await;
         Mock::given(method("GET")).and(path("/api/v1/orgs/acme/billing/usage"))
             .and(query_param("type", "compute"))
-            .respond_with(ok(json!({"used":50,"total":100})))
+            .respond_with(ok(json!({"usage":{"used":50,"total":100},"type":"compute"})))
             .expect(1).mount(&s).await;
         let c = ApiClient::new(s.uri(), MockTokenStore::with_org("acme"));
         let _ = c.get_billing_usage(Some("compute")).await.unwrap();

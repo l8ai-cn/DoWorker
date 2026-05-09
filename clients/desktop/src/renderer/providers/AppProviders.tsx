@@ -9,31 +9,12 @@ import { ThemeProvider } from "next-themes";
 import { DesktopIntlProvider } from "./IntlProvider";
 import { RealtimeProvider } from "./RealtimeProvider";
 import { Toaster } from "sonner";
-import { ensurePlatformReady, getAuthManager, getApiClient } from "@agentsmesh/service-runtime";
+import { ensurePlatformReady } from "@agentsmesh/service-runtime";
 import { useAuthStore } from "@/stores/auth";
 
-async function restoreSession() {
+async function bootstrapAuth() {
   await ensurePlatformReady();
-  const mgr = getAuthManager();
-  try {
-    const restored = await mgr.restore_session();
-    if (restored) {
-      // Auth migrated to Rust SSOT — fetch_organizations() pushes data
-      // into the Rust manager; the renderer reads via `useCurrentOrg`
-      // / `useAuthOrganizations` which run `useMemo([_tick])` over the
-      // Rust getters. Setting `user`/`organizations`/`currentOrg`
-      // directly on Zustand was a no-op (those keys no longer exist
-      // after the SSOT migration). Bumping `_tick` is what makes the
-      // hooks re-evaluate against the freshly fetched data.
-      await mgr.fetch_organizations();
-      const orgsJson = mgr.get_organizations_json?.();
-      const orgs = orgsJson
-        ? (typeof orgsJson === "string" ? JSON.parse(orgsJson) : orgsJson)
-        : [];
-      if (orgs[0]) getApiClient().set_org_slug(orgs[0].slug);
-      useAuthStore.setState((s) => ({ _tick: s._tick + 1 }));
-    }
-  } catch { /* session expired or invalid */ }
+  await useAuthStore.getState().bootstrap();
   useAuthStore.getState().setHasHydrated(true);
 }
 
@@ -41,7 +22,7 @@ function PlatformGate({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    restoreSession().then(() => setReady(true));
+    bootstrapAuth().then(() => setReady(true));
   }, []);
 
   if (!ready) return null;

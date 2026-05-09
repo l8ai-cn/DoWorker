@@ -18,11 +18,12 @@ Usage:
 
     next_app(
         name = "next",
-        srcs = [":src", "//clients/core/crates/wasm:wasm_pkg"],
+        srcs = [":src"],
         data = [
             "next.config.ts",
             "package.json",
             ":node_modules",
+            "//:node_modules/agentsmesh-wasm",  # bazel-built wasm pkg
             ...
         ],
         next_js_binary = ":next_js_binary",

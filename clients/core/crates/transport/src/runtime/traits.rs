@@ -32,3 +32,36 @@ pub trait Runtime: Clone + 'static {
     fn spawn(&self, fut: Pin<Box<dyn Future<Output = ()> + 'static>>) -> Self::TaskHandle;
     fn sleep(&self, duration: Duration) -> BoxFuture<()>;
 }
+
+/// Race a future against a runtime-specific sleep. Returns `Ok(value)` if
+/// the future resolved first, `Err(Elapsed)` if the timer fired first.
+///
+/// Why a free function instead of a `Runtime` trait method: the bound on
+/// the future's `Output` would force every Runtime impl to spell out the
+/// generic; a free function with `R: Runtime` keeps the trait dyn-safe and
+/// the call sites compact.
+pub async fn timeout<R, F>(runtime: &R, duration: Duration, fut: F) -> Result<F::Output, Elapsed>
+where
+    R: Runtime,
+    F: Future,
+{
+    use futures::future::{select, Either};
+    let sleep = runtime.sleep(duration);
+    futures::pin_mut!(fut);
+    futures::pin_mut!(sleep);
+    match select(fut, sleep).await {
+        Either::Left((output, _)) => Ok(output),
+        Either::Right(_) => Err(Elapsed),
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Elapsed;
+
+impl std::fmt::Display for Elapsed {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("operation timed out")
+    }
+}
+
+impl std::error::Error for Elapsed {}

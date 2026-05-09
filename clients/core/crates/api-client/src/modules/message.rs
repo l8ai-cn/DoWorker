@@ -59,12 +59,12 @@ impl ApiClient {
     pub async fn mark_mesh_messages_read(
         &self,
         data: &MarkMessagesReadRequest,
-    ) -> Result<EmptyResponse, ApiError> {
+    ) -> Result<MarkReadResponse, ApiError> {
         self.post(&self.org_path("/messages/mark-read"), data)
             .await
     }
 
-    pub async fn mark_all_mesh_messages_read(&self) -> Result<EmptyResponse, ApiError> {
+    pub async fn mark_all_mesh_messages_read(&self) -> Result<MarkReadResponse, ApiError> {
         self.post(
             &self.org_path("/messages/mark-all-read"),
             &serde_json::json!({}),
@@ -125,7 +125,7 @@ impl ApiClient {
     pub async fn replay_mesh_dead_letter(
         &self,
         entry_id: i64,
-    ) -> Result<EmptyResponse, ApiError> {
+    ) -> Result<ReplayDeadLetterResponse, ApiError> {
         self.post(
             &self.org_path(&format!("/messages/dlq/{entry_id}/replay")),
             &serde_json::json!({}),

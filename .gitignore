@@ -3,6 +3,9 @@
 # =========================
 .DS_Store
 ._*
+
+# Playwright e2e auth state — contains live JWTs, never commit
+.auth/
 *.log
 *.tmp
 *.swp
@@ -160,12 +163,14 @@ agentsmesh-onpremise-v1.0.0.tar.gz
 # =========================
 clients/core/target/
 clients/core/**/target/
-# wasm-pack intermediate outputs (stale builds in wrong locations)
+# Defensive ignore: catch stray wasm-pack outputs if anyone runs the
+# legacy CLI by accident. The canonical pipeline is Bazel-native via
+# //clients/core/crates/wasm:wasm_pkg → :wasm_pkg_npm.
 clients/core/crates/*/pkg/
 clients/core/crates/*/*/pkg/
 clients/core/crates/*/*/*/pkg/
 clients/core/core/pkg/
-# Keep clients/core/pkg/ — it's the canonical wasm-pack output referenced by clients/web/package.json
+clients/core/pkg/
 
 # napi `.node` addons — built by Bazel via napi_rust_library, never
 # committed. The tree-relative names exist briefly in dev workflows

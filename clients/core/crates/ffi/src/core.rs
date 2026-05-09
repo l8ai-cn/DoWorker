@@ -6,7 +6,7 @@ use agentsmesh_services::BlockstoreService;
 use agentsmesh_state::blockstore_state::BlockstoreState;
 
 use crate::callbacks::StorageCallback;
-use crate::dto::{OrganizationDto, UserDto};
+use crate::dto::{BootstrapResultDto, OrganizationDto, UserDto};
 use crate::error::CoreError;
 use crate::storage_bridge::StorageBridge;
 
@@ -35,10 +35,6 @@ impl AgentsMeshCore {
 
     pub fn is_authenticated(&self) -> bool {
         self.auth.is_authenticated()
-    }
-
-    pub fn restore_session(&self) -> Result<bool, CoreError> {
-        self.auth.restore_session().map_err(CoreError::from)
     }
 
     /// Strongly-typed current-user accessor for Swift/Kotlin.
@@ -78,5 +74,17 @@ impl AgentsMeshCore {
     pub fn get_organizations_json(&self) -> Result<String, CoreError> {
         let orgs = self.auth.get_organizations();
         Ok(serde_json::to_string(&orgs)?)
+    }
+}
+
+#[uniffi::export(async_runtime = "tokio")]
+impl AgentsMeshCore {
+    /// Hydrate the auth state by reading storage, refreshing the token if
+    /// near expiry, and validating identity against the server. Returns
+    /// a strongly-typed `BootstrapResultDto` enum — Swift/Kotlin pattern-
+    /// match on `.anonymous` / `.authenticated(user, currentOrg)` /
+    /// `.anonymousAfterCleanup(reason)` to drive UI without parsing JSON.
+    pub async fn bootstrap(&self) -> BootstrapResultDto {
+        BootstrapResultDto::from(self.auth.bootstrap().await)
     }
 }

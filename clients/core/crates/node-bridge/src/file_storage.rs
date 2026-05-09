@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use agentsmesh_auth::storage::PersistentStorage;
+use agentsmesh_auth::PersistentStorage;
 
 pub struct FileStorage {
     dir: PathBuf,
@@ -15,12 +15,16 @@ impl PersistentStorage for FileStorage {
         std::fs::read_to_string(self.path(key)).ok()
     }
     fn set(&self, key: &str, value: &str) {
-        let _ = std::fs::write(self.path(key), value);
+        let path = self.path(key);
+        // Namespaced keys (e.g. `agentsmesh-auth/https_agentsmesh_ai/session`)
+        // map to nested paths — without this, `fs::write` fails silently when
+        // the parent dir is missing, and bootstrap reads back None forever.
+        if let Some(parent) = path.parent() {
+            let _ = std::fs::create_dir_all(parent);
+        }
+        let _ = std::fs::write(path, value);
     }
     fn remove(&self, key: &str) {
         let _ = std::fs::remove_file(self.path(key));
-    }
-    fn clear(&self) {
-        let _ = std::fs::remove_file(self.path("agentsmesh-auth"));
     }
 }

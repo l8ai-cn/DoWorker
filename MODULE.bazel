@@ -136,6 +136,16 @@ rust.toolchain(
         "aarch64-apple-ios",
         "aarch64-apple-ios-sim",
         "x86_64-apple-ios",
+        # Browser target — `clients/core/crates/wasm:wasm_pkg` compiles
+        # the cdylib here before wasm-bindgen rewrites it into the ESM
+        # `pkg/` directory consumed by `clients/web` via the
+        # `//clients/core/crates/wasm:wasm_pkg_npm` npm-package wrapper.
+        # Building the wasm closure cleanly required eliminating tokio
+        # from the cross-platform business crates (auth/api-client/
+        # events/relay) and routing time/spawn through transport's
+        # Runtime trait — see clients/core/crates/wasm/BUILD.bazel for
+        # the architectural rationale.
+        "wasm32-unknown-unknown",
     ],
     versions = ["1.88.0"],
 )
@@ -204,6 +214,16 @@ crate.spec(
 crate.spec(
     package = "futures-channel",
     version = "0.3",
+)
+
+# Sync primitive used by every wasm-eligible crate. Replaces tokio::sync::RwLock
+# in the wasm closure (tokio's `sync` feature alone wouldn't pull mio, but the
+# refactor keeps the wasm closure tokio-free for the same reason it can stay
+# Bazel-buildable: tokio's `[dependencies.mio]` is feature-gated, not
+# target-gated). Held briefly across .read()/.write() — no .await across guards.
+crate.spec(
+    package = "parking_lot",
+    version = "0.12",
 )
 
 # Error handling.
@@ -325,7 +345,11 @@ crate.spec(
 # WASM glue — consumed by crates/wasm only.
 crate.spec(
     package = "wasm-bindgen",
-    version = "0.2",
+    # Pinned to match the wasm-bindgen-cli that rules_rust_wasm_bindgen 0.69
+    # bundles. Schema must agree exactly (`rust Wasm file schema version` ↔
+    # `this binary schema version`). Bumping rules_rust_wasm_bindgen lifts
+    # the cap.
+    version = "=0.2.105",
 )
 crate.spec(
     package = "wasm-bindgen-futures",

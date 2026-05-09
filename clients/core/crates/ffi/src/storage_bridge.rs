@@ -26,8 +26,4 @@ impl PersistentStorage for StorageBridge {
     fn remove(&self, key: &str) {
         self.inner.remove(key.to_string());
     }
-
-    fn clear(&self) {
-        self.inner.clear();
-    }
 }

@@ -1,6 +1,6 @@
 import { createHashRouter as createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { DashboardShell } from "@/pages/layouts/DashboardShell";
-import { useAuthStore, useCurrentUser, useCurrentOrg, useAuthOrganizations } from "@/stores/auth";
+import { useAuthStore, useCurrentOrg, useAuthOrganizations, useIsAuthenticated } from "@/stores/auth";
 
 // Auth pages
 import { LoginPage } from "@/pages/auth/login/LoginPage";
@@ -131,11 +131,11 @@ export const router = createBrowserRouter([
 
 function RootRedirect() {
   const _hasHydrated = useAuthStore((s) => s._hasHydrated);
-  const user = useCurrentUser();
+  const isAuthenticated = useIsAuthenticated();
   const currentOrg = useCurrentOrg();
   const organizations = useAuthOrganizations();
   if (!_hasHydrated) return null;
-  if (!user?.id) return <Navigate to="/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
   const org = currentOrg ?? organizations[0];
   return org?.slug
     ? <Navigate to={`/${org.slug}/workspace`} replace />

@@ -1,7 +1,7 @@
 use agentsmesh_types::{AuthSession, AuthTokens, RegisterRequest};
 
 use crate::error::{parse_error_response, AuthError};
-use crate::manager::AuthManager;
+use crate::manager::{now_unix_secs, AuthManager};
 
 impl AuthManager {
     pub async fn login(&self, email: &str, password: &str) -> Result<AuthSession, AuthError> {
@@ -48,35 +48,70 @@ impl AuthManager {
 
     pub async fn logout(&self) -> Result<(), AuthError> {
         let auth = self.bearer_header()?;
-        let resp = self
+
+        // Best-effort server logout. Network errors and non-2xx responses
+        // (token already revoked, server 5xx) MUST NOT leave the caller
+        // logged in — plan I3 forbids the in-memory-user-but-no-token
+        // middle state. Local cleanup runs unconditionally; server-side
+        // failure is logged but swallowed so the user lands on /login.
+        let server_result = self
             .http
             .post(format!("{}/api/v1/auth/logout", self.base_url))
             .header("Authorization", auth)
             .send()
-            .await?;
+            .await;
 
-        if !resp.status().is_success() {
-            return Err(parse_error_response(resp).await);
+        self.reset_local();
+
+        match server_result {
+            Ok(resp) if !resp.status().is_success() => {
+                tracing::warn!(
+                    "auth logout: server returned {}; local state cleared anyway",
+                    resp.status()
+                );
+            }
+            Err(e) => {
+                tracing::warn!(
+                    "auth logout: server unreachable ({e}); local state cleared anyway"
+                );
+            }
+            Ok(_) => {}
         }
-
-        self.state.write().unwrap_or_else(|e| e.into_inner()).clear();
-        self.storage.remove(crate::state::STORAGE_KEY);
         Ok(())
     }
 
     pub async fn refresh_token(&self) -> Result<AuthTokens, AuthError> {
-        let refresh = self
-            .state
-            .read()
-            .unwrap_or_else(|e| e.into_inner())
-            .refresh_token
-            .clone()
+        // Snapshot the refresh token we intend to spend BEFORE blocking on
+        // the lock. If a concurrent refresh on the same manager already
+        // rotated tokens while we waited, our snapshot will differ from
+        // the post-lock state — short-circuit and return the new tokens.
+        let pre_lock_refresh = self
+            .read_state()
+            .refresh_token()
+            .map(String::from)
             .ok_or(AuthError::NotAuthenticated)?;
+
+        let _guard = self.refresh_lock.lock().await;
+
+        let current_refresh = self.read_state().refresh_token().map(String::from);
+        if current_refresh.as_deref() != Some(pre_lock_refresh.as_str()) {
+            // Another caller already rotated. Return the in-memory tokens
+            // without burning a second `/auth/refresh` round-trip — that
+            // call would 401 (refresh_token rotates one-shot server-side)
+            // and incorrectly cleanup an otherwise-healthy session.
+            let state = self.read_state();
+            let s = state.session.as_ref().ok_or(AuthError::NotAuthenticated)?;
+            return Ok(AuthTokens {
+                token: s.access_token.clone(),
+                refresh_token: s.refresh_token.clone(),
+                expires_in: Some(s.expires_at - now_unix_secs()),
+            });
+        }
 
         let resp = self
             .http
             .post(format!("{}/api/v1/auth/refresh", self.base_url))
-            .json(&serde_json::json!({ "refresh_token": refresh }))
+            .json(&serde_json::json!({ "refresh_token": pre_lock_refresh }))
             .send()
             .await?;
 
@@ -89,7 +124,8 @@ impl AuthManager {
             .await
             .map_err(|e| AuthError::InvalidResponse(e.to_string()))?;
 
-        self.state.write().unwrap_or_else(|e| e.into_inner()).apply_tokens(&tokens);
+        self.write_state()
+            .apply_tokens(&tokens, &self.base_url, now_unix_secs());
         self.persist();
         Ok(tokens)
     }
@@ -150,8 +186,36 @@ impl AuthManager {
         Ok(())
     }
 
+    pub async fn fetch_me(&self) -> Result<agentsmesh_types::User, AuthError> {
+        let auth = self.bearer_header()?;
+        let resp = self
+            .http
+            .get(format!("{}/api/v1/users/me", self.base_url))
+            .header("Authorization", auth)
+            .send()
+            .await?;
+
+        if !resp.status().is_success() {
+            return Err(parse_error_response(resp).await);
+        }
+
+        // Server wraps user in `{ "user": {...} }`
+        #[derive(serde::Deserialize)]
+        struct Wrapper {
+            user: agentsmesh_types::User,
+        }
+        let wrapper: Wrapper = resp
+            .json()
+            .await
+            .map_err(|e| AuthError::InvalidResponse(e.to_string()))?;
+
+        self.write_state().set_user(wrapper.user.clone());
+        Ok(wrapper.user)
+    }
+
     pub fn apply_session(&self, session: &AuthSession) {
-        self.state.write().unwrap_or_else(|e| e.into_inner()).apply_session(session);
+        self.write_state()
+            .apply_session(session, &self.base_url, now_unix_secs());
         self.persist();
     }
 }

@@ -159,6 +159,27 @@ bazel build //clients/web-admin:src       # tsc --noEmit web-admin
 (cd clients/web && node ../../node_modules/next/dist/bin/next dev --turbopack)
 ```
 
+#### Wasm 加载边界（路由分层）
+
+为避免 21MB wasm 在静态/营销页 block 渲染（手机基本跑不动），WasmProvider
+**仅挂在三组 layout 中**，营销页保持 0 wasm：
+
+| Layout | wasm | 路由 |
+|---|---|---|
+| `app/layout.tsx` (root) | ❌ | 全站基底，无 wasm |
+| `app/(dashboard)/layout.tsx` | ✅ | `(dashboard)/[org]/**`、`/settings`、`/support` |
+| `app/(auth)/layout.tsx` | ✅ | `/login`、`/register`、OAuth callback、verify-email、invite、onboarding、runners |
+| `app/popout/layout.tsx` | ✅ | `/popout/terminal/[podKey]` |
+| 其它营销/文档 (`/`、`/docs`、`/about`、`/blog`、`/changelog`、`/demo`、`/enterprise`、`/privacy`、`/terms`、`/mock-checkout` 等) | ❌ | 通过 `lib/light-session.ts` 直读 localStorage 判 auth；公开 API 走 `lib/public-api.ts` 的 fetch |
+
+**约束**（违反会让营销页重新加载 wasm）：
+- 营销页组件**不要 import** `@/lib/wasm-core` / `@agentsmesh/service-runtime` / `agentsmesh-wasm` / `@/stores/auth`（任意一个会通过依赖图把 21MB 拉进 chunk）
+- 需要"已登录吗 + 当前 org slug"用 `useLightSession`（来自 `@/hooks/useLightSession`）
+- 需要 CTA 用 `LightAuthButtons`（不是 `AuthButtons`）
+- 需要公开 API（pricing 等）用 `fetch` 或 `lib/public-api.ts` 包装，不走 wasm
+
+**校验**：CI / 本地构建后跑 `bash clients/web/scripts/check-no-wasm-in-marketing.sh` 验证营销 chunk 不含 wasm 符号。
+
 ### Web-Admin (Next.js)
 
 ```bash
@@ -218,6 +239,31 @@ The golangci-lint binary is fetched hermetically by `rules_multitool`
 (`multitool.lock.json` pins v2.11.4 across linux/macOS amd64+arm64).
 Each module reads its own `.golangci.yml`. CI runs the same
 `bazel run //<module>:lint` commands — no parallel `golangci-lint-action`.
+
+### Rust Core (Bazel-only — no Cargo workspace)
+
+Rust 业务代码（`clients/core/crates/`）的构建/测试/lint **完全走 Bazel**。
+仓库**没有** `Cargo.toml` workspace、`Cargo.lock`、或 `.cargo/config.toml`。
+依赖在 `MODULE.bazel` 的 `crate.spec()` 块声明（SSOT），BUILD.bazel
+通过 `@crates//:<name>` 引用。
+
+```bash
+bazel test //clients/core/crates/auth:auth_test
+bazel build //clients/core/crates/ffi:ffi
+bazel build //clients/core/crates/wasm:wasm_lib
+bazel build //clients/core/crates/node-bridge:node_bridge
+
+# Generate rust-project.json for IDE / rust-analyzer
+bazel run //:rust_project
+```
+
+**例外**：`clients/core/crates/ffi/Cargo.toml` 保留为 stub（仅 `[package]`
+三行），因为 uniffi 的 `#[uniffi::export]` proc-macro 在编译时通过
+`$CARGO_MANIFEST_DIR/Cargo.toml` 读取 crate name。**不要在这个 stub 加任何
+dependencies — Bazel 不读它**。
+
+**加新依赖**：编辑 `MODULE.bazel` 的 `crate.spec()` 块 → 加 `BUILD.bazel`
+的 deps 引用 `@crates//:<name>`。**不要新建 Cargo.toml**。
 
 ### iOS (SwiftUI + TCA, powered by Rust Core via UniFFI)
 

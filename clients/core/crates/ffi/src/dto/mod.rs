@@ -50,7 +50,7 @@ pub(crate) use channel::{
 };
 pub use message::{
     DeadLetterEntryDto, DeadLetterListResponseDto, DirectMessageDto, DirectMessageListResponseDto,
-    SendDirectMessageRequestDto, UnreadCountResponseDto,
+    ReplayDeadLetterResponseDto, SendDirectMessageRequestDto, UnreadCountResponseDto,
 };
 pub(crate) use message::mark_messages_read_req;
 pub use ticket::{
@@ -64,13 +64,14 @@ pub use ticket::{
 pub(crate) use ticket::{add_assignee_req, add_ticket_label_req, update_ticket_status_req};
 
 pub use pod::{
-    CreatePodRequestDto, PodAgentInfoDto, PodConnectionInfoDto, PodCreatedByInfoDto, PodDto,
-    PodListResponseDto, PodLoopInfoDto, PodRepositoryInfoDto, PodRunnerInfoDto, PodStatusDto,
-    PodTicketInfoDto,
+    CreatePodRequestDto, CreatePodResponseDto, PodAgentInfoDto, PodConnectionInfoDto,
+    PodCreatedByInfoDto, PodDto, PodListResponseDto, PodLoopInfoDto, PodRepositoryInfoDto,
+    PodRunnerInfoDto, PodStatusDto, PodTicketInfoDto,
 };
 pub(crate) use pod::update_pod_alias_req;
 pub use user::{
-    AuthSessionDto, AuthTokensDto, OrganizationDto, SSOConfigDto, UserDto, UserIdentityDto,
+    AuthSessionDto, AuthTokensDto, BootstrapCleanupReasonDto, BootstrapResultDto,
+    OrganizationDto, SSOConfigDto, UserDto, UserIdentityDto,
 };
 pub use workspace::{
     AuthorizeRunnerRequestDto, BranchDto, CreateRepositoryRequestDto, CreateRunnerTokenRequestDto,

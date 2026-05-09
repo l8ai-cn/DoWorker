@@ -97,6 +97,10 @@ pub struct BatchPodRequest {
 pub struct TicketCommentListResponse {
     pub comments: Vec<TicketComment>,
     pub total: Option<i64>,
+    #[serde(default)]
+    pub limit: Option<i64>,
+    #[serde(default)]
+    pub offset: Option<i64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -107,4 +111,20 @@ pub struct TicketRelationListResponse {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TicketCommitListResponse {
     pub commits: Vec<TicketCommit>,
+}
+
+#[cfg(test)]
+mod pagination_tests {
+    use super::*;
+
+    #[test]
+    fn comment_list_relay_preserves_pagination() {
+        let backend = r#"{"comments":[],"total":13,"limit":50,"offset":0}"#;
+        let typed: TicketCommentListResponse = serde_json::from_str(backend).unwrap();
+        let relayed = serde_json::to_string(&typed).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&relayed).unwrap();
+        assert_eq!(parsed["total"], serde_json::json!(13));
+        assert_eq!(parsed["limit"], serde_json::json!(50));
+        assert_eq!(parsed["offset"], serde_json::json!(0));
+    }
 }

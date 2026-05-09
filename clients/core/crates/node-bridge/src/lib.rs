@@ -4,7 +4,7 @@ use tokio::sync::Mutex;
 use napi_derive::napi;
 
 use agentsmesh_api_client::{ApiClient, AuthTokenStore};
-use agentsmesh_auth::{AuthManager, storage::PersistentStorage};
+use agentsmesh_auth::{AuthManager, PersistentStorage};
 use agentsmesh_local_runner::LocalRunnerManager;
 use agentsmesh_services::*;
 use agentsmesh_state::*;
@@ -58,7 +58,9 @@ impl AppState {
         let _ = std::fs::create_dir_all(&dir);
         let storage: Arc<dyn PersistentStorage> = Arc::new(FileStorage::new(dir));
         let auth = Arc::new(AuthManager::new(base_url.clone(), storage));
-        let _ = auth.restore_session();
+        // Don't auto-restore — desktop renderer must call `auth_bootstrap()`
+        // explicitly so identity is validated against the live backend before
+        // RootRedirect makes routing decisions.
         let local_runner = Arc::new(LocalRunnerManager::from_default_home(base_url.clone()));
         let client = Arc::new(ApiClient::new(base_url, auth.clone()));
         let c = client.clone();
@@ -179,9 +181,19 @@ impl AppState {
         self.auth.is_authenticated()
     }
 
+    /// Token's `expires_at` (unix seconds). `None` if not signed in.
+    /// Renderer-side adapter caches this so its sync `is_authenticated()`
+    /// can compare against `Date.now()` without an IPC round-trip on
+    /// every render — matches the WASM `is_authenticated()` semantics.
     #[napi]
-    pub fn auth_restore_session(&self) -> napi::Result<bool> {
-        self.auth.restore_session().map_err(err)
+    pub fn auth_get_expires_at(&self) -> Option<i64> {
+        self.auth.expires_at()
+    }
+
+    #[napi]
+    pub async fn auth_bootstrap(&self) -> napi::Result<String> {
+        let result = self.auth.bootstrap().await;
+        serde_json::to_string(&result).map_err(err)
     }
 
     #[napi]
@@ -226,10 +238,10 @@ impl AppState {
     #[napi]
     pub fn auth_set_current_org(&self, org_json: String) -> napi::Result<()> {
         if org_json.is_empty() {
-            self.auth.set_current_org_direct(None);
+            self.auth.set_current_org(None);
         } else {
             let org: agentsmesh_types::Organization = serde_json::from_str(&org_json).map_err(err)?;
-            self.auth.set_current_org_direct(Some(org));
+            self.auth.set_current_org(Some(org));
         }
         Ok(())
     }

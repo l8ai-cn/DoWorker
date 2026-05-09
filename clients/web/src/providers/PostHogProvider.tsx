@@ -4,7 +4,7 @@ import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCurrentUser, useCurrentOrg, useAuthStore } from "@/stores/auth";
+import { useCurrentUser, useCurrentOrg } from "@/stores/auth";
 
 // Filter out unresolved docker-entrypoint.sh placeholders (e.g. "__POSTHOG_KEY__")
 function resolveEnv(val: string | undefined): string {
@@ -27,9 +27,6 @@ if (typeof window !== "undefined" && POSTHOG_KEY) {
   });
 }
 
-/**
- * Captures page views on route changes (Next.js App Router)
- */
 function PostHogPageView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -48,10 +45,9 @@ function PostHogPageView() {
   return null;
 }
 
-/**
- * Identifies the current user and organization in PostHog
- */
-function PostHogIdentify() {
+// User/org identification — uses wasm hooks, so MUST be mounted only inside
+// (dashboard) / (auth) where wasm is loaded. Marketing pages must not import.
+export function PostHogIdentify() {
   const ph = usePostHog();
   const user = useCurrentUser();
   const currentOrg = useCurrentOrg();
@@ -83,16 +79,15 @@ function PostHogIdentify() {
   return null;
 }
 
+// Root provider — pageview only. Identify is mounted separately inside
+// authenticated route groups so marketing pages don't pull in wasm.
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   return (
     <PHProvider client={posthog}>
       {POSTHOG_KEY && (
-        <>
-          <Suspense fallback={null}>
-            <PostHogPageView />
-          </Suspense>
-          <PostHogIdentify />
-        </>
+        <Suspense fallback={null}>
+          <PostHogPageView />
+        </Suspense>
       )}
       {children}
     </PHProvider>

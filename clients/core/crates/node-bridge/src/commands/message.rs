@@ -28,13 +28,13 @@ impl AppState {
     }
 
     #[napi]
-    pub async fn message_mark_read(&self, json: String) -> napi::Result<()> {
+    pub async fn message_mark_read(&self, json: String) -> napi::Result<String> {
         let svc = self.message.lock().await;
             svc.mark_read(&json).await.map_err(err)
     }
 
     #[napi]
-    pub async fn message_mark_all_read(&self) -> napi::Result<()> {
+    pub async fn message_mark_all_read(&self) -> napi::Result<String> {
         let svc = self.message.lock().await;
             svc.mark_all_read().await.map_err(err)
     }
@@ -58,7 +58,7 @@ impl AppState {
     }
 
     #[napi]
-    pub async fn message_replay_dead_letter(&self, entry_id: i64) -> napi::Result<()> {
+    pub async fn message_replay_dead_letter(&self, entry_id: i64) -> napi::Result<String> {
         let svc = self.message.lock().await;
             svc.replay_dead_letter(entry_id).await.map_err(err)
     }

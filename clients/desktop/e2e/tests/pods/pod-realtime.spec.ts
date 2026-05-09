@@ -77,7 +77,8 @@ test.describe("Desktop pod realtime", () => {
       cols: 142,
       rows: 34,
     }));
-    const pod = JSON.parse(created) as { pod_key: string; status: string };
+    const resp = JSON.parse(created) as { pod: { pod_key: string; status: string }; warning?: string };
+    const pod = resp.pod;
     expect(pod.pod_key, "podCreatePod returned a pod_key").toBeTruthy();
     expect(pod.status, "newly-created pod has a real status, not 'unknown'").not.toBe("unknown");
 

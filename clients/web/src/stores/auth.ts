@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { useMemo } from "react";
-import { initWasmCore, getAuthManager, getApiClient } from "@/lib/wasm-core";
+import { initWasmCore, getAuthManager } from "@/lib/wasm-core";
 import { getErrorMessage } from "@/lib/utils";
 import { useWorkspaceStore } from "./workspace";
 import { resetOrgScopedServices } from "@/lib/org-scope/registry";
@@ -25,11 +25,19 @@ interface Organization {
   updated_at?: string;
 }
 
+interface BootstrapResult {
+  kind: "anonymous" | "authenticated" | "anonymous_after_cleanup";
+  user?: User;
+  current_org?: Organization;
+  reason?: string;
+}
+
 interface AuthState {
   _tick: number;
   _hasHydrated: boolean;
   error: string | null;
 
+  bootstrap: () => Promise<BootstrapResult>;
   login: (email: string, password: string) => Promise<void>;
   fetchOrganizations: () => Promise<void>;
   switchOrg: (slug: string) => void;
@@ -45,10 +53,11 @@ interface AuthState {
 }
 
 const mgr = () => getAuthManager();
-const client = () => getApiClient();
 const bump = () => useAuthStore.setState((s) => ({ _tick: s._tick + 1 }));
 
 // Selector helpers: Rust is SSOT — these read from AuthManager on every tick.
+// ApiClient shares AuthManager's token store (Plan I6), so token writes
+// propagate without TS-side `client.set_token()` synchronization.
 
 function parseJson<T>(raw: unknown): T | null {
   if (raw == null) return null;
@@ -93,22 +102,47 @@ export function useAuthOrganizations(): Organization[] {
   return useMemo(() => readOrganizations(), [tick]);
 }
 
+export function useIsAuthenticated(): boolean {
+  const tick = useAuthStore((s) => s._tick);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => {
+    try {
+      return mgr().is_authenticated();
+    } catch {
+      return false;
+    }
+  }, [tick]);
+}
+
 export const useAuthStore = create<AuthState>((set) => ({
   _tick: 0,
   _hasHydrated: false,
   error: null,
 
+  bootstrap: async () => {
+    await initWasmCore();
+    let result: BootstrapResult;
+    try {
+      const json = await mgr().bootstrap();
+      result = JSON.parse(json) as BootstrapResult;
+    } catch (e) {
+      // Bootstrap call itself failed (network down before any storage hit).
+      // Treat as anonymous; storage is untouched so retry on reload is safe.
+      console.warn("auth bootstrap failed:", getErrorMessage(e));
+      result = { kind: "anonymous" };
+    }
+    if (result.kind === "anonymous_after_cleanup") {
+      console.warn(`auth bootstrap cleanup: ${result.reason}`);
+    }
+    bump();
+    return result;
+  },
+
   login: async (email, password) => {
     await initWasmCore();
     try {
-      const sessionJson = await mgr().login(email, password);
-      const session = JSON.parse(sessionJson);
-
-      client().set_token(session.token, session.refresh_token);
-
-      const orgsJson = await mgr().fetch_organizations();
-      const orgs: Organization[] = JSON.parse(orgsJson);
-      if (orgs[0]) client().set_org_slug(orgs[0].slug);
+      await mgr().login(email, password);
+      await mgr().fetch_organizations();
       bump();
     } catch (e) {
       set({ error: getErrorMessage(e, "Login failed") });
@@ -120,8 +154,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     await initWasmCore();
     try {
       await mgr().fetch_organizations();
-      const current = readCurrentOrg();
-      if (current) client().set_org_slug(current.slug);
       bump();
     } catch (e) {
       set({ error: getErrorMessage(e, "Failed to fetch organizations") });
@@ -130,16 +162,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   switchOrg: (slug) => {
     mgr().switch_org(slug);
-    client().set_org_slug(slug);
     bump();
   },
 
   refreshSession: async () => {
     await initWasmCore();
     try {
-      const tokenJson = await mgr().refresh_token();
-      const { token, refresh_token } = JSON.parse(tokenJson);
-      client().set_token(token, refresh_token);
+      await mgr().refresh_token();
     } catch (e) {
       set({ error: getErrorMessage(e, "Session refresh failed") });
       throw e;
@@ -148,8 +177,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setAuth: (token, user, refreshToken) => {
     try {
-      client().set_token(token, refreshToken || "");
-      // Persist user into Rust AuthManager so selectors see it immediately.
       mgr().apply_session(JSON.stringify({
         token,
         refresh_token: refreshToken || "",
@@ -162,16 +189,11 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setOrganizations: (organizations) => {
     try { mgr().set_organizations(JSON.stringify(organizations)); } catch { /* noop */ }
-    const current = readCurrentOrg();
-    if (current) {
-      try { client().set_org_slug(current.slug); } catch { /* noop */ }
-    }
     bump();
   },
 
   setCurrentOrg: async (org) => {
     try { await mgr().set_current_org(JSON.stringify(org)); } catch { /* noop */ }
-    try { client().set_org_slug(org.slug); } catch { /* noop */ }
     try {
       useWorkspaceStore.getState().clearAllPanes();
       useWorkspaceStore.persist.clearStorage?.();
@@ -181,14 +203,22 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
-    try { mgr().logout().catch(() => {}); } catch { /* noop */ }
+    // Sync local cleanup first — guarantees post-call state is logged-out
+    // even if the network POST below fails or hangs.
     try { mgr().clear_session(); } catch { /* noop */ }
-    try { client().clear_auth(); } catch { /* noop */ }
+    // Best-effort API logout (informs server, doesn't block UI).
+    try { mgr().logout().catch(() => {}); } catch { /* noop */ }
     set({ error: null });
     bump();
   },
 
-  isAuthenticated: () => readCurrentUser() !== null,
+  isAuthenticated: () => {
+    try {
+      return mgr().is_authenticated();
+    } catch {
+      return false;
+    }
+  },
   setHasHydrated: (state) => set({ _hasHydrated: state }),
   clearError: () => set({ error: null }),
 }));

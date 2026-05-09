@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import {
   getConfig, getPresets, saveConfig, isValidServerUrl, type ServerKind,
 } from "../../../lib/server-config";
+import { useAuthStore } from "@/stores/auth";
 
 /**
  * Three-mode picker: AgentsMesh Global, AgentsMesh 中国, or 自定义服务器.
@@ -42,7 +43,7 @@ function ServerSettingsForm({ onClose }: { onClose: () => void }) {
 
   const setKind = (kind: ServerKind) => setDraft((d) => ({ ...d, kind }));
 
-  const handleConnect = () => {
+  const handleConnect = async () => {
     if (draft.kind === "custom") {
       if (!draft.customLabel.trim()) {
         setError(t("auth.loginPage.serverLabelRequired"));
@@ -52,6 +53,20 @@ function ServerSettingsForm({ onClose }: { onClose: () => void }) {
         setError(t("auth.loginPage.serverInvalidUrl"));
         return;
       }
+    }
+    // Switching server == logging out: tokens/identity for the previous
+    // server are not valid against the new one, and silently leaving them
+    // in storage would cause RootRedirect → dashboard → 401 cascade after
+    // reload. AWAIT logout — without it, `reload()` races the IPC
+    // round-trip and `reset_local()` may not have committed before the
+    // renderer reloads, leaving a stale session blob on disk.
+    const wasAuthed = useAuthStore.getState().isAuthenticated();
+    if (wasAuthed) {
+      const ok = window.confirm(
+        "切换服务器将登出当前账号，是否继续？\n\nSwitching server will log you out of the current account."
+      );
+      if (!ok) return;
+      await useAuthStore.getState().logout();
     }
     saveConfig(draft);
     onClose();

@@ -5,7 +5,7 @@ mod native;
 #[cfg(target_arch = "wasm32")]
 mod wasm;
 
-pub use traits::{BoxFuture, Runtime, TaskHandle};
+pub use traits::{timeout, BoxFuture, Elapsed, Runtime, TaskHandle};
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use native::NativeRuntime as PlatformRuntime;

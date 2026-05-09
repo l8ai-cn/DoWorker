@@ -55,9 +55,10 @@ ts_project(
     visibility = ["//clients:__subpackages__"],
     deps = [
         "//:node_modules",
-        # Bazel-managed first-party + wasm-pack packages aren't in the
-        # pnpm-derived `//:node_modules` aggregate; tsc needs explicit
-        # link targets to resolve them.
+        # Bazel-native first-party packages (`@agentsmesh/*` + the
+        # `agentsmesh-wasm` npm wrapper around the Rust→wasm-bindgen
+        # pipeline) aren't in the pnpm-derived `//:node_modules`
+        # aggregate; tsc needs explicit link targets to resolve them.
         "//:node_modules/@agentsmesh/electron-adapter",
         "//:node_modules/@agentsmesh/service-interface",
         "//:node_modules/@agentsmesh/service-runtime",
@@ -113,14 +114,13 @@ _SRC_FILES = glob(
 )
 
 # Runtime data bundle the Next.js build needs: config files, package
-# manifests, linked node_modules, and the wasm-pack output consumed via
-# `file:../../core/pkg` in package.json. The legacy wasm-pack pkg dir
-# is shipped through `//clients/core/pkg:pkg` (an `npm_package`); the
-# Bazel-native `//clients/core/crates/wasm:wasm_pkg` pipeline requires
-# a wasm32 rust toolchain, which we don't ship to the macOS dev host
-# yet.
+# manifests, linked node_modules. `agentsmesh-wasm` resolves through
+# `//:node_modules/agentsmesh-wasm` → `//clients/core/crates/wasm:wasm_pkg_npm`
+# (Bazel-native rust→wasm-bindgen pipeline; the wasm closure is
+# tokio-free, see clients/core/crates/wasm/BUILD.bazel for the
+# architectural rationale).
 #
-# First-party `@agentsmesh/*` packages are now Bazel-native (no
+# First-party `@agentsmesh/*` packages are also Bazel-native (no
 # `workspace:*` in root package.json; see build_defs/web/internal_package.bzl).
 # We must list each `npm_link_package` link explicitly because
 # `//:node_modules` only aggregates pnpm-lock.yaml-derived externals.
@@ -135,7 +135,6 @@ _NEXT_DATA = [
     "//:node_modules/@agentsmesh/node-bridge",
     "//:node_modules/agentsmesh-wasm",
     "//:package_json_bin",
-    "//clients/core/pkg",
 ] + glob(
     ["public/**/*"],
     allow_empty = True,

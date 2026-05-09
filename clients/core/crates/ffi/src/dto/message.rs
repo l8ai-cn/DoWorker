@@ -1,6 +1,7 @@
 use agentsmesh_types::{
     DeadLetterEntry, DeadLetterListResponse, DirectMessage, DirectMessageListResponse,
-    MarkMessagesReadRequest, SendDirectMessageRequest, UnreadCountResponse,
+    MarkMessagesReadRequest, ReplayDeadLetterResponse, SendDirectMessageRequest,
+    UnreadCountResponse,
 };
 
 #[derive(Clone, Debug, uniffi::Record)]
@@ -57,6 +58,7 @@ impl From<SendDirectMessageRequestDto> for SendDirectMessageRequest {
 pub struct DirectMessageListResponseDto {
     pub messages: Vec<DirectMessageDto>,
     pub total: Option<i64>,
+    pub unread_count: Option<i64>,
 }
 
 impl From<DirectMessageListResponse> for DirectMessageListResponseDto {
@@ -64,6 +66,7 @@ impl From<DirectMessageListResponse> for DirectMessageListResponseDto {
         Self {
             messages: r.messages.into_iter().map(DirectMessageDto::from).collect(),
             total: r.total,
+            unread_count: r.unread_count,
         }
     }
 }
@@ -101,12 +104,29 @@ impl From<DeadLetterEntry> for DeadLetterEntryDto {
 #[derive(Clone, Debug, uniffi::Record)]
 pub struct DeadLetterListResponseDto {
     pub entries: Vec<DeadLetterEntryDto>,
+    pub total: Option<i64>,
 }
 
 impl From<DeadLetterListResponse> for DeadLetterListResponseDto {
     fn from(r: DeadLetterListResponse) -> Self {
         Self {
             entries: r.entries.into_iter().map(DeadLetterEntryDto::from).collect(),
+            total: r.total,
+        }
+    }
+}
+
+#[derive(Clone, Debug, uniffi::Record)]
+pub struct ReplayDeadLetterResponseDto {
+    pub message: Option<String>,
+    pub replayed_message: Option<DirectMessageDto>,
+}
+
+impl From<ReplayDeadLetterResponse> for ReplayDeadLetterResponseDto {
+    fn from(r: ReplayDeadLetterResponse) -> Self {
+        Self {
+            message: r.message,
+            replayed_message: r.replayed_message.map(Into::into),
         }
     }
 }

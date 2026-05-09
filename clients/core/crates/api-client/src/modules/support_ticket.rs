@@ -29,8 +29,8 @@ impl ApiClient {
     pub async fn get_support_ticket_detail(
         &self,
         id: i64,
-    ) -> Result<SupportTicket, ApiError> {
-        self.get_resource(&format!("/api/v1/support-tickets/{id}"), "ticket").await
+    ) -> Result<SupportTicketDetailResponse, ApiError> {
+        self.get(&format!("/api/v1/support-tickets/{id}")).await
     }
 
     pub async fn get_support_ticket_attachment_url(

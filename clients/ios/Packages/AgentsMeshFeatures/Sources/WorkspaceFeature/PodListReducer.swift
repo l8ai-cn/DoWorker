@@ -117,8 +117,8 @@ public struct PodListFeature {
             case .createPodRequested(let req):
                 return .run { send in
                     do {
-                        let pod = try await core.createPod(req)
-                        await send(.createPodSucceeded(pod))
+                        let resp = try await core.createPod(req)
+                        await send(.createPodSucceeded(resp.pod))
                     } catch let err as CoreError {
                         await send(.createPodFailed(CoreErrorDescription.describe(err)))
                     } catch {

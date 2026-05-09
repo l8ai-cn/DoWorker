@@ -1,12 +1,11 @@
 import type { PodData } from "@/lib/api";
 import { getPodService } from "@/lib/wasm-core";
 
-/**
- * Builds the API request payload and submits the pod creation request.
- *
- * All pod configuration (MODE, CONFIG, REPO, BRANCH, CREDENTIAL, PROMPT, etc.)
- * is conveyed through `agentfileLayer` (AgentFile SSOT).
- */
+export interface CreatePodResult {
+  pod: PodData;
+  warning?: string;
+}
+
 export async function submitCreatePod(params: {
   selectedAgent: string;
   alias: string;
@@ -14,10 +13,10 @@ export async function submitCreatePod(params: {
   selectedRunnerId: number | null | undefined;
   agentfileLayer?: string;
   options?: { ticketSlug?: string; cols?: number; rows?: number };
-}): Promise<PodData | null> {
+}): Promise<CreatePodResult | null> {
   const { selectedAgent, alias, perpetual, selectedRunnerId, agentfileLayer, options } = params;
 
-  const pod: PodData = JSON.parse(await getPodService().create_pod(JSON.stringify({
+  const raw = await getPodService().create_pod(JSON.stringify({
     agent_slug: selectedAgent,
     runner_id: selectedRunnerId || undefined,
     alias: alias.trim() || undefined,
@@ -26,7 +25,9 @@ export async function submitCreatePod(params: {
     rows: options?.rows,
     agentfile_layer: agentfileLayer || undefined,
     perpetual: perpetual || undefined,
-  })));
+  }));
 
-  return pod || null;
+  const parsed = JSON.parse(raw) as { pod: PodData; warning?: string };
+  if (!parsed?.pod) return null;
+  return { pod: parsed.pod, warning: parsed.warning };
 }

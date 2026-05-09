@@ -55,7 +55,13 @@ function createWindow() {
   });
 
   win.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
+    // Filter to safe external schemes only. A bare `window.open()` or
+    // `<a target="_blank" href="">` produces `about:blank`, which when
+    // forwarded to shell.openExternal triggers macOS's "no app for
+    // about:blank" dialog. Same hazard for `chrome://` etc.
+    if (/^https?:\/\//i.test(url) || url.startsWith("mailto:") || url.startsWith("agentsmesh://")) {
+      shell.openExternal(url);
+    }
     return { action: "deny" };
   });
 
@@ -75,7 +81,11 @@ function createWindow() {
 
 function registerIpcHandlers() {
   ipcMain.handle("shellOpen", async (_e, url: string) => {
-    await shell.openExternal(url);
+    // Same scheme guard as setWindowOpenHandler — renderer code that
+    // hands a bare/empty URL down the IPC must NOT pop the OS picker.
+    if (/^https?:\/\//i.test(url) || url.startsWith("mailto:") || url.startsWith("agentsmesh://")) {
+      await shell.openExternal(url);
+    }
   });
 
   const proto = Object.getPrototypeOf(appState);

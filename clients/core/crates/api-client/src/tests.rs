@@ -34,7 +34,7 @@ mod tests {
             self.refresh_token.lock().unwrap().clone()
         }
 
-        fn set_tokens(&self, token: String, refresh_token: String) {
+        fn set_tokens(&self, token: String, refresh_token: String, _expires_in_secs: Option<i64>) {
             *self.token.lock().unwrap() = Some(token);
             *self.refresh_token.lock().unwrap() = Some(refresh_token);
         }
@@ -438,7 +438,7 @@ mod tests {
         assert_eq!(store.get_refresh_token(), Some("r".into()));
         assert_eq!(store.get_current_org_slug(), Some("org".into()));
 
-        store.set_tokens("new-t".into(), "new-r".into());
+        store.set_tokens("new-t".into(), "new-r".into(), None);
         assert_eq!(store.get_token(), Some("new-t".into()));
         assert_eq!(store.get_refresh_token(), Some("new-r".into()));
 

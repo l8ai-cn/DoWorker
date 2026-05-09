@@ -56,7 +56,10 @@ export function ThisMacSection() {
         />
       ) : isRegistered && !matchingRunner ? (
         // Registered locally but backend list hasn't picked it up yet (heartbeat in flight).
-        <div className="px-3 pb-3 text-xs text-muted-foreground">
+        <div
+          data-testid="this-mac-syncing"
+          className="px-3 pb-3 text-xs text-muted-foreground"
+        >
           Active locally · syncing with server…
         </div>
       ) : (
@@ -127,6 +130,7 @@ function OnboardingBlock({
         Run pods locally with no cloud relay round-trip.
       </p>
       <Button
+        data-testid="this-mac-register-btn"
         size="sm"
         variant={phase.kind === "error" ? "outline" : "default"}
         className="w-full h-8 text-xs"

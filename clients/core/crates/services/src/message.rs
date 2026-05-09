@@ -41,15 +41,15 @@ impl MessageService {
         serde_json::to_string(&resp).map_err(crate::wire)
     }
 
-    pub async fn mark_read(&self, json: &str) -> Result<(), String> {
+    pub async fn mark_read(&self, json: &str) -> Result<String, String> {
         let req: MarkMessagesReadRequest = serde_json::from_str(json).map_err(crate::wire)?;
-        self.client.mark_mesh_messages_read(&req).await.map_err(crate::wire)?;
-        Ok(())
+        let resp = self.client.mark_mesh_messages_read(&req).await.map_err(crate::wire)?;
+        serde_json::to_string(&resp).map_err(crate::wire)
     }
 
-    pub async fn mark_all_read(&self) -> Result<(), String> {
-        self.client.mark_all_mesh_messages_read().await.map_err(crate::wire)?;
-        Ok(())
+    pub async fn mark_all_read(&self) -> Result<String, String> {
+        let resp = self.client.mark_all_mesh_messages_read().await.map_err(crate::wire)?;
+        serde_json::to_string(&resp).map_err(crate::wire)
     }
 
     pub async fn get_conversation(
@@ -79,8 +79,8 @@ impl MessageService {
         serde_json::to_string(&resp).map_err(crate::wire)
     }
 
-    pub async fn replay_dead_letter(&self, entry_id: i64) -> Result<(), String> {
-        self.client.replay_mesh_dead_letter(entry_id).await.map_err(crate::wire)?;
-        Ok(())
+    pub async fn replay_dead_letter(&self, entry_id: i64) -> Result<String, String> {
+        let resp = self.client.replay_mesh_dead_letter(entry_id).await.map_err(crate::wire)?;
+        serde_json::to_string(&resp).map_err(crate::wire)
     }
 }

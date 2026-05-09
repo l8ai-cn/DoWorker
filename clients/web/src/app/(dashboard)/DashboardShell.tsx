@@ -7,7 +7,7 @@ import { useChannelMessageStore } from "@/stores/channelMessageStore";
 import { ResponsiveShell } from "@/components/layout";
 import { Spinner } from "@/components/ui/spinner";
 import { RealtimeProvider } from "@/providers/RealtimeProvider";
-import { initWasmCore, getAuthManager, getApiClient } from "@/lib/wasm-core";
+import { initWasmCore, getAuthManager } from "@/lib/wasm-core";
 import { useBrowserNotification } from "@/hooks";
 import { handleNotificationEvent } from "@/stores/notificationHandler";
 import type { RealtimeEvent } from "@/lib/realtime";
@@ -25,34 +25,31 @@ export default function DashboardShell({
 
   useEffect(() => {
     initWasmCore().then(async () => {
-      const mgr = getAuthManager();
-      const restored = await mgr.restore_session();
-      if (restored) {
-        const token = mgr.get_token();
-        const refreshToken = mgr.get_refresh_token();
-        if (token) getApiClient().set_token(token, refreshToken || "");
-        const userJson = mgr.get_current_user_json();
-        if (userJson) {
-          const user = typeof userJson === "string" ? JSON.parse(userJson) : userJson;
-          useAuthStore.getState().setAuth(token || "", user, refreshToken || "");
-          let orgs = JSON.parse(mgr.get_organizations_json() || "[]");
-          if (orgs.length === 0) {
-            try {
-              const fetchedJson = await mgr.fetch_organizations();
-              orgs = JSON.parse(fetchedJson || "[]");
-            } catch { /* token may be expired */ }
-          }
-          if (orgs.length > 0) {
-            const urlSlug = window.location.pathname.split("/")[1];
-            const matchedOrg = orgs.find((o: { slug: string }) => o.slug === urlSlug);
-            const org = matchedOrg || orgs[0];
-            getApiClient().set_org_slug(org.slug);
-            mgr.switch_org(org.slug);
-            useAuthStore.getState().setOrganizations(orgs);
-            useAuthStore.getState().setCurrentOrg(org);
+      // Bootstrap protocol replaces the previous restore_session + manual
+      // hydrate dance. It reads storage, validates the token, refreshes
+      // when near expiry, and re-fetches identity / orgs from the server
+      // — all atomic. Failure cleans storage and lands the user
+      // anonymous (RootRedirect → /login).
+      await useAuthStore.getState().bootstrap();
+
+      // Routing helper: if the URL slug names a known org, switch to it.
+      // The bootstrap already populated `currentOrg` from the persisted
+      // `current_org_slug`, but a deep link to /{otherOrg}/... should
+      // win over the persisted preference.
+      try {
+        const orgs = JSON.parse(getAuthManager().get_organizations_json() || "[]");
+        if (orgs.length > 0) {
+          const urlSlug = window.location.pathname.split("/")[1];
+          const matchedOrg = orgs.find((o: { slug: string }) => o.slug === urlSlug);
+          if (matchedOrg) {
+            // switch_org updates AuthManager's PersistedSession.current_org_slug;
+            // ApiClient reads it via shared AuthTokenStore on every request.
+            getAuthManager().switch_org(matchedOrg.slug);
+            useAuthStore.getState().setCurrentOrg(matchedOrg);
           }
         }
-      }
+      } catch { /* noop */ }
+
       useAuthStore.getState().setHasHydrated(true);
       setWasmReady(true);
     });

@@ -1,5 +1,6 @@
 use agentsmesh_relay::RelayConnectionPool;
 use agentsmesh_transport::runtime::{PlatformRuntime, Runtime};
+use futures::stream::StreamExt;
 use wasm_bindgen::prelude::*;
 
 use crate::js_bridge::{make_acp_callback, make_output_callback, make_status_callback};
@@ -16,7 +17,7 @@ impl WasmRelayManager {
         let (pool, mut rx) = RelayConnectionPool::with_runtime(PlatformRuntime);
         let pool_ref = pool.clone();
         PlatformRuntime.spawn(Box::pin(async move {
-            while let Some((pod_key, sub_id)) = rx.recv().await {
+            while let Some((pod_key, sub_id)) = rx.next().await {
                 pool_ref.unsubscribe(&pod_key, &sub_id).await;
             }
         }));

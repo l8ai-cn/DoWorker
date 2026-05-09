@@ -467,7 +467,7 @@ impl From<NotificationPreference> for NotificationPreferenceDto {
             source: p.source,
             entity_id: p.entity_id,
             is_muted: p.is_muted,
-            channels: p.channels,
+            channels: p.channels.map(|m| m.into_iter().filter(|(_, v)| *v).map(|(k, _)| k).collect()),
         }
     }
 }
@@ -503,7 +503,7 @@ impl From<SetNotificationPreferenceRequestDto> for SetNotificationPreferenceRequ
             source: d.source,
             entity_id: d.entity_id,
             is_muted: d.is_muted,
-            channels: d.channels,
+            channels: d.channels.map(|v| v.into_iter().map(|k| (k, true)).collect()),
         }
     }
 }

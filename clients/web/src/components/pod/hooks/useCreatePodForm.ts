@@ -36,6 +36,7 @@ export function useCreatePodForm(
   const [perpetual, setPerpetual] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<FormValidationErrors>({});
 
   // AgentFile Layer state
@@ -127,6 +128,7 @@ export function useCreatePodForm(
     setAlias("");
     setPerpetual(false);
     setError(null);
+    setWarning(null);
     setValidationErrors({});
     setRawLayerModeState(false);
     setRawLayerText("");
@@ -172,20 +174,22 @@ export function useCreatePodForm(
       if (!selectedAgent) { setError("Please select an agent"); return null; }
       setLoading(true);
       setError(null);
+      setWarning(null);
       try {
-        const pod = await submitCreatePod({
+        const result = await submitCreatePod({
           selectedAgent, alias, perpetual, selectedRunnerId,
           agentfileLayer: agentfileLayer || undefined, options,
         });
-        if (pod) {
+        if (result) {
           setLastChoices({
             lastAgentSlug: selectedAgent, lastRepositoryId: selectedRepository,
             lastCredentialProfileId: creds.selectedCredentialProfile > 0 ? creds.selectedCredentialProfile : null,
             lastBranchName: selectedBranch || null,
           });
-          onSuccess?.(pod);
+          if (result.warning) setWarning(result.warning);
+          onSuccess?.(result.pod);
         }
-        return pod;
+        return result?.pod ?? null;
       } catch (err) {
         const message = err instanceof Error ? err.message : "Failed to create pod";
         setError(message);
@@ -206,7 +210,7 @@ export function useCreatePodForm(
     setSelectedAgent, setSelectedRepository, setSelectedBranch,
     setSelectedCredentialProfile: creds.setSelectedCredentialProfile,
     setInteractionMode, setPrompt, setAlias, setPerpetual, selectedAgentSlug, supportedModes,
-    loading, error, validationErrors, isValid, reset, validate, submit,
+    loading, error, warning, validationErrors, isValid, reset, validate, submit,
     // AgentFile Layer
     rawLayerMode, rawLayerText, agentfileLayer, setRawLayerMode, setRawLayerText,
   };

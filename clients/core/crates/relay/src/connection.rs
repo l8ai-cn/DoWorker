@@ -1,6 +1,7 @@
 use agentsmesh_transport::runtime::Runtime;
 use agentsmesh_transport::{WebSocketConnection, WsMessage as TransportMsg};
-use tokio::sync::mpsc;
+use futures::channel::mpsc;
+use futures::stream::StreamExt;
 use tracing::{debug, warn};
 
 use crate::error::RelayError;
@@ -35,10 +36,10 @@ pub async fn connect<R: Runtime>(
         .map_err(|e| RelayError::Connection(e.to_string()))?;
 
     let (sender, mut receiver) = conn.into_split();
-    let (write_tx, mut write_rx) = mpsc::unbounded_channel::<WsMessage>();
+    let (write_tx, mut write_rx) = mpsc::unbounded::<WsMessage>();
 
     let write_handle = runtime.spawn(Box::pin(async move {
-        while let Some(data) = write_rx.recv().await {
+        while let Some(data) = write_rx.next().await {
             if sender.send_binary(data).is_err() {
                 break;
             }
@@ -51,7 +52,7 @@ pub async fn connect<R: Runtime>(
         loop {
             match receiver.recv().await {
                 Ok(TransportMsg::Binary(data)) => {
-                    let _ = on_message.send((pk_read.clone(), data));
+                    let _ = on_message.unbounded_send((pk_read.clone(), data));
                 }
                 Ok(TransportMsg::Close(_)) => {
                     debug!("relay ws closed for {pk_read}");
@@ -59,13 +60,13 @@ pub async fn connect<R: Runtime>(
                 }
                 Err(_) => {
                     warn!("relay ws error for {pk_read}");
-                    let _ = on_error.send(pk_err.clone());
+                    let _ = on_error.unbounded_send(pk_err.clone());
                     break;
                 }
                 _ => {}
             }
         }
-        let _ = on_close.send(pk_read);
+        let _ = on_close.unbounded_send(pk_read);
     }));
 
     Ok(WsConnection {

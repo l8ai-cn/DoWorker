@@ -19,14 +19,6 @@ impl MockStorage {
             data: Mutex::new(HashMap::new()),
         }
     }
-
-    fn with_entry(key: &str, value: &str) -> Self {
-        let mut map = HashMap::new();
-        map.insert(key.to_string(), value.to_string());
-        Self {
-            data: Mutex::new(map),
-        }
-    }
 }
 
 impl StorageCallback for MockStorage {
@@ -41,18 +33,10 @@ impl StorageCallback for MockStorage {
     fn remove(&self, key: String) {
         self.data.lock().unwrap().remove(&key);
     }
-
-    fn clear(&self) {
-        self.data.lock().unwrap().clear();
-    }
 }
 
 fn make_core() -> AgentsMeshCore {
     AgentsMeshCore::new("https://example.com".into(), Box::new(MockStorage::new()))
-}
-
-fn make_core_with_storage(storage: MockStorage) -> AgentsMeshCore {
-    AgentsMeshCore::new("https://example.com".into(), Box::new(storage))
 }
 
 // ── StorageBridge ──
@@ -69,16 +53,6 @@ fn bridge_get_set_remove() {
 
     bridge.remove("k");
     assert_eq!(bridge.get("k"), None);
-}
-
-#[test]
-fn bridge_clear() {
-    let mock = Arc::new(MockStorage::with_entry("a", "1"));
-    let bridge = StorageBridge::new(mock.clone());
-
-    assert!(bridge.get("a").is_some());
-    bridge.clear();
-    assert_eq!(bridge.get("a"), None);
 }
 
 // ── CoreError From<AuthError> ──
@@ -111,14 +85,9 @@ fn from_auth_server_error() {
     }
 }
 
-#[test]
-fn from_auth_storage_error() {
-    let err: CoreError = AuthError::Storage("corrupt".into()).into();
-    match err {
-        CoreError::Unknown { message } => assert!(message.contains("corrupt")),
-        other => panic!("expected Unknown, got {other:?}"),
-    }
-}
+// from_auth_storage_error removed — `AuthError::Storage` was a phantom
+// variant with no production constructor; deleting the variant from the
+// auth crate dropped the test alongside it.
 
 // ── CoreError From<ApiError> ──
 
@@ -244,62 +213,9 @@ fn core_get_organizations_empty() {
     assert_eq!(json, "[]");
 }
 
-#[test]
-fn restore_session_empty_storage_returns_false() {
-    let core = make_core();
-    assert_eq!(core.restore_session().unwrap(), false);
-}
-
-#[test]
-fn restore_session_with_valid_state() {
-    let state_json = serde_json::json!({
-        "token": "tok_abc",
-        "refresh_token": "ref_xyz",
-        "user": {
-            "id": 1,
-            "email": "test@example.com",
-            "username": "tester",
-            "name": "Test User"
-        },
-        "organizations": [],
-        "current_org": null
-    });
-
-    let storage = MockStorage::with_entry("agentsmesh-auth", &state_json.to_string());
-    let core = make_core_with_storage(storage);
-
-    assert!(!core.is_authenticated());
-    let restored = core.restore_session().unwrap();
-    assert!(restored);
-    assert!(core.is_authenticated());
-    assert!(core.get_current_user_json().is_some());
-}
-
-#[test]
-fn restore_session_with_no_token_returns_false() {
-    let state_json = serde_json::json!({
-        "token": null,
-        "refresh_token": null,
-        "user": null,
-        "organizations": [],
-        "current_org": null
-    });
-
-    let storage = MockStorage::with_entry("agentsmesh-auth", &state_json.to_string());
-    let core = make_core_with_storage(storage);
-
-    assert_eq!(core.restore_session().unwrap(), false);
-    assert!(!core.is_authenticated());
-}
-
-#[test]
-fn restore_session_with_corrupt_json_returns_error() {
-    let storage = MockStorage::with_entry("agentsmesh-auth", "not valid json");
-    let core = make_core_with_storage(storage);
-
-    let result = core.restore_session();
-    assert!(result.is_err());
-}
+// restore_session_* tests removed — bootstrap is the only public hydrate
+// entry point now; bootstrap_tests.rs (auth crate) covers empty / corrupt /
+// base_url mismatch / legacy-purge paths through the new protocol.
 
 // ── relay_ffi ──
 
@@ -318,22 +234,10 @@ fn api_org_path_without_org() {
     assert!(path.contains("/pods"));
 }
 
-#[test]
-fn api_org_path_with_org() {
-    let state_json = serde_json::json!({
-        "token": "tok",
-        "refresh_token": "ref",
-        "user": { "id": 1, "email": "u@x.com", "username": "u", "name": "U" },
-        "organizations": [{ "id": 1, "name": "Org", "slug": "test-org" }],
-        "current_org": { "id": 1, "name": "Org", "slug": "test-org" }
-    });
-    let storage = MockStorage::with_entry("agentsmesh-auth", &state_json.to_string());
-    let core = make_core_with_storage(storage);
-    core.restore_session().unwrap();
-    core.switch_org("test-org".into()).unwrap();
-    let path = core.api_org_path("/pods".into());
-    assert!(path.contains("test-org"));
-}
+// api_org_path_with_org removed — depended on `restore_session()` to seed an
+// authenticated state from a stored "agentsmesh-auth" blob. With bootstrap
+// as the sole hydrate path, that scenario lives in async integration tests
+// (bootstrap_tests.rs) rather than the synchronous ffi unit tests.
 
 // ── api_ffi: invalid JSON body triggers CoreError::InvalidJson ──
 

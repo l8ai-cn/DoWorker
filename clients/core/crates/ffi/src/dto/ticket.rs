@@ -118,6 +118,8 @@ impl From<Ticket> for TicketDto {
 pub struct TicketListResponseDto {
     pub tickets: Vec<TicketDto>,
     pub total: Option<i64>,
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
 }
 
 impl From<TicketListResponse> for TicketListResponseDto {
@@ -125,6 +127,8 @@ impl From<TicketListResponse> for TicketListResponseDto {
         Self {
             tickets: r.tickets.into_iter().map(TicketDto::from).collect(),
             total: r.total,
+            limit: r.limit,
+            offset: r.offset,
         }
     }
 }
@@ -229,6 +233,8 @@ impl From<TicketComment> for TicketCommentDto {
 pub struct TicketCommentListResponseDto {
     pub comments: Vec<TicketCommentDto>,
     pub total: Option<i64>,
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
 }
 
 impl From<TicketCommentListResponse> for TicketCommentListResponseDto {
@@ -236,6 +242,8 @@ impl From<TicketCommentListResponse> for TicketCommentListResponseDto {
         Self {
             comments: r.comments.into_iter().map(TicketCommentDto::from).collect(),
             total: r.total,
+            limit: r.limit,
+            offset: r.offset,
         }
     }
 }

@@ -1,13 +1,14 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/stores/auth";
+import { useAuthStore, useCurrentUser } from "@/stores/auth";
 import { useTranslations } from "next-intl";
 import { LogOut, User, Mail } from "lucide-react";
 
 export function GeneralSettingsPage() {
   const router = useRouter();
   const t = useTranslations();
-  const { user, logout } = useAuthStore();
+  const user = useCurrentUser();
+  const logout = useAuthStore((s) => s.logout);
 
   const handleLogout = () => {
     logout();

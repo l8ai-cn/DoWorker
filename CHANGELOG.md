@@ -10,6 +10,15 @@ for tagged releases where possible.
 
 ### Added
 
+- Auth bootstrap protocol: `AuthManager::bootstrap()` async hydration with
+  base_url self-validation, expired-token refresh, identity fetch, and
+  cleanup-on-failure semantics. Exposed across WASM / node-bridge / UniFFI
+  bindings; web/desktop/iOS frontends drive startup off it instead of the
+  legacy `restore_session()` path.
+- Per-server storage namespacing: session keys are now scoped to
+  `agentsmesh-auth/<url-slug>/session`, allowing the same machine to hold
+  independent sessions for dev / staging / prod without cross-server
+  contamination.
 - Channel @mention with pod prompt forwarding
 - ChannelPodManager for managing pod membership in channels
 - Loop feature - CI/CD for AI Agent Tasks
@@ -19,6 +28,20 @@ for tagged releases where possible.
 
 ### Fixed
 
+- **Cross-server account contamination (auth architecture overhaul)**:
+  starting v0.31.0 a stale dev token from a prior development session
+  could persist across server-preset switches and OAuth re-logins,
+  routing the renderer to a phantom dashboard that 502'd into an
+  onboarding loop. Root causes: (a) global `STORAGE_KEY` shared across
+  all backends, (b) `AuthState` persisted user identity alongside the
+  token blob, (c) `AppState::new` auto-`restore_session()`'d without
+  base_url validation, (d) `RootRedirect` keyed off `user.id` instead
+  of token freshness, (e) `ServerSettingsModal` switched servers
+  without logout, (f) `OAuthCallbackPage` left a placeholder auth
+  state if `/users/me` failed. Fixed by introducing the bootstrap
+  protocol (see Added) and per-server storage namespaces; identity is
+  no longer persisted, only the access/refresh-token + base_url +
+  user_id triple plus the org-slug preference.
 - Terminal graceful shutdown, pod race conditions, and resource cleanup
 - Codex CLI 0.100+ approval mode compatibility & early output capture
 - PTY read error detection and propagation to prevent frozen terminals

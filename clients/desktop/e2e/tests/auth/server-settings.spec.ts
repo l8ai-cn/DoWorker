@@ -19,6 +19,18 @@ test.beforeAll(() => {
   rmSync(FRESH_USER_DATA, { recursive: true, force: true });
 });
 
+// Per-test reset of the Electron profile. Each spec in this file mutates
+// the persisted server config via the modal AND occasionally completes a
+// real login (driving session blobs into FileStorage). Without per-test
+// cleanup, the second `await login.expectOnLoginPage()` lands on the
+// dashboard inherited from the previous spec's session file and times
+// out waiting for the /login hash. `skipAuthRestore` only stops the
+// fixture from auto-restoring; the storage on disk still hydrates the
+// renderer's bootstrap call.
+test.beforeEach(() => {
+  rmSync(FRESH_USER_DATA, { recursive: true, force: true });
+});
+
 const STORAGE_KEY = "agentsmesh.server_config_v2";
 const GLOBAL_URL = "https://agentsmesh.ai";
 const CN_URL = "https://agentsmesh.cn";

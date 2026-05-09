@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/stores/auth";
+import { useAuthStore, useCurrentUser, useIsAuthenticated } from "@/stores/auth";
 import { invitationApi, InvitationInfo } from "@/lib/api/invitation";
 import { organizationApi } from "@/lib/api/organization";
 import { Logo } from "@/components/common";
@@ -10,7 +10,10 @@ import { Logo } from "@/components/common";
 export function InvitePage() {
   const { token: inviteToken } = useParams<{ token: string }>();
   const router = useRouter();
-  const { token: authToken, user, setOrganizations, setCurrentOrg } = useAuthStore();
+  const setOrganizations = useAuthStore((s) => s.setOrganizations);
+  const setCurrentOrg = useAuthStore((s) => s.setCurrentOrg);
+  const user = useCurrentUser();
+  const isAuthenticated = useIsAuthenticated();
   const [invitation, setInvitation] = useState<InvitationInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState(false);
@@ -237,7 +240,7 @@ export function InvitePage() {
           )}
 
           {/* Actions */}
-          {authToken && user ? (
+          {isAuthenticated && user ? (
             <div className="space-y-3">
               <p className="text-sm text-center text-muted-foreground">
                 Signed in as <strong>{user.email}</strong>

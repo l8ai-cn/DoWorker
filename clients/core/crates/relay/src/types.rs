@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use agentsmesh_protocol::MsgType;
 use agentsmesh_transport::runtime::{PlatformRuntime, Runtime, TaskHandle};
+use futures::channel::mpsc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RelayStatus {
@@ -43,16 +44,16 @@ pub type AcpCallback = Arc<dyn Fn(MsgType, serde_json::Value) + Send + Sync>;
 pub struct ConnectionHandle {
     pub pod_key: String,
     pub subscription_id: String,
-    send_tx: tokio::sync::mpsc::UnboundedSender<Vec<u8>>,
-    unsubscribe_tx: tokio::sync::mpsc::UnboundedSender<(String, String)>,
+    send_tx: mpsc::UnboundedSender<Vec<u8>>,
+    unsubscribe_tx: mpsc::UnboundedSender<(String, String)>,
 }
 
 impl ConnectionHandle {
     pub fn new(
         pod_key: String,
         subscription_id: String,
-        send_tx: tokio::sync::mpsc::UnboundedSender<Vec<u8>>,
-        unsubscribe_tx: tokio::sync::mpsc::UnboundedSender<(String, String)>,
+        send_tx: mpsc::UnboundedSender<Vec<u8>>,
+        unsubscribe_tx: mpsc::UnboundedSender<(String, String)>,
     ) -> Self {
         Self {
             pod_key,
@@ -63,13 +64,13 @@ impl ConnectionHandle {
     }
 
     pub fn send(&self, data: Vec<u8>) {
-        let _ = self.send_tx.send(data);
+        let _ = self.send_tx.unbounded_send(data);
     }
 
     pub fn unsubscribe(&self) {
         let _ = self
             .unsubscribe_tx
-            .send((self.pod_key.clone(), self.subscription_id.clone()));
+            .unbounded_send((self.pod_key.clone(), self.subscription_id.clone()));
     }
 }
 
@@ -82,7 +83,7 @@ pub(crate) struct ConnectionState<R: Runtime = PlatformRuntime> {
     pub runner_disconnected: bool,
     pub relay_url: String,
     pub relay_token: String,
-    pub ws_write_tx: Option<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>,
+    pub ws_write_tx: Option<mpsc::UnboundedSender<Vec<u8>>>,
     pub reconnect_handle: Option<R::TaskHandle>,
     pub disconnect_handle: Option<R::TaskHandle>,
     pub snapshot_handle: Option<R::TaskHandle>,

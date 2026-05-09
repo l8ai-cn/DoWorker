@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use agentsmesh_protocol::MsgType;
 use agentsmesh_transport::runtime::{PlatformRuntime, Runtime};
-use tokio::sync::mpsc;
+use futures::channel::mpsc;
 
 use crate::error::RelayError;
 use crate::pool::RelayConnectionPool;
@@ -21,7 +21,7 @@ fn rt() -> PlatformRuntime {
 }
 
 async fn insert_conn(pool: &RelayConnectionPool, pod: &str) {
-    let mut inner = pool.inner.write().await;
+    let mut inner = pool.inner.write();
     inner
         .connections
         .insert(pod.to_string(), ConnectionState::new("ws://relay".into(), "tok".into()));
@@ -32,8 +32,8 @@ async fn insert_connected(
     pod: &str,
     cb: OutputCallback,
 ) -> mpsc::UnboundedReceiver<Vec<u8>> {
-    let (tx, rx) = mpsc::unbounded_channel();
-    let mut inner = pool.inner.write().await;
+    let (tx, rx) = mpsc::unbounded();
+    let mut inner = pool.inner.write();
     let mut conn = ConnectionState::new("ws://relay".into(), "tok".into());
     conn.status = RelayStatus::Connected;
     conn.ws_write_tx = Some(tx);
@@ -65,16 +65,16 @@ async fn subscribe_existing_multiple_subscribers() {
     pool.subscribe("pod1", "s1", "ws://relay", "tok", cb1).await;
     pool.subscribe("pod1", "s2", "ws://relay", "tok", cb2).await;
 
-    let inner = pool.inner.read().await;
+    let inner = pool.inner.read();
     assert_eq!(inner.connections.get("pod1").unwrap().subscribers.len(), 2);
 }
 
 #[tokio::test]
 async fn subscribe_sends_resync_when_connected() {
     let (pool, _rx) = RelayConnectionPool::new();
-    let (tx, mut ws_rx) = mpsc::unbounded_channel();
+    let (tx, mut ws_rx) = mpsc::unbounded();
     {
-        let mut inner = pool.inner.write().await;
+        let mut inner = pool.inner.write();
         let mut conn = ConnectionState::new("ws://relay".into(), "tok".into());
         conn.status = RelayStatus::Connected;
         conn.ws_write_tx = Some(tx);
@@ -97,14 +97,14 @@ async fn subscribe_cancels_pending_disconnect() {
     let handle =
         rt().spawn(Box::pin(async { tokio::time::sleep(Duration::from_secs(3600)).await }));
     {
-        let mut inner = pool.inner.write().await;
+        let mut inner = pool.inner.write();
         inner.connections.get_mut("pod1").unwrap().disconnect_handle = Some(handle);
     }
 
     let (cb, _) = make_output_cb();
     pool.subscribe("pod1", "s1", "ws://relay", "tok", cb).await;
 
-    let inner = pool.inner.read().await;
+    let inner = pool.inner.read();
     assert!(inner.connections.get("pod1").unwrap().disconnect_handle.is_none());
 }
 
@@ -114,7 +114,7 @@ async fn subscribe_new_connection_starts_connecting() {
     let (cb, _) = make_output_cb();
     let handle = pool.subscribe("pod1", "s1", "ws://invalid:0", "tok", cb).await;
     assert_eq!(handle.pod_key, "pod1");
-    let inner = pool.inner.read().await;
+    let inner = pool.inner.read();
     assert!(inner.connections.contains_key("pod1"));
 }
 
@@ -124,11 +124,11 @@ async fn unsubscribe_removes_subscriber() {
     insert_conn(&pool, "pod1").await;
     {
         let (cb, _) = make_output_cb();
-        let mut inner = pool.inner.write().await;
+        let mut inner = pool.inner.write();
         inner.connections.get_mut("pod1").unwrap().subscribers.insert("s1".into(), cb);
     }
     pool.unsubscribe("pod1", "s1").await;
-    let inner = pool.inner.read().await;
+    let inner = pool.inner.read();
     assert!(inner.connections.get("pod1").unwrap().subscribers.is_empty());
 }
 
@@ -213,7 +213,7 @@ async fn send_resize_creates_debounce_entry() {
     let (pool, _rx) = RelayConnectionPool::new();
     insert_conn(&pool, "pod1").await;
     pool.send_resize("pod1", 80, 24).await;
-    let inner = pool.inner.read().await;
+    let inner = pool.inner.read();
     assert!(inner.resize_debounce.contains_key("pod1"));
 }
 
@@ -275,7 +275,7 @@ async fn disconnect_cleans_resize_debounce() {
     insert_conn(&pool, "pod1").await;
     pool.send_resize("pod1", 80, 24).await;
     pool.disconnect("pod1").await;
-    let inner = pool.inner.read().await;
+    let inner = pool.inner.read();
     assert!(!inner.resize_debounce.contains_key("pod1"));
 }
 
