@@ -91,7 +91,9 @@ export function useGitSettings(t: (key: string) => string): UseGitSettingsResult
     async (credentialId: number | null) => {
       try {
         setErrorMessage(null);
-        await getUserCredentialService().set_default_git_credential(JSON.stringify({ credential_id: credentialId }));
+        await getUserCredentialService().set_default_git_credential(
+          JSON.stringify({ credential_id: credentialId })
+        );
 
         // Update local state
         setData((prev) =>
