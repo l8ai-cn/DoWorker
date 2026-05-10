@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth";
-import { getUserApiService, getOrgApiService } from "@/lib/wasm-getters";
+import { getUserApiService } from "@/lib/wasm-getters";
 import { initWasmCore } from "@/lib/wasm-core";
-import { getDefaultRoute } from "@/lib/default-route";
+import { resolvePostLoginUrl } from "@/lib/auth/post-login";
 import { Logo } from "@/components/common";
 
 function OAuthCallbackContent() {
@@ -16,6 +16,7 @@ function OAuthCallbackContent() {
   const token = searchParams.get("token");
   const refreshToken = searchParams.get("refresh_token");
   const error = searchParams.get("error");
+  const redirectParam = searchParams.get("redirect");
   const { setAuth, setOrganizations } = useAuthStore();
 
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
@@ -52,31 +53,12 @@ function OAuthCallbackContent() {
         // Update auth with actual user info
         setAuth(token, user, refreshToken || undefined);
 
-        // Get organizations
-        try {
-          const orgsResponse = JSON.parse(await getOrgApiService().list());
-          if (orgsResponse.organizations && orgsResponse.organizations.length > 0) {
-            setOrganizations(orgsResponse.organizations);
-            setStatus("success");
-
-            // Redirect to first org's dashboard
-            setTimeout(() => {
-              router.push(getDefaultRoute(orgsResponse.organizations[0].slug));
-            }, 1500);
-          } else {
-            // No organizations, redirect to onboarding
-            setStatus("success");
-            setTimeout(() => {
-              router.push("/onboarding");
-            }, 1500);
-          }
-        } catch {
-          // Failed to get orgs, redirect to onboarding
-          setStatus("success");
-          setTimeout(() => {
-            router.push("/onboarding");
-          }, 1500);
-        }
+        const url = await resolvePostLoginUrl({
+          redirectParam,
+          setOrganizations,
+        });
+        setStatus("success");
+        setTimeout(() => { router.push(url); }, 1500);
       } catch (err: unknown) {
         setStatus("error");
         if (err instanceof Error) {
@@ -88,7 +70,7 @@ function OAuthCallbackContent() {
     };
 
     handleCallback();
-  }, [token, refreshToken, error, setAuth, setOrganizations, router]);
+  }, [token, refreshToken, error, redirectParam, setAuth, setOrganizations, router]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">

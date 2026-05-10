@@ -1,10 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  useAuthStore, readOrganizations, readCurrentOrg, useCurrentUser,
+  useAuthStore, useCurrentUser,
 } from "@/stores/auth";
 import { ApiError } from "@/lib/api/api-types";
 import { ssoApi } from "@/lib/api/sso";
@@ -15,22 +15,11 @@ import { OAuthButtons } from "./OAuthButtons";
 import { SSOSection } from "./SSOSection";
 import { Divider } from "./Divider";
 import { AuthShell } from "./AuthShell";
-
-function navigateToWorkspace(push: (url: string) => void) {
-  // Read from Rust SSOT (helpers), not Zustand state — web's auth store
-  // dropped the user/organizations/currentOrg fields when it migrated to
-  // Rust SSOT. Reading them off Zustand returned undefined and threw
-  // `Cannot read properties of undefined (reading '0')`.
-  const org = readCurrentOrg() ?? readOrganizations()[0];
-  if (org) {
-    push(`/${org.slug}/workspace`);
-  } else {
-    push("/onboarding");
-  }
-}
+import { navigateAfterLogin } from "./navigate-after-login";
 
 export function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations();
   const { login, setAuth } = useAuthStore();
   const _hasHydrated = useAuthStore((s) => s._hasHydrated);
@@ -42,7 +31,7 @@ export function LoginPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (_hasHydrated && user) navigateToWorkspace(router.push);
+    if (_hasHydrated && user) navigateAfterLogin(router.push, searchParams.get("redirect"));
   }, [_hasHydrated, user, router]);
 
   const [ssoConfigs, setSsoConfigs] = useState<SSOConfig[]>([]);
@@ -90,7 +79,7 @@ export function LoginPage() {
     try {
       const response = await ssoApi.ldapAuth(ldapConfig.domain, { username, password: pwd });
       setAuth(response.token, response.user, response.refresh_token);
-      navigateToWorkspace(router.push);
+      navigateAfterLogin(router.push, searchParams.get("redirect"));
     } catch (err) {
       setError(err instanceof ApiError && err.status >= 500
         ? t("common.error") : t("auth.loginPage.invalidCredentials"));
@@ -104,7 +93,7 @@ export function LoginPage() {
     setError("");
     try {
       await login(email, password);
-      navigateToWorkspace(router.push);
+      navigateAfterLogin(router.push, searchParams.get("redirect"));
     } catch {
       setError(t("auth.loginPage.invalidCredentials"));
     } finally { setLoading(false); }

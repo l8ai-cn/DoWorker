@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth";
-import { getUserApiService, getOrgApiService } from "@/lib/wasm-getters";
+import { getUserApiService } from "@/lib/wasm-getters";
 import { initWasmCore } from "@/lib/wasm-core";
+import { resolvePostLoginUrl } from "@/lib/auth/post-login";
 import { Logo } from "@/components/common";
 import { useTranslations } from "next-intl";
 
@@ -17,6 +18,7 @@ function SSOCallbackContent() {
   const token = searchParams.get("token");
   const refreshToken = searchParams.get("refresh_token");
   const error = searchParams.get("error");
+  const redirectParam = searchParams.get("redirect");
   const { setAuth, setOrganizations } = useAuthStore();
 
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
@@ -29,7 +31,8 @@ function SSOCallbackContent() {
     if (processedRef.current) return;
     processedRef.current = true;
 
-    // Remove tokens from URL to prevent leaking via browser history/Referer
+    // Remove tokens from URL to prevent leaking via browser history/Referer.
+    // redirectParam is already captured into closure above so this is safe.
     if (token || refreshToken || error) {
       window.history.replaceState({}, "", window.location.pathname);
     }
@@ -69,22 +72,12 @@ function SSOCallbackContent() {
         const userResponse = JSON.parse(await getUserApiService().get_me());
         setAuth(token, userResponse.user, refreshToken || undefined);
 
-        // Get organizations and redirect
-        try {
-          const orgsResponse = JSON.parse(await getOrgApiService().list());
-          const orgs = orgsResponse.organizations;
-          if (orgs && orgs.length > 0) {
-            setOrganizations(orgs);
-            setStatus("success");
-            scheduleRedirect(`/${orgs[0].slug}/workspace`);
-          } else {
-            setStatus("success");
-            scheduleRedirect("/onboarding");
-          }
-        } catch {
-          setStatus("success");
-          scheduleRedirect("/onboarding");
-        }
+        const url = await resolvePostLoginUrl({
+          redirectParam,
+          setOrganizations,
+        });
+        setStatus("success");
+        scheduleRedirect(url);
       } catch {
         setStatus("error");
         setErrorMessage(t("auth.sso.callbackGenericError"));
@@ -97,7 +90,7 @@ function SSOCallbackContent() {
       if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- processedRef ensures single execution
-  }, [token, refreshToken, error]);
+  }, [token, refreshToken, error, redirectParam]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">

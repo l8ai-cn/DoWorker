@@ -1,39 +1,24 @@
 import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/auth";
+import { useParams } from "next/navigation";
+import { useCurrentUser } from "@/stores/auth";
 import { RealtimeProvider } from "@/providers/RealtimeProvider";
 import { TerminalPane } from "@/components/workspace/TerminalPane";
-import { Spinner } from "@/components/ui/spinner";
 import { getShortPodKey } from "@/lib/pod-display-name";
 
+// Auth gating happens via <RequireAuth> in router.tsx so this component
+// is only mounted when a user exists. New BrowserWindows opened via
+// window.open share the renderer's bootstrapAuth() flow (PlatformGate).
 export function PopoutTerminalPage() {
   const { podKey } = useParams<{ podKey: string }>();
-  const router = useRouter();
-  const { token, _hasHydrated } = useAuthStore();
+  const user = useCurrentUser();
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (_hasHydrated && !token) {
-      router.push("/login");
-    }
-  }, [_hasHydrated, token, router]);
-
-  // Set window title to identify the pod
   useEffect(() => {
     if (podKey) {
       document.title = `Terminal - ${getShortPodKey(podKey)}`;
     }
   }, [podKey]);
 
-  if (!_hasHydrated) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-terminal-bg">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (!token || !podKey) return null;
+  if (!user || !podKey) return null;
 
   return (
     <RealtimeProvider>

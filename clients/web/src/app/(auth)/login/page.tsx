@@ -2,23 +2,24 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/stores/auth";
 import { ApiError } from "@/lib/api/api-types";
 import type { SSOConfig } from "@/lib/api/ssoTypes";
 import { getAuthManager, getSSOService } from "@/lib/wasm-getters";
-import { initWasmCore, getOrgApiService } from "@/lib/wasm-core";
+import { initWasmCore } from "@/lib/wasm-core";
 import { useTranslations } from "next-intl";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { OAuthButtons } from "./OAuthButtons";
-import { getDefaultRoute } from "@/lib/default-route";
+import { resolvePostLoginUrl } from "@/lib/auth/post-login";
 import { SSOSection } from "./SSOSection";
 import { Divider } from "./Divider";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations();
   const { setAuth, setOrganizations } = useAuthStore();
   const [email, setEmail] = useState("");
@@ -63,18 +64,11 @@ export default function LoginPage() {
   }, []);
 
   const navigateAfterLogin = async () => {
-    try {
-      // Fetch orgs via OrgApiService (reliable), then persist via AuthManager
-      const orgsResponse = JSON.parse(await getOrgApiService().list());
-      const orgs = orgsResponse.organizations || [];
-      if (orgs.length > 0) {
-        setOrganizations(orgs);
-        try { await getAuthManager().fetch_organizations(); } catch { /* best effort */ }
-        router.push(getDefaultRoute(orgs[0].slug));
-      } else {
-        router.push("/onboarding");
-      }
-    } catch { router.push("/onboarding"); }
+    const url = await resolvePostLoginUrl({
+      redirectParam: searchParams.get("redirect"),
+      setOrganizations,
+    });
+    router.push(url);
   };
 
   const handleLdapSubmit = async (username: string, pwd: string) => {
@@ -115,6 +109,15 @@ export default function LoginPage() {
     } finally { setLoading(false); }
   };
 
+  // Carry `?redirect=` over to the sign-up CTA so users who switch from
+  // login to register don't lose the original deep-link target. The
+  // register flow may still drop it at the verify-email step (out of
+  // scope here), but at minimum the link itself preserves intent.
+  const redirectParam = searchParams.get("redirect");
+  const registerHref = redirectParam
+    ? `/register?redirect=${encodeURIComponent(redirectParam)}`
+    : "/register";
+
   return (
     <AuthShell
       title={t("auth.loginPage.title")}
@@ -122,7 +125,7 @@ export default function LoginPage() {
       footer={
         <>
           {t("auth.loginPage.dontHaveAccount")}{" "}
-          <Link href="/register" className="text-[var(--azure-cyan)] hover:underline">
+          <Link href={registerHref} className="text-[var(--azure-cyan)] hover:underline">
             {t("auth.loginPage.signUp")}
           </Link>
         </>

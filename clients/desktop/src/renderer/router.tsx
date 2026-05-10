@@ -1,6 +1,7 @@
 import { createHashRouter as createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { DashboardShell } from "@/pages/layouts/DashboardShell";
 import { useAuthStore, useCurrentOrg, useAuthOrganizations, useIsAuthenticated } from "@/stores/auth";
+import { RequireAuth } from "@/components/auth/RequireAuth";
 
 // Auth pages
 import { LoginPage } from "@/pages/auth/login/LoginPage";
@@ -71,8 +72,11 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Popout (no shell)
-  { path: "/popout/terminal/:podKey", element: <PopoutTerminalPage /> },
+  // Popout (no shell) — RequireAuth gates the new BrowserWindow. The
+  // window.open()-spawned renderer runs its own AppProviders.PlatformGate
+  // (bootstrap → setHasHydrated), so by the time this route mounts the
+  // session has been rehydrated from localStorage.
+  { path: "/popout/terminal/:podKey", element: <RequireAuth><PopoutTerminalPage /></RequireAuth> },
 
   // Dashboard routes (wrapped in DashboardShell)
   {

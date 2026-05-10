@@ -1,13 +1,19 @@
-import { WasmProvider } from "@/providers/WasmProvider";
+import { AuthBootstrap } from "@/components/auth/AuthBootstrap";
+import { RequireAuth } from "@/components/auth/RequireAuth";
 
-// Popout terminal — opens a pod terminal in a separate browser window. Needs
-// wasm because TerminalPane consumes the relay backend and uses auth hooks
-// from the same wasm-bound stores as the dashboard. URL stays /popout/...
-// regardless of this layout.
+// Popout terminal — a separate browser window opened via window.open.
+// New windows get a fresh Rust core, so AuthBootstrap is required to
+// rehydrate the session from localStorage; without it the popout would
+// always see an anonymous user and bounce to /login (issue #346).
+// RequireAuth then guards the page with a redirect-preserving login bounce.
 export default function PopoutLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <WasmProvider>{children}</WasmProvider>;
+  return (
+    <AuthBootstrap>
+      <RequireAuth>{children}</RequireAuth>
+    </AuthBootstrap>
+  );
 }
