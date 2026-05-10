@@ -258,3 +258,21 @@ func TestUserRateLimiter_NilRedisIsNoOp(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 	}
 }
+
+func TestRateLimiter_DisabledEnvBypassesAllChecks(t *testing.T) {
+	t.Setenv("RATE_LIMIT_DISABLED", "true")
+
+	client, cleanup := setupRedisForTest(t)
+	defer cleanup()
+
+	// MaxAttempts=1 — without the bypass the second request would 429.
+	mw := middleware.IPRateLimiter(client, "login", 1, time.Minute)
+	router := newTestRouter(mw)
+
+	for i := 0; i < 10; i++ {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/test", nil)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusOK, w.Code, "RATE_LIMIT_DISABLED must short-circuit request %d", i+1)
+	}
+}

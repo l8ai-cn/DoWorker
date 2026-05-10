@@ -96,6 +96,11 @@ start_backend_host() {
     export GRPC_ADDRESS=":${BACKEND_GRPC_PORT}"
     export GRPC_PUBLIC_ENDPOINT="grpcs://127.0.0.1:${GRPC_PORT}"
     export DEBUG=true
+    # Disable IP/User rate limiters in dev + CI. Without this, e2e suites on
+    # fast hardware (self-hosted runners, local ramped-up dev loops) overflow
+    # the 20 req/min `/auth/*` cap while authenticating across specs and
+    # surface as 429s — see backend/internal/middleware/ratelimit.go.
+    export RATE_LIMIT_DISABLED=true
     export PRIMARY_DOMAIN="${PRIMARY_DOMAIN}"
     export USE_HTTPS="${USE_HTTPS:-false}"
     # Webhook allowlist for trigger-fire e2e: needs `localhost` so the

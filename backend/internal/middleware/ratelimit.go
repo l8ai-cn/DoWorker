@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
@@ -26,7 +27,17 @@ type RateLimitConfig struct {
 // RateLimiter returns a Gin middleware that enforces request rate limits using Redis.
 // It uses a simple counter with TTL (fixed window) per key.
 // If redisClient is nil, the middleware is a no-op (fail-open).
+//
+// Set RATE_LIMIT_DISABLED=true to bypass all rate limiting at process start.
+// Used by dev/CI: e2e suites on fast self-hosted runners (8.2 min for 240
+// specs) churn through `/auth/login` faster than the prod 20-req/min cap;
+// the slower hosted runner happens to stay under the cap by accident.
+// Disabling globally avoids leaking environment knowledge into every
+// per-route call site, and prod stays opted-in by default.
 func RateLimiter(redisClient *redis.Client, cfg RateLimitConfig) gin.HandlerFunc {
+	if os.Getenv("RATE_LIMIT_DISABLED") == "true" {
+		return func(c *gin.Context) { c.Next() }
+	}
 	return func(c *gin.Context) {
 		if redisClient == nil {
 			c.Next()
