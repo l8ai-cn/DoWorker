@@ -168,10 +168,13 @@ export class ElectronPodService implements IPodService {
 
   apply_pod_status_event(reqBytes: Uint8Array): void {
     const req = fromBinary(ApplyPodStatusEventRequestSchema, reqBytes);
-    const patch: Record<string, unknown> = { status: req.status };
+    const patch: Record<string, unknown> = {};
+    if (req.status) {
+      patch.status = req.status;
+      if (req.errorCode !== undefined) patch.error_code = req.errorCode ?? undefined;
+      if (req.errorMessage !== undefined) patch.error_message = req.errorMessage ?? undefined;
+    }
     if (req.agentStatus !== undefined) patch.agent_status = req.agentStatus ?? undefined;
-    if (req.errorCode !== undefined) patch.error_code = req.errorCode ?? undefined;
-    if (req.errorMessage !== undefined) patch.error_message = req.errorMessage ?? undefined;
     this._podsCache = patchPodInCache(this._podsCache, req.podKey, patch);
   }
 
