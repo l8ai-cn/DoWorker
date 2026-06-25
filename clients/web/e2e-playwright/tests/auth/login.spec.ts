@@ -3,7 +3,6 @@ import { LoginPage } from "../../pages/login.page";
 import { TEST_USER } from "../../helpers/env";
 
 test.describe("Login Flow", () => {
-  // Disable storageState for login tests — we need unauthenticated state
   test.use({ storageState: { cookies: [], origins: [] } });
 
   let loginPage: LoginPage;
@@ -13,60 +12,39 @@ test.describe("Login Flow", () => {
     await loginPage.goto();
   });
 
-  /**
-   * TC-LOGIN-004: Login page UI elements
-   */
   test("login page displays all required elements", async () => {
-    await expect(loginPage.emailInput).toBeVisible();
+    await expect(loginPage.usernameInput).toBeVisible();
     await expect(loginPage.passwordInput).toBeVisible();
     await expect(loginPage.submitButton).toBeVisible();
     await expect(loginPage.registerLink).toBeVisible();
   });
 
-  /**
-   * TC-LOGIN-001: Successful login
-   */
   test("successful login redirects to workspace", async ({ page }) => {
-    await loginPage.login(TEST_USER.email, TEST_USER.password);
+    await loginPage.login(TEST_USER.username, TEST_USER.password);
 
-    // Post-login navigateAfterLogin blocks on resolvePostLoginUrlLight →
-    // fetchFirstOrgSlug (a network round-trip) before router.push; under a
-    // loaded CI shard that org fetch is slow, so allow generous headroom.
     await page.waitForURL((url) => !url.pathname.includes("/login"), {
       timeout: 30_000,
     });
 
-    // Should land on workspace or dashboard
     expect(page.url()).toMatch(/\/(dev-org|workspace|dashboard)/);
   });
 
-  /**
-   * TC-LOGIN-002: Invalid credentials
-   */
   test("invalid credentials show error message", async ({ page }) => {
-    await loginPage.login("wrong@example.com", "wrongpassword");
+    await loginPage.login("wronguser", "wrongpassword");
 
-    // Should stay on login page
     await page.waitForTimeout(2_000);
     expect(page.url()).toContain("/login");
 
-    // Error message should be visible
     const error = await loginPage.getErrorText();
     expect(error).toBeTruthy();
   });
 
-  /**
-   * TC-LOGIN-003: Empty form submission
-   */
   test("empty form shows validation errors", async ({ page }) => {
-    // Try to submit without filling anything — HTML5 validation should prevent
     await loginPage.submitButton.click();
 
-    // Should remain on login page
     expect(page.url()).toContain("/login");
 
-    // The email input should have validation state (required attribute)
-    const emailRequired = await loginPage.emailInput.getAttribute("required");
-    expect(emailRequired).not.toBeNull();
+    const usernameRequired = await loginPage.usernameInput.getAttribute("required");
+    expect(usernameRequired).not.toBeNull();
   });
 });

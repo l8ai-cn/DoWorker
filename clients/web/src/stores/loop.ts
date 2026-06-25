@@ -27,7 +27,7 @@ import {
 } from "@proto/loop_state/v1/loop_state_pb";
 import { ListLoopsResponseSchema, ListRunsResponseSchema } from "@proto/loop/v1/loop_pb";
 import { loopToProtoLoop, loopRunToProtoLoopRun } from "@/lib/api/loopProtoMap";
-import { loopToCache, loopRunToCache } from "@agentsmesh/electron-adapter/projections";
+import { loopToCache, loopRunToCache } from "@/lib/api/projections";
 
 export type { LoopData, LoopRunData, RunStatus };
 

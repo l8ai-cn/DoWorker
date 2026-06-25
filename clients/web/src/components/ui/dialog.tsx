@@ -57,7 +57,7 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
     <div
       ref={overlayRef}
       data-dialog-overlay
-      className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-overlay-in"
       onClick={handleOverlayClick}
     >
       {children}
@@ -75,13 +75,13 @@ export function DialogContent({
   return (
     <div
       className={cn(
-        "bg-background rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col",
+        "bg-surface-raised rounded-xl shadow-[var(--shadow-panel)] w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col ring-1 ring-border/25 animate-panel-in",
         className
       )}
       onClick={(e) => e.stopPropagation()}
     >
       {(title || description) && (
-        <div className="px-6 py-4 border-b">
+        <div className="px-6 py-4 bg-surface-muted/50">
           {title && <h2 className="text-lg font-semibold">{title}</h2>}
           {description && (
             <p className="text-sm text-muted-foreground mt-1">{description}</p>
@@ -101,7 +101,7 @@ export function DialogHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("px-6 py-4 border-b", className)}>{children}</div>
+    <div className={cn("px-6 py-4 bg-surface-muted/50", className)}>{children}</div>
   );
 }
 
@@ -151,7 +151,7 @@ export function DialogFooter({
   return (
     <div
       className={cn(
-        "px-6 py-4 border-t flex items-center justify-end gap-2",
+        "px-6 py-4 bg-surface-muted/40 flex items-center justify-end gap-2",
         className
       )}
     >

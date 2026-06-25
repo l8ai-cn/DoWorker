@@ -49,7 +49,7 @@ export function FeatureCard({ feature, t }: FeatureCardProps) {
 
       <div className={`relative group ${reverse ? "lg:order-1" : ""}`}>
         <div className="absolute -inset-6 bg-[var(--azure-cyan)]/20 blur-[60px] rounded-full opacity-30 group-hover:opacity-60 transition-opacity duration-700" />
-        <div className="relative azure-glass rounded-3xl border border-white/5 p-3 sm:p-4 transition-all duration-500 group-hover:border-[var(--azure-cyan)]/20">
+        <div className="relative azure-glass rounded-3xl ring-1 ring-white/5 shadow-[var(--shadow-soft)] p-3 sm:p-4 transition-all duration-500 group-hover:ring-[var(--azure-cyan)]/20">
           <div className="rounded-2xl overflow-hidden bg-[var(--azure-bg-deeper)]/60">
             <FeatureVisuals feature={feature} t={t} />
           </div>

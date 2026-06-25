@@ -5,7 +5,7 @@ use agentsmesh_types::proto_pod_v1 as pod_proto;
 use prost::Message;
 
 // Networking-only service for the pod domain. The pod cache lives in the
-// shared `AppState.pods` (dispatch-hook SSOT), reached via the wasm/napi
+// shared `AppState.pods` (dispatch-hook SSOT), reached via the wasm
 // `app_pod*` surface — this service speaks only the Connect-RPC wire.
 pub struct PodService {
     client: Arc<ApiClient>,

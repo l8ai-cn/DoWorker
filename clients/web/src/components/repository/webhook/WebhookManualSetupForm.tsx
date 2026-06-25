@@ -34,7 +34,7 @@ export function WebhookManualSetupForm({
 
   return (
     <div className="space-y-4">
-      <div className="p-3 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 text-sm rounded">
+      <div className="p-3 bg-warning-bg text-warning text-sm rounded">
         {t("manualSetupInstructions")}
       </div>
 
@@ -51,7 +51,7 @@ export function WebhookManualSetupForm({
               onClick={() => copyToClipboard(secretData.webhook_url, "url")}
             >
               {copied === "url" ? (
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-success" />
               ) : (
                 <Copy className="h-4 w-4" />
               )}
@@ -71,7 +71,7 @@ export function WebhookManualSetupForm({
               onClick={() => copyToClipboard(secretData.webhook_secret, "secret")}
             >
               {copied === "secret" ? (
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-success" />
               ) : (
                 <Copy className="h-4 w-4" />
               )}

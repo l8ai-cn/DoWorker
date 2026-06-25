@@ -65,7 +65,7 @@ export function MarketTab({
 
 function MarketItemCard({ item, t, onSelect }: { item: McpMarketItem; t: (key: string) => string; onSelect: () => void }) {
   return (
-    <div className="border border-border rounded-lg p-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-muted/50"
+    <div className="surface-card-interactive p-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-surface-muted/50"
       onClick={onSelect}>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">

@@ -44,7 +44,7 @@ export const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
         {...props}
       >
         {icon && (
-          <div className={cn("text-muted-foreground", s.icon, "flex items-center justify-center")}>
+          <div className={cn("rounded-full bg-surface-muted p-3 text-muted-foreground motion-interactive", s.icon, "flex items-center justify-center")}>
             {icon}
           </div>
         )}

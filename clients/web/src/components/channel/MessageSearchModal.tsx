@@ -82,7 +82,7 @@ export function MessageSearchModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl" title={channelName ? t("titleFor", { channel: channelName }) : t("title")}>
         <div className="flex flex-col">
-          <div className="border-b border-border px-4 py-3">
+          <div className="bg-surface-muted/30 px-4 py-3">
             <div className="relative">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -116,8 +116,8 @@ export function MessageSearchModal({
                 type="button"
                 onClick={() => handlePick(msg)}
                 className={cn(
-                  "flex w-full flex-col items-start gap-1 border-b border-border px-4 py-2.5 text-left",
-                  "transition-colors hover:bg-muted/50",
+                  "flex w-full flex-col items-start gap-1 px-4 py-2.5 text-left motion-interactive rounded-lg",
+                  "hover:bg-surface-muted",
                 )}
                 data-testid="message-search-result"
               >

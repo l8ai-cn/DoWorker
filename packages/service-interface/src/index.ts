@@ -89,7 +89,7 @@ export interface IAuthConnectService {
 
 export interface IAuthManager {
   // apply_session / clear_session / set_organizations may return Promise on
-  // adapters that need to fan out to a remote SSOT (Electron IPC → Rust main).
+  // adapters that need to fan out to a remote SSOT.
   // Wasm AuthManager is sync (in-process); callers MUST `await` so both
   // shapes work — see clients/web/src/stores/auth.ts setAuth.
   apply_session?(req_bytes: Uint8Array): Promise<void> | void;
@@ -341,28 +341,9 @@ export interface IInvitationService {
   getInvitationByTokenConnect(request: Uint8Array): Promise<Uint8Array>;
 }
 
-// Alias for the same surface — desktop adapter file uses this name to mirror
+// Alias for the same surface — the connect service uses this name to mirror
 // the auth_connect.ts / *_connect.ts naming convention.
 export type IInvitationConnectService = IInvitationService;
-
-export type LocalRunnerStatus = "running" | "stopped" | "unknown" | "not_installed" | "stale";
-
-export interface ILocalRunnerService {
-  binary_path(): Promise<string>;
-  host_target(): Promise<string | null>;
-  fallback_version(): Promise<string>;
-  is_installed(): Promise<boolean>;
-  installed_version(): Promise<string | null>;
-  install_binary(release_url: string, expected_sha256?: string | null): Promise<void>;
-  is_registered(): Promise<boolean>;
-  local_node_id(): Promise<string | null>;
-  register(token: string): Promise<void>;
-  service_install(): Promise<void>;
-  service_uninstall(): Promise<void>;
-  service_start(): Promise<void>;
-  service_stop(): Promise<void>;
-  service_status(): Promise<LocalRunnerStatus>;
-}
 
 export interface ILoopService {
   current_loop_json(): any;
@@ -370,7 +351,7 @@ export interface ILoopService {
   loops_json(): string;
   runs_json(): string;
   // Read side (B): prost-encoded state bytes of the cached loops/runs/current,
-  // so the shared web selector decodes desktop + web identically.
+  // so the shared web selector decodes web identically.
   loops_bytes(): Uint8Array;
   runs_bytes(): Uint8Array;
   current_loop_bytes(): Uint8Array;
@@ -501,7 +482,7 @@ export interface IRepoState {
   remove_repository(id: string): void;
   repositories_json(): string;
   // Read side (B): prost-encoded ReplaceCachedRepositoriesRequest bytes of the
-  // cached repositories, so the shared web selector decodes desktop + web identically.
+  // cached repositories, so the shared web selector decodes web identically.
   repositories_bytes(): Uint8Array;
   // Fetch→state (B): decode wire ListRepositoriesResponse → cache (wire == cache).
   apply_fetched_repositories(respBytes: Uint8Array): void;
@@ -626,7 +607,7 @@ export interface ITicketState {
   ticket_pods_bytes(slug: string): Uint8Array;
   set_ticket_pods(slug: string, podsJson: string): void;
   // Read side (B): prost-encoded ReplaceCachedTicketsRequest bytes of the cached
-  // tickets, so the shared web selector decodes desktop + web identically.
+  // tickets, so the shared web selector decodes web identically.
   tickets_bytes(): Uint8Array;
   // Read side (B): prost-encoded state bytes for current ticket / board / labels.
   current_ticket_bytes(): Uint8Array;
@@ -702,9 +683,7 @@ export {
   type ServiceErrorKind,
 } from "./service-error-kinds";
 
-// Shared client view-model types (proto→cache projection targets). Owned in
-// this zero-dep layer so web (fromProtoX) and desktop (electron-adapter
-// projections) reference one definition instead of drifting copies.
+// Shared client view-model types (proto→cache projection targets).
 export * from "./view-models/loop";
 export * from "./view-models/ticket";
 export * from "./view-models/pod";

@@ -16,8 +16,11 @@ import { getSSOService } from "@/lib/wasm-core";
 
 export type { LdapAuthResponse, SSODiscoverConfig } from "@proto/sso/v1/sso_pb";
 
-export async function discover(email: string): Promise<{ items: SSODiscoverConfig[] }> {
-  const req = create(DiscoverRequestSchema, { email });
+export async function discover(identifier: string): Promise<{ items: SSODiscoverConfig[] }> {
+  const trimmed = identifier.trim();
+  const req = trimmed.includes("@")
+    ? create(DiscoverRequestSchema, { email: trimmed })
+    : create(DiscoverRequestSchema, { username: trimmed });
   const bytes = toBinary(DiscoverRequestSchema, req);
   const respBytes = await getSSOService().discoverConnect(bytes);
   const resp = fromBinary(DiscoverResponseSchema, new Uint8Array(respBytes));

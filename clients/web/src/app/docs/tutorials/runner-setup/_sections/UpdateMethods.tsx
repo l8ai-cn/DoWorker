@@ -89,7 +89,7 @@ function MethodCard({
         </ol>
       )}
       {code && (
-        <pre className="bg-[var(--azure-light-surface-high)] rounded-lg p-3 font-mono text-xs overflow-x-auto text-[var(--azure-light-cyan-ink)]">
+        <pre className="bg-[var(--azure-light-surface-high)] rounded-lg ring-1 ring-border/15 p-3 font-mono text-xs overflow-x-auto text-[var(--azure-light-cyan-ink)]">
           {code}
         </pre>
       )}
@@ -99,7 +99,7 @@ function MethodCard({
         </p>
       )}
       {extraCode && (
-        <pre className="bg-[var(--azure-light-surface-high)] rounded-lg p-3 font-mono text-xs overflow-x-auto text-[var(--azure-light-cyan-ink)]">
+        <pre className="bg-[var(--azure-light-surface-high)] rounded-lg ring-1 ring-border/15 p-3 font-mono text-xs overflow-x-auto text-[var(--azure-light-cyan-ink)]">
           {extraCode}
         </pre>
       )}

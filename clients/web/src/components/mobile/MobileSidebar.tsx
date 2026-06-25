@@ -147,7 +147,7 @@ export function MobileSidebar({ className }: MobileSidebarProps) {
           </VisuallyHidden.Root>
 
           {/* Header */}
-          <div className="h-14 flex items-center justify-between px-4 border-b border-border">
+          <div className="h-14 flex items-center justify-between px-4 bg-surface-muted/40">
             <div className="flex items-center gap-2 min-w-0">
               {currentOrg?.name && (
                 <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">

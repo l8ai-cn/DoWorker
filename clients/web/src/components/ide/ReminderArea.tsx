@@ -12,9 +12,9 @@ import { cn } from "@/lib/utils";
 import { useVisibleReminders, useReminderStore, type ReminderTone } from "@/stores/reminders";
 
 const TONE_CLASS: Record<ReminderTone, string> = {
-  info: "text-blue-600 dark:text-blue-400 hover:bg-blue-500/10",
-  warning: "text-amber-600 dark:text-amber-400 hover:bg-amber-500/10",
-  success: "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10",
+  info: "text-info hover:bg-info-bg",
+  warning: "text-warning hover:bg-warning-bg",
+  success: "text-success hover:bg-success-bg",
 };
 
 const TONE_ICON: Record<ReminderTone, LucideIcon> = {

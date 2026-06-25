@@ -75,7 +75,7 @@ func (s *Server) ChangePassword(
 	if err != nil {
 		return nil, mapUserServiceError(err)
 	}
-	if _, err := s.userSvc.Authenticate(ctx, u.Email, req.Msg.GetCurrentPassword()); err != nil {
+	if _, err := s.userSvc.Authenticate(ctx, u.Username, req.Msg.GetCurrentPassword()); err != nil {
 		return nil, connect.NewError(connect.CodeUnauthenticated,
 			errors.New("current password is incorrect"))
 	}

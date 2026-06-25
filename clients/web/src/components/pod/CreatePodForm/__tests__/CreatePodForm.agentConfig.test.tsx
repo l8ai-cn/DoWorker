@@ -48,6 +48,7 @@ vi.mock("@/stores/podCreation", () => ({
     lastCredentialName: "",
     lastRuntimeBundleNames: [],
     lastBranchName: null,
+    lastSkillSlugs: [],
     setLastChoices: vi.fn(),
     clearLastChoices: vi.fn(),
     _hasHydrated: true,

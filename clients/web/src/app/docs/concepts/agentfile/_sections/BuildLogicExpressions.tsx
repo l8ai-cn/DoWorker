@@ -1,21 +1,32 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { DocsTable } from "@/components/docs/DocsTable";
+import { docsLabel, docsMono, twoColumnHeaders } from "@/components/docs/docs-table-helpers";
+
+const EXPRESSION_ROWS = [
+  ["strings", '"hello" + " world"'],
+  ["numbers", "42, 3.14"],
+  ["booleans", "true, false"],
+  ["dotAccess", "config.model, sandbox.root"],
+  ["operators", "+, ==, !=, and, or, not"],
+  ["functions", "json(...), str_replace(...), env(...)"],
+] as const;
 
 export function BuildLogicExpressions() {
   const t = useTranslations();
+  const prefix = "docs.concepts.agentfile.expressions";
 
   return (
     <>
-      {/* Build Logic */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.agentfile.buildLogic.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-6">
           {t("docs.concepts.agentfile.buildLogic.description")}
         </p>
-        <pre className="bg-muted rounded-lg p-4 text-sm overflow-x-auto mb-4">
+        <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 text-sm overflow-x-auto mb-4">
           <code>{`# Variable assignment
 model_flag = "--model " + config.model
 
@@ -45,66 +56,15 @@ when config.verbose arg "--verbose"`}</code>
         </pre>
       </section>
 
-      {/* Expressions */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
-          {t("docs.concepts.agentfile.expressions.title")}
-        </h2>
-        <p className="text-muted-foreground leading-relaxed mb-6">
-          {t("docs.concepts.agentfile.expressions.description")}
-        </p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-border rounded-lg">
-            <thead>
-              <tr className="bg-muted">
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.concepts.agentfile.expressions.typeHeader")}
-                </th>
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.concepts.agentfile.expressions.exampleHeader")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-muted-foreground">
-              <tr>
-                <td className="p-3 border-b border-border">Strings</td>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  {`"hello" + " world"`}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border">Numbers</td>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  42, 3.14
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border">Booleans</td>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  true, false
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border">Dot access</td>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  config.model, sandbox.root
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border">Operators</td>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  +, ==, !=, and, or, not
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border">Functions</td>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  json(...), str_replace(...), env(...)
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">{t(`${prefix}.title`)}</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">{t(`${prefix}.description`)}</p>
+        <DocsTable
+          columns={twoColumnHeaders(t, prefix, "typeHeader", "exampleHeader")}
+          rows={EXPRESSION_ROWS.map(([typeKey, example]) => ({
+            cells: [docsLabel(t(`${prefix}.types.${typeKey}`)), docsMono(example)],
+          }))}
+        />
       </section>
     </>
   );

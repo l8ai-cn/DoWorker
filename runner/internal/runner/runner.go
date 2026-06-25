@@ -10,7 +10,6 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/config"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
 	"github.com/anthropics/agentsmesh/runner/internal/poddaemon"
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
 	"github.com/anthropics/agentsmesh/runner/internal/workspace"
 )
 
@@ -39,11 +38,6 @@ type Runner struct {
 
 	// Run lifecycle context (set by Run, used by message handlers)
 	runCtx context.Context
-
-	// Local relay server (always-on browser-facing WS).
-	// Pods register expected tokens here; output is fanned out to local browsers
-	// in addition to the cloud relay.
-	localServer *relay.LocalServer
 
 	// Supervisor services (registered before Run)
 	additionalServices []suture.Service
@@ -89,7 +83,6 @@ func New(deps RunnerDeps) (*Runner, error) {
 		autopilotStore:   NewAutopilotStore(),
 		upgradeCoord:     newUpgradeController(),
 		stopChan:         make(chan struct{}),
-		localServer:      relay.NewLocalServer(log),
 	}
 
 	// Create message handler and set it on connection
@@ -146,15 +139,4 @@ func (r *Runner) GetConnection() client.Connection {
 // GetPodDaemonManager returns the Pod Daemon manager (may be nil).
 func (r *Runner) GetPodDaemonManager() *poddaemon.PodDaemonManager {
 	return r.podDaemonManager
-}
-
-// GetLocalRelayServer returns the always-on local relay server as a
-// LocalRelayBroker. Returns a nil broker (untyped) when the server is not
-// running so callers' nil-checks see a true interface-nil rather than a typed
-// nil pointer wrapped in an interface.
-func (r *Runner) GetLocalRelayServer() LocalRelayBroker {
-	if r.localServer == nil {
-		return nil
-	}
-	return r.localServer
 }

@@ -109,7 +109,9 @@
       "title": "Quick Links",
       "quickStart": "Quick Start",
       "quickStartDesc": "Get up and running in 5 minutes",
+      "agentpod": "AgentPod",
       "agentpodDesc": "Remote AI development workstations",
+      "agentsmesh": "AgentsMesh",
       "agentsmeshDesc": "Multi-agent collaboration network",
       "mcpTools": "MCP Tools",
       "mcpToolsDesc": "24 tools for AI agents"
@@ -265,7 +267,15 @@
           "title": "Expressions",
           "description": "AgentFile supports a variety of expression types that can be used in build logic and declarations.",
           "typeHeader": "Type",
-          "exampleHeader": "Example"
+          "exampleHeader": "Example",
+          "types": {
+            "strings": "Strings",
+            "numbers": "Numbers",
+            "booleans": "Booleans",
+            "dotAccess": "Dot access",
+            "operators": "Operators",
+            "functions": "Functions"
+          }
         },
         "builtinVars": {
           "title": "Built-in Variables",
@@ -758,6 +768,8 @@
         "concurrency": {
           "title": "Concurrency Policies",
           "description": "Control what happens when a new run is triggered while another is still active:",
+          "modeHeader": "Mode",
+          "behaviorHeader": "Behavior",
           "skip": "Skip",
           "skipDesc": "The new run is skipped if the maximum concurrent runs is reached.",
           "queue": "Queue",

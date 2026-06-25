@@ -3,12 +3,23 @@
 import { type RunnerAsset, RUNNER_KIND_EXT, platformLabel, archLabel } from "@/lib/download/asset-types";
 import { useTranslations } from "next-intl";
 import { Terminal as TerminalIcon, Download as DownloadIcon } from "lucide-react";
-import { formatBytes } from "@/lib/download/platform-detect";
 import { INSTALL_COMMANDS } from "@/lib/download/install-commands";
 import { CopyButton } from "./CopyButton";
 
 interface Props {
   runner: RunnerAsset[];
+}
+
+function formatBytes(bytes: number): string {
+  if (!bytes) return "";
+  const units = ["B", "KB", "MB", "GB"];
+  let size = bytes;
+  let unit = 0;
+  while (size >= 1024 && unit < units.length - 1) {
+    size /= 1024;
+    unit += 1;
+  }
+  return `${size.toFixed(unit === 0 ? 0 : 1)} ${units[unit]}`;
 }
 
 export function RunnerSection({ runner }: Props) {
@@ -48,7 +59,7 @@ export function RunnerSection({ runner }: Props) {
             <a
               key={asset.url}
               href={asset.url}
-              className="group flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-white/10 bg-[var(--azure-bg-card)]/50 hover:border-[var(--azure-cyan)]/40 hover:bg-white/5 transition-all"
+              className="group flex items-center justify-between gap-3 px-4 py-3 rounded-lg ring-1 ring-white/10 bg-[var(--azure-bg-card)]/50 hover:ring-[var(--azure-cyan)]/40 hover:bg-white/5 transition-all motion-interactive"
             >
               <div className="min-w-0">
                 <div className="text-sm font-medium truncate">
@@ -69,7 +80,7 @@ export function RunnerSection({ runner }: Props) {
 
 function InstallSnippet({ label, command }: { label: string; command: string }) {
   return (
-    <div className="relative rounded-xl border border-white/10 bg-[var(--azure-bg-low)]/80 p-5 pt-12">
+    <div className="relative rounded-xl ring-1 ring-white/10 bg-[var(--azure-bg-low)]/80 p-5 pt-12">
       <div className="absolute top-3 left-4 text-[10px] font-headline uppercase tracking-[0.18em] text-[var(--azure-text-muted)]/70">
         {label}
       </div>

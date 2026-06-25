@@ -23,7 +23,7 @@ export function DefaultCredentialSection({
   t,
 }: DefaultCredentialSectionProps) {
   return (
-    <div className="border border-border rounded-lg p-6 mb-6">
+    <div className="surface-card p-6 mb-6">
       <h2 className="text-lg font-semibold mb-2">
         {t("settings.gitSettings.defaultCredential.title")}
       </h2>
@@ -41,7 +41,7 @@ export function DefaultCredentialSection({
             className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left ${
               cred.isDefault
                 ? "border-primary bg-primary/5"
-                : "border-border hover:bg-muted/50"
+                : "border-border motion-interactive hover:bg-surface-muted"
             }`}
           >
             <div

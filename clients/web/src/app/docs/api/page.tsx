@@ -18,7 +18,7 @@ export default function ApiOverviewPage() {
 
       {/* Overview */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.api.overview.overview.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -34,7 +34,7 @@ export default function ApiOverviewPage() {
 
       {/* Getting an API Key */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.api.overview.gettingKey.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -46,8 +46,8 @@ export default function ApiOverviewPage() {
           <li>{t("docs.api.overview.gettingKey.step3")}</li>
           <li>{t("docs.api.overview.gettingKey.step4")}</li>
         </ol>
-        <div className="border border-yellow-500/50 bg-yellow-500/10 rounded-lg p-4">
-          <p className="text-sm text-yellow-700 dark:text-yellow-400">
+        <div className="border border-warning/50 bg-warning/10 rounded-lg p-4">
+          <p className="text-sm text-warning">
             {t("docs.api.overview.gettingKey.warning")}
           </p>
         </div>
@@ -55,14 +55,14 @@ export default function ApiOverviewPage() {
 
       {/* Base URL & Path */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.api.overview.basePath.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.api.overview.basePath.description")}
         </p>
-        <div className="bg-muted rounded-lg p-4 font-mono text-sm mb-4">
-          <pre className="text-green-500 dark:text-green-400">{`{BASE_URL}/api/v1/ext/orgs/{slug}/...`}</pre>
+        <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 font-mono text-sm mb-4">
+          <pre className="text-success">{`{BASE_URL}/api/v1/ext/orgs/{slug}/...`}</pre>
         </div>
         <p className="text-sm text-muted-foreground">
           {t("docs.api.overview.basePath.slugNote")}

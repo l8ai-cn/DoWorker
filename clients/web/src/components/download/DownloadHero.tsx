@@ -1,28 +1,12 @@
-"use client";
-
-import { useMemo, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
-import { Download as DownloadIcon, ExternalLink as ExternalIcon } from "lucide-react";
-import type { DesktopAsset, ReleaseSummary } from "@/lib/download/asset-types";
-import { platformLabel } from "@/lib/download/asset-types";
-import {
-  type DetectedPlatform,
-  getDetectedPlatform,
-} from "@/lib/download/platform-detect";
-import { pickPrimaryDesktop } from "@/lib/download/asset-picker";
-import { PlatformIcon } from "./PlatformIcon";
+import { ExternalLink as ExternalIcon } from "lucide-react";
+import type { ReleaseSummary } from "@/lib/download/asset-types";
 
 interface Props {
   release: ReleaseSummary;
 }
 
-const subscribe = () => () => {};
-const getServerSnapshot = () => null;
 const DATE_FMT: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric" };
-
-function useDetected(): DetectedPlatform | null {
-  return useSyncExternalStore(subscribe, getDetectedPlatform, getServerSnapshot);
-}
 
 function formatReleaseDate(iso: string): string {
   return iso ? new Date(iso).toLocaleDateString(undefined, DATE_FMT) : "";
@@ -30,12 +14,6 @@ function formatReleaseDate(iso: string): string {
 
 export function DownloadHero({ release }: Props) {
   const t = useTranslations();
-  const detected = useDetected();
-
-  const primary: DesktopAsset | null = useMemo(
-    () => pickPrimaryDesktop(release.desktop, detected),
-    [release.desktop, detected],
-  );
   const releaseDate = formatReleaseDate(release.publishedAt);
 
   return (
@@ -59,23 +37,9 @@ export function DownloadHero({ release }: Props) {
           {t("landing.download.hero.subtitle")}
         </p>
 
-        {primary && (
-          <div className="flex flex-col items-center gap-3 mb-6">
-            <a
-              href={primary.url}
-              className="inline-flex items-center gap-3 px-8 py-4 rounded-full azure-gradient-bg azure-cta-glow font-headline font-bold text-base tracking-wide"
-            >
-              <DownloadIcon className="w-5 h-5" />
-              <span>
-                {t("landing.download.hero.downloadFor", { platform: platformLabel(primary.platform) })}
-              </span>
-              <PlatformIcon platform={primary.platform} className="w-5 h-5" />
-            </a>
-            <p className="text-xs text-[var(--azure-text-muted)]/70 uppercase tracking-[0.18em]">
-              {t("landing.download.hero.releasedOn", { date: releaseDate })} · {primary.name}
-            </p>
-          </div>
-        )}
+        <p className="mb-6 text-xs text-[var(--azure-text-muted)]/70 uppercase tracking-[0.18em]">
+          {t("landing.download.hero.releasedOn", { date: releaseDate })}
+        </p>
 
         <a
           href={release.htmlUrl}

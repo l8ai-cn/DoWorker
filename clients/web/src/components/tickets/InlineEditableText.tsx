@@ -132,7 +132,7 @@ export function InlineEditableText({
       <button
         type="button"
         className={cn(
-          "text-left w-full rounded-sm px-1 -mx-1 hover:bg-muted/50 transition-colors cursor-text",
+          "text-left w-full rounded-sm px-1 -mx-1 motion-interactive hover:bg-surface-muted cursor-text",
           !value && "text-muted-foreground italic",
           className
         )}
@@ -175,7 +175,7 @@ export function InlineEditableText({
             <button
               type="button"
               onClick={handleSave}
-              className="p-1 rounded hover:bg-muted text-green-600 dark:text-green-400"
+              className="p-1 rounded hover:bg-muted text-success"
               title="Save (Enter)"
             >
               <Check className="h-3 w-3" />

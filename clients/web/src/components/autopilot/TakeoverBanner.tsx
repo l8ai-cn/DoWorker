@@ -21,7 +21,7 @@ export function TakeoverBanner({ autopilotController, className }: TakeoverBanne
   return (
     <div
       className={cn(
-        "flex items-center justify-between px-4 py-2 bg-purple-600 text-white rounded-t-lg",
+        "flex items-center justify-between px-4 py-2 bg-primary text-primary-foreground rounded-t-lg",
         className
       )}
     >

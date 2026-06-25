@@ -133,6 +133,9 @@ func generateCloneURLs(providerType, baseURL, slug string) (httpURL, sshURL stri
 	case "gitee":
 		httpURL = "https://gitee.com/" + slug + ".git"
 		sshURL = "git@gitee.com:" + slug + ".git"
+	case "cnb":
+		httpURL = baseURL + "/" + slug
+		sshURL = ""
 	default:
 		httpURL = baseURL + "/" + slug + ".git"
 		host := extractHost(baseURL)

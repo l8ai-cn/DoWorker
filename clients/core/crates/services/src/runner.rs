@@ -5,7 +5,7 @@ use agentsmesh_types::proto_runner_api_v1 as runner_proto;
 use prost::Message;
 
 // Networking-only service for the runner domain. The runner cache lives in the
-// shared `AppState.runners` (dispatch-hook SSOT), reached via the wasm/napi
+// shared `AppState.runners` (dispatch-hook SSOT), reached via the wasm
 // `app_runner*` surface — this service speaks only the Connect-RPC wire
 // (including the registration-bootstrap auth RPCs).
 pub struct RunnerService {

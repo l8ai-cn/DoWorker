@@ -50,6 +50,7 @@ const (
 	KW_REMOVE          // REMOVE
 	KW_MODE            // MODE
 	KW_USE_ENV_BUNDLE  // USE_ENV_BUNDLE (references an EnvBundle by name)
+	KW_USE_CONFIG_BUNDLE // USE_CONFIG_BUNDLE (references a config-kind JSON bundle)
 	KW_PROMPT          // PROMPT (prompt content)
 	KW_PROMPT_POSITION // PROMPT_POSITION (prepend/append/none)
 
@@ -109,6 +110,7 @@ var declarationKeywords = map[string]TokenType{
 	"REMOVE":          KW_REMOVE,
 	"MODE":            KW_MODE,
 	"USE_ENV_BUNDLE":  KW_USE_ENV_BUNDLE,
+	"USE_CONFIG_BUNDLE": KW_USE_CONFIG_BUNDLE,
 	"PROMPT":          KW_PROMPT,
 	"PROMPT_POSITION": KW_PROMPT_POSITION,
 	"BOOL":            KW_BOOL,
@@ -162,6 +164,7 @@ func (t TokenType) String() string {
 		KW_GIT_CREDENTIAL: "GIT_CREDENTIAL", KW_MCP: "MCP", KW_SKILLS: "SKILLS",
 		KW_SETUP: "SETUP", KW_ON: "ON", KW_OFF: "OFF", KW_OPTIONAL: "OPTIONAL", KW_REMOVE: "REMOVE",
 		KW_MODE: "MODE", KW_USE_ENV_BUNDLE: "USE_ENV_BUNDLE",
+		KW_USE_CONFIG_BUNDLE: "USE_CONFIG_BUNDLE",
 		KW_PROMPT: "PROMPT", KW_PROMPT_POSITION: "PROMPT_POSITION",
 		KW_BOOL: "BOOL", KW_STRING: "STRING_TYPE", KW_NUMBER: "NUMBER_TYPE",
 		KW_SECRET: "SECRET", KW_TEXT: "TEXT", KW_SELECT: "SELECT",

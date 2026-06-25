@@ -69,6 +69,8 @@ func writeDecl(b *strings.Builder, decl parser.Declaration) {
 		}
 	case *parser.UseEnvBundleDecl:
 		fmt.Fprintf(b, "USE_ENV_BUNDLE %s", quoteIfNeeded(d.Name))
+	case *parser.UseConfigBundleDecl:
+		fmt.Fprintf(b, "USE_CONFIG_BUNDLE %s", quoteIfNeeded(d.Name))
 	case *parser.PromptDecl:
 		fmt.Fprintf(b, "PROMPT %q", d.Content)
 	case *parser.PromptPositionDecl:

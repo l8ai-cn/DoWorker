@@ -8,6 +8,7 @@ import repositories from "@/messages/en/repositories.json";
 import runners from "@/messages/en/runners.json";
 import docs from "@/messages/en/docs.json";
 import content from "@/messages/en/content.json";
+import changelogEntries from "@/messages/en/changelog-entries.json";
 
 type Messages = typeof common &
   typeof auth &
@@ -18,7 +19,8 @@ type Messages = typeof common &
   typeof repositories &
   typeof runners &
   typeof docs &
-  typeof content;
+  typeof content &
+  typeof changelogEntries;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type

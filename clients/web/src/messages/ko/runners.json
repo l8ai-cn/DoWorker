@@ -351,6 +351,14 @@
           }
         }
       }
+    },
+    "do-agent": {
+      "fields": {
+        "model": {
+          "label": "Model",
+          "description": "Override the default model (provider/model). Leave empty to use settings.json default."
+        }
+      }
     }
   }
 }

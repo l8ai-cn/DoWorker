@@ -459,28 +459,10 @@
         "badge": "Dernière version",
         "title": "Télécharger",
         "titleHighlight": "AgentsMesh",
-        "subtitle": "Applications de bureau natives pour chaque plateforme — plus un Runner auto-hébergé qui garde vos agents, votre code et vos données sur votre infrastructure.",
+        "subtitle": "Téléchargez le Runner auto-hébergé qui garde vos agents, votre code et vos données sur votre infrastructure.",
         "downloadFor": "Télécharger pour {platform}",
         "releasedOn": "Publié le {date}",
         "viewReleaseNotes": "Voir les notes de version sur GitHub"
-      },
-      "platforms": {
-        "title": "Choisissez votre plateforme",
-        "description": "Toutes les builds sont signées et notariées. La mise à jour automatique vous maintient à jour.",
-        "unavailable": "Pas encore de build pour cette plateforme",
-        "checkBack": "Revenez à la prochaine version",
-        "macos": {
-          "title": "macOS",
-          "requirements": "macOS 11 Big Sur ou plus récent"
-        },
-        "windows": {
-          "title": "Windows",
-          "requirements": "Windows 10 ou plus récent · x64 / ARM64"
-        },
-        "linux": {
-          "title": "Linux",
-          "requirements": "Ubuntu 20.04 / Debian 11 ou plus récent"
-        }
       },
       "runner": {
         "badge": "Runner CLI",

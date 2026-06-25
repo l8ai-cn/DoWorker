@@ -9,6 +9,7 @@ import (
 	"github.com/anthropics/agentsmesh/agentfile/parser"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
+	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
@@ -39,6 +40,7 @@ func (b *ConfigBuilder) buildFromAgentfile(
 	// Build EnvBundle context (mirror of MCP pattern: load every visible
 	// bundle, decrypt, expose by name to eval; USE_ENV_BUNDLE picks).
 	envBundles := b.buildEnvBundleContext(ctx, req, agentDef.Slug)
+	configBundles := b.buildConfigBundleContext(ctx, req, agentDef.Slug)
 
 	// Parse and eval AgentFile with placeholder context
 	prog, errs := parser.Parse(mergedSource)
@@ -46,7 +48,7 @@ func (b *ConfigBuilder) buildFromAgentfile(
 		return nil, fmt.Errorf("agentfile parse error: %v", errs[0])
 	}
 
-	evalCtx := buildEvalContext(req, builtinMCP, installedMCP, envBundles)
+	evalCtx := buildEvalContext(req, builtinMCP, installedMCP, envBundles, configBundles)
 	if err := eval.Eval(prog, evalCtx); err != nil {
 		return nil, fmt.Errorf("agentfile eval error: %w", err)
 	}
@@ -62,11 +64,16 @@ func (b *ConfigBuilder) buildFromAgentfile(
 	}
 
 	cmd := buildResultToProto(&effectiveReq, evalCtx.Result)
-	cmd.ResourcesToDownload = b.buildSkillResources(ctx, req, agentDef.Slug)
+	cmd.ResourcesToDownload = b.buildSkillResources(ctx, req, agentDef.Slug, evalCtx.Result.Skills)
 	return cmd, nil
 }
 
-func (b *ConfigBuilder) buildSkillResources(ctx context.Context, req *ConfigBuildRequest, agentSlug string) []*runnerv1.ResourceToDownload {
+func (b *ConfigBuilder) buildSkillResources(
+	ctx context.Context,
+	req *ConfigBuildRequest,
+	agentSlug string,
+	requestedSlugs []string,
+) []*runnerv1.ResourceToDownload {
 	if b.extensionProvider == nil || req.RepositoryID == nil {
 		return nil
 	}
@@ -76,6 +83,7 @@ func (b *ConfigBuilder) buildSkillResources(ctx context.Context, req *ConfigBuil
 		slog.WarnContext(ctx, "Failed to load skills for agentfile", "agent_slug", agentSlug, "error", err)
 		return nil
 	}
+	skills = filterResolvedSkillsBySlugs(skills, requestedSlugs)
 
 	resources := make([]*runnerv1.ResourceToDownload, 0, len(skills))
 	for _, skill := range skills {
@@ -96,6 +104,51 @@ func (b *ConfigBuilder) buildSkillResources(ctx context.Context, req *ConfigBuil
 		})
 	}
 	return resources
+}
+
+// filterResolvedSkillsBySlugs narrows downloadable marketplace skills to the
+// subset declared by the AgentFile SKILLS directive. The directive also carries
+// builtin skills baked into the agent image (am-delegate, am-channel); those
+// never appear in installed marketplace skills. So we only treat the request as
+// a filter when at least one requested slug matches an installed skill —
+// otherwise (SKILLS is purely builtin, e.g. the user picked nothing) we keep the
+// historical "download every compatible installed skill" behaviour.
+func filterResolvedSkillsBySlugs(
+	skills []*extensionservice.ResolvedSkill,
+	requestedSlugs []string,
+) []*extensionservice.ResolvedSkill {
+	if len(requestedSlugs) == 0 {
+		return skills
+	}
+	requested := make(map[string]struct{}, len(requestedSlugs))
+	for _, slug := range requestedSlugs {
+		requested[slug] = struct{}{}
+	}
+
+	matchesInstalled := false
+	for _, skill := range skills {
+		if skill == nil {
+			continue
+		}
+		if _, ok := requested[skill.Slug]; ok {
+			matchesInstalled = true
+			break
+		}
+	}
+	if !matchesInstalled {
+		return skills
+	}
+
+	filtered := make([]*extensionservice.ResolvedSkill, 0, len(skills))
+	for _, skill := range skills {
+		if skill == nil {
+			continue
+		}
+		if _, ok := requested[skill.Slug]; ok {
+			filtered = append(filtered, skill)
+		}
+	}
+	return filtered
 }
 
 func skillTargetPath(agentSlug, skillSlug string) string {

@@ -55,7 +55,7 @@ test.describe("Popout terminal auth gating", () => {
       });
 
       const loginPage = new LoginPage(page);
-      await loginPage.login(TEST_USER.email, TEST_USER.password);
+      await loginPage.login(TEST_USER.username, TEST_USER.password);
 
       // Post-login navigation must honor ?redirect= ahead of getDefaultRoute.
       await page.waitForURL(

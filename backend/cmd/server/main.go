@@ -17,6 +17,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	channelService "github.com/anthropics/agentsmesh/backend/internal/service/channel"
+	coordinatorsvc "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
 	"github.com/anthropics/agentsmesh/backend/internal/service/instance"
 	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	notifService "github.com/anthropics/agentsmesh/backend/internal/service/notification"
@@ -162,6 +163,27 @@ func main() {
 	setupLoopEventSubscriptions(eventBus, loopOrchestrator)
 	slog.Info("Loop orchestrator and scheduler created")
 
+	coordinatorEnsurer := coordinatorsvc.NewRunnerEnsurer(services.runner, nil, appLogger.Logger)
+	if launcher, kind, err := coordinatorsvc.NewRunnerLauncherFromEnv(appLogger.Logger); err != nil {
+		slog.Error("Coordinator runner launcher config invalid", "error", err)
+	} else if launcher != nil {
+		coordinatorEnsurer = coordinatorsvc.NewRunnerEnsurer(services.runner, launcher, appLogger.Logger)
+		slog.Info("Coordinator runner auto-provision enabled", "launcher", kind)
+	}
+	coordinatorSvc := coordinatorsvc.NewService(coordinatorsvc.Deps{
+		Store:         infra.NewCoordinatorRepository(db),
+		Tickets:       services.ticket,
+		Dispatch:      podOrchestrator,
+		Platform:      coordinatorsvc.NewPlatformFactory(services.repository, services.user),
+		RunnerEnsurer: coordinatorEnsurer,
+		Logger:        appLogger.Logger,
+	})
+	coordinatorScheduler := coordinatorsvc.NewScheduler(coordinatorSvc, appLogger.Logger)
+	coordinatorScheduler.Start()
+	defer coordinatorScheduler.Stop()
+	setupCoordinatorEventSubscriptions(eventBus, coordinatorSvc)
+	slog.Info("Coordinator service and scheduler created")
+
 	grpcResult := initPKIAndGRPCWiring(cfg, services, runnerConnMgr, podCoordinator, podRouter, sandboxQuerySvc, podOrchestrator, loopOrchestrator, services.loopRun, appLogger, relayTokenGenerator, db)
 
 	versionChecker := runner.NewVersionChecker(redisClient)
@@ -174,6 +196,7 @@ func main() {
 	svc := buildServicesContainer(services, runnerConnMgr, podCoordinator, podOrchestrator, hub, eventBus,
 		grpcResult, sandboxQuerySvc, logUploadSvc, relayManager, relayTokenGenerator, relayDNSService,
 		relayACMEManager, geoResolver, versionChecker, loopOrchestrator, loopScheduler, redisClient)
+	svc.Coordinator = coordinatorSvc
 
 	router := rest.NewRouter(cfg, svc, db, appLogger.Logger, redisClient)
 

@@ -136,7 +136,7 @@ function RunnersPanel({
   };
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">{t("settings.runnersSection.title")}</h2>

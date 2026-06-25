@@ -75,13 +75,8 @@ test.describe("Journey: New User Onboarding", () => {
       }).first();
       if (await createBtn.isVisible()) {
         await createBtn.click();
-        // Onboarding flow may route to /onboarding/setup-runner next; accept
-        // anything past /onboarding (workspace/dashboard) OR the setup-runner
-        // sub-step.
         await page.waitForURL(
-          (url) =>
-            !url.pathname.includes("/onboarding") ||
-            url.pathname.includes("/setup-runner"),
+          (url) => url.pathname.includes("/workspace"),
           { timeout: 15_000 },
         );
       }
@@ -89,7 +84,7 @@ test.describe("Journey: New User Onboarding", () => {
 
     // ── Step 4: Verify landing on workspace ──
     const finalUrl = page.url();
-    expect(finalUrl).toMatch(/workspace|dashboard|onboarding/);
+    expect(finalUrl).toMatch(/workspace/);
 
     // ── Step 5: Verify user exists in DB with org membership ──
     const userId = db.queryValue(

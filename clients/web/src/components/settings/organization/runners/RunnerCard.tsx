@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Runner, getRunnerStatusInfo } from "@/stores/runner";
 import { isVersionOutdated } from "@/lib/utils/version";
-import { getLocalRunnerService } from "@agentsmesh/service-runtime";
 import type { TranslationFn } from "../GeneralSettings";
 
 interface RunnerCardProps {
@@ -16,22 +14,6 @@ interface RunnerCardProps {
   latestRunnerVersion?: string;
 }
 
-function useLocalNodeId(): string | null {
-  const [nodeId, setNodeId] = useState<string | null>(null);
-  useEffect(() => {
-    const svc = getLocalRunnerService();
-    if (!svc) return;
-    let cancelled = false;
-    void svc.local_node_id().then((id: string | null) => {
-      if (!cancelled) setNodeId(id);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-  return nodeId;
-}
-
 export function RunnerCard({
   runner,
   onEdit,
@@ -41,8 +23,6 @@ export function RunnerCard({
   latestRunnerVersion,
 }: RunnerCardProps) {
   const statusInfo = getRunnerStatusInfo(runner.status as "online" | "offline" | "maintenance" | "busy");
-  const localNodeId = useLocalNodeId();
-  const isThisMachine = localNodeId !== null && localNodeId === runner.node_id;
 
   return (
     <div
@@ -60,13 +40,8 @@ export function RunnerCard({
               <span className={`w-1.5 h-1.5 rounded-full ${statusInfo?.dotColor}`} />
               {statusInfo?.label}
             </span>
-            {isThisMachine && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                This Mac
-              </span>
-            )}
             {!runner.is_enabled && (
-              <span className="text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 px-2 py-0.5 rounded">
+              <span className="text-xs bg-warning-bg text-warning px-2 py-0.5 rounded">
                 {t("settings.runnersSection.disabled")}
               </span>
             )}
@@ -84,7 +59,7 @@ export function RunnerCard({
               <span className="flex items-center gap-1">
                 v{runner.runner_version}
                 {isVersionOutdated(runner.runner_version, latestRunnerVersion) && (
-                  <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                  <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-warning-bg text-warning">
                     {t("settings.runnersSection.upgradeAvailable")}
                   </span>
                 )}

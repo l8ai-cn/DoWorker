@@ -43,7 +43,7 @@ export function UsageTimeSeriesChart({ data, t }: UsageTimeSeriesChartProps) {
 
   if (data.length === 0) {
     return (
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <h3 className="text-sm font-medium mb-4">{t("settings.usagePage.timeSeriesTitle")}</h3>
         <p className="text-sm text-muted-foreground text-center py-8">
           {t("settings.usagePage.noData")}
@@ -53,7 +53,7 @@ export function UsageTimeSeriesChart({ data, t }: UsageTimeSeriesChartProps) {
   }
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <h3 className="text-sm font-medium mb-4">{t("settings.usagePage.timeSeriesTitle")}</h3>
       <div role="img" aria-label={t("settings.usagePage.timeSeriesTitle")}>
         <ResponsiveContainer width="100%" height={300}>

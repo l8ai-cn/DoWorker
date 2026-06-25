@@ -78,7 +78,7 @@ func (a *GRPCRunnerAdapter) SendPrompt(runnerID int64, podKey, prompt string) er
 	return conn.SendMessage(msg)
 }
 
-func (a *GRPCRunnerAdapter) SendSubscribePod(runnerID int64, podKey, relayURL, runnerToken, localToken string, includeSnapshot bool, snapshotHistory int32) error {
+func (a *GRPCRunnerAdapter) SendSubscribePod(runnerID int64, podKey, relayURL, runnerToken string, includeSnapshot bool, snapshotHistory int32) error {
 	conn := a.connManager.GetConnection(runnerID)
 	if conn == nil {
 		return status.Errorf(codes.NotFound, "runner %d not connected", runnerID)
@@ -90,7 +90,6 @@ func (a *GRPCRunnerAdapter) SendSubscribePod(runnerID int64, podKey, relayURL, r
 				PodKey:          podKey,
 				RelayUrl:        relayURL,
 				RunnerToken:     runnerToken,
-				LocalToken:      localToken,
 				IncludeSnapshot: includeSnapshot,
 				SnapshotHistory: snapshotHistory,
 			},

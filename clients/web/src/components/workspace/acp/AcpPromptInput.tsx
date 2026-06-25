@@ -54,7 +54,7 @@ export function AcpPromptInput({ podKey }: AcpPromptInputProps) {
   return (
     <div className="border-t px-3 py-2">
       {error && (
-        <div className="text-xs text-red-500 mb-1">{error}</div>
+        <div className="text-xs text-danger mb-1">{error}</div>
       )}
       <div className="flex items-center gap-2">
         <AcpPermissionModeSelector podKey={podKey} />
@@ -70,7 +70,7 @@ export function AcpPromptInput({ podKey }: AcpPromptInputProps) {
         {isProcessing ? (
           <button
             onClick={handleCancel}
-            className="shrink-0 rounded-md bg-red-600 h-[36px] w-[36px] flex items-center justify-center text-white hover:bg-red-700"
+            className="shrink-0 rounded-md bg-destructive h-[36px] w-[36px] flex items-center justify-center text-destructive-foreground hover:bg-destructive/90"
             title={t("cancel")}
           >
             <StopCircle className="h-4 w-4" />

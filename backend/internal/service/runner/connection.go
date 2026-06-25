@@ -30,8 +30,6 @@ type GRPCConnection struct {
 	initialized     bool
 	availableAgents []string
 
-	localRelayURL string
-
 	onlineEventSent atomic.Bool
 
 	Send chan *runnerv1.ServerMessage
@@ -79,18 +77,6 @@ func (c *GRPCConnection) GetAvailableAgents() []string {
 	result := make([]string, len(c.availableAgents))
 	copy(result, c.availableAgents)
 	return result
-}
-
-func (c *GRPCConnection) SetLocalRelayURL(url string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.localRelayURL = url
-}
-
-func (c *GRPCConnection) GetLocalRelayURL() string {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	return c.localRelayURL
 }
 
 func (c *GRPCConnection) UpdateLastPing() {

@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { docsNavSections, getBreadcrumbs } from "@/lib/docs-navigation";
-import { AuthButtons, Logo } from "@/components/common";
+import { LightAuthButtons, Logo } from "@/components/common";
 
 function SidebarNav({
   onNavigate,
@@ -158,7 +158,7 @@ export default function DocsShell({
             >
               {t("landing.nav.docs")}
             </Link>
-            <AuthButtons consoleVariant="outline" />
+            <LightAuthButtons consoleVariant="outline" />
           </div>
         </div>
       </header>

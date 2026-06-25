@@ -118,9 +118,9 @@ function KanbanColumn({
 
 function columnBadgeClass(value: string): string {
   switch (value) {
-    case "todo": return "text-slate-500";
-    case "in_progress": return "text-amber-600";
-    case "done": return "text-emerald-600";
+    case "todo": return "text-muted-foreground";
+    case "in_progress": return "text-warning";
+    case "done": return "text-success";
     default: return "text-muted-foreground";
   }
 }

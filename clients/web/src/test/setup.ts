@@ -182,7 +182,7 @@ vi.mock('@/lib/wasm-core', () => {
   // kept accepting them, hiding wasm-binding drift from vitest.
   // Minimal cache↔proto pod mapping for the mock — covers the fields the pod
   // store tests exercise (mockPod/mockPod2). Not the full PodData surface; the
-  // real round-trip is covered by electron-adapter pod_cache_to_bytes.test.ts.
+  // real round-trip is covered by Web projection pod_cache_to_bytes.test.ts.
   type PodObj = Record<string, unknown>
   const protoPodToCacheMin = (p: ReturnType<typeof create<typeof PodSchema>>): PodObj => ({
     id: Number(p.id), pod_key: p.podKey, status: p.status,

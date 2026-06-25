@@ -39,7 +39,7 @@ func (s *Service) GetWebhookService() WebhookServiceInterface {
 
 type CreateRequest struct {
 	OrganizationID   int64
-	ProviderType     string // github, gitlab, gitee, generic
+	ProviderType     string // github, gitlab, gitee, cnb, generic
 	ProviderBaseURL  string // https://github.com, https://gitlab.company.com
 	CloneURL         string // Full clone URL (deprecated, still accepted for backward compat)
 	HttpCloneURL     string // HTTPS clone URL

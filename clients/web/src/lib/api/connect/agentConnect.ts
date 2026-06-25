@@ -88,7 +88,13 @@ function fromProtoConfigSchema(p: ProtoConfigSchema): ConfigSchema {
     type: c.type as CredentialField["type"],
     optional: c.optional,
   }));
-  return { fields, credential_fields };
+  const config_files = p.configFiles.map((f) => ({
+    id: f.id,
+    path_env: f.pathEnv || undefined,
+    format: f.format,
+    path_hint: f.pathHint || undefined,
+  }));
+  return { fields, credential_fields, config_files };
 }
 
 function fromProtoUserAgentConfig(p: ProtoUserAgentConfig): UserAgentConfigData {

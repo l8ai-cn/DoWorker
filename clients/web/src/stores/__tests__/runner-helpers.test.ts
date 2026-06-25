@@ -9,8 +9,8 @@ describe('Runner Store Helper Functions', () => {
       const info = getRunnerStatusInfo('online')
       expect(info).toEqual({
         label: 'Online',
-        color: 'text-green-600 dark:text-green-400',
-        dotColor: 'bg-green-500',
+        color: 'text-success',
+        dotColor: 'bg-success',
       })
     })
 
@@ -18,8 +18,8 @@ describe('Runner Store Helper Functions', () => {
       const info = getRunnerStatusInfo('offline')
       expect(info).toEqual({
         label: 'Offline',
-        color: 'text-gray-500 dark:text-gray-400',
-        dotColor: 'bg-gray-400',
+        color: 'text-muted-foreground',
+        dotColor: 'bg-muted-foreground',
       })
     })
 
@@ -27,8 +27,8 @@ describe('Runner Store Helper Functions', () => {
       const info = getRunnerStatusInfo('maintenance')
       expect(info).toEqual({
         label: 'Maintenance',
-        color: 'text-yellow-600 dark:text-yellow-400',
-        dotColor: 'bg-yellow-500',
+        color: 'text-warning',
+        dotColor: 'bg-warning',
       })
     })
 
@@ -36,8 +36,8 @@ describe('Runner Store Helper Functions', () => {
       const info = getRunnerStatusInfo('busy')
       expect(info).toEqual({
         label: 'Busy',
-        color: 'text-orange-600 dark:text-orange-400',
-        dotColor: 'bg-orange-500',
+        color: 'text-primary',
+        dotColor: 'bg-primary',
       })
     })
   })

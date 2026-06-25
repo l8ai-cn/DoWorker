@@ -113,13 +113,13 @@ violation "raw assignment to .Username outside username_registry" "$hits"
 hits=$(scan 'fmt\.Sprintf\([^)]*-workspace' 'service_personal.go')
 violation "client-side personal workspace slug concat" "$hits"
 
-# scan_ts grep-searches clients/{web,web-admin,desktop}/src for $1.
+# scan_ts grep-searches clients/{web,web-admin}/src for $1.
 # In fast mode, intersects with the diff.
 scan_ts() {
   local pattern="$1"
   if [[ "$FAST_MODE" == "1" ]]; then
     local files
-    files=$(echo "$CHANGED_FILES" | grep -E '^clients/(web|web-admin|desktop)/src/.*\.(ts|tsx)$' | grep -vE '\.test\.(ts|tsx)$' || true)
+    files=$(echo "$CHANGED_FILES" | grep -E '^clients/(web|web-admin)/src/.*\.(ts|tsx)$' | grep -vE '\.test\.(ts|tsx)$' || true)
     if [[ -z "$files" ]]; then
       return 0
     fi
@@ -128,7 +128,7 @@ scan_ts() {
     return 0
   fi
   grep -RnE "$pattern" \
-    clients/web/src clients/web-admin/src clients/desktop/src \
+    clients/web/src clients/web-admin/src \
     --include='*.ts' --include='*.tsx' \
     --exclude='*.test.ts' --exclude='*.test.tsx' || true
 }

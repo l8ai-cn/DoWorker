@@ -113,7 +113,7 @@ func TestHandleAcpRelayCommand_Prompt(t *testing.T) {
 	mc.SetConnected(true)
 
 	pod := &Pod{PodKey: "test-pod", IO: mock}
-	pod.Relay = NewACPPodRelay("test-pod", nil, nil, nil)
+	pod.Relay = NewACPPodRelay("test-pod", nil, nil)
 	pod.SetRelayClient(mc)
 
 	payload, _ := json.Marshal(map[string]any{
@@ -365,7 +365,7 @@ func TestHandleAcpRelayCommand_GenericControlRequest(t *testing.T) {
 	mc.SetConnected(true)
 
 	pod := &Pod{PodKey: "test-pod", IO: mock}
-	pod.Relay = NewACPPodRelay("test-pod", nil, nil, nil)
+	pod.Relay = NewACPPodRelay("test-pod", nil, nil)
 	pod.SetRelayClient(mc)
 
 	payload, _ := json.Marshal(map[string]any{

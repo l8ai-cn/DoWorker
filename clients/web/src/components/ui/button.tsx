@@ -13,14 +13,14 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", loading, children, disabled, ...props }, ref) => {
     const baseStyles =
-      "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50";
+      "motion-interactive pressable inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50";
 
     const variants = {
-      default: "bg-primary text-primary-foreground shadow hover:bg-primary-hover",
-      secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-muted",
-      destructive: "bg-destructive text-destructive-foreground shadow-sm hover:opacity-90",
-      outline: "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-      ghost: "hover:bg-accent hover:text-accent-foreground",
+      default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover hover:shadow-[var(--shadow-soft)]",
+      secondary: "bg-surface-muted text-secondary-foreground hover:bg-subtle hover:shadow-xs",
+      destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+      outline: "bg-surface-raised text-foreground shadow-xs hover:bg-accent hover:text-accent-foreground hover:shadow-[var(--shadow-soft)] ring-1 ring-border/30 hover:ring-border/50",
+      ghost: "hover:bg-accent/80 hover:text-accent-foreground",
       link: "text-primary underline-offset-4 hover:underline",
     };
 

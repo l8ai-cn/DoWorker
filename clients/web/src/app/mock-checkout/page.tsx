@@ -127,7 +127,7 @@ export default function MockCheckoutPage() {
   if (error && !session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="bg-card p-8 rounded-lg shadow-md max-w-md w-full border border-border">
+        <div className="surface-card rounded-xl p-8 max-w-md w-full">
           <div className="text-center">
             <div className="text-destructive text-5xl mb-4">⚠️</div>
             <h1 className="text-xl font-semibold text-foreground mb-2">Checkout Error</h1>
@@ -144,9 +144,9 @@ export default function MockCheckoutPage() {
   if (session?.status === "succeeded") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="bg-card p-8 rounded-lg shadow-md max-w-md w-full border border-border">
+        <div className="surface-card rounded-xl p-8 max-w-md w-full">
           <div className="text-center">
-            <div className="text-green-500 dark:text-green-400 text-5xl mb-4">✓</div>
+            <div className="text-success text-5xl mb-4">✓</div>
             <h1 className="text-xl font-semibold text-foreground mb-2">Payment Successful!</h1>
             <p className="text-muted-foreground mb-6">Your payment has been processed successfully.</p>
             {successUrl && (
@@ -162,10 +162,10 @@ export default function MockCheckoutPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="bg-card p-8 rounded-lg shadow-md max-w-md w-full border border-border">
+      <div className="surface-card rounded-xl p-8 max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 text-xs font-medium px-3 py-1 rounded-full inline-block mb-4">
+          <div className="bg-warning-bg text-warning text-xs font-medium px-3 py-1 rounded-full inline-block mb-4">
             🧪 TEST MODE
           </div>
           <h1 className="text-2xl font-bold text-foreground">Mock Checkout</h1>
@@ -176,7 +176,7 @@ export default function MockCheckoutPage() {
 
         {/* Order Details */}
         {session && (
-          <div className="border border-border rounded-lg p-4 mb-6">
+          <div className="surface-card p-4 mb-6">
             <h2 className="font-semibold text-foreground mb-3">Order Details</h2>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
@@ -211,7 +211,7 @@ export default function MockCheckoutPage() {
         )}
 
         {/* Simulated Card Input */}
-        <div className="border border-border rounded-lg p-4 mb-6 bg-muted">
+        <div className="bg-surface-muted/40 rounded-lg p-4 mb-6">
           <p className="text-sm text-muted-foreground mb-2">Test Card Number</p>
           <div className="font-mono text-lg text-foreground">4242 4242 4242 4242</div>
           <p className="text-xs text-muted-foreground/70 mt-2">

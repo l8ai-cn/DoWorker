@@ -6,9 +6,7 @@ For each `next_app()` call, produces four targets:
   :<name>_start         devserver running `next start` against the build
   :<name>_start_binary  plain js_binary for the OCI image entrypoint
 
-Used by clients/web and clients/web-admin. The Electron renderer bundle is
-produced separately via build_defs/web/electron.bzl (which also calls
-next_app under the hood).
+Used by clients/web and clients/web-admin.
 
 Usage:
     load("@npm//clients/web:next/package_json.bzl", next_bin = "bin")

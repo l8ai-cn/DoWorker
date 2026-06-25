@@ -17,9 +17,13 @@
 // leaked into proxy logs. Connect Server Streaming uses HTTP semantics
 // like every other RPC, so the auth interceptor pipeline applies as-is.
 //
-// Heartbeat: HTTP/2 PING frames + stream-idle timeout on the client
-// side. No application-level ping/pong (the legacy `ping`/`pong` event
-// types are dropped — Event payloads now only carry domain events).
+// Liveness: the handler sends a keepalive sentinel frame (Event.keepalive=true,
+// no business payload) the instant the stream opens — connect-go only flushes
+// the HTTP 200 header on the first Send, so without it a silent org leaves the
+// client blocked until its 15s connect timeout, then reconnect-storms — and one
+// every 25s thereafter to keep the link warm under client idle + gateway idle
+// reaping. The events crate connection_loop flips Connected / refreshes idle on
+// these but skips dispatch. See backend/internal/api/connect/events/sentinel_frames.go.
 //
 // Payload schema: 35+ heterogeneous event types (pod / channel / ticket
 // / runner / autopilot / mr / pipeline / loop_run / blockstore /
@@ -40,7 +44,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file events/v1/events.proto.
  */
 export const file_events_v1_events: GenFile = /*@__PURE__*/
-  fileDesc("ChZldmVudHMvdjEvZXZlbnRzLnByb3RvEg9wcm90by5ldmVudHMudjEiOQoQU3Vic2NyaWJlUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRITCgtldmVudF90eXBlcxgCIAMoCSL/AQoFRXZlbnQSDAoEdHlwZRgBIAEoCRIQCghjYXRlZ29yeRgCIAEoCRIXCg9vcmdhbml6YXRpb25faWQYAyABKAMSGwoOdGFyZ2V0X3VzZXJfaWQYBCABKANIAIgBARIXCg90YXJnZXRfdXNlcl9pZHMYBSADKAMSGAoLZW50aXR5X3R5cGUYBiABKAlIAYgBARIWCgllbnRpdHlfaWQYByABKAlIAogBARIRCglkYXRhX2pzb24YCCABKAkSEQoJdGltZXN0YW1wGAkgASgDQhEKD190YXJnZXRfdXNlcl9pZEIOCgxfZW50aXR5X3R5cGVCDAoKX2VudGl0eV9pZDJZCg1FdmVudHNTZXJ2aWNlEkgKCVN1YnNjcmliZRIhLnByb3RvLmV2ZW50cy52MS5TdWJzY3JpYmVSZXF1ZXN0GhYucHJvdG8uZXZlbnRzLnYxLkV2ZW50MAFCQlpAZ2l0aHViLmNvbS9hbnRocm9waWNzL2FnZW50c21lc2gvcHJvdG8vZ2VuL2dvL2V2ZW50cy92MTtldmVudHN2MWIGcHJvdG8z");
+  fileDesc("ChZldmVudHMvdjEvZXZlbnRzLnByb3RvEg9wcm90by5ldmVudHMudjEiOQoQU3Vic2NyaWJlUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRITCgtldmVudF90eXBlcxgCIAMoCSKSAgoFRXZlbnQSDAoEdHlwZRgBIAEoCRIQCghjYXRlZ29yeRgCIAEoCRIXCg9vcmdhbml6YXRpb25faWQYAyABKAMSGwoOdGFyZ2V0X3VzZXJfaWQYBCABKANIAIgBARIXCg90YXJnZXRfdXNlcl9pZHMYBSADKAMSGAoLZW50aXR5X3R5cGUYBiABKAlIAYgBARIWCgllbnRpdHlfaWQYByABKAlIAogBARIRCglkYXRhX2pzb24YCCABKAkSEQoJdGltZXN0YW1wGAkgASgDEhEKCWtlZXBhbGl2ZRgKIAEoCEIRCg9fdGFyZ2V0X3VzZXJfaWRCDgoMX2VudGl0eV90eXBlQgwKCl9lbnRpdHlfaWQyWQoNRXZlbnRzU2VydmljZRJICglTdWJzY3JpYmUSIS5wcm90by5ldmVudHMudjEuU3Vic2NyaWJlUmVxdWVzdBoWLnByb3RvLmV2ZW50cy52MS5FdmVudDABQkJaQGdpdGh1Yi5jb20vYW50aHJvcGljcy9hZ2VudHNtZXNoL3Byb3RvL2dlbi9nby9ldmVudHMvdjE7ZXZlbnRzdjFiBnByb3RvMw");
 
 /**
  * @generated from message proto.events.v1.SubscribeRequest
@@ -129,6 +133,17 @@ export type Event = Message<"proto.events.v1.Event"> & {
    * @generated from field: int64 timestamp = 9;
    */
   timestamp: bigint;
+
+  /**
+   * Liveness sentinel marker: the server's ready/keepalive frames set this and
+   * carry no business payload. A dedicated field (not a reserved `type` value)
+   * keeps liveness orthogonal to the business type namespace, so no business
+   * event can collide with a sentinel; the client flips Connected / refreshes
+   * idle on these frames but never dispatches them.
+   *
+   * @generated from field: bool keepalive = 10;
+   */
+  keepalive: boolean;
 };
 
 /**

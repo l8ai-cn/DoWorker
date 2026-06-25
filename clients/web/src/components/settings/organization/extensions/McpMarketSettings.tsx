@@ -88,7 +88,7 @@ export function McpMarketSettings({ t }: McpMarketSettingsProps) {
 
   return (
     <div className="space-y-6">
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <div className="mb-4">
           <h2 className="text-lg font-semibold">{t("extensions.mcpMarket.title")}</h2>
           <p className="text-sm text-muted-foreground">
@@ -124,7 +124,7 @@ export function McpMarketSettings({ t }: McpMarketSettingsProps) {
               {servers.map((server) => (
                 <div
                   key={server.id}
-                  className="border border-border rounded-lg p-4"
+                  className="surface-card p-4"
                 >
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <span className="font-medium">{server.name}</span>

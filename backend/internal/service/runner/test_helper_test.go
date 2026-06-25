@@ -116,7 +116,7 @@ func (m *MockCommandSender) SendPrompt(ctx context.Context, runnerID int64, podK
 	return nil
 }
 
-func (m *MockCommandSender) SendSubscribePod(ctx context.Context, runnerID int64, podKey, relayURL, runnerToken, localToken string, includeSnapshot bool, snapshotHistory int32) error {
+func (m *MockCommandSender) SendSubscribePod(ctx context.Context, runnerID int64, podKey, relayURL, runnerToken string, includeSnapshot bool, snapshotHistory int32) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.SubscribePodCalls++
@@ -148,12 +148,4 @@ func (m *MockCommandSender) SendAutopilotControl(runnerID int64, cmd *runnerv1.A
 
 func (m *MockCommandSender) SendUpdatePodPerpetual(ctx context.Context, runnerID int64, podKey string, perpetual bool) error {
 	return nil
-}
-
-func (m *MockCommandSender) GetRunnerLocalRelayURL(runnerID int64) string {
-	return ""
-}
-
-func (m *MockCommandSender) GetRunnerNodeID(runnerID int64) string {
-	return ""
 }

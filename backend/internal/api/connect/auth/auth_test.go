@@ -23,7 +23,7 @@ func connectCodeOf(t *testing.T, err error) connect.Code {
 // --- input validation (handlers must reject empty inputs before touching
 // the service layer, conventions §10 — InvalidArgument, not Internal) ---
 
-func TestLogin_EmptyEmail_InvalidArgument(t *testing.T) {
+func TestLogin_EmptyUsername_InvalidArgument(t *testing.T) {
 	srv := &Server{}
 	_, err := srv.Login(context.Background(),
 		connect.NewRequest(&authv1.LoginRequest{Password: "p"}))
@@ -34,7 +34,7 @@ func TestLogin_EmptyEmail_InvalidArgument(t *testing.T) {
 func TestLogin_EmptyPassword_InvalidArgument(t *testing.T) {
 	srv := &Server{}
 	_, err := srv.Login(context.Background(),
-		connect.NewRequest(&authv1.LoginRequest{Email: "a@b.com"}))
+		connect.NewRequest(&authv1.LoginRequest{Username: "alice"}))
 	require.Error(t, err)
 	assert.Equal(t, connect.CodeInvalidArgument, connectCodeOf(t, err))
 }

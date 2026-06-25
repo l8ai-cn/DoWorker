@@ -6,7 +6,7 @@
 // IMPORTANT: proto package is `proto.runner_api.v1`, NOT `proto.runner.v1`.
 // The latter is already taken by `proto/runner/v1/runner.proto` (the
 // runner ↔ backend gRPC mTLS control plane). This service is the
-// browser/desktop ↔ backend REST replacement — completely different plane.
+// browser ↔ backend REST replacement — completely different plane.
 //
 // Conventions enforced:
 //   * package proto.runner_api.v1 + go_package suffix for dispatch

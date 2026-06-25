@@ -171,7 +171,7 @@ export function AddSkillDialog({ repositoryId, scope, open, onOpenChange, onInst
                     return (
                       <div
                         key={item.id}
-                        className="border border-border rounded-lg p-3 flex items-center justify-between gap-3"
+                        className="surface-card p-3 flex items-center justify-between gap-3"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">

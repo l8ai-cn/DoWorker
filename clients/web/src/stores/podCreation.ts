@@ -17,6 +17,9 @@ interface PodCreationPreferences {
   lastCredentialName: string;
   lastRuntimeBundleNames: string[];
   lastBranchName: string | null;
+  // Slugs are stable across rename/reinstall and repo-scoped; restored as the
+  // initial selection filtered to the skills actually installed on the repo.
+  lastSkillSlugs: string[];
 
   setLastChoices: (
     choices: Partial<
@@ -27,6 +30,7 @@ interface PodCreationPreferences {
         | "lastCredentialName"
         | "lastRuntimeBundleNames"
         | "lastBranchName"
+        | "lastSkillSlugs"
       >
     >
   ) => void;
@@ -45,6 +49,7 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
       lastCredentialName: "",
       lastRuntimeBundleNames: [],
       lastBranchName: null,
+      lastSkillSlugs: [],
 
       setLastChoices: (choices) => set((state) => ({ ...state, ...choices })),
       clearLastChoices: () =>
@@ -54,6 +59,7 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
           lastCredentialName: "",
           lastRuntimeBundleNames: [],
           lastBranchName: null,
+          lastSkillSlugs: [],
         }),
 
       // Hydration
@@ -62,13 +68,13 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
     }),
     {
       name: "agentsmesh-pod-creation",
-      version: 3,
+      version: 4,
       // v1 stored `lastBundleName: string | null`; v2 unified into
       // `lastBundleNames: string[]`; v3 splits back into credential
       // (single) + runtime (multi) to match the dialog UI. Legacy values
       // are dropped — we can't classify a name without re-querying the
       // bundle list, and the user will see their primary bundles
-      // re-applied on next agent select anyway.
+      // re-applied on next agent select anyway. v4 adds `lastSkillSlugs`.
       migrate: (persistedState: unknown, version: number) => {
         const s = (persistedState as Record<string, unknown>) ?? {};
         if (version < 3) {
@@ -76,6 +82,9 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
           delete s.lastBundleNames;
           s.lastCredentialName = "";
           s.lastRuntimeBundleNames = [];
+        }
+        if (version < 4) {
+          s.lastSkillSlugs = [];
         }
         return s as unknown as PodCreationPreferences;
       },
@@ -85,6 +94,7 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
         lastCredentialName: state.lastCredentialName,
         lastRuntimeBundleNames: state.lastRuntimeBundleNames,
         lastBranchName: state.lastBranchName,
+        lastSkillSlugs: state.lastSkillSlugs,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

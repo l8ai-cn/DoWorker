@@ -46,21 +46,12 @@ type UpgradeController interface {
 	GetRestartFunc() func() (int, error)
 }
 
-// LocalRelayProvider exposes the always-on local relay server through the
-// LocalRelayBroker interface, hiding the concrete *relay.LocalServer from
-// handlers and tests so neither needs to import the runner's relay package
-// type to mock the broker.
-type LocalRelayProvider interface {
-	GetLocalRelayServer() LocalRelayBroker
-}
-
 // MessageHandlerContext is the composite interface for backward compatibility.
 type MessageHandlerContext interface {
 	CoreContext
 	PodComponentContext
 	AutopilotRegistry
 	UpgradeController
-	LocalRelayProvider
 }
 
 // MCPServer defines the MCP server operations needed by message handlers.

@@ -102,7 +102,7 @@ describe("AgentStatusBadge", () => {
   });
 
   describe("status colors", () => {
-    it("renders executing status with green colors", () => {
+    it("renders executing status with success colors", () => {
       const { container } = render(
         <AgentStatusBadge
           podStatus="running"
@@ -111,11 +111,11 @@ describe("AgentStatusBadge", () => {
       );
       const badge = container.querySelector("span");
       expect(badge).not.toBeNull();
-      expect(badge!.className).toContain("text-green-600");
-      expect(badge!.className).toContain("bg-green-500/10");
+      expect(badge!.className).toContain("text-success");
+      expect(badge!.className).toContain("bg-success-bg");
     });
 
-    it("renders waiting status with amber colors", () => {
+    it("renders waiting status with warning colors", () => {
       const { container } = render(
         <AgentStatusBadge
           podStatus="running"
@@ -124,8 +124,8 @@ describe("AgentStatusBadge", () => {
       );
       const badge = container.querySelector("span");
       expect(badge).not.toBeNull();
-      expect(badge!.className).toContain("text-amber-600");
-      expect(badge!.className).toContain("bg-amber-500/10");
+      expect(badge!.className).toContain("text-warning");
+      expect(badge!.className).toContain("bg-warning-bg");
     });
   });
 });

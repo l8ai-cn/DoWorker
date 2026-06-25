@@ -56,13 +56,13 @@ export function ActivityTabContent({
                       ({sourcePod.model})
                     </span>
                   )}
-                  <ArrowRight className="w-3 h-3 text-green-500" />
+                  <ArrowRight className="w-3 h-3 text-success" />
                   <span className="font-medium">{t("ide.bottomPanel.currentPod")}</span>
                   <span className={cn(
                     "ml-auto px-1.5 py-0.5 rounded text-[10px]",
                     edge.status === "active"
-                      ? "bg-green-500/10 text-green-500"
-                      : "bg-yellow-500/10 text-yellow-500"
+                      ? "bg-success-bg text-success"
+                      : "bg-warning-bg text-warning"
                   )}>
                     {edge.status}
                   </span>
@@ -89,7 +89,7 @@ export function ActivityTabContent({
                   className="flex items-center gap-2 px-2 py-1.5 rounded bg-muted/50 text-xs"
                 >
                   <span className="font-medium">{t("ide.bottomPanel.currentPod")}</span>
-                  <ArrowRight className="w-3 h-3 text-blue-500" />
+                  <ArrowRight className="w-3 h-3 text-info" />
                   <span className="font-mono text-muted-foreground">
                     {getShortPodKey(edge.target)}
                   </span>
@@ -101,8 +101,8 @@ export function ActivityTabContent({
                   <span className={cn(
                     "ml-auto px-1.5 py-0.5 rounded text-[10px]",
                     edge.status === "active"
-                      ? "bg-green-500/10 text-green-500"
-                      : "bg-yellow-500/10 text-yellow-500"
+                      ? "bg-success-bg text-success"
+                      : "bg-warning-bg text-warning"
                   )}>
                     {edge.status}
                   </span>

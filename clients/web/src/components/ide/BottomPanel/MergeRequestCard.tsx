@@ -61,11 +61,11 @@ export function MergeRequestCard({
 function MRStateIcon({ state }: { state: string }) {
   switch (state) {
     case "opened":
-      return <GitPullRequest className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />;
+      return <GitPullRequest className="w-3.5 h-3.5 text-success flex-shrink-0" />;
     case "merged":
-      return <GitMerge className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />;
+      return <GitMerge className="w-3.5 h-3.5 text-primary flex-shrink-0" />;
     case "closed":
-      return <XCircle className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />;
+      return <XCircle className="w-3.5 h-3.5 text-danger flex-shrink-0" />;
     default:
       return <GitPullRequest className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />;
   }
@@ -73,11 +73,11 @@ function MRStateIcon({ state }: { state: string }) {
 
 function PipelineStatusBadge({ status, url }: { status: string; url?: string }) {
   const styleMap: Record<string, string> = {
-    success: "bg-green-500/10 text-green-500",
-    failed: "bg-red-500/10 text-red-500",
-    running: "bg-blue-500/10 text-blue-500",
-    pending: "bg-yellow-500/10 text-yellow-500",
-    canceled: "bg-gray-500/10 text-gray-500",
+    success: "bg-success-bg text-success",
+    failed: "bg-danger-bg text-danger",
+    running: "bg-info-bg text-info",
+    pending: "bg-warning-bg text-warning",
+    canceled: "bg-muted text-muted-foreground",
   };
 
   const content = (

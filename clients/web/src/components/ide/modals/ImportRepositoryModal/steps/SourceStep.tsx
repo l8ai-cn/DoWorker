@@ -48,7 +48,7 @@ export function SourceStep({ state, actions, t }: StepProps) {
                         {provider.base_url}
                       </div>
                       {provider.has_identity && (
-                        <div className="text-xs text-green-600 dark:text-green-400">
+                        <div className="text-xs text-success">
                           OAuth
                         </div>
                       )}

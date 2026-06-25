@@ -20,7 +20,7 @@ type Agent = { slug: string };
 type Channel = { id: bigint; memberCount: bigint; agentCount: bigint };
 type ChannelPod = { podKey: string };
 
-const SECOND_USER = { email: "dev2@agentsmesh.local", password: "devpass123" };
+const SECOND_USER = { email: "dev2@agentsmesh.local", username: "devuser2", password: "devpass123" };
 const RAIL = '[data-testid="channel-right-rail"]';
 const POD_ROW = '[data-testid="channel-rail-pod"]';
 

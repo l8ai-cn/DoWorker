@@ -118,6 +118,10 @@ func (h *ChannelHandler) CreateChannel(c *gin.Context) {
 			apierr.Conflict(c, apierr.ALREADY_EXISTS, "Channel name already exists")
 			return
 		}
+		if errors.Is(err, channel.ErrInvalidName) {
+			apierr.BadRequest(c, apierr.VALIDATION_FAILED, "Channel name must produce a valid slug")
+			return
+		}
 		apierr.InternalError(c, "Failed to create channel")
 		return
 	}

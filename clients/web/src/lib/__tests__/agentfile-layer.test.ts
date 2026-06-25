@@ -124,4 +124,17 @@ describe('buildAgentfileLayer', () => {
     const result = buildAgentfileLayer({ configValues: { timeout: 30 } })
     expect(result).toContain('CONFIG timeout = 30')
   })
+
+  it('emits SKILLS when skill slugs are provided', () => {
+    const result = buildAgentfileLayer({
+      configValues: {},
+      skillSlugs: ['pdf-tool', 'commit-helper'],
+    })
+    expect(result).toBe('SKILLS pdf-tool, commit-helper')
+  })
+
+  it('omits SKILLS when no slugs are selected', () => {
+    const result = buildAgentfileLayer({ configValues: {}, skillSlugs: [] })
+    expect(result).not.toContain('SKILLS')
+  })
 })

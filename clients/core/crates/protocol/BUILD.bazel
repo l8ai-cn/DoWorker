@@ -1,6 +1,6 @@
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 
-# Relay binary protocol (TLV framing used between web/desktop/iOS and the
+# Relay binary protocol (TLV framing used between web and the
 # runner over WebSocket). Intentionally kept tiny and free of async deps
 # so it compiles cleanly for both native and wasm32 targets.
 rust_library(

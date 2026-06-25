@@ -148,7 +148,7 @@ func (s *Server) TestRepositoryProviderConnection(
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
-	if _, err := gp.ListProjects(ctx, 1, 1); err != nil {
+	if _, err := gp.GetCurrentUser(ctx); err != nil {
 		if errors.Is(err, git.ErrUnauthorized) {
 			return nil, connect.NewError(connect.CodeUnauthenticated, err)
 		}

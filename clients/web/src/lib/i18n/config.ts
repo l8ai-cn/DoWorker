@@ -17,13 +17,13 @@ export const localeNames: Record<Locale, string> = {
 export const LOCALE_COOKIE = "NEXT_LOCALE";
 
 // Single source of truth for i18n message namespaces.
-// Both web (request.ts) and desktop (IntlProvider.tsx) loaders import this;
-// forgetting to add a namespace here is the only way to cause "raw key shows
-// instead of translation" bugs across platforms.
+// Forgetting to add a namespace here is the only way to cause "raw key shows
+// instead of translation" bugs.
 export const MESSAGE_NAMESPACES = [
   "common", "auth", "landing", "app", "settings", "ide",
   "repositories", "runners", "docs", "content", "extensions",
-  "loops", "channels", "blockstore", "infra",
+  "loops", "channels", "blockstore", "infra", "automation",
+  "changelog-entries",
 ] as const;
 
 export function isValidLocale(locale: string): locale is Locale {

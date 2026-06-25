@@ -1,9 +1,6 @@
-// proto.autopilot_state.v1 snapshot → renderer view-model (AutopilotControllerData
-// / AutopilotIterationData). The read-side mirror of the desktop adapter's
-// snapshotToController/Iteration (electron-adapter/src/autopilot.ts) so web and
-// desktop decode the SAME state bytes into the SAME cache shape — notably
-// re-folding the flat circuit_breaker_state/reason into the nested
-// circuit_breaker the UI reads.
+// proto.autopilot_state.v1 snapshot -> renderer view-model
+// (AutopilotControllerData / AutopilotIterationData). Re-folds the flat
+// circuit_breaker_state/reason into the nested circuit_breaker the UI reads.
 import type {
   AutopilotControllerSnapshot, AutopilotIterationSnapshot,
 } from "@proto/autopilot_state/v1/autopilot_state_pb";

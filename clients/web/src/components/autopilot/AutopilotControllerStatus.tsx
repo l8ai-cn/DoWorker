@@ -31,47 +31,47 @@ const phaseConfig: Record<
 > = {
   initializing: {
     label: "Initializing",
-    color: "bg-blue-500",
+    color: "bg-info",
     icon: <Loader2 className="h-3 w-3 animate-spin" />,
   },
   running: {
     label: "Running",
-    color: "bg-green-500",
+    color: "bg-success",
     icon: <Play className="h-3 w-3" />,
   },
   paused: {
     label: "Paused",
-    color: "bg-yellow-500",
+    color: "bg-warning",
     icon: <Pause className="h-3 w-3" />,
   },
   user_takeover: {
     label: "User Control",
-    color: "bg-purple-500",
+    color: "bg-primary",
     icon: <Hand className="h-3 w-3" />,
   },
   waiting_approval: {
     label: "Waiting Approval",
-    color: "bg-orange-500",
+    color: "bg-warning",
     icon: <AlertTriangle className="h-3 w-3" />,
   },
   completed: {
     label: "Completed",
-    color: "bg-green-600",
+    color: "bg-success",
     icon: <CheckCircle className="h-3 w-3" />,
   },
   failed: {
     label: "Failed",
-    color: "bg-red-500",
+    color: "bg-danger",
     icon: <XCircle className="h-3 w-3" />,
   },
   stopped: {
     label: "Stopped",
-    color: "bg-gray-500",
+    color: "bg-muted-foreground",
     icon: <Square className="h-3 w-3" />,
   },
   max_iterations: {
     label: "Max Iterations",
-    color: "bg-orange-600",
+    color: "bg-warning",
     icon: <Clock className="h-3 w-3" />,
   },
 };
@@ -80,9 +80,9 @@ const circuitBreakerConfig: Record<
   AutopilotController["circuit_breaker"]["state"],
   { label: string; color: string }
 > = {
-  closed: { label: "OK", color: "text-green-500" },
-  half_open: { label: "Warning", color: "text-yellow-500" },
-  open: { label: "Triggered", color: "text-red-500" },
+  closed: { label: "OK", color: "text-success" },
+  half_open: { label: "Warning", color: "text-warning" },
+  open: { label: "Triggered", color: "text-danger" },
 };
 
 export function AutopilotControllerStatus({

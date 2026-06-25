@@ -39,7 +39,7 @@ export function BillingSettings({ t }: BillingSettingsProps) {
   if (state.error && !state.overview) {
     return (
       <div className="space-y-6">
-        <div className="border border-border rounded-lg p-6">
+        <div className="surface-card p-6">
           <p className="text-destructive">{state.error}</p>
           <Button variant="outline" className="mt-4" onClick={state.loadBillingData}>
             {t("settings.billingPage.retry")}
@@ -52,7 +52,7 @@ export function BillingSettings({ t }: BillingSettingsProps) {
   if (state.showCheckout && state.selectedPlan) {
     return (
       <div className="space-y-6">
-        <div className="border border-border rounded-lg p-6">
+        <div className="surface-card p-6">
           <CheckoutFlow
             plan={state.selectedPlan}
             orderType={state.overview ? "plan_upgrade" : "subscription"}
@@ -71,7 +71,7 @@ export function BillingSettings({ t }: BillingSettingsProps) {
   if (!state.overview) {
     return (
       <div className="space-y-6">
-        <div className="border border-border rounded-lg p-6 text-center">
+        <div className="surface-card p-6 text-center">
           <h2 className="text-lg font-semibold mb-4">{t("settings.billingPage.noSubscription")}</h2>
           <p className="text-muted-foreground mb-6">{t("settings.billingPage.choosePlan")}</p>
           <Button onClick={() => state.setShowPlansDialog(true)}>{t("settings.billingPage.selectPlan")}</Button>
@@ -89,7 +89,7 @@ export function BillingSettings({ t }: BillingSettingsProps) {
   return (
     <div className="space-y-6">
       {state.error && (
-        <div className="p-4 rounded-lg bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">
+        <div className="p-4 rounded-lg bg-danger-bg text-danger border border-danger">
           {state.error}
           <button className="ml-4 text-sm underline" onClick={() => state.setError(null)}>
             {t("settings.billingPage.dismiss")}
@@ -99,8 +99,8 @@ export function BillingSettings({ t }: BillingSettingsProps) {
       {state.paymentMessage && (
         <div className={`p-4 rounded-lg ${
           state.paymentMessage.type === "success"
-            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800"
-            : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800"
+            ? "bg-success-bg text-success border border-success"
+            : "bg-danger-bg text-danger border border-danger"
         }`}>
           {state.paymentMessage.text}
           <button className="ml-4 text-sm underline" onClick={() => state.setPaymentMessage(null)}>

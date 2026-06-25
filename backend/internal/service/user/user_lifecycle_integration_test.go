@@ -118,16 +118,16 @@ func TestUser_Authenticate(t *testing.T) {
 	require.NoError(t, err)
 
 	// Correct password
-	u, err := svc.Authenticate(ctx, "auth@example.com", "correctpass")
+	u, err := svc.Authenticate(ctx, "authuser", "correctpass")
 	require.NoError(t, err)
 	assert.Equal(t, "auth@example.com", u.Email)
 
 	// Wrong password
-	_, err = svc.Authenticate(ctx, "auth@example.com", "wrongpass")
+	_, err = svc.Authenticate(ctx, "authuser", "wrongpass")
 	assert.ErrorIs(t, err, ErrInvalidCredentials)
 
 	// Non-existent user
-	_, err = svc.Authenticate(ctx, "nope@example.com", "x")
+	_, err = svc.Authenticate(ctx, "nope", "x")
 	assert.ErrorIs(t, err, ErrInvalidCredentials)
 }
 
@@ -146,7 +146,7 @@ func TestUser_AuthenticateInactiveUser(t *testing.T) {
 	_, err = svc.Update(ctx, created.ID, map[string]interface{}{"is_active": false})
 	require.NoError(t, err)
 
-	_, err = svc.Authenticate(ctx, "inactive@example.com", "pass")
+	_, err = svc.Authenticate(ctx, "inactive", "pass")
 	assert.ErrorIs(t, err, ErrUserInactive)
 }
 
@@ -165,11 +165,11 @@ func TestUser_UpdatePassword(t *testing.T) {
 	require.NoError(t, err)
 
 	// Old password should fail
-	_, err = svc.Authenticate(ctx, "pwchange@example.com", "oldpass")
+	_, err = svc.Authenticate(ctx, "pwchange", "oldpass")
 	assert.ErrorIs(t, err, ErrInvalidCredentials)
 
 	// New password should work
-	u, err := svc.Authenticate(ctx, "pwchange@example.com", "newpass")
+	u, err := svc.Authenticate(ctx, "pwchange", "newpass")
 	require.NoError(t, err)
 	assert.Equal(t, created.ID, u.ID)
 }

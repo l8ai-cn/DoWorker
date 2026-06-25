@@ -38,7 +38,7 @@ export function RunnerSection({
   return (
     <Collapsible open={expanded} onOpenChange={onToggle}>
       <CollapsibleTrigger asChild>
-        <div className="flex items-center justify-between px-3 py-2 border-t border-border cursor-pointer hover:bg-muted/50">
+        <div className="nav-row pressable cursor-pointer hover:bg-surface-muted motion-interactive">
           <div className="flex items-center gap-2">
             <Server className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm font-medium">{t("workspace.runners.title")}</span>
@@ -54,7 +54,7 @@ export function RunnerSection({
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="border-t border-border">
+        <div className="py-1">
           {loading ? (
             <div className="flex items-center justify-center py-4">
               <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
@@ -68,13 +68,13 @@ export function RunnerSection({
               {runners.map((runner) => (
                 <div
                   key={runner.id}
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer hover:bg-muted/50"
+                  className="nav-row pressable text-sm cursor-pointer motion-interactive nav-row-idle hover:bg-surface-muted"
                   onClick={() => router.push(`/${currentOrgSlug}/infra?tab=runners&id=${runner.id}`)}
                 >
                   <span
                     className={cn(
                       "w-2 h-2 rounded-full flex-shrink-0",
-                      runner.status === "online" ? "bg-green-500" : "bg-gray-400"
+                      runner.status === "online" ? "bg-success" : "bg-muted-foreground"
                     )}
                   />
                   <span className="truncate flex-1">{runner.node_id}</span>

@@ -71,7 +71,7 @@ export function TicketFilterSection({
           return (
             <label
               key={status}
-              className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded"
+              className="flex items-center gap-2 text-xs cursor-pointer motion-interactive hover:bg-surface-muted px-1 py-0.5 rounded"
             >
               <Checkbox
                 checked={selectedStatuses.includes(status)}
@@ -102,7 +102,7 @@ export function TicketFilterSection({
           return (
             <label
               key={priority}
-              className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded"
+              className="flex items-center gap-2 text-xs cursor-pointer motion-interactive hover:bg-surface-muted px-1 py-0.5 rounded"
             >
               <Checkbox
                 checked={selectedPriorities.includes(priority)}

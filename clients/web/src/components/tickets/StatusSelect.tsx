@@ -35,32 +35,32 @@ const statusConfig: Record<TicketStatus, {
 }> = {
   backlog: {
     icon: CircleDashed,
-    color: "text-gray-500 dark:text-gray-400",
-    bgColor: "bg-gray-100 dark:bg-gray-800",
+    color: "text-muted-foreground",
+    bgColor: "bg-muted",
     label: "Backlog",
   },
   todo: {
     icon: Circle,
-    color: "text-blue-500 dark:text-blue-400",
-    bgColor: "bg-blue-100 dark:bg-blue-900/30",
+    color: "text-info",
+    bgColor: "bg-info-bg",
     label: "To Do",
   },
   in_progress: {
     icon: CircleDot,
-    color: "text-yellow-500 dark:text-yellow-400",
-    bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
+    color: "text-warning",
+    bgColor: "bg-warning-bg",
     label: "In Progress",
   },
   in_review: {
     icon: Loader2,
-    color: "text-purple-500 dark:text-purple-400",
-    bgColor: "bg-purple-100 dark:bg-purple-900/30",
+    color: "text-primary",
+    bgColor: "bg-accent",
     label: "In Review",
   },
   done: {
     icon: CheckCircle2,
-    color: "text-green-500 dark:text-green-400",
-    bgColor: "bg-green-100 dark:bg-green-900/30",
+    color: "text-success",
+    bgColor: "bg-success-bg",
     label: "Done",
   },
 };

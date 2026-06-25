@@ -13,7 +13,7 @@ export function LoopPromptPreview({ loop, t, onEdit }: LoopPromptPreviewProps) {
   const lines = template ? template.split("\n") : [];
 
   return (
-    <div className="rounded-md border border-border bg-card p-4">
+    <div className="surface-card p-4">
       <div className="mb-2.5 flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-foreground">{t("loops.promptTemplate")}</h3>
         {onEdit && (

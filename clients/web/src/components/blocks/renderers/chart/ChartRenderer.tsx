@@ -72,7 +72,7 @@ export function ChartRenderer({ block }: { block: Block }) {
             <button
               type="button"
               onClick={openEditor}
-              className="flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted/50"
+              className="flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-muted-foreground motion-interactive hover:bg-surface-muted"
             >
               <Pencil className="h-3 w-3" />
               Edit
@@ -114,7 +114,7 @@ function EditorActions({ onCancel, onApply }: { onCancel: () => void; onApply: (
       <button
         type="button"
         onClick={onCancel}
-        className="flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted/50"
+        className="flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-muted-foreground motion-interactive hover:bg-surface-muted"
       >
         <X className="h-3 w-3" />
         Cancel

@@ -4,13 +4,11 @@
 #  - this file: main-push only — build OCI images, push to dual
 #    registries, deploy to USWest + CN, run pending migrations.
 #  - release.yml: tag-push only — build runner CLI archives, create
-#    GitHub Release, package Desktop installers.
+#    GitHub Release.
 #
-# Combined into a single file before the v0.30.0 release; two
-# concerns trampling each other (tag pushes redundantly rebuilt OCI
-# images, release jobs added artificial `needs` on build-images) made
-# the desktop-only failure mode hard to read. SRP-split keeps each
-# pipeline focused on one trigger, one set of artifacts.
+# Combined into a single file before the v0.30.0 release; two concerns
+# trampling each other made release failures hard to read. SRP-split keeps
+# each pipeline focused on one trigger, one set of artifacts.
 
 name: Deploy
 

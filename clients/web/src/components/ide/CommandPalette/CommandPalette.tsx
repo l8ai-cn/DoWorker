@@ -87,18 +87,16 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     <div className="fixed inset-0 z-50">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-overlay-in"
         onClick={() => onOpenChange(false)}
       />
 
-      {/* Command Dialog */}
-      <div className="absolute inset-x-4 top-[20%] mx-auto max-w-xl">
+      <div className="absolute inset-x-4 top-[20%] mx-auto max-w-xl animate-panel-in">
         <Command
-          className="bg-popover border border-border rounded-lg shadow-2xl overflow-hidden"
+          className="bg-popover rounded-xl shadow-[var(--shadow-panel)] overflow-hidden ring-1 ring-border/20"
           loop
         >
-          {/* Search Input */}
-          <div className="flex items-center px-4 border-b border-border">
+          <div className="flex items-center px-4 bg-surface-muted/40">
             <Search className="w-4 h-4 text-muted-foreground mr-2" />
             <Command.Input
               placeholder={t("commandPalette.placeholder")}
@@ -144,7 +142,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           </Command.List>
 
           {/* Footer */}
-          <div className="px-4 py-2 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
+          <div className="px-4 py-2 bg-surface-muted/30 flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
                 <kbd className="px-1.5 py-0.5 bg-muted rounded">↑↓</kbd>

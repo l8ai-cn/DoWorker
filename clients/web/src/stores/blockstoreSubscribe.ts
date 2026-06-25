@@ -6,7 +6,7 @@ import { getBlockstoreService } from "@/lib/wasm-core";
 import { ApplyRemoteOpRequestSchema } from "@proto/blockstore_state/v1/blockstore_state_pb";
 import { useBlockstoreStore, readLastOpIds } from "./blockstore";
 
-// Coalesce _tick bumps: per-op bumps during catchup triggered React #185 on Desktop.
+// Coalesce _tick bumps: per-op bumps during catchup triggered React #185.
 let bumpTimer: ReturnType<typeof setTimeout> | null = null;
 function scheduleBump() {
   if (bumpTimer) return;
@@ -27,7 +27,7 @@ export function handleBlockstoreEvent(event: RealtimeEvent) {
   const op = event.data as BlockOp;
   if (!(op.workspace_id in readLastOpIds())) return;
   // Backend serialises `applied_at` as Unix ms; Rust BlockOp expects string.
-  // Same normalisation as Electron adapter's `apply_remote_op`.
+  // Same normalisation as Web's `apply_remote_op`.
   const normalized: BlockOp = {
     ...op,
     applied_at:

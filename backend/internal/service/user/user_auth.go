@@ -3,21 +3,33 @@ package user
 import (
 	"context"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *Service) Authenticate(ctx context.Context, email, password string) (*user.User, error) {
-	u, err := s.GetByEmail(ctx, email)
+func (s *Service) lookupForPasswordAuth(ctx context.Context, identifier string) (*user.User, error) {
+	u, err := s.GetByUsername(ctx, identifier)
+	if err == nil {
+		return u, nil
+	}
+	if strings.Contains(identifier, "@") {
+		return s.GetByEmail(ctx, identifier)
+	}
+	return nil, err
+}
+
+func (s *Service) Authenticate(ctx context.Context, identifier, password string) (*user.User, error) {
+	u, err := s.lookupForPasswordAuth(ctx, identifier)
 	if err != nil {
-		slog.WarnContext(ctx, "authentication failed: user not found", "email", email)
+		slog.WarnContext(ctx, "authentication failed: user not found", "identifier", identifier)
 		return nil, ErrInvalidCredentials
 	}
 
 	if !u.IsActive {
-		slog.WarnContext(ctx, "authentication failed: user inactive", "user_id", u.ID, "email", email)
+		slog.WarnContext(ctx, "authentication failed: user inactive", "user_id", u.ID, "identifier", identifier)
 		return nil, ErrUserInactive
 	}
 
@@ -33,7 +45,7 @@ func (s *Service) Authenticate(ctx context.Context, email, password string) (*us
 
 	s.RecordLogin(ctx, u.ID)
 
-	slog.InfoContext(ctx, "user authenticated", "user_id", u.ID, "email", email)
+	slog.InfoContext(ctx, "user authenticated", "user_id", u.ID, "username", u.Username)
 	return u, nil
 }
 

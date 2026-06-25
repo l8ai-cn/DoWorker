@@ -5,7 +5,7 @@
 # Architectural invariant (Plan I1 + auth-light rollout):
 #   Marketing routes AND the entire (auth) route group must not load the
 #   40MB wasm bundle — they go through @/lib/light-auth + light-session.
-#   Only (dashboard), popout, and blocks-embed are allowed to boot wasm.
+#   Only (dashboard) and popout are allowed to boot wasm.
 
 set -euo pipefail
 
@@ -26,7 +26,6 @@ LEAKS=$(
   find "${CHUNKS_DIR}/app" -maxdepth 4 -name "*.js" \
     -not -path "*\(dashboard\)*" \
     -not -path "*popout*" \
-    -not -path "*blocks-embed*" \
     -print0 \
   | xargs -0 grep -l 'WasmProvider\|initWasmCore\|WasmApiClient\|WasmAuthManager\|wasm_pkg\|agentsmesh-wasm' 2>/dev/null \
   || true

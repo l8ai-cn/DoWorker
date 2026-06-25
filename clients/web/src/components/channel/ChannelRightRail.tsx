@@ -33,7 +33,7 @@ export function ChannelRightRail({
   return (
     <aside
       data-testid="channel-right-rail"
-      className="flex w-[280px] flex-shrink-0 flex-col gap-5 overflow-y-auto border-l border-border bg-muted/30 p-4"
+      className="flex w-[280px] flex-shrink-0 flex-col gap-5 overflow-y-auto surface-panel bg-muted/30 p-4"
     >
       <section className="flex flex-col gap-2">
         <div className="flex items-center justify-between">

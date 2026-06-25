@@ -29,7 +29,7 @@ function ConfigPanel({ loop, t }: { loop: LoopData; t: (key: string) => string }
   return (
     <section data-testid="loop-config-panel">
       <h2 className="text-sm font-semibold mb-3">{t("loops.configuration")}</h2>
-      <div className="border rounded-xl overflow-hidden h-[calc(100%-2rem)]">
+      <div className="surface-card overflow-hidden h-[calc(100%-2rem)]">
         <div className="p-4 space-y-3">
           <ConfigRow icon={<Bot className="w-3.5 h-3.5" />} label={t("loops.mode")}
             value={loop.execution_mode === "autopilot" ? t("loops.modeAutopilot") : t("loops.modeDirect")} />
@@ -48,7 +48,7 @@ function ConfigPanel({ loop, t }: { loop: LoopData; t: (key: string) => string }
           )}
           <ConfigRow icon={<Timer className="w-3.5 h-3.5" />} label={t("loops.triggerLabel")}
             value={loop.cron_expression ? (
-              <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-medium font-mono">
+              <span className="px-1.5 py-0.5 rounded bg-warning-bg text-warning text-[10px] font-medium font-mono">
                 {loop.cron_expression}
               </span>
             ) : (
@@ -61,7 +61,7 @@ function ConfigPanel({ loop, t }: { loop: LoopData; t: (key: string) => string }
               value={<span className="text-xs font-mono truncate max-w-[140px] sm:max-w-[200px] md:max-w-[300px] inline-block align-bottom">{loop.callback_url}</span>} />
           </div>
         )}
-        <div className="border-t p-4">
+        <div className="panel-lift bg-surface-muted/40 p-4 pt-5">
           <div className="text-xs font-medium text-muted-foreground mb-2">{t("loops.prompt")}</div>
           <pre className="p-3 bg-muted/50 rounded-lg text-sm whitespace-pre-wrap font-mono leading-relaxed max-h-32 overflow-y-auto text-foreground/80">
             {loop.prompt_template}
@@ -76,7 +76,7 @@ function ApiTriggerPanel({ loop, orgSlug, t }: { loop: LoopData; orgSlug: string
   return (
     <section>
       <h2 className="text-sm font-semibold mb-3">{t("loops.apiTrigger")}</h2>
-      <div className="border rounded-xl p-4 h-[calc(100%-2rem)]">
+      <div className="surface-card p-4 h-[calc(100%-2rem)]">
         <p className="text-xs text-muted-foreground mb-3">{t("loops.apiTriggerDesc")}</p>
         <div className="relative">
           <div className="absolute top-2 left-3 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">

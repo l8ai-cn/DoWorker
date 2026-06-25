@@ -70,12 +70,6 @@ func (h *RunnerMessageHandler) cleanupPodExit(podKey string, exitCode int, stopI
 		return
 	}
 
-	// Drop the local-relay lane: the pod is gone for good. Without this the
-	// lane (token + handlers + conn map) leaks until the runner exits.
-	if local := h.runner.GetLocalRelayServer(); local != nil {
-		local.UnregisterPod(podKey)
-	}
-
 	// Clean up associated Autopilot if any (before terminal teardown)
 	if ac := h.runner.GetAutopilotByPodKey(podKey); ac != nil {
 		ac.Stop()

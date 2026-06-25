@@ -4,6 +4,7 @@ go_library(
     name = "envbundle",
     srcs = [
         "bundle.go",
+        "config_keys.go",
         "kind.go",
         "repository.go",
         "secret_key.go",

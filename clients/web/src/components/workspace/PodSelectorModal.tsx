@@ -48,7 +48,7 @@ export function PodSelectorModal({ openPodKeys, onSelect, onClose }: PodSelector
                     <code className="text-sm font-mono bg-muted px-2 py-0.5 rounded">
                       {getPodDisplayName(pod)}
                     </code>
-                    <span className="text-xs text-green-500 dark:text-green-400">{pod.status}</span>
+                    <span className="text-xs text-success">{pod.status}</span>
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">
                     <span>Agent: {pod.agent_status}</span>

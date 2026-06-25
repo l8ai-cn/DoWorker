@@ -176,10 +176,10 @@ message PodConnectionInfo {
   string relay_url = 1;
   string token = 2;
   string pod_key = 3;
-  // Local relay (CN proxy) — empty string when not in use.
-  string local_relay_url = 4;
-  string local_token = 5;
-  string local_relay_node_id = 6;
+  // 4-6 were local_relay_url / local_token / local_relay_node_id — removed
+  // with the same-host local relay fast-path; all traffic goes via cloud relay.
+  reserved 4, 5, 6;
+  reserved "local_relay_url", "local_token", "local_relay_node_id";
 }
 
 // --- List ---

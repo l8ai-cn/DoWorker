@@ -120,15 +120,26 @@ services:
   # (//runner/cmd/runner:runner, linux/amd64); image only adds the AI
   # CLI overlay. Hot reload off — rebuild via `./dev.sh --rebuild-runner`.
   runner:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: runner.Dockerfile
+      args:
+        HTTP_PROXY: ""
+        HTTPS_PROXY: ""
+        http_proxy: ""
+        https_proxy: ""
     restart: unless-stopped
     depends_on:
       traefik:
         condition: service_started
     user: "1000:1000"
     environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - NO_PROXY=*
       # Reach backend via traefik (host.docker.internal:HTTP_PORT). The
       # traefik service has `extra_hosts: host.docker.internal:host-gateway`,
       # so this resolves whether you're on macOS or Linux.
@@ -187,15 +198,26 @@ services:
   # create pods on `dev-runner-2`. Same image as the primary runner; only
   # node_id, volumes, and MCP host port differ.
   runner-2:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: runner.Dockerfile
+      args:
+        HTTP_PROXY: ""
+        HTTPS_PROXY: ""
+        http_proxy: ""
+        https_proxy: ""
     restart: unless-stopped
     depends_on:
       traefik:
         condition: service_started
     user: "1000:1000"
     environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - NO_PROXY=*
       - BACKEND_URL=http://traefik:80
       - GRPC_ENDPOINT=traefik:9443
       - RELAY_BASE_URL=ws://traefik:80

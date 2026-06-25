@@ -34,7 +34,7 @@ const FALLBACK_ROWS = 24;
 /** Mobile breakpoint in pixels (matches useBreakpoint.ts) */
 const MOBILE_BREAKPOINT = 768;
 
-// Desktop layout dimensions (matches IDEShell.tsx)
+// Wide layout dimensions (matches IDEShell.tsx)
 const DESKTOP_ACTIVITY_BAR_WIDTH = 48;
 
 const DESKTOP_SIDEBAR_WIDTH = 240;

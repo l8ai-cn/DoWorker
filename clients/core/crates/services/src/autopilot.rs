@@ -15,7 +15,7 @@ impl AutopilotService {
     //
     // Connect lanes — request bytes in, response bytes out. The autopilot
     // controller cache is the AppState SSOT (runtime.state.autopilot), fed via
-    // the dispatch hook + the app_autopilot_* napi/wasm surface; this service
+    // the dispatch hook + the app_autopilot_* wasm surface; this service
     // is networking-only.
 
     pub async fn list_autopilots_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {

@@ -10,20 +10,17 @@ import (
 
 // ACPPodRelay implements PodRelay for ACP-mode pods.
 type ACPPodRelay struct {
-	podKey      string
-	acpClient   *acp.ACPClient
-	onCommand   func([]byte) // closure bound to pod ref at creation
-	localServer LocalRelayBroker
+	podKey    string
+	acpClient *acp.ACPClient
+	onCommand func([]byte) // closure bound to pod ref at creation
 }
 
 // NewACPPodRelay creates a PodRelay for ACP mode.
-// localServer is the runner-wide local relay server (nil to disable local fanout).
-func NewACPPodRelay(podKey string, acpClient *acp.ACPClient, onCommand func([]byte), localServer LocalRelayBroker) *ACPPodRelay {
+func NewACPPodRelay(podKey string, acpClient *acp.ACPClient, onCommand func([]byte)) *ACPPodRelay {
 	return &ACPPodRelay{
-		podKey:      podKey,
-		acpClient:   acpClient,
-		onCommand:   onCommand,
-		localServer: localServer,
+		podKey:    podKey,
+		acpClient: acpClient,
+		onCommand: onCommand,
 	}
 }
 
@@ -32,12 +29,6 @@ func (r *ACPPodRelay) SetupHandlers(rc relay.RelayClient) {
 	rc.SetMessageHandler(relay.MsgTypeSnapshotRequest, func(_ []byte) {
 		r.SendSnapshot(rc)
 	})
-	if r.localServer != nil {
-		r.localServer.SetMessageHandler(r.podKey, relay.MsgTypeAcpCommand, r.onCommand)
-		r.localServer.SetRequestHandler(r.podKey, relay.MsgTypeSnapshotRequest, func(_ []byte, reply relay.ReplyFunc) {
-			r.replySnapshot(reply)
-		})
-	}
 }
 
 func (r *ACPPodRelay) SendSnapshot(rc relay.RelayClient) {
@@ -49,21 +40,6 @@ func (r *ACPPodRelay) SendSnapshot(rc relay.RelayClient) {
 	if r.acpClient != nil {
 		if loopalData := r.acpClient.LoopalSnapshot(); loopalData != nil {
 			_ = rc.Send(relay.MsgTypeAcpEvent, loopalData)
-		}
-	}
-}
-
-// replySnapshot answers a single browser's snapshot request (ACP session +
-// Loopal panel snapshot) on its own connection — not a pod-wide broadcast — so a
-// late joiner cannot re-deliver state to already-synced browsers, which would
-// double-apply append-style Loopal bg-task output.
-func (r *ACPPodRelay) replySnapshot(reply relay.ReplyFunc) {
-	if data := r.materializeSnapshot(); data != nil {
-		reply(relay.MsgTypeAcpSnapshot, data)
-	}
-	if r.acpClient != nil {
-		if loopalData := r.acpClient.LoopalSnapshot(); loopalData != nil {
-			reply(relay.MsgTypeAcpEvent, loopalData)
 		}
 	}
 }
@@ -89,14 +65,11 @@ func (r *ACPPodRelay) OnRelayDisconnected() {
 	// No-op: ACP mode has no aggregator to clear
 }
 
-// BroadcastEvent fans out an ACP event to both the cloud relay client and
-// every local browser. Either side may be absent — the call is best-effort.
+// BroadcastEvent sends an ACP event via the cloud relay client. Best-effort:
+// drops when the relay is absent or disconnected.
 func (r *ACPPodRelay) BroadcastEvent(rc relay.RelayClient, msgType byte, payload []byte) {
 	if rc != nil && rc.IsConnected() {
 		_ = rc.Send(msgType, payload)
-	}
-	if r.localServer != nil && r.localServer.IsPodConnected(r.podKey) {
-		_ = r.localServer.Send(r.podKey, msgType, payload)
 	}
 }
 

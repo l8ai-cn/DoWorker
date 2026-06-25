@@ -81,7 +81,7 @@ export function EnvBundleMultiSelect({
       </label>
 
       {selectedBundleNames.length > 0 && (
-        <div className="mb-2 rounded-md border border-border bg-muted/30 p-2 space-y-1">
+        <div className="mb-2 surface-card bg-muted/30 p-2 space-y-1">
           <div className="text-xs text-muted-foreground px-1 pb-1">
             {t("ide.createPod.selectedOrderHint")}
           </div>
@@ -145,13 +145,13 @@ export function EnvBundleMultiSelect({
           {t("ide.createPod.noRuntimeBundlesAvailableHint")}
         </p>
       ) : (
-        <div className="rounded-md border border-border max-h-48 overflow-y-auto">
+        <div className="surface-card max-h-48 overflow-y-auto">
           {bundles.map((b) => {
             const checked = selectedBundleNames.includes(b.name);
             return (
               <label
                 key={b.id}
-                className="flex items-center gap-2 px-2 py-1.5 border-b border-border last:border-b-0 hover:bg-muted/50 cursor-pointer"
+                className="flex items-center gap-2 px-2 py-1.5 border-b border-border last:border-b-0 motion-interactive hover:bg-surface-muted cursor-pointer"
               >
                 <input
                   type="checkbox"

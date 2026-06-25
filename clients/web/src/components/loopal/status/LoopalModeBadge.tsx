@@ -18,7 +18,7 @@ export function LoopalModeBadge({ podKey }: { podKey: string }) {
   const label = mode === "plan" ? t("status.mode.plan") : mode === "act" ? t("status.mode.act") : "—";
   const tone =
     mode === "plan"
-      ? "bg-purple-500/15 text-purple-600"
+      ? "bg-accent text-accent-foreground"
       : mode === "act"
         ? "bg-muted text-foreground"
         : "bg-muted text-muted-foreground";

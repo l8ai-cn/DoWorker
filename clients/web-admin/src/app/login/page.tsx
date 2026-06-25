@@ -13,7 +13,7 @@ import { toast } from "sonner";
 export default function LoginPage() {
   const router = useRouter();
   const { token, setAuth } = useAuthStore();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,15 +27,15 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      toast.error("Please enter email and password");
+    if (!username || !password) {
+      toast.error("Please enter username and password");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const result = await login({ email, password });
+      const result = await login({ email: username, password });
       setAuth(result.token, result.refresh_token, result.user);
       toast.success(`Welcome back, ${result.user.name || result.user.username}!`);
       router.replace("/");
@@ -62,17 +62,17 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
+              <label htmlFor="username" className="text-sm font-medium">
+                Username
               </label>
               <Input
-                id="email"
-                type="email"
-                placeholder="admin@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                placeholder="admin"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoading}
-                autoComplete="email"
+                autoComplete="username"
               />
             </div>
             <div className="space-y-2">

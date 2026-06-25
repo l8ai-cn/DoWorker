@@ -32,7 +32,7 @@ export function SearchResultGroups({
             <Command.Item
               key={pod.pod_key}
               value={`pod-${pod.pod_key}`}
-              className="flex items-center gap-3 px-3 py-2 rounded cursor-pointer aria-selected:bg-muted"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer motion-interactive aria-selected:bg-accent aria-selected:text-accent-foreground"
               onSelect={() => onSelectPod(pod)}
             >
               <Terminal className="w-4 h-4 text-muted-foreground" />
@@ -55,7 +55,7 @@ export function SearchResultGroups({
             <Command.Item
               key={ticket.slug}
               value={`ticket-${ticket.slug}`}
-              className="flex items-center gap-3 px-3 py-2 rounded cursor-pointer aria-selected:bg-muted"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer motion-interactive aria-selected:bg-accent aria-selected:text-accent-foreground"
               onSelect={() => onSelectTicket(ticket)}
             >
               <Ticket className="w-4 h-4 text-muted-foreground" />
@@ -76,7 +76,7 @@ export function SearchResultGroups({
             <Command.Item
               key={repo.id}
               value={`repo-${repo.id}`}
-              className="flex items-center gap-3 px-3 py-2 rounded cursor-pointer aria-selected:bg-muted"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer motion-interactive aria-selected:bg-accent aria-selected:text-accent-foreground"
               onSelect={() => onSelectRepository(repo)}
             >
               <FolderGit2 className="w-4 h-4 text-muted-foreground" />

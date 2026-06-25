@@ -4,8 +4,8 @@
   "description": "AgentsMesh — The AI Agent Workforce Platform. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "background_color": "#16130f",
+  "theme_color": "#ff5701",
   "orientation": "any",
   "icons": [
     {

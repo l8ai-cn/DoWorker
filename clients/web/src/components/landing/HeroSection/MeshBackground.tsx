@@ -105,8 +105,8 @@ export function MeshBackground() {
               height: `${s.size}px`,
               opacity: s.opacity,
               animationDelay: `${s.delay}s`,
-              background: "#ffffff",
-              boxShadow: `0 0 ${s.size * 4}px rgba(0, 212, 255, 1), 0 0 ${s.size * 8}px rgba(0, 212, 255, 0.6)`,
+              background: "var(--foreground)",
+              boxShadow: `0 0 ${s.size * 4}px var(--azure-cyan), 0 0 ${s.size * 8}px color-mix(in srgb, var(--azure-cyan) 60%, transparent)`,
               transform: "translate(-50%, -50%)",
             }}
           />
@@ -161,8 +161,8 @@ export function MeshBackground() {
               transform: "translate(-50%, -50%)",
               animationDelay: `${n.delay}s`,
               background:
-                "radial-gradient(circle, #ffffff 0%, var(--azure-cyan) 30%, rgba(0,212,255,0.3) 70%, rgba(0,212,255,0) 100%)",
-              boxShadow: "0 0 22px rgba(0, 212, 255, 0.9), 0 0 40px rgba(0, 212, 255, 0.45)",
+                "radial-gradient(circle, var(--foreground) 0%, var(--azure-cyan) 30%, color-mix(in srgb, var(--azure-cyan) 30%, transparent) 70%, transparent 100%)",
+              boxShadow: "0 0 22px color-mix(in srgb, var(--azure-cyan) 90%, transparent), 0 0 40px color-mix(in srgb, var(--azure-cyan) 45%, transparent)",
             }}
           />
         ))}

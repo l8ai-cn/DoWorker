@@ -25,7 +25,7 @@ export function MembersList({ members, loading, currentUserId, t, onRoleChange, 
       {members.map((member) => {
         const userId = Number(member.userId);
         return (
-        <div key={userId || Number(member.id)} className="flex items-center justify-between p-4 border border-border rounded-lg">
+        <div key={userId || Number(member.id)} className="flex items-center justify-between p-4 surface-card">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
               {member.user?.name?.[0] || member.user?.username?.[0] || "?"}
@@ -72,8 +72,8 @@ export function MembersList({ members, loading, currentUserId, t, onRoleChange, 
 
 function getRoleBadgeColor(role: string) {
   switch (role) {
-    case "owner": return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400";
-    case "admin": return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
-    default: return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
+    case "owner": return "bg-accent text-primary";
+    case "admin": return "bg-info-bg text-info";
+    default: return "bg-muted text-muted-foreground";
   }
 }

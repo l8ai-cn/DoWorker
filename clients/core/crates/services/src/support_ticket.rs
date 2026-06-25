@@ -18,7 +18,7 @@ impl SupportTicketService {
     // All operations including create / message-reply / attachment flow
     // go through Connect-binary wire (conventions §2.5). Multipart REST is
     // gone — attachments use a 3-step presigned-URL handshake driven by
-    // the TS / Swift caller (presign → S3 PUT → associate).
+    // the client caller (presign → S3 PUT → associate).
 
     pub async fn list_support_tickets_connect(
         &self, request_bytes: &[u8],

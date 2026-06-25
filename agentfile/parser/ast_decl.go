@@ -113,6 +113,16 @@ type UseEnvBundleDecl struct {
 	Position Position
 }
 
+// UseConfigBundleDecl: USE_CONFIG_BUNDLE "bundle-name"
+//
+// Backend pre-loads config-kind bundles (JSON documents) and exposes them in
+// ctx.ConfigBundles. Each declaration sets config_json to the parsed document
+// (last wins) and nests it under config_bundle.<name> for build logic.
+type UseConfigBundleDecl struct {
+	Name     string
+	Position Position
+}
+
 // PromptDecl: PROMPT "prompt content"
 type PromptDecl struct {
 	Content  string
@@ -139,6 +149,7 @@ func (d *RemoveDecl) declNode()         {}
 func (d *ModeDecl) declNode()           {}
 func (d *ModeArgsDecl) declNode()       {}
 func (d *UseEnvBundleDecl) declNode()   {}
+func (d *UseConfigBundleDecl) declNode() {}
 func (d *PromptDecl) declNode()         {}
 func (d *PromptPositionDecl) declNode() {}
 
@@ -156,5 +167,6 @@ func (d *RemoveDecl) Pos() Position         { return d.Position }
 func (d *ModeDecl) Pos() Position           { return d.Position }
 func (d *ModeArgsDecl) Pos() Position       { return d.Position }
 func (d *UseEnvBundleDecl) Pos() Position   { return d.Position }
+func (d *UseConfigBundleDecl) Pos() Position { return d.Position }
 func (d *PromptDecl) Pos() Position         { return d.Position }
 func (d *PromptPositionDecl) Pos() Position { return d.Position }

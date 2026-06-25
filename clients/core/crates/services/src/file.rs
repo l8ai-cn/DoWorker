@@ -16,7 +16,7 @@ impl FileService {
     pub async fn upload_file(
         &self, file_data: Vec<u8>, filename: &str, content_type: &str,
     ) -> Result<String, String> {
-        // Connect-RPC presign → S3 PUT → return public get_url. Web/Desktop
+        // Connect-RPC presign → S3 PUT → return public get_url. Web
         // still hand multipart bytes to this entrypoint because the browser
         // upload path is two-leg (presign + raw PUT).
         let req = fp::PresignUploadRequest {

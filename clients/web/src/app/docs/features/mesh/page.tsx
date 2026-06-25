@@ -18,7 +18,7 @@ export default function MeshPage() {
 
       {/* Overview */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.mesh.overview.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -28,7 +28,7 @@ export default function MeshPage() {
 
       {/* Topology Visualization */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.mesh.visualization.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -44,12 +44,12 @@ export default function MeshPage() {
 
       {/* Node Colors & Status */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.mesh.nodeStatus.title")}
         </h2>
         <div className="space-y-4">
           <div className="flex items-start gap-4">
-            <div className="w-28 text-sm font-medium text-green-500 dark:text-green-400">
+            <div className="w-28 text-sm font-medium text-success">
               {t("docs.features.mesh.nodeStatus.running")}
             </div>
             <p className="text-muted-foreground">
@@ -57,7 +57,7 @@ export default function MeshPage() {
             </p>
           </div>
           <div className="flex items-start gap-4">
-            <div className="w-28 text-sm font-medium text-yellow-500 dark:text-yellow-400">
+            <div className="w-28 text-sm font-medium text-warning">
               {t("docs.features.mesh.nodeStatus.paused")}
             </div>
             <p className="text-muted-foreground">
@@ -65,7 +65,7 @@ export default function MeshPage() {
             </p>
           </div>
           <div className="flex items-start gap-4">
-            <div className="w-28 text-sm font-medium text-orange-500 dark:text-orange-400">
+            <div className="w-28 text-sm font-medium text-warning">
               {t("docs.features.mesh.nodeStatus.disconnected")}
             </div>
             <p className="text-muted-foreground">
@@ -81,7 +81,7 @@ export default function MeshPage() {
             </p>
           </div>
           <div className="flex items-start gap-4">
-            <div className="w-28 text-sm font-medium text-red-500 dark:text-red-400">
+            <div className="w-28 text-sm font-medium text-danger">
               {t("docs.features.mesh.nodeStatus.error")}
             </div>
             <p className="text-muted-foreground">
@@ -93,7 +93,7 @@ export default function MeshPage() {
 
       {/* Pod Binding Mechanism */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.mesh.binding.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -129,7 +129,7 @@ export default function MeshPage() {
 
       {/* Channel Integration */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.mesh.channelIntegration.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -139,7 +139,7 @@ export default function MeshPage() {
 
       {/* Real-Time Monitoring */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.mesh.monitoring.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">

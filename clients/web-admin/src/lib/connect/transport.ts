@@ -55,6 +55,7 @@ export async function callConnect<I extends DescMessage, O extends DescMessage>(
 
   const headers: Record<string, string> = {
     "Content-Type": "application/proto",
+    "connect-protocol-version": "1",
   };
   const token = getAuthToken();
   if (token) {

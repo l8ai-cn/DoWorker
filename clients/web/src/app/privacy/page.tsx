@@ -12,7 +12,7 @@ export default function PrivacyPage() {
         <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
         <p className="text-muted-foreground mb-8">Last updated: January 2025</p>
 
-        <div className="bg-muted border border-border rounded-lg p-4 mb-8 text-sm text-muted-foreground">
+        <div className="surface-card p-4 mb-8 text-sm text-muted-foreground">
           This page is currently available in English only. / 此页面目前仅提供英文版本。
         </div>
 
@@ -224,7 +224,7 @@ export default function PrivacyPage() {
             <p className="text-muted-foreground leading-relaxed">
               If you have questions about this Privacy Policy or our data practices, please contact us at:
             </p>
-            <div className="mt-4 p-4 bg-muted rounded-lg text-muted-foreground">
+            <div className="mt-4 surface-card p-4 text-muted-foreground">
               <p><strong>AgentsMesh, Inc.</strong></p>
               <p>Email:{" "}
                 <a href="mailto:privacy@agentsmesh.ai" className="text-primary hover:underline">

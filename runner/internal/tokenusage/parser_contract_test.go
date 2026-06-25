@@ -15,7 +15,9 @@ import (
 	aiderfixture "github.com/anthropics/agentsmesh/runner/internal/agents/aider/testsupport"
 	claudefixture "github.com/anthropics/agentsmesh/runner/internal/agents/claude/testsupport"
 	codexfixture "github.com/anthropics/agentsmesh/runner/internal/agents/codex/testsupport"
+	doagentfixture "github.com/anthropics/agentsmesh/runner/internal/agents/doagent/testsupport"
 	_ "github.com/anthropics/agentsmesh/runner/internal/agents/cursor"
+	_ "github.com/anthropics/agentsmesh/runner/internal/agents/doagent"
 	_ "github.com/anthropics/agentsmesh/runner/internal/agents/loopal"
 	opencodefixture "github.com/anthropics/agentsmesh/runner/internal/agents/opencode/testsupport"
 	"github.com/anthropics/agentsmesh/runner/internal/tokenusage"
@@ -35,6 +37,7 @@ var fixtureCases = map[string]fixtureCase{
 	"claude":   {buildFixture: claudefixture.BuildFixtureSandbox, wantModelNames: []string{"claude-sonnet-4-20250514"}},
 	"aider":    {buildFixture: aiderfixture.BuildFixtureSandbox, wantModelNames: []string{"aider-unknown"}},
 	"opencode": {buildFixture: opencodefixture.BuildFixtureSandbox, wantModelNames: []string{"claude-sonnet-4-20250514"}},
+	"do-agent": {buildFixture: doagentfixture.BuildFixtureSandbox, wantModelNames: []string{"deepseek/deepseek-v4-pro"}},
 }
 
 // Each fixture case must drive its parser through to non-zero token counts

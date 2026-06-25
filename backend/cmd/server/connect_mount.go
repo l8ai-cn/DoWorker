@@ -56,7 +56,7 @@ func mountAuthService(mux *http.ServeMux, svc *serviceContainer, cfg *config.Con
 // auth_sso_saml.go) stay on REST permanently — Connect's unary
 // contract cannot return `Location:` redirects.
 func mountSSOService(mux *http.ServeMux, svc *serviceContainer) {
-	srv := ssoconnect.NewServer(svc.sso, svc.auth)
+	srv := ssoconnect.NewServer(svc.sso, svc.auth, svc.user)
 	ssoconnect.MountPublic(mux, srv)
 }
 
@@ -135,14 +135,6 @@ func mountPodService(mux *http.ServeMux, svc *serviceContainer, rest *v1.Service
 		serverOpts = append(serverOpts, podconnect.WithPodCoordinator(rest.PodCoordinator))
 		if sender := rest.PodCoordinator.GetCommandSender(); sender != nil {
 			serverOpts = append(serverOpts, podconnect.WithCommandSender(sender))
-			// RunnerStateReader is implemented by the same GRPCCommandSender
-			// instance (duck-typed) — mirrors routes_pods.go:45.
-			if sr, ok := sender.(interface {
-				GetRunnerLocalRelayURL(int64) string
-				GetRunnerNodeID(int64) string
-			}); ok {
-				serverOpts = append(serverOpts, podconnect.WithStateReader(sr))
-			}
 		}
 	}
 	if rest.RelayManager != nil {

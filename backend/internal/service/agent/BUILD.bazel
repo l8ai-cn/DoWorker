@@ -6,6 +6,7 @@ go_library(
         "agent_service.go",
         "config_builder.go",
         "config_builder_agentfile.go",
+        "config_builder_configbundle.go",
         "config_builder_eval.go",
         "config_builder_schema.go",
         "config_builder_types.go",
@@ -20,8 +21,8 @@ go_library(
     visibility = ["//backend:__subpackages__"],
     deps = [
         "//agentfile/eval",
-        "//agentfile/extract",
         "//agentfile/parser",
+        "//agentfile/schema",
         "//backend/internal/domain/agent",
         "//backend/internal/domain/extension",
         "//backend/internal/service/envbundle",
@@ -41,6 +42,7 @@ go_test(
     srcs = [
         "agent_service_test.go",
         "config_builder_schema_test.go",
+        "config_builder_skills_test.go",
         "custom_agent_test.go",
         "message_service_delivery_test.go",
         "message_service_errors_test.go",
@@ -52,7 +54,10 @@ go_test(
     embed = [":agent"],
     deps = [
         "//backend/internal/domain/agent",
+        "//backend/internal/domain/extension",
         "//backend/internal/infra",
+        "//backend/internal/service/envbundle",
+        "//backend/internal/service/extension",
         "//backend/internal/testkit",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",

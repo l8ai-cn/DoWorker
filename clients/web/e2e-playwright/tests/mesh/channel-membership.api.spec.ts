@@ -5,7 +5,7 @@ import { clearAuthRateLimit } from "../../helpers/redis";
 import { textContent } from "../../helpers/test-data";
 
 // Second user in the same org (from seed data)
-const SECOND_USER = { email: "dev2@agentsmesh.local", password: "devpass123" };
+const SECOND_USER = { email: "dev2@agentsmesh.local", username: "devuser2", password: "devpass123" };
 
 test.describe("Channel IM Group Model", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
@@ -54,7 +54,7 @@ test.describe("Channel IM Group Model", () => {
       visibility: "private",
     }) as { id: bigint };
 
-    const adminToken = await api.loginAs(SECOND_USER.email, SECOND_USER.password);
+    const adminToken = await api.loginAs(SECOND_USER.username, SECOND_USER.password);
     const adminCc = api.connectWithToken(adminToken);
 
     const { items: visible } = await adminCc.channel.listChannels({ orgSlug: TEST_ORG_SLUG }) as {
@@ -82,7 +82,7 @@ test.describe("Channel IM Group Model", () => {
       visibility: "public",
     }) as { id: bigint };
 
-    const adminToken = await api.loginAs(SECOND_USER.email, SECOND_USER.password);
+    const adminToken = await api.loginAs(SECOND_USER.username, SECOND_USER.password);
     const adminCc = api.connectWithToken(adminToken);
 
     await adminCc.channel.joinChannel({ orgSlug: TEST_ORG_SLUG, id: channel.id });
@@ -105,7 +105,7 @@ test.describe("Channel IM Group Model", () => {
       visibility: "private",
     }) as { id: bigint };
 
-    const adminToken = await api.loginAs(SECOND_USER.email, SECOND_USER.password);
+    const adminToken = await api.loginAs(SECOND_USER.username, SECOND_USER.password);
     const adminCc = api.connectWithToken(adminToken);
     await expect(
       adminCc.channel.joinChannel({ orgSlug: TEST_ORG_SLUG, id: channel.id })
@@ -123,7 +123,7 @@ test.describe("Channel IM Group Model", () => {
       visibility: "public",
     }) as { id: bigint };
 
-    const adminToken = await api.loginAs(SECOND_USER.email, SECOND_USER.password);
+    const adminToken = await api.loginAs(SECOND_USER.username, SECOND_USER.password);
     const adminCc = api.connectWithToken(adminToken);
     await adminCc.channel.joinChannel({ orgSlug: TEST_ORG_SLUG, id: channel.id });
     await adminCc.channel.leaveChannel({ orgSlug: TEST_ORG_SLUG, id: channel.id });
@@ -168,7 +168,7 @@ test.describe("Channel IM Group Model", () => {
       userIds: [admin!.userId],
     });
 
-    const adminToken = await api.loginAs(SECOND_USER.email, SECOND_USER.password);
+    const adminToken = await api.loginAs(SECOND_USER.username, SECOND_USER.password);
     const adminCc = api.connectWithToken(adminToken);
     const detail = await adminCc.channel.getChannel({
       orgSlug: TEST_ORG_SLUG,
@@ -206,7 +206,7 @@ test.describe("Channel IM Group Model", () => {
     const creatorId = chMembers?.[0]?.userId;
     expect(creatorId, "channel must have a creator listed in its member roster").toBeTruthy();
 
-    const adminToken = await api.loginAs(SECOND_USER.email, SECOND_USER.password);
+    const adminToken = await api.loginAs(SECOND_USER.username, SECOND_USER.password);
     const adminCc = api.connectWithToken(adminToken);
     await adminCc.channel.joinChannel({ orgSlug: TEST_ORG_SLUG, id: channel.id });
 
@@ -233,7 +233,7 @@ test.describe("Channel IM Group Model", () => {
       visibility: "private",
     }) as { id: bigint };
 
-    const adminToken = await api.loginAs(SECOND_USER.email, SECOND_USER.password);
+    const adminToken = await api.loginAs(SECOND_USER.username, SECOND_USER.password);
     const adminCc = api.connectWithToken(adminToken);
     await expect(
       adminCc.channel.sendChannelMessage({
@@ -312,7 +312,7 @@ test.describe("Channel IM Group Model", () => {
       visibility: "public",
     }) as { id: bigint };
 
-    const adminToken = await api.loginAs(SECOND_USER.email, SECOND_USER.password);
+    const adminToken = await api.loginAs(SECOND_USER.username, SECOND_USER.password);
     const adminCc = api.connectWithToken(adminToken);
     await adminCc.channel.joinChannel({ orgSlug: TEST_ORG_SLUG, id: channel.id });
 

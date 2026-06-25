@@ -42,9 +42,6 @@ export default defineConfig({
       // Resolves to the same path tsconfig.json's `@proto/*` alias points to,
       // keeping vitest, ESLint, and Next.js in lockstep.
       '@proto': resolve(__dirname, '../../proto/gen/ts'),
-      // electron-adapter projections import proto via the package specifier
-      // (@agentsmesh/proto/*) rather than the @proto alias; point it at the
-      // same committed mirror so vitest resolves the re-used projections.
       '@agentsmesh/proto': resolve(__dirname, '../../proto/gen/ts'),
     },
     // Force a single copy of React across the workspace. Without this,

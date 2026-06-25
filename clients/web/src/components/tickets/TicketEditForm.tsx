@@ -37,7 +37,7 @@ export function TicketEditForm({
         <label className="text-sm font-medium text-muted-foreground mb-1 block">
           {t("tickets.detail.content")}
         </label>
-        <div className="border border-border rounded-md overflow-hidden min-h-[200px] bg-card">
+        <div className="surface-card overflow-hidden min-h-[200px] bg-card">
           <Suspense fallback={<div className="h-[200px] animate-pulse bg-muted" />}>
             <BlockEditor
               initialContent={content}

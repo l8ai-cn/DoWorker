@@ -10,6 +10,7 @@ const (
 	ProviderTypeGitLab = "gitlab"
 	ProviderTypeGitHub = "github"
 	ProviderTypeGitee  = "gitee"
+	ProviderTypeCNB    = "cnb"
 )
 
 var (
@@ -49,17 +50,17 @@ type Branch struct {
 }
 
 type MergeRequest struct {
-	ID           int       `json:"id"`
-	IID          int       `json:"iid"`
-	Title        string    `json:"title"`
-	Description  string    `json:"description"`
-	SourceBranch string    `json:"source_branch"`
-	TargetBranch string    `json:"target_branch"`
-	State        string    `json:"state"`
-	WebURL       string    `json:"web_url"`
-	Author       *User     `json:"author"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID           int        `json:"id"`
+	IID          int        `json:"iid"`
+	Title        string     `json:"title"`
+	Description  string     `json:"description"`
+	SourceBranch string     `json:"source_branch"`
+	TargetBranch string     `json:"target_branch"`
+	State        string     `json:"state"`
+	WebURL       string     `json:"web_url"`
+	Author       *User      `json:"author"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
 	MergedAt     *time.Time `json:"merged_at,omitempty"`
 
 	PipelineStatus string `json:"pipeline_status,omitempty"`
@@ -107,17 +108,17 @@ const (
 )
 
 type Pipeline struct {
-	ID        int       `json:"id"`
-	IID       int       `json:"iid"`
-	ProjectID string    `json:"project_id"`
-	Ref       string    `json:"ref"`
-	SHA       string    `json:"sha"`
-	Status    string    `json:"status"`
-	Source    string    `json:"source"`
-	WebURL    string    `json:"web_url"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	StartedAt *time.Time `json:"started_at,omitempty"`
+	ID         int        `json:"id"`
+	IID        int        `json:"iid"`
+	ProjectID  string     `json:"project_id"`
+	Ref        string     `json:"ref"`
+	SHA        string     `json:"sha"`
+	Status     string     `json:"status"`
+	Source     string     `json:"source"`
+	WebURL     string     `json:"web_url"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
+	StartedAt  *time.Time `json:"started_at,omitempty"`
 	FinishedAt *time.Time `json:"finished_at,omitempty"`
 }
 
@@ -145,6 +146,55 @@ type WebhookConfig struct {
 	URL    string   `json:"url"`
 	Secret string   `json:"secret"`
 	Events []string `json:"events"`
+}
+
+type Issue struct {
+	Number    int       `json:"number"`
+	Title     string    `json:"title"`
+	Body      string    `json:"body"`
+	State     string    `json:"state"`
+	Labels    []string  `json:"labels"`
+	Priority  string    `json:"priority"`
+	Assignees []string  `json:"assignees"`
+	Author    string    `json:"author"`
+	WebURL    string    `json:"web_url"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type IssueComment struct {
+	ID        string    `json:"id"`
+	Body      string    `json:"body"`
+	Author    string    `json:"author"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type IssueListOptions struct {
+	State     string
+	Labels    []string
+	Priority  string
+	Assignees string
+	Keyword   string
+	Page      int
+	PageSize  int
+}
+
+// IssueClient is intentionally separate from the giant Provider interface: the
+// coordinator only needs issue/comment access, and few providers implement it.
+type IssueClient interface {
+	ListIssues(ctx context.Context, repo string, opts IssueListOptions) ([]*Issue, error)
+	GetIssue(ctx context.Context, repo string, number int) (*Issue, error)
+	ListIssueComments(ctx context.Context, repo string, number int) ([]*IssueComment, error)
+	PostIssueComment(ctx context.Context, repo string, number int, body string) (*IssueComment, error)
+}
+
+func NewIssueClient(providerType, baseURL, accessToken string) (IssueClient, error) {
+	switch providerType {
+	case ProviderTypeCNB:
+		return NewCNBProvider(baseURL, accessToken)
+	default:
+		return nil, ErrProviderNotSupported
+	}
 }
 
 type Provider interface {
@@ -198,6 +248,8 @@ func NewProvider(providerType, baseURL, accessToken string) (Provider, error) {
 		return NewGitHubProvider(baseURL, accessToken)
 	case ProviderTypeGitee:
 		return NewGiteeProvider(baseURL, accessToken)
+	case ProviderTypeCNB:
+		return NewCNBProvider(baseURL, accessToken)
 	default:
 		return nil, ErrProviderNotSupported
 	}

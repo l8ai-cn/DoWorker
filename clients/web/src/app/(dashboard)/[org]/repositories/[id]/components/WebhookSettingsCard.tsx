@@ -155,7 +155,7 @@ export function WebhookSettingsCard({
 
   if (loading) {
     return (
-      <div className="border border-border rounded-lg p-6 md:col-span-2">
+      <div className="surface-card p-6 md:col-span-2">
         <h3 className="font-semibold mb-4">{t("repositories.webhook.title")}</h3>
         <div className="flex items-center justify-center py-8">
           <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -168,7 +168,7 @@ export function WebhookSettingsCard({
   }
 
   return (
-    <div className="border border-border rounded-lg p-6 md:col-span-2">
+    <div className="surface-card p-6 md:col-span-2">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold">{t("repositories.webhook.title")}</h3>
         <Button

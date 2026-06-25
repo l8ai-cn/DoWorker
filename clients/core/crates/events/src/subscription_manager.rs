@@ -36,7 +36,7 @@ pub(crate) struct Inner {
     /// `TickCallback.on_tick` to invalidate cached views.
     pub tick: AtomicU64,
     /// Optional tick push-listener — fired after every event dispatched
-    /// to AppState + tick bump. Used by iOS (UniFFI) to kick SwiftUI's
+    /// to AppState + tick bump. Native hosts can use this to kick their
     /// reactive store; other platforms poll `tick()`.
     pub tick_listener: Option<Arc<dyn TickListener>>,
     /// Shutdown signal for the active connection_loop task. Moved into
@@ -107,20 +107,20 @@ impl<R: Runtime> EventSubscriptionManager<R> {
     }
 
     /// Install a Rust-SSOT dispatch hook. Called by binding facades
-    /// (wasm/napi/ffi) at construction time with an `AppStateDispatchHook`.
+    /// (wasm) at construction time with an `AppStateDispatchHook`.
     /// Subsequent calls replace any prior hook.
     pub fn set_dispatch_hook(&self, hook: Arc<dyn EventDispatchHook>) {
         self.inner.write().dispatch_hook = Some(hook);
     }
 
-    /// Install a tick push-listener. iOS uses this to invalidate SwiftUI
+    /// Install a tick push-listener. Native hosts can use this to invalidate
     /// state on each event. Other platforms can poll `tick()` instead.
     /// Replaces any prior listener — single-slot, not a Vec.
     pub fn set_tick_listener(&self, listener: Arc<dyn TickListener>) {
         self.inner.write().tick_listener = Some(listener);
     }
 
-    /// Clear the tick listener (e.g. on iOS app teardown).
+    /// Clear the tick listener (e.g. on host teardown).
     pub fn clear_tick_listener(&self) {
         self.inner.write().tick_listener = None;
     }
@@ -263,7 +263,7 @@ pub(crate) fn dispatch_event(inner: &Arc<RwLock<Inner>>, event: &RealtimeEvent) 
     // above before reading the new tick value.
     let new_tick = inner.read().tick.fetch_add(1, Ordering::Release) + 1;
 
-    // Step 2b: push tick to FFI listener (iOS). Wasm/napi poll instead.
+    // Step 2b: push tick to registered host listener. Wasm poll instead.
     let tick_listener = inner.read().tick_listener.clone();
     if let Some(l) = tick_listener {
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {

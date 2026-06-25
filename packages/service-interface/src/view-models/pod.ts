@@ -1,6 +1,5 @@
 // Pod ViewModels — UI-side projection of `proto.pod.v1.Pod`. Owned in this
-// zero-dep contract layer so web (fromProtoPod) and desktop (electron-adapter
-// projection) share one definition.
+// zero-dep contract layer so Web projections share one definition.
 
 // Interaction mode — mirrors agentfile.ModePTY / agentfile.ModeACP. The
 // POD_MODE_PTY / POD_MODE_ACP value constants stay in clients/web's

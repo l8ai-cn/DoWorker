@@ -102,7 +102,9 @@ reset_runners() {
 
     cd "$SCRIPT_DIR"
     info "重建并重启 runner 容器..."
-    docker compose up -d --build runner 2>&1 | grep -v "^#" | grep -v warning || true
+    HTTP_PROXY= HTTPS_PROXY= http_proxy= https_proxy= NO_PROXY=* \
+        DOCKER_DEFAULT_PLATFORM=linux/amd64 \
+        docker compose up -d --build runner 2>&1 | grep -v "^#" | grep -v warning || true
     success "Runner 容器已重启 (binary 来自 bazel build)"
 
     echo ""
@@ -171,7 +173,7 @@ show_result() {
     echo "    重 build: ./dev.sh --rebuild-runner"
     echo ""
     echo "  测试账号:   dev@agentsmesh.local / devpass123"
-    echo "  管理员:     admin@agentsmesh.local / adminpass123"
+    echo "  管理员:     admin@agentsmesh.local / Ab123456"
     echo ""
     echo "  其他服务:"
     echo "    Gitea:    http://localhost:$GITEA_HTTP_PORT (gitea-admin / gitea-admin-123)"

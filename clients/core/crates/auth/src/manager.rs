@@ -112,7 +112,7 @@ impl AuthManager {
     /// Poison-tolerant read guard: never recover from a panic that left
     /// the lock poisoned — reading the snapshot is always safe; the
     /// alternative (panic-propagate) surfaces as an opaque runtime error
-    /// across the napi/wasm boundary.
+    /// across the wasm boundary.
     pub(crate) fn read_state(&self) -> std::sync::RwLockReadGuard<'_, AuthState> {
         self.state.read().unwrap_or_else(|e| e.into_inner())
     }

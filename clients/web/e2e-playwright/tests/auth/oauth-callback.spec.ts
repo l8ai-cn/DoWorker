@@ -21,7 +21,7 @@ test.describe("OAuth / SSO callback (light-auth)", () => {
 
   for (const callbackPath of ["/auth/callback", "/auth/sso/callback"]) {
     test(`${callbackPath} with real token pair lands on dashboard`, async ({ page, api }) => {
-      const tokens = await api.login(TEST_USER.email, TEST_USER.password);
+      const tokens = await api.login();
       const url = `${callbackPath}?token=${encodeURIComponent(tokens.token)}&refresh_token=${encodeURIComponent(tokens.refresh_token)}`;
 
       await page.goto(url);

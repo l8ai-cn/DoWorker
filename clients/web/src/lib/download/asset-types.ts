@@ -1,18 +1,11 @@
 export type Platform = "macos" | "windows" | "linux";
 export type Arch = "x64" | "arm64" | "universal";
-export type DesktopKind = "dmg" | "exe" | "appimage" | "deb" | "zip";
 export type RunnerKind = "tarball" | "zip";
 
 export interface ReleaseAsset {
   name: string;
   url: string;
   size: number;
-}
-
-export interface DesktopAsset extends ReleaseAsset {
-  platform: Platform;
-  arch: Arch;
-  kind: DesktopKind;
 }
 
 export interface RunnerAsset extends ReleaseAsset {
@@ -26,18 +19,9 @@ export interface ReleaseSummary {
   tag: string;
   publishedAt: string;
   htmlUrl: string;
-  desktop: DesktopAsset[];
   runner: RunnerAsset[];
   checksumsUrl?: string;
 }
-
-export const DESKTOP_KIND_LABEL: Record<DesktopKind, string> = {
-  dmg: "DMG",
-  exe: "Installer",
-  appimage: "AppImage",
-  deb: ".deb",
-  zip: "ZIP",
-};
 
 export const RUNNER_KIND_EXT: Record<RunnerKind, string> = {
   tarball: ".tar.gz",

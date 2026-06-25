@@ -312,17 +312,20 @@
       "explain": {
         "title": "解释这个代码库",
         "description": "Claude Code 遍历仓库并总结架构。",
-        "duration": "2 分钟"
+        "duration": "2 分钟",
+        "prompt": "请浏览这个代码库，总结整体架构、核心模块及它们之间的关系，并指出值得关注的入口文件。"
       },
       "tests": {
         "title": "运行你的测试",
         "description": "Claude Code 执行测试套件并报告失败项。",
-        "duration": "3 分钟"
+        "duration": "3 分钟",
+        "prompt": "请运行项目的测试套件，汇总通过与失败的用例，并分析失败原因给出修复建议。"
       },
       "bug": {
         "title": "修复一个待处理 Bug",
         "description": "选一个 ticket，启动一个 Pod。代理读取上下文并提出修复方案。",
-        "duration": "8 分钟"
+        "duration": "8 分钟",
+        "prompt": "请定位并修复一个待处理的 Bug：先复现问题，给出根因分析，再实现修复并验证。"
       }
     },
     "banner": {
@@ -582,5 +585,17 @@
       "goalPause": "暂停目标", "goalResume": "继续目标", "goalComplete": "将目标标记为完成", "goalReopen": "重新打开目标", "goalClear": "清除目标"
     },
     "topology": { "sheetTitle": "智能体拓扑", "root": "根" }
+  },
+  "doagent": {
+    "title": "DoAgent",
+    "openWorkspace": "工作区",
+    "goal": {
+      "label": "目标",
+      "none": "无活跃目标",
+      "unknown": "未知",
+      "pause": "暂停",
+      "resume": "继续",
+      "refresh": "刷新"
+    }
   }
 }

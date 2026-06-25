@@ -36,7 +36,7 @@ export function RelationsList({
             return (
               <button
                 key={relation.id}
-                className="w-full px-2.5 py-1.5 flex items-center gap-2 hover:bg-muted/50 rounded-md transition-colors text-left group"
+                className="w-full px-2.5 py-1.5 flex items-center gap-2 motion-interactive hover:bg-surface-muted rounded-md transition-colors text-left group"
                 onClick={() => onTicketClick(targetTicket.slug)}
               >
                 <span className="text-[10px] text-muted-foreground capitalize bg-muted/70 px-1.5 py-0.5 rounded">
@@ -61,7 +61,7 @@ export function RelationsList({
         <Link2 className="h-3.5 w-3.5" />
         {t("tickets.detail.related")} ({relations.length})
       </p>
-      <div className="rounded-xl border border-border/50 divide-y divide-border/40 overflow-hidden bg-card shadow-sm">
+      <div className="surface-card divide-y divide-border/40 overflow-hidden bg-card shadow-sm">
         {relations.map((relation) => {
           const targetTicket = relation.target_ticket;
           if (!targetTicket) return null;

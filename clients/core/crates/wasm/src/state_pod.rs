@@ -49,8 +49,8 @@ impl WasmPodState {
     }
 
     // Read side, zero-JSON: prost-encode state pods (reuse the cache wrapper).
-    // Web/desktop decode via fromBinary + podToCache. Replaces pods_json — the
-    // wire Pod and the cached Pod are the same proto, so this is identity.
+    // Web decodes via fromBinary + podToCache. Replaces pods_json — the wire
+    // Pod and the cached Pod are the same proto, so this is identity.
     pub fn pods_bytes(&self) -> Vec<u8> {
         let pods = self.state.read().pods.pods().to_vec();
         ReplaceCachedPodsRequest { pods }.encode_to_vec()

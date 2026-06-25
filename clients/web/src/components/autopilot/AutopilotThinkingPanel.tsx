@@ -47,22 +47,22 @@ const decisionConfig: Record<
 > = {
   continue: {
     label: "Continue",
-    color: "bg-blue-500",
+    color: "bg-info",
     icon: <ArrowRight className="h-3 w-3" />,
   },
   completed: {
     label: "Completed",
-    color: "bg-green-500",
+    color: "bg-success",
     icon: <CheckCircle className="h-3 w-3" />,
   },
   need_help: {
     label: "Need Help",
-    color: "bg-orange-500",
+    color: "bg-warning",
     icon: <AlertTriangle className="h-3 w-3" />,
   },
   give_up: {
     label: "Give Up",
-    color: "bg-red-500",
+    color: "bg-danger",
     icon: <XCircle className="h-3 w-3" />,
   },
 };
@@ -169,7 +169,7 @@ export function AutopilotThinkingPanel({
               {thinking.progress.completed_steps && thinking.progress.completed_steps.length > 0 && (
                 <div className="text-xs space-y-1">
                   <span className="text-muted-foreground">Completed:</span>
-                  <ul className="list-disc list-inside text-green-600">
+                  <ul className="list-disc list-inside text-success">
                     {thinking.progress.completed_steps.map((step, i) => (
                       <li key={i}>{step}</li>
                     ))}
@@ -193,8 +193,8 @@ export function AutopilotThinkingPanel({
 
           {/* Help Request */}
           {thinking.help_request && (
-            <div className="rounded-md bg-orange-500/10 border border-orange-500/30 p-2 text-sm">
-              <div className="flex items-center gap-2 text-orange-500 mb-1">
+            <div className="rounded-md bg-warning-bg border border-warning/30 p-2 text-sm">
+              <div className="flex items-center gap-2 text-warning mb-1">
                 <AlertTriangle className="h-3 w-3" />
                 <span className="font-medium text-xs">Help Needed</span>
               </div>

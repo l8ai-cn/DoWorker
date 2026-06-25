@@ -65,7 +65,7 @@ export function MobileTabBar({ className }: MobileTabBarProps) {
   return (
     <nav
       className={cn(
-        "h-16 bg-background border-t border-border flex items-stretch px-2 safe-area-pb",
+        "h-16 bg-background panel-lift flex items-stretch px-2 safe-area-pb",
         className
       )}
     >

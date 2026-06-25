@@ -20,7 +20,7 @@ import { BoardSchema, ListTicketsResponseSchema } from "@proto/ticket/v1/ticket_
 import {
   ticketToProto, labelToProto, protoTicketToTicket,
 } from "@/lib/api/ticketProtoMap";
-import { ticketToCache } from "@agentsmesh/electron-adapter/projections";
+import { ticketToCache } from "@/lib/api/projections";
 
 export type { TicketStatus, TicketPriority };
 export interface Label { id: number; name: string; color: string }
@@ -310,24 +310,24 @@ export function useFilteredTickets(): Ticket[] {
 
 export const getStatusInfo = (status: TicketStatus) => {
   const m: Record<TicketStatus, { label: string; color: string; bgColor: string }> = {
-    backlog: { label: "Backlog", color: "text-gray-600 dark:text-gray-400", bgColor: "bg-gray-100 dark:bg-gray-800" },
-    todo: { label: "To Do", color: "text-blue-600 dark:text-blue-400", bgColor: "bg-blue-100 dark:bg-blue-900/30" },
-    in_progress: { label: "In Progress", color: "text-yellow-600 dark:text-yellow-400", bgColor: "bg-yellow-100 dark:bg-yellow-900/30" },
-    in_review: { label: "In Review", color: "text-purple-600 dark:text-purple-400", bgColor: "bg-purple-100 dark:bg-purple-900/30" },
-    done: { label: "Done", color: "text-green-600 dark:text-green-400", bgColor: "bg-green-100 dark:bg-green-900/30" },
+    backlog: { label: "Backlog", color: "text-muted-foreground", bgColor: "bg-muted" },
+    todo: { label: "To Do", color: "text-info", bgColor: "bg-info-bg" },
+    in_progress: { label: "In Progress", color: "text-warning", bgColor: "bg-warning-bg" },
+    in_review: { label: "In Review", color: "text-primary", bgColor: "bg-accent" },
+    done: { label: "Done", color: "text-success", bgColor: "bg-success-bg" },
   };
-  return m[status] || { label: status || "Unknown", color: "text-gray-500 dark:text-gray-400", bgColor: "bg-gray-100 dark:bg-gray-800" };
+  return m[status] || { label: status || "Unknown", color: "text-muted-foreground", bgColor: "bg-muted" };
 };
 
 export const getPriorityInfo = (priority: TicketPriority) => {
   const m: Record<TicketPriority, { label: string; color: string; icon: string }> = {
-    none: { label: "None", color: "text-gray-400 dark:text-gray-500", icon: "minus" },
-    low: { label: "Low", color: "text-blue-500 dark:text-blue-400", icon: "arrow-down" },
-    medium: { label: "Medium", color: "text-yellow-500 dark:text-yellow-400", icon: "arrow-right" },
-    high: { label: "High", color: "text-orange-500 dark:text-orange-400", icon: "arrow-up" },
-    urgent: { label: "Urgent", color: "text-red-500 dark:text-red-400", icon: "alert-triangle" },
+    none: { label: "None", color: "text-muted-foreground", icon: "minus" },
+    low: { label: "Low", color: "text-info", icon: "arrow-down" },
+    medium: { label: "Medium", color: "text-warning", icon: "arrow-right" },
+    high: { label: "High", color: "text-primary", icon: "arrow-up" },
+    urgent: { label: "Urgent", color: "text-danger", icon: "alert-triangle" },
   };
-  return m[priority] || { label: priority || "None", color: "text-gray-400 dark:text-gray-500", icon: "minus" };
+  return m[priority] || { label: priority || "None", color: "text-muted-foreground", icon: "minus" };
 };
 
 reconnectRegistry.register({

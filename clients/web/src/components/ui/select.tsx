@@ -74,8 +74,8 @@ export const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerPr
         type="button"
         ref={ref}
         className={cn(
-          "flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background",
-          "placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
+          "flex h-9 w-full items-center justify-between rounded-md bg-surface-raised px-3 py-2 text-sm shadow-xs ring-1 ring-border/35 motion-interactive",
+          "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/35 focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--ring)_12%,transparent)]",
           "disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
@@ -148,7 +148,7 @@ export function SelectContent({ children, className, ...props }: SelectContentPr
     <div
       ref={contentRef}
       className={cn(
-        "absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md",
+        "absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-popover text-popover-foreground shadow-[var(--shadow-panel)] ring-1 ring-border/20",
         "animate-in fade-in-0 zoom-in-95",
         className
       )}
@@ -172,7 +172,7 @@ export function SelectItem({ value, children, className, disabled, ...props }: S
   return (
     <div
       className={cn(
-        "relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none",
+        "relative flex w-full cursor-pointer select-none items-center rounded-md py-1.5 pl-2 pr-8 text-sm outline-none motion-interactive",
         "hover:bg-accent hover:text-accent-foreground",
         "focus:bg-accent focus:text-accent-foreground",
         isSelected && "bg-accent",

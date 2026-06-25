@@ -55,7 +55,6 @@ type Server struct {
 	orchestrator   *agentpod.PodOrchestrator
 	podCoordinator *runner.PodCoordinator
 	commandSender  runner.RunnerCommandSender
-	stateReader    runner.RunnerStateReader
 	relayManager   *relay.Manager
 	tokenGenerator *relay.TokenGenerator
 	geoResolver    geo.Resolver
@@ -92,10 +91,6 @@ func WithPodCoordinator(pc *runner.PodCoordinator) Option {
 
 func WithCommandSender(cs runner.RunnerCommandSender) Option {
 	return func(s *Server) { s.commandSender = cs }
-}
-
-func WithStateReader(sr runner.RunnerStateReader) Option {
-	return func(s *Server) { s.stateReader = sr }
 }
 
 func WithRelayManager(rm *relay.Manager) Option {

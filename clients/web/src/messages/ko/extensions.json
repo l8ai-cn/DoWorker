@@ -123,10 +123,27 @@
       "loadMore": "더 보기 ({current} / {total})"
     },
 
+    "skillMarket": {
+      "title": "Skill Marketplace",
+      "description": "Browse skills synced from platform and organization registries. Install them to a repository for your agents to use.",
+      "noSkills": "No skills available in the marketplace",
+      "skillsFound": "skills found",
+      "allCategories": "All",
+      "contentSha": "SHA",
+      "repository": "Source",
+      "installTitle": "Install Skill",
+      "installDescription": "Choose a repository and scope to install \"{name}\".",
+      "targetRepository": "Target repository",
+      "selectRepository": "Select a repository...",
+      "installScope": "Installation scope",
+      "noDescription": "No description available"
+    },
+
     "settings": {
       "title": "Extensions",
-      "description": "Manage skill registries and browse MCP server marketplace templates for your organization.",
+      "description": "Manage skill registries and explore MCP server templates. Browse the skill marketplace from the Skill Market section.",
       "tabs": {
+        "skillMarket": "Skill Marketplace",
         "skillRegistries": "Skill Registries",
         "mcpMarket": "MCP 템플릿"
       }

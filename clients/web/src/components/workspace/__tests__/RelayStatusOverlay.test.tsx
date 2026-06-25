@@ -35,29 +35,29 @@ describe("RelayStatusOverlay", () => {
       );
       const dots = container.querySelectorAll("[role='status']");
       expect(dots).toHaveLength(2);
-      dots.forEach((dot) => expect(dot).toHaveClass("bg-green-500"));
+      dots.forEach((dot) => expect(dot).toHaveClass("bg-success"));
     });
 
     it("Web and Runner labels are green", () => {
       render(
         <RelayStatusOverlay connectionStatus="connected" isRunnerDisconnected={false} />
       );
-      expect(screen.getByText("Web")).toHaveClass("text-green-400");
-      expect(screen.getByText("Runner")).toHaveClass("text-green-400");
+      expect(screen.getByText("Web")).toHaveClass("text-success");
+      expect(screen.getByText("Runner")).toHaveClass("text-success");
     });
 
     it("Relay label is neutral gray", () => {
       render(
         <RelayStatusOverlay connectionStatus="connected" isRunnerDisconnected={false} />
       );
-      expect(screen.getByText("Relay")).toHaveClass("text-gray-300");
+      expect(screen.getByText("Relay")).toHaveClass("text-muted-foreground");
     });
 
     it("applies green overall background", () => {
       const { container } = render(
         <RelayStatusOverlay connectionStatus="connected" isRunnerDisconnected={false} />
       );
-      expect(container.querySelector(".bg-green-500\\/15")).toBeInTheDocument();
+      expect(container.querySelector(".bg-success\\/15")).toBeInTheDocument();
     });
   });
 
@@ -67,7 +67,7 @@ describe("RelayStatusOverlay", () => {
         <RelayStatusOverlay connectionStatus="connecting" isRunnerDisconnected={false} />
       );
       const dots = container.querySelectorAll("[role='status']");
-      expect(dots[0]).toHaveClass("bg-yellow-500", "animate-pulse");
+      expect(dots[0]).toHaveClass("bg-warning", "animate-pulse");
     });
 
     it("web-relay tooltip says Connecting", () => {
@@ -83,7 +83,7 @@ describe("RelayStatusOverlay", () => {
         <RelayStatusOverlay connectionStatus="connecting" isRunnerDisconnected={false} />
       );
       const dots = container.querySelectorAll("[role='status']");
-      expect(dots[1]).toHaveClass("bg-gray-500");
+      expect(dots[1]).toHaveClass("bg-muted-foreground");
     });
 
     it("relay-runner tooltip says Unknown", () => {
@@ -98,7 +98,7 @@ describe("RelayStatusOverlay", () => {
       const { container } = render(
         <RelayStatusOverlay connectionStatus="connecting" isRunnerDisconnected={false} />
       );
-      expect(container.querySelector(".bg-yellow-500\\/15")).toBeInTheDocument();
+      expect(container.querySelector(".bg-warning\\/15")).toBeInTheDocument();
     });
   });
 
@@ -108,7 +108,7 @@ describe("RelayStatusOverlay", () => {
         <RelayStatusOverlay connectionStatus="disconnected" isRunnerDisconnected={false} />
       );
       const dots = container.querySelectorAll("[role='status']");
-      expect(dots[0]).toHaveClass("bg-red-500");
+      expect(dots[0]).toHaveClass("bg-danger");
     });
 
     it("web-relay tooltip says Disconnected", () => {
@@ -124,14 +124,14 @@ describe("RelayStatusOverlay", () => {
         <RelayStatusOverlay connectionStatus="disconnected" isRunnerDisconnected={false} />
       );
       const dots = container.querySelectorAll("[role='status']");
-      expect(dots[1]).toHaveClass("bg-gray-500");
+      expect(dots[1]).toHaveClass("bg-muted-foreground");
     });
 
     it("applies red overall background", () => {
       const { container } = render(
         <RelayStatusOverlay connectionStatus="disconnected" isRunnerDisconnected={false} />
       );
-      expect(container.querySelector(".bg-red-500\\/15")).toBeInTheDocument();
+      expect(container.querySelector(".bg-danger\\/15")).toBeInTheDocument();
     });
   });
 
@@ -141,7 +141,7 @@ describe("RelayStatusOverlay", () => {
         <RelayStatusOverlay connectionStatus="error" isRunnerDisconnected={false} />
       );
       const dots = container.querySelectorAll("[role='status']");
-      expect(dots[0]).toHaveClass("bg-red-500");
+      expect(dots[0]).toHaveClass("bg-danger");
     });
 
     it("web-relay tooltip says Error (not Disconnected)", () => {
@@ -157,14 +157,14 @@ describe("RelayStatusOverlay", () => {
         <RelayStatusOverlay connectionStatus="error" isRunnerDisconnected={false} />
       );
       const dots = container.querySelectorAll("[role='status']");
-      expect(dots[1]).toHaveClass("bg-gray-500");
+      expect(dots[1]).toHaveClass("bg-muted-foreground");
     });
 
     it("applies red overall background", () => {
       const { container } = render(
         <RelayStatusOverlay connectionStatus="error" isRunnerDisconnected={false} />
       );
-      expect(container.querySelector(".bg-red-500\\/15")).toBeInTheDocument();
+      expect(container.querySelector(".bg-danger\\/15")).toBeInTheDocument();
     });
   });
 
@@ -173,14 +173,14 @@ describe("RelayStatusOverlay", () => {
       render(
         <RelayStatusOverlay connectionStatus="connected" isRunnerDisconnected={true} />
       );
-      expect(screen.getByText("Web")).toHaveClass("text-green-400");
+      expect(screen.getByText("Web")).toHaveClass("text-success");
     });
 
     it("Runner label is red (its segment is broken)", () => {
       render(
         <RelayStatusOverlay connectionStatus="connected" isRunnerDisconnected={true} />
       );
-      expect(screen.getByText("Runner")).toHaveClass("text-red-400");
+      expect(screen.getByText("Runner")).toHaveClass("text-danger");
     });
 
     it("web-relay dot is green", () => {
@@ -188,7 +188,7 @@ describe("RelayStatusOverlay", () => {
         <RelayStatusOverlay connectionStatus="connected" isRunnerDisconnected={true} />
       );
       const dots = container.querySelectorAll("[role='status']");
-      expect(dots[0]).toHaveClass("bg-green-500");
+      expect(dots[0]).toHaveClass("bg-success");
     });
 
     it("web-relay tooltip says Connected", () => {
@@ -204,7 +204,7 @@ describe("RelayStatusOverlay", () => {
         <RelayStatusOverlay connectionStatus="connected" isRunnerDisconnected={true} />
       );
       const dots = container.querySelectorAll("[role='status']");
-      expect(dots[1]).toHaveClass("bg-red-500");
+      expect(dots[1]).toHaveClass("bg-danger");
     });
 
     it("relay-runner tooltip says Disconnected", () => {
@@ -219,7 +219,7 @@ describe("RelayStatusOverlay", () => {
       const { container } = render(
         <RelayStatusOverlay connectionStatus="connected" isRunnerDisconnected={true} />
       );
-      expect(container.querySelector(".bg-red-500\\/15")).toBeInTheDocument();
+      expect(container.querySelector(".bg-danger\\/15")).toBeInTheDocument();
     });
   });
 

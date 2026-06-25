@@ -2,7 +2,7 @@
 //
 // Distinct from proto.pod.v1 (wire schema for Connect-RPC). This package
 // describes the mutation operations the renderer issues against the Rust
-// pod cache through the wasm-bindgen / NAPI bridge. Each message is one
+// pod cache through the wasm-bindgen bridge. Each message is one
 // SRP-shaped intent — name describes the business event + action, not a
 // generic "update pod" verb.
 //

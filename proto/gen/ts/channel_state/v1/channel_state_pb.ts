@@ -2,7 +2,7 @@
 //
 // Distinct from proto.channel.v1 (the wire schema used for Connect-RPC).
 // This package describes the Rust core's in-memory cache that the bridge
-// layer (wasm / UniFFI / NAPI) exposes to UI. The UI receives ready-to-
+// layer (wasm) exposes to UI. The UI receives ready-to-
 // render objects: unread counters, last-message previews, display names,
 // is_own_message flags — all maintained by Rust services as new events
 // arrive, so UI never has to do its own derivation pass.

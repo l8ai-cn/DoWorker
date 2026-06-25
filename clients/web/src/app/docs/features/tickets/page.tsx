@@ -2,6 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { DocNavigation } from "@/components/docs/DocNavigation";
+import { DocsTable } from "@/components/docs/DocsTable";
+import { docsLabel, twoColumnHeaders } from "@/components/docs/docs-table-helpers";
 
 export default function TicketsPage() {
   const t = useTranslations();
@@ -18,7 +20,7 @@ export default function TicketsPage() {
 
       {/* Overview */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.tickets.overview.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -35,7 +37,7 @@ export default function TicketsPage() {
 
       {/* Ticket Status */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.tickets.status.title")}
         </h2>
         <p className="text-muted-foreground mb-4">
@@ -50,15 +52,15 @@ export default function TicketsPage() {
             {t("docs.features.tickets.status.todo")}
           </span>
           <span className="text-muted-foreground">&rarr;</span>
-          <span className="px-3 py-1 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded text-sm">
+          <span className="px-3 py-1 bg-info/20 text-info rounded text-sm">
             {t("docs.features.tickets.status.inProgress")}
           </span>
           <span className="text-muted-foreground">&rarr;</span>
-          <span className="px-3 py-1 bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 rounded text-sm">
+          <span className="px-3 py-1 bg-warning/20 text-warning rounded text-sm">
             {t("docs.features.tickets.status.inReview")}
           </span>
           <span className="text-muted-foreground">&rarr;</span>
-          <span className="px-3 py-1 bg-green-500/20 text-green-600 dark:text-green-400 rounded text-sm">
+          <span className="px-3 py-1 bg-success/20 text-success rounded text-sm">
             {t("docs.features.tickets.status.done")}
           </span>
         </div>
@@ -66,70 +68,24 @@ export default function TicketsPage() {
 
       {/* Priority */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.tickets.priority.title")}
         </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-border rounded-lg">
-            <thead>
-              <tr className="bg-muted">
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.features.tickets.priority.priorityHeader")}
-                </th>
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.features.tickets.priority.descriptionHeader")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-muted-foreground">
-              <tr>
-                <td className="p-3 border-b border-border text-red-500 dark:text-red-400 font-medium">
-                  {t("docs.features.tickets.priority.urgent")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.tickets.priority.urgentDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border text-orange-500 dark:text-orange-400 font-medium">
-                  {t("docs.features.tickets.priority.high")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.tickets.priority.highDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border text-yellow-500 dark:text-yellow-400 font-medium">
-                  {t("docs.features.tickets.priority.medium")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.tickets.priority.mediumDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border text-muted-foreground font-medium">
-                  {t("docs.features.tickets.priority.low")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.tickets.priority.lowDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 font-medium">
-                  {t("docs.features.tickets.priority.none")}
-                </td>
-                <td className="p-3">
-                  {t("docs.features.tickets.priority.noneDesc")}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <DocsTable
+          columns={twoColumnHeaders(t, "docs.features.tickets.priority", "priorityHeader", "descriptionHeader")}
+          rows={[
+            { cells: [<span key="u" className="font-medium text-danger">{t("docs.features.tickets.priority.urgent")}</span>, t("docs.features.tickets.priority.urgentDesc")] },
+            { cells: [<span key="h" className="font-medium text-warning">{t("docs.features.tickets.priority.high")}</span>, t("docs.features.tickets.priority.highDesc")] },
+            { cells: [<span key="m" className="font-medium text-warning">{t("docs.features.tickets.priority.medium")}</span>, t("docs.features.tickets.priority.mediumDesc")] },
+            { cells: [<span key="l" className="font-medium text-muted-foreground">{t("docs.features.tickets.priority.low")}</span>, t("docs.features.tickets.priority.lowDesc")] },
+            { cells: [docsLabel(t("docs.features.tickets.priority.none")), t("docs.features.tickets.priority.noneDesc")] },
+          ]}
+        />
       </section>
 
       {/* Pod Integration */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.tickets.podIntegration.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -161,14 +117,14 @@ export default function TicketsPage() {
 
       {/* Git Integration */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.tickets.gitIntegration.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.features.tickets.gitIntegration.description")}
         </p>
         <div className="space-y-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.tickets.gitIntegration.commits")}
             </h3>
@@ -176,7 +132,7 @@ export default function TicketsPage() {
               {t("docs.features.tickets.gitIntegration.commitsDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.tickets.gitIntegration.mrs")}
             </h3>
@@ -189,7 +145,7 @@ export default function TicketsPage() {
 
       {/* Estimation */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.tickets.storyPoints.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">

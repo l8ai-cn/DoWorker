@@ -46,9 +46,9 @@ export function MessageActions({
 
   return (
     <>
-      <div className={`absolute -top-3 right-2 items-center gap-0.5 bg-background border border-border rounded-md shadow-sm z-10 px-0.5 ${menuOpen ? "flex" : "hidden group-hover/msg:flex"}`}>
+      <div className={`absolute -top-3 right-2 items-center gap-0.5 surface-card shadow-sm z-10 px-0.5 ${menuOpen ? "flex" : "hidden group-hover/msg:flex"}`}>
         <Button variant="ghost" size="icon" className="h-6 w-6" aria-label={t("copyMessage")} onClick={handleCopy}>
-          {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+          {copied ? <Check className="w-3 h-3 text-success" /> : <Copy className="w-3 h-3" />}
         </Button>
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>

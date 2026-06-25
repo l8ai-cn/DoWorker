@@ -146,7 +146,7 @@ func (r *Runner) recoverSingleSession(state *poddaemon.PodDaemonState) (*Pod, er
 	pod.IO = ptyIO
 
 	// Wire PodRelay for mode-specific relay behavior
-	pod.Relay = NewPTYPodRelay(podKey, pod.IO, comps, r.localServer)
+	pod.Relay = NewPTYPodRelay(podKey, pod.IO, comps)
 
 	// Set exit and error handlers via PodIO
 	pod.IO.SetExitHandler(r.messageHandler.createExitHandler(podKey))

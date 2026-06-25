@@ -63,7 +63,7 @@ export default function TicketPodPanel({
 
   if (!ready) {
     return (
-      <div className="p-4 border border-border rounded-lg">
+      <div className="p-4 surface-card">
         <div className="flex items-center justify-center py-8">
           <Spinner size="sm" />
         </div>
@@ -96,7 +96,7 @@ export default function TicketPodPanel({
               AgentPods
             </span>
             {activePods.length > 0 && (
-              <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+              <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-success-bg text-success">
                 {activePods.length} {t("tickets.podPanel.active")}
               </span>
             )}
@@ -119,7 +119,7 @@ export default function TicketPodPanel({
 
           {inactivePods.length > 0 && (
             <details className="group">
-              <summary className="px-2.5 py-1.5 text-xs text-muted-foreground cursor-pointer hover:bg-muted/50 rounded-md">
+              <summary className="px-2.5 py-1.5 text-xs text-muted-foreground cursor-pointer motion-interactive hover:bg-surface-muted rounded-md">
                 {t("tickets.podPanel.previousPods", { count: inactivePods.length })}
               </summary>
               <div className="mt-1 space-y-1">
@@ -165,18 +165,18 @@ function PodItem({ pod }: PodItemProps) {
   return (
     <div
       className={`px-2.5 py-1.5 rounded-md flex items-center gap-2 group transition-colors ${
-        isActive ? "hover:bg-green-50/50 dark:hover:bg-green-900/10" : "hover:bg-muted/50"
+        isActive ? "hover:bg-success-bg/50" : "motion-interactive hover:bg-surface-muted"
       }`}
     >
       <div
         className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
           pod.status === "running"
-            ? "bg-green-500 animate-pulse"
+            ? "bg-success animate-pulse"
             : pod.status === "initializing"
-            ? "bg-yellow-500 animate-pulse"
+            ? "bg-warning animate-pulse"
             : pod.status === "failed"
-            ? "bg-red-500"
-            : "bg-gray-400"
+            ? "bg-danger"
+            : "bg-muted-foreground"
         }`}
       />
 

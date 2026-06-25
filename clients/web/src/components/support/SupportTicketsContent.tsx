@@ -108,7 +108,7 @@ export function SupportTicketsContent({ variant = "wide" }: SupportTicketsConten
           Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="h-20 animate-pulse rounded-lg border border-border bg-muted/30"
+              className="h-20 animate-pulse rounded-lg surface-card bg-muted/30"
             />
           ))
         ) : error ? (
@@ -197,7 +197,7 @@ function TicketCard({
   return (
     <button
       onClick={onClick}
-      className="w-full rounded-lg border border-border bg-card p-4 text-left hover:border-primary/30 transition-colors"
+      className="w-full surface-card-interactive p-4 text-left motion-interactive pressable hover:bg-surface-muted"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">

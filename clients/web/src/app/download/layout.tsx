@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Download AgentsMesh Desktop & Runner",
+  title: "Download AgentsMesh Runner",
   description:
-    "Download AgentsMesh — the AI agent workforce platform. Native desktop apps for macOS, Windows, and Linux, plus the self-hosted Runner CLI.",
+    "Download the AgentsMesh self-hosted Runner CLI for macOS, Windows, and Linux.",
   alternates: {
     canonical: "https://agentsmesh.ai/download",
   },
   openGraph: {
     title: "Download AgentsMesh",
     description:
-      "Native desktop apps for macOS, Windows, and Linux. Plus the self-hosted Runner that keeps your agents on your infrastructure.",
+      "Download the self-hosted Runner that keeps your agents on your infrastructure.",
     url: "https://agentsmesh.ai/download",
   },
 };

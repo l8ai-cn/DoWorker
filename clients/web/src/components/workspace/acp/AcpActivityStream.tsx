@@ -128,7 +128,7 @@ function UserInstruction({ text }: { text: string }) {
       <span
         className={
           isSlashCommand
-            ? "text-blue-500 dark:text-blue-400 text-sm font-mono"
+            ? "text-info text-sm font-mono"
             : "text-muted-foreground text-sm whitespace-pre-wrap"
         }
       >
@@ -181,8 +181,8 @@ function LogEntry({ log }: { log: AcpLog }) {
     <div
       className={`flex items-start gap-2 py-1 px-2 rounded text-xs ${
         isError
-          ? "bg-red-500/10 text-red-600 dark:text-red-400"
-          : "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400"
+          ? "bg-danger-bg text-danger"
+          : "bg-warning-bg text-warning"
       }`}
     >
       {isError ? (

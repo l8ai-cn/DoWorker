@@ -164,8 +164,7 @@ impl ApiClient {
 //
 // Each method below has no Connect-RPC equivalent and is preserved as REST:
 //   - list_runner_pods: proto.pod.v1.ListPods has no runner_id filter yet;
-//     runner-detail view (web + desktop) still drives the per-runner list
-//     via this REST path.
+//     runner-detail view still drives the per-runner list via this REST path.
 //   - get_runner_auth_status / authorize_runner: registration bootstrap
 //     (Tailscale-style interactive auth) lives outside the org-scoped
 //     RunnerService — REST stays until the runner-mgmt RPCs land.
@@ -212,9 +211,9 @@ impl ApiClient {
         })
     }
 
-    // Proto-bytes flavour of get_runner_auth_status — used by the wasm/NAPI
-    // bridge so the renderer can issue/decode wire-aligned proto rather than
-    // the legacy serde DTO. Backend path is identical to the JSON helper above.
+    // Proto-bytes flavour of get_runner_auth_status so the renderer can
+    // issue/decode wire-aligned proto rather than the legacy serde DTO.
+    // Backend path is identical to the JSON helper above.
     pub async fn get_runner_auth_status_connect(
         &self,
         req: &runner_proto::GetRunnerAuthStatusRequest,

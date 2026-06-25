@@ -1,9 +1,5 @@
-import type {
-  DesktopAsset,
-  ReleaseSummary,
-  RunnerAsset,
-} from "./asset-types";
-import { classifyDesktop, classifyRunner } from "./asset-classifier";
+import type { ReleaseSummary, RunnerAsset } from "./asset-types";
+import { classifyRunner } from "./asset-classifier";
 
 const GITHUB_API = "https://api.github.com/repos/AgentsMesh/AgentsMesh/releases/latest";
 export const RELEASES_PAGE_URL = "https://github.com/AgentsMesh/AgentsMesh/releases";
@@ -44,7 +40,6 @@ export async function fetchLatestRelease(): Promise<ReleaseSummary | null> {
     });
     if (!res.ok) return null;
     const data: GithubRelease = await res.json();
-    const desktop: DesktopAsset[] = [];
     const runner: RunnerAsset[] = [];
     let checksumsUrl: string | undefined;
 
@@ -54,16 +49,10 @@ export async function fetchLatestRelease(): Promise<ReleaseSummary | null> {
         checksumsUrl = a.browser_download_url;
         continue;
       }
-      const desktopAsset = classifyDesktop(raw);
-      if (desktopAsset) {
-        desktop.push(desktopAsset);
-        continue;
-      }
       const runnerAsset = classifyRunner(raw);
       if (runnerAsset) runner.push(runnerAsset);
     }
 
-    desktop.sort(byPlatformArch);
     runner.sort(byPlatformArch);
 
     return {
@@ -71,7 +60,6 @@ export async function fetchLatestRelease(): Promise<ReleaseSummary | null> {
       tag: data.tag_name,
       htmlUrl: data.html_url,
       publishedAt: data.published_at,
-      desktop,
       runner,
       checksumsUrl,
     };

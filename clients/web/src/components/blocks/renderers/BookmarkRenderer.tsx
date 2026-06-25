@@ -78,7 +78,7 @@ export function BookmarkRenderer({ block }: { block: Block }) {
         <button
           type="button"
           onClick={onPasteUrl}
-          className="flex w-full items-center gap-2 rounded-md border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground hover:bg-muted/50"
+          className="flex w-full items-center gap-2 rounded-md border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground motion-interactive hover:bg-surface-muted"
         >
           <Link2 className="h-4 w-4" />
           <span>Paste a URL to bookmark</span>

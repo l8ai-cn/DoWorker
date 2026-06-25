@@ -132,9 +132,9 @@ export function SettingsSidebarContent({ className }: SettingsSidebarContentProp
         <div key={tab.id}>
           <button
             className={cn(
-              "w-full flex items-center gap-2 pr-3 py-1.5 text-left transition-colors rounded-md",
+              "nav-row pressable pr-3",
               paddingLeft,
-              isChildActive ? "text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              isChildActive ? "text-foreground" : "nav-row-idle",
             )}
             onClick={() => toggleSubSection(tab.id)}
           >
@@ -149,7 +149,7 @@ export function SettingsSidebarContent({ className }: SettingsSidebarContentProp
             </span>
           </button>
           {isSubSectionExpanded && (
-            <div className="ml-4 border-l border-border">
+            <div className="ml-4 pl-1 space-y-0.5">
               {tab.children?.map((child) => renderTabItem(scope, child, depth + 1))}
             </div>
           )}
@@ -161,9 +161,9 @@ export function SettingsSidebarContent({ className }: SettingsSidebarContentProp
       <button
         key={tab.id}
         className={cn(
-          "w-full flex items-center gap-2 pr-3 py-1.5 text-left transition-colors rounded-md",
+          "nav-row pressable pr-3",
           paddingLeft,
-          isActive ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+          isActive ? "nav-row-active" : "nav-row-idle",
         )}
         onClick={() => navigate(scope, tab.id)}
       >
@@ -179,7 +179,7 @@ export function SettingsSidebarContent({ className }: SettingsSidebarContentProp
 
   return (
     <div className={cn("flex flex-col h-full", className)}>
-      <div role="tablist" className="flex items-center gap-1 p-2 border-b border-border">
+      <div role="tablist" className="flex items-center gap-1 p-2 bg-surface-muted/40">
         {(["personal", "organization"] as const).map((scope) => (
           <button
             key={scope}
@@ -207,7 +207,7 @@ export function SettingsSidebarContent({ className }: SettingsSidebarContentProp
       </div>
 
       {currentOrg && currentScope === "organization" && (
-        <div className="border-t border-border px-3 py-3">
+        <div className="bg-surface-muted/30 px-3 py-3 mt-auto">
           <div className="text-xs text-muted-foreground mb-1">{t("ide.sidebar.settings.currentOrg")}</div>
           <div className="text-sm font-medium truncate">{currentOrg.name}</div>
           <div className="text-xs text-muted-foreground truncate">/{currentOrg.slug}</div>

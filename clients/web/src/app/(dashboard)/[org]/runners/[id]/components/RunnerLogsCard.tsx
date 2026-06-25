@@ -72,7 +72,7 @@ export function RunnerLogsCard({ runnerId, runnerStatus }: RunnerLogsCardProps) 
   const isOnline = runnerStatus === "online";
 
   return (
-    <div className="bg-card rounded-lg border border-border p-6 md:col-span-2">
+    <div className="surface-card p-6 md:col-span-2">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-medium text-foreground flex items-center">
           <FileText className="w-5 h-5 mr-2 text-muted-foreground" />
@@ -82,7 +82,7 @@ export function RunnerLogsCard({ runnerId, runnerStatus }: RunnerLogsCardProps) 
           onClick={handleUpload}
           disabled={uploading || !isOnline}
           title={!isOnline ? t("runners.logs.offlineHint") : undefined}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="motion-interactive pressable inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {uploading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -97,7 +97,7 @@ export function RunnerLogsCard({ runnerId, runnerStatus }: RunnerLogsCardProps) 
         <p className="text-sm text-muted-foreground">{t("runners.logs.noLogs")}</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border">
+          <table className="min-w-full divide-y divide-border/25">
             <thead>
               <tr>
                 <th scope="col" className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -114,9 +114,9 @@ export function RunnerLogsCard({ runnerId, runnerStatus }: RunnerLogsCardProps) 
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-border/25">
               {logs.map((log) => (
-                <tr key={log.id}>
+                <tr key={log.id} className="motion-interactive hover:bg-surface-muted">
                   <td className="px-4 py-3">
                     <LogStatusBadge status={log.status} />
                   </td>
@@ -178,11 +178,11 @@ function LogStatusBadge({ status }: { status: string | undefined }) {
   const t = useTranslations();
 
   const styles: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-    collecting: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-    uploading: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-    completed: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-    failed: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    pending: "bg-warning-bg text-warning",
+    collecting: "bg-info-bg text-info",
+    uploading: "bg-info-bg text-info",
+    completed: "bg-success-bg text-success",
+    failed: "bg-danger-bg text-danger",
   };
 
   const safeStatus = status && KNOWN_STATUSES.includes(status) ? status : "unknown";

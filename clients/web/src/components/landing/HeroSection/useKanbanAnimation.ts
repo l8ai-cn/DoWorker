@@ -47,13 +47,13 @@ export function useKanbanAnimation() {
 export function getTerminalLineStyle(type: string): string {
   switch (type) {
     case "command":
-      return "text-blue-400";
+      return "text-info";
     case "output":
       return "text-muted-foreground";
     case "success":
-      return "text-green-400";
+      return "text-success";
     case "info":
-      return "text-yellow-400";
+      return "text-warning";
     default:
       return "text-muted-foreground";
   }

@@ -1,0 +1,15 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "testsupport",
+    srcs = ["fixture.go"],
+    embedsrcs = ["testdata/llm_response.jsonl"],
+    importpath = "github.com/anthropics/agentsmesh/runner/internal/agents/doagent/testsupport",
+    visibility = ["//runner/internal/agents/doagent:__pkg__"],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":testsupport",
+    visibility = ["//runner:__subpackages__"],
+)

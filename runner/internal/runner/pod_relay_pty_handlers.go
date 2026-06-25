@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
 )
 
 func (r *PTYPodRelay) inputHandler() func([]byte) {
@@ -41,28 +40,6 @@ func (r *PTYPodRelay) resizeHandler() func([]byte) {
 			log.Error("Failed to resize from relay", "pod_key", podKey, "error", err)
 		}
 	}
-}
-
-func (r *PTYPodRelay) installLocalHandlers() {
-	if r.localServer == nil {
-		return
-	}
-	r.localServer.SetMessageHandler(r.podKey, relay.MsgTypeInput, r.inputHandler())
-	r.localServer.SetMessageHandler(r.podKey, relay.MsgTypeResize, r.resizeHandler())
-	r.localServer.SetMessageHandler(r.podKey, relay.MsgTypeSnapshotRequest, func(_ []byte) {
-		r.sendSnapshotToLocal()
-	})
-}
-
-func (r *PTYPodRelay) sendSnapshotToLocal() {
-	if r.localServer == nil {
-		return
-	}
-	data := r.materializeSnapshot()
-	if data == nil {
-		return
-	}
-	_ = r.localServer.Send(r.podKey, relay.MsgTypeSnapshot, data)
 }
 
 // materializeSnapshot returns a JSON-encoded VT snapshot, falling back to the

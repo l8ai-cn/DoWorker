@@ -63,7 +63,7 @@ export function BlockChrome({
             "group relative rounded",
             selected && "bg-primary/10 ring-2 ring-primary/60",
             isCommentActive && "ring-2 ring-primary/40",
-            isPrivate && "bg-amber-50/60",
+            isPrivate && "bg-warning-bg/60",
             className,
           )}
           onClickCapture={handleClickCapture}
@@ -71,7 +71,7 @@ export function BlockChrome({
           <button
             type="button"
             aria-label="Drag to reorder"
-            className="pointer-events-none absolute -left-5 top-0.5 cursor-grab rounded p-0.5 text-muted-foreground opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 hover:bg-accent hover:text-foreground active:cursor-grabbing"
+            className="pointer-events-none absolute -left-5 top-0.5 cursor-grab rounded p-0.5 text-muted-foreground opacity-0 motion-interactive group-hover:pointer-events-auto group-hover:opacity-100 hover:bg-accent hover:text-foreground active:cursor-grabbing"
             {...(dragListeners ?? {})}
           >
             <GripVertical className="h-3.5 w-3.5" />
@@ -84,11 +84,11 @@ export function BlockChrome({
               onClose={() => setActiveComment(null)}
             />
           )}
-          <div className="pointer-events-none absolute -right-1 top-0 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100">
+          <div className="pointer-events-none absolute -right-1 top-0 flex items-center gap-0.5 opacity-0 motion-interactive group-hover:pointer-events-auto group-hover:opacity-100">
             {isPrivate && (
               <span
                 title="Private — only you and explicitly-allowed users can see this block"
-                className="rounded bg-amber-100 p-1 text-amber-700"
+                className="rounded bg-warning-bg p-1 text-warning"
               >
                 <Lock className="h-3 w-3" />
               </span>
@@ -110,7 +110,7 @@ export function BlockChrome({
         </div>
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
-        <ContextMenu.Content className="z-50 min-w-[160px] rounded-md border border-border bg-popover p-1 shadow-md">
+        <ContextMenu.Content className="z-50 min-w-[160px] rounded-md surface-card bg-popover p-1 shadow-md">
           <ContextMenuItem onSelect={handleToggleComment}>
             <MessageSquare className="mr-2 h-3.5 w-3.5" /> Comment
           </ContextMenuItem>
@@ -147,7 +147,7 @@ function ToolbarButton({
         e.stopPropagation();
         onClick?.(e);
       }}
-      className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+      className="rounded p-1 text-muted-foreground motion-interactive hover:bg-accent hover:text-foreground"
       {...rest}
     >
       {children}

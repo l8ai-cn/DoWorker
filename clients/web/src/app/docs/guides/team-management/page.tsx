@@ -18,7 +18,7 @@ export default function TeamManagementPage() {
 
       {/* Overview */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.guides.teamManagement.overview.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -28,13 +28,13 @@ export default function TeamManagementPage() {
 
       {/* Creating an Organization */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.guides.teamManagement.createOrg.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.guides.teamManagement.createOrg.description")}
         </p>
-        <div className="border border-border rounded-lg p-6">
+        <div className="surface-card p-6">
           <ol className="list-decimal list-inside text-muted-foreground space-y-3">
             <li>{t("docs.guides.teamManagement.createOrg.step1")}</li>
             <li>{t("docs.guides.teamManagement.createOrg.step2")}</li>
@@ -46,13 +46,13 @@ export default function TeamManagementPage() {
 
       {/* Inviting Members */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.guides.teamManagement.inviteMembers.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.guides.teamManagement.inviteMembers.description")}
         </p>
-        <div className="border border-border rounded-lg p-6">
+        <div className="surface-card p-6">
           <ol className="list-decimal list-inside text-muted-foreground space-y-3">
             <li>{t("docs.guides.teamManagement.inviteMembers.step1")}</li>
             <li>{t("docs.guides.teamManagement.inviteMembers.step2")}</li>
@@ -60,7 +60,7 @@ export default function TeamManagementPage() {
             <li>{t("docs.guides.teamManagement.inviteMembers.step4")}</li>
             <li>{t("docs.guides.teamManagement.inviteMembers.step5")}</li>
           </ol>
-          <div className="bg-muted rounded-lg p-4 mt-4">
+          <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 mt-4">
             <p className="text-sm text-muted-foreground">
               {t("docs.guides.teamManagement.inviteMembers.note")}
             </p>
@@ -70,14 +70,14 @@ export default function TeamManagementPage() {
 
       {/* Roles & Permissions */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.guides.teamManagement.roles.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.guides.teamManagement.roles.description")}
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.guides.teamManagement.roles.ownerTitle")}
             </h3>
@@ -85,7 +85,7 @@ export default function TeamManagementPage() {
               {t("docs.guides.teamManagement.roles.ownerDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.guides.teamManagement.roles.adminTitle")}
             </h3>
@@ -93,7 +93,7 @@ export default function TeamManagementPage() {
               {t("docs.guides.teamManagement.roles.adminDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.guides.teamManagement.roles.memberTitle")}
             </h3>
@@ -106,13 +106,13 @@ export default function TeamManagementPage() {
 
       {/* Organization Settings */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.guides.teamManagement.orgSettings.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.guides.teamManagement.orgSettings.description")}
         </p>
-        <div className="border border-border rounded-lg p-6">
+        <div className="surface-card p-6">
           <ul className="list-disc list-inside text-muted-foreground space-y-3">
             <li>{t("docs.guides.teamManagement.orgSettings.general")}</li>
             <li>{t("docs.guides.teamManagement.orgSettings.members")}</li>

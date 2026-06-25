@@ -117,7 +117,7 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 	pod.IO = NewACPPodIO(acpClient, podKey)
 	pod.Relay = NewACPPodRelay(podKey, acpClient, func(payload []byte) {
 		h.handleAcpRelayCommand(pod, payload)
-	}, h.runner.GetLocalRelayServer())
+	})
 
 	// Start the ACP client (launches subprocess, performs initialize handshake)
 	if err := acpClient.Start(); err != nil {

@@ -6,9 +6,6 @@ import (
 
 func (cm *RunnerConnectionManager) HandleHeartbeat(runnerID int64, data *runnerv1.HeartbeatData) {
 	cm.UpdateHeartbeat(runnerID)
-	if conn := cm.GetConnection(runnerID); conn != nil {
-		conn.SetLocalRelayURL(data.GetLocalRelayUrl())
-	}
 	if cm.onHeartbeat != nil {
 		cm.onHeartbeat(runnerID, data)
 	}

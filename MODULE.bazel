@@ -7,8 +7,7 @@
 #   Phase 2: rules_rust + crate_universe     ← Rust Core crates
 #   Phase 3: rules_rust_wasm_bindgen         ← Rust→WASM
 #   Phase 4: aspect_rules_js + aspect_rules_ts + rules_nodejs  ← TS/pnpm
-#   Phase 5: rules_swift + rules_apple (forked) + rules_swift_package_manager
-#            + rules_xcodeproj                ← iOS
+#   Phase 5: removed mobile platform rules from the root module graph.
 #   Phase 6: rules_oci + rules_pkg            ← OCI images + on-prem bundle
 #
 # See `.claude/plans/snuggly-spinning-dewdrop.md` for the full migration plan.
@@ -134,15 +133,7 @@ bazel_dep(name = "rules_rust", version = "0.70.0")
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
     edition = "2021",
-    # iOS triples register a per-target rustc/std slice so the
-    # build_defs/ios:rust_xcframework macro can transition into them
-    # without `rustup target add`. macOS host runners carry the iOS SDK;
-    # Linux workers resolve to the host toolchain only and skip the iOS
-    # jobs via target_compatible_with.
     extra_target_triples = [
-        "aarch64-apple-ios",
-        "aarch64-apple-ios-sim",
-        "x86_64-apple-ios",
         # Browser target — `clients/core/crates/wasm:wasm_pkg` compiles
         # the cdylib here before wasm-bindgen rewrites it into the ESM
         # `pkg/` directory consumed by `clients/web` via the
@@ -175,7 +166,7 @@ crate.spec(
     version = "1",
 )
 
-# Async runtime — iOS-compatible subset (no process/signal/io-std).
+# Async runtime.
 crate.spec(
     features = [
         "rt-multi-thread",
@@ -195,7 +186,7 @@ crate.spec(
     version = "0.4",
 )
 
-# HTTP + TLS (rustls to avoid OpenSSL linking on iOS).
+# HTTP + TLS.
 crate.spec(
     default_features = False,
     features = [
@@ -245,16 +236,6 @@ crate.spec(
     version = "1",
 )
 
-# FFI — UniFFI generates Swift/Kotlin bindings.
-crate.spec(
-    features = [
-        "cli",
-        "tokio",
-    ],
-    package = "uniffi",
-    version = "0.29",
-)
-
 # Logging.
 crate.spec(
     package = "tracing",
@@ -290,12 +271,6 @@ crate.spec(
 crate.spec(
     package = "rand",
     version = "0.9",
-)
-
-# Cross-platform userspace directories (used by node-bridge / desktop storage).
-crate.spec(
-    package = "dirs",
-    version = "6",
 )
 crate.spec(
     package = "sha2",
@@ -339,27 +314,6 @@ crate.spec(
     features = ["bundled"],
     package = "rusqlite",
     version = "0.32",
-)
-
-# N-API bindings for the Electron desktop native addon (Phase 3c).
-crate.spec(
-    default_features = False,
-    features = [
-        "napi9",
-        "async",
-        "tokio_rt",
-        "serde-json",
-    ],
-    package = "napi",
-    version = "3",
-)
-crate.spec(
-    package = "napi-derive",
-    version = "3",
-)
-crate.spec(
-    package = "napi-build",
-    version = "2",
 )
 
 # URL encoding (used by api-client for query params).
@@ -455,13 +409,10 @@ crate.spec(
 crate.from_specs(
     supported_platform_triples = [
         "aarch64-apple-darwin",
-        "aarch64-apple-ios",
-        "aarch64-apple-ios-sim",
         "aarch64-unknown-linux-gnu",
         "wasm32-unknown-unknown",
         "wasm32-wasip1",
         "x86_64-apple-darwin",
-        "x86_64-apple-ios",
         "x86_64-pc-windows-msvc",
         "x86_64-unknown-linux-gnu",
         "x86_64-unknown-nixos-gnu",
@@ -487,7 +438,7 @@ bazel_dep(name = "rules_rust_prost", version = "0.70.0")
 register_toolchains("//tools/rust_prost_toolchain:prost_toolchain")
 
 ###############################################################################
-# Phase 4 — TS / pnpm frontends (Next.js web, web-admin; Electron desktop)
+# Phase 4 — TS / pnpm frontends (Next.js web, web-admin)
 ###############################################################################
 
 bazel_dep(name = "aspect_rules_js", version = "2.9.2")
@@ -517,8 +468,7 @@ rules_ts_ext.deps(
 use_repo(rules_ts_ext, "npm_typescript")
 
 # Node toolchain pin — this is the Node that Bazel actions run against
-# (test runners, Next.js build), not necessarily the Node the Electron
-# desktop renderer ships with. Keep the major in sync with CI images.
+# (test runners, Next.js build). Keep the major in sync with CI images.
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 node.toolchain(node_version = "22.11.0")
 use_repo(node, "nodejs_toolchains")
@@ -567,50 +517,6 @@ npm.npm_translate_lock(
     verify_node_modules_ignored = "//:.bazelignore",
 )
 use_repo(npm, "npm")
-
-###############################################################################
-# Phase 5 — Swift / iOS
-###############################################################################
-
-bazel_dep(name = "rules_xcodeproj", version = "3.3.0")
-bazel_dep(name = "apple_support", version = "1.22.0", repo_name = "build_bazel_apple_support")
-bazel_dep(name = "rules_swift", version = "3.0.2", repo_name = "build_bazel_rules_swift")
-bazel_dep(name = "rules_apple", version = "4.1.1", repo_name = "build_bazel_rules_apple")
-
-# `rules_apple` upstream doesn't yet support `rules_swift@3.0.2` (needed for
-# Swift 6 concurrency on iOS 17). Stone maintains a fork pinned to the same
-# SHA as the AIO project so we don't multiply the maintenance surface.
-archive_override(
-    module_name = "rules_apple",
-    # CDN-cached tarball at a concrete commit. Previously used
-    # git_override(branch="master"), which re-ran `git fetch` on every
-    # build — GitHub's repo endpoint has returned sporadic HTTP 500s
-    # for the fork and tripped random CI jobs. archive_override keeps
-    # the download out of the git protocol entirely.
-    strip_prefix = "rules_apple-44d64ce8c540b60b72f17e87a61099c20d36be6d",
-    urls = ["https://github.com/yishuiliunian/rules_apple/archive/44d64ce8c540b60b72f17e87a61099c20d36be6d.tar.gz"],
-)
-
-# Swift Package Manager bridge for external deps (TCA, SwiftTerm, etc.).
-bazel_dep(name = "rules_swift_package_manager", version = "1.10.0")
-
-swift_deps = use_extension(
-    "@rules_swift_package_manager//:extensions.bzl",
-    "swift_deps",
-)
-swift_deps.from_package(
-    resolved = "//third_party/swift:Package.resolved",
-    swift = "//third_party/swift:Package.swift",
-)
-use_repo(
-    swift_deps,
-    "swift_package",
-    "swiftpkg_swift_composable_architecture",
-    "swiftpkg_swift_navigation",
-    "swiftpkg_swiftterm",
-)
-
-bazel_dep(name = "swiftlint", version = "0.62.2", repo_name = "SwiftLint")
 
 ###############################################################################
 # Phase 6 — Hermetic CLI tooling (golangci-lint, etc.)

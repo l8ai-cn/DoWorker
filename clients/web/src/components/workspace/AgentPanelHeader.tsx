@@ -43,15 +43,15 @@ export function AgentPanelHeader({
   const statusColor = (() => {
     switch (sessionState) {
       case "processing":
-        return "text-blue-500 dark:text-blue-400 animate-pulse";
+        return "text-info animate-pulse";
       case "waiting_permission":
-        return "text-amber-500 dark:text-amber-400 animate-pulse";
+        return "text-warning animate-pulse";
       case "initializing":
-        return "text-blue-300 dark:text-blue-300 animate-pulse";
+        return "text-info animate-pulse";
       case "stopped":
         return "text-muted-foreground";
       default:
-        return "text-green-500 dark:text-green-400";
+        return "text-success";
     }
   })();
 
@@ -103,7 +103,7 @@ export function AgentPanelHeader({
             onClick={onClose}
             title="Close"
             icon={<X className="w-3 h-3" />}
-            hoverClass="hover:text-red-500 dark:hover:text-red-400"
+            hoverClass="hover:text-danger"
           />
         )}
       </div>

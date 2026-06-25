@@ -46,6 +46,14 @@ export interface ConfigField {
 export interface ConfigSchema {
   fields: ConfigField[];
   credential_fields?: CredentialField[];
+  config_files?: ConfigFile[];
+}
+
+export interface ConfigFile {
+  id: string;
+  path_env?: string;
+  format: string;
+  path_hint?: string;
 }
 
 export interface CredentialField {

@@ -14,6 +14,7 @@ var (
 	ErrChannelNotFound  = errors.New("channel not found")
 	ErrChannelArchived  = errors.New("channel is archived")
 	ErrDuplicateName    = errors.New("channel name already exists")
+	ErrInvalidName      = errors.New("invalid channel name")
 	ErrMessageNotFound  = errors.New("message not found")
 	ErrNotMessageSender = errors.New("only the message sender can perform this action")
 	ErrEmptyContent     = errors.New("message content cannot be empty")
@@ -81,7 +82,8 @@ func (s *Service) CreateChannel(ctx context.Context, req *CreateChannelRequest) 
 
 	slug, err := s.EnsureUniqueSlug(ctx, req.OrganizationID, req.Name)
 	if err != nil {
-		slog.WarnContext(ctx, "channel slug derivation failed; leaving slug NULL", "org_id", req.OrganizationID, "name", req.Name, "error", err)
+		slog.WarnContext(ctx, "channel slug derivation failed", "org_id", req.OrganizationID, "name", req.Name, "error", err)
+		return nil, ErrInvalidName
 	}
 
 	ch := &channel.Channel{

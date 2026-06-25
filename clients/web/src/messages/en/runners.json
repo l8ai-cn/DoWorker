@@ -141,6 +141,7 @@
       "allStatus": "All Status",
       "refreshSandbox": "Refresh Sandbox Status",
       "podKey": "Pod Key",
+      "agentStatus": "Agent Status",
       "status": "Status",
       "sandbox": "Sandbox",
       "branch": "Branch",
@@ -328,6 +329,14 @@
             "auto": "Auto (Smart Approval)",
             "bypass": "Bypass (Auto Approve All)"
           }
+        }
+      }
+    },
+    "do-agent": {
+      "fields": {
+        "model": {
+          "label": "Model",
+          "description": "Override the default model (provider/model, e.g. deepseek/deepseek-v4-pro). Leave empty to use settings.json default."
         }
       }
     }

@@ -25,7 +25,7 @@ export function PlatformRegistriesList({
   getSyncStatusVariant,
 }: PlatformRegistriesListProps) {
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <div className="mb-4">
         <h2 className="text-lg font-semibold">{t("extensions.skillRegistries.platformSources")}</h2>
         <p className="text-sm text-muted-foreground">
@@ -48,7 +48,7 @@ export function PlatformRegistriesList({
             return (
               <div
                 key={registry.id}
-                className={`border border-border rounded-lg p-4 flex items-center justify-between gap-4 ${
+                className={`surface-card p-4 flex items-center justify-between gap-4 ${
                   isDisabled ? "opacity-60" : ""
                 }`}
               >

@@ -36,7 +36,7 @@ export function WebhookSettings({ repository, onUpdate }: WebhookSettingsProps) 
 
   if (state === "loading") {
     return (
-      <div className="p-4 border border-border rounded-lg">
+      <div className="p-4 surface-card">
         <div className="flex items-center gap-2">
           <RefreshCw className="h-4 w-4 animate-spin" />
           <span className="text-sm text-muted-foreground">{t("loading")}</span>
@@ -46,7 +46,7 @@ export function WebhookSettings({ repository, onUpdate }: WebhookSettingsProps) 
   }
 
   return (
-    <div className="p-4 border border-border rounded-lg space-y-4">
+    <div className="p-4 surface-card space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-medium">{t("title")}</h3>
         <WebhookStatusBadge state={state} />

@@ -1,0 +1,42 @@
+{
+  "automation": {
+    "title": "自动化",
+    "subtitle": "扫描外部任务源并自动调度 Agent 执行。",
+    "newProject": "新建项目",
+    "empty": {
+      "title": "暂无自动化项目",
+      "description": "创建项目以扫描仓库 Issue，并将 Agent 调度到已认领的任务。"
+    },
+    "status": {
+      "enabled": "运行中",
+      "paused": "已暂停",
+      "pending": "等待中",
+      "running": "执行中",
+      "succeeded": "成功",
+      "failed": "失败"
+    },
+    "actions": {
+      "runNow": "立即运行",
+      "refresh": "刷新",
+      "pause": "暂停",
+      "resume": "恢复",
+      "delete": "删除"
+    },
+    "board": {
+      "empty": "暂无执行记录"
+    },
+    "create": {
+      "title": "新建自动化项目",
+      "description": "绑定仓库并配置任务认领规则。",
+      "name": "名称",
+      "namePlaceholder": "例如：分拣机器人",
+      "repository": "仓库",
+      "repositoryPlaceholder": "选择仓库",
+      "labels": "标签过滤",
+      "labelsPlaceholder": "逗号分隔的标签",
+      "interval": "扫描间隔（秒）",
+      "cancel": "取消",
+      "submit": "创建"
+    }
+  }
+}

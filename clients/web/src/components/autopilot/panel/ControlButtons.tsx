@@ -77,7 +77,7 @@ export function ControlButtons({ autopilotController }: ControlButtonsProps) {
         <Button
           size="sm"
           variant="outline"
-          className="h-7 px-2 text-xs text-red-500 hover:text-red-600 hover:bg-red-500/10"
+          className="h-7 px-2 text-xs text-danger hover:text-danger/80 hover:bg-danger/10"
           onClick={() => stopAutopilotController(autopilotController.autopilot_controller_key)}
         >
           <Square className="h-3 w-3 mr-1" />

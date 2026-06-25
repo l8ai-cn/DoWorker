@@ -64,7 +64,7 @@ test.describe("Cascade: org role revoke → admin ops denied immediately", () =>
     });
 
     // dev owns dev-org — use it to drive the role-change flow.
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const ownerCc = await api.connect();
 
     // Owner adds X as admin. InviteMember on org service is the AddMember

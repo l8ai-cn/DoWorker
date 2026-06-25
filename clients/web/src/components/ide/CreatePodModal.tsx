@@ -11,9 +11,13 @@ interface CreatePodModalProps {
   onClose: () => void;
   onCreated: (pod?: PodData) => void;
   ticketContext?: TicketContext;
+  initialAgentSlug?: string;
+  initialPrompt?: string;
 }
 
-export function CreatePodModal({ open, onClose, onCreated, ticketContext }: CreatePodModalProps) {
+export function CreatePodModal({
+  open, onClose, onCreated, ticketContext, initialAgentSlug, initialPrompt,
+}: CreatePodModalProps) {
   const t = useTranslations();
 
   const modalRef = useFocusTrap<HTMLDivElement>(open, onClose);
@@ -21,12 +25,14 @@ export function CreatePodModal({ open, onClose, onCreated, ticketContext }: Crea
   const formConfig: CreatePodFormConfig = useMemo(() => ({
     scenario: ticketContext ? "ticket" : "workspace",
     context: ticketContext ? { ticket: ticketContext } : undefined,
+    initialAgentSlug,
+    initialPrompt,
     onSuccess: (pod) => {
       onCreated(pod);
       onClose();
     },
     onCancel: onClose,
-  }), [ticketContext, onCreated, onClose]);
+  }), [ticketContext, initialAgentSlug, initialPrompt, onCreated, onClose]);
 
   if (!open) return null;
 

@@ -10,7 +10,7 @@ import {
  * Extract the error code from an error.
  *
  * Handles both the legacy web `ApiError` class (direct HTTP calls) and the new
- * Rust `ServiceError` wire format (WASM / node-bridge). Callers don't need to
+ * Rust `ServiceError` wire format (WASM). Callers don't need to
  * know which transport raised the error.
  */
 export function getApiErrorCode(error: unknown): string | undefined {

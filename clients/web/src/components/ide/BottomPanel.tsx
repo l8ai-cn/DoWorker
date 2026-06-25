@@ -68,16 +68,16 @@ export function BottomPanel({ className }: { className?: string }) {
     <>
       {TAB_IDS.map((tabId) => (
         <button key={tabId} className={cn(
-          "flex items-center gap-1.5 px-2 py-1 text-xs rounded transition-colors relative",
-          bottomPanelTab === tabId ? (collapsed ? "text-foreground" : "text-foreground bg-muted") : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-          tabId === "autopilot" && activeAutopilot && bottomPanelTab !== tabId && "text-green-500"
+          "motion-interactive pressable flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md relative",
+          bottomPanelTab === tabId ? (collapsed ? "text-primary bg-accent" : "text-primary bg-accent shadow-[var(--shadow-soft)]") : "text-muted-foreground hover:text-foreground hover:bg-surface-muted",
+          tabId === "autopilot" && activeAutopilot && bottomPanelTab !== tabId && "text-success"
         )} onClick={() => handleTabClick(tabId, collapsed)}>
           {TAB_ICONS[tabId]}
           <span>{t(`ide.bottomPanel.${tabId}`)}</span>
           {tabId === "autopilot" && activeAutopilot && (
             <span className="relative flex h-2 w-2 ml-1">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
             </span>
           )}
         </button>
@@ -87,7 +87,7 @@ export function BottomPanel({ className }: { className?: string }) {
 
   if (!bottomPanelOpen) {
     return (
-      <div className={cn("h-8 bg-background border-t border-border flex items-center px-2 gap-2", className)}>
+      <div className={cn("h-8 bg-surface panel-lift flex items-center px-2 gap-2", className)}>
         {renderTabButtons(true)}
         <div className="flex-1" />
         <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={toggleBottomPanel}><ChevronUp className="w-4 h-4" /></Button>
@@ -96,9 +96,11 @@ export function BottomPanel({ className }: { className?: string }) {
   }
 
   return (
-    <div className={cn("bg-background border-t border-border flex flex-col", className)} style={{ height: bottomPanelHeight }}>
-      <div ref={resizeRef} className={cn("h-1 cursor-row-resize hover:bg-primary/50 transition-colors", isResizing && "bg-primary/50")} onMouseDown={() => setIsResizing(true)} />
-      <div className="h-8 flex items-center px-2 gap-2 border-b border-border">
+    <div className={cn("bg-surface panel-lift flex flex-col", className)} style={{ height: bottomPanelHeight }}>
+      <div ref={resizeRef} className={cn("group h-2 cursor-row-resize flex items-center justify-center", isResizing && "bg-primary/10")} onMouseDown={() => setIsResizing(true)}>
+        <div className={cn("h-0.5 w-10 rounded-full bg-border/0 group-hover:bg-primary/35 transition-colors", isResizing && "bg-primary/50")} />
+      </div>
+      <div className="h-8 flex items-center px-2 gap-2 bg-surface-muted/40">
         {renderTabButtons()}
         <div className="flex-1" />
         <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={toggleBottomPanel}><ChevronDown className="w-4 h-4" /></Button>

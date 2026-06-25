@@ -194,7 +194,7 @@ export function CreateTicketDialog({
                   ))}
                 </div>
               )}
-              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-input px-3 py-2 text-sm text-muted-foreground hover:bg-muted/50 transition-colors">
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-input px-3 py-2 text-sm text-muted-foreground motion-interactive hover:bg-surface-muted">
                 <Upload className="h-4 w-4" />
                 {t("support.fields.addFiles")}
                 <input

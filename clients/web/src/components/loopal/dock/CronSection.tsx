@@ -37,7 +37,7 @@ export function CronSection({ podKey, confirm }: { podKey: string; confirm: Conf
   return (
     <DockList>
       {crons.map((c) => (
-        <div key={c.id} className="rounded-md border border-border px-2 py-1.5">
+        <div key={c.id} className="surface-card px-2 py-1.5">
           <div className="flex items-center justify-between gap-2">
             <span className="min-w-0 flex-1 truncate font-mono text-xs">{c.cron_expr || "—"}</span>
             <div className="flex shrink-0 items-center gap-1.5">

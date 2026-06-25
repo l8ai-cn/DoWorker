@@ -10,7 +10,7 @@
 -- 5. 示例 Ticket
 --
 -- 普通用户密码: devpass123 (bcrypt hash)
--- 管理员密码: adminpass123 (bcrypt hash)
+-- 管理员密码: Ab123456 (bcrypt hash)
 -- Runner Token: dev-runner-token (用于 docker-compose 中的 runner 服务)
 -- =============================================================================
 
@@ -47,13 +47,13 @@ BEGIN
     -- =========================================================================
     -- 1.1 创建管理员用户
     -- =========================================================================
-    -- 密码: adminpass123
+    -- 密码: Ab123456
     -- bcrypt hash (cost=10)
     -- 使用 is_system_admin = TRUE 标记为系统管理员
 
     INSERT INTO users (email, username, name, password_hash, is_active, is_email_verified, is_system_admin)
     SELECT 'admin@agentsmesh.local', 'admin', 'System Admin',
-           '$2a$10$Juf5W26ZmMZUuGNPs2D8beEO9SKY9T1PbeX5ASTNb7E/5wY6oabX6',
+           '$2a$10$Mb2QLhBeUtDgZd09ag5GtuKnEeFq6rwMeaczrXQUdFo05Ta5okGuS',
            TRUE, TRUE, TRUE
     WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@agentsmesh.local')
     RETURNING id INTO v_admin_id;
@@ -329,7 +329,7 @@ BEGIN
     RAISE NOTICE 'Seed data created successfully!';
     RAISE NOTICE '  - User: dev@agentsmesh.local / devpass123';
     RAISE NOTICE '  - User 2: dev2@agentsmesh.local / devpass123';
-    RAISE NOTICE '  - Admin: admin@agentsmesh.local / adminpass123';
+    RAISE NOTICE '  - Admin: admin@agentsmesh.local / Ab123456';
     RAISE NOTICE '  - Organization: dev-org (dev + dev2)';
     RAISE NOTICE '  - Runner: dev-runner (node_id)';
     RAISE NOTICE '  - Git Provider: Local Gitea (http://gitea:3000)';
@@ -478,5 +478,36 @@ BEGIN
     );
 
     RAISE NOTICE '  - Loop: nightly-dependency-audit';
+
+    -- =========================================================================
+    -- 11. Platform Skill Registry (dev marketplace seed)
+    -- =========================================================================
+    -- MarketplaceWorker syncs this on backend start (requires outbound GitHub).
+    -- Change the URL in Admin → Skill Registries if sync fails.
+
+    INSERT INTO skill_registries (
+        organization_id,
+        repository_url,
+        branch,
+        source_type,
+        sync_status,
+        is_active,
+        compatible_agents
+    )
+    SELECT
+        NULL,
+        'https://github.com/anthropics/skills',
+        'main',
+        'collection',
+        'pending',
+        TRUE,
+        '["claude-code", "codex", "gemini-cli", "aider"]'::jsonb
+    WHERE NOT EXISTS (
+        SELECT 1 FROM skill_registries
+        WHERE organization_id IS NULL
+          AND repository_url = 'https://github.com/anthropics/skills'
+    );
+
+    RAISE NOTICE '  - Platform skill registry: anthropics/skills (pending sync)';
 
 END $$;

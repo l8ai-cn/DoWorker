@@ -3,6 +3,7 @@
 import { useServerUrl } from "@/hooks/useServerUrl";
 import { useTranslations } from "next-intl";
 import { DocNavigation } from "@/components/docs/DocNavigation";
+import { EnvVarsSection } from "./_sections/EnvVarsSection";
 
 export default function RunnerSetupPage() {
   const serverUrl = useServerUrl();
@@ -20,7 +21,7 @@ export default function RunnerSetupPage() {
 
       {/* Requirements */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.runners.setup.requirements.title")}
         </h2>
         <ul className="list-disc list-inside text-muted-foreground space-y-2">
@@ -34,15 +35,15 @@ export default function RunnerSetupPage() {
 
       {/* Quick Install */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.runners.setup.quickInstall.title")}
         </h2>
 
         <h3 className="text-lg font-medium mb-2 mt-6">
           {t("docs.runners.setup.quickInstall.oneLineTitle")}
         </h3>
-        <div className="bg-muted rounded-lg p-4 font-mono text-sm overflow-x-auto">
-          <pre className="text-green-500 dark:text-green-400">{`# macOS / Linux
+        <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 font-mono text-sm overflow-x-auto">
+          <pre className="text-success">{`# macOS / Linux
 curl -fsSL ${serverUrl}/install.sh | sh
 
 # Windows (PowerShell)
@@ -68,23 +69,23 @@ irm ${serverUrl}/install.ps1 | iex`}</pre>
           {t("docs.runners.setup.quickInstall.afterInstall")}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-muted rounded-lg p-4">
+          <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4">
             <h4 className="font-medium mb-2 text-sm">
               {t("docs.runners.setup.quickInstall.methodToken")}
             </h4>
             <div className="font-mono text-sm overflow-x-auto">
-              <pre className="text-green-500 dark:text-green-400">{`agentsmesh-runner register \\
+              <pre className="text-success">{`agentsmesh-runner register \\
   --server ${serverUrl} \\
   --token <YOUR_TOKEN>
 agentsmesh-runner run`}</pre>
             </div>
           </div>
-          <div className="bg-muted rounded-lg p-4">
+          <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4">
             <h4 className="font-medium mb-2 text-sm">
               {t("docs.runners.setup.quickInstall.methodLogin")}
             </h4>
             <div className="font-mono text-sm overflow-x-auto">
-              <pre className="text-green-500 dark:text-green-400">{`agentsmesh-runner login
+              <pre className="text-success">{`agentsmesh-runner login
 agentsmesh-runner run`}</pre>
             </div>
           </div>
@@ -97,11 +98,11 @@ agentsmesh-runner run`}</pre>
 
       {/* Docker Installation */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.runners.setup.docker.title")}
         </h2>
-        <div className="bg-muted rounded-lg p-4 font-mono text-sm overflow-x-auto">
-          <pre className="text-green-500 dark:text-green-400">{`# Run with Docker
+        <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 font-mono text-sm overflow-x-auto">
+          <pre className="text-success">{`# Run with Docker
 docker run -d \\
   --name agentsmesh-runner \\
   -e AGENTSMESH_TOKEN=<YOUR_TOKEN> \\
@@ -114,11 +115,11 @@ docker run -d \\
 
       {/* Docker Compose */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.runners.setup.dockerCompose.title")}
         </h2>
-        <div className="bg-muted rounded-lg p-4 font-mono text-sm overflow-x-auto">
-          <pre className="text-green-500 dark:text-green-400">{`# docker-compose.yml
+        <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 font-mono text-sm overflow-x-auto">
+          <pre className="text-success">{`# docker-compose.yml
 version: '3.8'
 services:
   runner:
@@ -138,82 +139,11 @@ volumes:
         </div>
       </section>
 
-      {/* Environment Variables */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
-          {t("docs.runners.setup.envVars.title")}
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-border rounded-lg">
-            <thead>
-              <tr className="bg-muted">
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.runners.setup.envVars.variableHeader")}
-                </th>
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.runners.setup.envVars.descriptionHeader")}
-                </th>
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.runners.setup.envVars.defaultHeader")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-muted-foreground">
-              <tr>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  AGENTSMESH_TOKEN
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.runners.setup.envVars.tokenDesc")}
-                </td>
-                <td className="p-3 border-b border-border">-</td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  AGENTSMESH_URL
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.runners.setup.envVars.urlDesc")}
-                </td>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  {serverUrl}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  MAX_CONCURRENT_PODS
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.runners.setup.envVars.maxPodsDesc")}
-                </td>
-                <td className="p-3 border-b border-border">5</td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  WORKSPACE_DIR
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.runners.setup.envVars.workspaceDirDesc")}
-                </td>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  /data/workspaces
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono text-xs">MCP_PORT</td>
-                <td className="p-3">
-                  {t("docs.runners.setup.envVars.mcpPortDesc")}
-                </td>
-                <td className="p-3">19000</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <EnvVarsSection serverUrl={serverUrl} />
 
       {/* Registration Token */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.runners.setup.registrationToken.title")}
         </h2>
         <ol className="list-decimal list-inside text-muted-foreground space-y-2">
@@ -223,7 +153,7 @@ volumes:
           <li>{t("docs.runners.setup.registrationToken.step4")}</li>
           <li>{t("docs.runners.setup.registrationToken.step5")}</li>
         </ol>
-        <div className="bg-muted rounded-lg p-4 mt-4">
+        <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 mt-4">
           <p className="text-sm text-muted-foreground">
             {t("docs.runners.setup.registrationToken.securityNote")}
           </p>
@@ -232,7 +162,7 @@ volumes:
 
       {/* Verifying Installation */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.runners.setup.verifying.title")}
         </h2>
         <p className="text-muted-foreground mb-4">
@@ -247,11 +177,11 @@ volumes:
 
       {/* Troubleshooting */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.runners.setup.troubleshooting.title")}
         </h2>
         <div className="space-y-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.runners.setup.troubleshooting.offline")}
             </h3>
@@ -259,7 +189,7 @@ volumes:
               {t("docs.runners.setup.troubleshooting.offlineDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.runners.setup.troubleshooting.podsFail")}
             </h3>
@@ -267,7 +197,7 @@ volumes:
               {t("docs.runners.setup.troubleshooting.podsFailDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.runners.setup.troubleshooting.tokenInvalid")}
             </h3>

@@ -53,7 +53,7 @@ export function APIKeySecretDialog({ rawKey, open, onOpenChange, t }: APIKeySecr
               aria-label={t("settings.apiKeys.secretDialog.copy")}
             >
               {copied ? (
-                <Check className="w-4 h-4 text-green-500" />
+                <Check className="w-4 h-4 text-success" />
               ) : (
                 <Copy className="w-4 h-4" />
               )}

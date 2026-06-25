@@ -19,7 +19,7 @@ export function handleAutopilotEvent(event: RealtimeEvent) {
       // Rust event_dispatch owns the controller/iteration/thinking mutation in
       // runtime.state (update_controller / add_iteration / update_thinking /
       // remove_controller); bump triggers the React selectors to re-read. On
-      // desktop the main-pushed autopilot snapshot mirrors the renderer caches.
+      // Web autopilot state updates the renderer caches.
       useAutopilotStore.setState((s) => ({ _tick: s._tick + 1 }));
       break;
     }

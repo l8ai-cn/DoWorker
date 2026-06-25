@@ -21,11 +21,7 @@ interface UseBrowserNotificationReturn {
 
 function getIsPWA(): boolean {
   if (typeof window === "undefined") return false;
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    // @ts-expect-error - iOS Safari specific
-    window.navigator.standalone === true
-  );
+  return window.matchMedia("(display-mode: standalone)").matches;
 }
 
 function getServiceWorkerSupported(): boolean {

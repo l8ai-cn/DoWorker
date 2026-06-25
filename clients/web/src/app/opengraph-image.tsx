@@ -10,7 +10,7 @@ export default async function Image() {
     (
       <div
         style={{
-          background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)",
+          background: "linear-gradient(135deg, #16130f 0%, #1f1b16 50%, #16130f 100%)",
           width: "100%",
           height: "100%",
           display: "flex",
@@ -29,7 +29,7 @@ export default async function Image() {
             inset: 0,
             opacity: 0.08,
             backgroundImage:
-              "linear-gradient(rgba(34,211,238,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.5) 1px, transparent 1px)",
+              "linear-gradient(rgba(255, 106, 36, 0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 106, 36, 0.35) 1px, transparent 1px)",
             backgroundSize: "60px 60px",
           }}
         />
@@ -43,7 +43,7 @@ export default async function Image() {
             width: 600,
             height: 600,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(34,211,238,0.15) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(255, 87, 1, 0.18) 0%, transparent 70%)",
           }}
         />
         {/* Logo text */}
@@ -60,18 +60,18 @@ export default async function Image() {
               width: 64,
               height: 64,
               borderRadius: 16,
-              background: "linear-gradient(135deg, #22d3ee, #0ea5e9)",
+              background: "linear-gradient(135deg, #FF6A24, #FF5701)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontSize: 32,
               fontWeight: 800,
-              color: "#0a0a0a",
+              color: "#ffffff",
             }}
           >
             AM
           </div>
-          <span style={{ fontSize: 48, fontWeight: 800, color: "#ededed" }}>
+          <span style={{ fontSize: 48, fontWeight: 800, color: "#ede9e1" }}>
             AgentsMesh
           </span>
         </div>
@@ -79,7 +79,7 @@ export default async function Image() {
         <div
           style={{
             fontSize: 28,
-            color: "#a1a1aa",
+            color: "#a8a296",
             marginBottom: 16,
             textAlign: "center",
           }}
@@ -99,10 +99,10 @@ export default async function Image() {
             alignItems: "center",
           }}
         >
-          <span style={{ color: "#ededed" }}>Ship like a team of fifty.</span>
+          <span style={{ color: "#ede9e1" }}>Ship like a team of fifty.</span>
           <span
             style={{
-              background: "linear-gradient(90deg, #22d3ee, #0ea5e9)",
+              background: "linear-gradient(90deg, #FF5701, #FFB020)",
               backgroundClip: "text",
               color: "transparent",
             }}

@@ -5,7 +5,7 @@ load("@rules_rust_prost//:defs.bzl", "rust_prost_library", "rust_prost_transform
 # Client-state mutation contract for the pod domain. Distinct from
 # proto.pod.v1 (wire schema for Connect-RPC) — this package carries the
 # SRP-shaped mutation messages issued by TS/Swift renderer code against
-# the Rust pod cache via wasm-bindgen / NAPI / UniFFI.
+# the Rust pod cache via wasm-bindgen / wasm.
 #
 # See pod_state.proto for the full design rationale and message catalog.
 

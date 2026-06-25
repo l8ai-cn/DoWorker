@@ -22,7 +22,7 @@ func TestAuthenticate(t *testing.T) {
 	service.Create(ctx, req)
 
 	// Authenticate
-	user, err := service.Authenticate(ctx, "test@example.com", "password123")
+	user, err := service.Authenticate(ctx, "testuser", "password123")
 	if err != nil {
 		t.Fatalf("failed to authenticate: %v", err)
 	}
@@ -43,7 +43,7 @@ func TestAuthenticateInvalidPassword(t *testing.T) {
 	}
 	service.Create(ctx, req)
 
-	_, err := service.Authenticate(ctx, "test@example.com", "wrongpassword")
+	_, err := service.Authenticate(ctx, "testuser", "wrongpassword")
 	if err != ErrInvalidCredentials {
 		t.Errorf("expected ErrInvalidCredentials, got %v", err)
 	}
@@ -54,7 +54,7 @@ func TestAuthenticateUserNotFound(t *testing.T) {
 	service := NewService(infra.NewUserRepository(db))
 	ctx := context.Background()
 
-	_, err := service.Authenticate(ctx, "nonexistent@example.com", "password")
+	_, err := service.Authenticate(ctx, "nonexistent", "password")
 	if err != ErrInvalidCredentials {
 		t.Errorf("expected ErrInvalidCredentials, got %v", err)
 	}
@@ -72,7 +72,7 @@ func TestAuthenticateNoPassword(t *testing.T) {
 	}
 	service.Create(ctx, req)
 
-	_, err := service.Authenticate(ctx, "test@example.com", "password")
+	_, err := service.Authenticate(ctx, "testuser", "password")
 	if err != ErrInvalidCredentials {
 		t.Errorf("expected ErrInvalidCredentials, got %v", err)
 	}
@@ -93,7 +93,7 @@ func TestAuthenticateInactiveUser(t *testing.T) {
 	// Deactivate user
 	db.Exec("UPDATE users SET is_active = 0 WHERE id = ?", created.ID)
 
-	_, err := service.Authenticate(ctx, "inactive@example.com", "password123")
+	_, err := service.Authenticate(ctx, "inactiveuser", "password123")
 	if err != ErrUserInactive {
 		t.Errorf("expected ErrUserInactive, got %v", err)
 	}
@@ -118,7 +118,7 @@ func TestAuthenticateUpdatesLastLoginAt(t *testing.T) {
 	}
 
 	before := time.Now()
-	_, err := service.Authenticate(ctx, "login@example.com", "password123")
+	_, err := service.Authenticate(ctx, "loginuser", "password123")
 	if err != nil {
 		t.Fatalf("failed to authenticate: %v", err)
 	}
@@ -213,7 +213,7 @@ func TestUpdatePassword(t *testing.T) {
 	}
 
 	// Should be able to authenticate with new password
-	_, err = service.Authenticate(ctx, "test@example.com", "newpassword")
+	_, err = service.Authenticate(ctx, "testuser", "newpassword")
 	if err != nil {
 		t.Errorf("expected successful authentication, got %v", err)
 	}

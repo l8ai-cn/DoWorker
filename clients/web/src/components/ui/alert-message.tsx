@@ -14,20 +14,20 @@ interface AlertMessageProps {
 
 const alertStyles: Record<AlertType, { container: string; text: string }> = {
   error: {
-    container: "bg-destructive/15 border-destructive/30",
-    text: "text-destructive",
+    container: "bg-danger-bg border-danger/30",
+    text: "text-danger",
   },
   success: {
-    container: "bg-green-500/15 border-green-500/30",
-    text: "text-green-600 dark:text-green-400",
+    container: "bg-success-bg border-success/30",
+    text: "text-success",
   },
   warning: {
-    container: "bg-yellow-500/15 border-yellow-500/30",
-    text: "text-yellow-600 dark:text-yellow-400",
+    container: "bg-warning-bg border-warning/30",
+    text: "text-warning",
   },
   info: {
-    container: "bg-blue-500/15 border-blue-500/30",
-    text: "text-blue-600 dark:text-blue-400",
+    container: "bg-info-bg border-info/30",
+    text: "text-info",
   },
 };
 

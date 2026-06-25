@@ -164,6 +164,14 @@ message DeleteCustomAgentResponse {
 message ConfigSchema {
   repeated ConfigField fields = 1;
   repeated CredentialField credential_fields = 2;
+  repeated ConfigFile config_files = 3;
+}
+
+message ConfigFile {
+  string id = 1;
+  string path_env = 2;
+  string format = 3;
+  string path_hint = 4;
 }
 
 message ConfigField {

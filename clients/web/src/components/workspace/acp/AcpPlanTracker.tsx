@@ -22,8 +22,8 @@ export function AcpPlanTracker({ podKey }: { podKey: string }) {
               key={i}
               className={cn(
                 "inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full",
-                isCompleted && "bg-green-500/10 text-green-600 dark:text-green-400",
-                isInProgress && "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+                isCompleted && "bg-success-bg text-success",
+                isInProgress && "bg-info-bg text-info",
                 !isCompleted && !isInProgress && "bg-muted text-muted-foreground",
               )}
             >

@@ -25,7 +25,7 @@ export function MeshSelectedDetails({
   }
 
   return (
-    <div className="border-t border-border p-3 space-y-2">
+    <div className="bg-surface-muted/30 p-3 space-y-2">
       <div className="text-xs font-medium text-muted-foreground">
         {t("ide.sidebar.mesh.selectedPod")}
       </div>

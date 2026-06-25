@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError } from "@/lib/api/api-types";
+import { resolveLoginErrorMessage } from "@/lib/light-auth/login-error-message";
 import type { SSODiscoverConfig } from "@/lib/api/connect/ssoConnect";
 import {
   lightLogin,
@@ -24,13 +25,11 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations();
-  // Skip the authenticated-redirect race when ?redirect= is present —
-  // navigateAfterLogin owns the post-auth navigation in that case.
   useRedirectIfAuthenticated({
     skipIfRedirectParam: searchParams.get("redirect"),
   });
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [ldapLoading, setLdapLoading] = useState(false);
@@ -43,24 +42,25 @@ export default function LoginPage() {
   const hasSSO = ssoConfigs.length > 0;
 
   const discoverRequestRef = useRef(0);
-  const discoverSSO = useCallback(async (emailValue: string) => {
-    if (!emailValue || !emailValue.includes("@")) {
+  const discoverSSO = useCallback(async (usernameValue: string) => {
+    const trimmed = usernameValue.trim();
+    if (!trimmed) {
       setSsoConfigs([]);
       return;
     }
     const requestId = ++discoverRequestRef.current;
     try {
-      const configs = await lightDiscoverSSO(emailValue);
+      const configs = await lightDiscoverSSO(trimmed);
       if (requestId === discoverRequestRef.current) setSsoConfigs(configs);
     } catch {
       // Silent — SSO discovery failures shouldn't disrupt the password flow.
     }
   }, []);
 
-  const handleEmailBlur = useCallback(() => {
+  const handleUsernameBlur = useCallback(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => discoverSSO(email), 500);
-  }, [email, discoverSSO]);
+    debounceRef.current = setTimeout(() => discoverSSO(username), 500);
+  }, [username, discoverSSO]);
 
   useEffect(() => {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
@@ -73,20 +73,19 @@ export default function LoginPage() {
     router.push(url);
   };
 
-  const handleLdapSubmit = async (username: string, pwd: string) => {
+  const handleLdapSubmit = async (ldapUsername: string, pwd: string) => {
     const ldapConfig = ssoConfigs.find((c) => c.protocol === "ldap");
-    if (!ldapConfig || !username.trim() || !pwd) {
+    if (!ldapConfig || !ldapUsername.trim() || !pwd) {
       setError(t("auth.loginPage.invalidCredentials"));
       return;
     }
     setLdapLoading(true);
     setError("");
     try {
-      await lightLdapAuth({ domain: ldapConfig.domain, username, password: pwd });
+      await lightLdapAuth({ domain: ldapConfig.domain, username: ldapUsername, password: pwd });
       await navigateAfterLogin();
     } catch (err) {
-      setError(err instanceof ApiError && err.status >= 500
-        ? t("common.error") : t("auth.loginPage.invalidCredentials"));
+      setError(resolveLoginErrorMessage(err, t));
     } finally { setLdapLoading(false); }
   };
 
@@ -96,14 +95,12 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      await lightLogin({ email, password });
+      await lightLogin({ username, password });
       await navigateAfterLogin();
     } catch (err) {
+      setError(resolveLoginErrorMessage(err, t));
       if (err instanceof ApiError && /sso/i.test(err.serverMessage ?? "")) {
-        setError(t("auth.sso.ssoRequired"));
-        discoverSSO(email);
-      } else {
-        setError(t("auth.loginPage.invalidCredentials"));
+        discoverSSO(username);
       }
     } finally { setLoading(false); }
   };
@@ -133,17 +130,18 @@ export default function LoginPage() {
           </div>
         )}
         <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-foreground">
-            {t("auth.loginPage.emailLabel")}
+          <label htmlFor="username" className="text-sm font-medium text-foreground">
+            {t("auth.loginPage.usernameLabel")}
           </label>
-          <Input id="email" type="email" placeholder={t("auth.loginPage.emailPlaceholder")}
-            value={email}
+          <Input id="username" type="text" autoComplete="username"
+            placeholder={t("auth.loginPage.usernamePlaceholder")}
+            value={username}
             onChange={(e) => {
-              setEmail(e.target.value);
+              setUsername(e.target.value);
               if (debounceRef.current) clearTimeout(debounceRef.current);
               if (ssoConfigs.length > 0) setSsoConfigs([]);
             }}
-            onBlur={handleEmailBlur} required />
+            onBlur={handleUsernameBlur} required />
         </div>
 
         {hasSSO && (
@@ -163,7 +161,7 @@ export default function LoginPage() {
                   {t("auth.forgotPassword")}
                 </Link>
               </div>
-              <Input id="password" type="password"
+              <Input id="password" type="password" autoComplete="current-password"
                 placeholder={t("auth.loginPage.passwordPlaceholder")}
                 value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>

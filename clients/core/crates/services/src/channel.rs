@@ -15,13 +15,13 @@ impl ChannelService {
     /// Crate-local accessor used by channel_connect.rs to forward to the
     /// underlying api-client `*_connect` methods. The channel cache itself
     /// is the shared `AppState.channels` (dispatch-hook SSOT), reached via
-    /// the wasm/napi `app_channel*` surface — this service is networking-only.
+    /// the wasm `app_channel*` surface — this service is networking-only.
     pub(crate) fn client(&self) -> &ApiClient { &self.client }
 }
 
 // =============================================================================
 // Connect-RPC bridge methods. Binary in (prost-encoded), binary out — same wire
-// the wasm/node-bridge layers speak. Each method decodes the request, calls the
+// the wasm layers speak. Each method decodes the request, calls the
 // `*_connect` method on the shared ApiClient, and re-encodes the response.
 // =============================================================================
 

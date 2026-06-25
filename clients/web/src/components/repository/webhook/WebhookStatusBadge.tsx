@@ -14,9 +14,9 @@ export function WebhookStatusBadge({ state }: WebhookStatusBadgeProps) {
   const renderIcon = () => {
     switch (state) {
       case "registered":
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+        return <CheckCircle2 className="h-5 w-5 text-success" />;
       case "needs_manual_setup":
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
+        return <AlertTriangle className="h-5 w-5 text-warning" />;
       case "not_registered":
         return <XCircle className="h-5 w-5 text-muted-foreground" />;
       default:

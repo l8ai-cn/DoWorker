@@ -2,8 +2,8 @@
 package agentfile
 
 // AgentSpec is the Backend-facing output of AgentFile declaration extraction.
-// It contains everything the frontend needs to render Pod creation UI:
-// agent info, config form fields, credential fields, skills, etc.
+// For API/UI schemas (config fields + credential ENV keys), prefer
+// agentfile/schema which filters user-editable credentials from raw Env specs.
 //
 // AgentSpec is produced by extract.Extract() and is JSON-serializable.
 type AgentSpec struct {

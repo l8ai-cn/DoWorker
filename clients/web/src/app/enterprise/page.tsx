@@ -14,7 +14,7 @@ export default function EnterprisePage() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="azure-theme min-h-screen bg-background">
       <PageHeader />
 
       {/* Hero */}
@@ -34,7 +34,7 @@ export default function EnterprisePage() {
       <EnterpriseFeatures />
 
       {/* OnPremise Pricing */}
-      <section className="py-24 bg-muted/30">
+      <section className="py-24 bg-surface-muted/40">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
@@ -47,7 +47,7 @@ export default function EnterprisePage() {
           </div>
 
           <div className="max-w-lg mx-auto">
-            <div className="relative rounded-2xl border-2 border-primary/30 bg-primary/5 p-8 flex flex-col">
+            <div className="relative surface-card ring-2 ring-primary/20 bg-primary/5 p-8 flex flex-col">
               <div className="mb-6">
                 <h3 className="text-xl font-semibold mb-2">{t("landing.pricing.onpremise.name")}</h3>
                 <div className="flex items-baseline gap-1">

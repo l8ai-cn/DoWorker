@@ -21,8 +21,7 @@ next_bin.next_binary(
 # `reserved.ts` into runfiles to verify the reserved-slug list stays in
 # sync with the Go SSOT. Done at the package root rather than via a
 # nested `clients/web/src/lib/slug/BUILD.bazel` so the `src/**` glob in
-# `:src_files` (consumed by desktop's electron-vite) doesn't get split
-# across a Bazel package boundary.
+# `:src_files` doesn't get split across a Bazel package boundary.
 exports_files(
     ["src/lib/slug/reserved.ts"],
     visibility = ["//backend/pkg/slugkit:__pkg__"],
@@ -59,10 +58,8 @@ ts_project(
         # `agentsmesh-wasm` npm wrapper around the Rust→wasm-bindgen
         # pipeline) aren't in the pnpm-derived `//:node_modules`
         # aggregate; tsc needs explicit link targets to resolve them.
-        "//:node_modules/@agentsmesh/electron-adapter",
         "//:node_modules/@agentsmesh/service-interface",
         "//:node_modules/@agentsmesh/service-runtime",
-        "//:node_modules/@agentsmesh/node-bridge",
         # `@agentsmesh/proto` ships the generated Connect-RPC TS
         # modules; `@proto/*` in tsconfig resolves through this mount.
         "//:node_modules/@agentsmesh/proto",
@@ -70,8 +67,7 @@ ts_project(
     ],
 )
 
-# Raw source files exposed for downstream bundlers (Desktop's
-# electron-vite renderer cross-imports `@/stores`, `@/lib`, etc.).
+# Raw source files exposed for downstream bundlers.
 # `:src` is a `no_emit` ts_project — type-check only, doesn't pass
 # the .ts/.tsx files through its DefaultInfo. This `js_library` gives
 # bundlers a cross-package label that resolves to the raw sources;
@@ -134,10 +130,8 @@ _NEXT_DATA_COMMON = [
     "postcss.config.mjs",
     "tsconfig.json",
     "//:node_modules",
-    "//:node_modules/@agentsmesh/electron-adapter",
     "//:node_modules/@agentsmesh/service-interface",
     "//:node_modules/@agentsmesh/service-runtime",
-    "//:node_modules/@agentsmesh/node-bridge",
     "//:node_modules/@agentsmesh/proto",
     "//:node_modules/agentsmesh-wasm",
     "//:package_json_bin",
@@ -260,7 +254,6 @@ vitest_test(
         "//:node_modules",
         # First-party Bazel-managed links that vitest needs to resolve
         # at runtime via Node's `node_modules/<name>` walk.
-        "//:node_modules/@agentsmesh/electron-adapter",
         "//:node_modules/@agentsmesh/service-interface",
         "//:node_modules/@agentsmesh/service-runtime",
         "//:node_modules/agentsmesh-wasm",

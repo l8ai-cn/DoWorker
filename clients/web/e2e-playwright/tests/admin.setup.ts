@@ -13,7 +13,7 @@ setup("authenticate as admin user", async ({ browser }) => {
   const loginRes = await fetch(`${apiBaseUrl}/proto.auth.v1.AuthService/Login`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Connect-Protocol-Version": "1" },
-    body: JSON.stringify({ email: ADMIN_USER.email, password: ADMIN_USER.password }),
+    body: JSON.stringify({ username: ADMIN_USER.username, password: ADMIN_USER.password }),
   });
   if (!loginRes.ok) throw new Error(`admin login failed: ${loginRes.status}`);
   const data = await loginRes.json();

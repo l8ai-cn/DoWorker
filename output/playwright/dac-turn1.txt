@@ -1,0 +1,43 @@
+D
+Channels
+Blocks
+Mesh
+Workspace
+Tickets
+Loops
+Automation
+Infra
+Skills
+Help & Feedback
+Settings
+WORKSPACE
+New Pod
+Mine
+Org
+Completed
+DoAgent (1-standa)
+
+Dev User
+
+Runners
+(1 online)
+dev-runner-2
+0/10
+dev-runner
+1/10
+DoAgent
+DoAgent (1-standa)
+1-standa
+IDLE
+Workspace
+>
+Reply with exactly this token and nothing else: PONG-42
+Goal
+No active goal
+Refresh
+—
+Channels
+Activity
+Autopilot
+Delivery
+Info

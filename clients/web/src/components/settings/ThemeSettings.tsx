@@ -25,7 +25,7 @@ export function ThemeSettings() {
 
   if (!mounted) {
     return (
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <h2 className="text-lg font-semibold mb-4">{t("settings.theme.title")}</h2>
         <p className="text-sm text-muted-foreground mb-4">
           {t("settings.theme.description")}
@@ -43,7 +43,7 @@ export function ThemeSettings() {
   }
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <h2 className="text-lg font-semibold mb-4">{t("settings.theme.title")}</h2>
       <p className="text-sm text-muted-foreground mb-4">
         {t("settings.theme.description")}
@@ -58,7 +58,7 @@ export function ThemeSettings() {
               key={config.id}
               className={cn(
                 "relative flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all",
-                "hover:bg-muted/50",
+                "motion-interactive hover:bg-surface-muted",
                 isActive
                   ? "border-primary bg-primary/5"
                   : "border-border"

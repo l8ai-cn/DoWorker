@@ -21,6 +21,10 @@ export interface CreatePodFormConfig {
   context?: ScenarioContext;
   promptGenerator?: PromptGenerator;
   promptPlaceholder?: string;
+  // Workspace recipe pre-fill: agent is selected when the runner exposes it,
+  // prompt seeds the input. Both override saved-preference auto-fill.
+  initialAgentSlug?: string;
+  initialPrompt?: string;
   onSuccess?: (pod: PodData) => void;
   onError?: (error: Error) => void;
   onCancel?: () => void;

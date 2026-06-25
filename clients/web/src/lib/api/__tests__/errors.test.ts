@@ -115,7 +115,7 @@ describe("getLocalizedErrorMessage", () => {
     expect(getLocalizedErrorMessage(err, tThrows, fallback)).toBe("server msg");
   });
 
-  // Desktop/wasm Connect lane: errors arrive as ServiceError wire JSON in
+  // Web Connect lane: errors arrive as ServiceError wire JSON in
   // Error.message with lowercase protocol codes.
   const connectErr = (code: string, status = 409) =>
     new Error(JSON.stringify({ kind: "http", status, code, message: "server raw" }));

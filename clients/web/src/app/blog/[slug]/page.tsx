@@ -167,15 +167,18 @@ export default async function BlogPostPage({
           <h1 className="text-4xl font-bold mb-6">{post.title}</h1>
 
           {/* Author */}
-          <div className="flex items-center gap-3 mb-12 pb-8 border-b border-border">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-              <span className="text-sm font-medium text-primary">
-                {post.author.charAt(0)}
-              </span>
+          <div className="mb-12">
+            <div className="flex items-center gap-3 pb-8">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <span className="text-sm font-medium text-primary">
+                  {post.author.charAt(0)}
+                </span>
+              </div>
+              <div>
+                <p className="font-medium">{post.author}</p>
+              </div>
             </div>
-            <div>
-              <p className="font-medium">{post.author}</p>
-            </div>
+            <div className="soft-separator" />
           </div>
 
           {/* Content */}

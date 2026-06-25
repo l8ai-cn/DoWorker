@@ -80,13 +80,11 @@ pub trait EventDispatchHook: Send + Sync {
 }
 
 /// Fires once per dispatched realtime event AFTER the AppState mutation
-/// + tick increment. Used by FFI bindings (iOS) to push a "state may
-/// have changed, re-read selectors" signal to Swift's `@Observable`
-/// store without piping the raw event JSON.
+/// + tick increment. Native host bindings can use this to push a "state may
+/// have changed, re-read selectors" signal without piping the raw event JSON.
 ///
-/// Wasm + napi platforms poll the tick via getter instead — push only
-/// matters where the platform's reactive system needs an explicit kick
-/// (SwiftUI Observation, Kotlin StateFlow).
+/// Wasm platforms poll the tick via getter instead — push only
+/// matters where the platform's reactive system needs an explicit kick.
 pub trait TickListener: Send + Sync {
     fn on_tick(&self, tick: u64);
 }

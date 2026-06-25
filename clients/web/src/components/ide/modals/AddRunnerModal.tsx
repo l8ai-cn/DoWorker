@@ -65,7 +65,7 @@ export function AddRunnerModal({ open, onClose, onCreated }: AddRunnerModalProps
       onClick={() => copyText(text, id)}
       className={className ?? "absolute top-2 right-2 h-7 text-xs text-muted-foreground hover:text-foreground"}
     >
-      {copiedKey === id ? <Check className="w-3 h-3 text-green-500 dark:text-green-400" /> : t("runners.addRunnerModal.copyCommand")}
+      {copiedKey === id ? <Check className="w-3 h-3 text-success" /> : t("runners.addRunnerModal.copyCommand")}
     </Button>
   );
 
@@ -92,9 +92,9 @@ export function AddRunnerModal({ open, onClose, onCreated }: AddRunnerModalProps
 
         {generatedToken ? (
           <div className="space-y-4">
-            <div className="flex items-start gap-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+            <div className="flex items-start gap-2 p-3 bg-warning-bg border border-warning/30 rounded-lg">
+              <AlertCircle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-warning">
                 {t("runners.addRunnerModal.tokenWarning")}
               </p>
             </div>
@@ -114,7 +114,7 @@ export function AddRunnerModal({ open, onClose, onCreated }: AddRunnerModalProps
                   className="flex-shrink-0"
                 >
                   {copiedKey === "token" ? (
-                    <Check className="w-4 h-4 text-green-500 dark:text-green-400" />
+                    <Check className="w-4 h-4 text-success" />
                   ) : (
                     <Copy className="w-4 h-4" />
                   )}
@@ -154,7 +154,7 @@ export function AddRunnerModal({ open, onClose, onCreated }: AddRunnerModalProps
                   <Terminal className="w-4 h-4" />
                   <span>Terminal</span>
                 </div>
-                <code className="text-green-600 dark:text-green-400 text-sm font-mono block whitespace-pre-wrap pr-24">
+                <code className="text-success text-sm font-mono block whitespace-pre-wrap pr-24">
                   {`agentsmesh-runner register --server ${serverUrl} --token ${generatedToken.substring(0, 16)}...
 agentsmesh-runner run`}
                 </code>
@@ -176,7 +176,7 @@ agentsmesh-runner run`}
                     <Terminal className="w-4 h-4" />
                     <span>Terminal</span>
                   </div>
-                  <code className="text-green-600 dark:text-green-400 text-sm font-mono block whitespace-pre-wrap pr-24">
+                  <code className="text-success text-sm font-mono block whitespace-pre-wrap pr-24">
                     {`agentsmesh-runner service install
 agentsmesh-runner service start`}
                   </code>

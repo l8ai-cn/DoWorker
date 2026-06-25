@@ -78,9 +78,9 @@ fn session_from_verify(resp: auth_proto::VerifyEmailResponse) -> Result<AuthSess
 }
 
 impl AuthManager {
-    pub async fn login(&self, email: &str, password: &str) -> Result<AuthSession, AuthError> {
+    pub async fn login(&self, username: &str, password: &str) -> Result<AuthSession, AuthError> {
         let req = auth_proto::LoginRequest {
-            email: email.to_string(),
+            username: username.to_string(),
             password: password.to_string(),
         };
         let resp: auth_proto::LoginResponse =

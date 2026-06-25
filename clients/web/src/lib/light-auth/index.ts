@@ -52,8 +52,6 @@ export {
 export {
   lightGetRunnerAuthStatus,
   lightAuthorizeRunner,
-  lightCreateRunnerToken,
-  lightListRunners,
   type LightAuthorizeRunnerInput,
 } from "./runners";
 export { lightFetchMe, type LightUser } from "./me";

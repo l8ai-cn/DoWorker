@@ -24,7 +24,7 @@ interface RunnerSummary {
 
 test.describe("Cascade: runner delete blocked by loop reference", () => {
   test("DeleteRunner returns FailedPrecondition when a Loop references it", async ({ api, db }) => {
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
 
     const { items: allRunners } = (await cc.runner.listRunners({

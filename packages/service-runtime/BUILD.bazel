@@ -2,7 +2,7 @@ load("//build_defs/web:internal_package.bzl", "internal_npm_package")
 load("//build_defs/web:ts.bzl", "ts_project")
 
 # Service-runtime — browser-side implementation of the service-interface
-# types. Wraps the Rust WASM package so web and desktop renderer code
+# types. Wraps the Rust WASM package so web and web code
 # share a single façade.
 ts_project(
     name = "service_runtime",

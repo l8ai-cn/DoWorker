@@ -1,6 +1,5 @@
 // Repository ViewModels — UI-side projection of `proto.repository.v1` types.
-// Owned in this zero-dep contract layer so web (fromProtoRepository) and desktop
-// (electron-adapter projection) share one definition.
+// Owned in this zero-dep contract layer so Web projections share one definition.
 
 export interface WebhookStatus {
   registered: boolean;

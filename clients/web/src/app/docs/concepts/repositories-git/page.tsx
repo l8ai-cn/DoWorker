@@ -18,7 +18,7 @@ export default function RepositoriesGitPage() {
 
       {/* Overview */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.repositoriesGit.overview.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -28,11 +28,11 @@ export default function RepositoriesGitPage() {
 
       {/* Supported Git Providers */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.repositoriesGit.providers.title")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.repositoriesGit.providers.github")}
             </h3>
@@ -40,7 +40,7 @@ export default function RepositoriesGitPage() {
               {t("docs.concepts.repositoriesGit.providers.githubDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.repositoriesGit.providers.gitlab")}
             </h3>
@@ -48,7 +48,7 @@ export default function RepositoriesGitPage() {
               {t("docs.concepts.repositoriesGit.providers.gitlabDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.repositoriesGit.providers.gitee")}
             </h3>
@@ -61,14 +61,14 @@ export default function RepositoriesGitPage() {
 
       {/* Connecting GitHub */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.repositoriesGit.github.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.concepts.repositoriesGit.github.description")}
         </p>
         <div className="space-y-4">
-          <div className="border border-border rounded-lg p-6">
+          <div className="surface-card p-6">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.repositoriesGit.github.patTitle")}
             </h3>
@@ -83,7 +83,7 @@ export default function RepositoriesGitPage() {
               <li>{t("docs.concepts.repositoriesGit.github.step5")}</li>
             </ol>
           </div>
-          <div className="border border-border rounded-lg p-6">
+          <div className="surface-card p-6">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.repositoriesGit.github.oauthTitle")}
             </h3>
@@ -95,7 +95,7 @@ export default function RepositoriesGitPage() {
               <li>{t("docs.concepts.repositoriesGit.github.oauthStep2")}</li>
               <li>{t("docs.concepts.repositoriesGit.github.oauthStep3")}</li>
             </ol>
-            <div className="bg-muted/50 border border-border rounded-lg p-4 mt-4 text-sm text-muted-foreground">
+            <div className="rounded-lg bg-surface-muted/50 shadow-[var(--shadow-soft)] ring-1 ring-border/15 p-4 mt-4 text-sm text-muted-foreground">
               {t("docs.concepts.repositoriesGit.github.oauthNote")}
             </div>
           </div>
@@ -104,13 +104,13 @@ export default function RepositoriesGitPage() {
 
       {/* Connecting GitLab */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.repositoriesGit.gitlab.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.concepts.repositoriesGit.gitlab.description")}
         </p>
-        <div className="border border-border rounded-lg p-6">
+        <div className="surface-card p-6">
           <ol className="list-decimal list-inside text-muted-foreground space-y-3">
             <li>{t("docs.concepts.repositoriesGit.gitlab.step1")}</li>
             <li>{t("docs.concepts.repositoriesGit.gitlab.step2")}</li>
@@ -118,7 +118,7 @@ export default function RepositoriesGitPage() {
             <li>{t("docs.concepts.repositoriesGit.gitlab.step4")}</li>
             <li>{t("docs.concepts.repositoriesGit.gitlab.step5")}</li>
           </ol>
-          <div className="bg-muted rounded-lg p-4 mt-4">
+          <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 mt-4">
             <p className="text-sm text-muted-foreground">
               {t("docs.concepts.repositoriesGit.gitlab.selfHosted")}
             </p>
@@ -128,13 +128,13 @@ export default function RepositoriesGitPage() {
 
       {/* Connecting Gitee */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.repositoriesGit.gitee.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.concepts.repositoriesGit.gitee.description")}
         </p>
-        <div className="border border-border rounded-lg p-6">
+        <div className="surface-card p-6">
           <ol className="list-decimal list-inside text-muted-foreground space-y-3">
             <li>{t("docs.concepts.repositoriesGit.gitee.step1")}</li>
             <li>{t("docs.concepts.repositoriesGit.gitee.step2")}</li>
@@ -146,19 +146,19 @@ export default function RepositoriesGitPage() {
 
       {/* SSH Keys */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.repositoriesGit.sshKeys.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.concepts.repositoriesGit.sshKeys.description")}
         </p>
-        <div className="border border-border rounded-lg p-6">
+        <div className="surface-card p-6">
           <ol className="list-decimal list-inside text-muted-foreground space-y-3">
             <li>{t("docs.concepts.repositoriesGit.sshKeys.step1")}</li>
             <li>{t("docs.concepts.repositoriesGit.sshKeys.step2")}</li>
             <li>{t("docs.concepts.repositoriesGit.sshKeys.step3")}</li>
           </ol>
-          <div className="bg-muted rounded-lg p-4 mt-4">
+          <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 mt-4">
             <p className="text-sm text-muted-foreground">
               {t("docs.concepts.repositoriesGit.sshKeys.dockerNote")}
             </p>
@@ -168,13 +168,13 @@ export default function RepositoriesGitPage() {
 
       {/* Using Repositories in Pods */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.repositoriesGit.podUsage.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.concepts.repositoriesGit.podUsage.description")}
         </p>
-        <div className="border border-border rounded-lg p-6">
+        <div className="surface-card p-6">
           <ol className="list-decimal list-inside text-muted-foreground space-y-3">
             <li>{t("docs.concepts.repositoriesGit.podUsage.step1")}</li>
             <li>{t("docs.concepts.repositoriesGit.podUsage.step2")}</li>
@@ -186,7 +186,7 @@ export default function RepositoriesGitPage() {
 
       {/* Git Worktree Isolation */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.repositoriesGit.worktree.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -196,11 +196,11 @@ export default function RepositoriesGitPage() {
 
       {/* Managing Repositories */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.repositoriesGit.management.title")}
         </h2>
         <div className="space-y-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.repositoriesGit.management.addRepo")}
             </h3>
@@ -208,7 +208,7 @@ export default function RepositoriesGitPage() {
               {t("docs.concepts.repositoriesGit.management.addRepoSteps")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.repositoriesGit.management.removeRepo")}
             </h3>

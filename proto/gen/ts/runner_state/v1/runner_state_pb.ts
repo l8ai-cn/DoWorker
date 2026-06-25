@@ -2,9 +2,8 @@
 //
 // Companion to proto.runner_api.v1 — that package owns the wire schema
 // for Connect-RPC (ListRunners / GetRunner / etc.), while this package
-// holds the SRP-shaped mutation messages issued by TS / Swift renderer
-// code against the in-process Rust runner cache via the wasm-bindgen /
-// NAPI / UniFFI bridge.
+// holds the SRP-shaped mutation messages issued by TS against the in-process
+// Rust runner cache via the wasm-bindgen bridge.
 //
 // Naming convention mirrors proto.pod_state.v1:
 //   * ApplyXxxEventRequest    — realtime-event driven cache mutation

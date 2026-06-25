@@ -111,7 +111,7 @@ export function GitSettingsContent() {
         t={t}
       />
 
-      <div className="border border-border rounded-lg p-6 mb-6">
+      <div className="surface-card p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold">
@@ -147,7 +147,7 @@ export function GitSettingsContent() {
         )}
       </div>
 
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold">

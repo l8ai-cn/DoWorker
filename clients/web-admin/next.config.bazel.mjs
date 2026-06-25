@@ -32,9 +32,12 @@ const nextConfig = {
       : "http://localhost:10000";
     return [
       { source: "/api/:path*", destination: `${backendUrl}/api/:path*` },
-      // Connect-RPC: backend serves /proto.<svc>.v1.<Service>/<Method>
-      // at the root path (no /api prefix).
-      { source: "/proto.:path*", destination: `${backendUrl}/proto.:path*` },
+      {
+        source: "/:svc/:method",
+        has: [{ type: "header", key: "connect-protocol-version" }],
+        destination: `${backendUrl}/:svc/:method`,
+      },
+      { source: "/health", destination: `${backendUrl}/health` },
     ];
   },
 

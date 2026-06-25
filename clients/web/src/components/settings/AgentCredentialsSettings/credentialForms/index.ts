@@ -1,40 +1,31 @@
 import type { CredentialFormSpec, CredentialFieldSpec } from "./types";
-import { claudeCodeFormSpec } from "./claude-code";
-import { codexCliFormSpec } from "./codex-cli";
-import { loopalFormSpec } from "./loopal";
-import { geminiCliFormSpec } from "./gemini-cli";
-import { aiderFormSpec } from "./aider";
-import { opencodeFormSpec } from "./opencode";
-import { cursorCliFormSpec } from "./cursor-cli";
+import { buildCredentialFormSpec } from "./buildCredentialFormSpec";
+import { getBuiltinCredentialFallback } from "./credentialBuiltinFallbacks";
+import type { CredentialField } from "@/lib/viewModels/agent";
 
-const REGISTRY: Record<string, CredentialFormSpec> = {
-  [claudeCodeFormSpec.agentSlug]: claudeCodeFormSpec,
-  [codexCliFormSpec.agentSlug]: codexCliFormSpec,
-  [loopalFormSpec.agentSlug]: loopalFormSpec,
-  [geminiCliFormSpec.agentSlug]: geminiCliFormSpec,
-  [aiderFormSpec.agentSlug]: aiderFormSpec,
-  [opencodeFormSpec.agentSlug]: opencodeFormSpec,
-  [cursorCliFormSpec.agentSlug]: cursorCliFormSpec,
-};
-
-// e2e-echo is a test-only agent (see deploy/dev/seed/e2e_echo.sql). The
-// `NEXT_PUBLIC_E2E` build-time flag is inlined as the literal "" in
-// production builds (see clients/web/next.config.ts → env) so this entire
-// branch — including the `require` call — is dead-code-eliminated by
-// webpack. The form spec never enters the prod bundle.
+// e2e-echo fallback is registered only in E2E builds.
 if (process.env.NEXT_PUBLIC_E2E === "true") {
   // eslint-disable-next-line @typescript-eslint/no-require-imports, no-restricted-imports
-  const { e2eEchoFormSpec } = require("./e2e-echo") as typeof import("./e2e-echo");
-  REGISTRY[e2eEchoFormSpec.agentSlug] = e2eEchoFormSpec;
+  require("./e2e-echo-fallback");
 }
 
-// Unknown / user-defined agents fall back to a pure custom-ENV form.
 function makeFallback(agentSlug: string): CredentialFormSpec {
-  return { agentSlug, fields: [], allowCustomEnv: true };
+  return buildCredentialFormSpec(agentSlug, []);
 }
 
 export function getCredentialFormSpec(agentSlug: string): CredentialFormSpec {
-  return REGISTRY[agentSlug] ?? makeFallback(agentSlug);
+  const fallback = getBuiltinCredentialFallback(agentSlug);
+  if (fallback.length === 0) {
+    return makeFallback(agentSlug);
+  }
+  return buildCredentialFormSpec(agentSlug, fallback);
+}
+
+export function getCredentialFormSpecFromFields(
+  agentSlug: string,
+  credentialFields: CredentialField[]
+): CredentialFormSpec {
+  return buildCredentialFormSpec(agentSlug, credentialFields);
 }
 
 export function getEnvKeysFromSpec(spec: CredentialFormSpec): Set<string> {
@@ -63,8 +54,6 @@ export function findFieldByEnvKey(
   return undefined;
 }
 
-// Resolve display label for an ENV key (used by "configured fields" summaries).
-// Falls back to the raw ENV name when the key isn't part of the spec.
 export function getEnvKeyLabel(
   agentSlug: string,
   envKey: string,

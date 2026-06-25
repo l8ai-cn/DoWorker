@@ -25,7 +25,8 @@ describe('Button Component', () => {
     it('should apply secondary variant styles', () => {
       render(<Button variant="secondary">Secondary</Button>)
       const button = screen.getByRole('button')
-      expect(button).toHaveClass('bg-secondary')
+      expect(button).toHaveClass('bg-surface-muted')
+      expect(button).toHaveClass('hover:bg-subtle')
     })
 
     it('should apply destructive variant styles', () => {
@@ -37,14 +38,14 @@ describe('Button Component', () => {
     it('should apply outline variant styles', () => {
       render(<Button variant="outline">Outline</Button>)
       const button = screen.getByRole('button')
-      expect(button).toHaveClass('border')
-      expect(button).toHaveClass('bg-background')
+      expect(button).toHaveClass('bg-surface-raised')
+      expect(button).toHaveClass('ring-border/30')
     })
 
     it('should apply ghost variant styles', () => {
       render(<Button variant="ghost">Ghost</Button>)
       const button = screen.getByRole('button')
-      expect(button).toHaveClass('hover:bg-accent')
+      expect(button).toHaveClass('hover:bg-accent/80')
     })
 
     it('should apply link variant styles', () => {

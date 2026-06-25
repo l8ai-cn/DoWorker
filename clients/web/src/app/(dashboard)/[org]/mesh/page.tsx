@@ -7,7 +7,7 @@ import { useMeshStore, useTopology, type MeshNode } from "@/stores/mesh";
 import { useCurrentOrg } from "@/stores/auth";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { RefreshCw, Minus, Plus, Maximize2 } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 export default function MeshPage() {
   const t = useTranslations();
@@ -36,16 +36,16 @@ export default function MeshPage() {
 
   return (
     <div className="flex h-full w-full min-w-0 flex-col overflow-hidden">
-      <header className="flex items-center justify-between border-b border-border px-6 py-3.5">
+      <header className="flex items-center justify-between panel-lift bg-surface-muted/40 px-6 py-3.5">
         <h1 className="text-[18px] font-semibold text-foreground">{t("mesh.page.title")}</h1>
 
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-foreground">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1 text-xs font-medium text-foreground shadow-[var(--shadow-soft)]">
             <span className="h-2 w-2 rounded-full bg-success" />
             {t("mesh.page.activePods", { count: activePodCount })}
           </span>
 
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-foreground">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1 text-xs font-medium text-foreground shadow-[var(--shadow-soft)]">
             <span aria-hidden="true">🖥</span>
             {t("mesh.page.runnersOnline", {
               online: runnerCounts.online,
@@ -53,22 +53,10 @@ export default function MeshPage() {
             })}
           </span>
 
-          <div className="mx-1 inline-flex items-center rounded-md border border-border bg-muted p-0.5">
-            <ZoomButton aria={t("mesh.page.zoomOut")}>
-              <Minus className="h-3.5 w-3.5" />
-            </ZoomButton>
-            <ZoomButton aria={t("mesh.page.fit")} active>
-              <Maximize2 className="h-3.5 w-3.5" />
-            </ZoomButton>
-            <ZoomButton aria={t("mesh.page.zoomIn")}>
-              <Plus className="h-3.5 w-3.5" />
-            </ZoomButton>
-          </div>
-
           <button
             type="button"
             onClick={() => fetchTopology()}
-            className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground hover:bg-muted"
+            className="motion-interactive pressable inline-flex h-7 items-center gap-1.5 rounded-md bg-surface-raised px-2.5 text-xs font-medium text-foreground shadow-[var(--shadow-soft)] hover:bg-surface-muted"
           >
             <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
             {t("mesh.page.refresh")}
@@ -85,7 +73,7 @@ export default function MeshPage() {
         </div>
       )}
 
-      <div className="relative flex-1 bg-[#FAFBFC]">
+      <div className="relative flex-1 bg-subtle">
         {loading && !topology && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50">
             <CenteredSpinner />
@@ -94,35 +82,12 @@ export default function MeshPage() {
         <MeshTopology />
 
         {loading && topology && (
-          <div className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 py-1 text-xs text-muted-foreground">
+          <div className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-surface-raised/90 px-3 py-1 text-xs text-muted-foreground shadow-[var(--shadow-soft)] backdrop-blur-sm">
             <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
             {t("mesh.page.updating")}
           </div>
         )}
       </div>
     </div>
-  );
-}
-
-function ZoomButton({
-  children,
-  aria,
-  active,
-}: {
-  children: React.ReactNode;
-  aria: string;
-  active?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={aria}
-      className={cn(
-        "flex h-6 w-7 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground",
-        active && "bg-background text-foreground shadow-sm",
-      )}
-    >
-      {children}
-    </button>
   );
 }

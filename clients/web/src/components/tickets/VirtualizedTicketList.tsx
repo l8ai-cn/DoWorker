@@ -37,7 +37,7 @@ export function VirtualizedTicketList({
 
   if (tickets.length === 0) {
     return (
-      <div className="border border-border rounded-lg overflow-hidden">
+      <div className="surface-card overflow-hidden">
         <div className="px-4 py-8 text-center text-muted-foreground">
           {t("tickets.listView.noTickets")}
         </div>
@@ -46,8 +46,8 @@ export function VirtualizedTicketList({
   }
 
   return (
-    <div className="border border-border rounded-lg overflow-hidden">
-      <div className="bg-muted/50 border-b border-border">
+    <div className="surface-card overflow-hidden">
+      <div className="bg-surface-muted/40">
         <div className="grid grid-cols-[1fr_2fr_120px_100px_100px] gap-2 px-4 py-2.5">
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             {t("tickets.listView.id")}
@@ -90,10 +90,10 @@ export function VirtualizedTicketList({
                 data-index={virtualRow.index}
                 ref={virtualizer.measureElement}
                 className={cn(
-                  "absolute top-0 left-0 w-full cursor-pointer transition-all duration-150 border-b border-border",
+                  "absolute top-0 left-0 cursor-pointer motion-interactive rounded-lg mx-1 w-[calc(100%-0.5rem)]",
                   isSelected
-                    ? "bg-primary/10 hover:bg-primary/15"
-                    : "hover:bg-muted/50"
+                    ? "bg-accent text-primary"
+                    : "hover:bg-surface-muted"
                 )}
                 style={{
                   transform: `translateY(${virtualRow.start}px)`,

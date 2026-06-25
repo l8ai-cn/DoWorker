@@ -51,6 +51,10 @@ export function buildAgentfileLayer(params: {
    * on conflicting env keys (mirrors backend eval order).
    */
   runtimeBundleNames?: string[];
+  /** Config JSON bundle names (kind='config') — emitted as USE_CONFIG_BUNDLE. */
+  configBundleNames?: string[];
+  /** Installed skill slugs to attach. Emitted as `SKILLS slug1, slug2`. */
+  skillSlugs?: string[];
   prompt?: string;
 }): string {
   const lines: string[] = [];
@@ -75,6 +79,13 @@ export function buildAgentfileLayer(params: {
   for (const name of bundleNames) {
     lines.push(`USE_ENV_BUNDLE "${escapeAgentfileString(name)}"`);
   }
+  if (params.configBundleNames) {
+    for (const name of params.configBundleNames) {
+      if (name) {
+        lines.push(`USE_CONFIG_BUNDLE "${escapeAgentfileString(name)}"`);
+      }
+    }
+  }
 
   // PROMPT declaration (prompt content)
   if (params.prompt) {
@@ -94,6 +105,10 @@ export function buildAgentfileLayer(params: {
   }
   if (params.branchName) {
     lines.push(`BRANCH "${params.branchName}"`);
+  }
+
+  if (params.skillSlugs && params.skillSlugs.length > 0) {
+    lines.push(`SKILLS ${params.skillSlugs.join(", ")}`);
   }
 
   return lines.join("\n");

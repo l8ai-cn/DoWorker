@@ -64,6 +64,7 @@ export const docsNavSections: DocNavSection[] = [
       { titleKey: "docs.nav.meshTopology", href: "/docs/features/mesh" },
       { titleKey: "docs.nav.tickets", href: "/docs/features/tickets" },
       { titleKey: "docs.nav.loops", href: "/docs/features/loops" },
+      { titleKey: "docs.nav.repositories", href: "/docs/features/repositories" },
       {
         titleKey: "docs.nav.repositoriesGit",
         href: "/docs/concepts/repositories-git",
@@ -76,7 +77,12 @@ export const docsNavSections: DocNavSection[] = [
         titleKey: "docs.nav.agentfileLayer",
         href: "/docs/concepts/agentfile-layer",
       },
+      { titleKey: "docs.nav.runnerSetup", href: "/docs/runners/setup" },
       { titleKey: "docs.nav.mcpTools", href: "/docs/runners/mcp-tools" },
+      {
+        titleKey: "docs.nav.gitIntegration",
+        href: "/docs/guides/git-integration",
+      },
       {
         titleKey: "docs.nav.teamManagement",
         href: "/docs/guides/team-management",

@@ -18,7 +18,7 @@ export default function WorkspacePage() {
 
       {/* Overview */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.workspace.overview.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -28,14 +28,14 @@ export default function WorkspacePage() {
 
       {/* Multi-Terminal View */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.workspace.multiTerminal.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-6">
           {t("docs.features.workspace.multiTerminal.description")}
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.workspace.multiTerminal.splitView")}
             </h3>
@@ -43,7 +43,7 @@ export default function WorkspacePage() {
               {t("docs.features.workspace.multiTerminal.splitViewDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.workspace.multiTerminal.fullscreen")}
             </h3>
@@ -51,7 +51,7 @@ export default function WorkspacePage() {
               {t("docs.features.workspace.multiTerminal.fullscreenDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.workspace.multiTerminal.tabbing")}
             </h3>
@@ -64,14 +64,14 @@ export default function WorkspacePage() {
 
       {/* Pod Management */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.workspace.podList.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-6">
           {t("docs.features.workspace.podList.description")}
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.workspace.podList.statusFilters")}
             </h3>
@@ -79,7 +79,7 @@ export default function WorkspacePage() {
               {t("docs.features.workspace.podList.statusFiltersDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.workspace.podList.quickActions")}
             </h3>
@@ -87,7 +87,7 @@ export default function WorkspacePage() {
               {t("docs.features.workspace.podList.quickActionsDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.workspace.podList.details")}
             </h3>
@@ -100,13 +100,13 @@ export default function WorkspacePage() {
 
       {/* Quick Create */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.workspace.quickCreate.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.features.workspace.quickCreate.description")}
         </p>
-        <div className="bg-muted rounded-lg p-4">
+        <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4">
           <p className="text-sm text-muted-foreground">
             {t("docs.features.workspace.quickCreate.steps")}
           </p>
@@ -115,7 +115,7 @@ export default function WorkspacePage() {
 
       {/* Real-Time Interaction */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.workspace.realTime.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">

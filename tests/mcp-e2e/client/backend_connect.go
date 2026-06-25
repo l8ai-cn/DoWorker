@@ -99,8 +99,8 @@ type LoginResponse struct {
 	ExpiresIn    int64  `json:"expires_in"`
 }
 
-func (r *REST) Login(ctx context.Context, email, password string) (*LoginResponse, error) {
-	req := map[string]string{"email": email, "password": password}
+func (r *REST) Login(ctx context.Context, username, password string) (*LoginResponse, error) {
+	req := map[string]string{"username": username, "password": password}
 	// int64 fields ship as JSON strings in Connect; decode then ParseInt.
 	var out struct {
 		Token        string `json:"token"`

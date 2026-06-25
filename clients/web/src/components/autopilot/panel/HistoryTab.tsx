@@ -15,7 +15,7 @@ function IterationItem({ iteration }: { iteration: AutopilotIteration }) {
   const [expanded, setExpanded] = React.useState(false);
   const phaseInfo = iterationPhaseConfig[iteration.phase] || {
     label: iteration.phase,
-    color: "bg-gray-500",
+    color: "bg-muted-foreground",
     icon: <FileText className="h-3 w-3" />,
   };
 

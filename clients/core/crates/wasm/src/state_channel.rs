@@ -54,14 +54,14 @@ impl WasmChannelState {
     }
 
     // Read side, zero-JSON: prost-encode state channels (reuse the list wrapper).
-    // Web/desktop decode via fromBinary + channelToCache. Replaces channels_json.
+    // Web decodes via fromBinary + channelToCache. Replaces channels_json.
     pub fn channels_bytes(&self) -> Vec<u8> {
         let channels = self.state.read().channels.get_channels().to_vec();
         ReplaceCachedChannelsRequest { channels }.encode_to_vec()
     }
 
     // Read side, zero-JSON for the remaining facets. Reuse the *Request wrappers
-    // (web/desktop decode via fromBinary + the same xToCache as the mutators).
+    // so Web decodes via fromBinary + the same xToCache as the mutators.
     pub fn get_messages_bytes(&self, channel_id: i64) -> Vec<u8> {
         match self.state.read().channels.get_messages(channel_id) {
             Some(cache) => ReplaceCachedChannelMessagesRequest {

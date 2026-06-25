@@ -10,15 +10,13 @@ AgentsMesh is **The AI Agent Workforce Platform** — where teams scale beyond h
 
 Server-side (Go):
 - **Backend** (`backend/`): API server (Gin + GORM). REST for clients, gRPC + mTLS to Runner. Owns auth, org/team/user, pod lifecycle, ticket/channel, billing, PKI for runner certs. PostgreSQL + Redis.
-- **Relay** (`relay/`): WebSocket relay for the terminal data plane. Browser / Desktop / iOS ↔ Relay ↔ Runner (binary protocol). Backend never touches PTY bytes.
+- **Relay** (`relay/`): WebSocket relay for the terminal data plane. Browser ↔ Relay ↔ Runner (binary protocol). Backend never touches PTY bytes.
 - **Runner** (`runner/`): Self-hosted daemon. Connects to Backend via gRPC bidi stream. Spawns isolated PTY pods that run the actual AI agents (Claude Code / Codex / Aider / …).
 
 Client-side:
-- **Rust Core** (`clients/core/`): **Business-logic SSOT.** 10 crates compiled to WASM (Web / Desktop) + native dylib via UniFFI (iOS XCFramework). Owns the authoritative cache, DTOs, and services — auth, blockstore, channels, tickets, mesh, autopilot. Front-ends are thin views over it. **Modify state in Rust, not in Zustand / TCA / etc.**
+- **Rust Core** (`clients/core/`): **Business-logic SSOT.** Rust crates compiled to WASM for Web. Owns the authoritative cache, DTOs, and services — auth, blockstore, channels, tickets, mesh, autopilot. Front-ends are thin views over it. **Modify state in Rust, not in Zustand.**
 - **Web** (`clients/web/`): Next.js (App Router + TS + Tailwind). Loads `agentsmesh-wasm` at boot; UI state mirrors Rust selectors via `_tick` triggers.
 - **Web-Admin** (`clients/web-admin/`): Next.js admin console mounted at `/admin`. Internal-only — gated on `is_system_admin`.
-- **Desktop** (`clients/desktop/`): Electron + electron-vite. Renderer reuses `clients/web` source; main-process node-bridge proxies IPC to the same Rust Core (native NAPI build).
-- **iOS** (`clients/ios/`): SwiftUI + TCA. Consumes the Rust Core via UniFFI-generated Swift bindings. Same DTOs, same services, ~zero duplicated business logic.
 
 ## Development Environment
 
@@ -121,13 +119,6 @@ bazel run //:gazelle
 bazel build //backend/cmd/server:server
 bazel build //backend/cmd/server:image
 bazel run //backend/cmd/server:image_tarball   # → docker load
-
-# Build the Rust → XCFramework chain (once Phase 3b is live)
-bazel build //clients/core/crates/ffi:AgentsMeshCore
-
-# Build the iOS app (once Phase 5 is live)
-bazel build //clients/ios:AgentsMesh
-bazel run //clients/ios:AgentsMesh_xcodeproj   # → Xcode project
 ```
 
 ### Backend (Go)
@@ -141,9 +132,7 @@ bazel run //backend:lint                                  # golangci-lint
 
 ### Web (Next.js)
 
-所有前端的依赖（web / web-admin / desktop）统一放在根 `package.json`。
-Per-app `package.json` 已删（desktop 仅留 thin shell 满足 electron-builder
-读 `name`/`version`/`main` 的需求）。Lint / type-check / 单测全部走 Bazel：
+所有前端的依赖（web / web-admin）统一放在根 `package.json`。Lint / type-check / 单测全部走 Bazel：
 
 ```bash
 pnpm install                              # Install at repo root (one-shot)
@@ -189,27 +178,6 @@ bazel test //clients/web-admin:lint
 bazel build //clients/web-admin:src
 ```
 
-### Desktop (Electron)
-
-Desktop 也走单根 `package.json`（thin shell 仅含 `name`/`version`/`main`，
-所有 deps 在根）。Bazel-native build pipeline（自写 `electron_builder_app`
-macro，包住 electron-vite + electron-builder）：
-
-```bash
-# Production build — main + preload + renderer bundles (Bazel)
-bazel build //clients/desktop:out
-
-# Package — .dmg / .zip / .app (macOS), .exe (Win), .AppImage (Linux)
-# `electron_builder` tag opts in to the heavy packaging targets that
-# `bazel build //...` skips. Output: bazel-bin/clients/desktop/dist/
-bazel build //clients/desktop:dist --build_tag_filters=electron_builder
-
-# Dev (electron-vite dev server still goes through node)
-(cd clients/desktop && node ../../node_modules/electron-vite/bin/electron-vite.js dev)
-
-# E2E (requires `:out` already built)
-bazel test //clients/desktop:e2e --test_tag_filters=e2e
-```
 
 ### Runner (Go)
 
@@ -249,59 +217,14 @@ Rust 业务代码（`clients/core/crates/`）的构建/测试/lint **完全走 B
 
 ```bash
 bazel test //clients/core/crates/auth:auth_test
-bazel build //clients/core/crates/ffi:ffi
 bazel build //clients/core/crates/wasm:wasm_lib
-bazel build //clients/core/crates/node-bridge:node_bridge
 
 # Generate rust-project.json for IDE / rust-analyzer
 bazel run //:rust_project
 ```
 
-**例外**：`clients/core/crates/ffi/Cargo.toml` 保留为 stub（仅 `[package]`
-三行），因为 uniffi 的 `#[uniffi::export]` proc-macro 在编译时通过
-`$CARGO_MANIFEST_DIR/Cargo.toml` 读取 crate name。**不要在这个 stub 加任何
-dependencies — Bazel 不读它**。
+**加新依赖**：编辑 `MODULE.bazel` 的 `crate.spec()` 块 → 加 `BUILD.bazel` 的 deps 引用 `@crates//:<name>`。**不要新建 Cargo.toml**。
 
-**加新依赖**：编辑 `MODULE.bazel` 的 `crate.spec()` 块 → 加 `BUILD.bazel`
-的 deps 引用 `@crates//:<name>`。**不要新建 Cargo.toml**。
-
-### iOS (SwiftUI + TCA, powered by Rust Core via UniFFI)
-
-```bash
-# One-time setup
-rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
-
-# Build the signed .ipa (Bazel builds the XCFramework as a transitive dep)
-bazel build //clients/ios:AgentsMesh
-
-# Or build just the XCFramework (consumed by clients/ios SPM package)
-bazel build //clients/core/crates/ffi:AgentsMeshCore
-
-# Run on a booted simulator (auto-boots iPhone 17 Pro if none)
-bazel run //clients/ios:AgentsMesh_sim
-
-# Develop in Xcode — regenerable, never commit the .xcodeproj
-bazel run //clients/ios:AgentsMesh_xcodeproj
-open AgentsMesh.xcodeproj
-```
-
-Bazel tree artifacts:
-- `bazel-bin/clients/core/crates/ffi/AgentsMeshCore.xcframework/` — device + universal-sim slices + `Info.plist`
-- `bazel-bin/clients/core/crates/ffi/AgentsMeshCore_bindings_out/AgentsMeshCore.swift` — Swift glue (~18k lines)
-
-The SPM package at `clients/ios/Packages/AgentsMeshCore/` references those
-artifacts directly through Bazel's `ios_app` macro — no source-tree
-symlinks, no manual `make` step.
-
-Layout:
-- `clients/ios/Packages/AgentsMeshCore/` — SPM facade: CoreBridge (singleton),
-  KeychainStorage (StorageCallback impl), EventStream, PodOutputDispatcher
-- `clients/ios/Packages/AgentsMeshFeatures/` — TCA reducers + SwiftUI views:
-  AppFeature (root), AuthFeature (login), WorkspaceFeature (pod list),
-  TerminalFeature (SwiftTerm + Relay WS), DesignSystem (tokens + primitives)
-- `clients/ios/App/` — Xcode App target (@main entry, Info.plist)
-
-Requirements: macOS with Xcode 15+. CI: `.github/workflows/ios.yml` (macOS runner).
 
 ### Database Migrations
 

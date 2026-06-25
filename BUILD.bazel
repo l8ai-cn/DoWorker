@@ -43,18 +43,6 @@ npm_link_package(
 )
 
 npm_link_package(
-    name = "node_modules/@agentsmesh/electron-adapter",
-    src = "//packages/electron-adapter:pkg",
-    root_package = "",
-)
-
-npm_link_package(
-    name = "node_modules/@agentsmesh/node-bridge",
-    src = "//clients/core/crates/node-bridge:pkg",
-    root_package = "",
-)
-
-npm_link_package(
     name = "node_modules/agentsmesh-wasm",
     src = "//clients/core/crates/wasm:wasm_pkg_npm",
     root_package = "",

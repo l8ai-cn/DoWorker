@@ -38,7 +38,7 @@ describe("lightLogin", () => {
     );
     globalThis.fetch = fetchSpy as typeof fetch;
 
-    const resp = await lightLogin({ email: "a@b.c", password: "secret" });
+    const resp = await lightLogin({ username: "alice", password: "secret" });
 
     expect(resp.token).toBe("access-1");
     expect(resp.refresh_token).toBe("refresh-1");
@@ -46,7 +46,7 @@ describe("lightLogin", () => {
     expect(String(url)).toBe(`${ORIGIN}/proto.auth.v1.AuthService/Login`);
     expect((init as RequestInit).method).toBe("POST");
     expect((init as RequestInit).body).toBe(
-      JSON.stringify({ email: "a@b.c", password: "secret" }),
+      JSON.stringify({ username: "alice", password: "secret" }),
     );
     const blob = readBlob();
     expect(blob.access_token).toBe("access-1");
@@ -65,7 +65,7 @@ describe("lightLogin", () => {
 
     let caught: unknown = null;
     try {
-      await lightLogin({ email: "a@b.c", password: "bad" });
+      await lightLogin({ username: "alice", password: "bad" });
     } catch (e) {
       caught = e;
     }
@@ -79,7 +79,7 @@ describe("lightLogin", () => {
     globalThis.fetch = vi.fn<typeof fetch>(async () => {
       throw new TypeError("network down");
     }) as typeof fetch;
-    await expect(lightLogin({ email: "a@b.c", password: "x" })).rejects.toThrow(
+    await expect(lightLogin({ username: "alice", password: "x" })).rejects.toThrow(
       "network down",
     );
     expect(readBlob()).toBeNull();

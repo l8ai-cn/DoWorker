@@ -34,7 +34,7 @@ export function MobileChannelChat({ channelId, onClose }: MobileChannelChatProps
   if (chat.channelLoading && !chat.currentChannel) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col bg-background">
-        <div className="flex-shrink-0 border-b border-border px-4 py-3 flex items-center gap-3">
+        <div className="flex-shrink-0 bg-surface-muted/30 px-4 py-3 flex items-center gap-3">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
@@ -48,12 +48,12 @@ export function MobileChannelChat({ channelId, onClose }: MobileChannelChatProps
   }
 
   const IconComponent = isPrivate ? Lock : Radio;
-  const iconColor = isPrivate ? "text-amber-500" : "text-blue-500 dark:text-blue-400";
-  const iconBg = isPrivate ? "bg-amber-500/10" : "bg-blue-500/10";
+  const iconColor = isPrivate ? "text-warning" : "text-info";
+  const iconBg = isPrivate ? "bg-warning-bg" : "bg-info-bg";
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
-      <div className="flex-shrink-0 border-b border-border">
+      <div className="flex-shrink-0 bg-surface-muted/30">
         <div className="flex items-center justify-between px-2 py-2">
           <div className="flex items-center gap-2 min-w-0">
             <Button variant="ghost" size="icon" className="h-9 w-9 flex-shrink-0" onClick={onClose}>

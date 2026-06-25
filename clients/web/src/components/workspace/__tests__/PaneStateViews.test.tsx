@@ -21,7 +21,7 @@ describe("PaneLoadingState", () => {
 
       const statusText = screen.getByText("initializing");
       expect(statusText).toBeInTheDocument();
-      expect(statusText).toHaveClass("text-yellow-500");
+      expect(statusText).toHaveClass("text-warning");
     });
 
     it("does not show close button for initializing status", () => {
@@ -74,7 +74,7 @@ describe("PaneLoadingState", () => {
 
       const statusText = screen.getByText("completed");
       expect(statusText).toBeInTheDocument();
-      expect(statusText).toHaveClass("text-green-500");
+      expect(statusText).toHaveClass("text-success");
     });
 
     it("shows close button", () => {

@@ -14,7 +14,6 @@ export {
   getAuthConnectService, getRunnerState, getMeshState, getTicketState,
   getChannelState, getLoopState, getAcpManager, getLoopalManager, getRepoState,
   getAutopilotState, getRelayManager, getBlockstoreService,
-  getLocalRunnerService,
 } from "./service-getters";
 
 export { setPlatformInit, ensurePlatformReady } from "./platform-init";

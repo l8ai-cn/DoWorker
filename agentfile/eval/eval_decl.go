@@ -78,6 +78,8 @@ func evalDecl(ctx *Context, decl parser.Declaration) error {
 		ctx.Result.ModeArgs[d.Mode] = d.Args
 	case *parser.UseEnvBundleDecl:
 		evalUseEnvBundleDecl(ctx, d)
+	case *parser.UseConfigBundleDecl:
+		evalUseConfigBundleDecl(ctx, d)
 	case *parser.PromptDecl:
 		ctx.Result.Prompt = d.Content
 	case *parser.PromptPositionDecl:
@@ -148,6 +150,24 @@ func evalUseEnvBundleDecl(ctx *Context, d *parser.UseEnvBundleDecl) {
 	for k, v := range bundle {
 		ctx.Result.EnvVars[k] = v
 	}
+}
+
+func evalUseConfigBundleDecl(ctx *Context, d *parser.UseConfigBundleDecl) {
+	if ctx.ConfigBundles == nil {
+		return
+	}
+	doc, ok := ctx.ConfigBundles[d.Name]
+	if !ok {
+		return
+	}
+	ctx.Set("config_json", doc)
+	cb, _ := ctx.Get("config_bundle")
+	mp, _ := cb.(map[string]interface{})
+	if mp == nil {
+		mp = make(map[string]interface{})
+	}
+	mp[d.Name] = doc
+	ctx.Set("config_bundle", mp)
 }
 
 // shallowMerge merges two maps (later keys override earlier).

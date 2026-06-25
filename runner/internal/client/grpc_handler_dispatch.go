@@ -51,7 +51,6 @@ func (c *GRPCConnection) handleSubscribePod(cmd *runnerv1.SubscribePodCommand) {
 		PodKey:          cmd.PodKey,
 		RelayURL:        cmd.RelayUrl,
 		RunnerToken:     cmd.RunnerToken,
-		LocalToken:      cmd.LocalToken,
 		IncludeSnapshot: cmd.IncludeSnapshot,
 		SnapshotHistory: cmd.SnapshotHistory,
 	}

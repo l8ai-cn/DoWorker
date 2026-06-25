@@ -159,7 +159,7 @@ export function LoopListSidebar({ loops, selectedSlug, onSelect, onCreate }: Loo
       </div>
 
       {/* Sort footer per design */}
-      <div className="flex items-center gap-2 border-t border-border px-3 py-2.5 text-[12px] text-muted-foreground">
+      <div className="flex items-center gap-2 bg-surface-muted/30 px-3 py-2.5 text-[12px] text-muted-foreground">
         <span>{t("loops.sortRecent")}</span>
         <div className="flex-1" />
         <button type="button" className="rounded px-1 text-base hover:bg-muted">

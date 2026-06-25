@@ -24,8 +24,10 @@ import {
   Server,
   Settings,
   Repeat,
+  Workflow,
   Blocks,
   Layers,
+  Sparkles,
   CircleHelp,
   type LucideIcon,
 } from "lucide-react";
@@ -38,11 +40,13 @@ const ICON_MAP: Record<string, LucideIcon> = {
   network: Network,
   "message-square": MessageSquare,
   repeat: Repeat,
+  workflow: Workflow,
   blocks: Blocks,
   repository: FolderGit2,
   server: Server,
   settings: Settings,
   layers: Layers,
+  sparkles: Sparkles,
 };
 
 interface ActivityBarProps {
@@ -71,6 +75,8 @@ export function ActivityBar({ className }: ActivityBarProps) {
         return `/${orgSlug}/mesh`;
       case "loops":
         return `/${orgSlug}/loops`;
+      case "automation":
+        return `/${orgSlug}/automation`;
       case "blocks":
         return `/${orgSlug}/blocks`;
       case "infra":
@@ -79,6 +85,8 @@ export function ActivityBar({ className }: ActivityBarProps) {
         return `/${orgSlug}/repositories`;
       case "runners":
         return `/${orgSlug}/runners`;
+      case "skills":
+        return `/${orgSlug}/skills`;
       case "settings":
         return `/${orgSlug}/settings`;
       default:
@@ -92,10 +100,12 @@ export function ActivityBar({ className }: ActivityBarProps) {
     else if (pathname.includes("/channels")) setActiveActivity("channels");
     else if (pathname.includes("/mesh")) setActiveActivity("mesh");
     else if (pathname.includes("/loops")) setActiveActivity("loops");
+    else if (pathname.includes("/automation")) setActiveActivity("automation");
     else if (pathname.includes("/blocks")) setActiveActivity("blocks");
     else if (pathname.includes("/infra")) setActiveActivity("infra");
     else if (pathname.includes("/repositories")) setActiveActivity("repositories");
     else if (pathname.includes("/runners")) setActiveActivity("runners");
+    else if (pathname.includes("/skills")) setActiveActivity("skills");
     else if (pathname.includes("/settings")) setActiveActivity("settings");
   }, [pathname, setActiveActivity]);
 
@@ -106,15 +116,15 @@ export function ActivityBar({ className }: ActivityBarProps) {
     <TooltipProvider delayDuration={300}>
       <aside
         className={cn(
-          "w-[136px] bg-background border-r border-border flex flex-col",
+          "w-[120px] bg-surface flex flex-col",
           className
         )}
       >
-        <div className="flex h-12 items-center justify-start px-2 border-b border-border">
+        <div className="flex h-14 items-center justify-start px-2.5">
           <OrgSwitcher />
         </div>
 
-        <nav className="flex-1 flex flex-col items-stretch py-2 gap-0.5 px-2">
+        <nav className="flex-1 flex flex-col items-stretch py-2 gap-1 px-2">
           {mainActivities.map((activity, idx) => {
             const Icon = ICON_MAP[activity.icon] || Terminal;
             const isActive = activeActivity === activity.id;
@@ -126,23 +136,20 @@ export function ActivityBar({ className }: ActivityBarProps) {
             return (
               <React.Fragment key={activity.id}>
                 {showDivider && (
-                  <div className="my-1 h-px w-full bg-border" aria-hidden="true" />
+                  <div className="my-1 h-2" aria-hidden="true" />
                 )}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Link
                       href={getActivityRoute(activity.id)}
                       className={cn(
-                        "w-full h-9 px-2 flex items-center gap-2 rounded-md transition-colors relative",
+                        "motion-interactive pressable w-full h-9 px-2.5 flex items-center gap-2 rounded-lg relative",
                         isActive
-                          ? "text-foreground bg-muted"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
+                          ? "text-primary bg-accent shadow-[var(--shadow-soft)]"
+                          : "text-muted-foreground hover:text-foreground hover:bg-surface-muted",
                       )}
                       onClick={() => setActiveActivity(activity.id)}
                     >
-                      {isActive && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r" />
-                      )}
                       <div className="relative shrink-0">
                         <Icon className="w-4 h-4" />
                         {showBadge && (
@@ -159,7 +166,7 @@ export function ActivityBar({ className }: ActivityBarProps) {
                   <TooltipPortal>
                     <TooltipContent
                       side="right"
-                      className="z-50 bg-popover text-popover-foreground px-2 py-1 text-sm rounded shadow-md border border-border"
+                      className="z-50 bg-popover text-popover-foreground px-2 py-1 text-sm rounded-md shadow-[var(--shadow-soft)]"
                     >
                       {t(`ide.activities.${activity.id}`)}
                     </TooltipContent>
@@ -172,14 +179,14 @@ export function ActivityBar({ className }: ActivityBarProps) {
 
         <ReminderArea />
 
-        <nav className="flex flex-col items-stretch py-2 gap-0.5 px-2 border-t border-border">
+        <nav className="flex flex-col items-stretch py-2 gap-1 px-2 pt-3">
           <Tooltip>
             <TooltipTrigger asChild>
               <a
                 href="https://discord.gg/3RcX7VBbH9"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full h-9 px-2 flex items-center gap-2 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                className="motion-interactive pressable w-full h-9 px-2.5 flex items-center gap-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface-muted"
               >
                 <CircleHelp className="w-4 h-4 shrink-0" />
                 <span className="text-xs leading-tight font-medium truncate">
@@ -190,7 +197,7 @@ export function ActivityBar({ className }: ActivityBarProps) {
             <TooltipPortal>
               <TooltipContent
                 side="right"
-                className="z-50 bg-popover text-popover-foreground px-2 py-1 text-sm rounded shadow-md border border-border"
+                className="z-50 bg-popover text-popover-foreground px-2 py-1 text-sm rounded-md shadow-[var(--shadow-soft)]"
               >
                 {t("ide.activities.help")}
               </TooltipContent>
@@ -207,16 +214,13 @@ export function ActivityBar({ className }: ActivityBarProps) {
                   <Link
                     href={getActivityRoute(activity.id)}
                     className={cn(
-                      "w-full h-9 px-2 flex items-center gap-2 rounded-md transition-colors relative",
+                      "motion-interactive pressable w-full h-9 px-2.5 flex items-center gap-2 rounded-lg relative",
                       isActive
-                        ? "text-foreground bg-muted"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                        ? "text-primary bg-accent shadow-[var(--shadow-soft)]"
+                        : "text-muted-foreground hover:text-foreground hover:bg-surface-muted"
                     )}
                     onClick={() => setActiveActivity(activity.id)}
                   >
-                    {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r" />
-                    )}
                     <Icon className="w-4 h-4 shrink-0" />
                     <span className="text-xs leading-tight font-medium truncate">
                       {t(`ide.activities.${activity.id}`)}
@@ -226,7 +230,7 @@ export function ActivityBar({ className }: ActivityBarProps) {
                 <TooltipPortal>
                   <TooltipContent
                     side="right"
-                    className="z-50 bg-popover text-popover-foreground px-2 py-1 text-sm rounded shadow-md border border-border"
+                  className="z-50 bg-popover text-popover-foreground px-2 py-1 text-sm rounded-md shadow-[var(--shadow-soft)]"
                   >
                     {t(`ide.activities.${activity.id}`)}
                   </TooltipContent>

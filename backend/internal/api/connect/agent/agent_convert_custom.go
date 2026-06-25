@@ -94,7 +94,24 @@ func toProtoConfigSchema(s *agentservice.ConfigSchemaResponse) *agentv1.ConfigSc
 		return &agentv1.ConfigSchema{}
 	}
 	out := &agentv1.ConfigSchema{
-		Fields: make([]*agentv1.ConfigField, 0, len(s.Fields)),
+		Fields:           make([]*agentv1.ConfigField, 0, len(s.Fields)),
+		CredentialFields: make([]*agentv1.CredentialField, 0, len(s.CredentialFields)),
+		ConfigFiles:      make([]*agentv1.ConfigFile, 0, len(s.ConfigFiles)),
+	}
+	for _, c := range s.CredentialFields {
+		out.CredentialFields = append(out.CredentialFields, &agentv1.CredentialField{
+			Name:     c.Name,
+			Type:     c.Type,
+			Optional: c.Optional,
+		})
+	}
+	for _, cf := range s.ConfigFiles {
+		out.ConfigFiles = append(out.ConfigFiles, &agentv1.ConfigFile{
+			Id:       cf.ID,
+			PathEnv:  cf.PathEnv,
+			Format:   cf.Format,
+			PathHint: cf.PathHint,
+		})
 	}
 	for _, f := range s.Fields {
 		options := make([]*agentv1.FieldOption, 0, len(f.Options))

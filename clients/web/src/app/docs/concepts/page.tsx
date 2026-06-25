@@ -16,14 +16,14 @@ export default function ConceptsPage() {
 
       {/* Architecture Overview */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.architecture.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-6">
           {t("docs.concepts.architecture.description")}
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.architecture.orgTitle")}
             </h3>
@@ -31,7 +31,7 @@ export default function ConceptsPage() {
               {t("docs.concepts.architecture.orgDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.architecture.runnerTitle")}
             </h3>
@@ -39,7 +39,7 @@ export default function ConceptsPage() {
               {t("docs.concepts.architecture.runnerDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.architecture.podTitle")}
             </h3>
@@ -47,7 +47,7 @@ export default function ConceptsPage() {
               {t("docs.concepts.architecture.podDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.architecture.channelTitle")}
             </h3>
@@ -55,7 +55,7 @@ export default function ConceptsPage() {
               {t("docs.concepts.architecture.channelDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4 md:col-span-2">
+          <div className="surface-card p-4 md:col-span-2">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.architecture.ticketTitle")}
             </h3>
@@ -68,7 +68,7 @@ export default function ConceptsPage() {
 
       {/* BYOK */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.byok.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -78,7 +78,7 @@ export default function ConceptsPage() {
 
       {/* mTLS Security */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.mtls.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -88,7 +88,7 @@ export default function ConceptsPage() {
 
       {/* Sandbox & Git Worktree Isolation */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.sandbox.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -98,7 +98,7 @@ export default function ConceptsPage() {
 
       {/* MCP */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.mcp.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">

@@ -85,7 +85,7 @@ export function CommitsList({
         <GitCommit className="h-3.5 w-3.5" />
         {t("tickets.detail.commits")} ({commits.length})
       </p>
-      <div className="rounded-xl border border-border/50 divide-y divide-border/40 overflow-hidden bg-card shadow-sm">
+      <div className="surface-card divide-y divide-border/40 overflow-hidden bg-card shadow-sm">
         {commits.map((commit) => (
           <div key={commit.id} className="px-3.5 py-2.5 hover:bg-muted/20 transition-colors">
             <div className="flex items-start gap-2.5">

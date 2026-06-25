@@ -459,28 +459,10 @@
         "badge": "最新リリース",
         "title": "ダウンロード",
         "titleHighlight": "AgentsMesh",
-        "subtitle": "各プラットフォーム向けのネイティブ デスクトップ アプリと、エージェント・コード・データを自分のインフラに留めるセルフホスト型 Runner。",
+        "subtitle": "セルフホスト型 Runner をダウンロードして、エージェント・コード・データを自分のインフラに留めます。",
         "downloadFor": "{platform} 版をダウンロード",
         "releasedOn": "{date} リリース",
         "viewReleaseNotes": "GitHub でリリースノートを見る"
-      },
-      "platforms": {
-        "title": "プラットフォームを選択",
-        "description": "すべてのビルドはコード署名とノータライズ済み。自動アップデートで常に最新の安定版を利用できます。",
-        "unavailable": "このプラットフォームのビルドはまだ提供していません",
-        "checkBack": "次のリリースをお待ちください",
-        "macos": {
-          "title": "macOS",
-          "requirements": "macOS 11 Big Sur 以降"
-        },
-        "windows": {
-          "title": "Windows",
-          "requirements": "Windows 10 以降 · x64 / ARM64"
-        },
-        "linux": {
-          "title": "Linux",
-          "requirements": "Ubuntu 20.04 / Debian 11 以降"
-        }
       },
       "runner": {
         "badge": "Runner CLI",

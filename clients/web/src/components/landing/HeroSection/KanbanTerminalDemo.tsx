@@ -7,18 +7,18 @@ const COLUMN_LABELS = { backlog: "Backlog", in_progress: "In Progress", done: "D
 const COLUMN_KEYS = ["backlog", "in_progress", "done"] as const;
 
 const AGENT_COLORS: Record<string, string> = {
-  "Claude Code": "bg-orange-500/20 text-orange-400",
-  "Codex CLI": "bg-blue-500/20 text-blue-400",
-  "Aider": "bg-purple-500/20 text-purple-400",
-  "Gemini CLI": "bg-green-500/20 text-green-400",
+  "Claude Code": "bg-primary/20 text-primary",
+  "Codex CLI": "bg-info/20 text-info",
+  "Aider": "bg-accent-foreground/20 text-accent-foreground",
+  "Gemini CLI": "bg-success/20 text-success",
 };
 
 function TicketCard({ ticket }: { ticket: KanbanTicket }) {
   const showExecute = ticket.status === "backlog";
 
   return (
-    <div className={`p-2 bg-background/60 rounded-lg border transition-all duration-500 ${
-      ticket.executing ? "border-primary/60 shadow-md shadow-primary/20" : "border-border/60"
+    <div className={`p-2 bg-background/60 rounded-lg ring-1 transition-all duration-500 motion-interactive ${
+      ticket.executing ? "ring-primary/60 shadow-md shadow-primary/20" : "ring-border/20"
     }`}>
       <div className="flex items-center justify-between mb-1">
         <div className="text-xs font-medium text-foreground">{ticket.title}</div>
@@ -41,14 +41,14 @@ function TicketCard({ ticket }: { ticket: KanbanTicket }) {
 
 function KanbanBoard({ tickets }: { tickets: KanbanTicket[] }) {
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden">
+    <div className="surface-card rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-muted border-b border-border">
+      <div className="flex items-center justify-between px-4 py-2 bg-surface-muted/50 panel-lift">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
-            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
-            <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
+            <div className="w-2.5 h-2.5 rounded-full bg-danger/80" />
+            <div className="w-2.5 h-2.5 rounded-full bg-warning/80" />
+            <div className="w-2.5 h-2.5 rounded-full bg-success/80" />
           </div>
           <span className="text-xs font-semibold text-foreground ml-2">Kanban Board</span>
         </div>
@@ -56,7 +56,7 @@ function KanbanBoard({ tickets }: { tickets: KanbanTicket[] }) {
       </div>
 
       {/* Columns */}
-      <div className="grid grid-cols-3 gap-0 divide-x divide-border">
+      <div className="grid grid-cols-3 gap-0 divide-x divide-border/20">
         {COLUMN_KEYS.map((col) => {
           const colTickets = tickets.filter((t) => t.status === col);
           return (
@@ -64,8 +64,8 @@ function KanbanBoard({ tickets }: { tickets: KanbanTicket[] }) {
               <div className="flex items-center gap-1.5 mb-2">
                 <div className={`w-1.5 h-1.5 rounded-full ${
                   col === "backlog" ? "bg-muted-foreground" :
-                  col === "in_progress" ? "bg-yellow-500 animate-pulse" :
-                  "bg-green-500"
+                  col === "in_progress" ? "bg-warning animate-pulse" :
+                  "bg-success"
                 }`} />
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                   {COLUMN_LABELS[col]}
@@ -101,11 +101,11 @@ function TerminalSplitView({
       {terminals.map((terminal) => (
         <div
           key={`${frameIndex}-${terminal.id}`}
-          className="bg-card rounded-lg border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500"
+          className="surface-card rounded-lg overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500"
         >
-          <div className="flex items-center justify-between px-3 py-1.5 bg-muted border-b border-border">
+          <div className="flex items-center justify-between px-3 py-1.5 bg-surface-muted/50 panel-lift">
             <div className="flex items-center gap-1.5">
-              <div className={`w-1.5 h-1.5 rounded-full ${terminal.active ? "bg-green-500 animate-pulse" : "bg-muted-foreground"}`} />
+              <div className={`w-1.5 h-1.5 rounded-full ${terminal.active ? "bg-success animate-pulse" : "bg-muted-foreground"}`} />
               <span className="text-[10px] font-mono font-semibold text-foreground">{terminal.agent}</span>
             </div>
             <span className="text-[10px] text-muted-foreground font-mono">{terminal.ticketId}-dev</span>

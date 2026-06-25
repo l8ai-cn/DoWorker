@@ -22,7 +22,7 @@ setup("authenticate as test user", async ({ browser }) => {
   const loginRes = await fetch(`${apiBaseUrl}/proto.auth.v1.AuthService/Login`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Connect-Protocol-Version": "1" },
-    body: JSON.stringify({ email: TEST_USER.email, password: TEST_USER.password }),
+    body: JSON.stringify({ username: TEST_USER.username, password: TEST_USER.password }),
   });
   if (!loginRes.ok) throw new Error(`login failed: ${loginRes.status}`);
   const data = await loginRes.json();

@@ -24,7 +24,7 @@ export function TicketsPageHeader({ onCreateClick, onExportClick, rightExtra }: 
       className={cn(
         "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors",
         viewMode === mode
-          ? "bg-background text-foreground shadow-xs"
+          ? "bg-surface-raised text-foreground shadow-xs"
           : "text-muted-foreground hover:text-foreground",
       )}
     >
@@ -34,12 +34,12 @@ export function TicketsPageHeader({ onCreateClick, onExportClick, rightExtra }: 
   );
 
   return (
-    <header className="flex items-center justify-between gap-4 border-b border-border px-6 py-3">
+    <header className="flex items-center justify-between gap-4 px-6 py-3 shadow-[inset_0_-1px_0_color-mix(in_srgb,var(--border)_45%,transparent)]">
       <div className="flex items-center gap-3">
         <h1 className="text-lg font-semibold tracking-tight text-foreground">{t("tickets.title")}</h1>
       </div>
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-0.5 rounded-md border border-border bg-muted p-0.5">
+        <div className="flex items-center gap-0.5 rounded-lg bg-surface-muted p-0.5 ring-1 ring-border/35">
           {tab("board", LayoutGrid, t("tickets.views.board"))}
           {tab("list", List, t("tickets.views.list"))}
         </div>

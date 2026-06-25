@@ -15,7 +15,7 @@ export function RuntimeConfigSection({
   t,
 }: RuntimeConfigSectionProps) {
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <div className="flex items-center gap-2 mb-4">
         <Settings2 className="w-5 h-5 text-muted-foreground" />
         <h3 className="text-lg font-semibold">{t("settings.agentConfig.runtime.title")}</h3>

@@ -80,7 +80,7 @@ function PersonalGeneralSettings() {
   return (
     <div className="space-y-6">
       {/* Account Information */}
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <h2 className="text-lg font-semibold mb-4">
           {t("settings.personal.general.accountInfo")}
         </h2>
@@ -114,7 +114,7 @@ function PersonalGeneralSettings() {
       <ThemeSettings />
 
       {/* Session / Logout */}
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <h2 className="text-lg font-semibold mb-2">
           {t("settings.personal.general.session")}
         </h2>
@@ -137,7 +137,7 @@ function PersonalGeneralSettings() {
 function PersonalAgentCredentialsSettings() {
   return (
     <div className="space-y-6">
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <AgentCredentialsSettings />
       </div>
     </div>
@@ -149,7 +149,7 @@ type TranslationFn = (key: string, params?: Record<string, string | number>) => 
 function PersonalNotificationsSettings({ t }: { t: TranslationFn }) {
   return (
     <div className="space-y-6">
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <h2 className="text-lg font-semibold mb-4">{t("settings.notifications.title")}</h2>
         <p className="text-sm text-muted-foreground mb-6">
           {t("settings.notifications.description")}

@@ -72,7 +72,7 @@ export function LoopalModelThinkingPopover({
             onPick(o.config);
           }}
           className={`flex w-full items-center rounded px-2 py-1 text-left text-xs ${
-            i === active ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
+            i === active ? "bg-muted text-foreground" : "text-muted-foreground motion-interactive hover:bg-surface-muted"
           }`}
         >
           {t("thinking." + o.key)}

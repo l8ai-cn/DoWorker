@@ -58,8 +58,8 @@ test.describe("E1: ?redirect= preserves deep link through login", () => {
     await page.goto(`/login?redirect=${encodeURIComponent(target)}`);
 
     const loginPage = new LoginPage(page);
-    await loginPage.emailInput.waitFor({ state: "visible" });
-    await loginPage.login(TEST_USER.email, TEST_USER.password);
+    await loginPage.usernameInput.waitFor({ state: "visible" });
+    await loginPage.login(TEST_USER.username, TEST_USER.password);
 
     await page.waitForURL((url) => url.pathname !== "/login", { timeout: 15_000 });
     expect(page.url()).toContain(target);
@@ -76,7 +76,7 @@ test.describe("E2: authenticated user is redirected away from (auth) pages", () 
       page,
       api,
     }) => {
-      const tokens = await api.login(TEST_USER.email, TEST_USER.password);
+      const tokens = await api.login();
       await seedLightSession(page, tokens);
 
       await page.goto(path);

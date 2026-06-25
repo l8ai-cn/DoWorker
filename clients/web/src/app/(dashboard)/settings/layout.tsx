@@ -10,7 +10,7 @@ export default function PersonalSettingsLayout({
   return (
     <div className="flex h-full">
       {/* Sidebar */}
-      <div className="w-64 border-r border-border bg-background flex-shrink-0">
+      <div className="w-64 bg-surface flex-shrink-0">
         <PersonalSettingsSidebar />
       </div>
 

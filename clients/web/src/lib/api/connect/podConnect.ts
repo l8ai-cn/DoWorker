@@ -29,10 +29,9 @@ import {
   UpdatePodPerpetualResponseSchema,
 } from "@proto/pod/v1/pod_pb";
 import { create, toBinary, fromBinary } from "@bufbuild/protobuf";
-// Shared proto→PodData projection — single SSOT, also consumed by the desktop
-// electron-adapter. Aliased to the historical fromProtoPod name and re-exported
-// for cross-file use (stores/pod, podProtoMap, facade).
-import { podToCache as fromProtoPod } from "@agentsmesh/electron-adapter/projections";
+// Shared proto->PodData projection. Aliased to the historical fromProtoPod
+// name and re-exported for cross-file use (stores/pod, podProtoMap, facade).
+import { podToCache as fromProtoPod } from "@/lib/api/projections";
 import { getPodService } from "@/lib/wasm-core";
 import type { PodData } from "@/lib/api/facade/pod";
 
@@ -42,9 +41,6 @@ export interface PodConnectionInfo {
   relay_url: string;
   token: string;
   pod_key: string;
-  local_relay_url?: string;
-  local_token?: string;
-  local_relay_node_id?: string;
 }
 
 // ============== Pod CRUD ==============
@@ -198,9 +194,6 @@ export async function getPodConnection(
     relay_url: c.relayUrl,
     token: c.token,
     pod_key: c.podKey,
-    local_relay_url: c.localRelayUrl || undefined,
-    local_token: c.localToken || undefined,
-    local_relay_node_id: c.localRelayNodeId || undefined,
   };
 }
 

@@ -1,6 +1,6 @@
 // Runner ViewModels — UI-side projection of `proto.runner_api.v1` types. Owned
-// in this zero-dep contract layer so web (fromProtoRunner) and desktop
-// (electron-adapter projection) share one definition. Snake_case kept because
+// in this zero-dep contract layer so Web projections share one definition.
+// Snake_case kept because
 // host_info ships as a JSON string the adapter parses and many consumers
 // (RunnerCard, RunnerLogsCard, useRunnerDetail) read these directly.
 export interface RunnerData {

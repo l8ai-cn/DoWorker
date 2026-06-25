@@ -85,6 +85,13 @@ func (p *Parser) parseUseEnvBundleDecl(pos Position) *UseEnvBundleDecl {
 	return &UseEnvBundleDecl{Name: name, Position: pos}
 }
 
+func (p *Parser) parseUseConfigBundleDecl(pos Position) *UseConfigBundleDecl {
+	p.advance()
+	name := p.expectIdentOrString()
+	p.expectNewline()
+	return &UseConfigBundleDecl{Name: name, Position: pos}
+}
+
 // parsePromptDecl: PROMPT "prompt content"
 func (p *Parser) parsePromptDecl(pos Position) *PromptDecl {
 	p.advance()

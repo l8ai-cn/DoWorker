@@ -17,7 +17,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, color }: StatCardProps) {
   return (
-    <div className="border border-border rounded-lg p-4">
+    <div className="surface-card p-4">
       <p className="text-sm text-muted-foreground mb-1">{label}</p>
       <p className={`text-2xl font-bold ${color}`} title={formatNumber(value)}>
         {formatTokenCount(value)}
@@ -31,22 +31,22 @@ export function UsageOverviewCards({ summary, t }: UsageOverviewCardsProps) {
     {
       label: t("settings.usagePage.inputTokens"),
       value: summary?.input_tokens ?? 0,
-      color: "text-blue-600 dark:text-blue-400",
+      color: "text-info",
     },
     {
       label: t("settings.usagePage.outputTokens"),
       value: summary?.output_tokens ?? 0,
-      color: "text-emerald-600 dark:text-emerald-400",
+      color: "text-success",
     },
     {
       label: t("settings.usagePage.cacheCreationTokens"),
       value: summary?.cache_creation_tokens ?? 0,
-      color: "text-purple-600 dark:text-purple-400",
+      color: "text-primary",
     },
     {
       label: t("settings.usagePage.cacheReadTokens"),
       value: summary?.cache_read_tokens ?? 0,
-      color: "text-amber-600 dark:text-amber-400",
+      color: "text-warning",
     },
     {
       label: t("settings.usagePage.totalTokens"),

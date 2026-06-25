@@ -1,7 +1,6 @@
 import { getPodConnection } from "@/lib/api/facade/podConnect";
 import { readCurrentOrg } from "@/stores/auth";
-import { getLocalRunnerService, getRelayManager } from "@agentsmesh/service-runtime";
-import { probeRelayOpen } from "./relayProbe";
+import { getRelayManager } from "@agentsmesh/service-runtime";
 import type {
   ConnectionStatus, ConnectionHandle, RelayStatusInfo, StatusListener,
 } from "./relayConnectionTypes";
@@ -15,14 +14,12 @@ type StatusInfoRaw = { status: string; runnerDisconnected: boolean };
 const NONE: RelayStatusInfo = { status: "none", runnerDisconnected: false };
 
 // Thin adapter over the Rust relay pool (via getRelayManager(): WasmRelayManager
-// on web, ElectronRelayManager → main-process pool on desktop). All connection
+// on web, WasmRelayManager). All connection
 // management — reconnect/backoff, input dedup, resize debounce, snapshot replay,
-// codec — lives in the Rust pool now. This layer keeps two web-only concerns:
-//   1. endpoint selection (local-relay-first routing via getPodConnection +
-//      isSameHostRunner + probeRelayOpen), which is platform-specific routing;
-//   2. the legacy "none" status baseline + per-pod listener fan-out — the
-//      managers expose no off_* method, so we register one upstream listener per
-//      pod and fan out here, mirroring the previous pool's public contract.
+// codec — lives in the Rust pool now. This layer keeps the legacy "none" status
+// baseline + per-pod listener fan-out — the managers expose no off_* method, so
+// we register one upstream listener per pod and fan out here, mirroring the
+// previous pool's public contract.
 class RelayConnectionPool {
   private statusListeners = new Map<string, Set<StatusListener>>();
   private acpListeners = new Map<string, Set<AcpListener>>();
@@ -44,23 +41,13 @@ class RelayConnectionPool {
 
   async subscribe(podKey: string, subscriptionId: string, onMessage: OnMessage): Promise<ConnectionHandle> {
     this.ensureStatusUpstream(podKey);
-    const { url, token } = await this.selectEndpoint(podKey);
+    const info = await getPodConnection(readCurrentOrg()?.slug ?? "", podKey);
     this.connectedPods.add(podKey);
-    await this.mgr().subscribe(podKey, subscriptionId, url, token, onMessage);
+    await this.mgr().subscribe(podKey, subscriptionId, info.relay_url, info.token, onMessage);
     return {
       send: (data) => this.send(podKey, data),
       unsubscribe: () => this.unsubscribe(podKey, subscriptionId),
     };
-  }
-
-  private async selectEndpoint(podKey: string): Promise<{ url: string; token: string }> {
-    const info = await getPodConnection(readCurrentOrg()?.slug ?? "", podKey);
-    if (info.local_relay_url && info.local_token && (await isSameHostRunner(info.local_relay_node_id))) {
-      if (await probeRelayOpen(info.local_relay_url, info.local_token, 1000)) {
-        return { url: info.local_relay_url, token: info.local_token };
-      }
-    }
-    return { url: info.relay_url, token: info.token };
   }
 
   send(podKey: string, data: string): void {
@@ -186,34 +173,6 @@ function getOrCreatePool(): RelayConnectionPool {
   const pool = new RelayConnectionPool();
   (globalThis as Record<string, unknown>)[key] = pool;
   return pool;
-}
-
-// Cache only resolved non-empty IDs — pre-onboarding null must not pin renderer to "different host".
-let cachedNodeIdPromise: Promise<string | null> | null = null;
-
-async function resolveLocalNodeId(): Promise<string | null> {
-  const svc = getLocalRunnerService();
-  if (!svc) return null;
-  if (!cachedNodeIdPromise) {
-    cachedNodeIdPromise = svc.local_node_id().then(
-      (id: string | null) => {
-        if (!id) cachedNodeIdPromise = null;
-        return id;
-      },
-      () => {
-        cachedNodeIdPromise = null;
-        return null;
-      },
-    );
-  }
-  return cachedNodeIdPromise;
-}
-
-async function isSameHostRunner(advertisedNodeID: string | undefined): Promise<boolean> {
-  if (!advertisedNodeID) return true;
-  if (!getLocalRunnerService()) return false;
-  const myNodeID = await resolveLocalNodeId();
-  return myNodeID !== null && myNodeID === advertisedNodeID;
 }
 
 export const relayPool = getOrCreatePool();

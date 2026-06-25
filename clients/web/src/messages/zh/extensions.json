@@ -123,10 +123,27 @@
       "loadMore": "加载更多 ({current} / {total})"
     },
 
+    "skillMarket": {
+      "title": "Skill 应用市场",
+      "description": "浏览从平台和组织注册表同步的 Skill，安装到仓库后供 Agent 使用。",
+      "noSkills": "应用市场暂无可用 Skill",
+      "skillsFound": "个 Skill",
+      "allCategories": "全部",
+      "contentSha": "SHA",
+      "repository": "来源",
+      "installTitle": "安装 Skill",
+      "installDescription": "选择仓库和作用域以安装「{name}」。",
+      "targetRepository": "目标仓库",
+      "selectRepository": "选择仓库...",
+      "installScope": "安装作用域",
+      "noDescription": "暂无描述"
+    },
+
     "settings": {
       "title": "扩展",
-      "description": "管理组织的 Skill 注册表和浏览 MCP 服务器市场模板。",
+      "description": "管理 Skill 注册表，并探索 MCP 服务器模板。浏览 Skill 应用市场请前往「Skill 市场」。",
       "tabs": {
+        "skillMarket": "Skill 市场",
         "skillRegistries": "Skill 注册表",
         "mcpMarket": "MCP 模板"
       }

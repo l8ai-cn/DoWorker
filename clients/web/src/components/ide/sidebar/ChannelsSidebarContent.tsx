@@ -205,7 +205,7 @@ export function ChannelsSidebarContent({ className }: ChannelsSidebarContentProp
         )}
       </div>
 
-      <div className="flex items-center justify-between border-t border-border px-3 py-2.5 text-[12px]">
+      <div className="flex items-center justify-between bg-surface-muted/30 px-3 py-2.5 text-[12px]">
         <button
           type="button"
           onClick={() => setShowArchived(!showArchived)}

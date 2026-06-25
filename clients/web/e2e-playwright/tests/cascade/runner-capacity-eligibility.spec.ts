@@ -27,7 +27,7 @@ interface RunnerSummary {
 
 test.describe("Cascade: runner capacity/enabled → ListAvailableRunners reflects immediately", () => {
   test("setting max_concurrent_pods=0 removes runner from available list", async ({ api }) => {
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
 
     // Pick the dev-runner. The dev seed boots it as enabled with maxConcurrentPods=5.
@@ -82,7 +82,7 @@ test.describe("Cascade: runner capacity/enabled → ListAvailableRunners reflect
   });
 
   test("setting is_enabled=false removes runner from available list immediately", async ({ api }) => {
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
 
     const { items: allRunners } = (await cc.runner.listRunners({

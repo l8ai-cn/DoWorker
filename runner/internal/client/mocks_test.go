@@ -109,8 +109,6 @@ func (h *mockHandler) OnUpdatePodPerpetual(cmd *runnerv1.UpdatePodPerpetualComma
 	return nil
 }
 
-func (h *mockHandler) OnGetLocalRelayURL() string { return "" }
-
 // mockHandlerWithError is a mock handler that can return errors.
 type mockHandlerWithError struct {
 	createError    error
@@ -177,8 +175,6 @@ func (h *mockHandlerWithError) OnSendPrompt(cmd *runnerv1.SendPromptCommand) err
 func (h *mockHandlerWithError) OnUpdatePodPerpetual(cmd *runnerv1.UpdatePodPerpetualCommand) error {
 	return nil
 }
-
-func (h *mockHandlerWithError) OnGetLocalRelayURL() string { return "" }
 
 // mockEventSender is a mock implementation of EventSender for testing.
 type mockEventSender struct {

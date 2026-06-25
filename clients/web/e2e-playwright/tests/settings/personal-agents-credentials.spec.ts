@@ -33,7 +33,7 @@ test.describe("Personal Agent Credentials — Claude Code (XOR auth)", () => {
     const bundleName = unique("half-switch");
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${NAME_PREFIX}%'`);
 
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
     await cc.envBundle.createEnvBundle({
       agentSlug: "claude-code",
@@ -84,7 +84,7 @@ test.describe("Personal Agent Credentials — Claude Code (XOR auth)", () => {
     const bundleName = unique("corrupt");
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${NAME_PREFIX}%'`);
 
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
     await cc.envBundle.createEnvBundle({
       agentSlug: "claude-code",
@@ -146,7 +146,7 @@ test.describe("Personal Agent Credentials — Claude Code (XOR auth)", () => {
     const bundleName = unique("seeded");
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${NAME_PREFIX}%'`);
 
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
     await cc.envBundle.createEnvBundle({
       agentSlug: "claude-code",
@@ -202,7 +202,7 @@ test.describe("Personal Agent Credentials — Claude Code (XOR auth)", () => {
     const bundleName = unique("edit-prefill");
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${NAME_PREFIX}%'`);
 
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
     await cc.envBundle.createEnvBundle({
       agentSlug: "claude-code",
@@ -243,7 +243,7 @@ test.describe("Personal Agent Credentials — Claude Code (XOR auth)", () => {
     const bundleName = unique("edit-preserve");
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${NAME_PREFIX}%'`);
 
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
     await cc.envBundle.createEnvBundle({
       agentSlug: "claude-code",
@@ -294,7 +294,7 @@ test.describe("Personal Agent Credentials — Claude Code (XOR auth)", () => {
     const bundleName = unique("xor-switch");
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${NAME_PREFIX}%'`);
 
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
     await cc.envBundle.createEnvBundle({
       agentSlug: "claude-code",
@@ -349,7 +349,7 @@ test.describe("Personal Agent Credentials — Loopal (custom env)", () => {
     const bundleName = unique("loopal-remove");
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${NAME_PREFIX}%'`);
 
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
     await cc.envBundle.createEnvBundle({
       agentSlug: "loopal",
@@ -444,7 +444,7 @@ test.describe("Personal Agent Credentials — Codex (custom env)", () => {
     const bundleName = unique("codex-custom-remove");
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${NAME_PREFIX}%'`);
 
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
     await cc.envBundle.createEnvBundle({
       agentSlug: "codex-cli",

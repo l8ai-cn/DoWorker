@@ -321,6 +321,30 @@
         "failedToSetDefault": "Failed to set default",
         "failedToDelete": "Failed to delete"
       },
+      "configFiles": {
+        "title": "Config Files (JSON)",
+        "description": "Manage JSON config templates for {files}. Selected at Pod create via USE_CONFIG_BUNDLE and written into the sandbox.",
+        "empty": "No config file templates yet.",
+        "noJson": "No JSON content",
+        "add": "Add",
+        "addTitle": "Add config file template",
+        "editTitle": "Edit config file template",
+        "formDescription": "Store a full JSON document. Attach this template when creating a Pod to write the agent config file.",
+        "formDescriptionWithPath": "JSON will be written to: {path}",
+        "name": "Name",
+        "namePlaceholder": "e.g. production-settings / deepseek-profile",
+        "descriptionLabel": "Description",
+        "jsonTitle": "JSON content",
+        "clearDefault": "Clear default",
+        "confirmDelete": "Delete this config file template?",
+        "created": "Config file template created",
+        "updated": "Config file template updated",
+        "deleted": "Config file template deleted",
+        "defaultSet": "Default updated",
+        "saveFailed": "Save failed",
+        "failedToSetDefault": "Failed to set default",
+        "failedToDelete": "Failed to delete"
+      },
       "fields": {
         "model": {
           "label": "Model",
@@ -462,6 +486,9 @@
         "apiKey": "Cursor API Key",
         "apiKeyHint": "Optional. Leave blank to use `cursor-agent login` (OAuth); set for headless / key-based auth.",
         "customEnvHint": "Add any extra environment variables cursor-agent needs"
+      },
+      "doAgent": {
+        "customEnvHint": "Additional provider keys or overrides, e.g. DEEPSEEK_API_KEY, DO_AGENT_PROFILE, OPENAI_BASE_URL"
       }
     },
     "sshKeys": {

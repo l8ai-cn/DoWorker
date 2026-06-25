@@ -13,7 +13,7 @@ export default function GitSettingsPage() {
       {/* Page Header */}
       <div className="mb-6">
         <Link
-          href="/settings"
+          href="/settings/general"
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
         >
           <ChevronLeft className="w-4 h-4" />

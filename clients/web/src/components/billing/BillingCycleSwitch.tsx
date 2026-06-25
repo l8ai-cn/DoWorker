@@ -49,7 +49,7 @@ export function BillingCycleSwitch({
 
   if (nextCycle && nextCycle !== currentCycle) {
     return (
-      <div className="border border-border rounded-lg p-4">
+      <div className="surface-card p-4">
         <h3 className="text-sm font-medium mb-2">
           {t("billing.cycleSwitch.title")}
         </h3>
@@ -78,7 +78,7 @@ export function BillingCycleSwitch({
 
   if (showConfirm && targetCycle) {
     return (
-      <div className="border border-border rounded-lg p-4">
+      <div className="surface-card p-4">
         <h3 className="text-sm font-medium mb-2">
           {t("billing.cycleSwitch.confirmTitle")}
         </h3>
@@ -115,7 +115,7 @@ export function BillingCycleSwitch({
   }
 
   return (
-    <div className="border border-border rounded-lg p-4">
+    <div className="surface-card p-4">
       <h3 className="text-sm font-medium mb-2">
         {t("billing.cycleSwitch.title")}
       </h3>
@@ -139,7 +139,7 @@ export function BillingCycleSwitch({
         >
           {t("billing.cycleSwitch.yearly")}
           {currentCycle === "monthly" && (
-            <span className="ml-2 text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded">
+            <span className="ml-2 text-xs bg-success-bg text-success px-1.5 py-0.5 rounded">
               {t("billing.cycleSwitch.saveNote")}
             </span>
           )}

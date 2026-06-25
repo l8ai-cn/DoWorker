@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CenteredSpinner } from "@/components/ui/spinner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -9,8 +8,7 @@ import {
   Server, ArrowLeft, RefreshCw, Trash2, Power, PowerOff,
   CheckCircle, Activity, AlertCircle, Clock,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { getLocalRunnerService } from "@agentsmesh/service-runtime";
+import { PillTabs, PillTabsRow } from "@/components/ui/pill-tabs";
 import {
   RunnerOverviewTab,
   RunnerPodsTab,
@@ -25,26 +23,17 @@ interface Props {
 
 function statusIcon(status: string) {
   switch (status) {
-    case "online": return <CheckCircle className="h-4 w-4 text-green-500" />;
-    case "offline": return <PowerOff className="h-4 w-4 text-gray-400" />;
-    case "busy": return <Activity className="h-4 w-4 text-yellow-500" />;
-    case "maintenance": return <AlertCircle className="h-4 w-4 text-orange-500" />;
-    default: return <Clock className="h-4 w-4 text-gray-400" />;
+    case "online": return <CheckCircle className="h-4 w-4 text-success" />;
+    case "offline": return <PowerOff className="h-4 w-4 text-muted-foreground" />;
+    case "busy": return <Activity className="h-4 w-4 text-warning" />;
+    case "maintenance": return <AlertCircle className="h-4 w-4 text-primary" />;
+    default: return <Clock className="h-4 w-4 text-muted-foreground" />;
   }
 }
 
 export function InfraRunnerDetail({ runnerId, onBack }: Props) {
   const t = useTranslations();
   const state = useRunnerDetail(t, runnerId);
-  const [localNodeId, setLocalNodeId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const svc = getLocalRunnerService();
-    if (!svc) return;
-    let cancelled = false;
-    void svc.local_node_id().then((id: string | null) => { if (!cancelled) setLocalNodeId(id); }).catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
 
   if (state.loading) return <CenteredSpinner className="h-64" />;
 
@@ -70,16 +59,11 @@ export function InfraRunnerDetail({ runnerId, onBack }: Props) {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-foreground">{runner.node_id}</h1>
-              {localNodeId && runner.node_id === localNodeId && (
-                <span className="rounded bg-blue-500/15 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">
-                  This Mac
-                </span>
-              )}
             </div>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               {statusIcon(runner.status)}
               <span className="capitalize">{runner.status}</span>
-              {!runner.is_enabled && <span className="text-red-500">({t("runners.detail.disabled")})</span>}
+              {!runner.is_enabled && <span className="text-danger">({t("runners.detail.disabled")})</span>}
             </div>
           </div>
         </div>
@@ -111,25 +95,17 @@ export function InfraRunnerDetail({ runnerId, onBack }: Props) {
         </div>
       </div>
 
-      <div className="border-b border-border">
-        <nav className="flex space-x-8">
-          {(["overview", "pods"] as const).map((tab) => (
-            <button
-              key={tab}
-              data-testid={`runner-detail-tab-${tab}`}
-              onClick={() => state.setActiveTab(tab)}
-              className={cn(
-                "border-b-2 px-1 py-4 text-sm font-medium transition-colors",
-                state.activeTab === tab
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {t(`runners.detail.tabs.${tab}`)}
-            </button>
-          ))}
-        </nav>
-      </div>
+      <PillTabsRow>
+        <PillTabs
+          active={state.activeTab}
+          onChange={(id) => state.setActiveTab(id as "overview" | "pods")}
+          tabs={(["overview", "pods"] as const).map((tab) => ({
+            id: tab,
+            label: t(`runners.detail.tabs.${tab}`),
+            testId: `runner-detail-tab-${tab}`,
+          }))}
+        />
+      </PillTabsRow>
 
       {state.activeTab === "overview" && (
         <RunnerOverviewTab

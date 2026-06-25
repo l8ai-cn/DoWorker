@@ -50,12 +50,12 @@ vi.mock('@/stores/ticket', () => ({
   useLabels: vi.fn(() => []),
   getStatusInfo: (status: string) => ({
     label: status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-    color: 'text-gray-700',
-    bgColor: 'bg-gray-100',
+    color: 'text-foreground',
+    bgColor: 'bg-muted',
   }),
   getPriorityInfo: (priority: string) => ({
     label: priority.charAt(0).toUpperCase() + priority.slice(1),
-    color: 'text-gray-500',
+    color: 'text-muted-foreground',
     icon: '\u2192',
   }),
 }))

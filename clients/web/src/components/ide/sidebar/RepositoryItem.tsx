@@ -42,7 +42,7 @@ export function RepositoryItem({
     <div data-testid="repository-row" data-repo-slug={repo.slug} data-repo-id={String(repo.id)}>
       <div
         className={cn(
-          "group flex items-center gap-2 px-3 py-2 hover:bg-muted/50 cursor-pointer",
+          "group flex items-center gap-2 px-3 py-2 motion-interactive hover:bg-surface-muted cursor-pointer",
           isSelected && "bg-muted/30"
         )}
         onClick={onClick}
@@ -74,7 +74,7 @@ export function RepositoryItem({
 
         {/* Active indicator */}
         {repo.is_active && (
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
+          <span className="w-1.5 h-1.5 rounded-full bg-success flex-shrink-0" />
         )}
       </div>
 

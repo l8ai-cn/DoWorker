@@ -32,6 +32,8 @@ func (p *Parser) tryParseDeclaration(tok lexer.Token) Declaration {
 		return p.parseModeDecl(pos)
 	case lexer.KW_USE_ENV_BUNDLE:
 		return p.parseUseEnvBundleDecl(pos)
+	case lexer.KW_USE_CONFIG_BUNDLE:
+		return p.parseUseConfigBundleDecl(pos)
 	case lexer.KW_PROMPT:
 		return p.parsePromptDecl(pos)
 	case lexer.KW_PROMPT_POSITION:

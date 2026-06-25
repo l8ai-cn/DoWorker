@@ -216,6 +216,9 @@ export function useImportWizard({
         case "gitee":
           baseURL = "https://gitee.com";
           break;
+        case "cnb":
+          baseURL = "https://cnb.cool";
+          break;
         default:
           baseURL = "";
       }

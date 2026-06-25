@@ -129,10 +129,10 @@ export function ChannelPodManager({
                   return (
                     <div
                       key={pod.pod_key}
-                      className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-muted/50 group"
+                      className="flex items-center justify-between px-2 py-1.5 rounded-md motion-interactive hover:bg-surface-muted group"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <Bot className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                        <Bot className="w-3.5 h-3.5 text-success flex-shrink-0" />
                         <div className="min-w-0">
                           <p className="text-xs font-medium truncate">
                             {getPodDisplayName(displayPod)}
@@ -169,7 +169,7 @@ export function ChannelPodManager({
                 {availablePods.map((pod) => (
                   <div
                     key={pod.pod_key}
-                    className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-muted/50"
+                    className="flex items-center justify-between px-2 py-1.5 rounded-md motion-interactive hover:bg-surface-muted"
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <Bot className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />

@@ -156,7 +156,7 @@ export function PricingSection() {
         </div>
 
         <div className="flex items-center justify-center mb-12 sm:mb-16">
-          <div className="inline-flex items-center rounded-full azure-glass p-1 border border-white/10">
+          <div className="inline-flex items-center rounded-full azure-glass p-1 ring-1 ring-border/20">
             <button
               onClick={() => setBillingCycle("monthly")}
               className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-headline font-bold uppercase tracking-wider transition-all ${
@@ -188,10 +188,10 @@ export function PricingSection() {
             {plans.map((plan) => (
               <div
                 key={plan.key}
-                className={`relative rounded-3xl p-6 sm:p-8 flex flex-col transition-all ${
+                className={`relative rounded-3xl p-6 sm:p-8 flex flex-col transition-all motion-interactive ${
                   plan.highlighted
-                    ? "azure-glass border-2 border-[var(--azure-cyan)] azure-glow-cyan-lg lg:scale-105 z-10"
-                    : "bg-[var(--azure-bg-low)] border border-[var(--azure-outline-variant)]/30"
+                    ? "azure-glass ring-2 ring-[var(--azure-cyan)] azure-glow-cyan-lg lg:scale-105 z-10"
+                    : "bg-[var(--azure-bg-low)] ring-1 ring-border/20"
                 }`}
               >
                 {plan.highlighted && (
@@ -231,7 +231,7 @@ export function PricingSection() {
                     className={`w-full rounded-full font-headline font-black uppercase tracking-[0.18em] text-xs h-12 ${
                       plan.highlighted
                         ? "azure-gradient-bg azure-cta-glow border-0"
-                        : "bg-transparent border border-[var(--azure-outline-variant)] hover:border-[var(--azure-cyan)]/60 hover:bg-[var(--azure-bg-bright)] text-foreground"
+                        : "bg-transparent ring-1 ring-border/20 hover:ring-[var(--azure-cyan)]/60 hover:bg-[var(--azure-bg-bright)] text-foreground"
                     }`}
                   >
                     {plan.cta}

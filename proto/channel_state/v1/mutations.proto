@@ -2,8 +2,8 @@
 //
 // Companion to channel_state.proto in the same package. channel_state.proto
 // describes the in-memory cache shape (Channel / ChannelMessage / ...);
-// this file holds the mutation request messages issued by TS / Swift via
-// the wasm-bindgen / UniFFI / NAPI bridge.
+// this file holds the mutation request messages issued by TS via
+// the wasm-bindgen bridge.
 //
 // See proto/pod_state/v1/pod_state.proto for the full naming convention.
 

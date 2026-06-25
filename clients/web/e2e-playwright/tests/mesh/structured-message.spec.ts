@@ -499,7 +499,7 @@ uiTest.describe("Structured Message — UI Rendering", () => {
     const res = await fetch(`${apiBase}/proto.auth.v1.AuthService/Login`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Connect-Protocol-Version": "1" },
-      body: JSON.stringify({ email: "dev@agentsmesh.local", password: "devpass123" }),
+      body: JSON.stringify({ username: "devuser", password: "devpass123" }),
     });
     const data = await res.json() as { token: string };
     return data.token;

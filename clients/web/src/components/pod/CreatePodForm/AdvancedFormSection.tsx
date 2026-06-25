@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { RunnerSelect } from "./RunnerSelect";
 import { CredentialBundleSelect } from "./CredentialBundleSelect";
 import { EnvBundleMultiSelect } from "./EnvBundleMultiSelect";
+import { SkillMultiSelect } from "./SkillMultiSelect";
 import { RepositorySelect, BranchInput } from "./RepositorySelect";
 import { AdvancedOptions } from "./AdvancedOptions";
 import { AgentfileLayerEditor } from "./AgentfileLayerEditor";
@@ -123,6 +124,17 @@ export function AdvancedFormSection({
               value={form.selectedBranch}
               onChange={form.setSelectedBranch}
               error={form.validationErrors.branch}
+              t={t}
+            />
+          )}
+
+          {/* Skills — repo-scoped multi-select */}
+          {form.selectedRepository && (
+            <SkillMultiSelect
+              skills={form.repoSkills}
+              selectedSlugs={form.selectedSkillSlugs}
+              onChange={form.setSelectedSkillSlugs}
+              loading={form.loadingSkills}
               t={t}
             />
           )}

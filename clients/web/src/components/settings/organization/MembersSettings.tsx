@@ -149,7 +149,7 @@ export function MembersSettings({ t }: MembersSettingsProps) {
   };
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold">{t("settings.members.title")}</h2>
@@ -165,7 +165,7 @@ export function MembersSettings({ t }: MembersSettingsProps) {
       )}
 
       {successMessage && (
-        <div className="bg-green-50 border border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400 px-4 py-3 rounded-lg mb-4">
+        <div className="bg-success-bg border border-success text-success px-4 py-3 rounded-lg mb-4">
           {successMessage}
           <button onClick={() => setSuccessMessage(null)} className="ml-4 underline text-sm">{t("settings.members.dismiss")}</button>
         </div>

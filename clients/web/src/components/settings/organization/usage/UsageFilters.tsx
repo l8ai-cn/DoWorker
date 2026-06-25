@@ -93,7 +93,7 @@ export function UsageFilters({
           value={agent}
           onChange={(e) => onAgentChange(e.target.value)}
           disabled={agents.length === 0}
-          className="rounded-md border border-border bg-background px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          className="surface-card bg-background px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <option value="">{t("settings.usagePage.filters.allAgents")}</option>
           {agents.map((agentSlug) => (

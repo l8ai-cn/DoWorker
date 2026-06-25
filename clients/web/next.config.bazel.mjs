@@ -7,6 +7,18 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const here = path.dirname(fileURLToPath(import.meta.url));
 const monorepoRoot = path.resolve(here, "../..");
 
+function getDevProxyTarget() {
+  if (process.env.API_PROXY_TARGET) return process.env.API_PROXY_TARGET;
+
+  const domain = process.env.PRIMARY_DOMAIN;
+  if (domain) {
+    const protocol = process.env.USE_HTTPS === "true" ? "https" : "http";
+    return `${protocol}://${domain}`;
+  }
+
+  return "http://localhost:10000";
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
@@ -26,9 +38,6 @@ const nextConfig = {
   transpilePackages: [
     "@agentsmesh/service-runtime",
     "@agentsmesh/service-interface",
-    // Refactor B: web reuses the shared projections (electron-adapter/projections,
-    // raw .ts) — Next must SWC-transpile them, not treat them as compiled JS.
-    "@agentsmesh/electron-adapter",
     // Internal npm package mounted by Bazel; ships .ts sources so the
     // .next/standalone build relies on Next's SWC pipeline to transpile.
     "@agentsmesh/proto",
@@ -57,11 +66,16 @@ const nextConfig = {
   },
 
   async rewrites() {
-    const proxyTarget = process.env.API_PROXY_TARGET;
-    if (process.env.NODE_ENV === "development" && proxyTarget) {
-      console.log(`[Next.js] API proxy enabled: /api/* -> ${proxyTarget}/api/*`);
+    if (process.env.NODE_ENV === "development") {
+      const proxyTarget = getDevProxyTarget();
+      console.log(`[Next.js] API proxy enabled: /api/* + /proto.* + /health -> ${proxyTarget}`);
       return [
         { source: "/api/:path*", destination: `${proxyTarget}/api/:path*` },
+        {
+          source: "/:svc/:method",
+          has: [{ type: "header", key: "connect-protocol-version" }],
+          destination: `${proxyTarget}/:svc/:method`,
+        },
         { source: "/health", destination: `${proxyTarget}/health` },
       ];
     }

@@ -59,7 +59,7 @@ export function PaneLoadingState({
     <div className="flex-1 flex items-center justify-center bg-terminal-bg">
       <div className="text-center p-4 max-w-sm">
         {isCompleted ? (
-          <CheckCircle2 className="w-12 h-12 text-green-500 dark:text-green-400 mx-auto mb-3" />
+          <CheckCircle2 className="w-12 h-12 text-success mx-auto mb-3" />
         ) : (
           <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-3" />
         )}
@@ -78,9 +78,9 @@ export function PaneLoadingState({
         ) : (
           <p className="text-sm text-terminal-text-muted">
             {isCompleted ? (
-              <>Status: <span className="text-green-500 dark:text-green-400">{podStatus}</span></>
+              <>Status: <span className="text-success">{podStatus}</span></>
             ) : (
-              <>Status: <span className="text-yellow-500 dark:text-yellow-400">{podStatus}</span></>
+              <>Status: <span className="text-warning">{podStatus}</span></>
             )}
           </p>
         )}
@@ -91,8 +91,8 @@ export function PaneLoadingState({
           </p>
         )}
         {isSlowInit && (
-          <div className="mt-3 p-2 rounded bg-yellow-500/10 border border-yellow-500/30">
-            <p className="text-xs text-yellow-500 dark:text-yellow-400">
+          <div className="mt-3 p-2 rounded bg-warning-bg border border-warning/30">
+            <p className="text-xs text-warning">
               Taking longer than expected. The runner may be cloning a large repository or experiencing connectivity issues.
             </p>
           </div>
@@ -101,7 +101,7 @@ export function PaneLoadingState({
           <Button
             variant="outline"
             size="sm"
-            className="mt-4 text-red-500 dark:text-red-400 border-red-500/50 hover:bg-red-500/10"
+            className="mt-4 text-danger border-danger/50 hover:bg-danger/10"
             onClick={onClose}
           >
             <X className="w-4 h-4 mr-2" />
@@ -123,7 +123,7 @@ export function PaneReconnectingState({
   return (
     <div className="flex-1 flex items-center justify-center bg-terminal-bg">
       <div className="text-center p-4 max-w-sm">
-        <RefreshCw className="w-12 h-12 text-amber-500 dark:text-amber-400 mx-auto mb-3 animate-spin" />
+        <RefreshCw className="w-12 h-12 text-warning mx-auto mb-3 animate-spin" />
         <p className="text-terminal-text font-medium mb-1">
           Runner is restarting...
         </p>
@@ -158,7 +158,7 @@ export function PaneErrorState({
   return (
     <div className="flex-1 flex items-center justify-center bg-terminal-bg">
       <div className="text-center p-4">
-        <AlertCircle className="w-12 h-12 text-red-500 dark:text-red-400 mx-auto mb-3" />
+        <AlertCircle className="w-12 h-12 text-danger mx-auto mb-3" />
         <p className="text-terminal-text font-medium mb-1">{error}</p>
         <p className="text-sm text-terminal-text-muted mb-4">
           The pod cannot be connected. Please check the pod status or create a new one.
@@ -167,7 +167,7 @@ export function PaneErrorState({
           <Button
             variant="outline"
             size="sm"
-            className="text-red-500 dark:text-red-400 border-red-500/50 hover:bg-red-500/10"
+            className="text-danger border-danger/50 hover:bg-danger/10"
             onClick={onClose}
           >
             <X className="w-4 h-4 mr-2" />

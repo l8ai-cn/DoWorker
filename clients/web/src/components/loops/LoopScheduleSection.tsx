@@ -75,7 +75,8 @@ export function LoopScheduleSection({
   t,
 }: LoopScheduleSectionProps) {
   return (
-    <div className="border-t border-border pt-4 space-y-4">
+    <div className="pt-4 space-y-4 mt-4">
+      <div className="soft-separator" />
       {/* Cron scheduling (optional, API trigger is always available) */}
       <div className="flex items-center justify-between">
         <div>

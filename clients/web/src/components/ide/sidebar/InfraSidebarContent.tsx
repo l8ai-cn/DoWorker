@@ -33,7 +33,7 @@ export function InfraSidebarContent({ className, onImportRepo, onAddRunner }: In
 
   return (
     <div className={cn("flex h-full flex-col", className)}>
-      <div role="tablist" className="grid grid-cols-2 gap-1 border-b border-border p-2">
+      <div role="tablist" className="grid grid-cols-2 gap-1 bg-surface-muted/40 p-2">
         {TABS.map((item) => (
           <button
             key={item.id}

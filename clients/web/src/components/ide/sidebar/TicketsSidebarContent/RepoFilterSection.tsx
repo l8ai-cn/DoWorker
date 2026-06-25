@@ -70,7 +70,7 @@ export function RepoFilterSection({
       showBorder
     >
       {/* "No repository" option */}
-      <label className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded">
+      <label className="flex items-center gap-2 text-xs cursor-pointer motion-interactive hover:bg-surface-muted px-1 py-0.5 rounded">
         <Checkbox
           checked={selectedRepositoryIds.includes(NO_REPOSITORY_ID)}
           onCheckedChange={() => onToggleRepository(NO_REPOSITORY_ID)}
@@ -91,7 +91,7 @@ export function RepoFilterSection({
         return (
           <label
             key={repo.id}
-            className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded"
+            className="flex items-center gap-2 text-xs cursor-pointer motion-interactive hover:bg-surface-muted px-1 py-0.5 rounded"
           >
             <Checkbox
               checked={selectedRepositoryIds.includes(repo.id)}

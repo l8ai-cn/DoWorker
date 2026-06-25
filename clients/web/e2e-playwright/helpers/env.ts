@@ -85,12 +85,14 @@ export function getComposeProject(): string {
 /** Test account credentials (from deploy/dev/seed/seed.sql) */
 export const TEST_USER = {
   email: "dev@agentsmesh.local",
+  username: "devuser",
   password: "devpass123",
 } as const;
 
 export const ADMIN_USER = {
   email: "admin@agentsmesh.local",
-  password: "adminpass123",
+  username: "admin",
+  password: "Ab123456",
 } as const;
 
 export const TEST_ORG_SLUG = "dev-org";

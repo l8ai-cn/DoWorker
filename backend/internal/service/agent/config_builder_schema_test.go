@@ -55,6 +55,27 @@ CONFIG permission_mode SELECT("default", "plan", "bypassPermissions") = "bypassP
 	assert.Equal(t, "bypassPermissions", pm.Default)
 }
 
+func TestResolveConfigSchema_ExtractsCredentialFields(t *testing.T) {
+	src := `AGENT claude
+ENV ANTHROPIC_API_KEY SECRET OPTIONAL
+ENV ANTHROPIC_AUTH_TOKEN SECRET OPTIONAL
+ENV ANTHROPIC_BASE_URL TEXT OPTIONAL
+ENV CODEX_HOME = sandbox.root + "/codex-home"
+`
+	p := &stubAgentProvider{
+		agent: &agentDomain.Agent{Slug: "claude-code", AgentfileSource: &src},
+	}
+
+	schema, err := ResolveConfigSchema(context.Background(), p, "claude-code")
+	require.NoError(t, err)
+	require.Len(t, schema.CredentialFields, 3)
+	assert.Equal(t, "ANTHROPIC_API_KEY", schema.CredentialFields[0].Name)
+	assert.Equal(t, "secret", schema.CredentialFields[0].Type)
+	assert.True(t, schema.CredentialFields[0].Optional)
+	assert.Equal(t, "ANTHROPIC_BASE_URL", schema.CredentialFields[2].Name)
+	assert.Equal(t, "text", schema.CredentialFields[2].Type)
+}
+
 func TestResolveConfigSchema_EmptyAgentfileReturnsEmptySchema(t *testing.T) {
 	p := &stubAgentProvider{
 		agent: &agentDomain.Agent{Slug: "x", AgentfileSource: nil},

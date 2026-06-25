@@ -11,7 +11,7 @@ interface TicketListItemProps {
 export function TicketListItem({ ticket, onClick }: TicketListItemProps) {
   return (
     <div
-      className="group flex items-start gap-2 px-3 py-2 hover:bg-muted/50 cursor-pointer"
+      className="group nav-row pressable items-start gap-2 rounded-lg motion-interactive hover:bg-surface-muted cursor-pointer"
       onClick={() => onClick(ticket.slug)}
     >
       {/* Status icon */}
@@ -26,10 +26,10 @@ export function TicketListItem({ ticket, onClick }: TicketListItemProps) {
             {ticket.slug}
           </span>
           {ticket.priority === "urgent" && (
-            <span className="text-red-500 dark:text-red-400 text-xs">!</span>
+            <span className="text-danger text-xs">!</span>
           )}
           {ticket.priority === "high" && (
-            <span className="text-orange-500 dark:text-orange-400 text-xs">!!</span>
+            <span className="text-warning text-xs">!!</span>
           )}
         </div>
         <p className="text-sm truncate">{ticket.title}</p>

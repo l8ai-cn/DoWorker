@@ -27,18 +27,18 @@ describe("AcpToolCallCard", () => {
     render(<AcpToolCallCard toolCall={makeTool({ status: "completed" })} />);
     // success is undefined → Circle icon (no animate-spin, no text-green, no text-red)
     expect(document.querySelector(".animate-spin")).toBeNull();
-    expect(document.querySelector(".text-green-500")).toBeNull();
-    expect(document.querySelector(".text-red-500")).toBeNull();
+    expect(document.querySelector(".text-success")).toBeNull();
+    expect(document.querySelector(".text-danger")).toBeNull();
   });
 
   it("shows green check for success", () => {
     render(<AcpToolCallCard toolCall={makeTool({ status: "completed", success: true })} />);
-    expect(document.querySelector(".text-green-500")).toBeTruthy();
+    expect(document.querySelector(".text-success")).toBeTruthy();
   });
 
   it("shows red X for failure", () => {
     render(<AcpToolCallCard toolCall={makeTool({ status: "completed", success: false })} />);
-    expect(document.querySelector(".text-red-500")).toBeTruthy();
+    expect(document.querySelector(".text-danger")).toBeTruthy();
   });
 
   it("expands to show arguments on click", () => {

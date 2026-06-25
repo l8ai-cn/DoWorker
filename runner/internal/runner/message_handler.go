@@ -202,16 +202,5 @@ func (h *RunnerMessageHandler) getAgentStatusFromDetector(pod *Pod) string {
 
 var _ client.MessageHandler = (*RunnerMessageHandler)(nil)
 
-// OnGetLocalRelayURL returns the runner's advertised local relay URL.
-// Surfaced in heartbeat so backend can route browser→runner traffic locally
-// when the renderer happens to live on the same host.
-func (h *RunnerMessageHandler) OnGetLocalRelayURL() string {
-	srv := h.runner.GetLocalRelayServer()
-	if srv == nil {
-		return ""
-	}
-	return srv.URL()
-}
-
 // Note: OnSubscribePod, setupRelayClientHandlers, OnUnsubscribePod are in message_handler_relay.go
 // Note: OnListRelayConnections, OnPodInput, OnQuerySandboxes, OnObservePod, OnSendPrompt are in message_handler_ops.go

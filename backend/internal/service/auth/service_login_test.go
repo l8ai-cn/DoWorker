@@ -34,7 +34,7 @@ func TestLoginWithUserService(t *testing.T) {
 	}
 
 	t.Run("successful login", func(t *testing.T) {
-		result, err := svc.Login(ctx, "login@example.com", "password123")
+		result, err := svc.Login(ctx, "loginuser", "password123")
 		if err != nil {
 			t.Fatalf("Login failed: %v", err)
 		}
@@ -53,7 +53,7 @@ func TestLoginWithUserService(t *testing.T) {
 	})
 
 	t.Run("invalid credentials", func(t *testing.T) {
-		_, err := svc.Login(ctx, "login@example.com", "wrongpassword")
+		_, err := svc.Login(ctx, "loginuser", "wrongpassword")
 		if err == nil {
 			t.Error("Expected error for invalid credentials")
 		}
@@ -63,7 +63,7 @@ func TestLoginWithUserService(t *testing.T) {
 	})
 
 	t.Run("user not found", func(t *testing.T) {
-		_, err := svc.Login(ctx, "nonexistent@example.com", "password")
+		_, err := svc.Login(ctx, "nonexistent", "password")
 		if err == nil {
 			t.Error("Expected error for non-existent user")
 		}
@@ -81,7 +81,7 @@ func TestLoginWithUserService(t *testing.T) {
 		})
 		db.Exec("UPDATE users SET is_active = 0 WHERE id = ?", u.ID)
 
-		_, err := svc.Login(ctx, "disabled@example.com", "password123")
+		_, err := svc.Login(ctx, "disableduser", "password123")
 		if err == nil {
 			t.Error("Expected error for disabled user")
 		}
@@ -117,7 +117,7 @@ func TestLoginErrors(t *testing.T) {
 	t.Run("generic db error", func(t *testing.T) {
 		// This tests that unexpected errors pass through
 		// We can't easily simulate a DB error, so we just ensure other errors work
-		_, err := svc.Login(ctx, "errortest@example.com", "wrongpassword")
+		_, err := svc.Login(ctx, "errortest", "wrongpassword")
 		if err != ErrInvalidCredentials {
 			t.Errorf("Expected ErrInvalidCredentials for wrong password, got %v", err)
 		}

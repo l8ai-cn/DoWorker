@@ -73,7 +73,7 @@ export function handleInfraEvent(event: RealtimeEvent, ticketDebounceRef?: Debou
     case "runner:updated": {
       // Rust event_dispatch owns runner status (update_runner_status in
       // runtime.state, in all three lists); bump triggers the React selectors
-      // to re-read. Desktop mirrors via the main-pushed runner snapshot.
+      // to re-read. Web revalidates via runner state.
       useRunnerStore.setState((s) => ({ _tick: s._tick + 1 }));
       break;
     }

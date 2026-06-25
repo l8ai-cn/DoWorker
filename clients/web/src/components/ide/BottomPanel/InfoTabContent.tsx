@@ -195,11 +195,11 @@ export function InfoTabContent({
         {/* Error */}
         {pod.error_message && (
           <InfoRow
-            icon={<AlertCircle className="w-3 h-3 text-red-500" />}
+            icon={<AlertCircle className="w-3 h-3 text-danger" />}
             label={t("ide.bottomPanel.infoTab.error")}
             value={`${pod.error_code ? `[${pod.error_code}] ` : ""}${pod.error_message}`}
             className="col-span-2"
-            valueClassName="text-red-500"
+            valueClassName="text-danger"
           />
         )}
       </div>

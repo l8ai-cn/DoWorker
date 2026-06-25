@@ -10,16 +10,16 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles: Record<CardVariant, string> = {
-  default: "bg-card border border-border shadow-xs",
-  inset: "bg-muted border border-border",
-  danger: "bg-card border border-destructive/40 shadow-xs",
+  default: "bg-surface-raised shadow-[var(--shadow-soft)]",
+  inset: "bg-surface-muted",
+  danger: "bg-surface-raised shadow-[var(--shadow-soft)] ring-1 ring-destructive/25",
 };
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "default", ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("rounded-md text-card-foreground", variantStyles[variant], className)}
+      className={cn("rounded-lg text-card-foreground", variantStyles[variant], className)}
       {...props}
     />
   ),
@@ -70,7 +70,7 @@ export const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("flex items-center gap-2 border-t border-border p-4", className)}
+      className={cn("flex items-center gap-2 bg-surface-muted/40 p-4", className)}
       {...props}
     />
   ),

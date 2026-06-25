@@ -58,9 +58,9 @@ fn from_iteration_snapshot(s: AutopilotIterationSnapshot) -> AutopilotIteration 
     }
 }
 
-// Inverse of from_snapshot — state → proto Snapshot for the zero-JSON read side
-// (controllers_bytes/etc.), so web/desktop decode via the same
-// snapshotToController projection as the mutators (nested circuit_breaker).
+// Inverse of from_snapshot — state -> proto Snapshot for the zero-JSON read side
+// (controllers_bytes/etc.), so Web decodes via the same snapshotToController
+// projection as the mutators (nested circuit_breaker).
 fn to_snapshot(c: &AutopilotController) -> AutopilotControllerSnapshot {
     AutopilotControllerSnapshot {
         autopilot_controller_key: c.autopilot_controller_key.clone(),
@@ -121,7 +121,7 @@ impl WasmAutopilotState {
     }
 
     // Read side, zero-JSON: prost-encode state controllers into the list wrapper.
-    // Web/desktop decode via fromBinary + controllerSnapshotToCache (re-folds
+    // Web decodes via fromBinary + controllerSnapshotToCache (re-folds
     // circuit_breaker), replacing controllers_json (flat state struct serde).
     pub fn controllers_bytes(&self) -> Vec<u8> {
         let controllers = self.state.read().autopilot.controllers().iter().map(to_snapshot).collect();

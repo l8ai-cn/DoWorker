@@ -3,6 +3,8 @@
 import { Ticket, TicketStatus } from "@/stores/ticket";
 import { useTicketStore, useBoardColumns } from "@/stores/ticket";
 import { KanbanBoard, TicketsPageHeader } from "@/components/tickets";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useTranslations } from "next-intl";
 
 interface BoardViewLayoutProps {
   tickets: Ticket[];
@@ -17,6 +19,7 @@ export function BoardViewLayout({
   onTicketClick,
   onCreatePodRequest,
 }: BoardViewLayoutProps) {
+  const t = useTranslations();
   const boardColumns = useBoardColumns();
   const columnPagination = useTicketStore((s) => s.columnPagination);
   const doneCollapsed = useTicketStore((s) => s.doneCollapsed);
@@ -25,19 +28,27 @@ export function BoardViewLayout({
 
   return (
     <div className="flex h-full flex-col">
-      <TicketsPageHeader onExportClick={() => {}} />
+      <TicketsPageHeader />
       <div className="min-h-0 flex-1 p-4">
-        <KanbanBoard
-          tickets={tickets}
-          boardColumns={boardColumns.length > 0 ? boardColumns : undefined}
-          columnPagination={columnPagination}
-          doneCollapsed={doneCollapsed}
-          onLoadMoreColumn={loadMoreColumn}
-          onSetDoneCollapsed={setDoneCollapsed}
-          onStatusChange={onStatusChange}
-          onTicketClick={onTicketClick}
-          onCreatePodRequest={onCreatePodRequest}
-        />
+        {tickets.length === 0 ? (
+          <EmptyState
+            size="full"
+            title={t("tickets.emptyState.title")}
+            description={t("tickets.emptyState.createFirst")}
+          />
+        ) : (
+          <KanbanBoard
+            tickets={tickets}
+            boardColumns={boardColumns.length > 0 ? boardColumns : undefined}
+            columnPagination={columnPagination}
+            doneCollapsed={doneCollapsed}
+            onLoadMoreColumn={loadMoreColumn}
+            onSetDoneCollapsed={setDoneCollapsed}
+            onStatusChange={onStatusChange}
+            onTicketClick={onTicketClick}
+            onCreatePodRequest={onCreatePodRequest}
+          />
+        )}
       </div>
     </div>
   );

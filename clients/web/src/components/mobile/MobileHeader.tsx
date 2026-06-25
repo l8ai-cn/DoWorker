@@ -50,7 +50,7 @@ export function MobileHeader({ className, title, actions }: MobileHeaderProps) {
   return (
     <header
       className={cn(
-        "h-14 bg-background border-b border-border flex items-center px-4 gap-3",
+        "h-14 bg-background bg-surface-muted/40 flex items-center px-4 gap-3",
         className
       )}
     >

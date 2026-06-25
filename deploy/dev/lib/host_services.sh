@@ -68,7 +68,6 @@ _launch_ibazel() {
             ibazel run "$target" "$@" > "$log_file" 2>&1 &
         echo $! > "$pid_file"
         echo $! > "$pgid_file"
-        disown
     )
 }
 
@@ -215,6 +214,9 @@ start_backend_host() {
     # so prod ListAgents responses stay clean of test fixtures.
     # See ADR 2026-05-26-test-fixture-isolation.
     export AGENTSMESH_INCLUDE_INTERNAL_AGENTS=true
+    export COORDINATOR_RUNNER_LAUNCHER=docker
+    export COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR="$SCRIPT_DIR"
+    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICE=runner
 
     info "构建 backend 二进制 (bazel build)..."
     # Include the go_proto_library so protoc + protoc-gen-go-grpc C++

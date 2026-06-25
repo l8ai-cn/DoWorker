@@ -22,7 +22,7 @@ export default function AgentfilePage() {
 
       {/* What is AgentFile */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.agentfile.whatIs.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -32,14 +32,14 @@ export default function AgentfilePage() {
 
       {/* Structure */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.agentfile.structure.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.concepts.agentfile.structure.description")}
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.agentfile.structure.declarationsTitle")}
             </h3>
@@ -47,7 +47,7 @@ export default function AgentfilePage() {
               {t("docs.concepts.agentfile.structure.declarationsDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.agentfile.structure.buildLogicTitle")}
             </h3>

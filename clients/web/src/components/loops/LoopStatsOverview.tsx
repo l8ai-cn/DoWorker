@@ -11,7 +11,7 @@ interface LoopStatsOverviewProps {
 
 const BREAKDOWN_ROWS: { key: "successful_runs" | "failed_runs" | "active_run_count"; labelKey: string; color: string }[] = [
   { key: "successful_runs", labelKey: "loops.statusCompleted", color: "bg-success" },
-  { key: "active_run_count", labelKey: "loops.statusRunning", color: "bg-[#D29922]" },
+  { key: "active_run_count", labelKey: "loops.statusRunning", color: "bg-warning" },
   { key: "failed_runs", labelKey: "loops.statusFailed", color: "bg-destructive" },
 ];
 
@@ -22,7 +22,7 @@ export function LoopStatsOverview({ loop, t }: LoopStatsOverviewProps) {
   const avg = loop.avg_duration_sec != null ? Math.round(loop.avg_duration_sec) : 0;
 
   return (
-    <div className="rounded-md border border-border bg-card p-4">
+    <div className="surface-card p-4">
       <h3 className="mb-3 text-[13px] font-semibold text-foreground">{t("loops.overviewTitle")}</h3>
 
       <div className="mb-3 flex items-start justify-between">

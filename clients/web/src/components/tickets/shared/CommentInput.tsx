@@ -163,7 +163,7 @@ export function CommentInput({
   if (isEditMode) {
     return (
       <div className="relative">
-        <div className="relative flex items-end gap-2 border border-border rounded-lg bg-card p-2">
+        <div className="relative flex items-end gap-2 surface-card bg-card p-2">
           <textarea
             ref={textareaRef}
             value={content}
@@ -233,7 +233,7 @@ export function CommentInput({
       )}
 
       <div
-        className={`flex items-start gap-3 rounded-xl border border-border/50 bg-card shadow-sm p-3 ${
+        className={`flex items-start gap-3 surface-card bg-card shadow-sm p-3 ${
           replyTo ? "rounded-t-none" : ""
         }`}
       >

@@ -8,25 +8,25 @@ export function WebhookStatusDisplay({ status, t }: WebhookStatusDisplayProps) {
 
   const renderIcon = () => {
     if (status.is_active && status.registered && !status.needs_manual_setup) {
-      return <CheckCircle className="w-5 h-5 text-green-500" />;
+      return <CheckCircle className="w-5 h-5 text-success" />;
     }
     if (status.needs_manual_setup) {
-      return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+      return <AlertTriangle className="w-5 h-5 text-warning" />;
     }
-    return <XCircle className="w-5 h-5 text-red-500" />;
+    return <XCircle className="w-5 h-5 text-danger" />;
   };
 
   const renderText = () => {
     if (status.is_active && status.registered && !status.needs_manual_setup) {
       return (
-        <span className="text-green-600 dark:text-green-400">
+        <span className="text-success">
           {t("repositories.webhook.status.registered")}
         </span>
       );
     }
     if (status.needs_manual_setup) {
       return (
-        <span className="text-yellow-600 dark:text-yellow-400">
+        <span className="text-warning">
           {t("repositories.webhook.status.needsManualSetup")}
         </span>
       );

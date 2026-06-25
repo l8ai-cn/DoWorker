@@ -42,7 +42,7 @@ describe("AcpActivityStream", () => {
     render(<AcpActivityStream podKey={POD} />);
     const cmd = screen.getByText("/compact");
     expect(cmd.className).toContain("font-mono");
-    expect(cmd.className).toContain("text-blue");
+    expect(cmd.className).toContain("text-info");
   });
 
   it("renders assistant output as markdown", () => {

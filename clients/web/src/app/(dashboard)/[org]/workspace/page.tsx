@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { CreatePodModal } from "@/components/ide/CreatePodModal";
 import { getShortPodKey } from "@/lib/pod-display-name";
 import type { PodData } from "@/lib/api";
+import type { WorkspaceRecipeSelection } from "@/components/workspace/workspace-recipes";
 
 export default function WorkspacePage() {
   const t = useTranslations();
@@ -21,7 +22,18 @@ export default function WorkspacePage() {
   const addPane = useWorkspaceStore((s) => s.addPane);
   const _hasHydrated = useWorkspaceStore((s) => s._hasHydrated);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [recipe, setRecipe] = useState<WorkspaceRecipeSelection | null>(null);
   const processedPodRef = useRef<string | null>(null);
+
+  const handleCreatePod = useCallback((selection?: WorkspaceRecipeSelection) => {
+    setRecipe(selection ?? null);
+    setShowCreateModal(true);
+  }, []);
+
+  const handleCloseCreate = useCallback(() => {
+    setShowCreateModal(false);
+    setRecipe(null);
+  }, []);
 
   const handleOpenPod = useCallback((podKey: string) => {
     addPane(podKey);
@@ -63,11 +75,13 @@ export default function WorkspacePage() {
   if (panes.length === 0) {
     return (
       <>
-        <WorkspaceEmptyState onCreatePod={() => setShowCreateModal(true)} />
+        <WorkspaceEmptyState onCreatePod={handleCreatePod} />
         <CreatePodModal
           open={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
+          onClose={handleCloseCreate}
           onCreated={handlePodCreated}
+          initialAgentSlug={recipe?.agentSlug}
+          initialPrompt={recipe?.prompt}
         />
       </>
     );
@@ -79,8 +93,10 @@ export default function WorkspacePage() {
 
       <CreatePodModal
         open={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        onClose={handleCloseCreate}
         onCreated={handlePodCreated}
+        initialAgentSlug={recipe?.agentSlug}
+        initialPrompt={recipe?.prompt}
       />
     </div>
   );

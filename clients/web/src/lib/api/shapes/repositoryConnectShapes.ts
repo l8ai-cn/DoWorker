@@ -17,9 +17,8 @@ import type {
 } from "@/lib/viewModels/repository";
 import type { MergeRequestInfo } from "@/components/ide/BottomPanel/MergeRequestCard";
 
-// Shared proto→RepositoryData projection — single SSOT, also consumed by the
-// desktop electron-adapter. Re-exported for repositoryConnect.ts.
-export { repositoryToCache as fromProtoRepository } from "@agentsmesh/electron-adapter/projections";
+// Shared proto->RepositoryData projection. Re-exported for repositoryConnect.ts.
+export { repositoryToCache as fromProtoRepository } from "@/lib/api/projections";
 
 export function fromProtoWebhookStatus(s: ProtoWebhookStatus): WebhookStatus {
   return {

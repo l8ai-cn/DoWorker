@@ -53,7 +53,7 @@ export function SyncedBlockRenderer({ block, depth }: { block: Block; depth: num
           <button
             type="button"
             onClick={onPick}
-            className="w-full rounded border border-dashed border-border bg-muted/30 p-2 text-xs text-muted-foreground hover:bg-muted/50"
+            className="w-full rounded border border-dashed border-border bg-muted/30 p-2 text-xs text-muted-foreground motion-interactive hover:bg-surface-muted"
           >
             {sourceID ? `Source not loaded: ${sourceID.slice(0, 8)}…` : "Link to a source block"}
           </button>

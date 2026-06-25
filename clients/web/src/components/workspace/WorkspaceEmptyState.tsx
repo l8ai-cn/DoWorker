@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { X } from "lucide-react";
-import { RegisterLocalRunnerCard } from "@/components/onboarding/RegisterLocalRunnerCard";
+import { Sparkles, Terminal, X } from "lucide-react";
+import {
+  WORKSPACE_RECIPES,
+  type WorkspaceRecipeSelection,
+} from "@/components/workspace/workspace-recipes";
 
 interface RecipeCardProps {
   emoji: string;
@@ -19,16 +22,16 @@ function RecipeCard({ emoji, title, description, agents, duration, onClick }: Re
     <button
       type="button"
       onClick={onClick}
-      className="group flex-1 rounded-[10px] border border-border bg-card p-3.5 text-left transition-colors hover:bg-muted"
+      className="group flex-1 rounded-lg bg-surface-raised p-3.5 text-left shadow-[var(--shadow-soft)] ring-1 ring-border/45 transition-all hover:-translate-y-0.5 hover:bg-card hover:ring-border/70"
     >
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
-          <span className="text-sm leading-none">{emoji}</span>
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-accent text-xs leading-none text-accent-foreground">{emoji}</span>
           <span className="text-[13px] font-semibold text-foreground">{title}</span>
         </div>
         <p className="text-[11px] leading-4 text-muted-foreground">{description}</p>
         <div className="flex items-center gap-1.5 pt-1">
-          <span className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
+          <span className="rounded bg-surface-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
             {agents}
           </span>
           <span className="text-[10px] text-muted-foreground/70">· {duration}</span>
@@ -39,7 +42,7 @@ function RecipeCard({ emoji, title, description, agents, duration, onClick }: Re
 }
 
 interface WorkspaceEmptyStateProps {
-  onCreatePod: () => void;
+  onCreatePod: (recipe?: WorkspaceRecipeSelection) => void;
 }
 
 export function WorkspaceEmptyState({ onCreatePod }: WorkspaceEmptyStateProps) {
@@ -63,8 +66,8 @@ export function WorkspaceEmptyState({ onCreatePod }: WorkspaceEmptyStateProps) {
   return (
     <div className="flex h-full flex-col bg-background">
       {showBanner && (
-        <div className="flex items-center gap-2.5 bg-accent px-6 py-2.5 text-[13px]">
-          <span className="text-sm leading-none">👋</span>
+        <div className="flex items-center gap-2.5 bg-accent/75 px-6 py-2.5 text-[13px] shadow-[inset_0_-1px_0_color-mix(in_srgb,var(--border)_32%,transparent)]">
+          <Sparkles className="h-3.5 w-3.5 text-accent-foreground" />
           <span className="font-medium text-accent-foreground">{t("workspace.banner.newUser")}</span>
           <a href="#" className="text-primary hover:underline">
             {t("workspace.banner.watchIntro")}
@@ -82,12 +85,9 @@ export function WorkspaceEmptyState({ onCreatePod }: WorkspaceEmptyStateProps) {
       )}
 
       <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-10">
-        <div className="flex w-[520px] max-w-full">
-          <RegisterLocalRunnerCard />
-        </div>
         <div className="flex w-[520px] max-w-full flex-col items-center gap-4 text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-primary/40 bg-accent">
-            <span className="font-mono text-[32px] font-semibold leading-none text-primary">{">_"}</span>
+          <div className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-accent shadow-[var(--shadow-soft)] ring-1 ring-primary/20">
+            <Terminal className="h-8 w-8 text-primary" />
           </div>
           <h1 className="text-2xl font-semibold text-foreground">
             {t("workspace.emptyHeroTitle")}
@@ -112,35 +112,27 @@ export function WorkspaceEmptyState({ onCreatePod }: WorkspaceEmptyStateProps) {
             {t("workspace.recipesHeading")}
           </div>
           <div className="flex gap-3">
-            <RecipeCard
-              emoji="🔍"
-              title={t("workspace.recipes.explain.title")}
-              description={t("workspace.recipes.explain.description")}
-              agents="claude-code"
-              duration={t("workspace.recipes.explain.duration")}
-              onClick={onCreatePod}
-            />
-            <RecipeCard
-              emoji="🧪"
-              title={t("workspace.recipes.tests.title")}
-              description={t("workspace.recipes.tests.description")}
-              agents="claude-code"
-              duration={t("workspace.recipes.tests.duration")}
-              onClick={onCreatePod}
-            />
-            <RecipeCard
-              emoji="🐛"
-              title={t("workspace.recipes.bug.title")}
-              description={t("workspace.recipes.bug.description")}
-              agents="codex · acp"
-              duration={t("workspace.recipes.bug.duration")}
-              onClick={onCreatePod}
-            />
+            {WORKSPACE_RECIPES.map((recipe) => (
+              <RecipeCard
+                key={recipe.id}
+                emoji={recipe.emoji}
+                title={t(`workspace.recipes.${recipe.id}.title`)}
+                description={t(`workspace.recipes.${recipe.id}.description`)}
+                agents={recipe.agentLabel}
+                duration={t(`workspace.recipes.${recipe.id}.duration`)}
+                onClick={() =>
+                  onCreatePod({
+                    agentSlug: recipe.agentSlug,
+                    prompt: t(`workspace.recipes.${recipe.id}.prompt`),
+                  })
+                }
+              />
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between border-t border-border px-6 py-4">
+      <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-5 font-mono text-xs text-muted-foreground">
           <span>⌘K  {t("workspace.hints.search")}</span>
           <span>⌘N  {t("workspace.hints.createPod")}</span>

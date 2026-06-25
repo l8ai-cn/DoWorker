@@ -73,13 +73,13 @@ export function AutopilotProgressTracker({
           {progress.completed_steps && progress.completed_steps.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
-                <CheckCircle className="h-3 w-3 text-green-500" />
+                <CheckCircle className="h-3 w-3 text-success" />
                 <span>Completed ({progress.completed_steps.length})</span>
               </div>
               <ul className="space-y-1.5">
                 {progress.completed_steps.map((step, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm">
-                    <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    <CheckCircle className="h-4 w-4 text-success flex-shrink-0 mt-0.5" />
                     <span className="text-foreground">{step}</span>
                   </li>
                 ))}

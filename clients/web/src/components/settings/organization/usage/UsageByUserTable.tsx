@@ -13,7 +13,7 @@ export function UsageByUserTable({ data, t }: UsageByUserTableProps) {
   const sorted = [...data].sort((a, b) => b.total_tokens - a.total_tokens);
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <h3 className="text-sm font-medium mb-4">{t("settings.usagePage.byUserTitle")}</h3>
       {sorted.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">

@@ -115,7 +115,7 @@ export function LoopsSidebarContent({ className }: { className?: string }) {
       </div>
 
       {/* Loop list */}
-      <div className="flex-1 overflow-y-auto border-t border-border">
+      <div className="flex-1 overflow-y-auto">
         {/* Count header */}
         <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
           {t("loops.loopCount", { count: filteredLoops.length })}
@@ -175,7 +175,7 @@ function LoopListItem({
         "transition-colors duration-150 cursor-pointer",
         isActive
           ? "bg-accent text-accent-foreground"
-          : "hover:bg-muted/50 text-foreground"
+          : "motion-interactive hover:bg-surface-muted text-foreground"
       )}
       onClick={() => onClick(loop.slug)}
     >
@@ -185,11 +185,11 @@ function LoopListItem({
           <span
             className={cn(
               "block w-2 h-2 rounded-full",
-              isRunning ? "bg-blue-500" : isEnabled ? "bg-emerald-500" : "bg-gray-400 dark:bg-gray-600"
+              isRunning ? "bg-info" : isEnabled ? "bg-success" : "bg-muted-foreground"
             )}
           />
           {isRunning && (
-            <span className="absolute inset-0 w-2 h-2 rounded-full animate-ping opacity-30 bg-blue-500" />
+            <span className="absolute inset-0 w-2 h-2 rounded-full animate-ping opacity-30 bg-info" />
           )}
         </span>
         <span className="text-sm font-medium truncate">{loop.name}</span>

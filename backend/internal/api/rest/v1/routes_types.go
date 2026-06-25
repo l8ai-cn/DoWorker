@@ -12,6 +12,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
 	"github.com/anthropics/agentsmesh/backend/internal/service/channel"
+	coordinatorservice "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
 	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	"github.com/anthropics/agentsmesh/backend/internal/service/geo"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
@@ -102,6 +103,10 @@ type Services struct {
 	LoopRun          *loop.LoopRunService
 	LoopOrchestrator *loop.LoopOrchestrator
 	LoopScheduler    *loop.LoopScheduler
+
+	// Coordinator service (auto-harness integration: scans external task sources
+	// → tickets → dispatches do-agent pods).
+	Coordinator *coordinatorservice.Service
 
 	// SSO service for enterprise SSO integration
 	SSO *ssoservice.Service

@@ -39,7 +39,7 @@ type MockService struct {
 }
 
 type authAttempt struct {
-	Email    string
+	Username string
 	Password string
 }
 
@@ -168,16 +168,16 @@ func (m *MockService) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (m *MockService) Authenticate(ctx context.Context, email, password string) (*user.User, error) {
+func (m *MockService) Authenticate(ctx context.Context, username, password string) (*user.User, error) {
 	m.mu.Lock()
-	m.AuthAttempts = append(m.AuthAttempts, authAttempt{Email: email, Password: password})
+	m.AuthAttempts = append(m.AuthAttempts, authAttempt{Username: username, Password: password})
 	m.mu.Unlock()
 
 	if m.AuthenticateErr != nil {
 		return nil, m.AuthenticateErr
 	}
 
-	return m.GetByEmail(ctx, email)
+	return m.GetByUsername(ctx, username)
 }
 
 func (m *MockService) RecordLogin(_ context.Context, userID int64) {

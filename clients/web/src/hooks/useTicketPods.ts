@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from "react";
 import { fromBinary } from "@bufbuild/protobuf";
 import { ReplaceCachedPodsRequestSchema } from "@proto/pod_state/v1/pod_state_pb";
-import { podToCache } from "@agentsmesh/electron-adapter/projections";
+import { podToCache } from "@/lib/api/projections";
 import { getTicketService, getTicketState } from "@/lib/wasm-core";
 
 export interface TicketPodSummary {

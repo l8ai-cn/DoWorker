@@ -25,26 +25,26 @@ import type { AutopilotController } from "@/stores/autopilot";
 export const decisionConfig: Record<NormalizedDecisionType, DecisionTypeConfig> = {
   continue: {
     label: "Continue",
-    bgColor: "bg-blue-500",
-    textColor: "text-blue-500",
+    bgColor: "bg-info",
+    textColor: "text-info",
     icon: <ArrowRight className="h-3 w-3" />,
   },
   completed: {
     label: "Completed",
-    bgColor: "bg-green-500",
-    textColor: "text-green-500",
+    bgColor: "bg-success",
+    textColor: "text-success",
     icon: <CheckCircle className="h-3 w-3" />,
   },
   need_help: {
     label: "Need Help",
-    bgColor: "bg-orange-500",
-    textColor: "text-orange-500",
+    bgColor: "bg-warning",
+    textColor: "text-warning",
     icon: <AlertTriangle className="h-3 w-3" />,
   },
   give_up: {
     label: "Give Up",
-    bgColor: "bg-red-500",
-    textColor: "text-red-500",
+    bgColor: "bg-danger",
+    textColor: "text-danger",
     icon: <XCircle className="h-3 w-3" />,
   },
 };
@@ -59,32 +59,32 @@ export const actionConfig: Record<string, ActionTypeConfig> = {
 export const iterationPhaseConfig: Record<string, IterationPhaseConfig> = {
   prompt: {
     label: "Initial",
-    color: "bg-blue-500",
+    color: "bg-info",
     icon: <Send className="h-3 w-3" />,
   },
   started: {
     label: "Started",
-    color: "bg-blue-400",
+    color: "bg-info",
     icon: <Play className="h-3 w-3" />,
   },
   control_running: {
     label: "Running",
-    color: "bg-yellow-500",
+    color: "bg-warning",
     icon: <Loader2 className="h-3 w-3 animate-spin" />,
   },
   action_sent: {
     label: "Sent",
-    color: "bg-green-500",
+    color: "bg-success",
     icon: <Send className="h-3 w-3" />,
   },
   completed: {
     label: "Done",
-    color: "bg-green-600",
+    color: "bg-success",
     icon: <CheckCircle className="h-3 w-3" />,
   },
   error: {
     label: "Error",
-    color: "bg-red-500",
+    color: "bg-danger",
     icon: <XCircle className="h-3 w-3" />,
   },
 };
@@ -95,47 +95,47 @@ export const phaseConfig: Record<
 > = {
   initializing: {
     label: "Initializing",
-    color: "text-blue-500",
+    color: "text-info",
     icon: <Loader2 className="h-3.5 w-3.5 animate-spin" />,
   },
   running: {
     label: "Running",
-    color: "text-green-500",
+    color: "text-success",
     icon: <Play className="h-3.5 w-3.5" />,
   },
   paused: {
     label: "Paused",
-    color: "text-yellow-500",
+    color: "text-warning",
     icon: <Pause className="h-3.5 w-3.5" />,
   },
   user_takeover: {
     label: "User Control",
-    color: "text-purple-500",
+    color: "text-primary",
     icon: <Hand className="h-3.5 w-3.5" />,
   },
   waiting_approval: {
     label: "Waiting Approval",
-    color: "text-orange-500",
+    color: "text-warning",
     icon: <AlertTriangle className="h-3.5 w-3.5" />,
   },
   completed: {
     label: "Completed",
-    color: "text-green-600",
+    color: "text-success",
     icon: <CheckCircle className="h-3.5 w-3.5" />,
   },
   failed: {
     label: "Failed",
-    color: "text-red-500",
+    color: "text-danger",
     icon: <XCircle className="h-3.5 w-3.5" />,
   },
   stopped: {
     label: "Stopped",
-    color: "text-gray-500",
+    color: "text-muted-foreground",
     icon: <Square className="h-3.5 w-3.5" />,
   },
   max_iterations: {
     label: "Max Iterations",
-    color: "text-orange-600",
+    color: "text-warning",
     icon: <Clock className="h-3.5 w-3.5" />,
   },
 };

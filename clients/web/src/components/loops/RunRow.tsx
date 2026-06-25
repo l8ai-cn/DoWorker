@@ -30,9 +30,9 @@ export function RunRow({ run, onViewTerminal, onCancel }: RunRowProps) {
     <div>
       <div
         className={cn(
-          "flex items-center flex-wrap md:flex-nowrap gap-x-3 gap-y-1 px-3 py-2.5 rounded-lg",
-          "border border-transparent hover:bg-accent/50 hover:border-border/50 transition-colors duration-150",
-          isRunning && "bg-blue-500/5 border-blue-500/20",
+          "flex items-center flex-wrap md:flex-nowrap gap-x-3 gap-y-1 px-3 py-2.5 rounded-lg motion-interactive",
+          "hover:bg-surface-muted",
+          isRunning && "bg-info-bg",
           hasDetails && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
         )}
         role={hasDetails ? "button" : undefined}
@@ -73,9 +73,9 @@ export function RunRow({ run, onViewTerminal, onCancel }: RunRowProps) {
       </div>
 
       {expanded && hasDetails && (
-        <div className="ml-6 mr-3 mb-1 p-3 rounded-lg bg-muted/30 border border-border/50 space-y-2 text-xs">
+        <div className="ml-6 mr-3 mb-1 p-3 rounded-lg surface-card bg-muted/30 space-y-2 text-xs">
           {run.error_message && (
-            <div><span className="font-medium text-red-500">{t("loops.errorMessage")}:</span><span className="ml-1.5 text-foreground/80">{run.error_message}</span></div>
+            <div><span className="font-medium text-danger">{t("loops.errorMessage")}:</span><span className="ml-1.5 text-foreground/80">{run.error_message}</span></div>
           )}
           {run.exit_summary && (
             <div><span className="font-medium text-muted-foreground">{t("loops.exitSummary")}:</span><span className="ml-1.5 text-foreground/80">{run.exit_summary}</span></div>

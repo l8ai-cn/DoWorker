@@ -90,8 +90,8 @@ test.describe("Auth · onboarding personal workspace", () => {
     const req = await personalReq;
     expect(req.postData()).toBe("{}");
 
-    // Successful create navigates to setup-runner (per onboarding/page.tsx).
-    await page.waitForURL((u) => !u.pathname.endsWith("/onboarding"), { timeout: 15_000 });
+    // Successful create navigates to workspace.
+    await page.waitForURL((u) => u.pathname.includes("/workspace"), { timeout: 15_000 });
 
     db.cleanup(CLEANUP.userAndOrgsByEmail(email));
   });

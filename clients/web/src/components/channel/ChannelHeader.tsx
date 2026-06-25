@@ -56,7 +56,7 @@ export function ChannelHeader({
     return (
       <div className="flex min-w-0 flex-1 items-center justify-between">
         <div className="flex min-w-0 items-center gap-2">
-          <Icon className={cn("h-3.5 w-3.5 flex-shrink-0", isPrivate ? "text-amber-500" : "text-muted-foreground")} />
+          <Icon className={cn("h-3.5 w-3.5 flex-shrink-0", isPrivate ? "text-warning" : "text-muted-foreground")} />
           <span className="truncate text-xs font-medium">{name}</span>
         </div>
       </div>
@@ -69,7 +69,7 @@ export function ChannelHeader({
         <Icon
           className={cn(
             "h-5 w-5 flex-shrink-0",
-            isPrivate ? "text-amber-500" : "text-muted-foreground",
+            isPrivate ? "text-warning" : "text-muted-foreground",
           )}
           aria-hidden="true"
         />

@@ -6,8 +6,10 @@
       "channels": "Channels",
       "mesh": "Mesh",
       "loops": "Loops",
+      "automation": "Automation",
       "blocks": "Blocks",
       "infra": "Infra",
+      "skills": "Skills",
       "repositories": "Repositories",
       "runners": "Runners",
       "settings": "Settings",
@@ -71,6 +73,7 @@
       "selectRunner": "Select Runner",
       "selectRunnerPlaceholder": "Choose a runner...",
       "noRunnersAvailable": "No runners available",
+      "noOnlineRunnersHint": "No online runners in this organization. Switch to an org with a registered runner (e.g. dev-org), or register a local runner under Infra → Runners.",
       "selectAgent": "Select Agent",
       "selectAgentPlaceholder": "Choose an agent...",
       "noAgentsForRunner": "This runner does not support any agents",
@@ -116,6 +119,14 @@
       "bundleKind": {
         "credential": "Credential",
         "runtime": "Runtime"
+      },
+      "selectSkills": "Skills",
+      "noSkillsAvailableHint": "No skills installed for this repository. Install from Settings → Extensions or the Skills sidebar.",
+      "noSkillsSelectedHint": "No skills selected; all installed skills compatible with this agent will be loaded.",
+      "skillsSelectedHint": "Selected skills are attached to the Pod via the SKILLS AgentFile directive.",
+      "skillScope": {
+        "org": "Org",
+        "user": "Personal"
       }
     },
     "sidebar": {
@@ -177,6 +188,12 @@
         "channelsLabel": "Channels",
         "podsLabel": "Pods",
         "terminal": "Terminal"
+      },
+      "skills": {
+        "description": "Browse and install skills for your agents",
+        "browse": "Browse marketplace",
+        "manageRegistries": "Manage registries",
+        "hint": "Install skills to a repository to use them in pods"
       }
     }
   }

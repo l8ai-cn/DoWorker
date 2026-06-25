@@ -122,24 +122,22 @@ describe("useBrowserNotification", () => {
       });
     });
 
-    it("should detect iOS PWA mode via navigator.standalone", async () => {
+    it("should not use vendor-specific standalone flags for PWA mode", async () => {
       global.matchMedia = vi.fn().mockReturnValue({
         matches: false,
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
       });
-      // @ts-expect-error - iOS Safari specific
-      navigator.standalone = true;
+      (navigator as Navigator & { standalone?: boolean }).standalone = true;
 
       const { result } = renderHook(() => useBrowserNotification());
 
       await waitFor(() => {
-        expect(result.current.isPWA).toBe(true);
+        expect(result.current.isPWA).toBe(false);
       });
 
       // Cleanup
-      // @ts-expect-error - iOS Safari specific
-      delete navigator.standalone;
+      delete (navigator as Navigator & { standalone?: boolean }).standalone;
     });
 
     it("should return unsupported when Notification API is not available and no SW support", async () => {
@@ -156,7 +154,7 @@ describe("useBrowserNotification", () => {
       expect(result.current.permission).toBe("unsupported");
     });
 
-    it("should return default permission when only SW is supported (iOS PWA scenario)", async () => {
+    it("should return default permission when only SW is supported", async () => {
       // @ts-expect-error - removing Notification from window
       delete global.Notification;
       // PushManager still exists
@@ -250,7 +248,7 @@ describe("useBrowserNotification", () => {
       consoleSpy.mockRestore();
     });
 
-    it("should return false when Notification API not available (iOS PWA without Notification)", async () => {
+    it("should return false when Notification API is not available", async () => {
       // @ts-expect-error - removing Notification from window
       delete global.Notification;
 

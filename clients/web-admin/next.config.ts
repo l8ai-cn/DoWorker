@@ -52,11 +52,17 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${backendUrl}/api/:path*`,
       },
-      // Connect-RPC: backend serves /proto.<svc>.v1.<Service>/<Method>
-      // at the root path (no /api prefix) — see backend/cmd/server/connect_init.go
+      // Connect-RPC: /proto.<svc>.v1.<Service>/<Method> at the root path.
+      // path-to-regexp can't match dotted service names in `source`, so gate
+      // on the Connect client header (same pattern as clients/web).
       {
-        source: "/proto.:path*",
-        destination: `${backendUrl}/proto.:path*`,
+        source: "/:svc/:method",
+        has: [{ type: "header", key: "connect-protocol-version" }],
+        destination: `${backendUrl}/:svc/:method`,
+      },
+      {
+        source: "/health",
+        destination: `${backendUrl}/health`,
       },
     ];
   },

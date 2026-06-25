@@ -26,9 +26,9 @@ import {
   UpdateLoopRequestSchema,
 } from "@proto/loop/v1/loop_pb";
 import { create, toBinary, fromBinary } from "@bufbuild/protobuf";
-// Shared proto→LoopData projection — single SSOT, also consumed by the desktop
-// electron-adapter. Aliased to the historical fromProto* names used below.
-import { loopToCache as fromProtoLoop, loopRunToCache as fromProtoLoopRun } from "@agentsmesh/electron-adapter/projections";
+// Shared proto->LoopData projection. Aliased to the historical fromProto*
+// names used below.
+import { loopToCache as fromProtoLoop, loopRunToCache as fromProtoLoopRun } from "@/lib/api/projections";
 import { getLoopService } from "@/lib/wasm-core";
 import type {
   CreateLoopRequest,

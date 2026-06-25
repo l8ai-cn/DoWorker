@@ -34,9 +34,9 @@ export function ChannelRailPodItem({ pod, dimmed }: ChannelRailPodItemProps) {
 }
 
 function statusColorClass(status: string): string {
-  if (status === "running") return "bg-emerald-500";
-  if (status === "initializing") return "bg-amber-500";
-  if (status === "error" || status === "failed") return "bg-red-500";
+  if (status === "running") return "bg-success";
+  if (status === "initializing") return "bg-warning";
+  if (status === "error" || status === "failed") return "bg-danger";
   return "bg-muted-foreground/50";
 }
 

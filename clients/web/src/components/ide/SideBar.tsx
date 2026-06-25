@@ -79,13 +79,13 @@ export function SideBar({ className, children }: SideBarProps) {
   return (
     <aside
       className={cn(
-        "bg-background border-r border-border flex flex-col relative",
+        "bg-background flex flex-col relative",
         className,
       )}
       style={{ width: sidebarWidth }}
     >
       {activeActivity !== "settings" && (
-        <div className="flex h-12 items-center justify-between border-b border-border px-3">
+        <div className="flex h-12 items-center justify-between px-3 bg-surface-muted/40">
           <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
             {getActivityTitle(activeActivity)}
           </span>
@@ -106,11 +106,16 @@ export function SideBar({ className, children }: SideBarProps) {
       <div
         ref={resizeRef}
         className={cn(
-          "absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 transition-colors",
-          isResizing && "bg-primary/50",
+          "absolute right-0 top-0 bottom-0 w-2 -mr-1 cursor-col-resize group",
+          isResizing && "bg-primary/20",
         )}
         onMouseDown={() => setIsResizing(true)}
-      />
+      >
+        <div className={cn(
+          "absolute inset-y-0 right-0 w-0.5 rounded-full bg-primary/0 group-hover:bg-primary/40 transition-colors",
+          isResizing && "bg-primary/60",
+        )} />
+      </div>
     </aside>
   );
 }

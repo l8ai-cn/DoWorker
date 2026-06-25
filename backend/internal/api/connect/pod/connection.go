@@ -52,29 +52,12 @@ func (s *Server) GetPodConnection(
 		return nil, connect.NewError(connect.CodeUnavailable, errors.New("no healthy relay available"))
 	}
 
-	var localRelayURL, localToken, localRelayNodeID string
 	if s.commandSender != nil && pod.RunnerID > 0 {
 		runnerToken, err := s.tokenGenerator.GenerateToken(podKey, pod.RunnerID, 0, tenant.OrganizationID, time.Hour)
 		if err != nil {
 			return nil, connect.NewError(connect.CodeInternal, errors.New("failed to generate runner token"))
 		}
-		if s.stateReader != nil {
-			localRelayURL = s.stateReader.GetRunnerLocalRelayURL(pod.RunnerID)
-		}
-		if localRelayURL != "" {
-			lt, err := s.tokenGenerator.GenerateToken(podKey, pod.RunnerID, tenant.UserID, tenant.OrganizationID, time.Hour)
-			if err != nil {
-				slog.WarnContext(ctx, "failed to generate local token, falling back to cloud relay only",
-					"pod_key", podKey, "runner_id", pod.RunnerID, "error", err)
-				localRelayURL = ""
-			} else {
-				localToken = lt
-				if s.stateReader != nil {
-					localRelayNodeID = s.stateReader.GetRunnerNodeID(pod.RunnerID)
-				}
-			}
-		}
-		if err := s.commandSender.SendSubscribePod(ctx, pod.RunnerID, podKey, relayInfo.URL, runnerToken, localToken, true, 1000); err != nil {
+		if err := s.commandSender.SendSubscribePod(ctx, pod.RunnerID, podKey, relayInfo.URL, runnerToken, true, 1000); err != nil {
 			slog.WarnContext(ctx, "failed to send subscribe pod command", "pod_key", podKey, "runner_id", pod.RunnerID, "error", err)
 		}
 	}
@@ -85,12 +68,9 @@ func (s *Server) GetPodConnection(
 	}
 
 	return connect.NewResponse(&podv1.PodConnectionInfo{
-		RelayUrl:         relayInfo.URL,
-		Token:            token,
-		PodKey:           podKey,
-		LocalRelayUrl:    localRelayURL,
-		LocalToken:       localToken,
-		LocalRelayNodeId: localRelayNodeID,
+		RelayUrl: relayInfo.URL,
+		Token:    token,
+		PodKey:   podKey,
 	}), nil
 }
 

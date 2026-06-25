@@ -20,7 +20,7 @@ use crate::ticket_state::TicketState;
 /// Specification of a transient toast notification that the Rust-SSOT
 /// dispatch wants the platform layer to display. Rust never ships locale
 /// data; `title_key` + `title_params` are passed through and translated
-/// on the JS/Swift side via the platform's i18n facility.
+/// on the host side via the platform's i18n facility.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ToastSpec {
     pub kind: String,
@@ -34,8 +34,7 @@ pub struct ToastSpec {
 }
 
 /// Specification of a browser/OS-native notification. The platform layer
-/// decides whether to show via `Notification` API (web), `UNNotification`
-/// (iOS), or in-app banner (electron-no-permission case).
+/// decides whether to show via `Notification` API or an in-app banner.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct NotificationSpec {
     pub title: String,
@@ -183,7 +182,7 @@ impl Default for AppState {
 
 /// Lock-wrapped AppState + dispatch hook adapter. Owns the only mutable
 /// reference path into the in-memory state tree; binding facades
-/// (wasm/napi/ffi) share `Arc<AppRuntime>` and pass it into services.
+/// (wasm/ffi) share `Arc<AppRuntime>` and pass it into services.
 pub struct AppRuntime {
     pub state: Arc<RwLock<AppState>>,
     pub events: Arc<EventSubscriptionManager>,

@@ -18,7 +18,7 @@ export default function RepositoriesPage() {
 
       {/* Overview */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.repositories.overview.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -28,11 +28,11 @@ export default function RepositoriesPage() {
 
       {/* Supported Git Providers */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.repositories.providers.title")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.repositories.providers.github")}
             </h3>
@@ -40,7 +40,7 @@ export default function RepositoriesPage() {
               {t("docs.features.repositories.providers.githubDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.repositories.providers.gitlab")}
             </h3>
@@ -48,7 +48,7 @@ export default function RepositoriesPage() {
               {t("docs.features.repositories.providers.gitlabDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.repositories.providers.gitee")}
             </h3>
@@ -61,11 +61,11 @@ export default function RepositoriesPage() {
 
       {/* Authentication Methods */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.repositories.auth.title")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.repositories.auth.oauth")}
             </h3>
@@ -73,7 +73,7 @@ export default function RepositoriesPage() {
               {t("docs.features.repositories.auth.oauthDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.repositories.auth.pat")}
             </h3>
@@ -86,7 +86,7 @@ export default function RepositoriesPage() {
 
       {/* Repository & Pod Association */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.repositories.podAssociation.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -103,7 +103,7 @@ export default function RepositoriesPage() {
 
       {/* Git Worktree Isolation */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.repositories.worktree.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -113,11 +113,11 @@ export default function RepositoriesPage() {
 
       {/* Managing Repositories */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.repositories.management.title")}
         </h2>
         <div className="space-y-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.repositories.management.addRepo")}
             </h3>
@@ -125,7 +125,7 @@ export default function RepositoriesPage() {
               {t("docs.features.repositories.management.addRepoSteps")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.repositories.management.removeRepo")}
             </h3>

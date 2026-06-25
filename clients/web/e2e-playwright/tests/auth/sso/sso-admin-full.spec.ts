@@ -14,7 +14,7 @@ test.describe("SSO Admin Full", () => {
 
   /** TC-SSO-ADM-001: List SSO configs */
   test("list SSO configs with pagination", async ({ api }) => {
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const cc = await api.connect();
     const res = await cc.ssoAdmin.listSSOConfigs({}) as { data: unknown[]; total: bigint };
     expect(res).toBeTruthy();
@@ -23,7 +23,7 @@ test.describe("SSO Admin Full", () => {
 
   /** TC-SSO-ADM-002: Get single config (non-existent) — Connect: NotFound→404. */
   test("get non-existent SSO config returns 404", async ({ api }) => {
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const cc = await api.connect();
     await expect(
       cc.ssoAdmin.getSSOConfig({ id: BigInt(999999) }),
@@ -32,7 +32,7 @@ test.describe("SSO Admin Full", () => {
 
   /** TC-SSO-ADM-003: Full CRUD with LDAP (avoids OIDC discovery). */
   test("SSO config CRUD with LDAP protocol", async ({ api }) => {
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const cc = await api.connect();
 
     // Create LDAP config (doesn't need external IdP)
@@ -85,7 +85,7 @@ test.describe("SSO Admin Full", () => {
 
   /** TC-SSO-ADM-005: Enable/disable config */
   test("enable and disable SSO config", async ({ api }) => {
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const cc = await api.connect();
 
     // LDAP doesn't depend on an external IdP — create must succeed.

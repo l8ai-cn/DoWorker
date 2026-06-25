@@ -64,13 +64,13 @@ export function CircuitBreakerAlert({
   return (
     <div
       className={cn(
-        "rounded-lg border-2 border-orange-500 bg-orange-50 dark:bg-orange-950/20 p-4",
+        "rounded-lg border-2 border-warning bg-warning-bg p-4",
         className
       )}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
+        <div className="flex items-center gap-2 text-warning">
           <AlertTriangle className="h-5 w-5" />
           <span className="font-semibold">Circuit Breaker Triggered</span>
         </div>
@@ -121,7 +121,7 @@ export function CircuitBreakerAlert({
       <div className="flex items-center gap-3">
         <Button
           onClick={handleContinue}
-          className="flex-1 bg-green-600 hover:bg-green-700"
+          className="flex-1 bg-success hover:bg-success/90"
         >
           <Play className="h-4 w-4 mr-2" />
           Continue Execution

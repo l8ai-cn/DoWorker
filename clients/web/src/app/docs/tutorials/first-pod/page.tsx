@@ -3,25 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { DocNavigation } from "@/components/docs/DocNavigation";
-
-function StepHeader({
-  step,
-  titleKey,
-  t,
-}: {
-  step: number;
-  titleKey: string;
-  t: ReturnType<typeof useTranslations>;
-}) {
-  return (
-    <div className="flex items-center gap-3 mb-4">
-      <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
-        {step}
-      </div>
-      <h2 className="text-xl font-semibold">{t(titleKey)}</h2>
-    </div>
-  );
-}
+import { DocStepHeader } from "@/components/docs/DocStepHeader";
 
 export default function FirstPodTutorialPage() {
   const t = useTranslations();
@@ -41,8 +23,8 @@ export default function FirstPodTutorialPage() {
 
       {/* Prerequisites */}
       <section className="mb-8">
-        <div className="bg-muted/50 border border-border rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">
+        <div className="rounded-lg bg-surface-muted/50 shadow-[var(--shadow-soft)] ring-1 ring-border/15 p-6">
+          <h2 className="text-xl font-semibold mb-4 text-foreground">
             {t("docs.tutorials.firstPod.prerequisites.title")}
           </h2>
           <p className="text-muted-foreground mb-4">
@@ -59,12 +41,8 @@ export default function FirstPodTutorialPage() {
 
       {/* Step 1 */}
       <section className="mb-8">
-        <div className="border border-border rounded-lg p-6">
-          <StepHeader
-            step={1}
-            titleKey="docs.tutorials.firstPod.step1.title"
-            t={t}
-          />
+        <div className="surface-card p-6">
+          <DocStepHeader step={1} titleKey="docs.tutorials.firstPod.step1.title" />
           <p className="text-muted-foreground">
             {t("docs.tutorials.firstPod.step1.description")}
           </p>
@@ -73,12 +51,8 @@ export default function FirstPodTutorialPage() {
 
       {/* Step 2 */}
       <section className="mb-8">
-        <div className="border border-border rounded-lg p-6">
-          <StepHeader
-            step={2}
-            titleKey="docs.tutorials.firstPod.step2.title"
-            t={t}
-          />
+        <div className="surface-card p-6">
+          <DocStepHeader step={2} titleKey="docs.tutorials.firstPod.step2.title" />
           <p className="text-muted-foreground mb-4">
             {t("docs.tutorials.firstPod.step2.description")}
           </p>
@@ -97,12 +71,8 @@ export default function FirstPodTutorialPage() {
 
       {/* Step 3 */}
       <section className="mb-8">
-        <div className="border border-border rounded-lg p-6">
-          <StepHeader
-            step={3}
-            titleKey="docs.tutorials.firstPod.step3.title"
-            t={t}
-          />
+        <div className="surface-card p-6">
+          <DocStepHeader step={3} titleKey="docs.tutorials.firstPod.step3.title" />
           <p className="text-muted-foreground mb-4">
             {t("docs.tutorials.firstPod.step3.description")}
           </p>
@@ -111,7 +81,7 @@ export default function FirstPodTutorialPage() {
             <li>{t("docs.tutorials.firstPod.step3.item2")}</li>
             <li>{t("docs.tutorials.firstPod.step3.item3")}</li>
           </ul>
-          <div className="bg-muted/50 border border-border rounded-lg p-4 text-sm text-muted-foreground">
+          <div className="rounded-lg bg-surface-muted/50 shadow-[var(--shadow-soft)] ring-1 ring-border/15 p-4 text-sm text-muted-foreground">
             {t("docs.tutorials.firstPod.step3.tip")}
           </div>
         </div>
@@ -119,12 +89,8 @@ export default function FirstPodTutorialPage() {
 
       {/* Step 4 */}
       <section className="mb-8">
-        <div className="border border-border rounded-lg p-6">
-          <StepHeader
-            step={4}
-            titleKey="docs.tutorials.firstPod.step4.title"
-            t={t}
-          />
+        <div className="surface-card p-6">
+          <DocStepHeader step={4} titleKey="docs.tutorials.firstPod.step4.title" />
           <p className="text-muted-foreground mb-4">
             {t("docs.tutorials.firstPod.step4.description")}
           </p>
@@ -139,12 +105,8 @@ export default function FirstPodTutorialPage() {
 
       {/* Step 5 */}
       <section className="mb-8">
-        <div className="border border-border rounded-lg p-6">
-          <StepHeader
-            step={5}
-            titleKey="docs.tutorials.firstPod.step5.title"
-            t={t}
-          />
+        <div className="surface-card p-6">
+          <DocStepHeader step={5} titleKey="docs.tutorials.firstPod.step5.title" />
           <p className="text-muted-foreground mb-4">
             {t("docs.tutorials.firstPod.step5.description")}
           </p>
@@ -159,11 +121,11 @@ export default function FirstPodTutorialPage() {
 
       {/* Troubleshooting */}
       <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.tutorials.firstPod.troubleshooting.title")}
         </h2>
         <div className="space-y-3">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-1">
               {t("docs.tutorials.firstPod.troubleshooting.noRunners")}
             </h3>
@@ -171,7 +133,7 @@ export default function FirstPodTutorialPage() {
               {t("docs.tutorials.firstPod.troubleshooting.noRunnersDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-1">
               {t("docs.tutorials.firstPod.troubleshooting.stuckInit")}
             </h3>
@@ -179,7 +141,7 @@ export default function FirstPodTutorialPage() {
               {t("docs.tutorials.firstPod.troubleshooting.stuckInitDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-1">
               {t("docs.tutorials.firstPod.troubleshooting.agentNotResponding")}
             </h3>
@@ -187,7 +149,7 @@ export default function FirstPodTutorialPage() {
               {t("docs.tutorials.firstPod.troubleshooting.agentNotRespondingDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-1">
               {t("docs.tutorials.firstPod.troubleshooting.terminated")}
             </h3>
@@ -200,7 +162,7 @@ export default function FirstPodTutorialPage() {
 
       {/* Next Steps */}
       <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.tutorials.firstPod.nextSteps.title")}
         </h2>
         <p className="text-muted-foreground mb-4">
@@ -209,7 +171,7 @@ export default function FirstPodTutorialPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             href="/docs/tutorials/ticket-workflow"
-            className="border border-border rounded-lg p-4 hover:border-primary transition-colors"
+            className="surface-card-interactive p-4 block"
           >
             <p className="text-sm text-muted-foreground">
               {t("docs.tutorials.firstPod.nextSteps.item1")}
@@ -217,7 +179,7 @@ export default function FirstPodTutorialPage() {
           </Link>
           <Link
             href="/docs/tutorials/multi-agent-collaboration"
-            className="border border-border rounded-lg p-4 hover:border-primary transition-colors"
+            className="surface-card-interactive p-4 block"
           >
             <p className="text-sm text-muted-foreground">
               {t("docs.tutorials.firstPod.nextSteps.item2")}
@@ -225,7 +187,7 @@ export default function FirstPodTutorialPage() {
           </Link>
           <Link
             href="/docs/tutorials/automated-loops"
-            className="border border-border rounded-lg p-4 hover:border-primary transition-colors"
+            className="surface-card-interactive p-4 block"
           >
             <p className="text-sm text-muted-foreground">
               {t("docs.tutorials.firstPod.nextSteps.item3")}

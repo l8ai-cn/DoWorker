@@ -24,7 +24,7 @@ export function CredentialsSection({
   t,
 }: CredentialsSectionProps) {
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <div className="flex items-center gap-2 mb-4">
         <Key className="w-5 h-5 text-muted-foreground" />
         <h3 className="text-lg font-semibold">{t("settings.agentConfig.credentials.title")}</h3>
@@ -37,7 +37,7 @@ export function CredentialsSection({
         {/* "No bundle" — always shown as first option.
             Represents using the Runner's native env; selecting it clears the
             primary credential bundle for this agent. */}
-        <div className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-muted/50">
+        <div className="flex items-center justify-between p-3 surface-card motion-interactive hover:bg-surface-muted">
           <div className="flex items-center gap-3">
             <Server className="w-4 h-4 text-muted-foreground" />
             <div>
@@ -71,7 +71,7 @@ export function CredentialsSection({
         {credentialProfiles.map((profile) => (
           <div
             key={profile.id}
-            className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-muted/50"
+            className="flex items-center justify-between p-3 surface-card motion-interactive hover:bg-surface-muted"
           >
             <CredentialProfileRow
               profile={profile}

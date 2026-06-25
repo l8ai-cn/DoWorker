@@ -1,0 +1,27 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "coordinator",
+    srcs = [
+        "claim_policy.go",
+        "execution.go",
+        "external_link.go",
+        "project.go",
+        "repository.go",
+    ],
+    importpath = "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator",
+    visibility = ["//backend:__subpackages__"],
+    deps = ["@com_github_lib_pq//:pq"],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":coordinator",
+    visibility = ["//backend:__subpackages__"],
+)
+
+go_test(
+    name = "coordinator_test",
+    srcs = ["claim_policy_test.go"],
+    embed = [":coordinator"],
+)

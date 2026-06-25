@@ -1,4 +1,4 @@
-import type { ConfigField, AgentData } from "@/lib/api";
+import type { ConfigField, ConfigFile, AgentData } from "@/lib/api";
 import type { CredentialProfileViewModel } from "../_shared/credentialViewModel";
 import type { CredentialFormData } from "../AgentCredentialsSettings/credentialForms/types";
 
@@ -27,6 +27,8 @@ export interface AgentConfigState {
   credentialProfiles: CredentialProfileViewModel[];
   noPrimaryBundle: boolean;
   runtimeBundles: RuntimeBundleViewModel[];
+  configFileSpecs: ConfigFile[];
+  configFileBundles: ConfigFileBundleViewModel[];
 
   // UI feedback
   error: string | null;
@@ -52,6 +54,14 @@ export interface AgentConfigActions {
   handleClearRuntimePrimary: () => Promise<void>;
   handleDeleteRuntimeBundle: (id: number) => Promise<void>;
   handleSaveRuntimeBundle: (data: RuntimeBundleFormData, editingBundle: RuntimeBundleViewModel | null) => Promise<void>;
+
+  handleSetConfigPrimary: (id: number) => Promise<void>;
+  handleClearConfigPrimary: () => Promise<void>;
+  handleDeleteConfigFileBundle: (id: number) => Promise<void>;
+  handleSaveConfigFileBundle: (
+    data: ConfigFileFormData,
+    editing: ConfigFileBundleViewModel | null
+  ) => Promise<void>;
 
   // UI actions
   setError: (error: string | null) => void;
@@ -86,6 +96,24 @@ export interface RuntimeBundleFormData {
   name: string;
   description: string;
   data: Record<string, string>;
+}
+
+export interface ConfigFileBundleViewModel {
+  id: number;
+  agent_slug: string;
+  name: string;
+  description?: string;
+  is_default: boolean;
+  is_active: boolean;
+  json_content?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConfigFileFormData {
+  name: string;
+  description: string;
+  jsonContent: string;
 }
 
 /**

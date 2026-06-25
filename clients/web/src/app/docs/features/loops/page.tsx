@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { DocNavigation } from "@/components/docs/DocNavigation";
+import { DocsTable } from "@/components/docs/DocsTable";
 
 export default function LoopsPage() {
   const t = useTranslations();
@@ -18,7 +19,7 @@ export default function LoopsPage() {
 
       {/* Overview */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.loops.overview.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -36,11 +37,11 @@ export default function LoopsPage() {
 
       {/* Execution Modes */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.loops.executionModes.title")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.loops.executionModes.autopilot")}
             </h3>
@@ -48,7 +49,7 @@ export default function LoopsPage() {
               {t("docs.features.loops.executionModes.autopilotDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.loops.executionModes.direct")}
             </h3>
@@ -61,14 +62,14 @@ export default function LoopsPage() {
 
       {/* Trigger Types */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.loops.triggerTypes.title")}
         </h2>
         <p className="text-muted-foreground mb-4">
           {t("docs.features.loops.triggerTypes.description")}
         </p>
         <div className="space-y-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.loops.triggerTypes.cron")}
             </h3>
@@ -76,7 +77,7 @@ export default function LoopsPage() {
               {t("docs.features.loops.triggerTypes.cronDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.loops.triggerTypes.api")}
             </h3>
@@ -89,14 +90,14 @@ export default function LoopsPage() {
 
       {/* Sandbox Strategies */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.loops.sandboxStrategies.title")}
         </h2>
         <p className="text-muted-foreground mb-4">
           {t("docs.features.loops.sandboxStrategies.description")}
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.loops.sandboxStrategies.persistent")}
             </h3>
@@ -104,7 +105,7 @@ export default function LoopsPage() {
               {t("docs.features.loops.sandboxStrategies.persistentDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.loops.sandboxStrategies.fresh")}
             </h3>
@@ -117,7 +118,7 @@ export default function LoopsPage() {
 
       {/* Session Persistence */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.loops.sessionPersistence.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -127,70 +128,56 @@ export default function LoopsPage() {
 
       {/* Concurrency Policies */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.loops.concurrency.title")}
         </h2>
         <p className="text-muted-foreground mb-4">
           {t("docs.features.loops.concurrency.description")}
         </p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-border rounded-lg">
-            <thead>
-              <tr className="bg-muted">
-                <th className="text-left p-3 border-b border-border w-1/4">
-                  {t("docs.features.loops.concurrency.title")}
-                </th>
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.features.loops.overview.title")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-muted-foreground">
-              <tr>
-                <td className="p-3 border-b border-border font-medium">
-                  {t("docs.features.loops.concurrency.skip")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.loops.concurrency.skipDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-medium">
-                  {t("docs.features.loops.concurrency.queue")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.loops.concurrency.queueDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 font-medium">
-                  {t("docs.features.loops.concurrency.replace")}
-                </td>
-                <td className="p-3">
-                  {t("docs.features.loops.concurrency.replaceDesc")}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <DocsTable
+          columns={[
+            { header: t("docs.features.loops.concurrency.modeHeader"), className: "w-1/4" },
+            { header: t("docs.features.loops.concurrency.behaviorHeader") },
+          ]}
+          rows={[
+            {
+              cells: [
+                <span key="m" className="font-medium">{t("docs.features.loops.concurrency.skip")}</span>,
+                t("docs.features.loops.concurrency.skipDesc"),
+              ],
+            },
+            {
+              cells: [
+                <span key="m" className="font-medium">{t("docs.features.loops.concurrency.queue")}</span>,
+                t("docs.features.loops.concurrency.queueDesc"),
+              ],
+            },
+            {
+              cells: [
+                <span key="m" className="font-medium">{t("docs.features.loops.concurrency.replace")}</span>,
+                t("docs.features.loops.concurrency.replaceDesc"),
+              ],
+            },
+          ]}
+        />
       </section>
 
       {/* Prompt Templates */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.loops.promptTemplates.title")}
         </h2>
         <p className="text-muted-foreground mb-4">
           {t("docs.features.loops.promptTemplates.description")}
         </p>
-        <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
+        <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 text-sm overflow-x-auto">
           <code>{t("docs.features.loops.promptTemplates.example")}</code>
         </pre>
       </section>
 
       {/* Webhook Callbacks */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.loops.webhookCallbacks.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -200,7 +187,7 @@ export default function LoopsPage() {
 
       {/* Use Cases */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.loops.useCases.title")}
         </h2>
         <ul className="list-disc list-inside text-muted-foreground space-y-2">

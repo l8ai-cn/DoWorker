@@ -37,8 +37,8 @@ const variantConfig: Record<
 > = {
   default: { icon: Info, iconClass: "text-primary bg-primary/10", confirmVariant: "default" },
   destructive: { icon: AlertTriangle, iconClass: "text-destructive bg-destructive/10", confirmVariant: "destructive" },
-  warning: { icon: AlertCircle, iconClass: "text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/30", confirmVariant: "default" },
-  success: { icon: CheckCircle, iconClass: "text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30", confirmVariant: "default" },
+  warning: { icon: AlertCircle, iconClass: "text-warning bg-warning-bg", confirmVariant: "default" },
+  success: { icon: CheckCircle, iconClass: "text-success bg-success-bg", confirmVariant: "default" },
 };
 
 export function ConfirmDialog({

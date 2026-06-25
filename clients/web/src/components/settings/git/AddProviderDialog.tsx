@@ -18,6 +18,7 @@ const PROVIDERS = [
   { type: "github", name: "GitHub", defaultUrl: "https://github.com" },
   { type: "gitlab", name: "GitLab", defaultUrl: "https://gitlab.com" },
   { type: "gitee", name: "Gitee", defaultUrl: "https://gitee.com" },
+  { type: "cnb", name: "CNB", defaultUrl: "https://cnb.cool" },
 ];
 
 export function AddProviderDialog({ onClose, onSuccess }: AddProviderDialogProps) {
@@ -89,7 +90,7 @@ export function AddProviderDialog({ onClose, onSuccess }: AddProviderDialogProps
                 <button
                   key={provider.type}
                   onClick={() => selectType(provider.type)}
-                  className="w-full flex items-center gap-4 p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors"
+                  className="w-full flex items-center gap-4 p-4 surface-card motion-interactive hover:bg-surface-muted"
                 >
                   <GitProviderIcon provider={provider.type} />
                   <span className="font-medium">{provider.name}</span>
@@ -143,7 +144,7 @@ export function AddProviderDialog({ onClose, onSuccess }: AddProviderDialogProps
                   type="password"
                   value={botToken}
                   onChange={(e) => setBotToken(e.target.value)}
-                  placeholder="ghp_xxx or glpat-xxx"
+                  placeholder="ghp_xxx, glpat-xxx, or CNB token"
                 />
               </FormField>
             </div>

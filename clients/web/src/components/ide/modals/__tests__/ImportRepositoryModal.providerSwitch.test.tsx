@@ -57,6 +57,26 @@ describe("ImportRepositoryModal - Provider Type Switching", () => {
     });
   });
 
+  it("should change base URL when provider type is changed to cnb", async () => {
+    render(
+      <ImportRepositoryModal open={true} onClose={mockOnClose} onImported={mockOnImported} />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Enter Manually")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("Enter Manually"));
+
+    const providerSelect = document.querySelector("select") as HTMLSelectElement;
+    fireEvent.change(providerSelect, { target: { value: "cnb" } });
+
+    await waitFor(() => {
+      const baseUrlInput = screen.getByPlaceholderText("https://github.com") as HTMLInputElement;
+      expect(baseUrlInput.value).toBe("https://cnb.cool");
+    });
+  });
+
   it("should clear base URL when provider type is changed to generic", async () => {
     render(
       <ImportRepositoryModal open={true} onClose={mockOnClose} onImported={mockOnImported} />

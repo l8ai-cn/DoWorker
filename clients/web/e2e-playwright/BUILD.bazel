@@ -58,7 +58,7 @@ playwright_test(
     # so a child bazel test sees them via inherit.
 )
 
-# Shared helpers/fixtures consumed by clients/desktop e2e via relative
+# Shared helpers/fixtures consumed by Web e2e via relative
 # imports (../../../web/e2e-playwright/helpers/env etc.). Expose as a
 # js_library so downstream targets add it to their `data` without
 # re-globbing the same files.

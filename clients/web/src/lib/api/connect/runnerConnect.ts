@@ -40,9 +40,9 @@ import {
   type SandboxStatus as ProtoSandboxStatus,
 } from "@proto/runner_api/v1/runner_pb";
 import { create, toBinary, fromBinary } from "@bufbuild/protobuf";
-// Shared proto→RunnerData projection — single SSOT, also consumed by the
-// desktop electron-adapter. Aliased to the historical fromProtoRunner name.
-import { runnerToCache as fromProtoRunner } from "@agentsmesh/electron-adapter/projections";
+// Shared proto->RunnerData projection. Aliased to the historical
+// fromProtoRunner name.
+import { runnerToCache as fromProtoRunner } from "@/lib/api/projections";
 import { getRunnerService } from "@/lib/wasm-core";
 import type {
   GRPCRegistrationToken,

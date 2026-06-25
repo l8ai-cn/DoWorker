@@ -28,32 +28,32 @@ const iterationPhaseConfig: Record<
 > = {
   prompt: {
     label: "Initial Prompt",
-    color: "bg-blue-500",
+    color: "bg-info",
     icon: <Send className="h-3 w-3" />,
   },
   started: {
     label: "Started",
-    color: "bg-blue-400",
+    color: "bg-info",
     icon: <Play className="h-3 w-3" />,
   },
   control_running: {
     label: "Control Running",
-    color: "bg-yellow-500",
+    color: "bg-warning",
     icon: <Loader2 className="h-3 w-3 animate-spin" />,
   },
   action_sent: {
     label: "Action Sent",
-    color: "bg-green-500",
+    color: "bg-success",
     icon: <Send className="h-3 w-3" />,
   },
   completed: {
     label: "Completed",
-    color: "bg-green-600",
+    color: "bg-success",
     icon: <CheckCircle className="h-3 w-3" />,
   },
   error: {
     label: "Error",
-    color: "bg-red-500",
+    color: "bg-danger",
     icon: <XCircle className="h-3 w-3" />,
   },
 };
@@ -62,7 +62,7 @@ function IterationItem({ iteration }: { iteration: AutopilotIteration }) {
   const [expanded, setExpanded] = React.useState(false);
   const phaseInfo = iterationPhaseConfig[iteration.phase] || {
     label: iteration.phase,
-    color: "bg-gray-500",
+    color: "bg-muted-foreground",
     icon: <FileText className="h-3 w-3" />,
   };
 

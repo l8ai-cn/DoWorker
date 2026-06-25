@@ -20,7 +20,7 @@ export async function terminateAllPods(): Promise<number> {
     const loginRes = await fetch(`${baseUrl}/proto.auth.v1.AuthService/Login`, {
       method: "POST",
       headers: CONNECT_HEADERS,
-      body: JSON.stringify({ email: TEST_USER.email, password: TEST_USER.password }),
+      body: JSON.stringify({ username: TEST_USER.username, password: TEST_USER.password }),
     });
     if (!loginRes.ok) return 0;
     const { token } = (await loginRes.json()) as { token: string };

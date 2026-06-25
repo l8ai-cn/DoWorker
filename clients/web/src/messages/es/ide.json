@@ -7,6 +7,8 @@
       "mesh": "Mesh",
       "loops": "Loops",
       "blocks": "Blocks",
+      "infra": "Infra",
+      "skills": "Skills",
       "repositories": "Repositorios",
       "runners": "Runner",
       "settings": "Configuración",
@@ -109,6 +111,14 @@
       "bundleKind": {
         "credential": "Credencial",
         "runtime": "Ejecución"
+      },
+      "selectSkills": "Skills",
+      "noSkillsAvailableHint": "No hay skills instalados en este repositorio. Instálalos en Ajustes → Extensiones o desde la barra lateral de Skills.",
+      "noSkillsSelectedHint": "Ningún skill seleccionado; se cargarán todos los skills instalados compatibles con este agente.",
+      "skillsSelectedHint": "Los skills seleccionados se adjuntan al Pod mediante la directiva SKILLS de AgentFile.",
+      "skillScope": {
+        "org": "Organización",
+        "user": "Personal"
       }
     },
     "sidebar": {
@@ -158,6 +168,12 @@
         "channelsLabel": "Canales",
         "podsLabel": "Pods",
         "terminal": "Terminal"
+      },
+      "skills": {
+        "description": "Browse and install skills for your agents",
+        "browse": "Browse marketplace",
+        "manageRegistries": "Manage registries",
+        "hint": "Install skills to a repository to use them in pods"
       }
     }
   }

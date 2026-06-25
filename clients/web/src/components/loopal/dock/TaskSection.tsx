@@ -8,8 +8,8 @@ import { DockList } from "./DockList";
 
 const ICON: Record<string, { Icon: typeof Circle; cls: string }> = {
   pending: { Icon: Circle, cls: "text-muted-foreground" },
-  in_progress: { Icon: CircleDot, cls: "text-blue-500" },
-  completed: { Icon: CheckCircle2, cls: "text-green-500" },
+  in_progress: { Icon: CircleDot, cls: "text-info" },
+  completed: { Icon: CheckCircle2, cls: "text-success" },
 };
 
 export function TaskSection({ podKey }: { podKey: string }) {
@@ -24,7 +24,7 @@ export function TaskSection({ podKey }: { podKey: string }) {
         const { Icon, cls } = ICON[task.status] ?? ICON.pending;
         const blocked = task.blocked_by.length;
         return (
-          <div key={task.id} className="rounded-md border border-border px-2 py-1.5">
+          <div key={task.id} className="surface-card px-2 py-1.5">
             <button
               type="button"
               onClick={() => {
@@ -35,7 +35,7 @@ export function TaskSection({ podKey }: { podKey: string }) {
               <Icon className={`h-3.5 w-3.5 shrink-0 ${cls}`} />
               <span className="min-w-0 flex-1 truncate text-xs">{task.subject}</span>
               {blocked > 0 && (
-                <span className="shrink-0 rounded bg-yellow-500/15 px-1.5 py-0.5 text-[10px] text-yellow-700">
+                <span className="shrink-0 rounded bg-warning-bg px-1.5 py-0.5 text-[10px] text-warning">
                   {t("dock.tasks.blockedBy", { count: blocked })}
                 </span>
               )}

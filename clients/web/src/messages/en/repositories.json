@@ -27,7 +27,8 @@
       "all": "All",
       "github": "GitHub",
       "gitlab": "GitLab",
-      "gitee": "Gitee"
+      "gitee": "Gitee",
+      "cnb": "CNB"
     },
     "stats": {
       "total": "Total Repositories",

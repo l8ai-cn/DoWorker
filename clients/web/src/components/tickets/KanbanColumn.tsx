@@ -12,11 +12,11 @@ import { GripVertical, Loader2, ChevronLeft } from "lucide-react";
 type Status = TicketStatus;
 
 export const statusConfig: { status: Status; labelKey: string; topColor: string; dotColor: string }[] = [
-  { status: "backlog", labelKey: "tickets.status.backlog", topColor: "bg-gray-400 dark:bg-gray-500", dotColor: "bg-gray-400" },
-  { status: "todo", labelKey: "tickets.status.todo", topColor: "bg-blue-400 dark:bg-blue-500", dotColor: "bg-blue-400" },
-  { status: "in_progress", labelKey: "tickets.status.in_progress", topColor: "bg-yellow-400 dark:bg-yellow-500", dotColor: "bg-yellow-400" },
-  { status: "in_review", labelKey: "tickets.status.in_review", topColor: "bg-purple-400 dark:bg-purple-500", dotColor: "bg-purple-400" },
-  { status: "done", labelKey: "tickets.status.done", topColor: "bg-green-400 dark:bg-green-500", dotColor: "bg-green-400" },
+  { status: "backlog", labelKey: "tickets.status.backlog", topColor: "bg-muted-foreground", dotColor: "bg-muted-foreground" },
+  { status: "todo", labelKey: "tickets.status.todo", topColor: "bg-info", dotColor: "bg-info" },
+  { status: "in_progress", labelKey: "tickets.status.in_progress", topColor: "bg-warning", dotColor: "bg-warning" },
+  { status: "in_review", labelKey: "tickets.status.in_review", topColor: "bg-primary", dotColor: "bg-primary" },
+  { status: "done", labelKey: "tickets.status.done", topColor: "bg-success", dotColor: "bg-success" },
 ];
 
 interface SortableTicketProps {
@@ -71,10 +71,10 @@ export function DroppableColumn({
     <div ref={setNodeRef}
       data-testid="kanban-column"
       data-column-status={status}
-      className={cn("flex-shrink-0 w-80 flex flex-col rounded-lg bg-muted/30 transition-all duration-200 overflow-hidden",
-        highlighted && "ring-2 ring-primary/50 bg-primary/5")}>
+      className={cn("flex-shrink-0 w-80 flex flex-col rounded-xl bg-surface-muted/70 shadow-xs ring-1 ring-border/30 transition-all duration-200 overflow-hidden",
+        highlighted && "ring-2 ring-primary/45 bg-primary/5 shadow-[var(--shadow-soft)]")}>
       <div className={cn("h-1 w-full", topColor)} />
-      <div className="flex items-center justify-between px-3 py-2.5">
+      <div className="flex items-center justify-between px-3 py-3">
         <div className="flex items-center gap-2">
           <div className={cn("w-2 h-2 rounded-full", dotColor)} />
           <h3 className="font-medium text-sm">{t(labelKey)}</h3>
@@ -89,7 +89,7 @@ export function DroppableColumn({
           </button>
         )}
       </div>
-      <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-1.5 min-h-[100px]">
+      <div className="flex-1 overflow-y-auto px-2.5 pb-2.5 space-y-2 min-h-[100px]">
         <SortableContext items={ticketIds} strategy={verticalListSortingStrategy}>
           {tickets.map((ticket) => (
             <SortableTicket key={ticket.slug} ticket={ticket} onTicketClick={onTicketClick}
@@ -103,8 +103,8 @@ export function DroppableColumn({
           </div>
         )}
         {tickets.length === 0 && (
-          <div className={cn("flex flex-col items-center justify-center py-10 text-muted-foreground/50 transition-colors rounded-lg border-2 border-dashed border-transparent",
-            highlighted && "border-primary/30 text-primary/50")}>
+          <div className={cn("flex flex-col items-center justify-center py-10 text-muted-foreground/50 transition-colors rounded-lg bg-surface-raised/45 ring-1 ring-transparent",
+            highlighted && "text-primary/60 ring-primary/25")}>
             <GripVertical className="h-5 w-5 mb-2" />
             <span className="text-xs font-medium">
               {highlighted ? (t("tickets.kanban.dropHere") || "Drop here") : t("tickets.kanban.noTickets")}

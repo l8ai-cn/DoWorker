@@ -1,7 +1,7 @@
 // Mirror of the Rust SSOT `agentsmesh-types::ServiceError` discriminant tags
 // (clients/core/crates/types/src/service_error.rs, serde `rename_all =
 // "snake_case"`). Single TS copy — both the web parse layer and the
-// electron-adapter IPC unwrapper validate against this set; adding a kind in
+// Connect/WASM error unwrappers validate against this set; adding a kind in
 // Rust means updating exactly this list on the TS side.
 export const SERVICE_ERROR_KINDS = [
   "http",

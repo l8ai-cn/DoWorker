@@ -14,13 +14,17 @@ interface ConnectDiscoverResponse {
   items?: SSODiscoverConfig[];
 }
 
-export async function lightDiscoverSSO(email: string): Promise<SSODiscoverConfig[]> {
-  if (!email || !email.includes("@")) return [];
+export async function lightDiscoverSSO(identifier: string): Promise<SSODiscoverConfig[]> {
+  const trimmed = identifier.trim();
+  if (!trimmed) return [];
+  const body = trimmed.includes("@")
+    ? { email: trimmed }
+    : { username: trimmed };
   try {
-    const resp = await lightConnect<{ email: string }, ConnectDiscoverResponse>(
+    const resp = await lightConnect<typeof body, ConnectDiscoverResponse>(
       "proto.sso.v1.SSOService",
       "Discover",
-      { email },
+      body,
     );
     return resp?.items ?? [];
   } catch {

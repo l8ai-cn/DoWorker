@@ -8,7 +8,7 @@ type RepositoryProvider struct {
 	ID     int64 `gorm:"primaryKey" json:"id"`
 	UserID int64 `gorm:"not null;index" json:"user_id"`
 
-	ProviderType string `gorm:"size:50;not null" json:"provider_type"` // github, gitlab, gitee
+	ProviderType string `gorm:"size:50;not null" json:"provider_type"` // github, gitlab, gitee, cnb
 	Name         string `gorm:"size:100;not null" json:"name"`         // User-defined name
 	BaseURL      string `gorm:"size:255;not null" json:"base_url"`     // https://github.com, https://gitlab.company.com
 
@@ -41,7 +41,7 @@ type RepositoryProviderResponse struct {
 	BaseURL      string `json:"base_url"`
 	HasClientID  bool   `json:"has_client_id"`
 	HasBotToken  bool   `json:"has_bot_token"`
-	HasIdentity  bool   `json:"has_identity"`  // Has linked OAuth identity with access token
+	HasIdentity  bool   `json:"has_identity"` // Has linked OAuth identity with access token
 	IsDefault    bool   `json:"is_default"`
 	IsActive     bool   `json:"is_active"`
 	CreatedAt    string `json:"created_at"`
@@ -73,10 +73,11 @@ const (
 	ProviderTypeGitHub = "github"
 	ProviderTypeGitLab = "gitlab"
 	ProviderTypeGitee  = "gitee"
+	ProviderTypeCNB    = "cnb"
 )
 
 func ValidProviderTypes() []string {
-	return []string{ProviderTypeGitHub, ProviderTypeGitLab, ProviderTypeGitee}
+	return []string{ProviderTypeGitHub, ProviderTypeGitLab, ProviderTypeGitee, ProviderTypeCNB}
 }
 
 func IsValidProviderType(providerType string) bool {

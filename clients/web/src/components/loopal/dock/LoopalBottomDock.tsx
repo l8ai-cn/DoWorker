@@ -47,7 +47,7 @@ export function LoopalBottomDock({ podKey, onExpandTopology }: { podKey: string;
   const activePanel = panels.find((p) => p.id === active);
 
   return (
-    <div className="shrink-0 border-t border-border bg-background">
+    <div className="shrink-0 panel-lift bg-background">
       {activePanel && (
         <div className="max-h-72 overflow-auto border-b border-border">{activePanel.render()}</div>
       )}
@@ -62,7 +62,7 @@ export function LoopalBottomDock({ podKey, onExpandTopology }: { podKey: string;
               onClick={() => setActive(on ? null : p.id)}
               data-testid={`loopal-dock-tab-${p.id}`}
               className={`flex items-center gap-1.5 whitespace-nowrap border-r border-border px-3 py-1.5 text-xs transition-colors ${
-                on ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                on ? "bg-muted text-foreground" : "text-muted-foreground motion-interactive hover:bg-surface-muted hover:text-foreground"
               }`}
             >
               <Icon className="h-3.5 w-3.5" />

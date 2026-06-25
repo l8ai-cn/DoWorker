@@ -6,6 +6,7 @@ interface AgentSelectProps {
   agents: AgentData[];
   selectedAgentSlug: string | null;
   onSelect: (agentSlug: string | null) => void;
+  hasOnlineRunners?: boolean;
   error?: string;
   t: (key: string) => string;
 }
@@ -14,9 +15,23 @@ export function AgentSelect({
   agents,
   selectedAgentSlug,
   onSelect,
+  hasOnlineRunners = true,
   error,
   t,
 }: AgentSelectProps) {
+  if (!hasOnlineRunners) {
+    return (
+      <div>
+        <label className="block text-sm font-medium mb-2">
+          {t("ide.createPod.selectAgent")}
+        </label>
+        <p className="text-sm text-muted-foreground py-2">
+          {t("ide.createPod.noOnlineRunnersHint")}
+        </p>
+      </div>
+    );
+  }
+
   if (agents.length === 0) {
     return (
       <div>

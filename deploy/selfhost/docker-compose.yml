@@ -123,13 +123,17 @@ services:
       - PKI_CA_KEY_FILE=/app/ssl/ca.key
       - PKI_VALIDITY_DAYS=365
       - GRPC_ADDRESS=:9090
-      - GRPC_PUBLIC_ENDPOINT=grpc://${SERVER_HOST}:${GRPC_PORT:-9443}
+      - GRPC_PUBLIC_ENDPOINT=grpc://${SERVER_HOST}:${GRPC_PUBLIC_PORT:-9443}
       # Admin Console
       - ADMIN_ENABLED=true
+      # Docker Desktop can inject HTTP_PROXY into containers. Keep Compose
+      # service-to-service traffic on the internal network.
+      - NO_PROXY=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik
+      - no_proxy=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik
     volumes:
       - ./ssl:/app/ssl:ro
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "--proxy=off", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8080/health"]
       interval: 30s
       timeout: 3s
       retries: 3
@@ -150,8 +154,10 @@ services:
       - USE_HTTPS=false
       - POSTHOG_KEY=${POSTHOG_KEY:-}
       - POSTHOG_HOST=${POSTHOG_HOST:-}
+      - NO_PROXY=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik
+      - no_proxy=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik
     healthcheck:
-      test: ["CMD", "node", "/app/healthcheck.mjs"]
+      test: ["CMD", "/nodejs/bin/node", "/app/healthcheck.mjs"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -170,8 +176,10 @@ services:
       - NODE_ENV=production
       - PRIMARY_DOMAIN=${PRIMARY_DOMAIN}
       - USE_HTTPS=false
+      - NO_PROXY=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik
+      - no_proxy=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik
     healthcheck:
-      test: ["CMD", "node", "/app/healthcheck.mjs"]
+      test: ["CMD", "/nodejs/bin/node", "/app/healthcheck.mjs"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -200,8 +208,10 @@ services:
       - USE_HTTPS=false
       - SESSION_KEEP_ALIVE_DURATION=30s
       - DEBUG=false
+      - NO_PROXY=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik
+      - no_proxy=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8090/health"]
+      test: ["CMD", "wget", "--proxy=off", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8090/health"]
       interval: 30s
       timeout: 3s
       retries: 3
@@ -213,6 +223,11 @@ services:
   traefik:
     image: traefik:v3.2
     restart: unless-stopped
+    environment:
+      # Docker Desktop can inject HTTP_PROXY into containers. Traefik must talk
+      # to Compose services directly on the internal network.
+      - NO_PROXY=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik
+      - no_proxy=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik
     volumes:
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./traefik/dynamic:/etc/traefik/dynamic:ro

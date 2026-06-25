@@ -11,7 +11,7 @@ export function RepositoryInfoCard({ repository }: RepositoryInfoCardProps) {
   const t = useTranslations();
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <h3 className="font-semibold mb-4">{t("repositories.detail.repoDetails")}</h3>
       <dl className="space-y-3">
         <div>
@@ -48,8 +48,8 @@ export function RepositoryInfoCard({ repository }: RepositoryInfoCardProps) {
             <span
               className={`inline-flex px-2 py-0.5 text-xs rounded ${
                 repository.is_active
-                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                  : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                  ? "bg-success-bg text-success"
+                  : "bg-muted text-muted-foreground"
               }`}
             >
               {repository.is_active ? t("repositories.detail.active") : t("repositories.inactive")}

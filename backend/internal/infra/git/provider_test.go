@@ -35,6 +35,13 @@ func TestNewProvider(t *testing.T) {
 			expectError:  false,
 		},
 		{
+			name:         "cnb provider",
+			providerType: ProviderTypeCNB,
+			baseURL:      "https://cnb.cool",
+			accessToken:  "test-token",
+			expectError:  false,
+		},
+		{
 			name:         "github with empty base url uses default",
 			providerType: ProviderTypeGitHub,
 			baseURL:      "",
@@ -51,6 +58,13 @@ func TestNewProvider(t *testing.T) {
 		{
 			name:         "gitee with empty base url uses default",
 			providerType: ProviderTypeGitee,
+			baseURL:      "",
+			accessToken:  "test-token",
+			expectError:  false,
+		},
+		{
+			name:         "cnb with empty base url uses default",
+			providerType: ProviderTypeCNB,
 			baseURL:      "",
 			accessToken:  "test-token",
 			expectError:  false,
@@ -104,6 +118,9 @@ func TestProviderTypeConstants(t *testing.T) {
 	}
 	if ProviderTypeGitee != "gitee" {
 		t.Errorf("ProviderTypeGitee = %s, want gitee", ProviderTypeGitee)
+	}
+	if ProviderTypeCNB != "cnb" {
+		t.Errorf("ProviderTypeCNB = %s, want cnb", ProviderTypeCNB)
 	}
 }
 

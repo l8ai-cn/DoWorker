@@ -27,7 +27,7 @@ export function FilterSection({
   return (
     <Collapsible open={expanded} onOpenChange={onExpandedChange}>
       <CollapsibleTrigger asChild>
-        <div className={`flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-muted/50 ${showBorder ? 'border-t border-border' : ''}`}>
+        <div className={`flex items-center justify-between px-3 py-2 cursor-pointer motion-interactive hover:bg-surface-muted ${showBorder ? 'border-t border-border' : ''}`}>
           <span className="text-xs font-medium">{title}</span>
           <div className="flex items-center gap-1">
             {selectedCount > 0 && (

@@ -42,7 +42,7 @@ export function MeshNodesList({
   return (
     <Collapsible open={expanded} onOpenChange={onToggle}>
       <CollapsibleTrigger asChild>
-        <div className="flex items-center justify-between px-3 py-2 border-t border-border cursor-pointer hover:bg-muted/50">
+        <div className="nav-row pressable cursor-pointer hover:bg-surface-muted motion-interactive">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm font-medium">{t("ide.sidebar.mesh.podsSection")}</span>
@@ -76,8 +76,8 @@ export function MeshNodesList({
                   <div
                     key={node.pod_key}
                     className={cn(
-                      "group flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-muted/50",
-                      isSelected && "bg-muted/30"
+                      "nav-row pressable group cursor-pointer motion-interactive",
+                      isSelected ? "nav-row-active" : "nav-row-idle hover:bg-surface-muted",
                     )}
                     onClick={() => onNodeClick(node)}
                   >

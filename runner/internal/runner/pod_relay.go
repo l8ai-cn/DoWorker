@@ -2,21 +2,6 @@ package runner
 
 import "github.com/anthropics/agentsmesh/runner/internal/relay"
 
-// LocalRelayBroker is the subset of *relay.LocalServer that runner-internal
-// consumers (PodRelay implementations + message handlers) depend on. Depending
-// on the interface decouples those callers from the concrete server, lets us
-// mock the local relay in tests, and keeps the runner-wide LocalServer's full
-// API (Start/Stop/etc.) out of consumer reach.
-type LocalRelayBroker interface {
-	RegisterPod(podKey, expectedToken string)
-	UnregisterPod(podKey string)
-	SetMessageHandler(podKey string, msgType byte, handler func([]byte))
-	SetRequestHandler(podKey string, msgType byte, handler relay.RequestHandler)
-	Send(podKey string, msgType byte, payload []byte) error
-	IsPodConnected(podKey string) bool
-	URL() string
-}
-
 // PodRelay abstracts mode-specific relay behavior.
 // PTY and ACP pods implement this interface to encapsulate
 // their relay wiring differences, eliminating IsACPMode() branches
@@ -42,8 +27,8 @@ type PodRelay interface {
 	// ACP: no-op
 	OnRelayDisconnected()
 
-	// BroadcastEvent fans out an out-of-band event payload to every active
-	// transport (cloud client + local server). Used by ACP for session events
-	// that don't flow through the aggregator. PTY-mode pods should no-op.
+	// BroadcastEvent sends an out-of-band event payload via the cloud relay
+	// client. Used by ACP for session events that don't flow through the
+	// aggregator. PTY-mode pods should no-op.
 	BroadcastEvent(rc relay.RelayClient, msgType byte, payload []byte)
 }

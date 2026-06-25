@@ -1,0 +1,4 @@
+{"event":"llm_request","session_id":"fixture-session","turn":1}
+{"event":"llm_response","session_id":"fixture-session","turn":1,"model":"deepseek/deepseek-v4-pro","usage":{"prompt_tokens":1200,"completion_tokens":340,"total_tokens":1540}}
+{"event":"llm_response","session_id":"fixture-session","turn":2,"model":"deepseek/deepseek-v4-pro","usage":{"prompt_tokens":800,"completion_tokens":120,"total_tokens":920}}
+{"event":"task_result","session_id":"fixture-session","total_input_tokens":2000,"total_output_tokens":460}

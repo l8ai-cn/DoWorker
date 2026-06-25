@@ -79,7 +79,7 @@ export function BlocksSidebar() {
         <button
           type="button"
           onClick={handleOpenSearch}
-          className="flex h-[30px] w-full items-center gap-2 rounded-md border border-border bg-background px-2.5 text-[12px] text-muted-foreground transition-colors hover:bg-muted/50"
+          className="flex h-[30px] w-full items-center gap-2 rounded-md border border-border bg-background px-2.5 text-[12px] text-muted-foreground motion-interactive hover:bg-surface-muted"
           data-testid="blocks-sidebar-search"
         >
           <Search className="h-3 w-3" />
@@ -128,7 +128,7 @@ export function BlocksSidebar() {
 
       <div className="flex-1" />
 
-      <div className="flex items-center border-t border-border px-3 py-2.5 text-[12px] text-muted-foreground">
+      <div className="flex items-center bg-surface-muted/30 px-3 py-2.5 text-[12px] text-muted-foreground">
         <span>Triggers · {triggerCount} active</span>
       </div>
 
@@ -212,7 +212,7 @@ function PageTreeItem({
             onClick={() => onSelect(node.id)}
             className={cn(
               "flex w-full items-center gap-1.5 rounded-md py-1 pr-2 text-left text-[13px] transition-colors",
-              isActive ? "bg-muted font-medium text-foreground" : "text-foreground hover:bg-muted/50",
+              isActive ? "bg-muted font-medium text-foreground" : "text-foreground motion-interactive hover:bg-surface-muted",
             )}
             style={{ paddingLeft: `${8 + depth * 12}px` }}
             data-testid={`blocks-sidebar-page-${node.id}`}

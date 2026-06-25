@@ -33,15 +33,6 @@ func (r *Runner) Run(ctx context.Context) error {
 	// for long-running operations (e.g., git clone in OnCreatePod).
 	r.runCtx = ctx
 
-	// Bring up the local browser-facing relay server. Failure here is non-fatal:
-	// runner falls back to cloud-only mode if 127.0.0.1 binding is blocked.
-	if r.localServer != nil {
-		if _, err := r.localServer.Start(ctx); err != nil {
-			log.Warn("Local relay server failed to start, continuing without it", "error", err)
-			r.localServer = nil
-		}
-	}
-
 	// Clean up stale stack dump files from previous runs (>24h old)
 	terminal.CleanupOldStackDumps(24 * time.Hour)
 

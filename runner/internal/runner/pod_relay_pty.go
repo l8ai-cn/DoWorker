@@ -14,15 +14,13 @@ type PTYPodRelay struct {
 	podKey         string
 	io             PodIO
 	components     *PTYComponents
-	localServer    LocalRelayBroker
 	lastSnapshotMu sync.Mutex
 	lastSnapshot   []byte
 }
 
 // NewPTYPodRelay constructs a PodRelay for PTY mode.
-// localServer == nil disables local-side fanout (e.g. when 127.0.0.1 binding failed).
-func NewPTYPodRelay(podKey string, io PodIO, comps *PTYComponents, localServer LocalRelayBroker) *PTYPodRelay {
-	return &PTYPodRelay{podKey: podKey, io: io, components: comps, localServer: localServer}
+func NewPTYPodRelay(podKey string, io PodIO, comps *PTYComponents) *PTYPodRelay {
+	return &PTYPodRelay{podKey: podKey, io: io, components: comps}
 }
 
 func (r *PTYPodRelay) SetupHandlers(rc relay.RelayClient) {
@@ -31,7 +29,6 @@ func (r *PTYPodRelay) SetupHandlers(rc relay.RelayClient) {
 	rc.SetMessageHandler(relay.MsgTypeSnapshotRequest, func(_ []byte) {
 		r.SendSnapshot(rc)
 	})
-	r.installLocalHandlers()
 }
 
 func (r *PTYPodRelay) SendSnapshot(rc relay.RelayClient) {
@@ -60,11 +57,7 @@ func (r *PTYPodRelay) OnRelayConnected(rc relay.RelayClient) {
 	if r.components.Aggregator == nil {
 		return
 	}
-	r.components.Aggregator.SetRelayClient(&fanoutRelayWriter{
-		cloud:       rc,
-		localServer: r.localServer,
-		podKey:      r.podKey,
-	})
+	r.components.Aggregator.SetRelayClient(&cloudRelayWriter{cloud: rc})
 }
 
 func (r *PTYPodRelay) OnRelayDisconnected() {
@@ -74,7 +67,7 @@ func (r *PTYPodRelay) OnRelayDisconnected() {
 }
 
 // BroadcastEvent is a no-op for PTY pods; PTY output flows through the
-// aggregator's fanoutRelayWriter, not via discrete events.
+// aggregator's cloud relay writer, not via discrete events.
 func (r *PTYPodRelay) BroadcastEvent(_ relay.RelayClient, _ byte, _ []byte) {}
 
 var _ PodRelay = (*PTYPodRelay)(nil)

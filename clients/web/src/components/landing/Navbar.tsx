@@ -36,10 +36,10 @@ export function Navbar() {
 
   const collapsedRadius = isMobileMenuOpen ? "rounded-3xl" : "rounded-full";
   const containerStyle = isMobileMenuOpen
-    ? "bg-[var(--azure-bg-high)]/95 backdrop-blur-xl border border-white/15 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.6)]"
+    ? "bg-[var(--azure-bg-high)]/95 backdrop-blur-xl shadow-[var(--shadow-panel)]"
     : isScrolled
-      ? "azure-glass border border-white/10 azure-glow-cyan-lg"
-      : "bg-transparent border border-transparent";
+      ? "azure-glass azure-glow-cyan-lg"
+      : "bg-transparent";
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 pt-4 sm:pt-6">

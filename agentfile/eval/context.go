@@ -78,6 +78,9 @@ type Context struct {
 	// reference doesn't fail Pod creation.
 	EnvBundles map[string]map[string]string
 
+	// ConfigBundles is bundle-name → parsed JSON object for config-kind bundles.
+	ConfigBundles map[string]interface{}
+
 	// Result accumulates the complete Pod creation instruction.
 	Result *BuildResult
 

@@ -7,6 +7,8 @@
       "mesh": "Mesh",
       "loops": "Loops",
       "blocks": "Blocks",
+      "infra": "Infra",
+      "skills": "Skills",
       "repositories": "저장소",
       "runners": "Runner",
       "settings": "설정",
@@ -109,6 +111,14 @@
       "bundleKind": {
         "credential": "자격 증명",
         "runtime": "런타임"
+      },
+      "selectSkills": "Skill",
+      "noSkillsAvailableHint": "이 저장소에 설치된 Skill이 없습니다. 설정 → 확장 또는 Skills 사이드바에서 설치하세요.",
+      "noSkillsSelectedHint": "선택된 Skill이 없습니다. 이 에이전트와 호환되는 설치된 Skill이 모두 로드됩니다.",
+      "skillsSelectedHint": "선택한 Skill은 AgentFile SKILLS 지시문을 통해 Pod에 연결됩니다.",
+      "skillScope": {
+        "org": "조직",
+        "user": "개인"
       }
     },
     "sidebar": {
@@ -158,6 +168,12 @@
         "channelsLabel": "채널",
         "podsLabel": "Pod",
         "terminal": "Terminal"
+      },
+      "skills": {
+        "description": "Browse and install skills for your agents",
+        "browse": "Browse marketplace",
+        "manageRegistries": "Manage registries",
+        "hint": "Install skills to a repository to use them in pods"
       }
     }
   }

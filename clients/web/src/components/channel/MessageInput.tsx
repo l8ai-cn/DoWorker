@@ -210,8 +210,8 @@ export function MessageInput({
   };
 
   return (
-    <div className="border-t border-border px-4 py-3" ref={containerRef}>
-      <div className="relative rounded-lg border border-border bg-background">
+    <div className="panel-lift px-4 py-3" ref={containerRef}>
+      <div className="relative rounded-lg surface-card bg-background">
         <MentionDropdown
           items={filteredCandidates}
           activeIndex={safeActiveIndex}

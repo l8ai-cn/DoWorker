@@ -45,14 +45,14 @@ export function ResumeDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             {t("runners.detail.resumeDialogInfo")}
           </p>
           {error && (
             <div
               role="alert"
               data-testid="resume-error"
-              className="mt-3 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400"
+              className="mt-3 flex items-start gap-2 rounded-md border border-danger bg-danger-bg px-3 py-2 text-sm text-danger"
             >
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{error}</span>

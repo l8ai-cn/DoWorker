@@ -49,13 +49,6 @@ func (h *RunnerMessageHandler) OnSubscribePod(req client.SubscribePodRequest) er
 
 	log.Debug("Pod interaction mode", "pod_key", req.PodKey, "mode", pod.InteractionMode)
 
-	// Register/refresh per-pod local-relay token. Backend issues a fresh local_token
-	// per subscribe; runner stores it for exact-match validation of incoming
-	// browser-side WS connections to the local server.
-	if local := h.runner.GetLocalRelayServer(); local != nil && req.LocalToken != "" {
-		local.RegisterPod(req.PodKey, req.LocalToken)
-	}
-
 	// Phase 1: Under lock — check existing client and extract/clear if needed.
 	// Keep lock scope minimal to avoid blocking on network I/O or cross-module locks.
 	var oldClient relay.RelayClient
@@ -181,10 +174,6 @@ func (h *RunnerMessageHandler) setupRelayClientHandlers(relayClient relay.RelayC
 func (h *RunnerMessageHandler) OnUnsubscribePod(req client.UnsubscribePodRequest) error {
 	log := logger.Pod()
 	log.Info("Unsubscribing from terminal relay", "pod_key", req.PodKey)
-
-	if local := h.runner.GetLocalRelayServer(); local != nil {
-		local.UnregisterPod(req.PodKey)
-	}
 
 	pod, ok := h.podStore.Get(req.PodKey)
 	if !ok {

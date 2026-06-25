@@ -13,6 +13,7 @@ import {
   Server,
   Settings,
   Repeat,
+  Sparkles,
   Moon,
   Sun,
   Monitor,
@@ -27,6 +28,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   server: Server,
   settings: Settings,
   repeat: Repeat,
+  sparkles: Sparkles,
 };
 
 interface MobileMoreMenuProps {
@@ -68,6 +70,8 @@ export function MobileMoreMenu({ className }: MobileMoreMenuProps) {
         return `/${orgSlug}/mesh`;
       case "loops":
         return `/${orgSlug}/loops`;
+      case "automation":
+        return `/${orgSlug}/automation`;
       case "runners":
         return `/${orgSlug}/runners`;
       case "settings":

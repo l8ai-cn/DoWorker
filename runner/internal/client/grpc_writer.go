@@ -173,7 +173,6 @@ func (c *GRPCConnection) heartbeatLoop(ctx context.Context, done <-chan struct{}
 func (c *GRPCConnection) sendHeartbeat() {
 	var pods []*runnerv1.PodInfo
 	var relayConnections []*runnerv1.RelayConnectionInfo
-	var localRelayURL string
 
 	if c.handler != nil {
 		// Convert from internal PodInfo to proto PodInfo
@@ -196,8 +195,6 @@ func (c *GRPCConnection) sendHeartbeat() {
 				ConnectedAt: rc.ConnectedAt,
 			})
 		}
-
-		localRelayURL = c.handler.OnGetLocalRelayURL()
 	}
 
 	// Probe for agent version changes (only includes changed entries)
@@ -219,13 +216,12 @@ func (c *GRPCConnection) sendHeartbeat() {
 				Pods:             pods,
 				RelayConnections: relayConnections,
 				AgentVersions:    agentVersions,
-				LocalRelayUrl:    localRelayURL,
 			},
 		},
 		Timestamp: time.Now().UnixMilli(),
 	}
 
-	logger.GRPC().Debug("Sending heartbeat", "pods", len(pods), "relay_connections", len(relayConnections), "version_changes", len(agentVersions), "local_relay_url", localRelayURL)
+	logger.GRPC().Debug("Sending heartbeat", "pods", len(pods), "relay_connections", len(relayConnections), "version_changes", len(agentVersions))
 
 	if err := c.sendControl(msg); err != nil {
 		logger.GRPC().Error("Failed to send heartbeat", "error", err)

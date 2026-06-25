@@ -8,7 +8,7 @@ import type { RepositoryData } from "@/lib/viewModels/repository";
 import {
   ReplaceCachedRepositoriesRequestSchema,
 } from "@proto/repo_state/v1/repo_state_pb";
-import { repositoryToCache } from "@agentsmesh/electron-adapter/projections";
+import { repositoryToCache } from "@/lib/api/projections";
 
 export type Repository = RepositoryData;
 

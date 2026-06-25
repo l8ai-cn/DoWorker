@@ -83,7 +83,7 @@ export default async function BlogPage() {
             {posts.map((post) => (
               <article
                 key={post.slug}
-                className="group p-6 rounded-xl border border-border hover:border-primary/50 transition-colors"
+                className="group surface-card-interactive p-6 motion-interactive"
               >
                 <Link href={`/blog/${post.slug}`}>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">

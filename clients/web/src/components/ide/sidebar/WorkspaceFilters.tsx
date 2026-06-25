@@ -15,7 +15,7 @@ export function WorkspaceFilters({ filter, onFilterChange, t, isAdmin }: Workspa
   const filters: FilterType[] = isAdmin ? ["mine", "org", "completed"] : ["mine", "completed"];
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1 border-y border-border">
+    <div className="flex items-center gap-1 px-2 py-1 bg-surface-muted/30">
       {filters.map((f) => (
         <button
           key={f}
@@ -23,7 +23,7 @@ export function WorkspaceFilters({ filter, onFilterChange, t, isAdmin }: Workspa
             "px-2 py-1 text-xs rounded transition-colors",
             filter === f
               ? "bg-muted text-foreground font-medium"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              : "text-muted-foreground hover:text-foreground motion-interactive hover:bg-surface-muted"
           )}
           onClick={() => onFilterChange(f)}
         >

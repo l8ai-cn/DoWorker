@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { hideIdeChrome, hideIdeSidebar } from "@/lib/ide-chrome";
 import { useCtaModal } from "@/hooks/useCtaModal";
 import { CenteredSpinner } from "@/components/ui/spinner";
 import { ActivityBar } from "./ActivityBar";
@@ -18,6 +20,7 @@ import { MeshSidebarContent } from "./sidebar/MeshSidebarContent";
 import { ChannelsSidebarContent } from "./sidebar/ChannelsSidebarContent";
 import { LoopsSidebarContent } from "./sidebar/LoopsSidebarContent";
 import { SettingsSidebarContent } from "./sidebar/SettingsSidebarContent";
+import { SkillsSidebarContent } from "./sidebar/SkillsSidebarContent";
 import { BlocksSidebar } from "@/components/blocks/BlocksSidebar";
 import { useIDEStore, type ActivityType } from "@/stores/ide";
 import { useWorkspaceStore } from "@/stores/workspace";
@@ -67,6 +70,8 @@ function getSidebarContent(
       return <RepositoriesSidebarContent onImportRepo={callbacks.onImportRepo} />;
     case "runners":
       return <RunnersSidebarContent onAddRunner={callbacks.onAddRunner} />;
+    case "skills":
+      return <SkillsSidebarContent />;
     case "settings":
       return <SettingsSidebarContent />;
     default:
@@ -79,6 +84,9 @@ export function IDEShell({
   sidebarContent,
   className,
 }: IDEShellProps) {
+  const pathname = usePathname();
+  const noSidebar = hideIdeSidebar(pathname);
+  const noChrome = hideIdeChrome(pathname);
   const bottomPanelOpen = useIDEStore((state) => state.bottomPanelOpen);
   const activeActivity = useIDEStore((state) => state.activeActivity);
   const _hasHydrated = useIDEStore((state) => state._hasHydrated);
@@ -120,11 +128,21 @@ export function IDEShell({
     );
   }
 
+  if (noChrome) {
+    return (
+      <div className={cn("app-shell flex h-screen flex-col bg-background overflow-hidden", className)}>
+        <main className="flex-1 min-h-0 overflow-hidden">{children}</main>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("app-shell flex h-screen bg-background overflow-hidden", className)}>
       <ActivityBar className="flex-shrink-0" />
 
-      <SideBar className="flex-shrink-0">{effectiveSidebarContent}</SideBar>
+      {!noSidebar && (
+        <SideBar className="flex-shrink-0">{effectiveSidebarContent}</SideBar>
+      )}
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <main

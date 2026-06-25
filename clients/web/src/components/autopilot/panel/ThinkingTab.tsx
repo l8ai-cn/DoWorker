@@ -71,8 +71,8 @@ export function ThinkingTab({ thinking }: ThinkingTabProps) {
 
       {/* Help Request */}
       {thinking.help_request && (
-        <div className="rounded-md bg-orange-500/10 border border-orange-500/30 p-2">
-          <div className="flex items-center gap-2 text-orange-500 mb-1">
+        <div className="rounded-md bg-warning-bg border border-warning/30 p-2">
+          <div className="flex items-center gap-2 text-warning mb-1">
             <AlertTriangle className="h-3 w-3" />
             <span className="font-medium text-xs">Help Needed</span>
           </div>
@@ -83,7 +83,7 @@ export function ThinkingTab({ thinking }: ThinkingTabProps) {
             </p>
           )}
           {thinking.help_request.terminal_excerpt && (
-            <pre className="text-xs font-mono bg-zinc-900 text-zinc-100 p-2 rounded mt-2 overflow-x-auto whitespace-pre-wrap break-all max-h-20">
+            <pre className="text-xs font-mono bg-muted text-foreground p-2 rounded mt-2 overflow-x-auto whitespace-pre-wrap break-all max-h-20">
               {thinking.help_request.terminal_excerpt}
             </pre>
           )}

@@ -57,11 +57,11 @@ func LoadEnv(t *testing.T) *Env {
 			"postgres://%s:%s@127.0.0.1:%d/%s?sslmode=disable",
 			pgUser, pgPwd, pgPort, pgDB,
 		),
-		DevUser:           envString("E2E_DEV_USER", "dev@agentsmesh.local"),
+		DevUser:           envString("E2E_DEV_USER", "devuser"),
 		DevPassword:       envString("E2E_DEV_PASSWORD", "devpass123"),
 		DevOrgSlug:        envString("E2E_DEV_ORG", "dev-org"),
 		RunnerNode:        envString("E2E_RUNNER_NODE", "dev-runner"),
-		SecondaryUser:     envString("E2E_DEV2_USER", "dev2@agentsmesh.local"),
+		SecondaryUser:     envString("E2E_DEV2_USER", "devuser2"),
 		SecondaryPassword: envString("E2E_DEV2_PASSWORD", "devpass123"),
 	}
 	if secMCPPort > 0 {

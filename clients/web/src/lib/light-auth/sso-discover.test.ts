@@ -33,14 +33,19 @@ describe("lightDiscoverSSO", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("returns [] without firing fetch when email lacks @", async () => {
-    const fetchSpy = vi.fn();
-    globalThis.fetch = fetchSpy as unknown as typeof fetch;
+  it("returns [] without firing fetch when identifier lacks @", async () => {
+    const fetchSpy = vi.fn<typeof fetch>(async () =>
+      new Response(JSON.stringify({ items: [] }), { status: 200 }),
+    );
+    globalThis.fetch = fetchSpy as typeof fetch;
 
-    const configs = await lightDiscoverSSO("not-an-email");
+    const configs = await lightDiscoverSSO("alice");
 
     expect(configs).toEqual([]);
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).toHaveBeenCalledOnce();
+    expect((fetchSpy.mock.calls[0][1] as RequestInit).body).toBe(
+      JSON.stringify({ username: "alice" }),
+    );
   });
 
   it("returns the configs array when SSO is configured for the domain", async () => {

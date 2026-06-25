@@ -61,7 +61,7 @@ export function RecordEditor({ block, spec, depth }: RecordEditorProps) {
       onDuplicate={() => void dispatch.duplicate(block.id)}
       onToggleVisibility={(next) => void dispatch.setBlockVisibility(block.id, next)}
     >
-      <div className="rounded-md border border-border bg-muted/20 p-3">
+      <div className="surface-card bg-muted/20 p-3">
         <div className="mb-2 flex items-baseline gap-2">
           <span className="rounded bg-muted px-1.5 py-0.5 text-xs uppercase tracking-wide text-muted-foreground">
             {spec.label ?? spec.type}

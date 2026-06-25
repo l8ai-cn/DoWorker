@@ -51,29 +51,13 @@ func (s *GRPCCommandSender) SendPrompt(ctx context.Context, runnerID int64, podK
 	return nil
 }
 
-func (s *GRPCCommandSender) SendSubscribePod(ctx context.Context, runnerID int64, podKey, relayURL, runnerToken, localToken string, includeSnapshot bool, snapshotHistory int32) error {
+func (s *GRPCCommandSender) SendSubscribePod(ctx context.Context, runnerID int64, podKey, relayURL, runnerToken string, includeSnapshot bool, snapshotHistory int32) error {
 	slog.InfoContext(ctx, "sending subscribe_pod command", "runner_id", runnerID, "pod_key", podKey)
-	if err := s.adapter.SendSubscribePod(runnerID, podKey, relayURL, runnerToken, localToken, includeSnapshot, snapshotHistory); err != nil {
+	if err := s.adapter.SendSubscribePod(runnerID, podKey, relayURL, runnerToken, includeSnapshot, snapshotHistory); err != nil {
 		slog.ErrorContext(ctx, "failed to send subscribe_pod command", "runner_id", runnerID, "pod_key", podKey, "error", err)
 		return err
 	}
 	return nil
-}
-
-func (s *GRPCCommandSender) GetRunnerLocalRelayURL(runnerID int64) string {
-	conn := s.adapter.connManager.GetConnection(runnerID)
-	if conn == nil {
-		return ""
-	}
-	return conn.GetLocalRelayURL()
-}
-
-func (s *GRPCCommandSender) GetRunnerNodeID(runnerID int64) string {
-	conn := s.adapter.connManager.GetConnection(runnerID)
-	if conn == nil {
-		return ""
-	}
-	return conn.NodeID
 }
 
 func (s *GRPCCommandSender) SendUnsubscribePod(ctx context.Context, runnerID int64, podKey string) error {

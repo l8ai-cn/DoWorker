@@ -153,7 +153,7 @@ func (h *RunnerMessageHandler) rebuildPTYIO(pod *Pod, dpty terminal.PtyProcess, 
 		GetPTYError:         pod.GetPTYError,
 	})
 	pod.IO = ptyIO
-	pod.Relay = NewPTYPodRelay(pod.PodKey, pod.IO, comps, h.runner.GetLocalRelayServer())
+	pod.Relay = NewPTYPodRelay(pod.PodKey, pod.IO, comps)
 
 	pod.IO.SetExitHandler(h.createExitHandler(pod.PodKey))
 	pod.IO.SetIOErrorHandler(h.createPTYErrorHandler(pod.PodKey, pod))

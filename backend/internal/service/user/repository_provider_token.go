@@ -137,6 +137,8 @@ func getDefaultBaseURL(provider string) string {
 		return "https://gitlab.com"
 	case user.ProviderTypeGitee:
 		return "https://gitee.com"
+	case user.ProviderTypeCNB:
+		return "https://cnb.cool"
 	default:
 		return ""
 	}
@@ -150,6 +152,8 @@ func getDefaultProviderName(provider string) string {
 		return "GitLab"
 	case user.ProviderTypeGitee:
 		return "Gitee"
+	case user.ProviderTypeCNB:
+		return "CNB"
 	default:
 		return provider
 	}

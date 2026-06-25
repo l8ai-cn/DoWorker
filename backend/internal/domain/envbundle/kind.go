@@ -13,6 +13,10 @@ const (
 	// log level, base URL overrides, etc.). Values are stored as plaintext.
 	KindRuntime = "runtime"
 
+	// KindConfig bundles store JSON agent config files (settings.json, etc.).
+	// See ConfigJSONDataKey in config_keys.go.
+	KindConfig = "config"
+
 	// KindShared bundles are owned at org scope and visible to org members.
 	// Values may be plaintext or encrypted depending on per-bundle settings;
 	// the first iteration treats them as plaintext.

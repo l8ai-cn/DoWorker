@@ -1,7 +1,7 @@
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 
 # Business service layer — thin orchestrators over api-client + state.
-# This is the surface that wasm/node-bridge/ffi wrappers re-export.
+# This is the surface that wasm/ffi wrappers re-export.
 rust_library(
     name = "services",
     srcs = glob(["src/**/*.rs"]),

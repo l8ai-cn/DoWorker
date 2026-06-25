@@ -56,7 +56,7 @@ Every part of AgentsMesh exists to answer one question: *how does a single perso
 |---|---|
 | 100 agents won't run on one machine | **Runner fleet** — install self-hosted runners across any number of machines. Each advertises its capacity (`max_concurrent_pods`), and agents are scheduled onto the runner you pick or an available one from the pool. Your code never leaves your infrastructure. |
 | Every agent needs a clean, isolated environment | **Workspace isolation** — each agent runs in its own pod with a dedicated Git worktree sandbox (`sandboxes/{pod}/workspace/`), private credentials, and its own branch. Concurrent agents never step on each other. |
-| You can't watch a hundred terminals | **One console, every screen** — Web, Desktop (Electron), and iOS (SwiftUI) clients, all driven by the *same* Rust core. Paginated pod sidebar, multi-pane workspace, and real-time terminal streaming let one person hold many agents in view. |
+| You can't watch a hundred terminals | **One web console, every screen** — paginated pod sidebar, multi-pane workspace, and real-time terminal streaming let one person hold many agents in view. |
 | Long-running agents stall and need babysitting | **Autopilot** — a control agent watches a pod and sends the next instruction the moment it goes idle, with iteration caps, decision history, and human takeover/handback. Self-healing, unattended runs. |
 | Agents working alone don't compound | **Mesh & Channels** — bind pods together, let them talk over channels with `@mentions`, and watch the collaboration topology update in real time. |
 
@@ -91,10 +91,8 @@ AgentsMesh separates the **control plane** from the **data plane**: orchestratio
 
 | Component | Role |
 |-----------|------|
-| **Rust Core** | Business-logic SSOT — 10 crates compiled to WASM (web/desktop) and a native dylib via UniFFI (iOS). One cache, one set of services, every client. |
+| **Rust Core** | Business-logic SSOT — shared crates compiled to WASM for web. One cache, one set of services. |
 | **Web** | Next.js console — terminal, Kanban, real-time mesh topology |
-| **Desktop** | Electron app — reuses the web UI, talks to a native Rust core over NAPI |
-| **iOS** | SwiftUI + TCA — the same Rust core via UniFFI bindings |
 | **Web-Admin** | Internal admin console — user/org/runner management, audit logs |
 
 ## Getting Started
@@ -142,7 +140,7 @@ agentsmesh-runner service install
 agentsmesh-runner service start
 ```
 
-Once the runner is online, create an **AgentPod** from any console (Web / Desktop / iOS) and start putting agents to work.
+Once the runner is online, create an **AgentPod** from the web console and start putting agents to work.
 
 ## Quick Start
 
@@ -231,9 +229,8 @@ Any terminal-based agent works. The built-ins:
 | Layer | Technology |
 |-------|-----------|
 | Backend | Go (Gin + GORM) |
-| Client Core | Rust → WASM (web/desktop) + UniFFI (iOS) — shared business logic |
-| Web / Desktop | Next.js (App Router) + TypeScript + Tailwind · Electron |
-| iOS | SwiftUI + TCA |
+| Client Core | Rust → WASM (web) — shared business logic |
+| Web | Next.js (App Router) + TypeScript + Tailwind |
 | Database | PostgreSQL + Redis |
 | Storage | MinIO (S3-compatible) |
 | API | REST + gRPC (bidirectional streaming) |
@@ -249,11 +246,9 @@ AgentsMesh/
 ├── relay/            # Terminal relay server (Go)
 ├── runner/           # Self-hosted runner daemon (Go)
 ├── clients/
-│   ├── core/         # Rust business-logic SSOT (WASM + UniFFI)
+│   ├── core/         # Rust business-logic SSOT (WASM)
 │   ├── web/          # Next.js console
-│   ├── web-admin/    # Admin console (Next.js)
-│   ├── desktop/      # Electron desktop app
-│   └── ios/          # SwiftUI + TCA iOS app
+│   └── web-admin/    # Admin console (Next.js)
 ├── proto/            # Protocol Buffers definitions
 ├── deploy/
 │   ├── dev/          # Docker Compose dev environment

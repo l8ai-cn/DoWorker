@@ -10,10 +10,10 @@ import { LoopalModeBadge } from "./LoopalModeBadge";
 import { AcpPermissionModeSelector } from "@/components/workspace/acp/AcpPermissionModeSelector";
 
 const CONN_TONE: Record<string, string> = {
-  connected: "bg-green-500",
-  connecting: "bg-yellow-500",
-  disconnected: "bg-red-500",
-  error: "bg-red-500",
+  connected: "bg-success",
+  connecting: "bg-warning",
+  disconnected: "bg-danger",
+  error: "bg-danger",
   none: "bg-muted-foreground",
 };
 

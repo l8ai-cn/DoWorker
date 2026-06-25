@@ -146,6 +146,8 @@ func getDeclKey(d parser.Declaration) declKey {
 		// Keyed by bundle name so layered AgentFiles can add additional
 		// USE_ENV_BUNDLE declarations without colliding with each other.
 		return declKey{Type: "USE_ENV_BUNDLE", Name: v.Name}
+	case *parser.UseConfigBundleDecl:
+		return declKey{Type: "USE_CONFIG_BUNDLE", Name: v.Name}
 	case *parser.PromptDecl:
 		return declKey{Type: "PROMPT"}
 	case *parser.PromptPositionDecl:

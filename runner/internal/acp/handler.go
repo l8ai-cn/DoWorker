@@ -211,9 +211,12 @@ func (h *Handler) handleSessionUpdate(params json.RawMessage) {
 	}
 
 	switch disc.SessionUpdate {
-	case "agent_message_chunk":
+	// do-agent emits complete (non-chunked) `agent_message`/`user_message`
+	// notifications; other agents stream `*_chunk`. Both carry the same
+	// {content:{text}} shape, so route them through the same extractor.
+	case "agent_message_chunk", "agent_message":
 		h.handleMessageChunk(raw.SessionID, "assistant", raw.Update)
-	case "user_message_chunk":
+	case "user_message_chunk", "user_message":
 		h.handleMessageChunk(raw.SessionID, "user", raw.Update)
 	case "agent_thought_chunk":
 		h.handleThoughtChunk(raw.SessionID, raw.Update)

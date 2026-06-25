@@ -16,7 +16,7 @@ test.describe("SSO Admin API", () => {
    * TC-SSO-ADM-001: List SSO configs (admin)
    */
   test("admin lists SSO configs", async ({ api }) => {
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const cc = await api.connect();
     const res = await cc.ssoAdmin.listSSOConfigs({}) as { data: unknown[]; total: bigint };
     expect(Array.isArray(res.data)).toBe(true);
@@ -39,7 +39,7 @@ test.describe("SSO Admin API", () => {
    * InvalidArgument (400). Both are acceptable; 0 = success path.
    */
   test("admin creates SSO config (or server error if OIDC validation fails)", async ({ api, db }) => {
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const cc = await api.connect();
 
     let createdId: bigint | null = null;
@@ -72,7 +72,7 @@ test.describe("SSO Admin API", () => {
    * Connect maps AlreadyExists → 409, InvalidArgument → 400.
    */
   test("duplicate domain+protocol returns error", async ({ api, db }) => {
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const cc = await api.connect();
 
     let firstId: bigint | null = null;

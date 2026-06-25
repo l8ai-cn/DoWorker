@@ -15,7 +15,7 @@ type Interface interface {
 	Update(ctx context.Context, id int64, updates map[string]interface{}) (*user.User, error)
 	Delete(ctx context.Context, id int64) error
 
-	Authenticate(ctx context.Context, email, password string) (*user.User, error)
+	Authenticate(ctx context.Context, identifier, password string) (*user.User, error)
 	UpdatePassword(ctx context.Context, id int64, password string) error
 	RecordLogin(ctx context.Context, userID int64)
 

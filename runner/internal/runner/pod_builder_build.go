@@ -206,7 +206,7 @@ func (b *PodBuilder) buildPTYPod(ctx context.Context, sandboxRoot, workingDir, b
 		GetPTYError:         pod.GetPTYError,
 	})
 	pod.IO = ptyIO
-	pod.Relay = NewPTYPodRelay(b.cmd.PodKey, pod.IO, comps, b.deps.LocalRelayServer)
+	pod.Relay = NewPTYPodRelay(b.cmd.PodKey, pod.IO, comps)
 	term.SetOutputHandler(NewPTYOutputHandler(b.cmd.PodKey, comps, pod.NotifyStateDetectorWithScreen))
 
 	logger.Pod().InfoContext(ctx, "Pod built (PTY)", "pod_key", b.cmd.PodKey, "working_dir", workingDir, "cols", b.cols, "rows", b.rows)

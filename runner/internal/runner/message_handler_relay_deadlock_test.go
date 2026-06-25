@@ -262,7 +262,7 @@ func TestOnSubscribePod_SnapshotSentOnSuccess(t *testing.T) {
 		Status: PodStatusRunning,
 	}
 	pod.IO = NewPTYPodIO(pod.PodKey, comps, PTYPodIODeps{})
-	pod.Relay = NewPTYPodRelay(pod.PodKey, pod.IO, comps, nil)
+	pod.Relay = NewPTYPodRelay(pod.PodKey, pod.IO, comps)
 	store.Put(pod.PodKey, pod)
 
 	err := handler.OnSubscribePod(client.SubscribePodRequest{

@@ -7,13 +7,13 @@ export function FullExample() {
 
   return (
     <section className="mb-12">
-      <h2 className="text-2xl font-semibold mb-4">
+      <h2 className="text-2xl font-semibold mb-4 text-foreground">
         {t("docs.concepts.agentfile.fullExample.title")}
       </h2>
       <p className="text-muted-foreground leading-relaxed mb-6">
         {t("docs.concepts.agentfile.fullExample.description")}
       </p>
-      <pre className="bg-muted rounded-lg p-4 text-sm overflow-x-auto">
+      <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 text-sm overflow-x-auto">
         <code>{`# Claude Code AgentFile
 AGENT "claude-code"
 EXECUTABLE "claude"

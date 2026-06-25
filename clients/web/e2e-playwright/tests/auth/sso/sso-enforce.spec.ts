@@ -21,7 +21,7 @@ test.describe("SSO Enforcement", () => {
    * Connect: PermissionDenied (SSO_REQUIRED) → 403, Unauthenticated → 401.
    */
   test("password login blocked when SSO enforced", async ({ api }) => {
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const adminCc = await api.connect();
 
     // LDAP protocol doesn't need OIDC discovery — create must succeed.
@@ -47,7 +47,7 @@ test.describe("SSO Enforcement", () => {
     let loginStatus: number | "ok" = "ok";
     try {
       await publicCc.auth.login({
-        email: `user@${SSO_DOMAIN}`,
+        username: `user-${SSO_DOMAIN.replace(/\./g, "-")}`,
         password: "TestPass123!",
       });
     } catch (err) {
@@ -58,7 +58,7 @@ test.describe("SSO Enforcement", () => {
     expect([401, 403, "ok"]).toContain(loginStatus);
 
     // Cleanup
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const adminCc2 = await api.connect();
     await adminCc2.ssoAdmin.deleteSSOConfig({ id: configId });
   });
@@ -70,7 +70,7 @@ test.describe("SSO Enforcement", () => {
     const publicCc = api.connectWithToken("");
     // Admin should always be able to login with password.
     const res = await publicCc.auth.login({
-      email: ADMIN_USER.email,
+      username: ADMIN_USER.username,
       password: ADMIN_USER.password,
     }) as { token: string };
     expect(res.token).toBeTruthy();
@@ -80,10 +80,10 @@ test.describe("SSO Enforcement", () => {
    * TC-SSO-ENF-003: UI hides password when SSO enforced.
    * (Browser-side discovery check — no REST/Connect call.)
    */
-  test("login page discovers SSO for email domain", async ({ page }) => {
+  test("login page discovers SSO for username", async ({ page }) => {
     await page.goto("/login");
-    await page.locator("#email").fill(`user@${SSO_DOMAIN}`);
-    await page.locator("#email").blur();
+    await page.locator("#username").fill("devuser");
+    await page.locator("#username").blur();
     // Wait for SSO discovery to complete
     await page.waitForTimeout(2000);
     // Page state depends on whether SSO config exists

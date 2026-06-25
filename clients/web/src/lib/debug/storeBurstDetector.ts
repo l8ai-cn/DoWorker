@@ -10,7 +10,7 @@ import { logger } from "@/lib/logger";
 // (React #185). Each detector is a passive subscribe; zero runtime cost
 // beyond a counter increment per setState.
 // Output goes through `logger` so the warning lands in the Rust subscriber's
-// rolling file on Desktop (and stays in console on Web). The trace string
+// console. The trace string
 // is captured here rather than at console.trace time because IPC strips the
 // implicit `console` stack.
 interface SubscribableStore {

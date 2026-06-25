@@ -8,8 +8,8 @@ import { DockList, type Confirm } from "./DockList";
 import { StatusPill } from "./StatusPill";
 
 const TONE: Record<string, string> = {
-  connected: "bg-green-500/15 text-green-600",
-  error: "bg-red-500/15 text-red-600",
+  connected: "bg-success-bg text-success",
+  error: "bg-danger-bg text-danger",
 };
 
 export function McpSection({ podKey, confirm }: { podKey: string; confirm: Confirm }) {
@@ -40,7 +40,7 @@ export function McpSection({ podKey, confirm }: { podKey: string; confirm: Confi
       {mcp.map((s) => (
         <div
           key={s.name}
-          className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1.5"
+          className="flex items-center justify-between gap-2 surface-card px-2 py-1.5"
         >
           <span className="min-w-0 flex-1 truncate font-mono text-xs">{s.name}</span>
           <div className="flex shrink-0 items-center gap-1.5">

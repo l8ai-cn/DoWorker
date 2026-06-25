@@ -59,7 +59,7 @@ interface ResourceCardProps {
 }
 
 function ResourceCard({ title, description, href, cta, external }: ResourceCardProps) {
-  const className = "group block rounded-xl border border-white/10 bg-[var(--azure-bg-card)]/40 hover:bg-[var(--azure-bg-card)]/70 hover:border-[var(--azure-cyan)]/40 p-6 transition-all";
+  const className = "group block rounded-xl ring-1 ring-white/10 bg-[var(--azure-bg-card)]/40 hover:bg-[var(--azure-bg-card)]/70 hover:ring-[var(--azure-cyan)]/40 p-6 transition-all motion-interactive";
   const content = (
     <>
       <h3 className="font-headline text-lg font-bold mb-2 group-hover:text-[var(--azure-cyan)] transition-colors">

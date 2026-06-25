@@ -11,7 +11,7 @@ test.describe("Runner Admin API", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
 
   test("admin lists all runners across orgs", async ({ api }) => {
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const cc = await api.connect();
     const res = await cc.admin.listRunners({}) as { items: unknown[] };
     expect(Array.isArray(res.items)).toBe(true);
@@ -37,7 +37,7 @@ test.describe("Runner Admin API", () => {
       `SELECT id FROM runners WHERE node_id = 'admin-single-test'`
     );
 
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const cc = await api.connect();
     const runner = await cc.admin.getRunner({ runnerId: Number(id) }) as { id?: number };
     expect(runner.id).toBeTruthy();
@@ -56,7 +56,7 @@ test.describe("Runner Admin API", () => {
       `SELECT id FROM runners WHERE node_id = 'admin-disable-test'`
     );
 
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const cc = await api.connect();
 
     await cc.admin.disableRunner({ runnerId: Number(id) });
@@ -83,7 +83,7 @@ test.describe("Runner Admin API", () => {
       `SELECT id FROM runners WHERE node_id = 'admin-delete-test'`
     );
 
-    await api.loginAs(ADMIN_USER.email, ADMIN_USER.password);
+    await api.loginAs(ADMIN_USER.username, ADMIN_USER.password);
     const cc = await api.connect();
     await cc.admin.deleteRunner({ runnerId: Number(id) });
 

@@ -70,7 +70,7 @@ export function SeatManagement({
 
   if (loading) {
     return (
-      <div className="border border-border rounded-lg p-6 animate-pulse">
+      <div className="surface-card p-6 animate-pulse">
         <div className="h-6 bg-muted rounded w-32 mb-4"></div>
         <div className="h-4 bg-muted rounded w-48"></div>
       </div>
@@ -79,7 +79,7 @@ export function SeatManagement({
 
   if (error) {
     return (
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <p className="text-destructive">{error}</p>
         <Button variant="outline" className="mt-4" onClick={loadSeatUsage}>
           {t("billing.seats.retry")}
@@ -96,7 +96,7 @@ export function SeatManagement({
       : (seatUsage.used_seats / seatUsage.total_seats) * 100;
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <h2 className="text-lg font-semibold mb-4">
         {t("billing.seats.title")}
       </h2>
@@ -113,7 +113,7 @@ export function SeatManagement({
             </div>
           </div>
           <div className="text-right">
-            <div className="text-lg font-medium text-green-600 dark:text-green-400">
+            <div className="text-lg font-medium text-success">
               {seatUsage.available_seats}
             </div>
             <div className="text-sm text-muted-foreground">

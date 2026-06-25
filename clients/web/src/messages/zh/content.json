@@ -102,5 +102,24 @@
       "titleHighlight": "部署",
       "description": "在你的基础设施中完整部署 AgentsMesh。你的代码、你的 Agent、你的规则——零外部暴露。"
     }
+  },
+  "offline": {
+    "title": "你已离线",
+    "description": "看起来网络连接已断开。请检查网络后重试。",
+    "retry": "重试",
+    "whileOffline": "离线时你可以：",
+    "tip1": "查看已加载的页面",
+    "tip2": "访问已缓存的终端会话",
+    "tip3": "查看离线可用的工单"
+  },
+  "changelogPage": {
+    "title": "更新日志",
+    "description": "AgentsMesh 的所有重要变更都会记录在此。",
+    "types": {
+      "added": "新增",
+      "changed": "变更",
+      "fixed": "修复",
+      "removed": "移除"
+    }
   }
 }

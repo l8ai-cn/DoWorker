@@ -76,7 +76,7 @@ export function VideoRenderer({ block }: { block: Block }) {
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
             className={cn(
-              "flex flex-1 items-center justify-center gap-2 rounded-md border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground hover:bg-muted/50",
+              "flex flex-1 items-center justify-center gap-2 rounded-md border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground motion-interactive hover:bg-surface-muted",
               uploading && "opacity-50",
             )}
           >
@@ -86,7 +86,7 @@ export function VideoRenderer({ block }: { block: Block }) {
           <button
             type="button"
             onClick={onPasteUrl}
-            className="rounded-md border border-border px-3 text-sm text-muted-foreground hover:bg-muted/50"
+            className="rounded-md border border-border px-3 text-sm text-muted-foreground motion-interactive hover:bg-surface-muted"
           >
             Paste URL
           </button>

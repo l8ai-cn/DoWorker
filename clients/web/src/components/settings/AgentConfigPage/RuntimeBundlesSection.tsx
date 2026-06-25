@@ -36,7 +36,7 @@ export function RuntimeBundlesSection({
   const hasDefault = bundles.some((b) => b.is_default);
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <div className="flex items-center gap-2 mb-4">
         <Sliders className="w-5 h-5 text-muted-foreground" />
         <h3 className="text-lg font-semibold">
@@ -57,7 +57,7 @@ export function RuntimeBundlesSection({
         {bundles.map((b) => (
           <div
             key={b.id}
-            className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-muted/50"
+            className="flex items-center justify-between p-3 surface-card motion-interactive hover:bg-surface-muted"
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <Sliders className="w-4 h-4 text-muted-foreground shrink-0" />

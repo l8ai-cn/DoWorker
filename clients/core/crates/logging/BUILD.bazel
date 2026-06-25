@@ -2,7 +2,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 
 # Cross-platform logging facade. Native targets get a rolling file appender
 # (tracing-appender) plus stderr; wasm32 routes through tracing-wasm into
-# the browser console. Hosts (NAPI / UniFFI / wasm-bindgen) call `init` once
+# the browser console. wasm-bindgen calls `init` once
 # at bootstrap and the existing `tracing::*` macros across the workspace
 # start producing output. BUILD.bazel deps must mirror the cfg gating
 # inside the crate — wasm32 cannot link tracing-appender (filesystem),

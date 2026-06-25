@@ -10,31 +10,31 @@ import (
 	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
 )
 
-func (s *Service) Login(ctx context.Context, email, password string) (*LoginResult, error) {
-	if s.ssoChecker != nil && strings.Contains(email, "@") {
-		isSystemAdmin := false
-		u, err := s.userService.GetByEmail(ctx, email)
-		if err == nil && u != nil {
-			isSystemAdmin = u.IsSystemAdmin
+func (s *Service) Login(ctx context.Context, identifier, password string) (*LoginResult, error) {
+	if s.ssoChecker != nil && identifier != "" {
+		u, err := s.userService.GetByUsername(ctx, identifier)
+		if err != nil && strings.Contains(identifier, "@") {
+			u, err = s.userService.GetByEmail(ctx, identifier)
 		}
-
-		allowed, err := s.ssoChecker.IsPasswordLoginAllowed(ctx, email, isSystemAdmin)
-		if err == nil && !allowed {
-			return nil, ErrSSOEnforced
+		if err == nil && u != nil {
+			allowed, err := s.ssoChecker.IsPasswordLoginAllowed(ctx, u.Email, u.IsSystemAdmin)
+			if err == nil && !allowed {
+				return nil, ErrSSOEnforced
+			}
 		}
 	}
 
-	u, err := s.userService.Authenticate(ctx, email, password)
+	u, err := s.userService.Authenticate(ctx, identifier, password)
 	if err != nil {
 		if errors.Is(err, userService.ErrInvalidCredentials) {
-			slog.WarnContext(ctx, "login failed", "email", email, "reason", "invalid_credentials")
+			slog.WarnContext(ctx, "login failed", "identifier", identifier, "reason", "invalid_credentials")
 			return nil, ErrInvalidCredentials
 		}
 		if errors.Is(err, userService.ErrUserInactive) {
-			slog.WarnContext(ctx, "login failed", "email", email, "reason", "user_disabled")
+			slog.WarnContext(ctx, "login failed", "identifier", identifier, "reason", "user_disabled")
 			return nil, ErrUserDisabled
 		}
-		slog.WarnContext(ctx, "login failed", "email", email, "reason", "internal_error")
+		slog.WarnContext(ctx, "login failed", "identifier", identifier, "reason", "internal_error")
 		return nil, err
 	}
 
@@ -43,7 +43,7 @@ func (s *Service) Login(ctx context.Context, email, password string) (*LoginResu
 		return nil, err
 	}
 
-	slog.InfoContext(ctx, "user logged in", "user_id", u.ID, "email", email)
+	slog.InfoContext(ctx, "user logged in", "user_id", u.ID, "username", u.Username)
 
 	return &LoginResult{
 		User:         u,

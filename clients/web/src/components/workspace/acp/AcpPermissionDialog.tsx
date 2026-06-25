@@ -38,9 +38,9 @@ export function AcpPermissionDialog({ podKey, permissions }: AcpPermissionDialog
   }, [podKey, removePermission, t]);
 
   return (
-    <div className="border-t bg-amber-50 dark:bg-amber-950/30 p-3 space-y-2">
+    <div className="border-t bg-warning-bg p-3 space-y-2">
       {sendError && (
-        <div className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
+        <div className="flex items-center gap-1.5 text-xs text-danger">
           <AlertTriangle className="h-3 w-3" />
           {sendError}
         </div>

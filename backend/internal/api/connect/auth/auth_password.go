@@ -18,16 +18,16 @@ import (
 func (s *Server) Login(
 	ctx context.Context, req *connect.Request[authv1.LoginRequest],
 ) (*connect.Response[authv1.LoginResponse], error) {
-	if req.Msg.GetEmail() == "" || req.Msg.GetPassword() == "" {
+	if req.Msg.GetUsername() == "" || req.Msg.GetPassword() == "" {
 		return nil, connect.NewError(connect.CodeInvalidArgument,
-			errors.New("email and password are required"))
+			errors.New("username and password are required"))
 	}
-	result, err := s.authSvc.Login(ctx, req.Msg.GetEmail(), req.Msg.GetPassword())
+	result, err := s.authSvc.Login(ctx, req.Msg.GetUsername(), req.Msg.GetPassword())
 	if err != nil {
 		switch {
 		case errors.Is(err, authservice.ErrInvalidCredentials):
 			return nil, connect.NewError(connect.CodeUnauthenticated,
-				errors.New("invalid email or password"))
+				errors.New("invalid username or password"))
 		case errors.Is(err, authservice.ErrUserDisabled):
 			return nil, connect.NewError(connect.CodePermissionDenied,
 				errors.New("user is disabled"))

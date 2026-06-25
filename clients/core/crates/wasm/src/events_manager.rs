@@ -112,8 +112,8 @@ impl WasmEventsManager {
     }
 
     /// Snapshot of the dispatch tick — increments after every event has
-    /// been applied to AppState. React/SwiftUI selectors read this to
-    /// decide whether to re-derive cached views.
+    /// been applied to AppState. React selectors read this to decide whether
+    /// to re-derive cached views.
     pub fn tick(&self) -> f64 {
         self.inner.tick() as f64
     }

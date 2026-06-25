@@ -56,11 +56,11 @@ test.describe("Token Management", () => {
    */
   test("multi-device login produces independent tokens", async ({ api }) => {
     // Login from three "devices" with delay to ensure different JWT iat claims
-    const a = await api.login(TEST_USER.email, TEST_USER.password);
+    const a = await api.login();
     await new Promise((r) => setTimeout(r, 1100));
-    const b = await api.login(TEST_USER.email, TEST_USER.password);
+    const b = await api.login();
     await new Promise((r) => setTimeout(r, 1100));
-    const c = await api.login(TEST_USER.email, TEST_USER.password);
+    const c = await api.login();
 
     // Tokens should be different
     expect(a.token).not.toBe(b.token);

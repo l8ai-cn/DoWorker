@@ -29,7 +29,7 @@ export function LoopalSlashDropdown({
             onSelect(c);
           }}
           className={`flex w-full items-center justify-between gap-3 rounded px-2 py-1.5 text-left ${
-            i === activeIndex ? "bg-muted" : "hover:bg-muted/50"
+            i === activeIndex ? "bg-muted" : "motion-interactive hover:bg-surface-muted"
           }`}
         >
           <span className="shrink-0 font-mono text-xs text-foreground">{c.label}</span>

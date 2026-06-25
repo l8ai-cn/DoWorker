@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { ChannelRailPodItem } from "../ChannelRailPodItem";
 import type { ChannelPodSummary } from "@/hooks/useChannelPods";
 
-const ALL_COLORS = ["bg-emerald-500", "bg-amber-500", "bg-red-500", "bg-muted-foreground/50"];
+const ALL_COLORS = ["bg-success", "bg-warning", "bg-danger", "bg-muted-foreground/50"];
 
 function renderRow(pod: ChannelPodSummary, dimmed?: boolean) {
   render(
@@ -16,15 +16,15 @@ function renderRow(pod: ChannelPodSummary, dimmed?: boolean) {
 
 describe("ChannelRailPodItem status colors", () => {
   const cases: Array<[string, string]> = [
-    ["running", "bg-emerald-500"],
-    ["initializing", "bg-amber-500"],
+    ["running", "bg-success"],
+    ["initializing", "bg-warning"],
     ["paused", "bg-muted-foreground/50"],
     ["disconnected", "bg-muted-foreground/50"],
     ["orphaned", "bg-muted-foreground/50"],
     ["completed", "bg-muted-foreground/50"],
     ["terminated", "bg-muted-foreground/50"],
-    ["error", "bg-red-500"],
-    ["failed", "bg-red-500"],
+    ["error", "bg-danger"],
+    ["failed", "bg-danger"],
   ];
 
   it.each(cases)("colors status '%s' as %s on both avatar and dot", (status, expected) => {

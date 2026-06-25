@@ -36,7 +36,7 @@ export function TicketCard({ ticket, onClick, showRepository = true, showStatus 
 
   return (
     <div
-      className="cursor-pointer rounded-md border border-border bg-card p-3.5 transition-colors hover:border-border-strong"
+      className="cursor-pointer rounded-lg bg-surface-raised p-3.5 shadow-xs ring-1 ring-border/45 transition-all hover:-translate-y-0.5 hover:bg-card hover:ring-border/70 hover:shadow-[var(--shadow-soft)]"
       onClick={onClick}
       data-testid="ticket-card"
       data-ticket-slug={ticket.slug}
@@ -82,9 +82,7 @@ export function TicketCard({ ticket, onClick, showRepository = true, showStatus 
         </div>
       )}
 
-      <div className="my-2 h-px w-full bg-border" />
-
-      <div className="flex items-center justify-between gap-2">
+      <div className="mt-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <PriorityIcon priority={ticket.priority} size="sm" />
           {ticket.due_date && (
@@ -106,7 +104,7 @@ export function TicketCard({ ticket, onClick, showRepository = true, showStatus 
           {ticket.assignees?.slice(0, 3).map((assignee) => (
             <div
               key={assignee.user_id}
-              className="h-5 w-5 overflow-hidden rounded-full border border-card ring-1 ring-border"
+              className="h-5 w-5 overflow-hidden rounded-full bg-surface-muted ring-1 ring-background"
               title={assignee.user?.name || assignee.user?.username}
             >
               {assignee.user?.avatar_url ? (
@@ -124,7 +122,7 @@ export function TicketCard({ ticket, onClick, showRepository = true, showStatus 
             </div>
           ))}
           {ticket.assignees && ticket.assignees.length > 3 && (
-            <div className="flex h-5 w-5 items-center justify-center rounded-full border border-card bg-muted text-[9px] font-medium text-muted-foreground">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-muted text-[9px] font-medium text-muted-foreground ring-1 ring-background">
               +{ticket.assignees.length - 3}
             </div>
           )}

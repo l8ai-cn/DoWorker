@@ -1,8 +1,7 @@
 // Loop UI ViewModels — snake_case shapes for loop form / store / kanban.
 // Kept snake_case because Rust SSOT (state/loop_state.rs) serializes
 // LoopData with serde snake_case JSON for set_loops round-trip. Owned here
-// (zero-dep contract layer) so the web fromProtoLoop projection and the
-// desktop electron-adapter projection share one type definition.
+// (zero-dep contract layer) so Web projections share one type definition.
 
 export type LoopStatus = "enabled" | "disabled" | "archived";
 export type ExecutionMode = "autopilot" | "direct";

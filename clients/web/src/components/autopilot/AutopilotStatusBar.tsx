@@ -32,59 +32,59 @@ const phaseConfig: Record<
 > = {
   initializing: {
     label: "Initializing",
-    bgColor: "bg-blue-500/10",
-    textColor: "text-blue-500",
+    bgColor: "bg-info-bg",
+    textColor: "text-info",
     icon: <Loader2 className="h-3 w-3 animate-spin" />,
     animate: true,
   },
   running: {
     label: "Running",
-    bgColor: "bg-green-500/10",
-    textColor: "text-green-500",
+    bgColor: "bg-success-bg",
+    textColor: "text-success",
     icon: <Play className="h-3 w-3" />,
     animate: true,
   },
   paused: {
     label: "Paused",
-    bgColor: "bg-yellow-500/10",
-    textColor: "text-yellow-500",
+    bgColor: "bg-warning-bg",
+    textColor: "text-warning",
     icon: <Pause className="h-3 w-3" />,
   },
   user_takeover: {
     label: "User Control",
-    bgColor: "bg-purple-500/10",
-    textColor: "text-purple-500",
+    bgColor: "bg-accent",
+    textColor: "text-primary",
     icon: <Hand className="h-3 w-3" />,
   },
   waiting_approval: {
     label: "Waiting Approval",
-    bgColor: "bg-orange-500/10",
-    textColor: "text-orange-500",
+    bgColor: "bg-warning-bg",
+    textColor: "text-warning",
     icon: <AlertTriangle className="h-3 w-3" />,
     animate: true,
   },
   completed: {
     label: "Completed",
-    bgColor: "bg-green-600/10",
-    textColor: "text-green-600",
+    bgColor: "bg-success-bg",
+    textColor: "text-success",
     icon: <CheckCircle className="h-3 w-3" />,
   },
   failed: {
     label: "Failed",
-    bgColor: "bg-red-500/10",
-    textColor: "text-red-500",
+    bgColor: "bg-danger-bg",
+    textColor: "text-danger",
     icon: <XCircle className="h-3 w-3" />,
   },
   stopped: {
     label: "Stopped",
-    bgColor: "bg-gray-500/10",
-    textColor: "text-gray-500",
+    bgColor: "bg-muted",
+    textColor: "text-muted-foreground",
     icon: <Square className="h-3 w-3" />,
   },
   max_iterations: {
     label: "Max Iterations",
-    bgColor: "bg-orange-600/10",
-    textColor: "text-orange-600",
+    bgColor: "bg-warning-bg",
+    textColor: "text-warning",
     icon: <Clock className="h-3 w-3" />,
   },
 };
@@ -130,7 +130,7 @@ export function AutopilotStatusBar({
       data-phase={autopilotController.phase}
       className={cn(
         "flex items-center gap-2 px-3 py-1.5 border-b",
-        needsHelp ? "bg-orange-500/5 border-orange-500/30" : phaseInfo.bgColor,
+        needsHelp ? "bg-warning-bg border-warning/30" : phaseInfo.bgColor,
         className
       )}
     >
@@ -142,14 +142,14 @@ export function AutopilotStatusBar({
             <span
               className={cn(
                 "absolute inline-flex h-4 w-4 rounded-full opacity-75 animate-ping",
-                needsHelp ? "bg-orange-400" : phaseInfo.textColor.replace("text-", "bg-")
+                needsHelp ? "bg-warning" : phaseInfo.textColor.replace("text-", "bg-")
               )}
             />
           )}
           <span
             className={cn(
               "relative inline-flex items-center justify-center h-4 w-4 rounded-full",
-              needsHelp ? "bg-orange-500 text-white" : `${phaseInfo.textColor.replace("text-", "bg-")} text-white`
+              needsHelp ? "bg-warning text-white" : `${phaseInfo.textColor.replace("text-", "bg-")} text-white`
             )}
           >
             {needsHelp ? <AlertTriangle className="h-2.5 w-2.5" /> : phaseInfo.icon}
@@ -160,7 +160,7 @@ export function AutopilotStatusBar({
         <span
           className={cn(
             "text-xs font-medium whitespace-nowrap",
-            needsHelp ? "text-orange-500" : phaseInfo.textColor
+            needsHelp ? "text-warning" : phaseInfo.textColor
           )}
         >
           {needsHelp ? "Need Help" : phaseInfo.label}
@@ -174,7 +174,7 @@ export function AutopilotStatusBar({
             value={progress}
             className={cn(
               "h-1.5",
-              needsHelp && "[&>div]:bg-orange-500"
+              needsHelp && "[&>div]:bg-warning"
             )}
           />
         </div>
@@ -212,11 +212,11 @@ export function AutopilotStatusBar({
           <Button
             size="sm"
             variant="ghost"
-            className="h-6 w-6 p-0 hover:bg-yellow-500/20"
+            className="h-6 w-6 p-0 hover:bg-warning/20"
             onClick={() => pauseAutopilotController(autopilotController.autopilot_controller_key)}
             title="Pause"
           >
-            <Pause className="h-3.5 w-3.5 text-yellow-500" />
+            <Pause className="h-3.5 w-3.5 text-warning" />
           </Button>
         )}
 
@@ -224,11 +224,11 @@ export function AutopilotStatusBar({
           <Button
             size="sm"
             variant="ghost"
-            className="h-6 w-6 p-0 hover:bg-green-500/20"
+            className="h-6 w-6 p-0 hover:bg-success/20"
             onClick={() => resumeAutopilotController(autopilotController.autopilot_controller_key)}
             title="Resume"
           >
-            <Play className="h-3.5 w-3.5 text-green-500" />
+            <Play className="h-3.5 w-3.5 text-success" />
           </Button>
         )}
 
@@ -237,11 +237,11 @@ export function AutopilotStatusBar({
           <Button
             size="sm"
             variant="ghost"
-            className="h-6 w-6 p-0 hover:bg-purple-500/20"
+            className="h-6 w-6 p-0 hover:bg-primary/20"
             onClick={() => takeoverAutopilotController(autopilotController.autopilot_controller_key)}
             title="Takeover Control"
           >
-            <Hand className="h-3.5 w-3.5 text-purple-500" />
+            <Hand className="h-3.5 w-3.5 text-primary" />
           </Button>
         )}
 
@@ -249,11 +249,11 @@ export function AutopilotStatusBar({
           <Button
             size="sm"
             variant="ghost"
-            className="h-6 w-6 p-0 hover:bg-purple-500/20"
+            className="h-6 w-6 p-0 hover:bg-primary/20"
             onClick={() => handbackAutopilotController(autopilotController.autopilot_controller_key)}
             title="Handback to Autopilot"
           >
-            <RotateCcw className="h-3.5 w-3.5 text-purple-500" />
+            <RotateCcw className="h-3.5 w-3.5 text-primary" />
           </Button>
         )}
 
@@ -262,11 +262,11 @@ export function AutopilotStatusBar({
           <Button
             size="sm"
             variant="ghost"
-            className="h-6 w-6 p-0 hover:bg-red-500/20"
+            className="h-6 w-6 p-0 hover:bg-danger/20"
             onClick={() => stopAutopilotController(autopilotController.autopilot_controller_key)}
             title="Stop Autopilot"
           >
-            <Square className="h-3.5 w-3.5 text-red-500" />
+            <Square className="h-3.5 w-3.5 text-danger" />
           </Button>
         )}
       </div>

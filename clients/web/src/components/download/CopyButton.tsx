@@ -32,7 +32,7 @@ export function CopyButton({ text, label = "Copy" }: Props) {
     <button
       type="button"
       onClick={handleClick}
-      className="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-headline uppercase tracking-[0.18em] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-[var(--azure-cyan)]/40 text-[var(--azure-text-muted)] hover:text-[var(--azure-cyan)] transition-colors"
+      className="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-headline uppercase tracking-[0.18em] ring-1 ring-white/10 bg-white/5 hover:bg-white/10 hover:ring-[var(--azure-cyan)]/40 text-[var(--azure-text-muted)] hover:text-[var(--azure-cyan)] transition-colors motion-interactive"
       aria-label={copied ? "Copied" : label}
     >
       {copied ? "✓ Copied" : label}

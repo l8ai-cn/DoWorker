@@ -18,6 +18,7 @@ import {
   Server,
   Settings,
   Repeat,
+  Sparkles,
   LogOut,
   ChevronRight,
   type LucideIcon,
@@ -32,6 +33,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   server: Server,
   settings: Settings,
   repeat: Repeat,
+  sparkles: Sparkles,
 };
 
 interface MobileDrawerProps {
@@ -67,6 +69,10 @@ export function MobileDrawer({ className }: MobileDrawerProps) {
         return `/${orgSlug}/runners`;
       case "loops":
         return `/${orgSlug}/loops`;
+      case "automation":
+        return `/${orgSlug}/automation`;
+      case "skills":
+        return `/${orgSlug}/skills`;
       case "settings":
         return `/${orgSlug}/settings`;
       default:
@@ -115,7 +121,7 @@ export function MobileDrawer({ className }: MobileDrawerProps) {
           </VisuallyHidden.Root>
 
           {/* User info */}
-          <div className="p-4 border-b border-border">
+          <div className="p-4 bg-surface-muted/40">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                 <span className="text-sm font-medium">
@@ -132,7 +138,7 @@ export function MobileDrawer({ className }: MobileDrawerProps) {
           </div>
 
           {/* Organization selector */}
-          <div className="p-2 border-b border-border">
+          <div className="p-2 bg-surface-muted/30">
             <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
               {t("mobile.drawer.organization")}
             </p>
@@ -140,10 +146,10 @@ export function MobileDrawer({ className }: MobileDrawerProps) {
               <button
                 key={org.id}
                 className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left",
+                  "nav-row pressable w-full text-left",
                   org.id === currentOrg?.id
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-muted"
+                    ? "nav-row-active"
+                    : "nav-row-idle",
                 )}
                 onClick={() => handleOrgChange(org)}
               >
@@ -171,10 +177,8 @@ export function MobileDrawer({ className }: MobileDrawerProps) {
                 <button
                   key={activity.id}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left transition-colors",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted text-foreground"
+                    "nav-row pressable w-full text-left motion-interactive",
+                    isActive ? "nav-row-active" : "nav-row-idle",
                   )}
                   onClick={() => handleActivityClick(activity.id)}
                 >
@@ -186,7 +190,7 @@ export function MobileDrawer({ className }: MobileDrawerProps) {
           </nav>
 
           {/* Logout */}
-          <div className="p-2 border-t border-border">
+          <div className="p-2 panel-lift">
             <button
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left hover:bg-muted text-muted-foreground"
               onClick={handleLogout}

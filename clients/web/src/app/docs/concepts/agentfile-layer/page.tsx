@@ -18,13 +18,13 @@ export default function AgentfileLayerPage() {
 
       {/* What is AgentFile Layer */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.agentfileLayer.whatIs.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.concepts.agentfileLayer.whatIs.description")}
         </p>
-        <div className="border border-border rounded-lg p-4">
+        <div className="surface-card p-4">
           <pre className="text-sm overflow-x-auto">
             <code>{`Base AgentFile  →  User Preferences  →  Layer (per-Pod override)
  (agent default)    (saved settings)     (runtime customization)`}</code>
@@ -34,7 +34,7 @@ export default function AgentfileLayerPage() {
 
       {/* Supported Declarations */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.agentfileLayer.supported.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -53,7 +53,7 @@ export default function AgentfileLayerPage() {
           ].map((keyword) => (
             <div
               key={keyword}
-              className="border border-border rounded-lg p-3 font-mono text-sm"
+              className="surface-card p-3 font-mono text-sm"
             >
               {keyword}
             </div>
@@ -63,13 +63,13 @@ export default function AgentfileLayerPage() {
 
       {/* API Usage */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.agentfileLayer.apiUsage.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.concepts.agentfileLayer.apiUsage.description")}
         </p>
-        <pre className="bg-muted rounded-lg p-4 text-sm overflow-x-auto">
+        <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 text-sm overflow-x-auto">
           <code>{`POST /api/v1/pods
 {
   "agent_slug": "claude-code",
@@ -81,7 +81,7 @@ export default function AgentfileLayerPage() {
 
       {/* Frontend Editor */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.agentfileLayer.editor.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
@@ -91,51 +91,51 @@ export default function AgentfileLayerPage() {
 
       {/* Examples */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.agentfileLayer.examples.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-6">
           {t("docs.concepts.agentfileLayer.examples.description")}
         </p>
         <div className="space-y-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.agentfileLayer.examples.overrideModel")}
             </h3>
-            <pre className="bg-muted rounded-lg p-3 text-sm overflow-x-auto">
+            <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-3 text-sm overflow-x-auto">
               <code>{`CONFIG model = "opus"`}</code>
             </pre>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.agentfileLayer.examples.permissionMode")}
             </h3>
-            <pre className="bg-muted rounded-lg p-3 text-sm overflow-x-auto">
+            <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-3 text-sm overflow-x-auto">
               <code>{`CONFIG permission_mode = "bypassPermissions"`}</code>
             </pre>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.agentfileLayer.examples.addPrompt")}
             </h3>
-            <pre className="bg-muted rounded-lg p-3 text-sm overflow-x-auto">
+            <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-3 text-sm overflow-x-auto">
               <code>{`PROMPT "Fix the login bug in auth.ts"`}</code>
             </pre>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.agentfileLayer.examples.selectRepo")}
             </h3>
-            <pre className="bg-muted rounded-lg p-3 text-sm overflow-x-auto">
+            <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-3 text-sm overflow-x-auto">
               <code>{`REPO "my-org/my-repo"
 BRANCH "feature/xyz"`}</code>
             </pre>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.concepts.agentfileLayer.examples.switchMode")}
             </h3>
-            <pre className="bg-muted rounded-lg p-3 text-sm overflow-x-auto">
+            <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-3 text-sm overflow-x-auto">
               <code>{`MODE acp`}</code>
             </pre>
           </div>

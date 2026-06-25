@@ -54,17 +54,17 @@ export function TerminalPaneHeader({
   const title = usePodTitle(podKey);
 
   const statusColor = (() => {
-    if (isRunnerDisconnected) return "text-red-500 dark:text-red-400";
+    if (isRunnerDisconnected) return "text-danger";
     switch (connectionStatus) {
-      case "connected": return "text-green-500 dark:text-green-400";
-      case "connecting": return "text-yellow-500 dark:text-yellow-400 animate-pulse";
-      case "error": return "text-red-500 dark:text-red-400";
-      default: return "text-gray-500 dark:text-gray-400";
+      case "connected": return "text-success";
+      case "connecting": return "text-warning animate-pulse";
+      case "error": return "text-danger";
+      default: return "text-muted-foreground";
     }
   })();
 
   return (
-    <div className="h-8 flex items-center justify-between px-2 bg-terminal-bg-secondary border-b border-terminal-border">
+    <div className="h-8 flex items-center justify-between px-2 bg-terminal-bg-secondary shadow-[inset_0_-1px_0_color-mix(in_srgb,var(--terminal-border)_75%,transparent)]">
       <div className="flex items-center gap-2 min-w-0">
         <Circle className={cn("w-2 h-2 flex-shrink-0", statusColor)} />
         <span className="text-xs text-terminal-text truncate">{title}</span>
@@ -127,7 +127,7 @@ function HeaderActions({
         icon={isMaximized ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
       />
       {onClose && (
-        <IconButton onClick={onClose} title="Close" icon={<X className="w-3 h-3" />} hoverClass="hover:text-red-500 dark:hover:text-red-400" />
+        <IconButton onClick={onClose} title="Close" icon={<X className="w-3 h-3" />} hoverClass="hover:text-danger" />
       )}
     </div>
   );

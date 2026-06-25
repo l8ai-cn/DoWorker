@@ -16,8 +16,6 @@ import {
   Activity,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { ThisMacSection } from "@/components/infra/ThisMacSection";
-import { getLocalRunnerService } from "@agentsmesh/service-runtime";
 
 interface RunnersSidebarContentProps {
   className?: string;
@@ -39,15 +37,6 @@ export function RunnersSidebarContent({ className, onAddRunner }: RunnersSidebar
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | RunnerStatus>("all");
-  const [localNodeId, setLocalNodeId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const svc = getLocalRunnerService();
-    if (!svc) return;
-    let cancelled = false;
-    void svc.local_node_id().then((id: string | null) => { if (!cancelled) setLocalNodeId(id); }).catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
 
   const selectedRunnerId = useMemo(() => {
     const raw = searchParams.get("id");
@@ -149,7 +138,7 @@ export function RunnersSidebarContent({ className, onAddRunner }: RunnersSidebar
                 "px-2 py-1 text-xs rounded transition-colors",
                 statusFilter === value
                   ? "bg-muted text-foreground font-medium"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  : "text-muted-foreground hover:text-foreground motion-interactive hover:bg-surface-muted"
               )}
               onClick={() => setStatusFilter(value as typeof statusFilter)}
             >
@@ -164,11 +153,11 @@ export function RunnersSidebarContent({ className, onAddRunner }: RunnersSidebar
         <div className="text-xs font-medium text-muted-foreground">{t("runners.overview.title")}</div>
         <div className="grid grid-cols-2 gap-2">
           <div className="flex items-center gap-2 text-xs">
-            <Server className="w-3.5 h-3.5 text-green-500 dark:text-green-400" />
+            <Server className="w-3.5 h-3.5 text-success" />
             <span>{onlineCount} {t("runners.overview.online")}</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <Activity className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
+            <Activity className="w-3.5 h-3.5 text-info" />
             <span>{totalPods}/{totalCapacity} pods</span>
           </div>
         </div>
@@ -184,7 +173,7 @@ export function RunnersSidebarContent({ className, onAddRunner }: RunnersSidebar
       </div>
 
       {/* Runner list */}
-      <div className="flex-1 overflow-y-auto border-t border-border">
+      <div className="flex-1 overflow-y-auto">
         <div className="px-3 py-2 text-xs text-muted-foreground border-b border-border">
           {filteredRunners.length} {t("runners.runnerCount")}
         </div>
@@ -223,7 +212,7 @@ export function RunnersSidebarContent({ className, onAddRunner }: RunnersSidebar
                 <div
                   key={runner.id}
                   className={cn(
-                    "group flex items-center gap-2 px-3 py-2 hover:bg-muted/50 cursor-pointer",
+                    "group flex items-center gap-2 px-3 py-2 motion-interactive hover:bg-surface-muted cursor-pointer",
                     isSelected && "bg-muted/30"
                   )}
                   onClick={() => handleRunnerClick(runner)}
@@ -242,11 +231,6 @@ export function RunnersSidebarContent({ className, onAddRunner }: RunnersSidebar
                       <p className="text-sm truncate font-medium">
                         {runner.node_id}
                       </p>
-                      {localNodeId && runner.node_id === localNodeId && (
-                        <span className="rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">
-                          This Mac
-                        </span>
-                      )}
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>{runner.current_pods}/{runner.max_concurrent_pods} pods</span>
@@ -271,10 +255,6 @@ export function RunnersSidebarContent({ className, onAddRunner }: RunnersSidebar
           </div>
         )}
       </div>
-
-      {/* This Mac (footer): onboarding card or registered-row jump-link.
-          Renders nothing on web — the local-runner service is desktop-only. */}
-      <ThisMacSection />
     </div>
   );
 }

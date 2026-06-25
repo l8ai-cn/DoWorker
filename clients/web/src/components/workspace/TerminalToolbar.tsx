@@ -223,7 +223,7 @@ function KeyButton({
         "transition-colors duration-75",
         small && "text-[9px]",
         !small && "text-[11px]",
-        variant === "destructive" && "text-red-400 hover:text-red-300 hover:bg-red-500/20"
+        variant === "destructive" && "text-danger hover:text-danger hover:bg-danger/20"
       )}
       onClick={onClick}
       title={title}

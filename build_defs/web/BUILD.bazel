@@ -1,7 +1,6 @@
-# Web/TS macros. Loaded by clients/web, clients/web-admin, clients/desktop.
+# Web/TS macros. Loaded by clients/web and clients/web-admin.
 #   next.bzl              → next_app          (Next.js build/dev/start)
 #   next_oci.bzl          → next_oci_image    (Next.js → OCI image)
-#   electron.bzl          → electron_vite_build, electron_builder_app
 #   eslint.bzl            → eslint_test
 #   vitest.bzl            → vitest_test       (uses vitest_shim.cjs below)
 #   playwright.bzl        → playwright_test

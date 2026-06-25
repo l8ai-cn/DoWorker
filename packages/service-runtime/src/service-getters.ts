@@ -14,7 +14,6 @@ import type {
   WasmLoopState, WasmAcpSessionManager, WasmLoopalManager, WasmRepoState,
   WasmAutopilotState, WasmRelayManager,
 } from "agentsmesh-wasm";
-import type { ILocalRunnerService } from "@agentsmesh/service-interface";
 
 // SSR / hydration fallback. Returns "[]" for `*_json` reads so SSR-rendered
 // components don't crash before the wasm bridge is registered; all other
@@ -74,13 +73,11 @@ export interface ServiceRegistry {
   loopState: WasmLoopState;
   acpManager: WasmAcpSessionManager;
   // Loopal control-panel state. Optional — only the web build registers it;
-  // desktop falls back to NOOP_PROXY (Loopal console shows empty panels).
+  // missing services fall back to NOOP_PROXY (Loopal console shows empty panels).
   loopalManager?: WasmLoopalManager;
   repoState: WasmRepoState;
   autopilotState: WasmAutopilotState;
   relayManager: WasmRelayManager;
-  // Platform-conditional — desktop adapter only.
-  localRunnerService?: ILocalRunnerService;
 }
 
 interface ServiceRegistryStore {
@@ -109,11 +106,11 @@ function registry(): ServiceRegistryStore {
 export function isServiceReady(): boolean { return registry().ready; }
 export function markServiceReady(): void {
   registry().ready = true;
-  // Mirror to globalThis so e2e tests (Playwright + Electron) can
+  // Mirror to globalThis so e2e tests (Playwright) can
   // synchronize navigation with wasm-core readiness — without this flag
   // the hash router's route guards fire before Connect-RPC cache
   // populators land, bouncing every cold-route nav back to /workspace.
-  // See clients/desktop/e2e/helpers/nav.ts:waitForServicesReady().
+  // See .
   if (typeof globalThis !== "undefined") {
     (globalThis as { __amesh_ready__?: boolean }).__amesh_ready__ = true;
   }
@@ -183,12 +180,3 @@ export const getRepoState = () => g("repoState");
 export const getAutopilotState = () => g("autopilotState");
 export const getRelayManager = () => g("relayManager");
 export const getBlockstoreService = () => g("blockstoreService");
-
-// Optional — returns undefined when no provider has registered a local-runner
-// service (web/iOS builds, where the desktop adapter is absent). Renderer UI
-// uses this to feature-detect and hide onboarding cards on platforms that
-// can't host a local runner.
-export const getLocalRunnerService = (): ILocalRunnerService | undefined => {
-  const reg = registry();
-  return reg.ready ? reg.instances.localRunnerService : undefined;
-};

@@ -52,6 +52,7 @@ export function ManualStep({ state, actions, t }: StepProps) {
             <option value="github">GitHub</option>
             <option value="gitlab">GitLab</option>
             <option value="gitee">Gitee</option>
+            <option value="cnb">CNB</option>
             <option value="generic">{t("repositories.modal.genericGit")}</option>
           </select>
         </div>

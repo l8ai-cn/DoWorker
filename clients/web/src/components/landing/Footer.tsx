@@ -133,13 +133,16 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="space-y-4">
+          <div className="soft-separator" />
+          <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--azure-text-muted)]/50">
             © {new Date().getFullYear()} {t("landing.footer.copyright")}
           </p>
           <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--azure-text-muted)]/50">
             {t("landing.footer.madeWith")}
           </p>
+        </div>
         </div>
       </div>
     </footer>

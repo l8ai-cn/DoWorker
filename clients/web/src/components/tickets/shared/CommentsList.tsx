@@ -132,7 +132,7 @@ export function CommentsList({
         {isReply && (
           <div className="absolute left-0 top-0 bottom-0 w-px bg-border/40" />
         )}
-        <div className="rounded-xl border border-border/50 bg-card overflow-hidden">
+        <div className="surface-card bg-card overflow-hidden">
           {/* Comment header */}
           <div className="flex items-center gap-2.5 px-4 py-2.5 bg-muted/30 border-b border-border/30">
             <Avatar
@@ -189,7 +189,7 @@ export function CommentsList({
                       username: comment.user?.username || "unknown",
                     })
                   }
-                  className="flex items-center gap-1 text-xs text-muted-foreground/50 hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-muted/50"
+                  className="flex items-center gap-1 text-xs text-muted-foreground/50 hover:text-foreground transition-colors px-2 py-1 rounded-md motion-interactive hover:bg-surface-muted"
                 >
                   <Reply className="w-3 h-3" />
                   {t("tickets.detail.reply")}
@@ -200,7 +200,7 @@ export function CommentsList({
                   <button
                     type="button"
                     onClick={() => setEditingId(comment.id)}
-                    className="flex items-center gap-1 text-xs text-muted-foreground/50 hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-muted/50"
+                    className="flex items-center gap-1 text-xs text-muted-foreground/50 hover:text-foreground transition-colors px-2 py-1 rounded-md motion-interactive hover:bg-surface-muted"
                   >
                     <Pencil className="w-3 h-3" />
                     {t("tickets.detail.edit")}

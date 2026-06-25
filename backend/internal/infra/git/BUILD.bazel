@@ -3,6 +3,11 @@ load("@rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "git",
     srcs = [
+        "cnb_client.go",
+        "cnb_issue.go",
+        "cnb_project.go",
+        "cnb_unsupported.go",
+        "cnb_user.go",
         "gitee_branch.go",
         "gitee_client.go",
         "gitee_commit.go",
@@ -49,6 +54,9 @@ alias(
 go_test(
     name = "git_test",
     srcs = [
+        "cnb_issue_test.go",
+        "cnb_project_test.go",
+        "cnb_user_test.go",
         "gitee_branch_test.go",
         "gitee_client_test.go",
         "gitee_commit_test.go",

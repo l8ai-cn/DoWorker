@@ -79,7 +79,7 @@ export function MemberSelector({ selectedIds, onChange }: MemberSelectorProps) {
           <button
             key={Number(m.userId)}
             type="button"
-            className="w-full text-left px-3 py-1.5 text-xs hover:bg-muted/50 transition-colors"
+            className="w-full text-left px-3 py-1.5 text-xs motion-interactive hover:bg-surface-muted"
             onClick={() => m.user?.id && toggle(Number(m.user.id))}
           >
             <span className="font-medium">{m.user?.name || m.user?.username}</span>

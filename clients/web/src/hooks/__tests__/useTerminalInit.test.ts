@@ -137,7 +137,7 @@ describe("setupIME", () => {
 
     setupIME(container, term, disposables);
 
-    // Desktop: only composition event listener cleanup
+    // Wide pointer mode: only composition event listener cleanup.
     expect(disposables).toHaveLength(1);
     expect(term.onCursorMove).not.toHaveBeenCalled();
     expect(term.onWriteParsed).not.toHaveBeenCalled();

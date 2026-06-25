@@ -43,15 +43,13 @@ interface AuthState {
   error: string | null;
 
   bootstrap: () => Promise<BootstrapResult>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   fetchOrganizations: () => Promise<void>;
   switchOrg: (slug: string) => void;
   refreshSession: () => Promise<void>;
 
-  // setAuth / setOrganizations / logout return Promise: on Electron the
-  // underlying adapter awaits an IPC round-trip to the Rust SSOT. Callers
-  // MUST await — fire-and-forget leaves the main process without the token
-  // (the v0.31.x OAuth deep-link bug). Wasm path resolves synchronously.
+  // setAuth / setOrganizations / logout return Promise because callers must
+  // preserve ordering with Rust SSOT persistence.
   setAuth: (token: string, user: User, refreshToken?: string) => Promise<void>;
   setOrganizations: (orgs: Organization[]) => Promise<void>;
   setCurrentOrg: (org: Organization) => Promise<void>;
@@ -147,10 +145,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     return result;
   },
 
-  login: async (email, password) => {
+  login: async (username, password) => {
     await initWasmCore();
     try {
-      await mgr().login(email, password);
+      await mgr().login(username, password);
       await mgr().fetch_organizations();
       bump();
     } catch (e) {

@@ -3,22 +3,11 @@
 node_modules
 target
 clients/core/target
-clients/core/ios-framework
-clients/core/crates/node-bridge/node_modules
-clients/ios/Packages/AgentsMeshCore/Sources/AgentsMeshCoreFFI/AgentsMeshCore.xcframework
-clients/ios/AgentsMesh.xcodeproj
-clients/ios/DerivedData
-clients/ios/Packages/AgentsMeshCore/.build
-clients/ios/Packages/AgentsMeshFeatures/.build
 clients/web/.next
 clients/web-admin/.next
-clients/desktop/dist
-clients/desktop/node_modules
-packages/electron-adapter/node_modules
 packages/service-interface/node_modules
 packages/service-runtime/node_modules
 clients/web/e2e-playwright/node_modules
-clients/desktop/e2e/node_modules
 # proto/gen/go is a lint-time mirror written by golangci_lint_runner.sh
 # so golangci-lint's typecheck sees the generated .pb.go files. The real
 # Bazel target is //proto/runner/v1:runner_go_proto; if Bazel walks
@@ -31,11 +20,5 @@ clients/desktop/e2e/node_modules
 # time. The committed mirror is fed into //clients/web:unit via the
 # `//:proto_gen_ts` filegroup in the root BUILD.
 proto/gen/go
-# Swift Package Manager checkout — `swift-syntax` ships its own
-# `//utils/bazel:...` references that don't resolve in this workspace,
-# breaking `bazel build //...` target expansion. SwiftPM deps are fed
-# into Bazel via `rules_swift_package_manager`, not by walking this
-# tree.
-third_party/swift/.build
 .git
 .claude

@@ -21,15 +21,15 @@ export default function ArchitectureDiagram() {
 
         <Arrow label="HTTPS / WebSocket" />
 
-        <div className="w-full border-2 border-emerald-500/40 rounded-xl bg-emerald-500/5 overflow-hidden">
-          <div className="bg-emerald-500/10 px-4 py-1.5">
-            <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+        <div className="w-full border-2 border-success/40 rounded-xl bg-success/5 overflow-hidden">
+          <div className="bg-success/10 px-4 py-1.5">
+            <span className="text-[11px] font-semibold text-success uppercase tracking-wider">
               {t("cloudLayer")}
             </span>
           </div>
           <div className="p-4 pt-2">
             <div className="text-center mb-3">
-              <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+              <span className="text-sm font-semibold text-success">
                 AgentsMesh Cloud
               </span>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -41,7 +41,7 @@ export default function ArchitectureDiagram() {
                 (key) => (
                   <div
                     key={key}
-                    className="bg-emerald-500/10 rounded-md px-2 py-1.5 font-medium text-emerald-700 dark:text-emerald-300"
+                    className="bg-success/10 rounded-md px-2 py-1.5 font-medium text-success"
                   >
                     {t(`cloud.${key}`)}
                   </div>
@@ -53,43 +53,43 @@ export default function ArchitectureDiagram() {
 
         <div className="w-full grid grid-cols-2 gap-4 my-1">
           <div className="flex flex-col items-center">
-            <div className="h-6 w-px border-l-2 border-dashed border-amber-500/60" />
-            <div className="border border-amber-500/40 rounded-lg bg-amber-500/5 px-3 py-2.5 text-center w-full">
-              <div className="text-[11px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-1">
+            <div className="h-6 w-px border-l-2 border-dashed border-warning/60" />
+            <div className="border border-warning/40 rounded-lg bg-warning/5 px-3 py-2.5 text-center w-full">
+              <div className="text-[11px] font-bold text-warning uppercase tracking-wider mb-1">
                 {t("controlPlane")}
               </div>
               <div className="text-xs text-muted-foreground">{t("controlPlaneDesc")}</div>
-              <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
+              <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-warning/15 px-2.5 py-0.5 text-[10px] font-semibold text-warning">
                 🔒 gRPC + mTLS
               </div>
             </div>
-            <div className="h-6 w-px border-l-2 border-dashed border-amber-500/60" />
+            <div className="h-6 w-px border-l-2 border-dashed border-warning/60" />
           </div>
 
           <div className="flex flex-col items-center">
-            <div className="h-6 w-px border-l-2 border-dashed border-violet-500/60" />
-            <div className="border border-violet-500/40 rounded-lg bg-violet-500/5 px-3 py-2.5 text-center w-full">
-              <div className="text-[11px] font-bold text-violet-700 dark:text-violet-300 uppercase tracking-wider mb-1">
+            <div className="h-6 w-px border-l-2 border-dashed border-primary/60" />
+            <div className="border border-primary/40 rounded-lg bg-primary/5 px-3 py-2.5 text-center w-full">
+              <div className="text-[11px] font-bold text-primary uppercase tracking-wider mb-1">
                 {t("dataPlane")}
               </div>
               <div className="text-xs text-muted-foreground">{t("dataPlaneDesc")}</div>
-              <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-2.5 py-0.5 text-[10px] font-semibold text-violet-700 dark:text-violet-300">
+              <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-semibold text-primary">
                 ⚡ Relay {t("cluster")}
               </div>
             </div>
-            <div className="h-6 w-px border-l-2 border-dashed border-violet-500/60" />
+            <div className="h-6 w-px border-l-2 border-dashed border-primary/60" />
           </div>
         </div>
 
-        <div className="w-full border-2 border-sky-500/40 rounded-xl bg-sky-500/5 overflow-hidden">
-          <div className="bg-sky-500/10 px-4 py-1.5">
-            <span className="text-[11px] font-semibold text-sky-600 dark:text-sky-400 uppercase tracking-wider">
+        <div className="w-full border-2 border-info/40 rounded-xl bg-info/5 overflow-hidden">
+          <div className="bg-info/10 px-4 py-1.5">
+            <span className="text-[11px] font-semibold text-info uppercase tracking-wider">
               {t("runnerLayer")}
             </span>
           </div>
           <div className="p-4 pt-2">
             <div className="text-center mb-3">
-              <span className="text-sm font-semibold text-sky-700 dark:text-sky-300">
+              <span className="text-sm font-semibold text-info">
                 {t("selfHostedRunners")}
               </span>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -104,7 +104,7 @@ export default function ArchitectureDiagram() {
               ].map((r) => (
                 <div
                   key={r.label}
-                  className="bg-sky-500/10 rounded-md px-2 py-1.5 font-medium text-sky-700 dark:text-sky-300"
+                  className="bg-info/10 rounded-md px-2 py-1.5 font-medium text-info"
                 >
                   {r.icon} {r.label}
                 </div>
@@ -127,11 +127,11 @@ export default function ArchitectureDiagram() {
           subtitle={t("agentSubtitle")}
         />
 
-        <div className="mt-4 w-full border border-amber-500/30 rounded-lg bg-amber-500/5 px-4 py-3">
+        <div className="mt-4 w-full border border-warning/30 rounded-lg bg-warning/5 px-4 py-3">
           <div className="flex items-start gap-2">
             <span className="text-base mt-0.5">🔐</span>
             <div>
-              <div className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-1">
+              <div className="text-xs font-semibold text-warning mb-1">
                 {t("securityTitle")}
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -171,20 +171,20 @@ function LayerBox({
 }) {
   const colorMap = {
     blue: {
-      border: "border-blue-500/40",
-      bg: "bg-blue-500/5",
-      headerBg: "bg-blue-500/10",
-      tag: "text-blue-600 dark:text-blue-400",
-      itemBg: "bg-blue-500/10",
-      itemText: "text-blue-700 dark:text-blue-300",
+      border: "border-info/40",
+      bg: "bg-info/5",
+      headerBg: "bg-info/10",
+      tag: "text-info",
+      itemBg: "bg-info/10",
+      itemText: "text-info",
     },
     rose: {
-      border: "border-rose-500/40",
-      bg: "bg-rose-500/5",
-      headerBg: "bg-rose-500/10",
-      tag: "text-rose-600 dark:text-rose-400",
-      itemBg: "bg-rose-500/10",
-      itemText: "text-rose-700 dark:text-rose-300",
+      border: "border-danger/40",
+      bg: "bg-danger/5",
+      headerBg: "bg-danger/10",
+      tag: "text-danger",
+      itemBg: "bg-danger/10",
+      itemText: "text-danger",
     },
   };
   const c = colorMap[color];

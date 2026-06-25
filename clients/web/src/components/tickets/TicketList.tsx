@@ -12,19 +12,19 @@ interface TicketListProps {
 }
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-  backlog: { label: "Backlog", color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-100 dark:bg-gray-800" },
-  todo: { label: "To Do", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
-  in_progress: { label: "In Progress", color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-100 dark:bg-yellow-900/30" },
-  in_review: { label: "In Review", color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-900/30" },
-  done: { label: "Done", color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
+  backlog: { label: "Backlog", color: "text-muted-foreground", bg: "bg-muted" },
+  todo: { label: "To Do", color: "text-info", bg: "bg-info-bg" },
+  in_progress: { label: "In Progress", color: "text-warning", bg: "bg-warning-bg" },
+  in_review: { label: "In Review", color: "text-primary", bg: "bg-accent" },
+  done: { label: "Done", color: "text-success", bg: "bg-success-bg" },
 };
 
 const priorityConfig: Record<string, { icon: string; color: string; label: string }> = {
-  none: { icon: "—", color: "text-gray-400 dark:text-gray-500", label: "None" },
-  low: { icon: "↓", color: "text-green-500 dark:text-green-400", label: "Low" },
-  medium: { icon: "→", color: "text-yellow-500 dark:text-yellow-400", label: "Medium" },
-  high: { icon: "↑", color: "text-orange-500 dark:text-orange-400", label: "High" },
-  urgent: { icon: "⚡", color: "text-red-500 dark:text-red-400", label: "Urgent" },
+  none: { icon: "—", color: "text-muted-foreground", label: "None" },
+  low: { icon: "↓", color: "text-success", label: "Low" },
+  medium: { icon: "→", color: "text-warning", label: "Medium" },
+  high: { icon: "↑", color: "text-primary", label: "High" },
+  urgent: { icon: "⚡", color: "text-danger", label: "Urgent" },
 };
 
 export function TicketList({ tickets, loading, onTicketClick }: TicketListProps) {
@@ -71,7 +71,7 @@ export function TicketList({ tickets, loading, onTicketClick }: TicketListProps)
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="border-b text-left text-sm text-muted-foreground">
+          <tr className="text-left text-sm text-muted-foreground">
             <th className="pb-3 font-medium">{t("tickets.list.ticket")}</th>
             <th className="pb-3 font-medium">{t("tickets.filters.status")}</th>
             <th className="pb-3 font-medium">{t("tickets.filters.priority")}</th>
@@ -80,7 +80,7 @@ export function TicketList({ tickets, loading, onTicketClick }: TicketListProps)
             <th className="pb-3 font-medium">{t("tickets.list.updated")}</th>
           </tr>
         </thead>
-        <tbody className="text-sm">
+        <tbody className="text-sm space-y-1">
           {tickets.map((ticket) => {
             const statusStyle = statusConfig[ticket.status] || statusConfig.backlog;
             const priorityStyle = priorityConfig[ticket.priority] || priorityConfig.none;
@@ -88,10 +88,10 @@ export function TicketList({ tickets, loading, onTicketClick }: TicketListProps)
             return (
               <tr
                 key={ticket.id}
-                className="border-b hover:bg-muted/50 cursor-pointer transition-colors"
+                className="motion-interactive hover:bg-surface-muted rounded-lg cursor-pointer"
                 onClick={() => onTicketClick?.(ticket)}
               >
-                <td className="py-3">
+                <td className="py-2.5 px-2 first:rounded-l-lg last:rounded-r-lg">
                   <div className="flex items-center gap-3">
                     <div>
                       <div className="flex items-center gap-2">
@@ -178,7 +178,7 @@ export function TicketList({ tickets, loading, onTicketClick }: TicketListProps)
                       className={
                         new Date(ticket.due_date) < new Date() &&
                         ticket.status !== "done"
-                          ? "text-red-600 dark:text-red-400"
+                          ? "text-danger"
                           : "text-muted-foreground"
                       }
                     >

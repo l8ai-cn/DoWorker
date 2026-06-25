@@ -103,10 +103,10 @@ function ConnectionDot({ podKey }: { podKey: string }) {
 
   const statusClass = (() => {
     switch (status) {
-      case "connected": return "bg-green-500";
-      case "connecting": return "bg-yellow-500 animate-pulse";
-      case "error": return "bg-red-500";
-      default: return "bg-gray-500";
+      case "connected": return "bg-success";
+      case "connecting": return "bg-warning animate-pulse";
+      case "error": return "bg-danger";
+      default: return "bg-muted-foreground";
     }
   })();
 

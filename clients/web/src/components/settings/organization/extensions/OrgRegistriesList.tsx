@@ -28,7 +28,7 @@ export function OrgRegistriesList({
   getSyncStatusVariant,
 }: OrgRegistriesListProps) {
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">{t("extensions.skillRegistries.orgSources")}</h2>
@@ -55,7 +55,7 @@ export function OrgRegistriesList({
           {registries.map((registry) => (
             <div
               key={registry.id}
-              className="border border-border rounded-lg p-4 flex items-center justify-between gap-4"
+              className="surface-card p-4 flex items-center justify-between gap-4"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">

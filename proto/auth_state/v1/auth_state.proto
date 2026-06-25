@@ -1,8 +1,8 @@
-// proto.auth_state.v1 — desktop NAPI auth state mutation contract.
+// proto.auth_state.v1 — client-side auth state mutation contract.
 //
 // SRP-shaped messages for the Rust AuthManager surface exposed across the
-// NAPI boundary. Where the wire (proto.auth.v1) already describes the
-// response shape (LoginResponse, RefreshTokenResponse, User), the NAPI
+// wasm boundary. Where the wire (proto.auth.v1) already describes the
+// response shape (LoginResponse, RefreshTokenResponse, User), the wasm
 // layer reuses those messages directly — only state-only semantics that
 // have no wire equivalent live here.
 //

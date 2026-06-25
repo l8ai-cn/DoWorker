@@ -44,12 +44,9 @@ func newTestAuthService(t *testing.T) (*Service, *userService.Service) {
 }
 
 // createTestUser registers a user through the user service for auth tests.
-func createTestUser(t *testing.T, userSvc *userService.Service, email, password string) {
+func createTestUser(t *testing.T, userSvc *userService.Service, email, password string) string {
 	t.Helper()
 	ctx := context.Background()
-	// Sanitize email local-part to a slugkit-compliant username (Phase 2
-	// adds GORM BeforeSave hook that rejects raw email-as-username and
-	// usernames shorter than slugkit.MinLen).
 	local := strings.SplitN(email, "@", 2)[0]
 	username := slugkit.Sanitize(local)
 	if len(username) < slugkit.MinLen {
@@ -62,15 +59,16 @@ func createTestUser(t *testing.T, userSvc *userService.Service, email, password 
 		Password: password,
 	})
 	require.NoError(t, err)
+	return username
 }
 
 func TestAuth_LoginSuccess(t *testing.T) {
 	authSvc, userSvc := newTestAuthService(t)
 	ctx := context.Background()
 
-	createTestUser(t, userSvc, "alice@example.com", "correctpassword")
+	username := createTestUser(t, userSvc, "alice@example.com", "correctpassword")
 
-	result, err := authSvc.Login(ctx, "alice@example.com", "correctpassword")
+	result, err := authSvc.Login(ctx, username, "correctpassword")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 
@@ -84,9 +82,9 @@ func TestAuth_LoginInvalidPassword(t *testing.T) {
 	authSvc, userSvc := newTestAuthService(t)
 	ctx := context.Background()
 
-	createTestUser(t, userSvc, "bob@example.com", "realpassword")
+	username := createTestUser(t, userSvc, "bob@example.com", "realpassword")
 
-	result, err := authSvc.Login(ctx, "bob@example.com", "wrongpassword")
+	result, err := authSvc.Login(ctx, username, "wrongpassword")
 	assert.Nil(t, result)
 	assert.ErrorIs(t, err, ErrInvalidCredentials)
 }
@@ -95,7 +93,7 @@ func TestAuth_LoginNonexistentUser(t *testing.T) {
 	authSvc, _ := newTestAuthService(t)
 	ctx := context.Background()
 
-	result, err := authSvc.Login(ctx, "ghost@example.com", "whatever")
+	result, err := authSvc.Login(ctx, "ghost", "whatever")
 	assert.Nil(t, result)
 	assert.ErrorIs(t, err, ErrInvalidCredentials)
 }

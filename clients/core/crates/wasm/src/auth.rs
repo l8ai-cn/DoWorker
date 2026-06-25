@@ -84,8 +84,8 @@ impl WasmAuthManager {
     #[wasm_bindgen(getter)]
     pub fn base_url(&self) -> String { self.base_url.clone() }
 
-    pub async fn login(&self, email: String, password: String) -> Result<String, String> {
-        let session = self.manager.login(&email, &password).await.map_err(agentsmesh_services::wire)?;
+    pub async fn login(&self, username: String, password: String) -> Result<String, String> {
+        let session = self.manager.login(&username, &password).await.map_err(agentsmesh_services::wire)?;
         serde_json::to_string(&session).map_err(agentsmesh_services::wire)
     }
 

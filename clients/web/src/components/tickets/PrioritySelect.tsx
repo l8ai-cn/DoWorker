@@ -35,31 +35,31 @@ const priorityConfig: Record<TicketPriority, {
 }> = {
   none: {
     icon: Minus,
-    color: "text-gray-400 dark:text-gray-500",
+    color: "text-muted-foreground",
     label: "No Priority",
     shortLabel: "None",
   },
   low: {
     icon: ChevronDownIcon,
-    color: "text-green-500 dark:text-green-400",
+    color: "text-success",
     label: "Low Priority",
     shortLabel: "Low",
   },
   medium: {
     icon: Minus,
-    color: "text-yellow-500 dark:text-yellow-400",
+    color: "text-warning",
     label: "Medium Priority",
     shortLabel: "Medium",
   },
   high: {
     icon: ChevronUp,
-    color: "text-orange-500 dark:text-orange-400",
+    color: "text-primary",
     label: "High Priority",
     shortLabel: "High",
   },
   urgent: {
     icon: AlertTriangle,
-    color: "text-red-500 dark:text-red-400",
+    color: "text-danger",
     label: "Urgent",
     shortLabel: "Urgent",
   },

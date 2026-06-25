@@ -49,7 +49,7 @@ test.describe("Password Reset Flow", () => {
 
     // Verify login with new password works
     const loginRes = await cc.auth.login({
-      email,
+      username: "pwresete2e",
       password: "NewTestPass456!",
     }) as { token: string };
     expect(loginRes.token).toBeTruthy();

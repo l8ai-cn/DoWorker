@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Block Store Phase 1 smoke test.
 # Requires the deploy/dev stack to be running (see deploy/dev/dev.sh) and
-# the dev test user "dev@agentsmesh.local / devpass123" to exist.
+# the dev test user "devuser / devpass123" to exist.
 #
 # Exits 0 on success, non-zero on any HTTP error.
 
 set -euo pipefail
 
 API="${API:-http://localhost:80}"
-EMAIL="${EMAIL:-dev@agentsmesh.local}"
+USERNAME="${USERNAME:-devuser}"
 PASSWORD="${PASSWORD:-devpass123}"
 ORG_SLUG="${ORG_SLUG:-dev-org}"
 
@@ -24,7 +24,7 @@ log "1. Logging in as $EMAIL..."
 TOKEN=$(
   curl -sS -X POST "$API/api/v1/auth/login" \
     -H 'content-type: application/json' \
-    -d "{\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}" \
+    -d "{\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\"}" \
     | jq -er '.token'
 )
 

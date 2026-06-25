@@ -41,7 +41,7 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
           </Link>
         </div>
 
-        <div className="azure-glass rounded-3xl border border-white/10 azure-glow-cyan-lg p-8 sm:p-10">
+        <div className="azure-glass rounded-3xl ring-1 ring-border/20 azure-glow-cyan-lg p-8 sm:p-10">
           <div className="text-center mb-8">
             <h1 className="font-headline text-3xl font-bold text-foreground mb-2">{title}</h1>
             <p className="text-sm text-[var(--azure-text-muted)]">{subtitle}</p>

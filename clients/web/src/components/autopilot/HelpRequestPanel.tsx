@@ -73,19 +73,19 @@ export function HelpRequestPanel({
   };
 
   return (
-    <div className={cn("rounded-lg border border-orange-500/50 bg-orange-500/5 p-4 shadow-sm", className)}>
+    <div className={cn("rounded-lg border border-warning/50 bg-warning-bg p-4 shadow-sm", className)}>
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-500/20">
-          <AlertTriangle className="h-4 w-4 text-orange-500" />
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-warning/20">
+          <AlertTriangle className="h-4 w-4 text-warning" />
         </div>
         <div>
-          <h3 className="font-semibold text-sm text-orange-500">Help Requested</h3>
+          <h3 className="font-semibold text-sm text-warning">Help Requested</h3>
           <p className="text-xs text-muted-foreground">
             Control Agent needs human intervention
           </p>
         </div>
-        <Badge variant="outline" className="ml-auto bg-orange-500 text-white">
+        <Badge variant="outline" className="ml-auto bg-warning text-white">
           Iteration #{thinking.iteration}
         </Badge>
       </div>
@@ -117,8 +117,8 @@ export function HelpRequestPanel({
             <Terminal className="h-3 w-3" />
             <span>Terminal Output</span>
           </div>
-          <div className="rounded bg-zinc-900 p-3 overflow-x-auto">
-            <pre className="text-xs text-zinc-100 font-mono whitespace-pre-wrap break-all">
+          <div className="rounded bg-muted p-3 overflow-x-auto">
+            <pre className="text-xs text-foreground font-mono whitespace-pre-wrap break-all">
               {helpRequest.terminal_excerpt}
             </pre>
           </div>
@@ -127,7 +127,7 @@ export function HelpRequestPanel({
 
       {/* Suggestions */}
       {helpRequest.suggestions && helpRequest.suggestions.length > 0 && (
-        <div className="border-t border-orange-500/20 pt-3">
+        <div className="border-t border-warning/20 pt-3">
           <div className="text-xs text-muted-foreground mb-2">Suggested Actions</div>
           <div className="flex flex-wrap gap-2">
             {helpRequest.suggestions.map((suggestion, index) => (
@@ -137,8 +137,8 @@ export function HelpRequestPanel({
                 variant={suggestion.action === "approve" ? "default" : "outline"}
                 onClick={() => handleSuggestionClick(suggestion)}
                 className={cn(
-                  suggestion.action === "approve" && "bg-green-600 hover:bg-green-700",
-                  suggestion.action === "stop" && "text-red-500 border-red-500/50 hover:bg-red-500/10"
+                  suggestion.action === "approve" && "bg-success hover:bg-success/90",
+                  suggestion.action === "stop" && "text-danger border-danger/50 hover:bg-danger/10"
                 )}
               >
                 {suggestion.action === "approve" && <CheckCircle className="h-3 w-3 mr-1" />}
@@ -152,13 +152,13 @@ export function HelpRequestPanel({
 
       {/* Default Actions (if no suggestions provided) */}
       {(!helpRequest.suggestions || helpRequest.suggestions.length === 0) && (
-        <div className="border-t border-orange-500/20 pt-3">
+        <div className="border-t border-warning/20 pt-3">
           <div className="text-xs text-muted-foreground mb-2">Actions</div>
           <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
               variant="default"
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-success hover:bg-success/90"
               onClick={() => handleSuggestionClick({ action: "approve", label: "Continue" })}
             >
               <CheckCircle className="h-3 w-3 mr-1" />
@@ -174,7 +174,7 @@ export function HelpRequestPanel({
             <Button
               size="sm"
               variant="outline"
-              className="text-red-500 border-red-500/50 hover:bg-red-500/10"
+              className="text-danger border-danger/50 hover:bg-danger/10"
               onClick={() => handleSuggestionClick({ action: "stop", label: "Stop" })}
             >
               <XCircle className="h-3 w-3 mr-1" />

@@ -25,13 +25,12 @@ import {
   UpdateTicketStatusRequestSchema,
 } from "@proto/ticket/v1/ticket_pb";
 import { create, toBinary, fromBinary } from "@bufbuild/protobuf";
-// Shared proto→TicketData projection — single SSOT, also consumed by the
-// desktop electron-adapter. Aliased to the historical fromProto* names and
-// re-exported for cross-file use by ticketLabelConnect.
+// Shared proto->TicketData projection. Aliased to the historical fromProto*
+// names and re-exported for cross-file use by ticketLabelConnect.
 import {
   ticketToCache as fromProtoTicket,
   labelToCache as fromProtoLabel,
-} from "@agentsmesh/electron-adapter/projections";
+} from "@/lib/api/projections";
 import { getTicketService } from "@/lib/wasm-core";
 import type { BoardColumn, TicketData } from "@/lib/viewModels/ticket";
 
@@ -230,8 +229,7 @@ export async function getBoard(
   const respBytes = await getTicketService().get_board_connect(bytes);
   const resp = fromBinary(BoardSchema, new Uint8Array(respBytes));
   // Web facade shape: BoardColumn with `count` (KanbanColumn falls back to
-  // tickets.length; totalCount reduce + initPag read this `count`). The desktop
-  // board_columns_json mirrors wasm's `total_count` instead — kept separate.
+  // tickets.length; totalCount reduce + initPag read this `count`).
   return resp.columns.map((c) => ({
     status: c.status,
     count: Number(c.totalCount),

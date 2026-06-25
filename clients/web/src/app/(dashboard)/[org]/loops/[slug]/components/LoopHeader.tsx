@@ -57,10 +57,10 @@ export function LoopHeader({
   const nextRun = formatNextRun(loop.next_run_at);
 
   return (
-    <header className="mb-6 border-b border-border pb-5">
+    <header className="mb-6 pb-5">
       {onBack && (
         <button
-          className="mb-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          className="motion-interactive mb-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
           onClick={onBack}
         >
           <ArrowLeft className="h-3.5 w-3.5" />

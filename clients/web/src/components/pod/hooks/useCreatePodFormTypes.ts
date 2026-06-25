@@ -1,6 +1,7 @@
 import { PodData } from "@/lib/api";
 import type { PodMode } from "@/lib/pod-modes";
 import type { EnvBundleSummary } from "@/lib/viewModels/envBundleSummary";
+import type { InstalledSkill } from "@/lib/viewModels/extension";
 
 /**
  * Validation errors for the form
@@ -26,6 +27,7 @@ export interface CreatePodFormState {
   // line, so runtime preferences (model, log level, proxy) can override
   // credential defaults when keys conflict.
   selectedRuntimeBundleNames: string[];
+  selectedSkillSlugs: string[];
   interactionMode: PodMode;
   prompt: string;
   alias: string;
@@ -34,6 +36,8 @@ export interface CreatePodFormState {
   // EnvBundles (credential + runtime kinds) available for the selected agent
   envBundles: EnvBundleSummary[];
   loadingBundles: boolean;
+  repoSkills: InstalledSkill[];
+  loadingSkills: boolean;
 
   // Actions
   setSelectedAgent: (slug: string | null) => void;
@@ -41,6 +45,7 @@ export interface CreatePodFormState {
   setSelectedBranch: (branch: string) => void;
   setSelectedCredentialName: (name: string) => void;
   setSelectedRuntimeBundleNames: (names: string[]) => void;
+  setSelectedSkillSlugs: (slugs: string[]) => void;
   setInteractionMode: (mode: PodMode) => void;
   setPrompt: (prompt: string) => void;
   setAlias: (alias: string) => void;

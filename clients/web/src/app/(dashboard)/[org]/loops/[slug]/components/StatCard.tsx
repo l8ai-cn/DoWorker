@@ -18,7 +18,7 @@ export function StatCard({
   note,
 }: StatCardProps) {
   return (
-    <div className="border rounded-xl p-4 bg-card">
+    <div className="surface-card p-4">
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
         <Icon className={cn("w-3.5 h-3.5", iconColor)} />
         {label}

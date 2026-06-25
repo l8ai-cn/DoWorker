@@ -15,37 +15,9 @@ Design-as-code using [`pastel`](https://github.com/sharkdp/pastel). Source `.pas
 
 ```
 design/
-├── desktop/              # Web/Electron 形态（1920×1080，三栏 ActivityBar + Sidebar + Main）
-│   ├── tokens/           # → 见根目录共享 tokens/
-│   ├── components/       # base components: button, card, empty-state, breadcrumb, page-header
-│   ├── layouts/          # shell, page skeletons (Phase 0.2)
-│   ├── pages/            # full-page mockups (Phase 0.2)
-│   ├── states/           # loading / empty / error variants (Phase 0.3)
-│   ├── flows/            # multi-step flows
-│   ├── ia/               # information architecture
-│   └── overview.pastel
-├── mobile/               # iOS 形态（393×852，TabBar + NavigationStack）
-│   ├── ia/
-│   │   └── ios-sitemap.pastel    # 5-tab IA + per-tab Stack + cuts
-│   └── pages/                    # iOS pages — read-leaning, modal/sheet-heavy
-│       ├── ios-shell-tabbar.pastel       # container template
-│       ├── ios-workspace-list.pastel     # Tab 1 root
-│       ├── ios-workspace-terminal.pastel # full-screen push
-│       ├── ios-create-pod-sheet.pastel   # bottom sheet
-│       ├── ios-channels-list.pastel      # Tab 2 root
-│       ├── ios-channel-detail.pastel     # push
-│       ├── ios-tickets-board.pastel      # Tab 3 root (List/Board segment)
-│       ├── ios-ticket-detail.pastel      # push + Spawn Pod CTA
-│       ├── ios-blocks-list.pastel        # Tab 4 root
-│       ├── ios-block-detail.pastel       # push (read-only)
-│       └── ios-more.pastel               # Tab 5 (Mesh/Loops/Settings/Support/Account)
 ├── tokens/               # 跨端共享：颜色/间距/圆角/字体/阴影
 └── out/                  # 渲染输出（git-ignored）
 ```
-
-iOS 信息架构总览 → `mobile/ia/ios-sitemap.pastel`。
-
-iOS 设计 system 文档 → [`mobile/README.md`](mobile/README.md)（tokens / components / pages 索引 + 设计原则）。
 
 ## Quick commands
 
@@ -56,22 +28,13 @@ pastel fmt    <file>            # format
 pastel serve  <file>            # live preview
 ```
 
-Batch render (output split by platform — `out/desktop/` vs `out/mobile/`):
+Batch render tokens:
 ```bash
-# Desktop pastel
-for f in design/desktop/{components,layouts,pages,states,flows,ia}/*.pastel; do
-  out="design/out/desktop/$(basename ${f%.pastel}).png"
+# Shared tokens
+for f in design/tokens/*.pastel; do
+  out="design/out/tokens/$(basename ${f%.pastel}).png"
   pastel build "$f" -o "$out"
 done
-
-# Mobile pastel
-for f in design/mobile/{ia,pages,components}/*.pastel; do
-  out="design/out/mobile/$(basename ${f%.pastel}).png"
-  pastel build "$f" -o "$out"
-done
-
-# Shared tokens preview
-pastel build design/desktop/pages/tokens-preview.pastel -o design/out/desktop/tokens.png
 ```
 
 ## Tokens reference

@@ -25,7 +25,7 @@ export function PlansDialog({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-background border border-border rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-background surface-card p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold">{t("settings.billingPage.plansDialog.title")}</h3>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
@@ -60,19 +60,19 @@ export function PlansDialog({
 
                   <ul className="space-y-2 mb-6 text-sm">
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500 dark:text-green-400">✓</span>
+                      <span className="text-success">✓</span>
                       {formatLimit(plan.included_pod_minutes)} {t("settings.billingPage.plansDialog.podMinutes")}
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500 dark:text-green-400">✓</span>
+                      <span className="text-success">✓</span>
                       {formatLimit(plan.max_users)} {t("settings.billingPage.plansDialog.teamMembers")}
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500 dark:text-green-400">✓</span>
+                      <span className="text-success">✓</span>
                       {formatLimit(plan.max_runners)} {t("settings.billingPage.plansDialog.runners")}
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500 dark:text-green-400">✓</span>
+                      <span className="text-success">✓</span>
                       {formatLimit(plan.max_repositories)} {t("settings.billingPage.plansDialog.repositories")}
                     </li>
                   </ul>

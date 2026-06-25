@@ -10,7 +10,7 @@ which mock one side of the link.
 
 - **In scope**: every MCP tool exposed by `runner/internal/mcp/registerTools()`
 - **Out of scope**: real LLM behaviour (we use the `e2e-echo` stub agent),
-  mTLS PKI, web/iOS/desktop UI
+  mTLS PKI, web/desktop UI
 
 ## Local run
 

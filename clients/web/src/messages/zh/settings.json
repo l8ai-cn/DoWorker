@@ -321,6 +321,30 @@
         "failedToSetDefault": "设置默认失败",
         "failedToDelete": "删除失败"
       },
+      "configFiles": {
+        "title": "配置文件（JSON）",
+        "description": "管理 {files} 等 JSON 配置文件模版。创建 Pod 时通过 USE_CONFIG_BUNDLE 注入并写入沙箱。",
+        "empty": "暂无配置文件模版。",
+        "noJson": "未设置 JSON 内容",
+        "add": "添加",
+        "addTitle": "添加配置文件模版",
+        "editTitle": "编辑配置文件模版",
+        "formDescription": "保存完整 JSON 文档。Pod 创建时选中该模版会写入 agent 配置路径。",
+        "formDescriptionWithPath": "JSON 将写入：{path}",
+        "name": "名称",
+        "namePlaceholder": "如 production-settings / deepseek-profile",
+        "descriptionLabel": "描述",
+        "jsonTitle": "JSON 内容",
+        "clearDefault": "取消默认",
+        "confirmDelete": "确定要删除该配置文件模版吗？",
+        "created": "配置文件模版已创建",
+        "updated": "配置文件模版已更新",
+        "deleted": "配置文件模版已删除",
+        "defaultSet": "默认模版已更新",
+        "saveFailed": "保存失败",
+        "failedToSetDefault": "设置默认失败",
+        "failedToDelete": "删除失败"
+      },
       "fields": {
         "model": {
           "label": "模型",
@@ -462,6 +486,9 @@
         "apiKey": "Cursor API Key",
         "apiKeyHint": "可选。留空则使用 `cursor-agent login`（OAuth）；填写用于无头 / 密钥认证。",
         "customEnvHint": "添加 cursor-agent 运行所需的任意环境变量"
+      },
+      "doAgent": {
+        "customEnvHint": "其他 Provider 密钥或覆盖项，如 DEEPSEEK_API_KEY、DO_AGENT_PROFILE、OPENAI_BASE_URL"
       }
     },
     "sshKeys": {

@@ -18,6 +18,5 @@ ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
 onlyBuiltDependencies:
-  - electron
   - esbuild
   - "@parcel/watcher"

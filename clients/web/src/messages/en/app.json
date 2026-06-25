@@ -312,17 +312,20 @@
       "explain": {
         "title": "Explain this codebase",
         "description": "Claude Code walks through your repo and summarizes architecture.",
-        "duration": "2 min"
+        "duration": "2 min",
+        "prompt": "Walk through this codebase and summarize the overall architecture, the core modules and how they relate, and point out the key entry-point files worth reading first."
       },
       "tests": {
         "title": "Run your tests",
         "description": "Claude Code executes the test suite and reports failures.",
-        "duration": "3 min"
+        "duration": "3 min",
+        "prompt": "Run the project's test suite, summarize which tests pass and fail, and for each failure explain the likely cause and suggest a fix."
       },
       "bug": {
         "title": "Fix an open bug",
         "description": "Pick a ticket, spawn a Pod. Agent reads context and proposes a fix.",
-        "duration": "8 min"
+        "duration": "8 min",
+        "prompt": "Find and fix an open bug: reproduce it first, give a root-cause analysis, then implement the fix and verify it works."
       }
     },
     "banner": {
@@ -582,5 +585,17 @@
       "goalPause": "Pause the goal", "goalResume": "Resume the goal", "goalComplete": "Mark the goal complete", "goalReopen": "Reopen the goal", "goalClear": "Clear the goal"
     },
     "topology": { "sheetTitle": "Agent Topology", "root": "root" }
+  },
+  "doagent": {
+    "title": "DoAgent",
+    "openWorkspace": "Workspace",
+    "goal": {
+      "label": "Goal",
+      "none": "No active goal",
+      "unknown": "unknown",
+      "pause": "Pause",
+      "resume": "Resume",
+      "refresh": "Refresh"
+    }
   }
 }

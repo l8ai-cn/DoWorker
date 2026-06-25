@@ -74,9 +74,9 @@ function PodNode({ data }: PodNodeProps) {
           </code>
           <span
             className={`w-2.5 h-2.5 rounded-full shrink-0 ${statusInfo.bgColor.replace("bg-", "bg-").replace("/30", "")} ${
-              node.status === "running" ? "bg-green-500" :
-              node.status === "initializing" ? "bg-blue-500" :
-              node.status === "failed" ? "bg-red-500" : "bg-gray-400"
+              node.status === "running" ? "bg-success" :
+              node.status === "initializing" ? "bg-info" :
+              node.status === "failed" ? "bg-danger" : "bg-muted-foreground"
             }`}
             title={statusInfo.label}
           />

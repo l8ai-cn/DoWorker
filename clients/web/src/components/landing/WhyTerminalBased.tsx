@@ -61,7 +61,7 @@ export function WhyTerminalBased() {
           {benefits.map((benefit, index) => (
             <div
               key={index}
-              className="p-6 bg-secondary/20 rounded-xl border border-border hover:border-primary/50 transition-all duration-300 hover:-translate-y-1"
+              className="surface-card-interactive p-6 motion-interactive"
             >
               <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4">
                 {benefit.icon}
@@ -73,8 +73,8 @@ export function WhyTerminalBased() {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <div className="grid grid-cols-3 bg-muted border-b border-border">
+          <div className="surface-card rounded-xl overflow-hidden">
+            <div className="grid grid-cols-3 bg-surface-muted/50 panel-lift">
               <div className="p-4 font-semibold text-sm"></div>
               <div className="p-4 font-semibold text-sm text-center text-muted-foreground">
                 {t("landing.whyTerminal.comparison.idePlugins")}
@@ -89,21 +89,21 @@ export function WhyTerminalBased() {
             {comparisonData.map((row, index) => (
               <div
                 key={index}
-                className={`grid grid-cols-3 border-b border-border last:border-b-0 ${
+                className={`grid grid-cols-3 border-b border-border/20 last:border-b-0 ${
                   index % 2 === 0 ? "bg-transparent" : "bg-secondary/10"
                 }`}
               >
                 <div className="p-4 font-medium text-sm">{row.feature}</div>
                 <div className="p-4 text-sm text-center text-muted-foreground">
                   <span className="inline-flex items-center gap-1">
-                    <svg className="w-4 h-4 text-red-500 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     {row.ide}
                   </span>
                 </div>
                 <div className="p-4 text-sm text-center">
-                  <span className="inline-flex items-center gap-1 text-green-500 dark:text-green-400">
+                  <span className="inline-flex items-center gap-1 text-success">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>

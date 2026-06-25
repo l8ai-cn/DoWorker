@@ -7,7 +7,7 @@ export function LanguageSettings() {
   const t = useTranslations();
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <h2 className="text-lg font-semibold mb-4">{t("settings.language.title")}</h2>
       <p className="text-sm text-muted-foreground mb-4">
         {t("settings.language.description")}

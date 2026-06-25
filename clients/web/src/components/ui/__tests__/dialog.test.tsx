@@ -134,7 +134,7 @@ describe("DialogContent", () => {
       </Dialog>
     );
 
-    const content = screen.getByText("Content").closest(".bg-background")!;
+    const content = screen.getByText("Content").closest(".bg-surface-raised")!;
     expect(content.className).toContain("max-w-sm");
   });
 });

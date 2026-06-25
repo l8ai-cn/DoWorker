@@ -32,7 +32,7 @@ export function WebhookManualSetup({
   t,
 }: WebhookManualSetupProps) {
   return (
-    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-4">
+    <div className="surface-card bg-warning-bg p-4 mb-4">
       <p className="text-sm mb-3">
         {t("repositories.webhook.manualSetupInstructions")}
       </p>
@@ -54,7 +54,7 @@ export function WebhookManualSetup({
                 onClick={() => onCopy(secretInfo.url, "url")}
               >
                 {copied === "url" ? (
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <CheckCircle className="w-4 h-4 text-success" />
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
@@ -77,7 +77,7 @@ export function WebhookManualSetup({
                 onClick={() => onCopy(secretInfo.secret, "secret")}
               >
                 {copied === "secret" ? (
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <CheckCircle className="w-4 h-4 text-success" />
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}

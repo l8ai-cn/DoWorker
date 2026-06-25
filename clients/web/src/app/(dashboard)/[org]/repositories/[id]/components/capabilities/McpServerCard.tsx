@@ -36,7 +36,7 @@ export function McpServerCard({ mcpServer, canManage, onToggle, onDelete, onEdit
     Object.keys(mcpServer.env_vars || {}).length > 0;
 
   return (
-    <div className="border border-border rounded-lg p-4 flex items-center justify-between gap-4">
+    <div className="surface-card p-4 flex items-center justify-between gap-4">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           <span className="font-medium truncate">{mcpServer.name || mcpServer.slug}</span>

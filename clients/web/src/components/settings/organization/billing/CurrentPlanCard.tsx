@@ -33,25 +33,25 @@ export function CurrentPlanCard({
   const isInactive = isFrozen || isCanceled;
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <h2 className="text-lg font-semibold mb-4">{t("settings.billingPage.currentPlan")}</h2>
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
             <h3 className="text-2xl font-bold">{plan?.display_name || plan?.name || t("settings.billingPage.plansDialog.free")}</h3>
             <span className={`text-xs px-2 py-0.5 rounded ${
-              status === "active" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" :
-              status === "past_due" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400" :
-              status === "frozen" ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" :
-              status === "canceled" ? "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400" :
-              "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+              status === "active" ? "bg-success-bg text-success" :
+              status === "past_due" ? "bg-warning-bg text-warning" :
+              status === "frozen" ? "bg-info-bg text-info" :
+              status === "canceled" ? "bg-muted text-muted-foreground" :
+              "bg-danger-bg text-danger"
             }`}>
               {status === "frozen" ? t("settings.billingPage.frozen") :
                status === "canceled" ? t("settings.billingPage.canceled") :
                status.charAt(0).toUpperCase() + status.slice(1)}
             </span>
             {cancelAtPeriodEnd && !isInactive && (
-              <span className="text-xs px-2 py-0.5 rounded bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
+              <span className="text-xs px-2 py-0.5 rounded bg-warning-bg text-warning">
                 {t("settings.billingPage.cancellingAtPeriodEnd")}
               </span>
             )}
@@ -74,12 +74,12 @@ export function CurrentPlanCard({
             </p>
           )}
           {isFrozen && (
-            <p className="text-sm text-orange-600 dark:text-orange-400 mt-2">
+            <p className="text-sm text-info mt-2">
               {t("settings.billingPage.frozenMessage")}
             </p>
           )}
           {isCanceled && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               {t("settings.billingPage.canceledMessage")}
             </p>
           )}

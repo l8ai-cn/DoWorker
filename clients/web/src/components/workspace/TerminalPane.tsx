@@ -91,9 +91,11 @@ export function TerminalPane({
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-terminal-bg rounded-lg overflow-hidden border",
-        isActive ? "border-primary" : "border-border",
-        isMaximized && "fixed inset-4 z-50",
+        "flex flex-col h-full bg-terminal-bg rounded-lg overflow-hidden ring-1 transition-shadow",
+        isActive
+          ? "ring-primary/70 shadow-[0_0_0_1px_color-mix(in_srgb,var(--primary)_30%,transparent),0_18px_48px_rgba(0,0,0,0.28)]"
+          : "ring-terminal-border/70",
+        isMaximized && "fixed inset-4 z-50 shadow-2xl",
         className
       )}
       onClick={handleFocus}
@@ -135,7 +137,7 @@ export function TerminalPane({
             {podStatus === "orphaned" && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-terminal-bg/80 backdrop-blur-sm">
                 <div className="text-center p-4">
-                  <RefreshCw className="w-8 h-8 text-amber-500 dark:text-amber-400 mx-auto mb-2 animate-spin" />
+                  <RefreshCw className="w-8 h-8 text-warning mx-auto mb-2 animate-spin" />
                   <p className="text-terminal-text font-medium text-sm">
                     Runner is restarting...
                   </p>

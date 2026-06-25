@@ -1,0 +1,42 @@
+{
+  "automation": {
+    "title": "Automation",
+    "subtitle": "Scan external task sources and dispatch agents automatically.",
+    "newProject": "New project",
+    "empty": {
+      "title": "No automation projects yet",
+      "description": "Create a project to scan a repository's issues and dispatch agents to claimed tasks."
+    },
+    "status": {
+      "enabled": "Active",
+      "paused": "Paused",
+      "pending": "Pending",
+      "running": "Running",
+      "succeeded": "Succeeded",
+      "failed": "Failed"
+    },
+    "actions": {
+      "runNow": "Run now",
+      "refresh": "Refresh",
+      "pause": "Pause",
+      "resume": "Resume",
+      "delete": "Delete"
+    },
+    "board": {
+      "empty": "No executions"
+    },
+    "create": {
+      "title": "New automation project",
+      "description": "Bind a repository and configure how tasks are claimed.",
+      "name": "Name",
+      "namePlaceholder": "e.g. Triage bot",
+      "repository": "Repository",
+      "repositoryPlaceholder": "Select a repository",
+      "labels": "Label filter",
+      "labelsPlaceholder": "comma,separated,labels",
+      "interval": "Scan interval (seconds)",
+      "cancel": "Cancel",
+      "submit": "Create"
+    }
+  }
+}

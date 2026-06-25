@@ -79,7 +79,10 @@ message SSODiscoverConfig {
 // ---- Discover ----
 
 message DiscoverRequest {
+  // Email domain for SSO lookup. Optional when username is set.
   string email = 1;
+  // Resolve the user's email domain for SSO discovery without an email login field.
+  string username = 2;
 }
 
 message DiscoverResponse {

@@ -74,7 +74,6 @@ func setupRelayTokenRefreshCallback(
 			data.PodKey,
 			data.RelayUrl,
 			newToken,
-			"",   // localToken: cloud-relay refresh doesn't touch local relay
 			true, // include snapshot (runner will resend after reconnect)
 			1000, // snapshot history lines
 		); err != nil {

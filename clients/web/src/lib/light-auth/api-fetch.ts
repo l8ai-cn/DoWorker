@@ -112,8 +112,13 @@ export async function lightConnect<TReq, TResp = unknown>(
   });
 
   if (!resp.ok) {
+    const text = await resp.text();
     let payload: ConnectErrorPayload | null = null;
-    try { payload = (await resp.json()) as ConnectErrorPayload; } catch { /* ignore */ }
+    try {
+      payload = JSON.parse(text) as ConnectErrorPayload;
+    } catch {
+      payload = { message: text.trim().slice(0, 200) || resp.statusText };
+    }
     const code = payload?.code ? String(payload.code).toUpperCase() : undefined;
     const message = payload?.message ?? resp.statusText;
     // Mirror REST error shape so ApiError.serverMessage / hasCode keep

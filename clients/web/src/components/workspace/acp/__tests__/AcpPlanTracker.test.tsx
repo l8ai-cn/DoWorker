@@ -58,10 +58,10 @@ describe("AcpPlanTracker", () => {
     render(<AcpPlanTracker podKey={POD} />);
 
     const done = screen.getByText("Done step").closest("span");
-    expect(done?.className).toContain("bg-green");
+    expect(done?.className).toContain("bg-success-bg");
 
     const active = screen.getByText("Active step").closest("span");
-    expect(active?.className).toContain("bg-blue");
+    expect(active?.className).toContain("bg-info-bg");
 
     const todo = screen.getByText("Todo step").closest("span");
     expect(todo?.className).toContain("bg-muted");

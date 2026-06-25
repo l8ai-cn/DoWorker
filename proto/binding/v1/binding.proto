@@ -17,8 +17,8 @@
 //     uses source_pod/target_pod naming, missing granted_scopes/pending_scopes
 //     split; fixed in this PR)
 //   - clients/web/src/lib/api/* (no UI call sites today — runner reaches the
-//     domain through MCP-over-gRPC; the REST surface exists for the Desktop
-//     node-bridge + Web wasm bridge that nothing currently invokes)
+//     domain through MCP-over-gRPC; the REST surface exists for the Web wasm
+//     bridge that nothing currently invokes)
 //
 // Auth model (DEVIATION from runbook §3.5):
 //   The REST handler authenticates via the X-Pod-Key header instead of

@@ -61,7 +61,7 @@ export function EditRepositoryModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-background border border-border rounded-lg w-full max-w-md p-6">
+      <div className="bg-background surface-card w-full max-w-md p-6">
         <h2 className="text-xl font-semibold mb-4">{t("repositories.edit.title")}</h2>
 
         {error && (

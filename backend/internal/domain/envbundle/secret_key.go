@@ -15,9 +15,8 @@ package envbundle
 //
 // Default-deny by design: a key absent here is treated as secret, so a new
 // unrecognized key can never be surfaced in plaintext by mistake. Register a
-// new non-secret field by adding one line. The allowlist mirrors the `TEXT`
-// (vs `SECRET`) source declared per-field in the frontend credential form spec
-// / AgentFile `ENV` declarations.
+// new non-secret field by adding one line. Keys must match AgentFile ENV TEXT
+// declarations — see agentfile/schema for extraction SSOT.
 var nonSecretKeys = map[string]bool{
 	"ANTHROPIC_BASE_URL": true,
 }

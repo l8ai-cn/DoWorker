@@ -6,7 +6,7 @@ import { discover, ldapAuth } from "../connect/ssoConnect";
 export type { SSODiscoverConfig, LdapAuthResponse } from "../connect/ssoConnect";
 
 export const ssoApi = {
-  discover: async (email: string) => discover(email),
+  discover: async (identifier: string) => discover(identifier),
   ldapAuth: async (
     domain: string,
     data: { username: string; password: string },

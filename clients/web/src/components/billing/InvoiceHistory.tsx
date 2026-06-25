@@ -52,14 +52,14 @@ export function InvoiceHistory({ t }: InvoiceHistoryProps) {
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case "paid":
-        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
+        return "bg-success-bg text-success";
       case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
+        return "bg-warning-bg text-warning";
       case "failed":
       case "cancelled":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+        return "bg-danger-bg text-danger";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -72,7 +72,7 @@ export function InvoiceHistory({ t }: InvoiceHistoryProps) {
 
   if (error && invoices.length === 0) {
     return (
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <p className="text-destructive">{error}</p>
         <Button variant="outline" className="mt-4" onClick={() => loadInvoices(0)}>
           {t("billing.invoices.retry")}
@@ -82,7 +82,7 @@ export function InvoiceHistory({ t }: InvoiceHistoryProps) {
   }
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <h2 className="text-lg font-semibold mb-4">
         {t("billing.invoices.title")}
       </h2>

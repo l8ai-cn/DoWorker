@@ -251,7 +251,7 @@ impl BlockstoreService {
 
 // =============================================================================
 // Connect-RPC bridge methods. Binary in (prost-encoded), binary out — same wire
-// the wasm/node-bridge layers speak.
+// the wasm layers speak.
 // =============================================================================
 
 macro_rules! connect_bridge {

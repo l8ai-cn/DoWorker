@@ -2,6 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { DocNavigation } from "@/components/docs/DocNavigation";
+import { DocsTable } from "@/components/docs/DocsTable";
+import { buildDocsRows, twoColumnHeaders } from "@/components/docs/docs-table-helpers";
 
 export default function AgentPodPage() {
   const t = useTranslations();
@@ -18,7 +20,7 @@ export default function AgentPodPage() {
 
       {/* Overview */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.agentpod.overview.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -50,11 +52,11 @@ export default function AgentPodPage() {
 
       {/* Features */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.agentpod.keyFeatures.title")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.agentpod.keyFeatures.webTerminal")}
             </h3>
@@ -62,7 +64,7 @@ export default function AgentPodPage() {
               {t("docs.features.agentpod.keyFeatures.webTerminalDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.agentpod.keyFeatures.statusMonitoring")}
             </h3>
@@ -70,7 +72,7 @@ export default function AgentPodPage() {
               {t("docs.features.agentpod.keyFeatures.statusMonitoringDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.agentpod.keyFeatures.worktreeIsolation")}
             </h3>
@@ -78,7 +80,7 @@ export default function AgentPodPage() {
               {t("docs.features.agentpod.keyFeatures.worktreeIsolationDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.agentpod.keyFeatures.multiplePods")}
             </h3>
@@ -86,7 +88,7 @@ export default function AgentPodPage() {
               {t("docs.features.agentpod.keyFeatures.multiplePodsDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.agentpod.keyFeatures.ticketIntegration")}
             </h3>
@@ -94,7 +96,7 @@ export default function AgentPodPage() {
               {t("docs.features.agentpod.keyFeatures.ticketIntegrationDesc")}
             </p>
           </div>
-          <div className="border border-border rounded-lg p-4">
+          <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
               {t("docs.features.agentpod.keyFeatures.autoCleanup")}
             </h3>
@@ -107,7 +109,7 @@ export default function AgentPodPage() {
 
       {/* Pod Lifecycle */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.agentpod.lifecycle.title")}
         </h2>
         <div className="space-y-4">
@@ -120,7 +122,7 @@ export default function AgentPodPage() {
             </p>
           </div>
           <div className="flex items-start gap-4">
-            <div className="w-24 text-sm font-medium text-green-500 dark:text-green-400">
+            <div className="w-24 text-sm font-medium text-success">
               {t("docs.features.agentpod.lifecycle.running")}
             </div>
             <p className="text-muted-foreground">
@@ -128,7 +130,7 @@ export default function AgentPodPage() {
             </p>
           </div>
           <div className="flex items-start gap-4">
-            <div className="w-24 text-sm font-medium text-yellow-500 dark:text-yellow-400">
+            <div className="w-24 text-sm font-medium text-warning">
               {t("docs.features.agentpod.lifecycle.paused")}
             </div>
             <p className="text-muted-foreground">
@@ -136,7 +138,7 @@ export default function AgentPodPage() {
             </p>
           </div>
           <div className="flex items-start gap-4">
-            <div className="w-24 text-sm font-medium text-orange-500 dark:text-orange-400">
+            <div className="w-24 text-sm font-medium text-warning">
               {t("docs.features.agentpod.lifecycle.disconnected")}
             </div>
             <p className="text-muted-foreground">
@@ -152,7 +154,7 @@ export default function AgentPodPage() {
             </p>
           </div>
           <div className="flex items-start gap-4">
-            <div className="w-24 text-sm font-medium text-red-500 dark:text-red-400">
+            <div className="w-24 text-sm font-medium text-danger">
               {t("docs.features.agentpod.lifecycle.terminated")}
             </div>
             <p className="text-muted-foreground">
@@ -160,7 +162,7 @@ export default function AgentPodPage() {
             </p>
           </div>
           <div className="flex items-start gap-4">
-            <div className="w-24 text-sm font-medium text-purple-400">
+            <div className="w-24 text-sm font-medium text-primary">
               {t("docs.features.agentpod.lifecycle.orphaned")}
             </div>
             <p className="text-muted-foreground">
@@ -168,7 +170,7 @@ export default function AgentPodPage() {
             </p>
           </div>
           <div className="flex items-start gap-4">
-            <div className="w-24 text-sm font-medium text-red-500">
+            <div className="w-24 text-sm font-medium text-danger">
               {t("docs.features.agentpod.lifecycle.error")}
             </div>
             <p className="text-muted-foreground">
@@ -180,126 +182,37 @@ export default function AgentPodPage() {
 
       {/* Agent Status */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.agentpod.agentStatus.title")}
         </h2>
         <p className="text-muted-foreground mb-4">
           {t("docs.features.agentpod.agentStatus.description")}
         </p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-border rounded-lg">
-            <thead>
-              <tr className="bg-muted">
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.features.agentpod.agentStatus.statusHeader")}
-                </th>
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.features.agentpod.agentStatus.descriptionHeader")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-muted-foreground">
-              <tr>
-                <td className="p-3 border-b border-border font-medium">
-                  {t("docs.features.agentpod.agentStatus.idle")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.agentpod.agentStatus.idleDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-medium">
-                  {t("docs.features.agentpod.agentStatus.executing")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.agentpod.agentStatus.executingDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 font-medium">
-                  {t("docs.features.agentpod.agentStatus.waiting")}
-                </td>
-                <td className="p-3">
-                  {t("docs.features.agentpod.agentStatus.waitingDesc")}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <DocsTable
+          columns={twoColumnHeaders(t, "docs.features.agentpod.agentStatus", "statusHeader", "descriptionHeader")}
+          rows={buildDocsRows(t, "docs.features.agentpod.agentStatus", ["idle", "executing", "waiting"])}
+        />
       </section>
 
       {/* Configuration */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.features.agentpod.configuration.title")}
         </h2>
         <p className="text-muted-foreground mb-4">
           {t("docs.features.agentpod.configuration.description")}
         </p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-border rounded-lg">
-            <thead>
-              <tr className="bg-muted">
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.features.agentpod.configuration.optionHeader")}
-                </th>
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.features.agentpod.configuration.descriptionHeader")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-muted-foreground">
-              <tr>
-                <td className="p-3 border-b border-border font-medium">
-                  {t("docs.features.agentpod.configuration.agent")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.agentpod.configuration.agentDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-medium">
-                  {t("docs.features.agentpod.configuration.model")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.agentpod.configuration.modelDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-medium">
-                  {t("docs.features.agentpod.configuration.permissionMode")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.agentpod.configuration.permissionModeDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-medium">
-                  {t("docs.features.agentpod.configuration.repository")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.agentpod.configuration.repositoryDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-medium">
-                  {t("docs.features.agentpod.configuration.ticket")}
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.features.agentpod.configuration.ticketDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 font-medium">
-                  {t("docs.features.agentpod.configuration.prompt")}
-                </td>
-                <td className="p-3">
-                  {t("docs.features.agentpod.configuration.promptDesc")}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <DocsTable
+          columns={twoColumnHeaders(t, "docs.features.agentpod.configuration", "optionHeader", "descriptionHeader")}
+          rows={buildDocsRows(t, "docs.features.agentpod.configuration", [
+            "agent",
+            "model",
+            "permissionMode",
+            "repository",
+            "ticket",
+            "prompt",
+          ])}
+        />
       </section>
 
       <DocNavigation />

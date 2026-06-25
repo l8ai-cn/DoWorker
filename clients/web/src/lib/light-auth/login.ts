@@ -1,4 +1,4 @@
-// Email/password login via Connect-RPC JSON (proto.auth.v1.AuthService/Login).
+// Username/password login via Connect-RPC JSON (proto.auth.v1.AuthService/Login).
 // Persists the session blob so dashboard's wasm bootstrap can hydrate the rest
 // of the state on the next navigation. SSO-enforced domains surface as a
 // Connect `permission_denied` code with a message that contains "SSO" — login
@@ -8,7 +8,7 @@ import { lightConnect } from "./api-fetch";
 import { persistLoginResponse, type AuthLoginResponse } from "./persist";
 
 export interface LightLoginInput {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -40,7 +40,7 @@ export async function lightLogin(input: LightLoginInput): Promise<AuthLoginRespo
   const resp = await lightConnect<LightLoginInput, ConnectLoginResponse>(
     "proto.auth.v1.AuthService",
     "Login",
-    { email: input.email, password: input.password },
+    { username: input.username, password: input.password },
   );
   const adapted = toAuthLoginResponse(resp);
   persistLoginResponse(adapted);

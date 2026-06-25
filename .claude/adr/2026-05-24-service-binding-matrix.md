@@ -1,7 +1,7 @@
 # ADR 2026-05-24: Service Binding Matrix
 
 ## Status
-Accepted
+Accepted (amended 2026-06: `local_runner` service + desktop onboarding removed)
 
 ## Context
 
@@ -43,13 +43,12 @@ Rust core (`clients/core/crates/services/`) 提供 30+ services。三个 binding
 - **repository**: Rust core RepositoryService 是 thin proxy（没 state，没逻辑）。Desktop 通过 `connectCall` generic IPC proxy 直连 backend，wire 仍是 proto 契约。原本判断的「repository 缺 Node-bridge」是误判 — Phase 9 实施时发现加 napi binding 是形式对称无功能价值，已 revert。
 - **同类**: agent / extension / invitation / promocode 等 backend-CRUD 型 service 也属此类。这些 service 在三 binding 的「覆盖差异」不是 gap，是合理设计。
 
-### 3. Browser 合理缺失（4 services）
+### 3. Browser 合理缺失（3 services）
 | Service | 不在 WASM 的原因 |
 |---|---|
 | `grant` | 权限系统是 backend/native 责任，浏览器无入口 |
 | `notification` | 系统通知是 native API（NSUserNotification / Windows Toast），浏览器无对应 |
 | `token_usage` | analytics-only，浏览器侧由 backend 直接通过 events stream 推 |
-| `local_runner` | 本地 runner 守护管理，浏览器无文件系统 I/O |
 
 ### 3. iOS native 主线合理缺失（多 services）
 | Service | 不在 FFI 的原因 |
@@ -71,11 +70,6 @@ iOS WKWebView 嵌入 web 时通过 amBridge → 同进程 FFI 已有的核心 se
 | `channel_messages` / `blocks_mesh` | iOS native 块详情 + 频道消息查询的 batched API；web/desktop 走单独 channel + blockstore service，按需调用 |
 
 这些是 iOS-specific batched-RPC 优化，不需要在其它 binding。
-
-### 6. Node-bridge 专有（1 个）
-| Service | 原因 |
-|---|---|
-| `local_runner` | desktop 用户管 local runner 进程；web 用户用 cloud runner，无需此 service |
 
 ## Service Binding Matrix（覆盖完整版）
 
@@ -114,12 +108,11 @@ iOS WKWebView 嵌入 web 时通过 amBridge → 同进程 FFI 已有的核心 se
 | user_credential | ✅ | ❌ | ✅ | iOS 通过 Keychain native |
 | channel_messages | ❌ | ✅ | ❌ | iOS batched RPC |
 | blocks_mesh | ❌ | ✅ | ❌ | iOS batched RPC |
-| local_runner | ❌ | ❌ | ✅ | desktop-only |
 
 **对称度**：
 - 三端共有 core: 10 services（pod/channel/blockstore/billing/autopilot/loop/runner/sso/ticket/user/repository）
 - 双端共有 (WASM + Node-bridge, iOS 不需要): 14 services
-- 单端: WASM 3（helper classes）、FFI 2（batched）、Node-bridge 1（local_runner）
+- 单端: WASM 3（helper classes）、FFI 2（batched）
 
 ## Consequences
 
@@ -150,6 +143,10 @@ Phase 9 实际改动：**最终为零代码改动**（仅文档化）。
 零 ADR 实施 = 调研价值 + 决策原则文档化。
 
 main process IPC handler 反射自动注册（`bindAppStateHandlers`）的机制保留 — 未来如果某个 thin proxy 升级有 state（如加 cache），那时再补 binding 是顺手的事。
+
+### 2026-06 Amendment: local_runner removed
+
+`clients/core/crates/local-runner/`、Node-bridge `LocalRunnerManager` IPC、desktop「This Mac」onboarding UI 已删除。Runner 仍可通过 CLI `runner register` 自托管；产品不再从 web/desktop 管理本地 runner 进程。Terminal 数据面也去掉 same-host local relay fast-path，统一走 cloud relay。
 
 ## References
 

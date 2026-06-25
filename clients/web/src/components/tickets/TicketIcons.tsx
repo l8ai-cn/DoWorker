@@ -39,11 +39,11 @@ const statusIconMap: Record<TicketStatus, React.ComponentType<{ className?: stri
 };
 
 const statusColorMap: Record<TicketStatus, string> = {
-  backlog: "text-gray-500 dark:text-gray-400",
-  todo: "text-blue-500 dark:text-blue-400",
-  in_progress: "text-yellow-500 dark:text-yellow-400",
-  in_review: "text-purple-500 dark:text-purple-400",
-  done: "text-green-500 dark:text-green-400",
+  backlog: "text-muted-foreground",
+  todo: "text-info",
+  in_progress: "text-warning",
+  in_review: "text-primary",
+  done: "text-success",
 };
 
 export function StatusIcon({ status, size = "sm", className }: StatusIconProps) {
@@ -76,11 +76,11 @@ const priorityIconMap: Record<TicketPriority, React.ComponentType<{ className?: 
 };
 
 const priorityColorMap: Record<TicketPriority, string> = {
-  none: "text-gray-400 dark:text-gray-500",
-  low: "text-blue-500 dark:text-blue-400",
-  medium: "text-yellow-500 dark:text-yellow-400",
-  high: "text-orange-500 dark:text-orange-400",
-  urgent: "text-red-500 dark:text-red-400",
+  none: "text-muted-foreground",
+  low: "text-info",
+  medium: "text-warning",
+  high: "text-primary",
+  urgent: "text-danger",
 };
 
 export function PriorityIcon({ priority, size = "sm", className }: PriorityIconProps) {
@@ -118,11 +118,11 @@ const statusFallbackLabels: Record<TicketStatus, string> = {
 };
 
 const statusBgColorMap: Record<TicketStatus, string> = {
-  backlog: "bg-gray-100 dark:bg-gray-800",
-  todo: "bg-blue-100 dark:bg-blue-900/30",
-  in_progress: "bg-yellow-100 dark:bg-yellow-900/30",
-  in_review: "bg-purple-100 dark:bg-purple-900/30",
-  done: "bg-green-100 dark:bg-green-900/30",
+  backlog: "bg-muted",
+  todo: "bg-info-bg",
+  in_progress: "bg-warning-bg",
+  in_review: "bg-accent",
+  done: "bg-success-bg",
 };
 
 export function getStatusDisplayInfo(status: TicketStatus, sizeOrT?: IconSize | TranslateFn, maybeSize?: IconSize): StatusInfo {

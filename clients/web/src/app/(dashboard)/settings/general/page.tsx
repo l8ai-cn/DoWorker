@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser, useAuthStore } from "@/stores/auth";
 import { useTranslations } from "next-intl";
+import { LanguageSettings, ThemeSettings } from "@/components/settings";
 import { LogOut, User, Mail } from "lucide-react";
 
 export default function GeneralSettingsPage() {
@@ -30,7 +31,7 @@ export default function GeneralSettingsPage() {
       </div>
 
       {/* Account Information */}
-      <div className="border border-border rounded-lg p-6 mb-6">
+      <div className="surface-card p-6 mb-6">
         <h2 className="text-lg font-semibold mb-4">
           {t("settings.personal.general.accountInfo")}
         </h2>
@@ -64,8 +65,12 @@ export default function GeneralSettingsPage() {
         </div>
       </div>
 
-      {/* Session Management */}
-      <div className="border border-border rounded-lg p-6">
+      <div className="space-y-6 mb-6">
+        <LanguageSettings />
+        <ThemeSettings />
+      </div>
+
+      <div className="surface-card p-6">
         <h2 className="text-lg font-semibold mb-2">
           {t("settings.personal.general.session")}
         </h2>

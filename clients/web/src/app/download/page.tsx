@@ -2,7 +2,6 @@ import { Navbar, Footer } from "@/components/landing";
 import {
   DownloadHero,
   FallbackHero,
-  PlatformGrid,
   RunnerSection,
   ResourcesSection,
 } from "@/components/download";
@@ -16,7 +15,7 @@ export default async function DownloadPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "AgentsMesh Desktop",
+    name: "AgentsMesh Runner",
     applicationCategory: "DeveloperApplication",
     operatingSystem: "macOS, Windows, Linux",
     softwareVersion: release?.version,
@@ -35,7 +34,6 @@ export default async function DownloadPage() {
         {release ? (
           <>
             <DownloadHero release={release} />
-            <PlatformGrid desktop={release.desktop} />
             <RunnerSection runner={release.runner} />
             <ResourcesSection checksumsUrl={release.checksumsUrl} />
           </>

@@ -11,7 +11,7 @@ export function GitProviderCard({ repository }: GitProviderCardProps) {
   const t = useTranslations();
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <h3 className="font-semibold mb-4">{t("repositories.detail.gitProvider")}</h3>
       <dl className="space-y-3">
         <div>

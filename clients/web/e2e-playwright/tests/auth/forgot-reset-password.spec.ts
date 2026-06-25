@@ -56,10 +56,10 @@ test.describe("Forgot/reset password (light-auth)", () => {
 
       // Old password rejected, new password accepted — both via Connect
       // to keep this test focused on credential change rather than UI re-runs.
-      await expect(cc.auth.login({ email, password: oldPassword }))
+      await expect(cc.auth.login({ username, password: oldPassword }))
         .rejects.toMatchObject({ status: expect.any(Number) });
 
-      const ok = await cc.auth.login({ email, password: newPassword }) as { token?: string };
+      const ok = await cc.auth.login({ username, password: newPassword }) as { token?: string };
       expect(ok.token, "new password must authenticate").toBeTruthy();
     } finally {
       db.cleanup(CLEANUP.userByEmail(email));

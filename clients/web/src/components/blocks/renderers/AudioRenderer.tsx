@@ -60,7 +60,7 @@ export function AudioRenderer({ block }: { block: Block }) {
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
           className={cn(
-            "flex w-full items-center gap-2 rounded-md border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground hover:bg-muted/50",
+            "flex w-full items-center gap-2 rounded-md border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground motion-interactive hover:bg-surface-muted",
             uploading && "opacity-50",
           )}
         >

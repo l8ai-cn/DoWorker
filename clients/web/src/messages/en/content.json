@@ -102,5 +102,24 @@
       "titleHighlight": "Deployment",
       "description": "Deploy AgentsMesh entirely within your infrastructure. Your code, your agents, your rules — zero external exposure."
     }
+  },
+  "offline": {
+    "title": "You're Offline",
+    "description": "It looks like you've lost your internet connection. Please check your connection and try again.",
+    "retry": "Try Again",
+    "whileOffline": "While offline, you can:",
+    "tip1": "View previously loaded pages",
+    "tip2": "Access cached terminal sessions",
+    "tip3": "Review offline-available tickets"
+  },
+  "changelogPage": {
+    "title": "Changelog",
+    "description": "All notable changes to AgentsMesh will be documented here.",
+    "types": {
+      "added": "Added",
+      "changed": "Changed",
+      "fixed": "Fixed",
+      "removed": "Removed"
+    }
   }
 }

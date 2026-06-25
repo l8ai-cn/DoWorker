@@ -109,7 +109,9 @@
       "title": "快速链接",
       "quickStart": "快速上手",
       "quickStartDesc": "5 分钟内快速启动",
+      "agentpod": "AgentPod",
       "agentpodDesc": "远程 AI 开发工作站",
+      "agentsmesh": "AgentsMesh",
       "agentsmeshDesc": "多智能体协作网络",
       "mcpTools": "MCP 工具",
       "mcpToolsDesc": "26 个 AI 智能体工具"
@@ -265,7 +267,15 @@
           "title": "表达式",
           "description": "AgentFile 支持多种表达式类型，可在构建逻辑和声明中使用。",
           "typeHeader": "类型",
-          "exampleHeader": "示例"
+          "exampleHeader": "示例",
+          "types": {
+            "strings": "字符串",
+            "numbers": "数字",
+            "booleans": "布尔值",
+            "dotAccess": "点访问",
+            "operators": "运算符",
+            "functions": "函数"
+          }
         },
         "builtinVars": {
           "title": "内置变量",
@@ -758,6 +768,8 @@
         "concurrency": {
           "title": "并发策略",
           "description": "控制当前运行尚未完成时触发新运行的行为：",
+          "modeHeader": "模式",
+          "behaviorHeader": "行为",
           "skip": "跳过",
           "skipDesc": "达到最大并发运行数时，新运行会被跳过。",
           "queue": "排队",

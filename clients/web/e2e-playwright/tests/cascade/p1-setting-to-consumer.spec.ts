@@ -42,7 +42,7 @@ test.describe("P1 cascade: setting → consumer surface", () => {
    * reflect the new name on the next call — no extra invalidation step.
    */
   test("org rename propagates to ListMyOrgs + GetOrg", async ({ api }) => {
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
 
     const { items: before } = (await cc.org.listMyOrgs({})) as { items: OrgItem[] };
@@ -72,7 +72,7 @@ test.describe("P1 cascade: setting → consumer surface", () => {
    * uses the default view; this test locks both branches.
    */
   test("channel archive removes from default list + survives includeArchived=true", async ({ api }) => {
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
 
     const created = (await cc.channel.createChannel({
@@ -114,7 +114,7 @@ test.describe("P1 cascade: setting → consumer surface", () => {
    * channels{}; we flip is_muted and assert the round-trip surfaces it.
    */
   test("notification preference toggle reflects on ListPreferences immediately", async ({ api }) => {
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
 
     const source = "channel:message";
@@ -158,7 +158,7 @@ test.describe("P1 cascade: setting → consumer surface", () => {
    * a dedicated list endpoint, so the consumer test is the filtered list.)
    */
   test("ticket assignee add reflects in ListTickets filter immediately", async ({ api, db }) => {
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
 
     const myId = db.queryValue(`SELECT id FROM users WHERE email = '${TEST_USER.email}' LIMIT 1`);
@@ -222,7 +222,7 @@ test.describe("P1 cascade: setting → consumer surface", () => {
    * subsequent renders.
    */
   test("channel mute reflects on subsequent ListChannelMembers + GetChannel", async ({ api }) => {
-    await api.login(TEST_USER.email, TEST_USER.password);
+    await api.login();
     const cc = await api.connect();
 
     const created = (await cc.channel.createChannel({

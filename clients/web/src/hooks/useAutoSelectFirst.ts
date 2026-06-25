@@ -10,10 +10,10 @@ import { useEffect } from "react";
  * every render.
  *
  * `fetched` gates navigation: until the store has completed at least one
- * fetch, `firstId` may reflect stale cache (e.g. desktop adapter cache
- * carried into the next render before the in-flight fetch resolves). Acting
- * on that pre-fetch value can race past the empty-state branch and jump to
- * a detail page that no longer exists. Wait for the first fetch.
+ * fetch, `firstId` may reflect stale cache carried into the next render before
+ * the in-flight fetch resolves. Acting on that pre-fetch value can race past
+ * the empty-state branch and jump to a detail page that no longer exists.
+ * Wait for the first fetch.
  */
 export function useAutoSelectFirst(opts: {
   firstId: number | null;

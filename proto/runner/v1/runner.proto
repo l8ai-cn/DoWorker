@@ -92,7 +92,8 @@ message HeartbeatData {
   repeated PodInfo pods = 2;
   repeated RelayConnectionInfo relay_connections = 3;  // Relay 连接状态
   repeated AgentVersionInfo agent_versions = 4;        // Only populated when versions changed since last report
-  string local_relay_url = 5;                          // ws://127.0.0.1:<port> from runner's always-on local WS server
+  reserved 5;                                          // Was local_relay_url — removed with the same-host local relay fast-path
+  reserved "local_relay_url";
 }
 
 // PodInfo Pod 状态信息
@@ -361,7 +362,8 @@ message SubscribePodCommand {
   bool include_snapshot = 4;   // 是否发送快照
   int32 snapshot_history = 5;  // 快照历史行数
   string runner_token = 6;     // Runner 认证 Token（JWT）
-  string local_token = 7;      // Per-pod token shared with renderer; runner validates incoming local WS by exact match
+  reserved 7;                  // Was local_token — removed with the same-host local relay fast-path
+  reserved "local_token";
 }
 
 // UnsubscribePodCommand 取消订阅 Pod 输出命令

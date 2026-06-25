@@ -134,7 +134,7 @@ test.describe("CRUD Supplements", () => {
     expect(token, "invitation must have been persisted with a token").toBeTruthy();
 
     // Accept as invitee via UserInvitationService/AcceptInvitation.
-    const inviteeToken = await api.loginAs(email, "TestPass123!");
+    const inviteeToken = await api.loginAs("inviteaccepte2e", "TestPass123!");
     const inviteeClient = api.connectWithToken(inviteeToken);
     await inviteeClient.userInvitation.acceptInvitation({ token: String(token) });
 

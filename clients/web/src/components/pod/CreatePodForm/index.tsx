@@ -26,9 +26,13 @@ export function CreatePodForm({
 
   const mergedConfig = useMemo(() => mergeConfig(config), [config]);
 
-  const { context, promptGenerator, onSuccess, onError, onCancel } = mergedConfig;
+  const {
+    context, promptGenerator, onSuccess, onError, onCancel,
+    initialAgentSlug, initialPrompt,
+  } = mergedConfig;
 
   const [selectedAgentSlug, setSelectedAgentSlug] = useState<string | null>(null);
+  const agentInitializedRef = useRef(false);
 
   const {
     runners,
@@ -70,16 +74,31 @@ export function CreatePodForm({
       setSelectedAgentSlug(null);
       promptInitializedRef.current = false;
       repoInitializedRef.current = false;
+      agentInitializedRef.current = false;
     }
     prevEnabledRef.current = enabled;
   }, [enabled]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (
+      enabled &&
+      initialAgentSlug &&
+      !agentInitializedRef.current &&
+      availableAgents.some((a) => a.slug === initialAgentSlug)
+    ) {
+      form.setSelectedAgent(initialAgentSlug);
+      agentInitializedRef.current = true;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, initialAgentSlug, availableAgents]);
+
   const defaultPrompt = useMemo(() => {
+    if (initialPrompt) return initialPrompt;
     if (promptGenerator && context) {
       return promptGenerator(context);
     }
     return "";
-  }, [promptGenerator, context]);
+  }, [initialPrompt, promptGenerator, context]);
 
   useEffect(() => {
     if (
@@ -118,6 +137,7 @@ export function CreatePodForm({
             agents={availableAgents}
             selectedAgentSlug={form.selectedAgent}
             onSelect={form.setSelectedAgent}
+            hasOnlineRunners={runners.length > 0}
             error={form.validationErrors.agent}
             t={t}
           />

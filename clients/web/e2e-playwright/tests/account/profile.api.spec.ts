@@ -35,7 +35,7 @@ test.describe("User Profile API", () => {
       name: "Original Name",
     });
 
-    await api.loginAs(email, password);
+    await api.loginAs("profilee2e", password);
     const cc = await api.connect();
     const updated = await cc.user.updateMe({ name: "Updated Name E2E" }) as { name: string };
     expect(updated.name).toBe("Updated Name E2E");
@@ -59,7 +59,7 @@ test.describe("User Profile API", () => {
       name: "PW Change User",
     });
 
-    await api.loginAs(email, password);
+    await api.loginAs("pwchangee2e", password);
     const cc = await api.connect();
     await cc.user.changePassword({
       currentPassword: password,
@@ -68,7 +68,7 @@ test.describe("User Profile API", () => {
 
     // Verify login with new password
     const loginRes = await publicCc.auth.login({
-      email,
+      username: "pwchangee2e",
       password: "NewPassword456!",
     }) as { token: string };
     expect(loginRes.token).toBeTruthy();

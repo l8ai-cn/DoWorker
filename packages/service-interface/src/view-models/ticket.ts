@@ -1,6 +1,5 @@
 // Ticket ViewModels — UI-side projection of `proto.ticket.v1` types. Owned in
-// this zero-dep contract layer so the web (fromProtoTicket) and desktop
-// (electron-adapter projection) share one definition.
+// this zero-dep contract layer so Web projections share one definition.
 //
 // Snake_case fields are kept because (a) the UI consumes denormalized
 // reporter/assignees/labels/repository/parent_ticket joins not in proto,

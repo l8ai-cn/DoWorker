@@ -4,10 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { hasInvalidCustomEnvKey } from "./CustomEnvSection";
 import type { CredentialProfileViewModel } from "./_shared/credentialViewModel";
 import { getConfiguredKeys } from "./_shared/credentialViewModel";
-import {
-  getCredentialFormSpec,
-  getEnvKeysFromSpec,
-} from "./AgentCredentialsSettings/credentialForms";
+import { useAgentCredentialFormSpec } from "./AgentCredentialsSettings/credentialForms/useAgentCredentialFormSpec";
 import {
   initFormStateFromProfile,
   buildCredentialsPayload,
@@ -35,8 +32,18 @@ export function useCredentialDialogForm({
   onOpenChange,
   t,
 }: CredentialFormDialogProps) {
-  const spec = useMemo(() => getCredentialFormSpec(agentSlug), [agentSlug]);
-  const declaredKeys = useMemo(() => getEnvKeysFromSpec(spec), [spec]);
+  const { spec } = useAgentCredentialFormSpec(agentSlug);
+  const declaredKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const field of spec.fields) {
+      if (field.kind === "oneof") {
+        for (const opt of field.options) keys.add(opt.envKey);
+      } else {
+        keys.add(field.envKey);
+      }
+    }
+    return keys;
+  }, [spec]);
   const previousKeys = useMemo(
     () => (editingProfile ? getConfiguredKeys(editingProfile) : []),
     [editingProfile]

@@ -58,7 +58,7 @@ export function FileRenderer({ block }: { block: Block }) {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 rounded-md border border-border bg-muted/30 p-3 hover:bg-muted/50"
+          className="flex items-center gap-3 rounded-md border border-border bg-muted/30 p-3 motion-interactive hover:bg-surface-muted"
         >
           <FileText className="h-5 w-5 shrink-0 text-muted-foreground" />
           <div className="flex flex-col">
@@ -74,7 +74,7 @@ export function FileRenderer({ block }: { block: Block }) {
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
           className={cn(
-            "flex w-full items-center gap-2 rounded-md border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground hover:bg-muted/50",
+            "flex w-full items-center gap-2 rounded-md border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground motion-interactive hover:bg-surface-muted",
             uploading && "opacity-50",
           )}
         >

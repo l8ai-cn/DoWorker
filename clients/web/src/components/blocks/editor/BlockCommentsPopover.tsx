@@ -44,7 +44,7 @@ export function BlockCommentsPopover({ blockID, workspaceID, onClose }: BlockCom
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <header className="flex items-center justify-between border-b border-border px-3 py-2">
+      <header className="flex items-center justify-between bg-surface-muted/30 px-3 py-2">
         <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           {commentRefs.length === 0
             ? "Start a thread"

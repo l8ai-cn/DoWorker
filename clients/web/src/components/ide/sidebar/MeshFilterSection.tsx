@@ -20,7 +20,7 @@ export function MeshFilterSection({ title, options, selected, onToggle }: MeshFi
   if (options.length === 0) return null;
 
   return (
-    <div className="border-t border-border px-3 py-3">
+    <div className="bg-surface-muted/30 px-3 py-3">
       <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/80">
         {title}
       </div>

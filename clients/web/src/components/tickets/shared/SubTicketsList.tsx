@@ -33,7 +33,7 @@ export function SubTicketsList({
           {subTickets.map((subTicket) => (
             <button
               key={subTicket.id}
-              className="w-full px-2.5 py-1.5 flex items-center gap-2 hover:bg-muted/50 rounded-md transition-colors text-left group"
+              className="w-full px-2.5 py-1.5 flex items-center gap-2 motion-interactive hover:bg-surface-muted rounded-md transition-colors text-left group"
               onClick={() => onTicketClick(subTicket.slug)}
             >
               <StatusIcon status={subTicket.status} size="sm" />
@@ -54,7 +54,7 @@ export function SubTicketsList({
       <p className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider mb-2.5">
         {t("tickets.detail.subTickets")} ({subTickets.length})
       </p>
-      <div className="rounded-xl border border-border/50 divide-y divide-border/40 overflow-hidden bg-card shadow-sm">
+      <div className="surface-card divide-y divide-border/40 overflow-hidden bg-card shadow-sm">
         {subTickets.map((subTicket) => {
           const subStatusInfo = getStatusDisplayInfo(subTicket.status);
           return (

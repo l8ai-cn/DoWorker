@@ -85,7 +85,7 @@ export function CheckoutFlow({
 
   return (
     <div className="space-y-6">
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <h3 className="text-lg font-semibold mb-4">{t("billing.checkout.orderSummary")}</h3>
         {plan && (
           <div className="space-y-4">

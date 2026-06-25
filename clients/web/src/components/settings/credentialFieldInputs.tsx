@@ -91,7 +91,7 @@ export function SimpleFieldInput({
         )}
       </div>
       {field.securityHint && (
-        <p className="text-xs text-amber-600 dark:text-amber-500">
+        <p className="text-xs text-warning">
           {t(field.securityHint)}
         </p>
       )}
@@ -145,7 +145,7 @@ export function OneOfFieldInput({
               className={`flex items-center gap-2 px-3 py-1.5 rounded-md border cursor-pointer text-sm transition-colors ${
                 isActive
                   ? "border-primary bg-primary/10 text-foreground"
-                  : "border-border hover:bg-muted/50"
+                  : "border-border motion-interactive hover:bg-surface-muted"
               }`}
             >
               <input

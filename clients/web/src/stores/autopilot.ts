@@ -46,7 +46,7 @@ export {
 type Ctrl = AutopilotController;
 export const ACTIVE = ["initializing", "running", "paused", "user_takeover", "waiting_approval"];
 // Autopilot state SSOT is the shared AppState (runtime.state) via
-// getAutopilotState — the SAME state the EventBus dispatch + desktop snapshot
+// getAutopilotState — the SAME state the EventBus dispatch + Web snapshot
 // mirror write, so realtime controller/iteration/thinking changes flow without
 // a JS pure-patch. Connect-RPC stays on the autopilotConnect facade.
 const svc = () => getAutopilotState();

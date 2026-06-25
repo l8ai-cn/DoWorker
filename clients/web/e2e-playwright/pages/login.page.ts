@@ -5,14 +5,14 @@ import type { Locator, Page } from "@playwright/test";
  * Selectors based on: web/src/app/(auth)/login/page.tsx
  */
 export class LoginPage {
-  readonly emailInput: Locator;
+  readonly usernameInput: Locator;
   readonly passwordInput: Locator;
   readonly submitButton: Locator;
   readonly registerLink: Locator;
   readonly errorMessage: Locator;
 
   constructor(private page: Page) {
-    this.emailInput = page.locator("#email");
+    this.usernameInput = page.locator("#username");
     this.passwordInput = page.locator("#password");
     this.submitButton = page.locator('button[type="submit"]');
     this.registerLink = page.getByRole("link", { name: /sign up|register/i });
@@ -21,11 +21,11 @@ export class LoginPage {
 
   async goto(): Promise<void> {
     await this.page.goto("/login");
-    await this.emailInput.waitFor({ state: "visible" });
+    await this.usernameInput.waitFor({ state: "visible" });
   }
 
-  async login(email: string, password: string): Promise<void> {
-    await this.emailInput.fill(email);
+  async login(username: string, password: string): Promise<void> {
+    await this.usernameInput.fill(username);
     await this.passwordInput.fill(password);
     await this.submitButton.click();
   }

@@ -63,13 +63,13 @@ describe('Input Component', () => {
     it('should apply error styles to input', () => {
       render(<Input error="Error" />)
       const input = screen.getByRole('textbox')
-      expect(input).toHaveClass('border-destructive')
+      expect(input).toHaveClass('ring-destructive/50')
     })
 
     it('should apply error ring styles on focus', () => {
       render(<Input error="Error" />)
       const input = screen.getByRole('textbox')
-      expect(input).toHaveClass('focus-visible:ring-destructive')
+      expect(input).toHaveClass('focus-visible:ring-destructive/35')
     })
 
     it('should not show error message when no error', () => {

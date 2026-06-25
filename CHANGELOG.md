@@ -12,9 +12,9 @@ for tagged releases where possible.
 
 - Auth bootstrap protocol: `AuthManager::bootstrap()` async hydration with
   base_url self-validation, expired-token refresh, identity fetch, and
-  cleanup-on-failure semantics. Exposed across WASM / node-bridge / UniFFI
-  bindings; web/desktop/iOS frontends drive startup off it instead of the
-  legacy `restore_session()` path.
+  cleanup-on-failure semantics. Exposed through WASM bindings; the Web
+  frontend drives startup off it instead of the legacy `restore_session()`
+  path.
 - Per-server storage namespacing: session keys are now scoped to
   `agentsmesh-auth/<url-slug>/session`, allowing the same machine to hold
   independent sessions for dev / staging / prod without cross-server
@@ -137,7 +137,7 @@ for tagged releases where possible.
 - Relay server for terminal data streaming (Browser ↔ Relay ↔ Runner)
 - LemonSqueezy payment integration and Stripe mock framework
 - Autopilot controller implementation with UI redesign
-- iOS PWA notification support and OSC terminal notifications
+- Browser notification support and OSC terminal notifications
 - PR/MR status awareness mechanism
 
 ### Changed
@@ -185,7 +185,6 @@ for tagged releases where possible.
 - Ticket management with kanban board
 - Repository management with Git provider integration
 - Billing system with quota enforcement
-- Desktop mode with system tray for Runner
 - Real-time terminal streaming via WebSocket
 
 [Unreleased]: https://github.com/anthropics/agentsmesh/compare/v0.5.0...HEAD

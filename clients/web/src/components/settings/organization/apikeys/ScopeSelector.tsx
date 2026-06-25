@@ -11,13 +11,13 @@ interface ScopeSelectorProps {
 
 export function ScopeSelector({ selectedScopes, onToggle, t }: ScopeSelectorProps) {
   return (
-    <div className="border border-border rounded-lg divide-y divide-border">
+    <div className="surface-card divide-y divide-border">
       {ALL_SCOPES.map((scope) => {
         const selected = selectedScopes.has(scope);
         return (
           <label
             key={scope}
-            className="flex items-start gap-3 px-3 py-2.5 cursor-pointer hover:bg-muted/50 transition-colors first:rounded-t-lg last:rounded-b-lg"
+            className="flex items-start gap-3 px-3 py-2.5 cursor-pointer motion-interactive hover:bg-surface-muted transition-colors first:rounded-t-lg last:rounded-b-lg"
           >
             <input
               type="checkbox"

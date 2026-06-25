@@ -56,7 +56,7 @@ fn app_runtime_dispatch_hook_writes_state() {
 }
 
 /// Multiple events of different domains all land in the same AppState.
-/// This is what JS/Swift selectors will see post-Phase-4.
+/// This is what host selectors will see post-Phase-4.
 #[test]
 fn dispatch_across_domains_single_state() {
     let events = Arc::new(EventSubscriptionManager::with_default_options(make_client()));

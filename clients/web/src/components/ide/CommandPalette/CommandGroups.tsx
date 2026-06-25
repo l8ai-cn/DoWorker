@@ -25,7 +25,7 @@ export function CommandGroups({
             key={cmd.id}
             value={cmd.label}
             keywords={cmd.keywords}
-            className="flex items-center gap-3 px-3 py-2 rounded cursor-pointer aria-selected:bg-muted"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer motion-interactive aria-selected:bg-accent aria-selected:text-accent-foreground"
             onSelect={() => onSelect(cmd)}
           >
             <span className="text-muted-foreground">{cmd.icon}</span>
@@ -46,7 +46,7 @@ export function CommandGroups({
             key={cmd.id}
             value={cmd.label}
             keywords={cmd.keywords}
-            className="flex items-center gap-3 px-3 py-2 rounded cursor-pointer aria-selected:bg-muted"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer motion-interactive aria-selected:bg-accent aria-selected:text-accent-foreground"
             onSelect={() => onSelect(cmd)}
           >
             <span className="text-muted-foreground">{cmd.icon}</span>

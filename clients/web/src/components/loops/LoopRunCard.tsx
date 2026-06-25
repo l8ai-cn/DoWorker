@@ -13,9 +13,9 @@ interface LoopRunCardProps {
 
 const RUN_DOT: Record<RunStatus, string> = {
   completed: "bg-success",
-  running: "bg-[#0969DA]",
-  pending: "bg-[#D29922]",
-  timeout: "bg-[#D29922]",
+  running: "bg-info",
+  pending: "bg-warning",
+  timeout: "bg-warning",
   failed: "bg-destructive",
   cancelled: "bg-muted-foreground",
   skipped: "bg-muted-foreground/60",
@@ -23,37 +23,37 @@ const RUN_DOT: Record<RunStatus, string> = {
 
 const RUN_TONE: Record<RunStatus, { wrap: string; title: string; sub: string }> = {
   completed: {
-    wrap: "bg-card border-border",
+    wrap: "surface-card",
     title: "text-foreground",
     sub: "text-muted-foreground",
   },
   running: {
-    wrap: "bg-[#DDF4FF]/40 border-[#0969DA]/40",
-    title: "text-[#0550AE]",
-    sub: "text-[#0550AE]",
+    wrap: "surface-card bg-info-bg",
+    title: "text-info",
+    sub: "text-info",
   },
   pending: {
-    wrap: "bg-[#FFFBEB] border-[#D29922]/50",
-    title: "text-[#9A6700]",
-    sub: "text-[#9A6700]",
+    wrap: "surface-card bg-warning-bg",
+    title: "text-warning",
+    sub: "text-warning",
   },
   timeout: {
-    wrap: "bg-[#FFFBEB] border-[#D29922]/50",
-    title: "text-[#9A6700]",
-    sub: "text-[#9A6700]",
+    wrap: "surface-card bg-warning-bg",
+    title: "text-warning",
+    sub: "text-warning",
   },
   failed: {
-    wrap: "bg-card border-destructive/40",
+    wrap: "surface-card",
     title: "text-destructive",
     sub: "text-muted-foreground",
   },
   cancelled: {
-    wrap: "bg-card border-border",
+    wrap: "surface-card",
     title: "text-foreground",
     sub: "text-muted-foreground",
   },
   skipped: {
-    wrap: "bg-card border-border",
+    wrap: "surface-card",
     title: "text-muted-foreground",
     sub: "text-muted-foreground",
   },
@@ -84,7 +84,7 @@ export function LoopRunCard({ run, t, onOpen, onCancel }: LoopRunCardProps) {
   ].filter(Boolean) as string[];
 
   return (
-    <div className={cn("flex items-center gap-3 rounded-md border p-3", tone.wrap)}
+    <div className={cn("flex items-center gap-3 p-3 motion-interactive", tone.wrap)}
       data-testid="loop-run-card"
       data-run-id={String(run.id)}
       data-run-status={run.status}
@@ -127,7 +127,7 @@ export function LoopRunCard({ run, t, onOpen, onCancel }: LoopRunCardProps) {
           <button
             type="button"
             onClick={() => onCancel(run.id)}
-            className="rounded-md border border-border px-2 py-1 text-xs text-destructive hover:bg-destructive/10"
+            className="rounded-md surface-card-interactive px-2 py-1 text-xs text-destructive motion-interactive hover:bg-destructive/10 pressable"
           >
             {t("common.cancel")}
           </button>

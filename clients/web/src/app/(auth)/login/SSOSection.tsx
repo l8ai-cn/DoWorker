@@ -35,7 +35,7 @@ export function SSOSection({ ssoConfigs, onLdapSubmit, ldapLoading }: SSOSection
   };
 
   return (
-    <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+    <div className="surface-card rounded-xl p-4 space-y-3">
       <p className="text-xs font-medium text-muted-foreground text-center uppercase tracking-wide">
         {t("auth.sso.orSignInWithSSO")}
       </p>
@@ -57,7 +57,7 @@ export function SSOSection({ ssoConfigs, onLdapSubmit, ldapLoading }: SSOSection
       {ldapConfig && (
         <>
           {redirectConfigs.length > 0 && (
-            <div className="border-t border-border" />
+            <div className="soft-separator" />
           )}
           <button
             type="button"

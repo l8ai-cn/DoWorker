@@ -9,10 +9,10 @@ import { DockList, type Confirm } from "./DockList";
 import { StatusPill } from "./StatusPill";
 
 const TONE: Record<string, string> = {
-  Running: "bg-blue-500/15 text-blue-600",
-  Completed: "bg-green-500/15 text-green-600",
-  Failed: "bg-red-500/15 text-red-600",
-  Killed: "bg-yellow-500/15 text-yellow-700",
+  Running: "bg-info-bg text-info",
+  Completed: "bg-success-bg text-success",
+  Failed: "bg-danger-bg text-danger",
+  Killed: "bg-warning-bg text-warning",
 };
 
 export function BgShellSection({ podKey, confirm }: { podKey: string; confirm: Confirm }) {

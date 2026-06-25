@@ -16,7 +16,7 @@ type RunnerCommandSender interface {
 
 	SendPrompt(ctx context.Context, runnerID int64, podKey, prompt string) error
 
-	SendSubscribePod(ctx context.Context, runnerID int64, podKey, relayURL, runnerToken, localToken string, includeSnapshot bool, snapshotHistory int32) error
+	SendSubscribePod(ctx context.Context, runnerID int64, podKey, relayURL, runnerToken string, includeSnapshot bool, snapshotHistory int32) error
 
 	SendUnsubscribePod(ctx context.Context, runnerID int64, podKey string) error
 
@@ -27,12 +27,6 @@ type RunnerCommandSender interface {
 	SendAutopilotControl(runnerID int64, cmd *runnerv1.AutopilotControlCommand) error
 
 	SendUpdatePodPerpetual(ctx context.Context, runnerID int64, podKey string, perpetual bool) error
-}
-
-type RunnerStateReader interface {
-	GetRunnerLocalRelayURL(runnerID int64) string
-
-	GetRunnerNodeID(runnerID int64) string
 }
 
 type NoOpCommandSender struct {
@@ -67,7 +61,7 @@ func (n *NoOpCommandSender) SendPrompt(ctx context.Context, runnerID int64, podK
 	return ErrCommandSenderNotSet
 }
 
-func (n *NoOpCommandSender) SendSubscribePod(ctx context.Context, runnerID int64, podKey, relayURL, runnerToken, localToken string, includeSnapshot bool, snapshotHistory int32) error {
+func (n *NoOpCommandSender) SendSubscribePod(ctx context.Context, runnerID int64, podKey, relayURL, runnerToken string, includeSnapshot bool, snapshotHistory int32) error {
 	n.logger.Warn("command sender not configured, cannot send subscribe pod",
 		"runner_id", runnerID, "pod_key", podKey)
 	return ErrCommandSenderNotSet

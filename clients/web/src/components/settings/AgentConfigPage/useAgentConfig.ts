@@ -10,29 +10,16 @@ import type {
   CredentialFormData,
   RuntimeBundleFormData,
   RuntimeBundleViewModel,
+  ConfigFileFormData,
+  ConfigFileBundleViewModel,
 } from "./types";
 import type { CredentialProfileViewModel } from "../_shared/credentialViewModel";
 import { useAgentConfigMessages } from "./useAgentConfigMessages";
 import { useCredentialBundles } from "./useCredentialBundles";
 import { useRuntimeBundles } from "./useRuntimeBundles";
+import { useConfigFileBundles } from "./useConfigFileBundles";
 import { useAgentRuntimeConfig } from "./useAgentRuntimeConfig";
 
-/**
- * Facade hook for the per-agent settings page. Composes three independent
- * slice hooks behind a single state/action surface so the rest of the
- * AgentConfigPage component tree stays unchanged:
- *
- *   - useCredentialBundles     — credential-kind EnvBundles (encrypted)
- *   - useRuntimeBundles        — runtime-kind EnvBundles (plaintext)
- *   - useAgentRuntimeConfig    — typed agent-schema runtime config values
- *
- * Plus `useAgentConfigMessages` for the shared error/success banner.
- *
- * The facade owns:
- *   - Agent identity resolution (`agentSlug` → `AgentData`)
- *   - Page-level loading flag (true until *every* slice has loaded once)
- *   - Triggering each slice's load on agent change
- */
 export function useAgentConfig(
   agentSlug: string,
   t: (key: string) => string
@@ -44,11 +31,9 @@ export function useAgentConfig(
   const msgs = useAgentConfigMessages();
   const creds = useCredentialBundles(msgs, t);
   const runtime = useRuntimeBundles(msgs, t);
+  const configFiles = useConfigFileBundles(msgs, t);
   const cfg = useAgentRuntimeConfig(msgs, t);
 
-  // Resolve the agent + fan out to every slice. Sequential agent lookup,
-  // then parallel slice loads (each slice owns its own error fallback so
-  // one failing won't take down the rest).
   const loadData = useCallback(async () => {
     if (!currentOrg) {
       setLoading(false);
@@ -74,6 +59,7 @@ export function useAgentConfig(
       await Promise.all([
         creds.loadCredentialBundles(found),
         runtime.loadRuntimeBundles(found),
+        configFiles.loadConfigFileBundles(found),
         cfg.loadRuntimeConfig(found),
       ]);
     } catch (err) {
@@ -81,21 +67,13 @@ export function useAgentConfig(
     } finally {
       setLoading(false);
     }
-    // creds/runtime/cfg are stable identity-by-reference (useCallback inside);
-    // exhaustive-deps would still flag them so we list them explicitly.
-  }, [agentSlug, t, creds, runtime, cfg, msgs, currentOrg]);
+  }, [agentSlug, t, creds, runtime, configFiles, cfg, msgs, currentOrg]);
 
   useEffect(() => {
     loadData();
-    // We intentionally re-run only on agentSlug / org change, not on identity
-    // churn of the helper hooks (their handlers are stable enough that
-    // re-loading would create thrash).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentSlug, currentOrg?.slug]);
 
-  // Surface adapters: call-site components still pass the bare profile/
-  // bundle/id; the facade injects the current agent so slice hooks don't
-  // need to store it themselves.
   const handleSaveProfile = useCallback(
     (data: CredentialFormData, editingProfile: CredentialProfileViewModel | null) => {
       if (!agent) return Promise.resolve();
@@ -112,13 +90,20 @@ export function useAgentConfig(
     [agent, runtime]
   );
 
+  const handleSaveConfigFileBundle = useCallback(
+    (data: ConfigFileFormData, editing: ConfigFileBundleViewModel | null) => {
+      if (!agent) return Promise.resolve();
+      return configFiles.handleSaveConfigFileBundle(data, editing, agent);
+    },
+    [agent, configFiles]
+  );
+
   const handleSaveConfig = useCallback(() => {
     if (!agent) return Promise.resolve();
     return cfg.handleSaveConfig(agent);
   }, [agent, cfg]);
 
   return {
-    // State
     loading,
     savingConfig: cfg.savingConfig,
     agent,
@@ -127,26 +112,24 @@ export function useAgentConfig(
     credentialProfiles: creds.credentialProfiles,
     noPrimaryBundle: creds.noPrimaryBundle,
     runtimeBundles: runtime.runtimeBundles,
+    configFileSpecs: configFiles.configFileSpecs,
+    configFileBundles: configFiles.configFileBundles,
     error: msgs.error,
     success: msgs.success,
-
-    // Actions — credential
     handleClearPrimaryBundle: creds.handleClearPrimaryBundle,
     handleSetDefault: creds.handleSetDefault,
     handleDeleteProfile: creds.handleDeleteProfile,
     handleSaveProfile,
-
-    // Actions — runtime bundles
     handleSetRuntimePrimary: runtime.handleSetRuntimePrimary,
     handleClearRuntimePrimary: runtime.handleClearRuntimePrimary,
     handleDeleteRuntimeBundle: runtime.handleDeleteRuntimeBundle,
     handleSaveRuntimeBundle,
-
-    // Actions — agent runtime config
+    handleSetConfigPrimary: configFiles.handleSetConfigPrimary,
+    handleClearConfigPrimary: configFiles.handleClearConfigPrimary,
+    handleDeleteConfigFileBundle: configFiles.handleDeleteConfigFileBundle,
+    handleSaveConfigFileBundle,
     handleConfigChange: cfg.handleConfigChange,
     handleSaveConfig,
-
-    // UI
     setError: msgs.setError,
     setSuccess: msgs.setSuccess,
     loadData,

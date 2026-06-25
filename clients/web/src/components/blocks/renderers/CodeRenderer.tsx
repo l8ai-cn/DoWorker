@@ -41,7 +41,7 @@ export function CodeRenderer({ block }: { block: Block }) {
       onToggleVisibility={(next) => void dispatch.setBlockVisibility(block.id, next)}
     >
       <div className="flex flex-col overflow-hidden rounded-md border border-border bg-muted/30">
-        <div className="flex items-center justify-between border-b border-border/60 px-2 py-1 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between bg-surface-muted/30 px-2 py-1 text-xs text-muted-foreground">
           <select
             value={language}
             onChange={(e) => dispatch.updateBlockData(block.id, { language: e.target.value })}

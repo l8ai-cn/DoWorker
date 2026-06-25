@@ -14,9 +14,8 @@ interface ChannelListItemProps {
 }
 
 /**
- * Channel row in the sidebar list — matches design/desktop/pages/channels.pastel
- * `channel_row` + `channel_row_active`: hash + name + last message preview +
- * short time + unread dot. Private channels use the lock icon in place of #.
+ * Channel row in the sidebar list: hash + name + last message preview, short
+ * time, and unread dot. Private channels use the lock icon in place of #.
  */
 export function ChannelListItem({
   channel,
@@ -41,8 +40,8 @@ export function ChannelListItem({
       data-testid="channel-list-item"
       data-channel-id={String(channel.id)}
       className={cn(
-        "group flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left transition-colors",
-        isSelected ? "bg-muted" : "hover:bg-muted/50",
+        "nav-row pressable w-full gap-2.5 !py-2",
+        isSelected ? "nav-row-active" : "nav-row-idle",
       )}
     >
       <span

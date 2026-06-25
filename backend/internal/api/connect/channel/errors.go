@@ -68,6 +68,7 @@ func mapServiceError(err error) error {
 		return connect.NewError(connect.CodePermissionDenied, err)
 
 	case errors.Is(err, channelservice.ErrEmptyContent),
+		errors.Is(err, channelservice.ErrInvalidName),
 		errors.Is(err, channelservice.ErrInvalidContent):
 		return connect.NewError(connect.CodeInvalidArgument, err)
 

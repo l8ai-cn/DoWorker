@@ -67,8 +67,8 @@ export function CancelSubscriptionDialog({
     <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
       <ResponsiveDialogContent className="sm:max-w-md">
         <ResponsiveDialogHeader className="text-center pb-2" onClose={() => onOpenChange(false)}>
-          <div className="mx-auto w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-4">
-            <AlertTriangle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+          <div className="mx-auto w-12 h-12 rounded-full bg-warning-bg flex items-center justify-center mb-4">
+            <AlertTriangle className="w-6 h-6 text-warning" />
           </div>
           <ResponsiveDialogTitle className="text-xl">
             {dialogTitle}
@@ -87,7 +87,7 @@ export function CancelSubscriptionDialog({
               className={`group relative w-full p-4 border-2 rounded-xl text-left transition-all duration-200 ${
                 cancelType === "end_of_period"
                   ? "border-primary bg-primary/5 shadow-sm"
-                  : "border-border hover:border-primary/50 hover:bg-muted/50"
+                  : "border-border hover:border-primary/50 motion-interactive hover:bg-surface-muted"
               }`}
               onClick={() => setCancelType("end_of_period")}
             >
@@ -104,7 +104,7 @@ export function CancelSubscriptionDialog({
                     <span className="font-semibold text-foreground">
                       {t("billing.cancel.endOfPeriod")}
                     </span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-medium">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-success-bg text-success font-medium">
                       {t("billing.cancel.recommended")}
                     </span>
                   </div>
@@ -130,7 +130,7 @@ export function CancelSubscriptionDialog({
               className={`group relative w-full p-4 border-2 rounded-xl text-left transition-all duration-200 ${
                 cancelType === "immediate"
                   ? "border-destructive bg-destructive/5 shadow-sm"
-                  : "border-border hover:border-destructive/50 hover:bg-muted/50"
+                  : "border-border hover:border-destructive/50 motion-interactive hover:bg-surface-muted"
               }`}
               onClick={() => setCancelType("immediate")}
             >

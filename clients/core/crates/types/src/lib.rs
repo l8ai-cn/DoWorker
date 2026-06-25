@@ -5,7 +5,7 @@
 //     registration flow (Tailscale-style device authorization), which has
 //     no proto coverage on the backend.
 //   - `service_error::ServiceError` — tagged-enum error type that bridges
-//     Rust errors across the wasm/UniFFI/NAPI boundary.
+//     Rust errors across the wasm boundary.
 //
 // All business-domain wire types come from the `proto_<svc>_v1` modules
 // below — auto-generated prost crates re-exported here for the rest of the

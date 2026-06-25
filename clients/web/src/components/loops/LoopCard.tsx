@@ -60,10 +60,8 @@ export function LoopCard({
       role="button"
       tabIndex={0}
       className={cn(
-        "group relative border rounded-xl p-4 cursor-pointer",
-        "bg-card hover:bg-accent/50",
-        "transition-all duration-200 ease-out",
-        "hover:shadow-md hover:border-primary/30",
+        "group relative surface-card-interactive p-4 cursor-pointer pressable motion-interactive",
+        "hover:bg-surface-muted",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         !isEnabled && "opacity-50"
       )}
@@ -84,12 +82,12 @@ export function LoopCard({
             <span
               className={cn(
                 "block w-2.5 h-2.5 rounded-full",
-                isRunning ? "bg-blue-500" : isEnabled ? "bg-emerald-500" : "bg-gray-400 dark:bg-gray-600"
+                isRunning ? "bg-info" : isEnabled ? "bg-success" : "bg-muted-foreground"
               )}
             />
             {/* Pulse animation for running loops only */}
             {isRunning && (
-              <span className="absolute inset-0 w-2.5 h-2.5 rounded-full animate-ping opacity-30 bg-blue-500" />
+              <span className="absolute inset-0 w-2.5 h-2.5 rounded-full animate-ping opacity-30 bg-info" />
             )}
           </div>
           <h3 className="font-semibold text-sm truncate leading-tight">{loop.name}</h3>
@@ -141,7 +139,7 @@ export function LoopCard({
       <div className="flex flex-wrap items-center gap-1.5 mb-3">
         {/* Trigger type badges */}
         {loop.cron_expression ? (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-medium font-mono">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-warning-bg text-warning text-[10px] font-medium font-mono">
             <Clock className="w-3 h-3" />
             {loop.cron_expression}
           </span>
@@ -164,7 +162,7 @@ export function LoopCard({
 
       {/* Running indicator */}
       {isRunning && (
-        <div className="flex items-center gap-1.5 mb-3 px-2 py-1 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs">
+        <div className="flex items-center gap-1.5 mb-3 px-2 py-1 rounded-md bg-info-bg text-info text-xs">
           <Loader2 className="w-3 h-3 animate-spin" />
           <span>{t("loops.runningCount", { count: loop.active_run_count })}</span>
         </div>
@@ -185,10 +183,10 @@ export function LoopCard({
                   className={cn(
                     "h-full rounded-full transition-all duration-500",
                     successRate !== null && successRate >= 80
-                      ? "bg-emerald-500"
+                      ? "bg-success"
                       : successRate !== null && successRate >= 50
-                        ? "bg-amber-500"
-                        : "bg-red-500"
+                        ? "bg-warning"
+                        : "bg-danger"
                   )}
                   style={{ width: `${successRate ?? 0}%` }}
                 />
@@ -223,7 +221,7 @@ export function LoopCard({
 
       {/* Footer actions */}
       <div
-        className="flex items-center justify-between mt-3 pt-3 border-t border-border/50"
+        className="flex items-center justify-between mt-3 pt-3"
         onClick={(e) => e.stopPropagation()}
       >
         {isEnabled ? (

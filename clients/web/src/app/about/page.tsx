@@ -9,7 +9,7 @@ export default function AboutPage() {
   const t = useTranslations();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="azure-theme min-h-screen bg-background">
       <PageHeader />
 
       {/* Hero Section */}
@@ -25,7 +25,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission Section */}
-      <section className="py-16 px-4 bg-muted/30">
+      <section className="py-16 px-4 bg-surface-muted/40">
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl font-bold mb-6">{t("about.mission.title")}</h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
@@ -39,7 +39,7 @@ export default function AboutPage() {
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl font-bold mb-6">{t("about.vision.title")}</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-lg border border-border">
+            <div className="surface-card-interactive p-6 motion-interactive">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <svg
                   className="w-6 h-6 text-primary"
@@ -62,7 +62,7 @@ export default function AboutPage() {
                 {t("about.vision.autonomous.content")}
               </p>
             </div>
-            <div className="p-6 rounded-lg border border-border">
+            <div className="surface-card-interactive p-6 motion-interactive">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <svg
                   className="w-6 h-6 text-primary"
@@ -85,7 +85,7 @@ export default function AboutPage() {
                 {t("about.vision.collaboration.content")}
               </p>
             </div>
-            <div className="p-6 rounded-lg border border-border">
+            <div className="surface-card-interactive p-6 motion-interactive">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <svg
                   className="w-6 h-6 text-primary"
@@ -113,7 +113,7 @@ export default function AboutPage() {
       </section>
 
       {/* Contact CTA */}
-      <section className="py-16 px-4 bg-muted/30">
+      <section className="py-16 px-4 bg-surface-muted/40">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-bold mb-4">{t("about.contact.title")}</h2>
           <p className="text-lg text-muted-foreground mb-8">

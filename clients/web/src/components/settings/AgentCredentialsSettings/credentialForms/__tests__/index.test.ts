@@ -56,6 +56,15 @@ describe("credentialForms registry", () => {
     expect(getEnvKeysFromSpec(spec)).toEqual(new Set(["CURSOR_API_KEY"]));
   });
 
+  it("do-agent exposes OpenAI/Anthropic secrets + allows custom env", () => {
+    const spec = getCredentialFormSpec("do-agent");
+    expect(spec.agentSlug).toBe("do-agent");
+    expect(spec.allowCustomEnv).toBe(true);
+    expect(getEnvKeysFromSpec(spec)).toEqual(
+      new Set(["OPENAI_API_KEY", "ANTHROPIC_API_KEY"]),
+    );
+  });
+
   it("falls back to pure custom-env form for unknown slug", () => {
     const spec = getCredentialFormSpec("custom-user-agent-xyz");
     expect(spec).toEqual({

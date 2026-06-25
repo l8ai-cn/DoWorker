@@ -468,28 +468,9 @@
         "badge": "Latest release",
         "title": "Download",
         "titleHighlight": "AgentsMesh",
-        "subtitle": "Native desktop apps for every platform — plus the self-hosted Runner that keeps your agents, code, and data on your own infrastructure.",
-        "downloadFor": "Download for {platform}",
+        "subtitle": "Download the self-hosted Runner that keeps your agents, code, and data on your own infrastructure.",
         "releasedOn": "Released {date}",
         "viewReleaseNotes": "View release notes on GitHub"
-      },
-      "platforms": {
-        "title": "Choose your platform",
-        "description": "All builds are code-signed and notarized. Auto-update keeps you on the latest stable release.",
-        "unavailable": "Build not available yet",
-        "checkBack": "Check back on the next release",
-        "macos": {
-          "title": "macOS",
-          "requirements": "macOS 11 Big Sur or later"
-        },
-        "windows": {
-          "title": "Windows",
-          "requirements": "Windows 10 or later · x64 / ARM64"
-        },
-        "linux": {
-          "title": "Linux",
-          "requirements": "Ubuntu 20.04 / Debian 11 or later"
-        }
       },
       "runner": {
         "badge": "Runner CLI",
@@ -502,7 +483,7 @@
       "resources": {
         "older": {
           "title": "Older versions",
-          "description": "Need a specific build? Every release ships with full changelogs and signed assets.",
+          "description": "Need a specific build? Every release ships with full changelogs and runner assets.",
           "cta": "Browse all releases"
         },
         "verify": {

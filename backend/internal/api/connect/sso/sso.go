@@ -34,6 +34,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/sso"
 	authservice "github.com/anthropics/agentsmesh/backend/internal/service/auth"
 	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
+	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
 	ssov1 "github.com/anthropics/agentsmesh/proto/gen/go/sso/v1"
 )
 
@@ -52,10 +53,15 @@ const (
 type Server struct {
 	ssoSvc  *ssoservice.Service
 	authSvc *authservice.Service
+	userSvc userService.Interface
 }
 
-func NewServer(ssoSvc *ssoservice.Service, authSvc *authservice.Service) *Server {
-	return &Server{ssoSvc: ssoSvc, authSvc: authSvc}
+func NewServer(
+	ssoSvc *ssoservice.Service,
+	authSvc *authservice.Service,
+	userSvc userService.Interface,
+) *Server {
+	return &Server{ssoSvc: ssoSvc, authSvc: authSvc, userSvc: userSvc}
 }
 
 // Discover returns the SSO configs registered for the email's domain.
@@ -67,9 +73,19 @@ func (s *Server) Discover(
 	ctx context.Context, req *connect.Request[ssov1.DiscoverRequest],
 ) (*connect.Response[ssov1.DiscoverResponse], error) {
 	email := req.Msg.GetEmail()
+	username := strings.TrimSpace(req.Msg.GetUsername())
+	if email == "" && username != "" && s.userSvc != nil {
+		u, err := s.userSvc.GetByUsername(ctx, username)
+		if err != nil {
+			return connect.NewResponse(&ssov1.DiscoverResponse{
+				Items: []*ssov1.SSODiscoverConfig{}, Total: 0,
+			}), nil
+		}
+		email = u.Email
+	}
 	if email == "" {
 		return nil, connect.NewError(connect.CodeInvalidArgument,
-			errors.New("email is required"))
+			errors.New("email or username is required"))
 	}
 	domain := extractEmailDomain(email)
 	if domain == "" {

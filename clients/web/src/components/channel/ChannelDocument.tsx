@@ -12,7 +12,7 @@ export function ChannelDocument({ document }: ChannelDocumentProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="flex-shrink-0 border-b border-border bg-muted/30">
+    <div className="flex-shrink-0 bg-surface-muted/30 bg-muted/30">
       <button
         type="button"
         className="w-full flex items-center gap-2 px-4 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"

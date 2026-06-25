@@ -5,7 +5,6 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/client"
 	"github.com/anthropics/agentsmesh/runner/internal/config"
 	"github.com/anthropics/agentsmesh/runner/internal/poddaemon"
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
 	"github.com/anthropics/agentsmesh/runner/internal/terminal/vt"
 	"github.com/anthropics/agentsmesh/runner/internal/workspace"
 )
@@ -27,10 +26,6 @@ type PodBuilderDeps struct {
 	// PodDaemonManager manages daemon-based PTY sessions.
 	// Can be nil; if nil, direct PTY is used (no session persistence).
 	PodDaemonManager *poddaemon.PodDaemonManager
-
-	// LocalRelayServer is the runner-wide local browser relay server.
-	// Can be nil; pod-level fanout silently skips local broadcast in that case.
-	LocalRelayServer *relay.LocalServer
 }
 
 // PodBuilder builds pods using the Builder pattern.
@@ -82,7 +77,6 @@ func NewPodBuilderFromRunner(runner *Runner) *PodBuilder {
 		Config:           runner.cfg,
 		ProgressSender:   runner.conn,
 		PodDaemonManager: runner.podDaemonManager,
-		LocalRelayServer: runner.localServer,
 	}
 	// Explicitly set Workspace only if not nil to avoid interface nil comparison issues
 	if runner.workspace != nil {

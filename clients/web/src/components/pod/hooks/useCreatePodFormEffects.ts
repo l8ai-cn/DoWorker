@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import type { AgentData, RepositoryData, EnvBundleSummary } from "@/lib/api";
 import { listEnvBundles } from "@/lib/api/facade/envBundleConnect";
+import { listRepoSkills } from "@/lib/api/facade/repoSkillExtension";
+import { readCurrentOrg } from "@/stores/auth";
 import { usePodCreationStore } from "@/stores/podCreation";
+import type { InstalledSkill } from "@/lib/viewModels/extension";
 
 /**
  * Hook managing auto-fill from saved preferences when agents/repos become available.
@@ -145,5 +148,60 @@ export function useEnvBundles(selectedAgent: string | null) {
     setSelectedCredentialName,
     selectedRuntimeBundleNames,
     setSelectedRuntimeBundleNames,
+  };
+}
+
+/**
+ * Loads installed skills for the selected repository (org + user scopes).
+ * Selection is cleared when the repository changes.
+ */
+export function useRepoSkills(repositoryId: number | null) {
+  const orgSlug = readCurrentOrg()?.slug ?? "";
+  const { lastSkillSlugs } = usePodCreationStore();
+  const [repoSkills, setRepoSkills] = useState<InstalledSkill[]>([]);
+  const [loadingSkills, setLoadingSkills] = useState(false);
+  const [selectedSkillSlugs, setSelectedSkillSlugs] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!repositoryId || !orgSlug) {
+      setRepoSkills([]);
+      setSelectedSkillSlugs([]);
+      return;
+    }
+
+    const load = async () => {
+      setLoadingSkills(true);
+      setSelectedSkillSlugs([]);
+      try {
+        const [orgRes, userRes] = await Promise.all([
+          listRepoSkills(orgSlug, repositoryId, { scope: "org" }).catch(() => ({ items: [] })),
+          listRepoSkills(orgSlug, repositoryId, { scope: "user" }).catch(() => ({ items: [] })),
+        ]);
+        const enabled = [...orgRes.items, ...userRes.items].filter((s) => s.is_enabled);
+        setRepoSkills(enabled);
+        // Restore last selection, dropping slugs no longer installed/enabled.
+        const available = new Set(enabled.map((s) => s.slug));
+        const restored = (lastSkillSlugs ?? []).filter((slug) => available.has(slug));
+        if (restored.length > 0) setSelectedSkillSlugs(restored);
+      } catch (err) {
+        console.error("Failed to load repo skills:", err);
+        setRepoSkills([]);
+      } finally {
+        setLoadingSkills(false);
+      }
+    };
+
+    load();
+    // lastSkillSlugs is read once per repo/org change; excluded to avoid
+    // re-running the load when the persisted value updates on submit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repositoryId, orgSlug]);
+
+  return {
+    repoSkills,
+    setRepoSkills,
+    loadingSkills,
+    selectedSkillSlugs,
+    setSelectedSkillSlugs,
   };
 }

@@ -23,7 +23,7 @@ import {
 } from "@proto/runner_state/v1/runner_state_pb";
 import { RunnerSchema } from "@proto/runner_api/v1/runner_pb";
 import { runnerToProtoRunner } from "@/lib/api/runnerProtoMap";
-import { runnerToCache } from "@agentsmesh/electron-adapter/projections";
+import { runnerToCache } from "@/lib/api/projections";
 
 export type RunnerStatus = "online" | "offline" | "maintenance" | "busy";
 export type Runner = RunnerData;
@@ -40,11 +40,10 @@ interface RunnerState {
   clearError: () => void;
 }
 
-// Runner state SSOT is the shared AppState (runtime.state) via getRunnerState
-// (web: WasmRunnerState; desktop: ElectronRunnerService). This is the SAME
-// state the EventBus dispatch + desktop snapshot mirror write, so realtime
+// Runner state SSOT is the shared AppState via getRunnerState. This is the
+// same state the EventBus dispatch and Web snapshot mirror write, so realtime
 // runner changes flow without a JS pure-patch. Connect-RPC stays on the
-// runnerConnect facade (which still uses getRunnerService).
+// runnerConnect facade.
 const svc = () => getRunnerState();
 const bump = () => useRunnerStore.setState((s) => ({ _tick: s._tick + 1 }));
 
@@ -165,10 +164,10 @@ export const useRunnerStore = create<RunnerState>((set, get) => ({
 
 export const getRunnerStatusInfo = (status: RunnerStatus) => {
   const m: Record<RunnerStatus, { label: string; color: string; dotColor: string }> = {
-    online: { label: "Online", color: "text-green-600 dark:text-green-400", dotColor: "bg-green-500" },
-    offline: { label: "Offline", color: "text-gray-500 dark:text-gray-400", dotColor: "bg-gray-400" },
-    maintenance: { label: "Maintenance", color: "text-yellow-600 dark:text-yellow-400", dotColor: "bg-yellow-500" },
-    busy: { label: "Busy", color: "text-orange-600 dark:text-orange-400", dotColor: "bg-orange-500" },
+    online: { label: "Online", color: "text-success", dotColor: "bg-success" },
+    offline: { label: "Offline", color: "text-muted-foreground", dotColor: "bg-muted-foreground" },
+    maintenance: { label: "Maintenance", color: "text-warning", dotColor: "bg-warning" },
+    busy: { label: "Busy", color: "text-primary", dotColor: "bg-primary" },
   };
   return m[status];
 };

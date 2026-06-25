@@ -45,7 +45,7 @@ export function PersonalSettingsSidebar({ className }: PersonalSettingsSidebarPr
 
   return (
     <div className={cn("flex flex-col h-full", className)}>
-      <div className="px-2 py-3 border-b border-border">
+      <div className="px-3 py-3 bg-surface-muted/40">
         <h3 className="text-sm font-semibold">{t("settings.personal.title")}</h3>
         <p className="text-xs text-muted-foreground mt-0.5">
           {t("settings.personal.description")}
@@ -61,10 +61,8 @@ export function PersonalSettingsSidebar({ className }: PersonalSettingsSidebarPr
             <button
               key={tab.id}
               className={cn(
-                "w-full flex items-start gap-2 px-2 py-2 text-left transition-colors",
-                isActive
-                  ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                "nav-row pressable flex-col items-start gap-0.5 !py-2.5",
+                isActive ? "nav-row-active" : "nav-row-idle",
               )}
               onClick={() => handleTabClick(tab.path)}
             >
@@ -87,7 +85,7 @@ export function PersonalSettingsSidebar({ className }: PersonalSettingsSidebarPr
         })}
       </div>
 
-      <div className="border-t border-border px-2 py-3">
+      <div className="px-3 py-3 bg-surface-muted/30 mt-auto">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <User className="w-3 h-3" />
           <span>{t("settings.personal.userSettings")}</span>

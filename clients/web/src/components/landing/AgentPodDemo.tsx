@@ -15,7 +15,7 @@ const PODS: PodTerminal[] = [
     name: "pod-alpha",
     agent: "Claude Code",
     workspace: "/projects/api",
-    color: "text-orange-400",
+    color: "text-primary",
     lines: [
       "$ claude --resume",
       "> Resuming session...",
@@ -31,7 +31,7 @@ const PODS: PodTerminal[] = [
     name: "pod-beta",
     agent: "Codex CLI",
     workspace: "/projects/web",
-    color: "text-blue-400",
+    color: "text-info",
     lines: [
       "$ codex start",
       "> Analyzing codebase...",
@@ -47,7 +47,7 @@ const PODS: PodTerminal[] = [
     name: "pod-gamma",
     agent: "Aider",
     workspace: "/projects/mobile",
-    color: "text-purple-400",
+    color: "text-accent-foreground",
     lines: [
       "$ aider --model opus",
       "> Loading repo map...",
@@ -69,22 +69,22 @@ function Terminal({
   displayedLines: number;
 }) {
   return (
-    <div className="bg-[#0d1117] rounded-lg border border-[#30363d] overflow-hidden shadow-xl">
-      <div className="flex items-center justify-between px-3 py-2 bg-[#161b22] border-b border-[#30363d]">
+    <div className="surface-card rounded-lg overflow-hidden shadow-xl">
+      <div className="flex items-center justify-between px-3 py-2 bg-surface-muted/50 panel-lift">
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#f85149]" />
-          <div className="w-2.5 h-2.5 rounded-full bg-[#d29922]" />
-          <div className="w-2.5 h-2.5 rounded-full bg-[#3fb950]" />
+          <div className="w-2.5 h-2.5 rounded-full bg-danger" />
+          <div className="w-2.5 h-2.5 rounded-full bg-warning" />
+          <div className="w-2.5 h-2.5 rounded-full bg-success" />
         </div>
-        <span className="text-[10px] font-mono text-[#8b949e]">{pod.name}</span>
+        <span className="text-[10px] font-mono text-muted-foreground">{pod.name}</span>
         <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#3fb950] animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
         </div>
       </div>
 
-      <div className="px-3 py-1 bg-[#0d1117] border-b border-[#21262d] text-[10px] font-mono text-[#8b949e] flex gap-3">
+      <div className="px-3 py-1 bg-background panel-lift text-[10px] font-mono text-muted-foreground flex gap-3">
         <span className={pod.color}>{pod.agent}</span>
-        <span className="text-[#484f58]">|</span>
+        <span className="text-muted-foreground/50">|</span>
         <span>{pod.workspace}</span>
       </div>
 
@@ -94,21 +94,21 @@ function Terminal({
             key={i}
             className={
               line.startsWith("$")
-                ? "text-[#58a6ff]"
+                ? "text-info"
                 : line.startsWith(">")
                   ? line.includes("✓")
-                    ? "text-[#3fb950]"
-                    : "text-[#d2a8ff]"
+                    ? "text-success"
+                    : "text-primary"
                   : line.includes("passed") || line.includes("ok ")
-                    ? "text-[#3fb950]"
-                    : "text-[#c9d1d9]"
+                    ? "text-success"
+                    : "text-foreground"
             }
           >
             {line}
           </div>
         ))}
         {displayedLines < pod.lines.length && (
-          <span className="text-[#58a6ff] animate-pulse">▋</span>
+          <span className="text-info animate-pulse">▋</span>
         )}
       </div>
     </div>

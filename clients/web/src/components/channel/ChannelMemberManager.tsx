@@ -127,11 +127,11 @@ export function ChannelMemberManager({
                 {members.map((m) => (
                   <div
                     key={m.user_id}
-                    className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-muted/50 group"
+                    className="flex items-center justify-between px-2 py-1.5 rounded-md motion-interactive hover:bg-surface-muted group"
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       {m.role === "creator" ? (
-                        <Crown className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                        <Crown className="w-3.5 h-3.5 text-warning flex-shrink-0" />
                       ) : (
                         <Users className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                       )}
@@ -169,7 +169,7 @@ export function ChannelMemberManager({
                   return (
                   <div
                     key={userId}
-                    className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-muted/50"
+                    className="flex items-center justify-between px-2 py-1.5 rounded-md motion-interactive hover:bg-surface-muted"
                   >
                     <span className="text-xs font-medium truncate">
                       {m.user?.name || m.user?.username || `User #${userId}`}

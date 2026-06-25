@@ -21,15 +21,15 @@ func connectCodeOf(t *testing.T, err error) connect.Code {
 
 // --- Discover input validation ---
 
-func TestDiscover_EmptyEmail_InvalidArgument(t *testing.T) {
-	srv := NewServer(nil, nil)
+func TestDiscover_EmptyIdentifier_InvalidArgument(t *testing.T) {
+	srv := NewServer(nil, nil, nil)
 	_, err := srv.Discover(context.Background(), connect.NewRequest(&ssov1.DiscoverRequest{}))
 	require.Error(t, err)
 	require.Equal(t, connect.CodeInvalidArgument, connectCodeOf(t, err))
 }
 
 func TestDiscover_InvalidEmail_InvalidArgument(t *testing.T) {
-	srv := NewServer(nil, nil)
+	srv := NewServer(nil, nil, nil)
 	_, err := srv.Discover(context.Background(), connect.NewRequest(&ssov1.DiscoverRequest{
 		Email: "not-an-email",
 	}))
@@ -40,7 +40,7 @@ func TestDiscover_InvalidEmail_InvalidArgument(t *testing.T) {
 // --- LdapAuth input validation ---
 
 func TestLdapAuth_EmptyDomain_InvalidArgument(t *testing.T) {
-	srv := NewServer(nil, nil)
+	srv := NewServer(nil, nil, nil)
 	_, err := srv.LdapAuth(context.Background(), connect.NewRequest(&ssov1.LdapAuthRequest{
 		Username: "alice",
 		Password: "p",
@@ -50,7 +50,7 @@ func TestLdapAuth_EmptyDomain_InvalidArgument(t *testing.T) {
 }
 
 func TestLdapAuth_InvalidDomain_InvalidArgument(t *testing.T) {
-	srv := NewServer(nil, nil)
+	srv := NewServer(nil, nil, nil)
 	_, err := srv.LdapAuth(context.Background(), connect.NewRequest(&ssov1.LdapAuthRequest{
 		Domain:   "not a domain",
 		Username: "alice",
@@ -61,7 +61,7 @@ func TestLdapAuth_InvalidDomain_InvalidArgument(t *testing.T) {
 }
 
 func TestLdapAuth_EmptyCredentials_InvalidArgument(t *testing.T) {
-	srv := NewServer(nil, nil)
+	srv := NewServer(nil, nil, nil)
 	_, err := srv.LdapAuth(context.Background(), connect.NewRequest(&ssov1.LdapAuthRequest{
 		Domain:   "acme.com",
 		Username: "",

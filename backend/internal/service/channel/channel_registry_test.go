@@ -71,6 +71,20 @@ func TestCreateChannel_DerivesSlugFromName(t *testing.T) {
 	}
 }
 
+func TestCreateChannel_InvalidSlugNameReturnsValidationError(t *testing.T) {
+	db := setupTestDB(t)
+	svc := newTestService(db)
+	ctx := context.Background()
+
+	_, err := svc.CreateChannel(ctx, &CreateChannelRequest{
+		OrganizationID: 1,
+		Name:           "1",
+	})
+	if err != ErrInvalidName {
+		t.Fatalf("expected ErrInvalidName, got %v", err)
+	}
+}
+
 func TestCreateChannel_DisplaykitSanitizesName(t *testing.T) {
 	db := setupTestDB(t)
 	svc := newTestService(db)

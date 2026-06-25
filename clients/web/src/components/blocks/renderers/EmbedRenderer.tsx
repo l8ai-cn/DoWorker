@@ -60,7 +60,7 @@ export function EmbedRenderer({ block }: { block: Block }) {
             href={sanitizeURL(url) || "#"}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm hover:bg-muted/50"
+            className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm motion-interactive hover:bg-surface-muted"
           >
             <ExternalLink className="h-4 w-4" />
             <span className="truncate">{url}</span>
@@ -70,7 +70,7 @@ export function EmbedRenderer({ block }: { block: Block }) {
         <button
           type="button"
           onClick={onPasteUrl}
-          className="w-full rounded-md border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground hover:bg-muted/50"
+          className="w-full rounded-md border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground motion-interactive hover:bg-surface-muted"
         >
           Paste embed URL (YouTube / Figma / Loom / …)
         </button>

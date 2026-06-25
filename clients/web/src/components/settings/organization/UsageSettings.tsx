@@ -55,13 +55,13 @@ function UsageLoadingSkeleton() {
       <div className="h-4 bg-muted rounded w-96" />
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="border border-border rounded-lg p-4">
+          <div key={i} className="surface-card p-4">
             <div className="h-4 bg-muted rounded w-20 mb-2" />
             <div className="h-8 bg-muted rounded w-24" />
           </div>
         ))}
       </div>
-      <div className="border border-border rounded-lg p-6">
+      <div className="surface-card p-6">
         <div className="h-4 bg-muted rounded w-40 mb-4" />
         <div className="h-64 bg-muted rounded" />
       </div>
@@ -188,7 +188,7 @@ export function UsageSettings({ t }: UsageSettingsProps) {
   if (error && !summary) {
     return (
       <div className="space-y-6">
-        <div className="border border-border rounded-lg p-6">
+        <div className="surface-card p-6">
           <p className="text-destructive">{error}</p>
           <Button variant="outline" className="mt-4" onClick={loadData}>
             {t("settings.usagePage.retry")}
@@ -208,7 +208,7 @@ export function UsageSettings({ t }: UsageSettingsProps) {
       </div>
 
       {error && (
-        <div className="p-4 rounded-lg bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">
+        <div className="p-4 rounded-lg bg-danger-bg text-danger border border-danger">
           {error}
         </div>
       )}

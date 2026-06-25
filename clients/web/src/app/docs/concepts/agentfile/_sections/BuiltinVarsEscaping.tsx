@@ -1,103 +1,44 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { DocsTable } from "@/components/docs/DocsTable";
+import { docsMono, twoColumnHeaders } from "@/components/docs/docs-table-helpers";
+
+const BUILTIN_VARS = [
+  ["config.*", "configDesc"],
+  ["sandbox.root", "sandboxRoot"],
+  ["sandbox.work_dir", "sandboxWorkDir"],
+  ["mcp.enabled", "mcpEnabled"],
+  ["mcp.servers", "mcpServers"],
+  ["mcp.format", "mcpFormat"],
+  ["mode", "modeDesc"],
+] as const;
 
 export function BuiltinVarsEscaping() {
   const t = useTranslations();
+  const prefix = "docs.concepts.agentfile.builtinVars";
 
   return (
     <>
-      {/* Built-in Variables */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
-          {t("docs.concepts.agentfile.builtinVars.title")}
-        </h2>
-        <p className="text-muted-foreground leading-relaxed mb-6">
-          {t("docs.concepts.agentfile.builtinVars.description")}
-        </p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-border rounded-lg">
-            <thead>
-              <tr className="bg-muted">
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.concepts.agentfile.builtinVars.variableHeader")}
-                </th>
-                <th className="text-left p-3 border-b border-border">
-                  {t("docs.concepts.agentfile.builtinVars.descHeader")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-muted-foreground">
-              <tr>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  config.*
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.concepts.agentfile.builtinVars.configDesc")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  sandbox.root
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.concepts.agentfile.builtinVars.sandboxRoot")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  sandbox.work_dir
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.concepts.agentfile.builtinVars.sandboxWorkDir")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  mcp.enabled
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.concepts.agentfile.builtinVars.mcpEnabled")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  mcp.servers
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.concepts.agentfile.builtinVars.mcpServers")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  mcp.format
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.concepts.agentfile.builtinVars.mcpFormat")}
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 border-b border-border font-mono text-xs">
-                  mode
-                </td>
-                <td className="p-3 border-b border-border">
-                  {t("docs.concepts.agentfile.builtinVars.modeDesc")}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">{t(`${prefix}.title`)}</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">{t(`${prefix}.description`)}</p>
+        <DocsTable
+          columns={twoColumnHeaders(t, prefix, "variableHeader", "descHeader")}
+          rows={BUILTIN_VARS.map(([variable, descKey]) => ({
+            cells: [docsMono(variable), t(`${prefix}.${descKey}`)],
+          }))}
+        />
       </section>
 
-      {/* String Escaping */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">
           {t("docs.concepts.agentfile.escaping.title")}
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           {t("docs.concepts.agentfile.escaping.description")}
         </p>
-        <pre className="bg-muted rounded-lg p-3 text-sm overflow-x-auto">
+        <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-3 text-sm overflow-x-auto">
           <code>{`\\\\  →  backslash
 \\"  →  double quote
 \\n  →  newline

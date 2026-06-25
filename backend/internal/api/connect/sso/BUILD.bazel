@@ -13,6 +13,7 @@ go_library(
         "//backend/internal/domain/user",
         "//backend/internal/service/auth",
         "//backend/internal/service/sso",
+        "//backend/internal/service/user",
         "//proto/sso/v1:sso_go_proto",
         "@com_connectrpc_connect//:connect",
     ],

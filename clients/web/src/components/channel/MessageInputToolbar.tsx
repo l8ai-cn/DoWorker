@@ -53,7 +53,9 @@ export function MessageInputToolbar({
       {(name || pending) && (
         <AttachmentChip attachment={attachment} />
       )}
-      <div className="flex items-center justify-between border-t border-border/60 px-2 py-1.5">
+      <div>
+        <div className="soft-separator" />
+        <div className="flex items-center justify-between px-2 py-1.5">
         <div className="flex items-center gap-0.5">
           <FormatToolbarPopover
             textareaRef={textareaRef}
@@ -96,6 +98,7 @@ export function MessageInputToolbar({
             <ArrowUp className="h-3.5 w-3.5" />
           </Button>
         </div>
+        </div>
       </div>
     </>
   );
@@ -103,7 +106,9 @@ export function MessageInputToolbar({
 
 function AttachmentChip({ attachment }: { attachment: UseFileAttachmentResult }) {
   return (
-    <div className="flex items-center gap-2 border-t border-border/60 px-3 py-1.5 text-xs">
+    <div>
+      <div className="soft-separator" />
+      <div className="flex items-center gap-2 px-3 py-1.5 text-xs">
       <Paperclip className="h-3 w-3 text-muted-foreground" />
       <span className="max-w-[240px] truncate text-foreground">{attachment.name}</span>
       {attachment.pending && (
@@ -122,6 +127,7 @@ function AttachmentChip({ attachment }: { attachment: UseFileAttachmentResult })
           <X className="h-3 w-3" />
         </button>
       )}
+      </div>
     </div>
   );
 }

@@ -19,7 +19,7 @@ func TestGRPCRunnerAdapter_SendSubscribePod(t *testing.T) {
 	adapter := NewGRPCRunnerAdapter(logger, nil, nil, nil, nil, nil, connMgr, nil)
 
 	t.Run("runner not connected", func(t *testing.T) {
-		err := adapter.SendSubscribePod(999, "pod-1", "ws://relay", "token", "", true, 100)
+		err := adapter.SendSubscribePod(999, "pod-1", "ws://relay", "token", true, 100)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "not connected")
 	})
@@ -28,7 +28,7 @@ func TestGRPCRunnerAdapter_SendSubscribePod(t *testing.T) {
 		mockStream := &mockRunnerStream{}
 		connMgr.AddConnection(2, "test-node", "test-org", mockStream)
 
-		err := adapter.SendSubscribePod(2, "pod-1", "ws://relay", "token", "", true, 100)
+		err := adapter.SendSubscribePod(2, "pod-1", "ws://relay", "token", true, 100)
 		require.NoError(t, err)
 	})
 }

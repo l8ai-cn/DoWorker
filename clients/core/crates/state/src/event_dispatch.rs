@@ -422,8 +422,8 @@ mod tests {
     // Regression: the backend serializes proto int64 as JSON *strings*
     // (protojson). event_dispatch must parse string-encoded int64s, not
     // just numbers — otherwise channel_id/id extraction silently fails and
-    // no state mutation happens (the bug that left desktop/web realtime
-    // dead before the SSOT cutover).
+    // no state mutation happens (the bug that left realtime dead before the
+    // SSOT cutover).
     #[test]
     fn channel_message_protojson_string_int64() {
         let mut s = AppState::new();

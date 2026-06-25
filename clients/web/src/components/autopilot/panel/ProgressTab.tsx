@@ -40,13 +40,13 @@ export function ProgressTab({ thinking }: ProgressTabProps) {
         {progress.completed_steps && progress.completed_steps.length > 0 && (
           <div>
             <div className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1">
-              <CheckCircle className="h-3 w-3 text-green-500" />
+              <CheckCircle className="h-3 w-3 text-success" />
               <span>Completed ({progress.completed_steps.length})</span>
             </div>
             <ul className="space-y-0.5">
               {progress.completed_steps.map((step, i) => (
                 <li key={i} className="flex items-start gap-1.5 text-xs">
-                  <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="h-3 w-3 text-success flex-shrink-0 mt-0.5" />
                   <span className="line-clamp-2">{step}</span>
                 </li>
               ))}

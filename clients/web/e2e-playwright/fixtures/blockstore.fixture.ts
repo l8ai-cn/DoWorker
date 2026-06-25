@@ -55,7 +55,7 @@ async function login(): Promise<string> {
       "Content-Type": "application/json",
       "Connect-Protocol-Version": "1",
     },
-    body: JSON.stringify({ email: DEV_EMAIL, password: DEV_PASSWORD }),
+    body: JSON.stringify({ username: TEST_USER.username, password: DEV_PASSWORD }),
   });
   if (!res.ok) throw new Error(`login failed: ${res.status}`);
   const json = (await res.json()) as { token: string };

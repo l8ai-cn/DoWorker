@@ -2,9 +2,8 @@ load("@rules_go//proto:def.bzl", "go_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_rust_prost//:defs.bzl", "rust_prost_library", "rust_prost_transform")
 
-# Desktop NAPI auth state mutation contract. See auth_state.proto for
-# the business intent — auth/org persistence in the Electron main
-# process flows through these messages.
+# client-side auth state mutation contract. See auth_state.proto for the
+# business intent — auth/org persistence flows through these messages.
 
 rust_prost_transform(
     name = "auth_state_serde_transform",

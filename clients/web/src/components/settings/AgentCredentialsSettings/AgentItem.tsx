@@ -42,10 +42,10 @@ export function AgentItem({
   t,
 }: AgentItemProps) {
   return (
-    <div className="border border-border rounded-lg overflow-hidden">
+    <div className="surface-card overflow-hidden">
       {/* Agent Header */}
       <button
-        className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
+        className="w-full flex items-center justify-between p-4 motion-interactive hover:bg-surface-muted"
         onClick={onToggle}
       >
         <div className="flex items-center gap-3">
@@ -77,7 +77,7 @@ export function AgentItem({
           {/* "No bundle" — always shown as first option, not deletable.
               Represents "use the Runner's native env"; selecting this clears
               any primary bundle in this (user, agent, kind=credential) group. */}
-          <div className="px-4 py-3 flex items-center justify-between hover:bg-muted/50 border-b border-border">
+          <div className="px-4 py-3 flex items-center justify-between motion-interactive hover:bg-surface-muted border-b border-border">
             <div className="flex items-center gap-3">
               <Server className="w-4 h-4 text-muted-foreground" />
               <div>
@@ -115,7 +115,7 @@ export function AgentItem({
               {profiles.map((profile) => (
                 <div
                   key={profile.id}
-                  className="px-4 py-3 flex items-center justify-between hover:bg-muted/50"
+                  className="px-4 py-3 flex items-center justify-between motion-interactive hover:bg-surface-muted"
                 >
                   <CredentialProfileRow
                     profile={profile}

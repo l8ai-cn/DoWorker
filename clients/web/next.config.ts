@@ -11,6 +11,18 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const here = path.dirname(fileURLToPath(import.meta.url));
 const monorepoRoot = path.resolve(here, "../..");
 
+function getDevProxyTarget(): string {
+  if (process.env.API_PROXY_TARGET) return process.env.API_PROXY_TARGET;
+
+  const domain = process.env.PRIMARY_DOMAIN;
+  if (domain) {
+    const protocol = process.env.USE_HTTPS === "true" ? "https" : "http";
+    return `${protocol}://${domain}`;
+  }
+
+  return "http://localhost:10000";
+}
+
 // `output: 'standalone'` packages the server + its transitive
 // node_modules into `.next/standalone/` for a slim Docker image. The
 // Bazel OCI pipeline can't track the self-referential
@@ -51,8 +63,6 @@ const nextConfig: NextConfig = {
   transpilePackages: [
     "@agentsmesh/service-runtime",
     "@agentsmesh/service-interface",
-    // Refactor B: web reuses electron-adapter/projections (raw .ts).
-    "@agentsmesh/electron-adapter",
     "@agentsmesh/proto",
   ],
 
@@ -107,15 +117,9 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_E2E: process.env.NEXT_PUBLIC_E2E === "true" ? "true" : "",
   },
 
-  // 本地开发时代理 API 请求，避免跨域问题
-  // API_PROXY_TARGET 由 dev.sh 生成到 .env.local
-  // 前端使用相对路径 /api/*，Next.js rewrites 代理到后端
   async rewrites() {
-    // API_PROXY_TARGET 是服务端变量（不带 NEXT_PUBLIC_ 前缀）
-    const proxyTarget = process.env.API_PROXY_TARGET;
-
-    // 仅在本地开发且配置了代理目标时启用
-    if (process.env.NODE_ENV === "development" && proxyTarget) {
+    if (process.env.NODE_ENV === "development") {
+      const proxyTarget = getDevProxyTarget();
       console.log(`[Next.js] API proxy enabled: /api/* + /proto.* + /health → ${proxyTarget}`);
       return [
         {

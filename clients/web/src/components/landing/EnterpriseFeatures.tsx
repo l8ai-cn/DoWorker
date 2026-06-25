@@ -104,7 +104,7 @@ export function EnterpriseFeatures() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="p-6 bg-secondary/20 rounded-xl border border-border hover:border-primary/30 transition-all duration-300 group"
+              className="surface-card-interactive p-6 motion-interactive group"
             >
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/20 transition-colors">
                 {feature.icon}
@@ -112,7 +112,7 @@ export function EnterpriseFeatures() {
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="font-semibold">{feature.title}</h3>
                 {feature.comingSoon && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-warning/20 text-warning border border-warning/30">
                     Coming Soon
                   </span>
                 )}

@@ -25,7 +25,7 @@ export const themeConfigs: ThemeConfig[] = [
 
 export const themeColors: Record<string, string> = {
   light: "#ffffff",
-  dark: "#0a0a0a",
+  dark: "#16130f",
   "solarized-light": "#fdf6e3",
   "solarized-dark": "#002b36",
 };

@@ -94,7 +94,7 @@ export function AcpDebugPanel({ podKey }: AcpDebugPanelProps) {
 function DebugRow({ entry }: { entry: DebugEntry }) {
   const [expanded, setExpanded] = useState(false);
   const Icon = entry.direction === "in" ? ArrowDown : ArrowUp;
-  const color = entry.direction === "in" ? "text-blue-500" : "text-green-500";
+  const color = entry.direction === "in" ? "text-info" : "text-success";
 
   return (
     <div className="border-b border-border/50">

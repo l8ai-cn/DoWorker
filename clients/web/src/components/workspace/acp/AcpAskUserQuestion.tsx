@@ -69,7 +69,7 @@ export function AcpAskUserQuestion({ permission, onRespond }: AcpAskUserQuestion
   };
 
   return (
-    <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30 p-3 space-y-3">
+    <div className="rounded-lg border border-info/30 bg-info-bg p-3 space-y-3">
       {parsed.map((q) => (
         <QuestionBlock
           key={q.question}
@@ -83,7 +83,7 @@ export function AcpAskUserQuestion({ permission, onRespond }: AcpAskUserQuestion
       <div className="flex gap-2 pt-1">
         <button
           onClick={handleSubmit}
-          className="rounded bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700"
+          className="rounded bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary-hover"
         >
           Submit
         </button>
@@ -115,7 +115,7 @@ function QuestionBlock({
   return (
     <div>
       <div className="flex items-center gap-1.5 mb-1.5">
-        <HelpCircle className="h-3.5 w-3.5 text-blue-500" />
+        <HelpCircle className="h-3.5 w-3.5 text-info" />
         <span className="text-sm font-medium">{question.question}</span>
       </div>
       <div className="space-y-1 ml-5">
@@ -130,7 +130,7 @@ function QuestionBlock({
               }}
               className={`block w-full text-left rounded px-2 py-1 text-xs transition-colors ${
                 isSelected
-                  ? "bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700"
+                  ? "bg-accent border border-primary/40"
                   : "bg-muted/50 hover:bg-muted border border-transparent"
               }`}
             >
@@ -162,16 +162,16 @@ function FallbackView({
   onRespond: (requestId: string, approved: boolean) => void;
 }) {
   return (
-    <div className="rounded-lg border border-blue-200 dark:border-blue-800 p-3">
+    <div className="rounded-lg border border-info/30 p-3">
       <div className="flex items-center gap-2 mb-2">
-        <HelpCircle className="h-4 w-4 text-blue-500" />
+        <HelpCircle className="h-4 w-4 text-info" />
         <span className="text-sm font-medium">Question</span>
       </div>
       <p className="text-sm mb-2">{permission.description}</p>
       <div className="flex gap-2">
         <button
           onClick={() => onRespond(permission.requestId, true)}
-          className="rounded bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700"
+          className="rounded bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary-hover"
         >
           OK
         </button>

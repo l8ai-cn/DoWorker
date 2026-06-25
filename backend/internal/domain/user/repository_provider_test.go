@@ -91,6 +91,12 @@ func TestRepositoryProvider_ToResponse_JSONIncludesIsActiveField(t *testing.T) {
 	}
 }
 
+func TestRepositoryProvider_ValidProviderTypesIncludesCNB(t *testing.T) {
+	if !IsValidProviderType(ProviderTypeCNB) {
+		t.Fatal("CNB must be accepted as a repository provider type")
+	}
+}
+
 func keys(m map[string]any) []string {
 	out := make([]string, 0, len(m))
 	for k := range m {

@@ -16,6 +16,7 @@ func buildEvalContext(
 	req *ConfigBuildRequest,
 	builtinMCP, installedMCP map[string]interface{},
 	envBundles map[string]map[string]string,
+	configBundles map[string]interface{},
 ) *eval.Context {
 	vars := map[string]interface{}{
 		"config": make(map[string]interface{}), // filled by CONFIG declarations during eval
@@ -36,6 +37,7 @@ func buildEvalContext(
 
 	ctx := eval.NewContext(vars)
 	ctx.EnvBundles = envBundles
+	ctx.ConfigBundles = configBundles
 	return ctx
 }
 

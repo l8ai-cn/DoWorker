@@ -32,7 +32,7 @@ export class ApiFixture {
    * / `data.user` still compile while the migration is in progress.
    */
   async login(
-    email: string = TEST_USER.email,
+    username: string = TEST_USER.username,
     password: string = TEST_USER.password,
   ): Promise<{ token: string; refresh_token: string; user: unknown }> {
     const res = await this.fetchWithRetry(
@@ -43,7 +43,7 @@ export class ApiFixture {
           "Content-Type": "application/json",
           "Connect-Protocol-Version": "1",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       },
     );
     if (!res.ok) throw new Error(`Login failed: ${res.status}`);
@@ -58,8 +58,8 @@ export class ApiFixture {
   }
 
   /** Switch the cached token to a different user — returns the new token. */
-  async loginAs(email: string, password: string): Promise<string> {
-    const data = await this.login(email, password);
+  async loginAs(username: string, password: string): Promise<string> {
+    const data = await this.login(username, password);
     return data.token;
   }
 

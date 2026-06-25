@@ -55,7 +55,6 @@ type SubscribePodRequest struct {
 	PodKey          string `json:"pod_key"`
 	RelayURL        string `json:"relay_url"`    // Public URL via reverse proxy (e.g. wss://example.com/relay)
 	RunnerToken     string `json:"runner_token"` // JWT token for Relay authentication
-	LocalToken      string `json:"local_token"`  // Token shared with renderer for the local relay; "" when no local relay is in play.
 	IncludeSnapshot bool   `json:"include_snapshot"`
 	SnapshotHistory int32  `json:"snapshot_history"`
 }
@@ -145,9 +144,4 @@ type MessageHandler interface {
 	// OnUpdatePodPerpetual handles update_pod_perpetual command from server.
 	// Updates the pod's perpetual flag in-memory so exit behavior is adjusted immediately.
 	OnUpdatePodPerpetual(cmd *runnerv1.UpdatePodPerpetualCommand) error
-
-	// OnGetLocalRelayURL returns the runner's advertised local relay URL
-	// (ws://127.0.0.1:<port>/...), or "" when the local relay is not running.
-	// Surfaced in heartbeats so backend can short-circuit browser→runner traffic.
-	OnGetLocalRelayURL() string
 }

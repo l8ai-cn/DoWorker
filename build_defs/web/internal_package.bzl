@@ -15,7 +15,7 @@ Usage:
 
     internal_npm_package(
         name = "pkg",
-        package_name = "@agentsmesh/electron-adapter",
+        package_name = "@agentsmesh/example",
         version = "0.1.0",
         main = "src/index.ts",
         dependencies = {"@agentsmesh/service-interface": "*"},

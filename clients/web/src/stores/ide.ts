@@ -7,8 +7,10 @@ export type ActivityType =
   | "channels"
   | "mesh"
   | "loops"
+  | "automation"
   | "blocks"
   | "infra"
+  | "skills"
   | "repositories"
   | "runners"
   | "settings";
@@ -149,9 +151,23 @@ export const ACTIVITIES: ActivityConfig[] = [
     mobileVisible: false,
   },
   {
+    id: "automation",
+    label: "Automation",
+    icon: "workflow",
+    group: "build",
+    mobileVisible: false,
+  },
+  {
     id: "infra",
     label: "Infra",
     icon: "layers",
+    group: "ops",
+    mobileVisible: false,
+  },
+  {
+    id: "skills",
+    label: "Skills",
+    icon: "sparkles",
     group: "ops",
     mobileVisible: false,
   },

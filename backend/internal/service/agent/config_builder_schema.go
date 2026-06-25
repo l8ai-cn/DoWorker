@@ -2,20 +2,14 @@ package agent
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/anthropics/agentsmesh/agentfile/extract"
-	"github.com/anthropics/agentsmesh/agentfile/parser"
+	"github.com/anthropics/agentsmesh/agentfile/schema"
 )
 
-// ResolveConfigSchema returns the config schema for an agent. After the
-// EnvBundle refactor it serves only AgentFile CONFIG declarations — credential
-// field schemas live entirely in the frontend's per-agent form spec.
-//
-// It only needs to look up the agent + parse its AgentFile, so it lives at
-// package scope instead of on ConfigBuilder. This lets callers (e.g.
-// AgentHandler) ask for schemas without standing up the full Pod-build
-// dependency graph (EnvBundle loader, extension provider).
+// ResolveConfigSchema returns the config + credential schema for an agent.
+// Both field sets are extracted from AgentFile declarations (CONFIG and
+// ENV SECRET/TEXT). Credential UX grouping (oneof auth methods, labels) stays
+// in the frontend override registry.
 func ResolveConfigSchema(ctx context.Context, provider AgentConfigProvider, agentSlug string) (*ConfigSchemaResponse, error) {
 	agentDef, err := provider.GetAgent(ctx, agentSlug)
 	if err != nil {
@@ -28,16 +22,17 @@ func ResolveConfigSchema(ctx context.Context, provider AgentConfigProvider, agen
 }
 
 func configSchemaFromAgentfile(source string) (*ConfigSchemaResponse, error) {
-	prog, errs := parser.Parse(source)
-	if len(errs) > 0 {
-		return nil, fmt.Errorf("agentfile parse errors: %v", errs)
+	agentSchema, err := schema.FromSource(source)
+	if err != nil {
+		return nil, err
 	}
 
-	spec := extract.Extract(prog)
 	result := &ConfigSchemaResponse{
-		Fields: make([]ConfigFieldResponse, 0, len(spec.Config)),
+		Fields:           make([]ConfigFieldResponse, 0, len(agentSchema.ConfigFields)),
+		CredentialFields: make([]CredentialFieldResponse, 0, len(agentSchema.CredentialFields)),
+		ConfigFiles:      make([]ConfigFileResponse, 0, len(agentSchema.ConfigFiles)),
 	}
-	for _, cfg := range spec.Config {
+	for _, cfg := range agentSchema.ConfigFields {
 		field := ConfigFieldResponse{
 			Name:    cfg.Name,
 			Type:    cfg.Type,
@@ -50,6 +45,21 @@ func configSchemaFromAgentfile(source string) (*ConfigSchemaResponse, error) {
 			}
 		}
 		result.Fields = append(result.Fields, field)
+	}
+	for _, cred := range agentSchema.CredentialFields {
+		result.CredentialFields = append(result.CredentialFields, CredentialFieldResponse{
+			Name:     cred.Name,
+			Type:     cred.Type,
+			Optional: cred.Optional,
+		})
+	}
+	for _, cf := range agentSchema.ConfigFiles {
+		result.ConfigFiles = append(result.ConfigFiles, ConfigFileResponse{
+			ID:       cf.ID,
+			PathEnv:  cf.PathEnv,
+			Format:   cf.Format,
+			PathHint: cf.PathHint,
+		})
 	}
 	return result, nil
 }

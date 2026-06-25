@@ -2,7 +2,7 @@ load("//build_defs/web:internal_package.bzl", "internal_npm_package")
 load("//build_defs/web:ts.bzl", "ts_project")
 
 # Service-interface — TypeScript type declarations that describe every
-# client-side service boundary (web, desktop, test harness). 0 deps.
+# client-side service boundary (web, test harness). 0 deps.
 ts_project(
     name = "service_interface",
     srcs = glob(

@@ -1,0 +1,263 @@
+{
+  "entries": [
+    {
+      "version": "0.9.1",
+      "date": "2026-03-07",
+      "changes": [
+        {
+          "type": "fixed",
+          "items": [
+            "正确设置 gRPC TLS ServerName，修复 advancedtls SNI 端口 bug"
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "Channel UI/UX 重构，并同步文档 i18n"
+          ]
+        }
+      ]
+    },
+    {
+      "version": "0.9.0",
+      "date": "2026-03-07",
+      "changes": [
+        {
+          "type": "added",
+          "items": [
+            "Runner 跨平台抽象，支持 Windows（ConPTY、路径处理）",
+            "公开 Relay URL，支持多 Relay 可扩展路由",
+            "Runner 端点自动发现、PID 文件与登录 shell PATH 注入",
+            "HeartbeatAck 与 recv 看门狗，检测半死连接"
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "修复页面刷新后终端内容重复",
+            "修复 Runner PATH 注入与配置更新代码中的 4 个 bug",
+            "Relay 抖动检测，防止 500ms 重连风暴",
+            "修复 Zustand store 与 React 渲染的深层架构问题",
+            "修复 Relay 并发导致的心跳死锁与 503 错误"
+          ]
+        }
+      ]
+    },
+    {
+      "version": "0.8.0",
+      "date": "2026-03-04",
+      "changes": [
+        {
+          "type": "added",
+          "items": [
+            "MCP post_comment 工具，支持工单协作",
+            "Runner Relay URL 回退，便于本地开发"
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Runner MCP 服务绑定 localhost，并支持 macOS 代码签名",
+            "Runner 服务模式下的 Agent 检测 PATH 回退",
+            "修复自更新下载因缺少 v 前缀而失败",
+            "修正帮助与错误信息中的 Runner CLI 二进制名",
+            "gRPC 仅链式 TLS 校验，支持动态服务端证书 SAN",
+            "移除 Runner 侧冗余 Pod 容量检查"
+          ]
+        }
+      ]
+    },
+    {
+      "version": "0.7.0",
+      "date": "2026-03-04",
+      "changes": [
+        {
+          "type": "added",
+          "items": [
+            "支持工单系统与管理端界面",
+            "博客内容从 JSON 迁移至 Markdown 文件"
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "Runner 发布从独立仓库迁移至主 monorepo",
+            "Runner GoReleaser 配置现代化，消除弃用警告"
+          ]
+        }
+      ]
+    },
+    {
+      "version": "0.6.0",
+      "date": "2026-03-03",
+      "changes": [
+        {
+          "type": "added",
+          "items": [
+            "企业页与咨询流程",
+            "ActivityBar 帮助与反馈按钮",
+            "Pod 列表服务端筛选与分页",
+            "管理员邮箱验证操作"
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "修复 Runner 连接 gRPC 下游静默失败",
+            "修复 LemonSqueezy 席位计费与订阅边界情况",
+            "修复 OAuth 空邮箱关联到无关用户"
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "Runner 安装目录改为 ~/.local/bin"
+          ]
+        }
+      ]
+    },
+    {
+      "version": "0.5.0",
+      "date": "2026-02-27",
+      "changes": [
+        {
+          "type": "added",
+          "items": [
+            "Skills 与 MCP Server 能力系统，提升可扩展性",
+            "Agent 版本检测、心跳上报与服务端适配",
+            "仓库导入支持双克隆 URL（HTTP + SSH）",
+            "图片粘贴支持（剪贴板 shim 与原生后端）"
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Runner 在致命认证错误时停止重连并给出可操作提示",
+            "修复跨组织 Runner 注册导致连接失败",
+            "Channel 消息去重，防止重复显示"
+          ]
+        }
+      ]
+    },
+    {
+      "version": "0.4.0",
+      "date": "2026-02-22",
+      "changes": [
+        {
+          "type": "added",
+          "items": [
+            "管理控制台订阅管理",
+            "Runner 三层可靠性防护体系",
+            "Runner 增强日志（按日轮转与目录大小限制）",
+            "Runner 无头登录模式（默认服务器）",
+            "Claude Code Pod 支持 Follow Runner 模型选项",
+            "MCP 工具结果从 JSON 优化为 Markdown 格式"
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "全栈统一工单标识为 slug 命名",
+            "标准化 API 错误响应与结构化错误码"
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "修复 Relay 连接陈旧导致重连后终端空白",
+            "修复多客户端连接同一 Pod 时 Relay 重连竞态"
+          ]
+        }
+      ]
+    },
+    {
+      "version": "0.3.0",
+      "date": "2026-02-07",
+      "changes": [
+        {
+          "type": "added",
+          "items": [
+            "Runner-Relay 连接状态上报与展示",
+            "Runner-Relay WebSocket 自动重连与 token 刷新",
+            "服务重启后终端状态恢复",
+            "PTY 输出带宽感知全量重绘节流",
+            "Runner 基于优先级的双通道架构",
+            "自动更新系统，提升 updater 可靠性",
+            "结构化日志迁移至 slog",
+            "PR/MR 状态感知机制",
+            "PWA 通知与 OSC 终端通知支持",
+            "Sandbox 状态查询与恢复支持"
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "Synchronized Output 帧检测修复终端闪烁",
+            "背压机制修复终端输出丢失",
+            "修复终端尺寸同步问题"
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "Relay 路由从 session_id 切换为 podKey",
+            "Runner 二进制重命名为 agentsmesh-runner"
+          ]
+        }
+      ]
+    },
+    {
+      "version": "0.2.0",
+      "date": "2026-01-16",
+      "changes": [
+        {
+          "type": "added",
+          "items": [
+            "Runner 从 WebSocket 迁移至 gRPC + mTLS",
+            "MCP 工具：create_pod 支持 agent_slug 参数",
+            "GoReleaser 支持 macOS universal binary",
+            "全平台自动化发布流水线",
+            "终端支持 Windows ConPTY"
+          ]
+        },
+        {
+          "type": "changed",
+          "items": [
+            "全代码库统一品牌名为 AgentsMesh",
+            "Agent 配置重构：移除 Lua 插件，改为后端驱动配置",
+            "启用 WebSocket 压缩以提升性能"
+          ]
+        },
+        {
+          "type": "fixed",
+          "items": [
+            "修复终端与 token 刷新测试中的竞态",
+            "修复后量子 TLS 与 WebSocket 连接问题",
+            "提升 Pod OSC 标题解析准确性"
+          ]
+        }
+      ]
+    },
+    {
+      "version": "0.1.0",
+      "date": "2026-01-11",
+      "changes": [
+        {
+          "type": "added",
+          "items": [
+            "AgentsMesh 平台首次发布",
+            "AgentPod：带 PTY 终端的远程 AI 编程工作站",
+            "支持 Claude Code、Codex CLI、Gemini CLI、Aider",
+            "自托管 Runner 部署与 mTLS 证书管理",
+            "Git 仓库集成（GitHub、GitLab、Gitee）",
+            "Web 终端实时双向交互",
+            "组织与团队管理（多租户）",
+            "AgentsMesh 多智能体协作 Channel",
+            "工单管理与看板",
+            "多语言支持（8 种语言）"
+          ]
+        }
+      ]
+    }
+  ]
+}

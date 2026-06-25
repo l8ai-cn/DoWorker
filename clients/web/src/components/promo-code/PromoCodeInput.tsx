@@ -135,15 +135,15 @@ export function PromoCodeInput({
       )}
 
       {validated && (
-        <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
-          <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
+        <div className="bg-success-bg border border-success/30 rounded-lg p-3">
+          <div className="flex items-center gap-2 text-success">
             <CheckCircle className="h-4 w-4" />
             <span className="font-medium">{t("valid")}</span>
           </div>
-          <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+          <p className="text-sm text-success mt-1">
             {t("plan")}: {validated.planDisplayName} · {t("duration")}: {validated.durationMonths} {t("months")}
           </p>
-          <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+          <p className="text-xs text-success mt-1">
             {t("confirmRedeem")}
           </p>
         </div>

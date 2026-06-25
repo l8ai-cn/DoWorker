@@ -126,7 +126,7 @@ export function LoopalPromptInput({ podKey }: { podKey: string }) {
   }
 
   return (
-    <div className="relative border-t border-border px-3 py-2">
+    <div className="relative panel-lift px-3 py-2">
       <LoopalSlashDropdown commands={matches} activeIndex={safeActive} onSelect={(c) => execute(c, "")} visible={visible} />
       {popover === "model" && (
         <LoopalModelThinkingPopover
@@ -169,7 +169,7 @@ export function LoopalPromptInput({ podKey }: { podKey: string }) {
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={onKeyDown}
           placeholder={t("prompt.placeholder")}
-          className="min-h-[36px] max-h-[120px] flex-1 resize-none rounded-md border border-border bg-background px-3 py-1.5 text-sm leading-[20px] outline-none focus:border-ring"
+          className="min-h-[36px] max-h-[120px] flex-1 resize-none surface-card bg-background px-3 py-1.5 text-sm leading-[20px] outline-none focus:border-ring"
           rows={1}
           data-testid="loopal-prompt-input"
         />
@@ -178,7 +178,7 @@ export function LoopalPromptInput({ podKey }: { podKey: string }) {
             type="button"
             onClick={() => relayPool.isConnected(podKey) && relayPool.sendAcpCommand(podKey, { type: "interrupt" })}
             title={t("prompt.interrupt")}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-red-600 text-white hover:bg-red-700"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             <StopCircle className="h-4 w-4" />
           </button>

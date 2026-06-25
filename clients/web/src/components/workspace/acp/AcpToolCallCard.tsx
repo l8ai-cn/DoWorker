@@ -6,13 +6,13 @@ import type { AcpToolCall } from "@/stores/acpSession";
 
 function ToolStatusIcon({ toolCall }: { toolCall: AcpToolCall }) {
   if (toolCall.status !== "completed") {
-    return <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-500 shrink-0" />;
+    return <Loader2 className="h-3.5 w-3.5 animate-spin text-info shrink-0" />;
   }
   if (toolCall.success === false) {
-    return <XCircle className="h-3.5 w-3.5 text-red-500 shrink-0" />;
+    return <XCircle className="h-3.5 w-3.5 text-danger shrink-0" />;
   }
   if (toolCall.success === true) {
-    return <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />;
+    return <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />;
   }
   return <Circle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />;
 }
@@ -22,7 +22,7 @@ export function AcpToolCallCard({ toolCall }: { toolCall: AcpToolCall }) {
   const inProgress = toolCall.status !== "completed";
 
   return (
-    <div className={inProgress ? "py-0.5 rounded bg-blue-500/5 animate-pulse" : "py-0.5"}>
+    <div className={inProgress ? "py-0.5 rounded bg-info-bg/50 animate-pulse" : "py-0.5"}>
       <button
         onClick={() => setExpanded(!expanded)}
         className="flex items-center gap-1.5 w-full text-left hover:bg-muted/50 rounded px-1 py-0.5 -mx-1 transition-colors"
@@ -41,12 +41,12 @@ export function AcpToolCallCard({ toolCall }: { toolCall: AcpToolCall }) {
             {toolCall.argumentsJson}
           </pre>
           {toolCall.resultText && (
-            <pre className="text-xs bg-green-50 dark:bg-green-950 p-2 rounded overflow-x-auto">
+            <pre className="text-xs bg-success-bg p-2 rounded overflow-x-auto">
               {toolCall.resultText}
             </pre>
           )}
           {toolCall.errorMessage && (
-            <pre className="text-xs bg-red-50 dark:bg-red-950 p-2 rounded overflow-x-auto">
+            <pre className="text-xs bg-danger-bg p-2 rounded overflow-x-auto">
               {toolCall.errorMessage}
             </pre>
           )}

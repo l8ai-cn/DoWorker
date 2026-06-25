@@ -32,7 +32,7 @@ export function QRCodeCheckout({ response, t, onCancel }: QRCodeCheckoutProps) {
         <div className="flex justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={response.qr_code_url} alt="Payment QR Code"
-            className="w-64 h-64 border border-border rounded-lg" />
+            className="w-64 h-64 surface-card" />
         </div>
       )}
       <p className="text-sm text-muted-foreground">{t("billing.checkout.scanInstructions")}</p>

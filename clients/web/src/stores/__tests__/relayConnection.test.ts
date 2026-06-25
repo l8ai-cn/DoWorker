@@ -1,13 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { registerServiceProvider, markServiceReady } from "@agentsmesh/service-runtime";
 
-// The adapter delegates all connection management to getRelayManager() (the
-// Rust pool via WasmRelayManager / ElectronRelayManager). These tests pin the
-// adapter's remaining responsibilities: endpoint delegation, the per-pod
-// listener fan-out, the legacy "none" status baseline, and the sync status
-// cache that isConnected()/getStatus() read. We drive getRelayManager() through
-// the real service registry rather than vi.mock — the workspace package isn't
-// reliably hoist-mockable, but registerServiceProvider() is the supported seam.
+// The adapter delegates all connection management to getRelayManager(). These
+// tests pin the adapter's remaining responsibilities: endpoint delegation, the
+// per-pod listener fan-out, the legacy "none" status baseline, and the sync
+// status cache that isConnected()/getStatus() read. We drive getRelayManager()
+// through the real service registry rather than vi.mock.
 const mgr = {
   subscribe: vi.fn().mockResolvedValue(undefined),
   unsubscribe: vi.fn().mockResolvedValue(undefined),

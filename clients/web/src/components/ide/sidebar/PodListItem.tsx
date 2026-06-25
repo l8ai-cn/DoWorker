@@ -16,15 +16,15 @@ import {
 import { SidebarPodContextMenu } from "./SidebarPodContextMenu";
 
 const statusColors: Record<string, { bg: string; text: string; dot: string }> = {
-  initializing: { bg: "bg-yellow-500/10", text: "text-yellow-600 dark:text-yellow-400", dot: "bg-yellow-500" },
-  running: { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400", dot: "bg-blue-500" },
-  paused: { bg: "bg-orange-500/10", text: "text-orange-600 dark:text-orange-400", dot: "bg-orange-500" },
-  disconnected: { bg: "bg-gray-500/10", text: "text-gray-600 dark:text-gray-400", dot: "bg-gray-500" },
-  orphaned: { bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500" },
-  completed: { bg: "bg-green-500/10", text: "text-green-600 dark:text-green-400", dot: "bg-green-500" },
-  terminated: { bg: "bg-gray-500/10", text: "text-gray-600 dark:text-gray-400", dot: "bg-gray-500" },
-  error: { bg: "bg-red-500/10", text: "text-red-600 dark:text-red-400", dot: "bg-red-500" },
-  failed: { bg: "bg-red-500/10", text: "text-red-600 dark:text-red-400", dot: "bg-red-500" },
+  initializing: { bg: "bg-warning-bg", text: "text-warning", dot: "bg-warning" },
+  running: { bg: "bg-info-bg", text: "text-info", dot: "bg-info" },
+  paused: { bg: "bg-accent", text: "text-primary", dot: "bg-primary" },
+  disconnected: { bg: "bg-muted", text: "text-muted-foreground", dot: "bg-muted-foreground" },
+  orphaned: { bg: "bg-warning-bg", text: "text-warning", dot: "bg-warning" },
+  completed: { bg: "bg-success-bg", text: "text-success", dot: "bg-success" },
+  terminated: { bg: "bg-muted", text: "text-muted-foreground", dot: "bg-muted-foreground" },
+  error: { bg: "bg-danger-bg", text: "text-danger", dot: "bg-danger" },
+  failed: { bg: "bg-danger-bg", text: "text-danger", dot: "bg-danger" },
 };
 
 function getStatusIcon(status: string) {
@@ -71,7 +71,7 @@ export function PodListItem({ pod, isOpen, onClick, onTerminate, onRename, onSha
         data-testid="pod-list-item"
         data-pod-key={pod.pod_key}
         className={cn(
-          "group flex items-center gap-2 px-3 py-2 hover:bg-muted/50 cursor-pointer",
+          "group flex items-center gap-2 px-3 py-2 motion-interactive hover:bg-surface-muted cursor-pointer",
           isOpen && "bg-muted/30"
         )}
         onClick={onClick}

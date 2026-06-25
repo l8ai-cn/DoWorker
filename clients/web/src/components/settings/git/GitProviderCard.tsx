@@ -45,7 +45,7 @@ export function GitProviderCard({
             {isDisabled && (
               <span
                 data-testid="git-provider-disabled-badge"
-                className="px-2 py-0.5 text-xs bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 rounded-full"
+                className="px-2 py-0.5 text-xs bg-warning-bg text-warning rounded-full"
               >
                 {t("settings.gitSettings.providers.disabled")}
               </span>

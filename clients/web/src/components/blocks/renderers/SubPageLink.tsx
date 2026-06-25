@@ -33,7 +33,7 @@ export function SubPageLink({ block }: { block: Block }) {
         type="button"
         onClick={() => selectPage(block.id)}
         data-testid={`blocks-subpage-link-${block.id}`}
-        className="inline-flex items-center gap-1.5 rounded px-1 py-0.5 text-left text-sm font-medium text-foreground hover:bg-muted/50"
+        className="inline-flex items-center gap-1.5 rounded px-1 py-0.5 text-left text-sm font-medium text-foreground motion-interactive hover:bg-surface-muted"
       >
         <span aria-hidden="true" className="flex-shrink-0 text-muted-foreground">
           {icon ?? <FileText className="inline h-4 w-4" />}

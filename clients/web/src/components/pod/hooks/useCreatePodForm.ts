@@ -5,7 +5,7 @@ import { buildAgentfileLayer } from "@/lib/agentfile-layer";
 import { POD_MODE_PTY } from "@/lib/pod-modes";
 import type { PodMode } from "@/lib/pod-modes";
 import { submitCreatePod } from "./useCreatePodFormSubmit";
-import { usePrefsAutoFill, useEnvBundles } from "./useCreatePodFormEffects";
+import { usePrefsAutoFill, useEnvBundles, useRepoSkills } from "./useCreatePodFormEffects";
 import type { CreatePodFormState, FormValidationErrors } from "./useCreatePodFormTypes";
 
 // Re-export types for consumers
@@ -49,6 +49,7 @@ export function useCreatePodForm(
 
   // EnvBundles for the selected agent
   const bundles = useEnvBundles(selectedAgent);
+  const skills = useRepoSkills(selectedRepository);
 
   // Auto-fill from saved preferences
   const prefsInitializedRef = usePrefsAutoFill(
@@ -82,6 +83,7 @@ export function useCreatePodForm(
       bundles.setEnvBundles([]);
       bundles.setSelectedCredentialName("");
       bundles.setSelectedRuntimeBundleNames([]);
+      skills.setSelectedSkillSlugs([]);
       setInteractionMode(POD_MODE_PTY);
     }
   }, [availableAgents, selectedAgent, bundles]);
@@ -128,6 +130,7 @@ export function useCreatePodForm(
     setSelectedBranch("");
     bundles.setSelectedCredentialName("");
     bundles.setSelectedRuntimeBundleNames([]);
+    skills.setSelectedSkillSlugs([]);
     bundles.setEnvBundles([]);
     setInteractionMode(POD_MODE_PTY);
     setPrompt("");
@@ -155,11 +158,15 @@ export function useCreatePodForm(
       runtimeBundleNames: bundles.selectedRuntimeBundleNames.length > 0
         ? bundles.selectedRuntimeBundleNames
         : undefined,
+      skillSlugs: skills.selectedSkillSlugs.length > 0
+        ? skills.selectedSkillSlugs
+        : undefined,
       prompt: prompt || undefined,
     });
   }, [
     configValues, selectedRepository, repositories, selectedBranch,
     bundles.selectedCredentialName, bundles.selectedRuntimeBundleNames,
+    skills.selectedSkillSlugs,
     interactionMode, prompt,
   ]);
 
@@ -195,6 +202,7 @@ export function useCreatePodForm(
             lastCredentialName: bundles.selectedCredentialName,
             lastRuntimeBundleNames: bundles.selectedRuntimeBundleNames,
             lastBranchName: selectedBranch || null,
+            lastSkillSlugs: skills.selectedSkillSlugs,
           });
           if (result.warning) setWarning(result.warning);
           onSuccess?.(result.pod);
@@ -212,6 +220,7 @@ export function useCreatePodForm(
     [
       selectedAgent, selectedRepository, selectedBranch,
       bundles.selectedCredentialName, bundles.selectedRuntimeBundleNames,
+      skills.selectedSkillSlugs,
       alias, perpetual, agentfileLayer, onSuccess, validate, setLastChoices,
     ]
   );
@@ -220,11 +229,14 @@ export function useCreatePodForm(
     selectedAgent, selectedRepository, selectedBranch,
     selectedCredentialName: bundles.selectedCredentialName,
     selectedRuntimeBundleNames: bundles.selectedRuntimeBundleNames,
+    selectedSkillSlugs: skills.selectedSkillSlugs,
     interactionMode, prompt, alias, perpetual,
     envBundles: bundles.envBundles, loadingBundles: bundles.loadingBundles,
+    repoSkills: skills.repoSkills, loadingSkills: skills.loadingSkills,
     setSelectedAgent, setSelectedRepository, setSelectedBranch,
     setSelectedCredentialName: bundles.setSelectedCredentialName,
     setSelectedRuntimeBundleNames: bundles.setSelectedRuntimeBundleNames,
+    setSelectedSkillSlugs: skills.setSelectedSkillSlugs,
     setInteractionMode, setPrompt, setAlias, setPerpetual, selectedAgentSlug, supportedModes,
     loading, error, warning, validationErrors, isValid, reset, validate, submit,
     // AgentFile Layer

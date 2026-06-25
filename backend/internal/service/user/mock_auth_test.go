@@ -14,7 +14,7 @@ func TestMockServiceAuthenticate(t *testing.T) {
 	mock.Create(ctx, &CreateRequest{Email: "test@example.com", Username: "test"})
 
 	t.Run("authenticates user", func(t *testing.T) {
-		u, err := mock.Authenticate(ctx, "test@example.com", "password")
+		u, err := mock.Authenticate(ctx, "test", "password")
 		if err != nil {
 			t.Fatalf("Authenticate failed: %v", err)
 		}
@@ -29,7 +29,7 @@ func TestMockServiceAuthenticate(t *testing.T) {
 	t.Run("configurable error", func(t *testing.T) {
 		customErr := errors.New("auth error")
 		mock.AuthenticateErr = customErr
-		_, err := mock.Authenticate(ctx, "test@example.com", "password")
+		_, err := mock.Authenticate(ctx, "test", "password")
 		if err != customErr {
 			t.Errorf("Expected custom error, got %v", err)
 		}

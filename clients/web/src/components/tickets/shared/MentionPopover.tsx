@@ -90,14 +90,14 @@ export function MentionPopover({
   return (
     <div
       ref={popoverRef}
-      className="absolute z-50 w-64 max-h-48 overflow-y-auto bg-popover border border-border rounded-lg shadow-lg"
+      className="absolute z-50 w-64 max-h-48 overflow-y-auto bg-popover surface-card shadow-lg"
       style={{ top: position.top, left: position.left }}
     >
       {filtered.slice(0, 10).map((member, index) => (
         <button
           key={Number(member.userId ?? member.user?.id ?? index)}
           type="button"
-          className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-muted/50 transition-colors ${
+          className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left motion-interactive hover:bg-surface-muted ${
             index === selectedIndex ? "bg-muted/50" : ""
           }`}
           onMouseDown={(e) => {

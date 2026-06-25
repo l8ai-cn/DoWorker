@@ -16,11 +16,11 @@ function RunnerGroupNode({ data }: NodeProps) {
   const isOnline = runnerStatus === "online";
 
   return (
-    <div className="rounded-xl border border-border bg-muted/30 shadow-sm w-full h-full">
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-border/60">
+    <div className="surface-card bg-muted/30 shadow-sm w-full h-full">
+      <div className="flex items-center gap-2 px-4 py-2 bg-surface-muted/30">
         <div
           className={`w-2 h-2 rounded-full ${
-            isOnline ? "bg-green-500" : "bg-gray-400"
+            isOnline ? "bg-success" : "bg-muted-foreground"
           }`}
         />
         <span className="text-sm font-medium text-foreground truncate">
@@ -28,8 +28,8 @@ function RunnerGroupNode({ data }: NodeProps) {
         </span>
         <span className={`text-xs px-1.5 py-0.5 rounded ${
           isOnline
-            ? "bg-green-500/10 text-green-600 dark:text-green-400"
-            : "bg-gray-500/10 text-gray-500"
+            ? "bg-success-bg text-success"
+            : "bg-muted text-muted-foreground"
         }`}>
           {isOnline ? t("runnerGroup.online") : t("runnerGroup.offline")}
         </span>

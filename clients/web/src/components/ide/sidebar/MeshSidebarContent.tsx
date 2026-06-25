@@ -127,13 +127,13 @@ export function MeshSidebarContent({ className }: MeshSidebarContentProps) {
         onToggle={(id) => toggleSet(setStatusFilter, id)}
       />
 
-      <div className="mt-auto border-t border-border p-3">
+      <div className="mt-auto bg-surface-muted/30 p-3">
         <button
           type="button"
           onClick={handleReset}
           disabled={!hasFilters}
           className={cn(
-            "flex h-7 w-full items-center justify-center rounded-md border border-border bg-background text-xs font-medium text-foreground transition-colors",
+            "flex h-7 w-full items-center justify-center surface-card-interactive text-xs font-medium text-foreground motion-interactive pressable",
             hasFilters ? "hover:bg-muted" : "cursor-not-allowed opacity-60",
           )}
         >

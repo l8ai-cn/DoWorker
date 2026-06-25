@@ -79,7 +79,7 @@ func (m *mockCommandSender) SendPrompt(ctx context.Context, runnerID int64, podK
 	}
 	return nil
 }
-func (m *mockCommandSender) SendSubscribePod(context.Context, int64, string, string, string, string, bool, int32) error {
+func (m *mockCommandSender) SendSubscribePod(context.Context, int64, string, string, string, bool, int32) error {
 	return nil
 }
 func (m *mockCommandSender) SendUnsubscribePod(context.Context, int64, string) error { return nil }

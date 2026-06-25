@@ -22,7 +22,7 @@ export function UsageCard({
   ];
 
   return (
-    <div className="border border-border rounded-lg p-6">
+    <div className="surface-card p-6">
       <h2 className="text-lg font-semibold mb-4">{t("settings.billingPage.usage")}</h2>
       <div className="space-y-4">
         {usageItems.map((item, index) => (

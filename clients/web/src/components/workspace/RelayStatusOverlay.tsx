@@ -35,31 +35,31 @@ function worstStatus(a: SegmentStatus, b: SegmentStatus): SegmentStatus {
 }
 
 const dotColor: Record<SegmentStatus, string> = {
-  ok: "bg-green-500",
-  connecting: "bg-yellow-500 animate-pulse",
-  warning: "bg-red-500",
-  unknown: "bg-gray-500",
+  ok: "bg-success",
+  connecting: "bg-warning animate-pulse",
+  warning: "bg-danger",
+  unknown: "bg-muted-foreground",
 };
 
 const lineColor: Record<SegmentStatus, string> = {
-  ok: "bg-green-500/60",
-  connecting: "bg-yellow-500/60",
-  warning: "bg-red-500/60",
-  unknown: "bg-gray-500/40",
+  ok: "bg-success/60",
+  connecting: "bg-warning/60",
+  warning: "bg-danger/60",
+  unknown: "bg-muted-foreground/40",
 };
 
 const badgeBg: Record<SegmentStatus, string> = {
-  ok: "bg-green-500/15 border-green-500/20",
-  connecting: "bg-yellow-500/15 border-yellow-500/20",
-  warning: "bg-red-500/15 border-red-500/20",
-  unknown: "bg-gray-500/15 border-gray-500/20",
+  ok: "bg-success/15 border-success/20",
+  connecting: "bg-warning/15 border-warning/20",
+  warning: "bg-danger/15 border-danger/20",
+  unknown: "bg-muted-foreground/15 border-muted-foreground/20",
 };
 
 const labelColor: Record<SegmentStatus, string> = {
-  ok: "text-green-400",
-  connecting: "text-yellow-400",
-  warning: "text-red-400",
-  unknown: "text-gray-400",
+  ok: "text-success",
+  connecting: "text-warning",
+  warning: "text-danger",
+  unknown: "text-muted-foreground",
 };
 
 function webRelayTooltipKey(connectionStatus: ConnectionStatus): string {
@@ -104,7 +104,7 @@ export function RelayStatusOverlay({
         <span className={labelColor[webRelay]}>{t("web")}</span>
         <SegmentDot status={webRelay} title={webRelayTip} />
         <span className={cn("h-px w-3 inline-block", lineColor[webRelay])} />
-        <span className="text-gray-300">{t("relay")}</span>
+        <span className="text-muted-foreground">{t("relay")}</span>
         <span className={cn("h-px w-3 inline-block", lineColor[relayRunner])} />
         <SegmentDot status={relayRunner} title={relayRunnerTip} />
         <span className={labelColor[relayRunner]}>{t("runner")}</span>
