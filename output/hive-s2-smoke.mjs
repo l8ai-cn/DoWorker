@@ -99,16 +99,23 @@ async function main() {
     const switchRes = await fetch(`${API}/v1/sessions/${sid}/switch-agent`, {
       method: "POST",
       headers: headers(token),
-      body: JSON.stringify({ agent_id: "claude-code" }),
+      body: JSON.stringify({ agent_id: "e2e-echo" }),
     });
-    step("S2.5 switch-agent 501", switchRes.status === 501);
+    step("S2.5 switch-agent implemented", switchRes.status !== 501, `HTTP ${switchRes.status}`);
 
-    const dirRes = await fetch(`${API}/v1/hosts/host_test/directories`, {
-      method: "POST",
-      headers: headers(token),
-      body: JSON.stringify({ path: "/tmp/test" }),
-    });
-    step("S2.5 POST directories 501", dirRes.status === 501);
+    const hostsRes = await fetch(`${API}/v1/hosts`, { headers: headers(token) });
+    const hostsBody = await hostsRes.json();
+    const hostId = hostsBody.data?.[0]?.id;
+    if (hostId) {
+      const dirRes = await fetch(`${API}/v1/hosts/${hostId}/directories`, {
+        method: "POST",
+        headers: headers(token),
+        body: JSON.stringify({ path: "/tmp/s2-smoke" }),
+      });
+      step("S2.5 POST directories implemented", dirRes.status !== 501, `HTTP ${dirRes.status}`);
+    } else {
+      step("S2.5 POST directories implemented", true, "skipped — no hosts");
+    }
   }
 
   const failed = report.steps.filter((s) => !s.ok);

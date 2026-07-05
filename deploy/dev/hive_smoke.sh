@@ -74,6 +74,7 @@ run_suite "S1 session wire + elicitation + terminal" "hive-s1-smoke.mjs"
 run_suite "S2 compat API" "hive-s2-smoke.mjs"
 run_suite "S3 hive mechanism" "hive-s3-smoke.mjs"
 run_suite "S4 P4 extensions" "hive-s4-smoke.mjs"
+run_suite "S5 full parity" "hive-s5-smoke.mjs"
 
 echo ""
 echo "hive smoke: all suites passed"
