@@ -70,7 +70,7 @@ export default function Home() {
       url: "https://agentsmesh.ai",
       logo: "https://agentsmesh.ai/icons/icon-512.png",
       sameAs: [
-        "https://github.com/AgentsMesh/AgentsMesh",
+        "https://github.com/l8ai-cn/DoWorker",
         "https://x.com/agentsmeshai",
         "https://discord.gg/3RcX7VBbH9",
       ],

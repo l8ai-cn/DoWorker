@@ -6,7 +6,7 @@ import { LanguageSwitcher } from "@/components/i18n";
 import { LightAuthButtons as AuthButtons, Logo } from "@/components/common";
 import { useTranslations } from "next-intl";
 
-const GITHUB_URL = "https://github.com/AgentsMesh/AgentsMesh";
+const GITHUB_URL = "https://github.com/l8ai-cn/DoWorker";
 
 function GithubIcon() {
   return (

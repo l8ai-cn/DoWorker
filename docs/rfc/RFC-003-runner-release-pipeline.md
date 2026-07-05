@@ -22,7 +22,7 @@ AgentsMesh Runner 需要支持多平台分发，包括：
 ### 1.2 发布仓库
 
 - **源码仓库**: GitLab `aio/agentsmesh` (monorepo)
-- **发布仓库**: GitHub `AgentsMesh/AgentsMesh`
+- **发布仓库**: GitHub `l8ai-cn/DoWorker`
 
 Runner 二进制文件作为主仓 Release 的一部分发布，便��用户下载和 Homebrew/Scoop 等包管理器集成。
 
@@ -273,7 +273,7 @@ git tag -a v0.2.0 -m "Release v0.2.0"
 git push origin v0.2.0
 
 # 3. 等待 CI Pipeline 完成
-# 4. 检查 GitHub Release: https://github.com/AgentsMesh/AgentsMesh/releases
+# 4. 检查 GitHub Release: https://github.com/l8ai-cn/DoWorker/releases
 ```
 
 ### 5.2 重新发布（修复问题后）

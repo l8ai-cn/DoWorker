@@ -56,7 +56,7 @@ irm ${serverUrl}/install.ps1 | iex`}</pre>
         <p className="text-sm text-muted-foreground mb-2">
           The one-line script above also works on Linux. Alternatively, download .deb/.rpm/.apk packages from{" "}
           <a
-            href="https://github.com/AgentsMesh/AgentsMesh/releases/latest"
+            href="https://github.com/l8ai-cn/DoWorker/releases/latest"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary underline"

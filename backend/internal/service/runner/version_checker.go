@@ -22,7 +22,7 @@ const (
 )
 
 const (
-	githubRepo = "AgentsMesh/AgentsMesh"
+	githubRepo = "l8ai-cn/DoWorker"
 )
 
 type VersionChecker struct {

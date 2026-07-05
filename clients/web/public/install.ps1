@@ -6,7 +6,7 @@
 $ErrorActionPreference = "Stop"
 
 # GitHub release repository
-$GITHUB_REPO = "AgentsMesh/AgentsMesh"
+$GITHUB_REPO = "l8ai-cn/DoWorker"
 $BINARY_NAME = "do-worker-runner.exe"
 
 # Colors
@@ -196,9 +196,8 @@ function Show-NextSteps {
 function Test-Scoop {
     if (Get-Command scoop -ErrorAction SilentlyContinue) {
         Write-Host ""
-        Write-Warn "Scoop detected! You can also install via:"
-        Write-Host "     scoop bucket add agentsmesh https://github.com/AgentsMesh/scoop-bucket" -ForegroundColor Blue
-        Write-Host "     scoop install do-worker-runner" -ForegroundColor Blue
+        Write-Warn "Scoop detected! Install do-worker-runner via direct download (see install.ps1) or from GitHub Releases:"
+        Write-Host "     https://github.com/l8ai-cn/DoWorker/releases/latest" -ForegroundColor Blue
         Write-Host ""
         $response = Read-Host "Continue with direct installation? [Y/n]"
         if ($response -match "^[nN]") {

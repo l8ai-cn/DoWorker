@@ -15,7 +15,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # GitHub release repository
-GITHUB_REPO="AgentsMesh/AgentsMesh"
+GITHUB_REPO="l8ai-cn/DoWorker"
 BINARY_NAME="do-worker-runner"
 INSTALL_DIR=""
 

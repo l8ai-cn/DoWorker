@@ -13,7 +13,7 @@ Deploy AgentsMesh on your own infrastructure using Docker.
 ## Quick Start
 
 ```bash
-git clone https://github.com/AgentsMesh/AgentsMesh.git
+git clone https://github.com/l8ai-cn/DoWorker.git
 cd AgentsMesh/deploy/selfhost
 
 # Install with your server IP

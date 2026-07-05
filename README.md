@@ -10,17 +10,18 @@
 </p>
 
 <p align="center">
-  <a href="https://agentsmesh.ai">Website</a> ·
-  <a href="https://agentsmesh.ai/docs">Docs</a> ·
+  <a href="https://l8ai.cn">Website</a> ·
+  <a href="https://l8ai.cn/docs">Docs</a> ·
   <a href="#quick-start">Quick Start</a> ·
+  <a href="https://github.com/l8ai-cn/DoWorker">GitHub</a> ·
   <a href="https://discord.gg/3RcX7VBbH9">Discord</a> ·
   <a href="https://x.com/agentsmeshai">X</a> · <a href="https://x.com/stone0dong">X (founder)</a> ·
   <a href="https://www.linkedin.com/company/agentsmesh">LinkedIn</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/AgentsMesh/AgentsMesh/actions/workflows/ci.yml"><img src="https://github.com/AgentsMesh/AgentsMesh/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
-  <a href="https://github.com/AgentsMesh/AgentsMesh/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSL--1.1-blue" alt="License" /></a>
+  <a href="https://github.com/l8ai-cn/DoWorker/actions/workflows/ci.yml"><img src="https://github.com/l8ai-cn/DoWorker/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
+  <a href="https://github.com/l8ai-cn/DoWorker/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSL--1.1-blue" alt="License" /></a>
   <a href="https://hub.docker.com/u/agentsmesh"><img src="https://img.shields.io/badge/docker-hub-blue?logo=docker" alt="Docker Hub" /></a>
 </p>
 
@@ -147,7 +148,7 @@ Once the runner is online, create an **AgentPod** from the web console and start
 Run the whole stack locally with one command.
 
 ```bash
-git clone https://github.com/AgentsMesh/AgentsMesh.git
+git clone https://github.com/l8ai-cn/DoWorker.git
 cd Do Worker/deploy/dev
 ./dev.sh
 ```

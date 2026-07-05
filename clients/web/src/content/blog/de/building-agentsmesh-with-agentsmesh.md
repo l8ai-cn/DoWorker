@@ -148,8 +148,8 @@ Harness Engineering ist eine Engineering-Disziplin, kein Produktfeature. Statt d
 
 Wir haben uns entschieden, AgentsMesh als Open Source zu veröffentlichen. Wenn wir möglicherweise ein effektives Engineering-Werkzeug gebaut haben, war das Ziel nie, "den Code zu besitzen", sondern mehr Menschen zu ermöglichen, auf dieser Grundlage noch bessere Engineering-Werkzeuge zu entwickeln. Statt potenziell richtige Engineering-Praktiken in einem Produkt einzuschließen, machen wir sie offen -- damit die Community sie validieren, weiterentwickeln und übertreffen kann.
 
-Der Code ist auf [GitHub](https://github.com/AgentsMesh/AgentsMesh)
+Der Code ist auf [GitHub](https://github.com/l8ai-cn/DoWorker)
 
 Sie können damit: einen eigenen Runner bereitstellen und KI-Agents in lokalen, isolierten Umgebungen ausführen; mit Tickets und Loops die Workflows Ihrer Agents verwalten; über Channels und Bindings mehrere Agents zur Bewältigung komplexer Aufgaben koordinieren.
 
-Wenn Sie bei Ihrer eigenen Harness-Engineering-Praxis Erkenntnisse gewonnen haben -- besuchen Sie die [GitHub Discussions](https://github.com/AgentsMesh/AgentsMesh/discussions) oder eröffnen Sie direkt ein [Issue](https://github.com/AgentsMesh/AgentsMesh/issues). Dieses Projekt wurde selbst mit Agents gebaut. Es sollte weiterhin gemeinsam von Agents und Ingenieuren weiterentwickelt werden.
+Wenn Sie bei Ihrer eigenen Harness-Engineering-Praxis Erkenntnisse gewonnen haben -- besuchen Sie die [GitHub Discussions](https://github.com/l8ai-cn/DoWorker/discussions) oder eröffnen Sie direkt ein [Issue](https://github.com/l8ai-cn/DoWorker/issues). Dieses Projekt wurde selbst mit Agents gebaut. Es sollte weiterhin gemeinsam von Agents und Ingenieuren weiterentwickelt werden.

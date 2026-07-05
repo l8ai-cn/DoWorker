@@ -1,5 +1,5 @@
 // Package updater provides self-update functionality for the runner.
-// It uses GitHub Releases from AgentsMesh/AgentsMesh to download and install updates.
+// It uses GitHub Releases from l8ai-cn/DoWorker to download and install updates.
 package updater
 
 import (

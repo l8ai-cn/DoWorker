@@ -148,8 +148,8 @@ Harness Engineering 是一门工程学科，而非某个产品功能。与其敝
 
 我们选择开源 AgentsMesh。当我们构建的可能是一种有效的工程工具时，目标从来不是'拥有代码'，而是让更多人能够在此基础上，构建出更好的工程工具。与其把可能正确的工程实践锁在产品里，不如开源它，让社区验证、演化、超越它。
 
-代码在 [GitHub](https://github.com/AgentsMesh/AgentsMesh)
+代码在 [GitHub](https://github.com/l8ai-cn/DoWorker)
 
 你可以用它来：部署自己的 Runner，在本地隔离环境里运行 AI Agent；用任务和 Loop 管理 Agent 的工作流；通过 Channel 和 Binding 让多个 Agent 协作完成复杂任务。
 
-如果你在实践 Harness Engineering 的过程中有自己的发现——欢迎到 [GitHub Discussions](https://github.com/AgentsMesh/AgentsMesh/discussions) 聊，或者直接提 [Issue](https://github.com/AgentsMesh/AgentsMesh/issues)。这个项目本身就是用 Agent 建造的，它应该继续被 Agent 和工程师一起演进。
+如果你在实践 Harness Engineering 的过程中有自己的发现——欢迎到 [GitHub Discussions](https://github.com/l8ai-cn/DoWorker/discussions) 聊，或者直接提 [Issue](https://github.com/l8ai-cn/DoWorker/issues)。这个项目本身就是用 Agent 建造的，它应该继续被 Agent 和工程师一起演进。

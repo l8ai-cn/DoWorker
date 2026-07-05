@@ -1,6 +1,6 @@
 # AgentsMesh Runner
 
-[![Release](https://img.shields.io/github/v/release/AgentsMesh/AgentsMesh?style=flat-square)](https://github.com/AgentsMesh/AgentsMesh/releases/latest)
+[![Release](https://img.shields.io/github/v/release/l8ai-cn/DoWorker?style=flat-square)](https://github.com/l8ai-cn/DoWorker/releases/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/anthropics/agentsmesh/runner?style=flat-square)](https://goreportcard.com/report/github.com/anthropics/agentsmesh/runner)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 
@@ -28,7 +28,7 @@ curl -fsSL https://agentsmesh.ai/install.sh | sh
 irm https://agentsmesh.ai/install.ps1 | iex
 ```
 
-All binaries are available on the [Releases](https://github.com/AgentsMesh/AgentsMesh/releases/latest) page (tar.gz, deb, rpm, zip).
+All binaries are available on the [Releases](https://github.com/l8ai-cn/DoWorker/releases/latest) page (tar.gz, deb, rpm, zip).
 
 ## Quick Start
 
@@ -131,7 +131,7 @@ Cross-platform binaries are produced by the release pipeline; see
 
 ## Release
 
-Releases are published to [AgentsMesh/AgentsMesh](https://github.com/AgentsMesh/AgentsMesh).
+Releases are published to [l8ai-cn/DoWorker](https://github.com/l8ai-cn/DoWorker).
 
 To create a new release:
 
@@ -154,4 +154,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 - [AgentsMesh](https://agentsmesh.ai) - Main product website
 - [Documentation](https://agentsmesh.ai/docs/runner) - Full documentation
-- [Releases](https://github.com/AgentsMesh/AgentsMesh/releases) - Download binaries
+- [Releases](https://github.com/l8ai-cn/DoWorker/releases) - Download binaries

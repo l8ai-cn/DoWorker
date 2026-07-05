@@ -17,7 +17,7 @@ AgentsMesh can be deployed using Docker Compose for development/staging or Kuber
 
 ```bash
 # Clone the repository
-git clone https://github.com/AgentsMesh/agentsmesh.git
+git clone https://github.com/l8ai-cn/DoWorker.git
 cd agentsmesh
 
 # Copy environment file
