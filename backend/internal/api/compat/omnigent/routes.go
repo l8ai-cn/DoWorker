@@ -54,6 +54,8 @@ func RegisterRoutes(r *gin.Engine, d Deps) {
 		orgScoped.GET("/sessions/:id/resources/terminals", d.handleListTerminals)
 		orgScoped.POST("/sessions/:id/resources/terminals", d.handleCreateTerminal)
 		orgScoped.GET("/sessions/:id/resources/terminals/:terminal_id/attach", d.handleTerminalAttach)
+		orgScoped.POST("/sessions/:id/resources/files", d.handleUploadSessionFile)
+		orgScoped.GET("/sessions/:id/resources/files/:file_id/content", d.handleGetSessionFileContent)
 		orgScoped.GET("/sessions/:id/resources/environments/:env", d.handleSessionEnvironment)
 		orgScoped.GET("/sessions/:id/resources/environments/:env/changes", d.handleSessionFilesystemChanges)
 		orgScoped.GET("/sessions/:id/resources/environments/:env/diff/*filepath", d.handleSessionFilesystemDiff)

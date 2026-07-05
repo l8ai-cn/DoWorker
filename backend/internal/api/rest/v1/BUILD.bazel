@@ -70,6 +70,7 @@ go_library(
         "//backend/internal/service/channel",
         "//backend/internal/service/coordinator",
         "//backend/internal/service/extension",
+        "//backend/internal/service/file",
         "//backend/internal/service/geo",
         "//backend/internal/service/grant",
         "//backend/internal/service/invitation",

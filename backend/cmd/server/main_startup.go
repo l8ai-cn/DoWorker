@@ -199,6 +199,7 @@ func buildServicesContainer(
 		AgentPodAIProvider: services.agentpodAIProvider,
 		APIKey:             services.apikey,
 		APIKeyAdapter:      services.apikeyAdapter,
+		File:               services.file,
 		GRPCRunnerHandler:    grpcResult.handler,
 		SandboxQueryService:  sandboxQuerySvc,
 		SandboxFsService:     sandboxFsSvc,

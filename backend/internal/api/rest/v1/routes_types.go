@@ -13,7 +13,8 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
 	"github.com/anthropics/agentsmesh/backend/internal/service/channel"
 	coordinatorservice "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
-	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
+	extensionservice 	"github.com/anthropics/agentsmesh/backend/internal/service/extension"
+	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
 	"github.com/anthropics/agentsmesh/backend/internal/service/geo"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
@@ -64,6 +65,7 @@ type Services struct {
 	PromoCode          *promocode.Service               // Promo code management
 	APIKey             *apikeyservice.Service           // API key management for third-party access
 	APIKeyAdapter      *apikeyservice.MiddlewareAdapter // API key middleware adapter
+	File               *fileservice.Service
 	// NOTE: GitProvider and SSHKey services have been removed (moved to user-level settings)
 
 	// gRPC/mTLS Runner registration handler (optional, only when PKI is enabled)

@@ -40,18 +40,11 @@ func (d *Deps) postMessageEvent(c *gin.Context, row *domain.Session, pod *podDom
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "unavailable"})
 		return
 	}
-	prompt := extractMessageText(data)
-	if prompt == "" {
+	content, prompt := parseMessageContent(data)
+	if !messageHasContent(content) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "empty message"})
 		return
 	}
-	var msg struct {
-		Content []struct {
-			Type string `json:"type"`
-			Text string `json:"text"`
-		} `json:"content"`
-	}
-	_ = json.Unmarshal(data, &msg)
 	itemID, err := itemsvc.NewItemID()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "id failed"})
@@ -66,12 +59,6 @@ func (d *Deps) postMessageEvent(c *gin.Context, row *domain.Session, pod *podDom
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "persist failed"})
 		return
-	}
-	content := make([]map[string]any, 0)
-	for _, b := range msg.Content {
-		if textBlock := normalizeTextBlock(b.Type, b.Text); textBlock != nil {
-			content = append(content, textBlock)
-		}
 	}
 	payload, _ := json.Marshal(map[string]any{
 		"id": itemID, "type": "message", "response_id": respID, "status": "completed",
@@ -118,42 +105,4 @@ func (d *Deps) postMessageEvent(c *gin.Context, row *domain.Session, pod *podDom
 		return
 	}
 	c.JSON(http.StatusAccepted, gin.H{"queued": true, "item_id": itemID})
-}
-
-func extractMessageText(data json.RawMessage) string {
-	var msg struct {
-		Content []struct {
-			Type string `json:"type"`
-			Text string `json:"text"`
-		} `json:"content"`
-	}
-	if json.Unmarshal(data, &msg) != nil {
-		return ""
-	}
-	var parts []string
-	for _, b := range msg.Content {
-		if block := normalizeTextBlock(b.Type, b.Text); block != nil {
-			parts = append(parts, block["text"].(string))
-		}
-	}
-	if len(parts) == 0 {
-		return ""
-	}
-	out := parts[0]
-	for i := 1; i < len(parts); i++ {
-		out += "\n" + parts[i]
-	}
-	return out
-}
-
-func normalizeTextBlock(blockType, text string) map[string]any {
-	if text == "" {
-		return nil
-	}
-	switch blockType {
-	case "text", "input_text":
-		return map[string]any{"type": "text", "text": text}
-	default:
-		return nil
-	}
 }

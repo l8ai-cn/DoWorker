@@ -14,6 +14,7 @@ import (
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
+	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
 	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
@@ -220,6 +221,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		Policies:        permissionpolicysvc.NewService(db),
 		ReadState:       omnigentcompat.NewReadStateStore(db),
 		SandboxFs:       svc.SandboxFsService,
+		SessionFiles:    sessionfilesvc.NewService(db, svc.File),
 		Version:         "agentsmesh-dev",
 	}
 	sessionDeps.Bridge = &omnigentcompat.EventBridge{

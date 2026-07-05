@@ -15,6 +15,7 @@ go_library(
         "//backend/internal/service/agentsession",
         "//backend/internal/service/conversationitem",
         "//backend/internal/service/permissionpolicy",
+        "//backend/internal/service/sessionfile",
         "//backend/internal/service/sessionusage",
         "//backend/pkg/apierr",
         "@com_github_gin_contrib_cors//:cors",

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"path"
 	"strings"
 	"time"
@@ -69,6 +70,38 @@ func (s *Service) RequestPresignedUpload(ctx context.Context, req *PresignUpload
 		PutURL: putURL,
 		GetURL: getURL,
 	}, nil
+}
+
+func (s *Service) ValidateUpload(size int64, contentType string) error {
+	if s == nil {
+		return ErrStorageError
+	}
+	maxSize := s.config.MaxFileSize * 1024 * 1024
+	if size > maxSize {
+		return fmt.Errorf("%w: max size is %d MB", ErrFileTooLarge, s.config.MaxFileSize)
+	}
+	if !s.isAllowedType(contentType) {
+		return fmt.Errorf("%w: %s", ErrInvalidFileType, contentType)
+	}
+	return nil
+}
+
+func (s *Service) PutObject(ctx context.Context, key string, reader io.Reader, size int64, contentType string) error {
+	if s == nil || s.storage == nil {
+		return ErrStorageError
+	}
+	_, err := s.storage.Upload(ctx, key, reader, size, contentType)
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrStorageError, err)
+	}
+	return nil
+}
+
+func (s *Service) OpenObject(ctx context.Context, key string) (io.ReadCloser, int64, error) {
+	if s == nil || s.storage == nil {
+		return nil, 0, ErrStorageError
+	}
+	return s.storage.Download(ctx, key)
 }
 
 func (s *Service) generateStorageKey(orgID int64, fileName string) string {
