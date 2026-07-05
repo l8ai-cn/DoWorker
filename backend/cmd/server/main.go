@@ -106,7 +106,7 @@ func main() {
 		eventBus.StartRedisSubscriber(context.Background())
 	}
 
-	runnerConnMgr, podCoordinator, podRouter, heartbeatBatcher, sandboxQuerySvc := initializeRunnerComponents(services.pod, services.runnerRepo, redisClient, appLogger, services.agentSvc)
+	runnerConnMgr, podCoordinator, podRouter, heartbeatBatcher, sandboxQuerySvc, sandboxFsSvc := initializeRunnerComponents(services.pod, services.runnerRepo, redisClient, appLogger, services.agentSvc)
 
 	podCoordinator.SetAutopilotRepo(services.autopilotRepo)
 
@@ -184,7 +184,7 @@ func main() {
 	setupCoordinatorEventSubscriptions(eventBus, coordinatorSvc)
 	slog.Info("Coordinator service and scheduler created")
 
-	grpcResult := initPKIAndGRPCWiring(cfg, services, runnerConnMgr, podCoordinator, podRouter, sandboxQuerySvc, podOrchestrator, loopOrchestrator, services.loopRun, appLogger, relayTokenGenerator, db)
+	grpcResult := initPKIAndGRPCWiring(cfg, services, runnerConnMgr, podCoordinator, podRouter, sandboxQuerySvc, sandboxFsSvc, podOrchestrator, loopOrchestrator, services.loopRun, appLogger, relayTokenGenerator, db)
 
 	versionChecker := runner.NewVersionChecker(redisClient)
 	if versionChecker != nil {
@@ -194,7 +194,7 @@ func main() {
 	logUploadSvc := initLogUploadService(cfg, db, runnerConnMgr)
 
 	svc := buildServicesContainer(services, runnerConnMgr, podCoordinator, podOrchestrator, hub, eventBus,
-		grpcResult, sandboxQuerySvc, logUploadSvc, relayManager, relayTokenGenerator, relayDNSService,
+		grpcResult, sandboxQuerySvc, sandboxFsSvc, logUploadSvc, relayManager, relayTokenGenerator, relayDNSService,
 		relayACMEManager, geoResolver, versionChecker, loopOrchestrator, loopScheduler, redisClient)
 	svc.Coordinator = coordinatorSvc
 

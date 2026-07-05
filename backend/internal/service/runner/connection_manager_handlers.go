@@ -156,6 +156,13 @@ func (cm *RunnerConnectionManager) HandleObservePodResult(runnerID int64, data *
 	}
 }
 
+func (cm *RunnerConnectionManager) HandleSandboxFsResult(runnerID int64, data *runnerv1.SandboxFsResultEvent) {
+	cm.UpdateHeartbeat(runnerID)
+	if cm.onSandboxFsResult != nil {
+		cm.onSandboxFsResult(runnerID, data)
+	}
+}
+
 func (cm *RunnerConnectionManager) HandleTokenUsage(runnerID int64, data *runnerv1.TokenUsageReport) {
 	cm.UpdateHeartbeat(runnerID)
 	cm.logger.Info("token usage report received",

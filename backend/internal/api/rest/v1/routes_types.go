@@ -71,6 +71,7 @@ type Services struct {
 
 	// Sandbox query service
 	SandboxQueryService  *runner.SandboxQueryService  // Sandbox status query service
+	SandboxFsService     *runner.SandboxFsService     // Sandbox filesystem ops
 
 	// Upgrade command sender (gRPC adapter)
 	UpgradeCommandSender runner.UpgradeCommandSender

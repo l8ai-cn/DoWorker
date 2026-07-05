@@ -56,7 +56,8 @@ func (m *mockSender) SendTokenUsage(string, []*runnerv1.TokenModelUsage, time.Ti
 	return nil
 }
 func (m *mockSender) SendPodUsageEvent(string, string, int64, int64, int64, int64) error { return nil }
-func (m *mockSender) SendExternalSessionCaptured(string, string) error                   { return nil }
+func (m *mockSender) SendExternalSessionCaptured(string, string) error { return nil }
+func (m *mockSender) SendSandboxFsResult(*runnerv1.SandboxFsResultEvent) error { return nil }
 func (m *mockSender) QueueLength() int                                         { return 0 }
 func (m *mockSender) QueueCapacity() int                                       { return 100 }
 func (m *mockSender) QueueUsage() float64                                      { return 0 }

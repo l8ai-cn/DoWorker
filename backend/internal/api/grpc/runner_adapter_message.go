@@ -108,6 +108,9 @@ func (a *GRPCRunnerAdapter) handleProtoMessage(ctx context.Context, runnerID int
 	case *runnerv1.RunnerMessage_ObservePodResult:
 		a.connManager.HandleObservePodResult(runnerID, payload.ObservePodResult)
 
+	case *runnerv1.RunnerMessage_SandboxFsResult:
+		a.connManager.HandleSandboxFsResult(runnerID, payload.SandboxFsResult)
+
 	case *runnerv1.RunnerMessage_McpRequest:
 		a.handleMcpRequest(ctx, runnerID, conn, payload.McpRequest)
 

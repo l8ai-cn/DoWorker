@@ -30,6 +30,7 @@ go_library(
         "runner_adapter_message_type.go",
         "runner_adapter_send.go",
         "runner_adapter_send_extra.go",
+        "runner_adapter_fs.go",
         "runner_adapter_stream.go",
         "runner_adapter_types.go",
         "server.go",

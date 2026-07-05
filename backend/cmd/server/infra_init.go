@@ -77,7 +77,7 @@ func initializeRunnerComponents(
 	redisClient *redis.Client,
 	appLogger *logger.Logger,
 	agentSvc *agent.AgentService,
-) (*runner.RunnerConnectionManager, *runner.PodCoordinator, *runner.PodRouter, *runner.HeartbeatBatcher, *runner.SandboxQueryService) {
+) (*runner.RunnerConnectionManager, *runner.PodCoordinator, *runner.PodRouter, *runner.HeartbeatBatcher, *runner.SandboxQueryService, *runner.SandboxFsService) {
 	runnerConnMgr := runner.NewRunnerConnectionManager(appLogger.Logger)
 
 	agentAdapter := runner.NewAgentServiceAdapter(agentSvc)
@@ -94,8 +94,9 @@ func initializeRunnerComponents(
 	podCoordinator := runner.NewPodCoordinator(podStore, runnerRepo, runnerConnMgr, podRouter, heartbeatBatcher, appLogger.Logger)
 
 	sandboxQuerySvc := runner.NewSandboxQueryService(runnerConnMgr)
+	sandboxFsSvc := runner.NewSandboxFsService(runnerConnMgr)
 
-	return runnerConnMgr, podCoordinator, podRouter, heartbeatBatcher, sandboxQuerySvc
+	return runnerConnMgr, podCoordinator, podRouter, heartbeatBatcher, sandboxQuerySvc, sandboxFsSvc
 }
 
 func instrumentRedis(client *redis.Client) {

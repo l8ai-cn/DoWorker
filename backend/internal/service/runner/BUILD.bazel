@@ -46,6 +46,7 @@ go_library(
         "relay_connections.go",
         "runner_reactivation.go",
         "sandbox_query.go",
+        "sandbox_fs.go",
         "service.go",
         "status.go",
         "update.go",

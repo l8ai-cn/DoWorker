@@ -140,6 +140,16 @@ func (m *MockConnection) SendExternalSessionCaptured(podKey, externalID string) 
 	return nil
 }
 
+func (m *MockConnection) SendSandboxFsResult(event *runnerv1.SandboxFsResultEvent) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.SendErr != nil {
+		return m.SendErr
+	}
+	m.Events = append(m.Events, EventCall{Type: "sandbox_fs_result", Data: event})
+	return nil
+}
+
 // SendMessage records a raw RunnerMessage.
 func (m *MockConnection) SendMessage(msg *runnerv1.RunnerMessage) error {
 	m.mu.Lock()

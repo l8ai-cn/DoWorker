@@ -117,6 +117,17 @@ func (c *GRPCConnection) handleObservePod(cmd *runnerv1.ObservePodCommand) {
 	}
 }
 
+func (c *GRPCConnection) handleSandboxFs(cmd *runnerv1.SandboxFsCommand) {
+	log := logger.GRPC()
+	if c.handler == nil {
+		log.Warn("No handler set, ignoring sandbox_fs")
+		return
+	}
+	if err := c.handler.OnSandboxFs(cmd); err != nil {
+		log.Error("Failed to handle sandbox_fs", "request_id", cmd.RequestId, "error", err)
+	}
+}
+
 // handleCreateAutopilot handles create_autopilot command from server.
 func (c *GRPCConnection) handleCreateAutopilot(cmd *runnerv1.CreateAutopilotCommand) {
 	log := logger.GRPC()

@@ -83,6 +83,13 @@ func (h *mockHandlerWithRelayConnections) OnAcpRelay(cmd *runnerv1.AcpRelayComma
 	return nil
 }
 
+func (h *mockHandlerWithRelayConnections) OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error {
+	return nil
+}
+func (h *mockHandlerWithRelayConnections) OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error {
+	return nil
+}
+
 // buildHeartbeatMessage builds a heartbeat message from handler data.
 // This is the core logic tested - extracted for testing without needing stream connection.
 func buildHeartbeatMessage(nodeID string, handler MessageHandler) *runnerv1.RunnerMessage {

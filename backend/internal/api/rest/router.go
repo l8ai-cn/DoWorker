@@ -219,6 +219,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		SessionUsage:    sessionusagesvc.NewService(db),
 		Policies:        permissionpolicysvc.NewService(db),
 		ReadState:       omnigentcompat.NewReadStateStore(db),
+		SandboxFs:       svc.SandboxFsService,
 		Version:         "agentsmesh-dev",
 	}
 	sessionDeps.Bridge = &omnigentcompat.EventBridge{

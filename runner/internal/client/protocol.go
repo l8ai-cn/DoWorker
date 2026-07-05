@@ -149,4 +149,6 @@ type MessageHandler interface {
 
 	// OnAcpRelay forwards opaque ACP UI commands when Relay WS is absent.
 	OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error
+
+	OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error
 }

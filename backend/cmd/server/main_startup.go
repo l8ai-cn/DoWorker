@@ -39,6 +39,7 @@ func initPKIAndGRPCWiring(
 	podCoordinator *runner.PodCoordinator,
 	podRouter *runner.PodRouter,
 	sandboxQuerySvc *runner.SandboxQueryService,
+	sandboxFsSvc *runner.SandboxFsService,
 	podOrchestrator *agentpod.PodOrchestrator,
 	loopOrchestrator *loop.LoopOrchestrator,
 	loopRunSvc *loop.LoopRunService,
@@ -78,6 +79,9 @@ func initPKIAndGRPCWiring(
 		podCoordinator.SetCommandSender(grpcCommandSender)
 		podRouter.SetCommandSender(grpcCommandSender)
 		sandboxQuerySvc.SetSender(grpcCommandSender)
+		if sandboxFsSvc != nil {
+			sandboxFsSvc.SetSender(grpcCommandSender)
+		}
 		result.upgradeCommandSender = grpcCommandSender
 		result.logUploadSender = grpcCommandSender
 		slog.Info("PodCoordinator and PodRouter connected to gRPC Server")
@@ -157,6 +161,7 @@ func buildServicesContainer(
 	eventBus *eventbus.EventBus,
 	grpcResult *grpcWiringResult,
 	sandboxQuerySvc *runner.SandboxQueryService,
+	sandboxFsSvc *runner.SandboxFsService,
 	logUploadSvc *runnerlogservice.Service,
 	relayManager *relay.Manager,
 	relayTokenGenerator *relay.TokenGenerator,
@@ -196,6 +201,7 @@ func buildServicesContainer(
 		APIKeyAdapter:      services.apikeyAdapter,
 		GRPCRunnerHandler:    grpcResult.handler,
 		SandboxQueryService:  sandboxQuerySvc,
+		SandboxFsService:     sandboxFsSvc,
 		UpgradeCommandSender: grpcResult.upgradeCommandSender,
 		LogUploadSender:      grpcResult.logUploadSender,
 		LogUploadService:     logUploadSvc,

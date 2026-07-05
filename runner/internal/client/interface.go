@@ -82,6 +82,8 @@ type ConnectionSender interface {
 
 	SendPodUsageEvent(podKey, model string, in, out, cacheRead, cacheCreate int64) error
 	SendExternalSessionCaptured(podKey, externalID string) error
+
+	SendSandboxFsResult(event *runnerv1.SandboxFsResultEvent) error
 }
 
 // ConnectionMonitor defines methods for monitoring connection health.

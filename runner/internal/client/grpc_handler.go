@@ -145,6 +145,9 @@ func (c *GRPCConnection) handleServerMessage(ctx context.Context, msg *runnerv1.
 	case *runnerv1.ServerMessage_AcpRelay:
 		c.handleAcpRelay(payload.AcpRelay)
 
+	case *runnerv1.ServerMessage_SandboxFs:
+		c.handleSandboxFs(payload.SandboxFs)
+
 	default:
 		logger.GRPC().Warn("Unknown server message type")
 	}

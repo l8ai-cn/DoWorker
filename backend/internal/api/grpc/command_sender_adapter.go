@@ -121,6 +121,13 @@ func (s *GRPCCommandSender) SendQuerySandboxes(runnerID int64, requestID string,
 	return nil
 }
 
+func (s *GRPCCommandSender) SendSandboxFs(runnerID int64, cmd *runnerv1.SandboxFsCommand) error {
+	if err := s.adapter.SendSandboxFs(runnerID, cmd); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *GRPCCommandSender) SendObservePod(ctx context.Context, runnerID int64, requestID, podKey string, lines int32, includeScreen bool) error {
 	slog.InfoContext(ctx, "sending observe_pod command", "runner_id", runnerID, "request_id", requestID, "pod_key", podKey)
 	if err := s.adapter.SendObservePod(runnerID, requestID, podKey, lines, includeScreen); err != nil {

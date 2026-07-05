@@ -46,6 +46,8 @@ type RunnerConnectionManager struct {
 
 	onObservePodResult func(runnerID int64, data *runnerv1.ObservePodResult)
 
+	onSandboxFsResult func(runnerID int64, data *runnerv1.SandboxFsResultEvent)
+
 	onUpgradeStatus func(runnerID int64, data *runnerv1.UpgradeStatusEvent)
 
 	onLogUploadStatus func(runnerID int64, data *runnerv1.LogUploadStatusEvent)

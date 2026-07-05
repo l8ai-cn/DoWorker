@@ -139,7 +139,10 @@ func (r *Runner) getGitInfo(workspacePath string) gitInfo {
 func (r *Runner) runGitCommand(dir string, args ...string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), gitCommandTimeout)
 	defer cancel()
+	return r.runGitCommandCtx(ctx, dir, args...)
+}
 
+func (r *Runner) runGitCommandCtx(ctx context.Context, dir string, args ...string) (string, error) {
 	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Dir = dir
 	out, err := cmd.Output()

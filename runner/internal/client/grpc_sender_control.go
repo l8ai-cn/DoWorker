@@ -100,6 +100,16 @@ func (c *GRPCConnection) SendObservePodResult(requestID, podKey, output, screen 
 	return c.sendControl(msg)
 }
 
+func (c *GRPCConnection) SendSandboxFsResult(event *runnerv1.SandboxFsResultEvent) error {
+	msg := &runnerv1.RunnerMessage{
+		Payload: &runnerv1.RunnerMessage_SandboxFsResult{
+			SandboxFsResult: event,
+		},
+		Timestamp: time.Now().UnixMilli(),
+	}
+	return c.sendControl(msg)
+}
+
 // SendUpgradeStatus sends an upgrade status event to the server (control message).
 func (c *GRPCConnection) SendUpgradeStatus(event *runnerv1.UpgradeStatusEvent) error {
 	msg := &runnerv1.RunnerMessage{

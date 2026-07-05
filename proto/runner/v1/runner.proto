@@ -57,6 +57,8 @@ message RunnerMessage {
     PodUsageEvent pod_usage = 32;
     // 厂商 session id 捕获（resume cli）
     ExternalSessionCapturedEvent external_session_captured = 33;
+    // Sandbox filesystem op result
+    SandboxFsResultEvent sandbox_fs_result = 34;
   }
   reserved 28, 29, 30;
   int64 timestamp = 15;
@@ -229,6 +231,8 @@ message ServerMessage {
     AcpRelayCommand acp_relay = 24;
     // Push refreshed org policy rules to a running pod
     UpdatePodPolicyRulesCommand update_pod_policy_rules = 25;
+    // Sandbox filesystem op (list/read/write/changes/diff/search/mkdir)
+    SandboxFsCommand sandbox_fs = 26;
   }
   int64 timestamp = 15;
 }
@@ -487,6 +491,51 @@ message ObservePodResult {
   int32 total_lines = 7;
   bool has_more = 8;
   string error = 9;           // 错误信息（如有）
+}
+
+// ==================== Sandbox filesystem ====================
+
+message SandboxFsCommand {
+  string request_id = 1;
+  string pod_key = 2;
+  string op = 3;
+  string path = 4;
+  string payload = 5;
+  string include_glob = 6;
+  string exclude_glob = 7;
+}
+
+message SandboxFsEntry {
+  string path = 1;
+  string name = 2;
+  string type = 3;
+  int64 bytes = 4;
+  int64 modified_at = 5;
+}
+
+message SandboxFsChange {
+  string path = 1;
+  string name = 2;
+  string status = 3;
+  int64 bytes = 4;
+  int64 modified_at = 5;
+}
+
+message SandboxFsResultEvent {
+  string request_id = 1;
+  string pod_key = 2;
+  string error = 3;
+  repeated SandboxFsEntry entries = 4;
+  string content = 5;
+  string encoding = 6;
+  string content_type = 7;
+  int64 file_bytes = 8;
+  bool truncated = 9;
+  string before = 10;
+  string after = 11;
+  repeated SandboxFsChange changes = 12;
+  string workspace_root = 13;
+  string workspace_home = 14;
 }
 
 // ==================== OSC 终端通知相关 ====================

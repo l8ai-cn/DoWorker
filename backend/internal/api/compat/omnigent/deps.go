@@ -35,5 +35,6 @@ type Deps struct {
 	SessionUsage    *sessionusagesvc.Service
 	Policies        *permissionpolicysvc.Service
 	ReadState       *ReadStateStore
+	SandboxFs       *runnerservice.SandboxFsService
 	Version         string
 }

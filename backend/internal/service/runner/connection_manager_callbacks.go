@@ -87,6 +87,10 @@ func (cm *RunnerConnectionManager) SetObservePodResultCallback(fn func(runnerID 
 	cm.onObservePodResult = fn
 }
 
+func (cm *RunnerConnectionManager) SetSandboxFsResultCallback(fn func(runnerID int64, data *runnerv1.SandboxFsResultEvent)) {
+	cm.onSandboxFsResult = fn
+}
+
 func (cm *RunnerConnectionManager) SetTokenUsageCallback(fn func(runnerID int64, data *runnerv1.TokenUsageReport)) {
 	cm.onTokenUsage = fn
 }
