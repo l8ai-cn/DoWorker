@@ -33,7 +33,7 @@ func TestNoOpCommandSender_SendTerminatePod(t *testing.T) {
 	sender := NewNoOpCommandSender(newTestLogger())
 	ctx := context.Background()
 
-	err := sender.SendTerminatePod(ctx, 1, "test-pod")
+	err := sender.SendTerminatePod(ctx, 1, "test-pod", false)
 	assert.Equal(t, ErrCommandSenderNotSet, err)
 }
 

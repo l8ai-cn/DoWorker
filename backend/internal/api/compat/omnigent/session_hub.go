@@ -9,6 +9,7 @@ type SessionHub struct {
 	mu       sync.RWMutex
 	channels map[string]map[chan string]struct{}
 	turns    map[string]*activeTurn
+	scratch  map[string]*eventBridgeScratch
 }
 
 type activeTurn struct {
@@ -20,7 +21,20 @@ func NewSessionHub() *SessionHub {
 	return &SessionHub{
 		channels: make(map[string]map[chan string]struct{}),
 		turns:    make(map[string]*activeTurn),
+		scratch:  make(map[string]*eventBridgeScratch),
 	}
+}
+
+func (h *SessionHub) scratchFor(sessionID string) *eventBridgeScratch {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	if h.scratch[sessionID] == nil {
+		h.scratch[sessionID] = &eventBridgeScratch{
+			toolCalls: make(map[string]toolCallState),
+			reasoning: make(map[string]string),
+		}
+	}
+	return h.scratch[sessionID]
 }
 
 func (h *SessionHub) Subscribe(sessionID string) chan string {

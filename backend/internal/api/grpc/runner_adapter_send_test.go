@@ -45,7 +45,7 @@ func TestGRPCRunnerAdapter_SendOperations_WithConnection(t *testing.T) {
 	})
 
 	t.Run("SendTerminatePod with connection", func(t *testing.T) {
-		err := adapter.SendTerminatePod(1, "test-pod", true)
+		err := adapter.SendTerminatePod(1, "test-pod", true, false)
 		require.NoError(t, err)
 
 		select {

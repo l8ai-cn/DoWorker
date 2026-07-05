@@ -10,7 +10,7 @@ import (
 type RunnerCommandSender interface {
 	SendCreatePod(ctx context.Context, runnerID int64, cmd *runnerv1.CreatePodCommand) error
 
-	SendTerminatePod(ctx context.Context, runnerID int64, podKey string) error
+	SendTerminatePod(ctx context.Context, runnerID int64, podKey string, deleteBranch bool) error
 
 	SendPodInput(ctx context.Context, runnerID int64, podKey string, data []byte) error
 
@@ -47,7 +47,7 @@ func (n *NoOpCommandSender) SendCreatePod(ctx context.Context, runnerID int64, c
 	return ErrCommandSenderNotSet
 }
 
-func (n *NoOpCommandSender) SendTerminatePod(ctx context.Context, runnerID int64, podKey string) error {
+func (n *NoOpCommandSender) SendTerminatePod(ctx context.Context, runnerID int64, podKey string, deleteBranch bool) error {
 	n.logger.Warn("command sender not configured, cannot terminate pod",
 		"runner_id", runnerID, "pod_key", podKey)
 	return ErrCommandSenderNotSet

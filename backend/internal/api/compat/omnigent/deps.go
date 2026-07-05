@@ -29,6 +29,7 @@ type Deps struct {
 	Bridge          *EventBridge
 	PodOrchestrator *agentpod.PodOrchestrator
 	Pod             *agentpod.PodService
+	PodCoordinator  *runnerservice.PodCoordinator
 	CommandSender   runnerservice.RunnerCommandSender
 	RelayManager    *relayservice.Manager
 	RelayTokens     *relayservice.TokenGenerator

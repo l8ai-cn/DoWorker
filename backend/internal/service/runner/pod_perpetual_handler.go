@@ -52,7 +52,7 @@ func (pc *PodCoordinator) handlePodRestarting(runnerID int64, data *runnerv1.Pod
 			pc.logger.Warn("perpetual pod circuit breaker triggered",
 				"pod_key", data.PodKey, "restart_count", data.RestartCount,
 				"window", now.Sub(*prevLastRestartAt))
-			if err := pc.commandSender.SendTerminatePod(ctx, runnerID, data.PodKey); err != nil {
+			if err := pc.commandSender.SendTerminatePod(ctx, runnerID, data.PodKey, false); err != nil {
 				pc.logger.Error("failed to send terminate for circuit breaker",
 					"pod_key", data.PodKey, "error", err)
 			}

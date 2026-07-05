@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -147,15 +148,29 @@ func (h *RunnerMessageHandler) wireAndStartPTYPod(pod *Pod, cmd *runnerv1.Create
 // OnTerminatePod handles terminate pod requests from server.
 func (h *RunnerMessageHandler) OnTerminatePod(req client.TerminatePodRequest) error {
 	log := logger.Pod()
-	log.Info("Terminating pod", "pod_key", req.PodKey)
+	log.Info("Terminating pod", "pod_key", req.PodKey, "delete_branch", req.DeleteBranch)
 
-	if _, ok := h.podStore.Get(req.PodKey); !ok {
+	pod, ok := h.podStore.Get(req.PodKey)
+	if !ok {
 		log.Warn("Pod not found for termination", "pod_key", req.PodKey)
 		return fmt.Errorf("pod not found: %s", req.PodKey)
+	}
+	if req.DeleteBranch && pod.SandboxPath != "" {
+		h.removePodSandbox(pod.SandboxPath)
 	}
 
 	h.cleanupPodExit(req.PodKey, -1, true)
 	return nil
+}
+
+func (h *RunnerMessageHandler) removePodSandbox(path string) {
+	if r, ok := h.runner.(*Runner); ok && r.workspace != nil {
+		if err := r.workspace.RemoveWorktree(context.Background(), path); err != nil {
+			logger.Pod().Warn("worktree remove failed", "path", path, "error", err)
+		}
+		return
+	}
+	_ = os.RemoveAll(path)
 }
 
 // OnUpdatePodPerpetual handles update_pod_perpetual command from server.

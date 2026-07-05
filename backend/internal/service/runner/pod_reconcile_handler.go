@@ -35,7 +35,7 @@ func (pc *PodCoordinator) reconcilePods(ctx context.Context, runnerID int64, rep
 			pc.recordTerminateSent(podKey)
 			pc.logger.Warn("runner reported unknown pod, sending terminate",
 				"pod_key", podKey, "runner_id", runnerID)
-			if sendErr := pc.commandSender.SendTerminatePod(ctx, runnerID, podKey); sendErr != nil {
+			if sendErr := pc.commandSender.SendTerminatePod(ctx, runnerID, podKey, false); sendErr != nil {
 				pc.logger.Error("failed to send terminate for unknown pod",
 					"pod_key", podKey, "error", sendErr)
 			}
@@ -49,7 +49,7 @@ func (pc *PodCoordinator) reconcilePods(ctx context.Context, runnerID int64, rep
 			pc.recordTerminateSent(podKey)
 			pc.logger.Warn("runner reported terminated pod, sending terminate",
 				"pod_key", podKey, "runner_id", runnerID, "db_status", pod.Status)
-			if sendErr := pc.commandSender.SendTerminatePod(ctx, runnerID, podKey); sendErr != nil {
+			if sendErr := pc.commandSender.SendTerminatePod(ctx, runnerID, podKey, false); sendErr != nil {
 				pc.logger.Error("failed to send terminate for completed pod",
 					"pod_key", podKey, "error", sendErr)
 			}

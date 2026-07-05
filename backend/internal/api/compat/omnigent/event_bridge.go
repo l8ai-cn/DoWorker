@@ -99,9 +99,16 @@ func (b *EventBridge) HandleAcpSession(ctx context.Context, podKey, eventType, p
 		if p.ResponseID == "" {
 			p.ResponseID = b.ensureResponseTurn(sessionID, "")
 		}
+		b.flushReasoningItem(ctx, sessionID, p.ResponseID)
 		b.finishAssistantMessage(ctx, sessionID, p.ResponseID, text)
 	case "permission_request":
 		b.handlePermissionRequest(sessionID, payloadJSON)
+	case "tool_call_update":
+		b.handleToolCallUpdate(ctx, sessionID, payloadJSON)
+	case "tool_call_result":
+		b.handleToolCallResult(ctx, sessionID, payloadJSON)
+	case "thinking_update":
+		b.handleThinkingUpdate(ctx, sessionID, payloadJSON)
 	}
 }
 

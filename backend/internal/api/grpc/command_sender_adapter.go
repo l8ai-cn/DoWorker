@@ -25,9 +25,9 @@ func (s *GRPCCommandSender) SendCreatePod(ctx context.Context, runnerID int64, c
 	return nil
 }
 
-func (s *GRPCCommandSender) SendTerminatePod(ctx context.Context, runnerID int64, podKey string) error {
-	slog.InfoContext(ctx, "sending terminate_pod command", "runner_id", runnerID, "pod_key", podKey)
-	if err := s.adapter.SendTerminatePod(runnerID, podKey, false); err != nil {
+func (s *GRPCCommandSender) SendTerminatePod(ctx context.Context, runnerID int64, podKey string, deleteBranch bool) error {
+	slog.InfoContext(ctx, "sending terminate_pod command", "runner_id", runnerID, "pod_key", podKey, "delete_branch", deleteBranch)
+	if err := s.adapter.SendTerminatePod(runnerID, podKey, false, deleteBranch); err != nil {
 		slog.ErrorContext(ctx, "failed to send terminate_pod command", "runner_id", runnerID, "pod_key", podKey, "error", err)
 		return err
 	}

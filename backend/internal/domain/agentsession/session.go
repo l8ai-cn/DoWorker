@@ -12,6 +12,9 @@ type Session struct {
 	Title           *string `gorm:"type:text"`
 	Status          string `gorm:"size:20;not null;default:idle"`
 	ParentSessionID *string `gorm:"size:100"`
+	Project         *string    `gorm:"type:text"`
+	Archived        bool       `gorm:"not null;default:false"`
+	DeletedAt       *time.Time `gorm:"index"`
 	CreatedAt       time.Time `gorm:"not null"`
 	UpdatedAt       time.Time `gorm:"not null"`
 }

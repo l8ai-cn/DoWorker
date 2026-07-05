@@ -375,6 +375,7 @@ message KnowledgeMount {
 message TerminatePodCommand {
   string pod_key = 1;
   bool force = 2;
+  bool delete_branch = 3;
 }
 
 // PodInputCommand Pod 输入命令

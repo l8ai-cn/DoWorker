@@ -190,7 +190,7 @@ func (c *GRPCConnection) handleTerminatePod(cmd *runnerv1.TerminatePodCommand) {
 		return
 	}
 
-	req := TerminatePodRequest{PodKey: cmd.PodKey}
+	req := TerminatePodRequest{PodKey: cmd.PodKey, DeleteBranch: cmd.GetDeleteBranch()}
 	if err := c.handler.OnTerminatePod(req); err != nil {
 		log.Error("Failed to terminate pod", "pod_key", cmd.PodKey, "error", err)
 	}

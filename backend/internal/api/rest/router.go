@@ -230,6 +230,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 	sessionDeps.Updates = omnigentcompat.NewSessionUpdatesHub(&sessionDeps)
 	omnigentcompat.SetUpdatesHub(sessionDeps.Updates)
 	if svc.PodCoordinator != nil {
+		sessionDeps.PodCoordinator = svc.PodCoordinator
 		sessionDeps.CommandSender = svc.PodCoordinator.GetCommandSender()
 		svc.PodCoordinator.SetStatusChangeCallback(func(podKey, podStatus, agentStatus string) {
 			omnigentcompat.ForwardPodStatus(context.Background(), podKey, podStatus, agentStatus)

@@ -7,6 +7,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (d *Deps) handleGetReadState(c *gin.Context) {
+	tenant := middleware.GetTenant(c)
+	if tenant == nil || d.ReadState == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	row, _, ok := d.authorizeSession(c, c.Param("id"))
+	if !ok {
+		return
+	}
+	entry, ok := d.ReadState.Get(tenant.UserID, row.ID)
+	if !ok {
+		c.JSON(http.StatusOK, gin.H{"last_seen": nil, "unread": false})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"last_seen": entry.LastSeen, "unread": entry.Unread})
+}
+
 func (d *Deps) handlePutReadState(c *gin.Context) {
 	tenant := middleware.GetTenant(c)
 	if tenant == nil || d.ReadState == nil {

@@ -95,7 +95,7 @@ func (m *MockCommandSender) SendCreatePod(ctx context.Context, runnerID int64, c
 	return nil
 }
 
-func (m *MockCommandSender) SendTerminatePod(ctx context.Context, runnerID int64, podKey string) error {
+func (m *MockCommandSender) SendTerminatePod(ctx context.Context, runnerID int64, podKey string, deleteBranch bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.TerminatePodCalls++

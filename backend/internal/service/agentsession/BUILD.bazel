@@ -2,7 +2,11 @@ load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "agentsession",
-    srcs = ["service.go"],
+    srcs = [
+        "service.go",
+        "service_lifecycle.go",
+        "service_query.go",
+    ],
     importpath = "github.com/anthropics/agentsmesh/backend/internal/service/agentsession",
     visibility = ["//backend:__subpackages__"],
     deps = [

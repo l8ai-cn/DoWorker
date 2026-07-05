@@ -69,7 +69,7 @@ type mockCommandSender struct {
 func (m *mockCommandSender) SendCreatePod(context.Context, int64, *runnerv1.CreatePodCommand) error {
 	return nil
 }
-func (m *mockCommandSender) SendTerminatePod(context.Context, int64, string) error { return nil }
+func (m *mockCommandSender) SendTerminatePod(context.Context, int64, string, bool) error { return nil }
 func (m *mockCommandSender) SendPodInput(context.Context, int64, string, []byte) error {
 	return nil
 }

@@ -47,16 +47,7 @@ func (s *Service) Get(ctx context.Context, id string) (*domain.Session, error) {
 }
 
 func (s *Service) ListByUser(ctx context.Context, orgID, userID int64, limit int) ([]domain.Session, error) {
-	if limit <= 0 || limit > 100 {
-		limit = 100
-	}
-	var rows []domain.Session
-	err := s.db.WithContext(ctx).
-		Where("organization_id = ? AND user_id = ?", orgID, userID).
-		Order("updated_at DESC").
-		Limit(limit).
-		Find(&rows).Error
-	return rows, err
+	return s.ListForUser(ctx, orgID, userID, ListOptions{Limit: limit, IncludeArchived: true})
 }
 
 func (s *Service) GetByPodKey(ctx context.Context, podKey string) (*domain.Session, error) {

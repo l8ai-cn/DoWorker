@@ -41,8 +41,9 @@ func (d *Deps) listItemFrom(row *domain.Session, pod *podDomain.Pod, online map[
 		CreatedAt: row.CreatedAt.Unix(), UpdatedAt: updated.Unix(),
 		Labels: map[string]string{}, PermissionLevel: nil,
 		AgentID: row.AgentSlug, AgentName: strPtr(row.AgentSlug),
-		Status: status, Archived: false,
+		Status: status, Archived: row.Archived,
 	}
+	item.Labels = sessionLabels(row.Project)
 	if d.Elicitations != nil {
 		item.PendingElicitationsCount = len(d.Elicitations.PendingPayloads(row.ID))
 	}

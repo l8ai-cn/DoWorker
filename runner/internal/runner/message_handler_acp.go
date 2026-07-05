@@ -68,15 +68,21 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 			},
 			OnToolCallUpdate: func(sessionID string, update acp.ToolCallUpdate) {
 				sendAcpViaRelay(pod, "toolCallUpdate", sessionID, update)
+				payload, _ := json.Marshal(update)
+				_ = conn.SendAcpSessionEvent(podKey, "tool_call_update", string(payload))
 			},
 			OnToolCallResult: func(sessionID string, result acp.ToolCallResult) {
 				sendAcpViaRelay(pod, "toolCallResult", sessionID, result)
+				payload, _ := json.Marshal(result)
+				_ = conn.SendAcpSessionEvent(podKey, "tool_call_result", string(payload))
 			},
 			OnPlanUpdate: func(sessionID string, update acp.PlanUpdate) {
 				sendAcpViaRelay(pod, "planUpdate", sessionID, update)
 			},
 			OnThinkingUpdate: func(sessionID string, update acp.ThinkingUpdate) {
 				sendAcpViaRelay(pod, "thinkingUpdate", sessionID, update)
+				payload, _ := json.Marshal(update)
+				_ = conn.SendAcpSessionEvent(podKey, "thinking_update", string(payload))
 			},
 			OnPermissionRequest: func(req acp.PermissionRequest) {
 				path := permissionPathFromArgs(req.ArgumentsJSON)

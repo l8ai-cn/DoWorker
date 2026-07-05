@@ -149,6 +149,14 @@ var ErrPodAlreadyTerminated = fmt.Errorf("pod already terminated")
 
 // TerminatePod is the SSOT for pod termination — REST API, Loop Orchestrator, all callers route here.
 func (pc *PodCoordinator) TerminatePod(ctx context.Context, podKey string) error {
+	return pc.terminatePod(ctx, podKey, false)
+}
+
+func (pc *PodCoordinator) TerminatePodDeleteBranch(ctx context.Context, podKey string) error {
+	return pc.terminatePod(ctx, podKey, true)
+}
+
+func (pc *PodCoordinator) terminatePod(ctx context.Context, podKey string, deleteBranch bool) error {
 	pod, err := pc.podStore.GetByKey(ctx, podKey)
 	if err != nil {
 		return err
@@ -158,7 +166,7 @@ func (pc *PodCoordinator) TerminatePod(ctx context.Context, podKey string) error
 		return ErrPodAlreadyTerminated
 	}
 
-	if err := pc.commandSender.SendTerminatePod(ctx, pod.RunnerID, podKey); err != nil {
+	if err := pc.commandSender.SendTerminatePod(ctx, pod.RunnerID, podKey, deleteBranch); err != nil {
 		pc.logger.Warn("failed to send terminate to runner, marking as completed",
 			"pod_key", podKey, "error", err)
 	}
@@ -182,7 +190,7 @@ func (pc *PodCoordinator) TerminatePod(ctx context.Context, podKey string) error
 		pc.onStatusChange(podKey, agentpod.StatusCompleted, "")
 	}
 
-	pc.logger.Info("pod terminate sent", "pod_key", podKey, "runner_id", pod.RunnerID)
+	pc.logger.Info("pod terminate sent", "pod_key", podKey, "runner_id", pod.RunnerID, "delete_branch", deleteBranch)
 
 	return pc.DecrementPods(ctx, pod.RunnerID)
 }

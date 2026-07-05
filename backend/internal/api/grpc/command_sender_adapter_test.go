@@ -88,7 +88,7 @@ func TestGRPCCommandSender_SendTerminatePod(t *testing.T) {
 	sender := NewGRPCCommandSender(adapter)
 
 	ctx := context.Background()
-	err := sender.SendTerminatePod(ctx, 999, "test-pod")
+	err := sender.SendTerminatePod(ctx, 999, "test-pod", false)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "not connected")
 }

@@ -21,7 +21,8 @@ const (
 
 // TerminatePodRequest contains pod termination request data.
 type TerminatePodRequest struct {
-	PodKey string `json:"pod_key"`
+	PodKey       string `json:"pod_key"`
+	DeleteBranch bool   `json:"delete_branch,omitempty"`
 }
 
 // PodInfo contains pod information for heartbeat messages.

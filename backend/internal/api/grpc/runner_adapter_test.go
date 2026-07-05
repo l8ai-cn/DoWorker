@@ -51,7 +51,7 @@ func TestGRPCRunnerAdapter_SendTerminatePod(t *testing.T) {
 	adapter := NewGRPCRunnerAdapter(logger, nil, runnerSvc, orgSvc, nil, nil, connMgr, nil)
 
 	// Test sending to non-existent runner
-	err := adapter.SendTerminatePod(999, "test-pod", true)
+	err := adapter.SendTerminatePod(999, "test-pod", true, false)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "not connected")
 }

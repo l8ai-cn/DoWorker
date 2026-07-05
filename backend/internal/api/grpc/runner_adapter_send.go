@@ -24,7 +24,7 @@ func (a *GRPCRunnerAdapter) SendCreatePod(runnerID int64, cmd *runnerv1.CreatePo
 	return conn.SendMessage(msg)
 }
 
-func (a *GRPCRunnerAdapter) SendTerminatePod(runnerID int64, podKey string, force bool) error {
+func (a *GRPCRunnerAdapter) SendTerminatePod(runnerID int64, podKey string, force bool, deleteBranch bool) error {
 	conn := a.connManager.GetConnection(runnerID)
 	if conn == nil {
 		return status.Errorf(codes.NotFound, "runner %d not connected", runnerID)
@@ -33,8 +33,9 @@ func (a *GRPCRunnerAdapter) SendTerminatePod(runnerID int64, podKey string, forc
 	msg := &runnerv1.ServerMessage{
 		Payload: &runnerv1.ServerMessage_TerminatePod{
 			TerminatePod: &runnerv1.TerminatePodCommand{
-				PodKey: podKey,
-				Force:  force,
+				PodKey:       podKey,
+				Force:        force,
+				DeleteBranch: deleteBranch,
 			},
 		},
 		Timestamp: time.Now().UnixMilli(),
