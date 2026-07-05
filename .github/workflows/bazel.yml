@@ -36,7 +36,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -55,7 +55,7 @@ jobs:
     needs: smoke
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -82,7 +82,7 @@ jobs:
     needs: smoke
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -112,7 +112,7 @@ jobs:
         module: [backend, runner, relay]
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -132,7 +132,7 @@ jobs:
     needs: smoke
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -166,7 +166,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -270,7 +270,7 @@ jobs:
     needs: smoke
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -286,7 +286,7 @@ jobs:
     needs: smoke
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -326,7 +326,7 @@ jobs:
             target: //clients/web-admin:image
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -364,7 +364,7 @@ jobs:
       AGENTSMESH_WORKTREE_NAME: head-shard${{ matrix.shard }}
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -542,7 +542,7 @@ jobs:
     needs: smoke
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -599,7 +599,7 @@ jobs:
     needs: smoke
     steps:
       - uses: actions/checkout@v6
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
