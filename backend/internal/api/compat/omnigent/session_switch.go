@@ -81,7 +81,7 @@ func (d *Deps) rebuildSessionPod(c *gin.Context, row *domain.Session, pod *podDo
 	}
 	orchReq := &agentpod.OrchestrateCreatePodRequest{
 		OrganizationID: row.OrganizationID, UserID: row.UserID,
-		RunnerID: runnerID, AgentSlug: agentSlug,
+		RunnerID: runnerID, AgentSlug: agentSlug, AgentSessionID: row.ID,
 		AgentfileLayer:          compatAgentfileLayer(),
 		ResumeExternalSessionID: resumeExternal,
 		SessionMcpServers:       domain.McpServersToInstalled(domain.ParseMcpServers(row.McpServers)),

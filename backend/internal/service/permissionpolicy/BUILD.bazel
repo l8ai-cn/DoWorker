@@ -6,6 +6,7 @@ go_library(
         "cost_budget.go",
         "crud.go",
         "service.go",
+        "session_policies.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy",
     visibility = ["//backend:__subpackages__"],

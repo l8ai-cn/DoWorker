@@ -127,7 +127,13 @@ func (o *PodOrchestrator) buildPodCommand(
 	}
 	cmd.Perpetual = req.Perpetual
 	if o.permissionPolicy != nil {
-		rules, err := o.permissionPolicy.SnapshotForPodCreate(ctx, req.OrganizationID, req.AgentSlug)
+		var rules []*runnerv1.PolicyRuleSnapshot
+		var err error
+		if req.AgentSessionID != "" {
+			rules, err = o.permissionPolicy.SnapshotForSession(ctx, req.OrganizationID, req.AgentSessionID, req.AgentSlug)
+		} else {
+			rules, err = o.permissionPolicy.SnapshotForPodCreate(ctx, req.OrganizationID, req.AgentSlug)
+		}
 		if err != nil {
 			slog.WarnContext(ctx, "policy snapshot failed, pod will use fail-safe ASK", "org_id", req.OrganizationID, "error", err)
 		} else {

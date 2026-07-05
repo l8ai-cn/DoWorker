@@ -62,8 +62,14 @@ func (d *Deps) handleCreatePolicy(c *gin.Context) {
 }
 
 func (d *Deps) handlePatchPolicy(c *gin.Context) {
+	tenant := middleware.GetTenant(c)
+	if tenant == nil || d.Policies == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
 	var body struct {
-		Enabled *bool `json:"enabled"`
+		Enabled       *bool          `json:"enabled"`
+		FactoryParams map[string]any `json:"factory_params"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"})
@@ -73,7 +79,31 @@ func (d *Deps) handlePatchPolicy(c *gin.Context) {
 		d.handleDeletePolicy(c)
 		return
 	}
-	c.JSON(http.StatusNotImplemented, gin.H{"error": "only disable (delete) is supported"})
+	id, err := permissionpolicysvc.ParsePolicyID(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid policy id"})
+		return
+	}
+	patch, err := parsePolicyPatch(body.FactoryParams)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if patch.ToolPattern == nil && patch.PathPattern == nil && patch.Verdict == nil && patch.Priority == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "factory_params required"})
+		return
+	}
+	row, err := d.Policies.UpdateOrg(c.Request.Context(), tenant.OrganizationID, id, patch)
+	if err != nil {
+		if err == permissionpolicysvc.ErrNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "policy not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed"})
+		return
+	}
+	d.pushPolicyToActivePods(c)
+	c.JSON(http.StatusOK, policyRowToWire(row))
 }
 
 func (d *Deps) handleDeletePolicy(c *gin.Context) {
@@ -198,4 +228,37 @@ func parseToolRuleInput(handler string, params map[string]any) (permissionpolicy
 		in.Priority = p
 	}
 	return in, nil
+}
+
+func parsePolicyPatch(params map[string]any) (permissionpolicysvc.PatchInput, error) {
+	if params == nil {
+		return permissionpolicysvc.PatchInput{}, nil
+	}
+	var patch permissionpolicysvc.PatchInput
+	if v, ok := params["tool_pattern"].(string); ok {
+		trimmed := strings.TrimSpace(v)
+		if trimmed == "" {
+			return permissionpolicysvc.PatchInput{}, fmt.Errorf("tool_pattern cannot be empty")
+		}
+		patch.ToolPattern = &trimmed
+	}
+	if v, ok := params["path_pattern"].(string); ok {
+		trimmed := strings.TrimSpace(v)
+		patch.PathPattern = &trimmed
+	}
+	if v, ok := params["verdict"].(string); ok {
+		verdict := strings.ToLower(strings.TrimSpace(v))
+		if verdict != "allow" && verdict != "deny" && verdict != "ask" {
+			return permissionpolicysvc.PatchInput{}, fmt.Errorf("verdict must be allow, deny, or ask")
+		}
+		patch.Verdict = &verdict
+	}
+	switch p := params["priority"].(type) {
+	case float64:
+		v := int(p)
+		patch.Priority = &v
+	case int:
+		patch.Priority = &p
+	}
+	return patch, nil
 }

@@ -44,6 +44,7 @@ go_library(
         "session_items.go",
         "session_list_wire.go",
         "session_permissions.go",
+        "session_policies.go",
         "session_query.go",
         "session_read_state.go",
         "session_stream.go",

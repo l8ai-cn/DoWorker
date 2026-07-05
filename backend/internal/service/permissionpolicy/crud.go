@@ -13,6 +13,7 @@ type OrgRow struct {
 	ID             int64     `gorm:"column:id;primaryKey"`
 	OrganizationID int64     `gorm:"column:organization_id"`
 	Scope          string    `gorm:"column:scope"`
+	SessionID      *string   `gorm:"column:session_id"`
 	AgentSlug      *string   `gorm:"column:agent_slug"`
 	PolicyHandler  string    `gorm:"column:policy_handler"`
 	ToolPattern    string    `gorm:"column:tool_pattern"`

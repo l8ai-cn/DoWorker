@@ -9,27 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (d *Deps) handleListSessionPolicies(c *gin.Context) {
-	if _, _, ok := d.authorizeSession(c, c.Param("id")); !ok {
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"object": "list", "data": []any{}})
-}
-
-func (d *Deps) handleCreateSessionPolicy(c *gin.Context) {
-	if _, _, ok := d.authorizeSession(c, c.Param("id")); !ok {
-		return
-	}
-	c.JSON(http.StatusNotImplemented, gin.H{"error": "session-scoped policies use org defaults"})
-}
-
-func (d *Deps) handleDeleteSessionPolicy(c *gin.Context) {
-	if _, _, ok := d.authorizeSession(c, c.Param("id")); !ok {
-		return
-	}
-	c.Status(http.StatusNoContent)
-}
-
 func (d *Deps) handleCreateHostDirectory(c *gin.Context) {
 	tenant := middleware.GetTenant(c)
 	if tenant == nil || d.Runner == nil || d.SandboxFs == nil {

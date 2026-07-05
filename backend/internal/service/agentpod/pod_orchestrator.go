@@ -55,6 +55,8 @@ type OrchestrateCreatePodRequest struct {
 	ResumeAgentSession *bool
 	ResumeExternalSessionID string
 
+	AgentSessionID string
+
 	SessionMcpServers map[string]interface{}
 
 	Perpetual bool
