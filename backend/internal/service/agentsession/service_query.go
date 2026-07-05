@@ -10,6 +10,7 @@ type ListOptions struct {
 	Limit           int
 	Project         string
 	IncludeArchived bool
+	PrincipalEmail  string
 }
 
 func (s *Service) ListForUser(ctx context.Context, orgID, userID int64, opts ListOptions) ([]domain.Session, error) {
@@ -18,7 +19,15 @@ func (s *Service) ListForUser(ctx context.Context, orgID, userID int64, opts Lis
 		limit = 100
 	}
 	q := s.db.WithContext(ctx).
-		Where("organization_id = ? AND user_id = ? AND deleted_at IS NULL", orgID, userID)
+		Where("organization_id = ? AND deleted_at IS NULL", orgID)
+	if opts.PrincipalEmail != "" {
+		q = q.Where(
+			"user_id = ? OR id IN (SELECT session_id FROM session_permissions WHERE user_id IN (?, '__public__'))",
+			userID, opts.PrincipalEmail,
+		)
+	} else {
+		q = q.Where("user_id = ?", userID)
+	}
 	if opts.Project != "" {
 		q = q.Where("project = ?", opts.Project)
 	}

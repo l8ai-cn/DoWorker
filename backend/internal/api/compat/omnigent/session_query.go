@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
-	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	"github.com/gin-gonic/gin"
@@ -27,6 +26,7 @@ func (d *Deps) handleListSessions(c *gin.Context) {
 		Limit:           limit,
 		Project:         c.Query("project"),
 		IncludeArchived: c.Query("include_archived") == "true",
+		PrincipalEmail:  d.viewerEmail(c),
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "list failed"})
@@ -37,7 +37,7 @@ func (d *Deps) handleListSessions(c *gin.Context) {
 	for i := range rows {
 		pod := d.loadPod(c, rows[i].PodKey)
 		item := d.listItemFrom(&rows[i], pod, online)
-		d.enrichOwnership(c, rows[i].UserID, &item)
+		d.enrichOwnership(c, &rows[i], &item)
 		items = append(items, item)
 	}
 	c.JSON(http.StatusOK, listPageFrom(items))
@@ -54,7 +54,7 @@ func (d *Deps) handleGetSession(c *gin.Context) {
 		online = d.runnerOnlineMap(tenant.OrganizationID, tenant.UserID)
 	}
 	item := d.listItemFrom(row, pod, online)
-	d.enrichOwnership(c, row.UserID, &item)
+	d.enrichOwnership(c, row, &item)
 	c.JSON(http.StatusOK, mergeSessionGet(item, d.sessionWire(row, pod, row.RunnerNodeID)))
 }
 
@@ -134,33 +134,11 @@ func (d *Deps) handlePatchSession(c *gin.Context) {
 		online = d.runnerOnlineMap(tenant.OrganizationID, tenant.UserID)
 	}
 	item := d.listItemFrom(row, pod, online)
-	d.enrichOwnership(c, row.UserID, &item)
+	d.enrichOwnership(c, row, &item)
 	if tenant != nil {
 		d.enrichReadState(tenant.UserID, row.ID, &item)
 	}
 	c.JSON(http.StatusOK, mergeSessionGet(item, d.sessionWire(row, pod, row.RunnerNodeID)))
-}
-
-func (d *Deps) authorizeSession(c *gin.Context, id string) (*domain.Session, *podDomain.Pod, bool) {
-	tenant := middleware.GetTenant(c)
-	if tenant == nil || d.Sessions == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-		return nil, nil, false
-	}
-	row, err := d.Sessions.GetActive(c.Request.Context(), id)
-	if err == sessionsvc.ErrNotFound {
-		c.JSON(http.StatusNotFound, gin.H{"error": "session not found", "code": "session_not_found"})
-		return nil, nil, false
-	}
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "lookup failed"})
-		return nil, nil, false
-	}
-	if row.OrganizationID != tenant.OrganizationID || row.UserID != tenant.UserID {
-		c.JSON(http.StatusNotFound, gin.H{"error": "session not found", "code": "session_not_found"})
-		return nil, nil, false
-	}
-	return row, d.loadPod(c, row.PodKey), true
 }
 
 func (d *Deps) loadPod(c *gin.Context, podKey string) *podDomain.Pod {

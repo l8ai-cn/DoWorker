@@ -11,6 +11,8 @@ import (
 	relayservice "github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
 	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
+	commentsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessioncomment"
+	permgrantsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionpermission"
 	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
 	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
 )
@@ -38,6 +40,8 @@ type Deps struct {
 	Policies        *permissionpolicysvc.Service
 	ReadState       *ReadStateStore
 	SandboxFs       *runnerservice.SandboxFsService
-	SessionFiles    *sessionfilesvc.Service
-	Version         string
+	SessionFiles      *sessionfilesvc.Service
+	SessionComments   *commentsvc.Service
+	SessionPermissions *permgrantsvc.Service
+	Version           string
 }

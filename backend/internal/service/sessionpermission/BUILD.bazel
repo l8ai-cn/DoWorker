@@ -1,0 +1,19 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "sessionpermission",
+    srcs = ["service.go"],
+    importpath = "github.com/anthropics/agentsmesh/backend/internal/service/sessionpermission",
+    visibility = ["//backend:__subpackages__"],
+    deps = [
+        "//backend/internal/domain/sessionpermission",
+        "@io_gorm_gorm//:gorm",
+        "@io_gorm_gorm//clause",
+    ],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":sessionpermission",
+    visibility = ["//backend:__subpackages__"],
+)
