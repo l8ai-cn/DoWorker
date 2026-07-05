@@ -64,6 +64,9 @@ type ConfigBuildRequest struct {
 	// Empty map or nil means Runner did not report version info (old Runner).
 	RunnerAgentVersions map[string]string
 
+	// Session-scoped MCP servers (Omnigent compat) merged into mcp.installed.
+	SessionMcpInstalled map[string]interface{}
+
 	// MergedAgentfileSource is the merged AgentFile source (base + user layer, serialized).
 	// Populated by orchestrator's extractFromAgentfileLayer when AgentfileLayer is provided.
 	// When empty (resume mode or no layer): buildFromAgentfile falls back to agent's base AgentFile.

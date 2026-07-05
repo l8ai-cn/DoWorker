@@ -15,7 +15,9 @@ type Session struct {
 	Project         *string    `gorm:"type:text"`
 	Archived        bool       `gorm:"not null;default:false"`
 	DeletedAt       *time.Time `gorm:"index"`
-	CreatedAt       time.Time `gorm:"not null"`
+	McpServers      []byte     `gorm:"type:jsonb;not null;default:'[]'"`
+	CodexGoal       []byte     `gorm:"type:jsonb"`
+	CreatedAt       time.Time  `gorm:"not null"`
 	UpdatedAt       time.Time `gorm:"not null"`
 }
 

@@ -55,6 +55,8 @@ type OrchestrateCreatePodRequest struct {
 	ResumeAgentSession *bool
 	ResumeExternalSessionID string
 
+	SessionMcpServers map[string]interface{}
+
 	Perpetual bool
 
 	DeferRunnerDispatch bool

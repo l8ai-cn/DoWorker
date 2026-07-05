@@ -147,6 +147,9 @@ func (b *ConfigBuilder) buildMCPContext(ctx context.Context, req *ConfigBuildReq
 			}
 		}
 	}
+	for name, cfg := range req.SessionMcpInstalled {
+		installedMCP[name] = cfg
+	}
 
 	return builtinMCP, installedMCP
 }

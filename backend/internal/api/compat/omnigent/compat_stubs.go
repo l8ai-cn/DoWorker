@@ -30,15 +30,6 @@ func (d *Deps) handleDeleteSessionPolicy(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-func (d *Deps) handleSwitchAgent(c *gin.Context) {
-	if _, _, ok := d.authorizeSession(c, c.Param("id")); !ok {
-		return
-	}
-	c.JSON(http.StatusNotImplemented, gin.H{
-		"error": gin.H{"code": "not_implemented", "message": "switch-agent is not available yet"},
-	})
-}
-
 func (d *Deps) handleCreateHostDirectory(c *gin.Context) {
 	tenant := middleware.GetTenant(c)
 	if tenant == nil || d.Runner == nil || d.SandboxFs == nil {

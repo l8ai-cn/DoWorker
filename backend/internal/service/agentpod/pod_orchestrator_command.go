@@ -117,7 +117,8 @@ func (o *PodOrchestrator) buildPodCommand(
 		Rows:                req.Rows,
 		RunnerAgentVersions: runnerAgentVersions,
 		MergedAgentfileSource: resolved.MergedAgentfileSource,
-		KnowledgeMounts:     knowledgeMounts,
+		KnowledgeMounts:       knowledgeMounts,
+		SessionMcpInstalled:   req.SessionMcpServers,
 	}
 
 	cmd, err := o.configBuilder.BuildPodCommand(ctx, buildReq)

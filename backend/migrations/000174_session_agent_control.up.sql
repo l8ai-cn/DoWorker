@@ -1,0 +1,2 @@
+ALTER TABLE agent_sessions ADD COLUMN IF NOT EXISTS mcp_servers JSONB NOT NULL DEFAULT '[]';
+ALTER TABLE agent_sessions ADD COLUMN IF NOT EXISTS codex_goal JSONB;

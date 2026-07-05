@@ -2,9 +2,11 @@ package omnigent
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/anthropics/agentsmesh/agentfile/capability"
 	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,10 +24,16 @@ func (d *Deps) handleGetSessionAgent(c *gin.Context) {
 	if harness == "" {
 		harness = agent.Slug
 	}
+	mcpServers := domain.ParseMcpServers(row.McpServers)
+	mcpWire := make([]gin.H, 0, len(mcpServers))
+	for _, s := range mcpServers {
+		mcpWire = append(mcpWire, mcpServerWire(s))
+	}
+	editable := agentSupportsMcp(agent)
 	wire := gin.H{
 		"id": agent.Slug, "object": "agent", "name": agent.Name,
-		"harness": harness, "mcp_servers": []any{},
-		"mcp_servers_editable": false, "policies": []any{},
+		"harness": harness, "mcp_servers": mcpWire,
+		"mcp_servers_editable": editable, "policies": []any{},
 		"terminals": agentTerminals(agent),
 	}
 	if agent.Description != nil {
@@ -42,4 +50,17 @@ func agentTerminals(agent *agentdomain.Agent) []string {
 		return []string{"shell"}
 	}
 	return []string{}
+}
+
+func agentSupportsMcp(agent *agentdomain.Agent) bool {
+	if agent == nil || agent.AgentfileSource == nil {
+		return false
+	}
+	caps := capability.ScanDeclarations(*agent.AgentfileSource)
+	for _, c := range caps {
+		if c == "mcp" || c == "MCP" {
+			return true
+		}
+	}
+	return strings.Contains(strings.ToLower(*agent.AgentfileSource), "mcp on")
 }
