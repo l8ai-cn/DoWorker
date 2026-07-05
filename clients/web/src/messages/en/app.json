@@ -61,7 +61,7 @@
     }
   },
   "mesh": {
-    "title": "AgentsMesh",
+    "title": "Do Worker",
     "channels": "Channels",
     "newChannel": "New Channel",
     "topology": "Topology",
@@ -298,6 +298,17 @@
       "started": "Started"
     }
   },
+  "workers": {
+    "create": {
+      "title": "Create Worker",
+      "subtitle": "A Worker is an isolated workspace on a cluster. Pick a cluster, then an image (DoAgent, Claude Code, Codex, …) to launch.",
+      "stepsTitle": "Creation steps",
+      "stepCluster": "Select cluster — the compute node",
+      "stepImage": "Select image — the AI runtime inside the Worker",
+      "stepLaunch": "Optional initial task, then create — opens the workspace terminal",
+      "backToWorkspace": "Back to workspace"
+    }
+  },
   "workspace": {
     "title": "Workspace",
     "searchPlaceholder": "Search pods...",
@@ -329,7 +340,7 @@
       }
     },
     "banner": {
-      "newUser": "New to AgentsMesh?",
+      "newUser": "New to Do Worker?",
       "watchIntro": "Watch the 2-minute intro →"
     },
     "hints": {
@@ -355,6 +366,10 @@
       "title": "Runners",
       "online": "online",
       "noRunners": "No runners registered"
+    },
+    "reconnecting": {
+      "title": "Runner is restarting...",
+      "description": "Session will resume automatically. Your work is preserved."
     },
     "terminateDialog": {
       "title": "Terminate Pod",
@@ -392,18 +407,18 @@
       }
     },
     "modal": {
-      "title": "Create New Pod",
-      "agent": "Agent",
-      "selectAgent": "Select an agent...",
-      "selectRunner": "Select a runner...",
+      "title": "Create Worker",
+      "image": "Image",
+      "selectImage": "Choose a worker image…",
+      "selectRunner": "Select a cluster…",
       "repositoryOptional": "Repository (optional)",
       "selectRepository": "Select a repository...",
       "branch": "Branch",
       "branchPlaceholder": "Enter branch name (e.g., main)",
       "promptOptional": "Initial Prompt (optional)",
-      "promptPlaceholder": "Enter an initial prompt for the agent...",
+      "promptPlaceholder": "Enter an initial task for the Worker…",
       "creating": "Creating...",
-      "createPod": "Create Pod"
+      "createPod": "Create Worker"
     }
   },
   "commandPalette": {
@@ -416,7 +431,7 @@
     "workspaceDescription": "Terminal workspace",
     "goToTickets": "Go to Tickets",
     "ticketsDescription": "View and manage tickets",
-    "goToMesh": "Go to AgentsMesh",
+    "goToMesh": "Go to Do Worker",
     "meshDescription": "Network topology",
     "goToChannels": "Go to Channels",
     "channelsDescription": "Team collaboration channels",

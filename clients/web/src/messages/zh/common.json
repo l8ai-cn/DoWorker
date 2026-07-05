@@ -53,7 +53,7 @@
     "CONCURRENT_POD_QUOTA_EXCEEDED": "并发 Pod 数量已达上限，请升级您的计划。",
     "SUBSCRIPTION_FROZEN": "您的订阅已冻结，请更新支付方式。",
     "NO_AVAILABLE_SEATS": "没有可用席位，请升级计划或移除成员。",
-    "RUNNER_QUOTA_EXCEEDED": "Runner 数量已达上限，请升级计划或移除未使用的 Runner。",
+    "RUNNER_QUOTA_EXCEEDED": "集群数量已达上限，请升级计划或移除未使用的集群。",
     "REPOSITORY_QUOTA_EXCEEDED": "仓库数量已达上限，请升级您的计划。",
     "SEAT_LIMIT_EXCEEDED": "已超出计划的席位上限。",
     "VALIDATION_FAILED": "验证失败",

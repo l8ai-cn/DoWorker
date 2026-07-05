@@ -44,7 +44,7 @@ func (t *transport) Handshake(_ context.Context) (string, error) {
 	params := map[string]any{
 		"protocolVersion": 1,
 		"clientInfo": map[string]any{
-			"name":    "agentsmesh-runner",
+			"name":    "do-worker-runner",
 			"version": "1.0.0",
 		},
 		"clientCapabilities": map[string]any{},

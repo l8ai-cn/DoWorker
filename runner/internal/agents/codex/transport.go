@@ -45,7 +45,7 @@ func (t *transport) Initialize(ctx context.Context, stdin io.Writer, stdout io.R
 func (t *transport) Handshake(_ context.Context) (string, error) {
 	params := map[string]any{
 		"clientInfo": map[string]any{
-			"name":    "agentsmesh-runner",
+			"name":    "do-worker-runner",
 			"version": "1.0.0",
 		},
 		"capabilities": map[string]any{

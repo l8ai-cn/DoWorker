@@ -2,7 +2,7 @@
   "infra": {
     "tabs": {
       "repositories": "仓库",
-      "runners": "Runner"
+      "runners": "集群"
     }
   }
 }

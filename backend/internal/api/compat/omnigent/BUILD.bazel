@@ -6,7 +6,7 @@ go_library(
         "auth_compat.go",
         "agents.go",
         "compat_agentfile_layer.go",
-        "compat_stubs.go",
+        "host_directories.go",
         "cost_budget_gate.go",
         "deps.go",
         "event_bridge.go",

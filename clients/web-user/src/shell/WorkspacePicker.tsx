@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useCreateHostDirectory, useHostFilesystem } from "@/hooks/useHostFilesystem";
+import { useI18n } from "@/i18n/I18nProvider";
 
 /**
  * Join a directory path and a new child name into an absolute path.
@@ -252,6 +253,7 @@ export function WorkspacePicker({
   initialPath,
   occupancyForPath,
 }: WorkspacePickerProps) {
+  const { t } = useI18n();
   // "" means home — the server forwards ~ to list_dir. initialPath
   // seeds the start dir (read once at mount).
   const [path, setPath] = useState<string>(initialPath ?? "");
@@ -628,15 +630,19 @@ export function WorkspacePicker({
         </div>
       )}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {isLoading && <div className="px-3 py-3 text-xs text-muted-foreground">Loading…</div>}
+        {isLoading && <div className="px-3 py-3 text-xs text-muted-foreground">{t.composer.loading}</div>}
         {error !== null && error !== undefined && !isLoading && (
           <div className="px-3 py-3 text-xs text-destructive" data-testid="workspace-picker-error">
-            {error instanceof Error ? error.message : "Failed to load directory"}
+            {error instanceof Error && error.message.includes("timeout")
+              ? t.composer.filesystemTimeout
+              : error instanceof Error
+                ? error.message
+                : t.composer.filesystemError}
           </div>
         )}
         {!isLoading && error === null && entries.length === 0 && (
           <div className="px-3 py-3 text-xs text-muted-foreground">
-            {activeFilter !== null ? "No matching entries" : "(empty directory)"}
+            {activeFilter !== null ? t.composer.noMatchingEntries : t.composer.emptyDirectory}
           </div>
         )}
         {entries.map((entry) => {

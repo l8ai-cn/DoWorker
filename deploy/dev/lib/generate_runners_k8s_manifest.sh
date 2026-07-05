@@ -47,7 +47,7 @@ metadata:
   labels:
     app.kubernetes.io/name: agentsmesh-runner
 data:
-  AGENTSMESH_MCP_BIND: "0.0.0.0"
+  DO_WORKER_MCP_BIND: "0.0.0.0"
   ANTHROPIC_BASE_URL: "${ANTHROPIC_BASE_URL:-https://api.anthropic.com}"
   BACKEND_URL: "http://host.docker.internal:${http_port}"
   DEBUG: "true"

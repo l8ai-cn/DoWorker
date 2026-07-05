@@ -113,7 +113,10 @@ func (s *HTTPServer) Start() error {
 	// proper auth). Override via AGENTSMESH_MCP_BIND env when running inside a
 	// container — docker port mappings only forward to interfaces the process
 	// listens on, so a 127.0.0.1-only bind is invisible from the host.
-	bindHost := os.Getenv("AGENTSMESH_MCP_BIND")
+	bindHost := os.Getenv("DO_WORKER_MCP_BIND")
+	if bindHost == "" {
+		bindHost = os.Getenv("AGENTSMESH_MCP_BIND")
+	}
 	if bindHost == "" {
 		bindHost = "127.0.0.1"
 	}

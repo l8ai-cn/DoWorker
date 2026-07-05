@@ -21,7 +21,7 @@ func CreateDeps(cfg *config.Config) (RunnerDeps, error) {
 		return RunnerDeps{}, fmt.Errorf("org_slug is required - please re-register the runner")
 	}
 	if !cfg.UsesGRPC() {
-		return RunnerDeps{}, fmt.Errorf("gRPC configuration is required - please re-register the runner using 'agentsmesh-runner register'")
+		return RunnerDeps{}, fmt.Errorf("gRPC configuration is required - please re-register the runner using 'do-worker-runner register'")
 	}
 
 	// Create workspace manager
@@ -57,7 +57,7 @@ func CreateDeps(cfg *config.Config) (RunnerDeps, error) {
 		return RunnerDeps{}, fmt.Errorf("failed to check certificate: %w", err)
 	}
 	if certInfo.IsExpired {
-		return RunnerDeps{}, fmt.Errorf("certificate has expired on %s. Please reactivate the runner using:\n  agentsmesh-runner reactivate --token <token>\nGet a reactivation token from the web UI",
+		return RunnerDeps{}, fmt.Errorf("certificate has expired on %s. Please reactivate the runner using:\n  do-worker-runner reactivate --token <token>\nGet a reactivation token from the web UI",
 			certInfo.ExpiresAt.Format("2006-01-02"))
 	}
 	if certInfo.NeedsRenewal {

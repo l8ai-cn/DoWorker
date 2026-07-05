@@ -10,7 +10,7 @@
 #
 # 一键启动开发环境：
 #   ./dev.sh                # docker infra + host backend/relay + frontend
-#   ./dev.sh --backend-only # 跳过 frontend (CI 用)
+#   ./dev.sh --frontends      # 仅重启 web + web-admin + web-user
 #   ./dev.sh --coordinator-runners # 平台托管：Coordinator 按需起 runner
 #   ./dev.sh --runners-k8s       # runner 部署到本地 K8s 集群 (Docker Desktop)
 #   ./dev.sh --rebuild-runner   # 重 build runner binary + 重启 runner 容器
@@ -63,12 +63,22 @@ main() {
             print_usage
             exit 0
             ;;
+        --frontends|-f)
+            cd "$SCRIPT_DIR"
+            [[ -f "$ENV_FILE" ]] || { error "缺少 $ENV_FILE，请先运行 ./dev.sh"; exit 1; }
+            source "$ENV_FILE"
+            print_banner
+            start_all_frontends
+            show_result
+            exit 0
+            ;;
     esac
 
     local backend_only=false
     for arg in "$@"; do
         case "$arg" in
             --backend-only) backend_only=true ;;
+            --frontends|-f) ;;
             --coordinator-runners) export RUNNERS_LAUNCHER=coordinator ;;
             --runners-k8s) export RUNNERS_LAUNCHER=k8s ;;
         esac
@@ -108,6 +118,7 @@ main() {
     # which depend on the `e2e-echo` AgentFile resolving `EXECUTABLE
     # e2e-mock-agent` to a real binary on the runner's PATH.
     build_mock_agent_binary
+    build_do_agent_binary || return 1
 
     # Phase 3: docker infrastructure + DB bootstrap.
     docker_compose_up
@@ -131,9 +142,7 @@ main() {
     if [[ "$backend_only" == "true" ]]; then
         info "--backend-only: skipping frontend startup"
     else
-        start_frontend
-        start_admin_frontend
-        start_web_user
+        start_all_frontends
     fi
 
     show_result

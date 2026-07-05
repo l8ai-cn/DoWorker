@@ -30,7 +30,7 @@
     }
   },
   "mesh": {
-    "title": "AgentsMesh",
+    "title": "Do Worker",
     "channels": "Canais",
     "newChannel": "Novo Canal",
     "topology": "Topologia",
@@ -308,7 +308,7 @@
     "workspaceDescription": "Workspace de terminal",
     "goToTickets": "Ir para Tickets",
     "ticketsDescription": "Ver e gerenciar tickets",
-    "goToMesh": "Ir para AgentsMesh",
+    "goToMesh": "Ir para Do Worker",
     "meshDescription": "Topologia de rede",
     "goToChannels": "Go to Channels",
     "channelsDescription": "Team collaboration channels",

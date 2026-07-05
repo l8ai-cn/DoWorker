@@ -128,7 +128,7 @@ func inferType(labels []string) string {
 }
 
 func claimBody(claimKey string, task ExternalTask) string {
-	return fmt.Sprintf("<!-- %s key=%q -->\nAgentsMesh Coordinator claimed this task (%s).",
+	return fmt.Sprintf("<!-- %s key=%q -->\nDo Worker Coordinator claimed this task (%s).",
 		claimMarkerPrefix, claimKey, task.ExternalID)
 }
 

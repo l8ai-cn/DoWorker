@@ -16,7 +16,7 @@ import (
 )
 
 // TryReclaimPort attempts to reclaim a port held by a stale runner process.
-// It finds the process listening on the port, verifies it's an agentsmesh-runner,
+// It finds the process listening on the port, verifies it's an do-worker-runner,
 // and kills it (SIGTERM then SIGKILL). Returns true if the port was freed.
 //
 // Called in two places:
@@ -36,9 +36,9 @@ func TryReclaimPort(port int) bool {
 		return false
 	}
 
-	// Verify it's an agentsmesh-runner process
+	// Verify it's an do-worker-runner process
 	name := getProcessName(pid)
-	if !strings.Contains(name, "agentsmesh-runner") && !strings.Contains(name, "agentsmesh-runn") {
+	if !strings.Contains(name, "do-worker-runner") && !strings.Contains(name, "agentsmesh-runn") {
 		log.Info("Port held by non-runner process, skipping reclaim",
 			"port", port, "pid", pid, "process", name)
 		return false

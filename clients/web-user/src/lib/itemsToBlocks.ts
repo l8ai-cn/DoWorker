@@ -158,7 +158,10 @@ function userMessageToBlock(item: MessageItem): UserMessageBlock {
 
 function assistantMessageToBlock(item: MessageItem): TextDone {
   const text = item.content
-    .filter((b): b is { type: "output_text"; text: string } => b.type === "output_text")
+    .filter(
+      (b): b is { type: "output_text"; text: string } =>
+        b.type === "output_text" || (b as { type: string }).type === "text",
+    )
     .map((b) => b.text)
     .join("");
   return {

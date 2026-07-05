@@ -20,18 +20,18 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
             <p className="text-muted-foreground leading-relaxed">
-              By accessing or using AgentsMesh (the &quot;Service&quot;) provided by AgentsMesh, Inc. (&quot;AgentsMesh,&quot; &quot;we,&quot; &quot;our,&quot; or &quot;us&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you do not agree to these Terms, you may not access or use the Service. If you are using the Service on behalf of an organization, you represent and warrant that you have the authority to bind that organization to these Terms.
+              By accessing or using Do Worker (the &quot;Service&quot;) provided by Do Worker, Inc. (&quot;Do Worker,&quot; &quot;we,&quot; &quot;our,&quot; or &quot;us&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you do not agree to these Terms, you may not access or use the Service. If you are using the Service on behalf of an organization, you represent and warrant that you have the authority to bind that organization to these Terms.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold mb-4">2. Description of Service</h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              AgentsMesh is a multi-agent AI code collaboration platform that provides:
+              Do Worker is a multi-agent AI code collaboration platform that provides:
             </p>
             <ul className="list-disc list-inside text-muted-foreground space-y-2">
               <li>AgentPod: Remote AI workstations for running AI coding agents</li>
-              <li>AgentsMesh Channels: Communication infrastructure for multi-agent collaboration</li>
+              <li>Do Worker Channels: Communication infrastructure for multi-agent collaboration</li>
               <li>Ticket Management: Task tracking integrated with AI agents</li>
               <li>Self-Hosted Runners: Infrastructure for running agents in your own environment</li>
               <li>Repository Integration: Connections to GitHub, GitLab, Gitee, and other Git providers</li>
@@ -73,7 +73,7 @@ export default function TermsPage() {
 
             <h3 className="text-xl font-medium mb-3 mt-6">4.3 BYOK (Bring Your Own Key)</h3>
             <p className="text-muted-foreground leading-relaxed">
-              The Service operates on a BYOK model where you provide your own AI provider API keys. You are responsible for all charges incurred with your AI providers (Anthropic, OpenAI, Google, etc.). AgentsMesh does not control or limit your usage of external AI services.
+              The Service operates on a BYOK model where you provide your own AI provider API keys. You are responsible for all charges incurred with your AI providers (Anthropic, OpenAI, Google, etc.). Do Worker does not control or limit your usage of external AI services.
             </p>
           </section>
 
@@ -109,7 +109,7 @@ export default function TermsPage() {
               <li>Rotating keys if you suspect unauthorized access</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-4">
-              AgentsMesh encrypts stored credentials but is not liable for any unauthorized access resulting from your failure to protect your credentials or from security breaches beyond our reasonable control.
+              Do Worker encrypts stored credentials but is not liable for any unauthorized access resulting from your failure to protect your credentials or from security breaches beyond our reasonable control.
             </p>
           </section>
 
@@ -123,7 +123,7 @@ export default function TermsPage() {
 
             <h3 className="text-xl font-medium mb-3 mt-6">7.2 Our Service</h3>
             <p className="text-muted-foreground leading-relaxed">
-              The Service, including its software, design, features, and documentation, is owned by AgentsMesh and protected by intellectual property laws. You may not copy, modify, distribute, sell, or lease any part of our Service without written permission.
+              The Service, including its software, design, features, and documentation, is owned by Do Worker and protected by intellectual property laws. You may not copy, modify, distribute, sell, or lease any part of our Service without written permission.
             </p>
 
             <h3 className="text-xl font-medium mb-3 mt-6">7.3 Feedback</h3>
@@ -140,7 +140,7 @@ export default function TermsPage() {
             <ul className="list-disc list-inside text-muted-foreground space-y-2">
               <li>You are responsible for the security and maintenance of your infrastructure</li>
               <li>You must ensure compliance with applicable laws regarding data processing</li>
-              <li>AgentsMesh is not responsible for data processed on your infrastructure</li>
+              <li>Do Worker is not responsible for data processed on your infrastructure</li>
               <li>You must keep runner software updated to maintain compatibility</li>
             </ul>
           </section>
@@ -148,7 +148,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-4">9. Third-Party Services</h2>
             <p className="text-muted-foreground leading-relaxed">
-              The Service integrates with third-party services including AI providers (Anthropic, OpenAI, Google) and Git providers (GitHub, GitLab, Gitee). Your use of these services is subject to their respective terms of service. AgentsMesh is not responsible for the availability, accuracy, or content of third-party services.
+              The Service integrates with third-party services including AI providers (Anthropic, OpenAI, Google) and Git providers (GitHub, GitLab, Gitee). Your use of these services is subject to their respective terms of service. Do Worker is not responsible for the availability, accuracy, or content of third-party services.
             </p>
           </section>
 
@@ -190,7 +190,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-4">13. Indemnification</h2>
             <p className="text-muted-foreground leading-relaxed">
-              You agree to indemnify, defend, and hold harmless AgentsMesh, its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorney&apos;s fees, arising out of or in any way connected with your access to or use of the Service, your violation of these Terms, or your violation of any third-party rights.
+              You agree to indemnify, defend, and hold harmless Do Worker, its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorney&apos;s fees, arising out of or in any way connected with your access to or use of the Service, your violation of these Terms, or your violation of any third-party rights.
             </p>
           </section>
 
@@ -237,7 +237,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-4">18. Entire Agreement</h2>
             <p className="text-muted-foreground leading-relaxed">
-              These Terms, together with our Privacy Policy, constitute the entire agreement between you and AgentsMesh regarding the Service and supersede all prior agreements and understandings.
+              These Terms, together with our Privacy Policy, constitute the entire agreement between you and Do Worker regarding the Service and supersede all prior agreements and understandings.
             </p>
           </section>
 
@@ -247,7 +247,7 @@ export default function TermsPage() {
               If you have any questions about these Terms of Service, please contact us at:
             </p>
             <div className="mt-4 surface-card p-4 text-muted-foreground">
-              <p><strong>AgentsMesh, Inc.</strong></p>
+              <p><strong>Do Worker, Inc.</strong></p>
               <p>Email:{" "}
                 <a href="mailto:legal@agentsmesh.ai" className="text-primary hover:underline">
                   legal@agentsmesh.ai
@@ -266,7 +266,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-4">21. Force Majeure</h2>
             <p className="text-muted-foreground leading-relaxed">
-              AgentsMesh shall not be liable for any failure or delay in performing its obligations under these Terms due to circumstances beyond its reasonable control, including but not limited to acts of God, natural disasters, war, terrorism, riots, embargoes, acts of civil or military authorities, fire, floods, accidents, pandemics, strikes, or shortages of transportation, facilities, fuel, energy, labor, or materials.
+              Do Worker shall not be liable for any failure or delay in performing its obligations under these Terms due to circumstances beyond its reasonable control, including but not limited to acts of God, natural disasters, war, terrorism, riots, embargoes, acts of civil or military authorities, fire, floods, accidents, pandemics, strikes, or shortages of transportation, facilities, fuel, energy, labor, or materials.
             </p>
           </section>
         </div>

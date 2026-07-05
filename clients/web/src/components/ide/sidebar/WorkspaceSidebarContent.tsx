@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,8 +23,17 @@ interface WorkspaceSidebarContentProps {
 
 export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod }: WorkspaceSidebarContentProps) {
   const t = useTranslations();
+  const router = useRouter();
   const s = useWorkspaceSidebar(t, onTerminatePod);
   const [sharePodKey, setSharePodKey] = useState<string | null>(null);
+
+  const handleCreatePod = useCallback(() => {
+    if (s.currentOrg?.slug) {
+      router.push(`/${s.currentOrg.slug}/workers/new`);
+      return;
+    }
+    onCreatePod?.();
+  }, [onCreatePod, router, s.currentOrg?.slug]);
 
   return (
     <div className={cn("flex flex-col h-full", className)}>
@@ -36,7 +46,7 @@ export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod
       </div>
 
       <div className="flex items-center gap-1 px-2 pb-2">
-        <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={onCreatePod}>
+        <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={handleCreatePod}>
           <Plus className="w-3 h-3 mr-1" />{t("workspace.newPod")}
         </Button>
         <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={s.handleRefresh} disabled={s.refreshing}>
@@ -60,7 +70,7 @@ export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod
                 : t("workspace.emptyState.noFiltered", { filter: t(`workspace.filters.${s.filter}`) })}
             </p>
             {!s.searchQuery && s.filter === "mine" && (
-              <Button size="sm" variant="outline" className="mt-3" onClick={onCreatePod}>
+              <Button size="sm" variant="outline" className="mt-3" onClick={handleCreatePod}>
                 {t("workspace.emptyState.createFirst")}
               </Button>
             )}

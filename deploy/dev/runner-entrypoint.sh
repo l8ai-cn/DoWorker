@@ -13,12 +13,15 @@ SSL_DIR="${SSL_DIR:-/app/ssl}"
 AGENT_RUNTIME="${AGENT_RUNTIME:-e2e-echo}"
 DEFAULT_AGENT="${DEFAULT_AGENT:-${AGENT_RUNTIME}}"
 
-CONFIG_DIR="${HOME}/.agentsmesh"
+CONFIG_DIR="${HOME}/.do-worker"
+if [[ ! -d "$CONFIG_DIR" && -d "${HOME}/.agentsmesh" ]]; then
+    CONFIG_DIR="${HOME}/.agentsmesh"
+fi
 CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 
 case "${AGENT_RUNTIME}" in
-    claude-code|codex-cli|gemini-cli|e2e-echo|loopal) ;;
+    claude-code|codex-cli|gemini-cli|e2e-echo|loopal|do-agent|aider|opencode) ;;
     *)
         echo "✗ Unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2
         exit 1
@@ -26,7 +29,7 @@ case "${AGENT_RUNTIME}" in
 esac
 
 echo "========================================"
-echo "  AgentsMesh Runner Entrypoint (Bazel)"
+echo "  Do Worker Runner Entrypoint (Bazel)"
 echo "========================================"
 echo "  Backend URL:    $BACKEND_URL"
 echo "  gRPC Endpoint:  $GRPC_ENDPOINT"
@@ -161,7 +164,7 @@ init_ai_cli_configs() {
         claude-code) init_claude_config ;;
         codex-cli) init_codex_config ;;
         gemini-cli) init_gemini_config ;;
-        e2e-echo|loopal) ;;
+        e2e-echo|loopal|do-agent|aider|opencode) ;;
     esac
 }
 
@@ -193,6 +196,6 @@ main() {
     init_ai_cli_configs
     create_config
     echo "启动 Runner (bazel-built binary)..."
-    exec /usr/local/bin/agentsmesh-runner run
+    exec /usr/local/bin/do-worker-runner run
 }
 main "$@"

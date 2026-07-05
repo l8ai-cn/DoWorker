@@ -28,12 +28,12 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL("https://agentsmesh.ai"),
   title: {
-    default: "AgentsMesh - The AI Agent Workforce Platform",
-    template: "%s | AgentsMesh",
+    default: "Do Worker - The AI Agent Workforce Platform",
+    template: "%s | Do Worker",
   },
   description: "Ship like a team of fifty. With a team of five. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
   keywords: [
-    "agentsmesh", "agentmesh", "agents mesh",
+    "do-worker", "do worker", "l8ai",
     "AI agent workforce platform", "agent team management", "AI agent team",
     "AI agents", "AI coding", "Claude Code", "Codex CLI", "Gemini CLI", "Aider",
     "multi-agent collaboration", "agent coordination", "terminal AI", "code automation",
@@ -45,21 +45,21 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "AgentsMesh",
+    title: "Do Worker",
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
     type: "website",
-    siteName: "AgentsMesh",
-    title: "AgentsMesh - The AI Agent Workforce Platform",
+    siteName: "Do Worker",
+    title: "Do Worker - The AI Agent Workforce Platform",
     description: "Ship like a team of fifty. With a team of five. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
     url: "https://agentsmesh.ai",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AgentsMesh - The AI Agent Workforce Platform",
+    title: "Do Worker - The AI Agent Workforce Platform",
     description: "Ship like a team of fifty. With a team of five. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
   },
   alternates: {

@@ -5,7 +5,7 @@ import { readLightSession, type LightSession } from "@/lib/light-session";
 
 const subscribe = (cb: () => void) => {
   const handler = (e: StorageEvent) => {
-    if (e.key && e.key.startsWith("agentsmesh-auth/")) cb();
+    if (e.key && (e.key.startsWith("do-worker-auth/") || e.key.startsWith("agentsmesh-auth/"))) cb();
   };
   window.addEventListener("storage", handler);
   return () => window.removeEventListener("storage", handler);

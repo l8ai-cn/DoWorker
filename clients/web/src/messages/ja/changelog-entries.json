@@ -201,7 +201,7 @@
           "type": "changed",
           "items": [
             "Relay routing switched from session_id to podKey",
-            "Runner binary renamed to agentsmesh-runner"
+            "Runner binary renamed to do-worker-runner"
           ]
         }
       ]
@@ -223,7 +223,7 @@
         {
           "type": "changed",
           "items": [
-            "Unified brand name to AgentsMesh across codebase",
+            "Unified brand name to Do Worker across codebase",
             "Agent config system refactored: removed Lua plugins, added backend-driven config",
             "WebSocket compression enabled for better performance"
           ]
@@ -245,14 +245,14 @@
         {
           "type": "added",
           "items": [
-            "Initial release of AgentsMesh platform",
+            "Initial release of Do Worker platform",
             "AgentPod: remote AI coding workstation with PTY terminal",
             "Support for Claude Code, Codex CLI, Gemini CLI, Aider",
             "Self-hosted Runner deployment with mTLS certificate management",
             "Git repository integration (GitHub, GitLab, Gitee)",
             "Web terminal with real-time bidirectional interaction",
             "Organization and team management with multi-tenancy",
-            "AgentsMesh multi-agent collaboration channels",
+            "Do Worker multi-agent collaboration channels",
             "Ticket management with kanban board",
             "Multi-language support (8 languages)"
           ]

@@ -71,7 +71,7 @@ cd deploy/dev
 开发环境:
 - 前端: http://localhost:3000
 - API:  http://localhost:<port>/api
-- 测试账号: dev@agentsmesh.local / devpass123
+- 测试账号: dev@agentsmesh.local / AdminAb123456
 - Adminer: http://localhost:<adminer-port>
 - MinIO: http://localhost:<minio-port>
 

@@ -103,7 +103,7 @@ test.describe("Pod create — EnvBundle binding UI", () => {
       await page.waitForLoadState("load");
 
       const newPodBtn = page
-        .getByRole("button", { name: /new pod|create new pod|新建 pod/i })
+        .getByRole("button", { name: /new pod|create new pod|新建 pod|新建 worker|新建环境/i })
         .first();
       await newPodBtn.waitFor({ state: "visible", timeout: 15_000 });
       await newPodBtn.click();
@@ -189,7 +189,7 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     await page.waitForLoadState("load");
 
     const newPodBtn = page
-      .getByRole("button", { name: /new pod|create new pod|新建 pod/i })
+      .getByRole("button", { name: /new pod|create new pod|新建 pod|新建 worker|新建环境/i })
       .first();
     await newPodBtn.waitFor({ state: "visible", timeout: 15_000 });
     await newPodBtn.click();

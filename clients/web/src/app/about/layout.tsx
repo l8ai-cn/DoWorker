@@ -3,14 +3,14 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Software is built by teams. Now teams are built differently. AgentsMesh helps organizations scale beyond headcount with AI agent teams.",
+    "Software is built by teams. Now teams are built differently. Do Worker helps organizations scale beyond headcount with AI agent teams.",
   alternates: {
     canonical: "https://agentsmesh.ai/about",
   },
   openGraph: {
-    title: "About | AgentsMesh",
+    title: "About | Do Worker",
     description:
-      "Software is built by teams. Now teams are built differently. AgentsMesh helps organizations scale beyond headcount with AI agent teams.",
+      "Software is built by teams. Now teams are built differently. Do Worker helps organizations scale beyond headcount with AI agent teams.",
     url: "https://agentsmesh.ai/about",
   },
 };

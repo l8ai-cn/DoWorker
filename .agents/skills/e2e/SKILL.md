@@ -124,7 +124,7 @@ docker exec ${POSTGRES_CONTAINER} psql -U agentsmesh -d agentsmesh -c "SELECT 1"
 | 数据 | 值 |
 |------|-----|
 | 测试用户邮箱 | dev@agentsmesh.local |
-| 测试用户密码 | devpass123 |
+| 测试用户密码 | AdminAb123456 |
 | 测试组织 slug | dev-org |
 | 账单页面路径 | /dev-org/settings?scope=organization&tab=billing |
 
@@ -191,7 +191,7 @@ echo "浏览器访问: http://localhost:${WEB_PORT}"
 
 3. 登录（如需要）
    mcp__chrome-devtools__fill(uid: "email-input", value: "dev@agentsmesh.local")
-   mcp__chrome-devtools__fill(uid: "password-input", value: "devpass123")
+   mcp__chrome-devtools__fill(uid: "password-input", value: "AdminAb123456")
    mcp__chrome-devtools__click(uid: "login-button")
 
 4. 导航到测试页面
@@ -242,7 +242,7 @@ source .env
 
 TOKEN=$(curl -s -X POST "http://localhost:${WEB_PORT}/api/v1/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"dev@agentsmesh.local","password":"devpass123"}' | jq -r '.token')
+  -d '{"email":"dev@agentsmesh.local","password":"AdminAb123456"}' | jq -r '.token')
 
 echo "Token: ${TOKEN}"
 ```

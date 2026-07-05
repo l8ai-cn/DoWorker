@@ -85,7 +85,7 @@ describe("CreatePodForm", () => {
       });
 
       render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.getByLabelText("ide.createPod.selectAgent")).toBeInTheDocument();
+      expect(screen.getByLabelText("ide.createPod.selectImage")).toBeInTheDocument();
     });
 
     it("should show no agents message when no agents available", () => {
@@ -96,37 +96,29 @@ describe("CreatePodForm", () => {
       });
 
       render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.getByText("ide.createPod.noAgentsForRunner")).toBeInTheDocument();
+      expect(screen.getByText("ide.createPod.noImagesForCluster")).toBeInTheDocument();
     });
 
-    it("should show runner select inside advanced options when agent is selected", () => {
+    it("should show cluster select when runners are online", () => {
       vi.mocked(usePodCreationData).mockReturnValue({
         ...defaultPodCreationData,
         runners: [mockRunner],
         availableAgents: [mockAgent],
-      });
-      vi.mocked(useCreatePodForm).mockReturnValue({
-        ...defaultFormState,
-        selectedAgent: "claude-code",
       });
 
       render(<CreatePodForm config={{ scenario: "workspace" }} />);
       expect(screen.getByLabelText("ide.createPod.selectRunner")).toBeInTheDocument();
     });
 
-    it("should show no runners message inside advanced options when no runners available", () => {
+    it("should show no online clusters hint when no runners available", () => {
       vi.mocked(usePodCreationData).mockReturnValue({
         ...defaultPodCreationData,
         runners: [],
         availableAgents: [mockAgent],
       });
-      vi.mocked(useCreatePodForm).mockReturnValue({
-        ...defaultFormState,
-        selectedAgent: "claude-code",
-      });
 
       render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.getByText("ide.createPod.noRunnersAvailable")).toBeInTheDocument();
+      expect(screen.getByText("ide.createPod.noOnlineRunnersHint")).toBeInTheDocument();
     });
 
     it("should apply custom className to container", () => {
@@ -138,7 +130,7 @@ describe("CreatePodForm", () => {
   });
 
   describe("runner selection", () => {
-    it("should only offer runners that support the selected agent", () => {
+    it("should list all online clusters in the cluster select", () => {
       const claudeRunner = {
         ...mockRunner,
         id: 1,
@@ -165,7 +157,7 @@ describe("CreatePodForm", () => {
 
       const runnerSelect = screen.getByLabelText("ide.createPod.selectRunner");
       expect(runnerSelect).toHaveTextContent("runner-claude");
-      expect(runnerSelect).not.toHaveTextContent("runner-codex");
+      expect(runnerSelect).toHaveTextContent("runner-codex");
     });
 
     it("should call setSelectedRunnerId when runner is selected", () => {
@@ -227,7 +219,7 @@ describe("CreatePodForm", () => {
       });
 
       render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      fireEvent.change(screen.getByLabelText("ide.createPod.selectAgent"), { target: { value: "claude-code" } });
+      fireEvent.change(screen.getByLabelText("ide.createPod.selectImage"), { target: { value: "claude-code" } });
       expect(mockSetSelectedAgent).toHaveBeenCalledWith("claude-code");
     });
 

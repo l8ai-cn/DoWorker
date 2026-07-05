@@ -39,7 +39,7 @@ func TestRenderScaffold_DefaultDescription(t *testing.T) {
 	require.NoError(t, err)
 	for _, ch := range changes {
 		if ch.Path == "llms.txt" {
-			assert.Contains(t, ch.Content, "> Knowledge base maintained by AgentsMesh agents.")
+			assert.Contains(t, ch.Content, "> Knowledge base maintained by Do Worker agents.")
 		}
 	}
 }

@@ -33,6 +33,7 @@ interface HostFilesystemResponse {
   object: string;
   data: HostFilesystemEntry[];
   has_more: boolean;
+  workspace_root?: string;
 }
 
 /**
@@ -79,13 +80,9 @@ interface FetchError extends Error {
  * incomplete rather than silently hiding entries.
  */
 export interface HostDirectoryListing {
-  /** Entries fetched so far (all of them unless ``truncated``). */
   entries: HostFilesystemEntry[];
-  /**
-   * ``true`` when the server still had more entries after
-   * ``MAX_PAGES`` pages, so this listing is incomplete.
-   */
   truncated: boolean;
+  workspaceRoot: string | null;
 }
 
 // Request the server's max page size: the endpoint defaults to 20
@@ -94,6 +91,24 @@ export interface HostDirectoryListing {
 const PAGE_SIZE = 1000;
 // Safety cap against a pathologically large directory looping forever.
 const MAX_PAGES = 50;
+const FETCH_TIMEOUT_MS = 12_000;
+
+async function fetchWithTimeout(url: string, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    return await authenticatedFetch(url, { ...init, signal: controller.signal });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      const timeoutErr: FetchError = new Error("host filesystem fetch timeout");
+      timeoutErr.status = 504;
+      throw timeoutErr;
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 /**
  * Fetch every entry in a host directory, following the endpoint's
@@ -113,6 +128,7 @@ const MAX_PAGES = 50;
 async function fetchHostFilesystem(hostId: string, path: string): Promise<HostDirectoryListing> {
   const baseUrl = buildHostFilesystemUrl(hostId, path);
   const entries: HostFilesystemEntry[] = [];
+  let workspaceRoot: string | null = null;
   let after: string | null = null;
   let truncated = false;
   // Sequential by necessity: each page's cursor is the previous
@@ -124,13 +140,16 @@ async function fetchHostFilesystem(hostId: string, path: string): Promise<HostDi
       params.set("after", after);
     }
     const sep = baseUrl.includes("?") ? "&" : "?";
-    const res = await authenticatedFetch(`${baseUrl}${sep}${params.toString()}`);
+    const res = await fetchWithTimeout(`${baseUrl}${sep}${params.toString()}`);
     if (!res.ok) {
       const err: FetchError = new Error(`host filesystem fetch failed: HTTP ${res.status}`);
       err.status = res.status;
       throw err;
     }
     const body = (await res.json()) as HostFilesystemResponse;
+    if (typeof body.workspace_root === "string" && body.workspace_root !== "") {
+      workspaceRoot = body.workspace_root;
+    }
     entries.push(...body.data);
     // Empty-page guard is defensive: a bad cursor must not loop.
     if (!body.has_more || body.data.length === 0) {
@@ -144,7 +163,7 @@ async function fetchHostFilesystem(hostId: string, path: string): Promise<HostDi
     }
   }
   /* oxlint-enable eslint(no-await-in-loop) */
-  return { entries, truncated };
+  return { entries, truncated, workspaceRoot };
 }
 
 /**
@@ -170,6 +189,7 @@ export function useHostFilesystem(hostId: string | null, path: string | null) {
     queryFn: () => fetchHostFilesystem(hostId as string, path as string),
     enabled: hostId !== null && path !== null,
     staleTime: 5_000,
+    retry: 1,
     // Keep the current directory's rows on screen while the next one
     // loads, so navigating up/into a folder doesn't flicker through
     // an empty "Loading…" collapse.

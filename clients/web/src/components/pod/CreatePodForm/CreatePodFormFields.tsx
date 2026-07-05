@@ -4,7 +4,8 @@ import type { AgentData, ConfigField, RepositoryData, RunnerData } from "@/lib/a
 import type { CreatePodFormState } from "../hooks";
 import { AdvancedFormSection } from "./AdvancedFormSection";
 import { CreatePodModeSection } from "./CreatePodModeSection";
-import { AgentSelect } from "./AgentSelect";
+import { WorkerImageSelect } from "./WorkerImageSelect";
+import { RunnerSelect } from "./RunnerSelect";
 import { InteractionModeToggle } from "./InteractionModeToggle";
 import { PromptInput } from "./PromptInput";
 
@@ -43,11 +44,21 @@ export function CreatePodFormFields({
 }: CreatePodFormFieldsProps) {
   return (
     <div className="space-y-4">
-      <AgentSelect
-        agents={agents}
-        selectedAgentSlug={form.selectedAgent}
+      {hasOnlineRunners && (
+        <RunnerSelect
+          runners={runners}
+          selectedRunnerId={selectedRunner?.id ?? null}
+          onSelect={setSelectedRunnerId}
+          error={form.validationErrors.runner}
+          t={t}
+        />
+      )}
+
+      <WorkerImageSelect
+        images={agents}
+        selectedImageSlug={form.selectedAgent}
         onSelect={form.setSelectedAgent}
-        hasOnlineRunners={hasOnlineRunners}
+        hasOnlineClusters={hasOnlineRunners}
         error={form.validationErrors.agent}
         t={t}
       />
@@ -73,10 +84,7 @@ export function CreatePodFormFields({
         <CreatePodModeSection t={t}>
           <AdvancedFormSection
             form={form}
-            runners={runners}
             repositories={repositories}
-            selectedRunner={selectedRunner}
-            setSelectedRunnerId={setSelectedRunnerId}
             configFields={configFields}
             loadingConfig={loadingConfig}
             configValues={configValues}

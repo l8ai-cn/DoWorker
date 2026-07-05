@@ -2,6 +2,7 @@ package omnigent
 
 import (
 	"net/http"
+	"strings"
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	domainrunner "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
@@ -38,6 +39,24 @@ func (d *Deps) handleListHosts(c *gin.Context) {
 		})
 	}
 	c.JSON(http.StatusOK, gin.H{"hosts": hosts})
+}
+
+func (d *Deps) runnerForHostID(c *gin.Context, hostID string, orgID int64) (*domainrunner.Runner, bool) {
+	if d.Runner == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "runner service unavailable"})
+		return nil, false
+	}
+	nodeID := strings.TrimPrefix(hostID, "host_")
+	r, err := d.Runner.GetByNodeIDAndOrgID(c.Request.Context(), nodeID, orgID)
+	if err != nil || r == nil || !r.IsEnabled {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "host not found", "code": "host_not_found"})
+		return nil, false
+	}
+	if r.Status != domainrunner.RunnerStatusOnline {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "host offline", "code": "runner_unavailable"})
+		return nil, false
+	}
+	return r, true
 }
 
 type bindRunnerBody struct {
@@ -78,15 +97,13 @@ func (d *Deps) handleBindHostRunner(c *gin.Context) {
 		return
 	}
 	layer := compatAgentfileLayer()
-	if body.Workspace != "" {
-		layer = compatAgentfileLayer(`LOCAL_PATH "` + body.Workspace + `"`)
-	}
 	orchReq := &agentpod.OrchestrateCreatePodRequest{
 		OrganizationID: tenant.OrganizationID,
 		UserID:         tenant.UserID,
 		RunnerID:       r.ID,
 		AgentSlug:      row.AgentSlug,
 		AgentfileLayer: layer,
+		LocalPath:      strings.TrimSpace(body.Workspace),
 	}
 	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
 	if err != nil {

@@ -32,7 +32,7 @@ type scaffoldData struct {
 
 func renderScaffold(name, description string) ([]gitea.FileChange, error) {
 	if description == "" {
-		description = "Knowledge base maintained by AgentsMesh agents."
+		description = "Knowledge base maintained by Do Worker agents."
 	}
 	data := scaffoldData{Name: name, Description: description, Date: time.Now().UTC().Format("2006-01-02")}
 	changes := make([]gitea.FileChange, 0, len(scaffoldFiles))
@@ -53,7 +53,7 @@ func (s *Service) provisionRepo(ctx context.Context, orgID int64, slug, name, de
 	if err := s.git.EnsureNamespace(ctx); err != nil {
 		return nil, "", fmt.Errorf("knowledgebase: ensure namespace: %w", err)
 	}
-	// Prefix with org ID: KB slugs are unique per AgentsMesh org, but all
+	// Prefix with org ID: KB slugs are unique per Do Worker org, but all
 	// repos share one Gitea namespace.
 	repoName := fmt.Sprintf("org%d-%s", orgID, slug)
 	repo, err := s.git.CreateRepo(ctx, repoName, branch)
@@ -64,7 +64,7 @@ func (s *Service) provisionRepo(ctx context.Context, orgID int64, slug, name, de
 	if err == nil {
 		err = s.git.CommitFiles(ctx, repoName, branch,
 			"init: knowledge base scaffold (llms.txt, AGENTS.md, raw/, wiki/)",
-			gitea.CommitAuthor{Name: "AgentsMesh", Email: "kb@agentsmesh.local"},
+			gitea.CommitAuthor{Name: "Do Worker", Email: "kb@agentsmesh.local"},
 			changes, nil)
 	}
 	if err != nil {

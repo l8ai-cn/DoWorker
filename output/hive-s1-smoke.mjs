@@ -7,7 +7,7 @@ mkdirSync(OUT, { recursive: true });
 
 const API = process.env.HIVE_API_URL || "http://localhost:10015";
 const ORG = "dev-org";
-const USER = { username: "devuser", password: "devpass123" };
+const USER = { username: "devuser", password: "AdminAb123456" };
 
 const report = { steps: [], errors: [] };
 

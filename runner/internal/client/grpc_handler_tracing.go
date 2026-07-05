@@ -63,5 +63,5 @@ func isHighFrequencyServerMessage(msgType string) bool {
 }
 
 func startMessageSpan(ctx context.Context, msgType string) (context.Context, trace.Span) {
-	return otel.Tracer("agentsmesh-runner").Start(ctx, "grpc.recv."+msgType)
+	return otel.Tracer("do-worker-runner").Start(ctx, "grpc.recv."+msgType)
 }

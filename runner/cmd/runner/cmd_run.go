@@ -39,12 +39,12 @@ func runRunner(args []string) {
 		fmt.Println(`Start the AgentsMesh runner.
 
 Usage:
-  agentsmesh-runner run [options]
+  do-worker-runner run [options]
 
 Options:`)
 		fs.PrintDefaults()
 		fmt.Println(`
-The runner must be registered first using 'agentsmesh-runner register'.
+The runner must be registered first using 'do-worker-runner register'.
 Configuration is loaded from ~/.agentsmesh/config.yaml by default.
 Log file is written to $TMPDIR/agentsmesh/runner.log by default (with rotation).
 
@@ -68,7 +68,7 @@ The runner uses gRPC/mTLS for secure communication with the server.`)
 
 	// Check if config exists
 	if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-		fmt.Fprintln(os.Stderr, "Error: Runner not registered. Please run 'agentsmesh-runner register' first.")
+		fmt.Fprintln(os.Stderr, "Error: Runner not registered. Please run 'do-worker-runner register' first.")
 		os.Exit(1)
 	}
 
@@ -105,7 +105,7 @@ The runner uses gRPC/mTLS for secure communication with the server.`)
 	defer logger.Close()
 
 	// Initialize OpenTelemetry
-	otelProvider, err := otelinit.InitProvider(context.Background(), "agentsmesh-runner", version)
+	otelProvider, err := otelinit.InitProvider(context.Background(), "do-worker-runner", version)
 	if err != nil {
 		slog.Warn("OpenTelemetry initialization failed, continuing without tracing", "error", err)
 	} else {
@@ -128,7 +128,7 @@ The runner uses gRPC/mTLS for secure communication with the server.`)
 	}
 
 	if !cfg.UsesGRPC() {
-		log.Error("gRPC configuration is required. Please re-register the runner using 'agentsmesh-runner register'")
+		log.Error("gRPC configuration is required. Please re-register the runner using 'do-worker-runner register'")
 		os.Exit(1)
 	}
 
@@ -239,7 +239,7 @@ func startRunner(cfg *config.Config) (ok bool) {
 	}()
 
 	// Start runner
-	log.Info("Starting AgentsMesh Runner", "version", version)
+	log.Info("Starting Do Worker Runner", "version", version)
 
 	// Update console status when runner state changes
 	consoleServer.UpdateStatus(true, false, 0, 0, "")

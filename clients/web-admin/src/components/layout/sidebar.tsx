@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth";
-import { AgentsMeshMark } from "@/components/brand/AgentsMeshMark";
+import { DoWorkerMark } from "@/components/brand/DoWorkerMark";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -86,10 +86,10 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <>
       <div className="flex h-16 items-center gap-2 border-b border-border px-6">
         <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg shadow-sm">
-          <AgentsMeshMark className="h-full w-full" />
+          <DoWorkerMark className="h-full w-full" />
         </span>
         <div className="min-w-0">
-          <p className="truncate text-base font-semibold leading-tight">AgentsMesh</p>
+          <p className="truncate text-base font-semibold leading-tight">Do Worker</p>
           <p className="truncate text-xs text-muted-foreground">管理控制台</p>
         </div>
       </div>

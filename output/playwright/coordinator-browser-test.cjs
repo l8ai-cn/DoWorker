@@ -17,7 +17,7 @@ const rec = (n, ok, d = '') => {
 
   await page.goto(`${BASE}/login`, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await page.fill('#username', 'dev@agentsmesh.local');
-  await page.fill('#password', 'devpass123');
+  await page.fill('#password', 'AdminAb123456');
   await page.click('button:has-text("SIGN IN")');
   await page.waitForURL((u) => !u.toString().includes('/login'), { timeout: 30000 });
   await page.waitForTimeout(2000);

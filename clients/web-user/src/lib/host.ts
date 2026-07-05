@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { readAgentsMeshJWT, readAgentsMeshOrgSlug } from "./agentsmesh-auth";
+import { readDoWorkerJWT, readDoWorkerOrgSlug } from "./do-worker-auth";
 
 /**
  * Embed host integration seam.
@@ -149,9 +149,9 @@ export function resolveWebSocketUrl(path: string): string {
   const scheme = window.location.protocol === "https:" ? "wss:" : "ws:";
   let url = `${scheme}//${window.location.host}${path}`;
   const params = new URLSearchParams();
-  const jwt = readAgentsMeshJWT();
+  const jwt = readDoWorkerJWT();
   if (jwt) params.set("token", jwt);
-  const org = readAgentsMeshOrgSlug();
+  const org = readDoWorkerOrgSlug();
   if (org) params.set("org_slug", org);
   const qs = params.toString();
   if (qs) url += (path.includes("?") ? "&" : "?") + qs;

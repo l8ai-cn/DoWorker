@@ -18,8 +18,8 @@ export function EnvVarsSection({ serverUrl }: EnvVarsSectionProps) {
       <DocsTable
         columns={threeColumnHeaders(t, prefix, "variableHeader", "descriptionHeader", "defaultHeader")}
         rows={[
-          { cells: [docsMono("AGENTSMESH_TOKEN"), t(`${prefix}.tokenDesc`), "-"] },
-          { cells: [docsMono("AGENTSMESH_URL"), t(`${prefix}.urlDesc`), docsMono(serverUrl)] },
+          { cells: [docsMono("DO_WORKER_TOKEN"), t(`${prefix}.tokenDesc`), "-"] },
+          { cells: [docsMono("DO_WORKER_URL"), t(`${prefix}.urlDesc`), docsMono(serverUrl)] },
           { cells: [docsMono("MAX_CONCURRENT_PODS"), t(`${prefix}.maxPodsDesc`), "5"] },
           { cells: [docsMono("WORKSPACE_DIR"), t(`${prefix}.workspaceDirDesc`), docsMono("/data/workspaces")] },
           { cells: [docsMono("MCP_PORT"), t(`${prefix}.mcpPortDesc`), "19000"] },

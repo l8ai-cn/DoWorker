@@ -95,7 +95,7 @@ func feedbackBody(final string, execution *coordinatordom.Execution) string {
 	case coordinatordom.ExecutionStatusCancelled:
 		verb = "was cancelled"
 	}
-	body := fmt.Sprintf("AgentsMesh Coordinator: do-agent run %s.", verb)
+	body := fmt.Sprintf("Do Worker Coordinator: do-agent run %s.", verb)
 	if strings.TrimSpace(execution.Summary) != "" {
 		body += "\n\n" + execution.Summary
 	}

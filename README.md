@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/logo.svg" alt="AgentsMesh" height="60" />
+  <img src="docs/images/logo.svg" alt="Do Worker" height="60" />
 </p>
 
 <h3 align="center">Where teams scale beyond headcount.</h3>
@@ -26,7 +26,7 @@
 
 <p align="center">
   <a href="https://youtu.be/VaXImaly3dM">
-    <img src="https://img.youtube.com/vi/VaXImaly3dM/maxresdefault.jpg" alt="AgentsMesh Demo Video" width="720" />
+    <img src="https://img.youtube.com/vi/VaXImaly3dM/maxresdefault.jpg" alt="Do Worker Demo Video" width="720" />
   </a>
 </p>
 
@@ -46,13 +46,13 @@ That ambition breaks the moment you try it for real:
 
 What's missing isn't the agent. It's the **control layer** that turns one operator into the director of an agent workforce — the layer that schedules agents onto machines, isolates them, keeps them alive, lets them collaborate, and puts all of it on one screen.
 
-**AgentsMesh is that layer.**
+**Do Worker is that layer.**
 
 ## From problem to platform
 
-Every part of AgentsMesh exists to answer one question: *how does a single person reliably run, watch, and steer a hundred agents?* Each capability is the direct answer to a wall you hit when you scale.
+Every part of Do Worker exists to answer one question: *how does a single person reliably run, watch, and steer a hundred agents?* Each capability is the direct answer to a wall you hit when you scale.
 
-| The wall you hit | What AgentsMesh gives you |
+| The wall you hit | What Do Worker gives you |
 |---|---|
 | 100 agents won't run on one machine | **Runner fleet** — install self-hosted runners across any number of machines. Each advertises its capacity (`max_concurrent_pods`), and agents are scheduled onto the runner you pick or an available one from the pool. Your code never leaves your infrastructure. |
 | Every agent needs a clean, isolated environment | **Workspace isolation** — each agent runs in its own pod with a dedicated Git worktree sandbox (`sandboxes/{pod}/workspace/`), private credentials, and its own branch. Concurrent agents never step on each other. |
@@ -73,10 +73,10 @@ The rest is plumbing built so that chain holds up under load: a **control-plane 
 
 ## Architecture
 
-AgentsMesh separates the **control plane** from the **data plane**: orchestration commands travel over gRPC with mTLS, while terminal I/O streams through a stateless Relay cluster. The backend never touches a single PTY byte — which is what lets the fleet scale.
+Do Worker separates the **control plane** from the **data plane**: orchestration commands travel over gRPC with mTLS, while terminal I/O streams through a stateless Relay cluster. The backend never touches a single PTY byte — which is what lets the fleet scale.
 
 <p align="center">
-  <img src="docs/images/architecture.svg" alt="AgentsMesh Architecture" width="680" />
+  <img src="docs/images/architecture.svg" alt="Do Worker Architecture" width="680" />
 </p>
 
 **Server-side (Go)**
@@ -97,7 +97,7 @@ AgentsMesh separates the **control plane** from the **data plane**: orchestratio
 
 ## Getting Started
 
-The fastest way to use AgentsMesh is the hosted service at **[agentsmesh.ai](https://agentsmesh.ai)** — sign up, connect your Git provider, and start running agents in minutes. Bring your own AI API keys (**BYOK**): no usage caps, full cost control.
+The fastest way to use Do Worker is the hosted service at **[agentsmesh.ai](https://agentsmesh.ai)** — sign up, connect your Git provider, and start running agents in minutes. Bring your own AI API keys (**BYOK**): no usage caps, full cost control.
 
 ### 1. Install a Runner
 
@@ -148,7 +148,7 @@ Run the whole stack locally with one command.
 
 ```bash
 git clone https://github.com/AgentsMesh/AgentsMesh.git
-cd AgentsMesh/deploy/dev
+cd Do Worker/deploy/dev
 ./dev.sh
 ```
 
@@ -165,8 +165,8 @@ This starts the full stack: PostgreSQL, Redis, MinIO, Backend, Relay, Traefik, a
 
 | Role | Email | Password |
 |------|-------|----------|
-| User | dev@agentsmesh.local | devpass123 |
-| Admin | admin@agentsmesh.local | adminpass123 |
+| User | dev@agentsmesh.local | AdminAb123456 |
+| Admin | admin@agentsmesh.local | Ab123456 |
 
 > Ports are dynamically allocated per worktree. Check `deploy/dev/.env` for actual values.
 
@@ -241,7 +241,7 @@ Any terminal-based agent works. The built-ins:
 ## Project Structure
 
 ```
-AgentsMesh/
+Do Worker/
 ├── backend/          # Go API server
 ├── relay/            # Terminal relay server (Go)
 ├── runner/           # Self-hosted runner daemon (Go)

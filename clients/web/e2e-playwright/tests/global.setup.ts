@@ -49,7 +49,7 @@ setup("authenticate as test user", async ({ browser }) => {
         current_org_slug: null,
         schema_version: 1,
       };
-      localStorage.setItem(`agentsmesh-auth/${slug}/session`, JSON.stringify(blob));
+      localStorage.setItem(`do-worker-auth/${slug}/session`, JSON.stringify(blob));
     },
     { token, refresh_token, expiresAt, baseUrl },
   );

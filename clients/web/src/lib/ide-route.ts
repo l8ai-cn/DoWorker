@@ -1,6 +1,6 @@
 import type { ActivityType } from "@/stores/ide";
 
-const STANDALONE_ROUTE_SEGMENTS = new Set(["api-access", "automation", "knowledge-base"]);
+const STANDALONE_ROUTE_SEGMENTS = new Set(["api-access", "automation", "knowledge-base", "workers"]);
 
 export function pathSegments(pathname: string): string[] {
   return pathname.split("/").filter(Boolean);
@@ -12,6 +12,7 @@ export function pathHasSegment(pathname: string, segment: string): boolean {
 
 export function resolveActivityFromPathname(pathname: string): ActivityType | null {
   if (pathHasSegment(pathname, "workspace")) return "workspace";
+  if (pathHasSegment(pathname, "workers")) return "workspace";
   if (pathHasSegment(pathname, "tickets")) return "tickets";
   if (pathHasSegment(pathname, "channels")) return "channels";
   if (pathHasSegment(pathname, "mesh")) return "mesh";

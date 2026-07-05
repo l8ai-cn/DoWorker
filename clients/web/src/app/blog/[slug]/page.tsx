@@ -84,7 +84,7 @@ export default async function BlogPostPage({
               },
               publisher: {
                 "@type": "Organization",
-                name: "AgentsMesh",
+                name: "Do Worker",
                 url: "https://agentsmesh.ai",
               },
               url: `https://agentsmesh.ai/blog/${slug}`,

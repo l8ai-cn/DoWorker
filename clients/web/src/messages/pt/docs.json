@@ -50,13 +50,13 @@
     },
     "intro": {
       "title": "Introduction",
-      "description": "AgentsMesh é um Centro de Comando de Frota de Agentes IA que permite às equipes orquestrar agentes de codificação IA como Claude Code, Codex CLI, Gemini CLI e Aider em escala. Gerencie estações de trabalho IA remotas (AgentPod), coordene colaboração multi-agente (AgentsMesh) e acompanhe o progresso com gerenciamento de tarefas integrado — tudo a partir de uma única plataforma.",
+      "description": "Do Worker é um Centro de Comando de Frota de Agentes IA que permite às equipes orquestrar agentes de codificação IA como Claude Code, Codex CLI, Gemini CLI e Aider em escala. Gerencie estações de trabalho IA remotas (AgentPod), coordene colaboração multi-agente (Mesh) e acompanhe o progresso com gerenciamento de tarefas integrado — tudo a partir de uma única plataforma.",
       "supportedAgents": "Supported AI Agents:",
       "customAgents": "Custom agents via MCP protocol"
     },
     "architecture": {
       "title": "Como Funciona",
-      "description": "O AgentsMesh permite que você controle agentes de IA executando em qualquer lugar — no seu notebook, em um servidor ou em uma VM na nuvem — direto do navegador. Comandos são enviados de forma segura por conexões criptografadas, enquanto a saída do terminal é transmitida em tempo real. Seu código nunca sai da sua infraestrutura.",
+      "description": "O Do Worker permite que você controle agentes de IA executando em qualquer lugar — no seu notebook, em um servidor ou em uma VM na nuvem — direto do navegador. Comandos são enviados de forma segura por conexões criptografadas, enquanto a saída do terminal é transmitida em tempo real. Seu código nunca sai da sua infraestrutura.",
       "clientLayer": "Camada do Cliente",
       "clientSubtitle": "Acesse de qualquer lugar — navegador, celular ou tablet",
       "cloudLayer": "Nuvem",
@@ -85,7 +85,7 @@
     },
     "whatYouCanDo": {
       "title": "O Que Você Pode Fazer",
-      "description": "O AgentsMesh dá superpoderes à sua equipe para desenvolvimento impulsionado por IA.",
+      "description": "O Do Worker dá superpoderes à sua equipe para desenvolvimento impulsionado por IA.",
       "orchestrate": {
         "title": "Orquestrar Múltiplos Agentes IA",
         "description": "Coordene Claude Code, Codex CLI, Gemini CLI, Aider e mais trabalhando juntos através de canais e vinculação de pods."
@@ -114,14 +114,14 @@
     },
     "concepts": {
       "title": "Core Concepts",
-      "description": "Understand the foundational concepts behind AgentsMesh to make the most of the platform.",
+      "description": "Understand the foundational concepts behind Do Worker to make the most of the platform.",
       "architecture": {
         "title": "Architecture Overview",
-        "description": "AgentsMesh follows a layered architecture where Organizations manage teams, Runners provide compute, and Pods execute AI agents.",
+        "description": "Do Worker follows a layered architecture where Organizations manage teams, Runners provide compute, and Pods execute AI agents.",
         "orgTitle": "Organization",
         "orgDesc": "The top-level entity. Each organization has its own members, settings, runners, and billing. Teams can invite members with different roles.",
         "runnerTitle": "Runner",
-        "runnerDesc": "A self-hosted daemon that connects to the AgentsMesh backend via gRPC with mTLS. Runners provide the compute environment where Pods execute. You can run multiple Runners across different machines.",
+        "runnerDesc": "A self-hosted daemon that connects to the Do Worker backend via gRPC with mTLS. Runners provide the compute environment where Pods execute. You can run multiple Runners across different machines.",
         "podTitle": "Pod (AgentPod)",
         "podDesc": "An isolated execution environment where an AI coding agent runs. Each Pod has its own PTY terminal, sandbox, and optional Git worktree. Pods are created on Runners and managed through the web interface.",
         "channelTitle": "Channel",
@@ -131,7 +131,7 @@
       },
       "byok": {
         "title": "BYOK (Bring Your Own Key)",
-        "description": "AgentsMesh uses the BYOK model — you provide your own API keys for AI providers (Anthropic, OpenAI, Google, etc.). Your API keys are encrypted at rest and never shared. This means you have full control over costs and model selection."
+        "description": "Do Worker uses the BYOK model — you provide your own API keys for AI providers (Anthropic, OpenAI, Google, etc.). Your API keys are encrypted at rest and never shared. This means you have full control over costs and model selection."
       },
       "mtls": {
         "title": "mTLS Security",
@@ -143,14 +143,14 @@
       },
       "mcp": {
         "title": "MCP (Model Context Protocol)",
-        "description": "AgentsMesh provides 26 MCP tools that AI agents can use to discover resources, communicate with other Pods, manage tickets, and control terminals. The MCP server runs on each Runner and is automatically configured for supported agents like Claude Code."
+        "description": "Do Worker provides 26 MCP tools that AI agents can use to discover resources, communicate with other Pods, manage tickets, and control terminals. The MCP server runs on each Runner and is automatically configured for supported agents like Claude Code."
       },
       "repositoriesGit": {
         "title": "Repositórios e Integração com Git",
-        "description": "Conecte seus repositórios Git ao AgentsMesh e configure o acesso ao provedor para fluxos de trabalho de desenvolvimento contínuos com IA.",
+        "description": "Conecte seus repositórios Git ao Do Worker e configure o acesso ao provedor para fluxos de trabalho de desenvolvimento contínuos com IA.",
         "overview": {
           "title": "Visão Geral",
-          "description": "Repositórios vinculam seus projetos Git à plataforma. Quando um Pod é criado com um repositório vinculado, o Runner clona automaticamente o projeto e configura um worktree Git isolado. O AgentsMesh se integra com plataformas populares de hospedagem Git para fornecer acesso contínuo a repositórios para agentes de IA."
+          "description": "Repositórios vinculam seus projetos Git à plataforma. Quando um Pod é criado com um repositório vinculado, o Runner clona automaticamente o projeto e configura um worktree Git isolado. O Do Worker se integra com plataformas populares de hospedagem Git para fornecer acesso contínuo a repositórios para agentes de IA."
         },
         "providers": {
           "title": "Provedores Git Suportados",
@@ -169,10 +169,10 @@
           "step1": "No GitHub, vá em Settings → Developer settings → Personal access tokens → Fine-grained tokens",
           "step2": "Clique em Generate new token e selecione os repositórios aos quais deseja conceder acesso",
           "step3": "Conceda permissões de Repositório: Contents (Read-only) e Metadata (Read-only) no mínimo",
-          "step4": "No AgentsMesh, vá em Configurações → Pessoal → Configurações Git",
+          "step4": "No Do Worker, vá em Configurações → Pessoal → Configurações Git",
           "step5": "Clique em Adicionar Provedor GitHub e cole seu token",
           "oauthTitle": "Opção B: OAuth (apenas para usuários cadastrados com GitHub)",
-          "oauthDesc": "Se você se cadastrou no AgentsMesh usando sua conta GitHub, a conexão OAuth está disponível:",
+          "oauthDesc": "Se você se cadastrou no Do Worker usando sua conta GitHub, a conexão OAuth está disponível:",
           "oauthStep1": "Vá em Configurações → Pessoal → Configurações Git",
           "oauthStep2": "Clique em Conectar GitHub — sua conta já está vinculada via OAuth",
           "oauthStep3": "Selecione quais repositórios conceder acesso",
@@ -183,7 +183,7 @@
           "description": "Conecte o GitLab usando um Token de Acesso Pessoal:",
           "step1": "No GitLab, vá em Configurações → Tokens de Acesso",
           "step2": "Crie um novo token com os escopos api e read_repository",
-          "step3": "No AgentsMesh, vá em Configurações → Pessoal → Configurações Git",
+          "step3": "No Do Worker, vá em Configurações → Pessoal → Configurações Git",
           "step4": "Clique em Adicionar Provedor GitLab e cole seu token",
           "step5": "Insira a URL da sua instância GitLab (para auto-hospedado)",
           "selfHosted": "GitLab Auto-Hospedado: Insira a URL completa da sua instância GitLab (ex.: https://gitlab.suaempresa.com)."
@@ -193,7 +193,7 @@
           "description": "Conecte o Gitee usando um Token de Acesso Pessoal:",
           "step1": "No Gitee, vá em Configurações → Tokens de Acesso Pessoal",
           "step2": "Crie um novo token com o escopo projects",
-          "step3": "No AgentsMesh, vá em Configurações → Pessoal → Configurações Git",
+          "step3": "No Do Worker, vá em Configurações → Pessoal → Configurações Git",
           "step4": "Clique em Adicionar Provedor Gitee e cole seu token"
         },
         "sshKeys": {
@@ -221,13 +221,13 @@
           "addRepo": "Adicionando um Repositório",
           "addRepoSteps": "Vá em Configurações → Repositórios → Adicionar Repositório. Selecione seu provedor Git, autentique-se e escolha os repositórios para conectar.",
           "removeRepo": "Removendo um Repositório",
-          "removeRepoSteps": "Remover um repositório o desconecta do AgentsMesh. Pods existentes usando este repositório não serão afetados, mas novos Pods não poderão ser criados com ele."
+          "removeRepoSteps": "Remover um repositório o desconecta do Do Worker. Pods existentes usando este repositório não serão afetados, mas novos Pods não poderão ser criados com ele."
         }
       }
     },
     "gettingStarted": {
       "title": "Início Rápido",
-      "description": "Inicie o AgentsMesh em seis passos. Esta é uma visão geral rápida — cada passo tem um link para um tutorial detalhado com solução de problemas e opções avançadas.",
+      "description": "Inicie o Do Worker em seis passos. Esta é uma visão geral rápida — cada passo tem um link para um tutorial detalhado com solução de problemas e opções avançadas.",
       "step1": {
         "title": "Criar uma conta",
         "description": "Registre-se na página de cadastro com seu e-mail, nome de usuário e senha. Você receberá um e-mail de verificação. Se não chegar em alguns minutos, verifique a pasta de spam.",
@@ -237,7 +237,7 @@
       },
       "step2": {
         "title": "Configurar um Runner",
-        "description": "Um Runner é um daemon leve que roda na sua máquina e executa agentes de IA em espaços de trabalho isolados chamados Pods. Instale o AgentsMesh Runner na sua máquina de desenvolvimento ou servidor.",
+        "description": "Um Runner é um daemon leve que roda na sua máquina e executa agentes de IA em espaços de trabalho isolados chamados Pods. Instale o Do Worker Runner na sua máquina de desenvolvimento ou servidor.",
         "methodToken": "Registrar com um token",
         "methodLogin": "Registrar com login pelo navegador",
         "seeSetup": "Consulte {link} para opções de implantação com Docker, pacotes Linux e Kubernetes."
@@ -569,7 +569,7 @@
         "description": "Integrated task management with Kanban board view. Create tickets, assign them to AgentPods, and track progress through your workflow.",
         "overview": {
           "title": "Overview",
-          "description": "AgentsMesh Tickets provide a lightweight issue tracking system designed for AI-driven development. Key features include:",
+          "description": "Do Worker Tickets provide a lightweight issue tracking system designed for AI-driven development. Key features include:",
           "item1": "Kanban board visualization",
           "item2": "Ticket ↔ Pod linking for context",
           "item3": "Git commit and merge request associations",
@@ -623,7 +623,7 @@
       },
       "repositories": {
         "title": "Repositories",
-        "description": "Connect your Git repositories to AgentsMesh for seamless AI-powered development workflows.",
+        "description": "Connect your Git repositories to Do Worker for seamless AI-powered development workflows.",
         "overview": {
           "title": "Overview",
           "description": "Repositories link your Git projects to the platform. When a Pod is created with a linked repository, the Runner automatically clones the project and sets up an isolated Git worktree."
@@ -642,7 +642,7 @@
           "oauth": "OAuth",
           "oauthDesc": "For GitHub — one-click authorization with fine-grained repository access. Tokens are encrypted and stored securely.",
           "pat": "Personal Access Token (PAT)",
-          "patDesc": "For GitLab and Gitee — generate a token from your provider settings and add it in AgentsMesh. Requires repo read/write scope."
+          "patDesc": "For GitLab and Gitee — generate a token from your provider settings and add it in Do Worker. Requires repo read/write scope."
         },
         "podAssociation": {
           "title": "Repository & Pod Association",
@@ -662,7 +662,7 @@
           "addRepo": "Adding a Repository",
           "addRepoSteps": "Go to Settings → Repositories → Add Repository. Select your Git provider, authenticate, and choose the repositories to connect.",
           "removeRepo": "Removing a Repository",
-          "removeRepoSteps": "Removing a repository disconnects it from AgentsMesh. Existing Pods using this repository will not be affected, but new Pods cannot be created with it."
+          "removeRepoSteps": "Removing a repository disconnects it from Do Worker. Existing Pods using this repository will not be affected, but new Pods cannot be created with it."
         }
       },
       "loops": {
@@ -743,7 +743,7 @@
           "item1": "Linux, macOS, or Windows (WSL2 recommended)",
           "item2": "Git installed and configured",
           "item3": "Docker (optional, for containerized agents)",
-          "item4": "Network access to AgentsMesh server",
+          "item4": "Network access to Do Worker server",
           "item5": "At least 4GB RAM (8GB+ recommended for multiple Pods)"
         },
         "quickInstall": {
@@ -751,7 +751,7 @@
           "oneLineTitle": "One-Line Install (Recommended)",
           "linuxTitle": "Linux (Package Manager)",
           "afterInstall": "After Installation",
-          "tokenHint": "Get your registration token from Settings → Runners → Create Token in the AgentsMesh web interface.",
+          "tokenHint": "Get your registration token from Settings → Runners → Create Token in the Do Worker web interface.",
           "methodToken": "Opção A: Registrar com um token",
           "methodLogin": "Opção B: Registrar com login pelo navegador"
         },
@@ -767,7 +767,7 @@
           "descriptionHeader": "Description",
           "defaultHeader": "Default",
           "tokenDesc": "Registration token (required)",
-          "urlDesc": "AgentsMesh server URL",
+          "urlDesc": "Do Worker server URL",
           "maxPodsDesc": "Maximum concurrent Pods",
           "workspaceDirDesc": "Base directory for workspaces",
           "mcpPortDesc": "MCP server port"
@@ -791,7 +791,7 @@
         "troubleshooting": {
           "title": "Troubleshooting",
           "offline": "Runner shows as Offline",
-          "offlineDesc": "Check network connectivity to the AgentsMesh server. Ensure firewalls allow outbound gRPC connections (port 9443 for mTLS).",
+          "offlineDesc": "Check network connectivity to the Do Worker server. Ensure firewalls allow outbound gRPC connections (port 9443 for mTLS).",
           "podsFail": "Pods fail to start",
           "podsFailDesc": "Verify Git is installed and configured. Check that the runner has access to clone repositories (SSH keys or tokens configured).",
           "tokenInvalid": "\"Token invalid\" error",
@@ -924,17 +924,17 @@
     "guides": {
       "gitIntegration": {
         "title": "Git Integration",
-        "description": "A complete guide to connecting Git providers and using repositories with AgentsMesh.",
+        "description": "A complete guide to connecting Git providers and using repositories with Do Worker.",
         "overview": {
           "title": "Overview",
-          "description": "AgentsMesh integrates with popular Git hosting platforms to provide seamless repository access for AI agents. This guide covers the end-to-end setup process."
+          "description": "Do Worker integrates with popular Git hosting platforms to provide seamless repository access for AI agents. This guide covers the end-to-end setup process."
         },
         "github": {
           "title": "GitHub (OAuth)",
           "description": "Connect your GitHub account using OAuth for one-click authorization:",
           "step1": "Go to Settings → Git Providers",
           "step2": "Click Connect GitHub",
-          "step3": "Authorize AgentsMesh in the GitHub popup",
+          "step3": "Authorize Do Worker in the GitHub popup",
           "step4": "Select which repositories to grant access to",
           "step5": "Your repositories will appear in Settings → Repositories"
         },
@@ -943,7 +943,7 @@
           "description": "Connect GitLab using a Personal Access Token:",
           "step1": "In GitLab, go to Settings → Access Tokens",
           "step2": "Create a new token with api and read_repository scopes",
-          "step3": "In AgentsMesh, go to Settings → Git Providers",
+          "step3": "In Do Worker, go to Settings → Git Providers",
           "step4": "Click Add GitLab Provider and paste your token",
           "step5": "Enter your GitLab instance URL (for self-hosted)",
           "selfHosted": "Self-Hosted GitLab: Enter the full URL of your GitLab instance (e.g., https://gitlab.yourcompany.com)."
@@ -953,7 +953,7 @@
           "description": "Connect Gitee using a Personal Access Token:",
           "step1": "In Gitee, go to Settings → Personal Access Tokens",
           "step2": "Create a new token with projects scope",
-          "step3": "In AgentsMesh, go to Settings → Git Providers",
+          "step3": "In Do Worker, go to Settings → Git Providers",
           "step4": "Click Add Gitee Provider and paste your token"
         },
         "sshKeys": {
@@ -975,10 +975,10 @@
       },
       "teamManagement": {
         "title": "Team Management",
-        "description": "Learn how to set up and manage your team in AgentsMesh.",
+        "description": "Learn how to set up and manage your team in Do Worker.",
         "overview": {
           "title": "Overview",
-          "description": "AgentsMesh uses Organizations as the primary unit for team collaboration. Each organization has its own members, runners, repositories, and settings."
+          "description": "Do Worker uses Organizations as the primary unit for team collaboration. Each organization has its own members, runners, repositories, and settings."
         },
         "createOrg": {
           "title": "Creating an Organization",
@@ -996,11 +996,11 @@
           "step3": "Enter the invitee's email address",
           "step4": "Select a role (Admin or Member)",
           "step5": "The invitee receives an email with a join link",
-          "note": "Invited users who don't have an AgentsMesh account will be prompted to register first."
+          "note": "Invited users who don't have an Do Worker account will be prompted to register first."
         },
         "roles": {
           "title": "Roles & Permissions",
-          "description": "AgentsMesh supports role-based access control (RBAC):",
+          "description": "Do Worker supports role-based access control (RBAC):",
           "ownerTitle": "Owner",
           "ownerDesc": "Full access to all settings, billing, and member management. Can delete the organization.",
           "adminTitle": "Admin",
@@ -1086,10 +1086,10 @@
       },
       "overview": {
         "title": "Visão geral da API",
-        "description": "Integre serviços de terceiros ao AgentsMesh usando chaves de API no nível da organização. Automatize o gerenciamento de Pods, rastreamento de tickets e mais através da API REST.",
+        "description": "Integre serviços de terceiros ao Do Worker usando chaves de API no nível da organização. Automatize o gerenciamento de Pods, rastreamento de tickets e mais através da API REST.",
         "overview": {
           "title": "Visão geral",
-          "description": "O AgentsMesh fornece chaves de API no nível da organização para integrações de terceiros, pipelines CI/CD e fluxos de trabalho de automação. Com chaves de API você pode:",
+          "description": "O Do Worker fornece chaves de API no nível da organização para integrações de terceiros, pipelines CI/CD e fluxos de trabalho de automação. Com chaves de API você pode:",
           "item1": "Gerenciar AgentPods programaticamente (criar, listar, encerrar)",
           "item2": "Automatizar a criação de tickets e atualizações de status",
           "item3": "Consultar canais e enviar mensagens",
@@ -1590,7 +1590,7 @@
     },
     "faq": {
       "title": "Frequently Asked Questions",
-      "description": "Find answers to common questions about using AgentsMesh.",
+      "description": "Find answers to common questions about using Do Worker.",
       "categories": {
         "runner": "Runner Issues",
         "pod": "Pod Issues",
@@ -1601,7 +1601,7 @@
       "items": {
         "runnerConnection": {
           "question": "My Runner shows as 'Offline'. How do I fix it?",
-          "answer": "Check the following: 1) Ensure the Runner process is actually running (agentsmesh-runner run). 2) Verify network connectivity to the AgentsMesh server. 3) Ensure firewalls allow outbound gRPC connections on port 9443. 4) Check Runner logs for certificate errors — you may need to re-register if the certificate has expired."
+          "answer": "Check the following: 1) Ensure the Runner process is actually running (do-worker-runner run). 2) Verify network connectivity to the Do Worker server. 3) Ensure firewalls allow outbound gRPC connections on port 9443. 4) Check Runner logs for certificate errors — you may need to re-register if the certificate has expired."
         },
         "runnerMultiple": {
           "question": "Can I run multiple Runners on the same machine?",
@@ -1633,11 +1633,11 @@
         },
         "billingBYOK": {
           "question": "How does the BYOK (Bring Your Own Key) billing model work?",
-          "answer": "You provide your own API keys for AI providers (Anthropic, OpenAI, Google, etc.). You pay the AI providers directly based on your usage. AgentsMesh charges only for platform usage (runners, storage, etc.)."
+          "answer": "You provide your own API keys for AI providers (Anthropic, OpenAI, Google, etc.). You pay the AI providers directly based on your usage. Do Worker charges only for platform usage (runners, storage, etc.)."
         },
         "billingFree": {
           "question": "Is there a free tier?",
-          "answer": "Yes, AgentsMesh offers a free tier with limited concurrent Pods and storage. Check the Pricing page for current plan details and limits."
+          "answer": "Yes, Do Worker offers a free tier with limited concurrent Pods and storage. Check the Pricing page for current plan details and limits."
         }
       }
     },
@@ -1645,18 +1645,18 @@
       "runnerSetup": {
         "title": "Tutorial: Configurando um Runner",
         "difficulty": "Iniciante — 5 minutos",
-        "description": "Aprenda como instalar, registrar e verificar um Runner do AgentsMesh passo a passo. Um Runner é necessário antes de criar Pods.",
+        "description": "Aprenda como instalar, registrar e verificar um Runner do Do Worker passo a passo. Um Runner é necessário antes de criar Pods.",
         "prerequisites": {
           "title": "Pré-requisitos",
           "description": "Antes de começar, certifique-se de que você tem:",
-          "item1": "Uma conta AgentsMesh (cadastre-se na página de registro)",
+          "item1": "Uma conta Do Worker (cadastre-se na página de registro)",
           "item2": "Uma máquina com Linux, macOS ou Windows (WSL2 recomendado)",
           "item3": "Git instalado e configurado na máquina",
-          "item4": "Acesso de rede ao servidor AgentsMesh"
+          "item4": "Acesso de rede ao servidor Do Worker"
         },
         "step1": {
           "title": "Instalar o Runner",
-          "description": "Baixe e instale o Runner do AgentsMesh na sua máquina. Escolha o método que funciona melhor para você:",
+          "description": "Baixe e instale o Runner do Do Worker na sua máquina. Escolha o método que funciona melhor para você:",
           "oneLine": "Instalação em Uma Linha (Recomendado) — Funciona no Linux e macOS:",
           "linux": "Gerenciador de Pacotes Linux — Disponível para Debian/Ubuntu e RHEL/Fedora",
           "docker": "Docker — Execute o Runner como um contêiner para fácil isolamento",
@@ -1664,7 +1664,7 @@
         },
         "step2": {
           "title": "Registrar o Runner",
-          "description": "Após a instalação, registre o Runner na sua instância do AgentsMesh. Você tem duas opções:",
+          "description": "Após a instalação, registre o Runner na sua instância do Do Worker. Você tem duas opções:",
           "methodToken": "Opção A: Registrar com um token (servidores headless)",
           "methodTokenDesc": "Obtenha um token de registro em Configurações → Runners → Criar Token na interface web, depois execute o comando de registro com seu token.",
           "methodLogin": "Opção B: Registrar com login no navegador (máquinas de desenvolvedor)",
@@ -1675,18 +1675,18 @@
           "title": "Iniciar o Runner",
           "description": "Após o registro, inicie o daemon do Runner:",
           "item1": "Execute o comando de início para iniciar o processo do Runner",
-          "item2": "O Runner se conecta ao backend do AgentsMesh via gRPC com mTLS",
+          "item2": "O Runner se conecta ao backend do Do Worker via gRPC com mTLS",
           "item3": "Ele reporta as CLIs de agentes IA disponíveis (Claude Code, Codex, Gemini, etc.) encontradas no PATH",
           "tip": "Para implantações em produção, instale o Runner como um serviço do sistema para que ele inicie automaticamente na inicialização.",
           "background": {
             "title": "Executar em segundo plano",
-            "description": "`agentsmesh-runner run` fica preso ao seu terminal. Escolha um modo em segundo plano se quiser que o Runner sobreviva ao fechar o shell:",
+            "description": "`do-worker-runner run` fica preso ao seu terminal. Escolha um modo em segundo plano se quiser que o Runner sobreviva ao fechar o shell:",
             "service": {
               "title": "Serviço do sistema (recomendado)",
               "description": "Registre o Runner no systemd / launchd / Windows Service Manager — inicia no boot, reinicia em falhas e grava logs no journal do SO.",
               "startLabel": "Instalar e iniciar",
               "stopLabel": "Parar ou desinstalar",
-              "note": "No Linux, os logs vão para journalctl -u agentsmesh-runner. No macOS, em ~/Library/Logs/agentsmesh-runner.log. Use --config /path/to/config.yaml se sua configuração não estiver no caminho padrão."
+              "note": "No Linux, os logs vão para journalctl -u do-worker-runner. No macOS, em ~/Library/Logs/do-worker-runner.log. Use --config /path/to/config.yaml se sua configuração não estiver no caminho padrão."
             },
             "nohup": {
               "title": "Segundo plano do shell (nohup)",
@@ -1737,7 +1737,7 @@
             "title": "Reinstalar com install.sh",
             "description": "Se o caminho de autoatualização estiver bloqueado (host isolado, distribuição incomum ou você quer um binário limpo), execute novamente o instalador oficial.",
             "restartLabel": "Reiniciar após a instalação",
-            "note": "Reinstalar preserva ~/.agentsmesh/config.yaml e os certificados mTLS — você não precisa registrar novamente."
+            "note": "Reinstalar preserva ~/.do-worker/config.yaml e os certificados mTLS — você não precisa registrar novamente."
           }
         },
         "troubleshooting": {
@@ -1756,11 +1756,11 @@
       "gitSetup": {
         "title": "Tutorial: Conectar Repositórios Git",
         "difficulty": "Iniciante — 5 minutos",
-        "description": "Aprenda como conectar seu provedor Git (GitHub, GitLab ou Gitee) ao AgentsMesh para que seus agentes IA possam trabalhar nos seus repositórios de código.",
+        "description": "Aprenda como conectar seu provedor Git (GitHub, GitLab ou Gitee) ao Do Worker para que seus agentes IA possam trabalhar nos seus repositórios de código.",
         "prerequisites": {
           "title": "Pré-requisitos",
           "description": "Antes de começar, certifique-se de que você tem:",
-          "item1": "Uma conta AgentsMesh com um Runner conectado (veja o tutorial Configurar Runner)",
+          "item1": "Uma conta Do Worker com um Runner conectado (veja o tutorial Configurar Runner)",
           "item2": "Uma conta GitHub, GitLab ou Gitee com repositórios que deseja usar"
         },
         "step1": {
@@ -1772,16 +1772,16 @@
           "description": "Para o GitHub, você pode usar um Token de Acesso Pessoal (funciona para todos) ou OAuth (apenas se você se cadastrou com o GitHub):",
           "item1": "Token de Acesso Pessoal: No GitHub, vá em Settings → Developer settings → Personal access tokens → Fine-grained tokens",
           "item2": "Gere um token com permissões Contents (Read-only) e Metadata (Read-only) para seus repositórios",
-          "item3": "No AgentsMesh, clique em Adicionar Provedor GitHub e cole seu token",
+          "item3": "No Do Worker, clique em Adicionar Provedor GitHub e cole seu token",
           "item4": "Seus repositórios aparecerão em Configurações → Repositórios",
-          "tip": "Se você se cadastrou no AgentsMesh com sua conta GitHub, também pode usar o botão Conectar GitHub para OAuth — sua conta já está vinculada. Usuários cadastrados com e-mail devem usar um Token de Acesso Pessoal."
+          "tip": "Se você se cadastrou no Do Worker com sua conta GitHub, também pode usar o botão Conectar GitHub para OAuth — sua conta já está vinculada. Usuários cadastrados com e-mail devem usar um Token de Acesso Pessoal."
         },
         "step3": {
           "title": "Conectar GitLab (Token de Acesso Pessoal)",
           "description": "Para o GitLab, use um Token de Acesso Pessoal:",
           "item1": "No GitLab, vá para Configurações → Tokens de Acesso",
           "item2": "Crie um novo token com os escopos api e read_repository",
-          "item3": "De volta ao AgentsMesh, clique em Adicionar Provedor GitLab",
+          "item3": "De volta ao Do Worker, clique em Adicionar Provedor GitLab",
           "item4": "Cole seu token e insira a URL do seu GitLab",
           "tip": "GitLab auto-hospedado é totalmente suportado. Insira a URL completa da sua instância (ex.: https://gitlab.suaempresa.com)."
         },
@@ -1790,7 +1790,7 @@
           "description": "Para o Gitee, use um Token de Acesso Pessoal:",
           "item1": "No Gitee, vá para Configurações → Tokens de Acesso Pessoal",
           "item2": "Crie um novo token com o escopo projects",
-          "item3": "De volta ao AgentsMesh, clique em Adicionar Provedor Gitee e cole seu token"
+          "item3": "De volta ao Do Worker, clique em Adicionar Provedor Gitee e cole seu token"
         },
         "step5": {
           "title": "Importar Repositórios",
@@ -1830,7 +1830,7 @@
         "description": "Aprenda como estender seus agentes de IA com servidores MCP (Model Context Protocol) e skills. As ferramentas MCP permitem que os agentes colaborem, gerenciem tickets e interajam com serviços externos. Skills adicionam fluxos de trabalho reutilizáveis aos seus agentes.",
         "whatIsMcp": {
           "title": "O Que São Ferramentas MCP?",
-          "description": "Ferramentas MCP (Model Context Protocol) são capacidades que agentes de IA podem usar enquanto trabalham dentro de um Pod. O AgentsMesh fornece 26 ferramentas MCP integradas organizadas em 7 categorias:",
+          "description": "Ferramentas MCP (Model Context Protocol) são capacidades que agentes de IA podem usar enquanto trabalham dentro de um Pod. O Do Worker fornece 26 ferramentas MCP integradas organizadas em 7 categorias:",
           "item1": "Descoberta — Listar Pods, Runners e repositórios disponíveis",
           "item2": "Terminal — Observar e controlar terminais de outros Pods",
           "item3": "Vinculação — Solicitar e gerenciar conexões Pod-a-Pod",
@@ -1843,7 +1843,7 @@
         "step1": {
           "title": "Entenda Servidores MCP Integrados vs Personalizados",
           "description": "Existem dois tipos de ferramentas MCP disponíveis para seus agentes:",
-          "builtinTitle": "Servidor MCP Integrado do AgentsMesh",
+          "builtinTitle": "Servidor MCP Integrado do Do Worker",
           "builtinDesc": "Configurado automaticamente para cada Pod. Fornece as 26 ferramentas de colaboração (canais, tickets, vinculações, etc.). Nenhuma configuração necessária.",
           "customTitle": "Servidores MCP Personalizados",
           "customDesc": "Servidores MCP adicionais que você instala para capacidades específicas — por exemplo, um servidor MCP de banco de dados, uma integração com Slack ou um conector de API personalizado. Estes são configurados por organização ou por usuário."
@@ -1865,12 +1865,12 @@
           "description": "Após configurar os servidores MCP, verifique se funcionam:",
           "item1": "Crie um novo Pod com Claude Code",
           "item2": "No terminal, pergunte ao agente: \"Quais ferramentas MCP você tem disponíveis?\"",
-          "item3": "O agente deve listar tanto as ferramentas integradas do AgentsMesh quanto quaisquer servidores MCP personalizados que você instalou",
+          "item3": "O agente deve listar tanto as ferramentas integradas do Do Worker quanto quaisquer servidores MCP personalizados que você instalou",
           "item4": "Tente usar uma ferramenta — ex: \"Liste todos os pods disponíveis\" ou \"Pesquise por tickets\""
         },
         "whatAreSkills": {
           "title": "O Que São Skills?",
-          "description": "Skills são fluxos de trabalho reutilizáveis de agentes definidos como arquivos markdown com instruções. Quando instaladas, são injetadas no contexto do seu agente para que ele possa executá-las sob demanda. O AgentsMesh fornece duas skills integradas:",
+          "description": "Skills são fluxos de trabalho reutilizáveis de agentes definidos como arquivos markdown com instruções. Quando instaladas, são injetadas no contexto do seu agente para que ele possa executá-las sob demanda. O Do Worker fornece duas skills integradas:",
           "item1": "am-channel — Permite que agentes verifiquem mensagens, sincronizem status de tarefas e troquem informações com outros agentes via canais",
           "item2": "am-delegate — Permite que agentes deleguem tarefas a outros Pods, criem sub-Pods para trabalho paralelo e acionem agentes de acompanhamento"
         },
@@ -1913,7 +1913,7 @@
         "prerequisites": {
           "title": "Pré-requisitos",
           "description": "Antes de começar, certifique-se de que você tem:",
-          "item1": "Uma conta AgentsMesh (cadastre-se na página de registro)",
+          "item1": "Uma conta Do Worker (cadastre-se na página de registro)",
           "item2": "Um Runner instalado e conectado (veja Início Rápido → Passo 2)",
           "item3": "Pelo menos uma CLI de agente IA instalada no seu Runner (ex.: Claude Code)",
           "item4": "Um repositório Git conectado (opcional, mas recomendado)"
@@ -1959,7 +1959,7 @@
         "troubleshooting": {
           "title": "Solução de Problemas",
           "noRunners": "Nenhum Runner no menu suspenso",
-          "noRunnersDesc": "Seu Runner pode estar offline. Vá em Configurações → Runners e verifique o status. Se aparecer Offline, reinicie o processo do Runner e certifique-se de que ele consegue alcançar o servidor AgentsMesh.",
+          "noRunnersDesc": "Seu Runner pode estar offline. Vá em Configurações → Runners e verifique o status. Se aparecer Offline, reinicie o processo do Runner e certifique-se de que ele consegue alcançar o servidor Do Worker.",
           "stuckInit": "Pod travado em Inicializando",
           "stuckInitDesc": "Isso geralmente significa que o repositório é grande e ainda está sendo clonado. Aguarde alguns minutos. Se não resolver, verifique os logs do Runner para erros de clone. Tente criar um Pod sem repositório para testar a funcionalidade básica.",
           "agentNotResponding": "Agente não responde",
@@ -1978,7 +1978,7 @@
       "ticketWorkflow": {
         "title": "Tutorial: Gerenciando Tarefas com Tickets",
         "difficulty": "Iniciante — 10 minutos",
-        "description": "Aprenda como usar o sistema de tickets do AgentsMesh para organizar o trabalho, acompanhar o progresso em um quadro Kanban e conectar tickets a AgentPods para injeção automática de contexto.",
+        "description": "Aprenda como usar o sistema de tickets do Do Worker para organizar o trabalho, acompanhar o progresso em um quadro Kanban e conectar tickets a AgentPods para injeção automática de contexto.",
         "step1": {
           "title": "Navegue até o Quadro de Tickets",
           "description": "Clique em Tickets na barra lateral esquerda. Você verá um quadro Kanban com colunas para cada status: Backlog, A Fazer, Em Progresso, Em Revisão e Concluído."

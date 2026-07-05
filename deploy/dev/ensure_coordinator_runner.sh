@@ -24,6 +24,9 @@ case "$agent_slug" in
   gemini-cli) service=runner-gemini-cli ;;
   e2e-echo) service=runner-e2e-echo ;;
   loopal) service=runner-loopal ;;
+  do-agent) service=runner-do-agent ;;
+  aider) service=runner-aider ;;
+  opencode) service=runner-opencode ;;
   *)
     echo "No dev runner compose service for agent ${agent_slug}" >&2
     exit 1

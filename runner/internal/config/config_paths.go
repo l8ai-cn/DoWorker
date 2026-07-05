@@ -8,17 +8,14 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
 )
 
-// TempBaseDir returns the base temporary directory for agentsmesh.
-// On Unix (macOS/Linux): /tmp/agentsmesh — a predictable, easy-to-find path.
-// On Windows: os.TempDir()/agentsmesh — since /tmp doesn't exist.
-//
-// macOS's os.TempDir() returns /var/folders/xx/.../T/ which is hard to locate,
-// so we use /tmp directly for better developer experience.
+// TempBaseDir returns the base temporary directory for the runner.
+// On Unix (macOS/Linux): /tmp/do-worker — a predictable, easy-to-find path.
+// On Windows: os.TempDir()/do-worker — since /tmp doesn't exist.
 func TempBaseDir() string {
 	if runtime.GOOS == "windows" {
-		return filepath.Join(os.TempDir(), "agentsmesh")
+		return filepath.Join(os.TempDir(), "do-worker")
 	}
-	return "/tmp/agentsmesh"
+	return "/tmp/do-worker"
 }
 
 // GetWorkspace returns the workspace directory path.
@@ -30,12 +27,7 @@ func (c *Config) GetWorkspace() string {
 	if c.WorkspaceRoot != "" {
 		return c.WorkspaceRoot
 	}
-	// Default to user's home directory
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return TempBaseDir()
-	}
-	return filepath.Join(home, ".agentsmesh")
+	return UserConfigDir()
 }
 
 // GetSandboxesDir returns the sandboxes directory path.
@@ -62,12 +54,7 @@ func (c *Config) GetPluginsDir() string {
 	if c.PluginsDir != "" {
 		return os.ExpandEnv(c.PluginsDir)
 	}
-	// Default to ~/.agentsmesh/plugins
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return ""
-	}
-	return filepath.Join(home, ".agentsmesh", "plugins")
+	return filepath.Join(PreferredUserConfigDir(), "plugins")
 }
 
 // DefaultLogFileName returns the base log file name (e.g., "runner.log").

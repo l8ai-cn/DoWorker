@@ -74,10 +74,10 @@ irm ${serverUrl}/install.ps1 | iex`}</pre>
               {t("docs.runners.setup.quickInstall.methodToken")}
             </h4>
             <div className="font-mono text-sm overflow-x-auto">
-              <pre className="text-success">{`agentsmesh-runner register \\
+              <pre className="text-success">{`do-worker-runner register \\
   --server ${serverUrl} \\
   --token <YOUR_TOKEN>
-agentsmesh-runner run`}</pre>
+do-worker-runner run`}</pre>
             </div>
           </div>
           <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4">
@@ -85,8 +85,8 @@ agentsmesh-runner run`}</pre>
               {t("docs.runners.setup.quickInstall.methodLogin")}
             </h4>
             <div className="font-mono text-sm overflow-x-auto">
-              <pre className="text-success">{`agentsmesh-runner login
-agentsmesh-runner run`}</pre>
+              <pre className="text-success">{`do-worker-runner login
+do-worker-runner run`}</pre>
             </div>
           </div>
         </div>
@@ -104,9 +104,9 @@ agentsmesh-runner run`}</pre>
         <div className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-4 font-mono text-sm overflow-x-auto">
           <pre className="text-success">{`# Run with Docker
 docker run -d \\
-  --name agentsmesh-runner \\
-  -e AGENTSMESH_TOKEN=<YOUR_TOKEN> \\
-  -e AGENTSMESH_URL=${serverUrl} \\
+  --name do-worker-runner \\
+  -e DO_WORKER_TOKEN=<YOUR_TOKEN> \\
+  -e DO_WORKER_URL=${serverUrl} \\
   -v /var/run/docker.sock:/var/run/docker.sock \\
   -v ~/.ssh:/root/.ssh:ro \\
   agentsmesh/runner:latest`}</pre>
@@ -124,11 +124,11 @@ version: '3.8'
 services:
   runner:
     image: agentsmesh/runner:latest
-    container_name: agentsmesh-runner
+    container_name: do-worker-runner
     restart: unless-stopped
     environment:
-      - AGENTSMESH_TOKEN=\${AGENTSMESH_TOKEN}
-      - AGENTSMESH_URL=\${AGENTSMESH_URL:-${serverUrl}}
+      - DO_WORKER_TOKEN=\${DO_WORKER_TOKEN}
+      - DO_WORKER_URL=\${DO_WORKER_URL:-${serverUrl}}
       - MAX_CONCURRENT_PODS=5
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

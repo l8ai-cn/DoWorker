@@ -5,7 +5,7 @@
 # don't need to remember flag spellings:
 #
 #   bazel run //deploy/dev:up                # full stack
-#   bazel run //deploy/dev:backend_only      # CI E2E (no frontend)
+#   bazel run //deploy/dev:frontends         # 仅重启三个前端
 #   bazel run //deploy/dev:clean             # tear down + drop volumes
 #   bazel run //deploy/dev:reset_runners     # restart host runner+relay
 #   bazel run //deploy/dev:rebuild_runner    # rebuild runner binary + container
@@ -35,6 +35,10 @@ DEV_SCRIPTS = [
         (
             "backend_only",
             ["--backend-only"],
+        ),
+        (
+            "frontends",
+            ["--frontends"],
         ),
         (
             "clean",

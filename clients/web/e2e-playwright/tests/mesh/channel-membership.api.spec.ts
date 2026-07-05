@@ -5,7 +5,7 @@ import { clearAuthRateLimit } from "../../helpers/redis";
 import { textContent } from "../../helpers/test-data";
 
 // Second user in the same org (from seed data)
-const SECOND_USER = { email: "dev2@agentsmesh.local", username: "devuser2", password: "devpass123" };
+const SECOND_USER = { email: "dev2@agentsmesh.local", username: "devuser2", password: "AdminAb123456" };
 
 test.describe("Channel IM Group Model", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });

@@ -1,4 +1,4 @@
-# AgentsMesh Runner Installation Script for Windows
+# Do Worker Runner Installation Script for Windows
 # Usage: irm https://agentsmesh.ai/install.ps1 | iex
 #
 # For macOS/Linux, use: curl -fsSL https://agentsmesh.ai/install.sh | sh
@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 
 # GitHub release repository
 $GITHUB_REPO = "AgentsMesh/AgentsMesh"
-$BINARY_NAME = "agentsmesh-runner.exe"
+$BINARY_NAME = "do-worker-runner.exe"
 
 # Colors
 function Write-Info { Write-Host "==> " -ForegroundColor Blue -NoNewline; Write-Host $args }
@@ -38,10 +38,10 @@ function Get-Platform {
         "AMD64" { return "windows_amd64" }
         "ARM64" { return "windows_arm64" }
         "x86" {
-            throw "Unsupported architecture: x86 (32-bit). AgentsMesh Runner requires 64-bit Windows (x64 or ARM64)."
+            throw "Unsupported architecture: x86 (32-bit). Do Worker Runner requires 64-bit Windows (x64 or ARM64)."
         }
         default {
-            throw "Unsupported architecture: $arch. AgentsMesh Runner supports Windows x64 and ARM64 only. Download manually from: https://github.com/$GITHUB_REPO/releases/latest"
+            throw "Unsupported architecture: $arch. Do Worker Runner supports Windows x64 and ARM64 only. Download manually from: https://github.com/$GITHUB_REPO/releases/latest"
         }
     }
 }
@@ -105,7 +105,7 @@ function Install-Runner {
         [string]$Platform
     )
 
-    $downloadUrl = "https://github.com/$GITHUB_REPO/releases/download/v$Version/agentsmesh-runner_${Version}_${Platform}.zip"
+    $downloadUrl = "https://github.com/$GITHUB_REPO/releases/download/v$Version/do-worker-runner_${Version}_${Platform}.zip"
     $installDir = Get-InstallDir
 
     Write-Info "Downloading from: $downloadUrl"
@@ -124,7 +124,7 @@ function Install-Runner {
         Expand-Archive -Path $zipPath -DestinationPath $tempDir -Force
 
         # Find binary
-        $binaryPath = Get-ChildItem -Path $tempDir -Filter "agentsmesh-runner.exe" -Recurse | Select-Object -First 1
+        $binaryPath = Get-ChildItem -Path $tempDir -Filter "do-worker-runner.exe" -Recurse | Select-Object -First 1
         if (-not $binaryPath) {
             throw "Binary not found in archive"
         }
@@ -149,7 +149,7 @@ function Install-Runner {
         # Add to PATH
         Add-ToPath -Directory $installDir
 
-        Write-Success "AgentsMesh Runner v$Version installed successfully!"
+        Write-Success "Do Worker Runner v$Version installed successfully!"
         return $destPath
     }
     finally {
@@ -179,15 +179,15 @@ function Show-NextSteps {
     Write-Success "Next steps:"
     Write-Host ""
     Write-Host "  1. Register your runner:" -ForegroundColor White
-    Write-Host "     agentsmesh-runner register --server https://agentsmesh.ai --token <YOUR_TOKEN>" -ForegroundColor Blue
+    Write-Host "     do-worker-runner register --server https://agentsmesh.ai --token <YOUR_TOKEN>" -ForegroundColor Blue
     Write-Host ""
     Write-Host "  2. Start the runner:" -ForegroundColor White
-    Write-Host "     agentsmesh-runner run" -ForegroundColor Blue
+    Write-Host "     do-worker-runner run" -ForegroundColor Blue
     Write-Host ""
     Write-Host "  Get your registration token from: Settings > Runners > Create Token" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  For more options, run: " -ForegroundColor White -NoNewline
-    Write-Host "agentsmesh-runner --help" -ForegroundColor Blue
+    Write-Host "do-worker-runner --help" -ForegroundColor Blue
     Write-Host ""
     Write-Host "------------------------------------------------------------------------" -ForegroundColor DarkGray
 }
@@ -198,7 +198,7 @@ function Test-Scoop {
         Write-Host ""
         Write-Warn "Scoop detected! You can also install via:"
         Write-Host "     scoop bucket add agentsmesh https://github.com/AgentsMesh/scoop-bucket" -ForegroundColor Blue
-        Write-Host "     scoop install agentsmesh-runner" -ForegroundColor Blue
+        Write-Host "     scoop install do-worker-runner" -ForegroundColor Blue
         Write-Host ""
         $response = Read-Host "Continue with direct installation? [Y/n]"
         if ($response -match "^[nN]") {

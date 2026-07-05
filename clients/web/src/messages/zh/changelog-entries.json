@@ -50,7 +50,7 @@
         {
           "type": "added",
           "items": [
-            "MCP post_comment 工具，支持工单协作",
+            "MCP post_comment 工具，支持任务协作",
             "Runner Relay URL 回退，便于本地开发"
           ]
         },
@@ -157,7 +157,7 @@
         {
           "type": "changed",
           "items": [
-            "全栈统一工单标识为 slug 命名",
+            "全栈统一任务标识为 slug 命名",
             "标准化 API 错误响应与结构化错误码"
           ]
         },
@@ -201,7 +201,7 @@
           "type": "changed",
           "items": [
             "Relay 路由从 session_id 切换为 podKey",
-            "Runner 二进制重命名为 agentsmesh-runner"
+            "Runner 二进制重命名为 do-worker-runner"
           ]
         }
       ]
@@ -223,7 +223,7 @@
         {
           "type": "changed",
           "items": [
-            "全代码库统一品牌名为 AgentsMesh",
+            "全代码库统一品牌名为 Do Worker",
             "Agent 配置重构：移除 Lua 插件，改为后端驱动配置",
             "启用 WebSocket 压缩以提升性能"
           ]
@@ -245,15 +245,15 @@
         {
           "type": "added",
           "items": [
-            "AgentsMesh 平台首次发布",
+            "Do Worker 平台首次发布",
             "AgentPod：带 PTY 终端的远程 AI 编程工作站",
             "支持 Claude Code、Codex CLI、Gemini CLI、Aider",
             "自托管 Runner 部署与 mTLS 证书管理",
             "Git 仓库集成（GitHub、GitLab、Gitee）",
             "Web 终端实时双向交互",
             "组织与团队管理（多租户）",
-            "AgentsMesh 多智能体协作 Channel",
-            "工单管理与看板",
+            "Do Worker 多智能体协作 Channel",
+            "任务管理与看板",
             "多语言支持（8 种语言）"
           ]
         }

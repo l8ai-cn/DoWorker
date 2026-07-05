@@ -6,7 +6,7 @@
     },
     "mission": {
       "title": "Notre Mission",
-      "content": "AgentsMesh existe pour aider les organisations à dépasser les limites de l'effectif. Nous construisons la plateforme qui permet à chaque membre de l'équipe de diriger une équipe d'agents IA — assigner des tâches, coordonner la collaboration et livrer à une cadence auparavant impossible sans dix embauches supplémentaires."
+      "content": "Do Worker existe pour aider les organisations à dépasser les limites de l'effectif. Nous construisons la plateforme qui permet à chaque membre de l'équipe de diriger une équipe d'agents IA — assigner des tâches, coordonner la collaboration et livrer à une cadence auparavant impossible sans dix embauches supplémentaires."
     },
     "vision": {
       "title": "Ce en quoi nous croyons",
@@ -25,7 +25,7 @@
     },
     "contact": {
       "title": "Contactez-nous",
-      "content": "Vous voulez savoir comment AgentsMesh peut décupler la productivité de votre équipe ?",
+      "content": "Vous voulez savoir comment Do Worker peut décupler la productivité de votre équipe ?",
       "email": "Nous Contacter",
       "careers": "Rejoindre Notre Équipe"
     }
@@ -48,21 +48,21 @@
       },
       "producer": {
         "title": "Builder",
-        "description": "Les Builders transforment l'infrastructure en produits que les utilisateurs adorent. Vous comblerez l'écart entre les capacités techniques et les besoins des utilisateurs, façonnant chaque interaction avec AgentsMesh en une expérience intuitive et puissante.",
+        "description": "Les Builders transforment l'infrastructure en produits que les utilisateurs adorent. Vous comblerez l'écart entre les capacités techniques et les besoins des utilisateurs, façonnant chaque interaction avec Do Worker en une expérience intuitive et puissante.",
         "resp1": "Traduire les besoins des utilisateurs en exigences et fonctionnalités produit",
         "resp2": "Transformer les capacités de la plateforme en produits utilisateur aboutis",
         "resp3": "Recueillir les retours et itérer pour offrir des expériences utilisateur exceptionnelles"
       },
       "growthHacker": {
         "title": "GTM (Go to Market)",
-        "description": "Les spécialistes GTM portent notre produit sur le marché avec des stratégies créatives et basées sur les données. Vous aiderez les développeurs à découvrir AgentsMesh, mènerez des expériences rapides et transformerez les premiers utilisateurs en ambassadeurs passionnés.",
+        "description": "Les spécialistes GTM portent notre produit sur le marché avec des stratégies créatives et basées sur les données. Vous aiderez les développeurs à découvrir Do Worker, mènerez des expériences rapides et transformerez les premiers utilisateurs en ambassadeurs passionnés.",
         "resp1": "Concevoir et exécuter des expériences de croissance basées sur les données",
         "resp2": "Construire des relations avec les communautés de développeurs et stimuler l'adoption",
         "resp3": "Optimiser les tunnels d'acquisition et fidéliser les utilisateurs"
       }
     },
     "whyJoin": {
-      "title": "Pourquoi Rejoindre AgentsMesh ?",
+      "title": "Pourquoi Rejoindre Do Worker ?",
       "innovation": {
         "title": "Technologie de Pointe",
         "content": "Travaillez avec les dernières technologies IA et façonnez l'avenir du développement logiciel."
@@ -85,7 +85,7 @@
   "blog": {
     "hero": {
       "title": "Blog",
-      "subtitle": "Analyses techniques, mises à jour produit et récits de l'équipe AgentsMesh."
+      "subtitle": "Analyses techniques, mises à jour produit et récits de l'équipe Do Worker."
     },
     "minRead": "min de lecture",
     "backToList": "Retour au Blog",
@@ -100,7 +100,7 @@
     "onpremise": {
       "title": "Déploiement",
       "titleHighlight": "Privé",
-      "description": "Déployez AgentsMesh entièrement dans votre infrastructure. Votre code, vos agents, vos règles — zéro exposition externe."
+      "description": "Déployez Do Worker entièrement dans votre infrastructure. Votre code, vos agents, vos règles — zéro exposition externe."
     }
   }
 }

@@ -3,11 +3,11 @@ import DocsShell from "@/components/docs/DocsShell";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | AgentsMesh Docs",
+    template: "%s | Do Worker Docs",
     default: "Documentation",
   },
   description:
-    "AgentsMesh documentation — orchestrate AI coding agents at scale.",
+    "Do Worker documentation — orchestrate AI coding agents at scale.",
 };
 
 export default function DocsLayout({

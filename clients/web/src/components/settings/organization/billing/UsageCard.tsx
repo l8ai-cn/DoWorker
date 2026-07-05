@@ -17,7 +17,7 @@ export function UsageCard({
   const usageItems = [
     { label: t("settings.billingPage.podMinutes"), current: Math.round(usage.pod_minutes), max: usage.included_pod_minutes },
     { label: t("settings.billingPage.teamMembers"), current: usage.users, max: usage.max_users },
-    { label: "Runners", current: usage.runners, max: usage.max_runners },
+    { label: t("settings.billingPage.runners"), current: usage.runners, max: usage.max_runners },
     { label: t("settings.billingPage.repositories"), current: usage.repositories, max: usage.max_repositories },
   ];
 

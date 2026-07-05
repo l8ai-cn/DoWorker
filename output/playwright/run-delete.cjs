@@ -6,7 +6,7 @@ const BASE = 'http://localhost:10007';
   const caps=[]; page.on('response',r=>{ const u=r.url(); if(u.includes('/coordinator/projects')) caps.push(`${r.request().method()} ${u.split('/coordinator/projects')[1]||'/'} -> ${r.status()}`); });
   page.on('dialog', d => d.accept());
   await page.goto(`${BASE}/login`,{waitUntil:'domcontentloaded'}); await page.waitForTimeout(2000);
-  await page.fill('#username','dev@agentsmesh.local'); await page.fill('#password','devpass123');
+  await page.fill('#username','dev@agentsmesh.local'); await page.fill('#password','AdminAb123456');
   await page.click('button:has-text("SIGN IN")');
   await page.waitForURL(u=>!u.toString().includes('/login'),{timeout:30000}).catch(()=>{});
   await page.waitForTimeout(2500);

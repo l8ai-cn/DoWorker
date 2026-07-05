@@ -3,7 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ResponsiveDialogBody } from "@/components/ui/responsive-dialog";
-import { AgentSelect } from "@/components/pod/CreatePodForm/AgentSelect";
+import { WorkerImageSelect } from "@/components/pod/CreatePodForm/WorkerImageSelect";
 import { PromptInput } from "@/components/pod/CreatePodForm/PromptInput";
 import type { AgentData, ConfigField, EnvBundleSummary, RepositoryData, RunnerData } from "@/lib/api";
 import type { UseLoopFormResult } from "./useLoopForm";
@@ -55,11 +55,11 @@ export function LoopCreateDialogBody({
         />
       </div>
 
-      <AgentSelect
-        agents={availableAgents}
-        selectedAgentSlug={form.selectedAgentSlug}
+      <WorkerImageSelect
+        images={availableAgents}
+        selectedImageSlug={form.selectedAgentSlug}
         onSelect={form.setSelectedAgentSlug}
-        hasOnlineRunners={runners.length > 0}
+        hasOnlineClusters={runners.length > 0}
         t={t}
       />
 

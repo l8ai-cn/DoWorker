@@ -64,7 +64,7 @@ func (b *EventBridge) finishAssistantMessage(ctx context.Context, sessionID, res
 	payload, _ := json.Marshal(map[string]any{
 		"id": itemID, "type": "message", "response_id": responseID, "status": "completed",
 		"role": "assistant",
-		"content": []map[string]any{{"type": "text", "text": text}},
+		"content": []map[string]any{{"type": "output_text", "text": text}},
 	})
 	_ = b.Items.Append(ctx, &domainitem.Item{
 		ID: itemID, SessionID: sessionID, ItemType: "message",
@@ -75,7 +75,7 @@ func (b *EventBridge) finishAssistantMessage(ctx context.Context, sessionID, res
 		"item": map[string]any{
 			"id": itemID, "type": "message", "response_id": responseID, "status": "completed",
 			"role": "assistant",
-			"content": []map[string]any{{"type": "text", "text": text}},
+			"content": []map[string]any{{"type": "output_text", "text": text}},
 		},
 	}))
 	b.Hub.Publish(sessionID, formatSSE("response.completed", map[string]any{

@@ -109,6 +109,8 @@ import { AgentRowTooltip } from "@/components/AgentHoverCard";
 import { CreateAgentDialog } from "./CreateAgentDialog";
 import { buildAgentBundle, type AgentBundleInput } from "@/lib/agentBundle";
 import { createBundledSession, launchRunner } from "@/lib/sessionsApi";
+import { useI18n } from "@/i18n/I18nProvider";
+import { isCurrentServerLocal } from "@/lib/serverOrigin";
 
 // Hidden from the new-session picker only. `nessie` is superseded by polly.
 // `kimi` / `kimi-code` are the headless SDK harness (kept for sub-agent / `run
@@ -1688,6 +1690,7 @@ export function resetLandingDraft(): void {
 }
 
 export function NewChatLandingScreen() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
@@ -1986,7 +1989,9 @@ export function NewChatLandingScreen() {
       setSandboxSelected(true);
       return;
     }
-    const firstOnline = (hosts ?? []).find((h) => h.status === "online");
+    const firstOnline =
+      (hosts ?? []).find((h) => h.status === "online" && h.host_id.endsWith("-runner")) ??
+      (hosts ?? []).find((h) => h.status === "online");
     if (firstOnline) setSelectedHostId(firstOnline.host_id);
   }, [hosts, selectedHostId, sandboxSelected, managedSandboxesEnabled]);
 
@@ -2004,10 +2009,14 @@ export function NewChatLandingScreen() {
   // after a host switch the listing briefly belongs to the old host.
   // Deriving home from it would seed the old host's path and lock the
   // once-per-host guard below — treat placeholder data as not-yet-loaded.
-  const derivedHome = useMemo(
-    () => (homeListingIsPlaceholder ? null : deriveHomeDir(homeListing?.entries ?? [])),
-    [homeListing, homeListingIsPlaceholder],
-  );
+  const derivedHome = useMemo(() => {
+    if (homeListingIsPlaceholder) return null;
+    const fromEntries = deriveHomeDir(homeListing?.entries ?? []);
+    if (fromEntries) return fromEntries;
+    return homeListing?.workspaceRoot ?? null;
+  }, [homeListing, homeListingIsPlaceholder]);
+
+  const localWorkspaceFallback = isCurrentServerLocal() ? "/workspace" : null;
 
   // Seed the working directory once per host, into an empty field only, so an
   // explicit pick isn't clobbered. Prefer the most-recent path; else the
@@ -2016,11 +2025,11 @@ export function NewChatLandingScreen() {
   useEffect(() => {
     if (selectedHostId === null) return;
     if (seededHostRef.current === selectedHostId) return;
-    const candidate = recent[0] ?? derivedHome;
+    const candidate = recent[0] ?? derivedHome ?? localWorkspaceFallback;
     if (!candidate) return;
     seededHostRef.current = selectedHostId;
     setWorkspace((cur) => (cur === "" ? candidate : cur));
-  }, [selectedHostId, recent, derivedHome]);
+  }, [selectedHostId, recent, derivedHome, localWorkspaceFallback]);
 
   // A pick only wins while it exists in the list — a persisted id whose
   // agent has since been unregistered (or hidden) falls back to the default.
@@ -2316,21 +2325,21 @@ export function NewChatLandingScreen() {
     : sandboxSelected && !sandboxRepoValid
       ? "Please enter a valid repository URL"
       : !sandboxSelected && (!selectedHostId || !workspaceValid)
-        ? "Please choose a host and working directory"
+        ? t.composer.chooseHostWorkspace
         : message.trim().length === 0
-          ? "Enter a message to get started"
+          ? t.composer.enterMessage
           : null;
 
   // Chip display labels.
   const workspaceLabel = workspaceTrimmed
     ? (workspaceTrimmed.split("/").filter(Boolean).pop() ?? workspaceTrimmed)
-    : "Working directory";
+    : t.composer.workingDirectory;
   const hostLabel = connectingThisMachine
-    ? "Connecting…"
+    ? t.composer.connecting
     : sandboxSelected
       ? sandboxLabel
-      : (selectedHost?.name ?? (onlineHosts.length === 0 ? "No hosts" : "Select host"));
-  const worktreeLabel = branchName.trim() || "No worktree";
+      : (selectedHost?.name ?? (onlineHosts.length === 0 ? t.composer.noHosts : t.composer.selectHost));
+  const worktreeLabel = branchName.trim() || t.composer.noWorktree;
   // Sandbox repository chip label: repo name (server's clone-dir rule)
   // plus the pinned branch, e.g. "repo#main"; placeholder when unset.
   const sandboxRepoName = deriveRepoName(sandboxRepoUrl);
@@ -2338,11 +2347,8 @@ export function NewChatLandingScreen() {
     ? sandboxRepoBranch.trim()
       ? `${sandboxRepoName}#${sandboxRepoBranch.trim()}`
       : sandboxRepoName
-    : "Repository";
-  // The trigger label is just the agent name; the run-config knobs live in
-  // the picker's per-entry submenu, so duplicating their values here would be
-  // redundant.
-  const agentLabel = selectedAgent ? selectedAgent.display_name : "Select agent";
+    : t.composer.repository;
+  const agentLabel = selectedAgent ? selectedAgent.display_name : t.composer.selectAgent;
 
   // Select an agent/harness from the picker. Switching agents drops the
   // harness override so a pick never leaks across agents; explicit picks
@@ -2606,7 +2612,7 @@ export function NewChatLandingScreen() {
         <div className="flex flex-col items-center gap-3.5 sm:flex-row">
           <OttoEyes className="h-18 w-auto shrink-0" />
           <h1 className="text-center text-3xl font-medium tracking-[-0.03em] text-foreground sm:text-left">
-            What should we do?
+            {t.composer.heading}
           </h1>
         </div>
         <div className="relative flex w-full flex-col gap-3">
@@ -2750,8 +2756,8 @@ export function NewChatLandingScreen() {
               }}
               // Suppress the native placeholder when the overlay supplies its
               // own prompt text; aria-label preserves the accessible name.
-              placeholder={pillSkills.length > 0 ? "" : "Describe a task to start a new session…"}
-              aria-label="Describe a task to start a new session"
+              placeholder={pillSkills.length > 0 ? "" : t.composer.placeholder}
+              aria-label={t.composer.placeholder}
               rows={1}
               autoFocus
               data-testid="new-chat-landing-input"
@@ -2770,7 +2776,7 @@ export function NewChatLandingScreen() {
             {pillSkills.length > 0 && message.length === 0 && (
               <div className="pointer-events-none absolute inset-x-4 top-4 flex flex-wrap items-center gap-2">
                 <span className="font-['SF_Pro_Text',-apple-system,BlinkMacSystemFont,system-ui,sans-serif] text-sm leading-5 text-muted-foreground">
-                  Describe a task, or try a skill
+                  {t.composer.placeholderSkills}
                 </span>
                 <SkillPills skills={pillSkills} onPick={applySkillPill} />
               </div>

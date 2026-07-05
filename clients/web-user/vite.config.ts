@@ -8,7 +8,8 @@ import { defineConfig } from "vitest/config";
 
 import { computeBuildVersion } from "./src/lib/buildVersion";
 
-const AGENTSMESH_API_URL = process.env.AGENTSMESH_API_URL ?? "http://localhost:10000";
+const AGENTSMESH_API_URL =
+  process.env.DO_WORKER_API_URL ?? process.env.AGENTSMESH_API_URL ?? "http://localhost:10000";
 const OMNIGENT_URL = process.env.OMNIGENT_URL ?? AGENTSMESH_API_URL;
 
 let cachedToken: string | null | undefined;
@@ -135,9 +136,9 @@ const proxyConfig = createProxyConfig(OMNIGENT_URL, useAuth);
 // treating reinstalls/updates as the same app.
 const PWA_MANIFEST = {
   id: "/",
-  name: "Omnigent",
-  short_name: "Omnigent",
-  description: "Omnigent — a common layer over coding agents.",
+  name: "Do Worker",
+  short_name: "Do Worker",
+  description: "Do Worker — a common layer over coding agents.",
   start_url: "/",
   scope: "/",
   display: "standalone",

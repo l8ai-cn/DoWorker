@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -120,15 +121,16 @@ interface PaneReconnectingStateProps {
 export function PaneReconnectingState({
   onClose,
 }: PaneReconnectingStateProps) {
+  const t = useTranslations("app.workspace.reconnecting");
   return (
     <div className="flex-1 flex items-center justify-center bg-terminal-bg">
       <div className="text-center p-4 max-w-sm">
         <RefreshCw className="w-12 h-12 text-warning mx-auto mb-3 animate-spin" />
         <p className="text-terminal-text font-medium mb-1">
-          Runner is restarting...
+          {t("title")}
         </p>
         <p className="text-sm text-terminal-text-muted mb-4">
-          Session will resume automatically. Your work is preserved.
+          {t("description")}
         </p>
         {onClose && (
           <Button

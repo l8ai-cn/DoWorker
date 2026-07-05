@@ -85,7 +85,7 @@ export function Footer() {
                 <Logo />
               </div>
               <span className="font-headline text-base font-black uppercase tracking-tighter text-[var(--azure-cyan)]">
-                AgentsMesh
+                Do Worker
               </span>
             </Link>
             <p className="text-xs uppercase tracking-wider text-[var(--azure-text-muted)]/60 leading-relaxed mb-6">

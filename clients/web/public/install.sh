@@ -1,8 +1,8 @@
 #!/bin/sh
-# AgentsMesh Runner Installation Script
+# Do Worker Runner Installation Script
 # Usage: curl -fsSL https://agentsmesh.ai/install.sh | sh
 #
-# This script installs the AgentsMesh Runner CLI on macOS and Linux.
+# This script installs the Do Worker Runner CLI on macOS and Linux.
 # For Windows, use: irm https://agentsmesh.ai/install.ps1 | iex
 
 set -e
@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 # GitHub release repository
 GITHUB_REPO="AgentsMesh/AgentsMesh"
-BINARY_NAME="agentsmesh-runner"
+BINARY_NAME="do-worker-runner"
 INSTALL_DIR=""
 
 # Print colored message
@@ -169,7 +169,7 @@ get_latest_version() {
 
 # Download and install
 install() {
-    DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/download/v${VERSION}/agentsmesh-runner_${VERSION}_${PLATFORM}.tar.gz"
+    DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/download/v${VERSION}/do-worker-runner_${VERSION}_${PLATFORM}.tar.gz"
 
     info "Downloading from: $DOWNLOAD_URL"
 
@@ -199,8 +199,11 @@ install() {
     info "Installing to $INSTALL_DIR..."
     mv "$BINARY_PATH" "$INSTALL_DIR/$BINARY_NAME"
     chmod +x "$INSTALL_DIR/$BINARY_NAME"
+    if [ "$BINARY_NAME" != "agentsmesh-runner" ]; then
+        ln -sf "$BINARY_NAME" "$INSTALL_DIR/agentsmesh-runner" 2>/dev/null || true
+    fi
 
-    success "AgentsMesh Runner v$VERSION installed successfully!"
+    success "Do Worker Runner v$VERSION installed successfully!"
 }
 
 # Verify installation
@@ -222,14 +225,14 @@ print_next_steps() {
     success "Next steps:"
     echo ""
     echo "  1. Register your runner:"
-    echo "     ${BLUE}agentsmesh-runner register --server https://agentsmesh.ai --token <YOUR_TOKEN>${NC}"
+    echo "     ${BLUE}do-worker-runner register --server https://agentsmesh.ai --token <YOUR_TOKEN>${NC}"
     echo ""
     echo "  2. Start the runner:"
-    echo "     ${BLUE}agentsmesh-runner run${NC}"
+    echo "     ${BLUE}do-worker-runner run${NC}"
     echo ""
     echo "  Get your registration token from: Settings → Runners → Create Token"
     echo ""
-    echo "  For more options, run: ${BLUE}agentsmesh-runner --help${NC}"
+    echo "  For more options, run: ${BLUE}do-worker-runner --help${NC}"
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }

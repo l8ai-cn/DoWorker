@@ -7,23 +7,23 @@
     },
     {
       "name": "POST /v1/sessions",
-      "ok": true,
-      "detail": "conv_6ee9a17e61bb1c09 status=launching"
+      "ok": false,
+      "detail": "undefined status=undefined"
     },
     {
       "name": "POST /v1/sessions/.../events",
-      "ok": true,
-      "detail": "item=item_781b91b656995af3"
+      "ok": false,
+      "detail": "item=undefined"
     },
     {
       "name": "GET /v1/sessions/.../items assistant",
-      "ok": true,
-      "detail": "echo: Reply with exactly: pong"
+      "ok": false,
+      "detail": "only 0 items after 40s"
     },
     {
       "name": "GET /health?session_ids=",
-      "ok": true,
-      "detail": "runner_online=true"
+      "ok": false,
+      "detail": "runner_online=undefined"
     }
   ]
 }

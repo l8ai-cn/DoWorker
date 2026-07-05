@@ -1,0 +1,43 @@
+import type { MessageTree } from "./en";
+
+export const zh: MessageTree = {
+  brand: "Do Worker",
+  shell: {
+    newSession: "新建会话",
+    searchSessions: "搜索会话",
+    sessions: "会话",
+    settings: "设置",
+    backToApp: "返回 Do Worker",
+  },
+  composer: {
+    heading: "想做什么？",
+    signIn: "登录",
+    signingIn: "登录中…",
+    username: "用户名",
+    password: "密码",
+    chooseHostWorkspace: "请选择主机和工作目录",
+    enterMessage: "请输入消息以开始",
+    workingDirectory: "工作目录",
+    noWorktree: "无 worktree",
+    loading: "加载中…",
+    send: "发送",
+    selectHost: "选择主机",
+    noHosts: "无可用主机",
+    connecting: "连接中…",
+    repository: "代码仓库",
+    selectAgent: "选择 Agent",
+    filesystemError: "无法加载目录",
+    emptyDirectory: "（空目录）",
+    noMatchingEntries: "无匹配项",
+    filesystemTimeout: "目录加载超时，可直接输入路径（如 /workspace）",
+    placeholder: "描述你想完成的任务以开始会话…",
+    placeholderSkills: "描述任务，或试试技能",
+  },
+  auth: {
+    welcome: "欢迎使用 Do Worker。",
+    devAccounts: "本地开发账号见 deploy/dev/seed/seed.sql",
+    devUser: "开发用户",
+    admin: "管理员",
+    use: "使用",
+  },
+};

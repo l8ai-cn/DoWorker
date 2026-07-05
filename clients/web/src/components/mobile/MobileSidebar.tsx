@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Drawer } from "vaul";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { cn } from "@/lib/utils";
@@ -9,6 +10,7 @@ import { useIDEStore, type ActivityType } from "@/stores/ide";
 import { useCurrentOrg, useAuthStore } from "@/stores/auth";
 import { useWorkspaceStore } from "@/stores/workspace";
 import { usePodStore } from "@/stores/pod";
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -29,23 +31,11 @@ interface MobileSidebarProps {
   className?: string;
 }
 
-function getActivityTitle(activity: ActivityType): string {
-  switch (activity) {
-    case "workspace":
-      return "Workspace";
-    case "tickets":
-      return "Tickets";
-    case "mesh":
-      return "Mesh";
-    case "repositories":
-      return "Repositories";
-    case "runners":
-      return "Runners";
-    case "settings":
-      return "Settings";
-    default:
-      return "Mesh";
+function activityTitle(activity: ActivityType, t: (key: string) => string): string {
+  if (activity === "settings") {
+    return t("ide.activities.settings");
   }
+  return t(`ide.activities.${activity}`);
 }
 
 interface SidebarCallbacks {
@@ -84,14 +74,22 @@ export function MobileSidebar({ className }: MobileSidebarProps) {
   const currentOrg = useCurrentOrg();
   const addPane = useWorkspaceStore((s) => s.addPane);
   const fetchPods = usePodStore((s) => s.fetchPods);
+  const router = useRouter();
+  const t = useTranslations();
 
   const [createPodModalOpen, setCreatePodModalOpen] = useState(false);
   const addRunnerModal = useCtaModal();
   const importRepoModal = useCtaModal();
 
   const handleCreatePod = useCallback(() => {
+    const orgSlug = currentOrg?.slug;
+    if (orgSlug) {
+      setMobileSidebarOpen(false);
+      router.push(`/${orgSlug}/workers/new`);
+      return;
+    }
     setCreatePodModalOpen(true);
-  }, []);
+  }, [currentOrg?.slug, router, setMobileSidebarOpen]);
 
   const handlePodCreated = useCallback((pod?: { pod_key: string; title?: string }) => {
     setCreatePodModalOpen(false);
@@ -117,7 +115,7 @@ export function MobileSidebar({ className }: MobileSidebarProps) {
     setMobileSidebarOpen(open);
   }, [setMobileSidebarOpen]);
 
-  const title = getActivityTitle(activeActivity);
+  const title = activityTitle(activeActivity, t);
   const sidebarCallbacks: SidebarCallbacks = {
     onCreatePod: handleCreatePod,
     onAddRunner: addRunnerModal.open,

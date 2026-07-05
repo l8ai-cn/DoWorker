@@ -64,7 +64,7 @@ test.describe("CreatePod dialog UI", () => {
     // Trigger via "New Pod" — same handler whether shown in sidebar
     // (WorkspaceSidebarContent) or empty-state CTA (WorkspaceEmptyState).
     const newPodBtn = page
-      .getByRole("button", { name: /new pod|create new pod|新建 pod/i })
+      .getByRole("button", { name: /new pod|create new pod|新建 pod|新建 worker|新建环境/i })
       .first();
     await newPodBtn.click();
 

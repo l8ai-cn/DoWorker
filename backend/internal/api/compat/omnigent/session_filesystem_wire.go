@@ -4,7 +4,7 @@ import (
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
-func listWire(entries []*runnerv1.SandboxFsEntry) map[string]any {
+func listWire(entries []*runnerv1.SandboxFsEntry, workspaceRoot string) map[string]any {
 	data := make([]map[string]any, 0, len(entries))
 	for _, e := range entries {
 		data = append(data, map[string]any{
@@ -16,7 +16,11 @@ func listWire(entries []*runnerv1.SandboxFsEntry) map[string]any {
 			"modified_at": nullableInt(e.GetModifiedAt(), false),
 		})
 	}
-	return map[string]any{"object": "list", "data": data, "has_more": false}
+	out := map[string]any{"object": "list", "data": data, "has_more": false}
+	if workspaceRoot != "" {
+		out["workspace_root"] = workspaceRoot
+	}
+	return out
 }
 
 func changesWire(changes []*runnerv1.SandboxFsChange) map[string]any {

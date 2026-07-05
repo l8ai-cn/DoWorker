@@ -86,7 +86,7 @@ export function getComposeProject(): string {
 export const TEST_USER = {
   email: "dev@agentsmesh.local",
   username: "devuser",
-  password: "devpass123",
+  password: "AdminAb123456",
 } as const;
 
 export const ADMIN_USER = {

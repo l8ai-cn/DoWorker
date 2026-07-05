@@ -261,7 +261,7 @@
       "fields": {
         "mcp_enabled": {
           "label": "Enable MCP Integration",
-          "description": "Allow the agent to communicate with AgentsMesh platform via MCP protocol"
+          "description": "Allow the agent to communicate with Do Worker platform via MCP protocol"
         },
         "model": {
           "label": "Model",
@@ -290,7 +290,7 @@
       "fields": {
         "mcp_enabled": {
           "label": "Enable MCP Integration",
-          "description": "Allow the agent to communicate with AgentsMesh platform via MCP protocol"
+          "description": "Allow the agent to communicate with Do Worker platform via MCP protocol"
         },
         "sandbox_mode": {
           "label": "Sandbox Mode",
@@ -333,7 +333,7 @@
       "fields": {
         "mcp_enabled": {
           "label": "Enable MCP Integration",
-          "description": "Allow the agent to communicate with AgentsMesh platform via MCP protocol"
+          "description": "Allow the agent to communicate with Do Worker platform via MCP protocol"
         },
         "skip_permissions": {
           "label": "Skip Permission Checks",

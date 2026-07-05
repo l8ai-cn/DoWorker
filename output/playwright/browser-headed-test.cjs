@@ -10,7 +10,7 @@ const ORG = 'dev-org';
   console.log('→ 打开登录页');
   await page.goto(`${BASE}/login`, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await page.fill('#username', 'dev@agentsmesh.local');
-  await page.fill('#password', 'devpass123');
+  await page.fill('#password', 'AdminAb123456');
   await page.click('button:has-text("SIGN IN")');
   await page.waitForURL((u) => !u.toString().includes('/login'), { timeout: 45000 }).catch(() => {});
   await page.waitForTimeout(3000);

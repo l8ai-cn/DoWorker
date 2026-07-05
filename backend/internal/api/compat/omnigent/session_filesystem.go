@@ -49,7 +49,7 @@ func (d *Deps) handleSessionFilesystemList(c *gin.Context) {
 		c.JSON(http.StatusOK, fileContentWire(path, res))
 		return
 	}
-	c.JSON(http.StatusOK, listWire(res.GetEntries()))
+	c.JSON(http.StatusOK, listWire(res.GetEntries(), res.GetWorkspaceRoot()))
 }
 
 func (d *Deps) handleSessionFilesystemWrite(c *gin.Context) {
@@ -118,7 +118,7 @@ func (d *Deps) handleSessionFilesystemSearch(c *gin.Context) {
 	if !ok || fsAPIError(c, res) {
 		return
 	}
-	c.JSON(http.StatusOK, listWire(res.GetEntries()))
+	c.JSON(http.StatusOK, listWire(res.GetEntries(), res.GetWorkspaceRoot()))
 }
 
 func (d *Deps) execSandboxFs(c *gin.Context, pod *podDomain.Pod, cmd *runnerv1.SandboxFsCommand) (*runnerv1.SandboxFsResultEvent, bool) {

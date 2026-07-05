@@ -1,7 +1,7 @@
 {
-  "name": "AgentsMesh",
-  "short_name": "AgentsMesh",
-  "description": "AgentsMesh — The AI Agent Workforce Platform. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
+  "name": "Do Worker",
+  "short_name": "Do Worker",
+  "description": "Do Worker — The AI Agent Workforce Platform. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#16130f",

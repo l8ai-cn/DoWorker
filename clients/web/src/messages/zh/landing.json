@@ -81,7 +81,7 @@
         },
         "dataControl": {
           "title": "数据可控",
-          "description": "自托管运行节点意味着代码永远不会离开你的基础设施，满足安全和合规要求。"
+          "description": "自托管集群意味着代码永远不会离开你的基础设施，满足安全和合规要求。"
         }
       },
       "comparison": {
@@ -105,7 +105,7 @@
           "autonomy": "主动执行任务",
           "capabilities": "全栈开发",
           "environment": "完整终端访问",
-          "multiAgent": "AgentsMesh 支持",
+          "multiAgent": "Do Worker 支持",
           "selfHosted": "完全可控"
         }
       }
@@ -128,7 +128,7 @@
       },
       "agentsmesh": {
         "title": "它们之间自己沟通，不需要你传话。",
-        "subtitle": "AgentsMesh",
+        "subtitle": "Do Worker",
         "description": "Agent 互相观察彼此的工作、通过频道共享上下文、自行协调。它们自动发现队友、协商权限，工作量大了还会自己拉新人入场。",
         "highlights": {
           "0": "Agent 实时观察彼此的终端",
@@ -139,20 +139,20 @@
         }
       },
       "tickets": {
-        "title": "写个工单，活就开始干了。",
-        "subtitle": "Tickets",
+        "title": "写个任务，活就开始干了。",
+        "subtitle": "任务",
         "description": "把任务往看板一放，Agent 自动认领、拉分支、写代码、提 MR。你负责审查，它负责交付。就这么简单。",
         "highlights": {
-          "0": "工单自动成为 Agent 的指令",
+          "0": "任务自动成为 Agent 的指令",
           "1": "Agent 自主将史诗拆解为子任务",
-          "2": "MR/PR 关联工单，实时显示 CI 状态",
+          "2": "MR/PR 关联任务，实时显示 CI 状态",
           "3": "看板追踪完整生命周期——从待办到交付",
           "4": "Git Webhook 自动闭环"
         }
       },
       "runners": {
         "title": "代码不出大楼。",
-        "subtitle": "Self-Hosted Runners",
+        "subtitle": "自托管集群",
         "description": "想部署在哪就部署在哪——你的云、你的机房、你桌子底下都行。代码不外泄，数据零暴露。",
         "highlights": {
           "0": "Docker / Kubernetes 一键部署",
@@ -179,12 +179,12 @@
       "titleHighlight": "Agent 团队",
       "description": "从安装到第一个 Agent 开工——比你上一次站会还快。",
       "step1": {
-        "title": "部署 Runner",
+        "title": "部署集群",
         "description": "在任意机器上安装——云端或本地，一条命令搞定。"
       },
       "step2": {
         "title": "分配工作",
-        "description": "创建工作站、写工单、设定计划，Agent 立刻开工。"
+        "description": "创建工作站、写任务、设定计划，Agent 立刻开工。"
       },
       "step3": {
         "title": "看它们交付",
@@ -255,7 +255,7 @@
         "features": {
           "0": "1 个席位（单人模式）",
           "1": "5 个并发 Agent",
-          "2": "1 个 Runner",
+          "2": "1 个集群",
           "3": "5 个仓库",
           "4": "社区支持"
         },
@@ -267,7 +267,7 @@
         "features": {
           "0": "最多 5 个席位",
           "1": "10 个并发 Agent",
-          "2": "10 个 Runner",
+          "2": "10 个集群",
           "3": "10 个仓库",
           "4": "优先邮件支持",
           "5": "多 Git 平台支持"
@@ -280,7 +280,7 @@
         "features": {
           "0": "最多 50 个席位",
           "1": "50 个并发 Agent",
-          "2": "100 个 Runner",
+          "2": "100 个集群",
           "3": "无限仓库",
           "4": "优先支持"
         },
@@ -294,7 +294,7 @@
         "features": {
           "0": "无限席位",
           "1": "无限 Agent",
-          "2": "无限 Runner",
+          "2": "无限集群",
           "3": "离线环境支持",
           "4": "专属支持",
           "5": "定制 SLA",
@@ -310,7 +310,7 @@
       "title": "需要完整的",
       "titleHighlight": "自托管",
       "titleEnd": "部署？",
-      "description": "代码和数据始终留在你的基础设施内。完全私有化部署 AgentsMesh——适合对安全和合规有严格要求的组织。",
+      "description": "代码和数据始终留在你的基础设施内。完全私有化部署 Do Worker——适合对安全和合规有严格要求的组织。",
       "dockerCompose": "Docker Compose",
       "kubernetesHelm": "Kubernetes Helm（即将推出）",
       "airGappedSupport": "离线环境支持（即将推出）",
@@ -337,8 +337,8 @@
       "live": "实时",
       "initializingPod": "正在初始化 Pod...",
       "typeMessage": "输入消息...",
-      "connecting": "正在连接 AgentsMesh...",
-      "connected": "已连接到 AgentsMesh 服务器",
+      "connecting": "正在连接 Do Worker...",
+      "connected": "已连接到 Do Worker 服务器",
       "workspace": "工作区：/projects/e-commerce",
       "monitorPod": "监控 pod beta-dev 并协助协调身份验证实现",
       "bindingPod": "我将绑定到 pod beta-dev 进行观察和协调...",
@@ -391,31 +391,31 @@
       },
       "architecture": {
         "yourInfrastructure": "你的基础设施",
-        "runner": "Runner",
+        "runner": "集群",
         "agent": "智能体",
         "websocket": "WebSocket",
-        "agentsmeshCloud": "AgentsMesh 云"
+        "agentsmeshCloud": "Do Worker 云"
       }
     },
     "demoVideo": {
       "title": "看看你的未来团队",
       "titleHighlight": "如何工作",
-      "description": "两分钟。从工单到合并请求——全程自主完成。",
-      "iframeTitle": "AgentsMesh 产品演示",
+      "description": "两分钟。从任务到合并请求——全程自主完成。",
+      "iframeTitle": "Do Worker 产品演示",
       "highlight1": "完整生命周期演示",
       "highlight2": "多 Agent 协作",
       "highlight3": "自主任务完成"
     },
     "footer": {
       "tagline": "让团队的产出突破人数限制。",
-      "copyright": "AgentsMesh. 保留所有权利。",
+      "copyright": "Do Worker. 保留所有权利。",
       "madeWith": "为有雄心的团队而造",
       "product": {
         "title": "产品",
         "agentpod": "AgentPod",
-        "agentsmesh": "AgentsMesh",
+        "agentsmesh": "Do Worker",
         "tickets": "任务管理",
-        "runners": "运行节点",
+        "runners": "集群",
         "pricing": "定价",
         "enterprise": "企业版"
       },
@@ -445,7 +445,7 @@
     },
     "demo": {
       "title": "申请演示",
-      "subtitle": "看看 AgentsMesh 如何倍增你的团队产出。",
+      "subtitle": "看看 Do Worker 如何倍增你的团队产出。",
       "nameLabel": "姓名",
       "namePlaceholder": "张三",
       "emailLabel": "工作邮箱",
@@ -467,15 +467,15 @@
       "hero": {
         "badge": "最新版本",
         "title": "下载",
-        "titleHighlight": "AgentsMesh",
-        "subtitle": "下载自托管 Runner，让 Agent、代码与数据始终留在你自己的基础设施上。",
+        "titleHighlight": "Do Worker",
+        "subtitle": "下载自托管集群，让 Agent、代码与数据始终留在你自己的基础设施上。",
         "releasedOn": "发布于 {date}",
         "viewReleaseNotes": "在 GitHub 查看发布说明"
       },
       "runner": {
-        "badge": "Runner CLI",
+        "badge": "do-worker-runner CLI",
         "title": "让 Agent 跑在你自己的基础设施上",
-        "description": "Runner 是一个自托管守护进程，在隔离的终端 Pod 中执行 AI Agent 任务，你的代码永远不会离开你的机器。",
+        "description": "集群是一个自托管守护进程，在隔离的终端 Pod 中执行 AI Agent 任务，你的代码永远不会离开你的机器。",
         "macLinux": "macOS · Linux",
         "windows": "Windows · PowerShell",
         "manualTitle": "或直接下载二进制"
@@ -483,7 +483,7 @@
       "resources": {
         "older": {
           "title": "历史版本",
-          "description": "需要特定版本？每个发布都附带完整变更日志和 Runner 产物。",
+          "description": "需要特定版本？每个发布都附带完整变更日志和集群产物。",
           "cta": "浏览所有版本"
         },
         "verify": {
@@ -492,8 +492,8 @@
           "cta": "下载 checksums.txt"
         },
         "runner": {
-          "title": "Runner 配置指南",
-          "description": "注册 Runner 并连接到组织的逐步说明。",
+          "title": "集群配置指南",
+          "description": "注册集群并连接到组织的逐步说明。",
           "cta": "阅读指南"
         },
         "changelog": {

@@ -72,7 +72,7 @@ func (p *Provider) CreateCheckoutSession(ctx context.Context, req *types.Checkou
 	prepayReq := native.PrepayRequest{
 		Appid:       core.String(p.appID),
 		Mchid:       core.String(p.mchID),
-		Description: core.String(fmt.Sprintf("AgentsMesh %s Subscription", req.BillingCycle)),
+		Description: core.String(fmt.Sprintf("Do Worker %s Subscription", req.BillingCycle)),
 		OutTradeNo:  core.String(req.IdempotencyKey),
 		NotifyUrl:   core.String(p.notifyURL),
 		Amount: &native.Amount{

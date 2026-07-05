@@ -17,6 +17,6 @@ func RegisterHealthRoute(r *gin.Engine, d Deps) {
 			d.handleSessionHealth(c)
 			return
 		}
-		c.JSON(200, gin.H{"status": "ok", "service": "agentsmesh-api"})
+		c.JSON(200, gin.H{"status": "ok", "service": "do-worker-api"})
 	})
 }

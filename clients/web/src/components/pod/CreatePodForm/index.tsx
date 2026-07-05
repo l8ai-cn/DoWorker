@@ -125,7 +125,7 @@ export function CreatePodForm({
     form, selectedRunner, configValues, context, onError,
   );
 
-  const { compatibleRunners, canCreate } = useCreatePodRunnerCompatibility({
+  const { canCreate } = useCreatePodRunnerCompatibility({
     runners,
     selectedAgent: form.selectedAgent,
     selectedRunner,
@@ -140,7 +140,7 @@ export function CreatePodForm({
         <CreatePodFormFields
           form={form}
           agents={availableAgents}
-          runners={compatibleRunners}
+          runners={runners}
           repositories={repositories}
           selectedRunner={selectedRunner}
           setSelectedRunnerId={setSelectedRunnerId}

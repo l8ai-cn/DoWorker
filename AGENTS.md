@@ -4,7 +4,7 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 ## Project Overview
 
-AgentsMesh is **The AI Agent Workforce Platform** — where teams scale beyond headcount. It supports Codex, Codex CLI, Gemini CLI, Aider, and more.
+Do Worker is **The AI Agent Workforce Platform** — where teams scale beyond headcount. It supports Codex, Codex CLI, Gemini CLI, Aider, and more.
 
 ### Components
 
@@ -80,8 +80,8 @@ The dev pipeline automatically:
 Each worktree adds offset×50 to every slot.
 
 Test accounts:
-- **User**: dev@agentsmesh.local / devpass123
-- **Admin**: admin@agentsmesh.local / adminpass123
+- **User**: dev@agentsmesh.local / AdminAb123456
+- **Admin**: admin@agentsmesh.local / Ab123456
 
 ### Logs
 

@@ -48,11 +48,10 @@ func (c *Config) validateGRPCConfig() error {
 
 // GetCertsDir returns the certificates directory path.
 func (c *Config) GetCertsDir() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return filepath.Join(TempBaseDir(), "certs")
+	if dir := UserConfigDir(); dir != "" {
+		return filepath.Join(dir, "certs")
 	}
-	return filepath.Join(home, ".agentsmesh", "certs")
+	return filepath.Join(TempBaseDir(), "certs")
 }
 
 // SaveCertificates saves gRPC certificates to the default location.
@@ -149,29 +148,32 @@ func UpdateGRPCEndpointInFile(configFile, newEndpoint string) error {
 
 // LoadGRPCConfig auto-detects certificate paths if not already set in config.
 func (c *Config) LoadGRPCConfig() error {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return nil // Not an error
+	certsDirs := []string{c.GetCertsDir()}
+	if home, err := os.UserHomeDir(); err == nil {
+		legacy := filepath.Join(home, legacyConfigDirName, "certs")
+		if legacy != certsDirs[0] {
+			certsDirs = append(certsDirs, legacy)
+		}
 	}
 
-	// Set certificate paths if files exist
-	certsDir := filepath.Join(home, ".agentsmesh", "certs")
-	if c.CertFile == "" {
-		certPath := filepath.Join(certsDir, "runner.crt")
-		if _, err := os.Stat(certPath); err == nil {
-			c.CertFile = certPath
+	for _, certsDir := range certsDirs {
+		if c.CertFile == "" {
+			certPath := filepath.Join(certsDir, "runner.crt")
+			if _, err := os.Stat(certPath); err == nil {
+				c.CertFile = certPath
+			}
 		}
-	}
-	if c.KeyFile == "" {
-		keyPath := filepath.Join(certsDir, "runner.key")
-		if _, err := os.Stat(keyPath); err == nil {
-			c.KeyFile = keyPath
+		if c.KeyFile == "" {
+			keyPath := filepath.Join(certsDir, "runner.key")
+			if _, err := os.Stat(keyPath); err == nil {
+				c.KeyFile = keyPath
+			}
 		}
-	}
-	if c.CAFile == "" {
-		caPath := filepath.Join(certsDir, "ca.crt")
-		if _, err := os.Stat(caPath); err == nil {
-			c.CAFile = caPath
+		if c.CAFile == "" {
+			caPath := filepath.Join(certsDir, "ca.crt")
+			if _, err := os.Stat(caPath); err == nil {
+				c.CAFile = caPath
+			}
 		}
 	}
 

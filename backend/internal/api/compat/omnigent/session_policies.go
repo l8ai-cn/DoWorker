@@ -1,7 +1,6 @@
 package omnigent
 
 import (
-	"fmt"
 	"net/http"
 
 	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
@@ -85,18 +84,9 @@ func (d *Deps) handleDeleteSessionPolicy(c *gin.Context) {
 }
 
 func sessionPolicyRowToWire(row *permissionpolicysvc.OrgRow) gin.H {
-	handler := row.PolicyHandler
-	if handler == "" {
-		handler = acpToolRuleHandler
-	}
-	params := gin.H{"priority": row.Priority, "tool_pattern": row.ToolPattern, "verdict": row.Verdict}
-	if row.PathPattern != nil {
-		params["path_pattern"] = *row.PathPattern
-	}
-	return gin.H{
-		"id": fmt.Sprintf("pol_%d", row.ID), "object": "session.policy",
-		"name": row.ToolPattern, "type": "python", "handler": handler,
-		"factory_params": params, "enabled": true, "source": "session",
-		"created_at": row.CreatedAt.Unix(), "updated_at": row.UpdatedAt.Unix(),
-	}
+	w := policyRowToWire(row)
+	w["object"] = "session.policy"
+	w["source"] = "session"
+	delete(w, "created_by")
+	return w
 }

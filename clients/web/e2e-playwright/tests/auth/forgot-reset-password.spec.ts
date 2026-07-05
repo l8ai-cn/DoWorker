@@ -26,7 +26,7 @@ test.describe("Forgot/reset password (light-auth)", () => {
     // unique-email prefix and strip any chars the username regex rejects
     // ([a-zA-Z0-9_-]+).
     const username = email.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 50);
-    const oldPassword = "devpass123";
+    const oldPassword = "AdminAb123456";
     const newPassword = "NewPass456!";
 
     // Seed user directly so we know exactly what email we're targeting and

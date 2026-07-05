@@ -104,7 +104,7 @@ func (vc *VersionChecker) checkGitHubRelease(ctx context.Context) (string, error
 		return "", fmt.Errorf("create request: %w", err)
 	}
 	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("User-Agent", "AgentsMesh-Backend")
+	req.Header.Set("User-Agent", "Do-Worker-Backend")
 
 	resp, err := vc.httpClient.Do(req)
 	if err != nil {

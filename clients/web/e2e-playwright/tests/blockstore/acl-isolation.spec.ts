@@ -17,7 +17,7 @@ test("non-member call to a foreign org's blockstore service is rejected", async 
   const loginRes = await fetch(`${apiBase}/proto.auth.v1.AuthService/Login`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Connect-Protocol-Version": "1" },
-    body: JSON.stringify({ username: "devuser", password: "devpass123" }),
+    body: JSON.stringify({ username: "devuser", password: "AdminAb123456" }),
   });
   const { token } = (await loginRes.json()) as { token: string };
 
@@ -39,7 +39,7 @@ test("matching org_slug on caller's own org returns workspaces", async () => {
   const loginRes = await fetch(`${apiBase}/proto.auth.v1.AuthService/Login`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Connect-Protocol-Version": "1" },
-    body: JSON.stringify({ username: "devuser", password: "devpass123" }),
+    body: JSON.stringify({ username: "devuser", password: "AdminAb123456" }),
   });
   const { token } = (await loginRes.json()) as { token: string };
 

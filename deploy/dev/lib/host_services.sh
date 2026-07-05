@@ -7,6 +7,9 @@
 # `build_runner_binary` for the cross-compile path that feeds the docker
 # image's COPY.
 
+# shellcheck source=build_do_agent_binary.sh
+source "$(dirname "${BASH_SOURCE[0]}")/build_do_agent_binary.sh"
+
 # Wait for an HTTP endpoint to return success. 1-second polling, default
 # 40 attempts (= 40s max). Used for backend / relay health checks.
 _wait_http() {
@@ -230,7 +233,7 @@ start_backend_host() {
     export COORDINATOR_RUNNER_LAUNCHER=docker
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR="$SCRIPT_DIR"
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_FILES=docker-compose.yml,docker-compose.runners.yml
-    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal"
+    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,aider=runner-aider,opencode=runner-opencode"
     if coordinator_runners_enabled; then
         export_coordinator_runner_env
     fi

@@ -23,7 +23,7 @@ func runUpdateEndpoint(args []string) {
 		fmt.Println(`Update the gRPC endpoint in the config file without re-registration.
 
 Usage:
-  agentsmesh-runner update-endpoint [options]
+  do-worker-runner update-endpoint [options]
 
 Options:`)
 		fs.PrintDefaults()
@@ -51,7 +51,7 @@ can no longer connect. This avoids a full re-registration.`)
 	}
 
 	if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-		fmt.Fprintln(os.Stderr, "Error: Runner not registered. Please run 'agentsmesh-runner register' first.")
+		fmt.Fprintln(os.Stderr, "Error: Runner not registered. Please run 'do-worker-runner register' first.")
 		os.Exit(1)
 	}
 
@@ -126,5 +126,5 @@ can no longer connect. This avoids a full re-registration.`)
 
 	fmt.Printf("✓ Updated grpc_endpoint in %s\n", cfgFile)
 	fmt.Println("\nYou can now start the runner with:")
-	fmt.Println("  agentsmesh-runner run")
+	fmt.Println("  do-worker-runner run")
 }

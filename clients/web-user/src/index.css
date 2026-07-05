@@ -156,8 +156,8 @@
      * the base background stays white. This keeps bg-background tiles/
      * inputs/code-blocks/tables (incl. Streamdown's hardcoded bg-background)
      * from rendering as lavender patches on the white cards they sit on.
-     * The auth pages (outside the gradient shell) use this as their
-     * full-page canvas. */
+     * The auth pages share the app-shell canvas so login/register/setup
+     * visually match the signed-in workspace. */
   --background: #fff;
   --foreground: #11171c;
   --card: #fff;
@@ -235,6 +235,10 @@
 }
 
 .dark {
+  /* Re-establish text color inside any `.dark` scope. Token vars alone do not
+   * override `color` inherited from `body` (light :root foreground), which
+   * breaks standalone auth pages that mount `.dark` off-document. */
+  color: var(--foreground);
   /* Dark mode tokens — semi-transparent for glassmorphism backdrop-filter */
   --background: #0d1218;
   --foreground: oklch(0.965 0.003 240);
@@ -320,7 +324,8 @@
  * border + shadow rather than background contrast. --sidebar is set to the
  * gradient's near-white so bg-sidebar chrome stays invisible against this
  * canvas. */
-.app-shell {
+.app-shell,
+.auth-shell {
   background: linear-gradient(
     45deg,
     rgb(253, 250, 250),
@@ -338,7 +343,8 @@
     rgb(254, 253, 253)
   );
 }
-.dark .app-shell {
+.dark .app-shell,
+.dark .auth-shell {
   background:
     radial-gradient(ellipse at 20% 50%, rgba(100, 40, 180, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 20%, rgba(80, 30, 140, 0.1) 0%, transparent 45%),

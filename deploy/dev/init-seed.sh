@@ -105,11 +105,11 @@ apply_seed() {
         echo ""
         echo "测试账号信息："
         echo "  Email:    dev@agentsmesh.local"
-        echo "  Password: devpass123"
+        echo "  Password: AdminAb123456"
         echo "  Org:      dev-org"
         echo ""
         echo "Runner 信息："
-        echo "  Node IDs:   dev-runner, dev-runner-2, dev-runner-claude, dev-runner-codex, dev-runner-gemini, dev-runner-loopal"
+        echo "  Node IDs:   dev-runner, dev-runner-2, dev-runner-claude, dev-runner-codex, dev-runner-gemini, dev-runner-loopal, dev-runner-do-agent, dev-runner-aider, dev-runner-opencode, admin-workspace-do-agent"
         echo "  Auth Token: dev-runner-auth-token"
     else
         error "Seed 数据应用失败"

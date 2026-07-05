@@ -106,7 +106,7 @@ func Load() (*Config, error) {
 		Email: EmailConfig{
 			Provider:    getEnv("EMAIL_PROVIDER", "console"),
 			ResendKey:   getEnv("RESEND_API_KEY", ""),
-			FromAddress: getEnv("EMAIL_FROM_ADDRESS", "AgentsMesh <noreply@agentsmesh.ai>"),
+			FromAddress: getEnv("EMAIL_FROM_ADDRESS", "Do Worker <noreply@agentsmesh.ai>"),
 		},
 
 		Storage: StorageConfig{

@@ -15,17 +15,19 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/anthropics/agentsmesh/runner/internal/config"
 )
 
 const pidFileName = "runner.pid"
 
-// GetPath returns the path to the PID file (~/.agentsmesh/runner.pid).
+// GetPath returns the path to the PID file (~/.do-worker/runner.pid).
 func GetPath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
+	dir := config.PreferredUserConfigDir()
+	if dir == "" {
 		return ""
 	}
-	return filepath.Join(home, ".agentsmesh", pidFileName)
+	return filepath.Join(dir, pidFileName)
 }
 
 // Write writes the current process PID and executable name to the PID file.

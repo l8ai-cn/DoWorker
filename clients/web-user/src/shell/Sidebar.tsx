@@ -59,6 +59,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { useI18n } from "@/i18n/I18nProvider";
 import { Link, useLocation, useNavigate, useParams } from "@/lib/routing";
 import { Button } from "@/components/ui/button";
 import {
@@ -241,6 +242,7 @@ function showArchivedToast() {
 }
 
 export function Sidebar({ open, onClose, dragProgress = null }: SidebarProps) {
+  const { t } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [pinnedConversationIds, setPinnedConversationIds] = useState(readPinnedConversationIds);
@@ -445,7 +447,7 @@ export function Sidebar({ open, onClose, dragProgress = null }: SidebarProps) {
               onClick={onNavClick}
               className="rounded-sm text-[15px] font-semibold tracking-tight text-foreground transition-colors hover:text-foreground/70"
             >
-              Omnigent
+              {t.brand}
             </Link>
             <div className="flex items-center gap-1">
               {/* Inbox lives at the top next to the collapse toggle. Rendered
@@ -519,7 +521,7 @@ export function Sidebar({ open, onClose, dragProgress = null }: SidebarProps) {
             >
               <Link to="/" onClick={onNavClick}>
                 <SquarePenIcon className="size-4 text-foreground" />
-                New session
+                {t.shell.newSession}
               </Link>
             </Button>
             {selectionMode ? (
@@ -543,8 +545,8 @@ export function Sidebar({ open, onClose, dragProgress = null }: SidebarProps) {
                     type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    aria-label="Search sessions"
-                    placeholder="Search sessions"
+                    aria-label={t.shell.searchSessions}
+                    placeholder={t.shell.searchSessions}
                     className="min-h-8 w-full rounded-full border border-input pr-3 pl-8 text-sm transition placeholder:text-muted-foreground focus-visible:outline-1 md:select-text"
                   />
                 </div>
@@ -621,10 +623,9 @@ export function Sidebar({ open, onClose, dragProgress = null }: SidebarProps) {
               and drop straight onto the default section's content — instead we
               keep it open so mobile lands on the section list, then tapping a
               section (which DOES use onNavClick) closes it to show content. */}
-              <Link to="/settings" aria-label="Settings">
+              <Link to="/settings" aria-label={t.shell.settings}>
                 <SettingsIcon className="size-4 text-muted-foreground" />
-                {/* Label is desktop-only; the icon stands alone on mobile. */}
-                <span className="max-md:hidden">Settings</span>
+                <span className="max-md:hidden">{t.shell.settings}</span>
               </Link>
             </Button>
           </div>
@@ -1242,7 +1243,7 @@ function ConversationList({
   ]);
 
   if (conversationsQuery.isLoading) {
-    return <p className="px-2 py-1 text-muted-foreground text-xs">Loading…</p>;
+    return <p className="px-2 py-1 text-muted-foreground text-xs">{t.composer.loading}</p>;
   }
   if (conversationsQuery.isError) {
     const err = conversationsQuery.error;
@@ -1407,7 +1408,7 @@ function ConversationList({
                 active={activeDrag != null && (activeDrag.project != null || activeDrag.isPinned)}
               >
                 <ConversationSection
-                  title="Sessions"
+                  title={t.shell.sessions}
                   conversations={sections.sessions}
                   pinnedConversationIds={pinnedConversationIds}
                   collapsed={effectiveCollapsedSections.includes("Chats")}

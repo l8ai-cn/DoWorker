@@ -80,7 +80,27 @@ export const useIDEStore = create<IDEState>()(
       setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
-      name: "agentsmesh-ide",
+      name: "do-worker-ide",
+      storage: {
+        getItem: (name) => {
+          const value = localStorage.getItem(name);
+          if (value !== null) return value;
+          if (name === "do-worker-ide") {
+            const legacy = localStorage.getItem("agentsmesh-ide");
+            if (legacy !== null) {
+              localStorage.setItem(name, legacy);
+              localStorage.removeItem("agentsmesh-ide");
+              return legacy;
+            }
+          }
+          return null;
+        },
+        setItem: (name, value) => localStorage.setItem(name, value),
+        removeItem: (name) => {
+          localStorage.removeItem(name);
+          if (name === "do-worker-ide") localStorage.removeItem("agentsmesh-ide");
+        },
+      },
       partialize: (state) => ({
         activeActivity: state.activeActivity,
         sidebarOpen: state.sidebarOpen,

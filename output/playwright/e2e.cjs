@@ -13,7 +13,7 @@ const go = async (p, path) => { const r = await p.goto(BASE+path, { waitUntil:'d
   // T1 login
   await go(page, '/login');
   await page.fill('#username','dev@agentsmesh.local');
-  await page.fill('#password','devpass123');
+  await page.fill('#password','AdminAb123456');
   await page.click('button:has-text("SIGN IN")');
   await page.waitForURL(u=>!u.toString().includes('/login'),{timeout:30000}).catch(()=>{});
   await page.waitForTimeout(3000);

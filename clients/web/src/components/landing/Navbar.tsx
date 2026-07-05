@@ -52,7 +52,7 @@ export function Navbar() {
               <Logo />
             </div>
             <span className="font-headline text-lg font-bold tracking-tighter text-[var(--azure-cyan)]">
-              AgentsMesh
+              Do Worker
             </span>
           </Link>
 

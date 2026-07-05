@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     canonical: "https://agentsmesh.ai/enterprise",
   },
   openGraph: {
-    title: "Enterprise | AgentsMesh",
+    title: "Enterprise | Do Worker",
     description: "Your agents. Your infrastructure. Your rules. Enterprise-grade security and governance for organizations managing agent workforces at scale.",
     url: "https://agentsmesh.ai/enterprise",
   },

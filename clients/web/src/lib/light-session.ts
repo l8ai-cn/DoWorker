@@ -25,7 +25,8 @@ export interface LightSession {
 // In short: don't touch in isolation. Cross-language change requires
 // coordinating both files in one commit + a migration plan.
 const SCHEMA_VERSION = 1;
-const NAMESPACE_PREFIX = "agentsmesh-auth";
+const NAMESPACE_PREFIX = "do-worker-auth";
+const LEGACY_NAMESPACE_PREFIX = "agentsmesh-auth";
 
 // Mirrors Rust state.rs::url_slug — keep in sync. Same algorithm runs in
 // e2e-playwright/fixtures/blockstore.fixture.ts (live cross-check).
@@ -42,6 +43,10 @@ export function urlSlug(baseUrl: string): string {
 
 export function sessionStorageKey(baseUrl: string): string {
   return `${NAMESPACE_PREFIX}/${urlSlug(baseUrl)}/session`;
+}
+
+function legacySessionStorageKey(baseUrl: string): string {
+  return `${LEGACY_NAMESPACE_PREFIX}/${urlSlug(baseUrl)}/session`;
 }
 
 // Resolve the canonical base_url light writers use. MUST stay byte-equal with
@@ -67,7 +72,16 @@ interface PersistedSessionWire {
 
 function readWire(baseUrl: string): PersistedSessionWire | null {
   if (typeof window === "undefined") return null;
-  const raw = window.localStorage.getItem(sessionStorageKey(baseUrl));
+  const key = sessionStorageKey(baseUrl);
+  let raw = window.localStorage.getItem(key);
+  if (!raw) {
+    const legacyKey = legacySessionStorageKey(baseUrl);
+    raw = window.localStorage.getItem(legacyKey);
+    if (raw) {
+      window.localStorage.setItem(key, raw);
+      window.localStorage.removeItem(legacyKey);
+    }
+  }
   if (!raw) return null;
   try {
     return JSON.parse(raw) as PersistedSessionWire;
@@ -132,4 +146,5 @@ export function clearLightSession(baseUrl?: string): void {
   if (typeof window === "undefined") return;
   const url = baseUrl ?? resolveLightBaseUrl();
   window.localStorage.removeItem(sessionStorageKey(url));
+  window.localStorage.removeItem(legacySessionStorageKey(url));
 }

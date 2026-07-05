@@ -17,7 +17,7 @@ async function login() {
   const res = await fetch(`${API}/proto.auth.v1.AuthService/Login`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Connect-Protocol-Version": "1" },
-    body: JSON.stringify({ username: "devuser", password: "devpass123" }),
+    body: JSON.stringify({ username: "devuser", password: "AdminAb123456" }),
   });
   const data = await res.json();
   return { token: data.token, refresh: data.refreshToken ?? "", exp: Math.floor(Date.now() / 1000) + 3600 };

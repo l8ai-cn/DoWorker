@@ -21,9 +21,9 @@ import (
 var log = logger.Service()
 
 const (
-	ServiceName        = "agentsmesh-runner"
-	ServiceDisplayName = "AgentsMesh Runner"
-	ServiceDescription = "AgentsMesh Runner - executes AI agent tasks"
+	ServiceName        = "do-worker-runner"
+	ServiceDisplayName = "Do Worker Runner"
+	ServiceDescription = "Do Worker Runner - executes AI agent tasks"
 )
 
 // Program implements the service.Interface for running as a system service.

@@ -16,7 +16,7 @@
  */
 
 import { getCachedServerInfo } from "./capabilities";
-import { readAgentsMeshJWT, readAgentsMeshOrgSlug } from "./agentsmesh-auth";
+import { readDoWorkerJWT, readDoWorkerOrgSlug } from "./do-worker-auth";
 import { getOmnigentHostConfig, hostFetch } from "./host";
 
 // Single-user sentinel from `GET /v1/me` (server's RESERVED_USER_LOCAL);
@@ -68,7 +68,7 @@ export async function resolveIdentity(): Promise<string | null> {
   _resolvePromise = (async () => {
     try {
       const headers = new Headers();
-      const jwt = readAgentsMeshJWT();
+      const jwt = readDoWorkerJWT();
       if (jwt) {
         headers.set("Authorization", `Bearer ${jwt}`);
       }
@@ -152,11 +152,11 @@ export async function authenticatedFetch(
   init?: RequestInit,
 ): Promise<Response> {
   const headers = new Headers(init?.headers);
-  const jwt = readAgentsMeshJWT();
+  const jwt = readDoWorkerJWT();
   if (jwt && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${jwt}`);
   }
-  const orgSlug = readAgentsMeshOrgSlug();
+  const orgSlug = readDoWorkerOrgSlug();
   if (orgSlug && !headers.has("X-Organization-Slug")) {
     headers.set("X-Organization-Slug", orgSlug);
   }

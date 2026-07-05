@@ -17,6 +17,8 @@ import (
 
 type createSessionBody struct {
 	AgentID         string            `json:"agent_id"`
+	HostID          string            `json:"host_id"`
+	Workspace       string            `json:"workspace"`
 	InitialItems    []json.RawMessage `json:"initial_items"`
 	ParentSessionID *string           `json:"parent_session_id"`
 	SubAgentName    *string           `json:"sub_agent_name"`
@@ -64,11 +66,20 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 			layer = compatAgentfileLayer(*pl)
 		}
 	}
+	workspace := strings.TrimSpace(body.Workspace)
 	orchReq := &agentpod.OrchestrateCreatePodRequest{
 		OrganizationID: tenant.OrganizationID,
 		UserID:         tenant.UserID,
 		AgentSlug:      body.AgentID,
 		AgentfileLayer: layer,
+		LocalPath:      workspace,
+	}
+	if body.HostID != "" {
+		runner, ok := d.runnerForHostID(c, body.HostID, tenant.OrganizationID)
+		if !ok {
+			return
+		}
+		orchReq.RunnerID = runner.ID
 	}
 	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
 	if err != nil {

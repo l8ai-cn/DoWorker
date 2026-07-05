@@ -13,6 +13,11 @@ fi
 grep -q "ARG AGENT_RUNTIME" runner.Dockerfile
 grep -q "AGENT_RUNTIME: claude-code" docker-compose.runners.yml
 grep -q "AGENT_RUNTIME: codex-cli" docker-compose.runners.yml
+grep -q "AGENT_RUNTIME: do-agent" docker-compose.runners.yml
+grep -q "runner-do-agent" docker-compose.runners.yml
+grep -q "AGENT_RUNTIME: aider" docker-compose.runners.yml
+grep -q "AGENT_RUNTIME: opencode" docker-compose.runners.yml
+grep -q "do-agent-binary" runner.Dockerfile
 grep -q "runner-claude-code" docker-compose.runners.yml
 grep -q "runner-codex-cli" docker-compose.runners.yml
 grep -q "COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES" lib/host_services.sh

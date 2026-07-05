@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useCurrentOrg } from "@/stores/auth";
 import { useWorkspaceStore } from "@/stores/workspace";
 import { usePodStore } from "@/stores/pod";
 import { buildKbIngestPrompt } from "@/components/knowledgebase/kb-ingest-prompt";
@@ -19,6 +20,7 @@ export default function WorkspacePage() {
   const t = useTranslations();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const currentOrg = useCurrentOrg();
   const panes = useWorkspaceStore((s) => s.panes);
   const addPane = useWorkspaceStore((s) => s.addPane);
   const _hasHydrated = useWorkspaceStore((s) => s._hasHydrated);
@@ -33,9 +35,23 @@ export default function WorkspacePage() {
   const processedPodRef = useRef<string | null>(null);
 
   const handleCreatePod = useCallback((selection?: WorkspaceRecipeSelection) => {
+    const orgSlug = currentOrg?.slug ?? (searchParams.get("org") ?? "");
+    if (ingestKb) {
+      setRecipe(selection ?? { agentSlug: "", prompt: buildKbIngestPrompt(ingestKb) });
+      setShowCreateModal(true);
+      return;
+    }
+    if (orgSlug) {
+      const qs = new URLSearchParams();
+      if (selection?.agentSlug) qs.set("image", selection.agentSlug);
+      if (selection?.prompt) qs.set("prompt", selection.prompt);
+      const query = qs.toString();
+      router.push(`/${orgSlug}/workers/new${query ? `?${query}` : ""}`);
+      return;
+    }
     setRecipe(selection ?? null);
     setShowCreateModal(true);
-  }, []);
+  }, [currentOrg?.slug, ingestKb, router, searchParams]);
 
   const handleCloseCreate = useCallback(() => {
     setShowCreateModal(false);

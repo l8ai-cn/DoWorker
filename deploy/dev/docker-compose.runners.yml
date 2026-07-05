@@ -25,7 +25,7 @@ x-runner-env: &runner-env
   SSL_DIR: /app/ssl
   DEBUG: "true"
   HOME: /home/runner
-  AGENTSMESH_MCP_BIND: 0.0.0.0
+  DO_WORKER_MCP_BIND: 0.0.0.0
   ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
   ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-https://api.anthropic.com}
   ANTHROPIC_AUTH_TOKEN: ${ANTHROPIC_AUTH_TOKEN:-}
@@ -122,6 +122,72 @@ services:
       - runner_loopal_agentsmesh_config:/home/runner/.agentsmesh
       - runner_loopal_config:/home/runner/.loopal
 
+  runner-do-agent:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: do-agent } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-do-agent, AGENT_RUNTIME: do-agent, DEFAULT_AGENT: do-agent }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_doagent_workspace:/workspace
+      - runner_doagent_agentsmesh_config:/home/runner/.agentsmesh
+
+  runner-aider:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: aider } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-aider, AGENT_RUNTIME: aider, DEFAULT_AGENT: aider }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_aider_workspace:/workspace
+      - runner_aider_agentsmesh_config:/home/runner/.agentsmesh
+
+  runner-opencode:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: opencode } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-opencode, AGENT_RUNTIME: opencode, DEFAULT_AGENT: opencode }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_opencode_workspace:/workspace
+      - runner_opencode_agentsmesh_config:/home/runner/.agentsmesh
+
+  # System-admin personal org (admin-workspace) — dev-org runners are invisible there.
+  runner-admin-workspace:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: e2e-echo } }
+    environment:
+      <<: *runner-env
+      RUNNER_ORG_SLUG: admin-workspace
+      RUNNER_NODE_ID: admin-workspace-runner
+      AGENT_RUNTIME: e2e-echo
+      DEFAULT_AGENT: e2e-echo
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_admin_workspace:/workspace
+      - runner_admin_workspace_config:/home/runner/.agentsmesh
+
+  runner-admin-workspace-do-agent:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: do-agent } }
+    environment:
+      <<: *runner-env
+      RUNNER_ORG_SLUG: admin-workspace
+      RUNNER_NODE_ID: admin-workspace-do-agent
+      AGENT_RUNTIME: do-agent
+      DEFAULT_AGENT: do-agent
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_admin_doagent_workspace:/workspace
+      - runner_admin_doagent_config:/home/runner/.agentsmesh
+
 volumes:
   runner_e2e_workspace:
   runner_e2e_config:
@@ -139,3 +205,13 @@ volumes:
   runner_loopal_workspace:
   runner_loopal_agentsmesh_config:
   runner_loopal_config:
+  runner_admin_workspace:
+  runner_admin_workspace_config:
+  runner_doagent_workspace:
+  runner_doagent_agentsmesh_config:
+  runner_aider_workspace:
+  runner_aider_agentsmesh_config:
+  runner_opencode_workspace:
+  runner_opencode_agentsmesh_config:
+  runner_admin_doagent_workspace:
+  runner_admin_doagent_config:

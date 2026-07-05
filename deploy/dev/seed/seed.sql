@@ -9,8 +9,7 @@
 -- 4. Runner 注册令牌和预注册的 Runner
 -- 5. 示例 Ticket
 --
--- 普通用户密码: devpass123 (bcrypt hash)
--- 管理员密码: Ab123456 (bcrypt hash)
+-- 测试用户密码: AdminAb123456 | 管理员密码: Ab123456 (bcrypt hash)
 -- Runner Token: dev-runner-token (用于 docker-compose 中的 runner 服务)
 -- =============================================================================
 
@@ -27,12 +26,12 @@ BEGIN
     -- =========================================================================
     -- 1. 创建测试用户
     -- =========================================================================
-    -- 密码: devpass123
+    -- 密码: AdminAb123456
     -- bcrypt hash (cost=10)
 
     INSERT INTO users (email, username, name, password_hash, is_active, is_email_verified)
     SELECT 'dev@agentsmesh.local', 'devuser', 'Dev User',
-           '$2a$10$/95Zk1f1HFGXACwCb.bOw.d3vTjclw5NdGwQuK1Eaji6cDq0PuXp2',
+           '$2a$10$k4P3AdDi0j4XT1VeDt4YuOFcxfj2uDbm8N9Tj7fCK0Gk/PY3Gz1WC',
            TRUE, TRUE
     WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'dev@agentsmesh.local')
     RETURNING id INTO v_user_id;
@@ -53,7 +52,7 @@ BEGIN
 
     INSERT INTO users (email, username, name, password_hash, is_active, is_email_verified, is_system_admin)
     SELECT 'admin@agentsmesh.local', 'admin', 'System Admin',
-           '$2a$10$Mb2QLhBeUtDgZd09ag5GtuKnEeFq6rwMeaczrXQUdFo05Ta5okGuS',
+           '$2a$10$PsctEhhXW5eXhUIrSzJTSeoxoVMFWS8Kp5iNrspxE023nji8lUMSm',
            TRUE, TRUE, TRUE
     WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@agentsmesh.local')
     RETURNING id INTO v_admin_id;
@@ -84,11 +83,11 @@ BEGIN
     -- =========================================================================
     -- 2.1 创建第二个测试用户（同组织成员，用于多用户测试）
     -- =========================================================================
-    -- 密码: devpass123 (与主测试用户相同)
+    -- 密码: AdminAb123456 (与主测试用户相同)
 
     INSERT INTO users (email, username, name, password_hash, is_active, is_email_verified)
     SELECT 'dev2@agentsmesh.local', 'devuser2', 'Dev User 2',
-           '$2a$10$/95Zk1f1HFGXACwCb.bOw.d3vTjclw5NdGwQuK1Eaji6cDq0PuXp2',
+           '$2a$10$k4P3AdDi0j4XT1VeDt4YuOFcxfj2uDbm8N9Tj7fCK0Gk/PY3Gz1WC',
            TRUE, TRUE
     WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'dev2@agentsmesh.local')
     RETURNING id INTO v_user2_id;
@@ -98,6 +97,18 @@ BEGIN
     END IF;
 
     RAISE NOTICE 'User 2 ID: %', v_user2_id;
+
+    -- 已有库幂等同步：dev 种子用户统一密码
+    UPDATE users
+    SET password_hash = '$2a$10$k4P3AdDi0j4XT1VeDt4YuOFcxfj2uDbm8N9Tj7fCK0Gk/PY3Gz1WC'
+    WHERE email IN (
+        'dev@agentsmesh.local',
+        'dev2@agentsmesh.local'
+    );
+
+    UPDATE users
+    SET password_hash = '$2a$10$PsctEhhXW5eXhUIrSzJTSeoxoVMFWS8Kp5iNrspxE023nji8lUMSm'
+    WHERE email = 'admin@agentsmesh.local';
 
     -- =========================================================================
     -- 3. 添加用户为组织所有者
@@ -221,11 +232,47 @@ BEGIN
         ('dev-runner-claude', 'Development Docker Runner (Claude Code)'),
         ('dev-runner-codex', 'Development Docker Runner (Codex CLI)'),
         ('dev-runner-gemini', 'Development Docker Runner (Gemini CLI)'),
-        ('dev-runner-loopal', 'Development Docker Runner (Loopal)')
+        ('dev-runner-loopal', 'Development Docker Runner (Loopal)'),
+        ('dev-runner-do-agent', 'Development Docker Runner (DoAgent)'),
+        ('dev-runner-aider', 'Development Docker Runner (Aider)'),
+        ('dev-runner-opencode', 'Development Docker Runner (OpenCode)')
     ) AS r(node_id, description)
     WHERE NOT EXISTS (
         SELECT 1 FROM runners
         WHERE organization_id = v_org_id AND node_id = r.node_id
+    );
+
+    -- admin-workspace: system-admin personal org (may not exist on first seed run)
+    INSERT INTO runners (
+        organization_id, node_id, description,
+        status, max_concurrent_pods
+    )
+    SELECT o.id,
+           'admin-workspace-runner',
+           'Development Docker Runner (admin-workspace)',
+           'offline',
+           10
+    FROM organizations o
+    WHERE o.slug = 'admin-workspace'
+      AND NOT EXISTS (
+        SELECT 1 FROM runners
+        WHERE organization_id = o.id AND node_id = 'admin-workspace-runner'
+    );
+
+    INSERT INTO runners (
+        organization_id, node_id, description,
+        status, max_concurrent_pods
+    )
+    SELECT o.id,
+           'admin-workspace-do-agent',
+           'Development Docker Runner (DoAgent, admin-workspace)',
+           'offline',
+           10
+    FROM organizations o
+    WHERE o.slug = 'admin-workspace'
+      AND NOT EXISTS (
+        SELECT 1 FROM runners
+        WHERE organization_id = o.id AND node_id = 'admin-workspace-do-agent'
     );
 
     -- =========================================================================
@@ -347,8 +394,8 @@ BEGIN
     );
 
     RAISE NOTICE 'Seed data created successfully!';
-    RAISE NOTICE '  - User: dev@agentsmesh.local / devpass123';
-    RAISE NOTICE '  - User 2: dev2@agentsmesh.local / devpass123';
+    RAISE NOTICE '  - User: dev@agentsmesh.local / AdminAb123456';
+    RAISE NOTICE '  - User 2: dev2@agentsmesh.local / AdminAb123456';
     RAISE NOTICE '  - Admin: admin@agentsmesh.local / Ab123456';
     RAISE NOTICE '  - Organization: dev-org (dev + dev2)';
     RAISE NOTICE '  - Runner: dev-runner (node_id)';

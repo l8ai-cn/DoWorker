@@ -3,7 +3,7 @@
 > 角色：执行 Agent 产出证据 → 审核 Agent 独立复核 → 决策（父会话）终判
 > 环境：backend http://localhost:10015 · web-user http://localhost:5173 ·
 > postgres 容器 agentsmesh-main-postgres-1 · runner 容器 agentsmesh-main-runner-e2e-echo-1
-> 登录：POST /proto.auth.v1.AuthService/Login {"username":"devuser","password":"devpass123"}
+> 登录：POST /proto.auth.v1.AuthService/Login {"username":"devuser","password":"AdminAb123456"}
 > （加 header Connect-Protocol-Version: 1；后续请求带 Authorization: Bearer + X-Organization-Slug: dev-org）
 > API 配方参考：output/hive-s1-smoke.mjs、output/hive-s3-smoke.mjs
 

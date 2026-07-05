@@ -101,7 +101,7 @@
           "autonomy": "Execucao ativa de tarefas",
           "capabilities": "Desenvolvimento full-stack",
           "environment": "Acesso completo ao terminal",
-          "multiAgent": "Habilitado por AgentsMesh",
+          "multiAgent": "Habilitado por Do Worker",
           "selfHosted": "Totalmente controlavel"
         }
       }
@@ -124,7 +124,7 @@
       },
       "agentsmesh": {
         "title": "Eles conversam entre si. Voce nao e mais o mensageiro.",
-        "subtitle": "AgentsMesh",
+        "subtitle": "Do Worker",
         "description": "Os agentes observam o trabalho uns dos outros, compartilham contexto por canais e se coordenam de forma autonoma. Encontram colegas, negociam acessos e mobilizam reforcos quando a carga exige.",
         "highlights": {
           "0": "Agentes observam os terminais uns dos outros em tempo real",
@@ -306,7 +306,7 @@
       "title": "Precisa de Implantacao",
       "titleHighlight": "Self-Hosted",
       "titleEnd": "Completa?",
-      "description": "Seu codigo e dados nunca saem da sua infraestrutura. Implante o AgentsMesh inteiramente on-premise -- perfeito para organizacoes com requisitos rigorosos de seguranca e conformidade.",
+      "description": "Seu codigo e dados nunca saem da sua infraestrutura. Implante o Do Worker inteiramente on-premise -- perfeito para organizacoes com requisitos rigorosos de seguranca e conformidade.",
       "dockerCompose": "Docker Compose",
       "kubernetesHelm": "Kubernetes Helm (Em Breve)",
       "airGappedSupport": "Suporte Air-gapped (Em Breve)",
@@ -328,8 +328,8 @@
       "live": "Ao vivo",
       "initializingPod": "Inicializando pod...",
       "typeMessage": "Digite uma mensagem...",
-      "connecting": "Conectando ao AgentsMesh...",
-      "connected": "Conectado ao servidor AgentsMesh",
+      "connecting": "Conectando ao Do Worker...",
+      "connected": "Conectado ao servidor Do Worker",
       "workspace": "Workspace: /projects/e-commerce",
       "monitorPod": "Monitorar pod beta-dev e ajudar a coordenar a implementacao de autenticacao",
       "bindingPod": "Vou me vincular ao pod beta-dev para observar e coordenar...",
@@ -385,26 +385,26 @@
         "runner": "Runner",
         "agent": "Agente",
         "websocket": "WebSocket",
-        "agentsmeshCloud": "AgentsMesh Cloud"
+        "agentsmeshCloud": "Do Worker Cloud"
       }
     },
     "demoVideo": {
       "title": "Veja sua futura equipe",
       "titleHighlight": "em acao",
       "description": "Dois minutos. Do ticket ao merge request -- totalmente autonomo.",
-      "iframeTitle": "Demo do Produto AgentsMesh",
+      "iframeTitle": "Demo do Produto Do Worker",
       "highlight1": "Demo do ciclo completo",
       "highlight2": "Colaboracao multi-agente",
       "highlight3": "Execucao autonoma de tarefas"
     },
     "footer": {
       "tagline": "Onde equipes vao alem do headcount.",
-      "copyright": "AgentsMesh. Todos os direitos reservados.",
+      "copyright": "Do Worker. Todos os direitos reservados.",
       "madeWith": "Construido para equipes ambiciosas",
       "product": {
         "title": "Produto",
         "agentpod": "AgentPod",
-        "agentsmesh": "AgentsMesh",
+        "agentsmesh": "Do Worker",
         "tickets": "Tickets",
         "runners": "Runners",
         "pricing": "Precos",
@@ -436,7 +436,7 @@
     },
     "demo": {
       "title": "Solicitar uma Demo",
-      "subtitle": "Veja como o AgentsMesh pode multiplicar a produtividade da sua equipe.",
+      "subtitle": "Veja como o Do Worker pode multiplicar a produtividade da sua equipe.",
       "nameLabel": "Nome completo",
       "namePlaceholder": "Joao Silva",
       "emailLabel": "Email corporativo",
@@ -458,7 +458,7 @@
       "hero": {
         "badge": "Última versão",
         "title": "Download",
-        "titleHighlight": "AgentsMesh",
+        "titleHighlight": "Do Worker",
         "subtitle": "Baixe o Runner auto-hospedado que mantém agentes, código e dados em sua infraestrutura.",
         "downloadFor": "Baixar para {platform}",
         "releasedOn": "Lançado em {date}",

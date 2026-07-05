@@ -7,7 +7,7 @@ const ORG = 'dev-org';
 
 function loginViaConnect() {
   const raw = execSync(
-    `curl -sf -X POST '${API}/proto.auth.v1.AuthService/Login' -H 'Content-Type: application/json' -d '{"username":"dev@agentsmesh.local","password":"devpass123"}'`,
+    `curl -sf -X POST '${API}/proto.auth.v1.AuthService/Login' -H 'Content-Type: application/json' -d '{"username":"dev@agentsmesh.local","password":"AdminAb123456"}'`,
     { encoding: 'utf8' },
   );
   return JSON.parse(raw);

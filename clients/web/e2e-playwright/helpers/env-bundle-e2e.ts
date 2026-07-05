@@ -82,7 +82,7 @@ export async function createPodAndWaitRunning(args: {
   );
 
   const newPodBtn = page
-    .getByRole("button", { name: /new pod|create new pod|新建 pod/i })
+    .getByRole("button", { name: /new pod|create new pod|新建 pod|新建 worker|新建环境/i })
     .first();
   await newPodBtn.click();
 

@@ -2,6 +2,7 @@
 
 import { Command } from "cmdk";
 import { Terminal, Ticket, FolderGit2, ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { getPodDisplayName } from "@/lib/pod-display-name";
 import type { PodSearchResult, TicketSearchResult, RepositorySearchResult } from "./types";
 
@@ -23,6 +24,8 @@ export function SearchResultGroups({
   onSelectTicket,
   onSelectRepository,
 }: SearchResultGroupsProps) {
+  const t = useTranslations();
+
   return (
     <>
       {/* Search Results - Pods */}
@@ -50,7 +53,7 @@ export function SearchResultGroups({
 
       {/* Search Results - Tickets */}
       {tickets.length > 0 && (
-        <Command.Group heading="Tickets">
+        <Command.Group heading={t("ide.activities.tickets")}>
           {tickets.map((ticket) => (
             <Command.Item
               key={ticket.slug}

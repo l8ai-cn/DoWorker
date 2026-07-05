@@ -3,14 +3,14 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "AgentsMesh privacy policy — how we collect, use, and protect your data.",
+    "Do Worker privacy policy — how we collect, use, and protect your data.",
   alternates: {
     canonical: "https://agentsmesh.ai/privacy",
   },
   openGraph: {
-    title: "Privacy Policy | AgentsMesh",
+    title: "Privacy Policy | Do Worker",
     description:
-      "AgentsMesh privacy policy — how we collect, use, and protect your data.",
+      "Do Worker privacy policy — how we collect, use, and protect your data.",
     url: "https://agentsmesh.ai/privacy",
   },
 };

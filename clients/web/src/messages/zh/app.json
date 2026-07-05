@@ -1,14 +1,38 @@
 {
   "acp": {
     "modeSelector": {
-      "bypassPermissions": { "label": "全允许", "desc": "自动通过所有工具" },
-      "acceptEdits": { "label": "允许编辑", "desc": "自动允许文件编辑" },
-      "default": { "label": "默认", "desc": "逐工具确认" },
-      "dontAsk": { "label": "不询问", "desc": "未在白名单则拒绝" },
-      "bypass": { "label": "全自动", "desc": "自动通过所有操作" },
-      "ask_dangerous": { "label": "危险确认", "desc": "仅危险操作需确认" },
-      "ask_any_write": { "label": "写入确认", "desc": "任何写操作均需确认" },
-      "unknown": { "label": "—", "desc": "运行器尚未同步当前模式" }
+      "bypassPermissions": {
+        "label": "全允许",
+        "desc": "自动通过所有工具"
+      },
+      "acceptEdits": {
+        "label": "允许编辑",
+        "desc": "自动允许文件编辑"
+      },
+      "default": {
+        "label": "默认",
+        "desc": "逐工具确认"
+      },
+      "dontAsk": {
+        "label": "不询问",
+        "desc": "未在白名单则拒绝"
+      },
+      "bypass": {
+        "label": "全自动",
+        "desc": "自动通过所有操作"
+      },
+      "ask_dangerous": {
+        "label": "危险确认",
+        "desc": "仅危险操作需确认"
+      },
+      "ask_any_write": {
+        "label": "写入确认",
+        "desc": "任何写操作均需确认"
+      },
+      "unknown": {
+        "label": "—",
+        "desc": "运行器尚未同步当前模式"
+      }
     },
     "activityStream": {
       "waitingSession": "等待 ACP 会话…",
@@ -31,12 +55,13 @@
     }
   },
   "agentpod": {
-    "title": "Agent 环境",
-    "pods": "环境",
-    "newPod": "新建环境",
-    "runners": "运行节点",
-    "noRunnersOnline": "暂无在线节点",
-    "selectAgent": "选择智能体",
+    "title": "Worker",
+    "pods": "Worker",
+    "newPod": "新建 Worker",
+    "runners": "集群",
+    "noRunnersOnline": "暂无在线集群",
+    "selectAgent": "选择镜像",
+    "selectImage": "选择镜像",
     "selectRepository": "选择仓库",
     "prompt": "初始提示",
     "status": {
@@ -73,7 +98,7 @@
       "activePods": "{count} 个活跃环境",
       "channelsCount": "{count} 个频道",
       "bindingsCount": "{count} 个绑定",
-      "runnersOnline": "{online} / {total} 运行节点在线",
+      "runnersOnline": "{online} / {total} 集群在线",
       "zoomIn": "放大",
       "zoomOut": "缩小",
       "fit": "适应",
@@ -133,41 +158,41 @@
   },
   "tickets": {
     "title": "任务管理",
-    "newTicket": "新建 Ticket",
+    "newTicket": "新建任务",
     "board": "看板",
     "views": {
       "board": "看板",
       "list": "列表"
     },
     "actions": {
-      "newTicket": "新建",
+      "newTicket": "新建任务",
       "export": "导出"
     },
     "rail": {
       "workingPods": "工作中的环境",
       "noPods": "暂无活跃的环境",
-      "subTickets": "子 Ticket",
-      "noSubTickets": "暂无子 Ticket",
+      "subTickets": "子任务",
+      "noSubTickets": "暂无子任务",
       "pullRequests": "Pull Request",
       "noPRs": "暂未关联 PR",
       "activity": "动态",
-      "activityCreated": "Ticket 已创建",
-      "activityUpdated": "Ticket 已更新"
+      "activityCreated": "任务已创建",
+      "activityUpdated": "任务已更新"
     },
     "list": {
-      "ticket": "Ticket",
+      "ticket": "任务",
       "assignees": "负责人",
       "dueDate": "截止日期",
       "updated": "更新时间",
-      "noTickets": "未找到 Ticket"
+      "noTickets": "未找到任务"
     },
     "backlog": "待办池",
     "todo": "待开始",
     "inProgress": "进行中",
     "inReview": "待审核",
     "done": "已完成",
-    "searchPlaceholder": "搜索 Ticket...",
-    "ticketCount": "个 Ticket",
+    "searchPlaceholder": "搜索任务...",
+    "ticketCount": "个任务",
     "clear": "清除",
     "view": "视图",
     "filters": {
@@ -179,9 +204,9 @@
       "showLess": "收起"
     },
     "emptyState": {
-      "title": "暂无 Ticket",
-      "noMatch": "没有匹配的 Ticket",
-      "createFirst": "创建你的第一个 Ticket 开始使用"
+      "title": "暂无任务",
+      "noMatch": "没有匹配的任务",
+      "createFirst": "创建你的第一个任务开始使用"
     },
     "moreTickets": "+{count} 个",
     "listView": {
@@ -191,10 +216,10 @@
       "priority": "优先级",
       "assignee": "负责人",
       "created": "创建时间",
-      "noTickets": "未找到 Ticket。使用侧边栏筛选或创建新 Ticket。"
+      "noTickets": "未找到任务。使用侧边栏筛选或创建新任务。"
     },
     "kanban": {
-      "noTickets": "暂无 Ticket",
+      "noTickets": "暂无任务",
       "dropHere": "拖放到这里"
     },
     "priority": {
@@ -214,25 +239,25 @@
       "unknown": "未知"
     },
     "createDialog": {
-      "title": "创建 Ticket",
-      "createSubTicket": "创建子 Ticket",
+      "title": "创建任务",
+      "createSubTicket": "创建子任务",
       "titleLabel": "标题",
-      "titlePlaceholder": "输入 Ticket 标题",
+      "titlePlaceholder": "输入任务标题",
       "titleRequired": "标题为必填项",
       "repositoryRequired": "仓库为必填项",
-      "createFailed": "创建 Ticket 失败",
+      "createFailed": "创建任务失败",
       "repository": "仓库",
       "selectRepository": "选择仓库...",
       "content": "内容",
-      "submit": "创建 Ticket",
+      "submit": "创建任务",
       "moreOptions": "更多选项",
       "labelsPlaceholder": "添加标签..."
     },
     "detail": {
       "retry": "重试",
-      "notFound": "Ticket 未找到",
+      "notFound": "任务未找到",
       "content": "内容",
-      "subTickets": "子 Ticket",
+      "subTickets": "子任务",
       "related": "关联",
       "commits": "提交记录",
       "actions": "操作",
@@ -247,8 +272,8 @@
       "timestamps": "时间信息",
       "created": "创建时间",
       "updated": "更新时间",
-      "deleteTicket": "删除 Ticket",
-      "deleteConfirmation": "确定要删除 Ticket {slug} 吗？此操作无法撤销。",
+      "deleteTicket": "删除任务",
+      "deleteConfirmation": "确定要删除任务 {slug} 吗？此操作无法撤销。",
       "labels": "标签",
       "timeline": "时间线",
       "spawnPod": "Spawn Pod",
@@ -276,37 +301,48 @@
     "podPanel": {
       "activeCount": "{count} 个活跃",
       "newPod": "执行",
-      "createNewPod": "创建新环境",
-      "runner": "运行节点",
-      "selectRunner": "选择运行节点…",
-      "selectRunnerRequired": "请选择一个运行节点",
+      "createNewPod": "创建新 Worker",
+      "runner": "集群",
+      "selectRunner": "选择集群…",
+      "selectRunnerRequired": "请选择一个集群",
       "model": "模型",
       "permissionMode": "权限模式",
       "permissionDefault": "默认",
       "permissionPlan": "计划模式",
       "permissionAutoApprove": "自动批准（危险）",
       "prompt": "初始提示（可选）",
-      "promptPlaceholder": "处理 Ticket：{title}",
+      "promptPlaceholder": "处理任务：{title}",
       "creating": "创建中...",
-      "createPod": "创建环境",
-      "createFailed": "创建环境失败",
+      "createPod": "创建 Worker",
+      "createFailed": "创建 Worker 失败",
       "previousPods": "{count} 个历史环境",
-      "noPods": "此 Ticket 暂无环境",
-      "noRunners": "暂无在线运行节点",
+      "noPods": "此任务暂无环境",
+      "noRunners": "暂无在线集群",
       "connect": "连接",
       "openInNewTab": "在新标签页打开",
       "started": "开始时间"
     }
   },
+  "workers": {
+    "create": {
+      "title": "创建 Worker",
+      "subtitle": "Worker 是在集群上运行的隔离工作区。先选择集群，再选择镜像（如 DoAgent、Claude Code、Codex），即可启动。",
+      "stepsTitle": "创建步骤",
+      "stepCluster": "选择集群 — 提供算力的节点",
+      "stepImage": "选择镜像 — 决定 Worker 内运行的 AI 运行时",
+      "stepLaunch": "填写初始任务（可选）并创建 — 完成后进入工作区终端",
+      "backToWorkspace": "返回工作区"
+    }
+  },
   "workspace": {
     "title": "工作区",
-    "searchPlaceholder": "搜索环境…",
-    "newPod": "新建环境",
+    "searchPlaceholder": "搜索 Worker…",
+    "newPod": "新建 Worker",
     "noTerminalsOpen": "暂无打开的终端",
-    "noTerminalsDescription": "点击侧边栏中的环境打开其终端，或新建环境开始使用。",
-    "createNewPod": "新建环境",
-    "emptyHeroTitle": "启动你的第一个环境",
-    "emptyHeroDescription": "环境是运行节点上的隔离 Agent 工作区（终端 + 沙箱）。运行节点提供算力，一个节点可托管多个环境。",
+    "noTerminalsDescription": "点击侧边栏中的 Worker 打开其终端，或新建 Worker 开始使用。",
+    "createNewPod": "新建 Worker",
+    "emptyHeroTitle": "启动你的第一个 Worker",
+    "emptyHeroDescription": "Worker 是在集群上运行的隔离工作区，由所选镜像（如 Claude Code、Codex）启动。一个集群可托管多个 Worker。",
     "recipesHeading": "或从这些模板开始",
     "recipes": {
       "explain": {
@@ -323,21 +359,21 @@
       },
       "bug": {
         "title": "修复一个待处理 Bug",
-        "description": "选一个 ticket，启动一个环境。代理读取上下文并提出修复方案。",
+        "description": "选一个任务，启动一个 Worker。Worker 读取上下文并提出修复方案。",
         "duration": "8 分钟",
         "prompt": "请定位并修复一个待处理的 Bug：先复现问题，给出根因分析，再实现修复并验证。"
       }
     },
     "banner": {
-      "newUser": "新手使用 AgentsMesh？",
+      "newUser": "新手使用 Do Worker？",
       "watchIntro": "观看 2 分钟介绍 →"
     },
     "hints": {
       "search": "搜索",
-      "createPod": "新建环境"
+      "createPod": "新建 Worker"
     },
-    "podCreated": "环境已创建！等待启动中…",
-    "podOpened": "环境已打开",
+    "podCreated": "Worker 已创建！等待启动中…",
+    "podOpened": "Worker 已打开",
     "filters": {
       "mine": "我创建的",
       "org": "组织",
@@ -345,20 +381,24 @@
       "error": "错误"
     },
     "emptyState": {
-      "title": "暂无环境",
-      "description": "创建你的第一个环境开始使用",
-      "createFirst": "创建环境",
-      "noMatch": "没有匹配的环境",
-      "noFiltered": "没有{filter}的环境"
+      "title": "暂无 Worker",
+      "description": "创建你的第一个 Worker 开始使用",
+      "createFirst": "创建 Worker",
+      "noMatch": "没有匹配的 Worker",
+      "noFiltered": "没有{filter}的 Worker"
     },
     "runners": {
-      "title": "运行节点",
+      "title": "集群",
       "online": "在线",
-      "noRunners": "暂无注册的运行节点"
+      "noRunners": "暂无注册的集群"
+    },
+    "reconnecting": {
+      "title": "集群正在重启…",
+      "description": "会话将自动恢复，您的工作已保留。"
     },
     "terminateDialog": {
-      "title": "终止环境",
-      "description": "确定要终止这个环境吗？此操作无法撤销，所有正在运行的进程都将被停止。",
+      "title": "终止 Worker",
+      "description": "确定要终止这个 Worker 吗？此操作无法撤销，所有正在运行的进程都将被停止。",
       "cancel": "取消",
       "confirm": "终止"
     },
@@ -370,7 +410,7 @@
       "disablePerpetual": "禁用永续模式"
     },
     "renameDialog": {
-      "title": "重命名环境",
+      "title": "重命名 Worker",
       "placeholder": "输入显示名称",
       "hint": "留空将使用默认名称。",
       "cancel": "取消",
@@ -379,7 +419,7 @@
     "loadMore": "加载更多",
     "pod": {
       "status": "状态",
-      "agent": "智能体",
+      "agent": "镜像",
       "repository": "仓库",
       "branch": "分支",
       "created": "创建时间",
@@ -392,18 +432,18 @@
       }
     },
     "modal": {
-      "title": "创建新环境",
-      "agent": "智能体",
-      "selectAgent": "选择智能体...",
-      "selectRunner": "选择运行节点…",
+      "title": "创建新 Worker",
+      "image": "镜像",
+      "selectImage": "选择 Worker 镜像…",
+      "selectRunner": "选择集群…",
       "repositoryOptional": "仓库（可选）",
       "selectRepository": "选择仓库...",
       "branch": "分支",
       "branchPlaceholder": "输入分支名称（例如：main）",
       "promptOptional": "初始提示（可选）",
-      "promptPlaceholder": "为智能体输入初始提示...",
+      "promptPlaceholder": "为 Worker 输入初始任务…",
       "creating": "创建中...",
-      "createPod": "创建环境"
+      "createPod": "创建 Worker"
     }
   },
   "commandPalette": {
@@ -416,18 +456,18 @@
     "workspaceDescription": "终端工作区",
     "goToTickets": "前往任务",
     "ticketsDescription": "查看和管理任务",
-    "goToMesh": "前往 AgentsMesh",
+    "goToMesh": "前往 Do Worker",
     "meshDescription": "网络��扑",
     "goToChannels": "前往频道",
     "channelsDescription": "团队协作频道",
     "goToRepositories": "前往仓库",
     "repositoriesDescription": "管理仓库",
-    "goToRunners": "前往运行节点",
+    "goToRunners": "前往集群",
     "runnersDescription": "管理计算资源",
     "goToSettings": "前往设置",
     "settingsDescription": "组织设置",
-    "createNewPod": "创建新环境",
-    "createPodDescription": "在运行节点上启动一个新的 Agent 环境",
+    "createNewPod": "创建新 Worker",
+    "createPodDescription": "在集群上按镜像启动一个新的 Worker",
     "createNewTicket": "创建新任务",
     "createTicketDescription": "创建新的任务或问题",
     "signOut": "退出登录",
@@ -442,7 +482,7 @@
   "relayStatus": {
     "web": "Web",
     "relay": "Relay",
-    "runner": "运行节点",
+    "runner": "集群",
     "connected": "已连接",
     "connecting": "连接中",
     "disconnected": "已断开",
@@ -553,38 +593,103 @@
     "home": "回到首页"
   },
   "loopal": {
-    "activity": { "heading": "活动" },
+    "activity": {
+      "heading": "活动"
+    },
     "status": {
       "title": "Loopal",
       "thinking": "思考：{value}",
       "topology": "拓扑",
-      "mode": { "act": "执行", "plan": "计划" },
-      "goal": { "pause": "暂停", "resume": "继续", "complete": "完成", "reopen": "重新打开", "clear": "清除" }
+      "mode": {
+        "act": "执行",
+        "plan": "计划"
+      },
+      "goal": {
+        "pause": "暂停",
+        "resume": "继续",
+        "complete": "完成",
+        "reopen": "重新打开",
+        "clear": "清除"
+      }
     },
-    "thinking": { "auto": "自动", "off": "关闭", "low": "低", "med": "中", "high": "高", "max": "最高" },
+    "thinking": {
+      "auto": "自动",
+      "off": "关闭",
+      "low": "低",
+      "med": "中",
+      "high": "高",
+      "max": "最高"
+    },
     "dock": {
-      "tabs": { "bgShell": "后台 Shell", "cron": "Cron", "tasks": "任务", "agents": "智能体", "mcp": "MCP" },
-      "agents": { "expand": "展开拓扑" },
-      "bgShell": { "kill": "终止", "killConfirmTitle": "终止后台任务？" },
-      "cron": { "due": "已到期", "inMinutes": "{m} 分钟后", "inHours": "{h} 小时后", "inDays": "{d} 天后", "recurring": "周期", "once": "单次", "durable": "持久", "delete": "删除", "deleteConfirmTitle": "删除 Cron 任务？" },
-      "tasks": { "blockedBy": "被 {count} 项阻塞" },
-      "mcp": { "refresh": "刷新", "toolCount": "{count} 个工具", "reconnect": "重新连接", "disconnect": "断开", "disconnectConfirmTitle": "断开 MCP 服务器？" }
+      "tabs": {
+        "bgShell": "后台 Shell",
+        "cron": "Cron",
+        "tasks": "任务",
+        "agents": "智能体",
+        "mcp": "MCP"
+      },
+      "agents": {
+        "expand": "展开拓扑"
+      },
+      "bgShell": {
+        "kill": "终止",
+        "killConfirmTitle": "终止后台任务？"
+      },
+      "cron": {
+        "due": "已到期",
+        "inMinutes": "{m} 分钟后",
+        "inHours": "{h} 小时后",
+        "inDays": "{d} 天后",
+        "recurring": "周期",
+        "once": "单次",
+        "durable": "持久",
+        "delete": "删除",
+        "deleteConfirmTitle": "删除 Cron 任务？"
+      },
+      "tasks": {
+        "blockedBy": "被 {count} 项阻塞"
+      },
+      "mcp": {
+        "refresh": "刷新",
+        "toolCount": "{count} 个工具",
+        "reconnect": "重新连接",
+        "disconnect": "断开",
+        "disconnectConfirmTitle": "断开 MCP 服务器？"
+      }
     },
     "prompt": {
       "placeholder": "向 Loopal 发送消息，或输入 / 调用命令",
       "interrupt": "中断",
-      "rewindTitle": "回退到指定轮次", "rewindPlaceholder": "轮次 #",
-      "resumeTitle": "恢复会话", "resumePlaceholder": "会话 ID",
-      "model": "模型", "thinking": "思考"
+      "rewindTitle": "回退到指定轮次",
+      "rewindPlaceholder": "轮次 #",
+      "resumeTitle": "恢复会话",
+      "resumePlaceholder": "会话 ID",
+      "model": "模型",
+      "thinking": "思考"
     },
     "commands": {
-      "act": "切换到执行模式", "plan": "切换到计划模式", "model": "模型与思考强度", "thinking": "思考强度",
-      "compact": "压缩会话上下文", "clear": "清除所有会话历史", "rewind": "回退到较早的轮次",
-      "resume": "按 ID 恢复会话", "suspend": "挂起 Cron / 唤醒", "unsuspend": "恢复 Cron / 唤醒",
-      "goal": "设定线程目标（/goal [目标]）", "mcpRefresh": "刷新 MCP 状态",
-      "goalPause": "暂停目标", "goalResume": "继续目标", "goalComplete": "将目标标记为完成", "goalReopen": "重新打开目标", "goalClear": "清除目标"
+      "act": "切换到执行模式",
+      "plan": "切换到计划模式",
+      "model": "模型与思考强度",
+      "thinking": "思考强度",
+      "compact": "压缩会话上下文",
+      "clear": "清除所有会话历史",
+      "rewind": "回退到较早的轮次",
+      "resume": "按 ID 恢复会话",
+      "suspend": "挂起 Cron / 唤醒",
+      "unsuspend": "恢复 Cron / 唤醒",
+      "goal": "设定线程目标（/goal [目标]）",
+      "mcpRefresh": "刷新 MCP 状态",
+      "goalPause": "暂停目标",
+      "goalResume": "继续目标",
+      "goalComplete": "将目标标记为完成",
+      "goalReopen": "重新打开目标",
+      "goalClear": "清除目标"
     },
-    "topology": { "sheetTitle": "智能体拓扑", "root": "根" }
+    "topology": {
+      "sheetTitle": "智能体拓扑",
+      "root": "根"
+    }
   },
   "doagent": {
     "title": "DoAgent",

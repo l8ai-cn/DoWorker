@@ -101,7 +101,7 @@
           "autonomy": "Exécution active de tâches",
           "capabilities": "Développement full-stack",
           "environment": "Accès terminal complet",
-          "multiAgent": "Activé par AgentsMesh",
+          "multiAgent": "Activé par Do Worker",
           "selfHosted": "Entièrement contrôlable"
         }
       }
@@ -124,7 +124,7 @@
       },
       "agentsmesh": {
         "title": "Ils se parlent entre eux. Vous n'êtes plus le messager.",
-        "subtitle": "AgentsMesh",
+        "subtitle": "Do Worker",
         "description": "Les agents observent le travail des autres, partagent le contexte via des canaux et se coordonnent de manière autonome. Ils trouvent des coéquipiers, négocient les accès et déploient des renforts quand la charge l'exige.",
         "highlights": {
           "0": "Les agents observent les terminaux des autres en temps réel",
@@ -306,7 +306,7 @@
       "title": "Besoin d'un Déploiement",
       "titleHighlight": "Self-Hosted",
       "titleEnd": "Complet ?",
-      "description": "Votre code et vos données ne quittent jamais votre infrastructure. Déployez AgentsMesh entièrement on-premise — idéal pour les organisations avec des exigences strictes de sécurité et de conformité.",
+      "description": "Votre code et vos données ne quittent jamais votre infrastructure. Déployez Do Worker entièrement on-premise — idéal pour les organisations avec des exigences strictes de sécurité et de conformité.",
       "dockerCompose": "Docker Compose",
       "kubernetesHelm": "Kubernetes Helm (Bientôt)",
       "airGappedSupport": "Support Air-gapped (Bientôt)",
@@ -328,8 +328,8 @@
       "live": "En direct",
       "initializingPod": "Initialisation du pod...",
       "typeMessage": "Tapez un message...",
-      "connecting": "Connexion à AgentsMesh...",
-      "connected": "Connecté au serveur AgentsMesh",
+      "connecting": "Connexion à Do Worker...",
+      "connected": "Connecté au serveur Do Worker",
       "workspace": "Espace de travail : /projects/e-commerce",
       "monitorPod": "Surveiller le pod beta-dev et aider à coordonner l'implémentation de l'authentification",
       "bindingPod": "Je vais me lier au pod beta-dev pour observer et coordonner...",
@@ -385,26 +385,26 @@
         "runner": "Runner",
         "agent": "Agent",
         "websocket": "WebSocket",
-        "agentsmeshCloud": "AgentsMesh Cloud"
+        "agentsmeshCloud": "Do Worker Cloud"
       }
     },
     "demoVideo": {
       "title": "Voyez votre future équipe",
       "titleHighlight": "en action",
       "description": "Deux minutes. Du ticket au merge request — entièrement autonome.",
-      "iframeTitle": "Démo du Produit AgentsMesh",
+      "iframeTitle": "Démo du Produit Do Worker",
       "highlight1": "Démo du cycle complet",
       "highlight2": "Collaboration multi-agent",
       "highlight3": "Exécution autonome des tâches"
     },
     "footer": {
       "tagline": "Là où les équipes dépassent les limites de l'effectif.",
-      "copyright": "AgentsMesh. Tous droits réservés.",
+      "copyright": "Do Worker. Tous droits réservés.",
       "madeWith": "Conçu pour les équipes ambitieuses",
       "product": {
         "title": "Produit",
         "agentpod": "AgentPod",
-        "agentsmesh": "AgentsMesh",
+        "agentsmesh": "Do Worker",
         "tickets": "Tickets",
         "runners": "Runners",
         "pricing": "Tarifs",
@@ -436,7 +436,7 @@
     },
     "demo": {
       "title": "Demander une Démo",
-      "subtitle": "Découvrez comment AgentsMesh peut décupler la productivité de votre équipe.",
+      "subtitle": "Découvrez comment Do Worker peut décupler la productivité de votre équipe.",
       "nameLabel": "Nom complet",
       "namePlaceholder": "Jean Dupont",
       "emailLabel": "Email professionnel",
@@ -458,7 +458,7 @@
       "hero": {
         "badge": "Dernière version",
         "title": "Télécharger",
-        "titleHighlight": "AgentsMesh",
+        "titleHighlight": "Do Worker",
         "subtitle": "Téléchargez le Runner auto-hébergé qui garde vos agents, votre code et vos données sur votre infrastructure.",
         "downloadFor": "Télécharger pour {platform}",
         "releasedOn": "Publié le {date}",

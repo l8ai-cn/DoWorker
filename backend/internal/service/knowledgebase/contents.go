@@ -68,7 +68,7 @@ func (s *Service) CommitFile(
 		isUpdate[path] = existing.SHA
 	}
 	if authorName == "" {
-		authorName = "AgentsMesh"
+		authorName = "Do Worker"
 	}
 	return s.git.CommitFiles(ctx, repoName, kb.DefaultBranch, message,
 		gitea.CommitAuthor{Name: authorName, Email: "kb@agentsmesh.local"},

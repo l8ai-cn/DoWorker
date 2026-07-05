@@ -29,7 +29,7 @@ func (j *SubscriptionRenewJob) executeAlipayAgreementPay(ctx context.Context, su
 		OrderNo:        order.OrderNo,
 		Amount:         order.ActualAmount,
 		Currency:       order.Currency,
-		Description:    fmt.Sprintf("AgentsMesh Subscription Renewal - %s", sub.BillingCycle),
+		Description:    fmt.Sprintf("Do Worker Subscription Renewal - %s", sub.BillingCycle),
 		IdempotencyKey: order.OrderNo,
 	})
 	if err != nil {
@@ -76,7 +76,7 @@ func (j *SubscriptionRenewJob) executeWeChatAgreementPay(ctx context.Context, su
 		OrderNo:        order.OrderNo,
 		Amount:         order.ActualAmount,
 		Currency:       order.Currency,
-		Description:    fmt.Sprintf("AgentsMesh Subscription Renewal - %s", sub.BillingCycle),
+		Description:    fmt.Sprintf("Do Worker Subscription Renewal - %s", sub.BillingCycle),
 		IdempotencyKey: order.OrderNo,
 	})
 	if err != nil {

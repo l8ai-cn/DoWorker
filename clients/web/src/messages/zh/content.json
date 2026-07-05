@@ -6,13 +6,13 @@
     },
     "mission": {
       "title": "我们的使命",
-      "content": "AgentsMesh 的使命是帮助组织突破人数的产出上限。我们正在构建一个平台，让每个团队成员都能管理一支 AI Agent 团队——分配任务、协调协作、以过去需要多招十个人才能达到的速度交付成果。"
+      "content": "Do Worker 的使命是帮助组织突破人数的产出上限。我们正在构建一个平台，让每个团队成员都能管理一支 AI Agent 团队——分配任务、协调协作、以过去需要多招十个人才能达到的速度交付成果。"
     },
     "vision": {
       "title": "我们的理念",
       "autonomous": {
         "title": "Agent 是团队成员",
-        "content": "AI Agent 不只是自动补全代码的工具。它们是能端到端负责任务的自主队友——从读取工单到提交合并请求。"
+        "content": "AI Agent 不只是自动补全代码的工具。它们是能端到端负责任务的自主队友——从读取任务到提交合并请求。"
       },
       "collaboration": {
         "title": "团队胜于个人",
@@ -25,7 +25,7 @@
     },
     "contact": {
       "title": "联系我们",
-      "content": "想了解 AgentsMesh 如何倍增你的团队产出？",
+      "content": "想了解 Do Worker 如何倍增你的团队产出？",
       "email": "联系我们",
       "careers": "加入我们"
     }
@@ -48,21 +48,21 @@
       },
       "producer": {
         "title": "Builder（产品构建者）",
-        "description": "Builder 将基础设施转化为用户喜爱的产品。你将连接技术能力与用户需求，将与 AgentsMesh 的每次交互打磨成直观而强大的体验。",
+        "description": "Builder 将基础设施转化为用户喜爱的产品。你将连接技术能力与用户需求，将与 Do Worker 的每次交互打磨成直观而强大的体验。",
         "resp1": "将用户需求转化为产品定义和功能设计",
         "resp2": "将平台能力塑造为精致的用户级产品",
         "resp3": "收集反馈并持续迭代，交付卓越的用户体验"
       },
       "growthHacker": {
         "title": "GTM（Go to Market）",
-        "description": "GTM 以创造性的数据驱动策略将产品推向市场。你将帮助开发者发现 AgentsMesh，快速运行增长实验，将早期用户转化为热情的传播者。",
+        "description": "GTM 以创造性的数据驱动策略将产品推向市场。你将帮助开发者发现 Do Worker，快速运行增长实验，将早期用户转化为热情的传播者。",
         "resp1": "设计和执行数据驱动的增长实验",
         "resp2": "与开发者社区建立关系，推动产品采用",
         "resp3": "优化获客漏斗，驱动用户留存"
       }
     },
     "whyJoin": {
-      "title": "为什么加入 AgentsMesh？",
+      "title": "为什么加入 Do Worker？",
       "innovation": {
         "title": "前沿技术",
         "content": "使用最新的 AI 技术，塑造软件开发的未来。"
@@ -85,7 +85,7 @@
   "blog": {
     "hero": {
       "title": "博客",
-      "subtitle": "来自 AgentsMesh 团队的技术洞察、产品更新和故事。"
+      "subtitle": "来自 Do Worker 团队的技术洞察、产品更新和故事。"
     },
     "minRead": "分钟阅读",
     "backToList": "返回博客",
@@ -100,7 +100,7 @@
     "onpremise": {
       "title": "私有",
       "titleHighlight": "部署",
-      "description": "在你的基础设施中完整部署 AgentsMesh。你的代码、你的 Agent、你的规则——零外部暴露。"
+      "description": "在你的基础设施中完整部署 Do Worker。你的代码、你的 Agent、你的规则——零外部暴露。"
     }
   },
   "offline": {
@@ -110,11 +110,11 @@
     "whileOffline": "离线时你可以：",
     "tip1": "查看已加载的页面",
     "tip2": "访问已缓存的终端会话",
-    "tip3": "查看离线可用的工单"
+    "tip3": "查看离线可用的任务"
   },
   "changelogPage": {
     "title": "更新日志",
-    "description": "AgentsMesh 的所有重要变更都会记录在此。",
+    "description": "Do Worker 的所有重要变更都会记录在此。",
     "types": {
       "added": "新增",
       "changed": "变更",

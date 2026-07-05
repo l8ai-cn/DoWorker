@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { usePods } from "@/stores/pod";
 import { Button } from "@/components/ui/button";
 import { getPodDisplayName } from "@/lib/pod-display-name";
@@ -12,6 +13,7 @@ interface PodSelectorModalProps {
 }
 
 export function PodSelectorModal({ openPodKeys, onSelect, onClose }: PodSelectorModalProps) {
+  const t = useTranslations("app");
   const allPods = usePods();
   const pods = useMemo(
     () => allPods.filter(
@@ -53,7 +55,7 @@ export function PodSelectorModal({ openPodKeys, onSelect, onClose }: PodSelector
                   <div className="mt-1 text-xs text-muted-foreground">
                     <span>Agent: {pod.agent_status}</span>
                     {pod.runner && (
-                      <span className="ml-2">• Runner: {pod.runner.node_id}</span>
+                      <span className="ml-2">• {t("relayStatus.runner")}: {pod.runner.node_id}</span>
                     )}
                   </div>
                 </button>

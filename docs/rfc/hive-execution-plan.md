@@ -1,6 +1,6 @@
 # Hive 全量改造执行计划
 
-> 状态：S0–S6 验收通过 | 平台阶段 2+ 延伸：web Usage 图表接线 | 更新：2026-07-05
+> 状态：S0–S7 验收通过 | S8 Omnigent parity 代码完成、验收待跑 | 更新：2026-07-05
 
 ## 目标定义
 
@@ -165,6 +165,19 @@ e2e-echo ACP → `AcpSessionEvent` → `ForwardAcpSession` → EventBridge。
 - [x] S7.2 Codex `thread/resume` transport + `resume cli` fork 续聊
 - [x] S7.3 Claude `external_session_id`：`system/init` → `OnSessionID` → backend 捕获
 - [x] S7.4 Workstream E：CreatePodForm advanced 折叠；DoAgent 任务入口首位 + 默认选中
+
+### S8 — Omnigent Full Parity（W1–W8，2026-07-05）
+
+> SSOT 细节见 `omnigent-full-parity-plan.md`。代码已落地；本节跟踪验收尾项。
+
+- [x] W1–W7 全部 endpoint 真实现（compat 层无 501 stub）
+- [x] W8.1 agents `?after=` 游标分页
+- [x] W8.2 `hive-s5-smoke.mjs` + `hive_smoke.sh` parity suite
+- [x] W8.3 Bazel `hive_smoke_scripts` 纳入 s5 脚本
+- [ ] W8.4 `hive_smoke.sh` S0–S5 全绿（migration 175 + dev stack）
+- [ ] W8.5 web-user 全页面手工验收
+
+验收：`bash deploy/dev/hive_smoke.sh` S0–S5 全绿；`bazel.yml` `hive-e2e` job 随 shell 脚本自动覆盖 S5。
 
 ## 文件地图（新增/修改）
 

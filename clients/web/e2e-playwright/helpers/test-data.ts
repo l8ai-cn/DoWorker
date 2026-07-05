@@ -37,9 +37,12 @@ export const CLEANUP = {
 export const HASH_PASSWORD123 =
   "$2a$10$N9qo8uLOickgx2ZMRZoMye.LrFO1VD3cWjvdCMEBzO4Y6bO7zE6.2";
 
-/** Password hash for 'devpass123' (bcrypt, matches seed data). */
-export const HASH_DEVPASS123 =
-  "$2a$10$/95Zk1f1HFGXACwCb.bOw.d3vTjclw5NdGwQuK1Eaji6cDq0PuXp2";
+/** Password hash for 'AdminAb123456' (bcrypt, matches dev seed data). */
+export const HASH_DEV_PASSWORD =
+  "$2a$10$k4P3AdDi0j4XT1VeDt4YuOFcxfj2uDbm8N9Tj7fCK0Gk/PY3Gz1WC";
+
+/** @deprecated Use HASH_DEV_PASSWORD */
+export const HASH_DEVPASS123 = HASH_DEV_PASSWORD;
 
 /** Build a structured MessageContent object for sending channel messages. */
 export function textContent(text: string) {

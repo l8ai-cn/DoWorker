@@ -1,4 +1,4 @@
-// Package main provides the entry point for the AgentsMesh Runner CLI.
+// Package main provides the entry point for the Do Worker Runner CLI.
 package main
 
 import (
@@ -63,7 +63,7 @@ func main() {
 	case "update":
 		runUpdate(os.Args[2:])
 	case "version", "-v", "--version":
-		fmt.Printf("AgentsMesh Runner %s (built %s)\n", version, buildTime)
+		fmt.Printf("Do Worker Runner %s (built %s)\n", version, buildTime)
 	case "help", "-h", "--help":
 		printUsage()
 	default:
@@ -74,14 +74,14 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`AgentsMesh Runner
+	fmt.Println(`Do Worker Runner
 
 Usage:
-  agentsmesh-runner <command> [options]
+  do-worker-runner <command> [options]
 
 Commands:
-  login       Login to AgentsMesh server (alias for register)
-  register    Register this runner with the AgentsMesh server (gRPC/mTLS)
+  login       Login to Do Worker server (alias for register)
+  register    Register this runner with the Do Worker server (gRPC/mTLS)
   run         Start the runner in CLI mode (requires prior registration)
   webconsole  Open the web console in browser
   service     Manage runner as a system service (install/start/stop)
@@ -92,17 +92,17 @@ Commands:
   help        Show this help message
 
 Login Examples:
-  agentsmesh-runner login
+  do-worker-runner login
       Opens browser for authorization (uses https://agentsmesh.ai)
 
-  agentsmesh-runner login --headless
+  do-worker-runner login --headless
       Print URL only, don't open browser (for SSH/remote sessions)
 
-  agentsmesh-runner login --token <token>
+  do-worker-runner login --token <token>
       Login using a pre-generated token
 
-  agentsmesh-runner login --server https://self-hosted.example.com
-      Login to a self-hosted AgentsMesh server
+  do-worker-runner login --server https://self-hosted.example.com
+      Login to a self-hosted Do Worker server
 
-Use "agentsmesh-runner <command> --help" for more information about a command.`)
+Use "do-worker-runner <command> --help" for more information about a command.`)
 }

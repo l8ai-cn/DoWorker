@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { AgentsMeshMark } from "@/components/brand/AgentsMeshMark";
+import { DoWorkerMark } from "@/components/brand/DoWorkerMark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -67,9 +67,9 @@ export default function LoginPage() {
         <div className="mb-7 flex items-center justify-center">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg shadow-sm">
-              <AgentsMeshMark className="h-full w-full" />
+              <DoWorkerMark className="h-full w-full" />
             </div>
-            <span className="text-2xl font-semibold text-foreground">AgentsMesh</span>
+            <span className="text-2xl font-semibold text-foreground">Do Worker</span>
           </div>
         </div>
 

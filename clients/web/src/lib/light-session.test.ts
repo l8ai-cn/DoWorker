@@ -34,9 +34,9 @@ describe("urlSlug", () => {
 });
 
 describe("sessionStorageKey", () => {
-  it("formats as agentsmesh-auth/<slug>/session", () => {
+  it("formats as do-worker-auth/<slug>/session", () => {
     expect(sessionStorageKey("https://agentsmesh.ai"))
-      .toBe("agentsmesh-auth/https_agentsmesh_ai/session");
+      .toBe("do-worker-auth/https_agentsmesh_ai/session");
   });
 });
 
@@ -54,6 +54,24 @@ describe("readLightSession", () => {
 
   it("returns null when no session is stored", () => {
     expect(readLightSession(ORIGIN)).toBeNull();
+  });
+
+  it("migrates legacy agentsmesh-auth key on read", () => {
+    const future = Math.floor(Date.now() / 1000) + 3600;
+    const legacyKey = `agentsmesh-auth/${urlSlug(ORIGIN)}/session`;
+    window.localStorage.setItem(
+      legacyKey,
+      JSON.stringify({
+        access_token: "legacy-tok",
+        refresh_token: "r",
+        expires_at: future,
+        base_url: ORIGIN,
+        schema_version: 1,
+      }),
+    );
+    expect(readLightAuthToken(ORIGIN)).toBe("legacy-tok");
+    expect(window.localStorage.getItem(KEY)).toContain("legacy-tok");
+    expect(window.localStorage.getItem(legacyKey)).toBeNull();
   });
 
   it("parses a fresh session as authenticated", () => {

@@ -19,13 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
 
   return {
-    title: { absolute: `${t("blog.hero.title")} | AgentsMesh` },
+    title: { absolute: `${t("blog.hero.title")} | Do Worker` },
     description: t("blog.hero.subtitle"),
     alternates: {
       canonical: "https://agentsmesh.ai/blog",
     },
     openGraph: {
-      title: `${t("blog.hero.title")} | AgentsMesh`,
+      title: `${t("blog.hero.title")} | Do Worker`,
       description: t("blog.hero.subtitle"),
       url: "https://agentsmesh.ai/blog",
     },

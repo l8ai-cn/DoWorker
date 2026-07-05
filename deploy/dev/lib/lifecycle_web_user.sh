@@ -25,6 +25,7 @@ start_web_user() {
     info "启动 web-user (端口: $web_user_port, Vite → traefik :$HTTP_PORT)..."
     (
         cd "$web_user_dir"
+        DO_WORKER_API_URL="http://127.0.0.1:${HTTP_PORT}" \
         AGENTSMESH_API_URL="http://127.0.0.1:${HTTP_PORT}" \
             _launch_setsid web-user "$log_file" \
             npm run dev -- --port "$web_user_port" --host 127.0.0.1

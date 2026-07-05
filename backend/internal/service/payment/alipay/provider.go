@@ -47,7 +47,7 @@ func (p *Provider) GetProviderName() string {
 func (p *Provider) CreateCheckoutSession(ctx context.Context, req *types.CheckoutRequest) (*types.CheckoutResponse, error) {
 	trade := alipay.TradePreCreate{
 		Trade: alipay.Trade{
-			Subject:     fmt.Sprintf("AgentsMesh %s Subscription", req.BillingCycle),
+			Subject:     fmt.Sprintf("Do Worker %s Subscription", req.BillingCycle),
 			OutTradeNo:  req.IdempotencyKey,
 			TotalAmount: fmt.Sprintf("%.2f", req.ActualAmount),
 			ProductCode: "FACE_TO_FACE_PAYMENT",

@@ -68,6 +68,10 @@ type OrchestrateCreatePodRequest struct {
 	// KnowledgeMounts are per-pod KB selections; they win over Agentfile
 	// KNOWLEDGE declarations and agent default mounts on mode conflicts.
 	KnowledgeMounts []KnowledgeMountRequest
+
+	// LocalPath is an absolute directory on the runner host (Omnigent compat
+	// workspace picker). Maps to SandboxConfig.local_path — not agentfile syntax.
+	LocalPath string
 }
 
 // KnowledgeMountRequest selects one knowledge base for the pod being created.

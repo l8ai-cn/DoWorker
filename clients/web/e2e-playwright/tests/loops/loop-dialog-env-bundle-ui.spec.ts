@@ -90,7 +90,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
       // agent <select> mounts only once runners + agents arrive, so wait
       // for visibility instead of racing the selectOption call.
       const agentSelect = page
-        .locator('[data-dialog-overlay] select#agent-select')
+        .locator('[data-dialog-overlay] select#worker-image-select')
         .first();
       await agentSelect.waitFor({ state: "visible", timeout: 15_000 });
       await agentSelect.selectOption("claude-code");

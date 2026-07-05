@@ -101,7 +101,7 @@
           "autonomy": "Ejecucion activa de tareas",
           "capabilities": "Desarrollo full-stack",
           "environment": "Acceso completo al terminal",
-          "multiAgent": "Habilitado por AgentsMesh",
+          "multiAgent": "Habilitado por Do Worker",
           "selfHosted": "Totalmente controlable"
         }
       }
@@ -124,7 +124,7 @@
       },
       "agentsmesh": {
         "title": "Hablan entre ellos. Tu no haces de mensajero.",
-        "subtitle": "AgentsMesh",
+        "subtitle": "Do Worker",
         "description": "Los agentes observan el trabajo de otros, comparten contexto a traves de channels y se coordinan de forma autonoma. Encuentran companeros, negocian accesos y lanzan refuerzos cuando la carga de trabajo lo exige.",
         "highlights": {
           "0": "Los agentes observan los terminales de otros en tiempo real",
@@ -306,7 +306,7 @@
       "title": "Necesitas un Despliegue",
       "titleHighlight": "Self-Hosted",
       "titleEnd": "Completo?",
-      "description": "Tu codigo y datos nunca salen de tu infraestructura. Despliega AgentsMesh completamente on-premise — perfecto para organizaciones con requisitos estrictos de seguridad y compliance.",
+      "description": "Tu codigo y datos nunca salen de tu infraestructura. Despliega Do Worker completamente on-premise — perfecto para organizaciones con requisitos estrictos de seguridad y compliance.",
       "dockerCompose": "Docker Compose",
       "kubernetesHelm": "Kubernetes Helm (Proximamente)",
       "airGappedSupport": "Soporte Air-gapped (Proximamente)",
@@ -328,8 +328,8 @@
       "live": "En vivo",
       "initializingPod": "Inicializando pod...",
       "typeMessage": "Escribe un mensaje...",
-      "connecting": "Conectando a AgentsMesh...",
-      "connected": "Conectado al servidor AgentsMesh",
+      "connecting": "Conectando a Do Worker...",
+      "connected": "Conectado al servidor Do Worker",
       "workspace": "Workspace: /projects/e-commerce",
       "monitorPod": "Monitorear pod beta-dev y ayudar a coordinar la implementacion de autenticacion",
       "bindingPod": "Me vinculare a pod beta-dev para observar y coordinar...",
@@ -385,26 +385,26 @@
         "runner": "Runner",
         "agent": "Agente",
         "websocket": "WebSocket",
-        "agentsmeshCloud": "AgentsMesh Cloud"
+        "agentsmeshCloud": "Do Worker Cloud"
       }
     },
     "demoVideo": {
       "title": "Mira a tu futuro equipo",
       "titleHighlight": "en accion",
       "description": "Dos minutos. Del ticket al merge request — completamente autonomo.",
-      "iframeTitle": "Demo del Producto AgentsMesh",
+      "iframeTitle": "Demo del Producto Do Worker",
       "highlight1": "Demo del ciclo completo",
       "highlight2": "Colaboracion multi-agente",
       "highlight3": "Ejecucion autonoma de tareas"
     },
     "footer": {
       "tagline": "Donde los equipos escalan mas alla del headcount.",
-      "copyright": "AgentsMesh. Todos los derechos reservados.",
+      "copyright": "Do Worker. Todos los derechos reservados.",
       "madeWith": "Construido para equipos ambiciosos",
       "product": {
         "title": "Producto",
         "agentpod": "AgentPod",
-        "agentsmesh": "AgentsMesh",
+        "agentsmesh": "Do Worker",
         "tickets": "Tickets",
         "runners": "Runners",
         "pricing": "Precios",
@@ -436,7 +436,7 @@
     },
     "demo": {
       "title": "Solicitar una Demo",
-      "subtitle": "Descubre como AgentsMesh puede multiplicar la produccion de tu equipo.",
+      "subtitle": "Descubre como Do Worker puede multiplicar la produccion de tu equipo.",
       "nameLabel": "Nombre completo",
       "namePlaceholder": "Juan Perez",
       "emailLabel": "Email corporativo",
@@ -458,7 +458,7 @@
       "hero": {
         "badge": "Última versión",
         "title": "Descargar",
-        "titleHighlight": "AgentsMesh",
+        "titleHighlight": "Do Worker",
         "subtitle": "Descarga el Runner autoalojado que mantiene tus agentes, código y datos en tu infraestructura.",
         "downloadFor": "Descargar para {platform}",
         "releasedOn": "Publicado el {date}",

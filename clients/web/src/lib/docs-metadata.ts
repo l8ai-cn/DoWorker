@@ -9,27 +9,27 @@ const docsMetadataMap: Record<string, DocsMeta> = {
   "/docs": {
     title: "Documentation",
     description:
-      "Complete documentation for AgentsMesh — the agent workforce platform for ambitious teams.",
+      "Complete documentation for Do Worker — the agent workforce platform for ambitious teams.",
   },
   "/docs/getting-started": {
     title: "Quick Start",
     description:
-      "Get up and running with AgentsMesh in minutes. Set up your Runner, create your first Pod, and start collaborating with AI agents.",
+      "Get up and running with Do Worker in minutes. Set up your Runner, create your first Pod, and start collaborating with AI agents.",
   },
   "/docs/concepts": {
     title: "Core Concepts",
     description:
-      "Understand the key concepts behind AgentsMesh — Pods, Runners, Channels, Mesh topology, and how they work together.",
+      "Understand the key concepts behind Do Worker — Pods, Runners, Channels, Mesh topology, and how they work together.",
   },
   "/docs/faq": {
     title: "FAQ",
     description:
-      "Frequently asked questions about AgentsMesh — troubleshooting Runners, Pods, API keys, Git integration, and billing.",
+      "Frequently asked questions about Do Worker — troubleshooting Runners, Pods, API keys, Git integration, and billing.",
   },
   "/docs/tutorials/runner-setup": {
     title: "Tutorial: Runner Setup",
     description:
-      "Step-by-step guide to installing, registering, and verifying an AgentsMesh Runner for AI agent execution.",
+      "Step-by-step guide to installing, registering, and verifying an Do Worker Runner for AI agent execution.",
   },
   "/docs/tutorials/mcp-and-skills": {
     title: "Tutorial: MCP Tools & Skills",
@@ -39,7 +39,7 @@ const docsMetadataMap: Record<string, DocsMeta> = {
   "/docs/tutorials/git-setup": {
     title: "Tutorial: Connect Git Repositories",
     description:
-      "Connect GitHub, GitLab, or Gitee to AgentsMesh and import repositories for AI agent workflows.",
+      "Connect GitHub, GitLab, or Gitee to Do Worker and import repositories for AI agent workflows.",
   },
   "/docs/features/agentpod": {
     title: "AgentPod",
@@ -114,7 +114,7 @@ const docsMetadataMap: Record<string, DocsMeta> = {
   "/docs/runners/setup": {
     title: "Runner Setup",
     description:
-      "Install and configure the AgentsMesh Runner daemon — self-hosted agent execution with gRPC and mTLS security.",
+      "Install and configure the Do Worker Runner daemon — self-hosted agent execution with gRPC and mTLS security.",
   },
   "/docs/runners/mcp-tools": {
     title: "MCP Tools",
@@ -134,22 +134,22 @@ const docsMetadataMap: Record<string, DocsMeta> = {
   "/docs/guides/team-management": {
     title: "Team Management",
     description:
-      "Manage teams, roles, and permissions in AgentsMesh — organize your AI agent fleet for maximum productivity.",
+      "Manage teams, roles, and permissions in Do Worker — organize your AI agent fleet for maximum productivity.",
   },
   "/docs/api": {
     title: "API Overview",
     description:
-      "AgentsMesh REST API reference — authenticate, manage Pods, Tickets, Channels, and more programmatically.",
+      "Do Worker REST API reference — authenticate, manage Pods, Tickets, Channels, and more programmatically.",
   },
   "/docs/api/authentication": {
     title: "API Authentication",
     description:
-      "Authenticate with the AgentsMesh API using JWT tokens and OAuth — secure access to all platform endpoints.",
+      "Authenticate with the Do Worker API using JWT tokens and OAuth — secure access to all platform endpoints.",
   },
   "/docs/api/channels": {
     title: "Channels API",
     description:
-      "Create, list, and manage multi-agent collaboration channels via the AgentsMesh REST API.",
+      "Create, list, and manage multi-agent collaboration channels via the Do Worker REST API.",
   },
   "/docs/api/loops": {
     title: "Loops API",
@@ -164,7 +164,7 @@ const docsMetadataMap: Record<string, DocsMeta> = {
   "/docs/api/repositories": {
     title: "Repositories API",
     description:
-      "Manage Git repository connections and access tokens via the AgentsMesh REST API.",
+      "Manage Git repository connections and access tokens via the Do Worker REST API.",
   },
   "/docs/api/runners": {
     title: "Runners API",
@@ -174,14 +174,14 @@ const docsMetadataMap: Record<string, DocsMeta> = {
   "/docs/api/tickets": {
     title: "Tickets API",
     description:
-      "Create, update, and query development tickets via the AgentsMesh REST API — integrate with your workflow.",
+      "Create, update, and query development tickets via the Do Worker REST API — integrate with your workflow.",
   },
 };
 
 const defaultMeta: DocsMeta = {
   title: "Documentation",
   description:
-    "AgentsMesh documentation — orchestrate AI coding agents at scale.",
+    "Do Worker documentation — orchestrate AI coding agents at scale.",
 };
 
 /**
@@ -197,7 +197,7 @@ export function createDocsMetadata(path: string): Metadata {
       canonical: `https://agentsmesh.ai${path}`,
     },
     openGraph: {
-      title: `${meta.title} | AgentsMesh Docs`,
+      title: `${meta.title} | Do Worker Docs`,
       description: meta.description,
       url: `https://agentsmesh.ai${path}`,
     },

@@ -22,6 +22,8 @@ func (o *PodOrchestrator) buildPodCommand(
 	localPath := ""
 	if isResumeMode && sourcePod != nil && sourcePod.SandboxPath != nil {
 		localPath = *sourcePod.SandboxPath
+	} else if req.LocalPath != "" {
+		localPath = req.LocalPath
 	}
 
 	effectiveBranch := firstNonEmptyPtr(resolved.BranchName, req.BranchName)

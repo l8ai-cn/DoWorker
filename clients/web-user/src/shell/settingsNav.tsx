@@ -144,7 +144,7 @@ export function useSettingsRoute(): { inSettings: boolean; section: SettingsSect
 }
 
 // Last location the user was on before entering /settings — path + search so
-// the conversation (and its ?file= etc.) is preserved. "Back to Omnigent"
+// the conversation (and its ?file= etc.) is preserved. "Back to Do Worker"
 // returns here instead of the home page. Module-scoped: the sidebar stays
 // mounted across the settings transition, so the value captured on the last
 // non-settings render survives into settings.
@@ -199,7 +199,7 @@ export function SettingsSidebarBody({
           (persistent card), so dropping it changes nothing there. */}
           <Link to={settingsReturnPath}>
             <ArrowLeftIcon className="size-4" />
-            Back to Omnigent
+            Back to Do Worker
           </Link>
         </Button>
         <Tooltip>

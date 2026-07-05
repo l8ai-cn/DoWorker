@@ -29,21 +29,21 @@ func runUpdate(args []string) {
 	prerelease := fs.Bool("pre", false, "Allow updating to prerelease versions")
 
 	fs.Usage = func() {
-		fmt.Println(`Check and install updates for the AgentsMesh Runner.
+		fmt.Println(`Check and install updates for the Do Worker Runner.
 
 Usage:
-  agentsmesh-runner update [options]
+  do-worker-runner update [options]
 
 Options:`)
 		fs.PrintDefaults()
 		fmt.Println(`
 Examples:
-  agentsmesh-runner update              # Interactive update
-  agentsmesh-runner update --check      # Only check for updates
-  agentsmesh-runner update -y           # Silent update (wait for pods to finish)
-  agentsmesh-runner update -f           # Force immediate update (may interrupt pods)
-  agentsmesh-runner update -v v1.2.3    # Update to specific version
-  agentsmesh-runner update --pre        # Include prerelease versions`)
+  do-worker-runner update              # Interactive update
+  do-worker-runner update --check      # Only check for updates
+  do-worker-runner update -y           # Silent update (wait for pods to finish)
+  do-worker-runner update -f           # Force immediate update (may interrupt pods)
+  do-worker-runner update -v v1.2.3    # Update to specific version
+  do-worker-runner update --pre        # Include prerelease versions`)
 	}
 
 	if err := fs.Parse(args); err != nil {

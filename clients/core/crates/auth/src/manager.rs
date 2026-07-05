@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use agentsmesh_state::auth_types::{Organization, User};
 
 use crate::error::AuthError;
-use crate::state::{session_storage_key, AuthState};
+use crate::state::{legacy_session_storage_key, session_storage_key, AuthState};
 use crate::storage::PersistentStorage;
 
 pub struct AuthManager {
@@ -88,6 +88,7 @@ impl AuthManager {
     pub(crate) fn reset_local(&self) {
         self.write_state().clear();
         self.storage.remove(&self.session_key());
+        self.storage.remove(&legacy_session_storage_key(&self.base_url));
     }
 
     pub(crate) fn persist(&self) {

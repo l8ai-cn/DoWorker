@@ -32,9 +32,10 @@ func Load(configFile string) (*Config, error) {
 	v.SetDefault("auto_update.max_wait_time", 30*time.Minute)
 	v.SetDefault("auto_update.auto_apply", true)
 
-	// Read from environment
-	v.SetEnvPrefix("AGENTSMESH")
+	// Read from environment (DO_WORKER_* primary, AGENTSMESH_* legacy)
+	v.SetEnvPrefix("DO_WORKER")
 	v.AutomaticEnv()
+	applyEnvCompat(v)
 
 	// Read from config file if specified
 	if configFile != "" {
@@ -44,11 +45,11 @@ func Load(configFile string) (*Config, error) {
 		v.SetConfigName("runner")
 		v.SetConfigType("yaml")
 		v.AddConfigPath(".")
-		if home, err := os.UserHomeDir(); err == nil {
-			v.AddConfigPath(filepath.Join(home, ".agentsmesh"))
+		for _, dir := range userConfigSearchPaths() {
+			v.AddConfigPath(dir)
 		}
-		if runtime.GOOS != "windows" {
-			v.AddConfigPath("/etc/agentsmesh")
+		for _, dir := range systemConfigSearchPaths() {
+			v.AddConfigPath(dir)
 		}
 	}
 

@@ -4,7 +4,9 @@ go_library(
     name = "config",
     srcs = [
         "config.go",
+        "config_env_compat.go",
         "config_grpc.go",
+        "config_home.go",
         "config_paths.go",
         "config_types.go",
     ],

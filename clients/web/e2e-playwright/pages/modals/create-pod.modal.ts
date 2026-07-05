@@ -25,21 +25,19 @@ export class CreatePodModal {
   }
 
   /**
-   * Select an agent. The form renders a native `<select id="agent-select">`
-   * (web/src/components/pod/CreatePodForm/AgentSelect.tsx) — `<option>` text
-   * is not in the visible DOM until the dropdown is opened, so the previous
-   * `getByText(...).click()` was a silent no-op and left the Create Pod
-   * button disabled.
+   * Select a worker image. The form renders `<select id="worker-image-select">`.
    */
-  async selectAgent(agentSlug: string): Promise<void> {
+  async selectImage(imageSlug: string): Promise<void> {
     const select = this.page
-      .locator('[role="dialog"] select#agent-select')
+      .locator('[role="dialog"] select#worker-image-select')
       .first();
-    // The dialog opens before usePodCreationData finishes loading agents,
-    // so AgentSelect renders "no agents" until runners + agents arrive.
-    // Wait up to 15s for the actual <select> to mount.
     await select.waitFor({ state: "visible", timeout: 15_000 });
-    await select.selectOption(agentSlug);
+    await select.selectOption(imageSlug);
+  }
+
+  /** @deprecated use selectImage */
+  async selectAgent(agentSlug: string): Promise<void> {
+    return this.selectImage(agentSlug);
   }
 
   /** Fill the prompt text area. */

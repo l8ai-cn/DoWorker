@@ -1,6 +1,6 @@
 const API = process.env.HIVE_API_URL || "http://localhost:10015";
 const ORG = "dev-org";
-const USER = { username: "devuser", password: "devpass123" };
+const USER = { username: "devuser", password: "AdminAb123456" };
 
 const report = { steps: [] };
 
@@ -62,6 +62,13 @@ async function main() {
   });
   step("S5 W2 GET environments/.../changes", fsRes.status !== 501, `HTTP ${fsRes.status}`);
 
+  const fileRes = await fetch(`${API}/v1/sessions/${sid}/resources/files`, {
+    method: "POST",
+    headers: headers(token),
+    body: "",
+  });
+  step("S5 W3 POST resources/files routed", fileRes.status !== 404 && fileRes.status !== 501, `HTTP ${fileRes.status}`);
+
   const commentRes = await fetch(`${API}/v1/sessions/${sid}/comments`, {
     method: "POST",
     headers: headers(token),
@@ -84,6 +91,9 @@ async function main() {
     body: JSON.stringify({ name: "s5-test", transport: "stdio", command: "echo", args: [] }),
   });
   step("S5 W5 POST agent/mcp-servers", mcpRes.status !== 404 && mcpRes.status !== 501, `HTTP ${mcpRes.status}`);
+
+  const polListRes = await fetch(`${API}/v1/sessions/${sid}/policies`, { headers: headers(token) });
+  step("S5 W6 GET /sessions/{id}/policies", polListRes.ok);
 
   const polRes = await fetch(`${API}/v1/sessions/${sid}/policies`, {
     method: "POST",
@@ -126,7 +136,6 @@ async function main() {
   const page2Res = firstId
     ? await fetch(`${API}/v1/agents?after=${encodeURIComponent(firstId)}`, { headers: headers(token) })
     : null;
-  const page2Body = page2Res ? await page2Res.json() : null;
   const cursorOk =
     agentsRes.ok &&
     Array.isArray(agentsBody.data) &&

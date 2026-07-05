@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Block Store Phase 1 smoke test.
 # Requires the deploy/dev stack to be running (see deploy/dev/dev.sh) and
-# the dev test user "devuser / devpass123" to exist.
+# the dev test user "devuser / AdminAb123456" to exist.
 #
 # Exits 0 on success, non-zero on any HTTP error.
 
@@ -9,7 +9,7 @@ set -euo pipefail
 
 API="${API:-http://localhost:80}"
 USERNAME="${USERNAME:-devuser}"
-PASSWORD="${PASSWORD:-devpass123}"
+PASSWORD="${PASSWORD:-AdminAb123456}"
 ORG_SLUG="${ORG_SLUG:-dev-org}"
 
 log() { printf '\033[36m[smoke]\033[0m %s\n' "$*"; }

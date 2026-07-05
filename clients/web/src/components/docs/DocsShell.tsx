@@ -144,7 +144,7 @@ export default function DocsShell({
                 <Logo />
               </div>
               <span className="text-base sm:text-xl font-semibold text-[var(--azure-light-ink)] truncate">
-                AgentsMesh
+                Do Worker
               </span>
             </Link>
             <span className="hidden sm:inline-block ml-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--azure-light-cyan-ink)]">
@@ -201,7 +201,7 @@ export default function DocsShell({
         <div className="container mx-auto px-4 py-10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-[var(--azure-light-ink-muted)]">
-              &copy; {new Date().getFullYear()} AgentsMesh.{" "}
+              &copy; {new Date().getFullYear()} Do Worker.{" "}
               {t("common.allRightsReserved")}
             </p>
             <div className="flex gap-8">

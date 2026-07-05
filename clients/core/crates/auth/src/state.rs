@@ -2,7 +2,8 @@ use agentsmesh_state::auth_types::{Organization, User};
 use serde::{Deserialize, Serialize};
 
 pub(crate) const LEGACY_STORAGE_KEY: &str = "agentsmesh-auth";
-pub(crate) const NAMESPACE_PREFIX: &str = "agentsmesh-auth";
+pub(crate) const LEGACY_NAMESPACE_PREFIX: &str = "agentsmesh-auth";
+pub(crate) const NAMESPACE_PREFIX: &str = "do-worker-auth";
 pub(crate) const SCHEMA_VERSION: u32 = 1;
 
 /// Only this struct hits disk / localStorage / Keychain. Crate-private:
@@ -125,4 +126,8 @@ pub(crate) fn url_slug(base_url: &str) -> String {
 
 pub(crate) fn session_storage_key(base_url: &str) -> String {
     format!("{}/{}/session", NAMESPACE_PREFIX, url_slug(base_url))
+}
+
+pub(crate) fn legacy_session_storage_key(base_url: &str) -> String {
+    format!("{}/{}/session", LEGACY_NAMESPACE_PREFIX, url_slug(base_url))
 }

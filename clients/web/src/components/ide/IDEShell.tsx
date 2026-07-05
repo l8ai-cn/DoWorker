@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { hideIdeChrome, hideIdeSidebar } from "@/lib/ide-chrome";
 import { activityHasSidebar } from "@/lib/ide-sidebar";
@@ -32,6 +32,7 @@ import { useTranslations } from "next-intl";
 import { getPodDisplayName } from "@/lib/pod-display-name";
 import { AddRunnerModal } from "./modals/AddRunnerModal";
 import { ImportRepositoryModal } from "./modals/ImportRepositoryModal";
+import { useCurrentOrg } from "@/stores/auth";
 
 interface IDEShellProps {
   children: React.ReactNode;
@@ -98,14 +99,21 @@ export function IDEShell({
   const addPane = useWorkspaceStore((state) => state.addPane);
   const fetchPods = usePodStore((state) => state.fetchPods);
   const t = useTranslations();
+  const router = useRouter();
+  const currentOrg = useCurrentOrg();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [createPodModalOpen, setCreatePodModalOpen] = useState(false);
   const addRunnerModal = useCtaModal();
   const importRepoModal = useCtaModal();
 
   const handleCreatePod = useCallback(() => {
+    const orgSlug = currentOrg?.slug;
+    if (orgSlug) {
+      router.push(`/${orgSlug}/workers/new`);
+      return;
+    }
     setCreatePodModalOpen(true);
-  }, []);
+  }, [currentOrg?.slug, router]);
 
   const handlePodCreated = useCallback((pod?: { pod_key: string; title?: string }) => {
     setCreatePodModalOpen(false);

@@ -217,13 +217,13 @@ describe("AddRunnerModal", () => {
 
       const copyButtons = screen.getAllByText("runners.addRunnerModal.copyCommand");
       const registerCopyBtn = copyButtons.find(btn =>
-        btn.closest("div.bg-muted")?.querySelector("code")?.textContent?.includes("agentsmesh-runner register")
+        btn.closest("div.bg-muted")?.querySelector("code")?.textContent?.includes("do-worker-runner register")
       );
       expect(registerCopyBtn).toBeDefined();
       fireEvent.click(registerCopyBtn!);
 
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-        expect.stringContaining("agentsmesh-runner register")
+        expect.stringContaining("do-worker-runner register")
       );
     });
   });

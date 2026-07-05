@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::AuthError;
 use crate::manager::{now_unix_secs, AuthManager};
-use crate::state::LEGACY_STORAGE_KEY;
+use crate::state::{legacy_session_storage_key, LEGACY_STORAGE_KEY};
 
 const REFRESH_LEAD_SECS: i64 = 60;
 
@@ -37,16 +37,27 @@ impl AuthManager {
             self.storage.remove(LEGACY_STORAGE_KEY);
         }
 
-        let session_json = match self.storage.get(&self.session_key()) {
+        let session_key = self.session_key();
+        let session_json = match self.storage.get(&session_key) {
             Some(j) => j,
             None => {
-                return if purged_legacy {
-                    BootstrapResult::AnonymousAfterCleanup {
-                        reason: BootstrapCleanupReason::LegacyDataPurged,
+                let legacy_key = legacy_session_storage_key(&self.base_url);
+                match self.storage.get(&legacy_key) {
+                    Some(j) => {
+                        self.storage.set(&session_key, &j);
+                        self.storage.remove(&legacy_key);
+                        j
                     }
-                } else {
-                    BootstrapResult::Anonymous
-                };
+                    None => {
+                        return if purged_legacy {
+                            BootstrapResult::AnonymousAfterCleanup {
+                                reason: BootstrapCleanupReason::LegacyDataPurged,
+                            }
+                        } else {
+                            BootstrapResult::Anonymous
+                        };
+                    }
+                }
             }
         };
 

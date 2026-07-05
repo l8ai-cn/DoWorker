@@ -155,11 +155,11 @@ export function AddRunnerModal({ open, onClose, onCreated }: AddRunnerModalProps
                   <span>Terminal</span>
                 </div>
                 <code className="text-success text-sm font-mono block whitespace-pre-wrap pr-24">
-                  {`agentsmesh-runner register --server ${serverUrl} --token ${generatedToken.substring(0, 16)}...
-agentsmesh-runner run`}
+                  {`do-worker-runner register --server ${serverUrl} --token ${generatedToken.substring(0, 16)}...
+do-worker-runner run`}
                 </code>
                 <CopyBtn
-                  text={`agentsmesh-runner register --server ${serverUrl} --token ${generatedToken}\nagentsmesh-runner run`}
+                  text={`do-worker-runner register --server ${serverUrl} --token ${generatedToken}\ndo-worker-runner run`}
                   id="command"
                 />
               </div>
@@ -177,11 +177,11 @@ agentsmesh-runner run`}
                     <span>Terminal</span>
                   </div>
                   <code className="text-success text-sm font-mono block whitespace-pre-wrap pr-24">
-                    {`agentsmesh-runner service install
-agentsmesh-runner service start`}
+                    {`do-worker-runner service install
+do-worker-runner service start`}
                   </code>
                   <CopyBtn
-                    text={`agentsmesh-runner service install\nagentsmesh-runner service start`}
+                    text={`do-worker-runner service install\ndo-worker-runner service start`}
                     id="service"
                   />
                 </div>

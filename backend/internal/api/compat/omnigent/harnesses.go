@@ -19,7 +19,8 @@ var harnessLabelOverrides = map[string]string{
 	"cursor-cli":   "Cursor",
 	"aider":        "Aider",
 	"loopal":       "Loopal",
-	"doagent":      "DoAgent",
+	"do-agent":   "DoAgent",
+	"doagent":    "DoAgent",
 }
 
 type harnessWire struct {

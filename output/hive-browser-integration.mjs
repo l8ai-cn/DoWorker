@@ -13,13 +13,13 @@ const TRAEFIK_API = process.env.TRAEFIK_API_URL || "http://127.0.0.1:10000";
 const WEB_USER_AUTH_BASE = process.env.WEB_USER_AUTH_URL || "http://localhost:10000";
 const API_DIRECT = process.env.HIVE_API_URL || "http://localhost:10015";
 const ORG = "dev-org";
-const USER = { username: "devuser", password: "devpass123" };
+const USER = { username: "devuser", password: "AdminAb123456" };
 
 function authKey(baseUrl) {
   const u = new URL(baseUrl);
   const port = u.port ? `_${u.port}` : "";
   const raw = `${u.protocol.replace(":", "")}_${u.hostname.toLowerCase()}${port}`;
-  return `agentsmesh-auth/${raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64)}/session`;
+  return `do-worker-auth/${raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64)}/session`;
 }
 
 async function setReactTextarea(page, testId, value) {

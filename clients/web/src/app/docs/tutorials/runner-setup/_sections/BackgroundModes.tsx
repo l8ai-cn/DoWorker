@@ -17,13 +17,13 @@ export function BackgroundModes() {
           title={t("service.title")}
           description={t("service.description")}
           startLabel={t("service.startLabel")}
-          startCode={`sudo agentsmesh-runner service install
-sudo agentsmesh-runner service start
-sudo agentsmesh-runner service status`}
+          startCode={`sudo do-worker-runner service install
+sudo do-worker-runner service start
+sudo do-worker-runner service status`}
           stopLabel={t("service.stopLabel")}
-          stopCode={`sudo agentsmesh-runner service stop
+          stopCode={`sudo do-worker-runner service stop
 # Remove from startup entirely:
-sudo agentsmesh-runner service uninstall`}
+sudo do-worker-runner service uninstall`}
           note={t("service.note")}
         />
         <ModeCard
@@ -31,15 +31,15 @@ sudo agentsmesh-runner service uninstall`}
           title={t("nohup.title")}
           description={t("nohup.description")}
           startLabel={t("nohup.startLabel")}
-          startCode={`nohup agentsmesh-runner run > ~/agentsmesh-runner.log 2>&1 &
+          startCode={`nohup do-worker-runner run > ~/do-worker-runner.log 2>&1 &
 echo $! > ~/.agentsmesh/runner.pid
-tail -f ~/agentsmesh-runner.log`}
+tail -f ~/do-worker-runner.log`}
           stopLabel={t("nohup.stopLabel")}
           stopCode={`# Graceful stop by PID file
 kill "$(cat ~/.agentsmesh/runner.pid)"
 
 # Fallback if PID was lost
-pkill -f agentsmesh-runner`}
+pkill -f do-worker-runner`}
           note={t("nohup.note")}
         />
       </div>

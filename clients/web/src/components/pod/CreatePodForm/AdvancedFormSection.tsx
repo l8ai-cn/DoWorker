@@ -6,7 +6,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { ConfigForm } from "@/components/ide/ConfigForm";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { RunnerSelect } from "./RunnerSelect";
 import { CredentialBundleSelect } from "./CredentialBundleSelect";
 import { EnvBundleMultiSelect } from "./EnvBundleMultiSelect";
 import { SkillMultiSelect } from "./SkillMultiSelect";
@@ -16,14 +15,11 @@ import { AgentfileLayerEditor } from "./AgentfileLayerEditor";
 import { KnowledgeBaseMountSelect } from "./KnowledgeBaseMountSelect";
 import { PodLifecycleSection } from "./PodLifecycleSection";
 import type { CreatePodFormState } from "../hooks";
-import type { RunnerData, RepositoryData, ConfigField } from "@/lib/api";
+import type { RepositoryData, ConfigField } from "@/lib/api";
 
 interface AdvancedFormSectionProps {
   form: CreatePodFormState;
-  runners: RunnerData[];
   repositories: RepositoryData[];
-  selectedRunner: { id: number } | null;
-  setSelectedRunnerId: (id: number | null) => void;
   configFields: ConfigField[];
   loadingConfig: boolean;
   configValues: Record<string, unknown>;
@@ -33,10 +29,7 @@ interface AdvancedFormSectionProps {
 
 export function AdvancedFormSection({
   form,
-  runners,
   repositories,
-  selectedRunner,
-  setSelectedRunnerId,
   configFields,
   loadingConfig,
   configValues,
@@ -87,15 +80,6 @@ export function AdvancedFormSection({
         destroyAfterMinutes={form.destroyAfterMinutes}
         onPolicyChange={form.setDestroyPolicy}
         onAfterChange={form.setDestroyAfterMinutes}
-      />
-
-      {/* Runner Select (manual override, optional) — always visible */}
-      <RunnerSelect
-        runners={runners}
-        selectedRunnerId={selectedRunner?.id ?? null}
-        onSelect={setSelectedRunnerId}
-        error={form.validationErrors.runner}
-        t={t}
       />
 
       {/* Form-mode-only sections (hidden when source mode is ON) */}

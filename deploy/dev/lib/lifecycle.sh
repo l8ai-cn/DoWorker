@@ -37,9 +37,10 @@ print_usage() {
   bazel run //deploy/dev:clean              # 停止并清理所有服务
 
   或直接调脚本（backward-compat）:
-  ./dev.sh [--backend-only|--coordinator-runners|--runners-k8s|--rebuild-runner|--reset-runners|--clean|--help]
+  ./dev.sh [--backend-only|--frontends|--coordinator-runners|--runners-k8s|--rebuild-runner|--reset-runners|--clean|--help]
 
   改动 backend / relay 源码: ibazel 自动重 build (host)
+  仅重启三个前端:           ./dev.sh --frontends
   改动 runner 源码:        bazel run //deploy/dev:reset_runners
   Hive 验收 (dev 栈已起):  bash deploy/dev/hive_smoke.sh
   或 bazel test //deploy/dev:hive_smoke --test_tag_filters=hive
@@ -92,7 +93,7 @@ wait_for_postgres() {
 }
 
 runner_compose_services() {
-    echo runner-e2e-echo runner-e2e-echo-2 runner-claude-code runner-codex-cli runner-gemini-cli runner-loopal
+    echo runner-e2e-echo runner-e2e-echo-2 runner-claude-code runner-codex-cli runner-gemini-cli runner-loopal runner-do-agent runner-aider runner-opencode runner-admin-workspace runner-admin-workspace-do-agent
 }
 
 # Kill stale runner CLI processes (in case anyone installed agentsmesh-runner
@@ -118,6 +119,7 @@ reset_runners() {
 
     build_runner_binary || return 1
     build_mock_agent_binary || return 1
+    build_do_agent_binary || return 1
 
     if runners_k8s_enabled; then
         hot_swap_runner_k8s_binary || return 1
@@ -240,7 +242,7 @@ show_result() {
     fi
     echo "    重 build: ./dev.sh --rebuild-runner"
     echo ""
-    echo "  测试账号:   dev@agentsmesh.local / devpass123"
+    echo "  测试账号:   dev@agentsmesh.local / AdminAb123456"
     echo "  管理员:     admin@agentsmesh.local / Ab123456"
     echo ""
     echo "  其他服务:"
@@ -310,6 +312,12 @@ _prepare_next_port() {
     fi
 
     if [[ "$stale_lock" == false ]] && lsof -i :"$web_port" &>/dev/null; then
+        if [[ "$label" == "web-user" ]]; then
+            warn "重启 web-user：释放端口 $web_port..."
+            lsof -ti :"$web_port" 2>/dev/null | xargs kill -9 2>/dev/null || true
+            sleep 1
+            return 0
+        fi
         warn "端口 $web_port 已被占用，跳过${label}启动"
         return 1
     fi
@@ -416,3 +424,9 @@ start_admin_frontend() {
 source "$SCRIPT_DIR/lib/lifecycle_launch.sh"
 # shellcheck source=lifecycle_web_user.sh
 source "$SCRIPT_DIR/lib/lifecycle_web_user.sh"
+
+start_all_frontends() {
+    start_frontend
+    start_admin_frontend
+    start_web_user
+}

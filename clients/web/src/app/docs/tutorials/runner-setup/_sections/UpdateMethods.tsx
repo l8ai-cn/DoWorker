@@ -21,10 +21,10 @@ export function UpdateMethods() {
         badge="B"
         title={t("command.title")}
         description={t("command.description")}
-        code={`agentsmesh-runner update              # ${t("command.hintInteractive")}
-agentsmesh-runner update --check      # ${t("command.hintCheck")}
-agentsmesh-runner update -y           # ${t("command.hintSilent")}
-agentsmesh-runner update -v v1.2.3    # ${t("command.hintVersion")}`}
+        code={`do-worker-runner update              # ${t("command.hintInteractive")}
+do-worker-runner update --check      # ${t("command.hintCheck")}
+do-worker-runner update -y           # ${t("command.hintSilent")}
+do-worker-runner update -v v1.2.3    # ${t("command.hintVersion")}`}
         note={t("command.note")}
       />
 
@@ -39,10 +39,10 @@ curl -fsSL ${serverUrl}/install.sh | sh
 irm ${serverUrl}/install.ps1 | iex`}
         extraCodeLabel={t("reinstall.restartLabel")}
         extraCode={`# System service
-sudo agentsmesh-runner service restart
+sudo do-worker-runner service restart
 
 # CLI mode
-pkill agentsmesh-runner && agentsmesh-runner run`}
+pkill do-worker-runner && do-worker-runner run`}
         note={t("reinstall.note")}
       />
     </div>

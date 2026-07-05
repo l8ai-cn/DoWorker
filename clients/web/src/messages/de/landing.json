@@ -101,7 +101,7 @@
           "autonomy": "Aktive Aufgabenausführung",
           "capabilities": "Full-Stack-Entwicklung",
           "environment": "Voller Terminal-Zugang",
-          "multiAgent": "AgentsMesh aktiviert",
+          "multiAgent": "Do Worker aktiviert",
           "selfHosted": "Vollständig kontrollierbar"
         }
       }
@@ -124,7 +124,7 @@
       },
       "agentsmesh": {
         "title": "Sie reden miteinander. Sie spielen nicht den Boten.",
-        "subtitle": "AgentsMesh",
+        "subtitle": "Do Worker",
         "description": "Agenten beobachten gegenseitig ihre Arbeit, teilen Kontext über Channels und koordinieren sich autonom. Sie finden Teamkollegen, verhandeln Zugriffsrechte und starten Verstärkung, wenn die Arbeitslast es erfordert.",
         "highlights": {
           "0": "Agenten beobachten in Echtzeit gegenseitig ihre Terminals",
@@ -306,7 +306,7 @@
       "title": "Vollständiges",
       "titleHighlight": "Self-Hosted",
       "titleEnd": "Deployment benötigt?",
-      "description": "Ihr Code und Ihre Daten verlassen nie Ihre Infrastruktur. Deployen Sie AgentsMesh vollständig on-premise — perfekt für Organisationen mit strengen Sicherheits- und Compliance-Anforderungen.",
+      "description": "Ihr Code und Ihre Daten verlassen nie Ihre Infrastruktur. Deployen Sie Do Worker vollständig on-premise — perfekt für Organisationen mit strengen Sicherheits- und Compliance-Anforderungen.",
       "dockerCompose": "Docker Compose",
       "kubernetesHelm": "Kubernetes Helm (Demnächst)",
       "airGappedSupport": "Air-Gapped-Unterstützung (Demnächst)",
@@ -328,8 +328,8 @@
       "live": "Live",
       "initializingPod": "Pod wird initialisiert...",
       "typeMessage": "Nachricht eingeben...",
-      "connecting": "Verbindung zu AgentsMesh...",
-      "connected": "Mit AgentsMesh-Server verbunden",
+      "connecting": "Verbindung zu Do Worker...",
+      "connected": "Mit Do Worker-Server verbunden",
       "workspace": "Workspace: /projects/e-commerce",
       "monitorPod": "Pod beta-dev überwachen und bei der Koordination der Auth-Implementierung helfen",
       "bindingPod": "Ich binde mich an Pod beta-dev zur Beobachtung und Koordination...",
@@ -385,26 +385,26 @@
         "runner": "Runner",
         "agent": "Agent",
         "websocket": "WebSocket",
-        "agentsmeshCloud": "AgentsMesh Cloud"
+        "agentsmeshCloud": "Do Worker Cloud"
       }
     },
     "demoVideo": {
       "title": "Sehen Sie Ihr zukünftiges Team",
       "titleHighlight": "in Aktion",
       "description": "Zwei Minuten. Vom Ticket zum Merge Request — vollständig autonom.",
-      "iframeTitle": "AgentsMesh Produktdemo",
+      "iframeTitle": "Do Worker Produktdemo",
       "highlight1": "Vollständige Lifecycle-Demo",
       "highlight2": "Multi-Agent-Kollaboration",
       "highlight3": "Autonome Aufgabenausführung"
     },
     "footer": {
       "tagline": "Wo Teams über die Teamgröße hinaus skalieren.",
-      "copyright": "AgentsMesh. Alle Rechte vorbehalten.",
+      "copyright": "Do Worker. Alle Rechte vorbehalten.",
       "madeWith": "Für ambitionierte Teams gebaut",
       "product": {
         "title": "Produkt",
         "agentpod": "AgentPod",
-        "agentsmesh": "AgentsMesh",
+        "agentsmesh": "Do Worker",
         "tickets": "Tickets",
         "runners": "Runners",
         "pricing": "Preise",
@@ -436,7 +436,7 @@
     },
     "demo": {
       "title": "Demo anfordern",
-      "subtitle": "Erfahren Sie, wie AgentsMesh den Output Ihres Teams vervielfachen kann.",
+      "subtitle": "Erfahren Sie, wie Do Worker den Output Ihres Teams vervielfachen kann.",
       "nameLabel": "Vollständiger Name",
       "namePlaceholder": "Max Mustermann",
       "emailLabel": "Geschäftliche E-Mail",
@@ -458,7 +458,7 @@
       "hero": {
         "badge": "Aktuelle Version",
         "title": "Download",
-        "titleHighlight": "AgentsMesh",
+        "titleHighlight": "Do Worker",
         "subtitle": "Lade den selbst gehosteten Runner herunter, der Agents, Code und Daten auf deiner Infrastruktur belässt.",
         "downloadFor": "Download für {platform}",
         "releasedOn": "Veröffentlicht am {date}",

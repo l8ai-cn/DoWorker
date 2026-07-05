@@ -83,7 +83,7 @@ test.describe("Dashboard still loads wasm after login", () => {
         const raw = `${u.protocol.replace(":", "")}_${u.hostname.toLowerCase()}${port}`;
         const slug = raw.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 64);
         localStorage.setItem(
-          `agentsmesh-auth/${slug}/session`,
+          `do-worker-auth/${slug}/session`,
           JSON.stringify({
             access_token: token,
             refresh_token,

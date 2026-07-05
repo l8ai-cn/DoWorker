@@ -58,11 +58,11 @@ func LoadEnv(t *testing.T) *Env {
 			pgUser, pgPwd, pgPort, pgDB,
 		),
 		DevUser:           envString("E2E_DEV_USER", "devuser"),
-		DevPassword:       envString("E2E_DEV_PASSWORD", "devpass123"),
+		DevPassword:       envString("E2E_DEV_PASSWORD", "AdminAb123456"),
 		DevOrgSlug:        envString("E2E_DEV_ORG", "dev-org"),
 		RunnerNode:        envString("E2E_RUNNER_NODE", "dev-runner"),
 		SecondaryUser:     envString("E2E_DEV2_USER", "devuser2"),
-		SecondaryPassword: envString("E2E_DEV2_PASSWORD", "devpass123"),
+		SecondaryPassword: envString("E2E_DEV2_PASSWORD", "AdminAb123456"),
 	}
 	if secMCPPort > 0 {
 		env.SecondaryMCPBaseURL = fmt.Sprintf("http://127.0.0.1:%d/mcp", secMCPPort)

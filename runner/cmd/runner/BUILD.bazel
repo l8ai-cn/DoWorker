@@ -66,8 +66,8 @@ go_oci_image(
 # uploads via `gh release create`.
 runner_release_bundle(
     name = "release",
-    archive_basename = "agentsmesh-runner",
-    binary_name = "agentsmesh-runner",
+    archive_basename = "do-worker-runner",
+    binary_name = "do-worker-runner",
     embed = [":runner_lib"],
     extra_files = [
         "//:README.md",

@@ -223,7 +223,7 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
       <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
     );
 
-    const agentSelect = container.querySelector("#agent-select") as HTMLSelectElement;
+    const agentSelect = container.querySelector("#worker-image-select") as HTMLSelectElement;
     expect(agentSelect).toBeTruthy();
     fireEvent.change(agentSelect, { target: { value: "claude-code" } });
 
@@ -241,7 +241,7 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
       <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
     );
 
-    const agentSelect = container.querySelector("#agent-select") as HTMLSelectElement;
+    const agentSelect = container.querySelector("#worker-image-select") as HTMLSelectElement;
     fireEvent.change(agentSelect, { target: { value: "claude-code" } });
     await waitForBundlesLoaded();
 
@@ -266,7 +266,7 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
       <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
     );
 
-    const agentSelect = container.querySelector("#agent-select") as HTMLSelectElement;
+    const agentSelect = container.querySelector("#worker-image-select") as HTMLSelectElement;
     fireEvent.change(agentSelect, { target: { value: "claude-code" } });
     await waitForBundlesLoaded();
 
@@ -292,7 +292,7 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
       <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
     );
 
-    const agentSelect = container.querySelector("#agent-select") as HTMLSelectElement;
+    const agentSelect = container.querySelector("#worker-image-select") as HTMLSelectElement;
     fireEvent.change(agentSelect, { target: { value: "claude-code" } });
     await waitForBundlesLoaded();
     fillRequiredFields();

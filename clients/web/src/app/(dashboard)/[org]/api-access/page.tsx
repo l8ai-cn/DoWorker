@@ -19,7 +19,7 @@ export default function ApiAccessPage() {
     <div className="flex h-full min-h-0 flex-col bg-background">
       <PageHeader
         title="API 接入"
-        subtitle="通过 API 启动和管理 AgentsMesh Pod"
+        subtitle="通过 API 启动和管理 Do Worker Pod"
       />
 
       <div className="flex-1 overflow-y-auto bg-surface-muted/25">
@@ -27,7 +27,7 @@ export default function ApiAccessPage() {
           <p className="text-sm leading-6 text-muted-foreground">
             统一入口{" "}
             <code className="rounded bg-background px-1.5 py-0.5 font-mono text-xs">{apiBase}</code>
-            。使用用户 Token 或 API Key 认证后，可在运行节点上创建环境、传入 AgentFile Layer、绑定仓库。
+            。使用用户 Token 或 API Key 认证后，可在集群上创建环境、传入 AgentFile Layer、绑定仓库。
           </p>
 
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -50,7 +50,7 @@ export default function ApiAccessPage() {
             <CardContent className="space-y-3">
               <CodeBlock
                 code={`curl -X POST "${createPodPath}" \\
-  -H "Authorization: Bearer $AGENTSMESH_TOKEN" \\
+  -H "Authorization: Bearer $DO_WORKER_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
     "agent_slug": "codex-cli",

@@ -11,7 +11,7 @@ try {
   loginRes = await fetch(`${API}/proto.auth.v1.AuthService/Login`, {
     method: "POST",
     headers: HEADERS,
-    body: JSON.stringify({ username: "devuser", password: "devpass123" }),
+    body: JSON.stringify({ username: "devuser", password: "AdminAb123456" }),
   });
 } catch {
   process.exit(0); // backend down — the caller's health check reports it

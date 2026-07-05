@@ -24,7 +24,7 @@ import (
 // Runner only resolves path placeholders ({{sandbox_root}}, {{work_dir}}) and executes.
 func (b *PodBuilder) Build(ctx context.Context) (*Pod, error) {
 	buildStart := time.Now()
-	ctx, span := otel.Tracer("agentsmesh-runner").Start(ctx, "pod.build",
+	ctx, span := otel.Tracer("do-worker-runner").Start(ctx, "pod.build",
 		trace.WithAttributes(
 			attribute.String("pod.key", b.cmd.GetPodKey()),
 			attribute.String("pod.agent", b.cmd.GetLaunchCommand()),

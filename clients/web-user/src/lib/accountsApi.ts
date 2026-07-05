@@ -6,7 +6,7 @@
  * MembersPage, and any future profile-management UI share one
  * source of truth for the request/response shapes.
  *
- * AgentsMesh stores JWT in localStorage (``agentsmesh-auth``) after
+ * Do Worker stores JWT in localStorage (`do-worker-auth`, legacy `agentsmesh-auth`) after
  * login; ``/auth/me`` and logout use Bearer auth.
  *
  * Errors: every helper resolves with a typed error object on
@@ -15,7 +15,7 @@
  * without try/catch every call site.
  */
 
-import { clearAgentsMeshSession, readAgentsMeshJWT } from "./agentsmesh-auth";
+import { clearDoWorkerSession, readDoWorkerJWT } from "./do-worker-auth";
 
 /** Body of POST /auth/login. */
 export interface LoginRequest {
@@ -109,7 +109,7 @@ export async function login(body: LoginRequest): Promise<LoginResult> {
  */
 export async function logout(): Promise<void> {
   const headers: HeadersInit = {};
-  const jwt = readAgentsMeshJWT();
+  const jwt = readDoWorkerJWT();
   if (jwt) headers.Authorization = `Bearer ${jwt}`;
   try {
     await fetch("/auth/logout", { method: "POST", headers });
@@ -132,7 +132,7 @@ export async function logout(): Promise<void> {
  */
 export async function getMe(): Promise<CurrentAccount | null> {
   const headers: HeadersInit = {};
-  const jwt = readAgentsMeshJWT();
+  const jwt = readDoWorkerJWT();
   if (jwt) headers.Authorization = `Bearer ${jwt}`;
   let res: Response;
   try {

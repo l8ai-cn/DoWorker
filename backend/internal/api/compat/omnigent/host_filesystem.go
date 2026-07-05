@@ -37,7 +37,7 @@ func (d *Deps) handleHostFilesystem(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": res.GetError()})
 		return
 	}
-	c.JSON(http.StatusOK, listWire(res.GetEntries()))
+	c.JSON(http.StatusOK, listWire(res.GetEntries(), res.GetWorkspaceRoot()))
 }
 
 func normalizeCompatFSPath(raw string) string {

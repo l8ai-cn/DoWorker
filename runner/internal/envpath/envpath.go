@@ -21,6 +21,11 @@ import (
 func ResolveLoginShellPATH() string {
 	// Fast path: if the service installer captured PATH at install time,
 	// use it directly — avoids the overhead of spawning a login shell.
+	if envPath := os.Getenv("DO_WORKER_PATH"); envPath != "" {
+		dirs := strings.Split(envPath, string(os.PathListSeparator))
+		slog.Info("envpath: using DO_WORKER_PATH from environment", "dirs", len(dirs))
+		return mergeWithCurrentPATH(envPath)
+	}
 	if envPath := os.Getenv("AGENTSMESH_PATH"); envPath != "" {
 		dirs := strings.Split(envPath, string(os.PathListSeparator))
 		slog.Info("envpath: using AGENTSMESH_PATH from environment", "dirs", len(dirs))

@@ -37,7 +37,13 @@ RUN case "${AGENT_RUNTIME}" in \
       claude-code) npm install -g @anthropic-ai/claude-code ;; \
       codex-cli) npm install -g @openai/codex ;; \
       gemini-cli) npm install -g @google/gemini-cli ;; \
-      e2e-echo|loopal) true ;; \
+      opencode) npm install -g opencode-ai ;; \
+      aider) \
+        apt-get update \
+        && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip \
+        && pip3 install --break-system-packages aider-chat \
+        && rm -rf /var/lib/apt/lists/* ;; \
+      e2e-echo|loopal|do-agent) true ;; \
       *) echo "unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2; exit 1 ;; \
     esac \
     && npm cache clean --force
@@ -45,25 +51,29 @@ RUN case "${AGENT_RUNTIME}" in \
 RUN groupmod -n runner node \
     && usermod -l runner -g runner node \
     && usermod -d /home/runner -m runner \
-    && mkdir -p /workspace /app /home/runner/.agentsmesh \
+    && mkdir -p /workspace /app /home/runner/.do-worker \
     && case "${AGENT_RUNTIME}" in \
          claude-code) mkdir -p /home/runner/.claude ;; \
          codex-cli) mkdir -p /home/runner/.codex ;; \
          gemini-cli) mkdir -p /home/runner/.gemini ;; \
          loopal) mkdir -p /home/runner/.loopal ;; \
+         do-agent) mkdir -p /home/runner/.agent ;; \
          e2e-echo) true ;; \
        esac \
     && chown -R runner:runner /workspace /app /home/runner \
     && echo 'runner ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/runner
 
-COPY --chmod=0755 runner-binary /usr/local/bin/agentsmesh-runner
+COPY --chmod=0755 runner-binary /usr/local/bin/do-worker-runner
+RUN ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner
 COPY --chmod=0755 e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent
 COPY --chmod=0755 loopal-binary /usr/local/bin/loopal
+COPY --chmod=0755 do-agent-binary /usr/local/bin/do-agent
 
 RUN case "${AGENT_RUNTIME}" in \
-      e2e-echo) rm -f /usr/local/bin/loopal ;; \
-      loopal) rm -f /usr/local/bin/e2e-mock-agent ;; \
-      *) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal ;; \
+      e2e-echo) rm -f /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
+      loopal) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/do-agent ;; \
+      do-agent) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal ;; \
+      *) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
     esac
 
 USER runner

@@ -1,45 +1,21 @@
-/**
- * The sign-in page for the ``accounts`` auth provider.
- *
- * Reached when:
- *
- * - An unauthed user lands on any SPA route → ``resolveIdentity()``
- *   in ``identity.ts`` hits ``GET /v1/me``, the server returns 401
- *   with ``login_url: "/login"``, the browser navigates here.
- * - The user clicks "Sign out" anywhere in the chrome.
- * - The magic-redeem URL fails or expires — accounts_auth.py's
- *   ``/auth/magic/redeem`` handler 302s here with
- *   ``?magic=expired``.
- *
- * On successful login the cookie is set by the server's
- * ``POST /auth/login`` Set-Cookie header; we just navigate the
- * browser back to the ``return_to`` path (or ``/``) and let
- * ``resolveIdentity()`` re-run.
- *
- * Username defaults to whatever the last successful sign-in used on
- * this browser (cached in localStorage). On a fresh browser / private
- * window the field is empty — we don't hardcode "admin" because the
- * bootstrap admin's name now follows the host OS user
- * (``getpass.getuser()``), not a fixed string. Surfacing it via an
- * unauth endpoint would leak the admin's username to anyone who can
- * reach the deploy.
- */
-
 import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "@/lib/routing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AuthFormAlert } from "@/components/auth/AuthFormAlert";
+import { useI18n } from "@/i18n/I18nProvider";
+import { AuthPageShell } from "@/components/auth/AuthPageShell";
+import { DevCredentialsPanel } from "@/components/auth/DevCredentialsPanel";
 import { getMe, login as loginRequest } from "@/lib/accountsApi";
-import { persistAgentsMeshSession } from "@/lib/agentsmesh-auth";
+import { persistDoWorkerSession } from "@/lib/do-worker-auth";
+import { sanitizeReturnTo } from "@/lib/auth-return-to";
 
-const DEFAULT_RETURN_TO = "/";
 const LAST_USERNAME_KEY = "omnigent.lastLoginUsername";
 
 function readLastUsername(): string {
   try {
     return window.localStorage.getItem(LAST_USERNAME_KEY) ?? "";
   } catch {
-    // localStorage can throw in sandboxed iframes / blocked-cookies mode.
     return "";
   }
 }
@@ -53,12 +29,10 @@ function rememberUsername(value: string): void {
 }
 
 export function LoginPage() {
+  const { t } = useI18n();
   const [params] = useSearchParams();
-  // `return_to` is set by both identity.ts (on 401 redirect) and the
-  // server-side magic-redeem 302 fallback. Trust only same-origin
-  // paths — never a fully-qualified URL — to prevent open-redirect.
   const returnTo = sanitizeReturnTo(params.get("return_to"));
-  const magicError = params.get("magic"); // "expired" | "missing" | null
+  const magicError = params.get("magic");
 
   const [username, setUsername] = useState(readLastUsername);
   const [password, setPassword] = useState("");
@@ -71,10 +45,6 @@ export function LoginPage() {
         : null,
   );
 
-  // Already signed in? Don't show a login form to an authenticated
-  // user — bounce them to where they were headed (or home). Covers
-  // someone hitting /login directly, a bookmarked /login, or a
-  // back-button after auth. Hard-navigate so identity.ts re-runs.
   useEffect(() => {
     void (async () => {
       const account = await getMe();
@@ -82,21 +52,15 @@ export function LoginPage() {
         window.location.href = returnTo;
       }
     })();
-    // returnTo is derived from the URL once; re-checking on change isn't
-    // meaningful for a one-shot "am I already authed?" probe.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Focus the empty field on mount: username when no remembered value,
-  // password when the username is pre-filled from localStorage.
   useEffect(() => {
     const targetId = username ? "login-password" : "login-username";
     const el = document.getElementById(targetId);
     if (el instanceof HTMLInputElement) {
       el.focus();
     }
-    // Run only on mount — re-running on `username` changes would
-    // steal focus while the user is typing.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -106,18 +70,17 @@ export function LoginPage() {
     setSubmitting(true);
     setError(null);
 
-    const result = await loginRequest({ username, password });
+    const result = await loginRequest({
+      username: username.trim(),
+      password,
+    });
     if (result.ok) {
-      rememberUsername(username);
-      const orgSlug =
-        typeof result.org_slug === "string" ? result.org_slug : null;
-      persistAgentsMeshSession({
+      rememberUsername(username.trim());
+      persistDoWorkerSession({
         accessToken: result.token,
         expiresIn: result.expires_in,
-        orgSlug,
+        orgSlug: typeof result.org_slug === "string" ? result.org_slug : null,
       });
-      // Hard-navigate so identity.ts re-runs and every cached
-      // query is rebuilt against the new session.
       window.location.href = returnTo;
       return;
     }
@@ -126,112 +89,61 @@ export function LoginPage() {
   }
 
   return (
-    <div
-      className="dark flex min-h-screen items-center justify-center bg-background px-4"
-      // Centered auth page (no header / native bars): just keep the card clear
-      // of the notch + home indicator. 0 off the iOS shell. See index.css.
-      style={{
-        paddingTop: "var(--omnigent-safe-top)",
-        paddingBottom: "var(--omnigent-safe-bottom)",
-      }}
+    <AuthPageShell
+      title={t.composer.signIn}
+      description={t.auth.welcome}
+      footer={
+        <DevCredentialsPanel
+          disabled={submitting}
+          onPick={(user, pass) => {
+            setUsername(user);
+            setPassword(pass);
+            setError(null);
+          }}
+        />
+      }
     >
-      <div className="w-full max-w-sm space-y-6">
-        <div className="space-y-1 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-          <p className="text-sm text-muted-foreground">Welcome to AgentsMesh.</p>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div className="space-y-1.5">
+          <label htmlFor="login-username" className="text-sm font-medium leading-none">
+            {t.composer.username}
+          </label>
+          <Input
+            id="login-username"
+            type="text"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            disabled={submitting}
+            required
+          />
+          <p className="text-xs text-muted-foreground">
+            Email or username (dev: <code className="font-mono">devuser</code> or{" "}
+            <code className="font-mono">admin</code>).
+          </p>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <label htmlFor="login-username" className="text-sm font-medium leading-none">
-              Username
-            </label>
-            <Input
-              id="login-username"
-              type="text"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              disabled={submitting}
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              Use your AgentsMesh email or username (dev:{" "}
-              <code className="font-mono">dev@agentsmesh.local</code>).
-            </p>
-          </div>
+        <div className="space-y-1.5">
+          <label htmlFor="login-password" className="text-sm font-medium leading-none">
+            {t.composer.password}
+          </label>
+          <Input
+            id="login-password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={submitting}
+            required
+          />
+        </div>
 
-          <div className="space-y-1.5">
-            <label htmlFor="login-password" className="text-sm font-medium leading-none">
-              Password
-            </label>
-            <Input
-              id="login-password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={submitting}
-              required
-            />
-          </div>
+        {error !== null ? <AuthFormAlert message={error} /> : null}
 
-          {error !== null && (
-            <div
-              role="alert"
-              className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-            >
-              {error}
-            </div>
-          )}
-
-          <Button type="submit" className="w-full" disabled={submitting || password.length === 0}>
-            {submitting ? "Signing in…" : "Sign in"}
-          </Button>
-        </form>
-
-        <p className="text-center text-xs text-muted-foreground">
-          Dev password is in <code className="font-mono">deploy/dev/seed/seed.sql</code> (
-          <code className="font-mono">devpass123</code> for test users).
-        </p>
-      </div>
-    </div>
+        <Button type="submit" className="w-full" disabled={submitting || password.length === 0}>
+          {submitting ? t.composer.signingIn : t.composer.signIn}
+        </Button>
+      </form>
+    </AuthPageShell>
   );
-}
-
-/**
- * Reject anything that isn't a relative path on the same origin.
- *
- * Defense against an open-redirect via crafted ``?return_to=`` —
- * an attacker who can get a victim to click a link to
- * ``/login?return_to=https://evil.com`` would otherwise have us
- * land them on the attacker's page after auth.
- *
- * Prefix checks alone are not enough: the value reaches us already
- * URL-decoded, so ``%2F%5Cevil.com`` becomes ``/\evil.com`` — which
- * passes a naive ``startsWith("/")`` + ``!startsWith("//")`` pair but
- * resolves to ``https://evil.com/`` because WHATWG URL parsing treats
- * backslashes as path separators for special schemes. So we require a
- * leading ``/`` (not ``//`` or ``/\``) and then resolve against the
- * current origin and confirm the result stays same-origin before
- * trusting it.
- */
-function sanitizeReturnTo(raw: string | null): string {
-  if (raw === null || raw === "") return DEFAULT_RETURN_TO;
-  // Must be an absolute path, not protocol-relative (`//host`) or a
-  // backslash variant (`/\host`) the URL parser rewrites to one.
-  if (!raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/\\")) {
-    return DEFAULT_RETURN_TO;
-  }
-  try {
-    const resolved = new URL(raw, window.location.origin);
-    if (resolved.origin !== window.location.origin) return DEFAULT_RETURN_TO;
-    // Re-serialize so the sink gets the parser's normalized path, never
-    // the raw backslash-laden input.
-    return resolved.pathname + resolved.search + resolved.hash;
-  } catch {
-    // `new URL` throws on malformed input — treat anything unparseable
-    // as untrusted and fall back to the safe default.
-    return DEFAULT_RETURN_TO;
-  }
 }

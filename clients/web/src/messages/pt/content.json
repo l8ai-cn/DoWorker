@@ -6,7 +6,7 @@
     },
     "mission": {
       "title": "Nossa Missao",
-      "content": "AgentsMesh existe para ajudar organizacoes a escalar alem do headcount. Estamos construindo a plataforma que permite a cada membro da equipe gerenciar uma equipe de agentes IA -- atribuindo tarefas, coordenando colaboracao e entregando resultados em um ritmo que antes era impossivel sem contratar mais dez pessoas."
+      "content": "Do Worker existe para ajudar organizacoes a escalar alem do headcount. Estamos construindo a plataforma que permite a cada membro da equipe gerenciar uma equipe de agentes IA -- atribuindo tarefas, coordenando colaboracao e entregando resultados em um ritmo que antes era impossivel sem contratar mais dez pessoas."
     },
     "vision": {
       "title": "No Que Acreditamos",
@@ -25,7 +25,7 @@
     },
     "contact": {
       "title": "Entre em Contato",
-      "content": "Quer saber como o AgentsMesh pode multiplicar a produtividade da sua equipe?",
+      "content": "Quer saber como o Do Worker pode multiplicar a produtividade da sua equipe?",
       "email": "Fale Conosco",
       "careers": "Junte-se a Nossa Equipe"
     }
@@ -48,21 +48,21 @@
       },
       "producer": {
         "title": "Builder",
-        "description": "Builders transformam infraestrutura em produtos que os usuarios adoram. Voce fara a ponte entre capacidades tecnicas e necessidades dos usuarios, moldando cada interacao com AgentsMesh em uma experiencia intuitiva e poderosa.",
+        "description": "Builders transformam infraestrutura em produtos que os usuarios adoram. Voce fara a ponte entre capacidades tecnicas e necessidades dos usuarios, moldando cada interacao com Do Worker em uma experiencia intuitiva e poderosa.",
         "resp1": "Traduzir necessidades dos usuarios em requisitos e funcionalidades do produto",
         "resp2": "Transformar capacidades da plataforma em produtos polidos voltados ao usuario",
         "resp3": "Coletar feedback e iterar para entregar experiencias excepcionais ao usuario"
       },
       "growthHacker": {
         "title": "GTM (Go to Market)",
-        "description": "Especialistas GTM levam nosso produto ao mercado com estrategias criativas e orientadas por dados. Voce ajudara desenvolvedores a descobrir o AgentsMesh, executara experimentos rapidos e transformara early adopters em defensores apaixonados.",
+        "description": "Especialistas GTM levam nosso produto ao mercado com estrategias criativas e orientadas por dados. Voce ajudara desenvolvedores a descobrir o Do Worker, executara experimentos rapidos e transformara early adopters em defensores apaixonados.",
         "resp1": "Projetar e executar experimentos de crescimento orientados por dados",
         "resp2": "Construir relacionamentos com comunidades de desenvolvedores e impulsionar a adocao",
         "resp3": "Otimizar funis de aquisicao e impulsionar retencao de usuarios"
       }
     },
     "whyJoin": {
-      "title": "Por que Entrar para o AgentsMesh?",
+      "title": "Por que Entrar para o Do Worker?",
       "innovation": {
         "title": "Tecnologia de Ponta",
         "content": "Trabalhe com as mais recentes tecnologias de IA e molde o futuro do desenvolvimento de software."
@@ -85,7 +85,7 @@
   "blog": {
     "hero": {
       "title": "Blog",
-      "subtitle": "Analises tecnicas, atualizacoes do produto e historias da equipe AgentsMesh."
+      "subtitle": "Analises tecnicas, atualizacoes do produto e historias da equipe Do Worker."
     },
     "minRead": "min de leitura",
     "backToList": "Voltar ao Blog",
@@ -100,7 +100,7 @@
     "onpremise": {
       "title": "Implantacao",
       "titleHighlight": "Privada",
-      "description": "Implante o AgentsMesh inteiramente na sua infraestrutura. Seu codigo, seus agentes, suas regras -- zero exposicao externa."
+      "description": "Implante o Do Worker inteiramente na sua infraestrutura. Seu codigo, seus agentes, suas regras -- zero exposicao externa."
     }
   }
 }

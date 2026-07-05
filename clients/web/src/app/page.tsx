@@ -51,10 +51,10 @@ export default function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "AgentsMesh",
+    name: "Do Worker",
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Web, Linux, macOS, Windows",
-    description: "AgentsMesh is the agent workforce platform for ambitious teams. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
+    description: "Do Worker is the agent workforce platform for ambitious teams. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
     alternateName: ["AgentMesh", "Agents Mesh"],
     url: "https://agentsmesh.ai",
     offers: {
@@ -66,7 +66,7 @@ export default function Home() {
     keywords: "agentsmesh, agent workforce platform, AI agent team, agent collaboration, multi-agent orchestration, team productivity, AI coding agents, agent management",
     publisher: {
       "@type": "Organization",
-      name: "AgentsMesh",
+      name: "Do Worker",
       url: "https://agentsmesh.ai",
       logo: "https://agentsmesh.ai/icons/icon-512.png",
       sameAs: [
