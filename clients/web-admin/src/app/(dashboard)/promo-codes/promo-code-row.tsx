@@ -25,11 +25,11 @@ import type { PromoCode, PromoCodeType } from "@/lib/api/admin";
 import { formatDate } from "@/lib/utils";
 
 const typeLabels: Record<PromoCodeType, string> = {
-  media: "Media",
-  partner: "Partner",
-  campaign: "Campaign",
-  internal: "Internal",
-  referral: "Referral",
+  media: "媒体",
+  partner: "合作伙伴",
+  campaign: "活动",
+  internal: "内部",
+  referral: "推荐",
 };
 
 const typeColors: Record<PromoCodeType, "default" | "secondary" | "outline" | "destructive"> = {
@@ -41,7 +41,7 @@ const typeColors: Record<PromoCodeType, "default" | "secondary" | "outline" | "d
 };
 
 function getRemainingUses(code: PromoCode) {
-  if (code.max_uses === null) return "Unlimited";
+  if (code.max_uses === null) return "不限";
   const remaining = code.max_uses - code.used_count;
   return `${remaining}/${code.max_uses}`;
 }
@@ -80,7 +80,7 @@ export function PromoCodeRow({
         <Badge variant={typeColors[code.type]}>{typeLabels[code.type]}</Badge>
       </TableCell>
       <TableCell className="capitalize">{code.plan_name}</TableCell>
-      <TableCell>{code.duration_months} months</TableCell>
+      <TableCell>{code.duration_months} 个月</TableCell>
       <TableCell>
         <div className="flex items-center gap-1">
           <Users className="h-3 w-3 text-muted-foreground" />
@@ -96,16 +96,16 @@ export function PromoCodeRow({
             </span>
           </div>
         ) : (
-          <span className="text-muted-foreground">Never</span>
+          <span className="text-muted-foreground">永不过期</span>
         )}
       </TableCell>
       <TableCell>
         {code.is_active && !expired ? (
-          <Badge variant="success">Active</Badge>
+          <Badge variant="success">启用</Badge>
         ) : expired ? (
-          <Badge variant="destructive">Expired</Badge>
+          <Badge variant="destructive">已过期</Badge>
         ) : (
-          <Badge variant="secondary">Inactive</Badge>
+          <Badge variant="secondary">停用</Badge>
         )}
       </TableCell>
       <TableCell>
@@ -117,18 +117,18 @@ export function PromoCodeRow({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={`/promo-codes/${code.id}`}>View Details</Link>
+              <Link href={`/promo-codes/${code.id}`}>查看详情</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {code.is_active ? (
               <DropdownMenuItem onClick={() => onDeactivate(code.id)}>
                 <PowerOff className="mr-2 h-4 w-4" />
-                Deactivate
+                停用
               </DropdownMenuItem>
             ) : (
               <DropdownMenuItem onClick={() => onActivate(code.id)}>
                 <Power className="mr-2 h-4 w-4" />
-                Activate
+                启用
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
@@ -137,7 +137,7 @@ export function PromoCodeRow({
               className="text-destructive focus:text-destructive"
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              删除
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

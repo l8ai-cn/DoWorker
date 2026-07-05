@@ -70,7 +70,11 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	resolved := &agentfileResolved{}
 
 	resumeAgentSession := req.ResumeAgentSession == nil || *req.ResumeAgentSession
-	systemOverrides := newSystemOverrides(sessionID, isResumeMode, resumeAgentSession)
+	externalID := req.ResumeExternalSessionID
+	if externalID == "" && isResumeMode && sourcePod != nil && sourcePod.ExternalSessionID != nil {
+		externalID = *sourcePod.ExternalSessionID
+	}
+	systemOverrides := newSystemOverrides(sessionID, isResumeMode, resumeAgentSession, externalID)
 
 	// AgentFile SSOT: resolve CONFIG values from base AgentFile + optional user Layer.
 	if agentDef != nil && agentDef.AgentfileSource != nil {
@@ -111,6 +115,7 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		if result.Prompt != "" {
 			resolved.Prompt = result.Prompt
 		}
+		resolved.Knowledge = result.Knowledge
 	}
 
 	// Effective Model / PermissionMode come from resolved.ConfigValues — the
@@ -173,7 +178,7 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		return nil, errors.Join(ErrConfigBuildFailed, err)
 	}
 
-	if o.podCoordinator != nil {
+	if o.podCoordinator != nil && !req.DeferRunnerDispatch {
 		slog.InfoContext(ctx, "dispatching create_pod to runner", "runner_id", req.RunnerID, "pod_key", pod.PodKey, "session_id", sessionID, "resume", isResumeMode)
 		if err := o.podCoordinator.CreatePod(ctx, req.RunnerID, podCmd); err != nil {
 			slog.ErrorContext(ctx, "failed to dispatch create_pod", "pod_key", pod.PodKey, "error", err)

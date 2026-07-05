@@ -39,14 +39,14 @@ export function UserRow({
             {user.is_system_admin && (
               <Badge variant="default" className="text-xs">
                 <Shield className="mr-1 h-3 w-3" />
-                Admin
+                管理员
               </Badge>
             )}
             {!user.is_active && (
-              <Badge variant="destructive" className="text-xs">Disabled</Badge>
+              <Badge variant="destructive" className="text-xs">已停用</Badge>
             )}
             {!user.is_email_verified && (
-              <Badge variant="outline" className="text-xs">Unverified</Badge>
+              <Badge variant="outline" className="text-xs">未验证</Badge>
             )}
           </div>
           <p className="text-sm text-muted-foreground">{user.email}</p>
@@ -54,9 +54,9 @@ export function UserRow({
       </div>
       <div className="flex items-center gap-4">
         <div className="hidden text-right text-xs text-muted-foreground sm:block">
-          <p>Joined {formatDate(user.created_at)}</p>
+          <p>加入于 {formatDate(user.created_at)}</p>
           {user.last_login_at && (
-            <p>Last login {formatRelativeTime(user.last_login_at)}</p>
+            <p>上次登录 {formatRelativeTime(user.last_login_at)}</p>
           )}
         </div>
         <UserActions
@@ -85,29 +85,29 @@ function UserActions({
   return (
     <div className="flex gap-1">
       {user.is_active ? (
-        <Button variant="ghost" size="icon" onClick={onDisable} title="Disable user">
+        <Button variant="ghost" size="icon" onClick={onDisable} title="停用用户">
           <UserX className="h-4 w-4" />
         </Button>
       ) : (
-        <Button variant="ghost" size="icon" onClick={onEnable} title="Enable user">
+        <Button variant="ghost" size="icon" onClick={onEnable} title="启用用户">
           <UserCheck className="h-4 w-4" />
         </Button>
       )}
       {user.is_email_verified ? (
-        <Button variant="ghost" size="icon" onClick={onUnverifyEmail} title="Unverify email">
+        <Button variant="ghost" size="icon" onClick={onUnverifyEmail} title="取消邮箱验证">
           <MailX className="h-4 w-4" />
         </Button>
       ) : (
-        <Button variant="ghost" size="icon" onClick={onVerifyEmail} title="Verify email">
+        <Button variant="ghost" size="icon" onClick={onVerifyEmail} title="验证邮箱">
           <MailCheck className="h-4 w-4" />
         </Button>
       )}
       {user.is_system_admin ? (
-        <Button variant="ghost" size="icon" onClick={onRevokeAdmin} title="Revoke admin">
+        <Button variant="ghost" size="icon" onClick={onRevokeAdmin} title="撤销管理员">
           <ShieldOff className="h-4 w-4" />
         </Button>
       ) : (
-        <Button variant="ghost" size="icon" onClick={onGrantAdmin} title="Grant admin">
+        <Button variant="ghost" size="icon" onClick={onGrantAdmin} title="授予管理员">
           <Shield className="h-4 w-4" />
         </Button>
       )}

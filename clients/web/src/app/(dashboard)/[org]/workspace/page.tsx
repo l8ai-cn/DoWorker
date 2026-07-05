@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useWorkspaceStore } from "@/stores/workspace";
 import { usePodStore } from "@/stores/pod";
+import { buildKbIngestPrompt } from "@/components/knowledgebase/kb-ingest-prompt";
 import { WorkspaceManager } from "@/components/workspace";
 import { WorkspaceEmptyState } from "@/components/workspace/WorkspaceEmptyState";
 import { CenteredSpinner } from "@/components/ui/spinner";
@@ -21,8 +22,14 @@ export default function WorkspacePage() {
   const panes = useWorkspaceStore((s) => s.panes);
   const addPane = useWorkspaceStore((s) => s.addPane);
   const _hasHydrated = useWorkspaceStore((s) => s._hasHydrated);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [recipe, setRecipe] = useState<WorkspaceRecipeSelection | null>(null);
+  // KB detail page "Ingest" entry (?ingest_kb=slug): the KB page seeds the
+  // pod-creation store with the rw mount before navigating; here we only
+  // open the create modal pre-filled with the llm-wiki maintenance prompt.
+  const [ingestKb] = useState(() => searchParams.get("ingest_kb"));
+  const [showCreateModal, setShowCreateModal] = useState(Boolean(ingestKb));
+  const [recipe, setRecipe] = useState<WorkspaceRecipeSelection | null>(
+    ingestKb ? { agentSlug: "", prompt: buildKbIngestPrompt(ingestKb) } : null,
+  );
   const processedPodRef = useRef<string | null>(null);
 
   const handleCreatePod = useCallback((selection?: WorkspaceRecipeSelection) => {
@@ -64,6 +71,10 @@ export default function WorkspacePage() {
           description: `Pod: ${getShortPodKey(podKey)}`,
         });
       }
+      router.replace(window.location.pathname);
+    }
+
+    if (searchParams.get("ingest_kb")) {
       router.replace(window.location.pathname);
     }
   }, [_hasHydrated, searchParams, panes, router, t, handleOpenPod]);

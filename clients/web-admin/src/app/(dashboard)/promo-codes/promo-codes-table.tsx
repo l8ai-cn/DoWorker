@@ -29,14 +29,14 @@ export function PromoCodesTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Code</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Plan</TableHead>
-            <TableHead>Duration</TableHead>
-            <TableHead>Uses</TableHead>
-            <TableHead>Expires</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>代码</TableHead>
+            <TableHead>名称</TableHead>
+            <TableHead>类型</TableHead>
+            <TableHead>套餐</TableHead>
+            <TableHead>时长</TableHead>
+            <TableHead>用量</TableHead>
+            <TableHead>过期时间</TableHead>
+            <TableHead>状态</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>
@@ -52,7 +52,7 @@ export function PromoCodesTable({
           ) : promoCodes.length === 0 ? (
             <TableRow>
               <TableCell colSpan={9} className="py-8 text-center text-muted-foreground">
-                No promo codes found
+                暂无优惠码
               </TableCell>
             </TableRow>
           ) : (

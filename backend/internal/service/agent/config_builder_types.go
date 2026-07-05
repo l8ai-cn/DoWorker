@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
 // AgentConfigProvider provides agent lookups for ConfigBuilder. Credential
@@ -67,6 +68,10 @@ type ConfigBuildRequest struct {
 	// Populated by orchestrator's extractFromAgentfileLayer when AgentfileLayer is provided.
 	// When empty (resume mode or no layer): buildFromAgentfile falls back to agent's base AgentFile.
 	MergedAgentfileSource string
+
+	// KnowledgeMounts are pre-resolved KB mounts (orchestrator merges agent
+	// defaults + Agentfile KNOWLEDGE + request selections and issues tokens).
+	KnowledgeMounts []*runnerv1.KnowledgeMount
 }
 
 // ConfigSchemaResponse is the config schema returned to frontend.

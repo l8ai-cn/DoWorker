@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-// Mock sonner toast
 const mockToastSuccess = vi.fn();
 const mockToastError = vi.fn();
 vi.mock("sonner", () => ({
@@ -11,7 +10,6 @@ vi.mock("sonner", () => ({
   },
 }));
 
-// Mock admin API
 const mockListUsers = vi.fn();
 const mockDisableUser = vi.fn();
 const mockEnableUser = vi.fn();
@@ -80,7 +78,7 @@ describe("UsersPage", () => {
   it("should render search input", async () => {
     render(<UsersPage />);
     expect(
-      screen.getByPlaceholderText("Search users...")
+      screen.getByPlaceholderText("搜索用户...")
     ).toBeInTheDocument();
   });
 
@@ -94,7 +92,6 @@ describe("UsersPage", () => {
   it("should display user initial for users without avatar", async () => {
     render(<UsersPage />);
     await screen.findByText("Alice Admin");
-    // Alice has no avatar, should show "A"
     expect(screen.getByText("A")).toBeInTheDocument();
   });
 
@@ -113,26 +110,26 @@ describe("UsersPage", () => {
 
   it("should show Admin badge for admin users", async () => {
     render(<UsersPage />);
-    await screen.findByText("Admin");
-    expect(screen.getByText("Admin")).toBeInTheDocument();
+    await screen.findByText("管理员");
+    expect(screen.getByText("管理员")).toBeInTheDocument();
   });
 
   it("should show Disabled badge for inactive users", async () => {
     render(<UsersPage />);
-    await screen.findByText("Disabled");
-    expect(screen.getByText("Disabled")).toBeInTheDocument();
+    await screen.findByText("已停用");
+    expect(screen.getByText("已停用")).toBeInTheDocument();
   });
 
   it("should show Unverified badge for unverified users", async () => {
     render(<UsersPage />);
-    await screen.findByText("Unverified");
-    expect(screen.getByText("Unverified")).toBeInTheDocument();
+    await screen.findByText("未验证");
+    expect(screen.getByText("未验证")).toBeInTheDocument();
   });
 
   it("should show total user count", async () => {
     render(<UsersPage />);
-    await screen.findByText("Users (2)");
-    expect(screen.getByText("Users (2)")).toBeInTheDocument();
+    await screen.findByText("用户 (2)");
+    expect(screen.getByText("用户 (2)")).toBeInTheDocument();
   });
 
   it("should show empty state when no users found", async () => {
@@ -144,8 +141,8 @@ describe("UsersPage", () => {
       total_pages: 0,
     });
     render(<UsersPage />);
-    await screen.findByText("No users found");
-    expect(screen.getByText("No users found")).toBeInTheDocument();
+    await screen.findByText("暂无用户");
+    expect(screen.getByText("暂无用户")).toBeInTheDocument();
   });
 
   it("should show loading skeleton initially", () => {
@@ -159,7 +156,7 @@ describe("UsersPage", () => {
     render(<UsersPage />);
     await screen.findByText("Alice Admin");
 
-    const searchInput = screen.getByPlaceholderText("Search users...");
+    const searchInput = screen.getByPlaceholderText("搜索用户...");
     fireEvent.change(searchInput, { target: { value: "alice" } });
 
     await waitFor(() => {
@@ -173,14 +170,13 @@ describe("UsersPage", () => {
     render(<UsersPage />);
     await screen.findByText("Alice Admin");
 
-    // Alice is active, so she should have a "Disable user" button
-    const disableBtn = screen.getByTitle("Disable user");
+    const disableBtn = screen.getByTitle("停用用户");
     fireEvent.click(disableBtn);
 
     await waitFor(() => {
       expect(mockDisableUser).toHaveBeenCalledWith(1);
       expect(mockToastSuccess).toHaveBeenCalledWith(
-        "User disabled successfully"
+        "用户已停用"
       );
     });
   });
@@ -189,14 +185,13 @@ describe("UsersPage", () => {
     render(<UsersPage />);
     await screen.findByText("Alice Admin");
 
-    // Bob is inactive, so he should have an "Enable user" button
-    const enableBtn = screen.getByTitle("Enable user");
+    const enableBtn = screen.getByTitle("启用用户");
     fireEvent.click(enableBtn);
 
     await waitFor(() => {
       expect(mockEnableUser).toHaveBeenCalledWith(2);
       expect(mockToastSuccess).toHaveBeenCalledWith(
-        "User enabled successfully"
+        "用户已启用"
       );
     });
   });
@@ -205,14 +200,13 @@ describe("UsersPage", () => {
     render(<UsersPage />);
     await screen.findByText("Alice Admin");
 
-    // Bob is not admin, so he should have a "Grant admin" button
-    const grantBtn = screen.getByTitle("Grant admin");
+    const grantBtn = screen.getByTitle("授予管理员");
     fireEvent.click(grantBtn);
 
     await waitFor(() => {
       expect(mockGrantAdmin).toHaveBeenCalledWith(2);
       expect(mockToastSuccess).toHaveBeenCalledWith(
-        "Admin privileges granted"
+        "管理员权限已授予"
       );
     });
   });
@@ -221,14 +215,13 @@ describe("UsersPage", () => {
     render(<UsersPage />);
     await screen.findByText("Alice Admin");
 
-    // Alice is admin, so she should have a "Revoke admin" button
-    const revokeBtn = screen.getByTitle("Revoke admin");
+    const revokeBtn = screen.getByTitle("撤销管理员");
     fireEvent.click(revokeBtn);
 
     await waitFor(() => {
       expect(mockRevokeAdmin).toHaveBeenCalledWith(1);
       expect(mockToastSuccess).toHaveBeenCalledWith(
-        "Admin privileges revoked"
+        "管理员权限已撤销"
       );
     });
   });
@@ -238,7 +231,7 @@ describe("UsersPage", () => {
     render(<UsersPage />);
     await screen.findByText("Alice Admin");
 
-    fireEvent.click(screen.getByTitle("Disable user"));
+    fireEvent.click(screen.getByTitle("停用用户"));
 
     await waitFor(() => {
       expect(mockToastError).toHaveBeenCalledWith("Permission denied");
@@ -250,10 +243,10 @@ describe("UsersPage", () => {
     render(<UsersPage />);
     await screen.findByText("Alice Admin");
 
-    fireEvent.click(screen.getByTitle("Disable user"));
+    fireEvent.click(screen.getByTitle("停用用户"));
 
     await waitFor(() => {
-      expect(mockToastError).toHaveBeenCalledWith("Failed to disable user");
+      expect(mockToastError).toHaveBeenCalledWith("停用用户失败");
     });
   });
 });

@@ -1,14 +1,20 @@
 package rest
 
 import (
+	"context"
 	"log/slog"
 	"strings"
 	"time"
 
+	omnigentcompat "github.com/anthropics/agentsmesh/backend/internal/api/compat/omnigent"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/internal"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/v1/webhooks"
 	"github.com/anthropics/agentsmesh/backend/internal/config"
+	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
+	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
+	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
+	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
 	"github.com/gin-contrib/cors"
@@ -77,14 +83,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 	}
 	r.Use(cors.New(corsConfig))
 
-	// Health check
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status":  "ok",
-			"service": "agentsmesh-api",
-		})
-	})
-
+	// Health check — session_ids branch wired after omnigent deps below.
 	r.GET("/health/ready", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"status": "ready",
@@ -201,6 +200,44 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 			InternalSecret: cfg.Server.InternalAPISecret,
 		})
 	}
+
+	sessionDeps := omnigentcompat.Deps{
+		JWTSecret:       cfg.JWT.Secret,
+		Auth:            svc.Auth,
+		User:            svc.User,
+		Org:             svc.Org,
+		Agent:           svc.AgentSvc,
+		Runner:          svc.Runner,
+		Sessions:        sessionsvc.NewService(db),
+		Items:           itemsvc.NewService(db),
+		Hub:             omnigentcompat.NewSessionHub(),
+		Elicitations:    omnigentcompat.NewElicitationStore(),
+		PodOrchestrator: svc.PodOrchestrator,
+		Pod:             svc.Pod,
+		RelayManager:    svc.RelayManager,
+		RelayTokens:     svc.RelayTokenGenerator,
+		SessionUsage:    sessionusagesvc.NewService(db),
+		Policies:        permissionpolicysvc.NewService(db),
+		ReadState:       omnigentcompat.NewReadStateStore(db),
+		Version:         "agentsmesh-dev",
+	}
+	sessionDeps.Bridge = &omnigentcompat.EventBridge{
+		Items: sessionDeps.Items, Sessions: sessionDeps.Sessions,
+		Hub: sessionDeps.Hub, Elicitations: sessionDeps.Elicitations,
+	}
+	omnigentcompat.SetEventBridge(sessionDeps.Bridge)
+	sessionDeps.Updates = omnigentcompat.NewSessionUpdatesHub(&sessionDeps)
+	omnigentcompat.SetUpdatesHub(sessionDeps.Updates)
+	if svc.PodCoordinator != nil {
+		sessionDeps.CommandSender = svc.PodCoordinator.GetCommandSender()
+		svc.PodCoordinator.SetStatusChangeCallback(func(podKey, podStatus, agentStatus string) {
+			omnigentcompat.ForwardPodStatus(context.Background(), podKey, podStatus, agentStatus)
+		})
+	}
+	omnigentcompat.RegisterHealthRoute(r, sessionDeps)
+	omnigentcompat.RegisterRoutes(r, sessionDeps)
+	omnigentcompat.SetPodUpdater(svc.Pod)
+	omnigentcompat.SetSessionUsage(sessionDeps.SessionUsage, sessionDeps.Hub)
 
 	return r
 }

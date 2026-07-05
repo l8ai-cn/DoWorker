@@ -2,6 +2,7 @@ package acp
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
@@ -38,6 +39,8 @@ type ACPTransport struct {
 	// set_permission_mode. Empty means the agent didn't advertise (frontend falls
 	// back to the Claude default set).
 	supportedPermissionModes []string
+
+	initResult json.RawMessage
 
 	ctx    context.Context
 	logger *slog.Logger
@@ -88,10 +91,16 @@ func (t *ACPTransport) Handshake(_ context.Context) (string, error) {
 	}
 
 	t.supportsControlRequest, t.supportedPermissionModes = parseAgentsmeshExtensions(resp.Result)
+	t.initResult = resp.Result
 	t.logger.Info("ACP initialize succeeded",
 		"supports_control_request", t.supportsControlRequest,
 		"permission_modes", t.supportedPermissionModes)
 	return "", nil // ACP doesn't auto-discover session IDs
+}
+
+// InitializeResult returns the raw initialize response for capability calibration.
+func (t *ACPTransport) InitializeResult() json.RawMessage {
+	return t.initResult
 }
 
 // NewSession / SendPrompt / RespondToPermission / CancelSession live in

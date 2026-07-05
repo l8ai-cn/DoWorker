@@ -18,6 +18,7 @@ import (
 	fileconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/file"
 	grantconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/grant"
 	invitationconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/invitation"
+	knowledgebaseconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/knowledgebase"
 	licenseconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/license"
 	loopconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/loop"
 	notificationconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/notification"
@@ -191,7 +192,7 @@ func mountTokenUsageService(mux *http.ServeMux, svc *serviceContainer, opts []co
 	if svc.tokenUsage == nil {
 		return
 	}
-	srv := tokenusageconnect.NewServer(svc.tokenUsage, svc.org)
+	srv := tokenusageconnect.NewServer(svc.tokenUsage, svc.org, svc.podSessionUsage)
 	tokenusageconnect.Mount(mux, srv, opts...)
 }
 
@@ -227,6 +228,17 @@ func mountNotificationService(mux *http.ServeMux, svc *serviceContainer, opts []
 	}
 	srv := notificationconnect.NewServer(svc.notifPrefStore, svc.org)
 	notificationconnect.Mount(mux, srv, opts...)
+}
+
+// mountKnowledgeBaseService wires KnowledgeBaseService — org-scoped llm-wiki
+// CRUD + agent mounts + repo browsing. Skips when the internal Gitea is not
+// configured (svc.knowledgeBase nil).
+func mountKnowledgeBaseService(mux *http.ServeMux, svc *serviceContainer, opts []connect.HandlerOption) {
+	if svc.knowledgeBase == nil {
+		return
+	}
+	srv := knowledgebaseconnect.NewServer(svc.knowledgeBase, svc.org)
+	knowledgebaseconnect.Mount(mux, srv, opts...)
 }
 
 // mountLoopService wires LoopService — Loop CRUD + state actions

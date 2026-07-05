@@ -1,7 +1,9 @@
 import { PodData } from "@/lib/api";
+import type { KnowledgeMountSelection } from "@/lib/api/facade/knowledgeBaseApi";
 import type { PodMode } from "@/lib/pod-modes";
 import type { EnvBundleSummary } from "@/lib/viewModels/envBundleSummary";
 import type { InstalledSkill } from "@/lib/viewModels/extension";
+import type { DestroyPolicy } from "../CreatePodForm/podLifecycleOptions";
 
 /**
  * Validation errors for the form
@@ -32,6 +34,9 @@ export interface CreatePodFormState {
   prompt: string;
   alias: string;
   perpetual: boolean;
+  destroyPolicy: DestroyPolicy;
+  destroyAfterMinutes: number;
+  selectedKnowledgeMounts: KnowledgeMountSelection[];
 
   // EnvBundles (credential + runtime kinds) available for the selected agent
   envBundles: EnvBundleSummary[];
@@ -50,6 +55,9 @@ export interface CreatePodFormState {
   setPrompt: (prompt: string) => void;
   setAlias: (alias: string) => void;
   setPerpetual: (perpetual: boolean) => void;
+  setDestroyPolicy: (policy: DestroyPolicy) => void;
+  setDestroyAfterMinutes: (minutes: number) => void;
+  setSelectedKnowledgeMounts: (mounts: KnowledgeMountSelection[]) => void;
 
   // AgentFile Layer
   rawLayerMode: boolean;

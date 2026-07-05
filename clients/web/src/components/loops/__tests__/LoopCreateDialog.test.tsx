@@ -15,17 +15,22 @@ vi.mock("@/stores/loop", () => ({
 const mockAvailableAgents = [
   { name: "Claude Code", slug: "claude-code", is_builtin: true, is_active: true },
 ];
+const mockCompatibleRunner = {
+  id: 1,
+  node_id: "runner-claude",
+  current_pods: 0,
+  max_concurrent_pods: 5,
+  status: "online" as const,
+  available_agents: ["claude-code"],
+  is_enabled: true,
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: "2026-01-01T00:00:00Z",
+};
+const { mockUsePodCreationData } = vi.hoisted(() => ({
+  mockUsePodCreationData: vi.fn(),
+}));
 vi.mock("@/components/pod/hooks", () => ({
-  usePodCreationData: () => ({
-    runners: [],
-    repositories: [],
-    loading: false,
-    selectedRunner: null,
-    setSelectedRunnerId: vi.fn(),
-    availableAgents: mockAvailableAgents,
-    agents: mockAvailableAgents,
-    error: null,
-  }),
+  usePodCreationData: mockUsePodCreationData,
 }));
 
 vi.mock("@/components/ide/hooks", () => ({
@@ -155,9 +160,62 @@ function mockBundleList(creds: unknown[], runtimes: unknown[] = []) {
 describe("LoopCreateDialog — EnvBundle binding", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUsePodCreationData.mockReturnValue({
+      runners: [mockCompatibleRunner],
+      repositories: [],
+      loading: false,
+      selectedRunner: null,
+      setSelectedRunnerId: vi.fn(),
+      availableAgents: mockAvailableAgents,
+      agents: mockAvailableAgents,
+      error: null,
+    });
     mockBundleList([bundleWork], [bundleDevPreferences]);
     mockCreateLoop.mockResolvedValue({ loop: { slug: "nightly-ci" } });
     mockUpdateLoop.mockResolvedValue({ slug: "nightly-ci" });
+  });
+
+  it("disables saving when the loop agent has no compatible runner", async () => {
+    mockUsePodCreationData.mockReturnValue({
+      runners: [{ ...mockCompatibleRunner, available_agents: ["codex-cli"] }],
+      repositories: [],
+      loading: false,
+      selectedRunner: null,
+      setSelectedRunnerId: vi.fn(),
+      availableAgents: [],
+      agents: mockAvailableAgents,
+      error: null,
+    });
+    const editLoop: LoopData = {
+      id: 5,
+      organization_id: 1,
+      slug: "nightly",
+      name: "Nightly",
+      prompt_template: "run tests",
+      agent_slug: "claude-code",
+      execution_mode: "autopilot",
+      status: "enabled",
+      sandbox_strategy: "persistent",
+      session_persistence: true,
+      concurrency_policy: "skip",
+      max_concurrent_runs: 1,
+      max_retained_runs: 0,
+      timeout_minutes: 60,
+      created_by_id: 1,
+      total_runs: 0,
+      successful_runs: 0,
+      failed_runs: 0,
+      active_run_count: 0,
+      autopilot_config: {},
+      created_at: "x",
+      updated_at: "x",
+    };
+
+    render(
+      <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} editLoop={editLoop} />
+    );
+
+    expect(screen.getByRole("button", { name: "common.save" })).toBeDisabled();
   });
 
   it("renders both credential single-select AND runtime multi-select after an agent is chosen", async () => {

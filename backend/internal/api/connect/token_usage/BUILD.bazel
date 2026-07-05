@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "token_usage.go",
         "token_usage_convert.go",
+        "token_usage_live.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/backend/internal/api/connect/token_usage",
     visibility = ["//backend:__subpackages__"],
@@ -12,6 +13,7 @@ go_library(
         "//backend/internal/api/connect/interceptors",
         "//backend/internal/domain/tokenusage",
         "//backend/internal/middleware",
+        "//backend/internal/service/sessionusage",
         "//backend/internal/service/tokenusage",
         "//backend/pkg/protoconv",
         "//proto/token_usage/v1:token_usage_go_proto",

@@ -24,19 +24,18 @@ export function SSODeleteDialog({ config, onOpenChange, onConfirm }: SSODeleteDi
     <AlertDialog open={!!config} onOpenChange={(open) => !open && onOpenChange(false)}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete SSO Config</AlertDialogTitle>
+          <AlertDialogTitle>删除 SSO 配置</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete SSO config &quot;{config?.name}&quot; ({config?.domain})?
-            This action cannot be undone.
+            确定要删除 SSO 配置 &quot;{config?.name}&quot; ({config?.domain}) 吗？此操作无法撤销。
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>取消</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className={buttonVariants({ variant: "destructive" })}
           >
-            Delete
+            删除
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

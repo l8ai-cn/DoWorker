@@ -21,9 +21,11 @@ import {
   UsageByUserTable,
   UsageByModelTable,
   UsageFilters,
+  UsageLiveSessionCost,
   type TimeRange,
   type Granularity,
 } from "./usage";
+import { fetchOrgLiveUsageSummary, type OrgLiveUsageSummary } from "@/lib/api/orgLiveUsageFetch";
 
 interface UsageSettingsProps {
   t: TranslationFn;
@@ -92,6 +94,7 @@ export function UsageSettings({ t }: UsageSettingsProps) {
   const [byAgent, setByAgent] = useState<TokenUsageByAgent[]>([]);
   const [byUser, setByUser] = useState<TokenUsageByUser[]>([]);
   const [byModel, setByModel] = useState<TokenUsageByModel[]>([]);
+  const [liveUsage, setLiveUsage] = useState<OrgLiveUsageSummary | null>(null);
 
   // Agent list derived from unfiltered data to avoid circular dependency:
   // selecting an agent filter would otherwise shrink the filter options list.
@@ -161,6 +164,11 @@ export function UsageSettings({ t }: UsageSettingsProps) {
       setByUser(data.by_user ?? []);
       setByModel(data.by_model ?? []);
 
+      const live = await fetchOrgLiveUsageSummary();
+      if (!controller.signal.aborted) {
+        setLiveUsage(live);
+      }
+
       if (!agent && data.by_agent) {
         setAllAgents(
           [...new Set(data.by_agent.map((a: TokenUsageByAgent) => a.agent_slug))].filter(Boolean) as string[]
@@ -225,6 +233,8 @@ export function UsageSettings({ t }: UsageSettingsProps) {
       />
 
       <UsageOverviewCards summary={summary} t={t} />
+
+      <UsageLiveSessionCost live={liveUsage} t={t} />
 
       <UsageTimeSeriesChart data={timeSeries} t={t} />
 

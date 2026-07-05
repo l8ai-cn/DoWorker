@@ -68,6 +68,9 @@ type ConnectionSender interface {
 	// Status values: "executing", "waiting", "idle".
 	SendAgentStatus(podKey string, status string) error
 
+	// SendAcpSessionEvent forwards normalized ACP content for web-user SSE compat.
+	SendAcpSessionEvent(podKey, eventType, jsonPayload string) error
+
 	// SendUpgradeStatus sends an upgrade status event to the server.
 	SendUpgradeStatus(event *runnerv1.UpgradeStatusEvent) error
 
@@ -76,6 +79,9 @@ type ConnectionSender interface {
 
 	// SendTokenUsage sends a token usage report to the server.
 	SendTokenUsage(podKey string, models []*runnerv1.TokenModelUsage, podStartedAt time.Time) error
+
+	SendPodUsageEvent(podKey, model string, in, out, cacheRead, cacheCreate int64) error
+	SendExternalSessionCaptured(podKey, externalID string) error
 }
 
 // ConnectionMonitor defines methods for monitoring connection health.

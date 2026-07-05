@@ -34,7 +34,7 @@ export function RunnerRow({
               {runner.status}
             </Badge>
             {!runner.is_enabled && (
-              <Badge variant="destructive">Disabled</Badge>
+              <Badge variant="destructive">已停用</Badge>
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
@@ -45,7 +45,7 @@ export function RunnerRow({
               <span>v{runner.runner_version}</span>
             )}
             <span>
-              {runner.current_pods}/{runner.max_concurrent_pods} pods
+              {runner.current_pods}/{runner.max_concurrent_pods} 个 Pod
             </span>
           </div>
         </div>
@@ -53,10 +53,10 @@ export function RunnerRow({
       <div className="flex items-center gap-4">
         <div className="hidden text-right text-xs text-muted-foreground sm:block">
           {runner.last_heartbeat && (
-            <p>Last seen {formatRelativeTime(runner.last_heartbeat)}</p>
+            <p>最后心跳 {formatRelativeTime(runner.last_heartbeat)}</p>
           )}
           {runner.available_agents && runner.available_agents.length > 0 && (
-            <p>{runner.available_agents.length} agents</p>
+            <p>{runner.available_agents.length} 个 Agent</p>
           )}
         </div>
         <div className="flex gap-1">
@@ -65,7 +65,7 @@ export function RunnerRow({
               variant="ghost"
               size="icon"
               onClick={onDisable}
-              title="Disable runner"
+              title="停用 Runner"
             >
               <PowerOff className="h-4 w-4" />
             </Button>
@@ -74,7 +74,7 @@ export function RunnerRow({
               variant="ghost"
               size="icon"
               onClick={onEnable}
-              title="Enable runner"
+              title="启用 Runner"
             >
               <Power className="h-4 w-4" />
             </Button>
@@ -83,7 +83,7 @@ export function RunnerRow({
             variant="ghost"
             size="icon"
             onClick={onDelete}
-            title="Delete runner"
+            title="删除 Runner"
             className="text-destructive hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />

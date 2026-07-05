@@ -1,27 +1,27 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* Light Theme (default) — Warm Agentic palette: warm neutrals + orange accent */
+/* Light Theme (default) — neutral product palette + restrained teal action accent */
 :root {
   --background: #FFFFFF;
-  --foreground: #1C1A17;
+  --foreground: #111827;
   --card: #FFFFFF;
-  --card-foreground: #1C1A17;
-  --surface: #FBFAF7;
+  --card-foreground: #111827;
+  --surface: #F8FAFC;
   --surface-raised: #FFFFFF;
-  --surface-muted: #F6F4EF;
+  --surface-muted: #F1F5F9;
   --popover: #FFFFFF;
-  --popover-foreground: #1C1A17;
-  --primary: #FF5701;
-  --primary-hover: #E64E00;
+  --popover-foreground: #111827;
+  --primary: #0F766E;
+  --primary-hover: #0B5F59;
   --primary-foreground: #FFFFFF;
-  --secondary: #F6F6F1;
-  --secondary-foreground: #1C1A17;
-  --muted: #F6F6F1;
-  --muted-foreground: #6B6862;
-  --subtle: #F0EFEA;
-  --accent: #FFF1EA;
-  --accent-foreground: #B23E00;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #111827;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --subtle: #E2E8F0;
+  --accent: #EEF2F7;
+  --accent-foreground: #334155;
   --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
   --success: #16A34A;
@@ -30,12 +30,12 @@
   --warning-bg: #FEF3C7;
   --danger: #DC2626;
   --danger-bg: #FEE2E2;
-  --info: #FF5701;
-  --info-bg: #FFF1EA;
+  --info: #475569;
+  --info-bg: #F8FAFC;
   --border: color-mix(in srgb, var(--foreground) 7%, var(--background));
   --border-strong: color-mix(in srgb, var(--foreground) 14%, var(--background));
   --input: color-mix(in srgb, var(--foreground) 7%, var(--background));
-  --ring: #FF5701;
+  --ring: #0F766E;
 
   /* Terminal colors (VS Code style for light theme) */
   --terminal-bg: #1e1e1e;
@@ -48,27 +48,27 @@
   --terminal-text-active: #ffffff;
 }
 
-/* Dark Theme — Warm Agentic: warm near-black + brighter orange */
+/* Dark Theme — neutral product palette + restrained teal action accent */
 .dark {
-  --background: #16130F;
-  --foreground: #EDE9E1;
-  --card: #1F1B16;
-  --card-foreground: #EDE9E1;
-  --surface: #1A1712;
-  --surface-raised: #211D17;
-  --surface-muted: #252119;
-  --popover: #1F1B16;
-  --popover-foreground: #EDE9E1;
-  --primary: #FF6A24;
-  --primary-hover: #FF7E3F;
-  --primary-foreground: #1A0E06;
-  --secondary: #1F1B16;
-  --secondary-foreground: #EDE9E1;
-  --muted: #1F1B16;
-  --muted-foreground: #A8A296;
-  --subtle: #262119;
-  --accent: #2A1B10;
-  --accent-foreground: #FFA366;
+  --background: #0F1117;
+  --foreground: #E5E7EB;
+  --card: #151922;
+  --card-foreground: #E5E7EB;
+  --surface: #111827;
+  --surface-raised: #171C26;
+  --surface-muted: #1F2937;
+  --popover: #151922;
+  --popover-foreground: #E5E7EB;
+  --primary: #2DD4BF;
+  --primary-hover: #5EEAD4;
+  --primary-foreground: #042F2E;
+  --secondary: #1F2937;
+  --secondary-foreground: #E5E7EB;
+  --muted: #1F2937;
+  --muted-foreground: #94A3B8;
+  --subtle: #273244;
+  --accent: #1F2937;
+  --accent-foreground: #E5E7EB;
   --destructive: #DA3633;
   --destructive-foreground: #FFFFFF;
   --success: #3FB950;
@@ -77,12 +77,12 @@
   --warning-bg: #2E2106;
   --danger: #F87171;
   --danger-bg: #3C1618;
-  --info: #FF6A24;
-  --info-bg: #2A1B10;
+  --info: #94A3B8;
+  --info-bg: #1F2937;
   --border: color-mix(in srgb, var(--foreground) 11%, var(--background));
   --border-strong: color-mix(in srgb, var(--foreground) 20%, var(--background));
   --input: color-mix(in srgb, var(--foreground) 11%, var(--background));
-  --ring: #FF6A24;
+  --ring: #2DD4BF;
 
   /* Terminal colors (VS Code style) */
   --terminal-bg: #1e1e1e;
@@ -235,6 +235,45 @@ body {
   min-height: 100%;
 }
 
+.auth-theme {
+  --background: #F6F8FB;
+  --foreground: #111827;
+  --card: #FFFFFF;
+  --card-foreground: #111827;
+  --surface: #F8FAFC;
+  --surface-raised: #FFFFFF;
+  --surface-muted: #EEF2F7;
+  --popover: #FFFFFF;
+  --popover-foreground: #111827;
+  --primary: #0F766E;
+  --primary-hover: #0B5F59;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EEF2F7;
+  --secondary-foreground: #111827;
+  --muted: #EEF2F7;
+  --muted-foreground: #64748B;
+  --subtle: #E2E8F0;
+  --accent: #EEF2F7;
+  --accent-foreground: #334155;
+  --border: #DDE4EE;
+  --border-strong: #C5CEDC;
+  --input: #DDE4EE;
+  --ring: #0F766E;
+  color-scheme: light;
+}
+
+.auth-theme .auth-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration-color: color-mix(in srgb, var(--primary) 35%, transparent);
+  text-underline-offset: 4px;
+}
+
+.auth-theme .auth-link:hover {
+  color: var(--primary-hover);
+  text-decoration-line: underline;
+}
+
 /* Typography prose - map to theme CSS variables for all themes */
 .prose {
   --tw-prose-body: var(--foreground);
@@ -285,41 +324,38 @@ body:has(.app-shell) {
 }
 
 /* ============================================================
- * Warm Agentic — marketing/landing scope (formerly "Azure Futurism").
- * DEPRECATED palette override: this scope no longer forces a fixed
- * dark cyan palette. It now inherits the active light/dark Warm Agentic
- * tokens; the legacy --azure-* vars + azure-* utilities are kept only as
- * a compatibility shim remapped to warm equivalents so existing markup
- * reskins instantly. P4 migrates these call-sites to semantic tokens.
+ * Product marketing scope (formerly "Azure Futurism").
+ * Legacy --azure-* vars + azure-* utilities are kept as a compatibility
+ * shim for older markup, but the palette now follows the neutral/teal
+ * product system instead of the previous high-saturation orange.
  * ============================================================ */
 .azure-theme {
-  /* Marketing hero pinned to the warm-DARK variant (landing markup is dark-optimized) */
-  --background: #16130F;
-  --foreground: #EDE9E1;
-  --card: #1F1B16;
-  --card-foreground: #EDE9E1;
-  --popover: #1F1B16;
-  --popover-foreground: #EDE9E1;
-  --primary: #FF6A24;
-  --primary-hover: #FF7E3F;
-  --primary-foreground: #1A0E06;
-  --secondary: #1F1B16;
-  --secondary-foreground: #EDE9E1;
-  --muted: #1F1B16;
-  --muted-foreground: #A8A296;
-  --subtle: #262119;
-  --accent: #2A1B10;
-  --accent-foreground: #FFA366;
-  --border: #34302A;
-  --border-strong: #4A453D;
-  --input: #34302A;
-  --ring: #FF6A24;
+  --background: #0F1117;
+  --foreground: #E5E7EB;
+  --card: #151922;
+  --card-foreground: #E5E7EB;
+  --popover: #151922;
+  --popover-foreground: #E5E7EB;
+  --primary: #2DD4BF;
+  --primary-hover: #5EEAD4;
+  --primary-foreground: #042F2E;
+  --secondary: #1F2937;
+  --secondary-foreground: #E5E7EB;
+  --muted: #1F2937;
+  --muted-foreground: #94A3B8;
+  --subtle: #273244;
+  --accent: #1F2937;
+  --accent-foreground: #E5E7EB;
+  --border: #273244;
+  --border-strong: #3A465A;
+  --input: #273244;
+  --ring: #2DD4BF;
 
   --azure-cyan: var(--primary);
-  --azure-cyan-soft: #FFB58A;
-  --azure-mint: #FFB020;
+  --azure-cyan-soft: #99F6E4;
+  --azure-mint: #14B8A6;
   --azure-on-cyan: var(--primary-foreground);
-  --azure-bg-deeper: #100D0A;
+  --azure-bg-deeper: #080B12;
   --azure-bg-low: var(--muted);
   --azure-bg-card: var(--card);
   --azure-bg-high: var(--subtle);
@@ -342,7 +378,7 @@ body:has(.app-shell) {
 
 .azure-theme .azure-gradient-text,
 .azure-light .azure-gradient-text {
-  background: linear-gradient(135deg, var(--primary) 0%, #FFB020 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #14B8A6 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -350,7 +386,7 @@ body:has(.app-shell) {
 }
 
 .azure-theme .azure-gradient-bg {
-  background-image: linear-gradient(135deg, var(--primary) 0%, #FFB020 100%);
+  background-image: linear-gradient(135deg, var(--primary) 0%, #14B8A6 100%);
   color: var(--primary-foreground);
 }
 
@@ -368,7 +404,7 @@ body:has(.app-shell) {
   box-shadow: 0 24px 48px color-mix(in srgb, var(--primary) 12%, transparent), 0 0 80px color-mix(in srgb, var(--primary) 8%, transparent);
 }
 .azure-theme .azure-glow-mint {
-  box-shadow: 0 0 24px rgba(255, 176, 32, 0.28);
+  box-shadow: 0 0 24px rgba(20, 184, 166, 0.22);
 }
 .azure-theme .azure-cta-glow:hover {
   box-shadow: 0 0 32px color-mix(in srgb, var(--primary) 45%, transparent);
@@ -409,33 +445,31 @@ body:has(.app-shell) {
 }
 
 /* ============================================================
- * Warm Agentic — docs/reading scope (formerly "Azure Light").
- * DEPRECATED palette override: inherits active Warm Agentic tokens;
- * legacy --azure-light-* vars + azure-light-* utilities remapped to warm
- * equivalents as a compatibility shim. P4 migrates to semantic tokens.
+ * Docs/reading scope (formerly "Azure Light").
+ * Kept for compatibility with older docs markup; follows the neutral/teal
+ * product palette.
  * ============================================================ */
 .azure-light {
-  /* Docs pinned to the warm-LIGHT variant (docs markup is light-optimized) */
   --background: #FFFFFF;
-  --foreground: #1C1A17;
+  --foreground: #111827;
   --card: #FFFFFF;
-  --card-foreground: #1C1A17;
+  --card-foreground: #111827;
   --popover: #FFFFFF;
-  --popover-foreground: #1C1A17;
-  --primary: #FF5701;
-  --primary-hover: #E64E00;
+  --popover-foreground: #111827;
+  --primary: #0F766E;
+  --primary-hover: #0B5F59;
   --primary-foreground: #FFFFFF;
-  --secondary: #F6F6F1;
-  --secondary-foreground: #1C1A17;
-  --muted: #F6F6F1;
-  --muted-foreground: #6B6862;
-  --subtle: #F0EFEA;
-  --accent: #FFF1EA;
-  --accent-foreground: #B23E00;
-  --border: #E5E2DB;
-  --border-strong: #C9C5BC;
-  --input: #E5E2DB;
-  --ring: #FF5701;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #111827;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --subtle: #E2E8F0;
+  --accent: #EEF2F7;
+  --accent-foreground: #334155;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --input: #E2E8F0;
+  --ring: #0F766E;
   color-scheme: light;
 
   --azure-light-canvas: var(--background);
@@ -450,8 +484,8 @@ body:has(.app-shell) {
   --azure-light-border-soft: var(--border);
   --azure-light-cyan: var(--primary);
   --azure-light-cyan-ink: var(--accent-foreground);
-  --azure-light-mint: #FFB020;
-  --azure-light-mint-soft: rgba(255, 176, 32, 0.12);
+  --azure-light-mint: #14B8A6;
+  --azure-light-mint-soft: rgba(20, 184, 166, 0.12);
   --azure-light-cyan-soft: var(--accent);
   --azure-light-glow: 0 18px 40px color-mix(in srgb, var(--primary) 12%, transparent);
 
@@ -470,7 +504,7 @@ body:has(.app-shell) {
 }
 
 .azure-light .azure-light-gradient-text {
-  background: linear-gradient(135deg, var(--primary) 0%, #FFB020 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #14B8A6 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

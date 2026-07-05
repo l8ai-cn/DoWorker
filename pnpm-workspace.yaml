@@ -14,9 +14,19 @@ overrides:
   "@playwright/test": "1.50.1"
   playwright: "1.50.1"
   playwright-core: "1.50.1"
+  eslint-plugin-react-hooks: "7.0.1"
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
 onlyBuiltDependencies:
   - esbuild
   - "@parcel/watcher"
+allowBuilds:
+  '@bufbuild/buf': true
+  '@parcel/watcher': true
+  '@swc/core': true
+  core-js: false
+  esbuild: true
+  protobufjs: false
+  sharp: false
+  unrs-resolver: false

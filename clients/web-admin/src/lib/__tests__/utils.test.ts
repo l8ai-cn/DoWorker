@@ -26,7 +26,6 @@ describe("cn", () => {
 describe("formatDate", () => {
   it("should format a valid date string", () => {
     const result = formatDate("2024-06-15T10:30:00Z");
-    // Should contain month, day, year
     expect(result).toContain("2024");
     expect(result).toContain("15");
   });
@@ -59,25 +58,24 @@ describe("formatRelativeTime", () => {
     vi.useRealTimers();
   });
 
-  it("should return 'just now' for time within 60 seconds", () => {
-    expect(formatRelativeTime("2024-06-15T11:59:30Z")).toBe("just now");
+  it("should return just now for time within 60 seconds", () => {
+    expect(formatRelativeTime("2024-06-15T11:59:30Z")).toBe("刚刚");
   });
 
   it("should return minutes ago", () => {
-    expect(formatRelativeTime("2024-06-15T11:55:00Z")).toBe("5m ago");
+    expect(formatRelativeTime("2024-06-15T11:55:00Z")).toBe("5 分钟前");
   });
 
   it("should return hours ago", () => {
-    expect(formatRelativeTime("2024-06-15T09:00:00Z")).toBe("3h ago");
+    expect(formatRelativeTime("2024-06-15T09:00:00Z")).toBe("3 小时前");
   });
 
   it("should return days ago", () => {
-    expect(formatRelativeTime("2024-06-13T12:00:00Z")).toBe("2d ago");
+    expect(formatRelativeTime("2024-06-13T12:00:00Z")).toBe("2 天前");
   });
 
   it("should fall back to formatDate for 7+ days", () => {
     const result = formatRelativeTime("2024-06-01T12:00:00Z");
-    // Should use formatDate format, containing year
     expect(result).toContain("2024");
   });
 

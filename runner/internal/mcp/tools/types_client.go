@@ -80,6 +80,16 @@ type BlockStoreClient interface {
 	BlockGetDefaultWorkspace(ctx context.Context, args map[string]interface{}) (map[string]interface{}, error)
 }
 
+// KnowledgeBaseClient exposes knowledge-base tools. kb_search/kb_read work
+// on any org-visible KB (not only mounted ones); kb_write commits through
+// the backend so unmounted KBs stay writable with pod attribution.
+type KnowledgeBaseClient interface {
+	KbList(ctx context.Context) (map[string]interface{}, error)
+	KbSearch(ctx context.Context, query string, kbSlugs []string, limit int) (map[string]interface{}, error)
+	KbRead(ctx context.Context, kbSlug, path string) (map[string]interface{}, error)
+	KbWrite(ctx context.Context, kbSlug, path, content, message string) (map[string]interface{}, error)
+}
+
 // CollaborationClient combines all collaboration interfaces.
 type CollaborationClient interface {
 	PodInteractionClient
@@ -90,6 +100,7 @@ type CollaborationClient interface {
 	PodClient
 	LoopClient
 	BlockStoreClient
+	KnowledgeBaseClient
 
 	// GetPodKey returns the current pod's key.
 	GetPodKey() string

@@ -2,17 +2,15 @@
 
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
 import { CenteredSpinner } from "@/components/ui/spinner";
 import { usePodCreationData, useCreatePodForm } from "../hooks";
 import { useConfigOptions } from "@/components/ide/hooks";
 import { CreatePodFormProps } from "./types";
 import { mergeConfig } from "./presets";
-import { AgentSelect } from "./AgentSelect";
-import { PromptInput } from "./PromptInput";
-import { InteractionModeToggle } from "./InteractionModeToggle";
-import { AdvancedFormSection } from "./AdvancedFormSection";
 import { useCreatePodSubmitHandler } from "./useCreatePodSubmitHandler";
+import { useCreatePodRunnerCompatibility } from "./useCreatePodRunnerCompatibility";
+import { CreatePodFormActions } from "./CreatePodFormActions";
+import { CreatePodFormFields } from "./CreatePodFormFields";
 
 export function CreatePodForm({
   config,
@@ -127,79 +125,43 @@ export function CreatePodForm({
     form, selectedRunner, configValues, context, onError,
   );
 
+  const { compatibleRunners, canCreate } = useCreatePodRunnerCompatibility({
+    runners,
+    selectedAgent: form.selectedAgent,
+    selectedRunner,
+    setSelectedRunnerId,
+  });
+
   return (
     <div className={className}>
       {loadingData ? (
         <CenteredSpinner className="py-8" />
       ) : (
-        <div className="space-y-4">
-          <AgentSelect
-            agents={availableAgents}
-            selectedAgentSlug={form.selectedAgent}
-            onSelect={form.setSelectedAgent}
-            hasOnlineRunners={runners.length > 0}
-            error={form.validationErrors.agent}
-            t={t}
-          />
-
-          {form.selectedAgent && !form.rawLayerMode && (
-            <InteractionModeToggle
-              supportedModes={form.supportedModes}
-              interactionMode={form.interactionMode}
-              onModeChange={form.setInteractionMode}
-            />
-          )}
-
-          {form.selectedAgent && (
-            <PromptInput
-              value={form.prompt}
-              onChange={form.setPrompt}
-              placeholder={mergedConfig.promptPlaceholder}
-              t={t}
-            />
-          )}
-
-          {form.selectedAgent && (
-            <AdvancedFormSection
-              form={form}
-              runners={runners}
-              repositories={repositories}
-              selectedRunner={selectedRunner}
-              setSelectedRunnerId={setSelectedRunnerId}
-              configFields={configFields}
-              loadingConfig={loadingConfig}
-              configValues={configValues}
-              handleConfigChange={handleConfigChange}
-              showPerpetual={mergedConfig.scenario === "workspace"}
-            />
-          )}
-
-          {form.error && (
-            <div
-              role="alert"
-              aria-live="assertive"
-              className="bg-destructive/10 border border-destructive/30 rounded-md p-3"
-            >
-              <p className="text-sm text-destructive">{form.error}</p>
-            </div>
-          )}
-        </div>
+        <CreatePodFormFields
+          form={form}
+          agents={availableAgents}
+          runners={compatibleRunners}
+          repositories={repositories}
+          selectedRunner={selectedRunner}
+          setSelectedRunnerId={setSelectedRunnerId}
+          configFields={configFields}
+          loadingConfig={loadingConfig}
+          configValues={configValues}
+          handleConfigChange={handleConfigChange}
+          hasOnlineRunners={runners.length > 0}
+          promptPlaceholder={mergedConfig.promptPlaceholder}
+          showPerpetual={mergedConfig.scenario === "workspace"}
+          t={t}
+        />
       )}
 
-      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6">
-        {onCancel && (
-          <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">
-            {t("ide.createPod.cancel")}
-          </Button>
-        )}
-        <Button
-          onClick={handleCreate}
-          disabled={!form.selectedAgent || form.loading || loadingData}
-          className="w-full sm:w-auto"
-        >
-          {form.loading ? t("ide.createPod.creating") : t("ide.createPod.create")}
-        </Button>
-      </div>
+      <CreatePodFormActions
+        onCancel={onCancel}
+        onCreate={handleCreate}
+        disabled={!canCreate || form.loading || loadingData}
+        loading={form.loading}
+        t={t}
+      />
     </div>
   );
 }

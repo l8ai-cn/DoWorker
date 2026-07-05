@@ -11,6 +11,7 @@ pub mod extension;
 pub mod file_connect;
 pub mod grant_connect;
 pub mod invitation_connect;
+pub mod knowledgebase;
 pub mod license;
 pub mod loop_connect;
 pub mod mesh_connect;

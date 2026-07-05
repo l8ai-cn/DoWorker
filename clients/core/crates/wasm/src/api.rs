@@ -195,6 +195,10 @@ impl WasmApiClient {
         crate::service_binding::WasmBindingService::new(self.client.clone())
     }
 
+    pub fn create_knowledgebase_service(&self) -> crate::service_kb::WasmKnowledgeBaseService {
+        crate::service_kb::WasmKnowledgeBaseService::new(self.client.clone())
+    }
+
     pub fn create_notification_service(
         &self,
     ) -> crate::service_notification::WasmNotificationService {

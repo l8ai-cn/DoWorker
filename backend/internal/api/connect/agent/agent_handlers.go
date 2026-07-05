@@ -6,6 +6,7 @@ import (
 
 	"connectrpc.com/connect"
 
+	"github.com/anthropics/agentsmesh/agentfile/capability"
 	"github.com/anthropics/agentsmesh/agentfile/extract"
 	"github.com/anthropics/agentsmesh/agentfile/parser"
 	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
@@ -39,7 +40,11 @@ func (s *Server) ListAgents(
 
 	builtinProto := make([]*agentv1.Agent, 0, len(builtin))
 	for _, b := range builtin {
-		builtinProto = append(builtinProto, ToProtoAgent(b))
+		p := ToProtoAgent(b)
+		if b.AgentfileSource != nil {
+			p.Capabilities = capability.ScanDeclarations(*b.AgentfileSource)
+		}
+		builtinProto = append(builtinProto, p)
 	}
 	customProto := make([]*agentv1.Agent, 0, len(custom))
 	for _, c := range custom {
@@ -72,7 +77,12 @@ func (s *Server) GetAgent(
 		}
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	return connect.NewResponse(ToProtoAgent(agentDef)), nil
+	return connect.NewResponse(enrichGetAgent(ToProtoAgent(agentDef), agentDef.AgentfileSource)), nil
+}
+
+func enrichGetAgent(p *agentv1.Agent, src *string) *agentv1.Agent {
+	enrichCapabilities(p, src)
+	return p
 }
 
 // GetAgentConfigSchema mirrors REST `GetAgentConfigSchema` (agents_types.go:47).

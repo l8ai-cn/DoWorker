@@ -92,14 +92,15 @@ SelectTrigger.displayName = "SelectTrigger";
 
 export interface SelectValueProps {
   placeholder?: string;
+  displayValue?: string;
 }
 
-export function SelectValue({ placeholder }: SelectValueProps) {
+export function SelectValue({ placeholder, displayValue }: SelectValueProps) {
   const { value } = useSelect();
 
   return (
     <span className={cn(!value && "text-muted-foreground")}>
-      {value || placeholder}
+      {displayValue || value || placeholder}
     </span>
   );
 }

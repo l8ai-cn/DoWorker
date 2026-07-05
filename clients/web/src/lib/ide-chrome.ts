@@ -1,5 +1,7 @@
+import { pathnameHidesIdeSidebar } from "@/lib/ide-route";
+
 export function hideIdeSidebar(pathname: string): boolean {
-  return pathname.startsWith("/settings") || pathname.startsWith("/support");
+  return pathnameHidesIdeSidebar(pathname);
 }
 
 export function hideIdeChrome(pathname: string): boolean {

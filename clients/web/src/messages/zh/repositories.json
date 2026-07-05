@@ -52,7 +52,7 @@
       "public": "公开",
       "private": "私有",
       "actions": {
-        "createPod": "创建 Pod",
+        "createPod": "创建环境",
         "refresh": "刷新",
         "remove": "移除"
       }

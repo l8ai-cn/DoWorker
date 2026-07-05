@@ -74,7 +74,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
 
   if (loading || !hydrated) {
     return (
-      <div className="azure-theme min-h-screen flex flex-col items-center justify-center bg-background gap-3">
+      <div className="auth-theme min-h-screen flex flex-col items-center justify-center bg-background gap-3">
         <CenteredSpinner />
         <p className="text-sm text-muted-foreground">{t("auth.invitePage.loading")}</p>
       </div>
@@ -85,7 +85,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
     return (
       <AuthStatusShell title={t("auth.invitePage.invalidTitle")} subtitle={error} variant="error">
         <Link href="/login">
-          <Button className="w-full azure-gradient-bg text-white border-0">{t("auth.invitePage.goToSignIn")}</Button>
+          <Button className="w-full">{t("auth.invitePage.goToSignIn")}</Button>
         </Link>
       </AuthStatusShell>
     );
@@ -99,7 +99,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
         variant="error"
       >
         <Link href="/login">
-          <Button className="w-full azure-gradient-bg text-white border-0">{t("auth.invitePage.goToSignIn")}</Button>
+          <Button className="w-full">{t("auth.invitePage.goToSignIn")}</Button>
         </Link>
       </AuthStatusShell>
     );

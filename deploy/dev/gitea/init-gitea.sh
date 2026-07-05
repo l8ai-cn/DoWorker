@@ -246,6 +246,46 @@ else
     error "SSH public key not found: $SSH_PUB_KEY"
 fi
 
+# 6. Issue the backend service token (knowledge-base repo provisioning).
+# Token sha1 is only returned once by the API, so it is cached under
+# runtime/; a stale token (e.g. after a gitea volume wipe) is detected by
+# probing /user and re-issued.
+ensure_backend_token() {
+    local token_name="agentsmesh-backend"
+    local token_dir="${SCRIPT_DIR}/../runtime/gitea"
+    local token_file="${token_dir}/backend-token"
+    mkdir -p "$token_dir"
+
+    if [[ -f "$token_file" ]]; then
+        local status
+        status=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token $(cat "$token_file")" \
+            "${GITEA_API}/user")
+        if [[ "$status" == "200" ]]; then
+            info "Backend token already valid"
+            return 0
+        fi
+        info "Cached backend token is stale, re-issuing..."
+    fi
+
+    # Drop any server-side token with our name (sha1 unknown → unusable)
+    api DELETE "/users/${ADMIN_USER}/tokens/${token_name}" > /dev/null 2>&1 || true
+
+    local token_sha
+    token_sha=$(api POST "/users/${ADMIN_USER}/tokens" \
+        "{\"name\":\"${token_name}\",\"scopes\":[\"write:admin\",\"write:organization\",\"write:repository\",\"write:user\"]}" \
+        | python3 -c "import sys, json; print(json.load(sys.stdin).get('sha1', ''))")
+
+    if [[ -z "$token_sha" ]]; then
+        error "Failed to issue backend token"
+        return 1
+    fi
+    printf '%s' "$token_sha" > "$token_file"
+    chmod 600 "$token_file"
+    success "Backend token issued (runtime/gitea/backend-token)"
+}
+ensure_backend_token
+
 success "Gitea initialization complete!"
 info "  Admin:  http://localhost:${GITEA_HTTP_PORT} (${ADMIN_USER} / ${ADMIN_PASS})"
 info "  Repos:  ${ORG_NAME}/demo-webapp, ${ORG_NAME}/demo-api"

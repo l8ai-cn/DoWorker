@@ -15,6 +15,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/geo"
+	knowledgebaseservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
 	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/redis/go-redis/v9"
@@ -67,6 +68,7 @@ func initPKIAndGRPCWiring(
 		LoopRunService:    services.loopRun,
 		LoopOrchestrator:  loopOrchestrator,
 		BlockstoreService: services.blockstore,
+		KnowledgebaseService: services.knowledgeBase,
 	}
 	grpcServer, grpcRunnerHandler := initializePKIAndGRPC(cfg, services.runner, services.org, services.agentSvc, runnerConnMgr, appLogger, mcpDeps)
 
@@ -107,6 +109,15 @@ func initLogUploadService(
 	return logUploadSvc
 }
 
+// knowledgeBaseResolverOrNil keeps a nil *Service from becoming a non-nil
+// interface value (the orchestrator gates the KB feature on interface == nil).
+func knowledgeBaseResolverOrNil(svc *knowledgebaseservice.Service) agentpod.KnowledgeBaseResolverForOrchestrator {
+	if svc == nil {
+		return nil
+	}
+	return svc
+}
+
 func createPodOrchestrator(services *serviceContainer, podCoordinator *runner.PodCoordinator) *agentpod.PodOrchestrator {
 	if services.envBundle == nil {
 		panic("createPodOrchestrator: services.envBundle is required for ConfigBuilder")
@@ -118,18 +129,20 @@ func createPodOrchestrator(services *serviceContainer, podCoordinator *runner.Po
 	}
 	slog.Info("EnvBundleService connected to ConfigBuilder")
 	orch := agentpod.NewPodOrchestrator(&agentpod.PodOrchestratorDeps{
-		PodService:      services.pod,
-		ConfigBuilder:   configBuilder,
-		PodCoordinator:  podCoordinator,
-		BillingService:  services.billing,
-		UserService:     services.user,
-		RepoService:     services.repository,
-		TicketService:   services.ticket,
-		RunnerSelector:  services.runner,
-		AgentResolver:   services.agentSvc,
-		RunnerQuery:     services.runner,
-		UserConfigQuery: services.userConfig,
-		PodRepo:         services.podRepo,
+		PodService:         services.pod,
+		ConfigBuilder:      configBuilder,
+		PodCoordinator:     podCoordinator,
+		BillingService:     services.billing,
+		UserService:        services.user,
+		RepoService:        services.repository,
+		TicketService:      services.ticket,
+		RunnerSelector:     services.runner,
+		AgentResolver:      services.agentSvc,
+		RunnerQuery:        services.runner,
+		UserConfigQuery:    services.userConfig,
+		PodRepo:            services.podRepo,
+		PermissionPolicy:   services.permissionPolicy,
+		KnowledgeBases:     knowledgeBaseResolverOrNil(services.knowledgeBase),
 	})
 	slog.Info("PodOrchestrator created")
 	return orch
@@ -215,6 +228,20 @@ func startMarketplaceWorker(services *serviceContainer) func() {
 		if services.marketplaceWorker != nil {
 			services.marketplaceWorker.Stop()
 			slog.Info("MarketplaceWorker stopped")
+		}
+	}
+}
+
+func startKnowledgeBaseSyncWorker(services *serviceContainer, cfg *config.Config) func() {
+	worker := knowledgebaseservice.NewSyncWorker(services.knowledgeBase, cfg.KnowledgeBase.SyncInterval)
+	if worker != nil {
+		worker.Start(context.Background())
+		slog.Info("KnowledgeBase SyncWorker started", "interval", cfg.KnowledgeBase.SyncInterval)
+	}
+	return func() {
+		if worker != nil {
+			worker.Stop()
+			slog.Info("KnowledgeBase SyncWorker stopped")
 		}
 	}
 }

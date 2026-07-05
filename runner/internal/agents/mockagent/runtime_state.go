@@ -16,10 +16,11 @@ import (
 // exactly the surface they need (state.pending vs state.config) and the
 // runtime entrypoint stays thin.
 type runtimeState struct {
-	writer  *acp.Writer
-	wg      sync.WaitGroup
-	pending *pendingRegistry
-	config  *configState
+	writer          *acp.Writer
+	wg              sync.WaitGroup
+	pending         *pendingRegistry
+	config          *configState
+	resumeSessionID string
 }
 
 func newRuntimeState(writer *acp.Writer) *runtimeState {

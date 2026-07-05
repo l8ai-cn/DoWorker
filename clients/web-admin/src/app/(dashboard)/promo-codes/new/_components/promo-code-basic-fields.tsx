@@ -22,12 +22,11 @@ export function PromoCodeBasicFields({
 }: PromoCodeBasicFieldsProps) {
   return (
     <>
-      {/* Code */}
       <div className="space-y-2">
-        <Label htmlFor="code">Code *</Label>
+        <Label htmlFor="code">代码 *</Label>
         <Input
           id="code"
-          placeholder="e.g., SUMMER2024"
+          placeholder="例如：SUMMER2026"
           value={formData.code}
           onChange={(e) =>
             onFormChange({ ...formData, code: e.target.value.toUpperCase() })
@@ -38,16 +37,15 @@ export function PromoCodeBasicFields({
           className="font-mono uppercase"
         />
         <p className="text-xs text-muted-foreground">
-          4-50 characters, will be converted to uppercase
+          4-50 个字符，将自动转换为大写
         </p>
       </div>
 
-      {/* Name */}
       <div className="space-y-2">
-        <Label htmlFor="name">Name *</Label>
+        <Label htmlFor="name">名称 *</Label>
         <Input
           id="name"
-          placeholder="e.g., Summer Sale 2024"
+          placeholder="例如：夏季订阅活动"
           value={formData.name}
           onChange={(e) => onFormChange({ ...formData, name: e.target.value })}
           required
@@ -55,12 +53,11 @@ export function PromoCodeBasicFields({
         />
       </div>
 
-      {/* Description */}
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">描述</Label>
         <Textarea
           id="description"
-          placeholder="Optional description..."
+          placeholder="可选描述..."
           value={formData.description}
           onChange={(e) =>
             onFormChange({ ...formData, description: e.target.value })
@@ -69,10 +66,9 @@ export function PromoCodeBasicFields({
         />
       </div>
 
-      {/* Type & Plan */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label>Type *</Label>
+          <Label>类型 *</Label>
           <Select
             value={formData.type}
             onValueChange={(value) =>
@@ -83,16 +79,16 @@ export function PromoCodeBasicFields({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="media">Media</SelectItem>
-              <SelectItem value="partner">Partner</SelectItem>
-              <SelectItem value="campaign">Campaign</SelectItem>
-              <SelectItem value="internal">Internal</SelectItem>
-              <SelectItem value="referral">Referral</SelectItem>
+              <SelectItem value="media">媒体</SelectItem>
+              <SelectItem value="partner">合作伙伴</SelectItem>
+              <SelectItem value="campaign">活动</SelectItem>
+              <SelectItem value="internal">内部</SelectItem>
+              <SelectItem value="referral">推荐</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>Plan *</Label>
+          <Label>套餐 *</Label>
           <Select
             value={formData.plan_name}
             onValueChange={(value) =>

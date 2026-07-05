@@ -27,7 +27,7 @@ export function RelayListCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Relay Servers ({relaysData?.total || 0})</CardTitle>
+        <CardTitle>中继服务器 ({relaysData?.total || 0})</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -39,9 +39,9 @@ export function RelayListCard({
         ) : relaysData?.data.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground">
             <Radio className="mx-auto mb-2 h-8 w-8" />
-            <p>No relay servers registered</p>
+            <p>暂无已注册的中继服务器</p>
             <p className="text-sm">
-              Relay servers will appear here once they connect to the backend.
+              中继服务器连接到后端后会显示在这里。
             </p>
           </div>
         ) : (
@@ -96,7 +96,7 @@ function RelayRow({
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-medium">{relay.id}</span>
             <Badge variant={relay.healthy ? "success" : "destructive"}>
-              {relay.healthy ? "Healthy" : "Unhealthy"}
+              {relay.healthy ? "健康" : "异常"}
             </Badge>
             {relay.region && <Badge variant="outline">{relay.region}</Badge>}
           </div>
@@ -125,13 +125,13 @@ function RelayRow({
             </span>
           </div>
           <div className="text-xs text-muted-foreground">
-            CPU: {relay.cpu_usage?.toFixed(1) || 0}% | Mem:{" "}
+            CPU: {relay.cpu_usage?.toFixed(1) || 0}% | 内存:{" "}
             {relay.memory_usage?.toFixed(1) || 0}%
           </div>
         </div>
         <div className="hidden text-right text-xs text-muted-foreground sm:block">
           {relay.last_heartbeat && (
-            <p>Last seen {formatRelativeTime(relay.last_heartbeat)}</p>
+            <p>最后心跳 {formatRelativeTime(relay.last_heartbeat)}</p>
           )}
         </div>
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
@@ -139,7 +139,7 @@ function RelayRow({
             variant="ghost"
             size="icon"
             onClick={() => onUnregister(true)}
-            title="Unregister with migration"
+            title="注销并迁移"
           >
             <ArrowRightLeft className="h-4 w-4" />
           </Button>
@@ -147,7 +147,7 @@ function RelayRow({
             variant="ghost"
             size="icon"
             onClick={() => onUnregister(false)}
-            title="Force unregister"
+            title="强制注销"
             className="text-destructive hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />

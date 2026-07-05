@@ -78,7 +78,7 @@ function ResetPasswordContent() {
         subtitle={t("auth.resetPasswordPage.invalidLinkDescription")}
       >
         <Link href="/forgot-password">
-          <Button className="w-full azure-gradient-bg text-white border-0">
+          <Button className="w-full">
             {t("auth.resetPasswordPage.requestNewLink")}
           </Button>
         </Link>
@@ -91,9 +91,9 @@ function ResetPasswordContent() {
       title={t("auth.resetPasswordPage.title")}
       subtitle={t("auth.resetPasswordPage.subtitle")}
       footer={
-        <p className="text-center text-sm text-[var(--azure-text-muted)]">
+        <p className="text-center text-sm text-muted-foreground">
           {t("auth.resetPasswordPage.rememberPassword")}{" "}
-          <Link href="/login" className="text-[var(--azure-cyan)] hover:underline font-medium">
+          <Link href="/login" className="auth-link">
             {t("auth.resetPasswordPage.signIn")}
           </Link>
         </p>
@@ -135,7 +135,7 @@ function ResetPasswordContent() {
           />
         </div>
 
-        <Button type="submit" className="w-full azure-gradient-bg text-white border-0" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading}>
           {loading ? t("auth.resetPasswordPage.submitting") : t("auth.resetPasswordPage.submit")}
         </Button>
       </form>
@@ -147,7 +147,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="azure-theme min-h-screen flex items-center justify-center bg-background">
+        <div className="auth-theme min-h-screen flex items-center justify-center bg-background">
           <CenteredSpinner />
         </div>
       }

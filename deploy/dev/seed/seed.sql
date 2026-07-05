@@ -208,6 +208,26 @@ BEGIN
         WHERE organization_id = v_org_id AND node_id = 'dev-runner-2'
     );
 
+    INSERT INTO runners (
+        organization_id, node_id, description,
+        status, max_concurrent_pods
+    )
+    SELECT v_org_id,
+           r.node_id,
+           r.description,
+           'offline',
+           10
+    FROM (VALUES
+        ('dev-runner-claude', 'Development Docker Runner (Claude Code)'),
+        ('dev-runner-codex', 'Development Docker Runner (Codex CLI)'),
+        ('dev-runner-gemini', 'Development Docker Runner (Gemini CLI)'),
+        ('dev-runner-loopal', 'Development Docker Runner (Loopal)')
+    ) AS r(node_id, description)
+    WHERE NOT EXISTS (
+        SELECT 1 FROM runners
+        WHERE organization_id = v_org_id AND node_id = r.node_id
+    );
+
     -- =========================================================================
     -- 6. 创建示例 Ticket
     -- =========================================================================

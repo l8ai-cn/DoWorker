@@ -67,7 +67,7 @@ export function AuthCallbackScreen({ status, errorMessage }: AuthCallbackScreenP
         <StatusIcon variant="error" />
         <div className="space-y-3">
           <Link href="/login">
-            <Button className="w-full azure-gradient-bg text-white border-0">{t("auth.sso.tryAgain")}</Button>
+            <Button className="w-full">{t("auth.sso.tryAgain")}</Button>
           </Link>
           <Link href="/register">
             <Button variant="outline" className="w-full">{t("auth.sso.createAccount")}</Button>

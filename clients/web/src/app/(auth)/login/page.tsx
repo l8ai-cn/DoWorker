@@ -117,7 +117,7 @@ export default function LoginPage() {
       footer={
         <>
           {t("auth.loginPage.dontHaveAccount")}{" "}
-          <Link href={registerHref} className="text-[var(--azure-cyan)] hover:underline">
+          <Link href={registerHref} className="auth-link">
             {t("auth.loginPage.signUp")}
           </Link>
         </>
@@ -157,7 +157,7 @@ export default function LoginPage() {
                 <label htmlFor="password" className="text-sm font-medium text-foreground">
                   {t("auth.loginPage.passwordLabel")}
                 </label>
-                <Link href="/forgot-password" className="text-sm text-[var(--azure-cyan)] hover:underline">
+                <Link href="/forgot-password" className="auth-link text-sm">
                   {t("auth.forgotPassword")}
                 </Link>
               </div>
@@ -165,7 +165,7 @@ export default function LoginPage() {
                 placeholder={t("auth.loginPage.passwordPlaceholder")}
                 value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
-            <Button type="submit" className="w-full azure-gradient-bg hover:opacity-90 font-headline font-bold uppercase tracking-wider" loading={loading}>
+            <Button type="submit" className="w-full" loading={loading}>
               {t("auth.loginPage.signIn")}
             </Button>
           </>

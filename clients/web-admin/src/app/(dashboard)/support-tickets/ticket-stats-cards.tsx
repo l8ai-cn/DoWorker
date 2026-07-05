@@ -7,7 +7,7 @@ export function TicketStatsCards({ stats }: { stats: SupportTicketStats }) {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Total</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">总计</CardTitle>
           <MessageSquare className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -16,7 +16,7 @@ export function TicketStatsCards({ stats }: { stats: SupportTicketStats }) {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Open</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">待处理</CardTitle>
           <AlertCircle className="h-4 w-4 text-destructive" />
         </CardHeader>
         <CardContent>
@@ -25,7 +25,7 @@ export function TicketStatsCards({ stats }: { stats: SupportTicketStats }) {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">In Progress</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">处理中</CardTitle>
           <Clock className="h-4 w-4 text-warning" />
         </CardHeader>
         <CardContent>
@@ -34,7 +34,7 @@ export function TicketStatsCards({ stats }: { stats: SupportTicketStats }) {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Resolved</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">已解决</CardTitle>
           <CheckCircle2 className="h-4 w-4 text-success" />
         </CardHeader>
         <CardContent>

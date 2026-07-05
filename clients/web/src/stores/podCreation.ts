@@ -20,6 +20,9 @@ interface PodCreationPreferences {
   // Slugs are stable across rename/reinstall and repo-scoped; restored as the
   // initial selection filtered to the skills actually installed on the repo.
   lastSkillSlugs: string[];
+  lastDestroyPolicy: "manual" | "idle" | "completed";
+  lastDestroyAfterMinutes: number;
+  lastKnowledgeMounts: { slug: string; mode: "ro" | "rw" }[];
 
   setLastChoices: (
     choices: Partial<
@@ -31,6 +34,9 @@ interface PodCreationPreferences {
         | "lastRuntimeBundleNames"
         | "lastBranchName"
         | "lastSkillSlugs"
+        | "lastDestroyPolicy"
+        | "lastDestroyAfterMinutes"
+        | "lastKnowledgeMounts"
       >
     >
   ) => void;
@@ -50,6 +56,9 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
       lastRuntimeBundleNames: [],
       lastBranchName: null,
       lastSkillSlugs: [],
+      lastDestroyPolicy: "manual",
+      lastDestroyAfterMinutes: 120,
+      lastKnowledgeMounts: [],
 
       setLastChoices: (choices) => set((state) => ({ ...state, ...choices })),
       clearLastChoices: () =>
@@ -60,6 +69,9 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
           lastRuntimeBundleNames: [],
           lastBranchName: null,
           lastSkillSlugs: [],
+          lastDestroyPolicy: "manual",
+          lastDestroyAfterMinutes: 120,
+          lastKnowledgeMounts: [],
         }),
 
       // Hydration
@@ -68,7 +80,7 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
     }),
     {
       name: "agentsmesh-pod-creation",
-      version: 4,
+      version: 6,
       // v1 stored `lastBundleName: string | null`; v2 unified into
       // `lastBundleNames: string[]`; v3 splits back into credential
       // (single) + runtime (multi) to match the dialog UI. Legacy values
@@ -86,6 +98,16 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
         if (version < 4) {
           s.lastSkillSlugs = [];
         }
+        if (version < 5) {
+          s.lastDestroyPolicy = "manual";
+          s.lastDestroyAfterMinutes = 120;
+        }
+        if (version < 6) {
+          // v5 stored blockstore workspace IDs; the git-backed KB feature
+          // keys mounts by {slug, mode} so old values can't be migrated.
+          delete s.lastKnowledgeBaseIds;
+          s.lastKnowledgeMounts = [];
+        }
         return s as unknown as PodCreationPreferences;
       },
       partialize: (state) => ({
@@ -95,6 +117,9 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
         lastRuntimeBundleNames: state.lastRuntimeBundleNames,
         lastBranchName: state.lastBranchName,
         lastSkillSlugs: state.lastSkillSlugs,
+        lastDestroyPolicy: state.lastDestroyPolicy,
+        lastDestroyAfterMinutes: state.lastDestroyAfterMinutes,
+        lastKnowledgeMounts: state.lastKnowledgeMounts,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

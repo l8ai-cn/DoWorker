@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Sparkles, Terminal, X } from "lucide-react";
+import { Bug, FlaskConical, SearchCode, Sparkles, Terminal, X, type LucideIcon } from "lucide-react";
 import {
   WORKSPACE_RECIPES,
   type WorkspaceRecipeSelection,
 } from "@/components/workspace/workspace-recipes";
 
 interface RecipeCardProps {
-  emoji: string;
+  recipeId: string;
   title: string;
   description: string;
   agents: string;
@@ -17,16 +17,26 @@ interface RecipeCardProps {
   onClick?: () => void;
 }
 
-function RecipeCard({ emoji, title, description, agents, duration, onClick }: RecipeCardProps) {
+const RECIPE_ICONS: Record<string, LucideIcon> = {
+  explain: SearchCode,
+  tests: FlaskConical,
+  bug: Bug,
+};
+
+function RecipeCard({ recipeId, title, description, agents, duration, onClick }: RecipeCardProps) {
+  const Icon = RECIPE_ICONS[recipeId] ?? Terminal;
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group flex-1 rounded-lg bg-surface-raised p-3.5 text-left shadow-[var(--shadow-soft)] ring-1 ring-border/45 transition-all hover:-translate-y-0.5 hover:bg-card hover:ring-border/70"
+      className="group w-full rounded-lg bg-surface-raised p-3.5 text-left shadow-[var(--shadow-soft)] ring-1 ring-border/45 transition-all hover:-translate-y-0.5 hover:bg-card hover:ring-primary/25"
     >
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-accent text-xs leading-none text-accent-foreground">{emoji}</span>
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-surface-muted text-muted-foreground ring-1 ring-border/35 group-hover:text-primary">
+            <Icon className="h-3.5 w-3.5" />
+          </span>
           <span className="text-[13px] font-semibold text-foreground">{title}</span>
         </div>
         <p className="text-[11px] leading-4 text-muted-foreground">{description}</p>
@@ -66,17 +76,17 @@ export function WorkspaceEmptyState({ onCreatePod }: WorkspaceEmptyStateProps) {
   return (
     <div className="flex h-full flex-col bg-background">
       {showBanner && (
-        <div className="flex items-center gap-2.5 bg-accent/75 px-6 py-2.5 text-[13px] shadow-[inset_0_-1px_0_color-mix(in_srgb,var(--border)_32%,transparent)]">
-          <Sparkles className="h-3.5 w-3.5 text-accent-foreground" />
-          <span className="font-medium text-accent-foreground">{t("workspace.banner.newUser")}</span>
-          <a href="#" className="text-primary hover:underline">
+        <div className="flex items-center gap-2.5 bg-[color-mix(in_srgb,var(--primary)_7%,var(--background))] px-6 py-2.5 text-[13px] shadow-[inset_0_-1px_0_color-mix(in_srgb,var(--border)_36%,transparent)]">
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          <span className="font-medium text-foreground">{t("workspace.banner.newUser")}</span>
+          <a href="#" className="font-medium text-primary hover:underline">
             {t("workspace.banner.watchIntro")}
           </a>
           <div className="flex-1" />
           <button
             type="button"
             onClick={() => setShowBanner(false)}
-            className="text-accent-foreground/80 hover:text-accent-foreground"
+            className="text-muted-foreground hover:text-foreground"
             aria-label="Dismiss"
           >
             <X className="h-3.5 w-3.5" />
@@ -86,7 +96,7 @@ export function WorkspaceEmptyState({ onCreatePod }: WorkspaceEmptyStateProps) {
 
       <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-10">
         <div className="flex w-[520px] max-w-full flex-col items-center gap-4 text-center">
-          <div className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-accent shadow-[var(--shadow-soft)] ring-1 ring-primary/20">
+          <div className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-surface-raised shadow-[var(--shadow-soft)] ring-1 ring-border/60">
             <Terminal className="h-8 w-8 text-primary" />
           </div>
           <h1 className="text-2xl font-semibold text-foreground">
@@ -99,7 +109,7 @@ export function WorkspaceEmptyState({ onCreatePod }: WorkspaceEmptyStateProps) {
             <button
               type="button"
               onClick={onCreatePod}
-              className="flex h-10 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover"
+              className="flex h-10 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_8px_20px_color-mix(in_srgb,var(--primary)_18%,transparent)] hover:bg-primary-hover"
             >
               <span className="text-base leading-none">+</span>
               {t("workspace.createNewPod")}
@@ -111,11 +121,11 @@ export function WorkspaceEmptyState({ onCreatePod }: WorkspaceEmptyStateProps) {
           <div className="text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/80">
             {t("workspace.recipesHeading")}
           </div>
-          <div className="flex gap-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             {WORKSPACE_RECIPES.map((recipe) => (
               <RecipeCard
                 key={recipe.id}
-                emoji={recipe.emoji}
+                recipeId={recipe.id}
                 title={t(`workspace.recipes.${recipe.id}.title`)}
                 description={t(`workspace.recipes.${recipe.id}.description`)}
                 agents={recipe.agentLabel}

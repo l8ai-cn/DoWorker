@@ -137,4 +137,20 @@ describe('buildAgentfileLayer', () => {
     const result = buildAgentfileLayer({ configValues: {}, skillSlugs: [] })
     expect(result).not.toContain('SKILLS')
   })
+
+  it('emits KNOWLEDGE with rw annotation only for rw mounts', () => {
+    const result = buildAgentfileLayer({
+      configValues: {},
+      knowledgeMounts: [
+        { slug: 'team-docs', mode: 'rw' },
+        { slug: 'product-wiki', mode: 'ro' },
+      ],
+    })
+    expect(result).toBe('KNOWLEDGE team-docs [rw], product-wiki')
+  })
+
+  it('omits KNOWLEDGE when no mounts are selected', () => {
+    const result = buildAgentfileLayer({ configValues: {}, knowledgeMounts: [] })
+    expect(result).not.toContain('KNOWLEDGE')
+  })
 })

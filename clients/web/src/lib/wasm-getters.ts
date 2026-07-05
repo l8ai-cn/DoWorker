@@ -11,6 +11,7 @@ import {
   WasmAgentService, WasmTicketRelationsService, WasmFileService,
   WasmSupportTicketService, WasmAuthConnectService,
   WasmBlockstoreService,
+  WasmKnowledgeBaseService,
   WasmRelayManager,
 } from "agentsmesh-wasm";
 import { registerServiceProvider } from "@agentsmesh/service-runtime";
@@ -59,6 +60,7 @@ export function registerAll(client: WasmApiClient, authManager: WasmAuthManager)
     supportTicketService: client.create_support_ticket_service(),
     authConnectService: client.create_auth_connect_service(),
     blockstoreService: client.create_blockstore_service(),
+    knowledgeBaseService: client.create_knowledgebase_service(),
     runnerState: client.get_runner_state(),
     meshState: client.get_mesh_state(),
     ticketState: client.get_ticket_state(),
@@ -90,5 +92,6 @@ export {
   getChannelState, getLoopState, getAcpManager, getLoopalManager,
   getRepoState,
   getAutopilotState, getRelayManager, getBlockstoreService,
+  getKnowledgeBaseService,
 } from "@agentsmesh/service-runtime";
 

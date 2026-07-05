@@ -34,6 +34,10 @@ vi.mock("@/components/ide/ConfigForm", () => ({
   ConfigForm: () => <div data-testid="config-form">Config Form</div>,
 }));
 
+vi.mock("../KnowledgeBaseMountSelect", () => ({
+  KnowledgeBaseMountSelect: () => <div data-testid="knowledge-base-mount-select" />,
+}));
+
 vi.mock("@/lib/terminal-size", () => ({
   estimateWorkspaceTerminalSize: () => ({ cols: 80, rows: 24 }),
 }));
@@ -151,12 +155,12 @@ describe("CreatePodForm - submission, errors & reset", () => {
       expect(screen.getByText("ide.createPod.create")).toBeDisabled();
     });
 
-    it("should enable create button when agent is selected (no runner needed)", () => {
+    it("should disable create button when no online runner supports the selected agent", () => {
       vi.mocked(usePodCreationData).mockReturnValue({
         ...defaultPodCreationData,
-        runners: [],
+        runners: [{ ...mockRunner, available_agents: ["codex-cli"] }],
         selectedRunner: null,
-        availableAgents: [mockAgent],
+        availableAgents: [],
       });
       vi.mocked(useCreatePodForm).mockReturnValue({
         ...defaultFormState,
@@ -164,7 +168,7 @@ describe("CreatePodForm - submission, errors & reset", () => {
       });
 
       render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.getByText("ide.createPod.create")).not.toBeDisabled();
+      expect(screen.getByText("ide.createPod.create")).toBeDisabled();
     });
 
     it("should show loading state on create button when submitting", () => {

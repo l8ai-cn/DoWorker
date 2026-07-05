@@ -256,6 +256,15 @@ message CreatePodRequest {
 
   // Perpetual mode: Runner auto-restarts agent on clean exit.
   optional bool perpetual = 13;
+
+  // Knowledge base mounts; win over Agentfile KNOWLEDGE and agent defaults on mode conflicts.
+  repeated PodKnowledgeMount knowledge_mounts = 14;
+}
+
+// PodKnowledgeMount selects one org knowledge base for a new pod.
+message PodKnowledgeMount {
+  string slug = 1;
+  string mode = 2;  // ro | rw; empty defaults to ro
 }
 
 // Multi-field create envelope — locked by 986a38ca6 (PR #340). Quota-near

@@ -21,7 +21,7 @@ func connectCodeOf(t *testing.T, err error) connect.Code {
 }
 
 func TestGetDashboard_NoOrgSlug_InvalidArgument(t *testing.T) {
-	srv := NewServer(nil, nil)
+	srv := NewServer(nil, nil, nil)
 	_, err := srv.GetDashboard(context.Background(),
 		connect.NewRequest(&tuv1.GetDashboardRequest{}))
 	require.Error(t, err)

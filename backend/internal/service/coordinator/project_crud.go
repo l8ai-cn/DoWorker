@@ -79,10 +79,16 @@ func (s *Service) GetProject(ctx context.Context, orgID, id int64) (*coordinator
 }
 
 func (s *Service) UpdateProject(ctx context.Context, orgID, id int64, updates map[string]any) error {
+	if _, err := s.store.GetProject(ctx, orgID, id); err != nil {
+		return err
+	}
 	return s.store.UpdateProject(ctx, orgID, id, updates)
 }
 
 func (s *Service) DeleteProject(ctx context.Context, orgID, id int64) error {
+	if _, err := s.store.GetProject(ctx, orgID, id); err != nil {
+		return err
+	}
 	return s.store.DeleteProject(ctx, orgID, id)
 }
 

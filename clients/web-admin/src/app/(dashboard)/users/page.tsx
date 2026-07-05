@@ -56,12 +56,12 @@ export default function UsersPage() {
     };
   };
 
-  const handleDisable = makeHandler(disableUser, "User disabled successfully", "Failed to disable user");
-  const handleEnable = makeHandler(enableUser, "User enabled successfully", "Failed to enable user");
-  const handleGrantAdmin = makeHandler(grantAdmin, "Admin privileges granted", "Failed to grant admin privileges");
-  const handleRevokeAdmin = makeHandler(revokeAdmin, "Admin privileges revoked", "Failed to revoke admin privileges");
-  const handleVerifyEmail = makeHandler(verifyUserEmail, "Email verified successfully", "Failed to verify email");
-  const handleUnverifyEmail = makeHandler(unverifyUserEmail, "Email unverified successfully", "Failed to unverify email");
+  const handleDisable = makeHandler(disableUser, "用户已停用", "停用用户失败");
+  const handleEnable = makeHandler(enableUser, "用户已启用", "启用用户失败");
+  const handleGrantAdmin = makeHandler(grantAdmin, "管理员权限已授予", "授予管理员权限失败");
+  const handleRevokeAdmin = makeHandler(revokeAdmin, "管理员权限已撤销", "撤销管理员权限失败");
+  const handleVerifyEmail = makeHandler(verifyUserEmail, "邮箱已验证", "验证邮箱失败");
+  const handleUnverifyEmail = makeHandler(unverifyUserEmail, "邮箱验证已取消", "取消邮箱验证失败");
 
   return (
     <div className="space-y-4">
@@ -69,7 +69,7 @@ export default function UsersPage() {
         <div className="relative flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search users..."
+            placeholder="搜索用户..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="pl-9"
@@ -79,7 +79,7 @@ export default function UsersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Users ({data?.total || 0})</CardTitle>
+          <CardTitle>用户 ({data?.total || 0})</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -103,7 +103,7 @@ export default function UsersPage() {
                 />
               ))}
               {data?.data.length === 0 && (
-                <p className="py-8 text-center text-muted-foreground">No users found</p>
+                <p className="py-8 text-center text-muted-foreground">暂无用户</p>
               )}
             </div>
           )}
@@ -111,14 +111,14 @@ export default function UsersPage() {
           {data && data.total_pages > 1 && (
             <div className="mt-4 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Page {data.page} of {data.total_pages}
+                第 {data.page} / {data.total_pages} 页
               </p>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
-                  Previous
+                  上一页
                 </Button>
                 <Button variant="outline" size="sm" disabled={page >= data.total_pages} onClick={() => setPage(page + 1)}>
-                  Next
+                  下一页
                 </Button>
               </div>
             </div>

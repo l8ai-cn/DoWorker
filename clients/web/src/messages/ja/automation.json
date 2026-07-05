@@ -25,6 +25,12 @@
     "board": {
       "empty": "No executions"
     },
+    "run": {
+      "scanned": "Scanned {count}",
+      "candidates": "Candidates {count}",
+      "dispatched": "Dispatched {count}",
+      "skipped": "Skipped {count}"
+    },
     "create": {
       "title": "New automation project",
       "description": "Bind a repository and configure how tasks are claimed.",
@@ -32,6 +38,10 @@
       "namePlaceholder": "e.g. Triage bot",
       "repository": "Repository",
       "repositoryPlaceholder": "Select a repository",
+      "agent": "Agent",
+      "agentPlaceholder": "Select an agent",
+      "noOnlineRunners": "No online runners are available.",
+      "noCompatibleAgents": "No online runner supports an automation agent.",
       "labels": "Label filter",
       "labelsPlaceholder": "comma,separated,labels",
       "interval": "Scan interval (seconds)",

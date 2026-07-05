@@ -48,7 +48,7 @@ export function InviteAcceptCard({
               {t("auth.invitePage.signedInAs", { email: meEmail })}
             </p>
           )}
-          <Button className="w-full azure-gradient-bg text-white border-0" onClick={onAccept} disabled={accepting}>
+          <Button className="w-full" onClick={onAccept} disabled={accepting}>
             {accepting ? t("auth.invitePage.accepting") : t("auth.invitePage.accept")}
           </Button>
         </div>
@@ -56,11 +56,11 @@ export function InviteAcceptCard({
         <div className="space-y-3">
           <p className="text-sm text-center text-muted-foreground">{t("auth.invitePage.signInPrompt")}</p>
           <Link href={`/login?redirect=/invite/${token}`}>
-            <Button className="w-full azure-gradient-bg text-white border-0">{t("auth.invitePage.signInToAccept")}</Button>
+            <Button className="w-full">{t("auth.invitePage.signInToAccept")}</Button>
           </Link>
-          <p className="text-sm text-center text-[var(--azure-text-muted)]">
+          <p className="text-sm text-center text-muted-foreground">
             {t("auth.invitePage.noAccount")}{" "}
-            <Link href={`/register?redirect=/invite/${token}`} className="text-[var(--azure-cyan)] hover:underline font-medium">
+            <Link href={`/register?redirect=/invite/${token}`} className="auth-link">
               {t("auth.invitePage.signUp")}
             </Link>
           </p>

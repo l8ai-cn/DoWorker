@@ -38,6 +38,8 @@ go_test(
         "//runner/internal/agents/codex",
         "//runner/internal/agents/codex/testsupport",
         "//runner/internal/agents/cursor",
+        "//runner/internal/agents/doagent",
+        "//runner/internal/agents/doagent/testsupport",
         "//runner/internal/agents/loopal",
         "//runner/internal/agents/opencode",
         "//runner/internal/agents/opencode/testsupport",

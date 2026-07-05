@@ -75,6 +75,23 @@ func writeDecl(b *strings.Builder, decl parser.Declaration) {
 		fmt.Fprintf(b, "PROMPT %q", d.Content)
 	case *parser.PromptPositionDecl:
 		fmt.Fprintf(b, "PROMPT_POSITION %s", d.Mode)
+	case *parser.CapabilityDecl:
+		fmt.Fprintf(b, "CAPABILITY %s %s", d.Axis, d.Value)
+	case *parser.KnowledgeDecl:
+		writeKnowledgeDecl(b, d)
+	}
+}
+
+func writeKnowledgeDecl(b *strings.Builder, d *parser.KnowledgeDecl) {
+	b.WriteString("KNOWLEDGE ")
+	for i, m := range d.Mounts {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		b.WriteString(m.Slug)
+		if m.Mode == "rw" {
+			b.WriteString(" [rw]")
+		}
 	}
 }
 

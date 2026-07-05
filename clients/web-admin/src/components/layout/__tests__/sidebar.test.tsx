@@ -1,13 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 
-// Mock next/navigation
 const mockPathname = vi.fn(() => "/");
 vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname(),
 }));
 
-// Mock next/link
 vi.mock("next/link", () => ({
   default: ({
     children,
@@ -26,7 +24,6 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-// Mock auth store
 const mockLogout = vi.fn();
 const mockUser = {
   id: 1,
@@ -44,7 +41,6 @@ vi.mock("@/stores/auth", () => ({
   }),
 }));
 
-// Mock Sheet components to simplify testing
 vi.mock("@/components/ui/sheet", () => ({
   Sheet: ({
     children,
@@ -83,23 +79,25 @@ describe("SidebarContent", () => {
     mockUser.avatar_url = null;
   });
 
-  it("should render Admin Console logo text", () => {
+  it("should render the AgentsMesh admin brand", () => {
     render(<SidebarContent />);
-    expect(screen.getByText("Admin Console")).toBeInTheDocument();
+    expect(screen.getByText("AgentsMesh")).toBeInTheDocument();
+    expect(screen.getByText("管理控制台")).toBeInTheDocument();
   });
 
   it("should render all navigation items", () => {
     render(<SidebarContent />);
     const expectedItems = [
-      "Dashboard",
-      "Users",
-      "Organizations",
-      "Runners",
-      "Relays",
-      "Skill Registries",
-      "Promo Codes",
-      "Support Tickets",
-      "Audit Logs",
+      "仪表盘",
+      "用户",
+      "组织",
+      "单点登录",
+      "Runner",
+      "中继",
+      "技能源",
+      "优惠码",
+      "支持工单",
+      "审计日志",
     ];
     expectedItems.forEach((item) => {
       expect(screen.getByText(item)).toBeInTheDocument();
@@ -109,27 +107,27 @@ describe("SidebarContent", () => {
   it("should highlight active nav item based on pathname", () => {
     mockPathname.mockReturnValue("/users");
     render(<SidebarContent />);
-    const usersLink = screen.getByText("Users").closest("a");
+    const usersLink = screen.getByText("用户").closest("a");
     expect(usersLink?.className).toContain("bg-primary/10");
   });
 
   it("should highlight nested routes (e.g. /organizations/5)", () => {
     mockPathname.mockReturnValue("/organizations/5");
     render(<SidebarContent />);
-    const orgLink = screen.getByText("Organizations").closest("a");
+    const orgLink = screen.getByText("组织").closest("a");
     expect(orgLink?.className).toContain("bg-primary/10");
   });
 
   it("should not highlight non-matching items", () => {
     mockPathname.mockReturnValue("/users");
     render(<SidebarContent />);
-    const runnersLink = screen.getByText("Runners").closest("a");
+    const runnersLink = screen.getByText("Runner").closest("a");
     expect(runnersLink?.className).not.toContain("bg-primary/10");
   });
 
   it("should display user info with initial when no avatar", () => {
     render(<SidebarContent />);
-    expect(screen.getByText("A")).toBeInTheDocument(); // First letter of "admin"
+    expect(screen.getByText("A")).toBeInTheDocument();
     expect(screen.getByText("Admin User")).toBeInTheDocument();
     expect(screen.getByText("admin@test.com")).toBeInTheDocument();
   });
@@ -150,25 +148,25 @@ describe("SidebarContent", () => {
 
   it("should render Sign Out button", () => {
     render(<SidebarContent />);
-    expect(screen.getByText("Sign Out")).toBeInTheDocument();
+    expect(screen.getByText("退出登录")).toBeInTheDocument();
   });
 
   it("should call logout when Sign Out is clicked", () => {
     render(<SidebarContent />);
-    fireEvent.click(screen.getByText("Sign Out"));
+    fireEvent.click(screen.getByText("退出登录"));
     expect(mockLogout).toHaveBeenCalledTimes(1);
   });
 
   it("should call onNavigate when a nav link is clicked", () => {
     const handleNavigate = vi.fn();
     render(<SidebarContent onNavigate={handleNavigate} />);
-    fireEvent.click(screen.getByText("Users"));
+    fireEvent.click(screen.getByText("用户"));
     expect(handleNavigate).toHaveBeenCalledTimes(1);
   });
 
   it("should not throw when onNavigate is not provided", () => {
     render(<SidebarContent />);
-    expect(() => fireEvent.click(screen.getByText("Users"))).not.toThrow();
+    expect(() => fireEvent.click(screen.getByText("用户"))).not.toThrow();
   });
 });
 
@@ -215,21 +213,21 @@ describe("MobileSidebar", () => {
 
   it("should render navigation content inside Sheet when open", () => {
     render(<MobileSidebar open={true} onOpenChange={() => {}} />);
-    expect(screen.getByText("Dashboard")).toBeInTheDocument();
-    expect(screen.getByText("Users")).toBeInTheDocument();
+    expect(screen.getByText("仪表盘")).toBeInTheDocument();
+    expect(screen.getByText("用户")).toBeInTheDocument();
   });
 
   it("should have sr-only Navigation title for accessibility", () => {
     render(<MobileSidebar open={true} onOpenChange={() => {}} />);
     const title = screen.getByTestId("sheet-title");
-    expect(title).toHaveTextContent("Navigation");
+    expect(title).toHaveTextContent("导航");
     expect(title?.className).toContain("sr-only");
   });
 
   it("should call onOpenChange(false) when a nav link is clicked", () => {
     const handleOpenChange = vi.fn();
     render(<MobileSidebar open={true} onOpenChange={handleOpenChange} />);
-    fireEvent.click(screen.getByText("Users"));
+    fireEvent.click(screen.getByText("用户"));
     expect(handleOpenChange).toHaveBeenCalledWith(false);
   });
 });

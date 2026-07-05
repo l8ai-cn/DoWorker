@@ -10,17 +10,19 @@ amesh_proto_convert(
 go_library(
     name = "agent",
     srcs = [
+        "agent_capabilities.go",
         "agent_convert_custom.go",
         "agent_handlers.go",
         "agent_handlers_custom.go",
         "mount.go",
         "server.go",
         "user_config_handlers.go",
-        ":agent_convert_amesh",
+        ":agent_convert_amesh",  # keep
     ],
     importpath = "github.com/anthropics/agentsmesh/backend/internal/api/connect/agent",
     visibility = ["//backend:__subpackages__"],
     deps = [
+        "//agentfile/capability",
         "//agentfile/extract",
         "//agentfile/parser",
         "//backend/internal/api/connect/interceptors",

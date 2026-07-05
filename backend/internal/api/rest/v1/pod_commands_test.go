@@ -98,6 +98,12 @@ func (m *mockCommandSender) SendUpdatePodPerpetual(ctx context.Context, runnerID
 	}
 	return nil
 }
+func (m *mockCommandSender) SendUpdatePodPolicyRules(context.Context, int64, string, []*runnerv1.PolicyRuleSnapshot) error {
+	return nil
+}
+func (m *mockCommandSender) SendAcpRelay(context.Context, int64, string, string) error {
+	return nil
+}
 
 // Compile-time checks
 var (

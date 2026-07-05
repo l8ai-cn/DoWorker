@@ -71,7 +71,7 @@ function VerifyEmailCallbackContent() {
     >
       <div className="space-y-3">
         <Link href="/login">
-          <Button className="w-full azure-gradient-bg text-white border-0">
+          <Button className="w-full">
             {t("auth.verifyEmailCallbackPage.signIn")}
           </Button>
         </Link>
@@ -89,7 +89,7 @@ export default function VerifyEmailCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="azure-theme min-h-screen flex items-center justify-center bg-background">
+        <div className="auth-theme min-h-screen flex items-center justify-center bg-background">
           <CenteredSpinner />
         </div>
       }

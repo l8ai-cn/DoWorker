@@ -151,6 +151,10 @@ func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) err
 		sendAcpViaRelay(pod, "content_chunk", "", map[string]string{
 			"text": cmd.Prompt, "role": "user",
 		})
+		if err := acpSendPromptWhenReady(pod, cmd.Prompt); err != nil {
+			return err
+		}
+		return nil
 	}
 	if err := pod.IO.SendInput(cmd.Prompt); err != nil {
 		return err
@@ -159,5 +163,31 @@ func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) err
 		time.Sleep(ptySubmitGap)
 		return ta.SendKeys([]string{"enter"})
 	}
+	return nil
+}
+
+// acpSendPromptWhenReady retries until the ACP client leaves initializing.
+// create_pod and send_prompt often race on compat sessions (pod still handshaking).
+func acpSendPromptWhenReady(pod *Pod, prompt string) error {
+	const attempts = 50
+	for i := 0; i < attempts; i++ {
+		err := pod.IO.SendInput(prompt)
+		if err == nil {
+			return nil
+		}
+		if !strings.Contains(err.Error(), "cannot send prompt in state") {
+			return err
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+	return fmt.Errorf("timeout waiting for ACP pod %s to accept prompt", pod.PodKey)
+}
+
+func (h *RunnerMessageHandler) OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error {
+	pod, ok := h.podStore.Get(cmd.PodKey)
+	if !ok {
+		return fmt.Errorf("pod not found: %s", cmd.PodKey)
+	}
+	h.handleAcpRelayCommand(pod, []byte(cmd.PayloadJson))
 	return nil
 }

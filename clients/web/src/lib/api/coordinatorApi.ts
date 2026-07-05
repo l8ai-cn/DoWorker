@@ -45,6 +45,16 @@ export interface CoordinatorExecution {
   created_at: string;
 }
 
+export interface CoordinatorRunResult {
+  project_id: number;
+  scanned: number;
+  candidates: number;
+  claimed: number;
+  dispatched: number;
+  skipped: number;
+  errors: string[];
+}
+
 export interface CreateProjectInput {
   repository_id: number;
   name: string;
@@ -102,7 +112,11 @@ export const coordinatorApi = {
     });
     return r?.executions ?? [];
   },
-  runNow: async (id: number): Promise<void> => {
-    await lightFetch(`${base()}/${id}/run`, { method: "POST", authenticated: true });
+  runNow: async (id: number): Promise<CoordinatorRunResult> => {
+    const r = await lightFetch<{ result: CoordinatorRunResult }>(`${base()}/${id}/run`, {
+      method: "POST",
+      authenticated: true,
+    });
+    return r.result;
   },
 };

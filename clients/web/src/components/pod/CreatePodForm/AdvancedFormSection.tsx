@@ -13,6 +13,8 @@ import { SkillMultiSelect } from "./SkillMultiSelect";
 import { RepositorySelect, BranchInput } from "./RepositorySelect";
 import { AdvancedOptions } from "./AdvancedOptions";
 import { AgentfileLayerEditor } from "./AgentfileLayerEditor";
+import { KnowledgeBaseMountSelect } from "./KnowledgeBaseMountSelect";
+import { PodLifecycleSection } from "./PodLifecycleSection";
 import type { CreatePodFormState } from "../hooks";
 import type { RunnerData, RepositoryData, ConfigField } from "@/lib/api";
 
@@ -80,6 +82,13 @@ export function AdvancedFormSection({
         </div>
       )}
 
+      <PodLifecycleSection
+        destroyPolicy={form.destroyPolicy}
+        destroyAfterMinutes={form.destroyAfterMinutes}
+        onPolicyChange={form.setDestroyPolicy}
+        onAfterChange={form.setDestroyAfterMinutes}
+      />
+
       {/* Runner Select (manual override, optional) — always visible */}
       <RunnerSelect
         runners={runners}
@@ -128,16 +137,19 @@ export function AdvancedFormSection({
             />
           )}
 
-          {/* Skills — repo-scoped multi-select */}
-          {form.selectedRepository && (
-            <SkillMultiSelect
-              skills={form.repoSkills}
-              selectedSlugs={form.selectedSkillSlugs}
-              onChange={form.setSelectedSkillSlugs}
-              loading={form.loadingSkills}
-              t={t}
-            />
-          )}
+          <KnowledgeBaseMountSelect
+            selectedMounts={form.selectedKnowledgeMounts}
+            onChange={form.setSelectedKnowledgeMounts}
+          />
+
+          <SkillMultiSelect
+            skills={form.repoSkills}
+            selectedSlugs={form.selectedSkillSlugs}
+            onChange={form.setSelectedSkillSlugs}
+            loading={form.loadingSkills}
+            repositorySelected={Boolean(form.selectedRepository)}
+            t={t}
+          />
 
           {/* Agent Configuration Section */}
           {loadingConfig ? (

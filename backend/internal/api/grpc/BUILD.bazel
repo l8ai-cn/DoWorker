@@ -17,6 +17,7 @@ go_library(
         "runner_adapter_mcp_channel.go",
         "runner_adapter_mcp_channel_msg.go",
         "runner_adapter_mcp_discovery.go",
+        "runner_adapter_mcp_kb.go",
         "runner_adapter_mcp_loop.go",
         "runner_adapter_mcp_loop_types.go",
         "runner_adapter_mcp_pod.go",
@@ -41,6 +42,7 @@ go_library(
     deps = [
         "//agentfile/extract",
         "//agentfile/parser",
+        "//backend/internal/api/compat/omnigent",
         "//backend/internal/config",
         "//backend/internal/domain/agent",
         "//backend/internal/domain/agentpod",
@@ -58,6 +60,7 @@ go_library(
         "//backend/internal/service/binding",
         "//backend/internal/service/blockstore",
         "//backend/internal/service/channel",
+        "//backend/internal/service/knowledgebase",
         "//backend/internal/service/loop",
         "//backend/internal/service/repository",
         "//backend/internal/service/runner",

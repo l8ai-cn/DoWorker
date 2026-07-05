@@ -30,13 +30,13 @@ export function TicketsTable({ tickets, isLoading }: TicketsTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>User</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Priority</TableHead>
-            <TableHead>Assigned To</TableHead>
-            <TableHead>Created</TableHead>
+            <TableHead>标题</TableHead>
+            <TableHead>用户</TableHead>
+            <TableHead>分类</TableHead>
+            <TableHead>状态</TableHead>
+            <TableHead>优先级</TableHead>
+            <TableHead>负责人</TableHead>
+            <TableHead>创建时间</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -51,7 +51,7 @@ export function TicketsTable({ tickets, isLoading }: TicketsTableProps) {
           ) : tickets.length === 0 ? (
             <TableRow>
               <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                No support tickets found
+                暂无支持工单
               </TableCell>
             </TableRow>
           ) : (
@@ -106,7 +106,7 @@ function TicketRow({ ticket }: { ticket: SupportTicket }) {
         {ticket.assigned_admin ? (
           <span className="text-sm">{ticket.assigned_admin.name || ticket.assigned_admin.email}</span>
         ) : (
-          <span className="text-sm text-muted-foreground">Unassigned</span>
+          <span className="text-sm text-muted-foreground">未分配</span>
         )}
       </TableCell>
       <TableCell>

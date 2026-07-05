@@ -1,0 +1,30 @@
+{
+  "steps": [
+    {
+      "name": "API login",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "AgentsMesh: create pod via browser",
+      "ok": true,
+      "detail": "agent=e2e-echo"
+    },
+    {
+      "name": "Web User: send message in browser",
+      "ok": true,
+      "detail": "session=conv_b6a403f2c8184857"
+    },
+    {
+      "name": "API: session created from browser",
+      "ok": true,
+      "detail": "conv_b6a403f2c8184857"
+    },
+    {
+      "name": "API: conversation items persisted",
+      "ok": true,
+      "detail": "items=2"
+    }
+  ],
+  "errors": []
+}

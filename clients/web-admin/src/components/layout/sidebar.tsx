@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth";
+import { AgentsMeshMark } from "@/components/brand/AgentsMeshMark";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -26,83 +27,73 @@ import {
 
 const navItems = [
   {
-    title: "Dashboard",
+    title: "仪表盘",
     href: "/",
     icon: LayoutDashboard,
   },
   {
-    title: "Users",
+    title: "用户",
     href: "/users",
     icon: Users,
   },
   {
-    title: "Organizations",
+    title: "组织",
     href: "/organizations",
     icon: Building2,
   },
   {
-    title: "SSO Configs",
+    title: "单点登录",
     href: "/sso",
     icon: KeyRound,
   },
   {
-    title: "Runners",
+    title: "Runner",
     href: "/runners",
     icon: Server,
   },
   {
-    title: "Relays",
+    title: "中继",
     href: "/relays",
     icon: Radio,
   },
   {
-    title: "Skill Registries",
+    title: "技能源",
     href: "/skill-registries",
     icon: Boxes,
   },
   {
-    title: "Promo Codes",
+    title: "优惠码",
     href: "/promo-codes",
     icon: Tag,
   },
   {
-    title: "Support Tickets",
+    title: "支持工单",
     href: "/support-tickets",
     icon: MessageSquare,
   },
   {
-    title: "Audit Logs",
+    title: "审计日志",
     href: "/audit-logs",
     icon: ScrollText,
   },
 ];
 
-/** Shared navigation content used by both desktop sidebar and mobile sheet. */
 export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
 
   return (
     <>
-      {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 400 400"
-          className="h-7 w-7 rounded-md"
-        >
-          <rect x="0" y="0" width="400" height="400" rx="32" ry="32" fill="#3E7DC7" />
-          <rect x="110" y="60" width="180" height="80" rx="14" ry="14" fill="#FFFFFF" />
-          <rect x="120" y="90" width="160" height="10" rx="2" ry="2" fill="#3E7DC7" />
-          <rect x="140" y="126" width="120" height="34" fill="#FFFFFF" />
-          <rect x="65" y="142" width="270" height="20" rx="10" ry="10" fill="#FFFFFF" />
-          <polygon points="153,156 247,156 262,308 138,308" fill="#FFFFFF" />
-          <rect x="116" y="302" width="168" height="36" rx="8" ry="8" fill="#FFFFFF" />
-        </svg>
-        <span className="text-lg font-semibold">Admin Console</span>
+        <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg shadow-sm">
+          <AgentsMeshMark className="h-full w-full" />
+        </span>
+        <div className="min-w-0">
+          <p className="truncate text-base font-semibold leading-tight">AgentsMesh</p>
+          <p className="truncate text-xs text-muted-foreground">管理控制台</p>
+        </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 space-y-1 overflow-y-auto p-4">
         {navItems.map((item) => {
           const isActive = pathname === item.href ||
@@ -126,7 +117,6 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         })}
       </nav>
 
-      {/* User Info & Logout */}
       <div className="border-t border-border p-4">
         {user && (
           <div className="mb-3 flex items-center gap-3">
@@ -153,14 +143,13 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           onClick={logout}
         >
           <LogOut className="mr-2 h-4 w-4" />
-          Sign Out
+          退出登录
         </Button>
       </div>
     </>
   );
 }
 
-/** Desktop sidebar — hidden below md breakpoint. */
 export function Sidebar() {
   return (
     <aside className="hidden md:flex h-screen w-64 flex-col border-r border-border bg-card">
@@ -169,7 +158,6 @@ export function Sidebar() {
   );
 }
 
-/** Mobile sidebar — rendered as a Sheet overlay, visible below md. */
 export function MobileSidebar({
   open,
   onOpenChange,
@@ -180,7 +168,7 @@ export function MobileSidebar({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="p-0">
-        <SheetTitle className="sr-only">Navigation</SheetTitle>
+        <SheetTitle className="sr-only">导航</SheetTitle>
         <SidebarContent onNavigate={() => onOpenChange(false)} />
       </SheetContent>
     </Sheet>

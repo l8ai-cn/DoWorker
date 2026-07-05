@@ -30,6 +30,10 @@ vi.mock("@/components/ide/ConfigForm", () => ({
   ConfigForm: () => <div data-testid="config-form">Config Form</div>,
 }));
 
+vi.mock("../KnowledgeBaseMountSelect", () => ({
+  KnowledgeBaseMountSelect: () => <div data-testid="knowledge-base-mount-select" />,
+}));
+
 vi.mock("@/lib/terminal-size", () => ({
   estimateWorkspaceTerminalSize: () => ({ cols: 80, rows: 24 }),
 }));
@@ -134,6 +138,36 @@ describe("CreatePodForm", () => {
   });
 
   describe("runner selection", () => {
+    it("should only offer runners that support the selected agent", () => {
+      const claudeRunner = {
+        ...mockRunner,
+        id: 1,
+        node_id: "runner-claude",
+        available_agents: ["claude-code"],
+      };
+      const codexRunner = {
+        ...mockRunner,
+        id: 2,
+        node_id: "runner-codex",
+        available_agents: ["codex-cli"],
+      };
+      vi.mocked(usePodCreationData).mockReturnValue({
+        ...defaultPodCreationData,
+        runners: [claudeRunner, codexRunner],
+        availableAgents: [mockAgent],
+      });
+      vi.mocked(useCreatePodForm).mockReturnValue({
+        ...defaultFormState,
+        selectedAgent: "claude-code",
+      });
+
+      render(<CreatePodForm config={{ scenario: "workspace" }} />);
+
+      const runnerSelect = screen.getByLabelText("ide.createPod.selectRunner");
+      expect(runnerSelect).toHaveTextContent("runner-claude");
+      expect(runnerSelect).not.toHaveTextContent("runner-codex");
+    });
+
     it("should call setSelectedRunnerId when runner is selected", () => {
       vi.mocked(usePodCreationData).mockReturnValue({
         ...defaultPodCreationData,

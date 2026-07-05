@@ -24,6 +24,21 @@ import {
 import type { PaginatedResponse } from "@/lib/api/base";
 import { PromoCodesTable } from "./promo-codes-table";
 
+const typeFilterLabels: Record<string, string> = {
+  all: "全部类型",
+  media: "媒体",
+  partner: "合作伙伴",
+  campaign: "活动",
+  internal: "内部",
+  referral: "推荐",
+};
+
+const statusFilterLabels: Record<string, string> = {
+  all: "全部状态",
+  active: "启用",
+  inactive: "停用",
+};
+
 export default function PromoCodesPage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -66,31 +81,31 @@ export default function PromoCodesPage() {
   const handleActivate = async (id: number) => {
     try {
       await activatePromoCode(id);
-      toast.success("Promo code activated");
+      toast.success("优惠码已启用");
       triggerRefetch();
     } catch (err: unknown) {
-      toast.error((err as { error?: string })?.error || "Failed to activate promo code");
+      toast.error((err as { error?: string })?.error || "启用优惠码失败");
     }
   };
 
   const handleDeactivate = async (id: number) => {
     try {
       await deactivatePromoCode(id);
-      toast.success("Promo code deactivated");
+      toast.success("优惠码已停用");
       triggerRefetch();
     } catch (err: unknown) {
-      toast.error((err as { error?: string })?.error || "Failed to deactivate promo code");
+      toast.error((err as { error?: string })?.error || "停用优惠码失败");
     }
   };
 
   const handleDelete = async (code: PromoCode) => {
-    if (!confirm(`Are you sure you want to delete "${code.code}"? This action cannot be undone.`)) return;
+    if (!confirm(`确定要删除 "${code.code}" 吗？此操作无法撤销。`)) return;
     try {
       await deletePromoCode(code.id);
-      toast.success("Promo code deleted");
+      toast.success("优惠码已删除");
       triggerRefetch();
     } catch (err: unknown) {
-      toast.error((err as { error?: string })?.error || "Failed to delete promo code");
+      toast.error((err as { error?: string })?.error || "删除优惠码失败");
     }
   };
 
@@ -101,15 +116,15 @@ export default function PromoCodesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Promo Codes</h1>
+          <h1 className="text-2xl font-bold">优惠码</h1>
           <p className="text-sm text-muted-foreground">
-            Manage promotional codes for subscriptions
+            管理订阅相关的优惠码。
           </p>
         </div>
         <Link href="/promo-codes/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Create Promo Code
+            创建优惠码
           </Button>
         </Link>
       </div>
@@ -118,7 +133,7 @@ export default function PromoCodesPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by code or name..."
+            placeholder="按代码或名称搜索..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="pl-10"
@@ -126,25 +141,25 @@ export default function PromoCodesPage() {
         </div>
         <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(1); }}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="All Types" />
+            <SelectValue placeholder="全部类型" displayValue={typeFilterLabels[typeFilter]} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="media">Media</SelectItem>
-            <SelectItem value="partner">Partner</SelectItem>
-            <SelectItem value="campaign">Campaign</SelectItem>
-            <SelectItem value="internal">Internal</SelectItem>
-            <SelectItem value="referral">Referral</SelectItem>
+            <SelectItem value="all">全部类型</SelectItem>
+            <SelectItem value="media">媒体</SelectItem>
+            <SelectItem value="partner">合作伙伴</SelectItem>
+            <SelectItem value="campaign">活动</SelectItem>
+            <SelectItem value="internal">内部</SelectItem>
+            <SelectItem value="referral">推荐</SelectItem>
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="All Status" />
+            <SelectValue placeholder="全部状态" displayValue={statusFilterLabels[statusFilter]} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="all">全部状态</SelectItem>
+            <SelectItem value="active">启用</SelectItem>
+            <SelectItem value="inactive">停用</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -160,14 +175,14 @@ export default function PromoCodesPage() {
       {totalPages > 1 && (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {(page - 1) * pageSize + 1} to{" "}
-            {Math.min(page * pageSize, total)} of {total} promo codes
+            显示第 {(page - 1) * pageSize + 1} 到{" "}
+            {Math.min(page * pageSize, total)} 条，共 {total} 个优惠码
           </p>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" onClick={() => setPage(page - 1)} disabled={page <= 1}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-sm">Page {page} of {totalPages}</span>
+            <span className="text-sm">第 {page} / {totalPages} 页</span>
             <Button variant="outline" size="icon" onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
               <ChevronRight className="h-4 w-4" />
             </Button>

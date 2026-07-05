@@ -47,10 +47,10 @@ export default function NewPromoCodePage() {
     setIsCreating(true);
     try {
       await createPromoCode(data);
-      toast.success("Promo code created successfully");
+      toast.success("优惠码创建成功");
       router.push("/promo-codes");
     } catch (err: unknown) {
-      toast.error((err as { error?: string })?.error || "Failed to create promo code");
+      toast.error((err as { error?: string })?.error || "创建优惠码失败");
     } finally {
       setIsCreating(false);
     }
@@ -58,7 +58,6 @@ export default function NewPromoCodePage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/promo-codes">
           <Button variant="ghost" size="icon">
@@ -66,14 +65,13 @@ export default function NewPromoCodePage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Create Promo Code</h1>
+          <h1 className="text-2xl font-bold">创建优惠码</h1>
           <p className="text-sm text-muted-foreground">
-            Create a new promotional code for subscriptions
+            为订阅创建新的优惠码。
           </p>
         </div>
       </div>
 
-      {/* Form */}
       <PromoCodeForm
         formData={formData}
         isCreating={isCreating}

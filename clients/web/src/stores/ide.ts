@@ -8,6 +8,8 @@ export type ActivityType =
   | "mesh"
   | "loops"
   | "automation"
+  | "apiAccess"
+  | "knowledge"
   | "blocks"
   | "infra"
   | "skills"
@@ -113,13 +115,6 @@ export const ACTIVITIES: ActivityConfig[] = [
     mobileOrder: 1,
   },
   {
-    id: "blocks",
-    label: "Blocks",
-    icon: "blocks",
-    group: "comm",
-    mobileVisible: false,
-  },
-  {
     id: "mesh",
     label: "Mesh",
     icon: "network",
@@ -155,6 +150,20 @@ export const ACTIVITIES: ActivityConfig[] = [
     label: "Automation",
     icon: "workflow",
     group: "build",
+    mobileVisible: false,
+  },
+  {
+    id: "apiAccess",
+    label: "API Access",
+    icon: "code",
+    group: "build",
+    mobileVisible: false,
+  },
+  {
+    id: "knowledge",
+    label: "Knowledge Base",
+    icon: "book-open",
+    group: "ops",
     mobileVisible: false,
   },
   {

@@ -1,6 +1,11 @@
 package parser
 
-import "github.com/anthropics/agentsmesh/agentfile/lexer"
+import (
+	"strings"
+
+	"github.com/anthropics/agentsmesh/agentfile/capability"
+	"github.com/anthropics/agentsmesh/agentfile/lexer"
+)
 
 func (p *Parser) parseSetupDecl(pos Position) *SetupDecl {
 	p.advance()
@@ -111,4 +116,37 @@ func (p *Parser) parsePromptPositionDecl(pos Position) *PromptPositionDecl {
 	p.advance()
 	p.expectNewline()
 	return &PromptPositionDecl{Mode: mode, Position: pos}
+}
+
+// parseCapabilityDecl: CAPABILITY <axis> <value>
+func (p *Parser) parseCapabilityDecl(pos Position) *CapabilityDecl {
+	p.advance()
+	axis := strings.ToLower(p.expectIdent())
+	var valueParts []string
+	for !p.isNewlineOrEnd() {
+		tok := p.current()
+		switch tok.Type {
+		case lexer.IDENT, lexer.STRING, lexer.TRUE, lexer.FALSE:
+			valueParts = append(valueParts, tok.Literal)
+			p.advance()
+		case lexer.COMMA:
+			valueParts = append(valueParts, ",")
+			p.advance()
+		default:
+			p.errorf("CAPABILITY %s: unexpected token %s", axis, tok.Literal)
+		}
+	}
+	var value string
+	if axis == "control" {
+		value = strings.Join(valueParts, "")
+	} else if len(valueParts) == 1 {
+		value = valueParts[0]
+	} else {
+		value = strings.Join(valueParts, " ")
+	}
+	if err := capability.Validate(axis, value); err != nil {
+		p.errorf("%s", err.Error())
+	}
+	p.expectNewline()
+	return &CapabilityDecl{Axis: axis, Value: value, Position: pos}
 }

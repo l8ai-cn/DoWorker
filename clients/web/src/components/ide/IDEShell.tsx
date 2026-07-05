@@ -4,6 +4,8 @@ import React, { useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { hideIdeChrome, hideIdeSidebar } from "@/lib/ide-chrome";
+import { activityHasSidebar } from "@/lib/ide-sidebar";
+import { resolveActivityFromPathname } from "@/lib/ide-route";
 import { useCtaModal } from "@/hooks/useCtaModal";
 import { CenteredSpinner } from "@/components/ui/spinner";
 import { ActivityBar } from "./ActivityBar";
@@ -26,6 +28,7 @@ import { useIDEStore, type ActivityType } from "@/stores/ide";
 import { useWorkspaceStore } from "@/stores/workspace";
 import { usePodStore } from "@/stores/pod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { getPodDisplayName } from "@/lib/pod-display-name";
 import { AddRunnerModal } from "./modals/AddRunnerModal";
 import { ImportRepositoryModal } from "./modals/ImportRepositoryModal";
@@ -89,9 +92,12 @@ export function IDEShell({
   const noChrome = hideIdeChrome(pathname);
   const bottomPanelOpen = useIDEStore((state) => state.bottomPanelOpen);
   const activeActivity = useIDEStore((state) => state.activeActivity);
+  const routeActivity = resolveActivityFromPathname(pathname);
+  const sidebarActivity = routeActivity ?? activeActivity;
   const _hasHydrated = useIDEStore((state) => state._hasHydrated);
   const addPane = useWorkspaceStore((state) => state.addPane);
   const fetchPods = usePodStore((state) => state.fetchPods);
+  const t = useTranslations();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [createPodModalOpen, setCreatePodModalOpen] = useState(false);
   const addRunnerModal = useCtaModal();
@@ -105,20 +111,25 @@ export function IDEShell({
     setCreatePodModalOpen(false);
     if (pod?.pod_key) {
       const displayName = getPodDisplayName(pod);
-      toast.info("Pod created! Waiting for it to start...", {
-        description: `Pod: ${displayName}`,
+      toast.info(t("workspace.podCreated"), {
+        description: displayName,
       });
       addPane(pod.pod_key);
       fetchPods();
     }
-  }, [addPane, fetchPods]);
+  }, [addPane, fetchPods, t]);
 
   const sidebarCallbacks: SidebarCallbacks = {
     onCreatePod: handleCreatePod,
     onAddRunner: addRunnerModal.open,
     onImportRepo: importRepoModal.open,
   };
-  const effectiveSidebarContent = sidebarContent ?? getSidebarContent(activeActivity, sidebarCallbacks);
+  const effectiveSidebarContent =
+    sidebarContent ?? getSidebarContent(sidebarActivity, sidebarCallbacks);
+  const showSidebar =
+    !noSidebar &&
+    effectiveSidebarContent != null &&
+    activityHasSidebar(sidebarActivity);
 
   if (!_hasHydrated) {
     return (
@@ -140,7 +151,7 @@ export function IDEShell({
     <div className={cn("app-shell flex h-screen bg-background overflow-hidden", className)}>
       <ActivityBar className="flex-shrink-0" />
 
-      {!noSidebar && (
+      {!showSidebar ? null : (
         <SideBar className="flex-shrink-0">{effectiveSidebarContent}</SideBar>
       )}
 

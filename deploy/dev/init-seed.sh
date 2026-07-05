@@ -109,7 +109,7 @@ apply_seed() {
         echo "  Org:      dev-org"
         echo ""
         echo "Runner 信息："
-        echo "  Node ID:    dev-runner"
+        echo "  Node IDs:   dev-runner, dev-runner-2, dev-runner-claude, dev-runner-codex, dev-runner-gemini, dev-runner-loopal"
         echo "  Auth Token: dev-runner-auth-token"
     else
         error "Seed 数据应用失败"
@@ -145,10 +145,10 @@ check_status() {
     # 检查 Runner
     echo "Runner:"
     psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c \
-        "SELECT id, node_id, status FROM runners WHERE node_id = 'dev-runner'" \
+        "SELECT id, node_id, status FROM runners WHERE node_id LIKE 'dev-runner%' ORDER BY node_id" \
         --tuples-only 2>/dev/null | while read line; do
         if [[ -n "$line" ]]; then
-            echo "  ✓ dev-runner 已存在"
+            echo "  ✓ $line"
         fi
     done
 

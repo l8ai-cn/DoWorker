@@ -15,7 +15,10 @@ go_library(
     ],
     importpath = "github.com/anthropics/agentsmesh/agentfile/parser",
     visibility = ["//visibility:public"],
-    deps = ["//agentfile/lexer"],
+    deps = [
+        "//agentfile/capability",
+        "//agentfile/lexer",
+    ],
 )
 
 alias(
@@ -27,17 +30,22 @@ alias(
 go_test(
     name = "parser_test",
     srcs = [
+        "parser_capability_test.go",
         "parser_comprehensive_test.go",
         "parser_coverage_test.go",
         "parser_defense_test.go",
         "parser_errorpaths_test.go",
         "parser_finalcover_test.go",
         "parser_full_test.go",
+        "parser_knowledge_test.go",
         "parser_test.go",
     ],
     embed = [":parser"],
     deps = [
+        "//agentfile/extract",
         "//agentfile/lexer",
+        "//agentfile/merge",
+        "//agentfile/serialize",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
     ],

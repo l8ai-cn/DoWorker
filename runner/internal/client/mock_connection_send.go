@@ -65,6 +65,19 @@ func (m *MockConnection) SendAgentStatus(podKey string, status string) error {
 	return nil
 }
 
+func (m *MockConnection) SendAcpSessionEvent(podKey, eventType, jsonPayload string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.SendErr != nil {
+		return m.SendErr
+	}
+	m.Events = append(m.Events, EventCall{
+		Type: MessageType("acp_session"),
+		Data: map[string]string{"pod_key": podKey, "event_type": eventType, "json": jsonPayload},
+	})
+	return nil
+}
+
 // SendUpgradeStatus records an upgrade status event.
 func (m *MockConnection) SendUpgradeStatus(event *runnerv1.UpgradeStatusEvent) error {
 	m.mu.Lock()
@@ -97,6 +110,32 @@ func (m *MockConnection) SendTokenUsage(podKey string, models []*runnerv1.TokenM
 	m.Events = append(m.Events, EventCall{
 		Type: "token_usage",
 		Data: map[string]any{"pod_key": podKey, "models": models, "pod_started_at": podStartedAt},
+	})
+	return nil
+}
+
+func (m *MockConnection) SendPodUsageEvent(podKey, model string, in, out, cacheRead, cacheCreate int64) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.SendErr != nil {
+		return m.SendErr
+	}
+	m.Events = append(m.Events, EventCall{
+		Type: "pod_usage",
+		Data: map[string]any{"pod_key": podKey, "model": model},
+	})
+	return nil
+}
+
+func (m *MockConnection) SendExternalSessionCaptured(podKey, externalID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.SendErr != nil {
+		return m.SendErr
+	}
+	m.Events = append(m.Events, EventCall{
+		Type: "external_session_captured",
+		Data: map[string]any{"pod_key": podKey, "external_session_id": externalID},
 	})
 	return nil
 }

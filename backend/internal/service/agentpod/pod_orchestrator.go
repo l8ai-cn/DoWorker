@@ -10,8 +10,11 @@ import (
 	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
+	"github.com/anthropics/agentsmesh/agentfile"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
+	kbservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
 	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
@@ -50,10 +53,23 @@ type OrchestrateCreatePodRequest struct {
 
 	SourcePodKey       string
 	ResumeAgentSession *bool
+	ResumeExternalSessionID string
 
 	Perpetual bool
 
+	DeferRunnerDispatch bool
+
 	BranchName *string
+
+	// KnowledgeMounts are per-pod KB selections; they win over Agentfile
+	// KNOWLEDGE declarations and agent default mounts on mode conflicts.
+	KnowledgeMounts []KnowledgeMountRequest
+}
+
+// KnowledgeMountRequest selects one knowledge base for the pod being created.
+type KnowledgeMountRequest struct {
+	Slug string
+	Mode string // ro | rw; empty defaults to ro
 }
 
 type OrchestrateCreatePodResult struct {
@@ -100,6 +116,13 @@ type UserConfigQueryForOrchestrator interface {
 	GetUserConfigPrefs(ctx context.Context, userID int64, agentSlug string) map[string]interface{}
 }
 
+// KnowledgeBaseResolverForOrchestrator resolves KB mounts for pod creation.
+// Nil means the KB feature is disabled (internal Gitea not configured).
+type KnowledgeBaseResolverForOrchestrator interface {
+	ResolveMountsForPod(ctx context.Context, orgID int64, agentSlug string, requested []kbservice.MountRequest) ([]*kbservice.ResolvedMount, error)
+	CloneToken() string
+}
+
 type PodOrchestratorDeps struct {
 	PodService      *PodService
 	ConfigBuilder   *agent.ConfigBuilder
@@ -113,6 +136,8 @@ type PodOrchestratorDeps struct {
 	RunnerQuery     RunnerQueryForOrchestrator
 	UserConfigQuery UserConfigQueryForOrchestrator
 	PodRepo         podDomain.PodRepository
+	PermissionPolicy *permissionpolicysvc.Service
+	KnowledgeBases  KnowledgeBaseResolverForOrchestrator
 }
 
 type PodOrchestrator struct {
@@ -128,6 +153,8 @@ type PodOrchestrator struct {
 	runnerQuery     RunnerQueryForOrchestrator
 	userConfigQuery UserConfigQueryForOrchestrator
 	podRepo         podDomain.PodRepository
+	permissionPolicy *permissionpolicysvc.Service
+	knowledgeBases  KnowledgeBaseResolverForOrchestrator
 }
 
 type agentfileResolved struct {
@@ -135,6 +162,7 @@ type agentfileResolved struct {
 	BranchName            string
 	RepositoryID          *int64
 	Prompt                string
+	Knowledge             []agentfile.KnowledgeSpec
 	MergedAgentfileSource string
 	ConfigValues          agentDomain.ConfigValues
 }
@@ -153,5 +181,7 @@ func NewPodOrchestrator(deps *PodOrchestratorDeps) *PodOrchestrator {
 		runnerQuery:     deps.RunnerQuery,
 		userConfigQuery: deps.UserConfigQuery,
 		podRepo:         deps.PodRepo,
+		permissionPolicy: deps.PermissionPolicy,
+		knowledgeBases:  deps.KnowledgeBases,
 	}
 }

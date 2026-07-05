@@ -2,7 +2,9 @@ package agentpod
 
 import (
 	"context"
+	"log/slog"
 
+	"github.com/anthropics/agentsmesh/agentfile/capability"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 
@@ -88,6 +90,11 @@ func (o *PodOrchestrator) buildPodCommand(
 		}
 	}
 
+	knowledgeMounts, err := o.resolveKnowledgeMounts(ctx, req, resolved)
+	if err != nil {
+		return nil, err
+	}
+
 	buildReq := &agent.ConfigBuildRequest{
 		AgentSlug:           req.AgentSlug,
 		OrganizationID:      req.OrganizationID,
@@ -110,6 +117,7 @@ func (o *PodOrchestrator) buildPodCommand(
 		Rows:                req.Rows,
 		RunnerAgentVersions: runnerAgentVersions,
 		MergedAgentfileSource: resolved.MergedAgentfileSource,
+		KnowledgeMounts:     knowledgeMounts,
 	}
 
 	cmd, err := o.configBuilder.BuildPodCommand(ctx, buildReq)
@@ -117,5 +125,34 @@ func (o *PodOrchestrator) buildPodCommand(
 		return nil, err
 	}
 	cmd.Perpetual = req.Perpetual
+	if o.permissionPolicy != nil {
+		rules, err := o.permissionPolicy.SnapshotForPodCreate(ctx, req.OrganizationID, req.AgentSlug)
+		if err != nil {
+			slog.WarnContext(ctx, "policy snapshot failed, pod will use fail-safe ASK", "org_id", req.OrganizationID, "error", err)
+		} else {
+			cmd.PolicyRules = rules
+		}
+	}
+	if resolved.MergedAgentfileSource != "" {
+		if caps := capability.ScanDeclarations(resolved.MergedAgentfileSource); len(caps) > 0 {
+			cmd.DeclaredCapabilities = caps
+		}
+	}
+	if extID := externalSessionIDForResume(req, sourcePod, isResumeMode); extID != "" {
+		if cmd.EnvVars == nil {
+			cmd.EnvVars = map[string]string{}
+		}
+		cmd.EnvVars["AGENTSMESH_RESUME_EXTERNAL_SESSION"] = extID
+	}
 	return cmd, nil
+}
+
+func externalSessionIDForResume(req *OrchestrateCreatePodRequest, sourcePod *podDomain.Pod, isResumeMode bool) string {
+	if req.ResumeExternalSessionID != "" {
+		return req.ResumeExternalSessionID
+	}
+	if isResumeMode && sourcePod != nil && sourcePod.ExternalSessionID != nil {
+		return *sourcePod.ExternalSessionID
+	}
+	return ""
 }

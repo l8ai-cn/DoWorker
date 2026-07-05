@@ -138,3 +138,17 @@ MCP OFF
 	require.NotNil(t, spec.MCP)
 	assert.False(t, spec.MCP.Enabled)
 }
+
+func TestExtract_Capabilities(t *testing.T) {
+	input := `AGENT do-agent
+CAPABILITY resume cli
+CAPABILITY interrupt true
+CAPABILITY streaming false
+`
+	prog, errs := parser.Parse(input)
+	require.Empty(t, errs)
+	spec := Extract(prog)
+	assert.Equal(t, "cli", spec.Capabilities["resume"])
+	assert.Equal(t, "true", spec.Capabilities["interrupt"])
+	assert.Equal(t, "false", spec.Capabilities["streaming"])
+}

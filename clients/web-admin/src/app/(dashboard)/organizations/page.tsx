@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Trash2, Users, ExternalLink } from "lucide-react";
+import { Search, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,28 +36,27 @@ export default function OrganizationsPage() {
   }, [search, page, refetchKey]);
 
   const handleDelete = async (org: Organization) => {
-    if (!confirm(`Are you sure you want to delete "${org.name}"? This action cannot be undone.`)) {
+    if (!confirm(`确定要删除 "${org.name}" 吗？此操作无法撤销。`)) {
       return;
     }
     try {
       await deleteOrganization(org.id);
-      toast.success("Organization deleted successfully");
+      toast.success("组织已删除");
       setIsLoading(true);
       setRefetchKey((k) => k + 1);
     } catch (err: unknown) {
-      const message = (err as { error?: string })?.error || "Failed to delete organization";
+      const message = (err as { error?: string })?.error || "删除组织失败";
       toast.error(message);
     }
   };
 
   return (
     <div className="space-y-4">
-      {/* Search */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search organizations..."
+            placeholder="搜索组织..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -68,10 +67,9 @@ export default function OrganizationsPage() {
         </div>
       </div>
 
-      {/* Organizations Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Organizations ({data?.total || 0})</CardTitle>
+          <CardTitle>组织 ({data?.total || 0})</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -91,17 +89,16 @@ export default function OrganizationsPage() {
               ))}
               {data?.data.length === 0 && (
                 <p className="py-8 text-center text-muted-foreground">
-                  No organizations found
+                  暂无组织
                 </p>
               )}
             </div>
           )}
 
-          {/* Pagination */}
           {data && data.total_pages > 1 && (
             <div className="mt-4 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Page {data.page} of {data.total_pages}
+                第 {data.page} / {data.total_pages} 页
               </p>
               <div className="flex gap-2">
                 <Button
@@ -110,7 +107,7 @@ export default function OrganizationsPage() {
                   disabled={page === 1}
                   onClick={() => setPage(page - 1)}
                 >
-                  Previous
+                  上一页
                 </Button>
                 <Button
                   variant="outline"
@@ -118,7 +115,7 @@ export default function OrganizationsPage() {
                   disabled={page >= data.total_pages}
                   onClick={() => setPage(page + 1)}
                 >
-                  Next
+                  下一页
                 </Button>
               </div>
             </div>
@@ -164,11 +161,11 @@ function OrgRow({
       </div>
       <div className="flex items-center gap-4">
         <div className="hidden text-right text-xs text-muted-foreground sm:block">
-          <p>Created {formatDate(org.created_at)}</p>
+          <p>创建于 {formatDate(org.created_at)}</p>
         </div>
         <div className="flex gap-1">
           <Link href={`/organizations/${org.id}`}>
-            <Button variant="ghost" size="icon" title="View details">
+            <Button variant="ghost" size="icon" title="查看详情">
               <ExternalLink className="h-4 w-4" />
             </Button>
           </Link>
@@ -176,7 +173,7 @@ function OrgRow({
             variant="ghost"
             size="icon"
             onClick={onDelete}
-            title="Delete organization"
+            title="删除组织"
             className="text-destructive hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />

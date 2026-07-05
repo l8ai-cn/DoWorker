@@ -33,6 +33,8 @@ type BuildResult struct {
 	MCPEnabled bool
 	// From SKILLS declaration
 	Skills []string
+	// From KNOWLEDGE declaration
+	Knowledge []KnowledgeMountResult
 
 	// From REMOVE declarations and remove statements
 	RemoveArgs   []string // arg values to remove from LaunchArgs
@@ -64,6 +66,12 @@ type SandboxResult struct {
 type SetupResult struct {
 	Script  string
 	Timeout int
+}
+
+// KnowledgeMountResult is one KNOWLEDGE mount (slug + ro/rw mode).
+type KnowledgeMountResult struct {
+	Slug string
+	Mode string
 }
 
 // Context holds the runtime state during AgentFile evaluation.

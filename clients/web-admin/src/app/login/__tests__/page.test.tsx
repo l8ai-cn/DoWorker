@@ -1,13 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-// Mock next/navigation
 const mockReplace = vi.fn();
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: mockReplace }),
 }));
 
-// Mock sonner toast
 const mockToastSuccess = vi.fn();
 const mockToastError = vi.fn();
 vi.mock("sonner", () => ({
@@ -17,14 +15,12 @@ vi.mock("sonner", () => ({
   },
 }));
 
-// Mock auth store
 const mockSetAuth = vi.fn();
 const mockAuthState = { token: null as string | null, setAuth: mockSetAuth };
 vi.mock("@/stores/auth", () => ({
   useAuthStore: () => mockAuthState,
 }));
 
-// Mock login API
 const mockLogin = vi.fn();
 vi.mock("@/lib/api/admin", () => ({
   login: (req: unknown) => mockLogin(req),
@@ -40,23 +36,23 @@ describe("LoginPage", () => {
 
   it("should render login form", () => {
     render(<LoginPage />);
-    expect(screen.getByText("Admin Console")).toBeInTheDocument();
-    expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(screen.getByLabelText("Password")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Sign In" })).toBeInTheDocument();
+    expect(screen.getByText("管理控制台")).toBeInTheDocument();
+    expect(screen.getByLabelText("用户名")).toBeInTheDocument();
+    expect(screen.getByLabelText("密码")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "登录" })).toBeInTheDocument();
   });
 
   it("should render description text", () => {
     render(<LoginPage />);
     expect(
-      screen.getByText(/Sign in with your administrator account/)
+      screen.getByText(/使用管理员账号登录/)
     ).toBeInTheDocument();
   });
 
   it("should render admin-only notice", () => {
     render(<LoginPage />);
     expect(
-      screen.getByText(/Only users with system administrator privileges/)
+      screen.getByText(/仅系统管理员可以访问此控制台/)
     ).toBeInTheDocument();
   });
 
@@ -70,11 +66,9 @@ describe("LoginPage", () => {
 
   it("should show error toast when submitting empty form", async () => {
     render(<LoginPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
     await waitFor(() => {
-      expect(mockToastError).toHaveBeenCalledWith(
-        "Please enter email and password"
-      );
+      expect(mockToastError).toHaveBeenCalledWith("请输入用户名和密码");
     });
   });
 
@@ -93,13 +87,13 @@ describe("LoginPage", () => {
     });
 
     render(<LoginPage />);
-    fireEvent.change(screen.getByLabelText("Email"), {
+    fireEvent.change(screen.getByLabelText("用户名"), {
       target: { value: "admin@test.com" },
     });
-    fireEvent.change(screen.getByLabelText("Password"), {
+    fireEvent.change(screen.getByLabelText("密码"), {
       target: { value: "password123" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
 
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith({
@@ -125,13 +119,13 @@ describe("LoginPage", () => {
     });
 
     render(<LoginPage />);
-    fireEvent.change(screen.getByLabelText("Email"), {
+    fireEvent.change(screen.getByLabelText("用户名"), {
       target: { value: "admin@test.com" },
     });
-    fireEvent.change(screen.getByLabelText("Password"), {
+    fireEvent.change(screen.getByLabelText("密码"), {
       target: { value: "pass" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
 
     await waitFor(() => {
       expect(mockSetAuth).toHaveBeenCalledWith(
@@ -139,7 +133,7 @@ describe("LoginPage", () => {
         "new-refresh",
         mockUser
       );
-      expect(mockToastSuccess).toHaveBeenCalledWith("Welcome back, Admin!");
+      expect(mockToastSuccess).toHaveBeenCalledWith("欢迎回来，Admin");
       expect(mockReplace).toHaveBeenCalledWith("/");
     });
   });
@@ -148,13 +142,13 @@ describe("LoginPage", () => {
     mockLogin.mockRejectedValue({ error: "Invalid credentials" });
 
     render(<LoginPage />);
-    fireEvent.change(screen.getByLabelText("Email"), {
+    fireEvent.change(screen.getByLabelText("用户名"), {
       target: { value: "admin@test.com" },
     });
-    fireEvent.change(screen.getByLabelText("Password"), {
+    fireEvent.change(screen.getByLabelText("密码"), {
       target: { value: "wrong" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
 
     await waitFor(() => {
       expect(mockToastError).toHaveBeenCalledWith("Invalid credentials");
@@ -165,36 +159,35 @@ describe("LoginPage", () => {
     mockLogin.mockRejectedValue({});
 
     render(<LoginPage />);
-    fireEvent.change(screen.getByLabelText("Email"), {
+    fireEvent.change(screen.getByLabelText("用户名"), {
       target: { value: "a@b.com" },
     });
-    fireEvent.change(screen.getByLabelText("Password"), {
+    fireEvent.change(screen.getByLabelText("密码"), {
       target: { value: "x" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
 
     await waitFor(() => {
       expect(mockToastError).toHaveBeenCalledWith(
-        "Login failed. Please check your credentials."
+        "登录失败，请检查账号和密码。"
       );
     });
   });
 
   it("should show loading state during submission", async () => {
-    // Never resolve to keep loading state
     mockLogin.mockReturnValue(new Promise(() => {}));
 
     render(<LoginPage />);
-    fireEvent.change(screen.getByLabelText("Email"), {
+    fireEvent.change(screen.getByLabelText("用户名"), {
       target: { value: "a@b.com" },
     });
-    fireEvent.change(screen.getByLabelText("Password"), {
+    fireEvent.change(screen.getByLabelText("密码"), {
       target: { value: "x" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
 
     await waitFor(() => {
-      expect(screen.getByText("Signing in...")).toBeInTheDocument();
+      expect(screen.getByText("登录中...")).toBeInTheDocument();
     });
   });
 });

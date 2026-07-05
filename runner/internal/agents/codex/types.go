@@ -72,5 +72,10 @@ type turnCompletedParams struct {
 		Error  *struct {
 			Message string `json:"message"`
 		} `json:"error,omitempty"`
+		Usage *struct {
+			InputTokens       int64 `json:"input_tokens"`
+			CachedInputTokens int64 `json:"cached_input_tokens"`
+			OutputTokens      int64 `json:"output_tokens"`
+		} `json:"usage,omitempty"`
 	} `json:"turn"`
 }

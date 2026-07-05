@@ -76,7 +76,7 @@ export default function CreateOrgPage() {
       title={t("auth.onboarding.createOrg.title")}
       subtitle={t("auth.onboarding.createOrg.subtitle")}
       footer={
-        <Link href="/onboarding" className="text-sm text-[var(--azure-text-muted)] hover:text-foreground motion-interactive">
+        <Link href="/onboarding" className="auth-link text-sm">
           {t("auth.onboarding.backToOptions")}
         </Link>
       }
@@ -118,7 +118,7 @@ export default function CreateOrgPage() {
           <p className="text-xs text-muted-foreground">{t("auth.onboarding.createOrg.urlIdentifierHint")}</p>
         </div>
 
-        <Button type="submit" className="w-full azure-gradient-bg text-white border-0" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading}>
           {loading ? t("auth.onboarding.creating") : t("auth.onboarding.createOrg.createWorkspace")}
         </Button>
       </form>

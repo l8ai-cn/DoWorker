@@ -75,6 +75,14 @@ func (h *mockHandlerWithRelayConnections) OnUpdatePodPerpetual(cmd *runnerv1.Upd
 	return nil
 }
 
+func (h *mockHandlerWithRelayConnections) OnUpdatePodPolicyRules(cmd *runnerv1.UpdatePodPolicyRulesCommand) error {
+	return nil
+}
+
+func (h *mockHandlerWithRelayConnections) OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error {
+	return nil
+}
+
 // buildHeartbeatMessage builds a heartbeat message from handler data.
 // This is the core logic tested - extracted for testing without needing stream connection.
 func buildHeartbeatMessage(nodeID string, handler MessageHandler) *runnerv1.RunnerMessage {

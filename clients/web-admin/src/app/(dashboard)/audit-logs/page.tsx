@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAuditLogs, AuditLog } from "@/lib/api/admin";
@@ -32,9 +30,6 @@ export default function AuditLogsPage() {
   const [data, setData] = useState<PaginatedResponse<AuditLog> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // React 19 canonical fetch-in-effect pattern: cancel-on-unmount flag,
-  // setState lives inside the promise `.then` microtask (opaque to the
-  // react-hooks/set-state-in-effect static analyzer).
   useEffect(() => {
     let cancelled = false;
     listAuditLogs({ page, page_size: 50, target_type: targetType })
@@ -54,7 +49,6 @@ export default function AuditLogsPage() {
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
       <div className="flex flex-wrap items-center gap-2 sm:gap-4">
         <div className="flex flex-wrap gap-2">
           <Button
@@ -65,7 +59,7 @@ export default function AuditLogsPage() {
               setPage(1);
             }}
           >
-            All
+            全部
           </Button>
           <Button
             variant={targetType === "user" ? "default" : "outline"}
@@ -75,7 +69,7 @@ export default function AuditLogsPage() {
               setPage(1);
             }}
           >
-            Users
+            用户
           </Button>
           <Button
             variant={targetType === "organization" ? "default" : "outline"}
@@ -85,7 +79,7 @@ export default function AuditLogsPage() {
               setPage(1);
             }}
           >
-            Organizations
+            组织
           </Button>
           <Button
             variant={targetType === "runner" ? "default" : "outline"}
@@ -95,15 +89,14 @@ export default function AuditLogsPage() {
               setPage(1);
             }}
           >
-            Runners
+            Runner
           </Button>
         </div>
       </div>
 
-      {/* Audit Logs Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Audit Logs ({data?.total || 0})</CardTitle>
+          <CardTitle>审计日志 ({data?.total || 0})</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -119,17 +112,16 @@ export default function AuditLogsPage() {
               ))}
               {data?.data.length === 0 && (
                 <p className="py-8 text-center text-muted-foreground">
-                  No audit logs found
+                  暂无审计日志
                 </p>
               )}
             </div>
           )}
 
-          {/* Pagination */}
           {data && data.total_pages > 1 && (
             <div className="mt-4 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Page {data.page} of {data.total_pages}
+                第 {data.page} / {data.total_pages} 页
               </p>
               <div className="flex gap-2">
                 <Button
@@ -138,7 +130,7 @@ export default function AuditLogsPage() {
                   disabled={page === 1}
                   onClick={() => setPage(page - 1)}
                 >
-                  Previous
+                  上一页
                 </Button>
                 <Button
                   variant="outline"
@@ -146,7 +138,7 @@ export default function AuditLogsPage() {
                   disabled={page >= data.total_pages}
                   onClick={() => setPage(page + 1)}
                 >
-                  Next
+                  下一页
                 </Button>
               </div>
             </div>
@@ -172,9 +164,9 @@ function AuditLogRow({ log }: { log: AuditLog }) {
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             {log.admin_user && (
-              <span>by {log.admin_user.name || log.admin_user.username}</span>
+              <span>由 {log.admin_user.name || log.admin_user.username} 操作</span>
             )}
-            {log.ip_address && <span>from {log.ip_address}</span>}
+            {log.ip_address && <span>来自 {log.ip_address}</span>}
           </div>
         </div>
       </div>

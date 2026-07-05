@@ -30,6 +30,10 @@ vi.mock("@/components/ide/ConfigForm", () => ({
   ConfigForm: () => <div data-testid="config-form">Config Form</div>,
 }));
 
+vi.mock("../KnowledgeBaseMountSelect", () => ({
+  KnowledgeBaseMountSelect: () => <div data-testid="knowledge-base-mount-select" />,
+}));
+
 vi.mock("@/lib/terminal-size", () => ({
   estimateWorkspaceTerminalSize: () => ({ cols: 80, rows: 24 }),
 }));

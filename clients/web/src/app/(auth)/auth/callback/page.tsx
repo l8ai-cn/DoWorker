@@ -24,7 +24,7 @@ export default function OAuthCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="azure-theme min-h-screen flex items-center justify-center bg-background">
+        <div className="auth-theme min-h-screen flex items-center justify-center bg-background">
           <CenteredSpinner />
         </div>
       }

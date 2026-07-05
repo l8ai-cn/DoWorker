@@ -135,6 +135,26 @@ type PromptPositionDecl struct {
 	Position Position
 }
 
+// CapabilityDecl: CAPABILITY <axis> <value>
+type CapabilityDecl struct {
+	Axis     string
+	Value    string
+	Position Position
+}
+
+// KnowledgeDecl: KNOWLEDGE <slug> [rw], <slug2>, ...
+// Each entry may carry an optional bracketed mount mode (ro is the default).
+type KnowledgeDecl struct {
+	Mounts   []KnowledgeMountRef
+	Position Position
+}
+
+// KnowledgeMountRef is one knowledge-base mount reference.
+type KnowledgeMountRef struct {
+	Slug string
+	Mode string // "ro" (default) or "rw"
+}
+
 func (d *AgentDecl) declNode()          {}
 func (d *ExecutableDecl) declNode()     {}
 func (d *ConfigDecl) declNode()         {}
@@ -152,6 +172,8 @@ func (d *UseEnvBundleDecl) declNode()   {}
 func (d *UseConfigBundleDecl) declNode() {}
 func (d *PromptDecl) declNode()         {}
 func (d *PromptPositionDecl) declNode() {}
+func (d *CapabilityDecl) declNode()    {}
+func (d *KnowledgeDecl) declNode()     {}
 
 func (d *AgentDecl) Pos() Position          { return d.Position }
 func (d *ExecutableDecl) Pos() Position     { return d.Position }
@@ -170,3 +192,5 @@ func (d *UseEnvBundleDecl) Pos() Position   { return d.Position }
 func (d *UseConfigBundleDecl) Pos() Position { return d.Position }
 func (d *PromptDecl) Pos() Position         { return d.Position }
 func (d *PromptPositionDecl) Pos() Position { return d.Position }
+func (d *CapabilityDecl) Pos() Position    { return d.Position }
+func (d *KnowledgeDecl) Pos() Position     { return d.Position }

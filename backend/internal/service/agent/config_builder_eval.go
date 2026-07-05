@@ -63,6 +63,9 @@ func buildResultToProto(
 			Path: f.Path, Content: f.Content, Mode: mode,
 		})
 	}
+	if readme := knowledgeContextFile(req.KnowledgeMounts); readme != nil {
+		files = append(files, readme)
+	}
 
 	// Determine prompt from AgentFile PROMPT declaration
 	prompt := br.Prompt
@@ -93,7 +96,8 @@ func buildResultToProto(
 
 // buildSandboxConfig builds sandbox config from request fields.
 func buildSandboxConfig(req *ConfigBuildRequest) *runnerv1.SandboxConfig {
-	if req.HttpCloneURL == "" && req.SshCloneURL == "" && req.LocalPath == "" && req.PreparationScript == "" {
+	if req.HttpCloneURL == "" && req.SshCloneURL == "" && req.LocalPath == "" &&
+		req.PreparationScript == "" && len(req.KnowledgeMounts) == 0 {
 		return nil
 	}
 
@@ -113,6 +117,7 @@ func buildSandboxConfig(req *ConfigBuildRequest) *runnerv1.SandboxConfig {
 		PreparationScript:  req.PreparationScript,
 		PreparationTimeout: timeout,
 		LocalPath:          req.LocalPath,
+		KnowledgeMounts:    req.KnowledgeMounts,
 	}
 }
 

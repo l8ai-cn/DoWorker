@@ -54,9 +54,9 @@ export default function ForgotPasswordPage() {
       title={t("auth.forgotPasswordPage.title")}
       subtitle={t("auth.forgotPasswordPage.subtitle")}
       footer={
-        <p className="text-center text-sm text-[var(--azure-text-muted)]">
+        <p className="text-center text-sm text-muted-foreground">
           {t("auth.forgotPasswordPage.rememberPassword")}{" "}
-          <Link href="/login" className="text-[var(--azure-cyan)] hover:underline font-medium">
+          <Link href="/login" className="auth-link">
             {t("auth.forgotPasswordPage.signIn")}
           </Link>
         </p>
@@ -83,7 +83,7 @@ export default function ForgotPasswordPage() {
           />
         </div>
 
-        <Button type="submit" className="w-full azure-gradient-bg text-white border-0" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading}>
           {loading ? t("auth.forgotPasswordPage.sending") : t("auth.forgotPasswordPage.sendResetLink")}
         </Button>
       </form>

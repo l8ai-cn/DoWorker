@@ -18,14 +18,14 @@ check_ibazel_doctor() {
         exit 1
     fi
 
-    # AI CLIs are runner-pod prereqs — warn (don't fail) so backend / relay
-    # come up for non-pod work even when CLIs aren't installed.
+    # Host AI CLIs are only needed when running a non-Docker runner locally.
+    # deploy/dev runner images install their selected runtime at build time.
     local ai_missing=()
     command -v claude >/dev/null 2>&1 || ai_missing+=("claude")
     command -v codex  >/dev/null 2>&1 || ai_missing+=("codex")
     command -v gemini >/dev/null 2>&1 || ai_missing+=("gemini")
     if (( ${#ai_missing[@]} > 0 )); then
-        warn "AI CLI 未全装（${ai_missing[*]}）— runner pod 创建会受限"
+        warn "宿主机 AI CLI 未全装（${ai_missing[*]}）— 仅影响非 Docker runner"
         echo "  npm i -g @anthropic-ai/claude-code @openai/codex @google/gemini-cli"
     fi
 }

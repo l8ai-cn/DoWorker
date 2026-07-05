@@ -28,12 +28,15 @@ import (
 	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
 	supportticketservice "github.com/anthropics/agentsmesh/backend/internal/service/supportticket"
 	tokenusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenusage"
+	podsessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
+	knowledgebaseservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
 	"github.com/anthropics/agentsmesh/backend/internal/service/license"
 	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	"github.com/anthropics/agentsmesh/backend/internal/service/mesh"
 	notifService "github.com/anthropics/agentsmesh/backend/internal/service/notification"
 	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
+	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
 	"github.com/anthropics/agentsmesh/backend/internal/service/promocode"
 	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
@@ -85,8 +88,11 @@ type serviceContainer struct {
 	sso               *ssoservice.Service
 	supportTicket     *supportticketservice.Service
 	tokenUsage        *tokenusagesvc.Service
+	podSessionUsage   *podsessionsvc.Service
+	permissionPolicy  *permissionpolicysvc.Service
 	blockstore        *blockstoreservice.Service
 	grant             *grantservice.Service
+	knowledgeBase     *knowledgebaseservice.Service
 
 	notifDispatcher *notifService.Dispatcher
 	notifPrefStore  *notifService.PreferenceStore
@@ -190,12 +196,15 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 
 	licenseSvc := initializeLicenseService(cfg, db)
 	extSvc, extRepo, skillImp, mktWorker := initializeExtensionServices(cfg, db)
+	knowledgeBaseSvc := initializeKnowledgeBaseService(cfg, db)
 
 	notifPrefRepo := infra.NewNotificationPreferenceRepository(db)
 	notifPrefStore := notifService.NewPreferenceStore(notifPrefRepo)
 
 	tokenUsageRepo := infra.NewTokenUsageRepository(db)
 	tokenUsageSvc := tokenusagesvc.NewService(tokenUsageRepo, slog.Default())
+	podSessionUsageSvc := podsessionsvc.NewService(db)
+	permissionPolicySvc := permissionpolicysvc.NewService(db)
 
 	blockstoreRepo := blockstoreinfra.NewRepository(db)
 	blockstoreSvc := blockstoreservice.NewService(blockstoreRepo, slog.Default())
@@ -251,8 +260,11 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 		supportTicket:      supportTicketSvc,
 		notifPrefStore:     notifPrefStore,
 		tokenUsage:         tokenUsageSvc,
+		podSessionUsage:    podSessionUsageSvc,
+		permissionPolicy:   permissionPolicySvc,
 		blockstore:         blockstoreSvc,
 		grant:              grantSvc,
+		knowledgeBase:      knowledgeBaseSvc,
 		podRepo:            podRepo,
 		runnerRepo:         runnerRepo,
 		autopilotRepo:      autopilotRepo,

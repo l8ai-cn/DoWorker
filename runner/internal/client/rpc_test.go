@@ -42,6 +42,7 @@ func (m *mockSender) SendPodInitProgress(string, string, int32, string) error {
 }
 func (m *mockSender) SendError(string, string, string) error                 { return nil }
 func (m *mockSender) SendAgentStatus(string, string) error                   { return nil }
+func (m *mockSender) SendAcpSessionEvent(string, string, string) error       { return nil }
 func (m *mockSender) SendOSCNotification(string, string, string) error       { return nil }
 func (m *mockSender) SendOSCTitle(string, string) error                      { return nil }
 func (m *mockSender) SendRequestRelayToken(string, string) error             { return nil }
@@ -54,6 +55,8 @@ func (m *mockSender) SendLogUploadStatus(*runnerv1.LogUploadStatusEvent) error {
 func (m *mockSender) SendTokenUsage(string, []*runnerv1.TokenModelUsage, time.Time) error {
 	return nil
 }
+func (m *mockSender) SendPodUsageEvent(string, string, int64, int64, int64, int64) error { return nil }
+func (m *mockSender) SendExternalSessionCaptured(string, string) error                   { return nil }
 func (m *mockSender) QueueLength() int                                         { return 0 }
 func (m *mockSender) QueueCapacity() int                                       { return 100 }
 func (m *mockSender) QueueUsage() float64                                      { return 0 }

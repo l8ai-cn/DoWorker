@@ -24,6 +24,29 @@
   --warning: #f59e0b;
 }
 
+.admin-auth-theme {
+  --background: #f6f8fb;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f6fb;
+  --secondary-foreground: #172033;
+  --muted: #f3f6fb;
+  --muted-foreground: #667085;
+  --accent: #eef2f7;
+  --accent-foreground: #334155;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #dde4ee;
+  --input: #dde4ee;
+  --ring: #0f766e;
+  color-scheme: light;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

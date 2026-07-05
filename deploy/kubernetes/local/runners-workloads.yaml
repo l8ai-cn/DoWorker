@@ -1,0 +1,701 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: runner-e2e-echo-2-mcp
+  namespace: agentsmesh
+spec:
+  ports:
+  - name: mcp
+    port: 19000
+    targetPort: mcp
+  selector:
+    app: runner-e2e-echo-2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: runner-e2e-echo
+  name: runner-e2e-echo-mcp
+  namespace: agentsmesh
+spec:
+  ports:
+  - name: mcp
+    port: 19000
+    targetPort: mcp
+  selector:
+    app: runner-e2e-echo
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-claude-agentsmesh-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-claude-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-claude-workspace
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-codex-agentsmesh-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-codex-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-codex-workspace
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-e2e-echo-2-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-e2e-echo-2-workspace
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-e2e-echo-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    agentsmesh.io/runtime: e2e-echo
+    app.kubernetes.io/name: agentsmesh-runner
+  name: runner-e2e-echo-workspace
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-gemini-agentsmesh-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-gemini-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-gemini-workspace
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-loopal-agentsmesh-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-loopal-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-loopal-workspace
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    agentsmesh.io/runtime: claude-code
+  name: runner-claude-code
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-claude-code
+  template:
+    metadata:
+      labels:
+        agentsmesh.io/runtime: claude-code
+        app: runner-claude-code
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/runner-entrypoint.sh
+        env:
+        - name: RUNNER_NODE_ID
+          value: dev-runner-claude
+        - name: AGENT_RUNTIME
+          value: claude-code
+        - name: DEFAULT_AGENT
+          value: claude-code
+        envFrom:
+        - configMapRef:
+            name: agentsmesh-runner-env
+        - secretRef:
+            name: agentsmesh-runner-api-keys
+            optional: true
+        image: __COMPOSE_PROJECT_NAME__-runner-claude-code:latest
+        imagePullPolicy: Never
+        name: runner
+        volumeMounts:
+        - mountPath: /app/ssl
+          name: ssl
+          readOnly: true
+        - mountPath: /usr/local/bin/runner-entrypoint.sh
+          name: entrypoint
+          readOnly: true
+          subPath: runner-entrypoint.sh
+        - mountPath: /workspace
+          name: workspace
+        - mountPath: /home/runner/.agentsmesh
+          name: agentsmesh-config
+        - mountPath: /home/runner/.claude
+          name: agent-config
+        - mountPath: /home/runner/.ssh
+          name: runner-ssh
+          readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      - name: ssl
+        secret:
+          secretName: agentsmesh-dev-ca
+      - configMap:
+          defaultMode: 493
+          name: runner-entrypoint
+        name: entrypoint
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: runner-claude-workspace
+      - name: agentsmesh-config
+        persistentVolumeClaim:
+          claimName: runner-claude-agentsmesh-config
+      - name: agent-config
+        persistentVolumeClaim:
+          claimName: runner-claude-config
+      - name: runner-ssh
+        secret:
+          defaultMode: 384
+          secretName: agentsmesh-runner-ssh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    agentsmesh.io/runtime: codex-cli
+  name: runner-codex-cli
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-codex-cli
+  template:
+    metadata:
+      labels:
+        agentsmesh.io/runtime: codex-cli
+        app: runner-codex-cli
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/runner-entrypoint.sh
+        env:
+        - name: RUNNER_NODE_ID
+          value: dev-runner-codex
+        - name: AGENT_RUNTIME
+          value: codex-cli
+        - name: DEFAULT_AGENT
+          value: codex-cli
+        envFrom:
+        - configMapRef:
+            name: agentsmesh-runner-env
+        - secretRef:
+            name: agentsmesh-runner-api-keys
+            optional: true
+        image: __COMPOSE_PROJECT_NAME__-runner-codex-cli:latest
+        imagePullPolicy: Never
+        name: runner
+        volumeMounts:
+        - mountPath: /app/ssl
+          name: ssl
+          readOnly: true
+        - mountPath: /usr/local/bin/runner-entrypoint.sh
+          name: entrypoint
+          readOnly: true
+          subPath: runner-entrypoint.sh
+        - mountPath: /workspace
+          name: workspace
+        - mountPath: /home/runner/.agentsmesh
+          name: agentsmesh-config
+        - mountPath: /home/runner/.codex
+          name: agent-config
+        - mountPath: /home/runner/.ssh
+          name: runner-ssh
+          readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      - name: ssl
+        secret:
+          secretName: agentsmesh-dev-ca
+      - configMap:
+          defaultMode: 493
+          name: runner-entrypoint
+        name: entrypoint
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: runner-codex-workspace
+      - name: agentsmesh-config
+        persistentVolumeClaim:
+          claimName: runner-codex-agentsmesh-config
+      - name: agent-config
+        persistentVolumeClaim:
+          claimName: runner-codex-config
+      - name: runner-ssh
+        secret:
+          defaultMode: 384
+          secretName: agentsmesh-runner-ssh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    agentsmesh.io/runtime: e2e-echo
+    app.kubernetes.io/name: agentsmesh-runner
+  name: runner-e2e-echo
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-e2e-echo
+  template:
+    metadata:
+      labels:
+        agentsmesh.io/runtime: e2e-echo
+        app: runner-e2e-echo
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/runner-entrypoint.sh
+        env:
+        - name: RUNNER_NODE_ID
+          value: dev-runner
+        - name: AGENT_RUNTIME
+          value: e2e-echo
+        - name: DEFAULT_AGENT
+          value: e2e-echo
+        envFrom:
+        - configMapRef:
+            name: agentsmesh-runner-env
+        - secretRef:
+            name: agentsmesh-runner-api-keys
+            optional: true
+        image: __COMPOSE_PROJECT_NAME__-runner-e2e-echo:latest
+        imagePullPolicy: Never
+        name: runner
+        ports:
+        - containerPort: 19000
+          hostPort: __RUNNER_MCP_PORT__
+          name: mcp
+        volumeMounts:
+        - mountPath: /app/ssl
+          name: ssl
+          readOnly: true
+        - mountPath: /usr/local/bin/runner-entrypoint.sh
+          name: entrypoint
+          readOnly: true
+          subPath: runner-entrypoint.sh
+        - mountPath: /workspace
+          name: workspace
+        - mountPath: /home/runner/.agentsmesh
+          name: agentsmesh-config
+        - mountPath: /home/runner/.ssh
+          name: runner-ssh
+          readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      - name: ssl
+        secret:
+          secretName: agentsmesh-dev-ca
+      - configMap:
+          defaultMode: 493
+          name: runner-entrypoint
+        name: entrypoint
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: runner-e2e-echo-workspace
+      - name: agentsmesh-config
+        persistentVolumeClaim:
+          claimName: runner-e2e-echo-config
+      - name: runner-ssh
+        secret:
+          defaultMode: 384
+          secretName: agentsmesh-runner-ssh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    agentsmesh.io/runtime: e2e-echo
+  name: runner-e2e-echo-2
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-e2e-echo-2
+  template:
+    metadata:
+      labels:
+        agentsmesh.io/runtime: e2e-echo
+        app: runner-e2e-echo-2
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/runner-entrypoint.sh
+        env:
+        - name: RUNNER_NODE_ID
+          value: dev-runner-2
+        - name: AGENT_RUNTIME
+          value: e2e-echo
+        - name: DEFAULT_AGENT
+          value: e2e-echo
+        envFrom:
+        - configMapRef:
+            name: agentsmesh-runner-env
+        - secretRef:
+            name: agentsmesh-runner-api-keys
+            optional: true
+        image: __COMPOSE_PROJECT_NAME__-runner-e2e-echo:latest
+        imagePullPolicy: Never
+        name: runner
+        ports:
+        - containerPort: 19000
+          hostPort: __RUNNER_2_MCP_PORT__
+          name: mcp
+        volumeMounts:
+        - mountPath: /app/ssl
+          name: ssl
+          readOnly: true
+        - mountPath: /usr/local/bin/runner-entrypoint.sh
+          name: entrypoint
+          readOnly: true
+          subPath: runner-entrypoint.sh
+        - mountPath: /workspace
+          name: workspace
+        - mountPath: /home/runner/.agentsmesh
+          name: agentsmesh-config
+        - mountPath: /home/runner/.ssh
+          name: runner-ssh
+          readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      - name: ssl
+        secret:
+          secretName: agentsmesh-dev-ca
+      - configMap:
+          defaultMode: 493
+          name: runner-entrypoint
+        name: entrypoint
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: runner-e2e-echo-2-workspace
+      - name: agentsmesh-config
+        persistentVolumeClaim:
+          claimName: runner-e2e-echo-2-config
+      - name: runner-ssh
+        secret:
+          defaultMode: 384
+          secretName: agentsmesh-runner-ssh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    agentsmesh.io/runtime: gemini-cli
+  name: runner-gemini-cli
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-gemini-cli
+  template:
+    metadata:
+      labels:
+        agentsmesh.io/runtime: gemini-cli
+        app: runner-gemini-cli
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/runner-entrypoint.sh
+        env:
+        - name: RUNNER_NODE_ID
+          value: dev-runner-gemini
+        - name: AGENT_RUNTIME
+          value: gemini-cli
+        - name: DEFAULT_AGENT
+          value: gemini-cli
+        envFrom:
+        - configMapRef:
+            name: agentsmesh-runner-env
+        - secretRef:
+            name: agentsmesh-runner-api-keys
+            optional: true
+        image: __COMPOSE_PROJECT_NAME__-runner-gemini-cli:latest
+        imagePullPolicy: Never
+        name: runner
+        volumeMounts:
+        - mountPath: /app/ssl
+          name: ssl
+          readOnly: true
+        - mountPath: /usr/local/bin/runner-entrypoint.sh
+          name: entrypoint
+          readOnly: true
+          subPath: runner-entrypoint.sh
+        - mountPath: /workspace
+          name: workspace
+        - mountPath: /home/runner/.agentsmesh
+          name: agentsmesh-config
+        - mountPath: /home/runner/.gemini
+          name: agent-config
+        - mountPath: /home/runner/.ssh
+          name: runner-ssh
+          readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      - name: ssl
+        secret:
+          secretName: agentsmesh-dev-ca
+      - configMap:
+          defaultMode: 493
+          name: runner-entrypoint
+        name: entrypoint
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: runner-gemini-workspace
+      - name: agentsmesh-config
+        persistentVolumeClaim:
+          claimName: runner-gemini-agentsmesh-config
+      - name: agent-config
+        persistentVolumeClaim:
+          claimName: runner-gemini-config
+      - name: runner-ssh
+        secret:
+          defaultMode: 384
+          secretName: agentsmesh-runner-ssh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    agentsmesh.io/runtime: loopal
+  name: runner-loopal
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-loopal
+  template:
+    metadata:
+      labels:
+        agentsmesh.io/runtime: loopal
+        app: runner-loopal
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/runner-entrypoint.sh
+        env:
+        - name: RUNNER_NODE_ID
+          value: dev-runner-loopal
+        - name: AGENT_RUNTIME
+          value: loopal
+        - name: DEFAULT_AGENT
+          value: loopal
+        envFrom:
+        - configMapRef:
+            name: agentsmesh-runner-env
+        - secretRef:
+            name: agentsmesh-runner-api-keys
+            optional: true
+        image: __COMPOSE_PROJECT_NAME__-runner-loopal:latest
+        imagePullPolicy: Never
+        name: runner
+        volumeMounts:
+        - mountPath: /app/ssl
+          name: ssl
+          readOnly: true
+        - mountPath: /usr/local/bin/runner-entrypoint.sh
+          name: entrypoint
+          readOnly: true
+          subPath: runner-entrypoint.sh
+        - mountPath: /workspace
+          name: workspace
+        - mountPath: /home/runner/.agentsmesh
+          name: agentsmesh-config
+        - mountPath: /home/runner/.loopal
+          name: agent-config
+        - mountPath: /home/runner/.ssh
+          name: runner-ssh
+          readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      - name: ssl
+        secret:
+          secretName: agentsmesh-dev-ca
+      - configMap:
+          defaultMode: 493
+          name: runner-entrypoint
+        name: entrypoint
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: runner-loopal-workspace
+      - name: agentsmesh-config
+        persistentVolumeClaim:
+          claimName: runner-loopal-agentsmesh-config
+      - name: agent-config
+        persistentVolumeClaim:
+          claimName: runner-loopal-config
+      - name: runner-ssh
+        secret:
+          defaultMode: 384
+          secretName: agentsmesh-runner-ssh

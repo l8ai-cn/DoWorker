@@ -1,9 +1,10 @@
 package agentpod
 
 var systemConfigKeySet = map[string]struct{}{
-	"session_id":     {},
-	"resume_enabled": {},
-	"resume_session": {},
+	"session_id":              {},
+	"resume_enabled":          {},
+	"resume_session":          {},
+	"resume_external_session": {},
 }
 
 func isSystemConfigKey(name string) bool {
@@ -11,8 +12,11 @@ func isSystemConfigKey(name string) bool {
 	return ok
 }
 
-func newSystemOverrides(sessionID string, isResumeMode, resumeAgentSession bool) map[string]interface{} {
+func newSystemOverrides(sessionID string, isResumeMode, resumeAgentSession bool, externalSessionID string) map[string]interface{} {
 	overrides := make(map[string]interface{}, len(systemConfigKeySet))
+	if externalSessionID != "" {
+		overrides["resume_external_session"] = externalSessionID
+	}
 	if !isResumeMode {
 		overrides["session_id"] = sessionID
 		return overrides

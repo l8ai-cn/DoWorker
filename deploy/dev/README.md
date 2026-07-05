@@ -1,15 +1,15 @@
 # Dev Environment
 
-One-click local stack: Postgres, Redis, MinIO, Traefik, Gitea, Backend, Runner, Relay, plus a local Next.js frontend with hot reload.
+One-click local stack: Postgres, Redis, MinIO, Traefik, Gitea, Backend, Relay, agent-specific Runner containers, plus local Next.js frontends with hot reload.
 
 ## Quick start
 
 ```bash
-bazel run //deploy/dev:up                # docker infra + host backend/relay/runner + frontends
+bazel run //deploy/dev:up                # docker infra + host backend/relay + runner images + frontends
 bazel run //deploy/dev:backend_only      # CI-style: skip frontends
 bazel run //deploy/dev:clean             # stop and wipe volumes
 bazel run //deploy/dev:reset_runners     # restart host runner+relay
-bazel run //deploy/dev:rebuild_runner    # rebuild runner binary + restart container
+bazel run //deploy/dev:rebuild_runner    # rebuild runner binary + restart runner containers
 ```
 
 `./dev.sh [--clean|--reset-runners|...]` still works — same flags, same behavior.
@@ -44,9 +44,9 @@ Do **not** hard-code mirror prefixes into the Dockerfiles — mirror metadata oc
 ```bash
 tail -f deploy/dev/runtime/backend/backend.log   # ibazel + backend stdout
 tail -f deploy/dev/runtime/relay/relay.log
-tail -f deploy/dev/runtime/runner/runner.log
 tail -f deploy/dev/web.log                       # bazel next_dev (web)
 docker compose logs -f postgres                  # docker infra
+docker compose logs -f runner-e2e-echo runner-claude-code runner-codex-cli
 ```
 
 ## Common issues

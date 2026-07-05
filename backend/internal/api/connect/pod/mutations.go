@@ -53,6 +53,7 @@ func (s *Server) CreatePod(
 		SourcePodKey:        req.Msg.GetSourcePodKey(),
 		ResumeAgentSession:  optionalBool(req.Msg.ResumeAgentSession),
 		Perpetual:           req.Msg.GetPerpetual(),
+		KnowledgeMounts:     knowledgeMountsFromProto(req.Msg.GetKnowledgeMounts()),
 	}
 
 	result, err := s.orchestrator.CreatePod(ctx, orchReq)
@@ -320,4 +321,15 @@ func optionalBool(p *bool) *bool {
 	}
 	v := *p
 	return &v
+}
+
+func knowledgeMountsFromProto(mounts []*podv1.PodKnowledgeMount) []agentpod.KnowledgeMountRequest {
+	if len(mounts) == 0 {
+		return nil
+	}
+	out := make([]agentpod.KnowledgeMountRequest, 0, len(mounts))
+	for _, m := range mounts {
+		out = append(out, agentpod.KnowledgeMountRequest{Slug: m.GetSlug(), Mode: m.GetMode()})
+	}
+	return out
 }

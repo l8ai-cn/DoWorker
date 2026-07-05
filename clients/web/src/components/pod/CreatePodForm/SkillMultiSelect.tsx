@@ -10,6 +10,7 @@ interface Props {
   selectedSlugs: string[];
   onChange: (slugs: string[]) => void;
   loading?: boolean;
+  repositorySelected?: boolean;
   t: (key: string) => string;
 }
 
@@ -18,6 +19,7 @@ export function SkillMultiSelect({
   selectedSlugs = [],
   onChange,
   loading,
+  repositorySelected = true,
   t,
 }: Props) {
   const toggle = useCallback(
@@ -81,7 +83,11 @@ export function SkillMultiSelect({
         </div>
       )}
 
-      {skills.length === 0 ? (
+      {!repositorySelected ? (
+        <p className="text-xs text-muted-foreground py-2">
+          选择仓库后加载该仓库已安装的 Skill。
+        </p>
+      ) : skills.length === 0 ? (
         <p className="text-xs text-muted-foreground py-2">
           {t("ide.createPod.noSkillsAvailableHint")}
         </p>

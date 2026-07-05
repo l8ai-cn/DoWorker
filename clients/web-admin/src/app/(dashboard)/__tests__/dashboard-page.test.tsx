@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-// Mock getDashboardStats
 const mockGetDashboardStats = vi.fn();
 vi.mock("@/lib/api/admin", () => ({
   getDashboardStats: () => mockGetDashboardStats(),
@@ -31,70 +30,67 @@ describe("DashboardPage", () => {
   });
 
   it("should show loading skeleton initially", () => {
-    // Never resolve the promise
     mockGetDashboardStats.mockReturnValue(new Promise(() => {}));
     render(<DashboardPage />);
-    // Loading skeletons use animate-pulse class
     const skeletons = document.querySelectorAll(".animate-pulse");
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
   it("should display stats after loading", async () => {
     render(<DashboardPage />);
-    // Wait for stats to appear
     await screen.findByText("1,200");
-    expect(screen.getByText("1,200")).toBeInTheDocument(); // total_users
-    expect(screen.getByText("85")).toBeInTheDocument(); // total_organizations
-    expect(screen.getByText("42")).toBeInTheDocument(); // total_runners
-    expect(screen.getByText("120")).toBeInTheDocument(); // active_pods
+    expect(screen.getByText("1,200")).toBeInTheDocument();
+    expect(screen.getByText("85")).toBeInTheDocument();
+    expect(screen.getByText("42")).toBeInTheDocument();
+    expect(screen.getByText("120")).toBeInTheDocument();
   });
 
   it("should display stat card titles", async () => {
     render(<DashboardPage />);
-    await screen.findByText("Total Users");
-    expect(screen.getByText("Total Users")).toBeInTheDocument();
-    expect(screen.getByText("Organizations")).toBeInTheDocument();
-    expect(screen.getByText("Runners")).toBeInTheDocument();
-    expect(screen.getByText("Active Pods")).toBeInTheDocument();
+    await screen.findByText("用户总数");
+    expect(screen.getByText("用户总数")).toBeInTheDocument();
+    expect(screen.getByText("组织")).toBeInTheDocument();
+    expect(screen.getByText("Runner")).toBeInTheDocument();
+    expect(screen.getByText("活跃 Pod")).toBeInTheDocument();
   });
 
   it("should display sub-values", async () => {
     render(<DashboardPage />);
-    await screen.findByText("950 active");
-    expect(screen.getByText("950 active")).toBeInTheDocument();
-    expect(screen.getByText("38 online")).toBeInTheDocument();
-    expect(screen.getByText("250 total")).toBeInTheDocument();
+    await screen.findByText("950 个活跃");
+    expect(screen.getByText("950 个活跃")).toBeInTheDocument();
+    expect(screen.getByText("38 个在线")).toBeInTheDocument();
+    expect(screen.getByText("共 250 个")).toBeInTheDocument();
   });
 
   it("should display new users breakdown", async () => {
     render(<DashboardPage />);
-    await screen.findByText("New Users");
-    expect(screen.getByText("8")).toBeInTheDocument(); // today
-    expect(screen.getByText("35")).toBeInTheDocument(); // this week
+    await screen.findByText("新增用户");
+    expect(screen.getByText("8")).toBeInTheDocument();
+    expect(screen.getByText("35")).toBeInTheDocument();
   });
 
   it("should display subscriptions section", async () => {
     render(<DashboardPage />);
-    await screen.findByText("Subscriptions");
-    expect(screen.getByText("45")).toBeInTheDocument(); // active
-    expect(screen.getByText("60")).toBeInTheDocument(); // total
+    await screen.findByText("订阅");
+    expect(screen.getByText("45")).toBeInTheDocument();
+    expect(screen.getByText("60")).toBeInTheDocument();
   });
 
   it("should display system health section", async () => {
     render(<DashboardPage />);
-    await screen.findByText("System Health");
-    expect(screen.getByText("All systems operational")).toBeInTheDocument();
+    await screen.findByText("系统健康");
+    expect(screen.getByText("所有系统运行正常")).toBeInTheDocument();
     expect(
-      screen.getByText("38 of 42 runners online")
+      screen.getByText("42 个 Runner 中有 38 个在线")
     ).toBeInTheDocument();
   });
 
   it("should show error state when API fails", async () => {
     mockGetDashboardStats.mockRejectedValue(new Error("Network error"));
     render(<DashboardPage />);
-    await screen.findByText("Failed to load dashboard stats");
+    await screen.findByText("仪表盘数据加载失败");
     expect(
-      screen.getByText("Failed to load dashboard stats")
+      screen.getByText("仪表盘数据加载失败")
     ).toBeInTheDocument();
   });
 });

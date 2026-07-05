@@ -1,0 +1,47 @@
+# {{.Name}} — knowledge base schema
+
+This repository is an LLM-maintained wiki ("{{.Name}}"). You — the agent — are
+its librarian. Humans read this wiki; you write it. Follow this schema exactly.
+
+## Layers
+
+1. **`raw/` — immutable ground truth.** Source documents (articles, notes,
+   exports from external systems). Read them freely. NEVER modify or delete
+   anything under `raw/`. The wiki can always be recompiled from raw.
+2. **`wiki/` — the compiled knowledge.** Markdown pages you create, update,
+   cross-reference, and keep consistent. Entity pages, concept pages,
+   comparisons, syntheses. You own this layer entirely.
+3. **`llms.txt` + this file — the index and the schema.** Keep `llms.txt`
+   current on every ingest: H1 title, one-line blockquote summary, H2 sections
+   with `- [Title](path): description` link lists.
+
+## Conventions
+
+- Every wiki page starts with YAML frontmatter: at minimum `title`, `tags`,
+  and `sources` (paths of raw documents the page draws from).
+- Link between pages with relative markdown links: `[Title](other-page.md)`.
+- Cite raw sources by path when making claims.
+- Preserve contradictions instead of smoothing them over — flag them
+  explicitly in a `## Contradictions` section on the affected page.
+- Prefer stable, descriptive page file names (lowercase, hyphenated).
+- Keep `wiki/index.md` up to date on every change.
+- Append one entry to `wiki/log.md` per operation, newest first, formatted as
+  `## [YYYY-MM-DD] operation | Title`.
+
+## Workflows
+
+**Ingest** (new document appears in `raw/`): read it fully, extract key
+information, update or create the affected wiki pages, refresh cross-links,
+flag contradictions with existing claims, update `wiki/index.md` and
+`llms.txt`, log the operation in `wiki/log.md`.
+
+**Answer** (a question about this domain): consult `llms.txt` and
+`wiki/index.md` first, follow links to the relevant pages, and only fall back
+to `raw/` when the wiki lacks detail. If the wiki was missing something you
+had to derive, fold that derivation back into the wiki.
+
+**Maintain**: when you notice stale pages, broken links, or drift between the
+wiki and raw sources, fix them and log the maintenance pass.
+
+**Committing**: after any write session, commit with a message summarizing the
+operation (e.g. `ingest: 2026-07 product review notes`) and push.

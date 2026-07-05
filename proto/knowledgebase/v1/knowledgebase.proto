@@ -1,0 +1,137 @@
+// KnowledgeBaseService — org-scoped llm-wiki knowledge bases backed by the
+// internal Gitea instance. Each KB is a git repository laid out as llms.txt
+// (index) + AGENTS.md (schema) + raw/ (immutable sources) + wiki/
+// (LLM-maintained pages); pods mount it ro/rw at create time.
+//
+// Conventions:
+//   * org-scoped — every request carries `org_slug = 1`
+//   * timestamps as ISO-8601 strings
+//   * list response = {items, total, limit, offset} envelope
+
+syntax = "proto3";
+
+package proto.knowledgebase.v1;
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/knowledgebase/v1;knowledgebasev1";
+
+service KnowledgeBaseService {
+  rpc ListKnowledgeBases(ListKnowledgeBasesRequest) returns (ListKnowledgeBasesResponse);
+  rpc GetKnowledgeBase(GetKnowledgeBaseRequest) returns (KnowledgeBase);
+  rpc CreateKnowledgeBase(CreateKnowledgeBaseRequest) returns (KnowledgeBase);
+  rpc UpdateKnowledgeBase(UpdateKnowledgeBaseRequest) returns (KnowledgeBase);
+  rpc DeleteKnowledgeBase(DeleteKnowledgeBaseRequest) returns (DeleteKnowledgeBaseResponse);
+
+  rpc SetAgentMounts(SetAgentMountsRequest) returns (SetAgentMountsResponse);
+  rpc ListAgentMounts(ListAgentMountsRequest) returns (ListAgentMountsResponse);
+
+  rpc GetKnowledgeBaseFile(GetKnowledgeBaseFileRequest) returns (KnowledgeBaseFile);
+  rpc ListKnowledgeBaseDir(ListKnowledgeBaseDirRequest) returns (ListKnowledgeBaseDirResponse);
+}
+
+message KnowledgeBase {
+  int64 id = 1;
+  string slug = 2;
+  string name = 3;
+  string description = 4;
+  string git_repo_path = 5;
+  string http_clone_url = 6;
+  string default_branch = 7;
+  string source_type = 8;
+  string source_config_json = 9;
+  string sync_status = 10;
+  optional string sync_error = 11;
+  optional string last_synced_at = 12;
+  int64 created_by_user_id = 13;
+  string created_at = 14;
+  string updated_at = 15;
+}
+
+message AgentMount {
+  string agent_slug = 1;
+  string mode = 2; // ro | rw
+}
+
+message ListKnowledgeBasesRequest {
+  string org_slug = 1;
+  optional string source_type = 2;
+}
+
+message ListKnowledgeBasesResponse {
+  repeated KnowledgeBase items = 1;
+  int64 total = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message GetKnowledgeBaseRequest {
+  string org_slug = 1;
+  string slug = 2;
+}
+
+message CreateKnowledgeBaseRequest {
+  string org_slug = 1;
+  string name = 2;
+  optional string description = 3;
+  optional string source_type = 4;
+  optional string source_config_json = 5;
+}
+
+message UpdateKnowledgeBaseRequest {
+  string org_slug = 1;
+  string slug = 2;
+  optional string name = 3;
+  optional string description = 4;
+}
+
+message DeleteKnowledgeBaseRequest {
+  string org_slug = 1;
+  string slug = 2;
+}
+
+message DeleteKnowledgeBaseResponse {}
+
+message SetAgentMountsRequest {
+  string org_slug = 1;
+  string slug = 2;
+  repeated AgentMount mounts = 3;
+}
+
+message SetAgentMountsResponse {}
+
+message ListAgentMountsRequest {
+  string org_slug = 1;
+  string slug = 2;
+}
+
+message ListAgentMountsResponse {
+  repeated AgentMount mounts = 1;
+}
+
+message GetKnowledgeBaseFileRequest {
+  string org_slug = 1;
+  string slug = 2;
+  string path = 3;
+}
+
+message KnowledgeBaseFile {
+  string path = 1;
+  string content = 2;
+  int64 size = 3;
+}
+
+message ListKnowledgeBaseDirRequest {
+  string org_slug = 1;
+  string slug = 2;
+  string path = 3; // "" = repo root
+}
+
+message KnowledgeBaseDirEntry {
+  string name = 1;
+  string path = 2;
+  string type = 3; // file | dir
+  int64 size = 4;
+}
+
+message ListKnowledgeBaseDirResponse {
+  repeated KnowledgeBaseDirEntry entries = 1;
+}

@@ -63,6 +63,12 @@ func (s *HTTPServer) registerTools() {
 		s.createBlockListTypesTool(),
 		s.createBlockListWorkspacesTool(),
 		s.createBlockGetDefaultWorkspaceTool(),
+
+		// Knowledge Base tools — llm-wiki workflow. See http_tools_kb.go.
+		s.createKbListTool(),
+		s.createKbSearchTool(),
+		s.createKbReadTool(),
+		s.createKbWriteTool(),
 	}
 }
 

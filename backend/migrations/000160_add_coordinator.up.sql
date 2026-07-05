@@ -25,7 +25,13 @@ CREATE TABLE coordinator_projects (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    UNIQUE (organization_id, slug)
+    UNIQUE (organization_id, slug),
+    CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$' AND char_length(slug) BETWEEN 2 AND 100),
+    CHECK (agent_slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$' AND char_length(agent_slug) BETWEEN 2 AND 100),
+    CHECK (platform_type IN ('cnb', 'linear')),
+    CHECK (source_type IN ('issues', 'pulls')),
+    CHECK (scan_interval_seconds > 0),
+    CHECK (max_concurrent > 0)
 );
 
 CREATE INDEX coordinator_projects_org ON coordinator_projects (organization_id);
@@ -75,6 +81,14 @@ CREATE TABLE coordinator_executions (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE coordinator_executions
+    ADD CONSTRAINT coordinator_executions_status_check
+    CHECK (status IN ('pending', 'claimed', 'running', 'succeeded', 'failed', 'cancelled', 'feedback_failed'));
+
+ALTER TABLE coordinator_executions
+    ADD CONSTRAINT coordinator_executions_feedback_status_check
+    CHECK (feedback_status IS NULL OR feedback_status IN ('pending', 'posted', 'failed'));
 
 CREATE INDEX coordinator_executions_org ON coordinator_executions (organization_id);
 CREATE INDEX coordinator_executions_project ON coordinator_executions (project_id);

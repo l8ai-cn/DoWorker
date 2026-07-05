@@ -38,6 +38,10 @@ func (p *Parser) tryParseDeclaration(tok lexer.Token) Declaration {
 		return p.parsePromptDecl(pos)
 	case lexer.KW_PROMPT_POSITION:
 		return p.parsePromptPositionDecl(pos)
+	case lexer.KW_CAPABILITY:
+		return p.parseCapabilityDecl(pos)
+	case lexer.KW_KNOWLEDGE:
+		return p.parseKnowledgeDecl(pos)
 	default:
 		return nil
 	}
@@ -204,5 +208,30 @@ func (p *Parser) parseSkillsDecl(pos Position) *SkillsDecl {
 	}
 	p.expectNewline()
 	return &SkillsDecl{Slugs: slugs, Position: pos}
+}
+
+// parseKnowledgeDecl: KNOWLEDGE <slug> [rw], <slug2>, ...
+// The bracketed mode is per-entry and optional; default is "ro".
+func (p *Parser) parseKnowledgeDecl(pos Position) *KnowledgeDecl {
+	p.advance()
+	var mounts []KnowledgeMountRef
+	for !p.isNewlineOrEnd() {
+		ref := KnowledgeMountRef{Slug: p.expectIdentOrString(), Mode: "ro"}
+		if p.currentIs(lexer.LBRACKET) {
+			p.advance()
+			mode := p.expectIdentOrString()
+			if mode != "ro" && mode != "rw" {
+				p.errorf("KNOWLEDGE %s: mount mode must be ro or rw, got %q", ref.Slug, mode)
+			}
+			ref.Mode = mode
+			p.expect(lexer.RBRACKET)
+		}
+		mounts = append(mounts, ref)
+		if p.currentIs(lexer.COMMA) {
+			p.advance()
+		}
+	}
+	p.expectNewline()
+	return &KnowledgeDecl{Mounts: mounts, Position: pos}
 }
 

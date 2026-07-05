@@ -51,9 +51,11 @@ export function RunnerSelect({
           {error}
         </p>
       )}
-      {!error && runners.length === 0 && (
+      {!error && (
         <p id="runner-help" className="text-xs text-muted-foreground mt-1">
-          {t("ide.createPod.noRunnersAvailable")}
+          {runners.length === 0
+            ? t("ide.createPod.noRunnersAvailable")
+            : t("ide.createPod.runnerHostHint")}
         </p>
       )}
     </div>

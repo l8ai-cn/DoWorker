@@ -80,6 +80,22 @@ func applySliceDeclarations(base *indexedDecls, sliceDecls []parser.Declaration)
 				base.order = append(base.order, key)
 			}
 
+		case *parser.KnowledgeDecl:
+			// KNOWLEDGE: union by slug; slice mode overrides base for
+			// the same slug (rw in a layer can upgrade a base ro mount).
+			existing := findKnowledgeDecl(base)
+			if existing != nil {
+				merged := &parser.KnowledgeDecl{
+					Mounts: unionKnowledgeMounts(existing.Mounts, sd.Mounts),
+				}
+				key := getDeclKey(existing)
+				base.decls[key] = merged
+			} else {
+				key := getDeclKey(d)
+				base.decls[key] = d
+				base.order = append(base.order, key)
+			}
+
 		default:
 			// All other declarations: slice overrides base
 			key := getDeclKey(d)
@@ -136,6 +152,8 @@ func getDeclKey(d parser.Declaration) declKey {
 		return declKey{Type: "MCP"}
 	case *parser.SkillsDecl:
 		return declKey{Type: "SKILLS"}
+	case *parser.KnowledgeDecl:
+		return declKey{Type: "KNOWLEDGE"}
 	case *parser.SetupDecl:
 		return declKey{Type: "SETUP"}
 	case *parser.ModeDecl:
@@ -152,6 +170,8 @@ func getDeclKey(d parser.Declaration) declKey {
 		return declKey{Type: "PROMPT"}
 	case *parser.PromptPositionDecl:
 		return declKey{Type: "PROMPT_POSITION"}
+	case *parser.CapabilityDecl:
+		return declKey{Type: "CAPABILITY", Name: v.Axis}
 	case *parser.RemoveDecl:
 		return declKey{Type: "REMOVE", Name: v.Target + "." + v.Name}
 	default:
@@ -167,6 +187,33 @@ func findSkillsDecl(idx *indexedDecls) *parser.SkillsDecl {
 		}
 	}
 	return nil
+}
+
+func findKnowledgeDecl(idx *indexedDecls) *parser.KnowledgeDecl {
+	key := declKey{Type: "KNOWLEDGE"}
+	if d, ok := idx.decls[key]; ok {
+		if kd, ok := d.(*parser.KnowledgeDecl); ok {
+			return kd
+		}
+	}
+	return nil
+}
+
+func unionKnowledgeMounts(a, b []parser.KnowledgeMountRef) []parser.KnowledgeMountRef {
+	pos := make(map[string]int, len(a))
+	result := append([]parser.KnowledgeMountRef{}, a...)
+	for i, m := range result {
+		pos[m.Slug] = i
+	}
+	for _, m := range b {
+		if i, ok := pos[m.Slug]; ok {
+			result[i].Mode = m.Mode
+		} else {
+			pos[m.Slug] = len(result)
+			result = append(result, m)
+		}
+	}
+	return result
 }
 
 func unionStrings(a, b []string) []string {

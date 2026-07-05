@@ -3,6 +3,7 @@ package agentpod
 import (
 	"fmt"
 
+	"github.com/anthropics/agentsmesh/agentfile"
 	"github.com/anthropics/agentsmesh/agentfile/extract"
 	"github.com/anthropics/agentsmesh/agentfile/merge"
 	"github.com/anthropics/agentsmesh/agentfile/parser"
@@ -16,6 +17,7 @@ type agentfileExtractResult struct {
 	Branch                string   // BRANCH "branch-name"
 	RepoSlug              string   // REPO "slug" (e.g., "dev-org/demo-api")
 	Prompt                string   // PROMPT "prompt content"
+	Knowledge             []agentfile.KnowledgeSpec // KNOWLEDGE slug [mode], ...
 	ConfigValues          agentDomain.ConfigValues
 	MergedAgentfileSource string
 }
@@ -46,6 +48,7 @@ func extractFromAgentfileLayer(
 	result := &agentfileExtractResult{
 		Mode:                  spec.Mode,
 		Prompt:                spec.Prompt,
+		Knowledge:             spec.Knowledge,
 		MergedAgentfileSource: mergedSource,
 		ConfigValues:          make(agentDomain.ConfigValues),
 	}

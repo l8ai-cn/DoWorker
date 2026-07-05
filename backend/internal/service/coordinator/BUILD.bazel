@@ -17,6 +17,7 @@ go_library(
         "runner_launcher_factory.go",
         "runner_launcher_k8s.go",
         "runner_launcher_k8s_pod.go",
+        "runner_launcher_resolution.go",
         "runner_launcher_script.go",
         "scan.go",
         "scheduler.go",

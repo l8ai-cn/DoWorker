@@ -52,8 +52,13 @@ message RunnerMessage {
     // 永续 Pod 重启事件
     PodRestartingEvent pod_restarting = 31;
     // 27-30 reserved: previously used for ACP gRPC events, now ACP data flows exclusively via Relay.
+    AcpSessionEvent acp_session = 27;
+    // 实时 Token 用量（turn 完成时上报，SET 语义）
+    PodUsageEvent pod_usage = 32;
+    // 厂商 session id 捕获（resume cli）
+    ExternalSessionCapturedEvent external_session_captured = 33;
   }
-  reserved 27, 28, 29, 30;
+  reserved 28, 29, 30;
   int64 timestamp = 15;
 }
 
@@ -148,6 +153,19 @@ message AgentStatusEvent {
   string status = 2;
 }
 
+// AcpSessionEvent mirrors key ACP content to Backend for web-user SSE compat.
+message AcpSessionEvent {
+  string pod_key = 1;
+  string event_type = 2;
+  string json_payload = 3;
+}
+
+// AcpRelayCommand carries opaque ACP UI commands when Relay WS is absent (web-user compat).
+message AcpRelayCommand {
+  string pod_key = 1;
+  string payload_json = 2;
+}
+
 // PodResizedEvent Pod 窗口大小调整事件
 message PodResizedEvent {
   string pod_key = 1;
@@ -207,6 +225,10 @@ message ServerMessage {
     // 22 = acp_cancel_session (走 Relay)
     // 更新 Pod 永续模式命令（Backend -> Runner）
     UpdatePodPerpetualCommand update_pod_perpetual = 23;
+    // ACP relay command for web-user compat (permission_response, cancel, etc.)
+    AcpRelayCommand acp_relay = 24;
+    // Push refreshed org policy rules to a running pod
+    UpdatePodPolicyRulesCommand update_pod_policy_rules = 25;
   }
   int64 timestamp = 15;
 }
@@ -267,6 +289,20 @@ message CreatePodCommand {
   string prompt_position = 20;             // PROMPT_POSITION 声明："prepend"/"append"/"none"
 
   bool perpetual = 21;                     // 永续模式：agent 退出后 Runner 自动重启
+
+  // Org policy snapshot at create time (Runner evaluates tool permissions)
+  repeated PolicyRuleSnapshot policy_rules = 22;
+
+  // Declared CAPABILITY axes from AgentFile (runtime calibration at handshake)
+  map<string, string> declared_capabilities = 25;
+}
+
+// PolicyRuleSnapshot is a frozen org policy row shipped with CreatePodCommand.
+message PolicyRuleSnapshot {
+  string tool_pattern = 1;
+  string path_pattern = 2;
+  string verdict = 3;  // allow|deny|ask
+  int32 priority = 4;
 }
 
 // ResourceToDownload 需要下载的资源描述
@@ -316,6 +352,19 @@ message SandboxConfig {
   // 分协议克隆 URL（新增，保留 repository_url 向后兼容）
   string http_clone_url = 10;     // HTTPS 克隆 URL
   string ssh_clone_url = 11;      // SSH 克隆 URL
+
+  // 知识库挂载（clone 到 sandbox 内 mount_path）
+  repeated KnowledgeMount knowledge_mounts = 12;
+}
+
+// KnowledgeMount 知识库挂载配置
+message KnowledgeMount {
+  string slug = 1;             // KB slug（org 内唯一）
+  string http_clone_url = 2;   // HTTPS 克隆 URL（不含凭证）
+  string branch = 3;           // 默认分支
+  string mount_path = 4;       // 相对 sandbox root 的挂载路径，如 kb/{slug}
+  string mode = 5;             // ro | rw
+  string git_token = 6;        // rw 挂载的 push 凭证；ro 时 clone 后即弃
 }
 
 // TerminatePodCommand 终止 Pod 命令
@@ -733,6 +782,22 @@ message TokenUsageReport {
   int64 pod_started_at_unix_seconds = 3;
 }
 
+// PodUsageEvent 实时 Token 用量（Runner -> Backend，turn 完成时 SET 语义）
+message PodUsageEvent {
+  string pod_key = 1;
+  string model = 2;
+  int64 input_tokens = 3;
+  int64 output_tokens = 4;
+  int64 cache_read_tokens = 5;
+  int64 cache_creation_tokens = 6;
+}
+
+// ExternalSessionCapturedEvent 厂商 session id 捕获（Runner -> Backend）
+message ExternalSessionCapturedEvent {
+  string pod_key = 1;
+  string external_session_id = 2;
+}
+
 // TokenModelUsage 单个模型的 Token 用量
 message TokenModelUsage {
   string model = 1;                     // 模型名称（如 "claude-sonnet-4-20250514"）
@@ -747,4 +812,10 @@ message TokenModelUsage {
 message UpdatePodPerpetualCommand {
   string pod_key = 1;
   bool perpetual = 2;
+}
+
+// UpdatePodPolicyRulesCommand refreshes org policy rules on a running pod.
+message UpdatePodPolicyRulesCommand {
+  string pod_key = 1;
+  repeated PolicyRuleSnapshot policy_rules = 2;
 }

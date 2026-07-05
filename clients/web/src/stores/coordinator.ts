@@ -3,6 +3,7 @@ import {
   coordinatorApi,
   type CoordinatorExecution,
   type CoordinatorProject,
+  type CoordinatorRunResult,
   type CreateProjectInput,
   type UpdateProjectInput,
 } from "@/lib/api/coordinatorApi";
@@ -10,6 +11,7 @@ import {
 interface CoordinatorState {
   projects: CoordinatorProject[];
   executions: Record<number, CoordinatorExecution[]>;
+  runResults: Record<number, CoordinatorRunResult>;
   loading: boolean;
   error: string | null;
 
@@ -28,6 +30,7 @@ function message(e: unknown): string {
 export const useCoordinatorStore = create<CoordinatorState>((set, get) => ({
   projects: [],
   executions: {},
+  runResults: {},
   loading: false,
   error: null,
 
@@ -81,7 +84,8 @@ export const useCoordinatorStore = create<CoordinatorState>((set, get) => ({
   runNow: async (id) => {
     set({ error: null });
     try {
-      await coordinatorApi.runNow(id);
+      const result = await coordinatorApi.runNow(id);
+      set({ runResults: { ...get().runResults, [id]: result } });
       await get().loadExecutions(id);
     } catch (e) {
       set({ error: message(e) });

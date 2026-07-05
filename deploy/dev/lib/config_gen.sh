@@ -122,7 +122,7 @@ http:
     backend-api:
       entryPoints:
         - web
-      rule: "PathPrefix(\`/api\`) || PathPrefix(\`/health\`) || PathPrefix(\`/proto.\`)"
+      rule: "PathPrefix(\`/api\`) || PathPrefix(\`/health\`) || PathPrefix(\`/v1\`) || PathPrefix(\`/auth\`) || PathPrefix(\`/proto.\`)"
       service: backend-api
       priority: 100
 
@@ -188,6 +188,21 @@ generate_env() {
         source "$ENV_FILE"
         WORKTREE_NAME="$worktree_name"
         PORT_OFFSET=$(( (HTTP_PORT - 10000) / 50 ))
+        if ! grep -q "^COMPOSE_FILE=" "$ENV_FILE"; then
+            echo "COMPOSE_FILE=docker-compose.yml:docker-compose.runners.yml" >> "$ENV_FILE"
+            export COMPOSE_FILE="docker-compose.yml:docker-compose.runners.yml"
+        fi
+        if grep -q '^RUNNERS_LAUNCHER=k8s' "$ENV_FILE"; then
+            sed -i.bak 's|^COMPOSE_FILE=.*|COMPOSE_FILE=docker-compose.yml|' "$ENV_FILE"
+            rm -f "$ENV_FILE.bak"
+            export COMPOSE_FILE=docker-compose.yml
+            export RUNNERS_LAUNCHER=k8s
+        elif grep -q '^RUNNERS_LAUNCHER=coordinator' "$ENV_FILE"; then
+            sed -i.bak 's|^COMPOSE_FILE=.*|COMPOSE_FILE=docker-compose.yml|' "$ENV_FILE"
+            rm -f "$ENV_FILE.bak"
+            export COMPOSE_FILE=docker-compose.yml
+            export RUNNERS_LAUNCHER=coordinator
+        fi
         # Backfill WEB_ADMIN_PORT for .env files predating that field.
         if ! grep -q "WEB_ADMIN_PORT" "$ENV_FILE"; then
             local admin_port=$((10011 + PORT_OFFSET * 50))
@@ -233,6 +248,12 @@ generate_env() {
             echo "RUNNER_2_MCP_PORT=$runner2_mcp" >> "$ENV_FILE"
             export RUNNER_2_MCP_PORT="$runner2_mcp"
         fi
+        if ! grep -q "WEB_USER_PORT" "$ENV_FILE"; then
+            local web_user_port=$((10020 + PORT_OFFSET * 50))
+            echo "WEB_USER_PORT=$web_user_port" >> "$ENV_FILE"
+            export WEB_USER_PORT="$web_user_port"
+            info "补充 WEB_USER_PORT=$web_user_port 到 .env"
+        fi
         success "保留现有端口配置 (worktree: $worktree_name, PRIMARY_DOMAIN: localhost:$HTTP_PORT)"
         return 0
     fi
@@ -250,6 +271,8 @@ generate_env() {
 # Worktree: $worktree_name | Offset: $offset
 
 COMPOSE_PROJECT_NAME=$project_name
+COMPOSE_FILE=docker-compose.yml:docker-compose.runners.yml
+RUNNERS_LAUNCHER=docker
 
 # =============================================================================
 # Unified Domain Configuration - Single Source of Truth
@@ -262,6 +285,7 @@ USE_HTTPS=false
 # Ports (步长 50，支持最多 500 个 worktree，端口范围 10000-35000)
 # Slots 0-14: external (docker-exposed) ports
 # Slots 15-17: host-side ibazel service ports (loopback only, behind traefik)
+# Slot 20: host-side web-user Vite dev server
 # =============================================================================
 HTTP_PORT=$http_port
 GRPC_PORT=$grpc_port
@@ -293,6 +317,9 @@ RUNNER_MCP_PORT=$((10018 + offset * 50))
 # spec needs direct host access here, but exposing it lets future specs
 # target runner-2 without touching compose.
 RUNNER_2_MCP_PORT=$((10019 + offset * 50))
+
+# End-user workbench (clients/web-user, Vite — proxies /v1 to traefik)
+WEB_USER_PORT=$((10020 + offset * 50))
 
 # =============================================================================
 # Credentials

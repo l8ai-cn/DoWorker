@@ -5,32 +5,32 @@ import { Bell, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const pageTitles: Record<string, string> = {
-  "/": "Dashboard",
-  "/users": "Users",
-  "/organizations": "Organizations",
-  "/runners": "Runners",
-  "/relays": "Relays",
-  "/skill-registries": "Skill Registries",
-  "/promo-codes": "Promo Codes",
-  "/support-tickets": "Support Tickets",
-  "/audit-logs": "Audit Logs",
+  "/": "仪表盘",
+  "/users": "用户",
+  "/organizations": "组织",
+  "/sso": "单点登录",
+  "/runners": "Runner",
+  "/relays": "中继",
+  "/skill-registries": "技能源",
+  "/promo-codes": "优惠码",
+  "/support-tickets": "支持工单",
+  "/audit-logs": "审计日志",
 };
 
 export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const pathname = usePathname();
 
-  // Get title - handle dynamic routes
   let title = pageTitles[pathname];
   if (!title) {
-    if (pathname.startsWith("/users/")) title = "User Details";
-    else if (pathname.startsWith("/organizations/")) title = "Organization Details";
-    else if (pathname.startsWith("/runners/")) title = "Runner Details";
-    else if (pathname.startsWith("/relays/")) title = "Relay Details";
-    else if (pathname.startsWith("/skill-registries/")) title = "Skill Registry Details";
-    else if (pathname.startsWith("/promo-codes/new")) title = "Create Promo Code";
-    else if (pathname.startsWith("/promo-codes/")) title = "Promo Code Details";
-    else if (pathname.startsWith("/support-tickets/")) title = "Ticket Details";
-    else title = "Admin Console";
+    if (pathname.startsWith("/users/")) title = "用户详情";
+    else if (pathname.startsWith("/organizations/")) title = "组织详情";
+    else if (pathname.startsWith("/runners/")) title = "Runner 详情";
+    else if (pathname.startsWith("/relays/")) title = "中继详情";
+    else if (pathname.startsWith("/skill-registries/")) title = "技能源详情";
+    else if (pathname.startsWith("/promo-codes/new")) title = "创建优惠码";
+    else if (pathname.startsWith("/promo-codes/")) title = "优惠码详情";
+    else if (pathname.startsWith("/support-tickets/")) title = "工单详情";
+    else title = "管理控制台";
   }
 
   return (
@@ -44,7 +44,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
             onClick={onMenuClick}
           >
             <Menu className="h-5 w-5" />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">打开菜单</span>
           </Button>
         )}
         <h1 className="text-xl font-semibold">{title}</h1>

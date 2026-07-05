@@ -10,6 +10,7 @@ import type {
   WasmUserCredentialService, WasmEnvBundleService, WasmOrgApiService,
   WasmAgentService, WasmTicketRelationsService, WasmFileService,
   WasmSupportTicketService, WasmAuthConnectService, WasmBlockstoreService,
+  WasmKnowledgeBaseService,
   WasmRunnerState, WasmMeshState, WasmTicketState, WasmChannelState,
   WasmLoopState, WasmAcpSessionManager, WasmLoopalManager, WasmRepoState,
   WasmAutopilotState, WasmRelayManager,
@@ -66,6 +67,7 @@ export interface ServiceRegistry {
   supportTicketService: WasmSupportTicketService;
   authConnectService: WasmAuthConnectService;
   blockstoreService: WasmBlockstoreService;
+  knowledgeBaseService: WasmKnowledgeBaseService;
   runnerState: WasmRunnerState;
   meshState: WasmMeshState;
   ticketState: WasmTicketState;
@@ -180,3 +182,4 @@ export const getRepoState = () => g("repoState");
 export const getAutopilotState = () => g("autopilotState");
 export const getRelayManager = () => g("relayManager");
 export const getBlockstoreService = () => g("blockstoreService");
+export const getKnowledgeBaseService = () => g("knowledgeBaseService");

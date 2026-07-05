@@ -13,6 +13,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/binding"
 	blockstoreservice "github.com/anthropics/agentsmesh/backend/internal/service/blockstore"
 	"github.com/anthropics/agentsmesh/backend/internal/service/channel"
+	knowledgebaseservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
 	loopService "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
@@ -51,6 +52,7 @@ type GRPCRunnerAdapter struct {
 	loopRunService       *loopService.LoopRunService
 	loopOrchestrator     *loopService.LoopOrchestrator
 	blockstoreService    *blockstoreservice.Service
+	knowledgebaseService *knowledgebaseservice.Service
 }
 
 type MCPDependencies struct {
@@ -68,6 +70,7 @@ type MCPDependencies struct {
 	LoopRunService    *loopService.LoopRunService
 	LoopOrchestrator  *loopService.LoopOrchestrator
 	BlockstoreService *blockstoreservice.Service
+	KnowledgebaseService *knowledgebaseservice.Service
 }
 
 func NewGRPCRunnerAdapter(
@@ -106,6 +109,7 @@ func NewGRPCRunnerAdapter(
 		adapter.loopRunService = mcpDeps.LoopRunService
 		adapter.loopOrchestrator = mcpDeps.LoopOrchestrator
 		adapter.blockstoreService = mcpDeps.BlockstoreService
+		adapter.knowledgebaseService = mcpDeps.KnowledgebaseService
 	}
 
 	return adapter

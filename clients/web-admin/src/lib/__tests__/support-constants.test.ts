@@ -12,10 +12,10 @@ describe("Support Constants", () => {
   describe("statusLabels", () => {
     it("should define labels for all statuses", () => {
       expect(statusLabels).toEqual({
-        open: "Open",
-        in_progress: "In Progress",
-        resolved: "Resolved",
-        closed: "Closed",
+        open: "待处理",
+        in_progress: "处理中",
+        resolved: "已解决",
+        closed: "已关闭",
       });
     });
   });
@@ -38,11 +38,11 @@ describe("Support Constants", () => {
   describe("categoryLabels", () => {
     it("should define labels for all categories", () => {
       expect(categoryLabels).toEqual({
-        bug: "Bug",
-        feature_request: "Feature Request",
-        usage_question: "Usage Question",
-        account: "Account",
-        other: "Other",
+        bug: "缺陷",
+        feature_request: "功能请求",
+        usage_question: "使用问题",
+        account: "账号",
+        other: "其他",
       });
     });
   });
@@ -66,9 +66,9 @@ describe("Support Constants", () => {
   describe("priorityLabels", () => {
     it("should define labels for all priorities", () => {
       expect(priorityLabels).toEqual({
-        low: "Low",
-        medium: "Medium",
-        high: "High",
+        low: "低",
+        medium: "中",
+        high: "高",
       });
     });
   });

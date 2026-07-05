@@ -7,6 +7,8 @@ import type { PodMode } from "@/lib/pod-modes";
 import { submitCreatePod } from "./useCreatePodFormSubmit";
 import { usePrefsAutoFill, useEnvBundles, useRepoSkills } from "./useCreatePodFormEffects";
 import type { CreatePodFormState, FormValidationErrors } from "./useCreatePodFormTypes";
+import type { DestroyPolicy } from "../CreatePodForm/podLifecycleOptions";
+import type { KnowledgeMountSelection } from "@/lib/api/facade/knowledgeBaseApi";
 
 // Re-export types for consumers
 export type { CreatePodFormState, FormValidationErrors } from "./useCreatePodFormTypes";
@@ -29,7 +31,12 @@ export function useCreatePodForm(
   configValues?: Record<string, unknown>,
   overrides?: { repositoryId?: number | null },
 ): CreatePodFormState {
-  const { setLastChoices } = usePodCreationStore();
+  const {
+    lastDestroyAfterMinutes,
+    lastDestroyPolicy,
+    lastKnowledgeMounts,
+    setLastChoices,
+  } = usePodCreationStore();
 
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [selectedRepository, setSelectedRepository] = useState<number | null>(null);
@@ -38,6 +45,11 @@ export function useCreatePodForm(
   const [prompt, setPrompt] = useState<string>("");
   const [alias, setAlias] = useState<string>("");
   const [perpetual, setPerpetual] = useState(false);
+  const [destroyPolicy, setDestroyPolicy] = useState<DestroyPolicy>(lastDestroyPolicy);
+  const [destroyAfterMinutes, setDestroyAfterMinutes] = useState(lastDestroyAfterMinutes);
+  const [selectedKnowledgeMounts, setSelectedKnowledgeMounts] = useState<
+    KnowledgeMountSelection[]
+  >(lastKnowledgeMounts ?? []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -86,7 +98,7 @@ export function useCreatePodForm(
       skills.setSelectedSkillSlugs([]);
       setInteractionMode(POD_MODE_PTY);
     }
-  }, [availableAgents, selectedAgent, bundles]);
+  }, [availableAgents, selectedAgent, bundles, skills]);
 
   // Auto-set interaction mode when agent changes based on supported modes
   useEffect(() => {
@@ -136,13 +148,16 @@ export function useCreatePodForm(
     setPrompt("");
     setAlias("");
     setPerpetual(false);
+    setDestroyPolicy("manual");
+    setDestroyAfterMinutes(120);
+    setSelectedKnowledgeMounts([]);
     setError(null);
     setWarning(null);
     setValidationErrors({});
     setRawLayerModeState(false);
     setRawLayerText("");
     prefsInitializedRef.current = false;
-  }, [bundles, prefsInitializedRef]);
+  }, [bundles, skills, prefsInitializedRef]);
 
   // AgentFile Layer: compute from form fields
   const generatedLayer = useMemo(() => {
@@ -161,13 +176,16 @@ export function useCreatePodForm(
       skillSlugs: skills.selectedSkillSlugs.length > 0
         ? skills.selectedSkillSlugs
         : undefined,
-      prompt: prompt || undefined,
+      knowledgeMounts: selectedKnowledgeMounts.length > 0
+        ? selectedKnowledgeMounts
+        : undefined,
+      prompt: prompt.trim() || undefined,
     });
   }, [
     configValues, selectedRepository, repositories, selectedBranch,
     bundles.selectedCredentialName, bundles.selectedRuntimeBundleNames,
     skills.selectedSkillSlugs,
-    interactionMode, prompt,
+    interactionMode, prompt, selectedKnowledgeMounts,
   ]);
 
   const agentfileLayer = rawLayerMode ? rawLayerText : generatedLayer;
@@ -203,6 +221,9 @@ export function useCreatePodForm(
             lastRuntimeBundleNames: bundles.selectedRuntimeBundleNames,
             lastBranchName: selectedBranch || null,
             lastSkillSlugs: skills.selectedSkillSlugs,
+            lastDestroyPolicy: destroyPolicy,
+            lastDestroyAfterMinutes: destroyAfterMinutes,
+            lastKnowledgeMounts: selectedKnowledgeMounts,
           });
           if (result.warning) setWarning(result.warning);
           onSuccess?.(result.pod);
@@ -221,7 +242,8 @@ export function useCreatePodForm(
       selectedAgent, selectedRepository, selectedBranch,
       bundles.selectedCredentialName, bundles.selectedRuntimeBundleNames,
       skills.selectedSkillSlugs,
-      alias, perpetual, agentfileLayer, onSuccess, validate, setLastChoices,
+      alias, perpetual, destroyPolicy, destroyAfterMinutes, selectedKnowledgeMounts,
+      agentfileLayer, onSuccess, validate, setLastChoices,
     ]
   );
 
@@ -231,6 +253,7 @@ export function useCreatePodForm(
     selectedRuntimeBundleNames: bundles.selectedRuntimeBundleNames,
     selectedSkillSlugs: skills.selectedSkillSlugs,
     interactionMode, prompt, alias, perpetual,
+    destroyPolicy, destroyAfterMinutes, selectedKnowledgeMounts,
     envBundles: bundles.envBundles, loadingBundles: bundles.loadingBundles,
     repoSkills: skills.repoSkills, loadingSkills: skills.loadingSkills,
     setSelectedAgent, setSelectedRepository, setSelectedBranch,
@@ -238,6 +261,7 @@ export function useCreatePodForm(
     setSelectedRuntimeBundleNames: bundles.setSelectedRuntimeBundleNames,
     setSelectedSkillSlugs: skills.setSelectedSkillSlugs,
     setInteractionMode, setPrompt, setAlias, setPerpetual, selectedAgentSlug, supportedModes,
+    setDestroyPolicy, setDestroyAfterMinutes, setSelectedKnowledgeMounts,
     loading, error, warning, validationErrors, isValid, reset, validate, submit,
     // AgentFile Layer
     rawLayerMode, rawLayerText, agentfileLayer, setRawLayerMode, setRawLayerText,

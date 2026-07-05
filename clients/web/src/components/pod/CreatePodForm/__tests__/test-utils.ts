@@ -76,6 +76,7 @@ export const mockRunner = {
   current_pods: 0,
   max_concurrent_pods: 5,
   status: "online" as const,
+  available_agents: ["claude-code"],
   capabilities: [],
   is_enabled: true,
   created_at: "2024-01-01T00:00:00Z",

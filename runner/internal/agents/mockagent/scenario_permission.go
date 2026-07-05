@@ -7,7 +7,9 @@ import (
 	"time"
 )
 
-const permissionWaitTimeout = 10 * time.Second
+// 30s absorbs the observed worst-case elicitation resolve propagation
+// (~15s backend→gRPC→runner) without letting a hung runner block forever.
+const permissionWaitTimeout = 30 * time.Second
 
 // scenarioPermissionRequestEdit emits a tool_call followed by an outgoing
 // `session/request_permission` JSON-RPC request and blocks until the runner
@@ -46,13 +48,22 @@ func scenarioPermissionRequestEdit(state *runtimeState, id int64, params json.Ra
 		return state.writer.WriteResponse(id, map[string]any{"stopReason": "end_turn"}, nil)
 	}
 
+	// The verdict-revealing text chunk lets pure-API consumers (items only,
+	// no relay tool-call feed) assert the decision DIRECTION, not just that
+	// the turn completed — deny and allow otherwise look identical there.
 	approved := isPermissionApproved(resp.Result)
 	if approved {
 		if err := emitToolCallUpdate(state.writer, tcID, "Edit", "completed", "Edited 1 line", ""); err != nil {
 			return err
 		}
+		if err := emitContentChunk(state.writer, " Edit approved: applied.", "assistant"); err != nil {
+			return err
+		}
 	} else {
 		if err := emitToolCallUpdate(state.writer, tcID, "Edit", "failed", "", "denied by user"); err != nil {
+			return err
+		}
+		if err := emitContentChunk(state.writer, " Edit denied: skipped.", "assistant"); err != nil {
 			return err
 		}
 	}

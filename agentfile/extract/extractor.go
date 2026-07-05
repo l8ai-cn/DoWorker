@@ -33,6 +33,10 @@ func Extract(prog *parser.Program) *agentfile.AgentSpec {
 			spec.MCP = &agentfile.MCPSpec{Enabled: d.Enabled}
 		case *parser.SkillsDecl:
 			spec.Skills = append(spec.Skills, d.Slugs...)
+		case *parser.KnowledgeDecl:
+			for _, m := range d.Mounts {
+				spec.Knowledge = append(spec.Knowledge, agentfile.KnowledgeSpec{Slug: m.Slug, Mode: m.Mode})
+			}
 		case *parser.SetupDecl:
 			spec.Setup = &agentfile.SetupSpec{Script: d.Script, Timeout: d.Timeout}
 		case *parser.ModeDecl:
@@ -46,6 +50,11 @@ func Extract(prog *parser.Program) *agentfile.AgentSpec {
 			_ = d
 		case *parser.PromptDecl:
 			spec.Prompt = d.Content
+		case *parser.CapabilityDecl:
+			if spec.Capabilities == nil {
+				spec.Capabilities = make(map[string]string)
+			}
+			spec.Capabilities[d.Axis] = d.Value
 		}
 	}
 

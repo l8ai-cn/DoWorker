@@ -64,6 +64,7 @@ The dev pipeline automatically:
 |---------|-----|-------|
 | **Frontend** | http://localhost:10007 | Bazel `next_dev` (host) |
 | **Admin Console** | http://localhost:10011 | Bazel `next_dev` (host) |
+| **web-user** | http://localhost:10020 | Vite dev server (host) |
 | **API** | http://localhost:10000/api | traefik → host backend :10015 |
 | **Relay** | ws://localhost:10000/relay | traefik → host relay :10017 |
 | **gRPC mTLS** | grpcs://localhost:10001 | traefik passthrough → host backend :10016 |
@@ -89,6 +90,7 @@ tail -f deploy/dev/runtime/backend/backend.log   # ibazel + backend stdout
 tail -f deploy/dev/runtime/relay/relay.log
 tail -f deploy/dev/runtime/runner/runner.log
 tail -f deploy/dev/web.log                       # bazel next_dev (web)
+tail -f deploy/dev/web-user.log                  # Vite (web-user)
 docker compose logs -f postgres                  # docker infra
 ```
 

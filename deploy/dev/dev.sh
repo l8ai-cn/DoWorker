@@ -11,6 +11,8 @@
 # 一键启动开发环境：
 #   ./dev.sh                # docker infra + host backend/relay + frontend
 #   ./dev.sh --backend-only # 跳过 frontend (CI 用)
+#   ./dev.sh --coordinator-runners # 平台托管：Coordinator 按需起 runner
+#   ./dev.sh --runners-k8s       # runner 部署到本地 K8s 集群 (Docker Desktop)
 #   ./dev.sh --rebuild-runner   # 重 build runner binary + 重启 runner 容器
 #   ./dev.sh --clean        # 清理所有服务
 #   ./dev.sh --help         # 帮助
@@ -36,6 +38,8 @@ source "$SCRIPT_DIR/lib/worktree.sh"
 source "$SCRIPT_DIR/lib/doctor.sh"
 # shellcheck source=lib/config_gen.sh
 source "$SCRIPT_DIR/lib/config_gen.sh"
+# shellcheck source=lib/coordinator_runners.sh
+source "$SCRIPT_DIR/lib/coordinator_runners.sh"
 # shellcheck source=lib/host_services.sh
 source "$SCRIPT_DIR/lib/host_services.sh"
 # shellcheck source=lib/bootstrap.sh
@@ -62,7 +66,13 @@ main() {
     esac
 
     local backend_only=false
-    [[ "${1:-}" == "--backend-only" ]] && backend_only=true
+    for arg in "$@"; do
+        case "$arg" in
+            --backend-only) backend_only=true ;;
+            --coordinator-runners) export RUNNERS_LAUNCHER=coordinator ;;
+            --runners-k8s) export RUNNERS_LAUNCHER=k8s ;;
+        esac
+    done
 
     print_banner
 
@@ -77,8 +87,21 @@ main() {
     generate_web_admin_env
     generate_runner_ssh_key
 
+    if [[ -n "${RUNNERS_LAUNCHER:-}" ]]; then
+        persist_runners_launcher_mode "$RUNNERS_LAUNCHER"
+        case "$RUNNERS_LAUNCHER" in
+            coordinator)
+                info "Runner 模式: Coordinator 平台托管 (不预起 runner 容器)"
+                stop_compose_runners
+                ;;
+            k8s)
+                info "Runner 模式: Kubernetes 集群 (跳过 docker-compose.runners.yml)"
+                ;;
+        esac
+        source "$ENV_FILE"
+    fi
+
     # Phase 2: bazel-build the runner binary so docker compose's runner
-    # service can COPY it during image build (build context = deploy/dev).
     build_runner_binary
     # Cross-compile the e2e-mock-agent alongside the runner — same build
     # context, same image. Required for mcp-e2e / envbundle-e2e / acp-ui-e2e
@@ -94,11 +117,15 @@ main() {
     init_gitea
     setup_gitea_ssh_config
 
-    # Phase 4: host services. backend must come up before runner can
-    # complete its mTLS handshake — runner container connects via
+    # Phase 4: host services. backend must come up before runners can
+    # complete their mTLS handshakes — runner containers connect via
     # traefik:9443, traefik passthroughs to host backend.
     start_backend_host
     start_relay_host
+
+    if runners_k8s_enabled; then
+        deploy_runners_k8s || warn "K8s runner 部署失败 — 检查 Docker Desktop Kubernetes 是否启用"
+    fi
 
     # Phase 5: frontends (skipped in CI).
     if [[ "$backend_only" == "true" ]]; then
@@ -106,6 +133,7 @@ main() {
     else
         start_frontend
         start_admin_frontend
+        start_web_user
     fi
 
     show_result

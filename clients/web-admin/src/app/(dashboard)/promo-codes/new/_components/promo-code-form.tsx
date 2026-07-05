@@ -39,22 +39,21 @@ export function PromoCodeForm({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Tag className="h-5 w-5" />
-            Promo Code Details
+            优惠码详情
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <PromoCodeBasicFields formData={formData} onFormChange={onFormChange} />
           <PromoCodeLimitsFields formData={formData} onFormChange={onFormChange} />
 
-          {/* Actions */}
           <div className="flex justify-end gap-3 pt-4">
             <Link href="/promo-codes">
               <Button type="button" variant="outline">
-                Cancel
+                取消
               </Button>
             </Link>
             <Button type="submit" disabled={isCreating}>
-              {isCreating ? "Creating..." : "Create Promo Code"}
+              {isCreating ? "创建中..." : "创建优惠码"}
             </Button>
           </div>
         </CardContent>

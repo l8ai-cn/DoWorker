@@ -56,5 +56,5 @@ export {
   getTokenUsageService, getSSOService, getUserApiService,
   getUserCredentialService, getEnvBundleService, getOrgApiService, getAgentService,
   getTicketRelationsService, getFileService, getSupportTicketService,
-  getAuthConnectService, getBlockstoreService,
+  getAuthConnectService, getBlockstoreService, getKnowledgeBaseService,
 } from "@agentsmesh/service-runtime";

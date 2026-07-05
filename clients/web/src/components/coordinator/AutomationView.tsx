@@ -14,7 +14,7 @@ import { ExecutionBoard } from "./ExecutionBoard";
 
 export function AutomationView() {
   const t = useTranslations("automation");
-  const { projects, executions, loading, error, loadProjects, loadExecutions, runNow, deleteProject, updateProject } =
+  const { projects, executions, runResults, loading, error, loadProjects, loadExecutions, runNow, deleteProject, updateProject } =
     useCoordinatorStore();
   const [createOpen, setCreateOpen] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
@@ -100,6 +100,14 @@ export function AutomationView() {
                     {t("actions.delete")}
                   </Button>
                 </div>
+                {runResults[current.id] && (
+                  <div className="mb-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                    <div>{t("run.scanned", { count: runResults[current.id].scanned })}</div>
+                    <div>{t("run.candidates", { count: runResults[current.id].candidates })}</div>
+                    <div>{t("run.dispatched", { count: runResults[current.id].dispatched })}</div>
+                    <div>{t("run.skipped", { count: runResults[current.id].skipped })}</div>
+                  </div>
+                )}
                 <ExecutionBoard executions={executions[current.id] ?? []} />
               </>
             )}

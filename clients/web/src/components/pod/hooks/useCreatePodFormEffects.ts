@@ -31,6 +31,8 @@ export function usePrefsAutoFill(
 
     if (lastAgentSlug && availableAgents.find(a => a.slug === lastAgentSlug)) {
       setSelectedAgent(lastAgentSlug);
+    } else if (availableAgents.length > 0) {
+      setSelectedAgent(availableAgents[0].slug);
     }
     if (
       !overrideRepositoryId &&

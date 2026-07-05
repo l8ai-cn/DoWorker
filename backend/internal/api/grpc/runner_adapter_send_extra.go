@@ -114,3 +114,37 @@ func (a *GRPCRunnerAdapter) SendUpdatePodPerpetual(runnerID int64, podKey string
 	}
 	return conn.SendMessage(msg)
 }
+
+func (a *GRPCRunnerAdapter) SendUpdatePodPolicyRules(runnerID int64, podKey string, rules []*runnerv1.PolicyRuleSnapshot) error {
+	conn := a.connManager.GetConnection(runnerID)
+	if conn == nil {
+		return status.Errorf(codes.NotFound, "runner %d not connected", runnerID)
+	}
+	msg := &runnerv1.ServerMessage{
+		Payload: &runnerv1.ServerMessage_UpdatePodPolicyRules{
+			UpdatePodPolicyRules: &runnerv1.UpdatePodPolicyRulesCommand{
+				PodKey:      podKey,
+				PolicyRules: rules,
+			},
+		},
+		Timestamp: time.Now().UnixMilli(),
+	}
+	return conn.SendMessage(msg)
+}
+
+func (a *GRPCRunnerAdapter) SendAcpRelay(runnerID int64, podKey, payloadJSON string) error {
+	conn := a.connManager.GetConnection(runnerID)
+	if conn == nil {
+		return status.Errorf(codes.NotFound, "runner %d not connected", runnerID)
+	}
+	msg := &runnerv1.ServerMessage{
+		Payload: &runnerv1.ServerMessage_AcpRelay{
+			AcpRelay: &runnerv1.AcpRelayCommand{
+				PodKey:      podKey,
+				PayloadJson: payloadJSON,
+			},
+		},
+		Timestamp: time.Now().UnixMilli(),
+	}
+	return conn.SendMessage(msg)
+}

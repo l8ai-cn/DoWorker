@@ -6,6 +6,7 @@ go_library(
         "control_request.go",
         "handler.go",
         "handler_stream.go",
+        "handler_usage.go",
         "parser.go",
         "register.go",
         "transport.go",

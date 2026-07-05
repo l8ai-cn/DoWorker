@@ -9,6 +9,7 @@ interface SelectContextValue {
   onValueChange: (value: string) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
+  disabled: boolean;
 }
 
 const SelectContext = React.createContext<SelectContextValue | undefined>(undefined);
@@ -53,7 +54,7 @@ export function Select({
   );
 
   return (
-    <SelectContext.Provider value={{ value, onValueChange: handleValueChange, open, setOpen }}>
+    <SelectContext.Provider value={{ value, onValueChange: handleValueChange, open, setOpen, disabled: Boolean(disabled) }}>
       <div className={cn("relative inline-block w-full", disabled && "opacity-50 pointer-events-none")}>
         {children}
       </div>
@@ -61,18 +62,20 @@ export function Select({
   );
 }
 
-export interface SelectTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  children?: React.ReactNode;
-}
+export interface SelectTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> { children?: React.ReactNode; }
 
 export const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
-  ({ className, children, ...props }, ref) => {
-    const { open, setOpen } = useSelect();
+  ({ className, children, disabled: triggerDisabled, ...props }, ref) => {
+    const { open, setOpen, disabled } = useSelect();
+    const isDisabled = disabled || Boolean(triggerDisabled);
 
     return (
       <button
         type="button"
         ref={ref}
+        disabled={isDisabled}
+        aria-haspopup="listbox"
+        aria-expanded={isDisabled ? undefined : open}
         className={cn(
           "flex h-9 w-full items-center justify-between rounded-md bg-surface-raised px-3 py-2 text-sm shadow-xs ring-1 ring-border/35 motion-interactive",
           "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/35 focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--ring)_12%,transparent)]",
@@ -90,9 +93,7 @@ export const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerPr
 );
 SelectTrigger.displayName = "SelectTrigger";
 
-export interface SelectValueProps {
-  placeholder?: string;
-}
+export interface SelectValueProps { placeholder?: string; }
 
 export function SelectValue({ placeholder }: SelectValueProps) {
   const { value } = useSelect();
@@ -104,9 +105,7 @@ export function SelectValue({ placeholder }: SelectValueProps) {
   );
 }
 
-export interface SelectContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
-}
+export interface SelectContentProps extends React.HTMLAttributes<HTMLDivElement> { children: React.ReactNode; }
 
 export function SelectContent({ children, className, ...props }: SelectContentProps) {
   const { open, setOpen } = useSelect();
@@ -147,6 +146,7 @@ export function SelectContent({ children, className, ...props }: SelectContentPr
   return (
     <div
       ref={contentRef}
+      role="listbox"
       className={cn(
         "absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-popover text-popover-foreground shadow-[var(--shadow-panel)] ring-1 ring-border/20",
         "animate-in fade-in-0 zoom-in-95",
@@ -171,6 +171,9 @@ export function SelectItem({ value, children, className, disabled, ...props }: S
 
   return (
     <div
+      role="option"
+      aria-selected={isSelected}
+      tabIndex={disabled ? undefined : 0}
       className={cn(
         "relative flex w-full cursor-pointer select-none items-center rounded-md py-1.5 pl-2 pr-8 text-sm outline-none motion-interactive",
         "hover:bg-accent hover:text-accent-foreground",

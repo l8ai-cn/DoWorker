@@ -15,6 +15,9 @@ func (t *transport) handleSystem(msg *message) {
 		t.sessionMu.Unlock()
 
 		t.logger.Info("Claude session initialized", "session_id", msg.SessionID)
+		if msg.SessionID != "" && t.callbacks.OnSessionID != nil {
+			t.callbacks.OnSessionID(msg.SessionID)
+		}
 	case "api_retry":
 		if t.callbacks.OnLog != nil {
 			t.callbacks.OnLog("warn", "Claude API retry in progress")
@@ -99,6 +102,7 @@ func (t *transport) handleAssistant(msg *message) {
 	t.sessionMu.RLock()
 	sid := t.sessionID
 	t.sessionMu.RUnlock()
+	t.emitAssistantUsage(sid, msg.Message)
 
 	for _, block := range assistantMsg.Content {
 		switch block.Type {

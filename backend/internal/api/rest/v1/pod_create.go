@@ -39,6 +39,15 @@ type CreatePodRequest struct {
 
 	// Perpetual mode: Runner auto-restarts agent on clean exit
 	Perpetual *bool `json:"perpetual"`
+
+	// Knowledge base mounts; win over Agentfile KNOWLEDGE and agent defaults
+	KnowledgeMounts []PodKnowledgeMountRequest `json:"knowledge_mounts,omitempty"`
+}
+
+// PodKnowledgeMountRequest selects one org knowledge base for the new pod.
+type PodKnowledgeMountRequest struct {
+	Slug string `json:"slug"`
+	Mode string `json:"mode,omitempty"` // ro | rw; empty defaults to ro
 }
 
 // CreatePod creates a new pod
@@ -81,6 +90,9 @@ func (h *PodHandler) CreatePod(c *gin.Context) {
 		SourcePodKey:       req.SourcePodKey,
 		ResumeAgentSession: req.ResumeAgentSession,
 		Perpetual:          req.Perpetual != nil && *req.Perpetual,
+	}
+	for _, m := range req.KnowledgeMounts {
+		orchReq.KnowledgeMounts = append(orchReq.KnowledgeMounts, agentpod.KnowledgeMountRequest{Slug: m.Slug, Mode: m.Mode})
 	}
 
 	result, err := h.orchestrator.CreatePod(c.Request.Context(), orchReq)

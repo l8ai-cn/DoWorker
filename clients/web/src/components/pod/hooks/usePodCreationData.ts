@@ -6,6 +6,8 @@ import {
 } from "@/lib/api";
 import { listRunners } from "@/lib/api/facade/runnerConnect";
 import { listAgents } from "@/lib/api/facade/agentConnect";
+import { agentsSupportedByRunners } from "@/lib/runner-agent-capabilities";
+import { sortAgentsForTaskEntry } from "@/lib/task-entry-agent-order";
 import { readCurrentOrg } from "@/stores/auth";
 import { useRepositories, useRepositoryStore } from "@/stores/repository";
 
@@ -103,13 +105,8 @@ export function usePodCreationData(enabled: boolean): PodCreationData {
   }, [runners, selectedRunnerId]);
 
   const availableAgents = useMemo((): AgentData[] => {
-    if (selectedRunner?.available_agents?.length) {
-      return agents.filter(agent => selectedRunner.available_agents!.includes(agent.slug));
-    }
-
-    const allSlugs = new Set(runners.flatMap(r => r.available_agents || []));
-    if (allSlugs.size === 0) return [];
-    return agents.filter(agent => allSlugs.has(agent.slug));
+    const supported = agentsSupportedByRunners(agents, selectedRunner ? [selectedRunner] : runners);
+    return sortAgentsForTaskEntry(supported);
   }, [selectedRunner, runners, agents]);
 
   return {

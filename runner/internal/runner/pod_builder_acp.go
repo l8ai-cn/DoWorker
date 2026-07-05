@@ -44,6 +44,7 @@ func (b *PodBuilder) buildACPPod(_ context.Context, sandboxRoot, workingDir, bra
 		WorkDir:         workingDir,
 		LaunchEnv:       envSlice,
 		Perpetual:       b.cmd.Perpetual,
+		PolicyRules:     policyRulesFromProto(b.cmd.PolicyRules),
 		StartedAt:       time.Now(),
 		Status:          PodStatusInitializing,
 		// ACPClient, IO are set by wireAndStartACPPod()

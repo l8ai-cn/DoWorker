@@ -107,6 +107,39 @@ func (t *transport) NewSession(_ string, mcpServers map[string]any) (string, err
 	return result.Thread.ID, nil
 }
 
+func (t *transport) ResumeSession(_ string, mcpServers map[string]any, externalSessionID string) (string, error) {
+	if externalSessionID == "" {
+		return "", fmt.Errorf("thread id required")
+	}
+	params := map[string]any{"threadId": externalSessionID}
+	if mcpServers != nil {
+		params["mcpServers"] = mcpServers
+	}
+	pr, err := t.tracker.SendRequest("thread/resume", params)
+	if err != nil {
+		return "", fmt.Errorf("write thread/resume: %w", err)
+	}
+	resp, err := t.tracker.WaitResponse(pr, 30*time.Second)
+	if err != nil {
+		return "", fmt.Errorf("wait thread/resume response: %w", err)
+	}
+	if resp.Error != nil {
+		return "", fmt.Errorf("thread/resume error: code=%d msg=%s",
+			resp.Error.Code, resp.Error.Message)
+	}
+	var result threadStartResult
+	if err := json.Unmarshal(resp.Result, &result); err != nil {
+		return "", fmt.Errorf("parse thread/resume result: %w", err)
+	}
+	if result.Thread.ID == "" {
+		result.Thread.ID = externalSessionID
+	}
+	t.sessionMu.Lock()
+	t.sessionID = result.Thread.ID
+	t.sessionMu.Unlock()
+	return result.Thread.ID, nil
+}
+
 func (t *transport) SendPrompt(sessionID, prompt string) error {
 	params := turnStartParams{
 		ThreadID: sessionID,

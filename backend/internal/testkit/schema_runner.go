@@ -85,6 +85,7 @@ func podTableDDLs() []string {
 			model TEXT, permission_mode TEXT, think_level TEXT,
 			error_code TEXT, error_message TEXT, title TEXT, alias TEXT,
 			session_id TEXT, source_pod_key TEXT,
+			external_session_id TEXT,
 			perpetual BOOLEAN NOT NULL DEFAULT FALSE,
 			restart_count INTEGER NOT NULL DEFAULT 0,
 			last_restart_at DATETIME,

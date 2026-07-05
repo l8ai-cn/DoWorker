@@ -78,6 +78,10 @@ func (t *ACPTransport) SendPrompt(sessionID, prompt string) error {
 		} else if resp.Error != nil {
 			t.logger.Error("prompt error",
 				"code", resp.Error.Code, "message", resp.Error.Message)
+		} else {
+			// Usage must land before StateIdle: the backend bridge reports
+			// accumulated usage on the processing→idle transition.
+			t.emitPromptUsage(sessionID, resp.Result)
 		}
 		// Prompt response means the agent finished this turn.
 		if t.handler.callbacks.OnStateChange != nil {
@@ -86,6 +90,25 @@ func (t *ACPTransport) SendPrompt(sessionID, prompt string) error {
 	}()
 
 	return nil
+}
+
+// emitPromptUsage fires OnUsage when the session/prompt response result carries
+// a `usage` block ({model?, inputTokens, outputTokens, cacheReadTokens?,
+// cacheCreationTokens?}). Agents that don't report usage simply omit it.
+func (t *ACPTransport) emitPromptUsage(sessionID string, result json.RawMessage) {
+	if t.handler.callbacks.OnUsage == nil || len(result) == 0 {
+		return
+	}
+	var payload struct {
+		Usage *TurnUsage `json:"usage"`
+	}
+	if err := json.Unmarshal(result, &payload); err != nil || payload.Usage == nil {
+		return
+	}
+	if payload.Usage.InputTokens == 0 && payload.Usage.OutputTokens == 0 {
+		return
+	}
+	t.handler.callbacks.OnUsage(sessionID, *payload.Usage)
 }
 
 // RespondToPermission sends a JSON-RPC response to a session/request_permission request.

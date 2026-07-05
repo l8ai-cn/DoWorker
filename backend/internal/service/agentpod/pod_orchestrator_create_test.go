@@ -439,7 +439,7 @@ func TestSystemConfigKeys_SSOT(t *testing.T) {
 		{"resume_without_session", true, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			overrides := newSystemOverrides("sid-1", tc.isResume, tc.resumeAgentSession)
+			overrides := newSystemOverrides("sid-1", tc.isResume, tc.resumeAgentSession, "")
 			for key := range overrides {
 				_, ok := systemConfigKeySet[key]
 				assert.True(t, ok, "newSystemOverrides emitted non-system key %q", key)

@@ -70,7 +70,7 @@ export default function RegisterPage() {
       footer={
         <>
           {t("auth.registerPage.alreadyHaveAccount")}{" "}
-          <Link href="/login" className="text-[var(--azure-cyan)] hover:underline">
+          <Link href="/login" className="auth-link">
             {t("auth.registerPage.signIn")}
           </Link>
         </>
@@ -110,7 +110,7 @@ export default function RegisterPage() {
             value={formData.username} onChange={handleChange}
             pattern="[a-zA-Z0-9_-]+"
             required minLength={3} maxLength={50} />
-          <p className="text-xs text-[var(--azure-text-muted)]">
+          <p className="text-xs text-muted-foreground">
             {t("auth.registerPage.usernameHint")}
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function RegisterPage() {
             placeholder={t("auth.registerPage.passwordPlaceholder")}
             value={formData.password} onChange={handleChange}
             required minLength={8} />
-          <p className="text-xs text-[var(--azure-text-muted)]">
+          <p className="text-xs text-muted-foreground">
             {t("auth.registerPage.passwordHint")}
           </p>
         </div>
@@ -137,18 +137,18 @@ export default function RegisterPage() {
             value={formData.confirmPassword} onChange={handleChange} required />
         </div>
 
-        <Button type="submit" className="w-full azure-gradient-bg hover:opacity-90 font-headline font-bold uppercase tracking-wider" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading}>
           {loading ? t("auth.registerPage.creatingAccount") : t("auth.registerPage.createAccount")}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-xs text-[var(--azure-text-muted)]">
+      <p className="mt-6 text-center text-xs text-muted-foreground">
         {t("auth.registerPage.termsText")}{" "}
-        <Link href="/terms" className="text-[var(--azure-cyan)] hover:underline">
+        <Link href="/terms" className="auth-link">
           {t("auth.registerPage.termsOfService")}
         </Link>{" "}
         {t("auth.registerPage.and")}{" "}
-        <Link href="/privacy" className="text-[var(--azure-cyan)] hover:underline">
+        <Link href="/privacy" className="auth-link">
           {t("auth.registerPage.privacyPolicy")}
         </Link>
       </p>

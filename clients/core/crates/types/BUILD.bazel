@@ -39,6 +39,7 @@ rust_library(
         "//proto/file/v1:file_rust_proto",
         "//proto/grant/v1:grant_rust_proto",
         "//proto/invitation/v1:invitation_rust_proto",
+        "//proto/knowledgebase/v1:knowledgebase_rust_proto",
         "//proto/license/v1:license_rust_proto",
         "//proto/loop/v1:loop_rust_proto",
         "//proto/loop_state/v1:loop_state_rust_proto",

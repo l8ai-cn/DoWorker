@@ -48,5 +48,36 @@ DEV_SCRIPTS = [
             "rebuild_runner",
             ["--rebuild-runner"],
         ),
+        (
+            "up_coordinator_runners",
+            ["--coordinator-runners"],
+        ),
+        (
+            "up_k8s_runners",
+            ["--runners-k8s"],
+        ),
     ]
 ]
+
+sh_test(
+    name = "runner_runtime_contract_test",
+    srcs = ["runner_runtime_contract_test.sh"],
+    data = [
+        "docker-compose.runners.yml",
+        "docker-compose.yml",
+        "runner.Dockerfile",
+        "runner-entrypoint.sh",
+        "seed/e2e_echo.sql",
+    ] + glob(["lib/*.sh"]),
+)
+
+sh_test(
+    name = "hive_smoke",
+    srcs = ["hive_smoke.sh"],
+    data = ["//output:hive_smoke_scripts"],
+    tags = [
+        "hive",
+        "local",
+        "manual",
+    ],
+)

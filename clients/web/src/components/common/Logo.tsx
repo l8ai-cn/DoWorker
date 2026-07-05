@@ -14,8 +14,8 @@ export function Logo({ className }: LogoProps) {
     >
       <defs>
         <linearGradient id="am-logo-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FF6A24" />
-          <stop offset="100%" stopColor="#FF5701" />
+          <stop offset="0%" stopColor="#0F766E" />
+          <stop offset="100%" stopColor="#0B5F59" />
         </linearGradient>
       </defs>
       <rect width="400" height="400" rx="32" fill="url(#am-logo-bg)" />
@@ -27,11 +27,11 @@ export function Logo({ className }: LogoProps) {
         <line x1="118" y1="118" x2="282" y2="282" />
         <line x1="282" y1="118" x2="118" y2="282" />
       </g>
-      <circle cx="200" cy="200" r="34" fill="#FFB020" />
-      <circle cx="118" cy="118" r="26" fill="#FFF1EA" />
+      <circle cx="200" cy="200" r="34" fill="#5EEAD4" />
+      <circle cx="118" cy="118" r="26" fill="#CCFBF1" />
       <circle cx="282" cy="118" r="26" fill="#FFFFFF" />
       <circle cx="118" cy="282" r="26" fill="#FFFFFF" />
-      <circle cx="282" cy="282" r="26" fill="#FFF1EA" />
+      <circle cx="282" cy="282" r="26" fill="#CCFBF1" />
     </svg>
   );
 }

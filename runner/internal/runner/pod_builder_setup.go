@@ -61,6 +61,17 @@ func (b *PodBuilder) setup(ctx context.Context) (string, string, string, error) 
 		sandboxOwned = false
 	}
 
+	// 2.4. Clone knowledge base mounts into the (final) sandbox root. Must run
+	// after the LocalPathStrategy override so resume pods reuse existing clones.
+	if err := b.setupKnowledgeMounts(ctx, sandboxRoot); err != nil {
+		if sandboxOwned {
+			if rmErr := fsutil.RemoveAll(sandboxRoot); rmErr != nil {
+				slog.WarnContext(ctx, "Failed to clean up sandbox after knowledge mount error", "path", sandboxRoot, "error", rmErr)
+			}
+		}
+		return "", "", "", err
+	}
+
 	// 2.5. Prepare agent-specific home directories (registered via agentkit.RegisterAgentHome).
 	// Must run before createFiles so that copied user config can be merged with platform config.
 	if err := b.prepareAgentHome(sandboxRoot, result.WorkingDir); err != nil {

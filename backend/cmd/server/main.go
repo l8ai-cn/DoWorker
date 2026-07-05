@@ -203,6 +203,9 @@ func main() {
 	cleanupMkt := startMarketplaceWorker(services)
 	defer cleanupMkt()
 
+	cleanupKbSync := startKnowledgeBaseSyncWorker(services, cfg)
+	defer cleanupKbSync()
+
 	subscriptionScheduler := startSubscriptionJobs(db, cfg, services.email, appLogger.Logger)
 
 	// Start HTTP server (Connect-RPC handlers wrap the Gin router)

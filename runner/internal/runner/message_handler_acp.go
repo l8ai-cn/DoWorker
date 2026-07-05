@@ -10,6 +10,7 @@ import (
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/anthropics/agentsmesh/runner/internal/acp"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/anthropics/agentsmesh/runner/internal/policy"
 	"github.com/anthropics/agentsmesh/runner/internal/relay"
 )
 
@@ -46,21 +47,24 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 	log := logger.Pod()
 	podKey := cmd.PodKey
 	conn := h.conn
+	bridge := newAcpBackendBridge()
 
 	// Pre-declare so callbacks can capture it (NewClient returns the same pointer).
 	var acpClient *acp.ACPClient
 
 	// Create ACPClient with event callbacks that forward via Relay.
 	acpClient = acp.NewClient(acp.ClientConfig{
-		Command:       pod.LaunchCommand,
-		Args:          pod.LaunchArgs,
-		WorkDir:       pod.WorkDir,
-		Env:           pod.LaunchEnv,
-		Logger:        log.With("pod_key", podKey),
-		TransportType: inferTransportType(pod.LaunchCommand),
+		Command:                 pod.LaunchCommand,
+		Args:                    pod.LaunchArgs,
+		WorkDir:                 pod.WorkDir,
+		Env:                     pod.LaunchEnv,
+		Logger:                  log.With("pod_key", podKey),
+		TransportType:           inferTransportType(pod.LaunchCommand),
+		ResumeExternalSessionID: resumeExternalSessionFromEnv(pod.LaunchEnv),
 		Callbacks: acp.EventCallbacks{
 			OnContentChunk: func(sessionID string, chunk acp.ContentChunk) {
 				sendAcpViaRelay(pod, "contentChunk", sessionID, chunk)
+				bridge.onChunk(conn, podKey, chunk)
 			},
 			OnToolCallUpdate: func(sessionID string, update acp.ToolCallUpdate) {
 				sendAcpViaRelay(pod, "toolCallUpdate", sessionID, update)
@@ -75,15 +79,26 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 				sendAcpViaRelay(pod, "thinkingUpdate", sessionID, update)
 			},
 			OnPermissionRequest: func(req acp.PermissionRequest) {
-				// Track pending permission for snapshots.
+				path := permissionPathFromArgs(req.ArgumentsJSON)
+				switch policy.Evaluate(pod.PolicyRules, req.ToolName, path) {
+				case policy.VerdictAllow:
+					_ = acpClient.RespondToPermission(req.RequestID, true, nil)
+					return
+				case policy.VerdictDeny:
+					_ = acpClient.RespondToPermission(req.RequestID, false, nil)
+					return
+				}
 				acpClient.AddPendingPermission(req)
 				sendAcpViaRelay(pod, "permissionRequest", req.SessionID, req)
+				bridge.onPermission(conn, podKey, req)
+			},
+			OnUsage: func(_ string, usage acp.TurnUsage) {
+				bridge.onUsage(podKey, usage)
 			},
 			OnStateChange: func(newState string) {
-				// Lifecycle status update via gRPC (backend updates DB).
 				backendStatus := mapACPState(newState)
 				_ = conn.SendAgentStatus(podKey, backendStatus)
-				// UI state notification via Relay only.
+				bridge.onStateChange(h, pod, conn, podKey, newState)
 				sendAcpViaRelay(pod, "sessionState", "", map[string]string{"state": newState})
 				// Notify PodIO subscribers (e.g. Autopilot StateDetectorCoordinator).
 				if sa, ok := pod.IO.(SessionAccess); ok {
@@ -100,6 +115,11 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 			},
 			OnLoopalExt: func(sessionID, kind string, data json.RawMessage) {
 				sendAcpViaRelay(pod, "loopal."+kind, sessionID, data)
+			},
+			OnSessionID: func(sessionID string) {
+				if sessionID != "" {
+					_ = conn.SendExternalSessionCaptured(podKey, sessionID)
+				}
 			},
 			OnExit: func(exitCode int) {
 				h.handleACPExit(podKey, exitCode)
@@ -131,6 +151,9 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 		h.sendPodError(cmd.PodKey, fmt.Sprintf("failed to start ACP agent: %v", err))
 		return fmt.Errorf("failed to start ACP agent: %w", err)
 	}
+	if len(cmd.DeclaredCapabilities) > 0 {
+		acpClient.CalibrateDeclaredCapabilities(podKey, cmd.DeclaredCapabilities)
+	}
 
 	pod.SetStatus(PodStatusRunning)
 
@@ -148,7 +171,8 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 	mcpServers := acp.BuildMCPServersConfig(mcpPort)
 	if err := acpClient.NewSession(mcpServers); err != nil {
 		log.Error("Failed to create ACP session", "pod_key", podKey, "error", err)
-		// Don't fail pod creation — session can be retried via prompt
+	} else if sid := acpClient.SessionID(); sid != "" {
+		_ = conn.SendExternalSessionCaptured(podKey, sid)
 	}
 
 	// Send prompt if provided.

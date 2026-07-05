@@ -184,7 +184,7 @@ start_backend_host() {
     # are rejected, and listing the IP literal would short-circuit that
     # check (allowlist is exact-match before the SSRF policy fires).
     export BLOCKSTORE_WEBHOOK_ALLOW_HOSTS="host.docker.internal,host.lan,localhost"
-    export CORS_ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT}"
+    export CORS_ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020}"
     export LOG_LEVEL=debug
     export LOG_FORMAT=text
     export LOG_FILE="$repo_root/backend/logs/agentsmesh.log"
@@ -214,9 +214,26 @@ start_backend_host() {
     # so prod ListAgents responses stay clean of test fixtures.
     # See ADR 2026-05-26-test-fixture-isolation.
     export AGENTSMESH_INCLUDE_INTERNAL_AGENTS=true
+    # Knowledge bases: internal Gitea provisioning. Token is issued by
+    # gitea/init-gitea.sh into runtime/gitea/backend-token; when absent the
+    # backend disables the KB feature (nil service).
+    local kb_token_file="$SCRIPT_DIR/runtime/gitea/backend-token"
+    if [[ -f "$kb_token_file" ]]; then
+        export KB_GITEA_URL="http://localhost:${GITEA_HTTP_PORT}"
+        export KB_GITEA_TOKEN="$(cat "$kb_token_file")"
+        # Pods clone KBs from inside docker runner containers, where
+        # localhost is the container itself — host.docker.internal routes
+        # to the host-published gitea port (same convention as
+        # GRPC_ENDPOINT in docker-compose.runners.yml).
+        export KB_GITEA_CLONE_URL="http://host.docker.internal:${GITEA_HTTP_PORT}"
+    fi
     export COORDINATOR_RUNNER_LAUNCHER=docker
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR="$SCRIPT_DIR"
-    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICE=runner
+    export COORDINATOR_RUNNER_DOCKER_COMPOSE_FILES=docker-compose.yml,docker-compose.runners.yml
+    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal"
+    if coordinator_runners_enabled; then
+        export_coordinator_runner_env
+    fi
 
     info "构建 backend 二进制 (bazel build)..."
     # Include the go_proto_library so protoc + protoc-gen-go-grpc C++

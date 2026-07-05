@@ -631,7 +631,11 @@
         "day": "Day",
         "week": "Week",
         "month": "Month"
-      }
+      },
+      "liveSessionsTitle": "Active session cost (live)",
+      "liveSessionsHint": "USD estimate from running pods via pod_session_usage; merged into token totals above.",
+      "liveSessionsEmpty": "No active session usage recorded",
+      "estimatedCost": "Est. cost (USD)"
     },
     "notifications": {
       "title": "Push Notifications",

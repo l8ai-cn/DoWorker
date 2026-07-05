@@ -631,7 +631,11 @@
         "day": "日",
         "week": "周",
         "month": "月"
-      }
+      },
+      "liveSessionsTitle": "活跃会话成本（实时）",
+      "liveSessionsHint": "来自运行中 Pod 的 USD 估算（pod_session_usage），已合并进上方 Token 汇总。",
+      "liveSessionsEmpty": "暂无活跃会话用量",
+      "estimatedCost": "估算成本 (USD)"
     },
     "notifications": {
       "title": "推送通知",

@@ -159,7 +159,6 @@ func (h *RunnerMessageHandler) OnTerminatePod(req client.TerminatePodRequest) er
 }
 
 // OnUpdatePodPerpetual handles update_pod_perpetual command from server.
-// Updates the pod's in-memory Perpetual flag so the next exit uses the correct behavior.
 func (h *RunnerMessageHandler) OnUpdatePodPerpetual(cmd *runnerv1.UpdatePodPerpetualCommand) error {
 	log := logger.Pod()
 	pod, ok := h.podStore.Get(cmd.PodKey)
@@ -170,6 +169,19 @@ func (h *RunnerMessageHandler) OnUpdatePodPerpetual(cmd *runnerv1.UpdatePodPerpe
 	pod.Perpetual = cmd.Perpetual
 	h.podStore.Put(cmd.PodKey, pod)
 	log.Info("Pod perpetual mode updated", "pod_key", cmd.PodKey, "perpetual", cmd.Perpetual)
+	return nil
+}
+
+func (h *RunnerMessageHandler) OnUpdatePodPolicyRules(cmd *runnerv1.UpdatePodPolicyRulesCommand) error {
+	log := logger.Pod()
+	pod, ok := h.podStore.Get(cmd.GetPodKey())
+	if !ok {
+		log.Warn("Pod not found for policy update", "pod_key", cmd.GetPodKey())
+		return fmt.Errorf("pod not found: %s", cmd.GetPodKey())
+	}
+	pod.PolicyRules = policyRulesFromProto(cmd.GetPolicyRules())
+	h.podStore.Put(cmd.GetPodKey(), pod)
+	log.Info("Pod policy rules updated", "pod_key", cmd.GetPodKey(), "rules", len(pod.PolicyRules))
 	return nil
 }
 

@@ -1,6 +1,7 @@
 package doagent
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -11,27 +12,49 @@ import (
 const rpcTimeout = 30 * time.Second
 
 func (t *transport) NewSession(cwd string, mcpServers map[string]any) (string, error) {
-	sessionID := uuid.NewString()
+	return t.startSession("session/new", cwd, "", mcpServers)
+}
+
+func (t *transport) ResumeSession(cwd string, mcpServers map[string]any, externalSessionID string) (string, error) {
+	return t.startSession("session/resume", cwd, externalSessionID, mcpServers)
+}
+
+func (t *transport) startSession(method, cwd, sessionID string, mcpServers map[string]any) (string, error) {
 	servers := acpFormatMCPServers(mcpServers)
 	params := map[string]any{
-		"sessionId":  sessionID,
 		"cwd":        cwd,
 		"mcpServers": servers,
 	}
+	if sessionID != "" {
+		params["sessionId"] = sessionID
+	} else {
+		params["sessionId"] = uuid.NewString()
+	}
 
-	pr, err := t.tracker.SendRequest("session/new", params)
+	pr, err := t.tracker.SendRequest(method, params)
 	if err != nil {
-		return "", fmt.Errorf("write session/new: %w", err)
+		return "", fmt.Errorf("write %s: %w", method, err)
 	}
 
 	resp, err := t.tracker.WaitResponse(pr, rpcTimeout)
 	if err != nil {
-		return "", fmt.Errorf("wait session/new response: %w", err)
+		return "", fmt.Errorf("wait %s response: %w", method, err)
 	}
 	if resp.Error != nil {
-		return "", fmt.Errorf("session/new error: code=%d msg=%s", resp.Error.Code, resp.Error.Message)
+		return "", fmt.Errorf("%s error: code=%d msg=%s", method, resp.Error.Code, resp.Error.Message)
 	}
-	return sessionID, nil
+	var result struct {
+		SessionID string `json:"sessionId"`
+	}
+	if len(resp.Result) > 0 {
+		_ = json.Unmarshal(resp.Result, &result)
+	}
+	if result.SessionID == "" {
+		if sid, ok := params["sessionId"].(string); ok {
+			result.SessionID = sid
+		}
+	}
+	return result.SessionID, nil
 }
 
 func (t *transport) SendPrompt(sessionID, prompt string) error {

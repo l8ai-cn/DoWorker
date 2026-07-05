@@ -17,6 +17,7 @@ export interface AgentData {
   is_builtin: boolean;
   is_active: boolean;
   supported_modes?: string | string[];
+  capabilities?: Record<string, string>;
 }
 
 export interface ConfigFieldOption {

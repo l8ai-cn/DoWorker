@@ -18,9 +18,10 @@ type Config struct {
 	Payment     PaymentConfig
 	PKI         PKIConfig
 	GRPC        GRPCConfig
-	Admin       AdminConfig
-	Relay       RelayConfig
-	Marketplace MarketplaceConfig
+	Admin         AdminConfig
+	Relay         RelayConfig
+	Marketplace   MarketplaceConfig
+	KnowledgeBase KnowledgeBaseConfig
 
 	PrimaryDomain string // Primary domain (e.g., "localhost:10000" or "agentsmesh.ai")
 	UseHTTPS      bool   // Use HTTPS/WSS protocols
@@ -178,6 +179,14 @@ func Load() (*Config, error) {
 			SyncInterval:    getEnvDuration("MARKETPLACE_SYNC_INTERVAL", 1*time.Hour),
 			RegistryEnabled: getEnvBool("MCP_REGISTRY_ENABLED", true),
 			RegistryURL:     getEnv("MCP_REGISTRY_URL", "https://registry.modelcontextprotocol.io"),
+		},
+
+		KnowledgeBase: KnowledgeBaseConfig{
+			GiteaURL:     getEnv("KB_GITEA_URL", ""),
+			GiteaToken:   getEnv("KB_GITEA_TOKEN", ""),
+			GiteaOrg:     getEnv("KB_GITEA_ORG", "am-kb"),
+			CloneBaseURL: getEnv("KB_GITEA_CLONE_URL", ""),
+			SyncInterval: getEnvDuration("KB_SYNC_INTERVAL", 1*time.Hour),
 		},
 
 		Relay: RelayConfig{

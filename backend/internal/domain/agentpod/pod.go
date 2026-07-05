@@ -91,6 +91,8 @@ type Pod struct {
 	// Used for resume functionality - allows agents to restore conversation context
 	SessionID *string `gorm:"size:36" json:"session_id,omitempty"`
 
+	ExternalSessionID *string `gorm:"size:200" json:"external_session_id,omitempty"`
+
 	// SourcePodKey tracks the original pod when this pod was created via resume
 	// Enables tracking the chain of resumed sessions
 	SourcePodKey *string `gorm:"size:100" json:"source_pod_key,omitempty"`

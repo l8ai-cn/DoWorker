@@ -48,10 +48,10 @@ export default function RunnersPage() {
   const handleDisable = async (runnerId: number) => {
     try {
       await disableRunner(runnerId);
-      toast.success("Runner disabled successfully");
+      toast.success("Runner 已停用");
       triggerRefetch();
     } catch (err: unknown) {
-      const message = (err as { error?: string })?.error || "Failed to disable runner";
+      const message = (err as { error?: string })?.error || "停用 Runner 失败";
       toast.error(message);
     }
   };
@@ -59,36 +59,35 @@ export default function RunnersPage() {
   const handleEnable = async (runnerId: number) => {
     try {
       await enableRunner(runnerId);
-      toast.success("Runner enabled successfully");
+      toast.success("Runner 已启用");
       triggerRefetch();
     } catch (err: unknown) {
-      const message = (err as { error?: string })?.error || "Failed to enable runner";
+      const message = (err as { error?: string })?.error || "启用 Runner 失败";
       toast.error(message);
     }
   };
 
   const handleDelete = async (runner: Runner) => {
-    if (!confirm(`Are you sure you want to delete runner "${runner.node_id}"? This action cannot be undone.`)) {
+    if (!confirm(`确定要删除 Runner "${runner.node_id}" 吗？此操作无法撤销。`)) {
       return;
     }
     try {
       await deleteRunner(runner.id);
-      toast.success("Runner deleted successfully");
+      toast.success("Runner 已删除");
       triggerRefetch();
     } catch (err: unknown) {
-      const message = (err as { error?: string })?.error || "Failed to delete runner";
+      const message = (err as { error?: string })?.error || "删除 Runner 失败";
       toast.error(message);
     }
   };
 
   return (
     <div className="space-y-4">
-      {/* Search */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search runners..."
+            placeholder="搜索 Runner..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -99,10 +98,9 @@ export default function RunnersPage() {
         </div>
       </div>
 
-      {/* Runners Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Runners ({data?.total || 0})</CardTitle>
+          <CardTitle>Runner ({data?.total || 0})</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -124,17 +122,16 @@ export default function RunnersPage() {
               ))}
               {data?.data.length === 0 && (
                 <p className="py-8 text-center text-muted-foreground">
-                  No runners found
+                  暂无 Runner
                 </p>
               )}
             </div>
           )}
 
-          {/* Pagination */}
           {data && data.total_pages > 1 && (
             <div className="mt-4 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Page {data.page} of {data.total_pages}
+                第 {data.page} / {data.total_pages} 页
               </p>
               <div className="flex gap-2">
                 <Button
@@ -143,7 +140,7 @@ export default function RunnersPage() {
                   disabled={page === 1}
                   onClick={() => setPage(page - 1)}
                 >
-                  Previous
+                  上一页
                 </Button>
                 <Button
                   variant="outline"
@@ -151,7 +148,7 @@ export default function RunnersPage() {
                   disabled={page >= data.total_pages}
                   onClick={() => setPage(page + 1)}
                 >
-                  Next
+                  下一页
                 </Button>
               </div>
             </div>

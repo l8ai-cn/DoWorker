@@ -65,12 +65,12 @@ export function SSOTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Domain</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Protocol</TableHead>
-            <TableHead>Enabled</TableHead>
-            <TableHead>Enforce SSO</TableHead>
-            <TableHead>Created</TableHead>
+            <TableHead>域名</TableHead>
+            <TableHead>名称</TableHead>
+            <TableHead>协议</TableHead>
+            <TableHead>启用状态</TableHead>
+            <TableHead>强制 SSO</TableHead>
+            <TableHead>创建时间</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>
@@ -86,7 +86,7 @@ export function SSOTable({
           ) : configs.length === 0 ? (
             <TableRow>
               <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                No SSO configs found
+                暂无 SSO 配置
               </TableCell>
             </TableRow>
           ) : (
@@ -134,16 +134,16 @@ function SSOTableRow({
       </TableCell>
       <TableCell>
         {config.is_enabled ? (
-          <Badge variant="success">Enabled</Badge>
+          <Badge variant="success">已启用</Badge>
         ) : (
-          <Badge variant="secondary">Disabled</Badge>
+          <Badge variant="secondary">已停用</Badge>
         )}
       </TableCell>
       <TableCell>
         {config.enforce_sso ? (
           <Badge variant="destructive" className="gap-1">
             <ShieldCheck className="h-3 w-3" />
-            Enforced
+            强制
           </Badge>
         ) : (
           <span className="text-muted-foreground">-</span>
@@ -162,22 +162,22 @@ function SSOTableRow({
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onEdit(config)}>
               <Pencil className="mr-2 h-4 w-4" />
-              Edit
+              编辑
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onTest(config)}>
               <FlaskConical className="mr-2 h-4 w-4" />
-              Test Connection
+              测试连接
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {config.is_enabled ? (
               <DropdownMenuItem onClick={() => onDisable(config.id)}>
                 <PowerOff className="mr-2 h-4 w-4" />
-                Disable
+                停用
               </DropdownMenuItem>
             ) : (
               <DropdownMenuItem onClick={() => onEnable(config.id)}>
                 <Power className="mr-2 h-4 w-4" />
-                Enable
+                启用
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
@@ -186,7 +186,7 @@ function SSOTableRow({
               className="text-destructive focus:text-destructive"
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              删除
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

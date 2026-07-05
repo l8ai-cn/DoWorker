@@ -2,7 +2,6 @@ package coordinator
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -26,12 +25,12 @@ func NewDockerLauncher(cfg dockerLauncherConfig, logger *slog.Logger) *DockerLau
 
 func (l *DockerLauncher) Launch(ctx context.Context, orgID int64, agentSlug string) error {
 	if strings.TrimSpace(l.cfg.ComposeDir) != "" {
-		return l.launchCompose(ctx)
+		return l.launchCompose(ctx, agentSlug)
 	}
 	return l.launchRun(ctx, orgID, agentSlug)
 }
 
-func (l *DockerLauncher) launchCompose(ctx context.Context) error {
+func (l *DockerLauncher) launchCompose(ctx context.Context, agentSlug string) error {
 	dir, err := filepath.Abs(l.cfg.ComposeDir)
 	if err != nil {
 		return fmt.Errorf("docker compose dir: %w", err)
@@ -39,17 +38,30 @@ func (l *DockerLauncher) launchCompose(ctx context.Context) error {
 	if _, err := os.Stat(dir); err != nil {
 		return fmt.Errorf("docker compose dir %q: %w", dir, err)
 	}
-	args := []string{"compose", "-f", filepath.Join(dir, "docker-compose.yml"), "up", "-d", l.cfg.ComposeService}
+	service, err := l.cfg.composeServiceForAgent(agentSlug)
+	if err != nil {
+		return err
+	}
+	files := l.cfg.ComposeFiles
+	if len(files) == 0 {
+		files = []string{"docker-compose.yml"}
+	}
+	args := []string{"compose"}
+	for _, f := range files {
+		args = append(args, "-f", filepath.Join(dir, f))
+	}
+	args = append(args, "up", "-d", service)
 	if _, stderr, err := l.runner.Run(ctx, l.cfg.Binary, args...); err != nil {
 		return fmt.Errorf("docker compose up: %w: %s", err, strings.TrimSpace(stderr))
 	}
-	l.logger.Info("docker compose runner started", "dir", dir, "service", l.cfg.ComposeService)
+	l.logger.Info("docker compose runner started", "dir", dir, "service", service)
 	return nil
 }
 
 func (l *DockerLauncher) launchRun(ctx context.Context, orgID int64, agentSlug string) error {
-	if l.cfg.ContainerEnv.Image == "" {
-		return errors.New("coordinator: COORDINATOR_RUNNER_IMAGE is required for docker run")
+	image, err := l.cfg.ContainerEnv.imageForAgent(agentSlug)
+	if err != nil {
+		return err
 	}
 	name := runnerInstanceID(orgID, agentSlug)
 	if running, err := l.containerRunning(ctx, name); err != nil {
@@ -92,14 +104,14 @@ func (l *DockerLauncher) launchRun(ctx context.Context, orgID int64, agentSlug s
 	for _, vol := range l.cfg.ExtraVolumes {
 		args = append(args, "-v", vol)
 	}
-	args = append(args, l.cfg.ContainerEnv.Image)
+	args = append(args, image)
 	if entrypoint := strings.TrimSpace(l.cfg.EntrypointPath); entrypoint != "" {
 		args = append(args, "/usr/local/bin/runner-entrypoint.sh")
 	}
 	if _, stderr, err := l.runner.Run(ctx, l.cfg.Binary, args...); err != nil {
 		return fmt.Errorf("docker run: %w: %s", err, strings.TrimSpace(stderr))
 	}
-	l.logger.Info("docker runner created", "container", name, "image", l.cfg.ContainerEnv.Image)
+	l.logger.Info("docker runner created", "container", name, "image", image)
 	return nil
 }
 

@@ -13,18 +13,19 @@ type runnerContainerEnv struct {
 	OrgSlug           string
 	NodeIDPrefix      string
 	MaxConcurrentPods int
-	Image             string
+	AgentImages       map[string]string
 }
 
 type dockerLauncherConfig struct {
-	Binary         string
-	Network        string
-	ComposeDir     string
-	ComposeService string
-	SSLHostPath    string
-	EntrypointPath string
-	ExtraVolumes   []string
-	ContainerEnv   runnerContainerEnv
+	Binary          string
+	Network         string
+	ComposeDir      string
+	ComposeFiles    []string
+	ComposeServices map[string]string
+	SSLHostPath     string
+	EntrypointPath  string
+	ExtraVolumes    []string
+	ContainerEnv    runnerContainerEnv
 }
 
 type k8sLauncherConfig struct {
@@ -52,7 +53,7 @@ func loadRunnerContainerEnv() runnerContainerEnv {
 		OrgSlug:           strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_ORG_SLUG")),
 		NodeIDPrefix:      defaultString(os.Getenv("COORDINATOR_RUNNER_NODE_ID_PREFIX"), "coord-runner-"),
 		MaxConcurrentPods: maxPods,
-		Image:             strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_IMAGE")),
+		AgentImages:       parseLauncherMap(os.Getenv("COORDINATOR_RUNNER_IMAGES")),
 	}
 }
 
@@ -66,15 +67,30 @@ func loadDockerLauncherConfig() dockerLauncherConfig {
 		}
 	}
 	return dockerLauncherConfig{
-		Binary:         defaultString(os.Getenv("COORDINATOR_RUNNER_DOCKER_BINARY"), "docker"),
-		Network:        strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_DOCKER_NETWORK")),
-		ComposeDir:     strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR")),
-		ComposeService: defaultString(os.Getenv("COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICE"), "runner"),
-		SSLHostPath:    strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_DOCKER_SSL_HOST_PATH")),
-		EntrypointPath: strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_DOCKER_ENTRYPOINT_HOST_PATH")),
-		ExtraVolumes:   extra,
-		ContainerEnv:   loadRunnerContainerEnv(),
+		Binary:          defaultString(os.Getenv("COORDINATOR_RUNNER_DOCKER_BINARY"), "docker"),
+		Network:         strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_DOCKER_NETWORK")),
+		ComposeDir:      strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR")),
+		ComposeFiles:    parseComposeFiles(os.Getenv("COORDINATOR_RUNNER_DOCKER_COMPOSE_FILES")),
+		ComposeServices: parseLauncherMap(os.Getenv("COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES")),
+		SSLHostPath:     strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_DOCKER_SSL_HOST_PATH")),
+		EntrypointPath:  strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_DOCKER_ENTRYPOINT_HOST_PATH")),
+		ExtraVolumes:    extra,
+		ContainerEnv:    loadRunnerContainerEnv(),
 	}
+}
+
+func parseComposeFiles(raw string) []string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil
+	}
+	out := make([]string, 0, 2)
+	for _, part := range strings.Split(raw, ",") {
+		if f := strings.TrimSpace(part); f != "" {
+			out = append(out, f)
+		}
+	}
+	return out
 }
 
 func loadK8sLauncherConfig() k8sLauncherConfig {
@@ -101,4 +117,20 @@ func defaultString(value, fallback string) string {
 		return strings.TrimSpace(value)
 	}
 	return fallback
+}
+
+func parseLauncherMap(raw string) map[string]string {
+	out := map[string]string{}
+	for _, part := range strings.Split(raw, ",") {
+		key, value, ok := strings.Cut(part, "=")
+		if !ok {
+			continue
+		}
+		key = strings.TrimSpace(key)
+		value = strings.TrimSpace(value)
+		if key != "" && value != "" {
+			out[key] = value
+		}
+	}
+	return out
 }

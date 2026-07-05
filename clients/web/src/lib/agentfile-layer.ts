@@ -55,6 +55,8 @@ export function buildAgentfileLayer(params: {
   configBundleNames?: string[];
   /** Installed skill slugs to attach. Emitted as `SKILLS slug1, slug2`. */
   skillSlugs?: string[];
+  /** Knowledge base mounts. Emitted as `KNOWLEDGE slug [rw], slug2`. */
+  knowledgeMounts?: { slug: string; mode: "ro" | "rw" }[];
   prompt?: string;
 }): string {
   const lines: string[] = [];
@@ -109,6 +111,13 @@ export function buildAgentfileLayer(params: {
 
   if (params.skillSlugs && params.skillSlugs.length > 0) {
     lines.push(`SKILLS ${params.skillSlugs.join(", ")}`);
+  }
+
+  if (params.knowledgeMounts && params.knowledgeMounts.length > 0) {
+    const refs = params.knowledgeMounts.map((m) =>
+      m.mode === "rw" ? `${m.slug} [rw]` : m.slug,
+    );
+    lines.push(`KNOWLEDGE ${refs.join(", ")}`);
   }
 
   return lines.join("\n");

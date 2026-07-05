@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import {
   Tooltip,
@@ -12,42 +11,14 @@ import {
 } from "@radix-ui/react-tooltip";
 import { cn } from "@/lib/utils";
 import { useIDEStore, ACTIVITIES, type ActivityType } from "@/stores/ide";
-import { useCurrentOrg, useAuthStore } from "@/stores/auth";
+import { resolveActivityFromPathname } from "@/lib/ide-route";
+import { useCurrentOrg } from "@/stores/auth";
 import { useTotalUnreadCount } from "@/stores/channelMessageStore";
 import { useTranslations } from "next-intl";
-import {
-  Terminal,
-  Ticket,
-  Network,
-  MessageSquare,
-  FolderGit2,
-  Server,
-  Settings,
-  Repeat,
-  Workflow,
-  Blocks,
-  Layers,
-  Sparkles,
-  CircleHelp,
-  type LucideIcon,
-} from "lucide-react";
+import { CircleHelp } from "lucide-react";
 import { OrgSwitcher } from "@/components/ide/OrgSwitcher";
 import { ReminderArea } from "@/components/ide/ReminderArea";
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  terminal: Terminal,
-  ticket: Ticket,
-  network: Network,
-  "message-square": MessageSquare,
-  repeat: Repeat,
-  workflow: Workflow,
-  blocks: Blocks,
-  repository: FolderGit2,
-  server: Server,
-  settings: Settings,
-  layers: Layers,
-  sparkles: Sparkles,
-};
+import { ActivityBarLink } from "./ActivityBarLink";
 
 interface ActivityBarProps {
   className?: string;
@@ -77,6 +48,10 @@ export function ActivityBar({ className }: ActivityBarProps) {
         return `/${orgSlug}/loops`;
       case "automation":
         return `/${orgSlug}/automation`;
+      case "apiAccess":
+        return `/${orgSlug}/api-access`;
+      case "knowledge":
+        return `/${orgSlug}/knowledge-base`;
       case "blocks":
         return `/${orgSlug}/blocks`;
       case "infra":
@@ -95,18 +70,8 @@ export function ActivityBar({ className }: ActivityBarProps) {
   };
 
   React.useEffect(() => {
-    if (pathname.includes("/workspace")) setActiveActivity("workspace");
-    else if (pathname.includes("/tickets")) setActiveActivity("tickets");
-    else if (pathname.includes("/channels")) setActiveActivity("channels");
-    else if (pathname.includes("/mesh")) setActiveActivity("mesh");
-    else if (pathname.includes("/loops")) setActiveActivity("loops");
-    else if (pathname.includes("/automation")) setActiveActivity("automation");
-    else if (pathname.includes("/blocks")) setActiveActivity("blocks");
-    else if (pathname.includes("/infra")) setActiveActivity("infra");
-    else if (pathname.includes("/repositories")) setActiveActivity("repositories");
-    else if (pathname.includes("/runners")) setActiveActivity("runners");
-    else if (pathname.includes("/skills")) setActiveActivity("skills");
-    else if (pathname.includes("/settings")) setActiveActivity("settings");
+    const activity = resolveActivityFromPathname(pathname);
+    if (activity) setActiveActivity(activity);
   }, [pathname, setActiveActivity]);
 
   const mainActivities = ACTIVITIES.filter((a) => a.id !== "settings");
@@ -126,10 +91,8 @@ export function ActivityBar({ className }: ActivityBarProps) {
 
         <nav className="flex-1 flex flex-col items-stretch py-2 gap-1 px-2">
           {mainActivities.map((activity, idx) => {
-            const Icon = ICON_MAP[activity.icon] || Terminal;
             const isActive = activeActivity === activity.id;
             const showBadge = activity.id === "channels" && totalChannelUnread > 0;
-
             const prev = mainActivities[idx - 1];
             const showDivider = prev && prev.group !== activity.group;
 
@@ -138,40 +101,16 @@ export function ActivityBar({ className }: ActivityBarProps) {
                 {showDivider && (
                   <div className="my-1 h-2" aria-hidden="true" />
                 )}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link
-                      href={getActivityRoute(activity.id)}
-                      className={cn(
-                        "motion-interactive pressable w-full h-9 px-2.5 flex items-center gap-2 rounded-lg relative",
-                        isActive
-                          ? "text-primary bg-accent shadow-[var(--shadow-soft)]"
-                          : "text-muted-foreground hover:text-foreground hover:bg-surface-muted",
-                      )}
-                      onClick={() => setActiveActivity(activity.id)}
-                    >
-                      <div className="relative shrink-0">
-                        <Icon className="w-4 h-4" />
-                        {showBadge && (
-                          <span className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-0.5 text-[9px] font-bold rounded-full bg-destructive text-destructive-foreground flex items-center justify-center leading-none">
-                            {totalChannelUnread > 99 ? "99+" : totalChannelUnread}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-xs leading-tight font-medium truncate">
-                        {t(`ide.activities.${activity.id}`)}
-                      </span>
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipPortal>
-                    <TooltipContent
-                      side="right"
-                      className="z-50 bg-popover text-popover-foreground px-2 py-1 text-sm rounded-md shadow-[var(--shadow-soft)]"
-                    >
-                      {t(`ide.activities.${activity.id}`)}
-                    </TooltipContent>
-                  </TooltipPortal>
-                </Tooltip>
+                <ActivityBarLink
+                  id={activity.id}
+                  icon={activity.icon}
+                  href={getActivityRoute(activity.id)}
+                  label={t(`ide.activities.${activity.id}`)}
+                  isActive={isActive}
+                  showBadge={showBadge}
+                  badgeCount={totalChannelUnread}
+                  onClick={setActiveActivity}
+                />
               </React.Fragment>
             );
           })}
@@ -205,37 +144,18 @@ export function ActivityBar({ className }: ActivityBarProps) {
           </Tooltip>
 
           {bottomActivities.map((activity) => {
-            const Icon = ICON_MAP[activity.icon] || Settings;
             const isActive = activeActivity === activity.id;
 
             return (
-              <Tooltip key={activity.id}>
-                <TooltipTrigger asChild>
-                  <Link
-                    href={getActivityRoute(activity.id)}
-                    className={cn(
-                      "motion-interactive pressable w-full h-9 px-2.5 flex items-center gap-2 rounded-lg relative",
-                      isActive
-                        ? "text-primary bg-accent shadow-[var(--shadow-soft)]"
-                        : "text-muted-foreground hover:text-foreground hover:bg-surface-muted"
-                    )}
-                    onClick={() => setActiveActivity(activity.id)}
-                  >
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span className="text-xs leading-tight font-medium truncate">
-                      {t(`ide.activities.${activity.id}`)}
-                    </span>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipPortal>
-                  <TooltipContent
-                    side="right"
-                  className="z-50 bg-popover text-popover-foreground px-2 py-1 text-sm rounded-md shadow-[var(--shadow-soft)]"
-                  >
-                    {t(`ide.activities.${activity.id}`)}
-                  </TooltipContent>
-                </TooltipPortal>
-              </Tooltip>
+              <ActivityBarLink
+                key={activity.id}
+                id={activity.id}
+                icon={activity.icon}
+                href={getActivityRoute(activity.id)}
+                label={t(`ide.activities.${activity.id}`)}
+                isActive={isActive}
+                onClick={setActiveActivity}
+              />
             );
           })}
         </nav>

@@ -65,7 +65,11 @@ func dispatchACPRequest(msg *acp.JSONRPCMessage, state *runtimeState, scn scenar
 	case "initialize":
 		return state.writer.WriteResponse(id, initializeResult(scn), nil)
 	case "session/new":
+		state.resumeSessionID = ""
 		return state.writer.WriteResponse(id, sessionNewResult(), nil)
+	case "session/resume":
+		state.resumeSessionID = extractResumeSessionID(msg.Params)
+		return state.writer.WriteResponse(id, sessionResumeResult(state.resumeSessionID), nil)
 	case "session/control_request":
 		return handleControlRequest(state, id, msg.Params, logger)
 	case "session/prompt":
@@ -106,6 +110,23 @@ func initializeResult(scn scenario) map[string]any {
 
 func sessionNewResult() map[string]any {
 	return map[string]any{"sessionId": mockSessionID}
+}
+
+func sessionResumeResult(sessionID string) map[string]any {
+	if sessionID == "" {
+		sessionID = mockSessionID
+	}
+	return map[string]any{"sessionId": sessionID}
+}
+
+func extractResumeSessionID(params json.RawMessage) string {
+	var raw struct {
+		SessionID string `json:"sessionId"`
+	}
+	if err := json.Unmarshal(params, &raw); err != nil {
+		return ""
+	}
+	return raw.SessionID
 }
 
 // extractPromptText pulls the user-visible text out of a session/prompt params

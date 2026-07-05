@@ -26,6 +26,8 @@ type ClientConfig struct {
 	Logger        *slog.Logger
 	Callbacks     EventCallbacks
 	TransportType string // registered via acp.RegisterCommandMapping (default: "acp")
+	// Vendor session id to pass to session/resume instead of session/new.
+	ResumeExternalSessionID string
 }
 
 // ACPClient manages an agent subprocess communicating via a pluggable

@@ -135,6 +135,15 @@ func (a *GRPCRunnerAdapter) dispatchMcpMethod(ctx context.Context, tc *middlewar
 	case "block.get_default_workspace":
 		return a.mcpBlockGetDefaultWorkspace(ctx, tc, req.Payload)
 
+	case "kb_list":
+		return a.mcpKbList(ctx, tc)
+	case "kb_search":
+		return a.mcpKbSearch(ctx, tc, req.Payload)
+	case "kb_read":
+		return a.mcpKbRead(ctx, tc, req.Payload)
+	case "kb_write":
+		return a.mcpKbWrite(ctx, tc, req.PodKey, req.Payload)
+
 	default:
 		return nil, newMcpErrorf(400, "unknown MCP method: %s", req.Method)
 	}

@@ -10,13 +10,29 @@ import (
 
 // scenarioEcho echoes the prompt back as a single contentChunk, then completes
 // the turn. Mirrors PTY mode's `got: <line>` semantics so test assertions can
-// remain symmetric across modes.
+// remain symmetric across modes. The end_turn response carries a synthetic
+// usage block so the runner's real-usage path (ACPTransport.emitPromptUsage →
+// OnUsage → PodUsageEvent) is exercised end-to-end without a live LLM.
 func scenarioEcho(state *runtimeState, id int64, params json.RawMessage, _ *slog.Logger) error {
 	prompt := extractPromptText(params)
-	if err := emitContentChunk(state.writer, "echo: "+prompt, "assistant"); err != nil {
+	reply := "echo: " + prompt
+	if state.resumeSessionID != "" {
+		reply = "RESUMED_OK " + reply
+	}
+	if err := emitContentChunk(state.writer, reply, "assistant"); err != nil {
 		return err
 	}
-	return state.writer.WriteResponse(id, map[string]any{"stopReason": "end_turn"}, nil)
+	// gpt-4o (not the runner's estimate-fallback default gpt-4o-mini) so
+	// smoke asserting usage_by_model["gpt-4o"] proves the model name came
+	// through the agent report, not the fallback.
+	return state.writer.WriteResponse(id, map[string]any{
+		"stopReason": "end_turn",
+		"usage": map[string]any{
+			"model":        "gpt-4o",
+			"inputTokens":  int64(len(prompt))/4 + 12,
+			"outputTokens": int64(len(reply))/4 + 1,
+		},
+	}, nil)
 }
 
 // streamingChunkDelay is the gap between chunks in scenarios that test the

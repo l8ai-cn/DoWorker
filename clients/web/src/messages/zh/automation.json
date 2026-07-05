@@ -25,6 +25,12 @@
     "board": {
       "empty": "暂无执行记录"
     },
+    "run": {
+      "scanned": "已扫描 {count}",
+      "candidates": "候选 {count}",
+      "dispatched": "已派发 {count}",
+      "skipped": "已跳过 {count}"
+    },
     "create": {
       "title": "新建自动化项目",
       "description": "绑定仓库并配置任务认领规则。",
@@ -32,6 +38,10 @@
       "namePlaceholder": "例如：分拣机器人",
       "repository": "仓库",
       "repositoryPlaceholder": "选择仓库",
+      "agent": "Agent",
+      "agentPlaceholder": "选择 Agent",
+      "noOnlineRunners": "当前没有在线运行节点。",
+      "noCompatibleAgents": "没有在线运行节点支持可用于自动化的 Agent。",
       "labels": "标签过滤",
       "labelsPlaceholder": "逗号分隔的标签",
       "interval": "扫描间隔（秒）",

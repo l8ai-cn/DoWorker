@@ -152,6 +152,7 @@ func mountConnectServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Se
 	mountAutopilotService(mux, svc, rest, opts)
 	mountNotificationService(mux, svc, opts)
 	mountLoopService(mux, svc, rest, opts)
+	mountKnowledgeBaseService(mux, svc, opts)
 	mountLicenseService(mux, svc, opts)
 	mountAdminServices(mux, svc, rest, cfg, opts)
 }

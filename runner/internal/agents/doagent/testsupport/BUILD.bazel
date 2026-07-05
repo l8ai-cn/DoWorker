@@ -5,7 +5,7 @@ go_library(
     srcs = ["fixture.go"],
     embedsrcs = ["testdata/llm_response.jsonl"],
     importpath = "github.com/anthropics/agentsmesh/runner/internal/agents/doagent/testsupport",
-    visibility = ["//runner/internal/agents/doagent:__pkg__"],
+    visibility = ["//runner:__subpackages__"],
 )
 
 alias(

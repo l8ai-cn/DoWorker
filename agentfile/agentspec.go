@@ -13,9 +13,11 @@ type AgentSpec struct {
 	Repo   *RepoSpec    `json:"repo,omitempty"`
 	MCP    *MCPSpec     `json:"mcp,omitempty"`
 	Skills []string     `json:"skills,omitempty"`
+	Knowledge []KnowledgeSpec `json:"knowledge,omitempty"`
 	Setup  *SetupSpec   `json:"setup,omitempty"`
-	Mode   string       `json:"mode,omitempty"`
-	Prompt string       `json:"prompt,omitempty"`
+	Mode         string            `json:"mode,omitempty"`
+	Prompt       string            `json:"prompt,omitempty"`
+	Capabilities map[string]string `json:"capabilities,omitempty"`
 }
 
 // CommandSpec describes which agent CLI to use.
@@ -56,4 +58,10 @@ type MCPSpec struct {
 type SetupSpec struct {
 	Script  string `json:"script"`
 	Timeout int    `json:"timeout"`
+}
+
+// KnowledgeSpec describes a knowledge-base mount declared via KNOWLEDGE.
+type KnowledgeSpec struct {
+	Slug string `json:"slug"`
+	Mode string `json:"mode"` // "ro" or "rw"
 }

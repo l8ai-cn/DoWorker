@@ -139,6 +139,14 @@ func (t *transport) handleTurnCompleted(params json.RawMessage) {
 		}
 		t.callbacks.OnLog("error", msg)
 	}
+	if u := tc.Turn.Usage; u != nil && t.callbacks.OnUsage != nil &&
+		(u.InputTokens > 0 || u.OutputTokens > 0) {
+		t.callbacks.OnUsage(t.getSessionID(), acp.TurnUsage{
+			InputTokens:     u.InputTokens,
+			OutputTokens:    u.OutputTokens,
+			CacheReadTokens: u.CachedInputTokens,
+		})
+	}
 	if t.callbacks.OnStateChange != nil {
 		t.callbacks.OnStateChange(acp.StateIdle)
 	}

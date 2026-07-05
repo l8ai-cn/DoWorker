@@ -7,6 +7,8 @@
       "mesh": "Mesh",
       "loops": "Loops",
       "automation": "Automation",
+      "apiAccess": "API Access",
+      "knowledge": "Knowledge Base",
       "blocks": "Blocks",
       "infra": "Infra",
       "skills": "Skills",

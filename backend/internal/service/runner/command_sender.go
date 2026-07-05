@@ -27,6 +27,10 @@ type RunnerCommandSender interface {
 	SendAutopilotControl(runnerID int64, cmd *runnerv1.AutopilotControlCommand) error
 
 	SendUpdatePodPerpetual(ctx context.Context, runnerID int64, podKey string, perpetual bool) error
+
+	SendUpdatePodPolicyRules(ctx context.Context, runnerID int64, podKey string, rules []*runnerv1.PolicyRuleSnapshot) error
+
+	SendAcpRelay(ctx context.Context, runnerID int64, podKey, payloadJSON string) error
 }
 
 type NoOpCommandSender struct {
@@ -93,6 +97,18 @@ func (n *NoOpCommandSender) SendAutopilotControl(runnerID int64, cmd *runnerv1.A
 
 func (n *NoOpCommandSender) SendUpdatePodPerpetual(ctx context.Context, runnerID int64, podKey string, perpetual bool) error {
 	n.logger.Warn("command sender not configured, cannot update pod perpetual",
+		"runner_id", runnerID, "pod_key", podKey)
+	return ErrCommandSenderNotSet
+}
+
+func (n *NoOpCommandSender) SendUpdatePodPolicyRules(ctx context.Context, runnerID int64, podKey string, rules []*runnerv1.PolicyRuleSnapshot) error {
+	n.logger.Warn("command sender not configured, cannot update pod policy rules",
+		"runner_id", runnerID, "pod_key", podKey)
+	return ErrCommandSenderNotSet
+}
+
+func (n *NoOpCommandSender) SendAcpRelay(ctx context.Context, runnerID int64, podKey, payloadJSON string) error {
+	n.logger.Warn("command sender not configured, cannot send acp relay",
 		"runner_id", runnerID, "pod_key", podKey)
 	return ErrCommandSenderNotSet
 }

@@ -69,7 +69,7 @@ export function BottomPanel({ className }: { className?: string }) {
       {TAB_IDS.map((tabId) => (
         <button key={tabId} className={cn(
           "motion-interactive pressable flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md relative",
-          bottomPanelTab === tabId ? (collapsed ? "text-primary bg-accent" : "text-primary bg-accent shadow-[var(--shadow-soft)]") : "text-muted-foreground hover:text-foreground hover:bg-surface-muted",
+          bottomPanelTab === tabId ? (collapsed ? "text-foreground bg-surface-raised ring-1 ring-border/45" : "text-foreground bg-surface-raised ring-1 ring-border/45 shadow-[var(--shadow-soft)]") : "text-muted-foreground hover:text-foreground hover:bg-surface-muted",
           tabId === "autopilot" && activeAutopilot && bottomPanelTab !== tabId && "text-success"
         )} onClick={() => handleTabClick(tabId, collapsed)}>
           {TAB_ICONS[tabId]}

@@ -1,0 +1,45 @@
+{
+  "steps": [
+    {
+      "name": "API login",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S1.2 GET /v1/sessions list wire",
+      "ok": true,
+      "detail": "status=idle updated_at=1783219861"
+    },
+    {
+      "name": "S1.2 WS /v1/sessions/updates",
+      "ok": true,
+      "detail": "connected"
+    },
+    {
+      "name": "S1.3 elicitation created",
+      "ok": true,
+      "detail": "elicit_c87a62da947f07c3"
+    },
+    {
+      "name": "S1.3 elicitation resolve",
+      "ok": true,
+      "detail": "HTTP 202"
+    },
+    {
+      "name": "S1.3 assistant after resolve",
+      "ok": true,
+      "detail": "items=2"
+    },
+    {
+      "name": "S1.4 list terminals",
+      "ok": true,
+      "detail": "terminal_tui_main"
+    },
+    {
+      "name": "S1.4 terminal attach bytes",
+      "ok": true,
+      "detail": "messages=2"
+    }
+  ],
+  "errors": []
+}

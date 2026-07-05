@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest";
 import { hideIdeChrome, hideIdeSidebar, hideMobileTabBar } from "./ide-chrome";
 
 describe("ide-chrome", () => {
-  it("hides sidebar on personal settings and support", () => {
+  it("hides sidebar on personal settings, support, and standalone pages", () => {
     expect(hideIdeSidebar("/settings/general")).toBe(true);
     expect(hideIdeSidebar("/support/abc")).toBe(true);
+    expect(hideIdeSidebar("/admin-workspace/api-access")).toBe(true);
     expect(hideIdeSidebar("/acme/workspace")).toBe(false);
   });
 

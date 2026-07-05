@@ -70,7 +70,7 @@ func toProtoCustomAgent(c *domainagent.CustomAgent) *agentv1.Agent {
 		return nil
 	}
 	orgID := c.OrganizationID
-	return &agentv1.Agent{
+	out := &agentv1.Agent{
 		Slug:            c.Slug,
 		Name:            c.Name,
 		LaunchCommand:   c.LaunchCommand,
@@ -84,6 +84,8 @@ func toProtoCustomAgent(c *domainagent.CustomAgent) *agentv1.Agent {
 		DefaultArgs:     protoconv.StringPtr(c.DefaultArgs),
 		AgentfileSource: protoconv.StringPtr(c.AgentfileSource),
 	}
+	enrichCapabilities(out, c.AgentfileSource)
+	return out
 }
 
 // toProtoConfigSchema maps a service.ConfigSchemaResponse into proto.

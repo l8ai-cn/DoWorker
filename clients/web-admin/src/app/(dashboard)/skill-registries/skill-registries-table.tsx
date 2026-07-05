@@ -28,18 +28,18 @@ interface SkillRegistriesTableProps {
 function SyncStatusBadge({ status }: { status: string }) {
   switch (status) {
     case "success":
-      return <Badge variant="success">Success</Badge>;
+      return <Badge variant="success">成功</Badge>;
     case "syncing":
       return (
         <Badge variant="warning" className="gap-1">
           <Loader2 className="h-3 w-3 animate-spin" />
-          Syncing
+          同步中
         </Badge>
       );
     case "failed":
-      return <Badge variant="destructive">Failed</Badge>;
+      return <Badge variant="destructive">失败</Badge>;
     case "pending":
-      return <Badge variant="secondary">Pending</Badge>;
+      return <Badge variant="secondary">待同步</Badge>;
     default:
       return <Badge variant="secondary">{status}</Badge>;
   }
@@ -57,13 +57,13 @@ export function SkillRegistriesTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Repository URL</TableHead>
-            <TableHead>Branch</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Skill Count</TableHead>
-            <TableHead>Last Synced</TableHead>
-            <TableHead className="w-28">Actions</TableHead>
+            <TableHead>仓库 URL</TableHead>
+            <TableHead>分支</TableHead>
+            <TableHead>类型</TableHead>
+            <TableHead>状态</TableHead>
+            <TableHead>技能数量</TableHead>
+            <TableHead>上次同步</TableHead>
+            <TableHead className="w-28">操作</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -78,7 +78,7 @@ export function SkillRegistriesTable({
           ) : registries.length === 0 ? (
             <TableRow>
               <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                No skill registries configured
+                暂无技能源配置
               </TableCell>
             </TableRow>
           ) : (
@@ -149,19 +149,19 @@ function RegistryRow({
             {formatRelativeTime(registry.last_synced_at)}
           </span>
         ) : (
-          <span className="text-sm text-muted-foreground">Never</span>
+          <span className="text-sm text-muted-foreground">从未同步</span>
         )}
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={onSync} disabled={isSyncing} title="Sync now">
+          <Button variant="ghost" size="icon" onClick={onSync} disabled={isSyncing} title="立即同步">
             <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={onDelete}
-            title="Delete skill registry"
+            title="删除技能源"
             className="text-destructive hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />

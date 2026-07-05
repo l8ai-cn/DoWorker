@@ -100,6 +100,40 @@ func TestTransport_NewSession(t *testing.T) {
 	}
 }
 
+func TestTransport_ResumeSession(t *testing.T) {
+	stdoutPR, stdoutPW := io.Pipe()
+	stdinPR, stdinPW := io.Pipe()
+	defer stdoutPR.Close()
+	defer stdinPR.Close()
+
+	tr := newTransport(acp.EventCallbacks{}, discardLogger())
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	tr.Initialize(ctx, stdinPW, stdoutPR, nil)
+	go tr.ReadLoop(ctx)
+
+	go func() {
+		scanner := bufio.NewScanner(stdinPR)
+		scanner.Scan()
+		var req acp.JSONRPCRequest
+		json.Unmarshal(scanner.Bytes(), &req)
+		if req.Method != "thread/resume" {
+			t.Errorf("method = %q, want thread/resume", req.Method)
+		}
+		writeResponse(stdoutPW, req.ID, map[string]any{
+			"thread": map[string]string{"id": "thread-resumed"},
+		}, nil)
+	}()
+
+	sid, err := tr.ResumeSession("", nil, "thread-old")
+	if err != nil {
+		t.Fatalf("ResumeSession: %v", err)
+	}
+	if sid != "thread-resumed" {
+		t.Errorf("session_id = %q, want thread-resumed", sid)
+	}
+}
+
 func TestTransport_SendPrompt(t *testing.T) {
 	stdoutPR, stdoutPW := io.Pipe()
 	stdinPR, stdinPW := io.Pipe()

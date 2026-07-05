@@ -139,6 +139,12 @@ func (c *GRPCConnection) handleServerMessage(ctx context.Context, msg *runnerv1.
 	case *runnerv1.ServerMessage_UpdatePodPerpetual:
 		c.handleUpdatePodPerpetual(payload.UpdatePodPerpetual)
 
+	case *runnerv1.ServerMessage_UpdatePodPolicyRules:
+		c.handleUpdatePodPolicyRules(payload.UpdatePodPolicyRules)
+
+	case *runnerv1.ServerMessage_AcpRelay:
+		c.handleAcpRelay(payload.AcpRelay)
+
 	default:
 		logger.GRPC().Warn("Unknown server message type")
 	}
@@ -214,5 +220,27 @@ func (c *GRPCConnection) handleUpdatePodPerpetual(cmd *runnerv1.UpdatePodPerpetu
 	}
 	if err := c.handler.OnUpdatePodPerpetual(cmd); err != nil {
 		log.Error("Failed to update pod perpetual", "pod_key", cmd.PodKey, "error", err)
+	}
+}
+
+func (c *GRPCConnection) handleUpdatePodPolicyRules(cmd *runnerv1.UpdatePodPolicyRulesCommand) {
+	log := logger.GRPC()
+	if c.handler == nil {
+		log.Warn("No handler set, ignoring update_pod_policy_rules")
+		return
+	}
+	if err := c.handler.OnUpdatePodPolicyRules(cmd); err != nil {
+		log.Error("Failed to update pod policy rules", "pod_key", cmd.GetPodKey(), "error", err)
+	}
+}
+
+func (c *GRPCConnection) handleAcpRelay(cmd *runnerv1.AcpRelayCommand) {
+	log := logger.GRPC()
+	if c.handler == nil {
+		log.Warn("No handler set, ignoring acp_relay")
+		return
+	}
+	if err := c.handler.OnAcpRelay(cmd); err != nil {
+		log.Error("Failed to handle acp relay", "pod_key", cmd.PodKey, "error", err)
 	}
 }

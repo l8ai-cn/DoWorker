@@ -45,6 +45,8 @@ jobs:
       - run: bazel run //:buildifier_check
       - name: Identifier contract lint
         run: bash tools/identifier-lint/lint.sh
+      - name: Dev runner contract
+        run: bazel test //deploy/dev:runner_runtime_contract_test
 
   go:
     name: Go (tests)
@@ -532,6 +534,63 @@ jobs:
         run: |
           docker compose logs --tail=200 backend  || true
           docker compose logs --tail=200 runner   || true
+
+  hive-e2e:
+    name: E2E (Hive — compat API + browser)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: smoke
+    steps:
+      - uses: actions/checkout@v6
+      - uses: bazel-contrib/setup-bazel@0.9.1
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
+
+      - name: Install ibazel
+        run: |
+          IBAZEL_VERSION="0.29.0"
+          curl -fsSL "https://github.com/bazelbuild/bazel-watcher/releases/download/v${IBAZEL_VERSION}/ibazel_linux_amd64" \
+            -o /usr/local/bin/ibazel
+          sudo chmod +x /usr/local/bin/ibazel
+
+      # hive-s1-smoke drives a real chromium (WS attach + updates feed), so
+      # the repo's @playwright/test + headless shell must be resolvable from
+      # plain `node output/*.mjs` — hence pnpm install at root, not Bazel.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install node deps + chromium
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm exec playwright install chromium-headless-shell
+
+      - name: Bring up dev backend stack
+        run: |
+          bazel run //deploy/dev:backend_only
+          sleep 15
+
+      - name: Resolve worktree-allocated ports
+        id: ports
+        run: |
+          source deploy/dev/.env
+          echo "BACKEND_HTTP_PORT=$BACKEND_HTTP_PORT" >> $GITHUB_OUTPUT
+
+      - name: Run hive smoke (S0–S3)
+        env:
+          HIVE_API_URL: http://localhost:${{ steps.ports.outputs.BACKEND_HTTP_PORT }}
+        run: bash deploy/dev/hive_smoke.sh
+
+      - name: Dump backend / runner logs on failure
+        if: failure()
+        working-directory: deploy/dev
+        run: |
+          docker compose logs --tail=300 runner-e2e-echo || true
+          tail -n 300 runtime/backend/backend.log || true
 
   mcp-e2e:
     name: E2E (MCP — agent protocol)

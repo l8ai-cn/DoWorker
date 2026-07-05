@@ -31,9 +31,9 @@
     }
   },
   "agentpod": {
-    "title": "AgentPod",
-    "pods": "Pod",
-    "newPod": "新建 Pod",
+    "title": "Agent 环境",
+    "pods": "环境",
+    "newPod": "新建环境",
     "runners": "运行节点",
     "noRunnersOnline": "暂无在线节点",
     "selectAgent": "选择智能体",
@@ -70,10 +70,10 @@
     "page": {
       "title": "Mesh",
       "subtitle": "多智能体协作网络拓扑",
-      "activePods": "{count} 个活跃 Pod",
+      "activePods": "{count} 个活跃环境",
       "channelsCount": "{count} 个频道",
       "bindingsCount": "{count} 个绑定",
-      "runnersOnline": "{online} / {total} Runner 在线",
+      "runnersOnline": "{online} / {total} 运行节点在线",
       "zoomIn": "放大",
       "zoomOut": "缩小",
       "fit": "适应",
@@ -106,29 +106,29 @@
     },
     "mention": {
       "members": "成员",
-      "pods": "Pods"
+      "pods": "环境"
     },
     "ticket": "任务",
     "contextMenu": {
       "openTerminal": "打开终端",
       "viewTicket": "查看任务 {slug}",
       "rename": "重命名",
-      "terminatePod": "终止 Pod",
-      "terminateTitle": "终止 Pod",
-      "terminateDescription": "确定要终止此 Pod 吗？此操作不可撤销。",
+      "terminatePod": "终止环境",
+      "terminateTitle": "终止环境",
+      "terminateDescription": "确定要终止此环境吗？此操作不可撤销。",
       "terminateConfirm": "终止"
     },
     "runnerGroup": {
       "online": "在线",
       "offline": "离线",
-      "podCount": "{count} 个 Pod"
+      "podCount": "{count} 个环境"
     },
     "channelPodManager": {
-      "title": "频道 Pod",
-      "description": "管理此频道中的 Pod",
+      "title": "频道环境",
+      "description": "管理此频道中的环境",
       "joined": "已加入",
       "available": "可用",
-      "empty": "暂无活跃的 Pod"
+      "empty": "暂无活跃的环境"
     }
   },
   "tickets": {
@@ -144,8 +144,8 @@
       "export": "导出"
     },
     "rail": {
-      "workingPods": "工作中的 Pod",
-      "noPods": "暂无活跃的 Pod",
+      "workingPods": "工作中的环境",
+      "noPods": "暂无活跃的环境",
       "subTickets": "子 Ticket",
       "noSubTickets": "暂无子 Ticket",
       "pullRequests": "Pull Request",
@@ -276,10 +276,10 @@
     "podPanel": {
       "activeCount": "{count} 个活跃",
       "newPod": "执行",
-      "createNewPod": "创建新 Pod",
-      "runner": "Runner",
-      "selectRunner": "选择 Runner...",
-      "selectRunnerRequired": "请选择一个 Runner",
+      "createNewPod": "创建新环境",
+      "runner": "运行节点",
+      "selectRunner": "选择运行节点…",
+      "selectRunnerRequired": "请选择一个运行节点",
       "model": "模型",
       "permissionMode": "权限模式",
       "permissionDefault": "默认",
@@ -288,11 +288,11 @@
       "prompt": "初始提示（可选）",
       "promptPlaceholder": "处理 Ticket：{title}",
       "creating": "创建中...",
-      "createPod": "创建 Pod",
-      "createFailed": "创建 Pod 失败",
-      "previousPods": "{count} 个历史 Pod",
-      "noPods": "此 Ticket 暂无 Pod",
-      "noRunners": "暂无在线 Runner",
+      "createPod": "创建环境",
+      "createFailed": "创建环境失败",
+      "previousPods": "{count} 个历史环境",
+      "noPods": "此 Ticket 暂无环境",
+      "noRunners": "暂无在线运行节点",
       "connect": "连接",
       "openInNewTab": "在新标签页打开",
       "started": "开始时间"
@@ -300,13 +300,13 @@
   },
   "workspace": {
     "title": "工作区",
-    "searchPlaceholder": "搜索 Pod...",
-    "newPod": "新建 Pod",
+    "searchPlaceholder": "搜索环境…",
+    "newPod": "新建环境",
     "noTerminalsOpen": "暂无打开的终端",
-    "noTerminalsDescription": "点击侧边栏中的 Pod 打开其终端，或创建新的 Pod 开始使用。",
-    "createNewPod": "新建 Pod",
-    "emptyHeroTitle": "启动你的第一个 Pod",
-    "emptyHeroDescription": "Pod 是一个隔离的终端，AI 代理在其中处理你的代码。你可以观察、介入，或让它自动运行。",
+    "noTerminalsDescription": "点击侧边栏中的环境打开其终端，或新建环境开始使用。",
+    "createNewPod": "新建环境",
+    "emptyHeroTitle": "启动你的第一个环境",
+    "emptyHeroDescription": "环境是运行节点上的隔离 Agent 工作区（终端 + 沙箱）。运行节点提供算力，一个节点可托管多个环境。",
     "recipesHeading": "或从这些模板开始",
     "recipes": {
       "explain": {
@@ -323,7 +323,7 @@
       },
       "bug": {
         "title": "修复一个待处理 Bug",
-        "description": "选一个 ticket，启动一个 Pod。代理读取上下文并提出修复方案。",
+        "description": "选一个 ticket，启动一个环境。代理读取上下文并提出修复方案。",
         "duration": "8 分钟",
         "prompt": "请定位并修复一个待处理的 Bug：先复现问题，给出根因分析，再实现修复并验证。"
       }
@@ -334,10 +334,10 @@
     },
     "hints": {
       "search": "搜索",
-      "createPod": "新建 Pod"
+      "createPod": "新建环境"
     },
-    "podCreated": "Pod 已创建！等待启动中...",
-    "podOpened": "Pod 已打开",
+    "podCreated": "环境已创建！等待启动中…",
+    "podOpened": "环境已打开",
     "filters": {
       "mine": "我创建的",
       "org": "组织",
@@ -345,20 +345,20 @@
       "error": "错误"
     },
     "emptyState": {
-      "title": "暂无 Pod",
-      "description": "创建你的第一个 Pod 开始使用",
-      "createFirst": "创建 Pod",
-      "noMatch": "没有匹配的 Pod",
-      "noFiltered": "没有{filter}的 Pod"
+      "title": "暂无环境",
+      "description": "创建你的第一个环境开始使用",
+      "createFirst": "创建环境",
+      "noMatch": "没有匹配的环境",
+      "noFiltered": "没有{filter}的环境"
     },
     "runners": {
-      "title": "Runner",
+      "title": "运行节点",
       "online": "在线",
-      "noRunners": "暂无注册的 Runner"
+      "noRunners": "暂无注册的运行节点"
     },
     "terminateDialog": {
-      "title": "终止 Pod",
-      "description": "确定要终止这个 Pod 吗？此操作无法撤销，所有正在运行的进程都将被停止。",
+      "title": "终止环境",
+      "description": "确定要终止这个环境吗？此操作无法撤销，所有正在运行的进程都将被停止。",
       "cancel": "取消",
       "confirm": "终止"
     },
@@ -370,7 +370,7 @@
       "disablePerpetual": "禁用永续模式"
     },
     "renameDialog": {
-      "title": "重命名 Pod",
+      "title": "重命名环境",
       "placeholder": "输入显示名称",
       "hint": "留空将使用默认名称。",
       "cancel": "取消",
@@ -392,10 +392,10 @@
       }
     },
     "modal": {
-      "title": "创建新 Pod",
+      "title": "创建新环境",
       "agent": "智能体",
       "selectAgent": "选择智能体...",
-      "selectRunner": "选择 Runner...",
+      "selectRunner": "选择运行节点…",
       "repositoryOptional": "仓库（可选）",
       "selectRepository": "选择仓库...",
       "branch": "分支",
@@ -403,7 +403,7 @@
       "promptOptional": "初始提示（可选）",
       "promptPlaceholder": "为智能体输入初始提示...",
       "creating": "创建中...",
-      "createPod": "创建 Pod"
+      "createPod": "创建环境"
     }
   },
   "commandPalette": {
@@ -422,12 +422,12 @@
     "channelsDescription": "团队协作频道",
     "goToRepositories": "前往仓库",
     "repositoriesDescription": "管理仓库",
-    "goToRunners": "前往 Runner",
+    "goToRunners": "前往运行节点",
     "runnersDescription": "管理计算资源",
     "goToSettings": "前往设置",
     "settingsDescription": "组织设置",
-    "createNewPod": "创建新 Pod",
-    "createPodDescription": "启动一个新的智能体 Pod",
+    "createNewPod": "创建新环境",
+    "createPodDescription": "在运行节点上启动一个新的 Agent 环境",
     "createNewTicket": "创建新任务",
     "createTicketDescription": "创建新的任务或问题",
     "signOut": "退出登录",
@@ -442,7 +442,7 @@
   "relayStatus": {
     "web": "Web",
     "relay": "Relay",
-    "runner": "Runner",
+    "runner": "运行节点",
     "connected": "已连接",
     "connecting": "连接中",
     "disconnected": "已断开",

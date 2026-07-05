@@ -52,6 +52,10 @@ func evalDecl(ctx *Context, decl parser.Declaration) error {
 		}
 	case *parser.SkillsDecl:
 		ctx.Result.Skills = append(ctx.Result.Skills, d.Slugs...)
+	case *parser.KnowledgeDecl:
+		for _, m := range d.Mounts {
+			ctx.Result.Knowledge = append(ctx.Result.Knowledge, KnowledgeMountResult{Slug: m.Slug, Mode: m.Mode})
+		}
 	case *parser.SetupDecl:
 		ctx.Result.Setup = SetupResult{Script: d.Script, Timeout: d.Timeout}
 	case *parser.ConfigDecl:

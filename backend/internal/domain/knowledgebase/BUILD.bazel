@@ -1,0 +1,19 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "knowledgebase",
+    srcs = [
+        "hooks.go",
+        "knowledgebase.go",
+        "repository.go",
+    ],
+    importpath = "github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase",
+    visibility = ["//backend:__subpackages__"],
+    deps = ["//backend/pkg/slugkit"],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":knowledgebase",
+    visibility = ["//backend:__subpackages__"],
+)

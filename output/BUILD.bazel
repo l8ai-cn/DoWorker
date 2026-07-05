@@ -1,0 +1,12 @@
+filegroup(
+    name = "hive_smoke_scripts",
+    srcs = [
+        "api-integration-smoke.mjs",
+        "hive-s1-smoke.mjs",
+        "hive-s2-smoke.mjs",
+        "hive-s3-smoke.mjs",
+        "hive-s4-smoke.mjs",
+        "terminate-all-pods.mjs",
+    ],
+    visibility = ["//deploy/dev:__pkg__"],
+)

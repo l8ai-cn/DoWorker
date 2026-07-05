@@ -13,9 +13,8 @@ export function PromoCodeLimitsFields({
 }: PromoCodeLimitsFieldsProps) {
   return (
     <>
-      {/* Duration */}
       <div className="space-y-2">
-        <Label htmlFor="duration_months">Duration (months) *</Label>
+        <Label htmlFor="duration_months">订阅时长（月） *</Label>
         <Input
           id="duration_months"
           type="number"
@@ -31,30 +30,29 @@ export function PromoCodeLimitsFields({
           required
         />
         <p className="text-xs text-muted-foreground">
-          Number of months the subscription will be extended
+          订阅将被延长的月数
         </p>
       </div>
 
-      {/* Usage Limits */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="max_uses">Max Total Uses</Label>
+          <Label htmlFor="max_uses">总使用次数上限</Label>
           <Input
             id="max_uses"
             type="number"
             min={1}
-            placeholder="Unlimited"
+            placeholder="不限"
             value={formData.max_uses}
             onChange={(e) =>
               onFormChange({ ...formData, max_uses: e.target.value })
             }
           />
           <p className="text-xs text-muted-foreground">
-            Leave empty for unlimited uses
+            留空表示不限次数
           </p>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="max_uses_per_org">Max Uses per Organization</Label>
+          <Label htmlFor="max_uses_per_org">每个组织使用次数上限</Label>
           <Input
             id="max_uses_per_org"
             type="number"
@@ -70,9 +68,8 @@ export function PromoCodeLimitsFields({
         </div>
       </div>
 
-      {/* Expiration */}
       <div className="space-y-2">
-        <Label htmlFor="expires_at">Expiration Date</Label>
+        <Label htmlFor="expires_at">过期时间</Label>
         <Input
           id="expires_at"
           type="datetime-local"
@@ -82,7 +79,7 @@ export function PromoCodeLimitsFields({
           }
         />
         <p className="text-xs text-muted-foreground">
-          Leave empty for no expiration
+          留空表示永不过期
         </p>
       </div>
     </>

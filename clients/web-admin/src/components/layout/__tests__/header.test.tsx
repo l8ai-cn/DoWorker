@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 
-// Mock usePathname
 const mockPathname = vi.fn(() => "/");
 vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname(),
@@ -16,132 +15,132 @@ describe("Header", () => {
   });
 
   describe("page titles", () => {
-    it("should show 'Dashboard' for '/'", () => {
+    it("should show dashboard title for '/'", () => {
       mockPathname.mockReturnValue("/");
       render(<Header />);
-      expect(screen.getByText("Dashboard")).toBeInTheDocument();
+      expect(screen.getByText("仪表盘")).toBeInTheDocument();
     });
 
-    it("should show 'Users' for '/users'", () => {
+    it("should show users title for '/users'", () => {
       mockPathname.mockReturnValue("/users");
       render(<Header />);
-      expect(screen.getByText("Users")).toBeInTheDocument();
+      expect(screen.getByText("用户")).toBeInTheDocument();
     });
 
-    it("should show 'Organizations' for '/organizations'", () => {
+    it("should show organizations title for '/organizations'", () => {
       mockPathname.mockReturnValue("/organizations");
       render(<Header />);
-      expect(screen.getByText("Organizations")).toBeInTheDocument();
+      expect(screen.getByText("组织")).toBeInTheDocument();
     });
 
-    it("should show 'Runners' for '/runners'", () => {
+    it("should show runners title for '/runners'", () => {
       mockPathname.mockReturnValue("/runners");
       render(<Header />);
-      expect(screen.getByText("Runners")).toBeInTheDocument();
+      expect(screen.getByText("Runner")).toBeInTheDocument();
     });
 
-    it("should show 'Relays' for '/relays'", () => {
+    it("should show relays title for '/relays'", () => {
       mockPathname.mockReturnValue("/relays");
       render(<Header />);
-      expect(screen.getByText("Relays")).toBeInTheDocument();
+      expect(screen.getByText("中继")).toBeInTheDocument();
     });
 
-    it("should show 'Skill Registries' for '/skill-registries'", () => {
+    it("should show skill registries title for '/skill-registries'", () => {
       mockPathname.mockReturnValue("/skill-registries");
       render(<Header />);
-      expect(screen.getByText("Skill Registries")).toBeInTheDocument();
+      expect(screen.getByText("技能源")).toBeInTheDocument();
     });
 
-    it("should show 'Promo Codes' for '/promo-codes'", () => {
+    it("should show promo codes title for '/promo-codes'", () => {
       mockPathname.mockReturnValue("/promo-codes");
       render(<Header />);
-      expect(screen.getByText("Promo Codes")).toBeInTheDocument();
+      expect(screen.getByText("优惠码")).toBeInTheDocument();
     });
 
-    it("should show 'Support Tickets' for '/support-tickets'", () => {
+    it("should show support tickets title for '/support-tickets'", () => {
       mockPathname.mockReturnValue("/support-tickets");
       render(<Header />);
-      expect(screen.getByText("Support Tickets")).toBeInTheDocument();
+      expect(screen.getByText("支持工单")).toBeInTheDocument();
     });
 
-    it("should show 'Audit Logs' for '/audit-logs'", () => {
+    it("should show audit logs title for '/audit-logs'", () => {
       mockPathname.mockReturnValue("/audit-logs");
       render(<Header />);
-      expect(screen.getByText("Audit Logs")).toBeInTheDocument();
+      expect(screen.getByText("审计日志")).toBeInTheDocument();
     });
   });
 
   describe("dynamic route titles", () => {
-    it("should show 'User Details' for '/users/123'", () => {
+    it("should show user details for '/users/123'", () => {
       mockPathname.mockReturnValue("/users/123");
       render(<Header />);
-      expect(screen.getByText("User Details")).toBeInTheDocument();
+      expect(screen.getByText("用户详情")).toBeInTheDocument();
     });
 
-    it("should show 'Organization Details' for '/organizations/5'", () => {
+    it("should show organization details for '/organizations/5'", () => {
       mockPathname.mockReturnValue("/organizations/5");
       render(<Header />);
-      expect(screen.getByText("Organization Details")).toBeInTheDocument();
+      expect(screen.getByText("组织详情")).toBeInTheDocument();
     });
 
-    it("should show 'Runner Details' for '/runners/10'", () => {
+    it("should show runner details for '/runners/10'", () => {
       mockPathname.mockReturnValue("/runners/10");
       render(<Header />);
-      expect(screen.getByText("Runner Details")).toBeInTheDocument();
+      expect(screen.getByText("Runner 详情")).toBeInTheDocument();
     });
 
-    it("should show 'Relay Details' for '/relays/abc'", () => {
+    it("should show relay details for '/relays/abc'", () => {
       mockPathname.mockReturnValue("/relays/abc");
       render(<Header />);
-      expect(screen.getByText("Relay Details")).toBeInTheDocument();
+      expect(screen.getByText("中继详情")).toBeInTheDocument();
     });
 
-    it("should show 'Create Promo Code' for '/promo-codes/new'", () => {
+    it("should show create promo code for '/promo-codes/new'", () => {
       mockPathname.mockReturnValue("/promo-codes/new");
       render(<Header />);
-      expect(screen.getByText("Create Promo Code")).toBeInTheDocument();
+      expect(screen.getByText("创建优惠码")).toBeInTheDocument();
     });
 
-    it("should show 'Promo Code Details' for '/promo-codes/5'", () => {
+    it("should show promo code details for '/promo-codes/5'", () => {
       mockPathname.mockReturnValue("/promo-codes/5");
       render(<Header />);
-      expect(screen.getByText("Promo Code Details")).toBeInTheDocument();
+      expect(screen.getByText("优惠码详情")).toBeInTheDocument();
     });
 
-    it("should show 'Ticket Details' for '/support-tickets/7'", () => {
+    it("should show ticket details for '/support-tickets/7'", () => {
       mockPathname.mockReturnValue("/support-tickets/7");
       render(<Header />);
-      expect(screen.getByText("Ticket Details")).toBeInTheDocument();
+      expect(screen.getByText("工单详情")).toBeInTheDocument();
     });
 
-    it("should show 'Skill Registry Details' for '/skill-registries/3'", () => {
+    it("should show skill registry details for '/skill-registries/3'", () => {
       mockPathname.mockReturnValue("/skill-registries/3");
       render(<Header />);
-      expect(screen.getByText("Skill Registry Details")).toBeInTheDocument();
+      expect(screen.getByText("技能源详情")).toBeInTheDocument();
     });
 
-    it("should fall back to 'Admin Console' for unknown paths", () => {
+    it("should fall back to admin console for unknown paths", () => {
       mockPathname.mockReturnValue("/unknown/deep/path");
       render(<Header />);
-      expect(screen.getByText("Admin Console")).toBeInTheDocument();
+      expect(screen.getByText("管理控制台")).toBeInTheDocument();
     });
   });
 
   describe("hamburger menu", () => {
     it("should not render menu button when onMenuClick is not provided", () => {
       render(<Header />);
-      expect(screen.queryByText("Open menu")).not.toBeInTheDocument();
+      expect(screen.queryByText("打开菜单")).not.toBeInTheDocument();
     });
 
     it("should render menu button when onMenuClick is provided", () => {
       render(<Header onMenuClick={() => {}} />);
-      expect(screen.getByText("Open menu")).toBeInTheDocument();
+      expect(screen.getByText("打开菜单")).toBeInTheDocument();
     });
 
     it("should call onMenuClick when menu button is clicked", () => {
       const handleMenuClick = vi.fn();
       render(<Header onMenuClick={handleMenuClick} />);
-      fireEvent.click(screen.getByText("Open menu").closest("button")!);
+      fireEvent.click(screen.getByText("打开菜单").closest("button")!);
       expect(handleMenuClick).toHaveBeenCalledTimes(1);
     });
   });

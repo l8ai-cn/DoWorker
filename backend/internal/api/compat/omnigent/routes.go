@@ -1,0 +1,61 @@
+package omnigent
+
+import (
+	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	"github.com/gin-gonic/gin"
+)
+
+func RegisterRoutes(r *gin.Engine, d Deps) {
+	registerAuthRoutes(r, d)
+
+	v1 := r.Group("/v1")
+	v1.GET("/info", d.handleInfo)
+
+	auth := v1.Group("")
+	auth.Use(middleware.AuthMiddleware(d.JWTSecret))
+	auth.GET("/me", d.handleMe)
+
+	orgScoped := auth.Group("")
+	orgScoped.Use(headerTenant(d.Org))
+	{
+		orgScoped.GET("/org/usage/summary", d.handleOrgUsageSummary)
+		orgScoped.GET("/agents", d.handleListAgents)
+		orgScoped.GET("/harnesses", d.handleListHarnesses)
+		orgScoped.GET("/runners", d.handleListRunners)
+		orgScoped.GET("/policy-registry", d.handlePolicyRegistry)
+		orgScoped.GET("/policies", d.handleListPolicies)
+		orgScoped.POST("/policies", middleware.RequireAdmin(), d.handleCreatePolicy)
+		orgScoped.PATCH("/policies/:id", middleware.RequireAdmin(), d.handlePatchPolicy)
+		orgScoped.DELETE("/policies/:id", middleware.RequireAdmin(), d.handleDeletePolicy)
+		orgScoped.GET("/sessions", d.handleListSessions)
+		orgScoped.GET("/sessions/updates", d.handleSessionUpdates)
+		orgScoped.POST("/sessions", d.handleCreateSession)
+		orgScoped.GET("/sessions/:id", d.handleGetSession)
+		orgScoped.PATCH("/sessions/:id", d.handlePatchSession)
+		orgScoped.PUT("/sessions/:id/read-state", d.handlePutReadState)
+		orgScoped.GET("/sessions/:id/owner", d.handleGetSessionOwner)
+		orgScoped.GET("/sessions/:id/permissions", d.handleListPermissions)
+		orgScoped.PUT("/sessions/:id/permissions", d.handlePutPermission)
+		orgScoped.DELETE("/sessions/:id/permissions/:user_id", d.handleDeletePermission)
+		orgScoped.GET("/sessions/:id/policies", d.handleListSessionPolicies)
+		orgScoped.POST("/sessions/:id/policies", d.handleCreateSessionPolicy)
+		orgScoped.DELETE("/sessions/:id/policies/:policy_id", d.handleDeleteSessionPolicy)
+		orgScoped.POST("/sessions/:id/switch-agent", d.handleSwitchAgent)
+		orgScoped.GET("/sessions/:id/items", d.handleListItems)
+		orgScoped.GET("/sessions/:id/elicitations/:elicitation_id", d.handleGetElicitation)
+		orgScoped.POST("/sessions/:id/elicitations/:elicitation_id/resolve", d.handleResolveElicitation)
+		orgScoped.POST("/sessions/:id/events", d.handlePostEvent)
+		orgScoped.GET("/sessions/:id/stream", d.handleSessionStream)
+		orgScoped.POST("/sessions/:id/fork", d.handleForkSession)
+		orgScoped.GET("/sessions/:id/resources/terminals", d.handleListTerminals)
+		orgScoped.POST("/sessions/:id/resources/terminals", d.handleCreateTerminal)
+		orgScoped.GET("/sessions/:id/resources/terminals/:terminal_id/attach", d.handleTerminalAttach)
+		orgScoped.GET("/sessions/:id/resources/environments/default/filesystem", d.handleSessionFilesystemStub)
+		orgScoped.GET("/sessions/:id/resources/environments/default/filesystem/*filepath", d.handleSessionFilesystemStub)
+		orgScoped.GET("/hosts", d.handleListHosts)
+		orgScoped.GET("/hosts/:id/filesystem", d.handleHostFilesystem)
+		orgScoped.GET("/hosts/:id/filesystem/*filepath", d.handleHostFilesystem)
+		orgScoped.POST("/hosts/:id/directories", d.handleCreateHostDirectory)
+		orgScoped.POST("/hosts/:id/runners", d.handleBindHostRunner)
+	}
+}

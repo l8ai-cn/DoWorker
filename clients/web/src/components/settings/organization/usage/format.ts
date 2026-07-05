@@ -24,3 +24,11 @@ export function formatNumber(value: number): string {
   if (!Number.isFinite(value)) return "0";
   return value.toLocaleString();
 }
+
+export function formatUsd(value: number, fullPrecision = false): string {
+  if (!Number.isFinite(value)) return "$0.00";
+  if (fullPrecision) return `$${value.toFixed(8)}`;
+  if (value >= 0.01) return `$${value.toFixed(4)}`;
+  if (value > 0) return `$${value.toFixed(6)}`;
+  return "$0.00";
+}

@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogBody, DialogFooter } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { usePodCreationData } from "@/components/pod/hooks";
 import { repositoryApi, type RepositoryData } from "@/lib/api/facade/repository";
 import { useCoordinatorStore } from "@/stores/coordinator";
 
@@ -21,26 +22,36 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
   const [repos, setRepos] = useState<RepositoryData[]>([]);
   const [name, setName] = useState("");
   const [repositoryId, setRepositoryId] = useState("");
+  const [agentSlug, setAgentSlug] = useState("");
   const [labels, setLabels] = useState("");
   const [interval, setInterval] = useState("300");
   const [submitting, setSubmitting] = useState(false);
+  const { runners, availableAgents } = usePodCreationData(open);
 
   useEffect(() => {
     if (open) repositoryApi.list().then((r) => setRepos(r.items)).catch(() => setRepos([]));
   }, [open]);
 
+  useEffect(() => {
+    if (agentSlug && !availableAgents.some((agent) => agent.slug === agentSlug)) {
+      setAgentSlug("");
+    }
+  }, [agentSlug, availableAgents]);
+
   const submit = async () => {
-    if (!name.trim() || !repositoryId) return;
+    if (!name.trim() || !repositoryId || !agentSlug) return;
     setSubmitting(true);
     try {
       await createProject({
         name: name.trim(),
         repository_id: Number(repositoryId),
+        agent_slug: agentSlug,
         label_filter: labels.split(",").map((l) => l.trim()).filter(Boolean),
         scan_interval_seconds: Number(interval) || 300,
       });
       setName("");
       setRepositoryId("");
+      setAgentSlug("");
       setLabels("");
       onOpenChange(false);
     } finally {
@@ -72,6 +83,31 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
             </Select>
           </div>
           <div className="space-y-1.5">
+            <Label>{t("create.agent")}</Label>
+            <Select
+              value={agentSlug}
+              onValueChange={setAgentSlug}
+              disabled={availableAgents.length === 0}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t("create.agentPlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {availableAgents.map((agent) => (
+                  <SelectItem key={agent.slug} value={agent.slug}>
+                    {agent.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {runners.length === 0 && (
+              <p className="text-xs text-muted-foreground">{t("create.noOnlineRunners")}</p>
+            )}
+            {runners.length > 0 && availableAgents.length === 0 && (
+              <p className="text-xs text-muted-foreground">{t("create.noCompatibleAgents")}</p>
+            )}
+          </div>
+          <div className="space-y-1.5">
             <Label>{t("create.labels")}</Label>
             <Input value={labels} onChange={(e) => setLabels(e.target.value)} placeholder={t("create.labelsPlaceholder")} />
           </div>
@@ -84,7 +120,7 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("create.cancel")}
           </Button>
-          <Button onClick={submit} loading={submitting} disabled={!name.trim() || !repositoryId}>
+          <Button onClick={submit} loading={submitting} disabled={!name.trim() || !repositoryId || !agentSlug}>
             {t("create.submit")}
           </Button>
         </DialogFooter>

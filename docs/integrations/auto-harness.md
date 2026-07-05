@@ -105,7 +105,7 @@ auto-harness 在派发前会 `CreateInstance` 动态起 worker；AgentsMesh coor
 
 | 变量 | 说明 |
 |---|---|
-| `COORDINATOR_RUNNER_IMAGE` | Runner 镜像（docker run / k8s 必填） |
+| `COORDINATOR_RUNNER_IMAGES` | `agent_slug=image` 映射，逗号分隔；docker run / k8s 必填 |
 | `COORDINATOR_RUNNER_BACKEND_URL` | 容器内 BACKEND_URL |
 | `COORDINATOR_RUNNER_GRPC_ENDPOINT` | 容器内 GRPC_ENDPOINT |
 | `COORDINATOR_RUNNER_RELAY_BASE_URL` | 容器内 RELAY_BASE_URL |
@@ -119,7 +119,7 @@ auto-harness 在派发前会 `CreateInstance` 动态起 worker；AgentsMesh coor
 |---|---|
 | `COORDINATOR_RUNNER_DOCKER_BINARY` | 默认 `docker` |
 | `COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR` | 设置后走 `docker compose up -d`（dev 默认） |
-| `COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICE` | 默认 `runner` |
+| `COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES` | `agent_slug=compose_service` 映射，逗号分隔 |
 | `COORDINATOR_RUNNER_DOCKER_NETWORK` | `docker run --network` |
 | `COORDINATOR_RUNNER_DOCKER_SSL_HOST_PATH` | 挂载 CA 到 `/app/ssl` |
 | `COORDINATOR_RUNNER_DOCKER_ENTRYPOINT_HOST_PATH` | 挂载 entrypoint 脚本 |
@@ -142,14 +142,14 @@ auto-harness 在派发前会 `CreateInstance` 动态起 worker；AgentsMesh coor
 ```bash
 COORDINATOR_RUNNER_LAUNCHER=docker
 COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR=deploy/dev
-COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICE=runner
+COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES=claude-code=runner-claude-code,codex-cli=runner-codex-cli,e2e-echo=runner-e2e-echo
 ```
 
 生产 k8s 示例：
 
 ```bash
 COORDINATOR_RUNNER_LAUNCHER=k8s
-COORDINATOR_RUNNER_IMAGE=registry.example.com/agentsmesh-runner:1.2.3
+COORDINATOR_RUNNER_IMAGES=do-agent=registry.example.com/agentsmesh-runner-do-agent:1.2.3,codex-cli=registry.example.com/agentsmesh-runner-codex-cli:1.2.3
 COORDINATOR_RUNNER_BACKEND_URL=http://backend.agentsmesh.svc:8080
 COORDINATOR_RUNNER_GRPC_ENDPOINT=backend.agentsmesh.svc:9443
 COORDINATOR_RUNNER_RELAY_BASE_URL=ws://relay.agentsmesh.svc:8080/relay

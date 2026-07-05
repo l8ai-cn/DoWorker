@@ -53,6 +53,8 @@ const (
 	KW_USE_CONFIG_BUNDLE // USE_CONFIG_BUNDLE (references a config-kind JSON bundle)
 	KW_PROMPT          // PROMPT (prompt content)
 	KW_PROMPT_POSITION // PROMPT_POSITION (prepend/append/none)
+	KW_CAPABILITY      // CAPABILITY (agent feature declaration)
+	KW_KNOWLEDGE       // KNOWLEDGE (knowledge base mounts)
 
 	// Config type keywords (uppercase)
 	KW_BOOL   // BOOL
@@ -113,6 +115,8 @@ var declarationKeywords = map[string]TokenType{
 	"USE_CONFIG_BUNDLE": KW_USE_CONFIG_BUNDLE,
 	"PROMPT":          KW_PROMPT,
 	"PROMPT_POSITION": KW_PROMPT_POSITION,
+	"CAPABILITY":      KW_CAPABILITY,
+	"KNOWLEDGE":       KW_KNOWLEDGE,
 	"BOOL":            KW_BOOL,
 	"STRING":          KW_STRING,
 	"NUMBER":          KW_NUMBER,
@@ -166,6 +170,7 @@ func (t TokenType) String() string {
 		KW_MODE: "MODE", KW_USE_ENV_BUNDLE: "USE_ENV_BUNDLE",
 		KW_USE_CONFIG_BUNDLE: "USE_CONFIG_BUNDLE",
 		KW_PROMPT: "PROMPT", KW_PROMPT_POSITION: "PROMPT_POSITION",
+		KW_CAPABILITY: "CAPABILITY", KW_KNOWLEDGE: "KNOWLEDGE",
 		KW_BOOL: "BOOL", KW_STRING: "STRING_TYPE", KW_NUMBER: "NUMBER_TYPE",
 		KW_SECRET: "SECRET", KW_TEXT: "TEXT", KW_SELECT: "SELECT",
 		KW_ARG: "arg", KW_FILE: "file", KW_MKDIR: "mkdir",

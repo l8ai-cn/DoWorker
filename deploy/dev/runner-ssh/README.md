@@ -41,6 +41,6 @@ Or via the GitLab Web UI:
 ## Test Connection
 
 ```bash
-# Test inside the runner container
-docker compose exec runner ssh -T git@gitlab.corp.signalrender.com
+# Test inside one runner container
+docker compose exec runner-claude-code ssh -T git@gitlab.corp.signalrender.com
 ```

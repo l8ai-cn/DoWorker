@@ -97,6 +97,10 @@ pub mod proto_invitation_v1 {
     pub use ::invitation_proto::proto::invitation::v1::*;
 }
 
+pub mod proto_knowledgebase_v1 {
+    pub use ::knowledgebase_proto::proto::knowledgebase::v1::*;
+}
+
 pub mod proto_license_v1 {
     pub use ::license_proto::proto::license::v1::*;
 }

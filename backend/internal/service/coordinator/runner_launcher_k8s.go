@@ -2,7 +2,6 @@ package coordinator
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -23,8 +22,9 @@ func NewK8sLauncher(cfg k8sLauncherConfig, logger *slog.Logger) *K8sLauncher {
 }
 
 func (l *K8sLauncher) Launch(ctx context.Context, orgID int64, agentSlug string) error {
-	if l.cfg.ContainerEnv.Image == "" {
-		return errors.New("coordinator: COORDINATOR_RUNNER_IMAGE is required for k8s launch")
+	image, err := l.cfg.ContainerEnv.imageForAgent(agentSlug)
+	if err != nil {
+		return err
 	}
 	name := runnerInstanceID(orgID, agentSlug)
 	phase, err := podPhase(ctx, l, name)
@@ -43,7 +43,7 @@ func (l *K8sLauncher) Launch(ctx context.Context, orgID int64, agentSlug string)
 	manifest, err := renderRunnerPod(k8sPodSpec{
 		Name:              name,
 		Namespace:         l.cfg.Namespace,
-		Image:             l.cfg.ContainerEnv.Image,
+		Image:             image,
 		ImagePullPolicy:   l.cfg.ImagePullPolicy,
 		BackendURL:        l.cfg.ContainerEnv.BackendURL,
 		GRPCEndpoint:      l.cfg.ContainerEnv.GRPCEndpoint,

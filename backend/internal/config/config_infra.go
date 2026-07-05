@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 // PKIConfig holds PKI (certificate) configuration for Runner mTLS authentication
 // Required for Runner communication via gRPC + mTLS
 type PKIConfig struct {
@@ -40,4 +42,20 @@ type EmailConfig struct {
 	Provider    string // "resend" or "console"
 	ResendKey   string
 	FromAddress string
+}
+
+// KnowledgeBaseConfig points at the internal Gitea instance hosting KB
+// repositories. When URL or token is empty the KB feature is disabled
+// (same nil-service pattern as StorageConfig / file service).
+type KnowledgeBaseConfig struct {
+	GiteaURL     string // Gitea base URL as reachable from the backend
+	GiteaToken   string // admin-scoped service token for repo provisioning
+	GiteaOrg     string // Gitea org namespace owning all KB repos
+	CloneBaseURL string // clone base URL as reachable from runners
+
+	SyncInterval time.Duration // external-source (feishu/dingtalk/google) sync cadence
+}
+
+func (c KnowledgeBaseConfig) Enabled() bool {
+	return c.GiteaURL != "" && c.GiteaToken != ""
 }

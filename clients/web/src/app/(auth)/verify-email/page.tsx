@@ -88,9 +88,9 @@ function VerifyEmailContent() {
           : `${t("auth.verifyEmailPage.subtitleDefault")} ${t("auth.verifyEmailPage.clickLink")}`
       }
       footer={
-        <p className="text-sm text-[var(--azure-text-muted)]">
+        <p className="text-sm text-muted-foreground">
           {t("auth.verifyEmailPage.alreadyVerified")}{" "}
-          <Link href="/login" className="text-[var(--azure-cyan)] hover:underline font-medium">
+          <Link href="/login" className="auth-link">
             {t("auth.verifyEmailPage.signIn")}
           </Link>
         </p>
@@ -116,9 +116,9 @@ function VerifyEmailContent() {
         <Button variant="outline" className="w-full" onClick={handleResend} disabled={loading || !email}>
           {loading ? t("auth.verifyEmailPage.sending") : t("auth.verifyEmailPage.resendEmail")}
         </Button>
-        <p className="text-sm text-center text-[var(--azure-text-muted)]">
+        <p className="text-sm text-center text-muted-foreground">
           {t("auth.verifyEmailPage.wrongEmail")}{" "}
-          <Link href="/register" className="text-[var(--azure-cyan)] hover:underline font-medium">
+          <Link href="/register" className="auth-link">
             {t("auth.verifyEmailPage.signUpDifferent")}
           </Link>
         </p>
@@ -131,7 +131,7 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="azure-theme min-h-screen flex items-center justify-center bg-background">
+        <div className="auth-theme min-h-screen flex items-center justify-center bg-background">
           <CenteredSpinner />
         </div>
       }

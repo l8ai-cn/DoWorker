@@ -74,37 +74,37 @@ export default function RelaysPage() {
 
   const handleUnregister = async (relay: RelayInfo, migrate: boolean) => {
     const msg = migrate
-      ? `Unregister relay "${relay.id}" and migrate all sessions to another relay?`
-      : `Unregister relay "${relay.id}"? ${relay.connections} active connections will be affected.`;
+      ? `注销中继 "${relay.id}" 并将所有会话迁移到其他中继？`
+      : `注销中继 "${relay.id}"？${relay.connections} 个活跃连接将受影响。`;
     if (!confirm(msg)) return;
     try {
       const data = await forceUnregisterRelay(relay.id, migrate);
-      toast.success(`Relay unregistered. ${data.affected_sessions} sessions affected.`);
+      toast.success(`中继已注销，影响 ${data.affected_sessions} 个会话。`);
       setRefetchKey((k) => k + 1);
     } catch (err: unknown) {
-      toast.error((err as { error?: string })?.error || "Failed to unregister relay");
+      toast.error((err as { error?: string })?.error || "注销中继失败");
     }
   };
 
   const handleBulkMigrate = async () => {
     if (!selectedSource || !selectedTarget) {
-      toast.error("Please select source and target relays");
+      toast.error("请选择源中继和目标中继");
       return;
     }
     if (selectedSource === selectedTarget) {
-      toast.error("Source and target cannot be the same");
+      toast.error("源中继和目标中继不能相同");
       return;
     }
-    if (!confirm(`Migrate all sessions from "${selectedSource}" to "${selectedTarget}"?`)) return;
+    if (!confirm(`将所有会话从 "${selectedSource}" 迁移到 "${selectedTarget}"？`)) return;
     setIsMigrating(true);
     try {
       const data = await bulkMigrateSessions(selectedSource, selectedTarget);
-      toast.success(`Migration completed: ${data.migrated}/${data.total} sessions migrated`);
+      toast.success(`迁移完成：${data.migrated}/${data.total} 个会话已迁移`);
       setSelectedSource("");
       setSelectedTarget("");
       setRefetchKey((k) => k + 1);
     } catch (err: unknown) {
-      toast.error((err as { error?: string })?.error || "Failed to migrate sessions");
+      toast.error((err as { error?: string })?.error || "迁移会话失败");
     } finally {
       setIsMigrating(false);
     }
@@ -119,19 +119,19 @@ export default function RelaysPage() {
       {healthyRelays.length >= 2 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Bulk Session Migration</CardTitle>
+            <CardTitle className="text-base">批量会话迁移</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="flex-1">
                 <Select value={selectedSource} onValueChange={setSelectedSource}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Source Relay" />
+                    <SelectValue placeholder="源中继" displayValue={selectedSource || undefined} />
                   </SelectTrigger>
                   <SelectContent>
                     {relaysData?.data.map((relay) => (
                       <SelectItem key={relay.id} value={relay.id}>
-                        {relay.id} ({relay.connections} connections)
+                        {relay.id} ({relay.connections} 个连接)
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -141,7 +141,7 @@ export default function RelaysPage() {
               <div className="flex-1">
                 <Select value={selectedTarget} onValueChange={setSelectedTarget}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Target Relay" />
+                    <SelectValue placeholder="目标中继" displayValue={selectedTarget || undefined} />
                   </SelectTrigger>
                   <SelectContent>
                     {healthyRelays
@@ -163,7 +163,7 @@ export default function RelaysPage() {
                 ) : (
                   <ArrowRightLeft className="mr-2 h-4 w-4" />
                 )}
-                Migrate
+                迁移
               </Button>
             </div>
           </CardContent>

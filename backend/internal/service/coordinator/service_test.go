@@ -2,13 +2,14 @@ package coordinator
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	coordinatordom "github.com/anthropics/agentsmesh/backend/internal/domain/coordinator"
 	ticketDomain "github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
 	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	ticketSvc "github.com/anthropics/agentsmesh/backend/internal/service/ticket"
 )
 
@@ -123,6 +124,47 @@ func TestHandlePodTerminatedPostsFeedback(t *testing.T) {
 	}
 	if tickets.lastStatus != ticketDomain.TicketStatusInReview {
 		t.Fatalf("ticket status = %q, want in_review", tickets.lastStatus)
+	}
+}
+
+func TestHandlePodTerminatedIsIdempotent(t *testing.T) {
+	platform := &fakePlatform{
+		tasks: []ExternalTask{{ExternalID: "issue:1", Number: 1, Title: "t", State: "open"}},
+		claim: ClaimResult{Claimed: true, Marker: "m"},
+	}
+	svc, store, _ := newTestService(t, platform)
+	project := &coordinatordom.Project{ID: 1, OrganizationID: 1, RepositoryID: 1, PlatformType: coordinatordom.PlatformTypeCNB, MaxConcurrent: 5}
+	_ = store.CreateProject(context.Background(), project)
+	if _, err := svc.RunProject(context.Background(), project); err != nil {
+		t.Fatalf("RunProject: %v", err)
+	}
+
+	podKey := *store.executions[0].PodKey
+	svc.HandlePodTerminated(context.Background(), podKey, "completed")
+	svc.HandlePodTerminated(context.Background(), podKey, "completed")
+
+	if platform.feedback != 1 {
+		t.Fatalf("feedback posts = %d, want 1", platform.feedback)
+	}
+}
+
+func TestUpdateProjectReturnsNotFound(t *testing.T) {
+	svc, _, _ := newTestService(t, &fakePlatform{})
+
+	err := svc.UpdateProject(context.Background(), 1, 404, map[string]any{"name": "missing"})
+
+	if !errors.Is(err, coordinatordom.ErrNotFound) {
+		t.Fatalf("UpdateProject error = %v, want ErrNotFound", err)
+	}
+}
+
+func TestDeleteProjectReturnsNotFound(t *testing.T) {
+	svc, _, _ := newTestService(t, &fakePlatform{})
+
+	err := svc.DeleteProject(context.Background(), 1, 404)
+
+	if !errors.Is(err, coordinatordom.ErrNotFound) {
+		t.Fatalf("DeleteProject error = %v, want ErrNotFound", err)
 	}
 }
 

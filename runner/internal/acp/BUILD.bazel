@@ -4,6 +4,7 @@ go_library(
     name = "acp",
     srcs = [
         "client.go",
+        "client_calibrate.go",
         "client_callbacks.go",
         "client_internal.go",
         "client_session.go",
@@ -14,16 +15,21 @@ go_library(
         "mcp_bridge.go",
         "reader.go",
         "request_tracker.go",
+        "session_resume.go",
         "transport.go",
         "transport_acp.go",
         "transport_acp_control.go",
+        "transport_acp_resume.go",
         "transport_acp_session.go",
         "types.go",
         "writer.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/runner/internal/acp",
     visibility = ["//runner:__subpackages__"],
-    deps = ["//runner/internal/processmgr"],
+    deps = [
+        "//agentfile/capability",
+        "//runner/internal/processmgr",
+    ],
 )
 
 alias(
@@ -56,6 +62,7 @@ go_test(
         "loopal_snapshot_test.go",
         "mcp_bridge_test.go",
         "reader_test.go",
+        "session_resume_test.go",
         "transport_acp_control_test.go",
         "transport_registry_test.go",
         "writer_error_test.go",
@@ -65,5 +72,6 @@ go_test(
     deps = [
         "//runner/internal/processmgr",
         "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
     ],
 )

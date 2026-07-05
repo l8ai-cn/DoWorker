@@ -149,3 +149,11 @@ func (m *MockCommandSender) SendAutopilotControl(runnerID int64, cmd *runnerv1.A
 func (m *MockCommandSender) SendUpdatePodPerpetual(ctx context.Context, runnerID int64, podKey string, perpetual bool) error {
 	return nil
 }
+
+func (m *MockCommandSender) SendUpdatePodPolicyRules(ctx context.Context, runnerID int64, podKey string, rules []*runnerv1.PolicyRuleSnapshot) error {
+	return nil
+}
+
+func (m *MockCommandSender) SendAcpRelay(ctx context.Context, runnerID int64, podKey, payloadJSON string) error {
+	return nil
+}

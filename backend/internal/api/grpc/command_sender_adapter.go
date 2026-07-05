@@ -96,6 +96,22 @@ func (s *GRPCCommandSender) SendUpdatePodPerpetual(ctx context.Context, runnerID
 	return nil
 }
 
+func (s *GRPCCommandSender) SendUpdatePodPolicyRules(ctx context.Context, runnerID int64, podKey string, rules []*runnerv1.PolicyRuleSnapshot) error {
+	if err := s.adapter.SendUpdatePodPolicyRules(runnerID, podKey, rules); err != nil {
+		slog.ErrorContext(ctx, "failed to send update_pod_policy_rules", "runner_id", runnerID, "pod_key", podKey, "error", err)
+		return err
+	}
+	return nil
+}
+
+func (s *GRPCCommandSender) SendAcpRelay(ctx context.Context, runnerID int64, podKey, payloadJSON string) error {
+	if err := s.adapter.SendAcpRelay(runnerID, podKey, payloadJSON); err != nil {
+		slog.ErrorContext(ctx, "failed to send acp relay", "runner_id", runnerID, "pod_key", podKey, "error", err)
+		return err
+	}
+	return nil
+}
+
 func (s *GRPCCommandSender) SendQuerySandboxes(runnerID int64, requestID string, podKeys []string) error {
 	slog.Info("sending query_sandboxes command", "runner_id", runnerID, "request_id", requestID, "pod_count", len(podKeys))
 	if err := s.adapter.SendQuerySandboxes(runnerID, requestID, podKeys); err != nil {

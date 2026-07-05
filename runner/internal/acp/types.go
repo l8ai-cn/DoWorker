@@ -60,6 +60,17 @@ type ThinkingUpdate struct {
 	Text string `json:"text"`
 }
 
+// TurnUsage carries per-turn token counts reported by the agent. Values are
+// turn deltas, not cumulative totals — the runner-side accumulator owns the
+// cumulative view (PodUsageEvent has SET semantics on the backend).
+type TurnUsage struct {
+	Model               string `json:"model,omitempty"`
+	InputTokens         int64  `json:"inputTokens"`
+	OutputTokens        int64  `json:"outputTokens"`
+	CacheReadTokens     int64  `json:"cacheReadTokens,omitempty"`
+	CacheCreationTokens int64  `json:"cacheCreationTokens,omitempty"`
+}
+
 // PermissionRequest represents a tool permission request from the agent.
 type PermissionRequest struct {
 	SessionID     string `json:"sessionId"`
@@ -104,10 +115,12 @@ type EventCallbacks struct {
 	OnPlanUpdate        func(sessionID string, update PlanUpdate)
 	OnThinkingUpdate    func(sessionID string, update ThinkingUpdate)
 	OnPermissionRequest func(req PermissionRequest)
+	OnUsage             func(sessionID string, usage TurnUsage)
 	OnStateChange       func(newState string)
 	OnConfigChange      func(sessionID string, update ConfigUpdate)
 	OnLog               func(level, message string)
 	OnLoopalExt         func(sessionID, kind string, data json.RawMessage)
+	OnSessionID         func(sessionID string)
 	OnExit              func(exitCode int)
 }
 

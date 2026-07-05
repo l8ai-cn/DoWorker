@@ -9,6 +9,11 @@
 # docker volumes, .env). `reset_runners` is the targeted "rebuild + restart
 # the runner container" path used after a runner-only code change.
 
+# shellcheck source=runners_k8s.sh
+source "$(dirname "${BASH_SOURCE[0]}")/runners_k8s.sh"
+# shellcheck source=coordinator_runners.sh
+source "$(dirname "${BASH_SOURCE[0]}")/coordinator_runners.sh"
+
 # Banner / usage / docker-compose-up are factored out of the original main()
 # so the entry point is just orchestration.
 
@@ -25,17 +30,22 @@ print_usage() {
 用法:
   bazel run //deploy/dev:up                 # 一键启动完整开发环境
   bazel run //deploy/dev:backend_only       # 仅启动 docker + host backend/relay (CI)
+  bazel run //deploy/dev:up_coordinator_runners # 平台托管：Coordinator 按需起 runner
+  bazel run //deploy/dev:up_k8s_runners      # runner 部署到本地 K8s 集群
   bazel run //deploy/dev:rebuild_runner     # 重 build runner binary + 重启容器
   bazel run //deploy/dev:reset_runners      # 重启 host runner+relay (backend 不动)
   bazel run //deploy/dev:clean              # 停止并清理所有服务
 
   或直接调脚本（backward-compat）:
-  ./dev.sh [--backend-only|--rebuild-runner|--reset-runners|--clean|--help]
+  ./dev.sh [--backend-only|--coordinator-runners|--runners-k8s|--rebuild-runner|--reset-runners|--clean|--help]
 
   改动 backend / relay 源码: ibazel 自动重 build (host)
-  改动 runner 源码:        bazel run //deploy/dev:rebuild_runner
+  改动 runner 源码:        bazel run //deploy/dev:reset_runners
+  Hive 验收 (dev 栈已起):  bash deploy/dev/hive_smoke.sh
+  或 bazel test //deploy/dev:hive_smoke --test_tag_filters=hive
 
 前端日志: tail -f deploy/dev/web.log
+web-user 日志: tail -f deploy/dev/web-user.log
 EOF
 }
 
@@ -43,7 +53,13 @@ EOF
 # context is small but the npm registry / Docker Hub fetch is flaky on
 # fresh CI runners, so retries beat hard-fail every time.
 docker_compose_up() {
-    info "启动 Docker 基础设施 + runner (首次可能需要几分钟)..."
+    if coordinator_runners_enabled; then
+        info "启动 Docker 基础设施 (Runner 由 Coordinator 按需创建)..."
+    elif runners_k8s_enabled; then
+        info "启动 Docker 基础设施 (runner 由 K8s 集群托管)..."
+    else
+        info "启动 Docker 基础设施 + runner (首次可能需要几分钟)..."
+    fi
     local up_attempt=0
     local up_max=3
     while [ $up_attempt -lt $up_max ]; do
@@ -75,10 +91,13 @@ wait_for_postgres() {
     success "PostgreSQL 已就绪"
 }
 
+runner_compose_services() {
+    echo runner-e2e-echo runner-e2e-echo-2 runner-claude-code runner-codex-cli runner-gemini-cli runner-loopal
+}
+
 # Kill stale runner CLI processes (in case anyone installed agentsmesh-runner
-# from `cargo install` or similar), rebuild the binary, then `docker compose
-# up -d --build runner` to pick up the fresh binary via the runner-binary
-# COPY in runner.Dockerfile.
+# from `cargo install` or similar), rebuild the binary, then restart every
+# agent-specific runner service so each image picks up runner-binary.
 reset_runners() {
     if [[ -f "$ENV_FILE" ]]; then
         source "$ENV_FILE"
@@ -86,7 +105,7 @@ reset_runners() {
 
     echo ""
     echo "=========================================="
-    echo "  Reset Runner (rebuild bazel binary + restart container)"
+    echo "  Reset Runner (rebuild bazel binary + restart)"
     echo "=========================================="
     echo ""
 
@@ -100,12 +119,40 @@ reset_runners() {
     build_runner_binary || return 1
     build_mock_agent_binary || return 1
 
+    if runners_k8s_enabled; then
+        hot_swap_runner_k8s_binary || return 1
+        success "K8s runner Pod 已热更新"
+        echo ""
+        return 0
+    fi
+
     cd "$SCRIPT_DIR"
-    info "重建并重启 runner 容器..."
-    HTTP_PROXY= HTTPS_PROXY= http_proxy= https_proxy= NO_PROXY=* \
-        DOCKER_DEFAULT_PLATFORM=linux/amd64 \
-        docker compose up -d --build runner 2>&1 | grep -v "^#" | grep -v warning || true
-    success "Runner 容器已重启 (binary 来自 bazel build)"
+    # docker cp hot-swap instead of `up -d --build`: the image rebuild path
+    # re-runs apt in runner.Dockerfile, which hangs behind Docker Desktop's
+    # broken proxy on some hosts. Containers that were never created are
+    # skipped — `bazel run //deploy/dev:up` owns first-time creation.
+    local svc container updated=0
+    for svc in $(runner_compose_services); do
+        container="$(docker compose ps -aq "$svc" 2>/dev/null | head -1)"
+        if [[ -z "$container" ]]; then
+            info "跳过 ${svc} (容器不存在 — 由 //deploy/dev:up 创建)"
+            continue
+        fi
+        docker cp "$SCRIPT_DIR/runner-binary" "${container}:/usr/local/bin/agentsmesh-runner"
+        case "$svc" in
+            runner-e2e-echo*)
+                docker cp "$SCRIPT_DIR/e2e-mock-agent-binary" "${container}:/usr/local/bin/e2e-mock-agent"
+                ;;
+        esac
+        docker restart "$container" >/dev/null
+        updated=$((updated + 1))
+        info "已热更新 $svc"
+    done
+    if [[ "$updated" -eq 0 ]]; then
+        error "没有可更新的 runner 容器 — 先跑 bazel run //deploy/dev:up"
+        return 1
+    fi
+    success "Runner 容器已重启 (bazel binary via docker cp，跳过 apt rebuild)"
 
     echo ""
 }
@@ -118,10 +165,17 @@ clean() {
     fi
     local web_port="${WEB_PORT:-3000}"
     local web_admin_port="${WEB_ADMIN_PORT:-3001}"
+    local web_user_port="${WEB_USER_PORT:-10020}"
 
     info "停止 host-side ibazel 服务..."
     stop_host_services
     success "host-side 服务已停止"
+
+    stop_web_user
+
+    _stop_setsid web
+    _stop_setsid web-admin
+    _stop_setsid web-user
 
     if lsof -i :"$web_port" &>/dev/null; then
         info "停止前端服务 (端口: $web_port)..."
@@ -138,6 +192,8 @@ clean() {
     rm -f "$SCRIPT_DIR/web.log"
     rm -f "$SCRIPT_DIR/web-admin.log"
     rm -rf "$(_runtime_dir)"
+
+    teardown_runners_k8s
 
     if [[ -f "$ENV_FILE" ]]; then
         info "清理 Docker 环境: ${COMPOSE_PROJECT_NAME:-agentsmesh}..."
@@ -160,6 +216,7 @@ show_result() {
     echo ""
     echo "  前端:       http://localhost:$WEB_PORT"
     echo "  Admin:      http://localhost:$WEB_ADMIN_PORT"
+    echo "  web-user:   http://localhost:${WEB_USER_PORT:-10020}"
     echo "  API:        http://localhost:$HTTP_PORT/api  (→ host backend :$BACKEND_HTTP_PORT)"
     echo "  Relay:      ws://localhost:$HTTP_PORT/relay  (→ host relay :$RELAY_HTTP_PORT)"
     echo "  gRPC mTLS:  grpcs://localhost:$GRPC_PORT      (→ host backend :$BACKEND_GRPC_PORT)"
@@ -168,8 +225,19 @@ show_result() {
     echo "    backend  日志: tail -f deploy/dev/runtime/backend/backend.log"
     echo "    relay    日志: tail -f deploy/dev/runtime/relay/relay.log"
     echo ""
-    echo "  Docker runner (bazel-built binary, no hot reload):"
-    echo "    日志: docker compose logs -f runner"
+    if runners_k8s_enabled; then
+        echo "  K8s runners (namespace agentsmesh):"
+        echo "    状态: kubectl get pods -n agentsmesh"
+        echo "    日志: kubectl logs -n agentsmesh -l app=runner-e2e-echo -f"
+        echo "    MCP:  localhost:${RUNNER_MCP_PORT:-10018} (dev-runner)"
+    elif coordinator_runners_enabled; then
+        echo "  Coordinator 平台托管 Runner (按需 docker compose up):"
+        echo "    日志: tail -f deploy/dev/runtime/backend/backend.log | grep -i runner"
+        echo "    容器: docker compose ps | grep runner"
+    else
+        echo "  Docker runners (agent-specific images, no hot reload):"
+        echo "    日志: docker compose logs -f $(runner_compose_services)"
+    fi
     echo "    重 build: ./dev.sh --rebuild-runner"
     echo ""
     echo "  测试账号:   dev@agentsmesh.local / devpass123"
@@ -287,8 +355,8 @@ start_frontend() {
     # credentialForms/index.ts.
     API_PROXY_TARGET="http://localhost:$HTTP_PORT" \
     NEXT_PUBLIC_E2E="true" \
-        bazel run //clients/web:next_dev -- --port "$web_port" > "$log_file" 2>&1 < /dev/null &
-    disown $!
+        _launch_setsid web "$log_file" \
+        bazel run //clients/web:next_dev -- --port "$web_port"
     cd "$saved_dir"
 
     local max_wait=60
@@ -327,8 +395,8 @@ start_admin_frontend() {
     # backend URL (its fallback is the prod-only localhost:10000, which
     # never matches a worktree). Pin it to traefik so /api/* proxies.
     PRIMARY_DOMAIN="localhost:$HTTP_PORT" \
-        bazel run //clients/web-admin:next_dev -- --port "$web_admin_port" > "$log_file" 2>&1 < /dev/null &
-    disown $!
+        _launch_setsid web-admin "$log_file" \
+        bazel run //clients/web-admin:next_dev -- --port "$web_admin_port"
     cd "$saved_dir"
 
     local max_wait=60
@@ -343,3 +411,8 @@ start_admin_frontend() {
     warn "Admin Console 启动中，请稍后访问 http://localhost:$web_admin_port"
     echo "  查看日志: tail -f $log_file"
 }
+
+# shellcheck source=lifecycle_launch.sh
+source "$SCRIPT_DIR/lib/lifecycle_launch.sh"
+# shellcheck source=lifecycle_web_user.sh
+source "$SCRIPT_DIR/lib/lifecycle_web_user.sh"

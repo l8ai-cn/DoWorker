@@ -1,0 +1,141 @@
+x-runner-build-base: &runner-build-base
+  context: .
+  dockerfile: runner.Dockerfile
+
+x-runner-build-args: &runner-build-args
+  HTTP_PROXY: ""
+  HTTPS_PROXY: ""
+  http_proxy: ""
+  https_proxy: ""
+
+x-runner-env: &runner-env
+  HTTP_PROXY: ""
+  HTTPS_PROXY: ""
+  http_proxy: ""
+  https_proxy: ""
+  NO_PROXY: "*"
+  BACKEND_URL: http://traefik:80
+  # gRPC bypasses traefik passthrough — Mac Docker + advancedtls intermittently
+  # EOF on the bidi stream; host backend listens on BACKEND_GRPC_PORT directly.
+  GRPC_ENDPOINT: host.docker.internal:10016
+  RELAY_BASE_URL: ws://traefik:80
+  RUNNER_ORG_SLUG: dev-org
+  MAX_CONCURRENT_PODS: "10"
+  WORKSPACE: /workspace
+  SSL_DIR: /app/ssl
+  DEBUG: "true"
+  HOME: /home/runner
+  AGENTSMESH_MCP_BIND: 0.0.0.0
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-https://api.anthropic.com}
+  ANTHROPIC_AUTH_TOKEN: ${ANTHROPIC_AUTH_TOKEN:-}
+  OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+  GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+  OTEL_SERVICE_NAME: agentsmesh-runner
+  OTEL_TRACES_SAMPLER_ARG: "1.0"
+
+x-runner-common: &runner-common
+  platform: linux/amd64
+  restart: unless-stopped
+  depends_on:
+    traefik:
+      condition: service_started
+  user: "1000:1000"
+  extra_hosts:
+    - "host.lan:host-gateway"
+  entrypoint: ["/usr/local/bin/runner-entrypoint.sh"]
+
+services:
+  runner-e2e-echo:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: e2e-echo } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner, AGENT_RUNTIME: e2e-echo, DEFAULT_AGENT: e2e-echo }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_e2e_workspace:/workspace
+      - runner_e2e_config:/home/runner/.agentsmesh
+    ports:
+      - "${RUNNER_MCP_PORT:-19000}:19000"
+
+  runner-e2e-echo-2:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: e2e-echo } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-2, AGENT_RUNTIME: e2e-echo, DEFAULT_AGENT: e2e-echo }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner2_e2e_workspace:/workspace
+      - runner2_e2e_config:/home/runner/.agentsmesh
+    ports:
+      - "${RUNNER_2_MCP_PORT:-19001}:19000"
+
+  runner-claude-code:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: claude-code } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-claude, AGENT_RUNTIME: claude-code, DEFAULT_AGENT: claude-code }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_claude_workspace:/workspace
+      - runner_claude_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_claude_config:/home/runner/.claude
+
+  runner-codex-cli:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: codex-cli } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-codex, AGENT_RUNTIME: codex-cli, DEFAULT_AGENT: codex-cli }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_codex_workspace:/workspace
+      - runner_codex_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_codex_config:/home/runner/.codex
+
+  runner-gemini-cli:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: gemini-cli } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-gemini, AGENT_RUNTIME: gemini-cli, DEFAULT_AGENT: gemini-cli }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_gemini_workspace:/workspace
+      - runner_gemini_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_gemini_config:/home/runner/.gemini
+
+  runner-loopal:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: loopal } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-loopal, AGENT_RUNTIME: loopal, DEFAULT_AGENT: loopal }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_loopal_workspace:/workspace
+      - runner_loopal_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_loopal_config:/home/runner/.loopal
+
+volumes:
+  runner_e2e_workspace:
+  runner_e2e_config:
+  runner2_e2e_workspace:
+  runner2_e2e_config:
+  runner_claude_workspace:
+  runner_claude_agentsmesh_config:
+  runner_claude_config:
+  runner_codex_workspace:
+  runner_codex_agentsmesh_config:
+  runner_codex_config:
+  runner_gemini_workspace:
+  runner_gemini_agentsmesh_config:
+  runner_gemini_config:
+  runner_loopal_workspace:
+  runner_loopal_agentsmesh_config:
+  runner_loopal_config:

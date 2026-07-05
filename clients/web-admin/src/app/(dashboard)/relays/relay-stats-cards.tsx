@@ -7,7 +7,7 @@ export function RelayStatsCards({ stats }: { stats: RelayStats | null }) {
     <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Relays</CardTitle>
+          <CardTitle className="text-sm font-medium">中继总数</CardTitle>
           <Radio className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -16,7 +16,7 @@ export function RelayStatsCards({ stats }: { stats: RelayStats | null }) {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Healthy Relays</CardTitle>
+          <CardTitle className="text-sm font-medium">健康中继</CardTitle>
           <Wifi className="h-4 w-4 text-green-500" />
         </CardHeader>
         <CardContent>
@@ -27,7 +27,7 @@ export function RelayStatsCards({ stats }: { stats: RelayStats | null }) {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Connections</CardTitle>
+          <CardTitle className="text-sm font-medium">连接总数</CardTitle>
           <Activity className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -36,7 +36,7 @@ export function RelayStatsCards({ stats }: { stats: RelayStats | null }) {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
+          <CardTitle className="text-sm font-medium">活跃会话</CardTitle>
           <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>

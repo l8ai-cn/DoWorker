@@ -21,6 +21,23 @@ import type { PaginatedResponse } from "@/lib/api/base";
 import { TicketStatsCards } from "./ticket-stats-cards";
 import { TicketsTable } from "./tickets-table";
 
+const statusFilterLabels: Record<string, string> = {
+  all: "全部状态",
+  open: "待处理",
+  in_progress: "处理中",
+  resolved: "已解决",
+  closed: "已关闭",
+};
+
+const categoryFilterLabels: Record<string, string> = {
+  all: "全部分类",
+  bug: "缺陷",
+  feature_request: "功能请求",
+  usage_question: "使用问题",
+  account: "账号",
+  other: "其他",
+};
+
 export default function SupportTicketsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -81,9 +98,9 @@ export default function SupportTicketsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Support Tickets</h1>
+        <h1 className="text-2xl font-bold">支持工单</h1>
         <p className="text-sm text-muted-foreground">
-          Manage and respond to user support requests
+          管理并响应用户支持请求
         </p>
       </div>
 
@@ -93,7 +110,7 @@ export default function SupportTicketsPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search tickets..."
+            placeholder="搜索工单..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="pl-10"
@@ -101,27 +118,33 @@ export default function SupportTicketsPage() {
         </div>
         <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="All Status" />
+            <SelectValue
+              placeholder="全部状态"
+              displayValue={statusFilterLabels[statusFilter]}
+            />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="open">Open</SelectItem>
-            <SelectItem value="in_progress">In Progress</SelectItem>
-            <SelectItem value="resolved">Resolved</SelectItem>
-            <SelectItem value="closed">Closed</SelectItem>
+            <SelectItem value="all">全部状态</SelectItem>
+            <SelectItem value="open">待处理</SelectItem>
+            <SelectItem value="in_progress">处理中</SelectItem>
+            <SelectItem value="resolved">已解决</SelectItem>
+            <SelectItem value="closed">已关闭</SelectItem>
           </SelectContent>
         </Select>
         <Select value={categoryFilter} onValueChange={(v) => { setCategoryFilter(v); setPage(1); }}>
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="All Categories" />
+            <SelectValue
+              placeholder="全部分类"
+              displayValue={categoryFilterLabels[categoryFilter]}
+            />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="bug">Bug</SelectItem>
-            <SelectItem value="feature_request">Feature Request</SelectItem>
-            <SelectItem value="usage_question">Usage Question</SelectItem>
-            <SelectItem value="account">Account</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
+            <SelectItem value="all">全部分类</SelectItem>
+            <SelectItem value="bug">缺陷</SelectItem>
+            <SelectItem value="feature_request">功能请求</SelectItem>
+            <SelectItem value="usage_question">使用问题</SelectItem>
+            <SelectItem value="account">账号</SelectItem>
+            <SelectItem value="other">其他</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -131,13 +154,13 @@ export default function SupportTicketsPage() {
       {totalPages > 1 && (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total} tickets
+            显示第 {(page - 1) * pageSize + 1} 到 {Math.min(page * pageSize, total)} 条，共 {total} 个工单
           </p>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" onClick={() => setPage(page - 1)} disabled={page <= 1}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-sm">Page {page} of {totalPages}</span>
+            <span className="text-sm">第 {page} / {totalPages} 页</span>
             <Button variant="outline" size="icon" onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
               <ChevronRight className="h-4 w-4" />
             </Button>

@@ -7,10 +7,12 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/config"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
+	"github.com/anthropics/agentsmesh/backend/internal/infra/gitea"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/storage"
 	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
 	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
+	knowledgebaseservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
 	"github.com/anthropics/agentsmesh/backend/internal/service/license"
 	supportticketservice "github.com/anthropics/agentsmesh/backend/internal/service/supportticket"
 	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
@@ -44,6 +46,25 @@ func initializeFileService(cfg *config.Config) *fileservice.Service {
 
 	slog.Info("Storage initialized", "endpoint", cfg.Storage.Endpoint, "bucket", cfg.Storage.Bucket)
 	return fileservice.NewService(s3Storage, cfg.Storage)
+}
+
+func initializeKnowledgeBaseService(cfg *config.Config, db *gorm.DB) *knowledgebaseservice.Service {
+	if !cfg.KnowledgeBase.Enabled() {
+		slog.Warn("Internal Gitea not configured (KB_GITEA_URL / KB_GITEA_TOKEN), knowledge bases disabled")
+		return nil
+	}
+	giteaClient := gitea.NewClient(gitea.Config{
+		BaseURL:      cfg.KnowledgeBase.GiteaURL,
+		AdminToken:   cfg.KnowledgeBase.GiteaToken,
+		Namespace:    cfg.KnowledgeBase.GiteaOrg,
+		CloneBaseURL: cfg.KnowledgeBase.CloneBaseURL,
+	})
+	kbRepo := infra.NewKnowledgeBaseRepository(db)
+	slog.Info("Knowledge base service initialized",
+		"gitea", cfg.KnowledgeBase.GiteaURL, "namespace", cfg.KnowledgeBase.GiteaOrg)
+	svc := knowledgebaseservice.NewService(kbRepo, giteaClient, slog.Default())
+	svc.SetSecretsEncryptor(crypto.NewEncryptor(cfg.JWT.Secret))
+	return svc
 }
 
 func initializeLicenseService(cfg *config.Config, db *gorm.DB) *license.Service {

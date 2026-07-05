@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/anthropics/agentsmesh/runner/internal/policy"
 	"github.com/anthropics/agentsmesh/runner/internal/relay"
 	"github.com/anthropics/agentsmesh/runner/internal/terminal/vt"
 )
@@ -38,6 +39,9 @@ type Pod struct {
 	// Perpetual mode: auto-restart on clean exit
 	Perpetual    bool
 	RestartCount int
+
+	// Org policy snapshot from CreatePodCommand
+	PolicyRules []policy.Rule
 
 	// Relay client (mode-agnostic, protected by relayMu)
 	RelayClient relay.RelayClient

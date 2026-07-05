@@ -8,6 +8,7 @@ go_library(
         "config_builder_agentfile.go",
         "config_builder_configbundle.go",
         "config_builder_eval.go",
+        "config_builder_knowledge.go",
         "config_builder_schema.go",
         "config_builder_types.go",
         "message_query.go",

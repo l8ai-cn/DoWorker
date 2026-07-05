@@ -17,17 +17,17 @@
       "online": "在线"
     },
     "emptyState": {
-      "title": "暂无 Runner",
-      "description": "部署一个 Runner 以开始创建 Pod",
-      "deployRunner": "部署 Runner",
-      "noMatch": "没有匹配的 Runner"
+      "title": "暂无运行节点",
+      "description": "部署一个运行节点后，即可在其上创建 Agent 环境",
+      "deployRunner": "部署运行节点",
+      "noMatch": "没有匹配的运行节点"
     },
     "runner": {
       "status": "状态",
       "version": "版本",
       "os": "操作系统",
       "arch": "架构",
-      "pods": "活跃 Pod",
+      "pods": "活跃环境",
       "lastSeen": "最后在线",
       "uptime": "运行时间",
       "actions": {
@@ -37,20 +37,20 @@
       }
     },
     "page": {
-      "title": "Runner",
-      "subtitle": "管理计算资源",
+      "title": "运行节点",
+      "subtitle": "管理托管 Agent 环境的计算节点（一个节点可运行多个环境）",
       "refresh": "刷新",
       "addRunner": "添加 Runner",
-      "totalRunners": "Runner 总数",
+      "totalRunners": "运行节点总数",
       "online": "在线",
-      "activePods": "活跃 Pod",
+      "activePods": "活跃环境",
       "totalCapacity": "总容量",
-      "activeRunners": "活跃 Runner",
-      "noRunners": "暂无注册的 Runner。",
-      "noRunnersHint": "添加一个 Runner 以开始部署 Pod。",
-      "runnerColumn": "Runner",
+      "activeRunners": "活跃节点",
+      "noRunners": "暂无注册的运行节点。",
+      "noRunnersHint": "添加运行节点后，即可在其上部署 Agent 环境。",
+      "runnerColumn": "运行节点",
       "statusColumn": "状态",
-      "podsColumn": "Pod",
+      "podsColumn": "环境",
       "hostInfoColumn": "主机信息",
       "versionColumn": "版本",
       "actionsColumn": "操作",
@@ -58,13 +58,13 @@
       "enable": "启用",
       "disable": "禁用",
       "delete": "删除",
-      "confirmDelete": "确定要删除 Runner「{nodeId}」吗？",
+      "confirmDelete": "确定要删除运行节点「{nodeId}」吗？",
       "deleteDialog": {
-        "title": "删除 Runner",
-        "description": "确定要删除此 Runner 吗？此操作无法撤销。"
+        "title": "删除运行节点",
+        "description": "确定要删除此运行节点吗？其上运行的环境将不可用。此操作无法撤销。"
       },
       "cores": "核心",
-      "mobilePodsLabel": "Pod：",
+      "mobilePodsLabel": "环境：",
       "mobileCpuLabel": "CPU：",
       "mobileOsLabel": "系统：",
       "mobileVersionLabel": "版本：",
