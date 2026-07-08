@@ -238,6 +238,7 @@ export function WorkspacePanel({
   changedCount,
   showShellsTab,
   terminalsLength,
+  podKey,
   subagentsWorking,
   agentCount,
   isClaudeNative,
@@ -290,7 +291,7 @@ export function WorkspacePanel({
         {...handleProps}
         className="absolute inset-y-0 left-0 z-10 w-1 cursor-col-resize hover:bg-primary/30 active:bg-primary/50 transition-colors"
       />
-      {/* Tab strip, in display order Files · Agents · Shells · Tasks.
+      {/* Tab strip, in display order Files · Agents · Shells · Preview · Tasks.
           Files and Agents are always present (the Agents panel lists at
           least the main agent). Shells shows whenever AppShell's gate
           allows it (the agent declares shell access, or a shell already
@@ -368,6 +369,15 @@ export function WorkspacePanel({
                 )}
               </TabsTrigger>
             )}
+            {podKey && (
+              <TabsTrigger
+                value="preview"
+                className="h-[32px] gap-[6px] rounded-[8px] px-[12px] text-[13px] leading-5"
+              >
+                <GlobeIcon className="size-4" />
+                Preview
+              </TabsTrigger>
+            )}
             {isClaudeNative && todosTotal > 0 && (
               <TabsTrigger
                 value="todos"
@@ -440,6 +450,8 @@ export function WorkspacePanel({
           <TodoPanel frameless />
         ) : rightRailTab === "terminals" && showShellsTab ? (
           <InlineTerminalsSection conversationId={conversationId} onExpand={openTerminalsPanel} />
+        ) : rightRailTab === "preview" && podKey ? (
+          <PreviewPanel podKey={podKey} />
         ) : (
           showFilesPanel && (
             <FilesPanel
