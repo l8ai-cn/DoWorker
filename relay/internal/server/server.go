@@ -14,6 +14,7 @@ import (
 	"github.com/anthropics/agentsmesh/relay/internal/channel"
 	"github.com/anthropics/agentsmesh/relay/internal/config"
 	otelinit "github.com/anthropics/agentsmesh/relay/internal/otel"
+	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
 )
 
 // Server is the main relay server
@@ -23,6 +24,8 @@ type Server struct {
 	channelManager *channel.ChannelManager
 	backendClient  *backend.Client
 	handler        *Handler
+	tunnelRegistry *tunnel.Registry
+	tunnelHandler  *TunnelHandler
 
 	// Graceful shutdown control
 	acceptingConnections atomic.Bool
@@ -87,6 +90,17 @@ func New(cfg *config.Config) *Server {
 	// Share the acceptingConnections flag between server and handler
 	s.handler.acceptingConnections = &s.acceptingConnections
 
+	// Set up the HTTP data plane (tunnel + preview) when enabled.
+	if cfg.Tunnel.Enabled {
+		s.tunnelRegistry = tunnel.NewRegistry()
+		s.tunnelHandler = NewTunnelHandler(
+			tokenValidator,
+			s.tunnelRegistry,
+			auth.NewOriginChecker(cfg.AllowedOriginList()),
+			cfg.Tunnel.StreamWindowBytes,
+		)
+	}
+
 	return s
 }
 
@@ -111,6 +125,10 @@ func (s *Server) Start(ctx context.Context) error {
 	mux.HandleFunc("/browser/relay", s.handler.HandleBrowserWS)
 	mux.HandleFunc("/health", s.handler.HandleHealth)
 	mux.HandleFunc("/stats", s.handler.HandleStats)
+
+	if s.tunnelHandler != nil {
+		mux.HandleFunc("/runner/tunnel", s.tunnelHandler.HandleTunnelWS)
+	}
 
 	s.httpServer = &http.Server{
 		Addr:              s.cfg.Server.Address(),
