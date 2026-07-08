@@ -109,6 +109,8 @@ func (a *GRPCRunnerAdapter) dispatchMcpMethod(ctx context.Context, tc *middlewar
 		return a.mcpListLoops(ctx, tc, req.Payload)
 	case "trigger_loop":
 		return a.mcpTriggerLoop(ctx, tc, req.Payload)
+	case "create_loop":
+		return a.mcpCreateLoop(ctx, tc, req.PodKey, req.Payload)
 
 	case "block.create":
 		return a.mcpBlockCreate(ctx, tc, req.Payload)

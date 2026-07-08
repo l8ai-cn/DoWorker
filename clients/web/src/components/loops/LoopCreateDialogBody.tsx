@@ -23,6 +23,8 @@ interface Props {
   loadingBundles: boolean;
   onConfigChange: (key: string, value: unknown) => void;
   t: (key: string) => string;
+  /** When true, render without ResponsiveDialogBody padding wrapper (inline panel). */
+  embedded?: boolean;
 }
 
 export function LoopCreateDialogBody({
@@ -38,9 +40,10 @@ export function LoopCreateDialogBody({
   loadingBundles,
   onConfigChange,
   t,
+  embedded = false,
 }: Props) {
-  return (
-    <ResponsiveDialogBody className="space-y-4">
+  const fields = (
+    <>
       <div className="space-y-1.5">
         <Label>{t("loops.name")}</Label>
         <Input value={form.name} onChange={(e) => form.setName(e.target.value)} placeholder="daily-code-review" />
@@ -120,6 +123,11 @@ export function LoopCreateDialogBody({
         onCallbackUrlChange={form.setCallbackUrl}
         t={t}
       />
-    </ResponsiveDialogBody>
+    </>
   );
+
+  if (embedded) {
+    return <div className="space-y-4">{fields}</div>;
+  }
+  return <ResponsiveDialogBody className="space-y-4">{fields}</ResponsiveDialogBody>;
 }

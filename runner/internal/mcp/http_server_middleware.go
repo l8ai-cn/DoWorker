@@ -47,6 +47,7 @@ func (s *HTTPServer) registerTools() {
 
 		// Loop tools
 		s.createListLoopsTool(),
+		s.createCreateLoopTool(),
 		s.createTriggerLoopTool(),
 
 		// Block Store tools — structured collaboration substrate (notes,

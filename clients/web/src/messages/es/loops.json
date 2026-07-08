@@ -7,7 +7,6 @@
     "emptyState": "No loops yet",
     "emptyTitle": "Automate Your Workflows",
     "emptyDescription": "Loops let you define repeatable AI agent tasks — triggered by schedule or API. Set up once, run forever.",
-    "createFirstLoop": "Create your first Loop",
     "name": "Name",
     "description": "Description",
     "descriptionPlaceholder": "Optional description",

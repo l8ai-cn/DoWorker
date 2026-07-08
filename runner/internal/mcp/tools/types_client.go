@@ -58,6 +58,7 @@ type PodClient interface {
 type LoopClient interface {
 	ListLoops(ctx context.Context, status, query string, limit, offset int) ([]LoopSummary, error)
 	TriggerLoop(ctx context.Context, loopSlug string, variables map[string]interface{}) (*LoopTriggerResult, error)
+	CreateLoop(ctx context.Context, req *LoopCreateRequest) (*LoopCreateResult, error)
 }
 
 // BlockStoreClient exposes Block Store agent tools. Each method maps 1:1 to

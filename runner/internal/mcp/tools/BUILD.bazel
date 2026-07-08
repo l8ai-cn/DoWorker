@@ -8,6 +8,7 @@ go_library(
         "tools.go",
         "types_client.go",
         "types_entity.go",
+        "types_loop_create.go",
         "types_status.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/runner/internal/mcp/tools",

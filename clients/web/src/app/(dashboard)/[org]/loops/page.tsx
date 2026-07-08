@@ -1,16 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useLoopStore, useLoops } from "@/stores/loop";
 import { useCurrentOrg } from "@/stores/auth";
 import { CenteredSpinner } from "@/components/ui/spinner";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, RefreshCw, Repeat, Plus } from "lucide-react";
+import { AlertCircle, RefreshCw, Repeat } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { LoopCreateDialog } from "@/components/loops/LoopCreateDialog";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { LoopCreateContent } from "@/components/loops/LoopCreateContent";
 
 export default function LoopsIndexPage() {
   const t = useTranslations();
@@ -23,7 +21,7 @@ export default function LoopsIndexPage() {
   const error = useLoopStore((s) => s.error);
   const fetchLoops = useLoopStore((s) => s.fetchLoops);
   const clearError = useLoopStore((s) => s.clearError);
-  const [createOpen, setCreateOpen] = useState(false);
+  const [createdSlug, setCreatedSlug] = useState<string | null>(null);
 
   useEffect(() => {
     if (currentOrg) fetchLoops();
@@ -31,9 +29,9 @@ export default function LoopsIndexPage() {
 
   useEffect(() => {
     if (loading || loops.length === 0) return;
-    const first = loops.find((l) => l.status === "enabled") ?? loops[0];
-    if (first && orgSlug) router.replace(`/${orgSlug}/loops/${first.slug}`);
-  }, [loops, loading, orgSlug, router]);
+    const target = createdSlug ?? loops.find((l) => l.status === "enabled")?.slug ?? loops[0]?.slug;
+    if (target && orgSlug) router.replace(`/${orgSlug}/loops/${target}`);
+  }, [loops, loading, orgSlug, router, createdSlug]);
 
   if (error && loops.length === 0) {
     return (
@@ -55,28 +53,25 @@ export default function LoopsIndexPage() {
 
   if (loops.length === 0) {
     return (
-      <>
-        <EmptyState
-          size="full"
-          icon={<Repeat className="h-12 w-12" />}
-          title={t("loops.emptyTitle")}
-          description={t("loops.emptyDescription")}
-          actions={
-            <Button onClick={() => setCreateOpen(true)} className="gap-1.5">
-              <Plus className="h-4 w-4" />
-              {t("loops.createFirstLoop")}
-            </Button>
-          }
-        />
-        <LoopCreateDialog
-          open={createOpen}
-          onOpenChange={setCreateOpen}
-          onCreated={() => {
-            setCreateOpen(false);
-            fetchLoops();
-          }}
-        />
-      </>
+      <div className="h-full overflow-y-auto">
+        <div className="mx-auto w-full max-w-3xl px-6 py-10">
+          <header className="mb-8 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-muted text-muted-foreground">
+              <Repeat className="h-7 w-7" />
+            </div>
+            <h1 className="text-xl font-semibold tracking-tight">{t("loops.emptyTitle")}</h1>
+            <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
+              {t("loops.emptyDescription")}
+            </p>
+          </header>
+          <LoopCreateContent
+            onCreated={(loop) => {
+              void fetchLoops();
+              if (loop?.slug) setCreatedSlug(loop.slug);
+            }}
+          />
+        </div>
+      </div>
     );
   }
 

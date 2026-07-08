@@ -49,3 +49,12 @@ func (c *GRPCCollaborationClient) TriggerLoop(ctx context.Context, loopSlug stri
 	}
 	return &result, nil
 }
+
+// CreateLoop persists a new loop for the pod's organization.
+func (c *GRPCCollaborationClient) CreateLoop(ctx context.Context, req *tools.LoopCreateRequest) (*tools.LoopCreateResult, error) {
+	var result tools.LoopCreateResult
+	if err := c.call(ctx, "create_loop", req, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}

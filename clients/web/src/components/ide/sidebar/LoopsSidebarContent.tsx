@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useCurrentOrg, useAuthStore } from "@/stores/auth";
+import { useCurrentOrg } from "@/stores/auth";
 import { useLoopStore, useLoops, LoopData } from "@/stores/loop";
 import { LoopCreateDialog } from "@/components/loops/LoopCreateDialog";
 import { Button } from "@/components/ui/button";

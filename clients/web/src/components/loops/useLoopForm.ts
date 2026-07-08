@@ -70,10 +70,12 @@ export interface UseLoopFormResult {
 export function useLoopForm(args: {
   open: boolean;
   editLoop?: LoopData;
+  /** Prefill prompt when falling back from AI guide (mirrors worker wizardPrompt). */
+  initialIdea?: string;
   onCreated: (createdLoop?: LoopData) => void;
   t: (key: string) => string;
 }): UseLoopFormResult {
-  const { open, editLoop, onCreated, t } = args;
+  const { open, editLoop, initialIdea, onCreated, t } = args;
   const createLoop = useLoopStore((s) => s.createLoop);
   const updateLoop = useLoopStore((s) => s.updateLoop);
   const isEdit = !!editLoop;
@@ -118,7 +120,7 @@ export function useLoopForm(args: {
     if (!open) return;
     setName(editLoop?.name || "");
     setDescription(editLoop?.description || "");
-    setPromptTemplate(editLoop?.prompt_template || "");
+    setPromptTemplate(editLoop?.prompt_template || initialIdea || "");
     setSelectedAgentSlug(editLoop?.agent_slug || null);
     setSelectedRunnerId(editLoop?.runner_id || null);
     setSelectedRepositoryId(editLoop?.repository_id || null);
@@ -139,6 +141,12 @@ export function useLoopForm(args: {
     setLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // When AI fallback sets wizardIdea while the form is already visible, sync prompt.
+  useEffect(() => {
+    if (!open || editLoop || !initialIdea) return;
+    setPromptTemplate(initialIdea);
+  }, [open, editLoop, initialIdea]);
 
   const submit = useCallback(
     async (configValues: Record<string, unknown>) => {

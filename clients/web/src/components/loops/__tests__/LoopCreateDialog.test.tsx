@@ -61,7 +61,11 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("sonner", () => ({
-  toast: { success: vi.fn(), error: vi.fn() },
+  toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
+}));
+
+vi.mock("../LoopNlCreate", () => ({
+  LoopNlCreate: () => null,
 }));
 
 vi.mock("@/components/ide/ConfigForm", () => ({
@@ -155,6 +159,23 @@ function mockBundleList(creds: unknown[], runtimes: unknown[] = []) {
   });
 }
 
+/**
+ * Interact with the custom (non-native) Select in `@/components/ui/select`:
+ * options render as `role="option"` with `data-option-value` only while the
+ * trigger is open. Clicking the trigger opens it, then the matching option is
+ * clicked to fire `onValueChange`.
+ */
+function pickCustomSelect(trigger: HTMLElement, optionValue: string) {
+  fireEvent.click(trigger);
+  const option = screen
+    .getAllByRole("option")
+    .find((el) => el.getAttribute("data-option-value") === optionValue);
+  if (!option) {
+    throw new Error(`Select option not found: "${optionValue}"`);
+  }
+  fireEvent.click(option);
+}
+
 // ---------------------------------------------------------------------------
 
 describe("LoopCreateDialog — EnvBundle binding", () => {
@@ -223,16 +244,16 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
       <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
     );
 
-    const agentSelect = container.querySelector("#worker-image-select") as HTMLSelectElement;
+    const agentSelect = container.querySelector("#worker-image-select") as HTMLElement;
     expect(agentSelect).toBeTruthy();
-    fireEvent.change(agentSelect, { target: { value: "claude-code" } });
+    pickCustomSelect(agentSelect, "claude-code");
 
     await waitForBundlesLoaded();
 
-    // Credential picker is a labeled <select>; runtime picker uses checkbox list.
+    // Credential picker is a labeled custom Select; runtime picker uses checkbox list.
     expect(screen.getByLabelText("ide.createPod.selectCredential")).toBeInTheDocument();
     expect(screen.getByText("ide.createPod.selectRuntimeBundles")).toBeInTheDocument();
-    // The credential bundle appears as a <select> <option>; the runtime bundle as a checkbox.
+    // The runtime bundle appears as a checkbox row.
     expect(screen.getByText("dev-preferences")).toBeInTheDocument();
   });
 
@@ -241,15 +262,13 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
       <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
     );
 
-    const agentSelect = container.querySelector("#worker-image-select") as HTMLSelectElement;
-    fireEvent.change(agentSelect, { target: { value: "claude-code" } });
+    const agentSelect = container.querySelector("#worker-image-select") as HTMLElement;
+    pickCustomSelect(agentSelect, "claude-code");
     await waitForBundlesLoaded();
 
     fillRequiredFields();
 
-    fireEvent.change(screen.getByLabelText("ide.createPod.selectCredential"), {
-      target: { value: "Work" },
-    });
+    pickCustomSelect(screen.getByLabelText("ide.createPod.selectCredential"), "Work");
 
     const createBtn = screen.getByRole("button", { name: "loops.createLoop" });
     await act(async () => {
@@ -266,15 +285,13 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
       <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
     );
 
-    const agentSelect = container.querySelector("#worker-image-select") as HTMLSelectElement;
-    fireEvent.change(agentSelect, { target: { value: "claude-code" } });
+    const agentSelect = container.querySelector("#worker-image-select") as HTMLElement;
+    pickCustomSelect(agentSelect, "claude-code");
     await waitForBundlesLoaded();
 
     fillRequiredFields();
     // Force-clear the credential select (auto-default may have set a primary).
-    fireEvent.change(screen.getByLabelText("ide.createPod.selectCredential"), {
-      target: { value: "" },
-    });
+    pickCustomSelect(screen.getByLabelText("ide.createPod.selectCredential"), "");
 
     const createBtn = screen.getByRole("button", { name: "loops.createLoop" });
     await act(async () => {
@@ -292,15 +309,13 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
       <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
     );
 
-    const agentSelect = container.querySelector("#worker-image-select") as HTMLSelectElement;
-    fireEvent.change(agentSelect, { target: { value: "claude-code" } });
+    const agentSelect = container.querySelector("#worker-image-select") as HTMLElement;
+    pickCustomSelect(agentSelect, "claude-code");
     await waitForBundlesLoaded();
     fillRequiredFields();
 
     // Pick a credential.
-    fireEvent.change(screen.getByLabelText("ide.createPod.selectCredential"), {
-      target: { value: "Work" },
-    });
+    pickCustomSelect(screen.getByLabelText("ide.createPod.selectCredential"), "Work");
     // Pick two runtimes in a specific order.
     fireEvent.click(screen.getByRole("checkbox", { name: /proxy-staging/i }));
     fireEvent.click(screen.getByRole("checkbox", { name: /dev-preferences/i }));
@@ -351,8 +366,9 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
 
     await waitForBundlesLoaded();
 
-    const credSelect = screen.getByLabelText("ide.createPod.selectCredential") as HTMLSelectElement;
-    expect(credSelect.value).toBe("Work");
+    // Custom Select trigger shows the selected credential's label.
+    const credSelect = screen.getByLabelText("ide.createPod.selectCredential");
+    expect(credSelect).toHaveTextContent("Work");
 
     const runtimeCheckbox = screen.getByRole("checkbox", {
       name: /dev-preferences/i,
@@ -396,9 +412,7 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
     await waitForBundlesLoaded();
 
     // Swap credential Work → Personal.
-    fireEvent.change(screen.getByLabelText("ide.createPod.selectCredential"), {
-      target: { value: "Personal" },
-    });
+    pickCustomSelect(screen.getByLabelText("ide.createPod.selectCredential"), "Personal");
     // Add a runtime bundle.
     fireEvent.click(screen.getByRole("checkbox", { name: /dev-preferences/i }));
 
