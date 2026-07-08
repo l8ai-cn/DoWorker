@@ -4,11 +4,13 @@ go_library(
     name = "tunnel",
     srcs = [
         "stream.go",
+        "tunnel.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/relay/internal/tunnel",
     visibility = ["//relay:__subpackages__"],
     deps = [
         "//relay/internal/protocol/tunnelframe",
+        "@com_github_gorilla_websocket//:websocket",
     ],
 )
 
@@ -22,6 +24,10 @@ go_test(
     name = "tunnel_test",
     srcs = [
         "stream_test.go",
+        "tunnel_test.go",
     ],
     embed = [":tunnel"],
+    deps = [
+        "//relay/internal/protocol/tunnelframe",
+    ],
 )
