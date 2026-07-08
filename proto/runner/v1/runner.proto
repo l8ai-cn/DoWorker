@@ -233,6 +233,8 @@ message ServerMessage {
     UpdatePodPolicyRulesCommand update_pod_policy_rules = 25;
     // Sandbox filesystem op (list/read/write/changes/diff/search/mkdir)
     SandboxFsCommand sandbox_fs = 26;
+    // 建立到 Gateway 的 HTTP 隧道长连接（Backend -> Runner）
+    ConnectTunnelCommand connect_tunnel = 27;
   }
   int64 timestamp = 15;
 }
@@ -425,6 +427,19 @@ message SubscribePodCommand {
 // Backend 通知 Runner 所有观察者已离开，Runner 应断开与 Relay 的连接
 message UnsubscribePodCommand {
   string pod_key = 1;
+}
+
+// ConnectTunnelCommand 通知 Runner 建立到 Gateway 的 HTTP 隧道长连接。
+// 与 relay_url 同源（例如 wss://domain/relay）。tunnel_token 的 token_type=tunnel，
+// 不绑定单一 pod。
+message ConnectTunnelCommand {
+  string gateway_url = 1;   // e.g. wss://domain/relay
+  string tunnel_token = 2;  // token_type=tunnel 的 JWT
+}
+
+// RequestTunnelTokenEvent Runner 请求刷新隧道 Token（复用 RequestRelayTokenEvent 语义）。
+message RequestTunnelTokenEvent {
+  string gateway_url = 1;   // 当前的 Gateway URL
 }
 
 // RequestRelayTokenEvent Runner 请求刷新 Relay Token
