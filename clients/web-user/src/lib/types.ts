@@ -255,6 +255,12 @@ export interface Session {
    * dead-end. `false`/absent otherwise.
    */
   hostResumable?: boolean;
+  /**
+   * Key of the backing agent pod (Gateway `/api/v1/orgs/:slug/pods/:key/preview`
+   * scope), e.g. ``"pod_a1b2c3"``. ``null`` for sessions with no bound pod
+   * (not yet started, or a pod-less host). Used to offer the Preview tab.
+   */
+  podKey?: string | null;
   status: SessionStatus;
   /**
    * Background shells (claude-native) still running as of the last status

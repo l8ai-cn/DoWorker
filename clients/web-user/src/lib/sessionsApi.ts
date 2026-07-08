@@ -102,6 +102,8 @@ interface SessionResponseWire {
    * Absent/`false` for non-managed/non-resumable hosts.
    */
   host_resumable?: boolean;
+  /** Key of the backing agent pod, if any; see `Session.podKey`. */
+  pod_key?: string | null;
   status: SessionStatus;
   /**
    * Background shells (claude-native) still running as of the last status
@@ -266,6 +268,7 @@ function sessionFromWire(wire: SessionResponseWire): Session {
     runnerId: wire.runner_id,
     hostId: wire.host_id ?? null,
     hostResumable: wire.host_resumable ?? false,
+    podKey: wire.pod_key ?? null,
     status: wire.status,
     backgroundTaskCount: wire.background_task_count ?? undefined,
     createdAt: wire.created_at,
