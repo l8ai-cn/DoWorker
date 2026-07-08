@@ -1,7 +1,8 @@
-import { BotIcon, FileIcon, ListTodoIcon, TerminalIcon, XIcon } from "lucide-react";
+import { BotIcon, FileIcon, GlobeIcon, ListTodoIcon, TerminalIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PreviewPanel } from "@/components/PreviewPanel";
 import { FilesPanel } from "./FilesPanel";
 import { FileViewer } from "./FileViewer";
 import type { ChangedSort } from "./FlatFileList";
@@ -153,6 +154,12 @@ interface WorkspacePanelProps {
   showShellsTab: boolean;
   /** Number of open shells, shown as the Shells tab badge when > 0. */
   terminalsLength: number;
+  /**
+   * Key of the session's backing agent pod, or null when the session has
+   * none (not yet started / pod-less host). Gates the Preview tab and is
+   * passed straight through to `PreviewPanel`.
+   */
+  podKey: string | null;
   /** How many child agents are actively working (Agents tab badge). */
   subagentsWorking: number;
   /**
