@@ -92,6 +92,8 @@ func podTableDDLs() []string {
 			last_restart_at DATETIME,
 			config_overrides TEXT DEFAULT '{}',
 			interaction_mode TEXT NOT NULL DEFAULT 'pty',
+			preview_port INTEGER NOT NULL DEFAULT 0,
+			preview_path TEXT NOT NULL DEFAULT '',
 			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 		)`,
