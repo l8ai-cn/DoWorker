@@ -3,6 +3,7 @@ load("@rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "tunnel",
     srcs = [
+        "limits.go",
         "registry.go",
         "stream.go",
         "tunnel.go",
@@ -24,6 +25,7 @@ alias(
 go_test(
     name = "tunnel_test",
     srcs = [
+        "limits_test.go",
         "registry_test.go",
         "stream_test.go",
         "tunnel_test.go",
