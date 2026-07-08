@@ -1,0 +1,33 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "tunnel",
+    srcs = [
+        "client.go",
+    ],
+    importpath = "github.com/anthropics/agentsmesh/runner/internal/tunnel",
+    visibility = ["//runner:__subpackages__"],
+    deps = [
+        "//runner/internal/safego",
+        "//runner/internal/tunnelframe",
+        "@com_github_gorilla_websocket//:websocket",
+    ],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":tunnel",
+    visibility = ["//runner:__subpackages__"],
+)
+
+go_test(
+    name = "tunnel_test",
+    srcs = [
+        "client_test.go",
+    ],
+    embed = [":tunnel"],
+    deps = [
+        "//runner/internal/tunnelframe",
+        "@com_github_gorilla_websocket//:websocket",
+    ],
+)
