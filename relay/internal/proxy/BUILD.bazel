@@ -5,12 +5,14 @@ go_library(
     srcs = [
         "headers.go",
         "http.go",
+        "websocket.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/relay/internal/proxy",
     visibility = ["//relay:__subpackages__"],
     deps = [
         "//relay/internal/protocol/tunnelframe",
         "//relay/internal/tunnel",
+        "@com_github_gorilla_websocket//:websocket",
     ],
 )
 

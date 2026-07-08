@@ -124,10 +124,9 @@ func (h *PreviewHandler) HandlePreview(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if isWebSocketUpgrade(r) {
-		// WebSocket passthrough lands in Task 4.3 (proxy.ProxyWebSocket); until
-		// then, upgrades fail loudly instead of being silently mishandled by
-		// the plain HTTP proxy path.
-		writePreviewError(w, "websocket_not_supported", http.StatusNotImplemented)
+		if err := proxy.ProxyWebSocket(ctx, tun, w, r, params); err != nil {
+			h.logger.Debug("preview websocket proxy error", "pod_key", podKey, "error", err)
+		}
 		return
 	}
 

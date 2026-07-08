@@ -26,8 +26,9 @@ type fakeRunnerTunnel struct {
 	conn   *websocket.Conn
 	target string // e.g. 127.0.0.1:port of the fake local service
 
-	mu     sync.Mutex
-	closed bool
+	mu        sync.Mutex
+	closed    bool
+	wsStreams map[uint32]chan tunnelframe.Frame
 }
 
 func newFakeRunnerTunnel(t *testing.T, gatewayWSURL, tunnelToken string, target string) *fakeRunnerTunnel {
@@ -68,7 +69,91 @@ func (ft *fakeRunnerTunnel) readLoop(t *testing.T) {
 		case tunnelframe.TypePing:
 			_ = ft.writeFrame(tunnelframe.Frame{Type: tunnelframe.TypePong})
 		case tunnelframe.TypeReqStart:
+			var p tunnelframe.ReqStartPayload
+			if json.Unmarshal(f.Payload, &p) == nil && p.IsWebSocket {
+				go ft.serveWebSocket(f.StreamID, p)
+				continue
+			}
 			go ft.serveReqStart(f)
+		case tunnelframe.TypeWSData, tunnelframe.TypeWSClose:
+			ft.routeToWS(f)
+		}
+	}
+}
+
+// wsRoutes maps an in-flight WS stream id to the channel serveWebSocket reads
+// inbound WS_DATA/WS_CLOSE frames from (mirrors runner/internal/tunnel's
+// dispatcher wsIn wiring at test scale).
+func (ft *fakeRunnerTunnel) routeToWS(f tunnelframe.Frame) {
+	ft.mu.Lock()
+	ch := ft.wsStreams[f.StreamID]
+	ft.mu.Unlock()
+	if ch != nil {
+		select {
+		case ch <- f:
+		default:
+		}
+	}
+}
+
+// serveWebSocket mirrors runner/internal/tunnel/local_http.go's
+// serveLocalWebSocket: dial the local upstream WS and relay frames in both
+// directions over WS_DATA.
+func (ft *fakeRunnerTunnel) serveWebSocket(streamID uint32, p tunnelframe.ReqStartPayload) {
+	ch := make(chan tunnelframe.Frame, 32)
+	ft.mu.Lock()
+	if ft.wsStreams == nil {
+		ft.wsStreams = make(map[uint32]chan tunnelframe.Frame)
+	}
+	ft.wsStreams[streamID] = ch
+	ft.mu.Unlock()
+	defer func() {
+		ft.mu.Lock()
+		delete(ft.wsStreams, streamID)
+		ft.mu.Unlock()
+	}()
+
+	dialURL := "ws://" + p.Target + p.Path
+	upConn, _, err := websocket.DefaultDialer.Dial(dialURL, nil)
+	if err != nil {
+		_ = ft.writeFrame(tunnelframe.Frame{Type: tunnelframe.TypeRespError, StreamID: streamID,
+			Payload: tunnelframe.EncodeJSON(tunnelframe.RespErrorPayload{Code: "target_unreachable", Message: err.Error()})})
+		return
+	}
+	defer upConn.Close()
+
+	_ = ft.writeFrame(tunnelframe.Frame{Type: tunnelframe.TypeRespStart, StreamID: streamID,
+		Payload: tunnelframe.EncodeJSON(tunnelframe.RespStartPayload{Status: http.StatusSwitchingProtocols})})
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for {
+			mt, data, err := upConn.ReadMessage()
+			if err != nil {
+				return
+			}
+			if err := ft.writeFrame(tunnelframe.Frame{Type: tunnelframe.TypeWSData, StreamID: streamID,
+				Payload: tunnelframe.EncodeJSON(tunnelframe.WSDataPayload{MessageType: mt, Data: data})}); err != nil {
+				return
+			}
+		}
+	}()
+
+	for {
+		select {
+		case <-done:
+			return
+		case f := <-ch:
+			switch f.Type {
+			case tunnelframe.TypeWSData:
+				var wd tunnelframe.WSDataPayload
+				if json.Unmarshal(f.Payload, &wd) == nil {
+					_ = upConn.WriteMessage(wd.MessageType, wd.Data)
+				}
+			case tunnelframe.TypeWSClose:
+				return
+			}
 		}
 	}
 }

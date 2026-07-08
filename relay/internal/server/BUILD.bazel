@@ -42,6 +42,7 @@ go_test(
         "preview_e2e_test.go",
         "preview_range_test.go",
         "preview_sse_test.go",
+        "preview_ws_test.go",
         "server_lifecycle_test.go",
         "server_test.go",
         "server_tls_cert_test.go",

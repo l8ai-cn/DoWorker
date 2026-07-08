@@ -18,6 +18,8 @@ const defaultLocalWindow = 1 << 20
 type localStream struct {
 	id      uint32
 	bodyW   *io.PipeWriter
+	wsIn    chan tunnelframe.Frame // set instead of bodyW for WebSocket requests
+	done    chan struct{}         // closed when the goroutine serving this stream exits
 	sendWin *creditWindow
 	cancel  context.CancelFunc
 }
@@ -73,6 +75,16 @@ func (d *localDispatcher) Dispatch(f tunnelframe.Frame) {
 		if ls := d.get(f.StreamID); ls != nil && ls.bodyW != nil {
 			_ = ls.bodyW.Close()
 		}
+	case tunnelframe.TypeWSData, tunnelframe.TypeWSClose:
+		if ls := d.get(f.StreamID); ls != nil && ls.wsIn != nil {
+			// Block until delivered or the stream's goroutine has exited (done
+			// closed) — mirrors bodyW's io.Pipe backpressure for HTTP bodies so
+			// WS frames are never silently dropped while the stream is alive.
+			select {
+			case ls.wsIn <- f:
+			case <-ls.done:
+			}
+		}
 	case tunnelframe.TypeCredit:
 		if ls := d.get(f.StreamID); ls != nil {
 			var c tunnelframe.CreditPayload
@@ -99,13 +111,16 @@ func (d *localDispatcher) handleReqStart(f tunnelframe.Frame) {
 
 	var body io.Reader
 	var bodyW *io.PipeWriter
-	if requestMayHaveBody(p) {
+	var wsIn chan tunnelframe.Frame
+	if p.IsWebSocket {
+		wsIn = make(chan tunnelframe.Frame, 32)
+	} else if requestMayHaveBody(p) {
 		pr, pw := io.Pipe()
 		body = pr
 		bodyW = pw
 	}
 
-	ls := &localStream{id: f.StreamID, bodyW: bodyW, sendWin: sw, cancel: cancel}
+	ls := &localStream{id: f.StreamID, bodyW: bodyW, wsIn: wsIn, done: make(chan struct{}), sendWin: sw, cancel: cancel}
 	d.mu.Lock()
 	d.streams[f.StreamID] = ls
 	send := d.send
@@ -113,13 +128,19 @@ func (d *localDispatcher) handleReqStart(f tunnelframe.Frame) {
 
 	if send == nil {
 		cancel()
+		close(ls.done)
 		return
 	}
 
 	safego.Go("tunnel-local-http", func() {
+		defer close(ls.done)
 		defer d.remove(f.StreamID)
 		defer cancel()
-		serveLocalHTTP(sctx, sendFunc(send), f.StreamID, p, body, sw)
+		if p.IsWebSocket {
+			serveLocalWebSocket(sctx, sendFunc(send), f.StreamID, p, wsIn, sw)
+		} else {
+			serveLocalHTTP(sctx, sendFunc(send), f.StreamID, p, body, sw)
+		}
 	})
 }
 
