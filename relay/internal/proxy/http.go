@@ -7,11 +7,25 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strconv"
+	"sync/atomic"
 	"time"
 
+	otelmetrics "github.com/anthropics/agentsmesh/relay/internal/otel"
 	"github.com/anthropics/agentsmesh/relay/internal/protocol/tunnelframe"
 	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
 )
+
+// proxyByteCounters accumulates bytes moved by a single proxied
+// request/stream for the gateway.preview.bytes OTel counter. Request-body
+// upload bytes (in) are tracked best-effort: sendRequestBody runs
+// concurrently and ProxyHTTP doesn't wait for it, so a slow/large upload
+// still in flight when the response completes is undercounted rather than
+// blocking the response on the upload finishing.
+type proxyByteCounters struct {
+	in  atomic.Int64
+	out atomic.Int64
+}
 
 // tunnelIface is the minimal tunnel surface ProxyHTTP needs. *tunnel.Tunnel
 // satisfies it; tests inject a fake.
@@ -66,13 +80,18 @@ func ProxyHTTP(ctx context.Context, tun tunnelIface, w http.ResponseWriter, r *h
 
 	// Stream the request body concurrently so CREDIT replenishment (handled in
 	// the response loop below) can unblock large uploads.
-	go sendRequestBody(ctx, tun, st, r.Body)
+	counters := &proxyByteCounters{}
+	go sendRequestBody(ctx, tun, st, r.Body, counters)
 
-	return pumpResponse(ctx, tun, st, w)
+	status, err := pumpResponse(ctx, tun, st, w, counters)
+	otelmetrics.RecordPreviewRequest(ctx, strconv.Itoa(status))
+	otelmetrics.RecordPreviewBytes(ctx, "in", counters.in.Load())
+	otelmetrics.RecordPreviewBytes(ctx, "out", counters.out.Load())
+	return err
 }
 
 // sendRequestBody streams r.Body as REQ_BODY frames (credit-gated) then REQ_END.
-func sendRequestBody(ctx context.Context, tun tunnelIface, st *tunnel.Stream, body io.ReadCloser) {
+func sendRequestBody(ctx context.Context, tun tunnelIface, st *tunnel.Stream, body io.ReadCloser, counters *proxyByteCounters) {
 	if body != nil {
 		buf := make([]byte, tunnelframe.MaxChunk)
 		for {
@@ -87,6 +106,7 @@ func sendRequestBody(ctx context.Context, tun tunnelIface, st *tunnel.Stream, bo
 				if err := tun.WriteFrame(tunnelframe.Frame{Type: tunnelframe.TypeReqBody, StreamID: st.ID, Payload: chunk}); err != nil {
 					return
 				}
+				counters.in.Add(int64(n))
 			}
 			if rerr == io.EOF {
 				break
@@ -101,28 +121,32 @@ func sendRequestBody(ctx context.Context, tun tunnelIface, st *tunnel.Stream, bo
 }
 
 // pumpResponse reads control/body frames off the stream and writes the HTTP
-// response, flushing per chunk and granting CREDIT back to the peer.
-func pumpResponse(ctx context.Context, tun tunnelIface, st *tunnel.Stream, w http.ResponseWriter) error {
+// response, flushing per chunk and granting CREDIT back to the peer. Returns
+// the HTTP status written to w (0 only if the loop exits before any status is
+// determined, which should not happen in practice).
+func pumpResponse(ctx context.Context, tun tunnelIface, st *tunnel.Stream, w http.ResponseWriter, counters *proxyByteCounters) (int, error) {
 	flusher, _ := w.(http.Flusher)
 	started := false
+	status := 0
 	for {
 		select {
 		case <-ctx.Done():
 			_ = tun.WriteFrame(cancelFrame(st.ID, "gateway timeout"))
 			if !started {
 				http.Error(w, "gateway timeout", http.StatusGatewayTimeout)
+				status = http.StatusGatewayTimeout
 			}
-			return ctx.Err()
+			return status, ctx.Err()
 		case f := <-st.RespChan():
 			switch f.Type {
 			case tunnelframe.TypeRespStart:
 				var rs tunnelframe.RespStartPayload
 				if err := json.Unmarshal(f.Payload, &rs); err != nil {
 					http.Error(w, "bad gateway", http.StatusBadGateway)
-					return err
+					return http.StatusBadGateway, err
 				}
 				copyHeader(w.Header(), SanitizeResponseHeaders(rs.Header))
-				status := rs.Status
+				status = rs.Status
 				if status == 0 {
 					status = http.StatusOK
 				}
@@ -133,28 +157,30 @@ func pumpResponse(ctx context.Context, tun tunnelIface, st *tunnel.Stream, w htt
 				}
 			case tunnelframe.TypeRespBody:
 				if !started {
-					return fmt.Errorf("proxy: RESP_BODY before RESP_START")
+					return http.StatusBadGateway, fmt.Errorf("proxy: RESP_BODY before RESP_START")
 				}
 				if len(f.Payload) > 0 {
 					if _, err := w.Write(f.Payload); err != nil {
 						_ = tun.WriteFrame(cancelFrame(st.ID, "client write error"))
-						return err
+						return status, err
 					}
 					if flusher != nil {
 						flusher.Flush()
 					}
+					counters.out.Add(int64(len(f.Payload)))
 					// Replenish the peer's send window for what we've flushed.
 					_ = tun.WriteFrame(creditFrame(st.ID, len(f.Payload)))
 				}
 			case tunnelframe.TypeRespEnd:
-				return nil
+				return status, nil
 			case tunnelframe.TypeRespError:
 				var re tunnelframe.RespErrorPayload
 				_ = json.Unmarshal(f.Payload, &re)
 				if !started {
-					http.Error(w, re.Code, statusForCode(re.Code))
+					status = statusForCode(re.Code)
+					http.Error(w, re.Code, status)
 				}
-				return fmt.Errorf("proxy: upstream error %q", re.Code)
+				return status, fmt.Errorf("proxy: upstream error %q", re.Code)
 			case tunnelframe.TypeCredit:
 				var c tunnelframe.CreditPayload
 				if json.Unmarshal(f.Payload, &c) == nil && c.Bytes > 0 {

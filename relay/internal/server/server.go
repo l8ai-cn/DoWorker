@@ -118,6 +118,12 @@ func (s *Server) Start(ctx context.Context) error {
 		func() int { return s.channelManager.Stats().ActiveChannels },
 		func() int { return s.channelManager.Stats().TotalSubscribers },
 	)
+	if s.tunnelRegistry != nil {
+		otelinit.RegisterTunnelGauges(
+			func() int { return s.tunnelRegistry.Stats().ActiveTunnels },
+			func() int { return s.tunnelRegistry.Stats().ActiveStreams },
+		)
+	}
 
 	if err := s.backendClient.Register(ctx); err != nil {
 		s.channelManager.Close() // clean up cleanup goroutine started in constructor
