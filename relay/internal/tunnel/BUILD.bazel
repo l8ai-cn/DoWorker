@@ -1,0 +1,27 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "tunnel",
+    srcs = [
+        "stream.go",
+    ],
+    importpath = "github.com/anthropics/agentsmesh/relay/internal/tunnel",
+    visibility = ["//relay:__subpackages__"],
+    deps = [
+        "//relay/internal/protocol/tunnelframe",
+    ],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":tunnel",
+    visibility = ["//relay:__subpackages__"],
+)
+
+go_test(
+    name = "tunnel_test",
+    srcs = [
+        "stream_test.go",
+    ],
+    embed = [":tunnel"],
+)
