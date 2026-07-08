@@ -40,6 +40,7 @@ go_test(
         "handler_test.go",
         "handler_tunnel_test.go",
         "preview_e2e_test.go",
+        "preview_range_test.go",
         "server_lifecycle_test.go",
         "server_test.go",
         "server_tls_cert_test.go",
