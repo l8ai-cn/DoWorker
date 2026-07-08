@@ -81,8 +81,8 @@ func New(cfg *config.Config) *Server {
 	// Create token validator
 	tokenValidator := auth.NewTokenValidator(cfg.JWT.Secret, cfg.JWT.Issuer)
 
-	// Create handler
-	s.handler = NewHandler(s.channelManager, tokenValidator)
+	// Create handler with the configured Origin allowlist
+	s.handler = NewHandlerWithOrigin(s.channelManager, tokenValidator, auth.NewOriginChecker(cfg.AllowedOriginList()))
 
 	// Share the acceptingConnections flag between server and handler
 	s.handler.acceptingConnections = &s.acceptingConnections

@@ -102,6 +102,25 @@ func runnerToken(podKey string) string {
 	return t
 }
 
+func TestHandler_RejectsDisallowedOrigin(t *testing.T) {
+	cm := channel.NewChannelManager(30*time.Second, 10, nil)
+	tv := auth.NewTokenValidator(testSecret, testIssuer)
+	h := NewHandlerWithOrigin(cm, tv, auth.NewOriginChecker([]string{"https://good.example"}))
+
+	srv := httptest.NewServer(http.HandlerFunc(h.HandleBrowserWS))
+	defer srv.Close()
+
+	url := "ws" + strings.TrimPrefix(srv.URL, "http") + "/?token=" + validToken("pod-1")
+	hdr := http.Header{"Origin": {"https://evil.example"}}
+	_, resp, err := websocket.DefaultDialer.Dial(url, hdr)
+	if err == nil {
+		t.Fatal("expected dial to fail on bad origin")
+	}
+	if resp == nil || resp.StatusCode != http.StatusForbidden {
+		t.Fatalf("expected 403, got %v", resp)
+	}
+}
+
 func TestUpgraderSettings(t *testing.T) {
 	if upgrader.ReadBufferSize != 1024*64 || upgrader.WriteBufferSize != 1024*64 {
 		t.Error("upgrader buffer sizes wrong")

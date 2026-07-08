@@ -28,20 +28,51 @@ var upgrader = websocket.Upgrader{
 type Handler struct {
 	channelManager       *channel.ChannelManager
 	tokenValidator       *auth.TokenValidator
+	originChecker        *auth.OriginChecker
 	acceptingConnections *atomic.Bool // shared with Server for graceful shutdown
 	logger               *slog.Logger
 }
 
-// NewHandler creates a new WebSocket handler
+// NewHandler creates a new WebSocket handler with an allow-all origin checker
+// (backward compatible with existing deployments/tests).
 func NewHandler(channelManager *channel.ChannelManager, tokenValidator *auth.TokenValidator) *Handler {
+	return NewHandlerWithOrigin(channelManager, tokenValidator, auth.NewOriginChecker(nil))
+}
+
+// NewHandlerWithOrigin creates a new WebSocket handler with an explicit origin checker.
+func NewHandlerWithOrigin(channelManager *channel.ChannelManager, tokenValidator *auth.TokenValidator, originChecker *auth.OriginChecker) *Handler {
+	if originChecker == nil {
+		originChecker = auth.NewOriginChecker(nil)
+	}
 	h := &Handler{
 		channelManager:       channelManager,
 		tokenValidator:       tokenValidator,
+		originChecker:        originChecker,
 		acceptingConnections: &atomic.Bool{},
 		logger:               slog.With("component", "ws_handler"),
 	}
 	h.acceptingConnections.Store(true)
 	return h
+}
+
+// upgrade performs the WebSocket upgrade after enforcing the Origin allowlist.
+func (h *Handler) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, bool) {
+	if !h.originChecker.Allowed(r.Header.Get("Origin")) {
+		h.logger.Warn("Rejected websocket with disallowed origin", "origin", r.Header.Get("Origin"))
+		http.Error(w, "forbidden origin", http.StatusForbidden)
+		return nil, false
+	}
+	up := websocket.Upgrader{
+		ReadBufferSize:  1024 * 64,
+		WriteBufferSize: 1024 * 64,
+		CheckOrigin:     func(*http.Request) bool { return true }, // already checked above
+	}
+	conn, err := up.Upgrade(w, r, nil)
+	if err != nil {
+		h.logger.Error("upgrade failed", "error", err)
+		return nil, false
+	}
+	return conn, true
 }
 
 // HandleRunnerWS handles runner WebSocket connections (Publisher)
@@ -73,9 +104,9 @@ func (h *Handler) HandleRunnerWS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Enforce token type: runner tokens must have UserID == 0.
+	// Enforce token type: runner endpoint only accepts runner tokens.
 	// Prevents browser tokens from being used to impersonate a publisher.
-	if claims.UserID != 0 {
+	if claims.ResolvedType() != auth.TokenTypeRunner {
 		h.logger.Warn("Non-runner token used on runner endpoint", "user_id", claims.UserID, "pod_key", claims.PodKey)
 		http.Error(w, "invalid token type", http.StatusUnauthorized)
 		return
@@ -92,9 +123,8 @@ func (h *Handler) HandleRunnerWS(w http.ResponseWriter, r *http.Request) {
 
 	span.SetAttributes(attribute.String("pod.key", podKey))
 
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		h.logger.Error("Failed to upgrade runner connection", "error", err)
+	conn, ok := h.upgrade(w, r)
+	if !ok {
 		return
 	}
 
@@ -137,9 +167,9 @@ func (h *Handler) HandleBrowserWS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Enforce token type: browser tokens must have UserID != 0.
+	// Enforce token type: browser endpoint only accepts browser tokens.
 	// Prevents runner tokens from being used to subscribe to terminal output.
-	if claims.UserID == 0 {
+	if claims.ResolvedType() != auth.TokenTypeBrowser {
 		h.logger.Warn("Non-browser token used on browser endpoint", "pod_key", claims.PodKey)
 		http.Error(w, "invalid token type", http.StatusUnauthorized)
 		return
@@ -154,9 +184,8 @@ func (h *Handler) HandleBrowserWS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		h.logger.Error("Failed to upgrade browser connection", "error", err)
+	conn, ok := h.upgrade(w, r)
+	if !ok {
 		return
 	}
 
