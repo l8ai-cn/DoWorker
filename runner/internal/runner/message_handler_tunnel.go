@@ -78,5 +78,7 @@ func (h *RunnerMessageHandler) OnConnectTunnel(req client.ConnectTunnelRequest) 
 // left 0 (unknown): the Gateway authoritatively derives them from the verified
 // tunnel token, so the HELLO carries no numeric id.
 func (h *RunnerMessageHandler) defaultTunnelClientFactory(gatewayURL, token string) tunnelRunner {
-	return tunnel.NewClient(h.runner.GetRunContext(), gatewayURL, token, 0, 0, nil)
+	ctx := h.runner.GetRunContext()
+	dispatcher := tunnel.NewDispatcher(ctx, 0)
+	return tunnel.NewClient(ctx, gatewayURL, token, 0, 0, dispatcher)
 }

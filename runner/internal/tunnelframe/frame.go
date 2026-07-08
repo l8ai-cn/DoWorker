@@ -116,6 +116,11 @@ type WSDataPayload struct {
 	Data        []byte `json:"data"`
 }
 
+// CreditPayload is the CREDIT body: bytes the receiver flushed and can accept again.
+type CreditPayload struct {
+	Bytes int `json:"bytes"`
+}
+
 // EncodeJSON serializes v as a frame payload.
 func EncodeJSON(v interface{}) []byte {
 	b, err := json.Marshal(v)

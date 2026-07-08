@@ -4,6 +4,9 @@ go_library(
     name = "tunnel",
     srcs = [
         "client.go",
+        "credit.go",
+        "dispatcher.go",
+        "local_http.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/runner/internal/tunnel",
     visibility = ["//runner:__subpackages__"],
@@ -24,6 +27,7 @@ go_test(
     name = "tunnel_test",
     srcs = [
         "client_test.go",
+        "local_http_test.go",
     ],
     embed = [":tunnel"],
     deps = [
