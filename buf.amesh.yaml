@@ -1,0 +1,8 @@
+# buf config for protoc-gen-amesh-convert (Go domain↔proto converters).
+# Regenerate: pnpm proto:gen-amesh  (or scripts/sync-amesh-convert.sh)
+
+version: v2
+modules:
+  - path: proto
+    excludes:
+      - proto/gen

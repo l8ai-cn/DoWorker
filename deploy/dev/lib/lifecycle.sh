@@ -36,10 +36,15 @@ print_usage() {
   bazel run //deploy/dev:reset_runners      # 重启 host runner+relay (backend 不动)
   bazel run //deploy/dev:clean              # 停止并清理所有服务
 
-  或直接调脚本（backward-compat）:
-  ./dev.sh [--backend-only|--frontends|--coordinator-runners|--runners-k8s|--rebuild-runner|--reset-runners|--clean|--help]
+  低内存 / 无 ibazel 模式:
+  ./dev-lite.sh                             # air 热重载 Go + 按需 runner + 仅 web 前端
+  ./dev-lite.sh --backend-only              # 不启前端
+  DEV_NO_BAZEL=1 ./dev.sh                   # 同上（Go 走 air，其余同 dev.sh）
 
-  改动 backend / relay 源码: ibazel 自动重 build (host)
+  或直接调脚本（backward-compat）:
+  ./dev.sh [--backend-only|--frontends|--lite|--coordinator-runners|--runners-k8s|--rebuild-runner|--reset-runners|--clean|--help]
+
+  改动 backend / relay 源码: ibazel 自动重 build (host)；dev-lite 下为 air
   仅重启三个前端:           ./dev.sh --frontends
   改动 runner 源码:        bazel run //deploy/dev:reset_runners
   Hive 验收 (dev 栈已起):  bash deploy/dev/hive_smoke.sh
@@ -170,7 +175,7 @@ clean() {
     local web_admin_port="${WEB_ADMIN_PORT:-3001}"
     local web_user_port="${WEB_USER_PORT:-10020}"
 
-    info "停止 host-side ibazel 服务..."
+    info "停止 host-side 服务 (ibazel / air)..."
     stop_host_services
     success "host-side 服务已停止"
 

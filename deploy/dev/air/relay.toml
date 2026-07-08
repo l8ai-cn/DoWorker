@@ -1,0 +1,28 @@
+# air hot-reload for relay (DEV_NO_BAZEL=1 / dev-lite.sh).
+
+root = "."
+tmp_dir = "deploy/dev/runtime/relay/air"
+
+[build]
+cmd = "go build -o ./deploy/dev/runtime/relay/air/main ./relay/cmd/relay"
+bin = "./deploy/dev/runtime/relay/air/main"
+full_bin = "./deploy/dev/runtime/relay/air/main"
+include_ext = ["go"]
+exclude_dir = [
+  "assets", "tmp", "vendor", "testdata", "node_modules",
+  "bazel-bin", "bazel-out", "bazel-testlogs", "bazel-agentsmesh",
+  "clients", "deploy", "docs", "e2e", "packages", "proto/gen/ts",
+]
+delay = 800
+stop_delay = 500
+send_interrupt = true
+kill_delay = 500
+
+[log]
+time = false
+
+[color]
+main = "magenta"
+watcher = "cyan"
+build = "yellow"
+runner = "green"

@@ -12,6 +12,15 @@ bazel run //deploy/dev:reset_runners     # restart host runner+relay
 bazel run //deploy/dev:rebuild_runner    # rebuild runner binary + restart runner containers
 ```
 
+**Low-memory local dev** (no ibazel / no Bazel daemon for Go; ~2 GB less RAM):
+
+```bash
+cd deploy/dev && ./dev-lite.sh           # air backend/relay + coordinator runners + web only
+./dev-lite.sh --backend-only             # skip frontend
+cp ../../.bazelrc.local.example ../../.bazelrc.local   # cap Bazel jobs/RAM for next_dev
+pnpm proto:gen-go                        # regenerate proto/gen/go (needs protoc or one-shot bazel)
+```
+
 `./dev.sh [--clean|--reset-runners|...]` still works — same flags, same behavior.
 
 The script auto-generates `.env` with worktree-hashed ports so multiple worktrees can coexist. Actual ports are printed on startup (or read from `deploy/dev/.env`).

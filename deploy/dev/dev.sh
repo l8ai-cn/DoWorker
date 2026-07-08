@@ -82,6 +82,7 @@ main() {
     for arg in "$@"; do
         case "$arg" in
             --backend-only) backend_only=true ;;
+            --lite) export DEV_LITE=1; export DEV_NO_BAZEL=1; export WEB_USER_SKIP=1 ;;
             --frontends|-f) ;;
             --coordinator-runners) export RUNNERS_LAUNCHER=coordinator ;;
             --runners-k8s) export RUNNERS_LAUNCHER=k8s ;;
@@ -113,6 +114,11 @@ main() {
                 info "Runner 模式: Kubernetes 集群 (跳过 docker-compose.runners.yml)"
                 ;;
         esac
+        source "$ENV_FILE"
+    elif dev_lite_enabled; then
+        info "dev-lite: 启用 Coordinator 按需 runner"
+        persist_runners_launcher_mode coordinator
+        stop_compose_runners
         source "$ENV_FILE"
     fi
 

@@ -7,6 +7,10 @@
 # .github/workflows/bazel.yml) — no fallback in this script.
 
 check_ibazel_doctor() {
+    if [[ "${DEV_NO_BAZEL:-}" == "1" || "${DEV_LITE:-}" == "1" ]]; then
+        check_lite_doctor
+        return
+    fi
     local missing=()
     command -v bazel  >/dev/null 2>&1 || missing+=("bazel (bazelisk)")
     command -v ibazel >/dev/null 2>&1 || missing+=("ibazel (bazel-watcher)")
@@ -15,6 +19,8 @@ check_ibazel_doctor() {
         echo "  bazel:   brew install bazelisk (macOS) | bazelisk releases (Linux)"
         echo "  ibazel:  https://github.com/bazelbuild/bazel-watcher/releases"
         echo "           (no homebrew formula — grab the darwin-arm64 / linux-amd64 binary)"
+        echo ""
+        echo "  低内存模式可跳过 Bazel/ibazel: ./dev-lite.sh"
         exit 1
     fi
 
@@ -27,6 +33,30 @@ check_ibazel_doctor() {
     if (( ${#ai_missing[@]} > 0 )); then
         warn "宿主机 AI CLI 未全装（${ai_missing[*]}）— 仅影响非 Docker runner"
         echo "  npm i -g @anthropic-ai/claude-code @openai/codex @google/gemini-cli"
+    fi
+}
+
+# Lite dev: Go + air for backend/relay; Bazel only for Next.js frontend (one app).
+check_lite_doctor() {
+    local missing=()
+    command -v go >/dev/null 2>&1 || missing+=("go")
+    command -v docker >/dev/null 2>&1 || missing+=("docker")
+    command -v pnpm >/dev/null 2>&1 || missing+=("pnpm")
+    command -v bazel >/dev/null 2>&1 || missing+=("bazel (frontend next_dev only)")
+    if (( ${#missing[@]} > 0 )); then
+        error "dev-lite 缺少工具：${missing[*]}"
+        echo "  go:     https://go.dev/dl/"
+        echo "  docker: Docker Desktop"
+        echo "  pnpm:   npm install -g pnpm"
+        echo "  bazel:  brew install bazelisk  (仅启动 web 前端时需要)"
+        exit 1
+    fi
+    if ! command -v air >/dev/null 2>&1 && [[ ! -x "$(go env GOPATH)/bin/air" ]]; then
+        info "air 未安装 — dev-lite 启动时会自动 go install"
+    fi
+    if ! command -v protoc >/dev/null 2>&1 && [[ ! -f "$SCRIPT_DIR/../../proto/gen/go/loop/v1/loop.pb.go" ]]; then
+        warn "protoc 未安装且 proto/gen/go 缺失 — 首次启动会用 bazel 一次性生成 Go proto"
+        echo "  推荐: brew install protobuf && ./scripts/proto-gen-go.sh"
     fi
 }
 

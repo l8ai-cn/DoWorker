@@ -9,6 +9,10 @@
 
 # shellcheck source=build_do_agent_binary.sh
 source "$(dirname "${BASH_SOURCE[0]}")/build_do_agent_binary.sh"
+# shellcheck source=host_services_lite.sh
+source "$(dirname "${BASH_SOURCE[0]}")/host_services_lite.sh"
+# shellcheck source=host_services_lite.sh
+source "$(dirname "${BASH_SOURCE[0]}")/host_services_lite.sh"
 
 # Wait for an HTTP endpoint to return success. 1-second polling, default
 # 40 attempts (= 40s max). Used for backend / relay health checks.
@@ -100,6 +104,10 @@ _reap_port() {
 # image. macOS bazel-bin is a symlink chain to /private/var/... that
 # docker build can't follow across, hence `cp -L`.
 build_runner_binary() {
+    if dev_lite_enabled; then
+        build_runner_binary_go
+        return
+    fi
     info "Bazel build runner binary (linux/amd64)..."
     local repo_root="$SCRIPT_DIR/../.."
     (
@@ -123,6 +131,10 @@ build_runner_binary() {
 # mcp-e2e / envbundle-e2e / acp-ui-e2e — i.e. the runtime under test in
 # every harness that creates a pod without a real LLM CLI.
 build_mock_agent_binary() {
+    if dev_lite_enabled; then
+        build_mock_agent_binary_go
+        return
+    fi
     info "Bazel build e2e-mock-agent binary (linux/amd64)..."
     local repo_root="$SCRIPT_DIR/../.."
     (
@@ -155,6 +167,10 @@ build_mock_agent_binary() {
 # so `_wait_http` only waits on real startup time, not Bazel compile.
 # Critical on cold-cache CI where compile alone is 5+ min.
 start_backend_host() {
+    if dev_lite_enabled; then
+        start_backend_host_lite
+        return
+    fi
     source "$ENV_FILE"
     local repo_root="$SCRIPT_DIR/../.."
     mkdir -p "$repo_root/backend/logs"
@@ -195,8 +211,9 @@ start_backend_host() {
     export STORAGE_ENDPOINT="localhost:${MINIO_API_PORT}"
     export STORAGE_PUBLIC_ENDPOINT="localhost:${MINIO_API_PORT}"
     # Runner pods live in Docker and cannot reach the host's localhost; they
-    # download presigned skill/resource packages via host.docker.internal.
-    export STORAGE_RUNNER_ENDPOINT="host.docker.internal:${MINIO_API_PORT}"
+    # download presigned skill/resource packages via host.lan (host-gateway).
+    # Avoid host.docker.internal on macOS when a fake-ip proxy rewrites it.
+    export STORAGE_RUNNER_ENDPOINT="host.lan:${MINIO_API_PORT}"
     export STORAGE_REGION=us-east-1
     export STORAGE_BUCKET=agentsmesh
     export STORAGE_ACCESS_KEY="${MINIO_ROOT_USER:-minioadmin}"
@@ -209,6 +226,8 @@ start_backend_host() {
     export PAYMENT_MOCK="${PAYMENT_MOCK:-false}"
     export PKI_CA_CERT_FILE="$SCRIPT_DIR/ssl/ca.crt"
     export PKI_CA_KEY_FILE="$SCRIPT_DIR/ssl/ca.key"
+    export PKI_SERVER_CERT_FILE="$SCRIPT_DIR/ssl/server.crt"
+    export PKI_SERVER_KEY_FILE="$SCRIPT_DIR/ssl/server.key"
     export PKI_VALIDITY_DAYS=365
     export GEO_MMDB_PATH="${GEO_MMDB_PATH:-}"
     export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:${OTEL_GRPC_PORT}"
@@ -228,10 +247,9 @@ start_backend_host() {
         export KB_GITEA_URL="http://localhost:${GITEA_HTTP_PORT}"
         export KB_GITEA_TOKEN="$(cat "$kb_token_file")"
         # Pods clone KBs from inside docker runner containers, where
-        # localhost is the container itself — host.docker.internal routes
-        # to the host-published gitea port (same convention as
-        # GRPC_ENDPOINT in docker-compose.runners.yml).
-        export KB_GITEA_CLONE_URL="http://host.docker.internal:${GITEA_HTTP_PORT}"
+        # localhost is the container itself — host.lan routes to the
+        # host-published gitea port (same convention as GRPC_ENDPOINT).
+        export KB_GITEA_CLONE_URL="http://host.lan:${GITEA_HTTP_PORT}"
     fi
     export COORDINATOR_RUNNER_LAUNCHER=docker
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR="$SCRIPT_DIR"
@@ -278,6 +296,10 @@ start_backend_host() {
 # Relay reads SERVER_PORT (not SERVER_ADDRESS like backend) — see
 # relay/internal/config/config.go.
 start_relay_host() {
+    if dev_lite_enabled; then
+        start_relay_host_lite
+        return
+    fi
     source "$ENV_FILE"
     local repo_root="$SCRIPT_DIR/../.."
     export SERVER_HOST="0.0.0.0"
@@ -347,4 +369,5 @@ stop_host_services() {
     # between recording and our TERM).
     pkill -f "bazel-bin/backend/cmd/server" 2>/dev/null || true
     pkill -f "bazel-bin/relay/cmd/relay" 2>/dev/null || true
+    stop_host_services_lite_extra
 }

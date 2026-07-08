@@ -38,6 +38,14 @@ bazel run //deploy/dev:rebuild_runner    # rebuild runner binary + restart conta
 bazel run //deploy/dev:backend_only      # CI-style: skip frontends
 ```
 
+**Low-memory dev** (Go via `air`, no `ibazel`; coordinator runners; web only):
+
+```bash
+cd deploy/dev && ./dev-lite.sh
+cp ../../.bazelrc.local.example ../../.bazelrc.local   # optional: cap Bazel RAM for next_dev
+pnpm proto:gen-go-all                                # first-time: proto + amesh codegen
+```
+
 > Backward-compat: `cd deploy/dev && ./dev.sh [--clean|--reset-runners|...]`
 > still works — same flags, same behavior.
 

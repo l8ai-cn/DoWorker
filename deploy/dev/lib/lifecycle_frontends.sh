@@ -40,6 +40,13 @@ _print_frontend_startup_summary() {
 start_all_frontends() {
     source "$ENV_FILE"
 
+    if [[ "${DEV_LITE:-}" == "1" ]]; then
+        info "dev-lite: 仅启动 web 主前端 (跳过 web-admin / web-user)"
+        start_frontend || warn "主前端未能启动"
+        _print_frontend_startup_summary
+        return 0
+    fi
+
     if [[ "${WEB_USER_SKIP:-}" == "1" ]]; then
         info "WEB_USER_SKIP=1 — 跳过 web-user，仅启动 web + web-admin"
         start_frontend || warn "主前端未能启动"
