@@ -11,6 +11,7 @@ go_library(
         "manager.go",
         "manager_heartbeat.go",
         "manager_unregister.go",
+        "preview.go",
         "relay_info.go",
         "stats.go",
         "store_interface.go",
@@ -21,6 +22,7 @@ go_library(
     visibility = ["//backend:__subpackages__"],
     deps = [
         "//backend/internal/config",
+        "//backend/internal/domain/agentpod",
         "//backend/internal/infra/cache",
         "//backend/internal/infra/dns",
         "//backend/internal/service/geo",
@@ -52,6 +54,7 @@ go_test(
         "manager_integration_test.go",
         "manager_register_test.go",
         "manager_select_test.go",
+        "preview_test.go",
         "store_manager_test.go",
         "store_mock_test.go",
         "store_redis_test.go",
@@ -60,6 +63,7 @@ go_test(
     ],
     embed = [":relay"],
     deps = [
+        "//backend/internal/domain/agentpod",
         "//backend/internal/infra/cache",
         "@com_github_alicebob_miniredis_v2//:miniredis",
         "@com_github_golang_jwt_jwt_v5//:jwt",

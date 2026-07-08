@@ -102,6 +102,12 @@ type Pod struct {
 	// (quota/billing). Nil when the Worker binds a real model directly.
 	VirtualAPIKeyID *int64 `gorm:"column:virtual_api_key_id" json:"virtual_api_key_id,omitempty"`
 
+	// Preview: HTTP data-plane exposure of a loopback service inside the pod.
+	// PreviewPort==0 means preview is disabled. PreviewPath is an optional
+	// default sub-path the preview entrypoint lands on.
+	PreviewPort int    `gorm:"column:preview_port;not null;default:0" json:"preview_port"`
+	PreviewPath string `gorm:"column:preview_path;size:255;not null;default:''" json:"preview_path,omitempty"`
+
 	// Perpetual mode: Runner auto-restarts the agent process on clean exit.
 	// pod_key stays the same across restarts (service identity).
 	Perpetual     bool       `gorm:"not null;default:false" json:"perpetual"`
