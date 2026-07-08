@@ -57,10 +57,17 @@ func TestDeriveServerCertSANs(t *testing.T) {
 		},
 	}
 
+	// deriveServerCertSANs always appends the dev-runner hosts so runners
+	// dialing from inside Docker (host.docker.internal / host.lan) can
+	// validate the server cert. Each case lists only the config-derived
+	// names; the dev-runner suffix is asserted uniformly here.
+	devRunnerSANs := []string{"host.docker.internal", "host.lan"}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			want := append(append([]string{}, tt.expected...), devRunnerSANs...)
 			sans := deriveServerCertSANs(tt.cfg)
-			assert.Equal(t, tt.expected, sans)
+			assert.Equal(t, want, sans)
 		})
 	}
 }

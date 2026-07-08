@@ -9,6 +9,29 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
 )
 
+// blockingSyncer is a fake SkillSyncer that records peak concurrency and holds
+// each in-flight call until released. It lets the concurrency test assert
+// syncAll's semaphore bound deterministically, without the real importer's git
+// clone / network I/O (which made this test slow and flaky).
+type blockingSyncer struct {
+	inFlight    int32
+	maxInFlight int32
+	release     chan struct{}
+}
+
+func (s *blockingSyncer) SyncSource(_ context.Context, _ int64) error {
+	current := atomic.AddInt32(&s.inFlight, 1)
+	for {
+		prev := atomic.LoadInt32(&s.maxInFlight)
+		if current <= prev || atomic.CompareAndSwapInt32(&s.maxInFlight, prev, current) {
+			break
+		}
+	}
+	<-s.release // hold the goroutine so concurrency stays observable
+	atomic.AddInt32(&s.inFlight, -1)
+	return nil
+}
+
 // TestSyncAll_ConcurrencyBounded verifies syncAll respects the configured
 // concurrency cap: even when many registries are ready, no more than that
 // many syncs run at the same instant. Without bounding, large org deployments
@@ -30,35 +53,24 @@ func TestSyncAll_ConcurrencyBounded(t *testing.T) {
 		return registries, nil
 	}
 
-	var (
-		inFlight    int32
-		maxInFlight int32
-		release     = make(chan struct{})
-	)
-
-	repo.getSourceFunc = func(_ context.Context, id int64) (*extension.SkillRegistry, error) {
-		current := atomic.AddInt32(&inFlight, 1)
-		for {
-			prev := atomic.LoadInt32(&maxInFlight)
-			if current <= prev || atomic.CompareAndSwapInt32(&maxInFlight, prev, current) {
-				break
-			}
-		}
-		<-release // hold the goroutine so concurrency stays observable
-		atomic.AddInt32(&inFlight, -1)
-		return &extension.SkillRegistry{ID: id, RepositoryURL: "https://example.com/repo", Branch: "main"}, nil
+	syncer := &blockingSyncer{release: make(chan struct{})}
+	worker := &MarketplaceWorker{
+		importer:        syncer,
+		repo:            repo,
+		syncInterval:    time.Hour,
+		syncConcurrency: defaultSyncConcurrency,
 	}
 
 	done := make(chan struct{})
 	go func() {
-		newTestWorker(repo).syncAll(context.Background())
+		worker.syncAll(context.Background())
 		close(done)
 	}()
 
 	// Release only after the cap is hit, so maxInFlight reflects the limit
 	// rather than a transient mid-ramp value.
-	waitForInFlight(t, &inFlight, defaultSyncConcurrency, 3*time.Second)
-	close(release)
+	waitForInFlight(t, &syncer.inFlight, defaultSyncConcurrency, 3*time.Second)
+	close(syncer.release)
 
 	select {
 	case <-done:
@@ -66,7 +78,7 @@ func TestSyncAll_ConcurrencyBounded(t *testing.T) {
 		t.Fatal("syncAll did not finish after releasing goroutines")
 	}
 
-	got := atomic.LoadInt32(&maxInFlight)
+	got := atomic.LoadInt32(&syncer.maxInFlight)
 	if got > defaultSyncConcurrency {
 		t.Errorf("max in-flight syncs = %d, exceeds limit %d", got, defaultSyncConcurrency)
 	}
