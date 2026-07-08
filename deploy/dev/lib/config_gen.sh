@@ -112,6 +112,14 @@ api:
 entryPoints:
   web:
     address: ":80"
+    # Long-lived connections (runner tunnel WS, preview SSE/video streaming)
+    # must not be killed by entrypoint timeouts; readTimeout/writeTimeout=0
+    # disables them, idleTimeout is generous but still bounded.
+    transport:
+      respondingTimeouts:
+        readTimeout: 0s
+        writeTimeout: 0s
+        idleTimeout: 3600s
   grpc:
     address: ":9443"
 
@@ -150,6 +158,29 @@ http:
       middlewares:
         - relay-strip
       priority: 30
+
+    # Gateway HTTP data plane (tunnel/preview). Prefix is intentionally NOT
+    # stripped: the gateway's own mux routes on the full /preview/{podKey}/*
+    # path. No buffering middleware is attached here so WebSocket Upgrade
+    # (preview WS passthrough) and streamed SSE/video responses pass through
+    # untouched.
+    preview:
+      entryPoints:
+        - web
+      rule: "PathPrefix(\`/preview\`)"
+      service: relay
+      priority: 40
+
+    # Runner outbound tunnel endpoint. backend's cfg.TunnelURL() /
+    # tunnelURLFromRelay() both mint "{scheme}://{host}/runner/tunnel"
+    # (a bare, top-level path — NOT nested under /relay), so it needs its
+    # own router rather than riding the relay-strip rule above.
+    runner-tunnel:
+      entryPoints:
+        - web
+      rule: "PathPrefix(\`/runner/tunnel\`)"
+      service: relay
+      priority: 40
 
   middlewares:
     relay-strip:
