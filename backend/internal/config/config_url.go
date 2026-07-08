@@ -31,6 +31,12 @@ func (c *Config) RelayURL() string {
 	return c.WebSocketBaseURL() + "/relay"
 }
 
+// TunnelURL returns the WebSocket endpoint runners dial for the outbound HTTP
+// data-plane tunnel.
+func (c *Config) TunnelURL() string {
+	return c.WebSocketBaseURL() + "/runner/tunnel"
+}
+
 func (c *Config) GitHubRedirectURL() string {
 	return c.BaseURL() + "/api/v1/auth/oauth/github/callback"
 }

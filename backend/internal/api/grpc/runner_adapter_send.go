@@ -128,6 +128,24 @@ func (a *GRPCRunnerAdapter) SendUnsubscribePod(runnerID int64, podKey string) er
 	return conn.SendMessage(msg)
 }
 
+func (a *GRPCRunnerAdapter) SendConnectTunnel(runnerID int64, gatewayURL, tunnelToken string) error {
+	conn := a.connManager.GetConnection(runnerID)
+	if conn == nil {
+		return status.Errorf(codes.NotFound, "runner %d not connected", runnerID)
+	}
+
+	msg := &runnerv1.ServerMessage{
+		Payload: &runnerv1.ServerMessage_ConnectTunnel{
+			ConnectTunnel: &runnerv1.ConnectTunnelCommand{
+				GatewayUrl:  gatewayURL,
+				TunnelToken: tunnelToken,
+			},
+		},
+		Timestamp: time.Now().UnixMilli(),
+	}
+	return conn.SendMessage(msg)
+}
+
 func (a *GRPCRunnerAdapter) SendQuerySandboxes(runnerID int64, requestID string, podKeys []string) error {
 	conn := a.connManager.GetConnection(runnerID)
 	if conn == nil {

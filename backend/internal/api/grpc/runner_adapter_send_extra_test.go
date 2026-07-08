@@ -33,6 +33,28 @@ func TestGRPCRunnerAdapter_SendSubscribePod(t *testing.T) {
 	})
 }
 
+func TestGRPCRunnerAdapter_SendConnectTunnel(t *testing.T) {
+	logger := newTestLogger()
+	connMgr := runner.NewRunnerConnectionManager(logger)
+	defer connMgr.Close()
+
+	adapter := NewGRPCRunnerAdapter(logger, nil, nil, nil, nil, nil, connMgr, nil)
+
+	t.Run("runner not connected", func(t *testing.T) {
+		err := adapter.SendConnectTunnel(999, "wss://d/relay", "tok")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "not connected")
+	})
+
+	t.Run("successful send", func(t *testing.T) {
+		mockStream := &mockRunnerStream{}
+		connMgr.AddConnection(1, "n", "o", mockStream)
+
+		err := adapter.SendConnectTunnel(1, "wss://d/relay", "tok")
+		require.NoError(t, err)
+	})
+}
+
 func TestGRPCRunnerAdapter_SendUnsubscribePod(t *testing.T) {
 	logger := newTestLogger()
 	connMgr := runner.NewRunnerConnectionManager(logger)

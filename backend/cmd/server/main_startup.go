@@ -88,6 +88,7 @@ func initPKIAndGRPCWiring(
 		result.logUploadSender = grpcCommandSender
 		slog.Info("PodCoordinator and PodRouter connected to gRPC Server")
 		setupRelayTokenRefreshCallback(db, runnerConnMgr, relayTokenGenerator, grpcCommandSender)
+		setupTunnelConnectCallback(cfg, db, runnerConnMgr, relayTokenGenerator, grpcCommandSender)
 	}
 	return result
 }

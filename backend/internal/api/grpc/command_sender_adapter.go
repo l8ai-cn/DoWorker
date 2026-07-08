@@ -120,6 +120,15 @@ func (s *GRPCCommandSender) SendAcpRelay(ctx context.Context, runnerID int64, po
 	return nil
 }
 
+func (s *GRPCCommandSender) SendConnectTunnel(runnerID int64, gatewayURL, tunnelToken string) error {
+	slog.Info("sending connect_tunnel command", "runner_id", runnerID, "gateway_url", gatewayURL)
+	if err := s.adapter.SendConnectTunnel(runnerID, gatewayURL, tunnelToken); err != nil {
+		slog.Error("failed to send connect_tunnel command", "runner_id", runnerID, "error", err)
+		return err
+	}
+	return nil
+}
+
 func (s *GRPCCommandSender) SendQuerySandboxes(runnerID int64, requestID string, podKeys []string) error {
 	slog.Info("sending query_sandboxes command", "runner_id", runnerID, "request_id", requestID, "pod_count", len(podKeys))
 	if err := s.adapter.SendQuerySandboxes(runnerID, requestID, podKeys); err != nil {

@@ -31,6 +31,10 @@ type RunnerCommandSender interface {
 	SendUpdatePodPolicyRules(ctx context.Context, runnerID int64, podKey string, rules []*runnerv1.PolicyRuleSnapshot) error
 
 	SendAcpRelay(ctx context.Context, runnerID int64, podKey, payloadJSON string) error
+
+	// SendConnectTunnel tells the runner to establish/refresh its outbound HTTP
+	// tunnel to the Gateway. Not bound to a pod.
+	SendConnectTunnel(runnerID int64, gatewayURL, tunnelToken string) error
 }
 
 type NoOpCommandSender struct {
@@ -110,6 +114,12 @@ func (n *NoOpCommandSender) SendUpdatePodPolicyRules(ctx context.Context, runner
 func (n *NoOpCommandSender) SendAcpRelay(ctx context.Context, runnerID int64, podKey, payloadJSON string) error {
 	n.logger.Warn("command sender not configured, cannot send acp relay",
 		"runner_id", runnerID, "pod_key", podKey)
+	return ErrCommandSenderNotSet
+}
+
+func (n *NoOpCommandSender) SendConnectTunnel(runnerID int64, gatewayURL, tunnelToken string) error {
+	n.logger.Warn("command sender not configured, cannot send connect tunnel",
+		"runner_id", runnerID, "gateway_url", gatewayURL)
 	return ErrCommandSenderNotSet
 }
 

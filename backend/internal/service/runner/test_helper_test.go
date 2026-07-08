@@ -166,3 +166,7 @@ func (m *MockCommandSender) SendUpdatePodPolicyRules(ctx context.Context, runner
 func (m *MockCommandSender) SendAcpRelay(ctx context.Context, runnerID int64, podKey, payloadJSON string) error {
 	return nil
 }
+
+func (m *MockCommandSender) SendConnectTunnel(runnerID int64, gatewayURL, tunnelToken string) error {
+	return nil
+}
