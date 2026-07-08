@@ -39,6 +39,12 @@ type Client struct {
 	// Latency tracking for load balancing
 	lastLatencyMs int // Last measured heartbeat round-trip latency
 
+	// tunnelStatsFn reports the HTTP data-plane's live tunnel/stream counts
+	// for the heartbeat payload. nil when the gateway's tunnel feature is
+	// disabled (cfg.Tunnel.Enabled == false), in which case the heartbeat
+	// omits active_tunnels/active_streams entirely.
+	tunnelStatsFn func() (activeTunnels, activeStreams int)
+
 	mu sync.RWMutex
 
 	logger *slog.Logger
@@ -129,12 +135,14 @@ type RegisterResponse struct {
 
 // HeartbeatRequest represents heartbeat request
 type HeartbeatRequest struct {
-	RelayID     string  `json:"relay_id"`
-	Connections int     `json:"connections"`
-	CPUUsage    float64 `json:"cpu_usage"`
-	MemoryUsage float64 `json:"memory_usage"`
-	LatencyMs   int     `json:"latency_ms,omitempty"` // Heartbeat round-trip latency
-	NeedCert    bool    `json:"need_cert,omitempty"`  // Whether relay needs TLS certificate
+	RelayID       string  `json:"relay_id"`
+	Connections   int     `json:"connections"`
+	CPUUsage      float64 `json:"cpu_usage"`
+	MemoryUsage   float64 `json:"memory_usage"`
+	LatencyMs     int     `json:"latency_ms,omitempty"`     // Heartbeat round-trip latency
+	NeedCert      bool    `json:"need_cert,omitempty"`      // Whether relay needs TLS certificate
+	ActiveTunnels int     `json:"active_tunnels,omitempty"` // HTTP data-plane: live runner tunnels (registry.Stats)
+	ActiveStreams int     `json:"active_streams,omitempty"` // HTTP data-plane: live multiplexed streams across all tunnels
 }
 
 // HeartbeatResponse represents heartbeat response
@@ -178,5 +186,15 @@ func (c *Client) IsRegistered() bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.registered
+}
+
+// SetTunnelStatsProvider wires a callback SendHeartbeat consults for the
+// active_tunnels/active_streams heartbeat fields (see tunnel.Registry.Stats).
+// Called once at startup when the gateway's tunnel feature is enabled; nil
+// (the default) omits both fields from the heartbeat payload.
+func (c *Client) SetTunnelStatsProvider(fn func() (activeTunnels, activeStreams int)) {
+	c.mu.Lock()
+	c.tunnelStatsFn = fn
+	c.mu.Unlock()
 }
 

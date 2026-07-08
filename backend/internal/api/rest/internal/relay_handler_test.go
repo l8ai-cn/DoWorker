@@ -165,6 +165,30 @@ func TestHeartbeatHandler_Success(t *testing.T) {
 	assert.Equal(t, 100, r.AvgLatencyMs)
 }
 
+func TestHeartbeatHandler_AcceptsTunnelStats(t *testing.T) {
+	handler, m := newTestHandler(t)
+
+	if err := m.Register(&relay.RelayInfo{ID: "relay-1", URL: "wss://relay.com"}); err != nil {
+		t.Fatalf("Register: %v", err)
+	}
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = jsonRequest(t, "POST", "/heartbeat", HeartbeatRequest{
+		RelayID:       "relay-1",
+		Connections:   50,
+		ActiveTunnels: 3,
+		ActiveStreams: 12,
+	})
+
+	handler.Heartbeat(c)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	var resp HeartbeatResponse
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
+	assert.Equal(t, "ok", resp.Status)
+}
+
 func TestHeartbeatHandler_NotFound(t *testing.T) {
 	handler, _ := newTestHandler(t)
 

@@ -89,6 +89,48 @@ func TestClient_SendHeartbeat(t *testing.T) {
 	}
 }
 
+func TestClient_SendHeartbeat_IncludesTunnelStats(t *testing.T) {
+	var req HeartbeatRequest
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+	c := NewClient(srv.URL, "s", "r1", "ws://a", "us", 1000)
+	c.mu.Lock()
+	c.registered = true
+	c.mu.Unlock()
+
+	c.SetTunnelStatsProvider(func() (activeTunnels, activeStreams int) { return 4, 9 })
+
+	if err := c.SendHeartbeat(context.Background(), 5); err != nil {
+		t.Fatalf("SendHeartbeat: %v", err)
+	}
+	if req.ActiveTunnels != 4 || req.ActiveStreams != 9 {
+		t.Fatalf("expected active_tunnels=4 active_streams=9, got %+v", req)
+	}
+}
+
+func TestClient_SendHeartbeat_OmitsTunnelStatsWhenNoProvider(t *testing.T) {
+	body := map[string]json.RawMessage{}
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+	c := NewClient(srv.URL, "s", "r1", "ws://a", "us", 1000)
+	c.mu.Lock()
+	c.registered = true
+	c.mu.Unlock()
+
+	if err := c.SendHeartbeat(context.Background(), 5); err != nil {
+		t.Fatalf("SendHeartbeat: %v", err)
+	}
+	if _, ok := body["active_tunnels"]; ok {
+		t.Fatal("active_tunnels should be omitted when no tunnel stats provider is set")
+	}
+}
+
 func TestClient_NotifySessionClosed(t *testing.T) {
 	for _, tt := range []struct {
 		name    string

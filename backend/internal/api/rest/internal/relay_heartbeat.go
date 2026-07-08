@@ -23,6 +23,13 @@ func (h *RelayHandler) Heartbeat(c *gin.Context) {
 		return
 	}
 
+	if req.ActiveTunnels > 0 || req.ActiveStreams > 0 {
+		h.logger.Debug("relay HTTP data-plane tunnel stats",
+			"relay_id", req.RelayID,
+			"active_tunnels", req.ActiveTunnels,
+			"active_streams", req.ActiveStreams)
+	}
+
 	response := HeartbeatResponse{Status: "ok"}
 
 	if req.NeedCert && h.acmeManager != nil {

@@ -20,12 +20,18 @@ type RegisterResponse struct {
 }
 
 type HeartbeatRequest struct {
-	RelayID     string  `json:"relay_id" binding:"required,max=128"`
-	Connections int     `json:"connections" binding:"min=0,max=1000000"`
-	CPUUsage    float64 `json:"cpu_usage" binding:"min=0,max=100"`
-	MemoryUsage float64 `json:"memory_usage" binding:"min=0,max=100"`
-	LatencyMs   int     `json:"latency_ms,omitempty" binding:"min=0,max=60000"`
-	NeedCert    bool    `json:"need_cert,omitempty"`
+	RelayID       string  `json:"relay_id" binding:"required,max=128"`
+	Connections   int     `json:"connections" binding:"min=0,max=1000000"`
+	CPUUsage      float64 `json:"cpu_usage" binding:"min=0,max=100"`
+	MemoryUsage   float64 `json:"memory_usage" binding:"min=0,max=100"`
+	LatencyMs     int     `json:"latency_ms,omitempty" binding:"min=0,max=60000"`
+	NeedCert      bool    `json:"need_cert,omitempty"`
+	// ActiveTunnels/ActiveStreams report the gateway's HTTP data-plane load
+	// (relay/internal/tunnel.Registry.Stats). Omitted by relays with the
+	// tunnel feature disabled; not yet persisted, logged for observability
+	// (see Heartbeat handler).
+	ActiveTunnels int `json:"active_tunnels,omitempty" binding:"min=0,max=1000000"`
+	ActiveStreams int `json:"active_streams,omitempty" binding:"min=0,max=10000000"`
 }
 
 type HeartbeatResponse struct {

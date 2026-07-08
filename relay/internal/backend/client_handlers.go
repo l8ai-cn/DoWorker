@@ -20,6 +20,7 @@ func (c *Client) SendHeartbeat(ctx context.Context, connections int) error {
 	}
 	lastLatency := c.lastLatencyMs
 	needCert := c.tlsCert == "" || c.tlsKey == "" // Request cert if we don't have one
+	tunnelStatsFn := c.tunnelStatsFn
 	c.mu.RUnlock()
 
 	// Get CPU and memory usage (simplified)
@@ -34,6 +35,9 @@ func (c *Client) SendHeartbeat(ctx context.Context, connections int) error {
 		MemoryUsage: memoryUsage,
 		LatencyMs:   lastLatency, // Send last measured latency
 		NeedCert:    needCert,
+	}
+	if tunnelStatsFn != nil {
+		req.ActiveTunnels, req.ActiveStreams = tunnelStatsFn()
 	}
 
 	body, err := json.Marshal(req)

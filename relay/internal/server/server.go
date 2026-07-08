@@ -107,6 +107,11 @@ func New(cfg *config.Config) *Server {
 			StreamWindowBytes: cfg.Tunnel.StreamWindowBytes,
 			CookieSecure:      cfg.UseHTTPS || cfg.Server.TLS.Enabled,
 		})
+		registry := s.tunnelRegistry
+		backendClient.SetTunnelStatsProvider(func() (int, int) {
+			stats := registry.Stats()
+			return stats.ActiveTunnels, stats.ActiveStreams
+		})
 	}
 
 	return s
