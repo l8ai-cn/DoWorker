@@ -12,6 +12,10 @@
 *.swo
 *~
 
+# Local build / companion repo artifacts
+/server
+/doagent/
+
 # Python bytecode (packages/electron-adapter/scripts guard + generators)
 __pycache__/
 *.pyc
