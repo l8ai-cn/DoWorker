@@ -33,6 +33,24 @@ type Config struct {
 	// =============================================================================
 	PrimaryDomain string `mapstructure:"primary_domain"` // e.g., "localhost:10000" or "agentsmesh.ai"
 	UseHTTPS      bool   `mapstructure:"use_https"`      // Use wss:// instead of ws://
+
+	// Tunnel/proxy (HTTP data plane) configuration.
+	Tunnel TunnelConfig `mapstructure:"tunnel"`
+
+	// AllowedOrigins is a comma-separated Origin allowlist for WebSocket
+	// endpoints. Empty means allow-all (backward compatible).
+	AllowedOrigins string `mapstructure:"allowed_origins"`
+}
+
+// TunnelConfig holds the HTTP tunnel / preview proxy configuration.
+type TunnelConfig struct {
+	Enabled           bool          `mapstructure:"enabled"`
+	MaxStreamsPerPod  int           `mapstructure:"max_streams_per_pod"`
+	QueuePerPod       int           `mapstructure:"queue_per_pod"`
+	QueueTimeout      time.Duration `mapstructure:"queue_timeout"`
+	ReconnectGrace    time.Duration `mapstructure:"reconnect_grace"`
+	StreamTimeout     time.Duration `mapstructure:"stream_timeout"`
+	StreamWindowBytes int           `mapstructure:"stream_window_bytes"`
 }
 
 // ServerConfig holds HTTP/WebSocket server configuration
@@ -109,6 +127,14 @@ func Load() (*Config, error) {
 	v.SetDefault("relay.capacity", 1000)
 	v.SetDefault("relay.region", "default")
 
+	v.SetDefault("tunnel.enabled", true)
+	v.SetDefault("tunnel.max_streams_per_pod", 32)
+	v.SetDefault("tunnel.queue_per_pod", 16)
+	v.SetDefault("tunnel.queue_timeout", 5*time.Second)
+	v.SetDefault("tunnel.reconnect_grace", 5*time.Second)
+	v.SetDefault("tunnel.stream_timeout", 300*time.Second)
+	v.SetDefault("tunnel.stream_window_bytes", 1<<20)
+
 	// Enable environment variable reading
 	v.SetEnvPrefix("RELAY")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -147,6 +173,15 @@ func Load() (*Config, error) {
 		"RELAY_REGION":       "relay.region",
 		"RELAY_CAPACITY":     "relay.capacity",
 		"RELAY_AUTO_IP":      "relay.auto_ip",
+		// Tunnel / origin
+		"ALLOWED_ORIGINS":            "allowed_origins",
+		"TUNNEL_ENABLED":             "tunnel.enabled",
+		"TUNNEL_MAX_STREAMS_PER_POD": "tunnel.max_streams_per_pod",
+		"TUNNEL_QUEUE_PER_POD":       "tunnel.queue_per_pod",
+		"TUNNEL_QUEUE_TIMEOUT":       "tunnel.queue_timeout",
+		"TUNNEL_RECONNECT_GRACE":     "tunnel.reconnect_grace",
+		"TUNNEL_STREAM_TIMEOUT":      "tunnel.stream_timeout",
+		"TUNNEL_STREAM_WINDOW":       "tunnel.stream_window_bytes",
 	}
 
 	for env, key := range envMappings {
@@ -222,4 +257,19 @@ func Load() (*Config, error) {
 // Address returns the server listen address
 func (c *ServerConfig) Address() string {
 	return fmt.Sprintf("%s:%d", c.Host, c.Port)
+}
+
+// AllowedOriginList splits the comma-separated allowlist config and, when a
+// PRIMARY_DOMAIN is configured, automatically includes its http/https forms.
+func (c *Config) AllowedOriginList() []string {
+	var out []string
+	for _, o := range strings.Split(c.AllowedOrigins, ",") {
+		if s := strings.TrimSpace(o); s != "" {
+			out = append(out, s)
+		}
+	}
+	if c.PrimaryDomain != "" {
+		out = append(out, "https://"+c.PrimaryDomain, "http://"+c.PrimaryDomain)
+	}
+	return out
 }

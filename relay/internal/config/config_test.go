@@ -19,6 +19,26 @@ func clearEnv() {
 	}
 }
 
+func TestLoad_TunnelAndOriginDefaults(t *testing.T) {
+	clearEnv()
+	defer clearEnv()
+	t.Setenv("JWT_SECRET", "x")
+	t.Setenv("INTERNAL_API_SECRET", "y")
+	cfg, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.Tunnel.Enabled {
+		t.Fatalf("tunnel should default enabled")
+	}
+	if cfg.Tunnel.MaxStreamsPerPod != 32 {
+		t.Fatalf("MaxStreamsPerPod default=32, got %d", cfg.Tunnel.MaxStreamsPerPod)
+	}
+	if cfg.Tunnel.StreamWindowBytes != 1<<20 {
+		t.Fatalf("StreamWindowBytes default=1MiB, got %d", cfg.Tunnel.StreamWindowBytes)
+	}
+}
+
 func TestServerConfig_Address(t *testing.T) {
 	tests := []struct{ host string; port int; expected string }{
 		{"0.0.0.0", 8090, "0.0.0.0:8090"}, {"127.0.0.1", 8080, "127.0.0.1:8080"},
