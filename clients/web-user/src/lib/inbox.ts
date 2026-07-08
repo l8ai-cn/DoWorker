@@ -49,7 +49,7 @@ export function collectInboxItems(sources: InboxSource[]): InboxItem[] {
   const newestFirst = [...sources].sort((a, b) => b.row.updated_at - a.row.updated_at);
   for (const { row, pendingElicitations } of newestFirst) {
     for (const raw of pendingElicitations) {
-      const evt = parseEvent("response.elicitation_request", raw);
+      const evt = parseEvent("turn.elicitation.request", raw);
       if (evt === null || evt.type !== "elicitation_request") continue;
       if (seen.has(evt.elicitationId)) continue;
       seen.add(evt.elicitationId);

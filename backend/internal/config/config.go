@@ -6,22 +6,23 @@ import (
 )
 
 type Config struct {
-	Server      ServerConfig
-	Database    DatabaseConfig
-	Redis       RedisConfig
-	JWT         JWTConfig
-	OAuth       OAuthConfig
-	Webhook     WebhookConfig
-	Log         LogConfig
-	Email       EmailConfig
-	Storage     StorageConfig
-	Payment     PaymentConfig
-	PKI         PKIConfig
-	GRPC        GRPCConfig
+	Server        ServerConfig
+	Database      DatabaseConfig
+	Redis         RedisConfig
+	JWT           JWTConfig
+	OAuth         OAuthConfig
+	Webhook       WebhookConfig
+	Log           LogConfig
+	Email         EmailConfig
+	Storage       StorageConfig
+	Payment       PaymentConfig
+	PKI           PKIConfig
+	GRPC          GRPCConfig
 	Admin         AdminConfig
 	Relay         RelayConfig
 	Marketplace   MarketplaceConfig
 	KnowledgeBase KnowledgeBaseConfig
+	PendingQueue  PendingQueueConfig
 
 	PrimaryDomain string // Primary domain (e.g., "localhost:10000" or "agentsmesh.ai")
 	UseHTTPS      bool   // Use HTTPS/WSS protocols
@@ -96,8 +97,8 @@ func Load() (*Config, error) {
 		},
 
 		Log: LogConfig{
-			Level:  getEnv("LOG_LEVEL", "info"),
-			Format: getEnv("LOG_FORMAT", "text"),
+			Level:      getEnv("LOG_LEVEL", "info"),
+			Format:     getEnv("LOG_FORMAT", "text"),
 			FilePath:   getEnv("LOG_FILE", ""),
 			MaxSizeMB:  getEnvInt("LOG_MAX_SIZE_MB", 100),
 			MaxBackups: getEnvInt("LOG_MAX_BACKUPS", 5),
@@ -112,6 +113,7 @@ func Load() (*Config, error) {
 		Storage: StorageConfig{
 			Endpoint:       getEnv("STORAGE_ENDPOINT", ""),
 			PublicEndpoint: getEnv("STORAGE_PUBLIC_ENDPOINT", ""),
+			RunnerEndpoint: getEnv("STORAGE_RUNNER_ENDPOINT", ""),
 			Region:         getEnv("STORAGE_REGION", "us-east-1"),
 			Bucket:         getEnv("STORAGE_BUCKET", "agentsmesh"),
 			AccessKey:      getEnv("STORAGE_ACCESS_KEY", ""),
@@ -188,6 +190,8 @@ func Load() (*Config, error) {
 			CloneBaseURL: getEnv("KB_GITEA_CLONE_URL", ""),
 			SyncInterval: getEnvDuration("KB_SYNC_INTERVAL", 1*time.Hour),
 		},
+
+		PendingQueue: loadPendingQueueConfig(),
 
 		Relay: RelayConfig{
 			BaseDomain: getEnv("RELAY_BASE_DOMAIN", ""),

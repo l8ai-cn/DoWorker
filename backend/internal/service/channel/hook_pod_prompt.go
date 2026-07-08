@@ -15,11 +15,15 @@ type PodPromptRouter interface {
 	RoutePrompt(podKey string, prompt string) error
 }
 
+type OfflinePromptQueuer interface {
+	QueueChannelPrompt(ctx context.Context, podKey, prompt string, messageID int64) error
+}
+
 type SystemMessageWriter interface {
 	CreateMessage(ctx context.Context, msg *channelDomain.Message) error
 }
 
-func NewPodPromptHook(router PodPromptRouter, msgWriter SystemMessageWriter) PostSendHook {
+func NewPodPromptHook(router PodPromptRouter, msgWriter SystemMessageWriter, queuer OfflinePromptQueuer) PostSendHook {
 	return func(ctx context.Context, mc *MessageContext) error {
 		if router == nil || mc.Mentions == nil || len(mc.Mentions.PodKeys) == 0 {
 			return nil
@@ -33,6 +37,12 @@ func NewPodPromptHook(router PodPromptRouter, msgWriter SystemMessageWriter) Pos
 			}
 
 			if err := router.RoutePrompt(podKey, prompt); err != nil {
+				if queuer != nil {
+					if qErr := queuer.QueueChannelPrompt(ctx, podKey, prompt, mc.Message.ID); qErr == nil {
+						writeQueuedNotice(ctx, msgWriter, mc.Message.ChannelID, podKey)
+						continue
+					}
+				}
 				slog.WarnContext(ctx, "pod unreachable for prompt",
 					"pod_key", podKey,
 					"channel", mc.Channel.Name,
@@ -44,6 +54,20 @@ func NewPodPromptHook(router PodPromptRouter, msgWriter SystemMessageWriter) Pos
 		}
 
 		return nil
+	}
+}
+
+func writeQueuedNotice(ctx context.Context, w SystemMessageWriter, channelID int64, podKey string) {
+	if w == nil {
+		return
+	}
+	msg := &channelDomain.Message{
+		ChannelID:   channelID,
+		MessageType: channelDomain.MessageTypeSystem,
+		Body:        fmt.Sprintf("@%s is offline, message queued for delivery.", podKey),
+	}
+	if err := w.CreateMessage(ctx, msg); err != nil {
+		slog.ErrorContext(ctx, "failed to write pod-queued system message", "error", err)
 	}
 }
 
@@ -61,8 +85,6 @@ func writeOfflineNotice(ctx context.Context, w SystemMessageWriter, channelID in
 	}
 }
 
-// stripPodMentions removes @mention text for the given pod keys from the content.
-// The frontend uses podKey[:8] as the mention text (see useMentionCandidates.ts).
 func stripPodMentions(content string, podKeys []string) string {
 	result := content
 	for _, key := range podKeys {
@@ -78,9 +100,6 @@ func stripPodMentions(content string, podKeys []string) string {
 
 func buildPodPrompt(content, channelName string, channelID int64, podKeys []string) string {
 	rawPrompt := stripPodMentions(content, podKeys)
-	// PTY submits via runner.OnSendPrompt's trailing \r write; any embedded
-	// \n/\r in the body either pre-submits a partial prompt or sinks the
-	// final \r into the TUI's paste buffer. Flatten to a single line.
 	rawPrompt = ptyPromptFlattener.Replace(rawPrompt)
 	return fmt.Sprintf("Message from channel(#%s, channel_id=%d): %s. If you finish it, please reply to this channel using send_channel_message(channel_id=%d).", channelName, channelID, rawPrompt, channelID)
 }

@@ -15,5 +15,9 @@ func init() {
 		return newTransport(cb, l)
 	})
 	tokenusage.RegisterParser([]string{"claude", "claude-code"}, &claudeParser{})
+	agentkit.RegisterAgentHome(agentkit.AgentHomeSpec{
+		EnvVar:      "CLAUDE_CONFIG_DIR",
+		UserDirName: ".claude",
+	})
 	agentkit.RegisterProcessNames("claude")
 }

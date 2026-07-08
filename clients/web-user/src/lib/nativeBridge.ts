@@ -176,14 +176,22 @@ export interface ServerPickerInfo {
 /** The Electron preload bridge, or undefined outside the Electron shell. */
 function electronApi(): ElectronDesktopApi | undefined {
   if (typeof window === "undefined") return undefined;
-  const api = (window as unknown as { omnigentDesktop?: ElectronDesktopApi }).omnigentDesktop;
+  const w = window as unknown as {
+    doWorkerDesktop?: ElectronDesktopApi;
+    omnigentDesktop?: ElectronDesktopApi;
+  };
+  const api = w.doWorkerDesktop ?? w.omnigentDesktop;
   return api?.kind === "electron" ? api : undefined;
 }
 
 /** The native shell bridge, or undefined outside any native shell. */
 function nativeApi(): NativeShellApi | undefined {
   if (typeof window === "undefined") return undefined;
-  const api = (window as unknown as { omnigentNative?: NativeShellApi }).omnigentNative;
+  const w = window as unknown as {
+    doWorkerNative?: NativeShellApi;
+    omnigentNative?: NativeShellApi;
+  };
+  const api = w.doWorkerNative ?? w.omnigentNative;
   if (api?.kind === "ios" || api?.kind === "android" || api?.kind === "electron") return api;
   return electronApi();
 }
@@ -337,9 +345,9 @@ export async function setBadgeCount(count: number): Promise<void> {
 /**
  * Set one of the inset-system CSS variables on the document root. Visibility of
  * the native bars is web-owned (the web app is what shows/hides them), so the
- * setters below fold it into `--omnigent-*-bar-visible`; the bars' size comes
+ * setters below fold it into `--do-worker-*-bar-visible`; the bars' size comes
  * from the native bridge (see {@link onNativeInsets} / nativeInsets.ts). Both
- * combine in `--omnigent-inset-*` (index.css). Harmless off-shell — the size
+ * combine in `--do-worker-inset-*` (index.css). Harmless off-shell — the size
  * vars stay 0 there, so a stray visibility flag contributes nothing.
  */
 function setInsetVar(name: string, value: string): void {
@@ -352,7 +360,7 @@ function setInsetVar(name: string, value: string): void {
  * simply lack this optional method, so this degrades to a no-op.
  */
 export function setNativeServerSwitcherHidden(hidden: boolean): void {
-  setInsetVar("--omnigent-top-bar-visible", hidden ? "0" : "1");
+  setInsetVar("--do-worker-top-bar-visible", hidden ? "0" : "1");
   const native = nativeApi();
   const setter = native?.setServerSwitcherHidden ?? native?.setSidebarOpen;
   if (!setter) return;
@@ -376,7 +384,7 @@ export function setNativeSidebarOpen(open: boolean): void {
  * caller renders its own in-page pill there.
  */
 export function setNativeViewMode(params: NativeViewModeParams): void {
-  setInsetVar("--omnigent-bottom-bar-visible", params.visible ? "1" : "0");
+  setInsetVar("--do-worker-bottom-bar-visible", params.visible ? "1" : "0");
   const native = nativeApi();
   if (!native?.setViewMode) return;
   try {

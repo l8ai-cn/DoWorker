@@ -13,6 +13,11 @@ import (
 type S3Config struct {
 	Endpoint       string // S3 endpoint (empty for AWS, set for MinIO/OSS)
 	PublicEndpoint string // Public endpoint for browser access (if different from Endpoint)
+	// RunnerEndpoint is the endpoint reachable by runner pods when they download
+	// presigned resources (e.g. skill packages). It differs from Endpoint in
+	// host-side dev, where the backend reaches MinIO via localhost but runner
+	// containers must go through host.docker.internal. Empty falls back to Endpoint.
+	RunnerEndpoint string
 	Region         string
 	Bucket         string
 	AccessKey      string
@@ -25,6 +30,7 @@ type S3Storage struct {
 	client             *s3.Client
 	presign            *s3.PresignClient
 	publicPresign      *s3.PresignClient // Presign client using public endpoint (nil when same as internal)
+	runnerPresign      *s3.PresignClient // Presign client for runner-facing downloads (nil when same as internal)
 	bucket             string
 	endpoint           string
 	publicEndpoint     string // Full URL with scheme
@@ -51,10 +57,16 @@ func NewS3Storage(cfg S3Config) (*S3Storage, error) {
 		return nil, err
 	}
 
+	runnerPresignClient, err := buildAltPresign(cfg, cfg.RunnerEndpoint, endpointURL)
+	if err != nil {
+		return nil, err
+	}
+
 	return &S3Storage{
 		client:             client,
 		presign:            s3.NewPresignClient(client),
 		publicPresign:      publicPresignClient,
+		runnerPresign:      runnerPresignClient,
 		bucket:             cfg.Bucket,
 		endpoint:           endpointURL,
 		publicEndpoint:     publicEndpointURL,
@@ -62,6 +74,42 @@ func NewS3Storage(cfg S3Config) (*S3Storage, error) {
 		useSSL:             cfg.UseSSL,
 		usePathStyle:       cfg.UsePathStyle,
 	}, nil
+}
+
+// buildAltPresign builds a presign client bound to altEndpoint. Returns nil when
+// altEndpoint is empty or resolves to the same URL as the internal endpoint, so
+// callers transparently fall back to the internal presign client.
+func buildAltPresign(cfg S3Config, altEndpoint, endpointURL string) (*s3.PresignClient, error) {
+	if altEndpoint == "" {
+		return nil, nil
+	}
+	scheme := "http"
+	if cfg.UseSSL {
+		scheme = "https"
+	}
+	altURL := fmt.Sprintf("%s://%s", scheme, altEndpoint)
+	if altURL == endpointURL {
+		return nil, nil
+	}
+
+	resolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+		return aws.Endpoint{URL: altURL, HostnameImmutable: cfg.UsePathStyle}, nil
+	})
+	altCfg, err := config.LoadDefaultConfig(context.Background(),
+		config.WithRegion(cfg.Region),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
+			cfg.AccessKey, cfg.SecretKey, "",
+		)),
+		config.WithEndpointResolverWithOptions(resolver),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load runner endpoint AWS config: %w", err)
+	}
+	altClient := s3.NewFromConfig(altCfg, func(o *s3.Options) {
+		o.UsePathStyle = cfg.UsePathStyle
+		o.RequestChecksumCalculation = aws.RequestChecksumCalculationWhenRequired
+	})
+	return s3.NewPresignClient(altClient), nil
 }
 
 func buildEndpointURL(endpoint string, useSSL bool) string {

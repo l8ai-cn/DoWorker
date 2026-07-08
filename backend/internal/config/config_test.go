@@ -289,3 +289,27 @@ func TestLoad(t *testing.T) {
 		assert.Equal(t, 5433, cfg.Database.Port)
 	})
 }
+
+func TestLoad_StorageRunnerEndpoint(t *testing.T) {
+	t.Run("should default to empty (falls back to Endpoint)", func(t *testing.T) {
+		os.Unsetenv("STORAGE_RUNNER_ENDPOINT")
+
+		cfg, err := Load()
+		require.NoError(t, err)
+		assert.Empty(t, cfg.Storage.RunnerEndpoint)
+	})
+
+	t.Run("should read host.docker.internal override for runner pods", func(t *testing.T) {
+		os.Setenv("STORAGE_ENDPOINT", "localhost:10004")
+		os.Setenv("STORAGE_RUNNER_ENDPOINT", "host.docker.internal:10004")
+		defer func() {
+			os.Unsetenv("STORAGE_ENDPOINT")
+			os.Unsetenv("STORAGE_RUNNER_ENDPOINT")
+		}()
+
+		cfg, err := Load()
+		require.NoError(t, err)
+		assert.Equal(t, "localhost:10004", cfg.Storage.Endpoint)
+		assert.Equal(t, "host.docker.internal:10004", cfg.Storage.RunnerEndpoint)
+	})
+}

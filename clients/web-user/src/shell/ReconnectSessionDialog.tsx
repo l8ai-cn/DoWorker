@@ -6,10 +6,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { buildReconnectCommand, type ReconnectState } from "@/lib/do-worker/cli-commands";
 import { CliCommandBlock } from "./CliCommandBlock";
 import { ForkSessionForm } from "./ForkSessionDialog";
 
-const CLAUDE_NATIVE_WRAPPER = "claude-code-native-ui";
+export type { ReconnectState } from "@/lib/do-worker/cli-commands";
+export { buildReconnectCommand } from "@/lib/do-worker/cli-commands";
 
 const HOST_OWNER_DESCRIPTION =
   "This session's host is offline. Run the command below from the host machine to reconnect.";
@@ -20,66 +22,6 @@ const HOST_VIEWER_DESCRIPTION =
 
 const RUN_DESCRIPTION =
   "Run the command below from the machine where you started this session to reconnect.";
-
-/**
- * The liveness state this dialog reconnects from. Maps to the
- * {@link SessionLiveness} variants that leave the session unreachable:
- *
- * - `host_offline` — the session is host-bound and the host tunnel is
- *   down. The owner reconnects the host (`omnigent host`); a
- *   non-owner can't reach that machine, so cloning is their only path.
- * - `local_stranded` — not host-bound and the runner is down. Whoever
- *   started it relaunches from their machine via the wrapper's resume
- *   form.
- */
-export type ReconnectState = "host_offline" | "local_stranded";
-
-/**
- * Build the CLI command the user pastes to bring an unreachable session
- * back. Two forms, picked by `state`:
- *
- * 1. `host_offline` — `omnigent host` re-registers the host
- *    machine; the server relaunches the session's runner on demand once
- *    it's back. No `--resume` and no agent YAML (the host launches
- *    whatever the session was bound to), regardless of wrapper.
- * 2. `local_stranded` — the session isn't host-bound, so the user
- *    relaunches a runner directly. claude-native sessions
- *    (`wrapper === "claude-code-native-ui"`) use `omnigent claude
- *    --resume <id>`; everything else uses the generic `omnigent run
- *    path/to/agent.yaml --resume <id>`.
- *
- * The Databricks profile stays a placeholder in every form — it's
- * per-deployment and not knowable from the browser.
- */
-export function buildReconnectCommand({
-  conversationId,
-  serverUrl,
-  wrapper,
-  state,
-}: {
-  conversationId: string;
-  serverUrl: string;
-  wrapper?: string | null;
-  state: ReconnectState;
-}): string {
-  // Backslash-continued so the command stays readable inside a narrow
-  // dialog AND remains valid when pasted into a shell.
-  if (state === "host_offline") {
-    return ["omnigent host \\", `  --server ${serverUrl}`].join("\n");
-  }
-  if (wrapper === CLAUDE_NATIVE_WRAPPER) {
-    return [
-      "omnigent claude \\",
-      `  --resume ${conversationId} \\`,
-      `  --server ${serverUrl}`,
-    ].join("\n");
-  }
-  return [
-    "omnigent run path/to/agent.yaml \\",
-    `  --resume ${conversationId} \\`,
-    `  --server ${serverUrl}`,
-  ].join("\n");
-}
 
 /**
  * Dialog surfaced when the open session is unreachable — the host is
@@ -100,7 +42,7 @@ export function buildReconnectCommand({
  * The default tab is Reconnect, except for the non-owner `host_offline`
  * case where reconnecting is impossible and Clone is the only action.
  *
- * @param wrapper - The conversation's `omnigent.wrapper` label
+ * @param wrapper - The conversation's `do-worker.wrapper` label
  *   (`"claude-code-native-ui"` for `omnigent claude` sessions). Picks
  *   the `local_stranded` command form.
  * @param state - Which unreachable state we're reconnecting from.

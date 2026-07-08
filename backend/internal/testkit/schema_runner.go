@@ -86,6 +86,7 @@ func podTableDDLs() []string {
 			error_code TEXT, error_message TEXT, title TEXT, alias TEXT,
 			session_id TEXT, source_pod_key TEXT,
 			external_session_id TEXT,
+			virtual_api_key_id INTEGER,
 			perpetual BOOLEAN NOT NULL DEFAULT FALSE,
 			restart_count INTEGER NOT NULL DEFAULT 0,
 			last_restart_at DATETIME,

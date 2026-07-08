@@ -19,6 +19,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/instance"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	tasksvc "github.com/anthropics/agentsmesh/backend/internal/service/tasks"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -60,6 +61,7 @@ func waitForShutdown(
 	eventBus *eventbus.EventBus,
 	heartbeatBatcher *runner.HeartbeatBatcher,
 	subscriptionScheduler *job.SubscriptionScheduler,
+	taskManager *tasksvc.Manager,
 	loopScheduler LoopSchedulerStopper,
 	orgAwareness *instance.OrgAwarenessService,
 	relayManager *relay.Manager,
@@ -87,6 +89,10 @@ func waitForShutdown(
 
 	if subscriptionScheduler != nil {
 		subscriptionScheduler.Stop()
+	}
+
+	if taskManager != nil {
+		taskManager.Stop()
 	}
 
 	if loopScheduler != nil {

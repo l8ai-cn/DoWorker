@@ -11,7 +11,7 @@
 | 管理面 | `clients/web` + `clients/web-admin` | 组织、Runner、配额、审计、高级配置 | Next.js + Rust WASM |
 | 用户工作台 | `clients/web-user` | 终端用户直接跑 agent、聊天、协作 | Vite + React（源自 Omnigent `web/`） |
 
-`clients/web-user` 已从 Omnigent 摘出（Apache-2.0，见 `clients/web-user/THIRD_PARTY.md`），后续通过 **Session Compat API** 对接 AgentsMesh Backend，不再依赖 Omnigent Server。详见 `docs/rfc/web-user-omnigent-compat.md`。
+`clients/web-user` 已从 Omnigent 摘出（Apache-2.0，见 `clients/web-user/THIRD_PARTY.md`），后续通过 **Session API**（`backend/internal/api/rest/v1/session`）对接 AgentsMesh Backend，不再依赖 Omnigent Server。
 
 ## 0.1 语言分工（不是整体转 Rust）
 

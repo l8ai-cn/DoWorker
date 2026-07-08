@@ -39,15 +39,15 @@ can no longer connect. This avoids a full re-registration.`)
 		os.Exit(1)
 	}
 
-	// Determine config file path
+	// Determine config file path (prefers ~/.do-worker, legacy ~/.agentsmesh).
 	cfgFile := *configFile
 	if cfgFile == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to get home directory: %v\n", err)
+		dir := config.UserConfigDir()
+		if dir == "" {
+			fmt.Fprintf(os.Stderr, "Failed to resolve config directory\n")
 			os.Exit(1)
 		}
-		cfgFile = filepath.Join(home, ".agentsmesh", "config.yaml")
+		cfgFile = filepath.Join(dir, "config.yaml")
 	}
 
 	if _, err := os.Stat(cfgFile); os.IsNotExist(err) {

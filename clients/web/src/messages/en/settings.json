@@ -913,6 +913,16 @@
         "delete": "Delete",
         "cancel": "Cancel"
       }
+    },
+    "org": {
+      "infrastructure": {
+        "title": "Infrastructure",
+        "description": "Manage Git repositories and execution clusters for your organization.",
+        "runnersDescription": "Self-hosted runners that execute Workers.",
+        "runnersHint": "Register clusters, issue tokens, and monitor capacity.",
+        "repositoriesDescription": "Git repositories linked to tasks and Workers.",
+        "repositoriesHint": "Import from GitHub, GitLab, Gitea, or a manual remote URL."
+      }
     }
   }
 }

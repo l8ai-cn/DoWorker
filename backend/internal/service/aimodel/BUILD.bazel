@@ -1,0 +1,18 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "aimodel",
+    srcs = ["service.go"],
+    importpath = "github.com/anthropics/agentsmesh/backend/internal/service/aimodel",
+    visibility = ["//backend:__subpackages__"],
+    deps = [
+        "//backend/internal/domain/aimodel",
+        "//backend/pkg/crypto",
+    ],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":aimodel",
+    visibility = ["//backend:__subpackages__"],
+)

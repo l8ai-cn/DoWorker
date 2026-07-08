@@ -15,12 +15,14 @@ import {
   PanelRightOpenIcon,
   ShieldCheckIcon,
   TerminalIcon,
+  CpuIcon,
   UserCogIcon,
   UsersIcon,
 } from "lucide-react";
 import { Link, useLocation } from "@/lib/routing";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { hasAuthSession } from "@/lib/auth-session-detect";
 import { useServerInfo } from "@/lib/CapabilitiesContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { isElectronShell } from "@/lib/nativeBridge";
@@ -33,7 +35,8 @@ export type SettingsSectionId =
   | "members"
   | "policies"
   | "archived"
-  | "cli";
+  | "cli"
+  | "models";
 
 const SECTION_IDS: readonly SettingsSectionId[] = [
   "appearance",
@@ -43,6 +46,7 @@ const SECTION_IDS: readonly SettingsSectionId[] = [
   "policies",
   "archived",
   "cli",
+  "models",
 ];
 
 interface SettingsNavItem {
@@ -102,9 +106,15 @@ export function settingsNavGroups(
     groups.push({
       title: "Admin",
       items: [
+        { id: "models", label: "Models", icon: CpuIcon },
         { id: "members", label: "Members", icon: UsersIcon },
         { id: "policies", label: "Policies", icon: ShieldCheckIcon },
       ],
+    });
+  } else if (hasAuthSession) {
+    groups.push({
+      title: "Workspace",
+      items: [{ id: "models", label: "Models", icon: CpuIcon }],
     });
   }
   groups.push({
@@ -124,12 +134,7 @@ export function settingsNavGroups(
  */
 export function useSettingsRoute(): { inSettings: boolean; section: SettingsSectionId } {
   const info = useServerInfo();
-  // A login session exists (accounts OR OIDC) when the server advertises a
-  // login_url; header single-user mode reports null. The Account section —
-  // and the bare-/settings default landing on it — follows that, not
-  // accounts specifically.
-  const hasAuthSession = info !== "loading" && info.login_url !== null;
-  const defaultSection: SettingsSectionId = hasAuthSession ? "account" : "appearance";
+  const defaultSection: SettingsSectionId = hasAuthSession(info) ? "account" : "appearance";
 
   const segments = useLocation().pathname.split("/").filter(Boolean);
   const idx = segments.lastIndexOf("settings");
@@ -177,14 +182,13 @@ export function SettingsSidebarBody({
   onClose: () => void;
 }) {
   const info = useServerInfo();
-  // Account section shows whenever there's a login session (accounts OR OIDC).
-  const hasAuthSession = info !== "loading" && info.login_url !== null;
+  const showAccount = hasAuthSession(info);
   // Admin gating for the Members / Policies sub-categories. Sourced from
   // `/v1/me` (mode-agnostic) so the group appears for admins under OIDC too,
   // not just accounts deploys. Non-admins never see it.
   const isAdmin = useIsAdmin();
   const { section } = useSettingsRoute();
-  const groups = settingsNavGroups(hasAuthSession, isElectronShell(), isAdmin);
+  const groups = settingsNavGroups(showAccount, isElectronShell(), isAdmin);
 
   return (
     <>

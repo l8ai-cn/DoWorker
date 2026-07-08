@@ -40,7 +40,7 @@ import { KimiIcon } from "@/components/icons/KimiIcon";
 import { KiroIcon } from "@/components/icons/KiroIcon";
 import { NessieIcon } from "@/components/icons/NessieIcon";
 import { OpenCodeIcon } from "@/components/icons/OpenCodeIcon";
-import { OttoIcon } from "@/components/icons/OttoIcon";
+import { DoWorkerLogo } from "@/components/icons/DoWorkerLogo";
 import { PiIcon } from "@/components/icons/PiIcon";
 import { RunningDot } from "@/components/RunningDot";
 import { MAX_TREE_DEPTH, useChildSessions, type ChildSessionInfo } from "@/hooks/useChildSessions";
@@ -254,6 +254,20 @@ function sessionStatus(
   status: string | undefined,
   lastTaskError?: { code: string; message: string } | null,
 ): AgentStatus {
+  if (lastTaskError && (status === "launching" || status === "failed")) {
+    if (isRunnerDisconnectCode(lastTaskError.code)) {
+      return {
+        activity: "disconnected",
+        label: "Disconnected",
+        details: firstErrorLine(lastTaskError.message),
+      };
+    }
+    return {
+      activity: "failed",
+      label: "Failed",
+      details: firstErrorLine(lastTaskError.message),
+    };
+  }
   if (status === "launching") return { activity: "launching", label: "Launching" };
   if (status === "running") return { activity: "working", label: "Working" };
   if (status === "failed") {
@@ -268,7 +282,11 @@ function sessionStatus(
         details: lastTaskError ? firstErrorLine(lastTaskError.message) : undefined,
       };
     }
-    return { activity: "failed", label: "Failed" };
+    return {
+      activity: "failed",
+      label: "Failed",
+      details: lastTaskError ? firstErrorLine(lastTaskError.message) : undefined,
+    };
   }
   return { activity: "idle", label: "Idle" };
 }
@@ -337,7 +355,7 @@ const SETTLED_STATE: Record<AgentActivity, boolean> = {
  * role at a glance (Claude Code spawns many same-type "Explore" agents — the
  * icon distinguishes roles; the preview line below distinguishes instances).
  * Category icons are monochrome — the row applies the muted color; the
- * fallback is the full-color Otto (starfish) mascot.
+ * fallback is the Do Worker brand mark.
  *
  * @param tool - The agent type, e.g. ``"Explore"`` or ``"researcher"``;
  *   ``null`` when the child carries no type.
@@ -360,7 +378,7 @@ export function iconForAgentType(tool: string | null): AgentRowIcon {
   ) {
     return Code2Icon;
   }
-  return OttoIcon;
+  return DoWorkerLogo;
 }
 
 /**

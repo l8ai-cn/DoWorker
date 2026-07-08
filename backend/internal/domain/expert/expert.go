@@ -1,0 +1,85 @@
+package expert
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"time"
+
+	"github.com/lib/pq"
+	"gorm.io/gorm"
+
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
+)
+
+var ErrNotFound = errors.New("expert not found")
+
+const (
+	InteractionModePTY = "pty"
+	InteractionModeACP = "acp"
+)
+
+type KnowledgeMount struct {
+	Slug string `json:"slug"`
+	Mode string `json:"mode,omitempty"`
+}
+
+type Expert struct {
+	ID             int64  `gorm:"primaryKey" json:"id"`
+	OrganizationID int64  `gorm:"not null;index" json:"organization_id"`
+	Slug           string `gorm:"size:100;not null;uniqueIndex:idx_experts_org_slug" json:"slug"`
+	Name           string `gorm:"size:255;not null" json:"name"`
+	Description    *string `gorm:"type:text" json:"description,omitempty"`
+
+	AgentSlug      string  `gorm:"size:100;not null;column:agent_slug" json:"agent_slug"`
+	RunnerID       *int64  `json:"runner_id,omitempty"`
+	RepositoryID   *int64  `json:"repository_id,omitempty"`
+	BranchName     *string `gorm:"size:255" json:"branch_name,omitempty"`
+
+	Prompt          *string `gorm:"type:text" json:"prompt,omitempty"`
+	InteractionMode string  `gorm:"size:20;not null;default:pty" json:"interaction_mode"`
+	Perpetual       bool    `gorm:"not null;default:false" json:"perpetual"`
+
+	UsedEnvBundles  pq.StringArray  `gorm:"type:text[];column:used_env_bundles;not null;default:'{}'" json:"used_env_bundles"`
+	SkillSlugs      pq.StringArray  `gorm:"type:text[];column:skill_slugs;not null;default:'{}'" json:"skill_slugs"`
+	KnowledgeMounts json.RawMessage `gorm:"type:jsonb;not null;default:'[]'" json:"knowledge_mounts"`
+	ConfigOverrides json.RawMessage `gorm:"type:jsonb;not null;default:'{}'" json:"config_overrides"`
+	AgentfileLayer  *string         `gorm:"type:text" json:"agentfile_layer,omitempty"`
+
+	SourcePodKey *string `gorm:"size:100" json:"source_pod_key,omitempty"`
+
+	CreatedByID int64      `gorm:"not null" json:"created_by_id"`
+	RunCount    int        `gorm:"not null;default:0" json:"run_count"`
+	LastRunAt   *time.Time `json:"last_run_at,omitempty"`
+
+	CreatedAt time.Time `gorm:"not null;default:now()" json:"created_at"`
+	UpdatedAt time.Time `gorm:"not null;default:now()" json:"updated_at"`
+}
+
+func (Expert) TableName() string { return "experts" }
+
+func (e *Expert) BeforeSave(_ *gorm.DB) error {
+	return slugkit.ValidateIdentifier("experts.slug", e.Slug)
+}
+
+func ParseKnowledgeMounts(raw json.RawMessage) []KnowledgeMount {
+	if len(raw) == 0 || string(raw) == "null" {
+		return nil
+	}
+	var mounts []KnowledgeMount
+	if err := json.Unmarshal(raw, &mounts); err != nil {
+		return nil
+	}
+	return mounts
+}
+
+type Repository interface {
+	Create(ctx context.Context, expert *Expert) error
+	Update(ctx context.Context, expert *Expert) error
+	Delete(ctx context.Context, orgID, id int64) error
+	GetByID(ctx context.Context, orgID, id int64) (*Expert, error)
+	GetBySlug(ctx context.Context, orgID int64, slug string) (*Expert, error)
+	SlugExists(ctx context.Context, orgID int64, slug string, excludeID int64) (bool, error)
+	List(ctx context.Context, orgID int64, limit, offset int) ([]Expert, int64, error)
+	RecordRun(ctx context.Context, orgID, id int64, at time.Time) error
+}

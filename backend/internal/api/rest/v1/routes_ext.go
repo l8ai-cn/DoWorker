@@ -19,20 +19,7 @@ func RegisterExtRoutes(rg *gin.RouterGroup, svc *Services) {
 		}
 	}
 	podHandler := NewPodHandler(svc.Pod, svc.Runner, svc.PodOrchestrator, podOpts...)
-
-	podsRead := rg.Group("/pods")
-	podsRead.Use(middleware.RequireScope("pods:read", "pods:write"))
-	{
-		podsRead.GET("", podHandler.ListPods)
-		podsRead.GET("/:key", podHandler.GetPod)
-	}
-	podsWrite := rg.Group("/pods")
-	podsWrite.Use(middleware.RequireScope("pods:write"))
-	{
-		podsWrite.POST("", podHandler.CreatePod)
-		podsWrite.POST("/:key/prompt", podHandler.SendPodPrompt)
-		podsWrite.POST("/:key/terminate", podHandler.TerminatePod)
-	}
+	registerExtPodWorkerRoutes(rg, podHandler)
 
 	// Ticket routes
 	ticketHandler := NewTicketHandler(svc.Ticket)
@@ -101,6 +88,8 @@ func RegisterExtRoutes(rg *gin.RouterGroup, svc *Services) {
 		reposRead.GET("/:id/branches", repositoryHandler.ListBranches)
 		reposRead.GET("/:id/merge-requests", repositoryHandler.ListRepositoryMergeRequests)
 	}
+
+	registerExtExpertRoutes(rg, svc)
 
 	// Loop routes
 	if svc.Loop != nil && svc.LoopOrchestrator != nil {

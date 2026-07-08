@@ -7,6 +7,7 @@ export type ActivityType =
   | "channels"
   | "mesh"
   | "loops"
+  | "experts"
   | "automation"
   | "apiAccess"
   | "knowledge"
@@ -162,6 +163,13 @@ export const ACTIVITIES: ActivityConfig[] = [
     id: "loops",
     label: "Loops",
     icon: "repeat",
+    group: "build",
+    mobileVisible: false,
+  },
+  {
+    id: "experts",
+    label: "Experts",
+    icon: "bot",
     group: "build",
     mobileVisible: false,
   },

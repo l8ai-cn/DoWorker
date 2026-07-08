@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"sync"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/anthropics/agentsmesh/runner/internal/client"
@@ -18,6 +19,8 @@ type RunnerMessageHandler struct {
 	podStore           PodStore
 	conn               client.Connection
 	relayClientFactory func(url, podKey, token string, logger *slog.Logger) relay.RelayClient
+	promptDedup        map[string]*promptDedupRing
+	promptDedupMu      sync.Mutex
 }
 
 // NewRunnerMessageHandler creates a new message handler.
@@ -27,6 +30,7 @@ func NewRunnerMessageHandler(runner MessageHandlerContext, store PodStore, conn 
 		runner:   runner,
 		podStore: store,
 		conn:     conn,
+		promptDedup: make(map[string]*promptDedupRing),
 		relayClientFactory: func(url, podKey, token string, logger *slog.Logger) relay.RelayClient {
 			return relay.NewClient(runner.GetRunContext(), url, podKey, token, logger)
 		},
@@ -34,10 +38,27 @@ func NewRunnerMessageHandler(runner MessageHandlerContext, store PodStore, conn 
 }
 
 // OnCreatePod handles create pod requests from server.
-func (h *RunnerMessageHandler) OnCreatePod(cmd *runnerv1.CreatePodCommand) error {
+func (h *RunnerMessageHandler) OnCreatePod(cmd *runnerv1.CreatePodCommand) (err error) {
 	log := logger.Pod()
 	log.Info("Creating pod", "pod_key", cmd.PodKey, "command", cmd.LaunchCommand,
 		"args", cmd.LaunchArgs)
+
+	if existing, ok := h.podStore.Get(cmd.PodKey); ok && existing != nil {
+		status := existing.GetStatus()
+		if status != PodStatusStopped && status != PodStatusFailed {
+			log.Info("duplicate create_pod absorbed", "pod_key", cmd.PodKey, "status", status)
+			// Replay after reconnect: backend may have lost the original ack,
+			// so re-send pod_created for an already-running pod to converge state.
+			if status == PodStatusRunning {
+				pid := 0
+				if existing.IO != nil {
+					pid = existing.IO.GetPID()
+				}
+				h.sendPodCreated(cmd.PodKey, pid, existing.SandboxPath, existing.Branch, uint16(cmd.Cols), uint16(cmd.Rows))
+			}
+			return nil
+		}
+	}
 
 	ctx := h.runner.GetRunContext()
 
@@ -46,6 +67,13 @@ func (h *RunnerMessageHandler) OnCreatePod(cmd *runnerv1.CreatePodCommand) error
 		PodKey: cmd.PodKey,
 		Status: PodStatusInitializing,
 	})
+	defer func() {
+		if r := recover(); r != nil {
+			h.podStore.Delete(cmd.PodKey)
+			err = fmt.Errorf("pod build panic: %v", r)
+			h.sendPodError(cmd.PodKey, err.Error())
+		}
+	}()
 
 	// ACK: tell Backend we received the command before heavy work
 	_ = h.conn.SendPodInitProgress(cmd.PodKey, "received", 1, "Pod command received by runner")

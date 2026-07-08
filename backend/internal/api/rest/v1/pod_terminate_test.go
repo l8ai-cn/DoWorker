@@ -75,6 +75,18 @@ func (m *mockPodStoreForTerminate) UpdateField(context.Context, string, string, 
 func (m *mockPodStoreForTerminate) UpdateAgentStatus(context.Context, string, map[string]interface{}) error {
 	return nil
 }
+func (m *mockPodStoreForTerminate) ListStaleActivePodKeys(context.Context, time.Time) ([]string, error) {
+	return nil, nil
+}
+func (m *mockPodStoreForTerminate) MarkStaleAsDisconnected(context.Context, time.Time) (int64, error) {
+	return 0, nil
+}
+func (m *mockPodStoreForTerminate) ListStaleRecoverablePodKeys(context.Context, time.Time) ([]string, error) {
+	return nil, nil
+}
+func (m *mockPodStoreForTerminate) CleanupStale(context.Context, time.Time) (int64, error) {
+	return 0, nil
+}
 
 var _ runner.PodStore = (*mockPodStoreForTerminate)(nil)
 

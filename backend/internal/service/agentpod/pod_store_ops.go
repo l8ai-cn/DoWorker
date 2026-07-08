@@ -58,3 +58,19 @@ func (s *PodService) UpdateField(ctx context.Context, podKey, field string, valu
 func (s *PodService) UpdateAgentStatus(ctx context.Context, podKey string, updates map[string]interface{}) error {
 	return s.repo.UpdateAgentStatus(ctx, podKey, updates)
 }
+
+func (s *PodService) ListStaleActivePodKeys(ctx context.Context, threshold time.Time) ([]string, error) {
+	return s.repo.ListStaleActivePodKeys(ctx, threshold)
+}
+
+func (s *PodService) MarkStaleAsDisconnected(ctx context.Context, threshold time.Time) (int64, error) {
+	return s.repo.MarkStaleAsDisconnected(ctx, threshold)
+}
+
+func (s *PodService) ListStaleRecoverablePodKeys(ctx context.Context, threshold time.Time) ([]string, error) {
+	return s.repo.ListStaleRecoverablePodKeys(ctx, threshold)
+}
+
+func (s *PodService) CleanupStale(ctx context.Context, threshold time.Time) (int64, error) {
+	return s.repo.CleanupStale(ctx, threshold)
+}

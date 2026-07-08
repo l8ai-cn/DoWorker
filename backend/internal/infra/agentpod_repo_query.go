@@ -58,12 +58,30 @@ func (r *podRepo) MarkOrphaned(ctx context.Context, pod *agentpod.Pod, finishedA
 	}).Error
 }
 
+func (r *podRepo) ListStaleActivePodKeys(ctx context.Context, threshold time.Time) ([]string, error) {
+	var keys []string
+	err := r.db.WithContext(ctx).Model(&agentpod.Pod{}).
+		Where("status IN ? AND (last_activity < ? OR last_activity IS NULL)",
+			[]string{agentpod.StatusInitializing, agentpod.StatusRunning}, threshold).
+		Pluck("pod_key", &keys).Error
+	return keys, err
+}
+
 func (r *podRepo) MarkStaleAsDisconnected(ctx context.Context, threshold time.Time) (int64, error) {
 	result := r.db.WithContext(ctx).Model(&agentpod.Pod{}).
 		Where("status IN ? AND (last_activity < ? OR last_activity IS NULL)",
 			[]string{agentpod.StatusInitializing, agentpod.StatusRunning}, threshold).
 		Update("status", agentpod.StatusDisconnected)
 	return result.RowsAffected, result.Error
+}
+
+func (r *podRepo) ListStaleRecoverablePodKeys(ctx context.Context, threshold time.Time) ([]string, error) {
+	var keys []string
+	err := r.db.WithContext(ctx).Model(&agentpod.Pod{}).
+		Where("status IN ? AND last_activity < ?",
+			[]string{agentpod.StatusDisconnected, agentpod.StatusOrphaned}, threshold).
+		Pluck("pod_key", &keys).Error
+	return keys, err
 }
 
 func (r *podRepo) CleanupStale(ctx context.Context, threshold time.Time) (int64, error) {

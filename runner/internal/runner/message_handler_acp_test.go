@@ -52,8 +52,6 @@ func (m *acpMockPodIO) CancelSession() error {
 	return nil
 }
 
-// --- handleACPExit ---
-
 func TestHandleACPExit_CleanupPodExit(t *testing.T) {
 	store := NewInMemoryPodStore()
 	mockConn := client.NewMockConnection()
@@ -64,8 +62,19 @@ func TestHandleACPExit_CleanupPodExit(t *testing.T) {
 
 	handler.handleACPExit("acp-exit-1", 0)
 
-	// Pod should be removed from store
 	if _, ok := store.Get("acp-exit-1"); ok {
 		t.Error("pod should be removed after exit")
+	}
+}
+
+func TestAbortACPPodStartup_RemovesPodFromStore(t *testing.T) {
+	store := NewInMemoryPodStore()
+	handler := NewRunnerMessageHandler(&Runner{cfg: &config.Config{}}, store, client.NewMockConnection())
+	store.Put("acp-fail", &Pod{PodKey: "acp-fail"})
+
+	handler.abortACPPodStartup("acp-fail", nil, "")
+
+	if _, ok := store.Get("acp-fail"); ok {
+		t.Error("pod should be removed after failed ACP startup")
 	}
 }

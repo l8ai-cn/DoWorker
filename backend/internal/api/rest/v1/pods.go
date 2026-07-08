@@ -16,6 +16,7 @@ type PodHandler struct {
 	orchestrator   *agentpod.PodOrchestrator       // Unified Pod creation logic
 	commandSender  runner.RunnerCommandSender      // Unified command sender (PTY + ACP)
 	grantService   *grantservice.Service           // Resource grant/sharing service
+	pendingQueue   pendingQueueReader
 }
 
 // PodHandlerOption is a functional option for configuring PodHandler
@@ -46,6 +47,12 @@ func WithCommandSender(sender runner.RunnerCommandSender) PodHandlerOption {
 func WithGrantServiceForPod(gs *grantservice.Service) PodHandlerOption {
 	return func(h *PodHandler) {
 		h.grantService = gs
+	}
+}
+
+func WithPendingQueue(q pendingQueueReader) PodHandlerOption {
+	return func(h *PodHandler) {
+		h.pendingQueue = q
 	}
 }
 

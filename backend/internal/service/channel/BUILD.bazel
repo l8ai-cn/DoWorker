@@ -64,6 +64,7 @@ go_test(
         "extract_test.go",
         "hook_mention_test.go",
         "hook_notification_test.go",
+        "hook_pod_prompt_queue_test.go",
         "hook_pod_prompt_test.go",
         "hooks_coverage_test.go",
         "markdown_test.go",

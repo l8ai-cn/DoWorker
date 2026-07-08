@@ -70,6 +70,10 @@ func (h *RunnerMessageHandler) cleanupPodExit(podKey string, exitCode int, stopI
 		return
 	}
 
+	h.promptDedupMu.Lock()
+	delete(h.promptDedup, podKey)
+	h.promptDedupMu.Unlock()
+
 	// Clean up associated Autopilot if any (before terminal teardown)
 	if ac := h.runner.GetAutopilotByPodKey(podKey); ac != nil {
 		ac.Stop()

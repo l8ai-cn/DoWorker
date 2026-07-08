@@ -187,13 +187,16 @@ start_backend_host() {
     # are rejected, and listing the IP literal would short-circuit that
     # check (allowlist is exact-match before the SSRF policy fires).
     export BLOCKSTORE_WEBHOOK_ALLOW_HOSTS="host.docker.internal,host.lan,localhost"
-    export CORS_ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020}"
+    export CORS_ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020},http://localhost:${MOBILE_LOVABLE_PORT:-10021},http://127.0.0.1:${MOBILE_LOVABLE_PORT:-10021}"
     export LOG_LEVEL=debug
     export LOG_FORMAT=text
     export LOG_FILE="$repo_root/backend/logs/agentsmesh.log"
     export EMAIL_PROVIDER=console
     export STORAGE_ENDPOINT="localhost:${MINIO_API_PORT}"
     export STORAGE_PUBLIC_ENDPOINT="localhost:${MINIO_API_PORT}"
+    # Runner pods live in Docker and cannot reach the host's localhost; they
+    # download presigned skill/resource packages via host.docker.internal.
+    export STORAGE_RUNNER_ENDPOINT="host.docker.internal:${MINIO_API_PORT}"
     export STORAGE_REGION=us-east-1
     export STORAGE_BUCKET=agentsmesh
     export STORAGE_ACCESS_KEY="${MINIO_ROOT_USER:-minioadmin}"

@@ -11,6 +11,8 @@ pub mod channel_state;
 pub mod channel_types;
 pub mod credential_types;
 pub mod event_dispatch;
+pub mod expert_state;
+pub mod expert_types;
 mod persist_helpers;
 pub mod loop_state;
 pub mod loopal_dispatch;
@@ -40,6 +42,8 @@ mod runner_state_tests;
 mod ticket_state_tests;
 #[cfg(test)]
 mod repo_state_tests;
+#[cfg(test)]
+mod expert_state_tests;
 #[cfg(test)]
 mod autopilot_state_tests;
 #[cfg(test)]

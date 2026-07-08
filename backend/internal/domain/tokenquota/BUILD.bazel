@@ -1,0 +1,17 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "tokenquota",
+    srcs = [
+        "quota.go",
+        "repository.go",
+    ],
+    importpath = "github.com/anthropics/agentsmesh/backend/internal/domain/tokenquota",
+    visibility = ["//backend:__subpackages__"],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":tokenquota",
+    visibility = ["//backend:__subpackages__"],
+)

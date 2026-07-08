@@ -94,7 +94,9 @@ func TestPodLifecycle_CreateToTerminated(t *testing.T) {
 	assert.True(t, coord.createPodCalled, "coordinator should receive CreatePod")
 
 	// Step 2: Simulate runner reporting pod_created -> running
-	err = podSvc.HandlePodCreated(ctx, podKey, 12345, "/sandbox/path", "main")
+	err = podSvc.UpdatePodStatus(ctx, podKey, podDomain.StatusRunning)
+	require.NoError(t, err)
+	err = podSvc.UpdateSandboxPath(ctx, podKey, "/sandbox/path", "main")
 	require.NoError(t, err)
 
 	pod, err := podSvc.GetPod(ctx, podKey)
@@ -104,7 +106,7 @@ func TestPodLifecycle_CreateToTerminated(t *testing.T) {
 	assert.Equal(t, "/sandbox/path", *pod.SandboxPath)
 
 	// Step 3: Simulate runner reporting pod_terminated
-	err = podSvc.HandlePodTerminated(ctx, podKey, nil)
+	err = podSvc.UpdatePodStatus(ctx, podKey, podDomain.StatusTerminated)
 	require.NoError(t, err)
 
 	pod, err = podSvc.GetPod(ctx, podKey)
@@ -128,7 +130,7 @@ func TestPodLifecycle_ResumeMode(t *testing.T) {
 		SessionID: "session-abc",
 	})
 	require.NoError(t, err)
-	err = podSvc.HandlePodTerminated(ctx, source.PodKey, nil)
+	err = podSvc.UpdatePodStatus(ctx, source.PodKey, podDomain.StatusTerminated)
 	require.NoError(t, err)
 
 	// Resume from terminated pod

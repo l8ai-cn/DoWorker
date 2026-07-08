@@ -15,7 +15,7 @@
  * without try/catch every call site.
  */
 
-import { clearDoWorkerSession, readDoWorkerJWT } from "./do-worker-auth";
+import { clearDoWorkerSession, readDoWorkerJWT } from "@/lib/do-worker/auth-session";
 
 /** Body of POST /auth/login. */
 export interface LoginRequest {
@@ -116,7 +116,7 @@ export async function logout(): Promise<void> {
   } catch {
     // Network error — clear local session anyway.
   }
-  clearAgentsMeshSession();
+  clearDoWorkerSession();
 }
 
 /**

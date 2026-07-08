@@ -13,7 +13,7 @@ import type {
   WasmKnowledgeBaseService,
   WasmRunnerState, WasmMeshState, WasmTicketState, WasmChannelState,
   WasmLoopState, WasmAcpSessionManager, WasmLoopalManager, WasmRepoState,
-  WasmAutopilotState, WasmRelayManager,
+  WasmExpertState, WasmAutopilotState, WasmRelayManager,
 } from "agentsmesh-wasm";
 
 // SSR / hydration fallback. Returns "[]" for `*_json` reads so SSR-rendered
@@ -78,6 +78,7 @@ export interface ServiceRegistry {
   // missing services fall back to NOOP_PROXY (Loopal console shows empty panels).
   loopalManager?: WasmLoopalManager;
   repoState: WasmRepoState;
+  expertState: WasmExpertState;
   autopilotState: WasmAutopilotState;
   relayManager: WasmRelayManager;
 }
@@ -179,6 +180,7 @@ export const getLoopalManager = (): WasmLoopalManager => {
   return (reg.ready ? reg.instances.loopalManager ?? NOOP_PROXY : NOOP_PROXY) as WasmLoopalManager;
 };
 export const getRepoState = () => g("repoState");
+export const getExpertState = () => g("expertState");
 export const getAutopilotState = () => g("autopilotState");
 export const getRelayManager = () => g("relayManager");
 export const getBlockstoreService = () => g("blockstoreService");

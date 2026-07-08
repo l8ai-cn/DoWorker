@@ -65,9 +65,9 @@ func (m *Manager) GetPipelineWatcher() *infraTasks.PipelineWatcher {
 }
 
 func (m *Manager) cleanupStalePods(ctx context.Context) error {
-	staleThreshold := time.Now().Add(-30 * time.Minute)
+	disconnectThreshold := time.Now().Add(-30 * time.Minute)
 
-	rowsAffected, err := m.podCleaner.MarkStaleAsDisconnected(ctx, staleThreshold)
+	rowsAffected, err := m.podCleaner.MarkStaleAsDisconnected(ctx, disconnectThreshold)
 	if err != nil {
 		return err
 	}
@@ -75,6 +75,17 @@ func (m *Manager) cleanupStalePods(ctx context.Context) error {
 	if rowsAffected > 0 {
 		m.logger.Info("cleaned up stale pods",
 			"count", rowsAffected)
+	}
+
+	if terminalCleaner, ok := m.podCleaner.(StaleTerminalCleaner); ok {
+		terminalThreshold := time.Now().Add(-24 * time.Hour)
+		termCount, termErr := terminalCleaner.CleanupStaleTerminal(ctx, terminalThreshold)
+		if termErr != nil {
+			return termErr
+		}
+		if termCount > 0 {
+			m.logger.Info("terminated long-idle disconnected pods", "count", termCount)
+		}
 	}
 
 	return nil

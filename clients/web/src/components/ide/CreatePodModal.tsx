@@ -45,7 +45,7 @@ export function CreatePodModal({
     >
       <div
         ref={modalRef}
-        className="bg-background border border-border rounded-lg w-full max-w-md p-4 md:p-6 max-h-[90vh] overflow-y-auto"
+        className="bg-background border border-border rounded-lg w-full max-w-3xl p-4 md:p-6 max-h-[90vh] overflow-y-auto"
       >
         <h2 id="create-pod-title" className="text-lg md:text-xl font-semibold mb-4">
           {t("ide.createPod.title")}

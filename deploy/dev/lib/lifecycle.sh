@@ -93,7 +93,7 @@ wait_for_postgres() {
 }
 
 runner_compose_services() {
-    echo runner-e2e-echo runner-e2e-echo-2 runner-claude-code runner-codex-cli runner-gemini-cli runner-loopal runner-do-agent runner-aider runner-opencode runner-admin-workspace runner-admin-workspace-do-agent
+    echo runner-e2e-echo runner-e2e-echo-2 runner-claude-code runner-codex-cli runner-codex-cli-2 runner-gemini-cli runner-loopal runner-do-agent runner-aider runner-opencode runner-admin-workspace runner-admin-workspace-do-agent
 }
 
 # Kill stale runner CLI processes (in case anyone installed agentsmesh-runner
@@ -140,7 +140,8 @@ reset_runners() {
             info "跳过 ${svc} (容器不存在 — 由 //deploy/dev:up 创建)"
             continue
         fi
-        docker cp "$SCRIPT_DIR/runner-binary" "${container}:/usr/local/bin/agentsmesh-runner"
+        docker cp "$SCRIPT_DIR/runner-binary" "${container}:/usr/local/bin/do-worker-runner"
+        docker exec "$container" ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner 2>/dev/null || true
         case "$svc" in
             runner-e2e-echo*)
                 docker cp "$SCRIPT_DIR/e2e-mock-agent-binary" "${container}:/usr/local/bin/e2e-mock-agent"
@@ -312,10 +313,25 @@ _prepare_next_port() {
     fi
 
     if [[ "$stale_lock" == false ]] && lsof -i :"$web_port" &>/dev/null; then
-        if [[ "$label" == "web-user" ]]; then
-            warn "重启 web-user：释放端口 $web_port..."
+        if _frontend_port_up "$web_port" && [[ "${DEV_FORCE_FRONTEND:-}" != "1" ]] && [[ "$label" != "web-user" ]]; then
+            info "${label} 已在端口 $web_port 正常运行，跳过启动"
+            return 1
+        fi
+        if [[ "$label" == "web-user" ]] || [[ "${DEV_FORCE_FRONTEND:-}" == "1" ]] || ! _frontend_port_up "$web_port"; then
+            if ! _frontend_port_up "$web_port"; then
+                warn "${label} 端口 $web_port 响应异常 (非 2xx/3xx)，清理并重启..."
+            else
+                warn "重启 ${label}：释放端口 $web_port..."
+            fi
+            if [[ "$label" == "前端" ]]; then
+                _stop_setsid web
+            elif [[ "$label" == "Admin Console" ]]; then
+                _stop_setsid web-admin
+            fi
             lsof -ti :"$web_port" 2>/dev/null | xargs kill -9 2>/dev/null || true
             sleep 1
+            rm -f "$web_dir/.next/dev/lock"
+            rm -rf "$web_dir/.next/cache"
             return 0
         fi
         warn "端口 $web_port 已被占用，跳过${label}启动"
@@ -334,7 +350,10 @@ start_frontend() {
     local web_dir="$SCRIPT_DIR/../../clients/web"
     local web_port="${WEB_PORT:-3000}"
 
-    _prepare_next_port "前端" "$web_dir" "$web_port" || return 0
+    _prepare_next_port "前端" "$web_dir" "$web_port" || {
+        warn "主前端 (端口 $web_port) 未能启动 — 端口被占用"
+        return 1
+    }
 
     if ! command -v bazel &>/dev/null; then
         error "未找到 bazel"
@@ -352,24 +371,24 @@ start_frontend() {
     info "启动前端服务 (端口: $web_port, Bazel devserver)..."
     local saved_dir="$PWD"
     cd "$root_dir"
-    # API_PROXY_TARGET drives next.config.ts rewrites: /api/* → traefik
-    # → host backend. Without it, /api/auth/login 404s and the UI can't
-    # log in. HTTP_PORT is traefik's worktree-allocated entrypoint.
+    # API_PROXY_TARGET drives next.config.ts rewrites: /api/* + /proto.* →
+    # host backend (:BACKEND_HTTP_PORT). Bypass traefik so macOS apps that
+    # squat 127.0.0.1:$HTTP_PORT (e.g. netdisk) can't break login/API proxy.
     #
     # NEXT_PUBLIC_E2E=true enables build-time conditional registration of
     # test-only UI surfaces (e.g. the e2e-echo credential form). Production
     # builds never see this flag, so the e2e form is tree-shaken out. See
     # clients/web/src/components/settings/AgentCredentialsSettings/
     # credentialForms/index.ts.
-    API_PROXY_TARGET="http://localhost:$HTTP_PORT" \
+    API_PROXY_TARGET="http://127.0.0.1:${BACKEND_HTTP_PORT}" \
     NEXT_PUBLIC_E2E="true" \
         _launch_setsid web "$log_file" \
         bazel run //clients/web:next_dev -- --port "$web_port"
     cd "$saved_dir"
 
-    local max_wait=60
+    local max_wait=90
     for ((i=1; i<=max_wait; i++)); do
-        if curl -s "http://localhost:$web_port" &>/dev/null; then
+        if _frontend_port_up "$web_port"; then
             success "前端服务已启动 (http://localhost:$web_port)"
             return 0
         fi
@@ -385,14 +404,17 @@ start_admin_frontend() {
     local web_admin_dir="$SCRIPT_DIR/../../clients/web-admin"
     local web_admin_port="${WEB_ADMIN_PORT:-3001}"
 
-    _prepare_next_port "Admin Console" "$web_admin_dir" "$web_admin_port" || return 0
+    _prepare_next_port "Admin Console" "$web_admin_dir" "$web_admin_port" || {
+        warn "Admin Console (端口 $web_admin_port) 未能启动 — 端口被占用"
+        return 1
+    }
 
     if ! command -v pnpm &>/dev/null; then
-        error "未找到 pnpm，跳过 Admin Console 启动"
-        return 0
+        error "未找到 pnpm，无法启动 Admin Console"
+        return 1
     fi
 
-    _install_root_deps_if_needed "Admin Console 依赖" "$web_admin_dir/.next/cache" || return 0
+    _install_root_deps_if_needed "Admin Console 依赖" "$web_admin_dir/.next/cache" || return 1
 
     local log_file="$SCRIPT_DIR/web-admin.log"
     local root_dir="$SCRIPT_DIR/../.."
@@ -424,9 +446,5 @@ start_admin_frontend() {
 source "$SCRIPT_DIR/lib/lifecycle_launch.sh"
 # shellcheck source=lifecycle_web_user.sh
 source "$SCRIPT_DIR/lib/lifecycle_web_user.sh"
-
-start_all_frontends() {
-    start_frontend
-    start_admin_frontend
-    start_web_user
-}
+# shellcheck source=lifecycle_frontends.sh
+source "$SCRIPT_DIR/lib/lifecycle_frontends.sh"

@@ -46,7 +46,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { KeyboardShortcutsList } from "@/components/KeyboardShortcutsDialog";
-import { changePassword, logout } from "@/lib/accountsApi";
+import { changePassword } from "@/lib/accountsApi";
+import { signOutSession } from "@/lib/auth-sign-out";
+import { hasAuthSession } from "@/lib/auth-session-detect";
 import { getCurrentIsAdmin, resolveIdentity } from "@/lib/identity";
 import { useServerInfo } from "@/lib/CapabilitiesContext";
 import {
@@ -73,6 +75,9 @@ const MembersPage = lazy(() =>
 const PoliciesPage = lazy(() =>
   import("@/pages/PoliciesPage").then((m) => ({ default: m.PoliciesPage })),
 );
+const ModelsSettingsSection = lazy(() =>
+  import("@/pages/ModelsSettingsSection").then((m) => ({ default: m.ModelsSettingsSection })),
+);
 
 /**
  * Settings content panel. The section nav lives in the sidebar card
@@ -83,9 +88,7 @@ const PoliciesPage = lazy(() =>
  */
 export function SettingsPage() {
   const info = useServerInfo();
-  // A login session exists (accounts OR OIDC) when the server advertises a
-  // login_url; gates the Account section so SSO users get it too.
-  const hasAuthSession = info !== "loading" && info.login_url !== null;
+  const showAccount = hasAuthSession(info);
   const { section } = useSettingsRoute();
 
   // Members / Policies are admin-only management surfaces that own their full
@@ -107,8 +110,9 @@ export function SettingsPage() {
     <PageScroll contentClassName="px-8" extraBottom="2.5rem">
       {section === "appearance" && <AppearanceSection />}
       {section === "shortcuts" && <ShortcutsSection />}
-      {section === "account" && hasAuthSession && <AccountSection />}
+      {section === "account" && showAccount && <AccountSection />}
       {section === "archived" && <ArchivedSection />}
+      {section === "models" && <ModelsSettingsSection />}
       {section === "cli" && isElectronShell() && <LocalCliSection />}
     </PageScroll>
   );
@@ -309,19 +313,7 @@ function AccountSection() {
   }, []);
 
   const onSignOut = useCallback(async () => {
-    if (accountsEnabled) {
-      // Accounts: clear the cookie via the JSON logout endpoint, then land on
-      // the SPA login form.
-      await logout();
-      // Hard navigation so the chat store / react-query cache reset.
-      window.location.href = "/login";
-      return;
-    }
-    // OIDC: logout is a server-side GET redirect at /auth/logout that clears
-    // the session cookie (and honors the IdP end-session endpoint when
-    // configured). A hard navigation lets the browser follow it and resets
-    // client caches.
-    window.location.href = "/auth/logout";
+    await signOutSession(accountsEnabled);
   }, [accountsEnabled]);
 
   const resetPwForm = useCallback(() => {
@@ -352,26 +344,34 @@ function AccountSection() {
     }
   }, [oldPw, newPw, confirmPw]);
 
-  if (me === "unknown" || me === null) {
-    return <Section title="Account">{null}</Section>;
+  if (me === "unknown") {
+    return (
+      <Section title="Account">
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      </Section>
+    );
   }
 
   return (
     <Section title="Account">
       <div className="flex flex-col gap-6">
-        <div className="flex items-center gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border">
-            <UserCogIcon className="size-5" />
-          </span>
-          <div className="min-w-0">
-            <div className="truncate font-medium">
-              {me.id}
-              {me.is_admin && (
-                <span className="ml-1 text-xs font-normal text-muted-foreground">(admin)</span>
-              )}
+        {me !== null ? (
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border">
+              <UserCogIcon className="size-5" />
+            </span>
+            <div className="min-w-0">
+              <div className="truncate font-medium">
+                {me.id}
+                {me.is_admin && (
+                  <span className="ml-1 text-xs font-normal text-muted-foreground">(admin)</span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">Signed in</p>
+        )}
 
         {/* Members / Policies used to live here as links to standalone pages.
             They're now first-class settings sub-categories in the sidebar nav

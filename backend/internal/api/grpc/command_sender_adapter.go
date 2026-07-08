@@ -42,6 +42,14 @@ func (s *GRPCCommandSender) SendPodInput(ctx context.Context, runnerID int64, po
 	return nil
 }
 
+func (s *GRPCCommandSender) SendServerMessage(ctx context.Context, runnerID int64, msg *runnerv1.ServerMessage) error {
+	if err := s.adapter.SendServerMessage(runnerID, msg); err != nil {
+		slog.ErrorContext(ctx, "failed to send server message", "runner_id", runnerID, "error", err)
+		return err
+	}
+	return nil
+}
+
 func (s *GRPCCommandSender) SendPrompt(ctx context.Context, runnerID int64, podKey, prompt string) error {
 	slog.InfoContext(ctx, "sending prompt command", "runner_id", runnerID, "pod_key", podKey)
 	if err := s.adapter.SendPrompt(runnerID, podKey, prompt); err != nil {
@@ -166,3 +174,5 @@ var _ runner.SandboxQuerySender = (*GRPCCommandSender)(nil)
 var _ runner.UpgradeCommandSender = (*GRPCCommandSender)(nil)
 
 var _ runner.LogUploadCommandSender = (*GRPCCommandSender)(nil)
+
+var _ runner.ServerMessageSender = (*GRPCCommandSender)(nil)

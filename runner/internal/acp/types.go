@@ -9,6 +9,8 @@ import (
 var (
 	ErrControlNotSupported = errors.New("transport does not support outgoing control requests")
 	ErrControlTimeout      = errors.New("control request timed out waiting for response")
+	// ErrPromptNotReady: client still initializing or session/thread not created yet.
+	ErrPromptNotReady = errors.New("cannot send prompt: not ready")
 )
 
 // ACP client states.

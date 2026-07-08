@@ -67,6 +67,16 @@ type ConfigBuildRequest struct {
 	// Session-scoped MCP servers (Omnigent compat) merged into mcp.installed.
 	SessionMcpInstalled map[string]interface{}
 
+	// SessionConfigBundles are ephemeral config-kind documents (bundle name →
+	// parsed JSON) merged into the eval ConfigBundles map, consumed by
+	// USE_CONFIG_BUNDLE. The model-pool flow injects do-agent's settings.json
+	// here without persisting an EnvBundle row.
+	SessionConfigBundles map[string]interface{}
+
+	// SessionEnvBundles are ephemeral credential maps merged into eval
+	// EnvBundles for USE_ENV_BUNDLE (model-pool → codex-cli OPENAI_*).
+	SessionEnvBundles map[string]map[string]string
+
 	// MergedAgentfileSource is the merged AgentFile source (base + user layer, serialized).
 	// Populated by orchestrator's extractFromAgentfileLayer when AgentfileLayer is provided.
 	// When empty (resume mode or no layer): buildFromAgentfile falls back to agent's base AgentFile.

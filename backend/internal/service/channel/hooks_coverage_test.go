@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewPodPromptHook_NilRouter(t *testing.T) {
-	hook := NewPodPromptHook(nil, nil)
+	hook := NewPodPromptHook(nil, nil, nil)
 
 	mc := &MessageContext{
 		Channel:  &channelDomain.Channel{ID: 1, Name: "test"},
@@ -24,7 +24,7 @@ func TestNewPodPromptHook_NilRouter(t *testing.T) {
 }
 
 func TestNewPodPromptHook_NilMentions(t *testing.T) {
-	hook := NewPodPromptHook(&mockPodRouter{}, nil)
+	hook := NewPodPromptHook(&mockPodRouter{}, nil, nil)
 
 	mc := &MessageContext{
 		Channel: &channelDomain.Channel{ID: 1, Name: "test"},
@@ -38,7 +38,7 @@ func TestNewPodPromptHook_NilMentions(t *testing.T) {
 }
 
 func TestNewPodPromptHook_EmptyPodKeys(t *testing.T) {
-	hook := NewPodPromptHook(&mockPodRouter{}, nil)
+	hook := NewPodPromptHook(&mockPodRouter{}, nil, nil)
 
 	mc := &MessageContext{
 		Channel:  &channelDomain.Channel{ID: 1, Name: "test"},
@@ -54,7 +54,7 @@ func TestNewPodPromptHook_EmptyPodKeys(t *testing.T) {
 
 func TestNewPodPromptHook_SendsPrompt(t *testing.T) {
 	router := &mockPodRouter{}
-	hook := NewPodPromptHook(router, nil)
+	hook := NewPodPromptHook(router, nil, nil)
 
 	mc := &MessageContext{
 		Channel:  &channelDomain.Channel{ID: 42, Name: "dev", OrganizationID: 1},
@@ -82,7 +82,7 @@ func TestNewPodPromptHook_SendsPrompt(t *testing.T) {
 
 func TestNewPodPromptHook_SkipsSenderPod(t *testing.T) {
 	router := &mockPodRouter{}
-	hook := NewPodPromptHook(router, nil)
+	hook := NewPodPromptHook(router, nil, nil)
 
 	senderPod := "abcd1234efgh5678"
 	mc := &MessageContext{
@@ -104,7 +104,7 @@ func TestNewPodPromptHook_SkipsSenderPod(t *testing.T) {
 func TestNewPodPromptHook_OfflineNotice(t *testing.T) {
 	router := &mockPodRouter{failKeys: map[string]bool{"offline-pod": true}}
 	writer := &mockSystemWriter{}
-	hook := NewPodPromptHook(router, writer)
+	hook := NewPodPromptHook(router, writer, nil)
 
 	mc := &MessageContext{
 		Channel:  &channelDomain.Channel{ID: 1, Name: "test"},

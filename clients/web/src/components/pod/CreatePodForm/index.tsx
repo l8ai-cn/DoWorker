@@ -26,7 +26,7 @@ export function CreatePodForm({
 
   const {
     context, promptGenerator, onSuccess, onError, onCancel,
-    initialAgentSlug, initialPrompt,
+    initialAgentSlug, initialPrompt, initialExpertSlug,
   } = mergedConfig;
 
   const [selectedAgentSlug, setSelectedAgentSlug] = useState<string | null>(null);
@@ -151,6 +151,8 @@ export function CreatePodForm({
           hasOnlineRunners={runners.length > 0}
           promptPlaceholder={mergedConfig.promptPlaceholder}
           showPerpetual={mergedConfig.scenario === "workspace"}
+          initialWizardStep={mergedConfig.initialWizardStep}
+          initialExpertSlug={initialExpertSlug}
           t={t}
         />
       )}

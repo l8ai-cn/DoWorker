@@ -20,6 +20,8 @@ const (
 	ScopeRepoRead     Scope = "repos:read"
 	ScopeLoopRead     Scope = "loops:read"
 	ScopeLoopWrite    Scope = "loops:write"
+	ScopeExpertRead   Scope = "experts:read"
+	ScopeExpertWrite  Scope = "experts:write"
 )
 
 var AllScopes = map[Scope]bool{
@@ -33,6 +35,8 @@ var AllScopes = map[Scope]bool{
 	ScopeRepoRead:     true,
 	ScopeLoopRead:     true,
 	ScopeLoopWrite:    true,
+	ScopeExpertRead:   true,
+	ScopeExpertWrite:  true,
 }
 
 func ValidateScope(s string) bool {

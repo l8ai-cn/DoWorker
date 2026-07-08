@@ -45,7 +45,7 @@ function blockTypes(blocks: AnyBlock[]): string[] {
 }
 
 describe("BlockStream — response_start", () => {
-  it("populates conversationId from response.created", () => {
+  it("populates conversationId from turn.started", () => {
     const blocks = reduce([
       {
         type: "response_created",
@@ -73,7 +73,7 @@ describe("BlockStream — response_start", () => {
 });
 
 describe("BlockStream — block ctx carries response_id and item_id", () => {
-  it("every block ctx.responseId is the active response id from response.created", () => {
+  it("every block ctx.responseId is the active response id from turn.started", () => {
     const blocks = reduce([
       { type: "response_created", response: makeResponse({ responseId: "resp_xyz" }) },
       { type: "text_delta", delta: "hi" },
@@ -246,7 +246,7 @@ describe("BlockStream — block ctx carries response_id and item_id", () => {
     expect(slash.name).toBe("effort");
   });
 
-  it("output_item.done tool blocks carry responseId without response.created", () => {
+  it("output_item.done tool blocks carry responseId without turn.started", () => {
     const blocks = reduce([
       {
         type: "tool_call",
@@ -473,12 +473,12 @@ describe("BlockStream — reasoning", () => {
 
 describe("BlockStream — multi-response (session-lifetime reducer)", () => {
   // Background: with /v1/responses, web built a new BlockStream
-  // per POST so the reducer only ever saw one response.created. After
+  // per POST so the reducer only ever saw one turn.started. After
   // the /v1/sessions migration, a single reducer spans every task in
-  // the session — multiple response.created events arrive on the same
+  // the session — multiple turn.started events arrive on the same
   // instance. These tests pin the boundaries that matter.
 
-  it("emits response_start on EVERY response.created (one bubble per task)", () => {
+  it("emits response_start on EVERY turn.started (one bubble per task)", () => {
     const blocks = reduce([
       { type: "response_created", response: makeResponse({ responseId: "resp_1" }) },
       { type: "response_completed", response: makeResponse({ responseId: "resp_1" }) },
@@ -495,7 +495,7 @@ describe("BlockStream — multi-response (session-lifetime reducer)", () => {
     expect(starts.map((b) => b.ctx.responseId)).toEqual(["resp_1", "resp_2"]);
   });
 
-  it("stamps task-2 blocks with the task-2 responseId (state.responseId is bumped on response.created)", () => {
+  it("stamps task-2 blocks with the task-2 responseId (state.responseId is bumped on turn.started)", () => {
     const blocks = reduce(
       [
         { type: "response_created", response: makeResponse({ responseId: "resp_1" }) },
@@ -523,7 +523,7 @@ describe("BlockStream — multi-response (session-lifetime reducer)", () => {
     // (inline observed + post-stream action_required). Across task
     // boundaries the SDK can legitimately reuse a tool_use_id-shaped
     // call id; a session-wide dedup would silently drop the second
-    // turn's call. Clearing the set per response.created keeps the
+    // turn's call. Clearing the set per turn.started keeps the
     // invariant pinned to "render at most once per task".
     const blocks = reduce([
       { type: "response_created", response: makeResponse({ responseId: "resp_1" }) },
@@ -580,7 +580,7 @@ describe("BlockStream — multi-response (session-lifetime reducer)", () => {
   });
 
   it("no stale text/reasoning bleeds across the task boundary", () => {
-    // Reasoning + text sections close on response.completed via the
+    // Reasoning + text sections close on turn.completed via the
     // terminal-event branch (closeReasoning + closeText). The
     // implicit reset is what keeps task-1 reasoning out of task-2's
     // first emission. Pin it so a future refactor that breaks the
@@ -673,7 +673,7 @@ describe("BlockStream — multi-response (session-lifetime reducer)", () => {
   });
 
   it("dedupes message_done with matching content even when responseId appears switched", () => {
-    // Models the session-stream race where ``response.created`` was lost
+    // Models the session-stream race where ``turn.started`` was lost
     // (subscribe registered after the workflow already emitted it). The
     // reducer never saw response_created, so state.responseId stays empty
     // through the deltas. When message_done arrives with a non-empty
@@ -696,7 +696,7 @@ describe("BlockStream — multi-response (session-lifetime reducer)", () => {
     expect(textDones[0]!.fullText).toBe("Hi! 👋");
   });
 
-  it("response_in_progress sets the responseId when response.created is absent", () => {
+  it("response_in_progress sets the responseId when turn.started is absent", () => {
     // in_progress is the only turn header when created is suppressed —
     // adopting its id keeps the whole turn in one bubble.
     const blocks = reduce([
@@ -723,7 +723,7 @@ describe("BlockStream — multi-response (session-lifetime reducer)", () => {
     expect([...ids]).toEqual(["resp_X"]);
   });
 
-  it("response_in_progress is idempotent when response.created already began the turn", () => {
+  it("response_in_progress is idempotent when turn.started already began the turn", () => {
     const blocks = reduce([
       { type: "response_created", response: makeResponse({ responseId: "resp_X" }) },
       { type: "response_in_progress", response: makeResponse({ responseId: "resp_X" }) },
@@ -1078,7 +1078,7 @@ describe("BlockStream — out-of-band response ids", () => {
         itemId: "fco_late",
         responseId: "resp_T1",
       },
-      // The redundant response.completed flush re-emission still dedups.
+      // The redundant turn.completed flush re-emission still dedups.
       {
         type: "tool_result",
         callId: "c_hydrated",
@@ -1448,7 +1448,7 @@ describe("BlockStream — status events", () => {
 });
 
 describe("BlockStream — elicitation", () => {
-  it("emits an ElicitationBlock with status='pending' for response.elicitation_request", () => {
+  it("emits an ElicitationBlock with status='pending' for turn.elicitation.request", () => {
     const blocks = reduce([
       { type: "response_created", response: makeResponse({ responseId: "resp_1" }) },
       {

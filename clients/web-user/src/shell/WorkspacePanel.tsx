@@ -191,6 +191,8 @@ interface WorkspacePanelProps {
   permissionLevel: number | null;
   /** Changed-files sort order, shared with the viewer's prev/next order. */
   filesPanelSort: ChangedSort;
+  /** Open HTML workspace files in rendered preview when arrived via ?file=. */
+  preferHtmlPreview?: boolean;
   /** Change the changed-files sort order. */
   onSortChange: (sort: ChangedSort) => void;
   /** Files view scope: false = full tree, true = changed-only flat list. */
@@ -249,6 +251,7 @@ export function WorkspacePanel({
   onFlatViewChange,
   filesPanelShowHidden,
   onShowHiddenChange,
+  preferHtmlPreview = false,
 }: WorkspacePanelProps) {
   // Memoized so FileViewer's Escape-to-close effect doesn't re-subscribe its
   // window keydown listener on every render — an inline arrow would change
@@ -259,7 +262,7 @@ export function WorkspacePanel({
   return (
     <aside
       aria-label="Workspace"
-      inert={inert}
+      {...(inert ? { inert: "" } : {})}
       // Floating card on desktop: detached from the chat + window edges by
       // margins (no left margin — the left edge hosts the resize handle and
       // butts against main), rounded, bordered, and lifted off the
@@ -422,6 +425,7 @@ export function WorkspacePanel({
             permissionLevel={permissionLevel}
             onCommentsOpenChange={onCommentsOpenChange}
             sort={filesPanelSort}
+            preferHtmlPreview={preferHtmlPreview}
           />
         ) : rightRailTab === "subagents" && rootSessionId ? (
           <SubagentsPanel conversationId={conversationId} rootSessionId={rootSessionId} />

@@ -178,6 +178,13 @@ func TestTransport_SendPrompt(t *testing.T) {
 	}
 }
 
+func TestTransport_SendPrompt_EmptyThreadID(t *testing.T) {
+	tr := newTransport(acp.EventCallbacks{}, discardLogger())
+	if err := tr.SendPrompt("", "hello"); err == nil {
+		t.Fatal("expected error for empty thread id")
+	}
+}
+
 func TestTransport_RespondToPermission(t *testing.T) {
 	stdoutPR, _ := io.Pipe()
 	stdinPR, stdinPW := io.Pipe()

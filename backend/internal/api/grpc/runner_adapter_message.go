@@ -3,8 +3,6 @@ package grpc
 import (
 	"context"
 	"time"
-
-	omnigentcompat "github.com/anthropics/agentsmesh/backend/internal/api/compat/omnigent"
 	otelinit "github.com/anthropics/agentsmesh/backend/internal/infra/otel"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
@@ -52,19 +50,24 @@ func (a *GRPCRunnerAdapter) handleProtoMessage(ctx context.Context, runnerID int
 
 	case *runnerv1.RunnerMessage_AgentStatus:
 		a.connManager.HandleAgentStatus(runnerID, payload.AgentStatus)
-		omnigentcompat.ForwardAgentStatus(ctx, payload.AgentStatus.GetPodKey(), payload.AgentStatus.GetStatus())
 
 	case *runnerv1.RunnerMessage_AcpSession:
-		omnigentcompat.ForwardAcpSession(ctx, payload.AcpSession.GetPodKey(),
-			payload.AcpSession.GetEventType(), payload.AcpSession.GetJsonPayload())
+		if a.podEvents != nil {
+			a.podEvents.HandleAcpSession(ctx, payload.AcpSession.GetPodKey(),
+				payload.AcpSession.GetEventType(), payload.AcpSession.GetJsonPayload())
+		}
 
 	case *runnerv1.RunnerMessage_PodUsage:
-		omnigentcompat.ForwardPodUsage(ctx, payload.PodUsage)
+		if a.podEvents != nil {
+			a.podEvents.HandlePodUsage(ctx, payload.PodUsage)
+		}
 
 	case *runnerv1.RunnerMessage_ExternalSessionCaptured:
-		omnigentcompat.ForwardExternalSession(ctx,
-			payload.ExternalSessionCaptured.GetPodKey(),
-			payload.ExternalSessionCaptured.GetExternalSessionId())
+		if a.podEvents != nil {
+			a.podEvents.UpdateExternalSessionID(ctx,
+				payload.ExternalSessionCaptured.GetPodKey(),
+				payload.ExternalSessionCaptured.GetExternalSessionId())
+		}
 
 	case *runnerv1.RunnerMessage_PodInitProgress:
 		a.connManager.HandlePodInitProgress(runnerID, payload.PodInitProgress)

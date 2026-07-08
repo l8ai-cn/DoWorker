@@ -4,6 +4,12 @@
 # don't need a working openssl cross toolchain.
 
 build_do_agent_binary() {
+    if [[ -f "$SCRIPT_DIR/do-agent-binary" ]] \
+        && file -b "$SCRIPT_DIR/do-agent-binary" | grep -q 'ELF.*x86-64'; then
+        info "do-agent binary 已存在，跳过 Docker 编译"
+        return 0
+    fi
+
     local doagent_dir="${DOAGENT_DIR:-}"
     if [[ -z "$doagent_dir" ]]; then
         for candidate in \
@@ -33,7 +39,8 @@ build_do_agent_binary() {
             apt-get update -qq \
                 && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq pkg-config libssl-dev file >/dev/null \
                 || true
-            cp -a /src /build
+            mkdir -p /build
+            tar -C /src -cf - --exclude=target --exclude=.git . | tar -C /build -xf -
             cd /build
             cargo build --release
             cp target/release/do-agent /out/do-agent-binary

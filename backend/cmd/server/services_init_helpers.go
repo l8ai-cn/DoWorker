@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/config"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/gitea"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/storage"
 	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
 	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
 	knowledgebaseservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
 	"github.com/anthropics/agentsmesh/backend/internal/service/license"
@@ -28,6 +28,7 @@ func initializeFileService(cfg *config.Config) *fileservice.Service {
 	s3Storage, err := storage.NewS3Storage(storage.S3Config{
 		Endpoint:       cfg.Storage.Endpoint,
 		PublicEndpoint: cfg.Storage.PublicEndpoint,
+		RunnerEndpoint: cfg.Storage.RunnerEndpoint,
 		Region:         cfg.Storage.Region,
 		Bucket:         cfg.Storage.Bucket,
 		AccessKey:      cfg.Storage.AccessKey,
@@ -92,6 +93,7 @@ func initializeExtensionServices(cfg *config.Config, db *gorm.DB) (*extensionser
 	s3Storage, err := storage.NewS3Storage(storage.S3Config{
 		Endpoint:       cfg.Storage.Endpoint,
 		PublicEndpoint: cfg.Storage.PublicEndpoint,
+		RunnerEndpoint: cfg.Storage.RunnerEndpoint,
 		Region:         cfg.Storage.Region,
 		Bucket:         cfg.Storage.Bucket,
 		AccessKey:      cfg.Storage.AccessKey,
@@ -142,6 +144,7 @@ func initializeSupportTicketService(cfg *config.Config, db *gorm.DB) *supporttic
 	s3Storage, err := storage.NewS3Storage(storage.S3Config{
 		Endpoint:       cfg.Storage.Endpoint,
 		PublicEndpoint: cfg.Storage.PublicEndpoint,
+		RunnerEndpoint: cfg.Storage.RunnerEndpoint,
 		Region:         cfg.Storage.Region,
 		Bucket:         cfg.Storage.Bucket,
 		AccessKey:      cfg.Storage.AccessKey,
@@ -162,6 +165,7 @@ func initializeLogUploadStorage(cfg *config.Config) storage.Storage {
 	s3Storage, err := storage.NewS3Storage(storage.S3Config{
 		Endpoint:       cfg.Storage.Endpoint,
 		PublicEndpoint: cfg.Storage.PublicEndpoint,
+		RunnerEndpoint: cfg.Storage.RunnerEndpoint,
 		Region:         cfg.Storage.Region,
 		Bucket:         cfg.Storage.Bucket,
 		AccessKey:      cfg.Storage.AccessKey,

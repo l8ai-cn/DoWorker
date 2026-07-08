@@ -8,9 +8,9 @@
 // `isClaudeNative`, `isNativeWrapper`, and `isTerminalFirst` are derived
 // from different conversation labels:
 //
-//   - `omnigent.wrapper === "claude-code-native-ui"` → `isClaudeNative`
-//   - registered `omnigent.wrapper` native value    → `isNativeWrapper`
-//   - `omnigent.ui === "terminal"`                  → `isTerminalFirst`
+//   - `do-worker.wrapper === "claude-code-native-ui"` → `isClaudeNative`
+//   - registered `do-worker.wrapper` native value    → `isNativeWrapper`
+//   - `do-worker.ui === "terminal"`                  → `isTerminalFirst`
 //
 // `isTerminalFirst` is purely presentational (the Chat/Terminal pill and
 // the inline terminal surface); `isNativeWrapper` keys the behavior
@@ -27,7 +27,7 @@ import { createContext, useContext } from "react";
 export type TerminalFirstView = "chat" | "terminal";
 
 export interface TerminalFirstContextValue {
-  /** True when `omnigent.wrapper === "claude-code-native-ui"`. */
+  /** True when `do-worker.wrapper === "claude-code-native-ui"`. */
   isClaudeNative: boolean;
   /**
    * True when the session runs a native-CLI wrapper. Keys harness *behavior* gates — composer slash
@@ -36,7 +36,7 @@ export interface TerminalFirstContextValue {
    * Omnigent REPL terminal are terminal-first but not native).
    */
   isNativeWrapper: boolean;
-  /** True when `omnigent.ui === "terminal"` — gates the toggle + sidebar card. */
+  /** True when `do-worker.ui === "terminal"` — gates the toggle + sidebar card. */
   isTerminalFirst: boolean;
   /**
    * True while the open terminal view targets a user shell (any

@@ -2,7 +2,7 @@ import { useHosts } from "@/hooks/useHosts";
 import type { Host } from "@/hooks/useHosts";
 import { useSession } from "@/hooks/useSession";
 import { useSessionHostOnline } from "@/hooks/RunnerHealthProvider";
-import { sandboxOptionLabel } from "@/lib/capabilities";
+import { hostDisplayLabel, unresolvedHostLabel } from "@/lib/hostDisplayLabel";
 import { cn } from "@/lib/utils";
 
 export type HostBadgeStatus = "online" | "offline" | "unknown";
@@ -32,11 +32,7 @@ export function resolveHostBadge(args: {
 }): HostBadgeInfo | null {
   const { hostId, host, online } = args;
   if (!hostId) return null;
-  const label = host
-    ? host.sandbox_provider
-      ? sandboxOptionLabel(host.sandbox_provider)
-      : host.name
-    : hostId;
+  const label = host ? hostDisplayLabel(host) : unresolvedHostLabel(hostId);
   const status: HostBadgeStatus =
     online === true ? "online" : online === false ? "offline" : "unknown";
   return { label, status };

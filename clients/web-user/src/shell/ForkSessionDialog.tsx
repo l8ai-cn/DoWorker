@@ -37,6 +37,8 @@ import { useDirectorySessions } from "@/hooks/useDirectorySessions";
 import { useRunnerHealthRegistration } from "@/hooks/RunnerHealthProvider";
 import { useRecentWorkspaces } from "@/hooks/useRecentWorkspaces";
 import { agentRootName, forkTargetCarriesHistory } from "@/lib/forkHarness";
+import { collapseInternalWorkspaceHostsForPicker } from "@/lib/host-agent-match";
+import { hostDisplayLabel } from "@/lib/hostDisplayLabel";
 import { getCliServerUrl } from "@/lib/host";
 import { WorkspacePicker, isNavigablePath } from "./WorkspacePicker";
 import { WorkspacePathField } from "./WorkspacePathField";
@@ -58,6 +60,7 @@ const SAME_AS_SOURCE = "__same__";
  */
 function HostLabel({ host }: { host: Host }) {
   const isOnline = host.status === "online";
+  const displayName = hostDisplayLabel(host);
   return (
     <span className="flex items-center gap-2">
       {host.name.toLowerCase().includes("cloud") ? (
@@ -65,7 +68,7 @@ function HostLabel({ host }: { host: Host }) {
       ) : (
         <MonitorIcon className="size-4 text-muted-foreground" />
       )}
-      <span className="font-mono text-xs">{host.name}</span>
+      <span className="font-mono text-xs">{displayName}</span>
       <span
         className={`inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider ${
           isOnline ? "text-green-600" : "text-muted-foreground"
@@ -198,9 +201,6 @@ export function ForkSessionForm({
   // never shows the host field).
   const { data: hosts } = useHosts({ enabled: isCodingSource });
   const allHosts = hosts ?? [];
-  const onlineHosts = useMemo(() => (hosts ?? []).filter((h) => h.status === "online"), [hosts]);
-  const offlineHosts = useMemo(() => (hosts ?? []).filter((h) => h.status === "offline"), [hosts]);
-  const sourceHostOnline = onlineHosts.some((h) => h.host_id === sourceHostId);
   const serverUrl = getCliServerUrl();
 
   const { recent, addRecent } = useRecentWorkspaces(selectedHostId);
@@ -224,6 +224,26 @@ export function ForkSessionForm({
   // the dedup below still hides the source's own agent.
   const sourceAgentName = sourceAgent?.name ?? null;
   const sourceAgentBaseName = sourceAgentName ? agentRootName(sourceAgentName) : null;
+
+  const forkTargetAgent = useMemo(() => {
+    if (agentChoice === SAME_AS_SOURCE) {
+      if (!sourceAgent) return null;
+      return (agents ?? []).find(
+        (a) =>
+          a.id === sourceAgent.id ||
+          a.name === sourceAgentName ||
+          a.name === sourceAgentBaseName,
+      ) ?? null;
+    }
+    return (agents ?? []).find((a) => a.id === agentChoice) ?? null;
+  }, [agentChoice, agents, sourceAgent, sourceAgentName, sourceAgentBaseName]);
+  const pickerHosts = useMemo(
+    () => collapseInternalWorkspaceHostsForPicker(allHosts, forkTargetAgent),
+    [allHosts, forkTargetAgent],
+  );
+  const onlineHosts = useMemo(() => pickerHosts.filter((h) => h.status === "online"), [pickerHosts]);
+  const offlineHosts = useMemo(() => pickerHosts.filter((h) => h.status === "offline"), [pickerHosts]);
+  const sourceHostOnline = onlineHosts.some((h) => h.host_id === sourceHostId);
 
   // Friendly label for the source's agent — the "same as source" option shows
   // this so the user sees the actual agent they're keeping. The source's YAML

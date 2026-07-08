@@ -8,6 +8,8 @@ import {
   useState,
 } from "react";
 import { useNavigate, useSearchParams } from "@/lib/routing";
+import { ModelConfigPicker, WorkerModelMenuOptions } from "@/shell/ModelConfigPicker";
+import { agentUsesWorkerModelPool } from "@/shell/workerModelPool";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   MonitorIcon,
@@ -59,10 +61,16 @@ import { useIsMobileViewport } from "@/hooks/useIsMobileViewport";
 import { CliCommandBlock } from "./CliCommandBlock";
 import { WorkspacePicker, isNavigablePath } from "./WorkspacePicker";
 import { getCliServerUrl } from "@/lib/host";
-import { getOmnigentHostConfig } from "@/lib/host";
+import { getDoWorkerHostConfig } from "@/lib/host";
 import { readLastAgentId, writeLastAgentId } from "@/lib/agentPreferences";
+import {
+  hostSupportsAgent,
+  pickOnlineHostForAgent,
+  collapseInternalWorkspaceHostsForPicker,
+  isHostActiveInPicker,
+} from "@/lib/host-agent-match";
 import { readHarnessOptions, writeHarnessOption } from "@/lib/modePreferences";
-import { useBrainHarnessLabels } from "@/lib/agentLabels";
+import { hostDisplayLabel } from "@/lib/hostDisplayLabel";
 import { CLAUDE_NATIVE_MODELS } from "@/lib/claudeNativeModels";
 import { sortAgentsForDisplay } from "@/lib/agentGrouping";
 import { cn } from "@/lib/utils";
@@ -100,7 +108,7 @@ import {
   parseMentionToken,
   rankMentionEntries,
 } from "@/lib/composerMentions";
-import { OttoEyes } from "@/components/OttoEyes";
+import { DoWorkerLogo } from "@/components/icons/DoWorkerLogo";
 import { SkillPills } from "@/components/SkillPills";
 import { ComposerMicButton } from "@/components/ComposerMicButton";
 import { IntelligentModelControl, type CostControlMode } from "@/components/CostRoutingControl";
@@ -264,14 +272,23 @@ const CODEX_NATIVE_APPROVAL_MODES: {
 // metadata) so it survives reload. Mutually exclusive in spirit with the
 // approval-mode presets above: when bypass is on the runner strips any
 // `--sandbox` / `--ask-for-approval` flags those presets would emit.
-const CODEX_NATIVE_BYPASS_SANDBOX_LABEL_KEY = "omnigent.codex_native.bypass_sandbox";
+const CODEX_NATIVE_BYPASS_SANDBOX_LABEL_KEY = "do-worker.codex_native.bypass_sandbox";
 // The exact phrase a user must TYPE (not just click) to arm full bypass.
 // A typed confirmation makes the dangerous mode impossible to enable by an
 // accidental click; the toggle stays off until this is entered verbatim.
 const CODEX_NATIVE_BYPASS_SANDBOX_CONFIRM_PHRASE = "bypass sandbox";
 
-function HostOption({ host, subtitle }: { host: Host; subtitle?: string }) {
+function HostOption({
+  host,
+  subtitle,
+  thisMachineHostId,
+}: {
+  host: Host;
+  subtitle?: string;
+  thisMachineHostId?: string | null;
+}) {
   const isOnline = host.status === "online";
+  const displayName = hostDisplayLabel(host, { thisMachineHostId });
   return (
     <span className="flex min-w-0 items-center gap-2">
       {host.name.toLowerCase().includes("cloud") ? (
@@ -281,7 +298,7 @@ function HostOption({ host, subtitle }: { host: Host; subtitle?: string }) {
       )}
       <span className="flex min-w-0 flex-col">
         <span className="flex items-center gap-2">
-          <span className="truncate text-xs">{host.name}</span>
+          <span className="truncate text-xs">{displayName}</span>
           <span
             className={`inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold uppercase tracking-wider ${isOnline ? "text-green-600" : "text-muted-foreground"}`}
           >
@@ -445,7 +462,7 @@ export function sessionsSharingDirectory(
 /**
  * Best-effort human-readable message for a failed POST /v1/sessions.
  *
- * Recognizes the OmnigentError shape (``{error: {message}}``) and
+ * Recognizes the DoWorkerApiError shape (``{error: {message}}``) and
  * FastAPI's ``{detail}``; falls back to the status code otherwise.
  *
  * @param res Non-OK response from the session-create call.
@@ -488,7 +505,7 @@ export async function describeCreateError(res: Response): Promise<string> {
  *
  * Warning-only signal for the agent picker: `true` only when the host
  * explicitly reported the harness as not ready (CLI missing or no
- * default credential — see `omnigent setup`). A missing readiness map
+ * default credential — see `runner register`). A missing readiness map
  * (older host build) or an unknown harness yields `false`, so unknown
  * never warns; the host re-checks authoritatively at launch time.
  *
@@ -542,9 +559,9 @@ export function harnessWarningMessageText(
     return `${agentName} needs Codex authentication on ${hostName} — run codex login on that machine.`;
   }
   if (reason === "binary-missing") {
-    return `${agentName} is missing the Codex binary on ${hostName} — run omnigent setup on that machine.`;
+    return `${agentName} is missing the Codex binary on ${hostName} — run runner register on that machine.`;
   }
-  return `${agentName} isn't configured on ${hostName} — run omnigent setup on that machine.`;
+  return `${agentName} isn't configured on ${hostName} — run runner register on that machine.`;
 }
 
 function harnessWarningMessage(
@@ -563,14 +580,14 @@ function harnessWarningMessage(
   if (reason === "binary-missing") {
     return (
       <>
-        {agentName} is missing the Codex binary on {hostName} — run <code>omnigent setup</code> on
+        {agentName} is missing the Codex binary on {hostName} — run <code>runner register</code> on
         that machine.
       </>
     );
   }
   return (
     <>
-      {agentName} isn&apos;t configured on {hostName} — run <code>omnigent setup</code> on that
+      {agentName} isn&apos;t configured on {hostName} — run <code>runner register</code> on that
       machine.
     </>
   );
@@ -1082,59 +1099,6 @@ function CursorModeOptions({
 }
 
 /**
- * Brain-harness radio rows for an overridable bundle agent, rendered
- * inside the Advanced settings menu in the composer footer.
- *
- * @param value Effective harness id for the agent, e.g. ``"claude-sdk"``.
- * @param onValueChange Selection callback (receives the harness id).
- * @param host Host whose `configured_harnesses` drives per-row "needs
- *   setup" badges; undefined hides the badges (sandbox selected).
- */
-function BrainHarnessOptions({
-  value,
-  onValueChange,
-  host,
-  labels,
-}: {
-  value: string;
-  onValueChange: (harness: string) => void;
-  host: Host | undefined | null;
-  labels: Record<string, string>;
-}) {
-  return (
-    <>
-      <div className="px-2 pt-1.5 pb-0.5 text-[11px] font-medium text-muted-foreground">
-        Agent Harness
-      </div>
-      <DropdownMenuRadioGroup value={value} onValueChange={onValueChange}>
-        {Object.entries(labels).map(([id, label]) => (
-          <DropdownMenuRadioItem
-            key={id}
-            value={id}
-            data-testid={`new-chat-landing-harness-${id}`}
-            // pl only — the kit's pr-8 reserves room for the
-            // absolutely-positioned check.
-            // text-xs matches the other footer-tray menus (host picker).
-            className="rounded-sm pl-2 py-1 text-xs"
-          >
-            <span className="flex-1">{label}</span>
-            {harnessUnconfiguredOnHost(id, host) && (
-              <Badge
-                variant="outline"
-                className="border-amber-300 bg-amber-50 text-[11px] text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400"
-                data-testid={`new-chat-landing-harness-warning-${id}`}
-              >
-                {harnessWarningBadgeText(harnessUnavailableReasonOnHost(id, host))}
-              </Badge>
-            )}
-          </DropdownMenuRadioItem>
-        ))}
-      </DropdownMenuRadioGroup>
-    </>
-  );
-}
-
-/**
  * Model + reasoning-effort radio sections for claude-native agents, rendered
  * inside the unified agent/harness picker's submenu. Pure fragment (no own
  * dropdown shell) so it nests directly in a {@link DropdownMenuSubContent}.
@@ -1222,7 +1186,6 @@ function PickerSectionHeader({ children }: { children: ReactNode }) {
 function AgentHarnessPicker({
   agentEntries,
   harnessEntries,
-  brainHarnessLabels,
   effectiveAgentId,
   agentLabel,
   hasAgents,
@@ -1246,10 +1209,13 @@ function AgentHarnessPicker({
   setPickedModel,
   setPickedEffort,
   setPickedHarness,
+  workerModelConfigId,
+  setWorkerModelConfigId,
+  workerTokenBudget,
+  setWorkerTokenBudget,
 }: {
   agentEntries: AvailableAgent[];
   harnessEntries: AvailableAgent[];
-  brainHarnessLabels: Record<string, string>;
   effectiveAgentId: string | null;
   agentLabel: string;
   hasAgents: boolean;
@@ -1273,6 +1239,10 @@ function AgentHarnessPicker({
   setPickedModel: (model: string) => void;
   setPickedEffort: (effort: string) => void;
   setPickedHarness: (harness: string | null) => void;
+  workerModelConfigId: number | null;
+  setWorkerModelConfigId: (id: number | null) => void;
+  workerTokenBudget: number | null;
+  setWorkerTokenBudget: (n: number | null) => void;
 }) {
   // Controlled so clicking a knobbed row can commit the pick and close the
   // menu (see the sub-trigger onClick below) without diving into the submenu.
@@ -1297,10 +1267,10 @@ function AgentHarnessPicker({
   const [mobileSide, setMobileSide] = useState<"top" | "bottom">("bottom");
 
   const hasKnobs = (agent: AvailableAgent): boolean =>
+    agentUsesWorkerModelPool(agent) ||
     nativeAgentHasCapability(agent, "permissionMode") ||
     nativeAgentHasCapability(agent, "approvalMode") ||
-    nativeAgentHasCapability(agent, "cursorMode") ||
-    (agent.harness != null && agent.harness in brainHarnessLabels);
+    nativeAgentHasCapability(agent, "cursorMode");
 
   // The agent whose knobs page is open, resolved from the live entry lists so
   // it tracks renames / removals. `showMobileKnobs` gates the page: false on
@@ -1347,6 +1317,27 @@ function AgentHarnessPicker({
   // (so e.g. Codex's submenu shows Codex knobs even while Claude is selected).
   const knobSectionsFor = (agent: AvailableAgent): ReactNode => {
     const isSelected = agent.id === effectiveAgentId;
+    // Do-agent Workers mount a model from the org pool: the submenu lists the
+    // configured models (model_config_id) + a token cap, the same state the
+    // create request sends. Must precede the brain-harness fallback — the
+    // harness catalog may list "do-agent", but a harness-override radio is
+    // meaningless for the Worker.
+    if (agentUsesWorkerModelPool(agent)) {
+      return (
+        <WorkerModelMenuOptions
+          selectedId={workerModelConfigId}
+          onSelect={(id) => {
+            onSelectAgent(agent);
+            setWorkerModelConfigId(id);
+          }}
+          tokenBudget={workerTokenBudget}
+          onTokenBudgetChange={(n) => {
+            onSelectAgent(agent);
+            setWorkerTokenBudget(n);
+          }}
+        />
+      );
+    }
     const entryHarness = nativeCodingAgentForAvailableAgent(agent)?.harness ?? null;
     // All of this entry harness's remembered knobs (mode / model / effort),
     // read once. The value to SHOW: the live shared state when this entry is the
@@ -1446,25 +1437,6 @@ function AgentHarnessPicker({
             cursorExecMode,
           )}
           onValueChange={onModeChange(setCursorExecMode)}
-        />
-      );
-    }
-    // Bundle / custom agent with an overridable brain harness.
-    const defaultHarness =
-      agent.harness != null && agent.harness in brainHarnessLabels ? agent.harness : null;
-    if (defaultHarness) {
-      const value = isSelected ? (pickedHarness ?? defaultHarness) : defaultHarness;
-      return (
-        <BrainHarnessOptions
-          value={value}
-          onValueChange={(h) => {
-            onSelectAgent(agent);
-            // Picking the spec default clears the override so the session
-            // tracks the spec.
-            setPickedHarness(h === defaultHarness ? null : h);
-          }}
-          host={host}
-          labels={brainHarnessLabels}
         />
       );
     }
@@ -1693,10 +1665,11 @@ export function NewChatLandingScreen() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const projectParam = searchParams.get("project") ?? "";
+  const agentParam = searchParams.get("agent") ?? "";
   const queryClient = useQueryClient();
   const serverUrl = getCliServerUrl();
   const { data: agents } = useAvailableAgents();
-  const brainHarnessLabels = useBrainHarnessLabels();
   const { data: hosts } = useHosts();
   // Sessions the caller can access, to warn when a new session would share a
   // working directory with a live one (see the conflict tooltip below).
@@ -1796,7 +1769,7 @@ export function NewChatLandingScreen() {
   // Embed-only docs seam: when the host passes additional docs and managed
   // sandboxes are unavailable, keep the sandbox row visible but disabled and
   // attach a help tooltip with a clickable link.
-  const docsLinks = getOmnigentHostConfig().docsLinks;
+  const docsLinks = getDoWorkerHostConfig().docsLinks;
   const newSandboxTooltipContent = docsLinks?.newSandbox;
   // Embed-only docs seam for Databricks git auth setup. Standalone leaves this
   // undefined, so no tooltip is rendered.
@@ -1809,6 +1782,12 @@ export function NewChatLandingScreen() {
   const [pickedAgentId, setPickedAgentId] = useState<string | null>(
     () => landingDraft?.pickedAgentId ?? readLastAgentId(),
   );
+  useEffect(() => {
+    if (!agentParam) return;
+    if (agentList.some((a) => a.id === agentParam)) {
+      setPickedAgentId(agentParam);
+    }
+  }, [agentParam, agentList]);
   const [selectedHostId, setSelectedHostId] = useState<string | null>(
     () => landingDraft?.selectedHostId ?? null,
   );
@@ -1842,7 +1821,6 @@ export function NewChatLandingScreen() {
   // conversation_labels row). Empty = unfiled. Applied right after create.
   // Pre-filled from a `?project=` query param so the sidebar's per-project
   // "new session" pencil can land here with the project already selected.
-  const projectParam = searchParams.get("project") ?? "";
   const [selectedProject, setSelectedProject] = useState<string>(() => projectParam);
   // The landing screen stays mounted while the `?project=` param changes (e.g.
   // clicking a different project's pencil), so the lazy initializer above won't
@@ -1909,6 +1887,8 @@ export function NewChatLandingScreen() {
   const [workspacePopoverOpen, setWorkspacePopoverOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [modelConfigId, setModelConfigId] = useState<number | null>(null);
+  const [workerTokenBudget, setWorkerTokenBudget] = useState<number | null>(null);
   // "Connect a host" instructions modal, opened from the host dropdown.
   const [connectOpen, setConnectOpen] = useState(false);
 
@@ -1947,8 +1927,6 @@ export function NewChatLandingScreen() {
   const { recent, addRecent } = useRecentWorkspaces(selectedHostId);
 
   const allHosts = hosts ?? [];
-  const onlineHosts = allHosts.filter((h) => h.status === "online");
-  const offlineHosts = allHosts.filter((h) => h.status === "offline");
 
   // Identify the current desktop machine and whether we can connect it. When
   // it's already in the host list (online or offline) we connect via that row;
@@ -1976,24 +1954,6 @@ export function NewChatLandingScreen() {
       unsubscribe();
     };
   }, []);
-
-  // Auto-select the FIRST AVAILABLE option, mirroring the menu order, so
-  // a session can be started without an explicit pick: the sandbox when
-  // the server supports it (it's pinned first in the picker), else the
-  // first online host. Only fills an empty slot; explicit choices are
-  // never overridden.
-  useEffect(() => {
-    if (sandboxSelected) return;
-    if (selectedHostId !== null) return;
-    if (managedSandboxesEnabled) {
-      setSandboxSelected(true);
-      return;
-    }
-    const firstOnline =
-      (hosts ?? []).find((h) => h.status === "online" && h.host_id.endsWith("-runner")) ??
-      (hosts ?? []).find((h) => h.status === "online");
-    if (firstOnline) setSelectedHostId(firstOnline.host_id);
-  }, [hosts, selectedHostId, sandboxSelected, managedSandboxesEnabled]);
 
   // Fall back to the host's home directory when it has no recorded recents, so
   // the working-directory field is pre-filled and the user can send in one
@@ -2037,8 +1997,11 @@ export function NewChatLandingScreen() {
   const effectiveAgentId =
     pickedAgentId === PENDING_AGENT_ID
       ? PENDING_AGENT_ID
-      : ((agentList.some((a) => a.id === pickedAgentId) ? pickedAgentId : agentList[0]?.id) ??
-        null);
+      : (agentList.some((a) => a.id === pickedAgentId)
+          ? pickedAgentId
+          : (agentList.find((a) => a.harness === "do-agent")?.id ??
+            agentList[0]?.id ??
+            null));
   const selectedAgent = useMemo(
     () =>
       effectiveAgentId === PENDING_AGENT_ID && pendingAgent
@@ -2053,6 +2016,41 @@ export function NewChatLandingScreen() {
         : agentList.find((a) => a.id === effectiveAgentId),
     [agentList, effectiveAgentId, pendingAgent],
   );
+
+  const pickerHosts = useMemo(
+    () => collapseInternalWorkspaceHostsForPicker(allHosts, selectedAgent),
+    [allHosts, selectedAgent],
+  );
+  const onlineHosts = pickerHosts.filter((h) => h.status === "online");
+  const offlineHosts = pickerHosts.filter((h) => h.status === "offline");
+
+  useEffect(() => {
+    if (sandboxSelected) return;
+    if (managedSandboxesEnabled) {
+      if (selectedHostId === null) setSandboxSelected(true);
+      return;
+    }
+    if (selectedHostId !== null) return;
+    const match = pickOnlineHostForAgent(hosts ?? [], selectedAgent);
+    if (match) setSelectedHostId(match.host_id);
+  }, [hosts, selectedHostId, sandboxSelected, managedSandboxesEnabled, selectedAgent]);
+
+  // Re-pick only when a host IS selected but can't run the agent. The
+  // `selectedHostId === null` gate matters: on mount this effect fires before
+  // the sandbox-default effect above, and without the gate it would fill the
+  // host slot while the sandbox also gets selected — leaving both "picked" and
+  // wedging selectHost's same-id early-return.
+  useEffect(() => {
+    if (sandboxSelected || !selectedAgent || selectedHostId === null) return;
+    const current = (hosts ?? []).find((h) => h.host_id === selectedHostId);
+    if (current && hostSupportsAgent(current, selectedAgent)) return;
+    const match = pickOnlineHostForAgent(hosts ?? [], selectedAgent);
+    if (match && match.host_id !== selectedHostId) {
+      seededHostRef.current = null;
+      setSelectedHostId(match.host_id);
+    }
+  }, [hosts, selectedHostId, sandboxSelected, selectedAgent]);
+
   const supportsPermissionMode = nativeAgentHasCapability(selectedAgent, "permissionMode");
   const supportsApprovalMode = nativeAgentHasCapability(selectedAgent, "approvalMode");
   const supportsCursorMode = nativeAgentHasCapability(selectedAgent, "cursorMode");
@@ -2070,6 +2068,7 @@ export function NewChatLandingScreen() {
   // model / effort), which are harness-specific. null for non-native agents,
   // which have no knobs to remember.
   const selectedNativeHarness = nativeCodingAgentForAvailableAgent(selectedAgent)?.harness ?? null;
+  const showWorkerModelPicker = agentUsesWorkerModelPool(selectedAgent);
   // Seed the harness's knobs from the user's last picks when the selected
   // harness changes (including the first mount), so a returning user starts a
   // new session on the options they used last for that harness instead of the
@@ -2313,7 +2312,11 @@ export function NewChatLandingScreen() {
   const canSubmit =
     message.trim().length > 0 &&
     selectedAgent != null &&
-    (sandboxSelected ? sandboxRepoValid : !!selectedHostId && workspaceValid) &&
+    (sandboxSelected ||
+      (!!selectedHostId &&
+        workspaceValid &&
+        !!selectedHost &&
+        hostSupportsAgent(selectedHost, selectedAgent))) &&
     !creating;
 
   // Why submit is disabled, surfaced as the button's tooltip. Checked in the
@@ -2324,11 +2327,22 @@ export function NewChatLandingScreen() {
     ? null
     : sandboxSelected && !sandboxRepoValid
       ? "Please enter a valid repository URL"
-      : !sandboxSelected && (!selectedHostId || !workspaceValid)
-        ? t.composer.chooseHostWorkspace
-        : message.trim().length === 0
-          ? t.composer.enterMessage
-          : null;
+      : !sandboxSelected &&
+          selectedAgent &&
+          selectedHost &&
+          !hostSupportsAgent(selectedHost, selectedAgent)
+        ? "This host cannot run the selected agent"
+        : selectedAgentUnavailableReason
+          ? harnessWarningMessageText(
+              selectedAgent?.display_name,
+              selectedHost ? hostDisplayLabel(selectedHost, { thisMachineHostId }) : undefined,
+              selectedAgentUnavailableReason,
+            )
+          : !sandboxSelected && (!selectedHostId || !workspaceValid)
+            ? t.composer.chooseHostWorkspace
+            : message.trim().length === 0
+              ? t.composer.enterMessage
+              : null;
 
   // Chip display labels.
   const workspaceLabel = workspaceTrimmed
@@ -2338,7 +2352,11 @@ export function NewChatLandingScreen() {
     ? t.composer.connecting
     : sandboxSelected
       ? sandboxLabel
-      : (selectedHost?.name ?? (onlineHosts.length === 0 ? t.composer.noHosts : t.composer.selectHost));
+      : (selectedHost
+          ? hostDisplayLabel(selectedHost, { thisMachineHostId })
+          : onlineHosts.length === 0
+            ? t.composer.noHosts
+            : t.composer.selectHost);
   const worktreeLabel = branchName.trim() || t.composer.noWorktree;
   // Sandbox repository chip label: repo name (server's clone-dir rule)
   // plus the pinned branch, e.g. "repo#main"; placeholder when unset.
@@ -2370,7 +2388,9 @@ export function NewChatLandingScreen() {
     // never re-runs to fill the field back in — and a host the user already
     // has selected (e.g. the auto-picked first online host) is exactly the
     // one they're most likely to click in the menu.
-    if (hostId === selectedHostId) return;
+    // Same-id picks still proceed while the sandbox is selected: the click
+    // must flip sandboxSelected off or the chip stays stuck on the sandbox.
+    if (hostId === selectedHostId && !sandboxSelected) return;
     setSandboxSelected(false);
     setSelectedHostId(hostId);
     // Workspace is host-specific — clear it and let the seeding effect run for
@@ -2467,9 +2487,9 @@ export function NewChatLandingScreen() {
                     ? { branch_name: trimmedBranch, base_branch: baseBranch.trim() || undefined }
                     : undefined,
                 }),
-            // Native terminal agents open terminal-first: `omnigent.ui:
+            // Native terminal agents open terminal-first: `do-worker.ui:
             // terminal` tells the UI to render the terminal wrapper, and
-            // `omnigent.wrapper` selects which CLI bridge the runner launches.
+            // `do-worker.wrapper` selects which CLI bridge the runner launches.
             // The values are the registered wrapper ids the runner keys off —
             // they must match the wrapper registry, not the agent display name.
             // The DANGEROUS codex full-bypass opt-in rides along as an extra
@@ -2502,6 +2522,14 @@ export function NewChatLandingScreen() {
             // Smart routing toggle — server-side, available for any agent.
             cost_control_mode_override: costControlMode ?? undefined,
             harness_override: pickedHarness ?? undefined,
+            // Worker model pool mount + token cap (do-agent config bundle or
+            // codex-cli / claude-code / gemini-cli env bundle).
+            ...(showWorkerModelPicker && modelConfigId != null
+              ? { model_config_id: modelConfigId }
+              : {}),
+            ...(showWorkerModelPicker && workerTokenBudget != null && workerTokenBudget > 0
+              ? { token_budget: workerTokenBudget }
+              : {}),
           }),
         });
         if (!res.ok) {
@@ -2601,7 +2629,7 @@ export function NewChatLandingScreen() {
     // the hero reads better optically.
     <div
       ref={setLandingSurface}
-      className="flex flex-1 items-center justify-center"
+      className="flex flex-1 items-center justify-center bg-background"
       data-testid="new-chat-landing"
     >
       {/* Padding lives inside the 840px cap, so the composer renders at
@@ -2610,7 +2638,7 @@ export function NewChatLandingScreen() {
           edges; widens to the full px-10 at the md breakpoint and up. */}
       <div className="flex w-full max-w-[840px] flex-col items-center gap-8 px-4 pt-8 pb-16 md:select-none md:px-10">
         <div className="flex flex-col items-center gap-3.5 sm:flex-row">
-          <OttoEyes className="h-18 w-auto shrink-0" />
+          <DoWorkerLogo className="h-14 w-14 shrink-0" title="Do Worker" />
           <h1 className="text-center text-3xl font-medium tracking-[-0.03em] text-foreground sm:text-left">
             {t.composer.heading}
           </h1>
@@ -2634,7 +2662,7 @@ export function NewChatLandingScreen() {
             // translucent card. Mirrors the chat composer card. Drag-over
             // lifts an inset ring (overlay below).
             className={cn(
-              "relative z-10 flex w-full flex-col rounded-2xl border border-border bg-card dark:bg-card-solid shadow-[0_12px_20px_-20px_rgba(0,0,0,0.14),0_20px_28px_-28px_rgba(0,0,0,0.1)] transition-[border-color,box-shadow] duration-150 has-[textarea:focus]:border-foreground",
+              "relative z-10 flex w-full flex-col rounded-2xl border border-border bg-card dark:bg-card-solid shadow-[0_12px_20px_-20px_rgba(15,118,110,0.12),0_20px_28px_-28px_rgba(15,118,110,0.08)] transition-[border-color,box-shadow] duration-150 has-[textarea:focus]:border-primary",
               isDragActive && "ring-2 ring-ring ring-inset",
             )}
             data-testid="new-chat-landing-composer"
@@ -2887,7 +2915,6 @@ export function NewChatLandingScreen() {
                 <AgentHarnessPicker
                   agentEntries={agentEntries}
                   harnessEntries={harnessEntries}
-                  brainHarnessLabels={brainHarnessLabels}
                   effectiveAgentId={effectiveAgentId}
                   agentLabel={agentLabel}
                   hasAgents={agentList.length > 0}
@@ -2911,7 +2938,20 @@ export function NewChatLandingScreen() {
                   setPickedModel={setPickedModel}
                   setPickedEffort={setPickedEffort}
                   setPickedHarness={setPickedHarness}
+                  workerModelConfigId={modelConfigId}
+                  setWorkerModelConfigId={setModelConfigId}
+                  workerTokenBudget={workerTokenBudget}
+                  setWorkerTokenBudget={setWorkerTokenBudget}
                 />
+                {showWorkerModelPicker && (
+                  <ModelConfigPicker
+                    selectedId={modelConfigId}
+                    onSelect={(id) => setModelConfigId(id)}
+                    tokenBudget={workerTokenBudget}
+                    onTokenBudgetChange={setWorkerTokenBudget}
+                    disabled={creating}
+                  />
+                )}
                 {smartRoutingEnabled &&
                   selectedAgent &&
                   _ROUTABLE_HARNESSES.has(selectedAgent.harness ?? "") && (
@@ -2930,7 +2970,7 @@ export function NewChatLandingScreen() {
                           disabled={!canSubmit}
                           aria-label="Start session"
                           data-testid="new-chat-landing-submit"
-                          className="size-8 rounded-full bg-foreground text-card transition-opacity hover:opacity-80 disabled:opacity-50"
+                          className="size-8 rounded-full bg-primary text-primary-foreground transition-opacity hover:bg-primary/90 disabled:opacity-50"
                         >
                           <ArrowUpIcon className="size-4" />
                         </Button>
@@ -3046,11 +3086,12 @@ export function NewChatLandingScreen() {
                     <DropdownMenuItem
                       key={host.host_id}
                       onSelect={() => selectHost(host.host_id)}
-                      data-active={host.host_id === selectedHostId ? "true" : undefined}
+                      data-active={isHostActiveInPicker(host, selectedHostId, allHosts) ? "true" : undefined}
                       className="text-xs data-[active=true]:bg-accent/60"
                     >
                       <HostOption
                         host={host}
+                        thisMachineHostId={thisMachineHostId}
                         subtitle={host.host_id === thisMachineHostId ? "this machine" : undefined}
                       />
                     </DropdownMenuItem>
@@ -3072,6 +3113,7 @@ export function NewChatLandingScreen() {
                         >
                           <HostOption
                             host={host}
+                            thisMachineHostId={thisMachineHostId}
                             subtitle={
                               connectingThisMachine
                                 ? "connecting…"
@@ -3085,6 +3127,7 @@ export function NewChatLandingScreen() {
                       <DropdownMenuItem key={host.host_id} disabled className="text-xs">
                         <HostOption
                           host={host}
+                          thisMachineHostId={thisMachineHostId}
                           subtitle={host.host_id === thisMachineHostId ? "this machine" : undefined}
                         />
                       </DropdownMenuItem>

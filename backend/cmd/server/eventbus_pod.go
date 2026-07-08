@@ -16,7 +16,7 @@ import (
 )
 
 func setupPodEventCallbacks(db *gorm.DB, podCoordinator *runner.PodCoordinator, eventBus *eventbus.EventBus, notifDispatcher *notifService.Dispatcher) {
-	podCoordinator.SetStatusChangeCallback(func(podKey string, status string, agentStatus string) {
+	podCoordinator.AddStatusChangeCallback(func(podKey string, status string, agentStatus string) {
 		var pod struct {
 			OrganizationID int64   `gorm:"column:organization_id"`
 			CreatedByID    int64   `gorm:"column:created_by_id"`

@@ -66,6 +66,14 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		}
 	}
 
+	AppendPrimaryCredentialBundle(ctx, o.primaryCredential, req.UserID, req.OrganizationID, req.AgentSlug, &req.AgentfileLayer)
+
+	// Worker model binding (quota/billing): inject the selected virtual key /
+	// model-pool credentials before the AgentFile layer is parsed below.
+	if err := o.applyWorkerModel(ctx, req, agentDef); err != nil {
+		return nil, err
+	}
+
 	// --- AgentFile Layer resolution ---
 	resolved := &agentfileResolved{}
 
@@ -167,6 +175,8 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		InteractionMode: effectiveInteractionMode,
 		Perpetual:       req.Perpetual,
 		ResolvedConfig:  resolved.ConfigValues,
+		InitialStatus:   o.initialPodStatus(req),
+		VirtualAPIKeyID: req.VirtualAPIKeyID,
 	})
 	if err != nil {
 		return nil, err
@@ -180,15 +190,42 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 
 	if o.podCoordinator != nil && !req.DeferRunnerDispatch {
 		slog.InfoContext(ctx, "dispatching create_pod to runner", "runner_id", req.RunnerID, "pod_key", pod.PodKey, "session_id", sessionID, "resume", isResumeMode)
-		if err := o.podCoordinator.CreatePod(ctx, req.RunnerID, podCmd); err != nil {
-			slog.ErrorContext(ctx, "failed to dispatch create_pod", "pod_key", pod.PodKey, "error", err)
-			if markErr := o.podService.MarkInitFailed(ctx, pod.PodKey, errCodeRunnerUnreachable,
-				"Failed to dispatch pod to runner: "+err.Error()); markErr != nil {
-				slog.ErrorContext(ctx, "failed to mark pod as init failed", "pod_key", pod.PodKey, "error", markErr)
+		dispatchErr := o.podCoordinator.CreatePodOrQueue(ctx, req.RunnerID, podCmd, podDomain.CreatePodQueueOpts{
+			Queue: req.QueueIfUnavailable,
+			TTL:   req.QueueTTL,
+			OrgID: req.OrganizationID,
+		})
+		switch {
+		case dispatchErr == nil:
+			slog.InfoContext(ctx, "create_pod dispatched", "pod_key", pod.PodKey)
+			// TOCTOU: pod row may have been created as `queued` (runner looked
+			// unavailable) but the runner came online before dispatch. Align
+			// status so error/timeout paths (which expect `initializing`) work.
+			if pod.Status == podDomain.StatusQueued {
+				_ = o.podService.UpdatePodStatus(ctx, pod.PodKey, podDomain.StatusInitializing)
+				pod.Status = podDomain.StatusInitializing
+			}
+		case podDomain.IsPodQueued(dispatchErr):
+			slog.InfoContext(ctx, "create_pod queued for runner", "pod_key", pod.PodKey, "runner_id", req.RunnerID)
+			if pod.Status != podDomain.StatusQueued {
+				_ = o.podService.UpdatePodStatus(ctx, pod.PodKey, podDomain.StatusQueued)
+				pod.Status = podDomain.StatusQueued
+			}
+			return &OrchestrateCreatePodResult{Pod: pod, Queued: true}, nil
+		case errors.Is(dispatchErr, podDomain.ErrQueueFull):
+			if markErr := o.podService.MarkDispatchFailed(ctx, pod.PodKey, errCodeQueueFull,
+				"Runner pending queue is full"); markErr != nil {
+				slog.ErrorContext(ctx, "failed to mark pod after queue-full", "pod_key", pod.PodKey, "error", markErr)
+			}
+			return nil, podDomain.ErrQueueFull
+		default:
+			slog.ErrorContext(ctx, "failed to dispatch create_pod", "pod_key", pod.PodKey, "error", dispatchErr)
+			if markErr := o.podService.MarkDispatchFailed(ctx, pod.PodKey, errCodeRunnerUnreachable,
+				"Failed to dispatch pod to runner: "+dispatchErr.Error()); markErr != nil {
+				slog.ErrorContext(ctx, "failed to mark pod as dispatch failed", "pod_key", pod.PodKey, "error", markErr)
 			}
 			return nil, ErrRunnerDispatchFailed
 		}
-		slog.InfoContext(ctx, "create_pod dispatched", "pod_key", pod.PodKey)
 	} else {
 		slog.WarnContext(ctx, "PodCoordinator is nil, cannot dispatch create_pod", "pod_key", pod.PodKey)
 	}

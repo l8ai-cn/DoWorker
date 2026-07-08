@@ -150,3 +150,18 @@ func TestACPClient_GetSessionSnapshot_IsolatedCopy(t *testing.T) {
 			snap2.Messages[0].Text, "original")
 	}
 }
+
+func TestACPClient_SendPrompt_RequiresSessionForCodex(t *testing.T) {
+	c := NewClient(ClientConfig{TransportType: "codex"})
+	c.setState(StateIdle)
+	if err := c.SendPrompt("hi"); err != ErrPromptNotReady {
+		t.Fatalf("SendPrompt without session = %v, want ErrPromptNotReady", err)
+	}
+}
+
+func TestACPClient_SendPrompt_AllowsEmptySessionForClaude(t *testing.T) {
+	c := NewClient(ClientConfig{TransportType: "claude-stream"})
+	if c.sessionRequiredForPrompt() {
+		t.Fatal("claude-stream should not require session before prompt")
+	}
+}

@@ -83,6 +83,10 @@ func (cm *RunnerConnectionManager) GetDisconnectCallback() func(runnerID int64) 
 	return cm.onDisconnect
 }
 
+func (cm *RunnerConnectionManager) GetInitializedCallback() func(runnerID int64, availableAgents []string) {
+	return cm.onInitialized
+}
+
 func (cm *RunnerConnectionManager) SetObservePodResultCallback(fn func(runnerID int64, data *runnerv1.ObservePodResult)) {
 	cm.onObservePodResult = fn
 }

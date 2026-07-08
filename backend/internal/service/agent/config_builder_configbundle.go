@@ -11,12 +11,21 @@ func (b *ConfigBuilder) buildConfigBundleContext(
 	req *ConfigBuildRequest,
 	agentSlug string,
 ) map[string]interface{} {
-	if b.envBundleSvc == nil {
+	out := map[string]interface{}{}
+	if b.envBundleSvc != nil {
+		bundles, err := b.envBundleSvc.GetEffectiveForUser(ctx, req.UserID, req.OrganizationID, agentSlug)
+		if err == nil {
+			for name, doc := range envbundleservice.ParseConfigDocuments(bundles) {
+				out[name] = doc
+			}
+		}
+	}
+	// Ephemeral session bundles win over persisted ones on name conflict.
+	for name, doc := range req.SessionConfigBundles {
+		out[name] = doc
+	}
+	if len(out) == 0 {
 		return nil
 	}
-	bundles, err := b.envBundleSvc.GetEffectiveForUser(ctx, req.UserID, req.OrganizationID, agentSlug)
-	if err != nil {
-		return nil
-	}
-	return envbundleservice.ParseConfigDocuments(bundles)
+	return out
 }

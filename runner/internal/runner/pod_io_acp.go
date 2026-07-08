@@ -172,6 +172,12 @@ func (a *ACPPodIO) Teardown() string {
 	return "" // ACP has no aggregator or PTY logger to clean up
 }
 
+func (a *ACPPodIO) ForceIdleIfBusy() {
+	if a.client != nil {
+		a.client.ForceIdleIfBusy()
+	}
+}
+
 // Compile-time interface checks.
 var _ PodIO = (*ACPPodIO)(nil)
 var _ SessionAccess = (*ACPPodIO)(nil)

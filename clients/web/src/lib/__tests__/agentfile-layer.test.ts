@@ -153,4 +153,20 @@ describe('buildAgentfileLayer', () => {
     const result = buildAgentfileLayer({ configValues: {}, knowledgeMounts: [] })
     expect(result).not.toContain('KNOWLEDGE')
   })
+
+  it('emits quoted CONFIG token_budget when a positive cap is set', () => {
+    const result = buildAgentfileLayer({ configValues: {}, tokenBudget: 1000000 })
+    expect(result).toBe('CONFIG token_budget = "1000000"')
+  })
+
+  it('floors fractional token budgets', () => {
+    const result = buildAgentfileLayer({ configValues: {}, tokenBudget: 500.9 })
+    expect(result).toBe('CONFIG token_budget = "500"')
+  })
+
+  it('omits token_budget for null, zero, or negative values', () => {
+    expect(buildAgentfileLayer({ configValues: {}, tokenBudget: null })).not.toContain('token_budget')
+    expect(buildAgentfileLayer({ configValues: {}, tokenBudget: 0 })).not.toContain('token_budget')
+    expect(buildAgentfileLayer({ configValues: {}, tokenBudget: -5 })).not.toContain('token_budget')
+  })
 })

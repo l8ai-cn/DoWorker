@@ -11,6 +11,7 @@ go_library(
         "config_server.go",
         "config_url.go",
         "env.go",
+        "pending_queue_config.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/backend/internal/config",
     visibility = ["//backend:__subpackages__"],

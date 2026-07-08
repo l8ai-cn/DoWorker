@@ -28,6 +28,7 @@ func (c AdminConfig) IsEnabled() bool {
 type StorageConfig struct {
 	Endpoint       string   // S3 endpoint (empty for AWS, set for MinIO/OSS)
 	PublicEndpoint string   // Public endpoint for browser access (if different from Endpoint)
+	RunnerEndpoint string   // Endpoint reachable by runner pods for presigned resource downloads (empty = Endpoint)
 	Region         string   // AWS region or equivalent
 	Bucket         string   // Bucket name
 	AccessKey      string   // Access key ID

@@ -28,6 +28,7 @@ import (
 type grpcWiringResult struct {
 	handler              *v1.GRPCRunnerHandler
 	server               *grpcserver.Server
+	runnerAdapter        *grpcserver.GRPCRunnerAdapter
 	upgradeCommandSender runner.UpgradeCommandSender
 	logUploadSender      runner.LogUploadCommandSender
 }
@@ -75,7 +76,8 @@ func initPKIAndGRPCWiring(
 
 	result := &grpcWiringResult{handler: grpcRunnerHandler, server: grpcServer}
 	if grpcServer != nil {
-		grpcCommandSender := grpcserver.NewGRPCCommandSender(grpcServer.RunnerAdapter())
+		result.runnerAdapter = grpcServer.RunnerAdapter()
+		grpcCommandSender := grpcserver.NewGRPCCommandSender(result.runnerAdapter)
 		podCoordinator.SetCommandSender(grpcCommandSender)
 		podRouter.SetCommandSender(grpcCommandSender)
 		sandboxQuerySvc.SetSender(grpcCommandSender)
@@ -147,6 +149,9 @@ func createPodOrchestrator(services *serviceContainer, podCoordinator *runner.Po
 		PodRepo:            services.podRepo,
 		PermissionPolicy:   services.permissionPolicy,
 		KnowledgeBases:     knowledgeBaseResolverOrNil(services.knowledgeBase),
+		PrimaryCredential:  services.envBundle,
+		AIModelPool:        services.aiModel,
+		VirtualKeyPool:     services.virtualKey,
 	})
 	slog.Info("PodOrchestrator created")
 	return orch
@@ -172,8 +177,9 @@ func buildServicesContainer(
 	loopOrchestrator *loop.LoopOrchestrator,
 	loopScheduler *loop.LoopScheduler,
 	redisClient *redis.Client,
+	pendingQueueWiring *pendingQueueWiring,
 ) *v1.Services {
-	return &v1.Services{
+	svc := &v1.Services{
 		Auth:               services.auth,
 		User:               services.user,
 		Org:                services.org,
@@ -197,10 +203,15 @@ func buildServicesContainer(
 		PromoCode:          services.promoCode,
 		AgentPodSettings:   services.agentpodSettings,
 		AgentPodAIProvider: services.agentpodAIProvider,
+		AIModel:            services.aiModel,
+		VirtualKey:         services.virtualKey,
+		TokenQuota:         services.tokenQuota,
+		EnvBundle:          services.envBundle,
 		APIKey:             services.apikey,
 		APIKeyAdapter:      services.apikeyAdapter,
 		File:               services.file,
 		GRPCRunnerHandler:    grpcResult.handler,
+		RunnerGRPCAdapter:    grpcResult.runnerAdapter,
 		SandboxQueryService:  sandboxQuerySvc,
 		SandboxFsService:     sandboxFsSvc,
 		UpgradeCommandSender: grpcResult.upgradeCommandSender,
@@ -224,6 +235,10 @@ func buildServicesContainer(
 		Message:               services.message,
 		Redis:                 redisClient,
 	}
+	if pendingQueueWiring != nil {
+		svc.PendingQueue = pendingQueueWiring.queue
+	}
+	return svc
 }
 
 func startMarketplaceWorker(services *serviceContainer) func() {

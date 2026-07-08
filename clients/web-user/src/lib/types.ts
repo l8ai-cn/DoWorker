@@ -270,9 +270,9 @@ export interface Session {
    */
   title: string | null;
   /**
-   * Session-scoped guardrails labels (includes `omnigent.wrapper` /
+   * Session-scoped guardrails labels (includes `do-worker.wrapper` /
    * `omnigent.ui` markers the picker reads, and
-   * `omnigent.fork.source_id` on an unbound coding clone).
+   * `do-worker.fork.source_id` on an unbound coding clone).
    */
   labels?: Record<string, string>;
   /**

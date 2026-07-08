@@ -34,6 +34,10 @@ vi.mock("../KnowledgeBaseMountSelect", () => ({
   KnowledgeBaseMountSelect: () => <div data-testid="knowledge-base-mount-select" />,
 }));
 
+vi.mock("@/components/experts/ExpertPickerSection", () => ({
+  ExpertPickerSection: () => <div data-testid="expert-picker-section" />,
+}));
+
 vi.mock("@/lib/terminal-size", () => ({
   estimateWorkspaceTerminalSize: () => ({ cols: 80, rows: 24 }),
 }));

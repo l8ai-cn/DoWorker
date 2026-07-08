@@ -241,7 +241,7 @@ export async function runStreamRenderBench(opts: {
   const pumpDone = pumpStreamEvents(id, sink.stream, controller, setState, getState, scheduler);
 
   // Open the response.
-  sink.push(sse("response.created", { id: "resp_stream", status: "in_progress", output: [] }));
+  sink.push(sse("turn.started", { id: "resp_stream", status: "in_progress", output: [] }));
   await drain();
 
   // Stream the text. Each delta carries a trailing space so the reducer
@@ -250,7 +250,7 @@ export async function runStreamRenderBench(opts: {
   for (let n = 0; n < contentDeltas; n += 1) {
     const tok = `token${n} of streamed answer `;
     full += tok;
-    sink.push(sse("response.output_text.delta", { delta: tok }));
+    sink.push(sse("turn.text.delta", { delta: tok }));
     await drain();
     if (manual && (n + 1) % blocksPerFrame === 0) manual.fire();
   }
@@ -258,7 +258,7 @@ export async function runStreamRenderBench(opts: {
 
   // Close the response.
   sink.push(
-    sse("response.completed", {
+    sse("turn.completed", {
       id: "resp_stream",
       status: "completed",
       output: [

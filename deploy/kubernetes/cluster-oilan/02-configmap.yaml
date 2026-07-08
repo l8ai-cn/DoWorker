@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agentsmesh-config
+  namespace: agentsmesh
+data:
+  PRIMARY_DOMAIN: "agentsmesh.aiedulab.cn"
+  USE_HTTPS: "true"
+
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_USER: "agentsmesh"
+  DB_NAME: "agentsmesh"
+  DB_SSLMODE: "disable"
+
+  REDIS_URL: "redis://redis:6379"
+
+  SERVER_ADDRESS: ":8080"
+  GRPC_ADDRESS: ":9090"
+  GRPC_PUBLIC_ENDPOINT: "grpc://agentsmesh.aiedulab.cn:9443"
+  DEBUG: "false"
+  CORS_ALLOWED_ORIGINS: "*"
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+  LOG_FILE: "/dev/stdout"
+  EMAIL_PROVIDER: "console"
+  ADMIN_ENABLED: "true"
+
+  # Object storage: in-cluster MinIO for the SDK, public host for presigned URLs.
+  STORAGE_ENDPOINT: "minio:9000"
+  STORAGE_PUBLIC_ENDPOINT: "agentsmesh-minio.aiedulab.cn"
+  STORAGE_REGION: "us-east-1"
+  STORAGE_BUCKET: "agentsmesh"
+  STORAGE_ACCESS_KEY: "minioadmin"
+  STORAGE_USE_SSL: "false"
+  STORAGE_USE_PATH_STYLE: "true"
+  STORAGE_MAX_FILE_SIZE: "10"
+
+  # PKI CA is mounted from the agentsmesh-pki-ca secret at /app/ssl.
+  PKI_CA_CERT_FILE: "/app/ssl/ca.crt"
+  PKI_CA_KEY_FILE: "/app/ssl/ca.key"
+  PKI_SERVER_CERT_FILE: "/data/server.crt"
+  PKI_SERVER_KEY_FILE: "/data/server.key"
+  PKI_VALIDITY_DAYS: "365"

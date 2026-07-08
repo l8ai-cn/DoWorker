@@ -14,6 +14,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra/email"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	aimodelsvc "github.com/anthropics/agentsmesh/backend/internal/service/aimodel"
 	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
 	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
 	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
@@ -28,6 +29,8 @@ import (
 	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
 	supportticketservice "github.com/anthropics/agentsmesh/backend/internal/service/supportticket"
 	tokenusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenusage"
+	tokenquotasvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenquota"
+	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
 	podsessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
 	knowledgebaseservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
@@ -75,6 +78,9 @@ type serviceContainer struct {
 	promoCode         *promocode.Service
 	agentpodSettings   *agentpod.SettingsService
 	agentpodAIProvider *agentpod.AIProviderService
+	aiModel            *aimodelsvc.Service
+	virtualKey         *virtualkeysvc.Service
+	tokenQuota         *tokenquotasvc.Service
 	license           *license.Service
 	apikey            *apikeyservice.Service
 	apikeyAdapter     *apikeyservice.MiddlewareAdapter
@@ -181,6 +187,12 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 	agentpodSettingsSvc := agentpod.NewSettingsService(agentpodSettingsRepo)
 	aiProviderRepo := infra.NewAIProviderRepository(db)
 	agentpodAIProviderSvc := agentpod.NewAIProviderService(aiProviderRepo, encryptor)
+	aiModelRepo := infra.NewAIModelRepository(db)
+	aiModelSvc := aimodelsvc.NewService(aiModelRepo, encryptor)
+	virtualKeyRepo := infra.NewVirtualAPIKeyRepository(db)
+	virtualKeySvc := virtualkeysvc.NewService(virtualKeyRepo, aiModelSvc)
+	tokenQuotaRepo := infra.NewTokenQuotaRepository(db)
+	tokenQuotaSvc := tokenquotasvc.NewService(tokenQuotaRepo, db)
 
 	fileSvc := initializeFileService(cfg)
 	supportTicketSvc := initializeSupportTicketService(cfg, db)
@@ -246,6 +258,9 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 		promoCode:          promoCodeSvc,
 		agentpodSettings:   agentpodSettingsSvc,
 		agentpodAIProvider: agentpodAIProviderSvc,
+		aiModel:            aiModelSvc,
+		virtualKey:         virtualKeySvc,
+		tokenQuota:         tokenQuotaSvc,
 		license:            licenseSvc,
 		apikey:             apikeySvc,
 		apikeyAdapter:      apikeyAdapterSvc,

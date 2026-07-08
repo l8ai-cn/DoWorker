@@ -414,7 +414,50 @@ Organization-scoped endpoints require the organization slug in the URL path:
 
 External API uses API key authentication and is designed for third-party integrations.
 
-### Pods
+> **Workers vs Pods:** In the product UI a Worker is an AI agent runtime. The External API exposes the same resources at **`/workers`** (recommended) and **`/pods`** (legacy alias). See [Create Worker — Fields & API](./workers-create.md) for the full field map and examples.
+
+### Workers / Pods
+
+| Method | Endpoint | Scope | Description |
+|--------|----------|-------|-------------|
+| GET | `/workers` | `pods:read` | List workers |
+| GET | `/workers/{key}` | `pods:read` | Get worker |
+| POST | `/workers` | `pods:write` | **Create worker** |
+| POST | `/workers/{key}/prompt` | `pods:write` | Send prompt |
+| POST | `/workers/{key}/terminate` | `pods:write` | Terminate worker |
+
+Same routes under `/pods` for backward compatibility.
+
+### Experts
+
+Reusable worker configuration templates. Full reference: [experts.md](./experts.md).
+
+| Method | Endpoint | Scope | Description |
+|--------|----------|-------|-------------|
+| GET | `/experts` | `experts:read` | List experts |
+| GET | `/experts/{slug}` | `experts:read` | Get expert |
+| POST | `/experts` | `experts:write` | Create expert |
+| PATCH | `/experts/{slug}` | `experts:write` | Update expert |
+| DELETE | `/experts/{slug}` | `experts:write` | Delete expert |
+| POST | `/experts/{slug}/run` | `experts:write` | Run expert (creates worker) |
+
+**Create worker** request body (minimal):
+
+```json
+{
+  "agent_slug": "codex-cli",
+  "runner_id": 1,
+  "repository_id": 7,
+  "alias": "my-task",
+  "perpetual": false,
+  "agentfile_layer": "PROMPT \"Fix the bug\"\nREPO \"org/repo\"\nBRANCH \"main\"",
+  "knowledge_mounts": [{ "slug": "docs", "mode": "ro" }]
+}
+```
+
+Only `agent_slug` is required. Full reference: [workers-create.md](./workers-create.md).
+
+### Pods (legacy alias)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|

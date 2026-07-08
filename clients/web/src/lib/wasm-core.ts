@@ -48,7 +48,7 @@ export {
   getLoopService, getAutopilotService, getMeshService,
   getRunnerState, getMeshState, getTicketState, getChannelState,
   getLoopState, getAcpManager, getLoopalManager,
-  getRepoState, getAutopilotState, getRelayManager,
+  getRepoState, getExpertState, getAutopilotState, getRelayManager,
   getBillingService, getRepositoryService, getExtensionService,
   getInvitationService, getApiKeyService, getBindingService,
   getGrantService,

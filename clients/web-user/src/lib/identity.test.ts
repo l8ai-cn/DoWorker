@@ -232,3 +232,43 @@ describe("getCurrentAuthorId", () => {
     expect(getCurrentAuthorId()).toBeNull();
   });
 });
+
+describe("org slug backfill", () => {
+  it("patches current_org_slug from /v1/me when session lacks it", async () => {
+    const sessionKey = "do-worker-auth/http_localhost_10000/session";
+    localStorage.setItem(
+      sessionKey,
+      JSON.stringify({ access_token: "tok", expires_at: Math.floor(Date.now() / 1000) + 3600 }),
+    );
+    fetchMock.mockResolvedValueOnce(
+      mockJsonResponse({ user_id: "devuser", org_slug: "dev-org", org_slugs: ["dev-org"] }),
+    );
+    const { resolveIdentity } = await import("./identity");
+    await resolveIdentity();
+    const blob = JSON.parse(localStorage.getItem(sessionKey)!) as { current_org_slug?: string };
+    expect(blob.current_org_slug).toBe("dev-org");
+  });
+
+  it("replaces stored org when it is not in org_slugs", async () => {
+    const sessionKey = "do-worker-auth/http_localhost_10000/session";
+    localStorage.setItem(
+      sessionKey,
+      JSON.stringify({
+        access_token: "tok",
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        current_org_slug: "stale-org",
+      }),
+    );
+    fetchMock.mockResolvedValueOnce(
+      mockJsonResponse({
+        user_id: "admin",
+        org_slug: "dev-org",
+        org_slugs: ["admin-workspace", "dev-org"],
+      }),
+    );
+    const { resolveIdentity } = await import("./identity");
+    await resolveIdentity();
+    const blob = JSON.parse(localStorage.getItem(sessionKey)!) as { current_org_slug?: string };
+    expect(blob.current_org_slug).toBe("dev-org");
+  });
+});

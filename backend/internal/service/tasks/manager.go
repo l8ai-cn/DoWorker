@@ -14,6 +14,10 @@ type StalePodCleaner interface {
 	MarkStaleAsDisconnected(ctx context.Context, threshold time.Time) (int64, error)
 }
 
+type StaleTerminalCleaner interface {
+	CleanupStaleTerminal(ctx context.Context, threshold time.Time) (int64, error)
+}
+
 type DeadLetterCleaner interface {
 	CleanupExpiredMessages(ctx context.Context, olderThan time.Time) (int64, error)
 }

@@ -41,7 +41,9 @@ type PodRepository interface {
 	ListActiveByRunner(ctx context.Context, runnerID int64) ([]*Pod, error)
 	ListInitializingByRunner(ctx context.Context, runnerID int64) ([]*Pod, error)
 	MarkOrphaned(ctx context.Context, pod *Pod, finishedAt time.Time) error
+	ListStaleActivePodKeys(ctx context.Context, threshold time.Time) ([]string, error)
 	MarkStaleAsDisconnected(ctx context.Context, threshold time.Time) (int64, error)
+	ListStaleRecoverablePodKeys(ctx context.Context, threshold time.Time) ([]string, error)
 	CleanupStale(ctx context.Context, threshold time.Time) (int64, error)
 	UpdateByKeyAndStatusCounted(ctx context.Context, podKey, status string, updates map[string]interface{}) (int64, error)
 	UpdateTerminatedWithFallbackError(ctx context.Context, podKey string, updates map[string]interface{}, fallbackErrorCode string) error

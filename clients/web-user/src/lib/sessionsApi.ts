@@ -1,10 +1,5 @@
-// Typed client for the four `/v1/sessions` endpoints introduced in
-// commit `e64a490` ("Migrate session ↔ client interactions to
-// /v1/sessions"). Mirrors `omnigent/server/routes/sessions.py`.
-//
-// All requests go through the existing Vite `/v1` proxy
-// (`web/vite.config.ts`) so no proxy changes are needed when this
-// module starts being used.
+// Typed client for Do Worker `/v1/sessions` endpoints.
+// Wire contract: `backend/internal/api/rest/v1/session/`.
 //
 // Naming: TS surface is camelCase; the wire is snake_case. The
 // helpers below convert at the boundary so callers never see raw
@@ -319,7 +314,7 @@ async function readJsonOrThrow<T>(res: Response): Promise<T> {
  * message for ``runner_unavailable``) instead of string-matching the
  * status line.
  *
- * The server's :class:`OmnigentError` serializes as
+ * The server's :class:`DoWorkerApiError` serializes as
  * ``{"error": {"code": "...", "message": "..."}}`` (see the FastAPI
  * exception handler in ``server/app.py``); `code` is `null` when the
  * body wasn't in that shape.

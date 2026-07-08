@@ -26,6 +26,8 @@ import {
   normalizeWorkspacePath,
   sessionsSharingDirectory,
 } from "./NewChatDialog";
+import { collapseInternalWorkspaceHostsForPicker } from "@/lib/host-agent-match";
+import { hostDisplayLabel } from "@/lib/hostDisplayLabel";
 import { useHosts, type Host } from "@/hooks/useHosts";
 import { useDirectorySessions } from "@/hooks/useDirectorySessions";
 import { useRunnerHealthRegistration } from "@/hooks/RunnerHealthProvider";
@@ -38,6 +40,7 @@ import { getSessionSlim, launchRunner } from "@/lib/sessionsApi";
  */
 function HostLabel({ host }: { host: Host }) {
   const isOnline = host.status === "online";
+  const displayName = hostDisplayLabel(host);
   return (
     <span className="flex items-center gap-2">
       {host.name.toLowerCase().includes("cloud") ? (
@@ -45,7 +48,7 @@ function HostLabel({ host }: { host: Host }) {
       ) : (
         <MonitorIcon className="size-4 text-muted-foreground" />
       )}
-      <span className="font-mono text-xs">{host.name}</span>
+      <span className="font-mono text-xs">{displayName}</span>
       <span
         className={`inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider ${
           isOnline ? "text-green-600" : "text-muted-foreground"
@@ -63,7 +66,7 @@ function HostLabel({ host }: { host: Host }) {
 /**
  * Dialog surfaced when the user tries to chat with an unbound *coding*
  * clone (a fork of a session that had a working directory — it carries
- * the ``omnigent.fork.source_id`` label). Unlike ``ResumeChatDialog``
+ * the ``do-worker.fork.source_id`` label). Unlike ``ResumeChatDialog``
  * (which only prints a CLI command), this binds the clone to a host +
  * directory in-app via ``POST /v1/hosts/{id}/runners`` (``launchRunner``)
  * and lets the runner start, after which ChatPage replays the queued
@@ -83,9 +86,9 @@ function HostLabel({ host }: { host: Host }) {
  * @param onOpenChange - Radix-controlled visibility setter.
  * @param sessionId - The unbound clone to bind, e.g. ``"conv_clone"``.
  * @param sourceSessionId - The source the clone was forked from
- *   (``omnigent.fork.source_id``); read for host/dir/branch prefill.
+ *   (``do-worker.fork.source_id``); read for host/dir/branch prefill.
  * @param serverUrl - Origin for the CLI fallback command.
- * @param wrapper - The clone's ``omnigent.wrapper`` label (CLI fallback).
+ * @param wrapper - The clone's ``do-worker.wrapper`` label (CLI fallback).
  * @param onBound - Called after a successful bind so the caller can
  *   replay the message the user was trying to send.
  */
@@ -123,7 +126,11 @@ export function ResumeWithDirectoryDialog({
     [hosts, sourceHostId],
   );
   const sourceHostOnline = sourceHost?.status === "online";
-  const onlineHosts = useMemo(() => (hosts ?? []).filter((h) => h.status === "online"), [hosts]);
+  const pickerHosts = useMemo(
+    () => collapseInternalWorkspaceHostsForPicker(hosts ?? []),
+    [hosts],
+  );
+  const onlineHosts = useMemo(() => pickerHosts.filter((h) => h.status === "online"), [pickerHosts]);
 
   const [selectedHostId, setSelectedHostId] = useState<string | null>(null);
   const [workspace, setWorkspace] = useState("");

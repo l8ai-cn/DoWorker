@@ -47,7 +47,22 @@ generate_ai_cli_configs() {
 EOF
 
     # Codex: headless mode for runner pods (Rust CLI >= 0.100.0).
+    # When the dev machine has ~/.codex/config.toml with a custom OpenAI
+    # provider (proxy base_url), merge it so pods inherit the same routing.
     mkdir -p "$config_dir/codex"
+    local host_codex="${HOME}/.codex/config.toml"
+    if [[ -f "$host_codex" ]] && grep -q '^\[model_providers\.OpenAI\]' "$host_codex" 2>/dev/null; then
+        {
+            echo 'approval_policy = "never"'
+            echo 'sandbox_mode = "danger-full-access"'
+            awk '
+                /^model = / || /^model_provider = / { print; next }
+                /^\[model_providers\.OpenAI\]/ { show=1 }
+                show { print }
+                show && /^\[/ && $0 !~ /^\[model_providers\.OpenAI\]/ { exit }
+            ' "$host_codex"
+        } > "$config_dir/codex/config.toml"
+    else
     cat > "$config_dir/codex/config.toml" << 'EOF'
 # Codex CLI configuration for headless mode
 # Reference: https://developers.openai.com/codex/config-reference/
@@ -56,8 +71,9 @@ EOF
 approval_policy = "never"
 
 # Sandbox mode: "read-only", "workspace-write", "danger-full-access"
-sandbox_mode = "workspace-write"
+sandbox_mode = "danger-full-access"
 EOF
+    fi
 
     mkdir -p "$config_dir/gemini"
     cat > "$config_dir/gemini/settings.json" << 'EOF'
@@ -351,6 +367,7 @@ generate_web_env() {
     local offset="${PORT_OFFSET:-0}"
     local worktree_name="${WORKTREE_NAME:-main}"
     local http_port=$((10000 + offset * 50))
+    local backend_http_port=$((10015 + offset * 50))
     local web_env_file="$SCRIPT_DIR/../../clients/web/.env.local"
 
     cat > "$web_env_file" << EOF
@@ -372,12 +389,13 @@ USE_HTTPS=false
 # 前端 API 基础 URL（留空使用相对路径，由 Next.js rewrites 代理）
 NEXT_PUBLIC_API_URL=
 
-# WebSocket URL（直连后端，Next.js rewrites 不支持 WebSocket 代理）
-NEXT_PUBLIC_WS_URL=ws://127.0.0.1:$http_port
+# WebSocket URL（浏览器直连 Traefik；用 localhost 而非 127.0.0.1，避免 macOS
+# 上 netdisk 等应用独占 127.0.0.1:$http_port 导致 relay 连不上）
+NEXT_PUBLIC_WS_URL=ws://localhost:$http_port
 
-# Next.js rewrites 代理目标（仅服务端使用，不暴露给浏览器）
-# 使用 127.0.0.1 而非 localhost，避免 IPv6 解析问题（Docker 端口映射只绑定 IPv4）
-API_PROXY_TARGET=http://127.0.0.1:$http_port
+# Next.js rewrites 代理目标（仅服务端 SSR 使用，不暴露给浏览器）
+# 直连 host-side backend，绕过 Traefik — 避免 127.0.0.1:$http_port 被其它进程占用
+API_PROXY_TARGET=http://127.0.0.1:$backend_http_port
 
 # OAuth (optional)
 NEXT_PUBLIC_GITHUB_CLIENT_ID=

@@ -88,13 +88,20 @@ func createGRPCServer(
 		return nil
 	}
 
-	if err := grpcServerInst.Start(); err != nil {
+	return grpcServerInst
+}
+
+func startGRPCServer(cfg *config.Config, server *grpcserver.Server) *grpcserver.Server {
+	if server == nil {
+		return nil
+	}
+	if err := server.Start(); err != nil {
 		slog.Error("Failed to start gRPC server", "error", err)
 		slog.Warn("Continuing without gRPC server")
 		return nil
 	}
-
-	return grpcServerInst
+	slog.Info("gRPC/mTLS server listening", "grpc_address", cfg.GRPC.Address)
+	return server
 }
 
 type grpcRunnerServiceAdapter struct {

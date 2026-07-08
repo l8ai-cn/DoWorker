@@ -146,11 +146,6 @@ services:
       - "${OTEL_HTTP_PORT:-4318}:4318"
     depends_on:
       - jaeger
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:13133/"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   # Jaeger (distributed tracing UI)
   jaeger:
@@ -160,11 +155,6 @@ services:
       - COLLECTOR_OTLP_ENABLED=true
     ports:
       - "${JAEGER_UI_PORT:-16686}:16686"
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:16687/"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 volumes:
   postgres_data:

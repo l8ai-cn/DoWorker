@@ -6,7 +6,7 @@
 //  - `useCommentInbox` (the comment side of the inbox),
 //  - `getSession` / `approve` (per-session snapshot fetch + the verdict POST).
 // The pure assembly helper `collectInboxItems` and the display helpers are
-// left REAL, so raw `response.elicitation_request` event dicts flow through
+// left REAL, so raw `turn.elicitation.request` event dicts flow through
 // the same parse path the app uses. `ApprovalCard` is stubbed to a minimal
 // component that just exposes an Accept button wired to its `onSubmit`, which
 // lets us drive the approve/rollback path without the real card's internals.
@@ -68,7 +68,7 @@ function conversation(overrides: Partial<Conversation> = {}): Conversation {
   };
 }
 
-/** A raw `response.elicitation_request` event dict, as a snapshot replays it. */
+/** A raw `turn.elicitation.request` event dict, as a snapshot replays it. */
 function rawElicitation(id: string, message: string, extra: Record<string, unknown> = {}) {
   return {
     elicitation_id: id,

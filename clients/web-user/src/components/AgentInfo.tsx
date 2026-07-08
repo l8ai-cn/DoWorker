@@ -1286,9 +1286,9 @@ export function AgentInfoButton({ agent, sessionId }: AgentInfoProps) {
 
   return (
     <Popover>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <PopoverTrigger asChild>
+      <PopoverTrigger asChild>
+        <Tooltip>
+          <TooltipTrigger asChild>
             <Button
               type="button"
               variant="ghost"
@@ -1299,10 +1299,10 @@ export function AgentInfoButton({ agent, sessionId }: AgentInfoProps) {
             >
               <InfoIcon className="size-4" />
             </Button>
-          </PopoverTrigger>
-        </TooltipTrigger>
-        <TooltipContent>Agent tools &amp; policies</TooltipContent>
-      </Tooltip>
+          </TooltipTrigger>
+          <TooltipContent>Agent tools &amp; policies</TooltipContent>
+        </Tooltip>
+      </PopoverTrigger>
       <PopoverContent align="end" className="w-80">
         <AgentInfoContent agent={agent} sessionId={sessionId} />
       </PopoverContent>

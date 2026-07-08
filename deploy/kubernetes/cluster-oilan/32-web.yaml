@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      imagePullSecrets:
+        - name: agentsmesh-regcred
+      containers:
+        - name: web
+          image: repo.aiedulab.cn:8443/agentsmesh/web:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PRIMARY_DOMAIN
+              value: "agentsmesh.aiedulab.cn"
+            - name: USE_HTTPS
+              value: "true"
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: agentsmesh
+spec:
+  selector:
+    app: web
+  ports:
+    - port: 3000
+      targetPort: 3000

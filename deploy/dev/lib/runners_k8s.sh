@@ -31,17 +31,18 @@ build_runner_compose_images() {
     local rt
     for rt in e2e-echo claude-code codex-cli gemini-cli loopal; do
         docker build --platform "$platform" \
-            -f runner.Dockerfile \
+            -f ../../docker/agent-runtime/Dockerfile \
             --build-arg "AGENT_RUNTIME=${rt}" \
             --build-arg "HTTP_PROXY=" \
             --build-arg "HTTPS_PROXY=" \
+            -t "do-worker/runner-${rt}:latest" \
             -t "${COMPOSE_PROJECT_NAME}-runner-${rt}:latest" \
             . || {
             error "runner 镜像构建失败: ${rt}"
             return 1
         }
     done
-    success "runner 镜像已构建 (${COMPOSE_PROJECT_NAME}-runner-*:${platform})"
+    success "runner 镜像已构建 (do-worker/runner-* + ${COMPOSE_PROJECT_NAME}-runner-*)"
 }
 
 wait_for_runner_pods() {

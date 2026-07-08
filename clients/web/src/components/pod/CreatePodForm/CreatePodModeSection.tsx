@@ -24,7 +24,7 @@ export function CreatePodModeSection({ children, t }: CreatePodModeSectionProps)
             advanced ? "rotate-90" : ""
           }`}
         />
-        {t("ide.createPod.advancedOptions")}
+        {t("ide.createPod.moreOptions")}
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-4 pt-2">
         {children}

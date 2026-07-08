@@ -47,9 +47,7 @@ func (pc *PodCoordinator) handlePodCreated(runnerID int64, data *runnerv1.PodCre
 		"sandbox_path", data.SandboxPath,
 		"branch_name", data.BranchName)
 
-	if pc.onStatusChange != nil {
-		pc.onStatusChange(data.PodKey, agentpod.StatusRunning, "")
-	}
+	pc.notifyStatusChange(data.PodKey, agentpod.StatusRunning, "")
 }
 
 func (pc *PodCoordinator) handlePodTerminated(runnerID int64, data *runnerv1.PodTerminatedEvent) {
@@ -77,35 +75,31 @@ func (pc *PodCoordinator) handlePodTerminated(runnerID int64, data *runnerv1.Pod
 		updates["error_message"] = data.ErrorMessage
 	}
 
+	var rowsAffected int64
+	var err error
 	if status == agentpod.StatusError {
-		rowsAffected, err := pc.podStore.UpdateTerminatedIfActive(ctx, data.PodKey, updates, "process_exit")
+		rowsAffected, err = pc.podStore.UpdateTerminatedIfActive(ctx, data.PodKey, updates, "process_exit")
 		if err != nil {
 			pc.logger.Error("failed to update pod on termination",
 				"pod_key", data.PodKey, "error", err)
 			return
-		}
-		if rowsAffected == 0 {
-			pc.logger.Info("pod already in terminal state, skipping status update",
-				"pod_key", data.PodKey)
-			status = ""
 		}
 	} else {
-		rowsAffected, err := pc.podStore.UpdateByKeyAndActiveStatus(ctx, data.PodKey, updates)
+		rowsAffected, err = pc.podStore.UpdateByKeyAndActiveStatus(ctx, data.PodKey, updates)
 		if err != nil {
 			pc.logger.Error("failed to update pod on termination",
 				"pod_key", data.PodKey, "error", err)
 			return
 		}
-		if rowsAffected > 0 {
-		} else {
-			pc.logger.Info("pod already in terminal state, skipping status update",
-				"pod_key", data.PodKey)
-			status = ""
-		}
 	}
-
-	_ = pc.runnerRepo.DecrementPods(ctx, runnerID)
-	otelinit.PodActiveCount.Add(ctx, -1)
+	if rowsAffected == 0 {
+		pc.logger.Info("pod already in terminal state, skipping status update",
+			"pod_key", data.PodKey)
+		status = ""
+	} else {
+		_ = pc.runnerRepo.DecrementPods(ctx, runnerID)
+		otelinit.PodActiveCount.Add(ctx, -1)
+	}
 
 	pc.podRouter.UnregisterPod(data.PodKey)
 	pc.clearMissCount(data.PodKey)
@@ -116,8 +110,11 @@ func (pc *PodCoordinator) handlePodTerminated(runnerID int64, data *runnerv1.Pod
 		"exit_code", data.ExitCode,
 		"status", status)
 
-	if pc.onStatusChange != nil && status != "" {
-		pc.onStatusChange(data.PodKey, status, "")
+	if status != "" {
+		pc.notifyStatusChange(data.PodKey, status, "")
+	}
+	if rowsAffected > 0 {
+		pc.triggerPendingDrain(runnerID)
 	}
 }
 
@@ -158,9 +155,7 @@ func (pc *PodCoordinator) handlePodError(runnerID int64, data *runnerv1.ErrorEve
 			"error_code", data.Code,
 			"error_message", data.Message)
 
-		if pc.onStatusChange != nil {
-			pc.onStatusChange(data.PodKey, agentpod.StatusError, "")
-		}
+		pc.notifyStatusChange(data.PodKey, agentpod.StatusError, "")
 		return
 	}
 

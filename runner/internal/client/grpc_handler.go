@@ -99,7 +99,11 @@ func (c *GRPCConnection) handleServerMessage(ctx context.Context, msg *runnerv1.
 		c.handlePodInput(payload.PodInput)
 
 	case *runnerv1.ServerMessage_SendPrompt:
-		c.handleSendPrompt(payload.SendPrompt)
+		c.handlerWg.Add(1)
+		c.podQueue.Enqueue(payload.SendPrompt.PodKey, func() {
+			defer c.handlerWg.Done()
+			c.handleSendPrompt(payload.SendPrompt)
+		})
 
 	case *runnerv1.ServerMessage_UnsubscribePod:
 		c.handleUnsubscribePod(payload.UnsubscribePod)

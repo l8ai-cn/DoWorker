@@ -85,5 +85,7 @@ var ProviderEnvVarMapping = map[string]map[string]string{
 	AIProviderTypeCodex: {
 		"api_key":      "OPENAI_API_KEY",
 		"organization": "OPENAI_ORG_ID",
+		"base_url":     "OPENAI_BASE_URL",
+		"model":        "OPENAI_MODEL",
 	},
 }

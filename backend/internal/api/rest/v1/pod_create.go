@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
@@ -29,6 +30,13 @@ type CreatePodRequest struct {
 	// Platform-level ID references (cannot be expressed as AgentFile declarations)
 	RepositoryID *int64 `json:"repository_id,omitempty"`
 
+	// Worker model binding (quota/billing). Bind either a virtual API key
+	// (usage attributed to it) or a real ai_models row directly. TokenBudget
+	// is an optional per-Worker hint.
+	VirtualAPIKeyID *int64 `json:"virtual_api_key_id,omitempty"`
+	ModelConfigID   *int64 `json:"model_config_id,omitempty"`
+	TokenBudget     *int64 `json:"token_budget,omitempty"`
+
 	// Terminal size (from browser xterm.js)
 	Cols int32 `json:"cols"`
 	Rows int32 `json:"rows"`
@@ -42,6 +50,9 @@ type CreatePodRequest struct {
 
 	// Knowledge base mounts; win over Agentfile KNOWLEDGE and agent defaults
 	KnowledgeMounts []PodKnowledgeMountRequest `json:"knowledge_mounts,omitempty"`
+
+	QueueIfOffline  bool `json:"queue_if_offline"`
+	QueueTTLMinutes int  `json:"queue_ttl_minutes"`
 }
 
 // PodKnowledgeMountRequest selects one org knowledge base for the new pod.
@@ -50,8 +61,10 @@ type PodKnowledgeMountRequest struct {
 	Mode string `json:"mode,omitempty"` // ro | rw; empty defaults to ro
 }
 
-// CreatePod creates a new pod
-// POST /api/v1/organizations/:slug/pods
+// CreatePod creates a new pod (Worker)
+// POST /api/v1/orgs/:slug/pods
+// POST /api/v1/ext/orgs/:slug/workers  (external API, API key auth)
+// POST /api/v1/ext/orgs/:slug/pods     (legacy alias)
 // Supports Resume mode when source_pod_key is provided
 func (h *PodHandler) CreatePod(c *gin.Context) {
 	var req CreatePodRequest
@@ -90,6 +103,17 @@ func (h *PodHandler) CreatePod(c *gin.Context) {
 		SourcePodKey:       req.SourcePodKey,
 		ResumeAgentSession: req.ResumeAgentSession,
 		Perpetual:          req.Perpetual != nil && *req.Perpetual,
+		QueueIfUnavailable: req.QueueIfOffline,
+		VirtualAPIKeyID:    req.VirtualAPIKeyID,
+		ModelConfigID:      req.ModelConfigID,
+		TokenBudget:        req.TokenBudget,
+	}
+	if req.QueueIfOffline {
+		ttl := req.QueueTTLMinutes
+		if ttl == 0 {
+			ttl = 30
+		}
+		orchReq.QueueTTL = time.Duration(ttl) * time.Minute
 	}
 	for _, m := range req.KnowledgeMounts {
 		orchReq.KnowledgeMounts = append(orchReq.KnowledgeMounts, agentpod.KnowledgeMountRequest{Slug: m.Slug, Mode: m.Mode})

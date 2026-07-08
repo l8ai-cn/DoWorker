@@ -76,6 +76,21 @@ url = "http://localhost:19000/mcp"
 	assert.NotContains(t, content, "old-server:9000")
 }
 
+func TestMergeTomlMcpServers_EmptyExistingFile(t *testing.T) {
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, "config.toml")
+	require.NoError(t, os.WriteFile(configPath, nil, 0644))
+
+	platformContent := "[mcp_servers.agentsmesh]\nurl = \"http://localhost:19000/mcp\"\n"
+
+	err := mergeTomlMcpServers(configPath, platformContent)
+	require.NoError(t, err)
+
+	data, err := os.ReadFile(configPath)
+	require.NoError(t, err)
+	assert.Contains(t, string(data), "agentsmesh")
+}
+
 func TestMergeTomlMcpServers_EmptyPlatformContent(t *testing.T) {
 	dir := t.TempDir()
 	configPath := filepath.Join(dir, "config.toml")
@@ -88,5 +103,7 @@ func TestMergeTomlMcpServers_EmptyPlatformContent(t *testing.T) {
 
 	data, err := os.ReadFile(configPath)
 	require.NoError(t, err)
-	assert.Equal(t, existingContent, string(data))
+	assert.Contains(t, string(data), "approval_policy")
+	assert.Contains(t, string(data), "danger-full-access")
+	assert.Contains(t, string(data), "gpt-4")
 }

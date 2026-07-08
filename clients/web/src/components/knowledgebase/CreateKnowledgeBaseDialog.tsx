@@ -4,9 +4,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -58,11 +60,13 @@ export function CreateKnowledgeBaseDialog({
         title="新建知识库"
         description="将创建一个带 llms.txt / AGENTS.md / raw / wiki 标准布局的 Git 仓库。"
       >
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="kb-name" className="mb-1 block text-sm font-medium">
-              名称
-            </label>
+        <DialogBody className="space-y-4">
+          {error && (
+            <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          )}
+          <FormField label="名称" htmlFor="kb-name">
             <Input
               id="kb-name"
               value={name}
@@ -71,11 +75,8 @@ export function CreateKnowledgeBaseDialog({
               maxLength={100}
               autoFocus
             />
-          </div>
-          <div>
-            <label htmlFor="kb-description" className="mb-1 block text-sm font-medium">
-              描述（可选）
-            </label>
+          </FormField>
+          <FormField label="描述（可选）" htmlFor="kb-description">
             <Textarea
               id="kb-description"
               value={description}
@@ -83,9 +84,8 @@ export function CreateKnowledgeBaseDialog({
               placeholder="这个知识库覆盖什么内容？"
               rows={3}
             />
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-        </div>
+          </FormField>
+        </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             取消

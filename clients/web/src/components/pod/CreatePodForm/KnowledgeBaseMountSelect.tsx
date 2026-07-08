@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { BookOpen, X } from "lucide-react";
 
 import { Spinner } from "@/components/ui/spinner";
@@ -15,12 +16,15 @@ import {
 interface KnowledgeBaseMountSelectProps {
   selectedMounts: KnowledgeMountSelection[];
   onChange: (mounts: KnowledgeMountSelection[]) => void;
+  embedded?: boolean;
 }
 
 export function KnowledgeBaseMountSelect({
   selectedMounts,
   onChange,
+  embedded = false,
 }: KnowledgeBaseMountSelectProps) {
+  const t = useTranslations();
   const params = useParams();
   const orgSlug = String(params.org ?? "");
   const [kbs, setKbs] = useState<KnowledgeBase[]>([]);
@@ -59,15 +63,27 @@ export function KnowledgeBaseMountSelect({
 
   return (
     <section>
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <label className="text-sm font-medium">挂载知识库</label>
-        <Link
-          href={`/${orgSlug}/knowledge-base`}
-          className="text-xs font-medium text-primary hover:underline"
-        >
-          维护知识库
-        </Link>
-      </div>
+      {!embedded && (
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <label className="text-sm font-medium">{t("ide.createPod.knowledgeBases")}</label>
+          <Link
+            href={`/${orgSlug}/knowledge-base`}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            {t("ide.createPod.manageKnowledgeBases")}
+          </Link>
+        </div>
+      )}
+      {embedded && (
+        <div className="mb-2 flex justify-end">
+          <Link
+            href={`/${orgSlug}/knowledge-base`}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            {t("ide.createPod.manageKnowledgeBases")}
+          </Link>
+        </div>
+      )}
 
       {selectedMounts.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-1.5">
@@ -86,7 +102,7 @@ export function KnowledgeBaseMountSelect({
                     : "bg-muted text-muted-foreground"
                 }`}
                 onClick={() => setMode(m.slug, m.mode === "rw" ? "ro" : "rw")}
-                title="点击切换只读 / 读写"
+                title={t("ide.createPod.knowledgeModeToggle")}
               >
                 {m.mode}
               </button>
@@ -94,7 +110,7 @@ export function KnowledgeBaseMountSelect({
                 type="button"
                 className="text-muted-foreground hover:text-destructive"
                 onClick={() => toggle(m.slug)}
-                aria-label="移除知识库"
+                aria-label={t("ide.createPod.removeKnowledgeBase")}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -106,11 +122,11 @@ export function KnowledgeBaseMountSelect({
       {loading ? (
         <div className="flex items-center py-2 text-sm text-muted-foreground">
           <Spinner size="sm" className="mr-2" />
-          正在加载知识库
+          {t("ide.createPod.loadingKnowledgeBases")}
         </div>
       ) : kbs.length === 0 ? (
         <p className="py-2 text-xs text-muted-foreground">
-          暂无知识库。进入知识库模块创建后，可在 Pod 启动时挂载。
+          {t("ide.createPod.noKnowledgeBasesHint")}
         </p>
       ) : (
         <div className="surface-card max-h-40 overflow-y-auto">
@@ -137,7 +153,7 @@ export function KnowledgeBaseMountSelect({
         </div>
       )}
       <p className="mt-1 text-xs text-muted-foreground">
-        知识库会以 git 仓库形式克隆到 Pod 沙箱的 kb/ 目录；读写（rw）挂载允许 Agent 提交并推送修改。
+        {t("ide.createPod.knowledgeBasesHint")}
       </p>
     </section>
   );

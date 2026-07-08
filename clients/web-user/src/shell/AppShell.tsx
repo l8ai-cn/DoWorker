@@ -19,6 +19,11 @@ import {
 } from "@/lib/nativeBridge";
 import { readSessionWorkspaceState, writeSessionWorkspaceState } from "@/lib/sessionWorkspaceState";
 import {
+  isHtmlWorkspacePath,
+  normalizeWorkspaceFileSearch,
+  parseWorkspaceFileParam,
+} from "@/lib/workspace-file-param";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -141,6 +146,10 @@ export function AppShell() {
   const { panelWidth: inlinePanelWidth, handleProps: inlinePanelHandleProps } =
     useResizableInlinePanel(conversationId ?? null, inlinePanelMinWidth);
   const [searchParams, setSearchParams] = useSearchParams();
+  const htmlPreviewDeepLinkPath = useMemo(() => {
+    const file = parseWorkspaceFileParam(searchParams);
+    return file && isHtmlWorkspacePath(file) ? file : null;
+  }, [searchParams]);
   const [sidebarOpen, setSidebarOpen] = useState(initialSidebarOpen);
   // Live open fraction (0→1) while the iOS edge-swipe drags the sidebar; null
   // when not dragging. Drives the mobile overlay's finger-tracking transform.
@@ -310,17 +319,17 @@ export function AppShell() {
   // sessions OR the per-session snapshot (``activeSession``) for ALL
   // sessions including children. The sidebar list omits child (sub-agent)
   // rows, so for a user-added agent ``activeConv`` is null and only the
-  // snapshot carries ``omnigent.ui``/``omnigent.wrapper`` — without
+  // snapshot carries ``omnigent.ui``/``do-worker.wrapper`` — without
   // this merge an added claude-native agent loses its terminal-first
   // toggle. Snapshot wins on conflict; spreading undefined is a no-op.
   const sessionLabels = { ...activeConv?.labels, ...activeSession?.labels };
-  const terminalFirst = sessionLabels["omnigent.ui"] === "terminal";
-  const isClaudeNative = sessionLabels["omnigent.wrapper"] === "claude-code-native-ui";
+  const terminalFirst = sessionLabels["do-worker.ui"] === "terminal";
+  const isClaudeNative = sessionLabels["do-worker.wrapper"] === "claude-code-native-ui";
   // Native-CLI wrapper of either family. Keys harness behavior gates
   // (composer slash commands, `/model`); terminal-first SDK sessions
   // (embedded Omnigent REPL terminal) have NO wrapper label and must
   // keep regular chat behavior. See TerminalFirstContext.tsx.
-  const isNativeWrapper = isNativeWrapperLabel(sessionLabels["omnigent.wrapper"]);
+  const isNativeWrapper = isNativeWrapperLabel(sessionLabels["do-worker.wrapper"]);
   const todos = useChatStore((s) => s.todos);
   const todosCompleted = todos.filter((t) => t.status === "completed").length;
   // Used for the header "Back to parent" link, which is hidden on
@@ -362,8 +371,8 @@ export function AppShell() {
   // Claude-native sub-agents have no terminal of their own — the parent
   // owns the tmux pane.
   const isClaudeNativeSubagent =
-    activeSession?.labels?.["omnigent.wrapper"] === "claude-code-native-ui-subagent" ||
-    activeConv?.labels?.["omnigent.wrapper"] === "claude-code-native-ui-subagent";
+    activeSession?.labels?.["do-worker.wrapper"] === "claude-code-native-ui-subagent" ||
+    activeConv?.labels?.["do-worker.wrapper"] === "claude-code-native-ui-subagent";
   // Hide the rail Shells tab only for claude-native sub-agents — they
   // have no terminals of their own (the parent owns the tmux pane).
   // Native top-level sessions get the same Shells rail as SDK ones;
@@ -556,12 +565,23 @@ export function AppShell() {
     const stored = sessionStorage.getItem(`omnigent.web.panel-key:${conversationId}`);
     setPanelInitialKeyState(stored);
 
+    const currentSearch = searchParams.toString();
+    const normalizedSearch = normalizeWorkspaceFileSearch(currentSearch ? `?${currentSearch}` : "");
+    const normalizedBody = normalizedSearch.startsWith("?") ? normalizedSearch.slice(1) : normalizedSearch;
+    if (normalizedBody !== currentSearch) {
+      setSearchParams(new URLSearchParams(normalizedBody), { replace: true });
+    }
+    const effectiveSearchParams =
+      normalizedBody !== currentSearch
+        ? new URLSearchParams(normalizedBody)
+        : searchParams;
+
     // Restore the Files view scope. A deep-link ?view= param wins and forces
     // the rail onto the Files tab: ?view=changed → "Changed" (flat list),
     // ?view=explore is the legacy tree param. With no param, fall back to the
     // user's remembered choice (defaults to "All") so the scope stays sticky
     // across session switches.
-    const viewParam = searchParams.get("view");
+    const viewParam = effectiveSearchParams.get("view");
     // ``nextTab`` stays null when there's no explicit signal to restore a tab
     // (no ?view=, no persisted tab, no file to surface). In that case we leave
     // ``rightRailTab`` untouched so the tab-fallback effect can still land on
@@ -583,7 +603,7 @@ export function AppShell() {
     // Restore the open file tabs from the per-session store, then merge the
     // URL ?file= param: a deep-link selects (and, if absent, opens) that file
     // without discarding the other remembered tabs.
-    const fileParam = searchParams.get("file");
+    const fileParam = parseWorkspaceFileParam(effectiveSearchParams);
     const urlFile = fileParam === null || fileParam === "" ? null : fileParam;
     const persistedFiles = persisted.openFiles ?? [];
     const nextOpenFiles =
@@ -604,7 +624,7 @@ export function AppShell() {
     // the rail even when this session was last left closed; otherwise the
     // linked file/comment would render into a collapsed, invisible panel. This
     // is transient: it doesn't rewrite the session's saved open-state.
-    const commentParam = searchParams.get("comment");
+    const commentParam = effectiveSearchParams.get("comment");
     const hasWorkspaceUrlSignal =
       urlFile !== null ||
       viewParam === "changed" ||
@@ -1194,6 +1214,7 @@ export function AppShell() {
                       onFlatViewChange={handleFilesFlatViewChange}
                       filesPanelShowHidden={filesPanelShowHidden}
                       onShowHiddenChange={setFilesPanelShowHidden}
+                      preferHtmlPreview={htmlPreviewDeepLinkPath === selectedFilePath}
                     />
                   )}
               </div>
@@ -1284,6 +1305,7 @@ export function AppShell() {
                     onNavigateTo={openFileViewer}
                     permissionLevel={permissionLevel}
                     sort={filesPanelSort}
+                    preferHtmlPreview={htmlPreviewDeepLinkPath === selectedFilePath}
                   />
                 </div>
               )}

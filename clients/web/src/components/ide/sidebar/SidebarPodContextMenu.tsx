@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Pencil, Share2, Square, RefreshCw } from "lucide-react";
+import { Pencil, Share2, Square, RefreshCw, Bot } from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -15,6 +15,7 @@ interface SidebarPodContextMenuProps {
   pod: Pod;
   onRename: () => void;
   onShare: () => void;
+  onPublishExpert?: () => void;
   onTerminate: () => void;
   onTogglePerpetual: (perpetual: boolean) => void;
   children: React.ReactNode;
@@ -24,11 +25,13 @@ export function SidebarPodContextMenu({
   pod,
   onRename,
   onShare,
+  onPublishExpert,
   onTerminate,
   onTogglePerpetual,
   children,
 }: SidebarPodContextMenuProps) {
   const t = useTranslations("workspace");
+  const tExpert = useTranslations("experts.publish");
   const isActive = pod.status === "running" || pod.status === "initializing";
 
   return (
@@ -43,6 +46,12 @@ export function SidebarPodContextMenu({
           <Share2 className="mr-2 h-4 w-4" />
           {t("contextMenu.share")}
         </ContextMenuItem>
+        {onPublishExpert && (
+          <ContextMenuItem onClick={onPublishExpert}>
+            <Bot className="mr-2 h-4 w-4" />
+            {tExpert("contextMenu")}
+          </ContextMenuItem>
+        )}
 
         {isActive && (
           <ContextMenuItem onClick={() => onTogglePerpetual(!pod.perpetual)}>

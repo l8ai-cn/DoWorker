@@ -1,0 +1,44 @@
+# Warms the containerd image cache on every node so coordinator-launched
+# runner/worker pods start instantly (no first-pull latency). Each initContainer
+# forces a pull of one agent-runtime image; the main container keeps the e2e-echo
+# image resident.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: agentsmesh-image-prepull
+  namespace: agentsmesh
+spec:
+  selector:
+    matchLabels:
+      app: agentsmesh-image-prepull
+  template:
+    metadata:
+      labels:
+        app: agentsmesh-image-prepull
+    spec:
+      imagePullSecrets:
+        - name: agentsmesh-regcred
+      initContainers:
+        - name: pull-claude
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-claude-code:latest
+          imagePullPolicy: IfNotPresent
+          command: ["true"]
+        - name: pull-codex
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli:latest
+          imagePullPolicy: IfNotPresent
+          command: ["true"]
+        - name: pull-gemini
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli:latest
+          imagePullPolicy: IfNotPresent
+          command: ["true"]
+      containers:
+        - name: hold
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo:latest
+          imagePullPolicy: IfNotPresent
+          command: ["sleep", "infinity"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi

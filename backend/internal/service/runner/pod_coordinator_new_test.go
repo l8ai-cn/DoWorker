@@ -39,12 +39,10 @@ func TestPodCoordinatorSetStatusChangeCallback(t *testing.T) {
 
 	pc := NewPodCoordinator(podStore, runnerRepo, cm, tr, hb, logger)
 
-	pc.SetStatusChangeCallback(func(podKey string, status string, agentStatus string) {
-		// Callback set for testing
-	})
+	pc.SetStatusChangeCallback(func(podKey string, status string, agentStatus string) {})
 
-	if pc.onStatusChange == nil {
-		t.Error("onStatusChange should be set")
+	if pc.statusBroadcast.len() != 1 {
+		t.Error("status listener should be set")
 	}
 }
 

@@ -219,10 +219,17 @@
       "titleLabel": "Title",
       "titlePlaceholder": "Enter ticket title",
       "titleRequired": "Title is required",
-      "repositoryRequired": "Repository is required",
       "createFailed": "Failed to create ticket",
       "repository": "Repository",
       "selectRepository": "Select a repository...",
+      "noRepositoryOption": "No repository (coordination only)",
+      "repositoryOptionalHint": "Optional. Link a repository to enable code changes, MR tracking, and project-scoped ticket IDs.",
+      "repositoryLinkedHint": "Workers on this task can use the linked repository for Git workflows and MR delivery.",
+      "emptyRepositoriesTitle": "No repositories yet",
+      "emptyRepositoriesDescription": "Import a repository to link code work, or create the task without one for coordination-only work.",
+      "importRepository": "Import repository",
+      "manageRepositories": "Manage repositories",
+      "loadingRepositories": "Loading repositories...",
       "content": "Content",
       "submit": "Create Ticket",
       "moreOptions": "More options",
@@ -301,12 +308,22 @@
   "workers": {
     "create": {
       "title": "Create Worker",
-      "subtitle": "A Worker is an isolated workspace on a cluster. Pick a cluster, then an image (DoAgent, Claude Code, Codex, …) to launch.",
+      "subtitle": "Configure in steps: runtime (including Git repo) → knowledge & skills → agent instructions, then create.",
       "stepsTitle": "Creation steps",
-      "stepCluster": "Select cluster — the compute node",
-      "stepImage": "Select image — the AI runtime inside the Worker",
-      "stepLaunch": "Optional initial task, then create — opens the workspace terminal",
-      "backToWorkspace": "Back to workspace"
+      "stepCluster": "Cluster & image — compute + AI runtime",
+      "stepCapabilities": "Capabilities — knowledge bases & skills",
+      "stepAgentFile": "Agent instructions — preview or edit AGENTS.md / AgentFile",
+      "stepLaunch": "Task & duration — create and open workspace",
+      "backToWorkspace": "Back to workspace",
+      "nl": {
+        "title": "Describe the task in plain language",
+        "placeholder": "e.g. Review the auth middleware for permission gaps and summarize findings.",
+        "hint": "We'll pick a runner and agent for you. ⌘/Ctrl + Enter to send.",
+        "submit": "Create worker",
+        "queued": "Worker queued",
+        "fallback": "Couldn't auto-assign a runner — finish setup with the wizard below.",
+        "error": "Failed to create worker"
+      }
     }
   },
   "workspace": {

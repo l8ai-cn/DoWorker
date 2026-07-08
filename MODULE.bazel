@@ -24,6 +24,13 @@ bazel_dep(name = "bazel_skylib", version = "1.8.1")
 bazel_dep(name = "buildifier_prebuilt", version = "7.3.1", dev_dependency = True)
 
 bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_cc", version = "0.0.17")
+
+# Resolution-only stub CC toolchain so `--platforms=…:linux_amd64` cross builds
+# (arm64 host → amd64 nodes) can resolve the CC toolchain that rust
+# prost/crate_universe targets reference. Never invoked — see
+# //tools/crosscc:cc_toolchain_config.bzl.
+register_toolchains("//tools/crosscc:stub_cc_linux_amd64")
 
 ###############################################################################
 # Phase 1 — Go services
@@ -144,6 +151,12 @@ rust.toolchain(
         # Runtime trait — see clients/core/crates/wasm/BUILD.bazel for
         # the architectural rationale.
         "wasm32-unknown-unknown",
+        # Linux amd64 — lets `--platforms=@rules_go//go/toolchain:linux_amd64`
+        # resolve rust/crate toolchains when cross-building OCI images from an
+        # arm64 build host (Apple Silicon) to the amd64 cluster nodes. The
+        # registered prost/crate toolchains must resolve for the target
+        # platform even though no rust is actually compiled into the Go images.
+        "x86_64-unknown-linux-gnu",
     ],
     versions = ["1.88.0"],
 )

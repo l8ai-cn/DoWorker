@@ -3,6 +3,7 @@ package agentpod
 import (
 	"context"
 	"errors"
+	"time"
 
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
@@ -33,7 +34,10 @@ var (
 	ErrUnsupportedInteractionMode = errors.New("agent type does not support the requested interaction mode")
 )
 
-const errCodeRunnerUnreachable = "RUNNER_UNREACHABLE"
+const (
+	errCodeRunnerUnreachable = "RUNNER_UNREACHABLE"
+	errCodeQueueFull         = "QUEUE_FULL"
+)
 
 // OrchestrateCreatePodRequest is the unified Pod creation request (protocol-agnostic).
 // Pod configuration flows exclusively through AgentfileLayer (SSOT).
@@ -59,6 +63,24 @@ type OrchestrateCreatePodRequest struct {
 
 	SessionMcpServers map[string]interface{}
 
+	// SessionConfigBundles are ephemeral config-kind bundles (name → parsed
+	// JSON doc) resolved per-session, consumed by USE_CONFIG_BUNDLE in the
+	// AgentfileLayer. Used by the model-pool flow to inject the do-agent
+	// settings.json (provider key + model) without persisting a bundle row.
+	SessionConfigBundles map[string]interface{}
+
+	// SessionEnvBundles are ephemeral credential env maps (name → KV) consumed
+	// by USE_ENV_BUNDLE. The model-pool flow injects codex OPENAI_* here.
+	SessionEnvBundles map[string]map[string]string
+
+	// Worker model binding (quota/billing). VirtualAPIKeyID binds a virtual
+	// key (its wrapped ai_models credential is injected, usage attributed to
+	// the key). ModelConfigID binds a real ai_models row directly. TokenBudget
+	// is an informational per-Worker hint surfaced to the harness.
+	ModelConfigID   *int64
+	VirtualAPIKeyID *int64
+	TokenBudget     *int64
+
 	Perpetual bool
 
 	DeferRunnerDispatch bool
@@ -72,6 +94,9 @@ type OrchestrateCreatePodRequest struct {
 	// LocalPath is an absolute directory on the runner host (Omnigent compat
 	// workspace picker). Maps to SandboxConfig.local_path — not agentfile syntax.
 	LocalPath string
+
+	QueueIfUnavailable bool
+	QueueTTL           time.Duration
 }
 
 // KnowledgeMountRequest selects one knowledge base for the pod being created.
@@ -83,10 +108,12 @@ type KnowledgeMountRequest struct {
 type OrchestrateCreatePodResult struct {
 	Pod     *podDomain.Pod
 	Warning string
+	Queued  bool
 }
 
 type PodCoordinatorForOrchestrator interface {
 	CreatePod(ctx context.Context, runnerID int64, cmd *runnerv1.CreatePodCommand) error
+	CreatePodOrQueue(ctx context.Context, runnerID int64, cmd *runnerv1.CreatePodCommand, opts podDomain.CreatePodQueueOpts) error
 }
 
 type BillingServiceForOrchestrator interface {
@@ -146,6 +173,9 @@ type PodOrchestratorDeps struct {
 	PodRepo         podDomain.PodRepository
 	PermissionPolicy *permissionpolicysvc.Service
 	KnowledgeBases  KnowledgeBaseResolverForOrchestrator
+	PrimaryCredential PrimaryCredentialResolver
+	AIModelPool     AIModelPoolForOrchestrator
+	VirtualKeyPool  VirtualKeyPoolForOrchestrator
 }
 
 type PodOrchestrator struct {
@@ -163,6 +193,9 @@ type PodOrchestrator struct {
 	podRepo         podDomain.PodRepository
 	permissionPolicy *permissionpolicysvc.Service
 	knowledgeBases  KnowledgeBaseResolverForOrchestrator
+	primaryCredential PrimaryCredentialResolver
+	aiModelPool     AIModelPoolForOrchestrator
+	virtualKeyPool  VirtualKeyPoolForOrchestrator
 }
 
 type agentfileResolved struct {
@@ -191,5 +224,8 @@ func NewPodOrchestrator(deps *PodOrchestratorDeps) *PodOrchestrator {
 		podRepo:         deps.PodRepo,
 		permissionPolicy: deps.PermissionPolicy,
 		knowledgeBases:  deps.KnowledgeBases,
+		primaryCredential: deps.PrimaryCredential,
+		aiModelPool:     deps.AIModelPool,
+		virtualKeyPool:  deps.VirtualKeyPool,
 	}
 }

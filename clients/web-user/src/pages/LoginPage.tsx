@@ -7,10 +7,11 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { AuthPageShell } from "@/components/auth/AuthPageShell";
 import { DevCredentialsPanel } from "@/components/auth/DevCredentialsPanel";
 import { getMe, login as loginRequest } from "@/lib/accountsApi";
+import { hostFetch } from "@/lib/do-worker";
 import { persistDoWorkerSession } from "@/lib/do-worker-auth";
 import { sanitizeReturnTo } from "@/lib/auth-return-to";
 
-const LAST_USERNAME_KEY = "omnigent.lastLoginUsername";
+const LAST_USERNAME_KEY = "do-worker.lastLoginUsername";
 
 function readLastUsername(): string {
   try {
@@ -76,10 +77,27 @@ export function LoginPage() {
     });
     if (result.ok) {
       rememberUsername(username.trim());
+      let orgSlug = typeof result.org_slug === "string" ? result.org_slug : null;
+      if (!orgSlug) {
+        try {
+          const meRes = await hostFetch("/v1/me", {
+            headers: { Authorization: `Bearer ${result.token}` },
+            cache: "no-store",
+          });
+          if (meRes.ok) {
+            const me = (await meRes.json()) as { org_slug?: string };
+            if (typeof me.org_slug === "string" && me.org_slug) {
+              orgSlug = me.org_slug;
+            }
+          }
+        } catch {
+          // Best-effort — resolveIdentity backfills on next load.
+        }
+      }
       persistDoWorkerSession({
         accessToken: result.token,
         expiresIn: result.expires_in,
-        orgSlug: typeof result.org_slug === "string" ? result.org_slug : null,
+        orgSlug,
       });
       window.location.href = returnTo;
       return;

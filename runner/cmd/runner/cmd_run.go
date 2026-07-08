@@ -55,15 +55,17 @@ The runner uses gRPC/mTLS for secure communication with the server.`)
 		os.Exit(1)
 	}
 
-	// Determine config file path
+	// Determine config file path. Honour the rebranded ~/.do-worker dir
+	// (falling back to the legacy ~/.agentsmesh) so the container entrypoint
+	// and the run command agree on where config.yaml lives.
 	cfgFile := *configFile
 	if cfgFile == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to get home directory: %v\n", err)
+		dir := config.UserConfigDir()
+		if dir == "" {
+			fmt.Fprintf(os.Stderr, "Failed to resolve config directory\n")
 			os.Exit(1)
 		}
-		cfgFile = filepath.Join(home, ".agentsmesh", "config.yaml")
+		cfgFile = filepath.Join(dir, "config.yaml")
 	}
 
 	// Check if config exists

@@ -52,7 +52,7 @@ func TestUpdateSandboxPath(t *testing.T) {
 	}
 }
 
-func TestRecordActivity(t *testing.T) {
+func TestUpdateFieldLastActivity(t *testing.T) {
 	db := setupTestDB(t)
 	svc := newTestPodService(db)
 	ctx := context.Background()
@@ -66,9 +66,9 @@ func TestRecordActivity(t *testing.T) {
 
 	time.Sleep(10 * time.Millisecond)
 
-	err := svc.RecordActivity(ctx, sess.PodKey)
+	err := svc.UpdateField(ctx, sess.PodKey, "last_activity", time.Now())
 	if err != nil {
-		t.Fatalf("RecordActivity failed: %v", err)
+		t.Fatalf("UpdateField failed: %v", err)
 	}
 
 	updated, _ := svc.GetPod(ctx, sess.PodKey)

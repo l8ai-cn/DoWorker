@@ -25,6 +25,9 @@ export interface CreatePodFormConfig {
   // prompt seeds the input. Both override saved-preference auto-fill.
   initialAgentSlug?: string;
   initialPrompt?: string;
+  /** Test / deep-link hook: open wizard on a specific step. */
+  initialWizardStep?: 1 | 2 | 3;
+  initialExpertSlug?: string;
   onSuccess?: (pod: PodData) => void;
   onError?: (error: Error) => void;
   onCancel?: () => void;

@@ -1,17 +1,25 @@
 import type { Conversation } from "@/hooks/useConversations";
+import { PROJECT_LABEL_KEY } from "@/hooks/useConversations";
 import { nativeCodingAgentForWrapper, WRAPPER_LABEL_KEY } from "@/lib/nativeCodingAgents";
 
-export const PINNED_CONVERSATION_IDS_STORAGE_KEY = "omnigent:pinned-conversation-ids";
+export const PINNED_CONVERSATION_IDS_STORAGE_KEY = "do-worker:pinned-conversation-ids";
 
 // Titles of sidebar sections the user has collapsed, e.g. ["Archived"].
 // Keyed by display title — stable identifiers for these fixed groups.
-export const COLLAPSED_SIDEBAR_SECTIONS_STORAGE_KEY = "omnigent:collapsed-sidebar-sections";
+export const COLLAPSED_SIDEBAR_SECTIONS_STORAGE_KEY = "do-worker:collapsed-sidebar-sections";
 
 // Names of project folders the user has expanded. Project folders default to
 // COLLAPSED (so the sidebar stays short as project count grows), so this is
 // the inverse of the fixed-section collapse set: a project shows its rows only
 // when its name is present here.
-export const EXPANDED_PROJECT_SECTIONS_STORAGE_KEY = "omnigent:expanded-project-sections";
+export const EXPANDED_PROJECT_SECTIONS_STORAGE_KEY = "do-worker:expanded-project-sections";
+
+export const EXPANDED_WORKSPACE_GROUP_SECTIONS_STORAGE_KEY =
+  "do-worker:expanded-workspace-groups";
+export const EXPANDED_WORKER_GROUP_SECTIONS_STORAGE_KEY = "do-worker:expanded-worker-groups";
+
+export const DEFAULT_PROJECT_GROUP_KEY = "other";
+export const DEFAULT_PROJECT_GROUP_LABEL = "Other";
 
 // Snapshot of the active chat's updated_at at the moment the user
 // entered it. Used as the sort key for the active row so subsequent
@@ -169,6 +177,81 @@ export function normalizePinnedConversationIds(
 
   return normalized;
 }
+
+function pathBasename(path: string): string {
+  const normalized = path.replace(/\\/g, "/").replace(/\/+$/, "");
+  const slash = normalized.lastIndexOf("/");
+  return slash >= 0 ? normalized.slice(slash + 1) : normalized;
+}
+
+export function formatWorkerDisplayName(agentType: string): string {
+  const known: Record<string, string> = {
+    "Claude Code": "Claude-code",
+    Codex: "Codex-cli",
+    Pi: "Pi-cli",
+    Kiro: "Kiro-cli",
+    Antigravity: "Antigravity-cli",
+    Other: "Other",
+  };
+  if (known[agentType]) return known[agentType];
+  const parts = agentType.split(/[-_]/).filter(Boolean);
+  if (parts.length === 0) return DEFAULT_PROJECT_GROUP_LABEL;
+  return parts
+    .map((part, index) =>
+      index === 0
+        ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+        : part.toLowerCase(),
+    )
+    .join("-");
+}
+
+export function projectGroupKey(conversation: Conversation): string {
+  const manual = conversation.labels?.[PROJECT_LABEL_KEY]?.trim();
+  if (manual) return `project:${manual}`;
+  const host = conversation.host_id?.trim() ?? "";
+  const workspace = conversation.workspace?.trim() ?? "";
+  if (host || workspace) return `${host}::${workspace}`;
+  return DEFAULT_PROJECT_GROUP_KEY;
+}
+
+export function projectGroupLabel(conversation: Conversation): string {
+  const manual = conversation.labels?.[PROJECT_LABEL_KEY]?.trim();
+  if (manual) return manual;
+  const workspaceBasename = conversation.workspace?.trim()
+    ? pathBasename(conversation.workspace.trim())
+    : null;
+  const hostShort = conversation.host_id?.replace(/^host_/, "") ?? null;
+  if (hostShort && workspaceBasename) return `${hostShort} / ${workspaceBasename}`;
+  if (workspaceBasename) return workspaceBasename;
+  if (hostShort) return hostShort;
+  return DEFAULT_PROJECT_GROUP_LABEL;
+}
+
+export function workerGroupKey(conversation: Conversation): string {
+  return getConversationAgentType(conversation);
+}
+
+export function workerGroupLabel(conversation: Conversation): string {
+  return formatWorkerDisplayName(workerGroupKey(conversation));
+}
+
+export {
+  aggregateWorkerConnectionStatus,
+  collectVisibleGroupedSessionIds,
+  groupConversationsByWorkerAndProject,
+  type SidebarWorkProjectGroup,
+  type SidebarWorkerGroup,
+  type WorkerConnectionStatus,
+  type WorkProjectGitInfo,
+  newSessionLandingPath,
+  resolveWorkerGroupAgentId,
+  workProjectGitInfo,
+  workProjectGroupKey,
+  workProjectGroupLabel,
+  workProjectShowsHeader,
+  workProjectStorageKey,
+  workerConnectionStatus,
+} from "./sidebarNavGrouping";
 
 // ── Drag-and-drop ────────────────────────────────────────────────────────────
 

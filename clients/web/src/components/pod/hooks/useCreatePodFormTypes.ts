@@ -37,6 +37,11 @@ export interface CreatePodFormState {
   destroyPolicy: DestroyPolicy;
   destroyAfterMinutes: number;
   selectedKnowledgeMounts: KnowledgeMountSelection[];
+  // Optional per-Worker token budget cap. null = no cap (org quota still
+  // applies). Emitted as CONFIG token_budget in the AgentFile layer.
+  tokenBudget: number | null;
+  // Virtual API key binding for quota/billing attribution. Null = agent default.
+  selectedVirtualKeyId: number | null;
 
   // EnvBundles (credential + runtime kinds) available for the selected agent
   envBundles: EnvBundleSummary[];
@@ -58,6 +63,8 @@ export interface CreatePodFormState {
   setDestroyPolicy: (policy: DestroyPolicy) => void;
   setDestroyAfterMinutes: (minutes: number) => void;
   setSelectedKnowledgeMounts: (mounts: KnowledgeMountSelection[]) => void;
+  setTokenBudget: (budget: number | null) => void;
+  setSelectedVirtualKeyId: (id: number | null) => void;
 
   // AgentFile Layer
   rawLayerMode: boolean;

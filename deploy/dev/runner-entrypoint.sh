@@ -14,8 +14,10 @@ AGENT_RUNTIME="${AGENT_RUNTIME:-e2e-echo}"
 DEFAULT_AGENT="${DEFAULT_AGENT:-${AGENT_RUNTIME}}"
 
 CONFIG_DIR="${HOME}/.do-worker"
-if [[ ! -d "$CONFIG_DIR" && -d "${HOME}/.agentsmesh" ]]; then
+if [[ -d "${HOME}/.agentsmesh" && -w "${HOME}/.agentsmesh" ]]; then
     CONFIG_DIR="${HOME}/.agentsmesh"
+elif [[ -d "${HOME}/.agentsmesh" && ! -w "${HOME}/.agentsmesh" ]]; then
+    echo "▶ ${HOME}/.agentsmesh not writable (uid $(id -u)); using ${CONFIG_DIR}" >&2
 fi
 CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
@@ -135,7 +137,7 @@ init_codex_config() {
         cat > "${HOME}/.codex/config.toml" << 'EOF'
 model = "gpt-4.1"
 approval_policy = "never"
-sandbox_mode = "workspace-write"
+sandbox_mode = "danger-full-access"
 
 [shell_environment_policy]
 inherit = "all"
@@ -164,8 +166,21 @@ init_ai_cli_configs() {
         claude-code) init_claude_config ;;
         codex-cli) init_codex_config ;;
         gemini-cli) init_gemini_config ;;
-        e2e-echo|loopal|do-agent|aider|opencode) ;;
+        do-agent) init_do_agent_config ;;
+        e2e-echo|loopal|aider|opencode) ;;
     esac
+}
+
+init_do_agent_config() {
+    local settings="${HOME}/.agent/settings.json"
+    mkdir -p "${HOME}/.agent"
+    if [[ ! -f "$settings" ]]; then
+        cat > "$settings" << 'EOF'
+{
+  "model": "minimax/MiniMax-M3"
+}
+EOF
+    fi
 }
 
 create_config() {

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	omnigentcompat "github.com/anthropics/agentsmesh/backend/internal/api/compat/omnigent"
+	sessionapi "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1/session"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/internal"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/v1/webhooks"
@@ -86,7 +86,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 	}
 	r.Use(cors.New(corsConfig))
 
-	// Health check — session_ids branch wired after omnigent deps below.
+	// Health check — session API deps wired below.
 	r.GET("/health/ready", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"status": "ready",
@@ -204,7 +204,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		})
 	}
 
-	sessionDeps := omnigentcompat.Deps{
+	sessionDeps := sessionapi.Deps{
 		JWTSecret:       cfg.JWT.Secret,
 		Auth:            svc.Auth,
 		User:            svc.User,
@@ -213,39 +213,46 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		Runner:          svc.Runner,
 		Sessions:        sessionsvc.NewService(db),
 		Items:           itemsvc.NewService(db),
-		Hub:             omnigentcompat.NewSessionHub(),
-		Elicitations:    omnigentcompat.NewElicitationStore(),
+		Hub:             sessionapi.NewSessionHub(),
+		Elicitations:    sessionapi.NewElicitationStore(),
 		PodOrchestrator: svc.PodOrchestrator,
 		Pod:             svc.Pod,
 		RelayManager:    svc.RelayManager,
 		RelayTokens:     svc.RelayTokenGenerator,
 		SessionUsage:    sessionusagesvc.NewService(db),
 		Policies:        permissionpolicysvc.NewService(db),
-		ReadState:       omnigentcompat.NewReadStateStore(db),
+		ReadState:       sessionapi.NewReadStateStore(db),
 		SandboxFs:       svc.SandboxFsService,
 		SessionFiles:       sessionfilesvc.NewService(db, svc.File),
 		SessionComments:    commentsvc.NewService(db),
 		SessionPermissions: permgrantsvc.NewService(db),
-		Version:            "agentsmesh-dev",
+		Grants:             svc.Grant,
+		AIModels:           svc.AIModel,
+		EnvBundles:         svc.EnvBundle,
+		VirtualKeys:        svc.VirtualKey,
+		TokenQuotas:        svc.TokenQuota,
+		Version:            "do-worker-dev",
 	}
-	sessionDeps.Bridge = &omnigentcompat.EventBridge{
-		Items: sessionDeps.Items, Sessions: sessionDeps.Sessions,
-		Hub: sessionDeps.Hub, Elicitations: sessionDeps.Elicitations,
-	}
-	omnigentcompat.SetEventBridge(sessionDeps.Bridge)
-	sessionDeps.Updates = omnigentcompat.NewSessionUpdatesHub(&sessionDeps)
-	omnigentcompat.SetUpdatesHub(sessionDeps.Updates)
+	sessionDeps.Stream = sessionapi.NewSessionStreamPublisher(
+		sessionDeps.Hub, sessionDeps.Items, sessionDeps.Sessions, sessionDeps.Elicitations,
+	)
+	sessionDeps.Stream.Usage = sessionDeps.SessionUsage
+	sessionDeps.Stream.Pods = svc.Pod
+	sessionDeps.Updates = sessionapi.NewSessionUpdatesHub(&sessionDeps)
+	sessionDeps.Stream.Updates = sessionDeps.Updates
 	if svc.PodCoordinator != nil {
 		sessionDeps.PodCoordinator = svc.PodCoordinator
 		sessionDeps.CommandSender = svc.PodCoordinator.GetCommandSender()
-		svc.PodCoordinator.SetStatusChangeCallback(func(podKey, podStatus, agentStatus string) {
-			omnigentcompat.ForwardPodStatus(context.Background(), podKey, podStatus, agentStatus)
+		podEvents := sessionDeps.Stream
+		svc.PodCoordinator.AddStatusChangeCallback(func(podKey, podStatus, agentStatus string) {
+			podEvents.PublishPodStatus(context.Background(), podKey, podStatus, agentStatus)
 		})
 	}
-	omnigentcompat.RegisterHealthRoute(r, sessionDeps)
-	omnigentcompat.RegisterRoutes(r, sessionDeps)
-	omnigentcompat.SetPodUpdater(svc.Pod)
-	omnigentcompat.SetSessionUsage(sessionDeps.SessionUsage, sessionDeps.Hub)
+	sessionapi.RegisterHealthRoute(r, sessionDeps)
+	sessionapi.RegisterRoutes(r, sessionDeps)
+	if svc.RunnerGRPCAdapter != nil {
+		svc.RunnerGRPCAdapter.SetPodEventSink(sessionDeps.Stream)
+	}
 
 	return r
 }

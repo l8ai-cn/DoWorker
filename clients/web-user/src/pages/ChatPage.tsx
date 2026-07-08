@@ -58,7 +58,7 @@ import { CompactionMarker, RoutingDecisionChip } from "@/components/blocks/Statu
 import { SystemMessageView } from "@/components/blocks/SystemMessage";
 import { parseSystemMessage } from "@/lib/systemMessage";
 import { Button } from "@/components/ui/button";
-import { OttoIcon } from "@/components/icons/OttoIcon";
+import { DoWorkerLogo } from "@/components/icons/DoWorkerLogo";
 import { cn } from "@/lib/utils";
 import { validateAttachments } from "@/lib/attachments";
 import { useSurfaceFrontmost } from "@/hooks/useNativeServerSwitcher";
@@ -487,7 +487,7 @@ function truncateTitle(raw: string, max = 60): string {
 // loadingConversation is true, which unmounts the entire chat surface).
 // Text drafts are also persisted to sessionStorage so they survive page
 // refreshes; File objects can't be serialized, so only text round-trips.
-const SESSION_DRAFTS_KEY = "omnigent.sessionDrafts";
+const SESSION_DRAFTS_KEY = "do-worker.sessionDrafts";
 
 function loadDraftsFromStorage(): Map<string, { text: string; files: File[] }> {
   try {
@@ -857,8 +857,8 @@ export function ChatPage() {
   // NOT sufficient to decide whether to OPEN the picker. Prefer the
   // snapshot's labels, falling back to the sidebar row.
   const forkSourceId =
-    activeSession?.labels?.["omnigent.fork.source_id"] ??
-    activeConv?.labels?.["omnigent.fork.source_id"] ??
+    activeSession?.labels?.["do-worker.fork.source_id"] ??
+    activeConv?.labels?.["do-worker.fork.source_id"] ??
     null;
   // Only an *unbound* fork (no workspace yet) routes the offline guard to
   // the directory picker — which binds + launches. A bound fork that is
@@ -1107,7 +1107,7 @@ export function ChatPage() {
         onOpenChange={setReconnectDialogOpen}
         conversationId={urlConvId}
         serverUrl={getCliServerUrl()}
-        wrapper={activeConv?.labels?.["omnigent.wrapper"]}
+        wrapper={activeConv?.labels?.["do-worker.wrapper"]}
         state={reconnectState}
         isOwner={reconnectIsOwner}
         // Source prefill for the Clone tab's fork form. Mirrors AppShell's
@@ -1125,7 +1125,7 @@ export function ChatPage() {
           sessionId={urlConvId}
           sourceSessionId={forkSourceId}
           serverUrl={getCliServerUrl()}
-          wrapper={activeConv?.labels?.["omnigent.wrapper"]}
+          wrapper={activeConv?.labels?.["do-worker.wrapper"]}
         />
       )}
     </SessionSharedContext.Provider>
@@ -1847,7 +1847,7 @@ function WorkingStatusPin({ show, suppress = false }: { show: boolean; suppress?
               !visible && "sr-only",
             )}
           >
-            <OttoIcon className="otto-working h-4 w-auto shrink-0" />
+            <DoWorkerLogo className="dw-logo-working size-4 shrink-0" aria-hidden />
             <Shimmer className="text-xs font-mono" duration={1.5}>
               Working…
             </Shimmer>
@@ -2231,9 +2231,9 @@ export function JumpToTopButton({
       // top 50px centers the pill on the chat-scroll-fade border (the mask ramps
       // 48px→80px), just below the h-14 ChatHeader. z-40 > header z-30. On the
       // iOS shell the header and fade border shift down by the safe-area inset
-      // (see .chat-scroll-fade in index.css), so add --omnigent-inset-top here
+      // (see .chat-scroll-fade in index.css), so add --do-worker-inset-top here
       // too to keep the pill centered on the border. The var is 0px off-shell.
-      style={{ top: "calc(50px + var(--omnigent-inset-top))" }}
+      style={{ top: "calc(50px + var(--do-worker-inset-top))" }}
       className={cn(
         "pointer-events-none absolute inset-x-0 z-40 flex justify-center transition-opacity duration-150",
         visible ? "opacity-100" : "opacity-0",
@@ -2333,7 +2333,7 @@ function WorkingIndicator() {
     <Message from="assistant" data-testid="working-indicator" aria-hidden="true">
       <MessageContent>
         <div className="flex items-center gap-1.5 py-0.5">
-          <OttoIcon className="otto-working h-4 w-auto shrink-0" />
+          <DoWorkerLogo className="dw-logo-working size-4 shrink-0" aria-hidden />
           <Shimmer className="text-xs font-mono" duration={1.5}>
             {label}
           </Shimmer>
@@ -2480,8 +2480,8 @@ export function ConnectionIndicator({
         <div
           aria-hidden
           className={cn(
-            "omnigent-native-bottom-spacer",
-            terminalFirst.view === "chat" && "omnigent-native-bottom-spacer--chat",
+            "do-worker-native-bottom-spacer",
+            terminalFirst.view === "chat" && "do-worker-native-bottom-spacer--chat",
           )}
         />
       ) : null;
@@ -3586,7 +3586,8 @@ export function Composer({
   // Highlight overlay mirroring the textarea; scroll-synced so the tinted
   // `/skill` token stays aligned once the draft grows past the visible rows.
   const backdropRef = useRef<HTMLDivElement>(null);
-  const isStreaming = status === "streaming";
+  const sessionStatus = useChatStore((s) => s.sessionStatus);
+  const isStreaming = status === "streaming" && sessionStatus !== "failed";
 
   // Read-only when either the user lacks a write grant OR the session
   // is structurally non-interactive (``readOnlyReason``). The
@@ -4847,7 +4848,7 @@ export function dispatchInitialPrompt(
  * Whether a session is an *unbound* coding fork — one that still needs the
  * directory picker to bind a host + workspace before it can run.
  *
- * The ``omnigent.fork.source_id`` label is *provenance*: it stays on the
+ * The ``do-worker.fork.source_id`` label is *provenance*: it stays on the
  * clone forever, including after it is bound. So the label alone can't gate
  * the picker — a bound fork whose runner is merely offline would wrongly
  * open the picker, and the bind endpoint would 400 with "session already
@@ -4857,7 +4858,7 @@ export function dispatchInitialPrompt(
  * returns false, routing an offline bound fork to the CLI reconnect dialog
  * like any other session.
  *
- * @param forkSourceId - The `omnigent.fork.source_id` label value, or null.
+ * @param forkSourceId - The `do-worker.fork.source_id` label value, or null.
  * @param workspace - The session's bound workspace, or null/undefined when
  *   never bound.
  */
@@ -4895,10 +4896,10 @@ export function readOnlyReasonForSessionLabels(
   activeConv: LabelSource,
 ): string | null {
   const closed =
-    activeSession?.labels?.["omnigent.closed"] ?? activeConv?.labels?.["omnigent.closed"];
+    activeSession?.labels?.["do-worker.closed"] ?? activeConv?.labels?.["do-worker.closed"];
   if (closed === "true") return "This sub-agent session is closed";
   const wrapper =
-    activeSession?.labels?.["omnigent.wrapper"] ?? activeConv?.labels?.["omnigent.wrapper"];
+    activeSession?.labels?.["do-worker.wrapper"] ?? activeConv?.labels?.["do-worker.wrapper"];
   if (wrapper === "claude-code-native-ui-subagent") {
     return "Claude Code sub-agents are read-only";
   }
@@ -4910,7 +4911,7 @@ export function effortLevelsForConv(
   codexModelOptions: readonly CodexModelOption[] = [],
   currentModel: string | null = null,
 ): readonly string[] {
-  switch (conv?.labels?.["omnigent.wrapper"]) {
+  switch (conv?.labels?.["do-worker.wrapper"]) {
     case "claude-code-native-ui":
       return CLAUDE_NATIVE_EFFORT_LEVELS;
     case "codex-native-ui":
@@ -4923,14 +4924,14 @@ export function effortLevelsForConv(
 /**
  * Which native model picker should be visible for *conv*?
  *
- * Gated on the wrapper label, not `omnigent.ui === "terminal"`:
+ * Gated on the wrapper label, not `do-worker.ui === "terminal"`:
  * other terminal-first wrappers may not be Claude/Codex-native (see
  * `TerminalFirstContext.tsx`).
  */
 export function modelPickerKindForConv(
   conv: { labels?: Record<string, string | null> | null } | null | undefined,
 ): NativeModelPickerKind | null {
-  switch (conv?.labels?.["omnigent.wrapper"]) {
+  switch (conv?.labels?.["do-worker.wrapper"]) {
     case "claude-code-native-ui":
       return "claude";
     case "codex-native-ui":

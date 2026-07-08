@@ -231,3 +231,41 @@ func TestHandlePodTerminated_WithEarlyOutput(t *testing.T) {
 		t.Errorf("callback status: got %q, want %q", callbackStatus, agentpod.StatusError)
 	}
 }
+
+func TestHandlePodTerminated_SkipsWhenAlreadyTerminal(t *testing.T) {
+	pc, _, _, db := setupPodEventHandlerDeps(t)
+
+	r := &runner.Runner{
+		OrganizationID: 1,
+		NodeID:         "already-done-node",
+		Status:         "online",
+		CurrentPods:    1,
+	}
+	if err := db.Create(r).Error; err != nil {
+		t.Fatalf("failed to create runner: %v", err)
+	}
+
+	finished := time.Now()
+	db.Exec(`INSERT INTO pods (pod_key, runner_id, status, finished_at) VALUES (?, ?, ?, ?)`,
+		"done-pod-1", r.ID, agentpod.StatusCompleted, finished)
+
+	callbackCalled := false
+	pc.SetStatusChangeCallback(func(podKey string, status string, agentStatus string) {
+		callbackCalled = true
+	})
+
+	pc.handlePodTerminated(r.ID, &runnerv1.PodTerminatedEvent{
+		PodKey:   "done-pod-1",
+		ExitCode: 0,
+	})
+
+	if callbackCalled {
+		t.Error("status callback should not fire when pod already terminal")
+	}
+
+	var currentPods int
+	db.Raw(`SELECT current_pods FROM runners WHERE id = ?`, r.ID).Scan(&currentPods)
+	if currentPods != 1 {
+		t.Errorf("current_pods = %d, want 1 (no double decrement)", currentPods)
+	}
+}

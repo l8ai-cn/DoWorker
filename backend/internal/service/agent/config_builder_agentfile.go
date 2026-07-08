@@ -173,7 +173,24 @@ func (b *ConfigBuilder) buildEnvBundleContext(ctx context.Context, req *ConfigBu
 	bundles, err := b.envBundleSvc.GetEffectiveForUser(ctx, req.UserID, req.OrganizationID, agentSlug)
 	if err != nil {
 		slog.WarnContext(ctx, "Failed to load env bundles for agentfile", "agent_slug", agentSlug, "error", err)
+		return mergeSessionEnvBundles(nil, req.SessionEnvBundles)
+	}
+	return mergeSessionEnvBundles(envbundleservice.AsContextMap(bundles), req.SessionEnvBundles)
+}
+
+func mergeSessionEnvBundles(
+	persisted map[string]map[string]string,
+	session map[string]map[string]string,
+) map[string]map[string]string {
+	if len(persisted) == 0 && len(session) == 0 {
 		return nil
 	}
-	return envbundleservice.AsContextMap(bundles)
+	out := map[string]map[string]string{}
+	for name, data := range persisted {
+		out[name] = data
+	}
+	for name, data := range session {
+		out[name] = data
+	}
+	return out
 }

@@ -13,9 +13,9 @@ export function InfrastructureOverview() {
   const t = useTranslations();
   const orgSlug = currentOrg?.slug;
 
-  const go = (sub: string) => {
+  const go = (sub: "repositories" | "runners") => {
     if (!orgSlug) return;
-    router.push(`/${orgSlug}/settings?scope=organization&tab=infra/${sub}`);
+    router.push(`/${orgSlug}/infra?tab=${sub}`);
   };
 
   return (

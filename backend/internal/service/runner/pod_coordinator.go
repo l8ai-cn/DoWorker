@@ -48,13 +48,20 @@ type PodCoordinator struct {
 
 	ackTracker *AckTracker
 
-	onStatusChange   func(podKey string, status string, agentStatus string)
+	pendingQueue   *PendingCommandQueue
+	pendingDrainer *PendingCommandDrainer
+	connChecker    ConnectionChecker
+
+	statusBroadcast *podStatusBroadcaster
+
 	onInitProgress   func(podKey string, phase string, progress int, message string)
 	onPodRestarting  func(podKey string, exitCode, restartCount int32)
 
 	onAutopilotStatusChange    AutopilotStatusChangeFunc
 	onAutopilotIterationChange AutopilotIterationChangeFunc
 	onAutopilotThinkingChange  AutopilotThinkingChangeFunc
+
+	reconciler *PodReconcileService
 }
 
 func NewPodCoordinator(
@@ -79,6 +86,7 @@ func NewPodCoordinator(
 		podMissOwner:         make(map[string]int64),
 		initReportCount:      make(map[string]int),
 		ackTracker:           NewAckTracker(),
+		statusBroadcast:      newPodStatusBroadcaster(),
 	}
 
 	cm.SetHeartbeatCallback(pc.handleHeartbeat)
@@ -96,6 +104,7 @@ func NewPodCoordinator(
 	cm.SetAutopilotIterationCallback(pc.handleAutopilotIteration)
 	cm.SetAutopilotThinkingCallback(pc.handleAutopilotThinking)
 
+	pc.reconciler = newPodReconcileService(pc)
 	return pc
 }
 
@@ -113,7 +122,11 @@ func (pc *PodCoordinator) GetCommandSender() RunnerCommandSender {
 }
 
 func (pc *PodCoordinator) SetStatusChangeCallback(fn func(podKey string, status string, agentStatus string)) {
-	pc.onStatusChange = fn
+	pc.statusBroadcast.set(fn)
+}
+
+func (pc *PodCoordinator) AddStatusChangeCallback(fn func(podKey string, status string, agentStatus string)) {
+	pc.statusBroadcast.add(fn)
 }
 
 func (pc *PodCoordinator) SetInitProgressCallback(fn func(podKey string, phase string, progress int, message string)) {
@@ -166,6 +179,12 @@ func (pc *PodCoordinator) terminatePod(ctx context.Context, podKey string, delet
 		return ErrPodAlreadyTerminated
 	}
 
+	if pod.Status == agentpod.StatusQueued {
+		return pc.terminateQueuedPod(ctx, pod, podKey)
+	}
+
+	pc.cancelPendingForPod(ctx, podKey)
+
 	if err := pc.commandSender.SendTerminatePod(ctx, pod.RunnerID, podKey, deleteBranch); err != nil {
 		pc.logger.Warn("failed to send terminate to runner, marking as completed",
 			"pod_key", podKey, "error", err)
@@ -183,16 +202,10 @@ func (pc *PodCoordinator) terminatePod(ctx context.Context, podKey string, delet
 		return ErrPodAlreadyTerminated
 	}
 
-	pc.podRouter.UnregisterPod(podKey)
-	pc.clearMissCount(podKey)
-
-	if pc.onStatusChange != nil {
-		pc.onStatusChange(podKey, agentpod.StatusCompleted, "")
-	}
-
 	pc.logger.Info("pod terminate sent", "pod_key", podKey, "runner_id", pod.RunnerID, "delete_branch", deleteBranch)
-
-	return pc.DecrementPods(ctx, pod.RunnerID)
+	pc.emitPodReleased(ctx, podKey, pod.RunnerID, agentpod.StatusCompleted)
+	_ = pc.DecrementPods(ctx, pod.RunnerID)
+	return nil
 }
 
 func (pc *PodCoordinator) UpdateActivity(ctx context.Context, podKey string) error {

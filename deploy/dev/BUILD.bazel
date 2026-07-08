@@ -1,6 +1,7 @@
 # Dev environment entry points exposed as bazel targets.
 #
 # `bazel run //deploy/dev:up` is the canonical way to start the dev stack.
+# Agent CLI runner images: `bazel run //docker/agent-runtime:build_all`
 # Each target pins one dev.sh flag via `args`, so callers (humans + CI)
 # don't need to remember flag spellings:
 #
@@ -21,6 +22,15 @@
 DEV_SCRIPTS = [
     "dev.sh",
 ] + glob(["lib/*.sh"])
+
+exports_files(
+    [
+        "runner-entrypoint.sh",
+        "lib/build_do_agent_binary.sh",
+        "docker-compose.runners.yml",
+    ],
+    visibility = ["//visibility:public"],
+)
 
 [
     sh_binary(
@@ -69,9 +79,9 @@ sh_test(
     data = [
         "docker-compose.runners.yml",
         "docker-compose.yml",
-        "runner.Dockerfile",
         "runner-entrypoint.sh",
         "seed/e2e_echo.sql",
+        "//docker/agent-runtime:Dockerfile",
     ] + glob(["lib/*.sh"]),
 )
 

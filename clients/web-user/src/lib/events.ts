@@ -31,7 +31,7 @@ export const MCP_ELICITATION_METHOD = "elicitation/create";
 
 // ── Response lifecycle events ────────────────────────────
 
-/** `response.created` — always first (sequence 0). */
+/** `turn.started` — assistant turn opened (wire: `turn.started`). */
 export interface ResponseCreated {
   type: "response_created";
   response: Response;
@@ -49,7 +49,7 @@ export interface ResponseInProgress {
   response: Response;
 }
 
-/** `response.completed` — agent finished successfully. */
+/** `turn.completed` — agent finished successfully (wire: `turn.completed`). */
 export interface ResponseCompleted {
   type: "response_completed";
   response: Response;
@@ -77,7 +77,7 @@ export interface ResponseCancelled {
 
 // ── Text streaming ───────────────────────────────────────
 
-/** `response.output_text.delta` — incremental text token. */
+/** `turn.text.delta` — incremental text token (wire: `turn.text.delta`). */
 export interface TextDelta {
   type: "text_delta";
   delta: string;

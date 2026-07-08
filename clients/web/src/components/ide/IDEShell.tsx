@@ -21,6 +21,7 @@ import { InfraSidebarContent } from "./sidebar/InfraSidebarContent";
 import { MeshSidebarContent } from "./sidebar/MeshSidebarContent";
 import { ChannelsSidebarContent } from "./sidebar/ChannelsSidebarContent";
 import { LoopsSidebarContent } from "./sidebar/LoopsSidebarContent";
+import { ExpertsSidebarContent } from "@/components/experts/ExpertsSidebarContent";
 import { SettingsSidebarContent } from "./sidebar/SettingsSidebarContent";
 import { SkillsSidebarContent } from "./sidebar/SkillsSidebarContent";
 import { BlocksSidebar } from "@/components/blocks/BlocksSidebar";
@@ -61,6 +62,8 @@ function getSidebarContent(
       return <MeshSidebarContent />;
     case "loops":
       return <LoopsSidebarContent />;
+    case "experts":
+      return <ExpertsSidebarContent />;
     case "blocks":
       return <BlocksSidebar />;
     case "infra":

@@ -79,6 +79,17 @@ func (a *GRPCRunnerAdapter) SendPrompt(runnerID int64, podKey, prompt string) er
 	return conn.SendMessage(msg)
 }
 
+func (a *GRPCRunnerAdapter) SendServerMessage(runnerID int64, msg *runnerv1.ServerMessage) error {
+	conn := a.connManager.GetConnection(runnerID)
+	if conn == nil {
+		return status.Errorf(codes.NotFound, "runner %d not connected", runnerID)
+	}
+	if msg.Timestamp == 0 {
+		msg.Timestamp = time.Now().UnixMilli()
+	}
+	return conn.SendMessage(msg)
+}
+
 func (a *GRPCRunnerAdapter) SendSubscribePod(runnerID int64, podKey, relayURL, runnerToken string, includeSnapshot bool, snapshotHistory int32) error {
 	conn := a.connManager.GetConnection(runnerID)
 	if conn == nil {

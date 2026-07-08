@@ -84,6 +84,8 @@ type MockCommandSender struct {
 	TerminatePodErr           error
 	PodInputCalls        int
 	SendPromptCalls           int
+	ServerMessageCalls        int
+	SendErr                   error
 	SubscribePodCalls    int
 	UnsubscribePodCalls  int
 }
@@ -113,7 +115,14 @@ func (m *MockCommandSender) SendPrompt(ctx context.Context, runnerID int64, podK
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.SendPromptCalls++
-	return nil
+	return m.SendErr
+}
+
+func (m *MockCommandSender) SendServerMessage(ctx context.Context, runnerID int64, msg *runnerv1.ServerMessage) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.ServerMessageCalls++
+	return m.SendErr
 }
 
 func (m *MockCommandSender) SendSubscribePod(ctx context.Context, runnerID int64, podKey, relayURL, runnerToken string, includeSnapshot bool, snapshotHistory int32) error {

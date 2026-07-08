@@ -120,6 +120,9 @@ export interface CreatePodInput {
   source_pod_key?: string;
   resume_agent_session?: boolean;
   perpetual?: boolean;
+  virtual_api_key_id?: number;
+  model_config_id?: number;
+  token_budget?: number;
 }
 
 export async function createPod(
@@ -141,6 +144,11 @@ export async function createPod(
     sourcePodKey: input.source_pod_key,
     resumeAgentSession: input.resume_agent_session,
     perpetual: input.perpetual,
+    virtualApiKeyId:
+      input.virtual_api_key_id === undefined ? undefined : BigInt(input.virtual_api_key_id),
+    modelConfigId:
+      input.model_config_id === undefined ? undefined : BigInt(input.model_config_id),
+    tokenBudget: input.token_budget === undefined ? undefined : BigInt(input.token_budget),
   });
   const bytes = toBinary(CreatePodRequestSchema, req);
   const respBytes = await getPodService().create_pod_connect(bytes);

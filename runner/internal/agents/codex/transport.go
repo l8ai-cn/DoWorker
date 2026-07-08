@@ -22,15 +22,32 @@ type transport struct {
 
 	sessionID string
 	sessionMu sync.RWMutex
+	workDir   string
+
+	streamMu            sync.Mutex
+	streamedAgentMsgIDs map[string]struct{}
+	streamedSinceMsg    bool
+
+	idleMu             sync.Mutex
+	idleTimer          *time.Timer
+	idleFallback       time.Duration
+	hasLifecycleSignal bool
 
 	ctx    context.Context
 	logger *slog.Logger
 }
 
+// idleFallbackDelay is how long an agentMessage completion waits before it is
+// treated as end-of-turn, for Codex builds that omit turn/completed. Any further
+// turn activity cancels it, so a preamble message followed by tool calls does not
+// end the turn prematurely.
+const idleFallbackDelay = 4 * time.Second
+
 func newTransport(callbacks acp.EventCallbacks, logger *slog.Logger) *transport {
 	return &transport{
-		callbacks: callbacks,
-		logger:    logger,
+		callbacks:    callbacks,
+		logger:       logger,
+		idleFallback: idleFallbackDelay,
 	}
 }
 
@@ -75,8 +92,9 @@ func (t *transport) Handshake(_ context.Context) (string, error) {
 	return "", nil
 }
 
-func (t *transport) NewSession(_ string, mcpServers map[string]any) (string, error) {
-	params := map[string]any{}
+func (t *transport) NewSession(cwd string, mcpServers map[string]any) (string, error) {
+	t.workDir = cwd
+	params := mergeHeadlessFields(nil, cwd)
 	if mcpServers != nil {
 		params["mcpServers"] = mcpServers
 	}
@@ -107,11 +125,12 @@ func (t *transport) NewSession(_ string, mcpServers map[string]any) (string, err
 	return result.Thread.ID, nil
 }
 
-func (t *transport) ResumeSession(_ string, mcpServers map[string]any, externalSessionID string) (string, error) {
+func (t *transport) ResumeSession(cwd string, mcpServers map[string]any, externalSessionID string) (string, error) {
 	if externalSessionID == "" {
 		return "", fmt.Errorf("thread id required")
 	}
-	params := map[string]any{"threadId": externalSessionID}
+	t.workDir = cwd
+	params := mergeHeadlessFields(map[string]any{"threadId": externalSessionID}, cwd)
 	if mcpServers != nil {
 		params["mcpServers"] = mcpServers
 	}
@@ -141,13 +160,16 @@ func (t *transport) ResumeSession(_ string, mcpServers map[string]any, externalS
 }
 
 func (t *transport) SendPrompt(sessionID, prompt string) error {
-	params := turnStartParams{
-		ThreadID: sessionID,
-		Input: []turnInput{{
+	if sessionID == "" {
+		return fmt.Errorf("thread id required")
+	}
+	params := mergeHeadlessFields(map[string]any{
+		"threadId": sessionID,
+		"input": []turnInput{{
 			Type: "text",
 			Text: prompt,
 		}},
-	}
+	}, t.workDir)
 
 	pr, err := t.tracker.SendRequest("turn/start", params)
 	if err != nil {
@@ -214,4 +236,4 @@ func (t *transport) ReadLoop(ctx context.Context) {
 	}
 }
 
-func (t *transport) Close() {}
+func (t *transport) Close() { t.cancelIdleFallback() }

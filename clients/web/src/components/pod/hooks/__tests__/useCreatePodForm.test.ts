@@ -142,4 +142,46 @@ describe("useCreatePodForm - bundle via agentfile_layer (SSOT)", () => {
     expect(createArg).not.toHaveProperty("prompt");
     expect(createArg).not.toHaveProperty("config_overrides");
   });
+
+  it("sends repository_id when a repository is selected", async () => {
+    mockCreatePod.mockResolvedValue({
+      pod: { pod_key: "test-pod", id: 1, status: "initializing", agent_status: "idle" } as never,
+    });
+
+    const repos = [{
+      id: 7,
+      organization_id: 1,
+      provider_type: "github",
+      provider_base_url: "https://github.com",
+      http_clone_url: "https://github.com/org/repo.git",
+      external_id: "org-repo",
+      name: "repo",
+      slug: "org/repo",
+      default_branch: "main",
+      visibility: "organization",
+      is_active: true,
+      created_at: "x",
+      updated_at: "x",
+    }];
+
+    const { result } = renderHook(() => useCreatePodForm(mockAgents, repos));
+
+    act(() => {
+      result.current.setSelectedAgent("claude-code");
+      result.current.setSelectedRepository(7);
+    });
+    await act(async () => {});
+    act(() => {
+      result.current.setSelectedBranch("develop");
+    });
+
+    await act(async () => {
+      await result.current.submit(1, {}, { cols: 80, rows: 24 });
+    });
+
+    const [, createArg] = mockCreatePod.mock.calls[0];
+    expect(createArg).toHaveProperty("repository_id", 7);
+    expect(createArg.agentfile_layer).toContain('REPO "org/repo"');
+    expect(createArg.agentfile_layer).toContain('BRANCH "develop"');
+  });
 });

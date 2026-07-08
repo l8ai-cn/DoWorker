@@ -274,7 +274,7 @@ export interface ChatState {
   backgroundTaskCount: number;
   /**
    * Whether the active session is a native-terminal wrapper
-   * (claude-native / codex-native), derived from the `omnigent.wrapper`
+   * (claude-native / codex-native), derived from the `do-worker.wrapper`
    * label on bind. Web messages on these sessions are NOT persisted at
    * POST time — they round-trip through the vendor TUI and reconcile via
    * the transcript forwarder's `session.input.consumed` event, which can
@@ -343,7 +343,7 @@ export interface ChatState {
   costControlModeOverride: "on" | "off" | null;
   /**
    * Per-session Codex collaboration-mode flag. Hydrated from
-   * ``omnigent.codex_native.collaboration_mode`` on bind and updated by the
+   * ``do-worker.codex_native.collaboration_mode`` on bind and updated by the
    * web toggle or native Codex TUI events. False for non-Codex sessions.
    */
   codexPlanMode: boolean;
@@ -397,7 +397,7 @@ export interface ChatState {
   contextWindow: number | null;
   /**
    * Provider-reported input token count from the most recent
-   * ``response.completed`` SSE event's ``usage.input_tokens``.
+   * ``turn.completed`` SSE event's ``usage.input_tokens``.
    * Authoritative (not an estimate). ``null`` until the first
    * completed response arrives in this session.
    */
@@ -596,8 +596,8 @@ const STREAM_RECONNECT_MAX_MS = 5_000;
 
 // Sticky picker prefs — persisted so a new chat inherits the user's
 // last pick across reloads and across sessions.
-const PICKER_PREF_EFFORT_KEY = "omnigent.picker.effort";
-const PICKER_PREF_MODEL_KEY = "omnigent.picker.model";
+const PICKER_PREF_EFFORT_KEY = "do-worker.picker.effort";
+const PICKER_PREF_MODEL_KEY = "do-worker.picker.model";
 
 function loadPickerPref(key: string): string | null {
   try {
@@ -782,7 +782,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // session API queues item-typed events and the server delivers them
     // into the running task's inbox. Keep `activeResponse` untouched in
     // that case so the in-flight bubble keeps its "streaming" lifecycle
-    // until its own `response.completed` arrives.
+    // until its own `turn.completed` arrives.
     const alreadyStreaming = get().status === "streaming";
     if (!alreadyStreaming) {
       set({ status: "streaming", activeResponse: null });
@@ -1486,7 +1486,7 @@ type NativeModelFamily = "claude" | "codex";
  * :returns: ``"claude"`` / ``"codex"`` for native wrappers, else ``null``.
  */
 function nativeModelFamilyForSession(session: Pick<Session, "labels">): NativeModelFamily | null {
-  switch (session.labels?.["omnigent.wrapper"]) {
+  switch (session.labels?.["do-worker.wrapper"]) {
     case "claude-code-native-ui":
       return "claude";
     case "codex-native-ui":
@@ -1609,7 +1609,7 @@ async function ensureBoundSession(
 function pendingElicitationBlocksFromSnapshot(session: Session): AnyBlock[] {
   const events: StreamEvent[] = [];
   for (const raw of session.pendingElicitations ?? []) {
-    const evt = parseEvent("response.elicitation_request", raw);
+    const evt = parseEvent("turn.elicitation.request", raw);
     if (evt !== null) events.push(evt);
   }
   return events.length > 0 ? new BlockStream().reduceSync(events) : [];
@@ -1620,7 +1620,7 @@ function pendingElicitationBlocksFromSnapshot(session: Session): AnyBlock[] {
  *
  * Re-fetches the session and flips any still-shown elicitation card whose
  * id is no longer in the snapshot's `pendingElicitations` to "resolved
- * elsewhere" — the same end state the `response.elicitation_resolved` SSE
+ * elsewhere" — the same end state the `turn.elicitation.resolved` SSE
  * event produces. This is the recovery path for a backgrounded tab that
  * missed that event (e.g. the approval was answered in the native-terminal
  * popup while the web tab was hidden). No-op when the session changed mid-
@@ -1709,7 +1709,7 @@ function sessionBindingPatch(
   | "terminalPending"
   | "sandboxStatus"
 > {
-  const wrapper = session.labels?.["omnigent.wrapper"];
+  const wrapper = session.labels?.["do-worker.wrapper"];
   return {
     isNativeTerminalSession: isNativeWrapper(wrapper),
     // Native wrapper whose model lives in the vendor TUI (no Omnigent picker):
@@ -1791,7 +1791,7 @@ async function bindStream(
 
   void startStreamPump(id, controller, set, get);
 
-  // Background tabs can miss the `response.elicitation_resolved` SSE event
+  // Background tabs can miss the `turn.elicitation.resolved` SSE event
   // (browser throttling), so a pending ApprovalCard that was answered on
   // another surface (e.g. the native-terminal popup) would stay stuck until
   // a refresh. When the tab becomes visible again, reconcile against a fresh
@@ -1928,7 +1928,6 @@ async function bindStream(
       // appears at the bottom of the chat — same position the live
       // stream would have given it.
       const allBlocks = [...unique, ...state.blocks, ...uniquePendingElicitations];
-      const hasErrorBlock = allBlocks.some((b) => b.type === "error");
       // Decide the optimistic user bubbles to render after this bind, and
       // (on cold load) keep the per-conversation stash consistent.
       //
@@ -2022,17 +2021,12 @@ async function bindStream(
           })()
         : state.pendingByConversation;
       const syntheticError: ErrorBlock | null =
-        session.status === "failed" && session.lastTaskError != null && !hasErrorBlock
-          ? {
-              type: "error",
-              ctx: { agent: null, depth: 0, turn: 0, timestamp: 0, responseId: "", itemId: null },
-              message: session.lastTaskError.message,
-              source: "",
-              code: session.lastTaskError.code,
-            }
+        session.status === "failed"
+          ? syntheticSessionErrorBlock(session.lastTaskError, allBlocks)
           : null;
       return {
         ...bindingPatch,
+        ...reconnectStatusPatch(session, state),
         blocks: syntheticError !== null ? [...allBlocks, syntheticError] : allBlocks,
         pendingUserMessages: snapshotPending,
         pendingByConversation: prunedStash,
@@ -2118,7 +2112,7 @@ function nextReconnectDelay(failedOpens: number): number {
  * drops:
  *
  * - Response-scoped (in-process agents): the replay is a fresh
- *   `response.created` + the joined streamed-so-far text under the same
+ *   `turn.started` + the joined streamed-so-far text under the same
  *   `responseId`, so the in-flight response's `itemId`-less blocks (its
  *   `response_start` marker and streamed text/reasoning chunks) are
  *   dropped; the replay rebuilds them exactly once. Gated on a
@@ -2170,20 +2164,22 @@ function dropEphemeralInFlightBlocks(id: string, set: Setter): void {
  */
 const RECONNECT_BACKFILL_MAX_PAGES = 4;
 
-/**
- * Session-snapshot state every reconnect path recovers: `sessionStatus`,
- * token/context/cost counters, and — when the turn ended during the gap —
- * the terminal `activeResponse` transition the missed `session.status`
- * event would have applied, so "Working…" clears.
- *
- * The inverse also matters: when the snapshot shows a turn STILL running and
- * carries its in-flight `activeResponseId`, reopen the streaming
- * `activeResponse`. The SSE stream is snapshot + live tail with no replay, so
- * the turn-start `running` edge that originally opened it is never re-sent —
- * without this, a client connecting mid-turn (reconnect, or first open of an
- * already-running native session) would leave the turn's bubble non-streaming
- * and its tool cards static for the rest of the turn.
- */
+function syntheticSessionErrorBlock(
+  lastTaskError: { code: string; message: string } | null | undefined,
+  blocks: AnyBlock[],
+): ErrorBlock | null {
+  if (blocks.some((b) => b.type === "error")) return null;
+  return {
+    type: "error",
+    ctx: { agent: null, depth: 0, turn: 0, timestamp: 0, responseId: "", itemId: null },
+    message:
+      lastTaskError?.message ??
+      "Agent failed to respond. Pick a host that supports this agent, or start a new session.",
+    source: "",
+    code: lastTaskError?.code ?? "agent_failed",
+  };
+}
+
 function reconnectStatusPatch(session: Session, s: ChatState): Partial<ChatState> {
   const patch: Partial<ChatState> = { sessionStatus: session.status };
   // Recover the background-shell tally across the gap too, so the spinner
@@ -2228,7 +2224,7 @@ function reconnectStatusPatch(session: Session, s: ChatState): Partial<ChatState
  * Elicitations are keyed by `elicitationId`, never `itemId` (they are
  * not persisted items), so the reconnect item backfill can't recover
  * them — and the SSE stream has no elicitation replay, so a prompt
- * whose `response.elicitation_request` fired into the dead socket
+ * whose `turn.elicitation.request` fired into the dead socket
  * would otherwise stay invisible until a page refresh. The snapshot's
  * `pending_elicitations` (served from the server's in-memory index) is
  * the source of truth for what is still parked. Three reconciliations:
@@ -2237,7 +2233,7 @@ function reconnectStatusPatch(session: Session, s: ChatState): Partial<ChatState
  *   pending card (it fired during the gap).
  * - A rendered pending card absent from the snapshot → flip to
  *   "Resolved elsewhere" (it was answered during the gap), mirroring
- *   the missed `response.elicitation_resolved` event.
+ *   the missed `turn.elicitation.resolved` event.
  * - A rendered auto-resolved card present in the snapshot → flip back
  *   to pending in place (the prompt re-parked after its deferred clear
  *   fired), so the user can still answer it.
@@ -2897,7 +2893,7 @@ async function* tapLiveDeltas(
 /**
  * Flip an auto-resolved ApprovalCard back to answerable, in place.
  *
- * Used when the server re-publishes `response.elicitation_request` for
+ * Used when the server re-publishes `turn.elicitation.request` for
  * an id whose card was already flipped to "Resolved elsewhere" (the
  * deferred clear after a severed harness wait fired before the retry
  * re-parked) — the re-publish proves the prompt is parked again and
@@ -3580,7 +3576,7 @@ export function handleSessionEvent(event: StreamEvent): void {
     case "compaction_completed":
       // Update the context-ring immediately with the post-compaction token
       // estimate so the ring reflects the reduced context without waiting
-      // for the next LLM response.completed event.
+      // for the next LLM turn.completed event.
       if (event.totalTokens != null) {
         useChatStore.setState({ tokensUsed: event.totalTokens });
       }
@@ -3659,6 +3655,18 @@ export function handleSessionEvent(event: StreamEvent): void {
                 error: null,
               };
             }
+          } else if (
+            event.status === "failed" &&
+            s.activeResponse?.state === "streaming"
+          ) {
+            // Failed turns often omit responseId on session_status; without
+            // this the composer stays "Send a follow-up (queued)" forever.
+            patch.status = "idle";
+            patch.activeResponse = {
+              ...s.activeResponse,
+              state: "failed",
+              error: null,
+            };
           } else if (s.activeResponse === null) {
             patch.status = "idle";
           }
@@ -3686,6 +3694,16 @@ export function handleSessionEvent(event: StreamEvent): void {
           // needed for them and only races the round-trip.
           if (!s.isNativeTerminalSession && s.pendingUserMessages.length > 0) {
             patch.pendingUserMessages = [];
+          }
+        }
+        if (event.status === "failed") {
+          const snapshot = queryClient?.getQueryData<Session>(["session", event.conversationId]);
+          const synthetic = syntheticSessionErrorBlock(
+            snapshot?.lastTaskError,
+            s.blocks,
+          );
+          if (synthetic) {
+            patch.blocks = [...s.blocks, synthetic];
           }
         }
         return patch;
@@ -3827,7 +3845,7 @@ export function handleSessionEvent(event: StreamEvent): void {
       // Claude-native: a `/skill-name` or surfaced CLI command typed
       // in the web composer round-trips through tmux → Claude TUI →
       // transcript → `external_conversation_item` (type=slash_command)
-      // → `response.output_item.done`. The Omnigent server bypasses
+      // → `turn.item.done`. The Omnigent server bypasses
       // persistence for these (no `session.input.consumed` fires),
       // so the optimistic bubble in `pendingUserMessages` would
       // otherwise linger next to the rendered SlashCommandBlock
@@ -3948,7 +3966,7 @@ export function handleSessionEvent(event: StreamEvent): void {
       // approval cards. In Codex and native harnesses, multiple
       // elicitations can be pending at once while the tool result
       // event carries only a call id, not the elicitation id. The
-      // server publishes ``response.elicitation_resolved`` with the
+      // server publishes ``turn.elicitation.resolved`` with the
       // exact id when an approval is answered elsewhere; only that
       // event is allowed to flip a pending card to "Resolved
       // elsewhere".
@@ -4181,7 +4199,7 @@ function finalizeCurrentActive(state: ActiveResponse["state"], responseIdOverrid
  *
  * `responseIdOverride` is used by error paths when activeResponse's
  * `responseId` was never populated (e.g. send threw before any
- * response.created fired). Pass `null` to leave the value untouched.
+ * turn.started fired). Pass `null` to leave the value untouched.
  */
 function finalizeActive(
   set: Setter,

@@ -244,10 +244,17 @@
       "titleLabel": "标题",
       "titlePlaceholder": "输入任务标题",
       "titleRequired": "标题为必填项",
-      "repositoryRequired": "仓库为必填项",
       "createFailed": "创建任务失败",
       "repository": "仓库",
       "selectRepository": "选择仓库...",
+      "noRepositoryOption": "不关联仓库（仅协调）",
+      "repositoryOptionalHint": "可选。关联仓库后可使用代码改动、MR 跟踪，以及项目级任务编号。",
+      "repositoryLinkedHint": "Worker 可基于该仓库执行 Git 工作流与 MR 交付。",
+      "emptyRepositoriesTitle": "尚未导入仓库",
+      "emptyRepositoriesDescription": "导入仓库以关联代码工作；也可先创建纯协调类任务，稍后再关联。",
+      "importRepository": "导入仓库",
+      "manageRepositories": "管理仓库",
+      "loadingRepositories": "加载仓库中...",
       "content": "内容",
       "submit": "创建任务",
       "moreOptions": "更多选项",
@@ -326,12 +333,22 @@
   "workers": {
     "create": {
       "title": "创建 Worker",
-      "subtitle": "Worker 是在集群上运行的隔离工作区。先选择集群，再选择镜像（如 DoAgent、Claude Code、Codex），即可启动。",
+      "subtitle": "按步骤配置：运行环境（含 Git 仓库）→ 挂载知识库与 Skill → Agent 指令，然后创建 Worker。",
       "stepsTitle": "创建步骤",
-      "stepCluster": "选择集群 — 提供算力的节点",
-      "stepImage": "选择镜像 — 决定 Worker 内运行的 AI 运行时",
-      "stepLaunch": "填写初始任务（可选）并创建 — 完成后进入工作区终端",
-      "backToWorkspace": "返回工作区"
+      "stepCluster": "集群与镜像 — 算力节点 + AI 运行时",
+      "stepCapabilities": "能力挂载 — 知识库与 Skill",
+      "stepAgentFile": "Agent 指令 — 预览或手写 AGENTS.md / AgentFile",
+      "stepLaunch": "初始任务与时长 — 创建后进入工作区",
+      "backToWorkspace": "返回工作区",
+      "nl": {
+        "title": "用一句话描述任务",
+        "placeholder": "例如：审查 auth 中间件的权限缺口并总结发现。",
+        "hint": "我们会自动为你选择 Runner 和 Agent。⌘/Ctrl + Enter 发送。",
+        "submit": "创建 Worker",
+        "queued": "Worker 已排队",
+        "fallback": "无法自动分配 Runner —— 请用下方向导完成配置。",
+        "error": "创建 Worker 失败"
+      }
     }
   },
   "workspace": {

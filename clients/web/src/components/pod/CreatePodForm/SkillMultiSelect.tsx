@@ -11,6 +11,7 @@ interface Props {
   onChange: (slugs: string[]) => void;
   loading?: boolean;
   repositorySelected?: boolean;
+  embedded?: boolean;
   t: (key: string) => string;
 }
 
@@ -20,6 +21,7 @@ export function SkillMultiSelect({
   onChange,
   loading,
   repositorySelected = true,
+  embedded = false,
   t,
 }: Props) {
   const toggle = useCallback(
@@ -41,9 +43,11 @@ export function SkillMultiSelect({
   if (loading) {
     return (
       <div>
-        <label className="block text-sm font-medium mb-2">
-          {t("ide.createPod.selectSkills")}
-        </label>
+        {!embedded && (
+          <label className="mb-2 block text-sm font-medium">
+            {t("ide.createPod.selectSkills")}
+          </label>
+        )}
         <div className="flex items-center text-sm text-muted-foreground py-2">
           <Spinner size="sm" className="mr-2" />
           {t("common.loading")}
@@ -54,9 +58,11 @@ export function SkillMultiSelect({
 
   return (
     <div>
-      <label className="block text-sm font-medium mb-2">
-        {t("ide.createPod.selectSkills")}
-      </label>
+      {!embedded && (
+        <label className="mb-2 block text-sm font-medium">
+          {t("ide.createPod.selectSkills")}
+        </label>
+      )}
 
       {selectedSlugs.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-1.5">
@@ -84,8 +90,8 @@ export function SkillMultiSelect({
       )}
 
       {!repositorySelected ? (
-        <p className="text-xs text-muted-foreground py-2">
-          选择仓库后加载该仓库已安装的 Skill。
+        <p className="py-2 text-xs text-muted-foreground">
+          {t("ide.createPod.skillsRequireRepositoryHint")}
         </p>
       ) : skills.length === 0 ? (
         <p className="text-xs text-muted-foreground py-2">

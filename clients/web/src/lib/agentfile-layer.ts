@@ -57,6 +57,13 @@ export function buildAgentfileLayer(params: {
   skillSlugs?: string[];
   /** Knowledge base mounts. Emitted as `KNOWLEDGE slug [rw], slug2`. */
   knowledgeMounts?: { slug: string; mode: "ro" | "rw" }[];
+  /**
+   * Optional per-Worker token budget cap (positive integer). Emitted as
+   * `CONFIG token_budget = "N"` — the same directive the backend
+   * orchestrator appends for model-pool bindings, so this stays within the
+   * existing AgentFile contract.
+   */
+  tokenBudget?: number | null;
   prompt?: string;
 }): string {
   const lines: string[] = [];
@@ -99,6 +106,15 @@ export function buildAgentfileLayer(params: {
     if (value !== undefined && value !== null && value !== "") {
       lines.push(`CONFIG ${key} = ${formatAgentfileValue(value)}`);
     }
+  }
+
+  // Token budget cap — quoted to match backend applyWorkerModel emission.
+  if (
+    params.tokenBudget != null &&
+    Number.isFinite(params.tokenBudget) &&
+    params.tokenBudget > 0
+  ) {
+    lines.push(`CONFIG token_budget = "${Math.floor(params.tokenBudget)}"`);
   }
 
   // Repository slug / branch

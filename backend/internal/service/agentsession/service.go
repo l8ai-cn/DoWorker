@@ -52,7 +52,9 @@ func (s *Service) ListByUser(ctx context.Context, orgID, userID int64, limit int
 
 func (s *Service) GetByPodKey(ctx context.Context, podKey string) (*domain.Session, error) {
 	var row domain.Session
-	err := s.db.WithContext(ctx).Where("pod_key = ?", podKey).First(&row).Error
+	err := s.db.WithContext(ctx).
+		Where("pod_key = ? AND deleted_at IS NULL", podKey).
+		First(&row).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrNotFound
 	}

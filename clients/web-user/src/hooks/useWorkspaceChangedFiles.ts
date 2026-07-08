@@ -17,6 +17,7 @@
 import { useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSessionRunnerOnline } from "@/hooks/RunnerHealthProvider";
+import { useSession } from "@/hooks/useSession";
 import { authenticatedFetch } from "@/lib/identity";
 import { useChatStore } from "@/store/chatStore";
 
@@ -618,10 +619,19 @@ export function useWorkspaceEnvironment(
   options: WorkspaceQueryOptions = {},
 ) {
   const runnerOnline = useSessionRunnerOnline(conversationId);
+  const { session } = useSession(conversationId ?? null);
+  const sessionReady = session == null || session.status !== "launching";
+  const filesystemLikely =
+    session == null || (session.status !== "failed" && session.status !== "launching");
   return useQuery({
     queryKey: ["workspace-environment", conversationId],
     queryFn: () => fetchWorkspaceEnvironment(conversationId!),
-    enabled: (options.enabled ?? true) && !!conversationId && runnerOnline !== false,
+    enabled:
+      (options.enabled ?? true) &&
+      !!conversationId &&
+      runnerOnline !== false &&
+      sessionReady &&
+      filesystemLikely,
     retry: shouldRetryRunnerOffline,
     retryDelay: runnerOfflineRetryDelay,
     staleTime: 60_000,

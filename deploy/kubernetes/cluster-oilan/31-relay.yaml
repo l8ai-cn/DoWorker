@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: relay
+  template:
+    metadata:
+      labels:
+        app: relay
+    spec:
+      imagePullSecrets:
+        - name: agentsmesh-regcred
+      containers:
+        - name: relay
+          image: repo.aiedulab.cn:8443/agentsmesh/relay:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8090
+          env:
+            - name: SERVER_ADDRESS
+              value: ":8090"
+            - name: BACKEND_URL
+              value: "http://backend:8080"
+            - name: PRIMARY_DOMAIN
+              value: "agentsmesh.aiedulab.cn"
+            - name: USE_HTTPS
+              value: "true"
+            - name: RELAY_ID
+              value: "k8s-relay-1"
+            - name: RELAY_REGION
+              value: "cluster-114"
+            - name: RELAY_CAPACITY
+              value: "1000"
+            - name: SESSION_KEEP_ALIVE_DURATION
+              value: "30s"
+            - name: DEBUG
+              value: "false"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: agentsmesh-secrets
+                  key: JWT_SECRET
+            - name: INTERNAL_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: agentsmesh-secrets
+                  key: INTERNAL_API_SECRET
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8090
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: relay
+  namespace: agentsmesh
+spec:
+  selector:
+    app: relay
+  ports:
+    - port: 8090
+      targetPort: 8090

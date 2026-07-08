@@ -308,7 +308,7 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
             if let Some(slug) = event.data.get("ticket_slug").and_then(|v| v.as_str()) {
                 state.pending_refetch_ticket_slugs.push(slug.to_string());
             }
-            if let Some(pod_id) = event.data.get("pod_id").and_then(|v| v.as_i64()) {
+            if let Some(pod_id) = ji64(&event.data, "pod_id") {
                 // Resolve pod_id → pod_key against current cache. Platform
                 // refetches by key. If not found, skip — the event will be
                 // re-emitted when the pod is created.
@@ -654,6 +654,18 @@ mod tests {
         dispatch(&mut s, &make_event(EventType::PipelineUpdated, json!({"ticket_slug": "T-1", "pod_id": 42})));
         assert_eq!(s.take_pending_refetch_pod_keys(), vec!["pod-abc".to_string()]);
         assert_eq!(s.take_pending_refetch_ticket_slugs(), vec!["T-1".to_string()]);
+    }
+
+    #[test]
+    fn pipeline_event_resolves_protojson_string_pod_id() {
+        let mut s = AppState::new();
+        s.pods.upsert_pod(Pod {
+            id: 42, pod_key: "pod-abc".into(), status: "running".into(),
+            agent_slug: "claude".into(), ..Default::default()
+        }, Some(1));
+        dispatch(&mut s, &make_event(EventType::MrUpdated, json!({"ticket_slug": "T-2", "pod_id": "42"})));
+        assert_eq!(s.take_pending_refetch_pod_keys(), vec!["pod-abc".to_string()]);
+        assert_eq!(s.take_pending_refetch_ticket_slugs(), vec!["T-2".to_string()]);
     }
 
     #[test]

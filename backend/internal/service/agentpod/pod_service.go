@@ -64,6 +64,11 @@ type CreatePodRequest struct {
 
 	// Perpetual mode: Runner auto-restarts the agent process on clean exit
 	Perpetual bool
+
+	InitialStatus string
+
+	// VirtualAPIKeyID attributes usage to a virtual API key for quota/billing.
+	VirtualAPIKeyID *int64
 }
 
 // CreatePod creates a new pod
@@ -109,6 +114,11 @@ func (s *PodService) CreatePod(ctx context.Context, req *CreatePodRequest) (*age
 		interactionMode = agentpod.InteractionModePTY
 	}
 
+	initialStatus := req.InitialStatus
+	if initialStatus == "" {
+		initialStatus = agentpod.StatusInitializing
+	}
+
 	pod := &agentpod.Pod{
 		OrganizationID:      req.OrganizationID,
 		PodKey:              podKey,
@@ -117,7 +127,7 @@ func (s *PodService) CreatePod(ctx context.Context, req *CreatePodRequest) (*age
 		RepositoryID:        req.RepositoryID,
 		TicketID:            req.TicketID,
 		CreatedByID:         req.CreatedByID,
-		Status:              agentpod.StatusInitializing,
+		Status:              initialStatus,
 		AgentStatus:         agentpod.AgentStatusIdle,
 		Prompt:              req.Prompt,
 		Alias:               req.Alias,
@@ -129,6 +139,7 @@ func (s *PodService) CreatePod(ctx context.Context, req *CreatePodRequest) (*age
 		InteractionMode:     interactionMode,
 		Perpetual:           req.Perpetual,
 		ResolvedConfig:      req.ResolvedConfig,
+		VirtualAPIKeyID:     req.VirtualAPIKeyID,
 	}
 
 	if err := s.repo.Create(ctx, pod); err != nil {

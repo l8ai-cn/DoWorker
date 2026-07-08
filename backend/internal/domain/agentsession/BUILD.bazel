@@ -3,8 +3,8 @@ load("@rules_go//go:def.bzl", "go_library")
 go_library(
     name = "agentsession",
     srcs = [
-        "session.go",
         "mcp_goal.go",
+        "session.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession",
     visibility = ["//backend:__subpackages__"],

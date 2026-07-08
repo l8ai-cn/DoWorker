@@ -9,8 +9,13 @@ export interface RepositorySelectProps {
   onChange: (value: number | null, repository?: RepositoryData) => void;
   disabled?: boolean;
   placeholder?: string;
+  loadingLabel?: string;
+  retryLabel?: string;
+  noneLabel?: string;
+  allowNone?: boolean;
   className?: string;
   activeOnly?: boolean;
+  id?: string;
 }
 
 export function RepositorySelect({
@@ -18,8 +23,13 @@ export function RepositorySelect({
   onChange,
   disabled = false,
   placeholder = "Select a repository...",
+  loadingLabel = "Loading repositories...",
+  retryLabel = "Retry",
+  noneLabel,
+  allowNone = false,
   className = "",
   activeOnly = true,
+  id,
 }: RepositorySelectProps) {
   const allRepos = useRepositories();
   const loading = useRepositoryStore((s) => s.isLoading);
@@ -53,7 +63,7 @@ export function RepositorySelect({
           onClick={() => fetchRepositories()}
           className="ml-2 underline hover:no-underline"
         >
-          Retry
+          {retryLabel}
         </button>
       </div>
     );
@@ -61,13 +71,14 @@ export function RepositorySelect({
 
   return (
     <select
+      id={id}
       className={`w-full px-3 py-2 border border-border rounded-md bg-background ${className}`}
       value={value || ""}
       onChange={handleChange}
       disabled={disabled || loading}
     >
       <option value="">
-        {loading ? "Loading repositories..." : placeholder}
+        {loading ? loadingLabel : allowNone && noneLabel ? noneLabel : placeholder}
       </option>
       {repositories.map((repo) => (
         <option key={repo.id} value={repo.id}>

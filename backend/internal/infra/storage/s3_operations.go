@@ -84,8 +84,12 @@ func (s *S3Storage) GetURL(ctx context.Context, key string, expiry time.Duration
 	return request.URL, nil
 }
 
-func (s *S3Storage) presignGetURL(ctx context.Context, key string, expiry time.Duration) (string, error) {
-	request, err := s.presign.PresignGetObject(ctx, &s3.GetObjectInput{
+func (s *S3Storage) GetInternalURL(ctx context.Context, key string, expiry time.Duration) (string, error) {
+	presigner := s.presign
+	if s.runnerPresign != nil {
+		presigner = s.runnerPresign
+	}
+	request, err := presigner.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(s.bucket),
 		Key:    aws.String(key),
 	}, s3.WithPresignExpires(expiry))
@@ -93,10 +97,6 @@ func (s *S3Storage) presignGetURL(ctx context.Context, key string, expiry time.D
 		return "", fmt.Errorf("failed to generate presigned URL: %w", err)
 	}
 	return request.URL, nil
-}
-
-func (s *S3Storage) GetInternalURL(ctx context.Context, key string, expiry time.Duration) (string, error) {
-	return s.presignGetURL(ctx, key, expiry)
 }
 
 func (s *S3Storage) PresignPutURL(ctx context.Context, key string, contentType string, expiry time.Duration) (string, error) {

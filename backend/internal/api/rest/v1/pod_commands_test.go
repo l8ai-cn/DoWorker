@@ -32,6 +32,10 @@ func (m *mockPodService) ListPods(context.Context, int64, agentpod.PodListQuery)
 	return nil, 0, nil
 }
 
+func (m *mockPodService) ListQueuedPods(context.Context, int64) ([]*agentpod.Pod, error) {
+	return nil, nil
+}
+
 func (m *mockPodService) CreatePod(context.Context, *agentpodSvc.CreatePodRequest) (*agentpod.Pod, error) {
 	return nil, nil
 }

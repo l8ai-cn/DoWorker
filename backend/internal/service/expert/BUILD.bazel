@@ -1,0 +1,30 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "expert",
+    srcs = [
+        "crud.go",
+        "publish.go",
+        "run.go",
+        "service.go",
+        "validation.go",
+    ],
+    importpath = "github.com/anthropics/agentsmesh/backend/internal/service/expert",
+    visibility = ["//backend:__subpackages__"],
+    deps = [
+        "//agentfile/serialize",
+        "//backend/internal/domain/agent",
+        "//backend/internal/domain/agentpod",
+        "//backend/internal/domain/expert",
+        "//backend/internal/domain/gitprovider",
+        "//backend/internal/service/agentpod",
+        "//backend/pkg/slugkit",
+        "@com_github_lib_pq//:pq",
+    ],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":expert",
+    visibility = ["//backend:__subpackages__"],
+)

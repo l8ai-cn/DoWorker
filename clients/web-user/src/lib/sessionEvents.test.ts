@@ -435,10 +435,10 @@ describe("response.heartbeat", () => {
   });
 });
 
-describe("response.output_item.done (message)", () => {
+describe("turn.item.done (message)", () => {
   it("drops meta messages", () => {
-    const out = parse("response.output_item.done", {
-      type: "response.output_item.done",
+    const out = parse("turn.item.done", {
+      type: "turn.item.done",
       item: {
         id: "msg_meta",
         type: "message",
@@ -453,10 +453,10 @@ describe("response.output_item.done (message)", () => {
   });
 });
 
-describe("response.output_item.done (error)", () => {
+describe("turn.item.done (error)", () => {
   it("lifts persisted error items for live transcript rendering", () => {
-    const out = parse("response.output_item.done", {
-      type: "response.output_item.done",
+    const out = parse("turn.item.done", {
+      type: "turn.item.done",
       item: {
         id: "err_kiro",
         type: "error",
@@ -483,12 +483,12 @@ describe("response.output_item.done (error)", () => {
   });
 });
 
-describe("response.output_item.done (slash_command)", () => {
+describe("turn.item.done (slash_command)", () => {
   // parseOutputItem returns null for unknown item.types; without
   // these cases the live UI silently drops every Skill invocation.
   it("lifts a skill invocation with empty args + no stdout", () => {
-    const out = parse("response.output_item.done", {
-      type: "response.output_item.done",
+    const out = parse("turn.item.done", {
+      type: "turn.item.done",
       item: {
         id: "sc_1",
         type: "slash_command",
@@ -519,8 +519,8 @@ describe("response.output_item.done (slash_command)", () => {
   });
 
   it("lifts a built-in style record carrying inline stdout", () => {
-    const out = parse("response.output_item.done", {
-      type: "response.output_item.done",
+    const out = parse("turn.item.done", {
+      type: "turn.item.done",
       item: {
         id: "sc_2",
         type: "slash_command",
@@ -543,8 +543,8 @@ describe("response.output_item.done (slash_command)", () => {
   });
 
   it("lifts kind='command' for surfaced CLI built-ins", () => {
-    const out = parse("response.output_item.done", {
-      type: "response.output_item.done",
+    const out = parse("turn.item.done", {
+      type: "turn.item.done",
       item: {
         id: "sc_cmd",
         type: "slash_command",
@@ -564,8 +564,8 @@ describe("response.output_item.done (slash_command)", () => {
   it("defaults kind to 'skill' when the field is absent (back-compat)", () => {
     // Replaying a session captured before the bridge emitted ``kind``
     // must still render as a Skill card, not throw on missing prop.
-    const out = parse("response.output_item.done", {
-      type: "response.output_item.done",
+    const out = parse("turn.item.done", {
+      type: "turn.item.done",
       item: {
         id: "sc_legacy",
         type: "slash_command",
@@ -581,12 +581,12 @@ describe("response.output_item.done (slash_command)", () => {
   });
 });
 
-describe("response.output_item.done (routing_decision)", () => {
+describe("turn.item.done (routing_decision)", () => {
   // parseOutputItem returns null for unknown item.types; without this
   // case the live UI silently drops the intelligent-model-router chip.
   it("lifts an applied routing decision with its verdict fields + id", () => {
-    const out = parse("response.output_item.done", {
-      type: "response.output_item.done",
+    const out = parse("turn.item.done", {
+      type: "turn.item.done",
       item: {
         id: "rd_1",
         type: "routing_decision",
@@ -612,8 +612,8 @@ describe("response.output_item.done (routing_decision)", () => {
   });
 
   it("carries applied=false for a shadow verdict", () => {
-    const out = parse("response.output_item.done", {
-      type: "response.output_item.done",
+    const out = parse("turn.item.done", {
+      type: "turn.item.done",
       item: {
         id: "rd_shadow",
         type: "routing_decision",
@@ -633,8 +633,8 @@ describe("response.output_item.done (routing_decision)", () => {
   it("drops a malformed routing decision (empty model)", () => {
     // A bad frame must not render a chip with no model — the parser drops
     // it so the live UI shows nothing rather than a broken chip.
-    const out = parse("response.output_item.done", {
-      type: "response.output_item.done",
+    const out = parse("turn.item.done", {
+      type: "turn.item.done",
       item: {
         id: "rd_bad",
         type: "routing_decision",
@@ -650,8 +650,8 @@ describe("response.output_item.done (routing_decision)", () => {
   });
 
   it("drops a routing decision with an unknown tier", () => {
-    const out = parse("response.output_item.done", {
-      type: "response.output_item.done",
+    const out = parse("turn.item.done", {
+      type: "turn.item.done",
       item: {
         id: "rd_bad_tier",
         type: "routing_decision",
@@ -667,15 +667,15 @@ describe("response.output_item.done (routing_decision)", () => {
   });
 });
 
-describe("response.elicitation_request (FLAT envelope)", () => {
+describe("turn.elicitation.request (FLAT envelope)", () => {
   it("lifts structured Codex requestUserInput payloads", () => {
     // Codex's final plan-mode prompt rides as the same
     // ``ask_user_question`` extra as Claude's AskUserQuestion flow.
     // If this parser drops the extra, ApprovalCard falls back to a
     // generic binary approval and the "Implement this plan?" options
     // never render.
-    const out = parse("response.elicitation_request", {
-      type: "response.elicitation_request",
+    const out = parse("turn.elicitation.request", {
+      type: "turn.elicitation.request",
       elicitation_id: "elicit_plan",
       params: {
         mode: "form",
@@ -721,8 +721,8 @@ describe("response.elicitation_request (FLAT envelope)", () => {
     // ``content_preview`` for debugging, but the card should render
     // the structured extras instead. Dropping this payload makes the
     // web UI dump ids like threadId / itemId into the approval card.
-    const out = parse("response.elicitation_request", {
-      type: "response.elicitation_request",
+    const out = parse("turn.elicitation.request", {
+      type: "turn.elicitation.request",
       elicitation_id: "elicit_cmd",
       params: {
         mode: "form",
@@ -755,8 +755,8 @@ describe("response.elicitation_request (FLAT envelope)", () => {
     // The card must preserve the child id so approval posts to the
     // parked harness Future's owning session, not the currently open
     // parent chat.
-    const out = parse("response.elicitation_request", {
-      type: "response.elicitation_request",
+    const out = parse("turn.elicitation.request", {
+      type: "turn.elicitation.request",
       elicitation_id: "elicit_child_cmd",
       params: {
         mode: "form",
@@ -781,8 +781,8 @@ describe("response.elicitation_request (FLAT envelope)", () => {
     // PermissionRequests so the card can offer "Accept & allow all
     // edits". If this parser dropped it, the button would never
     // render even when the server intended it.
-    const out = parse("response.elicitation_request", {
-      type: "response.elicitation_request",
+    const out = parse("turn.elicitation.request", {
+      type: "turn.elicitation.request",
       elicitation_id: "elicit_edit",
       params: {
         mode: "form",
@@ -806,8 +806,8 @@ describe("response.elicitation_request (FLAT envelope)", () => {
     // Non-edit / non-claude-native prompts (here a Bash prompt) carry
     // no hint. ``allowAllEdits`` must stay false so the button is
     // gated off — switching to acceptEdits would be a no-op for Bash.
-    const out = parse("response.elicitation_request", {
-      type: "response.elicitation_request",
+    const out = parse("turn.elicitation.request", {
+      type: "turn.elicitation.request",
       elicitation_id: "elicit_bash",
       params: {
         mode: "form",
@@ -830,8 +830,8 @@ describe("response.elicitation_request (FLAT envelope)", () => {
     // PermissionRequests so the card can offer "Approve & don't ask
     // again for <host>". For WebFetch the host scopes the rule, so it
     // must survive parsing.
-    const out = parse("response.elicitation_request", {
-      type: "response.elicitation_request",
+    const out = parse("turn.elicitation.request", {
+      type: "turn.elicitation.request",
       elicitation_id: "elicit_webfetch",
       params: {
         mode: "form",
@@ -853,8 +853,8 @@ describe("response.elicitation_request (FLAT envelope)", () => {
   it("lifts a tool-wide remember_scope hint (no host)", () => {
     // Non-WebFetch tools (here Bash) get a tool-wide scope: ``tool``
     // only, no ``host``. The card labels the button by the tool name.
-    const out = parse("response.elicitation_request", {
-      type: "response.elicitation_request",
+    const out = parse("turn.elicitation.request", {
+      type: "turn.elicitation.request",
       elicitation_id: "elicit_bash_remember",
       params: {
         mode: "form",
@@ -876,8 +876,8 @@ describe("response.elicitation_request (FLAT envelope)", () => {
   it("leaves rememberScope null when the hint is absent", () => {
     // Edit tools / ExitPlanMode / AskUserQuestion carry no
     // ``remember_scope``; the button must stay hidden.
-    const out = parse("response.elicitation_request", {
-      type: "response.elicitation_request",
+    const out = parse("turn.elicitation.request", {
+      type: "turn.elicitation.request",
       elicitation_id: "elicit_edit_no_remember",
       params: {
         mode: "form",
@@ -897,7 +897,7 @@ describe("response.elicitation_request (FLAT envelope)", () => {
   });
 });
 
-describe("response.elicitation_resolved (FLAT envelope)", () => {
+describe("turn.elicitation.resolved (FLAT envelope)", () => {
   it("lifts elicitation_id and emits a single elicitation_resolved", () => {
     // The server publishes this event from every approval-clearing
     // path (UI approval dispatch, PermissionRequest hook finally,
@@ -905,8 +905,8 @@ describe("response.elicitation_resolved (FLAT envelope)", () => {
     // resolved ApprovalCard by elicitationId — if the parser drops
     // the id or misnames it, the handler silently fails to clear
     // the card and the user sees a stuck pending prompt.
-    const out = parse("response.elicitation_resolved", {
-      type: "response.elicitation_resolved",
+    const out = parse("turn.elicitation.resolved", {
+      type: "turn.elicitation.resolved",
       elicitation_id: "elicit_abc",
     });
     expect(out).toHaveLength(1);
@@ -921,8 +921,8 @@ describe("response.elicitation_resolved (FLAT envelope)", () => {
     // client — skip it rather than handing the handler a sentinel
     // that would clear the wrong card (or no card with confusing
     // semantics).
-    const out = parse("response.elicitation_resolved", {
-      type: "response.elicitation_resolved",
+    const out = parse("turn.elicitation.resolved", {
+      type: "turn.elicitation.resolved",
     });
     expect(out).toEqual([]);
   });
@@ -931,8 +931,8 @@ describe("response.elicitation_resolved (FLAT envelope)", () => {
     // Defensive — an empty string would compare equal to a
     // similarly malformed cached id; the type guard rejects it
     // alongside missing-key for consistency.
-    const out = parse("response.elicitation_resolved", {
-      type: "response.elicitation_resolved",
+    const out = parse("turn.elicitation.resolved", {
+      type: "turn.elicitation.resolved",
       elicitation_id: "",
     });
     expect(out).toEqual([]);
@@ -1024,7 +1024,7 @@ describe("session.usage (FLAT envelope)", () => {
 
   it("accepts cost-only broadcasts (relay path, no context fields)", () => {
     // The Omnigent relay path emits a session.usage carrying only the
-    // cumulative cost — context_tokens/window ride on response.completed.
+    // cumulative cost — context_tokens/window ride on turn.completed.
     const out = parse("session.usage", {
       type: "session.usage",
       conversation_id: "conv_abc",

@@ -1,0 +1,118 @@
+package sessionapi
+
+import (
+	"errors"
+	"net/http"
+
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
+	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	"github.com/gin-gonic/gin"
+)
+
+func (d *Deps) handleSwitchAgent(c *gin.Context) {
+	row, pod, ok := d.authorizeSession(c, c.Param("id"))
+	if !ok {
+		return
+	}
+	if !d.requireSessionLevel(c, row, levelEdit) {
+		return
+	}
+	var body struct {
+		AgentID string `json:"agent_id"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil || body.AgentID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "agent_id required"})
+		return
+	}
+	if body.AgentID == row.AgentSlug {
+		c.JSON(http.StatusOK, d.sessionWire(row, pod, row.RunnerNodeID))
+		return
+	}
+	if d.sessionIsBusy(c.Param("id"), pod) {
+		c.JSON(http.StatusConflict, gin.H{
+			"error": gin.H{"code": "session_busy", "message": "Session is busy"},
+		})
+		return
+	}
+	newPod, err := d.rebuildSessionPod(c, row, pod, body.AgentID)
+	if err != nil {
+		writeSwitchAgentError(c, err)
+		return
+	}
+	row.AgentSlug = body.AgentID
+	row.PodKey = newPod.PodKey
+	if d.Updates != nil {
+		d.Updates.NotifyChanged(row.ID)
+	}
+	c.JSON(http.StatusOK, d.sessionWire(row, newPod, row.RunnerNodeID))
+}
+
+func (d *Deps) sessionIsBusy(sessionID string, pod *podDomain.Pod) bool {
+	if d.Hub != nil {
+		if _, active := d.Hub.ActiveResponse(sessionID); active {
+			return true
+		}
+	}
+	switch mapSessionStatus(pod) {
+	case "running", "waiting", "launching":
+		return true
+	default:
+		return false
+	}
+}
+
+func (d *Deps) rebuildSessionPod(c *gin.Context, row *domain.Session, pod *podDomain.Pod, agentSlug string) (*podDomain.Pod, error) {
+	if d.PodOrchestrator == nil || d.Sessions == nil || d.PodCoordinator == nil {
+		return nil, errSwitchUnavailable
+	}
+	oldPodKey := row.PodKey
+	if pod != nil && pod.PodKey != "" {
+		_ = d.PodCoordinator.TerminatePod(c.Request.Context(), pod.PodKey)
+	}
+	runnerID := int64(0)
+	resumeExternal := ""
+	if pod != nil {
+		runnerID = pod.RunnerID
+		if pod.ExternalSessionID != nil {
+			resumeExternal = *pod.ExternalSessionID
+		}
+	}
+	orchReq := &agentpod.OrchestrateCreatePodRequest{
+		OrganizationID: row.OrganizationID, UserID: row.UserID,
+		RunnerID: runnerID, AgentSlug: agentSlug, AgentSessionID: row.ID,
+		AgentfileLayer:          acpAgentfileLayer(),
+		ResumeExternalSessionID: resumeExternal,
+		SessionMcpServers:       domain.McpServersToInstalled(domain.ParseMcpServers(row.McpServers)),
+	}
+	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
+	if err != nil {
+		return nil, err
+	}
+	if err := d.Sessions.UpdateAgentAndPod(c.Request.Context(), row.ID, agentSlug, result.Pod.PodKey); err != nil {
+		return nil, err
+	}
+	if d.Stream != nil {
+		d.Stream.PublishPodStatus(c.Request.Context(), result.Pod.PodKey, result.Pod.Status, result.Pod.AgentStatus)
+	}
+	_ = oldPodKey
+	return result.Pod, nil
+}
+
+var errSwitchUnavailable = errors.New("switch unavailable")
+
+func writeSwitchAgentError(c *gin.Context, err error) {
+	switch {
+	case errors.Is(err, agentpod.ErrNoAvailableRunner):
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "runner unavailable", "code": "runner_unavailable"})
+	case errors.Is(err, agentpod.ErrRunnerDispatchFailed):
+		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error(), "code": "runner_dispatch_failed"})
+	case errors.Is(err, runnerservice.ErrRunnerNotConnected), errors.Is(err, runnerservice.ErrRunnerOffline):
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "runner unavailable", "code": "runner_unavailable"})
+	case errors.Is(err, errSwitchUnavailable):
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "unavailable"})
+	default:
+		writeOrchestratorError(c, err)
+	}
+}

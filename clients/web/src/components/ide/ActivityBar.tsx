@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import {
   Tooltip,
@@ -15,10 +16,11 @@ import { resolveActivityFromPathname } from "@/lib/ide-route";
 import { useCurrentOrg } from "@/stores/auth";
 import { useTotalUnreadCount } from "@/stores/channelMessageStore";
 import { useTranslations } from "next-intl";
-import { CircleHelp } from "lucide-react";
+import { CircleHelp, ShieldCheck } from "lucide-react";
 import { OrgSwitcher } from "@/components/ide/OrgSwitcher";
 import { ReminderArea } from "@/components/ide/ReminderArea";
 import { ActivityBarLink } from "./ActivityBarLink";
+import { useIsSystemAdmin } from "@/hooks/useIsSystemAdmin";
 
 interface ActivityBarProps {
   className?: string;
@@ -33,6 +35,7 @@ export function ActivityBar({ className }: ActivityBarProps) {
   const orgSlug = currentOrg?.slug || (params.org as string) || "";
   const t = useTranslations();
   const totalChannelUnread = useTotalUnreadCount();
+  const isSystemAdmin = useIsSystemAdmin();
 
   const getActivityRoute = (activity: ActivityType): string => {
     switch (activity) {
@@ -46,6 +49,8 @@ export function ActivityBar({ className }: ActivityBarProps) {
         return `/${orgSlug}/mesh`;
       case "loops":
         return `/${orgSlug}/loops`;
+      case "experts":
+        return `/${orgSlug}/experts`;
       case "automation":
         return `/${orgSlug}/automation`;
       case "apiAccess":
@@ -142,6 +147,30 @@ export function ActivityBar({ className }: ActivityBarProps) {
               </TooltipContent>
             </TooltipPortal>
           </Tooltip>
+
+          {isSystemAdmin && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/admin/audit-logs"
+                  className="motion-interactive pressable w-full h-9 px-2.5 flex items-center gap-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface-muted"
+                >
+                  <ShieldCheck className="w-4 h-4 shrink-0" />
+                  <span className="text-xs leading-tight font-medium truncate">
+                    Admin
+                  </span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipPortal>
+                <TooltipContent
+                  side="right"
+                  className="z-50 bg-popover text-popover-foreground px-2 py-1 text-sm rounded-md shadow-[var(--shadow-soft)]"
+                >
+                  Admin
+                </TooltipContent>
+              </TooltipPortal>
+            </Tooltip>
+          )}
 
           {bottomActivities.map((activity) => {
             const isActive = activeActivity === activity.id;

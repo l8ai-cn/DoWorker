@@ -77,6 +77,10 @@ impl WasmApiClient {
         crate::state_repo::WasmRepoState::from_runtime(self.runtime.state.clone())
     }
 
+    pub fn get_expert_state(&self) -> crate::state_expert::WasmExpertState {
+        crate::state_expert::WasmExpertState::from_runtime(self.runtime.state.clone())
+    }
+
     pub fn get_acp_manager(&self) -> crate::state_acp::WasmAcpSessionManager {
         crate::state_acp::WasmAcpSessionManager::from_runtime(self.runtime.state.clone())
     }

@@ -6,6 +6,7 @@ const ACTIVITIES_WITH_SIDEBAR = new Set<ActivityType>([
   "channels",
   "mesh",
   "loops",
+  "experts",
   "blocks",
   "infra",
   "repositories",

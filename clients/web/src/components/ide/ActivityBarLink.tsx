@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   Blocks,
   BookOpen,
+  Bot,
   Code2,
   FolderGit2,
   Layers,
@@ -33,6 +34,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   network: Network,
   "message-square": MessageSquare,
   repeat: Repeat,
+  bot: Bot,
   workflow: Workflow,
   blocks: Blocks,
   "book-open": BookOpen,

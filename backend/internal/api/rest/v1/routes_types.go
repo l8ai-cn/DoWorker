@@ -1,6 +1,7 @@
 package v1
 
 import (
+	grpcserver "github.com/anthropics/agentsmesh/backend/internal/api/grpc"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/acme"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/email"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
@@ -8,17 +9,22 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	aimodelsvc "github.com/anthropics/agentsmesh/backend/internal/service/aimodel"
+	tokenquotasvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenquota"
+	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
 	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
 	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
 	"github.com/anthropics/agentsmesh/backend/internal/service/channel"
-	coordinatorservice "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
+	coordinatorservice 	"github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
 	extensionservice 	"github.com/anthropics/agentsmesh/backend/internal/service/extension"
+	envbundlesvc "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
 	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
 	"github.com/anthropics/agentsmesh/backend/internal/service/geo"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
 	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
+	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
 	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
 	"github.com/anthropics/agentsmesh/backend/internal/service/promocode"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
@@ -56,6 +62,10 @@ type Services struct {
 	MRSync             *ticket.MRSyncService // MR sync for webhook events
 	AgentPodSettings   *agentpod.SettingsService   // AgentPod user settings
 	AgentPodAIProvider *agentpod.AIProviderService // AgentPod AI provider management
+	AIModel            *aimodelsvc.Service         // Model pool (org/user model configs)
+	VirtualKey         *virtualkeysvc.Service      // Virtual API keys (quota/billing handles)
+	TokenQuota         *tokenquotasvc.Service      // Token quotas + usage report
+	EnvBundle          *envbundlesvc.Service       // Env bundles for harness credential injection
 	Billing            *billing.Service
 	Message            *MessageService                  // Agent-to-agent messaging
 	Hub                *websocket.Hub                   // WebSocket hub for real-time communication
@@ -70,6 +80,7 @@ type Services struct {
 
 	// gRPC/mTLS Runner registration handler (optional, only when PKI is enabled)
 	GRPCRunnerHandler *GRPCRunnerHandler
+	RunnerGRPCAdapter *grpcserver.GRPCRunnerAdapter
 
 	// Sandbox query service
 	SandboxQueryService  *runner.SandboxQueryService  // Sandbox status query service
@@ -110,6 +121,10 @@ type Services struct {
 	// Coordinator service (auto-harness integration: scans external task sources
 	// → tickets → dispatches do-agent pods).
 	Coordinator *coordinatorservice.Service
+
+	Expert *expertSvc.Service
+
+	PendingQueue *runner.PendingCommandQueue
 
 	// SSO service for enterprise SSO integration
 	SSO *ssoservice.Service

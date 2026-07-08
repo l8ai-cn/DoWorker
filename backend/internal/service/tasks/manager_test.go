@@ -24,6 +24,18 @@ func (m *mockPodCleaner) MarkStaleAsDisconnected(_ context.Context, _ time.Time)
 	return m.markStaleResult, m.markStaleErr
 }
 
+type mockPodCleanerWithTerminal struct {
+	mockPodCleaner
+	terminalResult int64
+	terminalErr    error
+	terminalCalls  int
+}
+
+func (m *mockPodCleanerWithTerminal) CleanupStaleTerminal(_ context.Context, _ time.Time) (int64, error) {
+	m.terminalCalls++
+	return m.terminalResult, m.terminalErr
+}
+
 func setupTestRedis(t *testing.T) (*miniredis.Miniredis, *redis.Client) {
 	mr := miniredis.RunT(t)
 	client := redis.NewClient(&redis.Options{
@@ -261,6 +273,29 @@ func TestManager_CleanupStalePods_Error(t *testing.T) {
 	err := manager.cleanupStalePods(context.Background())
 	if err == nil {
 		t.Fatal("expected error from cleanupStalePods")
+	}
+}
+
+func TestManager_CleanupStalePods_TerminalPhase(t *testing.T) {
+	podCleaner := &mockPodCleanerWithTerminal{
+		mockPodCleaner: mockPodCleaner{markStaleResult: 0},
+		terminalResult: 2,
+	}
+	_, redisClient := setupTestRedis(t)
+	logger := testLogger()
+	cfg := DefaultConfig()
+
+	manager := NewManager(podCleaner, redisClient, logger, cfg)
+
+	err := manager.cleanupStalePods(context.Background())
+	if err != nil {
+		t.Fatalf("cleanupStalePods() error = %v", err)
+	}
+	if podCleaner.markStaleCalls != 1 {
+		t.Errorf("expected 1 disconnect call, got %d", podCleaner.markStaleCalls)
+	}
+	if podCleaner.terminalCalls != 1 {
+		t.Errorf("expected 1 terminal cleanup call, got %d", podCleaner.terminalCalls)
 	}
 }
 

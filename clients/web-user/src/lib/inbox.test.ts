@@ -15,13 +15,13 @@ function makeRow(overrides: Partial<Conversation> & { id: string }): Conversatio
   };
 }
 
-/** Minimal wire-shape `response.elicitation_request` event dict. */
+/** Minimal wire-shape `turn.elicitation.request` event dict. */
 function makeRawElicitation(
   elicitationId: string,
   params: Record<string, unknown> = {},
 ): Record<string, unknown> {
   return {
-    type: "response.elicitation_request",
+    type: "turn.elicitation.request",
     elicitation_id: elicitationId,
     method: "elicitation/create",
     params: {
@@ -98,7 +98,7 @@ describe("collectInboxItems", () => {
         pendingElicitations: [
           makeRawElicitation("elicit_old"),
           // No elicitation_id — parseEvent rejects it.
-          { type: "response.elicitation_request", params: { message: "bad" } },
+          { type: "turn.elicitation.request", params: { message: "bad" } },
         ],
       },
       { row: newer, pendingElicitations: [makeRawElicitation("elicit_new")] },

@@ -259,7 +259,7 @@ function defaultFetchHandler(input: RequestInfo | URL, init?: RequestInit): Resp
       }
     }
     if ("collaboration_mode" in body && typeof body.collaboration_mode === "string") {
-      labels["omnigent.codex_native.collaboration_mode"] = body.collaboration_mode;
+      labels["do-worker.codex_native.collaboration_mode"] = body.collaboration_mode;
       sessionLabels.set(sessionId, labels);
     }
     return mockResponse({
@@ -751,7 +751,7 @@ describe("chatStore — switchTo", () => {
           created_at: 0,
           items: sessionSnapshots.get("conv_native") ?? [],
           pending_inputs: sessionPendingInputs.get("conv_native") ?? [],
-          labels: { "omnigent.wrapper": "claude-code-native-ui" },
+          labels: { "do-worker.wrapper": "claude-code-native-ui" },
         });
       }
       return defaultFetchHandler(input, init);
@@ -865,7 +865,7 @@ describe("chatStore — switchTo", () => {
           created_at: 0,
           items: sessionSnapshots.get("conv_native") ?? [],
           pending_inputs: sessionPendingInputs.get("conv_native") ?? [],
-          labels: { "omnigent.wrapper": "claude-code-native-ui" },
+          labels: { "do-worker.wrapper": "claude-code-native-ui" },
         });
       }
       return defaultFetchHandler(input, init);
@@ -973,7 +973,7 @@ describe("chatStore — switchTo", () => {
             status: "idle",
             created_at: 0,
             items: [],
-            labels: wrapper === null ? {} : { "omnigent.wrapper": wrapper },
+            labels: wrapper === null ? {} : { "do-worker.wrapper": wrapper },
           });
         }
         return defaultFetchHandler(input, init);
@@ -1045,7 +1045,7 @@ describe("chatStore — switchTo", () => {
     seedSession("conv_waiting", [userMessage("resp_1", "please do risky thing")]);
     seedPendingElicitations("conv_waiting", [
       {
-        type: "response.elicitation_request",
+        type: "turn.elicitation.request",
         elicitation_id: "elicit_waiting",
         params: {
           mode: "form",
@@ -1096,7 +1096,7 @@ describe("chatStore — switchTo", () => {
     seedSession("conv_waiting", [userMessage("resp_1", "please do risky thing")]);
     seedPendingElicitations("conv_waiting", [
       {
-        type: "response.elicitation_request",
+        type: "turn.elicitation.request",
         elicitation_id: "elicit_waiting",
         params: {
           mode: "form",
@@ -1603,7 +1603,7 @@ describe("chatStore — send (first-send ordering)", () => {
           status: "idle",
           created_at: 0,
           items: [],
-          labels: { "omnigent.wrapper": "claude-code-native-ui" },
+          labels: { "do-worker.wrapper": "claude-code-native-ui" },
         });
       }
       return defaultFetchHandler(input, init);
@@ -2171,7 +2171,7 @@ describe("chatStore — send while streaming (queueing)", () => {
     // bubble bound to resp_in_flight. Sending another message must
     // queue server-side and leave the in-flight bubble's lifecycle
     // untouched (any reset would flicker its rendered state from
-    // "streaming" → null → "streaming" on the next response.created).
+    // "streaming" → null → "streaming" on the next turn.started).
     useChatStore.setState({
       conversationId: "conv_abc",
       abortController: new AbortController(),
@@ -3160,7 +3160,7 @@ describe("chatStore — handleSessionEvent (session.* events)", () => {
             status: "idle",
             created_at: 0,
             items: [],
-            labels: { "omnigent.wrapper": "claude-code-native-ui" },
+            labels: { "do-worker.wrapper": "claude-code-native-ui" },
           });
         }
         return defaultFetchHandler(input, init);
@@ -3546,7 +3546,7 @@ describe("chatStore — handleSessionEvent (session.* events)", () => {
             status: "idle",
             created_at: 0,
             items: [],
-            labels: { "omnigent.wrapper": "codex-native-ui" },
+            labels: { "do-worker.wrapper": "codex-native-ui" },
             llm_model: "gpt-5.5",
             harness: "codex",
             skills: [{ name: "inspect", description: "Read session state" }],
@@ -5005,7 +5005,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
 
   it("PATCHes sticky model and effort onto a claude-native session with no overrides", async () => {
     seedSession("conv_cn", []);
-    withSnapshot("conv_cn", { labels: { "omnigent.wrapper": "claude-code-native-ui" } });
+    withSnapshot("conv_cn", { labels: { "do-worker.wrapper": "claude-code-native-ui" } });
 
     useChatStore.setState({
       selectedEffort: "high",
@@ -5030,7 +5030,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
   it("PATCHes sticky model and effort onto a codex-native session with no overrides", async () => {
     seedSession("conv_codex", []);
     withSnapshot("conv_codex", {
-      labels: { "omnigent.wrapper": "codex-native-ui" },
+      labels: { "do-worker.wrapper": "codex-native-ui" },
       model_options: [
         {
           id: "gpt-5.4",
@@ -5071,7 +5071,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
     // Observer sticky prefs must not overwrite child sessions.
     seedSession("conv_child", []);
     withSnapshot("conv_child", {
-      labels: { "omnigent.wrapper": "claude-code-native-ui" },
+      labels: { "do-worker.wrapper": "claude-code-native-ui" },
       parent_session_id: "conv_parent",
     });
 
@@ -5099,7 +5099,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
     // The handoff must skip a non-Claude model and leave the session on its
     // own default (model_override untouched).
     seedSession("conv_cn_gpt", []);
-    withSnapshot("conv_cn_gpt", { labels: { "omnigent.wrapper": "claude-code-native-ui" } });
+    withSnapshot("conv_cn_gpt", { labels: { "do-worker.wrapper": "claude-code-native-ui" } });
 
     useChatStore.setState({ selectedEffort: null, selectedModel: "gpt-5.4" });
     await useChatStore.getState().switchTo("conv_cn_gpt");
@@ -5112,7 +5112,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
     // Same guard in the opposite direction: a Claude alias from the global
     // picker must not be handed to Codex app-server as its next-turn model.
     seedSession("conv_codex_claude", []);
-    withSnapshot("conv_codex_claude", { labels: { "omnigent.wrapper": "codex-native-ui" } });
+    withSnapshot("conv_codex_claude", { labels: { "do-worker.wrapper": "codex-native-ui" } });
 
     useChatStore.setState({ selectedEffort: null, selectedModel: "opus" });
     await useChatStore.getState().switchTo("conv_codex_claude");
@@ -5124,7 +5124,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
   it("shows a claude-native session's stamped effort and does not overwrite it", async () => {
     seedSession("conv_cn_eff", []);
     withSnapshot("conv_cn_eff", {
-      labels: { "omnigent.wrapper": "claude-code-native-ui" },
+      labels: { "do-worker.wrapper": "claude-code-native-ui" },
       reasoning_effort: "medium",
     });
 
@@ -5172,7 +5172,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
 
   it("PATCHes effort on an active claude-native session", async () => {
     seedSession("conv_supported", []);
-    withSnapshot("conv_supported", { labels: { "omnigent.wrapper": "claude-code-native-ui" } });
+    withSnapshot("conv_supported", { labels: { "do-worker.wrapper": "claude-code-native-ui" } });
     await useChatStore.getState().switchTo("conv_supported");
     fetchMock.mockClear();
 
@@ -5184,7 +5184,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
 
   it("PATCHes effort on an active codex-native session", async () => {
     seedSession("conv_codex_supported", []);
-    withSnapshot("conv_codex_supported", { labels: { "omnigent.wrapper": "codex-native-ui" } });
+    withSnapshot("conv_codex_supported", { labels: { "do-worker.wrapper": "codex-native-ui" } });
     await useChatStore.getState().switchTo("conv_codex_supported");
     fetchMock.mockClear();
 
@@ -5198,8 +5198,8 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
     seedSession("conv_plan", []);
     withSnapshot("conv_plan", {
       labels: {
-        "omnigent.wrapper": "codex-native-ui",
-        "omnigent.codex_native.collaboration_mode": "plan",
+        "do-worker.wrapper": "codex-native-ui",
+        "do-worker.codex_native.collaboration_mode": "plan",
       },
     });
 
@@ -5212,7 +5212,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
     seedSession("conv_not_codex_plan", []);
     withSnapshot("conv_not_codex_plan", {
       labels: {
-        "omnigent.codex_native.collaboration_mode": "plan",
+        "do-worker.codex_native.collaboration_mode": "plan",
       },
     });
 
@@ -5223,7 +5223,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
 
   it("PATCHes Codex Plan mode and settles from the returned labels", async () => {
     seedSession("conv_plan_toggle", []);
-    withSnapshot("conv_plan_toggle", { labels: { "omnigent.wrapper": "codex-native-ui" } });
+    withSnapshot("conv_plan_toggle", { labels: { "do-worker.wrapper": "codex-native-ui" } });
     await useChatStore.getState().switchTo("conv_plan_toggle");
     fetchMock.mockClear();
 
@@ -5235,7 +5235,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
 
   it("rolls back Codex Plan mode when the PATCH is rejected", async () => {
     seedSession("conv_plan_failure", []);
-    withSnapshot("conv_plan_failure", { labels: { "omnigent.wrapper": "codex-native-ui" } });
+    withSnapshot("conv_plan_failure", { labels: { "do-worker.wrapper": "codex-native-ui" } });
     await useChatStore.getState().switchTo("conv_plan_failure");
     fetchMock.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
       const url = typeof input === "string" ? input : input.toString();
@@ -5262,14 +5262,14 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
     expect(patchCallsFor("conv_plan_failure")).toEqual([{ collaboration_mode: "plan" }]);
     expect(useChatStore.getState().codexPlanMode).toBe(false);
     expect(sessionLabels.get("conv_plan_failure")).not.toHaveProperty(
-      "omnigent.codex_native.collaboration_mode",
+      "do-worker.codex_native.collaboration_mode",
     );
   });
 
   it("server-side overrides win over sticky pref and skip the PATCH", async () => {
     seedSession("conv_existing", []);
     withSnapshot("conv_existing", {
-      labels: { "omnigent.wrapper": "claude-code-native-ui" },
+      labels: { "do-worker.wrapper": "claude-code-native-ui" },
       reasoning_effort: "low",
       model_override: "claude-sonnet-4-6",
     });
@@ -5319,7 +5319,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
     // The claude-native handoff persists the sticky model, so it IS the
     // session's active override — `/model` should show it.
     seedSession("conv_sticky_cn", []);
-    withSnapshot("conv_sticky_cn", { labels: { "omnigent.wrapper": "claude-code-native-ui" } });
+    withSnapshot("conv_sticky_cn", { labels: { "do-worker.wrapper": "claude-code-native-ui" } });
 
     useChatStore.setState({ selectedModel: "claude-opus-4-7", sessionModelOverride: null });
     await useChatStore.getState().switchTo("conv_sticky_cn");
@@ -5334,7 +5334,7 @@ describe("chatStore — bindStream sticky-pref handoff", () => {
     // The handoff skips a non-Claude sticky pick (Claude Code can't run
     // it), so it never becomes the session override.
     seedSession("conv_sticky_gpt", []);
-    withSnapshot("conv_sticky_gpt", { labels: { "omnigent.wrapper": "claude-code-native-ui" } });
+    withSnapshot("conv_sticky_gpt", { labels: { "do-worker.wrapper": "claude-code-native-ui" } });
 
     useChatStore.setState({ selectedModel: "gpt-5.4", sessionModelOverride: null });
     await useChatStore.getState().switchTo("conv_sticky_gpt");
@@ -5348,7 +5348,7 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
   /** A 35-char delta (> the reducer's 30-char flush threshold) so each
    * one flushes exactly one text_chunk; `marker` makes chunks orderable. */
   function delta(marker: string): string {
-    return sse("response.output_text.delta", { delta: `${marker.repeat(34)} ` });
+    return sse("turn.text.delta", { delta: `${marker.repeat(34)} ` });
   }
 
   /** A FrameScheduler whose pending flush the test fires by hand. */
@@ -5395,7 +5395,7 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
 
     // Open the response and stream three chunks. The first content block
     // flushes synchronously (snappy first paint); the next two buffer.
-    sink.push(sse("response.created", { id: "resp_b", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_b", status: "in_progress", output: [] }));
     sink.push(delta("A"));
     sink.push(delta("B"));
     sink.push(delta("C"));
@@ -5440,7 +5440,7 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
       manual.scheduler,
     );
 
-    sink.push(sse("response.created", { id: "resp_life", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_life", status: "in_progress", output: [] }));
     sink.push(delta("Z"));
     await tick();
     // response_start landed and flipped the store into the streaming
@@ -5453,7 +5453,7 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
     expect(useChatStore.getState().status).toBe("streaming");
 
     sink.push(
-      sse("response.completed", {
+      sse("turn.completed", {
         id: "resp_life",
         status: "completed",
         output: [
@@ -5504,9 +5504,9 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
     );
 
     // Stream a function_call output item carrying the SAME item id.
-    sink.push(sse("response.created", { id: "resp_d", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_d", status: "in_progress", output: [] }));
     sink.push(
-      sse("response.output_item.done", {
+      sse("turn.item.done", {
         item: {
           type: "function_call",
           id: "fc_dup",
@@ -5552,12 +5552,12 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
     );
 
     const segment = "Got it — dispatching to all three vendors now.";
-    sink.push(sse("response.created", { id: "resp_s", status: "in_progress", output: [] }));
-    sink.push(sse("response.output_text.delta", { delta: segment }));
+    sink.push(sse("turn.started", { id: "resp_s", status: "in_progress", output: [] }));
+    sink.push(sse("turn.text.delta", { delta: segment }));
     // claude-sdk tool call: the reducer closes the streamed text
     // (id-less text_done) and yields the tool group.
     sink.push(
-      sse("response.output_item.done", {
+      sse("turn.item.done", {
         item: {
           type: "function_call",
           id: "fc_s",
@@ -5571,7 +5571,7 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
     // The relay's mid-turn flush publish: the persisted copy of the
     // exact text that just streamed.
     sink.push(
-      sse("response.output_item.done", {
+      sse("turn.item.done", {
         item: {
           id: "msg_seg1",
           response_id: "resp_s",
@@ -5625,10 +5625,10 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
     );
 
     const segment = "All three workers are live. Dispatching now.";
-    sink.push(sse("response.created", { id: "resp_s2", status: "in_progress", output: [] }));
-    sink.push(sse("response.output_text.delta", { delta: segment }));
+    sink.push(sse("turn.started", { id: "resp_s2", status: "in_progress", output: [] }));
+    sink.push(sse("turn.text.delta", { delta: segment }));
     sink.push(
-      sse("response.output_item.done", {
+      sse("turn.item.done", {
         item: {
           type: "function_call",
           id: "fc_s2",
@@ -5651,7 +5651,7 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
     expect(committedAt).toBeGreaterThanOrEqual(0);
 
     sink.push(
-      sse("response.output_item.done", {
+      sse("turn.item.done", {
         item: {
           id: "msg_seg2",
           response_id: "resp_s2",
@@ -5693,9 +5693,9 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
       manual.scheduler,
     );
 
-    sink.push(sse("response.created", { id: "resp_ns", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_ns", status: "in_progress", output: [] }));
     sink.push(
-      sse("response.output_item.done", {
+      sse("turn.item.done", {
         item: {
           id: "msg_ns",
           response_id: "resp_ns",
@@ -5738,10 +5738,10 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
     // First content flushes synchronously; the function_call lands in the
     // frame buffer, where the push-time dedupe has already passed it
     // (nothing was committed under "fc_buf" yet).
-    sink.push(sse("response.created", { id: "resp_bd", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_bd", status: "in_progress", output: [] }));
     sink.push(delta("A"));
     sink.push(
-      sse("response.output_item.done", {
+      sse("turn.item.done", {
         item: {
           type: "function_call",
           id: "fc_buf",
@@ -5799,10 +5799,10 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
       manual.scheduler,
     );
 
-    // Stream content, then close WITHOUT a response.completed — models an
+    // Stream content, then close WITHOUT a turn.completed — models an
     // idle proxy disconnect mid-response. B and C are buffered (A flushed
     // synchronously as first content) and no frame is ever fired.
-    sink.push(sse("response.created", { id: "resp_eof", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_eof", status: "in_progress", output: [] }));
     sink.push(delta("A"));
     sink.push(delta("B"));
     sink.push(delta("C"));
@@ -5835,7 +5835,7 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
       manual.scheduler,
     );
 
-    sink.push(sse("response.created", { id: "resp_old", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_old", status: "in_progress", output: [] }));
     sink.push(delta("A")); // first content → sync flush onto conv_old
     sink.push(delta("B")); // buffered, frame pending
     sink.push(delta("C")); // buffered, frame pending
@@ -5947,12 +5947,12 @@ describe("chatStore — pumpStreamEvents end reasons", () => {
       getState,
       immediate,
     );
-    sink.push(sse("response.created", { id: "resp_sw", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_sw", status: "in_progress", output: [] }));
     await tick();
     useChatStore.setState({ conversationId: "conv_sw_b" });
     // A 34-char + trailing-space delta flushes a chunk, so the next
     // for-await iteration runs the conversation-id guard and bails.
-    sink.push(sse("response.output_text.delta", { delta: `${"z".repeat(34)} ` }));
+    sink.push(sse("turn.text.delta", { delta: `${"z".repeat(34)} ` }));
     expect(await done).toBe("switched");
   });
 
@@ -5968,10 +5968,10 @@ describe("chatStore — pumpStreamEvents end reasons", () => {
       getState,
       immediate,
     );
-    sink.push(sse("response.created", { id: "resp_abrt", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_abrt", status: "in_progress", output: [] }));
     await tick();
     controller.abort();
-    sink.push(sse("response.output_text.delta", { delta: `${"z".repeat(34)} ` }));
+    sink.push(sse("turn.text.delta", { delta: `${"z".repeat(34)} ` }));
     expect(await done).toBe("aborted");
   });
 });
@@ -6372,7 +6372,7 @@ describe("chatStore — startStreamPump reconnect loop", () => {
     // instead of staying answerable.
     seedPendingElicitations("conv_keep", [
       {
-        type: "response.elicitation_request",
+        type: "turn.elicitation.request",
         elicitation_id: "elic_keep",
         params: {
           mode: "form",
@@ -6450,7 +6450,7 @@ describe("chatStore — startStreamPump reconnect loop", () => {
 
   /** A native message-scoped live delta frame (`message_id` + chunk index). */
   function nativeDeltaFrame(messageId: string, index: number, delta: string): string {
-    return sse("response.output_text.delta", { delta, message_id: messageId, index });
+    return sse("turn.text.delta", { delta, message_id: messageId, index });
   }
 
   /** The `live:<messageId>` provisional preview blocks currently rendered. */
@@ -6617,14 +6617,14 @@ describe("chatStore — live delta streaming (claude-native)", () => {
     };
   }
 
-  /** One `response.output_text.delta` frame carrying native streaming ids. */
+  /** One `turn.text.delta` frame carrying native streaming ids. */
   function nativeDelta(messageId: string, index: number, delta: string, final: boolean): string {
-    return sse("response.output_text.delta", { delta, message_id: messageId, index, final });
+    return sse("turn.text.delta", { delta, message_id: messageId, index, final });
   }
 
   /** A finalized assistant message `output_item.done` frame. */
   function messageDone(itemId: string, responseId: string, text: string): string {
-    return sse("response.output_item.done", {
+    return sse("turn.item.done", {
       item: {
         type: "message",
         role: "assistant",
@@ -6637,7 +6637,7 @@ describe("chatStore — live delta streaming (claude-native)", () => {
 
   /** An MCP-shape elicitation/approval request frame. */
   function elicitationReq(id: string): string {
-    return sse("response.elicitation_request", {
+    return sse("turn.elicitation.request", {
       elicitation_id: id,
       params: {
         mode: "form",
@@ -6686,7 +6686,7 @@ describe("chatStore — live delta streaming (claude-native)", () => {
     });
     const { sink, controller } = startPump("conv_live");
 
-    sink.push(sse("response.created", { id: "resp_l", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_l", status: "in_progress", output: [] }));
     sink.push(nativeDelta("m1", 0, "Hello ", false));
     sink.push(nativeDelta("m1", 1, "world", true));
     await tick();
@@ -6712,7 +6712,7 @@ describe("chatStore — live delta streaming (claude-native)", () => {
     });
     const { sink, controller } = startPump("conv_live2");
 
-    sink.push(sse("response.created", { id: "resp_l", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_l", status: "in_progress", output: [] }));
     sink.push(nativeDelta("m1", 0, "Hello world", true));
     await tick();
     expect(provisional()?.ctx.itemId).toBe("live:m1");
@@ -6738,9 +6738,9 @@ describe("chatStore — live delta streaming (claude-native)", () => {
     // Faithful replay of a real pi-native turn (captured from a live
     // `omnigent pi` server). The harness PiNativeExecutor completes its
     // Omnigent response the instant it enqueues the user message — so
-    // `response.in_progress` + `response.completed` arrive BEFORE Pi's
+    // `turn.started` + `turn.completed` arrive BEFORE Pi's
     // extension streams the assistant text deltas and the authoritative
-    // item. The early `response.completed` (response_end) is the missing
+    // item. The early `turn.completed` (response_end) is the missing
     // ingredient the other tests never exercised.
     useChatStore.setState({
       conversationId: "conv_pi",
@@ -6751,7 +6751,7 @@ describe("chatStore — live delta streaming (claude-native)", () => {
 
     // Harness turn opens and immediately completes (enqueue → TurnComplete).
     sink.push(
-      sse("response.in_progress", {
+      sse("turn.started", {
         id: "resp_harness",
         status: "in_progress",
         model: "pi-native-ui",
@@ -6759,7 +6759,7 @@ describe("chatStore — live delta streaming (claude-native)", () => {
       }),
     );
     sink.push(
-      sse("response.completed", {
+      sse("turn.completed", {
         id: "resp_harness",
         status: "completed",
         model: "pi-native-ui",
@@ -6862,7 +6862,7 @@ describe("chatStore — live delta streaming (claude-native)", () => {
     });
     const { sink, controller } = startPump("conv_live3");
 
-    sink.push(sse("response.created", { id: "resp_l", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_l", status: "in_progress", output: [] }));
     sink.push(nativeDelta("m1", 0, "Let me check that.", true));
     await tick();
     // Elicitation arrives BEFORE the authoritative text_done (the
@@ -6901,7 +6901,7 @@ describe("chatStore — live delta streaming (claude-native)", () => {
     });
     const { sink, controller } = startPump("conv_live4");
 
-    sink.push(sse("response.created", { id: "resp_l", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_l", status: "in_progress", output: [] }));
     sink.push(nativeDelta("m1", 0, "first", true));
     await tick();
     sink.push(messageDone("ci_1", "resp_l", "first"));
@@ -6932,14 +6932,14 @@ describe("chatStore — live delta streaming (claude-native)", () => {
     });
     const { sink, controller } = startPump("conv_live5");
 
-    sink.push(sse("response.created", { id: "resp_l", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_l", status: "in_progress", output: [] }));
     sink.push(nativeDelta("m1", 0, "partial answer", false));
     await tick();
     expect(provisional()?.ctx.itemId).toBe("live:m1");
 
     // Turn ends with no committed item for m1 (interrupt before the
     // partial transcript record was forwarded).
-    sink.push(sse("response.completed", { id: "resp_l", status: "completed", output: [] }));
+    sink.push(sse("turn.completed", { id: "resp_l", status: "completed", output: [] }));
     sink.close();
     await tick();
     await tick();
@@ -6958,7 +6958,7 @@ describe("chatStore — live delta streaming (claude-native)", () => {
     });
     const { sink, controller } = startPump("conv_live6");
 
-    sink.push(sse("response.created", { id: "resp_l", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_l", status: "in_progress", output: [] }));
     sink.push(nativeDelta("m1", 0, "Hello ", false));
     sink.push(nativeDelta("m1", 1, "world", true));
     // A replayed chunk at an already-applied index is a no-op.
@@ -6983,7 +6983,7 @@ describe("chatStore — live delta streaming (claude-native)", () => {
     });
     const { sink, controller } = startPump("conv_live7");
 
-    sink.push(sse("response.created", { id: "resp_l", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_l", status: "in_progress", output: [] }));
     sink.push(nativeDelta("m1", 0, "Hello ", false));
     await tick();
     // The authoritative final text commits and replaces + retires m1.
@@ -7134,7 +7134,7 @@ describe("chatStore — elicitations across stream drops and re-publishes", () =
    *  the shape the server's in-memory index serves on GET /v1/sessions/{id}. */
   function pendingElicitationRaw(id: string, message: string): Record<string, unknown> {
     return {
-      type: "response.elicitation_request",
+      type: "turn.elicitation.request",
       elicitation_id: id,
       params: {
         mode: "form",
@@ -7149,7 +7149,7 @@ describe("chatStore — elicitations across stream drops and re-publishes", () =
 
   /** The live SSE frame for the same prompt. */
   function elicitationReqFrame(id: string, message: string): string {
-    return sse("response.elicitation_request", {
+    return sse("turn.elicitation.request", {
       elicitation_id: id,
       params: {
         mode: "form",
@@ -7226,7 +7226,7 @@ describe("chatStore — elicitations across stream drops and re-publishes", () =
 
     // Mid-turn: the card is an itemId-less block under the active
     // responseId — exactly the shape dropEphemeralInFlightBlocks targets.
-    sinks[0]!.push(sse("response.created", { id: "resp_T", status: "in_progress", output: [] }));
+    sinks[0]!.push(sse("turn.started", { id: "resp_T", status: "in_progress", output: [] }));
     sinks[0]!.push(elicitationReqFrame("elic_keep", "Approve run?"));
     await drainAsync();
     expect(elicitationCards()).toHaveLength(1);
@@ -7334,7 +7334,7 @@ describe("chatStore — elicitations across stream drops and re-publishes", () =
     await drainAsync();
     // The deferred clear fired before the harness retry re-parked: the
     // card flips to "Resolved elsewhere" without a user verdict.
-    sinks[0]!.push(sse("response.elicitation_resolved", { elicitation_id: "elic_rev" }));
+    sinks[0]!.push(sse("turn.elicitation.resolved", { elicitation_id: "elic_rev" }));
     await drainAsync();
     expect(elicitationCards()[0]!.response).toEqual({ action: "auto_resolved" });
 
@@ -7422,14 +7422,14 @@ describe("chatStore — policy deny renders once", () => {
       manual.scheduler,
     );
     // Message 2 denied — server publishes the sentinel.
-    sink.push(sse("response.output_text.delta", denyData));
+    sink.push(sse("turn.text.delta", denyData));
     await tick();
     manual.fire();
     await tick();
     // Message 3 submitted → next response starts (the switch that doubled it).
-    sink.push(sse("response.created", { id: "resp_2", status: "in_progress", output: [] }));
+    sink.push(sse("turn.started", { id: "resp_2", status: "in_progress", output: [] }));
     sink.push(
-      sse("response.output_text.delta", {
+      sse("turn.text.delta", {
         delta: "Hello there friend",
         message_id: "m_reply",
         index: 0,

@@ -23,4 +23,9 @@ type PodStore interface {
 
 	UpdateField(ctx context.Context, podKey, field string, value interface{}) error
 	UpdateAgentStatus(ctx context.Context, podKey string, updates map[string]interface{}) error
+
+	ListStaleActivePodKeys(ctx context.Context, threshold time.Time) ([]string, error)
+	MarkStaleAsDisconnected(ctx context.Context, threshold time.Time) (int64, error)
+	ListStaleRecoverablePodKeys(ctx context.Context, threshold time.Time) ([]string, error)
+	CleanupStale(ctx context.Context, threshold time.Time) (int64, error)
 }

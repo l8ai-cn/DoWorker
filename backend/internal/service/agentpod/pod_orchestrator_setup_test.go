@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
@@ -22,6 +23,8 @@ type mockPodCoordinator struct {
 	createPodCalled bool
 	lastRunnerID    int64
 	lastCmd         *runnerv1.CreatePodCommand
+	lastQueueOpts   podDomain.CreatePodQueueOpts
+	queueErr        error
 	err             error
 }
 
@@ -30,6 +33,16 @@ func (m *mockPodCoordinator) CreatePod(_ context.Context, runnerID int64, cmd *r
 	m.lastRunnerID = runnerID
 	m.lastCmd = cmd
 	return m.err
+}
+
+func (m *mockPodCoordinator) CreatePodOrQueue(ctx context.Context, runnerID int64, cmd *runnerv1.CreatePodCommand, opts podDomain.CreatePodQueueOpts) error {
+	m.lastQueueOpts = opts
+	if m.queueErr != nil {
+		m.lastRunnerID = runnerID
+		m.lastCmd = cmd
+		return m.queueErr
+	}
+	return m.CreatePod(ctx, runnerID, cmd)
 }
 
 // mockBillingService implements BillingServiceForOrchestrator.
@@ -300,6 +313,10 @@ func withRunnerSelector(rs RunnerSelectorForOrchestrator) func(*PodOrchestratorD
 
 func withAgentResolver(ar AgentResolverForOrchestrator) func(*PodOrchestratorDeps) {
 	return func(d *PodOrchestratorDeps) { d.AgentResolver = ar }
+}
+
+func withPrimaryCredential(resolver PrimaryCredentialResolver) func(*PodOrchestratorDeps) {
+	return func(d *PodOrchestratorDeps) { d.PrimaryCredential = resolver }
 }
 
 func withAgentConfigProvider(provider *mockAgentConfigProvider) func(*PodOrchestratorDeps) {

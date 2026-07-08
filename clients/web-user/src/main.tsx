@@ -40,11 +40,6 @@ const queryClient = new QueryClient({
 // conversation is created server-side).
 initChatStore(queryClient);
 
-// Discover the current user identity from the server. Once resolved,
-// all subsequent fetch calls include X-Forwarded-Email so session
-// routes know who's making the request.
-void resolveIdentity();
-
 // Mirror the iOS shell's native bar footprints into the inset CSS variables.
 // No-op off the iOS shell (the inset vars stay at their env()-only defaults).
 initNativeInsets();
@@ -61,8 +56,8 @@ const _bootProbe: Promise<ServerInfo> = Promise.race([
     setTimeout(
       () =>
         resolve({
-          accounts_enabled: false,
-          login_url: null,
+          accounts_enabled: true,
+          login_url: "/login",
           needs_setup: false,
           databricks_features: false,
           managed_sandboxes_enabled: false,
@@ -75,7 +70,9 @@ const _bootProbe: Promise<ServerInfo> = Promise.race([
   ),
 ]);
 
-void _bootProbe.then((info) => {
+// Resolve identity (and backfill org slug from /v1/me) before the first
+// org-scoped fetch — agents/hosts 400 without X-Organization-Slug.
+void Promise.all([_bootProbe, resolveIdentity()]).then(([info]) => {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <CapabilitiesProvider info={info}>

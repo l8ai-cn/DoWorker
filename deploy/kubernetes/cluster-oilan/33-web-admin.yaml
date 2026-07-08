@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-admin
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-admin
+  template:
+    metadata:
+      labels:
+        app: web-admin
+    spec:
+      imagePullSecrets:
+        - name: agentsmesh-regcred
+      containers:
+        - name: web-admin
+          image: repo.aiedulab.cn:8443/agentsmesh/web-admin:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3001
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PRIMARY_DOMAIN
+              value: "agentsmesh.aiedulab.cn"
+            - name: USE_HTTPS
+              value: "true"
+          readinessProbe:
+            tcpSocket:
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-admin
+  namespace: agentsmesh
+spec:
+  selector:
+    app: web-admin
+  ports:
+    - port: 3000
+      targetPort: 3001

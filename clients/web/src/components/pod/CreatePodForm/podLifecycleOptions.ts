@@ -2,35 +2,46 @@ export type DestroyPolicy = "manual" | "idle" | "completed";
 
 export const destroyPolicyOptions: Array<{
   value: DestroyPolicy;
-  label: string;
-  description: string;
+  labelKey: string;
+  descriptionKey: string;
 }> = [
   {
     value: "manual",
-    label: "手动销毁",
-    description: "Pod 保持可访问，直到用户手动终止。",
+    labelKey: "ide.createPod.lifecyclePolicy.manual",
+    descriptionKey: "ide.createPod.lifecyclePolicy.manualDesc",
   },
   {
     value: "idle",
-    label: "空闲后销毁",
-    description: "适合临时调试和短任务，减少闲置资源占用。",
+    labelKey: "ide.createPod.lifecyclePolicy.idle",
+    descriptionKey: "ide.createPod.lifecyclePolicy.idleDesc",
   },
   {
     value: "completed",
-    label: "完成后销毁",
-    description: "适合一次性任务，Agent 完成后进入清理流程。",
+    labelKey: "ide.createPod.lifecyclePolicy.completed",
+    descriptionKey: "ide.createPod.lifecyclePolicy.completedDesc",
   },
 ];
 
 export const destroyAfterOptions = [
-  { value: "30", label: "30 分钟" },
-  { value: "120", label: "2 小时" },
-  { value: "480", label: "8 小时" },
-  { value: "1440", label: "24 小时" },
+  { value: "30", labelKey: "ide.createPod.lifecycleAfter.30m" },
+  { value: "120", labelKey: "ide.createPod.lifecycleAfter.2h" },
+  { value: "480", labelKey: "ide.createPod.lifecycleAfter.8h" },
+  { value: "1440", labelKey: "ide.createPod.lifecycleAfter.24h" },
 ];
 
-export function lifecycleSummary(policy: DestroyPolicy, minutes: number): string {
-  if (policy === "manual") return "手动销毁";
-  const label = destroyAfterOptions.find((o) => Number(o.value) === minutes)?.label;
-  return `${policy === "idle" ? "空闲" : "完成"}后 ${label ?? `${minutes} 分钟`} 销毁`;
+export function lifecycleSummary(
+  policy: DestroyPolicy,
+  minutes: number,
+  t: (key: string) => string,
+): string {
+  if (policy === "manual") return t("ide.createPod.lifecyclePolicy.manual");
+  const afterLabel =
+    destroyAfterOptions.find((o) => Number(o.value) === minutes)?.labelKey;
+  const prefix =
+    policy === "idle"
+      ? t("ide.createPod.lifecycleSummary.idlePrefix")
+      : t("ide.createPod.lifecycleSummary.completedPrefix");
+  return afterLabel
+    ? `${prefix} ${t(afterLabel)}`
+    : `${prefix} ${minutes}m`;
 }

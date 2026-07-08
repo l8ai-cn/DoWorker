@@ -94,8 +94,43 @@ vi.mock("@/components/PermissionsModal", () => ({ PermissionsModal: () => null }
 
 import { useConversations } from "@/hooks/useConversations";
 import { Sidebar } from "./Sidebar";
+import {
+  DEFAULT_PROJECT_GROUP_KEY,
+  DEFAULT_PROJECT_GROUP_LABEL,
+  EXPANDED_WORKER_GROUP_SECTIONS_STORAGE_KEY,
+  EXPANDED_WORKSPACE_GROUP_SECTIONS_STORAGE_KEY,
+  workProjectGroupKey,
+  workProjectStorageKey,
+  workerGroupKey,
+} from "./sidebarNav";
 
 const useConvMock = vi.mocked(useConversations);
+
+function expandSessionGroupsVisible() {
+  const sessionsSection = screen.getByText("Sessions").closest("section");
+  if (!sessionsSection) return;
+  for (let pass = 0; pass < 3; pass++) {
+    for (const button of within(sessionsSection).getAllByRole("button")) {
+      if (button.getAttribute("aria-expanded") === "false") fireEvent.click(button);
+    }
+  }
+}
+
+function seedExpandedSessionGroups(conversations: Conversation[]) {
+  const workerKeys = new Set<string>();
+  const projectKeys = new Set<string>();
+  for (const conversation of conversations) {
+    const workerKey = workerGroupKey(conversation);
+    const projectKey = workProjectGroupKey(conversation);
+    workerKeys.add(workerKey);
+    projectKeys.add(workProjectStorageKey(workerKey, projectKey));
+  }
+  localStorage.setItem(EXPANDED_WORKER_GROUP_SECTIONS_STORAGE_KEY, JSON.stringify([...workerKeys]));
+  localStorage.setItem(
+    EXPANDED_WORKSPACE_GROUP_SECTIONS_STORAGE_KEY,
+    JSON.stringify([...projectKeys]),
+  );
+}
 
 function conv(id: string, agentName: string, partial: Partial<Conversation> = {}): Conversation {
   return {
@@ -242,10 +277,12 @@ describe("Sidebar session list", () => {
   });
 
   it("keeps archived sessions out of the sidebar list (they live on the Settings page)", () => {
-    mockConversations([
+    const rows = [
       conv("conv_active", "Claude Code"),
       conv("conv_archived", "Claude Code", { archived: true }),
-    ]);
+    ];
+    seedExpandedSessionGroups(rows);
+    mockConversations(rows);
     renderSidebar();
 
     // There is no longer an "Archived" section in the sidebar — archived
@@ -259,31 +296,79 @@ describe("Sidebar session list", () => {
     expect(screen.getByTestId("settings-button")).toHaveAttribute("href", "/settings");
   });
 
-  it("renders sessions in one flat list with no connection grouping", () => {
-    // Liveness grouping is gone: sessions are no longer split into
-    // Connected / Disconnected sections. They all land in one flat list under
-    // the baseline "Sessions" header. The per-row lifecycle badge still shows
-    // for a running session (the badge no longer reflects runner connection
-    // state).
-    const online = conv("conv_online", "Codex", { status: "running" });
-    const offline = conv("conv_offline", "Claude Code", { status: "running" });
+  it("renders sessions under worker and work-directory groups with connection dots", () => {
+    const online = conv("conv_online", "Codex", {
+      status: "running",
+      runner_online: true,
+      workspace: "/data/admin-workspace/workspace",
+      host_id: "host_admin-workspace-runner",
+    });
+    const offline = conv("conv_offline", "Claude Code", {
+      status: "running",
+      runner_online: false,
+      workspace: "/data/admin-workspace/workspace",
+      host_id: "host_admin-workspace-runner",
+    });
+    seedExpandedSessionGroups([online, offline]);
     mockConversations([online, offline]);
-
     renderSidebar();
 
-    // No connection-grouping headings; the flat list keeps its "Sessions" header.
     expect(screen.queryByRole("heading", { name: "Connected" })).toBeNull();
     expect(screen.queryByRole("heading", { name: "Disconnected" })).toBeNull();
-    expect(screen.getByRole("heading", { name: "Sessions" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Sessions/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Codex-cli/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Claude-code/ })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /workspace/ })).toHaveLength(2);
+    expect(screen.getAllByTestId("git-repo-none")).toHaveLength(2);
 
-    // Both rows render in the flat list, and the online running session shows
-    // its lifecycle badge (in the row's time-marker slot, outside the link).
     expect(screen.getByRole("link", { name: /conv_offline/ })).toBeInTheDocument();
     const onlineRow = screen.getByRole("link", { name: /conv_online/ }).closest("li")!;
     expect(within(onlineRow).getByTestId("session-state-badge")).toHaveAttribute(
       "data-state",
       "running",
     );
+    expect(screen.getAllByTestId("worker-connection-dot")).toHaveLength(2);
+  });
+
+  it("offers a pencil on worker groups that links to the landing page with ?agent=", () => {
+    const codex = conv("conv_codex", "Codex", {
+      labels: { "do-worker.wrapper": "codex-native-ui" },
+      agent_id: "a2",
+      workspace: "/data/admin-workspace/workspace",
+      host_id: "host_admin-workspace-runner",
+    });
+    seedExpandedSessionGroups([codex]);
+    mockConversations([codex]);
+    renderSidebar();
+
+    const pencil = screen.getByTestId("worker-new-session");
+    expect(pencil).toHaveAttribute("aria-label", "New session with Codex-cli");
+    expect(pencil.closest("a")).toHaveAttribute("href", "/?agent=a2");
+  });
+
+  it("closes the mobile overlay when the worker group pencil is tapped", () => {
+    const codex = conv("conv_codex", "Codex", {
+      labels: { "do-worker.wrapper": "codex-native-ui" },
+      agent_id: "a2",
+      workspace: "/data/admin-workspace/workspace",
+      host_id: "host_admin-workspace-runner",
+    });
+    seedExpandedSessionGroups([codex]);
+    mockConversations([codex]);
+    const onClose = vi.fn();
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={qc}>
+        <TooltipProvider>
+          <MemoryRouter initialEntries={["/"]}>
+            <Sidebar open onClose={onClose} />
+          </MemoryRouter>
+        </TooltipProvider>
+      </QueryClientProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("worker-new-session").closest("a")!);
+    expect(onClose).toHaveBeenCalled();
   });
 
   it("shows the session-state badge OR the timestamp, never both", () => {
@@ -297,6 +382,11 @@ describe("Sidebar session list", () => {
         updated_at: freshSeconds,
       }),
       conv("conv_idle", "Claude Code", { updated_at: freshSeconds }),
+    ]);
+    seedExpandedSessionGroups([
+      conv("conv_working", "Codex"),
+      conv("conv_awaiting", "Codex"),
+      conv("conv_idle", "Claude Code"),
     ]);
     renderSidebar();
 
@@ -332,11 +422,13 @@ describe("Sidebar session list", () => {
 // non-owner (< 4); null/4+ are the viewer's own sessions.
 describe("Sidebar sections", () => {
   it("splits owned and shared sessions under Sessions / Shared with me", () => {
-    mockConversations([
-      conv("conv_mine_legacy", "Claude Code"), // permission_level null = owner
+    const rows = [
+      conv("conv_mine_legacy", "Claude Code"),
       conv("conv_mine_acl", "Claude Code", { permission_level: 4 }),
       conv("conv_shared", "Claude Code", { permission_level: 2 }),
-    ]);
+    ];
+    seedExpandedSessionGroups(rows.filter((c) => c.permission_level !== 2));
+    mockConversations(rows);
     renderSidebar();
 
     // Both headers render because both groups are non-empty.
@@ -354,7 +446,9 @@ describe("Sidebar sections", () => {
   });
 
   it("titles the baseline list Sessions even with no sibling group", () => {
-    mockConversations([conv("conv_only_mine", "Claude Code")]);
+    const rows = [conv("conv_only_mine", "Claude Code")];
+    seedExpandedSessionGroups(rows);
+    mockConversations(rows);
     renderSidebar();
     // "Sessions" always renders so the list is labeled (and collapsible)
     // from the first session; empty sibling groups stay hidden.
@@ -368,10 +462,12 @@ describe("Sidebar sections", () => {
 // the preference survives reloads (same contract as pins).
 describe("Sidebar collapsible sections", () => {
   it("collapses a section on header click and persists across remount", () => {
-    mockConversations([
+    const rows = [
       conv("conv_mine", "Claude Code"),
       conv("conv_shared", "Claude Code", { permission_level: 2 }),
-    ]);
+    ];
+    seedExpandedSessionGroups([rows[0]!]);
+    mockConversations(rows);
     renderSidebar();
 
     // Collapse hides the section's rows but keeps the header (and the
@@ -399,6 +495,7 @@ describe("Sidebar collapsible sections", () => {
 describe("Sidebar load-more vs collapsed Sessions", () => {
   it("hides Load more while Sessions is collapsed and restores it on expand", () => {
     const rows = [conv("conv_mine", "Claude Code")];
+    seedExpandedSessionGroups(rows);
     useConvMock.mockImplementation(
       () =>
         ({
@@ -447,6 +544,7 @@ describe("Sidebar load-more vs collapsed Sessions", () => {
 
     const fetchNextPage = vi.fn();
     const rows = [conv("conv_mine", "Claude Code")];
+    seedExpandedSessionGroups(rows);
     useConvMock.mockImplementation(
       () =>
         ({
@@ -484,10 +582,12 @@ describe("Sidebar load-more vs collapsed Sessions", () => {
 describe("Sidebar project sections", () => {
   it("groups sessions by their project label, separate from Sessions", () => {
     projectsMock.push("Customer X");
-    mockConversations([
+    const rows = [
       conv("conv_unfiled", "Claude Code"),
       conv("conv_filed", "Claude Code", { labels: { omni_project: "Customer X" } }),
-    ]);
+    ];
+    seedExpandedSessionGroups([rows[0]!]);
+    mockConversations(rows);
     renderSidebar();
 
     // projects default collapsed, so the row is hidden until the header is
@@ -616,7 +716,7 @@ describe("Sidebar project sections", () => {
       conv("conv_pinned", "Claude Code", { labels: { omni_project: "Customer X" } }),
     ]);
     // Pin one of the filed sessions via localStorage (client-side pins).
-    localStorage.setItem("omnigent:pinned-conversation-ids", JSON.stringify(["conv_pinned"]));
+    localStorage.setItem("do-worker:pinned-conversation-ids", JSON.stringify(["conv_pinned"]));
     renderSidebar();
 
     // Pinned takes precedence over Project: the pinned session leaves the
@@ -632,12 +732,13 @@ describe("Sidebar project sections", () => {
   });
 
   it("does not render a project section when useProjects returns nothing", () => {
-    // A session with a stale project label but no matching project entry stays
-    // in Sessions — projects are driven by the project list, not the labels alone.
-    mockConversations([conv("conv_filed", "Claude Code", { labels: { omni_project: "Ghost" } })]);
+    const rows = [conv("conv_filed", "Claude Code", { labels: { omni_project: "Ghost" } })];
+    seedExpandedSessionGroups(rows);
+    mockConversations(rows);
     renderSidebar();
 
-    expect(screen.queryByText("Ghost")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Projects" })).toBeNull();
+    expect(screen.getByText("Ghost")).toBeInTheDocument();
     const recentSection = screen.getByText("Sessions").closest("section")!;
     expect(within(recentSection).getByText("conv_filed")).toBeInTheDocument();
   });
@@ -810,8 +911,10 @@ describe("Sidebar collapsed project marker", () => {
 // persists across reloads.
 describe("Sidebar default section collapse", () => {
   it("expands Pinned and Sessions by default when there is no stored preference", () => {
-    localStorage.setItem("omnigent:pinned-conversation-ids", JSON.stringify(["conv_pin"]));
-    mockConversations([conv("conv_pin", "Claude Code"), conv("conv_recent", "Claude Code")]);
+    localStorage.setItem("do-worker:pinned-conversation-ids", JSON.stringify(["conv_pin"]));
+    const rows = [conv("conv_pin", "Claude Code"), conv("conv_recent", "Claude Code")];
+    seedExpandedSessionGroups([rows[1]!]);
+    mockConversations(rows);
     renderSidebar();
 
     expect(screen.getByRole("button", { name: /Pinned/ })).toHaveAttribute("aria-expanded", "true");
@@ -824,7 +927,7 @@ describe("Sidebar default section collapse", () => {
   it("honors a persisted collapse of the Sessions list across remount", () => {
     // "Chats" is the persisted collapse key (kept stable across the label
     // rename); the header it collapses now reads "Sessions".
-    localStorage.setItem("omnigent:collapsed-sidebar-sections", JSON.stringify(["Chats"]));
+    localStorage.setItem("do-worker:collapsed-sidebar-sections", JSON.stringify(["Chats"]));
     mockConversations([conv("conv_recent", "Claude Code")]);
     renderSidebar();
 
@@ -840,11 +943,11 @@ describe("Sidebar default section collapse", () => {
 // the just-pinned chat can't silently hide inside the collapsed group.
 describe("Sidebar auto-expand Pinned on pin", () => {
   it("expands a collapsed Pinned section when a session is newly pinned", () => {
-    localStorage.setItem("omnigent:collapsed-sidebar-sections", JSON.stringify(["Pinned"]));
-    // Start with one already-pinned session (so the Pinned section renders) and
-    // one unpinned session to pin.
-    localStorage.setItem("omnigent:pinned-conversation-ids", JSON.stringify(["conv_pinned"]));
-    mockConversations([conv("conv_pinned", "Claude Code"), conv("conv_plain", "Claude Code")]);
+    localStorage.setItem("do-worker:collapsed-sidebar-sections", JSON.stringify(["Pinned"]));
+    localStorage.setItem("do-worker:pinned-conversation-ids", JSON.stringify(["conv_pinned"]));
+    const rows = [conv("conv_pinned", "Claude Code"), conv("conv_plain", "Claude Code")];
+    seedExpandedSessionGroups([rows[1]!]);
+    mockConversations(rows);
     renderSidebar();
 
     // Collapsed to start: the header reports collapsed and the pinned row hides.
@@ -860,9 +963,80 @@ describe("Sidebar auto-expand Pinned on pin", () => {
     // The Pinned section auto-expands so the freshly-pinned session is visible,
     // and the expansion is persisted (dropped from the collapsed list).
     expect(screen.getByRole("button", { name: /Pinned/ })).toHaveAttribute("aria-expanded", "true");
-    expect(JSON.parse(localStorage.getItem("omnigent:collapsed-sidebar-sections")!)).not.toContain(
+    expect(JSON.parse(localStorage.getItem("do-worker:collapsed-sidebar-sections")!)).not.toContain(
       "Pinned",
     );
+  });
+});
+
+describe("Sidebar project/worker hierarchy", () => {
+  it("keeps pinned sessions out of nested project/worker groups", () => {
+    const rows = [
+      conv("conv_pinned", "Codex", {
+        workspace: "/data/admin-workspace/workspace",
+        host_id: "host_admin-workspace-runner",
+      }),
+      conv("conv_plain", "Codex", {
+        workspace: "/data/admin-workspace/workspace",
+        host_id: "host_admin-workspace-runner",
+      }),
+    ];
+    localStorage.setItem("do-worker:pinned-conversation-ids", JSON.stringify(["conv_pinned"]));
+    seedExpandedSessionGroups([rows[1]!]);
+    mockConversations(rows);
+    renderSidebar();
+
+    expect(within(screen.getByText("Pinned").closest("section")!).getByText("conv_pinned")).toBeInTheDocument();
+    const sessionsSection = screen.getByText("Sessions").closest("section")!;
+    expect(within(sessionsSection).queryByText("conv_pinned")).toBeNull();
+    expect(within(sessionsSection).getByText("conv_plain")).toBeInTheDocument();
+  });
+
+  it("expands nested groups while searching so filtered sessions stay visible", async () => {
+    const rows = [
+      conv("conv_alpha", "Alpha task", {
+        workspace: "/data/admin-workspace/workspace",
+        host_id: "host_admin-workspace-runner",
+        agent_name: "do-agent",
+      }),
+      conv("conv_beta", "Beta task", {
+        workspace: "/data/other/repo",
+        host_id: "host_other",
+        agent_name: "do-agent",
+      }),
+    ];
+    useConvMock.mockImplementation((search: string) => {
+      const query = search.trim().toLowerCase();
+      const filtered = query
+        ? rows.filter((row) => row.title?.toLowerCase().includes(query))
+        : rows;
+      return {
+        data: {
+          pages: [
+            {
+              data: filtered,
+              first_id: filtered[0]?.id ?? null,
+              last_id: filtered.at(-1)?.id ?? null,
+              has_more: false,
+            },
+          ],
+          pageParams: [undefined],
+        },
+        isLoading: false,
+        isError: false,
+        error: null,
+        fetchNextPage: vi.fn(),
+        hasNextPage: false,
+        isFetchingNextPage: false,
+      } as unknown as ReturnType<typeof useConversations>;
+    });
+    renderSidebar();
+
+    fireEvent.change(screen.getByPlaceholderText("Search sessions"), { target: { value: "Alpha" } });
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: /conv_alpha/ })).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("link", { name: /conv_beta/ })).toBeNull();
   });
 });
 
@@ -873,7 +1047,7 @@ describe("Sidebar auto-expand Pinned on pin", () => {
 describe("Sidebar pin marker visibility", () => {
   it("hover-reveals an unpin control on a pinned row (no persistent marker)", () => {
     mockConversations([conv("conv_pin", "Claude Code")]);
-    localStorage.setItem("omnigent:pinned-conversation-ids", JSON.stringify(["conv_pin"]));
+    localStorage.setItem("do-worker:pinned-conversation-ids", JSON.stringify(["conv_pin"]));
     renderSidebar();
 
     const pinned = screen.getByText("Pinned").closest("section")!;
@@ -885,7 +1059,9 @@ describe("Sidebar pin marker visibility", () => {
   });
 
   it("hides the pin affordance until hover on an unpinned row", () => {
-    mockConversations([conv("conv_plain", "Claude Code")]);
+    const rows = [conv("conv_plain", "Claude Code")];
+    seedExpandedSessionGroups(rows);
+    mockConversations(rows);
     renderSidebar();
 
     const pinButton = screen.getByTestId("quick-pin-conversation");
@@ -899,7 +1075,9 @@ describe("Sidebar pin marker visibility", () => {
 describe("Sidebar move-to-project action", () => {
   it("moves a session into a project selected from the picker", async () => {
     projectsMock.push("Sprint 42");
-    mockConversations([conv("conv_move", "Claude Code")]);
+    const rows = [conv("conv_move", "Claude Code")];
+    seedExpandedSessionGroups(rows);
+    mockConversations(rows);
     renderSidebar();
 
     // Open the row's kebab menu (Radix opens on pointerdown, not click), then

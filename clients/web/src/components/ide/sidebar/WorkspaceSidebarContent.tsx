@@ -14,6 +14,8 @@ import { ShareDialog } from "@/components/shared/ShareDialog";
 import { RunnerSection } from "./RunnerSection";
 import { WorkspaceFilters } from "./WorkspaceFilters";
 import { useWorkspaceSidebar } from "./useWorkspaceSidebar";
+import { PublishExpertDialog } from "@/components/experts/PublishExpertDialog";
+import type { Pod } from "@/stores/pod";
 
 interface WorkspaceSidebarContentProps {
   className?: string;
@@ -26,6 +28,7 @@ export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod
   const router = useRouter();
   const s = useWorkspaceSidebar(t, onTerminatePod);
   const [sharePodKey, setSharePodKey] = useState<string | null>(null);
+  const [publishPod, setPublishPod] = useState<Pod | null>(null);
 
   const handleCreatePod = useCallback(() => {
     if (s.currentOrg?.slug) {
@@ -81,6 +84,7 @@ export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod
               <PodListItem key={pod.pod_key} pod={pod} isOpen={s.isPodOpen(pod.pod_key)}
                 onClick={() => s.handleOpenTerminal(pod)} onTerminate={() => s.handleTerminateClick(pod.pod_key)}
                 onRename={() => s.setRenamePod(pod)} onShare={() => setSharePodKey(pod.pod_key)}
+                onPublishExpert={() => setPublishPod(pod)}
                 onTogglePerpetual={(perpetual) => s.handleTogglePerpetual(pod.pod_key, perpetual)} />
             ))}
             {s.podHasMore && (
@@ -109,6 +113,12 @@ export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod
         onOpenChange={(open) => { if (!open) setSharePodKey(null); }}
         resourceType="pod"
         resourceId={sharePodKey || ""}
+      />
+
+      <PublishExpertDialog
+        pod={publishPod}
+        open={publishPod !== null}
+        onOpenChange={(open) => { if (!open) setPublishPod(null); }}
       />
     </div>
   );

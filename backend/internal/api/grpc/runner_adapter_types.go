@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"context"
 	"log/slog"
 	"time"
 
@@ -21,6 +22,14 @@ import (
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
+// PodEventSink forwards runner pod events into agent session streaming.
+type PodEventSink interface {
+	HandleAcpSession(ctx context.Context, podKey, eventType, payloadJSON string)
+	PublishPodStatus(ctx context.Context, podKey, podStatus, agentStatus string)
+	HandlePodUsage(ctx context.Context, evt *runnerv1.PodUsageEvent)
+	UpdateExternalSessionID(ctx context.Context, podKey, externalID string)
+}
+
 const certRevocationCheckInterval = 5 * time.Minute
 
 var _ runnerv1.RunnerServiceServer = (*GRPCRunnerAdapter)(nil)
@@ -36,6 +45,8 @@ type GRPCRunnerAdapter struct {
 	agentsProvider interfaces.AgentsProvider
 
 	connManager *runner.RunnerConnectionManager
+
+	podEvents PodEventSink
 
 	podService        *agentpod.PodService
 	mcpPodService     *agentpod.PodService

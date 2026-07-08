@@ -120,11 +120,20 @@ const nextConfig: NextConfig = {
   async rewrites() {
     if (process.env.NODE_ENV === "development") {
       const proxyTarget = getDevProxyTarget();
-      console.log(`[Next.js] API proxy enabled: /api/* + /proto.* + /health → ${proxyTarget}`);
+      console.log(`[Next.js] API proxy enabled: /api/* + /v1/* + /proto.* + /health → ${proxyTarget}`);
       return [
         {
           source: "/api/:path*",
           destination: `${proxyTarget}/api/:path*`,
+        },
+        // Session REST API is mounted at bare `/v1/*` on the backend (e.g.
+        // /v1/virtual-keys, /v1/usage/quota-report). quotaApi.ts reaches it
+        // via plain fetch without the connect-protocol-version header, so the
+        // Connect `/:svc/:method` rewrite below can't catch these — proxy the
+        // whole `/v1` prefix explicitly. Traefik already routes `/v1` in prod.
+        {
+          source: "/v1/:path*",
+          destination: `${proxyTarget}/v1/:path*`,
         },
         // Connect-RPC procedures use the path `/proto.<svc>.v1.Service/Method`.
         // Next.js path-to-regexp doesn't tolerate escaped dots in `source`,

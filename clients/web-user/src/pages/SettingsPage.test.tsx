@@ -35,8 +35,10 @@ vi.mock("@/lib/CapabilitiesContext", () => ({
   }),
 }));
 vi.mock("@/lib/accountsApi", () => ({
-  logout: vi.fn(),
   changePassword: vi.fn(),
+}));
+vi.mock("@/lib/auth-sign-out", () => ({
+  signOutSession: vi.fn(),
 }));
 vi.mock("@/lib/identity", () => ({
   resolveIdentity: () => Promise.resolve(mocks.me?.id ?? null),
@@ -131,6 +133,16 @@ describe("SettingsPage", () => {
     mocks.accountsEnabled = false;
     mocks.loginUrl = null;
     renderPage("/settings/account");
+    expect(screen.queryByText("alice")).toBeNull();
+  });
+
+  it("shows Sign out when identity is null but login session exists", async () => {
+    mocks.me = null;
+    mocks.loginUrl = "/login";
+    renderPage("/settings/account");
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /Sign out/ })).toBeInTheDocument(),
+    );
     expect(screen.queryByText("alice")).toBeNull();
   });
 

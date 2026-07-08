@@ -960,7 +960,7 @@ describe("Composer placeholder", () => {
 describe("Composer pending elicitation", () => {
   /**
    * A real ElicitationBlock (no mocks) matching the shape the BlockStream
-   * reducer emits for `response.elicitation_request` — the same blocks the
+   * reducer emits for `turn.elicitation.request` — the same blocks the
    * composer's pending-elicitation selector scans.
    */
   function elicitationBlock(overrides: Partial<ElicitationBlock> = {}): ElicitationBlock {

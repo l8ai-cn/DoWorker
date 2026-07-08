@@ -41,9 +41,7 @@ func (pc *PodCoordinator) handleAgentStatus(runnerID int64, data *runnerv1.Agent
 		"pod_key", data.PodKey,
 		"status", data.Status)
 
-	if pc.onStatusChange != nil {
-		pc.onStatusChange(data.PodKey, "", data.Status)
-	}
+	pc.notifyStatusChange(data.PodKey, "", data.Status)
 }
 
 func (pc *PodCoordinator) handlePodInitProgress(runnerID int64, data *runnerv1.PodInitProgressEvent) {

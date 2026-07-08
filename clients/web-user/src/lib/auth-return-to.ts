@@ -1,3 +1,5 @@
+import { normalizeWorkspaceFileSearch } from "./workspace-file-param";
+
 const DEFAULT_RETURN_TO = "/";
 
 export function sanitizeReturnTo(raw: string | null): string {
@@ -8,7 +10,7 @@ export function sanitizeReturnTo(raw: string | null): string {
   try {
     const resolved = new URL(raw, window.location.origin);
     if (resolved.origin !== window.location.origin) return DEFAULT_RETURN_TO;
-    return resolved.pathname + resolved.search + resolved.hash;
+    return resolved.pathname + normalizeWorkspaceFileSearch(resolved.search) + resolved.hash;
   } catch {
     return DEFAULT_RETURN_TO;
   }

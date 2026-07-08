@@ -106,7 +106,7 @@ func TestFetchPage_Success(t *testing.T) {
 		if r.URL.Path != "/v0/servers" {
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
-		if r.Header.Get("User-Agent") != "AgentsMesh-Backend/1.0" {
+		if r.Header.Get("User-Agent") != "Do-Worker-Backend/1.0" {
 			t.Errorf("unexpected User-Agent: %s", r.Header.Get("User-Agent"))
 		}
 		if r.Header.Get("Accept") != "application/json" {

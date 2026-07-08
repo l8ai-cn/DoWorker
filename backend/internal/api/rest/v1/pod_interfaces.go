@@ -16,6 +16,7 @@ var (
 
 type PodServiceForHandler interface {
 	ListPods(ctx context.Context, orgID int64, q agentpod.PodListQuery) ([]*agentpod.Pod, int64, error)
+	ListQueuedPods(ctx context.Context, orgID int64) ([]*agentpod.Pod, error)
 	CreatePod(ctx context.Context, req *agentpodService.CreatePodRequest) (*agentpod.Pod, error)
 	GetPod(ctx context.Context, podKey string) (*agentpod.Pod, error)
 	GetPodsByTicket(ctx context.Context, ticketID int64) ([]*agentpod.Pod, error)

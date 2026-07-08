@@ -292,6 +292,8 @@ interface FileViewerProps {
    * "X/N" index won't line up with the list. Defaults to "recent".
    */
   sort?: ChangedSort;
+  /** Deep-linked HTML files open in rendered preview instead of source. */
+  preferHtmlPreview?: boolean;
 }
 
 /**
@@ -324,6 +326,7 @@ function FileViewerBody({
   frameless,
   onCommentsOpenChange,
   sort = "recent",
+  preferHtmlPreview = false,
 }: FileViewerProps) {
   // null = single-user mode (no enforcement); undefined = prop not provided (treat as unrestricted).
   // LEVEL_EDIT = 2; levels below 2 are read-only.
@@ -655,6 +658,9 @@ function FileViewerBody({
   const [deepLinkBiasPath, setDeepLinkBiasPath] = useState<string | null>(() =>
     initialCommentIdRef.current ? path : null,
   );
+  const [htmlDeepLinkPath, setHtmlDeepLinkPath] = useState<string | null>(() =>
+    preferHtmlPreview ? path : null,
+  );
 
   // Persist the global view preferences so they survive a refresh. commentsOpen
   // is intentionally excluded — it's contextual (per-open), not a sticky
@@ -672,9 +678,11 @@ function FileViewerBody({
       ? deepLinkBiasPath === path
         ? "editor"
         : previewableViewMode
-      : previewableViewMode === "editor"
+      : htmlDeepLinkPath === path
         ? "preview"
-        : previewableViewMode
+        : previewableViewMode === "editor"
+          ? "preview"
+          : previewableViewMode
     : "source";
   // Derived effective view mode — diff takes priority when active and available.
   const viewMode: "editor" | "preview" | "source" | "diff" =
@@ -834,6 +842,7 @@ function FileViewerBody({
       // "editor" would no-op the first click. Keying on viewMode makes one click
       // always reach the other surface.
       onSelect: () => {
+        setHtmlDeepLinkPath(null);
         setPreviewableViewMode(viewMode === "preview" ? "source" : "preview");
       },
     });
@@ -1390,7 +1399,7 @@ function FileViewerBody({
       )}
       aria-hidden={!open}
       data-collapsed={!open || undefined}
-      inert={!open}
+      {...(open ? {} : { inert: "" })}
     >
       {/* Resize handle — desktop only (mobile is full-screen overlay) */}
       {isDesktop && (

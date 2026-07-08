@@ -120,6 +120,8 @@ func newFixture() *testFixture {
 		},
 	}, discardLogger())
 
+	// Short fallback so the debounced end-of-turn fires within Drain's window.
+	f.transport.idleFallback = 30 * time.Millisecond
 	f.transport.Initialize(ctx, stdinPW, stdoutPR, nil)
 	go f.transport.ReadLoop(ctx)
 	return f

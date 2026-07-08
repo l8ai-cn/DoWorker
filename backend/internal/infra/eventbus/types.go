@@ -23,6 +23,9 @@ const (
 	EventPodInitProgress  EventType = "pod:init_progress"
 	EventPodRestarting        EventType = "pod:restarting"
 	EventPodPerpetualChanged  EventType = "pod:perpetual_changed"
+	EventPodQueued            EventType = "pod:queued"
+	EventPodQueueDispatched   EventType = "pod:queue_dispatched"
+	EventPodQueueExpired      EventType = "pod:queue_expired"
 
 	EventChannelMessage        EventType = "channel:message"
 	EventChannelMessageEdited  EventType = "channel:message_edited"

@@ -913,6 +913,16 @@
         "delete": "删除",
         "cancel": "取消"
       }
+    },
+    "org": {
+      "infrastructure": {
+        "title": "基础设施",
+        "description": "管理组织的 Git 仓库与执行集群。",
+        "runnersDescription": "自托管集群，用于运行 Worker。",
+        "runnersHint": "注册集群、签发 Token、监控容量。",
+        "repositoriesDescription": "与任务和 Worker 关联的 Git 仓库。",
+        "repositoriesHint": "从 GitHub、GitLab、Gitea 或手动 URL 导入。"
+      }
     }
   }
 }

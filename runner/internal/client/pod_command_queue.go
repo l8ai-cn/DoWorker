@@ -1,6 +1,7 @@
 package client
 
 import (
+	"runtime/debug"
 	"sync"
 
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
@@ -59,7 +60,7 @@ func (q *PodCommandQueue) getOrCreate(podKey string) chan func() {
 func (q *PodCommandQueue) safeExec(fn func()) {
 	defer func() {
 		if r := recover(); r != nil {
-			logger.GRPC().Error("Panic in pod command", "panic", r)
+			logger.GRPC().Error("Panic in pod command", "panic", r, "stack", string(debug.Stack()))
 		}
 	}()
 	fn()

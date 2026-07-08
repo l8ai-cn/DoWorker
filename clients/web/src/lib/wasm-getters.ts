@@ -69,6 +69,7 @@ export function registerAll(client: WasmApiClient, authManager: WasmAuthManager)
     acpManager: client.get_acp_manager(),
     loopalManager: client.get_loopal_manager(),
     repoState: client.get_repo_state(),
+    expertState: client.get_expert_state(),
     autopilotState: client.get_autopilot_state(),
     relayManager: new WasmRelayManager(),
   });
@@ -90,7 +91,7 @@ export {
   getTicketRelationsService, getFileService, getSupportTicketService,
   getAuthConnectService, getRunnerState, getMeshState, getTicketState,
   getChannelState, getLoopState, getAcpManager, getLoopalManager,
-  getRepoState,
+  getRepoState, getExpertState,
   getAutopilotState, getRelayManager, getBlockstoreService,
   getKnowledgeBaseService,
 } from "@agentsmesh/service-runtime";

@@ -7,6 +7,14 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 )
 
+func (s *PodService) ListQueuedPods(ctx context.Context, orgID int64) ([]*agentpod.Pod, error) {
+	pods, _, err := s.repo.ListByOrg(ctx, orgID, agentpod.PodListQuery{
+		Statuses: []string{agentpod.StatusQueued},
+		Limit:    200,
+	})
+	return pods, err
+}
+
 func (s *PodService) GetPod(ctx context.Context, podKey string) (*agentpod.Pod, error) {
 	pod, err := s.repo.GetByKey(ctx, podKey)
 	if err != nil {

@@ -1329,7 +1329,7 @@ describe("buildBubbles — routing_decision (intelligent model router) chip", ()
     expect(chip.tier).toBe("medium");
   });
 
-  it("live funnel: a response.output_item.done routing_decision reduces to the same bubble", () => {
+  it("live funnel: a turn.item.done routing_decision reduces to the same bubble", () => {
     const events: StreamEvent[] = [
       {
         type: "routing_decision",

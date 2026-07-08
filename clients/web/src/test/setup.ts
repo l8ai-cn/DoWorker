@@ -1045,6 +1045,25 @@ vi.mock('@/lib/wasm-core', () => {
     patch_repository: fn((_b: Uint8Array) => undefined),
   }
 
+  // In-memory fake of WasmExpertState (JSON fold — expert has no proto).
+  const expert = { list: [] as Record<string, unknown>[], current: null as Record<string, unknown> | null, total: 0 }
+  const expertState = {
+    experts_json: fn(() => JSON.stringify(expert.list)),
+    total: fn(() => expert.total),
+    current_expert_json: fn(() => (expert.current ? JSON.stringify(expert.current) : null)),
+    apply_fetched_experts: fn((json: string) => {
+      try { const r = JSON.parse(json); expert.list = r.experts ?? []; expert.total = r.total ?? 0 } catch { /* noop */ }
+    }),
+    apply_fetched_expert: fn((json: string) => {
+      try { expert.current = JSON.parse(json).expert ?? null } catch { /* noop */ }
+    }),
+    clear_current_expert: fn(() => { expert.current = null }),
+    remove_expert: fn((slug: string) => {
+      expert.list = expert.list.filter((e) => e.slug !== slug)
+      if (expert.current?.slug === slug) expert.current = null
+    }),
+  }
+
   const autopilotState = {
     set_controllers: fn(), controllers_json: fn(() => h.autopilot.controllers),
     set_current_controller: fn(), current_controller_json: fn(() => h.autopilot.current || undefined),
@@ -1084,6 +1103,7 @@ vi.mock('@/lib/wasm-core', () => {
     getMeshService: fn(() => meshState),
     getAcpManager: fn(() => acpMgr),
     getRepoState: fn(() => repoState),
+    getExpertState: fn(() => expertState),
     getAutopilotState: fn(() => autopilotState),
     getAutopilotService: fn(() => autopilotState),
     getRelayManager: fn(() => ({

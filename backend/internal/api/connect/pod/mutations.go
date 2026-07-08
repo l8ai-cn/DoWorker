@@ -54,6 +54,9 @@ func (s *Server) CreatePod(
 		ResumeAgentSession:  optionalBool(req.Msg.ResumeAgentSession),
 		Perpetual:           req.Msg.GetPerpetual(),
 		KnowledgeMounts:     knowledgeMountsFromProto(req.Msg.GetKnowledgeMounts()),
+		VirtualAPIKeyID:     optionalInt64(req.Msg.VirtualApiKeyId),
+		ModelConfigID:       optionalInt64(req.Msg.ModelConfigId),
+		TokenBudget:         optionalInt64(req.Msg.TokenBudget),
 	}
 
 	result, err := s.orchestrator.CreatePod(ctx, orchReq)

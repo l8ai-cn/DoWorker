@@ -1,12 +1,6 @@
-// Mirrors sdks/python-client/omnigent_client/_sse.py.
-//
-// Parses raw `text/event-stream` bytes into typed `StreamEvent`
-// values. Output of this module is the input to `BlockStream.reduce()`.
-//
-// Hand-ported. When _sse.py changes (new event types, new shapes),
-// update this file. There is no parity test here; bugs surface as the
-// reducer never seeing certain events, which the reducer's tests can't
-// catch — please add an SSE-parser test when you touch this.
+// Do Worker session stream protocol — typed event parser for
+// `GET /v1/sessions/{id}/stream`. Turn-scoped events use the
+// `turn.*` namespace; session-scoped events use `session.*`.
 
 import type {
   ClientTaskCancel,
@@ -22,14 +16,11 @@ import type {
   PolicyDenied,
   ReasoningDelta,
   ReasoningStarted,
-  ReasoningSummaryDelta,
   ResponseCancelled,
   ResponseCompleted,
   ResponseCreated,
   ResponseFailed,
   ResponseIncomplete,
-  ResponseInProgress,
-  ResponseQueued,
   RetryEvent,
   SessionChangedFilesInvalidatedEvent,
   SessionChildSessionUpdatedEvent,
@@ -235,54 +226,14 @@ function parseUsageByModel(raw: unknown): Record<string, ModelUsage> | undefined
   return out;
 }
 
-/**
- * Normalize event type to handle a server-side enum-rendering quirk.
- *
- * The server builds terminal events as `f"response.{task.status}"` where
- * `task.status` may be a Python enum (rendering as
- * `response.TaskStatus.COMPLETED`) instead of the expected
- * `response.completed`. Normalize by extracting and lowercasing the
- * enum value.
- */
-function normalizeEventType(eventType: string): string {
-  if (eventType.includes(".TaskStatus.")) {
-    const parts = eventType.split(".");
-    const status = (parts[parts.length - 1] ?? "").toLowerCase();
-    return `response.${status}`;
-  }
-  return eventType;
-}
-
-/**
- * Parse one raw SSE-shaped event payload (e.g. an entry from the
- * snapshot's `pending_elicitations` field) into a typed
- * `StreamEvent`. Exposed so cold-load paths can replay events
- * through the same reducer the live stream uses.
- *
- * @param rawType The event type string, e.g.
- *   `"response.elicitation_request"`.
- * @param data The raw `data` payload — the same JSON shape the
- *   server emits over SSE.
- * @returns A typed `StreamEvent`, or `null` for unknown types
- *   (forward-compatible — older clients ignore newer events).
- */
 export function parseEvent(rawType: string, data: Record<string, unknown>): StreamEvent | null {
-  const eventType = normalizeEventType(rawType);
+  const eventType = rawType;
 
-  // Response lifecycle.
-  if (eventType === "response.created") {
+  // Turn lifecycle.
+  if (eventType === "turn.started") {
     return { type: "response_created", response: parseResponse(data) } satisfies ResponseCreated;
   }
-  if (eventType === "response.queued") {
-    return { type: "response_queued", response: parseResponse(data) } satisfies ResponseQueued;
-  }
-  if (eventType === "response.in_progress") {
-    return {
-      type: "response_in_progress",
-      response: parseResponse(data),
-    } satisfies ResponseInProgress;
-  }
-  if (eventType === "response.completed") {
+  if (eventType === "turn.completed") {
     return {
       type: "response_completed",
       response: parseResponse(data),
@@ -307,13 +258,9 @@ export function parseEvent(rawType: string, data: Record<string, unknown>): Stre
   }
 
   // Text streaming.
-  if (eventType === "response.output_text.delta") {
+  if (eventType === "turn.text.delta") {
     const delta = data.delta;
     if (typeof delta !== "string") return null;
-    // Terminal-observed live streaming (claude-native) carries a stable
-    // per-message id plus chunk ordering; ordinary task streaming omits
-    // them. Pass through only well-typed values so a malformed field
-    // can't poison the in-flight buffer.
     const messageId = typeof data.message_id === "string" ? data.message_id : undefined;
     const index = typeof data.index === "number" ? data.index : undefined;
     const final = typeof data.final === "boolean" ? data.final : undefined;
@@ -321,24 +268,18 @@ export function parseEvent(rawType: string, data: Record<string, unknown>): Stre
   }
 
   // Reasoning.
-  if (eventType === "response.reasoning.started") {
+  if (eventType === "turn.reasoning.started") {
     return { type: "reasoning_started" } satisfies ReasoningStarted;
   }
-  if (eventType === "response.reasoning_text.delta") {
+  if (eventType === "turn.reasoning.delta") {
     const delta = data.delta;
     if (typeof delta === "string")
       return { type: "reasoning_delta", delta } satisfies ReasoningDelta;
     return null;
   }
-  if (eventType === "response.reasoning_summary_text.delta") {
-    const delta = data.delta;
-    if (typeof delta === "string")
-      return { type: "reasoning_summary_delta", delta } satisfies ReasoningSummaryDelta;
-    return null;
-  }
 
   // Output items.
-  if (eventType === "response.output_item.done") return parseOutputItem(data);
+  if (eventType === "turn.item.done") return parseOutputItem(data);
 
   // File output.
   if (eventType === "response.output_file.done") {
@@ -759,7 +700,7 @@ export function parseEvent(rawType: string, data: Record<string, unknown>): Stre
   }
 
   // MCP-shape elicitation request.
-  if (eventType === "response.elicitation_request") {
+  if (eventType === "turn.elicitation.request") {
     const elicitationId = data.elicitation_id;
     if (typeof elicitationId !== "string" || !elicitationId) return null;
     const params = data.params;
@@ -850,7 +791,7 @@ export function parseEvent(rawType: string, data: Record<string, unknown>): Stre
     } satisfies ElicitationRequest;
   }
 
-  if (eventType === "response.elicitation_resolved") {
+  if (eventType === "turn.elicitation.resolved") {
     const elicitationId = data.elicitation_id;
     if (typeof elicitationId !== "string" || !elicitationId) return null;
     return {

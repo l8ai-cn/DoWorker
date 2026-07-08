@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -26,41 +27,48 @@ export function PodLifecycleSection({
   onPolicyChange,
   onAfterChange,
 }: PodLifecycleSectionProps) {
+  const t = useTranslations();
   const selected = destroyPolicyOptions.find((o) => o.value === destroyPolicy);
 
   return (
     <section className="rounded-lg border border-border bg-surface-muted/35 p-3">
       <div className="mb-3">
-        <h3 className="text-sm font-medium text-foreground">生命周期策略</h3>
+        <h3 className="text-sm font-medium text-foreground">
+          {t("ide.createPod.lifecycleTitle")}
+        </h3>
         <p className="text-xs leading-5 text-muted-foreground">
-          配置实例启动后的保留方式，避免临时任务长期占用 Runner 资源。
+          {t("ide.createPod.lifecycleDescription")}
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-xs font-medium text-muted-foreground">
-            销毁策略
+            {t("ide.createPod.lifecyclePolicyLabel")}
           </label>
           <Select
             value={destroyPolicy}
             onValueChange={(value) => onPolicyChange(value as DestroyPolicy)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="选择销毁策略" />
+              <SelectValue placeholder={t("ide.createPod.lifecyclePolicyPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               {destroyPolicyOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
-                  {option.label}
+                  {t(option.labelKey)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <p className="mt-1 text-xs text-muted-foreground">{selected?.description}</p>
+          {selected && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t(selected.descriptionKey)}
+            </p>
+          )}
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-muted-foreground">
-            销毁时间
+            {t("ide.createPod.lifecycleAfterLabel")}
           </label>
           <Select
             value={String(destroyAfterMinutes)}
@@ -68,18 +76,18 @@ export function PodLifecycleSection({
             disabled={destroyPolicy === "manual"}
           >
             <SelectTrigger>
-              <SelectValue placeholder="选择时间" />
+              <SelectValue placeholder={t("ide.createPod.lifecycleAfterPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               {destroyAfterOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
-                  {option.label}
+                  {t(option.labelKey)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <p className="mt-1 text-xs text-muted-foreground">
-            手动销毁模式下不会设置自动销毁时间。
+            {t("ide.createPod.lifecycleManualHint")}
           </p>
         </div>
       </div>

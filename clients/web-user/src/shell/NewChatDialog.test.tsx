@@ -25,11 +25,13 @@ import type { ServerInfo } from "@/lib/capabilities";
 import { authenticatedFetch } from "@/lib/identity";
 import { useHosts, type Host } from "@/hooks/useHosts";
 import { useAvailableAgents, type AvailableAgent } from "@/hooks/useAvailableAgents";
+import { defaultModelConfig, useModelConfigs } from "@/hooks/useModelConfigs";
+import type { ModelConfig } from "@/lib/modelConfigsApi";
 import { useHostFilesystem, type HostFilesystemEntry } from "@/hooks/useHostFilesystem";
 import { useDirectorySessions } from "@/hooks/useDirectorySessions";
 import { useRunnerHealthRegistration } from "@/hooks/RunnerHealthProvider";
 import type { Conversation } from "@/hooks/useConversations";
-import { setOmnigentHostConfig } from "@/lib/host";
+import { setDoWorkerHostConfig } from "@/lib/host";
 import { setPendingInitialPrompt } from "@/store/chatStore";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -41,6 +43,7 @@ vi.mock("@/lib/identity", async (importOriginal) => ({
 }));
 vi.mock("@/hooks/useHosts", () => ({ useHosts: vi.fn() }));
 vi.mock("@/hooks/useAvailableAgents", () => ({ useAvailableAgents: vi.fn() }));
+vi.mock("@/hooks/useModelConfigs", () => ({ useModelConfigs: vi.fn(), defaultModelConfig: vi.fn() }));
 vi.mock("@/hooks/useHostFilesystem", () => ({
   useHostFilesystem: vi.fn(),
   // WorkspacePicker (rendered by the file browser) reads this on mount;
@@ -85,12 +88,14 @@ vi.mock("@/store/chatStore", async (importOriginal) => ({
 const authenticatedFetchMock = vi.mocked(authenticatedFetch);
 const useHostsMock = vi.mocked(useHosts);
 const useAvailableAgentsMock = vi.mocked(useAvailableAgents);
+const useModelConfigsMock = vi.mocked(useModelConfigs);
+const defaultModelConfigMock = vi.mocked(defaultModelConfig);
 const useHostFilesystemMock = vi.mocked(useHostFilesystem);
 const useDirectorySessionsMock = vi.mocked(useDirectorySessions);
 const useRunnerHealthMock = vi.mocked(useRunnerHealthRegistration);
 const setPendingInitialPromptMock = vi.mocked(setPendingInitialPrompt);
 
-const RECENT_KEY = "omnigent:recent-workspaces";
+const RECENT_KEY = "do-worker:recent-workspaces";
 
 /**
  * Build a minimal Conversation for the directory-conflict helpers/warning.
@@ -431,7 +436,7 @@ describe("harnessUnconfiguredOnHost", () => {
     expect(reason).toBe("unconfigured");
     expect(harnessWarningBadgeText(reason)).toBe("needs setup");
     expect(harnessWarningMessageText("Claude Code", "laptop", reason)).toBe(
-      "Claude Code isn't configured on laptop — run omnigent setup on that machine.",
+      "Claude Code isn't configured on laptop — run runner register on that machine.",
     );
   });
 
@@ -446,7 +451,7 @@ describe("harnessUnconfiguredOnHost", () => {
     );
     expect(harnessWarningBadgeText("binary-missing")).toBe("binary missing");
     expect(harnessWarningMessageText("Codex", "laptop", "binary-missing")).toBe(
-      "Codex is missing the Codex binary on laptop — run omnigent setup on that machine.",
+      "Codex is missing the Codex binary on laptop — run runner register on that machine.",
     );
   });
 
@@ -551,6 +556,14 @@ function mockAgents(agents: AvailableAgent[]) {
   } as unknown as ReturnType<typeof useAvailableAgents>);
 }
 
+function mockModelConfigs(models: ModelConfig[]) {
+  useModelConfigsMock.mockReturnValue({
+    data: models,
+    isLoading: false,
+  } as unknown as ReturnType<typeof useModelConfigs>);
+  defaultModelConfigMock.mockImplementation((rows) => rows?.find((m) => m.is_default) ?? rows?.[0] ?? null);
+}
+
 // Shared mock setup for the landing-screen tests: one online host (host_1,
 // auto-selected), two agents (Claude Code default + Codex), inert
 // directory-session / runner-health / filesystem stubs, and a persisted
@@ -559,10 +572,12 @@ function setupLandingMocks() {
   authenticatedFetchMock.mockReset();
   useHostsMock.mockReset();
   useAvailableAgentsMock.mockReset();
+  useModelConfigsMock.mockReset();
+  defaultModelConfigMock.mockReset();
   useHostFilesystemMock.mockReset();
   useDirectorySessionsMock.mockReset();
   useRunnerHealthMock.mockReset();
-  setOmnigentHostConfig({});
+  setDoWorkerHostConfig({});
   resetLandingDraft();
   localStorage.clear();
   // host_1's most-recent workspace seeds the field (so submit can enable
@@ -597,6 +612,7 @@ function setupLandingMocks() {
       skills: [],
     },
   ]);
+  mockModelConfigs([]);
 }
 
 function renderLanding(infoOverrides: Partial<ServerInfo> = {}, route = "/") {
@@ -967,9 +983,9 @@ describe("NewChatLandingScreen", () => {
     const body = JSON.parse((init as RequestInit).body as string) as Record<string, unknown>;
     const labels = body.labels as Record<string, string>;
     // The label is what the runner reads to launch with the bypass flag.
-    expect(labels["omnigent.codex_native.bypass_sandbox"]).toBe("1");
+    expect(labels["do-worker.codex_native.bypass_sandbox"]).toBe("1");
     // The native wrapper labels still ride alongside it.
-    expect(labels["omnigent.wrapper"]).toBe("codex-native-ui");
+    expect(labels["do-worker.wrapper"]).toBe("codex-native-ui");
   });
 
   it("shows a conflict banner in the file browser for an occupied directory", async () => {
@@ -1094,7 +1110,7 @@ describe("NewChatLandingScreen", () => {
   });
 
   it("shows a disabled sandbox row with host-provided tooltip content when managed sandboxes are unavailable", async () => {
-    setOmnigentHostConfig({
+    setDoWorkerHostConfig({
       docsLinks: { newSandbox: "Managed sandboxes are disabled in this workspace." },
     });
     renderLanding();
@@ -1330,9 +1346,107 @@ describe("NewChatLandingScreen", () => {
     expect(patchBody.labels).toEqual({ omni_project: "Sprint 42" });
   });
 
+  it("pre-selects the agent from the ?agent= query param and uses it on create", async () => {
+    authenticatedFetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ id: "conv_new" }),
+    } as unknown as Response);
+    renderLanding({}, "/?agent=a2");
+
+    await waitFor(() =>
+      expect(screen.getByTestId("new-chat-landing-agent-select").textContent).toContain("Codex"),
+    );
+
+    fireEvent.change(screen.getByTestId("new-chat-landing-input"), {
+      target: { value: "run codex task" },
+    });
+    fireEvent.submit(screen.getByTestId("new-chat-landing-composer"));
+
+    await waitFor(() => expect(authenticatedFetchMock).toHaveBeenCalledTimes(1));
+    const [, init] = authenticatedFetchMock.mock.calls[0];
+    const body = JSON.parse((init as RequestInit).body as string) as Record<string, unknown>;
+    expect(body.agent_id).toBe("a2");
+  });
+
+  it("pre-fills agent and project from combined query params", async () => {
+    authenticatedFetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ id: "conv_new" }),
+    } as unknown as Response);
+    renderLanding({}, "/?agent=a2&project=Sprint%2042");
+
+    await waitFor(() =>
+      expect(screen.getByTestId("new-chat-landing-agent-select").textContent).toContain("Codex"),
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("new-chat-landing-project-chip").textContent).toContain(
+        "Sprint 42",
+      ),
+    );
+
+    fireEvent.change(screen.getByTestId("new-chat-landing-input"), {
+      target: { value: "sprint kickoff" },
+    });
+    fireEvent.submit(screen.getByTestId("new-chat-landing-composer"));
+
+    await waitFor(() => expect(authenticatedFetchMock).toHaveBeenCalledTimes(2));
+    const [, createInit] = authenticatedFetchMock.mock.calls[0];
+    expect(JSON.parse((createInit as RequestInit).body as string).agent_id).toBe("a2");
+    const [patchUrl, patchInit] = authenticatedFetchMock.mock.calls[1];
+    expect(patchUrl).toBe("/v1/sessions/conv_new");
+    expect(JSON.parse((patchInit as RequestInit).body as string).labels).toEqual({
+      omni_project: "Sprint 42",
+    });
+  });
+
+  it("shows the model pool picker for codex-cli and sends model_config_id on create", async () => {
+    mockAgents([
+      {
+        id: "codex-cli",
+        name: "codex-cli",
+        display_name: "Codex",
+        description: null,
+        harness: "codex",
+        skills: [],
+      },
+    ]);
+    mockModelConfigs([
+      {
+        id: 4,
+        name: "OpenAI Codex",
+        provider_type: "openai",
+        model: "gpt-5.5",
+        base_url: "https://proxy.example/v1",
+        is_default: true,
+        scope: "org",
+      },
+    ]);
+    authenticatedFetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ id: "conv_codex" }),
+    } as unknown as Response);
+    renderLanding({}, "/?agent=codex-cli");
+
+    await waitFor(() =>
+      expect(screen.getByTestId("new-chat-landing-model-select").textContent).toContain(
+        "OpenAI Codex",
+      ),
+    );
+
+    fireEvent.change(screen.getByTestId("new-chat-landing-input"), {
+      target: { value: "fix the bug" },
+    });
+    fireEvent.submit(screen.getByTestId("new-chat-landing-composer"));
+
+    await waitFor(() => expect(authenticatedFetchMock).toHaveBeenCalledTimes(1));
+    const body = JSON.parse((authenticatedFetchMock.mock.calls[0][1] as RequestInit).body as string);
+    expect(body.agent_id).toBe("codex-cli");
+    expect(body.model_config_id).toBe(4);
+  });
+
   it.each([
     {
-      name: "not-configured OmnigentError",
+      name: "not-configured DoWorkerApiError",
       status: 400,
       body: { error: { message: "managed hosts are not configured on this server" } },
       expected: "managed hosts are not configured on this server",
@@ -1402,7 +1516,7 @@ describe("NewChatLandingScreen", () => {
   });
 
   it("shows host-provided git credentials tooltip content in the sandbox repo popover", async () => {
-    setOmnigentHostConfig({
+    setDoWorkerHostConfig({
       docsLinks: { databricksGitCredentials: "Use Databricks Git credentials before cloning." },
     });
     renderLanding({ managed_sandboxes_enabled: true });

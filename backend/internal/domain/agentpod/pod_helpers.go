@@ -1,7 +1,7 @@
 package agentpod
 
 func ActiveStatuses() []string {
-	return []string{StatusInitializing, StatusRunning, StatusPaused, StatusDisconnected}
+	return []string{StatusQueued, StatusInitializing, StatusRunning, StatusPaused, StatusDisconnected}
 }
 
 func TerminalStatuses() []string {
@@ -9,7 +9,8 @@ func TerminalStatuses() []string {
 }
 
 func IsPodStatusActive(status string) bool {
-	return status == StatusRunning ||
+	return status == StatusQueued ||
+		status == StatusRunning ||
 		status == StatusInitializing ||
 		status == StatusPaused ||
 		status == StatusDisconnected

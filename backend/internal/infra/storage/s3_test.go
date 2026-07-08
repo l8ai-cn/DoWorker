@@ -203,6 +203,71 @@ func TestNewS3Storage_HTTPEndpoint(t *testing.T) {
 	}
 }
 
+func TestNewS3Storage_RunnerEndpointFallsBackWhenEmpty(t *testing.T) {
+	cfg := S3Config{
+		Endpoint:     "localhost:9000",
+		Region:       "us-east-1",
+		Bucket:       "test-bucket",
+		AccessKey:    "minioadmin",
+		SecretKey:    "minioadmin",
+		UseSSL:       false,
+		UsePathStyle: true,
+		// RunnerEndpoint intentionally left empty.
+	}
+
+	storage, err := NewS3Storage(cfg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if storage.runnerPresign != nil {
+		t.Error("expected runnerPresign to be nil when RunnerEndpoint is empty, falling back to internal presign client")
+	}
+}
+
+func TestNewS3Storage_RunnerEndpointSameAsInternalFallsBack(t *testing.T) {
+	cfg := S3Config{
+		Endpoint:       "localhost:9000",
+		RunnerEndpoint: "localhost:9000", // identical to Endpoint
+		Region:         "us-east-1",
+		Bucket:         "test-bucket",
+		AccessKey:      "minioadmin",
+		SecretKey:      "minioadmin",
+		UseSSL:         false,
+		UsePathStyle:   true,
+	}
+
+	storage, err := NewS3Storage(cfg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if storage.runnerPresign != nil {
+		t.Error("expected runnerPresign to be nil when RunnerEndpoint resolves to the same URL as Endpoint")
+	}
+}
+
+func TestNewS3Storage_RunnerEndpointDistinctFromInternal(t *testing.T) {
+	// Mirrors host-side dev: backend reaches MinIO via localhost, but runner
+	// pods (in Docker) must go through host.docker.internal.
+	cfg := S3Config{
+		Endpoint:       "localhost:10004",
+		RunnerEndpoint: "host.docker.internal:10004",
+		Region:         "us-east-1",
+		Bucket:         "agentsmesh",
+		AccessKey:      "minioadmin",
+		SecretKey:      "minioadmin",
+		UseSSL:         false,
+		UsePathStyle:   true,
+	}
+
+	storage, err := NewS3Storage(cfg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if storage.runnerPresign == nil {
+		t.Fatal("expected a distinct runnerPresign client when RunnerEndpoint differs from Endpoint")
+	}
+}
+
 // Benchmark tests
 func BenchmarkNewS3Storage(b *testing.B) {
 	cfg := S3Config{

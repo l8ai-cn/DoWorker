@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/anthropics/agentsmesh/runner/internal/agentkit"
+	"github.com/anthropics/agentsmesh/runner/internal/agents/codex"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
 )
 
@@ -73,6 +74,22 @@ func (b *PodBuilder) prepareAgentHome(sandboxRoot, workDir string) error {
 		} else {
 			b.cmd.FilesToCreate = append(b.cmd.FilesToCreate[:mergeIdx], b.cmd.FilesToCreate[mergeIdx+1:]...)
 			log.Info("Merged platform config into existing agent config", "path", configPath)
+		}
+	}
+
+	if spec.EnvVar == "CODEX_HOME" {
+		configPath := filepath.Join(agentHome, "config.toml")
+		baseURL := ""
+		model := ""
+		if b.cmd.EnvVars != nil {
+			baseURL = b.cmd.EnvVars["OPENAI_BASE_URL"]
+			model = b.cmd.EnvVars["OPENAI_MODEL"]
+		}
+		if err := codex.ApplyOpenAIProviderFromEnv(configPath, baseURL, model); err != nil {
+			log.Warn("Failed to apply codex provider env", "path", configPath, "error", err)
+		}
+		if err := codex.AppendCodexProjectTrust(configPath, workDir); err != nil {
+			log.Warn("Failed to trust codex workspace paths", "path", configPath, "error", err)
 		}
 	}
 

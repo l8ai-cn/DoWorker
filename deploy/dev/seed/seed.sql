@@ -132,6 +132,14 @@ BEGIN
         WHERE organization_id = v_org_id AND user_id = v_user2_id
     );
 
+    -- System admin can use dev-org runners (Codex, Claude, …) via default org pick.
+    INSERT INTO organization_members (organization_id, user_id, role)
+    SELECT v_org_id, v_admin_id, 'member'
+    WHERE NOT EXISTS (
+        SELECT 1 FROM organization_members
+        WHERE organization_id = v_org_id AND user_id = v_admin_id
+    );
+
     -- =========================================================================
     -- 3.1 创建 Pro 订阅 (plan_id = 2)
     -- =========================================================================
@@ -231,6 +239,7 @@ BEGIN
     FROM (VALUES
         ('dev-runner-claude', 'Development Docker Runner (Claude Code)'),
         ('dev-runner-codex', 'Development Docker Runner (Codex CLI)'),
+        ('dev-runner-codex-2', 'Development Docker Runner (Codex CLI #2)'),
         ('dev-runner-gemini', 'Development Docker Runner (Gemini CLI)'),
         ('dev-runner-loopal', 'Development Docker Runner (Loopal)'),
         ('dev-runner-do-agent', 'Development Docker Runner (DoAgent)'),

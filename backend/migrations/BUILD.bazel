@@ -7,7 +7,7 @@ load("@rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "migrations",
     srcs = ["embed.go"],
-    embedsrcs = glob(["*.sql"]),
+    embedsrcs = glob(["*.sql"]),  # keep
     importpath = "github.com/anthropics/agentsmesh/backend/migrations",
     visibility = ["//visibility:public"],
 )

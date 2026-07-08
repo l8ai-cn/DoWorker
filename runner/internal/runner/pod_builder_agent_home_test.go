@@ -232,3 +232,29 @@ func TestPrepareAgentHome_NoFilesToCreateMatchDoesNotMerge(t *testing.T) {
 	assert.False(t, merged)
 	assert.Len(t, builder.cmd.FilesToCreate, 1)
 }
+
+func TestPrepareAgentHome_CodexAppliesEnvBundleProvider(t *testing.T) {
+	sandboxRoot := t.TempDir()
+	workDir := filepath.Join(sandboxRoot, "workspace")
+	require.NoError(t, os.MkdirAll(workDir, 0755))
+	agentHome := filepath.Join(sandboxRoot, "codex-home")
+
+	builder := &PodBuilder{
+		cmd: &runnerv1.CreatePodCommand{
+			PodKey: "test-pod",
+			EnvVars: map[string]string{
+				"CODEX_HOME":      agentHome,
+				"OPENAI_BASE_URL": "https://token.example.test",
+				"OPENAI_MODEL":    "gpt-5.5",
+			},
+		},
+	}
+
+	require.NoError(t, builder.prepareAgentHome(sandboxRoot, workDir))
+	data, err := os.ReadFile(filepath.Join(agentHome, "config.toml"))
+	require.NoError(t, err)
+	body := string(data)
+	assert.Contains(t, body, "https://token.example.test")
+	assert.Contains(t, body, "gpt-5.5")
+	assert.Contains(t, body, "model_provider")
+}

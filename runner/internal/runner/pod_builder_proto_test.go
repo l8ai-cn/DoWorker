@@ -67,6 +67,16 @@ func TestBuild_PromptDefaultPosition(t *testing.T) {
 	}
 }
 
+func TestBuild_PromptAppendACPMode(t *testing.T) {
+	cmd := protoCmd("codex", []string{"app-server"})
+	cmd.InteractionMode = "acp"
+	cmd.Prompt = "ping"
+	cmd.PromptPosition = "append"
+
+	pod := buildAndCleanup(t, cmd)
+	assert.Equal(t, []string{"app-server"}, pod.LaunchArgs, "ACP prompt must not become argv")
+}
+
 // === Placeholder Resolution in LaunchArgs ===
 
 func TestBuild_LaunchArgsPlaceholderResolution(t *testing.T) {

@@ -69,21 +69,22 @@ func (b *PodBuilder) Build(ctx context.Context) (*Pod, error) {
 		envVars[k] = resolvePathPlaceholders(v, sandboxRoot, workingDir)
 	}
 
-	// Handle prompt injection into args
-	prompt := b.cmd.Prompt
-	if prompt != "" {
-		switch b.cmd.PromptPosition {
-		case "prepend":
-			resolvedArgs = append([]string{prompt}, resolvedArgs...)
-		case "append":
-			resolvedArgs = append(resolvedArgs, prompt)
-		}
-	}
-
-	// Determine interaction mode
 	interactionMode := b.cmd.InteractionMode
 	if interactionMode == "" {
 		interactionMode = InteractionModePTY
+	}
+
+	// PTY agents consume PROMPT via argv; ACP agents receive it over the protocol.
+	if interactionMode != InteractionModeACP {
+		prompt := b.cmd.Prompt
+		if prompt != "" {
+			switch b.cmd.PromptPosition {
+			case "prepend":
+				resolvedArgs = append([]string{prompt}, resolvedArgs...)
+			case "append":
+				resolvedArgs = append(resolvedArgs, prompt)
+			}
+		}
 	}
 
 	logger.Pod().DebugContext(ctx, "Resolved launch args", "pod_key", b.cmd.PodKey, "args", resolvedArgs)

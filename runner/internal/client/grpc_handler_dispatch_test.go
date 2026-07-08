@@ -108,6 +108,7 @@ func TestHandleServerMessage_SendPrompt(t *testing.T) {
 	}
 
 	conn.handleServerMessage(context.Background(), msg)
+	conn.handlerWg.Wait()
 
 	handler.mu.Lock()
 	assert.True(t, handler.sendPromptCalled)

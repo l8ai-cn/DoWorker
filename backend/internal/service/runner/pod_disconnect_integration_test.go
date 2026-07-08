@@ -112,6 +112,43 @@ func TestPodCoordinator_RunnerDisconnect_FailsInitializingPods(t *testing.T) {
 	assert.True(t, podKeysNotified["dc-init-2"], "dc-init-2 should be notified")
 }
 
+func TestPodCoordinator_RunnerDisconnect_FailsQueuedPods(t *testing.T) {
+	pc, _, _, db := setupPodEventHandlerDeps(t)
+
+	r := &runnerDomain.Runner{
+		OrganizationID: 1,
+		NodeID:         "disconnect-queued-node",
+		Status:         "online",
+		CurrentPods:    1,
+	}
+	require.NoError(t, db.Create(r).Error)
+
+	db.Exec(`INSERT INTO pods (pod_key, runner_id, status, agent_status) VALUES (?, ?, ?, ?)`,
+		"dc-queued-1", r.ID, agentpod.StatusQueued, "idle")
+	db.Exec(`INSERT INTO pods (pod_key, runner_id, status, agent_status) VALUES (?, ?, ?, ?)`,
+		"dc-running-2", r.ID, agentpod.StatusRunning, "executing")
+
+	recorder := &statusChangeRecorder{}
+	pc.SetStatusChangeCallback(recorder.callback)
+
+	pc.handleRunnerDisconnect(r.ID)
+
+	var queuedPod agentpod.Pod
+	require.NoError(t, db.Where("pod_key = ?", "dc-queued-1").First(&queuedPod).Error)
+	assert.Equal(t, agentpod.StatusError, queuedPod.Status)
+	require.NotNil(t, queuedPod.ErrorCode)
+	assert.Equal(t, ErrCodeRunnerDisconnected, *queuedPod.ErrorCode)
+
+	var runPod agentpod.Pod
+	require.NoError(t, db.Where("pod_key = ?", "dc-running-2").First(&runPod).Error)
+	assert.Equal(t, agentpod.StatusRunning, runPod.Status)
+
+	calls := recorder.getCalls()
+	require.Len(t, calls, 1)
+	assert.Equal(t, "dc-queued-1", calls[0].PodKey)
+	assert.Equal(t, agentpod.StatusError, calls[0].Status)
+}
+
 // TestPodCoordinator_RunnerDisconnect_NoInitializingPods verifies that
 // when a runner disconnects and has only running pods, no pod statuses change.
 func TestPodCoordinator_RunnerDisconnect_NoInitializingPods(t *testing.T) {

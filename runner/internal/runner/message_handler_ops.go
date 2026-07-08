@@ -1,11 +1,13 @@
 package runner
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/anthropics/agentsmesh/runner/internal/acp"
 	"github.com/anthropics/agentsmesh/runner/internal/client"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
 )
@@ -137,6 +139,24 @@ func (h *RunnerMessageHandler) OnObservePod(req client.ObservePodRequest) error 
 // chat UI (consistent with the Relay command path in handleAcpRelayCommand).
 func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) error {
 	log := logger.Pod()
+	if cmd.CommandId != "" {
+		h.promptDedupMu.Lock()
+		if h.promptDedup == nil {
+			h.promptDedup = make(map[string]*promptDedupRing)
+		}
+		ring := h.promptDedup[cmd.PodKey]
+		if ring == nil {
+			ring = newPromptDedupRing(32)
+			h.promptDedup[cmd.PodKey] = ring
+		}
+		if ring.seen(cmd.CommandId) {
+			h.promptDedupMu.Unlock()
+			log.Info("duplicate send_prompt absorbed", "pod_key", cmd.PodKey, "command_id", cmd.CommandId)
+			return nil
+		}
+		ring.add(cmd.CommandId)
+		h.promptDedupMu.Unlock()
+	}
 	pod, ok := h.podStore.Get(cmd.PodKey)
 	if !ok {
 		log.Warn("Pod not found for send_prompt", "pod_key", cmd.PodKey)
@@ -148,7 +168,7 @@ func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) err
 	}
 	// ACP: echo user message to Relay so it appears in the chat panel.
 	if pod.IsACPMode() {
-		sendAcpViaRelay(pod, "content_chunk", "", map[string]string{
+		sendAcpViaRelay(pod, "contentChunk", "", map[string]string{
 			"text": cmd.Prompt, "role": "user",
 		})
 		if err := acpSendPromptWhenReady(pod, cmd.Prompt); err != nil {
@@ -166,21 +186,29 @@ func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) err
 	return nil
 }
 
-// acpSendPromptWhenReady retries until the ACP client leaves initializing.
-// create_pod and send_prompt often race on compat sessions (pod still handshaking).
+// acpSendPromptWhenReady retries until the ACP client leaves initializing and
+// NewSession has assigned a thread/session id (Codex/ACP; Claude is exempt).
 func acpSendPromptWhenReady(pod *Pod, prompt string) error {
-	const attempts = 50
+	const attempts = 100
 	for i := 0; i < attempts; i++ {
 		err := pod.IO.SendInput(prompt)
 		if err == nil {
 			return nil
 		}
-		if !strings.Contains(err.Error(), "cannot send prompt in state") {
-			return err
+		if acpPromptRetryable(err) {
+			time.Sleep(100 * time.Millisecond)
+			continue
 		}
-		time.Sleep(100 * time.Millisecond)
+		return err
 	}
 	return fmt.Errorf("timeout waiting for ACP pod %s to accept prompt", pod.PodKey)
+}
+
+func acpPromptRetryable(err error) bool {
+	if errors.Is(err, acp.ErrPromptNotReady) {
+		return true
+	}
+	return strings.Contains(err.Error(), "cannot send prompt in state")
 }
 
 func (h *RunnerMessageHandler) OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error {

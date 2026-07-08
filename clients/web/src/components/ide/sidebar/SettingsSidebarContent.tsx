@@ -20,6 +20,8 @@ import {
   KeyRound,
   Puzzle,
   BarChart3,
+  Gauge,
+  Layers,
   LifeBuoy,
 } from "lucide-react";
 
@@ -86,7 +88,9 @@ export function SettingsSidebarContent({ className }: SettingsSidebarContentProp
     { id: "general", labelKey: "ide.sidebar.settings.tabs.general", icon: Settings },
     { id: "members", labelKey: "ide.sidebar.settings.tabs.members", icon: Users },
     { id: "extensions", labelKey: "ide.sidebar.settings.tabs.extensions", icon: Puzzle },
+    { id: "infrastructure", labelKey: "ide.sidebar.settings.tabs.infrastructure", icon: Layers },
     { id: "api-keys", labelKey: "ide.sidebar.settings.tabs.apiKeys", icon: KeyRound },
+    { id: "model-quotas", label: "Quota & Billing", icon: Gauge },
     ...(isOrgAdminOrOwner
       ? [{ id: "usage", labelKey: "ide.sidebar.settings.tabs.usage", icon: BarChart3 }]
       : []),

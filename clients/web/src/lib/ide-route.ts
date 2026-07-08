@@ -17,6 +17,7 @@ export function resolveActivityFromPathname(pathname: string): ActivityType | nu
   if (pathHasSegment(pathname, "channels")) return "channels";
   if (pathHasSegment(pathname, "mesh")) return "mesh";
   if (pathHasSegment(pathname, "loops")) return "loops";
+  if (pathHasSegment(pathname, "experts")) return "experts";
   if (pathHasSegment(pathname, "automation")) return "automation";
   if (pathHasSegment(pathname, "api-access")) return "apiAccess";
   if (pathHasSegment(pathname, "knowledge-base")) return "knowledge";

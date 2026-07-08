@@ -27,7 +27,10 @@ func (c *ACPClient) NewSession(mcpServers map[string]any) error {
 // SendPrompt sends a prompt to the current session.
 func (c *ACPClient) SendPrompt(prompt string) error {
 	if c.State() != StateIdle {
-		return fmt.Errorf("cannot send prompt in state %s", c.State())
+		return fmt.Errorf("%w: state %s", ErrPromptNotReady, c.State())
+	}
+	if c.sessionRequiredForPrompt() && c.SessionID() == "" {
+		return ErrPromptNotReady
 	}
 
 	c.setState(StateProcessing)
@@ -41,6 +44,10 @@ func (c *ACPClient) SendPrompt(prompt string) error {
 	}
 
 	return nil
+}
+
+func (c *ACPClient) sessionRequiredForPrompt() bool {
+	return c.cfg.TransportType != "claude-stream"
 }
 
 // RespondToPermission approves or denies a permission request.

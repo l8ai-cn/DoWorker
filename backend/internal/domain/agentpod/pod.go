@@ -20,6 +20,7 @@ const (
 	StatusCompleted    = "completed"
 	StatusTerminated   = "terminated"
 	StatusError        = "error"
+	StatusQueued       = "queued"
 )
 
 // Agent status constants
@@ -96,6 +97,10 @@ type Pod struct {
 	// SourcePodKey tracks the original pod when this pod was created via resume
 	// Enables tracking the chain of resumed sessions
 	SourcePodKey *string `gorm:"size:100" json:"source_pod_key,omitempty"`
+
+	// VirtualAPIKeyID attributes this pod's token usage to a virtual API key
+	// (quota/billing). Nil when the Worker binds a real model directly.
+	VirtualAPIKeyID *int64 `gorm:"column:virtual_api_key_id" json:"virtual_api_key_id,omitempty"`
 
 	// Perpetual mode: Runner auto-restarts the agent process on clean exit.
 	// pod_key stays the same across restarts (service identity).

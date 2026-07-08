@@ -1,0 +1,119 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: agentsmesh
+  namespace: agentsmesh
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: ["agentsmesh.aiedulab.cn"]
+      secretName: aiedulab-wildcard-tls
+  rules:
+    - host: agentsmesh.aiedulab.cn
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8080
+          - path: /health
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8080
+          - path: /proto.
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: agentsmesh-admin
+  namespace: agentsmesh
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: ["agentsmesh-admin.aiedulab.cn"]
+      secretName: aiedulab-wildcard-tls
+  rules:
+    - host: agentsmesh-admin.aiedulab.cn
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-admin
+                port:
+                  number: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: agentsmesh-relay
+  namespace: agentsmesh
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: ["agentsmesh.aiedulab.cn"]
+      secretName: aiedulab-wildcard-tls
+  rules:
+    - host: agentsmesh.aiedulab.cn
+      http:
+        paths:
+          - path: /relay(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: relay
+                port:
+                  number: 8090
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: agentsmesh-minio
+  namespace: agentsmesh
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: ["agentsmesh-minio.aiedulab.cn"]
+      secretName: aiedulab-wildcard-tls
+  rules:
+    - host: agentsmesh-minio.aiedulab.cn
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9000

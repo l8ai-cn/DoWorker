@@ -125,6 +125,17 @@ func (c *ACPClient) State() string {
 	return c.state
 }
 
+// ForceIdleIfBusy emits idle when a turn was interrupted by subprocess exit
+// so downstream session publishers can flush buffered assistant text.
+func (c *ACPClient) ForceIdleIfBusy() {
+	c.stateMu.RLock()
+	state := c.state
+	c.stateMu.RUnlock()
+	if state == StateProcessing || state == StateWaitingPermission {
+		c.setState(StateIdle)
+	}
+}
+
 func (c *ACPClient) setState(state string) {
 	c.stateMu.Lock()
 	old := c.state

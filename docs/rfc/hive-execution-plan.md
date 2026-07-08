@@ -71,15 +71,15 @@
 
 当前故障：`POST /v1/sessions/{id}/events` 202 后，assistant 回复未落
 `conversation_items`（smoke 第 4 步失败）。链路：SendPrompt → Runner →
-e2e-echo ACP → `AcpSessionEvent` → `ForwardAcpSession` → EventBridge。
+e2e-echo ACP → `AcpSessionEvent` → `SessionStreamPublisher` → SSE `turn.*`。
 
 - [x] S0.1 诊断 docker runner gRPC `handshake EOF`：根因是 traefik passthrough 在 Mac Docker 下不稳定；mTLS 直连 host 正常
 - [x] S0.2 `docker-compose.runners.yml` 改为 `GRPC_ENDPOINT: host.docker.internal:10016`；替换 legacy `agentsmesh-main-runner-1` 为 `runner-e2e-echo`
-- [x] S0.3–S0.4 compat 层注入 `MODE acp`（`compat_agentfile_layer.go`）；runner `acpSendPromptWhenReady` 修复 create/send_prompt 竞态
+- [x] S0.3–S0.4 session API 注入 `MODE acp`（`session_agentfile_layer.go`）；runner `acpSendPromptWhenReady` 修复 create/send_prompt 竞态
 - [x] S0.5 `node output/api-integration-smoke.mjs` **五步全绿**（2026-07-05 验证）
 
-验收：assistant item 落库、SSE 收到 `response.output_text.delta` +
-`response.completed`、`GET /items` 返回两条消息。
+验收：assistant item 落库、SSE 收到 `turn.text.delta` +
+`turn.completed`、`GET /items` 返回两条消息。
 
 ### S1 — web-user 浏览器闭环
 
@@ -166,11 +166,11 @@ e2e-echo ACP → `AcpSessionEvent` → `ForwardAcpSession` → EventBridge。
 - [x] S7.3 Claude `external_session_id`：`system/init` → `OnSessionID` → backend 捕获
 - [x] S7.4 Workstream E：CreatePodForm advanced 折叠；DoAgent 任务入口首位 + 默认选中
 
-### S8 — Omnigent Full Parity（W1–W8，2026-07-05）
+### S8 — Session API parity（W1–W8，2026-07-05）
 
 > SSOT 细节见 `omnigent-full-parity-plan.md`。代码已落地；本节跟踪验收尾项。
 
-- [x] W1–W7 全部 endpoint 真实现（compat 层无 501 stub）
+- [x] W1–W7 全部 endpoint 真实现（session API 无 501 stub）
 - [x] W8.1 agents `?after=` 游标分页
 - [x] W8.2 `hive-s5-smoke.mjs` + `hive_smoke.sh` parity suite
 - [x] W8.3 Bazel `hive_smoke_scripts` 纳入 s5 脚本
@@ -184,7 +184,7 @@ e2e-echo ACP → `AcpSessionEvent` → `ForwardAcpSession` → EventBridge。
 ```
 backend/internal/domain/agentsession/
 backend/internal/service/agentsession/
-backend/internal/api/compat/omnigent/session_*.go
+backend/internal/api/rest/v1/session/session_*.go
 backend/migrations/000163_hive_foundations.up.sql
 clients/web/src/lib/agent-capability-axes.ts
 clients/web-user/vite.config.ts

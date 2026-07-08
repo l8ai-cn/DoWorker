@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      serviceAccountName: agentsmesh-backend
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      imagePullSecrets:
+        - name: agentsmesh-regcred
+      initContainers:
+        - name: kubectl-install
+          image: repo.aiedulab.cn:8443/agentsmesh/kubectl:1.28
+          imagePullPolicy: Always
+          command: ["sh", "-c", "cp \"$(command -v kubectl)\" /kube-tools/kubectl && chmod +x /kube-tools/kubectl"]
+          volumeMounts:
+            - name: kube-tools
+              mountPath: /kube-tools
+      containers:
+        - name: backend
+          image: repo.aiedulab.cn:8443/agentsmesh/backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 9090
+              name: grpc
+          envFrom:
+            - configMapRef:
+                name: agentsmesh-config
+            - secretRef:
+                name: agentsmesh-secrets
+          env:
+            - name: COORDINATOR_RUNNER_LAUNCHER
+              value: "k8s"
+            - name: COORDINATOR_RUNNER_K8S_KUBECTL
+              value: "/kube-tools/kubectl"
+            - name: COORDINATOR_RUNNER_K8S_NAMESPACE
+              value: "agentsmesh"
+            - name: COORDINATOR_RUNNER_K8S_IMAGE_PULL_POLICY
+              value: "Always"
+            - name: COORDINATOR_RUNNER_K8S_SSL_SECRET
+              value: "agentsmesh-pki-ca"
+            - name: COORDINATOR_RUNNER_K8S_READY_TIMEOUT_SECONDS
+              value: "180"
+            - name: COORDINATOR_RUNNER_NODE_ID_PREFIX
+              value: "coord-runner-"
+            - name: COORDINATOR_RUNNER_ORG_SLUG
+              value: "dev-org"
+            - name: COORDINATOR_RUNNER_BACKEND_URL
+              value: "http://backend:8080"
+            - name: COORDINATOR_RUNNER_GRPC_ENDPOINT
+              value: "backend:9090"
+            - name: COORDINATOR_RUNNER_RELAY_BASE_URL
+              value: "ws://relay:8090"
+            - name: COORDINATOR_RUNNER_IMAGES
+              value: "claude-code=repo.aiedulab.cn:8443/agentsmesh/runner-claude-code:latest,codex-cli=repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli:latest,gemini-cli=repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli:latest,e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo:latest"
+          volumeMounts:
+            - name: pki-ca
+              mountPath: /app/ssl
+              readOnly: true
+            - name: kube-tools
+              mountPath: /kube-tools
+              readOnly: true
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: pki-ca
+          secret:
+            secretName: agentsmesh-pki-ca
+        - name: kube-tools
+          emptyDir: {}
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: agentsmesh
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+    - port: 9090
+      targetPort: 9090
+      name: grpc

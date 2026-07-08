@@ -248,6 +248,12 @@ func TestProviderEnvVarMappingCodex(t *testing.T) {
 	if mapping["organization"] != "OPENAI_ORG_ID" {
 		t.Errorf("expected 'OPENAI_ORG_ID', got %s", mapping["organization"])
 	}
+	if mapping["base_url"] != "OPENAI_BASE_URL" {
+		t.Errorf("expected 'OPENAI_BASE_URL', got %s", mapping["base_url"])
+	}
+	if mapping["model"] != "OPENAI_MODEL" {
+		t.Errorf("expected 'OPENAI_MODEL', got %s", mapping["model"])
+	}
 }
 
 func TestProviderEnvVarMappingAllProviders(t *testing.T) {

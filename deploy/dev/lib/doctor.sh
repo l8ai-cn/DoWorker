@@ -29,3 +29,26 @@ check_ibazel_doctor() {
         echo "  npm i -g @anthropic-ai/claude-code @openai/codex @google/gemini-cli"
     fi
 }
+
+# macOS apps (e.g. Baidu netdisk) sometimes bind 127.0.0.1:HTTP_PORT while
+# Traefik listens on *:HTTP_PORT. Web dev now proxies API to BACKEND_HTTP_PORT
+# directly; this warns so operators know why 127.0.0.1:10000 may not reach Traefik.
+warn_loopback_port_conflict() {
+    local http_port="${HTTP_PORT:-10000}"
+    local backend_port="${BACKEND_HTTP_PORT:-10015}"
+    local occupier=""
+    while IFS= read -r line; do
+        local proc addr
+        proc=$(awk '{print $1}' <<< "$line")
+        addr=$(awk '{print $9}' <<< "$line")
+        if [[ "$addr" == "127.0.0.1:$http_port" && "$proc" != "com.docke" ]]; then
+            occupier="$proc"
+            break
+        fi
+    done < <(lsof -nP -iTCP:"$http_port" -sTCP:LISTEN 2>/dev/null || true)
+
+    if [[ -n "$occupier" ]]; then
+        warn "127.0.0.1:$http_port 被 ${occupier} 占用（Traefik 仍可通过 localhost:$http_port 访问）"
+        info "Web API 代理已配置为直连 backend :$backend_port，登录/API 不受影响"
+    fi
+}

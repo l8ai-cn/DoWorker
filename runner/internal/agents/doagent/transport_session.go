@@ -12,11 +12,13 @@ import (
 const rpcTimeout = 30 * time.Second
 
 func (t *transport) NewSession(cwd string, mcpServers map[string]any) (string, error) {
-	return t.startSession("session/new", cwd, "", mcpServers)
+	_ = cwd
+	return t.startSession("session/new", ".", "", mcpServers)
 }
 
 func (t *transport) ResumeSession(cwd string, mcpServers map[string]any, externalSessionID string) (string, error) {
-	return t.startSession("session/resume", cwd, externalSessionID, mcpServers)
+	_ = cwd
+	return t.startSession("session/resume", ".", externalSessionID, mcpServers)
 }
 
 func (t *transport) startSession(method, cwd, sessionID string, mcpServers map[string]any) (string, error) {

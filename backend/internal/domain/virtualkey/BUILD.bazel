@@ -1,0 +1,17 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "virtualkey",
+    srcs = [
+        "key.go",
+        "repository.go",
+    ],
+    importpath = "github.com/anthropics/agentsmesh/backend/internal/domain/virtualkey",
+    visibility = ["//backend:__subpackages__"],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":virtualkey",
+    visibility = ["//backend:__subpackages__"],
+)

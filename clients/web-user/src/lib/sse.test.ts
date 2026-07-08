@@ -4,12 +4,9 @@ import { describe, expect, it } from "vitest";
 import { parseEvent } from "./sse";
 import type { SessionStatusEvent, SessionSupersededEvent, TextDelta } from "./events";
 
-describe("parseEvent — response.output_text.delta", () => {
+describe("parseEvent — turn.text.delta", () => {
   it("parses a plain delta with no streaming identifiers", () => {
-    // Ordinary in-process task streaming: only `delta` is present, and
-    // the native-scoping fields stay undefined so downstream treats it
-    // as response-scoped (not message-scoped) text.
-    const ev = parseEvent("response.output_text.delta", { delta: "Hi" });
+    const ev = parseEvent("turn.text.delta", { delta: "Hi" });
     expect(ev).toEqual({
       type: "text_delta",
       delta: "Hi",
@@ -20,7 +17,7 @@ describe("parseEvent — response.output_text.delta", () => {
   });
 
   it("threads message_id / index / final for claude-native streaming", () => {
-    const ev = parseEvent("response.output_text.delta", {
+    const ev = parseEvent("turn.text.delta", {
       delta: "Hel",
       message_id: "m1",
       index: 0,
@@ -39,7 +36,7 @@ describe("parseEvent — response.output_text.delta", () => {
   });
 
   it("ignores wrong-typed streaming identifiers rather than poisoning the buffer", () => {
-    const ev = parseEvent("response.output_text.delta", {
+    const ev = parseEvent("turn.text.delta", {
       delta: "x",
       message_id: 7,
       index: "0",
@@ -57,7 +54,7 @@ describe("parseEvent — response.output_text.delta", () => {
   });
 
   it("returns null when delta is not a string", () => {
-    expect(parseEvent("response.output_text.delta", { delta: { text: "bad" } })).toBeNull();
+    expect(parseEvent("turn.text.delta", { delta: { text: "bad" } })).toBeNull();
   });
 });
 

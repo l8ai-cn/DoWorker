@@ -1,8 +1,11 @@
 import type { AvailableAgent } from "@/hooks/useAvailableAgents";
+import {
+  UI_MODE_LABEL_KEY,
+  UI_MODE_TERMINAL_VALUE,
+  WRAPPER_LABEL_KEY,
+} from "@/lib/do-worker/session-labels";
 
-export const WRAPPER_LABEL_KEY = "omnigent.wrapper";
-export const UI_MODE_LABEL_KEY = "omnigent.ui";
-export const UI_MODE_TERMINAL_VALUE = "terminal";
+export { UI_MODE_LABEL_KEY, UI_MODE_TERMINAL_VALUE, WRAPPER_LABEL_KEY } from "@/lib/do-worker/session-labels";
 
 export type NativeCodingAgentIconKind =
   | "claude"

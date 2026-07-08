@@ -33,15 +33,13 @@ vi.mock("@/components/ui/block-editor", () => ({
 
 // Mock RepositorySelect
 const mockRepositorySelectOnChange = vi.fn();
-vi.mock("@/components/common/RepositorySelect", () => ({
-  RepositorySelect: ({
+vi.mock("../TicketRepositoryField", () => ({
+  TicketRepositoryField: ({
     value,
     onChange,
-    placeholder,
   }: {
     value: number | null;
     onChange: (v: number | null) => void;
-    placeholder?: string;
   }) => {
     mockRepositorySelectOnChange.mockImplementation(onChange);
     return (
@@ -52,7 +50,7 @@ vi.mock("@/components/common/RepositorySelect", () => ({
           onChange(e.target.value ? Number(e.target.value) : null)
         }
       >
-        <option value="">{placeholder || "Select..."}</option>
+        <option value="">No repository</option>
         <option value="1">my-repo</option>
       </select>
     );
@@ -153,11 +151,11 @@ describe("TicketCreateDialog", () => {
       expect(ticketConnect.createTicket).not.toHaveBeenCalled();
     });
 
-    it("shows error when submitting without repository", async () => {
+    it("creates ticket without repository when only title is provided", async () => {
       render(<TicketCreateDialog {...defaultProps} />);
 
       const titleInput = screen.getByPlaceholderText("Enter ticket title");
-      fireEvent.change(titleInput, { target: { value: "Test Ticket" } });
+      fireEvent.change(titleInput, { target: { value: "Coordination task" } });
 
       const submitButton = screen.getByRole("button", {
         name: "Create Ticket",
@@ -165,11 +163,17 @@ describe("TicketCreateDialog", () => {
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText("Repository is required")
-        ).toBeInTheDocument();
+        expect(ticketConnect.createTicket).toHaveBeenCalledTimes(1);
       });
-      expect(ticketConnect.createTicket).not.toHaveBeenCalled();
+
+      const input = vi.mocked(ticketConnect.createTicket).mock.calls[0][1];
+      expect(input).toEqual(
+        expect.objectContaining({
+          title: "Coordination task",
+          priority: "medium",
+        }),
+      );
+      expect(input.repository_id).toBeUndefined();
     });
 
     it("clears error when user starts typing", async () => {

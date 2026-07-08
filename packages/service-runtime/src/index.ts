@@ -13,6 +13,7 @@ export {
   getTicketRelationsService, getFileService, getSupportTicketService,
   getAuthConnectService, getRunnerState, getMeshState, getTicketState,
   getChannelState, getLoopState, getAcpManager, getLoopalManager, getRepoState,
+  getExpertState,
   getAutopilotState, getRelayManager, getBlockstoreService,
   getKnowledgeBaseService,
 } from "./service-getters";

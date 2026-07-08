@@ -4,20 +4,42 @@ import {
   type ActiveChatOverride,
   computeNextActiveOverride,
   conversationDisplayLabel,
+  DEFAULT_PROJECT_GROUP_KEY,
+  DEFAULT_PROJECT_GROUP_LABEL,
   filterConversations,
+  formatWorkerDisplayName,
   getConversationIconKind,
   getConversationAgentType,
+  groupConversationsByWorkerAndProject,
+  workProjectGitInfo,
+  workProjectGroupLabel,
+  workProjectStorageKey,
   normalizePinnedConversationIds,
   orderByPinnedSequence,
+  projectGroupKey,
+  projectGroupLabel,
+  newSessionLandingPath,
+  resolveWorkerGroupAgentId,
   resolveSidebarDrop,
   togglePinnedConversationId,
+  workerConnectionStatus,
 } from "./sidebarNav";
 
 function conversation(
   id: string,
   title: string | null,
   createdAt: Date,
-  options: { labels?: Record<string, string>; updatedAt?: Date; archived?: boolean } = {},
+  options: {
+    labels?: Record<string, string>;
+    updatedAt?: Date;
+    archived?: boolean;
+    workspace?: string | null;
+    host_id?: string | null;
+    agent_name?: string | null;
+    runner_online?: boolean | null;
+    git_branch?: string | null;
+    agent_id?: string | null;
+  } = {},
 ): Conversation {
   return {
     id,
@@ -28,6 +50,12 @@ function conversation(
     labels: options.labels ?? {},
     permission_level: null,
     archived: options.archived,
+    workspace: options.workspace,
+    host_id: options.host_id,
+    agent_name: options.agent_name,
+    runner_online: options.runner_online,
+    git_branch: options.git_branch,
+    agent_id: options.agent_id,
   };
 }
 
@@ -48,13 +76,13 @@ describe("filterConversations", () => {
   it("matches native wrapper default labels for untitled sessions", () => {
     const conversations = [
       conversation("conv_native", null, new Date(2026, 4, 14, 9), {
-        labels: { "omnigent.wrapper": "claude-code-native-ui" },
+        labels: { "do-worker.wrapper": "claude-code-native-ui" },
       }),
       conversation("conv_codex", null, new Date(2026, 4, 14, 8), {
-        labels: { "omnigent.wrapper": "codex-native-ui" },
+        labels: { "do-worker.wrapper": "codex-native-ui" },
       }),
       conversation("conv_pi", null, new Date(2026, 4, 14, 8), {
-        labels: { "omnigent.wrapper": "pi-native-ui" },
+        labels: { "do-worker.wrapper": "pi-native-ui" },
       }),
       conversation("conv_other", null, new Date(2026, 4, 14, 8)),
     ];
@@ -161,7 +189,7 @@ describe("orderByPinnedSequence", () => {
 describe("getConversationAgentType", () => {
   it("returns 'Claude Code' for claude-native-ui sessions", () => {
     const conv = conversation("conv_native", null, new Date(2026, 4, 14, 9), {
-      labels: { "omnigent.wrapper": "claude-code-native-ui" },
+      labels: { "do-worker.wrapper": "claude-code-native-ui" },
     });
     // claude-code-native-ui is the wrapper label assigned to sessions started
     // via `omnigent claude`. Any other label value must not match.
@@ -170,7 +198,7 @@ describe("getConversationAgentType", () => {
 
   it("returns 'Codex' for codex-native-ui sessions", () => {
     const conv = conversation("conv_codex", null, new Date(2026, 4, 14, 9), {
-      labels: { "omnigent.wrapper": "codex-native-ui" },
+      labels: { "do-worker.wrapper": "codex-native-ui" },
     });
     // codex-native-ui is the wrapper label assigned to sessions started
     // via `omnigent codex`. It gets its own filter bucket and row icon.
@@ -179,21 +207,21 @@ describe("getConversationAgentType", () => {
 
   it("returns 'Pi' for pi-native-ui sessions", () => {
     const conv = conversation("conv_pi", null, new Date(2026, 4, 14, 9), {
-      labels: { "omnigent.wrapper": "pi-native-ui" },
+      labels: { "do-worker.wrapper": "pi-native-ui" },
     });
     expect(getConversationAgentType(conv)).toBe("Pi");
   });
 
   it("returns 'Kiro' for kiro-native-ui sessions", () => {
     const conv = conversation("conv_kiro", null, new Date(2026, 4, 14, 9), {
-      labels: { "omnigent.wrapper": "kiro-native-ui" },
+      labels: { "do-worker.wrapper": "kiro-native-ui" },
     });
     expect(getConversationAgentType(conv)).toBe("Kiro");
   });
 
   it("returns 'Antigravity' for antigravity-native-ui sessions", () => {
     const conv = conversation("conv_agy", null, new Date(2026, 4, 14, 9), {
-      labels: { "omnigent.wrapper": "antigravity-native-ui" },
+      labels: { "do-worker.wrapper": "antigravity-native-ui" },
     });
     // antigravity-native-ui is the wrapper label assigned to sessions started
     // via `omnigent antigravity` or the web-UI Antigravity picker. It gets its
@@ -223,19 +251,19 @@ describe("getConversationAgentType", () => {
     // wrapper label wins so the filter bucket stays consistent with the row icon.
     const claudeConv: Conversation = {
       ...conversation("conv_both", null, new Date(2026, 4, 14, 9), {
-        labels: { "omnigent.wrapper": "claude-code-native-ui" },
+        labels: { "do-worker.wrapper": "claude-code-native-ui" },
       }),
       agent_name: "some_agent",
     };
     const codexConv: Conversation = {
       ...conversation("conv_both_codex", null, new Date(2026, 4, 14, 9), {
-        labels: { "omnigent.wrapper": "codex-native-ui" },
+        labels: { "do-worker.wrapper": "codex-native-ui" },
       }),
       agent_name: "some_agent",
     };
     const piConv: Conversation = {
       ...conversation("conv_both_pi", null, new Date(2026, 4, 14, 9), {
-        labels: { "omnigent.wrapper": "pi-native-ui" },
+        labels: { "do-worker.wrapper": "pi-native-ui" },
       }),
       agent_name: "some_agent",
     };
@@ -259,42 +287,42 @@ describe("getConversationIconKind", () => {
     expect(
       getConversationIconKind(
         conversation("conv_claude", null, new Date(2026, 4, 14, 9), {
-          labels: { "omnigent.wrapper": "claude-code-native-ui" },
+          labels: { "do-worker.wrapper": "claude-code-native-ui" },
         }),
       ),
     ).toBe("claude");
     expect(
       getConversationIconKind(
         conversation("conv_codex", null, new Date(2026, 4, 14, 9), {
-          labels: { "omnigent.wrapper": "codex-native-ui" },
+          labels: { "do-worker.wrapper": "codex-native-ui" },
         }),
       ),
     ).toBe("codex");
     expect(
       getConversationIconKind(
         conversation("conv_opencode", null, new Date(2026, 4, 14, 9), {
-          labels: { "omnigent.wrapper": "opencode-native-ui" },
+          labels: { "do-worker.wrapper": "opencode-native-ui" },
         }),
       ),
     ).toBe("opencode");
     expect(
       getConversationIconKind(
         conversation("conv_pi", null, new Date(2026, 4, 14, 9), {
-          labels: { "omnigent.wrapper": "pi-native-ui" },
+          labels: { "do-worker.wrapper": "pi-native-ui" },
         }),
       ),
     ).toBe("pi");
     expect(
       getConversationIconKind(
         conversation("conv_kiro", null, new Date(2026, 4, 14, 9), {
-          labels: { "omnigent.wrapper": "kiro-native-ui" },
+          labels: { "do-worker.wrapper": "kiro-native-ui" },
         }),
       ),
     ).toBe("kiro");
     expect(
       getConversationIconKind(
         conversation("conv_agy", null, new Date(2026, 4, 14, 9), {
-          labels: { "omnigent.wrapper": "antigravity-native-ui" },
+          labels: { "do-worker.wrapper": "antigravity-native-ui" },
         }),
       ),
     ).toBe("antigravity");
@@ -328,7 +356,7 @@ describe("conversationDisplayLabel", () => {
     expect(
       conversationDisplayLabel(
         conversation("conv_abcdefghijklmnopqrstuvwxyz", null, new Date(2026, 4, 14, 9), {
-          labels: { "omnigent.wrapper": "claude-code-native-ui" },
+          labels: { "do-worker.wrapper": "claude-code-native-ui" },
         }),
       ),
     ).toBe("Claude Code");
@@ -338,7 +366,7 @@ describe("conversationDisplayLabel", () => {
     expect(
       conversationDisplayLabel(
         conversation("conv_abcdefghijklmnopqrstuvwxyz", null, new Date(2026, 4, 14, 9), {
-          labels: { "omnigent.wrapper": "codex-native-ui" },
+          labels: { "do-worker.wrapper": "codex-native-ui" },
         }),
       ),
     ).toBe("Codex");
@@ -348,7 +376,7 @@ describe("conversationDisplayLabel", () => {
     expect(
       conversationDisplayLabel(
         conversation("conv_abcdefghijklmnopqrstuvwxyz", null, new Date(2026, 4, 14, 9), {
-          labels: { "omnigent.wrapper": "pi-native-ui" },
+          labels: { "do-worker.wrapper": "pi-native-ui" },
         }),
       ),
     ).toBe("Pi");
@@ -361,10 +389,111 @@ describe("conversationDisplayLabel", () => {
           "conv_abcdefghijklmnopqrstuvwxyz",
           "investigate the regression",
           new Date(2026, 4, 14, 9),
-          { labels: { "omnigent.wrapper": "claude-code-native-ui" } },
+          { labels: { "do-worker.wrapper": "claude-code-native-ui" } },
         ),
       ),
     ).toBe("investigate the regression");
+  });
+});
+
+describe("worker/work-directory grouping", () => {
+  it("derives work-directory labels from manual project, then workspace basename", () => {
+    expect(
+      workProjectGroupLabel(
+        conversation("c1", null, new Date(2026, 4, 14, 9), {
+          labels: { omni_project: "Sprint 42" },
+        }),
+      ),
+    ).toBe("Sprint 42");
+    expect(
+      workProjectGroupLabel(
+        conversation("c2", null, new Date(2026, 4, 14, 9), {
+          host_id: "host_admin-workspace-runner",
+          workspace: "/data/repos/admin-workspace/workspace",
+        }),
+      ),
+    ).toBe("workspace");
+    expect(workProjectGroupLabel(conversation("c3", null, new Date(2026, 4, 14, 9)))).toBe(
+      DEFAULT_PROJECT_GROUP_LABEL,
+    );
+  });
+
+  it("groups sessions by worker then work directory with newest worker first", () => {
+    const older = conversation("c_old", "older", new Date(2026, 4, 14, 8), {
+      workspace: "/repos/alpha",
+      agent_name: "do-agent",
+      updatedAt: new Date(2026, 4, 14, 8),
+    });
+    const newer = conversation("c_new", "newer", new Date(2026, 4, 14, 9), {
+      workspace: "/repos/beta",
+      agent_name: "do-agent",
+      updatedAt: new Date(2026, 4, 14, 12),
+    });
+    const sameProject = conversation("c_same", "same", new Date(2026, 4, 14, 7), {
+      workspace: "/repos/beta",
+      agent_name: "codex-native-ui",
+      labels: { "do-worker.wrapper": "codex-native-ui" },
+      updatedAt: new Date(2026, 4, 14, 11),
+    });
+
+    const groups = groupConversationsByWorkerAndProject([older, newer, sameProject], null);
+    expect(groups.map((g) => g.label)).toEqual(["Do-agent", "Codex-cli"]);
+    expect(groups[0]?.projectGroups.map((p) => p.label)).toEqual(["beta", "alpha"]);
+    expect(groups[0]?.projectGroups[0]?.conversations.map((c) => c.id)).toEqual(["c_new"]);
+    expect(groups[1]?.projectGroups[0]?.conversations.map((c) => c.id)).toEqual(["c_same"]);
+  });
+
+  it("resolves worker group agent_id from the dominant session agent_id", () => {
+    const withAgent = (agentId: string) =>
+      conversation("c", null, new Date(2026, 4, 14, 9), { agent_id: agentId });
+    expect(
+      resolveWorkerGroupAgentId([
+        withAgent("codex-cli"),
+        withAgent("codex-cli"),
+        withAgent("other"),
+      ]),
+    ).toBe("codex-cli");
+    expect(resolveWorkerGroupAgentId([withAgent(""), withAgent("  ")])).toBeNull();
+  });
+
+  it("builds new-session landing paths with agent and project query params", () => {
+    expect(newSessionLandingPath({})).toBe("/");
+    expect(newSessionLandingPath({ agent: "codex-cli" })).toBe("/?agent=codex-cli");
+    expect(newSessionLandingPath({ project: "Sprint 42" })).toBe("/?project=Sprint+42");
+    expect(newSessionLandingPath({ agent: "a2", project: "docs" })).toBe(
+      "/?agent=a2&project=docs",
+    );
+  });
+
+  it("formats worker labels, connection status, and git linkage", () => {
+    expect(formatWorkerDisplayName("do-agent")).toBe("Do-agent");
+    expect(formatWorkerDisplayName("Claude Code")).toBe("Claude-code");
+    expect(
+      workerConnectionStatus(
+        conversation("c1", null, new Date(2026, 4, 14, 9), { runner_online: true }),
+      ),
+    ).toBe("online");
+    expect(
+      workerConnectionStatus(
+        conversation("c2", null, new Date(2026, 4, 14, 9), { runner_online: false }),
+      ),
+    ).toBe("offline");
+    expect(workProjectStorageKey("Do-agent", DEFAULT_PROJECT_GROUP_KEY)).toBe("Do-agent::other");
+    expect(
+      workProjectGitInfo([
+        conversation("c_git", null, new Date(2026, 4, 14, 9), {
+          workspace: "/repos/app",
+          git_branch: "feature/login",
+        }),
+      ]),
+    ).toEqual({ linked: true, branchLabel: "feature/login", hasWorkspace: true });
+    expect(
+      workProjectGitInfo([
+        conversation("c_local", null, new Date(2026, 4, 14, 9), {
+          workspace: "/tmp/scratch",
+        }),
+      ]),
+    ).toEqual({ linked: false, branchLabel: null, hasWorkspace: true });
   });
 });
 

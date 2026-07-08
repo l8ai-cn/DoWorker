@@ -37,3 +37,10 @@ _stop_setsid() {
     fi
     rm -f "$pgid_file"
 }
+
+_frontend_port_up() {
+    local port="$1"
+    local code
+    code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 2 "http://127.0.0.1:$port/" 2>/dev/null || echo "000")
+    [[ "$code" =~ ^[23] ]]
+}

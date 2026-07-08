@@ -18,7 +18,7 @@ import { createTicket as createTicketConnect } from "@/lib/api/facade/ticketConn
 import type { OrganizationMember } from "@/lib/api/facade/org";
 import { listMembers } from "@/lib/api/facade/org";
 import { useCurrentOrg, useAuthStore } from "@/stores/auth";
-import { RepositorySelect } from "@/components/common/RepositorySelect";
+import { TicketRepositoryField } from "./TicketRepositoryField";
 import { useBreakpoint } from "@/components/layout/useBreakpoint";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Users, Check } from "lucide-react";
@@ -104,17 +104,13 @@ export function TicketCreateDialog({
       setError(t("tickets.createDialog.titleRequired"));
       return;
     }
-    if (!form.repositoryId) {
-      setError(t("tickets.createDialog.repositoryRequired"));
-      return;
-    }
 
     setLoading(true);
     setError(null);
 
     try {
       const response = await createTicketConnect(currentOrg?.slug || "", {
-        repository_id: form.repositoryId,
+        ...(form.repositoryId ? { repository_id: form.repositoryId } : {}),
         title: form.title.trim(),
         content: form.content || undefined,
         priority: form.priority,
@@ -174,14 +170,12 @@ export function TicketCreateDialog({
             </FormField>
 
             <FormField
-              label={t("tickets.createDialog.repository")}
+              label={`${t("tickets.createDialog.repository")} (${t("common.optional")})`}
               htmlFor="ticket-repo"
-              required
             >
-              <RepositorySelect
+              <TicketRepositoryField
                 value={form.repositoryId}
                 onChange={(value) => updateField("repositoryId", value)}
-                placeholder={t("tickets.createDialog.selectRepository")}
               />
             </FormField>
 

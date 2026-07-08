@@ -5,3 +5,6 @@ export { RunnersSettings } from "./RunnersSettings";
 export { APIKeysSettings } from "./APIKeysSettings";
 export { ExtensionsSettings } from "./ExtensionsSettings";
 export { UsageSettings } from "./UsageSettings";
+export { InfrastructureOverview } from "./InfrastructureOverview";
+export { RepositoriesSettings } from "./RepositoriesSettings";
+export { ModelQuotasSettings } from "./ModelQuotasSettings";

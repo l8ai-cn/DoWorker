@@ -212,6 +212,61 @@ func TestPodChain_CredentialFlow(t *testing.T) {
 	assert.Equal(t, "enc-key-123", cmd.EnvVars["ANTHROPIC_API_KEY"])
 }
 
+func TestPodChain_AutoPrimaryCredentialBundle(t *testing.T) {
+	coord := &mockPodCoordinator{}
+	agentfileSrc := "AGENT codex\nEXECUTABLE codex\nMODE acp \"app-server\"\nENV OPENAI_API_KEY SECRET OPTIONAL\nPROMPT_POSITION append\n"
+	provider := &mockAgentConfigProvider{
+		agentDef: &agentDomain.Agent{
+			Slug: "codex-cli", Name: "Codex CLI",
+			LaunchCommand: "codex", SupportedModes: "pty,acp",
+			AgentfileSource: &agentfileSrc, UsesLegacyColumns: false,
+		},
+		config: agentDomain.ConfigValues{},
+	}
+	resolver := &mockAgentResolver{
+		agentDef: &agentDomain.Agent{
+			Slug: "codex-cli", SupportedModes: "pty,acp",
+			AgentfileSource: &agentfileSrc, UsesLegacyColumns: false,
+		},
+	}
+	bundleLoader := &fakeEnvBundleLoader{
+		bundles: map[string]map[string]string{
+			"codex": {
+				"OPENAI_API_KEY":  "sk-auto-mounted",
+				"OPENAI_BASE_URL": "https://token.example.test",
+				"OPENAI_MODEL":    "gpt-5.5",
+			},
+		},
+	}
+	cb := agent.NewConfigBuilder(provider, bundleLoader)
+
+	orch, _, ctx := setupIntegrationOrchestrator(t,
+		withCoordinator(coord),
+		withAgentResolver(resolver),
+		withConfigBuilder(cb),
+		withPrimaryCredential(stubPrimaryCredentialResolver{name: "codex"}),
+	)
+
+	layer := "MODE acp\nPROMPT \"ping\"\n"
+	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
+		OrganizationID: ctxOrgID(ctx),
+		UserID:         ctxUserID(ctx),
+		RunnerID:       ctxRunnerID(ctx),
+		AgentSlug:      "codex-cli",
+		AgentfileLayer: &layer,
+	})
+	require.NoError(t, err)
+	require.NotNil(t, result.Pod)
+
+	cmd := coord.lastCmd
+	require.NotNil(t, cmd)
+	assert.Equal(t, "sk-auto-mounted", cmd.EnvVars["OPENAI_API_KEY"])
+	assert.Equal(t, "https://token.example.test", cmd.EnvVars["OPENAI_BASE_URL"])
+	assert.Equal(t, "gpt-5.5", cmd.EnvVars["OPENAI_MODEL"])
+	assert.Equal(t, []string{"app-server"}, cmd.LaunchArgs)
+	assert.Equal(t, "ping", cmd.Prompt)
+}
+
 // ==================== Test 4: Unsupported Interaction Mode ====================
 
 func TestPodChain_UnsupportedInteractionMode(t *testing.T) {

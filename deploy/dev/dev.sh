@@ -67,7 +67,11 @@ main() {
             cd "$SCRIPT_DIR"
             [[ -f "$ENV_FILE" ]] || { error "缺少 $ENV_FILE，请先运行 ./dev.sh"; exit 1; }
             source "$ENV_FILE"
+            generate_web_env
+            generate_web_admin_env
+            export DEV_FORCE_FRONTEND=1
             print_banner
+            warn_loopback_port_conflict
             start_all_frontends
             show_result
             exit 0
@@ -96,6 +100,7 @@ main() {
     generate_web_env
     generate_web_admin_env
     generate_runner_ssh_key
+    warn_loopback_port_conflict
 
     if [[ -n "${RUNNERS_LAUNCHER:-}" ]]; then
         persist_runners_launcher_mode "$RUNNERS_LAUNCHER"

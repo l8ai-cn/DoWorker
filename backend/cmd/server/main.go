@@ -15,9 +15,11 @@ import (
 	otelinit "github.com/anthropics/agentsmesh/backend/internal/infra/otel"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/websocket"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest"
+	grpcserver "github.com/anthropics/agentsmesh/backend/internal/api/grpc"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	channelService "github.com/anthropics/agentsmesh/backend/internal/service/channel"
 	coordinatorsvc "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
+	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
 	"github.com/anthropics/agentsmesh/backend/internal/service/instance"
 	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	notifService "github.com/anthropics/agentsmesh/backend/internal/service/notification"
@@ -108,6 +110,8 @@ func main() {
 
 	runnerConnMgr, podCoordinator, podRouter, heartbeatBatcher, sandboxQuerySvc, sandboxFsSvc := initializeRunnerComponents(services.pod, services.runnerRepo, redisClient, appLogger, services.agentSvc)
 
+	pendingQueueWiring := initializePendingQueue(cfg, db, services.pod, podCoordinator, runnerConnMgr, eventBus, appLogger)
+
 	podCoordinator.SetAutopilotRepo(services.autopilotRepo)
 
 	podCoordinator.SetTokenUsageService(services.tokenUsage)
@@ -140,7 +144,7 @@ func main() {
 
 	podOrchestrator := createPodOrchestrator(services, podCoordinator)
 
-	services.channel.AddPostSendHook(channelService.NewPodPromptHook(podRouter, channelRepo))
+	services.channel.AddPostSendHook(channelService.NewPodPromptHook(podRouter, channelRepo, runner.NewChannelPromptQueuer(services.pod, pendingQueueWiring.queue)))
 	slog.Info("PodPromptHook registered with PodRouter")
 
 	setupRunnerEventCallbacks(db, runnerConnMgr, eventBus)
@@ -186,6 +190,10 @@ func main() {
 
 	grpcResult := initPKIAndGRPCWiring(cfg, services, runnerConnMgr, podCoordinator, podRouter, sandboxQuerySvc, sandboxFsSvc, podOrchestrator, loopOrchestrator, services.loopRun, appLogger, relayTokenGenerator, db)
 
+	if grpcResult.server != nil {
+		wirePendingQueueSender(pendingQueueWiring, grpcserver.NewGRPCCommandSender(grpcResult.server.RunnerAdapter()))
+	}
+
 	versionChecker := runner.NewVersionChecker(redisClient)
 	if versionChecker != nil {
 		versionChecker.Start(context.Background())
@@ -195,10 +203,18 @@ func main() {
 
 	svc := buildServicesContainer(services, runnerConnMgr, podCoordinator, podOrchestrator, hub, eventBus,
 		grpcResult, sandboxQuerySvc, sandboxFsSvc, logUploadSvc, relayManager, relayTokenGenerator, relayDNSService,
-		relayACMEManager, geoResolver, versionChecker, loopOrchestrator, loopScheduler, redisClient)
+		relayACMEManager, geoResolver, versionChecker, loopOrchestrator, loopScheduler, redisClient, pendingQueueWiring)
 	svc.Coordinator = coordinatorSvc
+	svc.Expert = expertSvc.NewService(expertSvc.Deps{
+		Store:    infra.NewExpertRepository(db),
+		Pods:     services.pod,
+		Dispatch: podOrchestrator,
+		Repos:    services.repository,
+		Logger:   appLogger.Logger,
+	})
 
 	router := rest.NewRouter(cfg, svc, db, appLogger.Logger, redisClient)
+	grpcResult.server = startGRPCServer(cfg, grpcResult.server)
 
 	cleanupMkt := startMarketplaceWorker(services)
 	defer cleanupMkt()
@@ -207,9 +223,10 @@ func main() {
 	defer cleanupKbSync()
 
 	subscriptionScheduler := startSubscriptionJobs(db, cfg, services.email, appLogger.Logger)
+	taskManager := startTaskManager(podCoordinator, services.message, redisClient, appLogger.Logger)
 
 	// Start HTTP server (Connect-RPC handlers wrap the Gin router)
 	srv := startHTTPServer(cfg, wrapWithConnect(cfg, services, svc, router))
 
-	waitForShutdown(srv, grpcResult.server, eventBus, heartbeatBatcher, subscriptionScheduler, loopScheduler, orgAwareness, relayManager, services, db, redisClient)
+	waitForShutdown(srv, grpcResult.server, eventBus, heartbeatBatcher, subscriptionScheduler, taskManager, loopScheduler, orgAwareness, relayManager, services, db, redisClient)
 }

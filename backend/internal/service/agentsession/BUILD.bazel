@@ -4,8 +4,8 @@ go_library(
     name = "agentsession",
     srcs = [
         "service.go",
-        "service_children.go",
         "service_agent_control.go",
+        "service_children.go",
         "service_lifecycle.go",
         "service_query.go",
     ],

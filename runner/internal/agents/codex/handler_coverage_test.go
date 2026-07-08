@@ -11,16 +11,8 @@ import (
 func TestHandler_ItemStarted_FileChange(t *testing.T) {
 	f := newFixture()
 	defer f.Close()
-	writeNotification(f.PW, "item/started", itemStartedParams{
-		Item: struct {
-			ID      string `json:"id"`
-			Type    string `json:"type"`
-			Command []struct {
-				Value string `json:"value"`
-			} `json:"command,omitempty"`
-			ToolName string `json:"toolName,omitempty"`
-			FilePath string `json:"filePath,omitempty"`
-		}{ID: "f1", Type: "fileChange", FilePath: "main.go"},
+	writeNotification(f.PW, "item/started", map[string]any{
+		"item": map[string]any{"id": "f1", "type": "fileChange", "filePath": "main.go"},
 	})
 	f.Drain()
 	f.mu.Lock()
@@ -52,16 +44,11 @@ func TestHandler_ItemCompleted_CommandExecution_WithExitCode(t *testing.T) {
 	f := newFixture()
 	defer f.Close()
 	exitCode := 1
-	writeNotification(f.PW, "item/completed", itemCompletedParams{
-		Item: struct {
-			ID               string `json:"id"`
-			Type             string `json:"type"`
-			Status           string `json:"status,omitempty"`
-			ExitCode         *int   `json:"exitCode,omitempty"`
-			AggregatedOutput string `json:"aggregatedOutput,omitempty"`
-			ToolName         string `json:"toolName,omitempty"`
-			FilePath         string `json:"filePath,omitempty"`
-		}{ID: "c1", Type: "commandExecution", ExitCode: &exitCode, AggregatedOutput: "error output"},
+	writeNotification(f.PW, "item/completed", map[string]any{
+		"item": map[string]any{
+			"id": "c1", "type": "commandExecution",
+			"exitCode": exitCode, "aggregatedOutput": "error output",
+		},
 	})
 	f.Drain()
 	f.mu.Lock()

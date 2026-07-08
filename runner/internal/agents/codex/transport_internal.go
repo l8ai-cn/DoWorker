@@ -13,7 +13,7 @@ func (t *transport) dispatchMessage(msg *acp.JSONRPCMessage) {
 	case msg.IsRequest():
 		if isApprovalRequest(msg.Method) {
 			id, _ := msg.GetID()
-			t.handleApprovalRequest(id, msg.Params)
+			t.handleApprovalRequest(msg.Method, id, msg.Params)
 		} else {
 			t.tracker.RejectRequest(msg)
 		}
@@ -21,6 +21,15 @@ func (t *transport) dispatchMessage(msg *acp.JSONRPCMessage) {
 }
 
 func isApprovalRequest(method string) bool {
-	return method == "item/commandExecution/requestApproval" ||
-		method == "item/fileChange/requestApproval"
+	switch method {
+	case "item/commandExecution/requestApproval",
+		"item/fileChange/requestApproval",
+		"item/permissions/requestApproval",
+		"item/tool/requestUserInput",
+		"tool/requestUserInput",
+		"mcpServer/elicitation/request":
+		return true
+	default:
+		return false
+	}
 }

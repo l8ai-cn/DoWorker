@@ -3,7 +3,6 @@ package runner
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -64,17 +63,18 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 		Callbacks: acp.EventCallbacks{
 			OnContentChunk: func(sessionID string, chunk acp.ContentChunk) {
 				sendAcpViaRelay(pod, "contentChunk", sessionID, chunk)
-				bridge.onChunk(conn, podKey, chunk)
+				payload, _ := json.Marshal(chunk)
+				_ = conn.SendAcpSessionEvent(podKey, "contentChunk", string(payload))
 			},
 			OnToolCallUpdate: func(sessionID string, update acp.ToolCallUpdate) {
 				sendAcpViaRelay(pod, "toolCallUpdate", sessionID, update)
 				payload, _ := json.Marshal(update)
-				_ = conn.SendAcpSessionEvent(podKey, "tool_call_update", string(payload))
+				_ = conn.SendAcpSessionEvent(podKey, "toolCallUpdate", string(payload))
 			},
 			OnToolCallResult: func(sessionID string, result acp.ToolCallResult) {
 				sendAcpViaRelay(pod, "toolCallResult", sessionID, result)
 				payload, _ := json.Marshal(result)
-				_ = conn.SendAcpSessionEvent(podKey, "tool_call_result", string(payload))
+				_ = conn.SendAcpSessionEvent(podKey, "toolCallResult", string(payload))
 			},
 			OnPlanUpdate: func(sessionID string, update acp.PlanUpdate) {
 				sendAcpViaRelay(pod, "planUpdate", sessionID, update)
@@ -82,7 +82,7 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 			OnThinkingUpdate: func(sessionID string, update acp.ThinkingUpdate) {
 				sendAcpViaRelay(pod, "thinkingUpdate", sessionID, update)
 				payload, _ := json.Marshal(update)
-				_ = conn.SendAcpSessionEvent(podKey, "thinking_update", string(payload))
+				_ = conn.SendAcpSessionEvent(podKey, "thinkingUpdate", string(payload))
 			},
 			OnPermissionRequest: func(req acp.PermissionRequest) {
 				path := permissionPathFromArgs(req.ArgumentsJSON)
@@ -96,7 +96,8 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 				}
 				acpClient.AddPendingPermission(req)
 				sendAcpViaRelay(pod, "permissionRequest", req.SessionID, req)
-				bridge.onPermission(conn, podKey, req)
+				payload, _ := json.Marshal(req)
+				_ = conn.SendAcpSessionEvent(podKey, "permissionRequest", string(payload))
 			},
 			OnUsage: func(_ string, usage acp.TurnUsage) {
 				bridge.onUsage(podKey, usage)
@@ -104,7 +105,11 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 			OnStateChange: func(newState string) {
 				backendStatus := mapACPState(newState)
 				_ = conn.SendAgentStatus(podKey, backendStatus)
-				bridge.onStateChange(h, pod, conn, podKey, newState)
+				payload, _ := json.Marshal(map[string]string{"state": newState})
+				_ = conn.SendAcpSessionEvent(podKey, "sessionState", string(payload))
+				if newState == acp.StateIdle {
+					bridge.onStateIdle(h, conn, podKey, "")
+				}
 				sendAcpViaRelay(pod, "sessionState", "", map[string]string{"state": newState})
 				// Notify PodIO subscribers (e.g. Autopilot StateDetectorCoordinator).
 				if sa, ok := pod.IO.(SessionAccess); ok {
@@ -112,9 +117,10 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 				}
 			},
 			OnLog: func(level, message string) {
-				sendAcpViaRelay(pod, "log", "", map[string]string{
-					"level": level, "message": message,
-				})
+				entry := map[string]string{"level": level, "message": message}
+				sendAcpViaRelay(pod, "log", "", entry)
+				payload, _ := json.Marshal(entry)
+				_ = conn.SendAcpSessionEvent(podKey, "log", string(payload))
 			},
 			OnConfigChange: func(sessionID string, update acp.ConfigUpdate) {
 				sendAcpViaRelay(pod, "configChanged", sessionID, update)
@@ -147,13 +153,7 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 
 	// Start the ACP client (launches subprocess, performs initialize handshake)
 	if err := acpClient.Start(); err != nil {
-		h.podStore.Delete(cmd.PodKey)
-		if pod.IO != nil {
-			pod.IO.Teardown()
-		}
-		if pod.SandboxPath != "" {
-			os.RemoveAll(pod.SandboxPath)
-		}
+		h.abortACPPodStartup(cmd.PodKey, acpClient, pod.SandboxPath)
 		h.sendPodError(cmd.PodKey, fmt.Sprintf("failed to start ACP agent: %v", err))
 		return fmt.Errorf("failed to start ACP agent: %w", err)
 	}
@@ -176,8 +176,11 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 	mcpPort := h.runner.GetConfig().GetMCPPort()
 	mcpServers := acp.BuildMCPServersConfig(mcpPort)
 	if err := acpClient.NewSession(mcpServers); err != nil {
-		log.Error("Failed to create ACP session", "pod_key", podKey, "error", err)
-	} else if sid := acpClient.SessionID(); sid != "" {
+		h.abortACPPodStartup(cmd.PodKey, acpClient, pod.SandboxPath)
+		h.sendPodError(cmd.PodKey, fmt.Sprintf("failed to create ACP session: %v", err))
+		return fmt.Errorf("failed to create ACP session: %w", err)
+	}
+	if sid := acpClient.SessionID(); sid != "" {
 		_ = conn.SendExternalSessionCaptured(podKey, sid)
 	}
 
@@ -190,7 +193,7 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 		sendAcpViaRelay(pod, "contentChunk", "", map[string]string{
 			"text": cmd.Prompt, "role": "user",
 		})
-		if err := acpClient.SendPrompt(cmd.Prompt); err != nil {
+		if err := acpSendPromptWhenReady(pod, cmd.Prompt); err != nil {
 			log.Error("Failed to send prompt", "pod_key", podKey, "error", err)
 		}
 	}
@@ -200,8 +203,23 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 	return nil
 }
 
+func (h *RunnerMessageHandler) abortACPPodStartup(podKey string, acpClient *acp.ACPClient, sandboxPath string) {
+	h.podStore.Delete(podKey)
+	if acpClient != nil {
+		acpClient.Stop()
+	}
+	if sandboxPath != "" {
+		h.removePodSandbox(sandboxPath)
+	}
+}
+
 // handleACPExit handles ACP subprocess exit.
 func (h *RunnerMessageHandler) handleACPExit(podKey string, exitCode int) {
+	if pod, ok := h.podStore.Get(podKey); ok && pod != nil {
+		if acpIO, ok := pod.IO.(*ACPPodIO); ok {
+			acpIO.ForceIdleIfBusy()
+		}
+	}
 	logger.Pod().Info("ACP process exited", "pod_key", podKey, "exit_code", exitCode)
 	h.cleanupPodExit(podKey, exitCode, false)
 }

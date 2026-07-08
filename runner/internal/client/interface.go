@@ -68,7 +68,7 @@ type ConnectionSender interface {
 	// Status values: "executing", "waiting", "idle".
 	SendAgentStatus(podKey string, status string) error
 
-	// SendAcpSessionEvent forwards normalized ACP content for web-user SSE compat.
+	// SendAcpSessionEvent forwards normalized ACP content for session SSE streaming.
 	SendAcpSessionEvent(podKey, eventType, jsonPayload string) error
 
 	// SendUpgradeStatus sends an upgrade status event to the server.

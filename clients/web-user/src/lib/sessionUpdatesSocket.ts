@@ -81,6 +81,7 @@ class SessionUpdatesSocket {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private watchdogTimer: ReturnType<typeof setTimeout> | null = null;
   private started = false;
+  private connectGeneration = 0;
 
   /** Open the connection (idempotent). */
   start(): void {
@@ -92,6 +93,7 @@ class SessionUpdatesSocket {
   /** Close the connection and stop reconnecting. */
   stop(): void {
     this.started = false;
+    this.connectGeneration += 1;
     this.clearWatchdog();
     if (this.reconnectTimer !== null) {
       clearTimeout(this.reconnectTimer);
@@ -100,9 +102,10 @@ class SessionUpdatesSocket {
     const ws = this.ws;
     this.ws = null;
     if (ws) {
-      // Drop handlers first so the close doesn't schedule a reconnect.
       ws.onopen = ws.onmessage = ws.onerror = ws.onclose = null;
-      ws.close();
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
     }
     this.setConnected(false);
   }
@@ -162,6 +165,7 @@ class SessionUpdatesSocket {
   }
 
   private connect(): void {
+    const generation = this.connectGeneration;
     let ws: WebSocket;
     try {
       ws = new WebSocket(buildUpdatesUrl());
@@ -174,6 +178,10 @@ class SessionUpdatesSocket {
     }
     this.ws = ws;
     ws.onopen = () => {
+      if (!this.started || generation !== this.connectGeneration) {
+        if (ws.readyState === WebSocket.OPEN) ws.close();
+        return;
+      }
       this.failedAttempts = 0;
       this.setConnected(true);
       // Start the silence watchdog: from here we expect at least a
@@ -181,11 +189,15 @@ class SessionUpdatesSocket {
       this.armWatchdog();
       this.sendWatch();
     };
-    ws.onmessage = (event) => this.handleMessage(event);
+    ws.onmessage = (event) => {
+      if (generation !== this.connectGeneration) return;
+      this.handleMessage(event);
+    };
     ws.onerror = () => {
       // `onerror` is always followed by `onclose`; let close drive retry.
     };
     ws.onclose = () => {
+      if (generation !== this.connectGeneration) return;
       this.ws = null;
       this.clearWatchdog();
       this.setConnected(false);

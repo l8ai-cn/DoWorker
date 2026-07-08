@@ -23,6 +23,7 @@ func (pc *PodCoordinator) handleRunnerDisconnect(runnerID int64) {
 	pc.clearMissCountsForRunner(runnerID)
 
 	pc.failInitializingPodsForRunner(ctx, runnerID)
+	pc.failQueuedPodsForRunner(ctx, runnerID)
 
 	pc.logger.Info("runner disconnected, running pods will be reconciled on reconnect",
 		"runner_id", runnerID)
@@ -52,9 +53,7 @@ func (pc *PodCoordinator) failInitializingPodsForRunner(ctx context.Context, run
 		if rowsAffected > 0 {
 			_ = pc.runnerRepo.DecrementPods(ctx, runnerID)
 			pc.ackTracker.Remove(pod.PodKey) // Cancel any pending ACK wait
-			if pc.onStatusChange != nil {
-				pc.onStatusChange(pod.PodKey, agentpod.StatusError, "")
-			}
+			pc.notifyStatusChange(pod.PodKey, agentpod.StatusError, "")
 			pc.logger.Warn("initializing pod failed due to runner disconnect",
 				"pod_key", pod.PodKey, "runner_id", runnerID)
 		}

@@ -27,4 +27,10 @@ describe("sanitizeReturnTo", () => {
   it("preserves a legitimate same-origin path with query and fragment", () => {
     expect(sanitizeReturnTo("/sessions/abc?tab=logs#top")).toBe("/sessions/abc?tab=logs#top");
   });
+
+  it("repairs a malformed ?file= deep link embedded in return_to", () => {
+    expect(sanitizeReturnTo("/c/conv_abc?file%3Dgomoku%2Findex.html=")).toBe(
+      "/c/conv_abc?file=gomoku%2Findex.html",
+    );
+  });
 });

@@ -111,6 +111,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { showToast } from "@/components/ui/toast";
 import { PermissionsModal } from "@/components/PermissionsModal";
 import { SessionStateBadge } from "@/components/SessionStateBadge";
+import { DoWorkerLogo } from "@/components/icons/DoWorkerLogo";
 import { useSessionRunnerOnline } from "@/hooks/RunnerHealthProvider";
 import { useActiveRootSessionId } from "@/hooks/useSession";
 import { useCommentInbox } from "@/hooks/useCommentInbox";
@@ -136,7 +137,9 @@ import {
   computeNextActiveOverride,
   conversationDisplayLabel,
   EXPANDED_PROJECT_SECTIONS_STORAGE_KEY,
+  groupConversationsByWorkerAndProject,
   normalizePinnedConversationIds,
+  newSessionLandingPath,
   orderByPinnedSequence,
   PINNED_CONVERSATION_IDS_STORAGE_KEY,
   resolveSidebarDrop,
@@ -144,6 +147,8 @@ import {
   sortByUpdatedAtDesc,
   togglePinnedConversationId,
 } from "./sidebarNav";
+import { SidebarProjectWorkerGroups } from "./sidebarProjectWorkerGroups";
+import { useSidebarProjectWorkerExpansion } from "./useSidebarProjectWorkerExpansion";
 
 // Positioning shared by both occupants of a row's trailing time-marker slot
 // (the session-state badge or the relative timestamp). On desktop the slot
@@ -421,7 +426,7 @@ export function Sidebar({ open, onClose, dragProgress = null }: SidebarProps) {
       data-collapsed={!effectiveOpen || undefined}
       // Match the keyboard-focus story: when closed, the sidebar's
       // children shouldn't receive tabs.
-      inert={!effectiveOpen}
+      {...(effectiveOpen ? {} : { inert: "" })}
     >
       {/* Right-edge resize handle (desktop only), mirroring the right rail's
           left-edge handle. Hidden on mobile, where the sidebar is a
@@ -445,8 +450,9 @@ export function Sidebar({ open, onClose, dragProgress = null }: SidebarProps) {
             <Link
               to="/"
               onClick={onNavClick}
-              className="rounded-sm text-[15px] font-semibold tracking-tight text-foreground transition-colors hover:text-foreground/70"
+              className="flex items-center gap-2 rounded-sm text-[15px] font-semibold tracking-tight text-foreground transition-colors hover:text-foreground/70"
             >
+              <DoWorkerLogo className="h-6 w-6 shrink-0" title={t.brand} />
               {t.brand}
             </Link>
             <div className="flex items-center gap-1">
@@ -852,6 +858,7 @@ function ConversationList({
   onToggleSelected,
   getVisibleIdsRef,
 }: ConversationListProps) {
+  const { t } = useI18n();
   // All loaded conversations from the single paginated list (for pinned
   // backfill, normalization, and the flat session list).
   const allConversations = useMemo(
@@ -942,6 +949,18 @@ function ConversationList({
     activeOverride,
     projectNames,
   ]);
+
+  const sessionGroups = useMemo(
+    () => groupConversationsByWorkerAndProject(sections.sessions, activeOverride),
+    [sections.sessions, activeOverride],
+  );
+  const {
+    effectiveExpandedProjects,
+    effectiveExpandedWorkers,
+    toggleProject: toggleSessionProject,
+    toggleWorker: toggleSessionWorker,
+    collectVisibleIds: collectVisibleSessionIds,
+  } = useSidebarProjectWorkerExpansion(sessionGroups, searchQuery, activeId);
 
   // Collapsed section titles — persisted like pins so the preference
   // survives reloads. Lifted here (not per-section state) because the
@@ -1185,13 +1204,19 @@ function ConversationList({
     const projectsCollapsed = effectiveCollapsedSections.includes("Projects");
     const projectVisible = (name: string, list: readonly Conversation[]) =>
       !projectsCollapsed && expandedProjects.includes(name) ? list : [];
+    const chatsCollapsed = effectiveCollapsedSections.includes("Chats");
     return [
       ...visible("Pinned", sections.pinned),
       ...sections.projectGroups.flatMap((g) => projectVisible(g.name, g.conversations)),
-      ...visible("Chats", sections.sessions),
+      ...collectVisibleSessionIds(chatsCollapsed),
       ...visible("Shared with me", sections.shared),
-    ].map((c) => c.id);
-  }, [sections, effectiveCollapsedSections, expandedProjects]);
+    ];
+  }, [
+    sections,
+    effectiveCollapsedSections,
+    expandedProjects,
+    collectVisibleSessionIds,
+  ]);
   // Getter that builds the shift-select visible order on demand (at click
   // time). Reading projectRenderedIdsRef lazily — rather than snapshotting it
   // during render — guarantees the project segment is always fresh even when a
@@ -1206,7 +1231,7 @@ function ConversationList({
       ...(projCollapsed
         ? []
         : sections.projectGroups.flatMap((g) => projectRenderedIdsRef.current.get(g.name) ?? [])),
-      ...vis("Chats", sections.sessions),
+      ...collectVisibleSessionIds(effectiveCollapsedSections.includes("Chats")),
       ...vis("Shared with me", sections.shared),
     ];
   };
@@ -1407,18 +1432,39 @@ function ConversationList({
               <ChatsDropZone
                 active={activeDrag != null && (activeDrag.project != null || activeDrag.isPinned)}
               >
-                <ConversationSection
+                <SidebarProjectWorkerGroups
                   title={t.shell.sessions}
                   conversations={sections.sessions}
-                  pinnedConversationIds={pinnedConversationIds}
-                  collapsed={effectiveCollapsedSections.includes("Chats")}
-                  onToggleCollapsed={() => effectiveToggleSectionCollapsed("Chats")}
-                  onRowClick={onRowClick}
-                  onTogglePinned={onTogglePinned}
-                  selectionMode={selectionMode}
-                  selectedIds={selectedIds}
-                  onToggleSelected={onToggleSelected}
-                  onProjectAssigned={expandProject}
+                  sectionCollapsed={effectiveCollapsedSections.includes("Chats")}
+                  onToggleSectionCollapsed={() => effectiveToggleSectionCollapsed("Chats")}
+                  groups={sessionGroups}
+                  expandedWorkers={effectiveExpandedWorkers}
+                  expandedProjects={effectiveExpandedProjects}
+                  onToggleProject={toggleSessionProject}
+                  onToggleWorker={toggleSessionWorker}
+                  onNavigate={onRowClick}
+                  renderRow={(conv) => (
+                    <ConversationRow
+                      conversation={conv}
+                      isPinned={pinnedConversationIds.includes(conv.id)}
+                      onClick={onRowClick}
+                      onTogglePinned={onTogglePinned}
+                      selectionMode={selectionMode}
+                      isSelected={selectedIds.has(conv.id)}
+                      onToggleSelected={onToggleSelected}
+                      onProjectAssigned={expandProject}
+                    />
+                  )}
+                  footer={
+                    !effectiveCollapsedSections.includes("Chats") ? (
+                      <InfiniteScrollSentinel
+                        hasMore={hasMorePages}
+                        isFetching={isFetchingNextPage}
+                        fetchMore={fetchNextPage}
+                        scrollRoot={scrollContainerRef}
+                      />
+                    ) : undefined
+                  }
                 />
               </ChatsDropZone>
             )}
@@ -1439,17 +1485,6 @@ function ConversationList({
             )}
             {/* Archived sessions are no longer listed here — they live on the
               Settings page ("Archived chats"), reachable from the footer. */}
-            {/* Infinite-scroll sentinel for the global list. Pagination extends
-              the Chats list, so it hides with a collapsed Chats group — a loader
-              under a collapsed group reads orphaned. */}
-            {!effectiveCollapsedSections.includes("Chats") && (
-              <InfiniteScrollSentinel
-                hasMore={hasMorePages}
-                isFetching={isFetchingNextPage}
-                fetchMore={fetchNextPage}
-                scrollRoot={scrollContainerRef}
-              />
-            )}
           </>
         )}
       </div>
@@ -2891,7 +2926,7 @@ function ProjectFolderActions({
         data-testid="project-new-session"
       >
         <Link
-          to={`/?project=${encodeURIComponent(projectName)}`}
+          to={newSessionLandingPath({ project: projectName })}
           onClick={(e) => {
             // Keep the click off the folder's collapse toggle, then run the
             // shared nav handler (closes the sidebar overlay on mobile).

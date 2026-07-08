@@ -395,6 +395,7 @@ message PodResizeCommand {
 message SendPromptCommand {
   string pod_key = 1;
   string prompt = 2;
+  string command_id = 3;
 }
 
 // PodRedrawCommand 请求 Pod 重绘命令

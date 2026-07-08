@@ -2,7 +2,6 @@ package codex
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/anthropics/agentsmesh/runner/internal/acp"
 )
@@ -17,6 +16,12 @@ func (t *transport) handleNotification(method string, params json.RawMessage) {
 	sid := t.getSessionID()
 
 	switch method {
+	case "turn/started":
+		t.cancelIdleFallback()
+
+	case "thread/status/changed":
+		t.handleThreadStatusChanged(params)
+
 	case "turn/completed":
 		t.handleTurnCompleted(params)
 
@@ -26,6 +31,8 @@ func (t *transport) handleNotification(method string, params json.RawMessage) {
 			t.logger.Warn("failed to parse agentMessage/delta", "error", err)
 			return
 		}
+		t.cancelIdleFallback()
+		t.markAgentMessageStreamed(d.ItemID)
 		if t.callbacks.OnContentChunk != nil {
 			t.callbacks.OnContentChunk(sid, acp.ContentChunk{Text: d.Delta, Role: "assistant"})
 		}
@@ -36,6 +43,7 @@ func (t *transport) handleNotification(method string, params json.RawMessage) {
 			t.logger.Warn("failed to parse reasoning delta", "error", err)
 			return
 		}
+		t.cancelIdleFallback()
 		if t.callbacks.OnThinkingUpdate != nil {
 			t.callbacks.OnThinkingUpdate(sid, acp.ThinkingUpdate{Text: d.Delta})
 		}
@@ -56,6 +64,15 @@ func (t *transport) handleNotification(method string, params json.RawMessage) {
 	case "item/completed":
 		t.handleItemCompleted(sid, params)
 
+	case "rawResponseItem/completed":
+		t.handleRawResponseItemCompleted(sid, params)
+
+	case "configWarning", "warning":
+		t.handleConfigWarning(params)
+
+	case "error":
+		t.handleErrorNotification(params)
+
 	default:
 		t.logger.Debug("unhandled codex notification", "method", method)
 	}
@@ -67,6 +84,7 @@ func (t *transport) handleItemStarted(sid string, params json.RawMessage) {
 		t.logger.Warn("failed to parse item/started", "error", err)
 		return
 	}
+	t.cancelIdleFallback()
 	switch is.Item.Type {
 	case "toolCall":
 		if t.callbacks.OnToolCallUpdate != nil {
@@ -86,101 +104,5 @@ func (t *transport) handleItemStarted(sid string, params json.RawMessage) {
 				ToolCallID: is.Item.ID, ToolName: "fileChange", Status: "running",
 			})
 		}
-	}
-}
-
-func (t *transport) handleItemCompleted(sid string, params json.RawMessage) {
-	var ic itemCompletedParams
-	if err := json.Unmarshal(params, &ic); err != nil {
-		t.logger.Warn("failed to parse item/completed", "error", err)
-		return
-	}
-	switch ic.Item.Type {
-	case "toolCall":
-		if t.callbacks.OnToolCallUpdate != nil {
-			t.callbacks.OnToolCallUpdate(sid, acp.ToolCallUpdate{
-				ToolCallID: ic.Item.ID, ToolName: ic.Item.ToolName, Status: "completed",
-			})
-		}
-	case "commandExecution":
-		exitCode := 0
-		if ic.Item.ExitCode != nil {
-			exitCode = *ic.Item.ExitCode
-		}
-		if t.callbacks.OnToolCallResult != nil {
-			t.callbacks.OnToolCallResult(sid, acp.ToolCallResult{
-				ToolCallID: ic.Item.ID, ToolName: "shell",
-				Success: exitCode == 0, ResultText: ic.Item.AggregatedOutput,
-			})
-		}
-	case "fileChange":
-		success := ic.Item.Status == "" || ic.Item.Status == "completed"
-		if t.callbacks.OnToolCallResult != nil {
-			t.callbacks.OnToolCallResult(sid, acp.ToolCallResult{
-				ToolCallID: ic.Item.ID, ToolName: "fileChange",
-				Success: success, ResultText: ic.Item.FilePath,
-			})
-		}
-	}
-}
-
-func (t *transport) handleTurnCompleted(params json.RawMessage) {
-	var tc turnCompletedParams
-	if err := json.Unmarshal(params, &tc); err != nil {
-		if t.callbacks.OnStateChange != nil {
-			t.callbacks.OnStateChange(acp.StateIdle)
-		}
-		return
-	}
-	if tc.Turn.Status == "failed" && t.callbacks.OnLog != nil {
-		msg := "turn failed"
-		if tc.Turn.Error != nil {
-			msg = "turn failed: " + tc.Turn.Error.Message
-		}
-		t.callbacks.OnLog("error", msg)
-	}
-	if u := tc.Turn.Usage; u != nil && t.callbacks.OnUsage != nil &&
-		(u.InputTokens > 0 || u.OutputTokens > 0) {
-		t.callbacks.OnUsage(t.getSessionID(), acp.TurnUsage{
-			InputTokens:     u.InputTokens,
-			OutputTokens:    u.OutputTokens,
-			CacheReadTokens: u.CachedInputTokens,
-		})
-	}
-	if t.callbacks.OnStateChange != nil {
-		t.callbacks.OnStateChange(acp.StateIdle)
-	}
-}
-
-func (t *transport) handleApprovalRequest(rpcID int64, params json.RawMessage) {
-	var req approvalRequestParams
-	if err := json.Unmarshal(params, &req); err != nil {
-		t.logger.Warn("failed to parse approval request", "error", err)
-		return
-	}
-
-	if t.callbacks.OnStateChange != nil {
-		t.callbacks.OnStateChange(acp.StateWaitingPermission)
-	}
-
-	description := req.Description
-	toolName := "command"
-	if req.Path != "" {
-		toolName = "fileChange"
-		if description == "" {
-			description = req.Path
-		}
-	}
-	if req.Command != "" && description == "" {
-		description = req.Command
-	}
-
-	if t.callbacks.OnPermissionRequest != nil {
-		t.callbacks.OnPermissionRequest(acp.PermissionRequest{
-			SessionID:   t.getSessionID(),
-			RequestID:   fmt.Sprintf("%d", rpcID),
-			ToolName:    toolName,
-			Description: description,
-		})
 	}
 }
