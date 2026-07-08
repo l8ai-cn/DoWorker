@@ -66,6 +66,14 @@ type UnsubscribePodRequest struct {
 	PodKey string `json:"pod_key"`
 }
 
+// ConnectTunnelRequest tells the Runner to establish (or refresh) its outbound
+// HTTP tunnel to the Gateway. TunnelToken is a token_type=tunnel JWT not bound
+// to a single pod.
+type ConnectTunnelRequest struct {
+	GatewayURL  string `json:"gateway_url"`
+	TunnelToken string `json:"tunnel_token"`
+}
+
 // QuerySandboxesRequest is sent to query sandbox status for specified pods.
 type QuerySandboxesRequest struct {
 	RequestID string                   `json:"request_id"`
@@ -152,4 +160,8 @@ type MessageHandler interface {
 	OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error
 
 	OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error
+
+	// OnConnectTunnel handles connect_tunnel command from server.
+	// The Runner should establish/refresh its outbound HTTP tunnel to the Gateway.
+	OnConnectTunnel(req ConnectTunnelRequest) error
 }

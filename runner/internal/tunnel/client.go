@@ -122,9 +122,12 @@ func (c *Client) Connect() error {
 	c.connMu.Unlock()
 	c.connected.Store(true)
 
-	hello := tunnelframe.HelloPayload{
-		RunnerID: strconv.FormatInt(c.runnerID, 10),
-		OrgID:    strconv.FormatInt(c.orgID, 10),
+	hello := tunnelframe.HelloPayload{}
+	if c.runnerID > 0 {
+		hello.RunnerID = strconv.FormatInt(c.runnerID, 10)
+	}
+	if c.orgID > 0 {
+		hello.OrgID = strconv.FormatInt(c.orgID, 10)
 	}
 	if err := c.Send(tunnelframe.Frame{Type: tunnelframe.TypeHello, Payload: tunnelframe.EncodeJSON(hello)}); err != nil {
 		_ = conn.Close()

@@ -21,12 +21,17 @@ type RunnerMessageHandler struct {
 	relayClientFactory func(url, podKey, token string, logger *slog.Logger) relay.RelayClient
 	promptDedup        map[string]*promptDedupRing
 	promptDedupMu      sync.Mutex
+
+	// Per-runner outbound HTTP tunnel to the Gateway (see message_handler_tunnel.go).
+	tunnelMu            sync.Mutex
+	tunnelClient        tunnelRunner
+	tunnelClientFactory func(gatewayURL, token string) tunnelRunner
 }
 
 // NewRunnerMessageHandler creates a new message handler.
 func NewRunnerMessageHandler(runner MessageHandlerContext, store PodStore, conn client.Connection) *RunnerMessageHandler {
 	logger.Runner().Debug("Creating message handler")
-	return &RunnerMessageHandler{
+	h := &RunnerMessageHandler{
 		runner:   runner,
 		podStore: store,
 		conn:     conn,
@@ -35,6 +40,8 @@ func NewRunnerMessageHandler(runner MessageHandlerContext, store PodStore, conn 
 			return relay.NewClient(runner.GetRunContext(), url, podKey, token, logger)
 		},
 	}
+	h.tunnelClientFactory = h.defaultTunnelClientFactory
+	return h
 }
 
 // OnCreatePod handles create pod requests from server.

@@ -77,6 +77,24 @@ func (c *GRPCConnection) handleUnsubscribePod(cmd *runnerv1.UnsubscribePodComman
 	}
 }
 
+// handleConnectTunnel handles connect_tunnel command from server.
+// Instructs the Runner to open/refresh its outbound HTTP tunnel to the Gateway.
+func (c *GRPCConnection) handleConnectTunnel(cmd *runnerv1.ConnectTunnelCommand) {
+	log := logger.GRPC()
+	log.Info("Received connect_tunnel", "gateway_url", cmd.GatewayUrl)
+	if c.handler == nil {
+		log.Warn("No handler set, ignoring connect_tunnel")
+		return
+	}
+	req := ConnectTunnelRequest{
+		GatewayURL:  cmd.GatewayUrl,
+		TunnelToken: cmd.TunnelToken,
+	}
+	if err := c.handler.OnConnectTunnel(req); err != nil {
+		log.Error("Failed to connect tunnel", "gateway_url", cmd.GatewayUrl, "error", err)
+	}
+}
+
 // handleQuerySandboxes handles query_sandboxes command from server.
 // Returns sandbox status for specified pod keys.
 func (c *GRPCConnection) handleQuerySandboxes(cmd *runnerv1.QuerySandboxesCommand) {

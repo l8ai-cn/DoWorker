@@ -92,7 +92,11 @@ func (h *TunnelHandler) HandleTunnelWS(w http.ResponseWriter, r *http.Request) {
 	if len(f.Payload) > 0 {
 		_ = json.Unmarshal(f.Payload, &hello)
 	}
-	if hello.RunnerID != strconv.FormatInt(claims.RunnerID, 10) {
+	// The verified tunnel token is the authoritative source of the runner id
+	// (routing is by JWT claim, never a lookup). HELLO.runner_id is advisory: if
+	// present it must match, but an empty value is accepted for runners that do
+	// not know their numeric id.
+	if hello.RunnerID != "" && hello.RunnerID != strconv.FormatInt(claims.RunnerID, 10) {
 		h.logger.Warn("tunnel hello runner mismatch", "hello", hello.RunnerID, "claim", claims.RunnerID)
 		_ = conn.Close()
 		return

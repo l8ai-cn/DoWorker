@@ -152,6 +152,9 @@ func (c *GRPCConnection) handleServerMessage(ctx context.Context, msg *runnerv1.
 	case *runnerv1.ServerMessage_SandboxFs:
 		c.handleSandboxFs(payload.SandboxFs)
 
+	case *runnerv1.ServerMessage_ConnectTunnel:
+		c.handleConnectTunnel(payload.ConnectTunnel)
+
 	default:
 		logger.GRPC().Warn("Unknown server message type")
 	}

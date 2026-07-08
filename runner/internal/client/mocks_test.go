@@ -69,6 +69,10 @@ func (h *mockHandler) OnUnsubscribePod(req UnsubscribePodRequest) error {
 	return nil
 }
 
+func (h *mockHandler) OnConnectTunnel(req ConnectTunnelRequest) error {
+	return nil
+}
+
 func (h *mockHandler) OnQuerySandboxes(req QuerySandboxesRequest) error {
 	return nil
 }
@@ -148,6 +152,10 @@ func (h *mockHandlerWithError) OnSubscribePod(req SubscribePodRequest) error {
 }
 
 func (h *mockHandlerWithError) OnUnsubscribePod(req UnsubscribePodRequest) error {
+	return nil
+}
+
+func (h *mockHandlerWithError) OnConnectTunnel(req ConnectTunnelRequest) error {
 	return nil
 }
 

@@ -43,6 +43,10 @@ func (h *mockHandlerWithRelayConnections) OnUnsubscribePod(req UnsubscribePodReq
 	return nil
 }
 
+func (h *mockHandlerWithRelayConnections) OnConnectTunnel(req ConnectTunnelRequest) error {
+	return nil
+}
+
 func (h *mockHandlerWithRelayConnections) OnQuerySandboxes(req QuerySandboxesRequest) error {
 	return nil
 }
