@@ -2,7 +2,10 @@ load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "auth",
-    srcs = ["token.go"],
+    srcs = [
+        "origin.go",
+        "token.go",
+    ],
     importpath = "github.com/anthropics/agentsmesh/relay/internal/auth",
     visibility = ["//relay:__subpackages__"],
     deps = ["@com_github_golang_jwt_jwt_v5//:jwt"],
@@ -16,7 +19,10 @@ alias(
 
 go_test(
     name = "auth_test",
-    srcs = ["token_test.go"],
+    srcs = [
+        "origin_test.go",
+        "token_test.go",
+    ],
     embed = [":auth"],
     deps = ["@com_github_golang_jwt_jwt_v5//:jwt"],
 )
