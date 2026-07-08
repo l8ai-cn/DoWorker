@@ -16,7 +16,7 @@ import { resolveActivityFromPathname } from "@/lib/ide-route";
 import { useCurrentOrg } from "@/stores/auth";
 import { useTotalUnreadCount } from "@/stores/channelMessageStore";
 import { useTranslations } from "next-intl";
-import { CircleHelp, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { OrgSwitcher } from "@/components/ide/OrgSwitcher";
 import { ReminderArea } from "@/components/ide/ReminderArea";
 import { ActivityBarLink } from "./ActivityBarLink";
@@ -124,30 +124,6 @@ export function ActivityBar({ className }: ActivityBarProps) {
         <ReminderArea />
 
         <nav className="flex flex-col items-stretch py-2 gap-1 px-2 pt-3">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <a
-                href="https://discord.gg/3RcX7VBbH9"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="motion-interactive pressable w-full h-9 px-2.5 flex items-center gap-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface-muted"
-              >
-                <CircleHelp className="w-4 h-4 shrink-0" />
-                <span className="text-xs leading-tight font-medium truncate">
-                  {t("ide.activities.help")}
-                </span>
-              </a>
-            </TooltipTrigger>
-            <TooltipPortal>
-              <TooltipContent
-                side="right"
-                className="z-50 bg-popover text-popover-foreground px-2 py-1 text-sm rounded-md shadow-[var(--shadow-soft)]"
-              >
-                {t("ide.activities.help")}
-              </TooltipContent>
-            </TooltipPortal>
-          </Tooltip>
-
           {isSystemAdmin && (
             <Tooltip>
               <TooltipTrigger asChild>

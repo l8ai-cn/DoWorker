@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCurrentUser, useCurrentOrg, useAuthStore } from "@/stores/auth";
 import { Button } from "@/components/ui/button";
 import { LanguageSettings, ThemeSettings, NotificationSettings, AgentCredentialsSettings, AgentConfigPage, GitSettingsContent } from "@/components/settings";
-import { GeneralSettings, MembersSettings, BillingSettings, APIKeysSettings, ExtensionsSettings, UsageSettings, InfrastructureOverview, ModelQuotasSettings } from "@/components/settings/organization";
+import { GeneralSettings, MembersSettings, BillingSettings, APIKeysSettings, IMChannelsSettings, ExtensionsSettings, UsageSettings, InfrastructureOverview, ModelQuotasSettings } from "@/components/settings/organization";
 import { SupportTicketsContent } from "@/components/support/SupportTicketsContent";
 import { useTranslations } from "next-intl";
 import { LogOut, User, Mail } from "lucide-react";
@@ -48,6 +48,8 @@ export default function SettingsPage() {
         return <ExtensionsSettings t={t} />;
       case "api-keys":
         return <APIKeysSettings t={t} />;
+      case "im-channels":
+        return <IMChannelsSettings t={t} />;
       case "billing":
         return <BillingSettings t={t} />;
       case "usage":

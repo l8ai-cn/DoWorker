@@ -86,14 +86,14 @@
     }
   },
   "mesh": {
-    "title": "智能体网络",
+    "title": "监控",
     "channels": "频道",
     "newChannel": "新建频道",
     "topology": "拓扑图",
     "messages": "消息",
     "sendMessage": "发送消息...",
     "page": {
-      "title": "Mesh",
+      "title": "监控",
       "subtitle": "多智能体协作网络拓扑",
       "activePods": "{count} 个活跃环境",
       "channelsCount": "{count} 个频道",

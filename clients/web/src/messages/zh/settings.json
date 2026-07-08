@@ -914,6 +914,55 @@
         "cancel": "取消"
       }
     },
+    "imChannels": {
+      "title": "IM 通道",
+      "description": "将飞书、钉钉、企业微信、微信或 Slack 与内部协作频道双向同步。微信使用 iLink 扫码登录（参考 OpenClaw @tencent-weixin/openclaw-weixin），其他平台配置 Webhook。",
+      "create": "新建连接",
+      "loading": "加载 IM 连接中...",
+      "empty": "暂无 IM 连接。创建连接以桥接外部即时通讯与内部频道。",
+      "loadError": "加载 IM 连接失败",
+      "createFailed": "创建 IM 连接失败",
+      "updateFailed": "更新 IM 连接失败",
+      "deleteFailed": "删除 IM 连接失败",
+      "dismiss": "关闭",
+      "enable": "启用",
+      "disable": "停用",
+      "webhookUrl": "Webhook URL",
+      "copyWebhook": "复制 Webhook",
+      "webhookHint": "在 IM 平台的事件订阅 / 机器人回调中填入此 URL。启用连接后才会处理入站消息。",
+      "boundChannel": "绑定频道 #{id}",
+      "status": {
+        "active": "已启用",
+        "disabled": "已停用",
+        "error": "异常"
+      },
+      "createDialog": {
+        "title": "新建 IM 连接",
+        "provider": "平台",
+        "name": "连接名称",
+        "channelId": "绑定频道 ID（可选）",
+        "channelIdPlaceholder": "留空则按会话自动创建频道",
+        "config": "平台配置 (JSON)",
+        "cancel": "取消",
+        "submit": "创建"
+      },
+      "deleteDialog": {
+        "title": "删除 IM 连接",
+        "description": "确定删除连接「{name}」吗？外部平台将无法继续同步。",
+        "confirm": "删除",
+        "cancel": "取消"
+      },
+      "weixin": {
+        "qrLogin": "扫码登录",
+        "qrTitle": "微信扫码登录",
+        "scanHint": "请使用微信扫描二维码，并在手机上确认登录",
+        "loginRequired": "尚未登录。点击「扫码登录」完成 iLink 授权（OpenClaw 同款流程）。",
+        "loggedIn": "iLink 已登录。启用连接后将通过长轮询接收私聊消息。",
+        "loginSuccess": "微信登录成功",
+        "loginFailed": "微信登录失败，请重试",
+        "createHint": "创建后点击「扫码登录」，使用微信 iLink 授权（无需 Webhook）。"
+      }
+    },
     "org": {
       "infrastructure": {
         "title": "基础设施",

@@ -25,7 +25,8 @@ import (
 	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
 	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
-	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
+	grantservice 	"github.com/anthropics/agentsmesh/backend/internal/service/grant"
+	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
 	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
 	supportticketservice "github.com/anthropics/agentsmesh/backend/internal/service/supportticket"
 	tokenusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenusage"
@@ -99,6 +100,7 @@ type serviceContainer struct {
 	blockstore        *blockstoreservice.Service
 	grant             *grantservice.Service
 	knowledgeBase     *knowledgebaseservice.Service
+	imBridge          *imbridgesvc.Bridge
 
 	notifDispatcher *notifService.Dispatcher
 	notifPrefStore  *notifService.PreferenceStore
@@ -160,6 +162,10 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 	autopilotSvc := agentpod.NewAutopilotControllerService(autopilotRepo)
 	channelRepo := infra.NewChannelRepository(db)
 	channelSvc := channel.NewService(channelRepo)
+	imBridgeRepo := infra.NewIMBridgeRepository(db)
+	imBridgeRegistry := imbridgesvc.NewRegistry(nil)
+	imBridgeSvc := imbridgesvc.NewService(imBridgeRepo, imBridgeRegistry, cfg.BaseURL())
+	imBridgeBridge := imbridgesvc.NewBridge(imBridgeSvc, channelSvc)
 	ticketRepo := infra.NewTicketRepository(db)
 	ticketSvc := ticket.NewService(ticketRepo)
 	mrSyncRepo := infra.NewMRSyncRepository(db)
@@ -280,6 +286,7 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 		blockstore:         blockstoreSvc,
 		grant:              grantSvc,
 		knowledgeBase:      knowledgeBaseSvc,
+		imBridge:           imBridgeBridge,
 		podRepo:            podRepo,
 		runnerRepo:         runnerRepo,
 		autopilotRepo:      autopilotRepo,

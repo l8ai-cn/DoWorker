@@ -98,6 +98,10 @@ func main() {
 	services.channel.AddPostSendHook(channelService.NewMentionValidatorHook(userLookup, podLookup, channelRepo))
 	services.channel.AddPostSendHook(channelService.NewEventPublishHook(eventBus, channelUserNames, services.channel))
 	services.channel.AddPostSendHook(channelService.NewNotificationHook(notifDispatcher, channelUserNames))
+	if services.imBridge != nil {
+		services.channel.AddPostSendHook(services.imBridge.OutboundHook())
+		services.imBridge.StartMonitor(context.Background())
+	}
 	slog.Info("Channel PostSendHooks registered")
 
 	services.user.AddPreDeleteHook(func(ctx context.Context, userID int64) error {

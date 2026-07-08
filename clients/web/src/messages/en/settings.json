@@ -914,6 +914,55 @@
         "cancel": "Cancel"
       }
     },
+    "imChannels": {
+      "title": "IM Channels",
+      "description": "Bridge Feishu, DingTalk, WeCom, WeChat, or Slack with internal collaboration channels. WeChat uses iLink QR login (OpenClaw @tencent-weixin/openclaw-weixin); other platforms use webhooks.",
+      "create": "New Connection",
+      "loading": "Loading IM connections...",
+      "empty": "No IM connections yet. Create one to sync external chat with internal channels.",
+      "loadError": "Failed to load IM connections",
+      "createFailed": "Failed to create IM connection",
+      "updateFailed": "Failed to update IM connection",
+      "deleteFailed": "Failed to delete IM connection",
+      "dismiss": "Dismiss",
+      "enable": "Enable",
+      "disable": "Disable",
+      "webhookUrl": "Webhook URL",
+      "copyWebhook": "Copy webhook",
+      "webhookHint": "Configure this URL in your IM platform event subscription. Inbound messages are processed only when the connection is enabled.",
+      "boundChannel": "Bound channel #{id}",
+      "status": {
+        "active": "Active",
+        "disabled": "Disabled",
+        "error": "Error"
+      },
+      "createDialog": {
+        "title": "New IM Connection",
+        "provider": "Platform",
+        "name": "Connection name",
+        "channelId": "Channel ID (optional)",
+        "channelIdPlaceholder": "Leave empty to auto-create a channel per thread",
+        "config": "Platform config (JSON)",
+        "cancel": "Cancel",
+        "submit": "Create"
+      },
+      "deleteDialog": {
+        "title": "Delete IM Connection",
+        "description": "Delete connection \"{name}\"? External platforms will stop syncing.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
+      "weixin": {
+        "qrLogin": "QR Login",
+        "qrTitle": "WeChat QR Login",
+        "scanHint": "Scan with WeChat on your phone and confirm login",
+        "loginRequired": "Not logged in. Click QR Login to authorize via iLink (OpenClaw flow).",
+        "loggedIn": "iLink logged in. Enable the connection to receive DMs via long polling.",
+        "loginSuccess": "WeChat login successful",
+        "loginFailed": "WeChat login failed, please retry",
+        "createHint": "After creating, use QR Login for iLink authorization (no webhook needed)."
+      }
+    },
     "org": {
       "infrastructure": {
         "title": "Infrastructure",

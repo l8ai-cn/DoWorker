@@ -1,0 +1,29 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "imbridge",
+    srcs = [
+        "bridge.go",
+        "provider.go",
+        "providers.go",
+        "registry.go",
+        "service.go",
+        "weixin_ilink.go",
+        "weixin_login.go",
+        "weixin_monitor.go",
+        "weixin_provider.go",
+    ],
+    importpath = "github.com/anthropics/agentsmesh/backend/internal/service/imbridge",
+    visibility = ["//backend:__subpackages__"],
+    deps = [
+        "//backend/internal/domain/channel",
+        "//backend/internal/domain/imbridge",
+        "//backend/internal/service/channel",
+    ],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":imbridge",
+    visibility = ["//backend:__subpackages__"],
+)

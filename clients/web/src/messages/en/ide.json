@@ -248,6 +248,8 @@
           "notificationsDesc": "Notification preferences",
           "apiKeys": "API Keys",
           "apiKeysDesc": "Third-party integrations",
+          "imChannels": "IM Channels",
+          "imChannelsDesc": "Feishu / DingTalk / WeCom / WeChat / Slack",
           "extensions": "Extensions",
           "extensionsDesc": "Skills and MCP server marketplace",
           "billing": "Billing",

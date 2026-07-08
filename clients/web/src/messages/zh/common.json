@@ -1,4 +1,13 @@
 {
+  "media": {
+    "preview": "预览",
+    "code": "代码",
+    "openInNewTab": "新标签页打开",
+    "close": "关闭",
+    "expand": "展开",
+    "collapse": "收起",
+    "htmlDocument": "HTML 文档"
+  },
   "common": {
     "loading": "加载中...",
     "allRightsReserved": "保留所有权利。",
@@ -71,7 +80,7 @@
   },
   "nav": {
     "agentpod": "AgentPod",
-    "mesh": "智能体网络",
+    "mesh": "监控",
     "tickets": "任务管理",
     "settings": "设置",
     "billing": "账单"

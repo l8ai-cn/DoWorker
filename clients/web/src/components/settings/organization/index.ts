@@ -3,6 +3,7 @@ export { MembersSettings } from "./MembersSettings";
 export { BillingSettings } from "./BillingSettings";
 export { RunnersSettings } from "./RunnersSettings";
 export { APIKeysSettings } from "./APIKeysSettings";
+export { IMChannelsSettings } from "./IMChannelsSettings";
 export { ExtensionsSettings } from "./ExtensionsSettings";
 export { UsageSettings } from "./UsageSettings";
 export { InfrastructureOverview } from "./InfrastructureOverview";

@@ -233,6 +233,7 @@ func buildServicesContainer(
 		TokenUsage:            services.tokenUsage,
 		Grant:                 services.grant,
 		Message:               services.message,
+		IMBridge:              services.imBridge,
 		Redis:                 redisClient,
 	}
 	if pendingQueueWiring != nil {

@@ -25,6 +25,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
 	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
 	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
 	"github.com/anthropics/agentsmesh/backend/internal/service/promocode"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
@@ -123,6 +124,8 @@ type Services struct {
 	Coordinator *coordinatorservice.Service
 
 	Expert *expertSvc.Service
+
+	IMBridge *imbridgesvc.Bridge
 
 	PendingQueue *runner.PendingCommandQueue
 

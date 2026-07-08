@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Sparkles,
   KeyRound,
+  MessageSquareShare,
   Puzzle,
   BarChart3,
   Gauge,
@@ -90,6 +91,7 @@ export function SettingsSidebarContent({ className }: SettingsSidebarContentProp
     { id: "extensions", labelKey: "ide.sidebar.settings.tabs.extensions", icon: Puzzle },
     { id: "infrastructure", labelKey: "ide.sidebar.settings.tabs.infrastructure", icon: Layers },
     { id: "api-keys", labelKey: "ide.sidebar.settings.tabs.apiKeys", icon: KeyRound },
+    { id: "im-channels", labelKey: "ide.sidebar.settings.tabs.imChannels", icon: MessageSquareShare },
     { id: "model-quotas", label: "Quota & Billing", icon: Gauge },
     ...(isOrgAdminOrOwner
       ? [{ id: "usage", labelKey: "ide.sidebar.settings.tabs.usage", icon: BarChart3 }]

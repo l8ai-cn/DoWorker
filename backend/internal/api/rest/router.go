@@ -140,6 +140,9 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		if svc.EventBus != nil {
 			webhookOpts = append(webhookOpts, webhooks.WithEventBus(svc.EventBus))
 		}
+		if svc.IMBridge != nil {
+			webhookOpts = append(webhookOpts, webhooks.WithIMBridge(svc.IMBridge))
+		}
 		webhookRouter := webhooks.NewWebhookRouterWithBillingSvc(db, cfg, logger, svc.Billing, webhookOpts...)
 		webhookRouter.RegisterRoutes(apiV1.Group("/webhooks"))
 

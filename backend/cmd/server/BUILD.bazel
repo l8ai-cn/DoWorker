@@ -112,6 +112,7 @@ go_library(
         "//backend/internal/service/file",
         "//backend/internal/service/geo",
         "//backend/internal/service/grant",
+        "//backend/internal/service/imbridge",
         "//backend/internal/service/instance",
         "//backend/internal/service/invitation",
         "//backend/internal/service/knowledgebase",

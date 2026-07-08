@@ -10,4 +10,5 @@ func RegisterOrgScopedRoutes(rg *gin.RouterGroup, svc *Services) {
 	registerCoordinatorRoutes(rg, svc)
 	registerPodQueueRoutes(rg, svc)
 	registerExpertRoutes(rg, svc)
+	registerIMBridgeRoutes(rg, svc)
 }

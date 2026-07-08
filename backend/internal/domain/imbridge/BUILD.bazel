@@ -1,0 +1,17 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "imbridge",
+    srcs = [
+        "connection.go",
+        "repository.go",
+    ],
+    importpath = "github.com/anthropics/agentsmesh/backend/internal/domain/imbridge",
+    visibility = ["//backend:__subpackages__"],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":imbridge",
+    visibility = ["//backend:__subpackages__"],
+)

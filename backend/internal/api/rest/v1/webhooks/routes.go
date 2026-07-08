@@ -11,6 +11,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/payment"
 	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
 	"github.com/anthropics/agentsmesh/backend/internal/service/ticket"
+	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -28,6 +29,7 @@ type WebhookRouter struct {
 	mrSyncService  *ticket.MRSyncService
 	podService     *agentpod.PodService
 	eventBus       *eventbus.EventBus
+	imBridge       *imbridgesvc.Bridge
 }
 
 type WebhookRouterOption func(*WebhookRouter)
@@ -59,6 +61,12 @@ func WithPodService(svc *agentpod.PodService) WebhookRouterOption {
 func WithEventBus(eb *eventbus.EventBus) WebhookRouterOption {
 	return func(r *WebhookRouter) {
 		r.eventBus = eb
+	}
+}
+
+func WithIMBridge(bridge *imbridgesvc.Bridge) WebhookRouterOption {
+	return func(r *WebhookRouter) {
+		r.imBridge = bridge
 	}
 }
 
@@ -118,4 +126,6 @@ func (r *WebhookRouter) RegisterRoutes(rg *gin.RouterGroup) {
 
 	rg.POST("/mock/complete", r.handleMockCheckoutComplete)
 	rg.GET("/mock/session/:session_id", r.getMockSession)
+
+	rg.POST("/im/:provider/:connection_id", r.handleIMBridgeWebhook)
 }
