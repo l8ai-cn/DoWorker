@@ -7,6 +7,21 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+func TestGenerateTypedToken_Preview(t *testing.T) {
+	g := NewTokenGenerator("secret", "iss")
+	tok, err := g.GenerateTypedToken("pod1", 7, 42, 3, "preview", "127.0.0.1:3000", time.Hour)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tok == "" {
+		t.Fatal("empty token")
+	}
+	// 空 preview target 应报错（preview 必须绑定 target）
+	if _, err := g.GenerateTypedToken("pod1", 7, 42, 3, "preview", "", time.Hour); err == nil {
+		t.Fatal("preview token without target must error")
+	}
+}
+
 func TestNewTokenGenerator(t *testing.T) {
 	g := NewTokenGenerator("secret", "issuer")
 	if g == nil {
