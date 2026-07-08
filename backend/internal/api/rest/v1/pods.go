@@ -17,6 +17,10 @@ type PodHandler struct {
 	commandSender  runner.RunnerCommandSender      // Unified command sender (PTY + ACP)
 	grantService   *grantservice.Service           // Resource grant/sharing service
 	pendingQueue   pendingQueueReader
+
+	// Preview (Gateway HTTP data plane) dependencies.
+	relaySelector previewRelaySelector  // relay geo-selection for the preview edge
+	relayTokens   previewTokenGenerator // typed token minting (tunnel + preview)
 }
 
 // PodHandlerOption is a functional option for configuring PodHandler
@@ -53,6 +57,14 @@ func WithGrantServiceForPod(gs *grantservice.Service) PodHandlerOption {
 func WithPendingQueue(q pendingQueueReader) PodHandlerOption {
 	return func(h *PodHandler) {
 		h.pendingQueue = q
+	}
+}
+
+// WithRelayPreview wires the dependencies needed by the pod preview endpoint.
+func WithRelayPreview(sel previewRelaySelector, tokens previewTokenGenerator) PodHandlerOption {
+	return func(h *PodHandler) {
+		h.relaySelector = sel
+		h.relayTokens = tokens
 	}
 }
 
