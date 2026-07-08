@@ -92,6 +92,28 @@ func newStream(id uint32, window int) *Stream {
 	}
 }
 
+// NewStream creates a standalone stream. Used by proxy/test code that manages
+// its own stream table (the Tunnel uses the internal newStream).
+func NewStream(id uint32, window int) *Stream { return newStream(id, window) }
+
+// RespChan exposes the inbound frame channel for the proxy layer to consume
+// RESP_*/WS_*/CREDIT frames destined for this stream.
+func (s *Stream) RespChan() <-chan tunnelframe.Frame { return s.respCh }
+
+// Deliver pushes an inbound frame onto this stream. Used by the tunnel read
+// loop and by tests injecting simulated peer frames.
+func (s *Stream) Deliver(f tunnelframe.Frame) { s.respCh <- f }
+
+// AcquireSend blocks until n outbound (REQ/WS) body credits are available or
+// the context is cancelled / the stream closed.
+func (s *Stream) AcquireSend(ctx context.Context, n int) error { return s.sendWin.acquire(ctx, n) }
+
+// AddSendCredit replenishes n outbound body credits (on receiving a CREDIT frame).
+func (s *Stream) AddSendCredit(n int) { s.sendWin.add(n) }
+
+// SetCancel registers a cancel callback fired when the stream is torn down.
+func (s *Stream) SetCancel(fn func()) { s.cancel = fn }
+
 // closeStream releases credit windows so blocked senders/receivers unwind.
 func (s *Stream) closeStream() {
 	s.closeOnce.Do(func() {

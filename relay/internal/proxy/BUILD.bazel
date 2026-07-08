@@ -4,9 +4,14 @@ go_library(
     name = "proxy",
     srcs = [
         "headers.go",
+        "http.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/relay/internal/proxy",
     visibility = ["//relay:__subpackages__"],
+    deps = [
+        "//relay/internal/protocol/tunnelframe",
+        "//relay/internal/tunnel",
+    ],
 )
 
 alias(
@@ -19,6 +24,11 @@ go_test(
     name = "proxy_test",
     srcs = [
         "headers_test.go",
+        "http_test.go",
     ],
     embed = [":proxy"],
+    deps = [
+        "//relay/internal/protocol/tunnelframe",
+        "//relay/internal/tunnel",
+    ],
 )

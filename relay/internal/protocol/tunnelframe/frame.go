@@ -115,6 +115,12 @@ type StreamCancelPayload struct {
 	Reason string `json:"reason,omitempty"`
 }
 
+// CreditPayload is the CREDIT body: the number of bytes the receiver has
+// flushed and is now willing to accept again (flow-control replenishment).
+type CreditPayload struct {
+	Bytes int `json:"bytes"`
+}
+
 // WSDataPayload wraps a single websocket frame relayed over the tunnel.
 // MessageType matches gorilla/websocket message types (1=text, 2=binary).
 type WSDataPayload struct {
