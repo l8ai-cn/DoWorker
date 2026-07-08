@@ -119,6 +119,39 @@ func TestRelayClaims_AllFields(t *testing.T) {
 	}
 }
 
+func TestRelayClaims_TokenType(t *testing.T) {
+	secret := "s3cret"
+	// 旧 token（无 token_type）：runner=UserID 0，browser=UserID!=0 仍成立
+	legacyRunner, err := GenerateToken(secret, "iss", "pod1", 7, 0, 3, time.Hour)
+	if err != nil {
+		t.Fatal(err)
+	}
+	v := NewTokenValidator(secret, "iss")
+	c, err := v.ValidateToken(legacyRunner)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !c.IsRunnerToken() {
+		t.Fatalf("legacy runner token should be runner")
+	}
+	if c.ResolvedType() != TokenTypeRunner {
+		t.Fatalf("legacy runner should resolve to runner, got %q", c.ResolvedType())
+	}
+
+	// 新 token：显式 tunnel 类型
+	tunnel, err := GenerateTypedToken(secret, "iss", TokenTypeTunnel, "", 7, 0, 3, time.Hour)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tc, err := v.ValidateToken(tunnel)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tc.ResolvedType() != TokenTypeTunnel {
+		t.Fatalf("expected tunnel, got %q", tc.ResolvedType())
+	}
+}
+
 func TestErrorVariables(t *testing.T) {
 	if ErrInvalidToken.Error() != "invalid token" {
 		t.Error("ErrInvalidToken message wrong")

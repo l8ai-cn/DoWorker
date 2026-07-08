@@ -12,13 +12,25 @@ var (
 	ErrTokenExpired = errors.New("token expired")
 )
 
+// TokenType enumerates the explicit relay/gateway token categories.
+type TokenType string
+
+const (
+	TokenTypeRunner  TokenType = "runner"
+	TokenTypeBrowser TokenType = "browser"
+	TokenTypeTunnel  TokenType = "tunnel"
+	TokenTypePreview TokenType = "preview"
+)
+
 // RelayClaims represents JWT claims for relay token
 // Note: SessionID has been removed - channels are now identified by PodKey only
 type RelayClaims struct {
-	PodKey   string `json:"pod_key"`
-	RunnerID int64  `json:"runner_id"`
-	UserID   int64  `json:"user_id"` // 0 for runner tokens
-	OrgID    int64  `json:"org_id"`
+	PodKey        string    `json:"pod_key"`
+	RunnerID      int64     `json:"runner_id"`
+	UserID        int64     `json:"user_id"` // 0 for runner tokens
+	OrgID         int64     `json:"org_id"`
+	TokenType     TokenType `json:"token_type,omitempty"`
+	PreviewTarget string    `json:"preview_target,omitempty"` // e.g. 127.0.0.1:3000
 	jwt.RegisteredClaims
 }
 
@@ -27,6 +39,19 @@ func (c *RelayClaims) IsRunnerToken() bool { return c.UserID == 0 }
 
 // IsBrowserToken returns true if this is a browser-issued token (UserID != 0).
 func (c *RelayClaims) IsBrowserToken() bool { return c.UserID != 0 }
+
+// ResolvedType resolves the effective token type. When no explicit token_type
+// claim is present (legacy tokens), it falls back to the old rule
+// (UserID==0 → runner, otherwise browser) for backward compatibility.
+func (c *RelayClaims) ResolvedType() TokenType {
+	if c.TokenType != "" {
+		return c.TokenType
+	}
+	if c.UserID == 0 {
+		return TokenTypeRunner
+	}
+	return TokenTypeBrowser
+}
 
 // TokenValidator validates relay tokens
 type TokenValidator struct {
@@ -95,6 +120,28 @@ func GenerateToken(secret, issuer, podKey string, runnerID, userID, orgID int64,
 		},
 	}
 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(secret))
+}
+
+// GenerateTypedToken generates a relay token with an explicit token_type
+// (and optional preview target). Used by backend and tests; the original
+// GenerateToken remains unchanged for legacy callers.
+func GenerateTypedToken(secret, issuer string, tokenType TokenType, previewTarget string, runnerID, userID, orgID int64, expiry time.Duration) (string, error) {
+	now := time.Now()
+	claims := &RelayClaims{
+		RunnerID:      runnerID,
+		UserID:        userID,
+		OrgID:         orgID,
+		TokenType:     tokenType,
+		PreviewTarget: previewTarget,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(expiry)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now),
+			Issuer:    issuer,
+		},
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(secret))
 }
