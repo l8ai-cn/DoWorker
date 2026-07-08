@@ -60,6 +60,13 @@
 - relay：控制面注册保留 backend，数据面可独立部署与扩缩
 - mobile：复用 `agentsmesh-wasm` 或 native FFI over Rust core
 - 每步保持 backend ↔ runner gRPC 契约不变
+- [x] **隧道 Gateway 已落地**（2026-07-08，`feat/gateway-module`）：relay 新增 HTTP 数据面
+  `/runner/tunnel`（Runner 出站注册，Runner 粒度隧道，`tunnel.Registry` 负责重连/迁移/离线清理）
+  + `/preview/{podKey}/*`（HTTP/WS/SSE/Range 代理到 Runner 本地回环服务，JWT claim 路由，
+  逐 stream credit 流控与错误隔离）。控制面 `connect_tunnel`（`runner.proto` command=14）由
+  backend 在 Runner `initialized` 回调下发；心跳上报隧道统计（`active_tunnels`/`active_streams`）。
+  详见 `docs/superpowers/specs/2026-07-08-gateway-module-design.md` 与
+  `docs/superpowers/plans/2026-07-08-gateway-module.md`。
 
 **验收**：relay 可独立 `bazel build //relay/...` 部署；mobile 原型可读 org pod 列表。
 
