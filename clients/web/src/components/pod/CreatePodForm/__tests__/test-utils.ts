@@ -1,4 +1,5 @@
 import { vi } from "vitest";
+import { fireEvent, screen } from "@testing-library/react";
 import { POD_MODE_PTY } from "@/lib/pod-modes";
 
 export const mockSetSelectedRunnerId = vi.fn();
@@ -136,4 +137,16 @@ export function clearAllMocks() {
   mockSetAlias.mockClear();
   mockSetSelectedAgent.mockClear();
   mockResetPluginConfig.mockClear();
+}
+
+/** Open a custom Select by label and pick an option by data-option-value. */
+export function pickSelectOption(labelText: string | RegExp, optionValue: string) {
+  fireEvent.click(screen.getByLabelText(labelText));
+  const option = screen
+    .getAllByRole("option")
+    .find((el) => el.getAttribute("data-option-value") === optionValue);
+  if (!option) {
+    throw new Error(`Select option not found: ${optionValue}`);
+  }
+  fireEvent.click(option);
 }

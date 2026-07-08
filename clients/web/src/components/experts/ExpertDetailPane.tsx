@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Bot, Pencil, Play, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { CenteredSpinner } from "@/components/ui/spinner";
 import { useExpertStore, useCurrentExpert } from "@/stores/expert";
@@ -79,24 +80,38 @@ export function ExpertDetailPane({ slug, orgSlug }: ExpertDetailPaneProps) {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="px-8 pt-6 pb-4 border-b border-border">
+      <div className="border-b border-border bg-gradient-to-b from-muted/30 to-transparent px-8 pt-6 pb-5">
         <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3 min-w-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <Bot className="h-5 w-5 text-primary" />
+          <div className="flex items-start gap-4 min-w-0">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/15">
+              <Bot className="h-6 w-6 text-primary" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-xl font-semibold truncate">{expert.name}</h1>
-              <p className="text-sm text-muted-foreground">{expert.slug}</p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-semibold truncate">{expert.name}</h1>
+                {expert.perpetual && (
+                  <Badge variant="success" className="font-normal">{t("perpetual")}</Badge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground font-mono">{expert.slug}</p>
               {expert.description && (
-                <p className="mt-1 text-sm text-muted-foreground">{expert.description}</p>
+                <p className="mt-1.5 text-sm text-muted-foreground max-w-2xl">{expert.description}</p>
               )}
-              <p className="mt-1 text-xs text-muted-foreground">
-                {expert.run_count > 0
-                  ? t("runCount", { count: expert.run_count })
-                  : t("neverRun")}
-                {expert.last_run_at && ` · ${t("lastRun", { time: formatTimeAgo(expert.last_run_at, tRoot) })}`}
-              </p>
+              <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5">
+                  <Bot className="h-3 w-3" />
+                  {expert.agent_slug}
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5">
+                  <Play className="h-3 w-3" />
+                  {expert.run_count > 0 ? t("runCount", { count: expert.run_count }) : t("neverRun")}
+                </span>
+                {expert.last_run_at && (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5">
+                    {t("lastRun", { time: formatTimeAgo(expert.last_run_at, tRoot) })}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">

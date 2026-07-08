@@ -132,6 +132,16 @@ export function CreatePodForm({
     setSelectedRunnerId,
   });
 
+  const actions = (
+    <CreatePodFormActions
+      onCancel={onCancel}
+      onCreate={handleCreate}
+      disabled={!canCreate || form.loading || loadingData}
+      loading={form.loading}
+      t={t}
+    />
+  );
+
   return (
     <div className={className}>
       {loadingData ? (
@@ -154,16 +164,9 @@ export function CreatePodForm({
           initialWizardStep={mergedConfig.initialWizardStep}
           initialExpertSlug={initialExpertSlug}
           t={t}
+          actions={actions}
         />
       )}
-
-      <CreatePodFormActions
-        onCancel={onCancel}
-        onCreate={handleCreate}
-        disabled={!canCreate || form.loading || loadingData}
-        loading={form.loading}
-        t={t}
-      />
     </div>
   );
 }

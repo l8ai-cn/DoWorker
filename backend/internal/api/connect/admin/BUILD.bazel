@@ -10,6 +10,7 @@ amesh_proto_convert(
 go_library(
     name = "admin",
     srcs = [
+        "admin_convert.amesh.go",
         "admin_convert_custom.go",
         "audit.go",
         "handlers_audit.go",

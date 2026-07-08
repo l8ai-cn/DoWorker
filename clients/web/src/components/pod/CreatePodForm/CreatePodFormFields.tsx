@@ -13,7 +13,6 @@ import {
   WorkerStepAgentPanel,
 } from "./WorkerStepPanels";
 import { step1Summary, step2Summary, step3Summary } from "./workerCreateStepSummaries";
-import { ExpertPickerSection } from "@/components/experts/ExpertPickerSection";
 
 interface CreatePodFormFieldsProps {
   form: CreatePodFormState;
@@ -32,10 +31,11 @@ interface CreatePodFormFieldsProps {
   initialWizardStep?: 1 | 2 | 3;
   initialExpertSlug?: string;
   t: (key: string) => string;
+  actions?: React.ReactNode;
 }
 
 export function CreatePodFormFields(props: CreatePodFormFieldsProps) {
-  const { form, showPerpetual, t, initialWizardStep = 1, initialExpertSlug, repositories } = props;
+  const { form, showPerpetual, t, initialWizardStep = 1, initialExpertSlug, repositories, actions } = props;
   const [step, setStep] = useState<WorkerCreateStepId>(initialWizardStep);
   const agentReady = Boolean(form.selectedAgent);
 
@@ -56,6 +56,7 @@ export function CreatePodFormFields(props: CreatePodFormFieldsProps) {
           form.destroyPolicy,
           selectedRepoSlug,
           form.selectedBranch,
+          form.selectedCredentialName,
           t,
         ),
         complete: agentReady,
@@ -94,52 +95,63 @@ export function CreatePodFormFields(props: CreatePodFormFieldsProps) {
     step === 1 ? agentReady : step === 2 ? true : false;
 
   return (
-    <div className="space-y-2">
-      {showPerpetual && (
-        <ExpertPickerSection
-          form={form}
-          setSelectedRunnerId={props.setSelectedRunnerId}
-          initialExpertSlug={initialExpertSlug}
-        />
-      )}
-
-      <WorkerCreateStepper steps={stepDefs} current={step} onChange={setStep} />
-
-      <div className="rounded-lg border border-border bg-card p-4 shadow-xs md:p-5">
-        {step === 1 && <WorkerStepRuntimePanel {...panelProps} />}
-        {step === 2 && agentReady && <WorkerStepCapabilitiesPanel {...panelProps} />}
-        {step === 3 && agentReady && <WorkerStepAgentPanel {...panelProps} />}
-
-        <WorkerCreateStepNav
-          step={step}
-          canNext={canNext}
-          onBack={() => setStep((s) => (s > 1 ? ((s - 1) as WorkerCreateStepId) : s))}
-          onNext={() => setStep((s) => (s < 3 ? ((s + 1) as WorkerCreateStepId) : s))}
-          t={t}
-        />
-      </div>
-
-      {agentReady && (
-        <WorkerMoreOptionsSection t={t}>
-          <AdvancedFormSection
-            form={form}
-            configFields={props.configFields}
-            loadingConfig={props.loadingConfig}
-            configValues={props.configValues}
-            handleConfigChange={props.handleConfigChange}
-          />
-        </WorkerMoreOptionsSection>
-      )}
-
-      {form.error && (
-        <div
-          role="alert"
-          aria-live="assertive"
-          className="rounded-md border border-destructive/30 bg-destructive/10 p-3"
-        >
-          <p className="text-sm text-destructive">{form.error}</p>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+        {/* Left Column: Stepper (shown vertically on md+, horizontally on mobile) */}
+        <div className="w-full md:w-64 md:shrink-0">
+          <div className="block md:hidden">
+            <WorkerCreateStepper
+              steps={stepDefs}
+              current={step}
+              onChange={setStep}
+              orientation="horizontal"
+            />
+          </div>
+          <div className="hidden md:block md:sticky md:top-6">
+            <WorkerCreateStepper
+              steps={stepDefs}
+              current={step}
+              onChange={setStep}
+              orientation="vertical"
+            />
+          </div>
         </div>
-      )}
+
+        {/* Right Column: Form Panel, Navigation, Advanced Options, and Error */}
+        <div className="flex-1 min-w-0 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-4 shadow-xs md:p-5">
+            {step === 1 && <WorkerStepRuntimePanel {...panelProps} />}
+            {step === 2 && agentReady && <WorkerStepCapabilitiesPanel {...panelProps} />}
+            {step === 3 && agentReady && <WorkerStepAgentPanel {...panelProps} />}
+
+            <WorkerCreateStepNav
+              step={step}
+              canNext={canNext}
+              onBack={() => setStep((s) => (s > 1 ? ((s - 1) as WorkerCreateStepId) : s))}
+              onNext={() => setStep((s) => (s < 3 ? ((s + 1) as WorkerCreateStepId) : s))}
+              t={t}
+            />
+          </div>
+
+          {agentReady && (
+            <WorkerMoreOptionsSection t={t}>
+              <AdvancedFormSection form={form} />
+            </WorkerMoreOptionsSection>
+          )}
+
+          {form.error && (
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="rounded-md border border-destructive/30 bg-destructive/10 p-3"
+            >
+              <p className="text-sm text-destructive">{form.error}</p>
+            </div>
+          )}
+
+          {actions}
+        </div>
+      </div>
     </div>
   );
 }

@@ -54,7 +54,7 @@ export default function Home() {
     name: "Do Worker",
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Web, Linux, macOS, Windows",
-    description: "Do Worker is the agent workforce platform for ambitious teams. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
+    description: "Do Worker is an enterprise AI agent workforce platform for deploying, governing, and auditing coding agents inside your own infrastructure.",
     alternateName: ["AgentMesh", "Agents Mesh"],
     url: "https://agentsmesh.ai",
     offers: {
@@ -63,7 +63,7 @@ export default function Home() {
       priceCurrency: "USD",
       description: "Free tier available",
     },
-    keywords: "agentsmesh, agent workforce platform, AI agent team, agent collaboration, multi-agent orchestration, team productivity, AI coding agents, agent management",
+    keywords: "agentsmesh, enterprise AI agent platform, self-hosted AI agents, AI agent governance, coding agent orchestration, agent audit logs, private deployment, AI coding agents, agent management",
     publisher: {
       "@type": "Organization",
       name: "Do Worker",

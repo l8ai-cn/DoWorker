@@ -256,11 +256,11 @@ func startMarketplaceWorker(services *serviceContainer) func() {
 	}
 }
 
-func startKnowledgeBaseSyncWorker(services *serviceContainer, cfg *config.Config) func() {
-	worker := knowledgebaseservice.NewSyncWorker(services.knowledgeBase, cfg.KnowledgeBase.SyncInterval)
+func startKnowledgeBaseSyncWorker(services *serviceContainer) func() {
+	worker := services.kbSyncWorker
 	if worker != nil {
 		worker.Start(context.Background())
-		slog.Info("KnowledgeBase SyncWorker started", "interval", cfg.KnowledgeBase.SyncInterval)
+		slog.Info("KnowledgeBase SyncWorker started")
 	}
 	return func() {
 		if worker != nil {

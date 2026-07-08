@@ -16,6 +16,7 @@ import {
   forkSession,
   getSession,
   getSessionSlim,
+  importCodexSession,
   interrupt,
   listRunners,
   openSessionStream,
@@ -43,6 +44,62 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+describe("importCodexSession", () => {
+  it("POSTs source_path + agent_id (snake_case) and parses the wrapped response", async () => {
+    fetchMock.mockResolvedValueOnce(
+      mockJsonResponse({
+        session: {
+          id: "conv_imported",
+          agent_id: "agent_xyz",
+          status: "idle",
+          created_at: 1704067200,
+          items: [],
+        },
+        source_kind: "codex_rollout",
+        source_id: "019f40af-abcd",
+        item_count: 42,
+      }),
+    );
+
+    const result = await importCodexSession("/tmp/rollout.jsonl", "agent_xyz", {
+      title: "My migration",
+    });
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("/v1/sessions/import");
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body as string)).toEqual({
+      source_path: "/tmp/rollout.jsonl",
+      agent_id: "agent_xyz",
+      title: "My migration",
+    });
+    expect(result.session.id).toBe("conv_imported");
+    expect(result.sourceKind).toBe("codex_rollout");
+    expect(result.sourceId).toBe("019f40af-abcd");
+    expect(result.itemCount).toBe(42);
+  });
+
+  it("omits optional title/host_id when not provided", async () => {
+    fetchMock.mockResolvedValueOnce(
+      mockJsonResponse({
+        session: { id: "conv_x", agent_id: "a", status: "idle", created_at: 1, items: [] },
+        source_kind: "codex_output_dir",
+        source_id: "output_x",
+        item_count: 2,
+      }),
+    );
+
+    await importCodexSession("/tmp/output_x", "a");
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const sent = JSON.parse(init.body as string);
+    expect(sent).toEqual({ source_path: "/tmp/output_x", agent_id: "a" });
+    expect("title" in sent).toBe(false);
+    expect("host_id" in sent).toBe(false);
+  });
 });
 
 describe("createSession", () => {

@@ -8,10 +8,10 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts: ["agentsmesh.aiedulab.cn"]
-      secretName: aiedulab-wildcard-tls
+    - hosts: ["doworker.l8an.cn"]
+      secretName: l8an-wildcard-tls
   rules:
-    - host: agentsmesh.aiedulab.cn
+    - host: doworker.l8an.cn
       http:
         paths:
           - path: /api
@@ -53,10 +53,10 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts: ["agentsmesh-admin.aiedulab.cn"]
-      secretName: aiedulab-wildcard-tls
+    - hosts: ["admin.doworker.l8an.cn"]
+      secretName: l8an-wildcard-tls
   rules:
-    - host: agentsmesh-admin.aiedulab.cn
+    - host: admin.doworker.l8an.cn
       http:
         paths:
           - path: /
@@ -80,10 +80,10 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts: ["agentsmesh.aiedulab.cn"]
-      secretName: aiedulab-wildcard-tls
+    - hosts: ["doworker.l8an.cn"]
+      secretName: l8an-wildcard-tls
   rules:
-    - host: agentsmesh.aiedulab.cn
+    - host: doworker.l8an.cn
       http:
         paths:
           - path: /relay(/|$)(.*)
@@ -170,10 +170,10 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts: ["agentsmesh-minio.aiedulab.cn"]
-      secretName: aiedulab-wildcard-tls
+    - hosts: ["minio.doworker.l8an.cn"]
+      secretName: l8an-wildcard-tls
   rules:
-    - host: agentsmesh-minio.aiedulab.cn
+    - host: minio.doworker.l8an.cn
       http:
         paths:
           - path: /

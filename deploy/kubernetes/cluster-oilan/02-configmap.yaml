@@ -4,8 +4,8 @@ metadata:
   name: agentsmesh-config
   namespace: agentsmesh
 data:
-  PRIMARY_DOMAIN: "agentsmesh.aiedulab.cn"
-  USE_HTTPS: "true"
+  PRIMARY_DOMAIN: "doworker.l8an.cn:10007"
+  USE_HTTPS: "false"
 
   DB_HOST: "postgres"
   DB_PORT: "5432"
@@ -17,7 +17,7 @@ data:
 
   SERVER_ADDRESS: ":8080"
   GRPC_ADDRESS: ":9090"
-  GRPC_PUBLIC_ENDPOINT: "grpc://agentsmesh.aiedulab.cn:9443"
+  GRPC_PUBLIC_ENDPOINT: "grpc://doworker.l8an.cn:10001"
   DEBUG: "false"
   CORS_ALLOWED_ORIGINS: "*"
   LOG_LEVEL: "info"
@@ -28,7 +28,7 @@ data:
 
   # Object storage: in-cluster MinIO for the SDK, public host for presigned URLs.
   STORAGE_ENDPOINT: "minio:9000"
-  STORAGE_PUBLIC_ENDPOINT: "agentsmesh-minio.aiedulab.cn"
+  STORAGE_PUBLIC_ENDPOINT: "minio.doworker.l8an.cn:10007"
   STORAGE_REGION: "us-east-1"
   STORAGE_BUCKET: "agentsmesh"
   STORAGE_ACCESS_KEY: "minioadmin"

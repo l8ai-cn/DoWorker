@@ -37,6 +37,13 @@ impl ApiClient {
         connect_call(self, &format!("{SVC}/UpdateKnowledgeBase"), req).await
     }
 
+    pub async fn sync_knowledge_base_connect(
+        &self,
+        req: &kb::SyncKnowledgeBaseRequest,
+    ) -> Result<kb::KnowledgeBase, ApiError> {
+        connect_call(self, &format!("{SVC}/SyncKnowledgeBase"), req).await
+    }
+
     pub async fn delete_knowledge_base_connect(
         &self,
         req: &kb::DeleteKnowledgeBaseRequest,

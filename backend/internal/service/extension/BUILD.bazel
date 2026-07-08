@@ -21,6 +21,7 @@ go_library(
         "skill_importer_scan.go",
         "skill_importer_stale.go",
         "skill_packager.go",
+        "skill_packager_dir.go",
         "skill_packager_install.go",
         "skill_syncer.go",
     ],

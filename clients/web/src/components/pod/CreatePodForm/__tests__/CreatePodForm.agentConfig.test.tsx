@@ -11,6 +11,7 @@ import {
   mockAgent,
   mockRepository,
   clearAllMocks,
+  pickSelectOption,
 } from "./test-utils";
 
 vi.mock("../../hooks", () => ({
@@ -148,8 +149,10 @@ describe("CreatePodForm - Agent Configuration", () => {
     it("lists every credential-kind bundle as a select option", () => {
       setupAgentSelectedState();
       render(<CreatePodForm config={workspaceConfig} />);
-      const select = screen.getByLabelText("ide.createPod.selectCredential") as HTMLSelectElement;
-      const options = Array.from(select.options).map((o) => o.value);
+      fireEvent.click(screen.getByLabelText("ide.createPod.selectCredential"));
+      const options = screen
+        .getAllByRole("option")
+        .map((el) => el.getAttribute("data-option-value") ?? "");
       expect(options).toContain("My Credentials");
       expect(options).toContain("Default Creds");
       // Runtime bundles should NOT appear in the credential dropdown.
@@ -159,9 +162,7 @@ describe("CreatePodForm - Agent Configuration", () => {
     it("calls setSelectedCredentialName when a credential is picked", () => {
       const { mockSetSelectedCredentialName } = setupAgentSelectedState();
       render(<CreatePodForm config={workspaceConfig} />);
-      fireEvent.change(screen.getByLabelText("ide.createPod.selectCredential"), {
-        target: { value: "My Credentials" },
-      });
+      pickSelectOption("ide.createPod.selectCredential", "My Credentials");
       expect(mockSetSelectedCredentialName).toHaveBeenCalledWith("My Credentials");
     });
 

@@ -25,9 +25,9 @@ spec:
             - name: NODE_ENV
               value: "production"
             - name: PRIMARY_DOMAIN
-              value: "agentsmesh.aiedulab.cn"
+              value: "doworker.l8an.cn:10007"
             - name: USE_HTTPS
-              value: "true"
+              value: "false"
           readinessProbe:
             tcpSocket:
               port: 3001

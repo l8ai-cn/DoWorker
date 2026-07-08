@@ -100,6 +100,7 @@ type serviceContainer struct {
 	blockstore        *blockstoreservice.Service
 	grant             *grantservice.Service
 	knowledgeBase     *knowledgebaseservice.Service
+	kbSyncWorker      *knowledgebaseservice.SyncWorker
 	imBridge          *imbridgesvc.Bridge
 
 	notifDispatcher *notifService.Dispatcher
@@ -215,6 +216,10 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 	licenseSvc := initializeLicenseService(cfg, db)
 	extSvc, extRepo, skillImp, mktWorker := initializeExtensionServices(cfg, db)
 	knowledgeBaseSvc := initializeKnowledgeBaseService(cfg, db)
+	var kbSyncWorker *knowledgebaseservice.SyncWorker
+	if knowledgeBaseSvc != nil {
+		kbSyncWorker = knowledgebaseservice.NewSyncWorker(knowledgeBaseSvc, cfg.KnowledgeBase.SyncInterval)
+	}
 
 	notifPrefRepo := infra.NewNotificationPreferenceRepository(db)
 	notifPrefStore := notifService.NewPreferenceStore(notifPrefRepo)
@@ -286,6 +291,7 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 		blockstore:         blockstoreSvc,
 		grant:              grantSvc,
 		knowledgeBase:      knowledgeBaseSvc,
+		kbSyncWorker:       kbSyncWorker,
 		imBridge:           imBridgeBridge,
 		podRepo:            podRepo,
 		runnerRepo:         runnerRepo,

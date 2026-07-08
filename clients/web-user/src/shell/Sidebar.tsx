@@ -19,6 +19,7 @@ import {
   CheckIcon as CheckMarkIcon,
   ChevronRightIcon,
   CircleStopIcon,
+  DownloadIcon,
   FolderIcon,
   FolderInputIcon,
   FolderMinusIcon,
@@ -110,6 +111,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { showToast } from "@/components/ui/toast";
 import { PermissionsModal } from "@/components/PermissionsModal";
+import { ImportCodexDialog } from "@/shell/ImportCodexDialog";
 import { SessionStateBadge } from "@/components/SessionStateBadge";
 import { DoWorkerLogo } from "@/components/icons/DoWorkerLogo";
 import { useSessionRunnerOnline } from "@/hooks/RunnerHealthProvider";
@@ -253,6 +255,7 @@ export function Sidebar({ open, onClose, dragProgress = null }: SidebarProps) {
   const [pinnedConversationIds, setPinnedConversationIds] = useState(readPinnedConversationIds);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [importCodexOpen, setImportCodexOpen] = useState(false);
 
   const lastSelectedIdRef = useRef<string | null>(null);
   const getVisibleIdsRef = useRef<() => string[]>(() => []);
@@ -530,6 +533,19 @@ export function Sidebar({ open, onClose, dragProgress = null }: SidebarProps) {
                 {t.shell.newSession}
               </Link>
             </Button>
+            {/* "Import from Codex" migrates a local Codex conversation record
+            (rollout .jsonl or workflow output_* dir) into a new Worker and
+            opens it so the migrated history is viewable. */}
+            <Button
+              className="mt-1 w-full justify-start gap-2 text-sm"
+              variant="ghost"
+              data-testid="import-codex-button"
+              onClick={() => setImportCodexOpen(true)}
+            >
+              <DownloadIcon className="size-4 text-foreground" />
+              Import from Codex
+            </Button>
+            <ImportCodexDialog open={importCodexOpen} onOpenChange={setImportCodexOpen} />
             {selectionMode ? (
               <BulkActionBar
                 selectedIds={selectedIds}

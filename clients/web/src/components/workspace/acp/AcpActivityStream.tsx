@@ -141,7 +141,7 @@ function UserInstruction({ text }: { text: string }) {
 function AssistantOutput({ text, complete }: { text: string; complete: boolean }) {
   return (
     <div className="py-1">
-      <Markdown content={text} compact />
+      <Markdown content={text} compact enableMedia mediaStreaming={!complete} />
       {!complete && <StreamingCaret />}
     </div>
   );

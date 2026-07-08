@@ -59,6 +59,18 @@ impl WasmKnowledgeBaseService {
         Ok(resp.encode_to_vec())
     }
 
+    #[wasm_bindgen(js_name = syncKnowledgeBaseConnect)]
+    pub async fn sync_knowledge_base_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+        let req = kb::SyncKnowledgeBaseRequest::decode(request)
+            .map_err(|e| format!("decode SyncKnowledgeBaseRequest: {e}"))?;
+        let resp = self
+            .client_ref()
+            .sync_knowledge_base_connect(&req)
+            .await
+            .map_err(agentsmesh_services::wire)?;
+        Ok(resp.encode_to_vec())
+    }
+
     #[wasm_bindgen(js_name = deleteKnowledgeBaseConnect)]
     pub async fn delete_knowledge_base_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
         let req = kb::DeleteKnowledgeBaseRequest::decode(request)

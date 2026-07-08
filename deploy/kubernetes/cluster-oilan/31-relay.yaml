@@ -27,13 +27,13 @@ spec:
             - name: BACKEND_URL
               value: "http://backend:8080"
             - name: PRIMARY_DOMAIN
-              value: "agentsmesh.aiedulab.cn"
+              value: "doworker.l8an.cn:10007"
             - name: USE_HTTPS
-              value: "true"
+              value: "false"
             - name: RELAY_ID
               value: "k8s-relay-1"
             - name: RELAY_REGION
-              value: "cluster-114"
+              value: "cluster-oilan"
             - name: RELAY_CAPACITY
               value: "1000"
             - name: SESSION_KEEP_ALIVE_DURATION

@@ -11,23 +11,23 @@
       "download": "下载"
     },
     "hero": {
-      "badge": "AI Agent 团队管理平台",
-      "title1": "基于终端的",
-      "title2": "编程智能体",
-      "title3": "协作平台",
-      "slogan1": "五个人的团队，",
-      "slogan2": "五十个人的产出。",
-      "tagline": "为有雄心的团队打造的 AI Agent 团队管理平台",
-      "description": "给每个团队成员配一支 AI Agent 团队。分配任务、追踪进度、让它们自主协作——数据始终留在你的基础设施内。",
-      "getStartedFree": "开始组建你的团队",
+      "badge": "企业级 AI Agent 工作平台",
+      "title1": "把 AI Agent",
+      "title2": "部署进你的",
+      "title3": "研发体系",
+      "slogan1": "代码留在本地，",
+      "slogan2": "交付统一管控。",
+      "tagline": "面向企业研发团队的 AI Agent 调度、协作与治理平台",
+      "description": "在你的云、机房或内网中运行 AI Agent。统一分配任务、隔离执行环境、审计交付过程，让团队安全地把 Agent 用到真实生产研发流程中。",
+      "getStartedFree": "预约企业演示",
       "viewDocs": "观看演示",
       "signInConsole": "登录控制台",
       "enterpriseNote": "需要私有部署？",
       "contactUs": "联系我们",
-      "trustedBy": "受全球团队信赖",
-      "teams": "不断增长的团队",
-      "pods": "数千个 Pod",
-      "openSource": "开源项目"
+      "trustedBy": "为企业研发场景打造",
+      "teams": "统一团队管控",
+      "pods": "隔离执行环境",
+      "openSource": "可自托管部署"
     },
     "agentLogos": {
       "title": "兼容你团队已在使用的 Agent",
@@ -43,25 +43,25 @@
       }
     },
     "paradigmShift": {
-      "title": "一个人变快了，",
-      "titleHighlight": "不等于整个团队变快了。",
-      "punchline": "个体提效已经到顶。下一站，是组织提效。",
+      "title": "试用 AI 很容易，",
+      "titleHighlight": "规模化落地才是难题。",
+      "punchline": "Do Worker 把零散 Agent 变成可管理、可审计、可扩展的企业生产力。",
       "before": {
-        "label": "个体提效",
+        "label": "单点试用",
         "items": {
-          "0": "个人效率 ×10，团队产出 ×1",
-          "1": "每人一个 Agent，各干各的",
-          "2": "上下文锁死在个人会话里",
-          "3": "工具越多，管理越混乱"
+          "0": "每个人各自接入不同 Agent",
+          "1": "代码权限、密钥和上下文分散在个人机器上",
+          "2": "任务过程不可追踪，结果难以复盘",
+          "3": "安全、成本和交付质量都靠人工兜底"
         }
       },
       "after": {
-        "label": "组织提效",
+        "label": "企业生产体系",
         "items": {
-          "0": "个人效率 ×10，团队产出 ×50",
-          "1": "每人一支 Agent 小队，协同作战",
-          "2": "上下文实时共享，全局可见",
-          "3": "一个平台统管，零额外开销"
+          "0": "Agent 统一注册、调度和权限控制",
+          "1": "每个任务都有隔离环境、分支和交付记录",
+          "2": "团队上下文集中沉淀，过程实时可见",
+          "3": "从试点到部门级推广都有治理闭环"
         }
       }
     },
@@ -111,84 +111,84 @@
       }
     },
     "coreFeatures": {
-      "title": "不是副驾驶。",
-      "titleHighlight": "是团队。",
-      "description": "五大能力，把 AI Agent 从单兵工具变成协作团队。",
+      "title": "不是把 Agent 放进群里。",
+      "titleHighlight": "是放进制度里。",
+      "description": "五大能力，把 AI Agent 纳入企业研发的权限、环境、协作、任务和审计体系。",
       "agentpod": {
-        "title": "每个 Agent 都有工位，秒级就绪。",
+        "title": "每个 Agent 都在隔离工位中执行。",
         "subtitle": "AgentPod",
-        "description": "按需启动隔离开发环境。每个 Agent 拥有独立的 Git 仓库、终端和完整开发工具。手机或笔记本都能巡查整个工位。",
+        "description": "按任务启动独立开发环境。每个 Agent 拥有专属 Git Worktree、终端和工具链，权限边界清晰，执行过程可巡查、可复盘。",
         "highlights": {
-          "0": "30 秒上岗——从零到开始编码",
-          "1": "浏览器终端，任何设备可用",
-          "2": "每个 Agent 独立 Git Worktree——互不冲突",
-          "3": "数十个 Agent 同时运行",
-          "4": "任务完成后自动清理"
+          "0": "按需创建隔离工作区",
+          "1": "浏览器终端，随时查看执行现场",
+          "2": "独立 Git Worktree，避免互相覆盖",
+          "3": "并发运行多个 Agent，统一纳管",
+          "4": "任务结束后自动清理环境"
         }
       },
       "agentsmesh": {
-        "title": "它们之间自己沟通，不需要你传话。",
+        "title": "跨 Agent 协作进入统一控制面。",
         "subtitle": "Do Worker",
-        "description": "Agent 互相观察彼此的工作、通过频道共享上下文、自行协调。它们自动发现队友、协商权限，工作量大了还会自己拉新人入场。",
+        "description": "Agent 可以互相观察工作进展、通过频道共享上下文，并在权限约束下协同推进任务。团队负责人始终能看到谁在做什么、为什么这么做。",
         "highlights": {
-          "0": "Agent 实时观察彼此的终端",
+          "0": "实时观察 Agent 终端和上下文",
           "1": "频道消息支持 @提及和上下文共享",
-          "2": "自动发现——Agent 自己寻找和招募同伴",
-          "3": "实时拓扑图展示所有 Agent 连接",
-          "4": "权限管控——只读观察或完整控制"
+          "2": "协作关系清晰记录，便于复盘",
+          "3": "拓扑图展示所有 Agent 连接",
+          "4": "权限管控，支持只读观察或授权控制"
         }
       },
       "tickets": {
-        "title": "写个任务，活就开始干了。",
+        "title": "任务从创建到交付都有记录。",
         "subtitle": "任务",
-        "description": "把任务往看板一放，Agent 自动认领、拉分支、写代码、提 MR。你负责审查，它负责交付。就这么简单。",
+        "description": "把需求、缺陷或例行工作放入看板，Agent 按任务启动环境、拉分支、执行变更并提交 MR。负责人审查结果，平台保留完整过程。",
         "highlights": {
-          "0": "任务自动成为 Agent 的指令",
-          "1": "Agent 自主将史诗拆解为子任务",
+          "0": "任务自动转化为 Agent 指令",
+          "1": "复杂工作可拆解为子任务推进",
           "2": "MR/PR 关联任务，实时显示 CI 状态",
-          "3": "看板追踪完整生命周期——从待办到交付",
-          "4": "Git Webhook 自动闭环"
+          "3": "看板追踪从待办到交付的完整生命周期",
+          "4": "Git Webhook 自动同步交付状态"
         }
       },
       "runners": {
-        "title": "代码不出大楼。",
+        "title": "代码、密钥和数据不出你的边界。",
         "subtitle": "自托管集群",
-        "description": "想部署在哪就部署在哪——你的云、你的机房、你桌子底下都行。代码不外泄，数据零暴露。",
+        "description": "Runner 部署在你的云、机房或内网机器中，Agent 在本地执行任务。代码仓库、模型 Key、日志和产物都由你的基础设施承载。",
         "highlights": {
-          "0": "Docker / Kubernetes 一键部署",
-          "1": "数据完全自主可控",
-          "2": "支持离线环境",
-          "3": "完整审计日志"
+          "0": "支持 Docker / Kubernetes 部署",
+          "1": "代码与数据留在自有基础设施",
+          "2": "适配内网和离线环境",
+          "3": "完整审计日志，满足合规要求"
         }
       },
       "scheduledTasks": {
-        "title": "你的代码库有 7×24 运维团队了。",
+        "title": "例行研发工作自动排班执行。",
         "subtitle": "LOOP",
-        "description": "代码审查、依赖更新、安全扫描、测试运行——排好班，自动执行。设置一次，Agent 团队替你守夜。",
+        "description": "代码审查、依赖更新、安全扫描、测试运行等重复工作可以按计划触发。执行结果、日志和差异统一留档。",
         "highlights": {
-          "0": "Cron 风格调度，适用于任何任务",
+          "0": "Cron 风格调度，适用于例行任务",
           "1": "自动创建分支并提交 MR",
-          "2": "完成或失败时 Slack/Webhook 通知",
-          "3": "完整历史记录，含日志和差异",
-          "4": "多个 Agent 串联成工作流"
+          "2": "完成或失败时通过 Slack/Webhook 通知",
+          "3": "完整历史记录，包含日志和差异",
+          "4": "多个 Agent 可串联成标准工作流"
         }
       }
     },
     "howItWorks": {
-      "title": "三分钟组建你的",
-      "titleHighlight": "Agent 团队",
-      "description": "从安装到第一个 Agent 开工——比你上一次站会还快。",
+      "title": "三步把 Agent 纳入",
+      "titleHighlight": "企业研发流程",
+      "description": "从基础设施部署到权限接入，再到任务交付审计，按企业落地路径推进。",
       "step1": {
-        "title": "部署集群",
-        "description": "在任意机器上安装——云端或本地，一条命令搞定。"
+        "title": "部署到你的基础设施",
+        "description": "在云主机、内网服务器或 Kubernetes 集群中安装 Runner，让 Agent 在你的边界内运行。"
       },
       "step2": {
-        "title": "分配工作",
-        "description": "创建工作站、写任务、设定计划，Agent 立刻开工。"
+        "title": "接入代码库与权限",
+        "description": "配置组织、仓库、密钥和访问策略，为不同团队建立可控的 Agent 工作空间。"
       },
       "step3": {
-        "title": "看它们交付",
-        "description": "浏览器里追踪进度，审查 MR，准备好了就合并。"
+        "title": "分配任务并审计交付",
+        "description": "通过看板和工作台跟踪执行过程，审查 MR、日志和差异，确认后再合并上线。"
       }
     },
     "enterprise": {
@@ -235,9 +235,9 @@
       }
     },
     "pricing": {
-      "title": "扩大团队，",
-      "titleHighlight": "而不是预算。",
-      "description": "自带 API Key，按平台付费而非按 Token 计费，无使用量限制。",
+      "title": "按团队规模扩展，",
+      "titleHighlight": "按治理要求部署。",
+      "description": "支持自带模型 API Key，也支持完整私有化部署。企业可以先从团队试点开始，再逐步扩展到部门级 Agent 平台。",
       "mostPopular": "最受欢迎",
       "annualDiscount": "年付省20%",
       "perSeat": "/席位",
@@ -251,7 +251,7 @@
       "based": {
         "name": "基础版",
         "badge": "30天免费试用",
-        "description": "一个人起步，看看一个 Agent 能做什么。",
+        "description": "适合个人或小团队验证 Agent 工作流。",
         "features": {
           "0": "1 个席位（单人模式）",
           "1": "5 个并发 Agent",
@@ -263,7 +263,7 @@
       },
       "pro": {
         "name": "专业版",
-        "description": "你的第一支 Agent 团队。5 个席位，10 个 Agent 并行。",
+        "description": "适合研发小组建立第一套 Agent 协作流程。",
         "features": {
           "0": "最多 5 个席位",
           "1": "10 个并发 Agent",
@@ -276,7 +276,7 @@
       },
       "enterprise": {
         "name": "Team",
-        "description": "部门级规模。50 个席位各自带着 Agent 小队。",
+        "description": "适合部门级推广，统一管理席位、仓库和并发 Agent。",
         "features": {
           "0": "最多 50 个席位",
           "1": "50 个并发 Agent",
@@ -290,7 +290,7 @@
         "name": "OnPremise",
         "price": "商务报价",
         "period": "联系我们",
-        "description": "完全私有部署。你的基础设施，你的规则。",
+        "description": "完整私有化部署。代码、数据、密钥和执行日志都留在你的基础设施内。",
         "features": {
           "0": "无限席位",
           "1": "无限 Agent",
@@ -302,7 +302,7 @@
         },
         "cta": "联系销售"
       },
-      "footer": "所有方案均支持 BYOK（自带 API Key）——使用您自己的 AI API Key，无使用量限制。",
+      "footer": "所有方案均支持 BYOK（自带 API Key）。私有化部署可按你的安全、合规和网络边界要求交付。",
       "customPlan": "需要私有部署？",
       "contactUs": "联系我们"
     },
@@ -310,7 +310,7 @@
       "title": "需要完整的",
       "titleHighlight": "自托管",
       "titleEnd": "部署？",
-      "description": "代码和数据始终留在你的基础设施内。完全私有化部署 Do Worker——适合对安全和合规有严格要求的组织。",
+      "description": "代码、数据、模型 Key 和 Agent 执行日志始终留在你的基础设施内。Do Worker 适合对安全、合规、网络隔离和审计有严格要求的组织。",
       "dockerCompose": "Docker Compose",
       "kubernetesHelm": "Kubernetes Helm（即将推出）",
       "airGappedSupport": "离线环境支持（即将推出）",
@@ -320,10 +320,10 @@
       "saasRegister": "免费注册"
     },
     "finalCta": {
-      "title1": "你的团队即将",
-      "title2": "大幅扩编。",
-      "description": "从一个 Agent 开始，扩展到五十个。免费起步，无需信用卡。",
-      "getStartedFree": "开始组建团队",
+      "title1": "把 Agent 变成",
+      "title2": "可治理的生产力。",
+      "description": "从一个团队试点开始，逐步扩展为企业级 Agent 工作平台。私有可控、过程可见、结果可审计。",
+      "getStartedFree": "预约企业演示",
       "scheduleDemo": "和我们聊聊",
       "signInConsole": "登录控制台",
       "enterpriseNote": "需要私有部署？",
@@ -398,16 +398,16 @@
       }
     },
     "demoVideo": {
-      "title": "看看你的未来团队",
-      "titleHighlight": "如何工作",
-      "description": "两分钟。从任务到合并请求——全程自主完成。",
+      "title": "看看企业级 Agent 工作流",
+      "titleHighlight": "如何落地",
+      "description": "从任务分配到隔离执行，再到合并请求和审计记录，完整演示 Agent 如何进入研发流程。",
       "iframeTitle": "Do Worker 产品演示",
       "highlight1": "完整生命周期演示",
       "highlight2": "多 Agent 协作",
       "highlight3": "自主任务完成"
     },
     "footer": {
-      "tagline": "让团队的产出突破人数限制。",
+      "tagline": "让 AI Agent 安全进入企业研发流程。",
       "copyright": "Do Worker. 保留所有权利。",
       "madeWith": "为有雄心的团队而造",
       "product": {
@@ -445,7 +445,7 @@
     },
     "demo": {
       "title": "申请演示",
-      "subtitle": "看看 Do Worker 如何倍增你的团队产出。",
+      "subtitle": "了解 Do Worker 如何在你的基础设施内管理 Agent、任务和交付过程。",
       "nameLabel": "姓名",
       "namePlaceholder": "张三",
       "emailLabel": "工作邮箱",

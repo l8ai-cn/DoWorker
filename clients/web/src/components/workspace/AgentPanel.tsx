@@ -7,6 +7,7 @@ import { usePodStore } from "@/stores/pod";
 import { useAcpSessionField } from "@/stores/acpSession";
 import { usePodStatus } from "@/hooks";
 import { useAcpRelay } from "@/hooks/useAcpRelay";
+import { useMigratedSessionHydration } from "@/hooks/useMigratedSessionHydration";
 import { useTerminalStatus } from "@/hooks/useTerminalStatus";
 import { AgentPanelHeader } from "./AgentPanelHeader";
 import { RelayStatusOverlay } from "./RelayStatusOverlay";
@@ -58,6 +59,7 @@ export function AgentPanel({
 
   const shouldSubscribe = isPodReady || podStatus === "running";
   useAcpRelay(podKey, paneId, shouldSubscribe);
+  useMigratedSessionHydration(podKey, Boolean(podKey));
 
   const relayStatus = useTerminalStatus(podKey);
 

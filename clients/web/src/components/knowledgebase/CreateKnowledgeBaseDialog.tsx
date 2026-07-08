@@ -10,11 +10,29 @@ import {
 } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   createKnowledgeBase,
+  syncKnowledgeBase,
   type KnowledgeBase,
 } from "@/lib/api/facade/knowledgeBaseApi";
+import { SourceConfigFields } from "./SourceConfigFields";
+import {
+  KB_SOURCE_OPTIONS,
+  buildSourceConfigJson,
+  emptySourceConfig,
+  isExternalSource,
+  type KBSourceType,
+  type SourceConfigForm,
+  validateSourceConfig,
+} from "./sourceConfig";
 
 interface CreateKnowledgeBaseDialogProps {
   orgSlug: string;
@@ -31,20 +49,59 @@ export function CreateKnowledgeBaseDialog({
 }: CreateKnowledgeBaseDialogProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [sourceType, setSourceType] = useState<KBSourceType>("git");
+  const [sourceConfig, setSourceConfig] = useState<SourceConfigForm>({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const resetForm = () => {
+    setName("");
+    setDescription("");
+    setSourceType("git");
+    setSourceConfig({});
+    setError(null);
+  };
+
+  const handleSourceTypeChange = (next: KBSourceType) => {
+    setSourceType(next);
+    if (isExternalSource(next)) {
+      setSourceConfig(emptySourceConfig(next));
+    } else {
+      setSourceConfig({});
+    }
+  };
+
   const handleSubmit = async () => {
     if (!name.trim()) return;
+    if (isExternalSource(sourceType)) {
+      const validationError = validateSourceConfig(sourceType, sourceConfig);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+    }
+
     setSubmitting(true);
     setError(null);
     try {
       const kb = await createKnowledgeBase(orgSlug, {
         name: name.trim(),
         description: description.trim() || undefined,
+        sourceType: sourceType === "git" ? undefined : sourceType,
+        sourceConfigJson: isExternalSource(sourceType)
+          ? buildSourceConfigJson(sourceType, sourceConfig)
+          : undefined,
       });
-      setName("");
-      setDescription("");
+
+      if (isExternalSource(sourceType)) {
+        try {
+          await syncKnowledgeBase(orgSlug, kb.slug);
+        } catch {
+          // Create succeeded; first sync can be retried from detail page.
+        }
+      }
+
+      resetForm();
       onOpenChange(false);
       onCreated(kb);
     } catch (err) {
@@ -54,11 +111,19 @@ export function CreateKnowledgeBaseDialog({
     }
   };
 
+  const selectedSource = KB_SOURCE_OPTIONS.find((o) => o.value === sourceType);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) resetForm();
+        onOpenChange(next);
+      }}
+    >
       <DialogContent
         title="新建知识库"
-        description="将创建一个带 llms.txt / AGENTS.md / raw / wiki 标准布局的 Git 仓库。"
+        description="创建 Git 知识库，或绑定飞书/钉钉/Google 文档作为外部同步源。"
       >
         <DialogBody className="space-y-4">
           {error && (
@@ -85,6 +150,30 @@ export function CreateKnowledgeBaseDialog({
               rows={3}
             />
           </FormField>
+          <FormField label="数据源" htmlFor="kb-source-type">
+            <Select value={sourceType} onValueChange={(v) => handleSourceTypeChange(v as KBSourceType)}>
+              <SelectTrigger id="kb-source-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {KB_SOURCE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedSource && (
+              <p className="mt-1 text-xs text-muted-foreground">{selectedSource.description}</p>
+            )}
+          </FormField>
+          {isExternalSource(sourceType) && (
+            <SourceConfigFields
+              sourceType={sourceType}
+              value={sourceConfig}
+              onChange={setSourceConfig}
+            />
+          )}
         </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>

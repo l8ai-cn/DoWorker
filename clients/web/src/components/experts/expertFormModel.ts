@@ -1,5 +1,20 @@
 import type { KnowledgeMountSelection } from "@/lib/api/facade/knowledgeBaseApi";
-import { parseExpertKnowledgeMounts, type Expert } from "@/lib/api/expertApi";
+import {
+  parseExpertKnowledgeMounts,
+  type Expert,
+  type ExpertAvatarUpload,
+} from "@/lib/api/expertApi";
+
+/**
+ * A locally-selected avatar (形象) upload before it is committed. `contentBase64`
+ * is the raw base64 (no `data:` prefix) sent as the backend `content_base64`
+ * field; `previewUrl` is a full data URL used only for the on-page preview.
+ */
+export interface ExpertAvatarDraft {
+  filename: string;
+  contentBase64: string;
+  previewUrl: string;
+}
 
 export interface ExpertFormState {
   name: string;
@@ -17,6 +32,8 @@ export interface ExpertFormState {
   knowledgeMounts: KnowledgeMountSelection[];
   configOverrides: string;
   agentfileLayer: string;
+  avatar: ExpertAvatarDraft | null;
+  expertType: string;
 }
 
 export const EMPTY_EXPERT_FORM: ExpertFormState = {
@@ -35,6 +52,8 @@ export const EMPTY_EXPERT_FORM: ExpertFormState = {
   knowledgeMounts: [],
   configOverrides: "",
   agentfileLayer: "",
+  avatar: null,
+  expertType: "",
 };
 
 export function slugifyExpert(name: string): string {
@@ -68,6 +87,10 @@ export function expertToForm(e: Expert): ExpertFormState {
         ? JSON.stringify(e.config_overrides, null, 2)
         : "",
     agentfileLayer: e.agentfile_layer ?? "",
+    // Avatar bytes are not re-hydrated into the form; the existing repo-relative
+    // path lives in metadata. A draft is only set when the user picks a new file.
+    avatar: null,
+    expertType: e.metadata?.expertType ?? "",
   };
 }
 
@@ -98,6 +121,8 @@ export interface ExpertConfigPayload {
   knowledge_mounts: { slug: string; mode: string }[];
   config_overrides?: Record<string, unknown>;
   agentfile_layer?: string;
+  avatar?: ExpertAvatarUpload;
+  expert_type?: string;
 }
 
 export function buildExpertConfig(form: ExpertFormState): ExpertConfigPayload {
@@ -121,5 +146,9 @@ export function buildExpertConfig(form: ExpertFormState): ExpertConfigPayload {
     knowledge_mounts: form.knowledgeMounts.map((m) => ({ slug: m.slug, mode: m.mode })),
     config_overrides: configOverrides,
     agentfile_layer: form.agentfileLayer.trim() || undefined,
+    avatar: form.avatar
+      ? { filename: form.avatar.filename, content_base64: form.avatar.contentBase64 }
+      : undefined,
+    expert_type: form.expertType.trim() || undefined,
   };
 }

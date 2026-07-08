@@ -50,6 +50,11 @@ func (h *ExpertHandler) CreateExpert(c *gin.Context) {
 		apierr.ValidationError(c, err.Error())
 		return
 	}
+	avatar, err := validateAvatarInput(req.Avatar)
+	if err != nil {
+		apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
+		return
+	}
 	row, err := h.service.Create(c.Request.Context(), &expertSvc.CreateExpertRequest{
 		OrganizationID: tenant.OrganizationID, UserID: tenant.UserID,
 		Name: req.Name, Slug: req.Slug, Description: req.Description,
@@ -57,7 +62,7 @@ func (h *ExpertHandler) CreateExpert(c *gin.Context) {
 		BranchName: req.BranchName, Prompt: req.Prompt, InteractionMode: req.InteractionMode,
 		Perpetual: req.Perpetual, UsedEnvBundles: req.UsedEnvBundles, SkillSlugs: req.SkillSlugs,
 		KnowledgeMounts: req.KnowledgeMounts, ConfigOverrides: req.ConfigOverrides,
-		AgentfileLayer: req.AgentfileLayer,
+		AgentfileLayer: req.AgentfileLayer, Avatar: avatar, ExpertType: req.ExpertType,
 	})
 	if err != nil {
 		h.validationOrInternal(c, err)
@@ -78,6 +83,11 @@ func (h *ExpertHandler) UpdateExpert(c *gin.Context) {
 		apierr.ValidationError(c, err.Error())
 		return
 	}
+	avatar, err := validateAvatarInput(req.Avatar)
+	if err != nil {
+		apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
+		return
+	}
 	updated, err := h.service.Update(c.Request.Context(), &expertSvc.UpdateExpertRequest{
 		OrganizationID: tenant.OrganizationID, ExpertID: row.ID,
 		Name: req.Name, Description: req.Description, AgentSlug: req.AgentSlug,
@@ -85,7 +95,7 @@ func (h *ExpertHandler) UpdateExpert(c *gin.Context) {
 		Prompt: req.Prompt, InteractionMode: req.InteractionMode, Perpetual: req.Perpetual,
 		UsedEnvBundles: req.UsedEnvBundles, SkillSlugs: req.SkillSlugs,
 		KnowledgeMounts: req.KnowledgeMounts, ConfigOverrides: req.ConfigOverrides,
-		AgentfileLayer: req.AgentfileLayer,
+		AgentfileLayer: req.AgentfileLayer, Avatar: avatar, ExpertType: req.ExpertType,
 	})
 	if err != nil {
 		h.validationOrInternal(c, err)

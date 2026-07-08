@@ -18,6 +18,7 @@ import {
   ListKnowledgeBasesRequestSchema,
   ListKnowledgeBasesResponseSchema,
   SetAgentMountsRequestSchema,
+  SyncKnowledgeBaseRequestSchema,
   UpdateKnowledgeBaseRequestSchema,
   type KnowledgeBase as ProtoKnowledgeBase,
 } from "@proto/knowledgebase/v1/knowledgebase_pb";
@@ -39,6 +40,7 @@ export function fromProtoKnowledgeBase(p: ProtoKnowledgeBase): KnowledgeBase {
     http_clone_url: p.httpCloneUrl,
     default_branch: p.defaultBranch,
     source_type: p.sourceType,
+    source_config_json: p.sourceConfigJson || undefined,
     sync_status: p.syncStatus,
     sync_error: p.syncError,
     last_synced_at: p.lastSyncedAt,
@@ -81,16 +83,24 @@ export async function createKnowledgeBase(
 export async function updateKnowledgeBase(
   orgSlug: string,
   slug: string,
-  input: { name?: string; description?: string },
+  input: { name?: string; description?: string; sourceConfigJson?: string },
 ): Promise<KnowledgeBase> {
   const req = create(UpdateKnowledgeBaseRequestSchema, {
     orgSlug,
     slug,
     name: input.name,
     description: input.description,
+    sourceConfigJson: input.sourceConfigJson,
   });
   const bytes = toBinary(UpdateKnowledgeBaseRequestSchema, req);
   const respBytes = await getKnowledgeBaseService().updateKnowledgeBaseConnect(bytes);
+  return fromProtoKnowledgeBase(fromBinary(KnowledgeBaseSchema, new Uint8Array(respBytes)));
+}
+
+export async function syncKnowledgeBase(orgSlug: string, slug: string): Promise<KnowledgeBase> {
+  const req = create(SyncKnowledgeBaseRequestSchema, { orgSlug, slug });
+  const bytes = toBinary(SyncKnowledgeBaseRequestSchema, req);
+  const respBytes = await getKnowledgeBaseService().syncKnowledgeBaseConnect(bytes);
   return fromProtoKnowledgeBase(fromBinary(KnowledgeBaseSchema, new Uint8Array(respBytes)));
 }
 

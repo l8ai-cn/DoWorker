@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Plus, RefreshCw, Search, Bot } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { formatTimeAgo } from "@/lib/utils/time";
-import { ExpertEditDrawer } from "./ExpertEditDrawer";
 
 export function ExpertsSidebarContent({ className }: { className?: string }) {
   const t = useTranslations("experts");
@@ -24,7 +23,6 @@ export function ExpertsSidebarContent({ className }: { className?: string }) {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-  const [createOpen, setCreateOpen] = useState(false);
 
   useEffect(() => {
     if (currentOrg) fetchExperts();
@@ -68,7 +66,7 @@ export function ExpertsSidebarContent({ className }: { className?: string }) {
           size="sm"
           variant="outline"
           className="flex-1 h-7 text-xs gap-1"
-          onClick={() => setCreateOpen(true)}
+          onClick={() => router.push(`/${currentOrg?.slug}/experts/new`)}
         >
           <Plus className="w-3 h-3" />
           {t("createExpert")}
@@ -125,12 +123,6 @@ export function ExpertsSidebarContent({ className }: { className?: string }) {
           ))
         )}
       </div>
-
-      <ExpertEditDrawer
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        onSaved={(expert) => router.push(`/${currentOrg?.slug}/experts/${expert.slug}`)}
-      />
     </div>
   );
 }

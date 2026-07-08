@@ -10,6 +10,7 @@ export interface KnowledgeBase {
   http_clone_url: string;
   default_branch: string;
   source_type: string;
+  source_config_json?: string;
   sync_status: string;
   sync_error?: string;
   last_synced_at?: string;
@@ -48,6 +49,7 @@ export {
   getKnowledgeBase,
   createKnowledgeBase,
   updateKnowledgeBase,
+  syncKnowledgeBase,
   deleteKnowledgeBase,
   listKbAgentMounts,
   setKbAgentMounts,

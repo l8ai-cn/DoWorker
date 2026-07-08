@@ -14,7 +14,7 @@ export_coordinator_runner_env() {
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_FILES=docker-compose.yml,docker-compose.runners.yml
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,aider=runner-aider,opencode=runner-opencode"
     export COORDINATOR_RUNNER_BACKEND_URL=http://traefik:80
-    export COORDINATOR_RUNNER_GRPC_ENDPOINT="host.docker.internal:${BACKEND_GRPC_PORT}"
+    export COORDINATOR_RUNNER_GRPC_ENDPOINT="host.lan:${BACKEND_GRPC_PORT}"
     export COORDINATOR_RUNNER_RELAY_BASE_URL=ws://traefik:80/relay
     export COORDINATOR_RUNNER_ORG_SLUG=dev-org
     export COORDINATOR_RUNNER_DOCKER_SSL_HOST_PATH="$SCRIPT_DIR/ssl"

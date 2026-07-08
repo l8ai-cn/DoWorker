@@ -237,7 +237,7 @@ func mountKnowledgeBaseService(mux *http.ServeMux, svc *serviceContainer, opts [
 	if svc.knowledgeBase == nil {
 		return
 	}
-	srv := knowledgebaseconnect.NewServer(svc.knowledgeBase, svc.org)
+	srv := knowledgebaseconnect.NewServer(svc.knowledgeBase, svc.org, svc.kbSyncWorker)
 	knowledgebaseconnect.Mount(mux, srv, opts...)
 }
 

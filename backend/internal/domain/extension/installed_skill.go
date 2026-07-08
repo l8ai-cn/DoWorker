@@ -6,6 +6,9 @@ const (
 	InstallSourceMarket = "market"
 	InstallSourceGitHub = "github"
 	InstallSourceUpload = "upload"
+	// InstallSourceGitops marks a skill authored in-platform and backed by a
+	// gitops repo (namespace am-skills). Additive to the external-import set.
+	InstallSourceGitops = "gitops"
 )
 
 type InstalledSkill struct {

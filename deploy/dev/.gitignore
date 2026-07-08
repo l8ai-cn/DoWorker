@@ -4,3 +4,4 @@ ssl/
 ai-cli-configs/
 .env
 web.log
+secrets/

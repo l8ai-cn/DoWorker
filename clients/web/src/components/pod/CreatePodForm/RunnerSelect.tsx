@@ -1,5 +1,12 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 import type { Runner } from "@/stores/runner";
 
 interface RunnerSelectProps {
@@ -17,6 +24,11 @@ export function RunnerSelect({
   error,
   t,
 }: RunnerSelectProps) {
+  const selectedRunner = runners.find((r) => r.id === selectedRunnerId);
+  const triggerLabel = selectedRunner
+    ? `${selectedRunner.node_id} (${selectedRunner.current_pods}/${selectedRunner.max_concurrent_pods})`
+    : t("ide.createPod.runnerAutoSelect");
+
   return (
     <div>
       <label
@@ -25,27 +37,31 @@ export function RunnerSelect({
       >
         {t("ide.createPod.selectRunner")}
       </label>
-      <select
-        id="runner-select"
-        className={`w-full px-3 py-2 border rounded-md bg-background ${
-          error ? "border-destructive" : "border-border"
-        }`}
-        value={selectedRunnerId || ""}
-        onChange={(e) =>
-          onSelect(e.target.value ? Number(e.target.value) : null)
-        }
-        aria-invalid={!!error}
-        aria-describedby={
-          error ? "runner-error" : runners.length === 0 ? "runner-help" : undefined
-        }
+      <Select
+        value={selectedRunnerId ? String(selectedRunnerId) : ""}
+        onValueChange={(value) => onSelect(value ? Number(value) : null)}
       >
-        <option value="">{t("ide.createPod.runnerAutoSelect")}</option>
-        {runners.map((runner) => (
-          <option key={runner.id} value={runner.id}>
-            {runner.node_id} ({runner.current_pods}/{runner.max_concurrent_pods})
-          </option>
-        ))}
-      </select>
+        <SelectTrigger
+          id="runner-select"
+          aria-invalid={!!error}
+          aria-describedby={
+            error ? "runner-error" : runners.length === 0 ? "runner-help" : undefined
+          }
+          className={cn(error && "ring-destructive/60 focus:ring-destructive/40")}
+        >
+          <span className={cn(!selectedRunnerId && "text-muted-foreground")}>
+            {triggerLabel}
+          </span>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">{t("ide.createPod.runnerAutoSelect")}</SelectItem>
+          {runners.map((runner) => (
+            <SelectItem key={runner.id} value={String(runner.id)}>
+              {runner.node_id} ({runner.current_pods}/{runner.max_concurrent_pods})
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       {error && (
         <p id="runner-error" className="text-xs text-destructive mt-1">
           {error}

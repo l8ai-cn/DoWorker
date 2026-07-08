@@ -10,7 +10,7 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET="${DOOPS_TARGET:-gw-oilan-node}"
+TARGET="${DOOPS_TARGET:-gw-oilan}"
 SESSION="${DOOPS_SESSION:-$(doops session | tr -d '[:space:]')}"
 WS="/root/ws/${SESSION}"
 NS=agentsmesh
@@ -80,7 +80,7 @@ apply_all() {
   dexec "kubectl apply -f 00-namespace.yaml"
   for f in "${SEC}"/*.yaml; do apply_secret "${f}"; done
   echo "==> copy wildcard TLS into ${NS}"
-  dexec "kubectl get secret aiedulab-wildcard-tls -n default -o yaml | sed -e '/namespace:/d' -e '/resourceVersion:/d' -e '/uid:/d' -e '/creationTimestamp:/d' | kubectl apply -n ${NS} -f -"
+  dexec "kubectl get secret l8an-wildcard-tls -n default -o yaml | sed -e '/namespace:/d' -e '/resourceVersion:/d' -e '/uid:/d' -e '/creationTimestamp:/d' | kubectl apply -n ${NS} -f -"
   echo "==> apply workloads (kustomize)"
   dexec "kubectl apply -k ."
   echo "==> migrate (embedded), then seed + minio bucket"
@@ -102,4 +102,4 @@ gen_secrets
 push_manifests
 apply_all
 status
-echo "==> deployed. https://agentsmesh.aiedulab.cn (dev@agentsmesh.local / AdminAb123456)"
+echo "==> deployed. http://doworker.l8an.cn:10007 (dev@agentsmesh.local / AdminAb123456)"

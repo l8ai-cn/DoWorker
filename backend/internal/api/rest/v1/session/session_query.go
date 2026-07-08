@@ -58,6 +58,26 @@ func (d *Deps) handleGetSession(c *gin.Context) {
 	c.JSON(http.StatusOK, mergeSessionGet(item, d.sessionWire(row, pod, row.RunnerNodeID), pod))
 }
 
+func (d *Deps) handleGetSessionByPodKey(c *gin.Context) {
+	row, pod, ok := d.authorizeSessionByPodKey(c, c.Param("pod_key"))
+	if !ok {
+		return
+	}
+	tenant := middleware.GetTenant(c)
+	online := map[string]bool{}
+	if tenant != nil {
+		online = d.runnerOnlineMap(tenant.OrganizationID, tenant.UserID)
+	}
+	item := d.listItemFrom(row, pod, online)
+	d.enrichOwnership(c, row, &item)
+	if tenant != nil {
+		d.enrichReadState(tenant.UserID, row.ID, &item)
+	}
+	out := mergeSessionGet(item, d.sessionWire(row, pod, row.RunnerNodeID), pod)
+	out["pod_key"] = row.PodKey
+	c.JSON(http.StatusOK, out)
+}
+
 func (d *Deps) handlePatchSession(c *gin.Context) {
 	row, pod, ok := d.authorizeSession(c, c.Param("id"))
 	if !ok {

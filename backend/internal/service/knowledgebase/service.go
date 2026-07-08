@@ -124,11 +124,16 @@ func (s *Service) List(ctx context.Context, orgID int64, sourceType string) ([]*
 }
 
 type UpdateParams struct {
-	Name        *string
-	Description *string
+	Name         *string
+	Description  *string
+	SourceConfig json.RawMessage // partial or full; secrets blank/"***" preserve existing
 }
 
 func (s *Service) Update(ctx context.Context, orgID, id int64, p *UpdateParams) (*knowledgebase.KnowledgeBase, error) {
+	kb, err := s.repo.Get(ctx, orgID, id)
+	if err != nil {
+		return nil, err
+	}
 	updates := map[string]any{}
 	if p.Name != nil {
 		if strings.TrimSpace(*p.Name) == "" {
@@ -138,6 +143,20 @@ func (s *Service) Update(ctx context.Context, orgID, id int64, p *UpdateParams) 
 	}
 	if p.Description != nil {
 		updates["description"] = *p.Description
+	}
+	if len(p.SourceConfig) > 0 {
+		if kb.SourceType == knowledgebase.SourceTypeGit {
+			return nil, fmt.Errorf("%w: git knowledge bases have no external source_config", ErrInvalidInput)
+		}
+		merged, err := s.mergeSourceConfigUpdate(kb.SourceConfig, p.SourceConfig)
+		if err != nil {
+			return nil, err
+		}
+		encrypted, err := s.encryptSourceSecrets(merged)
+		if err != nil {
+			return nil, err
+		}
+		updates["source_config"] = encrypted
 	}
 	if len(updates) > 0 {
 		if err := s.repo.Update(ctx, orgID, id, updates); err != nil {

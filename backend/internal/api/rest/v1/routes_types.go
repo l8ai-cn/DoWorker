@@ -25,6 +25,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
 	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	skillSvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
 	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
 	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
 	"github.com/anthropics/agentsmesh/backend/internal/service/promocode"
@@ -124,6 +125,11 @@ type Services struct {
 	Coordinator *coordinatorservice.Service
 
 	Expert *expertSvc.Service
+
+	// Skill is the git-backed author-in-platform skill service (namespace
+	// am-skills). Nil when git-backing / packager is not configured; routes
+	// no-op. Additive to the external-import skill flow.
+	Skill *skillSvc.Service
 
 	IMBridge *imbridgesvc.Bridge
 

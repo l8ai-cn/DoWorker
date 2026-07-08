@@ -17,13 +17,7 @@ import {
   type KnowledgeBase,
 } from "@/lib/api/facade/knowledgeBaseApi";
 import { CreateKnowledgeBaseDialog } from "./CreateKnowledgeBaseDialog";
-
-const SOURCE_LABELS: Record<string, string> = {
-  git: "Git",
-  feishu: "飞书",
-  dingtalk: "钉钉",
-  google: "Google",
-};
+import { SOURCE_LABELS, SYNC_STATUS_LABELS, syncStatusVariant } from "./sourceConfig";
 
 export function KnowledgeBaseListPanel() {
   const params = useParams();
@@ -68,7 +62,7 @@ export function KnowledgeBaseListPanel() {
     <div className="flex h-full flex-col">
       <PageHeader
         title="知识库"
-        subtitle="Git 为底座的 llm-wiki 知识库，可只读或读写挂载到 Agent Pod"
+        subtitle="Git 为底座的 llm-wiki 知识库；可绑定飞书/钉钉/Google 文档同步，并挂载到 Agent Pod"
         actions={
           <Button size="sm" onClick={() => setShowCreate(true)}>
             <Plus className="mr-1 h-4 w-4" />
@@ -127,8 +121,8 @@ export function KnowledgeBaseListPanel() {
                   <Badge variant="secondary">{SOURCE_LABELS[kb.source_type] ?? kb.source_type}</Badge>
                   <span className="font-mono">{kb.slug}</span>
                   {kb.sync_status && kb.sync_status !== "idle" && (
-                    <Badge variant={kb.sync_status === "error" ? "destructive" : "outline"}>
-                      {kb.sync_status}
+                    <Badge variant={syncStatusVariant(kb.sync_status)}>
+                      {SYNC_STATUS_LABELS[kb.sync_status] ?? kb.sync_status}
                     </Badge>
                   )}
                 </div>

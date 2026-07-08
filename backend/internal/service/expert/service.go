@@ -9,6 +9,7 @@ import (
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 )
 
 type PodLoader interface {
@@ -28,6 +29,7 @@ type Service struct {
 	pods     PodLoader
 	dispatch PodDispatcher
 	repos    RepoResolver
+	gitops   gitops.Service
 	logger   *slog.Logger
 }
 
@@ -36,7 +38,11 @@ type Deps struct {
 	Pods     PodLoader
 	Dispatch PodDispatcher
 	Repos    RepoResolver
-	Logger   *slog.Logger
+	// Gitops is the git-backing choke point (namespace am-experts). It may be
+	// nil, in which case the service runs in DB-only mode (identical to the
+	// pre-git-backing behavior).
+	Gitops gitops.Service
+	Logger *slog.Logger
 }
 
 func NewService(deps Deps) *Service {
@@ -49,6 +55,7 @@ func NewService(deps Deps) *Service {
 		pods:     deps.Pods,
 		dispatch: deps.Dispatch,
 		repos:    deps.Repos,
+		gitops:   deps.Gitops,
 		logger:   logger.With("component", "expert"),
 	}
 }

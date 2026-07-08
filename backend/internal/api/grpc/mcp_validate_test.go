@@ -37,6 +37,28 @@ func TestMcpCreatePod_RejectsEmptyAgentSlug(t *testing.T) {
 	}
 }
 
+func TestMcpCreateLoop_RejectsEmptyName(t *testing.T) {
+	a := &GRPCRunnerAdapter{}
+	tc := &middleware.TenantContext{OrganizationID: 1, UserID: 1}
+	payload := []byte(`{"name":"  ","prompt_template":"do work"}`)
+
+	_, mcpErr := a.mcpCreateLoop(context.Background(), tc, "1-standalone-abcd0003", payload)
+	if mcpErr == nil || mcpErr.code != 400 {
+		t.Fatalf("expected 400 for empty name, got %v", mcpErr)
+	}
+}
+
+func TestMcpCreateLoop_RejectsEmptyPromptTemplate(t *testing.T) {
+	a := &GRPCRunnerAdapter{}
+	tc := &middleware.TenantContext{OrganizationID: 1, UserID: 1}
+	payload := []byte(`{"name":"daily-review","prompt_template":""}`)
+
+	_, mcpErr := a.mcpCreateLoop(context.Background(), tc, "1-standalone-abcd0004", payload)
+	if mcpErr == nil || mcpErr.code != 400 {
+		t.Fatalf("expected 400 for empty prompt_template, got %v", mcpErr)
+	}
+}
+
 func TestMcpCreateChannel_RejectsEmptyName(t *testing.T) {
 	a := &GRPCRunnerAdapter{}
 	tc := &middleware.TenantContext{OrganizationID: 1, UserID: 1}

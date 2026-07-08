@@ -469,6 +469,69 @@ export async function createBundledSession(
   return { id: body.session_id };
 }
 
+/** Result of migrating a local Codex conversation into a new Worker. */
+export interface ImportCodexResult {
+  /** The freshly created Worker session holding the migrated transcript. */
+  session: Session;
+  /** Detected source format: "codex_rollout" or "codex_output_dir". */
+  sourceKind: string;
+  /** Codex session id (rollout) or output directory basename. */
+  sourceId: string;
+  /** Number of conversation items migrated. */
+  itemCount: number;
+}
+
+/**
+ * Migrate a local Codex conversation record into a brand-new Worker session
+ * via POST /v1/sessions/import.
+ *
+ * The server reads `sourcePath` (a Codex rollout `rollout-*.jsonl` transcript
+ * or a workflow `output_*` directory — auto-detected), converts it to
+ * conversation items, creates a Worker bound to `agentId`, and bulk-persists
+ * the transcript. The returned session id can be opened at `/c/{id}` to review
+ * the migrated history.
+ *
+ * @param sourcePath - Server-local path to the Codex source.
+ * @param agentId - Durable id of the target Worker's agent (as in createSession).
+ * @param options.title - Optional override for the derived conversation title.
+ * @param options.hostId - Optional runner host to pin the Worker to.
+ */
+export async function importCodexSession(
+  sourcePath: string,
+  agentId: string,
+  options: { title?: string; hostId?: string } = {},
+): Promise<ImportCodexResult> {
+  const body: {
+    source_path: string;
+    agent_id: string;
+    title?: string;
+    host_id?: string;
+  } = { source_path: sourcePath, agent_id: agentId };
+  if (options.title !== undefined && options.title !== "") {
+    body.title = options.title;
+  }
+  if (options.hostId !== undefined && options.hostId !== "") {
+    body.host_id = options.hostId;
+  }
+  const res = await authenticatedFetch("/v1/sessions/import", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const wire = await readJsonOrThrow<{
+    session: SessionResponseWire;
+    source_kind: string;
+    source_id: string;
+    item_count: number;
+  }>(res);
+  return {
+    session: sessionFromWire(wire.session),
+    sourceKind: wire.source_kind,
+    sourceId: wire.source_id,
+    itemCount: wire.item_count,
+  };
+}
+
 /**
  * Fork (clone) a session into a new one via
  * POST /v1/sessions/{source_id}/fork.

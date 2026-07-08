@@ -16,6 +16,9 @@ import { WorkerModelBindingSelect } from "./WorkerModelBindingSelect";
 import { BranchInput } from "./RepositorySelect";
 import { WorkerRepositoryField } from "./WorkerRepositoryField";
 import { WorkerAgentInstructionsSection } from "./WorkerAgentInstructionsSection";
+import { WorkerCredentialModelSection } from "./WorkerCredentialModelSection";
+
+import { ExpertPickerSection } from "@/components/experts/ExpertPickerSection";
 
 interface StepPanelsProps {
   form: CreatePodFormState;
@@ -26,8 +29,12 @@ interface StepPanelsProps {
   setSelectedRunnerId: (id: number | null) => void;
   configFields: ConfigField[];
   hasOnlineRunners: boolean;
+  loadingConfig: boolean;
+  configValues: Record<string, unknown>;
+  handleConfigChange: (key: string, value: unknown) => void;
   promptPlaceholder?: string;
   showPerpetual: boolean;
+  initialExpertSlug?: string;
   t: (key: string) => string;
 }
 
@@ -38,6 +45,10 @@ export function WorkerStepRuntimePanel({
   selectedRunner,
   setSelectedRunnerId,
   hasOnlineRunners,
+  configFields,
+  loadingConfig,
+  configValues,
+  handleConfigChange,
   promptPlaceholder,
   showPerpetual,
   t,
@@ -75,31 +86,63 @@ export function WorkerStepRuntimePanel({
         />
       )}
       {form.selectedAgent && (
-        <div className="space-y-4 border-t border-border pt-4">
-          {!form.rawLayerMode && (
-            <InteractionModeToggle
-              supportedModes={form.supportedModes}
-              interactionMode={form.interactionMode}
-              onModeChange={form.setInteractionMode}
-            />
-          )}
-          {showPerpetual && <WorkerDurationSection form={form} t={t} />}
-          <PromptInput
-            value={form.prompt}
-            onChange={form.setPrompt}
-            placeholder={promptPlaceholder}
+        <>
+          <WorkerCredentialModelSection
+            agentSlug={form.selectedAgentSlug}
+            envBundles={form.envBundles}
+            loadingBundles={form.loadingBundles}
+            selectedCredentialName={form.selectedCredentialName}
+            onSelectCredential={form.setSelectedCredentialName}
+            selectedRuntimeBundleNames={form.selectedRuntimeBundleNames}
+            onSelectRuntimeBundles={form.setSelectedRuntimeBundleNames}
+            configFields={configFields}
+            configValues={configValues}
+            loadingConfig={loadingConfig}
+            onConfigChange={handleConfigChange}
+            rawLayerMode={form.rawLayerMode}
             t={t}
           />
-        </div>
+          <div className="space-y-4 border-t border-border pt-4">
+            {!form.rawLayerMode && (
+              <InteractionModeToggle
+                supportedModes={form.supportedModes}
+                interactionMode={form.interactionMode}
+                onModeChange={form.setInteractionMode}
+              />
+            )}
+            {showPerpetual && <WorkerDurationSection form={form} t={t} />}
+            <PromptInput
+              value={form.prompt}
+              onChange={form.setPrompt}
+              placeholder={promptPlaceholder}
+              t={t}
+            />
+          </div>
+        </>
       )}
     </div>
   );
 }
 
-export function WorkerStepCapabilitiesPanel({ form, t }: StepPanelsProps) {
+export function WorkerStepCapabilitiesPanel({
+  form,
+  showPerpetual,
+  setSelectedRunnerId,
+  initialExpertSlug,
+  t,
+}: StepPanelsProps) {
   return (
     <div className="space-y-4 animate-in fade-in duration-200">
       <p className="text-sm text-muted-foreground">{t("ide.createPod.stepCapabilitiesPanelHint")}</p>
+
+      {showPerpetual && (
+        <ExpertPickerSection
+          form={form}
+          setSelectedRunnerId={setSelectedRunnerId}
+          initialExpertSlug={initialExpertSlug}
+        />
+      )}
+
       <CapabilityConfigPanel
         icon={BookOpen}
         title={t("ide.createPod.knowledgeConfigTitle")}

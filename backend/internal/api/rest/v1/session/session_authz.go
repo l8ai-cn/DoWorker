@@ -63,6 +63,28 @@ func (d *Deps) sessionAccessLevel(c *gin.Context, row *domain.Session) int {
 	return level
 }
 
+func (d *Deps) authorizeSessionByPodKey(c *gin.Context, podKey string) (*domain.Session, *podDomain.Pod, bool) {
+	tenant := middleware.GetTenant(c)
+	if tenant == nil || d.Sessions == nil || podKey == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return nil, nil, false
+	}
+	row, err := d.Sessions.GetByPodKey(c.Request.Context(), podKey)
+	if err == sessionsvc.ErrNotFound || row == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "session not found", "code": "session_not_found"})
+		return nil, nil, false
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "lookup failed"})
+		return nil, nil, false
+	}
+	if d.sessionAccessLevel(c, row) < levelRead {
+		c.JSON(http.StatusNotFound, gin.H{"error": "session not found", "code": "session_not_found"})
+		return nil, nil, false
+	}
+	return row, d.loadPod(c, row.PodKey), true
+}
+
 func (d *Deps) authorizeSession(c *gin.Context, id string) (*domain.Session, *podDomain.Pod, bool) {
 	tenant := middleware.GetTenant(c)
 	if tenant == nil || d.Sessions == nil {

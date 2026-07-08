@@ -32,10 +32,10 @@ Because Harbor is node-local, runner + backend-launcher image pull policy is `Al
 ```bash
 docker login repo.aiedulab.cn:8443           # one-time
 ./push-images.sh all                          # build + push every image to Harbor
-DOOPS_TARGET=gw-oilan-node ./deploy.sh        # secrets + manifests + jobs via DoOps
+DOOPS_TARGET=gw-oilan ./deploy.sh        # secrets + manifests + jobs via DoOps
 ```
 
-`deploy.sh` defaults to `gw-oilan-node`. `push-images.sh` subsets: `platform` |
+`deploy.sh` defaults to `gw-oilan`. `push-images.sh` subsets: `platform` |
 `infra` | `runners`.
 
 > The runner Go binary resolves its config dir via `config.UserConfigDir()`
@@ -44,14 +44,22 @@ DOOPS_TARGET=gw-oilan-node ./deploy.sh        # secrets + manifests + jobs via D
 
 ## Endpoints
 
-- App: https://agentsmesh.aiedulab.cn (`/api`, `/proto.`, `/relay`)
-- Admin console: https://agentsmesh-admin.aiedulab.cn (served at root — the image
-  has no `/admin` basePath, so it needs its own host, not a path prefix)
-- Object storage (presigned URLs): https://agentsmesh-minio.aiedulab.cn
+- App: http://doworker.l8an.cn:10007 (`/api`, `/proto.`, `/relay`, `/health`)
+- Admin console: http://admin.doworker.l8an.cn:10007 (separate host — no `/admin` basePath)
+- Object storage (presigned URLs): http://minio.doworker.l8an.cn:10007
 - Test accounts: `dev@agentsmesh.local / AdminAb123456`, `admin@agentsmesh.local / Ab123456`
 
-Public DNS for `*.aiedulab.cn` points at an upstream reverse proxy that forwards to
-the oilan ingress, so no DNS change is needed for new hosts under that wildcard.
+DNS for `*.l8an.cn` must point at the oilan node; ingress-nginx must expose **NodePort
+10007** (HTTP) so external `:10007` reaches the controller. One-time patch on the
+cluster (adjust namespace/service name if your install differs):
+
+```bash
+kubectl -n ingress-nginx patch svc ingress-nginx-controller -p \
+  '{"spec":{"ports":[{"name":"http","port":80,"targetPort":"http","nodePort":10007}]}}'
+```
+
+TLS cert secret `l8an-wildcard-tls` must exist in the `default` namespace before
+`deploy.sh` runs (copied into `agentsmesh`).
 
 ## Layout
 

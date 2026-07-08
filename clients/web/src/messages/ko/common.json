@@ -1,4 +1,13 @@
 {
+  "media": {
+    "preview": "Preview",
+    "code": "Code",
+    "openInNewTab": "Open in new tab",
+    "close": "Close",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "htmlDocument": "HTML document"
+  },
   "common": {
     "loading": "로딩 중...",
     "allRightsReserved": "모든 권리 보유.",

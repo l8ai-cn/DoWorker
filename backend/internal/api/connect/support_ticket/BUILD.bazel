@@ -13,6 +13,7 @@ go_library(
     srcs = [
         "support_ticket.go",
         "support_ticket_attachments.go",
+        "support_ticket_convert.amesh.go",
         "support_ticket_convert_custom.go",
         "support_ticket_errors.go",
         "support_ticket_handlers.go",

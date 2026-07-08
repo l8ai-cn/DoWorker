@@ -22,6 +22,7 @@ type conversationListItem struct {
 	Workspace                *string           `json:"workspace,omitempty"`
 	AgentID                  string            `json:"agent_id"`
 	AgentName                *string           `json:"agent_name,omitempty"`
+	PodKey                   *string           `json:"pod_key,omitempty"`
 	PendingElicitationsCount int               `json:"pending_elicitations_count"`
 	Status                   string            `json:"status"`
 	RunnerOnline             *bool             `json:"runner_online,omitempty"`
@@ -43,6 +44,9 @@ func (d *Deps) listItemFrom(row *domain.Session, pod *podDomain.Pod, online map[
 		Labels: map[string]string{}, PermissionLevel: nil,
 		AgentID: row.AgentSlug, AgentName: strPtr(row.AgentSlug),
 		Status: status, Archived: row.Archived,
+	}
+	if row.PodKey != "" {
+		item.PodKey = &row.PodKey
 	}
 	item.Labels = sessionLabels(row.Project)
 	if d.Elicitations != nil {
@@ -99,6 +103,7 @@ func mergeSessionGet(item conversationListItem, wire sessionWire, pod *podDomain
 		"created_at": item.CreatedAt, "updated_at": item.UpdatedAt,
 		"labels": item.Labels, "permission_level": item.PermissionLevel,
 		"agent_id": item.AgentID, "agent_name": item.AgentName,
+		"pod_key": item.PodKey,
 		"status": item.Status, "runner_id": item.RunnerID,
 		"host_id": item.HostID, "runner_online": item.RunnerOnline,
 		"host_online": item.HostOnline, "archived": item.Archived,

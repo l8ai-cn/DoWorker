@@ -21,7 +21,7 @@ func toProtoKnowledgeBase(kb *knowledgebase.KnowledgeBase) *kbv1.KnowledgeBase {
 		HttpCloneUrl:     kb.HTTPCloneURL,
 		DefaultBranch:    kb.DefaultBranch,
 		SourceType:       kb.SourceType,
-		SourceConfigJson: string(kb.SourceConfig),
+		SourceConfigJson: kbservice.RedactedSourceConfigJSON(kb.SourceConfig),
 		SyncStatus:       kb.SyncStatus,
 		CreatedByUserId:  kb.CreatedByUserID,
 		CreatedAt:        kb.CreatedAt.UTC().Format(time.RFC3339),

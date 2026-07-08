@@ -54,6 +54,16 @@
       "deny": "拒绝"
     }
   },
+  "workerSlash": {
+    "createHint": "输入 / 可插入维护命令（如 /compact、/model）。",
+    "commands": {
+      "compact": "压缩对话上下文以释放空间",
+      "context": "查看当前会话的上下文占用",
+      "help": "显示可用 slash 命令",
+      "model": "切换模型：/model <名称> | default",
+      "effort": "设置推理强度：/effort low | medium | high | default"
+    }
+  },
   "agentpod": {
     "title": "Worker",
     "pods": "Worker",
@@ -348,6 +358,25 @@
         "queued": "Worker 已排队",
         "fallback": "无法自动分配 Runner —— 请用下方向导完成配置。",
         "error": "创建 Worker 失败"
+      },
+      "import": {
+        "button": "从 Codex 导入",
+        "title": "从 Codex 导入",
+        "sourceLabel": "Codex 源路径",
+        "sourcePlaceholder": "~/.codex/sessions/…/rollout-….jsonl 或 output_20260708_161508",
+        "sourceHint": "服务器本地的 rollout .jsonl 或 workflow output_* 目录，自动识别类型。",
+        "titleLabel": "标题（可选）",
+        "titlePlaceholder": "留空则从首条用户提示自动推导",
+        "submit": "迁移并打开",
+        "submitting": "迁移中…",
+        "success": "Codex 对话已迁移",
+        "successDetail": "已导入 {count} 条记录",
+        "errors": {
+          "sourceRequired": "请输入 Codex rollout .jsonl 或 output_* 目录路径。",
+          "agentRequired": "请选择迁移目标 Agent。",
+          "notAuthenticated": "请先登录并选择组织。",
+          "failed": "迁移失败，请检查路径后重试。"
+        }
       }
     }
   },
@@ -434,6 +463,11 @@
       "confirm": "保存"
     },
     "loadMore": "加载更多",
+    "importedSessions": {
+      "title": "Codex 已导入",
+      "loading": "正在加载已导入会话…",
+      "error": "加载已导入会话失败"
+    },
     "pod": {
       "status": "状态",
       "agent": "镜像",

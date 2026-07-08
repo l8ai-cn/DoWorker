@@ -1,7 +1,14 @@
 "use client";
 
 import { Key, Star } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 import type { EnvBundleSummary } from "@/lib/api";
 
 interface Props {
@@ -42,6 +49,11 @@ export function CredentialBundleSelect({
     );
   }
 
+  const selectedBundle = bundles.find((b) => b.name === selectedBundleName);
+  const triggerLabel = selectedBundle
+    ? `${selectedBundle.name}${selectedBundle.kind_primary ? ` (${t("settings.agentCredentials.default")})` : ""}`
+    : t("ide.createPod.useAgentDefaultAuth");
+
   return (
     <div>
       <label
@@ -50,22 +62,22 @@ export function CredentialBundleSelect({
       >
         {t("ide.createPod.selectCredential")}
       </label>
-      <select
-        id="credential-bundle-select"
-        className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm"
-        value={selectedBundleName}
-        onChange={(e) => onSelect(e.target.value)}
-      >
-        <option value="">
-          {t("ide.createPod.useAgentDefaultAuth")}
-        </option>
-        {bundles.map((b) => (
-          <option key={b.id} value={b.name}>
-            {b.name}
-            {b.kind_primary ? ` (${t("settings.agentCredentials.default")})` : ""}
-          </option>
-        ))}
-      </select>
+      <Select value={selectedBundleName} onValueChange={onSelect}>
+        <SelectTrigger id="credential-bundle-select">
+          <span className={cn(!selectedBundleName && "text-muted-foreground")}>
+            {triggerLabel}
+          </span>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">{t("ide.createPod.useAgentDefaultAuth")}</SelectItem>
+          {bundles.map((b) => (
+            <SelectItem key={b.id} value={b.name}>
+              {b.name}
+              {b.kind_primary ? ` (${t("settings.agentCredentials.default")})` : ""}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
         {selectedBundleName ? (
           <>

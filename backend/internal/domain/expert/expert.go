@@ -48,6 +48,15 @@ type Expert struct {
 
 	SourcePodKey *string `gorm:"size:100" json:"source_pod_key,omitempty"`
 
+	// Git-backing index/cache columns. Git (agent.md / expert.json / assets/)
+	// is the source of truth; these columns are a derived cache. GitRepoPath is
+	// a pointer so NULL legacy rows (not yet git-backed) are distinguishable
+	// from "".
+	GitRepoPath   *string         `gorm:"size:255;column:git_repo_path" json:"git_repo_path,omitempty"`
+	DefaultBranch string          `gorm:"size:255;not null;default:main;column:default_branch" json:"default_branch"`
+	HTTPCloneURL  *string         `gorm:"size:1000;column:http_clone_url" json:"http_clone_url,omitempty"`
+	Metadata      json.RawMessage `gorm:"type:jsonb;not null;default:'{}';column:metadata" json:"metadata"`
+
 	CreatedByID int64      `gorm:"not null" json:"created_by_id"`
 	RunCount    int        `gorm:"not null;default:0" json:"run_count"`
 	LastRunAt   *time.Time `json:"last_run_at,omitempty"`

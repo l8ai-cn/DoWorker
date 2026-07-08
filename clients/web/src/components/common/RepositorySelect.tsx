@@ -1,6 +1,13 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 import { RepositoryData } from "@/lib/api";
 import { useRepositories, useRepositoryStore } from "@/stores/repository";
 
@@ -43,16 +50,12 @@ export function RepositorySelect({
     [allRepos, activeOnly],
   );
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = e.target.value;
-    if (!selectedValue) {
-      onChange(null);
-    } else {
-      const selectedId = Number(selectedValue);
-      const selectedRepo = repositories.find((r) => r.id === selectedId);
-      onChange(selectedId, selectedRepo);
-    }
-  };
+  const selectedRepo = repositories.find((repo) => repo.id === value);
+  const emptyLabel = loading
+    ? loadingLabel
+    : allowNone && noneLabel
+      ? noneLabel
+      : placeholder;
 
   if (error) {
     return (
@@ -70,22 +73,32 @@ export function RepositorySelect({
   }
 
   return (
-    <select
-      id={id}
-      className={`w-full px-3 py-2 border border-border rounded-md bg-background ${className}`}
-      value={value || ""}
-      onChange={handleChange}
+    <Select
+      value={value ? String(value) : ""}
+      onValueChange={(next) => {
+        if (!next) {
+          onChange(null);
+          return;
+        }
+        const selectedId = Number(next);
+        onChange(selectedId, repositories.find((r) => r.id === selectedId));
+      }}
       disabled={disabled || loading}
     >
-      <option value="">
-        {loading ? loadingLabel : allowNone && noneLabel ? noneLabel : placeholder}
-      </option>
-      {repositories.map((repo) => (
-        <option key={repo.id} value={repo.id}>
-          {repo.slug}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger id={id} className={className}>
+        <span className={cn(!value && "text-muted-foreground")}>
+          {selectedRepo?.slug ?? emptyLabel}
+        </span>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="">{emptyLabel}</SelectItem>
+        {repositories.map((repo) => (
+          <SelectItem key={repo.id} value={String(repo.id)}>
+            {repo.slug}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 

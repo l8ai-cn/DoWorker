@@ -20,9 +20,11 @@ import (
 	channelService "github.com/anthropics/agentsmesh/backend/internal/service/channel"
 	coordinatorsvc "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
 	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 	"github.com/anthropics/agentsmesh/backend/internal/service/instance"
 	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	notifService "github.com/anthropics/agentsmesh/backend/internal/service/notification"
+	skillSvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/service/ticket"
@@ -209,11 +211,31 @@ func main() {
 		grpcResult, sandboxQuerySvc, sandboxFsSvc, logUploadSvc, relayManager, relayTokenGenerator, relayDNSService,
 		relayACMEManager, geoResolver, versionChecker, loopOrchestrator, loopScheduler, redisClient, pendingQueueWiring)
 	svc.Coordinator = coordinatorSvc
+	expertGitops := gitops.NewService(newGiteaClientForNamespace(cfg, "am-experts"), appLogger.Logger)
 	svc.Expert = expertSvc.NewService(expertSvc.Deps{
 		Store:    infra.NewExpertRepository(db),
 		Pods:     services.pod,
 		Dispatch: podOrchestrator,
 		Repos:    services.repository,
+		Gitops:   expertGitops,
+		Logger:   appLogger.Logger,
+	})
+
+	// Git-backed author-in-platform skill service (namespace am-skills). It
+	// reuses the extension packager for the package->object-storage pipeline.
+	// NewService returns nil (routes no-op) when gitea or the packager is not
+	// configured, so this is additive to the external-import skill flow.
+	skillGitops := gitops.NewService(newGiteaClientForNamespace(cfg, "am-skills"), appLogger.Logger)
+	var skillPackager skillSvc.SkillPackagerBridge
+	if services.extension != nil {
+		if pkg := services.extension.SkillPackager(); pkg != nil {
+			skillPackager = pkg
+		}
+	}
+	svc.Skill = skillSvc.NewService(skillSvc.Deps{
+		Store:    infra.NewAuthoredSkillRepository(db),
+		Gitops:   skillGitops,
+		Packager: skillPackager,
 		Logger:   appLogger.Logger,
 	})
 
@@ -223,7 +245,7 @@ func main() {
 	cleanupMkt := startMarketplaceWorker(services)
 	defer cleanupMkt()
 
-	cleanupKbSync := startKnowledgeBaseSyncWorker(services, cfg)
+	cleanupKbSync := startKnowledgeBaseSyncWorker(services)
 	defer cleanupKbSync()
 
 	subscriptionScheduler := startSubscriptionJobs(db, cfg, services.email, appLogger.Logger)

@@ -134,6 +134,7 @@ services:
     # mapping to host-gateway (Docker 20.10+).
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "host.lan:host-gateway"
 
   # OpenTelemetry Collector (receives OTLP from all services)
   otel-collector:

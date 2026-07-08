@@ -1,6 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 import { listVirtualKeys, type VirtualKey } from "@/lib/api/quotaApi";
 
 interface WorkerModelBindingSelectProps {
@@ -40,26 +47,38 @@ export function WorkerModelBindingSelect({
 
   if (!loading && keys.length === 0) return null;
 
+  const selectedKey = keys.find((k) => k.id === selectedVirtualKeyId);
+  const formatKeyLabel = (k: VirtualKey) =>
+    `${k.name} (${k.key_prefix}…)${k.token_budget ? ` · ${k.token_budget.toLocaleString()} tok` : ""}`;
+
   return (
     <div>
       <label htmlFor="worker-vkey-select" className="block text-sm font-medium mb-2">
         {t("ide.createPod.modelBindingLabel")}
       </label>
-      <select
-        id="worker-vkey-select"
-        className="w-full px-3 py-2 border border-border rounded-md bg-background"
-        value={selectedVirtualKeyId ?? ""}
-        onChange={(e) => onSelect(e.target.value ? Number(e.target.value) : null)}
+      <Select
+        value={selectedVirtualKeyId ? String(selectedVirtualKeyId) : ""}
+        onValueChange={(value) => onSelect(value ? Number(value) : null)}
         disabled={loading}
       >
-        <option value="">{t("ide.createPod.modelBindingNone")}</option>
-        {keys.map((k) => (
-          <option key={k.id} value={k.id}>
-            {k.name} ({k.key_prefix}…)
-            {k.token_budget ? ` · ${k.token_budget.toLocaleString()} tok` : ""}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger id="worker-vkey-select">
+          <span className={cn(!selectedVirtualKeyId && "text-muted-foreground")}>
+            {loading
+              ? t("common.loading")
+              : selectedKey
+                ? formatKeyLabel(selectedKey)
+                : t("ide.createPod.modelBindingNone")}
+          </span>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">{t("ide.createPod.modelBindingNone")}</SelectItem>
+          {keys.map((k) => (
+            <SelectItem key={k.id} value={String(k.id)}>
+              {formatKeyLabel(k)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <p className="text-xs text-muted-foreground mt-1">
         {t("ide.createPod.modelBindingHint")}
       </p>

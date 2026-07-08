@@ -30,6 +30,16 @@
       "deny": "Deny"
     }
   },
+  "workerSlash": {
+    "createHint": "Type / to insert maintenance commands (e.g. /compact, /model).",
+    "commands": {
+      "compact": "Compact conversation context to free up space",
+      "context": "Show context window usage for this session",
+      "help": "Show available slash commands",
+      "model": "Switch model: /model <name> | default",
+      "effort": "Set reasoning effort: /effort low | medium | high | default"
+    }
+  },
   "agentpod": {
     "title": "AgentPod",
     "pods": "Pods",
@@ -323,6 +333,25 @@
         "queued": "Worker queued",
         "fallback": "Couldn't auto-assign a runner — finish setup with the wizard below.",
         "error": "Failed to create worker"
+      },
+      "import": {
+        "button": "Import from Codex",
+        "title": "Import from Codex",
+        "sourceLabel": "Codex source path",
+        "sourcePlaceholder": "~/.codex/sessions/…/rollout-….jsonl or output_20260708_161508",
+        "sourceHint": "Server-local rollout .jsonl or workflow output_* directory. Auto-detected.",
+        "titleLabel": "Title (optional)",
+        "titlePlaceholder": "Derived from the first prompt when left blank",
+        "submit": "Migrate & open",
+        "submitting": "Migrating…",
+        "success": "Codex history migrated",
+        "successDetail": "{count} items imported",
+        "errors": {
+          "sourceRequired": "Enter the path to a Codex rollout .jsonl or output_* directory.",
+          "agentRequired": "Pick a target agent for the migrated Worker.",
+          "notAuthenticated": "Sign in and select an organization first.",
+          "failed": "Migration failed. Check the path and try again."
+        }
       }
     }
   },
@@ -409,6 +438,11 @@
       "confirm": "Save"
     },
     "loadMore": "Load more",
+    "importedSessions": {
+      "title": "Imported from Codex",
+      "loading": "Loading imported sessions…",
+      "error": "Failed to load imported sessions"
+    },
     "pod": {
       "status": "Status",
       "agent": "Agent",

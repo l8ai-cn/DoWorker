@@ -18,6 +18,10 @@ func registerExpertRoutes(rg *gin.RouterGroup, svc *Services) {
 		experts.PATCH("/:expertSlug", h.UpdateExpert)
 		experts.DELETE("/:expertSlug", h.DeleteExpert)
 		experts.POST("/:expertSlug/run", h.RunExpert)
+		if svc.Expert.GitEnabled() {
+			experts.GET("/:expertSlug/tree", h.GetExpertTree)
+			experts.GET("/:expertSlug/files/*path", h.GetExpertFile)
+		}
 	}
 	rg.POST("/pods/:pod_key/publish-expert", h.PublishFromPod)
 }

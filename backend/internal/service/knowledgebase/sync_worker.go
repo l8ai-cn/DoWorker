@@ -2,9 +2,11 @@ package knowledgebase
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
 	"github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase/connector"
 )
 
@@ -62,6 +64,21 @@ func (w *SyncWorker) Stop() {
 		w.cancel()
 	}
 	w.wg.Wait()
+}
+
+func (w *SyncWorker) SyncSingle(ctx context.Context, orgID int64, slug string) error {
+	kb, err := w.svc.GetBySlug(ctx, orgID, slug)
+	if err != nil {
+		return err
+	}
+	if kb.SourceType == knowledgebase.SourceTypeGit {
+		return fmt.Errorf("%w: git knowledge bases are not synced from external sources", ErrInvalidInput)
+	}
+	conn, ok := w.connectors[kb.SourceType]
+	if !ok {
+		return fmt.Errorf("%w: no connector for source_type %q", ErrInvalidInput, kb.SourceType)
+	}
+	return w.svc.SyncFromConnector(ctx, kb, conn)
 }
 
 func (w *SyncWorker) syncAll(ctx context.Context) {

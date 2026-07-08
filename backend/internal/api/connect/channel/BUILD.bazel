@@ -11,6 +11,7 @@ go_library(
     name = "channel",
     srcs = [
         "channel.go",
+        "channel_convert.amesh.go",
         "channel_convert_custom.go",
         "channels_handlers.go",
         "content_resolver.go",

@@ -29,6 +29,8 @@ type CreateExpertRequest struct {
 	ConfigOverrides map[string]interface{}
 	AgentfileLayer *string
 	SourcePodKey   *string
+	Avatar         *AvatarInput
+	ExpertType     *string
 }
 
 type UpdateExpertRequest struct {
@@ -48,6 +50,8 @@ type UpdateExpertRequest struct {
 	KnowledgeMounts []expertdom.KnowledgeMount
 	ConfigOverrides map[string]interface{}
 	AgentfileLayer *string
+	Avatar         *AvatarInput
+	ExpertType     *string
 }
 
 func (s *Service) Create(ctx context.Context, req *CreateExpertRequest) (*expertdom.Expert, error) {
@@ -77,9 +81,38 @@ func (s *Service) Create(ctx context.Context, req *CreateExpertRequest) (*expert
 		ConfigOverrides: encodeConfigOverrides(req.ConfigOverrides),
 		AgentfileLayer:  trimOptional(req.AgentfileLayer),
 		SourcePodKey:    trimOptional(req.SourcePodKey),
+		DefaultBranch:   "main",
 		CreatedByID:     req.UserID,
 	}
+
+	var avatarPath *string
+	if req.Avatar != nil && len(req.Avatar.Data) > 0 {
+		p := req.Avatar.repoPath()
+		avatarPath = &p
+	}
+	row.Metadata = mergeMetadata(row.Metadata, avatarPath, req.ExpertType)
+
+	// Git is the source of truth: provision + seed the repo first, then persist
+	// the DB cache row. On DB failure, compensate by deleting the fresh repo.
+	provisioned := false
+	if s.gitops != nil {
+		layer := s.buildAgentfileLayer(ctx, row)
+		repo, err := s.provisionExpertRepo(ctx, row, layer, req.Avatar)
+		if err != nil {
+			return nil, err
+		}
+		applyRepo(row, repo)
+		provisioned = true
+	}
+
 	if err := s.store.Create(ctx, row); err != nil {
+		if provisioned && row.GitRepoPath != nil {
+			repoName := s.gitops.RepoNameFromPath(*row.GitRepoPath)
+			if delErr := s.gitops.DeleteRepo(ctx, repoName); delErr != nil {
+				s.logger.Warn("expert: compensating repo delete failed",
+					"repo", repoName, "error", delErr)
+			}
+		}
 		return nil, err
 	}
 	return row, nil
@@ -140,6 +173,33 @@ func (s *Service) Update(ctx context.Context, req *UpdateExpertRequest) (*expert
 	if req.AgentfileLayer != nil {
 		row.AgentfileLayer = trimOptional(req.AgentfileLayer)
 	}
+
+	var avatarPath *string
+	if req.Avatar != nil && len(req.Avatar.Data) > 0 {
+		p := req.Avatar.repoPath()
+		avatarPath = &p
+	}
+	if avatarPath != nil || req.ExpertType != nil {
+		row.Metadata = mergeMetadata(row.Metadata, avatarPath, req.ExpertType)
+	}
+
+	// Git is the source of truth: commit changed files first (lazily
+	// provisioning a repo for legacy rows), then refresh the DB cache. On a
+	// commit-succeeds / store.Update-fails partial failure, Git is ahead and
+	// the cache is stale; it is reconciled on the next Git-first read (Run).
+	if s.gitops != nil {
+		layer := s.buildAgentfileLayer(ctx, row)
+		provisioned, err := s.ensureExpertRepo(ctx, row, layer, req.Avatar)
+		if err != nil {
+			return nil, err
+		}
+		if !provisioned {
+			if err := s.commitExpertChanges(ctx, row, layer, req.Avatar); err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	if err := s.store.Update(ctx, row); err != nil {
 		return nil, err
 	}
@@ -147,7 +207,22 @@ func (s *Service) Update(ctx context.Context, req *UpdateExpertRequest) (*expert
 }
 
 func (s *Service) Delete(ctx context.Context, orgID, id int64) error {
-	return s.store.Delete(ctx, orgID, id)
+	row, err := s.store.GetByID(ctx, orgID, id)
+	if err != nil {
+		return err
+	}
+	// DB row is deleted first (authoritative for existence), then the repo is
+	// removed best-effort (mirrors the knowledgebase Delete ordering).
+	if err := s.store.Delete(ctx, orgID, id); err != nil {
+		return err
+	}
+	if s.gitops != nil && row.GitRepoPath != nil {
+		repoName := s.gitops.RepoNameFromPath(*row.GitRepoPath)
+		if delErr := s.gitops.DeleteRepo(ctx, repoName); delErr != nil {
+			s.logger.Warn("expert: repo delete failed", "repo", repoName, "error", delErr)
+		}
+	}
+	return nil
 }
 
 func (s *Service) GetBySlug(ctx context.Context, orgID int64, slug string) (*expertdom.Expert, error) {

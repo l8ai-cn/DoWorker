@@ -65,6 +65,13 @@ func (s *Service) SetSkillImporter(imp SkillSyncer) {
 	s.importer = imp
 }
 
+// SkillPackager exposes the configured packager so peer services (e.g. the
+// git-backed skill authoring service) can reuse the same package→object-storage
+// pipeline via PackageFromDir. Returns nil when no packager is configured.
+func (s *Service) SkillPackager() *SkillPackager {
+	return s.packager
+}
+
 // --- Skill Registries ---
 
 func (s *Service) ListSkillRegistries(ctx context.Context, orgID int64) ([]*extension.SkillRegistry, error) {

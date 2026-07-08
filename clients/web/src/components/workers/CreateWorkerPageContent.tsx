@@ -3,11 +3,13 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileInput } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CreatePodForm } from "@/components/pod/CreatePodForm";
 import { NlWorkerCreate } from "@/components/workers/NlWorkerCreate";
+import { ImportCodexDialog } from "@/components/workers/ImportCodexDialog";
+import { Button } from "@/components/ui/button";
 import type { PodData } from "@/lib/api";
 import { getShortPodKey } from "@/lib/pod-display-name";
 import { usePodStore } from "@/stores/pod";
@@ -25,6 +27,7 @@ export function CreateWorkerPageContent() {
   );
   const initialPrompt = wizardPrompt;
   const initialExpertSlug = searchParams.get("expert") ?? undefined;
+  const [importOpen, setImportOpen] = useState(false);
 
   const formConfig = useMemo(
     () => ({
@@ -47,7 +50,7 @@ export function CreateWorkerPageContent() {
 
   return (
     <div className="min-h-full bg-background">
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 md:px-6">
+      <div className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6">
         <Link
           href={`/${orgSlug}/workspace`}
           className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
@@ -56,14 +59,35 @@ export function CreateWorkerPageContent() {
           {t("workers.create.backToWorkspace")}
         </Link>
 
-        <header className="mb-6 space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t("workers.create.title")}
-          </h1>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {t("workers.create.subtitle")}
-          </p>
+        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {t("workers.create.title")}
+            </h1>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {t("workers.create.subtitle")}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="shrink-0"
+            data-testid="open-import-codex"
+            onClick={() => setImportOpen(true)}
+          >
+            <FileInput className="mr-2 h-4 w-4" />
+            {t("workers.create.import.button")}
+          </Button>
         </header>
+
+        <ImportCodexDialog
+          open={importOpen}
+          onOpenChange={setImportOpen}
+          onImported={(podKey) => {
+            router.push(`/${orgSlug}/workspace?pod=${encodeURIComponent(podKey)}`);
+          }}
+        />
 
         <NlWorkerCreate orgSlug={orgSlug} onNeedsWizard={setWizardPrompt} />
 

@@ -1,5 +1,12 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 import type { RepositoryData } from "@/lib/api";
 
 interface RepositorySelectProps {
@@ -15,6 +22,8 @@ export function RepositorySelect({
   onSelect,
   t,
 }: RepositorySelectProps) {
+  const selectedRepo = repositories.find((repo) => repo.id === selectedRepositoryId);
+
   return (
     <div>
       <label
@@ -23,21 +32,24 @@ export function RepositorySelect({
       >
         {t("ide.createPod.selectRepository")}
       </label>
-      <select
-        id="repository-select"
-        className="w-full px-3 py-2 border border-border rounded-md bg-background"
-        value={selectedRepositoryId || ""}
-        onChange={(e) =>
-          onSelect(e.target.value ? Number(e.target.value) : null)
-        }
+      <Select
+        value={selectedRepositoryId ? String(selectedRepositoryId) : ""}
+        onValueChange={(value) => onSelect(value ? Number(value) : null)}
       >
-        <option value="">{t("ide.createPod.selectRepositoryPlaceholder")}</option>
-        {repositories.map((repo) => (
-          <option key={repo.id} value={repo.id}>
-            {repo.slug}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger id="repository-select">
+          <span className={cn(!selectedRepositoryId && "text-muted-foreground")}>
+            {selectedRepo?.slug ?? t("ide.createPod.selectRepositoryPlaceholder")}
+          </span>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">{t("ide.createPod.selectRepositoryPlaceholder")}</SelectItem>
+          {repositories.map((repo) => (
+            <SelectItem key={repo.id} value={String(repo.id)}>
+              {repo.slug}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

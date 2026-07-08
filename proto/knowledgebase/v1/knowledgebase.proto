@@ -19,6 +19,7 @@ service KnowledgeBaseService {
   rpc GetKnowledgeBase(GetKnowledgeBaseRequest) returns (KnowledgeBase);
   rpc CreateKnowledgeBase(CreateKnowledgeBaseRequest) returns (KnowledgeBase);
   rpc UpdateKnowledgeBase(UpdateKnowledgeBaseRequest) returns (KnowledgeBase);
+  rpc SyncKnowledgeBase(SyncKnowledgeBaseRequest) returns (KnowledgeBase);
   rpc DeleteKnowledgeBase(DeleteKnowledgeBaseRequest) returns (DeleteKnowledgeBaseResponse);
 
   rpc SetAgentMounts(SetAgentMountsRequest) returns (SetAgentMountsResponse);
@@ -81,6 +82,12 @@ message UpdateKnowledgeBaseRequest {
   string slug = 2;
   optional string name = 3;
   optional string description = 4;
+  optional string source_config_json = 5;
+}
+
+message SyncKnowledgeBaseRequest {
+  string org_slug = 1;
+  string slug = 2;
 }
 
 message DeleteKnowledgeBaseRequest {

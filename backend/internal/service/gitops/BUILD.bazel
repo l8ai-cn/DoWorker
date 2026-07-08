@@ -1,0 +1,37 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "gitops",
+    srcs = [
+        "errors.go",
+        "fake.go",
+        "gitops.go",
+        "naming.go",
+        "service.go",
+    ],
+    importpath = "github.com/anthropics/agentsmesh/backend/internal/service/gitops",
+    visibility = ["//backend:__subpackages__"],
+    deps = [
+        "//backend/internal/infra/gitea",
+    ],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":gitops",
+    visibility = ["//backend:__subpackages__"],
+)
+
+go_test(
+    name = "gitops_test",
+    srcs = [
+        "fake_test.go",
+        "service_test.go",
+    ],
+    embed = [":gitops"],
+    deps = [
+        "//backend/internal/infra/gitea",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
+)

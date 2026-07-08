@@ -24,15 +24,24 @@ export class CreatePodModal {
       .waitFor({ state: "hidden", timeout: timeoutMs });
   }
 
+  /** Open a custom Select trigger and pick an option by its value. */
+  private async pickSelectOption(triggerId: string, optionValue: string): Promise<void> {
+    const dialog = this.page.locator('[role="dialog"]').first();
+    await dialog.locator(`#${triggerId}`).click();
+    await dialog
+      .locator(`[role="option"][data-option-value="${optionValue}"]`)
+      .first()
+      .click();
+  }
+
   /**
-   * Select a worker image. The form renders `<select id="worker-image-select">`.
+   * Select a worker image. The form renders a custom Select trigger
+   * with id `worker-image-select`.
    */
   async selectImage(imageSlug: string): Promise<void> {
-    const select = this.page
-      .locator('[role="dialog"] select#worker-image-select')
-      .first();
-    await select.waitFor({ state: "visible", timeout: 15_000 });
-    await select.selectOption(imageSlug);
+    const trigger = this.page.locator('[role="dialog"] #worker-image-select').first();
+    await trigger.waitFor({ state: "visible", timeout: 15_000 });
+    await this.pickSelectOption("worker-image-select", imageSlug);
   }
 
   /** @deprecated use selectImage */
@@ -65,15 +74,12 @@ export class CreatePodModal {
 
   /**
    * Select an API credential bundle by name. The credential picker is a
-   * single-select `<select id="credential-bundle-select">`; pass "" to pick
+   * custom Select with id `credential-bundle-select`; pass "" to pick
    * the "Use Agent default auth" option (i.e. inject no credential).
-   * Lives inside AdvancedOptions — call `expandAdvancedOptions()` first.
+   * Shown on step 1 after an image is selected.
    */
   async selectCredential(bundleName: string): Promise<void> {
-    const select = this.page
-      .locator('[role="dialog"] select#credential-bundle-select')
-      .first();
-    await select.selectOption(bundleName);
+    await this.pickSelectOption("credential-bundle-select", bundleName);
   }
 
   /**
@@ -82,8 +88,7 @@ export class CreatePodModal {
    * calling again un-checks it. Multiple calls in succession build an
    * ordered list — the order matches selection order and drives
    * USE_ENV_BUNDLE emission order (later bundles override earlier ones on
-   * conflicting env keys). The checkboxes live inside AdvancedOptions —
-   * call `expandAdvancedOptions()` first.
+   * conflicting env keys). Shown on step 1 after an image is selected.
    */
   async toggleRuntimeBundle(bundleName: string): Promise<void> {
     const row = this.page

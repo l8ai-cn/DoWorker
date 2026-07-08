@@ -110,7 +110,15 @@ func (s *Service) Run(ctx context.Context, req *RunExpertRequest) (*RunExpertRes
 	if err != nil {
 		return nil, err
 	}
-	layer := s.buildAgentfileLayer(ctx, expert)
+	// Git is the source of truth: read agent.md from the repo first, refreshing
+	// the DB cache when it lags. On miss/disabled/transient-error fall back to
+	// the DB agentfile_layer cache / generator so Run never hard-fails.
+	layer, fromGit := s.readAgentFileFromGit(ctx, expert)
+	if fromGit {
+		s.refreshAgentfileCache(ctx, expert, layer)
+	} else {
+		layer = s.buildAgentfileLayer(ctx, expert)
+	}
 	if req.PromptOverride != nil && strings.TrimSpace(*req.PromptOverride) != "" {
 		override := fmt.Sprintf("PROMPT %s", serialize.QuoteString(strings.TrimSpace(*req.PromptOverride)))
 		if layer == "" {

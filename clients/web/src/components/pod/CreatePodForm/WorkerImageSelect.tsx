@@ -1,5 +1,12 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 import type { AgentData } from "@/lib/api";
 
 interface WorkerImageSelectProps {
@@ -45,6 +52,8 @@ export function WorkerImageSelect({
     );
   }
 
+  const selectedImage = images.find((image) => image.slug === selectedImageSlug);
+
   return (
     <div>
       <label
@@ -53,24 +62,30 @@ export function WorkerImageSelect({
       >
         {t("ide.createPod.selectImage")}
       </label>
-      <select
-        id="worker-image-select"
-        className={`w-full px-3 py-2 border rounded-md bg-background ${
-          error ? "border-destructive" : "border-border"
-        }`}
+      <Select
         value={selectedImageSlug || ""}
-        onChange={(e) => onSelect(e.target.value || null)}
-        aria-required="true"
-        aria-invalid={!!error}
-        aria-describedby={error ? "worker-image-error" : "worker-image-hint"}
+        onValueChange={(value) => onSelect(value || null)}
       >
-        <option value="">{t("ide.createPod.selectImagePlaceholder")}</option>
-        {images.map((image) => (
-          <option key={image.slug} value={image.slug}>
-            {image.name}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger
+          id="worker-image-select"
+          aria-required="true"
+          aria-invalid={!!error}
+          aria-describedby={error ? "worker-image-error" : "worker-image-hint"}
+          className={cn(error && "ring-destructive/60 focus:ring-destructive/40")}
+        >
+          <span className={cn(!selectedImageSlug && "text-muted-foreground")}>
+            {selectedImage?.name ?? t("ide.createPod.selectImagePlaceholder")}
+          </span>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">{t("ide.createPod.selectImagePlaceholder")}</SelectItem>
+          {images.map((image) => (
+            <SelectItem key={image.slug} value={image.slug}>
+              {image.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       {error ? (
         <p id="worker-image-error" className="text-xs text-destructive mt-1">
           {error}

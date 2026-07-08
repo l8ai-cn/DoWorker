@@ -17,6 +17,9 @@ const workerModelBundleName = "worker-model"
 // provider credentials for pod injection.
 type AIModelPoolForOrchestrator interface {
 	Resolve(ctx context.Context, id int64) (*aimodelsvc.ResolvedModel, error)
+	// ResolveDefaultForAgent picks the org/user default pool row for a harness
+	// when CreatePod omits model_config_id / virtual_api_key_id (same as session create).
+	ResolveDefaultForAgent(ctx context.Context, userID, orgID int64, agentSlug string) (*aimodelsvc.ResolvedModel, error)
 }
 
 // VirtualKeyPoolForOrchestrator resolves a virtual API key into the underlying
@@ -29,12 +32,11 @@ type VirtualKeyPoolForOrchestrator interface {
 // AgentFile layer (config bundle for do-agent, env bundle for codex/claude)
 // and appends an informational token_budget CONFIG. Usage is attributed to
 // req.VirtualAPIKeyID when a virtual key was selected.
+//
+// When no explicit model binding is set, mounts the org default pool model
+// for the agent harness (mirrors session create resolveWorkerModel).
 func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *OrchestrateCreatePodRequest, agentDef *agentDomain.Agent) error {
-	if req.VirtualAPIKeyID == nil && req.ModelConfigID == nil {
-		return nil
-	}
-
-	resolved, budget, err := o.resolvePoolModel(ctx, req)
+	resolved, budget, err := o.resolvePoolModel(ctx, req, agentDef)
 	if err != nil {
 		return err
 	}
@@ -71,17 +73,28 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 	return nil
 }
 
-func (o *PodOrchestrator) resolvePoolModel(ctx context.Context, req *OrchestrateCreatePodRequest) (*aimodelsvc.ResolvedModel, *int64, error) {
+func (o *PodOrchestrator) resolvePoolModel(ctx context.Context, req *OrchestrateCreatePodRequest, agentDef *agentDomain.Agent) (*aimodelsvc.ResolvedModel, *int64, error) {
 	if req.VirtualAPIKeyID != nil {
 		if o.virtualKeyPool == nil {
 			return nil, nil, nil
 		}
 		return o.virtualKeyPool.ResolveModel(ctx, *req.VirtualAPIKeyID)
 	}
+	if req.ModelConfigID != nil {
+		if o.aiModelPool == nil {
+			return nil, nil, nil
+		}
+		resolved, err := o.aiModelPool.Resolve(ctx, *req.ModelConfigID)
+		return resolved, nil, err
+	}
 	if o.aiModelPool == nil {
 		return nil, nil, nil
 	}
-	resolved, err := o.aiModelPool.Resolve(ctx, *req.ModelConfigID)
+	isDoAgent := agentDef != nil && agentDef.Executable == "do-agent"
+	if aimodel.HarnessMountKindFor(req.AgentSlug, isDoAgent) == aimodel.HarnessMountNone {
+		return nil, nil, nil
+	}
+	resolved, err := o.aiModelPool.ResolveDefaultForAgent(ctx, req.UserID, req.OrganizationID, req.AgentSlug)
 	return resolved, nil, err
 }
 

@@ -182,6 +182,7 @@ export function SelectItem({ value, children, className, disabled, ...props }: S
         disabled && "pointer-events-none opacity-50",
         className
       )}
+      data-option-value={value}
       onClick={() => !disabled && onValueChange(value)}
       {...props}
     >

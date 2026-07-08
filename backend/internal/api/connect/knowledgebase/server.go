@@ -25,6 +25,7 @@ const (
 	GetKnowledgeBaseProcedure     = "/" + ServiceName + "/GetKnowledgeBase"
 	CreateKnowledgeBaseProcedure  = "/" + ServiceName + "/CreateKnowledgeBase"
 	UpdateKnowledgeBaseProcedure  = "/" + ServiceName + "/UpdateKnowledgeBase"
+	SyncKnowledgeBaseProcedure   = "/" + ServiceName + "/SyncKnowledgeBase"
 	DeleteKnowledgeBaseProcedure  = "/" + ServiceName + "/DeleteKnowledgeBase"
 	SetAgentMountsProcedure       = "/" + ServiceName + "/SetAgentMounts"
 	ListAgentMountsProcedure      = "/" + ServiceName + "/ListAgentMounts"
@@ -33,12 +34,13 @@ const (
 )
 
 type Server struct {
-	svc    *kbservice.Service
-	orgSvc middleware.OrganizationService
+	svc        *kbservice.Service
+	orgSvc     middleware.OrganizationService
+	syncWorker *kbservice.SyncWorker
 }
 
-func NewServer(svc *kbservice.Service, orgSvc middleware.OrganizationService) *Server {
-	return &Server{svc: svc, orgSvc: orgSvc}
+func NewServer(svc *kbservice.Service, orgSvc middleware.OrganizationService, syncWorker *kbservice.SyncWorker) *Server {
+	return &Server{svc: svc, orgSvc: orgSvc, syncWorker: syncWorker}
 }
 
 func Mount(mux *http.ServeMux, srv *Server, opts ...connect.HandlerOption) {
@@ -53,6 +55,9 @@ func Mount(mux *http.ServeMux, srv *Server, opts ...connect.HandlerOption) {
 	))
 	mux.Handle(UpdateKnowledgeBaseProcedure, connect.NewUnaryHandler(
 		UpdateKnowledgeBaseProcedure, srv.UpdateKnowledgeBase, opts...,
+	))
+	mux.Handle(SyncKnowledgeBaseProcedure, connect.NewUnaryHandler(
+		SyncKnowledgeBaseProcedure, srv.SyncKnowledgeBase, opts...,
 	))
 	mux.Handle(DeleteKnowledgeBaseProcedure, connect.NewUnaryHandler(
 		DeleteKnowledgeBaseProcedure, srv.DeleteKnowledgeBase, opts...,

@@ -86,14 +86,29 @@ func (s *Server) UpdateKnowledgeBase(
 	if err != nil {
 		return nil, mapKBError(err)
 	}
+	sourceConfig, err := parseOptionalSourceConfig(req.Msg.GetSourceConfigJson())
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
 	updated, err := s.svc.Update(ctx, org.GetID(), kb.ID, &kbservice.UpdateParams{
-		Name:        req.Msg.Name,
-		Description: req.Msg.Description,
+		Name:         req.Msg.Name,
+		Description:  req.Msg.Description,
+		SourceConfig: sourceConfig,
 	})
 	if err != nil {
 		return nil, mapKBError(err)
 	}
 	return connect.NewResponse(toProtoKnowledgeBase(updated)), nil
+}
+
+func parseOptionalSourceConfig(raw string) (json.RawMessage, error) {
+	if raw == "" {
+		return nil, nil
+	}
+	if !json.Valid([]byte(raw)) {
+		return nil, kbservice.ErrInvalidInput
+	}
+	return json.RawMessage(raw), nil
 }
 
 func (s *Server) DeleteKnowledgeBase(

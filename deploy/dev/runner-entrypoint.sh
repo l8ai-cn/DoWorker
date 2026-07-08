@@ -74,8 +74,7 @@ generate_runner_cert() {
         exit 1
     fi
     echo "生成 Runner 客户端证书..."
-    openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 \
-        -out "$CERTS_DIR/runner.key"
+    openssl genrsa -out "$CERTS_DIR/runner.key" 2048
     openssl req -new -key "$CERTS_DIR/runner.key" \
         -out "$CERTS_DIR/runner.csr" \
         -subj "/CN=${RUNNER_NODE_ID}/O=${RUNNER_ORG_SLUG}/OU=Runner"

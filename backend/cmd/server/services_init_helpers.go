@@ -68,6 +68,21 @@ func initializeKnowledgeBaseService(cfg *config.Config, db *gorm.DB) *knowledgeb
 	return svc
 }
 
+// newGiteaClientForNamespace builds a per-namespace gitea client reusing the KB
+// Gitea connection config. Returns nil when the internal Gitea is not
+// configured, so downstream gitops.NewService returns nil (DB-only mode).
+func newGiteaClientForNamespace(cfg *config.Config, namespace string) *gitea.Client {
+	if !cfg.KnowledgeBase.Enabled() {
+		return nil
+	}
+	return gitea.NewClient(gitea.Config{
+		BaseURL:      cfg.KnowledgeBase.GiteaURL,
+		AdminToken:   cfg.KnowledgeBase.GiteaToken,
+		Namespace:    namespace,
+		CloneBaseURL: cfg.KnowledgeBase.CloneBaseURL,
+	})
+}
+
 func initializeLicenseService(cfg *config.Config, db *gorm.DB) *license.Service {
 	if !cfg.Payment.IsOnPremise() && cfg.Payment.License.PublicKeyPath == "" {
 		return nil

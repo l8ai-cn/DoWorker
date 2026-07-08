@@ -18,6 +18,17 @@ type createExpertRequest struct {
 	KnowledgeMounts []expertdom.KnowledgeMount `json:"knowledge_mounts"`
 	ConfigOverrides map[string]interface{}    `json:"config_overrides"`
 	AgentfileLayer  *string                   `json:"agentfile_layer"`
+	Avatar          *avatarInput              `json:"avatar"`
+	ExpertType      *string                   `json:"expert_type"`
+}
+
+// avatarInput is a base64-encoded avatar upload. content_base64 is decoded,
+// size-capped, and MIME-sniffed in the handler before it reaches the service;
+// the client-supplied filename is advisory only (the platform derives the
+// stored path assets/avatar.<ext>).
+type avatarInput struct {
+	Filename      string `json:"filename"`
+	ContentBase64 string `json:"content_base64"`
 }
 
 type updateExpertRequest struct {
@@ -35,6 +46,8 @@ type updateExpertRequest struct {
 	KnowledgeMounts []expertdom.KnowledgeMount `json:"knowledge_mounts"`
 	ConfigOverrides map[string]interface{}    `json:"config_overrides"`
 	AgentfileLayer  *string                   `json:"agentfile_layer"`
+	Avatar          *avatarInput              `json:"avatar"`
+	ExpertType      *string                   `json:"expert_type"`
 }
 
 type publishExpertRequest struct {

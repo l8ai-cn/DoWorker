@@ -20,7 +20,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file knowledgebase/v1/knowledgebase.proto.
  */
 export const file_knowledgebase_v1_knowledgebase: GenFile = /*@__PURE__*/
-  fileDesc("CiRrbm93bGVkZ2ViYXNlL3YxL2tub3dsZWRnZWJhc2UucHJvdG8SFnByb3RvLmtub3dsZWRnZWJhc2UudjEi9QIKDUtub3dsZWRnZUJhc2USCgoCaWQYASABKAMSDAoEc2x1ZxgCIAEoCRIMCgRuYW1lGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEhUKDWdpdF9yZXBvX3BhdGgYBSABKAkSFgoOaHR0cF9jbG9uZV91cmwYBiABKAkSFgoOZGVmYXVsdF9icmFuY2gYByABKAkSEwoLc291cmNlX3R5cGUYCCABKAkSGgoSc291cmNlX2NvbmZpZ19qc29uGAkgASgJEhMKC3N5bmNfc3RhdHVzGAogASgJEhcKCnN5bmNfZXJyb3IYCyABKAlIAIgBARIbCg5sYXN0X3N5bmNlZF9hdBgMIAEoCUgBiAEBEhoKEmNyZWF0ZWRfYnlfdXNlcl9pZBgNIAEoAxISCgpjcmVhdGVkX2F0GA4gASgJEhIKCnVwZGF0ZWRfYXQYDyABKAlCDQoLX3N5bmNfZXJyb3JCEQoPX2xhc3Rfc3luY2VkX2F0Ii4KCkFnZW50TW91bnQSEgoKYWdlbnRfc2x1ZxgBIAEoCRIMCgRtb2RlGAIgASgJIlcKGUxpc3RLbm93bGVkZ2VCYXNlc1JlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSGAoLc291cmNlX3R5cGUYAiABKAlIAIgBAUIOCgxfc291cmNlX3R5cGUigAEKGkxpc3RLbm93bGVkZ2VCYXNlc1Jlc3BvbnNlEjQKBWl0ZW1zGAEgAygLMiUucHJvdG8ua25vd2xlZGdlYmFzZS52MS5Lbm93bGVkZ2VCYXNlEg0KBXRvdGFsGAIgASgDEg0KBWxpbWl0GAMgASgFEg4KBm9mZnNldBgEIAEoBSI5ChdHZXRLbm93bGVkZ2VCYXNlUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIMCgRzbHVnGAIgASgJIsgBChpDcmVhdGVLbm93bGVkZ2VCYXNlUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIMCgRuYW1lGAIgASgJEhgKC2Rlc2NyaXB0aW9uGAMgASgJSACIAQESGAoLc291cmNlX3R5cGUYBCABKAlIAYgBARIfChJzb3VyY2VfY29uZmlnX2pzb24YBSABKAlIAogBAUIOCgxfZGVzY3JpcHRpb25CDgoMX3NvdXJjZV90eXBlQhUKE19zb3VyY2VfY29uZmlnX2pzb24iggEKGlVwZGF0ZUtub3dsZWRnZUJhc2VSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEgwKBHNsdWcYAiABKAkSEQoEbmFtZRgDIAEoCUgAiAEBEhgKC2Rlc2NyaXB0aW9uGAQgASgJSAGIAQFCBwoFX25hbWVCDgoMX2Rlc2NyaXB0aW9uIjwKGkRlbGV0ZUtub3dsZWRnZUJhc2VSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEgwKBHNsdWcYAiABKAkiHQobRGVsZXRlS25vd2xlZGdlQmFzZVJlc3BvbnNlImsKFVNldEFnZW50TW91bnRzUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIMCgRzbHVnGAIgASgJEjIKBm1vdW50cxgDIAMoCzIiLnByb3RvLmtub3dsZWRnZWJhc2UudjEuQWdlbnRNb3VudCIYChZTZXRBZ2VudE1vdW50c1Jlc3BvbnNlIjgKFkxpc3RBZ2VudE1vdW50c1JlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDAoEc2x1ZxgCIAEoCSJNChdMaXN0QWdlbnRNb3VudHNSZXNwb25zZRIyCgZtb3VudHMYASADKAsyIi5wcm90by5rbm93bGVkZ2ViYXNlLnYxLkFnZW50TW91bnQiSwobR2V0S25vd2xlZGdlQmFzZUZpbGVSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEgwKBHNsdWcYAiABKAkSDAoEcGF0aBgDIAEoCSJAChFLbm93bGVkZ2VCYXNlRmlsZRIMCgRwYXRoGAEgASgJEg8KB2NvbnRlbnQYAiABKAkSDAoEc2l6ZRgDIAEoAyJLChtMaXN0S25vd2xlZGdlQmFzZURpclJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDAoEc2x1ZxgCIAEoCRIMCgRwYXRoGAMgASgJIk8KFUtub3dsZWRnZUJhc2VEaXJFbnRyeRIMCgRuYW1lGAEgASgJEgwKBHBhdGgYAiABKAkSDAoEdHlwZRgDIAEoCRIMCgRzaXplGAQgASgDIl4KHExpc3RLbm93bGVkZ2VCYXNlRGlyUmVzcG9uc2USPgoHZW50cmllcxgBIAMoCzItLnByb3RvLmtub3dsZWRnZWJhc2UudjEuS25vd2xlZGdlQmFzZURpckVudHJ5MsQIChRLbm93bGVkZ2VCYXNlU2VydmljZRJ7ChJMaXN0S25vd2xlZGdlQmFzZXMSMS5wcm90by5rbm93bGVkZ2ViYXNlLnYxLkxpc3RLbm93bGVkZ2VCYXNlc1JlcXVlc3QaMi5wcm90by5rbm93bGVkZ2ViYXNlLnYxLkxpc3RLbm93bGVkZ2VCYXNlc1Jlc3BvbnNlEmoKEEdldEtub3dsZWRnZUJhc2USLy5wcm90by5rbm93bGVkZ2ViYXNlLnYxLkdldEtub3dsZWRnZUJhc2VSZXF1ZXN0GiUucHJvdG8ua25vd2xlZGdlYmFzZS52MS5Lbm93bGVkZ2VCYXNlEnAKE0NyZWF0ZUtub3dsZWRnZUJhc2USMi5wcm90by5rbm93bGVkZ2ViYXNlLnYxLkNyZWF0ZUtub3dsZWRnZUJhc2VSZXF1ZXN0GiUucHJvdG8ua25vd2xlZGdlYmFzZS52MS5Lbm93bGVkZ2VCYXNlEnAKE1VwZGF0ZUtub3dsZWRnZUJhc2USMi5wcm90by5rbm93bGVkZ2ViYXNlLnYxLlVwZGF0ZUtub3dsZWRnZUJhc2VSZXF1ZXN0GiUucHJvdG8ua25vd2xlZGdlYmFzZS52MS5Lbm93bGVkZ2VCYXNlEn4KE0RlbGV0ZUtub3dsZWRnZUJhc2USMi5wcm90by5rbm93bGVkZ2ViYXNlLnYxLkRlbGV0ZUtub3dsZWRnZUJhc2VSZXF1ZXN0GjMucHJvdG8ua25vd2xlZGdlYmFzZS52MS5EZWxldGVLbm93bGVkZ2VCYXNlUmVzcG9uc2USbwoOU2V0QWdlbnRNb3VudHMSLS5wcm90by5rbm93bGVkZ2ViYXNlLnYxLlNldEFnZW50TW91bnRzUmVxdWVzdBouLnByb3RvLmtub3dsZWRnZWJhc2UudjEuU2V0QWdlbnRNb3VudHNSZXNwb25zZRJyCg9MaXN0QWdlbnRNb3VudHMSLi5wcm90by5rbm93bGVkZ2ViYXNlLnYxLkxpc3RBZ2VudE1vdW50c1JlcXVlc3QaLy5wcm90by5rbm93bGVkZ2ViYXNlLnYxLkxpc3RBZ2VudE1vdW50c1Jlc3BvbnNlEnYKFEdldEtub3dsZWRnZUJhc2VGaWxlEjMucHJvdG8ua25vd2xlZGdlYmFzZS52MS5HZXRLbm93bGVkZ2VCYXNlRmlsZVJlcXVlc3QaKS5wcm90by5rbm93bGVkZ2ViYXNlLnYxLktub3dsZWRnZUJhc2VGaWxlEoEBChRMaXN0S25vd2xlZGdlQmFzZURpchIzLnByb3RvLmtub3dsZWRnZWJhc2UudjEuTGlzdEtub3dsZWRnZUJhc2VEaXJSZXF1ZXN0GjQucHJvdG8ua25vd2xlZGdlYmFzZS52MS5MaXN0S25vd2xlZGdlQmFzZURpclJlc3BvbnNlQlBaTmdpdGh1Yi5jb20vYW50aHJvcGljcy9hZ2VudHNtZXNoL3Byb3RvL2dlbi9nby9rbm93bGVkZ2ViYXNlL3YxO2tub3dsZWRnZWJhc2V2MWIGcHJvdG8z");
+  fileDesc("CiRrbm93bGVkZ2ViYXNlL3YxL2tub3dsZWRnZWJhc2UucHJvdG8SFnByb3RvLmtub3dsZWRnZWJhc2UudjEi9QIKDUtub3dsZWRnZUJhc2USCgoCaWQYASABKAMSDAoEc2x1ZxgCIAEoCRIMCgRuYW1lGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEhUKDWdpdF9yZXBvX3BhdGgYBSABKAkSFgoOaHR0cF9jbG9uZV91cmwYBiABKAkSFgoOZGVmYXVsdF9icmFuY2gYByABKAkSEwoLc291cmNlX3R5cGUYCCABKAkSGgoSc291cmNlX2NvbmZpZ19qc29uGAkgASgJEhMKC3N5bmNfc3RhdHVzGAogASgJEhcKCnN5bmNfZXJyb3IYCyABKAlIAIgBARIbCg5sYXN0X3N5bmNlZF9hdBgMIAEoCUgBiAEBEhoKEmNyZWF0ZWRfYnlfdXNlcl9pZBgNIAEoAxISCgpjcmVhdGVkX2F0GA4gASgJEhIKCnVwZGF0ZWRfYXQYDyABKAlCDQoLX3N5bmNfZXJyb3JCEQoPX2xhc3Rfc3luY2VkX2F0Ii4KCkFnZW50TW91bnQSEgoKYWdlbnRfc2x1ZxgBIAEoCRIMCgRtb2RlGAIgASgJIlcKGUxpc3RLbm93bGVkZ2VCYXNlc1JlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSGAoLc291cmNlX3R5cGUYAiABKAlIAIgBAUIOCgxfc291cmNlX3R5cGUigAEKGkxpc3RLbm93bGVkZ2VCYXNlc1Jlc3BvbnNlEjQKBWl0ZW1zGAEgAygLMiUucHJvdG8ua25vd2xlZGdlYmFzZS52MS5Lbm93bGVkZ2VCYXNlEg0KBXRvdGFsGAIgASgDEg0KBWxpbWl0GAMgASgFEg4KBm9mZnNldBgEIAEoBSI5ChdHZXRLbm93bGVkZ2VCYXNlUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIMCgRzbHVnGAIgASgJIsgBChpDcmVhdGVLbm93bGVkZ2VCYXNlUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIMCgRuYW1lGAIgASgJEhgKC2Rlc2NyaXB0aW9uGAMgASgJSACIAQESGAoLc291cmNlX3R5cGUYBCABKAlIAYgBARIfChJzb3VyY2VfY29uZmlnX2pzb24YBSABKAlIAogBAUIOCgxfZGVzY3JpcHRpb25CDgoMX3NvdXJjZV90eXBlQhUKE19zb3VyY2VfY29uZmlnX2pzb24iugEKGlVwZGF0ZUtub3dsZWRnZUJhc2VSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEgwKBHNsdWcYAiABKAkSEQoEbmFtZRgDIAEoCUgAiAEBEhgKC2Rlc2NyaXB0aW9uGAQgASgJSAGIAQESHwoSc291cmNlX2NvbmZpZ19qc29uGAUgASgJSAKIAQFCBwoFX25hbWVCDgoMX2Rlc2NyaXB0aW9uQhUKE19zb3VyY2VfY29uZmlnX2pzb24iOgoYU3luY0tub3dsZWRnZUJhc2VSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEgwKBHNsdWcYAiABKAkiPAoaRGVsZXRlS25vd2xlZGdlQmFzZVJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDAoEc2x1ZxgCIAEoCSIdChtEZWxldGVLbm93bGVkZ2VCYXNlUmVzcG9uc2UiawoVU2V0QWdlbnRNb3VudHNSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEgwKBHNsdWcYAiABKAkSMgoGbW91bnRzGAMgAygLMiIucHJvdG8ua25vd2xlZGdlYmFzZS52MS5BZ2VudE1vdW50IhgKFlNldEFnZW50TW91bnRzUmVzcG9uc2UiOAoWTGlzdEFnZW50TW91bnRzUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIMCgRzbHVnGAIgASgJIk0KF0xpc3RBZ2VudE1vdW50c1Jlc3BvbnNlEjIKBm1vdW50cxgBIAMoCzIiLnByb3RvLmtub3dsZWRnZWJhc2UudjEuQWdlbnRNb3VudCJLChtHZXRLbm93bGVkZ2VCYXNlRmlsZVJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDAoEc2x1ZxgCIAEoCRIMCgRwYXRoGAMgASgJIkAKEUtub3dsZWRnZUJhc2VGaWxlEgwKBHBhdGgYASABKAkSDwoHY29udGVudBgCIAEoCRIMCgRzaXplGAMgASgDIksKG0xpc3RLbm93bGVkZ2VCYXNlRGlyUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIMCgRzbHVnGAIgASgJEgwKBHBhdGgYAyABKAkiTwoVS25vd2xlZGdlQmFzZURpckVudHJ5EgwKBG5hbWUYASABKAkSDAoEcGF0aBgCIAEoCRIMCgR0eXBlGAMgASgJEgwKBHNpemUYBCABKAMiXgocTGlzdEtub3dsZWRnZUJhc2VEaXJSZXNwb25zZRI+CgdlbnRyaWVzGAEgAygLMi0ucHJvdG8ua25vd2xlZGdlYmFzZS52MS5Lbm93bGVkZ2VCYXNlRGlyRW50cnkysgkKFEtub3dsZWRnZUJhc2VTZXJ2aWNlEnsKEkxpc3RLbm93bGVkZ2VCYXNlcxIxLnByb3RvLmtub3dsZWRnZWJhc2UudjEuTGlzdEtub3dsZWRnZUJhc2VzUmVxdWVzdBoyLnByb3RvLmtub3dsZWRnZWJhc2UudjEuTGlzdEtub3dsZWRnZUJhc2VzUmVzcG9uc2USagoQR2V0S25vd2xlZGdlQmFzZRIvLnByb3RvLmtub3dsZWRnZWJhc2UudjEuR2V0S25vd2xlZGdlQmFzZVJlcXVlc3QaJS5wcm90by5rbm93bGVkZ2ViYXNlLnYxLktub3dsZWRnZUJhc2UScAoTQ3JlYXRlS25vd2xlZGdlQmFzZRIyLnByb3RvLmtub3dsZWRnZWJhc2UudjEuQ3JlYXRlS25vd2xlZGdlQmFzZVJlcXVlc3QaJS5wcm90by5rbm93bGVkZ2ViYXNlLnYxLktub3dsZWRnZUJhc2UScAoTVXBkYXRlS25vd2xlZGdlQmFzZRIyLnByb3RvLmtub3dsZWRnZWJhc2UudjEuVXBkYXRlS25vd2xlZGdlQmFzZVJlcXVlc3QaJS5wcm90by5rbm93bGVkZ2ViYXNlLnYxLktub3dsZWRnZUJhc2USbAoRU3luY0tub3dsZWRnZUJhc2USMC5wcm90by5rbm93bGVkZ2ViYXNlLnYxLlN5bmNLbm93bGVkZ2VCYXNlUmVxdWVzdBolLnByb3RvLmtub3dsZWRnZWJhc2UudjEuS25vd2xlZGdlQmFzZRJ+ChNEZWxldGVLbm93bGVkZ2VCYXNlEjIucHJvdG8ua25vd2xlZGdlYmFzZS52MS5EZWxldGVLbm93bGVkZ2VCYXNlUmVxdWVzdBozLnByb3RvLmtub3dsZWRnZWJhc2UudjEuRGVsZXRlS25vd2xlZGdlQmFzZVJlc3BvbnNlEm8KDlNldEFnZW50TW91bnRzEi0ucHJvdG8ua25vd2xlZGdlYmFzZS52MS5TZXRBZ2VudE1vdW50c1JlcXVlc3QaLi5wcm90by5rbm93bGVkZ2ViYXNlLnYxLlNldEFnZW50TW91bnRzUmVzcG9uc2UScgoPTGlzdEFnZW50TW91bnRzEi4ucHJvdG8ua25vd2xlZGdlYmFzZS52MS5MaXN0QWdlbnRNb3VudHNSZXF1ZXN0Gi8ucHJvdG8ua25vd2xlZGdlYmFzZS52MS5MaXN0QWdlbnRNb3VudHNSZXNwb25zZRJ2ChRHZXRLbm93bGVkZ2VCYXNlRmlsZRIzLnByb3RvLmtub3dsZWRnZWJhc2UudjEuR2V0S25vd2xlZGdlQmFzZUZpbGVSZXF1ZXN0GikucHJvdG8ua25vd2xlZGdlYmFzZS52MS5Lbm93bGVkZ2VCYXNlRmlsZRKBAQoUTGlzdEtub3dsZWRnZUJhc2VEaXISMy5wcm90by5rbm93bGVkZ2ViYXNlLnYxLkxpc3RLbm93bGVkZ2VCYXNlRGlyUmVxdWVzdBo0LnByb3RvLmtub3dsZWRnZWJhc2UudjEuTGlzdEtub3dsZWRnZUJhc2VEaXJSZXNwb25zZUJQWk5naXRodWIuY29tL2FudGhyb3BpY3MvYWdlbnRzbWVzaC9wcm90by9nZW4vZ28va25vd2xlZGdlYmFzZS92MTtrbm93bGVkZ2ViYXNldjFiBnByb3RvMw");
 
 /**
  * @generated from message proto.knowledgebase.v1.KnowledgeBase
@@ -269,6 +269,11 @@ export type UpdateKnowledgeBaseRequest = Message<"proto.knowledgebase.v1.UpdateK
    * @generated from field: optional string description = 4;
    */
   description?: string | undefined;
+
+  /**
+   * @generated from field: optional string source_config_json = 5;
+   */
+  sourceConfigJson?: string | undefined;
 };
 
 /**
@@ -277,6 +282,28 @@ export type UpdateKnowledgeBaseRequest = Message<"proto.knowledgebase.v1.UpdateK
  */
 export const UpdateKnowledgeBaseRequestSchema: GenMessage<UpdateKnowledgeBaseRequest> = /*@__PURE__*/
   messageDesc(file_knowledgebase_v1_knowledgebase, 6);
+
+/**
+ * @generated from message proto.knowledgebase.v1.SyncKnowledgeBaseRequest
+ */
+export type SyncKnowledgeBaseRequest = Message<"proto.knowledgebase.v1.SyncKnowledgeBaseRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: string slug = 2;
+   */
+  slug: string;
+};
+
+/**
+ * Describes the message proto.knowledgebase.v1.SyncKnowledgeBaseRequest.
+ * Use `create(SyncKnowledgeBaseRequestSchema)` to create a new message.
+ */
+export const SyncKnowledgeBaseRequestSchema: GenMessage<SyncKnowledgeBaseRequest> = /*@__PURE__*/
+  messageDesc(file_knowledgebase_v1_knowledgebase, 7);
 
 /**
  * @generated from message proto.knowledgebase.v1.DeleteKnowledgeBaseRequest
@@ -298,7 +325,7 @@ export type DeleteKnowledgeBaseRequest = Message<"proto.knowledgebase.v1.DeleteK
  * Use `create(DeleteKnowledgeBaseRequestSchema)` to create a new message.
  */
 export const DeleteKnowledgeBaseRequestSchema: GenMessage<DeleteKnowledgeBaseRequest> = /*@__PURE__*/
-  messageDesc(file_knowledgebase_v1_knowledgebase, 7);
+  messageDesc(file_knowledgebase_v1_knowledgebase, 8);
 
 /**
  * @generated from message proto.knowledgebase.v1.DeleteKnowledgeBaseResponse
@@ -311,7 +338,7 @@ export type DeleteKnowledgeBaseResponse = Message<"proto.knowledgebase.v1.Delete
  * Use `create(DeleteKnowledgeBaseResponseSchema)` to create a new message.
  */
 export const DeleteKnowledgeBaseResponseSchema: GenMessage<DeleteKnowledgeBaseResponse> = /*@__PURE__*/
-  messageDesc(file_knowledgebase_v1_knowledgebase, 8);
+  messageDesc(file_knowledgebase_v1_knowledgebase, 9);
 
 /**
  * @generated from message proto.knowledgebase.v1.SetAgentMountsRequest
@@ -338,7 +365,7 @@ export type SetAgentMountsRequest = Message<"proto.knowledgebase.v1.SetAgentMoun
  * Use `create(SetAgentMountsRequestSchema)` to create a new message.
  */
 export const SetAgentMountsRequestSchema: GenMessage<SetAgentMountsRequest> = /*@__PURE__*/
-  messageDesc(file_knowledgebase_v1_knowledgebase, 9);
+  messageDesc(file_knowledgebase_v1_knowledgebase, 10);
 
 /**
  * @generated from message proto.knowledgebase.v1.SetAgentMountsResponse
@@ -351,7 +378,7 @@ export type SetAgentMountsResponse = Message<"proto.knowledgebase.v1.SetAgentMou
  * Use `create(SetAgentMountsResponseSchema)` to create a new message.
  */
 export const SetAgentMountsResponseSchema: GenMessage<SetAgentMountsResponse> = /*@__PURE__*/
-  messageDesc(file_knowledgebase_v1_knowledgebase, 10);
+  messageDesc(file_knowledgebase_v1_knowledgebase, 11);
 
 /**
  * @generated from message proto.knowledgebase.v1.ListAgentMountsRequest
@@ -373,7 +400,7 @@ export type ListAgentMountsRequest = Message<"proto.knowledgebase.v1.ListAgentMo
  * Use `create(ListAgentMountsRequestSchema)` to create a new message.
  */
 export const ListAgentMountsRequestSchema: GenMessage<ListAgentMountsRequest> = /*@__PURE__*/
-  messageDesc(file_knowledgebase_v1_knowledgebase, 11);
+  messageDesc(file_knowledgebase_v1_knowledgebase, 12);
 
 /**
  * @generated from message proto.knowledgebase.v1.ListAgentMountsResponse
@@ -390,7 +417,7 @@ export type ListAgentMountsResponse = Message<"proto.knowledgebase.v1.ListAgentM
  * Use `create(ListAgentMountsResponseSchema)` to create a new message.
  */
 export const ListAgentMountsResponseSchema: GenMessage<ListAgentMountsResponse> = /*@__PURE__*/
-  messageDesc(file_knowledgebase_v1_knowledgebase, 12);
+  messageDesc(file_knowledgebase_v1_knowledgebase, 13);
 
 /**
  * @generated from message proto.knowledgebase.v1.GetKnowledgeBaseFileRequest
@@ -417,7 +444,7 @@ export type GetKnowledgeBaseFileRequest = Message<"proto.knowledgebase.v1.GetKno
  * Use `create(GetKnowledgeBaseFileRequestSchema)` to create a new message.
  */
 export const GetKnowledgeBaseFileRequestSchema: GenMessage<GetKnowledgeBaseFileRequest> = /*@__PURE__*/
-  messageDesc(file_knowledgebase_v1_knowledgebase, 13);
+  messageDesc(file_knowledgebase_v1_knowledgebase, 14);
 
 /**
  * @generated from message proto.knowledgebase.v1.KnowledgeBaseFile
@@ -444,7 +471,7 @@ export type KnowledgeBaseFile = Message<"proto.knowledgebase.v1.KnowledgeBaseFil
  * Use `create(KnowledgeBaseFileSchema)` to create a new message.
  */
 export const KnowledgeBaseFileSchema: GenMessage<KnowledgeBaseFile> = /*@__PURE__*/
-  messageDesc(file_knowledgebase_v1_knowledgebase, 14);
+  messageDesc(file_knowledgebase_v1_knowledgebase, 15);
 
 /**
  * @generated from message proto.knowledgebase.v1.ListKnowledgeBaseDirRequest
@@ -473,7 +500,7 @@ export type ListKnowledgeBaseDirRequest = Message<"proto.knowledgebase.v1.ListKn
  * Use `create(ListKnowledgeBaseDirRequestSchema)` to create a new message.
  */
 export const ListKnowledgeBaseDirRequestSchema: GenMessage<ListKnowledgeBaseDirRequest> = /*@__PURE__*/
-  messageDesc(file_knowledgebase_v1_knowledgebase, 15);
+  messageDesc(file_knowledgebase_v1_knowledgebase, 16);
 
 /**
  * @generated from message proto.knowledgebase.v1.KnowledgeBaseDirEntry
@@ -507,7 +534,7 @@ export type KnowledgeBaseDirEntry = Message<"proto.knowledgebase.v1.KnowledgeBas
  * Use `create(KnowledgeBaseDirEntrySchema)` to create a new message.
  */
 export const KnowledgeBaseDirEntrySchema: GenMessage<KnowledgeBaseDirEntry> = /*@__PURE__*/
-  messageDesc(file_knowledgebase_v1_knowledgebase, 16);
+  messageDesc(file_knowledgebase_v1_knowledgebase, 17);
 
 /**
  * @generated from message proto.knowledgebase.v1.ListKnowledgeBaseDirResponse
@@ -524,7 +551,7 @@ export type ListKnowledgeBaseDirResponse = Message<"proto.knowledgebase.v1.ListK
  * Use `create(ListKnowledgeBaseDirResponseSchema)` to create a new message.
  */
 export const ListKnowledgeBaseDirResponseSchema: GenMessage<ListKnowledgeBaseDirResponse> = /*@__PURE__*/
-  messageDesc(file_knowledgebase_v1_knowledgebase, 17);
+  messageDesc(file_knowledgebase_v1_knowledgebase, 18);
 
 /**
  * @generated from service proto.knowledgebase.v1.KnowledgeBaseService
@@ -560,6 +587,14 @@ export const KnowledgeBaseService: GenService<{
   updateKnowledgeBase: {
     methodKind: "unary";
     input: typeof UpdateKnowledgeBaseRequestSchema;
+    output: typeof KnowledgeBaseSchema;
+  },
+  /**
+   * @generated from rpc proto.knowledgebase.v1.KnowledgeBaseService.SyncKnowledgeBase
+   */
+  syncKnowledgeBase: {
+    methodKind: "unary";
+    input: typeof SyncKnowledgeBaseRequestSchema;
     output: typeof KnowledgeBaseSchema;
   },
   /**

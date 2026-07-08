@@ -10,6 +10,7 @@ import {
   mockRunner,
   mockAgent,
   clearAllMocks,
+  pickSelectOption,
 } from "./test-utils";
 
 // Mock hooks
@@ -159,9 +160,13 @@ describe("CreatePodForm", () => {
 
       render(<CreatePodForm config={{ scenario: "workspace" }} />);
 
-      const runnerSelect = screen.getByLabelText("ide.createPod.selectRunner");
-      expect(runnerSelect).toHaveTextContent("runner-claude");
-      expect(runnerSelect).toHaveTextContent("runner-codex");
+      // Custom Select renders options only when the trigger is opened.
+      fireEvent.click(screen.getByLabelText("ide.createPod.selectRunner"));
+      const optionValues = screen
+        .getAllByRole("option")
+        .map((el) => el.textContent ?? "");
+      expect(optionValues.some((v) => v.includes("runner-claude"))).toBe(true);
+      expect(optionValues.some((v) => v.includes("runner-codex"))).toBe(true);
     });
 
     it("should call setSelectedRunnerId when runner is selected", () => {
@@ -176,7 +181,7 @@ describe("CreatePodForm", () => {
       });
 
       render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      fireEvent.change(screen.getByLabelText("ide.createPod.selectRunner"), { target: { value: "1" } });
+      pickSelectOption("ide.createPod.selectRunner", "1");
       expect(mockSetSelectedRunnerId).toHaveBeenCalledWith(1);
     });
 
@@ -193,7 +198,7 @@ describe("CreatePodForm", () => {
       });
 
       render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      fireEvent.change(screen.getByLabelText("ide.createPod.selectRunner"), { target: { value: "" } });
+      pickSelectOption("ide.createPod.selectRunner", "");
       expect(mockSetSelectedRunnerId).toHaveBeenCalledWith(null);
     });
 
@@ -223,7 +228,7 @@ describe("CreatePodForm", () => {
       });
 
       render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      fireEvent.change(screen.getByLabelText("ide.createPod.selectImage"), { target: { value: "claude-code" } });
+      pickSelectOption("ide.createPod.selectImage", "claude-code");
       expect(mockSetSelectedAgent).toHaveBeenCalledWith("claude-code");
     });
 

@@ -15,6 +15,8 @@ import {
 import { usePodCreationStore } from "@/stores/podCreation";
 import { KbFileTree } from "./KbFileTree";
 import { KbFileViewer } from "./KbFileViewer";
+import { KnowledgeBaseSourceSettings } from "./KnowledgeBaseSourceSettings";
+import { SOURCE_LABELS, SYNC_STATUS_LABELS, syncStatusVariant } from "./sourceConfig";
 
 export function KnowledgeBaseDetailPanel() {
   const params = useParams();
@@ -102,9 +104,16 @@ export function KnowledgeBaseDetailPanel() {
       <div className="flex items-center gap-2 border-b border-border px-6 py-2 text-xs text-muted-foreground">
         <span className="font-mono">{kb.slug}</span>
         <Badge variant="outline">{kb.default_branch}</Badge>
-        <Badge variant="secondary">{kb.source_type}</Badge>
+        <Badge variant="secondary">{SOURCE_LABELS[kb.source_type] ?? kb.source_type}</Badge>
+        {kb.sync_status && kb.sync_status !== "idle" && (
+          <Badge variant={syncStatusVariant(kb.sync_status)}>
+            {SYNC_STATUS_LABELS[kb.sync_status] ?? kb.sync_status}
+          </Badge>
+        )}
         {kb.last_synced_at && <span>上次同步：{kb.last_synced_at}</span>}
       </div>
+
+      <KnowledgeBaseSourceSettings orgSlug={orgSlug} kb={kb} onUpdated={setKb} />
 
       <div className="flex min-h-0 flex-1">
         <aside className="w-64 shrink-0 overflow-auto border-r border-border">

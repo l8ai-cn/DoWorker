@@ -19,6 +19,20 @@ import (
 
 var ErrNotConfigured = errors.New("gitea: internal gitea is not configured")
 
+// HTTPError carries the Gitea HTTP status so higher layers can branch
+// (e.g. 404 -> gitops.ErrNotFound) without string matching. Its Error()
+// string is format-compatible with the previous fmt.Errorf message.
+type HTTPError struct {
+	StatusCode int
+	Method     string
+	Path       string
+	Body       string
+}
+
+func (e *HTTPError) Error() string {
+	return fmt.Sprintf("gitea: %s %s → %d: %s", e.Method, e.Path, e.StatusCode, e.Body)
+}
+
 type Config struct {
 	BaseURL      string // API + clone base as seen from the backend
 	AdminToken   string
@@ -76,7 +90,12 @@ func (c *Client) do(ctx context.Context, method, path string, body, out any) err
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
 		data, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		return fmt.Errorf("gitea: %s %s → %d: %s", method, path, resp.StatusCode, strings.TrimSpace(string(data)))
+		return &HTTPError{
+			StatusCode: resp.StatusCode,
+			Method:     method,
+			Path:       path,
+			Body:       strings.TrimSpace(string(data)),
+		}
 	}
 	if out != nil {
 		return json.NewDecoder(resp.Body).Decode(out)

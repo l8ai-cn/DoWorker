@@ -8,6 +8,7 @@ go_library(
         "files.go",
         "mounts.go",
         "server.go",
+        "sync.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/backend/internal/api/connect/knowledgebase",
     visibility = ["//backend:__subpackages__"],
