@@ -4,13 +4,19 @@ go_library(
     name = "tunnelframe",
     srcs = ["frame.go"],
     importpath = "github.com/anthropics/agentsmesh/relay/internal/protocol/tunnelframe",
-    visibility = ["//relay:__subpackages__", "//runner:__subpackages__"],
+    visibility = [
+        "//relay:__subpackages__",
+        "//runner:__subpackages__",
+    ],
 )
 
 alias(
     name = "go_default_library",
     actual = ":tunnelframe",
-    visibility = ["//relay:__subpackages__", "//runner:__subpackages__"],
+    visibility = [
+        "//relay:__subpackages__",
+        "//runner:__subpackages__",
+    ],
 )
 
 go_test(

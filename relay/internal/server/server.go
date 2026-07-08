@@ -26,6 +26,7 @@ type Server struct {
 	handler        *Handler
 	tunnelRegistry *tunnel.Registry
 	tunnelHandler  *TunnelHandler
+	previewHandler *PreviewHandler
 
 	// Graceful shutdown control
 	acceptingConnections atomic.Bool
@@ -99,6 +100,13 @@ func New(cfg *config.Config) *Server {
 			auth.NewOriginChecker(cfg.AllowedOriginList()),
 			cfg.Tunnel.StreamWindowBytes,
 		)
+		limiter := tunnel.NewPodLimiter(cfg.Tunnel.MaxStreamsPerPod, cfg.Tunnel.QueuePerPod, cfg.Tunnel.QueueTimeout)
+		s.previewHandler = NewPreviewHandler(tokenValidator, s.tunnelRegistry, limiter, PreviewConfig{
+			ReconnectGrace:    cfg.Tunnel.ReconnectGrace,
+			StreamTimeout:     cfg.Tunnel.StreamTimeout,
+			StreamWindowBytes: cfg.Tunnel.StreamWindowBytes,
+			CookieSecure:      cfg.UseHTTPS || cfg.Server.TLS.Enabled,
+		})
 	}
 
 	return s
@@ -128,6 +136,9 @@ func (s *Server) Start(ctx context.Context) error {
 
 	if s.tunnelHandler != nil {
 		mux.HandleFunc("/runner/tunnel", s.tunnelHandler.HandleTunnelWS)
+	}
+	if s.previewHandler != nil {
+		mux.HandleFunc("/preview/", s.previewHandler.route)
 	}
 
 	s.httpServer = &http.Server{
