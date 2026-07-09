@@ -36,10 +36,10 @@ export function useMissionPlayback(totalSteps: number) {
     return () => window.clearInterval(timer)
   }, [isPaused, reducedMotion, totalSteps])
 
-  const pause = useCallback(() => setUserPaused(true), [])
-  const togglePlayback = useCallback(() => {
-    setUserPaused((paused) => (reducedMotion ? true : !paused))
-  }, [reducedMotion])
+  const togglePlayback = useCallback(() => setUserPaused((paused) => !paused), [])
+  const nextStep = useCallback(() => {
+    setCurrentStep((step) => getNextMissionStep(step, totalSteps))
+  }, [totalSteps])
   const replay = useCallback(() => {
     setCurrentStep(0)
     setUserPaused(reducedMotion)
@@ -49,5 +49,13 @@ export function useMissionPlayback(totalSteps: number) {
     setUserPaused(true)
   }, [])
 
-  return { currentStep, isPaused, pause, replay, resetAndPause, togglePlayback }
+  return {
+    currentStep,
+    isPaused,
+    reducedMotion,
+    nextStep,
+    replay,
+    resetAndPause,
+    togglePlayback,
+  }
 }

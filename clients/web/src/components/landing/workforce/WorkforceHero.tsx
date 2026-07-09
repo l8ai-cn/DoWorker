@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { MissionConsole } from './MissionConsole'
+import { MissionConsole, type MissionConsoleHandle } from './MissionConsole'
 import {
   workforceScenarios,
   type WorkforceScenario,
@@ -12,6 +12,7 @@ import {
 
 export function WorkforceHero() {
   const t = useTranslations()
+  const missionConsoleRef = useRef<MissionConsoleHandle>(null)
   const [scenario, setScenario] = useState<WorkforceScenario>(workforceScenarios[0])
 
   const selectScenario = (id: WorkforceScenarioId) => {
@@ -20,7 +21,7 @@ export function WorkforceHero() {
   }
 
   const focusMission = () => {
-    document.getElementById('mission-console')?.scrollIntoView({ block: 'center' })
+    missionConsoleRef.current?.restartAndFocus()
   }
 
   return (
@@ -49,7 +50,7 @@ export function WorkforceHero() {
             <button
               type="button"
               onClick={focusMission}
-              className="min-h-12 rounded-full bg-[var(--azure-mint)] px-7 font-headline text-xs font-black uppercase tracking-[0.16em] text-[var(--azure-on-cyan)] transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--azure-mint)]"
+              className="min-h-12 rounded-full bg-[var(--azure-mint)] px-7 font-headline text-xs font-black uppercase tracking-[0.16em] text-[var(--azure-on-cyan)] transition-transform motion-safe:hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--azure-mint)]"
             >
               {t('landing.workforce.hero.watchTeam')}
             </button>
@@ -64,7 +65,12 @@ export function WorkforceHero() {
 
         <div className="relative lg:translate-y-8">
           <div className="pointer-events-none absolute -left-5 top-10 hidden h-24 w-px bg-[var(--azure-mint)] lg:block" />
-          <MissionConsole scenario={scenario} onScenarioChange={selectScenario} t={t} />
+          <MissionConsole
+            ref={missionConsoleRef}
+            scenario={scenario}
+            onScenarioChange={selectScenario}
+            t={t}
+          />
         </div>
       </div>
     </section>

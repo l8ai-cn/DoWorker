@@ -15,6 +15,7 @@ const labels: Record<string, string> = {
   'landing.workforce.mission.deliverable': 'Final deliverable',
   'landing.workforce.mission.pause': 'Pause mission',
   'landing.workforce.mission.resume': 'Resume mission',
+  'landing.workforce.mission.nextStep': 'Next step',
   'landing.workforce.mission.replay': 'Replay mission',
   'landing.workforce.scenarioLabels.research': 'Research',
   'landing.workforce.scenarioLabels.content': 'Content',
@@ -57,20 +58,12 @@ function ControlledConsole({ onScenarioChange = vi.fn() }: { onScenarioChange?: 
 }
 
 function installMatchMedia(reducedMotion = false) {
-  let matches = reducedMotion
-  const listeners = new Set<(event: MediaQueryListEvent) => void>()
-  const addEventListener = vi.fn((_type: string, listener: (event: MediaQueryListEvent) => void) => {
-    listeners.add(listener)
-  })
-  const removeEventListener = vi.fn((_type: string, listener: (event: MediaQueryListEvent) => void) => {
-    listeners.delete(listener)
-  })
+  const addEventListener = vi.fn()
+  const removeEventListener = vi.fn()
   Object.defineProperty(window, 'matchMedia', {
     configurable: true,
     value: vi.fn(() => ({
-      get matches() {
-        return matches
-      },
+      matches: reducedMotion,
       media: '(prefers-reduced-motion: reduce)',
       onchange: null,
       addEventListener,
@@ -78,14 +71,7 @@ function installMatchMedia(reducedMotion = false) {
       dispatchEvent: vi.fn(),
     })),
   })
-  return {
-    addEventListener,
-    removeEventListener,
-    setMatches(next: boolean) {
-      matches = next
-      listeners.forEach((listener) => listener({ matches: next } as MediaQueryListEvent))
-    },
-  }
+  return { addEventListener, removeEventListener }
 }
 
 describe('MissionConsole', () => {
@@ -119,6 +105,7 @@ describe('MissionConsole', () => {
     expect(
       screen.getAllByRole('button').filter((button) => button.hasAttribute('aria-pressed')),
     ).toHaveLength(6)
+    expect(screen.getByRole('group', { name: 'landing.workforce.mission.scenarios' })).toBeInTheDocument()
   })
 
   it('replay returns the activity timeline to step zero', () => {
@@ -182,24 +169,40 @@ describe('MissionConsole', () => {
       })
     })
 
-    const hasReducedMotionLabel = container.querySelector('[aria-label="Resume mission"]') !== null
+    const hasReducedMotionLabel = container.querySelector('[aria-label="Next step"]') !== null
     act(() => root.unmount())
     container.remove()
     expect(recoverableErrors).toHaveLength(0)
     expect(hasReducedMotionLabel).toBe(true)
   })
 
-  it('replay remains paused after reduced motion becomes active', () => {
+  it('offers manual progression and keeps replay paused under reduced motion', () => {
     vi.useFakeTimers()
-    const media = installMatchMedia()
+    installMatchMedia(true)
     render(<ControlledConsole />)
-    act(() => vi.advanceTimersByTime(1800))
-    expect(screen.getByText('Gather evidence')).toHaveAttribute('aria-current', 'step')
-    act(() => media.setMatches(true))
 
+    fireEvent.click(screen.getByRole('button', { name: 'Next step' }))
+    expect(screen.getByText('Gather evidence')).toHaveAttribute('aria-current', 'step')
     fireEvent.click(screen.getByRole('button', { name: 'Replay mission' }))
 
     expect(screen.getByText('Scope the question')).toHaveAttribute('aria-current', 'step')
-    expect(screen.getByRole('button', { name: 'Resume mission' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Next step' })).toBeInTheDocument()
+    act(() => vi.advanceTimersByTime(3600))
+    expect(screen.getByText('Scope the question')).toHaveAttribute('aria-current', 'step')
+  })
+
+  it('uses collision-safe labels and announces the current activity', () => {
+    const { container } = render(
+      <>
+        <ControlledConsole />
+        <ControlledConsole />
+      </>,
+    )
+
+    const workerHeadings = Array.from(container.querySelectorAll('[id]'))
+      .map((element) => element.id)
+      .filter((id) => id.includes('mission-workers'))
+    expect(new Set(workerHeadings).size).toBe(2)
+    expect(screen.getAllByRole('status')).toHaveLength(2)
   })
 })
