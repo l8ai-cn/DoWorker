@@ -97,6 +97,15 @@
       "interactionMode": "インタラクションモード",
       "modePty": "ターミナル (PTY)",
       "modeAcp": "会話 (ACP)",
+      "automationLevel": {
+        "label": "自動化レベル",
+        "interactive": "対話",
+        "auto_edit": "自動編集",
+        "autonomous": "完全自動",
+        "interactiveHint": "各ステップで承認が必要です。すべての操作に関与します。",
+        "auto_editHint": "読み取りと編集を自動承認し、リスクの高い操作のみ確認します。",
+        "autonomousHint": "完全自律・非対話で実行します。ACP モードで動作します。"
+      },
       "create": "Podを作成",
       "creating": "作成中...",
       "cancel": "キャンセル",

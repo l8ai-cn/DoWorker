@@ -97,6 +97,15 @@
       "interactionMode": "상호작용 모드",
       "modePty": "터미널 (PTY)",
       "modeAcp": "대화 (ACP)",
+      "automationLevel": {
+        "label": "자동화 수준",
+        "interactive": "대화형",
+        "auto_edit": "자동 편집",
+        "autonomous": "완전 자동",
+        "interactiveHint": "모든 단계에서 승인이 필요합니다. 각 작업에 직접 참여합니다.",
+        "auto_editHint": "읽기와 편집은 자동 승인하고, 위험한 작업만 확인합니다.",
+        "autonomousHint": "완전 자율·비대화형으로 실행됩니다. ACP 모드로 동작합니다."
+      },
       "create": "Pod 생성",
       "creating": "생성 중...",
       "cancel": "취소",

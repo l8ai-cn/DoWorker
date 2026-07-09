@@ -207,7 +207,7 @@ export default function AgentPodPage() {
           rows={buildDocsRows(t, "docs.features.agentpod.configuration", [
             "agent",
             "model",
-            "permissionMode",
+            "automationLevel",
             "repository",
             "ticket",
             "prompt",

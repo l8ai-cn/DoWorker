@@ -42,6 +42,7 @@ POST /experts
   "branch_name": "main",
   "prompt": "Review pull requests for security issues.",
   "interaction_mode": "pty",
+  "automation_level": "autonomous",
   "perpetual": false,
   "used_env_bundles": ["openai-default"],
   "skill_slugs": ["pdf-tool"],

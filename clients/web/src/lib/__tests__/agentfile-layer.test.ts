@@ -169,4 +169,58 @@ describe('buildAgentfileLayer', () => {
     expect(buildAgentfileLayer({ configValues: {}, tokenBudget: 0 })).not.toContain('token_budget')
     expect(buildAgentfileLayer({ configValues: {}, tokenBudget: -5 })).not.toContain('token_budget')
   })
+
+  it('emits ENV declarations for custom env vars', () => {
+    const result = buildAgentfileLayer({
+      configValues: {},
+      customEnv: [
+        { key: 'FOO', value: 'bar' },
+        { key: 'HTTP_PROXY', value: 'http://localhost:8080' },
+      ],
+    })
+    expect(result).toContain('ENV FOO = "bar"')
+    expect(result).toContain('ENV HTTP_PROXY = "http://localhost:8080"')
+  })
+
+  it('escapes custom env values', () => {
+    const result = buildAgentfileLayer({
+      configValues: {},
+      customEnv: [{ key: 'MSG', value: 'say "hi"\\end' }],
+    })
+    expect(result).toContain('ENV MSG = "say \\"hi\\"\\\\end"')
+  })
+
+  it('emits ENV after USE_ENV_BUNDLE so custom vars win on conflicts', () => {
+    const result = buildAgentfileLayer({
+      configValues: {},
+      credentialBundleName: 'creds',
+      customEnv: [{ key: 'FOO', value: 'bar' }],
+    })
+    const bundleIdx = result.indexOf('USE_ENV_BUNDLE')
+    const envIdx = result.indexOf('ENV FOO')
+    expect(bundleIdx).toBeGreaterThanOrEqual(0)
+    expect(envIdx).toBeGreaterThan(bundleIdx)
+  })
+
+  it('skips custom env entries with empty or invalid keys', () => {
+    const result = buildAgentfileLayer({
+      configValues: {},
+      customEnv: [
+        { key: '', value: 'ignored' },
+        { key: '  ', value: 'ignored' },
+        { key: 'lower-case', value: 'ignored' },
+        { key: '1BAD', value: 'ignored' },
+        { key: 'GOOD_ONE', value: 'kept' },
+      ],
+    })
+    expect(result).toBe('ENV GOOD_ONE = "kept"')
+  })
+
+  it('trims custom env keys before emitting', () => {
+    const result = buildAgentfileLayer({
+      configValues: {},
+      customEnv: [{ key: '  MY_VAR  ', value: 'v' }],
+    })
+    expect(result).toBe('ENV MY_VAR = "v"')
+  })
 })

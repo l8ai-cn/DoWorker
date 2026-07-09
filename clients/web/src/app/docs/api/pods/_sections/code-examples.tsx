@@ -32,7 +32,8 @@ export function CodeExamples() {
   -H "Content-Type: application/json" \\
   -d '{
     "agent_slug": "claude-code",
-    "agentfile_layer": "PROMPT \\"Fix the login bug\\"\\nCONFIG permission_mode = \\"plan\\""
+    "automation_level": "autonomous",
+    "agentfile_layer": "PROMPT \\"Fix the login bug\\""
   }'`}</pre>
           </div>
         </div>

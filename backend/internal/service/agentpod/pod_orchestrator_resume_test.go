@@ -399,19 +399,22 @@ func TestCreatePod_ResumeMode_ClaudePreservesSourcePermissionMode(t *testing.T) 
 		withAgentConfigProvider(newClaudePermissionTestProvider()),
 	)
 
-	sourceLayer := `CONFIG permission_mode = "plan"`
+	// Seed the source with a distinct, non-default automation level so we can
+	// prove resume replays the source's resolved permission verbatim instead of
+	// re-applying the autonomous default (bypassPermissions). auto_edit maps to
+	// claude's acceptEdits.
 	source, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: &sourceLayer,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		AutomationLevel: podDomain.AutomationLevelAutoEdit,
 	})
 	require.NoError(t, err)
 
 	sourcePod, err := podSvc.GetPod(context.Background(), source.Pod.PodKey)
 	require.NoError(t, err)
-	assert.Equal(t, "plan", sourcePod.ResolvedConfig[agentDomain.ConfigKeyPermissionMode])
+	assert.Equal(t, "acceptEdits", sourcePod.ResolvedConfig[agentDomain.ConfigKeyPermissionMode])
 
 	db.Model(&podDomain.Pod{}).Where("pod_key = ?", source.Pod.PodKey).Update("status", podDomain.StatusTerminated)
 
@@ -422,10 +425,10 @@ func TestCreatePod_ResumeMode_ClaudePreservesSourcePermissionMode(t *testing.T) 
 	})
 	require.NoError(t, err)
 
-	assert.Equal(t, "plan", result.Pod.ResolvedConfig[agentDomain.ConfigKeyPermissionMode])
+	assert.Equal(t, "acceptEdits", result.Pod.ResolvedConfig[agentDomain.ConfigKeyPermissionMode])
 	assert.Contains(t, coord.lastCmd.LaunchArgs, "--resume")
 	assert.Contains(t, coord.lastCmd.LaunchArgs, "--permission-mode")
-	assert.Contains(t, coord.lastCmd.LaunchArgs, "plan")
+	assert.Contains(t, coord.lastCmd.LaunchArgs, "acceptEdits")
 	assert.NotContains(t, coord.lastCmd.LaunchArgs, "bypassPermissions")
 }
 

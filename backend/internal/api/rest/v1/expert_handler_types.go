@@ -12,6 +12,7 @@ type createExpertRequest struct {
 	BranchName      *string                   `json:"branch_name"`
 	Prompt          *string                   `json:"prompt"`
 	InteractionMode string                    `json:"interaction_mode"`
+	AutomationLevel string                    `json:"automation_level"`
 	Perpetual       bool                      `json:"perpetual"`
 	UsedEnvBundles  []string                  `json:"used_env_bundles"`
 	SkillSlugs      []string                  `json:"skill_slugs"`
@@ -40,6 +41,7 @@ type updateExpertRequest struct {
 	BranchName      *string                   `json:"branch_name"`
 	Prompt          *string                   `json:"prompt"`
 	InteractionMode *string                 `json:"interaction_mode"`
+	AutomationLevel *string                 `json:"automation_level"`
 	Perpetual       *bool                     `json:"perpetual"`
 	UsedEnvBundles  []string                  `json:"used_env_bundles"`
 	SkillSlugs      []string                  `json:"skill_slugs"`

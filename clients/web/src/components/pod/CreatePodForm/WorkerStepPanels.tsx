@@ -1,11 +1,13 @@
 "use client";
 
-import { BookOpen, KeyRound, Sparkles, Wallet } from "lucide-react";
+import { BookOpen, Braces, KeyRound, Sparkles, Wallet } from "lucide-react";
+import { CustomEnvSection } from "@/components/settings/CustomEnvSection";
 import type { AgentData, ConfigField, RepositoryData, RunnerData } from "@/lib/api";
 import type { CreatePodFormState } from "../hooks";
 import { RunnerSelect } from "./RunnerSelect";
 import { WorkerImageSelect } from "./WorkerImageSelect";
 import { InteractionModeToggle } from "./InteractionModeToggle";
+import { AutomationLevelSelect } from "./AutomationLevelSelect";
 import { PromptInput } from "./PromptInput";
 import { WorkerDurationSection } from "./WorkerDurationSection";
 import { CapabilityConfigPanel } from "./CapabilityConfigPanel";
@@ -19,6 +21,8 @@ import { WorkerAgentInstructionsSection } from "./WorkerAgentInstructionsSection
 import { WorkerCredentialModelSection } from "./WorkerCredentialModelSection";
 
 import { ExpertPickerSection } from "@/components/experts/ExpertPickerSection";
+
+const EMPTY_DECLARED_KEYS: Set<string> = new Set();
 
 interface StepPanelsProps {
   form: CreatePodFormState;
@@ -103,7 +107,12 @@ export function WorkerStepRuntimePanel({
             t={t}
           />
           <div className="space-y-4 border-t border-border pt-4">
-            {!form.rawLayerMode && (
+            <AutomationLevelSelect
+              value={form.automationLevel}
+              onChange={form.setAutomationLevel}
+              t={t}
+            />
+            {!form.rawLayerMode && form.automationLevel !== "autonomous" && (
               <InteractionModeToggle
                 supportedModes={form.supportedModes}
                 interactionMode={form.interactionMode}
@@ -202,29 +211,32 @@ export function WorkerStepCapabilitiesPanel({
           t={t}
         />
       </CapabilityConfigPanel>
+      <CapabilityConfigPanel
+        icon={Braces}
+        title={t("ide.createPod.customEnvTitle")}
+        description={t("ide.createPod.customEnvDescription")}
+        testId="worker-custom-env"
+      >
+        <CustomEnvSection
+          entries={form.customEnv}
+          declaredKeys={EMPTY_DECLARED_KEYS}
+          onChange={form.setCustomEnv}
+          isEditing={false}
+          valueType="text"
+          t={t}
+        />
+        <p className="mt-3 text-xs text-muted-foreground">
+          {t("ide.createPod.customEnvPlaintextWarning")}
+        </p>
+      </CapabilityConfigPanel>
     </div>
   );
 }
 
-export function WorkerStepAgentPanel({
-  form,
-  configFields,
-  repositories,
-  t,
-}: StepPanelsProps) {
+export function WorkerStepAgentPanel({ form, t }: StepPanelsProps) {
   return (
     <div className="animate-in fade-in duration-200">
-      <WorkerAgentInstructionsSection
-        generatedLayer={form.agentfileLayer}
-        rawMode={form.rawLayerMode}
-        rawText={form.rawLayerText}
-        onRawModeChange={form.setRawLayerMode}
-        onRawTextChange={form.setRawLayerText}
-        configFields={configFields}
-        repositories={repositories}
-        envBundles={form.envBundles}
-        t={t}
-      />
+      <WorkerAgentInstructionsSection generatedLayer={form.agentfileLayer} t={t} />
     </div>
   );
 }

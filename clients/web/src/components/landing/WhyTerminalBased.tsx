@@ -44,75 +44,78 @@ export function WhyTerminalBased() {
   ];
 
   return (
-    <section className="py-24 relative" id="why-terminal">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
+    <section className="py-32 relative overflow-hidden" id="why-terminal">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[var(--azure-cyan)]/5 blur-[150px] rounded-full pointer-events-none" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            {t("landing.whyTerminal.title")} <span className="text-primary">{t("landing.whyTerminal.titleHighlight")}</span>{t("landing.whyTerminal.titleEnd")}
+        <div className="text-center mb-20">
+          <h2 className="font-headline text-4xl md:text-5xl font-bold mb-6 leading-tight">
+            {t("landing.whyTerminal.title")}{" "}
+            <span className="azure-gradient-text">{t("landing.whyTerminal.titleHighlight")}</span>
+            {t("landing.whyTerminal.titleEnd")}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-[var(--azure-text-muted)] max-w-2xl mx-auto text-lg font-light">
             {t("landing.whyTerminal.description")}
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-16">
+        <div className="grid md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto">
           {benefits.map((benefit, index) => (
             <div
               key={index}
-              className="surface-card-interactive p-6 motion-interactive"
+              className="azure-glass p-8 rounded-3xl border border-white/5 hover:border-[var(--azure-cyan)]/30 transition-all group"
             >
-              <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4">
+              <div className="w-14 h-14 rounded-2xl bg-[var(--azure-cyan)]/10 flex items-center justify-center text-[var(--azure-cyan)] mb-6 group-hover:azure-glow-cyan transition-all">
                 {benefit.icon}
               </div>
-              <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
-              <p className="text-muted-foreground">{benefit.description}</p>
+              <h3 className="font-headline text-xl font-bold mb-3">{benefit.title}</h3>
+              <p className="text-[var(--azure-text-muted)] leading-relaxed font-light">{benefit.description}</p>
             </div>
           ))}
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          <div className="surface-card rounded-xl overflow-hidden">
-            <div className="grid grid-cols-3 bg-surface-muted/50 panel-lift">
-              <div className="p-4 font-semibold text-sm"></div>
-              <div className="p-4 font-semibold text-sm text-center text-muted-foreground">
+        <div className="max-w-4xl mx-auto azure-glass rounded-3xl border border-white/5 overflow-hidden">
+          <div className="grid grid-cols-3 border-b border-white/5">
+            <div className="p-5" />
+            <div className="p-5 text-center">
+              <div className="font-headline text-sm font-bold text-[var(--azure-text-muted)]">
                 {t("landing.whyTerminal.comparison.idePlugins")}
-                <div className="text-xs font-normal mt-1">{t("landing.whyTerminal.comparison.idePluginsSubtitle")}</div>
               </div>
-              <div className="p-4 font-semibold text-sm text-center text-primary">
-                {t("landing.whyTerminal.comparison.terminalBased")}
-                <div className="text-xs font-normal mt-1 text-primary/70">{t("landing.whyTerminal.comparison.terminalBasedSubtitle")}</div>
+              <div className="text-xs text-[var(--azure-text-muted)]/60 mt-1">
+                {t("landing.whyTerminal.comparison.idePluginsSubtitle")}
               </div>
             </div>
-
-            {comparisonData.map((row, index) => (
-              <div
-                key={index}
-                className={`grid grid-cols-3 border-b border-border/20 last:border-b-0 ${
-                  index % 2 === 0 ? "bg-transparent" : "bg-secondary/10"
-                }`}
-              >
-                <div className="p-4 font-medium text-sm">{row.feature}</div>
-                <div className="p-4 text-sm text-center text-muted-foreground">
-                  <span className="inline-flex items-center gap-1">
-                    <svg className="w-4 h-4 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    {row.ide}
-                  </span>
-                </div>
-                <div className="p-4 text-sm text-center">
-                  <span className="inline-flex items-center gap-1 text-success">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {row.terminal}
-                  </span>
-                </div>
+            <div className="p-5 text-center bg-[var(--azure-cyan)]/[0.06]">
+              <div className="font-headline text-sm font-bold azure-gradient-text">
+                {t("landing.whyTerminal.comparison.terminalBased")}
               </div>
-            ))}
+              <div className="text-xs text-[var(--azure-cyan)]/70 mt-1">
+                {t("landing.whyTerminal.comparison.terminalBasedSubtitle")}
+              </div>
+            </div>
           </div>
+
+          {comparisonData.map((row, index) => (
+            <div key={index} className="grid grid-cols-3 border-b border-white/5 last:border-b-0">
+              <div className="p-5 font-medium text-sm text-foreground/90">{row.feature}</div>
+              <div className="p-5 text-sm text-center text-[var(--azure-text-muted)]">
+                <span className="inline-flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-[var(--azure-text-muted)]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  {row.ide}
+                </span>
+              </div>
+              <div className="p-5 text-sm text-center bg-[var(--azure-cyan)]/[0.06]">
+                <span className="inline-flex items-center gap-1.5 text-[var(--azure-mint)]">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  {row.terminal}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

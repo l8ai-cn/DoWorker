@@ -13,7 +13,7 @@ API="${HIVE_API_URL:-http://localhost:10015}"
 preflight_cleanup_pods() {
   # Real terminate first: frees the runner's in-memory pod slots
   # (max_concurrent_pods) — a DB UPDATE alone leaks them until 503.
-  node "${REPO_ROOT}/output/terminate-all-pods.mjs" || true
+  node "${REPO_ROOT}/tests/hive-smoke/terminate-all-pods.mjs" || true
 
   local pg_container
   if [[ -f "${SCRIPT_DIR}/.env" ]]; then
@@ -66,7 +66,7 @@ run_suite() {
   echo "=========================================="
   echo "  ${label}"
   echo "=========================================="
-  node "${REPO_ROOT}/output/${script}"
+  node "${REPO_ROOT}/tests/hive-smoke/${script}"
 }
 
 run_suite "S0 message round-trip" "api-integration-smoke.mjs"

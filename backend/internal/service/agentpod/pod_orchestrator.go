@@ -52,6 +52,10 @@ type OrchestrateCreatePodRequest struct {
 	TicketSlug          *string
 	Alias               *string
 	AgentfileLayer      *string // SSOT for all CONFIG, MODE, PROMPT, REPO, BRANCH, USE_ENV_BUNDLE
+	// AutomationLevel is the unified permission/automation tier requested at
+	// creation (interactive/auto_edit/autonomous). Empty ⇒ autonomous default.
+	// The orchestrator translates it into agent-native CONFIG/MODE layer lines.
+	AutomationLevel     string
 	Cols                int32
 	Rows                int32
 

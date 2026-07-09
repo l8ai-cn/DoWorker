@@ -62,6 +62,4 @@ must support the chosen agent.
   - Create Pod dialog renders real agent options and blocks create until an agent is selected.
   - Loop create dialog renders real agent options and blocks create until an agent is selected.
   - Screenshots:
-    - `output/frontend-runner-agent-automation-after-refactor.png`
-    - `output/frontend-runner-agent-create-pod-after-refactor.png`
-    - `output/frontend-runner-agent-loop-after-refactor.png`
+    - local screenshots under `output/` (gitignored scratch)

@@ -14,6 +14,7 @@ go_library(
         "connection.go",
         "mount.go",
         "mutations.go",
+        "pod_convert.amesh.go",
         "pod_convert_custom.go",
         "queries.go",
         "server.go",

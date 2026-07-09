@@ -11,6 +11,7 @@ import (
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	otelinit "github.com/anthropics/agentsmesh/backend/internal/infra/otel"
+	"github.com/anthropics/agentsmesh/backend/internal/service/agent/automation"
 )
 
 // CreatePod orchestrates the full Pod creation flow:
@@ -72,6 +73,25 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	// model-pool credentials before the AgentFile layer is parsed below.
 	if err := o.applyWorkerModel(ctx, req, agentDef); err != nil {
 		return nil, err
+	}
+
+	// Automation level → per-agent native permission/MODE. Injected as the
+	// highest-priority AgentFile layer lines (appended last ⇒ override the
+	// user layer and base defaults) so the existing resolve/eval pipeline
+	// produces the right launch args without touching the runner. Resume is
+	// exempt: it must replay the source pod's originally-resolved config
+	// verbatim, so we only inherit the source's level for the DB column.
+	if isResumeMode {
+		if req.AutomationLevel == "" && sourcePod != nil {
+			req.AutomationLevel = sourcePod.AutomationLevel
+		}
+		req.AutomationLevel = podDomain.NormalizeAutomationLevel(req.AutomationLevel)
+	} else {
+		req.AutomationLevel = podDomain.NormalizeAutomationLevel(req.AutomationLevel)
+		canForceACP := agentDef != nil && agentDef.SupportsMode(podDomain.InteractionModeACP)
+		if lines := automation.LayerLinesFor(req.AgentSlug, req.AutomationLevel, canForceACP); lines != "" {
+			appendAgentfileLayerLines(&req.AgentfileLayer, lines)
+		}
 	}
 
 	// --- AgentFile Layer resolution ---
@@ -173,6 +193,7 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		SessionID:       sessionID,
 		SourcePodKey:    req.SourcePodKey,
 		InteractionMode: effectiveInteractionMode,
+		AutomationLevel: req.AutomationLevel,
 		Perpetual:       req.Perpetual,
 		ResolvedConfig:  resolved.ConfigValues,
 		InitialStatus:   o.initialPodStatus(req),

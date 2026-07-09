@@ -380,14 +380,14 @@
           "agentDesc": "Claude Code, Codex CLI, Gemini CLI, Aider, or custom",
           "model": "Model",
           "modelDesc": "opus, sonnet, or haiku (for Claude)",
-          "permissionMode": "Permission Mode",
-          "permissionModeDesc": "bypassPermissions (auto-approve all, default), default (per-tool approval), acceptEdits (auto-approve file edits), dontAsk (deny unless allowlisted), or plan (read-only planning)",
           "repository": "Repository",
           "repositoryDesc": "Link to a Git repository for automatic cloning",
           "ticket": "Ticket",
           "ticketDesc": "Link to a ticket for context and tracking",
           "prompt": "Initial Prompt",
-          "promptDesc": "Starting instructions for the AI agent"
+          "promptDesc": "Starting instructions for the AI agent",
+          "automationLevel": "Nível de automação",
+          "automationLevelDesc": "Nível unificado entre agentes: interactive (aprovar cada passo), auto_edit (aprovar leituras/edições; perguntar em ações arriscadas) ou autonomous (totalmente autônomo, ACP não interativo — padrão). A plataforma mapeia para o mecanismo nativo de permissões de cada agente."
         }
       },
       "workspace": {
@@ -907,7 +907,7 @@
           "paramsHeader": "Parameters",
           "createPod": "create_pod",
           "createPodDesc": "Create a new AgentPod",
-          "createPodParams": "agent_slug (required), runner_id?, ticket_slug?, prompt?, model?",
+          "createPodParams": "agent_slug (required), runner_id?, ticket_slug?, prompt?, model?, automation_level?",
           "description": "Ferramentas para criar, observar e controlar Pods. Ferramentas de observação e entrada requerem um binding ativo com escopos apropriados.",
           "getPodSnapshot": "get_pod_snapshot",
           "getPodSnapshotDesc": "Obter um snapshot da saída do terminal de outro Pod (requer pod:read)",
@@ -1215,7 +1215,8 @@
               "auto_close": "Se o Pod deve fechar automaticamente após a conclusão da tarefa",
               "auto_close_delay_seconds": "Atraso em segundos antes do fechamento automático",
               "pod_timeout_minutes": "Tempo de vida máximo do Pod em minutos",
-              "max_turns": "Número máximo de turnos do agente"
+              "max_turns": "Número máximo de turnos do agente",
+              "automation_level": "Nível de automação unificado: interactive, auto_edit ou autonomous (padrão). Mapeado no servidor para as configurações nativas de permissão de cada agente."
             }
           },
           "terminatePod": {
@@ -1930,13 +1931,14 @@
           "field2": "Runner — Escolha qual Runner hospedará este Pod",
           "field3": "Repositório — Selecione um repositório para o agente trabalhar (opcional)",
           "field4": "Branch — Escolha a branch para checkout (padrão é a branch principal)",
-          "field5": "Prompt Inicial — Escreva uma descrição da tarefa para o agente, ex.: \"Adicionar validação de entrada no formulário de login\""
+          "field5": "Nível de automação — Interactive, Auto-edit ou Autonomous (padrão). Autonomous executa de forma não interativa no modo ACP.",
+          "field6": "Prompt inicial — Descrição da tarefa para o agente, ex.: \"Adicionar validação de entrada ao formulário de login\""
         },
         "step3": {
           "title": "Acompanhe a Inicialização do Pod",
           "description": "Após clicar em Criar, o Pod entra no estado Inicializando. O Runner irá:",
           "item1": "Criar um worktree Git isolado (se um repositório foi vinculado)",
-          "item2": "Iniciar uma sessão de terminal PTY",
+          "item2": "Iniciar uma sessão de terminal ou ACP conforme o nível de automação",
           "item3": "Lançar o agente IA com seu prompt inicial",
           "tip": "A visualização do terminal abre automaticamente. Você pode assistir o agente começar a trabalhar em tempo real."
         },

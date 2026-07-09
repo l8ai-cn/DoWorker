@@ -27,9 +27,9 @@ spec:
             - name: BACKEND_URL
               value: "http://backend:8080"
             - name: PRIMARY_DOMAIN
-              value: "doworker.l8an.cn:10007"
+              value: "dowork.l8ai.cn"
             - name: USE_HTTPS
-              value: "false"
+              value: "true"
             - name: RELAY_ID
               value: "k8s-relay-1"
             - name: RELAY_REGION

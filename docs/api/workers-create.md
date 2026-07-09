@@ -30,7 +30,8 @@ Legacy alias (same handler): `POST /api/v1/ext/orgs/{org_slug}/pods`
 | Cluster / Runner | `runner_id` | No | Omit to auto-select an online runner that supports `agent_slug`. |
 | Git repository | `repository_id` | No | Platform ID from `GET .../repositories`. Clones repo into the sandbox. |
 | Branch | `agentfile_layer` → `BRANCH "..."` | No* | *Recommended when `repository_id` is set. Default: repo `default_branch`. |
-| Interaction mode | `agentfile_layer` → `MODE pty\|acp` | No | Default `pty` (terminal). Omit line for PTY. |
+| Interaction mode | `agentfile_layer` → `MODE pty\|acp` | No | Prefer `automation_level` for permission/autonomy. Default `pty` unless `autonomous` forces ACP. |
+| Automation level | `automation_level` | No | `interactive` \| `auto_edit` \| `autonomous` (default). Mapped server-side to each agent's native permission settings; `autonomous` also forces ACP when supported. |
 | Duration (short / long) | `perpetual` | No | `true` = long-lived workspace (auto-restart on exit). Default `false`. |
 | Initial task | `agentfile_layer` → `PROMPT "..."` | No | First instruction sent to the agent. |
 | Alias | `alias` | No | Display name, max 100 chars. |
@@ -136,6 +137,7 @@ Content-Type: application/json
   "repository_id": 7,
   "alias": "auth-fix-worker",
   "perpetual": false,
+  "automation_level": "autonomous",
   "knowledge_mounts": [
     { "slug": "platform-docs", "mode": "ro" }
   ],

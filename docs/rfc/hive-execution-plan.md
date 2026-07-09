@@ -76,7 +76,7 @@ e2e-echo ACP → `AcpSessionEvent` → `SessionStreamPublisher` → SSE `turn.*`
 - [x] S0.1 诊断 docker runner gRPC `handshake EOF`：根因是 traefik passthrough 在 Mac Docker 下不稳定；mTLS 直连 host 正常
 - [x] S0.2 `docker-compose.runners.yml` 改为 `GRPC_ENDPOINT: host.docker.internal:10016`；替换 legacy `agentsmesh-main-runner-1` 为 `runner-e2e-echo`
 - [x] S0.3–S0.4 session API 注入 `MODE acp`（`session_agentfile_layer.go`）；runner `acpSendPromptWhenReady` 修复 create/send_prompt 竞态
-- [x] S0.5 `node output/api-integration-smoke.mjs` **五步全绿**（2026-07-05 验证）
+- [x] S0.5 `node tests/hive-smoke/api-integration-smoke.mjs` **五步全绿**（2026-07-05 验证）
 
 验收：assistant item 落库、SSE 收到 `turn.text.delta` +
 `turn.completed`、`GET /items` 返回两条消息。
@@ -84,7 +84,7 @@ e2e-echo ACP → `AcpSessionEvent` → `SessionStreamPublisher` → SSE `turn.*`
 ### S1 — web-user 浏览器闭环
 
 - [x] S1.1 浏览器 E2E：登录 → 选 agent → 建 session → 发消息 → 气泡渲染
-      （`node output/hive-browser-integration.mjs` 全绿，2026-07-05）
+      （`node tests/hive-smoke/hive-browser-integration.mjs` 全绿，2026-07-05）
       修复项：CORS 放行 `:5173`；`GET /v1/hosts/{id}/filesystem` stub；
       `POST /events` 接受 `input_text` 块类型
 - [x] S1.2 `session.status` + 侧边栏：`GET /v1/sessions` 返回 Omnigent

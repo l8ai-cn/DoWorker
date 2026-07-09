@@ -76,6 +76,7 @@ export const detailEndpoints: DetailSpec[] = [
         kind: "body",
         rows: [
           { name: "agent_slug", type: "string", required: true, descKey: "docs.api.pods.details.createPod.fields.agent_slug" },
+          { name: "automation_level", type: "string", required: false, descKey: "docs.api.pods.details.createPod.fields.automation_level" },
           { name: "agentfile_layer", type: "string", required: false, desc: "AgentFile Layer — SSOT for PROMPT, MODE, CONFIG, REPO, BRANCH, CREDENTIAL" },
           { name: "runner_id", type: "integer", required: false, descKey: "docs.api.pods.details.createPod.fields.runner_id" },
           { name: "ticket_slug", type: "string", required: false, descKey: "docs.api.pods.details.createPod.fields.ticket_slug" },

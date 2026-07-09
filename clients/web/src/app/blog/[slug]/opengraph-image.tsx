@@ -47,7 +47,7 @@ export default async function Image({
             inset: 0,
             opacity: 0.08,
             backgroundImage:
-              "linear-gradient(rgba(255, 106, 36, 0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 106, 36, 0.35) 1px, transparent 1px)",
+              "linear-gradient(rgba(15, 118, 110, 0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 118, 110, 0.35) 1px, transparent 1px)",
             backgroundSize: "60px 60px",
           }}
         />
@@ -62,7 +62,7 @@ export default async function Image({
             height: 600,
             borderRadius: "50%",
             background:
-              "radial-gradient(circle, rgba(255, 87, 1, 0.14) 0%, transparent 70%)",
+              "radial-gradient(circle, rgba(45, 212, 191, 0.14) 0%, transparent 70%)",
           }}
         />
 
@@ -73,7 +73,7 @@ export default async function Image({
               width: 48,
               height: 48,
               borderRadius: 12,
-              background: "linear-gradient(135deg, #FF6A24, #FF5701)",
+              background: "linear-gradient(135deg, #0F766E, #0B5F59)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -82,7 +82,7 @@ export default async function Image({
               color: "#ffffff",
             }}
           >
-            AM
+            DW
           </div>
           <span style={{ fontSize: 28, fontWeight: 600, color: "#a1a1aa" }}>
             Do Worker Blog

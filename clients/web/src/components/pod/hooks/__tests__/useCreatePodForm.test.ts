@@ -143,6 +143,55 @@ describe("useCreatePodForm - bundle via agentfile_layer (SSOT)", () => {
     expect(createArg).not.toHaveProperty("config_overrides");
   });
 
+  it("emits ENV lines in agentfile_layer for custom env vars", async () => {
+    mockCreatePod.mockResolvedValue({
+      pod: { pod_key: "test-pod", id: 1, status: "initializing", agent_status: "idle" } as never,
+    });
+
+    const { result } = renderHook(() => useCreatePodForm(mockAgents, []));
+
+    act(() => {
+      result.current.setSelectedAgent("claude-code");
+    });
+    act(() => {
+      result.current.setCustomEnv([
+        { id: "a", key: "FOO", value: "bar" },
+        { id: "b", key: "HTTP_PROXY", value: "http://localhost:8080" },
+      ]);
+    });
+
+    await act(async () => {
+      await result.current.submit(1, {}, { cols: 80, rows: 24 });
+    });
+
+    const [, createArg] = mockCreatePod.mock.calls[0];
+    const layer: string = createArg.agentfile_layer ?? "";
+    expect(layer).toContain('ENV FOO = "bar"');
+    expect(layer).toContain('ENV HTTP_PROXY = "http://localhost:8080"');
+  });
+
+  it("blocks submit when a custom env key is invalid", async () => {
+    mockCreatePod.mockResolvedValue({
+      pod: { pod_key: "test-pod", id: 1, status: "initializing", agent_status: "idle" } as never,
+    });
+
+    const { result } = renderHook(() => useCreatePodForm(mockAgents, []));
+
+    act(() => {
+      result.current.setSelectedAgent("claude-code");
+    });
+    act(() => {
+      result.current.setCustomEnv([{ id: "a", key: "bad-key", value: "x" }]);
+    });
+
+    await act(async () => {
+      await result.current.submit(1, {}, { cols: 80, rows: 24 });
+    });
+
+    expect(mockCreatePod).not.toHaveBeenCalled();
+    expect(result.current.validationErrors.env).toBeTruthy();
+  });
+
   it("sends repository_id when a repository is selected", async () => {
     mockCreatePod.mockResolvedValue({
       pod: { pod_key: "test-pod", id: 1, status: "initializing", agent_status: "idle" } as never,

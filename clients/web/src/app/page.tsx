@@ -8,9 +8,13 @@ import {
   HeroSection,
   AgentLogos,
   ParadigmShift,
+  DemoVideo,
   CoreFeatures,
   HowItWorks,
+  WhyTerminalBased,
+  EnterpriseFeatures,
   PricingSection,
+  FinalCTA,
   Footer,
 } from "@/components/landing";
 import { getDefaultRoute } from "@/lib/default-route";
@@ -88,9 +92,13 @@ export default function Home() {
         <HeroSection />
         <AgentLogos />
         <ParadigmShift />
+        <DemoVideo />
         <CoreFeatures />
         <HowItWorks />
+        <WhyTerminalBased />
+        <EnterpriseFeatures />
         <PricingSection />
+        <FinalCTA />
       </main>
       <Footer />
     </div>

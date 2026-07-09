@@ -45,6 +45,34 @@ const (
 	InteractionModeACP = "acp"
 )
 
+// AutomationLevel is the unified, cross-agent worker automation/permission
+// tier configured at creation. A per-agent adapter translates it into that
+// agent's native permission mechanism (permission_mode / approval_mode / ...).
+const (
+	// AutomationLevelInteractive — human-in-the-loop, approval on every step.
+	AutomationLevelInteractive = "interactive"
+	// AutomationLevelAutoEdit — auto-approve read/edit, ask only on risky ops.
+	AutomationLevelAutoEdit = "auto_edit"
+	// AutomationLevelAutonomous — fully autonomous, non-interactive; forces ACP
+	// (a PTY cannot be programmatically approved).
+	AutomationLevelAutonomous = "autonomous"
+
+	// AutomationLevelDefault is applied when the level is empty/unknown so every
+	// Worker is automatable by default.
+	AutomationLevelDefault = AutomationLevelAutonomous
+)
+
+// NormalizeAutomationLevel maps empty/unknown values to the default so callers
+// never persist an invalid tier.
+func NormalizeAutomationLevel(level string) string {
+	switch level {
+	case AutomationLevelInteractive, AutomationLevelAutoEdit, AutomationLevelAutonomous:
+		return level
+	default:
+		return AutomationLevelDefault
+	}
+}
+
 // Pod represents an AI coding pod (AgentPod instance)
 type Pod struct {
 	ID             int64 `gorm:"primaryKey" json:"id"`
@@ -78,6 +106,11 @@ type Pod struct {
 	Model           *string `gorm:"size:50" json:"model,omitempty"`           // opus/sonnet/haiku
 	PermissionMode  *string `gorm:"size:50" json:"permission_mode,omitempty"` // default/plan/acceptEdits/dontAsk/bypassPermissions
 	InteractionMode string  `gorm:"column:interaction_mode;type:varchar(10);default:pty;not null" json:"interaction_mode"`
+	// AutomationLevel is the unified permission/automation tier this pod was
+	// created with (interactive/auto_edit/autonomous). The per-agent adapter
+	// already translated it into agentfile CONFIG/MODE at create time; this
+	// column preserves the requested tier for display and resume.
+	AutomationLevel string `gorm:"column:automation_level;type:varchar(20);default:autonomous;not null" json:"automation_level"`
 	// Error details from Runner (e.g., git clone auth failure)
 	ErrorCode    *string `gorm:"size:100" json:"error_code,omitempty"`
 	ErrorMessage *string `gorm:"type:text" json:"error_message,omitempty"`

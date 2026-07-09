@@ -10,7 +10,8 @@ import type { CustomEnvEntry } from "./AgentCredentialsSettings/credentialForms/
 const ENV_NAME_PATTERN = /^[A-Z_][A-Z0-9_]*$/;
 
 interface CustomEnvSectionProps {
-  title: string;
+  /** Optional inline header. Omit when the parent already renders a title. */
+  title?: string;
   hint?: string;
   entries: CustomEnvEntry[];
   declaredKeys: Set<string>;
@@ -73,11 +74,13 @@ export function CustomEnvSection({
   );
 
   return (
-    <div className="grid gap-3 border-t border-border pt-4 mt-2">
-      <div className="flex items-baseline justify-between">
-        <Label className="text-sm font-medium">{title}</Label>
-        {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
-      </div>
+    <div className={title ? "grid gap-3 border-t border-border pt-4 mt-2" : "grid gap-3"}>
+      {title && (
+        <div className="flex items-baseline justify-between">
+          <Label className="text-sm font-medium">{title}</Label>
+          {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
+        </div>
+      )}
       {entries.map((entry) => {
         const keyErr = validateKey(entry.key, declaredKeys, entries, entry.id);
         return (

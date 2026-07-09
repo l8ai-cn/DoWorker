@@ -105,7 +105,12 @@ func (c *Client) Connect() error {
 	default:
 		return fmt.Errorf("unsupported scheme: %s", u.Scheme)
 	}
-	u.Path = path.Join(u.Path, "/runner/tunnel")
+	const tunnelPath = "/runner/tunnel"
+	if path.Clean(u.Path) == tunnelPath {
+		u.Path = tunnelPath
+	} else {
+		u.Path = path.Join(u.Path, tunnelPath)
+	}
 	q := u.Query()
 	q.Set("token", token)
 	u.RawQuery = q.Encode()

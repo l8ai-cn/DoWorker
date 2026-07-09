@@ -5,6 +5,7 @@ metadata:
   namespace: agentsmesh
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx
   tls:
@@ -22,6 +23,20 @@ spec:
                 port:
                   number: 8080
           - path: /health
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8080
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8080
+          - path: /v1
             pathType: Prefix
             backend:
               service:
@@ -50,6 +65,7 @@ metadata:
   namespace: agentsmesh
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx
   tls:
@@ -77,6 +93,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx
   tls:
@@ -94,14 +111,6 @@ spec:
                 port:
                   number: 8090
 ---
-# Gateway HTTP data plane (tunnel/preview). The /preview prefix is kept
-# (no rewrite-target) because the gateway's own mux routes on the full
-# /preview/{podKey}/* path. proxy-buffering is disabled so SSE and video
-# responses stream through immediately instead of being held in nginx's
-# response buffer, and read/send timeouts are raised to cover long-lived
-# runner tunnel WebSocket / preview WebSocket / video sessions. ingress-nginx
-# passes through the Upgrade/Connection headers for any backend by default,
-# so no extra annotation is required for WebSocket upgrades.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -113,6 +122,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx
   tls:
@@ -130,10 +140,6 @@ spec:
                 port:
                   number: 8090
 ---
-# Runner outbound tunnel endpoint. backend's cfg.TunnelURL() /
-# tunnelURLFromRelay() both mint "{scheme}://{host}/runner/tunnel" (a bare,
-# top-level path — NOT nested under /relay's rewrite-target strip), so it
-# needs its own ingress rule alongside agentsmesh-relay above.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -143,6 +149,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx
   tls:
@@ -167,6 +174,7 @@ metadata:
   namespace: agentsmesh
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx
   tls:

@@ -14,6 +14,7 @@ go_library(
     name = "binding",
     srcs = [
         "binding.go",
+        "binding_convert.amesh.go",
         "binding_lifecycle.go",
         "binding_query.go",
         "binding_scopes.go",

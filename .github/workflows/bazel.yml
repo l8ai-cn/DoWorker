@@ -557,7 +557,7 @@ jobs:
 
       # hive-s1-smoke drives a real chromium (WS attach + updates feed), so
       # the repo's @playwright/test + headless shell must be resolvable from
-      # plain `node output/*.mjs` — hence pnpm install at root, not Bazel.
+      # plain `node tests/hive-smoke/*.mjs` — hence pnpm install at root, not Bazel.
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}

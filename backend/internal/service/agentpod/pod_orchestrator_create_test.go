@@ -397,8 +397,11 @@ func TestCreatePod_CodexUsesConfigOverridesNotClaudeLegacyFields(t *testing.T) {
 	require.NoError(t, err)
 	assert.Nil(t, dbPod.Model)
 	assert.Nil(t, dbPod.PermissionMode)
+	// Default autonomous forces codex onto MODE acp with approval_mode=never;
+	// the `--ask-for-approval` arg is guarded by `mode != "acp"` so it drops
+	// out and the acp launch arg ("app-server") takes its place.
 	assert.Equal(t, "never", dbPod.ResolvedConfig["approval_mode"])
-	assert.Equal(t, []string{"--ask-for-approval", "never"}, coord.lastCmd.LaunchArgs)
+	assert.Equal(t, []string{"app-server"}, coord.lastCmd.LaunchArgs)
 }
 
 func TestCreatePod_NoLayer_BranchInheritedFromResume(t *testing.T) {

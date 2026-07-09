@@ -141,6 +141,7 @@ func (s *Service) Run(ctx context.Context, req *RunExpertRequest) (*RunExpertRes
 		RepositoryID:    expert.RepositoryID,
 		Alias:           req.Alias,
 		AgentfileLayer:  &layer,
+		AutomationLevel: expert.AutomationLevel,
 		Cols:            req.Cols,
 		Rows:            req.Rows,
 		Perpetual:       expert.Perpetual,

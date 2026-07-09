@@ -450,6 +450,7 @@ Reusable worker configuration templates. Full reference: [experts.md](./experts.
   "repository_id": 7,
   "alias": "my-task",
   "perpetual": false,
+  "automation_level": "autonomous",
   "agentfile_layer": "PROMPT \"Fix the bug\"\nREPO \"org/repo\"\nBRANCH \"main\"",
   "knowledge_mounts": [{ "slug": "docs", "mode": "ro" }]
 }

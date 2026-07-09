@@ -1,6 +1,8 @@
 <p align="center">
-  <img src="docs/images/logo.svg" alt="Do Worker" height="60" />
+  <img src="docs/images/logo.svg" alt="Do Worker" height="72" />
 </p>
+
+<h1 align="center">Do Worker</h1>
 
 <h3 align="center">Where teams scale beyond headcount.</h3>
 
@@ -10,8 +12,8 @@
 </p>
 
 <p align="center">
-  <a href="https://l8ai.cn">Website</a> ·
-  <a href="https://l8ai.cn/docs">Docs</a> ·
+  <a href="https://agentsmesh.ai">Website</a> ·
+  <a href="https://agentsmesh.ai/docs">Docs</a> ·
   <a href="#quick-start">Quick Start</a> ·
   <a href="https://github.com/l8ai-cn/DoWorker">GitHub</a> ·
   <a href="https://discord.gg/3RcX7VBbH9">Discord</a> ·
@@ -26,8 +28,8 @@
 </p>
 
 <p align="center">
-  <a href="https://youtu.be/VaXImaly3dM">
-    <img src="https://img.youtube.com/vi/VaXImaly3dM/maxresdefault.jpg" alt="Do Worker Demo Video" width="720" />
+  <a href="https://youtu.be/FZrUO0tim0U">
+    <img src="https://img.youtube.com/vi/FZrUO0tim0U/maxresdefault.jpg" alt="Do Worker Demo Video" width="720" />
   </a>
 </p>
 
@@ -149,18 +151,19 @@ Run the whole stack locally with one command.
 
 ```bash
 git clone https://github.com/l8ai-cn/DoWorker.git
-cd Do Worker/deploy/dev
-./dev.sh
+cd DoWorker
+bazel run //deploy/dev:up
 ```
 
-This starts the full stack: PostgreSQL, Redis, MinIO, Backend, Relay, Traefik, and a local Next.js frontend with hot reload.
+This starts the full stack: PostgreSQL, Redis, MinIO, Backend, Relay, Traefik, and the Next.js frontend with hot reload.
 
-**Access:**
+**Access (main worktree / offset 0):**
 
 | Service | URL |
 |---------|-----|
-| Web Console | http://localhost:3000 |
-| API | http://localhost:80/api |
+| Web Console | http://localhost:10007 |
+| API | http://localhost:10000/api |
+| Admin Console | http://localhost:10011 |
 
 **Test Accounts:**
 
@@ -174,17 +177,18 @@ This starts the full stack: PostgreSQL, Redis, MinIO, Backend, Relay, Traefik, a
 <details>
 <summary><strong>Manual Setup</strong></summary>
 
-**Prerequisites:** Go 1.24+, Node.js 20+, pnpm, Docker
+**Prerequisites:** Bazel (bazelisk), Go 1.25+, Node.js 20+, pnpm, Docker, ibazel
 
 ```bash
-# 1. Start infrastructure
-cd deploy/dev && ./dev.sh
+# 1. Start infrastructure + host services
+bazel run //deploy/dev:up
 
-# 2. Backend (auto-starts in Docker with hot reload)
-docker compose logs -f backend
+# 2. Tail logs
+tail -f deploy/dev/runtime/backend/backend.log
+tail -f deploy/dev/web.log
 
-# 3. Frontend (local with Turbopack)
-cd clients/web && pnpm install && pnpm dev
+# Low-memory alternative (no ibazel):
+# cd deploy/dev && ./dev-lite.sh
 ```
 
 </details>
@@ -242,18 +246,22 @@ Any terminal-based agent works. The built-ins:
 ## Project Structure
 
 ```
-Do Worker/
+DoWorker/
 ├── backend/          # Go API server
 ├── relay/            # Terminal relay server (Go)
 ├── runner/           # Self-hosted runner daemon (Go)
+├── agentfile/        # AgentFile DSL
 ├── clients/
 │   ├── core/         # Rust business-logic SSOT (WASM)
 │   ├── web/          # Next.js console
-│   └── web-admin/    # Admin console (Next.js)
+│   ├── web-admin/    # Admin console (Next.js)
+│   └── web-user/     # Hive / session UI
 ├── proto/            # Protocol Buffers definitions
+├── packages/         # Shared TS packages (service-runtime, …)
 ├── deploy/
-│   ├── dev/          # Docker Compose dev environment
+│   ├── dev/          # Docker Compose + host-side Bazel services
 │   └── selfhost/     # Self-hosted deployment guide
+├── tests/            # E2E / hive smoke suites
 └── docs/             # Architecture docs and RFCs
 ```
 

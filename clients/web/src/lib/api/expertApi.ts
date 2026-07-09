@@ -41,6 +41,7 @@ export interface Expert {
   branch_name?: string | null;
   prompt?: string | null;
   interaction_mode: string;
+  automation_level: string;
   perpetual: boolean;
   used_env_bundles: string[];
   skill_slugs: string[];
@@ -68,6 +69,7 @@ export interface CreateExpertInput {
   branch_name?: string;
   prompt?: string;
   interaction_mode?: string;
+  automation_level?: string;
   perpetual?: boolean;
   used_env_bundles?: string[];
   skill_slugs?: string[];
@@ -87,6 +89,7 @@ export interface UpdateExpertInput {
   branch_name?: string;
   prompt?: string;
   interaction_mode?: string;
+  automation_level?: string;
   perpetual?: boolean;
   used_env_bundles?: string[];
   skill_slugs?: string[];

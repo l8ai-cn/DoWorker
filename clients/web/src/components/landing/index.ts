@@ -5,6 +5,7 @@ export { AgentLogos } from "./AgentLogos";
 export { ParadigmShift } from "./ParadigmShift";
 export { CoreFeatures } from "./CoreFeatures";
 export { HowItWorks } from "./HowItWorks";
+export { WhyTerminalBased } from "./WhyTerminalBased";
 export { EnterpriseFeatures } from "./EnterpriseFeatures";
 export { PricingSection } from "./PricingSection";
 export { SelfHostedCTA } from "./SelfHostedCTA";

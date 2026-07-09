@@ -1,4 +1,5 @@
 import { PodData } from "@/lib/api";
+import type { CustomEnvEntry } from "@/components/settings/AgentCredentialsSettings/credentialForms/types";
 import type { KnowledgeMountSelection } from "@/lib/api/facade/knowledgeBaseApi";
 import type { PodMode } from "@/lib/pod-modes";
 import type { EnvBundleSummary } from "@/lib/viewModels/envBundleSummary";
@@ -14,6 +15,7 @@ export interface FormValidationErrors {
   repository?: string;
   branch?: string;
   prompt?: string;
+  env?: string;
 }
 
 export interface CreatePodFormState {
@@ -31,6 +33,9 @@ export interface CreatePodFormState {
   selectedRuntimeBundleNames: string[];
   selectedSkillSlugs: string[];
   interactionMode: PodMode;
+  // Unified permission/automation tier: interactive | auto_edit | autonomous.
+  // autonomous (default) forces ACP so the Worker runs non-interactively.
+  automationLevel: string;
   prompt: string;
   alias: string;
   perpetual: boolean;
@@ -42,6 +47,9 @@ export interface CreatePodFormState {
   tokenBudget: number | null;
   // Virtual API key binding for quota/billing attribution. Null = agent default.
   selectedVirtualKeyId: number | null;
+  // Per-Worker custom environment variables. Emitted as `ENV KEY = "value"`
+  // lines in the generated AgentFile layer.
+  customEnv: CustomEnvEntry[];
 
   // EnvBundles (credential + runtime kinds) available for the selected agent
   envBundles: EnvBundleSummary[];
@@ -57,6 +65,7 @@ export interface CreatePodFormState {
   setSelectedRuntimeBundleNames: (names: string[]) => void;
   setSelectedSkillSlugs: (slugs: string[]) => void;
   setInteractionMode: (mode: PodMode) => void;
+  setAutomationLevel: (level: string) => void;
   setPrompt: (prompt: string) => void;
   setAlias: (alias: string) => void;
   setPerpetual: (perpetual: boolean) => void;
@@ -65,6 +74,7 @@ export interface CreatePodFormState {
   setSelectedKnowledgeMounts: (mounts: KnowledgeMountSelection[]) => void;
   setTokenBudget: (budget: number | null) => void;
   setSelectedVirtualKeyId: (id: number | null) => void;
+  setCustomEnv: (entries: CustomEnvEntry[]) => void;
 
   // AgentFile Layer
   rawLayerMode: boolean;

@@ -5,6 +5,9 @@
 
 import { POD_MODE_PTY } from "@/lib/pod-modes";
 
+/** POSIX-style env var name: uppercase letters, digits, underscores. */
+const ENV_NAME_PATTERN = /^[A-Z_][A-Z0-9_]*$/;
+
 /**
  * Escape a string for use in an AgentFile quoted value.
  * Must align with backend FormatStringLiteral (agentfile/format.go).
@@ -65,6 +68,13 @@ export function buildAgentfileLayer(params: {
    */
   tokenBudget?: number | null;
   prompt?: string;
+  /**
+   * Per-Worker custom environment variables. Emitted as `ENV KEY = "value"`
+   * lines AFTER USE_ENV_BUNDLE so custom values win over bundle values on
+   * conflicting keys (matches backend eval order). Entries with an empty or
+   * malformed key are skipped — the form validates keys before submit.
+   */
+  customEnv?: { key: string; value: string }[];
 }): string {
   const lines: string[] = [];
 
@@ -92,6 +102,16 @@ export function buildAgentfileLayer(params: {
     for (const name of params.configBundleNames) {
       if (name) {
         lines.push(`USE_CONFIG_BUNDLE "${escapeAgentfileString(name)}"`);
+      }
+    }
+  }
+
+  // Custom ENV declarations — after bundles so they win on key conflicts.
+  if (params.customEnv) {
+    for (const { key, value } of params.customEnv) {
+      const trimmedKey = key.trim();
+      if (trimmedKey && ENV_NAME_PATTERN.test(trimmedKey)) {
+        lines.push(`ENV ${trimmedKey} = ${formatAgentfileValue(value)}`);
       }
     }
   }

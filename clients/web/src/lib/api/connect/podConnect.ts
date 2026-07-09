@@ -113,6 +113,7 @@ export interface CreatePodInput {
   ticket_slug?: string;
   alias?: string;
   agentfile_layer?: string;
+  automation_level?: string;
   repository_id?: number;
   credential_profile_id?: number;
   cols?: number;
@@ -136,6 +137,7 @@ export async function createPod(
     ticketSlug: input.ticket_slug,
     alias: input.alias,
     agentfileLayer: input.agentfile_layer,
+    automationLevel: input.automation_level,
     repositoryId: input.repository_id === undefined ? undefined : BigInt(input.repository_id),
     credentialProfileId:
       input.credential_profile_id === undefined ? undefined : BigInt(input.credential_profile_id),

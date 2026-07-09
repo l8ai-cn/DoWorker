@@ -267,6 +267,12 @@ message CreatePodRequest {
   optional int64 virtual_api_key_id = 15;
   optional int64 model_config_id = 16;
   optional int64 token_budget = 17;
+
+  // Unified cross-agent automation/permission tier: "interactive" | "auto_edit"
+  // | "autonomous". Empty ⇒ autonomous default, so every Worker is automatable
+  // unless the caller downgrades it. Translated to each agent's native
+  // permission mechanism server-side.
+  string automation_level = 18;
 }
 
 // PodKnowledgeMount selects one org knowledge base for a new pod.

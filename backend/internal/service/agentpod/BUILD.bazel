@@ -55,6 +55,7 @@ go_library(
         "//backend/internal/infra/eventbus",
         "//backend/internal/infra/otel",
         "//backend/internal/service/agent",
+        "//backend/internal/service/agent/automation",
         "//backend/internal/service/aimodel",
         "//backend/internal/service/knowledgebase",
         "//backend/internal/service/permissionpolicy",

@@ -62,6 +62,10 @@ type CreatePodRequest struct {
 	// Interaction mode: "pty" (default) or "acp"
 	InteractionMode string
 
+	// AutomationLevel is the unified permission/automation tier
+	// (interactive/auto_edit/autonomous). Empty ⇒ autonomous default.
+	AutomationLevel string
+
 	// Perpetual mode: Runner auto-restarts the agent process on clean exit
 	Perpetual bool
 
@@ -137,6 +141,7 @@ func (s *PodService) CreatePod(ctx context.Context, req *CreatePodRequest) (*age
 		SessionID:      sessionID,
 		SourcePodKey:   sourcePodKey,
 		InteractionMode:     interactionMode,
+		AutomationLevel:     agentpod.NormalizeAutomationLevel(req.AutomationLevel),
 		Perpetual:           req.Perpetual,
 		ResolvedConfig:      req.ResolvedConfig,
 		VirtualAPIKeyID:     req.VirtualAPIKeyID,

@@ -65,6 +65,7 @@ export default function FirstPodTutorialPage() {
             <li>{t("docs.tutorials.firstPod.step2.field3")}</li>
             <li>{t("docs.tutorials.firstPod.step2.field4")}</li>
             <li>{t("docs.tutorials.firstPod.step2.field5")}</li>
+            <li>{t("docs.tutorials.firstPod.step2.field6")}</li>
           </ol>
         </div>
       </section>

@@ -216,6 +216,7 @@ start_relay_host_lite() {
     export RELAY_CAPACITY=1000
     export PRIMARY_DOMAIN="${PRIMARY_DOMAIN}"
     export USE_HTTPS="${USE_HTTPS:-false}"
+    export ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020}"
     export SESSION_KEEP_ALIVE_DURATION=30s
     export DEBUG=true
     export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:${OTEL_GRPC_PORT}"

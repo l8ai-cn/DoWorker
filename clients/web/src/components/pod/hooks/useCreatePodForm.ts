@@ -2,13 +2,15 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { PodData, AgentData, RepositoryData } from "@/lib/api";
 import { usePodCreationStore } from "@/stores/podCreation";
 import { buildAgentfileLayer } from "@/lib/agentfile-layer";
-import { POD_MODE_PTY } from "@/lib/pod-modes";
+import { POD_MODE_PTY, POD_MODE_ACP } from "@/lib/pod-modes";
 import type { PodMode } from "@/lib/pod-modes";
 import { submitCreatePod } from "./useCreatePodFormSubmit";
 import { usePrefsAutoFill, useEnvBundles, useRepoSkills } from "./useCreatePodFormEffects";
 import type { CreatePodFormState, FormValidationErrors } from "./useCreatePodFormTypes";
 import type { DestroyPolicy } from "../CreatePodForm/podLifecycleOptions";
 import type { KnowledgeMountSelection } from "@/lib/api/facade/knowledgeBaseApi";
+import type { CustomEnvEntry } from "@/components/settings/AgentCredentialsSettings/credentialForms/types";
+import { hasInvalidCustomEnvKey } from "@/components/settings/CustomEnvSection";
 
 // Re-export types for consumers
 export type { CreatePodFormState, FormValidationErrors } from "./useCreatePodFormTypes";
@@ -42,6 +44,7 @@ export function useCreatePodForm(
   const [selectedRepository, setSelectedRepository] = useState<number | null>(null);
   const [selectedBranch, setSelectedBranch] = useState<string>("");
   const [interactionMode, setInteractionMode] = useState<PodMode>(POD_MODE_PTY);
+  const [automationLevel, setAutomationLevel] = useState<string>("autonomous");
   const [prompt, setPrompt] = useState<string>("");
   const [alias, setAlias] = useState<string>("");
   const [perpetual, setPerpetual] = useState(false);
@@ -52,6 +55,7 @@ export function useCreatePodForm(
   >(lastKnowledgeMounts ?? []);
   const [tokenBudget, setTokenBudget] = useState<number | null>(null);
   const [selectedVirtualKeyId, setSelectedVirtualKeyId] = useState<number | null>(null);
+  const [customEnv, setCustomEnv] = useState<CustomEnvEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -111,6 +115,15 @@ export function useCreatePodForm(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAgent, supportedModes]);
 
+  // Autonomous runs non-interactively — lock to ACP when the agent supports it
+  // (PTY cannot be programmatically approved). The backend adapter also
+  // enforces this, but reflecting it here keeps the mode toggle honest.
+  useEffect(() => {
+    if (automationLevel === "autonomous" && supportedModes.includes(POD_MODE_ACP)) {
+      setInteractionMode(POD_MODE_ACP as PodMode);
+    }
+  }, [automationLevel, supportedModes]);
+
   // Auto-select default branch when repository is selected
   useEffect(() => {
     if (!selectedRepository) { setSelectedBranch(""); return; }
@@ -134,9 +147,12 @@ export function useCreatePodForm(
     if (selectedBranch.trim() && !/^[a-zA-Z0-9._/-]+$/.test(selectedBranch)) {
       errors.branch = "Branch name contains invalid characters";
     }
+    if (hasInvalidCustomEnvKey(customEnv, new Set())) {
+      errors.env = "One or more environment variable names are invalid";
+    }
     setValidationErrors(errors);
     return Object.keys(errors).filter(k => errors[k as keyof FormValidationErrors]).length === 0;
-  }, [selectedAgent, selectedRepository, selectedBranch]);
+  }, [selectedAgent, selectedRepository, selectedBranch, customEnv]);
 
   const reset = useCallback(() => {
     setSelectedAgent(null);
@@ -147,6 +163,7 @@ export function useCreatePodForm(
     skills.setSelectedSkillSlugs([]);
     bundles.setEnvBundles([]);
     setInteractionMode(POD_MODE_PTY);
+    setAutomationLevel("autonomous");
     setPrompt("");
     setAlias("");
     setPerpetual(false);
@@ -155,6 +172,7 @@ export function useCreatePodForm(
     setSelectedKnowledgeMounts([]);
     setTokenBudget(null);
     setSelectedVirtualKeyId(null);
+    setCustomEnv([]);
     setError(null);
     setWarning(null);
     setValidationErrors({});
@@ -185,12 +203,15 @@ export function useCreatePodForm(
         : undefined,
       tokenBudget,
       prompt: prompt.trim() || undefined,
+      customEnv: customEnv.length > 0
+        ? customEnv.map((e) => ({ key: e.key, value: e.value }))
+        : undefined,
     });
   }, [
     configValues, selectedRepository, repositories, selectedBranch,
     bundles.selectedCredentialName, bundles.selectedRuntimeBundleNames,
     skills.selectedSkillSlugs,
-    interactionMode, prompt, selectedKnowledgeMounts, tokenBudget,
+    interactionMode, prompt, selectedKnowledgeMounts, tokenBudget, customEnv,
   ]);
 
   const agentfileLayer = rawLayerMode ? rawLayerText : generatedLayer;
@@ -217,6 +238,7 @@ export function useCreatePodForm(
         const result = await submitCreatePod({
           selectedAgent, alias, perpetual, selectedRunnerId,
           agentfileLayer: agentfileLayer || undefined,
+          automationLevel,
           repositoryId: selectedRepository,
           virtualApiKeyId: selectedVirtualKeyId,
           options,
@@ -251,7 +273,7 @@ export function useCreatePodForm(
       bundles.selectedCredentialName, bundles.selectedRuntimeBundleNames,
       skills.selectedSkillSlugs,
       alias, perpetual, destroyPolicy, destroyAfterMinutes, selectedKnowledgeMounts,
-      selectedVirtualKeyId, agentfileLayer, onSuccess, validate, setLastChoices,
+      selectedVirtualKeyId, agentfileLayer, automationLevel, onSuccess, validate, setLastChoices,
     ]
   );
 
@@ -260,18 +282,18 @@ export function useCreatePodForm(
     selectedCredentialName: bundles.selectedCredentialName,
     selectedRuntimeBundleNames: bundles.selectedRuntimeBundleNames,
     selectedSkillSlugs: skills.selectedSkillSlugs,
-    interactionMode, prompt, alias, perpetual,
+    interactionMode, automationLevel, prompt, alias, perpetual,
     destroyPolicy, destroyAfterMinutes, selectedKnowledgeMounts, tokenBudget,
-    selectedVirtualKeyId,
+    selectedVirtualKeyId, customEnv,
     envBundles: bundles.envBundles, loadingBundles: bundles.loadingBundles,
     repoSkills: skills.repoSkills, loadingSkills: skills.loadingSkills,
     setSelectedAgent, setSelectedRepository, setSelectedBranch,
     setSelectedCredentialName: bundles.setSelectedCredentialName,
     setSelectedRuntimeBundleNames: bundles.setSelectedRuntimeBundleNames,
     setSelectedSkillSlugs: skills.setSelectedSkillSlugs,
-    setInteractionMode, setPrompt, setAlias, setPerpetual, selectedAgentSlug, supportedModes,
+    setInteractionMode, setAutomationLevel, setPrompt, setAlias, setPerpetual, selectedAgentSlug, supportedModes,
     setDestroyPolicy, setDestroyAfterMinutes, setSelectedKnowledgeMounts, setTokenBudget,
-    setSelectedVirtualKeyId,
+    setSelectedVirtualKeyId, setCustomEnv,
     loading, error, warning, validationErrors, isValid, reset, validate, submit,
     // AgentFile Layer
     rawLayerMode, rawLayerText, agentfileLayer, setRawLayerMode, setRawLayerText,

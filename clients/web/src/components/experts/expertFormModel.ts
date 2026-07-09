@@ -23,6 +23,7 @@ export interface ExpertFormState {
   agentSlug: string;
   prompt: string;
   interactionMode: string;
+  automationLevel: string;
   perpetual: boolean;
   skillSlugs: string[];
   runnerId: number | null;
@@ -43,6 +44,7 @@ export const EMPTY_EXPERT_FORM: ExpertFormState = {
   agentSlug: "",
   prompt: "",
   interactionMode: "pty",
+  automationLevel: "autonomous",
   perpetual: false,
   skillSlugs: [],
   runnerId: null,
@@ -72,6 +74,7 @@ export function expertToForm(e: Expert): ExpertFormState {
     agentSlug: e.agent_slug,
     prompt: e.prompt ?? "",
     interactionMode: e.interaction_mode || "pty",
+    automationLevel: e.automation_level || "autonomous",
     perpetual: e.perpetual,
     skillSlugs: e.skill_slugs ?? [],
     runnerId: e.runner_id ?? null,
@@ -112,6 +115,7 @@ export interface ExpertConfigPayload {
   description: string;
   prompt: string;
   interaction_mode: string;
+  automation_level: string;
   perpetual: boolean;
   skill_slugs: string[];
   runner_id?: number;
@@ -137,6 +141,7 @@ export function buildExpertConfig(form: ExpertFormState): ExpertConfigPayload {
     description: form.description.trim(),
     prompt: form.prompt,
     interaction_mode: form.interactionMode,
+    automation_level: form.automationLevel,
     perpetual: form.perpetual,
     skill_slugs: form.skillSlugs,
     runner_id: form.runnerId ?? undefined,

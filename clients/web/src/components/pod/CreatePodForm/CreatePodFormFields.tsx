@@ -7,6 +7,8 @@ import { AdvancedFormSection } from "./AdvancedFormSection";
 import { WorkerCreateStepper, type WorkerCreateStepId } from "./WorkerCreateStepper";
 import { WorkerCreateStepNav } from "./WorkerCreateStepNav";
 import { WorkerMoreOptionsSection } from "./WorkerMoreOptionsSection";
+import { WorkerCreateModeToggle } from "./WorkerCreateModeToggle";
+import { WorkerSourceModePanel } from "./WorkerSourceModePanel";
 import {
   WorkerStepRuntimePanel,
   WorkerStepCapabilitiesPanel,
@@ -90,47 +92,62 @@ export function CreatePodFormFields(props: CreatePodFormFieldsProps) {
   );
 
   const panelProps = { ...props, showPerpetual };
+  const sourceMode = form.rawLayerMode;
 
   const canNext =
     step === 1 ? agentReady : step === 2 ? true : false;
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        {/* Left Column: Stepper (shown vertically on md+, horizontally on mobile) */}
-        <div className="w-full md:w-64 md:shrink-0">
-          <div className="block md:hidden">
-            <WorkerCreateStepper
-              steps={stepDefs}
-              current={step}
-              onChange={setStep}
-              orientation="horizontal"
-            />
-          </div>
-          <div className="hidden md:block md:sticky md:top-6">
-            <WorkerCreateStepper
-              steps={stepDefs}
-              current={step}
-              onChange={setStep}
-              orientation="vertical"
-            />
-          </div>
-        </div>
+      <div className="flex justify-end">
+        <WorkerCreateModeToggle
+          sourceMode={sourceMode}
+          onChange={form.setRawLayerMode}
+          t={t}
+        />
+      </div>
 
-        {/* Right Column: Form Panel, Navigation, Advanced Options, and Error */}
+      <div className={sourceMode ? undefined : "flex flex-col gap-6 md:flex-row md:items-start"}>
+        {!sourceMode && (
+          <div className="w-full md:w-64 md:shrink-0">
+            <div className="block md:hidden">
+              <WorkerCreateStepper
+                steps={stepDefs}
+                current={step}
+                onChange={setStep}
+                orientation="horizontal"
+              />
+            </div>
+            <div className="hidden md:block md:sticky md:top-6">
+              <WorkerCreateStepper
+                steps={stepDefs}
+                current={step}
+                onChange={setStep}
+                orientation="vertical"
+              />
+            </div>
+          </div>
+        )}
+
         <div className="flex-1 min-w-0 space-y-4">
           <div className="rounded-lg border border-border bg-card p-4 shadow-xs md:p-5">
-            {step === 1 && <WorkerStepRuntimePanel {...panelProps} />}
-            {step === 2 && agentReady && <WorkerStepCapabilitiesPanel {...panelProps} />}
-            {step === 3 && agentReady && <WorkerStepAgentPanel {...panelProps} />}
+            {sourceMode ? (
+              <WorkerSourceModePanel {...panelProps} />
+            ) : (
+              <>
+                {step === 1 && <WorkerStepRuntimePanel {...panelProps} />}
+                {step === 2 && agentReady && <WorkerStepCapabilitiesPanel {...panelProps} />}
+                {step === 3 && agentReady && <WorkerStepAgentPanel {...panelProps} />}
 
-            <WorkerCreateStepNav
-              step={step}
-              canNext={canNext}
-              onBack={() => setStep((s) => (s > 1 ? ((s - 1) as WorkerCreateStepId) : s))}
-              onNext={() => setStep((s) => (s < 3 ? ((s + 1) as WorkerCreateStepId) : s))}
-              t={t}
-            />
+                <WorkerCreateStepNav
+                  step={step}
+                  canNext={canNext}
+                  onBack={() => setStep((s) => (s > 1 ? ((s - 1) as WorkerCreateStepId) : s))}
+                  onNext={() => setStep((s) => (s < 3 ? ((s + 1) as WorkerCreateStepId) : s))}
+                  t={t}
+                />
+              </>
+            )}
           </div>
 
           {agentReady && (

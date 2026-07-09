@@ -22,6 +22,7 @@ type CreateExpertRequest struct {
 	BranchName     *string
 	Prompt         *string
 	InteractionMode string
+	AutomationLevel string
 	Perpetual      bool
 	UsedEnvBundles []string
 	SkillSlugs     []string
@@ -44,6 +45,7 @@ type UpdateExpertRequest struct {
 	BranchName     *string
 	Prompt         *string
 	InteractionMode *string
+	AutomationLevel *string
 	Perpetual      *bool
 	UsedEnvBundles []string
 	SkillSlugs     []string
@@ -74,6 +76,7 @@ func (s *Service) Create(ctx context.Context, req *CreateExpertRequest) (*expert
 		BranchName:      trimOptional(req.BranchName),
 		Prompt:          trimOptional(req.Prompt),
 		InteractionMode: mode,
+		AutomationLevel: expertdom.NormalizeAutomationLevel(req.AutomationLevel),
 		Perpetual:       req.Perpetual,
 		UsedEnvBundles:  pq.StringArray(nonEmptyStrings(req.UsedEnvBundles)),
 		SkillSlugs:      pq.StringArray(nonEmptyStrings(req.SkillSlugs)),
@@ -154,6 +157,9 @@ func (s *Service) Update(ctx context.Context, req *UpdateExpertRequest) (*expert
 	}
 	if req.InteractionMode != nil {
 		row.InteractionMode = normalizeInteractionMode(*req.InteractionMode)
+	}
+	if req.AutomationLevel != nil {
+		row.AutomationLevel = expertdom.NormalizeAutomationLevel(*req.AutomationLevel)
 	}
 	if req.Perpetual != nil {
 		row.Perpetual = *req.Perpetual

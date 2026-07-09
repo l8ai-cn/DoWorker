@@ -7,6 +7,7 @@ import { RunnerSelect } from "@/components/pod/CreatePodForm/RunnerSelect";
 import { RepositorySelect, BranchInput } from "@/components/pod/CreatePodForm/RepositorySelect";
 import { EnvBundleMultiSelect } from "@/components/pod/CreatePodForm/EnvBundleMultiSelect";
 import { KnowledgeBaseMountSelect } from "@/components/pod/CreatePodForm/KnowledgeBaseMountSelect";
+import { AutomationLevelSelect } from "@/components/pod/CreatePodForm/AutomationLevelSelect";
 import { isValidConfigOverrides, type ExpertFormState } from "./expertFormModel";
 import { useExpertConfigData } from "./useExpertConfigData";
 
@@ -30,6 +31,12 @@ export function ExpertConfigFields({ open, form, patch }: Props) {
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {te("configSectionLabel")}
       </p>
+
+      <AutomationLevelSelect
+        value={form.automationLevel}
+        onChange={(level) => patch({ automationLevel: level })}
+        t={t}
+      />
 
       <RunnerSelect
         runners={runners}

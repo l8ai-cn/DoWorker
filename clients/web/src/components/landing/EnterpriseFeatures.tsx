@@ -89,35 +89,38 @@ export function EnterpriseFeatures() {
   ];
 
   return (
-    <section className="py-24">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-32 relative overflow-hidden bg-[var(--azure-bg-deeper)]">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[var(--azure-cyan)]/5 blur-[150px] rounded-full pointer-events-none" />
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            {t("landing.enterprise.title")} <span className="text-primary">{t("landing.enterprise.titleHighlight")}</span>
+          <h2 className="font-headline text-4xl md:text-5xl font-bold mb-6 leading-tight">
+            {t("landing.enterprise.title")}{" "}
+            <span className="azure-gradient-text">{t("landing.enterprise.titleHighlight")}</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-[var(--azure-text-muted)] max-w-2xl mx-auto text-lg font-light">
             {t("landing.enterprise.description")}
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="surface-card-interactive p-6 motion-interactive group"
+              className="azure-glass p-6 rounded-3xl border border-white/5 hover:border-[var(--azure-cyan)]/30 transition-all group"
             >
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/20 transition-colors">
+              <div className="w-12 h-12 rounded-2xl bg-[var(--azure-cyan)]/10 flex items-center justify-center text-[var(--azure-cyan)] mb-4 group-hover:azure-glow-cyan transition-all">
                 {feature.icon}
               </div>
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-semibold">{feature.title}</h3>
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <h3 className="font-headline font-bold text-foreground">{feature.title}</h3>
                 {feature.comingSoon && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-warning/20 text-warning border border-warning/30">
+                  <span className="font-headline text-[9px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-full bg-[var(--azure-mint)]/10 text-[var(--azure-mint)] border border-[var(--azure-mint)]/20">
                     Coming Soon
                   </span>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">{feature.description}</p>
+              <p className="text-sm text-[var(--azure-text-muted)] leading-relaxed font-light">{feature.description}</p>
             </div>
           ))}
         </div>

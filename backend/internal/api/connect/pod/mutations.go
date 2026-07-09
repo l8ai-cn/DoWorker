@@ -48,6 +48,7 @@ func (s *Server) CreatePod(
 		TicketSlug:          optionalString(req.Msg.TicketSlug),
 		Alias:               alias,
 		AgentfileLayer:      optionalString(req.Msg.AgentfileLayer),
+		AutomationLevel:     req.Msg.GetAutomationLevel(),
 		Cols:                req.Msg.GetCols(),
 		Rows:                req.Msg.GetRows(),
 		SourcePodKey:        req.Msg.GetSourcePodKey(),

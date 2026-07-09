@@ -316,16 +316,17 @@
         },
         "editor": {
           "title": "前端编辑器",
-          "description": "在 Pod 创建表单中，切换源码模式即可使用内置的 CodeMirror 编辑器直接编辑 AgentFile Layer，支持语法高亮和自动补全。表单字段（模型、提示、仓库等）会与 Layer 内容自动同步。"
+          "description": "在 Pod 创建表单中选择自动化级别（interactive / auto_edit / autonomous），不要手写各智能体原生权限 CONFIG。切换源码模式可直接编辑 AgentFile Layer；表单字段（模型、提示、仓库等）会与 Layer 保持同步。创建时平台会根据 automation_level 注入 permission_mode / approval_mode / MODE。"
         },
         "examples": {
           "title": "常用示例",
           "description": "以下是自定义 Pod 行为的常用 Layer 模式：",
           "overrideModel": "覆盖模型",
-          "permissionMode": "设置权限模式",
           "addPrompt": "添加初始提示",
           "selectRepo": "选择仓库和分支",
-          "switchMode": "切换到 ACP 模式"
+          "switchMode": "切换到 ACP 模式",
+          "automationLevel": "优先使用自动化级别（推荐）",
+          "automationLevelNote": "创建时传 automation_level，不要手写各智能体原生 CONFIG。平台会自动注入 permission_mode / approval_mode / MODE。"
         }
       }
     },
@@ -484,14 +485,14 @@
           "agentDesc": "Claude Code、Codex CLI、Gemini CLI、Aider 或自定义",
           "model": "模型",
           "modelDesc": "opus、sonnet 或 haiku（适用于 Claude）",
-          "permissionMode": "权限模式",
-          "permissionModeDesc": "bypassPermissions（自动批准全部，默认）、default（逐个工具审批）、acceptEdits（自动批准文件编辑）、dontAsk（白名单外直接拒绝）或 plan（只读规划）",
           "repository": "仓库",
           "repositoryDesc": "关联 Git 仓库以自动克隆",
           "ticket": "任务",
           "ticketDesc": "关联任务以提供上下文和跟踪",
           "prompt": "初始提示",
-          "promptDesc": "给 AI 智能体的初始指令"
+          "promptDesc": "给 AI 智能体的初始指令",
+          "automationLevel": "自动化级别",
+          "automationLevelDesc": "跨智能体统一层级：interactive（每步审批）、auto_edit（自动批准读写编辑，风险操作再询问）、autonomous（完全自主、非交互 ACP，默认）。平台会映射到各智能体原生权限机制。"
         }
       },
       "workspace": {
@@ -1013,7 +1014,7 @@
           "paramsHeader": "参数",
           "createPod": "create_pod",
           "createPodDesc": "创建新的 AgentPod",
-          "createPodParams": "agent_slug（必需）, runner_id?, ticket_slug?, prompt?, model?",
+          "createPodParams": "agent_slug（必需）, runner_id?, ticket_slug?, prompt?, model?, automation_level?",
           "description": "用于创建、观察和控制 Pod 的工具。观察和输入工具需要具有适当范围的活跃绑定。",
           "getPodSnapshot": "get_pod_snapshot",
           "getPodSnapshotDesc": "获取另一个 Pod 的终端输出快照（需要 pod:read）",
@@ -1321,7 +1322,8 @@
               "auto_close": "任务完成后是否自动关闭 Pod",
               "auto_close_delay_seconds": "自动关闭前的延迟秒数",
               "pod_timeout_minutes": "Pod 的最大存活时间（分钟）",
-              "max_turns": "智能体的最大轮次数"
+              "max_turns": "智能体的最大轮次数",
+              "automation_level": "统一自动化层级：interactive、auto_edit 或 autonomous（默认）。服务端映射到各智能体原生权限设置。"
             }
           },
           "terminatePod": {
@@ -2036,13 +2038,14 @@
           "field2": "Runner - 选择托管此 Pod 的 Runner",
           "field3": "仓库 - 选择智能体要处理的仓库（可选）",
           "field4": "分支 - 选择要检出的分支（默认为主分支）",
-          "field5": "初始提示词 - 为智能体编写任务描述，例如「为登录表单添加输入验证」"
+          "field5": "自动化级别 — Interactive、Auto-edit 或 Autonomous（默认）。Autonomous 以 ACP 非交互方式运行。",
+          "field6": "初始提示 — 为智能体写任务描述，例如「为登录表单添加输入校验」"
         },
         "step3": {
           "title": "观察 Pod 初始化",
           "description": "点击创建后，Pod 进入初始化状态。Runner 将执行以下操作：",
           "item1": "创建隔离的 Git worktree（如果已关联仓库）",
-          "item2": "启动 PTY 终端会话",
+          "item2": "根据自动化级别启动终端或 ACP 会话",
           "item3": "使用你的初始提示词启动 AI 智能体",
           "tip": "终端视图会自动打开。你可以实时观看智能体开始工作。"
         },

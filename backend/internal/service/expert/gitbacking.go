@@ -30,6 +30,7 @@ type expertConfig struct {
 	ExpertType      string                     `json:"expertType,omitempty"` // 类型
 	AgentSlug       string                     `json:"agentSlug"`
 	InteractionMode string                     `json:"interactionMode"`
+	AutomationLevel string                     `json:"automationLevel,omitempty"`
 	Perpetual       bool                       `json:"perpetual"`
 	SkillSlugs      []string                   `json:"skillSlugs,omitempty"`
 	KnowledgeMounts []expertdom.KnowledgeMount `json:"knowledgeMounts,omitempty"`
@@ -69,6 +70,7 @@ func (s *Service) buildExpertConfig(e *expertdom.Expert, avatarPath string) expe
 		Name:            e.Name,
 		AgentSlug:       e.AgentSlug,
 		InteractionMode: e.InteractionMode,
+		AutomationLevel: e.AutomationLevel,
 		Perpetual:       e.Perpetual,
 		SkillSlugs:      []string(e.SkillSlugs),
 		UsedEnvBundles:  []string(e.UsedEnvBundles),

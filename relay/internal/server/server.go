@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -154,7 +155,7 @@ func (s *Server) Start(ctx context.Context) error {
 
 	s.httpServer = &http.Server{
 		Addr:              s.cfg.Server.Address(),
-		Handler:           mux,
+		Handler:           stripRelayPathPrefix(mux),
 		ReadTimeout:       s.cfg.Server.ReadTimeout,
 		ReadHeaderTimeout: 10 * time.Second,
 		// WriteTimeout intentionally omitted: it applies globally including
@@ -298,6 +299,27 @@ func (s *Server) gracefulShutdown(reason string) error {
 
 	s.logger.Info("Graceful shutdown completed")
 	return nil
+}
+
+// stripRelayPathPrefix drops a leading "/relay" segment before routing. The
+// public relay URL carries a "/relay" path so an edge proxy (dev traefik, prod
+// nginx ingress) can host-route it; that proxy rewrites "/relay/*" -> "/*"
+// before the request reaches this mux. In-cluster runners, however, dial the
+// relay Service directly (RELAY_BASE_URL=ws://relay:8090) and RewriteRelayURL
+// preserves the "/relay" path — so the request arrives as "/relay/runner/relay"
+// with no proxy to strip it. Normalizing here lets both the proxied browser
+// path and the direct runner path land on the same "/runner/relay" routes.
+func stripRelayPathPrefix(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if p := r.URL.Path; p == "/relay" || strings.HasPrefix(p, "/relay/") {
+			trimmed := strings.TrimPrefix(p, "/relay")
+			if trimmed == "" {
+				trimmed = "/"
+			}
+			r.URL.Path = trimmed
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // IsAcceptingConnections returns whether the server is accepting new connections

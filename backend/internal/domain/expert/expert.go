@@ -19,6 +19,24 @@ const (
 	InteractionModeACP = "acp"
 )
 
+const (
+	AutomationLevelInteractive = "interactive"
+	AutomationLevelAutoEdit    = "auto_edit"
+	AutomationLevelAutonomous  = "autonomous"
+	AutomationLevelDefault     = AutomationLevelAutonomous
+)
+
+// NormalizeAutomationLevel maps empty/unknown values to the autonomous default
+// so experts always launch automatable Workers unless downgraded.
+func NormalizeAutomationLevel(level string) string {
+	switch level {
+	case AutomationLevelInteractive, AutomationLevelAutoEdit, AutomationLevelAutonomous:
+		return level
+	default:
+		return AutomationLevelDefault
+	}
+}
+
 type KnowledgeMount struct {
 	Slug string `json:"slug"`
 	Mode string `json:"mode,omitempty"`
@@ -38,7 +56,10 @@ type Expert struct {
 
 	Prompt          *string `gorm:"type:text" json:"prompt,omitempty"`
 	InteractionMode string  `gorm:"size:20;not null;default:pty" json:"interaction_mode"`
-	Perpetual       bool    `gorm:"not null;default:false" json:"perpetual"`
+	// AutomationLevel is the unified permission/automation tier this expert
+	// launches its Workers with (interactive/auto_edit/autonomous).
+	AutomationLevel string `gorm:"size:20;not null;default:autonomous;column:automation_level" json:"automation_level"`
+	Perpetual       bool   `gorm:"not null;default:false" json:"perpetual"`
 
 	UsedEnvBundles  pq.StringArray  `gorm:"type:text[];column:used_env_bundles;not null;default:'{}'" json:"used_env_bundles"`
 	SkillSlugs      pq.StringArray  `gorm:"type:text[];column:skill_slugs;not null;default:'{}'" json:"skill_slugs"`

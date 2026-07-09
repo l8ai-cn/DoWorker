@@ -29,7 +29,7 @@ export default async function Image() {
             inset: 0,
             opacity: 0.08,
             backgroundImage:
-              "linear-gradient(rgba(255, 106, 36, 0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 106, 36, 0.35) 1px, transparent 1px)",
+              "linear-gradient(rgba(15, 118, 110, 0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 118, 110, 0.35) 1px, transparent 1px)",
             backgroundSize: "60px 60px",
           }}
         />
@@ -43,7 +43,7 @@ export default async function Image() {
             width: 600,
             height: 600,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(255, 87, 1, 0.18) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(45, 212, 191, 0.18) 0%, transparent 70%)",
           }}
         />
         {/* Logo text */}
@@ -60,7 +60,7 @@ export default async function Image() {
               width: 64,
               height: 64,
               borderRadius: 16,
-              background: "linear-gradient(135deg, #FF6A24, #FF5701)",
+              background: "linear-gradient(135deg, #0F766E, #0B5F59)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -69,7 +69,7 @@ export default async function Image() {
               color: "#ffffff",
             }}
           >
-            AM
+            DW
           </div>
           <span style={{ fontSize: 48, fontWeight: 800, color: "#ede9e1" }}>
             Do Worker
@@ -102,7 +102,7 @@ export default async function Image() {
           <span style={{ color: "#ede9e1" }}>Ship like a team of fifty.</span>
           <span
             style={{
-              background: "linear-gradient(90deg, #FF5701, #FFB020)",
+              background: "linear-gradient(90deg, #2DD4BF, #5EEAD4)",
               backgroundClip: "text",
               color: "transparent",
             }}

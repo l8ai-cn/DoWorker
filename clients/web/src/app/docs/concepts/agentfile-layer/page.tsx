@@ -108,10 +108,13 @@ export default function AgentfileLayerPage() {
           </div>
           <div className="surface-card p-4">
             <h3 className="font-medium mb-2">
-              {t("docs.concepts.agentfileLayer.examples.permissionMode")}
+              {t("docs.concepts.agentfileLayer.examples.automationLevel")}
             </h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              {t("docs.concepts.agentfileLayer.examples.automationLevelNote")}
+            </p>
             <pre className="rounded-lg bg-surface-muted ring-1 ring-border/15 p-3 text-sm overflow-x-auto">
-              <code>{`CONFIG permission_mode = "bypassPermissions"`}</code>
+              <code>{`"automation_level": "autonomous"`}</code>
             </pre>
           </div>
           <div className="surface-card p-4">

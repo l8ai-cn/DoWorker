@@ -11,6 +11,7 @@ go_library(
     name = "license",
     srcs = [
         "license.go",
+        "license_convert.amesh.go",
         "license_convert_custom.go",
         "license_mutations.go",
         "license_queries.go",

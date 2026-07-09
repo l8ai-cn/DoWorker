@@ -316,13 +316,14 @@
         },
         "editor": {
           "title": "Frontend Editor",
-          "description": "In the Pod creation form, toggle Source Mode to edit the AgentFile Layer directly using the built-in CodeMirror editor with syntax highlighting and auto-completion. Form fields (model, prompt, repository, etc.) are automatically synced with the Layer content."
+          "description": "In the Pod creation form, choose Automation Level (interactive / auto_edit / autonomous) instead of hand-writing agent-native permission CONFIG. Toggle Source Mode to edit the AgentFile Layer directly; form fields (model, prompt, repository, etc.) stay synced with the Layer. The platform injects permission_mode / approval_mode / MODE from automation_level at create time."
         },
         "examples": {
           "title": "Common Examples",
           "description": "Here are common Layer patterns for customizing Pod behavior:",
           "overrideModel": "Override the model",
-          "permissionMode": "Set permission mode",
+          "automationLevel": "Prefer Automation Level (recommended)",
+          "automationLevelNote": "Pass automation_level on create instead of hand-writing agent-native CONFIG. The platform injects permission_mode / approval_mode / MODE for you.",
           "addPrompt": "Add an initial prompt",
           "selectRepo": "Select a repository and branch",
           "switchMode": "Switch to ACP mode"
@@ -484,8 +485,8 @@
           "agentDesc": "Claude Code, Codex CLI, Gemini CLI, Aider, or custom",
           "model": "Model",
           "modelDesc": "opus, sonnet, or haiku (for Claude)",
-          "permissionMode": "Permission Mode",
-          "permissionModeDesc": "bypassPermissions (auto-approve all, default), default (per-tool approval), acceptEdits (auto-approve file edits), dontAsk (deny unless allowlisted), or plan (read-only planning)",
+          "automationLevel": "Automation Level",
+          "automationLevelDesc": "Unified cross-agent tier: interactive (approve every step), auto_edit (auto-approve reads/edits; ask on risky actions), or autonomous (fully autonomous non-interactive ACP — default). The platform maps this to each agent's native permission mechanism.",
           "repository": "Repository",
           "repositoryDesc": "Link to a Git repository for automatic cloning",
           "ticket": "Ticket",
@@ -1013,7 +1014,7 @@
           "paramsHeader": "Parameters",
           "createPod": "create_pod",
           "createPodDesc": "Create a new AgentPod",
-          "createPodParams": "agent_slug (required), runner_id?, ticket_slug?, prompt?, model?",
+          "createPodParams": "agent_slug (required), runner_id?, ticket_slug?, prompt?, model?, automation_level?",
           "description": "Tools for creating, observing, and controlling Pods. Observation and input tools require an active binding with appropriate scopes.",
           "getPodSnapshot": "get_pod_snapshot",
           "getPodSnapshotDesc": "Get a snapshot of another Pod's terminal output (requires pod:read)",
@@ -1308,6 +1309,7 @@
             "fields": {
               "runner_id": "ID of the runner to create the pod on",
               "agent_slug": "Agent identifier (e.g., claude-code, aider)",
+              "automation_level": "Unified automation tier: interactive, auto_edit, or autonomous (default). Mapped server-side to each agent's native permission settings.",
               "prompt": "Initial prompt or task for the agent",
               "repository_id": "Repository to associate with the pod",
               "branch": "Git branch to work on",
@@ -2036,13 +2038,14 @@
           "field2": "Runner — Choose which Runner will host this Pod",
           "field3": "Repository — Select a repository for the agent to work on (optional)",
           "field4": "Branch — Choose the branch to check out (defaults to the main branch)",
-          "field5": "Initial Prompt — Write a task description for the agent, e.g., \"Add input validation to the login form\""
+          "field5": "Automation Level — Interactive, Auto-edit, or Autonomous (default). Autonomous runs non-interactively in ACP mode.",
+          "field6": "Initial Prompt — Write a task description for the agent, e.g., \"Add input validation to the login form\""
         },
         "step3": {
           "title": "Watch the Pod Initialize",
           "description": "After clicking Create, the Pod enters the Initializing state. The Runner will:",
           "item1": "Create an isolated Git worktree (if a repository was linked)",
-          "item2": "Start a PTY terminal session",
+          "item2": "Start a terminal or ACP session based on Automation Level",
           "item3": "Launch the AI agent with your initial prompt",
           "tip": "The terminal view opens automatically. You can watch the agent start working in real time."
         },

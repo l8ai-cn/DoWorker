@@ -97,6 +97,15 @@
       "interactionMode": "Modo de interação",
       "modePty": "Terminal (PTY)",
       "modeAcp": "Conversacional (ACP)",
+      "automationLevel": {
+        "label": "Nível de automação",
+        "interactive": "Interativo",
+        "auto_edit": "Edição automática",
+        "autonomous": "Autônomo",
+        "interactiveHint": "Aprove cada etapa. Você participa de cada ação.",
+        "auto_editHint": "Aprova automaticamente leituras e edições; apenas ações arriscadas pedem confirmação.",
+        "autonomousHint": "Execução totalmente autônoma e não interativa. Executa no modo ACP."
+      },
       "create": "Criar Pod",
       "creating": "Criando...",
       "cancel": "Cancelar",

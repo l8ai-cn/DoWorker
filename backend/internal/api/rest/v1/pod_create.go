@@ -27,6 +27,11 @@ type CreatePodRequest struct {
 	// BRANCH, USE_ENV_BUNDLE, PROMPT).
 	AgentfileLayer *string `json:"agentfile_layer"`
 
+	// AutomationLevel is the unified permission/automation tier
+	// (interactive/auto_edit/autonomous). Empty ⇒ autonomous default, so every
+	// Worker is automatable unless the caller downgrades it.
+	AutomationLevel string `json:"automation_level"`
+
 	// Platform-level ID references (cannot be expressed as AgentFile declarations)
 	RepositoryID *int64 `json:"repository_id,omitempty"`
 
@@ -98,6 +103,7 @@ func (h *PodHandler) CreatePod(c *gin.Context) {
 		TicketSlug:         req.TicketSlug,
 		Alias:              req.Alias,
 		AgentfileLayer:     req.AgentfileLayer,
+		AutomationLevel:    req.AutomationLevel,
 		Cols:               req.Cols,
 		Rows:               req.Rows,
 		SourcePodKey:       req.SourcePodKey,
