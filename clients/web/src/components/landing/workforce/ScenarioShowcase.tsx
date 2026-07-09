@@ -1,79 +1,48 @@
 'use client'
 
-import { useRef, useState, type KeyboardEvent } from 'react'
+import { useId, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   workforceScenarios,
   type WorkforceScenario,
   type WorkforceScenarioId,
+  type WorkforceTranslationKey,
 } from './workforce-scenarios'
+import { ScenarioShowcaseTabs, type ScenarioTabKey } from './ScenarioShowcaseTabs'
 
-type Translate = (key: string) => string
+type ScenarioShowcaseKey =
+  | WorkforceTranslationKey
+  | ScenarioTabKey
+  | `landing.workforce.showcase.${ShowcaseCopyKey}`
 
-function ScenarioTabs({
-  selectedId,
-  onSelect,
-  t,
-}: {
-  selectedId: WorkforceScenarioId
-  onSelect: (id: WorkforceScenarioId) => void
-  t: Translate
-}) {
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
-
-  const moveSelection = (event: KeyboardEvent, index: number) => {
-    const offsets: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }
-    const offset = offsets[event.key]
-    if (!offset) return
-    event.preventDefault()
-    const nextIndex = (index + offset + workforceScenarios.length) % workforceScenarios.length
-    onSelect(workforceScenarios[nextIndex].id)
-    tabRefs.current[nextIndex]?.focus()
-  }
-
-  return (
-    <div
-      role="tablist"
-      aria-label={t('landing.workforce.showcase.scenarioPicker')}
-      className="grid grid-cols-2 gap-px border-y border-[var(--azure-outline-variant)] sm:grid-cols-3 lg:grid-cols-6"
-    >
-      {workforceScenarios.map(({ id }, index) => (
-        <button
-          key={id}
-          ref={(node) => {
-            tabRefs.current[index] = node
-          }}
-          id={`scenario-tab-${id}`}
-          type="button"
-          role="tab"
-          aria-controls={`scenario-panel-${id}`}
-          aria-selected={selectedId === id}
-          tabIndex={selectedId === id ? 0 : -1}
-          onClick={() => onSelect(id)}
-          onKeyDown={(event) => moveSelection(event, index)}
-          className="min-h-14 border-x border-[var(--azure-outline-variant)] px-3 py-3 text-left font-headline text-xs font-bold uppercase tracking-[0.12em] text-[var(--azure-text-muted)] transition-colors hover:text-foreground focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-[var(--azure-cyan)] aria-selected:bg-[var(--azure-mint)] aria-selected:text-[var(--azure-on-cyan)]"
-        >
-          {t(`landing.workforce.scenarioLabels.${id}`)}
-        </button>
-      ))}
-    </div>
-  )
-}
+type Translate = (key: ScenarioShowcaseKey) => string
+type ShowcaseCopyKey =
+  | 'scenarioPicker'
+  | 'goal'
+  | 'workers'
+  | 'workflow'
+  | 'deliverable'
+  | 'eyebrow'
+  | 'title'
+  | 'description'
 
 function ScenarioPanel({
+  instanceId,
   scenario,
   selected,
   t,
 }: {
+  instanceId: string
   scenario: WorkforceScenario
   selected: boolean
   t: Translate
 }) {
   return (
     <div
-      id={`scenario-panel-${scenario.id}`}
+      id={`${instanceId}-scenario-panel-${scenario.id}`}
       role="tabpanel"
-      aria-labelledby={`scenario-tab-${scenario.id}`}
+      aria-labelledby={`${instanceId}-scenario-tab-${scenario.id}`}
+      tabIndex={selected ? 0 : -1}
       hidden={!selected}
       className={`gap-10 border-l-2 border-[var(--azure-mint)] py-8 pl-5 sm:pl-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16 lg:py-12 ${
         selected ? 'grid' : 'hidden'
@@ -132,6 +101,7 @@ function ScenarioPanel({
 
 export function ScenarioShowcase() {
   const t = useTranslations()
+  const instanceId = useId()
   const [selectedId, setSelectedId] = useState<WorkforceScenarioId>('research')
 
   return (
@@ -148,10 +118,16 @@ export function ScenarioShowcase() {
             {t('landing.workforce.showcase.description')}
           </p>
         </div>
-        <ScenarioTabs selectedId={selectedId} onSelect={setSelectedId} t={t} />
+        <ScenarioShowcaseTabs
+          instanceId={instanceId}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
+          t={t}
+        />
         {workforceScenarios.map((scenario) => (
           <ScenarioPanel
             key={scenario.id}
+            instanceId={instanceId}
             scenario={scenario}
             selected={scenario.id === selectedId}
             t={t}

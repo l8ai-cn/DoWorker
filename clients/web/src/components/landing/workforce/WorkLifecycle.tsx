@@ -1,7 +1,14 @@
 import { useTranslations } from 'next-intl'
 
-type Translate = (key: string) => string
 type StageId = 'goal' | 'coordinate' | 'review' | 'deliver'
+type LifecycleKey =
+  | `landing.workforce.lifecycle.${'eyebrow' | 'title' | 'description'}`
+  | `landing.workforce.lifecycle.stages.${StageId}.${'title' | 'description'}`
+  | `landing.workforce.lifecycle.fragments.ticket.${'id' | 'status' | 'title'}`
+  | `landing.workforce.lifecycle.fragments.channel.${'name' | 'activity'}`
+  | `landing.workforce.lifecycle.fragments.checkpoint.${'status' | 'decision' | 'action'}`
+  | `landing.workforce.lifecycle.fragments.evidence.${'pod' | 'status' | 'artifact' | 'detail'}`
+type Translate = (key: LifecycleKey) => string
 
 const stages: readonly StageId[] = ['goal', 'coordinate', 'review', 'deliver']
 
@@ -46,14 +53,14 @@ function CoordinateFragment({ t }: { t: Translate }) {
 function ReviewFragment({ t }: { t: Translate }) {
   return (
     <div>
-      <div className="flex items-center gap-2 text-[10px] text-[var(--azure-text-muted)]">
-        <span className="h-2 w-2 rounded-full bg-[var(--azure-mint)]" aria-hidden="true" />
+      <div className="flex items-center gap-2 text-[10px] text-warning">
+        <span className="h-2 w-2 rounded-full bg-warning" aria-hidden="true" />
         {t('landing.workforce.lifecycle.fragments.checkpoint.status')}
       </div>
       <p className="mt-3 text-xs font-medium leading-relaxed text-foreground">
         {t('landing.workforce.lifecycle.fragments.checkpoint.decision')}
       </p>
-      <span className="mt-3 inline-block border-b border-[var(--azure-mint)] pb-1 font-headline text-[9px] font-bold uppercase tracking-[0.14em] text-[var(--azure-mint)]">
+      <span className="mt-3 inline-block border-b border-warning pb-1 font-headline text-[9px] font-bold uppercase tracking-[0.14em] text-warning">
         {t('landing.workforce.lifecycle.fragments.checkpoint.action')}
       </span>
     </div>
