@@ -1183,13 +1183,6 @@ vi.mock('@/lib/wasm-core', () => {
       mark_repository_webhook_configured_connect: fn().mockResolvedValue(new Uint8Array()),
     })),
     getExtensionService: fn(() => ({
-      // SkillRegistryService — Connect-RPC (binary wire)
-      listSkillRegistriesConnect: fn().mockResolvedValue(new Uint8Array()),
-      createSkillRegistryConnect: fn().mockResolvedValue(new Uint8Array()),
-      syncSkillRegistryConnect: fn().mockResolvedValue(new Uint8Array()),
-      togglePlatformRegistryConnect: fn().mockResolvedValue(new Uint8Array()),
-      deleteSkillRegistryConnect: fn().mockResolvedValue(new Uint8Array()),
-      listSkillRegistryOverridesConnect: fn().mockResolvedValue(new Uint8Array()),
       // MarketService — Connect-RPC (binary wire)
       listMarketSkillsConnect: fn().mockResolvedValue(new Uint8Array()),
       listMarketMcpServersConnect: fn().mockResolvedValue(new Uint8Array()),

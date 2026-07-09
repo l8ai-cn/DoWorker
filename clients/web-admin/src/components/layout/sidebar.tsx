@@ -11,7 +11,6 @@ import {
   LogOut,
   Tag,
   Radio,
-  Boxes,
   MessageSquare,
   KeyRound,
 } from "lucide-react";
@@ -55,11 +54,6 @@ const navItems = [
     title: "中继",
     href: "/relays",
     icon: Radio,
-  },
-  {
-    title: "技能源",
-    href: "/skill-registries",
-    icon: Boxes,
   },
   {
     title: "优惠码",

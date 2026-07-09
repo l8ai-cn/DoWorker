@@ -45,12 +45,6 @@ describe("Header", () => {
       expect(screen.getByText("中继")).toBeInTheDocument();
     });
 
-    it("should show skill registries title for '/skill-registries'", () => {
-      mockPathname.mockReturnValue("/skill-registries");
-      render(<Header />);
-      expect(screen.getByText("技能源")).toBeInTheDocument();
-    });
-
     it("should show promo codes title for '/promo-codes'", () => {
       mockPathname.mockReturnValue("/promo-codes");
       render(<Header />);
@@ -111,12 +105,6 @@ describe("Header", () => {
       mockPathname.mockReturnValue("/support-tickets/7");
       render(<Header />);
       expect(screen.getByText("工单详情")).toBeInTheDocument();
-    });
-
-    it("should show skill registry details for '/skill-registries/3'", () => {
-      mockPathname.mockReturnValue("/skill-registries/3");
-      render(<Header />);
-      expect(screen.getByText("技能源详情")).toBeInTheDocument();
     });
 
     it("should fall back to admin console for unknown paths", () => {

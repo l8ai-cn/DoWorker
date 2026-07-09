@@ -16,7 +16,7 @@ import { getExtensionService } from "@/lib/wasm-core";
 import type { InstalledSkill } from "@/lib/viewModels/extension";
 
 export type {
-  SkillRegistryAuthType, SkillRegistry, SkillRegistryOverride,
+  SkillImportAuthType, CatalogSkill,
   SkillMarketItem, McpMarketItem, McpHeaderSchemaEntry, EnvVarSchemaEntry,
   InstalledSkill, InstalledMcpServer,
 } from "@/lib/viewModels/extension";

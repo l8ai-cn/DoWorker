@@ -7,7 +7,7 @@
 // Returns the existing snake_case web shapes (RepositoryData, WebhookStatus,
 // WebhookSecretResponse, MergeRequestInfo) so call sites don't have to flip
 // off camelCase + BigInt — same dual-track pattern as podConnect.ts and
-// skillRegistry.ts during the migration window.
+// marketExtension.ts during the migration window.
 //
 // Data-mapping helpers live in repositoryConnectShapes.ts (SRP split).
 

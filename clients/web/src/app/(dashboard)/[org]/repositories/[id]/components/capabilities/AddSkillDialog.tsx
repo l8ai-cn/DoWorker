@@ -15,7 +15,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Search, Upload } from "lucide-react";
+import { Search, Upload } from "lucide-react";
 
 interface AddSkillDialogProps {
   repositoryId: number;
@@ -181,18 +181,6 @@ export function AddSkillDialog({ repositoryId, scope, open, onOpenChange, onInst
                             )}
                             {isInstalled && (
                               <Badge variant="secondary" className="text-xs">{t("extensions.alreadyInstalled")}</Badge>
-                            )}
-                            {item.registry?.repository_url && (
-                              <a
-                                href={item.registry.repository_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-muted-foreground hover:text-foreground shrink-0"
-                                title={t("extensions.viewSource")}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <ExternalLink className="w-3.5 h-3.5" />
-                              </a>
                             )}
                           </div>
                           {item.description && (

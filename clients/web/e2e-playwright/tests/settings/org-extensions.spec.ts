@@ -7,16 +7,11 @@ import { clearAuthRateLimit } from "../../helpers/redis";
 test.describe("Organization Extensions Settings", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
 
-  test("API: list skill registries", async ({ api }) => {
-    const cc = await api.connect();
-    const { items } = await cc.skillRegistry.listSkillRegistries({ orgSlug: TEST_ORG_SLUG }) as { items: unknown[] };
-    expect(Array.isArray(items)).toBe(true);
-  });
-
-  test("API: list skill registry overrides", async ({ api }) => {
-    const cc = await api.connect();
-    const { items } = await cc.skillRegistry.listSkillRegistryOverrides({ orgSlug: TEST_ORG_SLUG }) as { items: unknown[] };
-    expect(Array.isArray(items)).toBe(true);
+  test("API: list authored skills catalog", async ({ api }) => {
+    const res = await api.get(`/api/v1/orgs/${TEST_ORG_SLUG}/authored-skills`);
+    expect(res.ok).toBe(true);
+    const { skills } = await res.json() as { skills: unknown[] };
+    expect(Array.isArray(skills)).toBe(true);
   });
 
   test("UI: extensions settings page loads without errors", async ({ page }) => {
@@ -29,7 +24,7 @@ test.describe("Organization Extensions Settings", () => {
     await nav.goto("organization", "extensions");
 
     const body = await page.textContent("body");
-    expect(body).toMatch(/extension|registry|扩展|注册/i);
+    expect(body).toMatch(/extension|skill|扩展|技能/i);
 
     const jsonErrors = consoleErrors.filter(
       (e) => e.includes("missing field") || e.includes("is not valid JSON")

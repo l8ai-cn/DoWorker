@@ -1,2 +1,2 @@
-export { SkillRegistriesSettings } from "./SkillRegistriesSettings";
+export { SkillCatalogSettings } from "./SkillCatalogSettings";
 export { McpMarketSettings } from "./McpMarketSettings";

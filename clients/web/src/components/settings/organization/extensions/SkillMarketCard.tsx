@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SkillMarketItem } from "@/lib/api";
 import type { TranslationFn } from "../GeneralSettings";
@@ -85,18 +84,6 @@ export function SkillMarketCard({ skill, t, onView, onInstall }: SkillMarketCard
             <span className="truncate font-mono" title={skill.content_sha}>
               {skill.content_sha.slice(0, 8)}
             </span>
-          )}
-          {skill.registry?.repository_url && (
-            <a
-              href={skill.registry.repository_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex shrink-0 items-center gap-1 text-primary hover:underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ExternalLink className="h-3 w-3" />
-              {t("extensions.skillMarket.repository")}
-            </a>
           )}
         </div>
         <Button

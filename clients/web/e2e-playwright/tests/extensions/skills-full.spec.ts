@@ -45,16 +45,17 @@ test.describe("Extensions Skills", () => {
     expect(body).toMatch(/skill|extension|扩展|技能/i);
   });
 
-  test("extensions page shows registries and templates tabs", async ({ page }) => {
+  test("extensions page shows skills and templates tabs", async ({ page }) => {
     await page.goto(`/${TEST_ORG_SLUG}/settings?scope=organization&tab=extensions`);
     await page.waitForLoadState("load");
     const body = await page.textContent("body");
-    expect(body).toMatch(/registr|template|MCP|注册|模板/i);
+    expect(body).toMatch(/skill|template|MCP|技能|模板/i);
   });
 
-  test("skill registries list endpoint works", async ({ api }) => {
-    const cc = await api.connect();
-    const res = await cc.skillRegistry.listSkillRegistries({ orgSlug: TEST_ORG_SLUG }) as { items: unknown[] };
-    expect(Array.isArray(res.items)).toBe(true);
+  test("authored skills list endpoint works", async ({ api }) => {
+    const res = await api.get(`/api/v1/orgs/${TEST_ORG_SLUG}/authored-skills`);
+    expect(res.ok).toBe(true);
+    const body = await res.json() as { skills: unknown[] };
+    expect(Array.isArray(body.skills)).toBe(true);
   });
 });

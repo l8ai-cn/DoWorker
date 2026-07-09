@@ -81,11 +81,11 @@ test.describe("Settings Dialog Operations", () => {
     }
   });
 
-  test("org/extensions: open add registry dialog", async ({ page }) => {
+  test("org/extensions: open import skill dialog", async ({ page }) => {
     const nav = new SettingsNavPage(page, TEST_ORG_SLUG);
     await nav.goto("organization", "extensions");
 
-    const addBtn = page.getByRole("button", { name: /添加|Add/i }).first();
+    const addBtn = page.getByRole("button", { name: /导入|Import|添加|Add/i }).first();
     if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await addBtn.click();
       await page.waitForTimeout(500);

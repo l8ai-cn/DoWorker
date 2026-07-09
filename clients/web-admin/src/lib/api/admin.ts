@@ -29,8 +29,6 @@ export type {
   RelayListResponse,
   SessionListResponse,
   RelayDetailResponse,
-  SkillRegistry,
-  CreateSkillRegistryRequest,
   SupportTicket,
   SupportTicketMessage,
   SupportTicketAttachment,
@@ -61,9 +59,6 @@ export { getOrganizationSubscription, getSubscriptionPlans, createSubscription, 
 
 // Relays
 export { listRelays, getRelayStats, getRelay, forceUnregisterRelay, listSessions, migrateSession, bulkMigrateSessions } from "./adminRelays";
-
-// Skill Registries
-export { listSkillRegistries, createSkillRegistry, syncSkillRegistry, deleteSkillRegistry } from "./adminSkillRegistries";
 
 // Support Tickets
 export { listSupportTickets, getSupportTicketStats, getSupportTicketDetail, getSupportTicketMessages, replySupportTicket, updateSupportTicketStatus, assignSupportTicket, getSupportTicketAttachmentUrl } from "./adminSupportTickets";

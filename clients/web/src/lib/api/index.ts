@@ -18,7 +18,7 @@ export type { SubscriptionPlan, UsageOverview, BillingOverview, Subscription, Or
 export type { Invitation, InvitationInfo, PendingInvitation } from "./connect/invitationConnect";
 export type { ApiKey } from "./facade/apikey";
 export type { AutopilotPhase, CircuitBreakerState, AutopilotControllerData, AutopilotIterationData, CreateAutopilotControllerRequest, ApproveRequest } from "@/lib/viewModels/autopilot";
-export type { SkillRegistry, SkillRegistryOverride, SkillMarketItem, McpMarketItem, EnvVarSchemaEntry, InstalledSkill, InstalledMcpServer } from "@/lib/viewModels/extension";
+export type { CatalogSkill, SkillImportAuthType, SkillMarketItem, McpMarketItem, EnvVarSchemaEntry, InstalledSkill, InstalledMcpServer } from "@/lib/viewModels/extension";
 export type { Organization, OrganizationMember } from "./facade/org";
 export type { LoopData, LoopRunData, LoopStatus, ExecutionMode, SandboxStrategy, ConcurrencyPolicy, RunStatus, CreateLoopRequest, UpdateLoopRequest } from "@/lib/viewModels/loop";
 export type { SSODiscoverConfig, LdapAuthResponse } from "./connect/ssoConnect";
@@ -38,6 +38,8 @@ export { invitationApi } from "./facade/invitation";
 export { billingApi } from "./facade/billing";
 export { channelApi } from "./facade/channel";
 export { extensionApi } from "./facade/extension";
+export { skillCatalogApi } from "./skillCatalogApi";
+export type { ImportSkillsInput, UpdateCatalogSkillInput } from "./skillCatalogApi";
 export { repositoryApi } from "./facade/repository";
 export { promoCodeApi } from "./facade/promocode";
 export { uploadImage } from "./facade/file";

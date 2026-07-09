@@ -3,7 +3,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ExternalLink } from "lucide-react";
 import type { SkillMarketItem } from "@/lib/api";
 import type { TranslationFn } from "../GeneralSettings";
 
@@ -65,24 +64,6 @@ export function SkillMarketDetailDrawer({
                 value={skill.content_sha}
                 mono
               />
-            )}
-            {skill.registry?.repository_url && (
-              <div>
-                <dt className="text-muted-foreground mb-1">
-                  {t("extensions.skillMarket.repository")}
-                </dt>
-                <dd>
-                  <a
-                    href={skill.registry.repository_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-primary hover:underline break-all"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-                    {skill.registry.repository_url}
-                  </a>
-                </dd>
-              </div>
             )}
           </dl>
 

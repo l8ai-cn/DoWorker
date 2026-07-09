@@ -23,7 +23,7 @@ export function SkillCard({ skill, canManage, onToggle, onDelete }: SkillCardPro
     upload: t("extensions.sourceUpload"),
   }[skill.install_source] || skill.install_source;
 
-  const sourceUrl = skill.source_url || skill.market_item?.registry?.repository_url || null;
+  const sourceUrl = skill.source_url || null;
 
   return (
     <div className="surface-card p-4 flex items-center justify-between gap-4">

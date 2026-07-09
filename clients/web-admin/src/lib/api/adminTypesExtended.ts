@@ -98,28 +98,6 @@ export interface RelayDetailResponse {
   sessions: ActiveSession[];
 }
 
-// Skill Registries
-export interface SkillRegistry {
-  id: number;
-  organization_id: number | null;
-  repository_url: string;
-  branch: string;
-  source_type: string;
-  sync_status: string;
-  sync_error: string;
-  skill_count: number;
-  last_synced_at: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CreateSkillRegistryRequest {
-  repository_url: string;
-  branch?: string;
-  source_type?: string;
-}
-
 // Support Tickets
 export interface SupportTicket {
   id: number;

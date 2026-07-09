@@ -7,7 +7,7 @@
 // Returns the existing snake_case web shapes (RunnerData,
 // GRPCRegistrationToken, RelayConnectionInfo, etc.) so call sites don't have
 // to switch wire-camelCase off the proto generated types. This is the same
-// pattern used by skillRegistry.ts during the dual-track migration window.
+// pattern used by marketExtension.ts during the dual-track migration window.
 
 import {
   CreateRunnerTokenRequestSchema,

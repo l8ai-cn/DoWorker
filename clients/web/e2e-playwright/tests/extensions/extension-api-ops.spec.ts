@@ -6,18 +6,6 @@ import { clearAuthRateLimit } from "../../helpers/redis";
 test.describe("Extension Management API", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
 
-  test("list skill registries", async ({ api }) => {
-    const cc = await api.connect();
-    const res = await cc.skillRegistry.listSkillRegistries({ orgSlug: TEST_ORG_SLUG }) as { items: unknown[] };
-    expect(Array.isArray(res.items)).toBe(true);
-  });
-
-  test("list skill registry overrides", async ({ api }) => {
-    const cc = await api.connect();
-    const res = await cc.skillRegistry.listSkillRegistryOverrides({ orgSlug: TEST_ORG_SLUG }) as { items: unknown[] };
-    expect(Array.isArray(res.items)).toBe(true);
-  });
-
   test("list market skills", async ({ api }) => {
     const cc = await api.connect();
     const res = await cc.market.listMarketSkills({ orgSlug: TEST_ORG_SLUG }) as { items: unknown[] };

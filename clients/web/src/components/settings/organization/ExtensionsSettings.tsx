@@ -1,7 +1,7 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { SkillRegistriesSettings, McpMarketSettings } from "./extensions";
+import { SkillCatalogSettings, McpMarketSettings } from "./extensions";
 import type { TranslationFn } from "./GeneralSettings";
 
 interface ExtensionsSettingsProps {
@@ -18,18 +18,18 @@ export function ExtensionsSettings({ t }: ExtensionsSettingsProps) {
         </p>
       </div>
 
-      <Tabs defaultValue="skill-registries" className="w-full">
+      <Tabs defaultValue="skill-catalog" className="w-full">
         <TabsList>
-          <TabsTrigger value="skill-registries">
-            {t("extensions.settings.tabs.skillRegistries")}
+          <TabsTrigger value="skill-catalog">
+            {t("extensions.settings.tabs.skillCatalog")}
           </TabsTrigger>
           <TabsTrigger value="mcp-market">
             {t("extensions.settings.tabs.mcpMarket")}
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="skill-registries" className="mt-4">
-          <SkillRegistriesSettings t={t} />
+        <TabsContent value="skill-catalog" className="mt-4">
+          <SkillCatalogSettings t={t} />
         </TabsContent>
 
         <TabsContent value="mcp-market" className="mt-4">

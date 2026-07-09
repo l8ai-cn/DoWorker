@@ -11,7 +11,6 @@ const pageTitles: Record<string, string> = {
   "/sso": "单点登录",
   "/runners": "Runner",
   "/relays": "中继",
-  "/skill-registries": "技能源",
   "/promo-codes": "优惠码",
   "/support-tickets": "支持工单",
   "/audit-logs": "审计日志",
@@ -26,7 +25,6 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
     else if (pathname.startsWith("/organizations/")) title = "组织详情";
     else if (pathname.startsWith("/runners/")) title = "Runner 详情";
     else if (pathname.startsWith("/relays/")) title = "中继详情";
-    else if (pathname.startsWith("/skill-registries/")) title = "技能源详情";
     else if (pathname.startsWith("/promo-codes/new")) title = "创建优惠码";
     else if (pathname.startsWith("/promo-codes/")) title = "优惠码详情";
     else if (pathname.startsWith("/support-tickets/")) title = "工单详情";

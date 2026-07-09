@@ -55,7 +55,6 @@ import { MeshService } from "../../../../proto/gen/ts/mesh/v1/mesh_pb";
 import { AutopilotControllerService } from "../../../../proto/gen/ts/autopilot/v1/autopilot_pb";
 import { TokenUsageService } from "../../../../proto/gen/ts/token_usage/v1/token_usage_pb";
 import { MarketService } from "../../../../proto/gen/ts/extension/v1/market_pb";
-import { SkillRegistryService } from "../../../../proto/gen/ts/extension/v1/skill_registry_pb";
 import { RepoSkillService } from "../../../../proto/gen/ts/extension/v1/repo_skill_pb";
 import { RepoMcpService } from "../../../../proto/gen/ts/extension/v1/repo_mcp_pb";
 import { SupportTicketService } from "../../../../proto/gen/ts/support_ticket/v1/support_ticket_pb";
@@ -186,7 +185,6 @@ export function makeConnectClient(token: string | null) {
     autopilot: makeServiceClient(AutopilotControllerService, token),
     tokenUsage: makeServiceClient(TokenUsageService, token),
     market: makeServiceClient(MarketService, token),
-    skillRegistry: makeServiceClient(SkillRegistryService, token),
     repoSkill: makeServiceClient(RepoSkillService, token),
     repoMcp: makeServiceClient(RepoMcpService, token),
     supportTicket: makeServiceClient(SupportTicketService, token),

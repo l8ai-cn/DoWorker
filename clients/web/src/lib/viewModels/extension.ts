@@ -7,27 +7,46 @@
  * mirrors but business projections. The adapters in `lib/api/*Extension.ts`
  * parse the JSON strings and surface these ViewModels.
  */
-export type SkillRegistryAuthType = "none" | "github_pat" | "gitlab_pat" | "ssh_key";
+/** Git auth mode when importing a skill from an external repository. */
+export type SkillImportAuthType = "none" | "github_pat" | "gitlab_pat" | "ssh_key";
 
-export interface SkillRegistry {
+/**
+ * Unified skill-catalog row (mirrors the REST `skilldom.Skill` JSON at
+ * `/orgs/:slug/authored-skills`). Every skill — platform-authored or
+ * imported from an external git repo — is one row backed by its own
+ * internal git repo. `install_source` distinguishes the two; the
+ * `upstream_*` fields carry provenance for imports.
+ */
+export interface CatalogSkill {
   id: number;
   organization_id: number | null;
-  repository_url: string;
-  branch: string;
-  source_type: string;
-  detected_type: string;
-  compatible_agents?: string[];
-  auth_type: SkillRegistryAuthType;
-  last_synced_at: string | null;
-  sync_status: string;
-  sync_error: string;
-  skill_count: number;
+  slug: string;
+  display_name: string;
+  description: string;
+  license: string;
+  category?: string;
+  compatibility?: string;
+  allowed_tools?: string;
+  agent_filter?: string[];
   is_active: boolean;
+  git_repo_path: string;
+  default_branch: string;
+  http_clone_url?: string;
+  upstream_url?: string;
+  upstream_subdir?: string;
+  upstream_commit_sha?: string;
+  install_source: "gitops" | "import";
+  content_sha: string;
+  storage_key: string;
+  package_size: number;
+  version: number;
+  created_by_id?: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface SkillMarketItem {
   id: number;
-  registry_id: number;
   slug: string;
   display_name: string;
   description: string;
@@ -36,7 +55,6 @@ export interface SkillMarketItem {
   content_sha: string;
   version: number;
   is_active: boolean;
-  registry?: SkillRegistry;
 }
 
 export interface McpMarketItem {
@@ -72,15 +90,6 @@ export interface EnvVarSchemaEntry {
   required: boolean;
   sensitive: boolean;
   placeholder?: string;
-}
-
-export interface SkillRegistryOverride {
-  id: number;
-  organization_id: number;
-  registry_id: number;
-  is_disabled: boolean;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface InstalledSkill {

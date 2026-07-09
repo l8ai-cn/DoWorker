@@ -28,7 +28,6 @@ import type {
 function fromProtoSkill(s: ProtoSkillMarketItem): SkillMarketItem {
   return {
     id: Number(s.id),
-    registry_id: Number(s.registryId),
     slug: s.slug,
     display_name: s.displayName,
     description: s.description,
