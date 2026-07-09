@@ -36,9 +36,9 @@ func TestCreatePod_NormalMode_Success(t *testing.T) {
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
-		RunnerID: 1,
-		AgentSlug:    "claude-code",
+		UserID:         1,
+		RunnerID:       1,
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 		Cols:           120,
 		Rows:           40,
@@ -60,9 +60,9 @@ func TestCreatePod_NormalMode_MissingRunnerID(t *testing.T) {
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
+		UserID:         1,
 		RunnerID:       0, // missing
-		AgentSlug:    "claude-code",
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 	})
 
@@ -89,9 +89,9 @@ func TestCreatePod_AutoSelectRunner_Success(t *testing.T) {
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
+		UserID:         1,
 		RunnerID:       0, // auto-select
-		AgentSlug:    "claude-code",
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 	})
 
@@ -118,9 +118,9 @@ func TestCreatePod_AutoSelectRunner_NoAvailableRunner(t *testing.T) {
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
+		UserID:         1,
 		RunnerID:       0,
-		AgentSlug:    "claude-code",
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 	})
 
@@ -143,9 +143,9 @@ func TestCreatePod_AutoSelectRunner_AgentResolveError(t *testing.T) {
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
+		UserID:         1,
 		RunnerID:       0,
-		AgentSlug:    "claude-code",
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 	})
 
@@ -172,9 +172,9 @@ func TestCreatePod_ExplicitRunnerID_SkipsAutoSelect(t *testing.T) {
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
+		UserID:         1,
 		RunnerID:       5, // explicit runner
-		AgentSlug:    "claude-code",
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 	})
 
@@ -188,9 +188,9 @@ func TestCreatePod_NormalMode_MissingAgentSlug(t *testing.T) {
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
-		RunnerID: 1,
-		AgentSlug: "", // missing
+		UserID:         1,
+		RunnerID:       1,
+		AgentSlug:      "", // missing
 	})
 
 	require.Error(t, err)
@@ -204,9 +204,9 @@ func TestCreatePod_QuotaExceeded(t *testing.T) {
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
-		RunnerID: 1,
-		AgentSlug:    "claude-code",
+		UserID:         1,
+		RunnerID:       1,
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 	})
 
@@ -220,9 +220,9 @@ func TestCreatePod_NilBilling_SkipsQuotaCheck(t *testing.T) {
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
-		RunnerID: 1,
-		AgentSlug:    "claude-code",
+		UserID:         1,
+		RunnerID:       1,
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 	})
 
@@ -236,9 +236,9 @@ func TestCreatePod_NilCoordinator(t *testing.T) {
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
-		RunnerID: 1,
-		AgentSlug:    "claude-code",
+		UserID:         1,
+		RunnerID:       1,
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 	})
 
@@ -253,9 +253,9 @@ func TestCreatePod_CoordinatorSendFailure_ReturnsError(t *testing.T) {
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
-		RunnerID: 1,
-		AgentSlug:    "claude-code",
+		UserID:         1,
+		RunnerID:       1,
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 	})
 
@@ -280,9 +280,9 @@ func TestCreatePod_ConfigBuildFailure(t *testing.T) {
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
-		RunnerID: 1,
-		AgentSlug:    "claude-code",
+		UserID:         1,
+		RunnerID:       1,
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 	})
 
@@ -296,9 +296,9 @@ func TestCreatePod_SessionID_SetForNormalMode(t *testing.T) {
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
-		UserID: 1,
-		RunnerID: 1,
-		AgentSlug:    "claude-code",
+		UserID:         1,
+		RunnerID:       1,
+		AgentSlug:      "claude-code",
 		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
 	})
 
@@ -328,7 +328,7 @@ func TestCreatePod_AgentFilePrompt_ExtractedToDB(t *testing.T) {
 		UserID:         1,
 		RunnerID:       1,
 		AgentSlug:      "claude-code",
-		AgentfileLayer:   ptrStr(`PROMPT "from agentfile"`),
+		AgentfileLayer: ptrStr(`PROMPT "from agentfile"`),
 	})
 
 	require.NoError(t, err)
@@ -348,7 +348,7 @@ func TestCreatePod_AgentFileBranch_OverridesReqBranch(t *testing.T) {
 		RunnerID:       1,
 		AgentSlug:      "claude-code",
 		BranchName:     &reqBranch,
-		AgentfileLayer:   ptrStr(`BRANCH "agentfile-branch"`),
+		AgentfileLayer: ptrStr(`BRANCH "agentfile-branch"`),
 	})
 
 	require.NoError(t, err)
@@ -367,7 +367,7 @@ func TestCreatePod_AgentFilePermissionMode_ExtractedToDB(t *testing.T) {
 		UserID:         1,
 		RunnerID:       1,
 		AgentSlug:      "claude-code",
-		AgentfileLayer:   ptrStr(`CONFIG permission_mode = "bypassPermissions"`),
+		AgentfileLayer: ptrStr(`CONFIG permission_mode = "bypassPermissions"`),
 	})
 
 	require.NoError(t, err)
@@ -402,6 +402,54 @@ func TestCreatePod_CodexUsesConfigOverridesNotClaudeLegacyFields(t *testing.T) {
 	// out and the acp launch arg ("app-server") takes its place.
 	assert.Equal(t, "never", dbPod.ResolvedConfig["approval_mode"])
 	assert.Equal(t, []string{"app-server"}, coord.lastCmd.LaunchArgs)
+}
+
+// Explicit MODE pty must survive the default-autonomous automation adapter,
+// otherwise CLI/PTY workers are unreachable. The adapter's CONFIG overrides
+// still apply so the PTY worker stays non-interactive via native CLI flags.
+func TestCreatePod_ExplicitPTYMode_SurvivesAutonomous_Claude(t *testing.T) {
+	coord := &mockPodCoordinator{}
+	orch, podSvc, _ := setupOrchestrator(t, withCoordinator(coord))
+
+	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		RunnerID:       1,
+		AgentSlug:      "claude-code",
+		AgentfileLayer: ptrStr("MODE pty"),
+	})
+
+	require.NoError(t, err)
+	dbPod, err := podSvc.GetPod(context.Background(), result.Pod.PodKey)
+	require.NoError(t, err)
+	assert.Equal(t, "pty", dbPod.InteractionMode, "explicit MODE pty must not be overridden by autonomous")
+	assert.Equal(t, "pty", coord.lastCmd.InteractionMode)
+	require.NotNil(t, dbPod.PermissionMode)
+	assert.Equal(t, "bypassPermissions", *dbPod.PermissionMode, "autonomous CONFIG still applied to PTY worker")
+}
+
+func TestCreatePod_ExplicitPTYMode_SurvivesAutonomous_Codex(t *testing.T) {
+	coord := &mockPodCoordinator{}
+	orch, podSvc, _ := setupOrchestrator(t,
+		withCoordinator(coord),
+		withAgentConfigProvider(newCodexTestProvider()),
+	)
+
+	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+		OrganizationID: 1,
+		UserID:         1,
+		RunnerID:       1,
+		AgentSlug:      "codex-cli",
+		AgentfileLayer: ptrStr("MODE pty"),
+	})
+
+	require.NoError(t, err)
+	dbPod, err := podSvc.GetPod(context.Background(), result.Pod.PodKey)
+	require.NoError(t, err)
+	assert.Equal(t, "pty", dbPod.InteractionMode, "explicit MODE pty must not be overridden by autonomous")
+	assert.Equal(t, "pty", coord.lastCmd.InteractionMode)
+	assert.Equal(t, "never", dbPod.ResolvedConfig["approval_mode"], "autonomous CONFIG still applied to PTY worker")
+	assert.NotEqual(t, []string{"app-server"}, coord.lastCmd.LaunchArgs, "PTY worker must not use the ACP app-server launch arg")
 }
 
 func TestCreatePod_NoLayer_BranchInheritedFromResume(t *testing.T) {

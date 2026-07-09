@@ -92,7 +92,19 @@ push_runners() {
     --build-arg AGENT_RUNTIME=e2e-echo \
     -t do-worker/runner-e2e-echo:latest \
     "${REPO_ROOT}/docker/agent-runtime/_context"
-  for rt in claude-code codex-cli gemini-cli e2e-echo; do
+  # minimax-cli may already exist as l8ai/runner-minimax-cli (Hub) or local build.
+  if docker image inspect "do-worker/runner-minimax-cli:latest" >/dev/null 2>&1; then
+    :
+  elif docker image inspect "l8ai/runner-minimax-cli:latest" >/dev/null 2>&1; then
+    docker tag "l8ai/runner-minimax-cli:latest" "do-worker/runner-minimax-cli:latest"
+  else
+    docker build --platform linux/amd64 --target runtime \
+      -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
+      --build-arg AGENT_RUNTIME=minimax-cli \
+      -t do-worker/runner-minimax-cli:latest \
+      "${REPO_ROOT}/docker/agent-runtime/_context"
+  fi
+  for rt in claude-code codex-cli gemini-cli e2e-echo minimax-cli; do
     docker tag "do-worker/runner-${rt}:latest" "${PROJ}/runner-${rt}:latest"
     docker push "${PROJ}/runner-${rt}:latest"
   done

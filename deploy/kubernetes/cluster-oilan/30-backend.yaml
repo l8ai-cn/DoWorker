@@ -66,7 +66,7 @@ spec:
             - name: COORDINATOR_RUNNER_RELAY_BASE_URL
               value: "ws://relay:8090"
             - name: COORDINATOR_RUNNER_IMAGES
-              value: "claude-code=repo.aiedulab.cn:8443/agentsmesh/runner-claude-code:latest,codex-cli=repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli:latest,gemini-cli=repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli:latest,e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo:latest"
+              value: "claude-code=repo.aiedulab.cn:8443/agentsmesh/runner-claude-code:latest,codex-cli=repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli:latest,gemini-cli=repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli:latest,e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo:latest,minimax-cli=repo.aiedulab.cn:8443/agentsmesh/runner-minimax-cli:latest"
           volumeMounts:
             - name: pki-ca
               mountPath: /app/ssl

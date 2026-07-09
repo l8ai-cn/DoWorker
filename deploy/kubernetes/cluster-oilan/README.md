@@ -27,7 +27,7 @@ is chain-only, so in-cluster runners dial `backend:9090` directly.
 Because Harbor is node-local, runner + backend-launcher image pull policy is `Always`
 (cheap, and avoids stale `:latest` cache after image rebuilds).
 
-## Deploy
+## Deploy / reseed
 
 ```bash
 docker login repo.aiedulab.cn:8443           # one-time
@@ -38,28 +38,46 @@ DOOPS_TARGET=gw-oilan ./deploy.sh        # secrets + manifests + jobs via DoOps
 `deploy.sh` defaults to `gw-oilan`. `push-images.sh` subsets: `platform` |
 `infra` | `runners`.
 
+### What `./deploy.sh` does (often called "reseed")
+
+Each run is a **full reconcile**, not a DB-only reset:
+
+1. **Secrets** — generate or reuse `_gen/` CA + app secrets + Harbor pull creds.
+2. **`kubectl apply -k .`** — re-apply every Deployment/ConfigMap/Ingress from git.
+   Live hotfixes (`kubectl set env …`) are **overwritten** on the next deploy.
+3. **Migrate job** — delete old `migrate` job, run embedded SQL migrations (idempotent).
+4. **Seed job** — delete old `seed` job, run `21-seed-configmap.yaml` → `seed.sql`.
+
+The seed SQL is **idempotent** (`WHERE NOT EXISTS`): it ensures `dev-org`, the
+admin user, subscription, and pre-registered runner `node_id`s exist. It does **not**
+truncate pods/users/orgs; it also does **not** seed `dev@agentsmesh.local` (admin-only
+on this cluster). Re-running seed alone does not change relay/web env — only step 2 does.
+
 > The runner Go binary resolves its config dir via `config.UserConfigDir()`
 > (`~/.do-worker`, legacy `~/.agentsmesh`); older runner images that hardcoded
 > `~/.agentsmesh` fail with `Runner not registered` in a fresh container.
 
 ## Endpoints
 
-- App: http://doworker.l8an.cn:10007 (`/api`, `/proto.`, `/relay`, `/health`)
-- Admin console: http://admin.doworker.l8an.cn:10007 (separate host — no `/admin` basePath)
-- Object storage (presigned URLs): http://minio.doworker.l8an.cn:10007
-- Test accounts: `dev@agentsmesh.local / AdminAb123456`, `admin@agentsmesh.local / Ab123456`
+- App: https://dowork.l8ai.cn (`/api`, `/proto.`, `/relay`, `/health`)
+- Admin console: https://admin.dowork.l8ai.cn (separate host — no `/admin` basePath)
+- Object storage (presigned URLs): https://minio.dowork.l8ai.cn
+- Test account: `admin@agentsmesh.local / Ab123456`
 
-DNS for `*.l8an.cn` must point at the oilan node; ingress-nginx must expose **NodePort
-10007** (HTTP) so external `:10007` reaches the controller. One-time patch on the
-cluster (adjust namespace/service name if your install differs):
+DNS for `dowork.l8ai.cn` / `admin.dowork.l8ai.cn` / `minio.dowork.l8ai.cn` must point at the
+oilan node. All public URLs share one domain family so relay/WebSocket URLs from
+`GetPodConnection` match the page origin (mixed `l8an.cn` / `l8ai.cn` hosts caused
+403 on terminal attach). Ingress-nginx may expose **NodePort 10007** (HTTP) so
+external `:10007` reaches the controller. One-time patch on the cluster (adjust
+namespace/service name if your install differs):
 
 ```bash
 kubectl -n ingress-nginx patch svc ingress-nginx-controller -p \
   '{"spec":{"ports":[{"name":"http","port":80,"targetPort":"http","nodePort":10007}]}}'
 ```
 
-TLS cert secret `l8an-wildcard-tls` must exist in the `default` namespace before
-`deploy.sh` runs (copied into `agentsmesh`).
+TLS cert secret `l8ai-wildcard-tls` must exist in the `default` namespace before
+`deploy.sh` runs (copied into `agentsmesh` alongside `l8an-wildcard-tls` if needed).
 
 ## Layout
 

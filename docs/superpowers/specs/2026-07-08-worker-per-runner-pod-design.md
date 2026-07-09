@@ -14,7 +14,7 @@ This gives the platform the operational behavior of one worker per Kubernetes po
 - Do not require dynamic Kubernetes Ingress per worker in the first implementation.
 - Do not change the browser terminal or ACP interaction model.
 - Do not remove standing runners; keep existing runner selection for environments that still use pooled runners.
-- Do not make oilan depend on ports in the public host name. Public application traffic should use `doworker.l8an.cn`.
+- Do not make oilan depend on ports in the public host name. Public application traffic should use `dowork.l8ai.cn`.
 
 ## Current Model
 
@@ -144,7 +144,7 @@ The first implementation should not create one Kubernetes Ingress per worker. It
 Recommended external shape:
 
 ```text
-https://doworker.l8an.cn/preview/<podKey>/*
+https://dowork.l8ai.cn/preview/<podKey>/*
 ```
 
 Initial backend implementation can store or compute a future preview endpoint without enabling proxying yet. If preview routing is implemented in this phase, prefer a fixed Gateway/Preview service that authenticates the request, looks up `podKey`, and proxies to the dedicated worker pod or runner-local preview proxy.

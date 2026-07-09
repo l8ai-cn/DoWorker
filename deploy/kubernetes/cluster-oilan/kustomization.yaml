@@ -19,5 +19,6 @@ resources:
   - 34-runner-e2e-echo.yaml
   - 35-runner-claude.yaml
   - 36-runner-codex-cli.yaml
+  - 37-runner-minimax-cli.yaml
   - 40-ingress.yaml
   - 60-prepull-daemonset.yaml

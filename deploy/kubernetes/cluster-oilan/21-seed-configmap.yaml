@@ -4,27 +4,17 @@ metadata:
   name: agentsmesh-seed
   namespace: agentsmesh
 data:
-  # Trimmed from deploy/dev/seed/seed.sql: org + users + members + subscription
+  # Trimmed from deploy/dev/seed/seed.sql: org + admin user + members + subscription
   # + runner registration token + pre-registered runner rows whose node_id matches
   # the standing runner Deployments. Gitea/demo/channel seeds are intentionally
   # omitted (no Gitea in this cluster). Idempotent.
-  # Passwords: dev@agentsmesh.local / AdminAb123456, admin@agentsmesh.local / Ab123456
+  # Password: admin@agentsmesh.local / Ab123456
   seed.sql: |
     DO $$
     DECLARE
-        v_user_id BIGINT;
         v_admin_id BIGINT;
         v_org_id BIGINT;
     BEGIN
-        INSERT INTO users (email, username, name, password_hash, is_active, is_email_verified)
-        SELECT 'dev@agentsmesh.local', 'devuser', 'Dev User',
-               '$2a$10$k4P3AdDi0j4XT1VeDt4YuOFcxfj2uDbm8N9Tj7fCK0Gk/PY3Gz1WC', TRUE, TRUE
-        WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'dev@agentsmesh.local')
-        RETURNING id INTO v_user_id;
-        IF v_user_id IS NULL THEN
-            SELECT id INTO v_user_id FROM users WHERE email = 'dev@agentsmesh.local';
-        END IF;
-
         INSERT INTO users (email, username, name, password_hash, is_active, is_email_verified, is_system_admin)
         SELECT 'admin@agentsmesh.local', 'admin', 'System Admin',
                '$2a$10$PsctEhhXW5eXhUIrSzJTSeoxoVMFWS8Kp5iNrspxE023nji8lUMSm', TRUE, TRUE, TRUE
@@ -43,12 +33,12 @@ data:
         END IF;
 
         INSERT INTO organization_members (organization_id, user_id, role)
-        SELECT v_org_id, v_user_id, 'owner'
-        WHERE NOT EXISTS (SELECT 1 FROM organization_members WHERE organization_id = v_org_id AND user_id = v_user_id);
-
-        INSERT INTO organization_members (organization_id, user_id, role)
-        SELECT v_org_id, v_admin_id, 'member'
+        SELECT v_org_id, v_admin_id, 'owner'
         WHERE NOT EXISTS (SELECT 1 FROM organization_members WHERE organization_id = v_org_id AND user_id = v_admin_id);
+
+        UPDATE organization_members
+        SET role = 'owner'
+        WHERE organization_id = v_org_id AND user_id = v_admin_id AND role <> 'owner';
 
         INSERT INTO subscriptions (organization_id, plan_id, status, billing_cycle,
             current_period_start, current_period_end, auto_renew, seat_count)
@@ -57,7 +47,7 @@ data:
 
         INSERT INTO runner_grpc_registration_tokens (organization_id, token_hash, description, created_by_id, is_active, max_uses)
         SELECT v_org_id, 'cee9d12fb9fefdfafe98d97f5c8a247e071a0e6778089dee7cf2be571ee606d2',
-               'Cluster Runner Token', v_user_id, TRUE, NULL
+               'Cluster Runner Token', v_admin_id, TRUE, NULL
         WHERE NOT EXISTS (SELECT 1 FROM runner_grpc_registration_tokens WHERE organization_id = v_org_id AND description = 'Cluster Runner Token');
 
         INSERT INTO runners (organization_id, node_id, description, status, max_concurrent_pods)
@@ -66,7 +56,8 @@ data:
             ('dev-runner', 'K8s Runner (e2e-echo)'),
             ('dev-runner-claude', 'K8s Runner (Claude Code)'),
             ('dev-runner-codex', 'K8s Runner (Codex CLI)'),
-            ('dev-runner-gemini', 'K8s Runner (Gemini CLI)')
+            ('dev-runner-gemini', 'K8s Runner (Gemini CLI)'),
+            ('dev-runner-minimax', 'K8s Runner (MiniMax CLI)')
         ) AS r(node_id, description)
         WHERE NOT EXISTS (SELECT 1 FROM runners WHERE organization_id = v_org_id AND node_id = r.node_id);
 
@@ -77,12 +68,12 @@ data:
         SELECT v_org_id,
                'coord-runner-amesh-runner-' || v_org_id || '-' || a.agent,
                'Coordinator dynamic runner (' || a.agent || ')', 'offline', 10
-        FROM (VALUES ('claude-code'), ('codex-cli'), ('gemini-cli'), ('e2e-echo')) AS a(agent)
+        FROM (VALUES ('claude-code'), ('codex-cli'), ('gemini-cli'), ('e2e-echo'), ('minimax-cli')) AS a(agent)
         WHERE NOT EXISTS (
             SELECT 1 FROM runners
             WHERE organization_id = v_org_id
               AND node_id = 'coord-runner-amesh-runner-' || v_org_id || '-' || a.agent
         );
 
-        RAISE NOTICE 'agentsmesh seed applied (org=dev-org)';
+        RAISE NOTICE 'agentsmesh seed applied (org=dev-org, admin-only)';
     END $$;

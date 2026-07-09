@@ -80,7 +80,9 @@ apply_all() {
   dexec "kubectl apply -f 00-namespace.yaml"
   for f in "${SEC}"/*.yaml; do apply_secret "${f}"; done
   echo "==> copy wildcard TLS into ${NS}"
-  dexec "kubectl get secret l8an-wildcard-tls -n default -o yaml | sed -e '/namespace:/d' -e '/resourceVersion:/d' -e '/uid:/d' -e '/creationTimestamp:/d' | kubectl apply -n ${NS} -f -"
+  for tls in l8ai-wildcard-tls l8an-wildcard-tls; do
+    dexec "kubectl get secret ${tls} -n default -o yaml 2>/dev/null | sed -e '/namespace:/d' -e '/resourceVersion:/d' -e '/uid:/d' -e '/creationTimestamp:/d' | kubectl apply -n ${NS} -f -" || true
+  done
   echo "==> apply workloads (kustomize)"
   dexec "kubectl apply -k ."
   echo "==> migrate (embedded), then seed + minio bucket"
@@ -102,4 +104,4 @@ gen_secrets
 push_manifests
 apply_all
 status
-echo "==> deployed. http://doworker.l8an.cn:10007 (dev@agentsmesh.local / AdminAb123456)"
+echo "==> deployed. https://dowork.l8ai.cn (admin@agentsmesh.local / Ab123456)"

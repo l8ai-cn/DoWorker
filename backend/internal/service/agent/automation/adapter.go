@@ -45,9 +45,12 @@ func AdapterFor(agentSlug string) Adapter {
 
 // LayerLinesFor renders the adapter output for (agentSlug, level) as AgentFile
 // layer text. The level is normalized first, so empty/unknown ⇒ autonomous.
-// canForceMode gates the MODE line: when the resolved agent cannot run ACP
-// (pty-only), forcing it would fail mode validation, so we degrade gracefully
-// and only apply the CONFIG overrides. Returns "" when nothing to inject.
+// canForceMode gates the MODE line: it must be false when forcing a mode would
+// be wrong — either the resolved agent cannot run ACP (pty-only, forcing it
+// fails mode validation) or the caller already selected a mode explicitly (a
+// user MODE must win over the automation default). In both cases we degrade
+// gracefully and only apply the CONFIG overrides. Returns "" when nothing to
+// inject.
 func LayerLinesFor(agentSlug, level string, canForceMode bool) string {
 	out := AdapterFor(agentSlug).Apply(podDomain.NormalizeAutomationLevel(level))
 	if !canForceMode {

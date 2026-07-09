@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "agentfile_extract.go",
         "agentfile_layer_env_bundle.go",
+        "agentfile_layer_mode.go",
         "agentfile_peek.go",
         "ai_provider_crypto.go",
         "ai_provider_query.go",

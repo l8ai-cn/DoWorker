@@ -88,8 +88,15 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		req.AutomationLevel = podDomain.NormalizeAutomationLevel(req.AutomationLevel)
 	} else {
 		req.AutomationLevel = podDomain.NormalizeAutomationLevel(req.AutomationLevel)
-		canForceACP := agentDef != nil && agentDef.SupportsMode(podDomain.InteractionModeACP)
-		if lines := automation.LayerLinesFor(req.AgentSlug, req.AutomationLevel, canForceACP); lines != "" {
+		// An explicitly requested MODE (pty/acp) is authoritative: the automation
+		// adapter must not force a different mode over it, otherwise CLI/PTY
+		// workers are unreachable under the default autonomous level. The
+		// adapter's CONFIG overrides still apply, so an autonomous PTY worker
+		// stays non-interactive via the agent's native CLI flags.
+		canForceMode := agentDef != nil &&
+			agentDef.SupportsMode(podDomain.InteractionModeACP) &&
+			!agentfileLayerHasModeDecl(req.AgentfileLayer)
+		if lines := automation.LayerLinesFor(req.AgentSlug, req.AutomationLevel, canForceMode); lines != "" {
 			appendAgentfileLayerLines(&req.AgentfileLayer, lines)
 		}
 	}
