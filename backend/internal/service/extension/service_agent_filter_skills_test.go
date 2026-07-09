@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 )
 
 // ---------------------------------------------------------------------------
@@ -24,8 +25,8 @@ func TestGetEffectiveSkills_AgentFilter_MatchingAgent(t *testing.T) {
 					ContentSha:    "abc123",
 					StorageKey:    "skills/filtered-skill/v1.tar.gz",
 					PackageSize:   1024,
-					MarketItemID:  int64Ptr(100),
-					MarketItem: &extension.SkillMarketItem{
+					SkillID:       int64Ptr(100),
+					Skill: &skilldom.Skill{
 						ID:          100,
 						Slug:        "filtered-skill",
 						AgentFilter: json.RawMessage(`["claude-code"]`),
@@ -63,8 +64,8 @@ func TestGetEffectiveSkills_AgentFilter_NonMatchingAgent(t *testing.T) {
 					ContentSha:    "abc123",
 					StorageKey:    "skills/claude-only-skill/v1.tar.gz",
 					PackageSize:   1024,
-					MarketItemID:  int64Ptr(100),
-					MarketItem: &extension.SkillMarketItem{
+					SkillID:       int64Ptr(100),
+					Skill: &skilldom.Skill{
 						ID:          100,
 						Slug:        "claude-only-skill",
 						AgentFilter: json.RawMessage(`["claude-code"]`),
@@ -98,8 +99,8 @@ func TestGetEffectiveSkills_AgentFilter_AliasMatches(t *testing.T) {
 					ContentSha:    "abc123",
 					StorageKey:    "skills/codex-skill/v1.tar.gz",
 					PackageSize:   1024,
-					MarketItemID:  int64Ptr(100),
-					MarketItem: &extension.SkillMarketItem{
+					SkillID:       int64Ptr(100),
+					Skill: &skilldom.Skill{
 						ID:          100,
 						Slug:        "codex-skill",
 						AgentFilter: json.RawMessage(`["codex"]`),
@@ -134,7 +135,7 @@ func TestGetEffectiveSkills_AgentFilter_GitHubInstallAlwaysIncluded(t *testing.T
 					ContentSha:    "def456",
 					StorageKey:    "skills/github-skill/v1.tar.gz",
 					PackageSize:   2048,
-					MarketItem:    nil, // github install, no market item
+					Skill:         nil, // github install, no market item
 				},
 			}, nil
 		},
@@ -162,8 +163,8 @@ func TestGetEffectiveSkills_AgentFilter_NullFilterAllowsAll(t *testing.T) {
 					ContentSha:    "ghi789",
 					StorageKey:    "skills/universal-skill/v1.tar.gz",
 					PackageSize:   512,
-					MarketItemID:  int64Ptr(100),
-					MarketItem: &extension.SkillMarketItem{
+					SkillID:       int64Ptr(100),
+					Skill: &skilldom.Skill{
 						ID:          100,
 						Slug:        "universal-skill",
 						AgentFilter: nil,
@@ -198,8 +199,8 @@ func TestGetEffectiveSkills_AgentFilter_EmptySlugDisablesFilter(t *testing.T) {
 					ContentSha:    "abc123",
 					StorageKey:    "skills/claude-only-skill/v1.tar.gz",
 					PackageSize:   1024,
-					MarketItemID:  int64Ptr(100),
-					MarketItem: &extension.SkillMarketItem{
+					SkillID:       int64Ptr(100),
+					Skill: &skilldom.Skill{
 						ID:          100,
 						Slug:        "claude-only-skill",
 						AgentFilter: json.RawMessage(`["claude-code"]`),
@@ -234,8 +235,8 @@ func TestGetEffectiveSkills_AgentFilter_MixedSkills(t *testing.T) {
 					ContentSha:    "sha1",
 					StorageKey:    "skills/claude-only/v1.tar.gz",
 					PackageSize:   100,
-					MarketItemID:  int64Ptr(100),
-					MarketItem: &extension.SkillMarketItem{
+					SkillID:       int64Ptr(100),
+					Skill: &skilldom.Skill{
 						ID:          100,
 						AgentFilter: json.RawMessage(`["claude-code"]`),
 						ContentSha:  "sha1",
@@ -250,8 +251,8 @@ func TestGetEffectiveSkills_AgentFilter_MixedSkills(t *testing.T) {
 					ContentSha:    "sha2",
 					StorageKey:    "skills/universal/v1.tar.gz",
 					PackageSize:   200,
-					MarketItemID:  int64Ptr(101),
-					MarketItem: &extension.SkillMarketItem{
+					SkillID:       int64Ptr(101),
+					Skill: &skilldom.Skill{
 						ID:          101,
 						AgentFilter: nil,
 						ContentSha:  "sha2",
@@ -266,7 +267,7 @@ func TestGetEffectiveSkills_AgentFilter_MixedSkills(t *testing.T) {
 					ContentSha:    "sha3",
 					StorageKey:    "skills/github-skill/v1.tar.gz",
 					PackageSize:   300,
-					MarketItem:    nil,
+					Skill:         nil,
 				},
 			}, nil
 		},

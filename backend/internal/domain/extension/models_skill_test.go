@@ -2,10 +2,16 @@ package extension
 
 import (
 	"testing"
+
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 )
 
 // ---------------------------------------------------------------------------
 // InstalledSkill.GetEffectiveSha / GetEffectiveStorageKey / GetEffectivePackageSize
+//
+// Effective values live-follow the linked catalog row when the install is
+// unpinned (PinnedVersion == nil) and the row is loaded (Skill != nil);
+// otherwise the install's own snapshot wins.
 // ---------------------------------------------------------------------------
 
 func TestInstalledSkill_GetEffectiveSha(t *testing.T) {
@@ -17,32 +23,32 @@ func TestInstalledSkill_GetEffectiveSha(t *testing.T) {
 		want  string
 	}{
 		{
-			name: "market_tracking_latest",
+			name: "catalog_tracking_latest",
 			skill: InstalledSkill{
-				InstallSource: InstallSourceMarket,
+				InstallSource: InstallSourceCatalog,
 				PinnedVersion: nil,
 				ContentSha:    "own-sha",
-				MarketItem:    &SkillMarketItem{ContentSha: "market-sha"},
+				Skill:         &skilldom.Skill{ContentSha: "catalog-sha"},
 			},
-			want: "market-sha",
+			want: "catalog-sha",
 		},
 		{
-			name: "market_pinned_version",
+			name: "catalog_pinned_version",
 			skill: InstalledSkill{
-				InstallSource: InstallSourceMarket,
+				InstallSource: InstallSourceCatalog,
 				PinnedVersion: &pinnedVersion,
 				ContentSha:    "own-sha",
-				MarketItem:    &SkillMarketItem{ContentSha: "market-sha"},
+				Skill:         &skilldom.Skill{ContentSha: "catalog-sha"},
 			},
 			want: "own-sha",
 		},
 		{
-			name: "market_no_market_item",
+			name: "catalog_no_row_loaded",
 			skill: InstalledSkill{
-				InstallSource: InstallSourceMarket,
+				InstallSource: InstallSourceCatalog,
 				PinnedVersion: nil,
 				ContentSha:    "own-sha",
-				MarketItem:    nil,
+				Skill:         nil,
 			},
 			want: "own-sha",
 		},
@@ -51,7 +57,6 @@ func TestInstalledSkill_GetEffectiveSha(t *testing.T) {
 			skill: InstalledSkill{
 				InstallSource: InstallSourceGitHub,
 				ContentSha:    "github-sha",
-				MarketItem:    &SkillMarketItem{ContentSha: "market-sha"},
 			},
 			want: "github-sha",
 		},
@@ -84,32 +89,32 @@ func TestInstalledSkill_GetEffectiveStorageKey(t *testing.T) {
 		want  string
 	}{
 		{
-			name: "market_tracking_latest",
+			name: "catalog_tracking_latest",
 			skill: InstalledSkill{
-				InstallSource: InstallSourceMarket,
+				InstallSource: InstallSourceCatalog,
 				PinnedVersion: nil,
 				StorageKey:    "own-key",
-				MarketItem:    &SkillMarketItem{StorageKey: "market-key"},
+				Skill:         &skilldom.Skill{StorageKey: "catalog-key"},
 			},
-			want: "market-key",
+			want: "catalog-key",
 		},
 		{
-			name: "market_pinned_version",
+			name: "catalog_pinned_version",
 			skill: InstalledSkill{
-				InstallSource: InstallSourceMarket,
+				InstallSource: InstallSourceCatalog,
 				PinnedVersion: &pinnedVersion,
 				StorageKey:    "own-key",
-				MarketItem:    &SkillMarketItem{StorageKey: "market-key"},
+				Skill:         &skilldom.Skill{StorageKey: "catalog-key"},
 			},
 			want: "own-key",
 		},
 		{
-			name: "market_no_market_item",
+			name: "catalog_no_row_loaded",
 			skill: InstalledSkill{
-				InstallSource: InstallSourceMarket,
+				InstallSource: InstallSourceCatalog,
 				PinnedVersion: nil,
 				StorageKey:    "own-key",
-				MarketItem:    nil,
+				Skill:         nil,
 			},
 			want: "own-key",
 		},
@@ -118,7 +123,6 @@ func TestInstalledSkill_GetEffectiveStorageKey(t *testing.T) {
 			skill: InstalledSkill{
 				InstallSource: InstallSourceGitHub,
 				StorageKey:    "github-key",
-				MarketItem:    &SkillMarketItem{StorageKey: "market-key"},
 			},
 			want: "github-key",
 		},
@@ -151,32 +155,32 @@ func TestInstalledSkill_GetEffectivePackageSize(t *testing.T) {
 		want  int64
 	}{
 		{
-			name: "market_tracking_latest",
+			name: "catalog_tracking_latest",
 			skill: InstalledSkill{
-				InstallSource: InstallSourceMarket,
+				InstallSource: InstallSourceCatalog,
 				PinnedVersion: nil,
 				PackageSize:   100,
-				MarketItem:    &SkillMarketItem{PackageSize: 999},
+				Skill:         &skilldom.Skill{PackageSize: 999},
 			},
 			want: 999,
 		},
 		{
-			name: "market_pinned_version",
+			name: "catalog_pinned_version",
 			skill: InstalledSkill{
-				InstallSource: InstallSourceMarket,
+				InstallSource: InstallSourceCatalog,
 				PinnedVersion: &pinnedVersion,
 				PackageSize:   100,
-				MarketItem:    &SkillMarketItem{PackageSize: 999},
+				Skill:         &skilldom.Skill{PackageSize: 999},
 			},
 			want: 100,
 		},
 		{
-			name: "market_no_market_item",
+			name: "catalog_no_row_loaded",
 			skill: InstalledSkill{
-				InstallSource: InstallSourceMarket,
+				InstallSource: InstallSourceCatalog,
 				PinnedVersion: nil,
 				PackageSize:   100,
-				MarketItem:    nil,
+				Skill:         nil,
 			},
 			want: 100,
 		},
@@ -185,7 +189,6 @@ func TestInstalledSkill_GetEffectivePackageSize(t *testing.T) {
 			skill: InstalledSkill{
 				InstallSource: InstallSourceGitHub,
 				PackageSize:   200,
-				MarketItem:    &SkillMarketItem{PackageSize: 999},
 			},
 			want: 200,
 		},

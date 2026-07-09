@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 )
 
 // ---------------------------------------------------------------------------
@@ -161,22 +162,23 @@ func TestGetEffectiveSkills_RepoError(t *testing.T) {
 	}
 }
 
-func TestGetEffectiveSkills_MarketSourceUsesMarketItem(t *testing.T) {
-	// When install_source=market and pinned_version=nil, sha/storageKey come from MarketItem
+func TestGetEffectiveSkills_CatalogSourceUsesCatalogRow(t *testing.T) {
+	// When install_source=catalog and pinned_version=nil, sha/storageKey
+	// live-follow the linked catalog (skills-table) row.
 	repo := &svcMockRepo{
 		getEffectiveSkillsFn: func(_ context.Context, orgID, userID, repoID int64) ([]*extension.InstalledSkill, error) {
-			marketItemID := int64(100)
+			skillID := int64(100)
 			return []*extension.InstalledSkill{
 				{
 					ID:            1,
 					Slug:          "market-skill",
-					InstallSource: "market",
-					MarketItemID:  &marketItemID,
-					ContentSha:    "old-sha",     // should be overridden by MarketItem
-					StorageKey:    "old-key",      // should be overridden by MarketItem
-					PackageSize:   100,            // should be overridden by MarketItem
-					PinnedVersion: nil,            // not pinned → use MarketItem
-					MarketItem: &extension.SkillMarketItem{
+					InstallSource: extension.InstallSourceCatalog,
+					SkillID:       &skillID,
+					ContentSha:    "old-sha",     // should be overridden by catalog row
+					StorageKey:    "old-key",      // should be overridden by catalog row
+					PackageSize:   100,            // should be overridden by catalog row
+					PinnedVersion: nil,            // not pinned → follow catalog row
+					Skill: &skilldom.Skill{
 						ID:          100,
 						ContentSha:  "market-sha-latest",
 						StorageKey:  "market/skills/latest.tar.gz",

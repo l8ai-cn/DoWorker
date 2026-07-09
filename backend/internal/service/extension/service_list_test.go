@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 )
 
 // ---------------------------------------------------------------------------
@@ -56,11 +57,11 @@ func TestListRepoSkills_ScopeOrgPassesThrough(t *testing.T) {
 
 func TestListMarketSkills_Success(t *testing.T) {
 	called := false
-	repo := &svcMockRepo{
-		listSkillMarketItemsFn: func(_ context.Context, orgID *int64, query string, category string) ([]*extension.SkillMarketItem, error) {
+	cat := &svcMockCatalog{
+		listCatalogFn: func(_ context.Context, orgID int64, query, category string) ([]skilldom.Skill, error) {
 			called = true
-			if orgID == nil || *orgID != 10 {
-				t.Errorf("expected orgID 10, got %v", orgID)
+			if orgID != 10 {
+				t.Errorf("expected orgID 10, got %d", orgID)
 			}
 			if query != "search" {
 				t.Errorf("expected query 'search', got %q", query)
@@ -68,19 +69,20 @@ func TestListMarketSkills_Success(t *testing.T) {
 			if category != "dev" {
 				t.Errorf("expected category 'dev', got %q", category)
 			}
-			return []*extension.SkillMarketItem{
+			return []skilldom.Skill{
 				{ID: 1, Slug: "skill-1"},
 			}, nil
 		},
 	}
-	svc := newTestService(repo, &svcMockStorage{}, nil)
+	svc := newTestService(&svcMockRepo{}, &svcMockStorage{}, nil)
+	svc.SetSkillCatalog(cat)
 
 	result, err := svc.ListMarketSkills(context.Background(), 10, "search", "dev")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if !called {
-		t.Error("repo.ListSkillMarketItems was not called")
+		t.Error("catalog.ListCatalog was not called")
 	}
 	if len(result) != 1 {
 		t.Errorf("expected 1 item, got %d", len(result))
@@ -88,12 +90,13 @@ func TestListMarketSkills_Success(t *testing.T) {
 }
 
 func TestListMarketSkills_Error(t *testing.T) {
-	repo := &svcMockRepo{
-		listSkillMarketItemsFn: func(_ context.Context, orgID *int64, query string, category string) ([]*extension.SkillMarketItem, error) {
+	cat := &svcMockCatalog{
+		listCatalogFn: func(_ context.Context, orgID int64, query, category string) ([]skilldom.Skill, error) {
 			return nil, errors.New("query failed")
 		},
 	}
-	svc := newTestService(repo, &svcMockStorage{}, nil)
+	svc := newTestService(&svcMockRepo{}, &svcMockStorage{}, nil)
+	svc.SetSkillCatalog(cat)
 
 	_, err := svc.ListMarketSkills(context.Background(), 1, "", "")
 	if err == nil {

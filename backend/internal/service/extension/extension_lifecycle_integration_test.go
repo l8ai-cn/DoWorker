@@ -78,38 +78,6 @@ func TestExtension_McpServerCRUD(t *testing.T) {
 	assert.Empty(t, servers)
 }
 
-func TestExtension_SkillRegistryCRUD(t *testing.T) {
-	ts := newIntegrationSetup(t)
-
-	// Create registry
-	registry, err := ts.svc.CreateSkillRegistry(ts.ctx, ts.orgID, CreateSkillRegistryInput{
-		RepositoryURL: "https://github.com/example/skill-registry",
-		Branch:        "main",
-	})
-	require.NoError(t, err)
-	require.NotNil(t, registry)
-	assert.NotZero(t, registry.ID)
-	assert.Equal(t, "https://github.com/example/skill-registry", registry.RepositoryURL)
-	assert.Equal(t, "main", registry.Branch)
-	assert.Equal(t, "pending", registry.SyncStatus)
-	require.NotNil(t, registry.OrganizationID)
-	assert.Equal(t, ts.orgID, *registry.OrganizationID)
-
-	// List registries
-	registries, err := ts.svc.ListSkillRegistries(ts.ctx, ts.orgID)
-	require.NoError(t, err)
-	require.Len(t, registries, 1)
-	assert.Equal(t, registry.ID, registries[0].ID)
-
-	// Delete registry
-	err = ts.svc.DeleteSkillRegistry(ts.ctx, ts.orgID, registry.ID)
-	require.NoError(t, err)
-
-	registries, err = ts.svc.ListSkillRegistries(ts.ctx, ts.orgID)
-	require.NoError(t, err)
-	assert.Empty(t, registries)
-}
-
 func TestExtension_OrgIsolation(t *testing.T) {
 	ts := newIntegrationSetup(t)
 
@@ -147,16 +115,6 @@ func TestExtension_OrgIsolation(t *testing.T) {
 
 	// Org2 cannot uninstall org1's server
 	err = ts.svc.UninstallMcpServer(ts.ctx, org2ID, repo2ID, installed.ID, user2ID, "owner")
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "does not belong to this organization")
-
-	// Org1 creates skill registry, org2 cannot delete it
-	registry, err := ts.svc.CreateSkillRegistry(ts.ctx, ts.orgID, CreateSkillRegistryInput{
-		RepositoryURL: "https://github.com/org1/skills",
-	})
-	require.NoError(t, err)
-
-	err = ts.svc.DeleteSkillRegistry(ts.ctx, org2ID, registry.ID)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "does not belong to this organization")
 }

@@ -36,7 +36,6 @@ go_library(
         "//backend/internal/api/connect/admin",
         "//backend/internal/api/connect/admin/auth",
         "//backend/internal/api/connect/admin/promocode",
-        "//backend/internal/api/connect/admin/skill_registry",
         "//backend/internal/api/connect/admin/sso",
         "//backend/internal/api/connect/admin/subscription",
         "//backend/internal/api/connect/admin/support_ticket",

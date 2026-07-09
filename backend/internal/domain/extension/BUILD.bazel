@@ -7,12 +7,10 @@ go_library(
         "installed_skill.go",
         "mcp_market_item.go",
         "repository.go",
-        "skill_market_item.go",
-        "skill_registry.go",
-        "skill_registry_override.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/backend/internal/domain/extension",
     visibility = ["//backend:__subpackages__"],
+    deps = ["//backend/internal/domain/skill"],
 )
 
 alias(
@@ -29,4 +27,5 @@ go_test(
         "models_test.go",
     ],
     embed = [":extension"],
+    deps = ["//backend/internal/domain/skill"],
 )

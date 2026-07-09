@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	extdom "github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	extensionv1 "github.com/anthropics/agentsmesh/proto/gen/go/extension/v1"
 )
 
@@ -27,9 +28,8 @@ func TestListMarketMcpServers_MissingOrgSlug_InvalidArgument(t *testing.T) {
 }
 
 func TestToProtoSkillMarketItem_PopulatedFields(t *testing.T) {
-	in := &extdom.SkillMarketItem{
+	in := &skilldom.Skill{
 		ID:            11,
-		RegistryID:    7,
 		Slug:          "format-go",
 		DisplayName:   "Format Go",
 		Description:   "Skill description",
@@ -49,7 +49,6 @@ func TestToProtoSkillMarketItem_PopulatedFields(t *testing.T) {
 	got := toProtoSkillMarketItem(in)
 	require.NotNil(t, got)
 	assert.Equal(t, int64(11), got.GetId())
-	assert.Equal(t, int64(7), got.GetRegistryId())
 	assert.Equal(t, "format-go", got.GetSlug())
 	assert.Equal(t, "Format Go", got.GetDisplayName())
 	assert.Equal(t, int64(4096), got.GetPackageSize())
@@ -60,7 +59,7 @@ func TestToProtoSkillMarketItem_PopulatedFields(t *testing.T) {
 }
 
 func TestToProtoSkillMarketItem_EmptyAgentFilterAllAgents(t *testing.T) {
-	in := &extdom.SkillMarketItem{
+	in := &skilldom.Skill{
 		ID:        1,
 		Slug:      "demo",
 		IsActive:  true,

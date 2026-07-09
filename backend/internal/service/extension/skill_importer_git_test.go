@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -20,7 +19,7 @@ func TestGitCloneWithAuth_GitHubPAT(t *testing.T) {
 	ctx := context.Background()
 	targetDir := t.TempDir()
 
-	err := gitCloneWithAuth(ctx, "https://github.com/owner/repo.git", "", targetDir, extension.AuthTypeGitHubPAT, "ghp_test123")
+	err := gitCloneWithAuth(ctx, "https://github.com/owner/repo.git", "", targetDir, AuthTypeGitHubPAT, "ghp_test123")
 	require.Error(t, err)
 	assert.NotContains(t, err.Error(), "failed to build authenticated URL")
 	assert.Contains(t, err.Error(), "git clone failed")
@@ -30,7 +29,7 @@ func TestGitCloneWithAuth_GitLabPAT(t *testing.T) {
 	ctx := context.Background()
 	targetDir := t.TempDir()
 
-	err := gitCloneWithAuth(ctx, "https://gitlab.com/owner/repo.git", "", targetDir, extension.AuthTypeGitLabPAT, "glpat-test456")
+	err := gitCloneWithAuth(ctx, "https://gitlab.com/owner/repo.git", "", targetDir, AuthTypeGitLabPAT, "glpat-test456")
 	require.Error(t, err)
 	assert.NotContains(t, err.Error(), "failed to build authenticated URL")
 	assert.Contains(t, err.Error(), "git clone failed")
@@ -40,7 +39,7 @@ func TestGitCloneWithAuth_SSHKey(t *testing.T) {
 	ctx := context.Background()
 	targetDir := t.TempDir()
 
-	err := gitCloneWithAuth(ctx, "git@github.com:owner/repo.git", "", targetDir, extension.AuthTypeSSHKey, "fake-ssh-key")
+	err := gitCloneWithAuth(ctx, "git@github.com:owner/repo.git", "", targetDir, AuthTypeSSHKey, "fake-ssh-key")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "git clone with SSH key failed")
 }
@@ -59,7 +58,7 @@ func TestGitCloneWithAuth_PATInjectError(t *testing.T) {
 	ctx := context.Background()
 	targetDir := t.TempDir()
 
-	err := gitCloneWithAuth(ctx, "http://github.com/owner/repo.git", "", targetDir, extension.AuthTypeGitHubPAT, "token")
+	err := gitCloneWithAuth(ctx, "http://github.com/owner/repo.git", "", targetDir, AuthTypeGitHubPAT, "token")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to build authenticated URL")
 }
@@ -68,7 +67,7 @@ func TestGitCloneWithAuth_GitLabPATInjectError(t *testing.T) {
 	ctx := context.Background()
 	targetDir := t.TempDir()
 
-	err := gitCloneWithAuth(ctx, "http://gitlab.com/owner/repo.git", "", targetDir, extension.AuthTypeGitLabPAT, "token")
+	err := gitCloneWithAuth(ctx, "http://gitlab.com/owner/repo.git", "", targetDir, AuthTypeGitLabPAT, "token")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to build authenticated URL")
 }

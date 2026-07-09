@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/storage"
 	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
 )
@@ -22,24 +23,6 @@ import (
 // ---------------------------------------------------------------------------
 
 type svcMockRepo struct {
-	// Skill Registries
-	listSkillRegistriesFn          func(ctx context.Context, orgID *int64) ([]*extension.SkillRegistry, error)
-	listAllActiveSkillRegistriesFn func(ctx context.Context) ([]*extension.SkillRegistry, error)
-	getSkillRegistryFn             func(ctx context.Context, id int64) (*extension.SkillRegistry, error)
-	createSkillRegistryFn          func(ctx context.Context, source *extension.SkillRegistry) error
-	updateSkillRegistryFn          func(ctx context.Context, source *extension.SkillRegistry) error
-	deleteSkillRegistryFn          func(ctx context.Context, id int64) error
-	findSkillRegistryByURLFn       func(ctx context.Context, orgID *int64, repoURL string) (*extension.SkillRegistry, error)
-	claimSyncLockFn                func(ctx context.Context, id int64, staleAfter time.Duration) (bool, bool, error)
-
-	// Skill Market Items
-	listSkillMarketItemsFn            func(ctx context.Context, orgID *int64, query string, category string) ([]*extension.SkillMarketItem, error)
-	getSkillMarketItemFn              func(ctx context.Context, id int64) (*extension.SkillMarketItem, error)
-	findSkillMarketItemBySlugFn       func(ctx context.Context, registryID int64, slug string) (*extension.SkillMarketItem, error)
-	createSkillMarketItemFn           func(ctx context.Context, item *extension.SkillMarketItem) error
-	updateSkillMarketItemFn           func(ctx context.Context, item *extension.SkillMarketItem) error
-	deactivateSkillMarketItemsNotInFn func(ctx context.Context, registryID int64, slugs []string) error
-
 	// MCP Market Items
 	listMcpMarketItemsFn func(ctx context.Context, query string, category string, limit, offset int) ([]*extension.McpMarketItem, int64, error)
 	getMcpMarketItemFn   func(ctx context.Context, id int64) (*extension.McpMarketItem, error)
@@ -59,108 +42,6 @@ type svcMockRepo struct {
 	updateInstalledSkillFn func(ctx context.Context, skill *extension.InstalledSkill) error
 	deleteInstalledSkillFn func(ctx context.Context, id int64) error
 	getEffectiveSkillsFn   func(ctx context.Context, orgID, userID, repoID int64) ([]*extension.InstalledSkill, error)
-
-	// Skill Registry Overrides
-	setSkillRegistryOverrideFn   func(ctx context.Context, orgID int64, registryID int64, isDisabled bool) error
-	listSkillRegistryOverridesFn func(ctx context.Context, orgID int64) ([]*extension.SkillRegistryOverride, error)
-}
-
-func (m *svcMockRepo) ListSkillRegistries(ctx context.Context, orgID *int64) ([]*extension.SkillRegistry, error) {
-	if m.listSkillRegistriesFn != nil {
-		return m.listSkillRegistriesFn(ctx, orgID)
-	}
-	return nil, nil
-}
-
-func (m *svcMockRepo) ListAllActiveSkillRegistries(ctx context.Context) ([]*extension.SkillRegistry, error) {
-	if m.listAllActiveSkillRegistriesFn != nil {
-		return m.listAllActiveSkillRegistriesFn(ctx)
-	}
-	return nil, nil
-}
-
-func (m *svcMockRepo) ClaimSyncLock(ctx context.Context, id int64, staleAfter time.Duration) (bool, bool, error) {
-	if m.claimSyncLockFn != nil {
-		return m.claimSyncLockFn(ctx, id, staleAfter)
-	}
-	return true, false, nil
-}
-
-func (m *svcMockRepo) GetSkillRegistry(ctx context.Context, id int64) (*extension.SkillRegistry, error) {
-	if m.getSkillRegistryFn != nil {
-		return m.getSkillRegistryFn(ctx, id)
-	}
-	return nil, fmt.Errorf("not found")
-}
-
-func (m *svcMockRepo) CreateSkillRegistry(ctx context.Context, source *extension.SkillRegistry) error {
-	if m.createSkillRegistryFn != nil {
-		return m.createSkillRegistryFn(ctx, source)
-	}
-	return nil
-}
-
-func (m *svcMockRepo) UpdateSkillRegistry(ctx context.Context, source *extension.SkillRegistry) error {
-	if m.updateSkillRegistryFn != nil {
-		return m.updateSkillRegistryFn(ctx, source)
-	}
-	return nil
-}
-
-func (m *svcMockRepo) DeleteSkillRegistry(ctx context.Context, id int64) error {
-	if m.deleteSkillRegistryFn != nil {
-		return m.deleteSkillRegistryFn(ctx, id)
-	}
-	return nil
-}
-
-func (m *svcMockRepo) FindSkillRegistryByURL(ctx context.Context, orgID *int64, repoURL string) (*extension.SkillRegistry, error) {
-	if m.findSkillRegistryByURLFn != nil {
-		return m.findSkillRegistryByURLFn(ctx, orgID, repoURL)
-	}
-	return nil, fmt.Errorf("not found")
-}
-
-func (m *svcMockRepo) ListSkillMarketItems(ctx context.Context, orgID *int64, query string, category string) ([]*extension.SkillMarketItem, error) {
-	if m.listSkillMarketItemsFn != nil {
-		return m.listSkillMarketItemsFn(ctx, orgID, query, category)
-	}
-	return nil, nil
-}
-
-func (m *svcMockRepo) GetSkillMarketItem(ctx context.Context, id int64) (*extension.SkillMarketItem, error) {
-	if m.getSkillMarketItemFn != nil {
-		return m.getSkillMarketItemFn(ctx, id)
-	}
-	return nil, fmt.Errorf("not found")
-}
-
-func (m *svcMockRepo) FindSkillMarketItemBySlug(ctx context.Context, registryID int64, slug string) (*extension.SkillMarketItem, error) {
-	if m.findSkillMarketItemBySlugFn != nil {
-		return m.findSkillMarketItemBySlugFn(ctx, registryID, slug)
-	}
-	return nil, fmt.Errorf("not found")
-}
-
-func (m *svcMockRepo) CreateSkillMarketItem(ctx context.Context, item *extension.SkillMarketItem) error {
-	if m.createSkillMarketItemFn != nil {
-		return m.createSkillMarketItemFn(ctx, item)
-	}
-	return nil
-}
-
-func (m *svcMockRepo) UpdateSkillMarketItem(ctx context.Context, item *extension.SkillMarketItem) error {
-	if m.updateSkillMarketItemFn != nil {
-		return m.updateSkillMarketItemFn(ctx, item)
-	}
-	return nil
-}
-
-func (m *svcMockRepo) DeactivateSkillMarketItemsNotIn(ctx context.Context, registryID int64, slugs []string) error {
-	if m.deactivateSkillMarketItemsNotInFn != nil {
-		return m.deactivateSkillMarketItemsNotInFn(ctx, registryID, slugs)
-	}
-	return nil
 }
 
 func (m *svcMockRepo) ListMcpMarketItems(ctx context.Context, query string, category string, limit, offset int) ([]*extension.McpMarketItem, int64, error) {
@@ -277,22 +158,33 @@ func (m *svcMockRepo) GetEffectiveSkills(ctx context.Context, orgID, userID, rep
 	return nil, nil
 }
 
-func (m *svcMockRepo) SetSkillRegistryOverride(ctx context.Context, orgID int64, registryID int64, isDisabled bool) error {
-	if m.setSkillRegistryOverrideFn != nil {
-		return m.setSkillRegistryOverrideFn(ctx, orgID, registryID, isDisabled)
-	}
-	return nil
+// Compile-time assertion
+var _ extension.Repository = (*svcMockRepo)(nil)
+
+// ---------------------------------------------------------------------------
+// Mock: SkillCatalog (unified skills-table read seam)
+// ---------------------------------------------------------------------------
+
+type svcMockCatalog struct {
+	listCatalogFn func(ctx context.Context, orgID int64, query, category string) ([]skilldom.Skill, error)
+	getAnyByIDFn  func(ctx context.Context, id int64) (*skilldom.Skill, error)
 }
 
-func (m *svcMockRepo) ListSkillRegistryOverrides(ctx context.Context, orgID int64) ([]*extension.SkillRegistryOverride, error) {
-	if m.listSkillRegistryOverridesFn != nil {
-		return m.listSkillRegistryOverridesFn(ctx, orgID)
+func (m *svcMockCatalog) ListCatalog(ctx context.Context, orgID int64, query, category string) ([]skilldom.Skill, error) {
+	if m.listCatalogFn != nil {
+		return m.listCatalogFn(ctx, orgID, query, category)
 	}
 	return nil, nil
 }
 
-// Compile-time assertion
-var _ extension.Repository = (*svcMockRepo)(nil)
+func (m *svcMockCatalog) GetAnyByID(ctx context.Context, id int64) (*skilldom.Skill, error) {
+	if m.getAnyByIDFn != nil {
+		return m.getAnyByIDFn(ctx, id)
+	}
+	return nil, fmt.Errorf("not found")
+}
+
+var _ SkillCatalog = (*svcMockCatalog)(nil)
 
 // ---------------------------------------------------------------------------
 // Mock: storage.Storage (prefixed to avoid conflict with skill_packager_test.go)

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 )
 
 // ---------------------------------------------------------------------------
@@ -17,32 +18,6 @@ func TestStandardErrorTypes(t *testing.T) {
 		err := validateScope("bad")
 		if !errors.Is(err, ErrInvalidScope) {
 			t.Errorf("expected errors.Is(err, ErrInvalidScope), got: %v", err)
-		}
-	})
-
-	t.Run("SyncSkillRegistry_notfound_returns_ErrNotFound", func(t *testing.T) {
-		repo := &svcMockRepo{
-			getSkillRegistryFn: func(_ context.Context, id int64) (*extension.SkillRegistry, error) {
-				return nil, errors.New("not found")
-			},
-		}
-		svc := newTestService(repo, &svcMockStorage{}, nil)
-		_, err := svc.SyncSkillRegistry(context.Background(), 1, 999)
-		if !errors.Is(err, ErrNotFound) {
-			t.Errorf("expected ErrNotFound, got: %v", err)
-		}
-	})
-
-	t.Run("DeleteSkillRegistry_notfound_returns_ErrNotFound", func(t *testing.T) {
-		repo := &svcMockRepo{
-			getSkillRegistryFn: func(_ context.Context, id int64) (*extension.SkillRegistry, error) {
-				return nil, errors.New("not found")
-			},
-		}
-		svc := newTestService(repo, &svcMockStorage{}, nil)
-		err := svc.DeleteSkillRegistry(context.Background(), 1, 999)
-		if !errors.Is(err, ErrNotFound) {
-			t.Errorf("expected ErrNotFound, got: %v", err)
 		}
 	})
 
@@ -99,12 +74,13 @@ func TestStandardErrorTypes(t *testing.T) {
 	})
 
 	t.Run("InstallSkillFromMarket_notfound_returns_ErrNotFound", func(t *testing.T) {
-		repo := &svcMockRepo{
-			getSkillMarketItemFn: func(_ context.Context, id int64) (*extension.SkillMarketItem, error) {
+		cat := &svcMockCatalog{
+			getAnyByIDFn: func(_ context.Context, id int64) (*skilldom.Skill, error) {
 				return nil, errors.New("record not found")
 			},
 		}
-		svc := newTestService(repo, &svcMockStorage{}, nil)
+		svc := newTestService(&svcMockRepo{}, &svcMockStorage{}, nil)
+		svc.SetSkillCatalog(cat)
 		_, err := svc.InstallSkillFromMarket(context.Background(), 1, 2, 3, 999, "org")
 		if !errors.Is(err, ErrNotFound) {
 			t.Errorf("expected ErrNotFound, got: %v", err)

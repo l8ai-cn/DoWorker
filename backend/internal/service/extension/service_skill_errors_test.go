@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 )
 
 // ---------------------------------------------------------------------------
@@ -33,20 +34,26 @@ func TestInstallMcpFromMarket_MarketItemNotFound(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestInstallSkillFromMarket_CreateError(t *testing.T) {
+	orgID := int64(1)
 	repo := &svcMockRepo{
-		getSkillMarketItemFn: func(_ context.Context, id int64) (*extension.SkillMarketItem, error) {
-			return &extension.SkillMarketItem{
-				ID:   id,
-				Slug: "test-skill",
-			}, nil
-		},
 		createInstalledSkillFn: func(_ context.Context, _ *extension.InstalledSkill) error {
 			return errors.New("duplicate entry")
 		},
 	}
+	cat := &svcMockCatalog{
+		getAnyByIDFn: func(_ context.Context, id int64) (*skilldom.Skill, error) {
+			return &skilldom.Skill{
+				ID:             id,
+				OrganizationID: &orgID,
+				Slug:           "test-skill",
+				IsActive:       true,
+			}, nil
+		},
+	}
 	svc := newTestService(repo, &svcMockStorage{}, nil)
+	svc.SetSkillCatalog(cat)
 
-	_, err := svc.InstallSkillFromMarket(context.Background(), 1, 2, 3, 100, "org")
+	_, err := svc.InstallSkillFromMarket(context.Background(), orgID, 2, 3, 100, "org")
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

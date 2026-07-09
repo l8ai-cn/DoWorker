@@ -29,18 +29,18 @@ func TestListRepoSkills_NoAuth_Unauthenticated(t *testing.T) {
 func TestToProtoInstalledSkill_AllFieldsRoundTrip(t *testing.T) {
 	orgID := int64(42)
 	repoID := int64(7)
-	marketItemID := int64(11)
+	skillID := int64(11)
 	installedBy := int64(99)
 	pinned := 2
 	in := &extdom.InstalledSkill{
 		ID:             1,
 		OrganizationID: orgID,
 		RepositoryID:   repoID,
-		MarketItemID:   &marketItemID,
+		SkillID:        &skillID,
 		Scope:          "user",
 		InstalledBy:    &installedBy,
 		Slug:           "format-go",
-		InstallSource:  "market",
+		InstallSource:  "catalog",
 		SourceURL:      "",
 		ContentSha:     "abc123",
 		StorageKey:     "skills/format-go.zip",
@@ -55,11 +55,11 @@ func TestToProtoInstalledSkill_AllFieldsRoundTrip(t *testing.T) {
 	assert.Equal(t, int64(1), got.GetId())
 	assert.Equal(t, orgID, got.GetOrganizationId())
 	assert.Equal(t, repoID, got.GetRepositoryId())
-	assert.Equal(t, marketItemID, got.GetMarketItemId())
+	assert.Equal(t, skillID, got.GetMarketItemId())
 	assert.Equal(t, "user", got.GetScope())
 	assert.Equal(t, installedBy, got.GetInstalledBy())
 	assert.Equal(t, "format-go", got.GetSlug())
-	assert.Equal(t, "market", got.GetInstallSource())
+	assert.Equal(t, "catalog", got.GetInstallSource())
 	assert.Equal(t, "abc123", got.GetContentSha())
 	assert.Equal(t, int64(4096), got.GetPackageSize())
 	assert.Equal(t, int32(2), got.GetPinnedVersion())

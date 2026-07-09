@@ -8,30 +8,23 @@ import (
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 )
 
 // ---------------------------------------------------------------------------
-// Tests: InstallSkillFromMarket
+// Tests: InstallSkillFromMarket (unified catalog install)
 // ---------------------------------------------------------------------------
 
 func TestInstallSkillFromMarket_Success(t *testing.T) {
-	marketItemID := int64(100)
+	skillID := int64(100)
+	orgID := int64(1)
 	repo := &svcMockRepo{
-		getSkillMarketItemFn: func(_ context.Context, id int64) (*extension.SkillMarketItem, error) {
-			return &extension.SkillMarketItem{
-				ID:          id,
-				Slug:        "test-skill",
-				ContentSha:  "abc123",
-				StorageKey:  "skills/test-skill/v1.tar.gz",
-				PackageSize: 1024,
-			}, nil
-		},
 		createInstalledSkillFn: func(_ context.Context, skill *extension.InstalledSkill) error {
 			if skill.Slug != "test-skill" {
 				t.Errorf("expected slug 'test-skill', got %q", skill.Slug)
 			}
-			if skill.InstallSource != "market" {
-				t.Errorf("expected install_source 'market', got %q", skill.InstallSource)
+			if skill.InstallSource != extension.InstallSourceCatalog {
+				t.Errorf("expected install_source %q, got %q", extension.InstallSourceCatalog, skill.InstallSource)
 			}
 			if skill.ContentSha != "abc123" {
 				t.Errorf("expected content_sha 'abc123', got %q", skill.ContentSha)
@@ -42,8 +35,8 @@ func TestInstallSkillFromMarket_Success(t *testing.T) {
 			if skill.PackageSize != 1024 {
 				t.Errorf("expected package_size 1024, got %d", skill.PackageSize)
 			}
-			if skill.MarketItemID == nil || *skill.MarketItemID != marketItemID {
-				t.Errorf("expected market_item_id %d, got %v", marketItemID, skill.MarketItemID)
+			if skill.SkillID == nil || *skill.SkillID != skillID {
+				t.Errorf("expected skill_id %d, got %v", skillID, skill.SkillID)
 			}
 			if !skill.IsEnabled {
 				t.Error("expected is_enabled true")
@@ -51,9 +44,23 @@ func TestInstallSkillFromMarket_Success(t *testing.T) {
 			return nil
 		},
 	}
+	cat := &svcMockCatalog{
+		getAnyByIDFn: func(_ context.Context, id int64) (*skilldom.Skill, error) {
+			return &skilldom.Skill{
+				ID:             id,
+				OrganizationID: &orgID,
+				Slug:           "test-skill",
+				ContentSha:     "abc123",
+				StorageKey:     "skills/test-skill/v1.tar.gz",
+				PackageSize:    1024,
+				IsActive:       true,
+			}, nil
+		},
+	}
 	svc := newTestService(repo, &svcMockStorage{}, nil)
+	svc.SetSkillCatalog(cat)
 
-	result, err := svc.InstallSkillFromMarket(context.Background(), 1, 2, 3, marketItemID, "org")
+	result, err := svc.InstallSkillFromMarket(context.Background(), orgID, 2, 3, skillID, "org")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -80,17 +87,18 @@ func TestInstallSkillFromMarket_InvalidScope(t *testing.T) {
 	}
 }
 
-func TestInstallSkillFromMarket_MarketItemNotFound(t *testing.T) {
-	repo := &svcMockRepo{
-		getSkillMarketItemFn: func(_ context.Context, id int64) (*extension.SkillMarketItem, error) {
+func TestInstallSkillFromMarket_CatalogItemNotFound(t *testing.T) {
+	cat := &svcMockCatalog{
+		getAnyByIDFn: func(_ context.Context, id int64) (*skilldom.Skill, error) {
 			return nil, fmt.Errorf("record not found")
 		},
 	}
-	svc := newTestService(repo, &svcMockStorage{}, nil)
+	svc := newTestService(&svcMockRepo{}, &svcMockStorage{}, nil)
+	svc.SetSkillCatalog(cat)
 
 	_, err := svc.InstallSkillFromMarket(context.Background(), 1, 2, 3, 999, "org")
 	if err == nil {
-		t.Fatal("expected error for missing market item, got nil")
+		t.Fatal("expected error for missing catalog item, got nil")
 	}
 }
 

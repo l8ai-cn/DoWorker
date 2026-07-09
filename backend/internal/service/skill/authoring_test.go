@@ -13,24 +13,27 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	extensiondom "github.com/anthropics/agentsmesh/backend/internal/domain/extension"
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 )
 
-// --- in-memory authored-skill repository ---
+// --- in-memory skill catalog repository ---
 
 type fakeStore struct {
-	rows      map[int64]*skilldom.AuthoredSkill
+	rows      map[int64]*skilldom.Skill
 	nextID    int64
 	createErr error
 	updateErr error
 }
 
-func newFakeStore() *fakeStore { return &fakeStore{rows: map[int64]*skilldom.AuthoredSkill{}} }
+func newFakeStore() *fakeStore { return &fakeStore{rows: map[int64]*skilldom.Skill{}} }
 
-func (f *fakeStore) Create(_ context.Context, s *skilldom.AuthoredSkill) error {
+func orgMatches(rowOrg *int64, orgID int64) bool {
+	return rowOrg != nil && *rowOrg == orgID
+}
+
+func (f *fakeStore) Create(_ context.Context, s *skilldom.Skill) error {
 	if f.createErr != nil {
 		return f.createErr
 	}
@@ -41,7 +44,7 @@ func (f *fakeStore) Create(_ context.Context, s *skilldom.AuthoredSkill) error {
 	return nil
 }
 
-func (f *fakeStore) Update(_ context.Context, s *skilldom.AuthoredSkill) error {
+func (f *fakeStore) Update(_ context.Context, s *skilldom.Skill) error {
 	if f.updateErr != nil {
 		return f.updateErr
 	}
@@ -55,25 +58,44 @@ func (f *fakeStore) Update(_ context.Context, s *skilldom.AuthoredSkill) error {
 
 func (f *fakeStore) Delete(_ context.Context, orgID, id int64) error {
 	s, ok := f.rows[id]
-	if !ok || s.OrganizationID != orgID {
+	if !ok || !orgMatches(s.OrganizationID, orgID) {
 		return skilldom.ErrNotFound
 	}
 	delete(f.rows, id)
 	return nil
 }
 
-func (f *fakeStore) GetByID(_ context.Context, orgID, id int64) (*skilldom.AuthoredSkill, error) {
+func (f *fakeStore) GetByID(_ context.Context, orgID, id int64) (*skilldom.Skill, error) {
 	s, ok := f.rows[id]
-	if !ok || s.OrganizationID != orgID {
+	if !ok || !orgMatches(s.OrganizationID, orgID) {
 		return nil, skilldom.ErrNotFound
 	}
 	cp := *s
 	return &cp, nil
 }
 
-func (f *fakeStore) GetBySlug(_ context.Context, orgID int64, slug string) (*skilldom.AuthoredSkill, error) {
+func (f *fakeStore) GetAnyByID(_ context.Context, id int64) (*skilldom.Skill, error) {
+	s, ok := f.rows[id]
+	if !ok {
+		return nil, skilldom.ErrNotFound
+	}
+	cp := *s
+	return &cp, nil
+}
+
+func (f *fakeStore) GetBySlug(_ context.Context, orgID int64, slug string) (*skilldom.Skill, error) {
 	for _, s := range f.rows {
-		if s.OrganizationID == orgID && s.Slug == slug {
+		if orgMatches(s.OrganizationID, orgID) && s.Slug == slug {
+			cp := *s
+			return &cp, nil
+		}
+	}
+	return nil, skilldom.ErrNotFound
+}
+
+func (f *fakeStore) FindByUpstream(_ context.Context, orgID int64, upstreamURL, upstreamSubdir string) (*skilldom.Skill, error) {
+	for _, s := range f.rows {
+		if orgMatches(s.OrganizationID, orgID) && s.UpstreamURL == upstreamURL && s.UpstreamSubdir == upstreamSubdir {
 			cp := *s
 			return &cp, nil
 		}
@@ -83,21 +105,31 @@ func (f *fakeStore) GetBySlug(_ context.Context, orgID int64, slug string) (*ski
 
 func (f *fakeStore) SlugExists(_ context.Context, orgID int64, slug string, excludeID int64) (bool, error) {
 	for _, s := range f.rows {
-		if s.OrganizationID == orgID && s.Slug == slug && s.ID != excludeID {
+		if orgMatches(s.OrganizationID, orgID) && s.Slug == slug && s.ID != excludeID {
 			return true, nil
 		}
 	}
 	return false, nil
 }
 
-func (f *fakeStore) List(_ context.Context, orgID int64, limit, offset int) ([]skilldom.AuthoredSkill, int64, error) {
-	var out []skilldom.AuthoredSkill
+func (f *fakeStore) List(_ context.Context, orgID int64, limit, offset int) ([]skilldom.Skill, int64, error) {
+	var out []skilldom.Skill
 	for _, s := range f.rows {
-		if s.OrganizationID == orgID {
+		if orgMatches(s.OrganizationID, orgID) {
 			out = append(out, *s)
 		}
 	}
 	return out, int64(len(out)), nil
+}
+
+func (f *fakeStore) ListCatalog(_ context.Context, orgID int64, query, category string) ([]skilldom.Skill, error) {
+	var out []skilldom.Skill
+	for _, s := range f.rows {
+		if s.IsActive && (s.OrganizationID == nil || orgMatches(s.OrganizationID, orgID)) {
+			out = append(out, *s)
+		}
+	}
+	return out, nil
 }
 
 // --- fake packager bridge (reads the materialized dir, like the real one) ---
@@ -180,7 +212,7 @@ func TestCreate_ProvisionsSeedsAndPackages(t *testing.T) {
 	assert.Equal(t, "web-search", row.Slug)
 	assert.Equal(t, "am-skills/org7-web-search", row.GitRepoPath)
 	assert.Equal(t, "main", row.DefaultBranch)
-	assert.Equal(t, extensiondom.InstallSourceGitops, row.InstallSource)
+	assert.Equal(t, skilldom.SourceGitops, row.InstallSource)
 	assert.NotEmpty(t, row.ContentSha)
 	assert.NotEmpty(t, row.StorageKey)
 	assert.Positive(t, row.PackageSize)

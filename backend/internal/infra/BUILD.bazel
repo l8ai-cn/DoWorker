@@ -11,7 +11,6 @@ go_library(
         "ai_model_repo.go",
         "ai_provider_repo.go",
         "apikey_repo.go",
-        "authored_skill_repo.go",
         "autopilot_repo.go",
         "billing_repo.go",
         "billing_repo_payment.go",
@@ -54,6 +53,7 @@ go_library(
         "runner_log_repo.go",
         "runner_repo.go",
         "runner_repo_registration.go",
+        "skill_catalog_repo.go",
         "sso_repo.go",
         "supportticket_repo.go",
         "task_execution_repo.go",
@@ -120,8 +120,6 @@ go_test(
     name = "infra_test",
     srcs = [
         "env_bundle_repo_test.go",
-        "extension_repo_claim_lock_test.go",
-        "extension_repo_skill_count_test.go",
         "loop_repo_cron_test.go",
         "loop_repo_test.go",
         "loop_run_repo_test.go",
@@ -137,7 +135,6 @@ go_test(
     deps = [
         "//backend/internal/domain/agentpod",
         "//backend/internal/domain/envbundle",
-        "//backend/internal/domain/extension",
         "//backend/internal/domain/loop",
         "//backend/internal/domain/organization",
         "//backend/internal/domain/tokenusage",

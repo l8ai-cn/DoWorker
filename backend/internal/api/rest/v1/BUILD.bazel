@@ -56,6 +56,7 @@ go_library(
         "runners_grpc_types.go",
         "runners_query.go",
         "skill_handler.go",
+        "skill_handler_import.go",
         "skill_handler_types.go",
         "tickets.go",
     ],

@@ -5,13 +5,14 @@ go_library(
     srcs = [
         "authoring.go",
         "contents.go",
+        "importing.go",
         "materialize.go",
         "service.go",
+        "upstream_sync.go",
     ],
     importpath = "github.com/anthropics/agentsmesh/backend/internal/service/skill",
     visibility = ["//backend:__subpackages__"],
     deps = [
-        "//backend/internal/domain/extension",
         "//backend/internal/domain/skill",
         "//backend/internal/service/extension",
         "//backend/internal/service/gitops",
@@ -33,7 +34,6 @@ go_test(
     ],
     embed = [":skill"],
     deps = [
-        "//backend/internal/domain/extension",
         "//backend/internal/domain/skill",
         "//backend/internal/service/extension",
         "//backend/internal/service/gitops",
