@@ -188,12 +188,12 @@ jobs:
           set -euo pipefail
           cd bazel-bin/runner/cmd/runner
           expected=(
-            agentsmesh-runner_linux_amd64.tar.gz
-            agentsmesh-runner_linux_arm64.tar.gz
-            agentsmesh-runner_darwin_amd64.tar.gz
-            agentsmesh-runner_darwin_arm64.tar.gz
-            agentsmesh-runner_windows_amd64.zip
-            agentsmesh-runner_windows_arm64.zip
+            do-worker-runner_linux_amd64.tar.gz
+            do-worker-runner_linux_arm64.tar.gz
+            do-worker-runner_darwin_amd64.tar.gz
+            do-worker-runner_darwin_arm64.tar.gz
+            do-worker-runner_windows_amd64.zip
+            do-worker-runner_windows_arm64.zip
             checksums.txt
           )
           for f in "${expected[@]}"; do
@@ -237,10 +237,10 @@ jobs:
           mkdir -p release-staging
           sign_script="${GITHUB_WORKSPACE}/runner/build/scripts/sign-darwin.sh"
 
-          for arch in bazel-bin/runner/cmd/runner/agentsmesh-runner_*.tar.gz \
-                     bazel-bin/runner/cmd/runner/agentsmesh-runner_*.zip; do
+          for arch in bazel-bin/runner/cmd/runner/do-worker-runner_*.tar.gz \
+                     bazel-bin/runner/cmd/runner/do-worker-runner_*.zip; do
               base="$(basename "$arch")"
-              new_name="${base/agentsmesh-runner_/agentsmesh-runner_${version}_}"
+              new_name="${base/do-worker-runner_/do-worker-runner_${version}_}"
               dest="${GITHUB_WORKSPACE}/release-staging/${new_name}"
 
               if [[ "$base" == *darwin*.tar.gz ]]; then
@@ -248,7 +248,7 @@ jobs:
                   tar -xzf "$arch" -C "$tmp"
                   # In a real release, sign-darwin.sh runs here. PR smoke
                   # has no cert secret, so we just exercise the unpack/repack.
-                  tar -C "$tmp" -czf "$dest" agentsmesh-runner README.md LICENSE
+                  tar -C "$tmp" -czf "$dest" do-worker-runner README.md LICENSE
                   rm -rf "$tmp"
               else
                   cp "$arch" "$dest"
@@ -257,7 +257,7 @@ jobs:
 
           (
               cd release-staging
-              sha256sum agentsmesh-runner_*.tar.gz agentsmesh-runner_*.zip > checksums.txt
+              sha256sum do-worker-runner_*.tar.gz do-worker-runner_*.zip > checksums.txt
           )
           ls -la release-staging/
           # Sanity: each renamed file should round-trip through `sha256sum -c`.

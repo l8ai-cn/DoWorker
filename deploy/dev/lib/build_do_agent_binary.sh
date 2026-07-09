@@ -23,6 +23,12 @@ build_do_agent_binary() {
         done
     fi
     if [[ ! -d "$doagent_dir" ]]; then
+        # CI / fresh clones often lack the sibling doagent repo. Runner
+        # images still start; do-agent pods simply won't be available.
+        if [[ "${CI:-}" == "true" || "${SKIP_DOAGENT_BUILD:-}" == "1" ]]; then
+            info "doagent 源码未找到 — CI 跳过 do-agent 编译 (设 DOAGENT_DIR 可启用)"
+            return 0
+        fi
         error "doagent 源码未找到 — 设置 DOAGENT_DIR 或 clone AgentForge/doagent"
         return 1
     fi

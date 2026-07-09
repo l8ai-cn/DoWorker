@@ -11,7 +11,6 @@ go_library(
     name = "agent",
     srcs = [
         "agent_capabilities.go",
-        "agent_convert.amesh.go",
         "agent_convert_custom.go",
         "agent_handlers.go",
         "agent_handlers_custom.go",
