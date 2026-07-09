@@ -9,10 +9,11 @@ import (
 )
 
 var (
-	ErrRepositoryNotFound    = errors.New("repository not found")
-	ErrRepositoryExists      = errors.New("repository already exists")
-	ErrNoPermission          = errors.New("no permission to access this repository")
-	ErrRepositoryHasLoopRefs = errors.New("cannot delete: repository is referenced by one or more loops")
+	ErrRepositoryNotFound      = errors.New("repository not found")
+	ErrRepositoryExists        = errors.New("repository already exists")
+	ErrNoPermission            = errors.New("no permission to access this repository")
+	ErrAmbiguousRepositorySlug = errors.New("repository slug is ambiguous")
+	ErrRepositoryHasLoopRefs   = errors.New("cannot delete: repository is referenced by one or more loops")
 )
 
 type Service struct {

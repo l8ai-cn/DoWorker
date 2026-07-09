@@ -30,6 +30,7 @@ go_library(
         "extension_repo_install.go",
         "extension_repo_mcp.go",
         "gitprovider_repo.go",
+        "gitprovider_repo_org_slug.go",
         "grant_repo.go",
         "im_bridge_repo.go",
         "instance_runner_org_repo.go",

@@ -12,8 +12,25 @@ func (s *Service) GetAccessibleByID(ctx context.Context, id, orgID, userID int64
 }
 
 func (s *Service) FindAccessibleByOrgSlug(ctx context.Context, orgID, userID int64, slug string) (*gitprovider.Repository, error) {
-	repo, err := s.repo.FindByOrgSlug(ctx, orgID, slug)
-	return accessibleRepository(repo, err, orgID, userID)
+	repos, err := s.repo.ListByOrgSlug(ctx, orgID, slug)
+	if err != nil {
+		return nil, err
+	}
+
+	var accessible *gitprovider.Repository
+	for _, repo := range repos {
+		if !isRepositoryAccessible(repo, orgID, userID) {
+			continue
+		}
+		if accessible != nil {
+			return nil, ErrAmbiguousRepositorySlug
+		}
+		accessible = repo
+	}
+	if accessible == nil {
+		return nil, ErrNoPermission
+	}
+	return accessible, nil
 }
 
 func accessibleRepository(repo *gitprovider.Repository, err error, orgID, userID int64) (*gitprovider.Repository, error) {
