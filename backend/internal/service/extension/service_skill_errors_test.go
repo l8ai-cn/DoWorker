@@ -103,10 +103,6 @@ func TestUpdateSkill_NilFields(t *testing.T) {
 	}
 }
 
-// ---------------------------------------------------------------------------
-// Tests: SyncSkillRegistry (get error + update error)
-// ---------------------------------------------------------------------------
-
 func TestUpdateSkill_GetError(t *testing.T) {
 	repo := &svcMockRepo{
 		getInstalledSkillFn: func(_ context.Context, id int64) (*extension.InstalledSkill, error) {

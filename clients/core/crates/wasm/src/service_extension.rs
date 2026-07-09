@@ -23,36 +23,6 @@ impl WasmExtensionService {
     // `_connect` suffix marks the migration lane so the legacy JSON methods
     // can coexist until all 26 services flip.
 
-    #[wasm_bindgen(js_name = listSkillRegistriesConnect)]
-    pub async fn list_skill_registries_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
-        self.0.list_skill_registries_connect(request).await
-    }
-
-    #[wasm_bindgen(js_name = createSkillRegistryConnect)]
-    pub async fn create_skill_registry_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
-        self.0.create_skill_registry_connect(request).await
-    }
-
-    #[wasm_bindgen(js_name = syncSkillRegistryConnect)]
-    pub async fn sync_skill_registry_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
-        self.0.sync_skill_registry_connect(request).await
-    }
-
-    #[wasm_bindgen(js_name = deleteSkillRegistryConnect)]
-    pub async fn delete_skill_registry_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
-        self.0.delete_skill_registry_connect(request).await
-    }
-
-    #[wasm_bindgen(js_name = togglePlatformRegistryConnect)]
-    pub async fn toggle_platform_registry_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
-        self.0.toggle_platform_registry_connect(request).await
-    }
-
-    #[wasm_bindgen(js_name = listSkillRegistryOverridesConnect)]
-    pub async fn list_skill_registry_overrides_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
-        self.0.list_skill_registry_overrides_connect(request).await
-    }
-
     // -- MarketService --
 
     #[wasm_bindgen(js_name = listMarketSkillsConnect)]

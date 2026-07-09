@@ -3,7 +3,7 @@
 // Migrated from REST handlers in backend/internal/api/rest/v1/extension.go
 // (ListMarketSkills + ListMarketMcpServers) per
 // .claude/plans/proto-naming-conventions.md. Conventions enforced:
-//   * package proto.extension.v1 — shared with skill_registry.proto so
+//   * package proto.extension.v1 — shared with repo_skill/repo_mcp so
 //     the go_proto_library bundles every service into the same Go pkg
 //     (extensionv1) and matches the canonical Go importpath.
 //   * org_slug at field 1 of every request (no path params on Connect URLs)

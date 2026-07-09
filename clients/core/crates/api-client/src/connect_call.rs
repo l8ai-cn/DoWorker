@@ -8,7 +8,7 @@ use crate::error::ApiError;
 /// the only content type the wasm/Rust client speaks (conventions §2.5).
 ///
 /// `procedure` is the full path the Connect router expects, e.g.
-/// `/proto.extension.v1.SkillRegistryService/ListSkillRegistries`.
+/// `/proto.extension.v1.MarketService/ListMarketSkills`.
 ///
 /// Auth token comes from the same `AuthTokenStore` the REST request path uses
 /// (no parallel token store). 401 → ApiError::AuthExpired so the wasm bridge

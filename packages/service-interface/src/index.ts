@@ -305,8 +305,6 @@ export interface IEventsManager {
 }
 
 export interface IExtensionService {
-  create_skill_registry(json: string): Promise<string>;
-  delete_skill_registry(id: bigint): Promise<void>;
   install_custom_mcp_server(repo_id: bigint, json: string): Promise<string>;
   install_mcp_from_market(repo_id: bigint, json: string): Promise<string>;
   install_skill_from_github(repo_id: bigint, json: string): Promise<string>;
@@ -317,10 +315,6 @@ export interface IExtensionService {
   list_market_skills(query?: string | null, category?: string | null): Promise<string>;
   list_repo_mcp_servers(repo_id: bigint, scope?: string | null): Promise<string>;
   list_repo_skills(repo_id: bigint, scope?: string | null): Promise<string>;
-  list_skill_registries(): Promise<string>;
-  list_skill_registry_overrides(): Promise<string>;
-  sync_skill_registry(id: bigint): Promise<void>;
-  toggle_skill_registry(id: bigint, json: string): Promise<string>;
   uninstall_mcp_server(repo_id: bigint, install_id: bigint): Promise<void>;
   uninstall_skill(repo_id: bigint, install_id: bigint): Promise<void>;
   update_mcp_server(repo_id: bigint, install_id: bigint, json: string): Promise<string>;

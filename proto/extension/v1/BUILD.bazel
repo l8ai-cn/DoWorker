@@ -21,8 +21,6 @@ proto_library(
         "market.proto",
         "repo_mcp.proto",
         "repo_skill.proto",
-        "skill_registry.proto",
-        "skill_registry_admin.proto",
     ],
     data = [":extension_serde_transform"],
     visibility = ["//visibility:public"],

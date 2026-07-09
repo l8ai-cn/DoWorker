@@ -210,7 +210,3 @@ func TestUninstallMcpServer_UserScope_NoRoleCheck(t *testing.T) {
 		t.Error("repo.DeleteInstalledMcpServer was not called")
 	}
 }
-
-// ---------------------------------------------------------------------------
-// Tests: DeleteSkillRegistry — platform-level source protection
-// ---------------------------------------------------------------------------

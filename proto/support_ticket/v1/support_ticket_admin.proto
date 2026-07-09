@@ -22,7 +22,7 @@
 // message types are not re-used as-is — the admin GET response carries
 // AssignedAdminID which the user-facing wire intentionally omits, and the
 // message/attachment subviews are identical-shape but redeclared here to
-// keep the file standalone (mirrors skill_registry_admin.proto pattern).
+// keep the file standalone (mirrors other admin proto packages).
 
 syntax = "proto3";
 

@@ -2,7 +2,7 @@
 //
 // Migrated from REST handlers in backend/internal/api/rest/v1/extension_mcp.go
 // per .claude/plans/proto-naming-conventions.md. Conventions enforced:
-//   * package proto.extension.v1 (shared with skill_registry + market)
+//   * package proto.extension.v1 (shared with market + repo_skill)
 //   * org_slug at field 1 of every request
 //   * snake_case fields, no json_name annotations
 //   * list response = {items, total, limit, offset} uniform envelope

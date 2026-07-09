@@ -23,54 +23,6 @@ impl ExtensionService {
     // AuthManager — keeps these methods unit-testable without an org context
     // in the token store. The wasm bridge populates org_slug before encoding.
 
-    pub async fn list_skill_registries_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
-        let req = ext_proto::ListSkillRegistriesRequest::decode(request_bytes)
-            .map_err(|e| format!("decode list_skill_registries request: {e}"))?;
-        tracing::debug!(target: "extension", org_slug = %req.org_slug, "list skill registries");
-        let resp = self.client.list_skill_registries_connect(&req).await.map_err(crate::wire)?;
-        Ok(resp.encode_to_vec())
-    }
-
-    pub async fn create_skill_registry_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
-        let req = ext_proto::CreateSkillRegistryRequest::decode(request_bytes)
-            .map_err(|e| format!("decode create_skill_registry request: {e}"))?;
-        tracing::info!(target: "extension", org_slug = %req.org_slug, "create skill registry");
-        let resp = self.client.create_skill_registry_connect(&req).await.map_err(crate::wire)?;
-        Ok(resp.encode_to_vec())
-    }
-
-    pub async fn sync_skill_registry_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
-        let req = ext_proto::SyncSkillRegistryRequest::decode(request_bytes)
-            .map_err(|e| format!("decode sync_skill_registry request: {e}"))?;
-        tracing::info!(target: "extension", org_slug = %req.org_slug, registry_id = req.id, "sync skill registry");
-        let resp = self.client.sync_skill_registry_connect(&req).await.map_err(crate::wire)?;
-        Ok(resp.encode_to_vec())
-    }
-
-    pub async fn delete_skill_registry_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
-        let req = ext_proto::DeleteSkillRegistryRequest::decode(request_bytes)
-            .map_err(|e| format!("decode delete_skill_registry request: {e}"))?;
-        tracing::info!(target: "extension", org_slug = %req.org_slug, registry_id = req.id, "delete skill registry");
-        let resp = self.client.delete_skill_registry_connect(&req).await.map_err(crate::wire)?;
-        Ok(resp.encode_to_vec())
-    }
-
-    pub async fn toggle_platform_registry_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
-        let req = ext_proto::TogglePlatformRegistryRequest::decode(request_bytes)
-            .map_err(|e| format!("decode toggle_platform_registry request: {e}"))?;
-        tracing::info!(target: "extension", org_slug = %req.org_slug, registry_id = req.id, disabled = req.disabled, "toggle platform registry");
-        let resp = self.client.toggle_platform_registry_connect(&req).await.map_err(crate::wire)?;
-        Ok(resp.encode_to_vec())
-    }
-
-    pub async fn list_skill_registry_overrides_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
-        let req = ext_proto::ListSkillRegistryOverridesRequest::decode(request_bytes)
-            .map_err(|e| format!("decode list_skill_registry_overrides request: {e}"))?;
-        tracing::debug!(target: "extension", org_slug = %req.org_slug, "list skill registry overrides");
-        let resp = self.client.list_skill_registry_overrides_connect(&req).await.map_err(crate::wire)?;
-        Ok(resp.encode_to_vec())
-    }
-
     // ---- MarketService ----
 
     pub async fn list_market_skills_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
