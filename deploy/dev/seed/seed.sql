@@ -555,35 +555,4 @@ BEGIN
 
     RAISE NOTICE '  - Loop: nightly-dependency-audit';
 
-    -- =========================================================================
-    -- 11. Platform Skill Registry (dev marketplace seed)
-    -- =========================================================================
-    -- MarketplaceWorker syncs this on backend start (requires outbound GitHub).
-    -- Change the URL in Admin → Skill Registries if sync fails.
-
-    INSERT INTO skill_registries (
-        organization_id,
-        repository_url,
-        branch,
-        source_type,
-        sync_status,
-        is_active,
-        compatible_agents
-    )
-    SELECT
-        NULL,
-        'https://github.com/anthropics/skills',
-        'main',
-        'collection',
-        'pending',
-        TRUE,
-        '["claude-code", "codex", "gemini-cli", "aider"]'::jsonb
-    WHERE NOT EXISTS (
-        SELECT 1 FROM skill_registries
-        WHERE organization_id IS NULL
-          AND repository_url = 'https://github.com/anthropics/skills'
-    );
-
-    RAISE NOTICE '  - Platform skill registry: anthropics/skills (pending sync)';
-
 END $$;
