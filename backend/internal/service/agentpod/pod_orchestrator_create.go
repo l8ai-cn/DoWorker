@@ -30,17 +30,8 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		if err != nil {
 			return nil, err
 		}
-	} else {
-		if req.AgentSlug == "" {
-			return nil, ErrMissingAgentSlug
-		}
-		if err := o.preResolveFreshRepository(ctx, req); err != nil {
-			return nil, err
-		}
-		if err := o.resolveRunnerForFreshCreate(ctx, req); err != nil {
-			return nil, err
-		}
-		sessionID = uuid.New().String()
+	} else if req.AgentSlug == "" {
+		return nil, ErrMissingAgentSlug
 	}
 
 	// Resolve agent definition once — reused for AgentFile merge and mode validation.
@@ -51,6 +42,15 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		if err != nil {
 			return nil, ErrMissingAgentSlug
 		}
+	}
+	if !isResumeMode {
+		if err := o.preResolveFreshRepository(ctx, req, agentDef); err != nil {
+			return nil, err
+		}
+		if err := o.resolveRunnerForFreshCreate(ctx, req); err != nil {
+			return nil, err
+		}
+		sessionID = uuid.New().String()
 	}
 
 	AppendPrimaryCredentialBundle(ctx, o.primaryCredential, req.UserID, req.OrganizationID, req.AgentSlug, &req.AgentfileLayer)

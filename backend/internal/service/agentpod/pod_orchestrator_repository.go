@@ -3,28 +3,40 @@ package agentpod
 import (
 	"context"
 	"errors"
+	"fmt"
 
+	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
 )
 
 var ErrCreateResourceUnavailable = errors.New("create resource unavailable")
 
-func (o *PodOrchestrator) preResolveFreshRepository(ctx context.Context, req *OrchestrateCreatePodRequest) error {
+func (o *PodOrchestrator) preResolveFreshRepository(
+	ctx context.Context,
+	req *OrchestrateCreatePodRequest,
+	agentDef *agentDomain.Agent,
+) error {
 	req.preResolvedRepository = nil
 	req.preResolvedRepositorySlug = ""
 
-	repoSlug := ""
+	layerRepo := repositoryDeclaration{}
 	if req.AgentfileLayer != nil {
-		repoSlug = peekRepoSlug(*req.AgentfileLayer)
-	}
-	if repoSlug == "" && o.agentResolver != nil {
-		agentDef, err := o.agentResolver.GetAgent(ctx, req.AgentSlug)
-		if err == nil && agentDef != nil && agentDef.AgentfileSource != nil {
-			repoSlug = peekRepoSlug(*agentDef.AgentfileSource)
+		var err error
+		layerRepo, err = parseRepositoryDeclaration(*req.AgentfileLayer)
+		if err != nil {
+			return fmt.Errorf("%w: %v", ErrInvalidAgentfileLayer, err)
 		}
 	}
-	if repoSlug != "" {
-		return o.resolveAgentfileRepository(ctx, req, &agentfileResolved{}, repoSlug)
+	repo := layerRepo
+	if !layerRepo.present && agentDef != nil && agentDef.AgentfileSource != nil {
+		baseRepo, err := parseRepositoryDeclaration(*agentDef.AgentfileSource)
+		if err != nil {
+			return fmt.Errorf("base agentfile parse error: %v", err)
+		}
+		repo = baseRepo
+	}
+	if repo.slug != "" {
+		return o.resolveAgentfileRepository(ctx, req, &agentfileResolved{}, repo.slug)
 	}
 	if req.RepositoryID == nil {
 		return nil
