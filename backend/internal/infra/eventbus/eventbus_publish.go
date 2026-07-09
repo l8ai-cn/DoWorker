@@ -12,7 +12,7 @@ import (
 )
 
 func (eb *EventBus) Publish(ctx context.Context, event *Event) error {
-	ctx, span := otel.Tracer("agentsmesh-backend").Start(ctx, "eventbus.publish",
+	ctx, span := otel.Tracer("do-worker-backend").Start(ctx, "eventbus.publish",
 		trace.WithAttributes(attribute.String("event.type", string(event.Type))),
 	)
 	defer span.End()

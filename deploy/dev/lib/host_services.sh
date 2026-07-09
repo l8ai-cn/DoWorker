@@ -231,7 +231,7 @@ start_backend_host() {
     export PKI_VALIDITY_DAYS=365
     export GEO_MMDB_PATH="${GEO_MMDB_PATH:-}"
     export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:${OTEL_GRPC_PORT}"
-    export OTEL_SERVICE_NAME=agentsmesh-backend
+    export OTEL_SERVICE_NAME=do-worker-backend
     export OTEL_TRACES_SAMPLER_ARG=1.0
     # dev/e2e backends include is_internal builtin agents (e.g. e2e-echo)
     # in ListBuiltinAgents so the user-facing agent picker can target them
@@ -318,7 +318,7 @@ start_relay_host() {
     export SESSION_KEEP_ALIVE_DURATION=30s
     export DEBUG=true
     export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:${OTEL_GRPC_PORT}"
-    export OTEL_SERVICE_NAME=agentsmesh-relay
+    export OTEL_SERVICE_NAME=do-worker-relay
     export OTEL_TRACES_SAMPLER_ARG=1.0
 
     info "构建 relay 二进制 (bazel build)..."

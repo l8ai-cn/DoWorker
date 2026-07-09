@@ -1,4 +1,4 @@
-// AgentsMesh Service Worker
+// Do Worker Service Worker
 const CACHE_NAME = 'do-worker-v1';
 const STATIC_CACHE_NAME = 'do-worker-static-v1';
 

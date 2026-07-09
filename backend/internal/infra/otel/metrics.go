@@ -20,7 +20,7 @@ var (
 )
 
 func InitMetrics() {
-	m := otel.Meter("agentsmesh-backend")
+	m := otel.Meter("do-worker-backend")
 	PodActiveCount, _ = m.Int64UpDownCounter("agentsmesh.backend.pod.active")
 	RunnerConnected, _ = m.Int64UpDownCounter("agentsmesh.backend.runner.connected")
 	GRPCMessagesRecv, _ = m.Int64Counter("agentsmesh.backend.grpc.messages.received")

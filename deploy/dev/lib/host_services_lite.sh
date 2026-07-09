@@ -163,7 +163,7 @@ start_backend_host_lite() {
     export PKI_VALIDITY_DAYS=365
     export GEO_MMDB_PATH="${GEO_MMDB_PATH:-}"
     export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:${OTEL_GRPC_PORT}"
-    export OTEL_SERVICE_NAME=agentsmesh-backend
+    export OTEL_SERVICE_NAME=do-worker-backend
     export OTEL_TRACES_SAMPLER_ARG=1.0
     export AGENTSMESH_INCLUDE_INTERNAL_AGENTS=true
     local kb_token_file="$SCRIPT_DIR/runtime/gitea/backend-token"
@@ -220,7 +220,7 @@ start_relay_host_lite() {
     export SESSION_KEEP_ALIVE_DURATION=30s
     export DEBUG=true
     export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:${OTEL_GRPC_PORT}"
-    export OTEL_SERVICE_NAME=agentsmesh-relay
+    export OTEL_SERVICE_NAME=do-worker-relay
     export OTEL_TRACES_SAMPLER_ARG=1.0
 
     ensure_go_codegen || return 1

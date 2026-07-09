@@ -84,12 +84,6 @@ export const useIDEStore = create<IDEState>()(
     {
       name: "do-worker-ide",
       storage: legacyPersistStorage("agentsmesh-ide"),
-        setItem: (name, value) => localStorage.setItem(name, value),
-        removeItem: (name) => {
-          localStorage.removeItem(name);
-          if (name === "do-worker-ide") localStorage.removeItem("agentsmesh-ide");
-        },
-      },
       partialize: (state) => ({
         activeActivity: state.activeActivity,
         sidebarOpen: state.sidebarOpen,

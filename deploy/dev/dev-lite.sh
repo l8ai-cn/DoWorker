@@ -8,7 +8,7 @@
 #   - runner: go cross-compile（一次性，无 Bazel 常驻）
 #   - runner 容器: Coordinator 按需创建（不预起 12 个）
 #   - 前端: 仅 web 主站（跳过 web-admin / web-user）
-#   - 前端仍用 bazel run :next_dev（@do-worker/* 链接依赖 Bazel）
+#   - 前端: plain next dev + pnpm build:wasm（不依赖 Bazel）
 #
 # 用法:
 #   ./dev-lite.sh                 # docker + air backend/relay + web
@@ -16,7 +16,7 @@
 #   ./dev-lite.sh --frontends     # 栈已起时只重启 web
 #   ./dev-lite.sh --clean         # 同 dev.sh --clean
 #
-# 可选: cp .bazelrc.local.example .bazelrc.local  限制 Bazel 内存占用
+# 可选: 无 Rust toolchain 时需预构建 packages/do-worker-wasm
 # =============================================================================
 
 set -euo pipefail
