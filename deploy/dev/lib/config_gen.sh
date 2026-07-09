@@ -271,6 +271,10 @@ generate_env() {
             echo "COMPOSE_FILE=docker-compose.yml:docker-compose.runners.yml" >> "$ENV_FILE"
             export COMPOSE_FILE="docker-compose.yml:docker-compose.runners.yml"
         fi
+        if ! grep -q "^COMPOSE_PROFILES=" "$ENV_FILE"; then
+            echo "COMPOSE_PROFILES=do-agent" >> "$ENV_FILE"
+            export COMPOSE_PROFILES=do-agent
+        fi
         if grep -q '^RUNNERS_LAUNCHER=k8s' "$ENV_FILE"; then
             sed -i.bak 's|^COMPOSE_FILE=.*|COMPOSE_FILE=docker-compose.yml|' "$ENV_FILE"
             rm -f "$ENV_FILE.bak"
@@ -351,6 +355,7 @@ generate_env() {
 
 COMPOSE_PROJECT_NAME=$project_name
 COMPOSE_FILE=docker-compose.yml:docker-compose.runners.yml
+COMPOSE_PROFILES=do-agent
 RUNNERS_LAUNCHER=docker
 
 # =============================================================================

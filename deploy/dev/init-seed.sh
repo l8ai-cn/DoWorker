@@ -100,7 +100,7 @@ apply_seed() {
         exit 1
     fi
 
-    if psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -f "$SEED_FILE"; then
+    if psql -v ON_ERROR_STOP=1 -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -f "$SEED_FILE"; then
         success "Seed 数据应用成功!"
         echo ""
         echo "测试账号信息："

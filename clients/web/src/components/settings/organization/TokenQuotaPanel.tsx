@@ -28,11 +28,16 @@ export function TokenQuotaPanel() {
   }, []);
 
   useEffect(() => {
-    // Defer so the set-state-in-effect analyzer treats this as opaque.
-    Promise.resolve().then(() => {
-      void refresh();
-    });
-  }, [refresh]);
+    const controller = new AbortController();
+    void listTokenQuotas(controller.signal)
+      .then(setQuotas)
+      .catch((e) => {
+        if (!controller.signal.aborted) {
+          toast.error(e instanceof Error ? e.message : "Failed to load quotas");
+        }
+      });
+    return () => controller.abort();
+  }, []);
 
   const onSave = async () => {
     if (!limit) {

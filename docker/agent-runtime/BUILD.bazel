@@ -54,6 +54,7 @@ sh_test(
     data = [
         "Dockerfile",
         "build.sh",
+        "prepare_binaries.sh",
         "//deploy/dev:docker-compose.runners.yml",
         "//deploy/dev:runner-entrypoint.sh",
     ],

@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/anthropics/agentsmesh/agentfile"
-	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
@@ -88,11 +87,6 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 		LocalPath:            workspace,
 		SessionConfigBundles: configBundlesFromMount(mount),
 		SessionEnvBundles:    envBundlesFromMount(mount),
-	}
-	// pty_only sessions must stay on PTY. Default automation (autonomous)
-	// appends MODE acp and would override the MODE pty layer above.
-	if ptyOnly {
-		orchReq.AutomationLevel = podDomain.AutomationLevelInteractive
 	}
 	if body.HostID != "" {
 		runner, ok := d.runnerForHostID(c, body.HostID, tenant.OrganizationID)

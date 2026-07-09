@@ -108,8 +108,24 @@ init_seed() {
     # touch this row (see ADR 2026-05-26-test-fixture-isolation).
     if [[ -f "$E2E_ECHO_SEED_FILE" ]]; then
         info "初始化 e2e-echo 测试 agent seed..."
-        docker exec -i "$pg_container" psql -U agentsmesh -d agentsmesh < "$E2E_ECHO_SEED_FILE" &>/dev/null
+        if ! docker exec -i "$pg_container" psql -v ON_ERROR_STOP=1 -U agentsmesh -d agentsmesh < "$E2E_ECHO_SEED_FILE"; then
+            error "e2e-echo seed 失败"
+            return 1
+        fi
         success "e2e-echo seed 应用完成"
+    fi
+
+    local seed_complete
+    if ! seed_complete=$(docker exec "$pg_container" psql -v ON_ERROR_STOP=1 -U agentsmesh -d agentsmesh -Atc \
+        "SELECT EXISTS (SELECT 1 FROM users WHERE email = 'dev@agentsmesh.local')
+             AND EXISTS (SELECT 1 FROM organizations WHERE slug = 'dev-org')
+             AND EXISTS (SELECT 1 FROM runners WHERE node_id = 'dev-runner')"); then
+        error "Seed 完整性检查执行失败"
+        return 1
+    fi
+    if [[ "$seed_complete" != "t" ]]; then
+        error "Seed 完整性检查失败：缺少 dev 用户、组织或 runner"
+        return 1
     fi
 }
 

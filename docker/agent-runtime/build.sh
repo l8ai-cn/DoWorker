@@ -90,6 +90,10 @@ build_base() {
 build_one() {
   local rt="$1"
   local tag="${IMAGE_PREFIX}-${rt}:latest"
+  local do_agent_stage="without-do-agent"
+  if [[ "$rt" == "do-agent" ]]; then
+    do_agent_stage="with-do-agent"
+  fi
   if [[ "${FORCE_REBUILD:-0}" != "1" ]] && docker image inspect "$tag" >/dev/null 2>&1; then
     echo "⏭ ${tag} 已存在 (FORCE_REBUILD=1 可强制重建)"
     return 0
@@ -100,9 +104,10 @@ build_one() {
   echo "  AGENT_RUNTIME=${rt}  PLATFORM=${PLATFORM}"
   echo "=========================================="
   docker_build_with_retry docker build --platform "$PLATFORM" \
-    --target runtime \
+    --target final \
     -f "${SCRIPT_DIR}/Dockerfile" \
     --build-arg "AGENT_RUNTIME=${rt}" \
+    --build-arg "DO_AGENT_STAGE=${do_agent_stage}" \
     --build-arg "HTTP_PROXY=" \
     --build-arg "HTTPS_PROXY=" \
     --build-arg "http_proxy=" \
@@ -124,7 +129,7 @@ if [[ "$RUNTIME" != "all" ]] && ! contains_runtime "$RUNTIME"; then
   exit 1
 fi
 
-"${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING"
+"${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING" "$RUNTIME"
 build_base
 
 if [[ "$RUNTIME" == "all" ]]; then

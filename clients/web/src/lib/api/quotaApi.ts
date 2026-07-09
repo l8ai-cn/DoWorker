@@ -78,8 +78,8 @@ export async function listModelConfigs(): Promise<ModelConfig[]> {
   return data.data ?? [];
 }
 
-export async function listVirtualKeys(): Promise<VirtualKey[]> {
-  const data = await req<{ data: VirtualKey[] }>("/virtual-keys");
+export async function listVirtualKeys(signal?: AbortSignal): Promise<VirtualKey[]> {
+  const data = await req<{ data: VirtualKey[] }>("/virtual-keys", { signal });
   return data.data ?? [];
 }
 
@@ -95,8 +95,8 @@ export async function revokeVirtualKey(id: number): Promise<void> {
   await req(`/virtual-keys/${id}`, { method: "DELETE" });
 }
 
-export async function listTokenQuotas(): Promise<TokenQuota[]> {
-  const data = await req<{ data: TokenQuota[] }>("/token-quotas");
+export async function listTokenQuotas(signal?: AbortSignal): Promise<TokenQuota[]> {
+  const data = await req<{ data: TokenQuota[] }>("/token-quotas", { signal });
   return data.data ?? [];
 }
 

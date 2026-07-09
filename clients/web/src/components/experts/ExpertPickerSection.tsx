@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Label } from "@/components/ui/label";
 import {
@@ -34,26 +34,39 @@ export function ExpertPickerSection({
   const experts = useExperts();
   const fetchExperts = useExpertStore((s) => s.fetchExperts);
   const [selectedSlug, setSelectedSlug] = useState<string>("none");
-  const [initialized, setInitialized] = useState(false);
+  const appliedInitialExpertRef = useRef<string | null>(null);
+  const selectionChangedRef = useRef(false);
+  const currentOrgSlug = currentOrg?.slug;
+
+  const applyInitialExpert = useEffectEvent((expert: Expert) => {
+    applyExpertToForm(expert, form, setSelectedRunnerId);
+    onExpertSelected?.(expert);
+  });
 
   useEffect(() => {
-    if (currentOrg) fetchExperts();
-  }, [currentOrg, fetchExperts]);
+    if (!currentOrgSlug) return;
+    let cancelled = false;
 
-  useEffect(() => {
-    if (initialized || !initialExpertSlug || experts.length === 0) return;
-    const match = experts.find((e) => e.slug === initialExpertSlug);
-    if (!match) return;
-    // Defer so the set-state-in-effect analyzer treats this as opaque.
-    Promise.resolve().then(() => {
+    async function loadExperts() {
+      const loadedExperts = await fetchExperts();
+      if (cancelled || !initialExpertSlug || selectionChangedRef.current) return;
+      const initializationKey = `${currentOrgSlug}:${initialExpertSlug}`;
+      if (appliedInitialExpertRef.current === initializationKey) return;
+      const match = loadedExperts.find((expert) => expert.slug === initialExpertSlug);
+      if (!match) return;
+      appliedInitialExpertRef.current = initializationKey;
       setSelectedSlug(match.slug);
-      applyExpertToForm(match, form, setSelectedRunnerId);
-      onExpertSelected?.(match);
-      setInitialized(true);
-    });
-  }, [initialExpertSlug, experts, initialized, form, setSelectedRunnerId, onExpertSelected]);
+      applyInitialExpert(match);
+    }
+
+    void loadExperts();
+    return () => {
+      cancelled = true;
+    };
+  }, [currentOrgSlug, fetchExperts, initialExpertSlug]);
 
   const handleChange = (value: string) => {
+    selectionChangedRef.current = true;
     setSelectedSlug(value);
     if (value === "none") {
       onExpertSelected?.(null);

@@ -23,7 +23,6 @@ concurrency:
 env:
   GO_VERSION: "1.25"
   NODE_VERSION: "20"
-  PNPM_VERSION: "9"
 
 jobs:
   # ===========================================================================
@@ -158,7 +157,7 @@ jobs:
       - run: bazel test //runner/... --build_tests_only --flaky_test_attempts=3
 
   release-smoke:
-    name: Release Smoke (cross-build + archives + signing)
+    name: Release Smoke (cross-build + archives)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: smoke
@@ -211,31 +210,16 @@ jobs:
           echo "--- checksums.txt ---"
           cat checksums.txt
 
-      # Validate the release.yml staging+rename+sign+repack flow against
+      # Validate the release.yml staging+rename+repack flow against
       # a fake tag, exercising the bash plumbing (path joins, sed
       # pattern, tar -C/-czf invocation) that release.yml depends on.
-      # Signing is skipped here (MACOS_CERTIFICATE secret isn't exposed
-      # to PR jobs by design); the rest of the flow runs end-to-end.
-      - name: Install rcodesign
-        run: |
-          RCODESIGN_VERSION="0.29.0"
-          cd /tmp
-          curl -fsSL "https://github.com/indygreg/apple-platform-rs/releases/download/apple-codesign/${RCODESIGN_VERSION}/apple-codesign-${RCODESIGN_VERSION}-x86_64-unknown-linux-musl.tar.gz" | tar xz
-          sudo cp ./apple-codesign-*/rcodesign /usr/local/bin/
-          rm -rf ./apple-codesign-*
-          rcodesign --version
-
-      - name: Dry-run staging (rename + skip-sign + repack + checksum)
-        env:
-          # MACOS_CERTIFICATE intentionally unset → sign-darwin.sh prints
-          # an error in CI mode. We catch + skip in the loop so the rest
-          # of the flow still validates.
-          ENTITLEMENTS: ${{ github.workspace }}/runner/build/darwin/entitlements.plist
+      # Signing requires trusted secrets and remains covered by release.yml
+      # and nightly.yml, which both fail closed when signing fails.
+      - name: Dry-run staging (rename + repack + checksum)
         run: |
           set -euo pipefail
           version="0.0.0-rc.smoke"
           mkdir -p release-staging
-          sign_script="${GITHUB_WORKSPACE}/runner/build/scripts/sign-darwin.sh"
 
           for arch in bazel-bin/runner/cmd/runner/do-worker-runner_*.tar.gz \
                      bazel-bin/runner/cmd/runner/do-worker-runner_*.zip; do
@@ -246,8 +230,6 @@ jobs:
               if [[ "$base" == *darwin*.tar.gz ]]; then
                   tmp="$(mktemp -d)"
                   tar -xzf "$arch" -C "$tmp"
-                  # In a real release, sign-darwin.sh runs here. PR smoke
-                  # has no cert secret, so we just exercise the unpack/repack.
                   tar -C "$tmp" -czf "$dest" do-worker-runner README.md LICENSE
                   rm -rf "$tmp"
               else
@@ -432,6 +414,8 @@ jobs:
           bazel run //deploy/dev:clean || true
 
       - name: Bring up dev backend stack
+        env:
+          DEV_SKIP_DOAGENT: "1"
         run: |
           bazel run //deploy/dev:backend_only
           # `dev.sh` exits 0 once compose is up and migrations + seed have
@@ -580,22 +564,17 @@ jobs:
       # the repo's @playwright/test + headless shell must be resolvable from
       # plain `node tests/hive-smoke/*.mjs` — hence pnpm install at root, not Bazel.
       - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Install node deps + chromium
         run: |
-          # packages: ["."] in pnpm-workspace.yaml can bump lockfile config
-          # fingerprint; fall back to a non-frozen refresh when that happens.
-          if ! pnpm install --frozen-lockfile; then
-            echo "frozen-lockfile rejected; refreshing lockfile for hive smoke"
-            pnpm install --no-frozen-lockfile
-          fi
+          pnpm install --frozen-lockfile
           pnpm exec playwright install chromium-headless-shell
 
       - name: Bring up dev backend stack
+        env:
+          DEV_SKIP_DOAGENT: "1"
         run: |
           bazel run //deploy/dev:backend_only
           sleep 15
@@ -654,6 +633,8 @@ jobs:
           exit 1
 
       - name: Bring up dev backend stack
+        env:
+          DEV_SKIP_DOAGENT: "1"
         run: |
           bazel run //deploy/dev:backend_only
           # Two runner containers (dev-runner + dev-runner-2 for cross-runner

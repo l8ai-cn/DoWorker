@@ -4,6 +4,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 STAGING="${1:?staging directory required}"
+REQUESTED_RUNTIME="${2:?requested runtime required}"
 DEPLOY_DEV="${REPO_ROOT}/deploy/dev"
 LINUX_PLATFORM="@rules_go//go/toolchain:linux_amd64"
 
@@ -39,19 +40,14 @@ else
 fi
 chmod +x "${STAGING}/loopal-binary"
 
-if [[ -f "${DEPLOY_DEV}/do-agent-binary" ]]; then
-  cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
-else
+if [[ "$REQUESTED_RUNTIME" == "all" || "$REQUESTED_RUNTIME" == "do-agent" ]]; then
+  SCRIPT_DIR="$DEPLOY_DEV"
   # shellcheck source=../../deploy/dev/lib/build_do_agent_binary.sh
   source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
-  if build_do_agent_binary; then
-    cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
-  else
-    echo "⚠ do-agent 源码未找到，使用 e2e-mock-agent 占位" >&2
-    cp "${STAGING}/e2e-mock-agent-binary" "${STAGING}/do-agent-binary"
-  fi
+  build_do_agent_binary
+  cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
+  chmod +x "${STAGING}/do-agent-binary"
 fi
-chmod +x "${STAGING}/do-agent-binary"
 
 cp "${DEPLOY_DEV}/runner-entrypoint.sh" "${STAGING}/runner-entrypoint.sh"
 chmod +x "${STAGING}/runner-entrypoint.sh"

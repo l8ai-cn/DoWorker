@@ -137,7 +137,8 @@ services:
 
   runner-do-agent:
     <<: *runner-common
-    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: do-agent } }
+    profiles: ["do-agent"]
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: do-agent, DO_AGENT_STAGE: with-do-agent } }
     environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-do-agent, AGENT_RUNTIME: do-agent, DEFAULT_AGENT: do-agent }
     volumes:
       - ./ssl:/app/ssl:ro
@@ -187,7 +188,8 @@ services:
 
   runner-admin-workspace-do-agent:
     <<: *runner-common
-    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: do-agent } }
+    profiles: ["do-agent"]
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: do-agent, DO_AGENT_STAGE: with-do-agent } }
     environment:
       <<: *runner-env
       RUNNER_ORG_SLUG: admin-workspace

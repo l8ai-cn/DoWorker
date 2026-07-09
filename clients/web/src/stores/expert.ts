@@ -24,7 +24,7 @@ interface ExpertState {
   expertLoading: boolean;
   error: string | null;
 
-  fetchExperts: () => Promise<void>;
+  fetchExperts: () => Promise<Expert[]>;
   fetchExpert: (slug: string) => Promise<void>;
   clearCurrentExpert: () => void;
   createExpert: (input: CreateExpertInput) => Promise<Expert>;
@@ -55,8 +55,10 @@ export const useExpertStore = create<ExpertState>((set, get) => ({
       es().apply_fetched_experts(JSON.stringify(result));
       bump();
       set({ loading: false });
+      return result.experts;
     } catch (e) {
       set({ error: message(e), loading: false });
+      return [];
     }
   },
 

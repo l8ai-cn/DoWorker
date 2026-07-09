@@ -20,6 +20,9 @@ grep -q "runner-do-agent" docker-compose.runners.yml
 grep -q "AGENT_RUNTIME: aider" docker-compose.runners.yml
 grep -q "AGENT_RUNTIME: opencode" docker-compose.runners.yml
 grep -q "do-agent-binary" "$DOCKERFILE"
+grep -q "runtime-with-do-agent" "$DOCKERFILE"
+grep -q "DO_AGENT_STAGE: with-do-agent" docker-compose.runners.yml
+test "$(grep -c 'profiles: \["do-agent"\]' docker-compose.runners.yml)" -eq 2
 grep -q "runner-claude-code" docker-compose.runners.yml
 grep -q "runner-codex-cli" docker-compose.runners.yml
 grep -q "docker/agent-runtime/Dockerfile" docker-compose.runners.yml
@@ -27,6 +30,11 @@ grep -q "COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES" lib/host_services.sh
 grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
 grep -q "'e2e-mock-agent'," seed/e2e_echo.sql
+
+if grep -q "do-agent stub" lib/build_do_agent_binary.sh; then
+  echo "build_do_agent_binary.sh must fail closed without real do-agent source" >&2
+  exit 1
+fi
 
 if awk '/runner-claude-code:/{flag=1; next} /runner-codex-cli:/{flag=0} flag' docker-compose.runners.yml \
   | grep -q "/home/runner/.codex"; then

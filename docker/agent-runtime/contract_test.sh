@@ -5,6 +5,8 @@ cd "$(dirname "$0")"
 ROOT="$(cd ../.. && pwd)"
 DOCKERFILE="${ROOT}/docker/agent-runtime/Dockerfile"
 COMPOSE="${ROOT}/deploy/dev/docker-compose.runners.yml"
+BUILD_SCRIPT="${ROOT}/docker/agent-runtime/build.sh"
+PREPARE_SCRIPT="${ROOT}/docker/agent-runtime/prepare_binaries.sh"
 
 if grep -q "^RUN npm install -g" "$DOCKERFILE" \
   && grep -A5 "^RUN npm install -g" "$DOCKERFILE" | grep -q "@anthropic-ai/claude-code" \
@@ -20,6 +22,19 @@ grep -q "@openai/codex" "$DOCKERFILE"
 grep -q "@google/gemini-cli" "$DOCKERFILE"
 grep -q "do-agent-binary" "$DOCKERFILE"
 grep -q "runner-entrypoint.sh" "$DOCKERFILE"
+grep -q -- "--target final" "$BUILD_SCRIPT"
+grep -q "DO_AGENT_STAGE" "$BUILD_SCRIPT"
+grep -q 'REQUESTED_RUNTIME.*do-agent' "$PREPARE_SCRIPT"
+
+if grep -q -- "--target runtime" "$BUILD_SCRIPT"; then
+  echo "agent-runtime builds must include the final binary-selection stage" >&2
+  exit 1
+fi
+
+if grep -q "do-agent.*占位" "$PREPARE_SCRIPT"; then
+  echo "prepare_binaries.sh must not substitute a fake do-agent binary" >&2
+  exit 1
+fi
 
 grep -q "AGENT_RUNTIME: claude-code" "$COMPOSE"
 grep -q "AGENT_RUNTIME: codex-cli" "$COMPOSE"

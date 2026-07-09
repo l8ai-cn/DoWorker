@@ -129,7 +129,12 @@ main() {
     # which depend on the `e2e-echo` AgentFile resolving `EXECUTABLE
     # e2e-mock-agent` to a real binary on the runner's PATH.
     build_mock_agent_binary
-    build_do_agent_binary || return 1
+    if [[ "${DEV_SKIP_DOAGENT:-}" == "1" ]]; then
+        export COMPOSE_PROFILES=""
+        info "显式排除 do-agent runner"
+    else
+        build_do_agent_binary || return 1
+    fi
 
     # Phase 3: docker infrastructure + DB bootstrap.
     docker_compose_up
