@@ -1,6 +1,6 @@
 name: Bazel
 
-# Unified CI workflow — one entry point for everything. Delegates to
+# Unified CI workflow — one entry point for everything (PR gate). Delegates to
 # Bazel targets where they exist (Go tests, Rust tests, buildifier,
 # Vitest) and falls back to pnpm / go / docker CLIs for jobs whose
 # Bazel equivalents aren't wired yet (lint, Next.js build, Docker
