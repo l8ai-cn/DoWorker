@@ -19,7 +19,10 @@ x-runner-env: &runner-env
   # host-gateway). Avoid host.docker.internal on macOS when a fake-ip proxy
   # (Surge/Clash) rewrites it to 198.18.0.0/15 — TLS then EOFs.
   GRPC_ENDPOINT: host.lan:${BACKEND_GRPC_PORT:-10016}
-  RELAY_BASE_URL: ws://traefik:80
+  # Bypass Traefik for runner↔relay WS. Traefik WS upgrade to host.lan
+  # relay often returns bad handshake in CI, which zeros Hive S1.4 attach
+  # bytes and breaks tunnel dials. gRPC already uses host.lan directly.
+  RELAY_BASE_URL: ws://host.lan:${RELAY_HTTP_PORT:-10017}
   RUNNER_ORG_SLUG: dev-org
   MAX_CONCURRENT_PODS: "10"
   WORKSPACE: /workspace

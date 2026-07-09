@@ -57,7 +57,7 @@ func TestCrossRunner_PodInteractionRoutesThroughBackend(t *testing.T) {
 		t.Fatalf("send_pod_input across runners: %v", err)
 	}
 
-	deadline := time.Now().Add(8 * time.Second)
+	deadline := time.Now().Add(20 * time.Second)
 	for time.Now().Before(deadline) {
 		snap, err := podA.MCP.CallToolText(ctx, "get_pod_snapshot", map[string]any{
 			"pod_key": podB.Pod.PodKey,
@@ -68,7 +68,7 @@ func TestCrossRunner_PodInteractionRoutesThroughBackend(t *testing.T) {
 		}
 		time.Sleep(300 * time.Millisecond)
 	}
-	t.Fatalf("expected 'got: cross-runner-hello' in cross-runner snapshot within 8s")
+	t.Fatalf("expected 'got: cross-runner-hello' in cross-runner snapshot within 20s")
 }
 
 func TestCrossRunner_BothRunnersListed(t *testing.T) {

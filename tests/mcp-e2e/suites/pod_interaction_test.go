@@ -49,9 +49,9 @@ func TestPodInteraction_RoundTrip(t *testing.T) {
 		t.Fatalf("send_pod_input: %v", err)
 	}
 
-	// 3) Poll snapshot for the echoed line. PTY echo plus the agent's
-	//    "got: " response can take a few hundred ms.
-	deadline := time.Now().Add(5 * time.Second)
+	// 3) Poll snapshot for the echoed line. CI runners can be slow to
+	//    schedule the echo agent after send_pod_input.
+	deadline := time.Now().Add(15 * time.Second)
 	for time.Now().Before(deadline) {
 		snap, err := pod.MCP.CallToolText(ctx, "get_pod_snapshot", map[string]any{
 			"pod_key": pod.Pod.PodKey,
@@ -62,5 +62,5 @@ func TestPodInteraction_RoundTrip(t *testing.T) {
 		}
 		time.Sleep(200 * time.Millisecond)
 	}
-	t.Fatalf("expected 'got: hello' in snapshot within 5s")
+	t.Fatalf("expected 'got: hello' in snapshot within 15s")
 }

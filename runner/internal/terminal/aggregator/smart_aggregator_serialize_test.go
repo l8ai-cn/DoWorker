@@ -34,10 +34,7 @@ func TestSmartAggregator_SerializeMode(t *testing.T) {
 	// Write with nil data - in serialize mode, data is ignored
 	agg.Write(nil)
 
-	// Wait for flush
-	time.Sleep(50 * time.Millisecond)
-
-	result := relay.getData()
+	result := waitForRelayData(t, relay, len(serializedOutput), 2*time.Second)
 
 	// Verify serialized output was sent
 	if !bytes.Equal(result, serializedOutput) {
@@ -98,8 +95,7 @@ func TestSmartAggregator_SerializeModeMultipleWrites(t *testing.T) {
 		time.Sleep(5 * time.Millisecond)
 	}
 
-	// Wait for flush
-	time.Sleep(100 * time.Millisecond)
+	waitForRelayData(t, relay, 1, 2*time.Second)
 
 	mu.Lock()
 	cc := callbackCount
