@@ -57,7 +57,7 @@ ts_project(
         # imports through this node-module walk; the tsconfig path
         # alias `@proto/*` is a fallback that aspect_rules_ts can't use
         # because the underlying files sit outside the project rootDir.
-        "//:node_modules/@agentsmesh/proto",
+        "//:node_modules/@do-worker/proto",
     ],
 )
 
@@ -66,15 +66,15 @@ _NEXT_DATA_COMMON = [
     "postcss.config.mjs",
     "tsconfig.json",
     "//:node_modules",
-    "//:node_modules/@agentsmesh/service-interface",
-    "//:node_modules/@agentsmesh/service-runtime",
-    "//:node_modules/agentsmesh-wasm",
+    "//:node_modules/@do-worker/service-interface",
+    "//:node_modules/@do-worker/service-runtime",
+    "//:node_modules/do-worker-wasm",
     "//:package_json_bin",
-    # Generated TS proto modules — mounted as `@agentsmesh/proto` via
+    # Generated TS proto modules — mounted as `@do-worker/proto` via
     # //BUILD.bazel's `npm_link_package`. Next.js's bundler walks the
     # node_modules resolution chain for `@proto/*` imports (the
     # tsconfig path alias points there).
-    "//:node_modules/@agentsmesh/proto",
+    "//:node_modules/@do-worker/proto",
 ]
 
 # Dev path — keeps next.config.ts so existing `bazel run :next_dev` works.

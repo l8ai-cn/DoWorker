@@ -13,8 +13,8 @@ import {
   WasmBlockstoreService,
   WasmKnowledgeBaseService,
   WasmRelayManager,
-} from "agentsmesh-wasm";
-import { registerServiceProvider } from "@agentsmesh/service-runtime";
+} from "do-worker-wasm";
+import { registerServiceProvider } from "@do-worker/service-runtime";
 
 // AuthManager + ApiClient share the same token store (Plan I6).
 // Caller constructs AuthManager first, passes it to ApiClient, then both here.
@@ -94,5 +94,5 @@ export {
   getRepoState, getExpertState,
   getAutopilotState, getRelayManager, getBlockstoreService,
   getKnowledgeBaseService,
-} from "@agentsmesh/service-runtime";
+} from "@do-worker/service-runtime";
 

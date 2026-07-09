@@ -8,7 +8,7 @@
 #   - runner: go cross-compile（一次性，无 Bazel 常驻）
 #   - runner 容器: Coordinator 按需创建（不预起 12 个）
 #   - 前端: 仅 web 主站（跳过 web-admin / web-user）
-#   - 前端仍用 bazel run :next_dev（@agentsmesh/* 链接依赖 Bazel）
+#   - 前端仍用 bazel run :next_dev（@do-worker/* 链接依赖 Bazel）
 #
 # 用法:
 #   ./dev-lite.sh                 # docker + air backend/relay + web

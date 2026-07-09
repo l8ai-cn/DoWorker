@@ -1,6 +1,6 @@
 // AgentsMesh Service Worker
-const CACHE_NAME = 'agentsmesh-v1';
-const STATIC_CACHE_NAME = 'agentsmesh-static-v1';
+const CACHE_NAME = 'do-worker-v1';
+const STATIC_CACHE_NAME = 'do-worker-static-v1';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [

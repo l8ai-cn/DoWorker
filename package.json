@@ -1,14 +1,19 @@
 {
-  "name": "agentsmesh-workspace-root",
+  "name": "do-worker-workspace-root",
   "private": true,
-  "description": "Workspace root. All frontend dependencies live here. First-party @agentsmesh/* packages are NOT in this manifest — they are managed entirely by Bazel via `internal_npm_package` macro and linked at //:node_modules via `npm_link_package`. See build_defs/web/internal_package.bzl.",
+  "description": "Workspace root. Frontend deps live here; first-party @do-worker/* and do-worker-wasm are pnpm workspace packages under packages/ and proto/. Bazel also links them via npm_link_package for hermetic builds.",
   "scripts": {
     "proto:gen-ts": "buf generate",
     "proto:gen-go": "bash scripts/proto-gen-go.sh",
     "proto:gen-amesh": "bash scripts/sync-amesh-convert.sh",
-    "proto:gen-go-all": "bash scripts/proto-gen-go.sh --force && bash scripts/sync-amesh-convert.sh --force"
+    "proto:gen-go-all": "bash scripts/proto-gen-go.sh --force && bash scripts/sync-amesh-convert.sh --force",
+    "build:wasm": "bash scripts/build-wasm.sh"
   },
   "dependencies": {
+    "@do-worker/proto": "workspace:*",
+    "@do-worker/service-interface": "workspace:*",
+    "@do-worker/service-runtime": "workspace:*",
+    "do-worker-wasm": "workspace:*",
     "@blocknote/core": "^0.47.3",
     "@blocknote/mantine": "^0.47.3",
     "@blocknote/react": "^0.47.3",

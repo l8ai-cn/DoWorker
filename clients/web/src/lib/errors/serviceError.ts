@@ -7,7 +7,7 @@
  * both and always returns a typed object so callers can discriminate on `kind`
  * instead of regex-matching error messages.
  */
-import { SERVICE_ERROR_KIND_SET } from "@agentsmesh/service-interface";
+import { SERVICE_ERROR_KIND_SET } from "@do-worker/service-interface";
 
 export type ServiceError =
   | { kind: "http"; status: number; code?: string; message: string }

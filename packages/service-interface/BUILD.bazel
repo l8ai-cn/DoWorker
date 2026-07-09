@@ -19,7 +19,7 @@ ts_project(
 
 internal_npm_package(
     name = "pkg",
-    package_name = "@agentsmesh/service-interface",
+    package_name = "@do-worker/service-interface",
     srcs = glob(
         ["src/**/*.ts"],
         exclude = ["src/**/*.test.ts"],

@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { legacyPersistStorage } from "@/lib/zustand-legacy-persist";
 
 export interface NotificationPreferences {
   podStatus: boolean;
@@ -43,7 +44,8 @@ export const usePushNotificationStore = create<PushNotificationState>()(
       setError: (error) => set({ error }),
     }),
     {
-      name: "agentsmesh-push-notifications",
+      name: "do-worker-push-notifications",
+      storage: legacyPersistStorage("agentsmesh-push-notifications"),
       partialize: (state) => ({ preferences: state.preferences }),
     }
   )

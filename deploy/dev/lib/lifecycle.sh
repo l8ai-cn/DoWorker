@@ -1,9 +1,9 @@
 # shellcheck shell=bash
 # lifecycle.sh — start / stop / status / banner.
 #
-# Frontend launch (web + admin) goes through Bazel's `next_dev` so the
-# `@agentsmesh/*` internal packages — linked at //:node_modules via Bazel
-# `npm_link_package`, not by pnpm — are visible to Next.js.
+# Frontend launch (web + admin) uses plain `next dev` + pnpm workspace
+# packages (`@do-worker/*` / `do-worker-wasm`). Wasm is built via
+# `pnpm run build:wasm` when packages/do-worker-wasm is stale/missing.
 #
 # `clean` tears down everything dev.sh created (host pids, frontend ports,
 # docker volumes, .env). `reset_runners` is the targeted "rebuild + restart
@@ -345,37 +345,58 @@ _prepare_next_port() {
     return 0
 }
 
-# Launch the Next.js web frontend via Bazel's `next_dev` devserver. We
-# can't use plain `next dev` from clients/web/ because the
-# `@agentsmesh/*` internal packages are linked at the workspace root
-# via Bazel `npm_link_package`, not by pnpm — so Next.js running outside
-# Bazel's sandbox can't resolve them.
+
+# Ensure packages/do-worker-wasm has a built wasm artifact. Rebuild via
+# `pnpm run build:wasm` when the JS glue is missing or older than the
+# Cargo.toml / crate sources (best-effort freshness).
+_ensure_do_worker_wasm() {
+    local root_dir="$SCRIPT_DIR/../.."
+    local out_js="$root_dir/packages/do-worker-wasm/wasm_pkg.js"
+    local crate="$root_dir/clients/core/crates/wasm"
+    local need_build=false
+
+    if [[ ! -f "$out_js" ]]; then
+        need_build=true
+    elif [[ -f "$crate/Cargo.toml" && "$crate/Cargo.toml" -nt "$out_js" ]]; then
+        need_build=true
+    fi
+
+    if [[ "$need_build" != true ]]; then
+        return 0
+    fi
+
+    info "构建 do-worker-wasm (pnpm run build:wasm)..."
+    if ! (cd "$root_dir" && pnpm run build:wasm); then
+        error "do-worker-wasm 构建失败 — 纯 Next 无法解析 wasm"
+        return 1
+    fi
+    success "do-worker-wasm 已就绪"
+}
+
+# Launch the Next.js web frontend via plain `next dev` (pnpm workspace).
 start_frontend() {
     source "$ENV_FILE"
     local web_dir="$SCRIPT_DIR/../../clients/web"
     local web_port="${WEB_PORT:-3000}"
+    local root_dir="$SCRIPT_DIR/../.."
 
     _prepare_next_port "前端" "$web_dir" "$web_port" || {
         warn "主前端 (端口 $web_port) 未能启动 — 端口被占用"
         return 1
     }
 
-    if ! command -v bazel &>/dev/null; then
-        error "未找到 bazel"
-        return 1
-    fi
     if ! command -v pnpm &>/dev/null; then
         error "未找到 pnpm，请先安装: npm install -g pnpm"
         return 1
     fi
 
     _install_root_deps_if_needed "前端依赖" "$web_dir/.next/cache" || return 1
+    _ensure_do_worker_wasm || return 1
 
     local log_file="$SCRIPT_DIR/web.log"
-    local root_dir="$SCRIPT_DIR/../.."
-    info "启动前端服务 (端口: $web_port, Bazel devserver)..."
+    info "启动前端服务 (端口: $web_port, plain next)..."
     local saved_dir="$PWD"
-    cd "$root_dir"
+    cd "$web_dir"
     # API_PROXY_TARGET drives next.config.ts rewrites: /api/* + /proto.* →
     # host backend (:BACKEND_HTTP_PORT). Bypass traefik so macOS apps that
     # squat 127.0.0.1:$HTTP_PORT (e.g. netdisk) can't break login/API proxy.
@@ -388,7 +409,7 @@ start_frontend() {
     API_PROXY_TARGET="http://127.0.0.1:${BACKEND_HTTP_PORT}" \
     NEXT_PUBLIC_E2E="true" \
         _launch_setsid web "$log_file" \
-        bazel run //clients/web:next_dev -- --port "$web_port"
+        node ../../node_modules/next/dist/bin/next dev --turbopack --port "$web_port"
     cd "$saved_dir"
 
     local max_wait=90
@@ -404,10 +425,12 @@ start_frontend() {
     echo "  查看日志: tail -f $log_file"
 }
 
+
 start_admin_frontend() {
     source "$ENV_FILE"
     local web_admin_dir="$SCRIPT_DIR/../../clients/web-admin"
     local web_admin_port="${WEB_ADMIN_PORT:-3001}"
+    local root_dir="$SCRIPT_DIR/../.."
 
     _prepare_next_port "Admin Console" "$web_admin_dir" "$web_admin_port" || {
         warn "Admin Console (端口 $web_admin_port) 未能启动 — 端口被占用"
@@ -422,16 +445,15 @@ start_admin_frontend() {
     _install_root_deps_if_needed "Admin Console 依赖" "$web_admin_dir/.next/cache" || return 1
 
     local log_file="$SCRIPT_DIR/web-admin.log"
-    local root_dir="$SCRIPT_DIR/../.."
-    info "启动 Admin Console (端口: $web_admin_port, Bazel devserver)..."
+    info "启动 Admin Console (端口: $web_admin_port, plain next)..."
     local saved_dir="$PWD"
-    cd "$root_dir"
+    cd "$web_admin_dir"
     # web-admin's next.config rewrites use PRIMARY_DOMAIN to compute the
     # backend URL (its fallback is the prod-only localhost:10000, which
     # never matches a worktree). Pin it to traefik so /api/* proxies.
     PRIMARY_DOMAIN="localhost:$HTTP_PORT" \
         _launch_setsid web-admin "$log_file" \
-        bazel run //clients/web-admin:next_dev -- --port "$web_admin_port"
+        node ../../node_modules/next/dist/bin/next dev --turbopack --port "$web_admin_port"
     cd "$saved_dir"
 
     local max_wait=60

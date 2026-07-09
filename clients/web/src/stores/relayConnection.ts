@@ -1,6 +1,6 @@
 import { getPodConnection } from "@/lib/api/facade/podConnect";
 import { readCurrentOrg } from "@/stores/auth";
-import { getRelayManager } from "@agentsmesh/service-runtime";
+import { getRelayManager } from "@do-worker/service-runtime";
 import type {
   ConnectionStatus, ConnectionHandle, RelayStatusInfo, StatusListener,
 } from "./relayConnectionTypes";

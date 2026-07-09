@@ -1,13 +1,13 @@
 """Internal npm package helpers — Bazel as the SSOT for package metadata.
 
-Replaces source-tree `package.json` files for first-party `@agentsmesh/*`
+Replaces source-tree `package.json` files for first-party `@do-worker/*`
 packages. The package metadata (name, version, main, dependencies) is
 declared in BUILD.bazel via `internal_npm_package(...)`; a synthetic
 `package.json` is materialised into bazel-bin at build time and shipped
 alongside the source files through aspect_rules_js's `npm_package` rule.
 
 Downstream `npm_link_package` in the root BUILD.bazel registers the
-result at `//:node_modules/@agentsmesh/<name>` — no `workspace:*` /
+result at `//:node_modules/@do-worker/<name>` — no `workspace:*` /
 pnpm-workspace.yaml entry required.
 
 Usage:
@@ -15,10 +15,10 @@ Usage:
 
     internal_npm_package(
         name = "pkg",
-        package_name = "@agentsmesh/example",
+        package_name = "@do-worker/example",
         version = "0.1.0",
         main = "src/index.ts",
-        dependencies = {"@agentsmesh/service-interface": "*"},
+        dependencies = {"@do-worker/service-interface": "*"},
         srcs = glob(["src/**/*.ts"], exclude = ["src/**/*.test.ts"]),
     )
 """
@@ -45,7 +45,7 @@ def generated_package_json(
     Args:
         name: Bazel target name. The actual filename is always
             `package.json` (Node's resolver requires that).
-        package_name: npm package name (e.g. `@agentsmesh/foo`).
+        package_name: npm package name (e.g. `@do-worker/foo`).
             Must match downstream `npm_link_package(name = "...")`.
         version: Semver string. Internal packages all use `0.1.0`.
         main: Path to the entry point relative to package root.

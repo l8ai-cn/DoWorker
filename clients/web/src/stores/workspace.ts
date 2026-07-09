@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { legacyPersistStorage } from "@/lib/zustand-legacy-persist";
 import type { WorkspacePane, SplitTreeLeaf, SplitTreeSplit, SplitTreeNode, WorkspaceState } from "./workspaceTypes";
 import {
   generatePaneId, generateNodeId,
@@ -140,7 +141,8 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       setHasHydrated: (state) => { set({ _hasHydrated: state }); },
     }),
     {
-      name: "agentsmesh-workspace",
+      name: "do-worker-workspace",
+      storage: legacyPersistStorage("agentsmesh-workspace"),
       version: 4,
       partialize: (state) => ({
         panes: state.panes,

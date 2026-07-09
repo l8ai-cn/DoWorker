@@ -1,16 +1,12 @@
-# pnpm workspace config — only external npm dependency resolution.
-#
-# First-party `@agentsmesh/*` packages are NOT pnpm workspace members
-# anymore; they're managed by Bazel via `internal_npm_package` (see
-# build_defs/web/internal_package.bzl) + `npm_link_package` in the root
-# BUILD.bazel. pnpm only needs to resolve the external npm deps listed
-# in the root package.json.
+# pnpm workspace — root deps + first-party @do-worker/* / do-worker-wasm.
 #
 # `packages: ["."]` is required: pnpm treats any pnpm-workspace.yaml as a
 # workspace file and errors with "packages field missing or empty" when
 # the field is absent (CI `pnpm install` for Hive/Playwright).
 packages:
   - "."
+  - "packages/*"
+  - "proto"
 overrides:
   # Next.js 16 pulls in @playwright/test@1.59.1 as a peer dep, which
   # conflicts with the Bazel `rules_playwright` compatible version

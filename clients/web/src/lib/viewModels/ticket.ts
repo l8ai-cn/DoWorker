@@ -7,4 +7,4 @@ export type {
   TicketCommit,
   TicketComment,
   BoardColumn,
-} from "@agentsmesh/service-interface";
+} from "@do-worker/service-interface";
