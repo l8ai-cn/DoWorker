@@ -81,5 +81,8 @@ func TestCloneKnowledgeMount_ROStripsTokenFromRemote(t *testing.T) {
 	cfg, err := os.ReadFile(filepath.Join(sandbox, "kb", "docs", ".git", "config"))
 	require.NoError(t, err)
 	assert.NotContains(t, string(cfg), "secret", "ro mount must not retain the clone token")
-	assert.True(t, strings.Contains(string(cfg), origin))
+	// Git for Windows may write file:// URLs with doubled separators (C://Users//...).
+	got := strings.ReplaceAll(filepath.ToSlash(string(cfg)), "//", "/")
+	want := strings.ReplaceAll(filepath.ToSlash(origin), "//", "/")
+	assert.Contains(t, got, want)
 }

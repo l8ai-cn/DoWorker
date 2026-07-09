@@ -13,17 +13,6 @@ func acpAgentfileLayer(extra ...string) *string {
 	return &out
 }
 
-func ptyAgentfileLayer(extra ...string) *string {
-	parts := []string{"MODE pty"}
-	for _, line := range extra {
-		if t := strings.TrimSpace(line); t != "" {
-			parts = append(parts, t)
-		}
-	}
-	out := strings.Join(parts, "\n")
-	return &out
-}
-
 func sessionAgentfileLayer(agentID string, ptyOnly bool, extra ...string) *string {
 	var parts []string
 	if ptyOnly {

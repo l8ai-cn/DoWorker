@@ -238,9 +238,7 @@ func deriveServerCertSANs(cfg *config.Config) []string {
 	}
 
 	// Dev runners inside Docker dial host.docker.internal / host.lan.
-	for _, host := range []string{"host.docker.internal", "host.lan"} {
-		sans = append(sans, host)
-	}
+	sans = append(sans, "host.docker.internal", "host.lan")
 
 	if len(sans) > 0 {
 		slog.Info("Server certificate SANs derived from config", "sans", sans)
