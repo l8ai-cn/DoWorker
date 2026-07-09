@@ -159,39 +159,3 @@ Expected: PASS.
 git add backend/internal/service/repository
 git commit -m "fix(repository): scope worker repository access"
 ```
-
-### Task 4: Reject Inaccessible Worker Repositories Before Persistence
-
-**Files:**
-- Modify: `backend/internal/service/agentpod/pod_orchestrator.go`
-- Modify: `backend/internal/service/agentpod/pod_orchestrator_create.go`
-- Modify: `backend/internal/service/agentpod/pod_orchestrator_command.go`
-- Modify: `backend/internal/service/agentpod/pod_orchestrator_setup_test.go`
-- Modify: `backend/internal/service/agentpod/pod_orchestrator_create_test.go`
-
-- [ ] **Step 1: Write failing direct-ID and AgentFile tests**
-
-Add `TestCreatePod_RejectsInaccessibleRepositoryID` and `TestCreatePod_RejectsInaccessibleAgentfileRepository`. Each fake resolver returns `repository.ErrNoPermission`; assert zero Pod rows and no dispatch.
-
-- [ ] **Step 2: Verify RED**
-
-Run: `bazel test //backend/internal/service/agentpod:agentpod_test --test_filter='TestCreatePod_RejectsInaccessible.*Repository'`
-
-Expected: direct ID creates a Pod and AgentFile lookup ignores visibility.
-
-- [ ] **Step 3: Use only scoped repository methods**
-
-Replace `RepositoryServiceForOrchestrator` methods with the two scoped methods. Resolve AgentFile `REPO` through `FindAccessibleByOrgSlug`. Validate the effective direct repository ID after AgentFile merge and before quota or `PodService.CreatePod`. In `buildPodCommand`, use `GetAccessibleByID` and propagate errors instead of silently omitting clone data.
-
-- [ ] **Step 4: Verify GREEN and package regression**
-
-Run: `bazel test //backend/internal/service/agentpod:agentpod_test`
-
-Expected: PASS.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add backend/internal/service/agentpod
-git commit -m "fix(worker): reject inaccessible repositories"
-```
