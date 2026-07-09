@@ -1,6 +1,8 @@
+import { createJSONStorage } from "zustand/middleware";
+
 /** Zustand persist storage that migrates a legacy localStorage key once. */
 export function legacyPersistStorage(legacyKey: string) {
-  return {
+  return createJSONStorage(() => ({
     getItem: (name: string): string | null => {
       const value = localStorage.getItem(name);
       if (value !== null) return value;
@@ -19,5 +21,5 @@ export function legacyPersistStorage(legacyKey: string) {
       localStorage.removeItem(name);
       localStorage.removeItem(legacyKey);
     },
-  };
+  }));
 }

@@ -57,7 +57,34 @@ vi.mock("@/lib/api/facade/envBundleConnect", () => ({
 // --- Stubs for visual/dialog/intl/toast deps -------------------------------
 
 vi.mock("next-intl", () => ({
+  // PromptInput / AdvancedOptions call useTranslations(namespace?) themselves.
   useTranslations: () => (key: string) => key,
+  NextIntlClientProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+vi.mock("@/components/pod/CreatePodForm/PromptInput", () => ({
+  PromptInput: ({
+    value,
+    onChange,
+    placeholder,
+  }: {
+    value: string;
+    onChange: (v: string) => void;
+    placeholder?: string;
+  }) => (
+    <textarea
+      data-testid="prompt-input"
+      value={value}
+      placeholder={placeholder}
+      onChange={(e) => onChange(e.target.value)}
+    />
+  ),
+}));
+
+vi.mock("@/components/pod/CreatePodForm/AdvancedOptions", () => ({
+  AdvancedOptions: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="advanced-options">{children}</div>
+  ),
 }));
 
 vi.mock("sonner", () => ({
