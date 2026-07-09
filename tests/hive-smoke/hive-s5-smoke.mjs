@@ -44,7 +44,8 @@ async function main() {
 
   const projectsRes = await fetch(`${API}/v1/sessions/projects`, { headers: headers(token) });
   const projectsBody = await projectsRes.json();
-  step("S5 W1 GET /sessions/projects", projectsRes.ok && Array.isArray(projectsBody.data));
+  // Wire is a bare string[] (web-user / mobile parse the body as string[]).
+  step("S5 W1 GET /sessions/projects", projectsRes.ok && Array.isArray(projectsBody));
 
   const session = await createSession(token, { agent_id: "e2e-echo", title: "S5 parity" });
   const sid = session.id;
