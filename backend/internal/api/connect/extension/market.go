@@ -23,9 +23,6 @@ const (
 )
 
 // MarketServer is a thin handler over extensionservice marketplace queries.
-// Reuses the same *Service dependency the SkillRegistryService handler
-// holds — splitting into its own struct lets cmd/server mount it with a
-// distinct Mount call while keeping the service singleton.
 type MarketServer struct {
 	*Server
 }
@@ -93,9 +90,8 @@ func (s *MarketServer) ListMarketMcpServers(
 }
 
 // MountMarket registers MarketService procedures behind the auth interceptor
-// supplied via opts. Separate from Mount(SkillRegistryService) so cmd/server
-// can wire each sub-service explicitly — mirrors the multi-Service pattern
-// used by invitation/billing in the same connect package.
+// supplied via opts, wired as its own sub-service — mirrors the multi-Service
+// pattern used by invitation/billing in the same connect package.
 func MountMarket(mux *http.ServeMux, srv *MarketServer, opts ...connect.HandlerOption) {
 	mux.Handle(ListMarketSkillsProcedure, connect.NewUnaryHandler(
 		ListMarketSkillsProcedure, srv.ListMarketSkills, opts...,
