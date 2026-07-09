@@ -21,7 +21,7 @@
 - Create: `backend/internal/service/agentpod/pod_orchestrator_repository_test.go`
 - Modify: `backend/internal/service/agentpod/BUILD.bazel`
 
-- [ ] **Step 1: Write failing direct-ID and AgentFile tests**
+- [x] **Step 1: Write failing direct-ID and AgentFile tests**
 
 Add tests for inaccessible direct ID, inaccessible AgentFile `REPO`, ambiguous slug, and one successful scoped repository. Rejection must create zero Pod rows and send no command. Success must resolve once and place the repository clone/preparation data in the command.
 
@@ -32,13 +32,13 @@ assert.Zero(t, podCount(t, db))
 assert.False(t, coordinator.createPodCalled)
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `bazel test //backend/internal/service/agentpod:agentpod_test --test_filter='TestCreatePod_(Rejects|Uses).*Repository'`
 
 Expected: the sentinel is undefined, direct ID persists, and AgentFile lookup ignores access errors.
 
-- [ ] **Step 3: Add the sentinel and scoped resolver contract**
+- [x] **Step 3: Add the sentinel and scoped resolver contract**
 
 Add `ErrCreateResourceUnavailable`. Replace `RepositoryServiceForOrchestrator` with:
 
@@ -49,11 +49,11 @@ FindAccessibleByOrgSlug(ctx context.Context, orgID, userID int64, slug string) (
 
 Map inaccessible, missing, and ambiguous repository results to the sentinel without exposing the underlying cause to clients. Propagate cancellation and infrastructure errors as internal errors.
 
-- [ ] **Step 4: Resolve once before quota and persistence**
+- [x] **Step 4: Resolve once before quota and persistence**
 
 Add the resolved repository to the internal `agentfileResolved` state. Resolve AgentFile slug immediately when parsing `REPO`; resolve the final direct ID after merge and before quota. If an ID is present and the service is nil, fail closed. `buildPodCommand` uses the resolved object and performs no unscoped lookup.
 
-- [ ] **Step 5: Verify GREEN and regression**
+- [x] **Step 5: Verify GREEN and regression**
 
 Run: `bazel test //backend/internal/service/agentpod:agentpod_test --nocache_test_results`
 
@@ -61,7 +61,7 @@ Run: `bazel run //:buildifier_check`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add backend/internal/service/agentpod
