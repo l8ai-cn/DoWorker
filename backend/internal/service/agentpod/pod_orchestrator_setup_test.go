@@ -119,12 +119,41 @@ func (m *mockAgentConfigProvider) GetAgent(_ context.Context, _ string) (*agentD
 
 // mockRunnerSelector implements RunnerSelectorForOrchestrator for testing.
 type mockRunnerSelector struct {
-	runner *runnerDomain.Runner
-	err    error
+	runner        *runnerDomain.Runner
+	err           error
+	selectCalled  bool
+	resolveRunner *runnerDomain.Runner
+	resolveErr    error
+	resolveCall   *runnerResolveCall
 }
 
 func (m *mockRunnerSelector) SelectRunnerWithAffinity(_ context.Context, _ int64, _ int64, _ string, _ *runnerDomain.AffinityHints, _ map[int64]int) (*runnerDomain.Runner, error) {
+	m.selectCalled = true
 	return m.runner, m.err
+}
+
+type runnerResolveCall struct {
+	RunnerID         int64
+	OrganizationID   int64
+	UserID           int64
+	AgentSlug        string
+	AllowUnavailable bool
+}
+
+func (m *mockRunnerSelector) ResolveRunnerForCreate(
+	_ context.Context,
+	runnerID, orgID, userID int64,
+	agentSlug string,
+	allowUnavailable bool,
+) (*runnerDomain.Runner, error) {
+	m.resolveCall = &runnerResolveCall{
+		RunnerID:         runnerID,
+		OrganizationID:   orgID,
+		UserID:           userID,
+		AgentSlug:        agentSlug,
+		AllowUnavailable: allowUnavailable,
+	}
+	return m.resolveRunner, m.resolveErr
 }
 
 // mockAgentResolver implements AgentResolverForOrchestrator for testing.
@@ -278,6 +307,9 @@ func setupOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDeps)) (*PodOr
 		PodService:    podSvc,
 		ConfigBuilder: configBuilder,
 		AgentResolver: &mockAgentResolver{agentDef: provider.agentDef},
+		RunnerSelector: &mockRunnerSelector{
+			resolveRunner: &runnerDomain.Runner{ID: 1},
+		},
 	}
 
 	for _, opt := range opts {

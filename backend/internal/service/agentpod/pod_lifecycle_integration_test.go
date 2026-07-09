@@ -45,9 +45,10 @@ func setupIntegrationOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDep
 	configBuilder := agent.NewConfigBuilder(provider, noopBundleLoader{})
 
 	deps := &PodOrchestratorDeps{
-		PodService:    podSvc,
-		ConfigBuilder: configBuilder,
-		AgentResolver: &mockAgentResolver{agentDef: provider.agentDef},
+		PodService:     podSvc,
+		ConfigBuilder:  configBuilder,
+		AgentResolver:  &mockAgentResolver{agentDef: provider.agentDef},
+		RunnerSelector: &mockRunnerSelector{resolveRunner: &runnerDomain.Runner{ID: runnerID}},
 	}
 	for _, opt := range opts {
 		opt(deps)
