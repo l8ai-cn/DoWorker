@@ -99,6 +99,7 @@ go_test(
         "pod_orchestrator_knowledge_test.go",
         "pod_orchestrator_queue_test.go",
         "pod_orchestrator_repository_test.go",
+        "pod_orchestrator_resume_agent_state_test.go",
         "pod_orchestrator_resume_test.go",
         "pod_orchestrator_runner_eligibility_test.go",
         "pod_orchestrator_setup_test.go",
