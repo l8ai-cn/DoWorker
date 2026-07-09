@@ -146,6 +146,7 @@ go_test(
         "pod_router_query_test.go",
         "pod_router_test.go",
         "pod_status_broadcaster_test.go",
+        "query_create_eligibility_test.go",
         "query_test.go",
         "query_visibility_test.go",
         "queue_test_helpers_test.go",
@@ -168,6 +169,7 @@ go_test(
     embed = [":runner"],
     deps = [
         "//backend/internal/domain/agentpod",
+        "//backend/internal/domain/grant",
         "//backend/internal/domain/runner",
         "//backend/internal/infra",
         "//backend/internal/infra/eventbus",

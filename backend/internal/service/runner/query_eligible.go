@@ -35,12 +35,15 @@ func (s *Service) ResolveRunnerForCreate(
 		return candidate, nil
 	}
 
-	for _, active := range s.collectEligibleRunners(ctx, orgID, userID, agentSlug) {
-		if active.Runner.ID == runnerID {
-			return candidate, nil
-		}
+	value, ok := s.activeRunners.Load(runnerID)
+	if !ok {
+		return nil, ErrNoRunnerForAgent
 	}
-	return nil, ErrNoRunnerForAgent
+	active, ok := value.(*ActiveRunner)
+	if !ok || !isRunnerAvailableForAgent(active, orgID, agentSlug) {
+		return nil, ErrNoRunnerForAgent
+	}
+	return candidate, nil
 }
 
 func (s *Service) collectEligibleRunners(ctx context.Context, orgID, userID int64, agentSlug string) []*ActiveRunner {
@@ -49,20 +52,10 @@ func (s *Service) collectEligibleRunners(ctx context.Context, orgID, userID int6
 	var result []*ActiveRunner
 	s.activeRunners.Range(func(key, value interface{}) bool {
 		ar, ok := value.(*ActiveRunner)
-		if !ok || ar.Runner == nil {
+		if !ok || !isRunnerAvailableForAgent(ar, orgID, agentSlug) {
 			return true
 		}
 		r := ar.Runner
-		if r.OrganizationID != orgID ||
-			r.Status != runnerDomain.RunnerStatusOnline ||
-			!r.IsEnabled ||
-			ar.PodCount >= r.MaxConcurrentPods ||
-			time.Since(ar.LastPing) >= 90*time.Second {
-			return true
-		}
-		if agentSlug != "" && !r.SupportsAgent(agentSlug) {
-			return true
-		}
 		if !isVisibleToUser(r, userID, grantedIDs) {
 			return true
 		}
@@ -70,6 +63,21 @@ func (s *Service) collectEligibleRunners(ctx context.Context, orgID, userID int6
 		return true
 	})
 	return result
+}
+
+func isRunnerAvailableForAgent(ar *ActiveRunner, orgID int64, agentSlug string) bool {
+	if ar == nil || ar.Runner == nil {
+		return false
+	}
+	r := ar.Runner
+	if r.OrganizationID != orgID ||
+		r.Status != runnerDomain.RunnerStatusOnline ||
+		!r.IsEnabled ||
+		ar.PodCount >= r.MaxConcurrentPods ||
+		time.Since(ar.LastPing) >= 90*time.Second {
+		return false
+	}
+	return agentSlug == "" || r.SupportsAgent(agentSlug)
 }
 
 func isVisibleToUser(r *runnerDomain.Runner, userID int64, grantedIDs map[int64]bool) bool {
