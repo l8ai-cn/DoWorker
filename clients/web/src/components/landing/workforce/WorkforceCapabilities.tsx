@@ -1,5 +1,3 @@
-import { useTranslations } from 'next-intl'
-
 type CapabilityId = 'organize' | 'observe' | 'control' | 'operate'
 type PrimitiveByCapability = {
   organize: 'roles' | 'tasks' | 'ownership' | 'context'
@@ -7,21 +5,38 @@ type PrimitiveByCapability = {
   control: 'permissions' | 'checkpoints' | 'credentials' | 'audit'
   operate: 'execution' | 'schedules' | 'workflows'
 }
-type CapabilityKey =
+export type WorkforceCapabilityKey =
   | `landing.workforce.capabilities.${'eyebrow' | 'title' | 'description'}`
   | `landing.workforce.capabilities.items.${CapabilityId}.${'title' | 'description'}`
   | {
       [Id in CapabilityId]: `landing.workforce.capabilities.items.${Id}.primitives.${PrimitiveByCapability[Id]}`
     }[CapabilityId]
-type Translate = (key: CapabilityKey) => string
+export type WorkforceCapabilityTranslate = (key: WorkforceCapabilityKey) => string
 
-const capabilityPrimitives: {
-  [Id in CapabilityId]: readonly PrimitiveByCapability[Id][]
-} = {
-  organize: ['roles', 'tasks', 'ownership', 'context'],
-  observe: ['activity', 'evidence', 'status', 'deliverables'],
-  control: ['permissions', 'checkpoints', 'credentials', 'audit'],
-  operate: ['execution', 'schedules', 'workflows'],
+const capabilityPrimitives: Record<CapabilityId, readonly WorkforceCapabilityKey[]> = {
+  organize: [
+    'landing.workforce.capabilities.items.organize.primitives.roles',
+    'landing.workforce.capabilities.items.organize.primitives.tasks',
+    'landing.workforce.capabilities.items.organize.primitives.ownership',
+    'landing.workforce.capabilities.items.organize.primitives.context',
+  ],
+  observe: [
+    'landing.workforce.capabilities.items.observe.primitives.activity',
+    'landing.workforce.capabilities.items.observe.primitives.evidence',
+    'landing.workforce.capabilities.items.observe.primitives.status',
+    'landing.workforce.capabilities.items.observe.primitives.deliverables',
+  ],
+  control: [
+    'landing.workforce.capabilities.items.control.primitives.permissions',
+    'landing.workforce.capabilities.items.control.primitives.checkpoints',
+    'landing.workforce.capabilities.items.control.primitives.credentials',
+    'landing.workforce.capabilities.items.control.primitives.audit',
+  ],
+  operate: [
+    'landing.workforce.capabilities.items.operate.primitives.execution',
+    'landing.workforce.capabilities.items.operate.primitives.schedules',
+    'landing.workforce.capabilities.items.operate.primitives.workflows',
+  ],
 }
 const capabilities: readonly CapabilityId[] = ['organize', 'observe', 'control', 'operate']
 const spans: Record<CapabilityId, string> = {
@@ -31,13 +46,18 @@ const spans: Record<CapabilityId, string> = {
   operate: 'lg:col-span-7',
 }
 
-function CapabilityFragment({ id, t }: { id: CapabilityId; t: Translate }) {
-  const primitives = capabilityPrimitives[id] as readonly string[]
+function CapabilityFragment({
+  id,
+  translate,
+}: {
+  id: CapabilityId
+  translate: WorkforceCapabilityTranslate
+}) {
   return (
     <ul className="mt-6 border-t border-[var(--azure-outline-variant)] pt-4">
-      {primitives.map((primitive, index) => (
+      {capabilityPrimitives[id].map((key, index) => (
         <li
-          key={primitive}
+          key={key}
           className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--azure-outline-variant)] py-3 last:border-b-0"
         >
           <span
@@ -47,11 +67,12 @@ function CapabilityFragment({ id, t }: { id: CapabilityId; t: Translate }) {
             }`}
           />
           <span className="break-words text-sm font-medium text-foreground">
-            {t(
-              `landing.workforce.capabilities.items.${id}.primitives.${primitive}` as CapabilityKey,
-            )}
+            {translate(key)}
           </span>
-          <span className="font-mono text-[9px] text-[var(--azure-text-muted)]">
+          <span
+            aria-hidden="true"
+            className="font-mono text-xs text-[var(--azure-text-muted)]"
+          >
             {String(index + 1).padStart(2, '0')}
           </span>
         </li>
@@ -60,8 +81,16 @@ function CapabilityFragment({ id, t }: { id: CapabilityId; t: Translate }) {
   )
 }
 
-function CapabilityCard({ id, index, t }: { id: CapabilityId; index: number; t: Translate }) {
-  const title = t(`landing.workforce.capabilities.items.${id}.title`)
+function CapabilityCard({
+  id,
+  index,
+  translate,
+}: {
+  id: CapabilityId
+  index: number
+  translate: WorkforceCapabilityTranslate
+}) {
+  const title = translate(`landing.workforce.capabilities.items.${id}.title`)
   return (
     <article
       aria-label={title}
@@ -71,39 +100,45 @@ function CapabilityCard({ id, index, t }: { id: CapabilityId; index: number; t: 
         <div className="min-w-0">
           <h3 className="break-words font-headline text-2xl font-bold text-foreground">{title}</h3>
           <p className="mt-3 max-w-xl break-words text-sm leading-relaxed text-[var(--azure-text-muted)]">
-            {t(`landing.workforce.capabilities.items.${id}.description`)}
+            {translate(`landing.workforce.capabilities.items.${id}.description`)}
           </p>
         </div>
-        <span className="shrink-0 font-mono text-xs text-[var(--azure-mint)]">
+        <span
+          aria-hidden="true"
+          className="shrink-0 font-mono text-xs text-[var(--azure-mint)]"
+        >
           {String(index + 1).padStart(2, '0')}
         </span>
       </div>
-      <CapabilityFragment id={id} t={t} />
+      <CapabilityFragment id={id} translate={translate} />
     </article>
   )
 }
 
-export function WorkforceCapabilities() {
-  const t = useTranslations() as Translate
+export function WorkforceCapabilities({
+  translate,
+}: {
+  translate: WorkforceCapabilityTranslate
+}) {
   return (
     <section className="bg-[var(--azure-bg-deeper)] px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
           <p className="font-headline text-xs font-bold uppercase tracking-[0.2em] text-[var(--azure-mint)]">
-            {t('landing.workforce.capabilities.eyebrow')}
+            {translate('landing.workforce.capabilities.eyebrow')}
           </p>
           <div>
             <h2 className="break-words font-headline text-3xl font-bold tracking-[-0.03em] text-foreground sm:text-5xl">
-              {t('landing.workforce.capabilities.title')}
+              {translate('landing.workforce.capabilities.title')}
             </h2>
             <p className="mt-4 max-w-2xl break-words text-base leading-relaxed text-[var(--azure-text-muted)]">
-              {t('landing.workforce.capabilities.description')}
+              {translate('landing.workforce.capabilities.description')}
             </p>
           </div>
         </div>
         <div className="mt-14 grid gap-5 lg:grid-cols-12">
           {capabilities.map((id, index) => (
-            <CapabilityCard key={id} id={id} index={index} t={t} />
+            <CapabilityCard key={id} id={id} index={index} translate={translate} />
           ))}
         </div>
       </div>

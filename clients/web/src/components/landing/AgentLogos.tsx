@@ -82,12 +82,14 @@ const agentConfigs = [
   },
 ] as const
 
-type AgentLogosProps = {
-  embedded?: boolean
-}
+type AgentLogosProps =
+  | { embedded?: false; title?: never; description?: never }
+  | { embedded: true; title: string; description: string }
 
-export function AgentLogos({ embedded = false }: AgentLogosProps) {
+export function AgentLogos(props: AgentLogosProps = {}) {
   const t = useTranslations()
+  const embedded = props.embedded === true
+  const title = embedded ? props.title : t('landing.agentLogos.title')
   const headingId = `${useId()}-agent-compatibility`
   const Root = embedded ? 'div' : 'section'
   const Heading = embedded ? 'h3' : 'h2'
@@ -107,11 +109,13 @@ export function AgentLogos({ embedded = false }: AgentLogosProps) {
             id={headingId}
             className="break-words font-headline text-xl font-bold text-foreground sm:text-2xl"
           >
-            {t('landing.workforce.trust.compatibility.title')}
+            {title}
           </Heading>
-          <p className="mt-2 break-words text-sm leading-relaxed text-[var(--azure-text-muted)]">
-            {t('landing.workforce.trust.compatibility.description')}
-          </p>
+          {embedded ? (
+            <p className="mt-2 break-words text-sm leading-relaxed text-[var(--azure-text-muted)]">
+              {props.description}
+            </p>
+          ) : null}
         </div>
         <ul className="mt-6 grid grid-cols-1 gap-px bg-[var(--azure-outline-variant)] sm:grid-cols-2 lg:grid-cols-4">
           {agentConfigs.map((agent) => (
