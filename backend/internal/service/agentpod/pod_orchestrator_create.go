@@ -33,8 +33,11 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	} else if req.AgentSlug == "" {
 		return nil, ErrMissingAgentSlug
 	}
-
-	// Resolve agent definition once — reused for AgentFile merge and mode validation.
+	if !isResumeMode && req.RunnerID != 0 {
+		if err := o.resolveRunnerForFreshCreate(ctx, req); err != nil {
+			return nil, err
+		}
+	}
 	var agentDef *agentDomain.Agent
 	if req.AgentSlug != "" && o.agentResolver != nil {
 		var err error
@@ -47,16 +50,16 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		if err := o.preResolveFreshRepository(ctx, req, agentDef); err != nil {
 			return nil, err
 		}
-		if err := o.resolveRunnerForFreshCreate(ctx, req); err != nil {
-			return nil, err
+		if req.RunnerID == 0 {
+			if err := o.resolveRunnerForFreshCreate(ctx, req); err != nil {
+				return nil, err
+			}
 		}
 		sessionID = uuid.New().String()
 	}
 
 	AppendPrimaryCredentialBundle(ctx, o.primaryCredential, req.UserID, req.OrganizationID, req.AgentSlug, &req.AgentfileLayer)
 
-	// Worker model binding (quota/billing): inject the selected virtual key /
-	// model-pool credentials before the AgentFile layer is parsed below.
 	if err := o.applyWorkerModel(ctx, req, agentDef); err != nil {
 		return nil, err
 	}
@@ -96,7 +99,6 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	}
 	systemOverrides := newSystemOverrides(sessionID, isResumeMode, resumeAgentSession, externalID)
 
-	// AgentFile SSOT: resolve CONFIG values from base AgentFile + optional user Layer.
 	if agentDef != nil && agentDef.AgentfileSource != nil {
 		var userPrefs map[string]interface{}
 		if o.userConfigQuery != nil {
@@ -146,7 +148,6 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	effectiveBranch := firstNonEmptyPtr(resolved.BranchName, req.BranchName) // req.BranchName only from resume
 	effectiveRepoID := firstNonNilInt64(resolved.RepositoryID, req.RepositoryID)
 
-	// Validate interaction mode against agent capabilities
 	if agentDef != nil && !agentDef.SupportsMode(effectiveInteractionMode) {
 		return nil, ErrUnsupportedInteractionMode
 	}
@@ -154,7 +155,6 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		return nil, err
 	}
 
-	// Quota check
 	if o.billingService != nil {
 		if err := o.billingService.CheckQuota(ctx, req.OrganizationID, "concurrent_pods", 1); err != nil {
 			slog.WarnContext(ctx, "pod quota check failed", "org_id", req.OrganizationID, "error", err)

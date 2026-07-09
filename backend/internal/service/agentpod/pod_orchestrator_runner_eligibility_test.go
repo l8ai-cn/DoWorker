@@ -74,6 +74,34 @@ func TestCreatePod_ExplicitRunner_ResolverRejectsBeforePersistenceOrDispatch(t *
 	assert.False(t, coord.createPodCalled)
 }
 
+func TestCreatePod_ExplicitRunner_RejectsBeforeAgentOrRepositoryResolution(t *testing.T) {
+	coord := &mockPodCoordinator{}
+	selector := &mockRunnerSelector{resolveErr: errors.New("runner not eligible")}
+	agentResolver := &mockAgentResolver{err: errors.New("agent resolution must not be called")}
+	repoSvc := &mockRepoService{}
+	orch, _, db := setupOrchestrator(t,
+		withCoordinator(coord),
+		withRunnerSelector(selector),
+		withAgentResolver(agentResolver),
+		withRepoSvc(repoSvc),
+	)
+
+	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+		OrganizationID: 17,
+		UserID:         23,
+		RunnerID:       5,
+		AgentSlug:      "claude-code",
+		RepositoryID:   intPtr(61),
+	})
+
+	assert.ErrorIs(t, err, ErrNoAvailableRunner)
+	assert.Nil(t, result)
+	assert.Zero(t, agentResolver.calls)
+	assert.Empty(t, repoSvc.getAccessibleCalls)
+	assert.Empty(t, repoSvc.findAccessibleCalls)
+	assertNoPodOrDispatch(t, db, coord)
+}
+
 func TestCreatePod_ExplicitRunner_MissingResolverRejectsBeforePersistenceOrDispatch(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, db := setupOrchestrator(t,

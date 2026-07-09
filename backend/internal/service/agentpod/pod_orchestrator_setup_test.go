@@ -186,9 +186,11 @@ func (m *mockRunnerSelector) ResolveRunnerForCreate(
 type mockAgentResolver struct {
 	agentDef *agentDomain.Agent
 	err      error
+	calls    int
 }
 
 func (m *mockAgentResolver) GetAgent(_ context.Context, _ string) (*agentDomain.Agent, error) {
+	m.calls++
 	return m.agentDef, m.err
 }
 
