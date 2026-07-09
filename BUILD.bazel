@@ -7,7 +7,6 @@
 ###############################################################################
 
 load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
-load("@aspect_rules_js//npm:defs.bzl", "npm_link_package")
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
 load("@gazelle//:def.bzl", "gazelle")
 load("@npm//:defs.bzl", "npm_link_all_packages")
@@ -22,42 +21,11 @@ load("@npm//:defs.bzl", "npm_link_all_packages")
 # `//clients/web:node_modules/react` resolve back to the shared
 # `.aspect_rules_js/node_modules/react@X.Y.Z` store. Without a root
 # package.json + this target, every workspace TS BUILD fails analysis.
+#
+# First-party `@do-worker/*` / `do-worker-wasm` come from pnpm workspace
+# importers and are remapped to Bazel `npm_package` targets via
+# `replace_packages` in MODULE.bazel (no separate npm_link_package).
 npm_link_all_packages(name = "node_modules")
-
-# First-party `@do-worker/*` / `do-worker-wasm` — also pnpm workspace
-# members. Bazel `internal_npm_package` + `npm_link_package` keep the
-# hermetic CI path; pnpm `workspace:*` covers plain Next / vitest.
-npm_link_package(
-    name = "node_modules/@do-worker/service-interface",
-    src = "//packages/service-interface:pkg",
-    root_package = "",
-)
-
-npm_link_package(
-    name = "node_modules/@do-worker/service-runtime",
-    src = "//packages/service-runtime:pkg",
-    root_package = "",
-)
-
-npm_link_package(
-    name = "node_modules/do-worker-wasm",
-    src = "//clients/core/crates/wasm:wasm_pkg_npm",
-    root_package = "",
-)
-
-# `@do-worker/proto` — generated TS Connect-RPC proto modules. The
-# proto package lives under `//proto:pkg` (`npm_package` over the
-# `gen/ts/**/*.ts` mirror). Mounting at `node_modules/@do-worker/proto`
-# lets tsc resolve imports through the normal node-module walk, which
-# is required for `:src` typecheck to keep the .ts files inside the
-# rootDir constraint aspect_rules_ts enforces. The legacy `@proto/*`
-# tsconfig path alias (clients/web/tsconfig.json) is kept as a
-# transitional re-export — see clients/web/tsconfig.json.
-npm_link_package(
-    name = "node_modules/@do-worker/proto",
-    src = "//proto:pkg",
-    root_package = "",
-)
 
 # Copy root package.json into bazel-out so sub-packages (clients/web,
 # clients/web-admin) can reference it from their data deps. aspect_rules_js
