@@ -73,11 +73,7 @@ func TestSmartAggregator_NilQueueUsageFn(t *testing.T) {
 
 	agg.Write([]byte("test"))
 
-	time.Sleep(100 * time.Millisecond)
-
-	if len(relay.getData()) == 0 {
-		t.Fatal("Expected data to be flushed")
-	}
+	waitForRelayData(t, relay, 1, 2*time.Second)
 
 	agg.Stop()
 }

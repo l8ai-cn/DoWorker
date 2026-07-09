@@ -184,10 +184,7 @@ func TestSmartAggregator_FlushWithIncompleteFrame(t *testing.T) {
 	agg.Write([]byte(complete))
 	agg.Write([]byte(incomplete))
 
-	// Wait for timer flush
-	time.Sleep(50 * time.Millisecond)
-
-	data := relay.getData()
+	data := waitForRelayData(t, relay, 1, 2*time.Second)
 
 	// Should flush complete frame
 	if !bytes.Contains(data, []byte("complete")) {
