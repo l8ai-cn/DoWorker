@@ -2,8 +2,8 @@ import { useTranslations } from 'next-intl'
 
 type CapabilityId = 'organize' | 'observe' | 'control' | 'operate'
 type PrimitiveByCapability = {
-  organize: 'roles' | 'tasks' | 'context'
-  observe: 'activity' | 'evidence' | 'status'
+  organize: 'roles' | 'tasks' | 'ownership' | 'context'
+  observe: 'activity' | 'evidence' | 'status' | 'deliverables'
   control: 'permissions' | 'checkpoints' | 'credentials' | 'audit'
   operate: 'execution' | 'schedules' | 'workflows'
 }
@@ -18,8 +18,8 @@ type Translate = (key: CapabilityKey) => string
 const capabilityPrimitives: {
   [Id in CapabilityId]: readonly PrimitiveByCapability[Id][]
 } = {
-  organize: ['roles', 'tasks', 'context'],
-  observe: ['activity', 'evidence', 'status'],
+  organize: ['roles', 'tasks', 'ownership', 'context'],
+  observe: ['activity', 'evidence', 'status', 'deliverables'],
   control: ['permissions', 'checkpoints', 'credentials', 'audit'],
   operate: ['execution', 'schedules', 'workflows'],
 }

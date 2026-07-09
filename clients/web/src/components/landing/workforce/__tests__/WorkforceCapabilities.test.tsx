@@ -8,11 +8,13 @@ const labels = vi.hoisted(() => ({
   'landing.workforce.capabilities.items.organize.title': 'Organize',
   'landing.workforce.capabilities.items.organize.primitives.roles': 'Specialized roles',
   'landing.workforce.capabilities.items.organize.primitives.tasks': 'Owned tasks',
+  'landing.workforce.capabilities.items.organize.primitives.ownership': 'Clear ownership',
   'landing.workforce.capabilities.items.organize.primitives.context': 'Shared context',
   'landing.workforce.capabilities.items.observe.title': 'Observe',
   'landing.workforce.capabilities.items.observe.primitives.activity': 'Live activity',
   'landing.workforce.capabilities.items.observe.primitives.evidence': 'Evidence',
   'landing.workforce.capabilities.items.observe.primitives.status': 'Delivery status',
+  'landing.workforce.capabilities.items.observe.primitives.deliverables': 'Deliverables',
   'landing.workforce.capabilities.items.control.title': 'Control',
   'landing.workforce.capabilities.items.control.primitives.permissions': 'Permissions',
   'landing.workforce.capabilities.items.control.primitives.checkpoints': 'Checkpoints',
@@ -42,12 +44,14 @@ describe('WorkforceCapabilities', () => {
     const organize = screen.getByRole('article', { name: 'Organize' })
     expect(within(organize).getByText('Specialized roles')).toBeVisible()
     expect(within(organize).getByText('Owned tasks')).toBeVisible()
+    expect(within(organize).getByText('Clear ownership')).toBeVisible()
     expect(within(organize).getByText('Shared context')).toBeVisible()
 
     const observe = screen.getByRole('article', { name: 'Observe' })
     expect(within(observe).getByText('Live activity')).toBeVisible()
     expect(within(observe).getByText('Evidence')).toBeVisible()
     expect(within(observe).getByText('Delivery status')).toBeVisible()
+    expect(within(observe).getByText('Deliverables')).toBeVisible()
 
     const control = screen.getByRole('article', { name: 'Control' })
     expect(within(control).getByText('Permissions')).toBeVisible()
