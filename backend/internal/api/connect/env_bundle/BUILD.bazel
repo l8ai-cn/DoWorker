@@ -11,7 +11,6 @@ go_library(
     name = "env_bundle",
     srcs = [
         "crud.go",
-        "env_bundle_convert.amesh.go",
         "env_bundle_convert_custom.go",
         "server.go",
         ":env_bundle_convert_amesh",  # keep

@@ -14,7 +14,6 @@ go_library(
         "profile.go",
         "search.go",
         "server.go",
-        "user_convert.amesh.go",
         "user_convert_custom.go",
         ":user_convert_amesh",  # keep
     ],

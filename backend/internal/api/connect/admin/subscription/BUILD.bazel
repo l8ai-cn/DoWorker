@@ -12,7 +12,6 @@ go_library(
     name = "subscription",
     srcs = [
         "audit.go",
-        "billing_admin_convert.amesh.go",
         "billing_admin_convert_custom.go",
         "handlers_mutations.go",
         "handlers_query.go",
