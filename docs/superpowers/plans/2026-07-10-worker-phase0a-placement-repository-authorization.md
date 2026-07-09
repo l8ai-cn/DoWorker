@@ -117,7 +117,7 @@ git commit -m "fix(worker): validate explicit runner placement"
 - Modify: `backend/internal/service/repository/service.go`
 - Modify: `backend/internal/service/repository/service_crud_test.go`
 
-- [ ] **Step 1: Write failing access tests**
+- [x] **Step 1: Write failing access tests**
 
 Add `TestGetAccessibleByID` and `TestFindAccessibleByOrgSlug`. Cover organization-visible in the same org, private imported by caller, private imported by another user, and organization-visible in another org.
 
@@ -130,13 +130,13 @@ _, err = service.GetAccessibleByID(ctx, repo.ID, otherOrgID, importerID)
 assert.ErrorIs(t, err, ErrNoPermission)
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `bazel test //backend/internal/service/repository:repository_test --test_filter='Test(Get|Find)Accessible'`
 
 Expected: compile failure because scoped resolvers do not exist.
 
-- [ ] **Step 3: Implement shared access validation**
+- [x] **Step 3: Implement shared access validation**
 
 Add both methods to `RepositoryServiceInterface`:
 
@@ -147,13 +147,13 @@ FindAccessibleByOrgSlug(ctx context.Context, orgID, userID int64, slug string) (
 
 Both require `repo.OrganizationID == orgID`. A private repository additionally requires `ImportedByUserID != nil && *ImportedByUserID == userID`. Return `ErrNoPermission` for nonexistent or inaccessible resources at this boundary.
 
-- [ ] **Step 4: Verify GREEN**
+- [x] **Step 4: Verify GREEN**
 
 Run: `bazel test //backend/internal/service/repository:repository_test --test_filter='Test(Get|Find)Accessible'`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/internal/service/repository
