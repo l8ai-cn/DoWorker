@@ -528,17 +528,6 @@ npm.npm_translate_lock(
         "postcss@8.5.10": [""],
         "styled-jsx": [""],
     },
-    # First-party packages are both pnpm workspace members (plain Next)
-    # and Bazel `npm_package` targets (CI/OCI). `replace_packages` makes
-    # `npm_link_all_packages` mount the Bazel artifacts instead of the
-    # source-tree package.json links — avoiding duplicate
-    # `npm_link_package` rules at //:BUILD.
-    replace_packages = {
-        "@do-worker/proto": "//proto:pkg",
-        "@do-worker/service-interface": "//packages/service-interface:pkg",
-        "@do-worker/service-runtime": "//packages/service-runtime:pkg",
-        "do-worker-wasm": "//clients/core/crates/wasm:wasm_pkg_npm",
-    },
     verify_node_modules_ignored = "//:.bazelignore",
 )
 use_repo(npm, "npm")
