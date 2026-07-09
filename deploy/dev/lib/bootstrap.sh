@@ -87,11 +87,17 @@ init_seed() {
         info "Seed 数据已存在，跳过基础 seed"
     else
         info "初始化 seed 数据..."
-        docker exec -i "$pg_container" psql -U agentsmesh -d agentsmesh < "$SEED_FILE" &>/dev/null
+        if ! docker exec -i "$pg_container" psql -v ON_ERROR_STOP=1 -U agentsmesh -d agentsmesh < "$SEED_FILE"; then
+            error "基础 seed 失败（常见原因：seed.sql 引用了已删除的表）"
+            return 1
+        fi
 
         if [[ -f "$LEMONSQUEEZY_SEED_FILE" ]]; then
             info "配置 LemonSqueezy Variant IDs..."
-            docker exec -i "$pg_container" psql -U agentsmesh -d agentsmesh < "$LEMONSQUEEZY_SEED_FILE" &>/dev/null
+            if ! docker exec -i "$pg_container" psql -v ON_ERROR_STOP=1 -U agentsmesh -d agentsmesh < "$LEMONSQUEEZY_SEED_FILE"; then
+                error "LemonSqueezy seed 失败"
+                return 1
+            fi
         fi
         success "基础 seed 数据初始化完成"
     fi
