@@ -331,6 +331,14 @@ jobs:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
+      # web image layers + Next.js node_modules can exhaust the ~14 GiB
+      # ubuntu-latest rootfs when disk-cache restore leaves large leftovers.
+      - name: Free disk for OCI layer packing
+        if: matrix.service == 'web' || matrix.service == 'web-admin'
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
+          df -h /
       # Replaces the legacy ci/<service>.Dockerfile verify. The rules_oci
       # target produces the same distroless-based image release.yml pushes
       # to Docker Hub + registry.agentsmesh.ai on main.
@@ -342,7 +350,10 @@ jobs:
     # web-e2e pair is offline / unregistered. Set repository variable
     # WEB_E2E_RUNNER=self-hosted to pin shards onto ["self-hosted","web-e2e"].
     runs-on: ${{ vars.WEB_E2E_RUNNER == 'self-hosted' && fromJSON('["self-hosted", "web-e2e"]') || 'ubuntu-latest' }}
-    timeout-minutes: 45
+    # Hosted cold start: next_dev (Rust wasm + Next) can take ~15-20 min before
+    # listen; the Playwright shard itself needs another ~20-30 min. 45 min was
+    # cancelling mid-suite on ubuntu-latest.
+    timeout-minutes: 75
     needs: smoke
     strategy:
       fail-fast: false
