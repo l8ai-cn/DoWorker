@@ -15,7 +15,7 @@ import { useWorkspaceStore } from "@/stores/workspace";
 import { readCurrentOrg } from "@/stores/auth";
 import { getPod } from "@/lib/api/facade/podConnect";
 
-let refreshListeners = new Set<() => void>();
+const refreshListeners = new Set<() => void>();
 
 /** Notify all mounted ImportedSessionsSection instances to reload. */
 export function refreshImportedSessionsList(): void {
