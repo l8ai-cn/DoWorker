@@ -338,13 +338,10 @@ jobs:
 
   web-e2e:
     name: E2E (Web — Playwright shard ${{ matrix.shard }}/${{ strategy.job-total }})
-    # Default route: self-hosted on server-8t (web-e2e-1, web-e2e-2 — 8 vCPU /
-    # 12 GiB / 300 GB each, GH Actions runner v2.334.0 systemd-managed). Set
-    # repository variable WEB_E2E_RUNNER=hosted to fall back to ubuntu-latest
-    # if the self-hosted pair is offline / under maintenance — sharding still
-    # applies (two shards run on two GH-hosted runners in parallel).
-    # Per-call override: workflow_dispatch input "runner_override".
-    runs-on: ${{ vars.WEB_E2E_RUNNER == 'hosted' && 'ubuntu-latest' || fromJSON('["self-hosted", "web-e2e"]') }}
+    # Default to ubuntu-latest so PRs are not blocked when the self-hosted
+    # web-e2e pair is offline / unregistered. Set repository variable
+    # WEB_E2E_RUNNER=self-hosted to pin shards onto ["self-hosted","web-e2e"].
+    runs-on: ${{ vars.WEB_E2E_RUNNER == 'self-hosted' && fromJSON('["self-hosted", "web-e2e"]') || 'ubuntu-latest' }}
     timeout-minutes: 45
     needs: smoke
     strategy:
