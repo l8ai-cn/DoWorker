@@ -69,33 +69,32 @@ func TestExtractTarGz_CorruptTarEntry(t *testing.T) {
 }
 
 func TestExtractTarGz_TotalSizeExceedsLimit(t *testing.T) {
+	// One oversized entry: limit is checked from header.Size before any
+	// extract write. Zeros gzip tiny, so this stays CI-disk-safe (unlike
+	// writing ~200MB of real files under /tmp).
 	var buf bytes.Buffer
 	gw := gzip.NewWriter(&buf)
 	tw := tar.NewWriter(gw)
 
-	fileSize := int64(10 * 1024 * 1024) // 10MB per file
-	numFiles := 21
-	zeroChunk := make([]byte, 1024*1024) // 1MB chunk
-
-	for i := 0; i < numFiles; i++ {
-		hdr := &tar.Header{
-			Name: "large_" + string(rune('a'+i)) + ".bin", Mode: 0644,
-			Size: fileSize, Typeflag: tar.TypeReg,
+	fileSize := int64(maxTotalExtractSize + 1024)
+	zeroChunk := make([]byte, 1024*1024)
+	hdr := &tar.Header{
+		Name: "oversized.bin", Mode: 0644,
+		Size: fileSize, Typeflag: tar.TypeReg,
+	}
+	if err := tw.WriteHeader(hdr); err != nil {
+		t.Fatalf("failed to write tar header: %v", err)
+	}
+	remaining := fileSize
+	for remaining > 0 {
+		toWrite := int64(len(zeroChunk))
+		if toWrite > remaining {
+			toWrite = remaining
 		}
-		if err := tw.WriteHeader(hdr); err != nil {
-			t.Fatalf("failed to write tar header %d: %v", i, err)
+		if _, err := tw.Write(zeroChunk[:toWrite]); err != nil {
+			t.Fatalf("failed to write tar content: %v", err)
 		}
-		remaining := fileSize
-		for remaining > 0 {
-			toWrite := int64(len(zeroChunk))
-			if toWrite > remaining {
-				toWrite = remaining
-			}
-			if _, err := tw.Write(zeroChunk[:toWrite]); err != nil {
-				t.Fatalf("failed to write tar content for file %d: %v", i, err)
-			}
-			remaining -= toWrite
-		}
+		remaining -= toWrite
 	}
 	tw.Close()
 	gw.Close()
