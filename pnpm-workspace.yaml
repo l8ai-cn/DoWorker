@@ -1,34 +1,11 @@
 # pnpm workspace — root deps + first-party @do-worker/* / do-worker-wasm.
 #
-# `packages: ["."]` is required: pnpm treats any pnpm-workspace.yaml as a
-# workspace file and errors with "packages field missing or empty" when
-# the field is absent (CI `pnpm install` for Hive/Playwright).
+# `packages` is required: pnpm errors with "packages field missing or empty"
+# when the field is absent (CI `pnpm install` for Hive/Playwright).
+#
+# Overrides / build-policy live in package.json#pnpm so pnpm 9 (CI) and
+# pnpm 10 (local) share one config surface.
 packages:
   - "."
   - "packages/*"
   - "proto"
-overrides:
-  # Next.js 16 pulls in @playwright/test@1.59.1 as a peer dep, which
-  # conflicts with the Bazel `rules_playwright` compatible version
-  # (rules_playwright 0.5.3 targets Playwright 1.50 — 1.59 triggers
-  # module-identity check failures under aspect_rules_js's sandbox).
-  # Force one version across the whole tree.
-  "@playwright/test": "1.50.1"
-  playwright: "1.50.1"
-  playwright-core: "1.50.1"
-  eslint-plugin-react-hooks: "7.0.1"
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
-onlyBuiltDependencies:
-  - esbuild
-  - "@parcel/watcher"
-allowBuilds:
-  '@bufbuild/buf': true
-  '@parcel/watcher': true
-  '@swc/core': true
-  core-js: false
-  esbuild: true
-  protobufjs: false
-  sharp: false
-  unrs-resolver: false
