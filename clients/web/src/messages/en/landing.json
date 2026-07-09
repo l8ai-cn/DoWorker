@@ -68,7 +68,7 @@
     "whyTerminal": {
       "title": "Why",
       "titleHighlight": "Terminal-based",
-      "titleEnd": "Agent?",
+      "titleEnd": " Agent?",
       "description": "Unlike IDE plugins like Cursor or Copilot, terminal-based agents offer autonomous execution and complete development capabilities.",
       "benefits": {
         "autonomous": {

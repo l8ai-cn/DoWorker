@@ -64,7 +64,7 @@
     "whyTerminal": {
       "title": "왜",
       "titleHighlight": "터미널 기반",
-      "titleEnd": "에이전트인가?",
+      "titleEnd": " 에이전트인가?",
       "description": "Cursor나 Copilot 같은 IDE 플러그인과 달리, 터미널 기반 에이전트는 자율 실행과 완전한 개발 기능을 제공합니다.",
       "benefits": {
         "autonomous": {
