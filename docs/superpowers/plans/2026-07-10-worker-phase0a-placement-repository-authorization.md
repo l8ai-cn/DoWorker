@@ -16,7 +16,7 @@
 - Modify: `backend/internal/service/runner/query_eligible.go`
 - Modify: `backend/internal/service/runner/query_visibility_test.go`
 
-- [ ] **Step 1: Write the failing service test**
+- [x] **Step 1: Write the failing service test**
 
 Add `TestResolveRunnerForCreate` with table cases for eligible, other organization, invisible private, disabled, unsupported Agent, at capacity, offline, and queued offline. Construct each Runner in `activeRunners` and the test DB. Assert only `allowUnavailable=true` relaxes online, heartbeat, and capacity.
 
@@ -29,13 +29,13 @@ _, err = service.ResolveRunnerForCreate(ctx, otherOrg.ID, 1, userID, "codex-cli"
 assert.ErrorIs(t, err, ErrNoRunnerForAgent)
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `bazel test //backend/internal/service/runner:runner_test --test_filter=TestResolveRunnerForCreate`
 
 Expected: compile failure because `ResolveRunnerForCreate` does not exist.
 
-- [ ] **Step 3: Implement the exact-ID resolver**
+- [x] **Step 3: Implement the exact-ID resolver**
 
 Add this public method and keep detailed conditions private:
 
@@ -50,13 +50,13 @@ func (s *Service) ResolveRunnerForCreate(
 
 Use `s.repo.ListByOrg(ctx, orgID, userID)` to establish org/private/grant visibility. Always require `IsEnabled` and `SupportsAgent(agentSlug)`. With `allowUnavailable=false`, require the exact ID to appear in `collectEligibleRunners`; with `true`, allow offline/stale/full but no other relaxation. Return `ErrNoRunnerForAgent` for all rejected IDs.
 
-- [ ] **Step 4: Verify GREEN**
+- [x] **Step 4: Verify GREEN**
 
 Run: `bazel test //backend/internal/service/runner:runner_test --test_filter=TestResolveRunnerForCreate`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/internal/service/runner/query_eligible.go backend/internal/service/runner/query_visibility_test.go

@@ -40,7 +40,7 @@ All conditions must hold:
 
 | Phase | Deliverable | Status |
 | --- | --- | --- |
-| 0 | Authorization and current-flow correctness | Planning |
+| 0 | Authorization and current-flow correctness | In progress (Runner resolver complete) |
 | 1 | WorkerSpec V1 contract and immutable snapshot | Pending |
 | 2 | Runtime image, compute target, deployment, resource profile | Pending |
 | 3 | Canonical four-step web create workflow | Pending |
@@ -65,3 +65,4 @@ The main worktree has uncommitted lifecycle, Proto, Runner ACP, and frontend cha
 
 - 2026-07-10: Goal created, isolated worktree created, design approved and persisted.
 - 2026-07-10: Environment initialization attempted; deterministic external mirror blocker recorded.
+- 2026-07-10: Explicit Runner resolution completed with TDD, full Runner regression, spec review, and quality review.
