@@ -95,6 +95,14 @@ func testAccessibleRepositoryResolver(t *testing.T, resolve accessibleRepository
 			persist:         true,
 		},
 		{
+			name:             "private repository imported by caller in another organization",
+			repositoryOrgID:  8,
+			lookupOrgID:      7,
+			visibility:       "private",
+			importedByUserID: &ownerID,
+			persist:          true,
+		},
+		{
 			name:            "nonexistent repository",
 			repositoryOrgID: 7,
 			lookupOrgID:     7,
@@ -125,6 +133,7 @@ func testAccessibleRepositoryResolver(t *testing.T, resolve accessibleRepository
 			got, err := resolve(context.Background(), service, repo, tt.lookupOrgID, ownerID)
 			if tt.wantPermission {
 				require.NoError(t, err)
+				require.NotNil(t, got)
 				require.Equal(t, repo.ID, got.ID)
 				return
 			}
@@ -133,4 +142,20 @@ func testAccessibleRepositoryResolver(t *testing.T, resolve accessibleRepository
 			require.Nil(t, got)
 		})
 	}
+
+	t.Run("database error is propagated", func(t *testing.T) {
+		service, db := setupTestService(t)
+		sqlDB, err := db.DB()
+		require.NoError(t, err)
+		require.NoError(t, sqlDB.Close())
+
+		got, err := resolve(context.Background(), service, &gitprovider.Repository{
+			ID:   1,
+			Slug: "access/test",
+		}, 7, ownerID)
+		require.Error(t, err)
+		require.NotErrorIs(t, err, ErrNoPermission)
+		require.Contains(t, err.Error(), "database is closed")
+		require.Nil(t, got)
+	})
 }
