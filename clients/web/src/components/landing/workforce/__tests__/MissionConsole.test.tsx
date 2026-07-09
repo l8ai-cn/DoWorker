@@ -1,5 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { useState } from 'react'
+import { hydrateRoot } from 'react-dom/client'
+import { renderToString } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MissionConsole } from '../MissionConsole'
 import { workforceScenarios, type WorkforceScenario } from '../workforce-scenarios'
@@ -55,12 +57,20 @@ function ControlledConsole({ onScenarioChange = vi.fn() }: { onScenarioChange?: 
 }
 
 function installMatchMedia(reducedMotion = false) {
-  const addEventListener = vi.fn()
-  const removeEventListener = vi.fn()
+  let matches = reducedMotion
+  const listeners = new Set<(event: MediaQueryListEvent) => void>()
+  const addEventListener = vi.fn((_type: string, listener: (event: MediaQueryListEvent) => void) => {
+    listeners.add(listener)
+  })
+  const removeEventListener = vi.fn((_type: string, listener: (event: MediaQueryListEvent) => void) => {
+    listeners.delete(listener)
+  })
   Object.defineProperty(window, 'matchMedia', {
     configurable: true,
     value: vi.fn(() => ({
-      matches: reducedMotion,
+      get matches() {
+        return matches
+      },
       media: '(prefers-reduced-motion: reduce)',
       onchange: null,
       addEventListener,
@@ -68,7 +78,14 @@ function installMatchMedia(reducedMotion = false) {
       dispatchEvent: vi.fn(),
     })),
   })
-  return { addEventListener, removeEventListener }
+  return {
+    addEventListener,
+    removeEventListener,
+    setMatches(next: boolean) {
+      matches = next
+      listeners.forEach((listener) => listener({ matches: next } as MediaQueryListEvent))
+    },
+  }
 }
 
 describe('MissionConsole', () => {
@@ -145,5 +162,44 @@ describe('MissionConsole', () => {
 
     unmount()
     expect(listeners.removeEventListener).toHaveBeenCalledWith('change', expect.any(Function))
+  })
+
+  it('hydrates with the same playback label before detecting reduced motion', async () => {
+    const browserWindow = window
+    Reflect.deleteProperty(globalThis, 'window')
+    const serverMarkup = renderToString(<ControlledConsole />)
+    Object.defineProperty(globalThis, 'window', { configurable: true, value: browserWindow })
+    installMatchMedia(true)
+    const container = document.createElement('div')
+    container.innerHTML = serverMarkup
+    document.body.appendChild(container)
+    const recoverableErrors: unknown[] = []
+
+    let root: ReturnType<typeof hydrateRoot>
+    await act(async () => {
+      root = hydrateRoot(container, <ControlledConsole />, {
+        onRecoverableError: (error) => recoverableErrors.push(error),
+      })
+    })
+
+    const hasReducedMotionLabel = container.querySelector('[aria-label="Resume mission"]') !== null
+    act(() => root.unmount())
+    container.remove()
+    expect(recoverableErrors).toHaveLength(0)
+    expect(hasReducedMotionLabel).toBe(true)
+  })
+
+  it('replay remains paused after reduced motion becomes active', () => {
+    vi.useFakeTimers()
+    const media = installMatchMedia()
+    render(<ControlledConsole />)
+    act(() => vi.advanceTimersByTime(1800))
+    expect(screen.getByText('Gather evidence')).toHaveAttribute('aria-current', 'step')
+    act(() => media.setMatches(true))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Replay mission' }))
+
+    expect(screen.getByText('Scope the question')).toHaveAttribute('aria-current', 'step')
+    expect(screen.getByRole('button', { name: 'Resume mission' })).toBeInTheDocument()
   })
 })
