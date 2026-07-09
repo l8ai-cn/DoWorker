@@ -465,6 +465,28 @@ jobs:
           done
           echo "backend never reported healthy"; exit 1
 
+      - name: Wait for e2e-echo runners online
+        run: |
+          source deploy/dev/.env
+          for i in {1..60}; do
+            online=$(docker exec "${COMPOSE_PROJECT_NAME}-postgres-1" \
+              psql -U agentsmesh -d agentsmesh -Atc \
+              "SELECT count(*) FROM runners
+               WHERE node_id IN ('dev-runner','dev-runner-2')
+                 AND status='online'
+                 AND last_heartbeat > now()-interval '60 seconds'" 2>/dev/null || echo 0)
+            if [[ "${online}" -ge 1 ]]; then
+              echo "e2e-echo runner(s) online: ${online}"; exit 0
+            fi
+            sleep 3
+          done
+          echo "no e2e-echo runner online after wait"
+          docker compose -f deploy/dev/docker-compose.yml \
+            -f deploy/dev/docker-compose.runners.yml \
+            --project-name "${COMPOSE_PROJECT_NAME}" \
+            logs --tail=80 runner-e2e-echo runner-e2e-echo-2 || true
+          exit 1
+
       - name: Install Playwright chromium-headless-shell
         run: |
           # `playwright/cli.js` lives under bazel-bin's
@@ -547,8 +569,10 @@ jobs:
         if: failure()
         working-directory: deploy/dev
         run: |
-          docker compose logs --tail=200 backend  || true
-          docker compose logs --tail=200 runner   || true
+          source .env
+          docker compose logs --tail=200 || true
+          docker compose -f docker-compose.yml -f docker-compose.runners.yml \
+            logs --tail=200 runner-e2e-echo runner-e2e-echo-2 || true
 
   hive-e2e:
     name: E2E (Hive — compat API + browser)

@@ -76,6 +76,10 @@ COPY --chmod=0755 loopal-binary /usr/local/bin/loopal
 COPY --chmod=0755 do-agent-binary /usr/local/bin/do-agent
 COPY --chmod=0755 runner-entrypoint.sh /usr/local/bin/runner-entrypoint.sh
 
+# ARG from a prior stage is not inherited; without this redeclare
+# AGENT_RUNTIME is empty and the *) branch deletes e2e-mock-agent.
+ARG AGENT_RUNTIME=e2e-echo
+
 RUN case "${AGENT_RUNTIME}" in \
       e2e-echo) rm -f /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
       loopal) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/do-agent ;; \
