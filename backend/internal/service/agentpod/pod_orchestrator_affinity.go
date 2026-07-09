@@ -7,26 +7,11 @@ import (
 	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 )
 
-func (o *PodOrchestrator) buildAffinityHints(ctx context.Context, req *OrchestrateCreatePodRequest) *runnerDomain.AffinityHints {
+func (o *PodOrchestrator) buildAffinityHints(req *OrchestrateCreatePodRequest) *runnerDomain.AffinityHints {
 	hints := &runnerDomain.AffinityHints{}
-
-	repoSlug := ""
-	if req.AgentfileLayer != nil {
-		repoSlug = peekRepoSlug(*req.AgentfileLayer)
+	if req.preResolvedRepository != nil {
+		hints.RepositoryID = &req.preResolvedRepository.ID
 	}
-	if repoSlug == "" && o.agentResolver != nil {
-		if agentDef, err := o.agentResolver.GetAgent(ctx, req.AgentSlug); err == nil && agentDef != nil && agentDef.AgentfileSource != nil {
-			repoSlug = peekRepoSlug(*agentDef.AgentfileSource)
-		}
-	}
-
-	if repoSlug != "" && o.repoService != nil {
-		repo, err := o.repoService.FindAccessibleByOrgSlug(ctx, req.OrganizationID, req.UserID, repoSlug)
-		if err == nil && repo != nil {
-			hints.RepositoryID = &repo.ID
-		}
-	}
-
 	return hints
 }
 

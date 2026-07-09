@@ -146,13 +146,15 @@ type mockRunnerSelector struct {
 	runner        *runnerDomain.Runner
 	err           error
 	selectCalled  bool
+	selectHints   *runnerDomain.AffinityHints
 	resolveRunner *runnerDomain.Runner
 	resolveErr    error
 	resolveCall   *runnerResolveCall
 }
 
-func (m *mockRunnerSelector) SelectRunnerWithAffinity(_ context.Context, _ int64, _ int64, _ string, _ *runnerDomain.AffinityHints, _ map[int64]int) (*runnerDomain.Runner, error) {
+func (m *mockRunnerSelector) SelectRunnerWithAffinity(_ context.Context, _ int64, _ int64, _ string, hints *runnerDomain.AffinityHints, _ map[int64]int) (*runnerDomain.Runner, error) {
 	m.selectCalled = true
+	m.selectHints = hints
 	return m.runner, m.err
 }
 

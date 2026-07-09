@@ -14,8 +14,6 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent/automation"
 )
 
-// CreatePod orchestrates the full Pod creation flow:
-// resume handling -> validation -> quota -> DB record -> config build -> dispatch to Runner.
 func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreatePodRequest) (*OrchestrateCreatePodResult, error) {
 	createStart := time.Now()
 	defer func() {
@@ -35,6 +33,9 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	} else {
 		if req.AgentSlug == "" {
 			return nil, ErrMissingAgentSlug
+		}
+		if err := o.preResolveFreshRepository(ctx, req); err != nil {
+			return nil, err
 		}
 		if err := o.resolveRunnerForFreshCreate(ctx, req); err != nil {
 			return nil, err
@@ -86,7 +87,6 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		}
 	}
 
-	// --- AgentFile Layer resolution ---
 	resolved := &agentfileResolved{}
 
 	resumeAgentSession := req.ResumeAgentSession == nil || *req.ResumeAgentSession

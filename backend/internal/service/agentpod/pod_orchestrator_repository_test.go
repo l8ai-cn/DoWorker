@@ -11,6 +11,7 @@ import (
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
+	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
 )
 
@@ -95,6 +96,48 @@ func TestCreatePod_UsesScopedAgentFileRepositoryOnce(t *testing.T) {
 	assert.Equal(t, "develop", coord.lastCmd.SandboxConfig.SourceBranch)
 	assert.Equal(t, "pnpm install", coord.lastCmd.SandboxConfig.PreparationScript)
 	assert.Equal(t, int32(480), coord.lastCmd.SandboxConfig.PreparationTimeout)
+}
+
+func TestCreatePod_UsesAutoSelectedAgentFileRepositoryOnce(t *testing.T) {
+	prepScript := "pnpm install --frozen-lockfile"
+	prepTimeout := 540
+	repoSvc := &mockRepoService{repo: &gitprovider.Repository{
+		ID:                 45,
+		HttpCloneURL:       "https://example.com/org/auto-project.git",
+		SshCloneURL:        "git@example.com:org/auto-project.git",
+		DefaultBranch:      "release",
+		PreparationScript:  &prepScript,
+		PreparationTimeout: &prepTimeout,
+	}}
+	selector := &mockRunnerSelector{runner: &runnerDomain.Runner{ID: 23}}
+	coord := &mockPodCoordinator{}
+	orch, podSvc, _ := setupOrchestrator(t,
+		withRepoSvc(repoSvc),
+		withRunnerSelector(selector),
+		withCoordinator(coord),
+	)
+	req := repositoryCreateRequest(nil, ptrStr(`REPO "org/auto-project"`))
+	req.RunnerID = 0
+
+	result, err := orch.CreatePod(context.Background(), req)
+
+	require.NoError(t, err)
+	require.NotNil(t, selector.selectHints)
+	require.NotNil(t, selector.selectHints.RepositoryID)
+	assert.Equal(t, int64(45), *selector.selectHints.RepositoryID)
+	persisted, err := podSvc.GetPod(context.Background(), result.Pod.PodKey)
+	require.NoError(t, err)
+	require.NotNil(t, persisted.RepositoryID)
+	assert.Equal(t, int64(45), *persisted.RepositoryID)
+	require.NotNil(t, coord.lastCmd)
+	require.NotNil(t, coord.lastCmd.SandboxConfig)
+	assert.Equal(t, "https://example.com/org/auto-project.git", coord.lastCmd.SandboxConfig.HttpCloneUrl)
+	assert.Equal(t, "git@example.com:org/auto-project.git", coord.lastCmd.SandboxConfig.SshCloneUrl)
+	assert.Equal(t, "release", coord.lastCmd.SandboxConfig.SourceBranch)
+	assert.Equal(t, "pnpm install --frozen-lockfile", coord.lastCmd.SandboxConfig.PreparationScript)
+	assert.Equal(t, int32(540), coord.lastCmd.SandboxConfig.PreparationTimeout)
+	assert.Empty(t, repoSvc.getAccessibleCalls)
+	assert.Len(t, repoSvc.findAccessibleCalls, 1)
 }
 
 func TestCreatePod_RejectsRepositoryLookupInfrastructureErrorsUnchanged(t *testing.T) {

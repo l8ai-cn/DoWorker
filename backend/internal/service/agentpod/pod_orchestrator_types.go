@@ -4,6 +4,7 @@ import (
 	"time"
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 )
 
 // OrchestrateCreatePodRequest is the unified Pod creation request (protocol-agnostic).
@@ -61,6 +62,9 @@ type OrchestrateCreatePodRequest struct {
 	LocalPath          string
 	QueueIfUnavailable bool
 	QueueTTL           time.Duration
+
+	preResolvedRepository     *gitprovider.Repository
+	preResolvedRepositorySlug string
 }
 
 // KnowledgeMountRequest selects one knowledge base for the pod being created.

@@ -13,7 +13,7 @@ func (o *PodOrchestrator) resolveRunnerForFreshCreate(ctx context.Context, req *
 		return ErrMissingRunnerID
 	}
 
-	hints := o.buildAffinityHints(ctx, req)
+	hints := o.buildAffinityHints(req)
 	repoHistory := o.fetchRepoHistory(ctx, req.OrganizationID, hints)
 	selectedRunner, err := o.runnerSelector.SelectRunnerWithAffinity(
 		ctx, req.OrganizationID, req.UserID, req.AgentSlug, hints, repoHistory,
