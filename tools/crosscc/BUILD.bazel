@@ -19,10 +19,16 @@ cc_toolchain(
     toolchain_config = ":stub_config",
 )
 
-# Resolution-only: matches the linux/amd64 *target* so cross builds resolve a
-# CC toolchain, but is never invoked (Go built pure; no rust in image graph).
+# Resolution-only: matches the linux/amd64 *target* so macOS→linux cross
+# builds can resolve a CC toolchain. Never invoked (Go built pure; no rust
+# in the image action graph). exec_compatible_with keeps it off linux/amd64
+# CI runners — otherwise Bazel selects this stub over the system CC and
+# every C++/Rust compile dies on `/usr/bin/false`.
 toolchain(
     name = "stub_cc_linux_amd64",
+    exec_compatible_with = [
+        "@platforms//os:macos",
+    ],
     target_compatible_with = [
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",

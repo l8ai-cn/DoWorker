@@ -116,7 +116,7 @@ export function IDEShell({
       return;
     }
     setCreatePodModalOpen(true);
-  }, [currentOrg?.slug, router]);
+  }, [currentOrg?.slug, router, setCreatePodModalOpen]);
 
   const handlePodCreated = useCallback((pod?: { pod_key: string; title?: string }) => {
     setCreatePodModalOpen(false);
@@ -128,7 +128,7 @@ export function IDEShell({
       addPane(pod.pod_key);
       fetchPods();
     }
-  }, [addPane, fetchPods, t]);
+  }, [addPane, fetchPods, t, setCreatePodModalOpen]);
 
   const sidebarCallbacks: SidebarCallbacks = {
     onCreatePod: handleCreatePod,

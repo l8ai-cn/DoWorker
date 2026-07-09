@@ -37,7 +37,7 @@ export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod
       return;
     }
     onCreatePod?.();
-  }, [onCreatePod, router, s.currentOrg?.slug]);
+  }, [onCreatePod, router, s.currentOrg]);
 
   return (
     <div className={cn("flex flex-col h-full", className)}>

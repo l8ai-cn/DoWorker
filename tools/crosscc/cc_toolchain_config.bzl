@@ -1,4 +1,4 @@
-"""Resolution-only stub CC toolchain for linux/amd64 cross builds.
+"""Resolution-only stub CC toolchain for macOS→linux/amd64 cross builds.
 
 When cross-building OCI images from an arm64 macOS host to the amd64
 cluster nodes (`--platforms=@rules_go//go/toolchain:linux_amd64`), Bazel's
@@ -9,6 +9,9 @@ pure, no rust lands in the image action graph), so this toolchain only needs
 to *resolve* — its tool paths point at `/usr/bin/false` and are never invoked.
 Forcing `--@rules_go//go/config:pure` guarantees rules_go never tries to use
 it for cgo.
+
+The accompanying `toolchain()` is `exec_compatible_with = [macos]` so
+linux/amd64 CI runners never select this stub as their real CC toolchain.
 """
 
 load("@rules_cc//cc:cc_toolchain_config_lib.bzl", "tool_path")
