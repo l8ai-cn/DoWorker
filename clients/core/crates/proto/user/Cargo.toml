@@ -1,0 +1,11 @@
+[package]
+name = "user_proto"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+prost = { workspace = true }
+prost-types = { workspace = true }
+serde = { workspace = true }
+

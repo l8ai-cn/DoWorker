@@ -1,0 +1,11 @@
+[package]
+name = "mesh_state_proto"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+prost = { workspace = true }
+prost-types = { workspace = true }
+serde = { workspace = true }
+mesh_proto = { workspace = true }
