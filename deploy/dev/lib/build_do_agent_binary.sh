@@ -4,8 +4,7 @@
 # don't need a working openssl cross toolchain.
 
 build_do_agent_binary() {
-    if [[ -f "$SCRIPT_DIR/do-agent-binary" ]] \
-        && file -b "$SCRIPT_DIR/do-agent-binary" | grep -q 'ELF.*x86-64'; then
+    if [[ -x "$SCRIPT_DIR/do-agent-binary" ]]; then
         info "do-agent binary 已存在，跳过 Docker 编译"
         return 0
     fi
@@ -24,7 +23,7 @@ build_do_agent_binary() {
     fi
     if [[ ! -d "$doagent_dir" ]]; then
         # CI / fresh clones often lack the sibling doagent repo. Docker still
-        # COPY's do-agent-binary into every runner image, so emit a tiny ELF
+        # COPY's do-agent-binary into every runner image, so emit a /bin/sh
         # stub that exits 127 — enough for image build; do-agent pods won't run.
         if [[ "${CI:-}" == "true" || "${SKIP_DOAGENT_BUILD:-}" == "1" ]]; then
             info "doagent 源码未找到 — CI 写入 do-agent stub (设 DOAGENT_DIR 可启用真编译)"
@@ -61,27 +60,14 @@ build_do_agent_binary() {
     success "do-agent binary 已复制到 deploy/dev/do-agent-binary"
 }
 
-# Minimal linux/amd64 ELF that exits 127. Satisfies Dockerfile COPY without
-# needing the AgentForge/doagent source tree in CI.
+# Shell stub that exits 127. Satisfies Dockerfile COPY without needing
+# AgentForge/doagent source in CI. agent-runtime image has /bin/sh.
 _write_do_agent_stub() {
     local out="$1"
-    python3 - "$out" <<'PY'
-import pathlib, struct, sys
-out = pathlib.Path(sys.argv[1])
-# ELF64 LE ET_EXEC x86_64, one PT_LOAD + exit(127) stub at entry 0x400078
-ehdr = bytearray(64)
-ehdr[0:4] = b"\x7fELF"
-ehdr[4:8] = bytes([2, 1, 1, 0])
-struct.pack_into("<HHIQQQIHHHHHH", ehdr, 16,
-                 2, 0x3E, 1, 0x400078, 64, 0, 0, 64, 56, 1, 0, 0)
-phdr = struct.pack("<IIQQQQQQ", 1, 5, 0, 0x400000, 0x400000, 0x80, 0x80, 0x1000)
-code = bytes([
-    0x48, 0xc7, 0xc0, 0x3c, 0x00, 0x00, 0x00,  # mov rax, 60 (exit)
-    0x48, 0xc7, 0xc7, 0x7f, 0x00, 0x00, 0x00,  # mov rdi, 127
-    0x0f, 0x05,                                # syscall
-])
-blob = bytes(ehdr) + phdr + code
-out.write_bytes(blob.ljust(0x80, b"\x00"))
-out.chmod(0o755)
-PY
+    cat > "$out" <<'STUB'
+#!/bin/sh
+echo "do-agent stub: source not built in this environment" >&2
+exit 127
+STUB
+    chmod +x "$out"
 }
