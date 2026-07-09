@@ -10,6 +10,39 @@ import (
 	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 )
 
+func (s *Service) ResolveRunnerForCreate(
+	ctx context.Context,
+	runnerID, orgID, userID int64,
+	agentSlug string,
+	allowUnavailable bool,
+) (*runnerDomain.Runner, error) {
+	runners, err := s.repo.ListByOrg(ctx, orgID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var candidate *runnerDomain.Runner
+	for _, r := range runners {
+		if r.ID == runnerID {
+			candidate = r
+			break
+		}
+	}
+	if candidate == nil || !candidate.IsEnabled || !candidate.SupportsAgent(agentSlug) {
+		return nil, ErrNoRunnerForAgent
+	}
+	if allowUnavailable {
+		return candidate, nil
+	}
+
+	for _, active := range s.collectEligibleRunners(ctx, orgID, userID, agentSlug) {
+		if active.Runner.ID == runnerID {
+			return candidate, nil
+		}
+	}
+	return nil, ErrNoRunnerForAgent
+}
+
 func (s *Service) collectEligibleRunners(ctx context.Context, orgID, userID int64, agentSlug string) []*ActiveRunner {
 	grantedIDs := s.fetchGrantedRunnerIDs(ctx, orgID, userID)
 

@@ -255,6 +255,90 @@ func TestSelectAvailableRunnerVisibility(t *testing.T) {
 	})
 }
 
+func TestResolveRunnerForCreate(t *testing.T) {
+	ctx := context.Background()
+	const (
+		orgID     = int64(1)
+		userID    = int64(10)
+		agentSlug = "claude-code"
+	)
+	otherUserID := int64(20)
+
+	tests := []struct {
+		name             string
+		configure        func(*runner.Runner, *ActiveRunner)
+		allowUnavailable bool
+		wantErr          bool
+	}{
+		{name: "eligible"},
+		{name: "other organization", configure: func(r *runner.Runner, _ *ActiveRunner) {
+			r.OrganizationID = 2
+		}, allowUnavailable: true, wantErr: true},
+		{name: "private non-owner without grant", configure: func(r *runner.Runner, _ *ActiveRunner) {
+			r.Visibility = runner.VisibilityPrivate
+			r.RegisteredByUserID = &otherUserID
+		}, allowUnavailable: true, wantErr: true},
+		{name: "disabled", configure: func(r *runner.Runner, _ *ActiveRunner) {
+			r.IsEnabled = false
+		}, allowUnavailable: true, wantErr: true},
+		{name: "unsupported agent", configure: func(r *runner.Runner, _ *ActiveRunner) {
+			r.AvailableAgents = runner.StringSlice{"aider"}
+		}, allowUnavailable: true, wantErr: true},
+		{name: "at capacity", configure: func(r *runner.Runner, ar *ActiveRunner) {
+			r.CurrentPods = r.MaxConcurrentPods
+			ar.PodCount = r.MaxConcurrentPods
+		}, wantErr: true},
+		{name: "offline", configure: func(r *runner.Runner, _ *ActiveRunner) {
+			r.Status = runner.RunnerStatusOffline
+		}, wantErr: true},
+		{name: "stale", configure: func(_ *runner.Runner, ar *ActiveRunner) {
+			ar.LastPing = time.Now().Add(-2 * time.Minute)
+		}, wantErr: true},
+		{name: "allows unavailable offline runner", configure: func(r *runner.Runner, _ *ActiveRunner) {
+			r.Status = runner.RunnerStatusOffline
+		}, allowUnavailable: true},
+		{name: "allows unavailable full runner", configure: func(r *runner.Runner, ar *ActiveRunner) {
+			r.CurrentPods = r.MaxConcurrentPods
+			ar.PodCount = r.MaxConcurrentPods
+		}, allowUnavailable: true},
+		{name: "allows unavailable stale runner", configure: func(_ *runner.Runner, ar *ActiveRunner) {
+			ar.LastPing = time.Now().Add(-2 * time.Minute)
+		}, allowUnavailable: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db := setupTestDB(t)
+			service := newTestService(db)
+			r := &runner.Runner{
+				OrganizationID: orgID, NodeID: "runner-resolve", Status: runner.RunnerStatusOnline,
+				IsEnabled: true, MaxConcurrentPods: 2, AvailableAgents: runner.StringSlice{agentSlug},
+				Visibility: runner.VisibilityOrganization,
+			}
+			active := &ActiveRunner{Runner: r, LastPing: time.Now()}
+			if tt.configure != nil {
+				tt.configure(r, active)
+			}
+			disabled := !r.IsEnabled
+			require.NoError(t, db.Create(r).Error)
+			if disabled {
+				require.NoError(t, db.Model(r).UpdateColumn("is_enabled", false).Error)
+				r.IsEnabled = false
+			}
+			service.activeRunners.Store(r.ID, active)
+
+			resolved, err := service.ResolveRunnerForCreate(ctx, r.ID, orgID, userID, agentSlug, tt.allowUnavailable)
+			if tt.wantErr {
+				assert.ErrorIs(t, err, ErrNoRunnerForAgent)
+				assert.Nil(t, resolved)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, r.ID, resolved.ID)
+		})
+	}
+}
+
 func TestUpdateRunnerVisibility(t *testing.T) {
 	db := setupTestDB(t)
 	service := newTestService(db)
