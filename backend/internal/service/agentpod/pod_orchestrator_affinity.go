@@ -21,7 +21,7 @@ func (o *PodOrchestrator) buildAffinityHints(ctx context.Context, req *Orchestra
 	}
 
 	if repoSlug != "" && o.repoService != nil {
-		repo, err := o.repoService.FindByOrgSlug(ctx, req.OrganizationID, repoSlug)
+		repo, err := o.repoService.FindAccessibleByOrgSlug(ctx, req.OrganizationID, req.UserID, repoSlug)
 		if err == nil && repo != nil {
 			hints.RepositoryID = &repo.ID
 		}

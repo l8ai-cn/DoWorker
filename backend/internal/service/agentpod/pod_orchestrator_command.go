@@ -32,20 +32,17 @@ func (o *PodOrchestrator) buildPodCommand(
 	httpCloneURL, sshCloneURL := "", ""
 	sourceBranch, preparationScript := "", ""
 	preparationTimeout := 300
-	if effectiveRepoID != nil && o.repoService != nil {
-		repo, err := o.repoService.GetByID(ctx, *effectiveRepoID)
-		if err == nil && repo != nil {
-			httpCloneURL = repo.HttpCloneURL
-			sshCloneURL = repo.SshCloneURL
-			if repo.DefaultBranch != "" {
-				sourceBranch = repo.DefaultBranch
-			}
-			if repo.PreparationScript != nil {
-				preparationScript = *repo.PreparationScript
-			}
-			if repo.PreparationTimeout != nil {
-				preparationTimeout = *repo.PreparationTimeout
-			}
+	if repo := resolved.Repository; repo != nil {
+		httpCloneURL = repo.HttpCloneURL
+		sshCloneURL = repo.SshCloneURL
+		if repo.DefaultBranch != "" {
+			sourceBranch = repo.DefaultBranch
+		}
+		if repo.PreparationScript != nil {
+			preparationScript = *repo.PreparationScript
+		}
+		if repo.PreparationTimeout != nil {
+			preparationTimeout = *repo.PreparationTimeout
 		}
 	}
 	if effectiveBranch != nil && *effectiveBranch != "" {

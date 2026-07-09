@@ -10,6 +10,7 @@ import (
 
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 )
 
 func TestCreatePod_ResumeMode_AgentSlugMismatch_Rejected(t *testing.T) {
@@ -247,10 +248,11 @@ func TestCreatePod_ResumeMode_InheritRunnerID(t *testing.T) {
 
 func TestCreatePod_ResumeMode_InheritConfig(t *testing.T) {
 	coord := &mockPodCoordinator{}
-	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord))
+	repoID := int64(10)
+	repoSvc := &mockRepoService{repo: &gitprovider.Repository{ID: repoID}}
+	orch, podSvc, db := setupOrchestrator(t, withCoordinator(coord), withRepoSvc(repoSvc))
 
 	agentSlug := "claude-code"
-	repoID := int64(10)
 	ticketID := int64(20)
 	branch := "feature-branch"
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{

@@ -323,8 +323,9 @@ func TestGetUserGitCredential_Success_PAT(t *testing.T) {
 
 // ==================== Service Error Tests ====================
 
-func TestBuildPodCommand_RepoServiceError_IgnoresRepo(t *testing.T) {
-	repoSvc := &mockRepoService{err: errors.New("repo not found")}
+func TestCreatePod_RepoServiceError_Propagates(t *testing.T) {
+	repoErr := errors.New("repo not found")
+	repoSvc := &mockRepoService{err: repoErr}
 	coord := &mockPodCoordinator{}
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord), withRepoSvc(repoSvc))
 
@@ -339,8 +340,8 @@ func TestBuildPodCommand_RepoServiceError_IgnoresRepo(t *testing.T) {
 		RepositoryID:   &repoID,
 	})
 
-	require.NoError(t, err) // Repo error is not fatal
-	assert.Nil(t, coord.lastCmd.SandboxConfig)
+	require.ErrorIs(t, err, repoErr)
+	assert.False(t, coord.createPodCalled)
 }
 
 func TestBuildPodCommand_TicketServiceError_IgnoresTicket(t *testing.T) {

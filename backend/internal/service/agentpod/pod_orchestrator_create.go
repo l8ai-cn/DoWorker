@@ -126,10 +126,9 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		if result.Branch != "" {
 			resolved.BranchName = result.Branch
 		}
-		if result.RepoSlug != "" && o.repoService != nil {
-			repo, repoErr := o.repoService.FindByOrgSlug(ctx, req.OrganizationID, result.RepoSlug)
-			if repoErr == nil && repo != nil {
-				resolved.RepositoryID = &repo.ID
+		if result.RepoSlug != "" {
+			if err := o.resolveAgentfileRepository(ctx, req, resolved, result.RepoSlug); err != nil {
+				return nil, err
 			}
 		}
 		if result.Prompt != "" {
@@ -150,6 +149,9 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	// Validate interaction mode against agent capabilities
 	if agentDef != nil && !agentDef.SupportsMode(effectiveInteractionMode) {
 		return nil, ErrUnsupportedInteractionMode
+	}
+	if err := o.resolveEffectiveRepository(ctx, req, resolved, effectiveRepoID); err != nil {
+		return nil, err
 	}
 
 	// Quota check

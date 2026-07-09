@@ -53,8 +53,8 @@ type UserServiceForOrchestrator interface {
 }
 
 type RepositoryServiceForOrchestrator interface {
-	GetByID(ctx context.Context, id int64) (*gitprovider.Repository, error)
-	FindByOrgSlug(ctx context.Context, orgID int64, slug string) (*gitprovider.Repository, error)
+	GetAccessibleByID(ctx context.Context, id, orgID, userID int64) (*gitprovider.Repository, error)
+	FindAccessibleByOrgSlug(ctx context.Context, orgID, userID int64, slug string) (*gitprovider.Repository, error)
 }
 
 type TicketServiceForOrchestrator interface {
@@ -130,6 +130,7 @@ type agentfileResolved struct {
 	InteractionMode      string
 	BranchName            string
 	RepositoryID          *int64
+	Repository            *gitprovider.Repository
 	Prompt                string
 	Knowledge             []agentfile.KnowledgeSpec
 	MergedAgentfileSource string
