@@ -41,6 +41,20 @@ describe('ScenarioShowcase', () => {
     expect(screen.getByRole('tab', { name: 'Research' })).toHaveAttribute('aria-selected', 'true')
   })
 
+  it('connects every tab to a panel and hides inactive panels', () => {
+    render(<ScenarioShowcase />)
+
+    for (const tab of screen.getAllByRole('tab')) {
+      const panelId = tab.getAttribute('aria-controls')
+      expect(panelId).toBeTruthy()
+      const panel = document.getElementById(panelId!)
+      expect(panel).not.toBeNull()
+      expect(panel).toHaveAttribute('role', 'tabpanel')
+      expect(panel).toHaveAttribute('aria-labelledby', tab.id)
+      expect(panel).toHaveProperty('hidden', tab.getAttribute('aria-selected') !== 'true')
+    }
+  })
+
   it('updates the scenario story when sales is selected', () => {
     render(<ScenarioShowcase />)
 

@@ -60,13 +60,24 @@ function ScenarioTabs({
   )
 }
 
-function SelectedScenario({ scenario, t }: { scenario: WorkforceScenario; t: Translate }) {
+function ScenarioPanel({
+  scenario,
+  selected,
+  t,
+}: {
+  scenario: WorkforceScenario
+  selected: boolean
+  t: Translate
+}) {
   return (
     <div
       id={`scenario-panel-${scenario.id}`}
       role="tabpanel"
       aria-labelledby={`scenario-tab-${scenario.id}`}
-      className="grid gap-10 border-l-2 border-[var(--azure-mint)] py-8 pl-5 sm:pl-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16 lg:py-12"
+      hidden={!selected}
+      className={`gap-10 border-l-2 border-[var(--azure-mint)] py-8 pl-5 sm:pl-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16 lg:py-12 ${
+        selected ? 'grid' : 'hidden'
+      }`}
     >
       <div>
         <p className="font-headline text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--azure-mint)]">
@@ -78,7 +89,7 @@ function SelectedScenario({ scenario, t }: { scenario: WorkforceScenario; t: Tra
         <p className="mt-9 font-headline text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--azure-text-muted)]">
           {t('landing.workforce.showcase.workers')}
         </p>
-        <ul data-testid="scenario-workers" className="mt-3 space-y-2">
+        <ul data-testid={selected ? 'scenario-workers' : undefined} className="mt-3 space-y-2">
           {scenario.workers.map((worker) => (
             <li key={worker} className="flex items-center gap-3 text-sm text-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--azure-mint)]" aria-hidden="true" />
@@ -92,7 +103,10 @@ function SelectedScenario({ scenario, t }: { scenario: WorkforceScenario; t: Tra
         <p className="font-headline text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--azure-text-muted)]">
           {t('landing.workforce.showcase.workflow')}
         </p>
-        <ol data-testid="scenario-workflow" className="mt-4 grid gap-3 sm:grid-cols-2">
+        <ol
+          data-testid={selected ? 'scenario-workflow' : undefined}
+          className="mt-4 grid gap-3 sm:grid-cols-2"
+        >
           {scenario.steps.map((step, index) => (
             <li
               key={step}
@@ -119,8 +133,6 @@ function SelectedScenario({ scenario, t }: { scenario: WorkforceScenario; t: Tra
 export function ScenarioShowcase() {
   const t = useTranslations()
   const [selectedId, setSelectedId] = useState<WorkforceScenarioId>('research')
-  const scenario =
-    workforceScenarios.find((candidate) => candidate.id === selectedId) ?? workforceScenarios[0]
 
   return (
     <section className="bg-[var(--azure-bg-deeper)] px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
@@ -137,7 +149,14 @@ export function ScenarioShowcase() {
           </p>
         </div>
         <ScenarioTabs selectedId={selectedId} onSelect={setSelectedId} t={t} />
-        <SelectedScenario scenario={scenario} t={t} />
+        {workforceScenarios.map((scenario) => (
+          <ScenarioPanel
+            key={scenario.id}
+            scenario={scenario}
+            selected={scenario.id === selectedId}
+            t={t}
+          />
+        ))}
       </div>
     </section>
   )
