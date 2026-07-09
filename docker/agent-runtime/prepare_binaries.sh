@@ -44,10 +44,11 @@ if [[ -f "${DEPLOY_DEV}/do-agent-binary" ]]; then
 else
   # shellcheck source=../../deploy/dev/lib/build_do_agent_binary.sh
   source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
-  if build_do_agent_binary; then
+  # build may return 0 after writing a CI stub; still fall back if no file.
+  if build_do_agent_binary && [[ -f "${DEPLOY_DEV}/do-agent-binary" ]]; then
     cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
   else
-    echo "⚠ do-agent 源码未找到，使用 e2e-mock-agent 占位" >&2
+    echo "⚠ do-agent 不可用，使用 e2e-mock-agent 占位" >&2
     cp "${STAGING}/e2e-mock-agent-binary" "${STAGING}/do-agent-binary"
   fi
 fi
