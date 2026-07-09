@@ -6,13 +6,26 @@ export type WorkforceScenarioId =
   | 'knowledge'
   | 'product'
 
-export type WorkforceScenario = {
+export const workforceScenarioAccents = ['mint', 'coral', 'amber', 'violet', 'sky', 'blue'] as const
+
+export type WorkforceAccent = (typeof workforceScenarioAccents)[number]
+
+type WorkforceScenarioRecord = {
   id: WorkforceScenarioId
-  goalKey: string
-  workers: readonly [string, string, string]
-  steps: readonly [string, string, string, string]
-  deliverableKey: string
-  accent: string
+  goalKey: `landing.workforce.scenarios.${WorkforceScenarioId}.goal`
+  workers: readonly [
+    `landing.workforce.scenarios.${WorkforceScenarioId}.workers.${string}`,
+    `landing.workforce.scenarios.${WorkforceScenarioId}.workers.${string}`,
+    `landing.workforce.scenarios.${WorkforceScenarioId}.workers.${string}`,
+  ]
+  steps: readonly [
+    `landing.workforce.scenarios.${WorkforceScenarioId}.steps.${string}`,
+    `landing.workforce.scenarios.${WorkforceScenarioId}.steps.${string}`,
+    `landing.workforce.scenarios.${WorkforceScenarioId}.steps.${string}`,
+    `landing.workforce.scenarios.${WorkforceScenarioId}.steps.${string}`,
+  ]
+  deliverableKey: `landing.workforce.scenarios.${WorkforceScenarioId}.deliverable`
+  accent: WorkforceAccent
 }
 
 export const workforceScenarios = [
@@ -118,4 +131,12 @@ export const workforceScenarios = [
     deliverableKey: 'landing.workforce.scenarios.product.deliverable',
     accent: 'blue',
   },
-] as const satisfies readonly WorkforceScenario[]
+] as const satisfies readonly WorkforceScenarioRecord[]
+
+export type WorkforceScenario = (typeof workforceScenarios)[number]
+
+export type WorkforceTranslationKey =
+  | WorkforceScenario['goalKey']
+  | WorkforceScenario['workers'][number]
+  | WorkforceScenario['steps'][number]
+  | WorkforceScenario['deliverableKey']

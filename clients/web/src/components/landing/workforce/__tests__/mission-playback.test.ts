@@ -1,5 +1,20 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+import {
+  workforceScenarioAccents,
+  type WorkforceAccent,
+  type WorkforceScenario,
+  type WorkforceTranslationKey,
+} from '../workforce-scenarios'
 import { getNextMissionStep } from '../mission-playback'
+
+describe('workforce scenarios', () => {
+  it('exposes only supported accent values', () => {
+    expect(workforceScenarioAccents).toEqual(['mint', 'coral', 'amber', 'violet', 'sky', 'blue'])
+    expectTypeOf<WorkforceScenario['accent']>().toEqualTypeOf<WorkforceAccent>()
+    expectTypeOf<WorkforceScenario['goalKey']>().toMatchTypeOf<WorkforceTranslationKey>()
+    expectTypeOf<'landing.workforce.scenarios.research.unknown'>().not.toMatchTypeOf<WorkforceTranslationKey>()
+  })
+})
 
 describe('getNextMissionStep', () => {
   it('advances to the next step', () => {
