@@ -88,6 +88,9 @@ func (b *PodBuilder) prepareAgentHome(sandboxRoot, workDir string) error {
 		if err := codex.ApplyOpenAIProviderFromEnv(configPath, baseURL, model); err != nil {
 			log.Warn("Failed to apply codex provider env", "path", configPath, "error", err)
 		}
+		if err := codex.WriteAuthJSONFromEnv(agentHome, b.cmd.EnvVars["OPENAI_API_KEY"]); err != nil {
+			log.Warn("Failed to write codex auth.json", "path", agentHome, "error", err)
+		}
 		if err := codex.AppendCodexProjectTrust(configPath, workDir); err != nil {
 			log.Warn("Failed to trust codex workspace paths", "path", configPath, "error", err)
 		}

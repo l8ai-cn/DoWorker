@@ -38,6 +38,9 @@ func ApplyOpenAIProviderFromEnv(configPath, baseURL, model string) error {
 	openAI["name"] = "OpenAI"
 	openAI["base_url"] = baseURL
 	openAI["wire_api"] = "responses"
+	// env_key makes Codex attach `Authorization: Bearer $OPENAI_API_KEY`; the
+	// proxy gateways we target reject unauthenticated /responses calls (401).
+	openAI["env_key"] = "OPENAI_API_KEY"
 	openAI["requires_openai_auth"] = false
 	providers["OpenAI"] = openAI
 	cfg["model_providers"] = providers

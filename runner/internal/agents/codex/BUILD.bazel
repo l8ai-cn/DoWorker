@@ -4,6 +4,7 @@ go_library(
     name = "codex",
     srcs = [
         "agent_message_text.go",
+        "auth_json.go",
         "handler.go",
         "handler_approval.go",
         "handler_item.go",
@@ -39,6 +40,7 @@ alias(
 go_test(
     name = "codex_test",
     srcs = [
+        "auth_json_test.go",
         "codex_coverage_test.go",
         "coverage_test.go",
         "handler_coverage_test.go",

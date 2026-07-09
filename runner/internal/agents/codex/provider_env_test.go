@@ -23,6 +23,7 @@ func TestApplyOpenAIProviderFromEnv_PatchesBaseURL(t *testing.T) {
 	assert.Contains(t, content, "token.aiedulab.cn")
 	assert.Contains(t, content, "gpt-5.2")
 	assert.Contains(t, content, "OpenAI")
+	assert.Contains(t, content, `env_key = 'OPENAI_API_KEY'`)
 }
 
 func TestApplyOpenAIProviderFromEnv_EmptyBaseURLNoop(t *testing.T) {
