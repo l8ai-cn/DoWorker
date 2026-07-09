@@ -152,12 +152,13 @@ func (r *REST) ListRunners(ctx context.Context, orgSlug string) ([]Runner, error
 // --- PodService.{CreatePod, TerminatePod, GetPod} ---
 
 type CreatePodRequest struct {
-	AgentSlug      string  `json:"agentSlug"`
-	RunnerID       int64   `json:"runnerId,omitempty,string"`
-	Alias          *string `json:"alias,omitempty"`
-	AgentfileLayer *string `json:"agentfileLayer,omitempty"`
-	Cols           int32   `json:"cols"`
-	Rows           int32   `json:"rows"`
+	AgentSlug        string  `json:"agentSlug"`
+	RunnerID         int64   `json:"runnerId,omitempty,string"`
+	Alias            *string `json:"alias,omitempty"`
+	AgentfileLayer   *string `json:"agentfileLayer,omitempty"`
+	AutomationLevel  string  `json:"automationLevel,omitempty"`
+	Cols             int32   `json:"cols"`
+	Rows             int32   `json:"rows"`
 }
 
 type Pod struct {
@@ -187,21 +188,23 @@ func decodePodWire(raw json.RawMessage) (*Pod, error) {
 
 func (r *REST) CreatePod(ctx context.Context, orgSlug string, req CreatePodRequest) (*Pod, error) {
 	type wirePodReq struct {
-		OrgSlug        string  `json:"orgSlug"`
-		AgentSlug      string  `json:"agentSlug"`
-		RunnerID       string  `json:"runnerId,omitempty"`
-		Alias          *string `json:"alias,omitempty"`
-		AgentfileLayer *string `json:"agentfileLayer,omitempty"`
-		Cols           int32   `json:"cols"`
-		Rows           int32   `json:"rows"`
+		OrgSlug         string  `json:"orgSlug"`
+		AgentSlug       string  `json:"agentSlug"`
+		RunnerID        string  `json:"runnerId,omitempty"`
+		Alias           *string `json:"alias,omitempty"`
+		AgentfileLayer  *string `json:"agentfileLayer,omitempty"`
+		AutomationLevel string  `json:"automationLevel,omitempty"`
+		Cols            int32   `json:"cols"`
+		Rows            int32   `json:"rows"`
 	}
 	wireReq := wirePodReq{
-		OrgSlug:        orgSlug,
-		AgentSlug:      req.AgentSlug,
-		Alias:          req.Alias,
-		AgentfileLayer: req.AgentfileLayer,
-		Cols:           req.Cols,
-		Rows:           req.Rows,
+		OrgSlug:         orgSlug,
+		AgentSlug:       req.AgentSlug,
+		Alias:           req.Alias,
+		AgentfileLayer:  req.AgentfileLayer,
+		AutomationLevel: req.AutomationLevel,
+		Cols:            req.Cols,
+		Rows:            req.Rows,
 	}
 	if req.RunnerID != 0 {
 		wireReq.RunnerID = strconv.FormatInt(req.RunnerID, 10)

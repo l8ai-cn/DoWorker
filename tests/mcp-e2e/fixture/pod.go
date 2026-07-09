@@ -36,12 +36,17 @@ func NewEchoPod(t *testing.T, env *Env, rest *client.REST, runnerID int64) *Echo
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
+	// interactive + MODE pty: default autonomous forces MODE acp, which
+	// breaks send_pod_input → "got: …" PTY round-trip assertions.
+	ptyLayer := "MODE pty"
 	pod, err := rest.CreatePod(ctx, env.DevOrgSlug, client.CreatePodRequest{
-		AgentSlug: "e2e-echo",
-		RunnerID:  runnerID,
-		Alias:     &alias,
-		Cols:      80,
-		Rows:      24,
+		AgentSlug:       "e2e-echo",
+		RunnerID:        runnerID,
+		Alias:           &alias,
+		AgentfileLayer:  &ptyLayer,
+		AutomationLevel: "interactive",
+		Cols:            80,
+		Rows:            24,
 	})
 	if err != nil {
 		t.Fatalf("create echo pod: %v", err)
