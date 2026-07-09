@@ -71,7 +71,7 @@ git commit -m "fix(runner): scope explicit worker placement"
 - Modify: `backend/internal/service/agentpod/pod_orchestrator_setup_test.go`
 - Modify: `backend/internal/service/agentpod/pod_orchestrator_create_test.go`
 
-- [ ] **Step 1: Replace the bypass test with failing behavior tests**
+- [x] **Step 1: Replace the bypass test with failing behavior tests**
 
 Replace `TestCreatePod_ExplicitRunnerID_SkipsAutoSelect` with tests asserting the exact-ID resolver receives runner/org/user/agent and `QueueIfUnavailable`; rejection returns `ErrNoAvailableRunner`, creates zero Pods, and never dispatches.
 
@@ -87,23 +87,23 @@ require.NoError(t, db.Model(&podDomain.Pod{}).Count(&podCount).Error)
 assert.Zero(t, podCount)
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `bazel test //backend/internal/service/agentpod:agentpod_test --test_filter=TestCreatePod_ExplicitRunner`
 
 Expected: explicit Runner still bypasses validation and creates a Pod.
 
-- [ ] **Step 3: Extend the orchestrator dependency and validate before agent/model resolution**
+- [x] **Step 3: Extend the orchestrator dependency and validate before agent/model resolution**
 
 Add `ResolveRunnerForCreate` to `RunnerSelectorForOrchestrator`. In the non-resume path, call it for nonzero `RunnerID`; pass `req.QueueIfUnavailable` as `allowUnavailable`. Missing resolver or any resolver error returns `ErrNoAvailableRunner`. Keep automatic affinity selection unchanged.
 
-- [ ] **Step 4: Verify GREEN and regression**
+- [x] **Step 4: Verify GREEN and regression**
 
 Run: `bazel test //backend/internal/service/agentpod:agentpod_test --test_filter='TestCreatePod_(ExplicitRunner|AutoSelectRunner)'`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/internal/service/agentpod

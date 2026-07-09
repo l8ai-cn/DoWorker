@@ -40,11 +40,12 @@ The existing internal `Pod` name may remain during migration. User-facing copy u
 
 ```text
 runtime
-  model_binding_id
+  model_binding (ai_model_id | virtual_api_key_id | agent_managed)
   worker_type_slug
   runtime_image_id
 
 placement
+  policy (explicit | automatic)
   compute_target_id
   deployment_mode
   resource_profile_id
@@ -53,6 +54,8 @@ type_config
   schema_version
   values
   secret_refs
+  interaction_mode
+  automation_level
 
 workspace
   repository_id
@@ -73,6 +76,8 @@ metadata
 ```
 
 Pod creation persists an immutable WorkerSpec snapshot. Expert creation persists the same structure. `source_expert_id` is audit metadata; importing an Expert copies its values into the draft and does not create live coupling.
+
+The requested spec contains controlled identifiers. The persisted snapshot additionally resolves immutable provider/model, Worker-type definition hash, image digest, compute-target kind, and resource requests/limits. Physical `runner_id` is a scheduling result on the Pod, not part of the requested WorkerSpec.
 
 AgentFile remains the runtime delivery format. The backend compiles it once from WorkerSpec, user preferences, and system policy. It is not an independent source of business truth.
 
