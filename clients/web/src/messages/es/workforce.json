@@ -1,0 +1,131 @@
+{
+  "landing": {
+    "workforce": {
+      "hero": {
+        "badge": "Plataforma de fuerza laboral con IA",
+        "titleLead": "Define un objetivo.",
+        "titleEmphasis": "Forma un equipo de IA.",
+        "description": "Reúne Workers especializados para investigar, crear, operar y entregar juntos, mientras tú marcas el rumbo y mantienes el control.",
+        "watchTeam": "Ver al equipo trabajar",
+        "startFree": "Empezar gratis"
+      },
+      "mission": {
+        "console": "Consola de misión en directo",
+        "goal": "Objetivo del equipo",
+        "scenarios": "Elegir un escenario",
+        "workers": "Workers",
+        "activity": "Actividad del equipo",
+        "checkpoint": "Revisión humana",
+        "checkpointDetail": "Tu aprobación es necesaria antes de la entrega.",
+        "progress": "Progreso de la misión",
+        "deliverable": "Entregable",
+        "pause": "Pausar misión",
+        "resume": "Reanudar misión",
+        "nextStep": "Siguiente paso",
+        "replay": "Repetir misión"
+      },
+      "scenarioLabels": {
+        "research": "Investigación",
+        "content": "Contenido",
+        "operations": "Operaciones",
+        "sales": "Ventas",
+        "knowledge": "Conocimiento",
+        "product": "Producto"
+      },
+      "scenarios": {
+        "research": {
+          "goal": "Analizar el mercado y recomendar una dirección",
+          "workers": { "scout": "Investigador", "analyst": "Analista de mercado", "editor": "Editor de informes" },
+          "steps": { "scope": "Definir la pregunta y los criterios", "gather": "Reunir fuentes y señales", "synthesize": "Sintetizar pruebas en opciones", "review": "Revisar la recomendación" },
+          "deliverable": "Informe de dirección de mercado basado en pruebas"
+        },
+        "content": {
+          "goal": "Convertir un briefing en un paquete completo de contenidos",
+          "workers": { "strategist": "Estratega de contenidos", "writer": "Redactor de campaña", "editor": "Editor de contenidos" },
+          "steps": { "brief": "Perfilar mensaje y audiencia", "research": "Investigar a la audiencia", "draft": "Redactar los materiales", "approve": "Revisar y aprobar el paquete" },
+          "deliverable": "Paquete de campaña listo para publicar"
+        },
+        "operations": {
+          "goal": "Ejecutar un proceso repetible y detectar excepciones",
+          "workers": { "coordinator": "Coordinador de operaciones", "analyst": "Analista de procesos", "operator": "Operador de flujos" },
+          "steps": { "intake": "Recibir solicitud y límites", "map": "Asignar responsables y dependencias", "execute": "Ejecutar el flujo aprobado", "report": "Informar resultados y excepciones" },
+          "deliverable": "Ejecución completada con trazabilidad"
+        },
+        "sales": {
+          "goal": "Preparar un plan de cuenta enfocado para ventas",
+          "workers": { "researcher": "Investigador de cuentas", "strategist": "Estratega de ventas", "writer": "Redactor comercial" },
+          "steps": { "target": "Investigar la cuenta objetivo", "qualify": "Evaluar necesidades y señales", "personalize": "Crear un plan personalizado", "review": "Revisar antes del contacto" },
+          "deliverable": "Informe de cuenta y plan de contacto revisado"
+        },
+        "knowledge": {
+          "goal": "Convertir información dispersa en un recurso fiable",
+          "workers": { "librarian": "Gestor del conocimiento", "analyst": "Analista de fuentes", "curator": "Curador de conocimiento" },
+          "steps": { "collect": "Recopilar materiales", "organize": "Organizar temas y responsables", "verify": "Verificar afirmaciones con pruebas", "publish": "Publicar el recurso revisado" },
+          "deliverable": "Colección verificada y consultable"
+        },
+        "product": {
+          "goal": "Llevar una oportunidad de producto a una propuesta validada",
+          "workers": { "researcher": "Investigador de producto", "designer": "Diseñador de experiencia", "builder": "Creador de prototipos" },
+          "steps": { "discover": "Estudiar usuarios y límites", "define": "Definir la oportunidad", "build": "Crear un prototipo enfocado", "validate": "Validar hallazgos y próximos pasos" },
+          "deliverable": "Propuesta de producto y prototipo validados"
+        }
+      },
+      "showcase": {
+        "eyebrow": "Una fuerza laboral, muchos resultados",
+        "title": "Forma el equipo adecuado para cada trabajo",
+        "description": "Elige un objetivo. Do Worker reúne roles especializados, un flujo compartido y un entregable claro.",
+        "scenarioPicker": "Escenarios de fuerza laboral",
+        "goal": "Objetivo",
+        "workers": "Equipo",
+        "workflow": "Flujo de trabajo",
+        "deliverable": "Entregable"
+      },
+      "lifecycle": {
+        "eyebrow": "Cómo avanza el trabajo",
+        "title": "Del objetivo a una entrega con pruebas",
+        "description": "Tickets, Channels, Mesh y AgentPods mantienen cada tarea coordinada, revisable y trazable.",
+        "stages": {
+          "goal": { "title": "Define el objetivo", "description": "Registra el resultado, los límites y el responsable en un Ticket." },
+          "coordinate": { "title": "Coordina", "description": "Los Workers comparten contexto y tareas mediante Channels y Mesh." },
+          "review": { "title": "Revisa", "description": "Detén las decisiones importantes en puntos de revisión humana." },
+          "deliver": { "title": "Entrega", "description": "Recibe el resultado con estado, artefactos y pruebas." }
+        },
+        "fragments": {
+          "ticket": { "id": "TICKET-104", "status": "Asignado", "title": "Recomendar el próximo mercado" },
+          "channel": { "name": "# expansión-mercado", "activity": "3 Workers colaborando en un Channel compartido" },
+          "checkpoint": { "status": "Revisión necesaria", "decision": "Aprobar la dirección recomendada", "action": "Revisar decisión" },
+          "evidence": { "pod": "AgentPod · research-04", "status": "Entregado", "artifact": "Informe de dirección de mercado", "detail": "Fuentes, decisiones y actividad conservadas" }
+        }
+      },
+      "capabilities": {
+        "eyebrow": "Capacidades de la plataforma",
+        "title": "Dirige cada nivel del trabajo",
+        "description": "Organiza el equipo, sigue el progreso, fija límites y ejecuta trabajo repetible en un solo sistema.",
+        "items": {
+          "organize": { "title": "Organiza", "description": "Da a cada Worker un rol, una tarea y el contexto necesario.", "primitives": { "roles": "Roles especializados", "tasks": "Tickets asignados", "ownership": "Responsabilidad clara", "context": "Channels compartidos" } },
+          "observe": { "title": "Observa", "description": "Ve qué hace el equipo y las pruebas de cada resultado.", "primitives": { "activity": "Actividad Mesh en directo", "evidence": "Fuentes y pruebas", "status": "Estado de entrega", "deliverables": "Entregables verificables" } },
+          "control": { "title": "Controla", "description": "Define acceso, aprobaciones y responsabilidad.", "primitives": { "permissions": "Permisos", "checkpoints": "Revisiones humanas", "credentials": "Credenciales limitadas", "audit": "Historial de auditoría" } },
+          "operate": { "title": "Opera", "description": "Ejecuta en tu infraestructura y reutiliza lo que funciona.", "primitives": { "execution": "Ejecución con Runners", "schedules": "Programaciones Loop", "workflows": "Flujos reutilizables" } }
+        }
+      },
+      "trust": {
+        "eyebrow": "Despliegue y confianza",
+        "title": "Adopta una fuerza laboral de IA a tu manera",
+        "description": "Mantén ejecución, acceso y pruebas dentro de los controles de tu organización.",
+        "safeguards": {
+          "selfHosting": { "title": "Ejecución autogestionada", "description": "Usa Runners en infraestructura bajo tu control.", "status": "Controlado" },
+          "workspaces": { "title": "Espacios AgentPod aislados", "description": "Separa cada tarea y su contexto.", "status": "Aislado" },
+          "credentials": { "title": "Credenciales gestionadas", "description": "Limita el acceso al Worker y la tarea que lo necesitan.", "status": "Limitado" },
+          "audit": { "title": "Historial verificable", "description": "Conserva actividad, decisiones y pruebas de entrega.", "status": "Registrado" }
+        },
+        "compatibility": { "title": "Usa los agentes de IA en los que confías", "description": "Coordina los entornos compatibles desde una plataforma común." }
+      },
+      "cta": {
+        "title": "¿Qué podría entregar tu equipo de IA?",
+        "description": "Define el objetivo, reúne los roles y mantén cada paso bajo tu dirección.",
+        "watchDemo": "Ver la demo",
+        "startFree": "Empezar gratis"
+      }
+    }
+  }
+}

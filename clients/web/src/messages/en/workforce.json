@@ -1,0 +1,131 @@
+{
+  "landing": {
+    "workforce": {
+      "hero": {
+        "badge": "AI Workforce Platform",
+        "titleLead": "Give it a goal.",
+        "titleEmphasis": "Build an AI team.",
+        "description": "Assemble specialized Workers to research, create, operate, and deliver together—while you set the direction and stay in control.",
+        "watchTeam": "Watch the team work",
+        "startFree": "Start free"
+      },
+      "mission": {
+        "console": "Live mission console",
+        "goal": "Team goal",
+        "scenarios": "Choose a workforce scenario",
+        "workers": "Workers",
+        "activity": "Team activity",
+        "checkpoint": "Human checkpoint",
+        "checkpointDetail": "Your approval is required before the team delivers.",
+        "progress": "Mission progress",
+        "deliverable": "Deliverable",
+        "pause": "Pause mission",
+        "resume": "Resume mission",
+        "nextStep": "Next step",
+        "replay": "Replay mission"
+      },
+      "scenarioLabels": {
+        "research": "Research",
+        "content": "Content",
+        "operations": "Operations",
+        "sales": "Sales",
+        "knowledge": "Knowledge",
+        "product": "Product"
+      },
+      "scenarios": {
+        "research": {
+          "goal": "Map the market and recommend a direction",
+          "workers": { "scout": "Research Scout", "analyst": "Market Analyst", "editor": "Brief Editor" },
+          "steps": { "scope": "Frame the question and success criteria", "gather": "Gather sources and competing signals", "synthesize": "Synthesize evidence into options", "review": "Review the recommendation" },
+          "deliverable": "Evidence-backed market direction brief"
+        },
+        "content": {
+          "goal": "Turn one campaign brief into a complete content package",
+          "workers": { "strategist": "Content Strategist", "writer": "Campaign Writer", "editor": "Content Editor" },
+          "steps": { "brief": "Shape the message and audience", "research": "Research audience needs", "draft": "Draft the campaign assets", "approve": "Review and approve the package" },
+          "deliverable": "Ready-to-publish campaign package"
+        },
+        "operations": {
+          "goal": "Run a repeatable operating process and surface exceptions",
+          "workers": { "coordinator": "Operations Coordinator", "analyst": "Process Analyst", "operator": "Workflow Operator" },
+          "steps": { "intake": "Capture the request and constraints", "map": "Map owners and dependencies", "execute": "Execute the approved workflow", "report": "Report outcomes and exceptions" },
+          "deliverable": "Completed run with an evidence trail"
+        },
+        "sales": {
+          "goal": "Prepare a focused account plan for the sales team",
+          "workers": { "researcher": "Account Researcher", "strategist": "Sales Strategist", "writer": "Outreach Writer" },
+          "steps": { "target": "Research the target account", "qualify": "Qualify needs and signals", "personalize": "Draft a relevant outreach plan", "review": "Review before outreach" },
+          "deliverable": "Account brief and reviewed outreach plan"
+        },
+        "knowledge": {
+          "goal": "Turn scattered team knowledge into a trusted resource",
+          "workers": { "librarian": "Knowledge Librarian", "analyst": "Source Analyst", "curator": "Knowledge Curator" },
+          "steps": { "collect": "Collect source material", "organize": "Organize topics and ownership", "verify": "Verify claims against evidence", "publish": "Publish the reviewed resource" },
+          "deliverable": "Verified, searchable knowledge collection"
+        },
+        "product": {
+          "goal": "Move a product opportunity from evidence to a validated proposal",
+          "workers": { "researcher": "Product Researcher", "designer": "Experience Designer", "builder": "Prototype Builder" },
+          "steps": { "discover": "Study users and constraints", "define": "Define the opportunity", "build": "Build a focused prototype", "validate": "Validate findings and next steps" },
+          "deliverable": "Validated product proposal and prototype"
+        }
+      },
+      "showcase": {
+        "eyebrow": "One workforce, many outcomes",
+        "title": "Build the right team for the work",
+        "description": "Choose a goal. Do Worker brings together specialized roles, a shared workflow, and a clear deliverable.",
+        "scenarioPicker": "Workforce scenarios",
+        "goal": "Goal",
+        "workers": "Team",
+        "workflow": "Workflow",
+        "deliverable": "Deliverable"
+      },
+      "lifecycle": {
+        "eyebrow": "How work moves",
+        "title": "From goal to evidence-backed delivery",
+        "description": "Tickets, Channels, Mesh, and AgentPods keep every assignment coordinated, reviewable, and inspectable.",
+        "stages": {
+          "goal": { "title": "Set the goal", "description": "Define the outcome, constraints, and owner in a Ticket." },
+          "coordinate": { "title": "Coordinate", "description": "Workers share context and divide responsibilities through Channels and Mesh." },
+          "review": { "title": "Review", "description": "Pause important decisions at explicit human checkpoints." },
+          "deliver": { "title": "Deliver", "description": "Receive the result with its status, artifacts, and evidence." }
+        },
+        "fragments": {
+          "ticket": { "id": "TICKET-104", "status": "Assigned", "title": "Recommend the next market to enter" },
+          "channel": { "name": "# market-expansion", "activity": "3 Workers coordinating in a shared Channel" },
+          "checkpoint": { "status": "Review required", "decision": "Approve the recommended direction before delivery", "action": "Review decision" },
+          "evidence": { "pod": "AgentPod · research-04", "status": "Delivered", "artifact": "Market direction brief", "detail": "Sources, decisions, and activity retained" }
+        }
+      },
+      "capabilities": {
+        "eyebrow": "Platform capabilities",
+        "title": "Direct every layer of the work",
+        "description": "Organize the team, follow progress, set boundaries, and run repeatable work in one system.",
+        "items": {
+          "organize": { "title": "Organize", "description": "Give every Worker a role, an owned task, and the context to move.", "primitives": { "roles": "Specialized roles", "tasks": "Owned Tickets", "ownership": "Clear ownership", "context": "Shared Channels" } },
+          "observe": { "title": "Observe", "description": "See what the team is doing and what supports each result.", "primitives": { "activity": "Live Mesh activity", "evidence": "Source evidence", "status": "Delivery status", "deliverables": "Inspectable deliverables" } },
+          "control": { "title": "Control", "description": "Set access, approvals, and accountability around the work.", "primitives": { "permissions": "Permissions", "checkpoints": "Human checkpoints", "credentials": "Scoped credentials", "audit": "Audit history" } },
+          "operate": { "title": "Operate", "description": "Run assignments on your infrastructure and repeat what works.", "primitives": { "execution": "Runner execution", "schedules": "Loop schedules", "workflows": "Reusable workflows" } }
+        }
+      },
+      "trust": {
+        "eyebrow": "Deployment and trust",
+        "title": "Adopt an AI workforce on your terms",
+        "description": "Keep execution, access, and evidence inside the controls your organization already trusts.",
+        "safeguards": {
+          "selfHosting": { "title": "Self-hosted execution", "description": "Use Runners on infrastructure you control.", "status": "Controlled" },
+          "workspaces": { "title": "Isolated AgentPod workspaces", "description": "Separate each assignment and its working context.", "status": "Isolated" },
+          "credentials": { "title": "Managed credentials", "description": "Scope access to the Worker and task that need it.", "status": "Scoped" },
+          "audit": { "title": "Inspectable history", "description": "Retain activity, decisions, and delivery evidence.", "status": "Recorded" }
+        },
+        "compatibility": { "title": "Bring the AI agents you trust", "description": "Coordinate supported agent runtimes through one workforce platform." }
+      },
+      "cta": {
+        "title": "What could your AI team deliver?",
+        "description": "Set the goal, assemble the roles, and keep every step under your direction.",
+        "watchDemo": "Watch the demo",
+        "startFree": "Start free"
+      }
+    }
+  }
+}

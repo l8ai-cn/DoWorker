@@ -1,0 +1,131 @@
+{
+  "landing": {
+    "workforce": {
+      "hero": {
+        "badge": "KI-Workforce-Plattform",
+        "titleLead": "Gib ein Ziel vor.",
+        "titleEmphasis": "Stelle ein KI-Team zusammen.",
+        "description": "Spezialisierte Worker recherchieren, erstellen, betreiben und liefern gemeinsam – während du Richtung und Kontrolle behältst.",
+        "watchTeam": "Dem Team bei der Arbeit zusehen",
+        "startFree": "Kostenlos starten"
+      },
+      "mission": {
+        "console": "Live-Missionskonsole",
+        "goal": "Teamziel",
+        "scenarios": "Workforce-Szenario auswählen",
+        "workers": "Worker",
+        "activity": "Teamaktivität",
+        "checkpoint": "Menschliche Freigabe",
+        "checkpointDetail": "Vor der Lieferung ist deine Freigabe erforderlich.",
+        "progress": "Missionsfortschritt",
+        "deliverable": "Ergebnis",
+        "pause": "Mission pausieren",
+        "resume": "Mission fortsetzen",
+        "nextStep": "Nächster Schritt",
+        "replay": "Mission wiederholen"
+      },
+      "scenarioLabels": {
+        "research": "Recherche",
+        "content": "Inhalte",
+        "operations": "Betrieb",
+        "sales": "Vertrieb",
+        "knowledge": "Wissen",
+        "product": "Produkt"
+      },
+      "scenarios": {
+        "research": {
+          "goal": "Den Markt erfassen und eine Richtung empfehlen",
+          "workers": { "scout": "Research Scout", "analyst": "Marktanalyst", "editor": "Briefing-Redakteur" },
+          "steps": { "scope": "Frage und Erfolgskriterien klären", "gather": "Quellen und Signale sammeln", "synthesize": "Belege zu Optionen verdichten", "review": "Empfehlung prüfen" },
+          "deliverable": "Belegtes Marktstrategie-Briefing"
+        },
+        "content": {
+          "goal": "Aus einem Briefing ein vollständiges Content-Paket erstellen",
+          "workers": { "strategist": "Content-Stratege", "writer": "Kampagnen-Texter", "editor": "Content-Redakteur" },
+          "steps": { "brief": "Botschaft und Zielgruppe schärfen", "research": "Zielgruppe untersuchen", "draft": "Kampagneninhalte entwerfen", "approve": "Paket prüfen und freigeben" },
+          "deliverable": "Veröffentlichungsfertiges Kampagnenpaket"
+        },
+        "operations": {
+          "goal": "Einen wiederholbaren Prozess ausführen und Ausnahmen melden",
+          "workers": { "coordinator": "Operations-Koordinator", "analyst": "Prozessanalyst", "operator": "Workflow-Operator" },
+          "steps": { "intake": "Anfrage und Vorgaben erfassen", "map": "Verantwortliche und Abhängigkeiten klären", "execute": "Freigegebenen Workflow ausführen", "report": "Ergebnisse und Ausnahmen berichten" },
+          "deliverable": "Abgeschlossener Lauf mit Nachweisen"
+        },
+        "sales": {
+          "goal": "Einen fokussierten Account-Plan für den Vertrieb vorbereiten",
+          "workers": { "researcher": "Account-Researcher", "strategist": "Vertriebsstratege", "writer": "Outreach-Texter" },
+          "steps": { "target": "Zielkonto recherchieren", "qualify": "Bedarf und Signale bewerten", "personalize": "Persönlichen Ansatz entwerfen", "review": "Vor Kontaktaufnahme prüfen" },
+          "deliverable": "Account-Briefing und geprüfter Kontaktplan"
+        },
+        "knowledge": {
+          "goal": "Verstreutes Teamwissen in eine verlässliche Quelle verwandeln",
+          "workers": { "librarian": "Wissensmanager", "analyst": "Quellenanalyst", "curator": "Wissenskurator" },
+          "steps": { "collect": "Quellmaterial sammeln", "organize": "Themen und Zuständigkeit ordnen", "verify": "Aussagen anhand von Quellen prüfen", "publish": "Geprüfte Inhalte veröffentlichen" },
+          "deliverable": "Geprüfte, durchsuchbare Wissenssammlung"
+        },
+        "product": {
+          "goal": "Eine Produktchance zur validierten Lösung entwickeln",
+          "workers": { "researcher": "Produktforscher", "designer": "Experience Designer", "builder": "Prototyp-Entwickler" },
+          "steps": { "discover": "Nutzer und Vorgaben untersuchen", "define": "Chance definieren", "build": "Fokussierten Prototyp bauen", "validate": "Erkenntnisse und nächste Schritte prüfen" },
+          "deliverable": "Validierter Produktvorschlag mit Prototyp"
+        }
+      },
+      "showcase": {
+        "eyebrow": "Eine Workforce, viele Ergebnisse",
+        "title": "Das richtige Team für jede Aufgabe",
+        "description": "Wähle ein Ziel. Do Worker verbindet spezialisierte Rollen, einen gemeinsamen Workflow und ein klares Ergebnis.",
+        "scenarioPicker": "Workforce-Szenarien",
+        "goal": "Ziel",
+        "workers": "Team",
+        "workflow": "Workflow",
+        "deliverable": "Ergebnis"
+      },
+      "lifecycle": {
+        "eyebrow": "So läuft die Arbeit",
+        "title": "Vom Ziel zur belegbaren Lieferung",
+        "description": "Tickets, Channels, Mesh und AgentPods halten jede Aufgabe koordiniert, prüfbar und nachvollziehbar.",
+        "stages": {
+          "goal": { "title": "Ziel setzen", "description": "Ergebnis, Vorgaben und Verantwortung in einem Ticket definieren." },
+          "coordinate": { "title": "Koordinieren", "description": "Worker teilen Kontext und Aufgaben über Channels und Mesh." },
+          "review": { "title": "Prüfen", "description": "Wichtige Entscheidungen an klaren Freigabepunkten stoppen." },
+          "deliver": { "title": "Liefern", "description": "Ergebnis samt Status, Artefakten und Nachweisen erhalten." }
+        },
+        "fragments": {
+          "ticket": { "id": "TICKET-104", "status": "Zugewiesen", "title": "Nächsten Zielmarkt empfehlen" },
+          "channel": { "name": "# marktexpansion", "activity": "3 Worker koordinieren sich in einem gemeinsamen Channel" },
+          "checkpoint": { "status": "Prüfung erforderlich", "decision": "Empfohlene Richtung vor Lieferung freigeben", "action": "Entscheidung prüfen" },
+          "evidence": { "pod": "AgentPod · research-04", "status": "Geliefert", "artifact": "Marktstrategie-Briefing", "detail": "Quellen, Entscheidungen und Aktivität gespeichert" }
+        }
+      },
+      "capabilities": {
+        "eyebrow": "Plattformfunktionen",
+        "title": "Jede Ebene der Arbeit steuern",
+        "description": "Team organisieren, Fortschritt verfolgen, Grenzen setzen und wiederholbare Arbeit in einem System betreiben.",
+        "items": {
+          "organize": { "title": "Organisieren", "description": "Jedem Worker Rolle, Aufgabe und nötigen Kontext geben.", "primitives": { "roles": "Spezialisierte Rollen", "tasks": "Eigene Tickets", "ownership": "Klare Verantwortung", "context": "Gemeinsame Channels" } },
+          "observe": { "title": "Beobachten", "description": "Aktivität und Nachweise hinter jedem Ergebnis sehen.", "primitives": { "activity": "Live-Mesh-Aktivität", "evidence": "Quellennachweise", "status": "Lieferstatus", "deliverables": "Prüfbare Ergebnisse" } },
+          "control": { "title": "Kontrollieren", "description": "Zugriff, Freigaben und Verantwortlichkeit festlegen.", "primitives": { "permissions": "Berechtigungen", "checkpoints": "Menschliche Freigaben", "credentials": "Begrenzte Zugangsdaten", "audit": "Audit-Verlauf" } },
+          "operate": { "title": "Betreiben", "description": "Auf eigener Infrastruktur ausführen und Bewährtes wiederverwenden.", "primitives": { "execution": "Runner-Ausführung", "schedules": "Loop-Zeitpläne", "workflows": "Wiederverwendbare Workflows" } }
+        }
+      },
+      "trust": {
+        "eyebrow": "Bereitstellung und Vertrauen",
+        "title": "KI-Workforce zu deinen Bedingungen",
+        "description": "Ausführung, Zugriff und Nachweise bleiben innerhalb der Kontrollen deiner Organisation.",
+        "safeguards": {
+          "selfHosting": { "title": "Selbst gehostete Ausführung", "description": "Runners auf kontrollierter Infrastruktur einsetzen.", "status": "Kontrolliert" },
+          "workspaces": { "title": "Isolierte AgentPod-Arbeitsbereiche", "description": "Jede Aufgabe und ihren Kontext trennen.", "status": "Isoliert" },
+          "credentials": { "title": "Verwaltete Zugangsdaten", "description": "Zugriff auf benötigte Worker und Aufgaben begrenzen.", "status": "Begrenzt" },
+          "audit": { "title": "Prüfbarer Verlauf", "description": "Aktivität, Entscheidungen und Liefernachweise behalten.", "status": "Erfasst" }
+        },
+        "compatibility": { "title": "Vertraute KI-Agenten einbinden", "description": "Unterstützte Agent-Laufzeiten über eine Workforce-Plattform koordinieren." }
+      },
+      "cta": {
+        "title": "Was könnte dein KI-Team liefern?",
+        "description": "Ziel setzen, Rollen zusammenstellen und jeden Schritt steuern.",
+        "watchDemo": "Demo ansehen",
+        "startFree": "Kostenlos starten"
+      }
+    }
+  }
+}

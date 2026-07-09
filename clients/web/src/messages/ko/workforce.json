@@ -1,0 +1,131 @@
+{
+  "landing": {
+    "workforce": {
+      "hero": {
+        "badge": "AI 워크포스 플랫폼",
+        "titleLead": "목표를 정하고,",
+        "titleEmphasis": "AI 팀을 구성하세요.",
+        "description": "전문 Worker들이 조사, 제작, 운영, 납품을 함께 수행합니다. 방향과 중요한 결정은 언제나 직접 관리합니다.",
+        "watchTeam": "팀의 작업 보기",
+        "startFree": "무료로 시작"
+      },
+      "mission": {
+        "console": "실시간 미션 콘솔",
+        "goal": "팀 목표",
+        "scenarios": "워크포스 시나리오 선택",
+        "workers": "Worker",
+        "activity": "팀 활동",
+        "checkpoint": "사람의 검토",
+        "checkpointDetail": "팀이 납품하기 전에 승인이 필요합니다.",
+        "progress": "미션 진행률",
+        "deliverable": "결과물",
+        "pause": "미션 일시 정지",
+        "resume": "미션 계속",
+        "nextStep": "다음 단계",
+        "replay": "미션 다시 보기"
+      },
+      "scenarioLabels": {
+        "research": "리서치",
+        "content": "콘텐츠",
+        "operations": "운영",
+        "sales": "영업",
+        "knowledge": "지식",
+        "product": "제품"
+      },
+      "scenarios": {
+        "research": {
+          "goal": "시장을 파악하고 나아갈 방향을 제안하기",
+          "workers": { "scout": "리서치 담당", "analyst": "시장 분석가", "editor": "보고서 편집자" },
+          "steps": { "scope": "질문과 성공 기준 정의", "gather": "출처와 시장 신호 수집", "synthesize": "근거를 선택지로 종합", "review": "권고안 검토" },
+          "deliverable": "근거 기반 시장 방향 보고서"
+        },
+        "content": {
+          "goal": "하나의 브리프를 완성된 콘텐츠 패키지로 만들기",
+          "workers": { "strategist": "콘텐츠 전략가", "writer": "캠페인 작가", "editor": "콘텐츠 편집자" },
+          "steps": { "brief": "대상과 메시지 정리", "research": "대상 고객 조사", "draft": "캠페인 자료 작성", "approve": "패키지 검토 및 승인" },
+          "deliverable": "바로 게시할 수 있는 캠페인 패키지"
+        },
+        "operations": {
+          "goal": "반복 가능한 운영 절차를 실행하고 예외를 파악하기",
+          "workers": { "coordinator": "운영 코디네이터", "analyst": "프로세스 분석가", "operator": "워크플로 운영자" },
+          "steps": { "intake": "요청과 제약 접수", "map": "담당자와 의존성 정리", "execute": "승인된 워크플로 실행", "report": "결과와 예외 보고" },
+          "deliverable": "근거 기록이 포함된 실행 결과"
+        },
+        "sales": {
+          "goal": "영업팀을 위한 핵심 고객 계획 준비하기",
+          "workers": { "researcher": "고객 조사 담당", "strategist": "영업 전략가", "writer": "아웃리치 작가" },
+          "steps": { "target": "대상 고객사 조사", "qualify": "요구와 신호 평가", "personalize": "맞춤형 접근 계획 작성", "review": "연락 전 검토" },
+          "deliverable": "고객 브리프와 승인된 접근 계획"
+        },
+        "knowledge": {
+          "goal": "흩어진 팀 정보를 신뢰할 수 있는 지식으로 전환하기",
+          "workers": { "librarian": "지식 관리자", "analyst": "출처 분석가", "curator": "지식 큐레이터" },
+          "steps": { "collect": "자료 수집", "organize": "주제와 소유자 정리", "verify": "근거에 따라 내용 검증", "publish": "검토된 지식 게시" },
+          "deliverable": "검증되고 검색 가능한 지식 모음"
+        },
+        "product": {
+          "goal": "제품 기회를 근거에서 검증된 제안으로 발전시키기",
+          "workers": { "researcher": "제품 조사 담당", "designer": "경험 디자이너", "builder": "프로토타입 제작자" },
+          "steps": { "discover": "사용자와 제약 조사", "define": "기회 정의", "build": "핵심 프로토타입 제작", "validate": "결과와 다음 단계 검증" },
+          "deliverable": "검증된 제품 제안과 프로토타입"
+        }
+      },
+      "showcase": {
+        "eyebrow": "하나의 워크포스, 다양한 성과",
+        "title": "업무에 맞는 팀을 구성하세요",
+        "description": "목표를 선택하면 Do Worker가 전문 역할, 공유 워크플로, 명확한 결과물을 연결합니다.",
+        "scenarioPicker": "워크포스 시나리오",
+        "goal": "목표",
+        "workers": "팀",
+        "workflow": "워크플로",
+        "deliverable": "결과물"
+      },
+      "lifecycle": {
+        "eyebrow": "업무 진행 방식",
+        "title": "목표에서 근거 있는 결과까지",
+        "description": "Tickets, Channels, Mesh, AgentPods가 모든 업무를 조율하고 검토 가능하게 유지합니다.",
+        "stages": {
+          "goal": { "title": "목표 설정", "description": "Ticket에 결과, 제약, 담당자를 정의합니다." },
+          "coordinate": { "title": "조율", "description": "Channels와 Mesh에서 맥락을 공유하고 책임을 나눕니다." },
+          "review": { "title": "검토", "description": "중요한 결정을 명시적인 사람의 검토 지점에서 멈춥니다." },
+          "deliver": { "title": "납품", "description": "상태, 산출물, 근거와 함께 결과를 받습니다." }
+        },
+        "fragments": {
+          "ticket": { "id": "TICKET-104", "status": "배정됨", "title": "다음 진출 시장 제안" },
+          "channel": { "name": "# 시장-확장", "activity": "3명의 Worker가 공유 Channel에서 협업 중" },
+          "checkpoint": { "status": "검토 필요", "decision": "납품 전 권고 방향 승인", "action": "결정 검토" },
+          "evidence": { "pod": "AgentPod · research-04", "status": "납품 완료", "artifact": "시장 방향 보고서", "detail": "출처, 결정, 활동 기록 보존" }
+        }
+      },
+      "capabilities": {
+        "eyebrow": "플랫폼 역량",
+        "title": "업무의 모든 계층을 지휘하세요",
+        "description": "한 시스템에서 팀을 조직하고, 진행을 관찰하고, 경계를 설정하고, 반복 업무를 운영합니다.",
+        "items": {
+          "organize": { "title": "조직", "description": "각 Worker에게 역할, 담당 업무, 필요한 맥락을 제공합니다.", "primitives": { "roles": "전문 역할", "tasks": "담당 Tickets", "ownership": "명확한 책임", "context": "공유 Channels" } },
+          "observe": { "title": "관찰", "description": "팀의 활동과 각 결과를 뒷받침하는 근거를 확인합니다.", "primitives": { "activity": "실시간 Mesh 활동", "evidence": "출처 근거", "status": "납품 상태", "deliverables": "검토 가능한 결과물" } },
+          "control": { "title": "통제", "description": "업무의 접근, 승인, 책임 기준을 설정합니다.", "primitives": { "permissions": "권한", "checkpoints": "사람의 검토 지점", "credentials": "범위 지정 자격 증명", "audit": "감사 기록" } },
+          "operate": { "title": "운영", "description": "자체 인프라에서 실행하고 검증된 흐름을 재사용합니다.", "primitives": { "execution": "Runner 실행", "schedules": "Loop 일정", "workflows": "재사용 워크플로" } }
+        }
+      },
+      "trust": {
+        "eyebrow": "배포와 신뢰",
+        "title": "원하는 방식으로 AI 워크포스를 도입하세요",
+        "description": "실행, 접근, 근거를 조직이 신뢰하는 통제 범위 안에 유지합니다.",
+        "safeguards": {
+          "selfHosting": { "title": "자체 호스팅 실행", "description": "직접 관리하는 인프라에서 Runners를 실행합니다.", "status": "통제됨" },
+          "workspaces": { "title": "격리된 AgentPod 작업 공간", "description": "각 업무와 작업 맥락을 분리합니다.", "status": "격리됨" },
+          "credentials": { "title": "자격 증명 관리", "description": "필요한 Worker와 업무로 접근을 제한합니다.", "status": "범위 지정" },
+          "audit": { "title": "검토 가능한 기록", "description": "활동, 결정, 납품 근거를 보존합니다.", "status": "기록됨" }
+        },
+        "compatibility": { "title": "신뢰하는 AI 에이전트를 연결하세요", "description": "지원되는 에이전트 런타임을 하나의 워크포스 플랫폼에서 조율합니다." }
+      },
+      "cta": {
+        "title": "AI 팀은 무엇을 전달할 수 있을까요?",
+        "description": "목표를 설정하고 역할을 구성해 모든 단계를 직접 관리하세요.",
+        "watchDemo": "데모 보기",
+        "startFree": "무료로 시작"
+      }
+    }
+  }
+}

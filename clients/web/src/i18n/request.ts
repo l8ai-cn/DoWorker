@@ -7,13 +7,16 @@ import {
   isValidLocale,
   getLocaleFromHeaders,
 } from "@/lib/i18n/config";
-import { deepMergeMessages } from "@/lib/i18n/messageFallback";
+import {
+  deepMergeMessages,
+  mergeMessageNamespaces,
+} from "@/lib/i18n/messageFallback";
 
 async function loadLocale(locale: string) {
   const files = await Promise.all(
     MESSAGE_NAMESPACES.map((ns) => import(`@/messages/${locale}/${ns}.json`)),
   );
-  return Object.assign({}, ...files.map((f) => f.default));
+  return mergeMessageNamespaces(files.map((file) => file.default));
 }
 
 export default getRequestConfig(async () => {

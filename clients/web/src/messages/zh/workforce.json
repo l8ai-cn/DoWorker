@@ -1,0 +1,131 @@
+{
+  "landing": {
+    "workforce": {
+      "hero": {
+        "badge": "AI 智能团队平台",
+        "titleLead": "设定目标，",
+        "titleEmphasis": "组建一支 AI 团队",
+        "description": "让各有所长的智能员工协同调研、创作、执行并交付成果；方向由你决定，关键环节始终由你掌控。",
+        "watchTeam": "观看团队协作",
+        "startFree": "免费开始"
+      },
+      "mission": {
+        "console": "实时任务台",
+        "goal": "团队目标",
+        "scenarios": "选择工作场景",
+        "workers": "智能员工",
+        "activity": "团队动态",
+        "checkpoint": "人工确认点",
+        "checkpointDetail": "团队交付前需要你的确认。",
+        "progress": "任务进度",
+        "deliverable": "交付成果",
+        "pause": "暂停任务",
+        "resume": "继续任务",
+        "nextStep": "下一步",
+        "replay": "重新演示"
+      },
+      "scenarioLabels": {
+        "research": "研究分析",
+        "content": "内容创作",
+        "operations": "业务运营",
+        "sales": "销售支持",
+        "knowledge": "知识管理",
+        "product": "产品创新"
+      },
+      "scenarios": {
+        "research": {
+          "goal": "研判市场格局并提出方向建议",
+          "workers": { "scout": "信息调研员", "analyst": "市场分析师", "editor": "报告编辑" },
+          "steps": { "scope": "明确问题与成功标准", "gather": "汇集来源与多方信号", "synthesize": "归纳证据并形成选项", "review": "审核方向建议" },
+          "deliverable": "有证据支撑的市场方向报告"
+        },
+        "content": {
+          "goal": "把一份需求简报转化为完整内容方案",
+          "workers": { "strategist": "内容策略师", "writer": "营销文案师", "editor": "内容编辑" },
+          "steps": { "brief": "梳理受众与核心信息", "research": "研究受众需求", "draft": "起草整套内容", "approve": "审核并批准方案" },
+          "deliverable": "可直接发布的内容方案包"
+        },
+        "operations": {
+          "goal": "执行标准化运营流程并及时发现异常",
+          "workers": { "coordinator": "运营协调员", "analyst": "流程分析师", "operator": "流程执行员" },
+          "steps": { "intake": "接收需求与约束", "map": "梳理负责人和依赖", "execute": "执行已批准的流程", "report": "汇报结果与异常" },
+          "deliverable": "附完整依据的流程执行结果"
+        },
+        "sales": {
+          "goal": "为销售团队制定聚焦的客户方案",
+          "workers": { "researcher": "客户研究员", "strategist": "销售策略师", "writer": "沟通文案师" },
+          "steps": { "target": "研究目标客户", "qualify": "判断需求与意向信号", "personalize": "制定针对性沟通方案", "review": "沟通前人工审核" },
+          "deliverable": "客户简报与已审核的沟通方案"
+        },
+        "knowledge": {
+          "goal": "把分散的团队资料沉淀为可信知识库",
+          "workers": { "librarian": "知识管理员", "analyst": "资料分析师", "curator": "知识策展员" },
+          "steps": { "collect": "汇集原始资料", "organize": "整理主题与归属", "verify": "依据来源核验内容", "publish": "发布已审核知识" },
+          "deliverable": "经过核验、可检索的知识集"
+        },
+        "product": {
+          "goal": "从真实证据出发，把产品机会推进为可验证方案",
+          "workers": { "researcher": "产品研究员", "designer": "体验设计师", "builder": "原型构建师" },
+          "steps": { "discover": "研究用户与限制条件", "define": "定义产品机会", "build": "构建聚焦原型", "validate": "验证结论与下一步" },
+          "deliverable": "已验证的产品方案与原型"
+        }
+      },
+      "showcase": {
+        "eyebrow": "一支智能团队，多种业务成果",
+        "title": "为每项工作组建合适的团队",
+        "description": "给出目标，Do Worker 会组织专业角色、共享流程和清晰的交付成果。",
+        "scenarioPicker": "智能团队场景",
+        "goal": "目标",
+        "workers": "团队",
+        "workflow": "工作流程",
+        "deliverable": "交付成果"
+      },
+      "lifecycle": {
+        "eyebrow": "工作如何推进",
+        "title": "从目标到有据可查的交付",
+        "description": "Tickets、Channels、Mesh 与 AgentPods 让每项任务协同有序、审核清晰、过程可追溯。",
+        "stages": {
+          "goal": { "title": "设定目标", "description": "在 Ticket 中明确成果、约束和负责人。" },
+          "coordinate": { "title": "协同推进", "description": "智能员工通过 Channels 和 Mesh 共享上下文、分配职责。" },
+          "review": { "title": "人工审核", "description": "在明确的确认点暂停关键决策，交由你审核。" },
+          "deliver": { "title": "交付成果", "description": "接收包含状态、产物与证据的完整结果。" }
+        },
+        "fragments": {
+          "ticket": { "id": "TICKET-104", "status": "已分配", "title": "建议下一步进入的市场" },
+          "channel": { "name": "# 市场拓展", "activity": "3 名智能员工正在共享 Channel 中协作" },
+          "checkpoint": { "status": "等待审核", "decision": "交付前确认建议方向", "action": "审核决策" },
+          "evidence": { "pod": "AgentPod · research-04", "status": "已交付", "artifact": "市场方向报告", "detail": "来源、决策与工作记录均已保留" }
+        }
+      },
+      "capabilities": {
+        "eyebrow": "平台能力",
+        "title": "掌控工作的每一层",
+        "description": "在一个系统中组织团队、掌握进展、设定边界并运行可复用的工作流程。",
+        "items": {
+          "organize": { "title": "组织", "description": "为每名智能员工分配角色、任务和推进工作所需的上下文。", "primitives": { "roles": "专业角色", "tasks": "专属 Tickets", "ownership": "清晰归属", "context": "共享 Channels" } },
+          "observe": { "title": "洞察", "description": "随时了解团队正在做什么，以及每项结果的依据。", "primitives": { "activity": "Mesh 实时动态", "evidence": "来源证据", "status": "交付状态", "deliverables": "可查验成果" } },
+          "control": { "title": "管控", "description": "围绕工作设置访问权限、审批节点与责任记录。", "primitives": { "permissions": "权限管理", "checkpoints": "人工确认点", "credentials": "限定范围的凭证", "audit": "审计记录" } },
+          "operate": { "title": "运行", "description": "在自有基础设施上执行任务，并复用有效流程。", "primitives": { "execution": "Runner 执行", "schedules": "Loop 调度", "workflows": "可复用流程" } }
+        }
+      },
+      "trust": {
+        "eyebrow": "部署与信任",
+        "title": "按你的方式部署 AI 智能团队",
+        "description": "让执行、访问和工作证据始终处于组织可信赖的控制范围内。",
+        "safeguards": {
+          "selfHosting": { "title": "自托管执行", "description": "在你掌控的基础设施上运行 Runners。", "status": "自主可控" },
+          "workspaces": { "title": "隔离的 AgentPod 工作区", "description": "隔离每项任务及其工作上下文。", "status": "相互隔离" },
+          "credentials": { "title": "凭证管理", "description": "只向需要的智能员工和任务授予访问权限。", "status": "范围限定" },
+          "audit": { "title": "可追溯记录", "description": "保留活动、决策和交付依据。", "status": "全程留痕" }
+        },
+        "compatibility": { "title": "接入你信赖的 AI Agent", "description": "通过一个智能团队平台统一协调受支持的 Agent 运行时。" }
+      },
+      "cta": {
+        "title": "你的 AI 团队能交付什么？",
+        "description": "设定目标、组织角色，并让每一步都在你的掌控之下。",
+        "watchDemo": "观看演示",
+        "startFree": "免费开始"
+      }
+    }
+  }
+}

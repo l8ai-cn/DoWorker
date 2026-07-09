@@ -15,3 +15,7 @@ export function deepMergeMessages(base: Messages, override: Messages): Messages 
   }
   return out;
 }
+
+export function mergeMessageNamespaces(namespaces: readonly Messages[]): Messages {
+  return namespaces.reduce(deepMergeMessages, {});
+}

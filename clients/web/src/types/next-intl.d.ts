@@ -1,6 +1,7 @@
 import common from "@/messages/en/common.json";
 import auth from "@/messages/en/auth.json";
 import landing from "@/messages/en/landing.json";
+import workforce from "@/messages/en/workforce.json";
 import app from "@/messages/en/app.json";
 import settings from "@/messages/en/settings.json";
 import ide from "@/messages/en/ide.json";
@@ -13,6 +14,7 @@ import changelogEntries from "@/messages/en/changelog-entries.json";
 type Messages = typeof common &
   typeof auth &
   typeof landing &
+  typeof workforce &
   typeof app &
   typeof settings &
   typeof ide &
