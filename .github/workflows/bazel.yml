@@ -550,10 +550,23 @@ jobs:
 
       - name: Install ibazel
         run: |
+          if command -v ibazel >/dev/null 2>&1; then
+            ibazel --version 2>&1 | head -1 || true
+            exit 0
+          fi
           IBAZEL_VERSION="0.29.0"
-          curl -fsSL "https://github.com/bazelbuild/bazel-watcher/releases/download/v${IBAZEL_VERSION}/ibazel_linux_amd64" \
-            -o /usr/local/bin/ibazel
-          sudo chmod +x /usr/local/bin/ibazel
+          for i in 1 2 3 4 5; do
+            if curl -fsSL --retry 3 --retry-delay 2 \
+              "https://github.com/bazelbuild/bazel-watcher/releases/download/v${IBAZEL_VERSION}/ibazel_linux_amd64" \
+              -o /usr/local/bin/ibazel; then
+              sudo chmod +x /usr/local/bin/ibazel
+              exit 0
+            fi
+            echo "ibazel download attempt $i failed; retrying..."
+            sleep $((i * 3))
+          done
+          echo "failed to download ibazel after retries" >&2
+          exit 1
 
       # hive-s1-smoke drives a real chromium (WS attach + updates feed), so
       # the repo's @playwright/test + headless shell must be resolvable from
@@ -566,7 +579,12 @@ jobs:
           node-version: 22
       - name: Install node deps + chromium
         run: |
-          pnpm install --frozen-lockfile
+          # packages: ["."] in pnpm-workspace.yaml can bump lockfile config
+          # fingerprint; fall back to a non-frozen refresh when that happens.
+          if ! pnpm install --frozen-lockfile; then
+            echo "frozen-lockfile rejected; refreshing lockfile for hive smoke"
+            pnpm install --no-frozen-lockfile
+          fi
           pnpm exec playwright install chromium-headless-shell
 
       - name: Bring up dev backend stack
@@ -609,10 +627,23 @@ jobs:
       # because the host backend / runner / relay are launched via `ibazel run`.
       - name: Install ibazel
         run: |
+          if command -v ibazel >/dev/null 2>&1; then
+            ibazel --version 2>&1 | head -1 || true
+            exit 0
+          fi
           IBAZEL_VERSION="0.29.0"
-          curl -fsSL "https://github.com/bazelbuild/bazel-watcher/releases/download/v${IBAZEL_VERSION}/ibazel_linux_amd64" \
-            -o /usr/local/bin/ibazel
-          sudo chmod +x /usr/local/bin/ibazel
+          for i in 1 2 3 4 5; do
+            if curl -fsSL --retry 3 --retry-delay 2 \
+              "https://github.com/bazelbuild/bazel-watcher/releases/download/v${IBAZEL_VERSION}/ibazel_linux_amd64" \
+              -o /usr/local/bin/ibazel; then
+              sudo chmod +x /usr/local/bin/ibazel
+              exit 0
+            fi
+            echo "ibazel download attempt $i failed; retrying..."
+            sleep $((i * 3))
+          done
+          echo "failed to download ibazel after retries" >&2
+          exit 1
 
       - name: Bring up dev backend stack
         run: |

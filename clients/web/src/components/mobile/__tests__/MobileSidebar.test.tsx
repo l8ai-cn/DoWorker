@@ -3,6 +3,27 @@ import { render, screen } from "@testing-library/react";
 import { useEffect } from "react";
 import { MobileSidebar } from "../MobileSidebar";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
+}));
+
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => {
+    if (key === "ide.activities.tickets") return "Tickets";
+    if (key.startsWith("ide.activities.")) return key.slice("ide.activities.".length);
+    return key;
+  },
+}));
+
+vi.mock("@/hooks/useCtaModal", () => ({
+  useCtaModal: () => ({
+    isOpen: false,
+    open: vi.fn(),
+    close: vi.fn(),
+    commit: vi.fn(),
+  }),
+}));
+
 // Track onOpenChange passed to Drawer.Root via a ref-like container
 const captured: { onOpenChange: ((open: boolean) => void) | null } = { onOpenChange: null };
 

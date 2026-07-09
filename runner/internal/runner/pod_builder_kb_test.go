@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -81,5 +80,6 @@ func TestCloneKnowledgeMount_ROStripsTokenFromRemote(t *testing.T) {
 	cfg, err := os.ReadFile(filepath.Join(sandbox, "kb", "docs", ".git", "config"))
 	require.NoError(t, err)
 	assert.NotContains(t, string(cfg), "secret", "ro mount must not retain the clone token")
-	assert.True(t, strings.Contains(string(cfg), origin))
+	// Git for Windows normalizes path separators in .git/config; compare slash-folded.
+	assert.Contains(t, filepath.ToSlash(string(cfg)), filepath.ToSlash(origin))
 }
