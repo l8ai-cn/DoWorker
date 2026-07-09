@@ -92,7 +92,7 @@
         },
         "fragments": {
           "ticket": { "id": "TICKET-104", "status": "已分配", "title": "建议下一步进入的市场" },
-          "channel": { "name": "# 市场拓展", "activity": "3 名智能员工正在共享 Channel 中协作" },
+          "channel": { "name": "#market-expansion", "activity": "3 名智能员工正在共享 Channel 中协作" },
           "checkpoint": { "status": "等待审核", "decision": "交付前确认建议方向", "action": "审核决策" },
           "evidence": { "pod": "AgentPod · research-04", "status": "已交付", "artifact": "市场方向报告", "detail": "来源、决策与工作记录均已保留" }
         }
@@ -119,12 +119,6 @@
           "audit": { "title": "可追溯记录", "description": "保留活动、决策和交付依据。", "status": "全程留痕" }
         },
         "compatibility": { "title": "接入你信赖的 AI Agent", "description": "通过一个智能团队平台统一协调受支持的 Agent 运行时。" }
-      },
-      "cta": {
-        "title": "你的 AI 团队能交付什么？",
-        "description": "设定目标、组织角色，并让每一步都在你的掌控之下。",
-        "watchDemo": "观看演示",
-        "startFree": "免费开始"
       }
     }
   }

@@ -92,7 +92,7 @@
         },
         "fragments": {
           "ticket": { "id": "TICKET-104", "status": "割り当て済み", "title": "次に参入すべき市場を提案" },
-          "channel": { "name": "# 市場拡大", "activity": "3 人の Worker が共有 Channel で連携中" },
+          "channel": { "name": "#market-expansion", "activity": "3 人の Worker が共有 Channel で連携中" },
           "checkpoint": { "status": "確認が必要", "decision": "納品前に推奨方針を承認", "action": "判断を確認" },
           "evidence": { "pod": "AgentPod · research-04", "status": "納品済み", "artifact": "市場方針レポート", "detail": "情報源、判断、活動履歴を保持" }
         }
@@ -119,12 +119,6 @@
           "audit": { "title": "確認可能な履歴", "description": "活動、判断、納品の証拠を保持します。", "status": "記録済み" }
         },
         "compatibility": { "title": "信頼する AI エージェントを活用", "description": "対応するエージェント環境を、ひとつの基盤で連携します。" }
-      },
-      "cta": {
-        "title": "あなたの AI チームは何を届けますか？",
-        "description": "目標を定め、役割を編成し、すべての工程を指揮しましょう。",
-        "watchDemo": "デモを見る",
-        "startFree": "無料で始める"
       }
     }
   }

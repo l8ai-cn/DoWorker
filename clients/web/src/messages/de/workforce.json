@@ -92,7 +92,7 @@
         },
         "fragments": {
           "ticket": { "id": "TICKET-104", "status": "Zugewiesen", "title": "Nächsten Zielmarkt empfehlen" },
-          "channel": { "name": "# marktexpansion", "activity": "3 Worker koordinieren sich in einem gemeinsamen Channel" },
+          "channel": { "name": "#marktexpansion", "activity": "3 Worker koordinieren sich in einem gemeinsamen Channel" },
           "checkpoint": { "status": "Prüfung erforderlich", "decision": "Empfohlene Richtung vor Lieferung freigeben", "action": "Entscheidung prüfen" },
           "evidence": { "pod": "AgentPod · research-04", "status": "Geliefert", "artifact": "Marktstrategie-Briefing", "detail": "Quellen, Entscheidungen und Aktivität gespeichert" }
         }
@@ -119,12 +119,6 @@
           "audit": { "title": "Prüfbarer Verlauf", "description": "Aktivität, Entscheidungen und Liefernachweise behalten.", "status": "Erfasst" }
         },
         "compatibility": { "title": "Vertraute KI-Agenten einbinden", "description": "Unterstützte Agent-Laufzeiten über eine Workforce-Plattform koordinieren." }
-      },
-      "cta": {
-        "title": "Was könnte dein KI-Team liefern?",
-        "description": "Ziel setzen, Rollen zusammenstellen und jeden Schritt steuern.",
-        "watchDemo": "Demo ansehen",
-        "startFree": "Kostenlos starten"
       }
     }
   }

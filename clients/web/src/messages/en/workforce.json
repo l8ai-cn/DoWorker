@@ -92,7 +92,7 @@
         },
         "fragments": {
           "ticket": { "id": "TICKET-104", "status": "Assigned", "title": "Recommend the next market to enter" },
-          "channel": { "name": "# market-expansion", "activity": "3 Workers coordinating in a shared Channel" },
+          "channel": { "name": "#market-expansion", "activity": "3 Workers coordinating in a shared Channel" },
           "checkpoint": { "status": "Review required", "decision": "Approve the recommended direction before delivery", "action": "Review decision" },
           "evidence": { "pod": "AgentPod · research-04", "status": "Delivered", "artifact": "Market direction brief", "detail": "Sources, decisions, and activity retained" }
         }
@@ -119,12 +119,6 @@
           "audit": { "title": "Inspectable history", "description": "Retain activity, decisions, and delivery evidence.", "status": "Recorded" }
         },
         "compatibility": { "title": "Bring the AI agents you trust", "description": "Coordinate supported agent runtimes through one workforce platform." }
-      },
-      "cta": {
-        "title": "What could your AI team deliver?",
-        "description": "Set the goal, assemble the roles, and keep every step under your direction.",
-        "watchDemo": "Watch the demo",
-        "startFree": "Start free"
       }
     }
   }

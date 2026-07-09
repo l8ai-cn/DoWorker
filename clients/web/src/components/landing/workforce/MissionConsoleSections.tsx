@@ -2,8 +2,9 @@
 
 import { useId } from 'react'
 import { workforceScenarios, type WorkforceScenario, type WorkforceScenarioId } from './workforce-scenarios'
+import type { WorkforceMessageKey } from './workforce-message-keys'
 
-export type MissionTranslate = (key: string) => string
+export type MissionTranslate = (key: WorkforceMessageKey) => string
 
 export function ScenarioControls({
   selectedId,

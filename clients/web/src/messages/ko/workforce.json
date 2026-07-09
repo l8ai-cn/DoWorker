@@ -92,7 +92,7 @@
         },
         "fragments": {
           "ticket": { "id": "TICKET-104", "status": "배정됨", "title": "다음 진출 시장 제안" },
-          "channel": { "name": "# 시장-확장", "activity": "3명의 Worker가 공유 Channel에서 협업 중" },
+          "channel": { "name": "#market-expansion", "activity": "3명의 Worker가 공유 Channel에서 협업 중" },
           "checkpoint": { "status": "검토 필요", "decision": "납품 전 권고 방향 승인", "action": "결정 검토" },
           "evidence": { "pod": "AgentPod · research-04", "status": "납품 완료", "artifact": "시장 방향 보고서", "detail": "출처, 결정, 활동 기록 보존" }
         }
@@ -119,12 +119,6 @@
           "audit": { "title": "검토 가능한 기록", "description": "활동, 결정, 납품 근거를 보존합니다.", "status": "기록됨" }
         },
         "compatibility": { "title": "신뢰하는 AI 에이전트를 연결하세요", "description": "지원되는 에이전트 런타임을 하나의 워크포스 플랫폼에서 조율합니다." }
-      },
-      "cta": {
-        "title": "AI 팀은 무엇을 전달할 수 있을까요?",
-        "description": "목표를 설정하고 역할을 구성해 모든 단계를 직접 관리하세요.",
-        "watchDemo": "데모 보기",
-        "startFree": "무료로 시작"
       }
     }
   }

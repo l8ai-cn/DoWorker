@@ -5,6 +5,7 @@ import {
   type WorkforceScenario,
   type WorkforceTranslationKey,
 } from '../workforce-scenarios'
+import type { MissionTranslate } from '../MissionConsoleSections'
 import { getNextMissionStep } from '../mission-playback'
 
 describe('workforce scenarios', () => {
@@ -13,6 +14,8 @@ describe('workforce scenarios', () => {
     expectTypeOf<WorkforceScenario['accent']>().toEqualTypeOf<WorkforceAccent>()
     expectTypeOf<WorkforceScenario['goalKey']>().toMatchTypeOf<WorkforceTranslationKey>()
     expectTypeOf<'landing.workforce.scenarios.research.unknown'>().not.toMatchTypeOf<WorkforceTranslationKey>()
+    expectTypeOf<'landing.workforce.mission.workers'>().toMatchTypeOf<Parameters<MissionTranslate>[0]>()
+    expectTypeOf<'landing.workforce.mission.workerz'>().not.toMatchTypeOf<Parameters<MissionTranslate>[0]>()
   })
 })
 

@@ -92,7 +92,7 @@
         },
         "fragments": {
           "ticket": { "id": "TICKET-104", "status": "Asignado", "title": "Recomendar el próximo mercado" },
-          "channel": { "name": "# expansión-mercado", "activity": "3 Workers colaborando en un Channel compartido" },
+          "channel": { "name": "#expansion-mercado", "activity": "3 Workers colaborando en un Channel compartido" },
           "checkpoint": { "status": "Revisión necesaria", "decision": "Aprobar la dirección recomendada", "action": "Revisar decisión" },
           "evidence": { "pod": "AgentPod · research-04", "status": "Entregado", "artifact": "Informe de dirección de mercado", "detail": "Fuentes, decisiones y actividad conservadas" }
         }
@@ -119,12 +119,6 @@
           "audit": { "title": "Historial verificable", "description": "Conserva actividad, decisiones y pruebas de entrega.", "status": "Registrado" }
         },
         "compatibility": { "title": "Usa los agentes de IA en los que confías", "description": "Coordina los entornos compatibles desde una plataforma común." }
-      },
-      "cta": {
-        "title": "¿Qué podría entregar tu equipo de IA?",
-        "description": "Define el objetivo, reúne los roles y mantén cada paso bajo tu dirección.",
-        "watchDemo": "Ver la demo",
-        "startFree": "Empezar gratis"
       }
     }
   }
