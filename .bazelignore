@@ -7,6 +7,8 @@ clients/web/.next
 clients/web-admin/.next
 packages/service-interface/node_modules
 packages/service-runtime/node_modules
+packages/do-worker-wasm/node_modules
+proto/node_modules
 clients/web/e2e-playwright/node_modules
 # proto/gen/go is a lint-time mirror written by golangci_lint_runner.sh
 # so golangci-lint's typecheck sees the generated .pb.go files. The real
