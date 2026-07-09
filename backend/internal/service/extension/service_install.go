@@ -13,32 +13,40 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *Service) InstallSkillFromMarket(ctx context.Context, orgID, repoID, userID, marketItemID int64, scope string) (*extension.InstalledSkill, error) {
+// InstallSkillFromMarket installs a unified-catalog skill (skills table row)
+// into a repository. skillID is the catalog row id (surfaced to clients as
+// the market item id).
+func (s *Service) InstallSkillFromMarket(ctx context.Context, orgID, repoID, userID, skillID int64, scope string) (*extension.InstalledSkill, error) {
 	if err := validateScope(scope); err != nil {
 		return nil, err
 	}
-
-	marketItem, err := s.repo.GetSkillMarketItem(ctx, marketItemID)
-	if err != nil {
-		return nil, fmt.Errorf("%w: market item %d", ErrNotFound, marketItemID)
+	if s.catalog == nil {
+		return nil, fmt.Errorf("%w: skill catalog not configured", ErrInvalidInput)
 	}
 
-	if marketItem.Registry != nil && marketItem.Registry.OrganizationID != nil &&
-		*marketItem.Registry.OrganizationID != orgID {
+	catalogSkill, err := s.catalog.GetAnyByID(ctx, skillID)
+	if err != nil {
+		return nil, fmt.Errorf("%w: skill %d", ErrNotFound, skillID)
+	}
+	if !catalogSkill.VisibleTo(orgID) {
 		return nil, fmt.Errorf("%w: skill not accessible to this organization", ErrForbidden)
+	}
+	if !catalogSkill.IsActive {
+		return nil, fmt.Errorf("%w: skill %d is inactive", ErrNotFound, skillID)
 	}
 
 	skill := &extension.InstalledSkill{
 		OrganizationID: orgID,
 		RepositoryID:   repoID,
-		MarketItemID:   &marketItemID,
+		SkillID:        &skillID,
 		Scope:          scope,
 		InstalledBy:    &userID,
-		Slug:           marketItem.Slug,
-		InstallSource:  "market",
-		ContentSha:     marketItem.ContentSha,
-		StorageKey:     marketItem.StorageKey,
-		PackageSize:    marketItem.PackageSize,
+		Slug:           catalogSkill.Slug,
+		InstallSource:  extension.InstallSourceCatalog,
+		SourceURL:      catalogSkill.UpstreamURL,
+		ContentSha:     catalogSkill.ContentSha,
+		StorageKey:     catalogSkill.StorageKey,
+		PackageSize:    catalogSkill.PackageSize,
 		IsEnabled:      true,
 	}
 
@@ -46,11 +54,11 @@ func (s *Service) InstallSkillFromMarket(ctx context.Context, orgID, repoID, use
 		if errors.Is(err, extension.ErrDuplicateInstall) {
 			return nil, fmt.Errorf("%w: skill '%s' is already installed in this repository with scope '%s'", ErrAlreadyInstalled, skill.Slug, skill.Scope)
 		}
-		slog.ErrorContext(ctx, "failed to install skill from market", "slug", skill.Slug, "org_id", orgID, "repo_id", repoID, "error", err)
+		slog.ErrorContext(ctx, "failed to install skill from catalog", "slug", skill.Slug, "org_id", orgID, "repo_id", repoID, "error", err)
 		return nil, fmt.Errorf("failed to install skill: %w", err)
 	}
 
-	slog.InfoContext(ctx, "skill installed from market", "slug", skill.Slug, "org_id", orgID, "repo_id", repoID, "scope", scope)
+	slog.InfoContext(ctx, "skill installed from catalog", "slug", skill.Slug, "org_id", orgID, "repo_id", repoID, "scope", scope)
 	return skill, nil
 }
 

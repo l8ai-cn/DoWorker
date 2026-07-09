@@ -221,10 +221,11 @@ func main() {
 		Logger:   appLogger.Logger,
 	})
 
-	// Git-backed author-in-platform skill service (namespace am-skills). It
-	// reuses the extension packager for the package->object-storage pipeline.
+	// Unified skill service (namespace am-skills): one internal git repo per
+	// skill, for both in-platform authoring and external imports. It reuses
+	// the extension packager for the package->object-storage pipeline.
 	// NewService returns nil (routes no-op) when gitea or the packager is not
-	// configured, so this is additive to the external-import skill flow.
+	// configured.
 	skillGitops := gitops.NewService(newGiteaClientForNamespace(cfg, "am-skills"), appLogger.Logger)
 	var skillPackager skillSvc.SkillPackagerBridge
 	if services.extension != nil {
@@ -233,7 +234,7 @@ func main() {
 		}
 	}
 	svc.Skill = skillSvc.NewService(skillSvc.Deps{
-		Store:    infra.NewAuthoredSkillRepository(db),
+		Store:    infra.NewSkillCatalogRepository(db),
 		Gitops:   skillGitops,
 		Packager: skillPackager,
 		Logger:   appLogger.Logger,

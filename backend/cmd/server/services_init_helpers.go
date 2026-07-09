@@ -99,10 +99,10 @@ func initializeLicenseService(cfg *config.Config, db *gorm.DB) *license.Service 
 	return licenseSvc
 }
 
-func initializeExtensionServices(cfg *config.Config, db *gorm.DB) (*extensionservice.Service, extension.Repository, *extensionservice.SkillImporter, *extensionservice.MarketplaceWorker) {
+func initializeExtensionServices(cfg *config.Config, db *gorm.DB) (*extensionservice.Service, extension.Repository, *extensionservice.MarketplaceWorker) {
 	if cfg.Storage.AccessKey == "" || cfg.Storage.SecretKey == "" {
 		slog.Warn("Storage not configured, extension services disabled")
-		return nil, nil, nil, nil
+		return nil, nil, nil
 	}
 
 	s3Storage, err := storage.NewS3Storage(storage.S3Config{
@@ -118,7 +118,7 @@ func initializeExtensionServices(cfg *config.Config, db *gorm.DB) (*extensionser
 	})
 	if err != nil {
 		slog.Error("Failed to initialize storage for extensions", "error", err)
-		return nil, nil, nil, nil
+		return nil, nil, nil
 	}
 
 	extRepo := infra.NewExtensionRepository(db)
@@ -126,9 +126,7 @@ func initializeExtensionServices(cfg *config.Config, db *gorm.DB) (*extensionser
 	extSvc := extensionservice.NewService(extRepo, s3Storage, encryptor)
 	skillPkg := extensionservice.NewSkillPackager(extRepo, s3Storage)
 	extSvc.SetSkillPackager(skillPkg)
-	skillImp := extensionservice.NewSkillImporter(extRepo, s3Storage)
-	extSvc.SetSkillImporter(skillImp)
-	skillImp.SetCredentialDecryptor(extSvc.DecryptCredential)
+	extSvc.SetSkillCatalog(infra.NewSkillCatalogRepository(db))
 
 	var mcpRegistrySyncer *extensionservice.McpRegistrySyncer
 	if cfg.Marketplace.RegistryEnabled {
@@ -141,11 +139,11 @@ func initializeExtensionServices(cfg *config.Config, db *gorm.DB) (*extensionser
 	if syncInterval == 0 {
 		syncInterval = 1 * time.Hour
 	}
-	mktWorker := extensionservice.NewMarketplaceWorker(extRepo, skillImp, mcpRegistrySyncer, syncInterval)
+	mktWorker := extensionservice.NewMarketplaceWorker(mcpRegistrySyncer, syncInterval)
 	slog.Info("MarketplaceWorker configured", "interval", syncInterval)
 
 	slog.Info("Extension services initialized")
-	return extSvc, extRepo, skillImp, mktWorker
+	return extSvc, extRepo, mktWorker
 }
 
 func initializeSupportTicketService(cfg *config.Config, db *gorm.DB) *supportticketservice.Service {

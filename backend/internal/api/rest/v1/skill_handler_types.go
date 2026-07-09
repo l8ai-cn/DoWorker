@@ -14,3 +14,12 @@ type updateSkillRequest struct {
 	License      *string `json:"license"`
 	Instructions *string `json:"instructions"`
 }
+
+type importSkillsRequest struct {
+	URL            string   `json:"url" binding:"required"`
+	Branch         string   `json:"branch"`
+	Subdir         string   `json:"subdir"`
+	AgentFilter    []string `json:"agent_filter"`
+	AuthType       string   `json:"auth_type"`
+	AuthCredential string   `json:"auth_credential"`
+}

@@ -6,10 +6,16 @@ import (
 	"log/slog"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 )
 
-func (s *Service) ListMarketSkills(ctx context.Context, orgID int64, query, category string) ([]*extension.SkillMarketItem, error) {
-	return s.repo.ListSkillMarketItems(ctx, &orgID, query, category)
+// ListMarketSkills surfaces the unified skill catalog (org + platform rows)
+// to the marketplace UI.
+func (s *Service) ListMarketSkills(ctx context.Context, orgID int64, query, category string) ([]skilldom.Skill, error) {
+	if s.catalog == nil {
+		return nil, nil
+	}
+	return s.catalog.ListCatalog(ctx, orgID, query, category)
 }
 
 func (s *Service) ListMarketMcpServers(ctx context.Context, query, category string, limit, offset int) ([]*extension.McpMarketItem, int64, error) {
@@ -126,11 +132,11 @@ func filterSkillsByAgent(skills []*extension.InstalledSkill, agentSlug string) [
 	}
 	result := make([]*extension.InstalledSkill, 0, len(skills))
 	for _, skill := range skills {
-		if skill.MarketItem == nil {
+		if skill.Skill == nil {
 			result = append(result, skill)
 			continue
 		}
-		filter := skill.MarketItem.GetAgentFilter()
+		filter := skill.Skill.GetAgentFilter()
 		if len(filter) == 0 {
 			result = append(result, skill)
 			continue

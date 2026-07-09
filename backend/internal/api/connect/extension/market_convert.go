@@ -4,20 +4,20 @@ import (
 	"encoding/json"
 
 	extdom "github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	"github.com/anthropics/agentsmesh/backend/pkg/protoconv"
 	extensionv1 "github.com/anthropics/agentsmesh/proto/gen/go/extension/v1"
 )
 
-// toProtoSkillMarketItem converts a domain SkillMarketItem to the wire shape.
-// AgentFilter is parsed via the domain helper; an empty filter means
-// "all agents allowed" — same semantic as the REST handler.
-func toProtoSkillMarketItem(m *extdom.SkillMarketItem) *extensionv1.SkillMarketItem {
+// toProtoSkillMarketItem projects a unified-catalog skill row onto the
+// marketplace wire shape. The proto id is the skills-table row id (clients
+// pass it back to InstallSkillFromMarket). registry_id is retired and stays 0.
+func toProtoSkillMarketItem(m *skilldom.Skill) *extensionv1.SkillMarketItem {
 	if m == nil {
 		return nil
 	}
 	out := &extensionv1.SkillMarketItem{
 		Id:            m.ID,
-		RegistryId:    m.RegistryID,
 		Slug:          m.Slug,
 		DisplayName:   m.DisplayName,
 		Description:   m.Description,
@@ -112,8 +112,10 @@ func toProtoInstalledSkill(s *extdom.InstalledSkill) *extensionv1.InstalledSkill
 		CreatedAt:      protoconv.RFC3339(s.CreatedAt),
 		UpdatedAt:      protoconv.RFC3339(s.UpdatedAt),
 	}
-	if s.MarketItemID != nil {
-		out.MarketItemId = s.MarketItemID
+	if s.SkillID != nil {
+		// Wire field predates the unified catalog; it now carries the
+		// skills-table row id.
+		out.MarketItemId = s.SkillID
 	}
 	if s.InstalledBy != nil {
 		out.InstalledBy = s.InstalledBy

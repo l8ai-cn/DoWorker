@@ -8,6 +8,18 @@ import (
 	"strings"
 )
 
+// SkillInfo holds parsed information about a discovered skill.
+type SkillInfo struct {
+	Slug          string
+	DisplayName   string
+	Description   string
+	License       string
+	Compatibility string
+	AllowedTools  string
+	Category      string
+	DirPath       string // absolute path to the skill directory
+}
+
 func detectRepoType(repoDir string) string {
 	if fileExists(filepath.Join(repoDir, "SKILL.md")) {
 		return "single"

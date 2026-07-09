@@ -88,7 +88,6 @@ type serviceContainer struct {
 	email             email.Service
 	extension         *extensionservice.Service
 	extensionRepo     extension.Repository
-	skillImporter     *extensionservice.SkillImporter
 	marketplaceWorker *extensionservice.MarketplaceWorker
 	loop              *loop.LoopService
 	loopRun           *loop.LoopRunService
@@ -214,7 +213,7 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 	loopRunSvc := loop.NewLoopRunService(loopRunRepo)
 
 	licenseSvc := initializeLicenseService(cfg, db)
-	extSvc, extRepo, skillImp, mktWorker := initializeExtensionServices(cfg, db)
+	extSvc, extRepo, mktWorker := initializeExtensionServices(cfg, db)
 	knowledgeBaseSvc := initializeKnowledgeBaseService(cfg, db)
 	var kbSyncWorker *knowledgebaseservice.SyncWorker
 	if knowledgeBaseSvc != nil {
@@ -278,7 +277,6 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 		email:              emailSvc,
 		extension:          extSvc,
 		extensionRepo:      extRepo,
-		skillImporter:      skillImp,
 		marketplaceWorker:  mktWorker,
 		loop:               loopSvc,
 		loopRun:            loopRunSvc,

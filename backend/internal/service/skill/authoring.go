@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	extensiondom "github.com/anthropics/agentsmesh/backend/internal/domain/extension"
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
@@ -106,7 +105,7 @@ func extractSkillBody(content string) string {
 // Create provisions an am-skills repo (seeding SKILL.md + skill.json), packages
 // it through the extension bridge, and records the DB cache row. On any
 // post-provision failure the fresh repo is compensating-deleted.
-func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldom.AuthoredSkill, error) {
+func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldom.Skill, error) {
 	if strings.TrimSpace(req.Name) == "" {
 		return nil, ErrNameRequired
 	}
@@ -140,20 +139,23 @@ func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldo
 		return nil, err
 	}
 
-	row := &skilldom.AuthoredSkill{
-		OrganizationID: req.OrganizationID,
+	orgID := req.OrganizationID
+	userID := req.UserID
+	row := &skilldom.Skill{
+		OrganizationID: &orgID,
 		Slug:           slug,
 		DisplayName:    strings.TrimSpace(req.Name),
 		Description:    strings.TrimSpace(req.Description),
 		License:        strings.TrimSpace(req.License),
+		IsActive:       true,
 		GitRepoPath:    repo.Path,
 		DefaultBranch:  branchOf(repo),
-		InstallSource:  extensiondom.InstallSourceGitops,
+		InstallSource:  skilldom.SourceGitops,
 		ContentSha:     pkg.ContentSha,
 		StorageKey:     pkg.StorageKey,
 		PackageSize:    pkg.PackageSize,
 		Version:        1,
-		CreatedByID:    req.UserID,
+		CreatedByID:    &userID,
 	}
 	if repo.HTTPCloneURL != "" {
 		u := repo.HTTPCloneURL
@@ -170,7 +172,7 @@ func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldo
 // Update re-renders SKILL.md/skill.json from the patched fields, commits them to
 // Git (source of truth), re-packages, bumps the version, and refreshes the DB
 // cache row.
-func (s *Service) Update(ctx context.Context, req *UpdateSkillRequest) (*skilldom.AuthoredSkill, error) {
+func (s *Service) Update(ctx context.Context, req *UpdateSkillRequest) (*skilldom.Skill, error) {
 	row, err := s.store.GetByID(ctx, req.OrganizationID, req.SkillID)
 	if err != nil {
 		return nil, err
@@ -249,12 +251,12 @@ func (s *Service) Delete(ctx context.Context, orgID, id int64) error {
 }
 
 // Get returns one authored skill from the DB cache.
-func (s *Service) Get(ctx context.Context, orgID int64, slug string) (*skilldom.AuthoredSkill, error) {
+func (s *Service) Get(ctx context.Context, orgID int64, slug string) (*skilldom.Skill, error) {
 	return s.store.GetBySlug(ctx, orgID, slug)
 }
 
 // List returns authored skills for an org from the DB cache.
-func (s *Service) List(ctx context.Context, orgID int64, limit, offset int) ([]skilldom.AuthoredSkill, int64, error) {
+func (s *Service) List(ctx context.Context, orgID int64, limit, offset int) ([]skilldom.Skill, int64, error) {
 	return s.store.List(ctx, orgID, limit, offset)
 }
 

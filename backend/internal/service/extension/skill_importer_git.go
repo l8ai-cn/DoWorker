@@ -7,8 +7,14 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+)
 
-	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+// Auth types accepted when cloning an external skill source.
+const (
+	AuthTypeNone      = "none"
+	AuthTypeGitHubPAT = "github_pat"
+	AuthTypeGitLabPAT = "gitlab_pat"
+	AuthTypeSSHKey    = "ssh_key"
 )
 
 func validateGitBranch(branch string) error {
@@ -25,21 +31,21 @@ func validateGitBranch(branch string) error {
 func gitCloneWithAuth(ctx context.Context, repoURL, branch, targetDir, authType, credential string) error {
 	slog.InfoContext(ctx, "git clone with auth", "auth_type", authType, "branch", branch)
 	switch authType {
-	case extension.AuthTypeGitHubPAT:
+	case AuthTypeGitHubPAT:
 		authedURL, err := injectPATIntoURL(repoURL, credential)
 		if err != nil {
 			return fmt.Errorf("failed to build authenticated URL: %w", err)
 		}
 		return gitClone(ctx, authedURL, branch, targetDir)
 
-	case extension.AuthTypeGitLabPAT:
+	case AuthTypeGitLabPAT:
 		authedURL, err := injectGitLabPATIntoURL(repoURL, credential)
 		if err != nil {
 			return fmt.Errorf("failed to build authenticated URL: %w", err)
 		}
 		return gitClone(ctx, authedURL, branch, targetDir)
 
-	case extension.AuthTypeSSHKey:
+	case AuthTypeSSHKey:
 		return gitCloneWithSSHKey(ctx, repoURL, branch, targetDir, credential)
 
 	default:

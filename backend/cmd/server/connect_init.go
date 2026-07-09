@@ -10,7 +10,6 @@ import (
 	adminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin"
 	adminauthconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin/auth"
 	promocodeadminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin/promocode"
-	skillregistryadminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin/skill_registry"
 	ssoadminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin/sso"
 	subscriptionadminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin/subscription"
 	supportticketadminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin/support_ticket"
@@ -105,7 +104,6 @@ func wrapWithConnect(cfg *config.Config, svc *serviceContainer, rest *v1.Service
 // to. Specialist PRs insert one line per service.
 func mountConnectServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Services, cfg *config.Config, opts []connect.HandlerOption) {
 	extensionSrv := extensionconnect.NewServer(svc.extension, svc.org)
-	extensionconnect.Mount(mux, extensionSrv, opts...)
 	extensionconnect.MountMarket(mux, extensionconnect.NewMarketServer(extensionSrv), opts...)
 	extensionconnect.MountRepoSkill(mux, extensionconnect.NewRepoSkillServer(extensionSrv), opts...)
 	extensionconnect.MountRepoMcp(mux, extensionconnect.NewRepoMcpServer(extensionSrv), opts...)
@@ -181,13 +179,6 @@ func mountAdminServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Serv
 	promocodeadminconnect.Mount(mux, promocodeadminconnect.NewServer(svc.admin, svc.adminDB), opts...)
 	if svc.billing != nil {
 		subscriptionadminconnect.Mount(mux, subscriptionadminconnect.NewServer(svc.admin, svc.billing, svc.adminDB), opts...)
-	}
-	if svc.extensionRepo != nil {
-		skillregistryadminconnect.Mount(
-			mux,
-			skillregistryadminconnect.NewServer(svc.extensionRepo, svc.marketplaceWorker, svc.adminDB),
-			opts...,
-		)
 	}
 	if svc.sso != nil {
 		ssoadminconnect.Mount(

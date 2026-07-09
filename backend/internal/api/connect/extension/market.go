@@ -48,8 +48,8 @@ func (s *MarketServer) ListMarketSkills(
 		return nil, mapServiceError(err)
 	}
 	items := make([]*extensionv1.SkillMarketItem, 0, len(skills))
-	for _, it := range skills {
-		items = append(items, toProtoSkillMarketItem(it))
+	for i := range skills {
+		items = append(items, toProtoSkillMarketItem(&skills[i]))
 	}
 	return connect.NewResponse(&extensionv1.ListMarketSkillsResponse{
 		Items: items,

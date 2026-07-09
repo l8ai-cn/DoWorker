@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"sort"
-	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
 )
@@ -97,8 +96,7 @@ func (r *extensionRepo) ListInstalledSkills(ctx context.Context, orgID, repoID, 
 	var skills []*extension.InstalledSkill
 	query := r.db.WithContext(ctx).
 		Where("organization_id = ? AND repository_id = ?", orgID, repoID).
-		Preload("MarketItem").
-		Preload("MarketItem.Registry")
+		Preload("Skill")
 
 	if scope != "" {
 		query = query.Where("scope = ?", scope)
@@ -117,7 +115,7 @@ func (r *extensionRepo) ListInstalledSkills(ctx context.Context, orgID, repoID, 
 
 func (r *extensionRepo) GetInstalledSkill(ctx context.Context, id int64) (*extension.InstalledSkill, error) {
 	var skill extension.InstalledSkill
-	if err := r.db.WithContext(ctx).Preload("MarketItem").Preload("MarketItem.Registry").First(&skill, id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("Skill").First(&skill, id).Error; err != nil {
 		return nil, err
 	}
 	return &skill, nil
@@ -147,8 +145,7 @@ func (r *extensionRepo) GetEffectiveSkills(ctx context.Context, orgID, userID, r
 	if err := r.db.WithContext(ctx).
 		Where("organization_id = ? AND repository_id = ? AND is_enabled = ?", orgID, repoID, true).
 		Where("(scope = ? OR (scope = ? AND installed_by = ?))", extension.ScopeOrg, extension.ScopeUser, userID).
-		Preload("MarketItem").
-		Preload("MarketItem.Registry").
+		Preload("Skill").
 		Order("scope ASC, created_at ASC").
 		Find(&skills).Error; err != nil {
 		return nil, err
@@ -177,24 +174,6 @@ func deduplicateSkills(skills []*extension.InstalledSkill) []*extension.Installe
 		return result[i].Slug < result[j].Slug
 	})
 	return result
-}
-
-func (r *extensionRepo) SetSkillRegistryOverride(ctx context.Context, orgID int64, registryID int64, isDisabled bool) error {
-	override := &extension.SkillRegistryOverride{
-		OrganizationID: orgID,
-		RegistryID:     registryID,
-		IsDisabled:     isDisabled,
-	}
-	return r.db.WithContext(ctx).
-		Where("organization_id = ? AND registry_id = ?", orgID, registryID).
-		Assign(map[string]interface{}{"is_disabled": isDisabled, "updated_at": time.Now()}).
-		FirstOrCreate(override).Error
-}
-
-func (r *extensionRepo) ListSkillRegistryOverrides(ctx context.Context, orgID int64) ([]*extension.SkillRegistryOverride, error) {
-	var overrides []*extension.SkillRegistryOverride
-	err := r.db.WithContext(ctx).Where("organization_id = ?", orgID).Find(&overrides).Error
-	return overrides, err
 }
 
 var _ extension.Repository = (*extensionRepo)(nil)
