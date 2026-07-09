@@ -63,8 +63,10 @@ openssl x509 -req -days 3650 -in "${SSL_DIR}/server.csr" \
 
 rm -f "${SSL_DIR}/server.csr" "${SSL_DIR}/server_ext.cnf" "${SSL_DIR}/ca.srl"
 
-chmod 600 "${SSL_DIR}/ca.key" "${SSL_DIR}/server.key"
-chmod 644 "${SSL_DIR}/ca.crt" "${SSL_DIR}/server.crt"
+# ca.key must be world-readable: docker runners mount ./ssl as uid 1000 and
+# re-sign client certs from the entrypoint. Host-only server.key stays 600.
+chmod 644 "${SSL_DIR}/ca.key" "${SSL_DIR}/ca.crt" "${SSL_DIR}/server.crt"
+chmod 600 "${SSL_DIR}/server.key"
 
 echo ""
 echo "Development certificates generated (RSA-2048, SAN includes host.docker.internal)."
