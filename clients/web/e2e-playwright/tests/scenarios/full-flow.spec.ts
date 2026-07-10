@@ -1,12 +1,12 @@
 // Migrated R5+: Connect-RPC only (no REST middle layer).
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { resolveE2EPodCreateTargets } from "../../helpers/e2e-echo-runner";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 
 type Runner = { id: bigint; currentPods?: number };
-type Agent = { slug: string };
 type Repository = { id: bigint };
 type Ticket = { slug: string };
 type Pod = { podKey: string; status: string };
@@ -34,19 +34,14 @@ test.describe("Full E2E Scenario", () => {
     }) as Ticket;
     const ticketSlug = ticket.slug;
 
-    // Step 3: Check runner availability
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-
-    // Step 4: Get agents
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
-    expect(agents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
+    // Step 3–4: Pin e2e-echo runner + agent (CI only starts those images).
+    const { runnerId, agentSlug } = await resolveE2EPodCreateTargets(cc);
 
     // Step 5: Create pod with repository and ticket
     const podResp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
-      agentSlug: agents[0].slug,
+      runnerId,
+      agentSlug,
       repositoryId: repoId,
       ticketSlug,
     }) as { pod: Pod };
@@ -63,7 +58,7 @@ test.describe("Full E2E Scenario", () => {
       ).catch(() => {});
 
       // Step 7: Verify runner capacity changed
-      const runnerCheck = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runners[0].id }) as { runner: Runner };
+      const runnerCheck = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runnerId }) as { runner: Runner };
       expect((runnerCheck.runner?.currentPods ?? 0)).toBeGreaterThanOrEqual(0);
 
       // Step 8: Terminate pod

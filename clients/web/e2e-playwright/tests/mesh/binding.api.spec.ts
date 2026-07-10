@@ -4,6 +4,7 @@
 // explicitly in `initiator_pod` on every BindingService request.
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { resolveE2EPodCreateTargets } from "../../helpers/e2e-echo-runner";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 import type { ConnectClient } from "../../helpers/connect-client";
@@ -21,20 +22,12 @@ test.describe("Pod Binding API", () => {
     cc: ConnectClient,
     prompt: string,
   ): Promise<string> {
-    const runnersRes = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as {
-      items: { id: bigint }[];
-    };
-    expect(runnersRes.items.length, "dev env must have an online runner").toBeGreaterThan(0);
-
-    const agentsRes = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as {
-      builtinAgents: { slug: string }[];
-    };
-    expect(agentsRes.builtinAgents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
+    const { runnerId, agentSlug } = await resolveE2EPodCreateTargets(cc);
 
     const created = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      agentSlug: agentsRes.builtinAgents[0].slug,
-      runnerId: runnersRes.items[0].id,
+      agentSlug,
+      runnerId,
       agentfileLayer: `PROMPT ${JSON.stringify(prompt)}\n`,
       cols: 80,
       rows: 24,

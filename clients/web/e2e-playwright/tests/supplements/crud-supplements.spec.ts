@@ -2,6 +2,7 @@ import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { CLEANUP } from "../../helpers/test-data";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { resolveE2EPodCreateTargets } from "../../helpers/e2e-echo-runner";
 
 /**
  * CRUD supplement tests — filling gaps in existing modules.
@@ -147,15 +148,7 @@ test.describe("CRUD Supplements", () => {
    */
   test("create pod with repository association", async ({ api }) => {
     const cc = await api.connect();
-    const { items: runners } = await cc.runner.listAvailableRunners({
-      orgSlug: TEST_ORG_SLUG,
-    }) as { items: { id: bigint }[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-
-    const { builtinAgents: agents } = await cc.agent.listAgents({
-      orgSlug: TEST_ORG_SLUG,
-    }) as { builtinAgents: { slug: string }[] };
-    expect(agents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
+    const { runnerId, agentSlug } = await resolveE2EPodCreateTargets(cc);
 
     const { items: repos } = await cc.repository.listRepositories({
       orgSlug: TEST_ORG_SLUG,
@@ -163,8 +156,8 @@ test.describe("CRUD Supplements", () => {
 
     const req: Record<string, unknown> = {
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
-      agentSlug: agents[0].slug,
+      runnerId,
+      agentSlug,
     };
     if (repos?.length) {
       req.repositoryId = repos[0].id;

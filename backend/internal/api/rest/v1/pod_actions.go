@@ -46,7 +46,7 @@ func (h *PodHandler) TerminatePod(c *gin.Context) {
 
 	if err := h.podCoordinator.TerminatePod(c.Request.Context(), podKey); err != nil {
 		if errors.Is(err, runner.ErrPodAlreadyTerminated) {
-			apierr.BadRequest(c, apierr.VALIDATION_FAILED, "Pod already terminated")
+			c.JSON(http.StatusOK, gin.H{"message": "Pod already terminated"})
 			return
 		}
 		apierr.InternalError(c, "Failed to terminate pod")

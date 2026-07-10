@@ -10,6 +10,7 @@
 // caught at the e2e seam.
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { resolveE2EPodCreateTargets } from "../../helpers/e2e-echo-runner";
 import { clearAuthRateLimit } from "../../helpers/redis";
 
 test.describe("Backend wrapper envelope contracts", () => {
@@ -33,19 +34,12 @@ test.describe("Backend wrapper envelope contracts", () => {
 
   test("pod create response carries pod envelope", async ({ api }) => {
     const cc = await api.connect();
-    const runners = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as {
-      items: { id: bigint }[];
-    };
-    expect(runners.items.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const agents = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as {
-      builtinAgents: { slug: string }[];
-    };
-    expect(agents.builtinAgents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
+    const { runnerId, agentSlug } = await resolveE2EPodCreateTargets(cc);
 
     const resp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners.items[0].id,
-      agentSlug: agents.builtinAgents[0].slug,
+      runnerId,
+      agentSlug,
     }) as { pod?: { podKey?: string } };
     // The legacy REST `{ "pod": {...} }` envelope is now the proto Pod field.
     expect(resp.pod).toBeDefined();

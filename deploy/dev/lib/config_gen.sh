@@ -542,6 +542,17 @@ EOF
 # committed; if a stale .pub doesn't match the .priv (e.g., one was
 # regenerated alone), SSH errors with "identity_sign: private key contents
 # do not match public" — detect via ssh-keygen -y and regen both halves.
+harden_runner_ssh_perms() {
+    local ssh_dir="$SCRIPT_DIR/runner-ssh"
+    # OpenSSH rejects group/world-readable ~/.ssh/config; CI checkout leaves
+    # deploy/dev/runner-ssh/{,config} as 755/644 which breaks git@gitea probes.
+    mkdir -p "$ssh_dir"
+    chmod 700 "$ssh_dir"
+    [[ -f "$ssh_dir/config" ]] && chmod 600 "$ssh_dir/config"
+    [[ -f "$ssh_dir/id_ed25519" ]] && chmod 600 "$ssh_dir/id_ed25519"
+    [[ -f "$ssh_dir/id_ed25519.pub" ]] && chmod 644 "$ssh_dir/id_ed25519.pub"
+}
+
 generate_runner_ssh_key() {
     local ssh_dir="$SCRIPT_DIR/runner-ssh"
     local private_key="$ssh_dir/id_ed25519"
@@ -566,7 +577,7 @@ generate_runner_ssh_key() {
         if [[ "$needs_regen" == true ]]; then
             rm -f "$private_key" "$public_key"
         else
-            chmod 600 "$private_key"
+            harden_runner_ssh_perms
             info "Runner SSH key already exists and is valid"
             return 0
         fi
@@ -574,6 +585,6 @@ generate_runner_ssh_key() {
 
     info "Generating runner SSH key (private key not committed)..."
     ssh-keygen -t ed25519 -C "agentsmesh-dev-runner@local" -f "$private_key" -N "" > /dev/null
-    chmod 600 "$private_key"
+    harden_runner_ssh_perms
     success "Runner SSH key generated: $private_key"
 }

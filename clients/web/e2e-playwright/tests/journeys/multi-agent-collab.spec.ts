@@ -1,12 +1,11 @@
 // Migrated R5+: Connect-RPC only (no REST middle layer).
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { resolveE2EPodCreateTargets } from "../../helpers/e2e-echo-runner";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 
-type Runner = { id: bigint };
-type Agent = { slug: string };
 type Channel = { id: bigint };
 type ChannelMessage = { id: bigint };
 type Pod = { podKey: string; status: string };
@@ -25,12 +24,8 @@ test.describe("Journey: Multi-Agent Collaboration", () => {
   test("channel-based multi-pod collaboration flow", async ({ api }) => {
     const cc = await api.connect();
 
-    // ── Step 1: Check runner availability ──
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
-    expect(agents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
+    // ── Step 1: Pin e2e-echo runner + agent ──
+    const { runnerId, agentSlug } = await resolveE2EPodCreateTargets(cc);
 
     // ── Step 2: Create collaboration channel ──
     const chName = "E2E Collab " + Date.now();
@@ -45,8 +40,8 @@ test.describe("Journey: Multi-Agent Collaboration", () => {
     // ── Step 3: Create Pod A (analyst) ──
     const podAResp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
-      agentSlug: agents[0].slug,
+      runnerId,
+      agentSlug,
       alias: "E2E Collab Pod A - Analyst",
     }) as { pod: Pod };
     const podAKey = podAResp.pod?.podKey;
@@ -54,8 +49,8 @@ test.describe("Journey: Multi-Agent Collaboration", () => {
     // ── Step 4: Create Pod B (implementer) ──
     const podBResp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
-      agentSlug: agents[0].slug,
+      runnerId,
+      agentSlug,
       alias: "E2E Collab Pod B - Implementer",
     }) as { pod: Pod };
     const podBKey = podBResp.pod?.podKey;

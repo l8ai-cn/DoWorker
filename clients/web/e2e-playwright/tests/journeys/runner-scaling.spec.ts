@@ -1,12 +1,12 @@
 // Migrated R5+: Connect-RPC only (no REST middle layer).
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { resolveE2EPodCreateTargets } from "../../helpers/e2e-echo-runner";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 
 type Runner = { id: bigint; currentPods?: number; maxConcurrentPods?: number };
-type Agent = { slug: string };
 type Pod = { podKey: string };
 
 /**
@@ -23,21 +23,16 @@ test.describe("Journey: Runner Scaling", () => {
   test("runner capacity enforcement and scaling", async ({ api }) => {
     const cc = await api.connect();
 
-    // ── Step 1: Get available runner and record initial state ──
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runner = runners[0];
-    const runnerId = runner.id;
-    const initialPods = runner.currentPods || 0;
-
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
-    expect(agents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
+    // ── Step 1: Pin e2e-echo runner and record initial state ──
+    const { runnerId, agentSlug } = await resolveE2EPodCreateTargets(cc);
+    const before = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runnerId }) as { runner: Runner };
+    const initialPods = before.runner?.currentPods || 0;
 
     // ── Step 2: Create a pod and verify capacity increases ──
     const pod1Resp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
       runnerId,
-      agentSlug: agents[0].slug,
+      agentSlug,
       alias: "E2E Scaling Pod 1",
     }) as { pod: Pod };
     const pod1Key = pod1Resp.pod?.podKey;
@@ -54,7 +49,7 @@ test.describe("Journey: Runner Scaling", () => {
     const pod2Resp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
       runnerId,
-      agentSlug: agents[0].slug,
+      agentSlug,
       alias: "E2E Scaling Pod 2",
     }) as { pod: Pod };
     const pod2Key = pod2Resp.pod?.podKey;

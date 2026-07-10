@@ -14,6 +14,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	"github.com/anthropics/agentsmesh/backend/pkg/policy"
 	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"
 	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
@@ -130,7 +131,10 @@ func (s *Server) TerminatePod(
 	}
 
 	if err := s.podCoordinator.TerminatePod(ctx, podKey); err != nil {
-		return nil, mapServiceError(err)
+		// Idempotent: a second terminate (or race with runner exit) is success.
+		if !errors.Is(err, runner.ErrPodAlreadyTerminated) {
+			return nil, mapServiceError(err)
+		}
 	}
 	if s.grantSvc != nil {
 		_ = s.grantSvc.CleanupByResource(ctx, grant.TypePod, podKey)

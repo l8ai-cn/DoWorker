@@ -1,12 +1,11 @@
 // Migrated R5+: Connect-RPC only (no REST middle layer).
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { resolveE2EPodCreateTargets } from "../../helpers/e2e-echo-runner";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { assertNoWasmRecursiveBorrow } from "../../helpers/console-monitor";
 
-type Runner = { id: bigint };
-type Agent = { slug: string };
 type Pod = { podKey: string };
 
 /**
@@ -34,16 +33,12 @@ test.describe("ACP terminal: no wasm recursive borrow", () => {
 
   test("creating a pod and rendering its terminal does not trigger wasm recursive borrow", async ({ page, api, monitor }) => {
     const cc = await api.connect();
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
-    expect(agents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
+    const { runnerId, agentSlug } = await resolveE2EPodCreateTargets(cc);
 
     const created = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
-      agentSlug: agents[0].slug,
+      runnerId,
+      agentSlug,
     }) as { pod: Pod };
     const podKey = created.pod?.podKey;
     expect(podKey, "pod creation must return a pod_key").toBeTruthy();

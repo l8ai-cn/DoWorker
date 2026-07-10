@@ -1,12 +1,11 @@
 // Migrated R5+: Connect-RPC only (no REST middle layer).
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { resolveE2EPodCreateTargets } from "../../helpers/e2e-echo-runner";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 
-type Runner = { id: bigint };
-type Agent = { slug: string };
 type Repository = { id: bigint };
 type Ticket = { slug: string };
 type Pod = { podKey: string; status: string };
@@ -45,17 +44,14 @@ test.describe("Journey: Git Workflow", () => {
     // Connect throws on failure — a successful get is the assertion.
     await cc.ticket.getTicket({ orgSlug: TEST_ORG_SLUG, ticketSlug });
 
-    // ── Step 4: Get available runner and agent ──
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
+    // ── Step 4: Pin e2e-echo runner + agent ──
+    const { runnerId, agentSlug } = await resolveE2EPodCreateTargets(cc);
 
     // ── Step 5: Create pod WITH repository and ticket context ──
     const podResp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
-      agentSlug: agents[0].slug,
+      runnerId,
+      agentSlug,
       repositoryId: repo.id,
       ticketSlug,
     }) as { pod: Pod };
@@ -82,7 +78,7 @@ test.describe("Journey: Git Workflow", () => {
     // pods list scoped to this runner, which is the authoritative source.
     const { items: podList } = await cc.pod.listPods({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
+      runnerId,
     }) as { items: Pod[] };
     expect(Array.isArray(podList)).toBe(true);
     expect(podList.some((p) => p.podKey === podKey)).toBe(true);

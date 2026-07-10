@@ -3,10 +3,14 @@
 // so picking runners[0] from ListAvailableRunners can schedule onto
 // claude/gemini/… and fail with "executable file not found".
 
+import { TEST_ORG_SLUG } from "./env";
+
 export interface RunnerWithNode {
   id: bigint;
   nodeId?: string;
 }
+
+export const E2E_ECHO_AGENT_SLUG = "e2e-echo";
 
 const E2E_ECHO_NODE_IDS = new Set(["dev-runner", "dev-runner-2"]);
 
@@ -23,4 +27,21 @@ export function pickE2EEchoRunner(runners: RunnerWithNode[] | undefined): Runner
     );
   }
   return match;
+}
+
+type ConnectLike = {
+  runner: {
+    listAvailableRunners: (req: { orgSlug: string }) => Promise<{ items?: RunnerWithNode[] }>;
+  };
+};
+
+export async function resolveE2EPodCreateTargets(cc: ConnectLike): Promise<{
+  runnerId: bigint;
+  agentSlug: string;
+}> {
+  const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG });
+  return {
+    runnerId: pickE2EEchoRunner(runners).id,
+    agentSlug: E2E_ECHO_AGENT_SLUG,
+  };
 }
