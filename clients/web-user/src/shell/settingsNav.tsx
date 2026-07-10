@@ -106,7 +106,7 @@ export function settingsNavGroups(
     groups.push({
       title: "Admin",
       items: [
-        { id: "models", label: "Models", icon: CpuIcon },
+        { id: "models", label: "AI Resources", icon: CpuIcon },
         { id: "members", label: "Members", icon: UsersIcon },
         { id: "policies", label: "Policies", icon: ShieldCheckIcon },
       ],
@@ -114,7 +114,7 @@ export function settingsNavGroups(
   } else if (hasAuthSession) {
     groups.push({
       title: "Workspace",
-      items: [{ id: "models", label: "Models", icon: CpuIcon }],
+      items: [{ id: "models", label: "AI Resources", icon: CpuIcon }],
     });
   }
   groups.push({

@@ -8,7 +8,6 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra/websocket"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	aimodelsvc "github.com/anthropics/agentsmesh/backend/internal/service/aimodel"
 	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
 	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
@@ -66,7 +65,6 @@ type Services struct {
 	AgentPodSettings   *agentpod.SettingsService   // AgentPod user settings
 	AgentPodAIProvider *agentpod.AIProviderService // AgentPod AI provider management
 	AIResource         *airesourcesvc.Service      // Unified AI resource center
-	AIModel            *aimodelsvc.Service         // Model pool (org/user model configs)
 	VirtualKey         *virtualkeysvc.Service      // Virtual API keys (quota/billing handles)
 	TokenQuota         *tokenquotasvc.Service      // Token quotas + usage report
 	EnvBundle          *envbundlesvc.Service       // Env bundles for harness credential injection
