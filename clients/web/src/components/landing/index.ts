@@ -11,3 +11,5 @@ export { PricingSection } from "./PricingSection";
 export { SelfHostedCTA } from "./SelfHostedCTA";
 export { FinalCTA } from "./FinalCTA";
 export { Footer } from "./Footer";
+export { WorkforceLanding } from "./workforce/WorkforceLanding";
+export { WorkforceHero } from "./workforce/WorkforceHero";

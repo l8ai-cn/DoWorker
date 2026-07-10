@@ -27,7 +27,7 @@ LEAKS=$(
     -not -path "*\(dashboard\)*" \
     -not -path "*popout*" \
     -print0 \
-  | xargs -0 grep -l 'WasmProvider\|initWasmCore\|WasmApiClient\|WasmAuthManager\|wasm_pkg\|agentsmesh-wasm' 2>/dev/null \
+  | xargs -0 grep -l 'WasmProvider\|initWasmCore\|WasmApiClient\|WasmAuthManager\|wasm_pkg\|do-worker-wasm' 2>/dev/null \
   || true
 )
 

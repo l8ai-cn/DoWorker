@@ -30,6 +30,7 @@ go_library(
         "extension_repo_install.go",
         "extension_repo_mcp.go",
         "gitprovider_repo.go",
+        "gitprovider_repo_org_slug.go",
         "grant_repo.go",
         "im_bridge_repo.go",
         "instance_runner_org_repo.go",
@@ -119,6 +120,7 @@ alias(
 go_test(
     name = "infra_test",
     srcs = [
+        "ai_model_repo_test.go",
         "env_bundle_repo_test.go",
         "loop_repo_cron_test.go",
         "loop_repo_test.go",
@@ -130,14 +132,17 @@ go_test(
         "token_usage_repo_aggregation_test.go",
         "token_usage_repo_filter_test.go",
         "token_usage_repo_test.go",
+        "virtual_api_key_repo_test.go",
     ],
     embed = [":infra"],
     deps = [
         "//backend/internal/domain/agentpod",
+        "//backend/internal/domain/aimodel",
         "//backend/internal/domain/envbundle",
         "//backend/internal/domain/loop",
         "//backend/internal/domain/organization",
         "//backend/internal/domain/tokenusage",
+        "//backend/internal/domain/virtualkey",
         "//backend/internal/testkit",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",

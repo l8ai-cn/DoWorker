@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { legacyPersistStorage } from "@/lib/zustand-legacy-persist";
 
 export type ActivityType =
   | "workspace"
@@ -82,26 +83,7 @@ export const useIDEStore = create<IDEState>()(
     }),
     {
       name: "do-worker-ide",
-      storage: {
-        getItem: (name) => {
-          const value = localStorage.getItem(name);
-          if (value !== null) return value;
-          if (name === "do-worker-ide") {
-            const legacy = localStorage.getItem("agentsmesh-ide");
-            if (legacy !== null) {
-              localStorage.setItem(name, legacy);
-              localStorage.removeItem("agentsmesh-ide");
-              return legacy;
-            }
-          }
-          return null;
-        },
-        setItem: (name, value) => localStorage.setItem(name, value),
-        removeItem: (name) => {
-          localStorage.removeItem(name);
-          if (name === "do-worker-ide") localStorage.removeItem("agentsmesh-ide");
-        },
-      },
+      storage: legacyPersistStorage("agentsmesh-ide"),
       partialize: (state) => ({
         activeActivity: state.activeActivity,
         sidebarOpen: state.sidebarOpen,

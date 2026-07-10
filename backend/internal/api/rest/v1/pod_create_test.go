@@ -2,6 +2,8 @@ package v1
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,16 +14,19 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
+	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
 )
 
 func TestMapOrchestratorErrorToHTTP(t *testing.T) {
 	gin.SetMode(gin.TestMode)
+	wrappedRepositoryError := fmt.Errorf("repository 17 org 9 permission denied: %w", agentpod.ErrCreateResourceUnavailable)
 
 	tests := []struct {
-		name     string
-		err      error
-		wantCode int
-		wantJSON map[string]string // "code" field expected in response
+		name           string
+		err            error
+		wantCode       int
+		wantJSON       map[string]string // "code" field expected in response
+		wantNotContain []string
 	}{
 		{
 			name:     "ErrMissingRunnerID -> 400",
@@ -46,6 +51,35 @@ func TestMapOrchestratorErrorToHTTP(t *testing.T) {
 			err:      agentpod.ErrResumeRunnerMismatch,
 			wantCode: http.StatusBadRequest,
 			wantJSON: map[string]string{"code": "RESUME_RUNNER_MISMATCH"},
+		},
+		{
+			name:     "ErrCreateResourceUnavailable -> 400",
+			err:      agentpod.ErrCreateResourceUnavailable,
+			wantCode: http.StatusBadRequest,
+			wantJSON: map[string]string{
+				"code":  apierr.VALIDATION_FAILED,
+				"error": "Selected repository is unavailable",
+			},
+		},
+		{
+			name:     "wrapped ErrCreateResourceUnavailable -> 400",
+			err:      wrappedRepositoryError,
+			wantCode: http.StatusBadRequest,
+			wantJSON: map[string]string{
+				"code":  apierr.VALIDATION_FAILED,
+				"error": "Selected repository is unavailable",
+			},
+			wantNotContain: []string{"repository 17", "org 9", "permission denied"},
+		},
+		{
+			name:     "joined repository and agentfile validation errors -> 400",
+			err:      errors.Join(agentpod.ErrInvalidAgentfileLayer, wrappedRepositoryError),
+			wantCode: http.StatusBadRequest,
+			wantJSON: map[string]string{
+				"code":  apierr.VALIDATION_FAILED,
+				"error": "Selected repository is unavailable",
+			},
+			wantNotContain: []string{"repository 17", "org 9", "permission denied"},
 		},
 		{
 			name:     "ErrQuotaExceeded -> 402",
@@ -114,6 +148,9 @@ func TestMapOrchestratorErrorToHTTP(t *testing.T) {
 				actual, ok := resp[key]
 				require.True(t, ok, "expected key %q in response", key)
 				assert.Equal(t, expectedVal, actual)
+			}
+			for _, sensitive := range tt.wantNotContain {
+				assert.NotContains(t, w.Body.String(), sensitive)
 			}
 		})
 	}

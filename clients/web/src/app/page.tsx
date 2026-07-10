@@ -5,18 +5,11 @@ import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Navbar,
-  HeroSection,
-  AgentLogos,
-  ParadigmShift,
-  DemoVideo,
-  CoreFeatures,
-  HowItWorks,
-  WhyTerminalBased,
-  EnterpriseFeatures,
   PricingSection,
   FinalCTA,
   Footer,
 } from "@/components/landing";
+import { WorkforceLanding } from "@/components/landing/workforce/WorkforceLanding";
 import { getDefaultRoute } from "@/lib/default-route";
 import { useLightSession } from "@/hooks/useLightSession";
 
@@ -28,8 +21,6 @@ export default function Home() {
     if (!hydrated) return false;
     if (!session?.isAuthenticated || !session.currentOrgSlug) return false;
 
-    // Check if user navigated from within the site (internal navigation)
-    // If referrer is from the same origin, user intentionally visited landing page
     if (typeof window !== "undefined") {
       const referrer = document.referrer;
       const isInternalNavigation = referrer && new URL(referrer).origin === window.location.origin;
@@ -56,9 +47,10 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: "Do Worker",
-    applicationCategory: "DeveloperApplication",
+    applicationCategory: "BusinessApplication",
     operatingSystem: "Web, Linux, macOS, Windows",
-    description: "Do Worker is an enterprise AI agent workforce platform for deploying, governing, and auditing coding agents inside your own infrastructure.",
+    description:
+      "Do Worker is an AI workforce platform for organizing specialized agents into teams that research, create, operate, and deliver outcomes with human oversight.",
     alternateName: ["AgentMesh", "Agents Mesh"],
     url: "https://agentsmesh.ai",
     offers: {
@@ -67,7 +59,8 @@ export default function Home() {
       priceCurrency: "USD",
       description: "Free tier available",
     },
-    keywords: "agentsmesh, enterprise AI agent platform, self-hosted AI agents, AI agent governance, coding agent orchestration, agent audit logs, private deployment, AI coding agents, agent management",
+    keywords:
+      "AI workforce, digital team, agent orchestration, multi-agent collaboration, knowledge work automation, self-hosted AI agents",
     publisher: {
       "@type": "Organization",
       name: "Do Worker",
@@ -89,14 +82,7 @@ export default function Home() {
       />
       <Navbar />
       <main>
-        <HeroSection />
-        <AgentLogos />
-        <ParadigmShift />
-        <DemoVideo />
-        <CoreFeatures />
-        <HowItWorks />
-        <WhyTerminalBased />
-        <EnterpriseFeatures />
+        <WorkforceLanding />
         <PricingSection />
         <FinalCTA />
       </main>

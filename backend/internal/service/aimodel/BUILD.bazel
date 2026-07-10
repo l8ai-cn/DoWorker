@@ -1,8 +1,11 @@
-load("@rules_go//go:def.bzl", "go_library")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "aimodel",
-    srcs = ["service.go"],
+    srcs = [
+        "model_resolution.go",
+        "service.go",
+    ],
     importpath = "github.com/anthropics/agentsmesh/backend/internal/service/aimodel",
     visibility = ["//backend:__subpackages__"],
     deps = [
@@ -15,4 +18,15 @@ alias(
     name = "go_default_library",
     actual = ":aimodel",
     visibility = ["//backend:__subpackages__"],
+)
+
+go_test(
+    name = "aimodel_test",
+    srcs = ["service_test.go"],
+    embed = [":aimodel"],
+    deps = [
+        "//backend/internal/domain/aimodel",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
 )

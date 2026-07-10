@@ -16,7 +16,7 @@ Usage:
 
     # In clients/web/BUILD.bazel:
     npm_link_package(
-        name = "agentsmesh-wasm",
+        name = "do-worker-wasm",
         src = "//clients/core/crates/wasm:wasm_pkg",
     )
 """

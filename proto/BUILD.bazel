@@ -32,7 +32,7 @@ js_library(
     visibility = ["//visibility:public"],
 )
 
-# `@agentsmesh/proto` internal npm package — surfaces the generated
+# `@do-worker/proto` internal npm package — surfaces the generated
 # TS proto modules under a workspace-mounted node_modules path so the
 # web/ts code can resolve them through tsc's normal node module walk
 # instead of a tsconfig path alias to `../../proto/gen/ts`. The path
@@ -40,12 +40,12 @@ js_library(
 # the moment any file under :src imports them.
 #
 # `gen/ts/<domain>/v1/<name>_pb.ts` becomes
-# `node_modules/@agentsmesh/proto/<domain>/v1/<name>_pb.ts` after
+# `node_modules/@do-worker/proto/<domain>/v1/<name>_pb.ts` after
 # `npm_link_package` mounts the result at the workspace root.
 write_file(
     name = "proto_pkg_json",
-    out = "package.json",
-    content = ['{"name": "@agentsmesh/proto", "version": "0.1.0", "type": "module"}'],
+    out = "bazel_package.json",
+    content = ['{"name": "@do-worker/proto", "version": "0.1.0", "type": "module"}'],
 )
 
 npm_package(
@@ -53,11 +53,14 @@ npm_package(
     srcs = [
         ":proto_pkg_json",
     ] + glob(["gen/ts/**/*.ts"]),
-    package = "@agentsmesh/proto",
+    package = "@do-worker/proto",
     # Strip the `gen/ts/` prefix so consumers see the package as
     # `<domain>/v1/<name>_pb.ts` (i.e. import path
-    # `@agentsmesh/proto/agent/v1/agent_pb`).
-    replace_prefixes = {"gen/ts/": ""},
+    # `@do-worker/proto/agent/v1/agent_pb`).
+    replace_prefixes = {
+        "gen/ts/": "",
+        "bazel_package.json": "package.json",
+    },
     version = "0.1.0",
     visibility = ["//visibility:public"],
 )

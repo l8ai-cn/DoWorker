@@ -72,15 +72,39 @@ func (m *mockUserServiceForOrch) GetDecryptedCredentialToken(_ context.Context, 
 
 // mockRepoService implements RepositoryServiceForOrchestrator.
 type mockRepoService struct {
-	repo *gitprovider.Repository
-	err  error
+	repo                *gitprovider.Repository
+	err                 error
+	getAccessibleCalls  []repositoryAccessCall
+	findAccessibleCalls []repositorySlugAccessCall
 }
 
-func (m *mockRepoService) GetByID(_ context.Context, _ int64) (*gitprovider.Repository, error) {
+type repositoryAccessCall struct {
+	ID             int64
+	OrganizationID int64
+	UserID         int64
+}
+
+type repositorySlugAccessCall struct {
+	OrganizationID int64
+	UserID         int64
+	Slug           string
+}
+
+func (m *mockRepoService) GetAccessibleByID(_ context.Context, id, orgID, userID int64) (*gitprovider.Repository, error) {
+	m.getAccessibleCalls = append(m.getAccessibleCalls, repositoryAccessCall{
+		ID:             id,
+		OrganizationID: orgID,
+		UserID:         userID,
+	})
 	return m.repo, m.err
 }
 
-func (m *mockRepoService) FindByOrgSlug(_ context.Context, _ int64, _ string) (*gitprovider.Repository, error) {
+func (m *mockRepoService) FindAccessibleByOrgSlug(_ context.Context, orgID, userID int64, slug string) (*gitprovider.Repository, error) {
+	m.findAccessibleCalls = append(m.findAccessibleCalls, repositorySlugAccessCall{
+		OrganizationID: orgID,
+		UserID:         userID,
+		Slug:           slug,
+	})
 	return m.repo, m.err
 }
 
@@ -119,21 +143,54 @@ func (m *mockAgentConfigProvider) GetAgent(_ context.Context, _ string) (*agentD
 
 // mockRunnerSelector implements RunnerSelectorForOrchestrator for testing.
 type mockRunnerSelector struct {
-	runner *runnerDomain.Runner
-	err    error
+	runner        *runnerDomain.Runner
+	err           error
+	selectCalled  bool
+	selectHints   *runnerDomain.AffinityHints
+	resolveRunner *runnerDomain.Runner
+	resolveErr    error
+	resolveCall   *runnerResolveCall
 }
 
-func (m *mockRunnerSelector) SelectRunnerWithAffinity(_ context.Context, _ int64, _ int64, _ string, _ *runnerDomain.AffinityHints, _ map[int64]int) (*runnerDomain.Runner, error) {
+func (m *mockRunnerSelector) SelectRunnerWithAffinity(_ context.Context, _ int64, _ int64, _ string, hints *runnerDomain.AffinityHints, _ map[int64]int) (*runnerDomain.Runner, error) {
+	m.selectCalled = true
+	m.selectHints = hints
 	return m.runner, m.err
+}
+
+type runnerResolveCall struct {
+	RunnerID         int64
+	OrganizationID   int64
+	UserID           int64
+	AgentSlug        string
+	AllowUnavailable bool
+}
+
+func (m *mockRunnerSelector) ResolveRunnerForCreate(
+	_ context.Context,
+	runnerID, orgID, userID int64,
+	agentSlug string,
+	allowUnavailable bool,
+) (*runnerDomain.Runner, error) {
+	m.resolveCall = &runnerResolveCall{
+		RunnerID:         runnerID,
+		OrganizationID:   orgID,
+		UserID:           userID,
+		AgentSlug:        agentSlug,
+		AllowUnavailable: allowUnavailable,
+	}
+	return m.resolveRunner, m.resolveErr
 }
 
 // mockAgentResolver implements AgentResolverForOrchestrator for testing.
 type mockAgentResolver struct {
 	agentDef *agentDomain.Agent
 	err      error
+	calls    int
 }
 
 func (m *mockAgentResolver) GetAgent(_ context.Context, _ string) (*agentDomain.Agent, error) {
+	m.calls++
 	return m.agentDef, m.err
 }
 
@@ -278,6 +335,9 @@ func setupOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDeps)) (*PodOr
 		PodService:    podSvc,
 		ConfigBuilder: configBuilder,
 		AgentResolver: &mockAgentResolver{agentDef: provider.agentDef},
+		RunnerSelector: &mockRunnerSelector{
+			resolveRunner: &runnerDomain.Runner{ID: 1},
+		},
 	}
 
 	for _, opt := range opts {

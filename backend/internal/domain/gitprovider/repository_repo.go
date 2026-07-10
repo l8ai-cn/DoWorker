@@ -29,6 +29,8 @@ type RepositoryRepo interface {
 
 	FindByOrgSlug(ctx context.Context, orgID int64, slug string) (*Repository, error)
 
+	ListByOrgSlug(ctx context.Context, orgID int64, slug string) ([]*Repository, error)
+
 	GetMaxTicketNumber(ctx context.Context, repoID int64) (int, error)
 
 	Save(ctx context.Context, repo *Repository) error

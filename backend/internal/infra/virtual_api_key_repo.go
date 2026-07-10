@@ -33,6 +33,22 @@ func (r *virtualAPIKeyRepo) GetByID(ctx context.Context, id int64) (*virtualkey.
 	return &k, nil
 }
 
+func (r *virtualAPIKeyRepo) GetByIDForScope(
+	ctx context.Context, id, orgID, userID int64,
+) (*virtualkey.VirtualAPIKey, error) {
+	var k virtualkey.VirtualAPIKey
+	err := r.db.WithContext(ctx).
+		Where("id = ? AND organization_id = ? AND user_id = ?", id, orgID, userID).
+		First(&k).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &k, nil
+}
+
 func (r *virtualAPIKeyRepo) GetByHash(ctx context.Context, hash string) (*virtualkey.VirtualAPIKey, error) {
 	var k virtualkey.VirtualAPIKey
 	err := r.db.WithContext(ctx).Where("key_hash = ?", hash).First(&k).Error

@@ -40,6 +40,9 @@ type Created struct {
 }
 
 func (s *Service) Create(ctx context.Context, in CreateInput) (*Created, error) {
+	if _, err := s.models.GetVisible(ctx, in.AIModelID, in.UserID, in.OrgID); err != nil {
+		return nil, err
+	}
 	tok, err := newToken()
 	if err != nil {
 		return nil, err
@@ -79,11 +82,10 @@ func (s *Service) Revoke(ctx context.Context, id int64) error {
 	return s.repo.UpdateStatus(ctx, id, domain.StatusRevoked)
 }
 
-// ResolveModel loads the underlying ai_models credential for an active key and
-// touches its last-used marker. Returns the resolved model plus the key's
-// token budget for informational injection.
-func (s *Service) ResolveModel(ctx context.Context, keyID int64) (*aimodelsvc.ResolvedModel, *int64, error) {
-	k, err := s.repo.GetByID(ctx, keyID)
+func (s *Service) ResolveModelForScope(
+	ctx context.Context, keyID, orgID, userID int64,
+) (*aimodelsvc.ResolvedModel, *int64, error) {
+	k, err := s.repo.GetByIDForScope(ctx, keyID, orgID, userID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -93,10 +95,12 @@ func (s *Service) ResolveModel(ctx context.Context, keyID int64) (*aimodelsvc.Re
 	if k.Status != domain.StatusActive {
 		return nil, nil, ErrRevoked
 	}
-	resolved, err := s.models.Resolve(ctx, k.AIModelID)
+	resolved, err := s.models.ResolveVisible(ctx, k.AIModelID, userID, orgID)
 	if err != nil {
 		return nil, nil, err
 	}
-	_ = s.repo.TouchLastUsed(ctx, keyID)
+	if err := s.repo.TouchLastUsed(ctx, keyID); err != nil {
+		return nil, nil, err
+	}
 	return resolved, k.TokenBudget, nil
 }

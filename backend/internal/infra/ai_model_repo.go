@@ -28,6 +28,20 @@ func (r *aiModelRepo) GetByID(ctx context.Context, id int64) (*aimodel.AIModel, 
 	return &m, nil
 }
 
+func (r *aiModelRepo) GetVisibleByID(ctx context.Context, id, userID, orgID int64) (*aimodel.AIModel, error) {
+	var m aimodel.AIModel
+	err := r.db.WithContext(ctx).
+		Where("id = ? AND is_enabled = ? AND (organization_id = ? OR user_id = ?)", id, true, orgID, userID).
+		First(&m).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &m, nil
+}
+
 func (r *aiModelRepo) Create(ctx context.Context, m *aimodel.AIModel) error {
 	return r.db.WithContext(ctx).Create(m).Error
 }

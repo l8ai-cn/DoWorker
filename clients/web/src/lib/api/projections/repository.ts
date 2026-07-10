@@ -1,8 +1,8 @@
 import type {
   Repository as ProtoRepository,
   Branch as ProtoBranch,
-} from "@agentsmesh/proto/repository/v1/repository_pb";
-import type { RepositoryData } from "@agentsmesh/service-interface";
+} from "@do-worker/proto/repository/v1/repository_pb";
+import type { RepositoryData } from "@do-worker/service-interface";
 
 // Single source of truth for the proto.repository.v1 → RepositoryData
 // projection.

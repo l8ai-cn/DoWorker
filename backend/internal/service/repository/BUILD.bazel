@@ -6,6 +6,7 @@ go_library(
         "interfaces.go",
         "merge_requests.go",
         "service.go",
+        "service_access.go",
         "service_create.go",
         "service_sync.go",
         "webhook_query.go",
@@ -32,6 +33,7 @@ go_test(
     name = "repository_test",
     srcs = [
         "repository_integration_test.go",
+        "service_access_test.go",
         "service_create_cnb_test.go",
         "service_crud_test.go",
         "service_query_test.go",

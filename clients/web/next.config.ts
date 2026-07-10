@@ -61,9 +61,9 @@ const nextConfig: NextConfig = {
   // run SWC over them during `next build` instead of treating them as
   // pre-compiled JS.
   transpilePackages: [
-    "@agentsmesh/service-runtime",
-    "@agentsmesh/service-interface",
-    "@agentsmesh/proto",
+    "@do-worker/service-runtime",
+    "@do-worker/service-interface",
+    "@do-worker/proto",
   ],
 
   webpack: (config, { isServer }) => {

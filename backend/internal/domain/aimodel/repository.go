@@ -6,6 +6,7 @@ import "context"
 // user-private rows for the caller.
 type Repository interface {
 	GetByID(ctx context.Context, id int64) (*AIModel, error)
+	GetVisibleByID(ctx context.Context, id, userID, orgID int64) (*AIModel, error)
 	Create(ctx context.Context, m *AIModel) error
 	Save(ctx context.Context, m *AIModel) error
 	Delete(ctx context.Context, id int64) error

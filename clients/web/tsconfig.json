@@ -22,11 +22,11 @@
     "paths": {
       "@/*": ["./src/*"],
       "@proto/*": [
-        "../../node_modules/@agentsmesh/proto/*",
+        "../../node_modules/@do-worker/proto/*",
         "../../proto/gen/ts/*"
       ],
-      "@agentsmesh/service-runtime": ["../../packages/service-runtime/src/index.ts"],
-      "@agentsmesh/service-interface": ["../../packages/service-interface/src/index.ts"]
+      "@do-worker/service-runtime": ["../../packages/service-runtime/src/index.ts"],
+      "@do-worker/service-interface": ["../../packages/service-interface/src/index.ts"]
     }
   },
   "include": [

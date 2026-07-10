@@ -1,6 +1,9 @@
 {
   "landing": {
     "nav": {
+      "scenarios": "Escenarios",
+      "workflow": "Como funciona",
+      "capabilities": "Capacidades",
       "features": "Funciones",
       "pricing": "Precios",
       "docs": "Documentacion",
@@ -314,10 +317,11 @@
       "contactSales": "Contactar ventas enterprise"
     },
     "finalCta": {
-      "title1": "Tu equipo esta a punto de",
-      "title2": "crecer mucho mas.",
-      "description": "Empieza con un agente. Escala a cincuenta. Gratis para empezar, sin tarjeta de credito.",
-      "getStartedFree": "Construye tu equipo",
+      "title1": "Listo para ver",
+      "title2": "tu proxima entrega?",
+      "description": "Elige un escenario, observa la coordinacion del equipo y empieza a construir tu fuerza laboral de IA.",
+      "watchDemo": "Ver la demo",
+      "getStartedFree": "Empezar gratis",
       "scheduleDemo": "Hablemos",
       "freeTier": "Nivel gratuito disponible",
       "noCreditCard": "Sin tarjeta de credito",

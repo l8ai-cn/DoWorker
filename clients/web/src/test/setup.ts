@@ -1406,7 +1406,7 @@ vi.mock('@/lib/wasm-core', () => {
   }
 })
 
-vi.mock('agentsmesh-wasm', () => ({
+vi.mock('do-worker-wasm', () => ({
   default: vi.fn().mockResolvedValue(undefined),
   version: vi.fn(() => '0.1.0-test'),
 }))

@@ -5,7 +5,7 @@ import { TEST_USER, TEST_ORG_SLUG, getWebBaseUrl, getApiBaseUrl } from "../../he
  * Regression guard for the light-auth rollout:
  *   /login, /register, /forgot-password, /reset-password, /verify-email,
  *   /onboarding, /invite/*, /runners/authorize and both OAuth callbacks
- *   must NEVER load the 40MB agentsmesh-wasm bundle.
+ *   must NEVER load the 40MB do-worker-wasm bundle.
  *
  * Wasm only kicks in once the user crosses into (dashboard).
  *
@@ -17,7 +17,7 @@ import { TEST_USER, TEST_ORG_SLUG, getWebBaseUrl, getApiBaseUrl } from "../../he
  */
 
 function isWasmRequest(url: string): boolean {
-  // Both the .wasm asset itself and the JS chunk wrapping agentsmesh-wasm
+  // Both the .wasm asset itself and the JS chunk wrapping do-worker-wasm
   // are indicators that wasm boot has started.
   return url.endsWith(".wasm") || /agentsmesh[-_]wasm/.test(url);
 }

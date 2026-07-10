@@ -14,7 +14,7 @@ import type {
   WasmRunnerState, WasmMeshState, WasmTicketState, WasmChannelState,
   WasmLoopState, WasmAcpSessionManager, WasmLoopalManager, WasmRepoState,
   WasmExpertState, WasmAutopilotState, WasmRelayManager,
-} from "agentsmesh-wasm";
+} from "do-worker-wasm";
 
 // SSR / hydration fallback. Returns "[]" for `*_json` reads so SSR-rendered
 // components don't crash before the wasm bridge is registered; all other

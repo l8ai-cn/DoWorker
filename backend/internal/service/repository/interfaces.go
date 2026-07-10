@@ -9,6 +9,8 @@ import (
 type RepositoryServiceInterface interface {
 	GetByID(ctx context.Context, id int64) (*gitprovider.Repository, error)
 	GetByIDForUser(ctx context.Context, id int64, userID int64) (*gitprovider.Repository, error)
+	GetAccessibleByID(ctx context.Context, id, orgID, userID int64) (*gitprovider.Repository, error)
+	FindAccessibleByOrgSlug(ctx context.Context, orgID, userID int64, slug string) (*gitprovider.Repository, error)
 	Create(ctx context.Context, req *CreateRequest) (*gitprovider.Repository, error)
 	CreateWithWebhook(ctx context.Context, req *CreateRequest, orgSlug string) (*gitprovider.Repository, *WebhookResult, error)
 	Update(ctx context.Context, id int64, updates map[string]interface{}) (*gitprovider.Repository, error)

@@ -56,7 +56,7 @@ func main() {
 	appLogger.SetDefault()
 	slog.Info("Logger initialized", "level", cfg.Log.Level, "file", cfg.Log.FilePath)
 
-	otelProvider, err := otelinit.InitProvider(context.Background(), "agentsmesh-backend", "1.0.0")
+	otelProvider, err := otelinit.InitProvider(context.Background(), "do-worker-backend", "1.0.0")
 	if err != nil {
 		slog.Warn("OpenTelemetry initialization failed, continuing without tracing", "error", err)
 		otelProvider = &otelinit.Provider{}

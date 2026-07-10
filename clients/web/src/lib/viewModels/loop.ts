@@ -9,4 +9,4 @@ export type {
   LoopRunData,
   CreateLoopRequest,
   UpdateLoopRequest,
-} from "@agentsmesh/service-interface";
+} from "@do-worker/service-interface";

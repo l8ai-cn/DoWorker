@@ -1,0 +1,162 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/logging",
+    "crates/protocol",
+    "crates/types",
+    "crates/persistence",
+    "crates/transport",
+    "crates/api-client",
+    "crates/events",
+    "crates/auth",
+    "crates/state",
+    "crates/services",
+    "crates/relay",
+    "crates/wasm",
+    "crates/proto-gen",
+    "crates/proto/agent",
+    "crates/proto/apikey",
+    "crates/proto/app_state",
+    "crates/proto/auth",
+    "crates/proto/auth_state",
+    "crates/proto/autopilot",
+    "crates/proto/billing",
+    "crates/proto/binding",
+    "crates/proto/blockstore",
+    "crates/proto/blockstore_state",
+    "crates/proto/channel",
+    "crates/proto/channel_state",
+    "crates/proto/env_bundle",
+    "crates/proto/extension",
+    "crates/proto/events",
+    "crates/proto/file",
+    "crates/proto/grant",
+    "crates/proto/invitation",
+    "crates/proto/knowledgebase",
+    "crates/proto/license",
+    "crates/proto/loop",
+    "crates/proto/loop_state",
+    "crates/proto/mesh",
+    "crates/proto/mesh_state",
+    "crates/proto/notification",
+    "crates/proto/org",
+    "crates/proto/pod",
+    "crates/proto/pod_state",
+    "crates/proto/promocode",
+    "crates/proto/repository",
+    "crates/proto/repo_state",
+    "crates/proto/runner_api",
+    "crates/proto/runner_state",
+    "crates/proto/autopilot_state",
+    "crates/proto/acp_state",
+    "crates/proto/sso",
+    "crates/proto/support_ticket",
+    "crates/proto/ticket",
+    "crates/proto/ticket_state",
+    "crates/proto/ticket_relations",
+    "crates/proto/token_usage",
+    "crates/proto/user",
+    "crates/proto/user_credential",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+publish = false
+
+[workspace.dependencies]
+agentsmesh_logging = { path = "crates/logging" }
+agentsmesh_protocol = { path = "crates/protocol" }
+agentsmesh_types = { path = "crates/types" }
+agentsmesh_persistence = { path = "crates/persistence" }
+agentsmesh_transport = { path = "crates/transport" }
+agentsmesh_api_client = { path = "crates/api-client" }
+agentsmesh_events = { path = "crates/events" }
+agentsmesh_auth = { path = "crates/auth" }
+agentsmesh_state = { path = "crates/state" }
+agentsmesh_services = { path = "crates/services" }
+agentsmesh_relay = { path = "crates/relay" }
+agentsmesh_wasm = { path = "crates/wasm" }
+agent_proto = { path = "crates/proto/agent" }
+apikey_proto = { path = "crates/proto/apikey" }
+app_state_proto = { path = "crates/proto/app_state" }
+auth_proto = { path = "crates/proto/auth" }
+auth_state_proto = { path = "crates/proto/auth_state" }
+autopilot_proto = { path = "crates/proto/autopilot" }
+billing_proto = { path = "crates/proto/billing" }
+binding_proto = { path = "crates/proto/binding" }
+blockstore_proto = { path = "crates/proto/blockstore" }
+blockstore_state_proto = { path = "crates/proto/blockstore_state" }
+channel_proto = { path = "crates/proto/channel" }
+channel_state_proto = { path = "crates/proto/channel_state" }
+env_bundle_proto = { path = "crates/proto/env_bundle" }
+extension_proto = { path = "crates/proto/extension" }
+events_proto = { path = "crates/proto/events" }
+file_proto = { path = "crates/proto/file" }
+grant_proto = { path = "crates/proto/grant" }
+invitation_proto = { path = "crates/proto/invitation" }
+knowledgebase_proto = { path = "crates/proto/knowledgebase" }
+license_proto = { path = "crates/proto/license" }
+loop_proto = { path = "crates/proto/loop" }
+loop_state_proto = { path = "crates/proto/loop_state" }
+mesh_proto = { path = "crates/proto/mesh" }
+mesh_state_proto = { path = "crates/proto/mesh_state" }
+notification_proto = { path = "crates/proto/notification" }
+org_proto = { path = "crates/proto/org" }
+pod_proto = { path = "crates/proto/pod" }
+pod_state_proto = { path = "crates/proto/pod_state" }
+promocode_proto = { path = "crates/proto/promocode" }
+repository_proto = { path = "crates/proto/repository" }
+repo_state_proto = { path = "crates/proto/repo_state" }
+runner_api_proto = { path = "crates/proto/runner_api" }
+runner_state_proto = { path = "crates/proto/runner_state" }
+autopilot_state_proto = { path = "crates/proto/autopilot_state" }
+acp_state_proto = { path = "crates/proto/acp_state" }
+sso_proto = { path = "crates/proto/sso" }
+support_ticket_proto = { path = "crates/proto/support_ticket" }
+ticket_proto = { path = "crates/proto/ticket" }
+ticket_state_proto = { path = "crates/proto/ticket_state" }
+ticket_relations_proto = { path = "crates/proto/ticket_relations" }
+token_usage_proto = { path = "crates/proto/token_usage" }
+user_proto = { path = "crates/proto/user" }
+user_credential_proto = { path = "crates/proto/user_credential" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "net", "io-util", "fs", "parking_lot"] }
+tokio-test = "0.4"
+reqwest = { version = "0.12", default-features = false, features = ["json", "multipart", "stream"] }
+tokio-tungstenite = { version = "0.26", features = ["rustls-tls-webpki-roots"] }
+futures-util = "0.3"
+futures-channel = "0.3"
+futures = "0.3"
+parking_lot = "0.12"
+thiserror = "2"
+bytes = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json"] }
+tracing-appender = "0.2"
+tracing-wasm = "0.2"
+wiremock = "0.6"
+rand = "0.9"
+sha2 = "0.10"
+hex = "0.4"
+flate2 = "1"
+tar = "0.4"
+zip = { version = "5", default-features = false, features = ["deflate"] }
+getrandom = { version = "0.3", features = ["wasm_js"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+urlencoding = "2"
+wasm-bindgen = "=0.2.105"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+web-sys = { version = "0.3", features = [
+    "console", "BinaryType", "CloseEvent", "ErrorEvent", "MessageEvent",
+    "Storage", "WebSocket", "Window", "AbortController", "AbortSignal",
+    "Headers", "ReadableStream", "ReadableStreamDefaultReader",
+    "Request", "RequestInit", "Response",
+] }
+console_error_panic_hook = "0.1"
+web-time = "1"
+prost = { version = "0.13", default-features = false, features = ["prost-derive", "std"] }
+prost-types = "0.13"
+prost-build = "0.13"

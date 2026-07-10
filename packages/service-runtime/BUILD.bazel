@@ -14,23 +14,23 @@ ts_project(
     tsconfig = "tsconfig.json",
     visibility = ["//visibility:public"],
     # Specific Bazel-managed link deps (no //:node_modules to avoid a
-    # cycle through @agentsmesh/service-runtime back to here).
+    # cycle through @do-worker/service-runtime back to here).
     deps = [
-        "//:node_modules/@agentsmesh/service-interface",
-        "//:node_modules/agentsmesh-wasm",
+        "//:node_modules/@do-worker/service-interface",
+        "//:node_modules/do-worker-wasm",
     ],
 )
 
 internal_npm_package(
     name = "pkg",
-    package_name = "@agentsmesh/service-runtime",
+    package_name = "@do-worker/service-runtime",
     srcs = glob(
         ["src/**/*.ts"],
         exclude = ["src/**/*.test.ts"],
     ),
     dependencies = {
-        "@agentsmesh/service-interface": "*",
-        "agentsmesh-wasm": "*",
+        "@do-worker/service-interface": "*",
+        "do-worker-wasm": "*",
     },
     extra = {
         "exports": {

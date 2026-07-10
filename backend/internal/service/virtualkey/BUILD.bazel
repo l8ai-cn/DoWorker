@@ -22,6 +22,18 @@ alias(
 
 go_test(
     name = "virtualkey_test",
-    srcs = ["token_test.go"],
+    srcs = [
+        "service_create_test.go",
+        "service_resolve_scope_test.go",
+        "service_test_support_test.go",
+        "token_test.go",
+    ],
     embed = [":virtualkey"],
+    deps = [
+        "//backend/internal/domain/aimodel",
+        "//backend/internal/domain/virtualkey",
+        "//backend/internal/service/aimodel",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
 )

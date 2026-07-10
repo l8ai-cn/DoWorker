@@ -1,6 +1,6 @@
 name: Bazel
 
-# Unified CI workflow — one entry point for everything. Delegates to
+# Unified CI workflow — one entry point for everything (PR gate). Delegates to
 # Bazel targets where they exist (Go tests, Rust tests, buildifier,
 # Vitest) and falls back to pnpm / go / docker CLIs for jobs whose
 # Bazel equivalents aren't wired yet (lint, Next.js build, Docker
@@ -230,6 +230,8 @@ jobs:
               if [[ "$base" == *darwin*.tar.gz ]]; then
                   tmp="$(mktemp -d)"
                   tar -xzf "$arch" -C "$tmp"
+                  # In a real release, sign-darwin.sh runs here. PR smoke
+                  # has no cert secret, so we just exercise the unpack/repack.
                   tar -C "$tmp" -czf "$dest" do-worker-runner README.md LICENSE
                   rm -rf "$tmp"
               else
@@ -359,6 +361,13 @@ jobs:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
+      # next_dev extracts npm + Rust wasm on ~14 GiB ubuntu-latest rootfs;
+      # without pruning, cold builds hit ENOSPC mid-extract.
+      - name: Free disk for Playwright next_dev
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
+          df -h /
 
       # dev.sh requires ibazel for hot reload of host backend / relay.
       # Install the linux-amd64 release binary; the doctor check in dev.sh
@@ -602,15 +611,39 @@ jobs:
       - name: Bring up dev backend stack
         env:
           DEV_SKIP_DOAGENT: "1"
+          DEV_E2E_RUNNERS_ONLY: "1"
         run: |
           bazel run //deploy/dev:backend_only
-          sleep 15
+          sleep 10
 
       - name: Resolve worktree-allocated ports
         id: ports
         run: |
           source deploy/dev/.env
           echo "BACKEND_HTTP_PORT=$BACKEND_HTTP_PORT" >> $GITHUB_OUTPUT
+          echo "COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME" >> $GITHUB_OUTPUT
+
+      - name: Wait for e2e-echo runners online
+        run: |
+          source deploy/dev/.env
+          for i in {1..60}; do
+            online=$(docker exec "${COMPOSE_PROJECT_NAME}-postgres-1" \
+              psql -U agentsmesh -d agentsmesh -Atc \
+              "SELECT count(*) FROM runners
+               WHERE node_id IN ('dev-runner','dev-runner-2')
+                 AND status='online'
+                 AND last_heartbeat > now()-interval '60 seconds'" 2>/dev/null || echo 0)
+            if [[ "${online}" -ge 1 ]]; then
+              echo "e2e-echo runner(s) online: ${online}"; exit 0
+            fi
+            sleep 3
+          done
+          echo "no e2e-echo runner online after wait"
+          docker compose -f deploy/dev/docker-compose.yml \
+            -f deploy/dev/docker-compose.runners.yml \
+            --project-name "${COMPOSE_PROJECT_NAME}" \
+            logs --tail=80 runner-e2e-echo runner-e2e-echo-2 || true
+          exit 1
 
       - name: Run hive smoke (S0–S3)
         env:
@@ -662,12 +695,9 @@ jobs:
       - name: Bring up dev backend stack
         env:
           DEV_SKIP_DOAGENT: "1"
+          DEV_E2E_RUNNERS_ONLY: "1"
         run: |
           bazel run //deploy/dev:backend_only
-          # Two runner containers (dev-runner + dev-runner-2 for cross-runner
-          # spec) need ~10s each to register their gRPC streams. Wait long
-          # enough that DiscoverRunnerByNode("dev-runner-2") succeeds.
-          sleep 20
 
       - name: Resolve worktree-allocated ports
         id: ports
@@ -689,6 +719,29 @@ jobs:
             sleep 3
           done
           echo "backend never reported healthy"; exit 1
+
+      - name: Wait for e2e-echo runners online
+        run: |
+          source deploy/dev/.env
+          for i in {1..60}; do
+            online=$(docker exec "${COMPOSE_PROJECT_NAME}-postgres-1" \
+              psql -U agentsmesh -d agentsmesh -Atc \
+              "SELECT count(*) FROM runners
+               WHERE node_id IN ('dev-runner','dev-runner-2')
+                 AND status='online'
+                 AND last_heartbeat > now()-interval '60 seconds'" 2>/dev/null || echo 0)
+            # Cross-runner MCP specs need both echo runners.
+            if [[ "${online}" -ge 2 ]]; then
+              echo "e2e-echo runners online: ${online}"; exit 0
+            fi
+            sleep 3
+          done
+          echo "need 2 e2e-echo runners online after wait (have probe failures above)"
+          docker compose -f deploy/dev/docker-compose.yml \
+            -f deploy/dev/docker-compose.runners.yml \
+            --project-name "${COMPOSE_PROJECT_NAME}" \
+            logs --tail=80 runner-e2e-echo runner-e2e-echo-2 || true
+          exit 1
 
       # MCP_PORT (host-exposed) is worktree-scoped via RUNNER_MCP_PORT — at
       # offset=0 that's 10018, NOT the runner's internal listen port 19000.

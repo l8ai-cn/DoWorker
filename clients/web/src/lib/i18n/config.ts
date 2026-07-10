@@ -20,7 +20,7 @@ export const LOCALE_COOKIE = "NEXT_LOCALE";
 // Forgetting to add a namespace here is the only way to cause "raw key shows
 // instead of translation" bugs.
 export const MESSAGE_NAMESPACES = [
-  "common", "auth", "landing", "app", "settings", "ide",
+  "common", "auth", "landing", "workforce", "app", "settings", "ide",
   "repositories", "runners", "docs", "content", "extensions",
   "loops", "channels", "blockstore", "infra", "automation",
   "experts",

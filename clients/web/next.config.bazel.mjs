@@ -36,11 +36,11 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
 
   transpilePackages: [
-    "@agentsmesh/service-runtime",
-    "@agentsmesh/service-interface",
+    "@do-worker/service-runtime",
+    "@do-worker/service-interface",
     // Internal npm package mounted by Bazel; ships .ts sources so the
     // .next/standalone build relies on Next's SWC pipeline to transpile.
-    "@agentsmesh/proto",
+    "@do-worker/proto",
   ],
 
   webpack: (config, { isServer }) => {

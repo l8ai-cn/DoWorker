@@ -1,5 +1,5 @@
-import type { Loop as ProtoLoop, LoopRun as ProtoLoopRun } from "@agentsmesh/proto/loop/v1/loop_pb";
-import type { LoopData, LoopRunData } from "@agentsmesh/service-interface";
+import type { Loop as ProtoLoop, LoopRun as ProtoLoopRun } from "@do-worker/proto/loop/v1/loop_pb";
+import type { LoopData, LoopRunData } from "@do-worker/service-interface";
 import { parseJSONObject } from "./parse-json";
 
 // Single source of truth for the proto.loop.v1 → LoopData projection.

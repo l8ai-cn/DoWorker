@@ -1,5 +1,5 @@
-import type { Pod as ProtoPod } from "@agentsmesh/proto/pod/v1/pod_pb";
-import type { PodData, PodMode } from "@agentsmesh/service-interface";
+import type { Pod as ProtoPod } from "@do-worker/proto/pod/v1/pod_pb";
+import type { PodData, PodMode } from "@do-worker/service-interface";
 
 // Single source of truth for the proto.pod.v1.Pod → PodData projection.
 export function podToCache(p: ProtoPod): PodData {

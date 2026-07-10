@@ -73,6 +73,8 @@ func (a *GRPCRunnerAdapter) mcpCreatePod(ctx context.Context, tc *middleware.Ten
 // mapOrchestratorErrorToMCP maps PodOrchestrator errors to MCP error responses.
 func mapOrchestratorErrorToMCP(err error) *mcpError {
 	switch {
+	case errors.Is(err, agentpod.ErrCreateResourceUnavailable):
+		return newMcpError(400, "Selected repository is unavailable")
 	case errors.Is(err, agentpod.ErrMissingRunnerID):
 		return newMcpError(400, "runner_id is required")
 	case errors.Is(err, agentpod.ErrMissingAgentSlug):

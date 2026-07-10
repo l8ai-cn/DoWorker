@@ -1,0 +1,12 @@
+[package]
+name = "auth_state_proto"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+prost = { workspace = true }
+prost-types = { workspace = true }
+serde = { workspace = true }
+auth_proto = { workspace = true }
+org_proto = { workspace = true }
