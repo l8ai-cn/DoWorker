@@ -4,7 +4,7 @@ WORKDIR /src
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh \
   && rustup target add wasm32-unknown-unknown
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      protobuf-compiler python3 \
+      protobuf-compiler libprotobuf-dev python3 \
   && rm -rf /var/lib/apt/lists/*
 COPY proto/ proto/
 COPY clients/core/ clients/core/

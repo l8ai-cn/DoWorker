@@ -111,9 +111,9 @@ fn generate_domain(
     let mut includes = vec![proto_root.to_path_buf()];
     for candidate in [
         PathBuf::from(std::env::var_os("HOME").unwrap_or_default()).join(".local/protoc-29.3/include"),
-        PathBuf::from("/Users/wwyz/.homebrew/opt/protobuf/include"),
         PathBuf::from("/opt/homebrew/include"),
         PathBuf::from("/usr/local/include"),
+        PathBuf::from("/usr/include"),
     ] {
         if candidate.join("google/protobuf/descriptor.proto").is_file() {
             includes.push(candidate);
