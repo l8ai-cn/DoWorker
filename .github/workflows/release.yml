@@ -43,12 +43,12 @@ jobs:
         with:
           go-version: "1.25"
           cache: true
-      - name: Install protoc
-        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
-      - name: Generate Go protos
+      - name: Install codegen tools
         run: |
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
-          bash scripts/ensure-go-codegen.sh
+          bash scripts/ci-install-codegen-tools.sh
+      - name: Generate Go protos + amesh
+        run: bash scripts/ensure-go-codegen.sh
 
       - name: Build release assets
         env:

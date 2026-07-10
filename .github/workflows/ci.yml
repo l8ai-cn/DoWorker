@@ -43,12 +43,12 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
-      - name: Install protoc
-        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
-      - name: Generate Go protos
+      - name: Install codegen tools
         run: |
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
-          bash scripts/ensure-go-codegen.sh
+          bash scripts/ci-install-codegen-tools.sh
+      - name: Generate Go protos + amesh
+        run: bash scripts/ensure-go-codegen.sh
       - name: Unit tests
         run: |
           go test -count=1 ./backend/... ./runner/... ./relay/... ./agentfile/... ./proto/...
@@ -71,12 +71,12 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
-      - name: Install protoc
-        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
-      - name: Generate Go protos
+      - name: Install codegen tools
         run: |
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
-          bash scripts/ensure-go-codegen.sh
+          bash scripts/ci-install-codegen-tools.sh
+      - name: Generate Go protos + amesh
+        run: bash scripts/ensure-go-codegen.sh
       - uses: golangci/golangci-lint-action@v8
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
@@ -94,15 +94,14 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
-      - uses: arduino/setup-protoc@v3
-        with:
-          version: "29.3"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Generate Go protos
+      - name: Install codegen tools
         shell: bash
         run: |
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
-          bash scripts/ensure-go-codegen.sh
+          bash scripts/ci-install-codegen-tools.sh
+      - name: Generate Go protos + amesh
+        shell: bash
+        run: bash scripts/ensure-go-codegen.sh
       - name: Runner unit tests
         shell: bash
         run: |
@@ -124,12 +123,12 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
-      - name: Install protoc
-        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
-      - name: Generate Go protos
+      - name: Install codegen tools
         run: |
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
-          bash scripts/ensure-go-codegen.sh
+          bash scripts/ci-install-codegen-tools.sh
+      - name: Generate Go protos + amesh
+        run: bash scripts/ensure-go-codegen.sh
       - name: Build release archives
         env:
           VERSION: "0.0.0-rc.smoke"
@@ -168,6 +167,11 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: clients/core
+      - name: Install protoc
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+      - name: Generate Rust protos
+        working-directory: clients/core
+        run: cargo run -p do_worker_proto_gen --bin gen-proto
       - name: cargo test --workspace
         working-directory: clients/core
         run: cargo test --workspace --exclude do_worker_wasm
@@ -192,8 +196,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: clients/core
-      - name: Install wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Install wasm-pack + protoc
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+          sudo apt-get update && sudo apt-get install -y protobuf-compiler
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build:wasm
       - run: pnpm run web:lint
@@ -283,11 +289,13 @@ jobs:
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
             /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
           df -h /
-      - name: Install wasm-pack + air
+      - name: Install wasm-pack + air + codegen tools
         run: |
           curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
           go install github.com/air-verse/air@v1.61.7
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          bash scripts/ci-install-codegen-tools.sh
+          bash scripts/ensure-go-codegen.sh
       - run: pnpm install --frozen-lockfile
       - name: Cleanup previous dev-stack residue
         run: |
@@ -412,10 +420,12 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - name: Install air
+      - name: Install air + codegen tools
         run: |
           go install github.com/air-verse/air@v1.61.7
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          bash scripts/ci-install-codegen-tools.sh
+          bash scripts/ensure-go-codegen.sh
       - run: |
           pnpm install --frozen-lockfile
           pnpm exec playwright install chromium-headless-shell
@@ -452,10 +462,12 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
-      - name: Install air
+      - name: Install air + codegen tools
         run: |
           go install github.com/air-verse/air@v1.61.7
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          bash scripts/ci-install-codegen-tools.sh
+          bash scripts/ensure-go-codegen.sh
       - name: Bring up dev backend stack
         env:
           DEV_SKIP_DOAGENT: "1"

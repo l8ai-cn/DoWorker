@@ -7,19 +7,10 @@ dev_lite_enabled() {
     [[ "${DEV_NO_BAZEL:-}" == "1" || "${DEV_LITE:-}" == "1" ]]
 }
 
-ensure_go_protos() {
-    local repo_root="$SCRIPT_DIR/../.."
-    bash "$repo_root/scripts/proto-gen-go.sh" || {
-        error "Go proto 生成失败 — brew install protobuf && ./scripts/proto-gen-go.sh"
-        return 1
-    }
-}
-
 ensure_go_codegen() {
     local repo_root="$SCRIPT_DIR/../.."
-    ensure_go_protos || return 1
-    bash "$repo_root/scripts/sync-amesh-convert.sh" || {
-        error "amesh convert 生成失败 — ./scripts/sync-amesh-convert.sh"
+    bash "$repo_root/scripts/ensure-go-codegen.sh" || {
+        error "Go codegen 失败 — brew install protobuf && brew install bufbuild/buf/buf && ./scripts/ensure-go-codegen.sh"
         return 1
     }
 }
