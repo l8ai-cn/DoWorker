@@ -1,6 +1,9 @@
 {
   "landing": {
     "nav": {
+      "scenarios": "Cenarios",
+      "workflow": "Como funciona",
+      "capabilities": "Capacidades",
       "features": "Recursos",
       "pricing": "Precos",
       "docs": "Documentacao",
@@ -314,10 +317,11 @@
       "contactSales": "Contatar Vendas Enterprise"
     },
     "finalCta": {
-      "title1": "Sua equipe esta prestes a ficar",
-      "title2": "muito maior.",
-      "description": "Comece com um agente. Escale ate cinquenta. Gratis para comecar, sem cartao de credito.",
-      "getStartedFree": "Monte Sua Equipe",
+      "title1": "Pronto para ver",
+      "title2": "sua proxima entrega?",
+      "description": "Escolha um cenario, veja a equipe coordenar e comece a montar sua forca de trabalho de IA.",
+      "watchDemo": "Ver a demo",
+      "getStartedFree": "Comecar gratis",
       "scheduleDemo": "Fale Conosco",
       "freeTier": "Plano gratuito disponivel",
       "noCreditCard": "Sem cartao de credito",

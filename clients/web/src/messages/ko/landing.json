@@ -1,6 +1,9 @@
 {
   "landing": {
     "nav": {
+      "scenarios": "시나리오",
+      "workflow": "작업 흐름",
+      "capabilities": "플랫폼 기능",
       "features": "기능",
       "pricing": "요금제",
       "docs": "문서",
@@ -314,10 +317,11 @@
       "contactSales": "엔터프라이즈 영업팀 연락"
     },
     "finalCta": {
-      "title1": "당신의 팀이",
-      "title2": "훨씬 커집니다.",
-      "description": "에이전트 한 명부터 시작해서 50명까지 확장. 무료로 시작하며 신용카드 불필요.",
-      "getStartedFree": "팀 구축하기",
+      "title1": "다음 성과를",
+      "title2": "확인할 준비가 되셨나요?",
+      "description": "시나리오를 고르고 팀 협업을 확인한 뒤 AI 워크포스를 구축하세요.",
+      "watchDemo": "데모 보기",
+      "getStartedFree": "무료로 시작",
       "scheduleDemo": "상담하기",
       "freeTier": "무료 플랜 제공",
       "noCreditCard": "신용카드 불필요",

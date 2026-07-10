@@ -1,22 +1,23 @@
-"use client";
+"use client"
 
-import { useTranslations } from "next-intl";
+import { useId } from 'react'
+import { useTranslations } from 'next-intl'
 
 const agentConfigs = [
   {
     name: "Claude Code",
-    descriptionKey: "landing.agentLogos.descriptions.anthropic",
+    descriptionKey: 'landing.agentLogos.descriptions.anthropic',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden="true">
         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" fill="none" />
       </svg>
     ),
   },
   {
     name: "Codex CLI",
-    descriptionKey: "landing.agentLogos.descriptions.openai",
+    descriptionKey: 'landing.agentLogos.descriptions.openai',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden="true">
         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
         <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" fill="none" />
       </svg>
@@ -24,18 +25,18 @@ const agentConfigs = [
   },
   {
     name: "Gemini CLI",
-    descriptionKey: "landing.agentLogos.descriptions.google",
+    descriptionKey: 'landing.agentLogos.descriptions.google',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden="true">
         <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5" stroke="currentColor" strokeWidth="2" fill="none" />
       </svg>
     ),
   },
   {
     name: "Aider",
-    descriptionKey: "landing.agentLogos.descriptions.openSource",
+    descriptionKey: 'landing.agentLogos.descriptions.openSource',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden="true">
         <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" fill="none" />
         <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" strokeWidth="2" />
       </svg>
@@ -43,9 +44,9 @@ const agentConfigs = [
   },
   {
     name: "OpenCode",
-    descriptionKey: "landing.agentLogos.descriptions.community",
+    descriptionKey: 'landing.agentLogos.descriptions.community',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden="true">
         <path d="M12 2a10 10 0 110 20 10 10 0 010-20z" stroke="currentColor" strokeWidth="2" fill="none" />
         <path d="M8 12l2 2 4-4" stroke="currentColor" strokeWidth="2" fill="none" />
       </svg>
@@ -53,18 +54,18 @@ const agentConfigs = [
   },
   {
     name: "Cursor CLI",
-    descriptionKey: "landing.agentLogos.descriptions.anysphere",
+    descriptionKey: 'landing.agentLogos.descriptions.anysphere',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden="true">
         <path d="M5 3l14 7-6 2-2 6-6-15z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinejoin="round" />
       </svg>
     ),
   },
   {
     name: "Loopal",
-    descriptionKey: "landing.agentLogos.descriptions.selfBuilt",
+    descriptionKey: 'landing.agentLogos.descriptions.selfBuilt',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden="true">
         <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
         <path d="M12 6l4 4-4 4-4-4z" stroke="currentColor" strokeWidth="2" fill="none" />
       </svg>
@@ -72,64 +73,71 @@ const agentConfigs = [
   },
   {
     name: "Custom Agent",
-    descriptionKey: "landing.agentLogos.descriptions.yourOwn",
+    descriptionKey: 'landing.agentLogos.descriptions.yourOwn',
     icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8" fill="currentColor">
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden="true">
         <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" />
       </svg>
     ),
   },
-];
+] as const
 
-export function AgentLogos() {
-  const t = useTranslations();
+type AgentLogosProps =
+  | { embedded?: false; title?: never; description?: never }
+  | { embedded: true; title: string; description: string }
+
+export function AgentLogos(props: AgentLogosProps = {}) {
+  const t = useTranslations()
+  const embedded = props.embedded === true
+  const title = embedded ? props.title : t('landing.agentLogos.title')
+  const headingId = `${useId()}-agent-compatibility`
+  const Root = embedded ? 'div' : 'section'
+  const Heading = embedded ? 'h3' : 'h2'
 
   return (
-    <section className="py-16 bg-[var(--azure-bg-deeper)]">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-center font-headline text-xs uppercase tracking-[0.25em] text-[var(--azure-text-muted)] mb-10">
-          {t("landing.agentLogos.title")}
-        </p>
-
-        <div className="relative overflow-hidden">
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[var(--azure-bg-deeper)] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[var(--azure-bg-deeper)] to-transparent z-10 pointer-events-none" />
-
-          <div className="flex animate-scroll gap-6">
-            {[...agentConfigs, ...agentConfigs].map((agent, index) => (
-              <div
-                key={index}
-                className="flex-shrink-0 flex items-center gap-4 px-6 py-4 azure-glass rounded-2xl border border-white/5 hover:border-[var(--azure-cyan)]/30 transition-all cursor-default group"
-              >
-                <div className="text-[var(--azure-text-muted)] group-hover:text-[var(--azure-cyan)] transition-colors">
-                  {agent.icon}
-                </div>
-                <div>
-                  <div className="font-headline font-semibold text-sm text-foreground">{agent.name}</div>
-                  <div className="text-xs text-[var(--azure-text-muted)]">{t(agent.descriptionKey)}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+    <Root
+      aria-labelledby={headingId}
+      className={
+        embedded
+          ? 'border-t border-[var(--azure-outline-variant)] pt-10'
+          : 'bg-[var(--azure-bg-deeper)] px-4 py-16 sm:px-6 lg:px-8'
+      }
+    >
+      <div className={embedded ? '' : 'mx-auto max-w-7xl'}>
+        <div className="max-w-2xl">
+          <Heading
+            id={headingId}
+            className="break-words font-headline text-xl font-bold text-foreground sm:text-2xl"
+          >
+            {title}
+          </Heading>
+          {embedded ? (
+            <p className="mt-2 break-words text-sm leading-relaxed text-[var(--azure-text-muted)]">
+              {props.description}
+            </p>
+          ) : null}
         </div>
+        <ul className="mt-6 grid grid-cols-1 gap-px bg-[var(--azure-outline-variant)] sm:grid-cols-2 lg:grid-cols-4">
+          {agentConfigs.map((agent) => (
+            <li
+              key={agent.name}
+              className="group flex min-w-0 items-center gap-3 bg-[var(--azure-bg-deeper)] px-4 py-4 transition-colors hover:bg-[var(--azure-bg-high)] focus-within:bg-[var(--azure-bg-high)] motion-reduce:transition-none"
+            >
+              <span className="shrink-0 text-[var(--azure-text-muted)] transition-colors group-hover:text-[var(--azure-mint)] motion-reduce:transition-none">
+                {agent.icon}
+              </span>
+              <span className="min-w-0">
+                <span className="block break-words font-headline text-sm font-semibold text-foreground">
+                  {agent.name}
+                </span>
+                <span className="block break-words text-xs text-[var(--azure-text-muted)]">
+                  {t(agent.descriptionKey)}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
-
-      <style jsx>{`
-        @keyframes scroll {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-        .animate-scroll {
-          animation: scroll 30s linear infinite;
-        }
-        .animate-scroll:hover {
-          animation-play-state: paused;
-        }
-      `}</style>
-    </section>
-  );
+    </Root>
+  )
 }

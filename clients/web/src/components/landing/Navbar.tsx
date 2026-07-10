@@ -22,9 +22,10 @@ export function Navbar() {
   const t = useTranslations();
 
   const navLinks = [
-    { href: "#features", label: t("landing.nav.features") },
+    { href: "#scenarios", label: t("landing.nav.scenarios") },
+    { href: "#lifecycle", label: t("landing.nav.workflow") },
+    { href: "#features", label: t("landing.nav.capabilities") },
     { href: "#pricing", label: t("landing.nav.pricing") },
-    { href: "/download", label: t("landing.nav.download") },
     { href: "/docs", label: t("landing.nav.docs") },
   ];
 

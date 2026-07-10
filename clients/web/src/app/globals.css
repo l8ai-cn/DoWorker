@@ -444,6 +444,34 @@ body:has(.app-shell) {
   animation: mesh-star-twinkle 3.5s ease-in-out infinite;
 }
 
+.workforce-grid {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--azure-outline-variant) 70%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--azure-outline-variant) 70%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 85% 65% at 50% 35%, black 20%, transparent 75%);
+}
+
+@keyframes workforce-orb-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.85; }
+  50% { transform: translate(-14px, 18px) scale(1.08); opacity: 1; }
+}
+
+.workforce-orb {
+  animation: workforce-orb-drift 9s ease-in-out infinite;
+}
+
+.workforce-orb-delayed {
+  animation-delay: 2.5s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workforce-orb,
+  .workforce-orb-delayed {
+    animation: none;
+  }
+}
+
 /* ============================================================
  * Docs/reading scope (formerly "Azure Light").
  * Kept for compatibility with older docs markup; follows the neutral/teal

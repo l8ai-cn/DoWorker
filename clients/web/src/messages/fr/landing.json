@@ -1,6 +1,9 @@
 {
   "landing": {
     "nav": {
+      "scenarios": "Scenarios",
+      "workflow": "Fonctionnement",
+      "capabilities": "Capacites",
       "features": "Fonctionnalites",
       "pricing": "Tarifs",
       "docs": "Documentation",
@@ -314,10 +317,11 @@
       "contactSales": "Contacter les Ventes Enterprise"
     },
     "finalCta": {
-      "title1": "Votre équipe est sur le point",
-      "title2": "de s'agrandir considérablement.",
-      "description": "Commencez avec un agent. Montez jusqu'à cinquante. Gratuit pour démarrer, aucune carte de crédit requise.",
-      "getStartedFree": "Construisez Votre Équipe",
+      "title1": "Pret a voir",
+      "title2": "votre prochaine livraison ?",
+      "description": "Choisissez un scenario, observez la coordination de l'equipe, puis construisez votre workforce IA.",
+      "watchDemo": "Voir la demo",
+      "getStartedFree": "Commencer gratuitement",
       "scheduleDemo": "Parlons-en",
       "freeTier": "Offre gratuite disponible",
       "noCreditCard": "Aucune carte de crédit requise",

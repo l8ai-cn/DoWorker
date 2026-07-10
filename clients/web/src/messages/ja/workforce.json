@@ -1,0 +1,126 @@
+{
+  "landing": {
+    "workforce": {
+      "hero": {
+        "badge": "AI ワークフォース・プラットフォーム",
+        "titleLead": "目標を与え、",
+        "titleEmphasis": "AI チームをつくる。",
+        "description": "専門性を持つ Worker が調査、制作、運用、納品まで連携。方向と重要な判断は、常にあなたが管理します。",
+        "watchTeam": "チームの働きを見る",
+        "fullDemo": "フルデモを見る",
+        "startFree": "無料で始める"
+      },
+      "mission": {
+        "console": "ライブ・ミッションコンソール",
+        "goal": "チーム目標",
+        "scenarios": "ワークフォースのシナリオを選択",
+        "workers": "Worker",
+        "activity": "チームの活動",
+        "checkpoint": "人による確認",
+        "checkpointDetail": "チームが納品する前に承認が必要です。",
+        "progress": "ミッションの進捗",
+        "deliverable": "成果物",
+        "pause": "ミッションを一時停止",
+        "resume": "ミッションを再開",
+        "nextStep": "次のステップ",
+        "replay": "ミッションを再生"
+      },
+      "scenarioLabels": {
+        "research": "リサーチ",
+        "content": "コンテンツ",
+        "operations": "オペレーション",
+        "sales": "営業",
+        "knowledge": "ナレッジ",
+        "product": "プロダクト"
+      },
+      "scenarios": {
+        "research": {
+          "goal": "市場を把握し、進むべき方向を提案する",
+          "workers": { "scout": "リサーチ担当", "analyst": "市場アナリスト", "editor": "レポート編集者" },
+          "steps": { "scope": "問いと成功基準を定める", "gather": "情報源と市場シグナルを集める", "synthesize": "証拠から選択肢をまとめる", "review": "提案をレビューする" },
+          "deliverable": "根拠に基づく市場方針レポート"
+        },
+        "content": {
+          "goal": "ひとつの企画から完全なコンテンツ一式を作る",
+          "workers": { "strategist": "コンテンツ戦略担当", "writer": "キャンペーンライター", "editor": "コンテンツ編集者" },
+          "steps": { "brief": "対象とメッセージを整理する", "research": "オーディエンスを調査する", "draft": "キャンペーン素材を作成する", "approve": "一式を確認・承認する" },
+          "deliverable": "公開可能なキャンペーン一式"
+        },
+        "operations": {
+          "goal": "反復可能な業務を実行し、例外を可視化する",
+          "workers": { "coordinator": "業務コーディネーター", "analyst": "プロセスアナリスト", "operator": "ワークフロー担当" },
+          "steps": { "intake": "依頼と制約を受け付ける", "map": "担当と依存関係を整理する", "execute": "承認済みフローを実行する", "report": "結果と例外を報告する" },
+          "deliverable": "証跡付きの完了レポート"
+        },
+        "sales": {
+          "goal": "営業チーム向けに重点顧客プランを準備する",
+          "workers": { "researcher": "顧客リサーチ担当", "strategist": "営業戦略担当", "writer": "提案文面ライター" },
+          "steps": { "target": "対象企業を調査する", "qualify": "ニーズとシグナルを評価する", "personalize": "個別のアプローチを作る", "review": "送付前にレビューする" },
+          "deliverable": "顧客概要と承認済みアプローチ案"
+        },
+        "knowledge": {
+          "goal": "散在する社内情報を信頼できる知識に変える",
+          "workers": { "librarian": "ナレッジ管理者", "analyst": "情報源アナリスト", "curator": "ナレッジキュレーター" },
+          "steps": { "collect": "資料を収集する", "organize": "テーマと所有者を整理する", "verify": "根拠に照らして検証する", "publish": "確認済み情報を公開する" },
+          "deliverable": "検証済みで検索可能な知識集"
+        },
+        "product": {
+          "goal": "根拠から製品機会を検証済みの提案へ進める",
+          "workers": { "researcher": "プロダクトリサーチ担当", "designer": "UX デザイナー", "builder": "プロトタイプ開発者" },
+          "steps": { "discover": "利用者と制約を調べる", "define": "機会を定義する", "build": "焦点を絞った試作品を作る", "validate": "結果と次の一手を検証する" },
+          "deliverable": "検証済みの製品提案と試作品"
+        }
+      },
+      "showcase": {
+        "eyebrow": "ひとつの基盤、多様な成果",
+        "title": "仕事に合うチームを編成",
+        "description": "目標を選ぶと、Do Worker が専門役割、共有ワークフロー、明確な成果物をまとめます。",
+        "scenarioPicker": "ワークフォースのシナリオ",
+        "goal": "目標",
+        "workers": "チーム",
+        "workflow": "ワークフロー",
+        "deliverable": "成果物"
+      },
+      "lifecycle": {
+        "eyebrow": "仕事の進み方",
+        "title": "目標から根拠ある成果へ",
+        "description": "Tickets、Channels、Mesh、AgentPods が、すべての仕事を連携・確認可能な状態に保ちます。",
+        "stages": {
+          "goal": { "title": "目標設定", "description": "Ticket に成果、制約、担当者を定義します。" },
+          "coordinate": { "title": "連携", "description": "Channels と Mesh で文脈を共有し、役割を分担します。" },
+          "review": { "title": "レビュー", "description": "重要な判断を明示的な確認点で止めます。" },
+          "deliver": { "title": "納品", "description": "状態、成果物、証拠とともに結果を受け取ります。" }
+        },
+        "fragments": {
+          "ticket": { "id": "TICKET-104", "status": "割り当て済み", "title": "次に参入すべき市場を提案" },
+          "channel": { "name": "#market-expansion", "activity": "3 人の Worker が共有 Channel で連携中" },
+          "checkpoint": { "status": "確認が必要", "decision": "納品前に推奨方針を承認", "action": "判断を確認" },
+          "evidence": { "pod": "AgentPod · research-04", "status": "納品済み", "artifact": "市場方針レポート", "detail": "情報源、判断、活動履歴を保持" }
+        }
+      },
+      "capabilities": {
+        "eyebrow": "プラットフォーム機能",
+        "title": "仕事のすべての層を指揮",
+        "description": "チーム編成、進捗確認、境界設定、反復業務をひとつのシステムで。",
+        "items": {
+          "organize": { "title": "編成", "description": "各 Worker に役割、担当タスク、必要な文脈を与えます。", "primitives": { "roles": "専門役割", "tasks": "担当 Tickets", "ownership": "明確な担当", "context": "共有 Channels" } },
+          "observe": { "title": "観測", "description": "チームの活動と成果を支える根拠を把握します。", "primitives": { "activity": "Mesh のライブ活動", "evidence": "情報源の証拠", "status": "納品状況", "deliverables": "確認可能な成果物" } },
+          "control": { "title": "統制", "description": "アクセス、承認、説明責任を設定します。", "primitives": { "permissions": "権限", "checkpoints": "人による確認", "credentials": "範囲限定の認証情報", "audit": "監査履歴" } },
+          "operate": { "title": "運用", "description": "自社環境で実行し、成功した流れを再利用します。", "primitives": { "execution": "Runner 実行", "schedules": "Loop スケジュール", "workflows": "再利用可能なフロー" } }
+        }
+      },
+      "trust": {
+        "eyebrow": "導入と信頼",
+        "title": "自社の方針で AI ワークフォースを導入",
+        "description": "実行、アクセス、証跡を、組織が信頼する管理範囲内に保ちます。",
+        "safeguards": {
+          "selfHosting": { "title": "セルフホスト実行", "description": "管理下のインフラで Runners を実行します。", "status": "管理下" },
+          "workspaces": { "title": "分離された AgentPod", "description": "各仕事とその文脈を分離します。", "status": "分離" },
+          "credentials": { "title": "認証情報の管理", "description": "必要な Worker とタスクだけにアクセスを限定します。", "status": "範囲限定" },
+          "audit": { "title": "確認可能な履歴", "description": "活動、判断、納品の証拠を保持します。", "status": "記録済み" }
+        },
+        "compatibility": { "title": "信頼する AI エージェントを活用", "description": "対応するエージェント環境を、ひとつの基盤で連携します。" }
+      }
+    }
+  }
+}
