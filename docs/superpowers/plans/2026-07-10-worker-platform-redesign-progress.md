@@ -73,3 +73,4 @@ The main worktree has uncommitted lifecycle, Proto, Runner ACP, and frontend cha
 - 2026-07-10: AI-model visibility boundary completed: scoped rows are selected before credential decryption, with service and real GORM coverage plus independent reviews.
 - 2026-07-10: Token-budget checkpoint inspected at 1.53M; the user explicitly accepted high token use, so the soft ceiling was raised to 3M while verification and time limits remain unchanged.
 - 2026-07-10: Full backend build exposed 15 pre-existing Connect BUILD files that duplicate generated `*.amesh.go` outputs as literal sources; Phase 0D tracks the surgical repair.
+- 2026-07-10: Connect generated-source repair completed: all 15 duplicate literals were removed, all 16 converter targets remain in the server graph, and the full backend server build plus independent reviews passed.

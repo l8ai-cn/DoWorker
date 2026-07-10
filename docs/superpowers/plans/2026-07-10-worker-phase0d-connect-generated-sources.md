@@ -28,19 +28,19 @@
 - `backend/internal/api/connect/user/BUILD.bazel`
 - `backend/internal/api/connect/user_credential/BUILD.bazel`
 
-- [ ] **Step 1: Preserve the failing build evidence**
+- [x] **Step 1: Preserve the failing build evidence**
 
 Run `bazel build //backend/cmd/server:server --verbose_failures`. Expected RED: each affected package reports a missing input such as `user_convert.amesh.go` even though its `amesh_proto_convert` target exists.
 
-- [ ] **Step 2: Remove only duplicate literals**
+- [x] **Step 2: Remove only duplicate literals**
 
 In each `go_library.srcs`, remove the literal `"*_convert.amesh.go"`. Keep the `amesh_proto_convert(output = ...)` declaration and its `:..._amesh` source label unchanged. Do not regenerate, reformat, or edit Go code.
 
-- [ ] **Step 3: Verify generated-source invariants**
+- [x] **Step 3: Verify generated-source invariants**
 
 Confirm every affected BUILD file contains exactly one output declaration and the existing generated target label, with no generated filename literal remaining in `go_library.srcs`.
 
-- [ ] **Step 4: Verify GREEN**
+- [x] **Step 4: Verify GREEN**
 
 Run:
 
@@ -52,7 +52,7 @@ git diff --check
 
 Expected: all pass, and the diff consists only of the 15 literal-line deletions.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/internal/api/connect/**/BUILD.bazel
