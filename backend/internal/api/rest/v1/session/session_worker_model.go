@@ -48,7 +48,7 @@ func (d *Deps) resolveWorkerModel(
 	var resolved *aimodelsvc.ResolvedModel
 	var err error
 	if body.ModelConfigID != nil {
-		resolved, err = d.AIModels.Resolve(ctx, *body.ModelConfigID)
+		resolved, err = d.AIModels.ResolveVisible(ctx, *body.ModelConfigID, userID, orgID)
 		if err != nil {
 			if err == aimodelsvc.ErrNotFound {
 				return nil, fmt.Errorf("selected model not found")

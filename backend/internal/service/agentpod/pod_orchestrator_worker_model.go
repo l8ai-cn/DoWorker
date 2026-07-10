@@ -16,7 +16,7 @@ const workerModelBundleName = "worker-model"
 // AIModelPoolForOrchestrator resolves a real ai_models row into decrypted
 // provider credentials for pod injection.
 type AIModelPoolForOrchestrator interface {
-	Resolve(ctx context.Context, id int64) (*aimodelsvc.ResolvedModel, error)
+	ResolveVisible(ctx context.Context, id, userID, orgID int64) (*aimodelsvc.ResolvedModel, error)
 	// ResolveDefaultForAgent picks the org/user default pool row for a harness
 	// when CreatePod omits model_config_id / virtual_api_key_id (same as session create).
 	ResolveDefaultForAgent(ctx context.Context, userID, orgID int64, agentSlug string) (*aimodelsvc.ResolvedModel, error)
@@ -84,7 +84,7 @@ func (o *PodOrchestrator) resolvePoolModel(ctx context.Context, req *Orchestrate
 		if o.aiModelPool == nil {
 			return nil, nil, nil
 		}
-		resolved, err := o.aiModelPool.Resolve(ctx, *req.ModelConfigID)
+		resolved, err := o.aiModelPool.ResolveVisible(ctx, *req.ModelConfigID, req.UserID, req.OrganizationID)
 		return resolved, nil, err
 	}
 	if o.aiModelPool == nil {
