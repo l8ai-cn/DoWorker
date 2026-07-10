@@ -13,10 +13,10 @@ import type { ApiFixture } from "../../fixtures/api.fixture";
 import { ChannelsPage } from "../../pages/channels.page";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
+import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
 
 type ConnectClient = Awaited<ReturnType<ApiFixture["connect"]>>;
 type Runner = { id: bigint };
-type Agent = { slug: string };
 type Channel = { id: bigint; memberCount: bigint; agentCount: bigint };
 type ChannelPod = { podKey: string };
 
@@ -30,16 +30,11 @@ interface CreatedChannel { id: bigint; name: string; memberCount: number; agentC
 async function createPod(cc: ConnectClient, _prompt: string): Promise<CreatedPod> {
   const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
   expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-  const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
-  expect(agents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
-  // Prefer `e2e-echo` — a runner-side stub agent that boots instantly without
-  // an LLM. Falls back to the first builtin agent if the dev runner doesn't
-  // ship it (e.g. a stripped-down image).
-  const agent = agents.find((a) => a.slug === "e2e-echo") ?? agents[0];
+  const runnerId = pickE2EEchoRunner(runners).id;
   const resp = await cc.pod.createPod({
     orgSlug: TEST_ORG_SLUG,
-    runnerId: runners[0].id,
-    agentSlug: agent.slug,
+    runnerId,
+    agentSlug: E2E_ECHO_AGENT_SLUG,
   }) as { pod: { podKey: string } };
   const podKey = resp.pod?.podKey;
   expect(podKey, "createPod must return a pod_key").toBeTruthy();

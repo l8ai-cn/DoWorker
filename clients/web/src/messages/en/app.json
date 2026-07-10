@@ -36,7 +36,7 @@
       "compact": "Compact conversation context to free up space",
       "context": "Show context window usage for this session",
       "help": "Show available slash commands",
-      "model": "Switch model: /model <name> | default",
+      "model": "Switch model: /model [name] | default",
       "effort": "Set reasoning effort: /effort low | medium | high | default"
     }
   },

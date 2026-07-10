@@ -1,5 +1,5 @@
 import type { ApiFixture } from "../fixtures/api.fixture";
-import { pickE2EEchoRunner } from "./e2e-echo-runner";
+import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "./e2e-echo-runner";
 import { TEST_ORG_SLUG, getApiBaseUrl } from "./env";
 import { pollUntil } from "./retry";
 
@@ -7,10 +7,6 @@ import { pollUntil } from "./retry";
 // GetPodConnection gate uses (connect/pod/connection.go). A pod outside this
 // set 400s with "pod is not active".
 const CONNECTABLE_STATUSES = ["initializing", "running", "paused", "disconnected"];
-
-// Slug of the built-in e2e-mock-agent AgentFile, owned by the
-// universal-mock plan. See backend/migrations/000151_e2e_echo_dual_mode.
-const E2E_AGENT_SLUG = "e2e-echo";
 
 export type MockAgentMode = "pty" | "acp";
 
@@ -64,7 +60,7 @@ export async function createMockAgentPod(
   const input: Record<string, unknown> = {
     orgSlug: TEST_ORG_SLUG,
     runnerId,
-    agentSlug: E2E_AGENT_SLUG,
+    agentSlug: E2E_ECHO_AGENT_SLUG,
     agentfileLayer: buildAgentfileLayer(opts),
   };
   if (opts.alias) input.alias = opts.alias;

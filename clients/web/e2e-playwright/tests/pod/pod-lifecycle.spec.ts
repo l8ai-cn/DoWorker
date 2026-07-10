@@ -3,9 +3,9 @@ import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
+import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
 
 type Runner = { id: bigint; currentPods?: number };
-type Agent = { slug: string };
 type Pod = { podKey: string; status: string };
 type ConnectClient = Awaited<ReturnType<import("../../fixtures/api.fixture").ApiFixture["connect"]>>;
 
@@ -20,14 +20,12 @@ test.describe("Pod Lifecycle Scenarios", () => {
   async function createPod(cc: ConnectClient): Promise<string> {
     const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
     expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
-    expect(agents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
+    const runnerId = pickE2EEchoRunner(runners).id;
 
     const resp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
-      agentSlug: agents[0].slug,
+      runnerId,
+      agentSlug: E2E_ECHO_AGENT_SLUG,
     }) as { pod: Pod };
     const podKey = resp.pod?.podKey;
     expect(podKey, "createPod must return a pod_key").toBeTruthy();
@@ -62,8 +60,9 @@ test.describe("Pod Lifecycle Scenarios", () => {
     const cc = await api.connect();
     const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
     expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
+    const runner = pickE2EEchoRunner(runners);
 
-    const initialPods = runners[0].currentPods || 0;
+    const initialPods = runner.currentPods || 0;
 
     const podKey = await createPod(cc);
 
@@ -73,7 +72,7 @@ test.describe("Pod Lifecycle Scenarios", () => {
 
     await pollUntil(
       async () => {
-        const resp = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runners[0].id }) as { runner: Runner };
+        const resp = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runner.id }) as { runner: Runner };
         return (resp.runner?.currentPods || 0) <= initialPods;
       },
       { maxAttempts: 5, intervalMs: 2000, label: "capacity-restore" }
@@ -85,14 +84,12 @@ test.describe("Pod Lifecycle Scenarios", () => {
    */
   test("resume from non-existent pod returns error", async ({ api }) => {
     const cc = await api.connect();
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
-    const agentSlug = agents?.[0]?.slug ?? "claude-code";
 
     let caught: { status?: number } | null = null;
     try {
       await cc.pod.createPod({
         orgSlug: TEST_ORG_SLUG,
-        agentSlug,
+        agentSlug: E2E_ECHO_AGENT_SLUG,
         sourcePodKey: "non-existent-pod-key",
       });
     } catch (e) {
