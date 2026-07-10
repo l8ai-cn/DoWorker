@@ -30,7 +30,6 @@ Create a complete fake `aimodel.Repository` and `TestResolveVisible`. Cover same
 resolved, err := service.ResolveVisible(ctx, model.ID, userID, orgID)
 require.NoError(t, err)
 assert.Equal(t, model.ID, resolved.Model.ID)
-
 _, err = service.ResolveVisible(ctx, foreign.ID, userID, orgID)
 assert.ErrorIs(t, err, ErrNotFound)
 ```
@@ -56,7 +55,6 @@ Move model-resolution types and methods from the already-near-limit `service.go`
 - [x] **Step 4: Verify GREEN and infra build**
 
 Run: `bazel test //backend/internal/service/aimodel:aimodel_test`
-
 Run: `bazel test //backend/internal/infra:infra_test --test_filter=AIModel`
 
 The infra test must exercise the real GORM query for same-org shared, current-user private, other-org, other-user, disabled, and missing rows. Expected: service and infra tests PASS.
