@@ -171,7 +171,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
       - name: Generate Rust protos
         working-directory: clients/core
-        run: cargo run -p do_worker_proto_gen --bin gen-proto
+        run: |
+          bash ../../scripts/seed-rust-proto-stubs.sh
+          cargo run -p do_worker_proto_gen --bin gen-proto
       - name: cargo test --workspace
         working-directory: clients/core
         run: cargo test --workspace --exclude do_worker_wasm

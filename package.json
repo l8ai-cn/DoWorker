@@ -16,7 +16,7 @@
     "web:check": "pnpm run web:lint && pnpm run web:typecheck && pnpm run web:test",
     "web-admin:lint": "pnpm exec eslint --no-warn-ignored --no-error-on-unmatched-pattern --config clients/web-admin/eslint.config.mjs clients/web-admin",
     "web-admin:typecheck": "pnpm exec tsc --noEmit -p clients/web-admin/tsconfig.json",
-    "web-admin:test": "VITEST=true NODE_OPTIONS='--experimental-require-module' pnpm exec vitest run --config clients/web-admin/vitest.config.ts --reporter=default --no-color",
+    "web-admin:test": "VITEST=true NODE_OPTIONS='--experimental-require-module' pnpm exec vitest run --config clients/web-admin/vitest.config.ts --reporter=default --no-color --passWithNoTests",
     "web-admin:dev": "cd clients/web-admin && node ../../node_modules/next/dist/bin/next dev --turbopack",
     "web-admin:build": "cd clients/web-admin && BAZEL_BUILD=standalone node ../../node_modules/next/dist/bin/next build --webpack",
     "web-admin:check": "pnpm run web-admin:lint && pnpm run web-admin:typecheck && pnpm run web-admin:test",

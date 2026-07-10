@@ -104,11 +104,15 @@ func findRepoRoot() (string, error) {
 		return "", err
 	}
 	dir := cwd
-	for i := 0; i < 6; i++ {
-		if _, err := os.Stat(filepath.Join(dir, "go.work")); err == nil {
-			if _, err := os.Stat(filepath.Join(dir, "clients", "web")); err == nil {
-				return dir, nil
-			}
+	for i := 0; i < 8; i++ {
+		hasClients := false
+		if _, err := os.Stat(filepath.Join(dir, "clients", "web")); err == nil {
+			hasClients = true
+		}
+		_, errGoMod := os.Stat(filepath.Join(dir, "go.mod"))
+		_, errGoWork := os.Stat(filepath.Join(dir, "go.work"))
+		if hasClients && (errGoMod == nil || errGoWork == nil) {
+			return dir, nil
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {

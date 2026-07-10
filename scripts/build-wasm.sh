@@ -29,6 +29,11 @@ fi
 export RUSTFLAGS="${RUSTFLAGS:-} --cfg getrandom_backend=\"wasm_js\""
 
 cd "$CORE"
+
+# Cargo refuses to load workspace members with no targets. Seed empty
+# lib.rs so `cargo run -p do_worker_proto_gen` can start, then overwrite.
+bash "$ROOT/scripts/seed-rust-proto-stubs.sh"
+
 cargo run -p do_worker_proto_gen --bin gen-proto
 
 mkdir -p "$OUT"
