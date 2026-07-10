@@ -57,8 +57,8 @@ func (s *Service) ResolveDefault(ctx context.Context, userID, orgID int64) (*Res
 	return s.resolveRow(m)
 }
 
-// ResolveDefaultForAgent picks a pool model when the client omits
-// model_config_id: harness-specific provider first, else org/user default.
+// ResolveDefaultForAgent picks a legacy pool model for a harness-specific
+// provider first, else org/user default.
 func (s *Service) ResolveDefaultForAgent(ctx context.Context, userID, orgID int64, agentSlug string) (*ResolvedModel, error) {
 	for _, p := range aimodel.PreferredProviders(agentSlug) {
 		m, err := s.repo.FirstVisibleByProvider(ctx, userID, orgID, p)

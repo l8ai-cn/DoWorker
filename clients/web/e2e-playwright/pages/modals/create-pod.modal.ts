@@ -73,16 +73,6 @@ export class CreatePodModal {
   }
 
   /**
-   * Select an API credential bundle by name. The credential picker is a
-   * custom Select with id `credential-bundle-select`; pass "" to pick
-   * the "Use Agent default auth" option (i.e. inject no credential).
-   * Shown on step 1 after an image is selected.
-   */
-  async selectCredential(bundleName: string): Promise<void> {
-    await this.pickSelectOption("credential-bundle-select", bundleName);
-  }
-
-  /**
    * Toggle a runtime-kind EnvBundle row by name (multi-select). Calling
    * once with a name not yet checked adds it to the ordered selection;
    * calling again un-checks it. Multiple calls in succession build an

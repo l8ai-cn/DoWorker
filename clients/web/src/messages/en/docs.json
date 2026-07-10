@@ -251,7 +251,7 @@
           "configDesc": "Defines a user-configurable option. Types: BOOL, STRING, NUMBER, SECRET, SELECT(\"opt1\",\"opt2\"). Optionally set a default value with = .",
           "envDesc": "Declares an environment variable. Use SECRET for sensitive values, TEXT for plain text, OPTIONAL to mark it non-required. Use = \"value\" for static values.",
           "modeDesc": "Sets the execution mode. 'pty' runs the agent in a PTY terminal. 'acp' uses the Agent Communication Protocol with optional arguments.",
-          "credentialDesc": "Specifies which credential profile to use. Use a quoted profile name or 'runner_host' to use the Runner machine's credentials.",
+          "credentialDesc": "Legacy declaration kept for historical AgentFile examples. Model credentials are selected through AI Resources with model_resource_id.",
           "promptDesc": "Sets the initial prompt sent to the agent. PROMPT_POSITION controls where the prompt is injected: prepend (before user prompt), append (after), or none (disabled).",
           "repoDesc": "REPO sets the repository by slug or URL. BRANCH sets the branch name. GIT_CREDENTIAL selects the Git authentication method: http, ssh, or token.",
           "mcpDesc": "Enables or disables MCP tool integration. When ON, an optional FORMAT can specify the protocol format (e.g., streamable-http).",

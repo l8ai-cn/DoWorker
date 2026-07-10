@@ -6,7 +6,6 @@ import (
 
 	loopDomain "github.com/anthropics/agentsmesh/backend/internal/domain/loop"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 )
 
 func (o *LoopOrchestrator) StartRun(ctx context.Context, loop *loopDomain.Loop, run *loopDomain.LoopRun, userID int64) {
@@ -34,11 +33,6 @@ func (o *LoopOrchestrator) StartRun(ctx context.Context, loop *loopDomain.Loop, 
 		return
 	}
 
-	var runnerID int64
-	if loop.RunnerID != nil {
-		runnerID = *loop.RunnerID
-	}
-
 	resolvedPrompt := resolvePrompt(loop.PromptTemplate, loop.PromptVariables, run.TriggerParams)
 	if err := o.loopRunService.UpdateStatus(ctx, run.ID, map[string]interface{}{
 		"resolved_prompt": resolvedPrompt,
@@ -55,18 +49,8 @@ func (o *LoopOrchestrator) StartRun(ctx context.Context, loop *loopDomain.Loop, 
 		sourcePodKey = *loop.LastPodKey
 	}
 
-	podResult, err := o.podOrchestrator.CreatePod(ctx, &agentpodSvc.OrchestrateCreatePodRequest{
-		OrganizationID:     loop.OrganizationID,
-		UserID:             userID,
-		RunnerID:           runnerID,
-		AgentSlug:          loop.AgentSlug,
-		TicketID:           loop.TicketID,
-		AgentfileLayer:     &agentfileLayer,
-		Cols:               120,
-		Rows:               40,
-		SourcePodKey:       sourcePodKey,
-		ResumeAgentSession: &resumeSession,
-	})
+	podResult, err := o.podOrchestrator.CreatePod(ctx,
+		buildLoopCreatePodRequest(loop, userID, agentfileLayer, sourcePodKey, resumeSession))
 	if err != nil {
 		if sourcePodKey != "" {
 			o.logger.Warn("persistent sandbox resume failed, degrading to fresh",
@@ -76,16 +60,8 @@ func (o *LoopOrchestrator) StartRun(ctx context.Context, loop *loopDomain.Loop, 
 				"sandbox_resume_degraded",
 				fmt.Sprintf("Resume from pod %s failed: %v. Degraded to fresh sandbox.", sourcePodKey, err))
 
-			podResult, err = o.podOrchestrator.CreatePod(ctx, &agentpodSvc.OrchestrateCreatePodRequest{
-				OrganizationID: loop.OrganizationID,
-				UserID:         userID,
-				RunnerID:       runnerID,
-				AgentSlug:      loop.AgentSlug,
-				TicketID:       loop.TicketID,
-				AgentfileLayer:   &agentfileLayer,
-				Cols:           120,
-				Rows:           40,
-			})
+			podResult, err = o.podOrchestrator.CreatePod(ctx,
+				buildLoopCreatePodRequest(loop, userID, agentfileLayer, "", false))
 			if err != nil {
 				_ = o.MarkRunFailed(ctx, run.ID, fmt.Sprintf("Pod creation failed (after resume degradation): %v", err))
 				return

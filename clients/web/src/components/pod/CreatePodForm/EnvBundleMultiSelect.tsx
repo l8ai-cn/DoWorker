@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { Server, Key, Sliders, Star, X, GripVertical } from "lucide-react";
+import { Server, Sliders, Star, X, GripVertical } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import type { EnvBundleSummary } from "@/lib/api";
 
@@ -18,15 +18,10 @@ interface Props {
 /**
  * Multi-select EnvBundle picker for Pod creation.
  *
- * Renders all bundles (credential + runtime kinds) as a checkbox list with
- * kind badges. Selection is an ordered list — the order is determined by
- * the order the user checked items, and shown in a separate "selected"
- * pane that supports reordering / removal. Order matters: later bundles
- * override earlier ones on conflicting env keys (mirrors backend eval order).
+ * Renders runtime bundles as an ordered checkbox list. Selection order matters:
+ * later bundles override earlier ones on conflicting env keys.
  *
- * Empty selection means no bundle — the agent runs with whatever env the
- * Runner provides natively. No USE_ENV_BUNDLE directive is emitted into the
- * AgentFile layer in that case.
+ * Empty selection emits no USE_ENV_BUNDLE directive.
  */
 export function EnvBundleMultiSelect({
   bundles,
@@ -100,7 +95,7 @@ export function EnvBundleMultiSelect({
                 <span className="text-xs text-muted-foreground w-4 text-center shrink-0">
                   {idx + 1}
                 </span>
-                {b ? renderKindIcon(b.kind) : <Key className="w-4 h-4 text-muted-foreground shrink-0" />}
+                {b ? renderKindIcon(b.kind) : <Sliders className="w-4 h-4 text-muted-foreground shrink-0" />}
                 <span className="text-sm flex-1 truncate" title={name}>
                   {name}
                 </span>
@@ -198,14 +193,10 @@ function renderKindIcon(kind: string) {
   if (kind === "runtime") {
     return <Sliders className="w-4 h-4 text-muted-foreground shrink-0" />;
   }
-  if (kind === "credential") {
-    return <Key className="w-4 h-4 text-muted-foreground shrink-0" />;
-  }
   return <Server className="w-4 h-4 text-muted-foreground shrink-0" />;
 }
 
 function kindLabel(kind: string, t: (key: string) => string): string {
-  if (kind === "credential") return t("ide.createPod.bundleKind.credential");
   if (kind === "runtime") return t("ide.createPod.bundleKind.runtime");
   return kind;
 }

@@ -1,8 +1,6 @@
-import type { AgentData } from "@/lib/api";
+import type { AgentData, RunnerData } from "@/lib/api";
 
-type RunnerCapability = Pick<AgentData, "available_agents"> & {
-  capabilities?: Record<string, string>;
-};
+type RunnerCapability = Pick<RunnerData, "available_agents">;
 
 export type CapabilityAxis =
   | "resume"

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { CredentialFormFields } from "../CredentialFormFields";
-import { getCredentialFormSpec } from "../AgentCredentialsSettings/credentialForms";
+import { getCredentialFormSpec } from "../envBundleCredentialForms";
 
 const mockT = (key: string) => {
   const translations: Record<string, string> = {

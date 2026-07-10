@@ -5,8 +5,8 @@ import type {
   CredentialFormSpec,
   CredentialFieldSpec,
   CustomEnvEntry,
-} from "./AgentCredentialsSettings/credentialForms/types";
-import { getEnvKeysFromSpec } from "./AgentCredentialsSettings/credentialForms";
+} from "./envBundleCredentialForms/types";
+import { getEnvKeysFromSpec } from "./envBundleCredentialForms";
 import { CustomEnvSection } from "./CustomEnvSection";
 import { SimpleFieldInput, OneOfFieldInput } from "./credentialFieldInputs";
 

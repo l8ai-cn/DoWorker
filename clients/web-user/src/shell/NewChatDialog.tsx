@@ -81,6 +81,7 @@ import {
   nativeWrapperLabelsForAgent,
 } from "@/lib/nativeCodingAgents";
 import { useHosts, type Host } from "@/hooks/useHosts";
+import { useModelConfigs } from "@/hooks/useModelConfigs";
 import {
   controlHost,
   getHostIdentity,
@@ -1317,11 +1318,7 @@ function AgentHarnessPicker({
   // (so e.g. Codex's submenu shows Codex knobs even while Claude is selected).
   const knobSectionsFor = (agent: AvailableAgent): ReactNode => {
     const isSelected = agent.id === effectiveAgentId;
-    // Do-agent Workers mount a model from the org pool: the submenu lists the
-    // configured models (model_config_id) + a token cap, the same state the
-    // create request sends. Must precede the brain-harness fallback — the
-    // harness catalog may list "do-agent", but a harness-override radio is
-    // meaningless for the Worker.
+    // Do-agent Workers require an exact model resource plus an optional token cap.
     if (agentUsesWorkerModelPool(agent)) {
       return (
         <WorkerModelMenuOptions
@@ -2069,6 +2066,7 @@ export function NewChatLandingScreen() {
   // which have no knobs to remember.
   const selectedNativeHarness = nativeCodingAgentForAvailableAgent(selectedAgent)?.harness ?? null;
   const showWorkerModelPicker = agentUsesWorkerModelPool(selectedAgent);
+  const workerModelResources = useModelConfigs(showWorkerModelPicker);
   // Seed the harness's knobs from the user's last picks when the selected
   // harness changes (including the first mount), so a returning user starts a
   // new session on the options they used last for that harness instead of the
@@ -2309,14 +2307,23 @@ export function NewChatLandingScreen() {
     textareaRef,
   });
 
+  const workerModelResourceReady =
+    !showWorkerModelPicker ||
+    (!workerModelResources.isLoading &&
+      !workerModelResources.isError &&
+      modelConfigId != null &&
+      Boolean(workerModelResources.data?.some((resource) => resource.id === modelConfigId)));
+
   const canSubmit =
     message.trim().length > 0 &&
     selectedAgent != null &&
-    (sandboxSelected ||
-      (!!selectedHostId &&
+    workerModelResourceReady &&
+    (sandboxSelected
+      ? sandboxRepoValid
+      : !!selectedHostId &&
         workspaceValid &&
         !!selectedHost &&
-        hostSupportsAgent(selectedHost, selectedAgent))) &&
+        hostSupportsAgent(selectedHost, selectedAgent)) &&
     !creating;
 
   // Why submit is disabled, surfaced as the button's tooltip. Checked in the
@@ -2340,9 +2347,11 @@ export function NewChatLandingScreen() {
             )
           : !sandboxSelected && (!selectedHostId || !workspaceValid)
             ? t.composer.chooseHostWorkspace
-            : message.trim().length === 0
-              ? t.composer.enterMessage
-              : null;
+            : !workerModelResourceReady
+              ? "Select an AI resource"
+              : message.trim().length === 0
+                ? t.composer.enterMessage
+                : null;
 
   // Chip display labels.
   const workspaceLabel = workspaceTrimmed
@@ -2522,10 +2531,9 @@ export function NewChatLandingScreen() {
             // Smart routing toggle — server-side, available for any agent.
             cost_control_mode_override: costControlMode ?? undefined,
             harness_override: pickedHarness ?? undefined,
-            // Worker model pool mount + token cap (do-agent config bundle or
-            // codex-cli / claude-code / gemini-cli env bundle).
+            // Worker model resource + token cap.
             ...(showWorkerModelPicker && modelConfigId != null
-              ? { model_config_id: modelConfigId }
+              ? { model_resource_id: modelConfigId }
               : {}),
             ...(showWorkerModelPicker && workerTokenBudget != null && workerTokenBudget > 0
               ? { token_budget: workerTokenBudget }

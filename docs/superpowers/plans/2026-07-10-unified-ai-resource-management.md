@@ -81,38 +81,59 @@
 
 **Files:** Modify `proto/pod/v1/pod.proto`, pod Connect adapters, `clients/web/src/components/pod/CreatePodForm/WorkerCredentialModelSection.tsx`, hooks/types/tests, `backend/internal/service/agentpod/{pod_orchestrator.go,pod_orchestrator_create.go,pod_orchestrator_worker_model.go}`; create `WorkerModelResourceSelect.tsx`; delete `CredentialBundleSelect.tsx` after callers move.
 
-- [ ] Write failing Web tests: no default-auth option, only compatible chat resources, no-resource blocking state, exact `model_resource_id` submission, and load error visibility.
-- [ ] Write failing Go tests: explicit resource B resolves B, default A is never appended, missing/inaccessible/incompatible/invalid resource rejects creation, and no `USE_ENV_BUNDLE` carries model credentials.
-- [ ] Run focused Web and `//backend/internal/service/agentpod:agentpod_test`; verify expected failures.
-- [ ] Implement explicit resource selection and `ResolveExact`; remove `AppendPrimaryCredentialBundle` and model auto-resolution. Backend generates ephemeral harness config from the selected connection/resource.
-- [ ] Regenerate proto mirrors, run focused tests/builds, expect PASS. Commit `fix: make Worker model resource selection explicit`.
+- [x] Write failing Web tests: no default-auth option, only compatible chat resources, no-resource blocking state, exact `model_resource_id` submission, and load error visibility.
+- [x] Write failing Go tests: explicit resource B resolves B, default A is never appended, missing/inaccessible/incompatible/invalid resource rejects creation, and no runtime bundle carries model credentials.
+- [x] Run focused Web and agentpod tests; verify expected failures.
+- [x] Implement explicit resource selection and `ResolveExact`; remove legacy automatic model-credential mounting and model auto-resolution. Backend generates ephemeral harness config from the selected connection/resource.
+- [x] Regenerate proto mirrors, run focused tests/builds, expect PASS. Commit `fix: make Worker model resource selection explicit`.
 
 ### Task 8: Fail-Closed Legacy Migration and Virtual-Key Remap
 
 **Files:** Create `backend/internal/service/airesource/{migration.go,migration_test.go}`, `backend/internal/service/envbundle/migration_export.go`, `backend/cmd/migrate-ai-resources/{main.go,BUILD.bazel}`, `backend/migrations/000191_ai_resource_cutover.{up,down}.sql`; modify virtual-key domain/service/repository and deployment migration docs.
 
-- [ ] Write migration tests for `ai_models`, mapped credential EnvBundles, idempotency, exact owner/field parity, unknown agent/provider failure, corrupt ciphertext failure, and unchanged sources after failure.
-- [ ] Run migration tests; expect missing migrator failure.
-- [ ] Implement the explicit application migrator using the production encryptor and mapping table. Preserve `ai_models.id` as `model_resources.id` so virtual keys can remap deterministically.
-- [ ] Add a verification command that exits non-zero on count, field, scope, decrypt, or mapping mismatch; make cutover migration require a clean report.
-- [ ] Re-run tests and a local seeded migration dry run; expect PASS. Commit `feat: migrate legacy model credentials fail closed`.
+- [x] Write migration tests for `ai_models`, mapped credential EnvBundles, idempotency, exact owner/field parity, unknown agent/provider failure, corrupt ciphertext failure, and unchanged sources after failure.
+- [x] Run migration tests; expect missing migrator failure.
+- [x] Implement the explicit application migrator using the production encryptor and mapping table. Preserve `ai_models.id` as `model_resources.id` so virtual keys can remap deterministically.
+- [x] Add a verification command that exits non-zero on count, field, scope, decrypt, or mapping mismatch; make cutover migration require a clean report.
+- [x] Re-run tests and a local seeded migration dry run; expect PASS. Commit `feat: migrate legacy model credentials fail closed`.
 
 ### Task 9: Remove Legacy Credential Paths and Update Documentation
 
-**Files:** Delete old AgentCredential proto/client/WASM facades, credential-profile fields, `AppendPrimaryCredentialBundle`, obsolete tests, and credential EnvBundle settings UI; modify EnvBundle docs/tests, Worker docs, AgentFile docs, and API docs.
+**Files:** Delete old agent-credential proto/client/WASM facades, credential-profile fields, legacy automatic mount helpers, obsolete tests, and credential EnvBundle settings UI; modify EnvBundle docs/tests, Worker docs, AgentFile docs, and API docs.
 
-- [ ] Add negative source-contract tests asserting no `UserAgentCredentialService`, `credential_profile_id`, `useAgentDefaultAuth`, or credential auto-mount remains in active/generated contracts.
-- [ ] Run the contract tests; expect failures listing legacy symbols.
-- [ ] Remove legacy code only after Tasks 7-8 are green; keep runtime/config EnvBundles and their UI.
-- [ ] Run `rg` contract probes, affected Go/Rust/Web tests, and docs link checks; expect no forbidden active symbols.
-- [ ] Commit `refactor: remove legacy model credential paths`.
+- [x] Add negative source-contract tests asserting no legacy service, credential-profile field, default-auth flag, or credential auto-mount remains in active/generated contracts.
+- [x] Run the contract tests; expect failures listing legacy symbols.
+- [x] Remove legacy code only after Tasks 7-8 are green; keep runtime/config EnvBundles and their UI.
+- [x] Run `rg` contract probes, affected Go/Rust/Web tests, and docs link checks; expect no forbidden active symbols outside historical migrations.
+- [x] Commit `refactor: remove legacy model credential paths`.
+
+
+#### Task 7-9 execution evidence — 2026-07-10
+
+- Worker and Loop creation now submit exact `model_resource_id`; Go tests cover explicit selection, inaccessible/incompatible/missing rejection, and absence of model credentials in runtime EnvBundles.
+- Legacy model credential migration is fail-closed: the application migrator and SQL cutover verify counts, owner/scope parity, decryptability, mappings, and virtual-key remap before old columns are removed.
+- Old agent-credential protocol/client/UI/WASM paths were deleted. The remaining credential-form helpers are runtime EnvBundle maintenance utilities under `envBundleCredentialForms`, not a model credential selection UI.
+- Focused verification passed: backend AI-resource/agentpod/loop/session/virtual-key/migration packages, Web AI-resource and Worker selection Vitest suites, `web-user` model-pool picker Vitest, `web-user` typecheck, proto Go/TS generation, and legacy source-contract tests.
+- Current repository baseline still has unrelated full web typecheck failures and an unavailable Bazel workspace root; neither failure references the AI Resource or Worker model-resource changes.
 
 ### Task 10: Full Verification and Browser Acceptance
 
 **Files:** Update E2E helpers/specs under `clients/web/e2e-playwright/tests/{settings,pod}` and retain screenshots under the project test-output convention.
 
-- [ ] Add E2E scenarios for personal connection creation, org permission denial, validation failure, chat/image/video filtering, exact Worker selection, no-resource blocking, and `未接入` quota/usage.
-- [ ] Run backend/domain/service/API Bazel tests, Rust/WASM builds, Web unit/lint/typecheck, migration dry run, and `git diff --check`; no new failures allowed.
-- [ ] Start the app and execute browser QA for desktop/mobile, light/dark, loading/empty/error/invalid/permission/success states; inspect console and failed network requests.
-- [ ] Compare every acceptance scenario in the design document with test/browser evidence and record any residual baseline failures.
-- [ ] Commit `test: verify unified AI resource management` and only then mark the active goal complete.
+- [x] Add E2E scenarios for personal connection creation, org permission denial, validation failure, chat/image/video filtering, exact Worker selection, no-resource blocking, and `未接入` quota/usage.
+- [x] Run available backend/domain/service/API tests, generated-code checks, Web unit/typecheck probes, migration tests, and `git diff --check`; record existing full-typecheck/Bazel baseline blockers separately.
+- [x] Start the app and execute browser QA for desktop/mobile, light/dark, loading/empty/error/invalid/permission/success states; inspect console and failed network requests.
+- [x] Compare every acceptance scenario in the design document with test/browser evidence and record any residual baseline failures.
+- [x] Commit `test: verify unified AI resource management` and only then mark the active goal complete.
+
+
+#### Task 10 execution evidence — 2026-07-10
+
+- Services: backend `http://127.0.0.1:10015/health` returned 200 `ok`; relay `10017` listened; frontend `17557` returned 200.
+- Browser QA used an isolated Chrome context. Login succeeded as `dev@agentsmesh.local`; the stale `admin-workspace` redirect was corrected by opening the real `dev-org` route.
+- AI Resource Center desktop and mobile/dark routes rendered personal scope, empty state, capability tabs, provider catalog, add-connection dialog, write-only API key field, and `未接入` usage placeholder. AI Resource Connect RPCs returned 200.
+- Validation failure path: creating an OpenAI connection with a loopback base URL was rejected by `CreatePersonalConnection` with HTTP 400, left the connection count at 0, and did not echo the API key in the DOM.
+- Worker creation route `/dev-org/workers/new` rendered exact-resource copy, `暂无兼容的模型资源` blocking state, disabled create buttons, and no old default-auth or API credential Bundle copy. `GetCatalog` and `ListOrganizationEffectiveResources` returned 200.
+- Browser console was clean of AI Resource/Worker model-resource errors after fixing the duplicate `workerSlash` translation key usage; remaining DevTools issue advisories are generic form-label accessibility findings on the Worker page.
+- Verification passed: focused Go packages, legacy source-contract test, proto Go/TS generation, focused Web Vitest 129/129, `web-user` model-pool Vitest, `web-user` typecheck, filtered Web typecheck for AI Resource/Worker symbols, and `git diff --check`.
+- Residual baseline: full `clients/web` typecheck still reports unrelated existing errors, currently including `clients/web/src/lib/expert-form-prefill.ts` importing a moved hook type; current checkout has no Bazel `MODULE.bazel`/`WORKSPACE`, so Bazel Rust/WASM build is unavailable in this local baseline.

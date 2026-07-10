@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 /**
  * Worker model knobs as a bare menu fragment, for embedding inside the
  * agent picker's Do-agent submenu (no dropdown shell of its own).
- * Shares the same `model_config_id` / `token_budget` state the create
+ * Shares the same model resource / `token_budget` state the create
  * request sends, so the flyout pick and the inline picker stay in sync.
  */
 export function WorkerModelMenuOptions({
@@ -32,11 +32,25 @@ export function WorkerModelMenuOptions({
   tokenBudget: number | null;
   onTokenBudgetChange: (n: number | null) => void;
 }) {
-  const { data: models } = useModelConfigs();
+  const { data: models, isLoading, isError, error } = useModelConfigs();
+  if (isLoading) {
+    return (
+      <DropdownMenuLabel className="px-2 py-1.5 text-[11px] font-normal text-muted-foreground">
+        Loading AI resources…
+      </DropdownMenuLabel>
+    );
+  }
+  if (isError) {
+    return (
+      <DropdownMenuLabel className="px-2 py-1.5 text-[11px] font-normal text-destructive">
+        {error instanceof Error ? error.message : "Failed to load AI resources."}
+      </DropdownMenuLabel>
+    );
+  }
   if (!models?.length) {
     return (
       <DropdownMenuLabel className="px-2 py-1.5 text-[11px] font-normal text-muted-foreground">
-        No models configured — add one in Settings → Models.
+        No compatible model resources are configured.
       </DropdownMenuLabel>
     );
   }
@@ -107,13 +121,17 @@ export function ModelConfigPicker({
   className,
   disabled = false,
 }: ModelConfigPickerProps) {
-  const { data: models, isLoading } = useModelConfigs();
+  const { data: models, isLoading, isError, error } = useModelConfigs();
 
   useEffect(() => {
-    if (selectedId != null || !models?.length) return;
-    const d = defaultModelConfig(models);
-    if (d) onSelect(d.id, d);
-  }, [models, selectedId, onSelect]);
+    if (isLoading || models?.some((model) => model.id === selectedId)) return;
+    const fallback = isError ? null : defaultModelConfig(models);
+    if (fallback) {
+      onSelect(fallback.id, fallback);
+    } else if (selectedId != null) {
+      onSelect(null, null);
+    }
+  }, [isError, isLoading, models, onSelect, selectedId]);
 
   const selected = useMemo(
     () => models?.find((m) => m.id === selectedId) ?? defaultModelConfig(models),
@@ -122,16 +140,30 @@ export function ModelConfigPicker({
 
   if (isLoading) {
     return (
-      <span className={cn("text-xs text-muted-foreground", className)} data-testid="model-config-loading">
+      <span
+        className={cn("text-xs text-muted-foreground", className)}
+        data-testid="model-config-loading"
+      >
         …
       </span>
     );
   }
+  if (isError) {
+    return (
+      <span className={cn("text-xs text-destructive", className)} data-testid="model-config-error">
+        {error instanceof Error ? error.message : "Failed to load AI resources."}
+      </span>
+    );
+  }
   if (!models?.length) {
-    return null;
+    return (
+      <span className={cn("text-xs text-muted-foreground", className)}>
+        No compatible model resources are configured.
+      </span>
+    );
   }
 
-  const label = selected ? selected.name : "Model";
+  const label = selected ? selected.name : "Select AI resource";
 
   return (
     <DropdownMenu>

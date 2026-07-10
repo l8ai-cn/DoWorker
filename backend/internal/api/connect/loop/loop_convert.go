@@ -49,6 +49,7 @@ func toProtoLoop(l *loopDomain.Loop) *loopv1.Loop {
 		RunnerId:            l.RunnerID,
 		BranchName:          optStrPtr(l.BranchName),
 		TicketId:            l.TicketID,
+		ModelResourceId:     l.ModelResourceID,
 		Status:              l.Status,
 		SandboxStrategy:     l.SandboxStrategy,
 		SessionPersistence:  l.SessionPersistence,

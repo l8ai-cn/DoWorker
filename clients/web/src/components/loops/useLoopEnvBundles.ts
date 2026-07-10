@@ -4,14 +4,6 @@ import { useEffect, useState } from "react";
 import { listEnvBundles, type EnvBundle } from "@/lib/api/facade/envBundleConnect";
 import type { EnvBundleSummary } from "@/lib/viewModels/envBundleSummary";
 
-/**
- * useLoopEnvBundles — fetch credential + runtime EnvBundles for the selected
- * agent. Reactive to dialog `open` state and the agent slug; cancels in-flight
- * loads when either changes so we never set state on a stale request.
- *
- * Mirrors `useEnvBundles` in CreatePodForm: both kinds load in parallel so one
- * empty/failed list doesn't suppress the other.
- */
 export function useLoopEnvBundles(args: {
   open: boolean;
   agentSlug: string | null;
@@ -32,10 +24,7 @@ export function useLoopEnvBundles(args: {
     const load = async () => {
       setLoadingBundles(true);
       try {
-        const [credRes, runtimeRes] = await Promise.all([
-          listEnvBundles({ kind: "credential", agentSlug }).catch(() => ({ items: [] })),
-          listEnvBundles({ kind: "runtime", agentSlug }).catch(() => ({ items: [] })),
-        ]);
+        const runtimeRes = await listEnvBundles({ kind: "runtime", agentSlug }).catch(() => ({ items: [] }));
         if (cancelled) return;
         const mapBundle = (b: EnvBundle): EnvBundleSummary => ({
           id: Number(b.id),
@@ -46,9 +35,8 @@ export function useLoopEnvBundles(args: {
           configured_fields:
             b.configuredFields.length > 0 ? b.configuredFields : undefined,
         });
-        const credBundles: EnvBundleSummary[] = (credRes.items ?? []).map(mapBundle);
         const runtimeBundles: EnvBundleSummary[] = (runtimeRes.items ?? []).map(mapBundle);
-        setEnvBundles([...credBundles, ...runtimeBundles]);
+        setEnvBundles(runtimeBundles);
       } catch {
         if (!cancelled) setEnvBundles([]);
       } finally {

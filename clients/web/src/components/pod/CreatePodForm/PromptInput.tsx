@@ -23,8 +23,8 @@ export function PromptInput({
   enableSlashCommands = true,
   extraSlashCommands = [],
 }: PromptInputProps) {
-  const tSlash = useTranslations("workerSlash");
-  const slash = useWorkerSlashComposer((key) => tSlash(key), extraSlashCommands);
+  const tRoot = useTranslations();
+  const slash = useWorkerSlashComposer(tRoot, extraSlashCommands);
   const matches = useMemo(
     () => (enableSlashCommands ? slash.matchesFor(value, value.length) : []),
     [enableSlashCommands, slash, value],
@@ -77,7 +77,7 @@ export function PromptInput({
         />
         {enableSlashCommands && (
           <p className="mt-1.5 text-[11px] text-muted-foreground">
-            {tSlash("createHint")}
+            {tRoot("workerSlash.createHint")}
           </p>
         )}
       </div>

@@ -1,15 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { LoopCreateDialog } from "../LoopCreateDialog";
+import type { EffectiveResource, ProviderDefinition } from "@/lib/api/facade/aiResource";
 import type { LoopData } from "@/lib/viewModels/loop";
-
-// --- store / data hook mocks ---------------------------------------------
 
 const mockCreateLoop = vi.fn();
 const mockUpdateLoop = vi.fn();
 vi.mock("@/stores/loop", () => ({
   useLoopStore: (selector: (s: Record<string, unknown>) => unknown) =>
     selector({ createLoop: mockCreateLoop, updateLoop: mockUpdateLoop }),
+}));
+vi.mock("@/stores/auth", () => ({
+  readCurrentOrg: () => ({ slug: "acme" }),
 }));
 
 const mockAvailableAgents = [
@@ -26,13 +28,8 @@ const mockCompatibleRunner = {
   created_at: "2026-01-01T00:00:00Z",
   updated_at: "2026-01-01T00:00:00Z",
 };
-const { mockUsePodCreationData } = vi.hoisted(() => ({
-  mockUsePodCreationData: vi.fn(),
-}));
-vi.mock("@/components/pod/hooks", () => ({
-  usePodCreationData: mockUsePodCreationData,
-}));
-
+const { mockUsePodCreationData } = vi.hoisted(() => ({ mockUsePodCreationData: vi.fn() }));
+vi.mock("@/components/pod/hooks", () => ({ usePodCreationData: mockUsePodCreationData }));
 vi.mock("@/components/ide/hooks", () => ({
   useConfigOptions: () => ({
     fields: [],
@@ -43,31 +40,25 @@ vi.mock("@/components/ide/hooks", () => ({
   }),
 }));
 
-// --- EnvBundleService mock --------------------------------------------------
-// useLoopEnvBundles calls listEnvBundles({kind:"credential"}) + listEnvBundles({kind:"runtime"})
-// in parallel. The mock dispatches by kind so each query returns its own list.
+const { mockListEnvBundles } = vi.hoisted(() => ({ mockListEnvBundles: vi.fn() }));
+vi.mock("@/lib/api/facade/envBundleConnect", () => ({ listEnvBundles: mockListEnvBundles }));
 
-const { mockListEnvBundles } = vi.hoisted(() => ({
-  mockListEnvBundles: vi.fn(),
+const { mockGetCatalog, mockListOrganizationEffectiveResources } = vi.hoisted(() => ({
+  mockGetCatalog: vi.fn(),
+  mockListOrganizationEffectiveResources: vi.fn(),
 }));
-vi.mock("@/lib/api/facade/envBundleConnect", () => ({
-  listEnvBundles: mockListEnvBundles,
+vi.mock("@/lib/api/facade/aiResourceConnect", () => ({
+  getCatalog: mockGetCatalog,
+  listOrganizationEffectiveResources: mockListOrganizationEffectiveResources,
+  listPersonalEffectiveResources: vi.fn(),
 }));
-
-// --- Stubs for visual/dialog/intl/toast deps -------------------------------
 
 vi.mock("next-intl", () => ({
-  // PromptInput / AdvancedOptions call useTranslations(namespace?) themselves.
   useTranslations: () => (key: string) => key,
   NextIntlClientProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
-
 vi.mock("@/components/pod/CreatePodForm/PromptInput", () => ({
-  PromptInput: ({
-    value,
-    onChange,
-    placeholder,
-  }: {
+  PromptInput: ({ value, onChange, placeholder }: {
     value: string;
     onChange: (v: string) => void;
     placeholder?: string;
@@ -80,29 +71,14 @@ vi.mock("@/components/pod/CreatePodForm/PromptInput", () => ({
     />
   ),
 }));
-
 vi.mock("@/components/pod/CreatePodForm/AdvancedOptions", () => ({
-  AdvancedOptions: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="advanced-options">{children}</div>
-  ),
+  AdvancedOptions: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
-
-vi.mock("sonner", () => ({
-  toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
-}));
-
-vi.mock("../LoopNlCreate", () => ({
-  LoopNlCreate: () => null,
-}));
-
-vi.mock("@/components/ide/ConfigForm", () => ({
-  ConfigForm: () => <div data-testid="config-form" />,
-}));
-
+vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() } }));
+vi.mock("../LoopNlCreate", () => ({ LoopNlCreate: () => null }));
+vi.mock("@/components/ide/ConfigForm", () => ({ ConfigForm: () => <div data-testid="config-form" /> }));
 vi.mock("@/components/ui/responsive-dialog", () => ({
-  ResponsiveDialog: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="dialog">{children}</div>
-  ),
+  ResponsiveDialog: ({ children }: { children: React.ReactNode }) => <div data-testid="dialog">{children}</div>,
   ResponsiveDialogContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   ResponsiveDialogHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   ResponsiveDialogTitle: ({ children }: { children: React.ReactNode }) => <h2>{children}</h2>,
@@ -110,102 +86,86 @@ vi.mock("@/components/ui/responsive-dialog", () => ({
   ResponsiveDialogFooter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("@/components/pod/CreatePodForm/AdvancedOptions", () => ({
-  AdvancedOptions: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
-// --- Test data --------------------------------------------------------------
-
-const bundleWork = {
-  id: BigInt(1),
-  agentSlug: "claude-code",
-  name: "Work",
-  kind: "credential",
-  kindPrimary: true,
-  isActive: true,
-  configuredFields: ["ANTHROPIC_API_KEY"],
-  createdAt: "2026-01-01T00:00:00Z",
-  updatedAt: "2026-01-01T00:00:00Z",
-};
-
-const bundlePersonal = {
-  id: BigInt(2),
-  agentSlug: "claude-code",
-  name: "Personal",
-  kind: "credential",
-  kindPrimary: false,
-  isActive: true,
-  configuredFields: ["ANTHROPIC_API_KEY"],
-  createdAt: "x",
-  updatedAt: "x",
-};
-
-const bundleDevPreferences = {
+const runtimeBundle = {
   id: BigInt(3),
   agentSlug: "claude-code",
   name: "dev-preferences",
   kind: "runtime",
   kindPrimary: false,
   isActive: true,
-  configuredFields: ["ANTHROPIC_MODEL", "LOG_LEVEL"],
+  configuredFields: ["LOG_LEVEL"],
   createdAt: "x",
   updatedAt: "x",
 };
 
-const bundleProxyStaging = {
-  id: BigInt(4),
-  agentSlug: "claude-code",
-  name: "proxy-staging",
-  kind: "runtime",
-  kindPrimary: false,
-  isActive: true,
-  configuredFields: ["HTTPS_PROXY"],
-  createdAt: "x",
-  updatedAt: "x",
+const anthropicProvider: ProviderDefinition = {
+  key: "anthropic",
+  displayName: "Anthropic",
+  modalities: ["chat"],
+  credentialFields: [],
+  defaultBaseUrl: "https://api.anthropic.com",
+  protocolAdapter: "anthropic",
+  supportsCustomEndpoint: true,
+  supportsModelDiscovery: false,
+};
+const claudeResource: EffectiveResource = {
+  selectable: true,
+  blockingReason: "",
+  connection: {
+    id: 7,
+    ownerScope: "organization",
+    identifier: "team-anthropic",
+    providerKey: "anthropic",
+    name: "Team Anthropic",
+    baseUrl: "https://api.anthropic.com",
+    configuredFields: ["api_key"],
+    status: "validated",
+    isEnabled: true,
+    validationError: "",
+    canManage: true,
+    resources: [],
+  },
+  resource: {
+    id: 42,
+    providerConnectionId: 7,
+    identifier: "claude-sonnet",
+    modelId: "claude-sonnet-4",
+    displayName: "Claude Sonnet",
+    modalities: ["chat"],
+    capabilities: ["text-generation"],
+    defaultModalities: [],
+    status: "validated",
+    isEnabled: true,
+    validationError: "",
+  },
 };
 
 function fillRequiredFields() {
-  fireEvent.change(screen.getByPlaceholderText("daily-code-review"), {
-    target: { value: "Nightly CI" },
-  });
-  const prompt = screen.getByPlaceholderText("loops.promptPlaceholder") as HTMLTextAreaElement;
-  fireEvent.change(prompt, { target: { value: "run tests" } });
+  fireEvent.change(screen.getByPlaceholderText("daily-code-review"), { target: { value: "Nightly CI" } });
+  fireEvent.change(screen.getByPlaceholderText("loops.promptPlaceholder"), { target: { value: "run tests" } });
 }
 
-async function waitForBundlesLoaded() {
+async function waitForAsyncEffects() {
   await act(async () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
 }
 
-function mockBundleList(creds: unknown[], runtimes: unknown[] = []) {
-  mockListEnvBundles.mockImplementation(async (opts?: { kind?: string }) => {
-    if (opts?.kind === "credential") return { items: creds, total: creds.length };
-    if (opts?.kind === "runtime") return { items: runtimes, total: runtimes.length };
-    return { items: [], total: 0 };
-  });
-}
-
-/**
- * Interact with the custom (non-native) Select in `@/components/ui/select`:
- * options render as `role="option"` with `data-option-value` only while the
- * trigger is open. Clicking the trigger opens it, then the matching option is
- * clicked to fire `onValueChange`.
- */
 function pickCustomSelect(trigger: HTMLElement, optionValue: string) {
   fireEvent.click(trigger);
   const option = screen
     .getAllByRole("option")
     .find((el) => el.getAttribute("data-option-value") === optionValue);
-  if (!option) {
-    throw new Error(`Select option not found: "${optionValue}"`);
-  }
+  if (!option) throw new Error(`Select option not found: "${optionValue}"`);
   fireEvent.click(option);
 }
 
-// ---------------------------------------------------------------------------
+function mockResources(resources: EffectiveResource[] = [claudeResource]) {
+  mockGetCatalog.mockResolvedValue([anthropicProvider]);
+  mockListOrganizationEffectiveResources.mockResolvedValue(resources);
+}
 
-describe("LoopCreateDialog — EnvBundle binding", () => {
+describe("LoopCreateDialog — model resources and runtime bundles", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUsePodCreationData.mockReturnValue({
@@ -218,148 +178,57 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
       agents: mockAvailableAgents,
       error: null,
     });
-    mockBundleList([bundleWork], [bundleDevPreferences]);
+    mockListEnvBundles.mockResolvedValue({ items: [runtimeBundle], total: 1 });
+    mockResources();
     mockCreateLoop.mockResolvedValue({ loop: { slug: "nightly-ci" } });
     mockUpdateLoop.mockResolvedValue({ slug: "nightly-ci" });
   });
 
-  it("disables saving when the loop agent has no compatible runner", async () => {
-    mockUsePodCreationData.mockReturnValue({
-      runners: [{ ...mockCompatibleRunner, available_agents: ["codex-cli"] }],
-      repositories: [],
-      loading: false,
-      selectedRunner: null,
-      setSelectedRunnerId: vi.fn(),
-      availableAgents: [],
-      agents: mockAvailableAgents,
-      error: null,
-    });
-    const editLoop: LoopData = {
-      id: 5,
-      organization_id: 1,
-      slug: "nightly",
-      name: "Nightly",
-      prompt_template: "run tests",
-      agent_slug: "claude-code",
-      execution_mode: "autopilot",
-      status: "enabled",
-      sandbox_strategy: "persistent",
-      session_persistence: true,
-      concurrency_policy: "skip",
-      max_concurrent_runs: 1,
-      max_retained_runs: 0,
-      timeout_minutes: 60,
-      created_by_id: 1,
-      total_runs: 0,
-      successful_runs: 0,
-      failed_runs: 0,
-      active_run_count: 0,
-      autopilot_config: {},
-      created_at: "x",
-      updated_at: "x",
-    };
+  it("renders exact model resource selection and no credential selector", async () => {
+    const { container } = render(<LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />);
 
-    render(
-      <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} editLoop={editLoop} />
-    );
+    pickCustomSelect(container.querySelector("#worker-image-select") as HTMLElement, "claude-code");
+    await waitForAsyncEffects();
 
-    expect(screen.getByRole("button", { name: "common.save" })).toBeDisabled();
-  });
-
-  it("renders both credential single-select AND runtime multi-select after an agent is chosen", async () => {
-    const { container } = render(
-      <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
-    );
-
-    const agentSelect = container.querySelector("#worker-image-select") as HTMLElement;
-    expect(agentSelect).toBeTruthy();
-    pickCustomSelect(agentSelect, "claude-code");
-
-    await waitForBundlesLoaded();
-
-    // Credential picker is a labeled custom Select; runtime picker uses checkbox list.
-    expect(screen.getByLabelText("ide.createPod.selectCredential")).toBeInTheDocument();
+    expect(screen.getByLabelText("ide.createPod.selectModelResource")).toBeInTheDocument();
+    expect(screen.queryByLabelText("ide.createPod.selectCredential")).not.toBeInTheDocument();
     expect(screen.getByText("ide.createPod.selectRuntimeBundles")).toBeInTheDocument();
-    // The runtime bundle appears as a checkbox row.
     expect(screen.getByText("dev-preferences")).toBeInTheDocument();
   });
 
-  it("submits used_env_bundles=[credName] when only a credential is selected", async () => {
-    const { container } = render(
-      <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
-    );
+  it("submits model_resource_id and keeps used_env_bundles runtime-only", async () => {
+    const { container } = render(<LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />);
 
-    const agentSelect = container.querySelector("#worker-image-select") as HTMLElement;
-    pickCustomSelect(agentSelect, "claude-code");
-    await waitForBundlesLoaded();
-
+    pickCustomSelect(container.querySelector("#worker-image-select") as HTMLElement, "claude-code");
+    await waitForAsyncEffects();
     fillRequiredFields();
-
-    pickCustomSelect(screen.getByLabelText("ide.createPod.selectCredential"), "Work");
-
-    const createBtn = screen.getByRole("button", { name: "loops.createLoop" });
-    await act(async () => {
-      fireEvent.click(createBtn);
-    });
-
-    await waitFor(() => expect(mockCreateLoop).toHaveBeenCalledTimes(1));
-    const payload = mockCreateLoop.mock.calls[0][0];
-    expect(payload.used_env_bundles).toEqual(["Work"]);
-  });
-
-  it("submits used_env_bundles=[] when no bundle is selected (default auth + no runtime)", async () => {
-    const { container } = render(
-      <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
-    );
-
-    const agentSelect = container.querySelector("#worker-image-select") as HTMLElement;
-    pickCustomSelect(agentSelect, "claude-code");
-    await waitForBundlesLoaded();
-
-    fillRequiredFields();
-    // Force-clear the credential select (auto-default may have set a primary).
-    pickCustomSelect(screen.getByLabelText("ide.createPod.selectCredential"), "");
-
-    const createBtn = screen.getByRole("button", { name: "loops.createLoop" });
-    await act(async () => {
-      fireEvent.click(createBtn);
-    });
-
-    await waitFor(() => expect(mockCreateLoop).toHaveBeenCalledTimes(1));
-    const payload = mockCreateLoop.mock.calls[0][0];
-    expect(payload.used_env_bundles).toEqual([]);
-  });
-
-  it("merges credential first then runtime bundles when both are selected", async () => {
-    mockBundleList([bundleWork], [bundleDevPreferences, bundleProxyStaging]);
-    const { container } = render(
-      <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />
-    );
-
-    const agentSelect = container.querySelector("#worker-image-select") as HTMLElement;
-    pickCustomSelect(agentSelect, "claude-code");
-    await waitForBundlesLoaded();
-    fillRequiredFields();
-
-    // Pick a credential.
-    pickCustomSelect(screen.getByLabelText("ide.createPod.selectCredential"), "Work");
-    // Pick two runtimes in a specific order.
-    fireEvent.click(screen.getByRole("checkbox", { name: /proxy-staging/i }));
+    pickCustomSelect(screen.getByLabelText("ide.createPod.selectModelResource"), "42");
     fireEvent.click(screen.getByRole("checkbox", { name: /dev-preferences/i }));
 
-    const createBtn = screen.getByRole("button", { name: "loops.createLoop" });
     await act(async () => {
-      fireEvent.click(createBtn);
+      fireEvent.click(screen.getByRole("button", { name: "loops.createLoop" }));
     });
 
     await waitFor(() => expect(mockCreateLoop).toHaveBeenCalledTimes(1));
-    const payload = mockCreateLoop.mock.calls[0][0];
-    // Credential first, then runtime in selection order.
-    expect(payload.used_env_bundles).toEqual(["Work", "proxy-staging", "dev-preferences"]);
+    expect(mockCreateLoop.mock.calls[0][0]).toMatchObject({
+      model_resource_id: 42,
+      used_env_bundles: ["dev-preferences"],
+    });
   });
 
-  it("edit mode: reconciles used_env_bundles back into credential + runtime state", async () => {
-    mockBundleList([bundleWork, bundlePersonal], [bundleDevPreferences]);
+  it("blocks saving when a model agent has no compatible model resource", async () => {
+    mockResources([]);
+    const { container } = render(<LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />);
+
+    pickCustomSelect(container.querySelector("#worker-image-select") as HTMLElement, "claude-code");
+    await waitForAsyncEffects();
+    fillRequiredFields();
+
+    expect(screen.getByText("ide.createPod.noModelResourcesAvailableHint")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "loops.createLoop" })).toBeDisabled();
+  });
+
+  it("edit mode preserves saved model_resource_id and runtime bundles", async () => {
     const editLoop: LoopData = {
       id: 5,
       organization_id: 1,
@@ -368,7 +237,8 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
       permission_mode: "bypassPermissions",
       prompt_template: "run tests",
       agent_slug: "claude-code",
-      used_env_bundles: ["Work", "dev-preferences"],
+      model_resource_id: 42,
+      used_env_bundles: ["dev-preferences"],
       execution_mode: "autopilot",
       status: "enabled",
       sandbox_strategy: "persistent",
@@ -387,70 +257,10 @@ describe("LoopCreateDialog — EnvBundle binding", () => {
       updated_at: "x",
     };
 
-    render(
-      <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} editLoop={editLoop} />
-    );
+    render(<LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} editLoop={editLoop} />);
+    await waitForAsyncEffects();
 
-    await waitForBundlesLoaded();
-
-    // Custom Select trigger shows the selected credential's label.
-    const credSelect = screen.getByLabelText("ide.createPod.selectCredential");
-    expect(credSelect).toHaveTextContent("Work");
-
-    const runtimeCheckbox = screen.getByRole("checkbox", {
-      name: /dev-preferences/i,
-    }) as HTMLInputElement;
-    expect(runtimeCheckbox.checked).toBe(true);
-  });
-
-  it("edit mode: updating bundle picks survives the round-trip to updateLoop", async () => {
-    mockBundleList([bundleWork, bundlePersonal], [bundleDevPreferences]);
-    const editLoop: LoopData = {
-      id: 5,
-      organization_id: 1,
-      slug: "nightly",
-      name: "Nightly",
-      permission_mode: "bypassPermissions",
-      prompt_template: "run tests",
-      agent_slug: "claude-code",
-      used_env_bundles: ["Work"],
-      execution_mode: "autopilot",
-      status: "enabled",
-      sandbox_strategy: "persistent",
-      session_persistence: true,
-      concurrency_policy: "skip",
-      max_concurrent_runs: 1,
-      max_retained_runs: 0,
-      timeout_minutes: 60,
-      created_by_id: 1,
-      total_runs: 0,
-      successful_runs: 0,
-      failed_runs: 0,
-      active_run_count: 0,
-      autopilot_config: {},
-      created_at: "x",
-      updated_at: "x",
-    };
-
-    render(
-      <LoopCreateDialog open onOpenChange={() => {}} onCreated={() => {}} editLoop={editLoop} />
-    );
-
-    await waitForBundlesLoaded();
-
-    // Swap credential Work → Personal.
-    pickCustomSelect(screen.getByLabelText("ide.createPod.selectCredential"), "Personal");
-    // Add a runtime bundle.
-    fireEvent.click(screen.getByRole("checkbox", { name: /dev-preferences/i }));
-
-    const saveBtn = screen.getByRole("button", { name: "common.save" });
-    await act(async () => {
-      fireEvent.click(saveBtn);
-    });
-
-    await waitFor(() => expect(mockUpdateLoop).toHaveBeenCalledTimes(1));
-    const [slug, payload] = mockUpdateLoop.mock.calls[0];
-    expect(slug).toBe("nightly");
-    expect(payload.used_env_bundles).toEqual(["Personal", "dev-preferences"]);
+    expect(screen.getByLabelText("ide.createPod.selectModelResource")).toHaveTextContent("Claude Sonnet");
+    expect((screen.getByRole("checkbox", { name: /dev-preferences/i }) as HTMLInputElement).checked).toBe(true);
   });
 });

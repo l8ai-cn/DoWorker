@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import type {
   OneOfCredentialField,
   SimpleCredentialField,
-} from "./AgentCredentialsSettings/credentialForms/types";
+} from "./envBundleCredentialForms/types";
 
 interface SimpleFieldInputProps {
   field: SimpleCredentialField;

@@ -167,8 +167,8 @@
         "gitDesc": "仓库连接与凭据",
         "agentConfig": "镜像配置",
         "agentConfigDesc": "Worker 镜像运行参数",
-        "agentCredentials": "镜像凭据",
-        "agentCredentialsDesc": "Worker 镜像的 API 密钥",
+        "agentCredentials": "AI 资源",
+        "agentCredentialsDesc": "模型资源与服务商连接",
         "notifications": "通知",
         "notificationsDesc": "推送通知偏好",
         "support": "支持工单",
@@ -279,7 +279,7 @@
       "configureTitle": "配置 {name}",
       "configureHint": "设置此镜像的默认配置值。这些值将在创建新 Worker 时使用。",
       "configureHintGraphical": "设置此镜像的默认运行参数。这些值将在创建新 Worker 时使用。",
-      "credentialsMovedNotice": "API 凭据已移至「个人设置 > 镜像凭据」。每个用户管理自己的凭据。",
+      "credentialsMovedNotice": "模型服务商凭据在 AI 资源中管理。本页只保存非密钥类运行时偏好。",
       "cancel": "取消",
       "saving": "保存中...",
       "saveConfig": "保存配置",
@@ -290,7 +290,7 @@
       "invalidJson": "无效的 JSON 格式",
       "credentials": {
         "title": "API 凭据",
-        "description": "配置此镜像的 API 凭据。不配置时使用镜像默认认证（OAuth、CLI 已登录的账号等）。"
+        "description": "服务商凭据在 AI 资源中管理。运行时环境变量 Bundle 不承载模型 API 密钥。"
       },
       "runtime": {
         "title": "运行时配置",
@@ -411,18 +411,18 @@
       "saveCredentials": "保存凭据"
     },
     "agentCredentials": {
-      "title": "镜像凭据",
-      "description": "管理每种 Worker 镜像的 API 凭据。未配置的镜像走自带的认证方式（OAuth、CLI 已登录的账号等）；添加自定义凭据后，Worker 启动时会注入这些凭据。",
-      "failedToLoad": "加载镜像凭据失败",
+      "title": "运行时环境变量",
+      "description": "管理可复用的运行时环境变量。模型 API 凭据通过 AI 资源精确选择。",
+      "failedToLoad": "加载运行时环境变量失败",
       "profiles": "个配置档案",
       "noAgents": "没有可用的镜像",
       "default": "默认",
       "configured": "已配置",
       "notConfigured": "未配置",
       "setAsDefault": "设为默认",
-      "addProfile": "添加自定义凭据",
-      "editProfile": "编辑凭据",
-      "customProfileDescription": "为此镜像添加您自己的 API 凭据。设置后，Worker 启动时将注入此凭据。",
+      "addProfile": "添加运行时环境变量",
+      "editProfile": "编辑运行时环境变量",
+      "customProfileDescription": "为此镜像添加非密钥类运行时变量。",
       "name": "配置名称",
       "namePlaceholder": "例如：工作配置、个人配置",
       "descriptionLabel": "描述",
@@ -437,8 +437,8 @@
       "confirmDelete": "确定要删除此配置吗？",
       "secretPlaceholder": "留空保持现有值",
       "secretEditHint": "留空保持现有值不变",
-      "noBundleLabel": "使用 Agent 默认认证",
-      "noBundleHint": "不注入额外凭据；Agent 走自带的登录方式（OAuth、CLI 已登录的账号等）。",
+      "noBundleLabel": "不注入运行时环境变量",
+      "noBundleHint": "未选择运行时环境变量 Bundle。",
       "removeSecret": "移除此凭据",
       "willRemove": "保存后将被移除",
       "baseUrlSecurityHint": "请勿在 URL 中嵌入令牌——它以明文存储，并会在编辑时显示在此处。"
@@ -456,6 +456,9 @@
       },
       "google": {
         "apiKey": "Google API Key"
+      },
+      "xai": {
+        "apiKey": "xAI API Key"
       },
       "customEnv": {
         "title": "自定义环境变量",
@@ -489,6 +492,9 @@
       },
       "doAgent": {
         "customEnvHint": "其他 Provider 密钥或覆盖项，如 DEEPSEEK_API_KEY、DO_AGENT_PROFILE、OPENAI_BASE_URL"
+      },
+      "grok": {
+        "customEnvHint": "Grok 运行所需的其他环境变量"
       }
     },
     "sshKeys": {

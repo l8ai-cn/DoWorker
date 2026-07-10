@@ -3,55 +3,54 @@ package sessionapi
 import (
 	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	aimodelsvc "github.com/anthropics/agentsmesh/backend/internal/service/aimodel"
-	tokenquotasvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenquota"
-	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
-	envbundlesvc "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
-	authservice "github.com/anthropics/agentsmesh/backend/internal/service/auth"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
+	authservice "github.com/anthropics/agentsmesh/backend/internal/service/auth"
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
-	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
-	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	relayservice "github.com/anthropics/agentsmesh/backend/internal/service/relay"
-	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
-	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
-	commentsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessioncomment"
-	permgrantsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionpermission"
+	envbundlesvc "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
+	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
+	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
+	relayservice "github.com/anthropics/agentsmesh/backend/internal/service/relay"
+	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	commentsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessioncomment"
 	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
+	permgrantsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionpermission"
+	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
+	tokenquotasvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenquota"
 	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
+	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
 )
 
 type Deps struct {
-	JWTSecret       string
-	Auth            *authservice.Service
-	User            *userservice.Service
-	Org             *organization.Service
-	Agent           *agentservice.AgentService
-	Runner          *runnerservice.Service
-	Sessions        *sessionsvc.Service
-	Items           *itemsvc.Service
-	Hub             *SessionHub
-	Updates         *SessionUpdatesHub
-	Elicitations    *ElicitationStore
-	Stream          *SessionStreamPublisher
-	PodOrchestrator *agentpod.PodOrchestrator
-	Pod             *agentpod.PodService
-	PodCoordinator  *runnerservice.PodCoordinator
-	CommandSender   runnerservice.RunnerCommandSender
-	RelayManager    *relayservice.Manager
-	RelayTokens     *relayservice.TokenGenerator
-	SessionUsage    *sessionusagesvc.Service
-	Policies        *permissionpolicysvc.Service
-	ReadState       *ReadStateStore
-	SandboxFs       *runnerservice.SandboxFsService
-	SessionFiles      *sessionfilesvc.Service
-	SessionComments   *commentsvc.Service
+	JWTSecret          string
+	Auth               *authservice.Service
+	User               *userservice.Service
+	Org                *organization.Service
+	Agent              *agentservice.AgentService
+	Runner             *runnerservice.Service
+	Sessions           *sessionsvc.Service
+	Items              *itemsvc.Service
+	Hub                *SessionHub
+	Updates            *SessionUpdatesHub
+	Elicitations       *ElicitationStore
+	Stream             *SessionStreamPublisher
+	PodOrchestrator    *agentpod.PodOrchestrator
+	Pod                *agentpod.PodService
+	PodCoordinator     *runnerservice.PodCoordinator
+	CommandSender      runnerservice.RunnerCommandSender
+	RelayManager       *relayservice.Manager
+	RelayTokens        *relayservice.TokenGenerator
+	SessionUsage       *sessionusagesvc.Service
+	Policies           *permissionpolicysvc.Service
+	ReadState          *ReadStateStore
+	SandboxFs          *runnerservice.SandboxFsService
+	SessionFiles       *sessionfilesvc.Service
+	SessionComments    *commentsvc.Service
 	SessionPermissions *permgrantsvc.Service
 	Grants             *grantservice.Service
-	AIModels           *aimodelsvc.Service
+	AIResources        ModelResourceLister
 	EnvBundles         *envbundlesvc.Service
 	VirtualKeys        *virtualkeysvc.Service
 	TokenQuotas        *tokenquotasvc.Service
-	Version           string
+	Version            string
 }

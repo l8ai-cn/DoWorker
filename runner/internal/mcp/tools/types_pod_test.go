@@ -27,7 +27,7 @@ func TestPodCreateRequestWithAllFields(t *testing.T) {
 	repositoryID := int64(789)
 	repositoryURL := "https://github.com/example/repo.git"
 	branchName := "feature/new-feature"
-	credentialProfileID := int64(111)
+	modelResourceID := int64(111)
 
 	req := PodCreateRequest{
 		RunnerID:            1,
@@ -36,7 +36,7 @@ func TestPodCreateRequestWithAllFields(t *testing.T) {
 		RepositoryID:        &repositoryID,
 		RepositoryURL:       &repositoryURL,
 		BranchName:          &branchName,
-		CredentialProfileID: &credentialProfileID,
+		ModelResourceID:    &modelResourceID,
 	}
 
 	if req.RunnerID != 1 {
@@ -54,8 +54,8 @@ func TestPodCreateRequestWithAllFields(t *testing.T) {
 	if req.BranchName == nil || *req.BranchName != "feature/new-feature" {
 		t.Errorf("BranchName: got %v, want feature/new-feature", req.BranchName)
 	}
-	if req.CredentialProfileID == nil || *req.CredentialProfileID != 111 {
-		t.Errorf("CredentialProfileID: got %v, want 111", req.CredentialProfileID)
+	if req.ModelResourceID == nil || *req.ModelResourceID != 111 {
+		t.Errorf("ModelResourceID: got %v, want 111", req.ModelResourceID)
 	}
 }
 

@@ -1,9 +1,4 @@
 import type { ConfigField, ConfigFile, AgentData } from "@/lib/api";
-import type { CredentialProfileViewModel } from "../_shared/credentialViewModel";
-import type { CredentialFormData } from "../AgentCredentialsSettings/credentialForms/types";
-
-// Re-export: CredentialFormData is defined once in credentialForms/types.
-export type { CredentialFormData };
 
 /**
  * Props for AgentConfigPage component
@@ -24,8 +19,6 @@ export interface AgentConfigState {
   agent: AgentData | null;
   configFields: ConfigField[];
   configValues: Record<string, unknown>;
-  credentialProfiles: CredentialProfileViewModel[];
-  noPrimaryBundle: boolean;
   runtimeBundles: RuntimeBundleViewModel[];
   configFileSpecs: ConfigFile[];
   configFileBundles: ConfigFileBundleViewModel[];
@@ -42,12 +35,6 @@ export interface AgentConfigActions {
   // Config actions
   handleConfigChange: (fieldName: string, value: unknown) => void;
   handleSaveConfig: () => Promise<void>;
-
-  // Credential actions
-  handleClearPrimaryBundle: () => Promise<void>;
-  handleSetDefault: (profileId: number) => Promise<void>;
-  handleDeleteProfile: (profileId: number) => Promise<void>;
-  handleSaveProfile: (data: CredentialFormData, editingProfile: CredentialProfileViewModel | null) => Promise<void>;
 
   // Runtime bundle actions
   handleSetRuntimePrimary: (id: number) => Promise<void>;
@@ -114,21 +101,6 @@ export interface ConfigFileFormData {
   name: string;
   description: string;
   jsonContent: string;
-}
-
-/**
- * Props for CredentialsSection component
- */
-export interface CredentialsSectionProps {
-  agentSlug: string;
-  noPrimaryBundle: boolean;
-  credentialProfiles: CredentialProfileViewModel[];
-  onClearPrimary: () => Promise<void>;
-  onSetDefault: (profileId: number) => Promise<void>;
-  onEdit: (profile: CredentialProfileViewModel) => void;
-  onDelete: (profileId: number) => Promise<void>;
-  onAdd: () => void;
-  t: (key: string) => string;
 }
 
 /**

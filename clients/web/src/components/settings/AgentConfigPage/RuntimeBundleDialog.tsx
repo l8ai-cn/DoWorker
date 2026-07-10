@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CustomEnvSection, hasInvalidCustomEnvKey } from "../CustomEnvSection";
-import type { CustomEnvEntry } from "../AgentCredentialsSettings/credentialForms/types";
+import type { CustomEnvEntry } from "../envBundleCredentialForms/types";
 import type { RuntimeBundleViewModel, RuntimeBundleFormData } from "./types";
 
 /**

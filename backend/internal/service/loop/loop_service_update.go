@@ -43,6 +43,9 @@ func (s *LoopService) Update(ctx context.Context, orgID int64, slug string, req 
 	if req.TicketID != nil {
 		updates["ticket_id"] = *req.TicketID
 	}
+	if req.ModelResourceID != nil {
+		updates["model_resource_id"] = *req.ModelResourceID
+	}
 	if req.UsedEnvBundles != nil {
 		// Nil pointer = leave unchanged; pointer to []string = replace.
 		// Empty slice replaces with no bundles. pq.StringArray serialises

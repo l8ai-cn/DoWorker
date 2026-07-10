@@ -37,7 +37,7 @@ const CREATE_POD_RPC = "/proto.pod.v1.PodService/CreatePod";
  *   - navigate to /workspace (so the New-Pod button is mountable)
  *   - intercept the Connect-RPC CreatePod (binary proto, response carries
  *     pod_key in the typed envelope)
- *   - open dialog, select agent, expand advanced, apply bundle selection,
+ *   - open dialog, select agent, expand advanced, apply runtime bundle selection,
  *     submit, wait for close
  *   - poll backend until pod status reaches "running"
  *
@@ -48,8 +48,6 @@ export async function createPodAndWaitRunning(args: {
   page: Page;
   api: ApiFixture;
   agentSlug: string;
-  /** Empty string = "Use Agent default auth"; undefined = leave picker alone. */
-  selectCredentialName?: string;
   selectRuntimeBundleNames?: string[];
   /**
    * Optional escape hatch: run extra interactions against the modal after
@@ -64,7 +62,6 @@ export async function createPodAndWaitRunning(args: {
     page,
     api,
     agentSlug,
-    selectCredentialName,
     selectRuntimeBundleNames,
     customizeModal,
     statusTimeoutMs = 30_000,
@@ -90,9 +87,6 @@ export async function createPodAndWaitRunning(args: {
   await modal.waitForOpen();
   await modal.selectAgent(agentSlug);
   await modal.expandAdvancedOptions();
-  if (selectCredentialName !== undefined) {
-    await modal.selectCredential(selectCredentialName);
-  }
   if (selectRuntimeBundleNames !== undefined) {
     await modal.selectRuntimeBundles(selectRuntimeBundleNames);
   }

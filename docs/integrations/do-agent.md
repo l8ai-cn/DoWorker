@@ -100,7 +100,7 @@ do-agent --version
 ### AgentsMesh
 
 1. `bazel run //deploy/dev:up`（或现有 dev 环境）
-2. Settings → Agent Credentials → DoAgent：填写 API Key
+2. Settings → AI Resources：添加 DoAgent 所需的 provider connection 与 model resource
 3. **New Pod → DoAgent**：
    - **PTY**：终端出现 REPL（`do-agent` 交互 CLI）
    - **ACP**：Workspace AgentPanel 可对话；或打开 `/{org}/do-agent/{podKey}` 使用 Goal 控制台

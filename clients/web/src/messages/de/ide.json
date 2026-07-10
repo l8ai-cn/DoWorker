@@ -113,14 +113,14 @@
       "aliasPlaceholder": "Anzeigename für diesen Pod eingeben...",
       "perpetual": "Dauerhaft",
       "perpetualDescription": "Automatischer Neustart bei Agent-Ende. Pod bleibt dauerhaft aktiv.",
-      "noBundleLabel": "Do not inject credentials",
-      "noBundleHint": "No credential bundle is injected from this legacy picker.",
+      "noBundleLabel": "No runtime env variables",
+      "noBundleHint": "No runtime environment variable bundle is selected.",
       "multiBundleHint": "Ausgewählte Bundles werden in dieser Reihenfolge in die Pod-Umgebung eingefügt; spätere Einträge überschreiben frühere bei Schlüsselkonflikten.",
       "selectedOrderHint": "Ausgewählt (Zusammenführungsreihenfolge)",
       "moveUp": "Nach oben",
       "moveDown": "Nach unten",
       "bundleKind": {
-        "credential": "Anmeldedaten",
+        "credential": "Legacy",
         "runtime": "Laufzeit"
       },
       "selectSkills": "Skills",

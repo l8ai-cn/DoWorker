@@ -5,17 +5,7 @@ import { useLoopStore } from "@/stores/loop";
 import { toast } from "sonner";
 import type { LoopData } from "@/lib/viewModels/loop";
 
-/**
- * useLoopForm — owns every per-field useState for the LoopCreateDialog, plus
- * the open/editLoop sync effect and the submit handler. The dialog itself is
- * left to do UI composition only.
- *
- * configValues are not owned here; the agent-config form lives in the dialog
- * (useConfigOptions). Pass the latest map into `submit(configValues)` at call
- * time so handleSubmit doesn't need to be re-bound on every keystroke.
- */
 export interface UseLoopFormResult {
-  // Basic fields
   name: string;
   setName: (v: string) => void;
   description: string;
@@ -23,7 +13,6 @@ export interface UseLoopFormResult {
   promptTemplate: string;
   setPromptTemplate: (v: string) => void;
 
-  // Pod config fields
   selectedAgentSlug: string | null;
   setSelectedAgentSlug: (v: string | null) => void;
   selectedRunnerId: number | null;
@@ -32,14 +21,8 @@ export interface UseLoopFormResult {
   setSelectedRepositoryId: (v: number | null) => void;
   selectedBranch: string;
   setSelectedBranch: (v: string) => void;
-  // Credential bundle (kind='credential') — single-select. "" = use Agent default auth.
-  selectedCredentialName: string;
-  setSelectedCredentialName: (v: string) => void;
-  // Runtime bundles (kind='runtime') — ordered multi-select.
   selectedRuntimeBundleNames: string[];
   setSelectedRuntimeBundleNames: (v: string[]) => void;
-
-  // Loop-specific fields
   executionMode: string;
   setExecutionMode: (v: string) => void;
   cronEnabled: boolean;
@@ -61,16 +44,18 @@ export interface UseLoopFormResult {
   maxRetainedRuns: number;
   setMaxRetainedRuns: (v: number) => void;
 
-  // Submission
   loading: boolean;
   isEdit: boolean;
-  submit: (configValues: Record<string, unknown>) => Promise<void>;
+  submit: (
+    configValues: Record<string, unknown>,
+    modelResourceId: number | null,
+    modelResourceRequired: boolean,
+  ) => Promise<void>;
 }
 
 export function useLoopForm(args: {
   open: boolean;
   editLoop?: LoopData;
-  /** Prefill prompt when falling back from AI guide (mirrors worker wizardPrompt). */
   initialIdea?: string;
   onCreated: (createdLoop?: LoopData) => void;
   t: (key: string) => string;
@@ -82,23 +67,16 @@ export function useLoopForm(args: {
 
   const [loading, setLoading] = useState(false);
 
-  // Basics
   const [name, setName] = useState(editLoop?.name || "");
   const [description, setDescription] = useState(editLoop?.description || "");
   const [promptTemplate, setPromptTemplate] = useState(editLoop?.prompt_template || "");
 
-  // Pod config
   const [selectedAgentSlug, setSelectedAgentSlug] = useState<string | null>(editLoop?.agent_slug || null);
   const [selectedRunnerId, setSelectedRunnerId] = useState<number | null>(editLoop?.runner_id || null);
   const [selectedRepositoryId, setSelectedRepositoryId] = useState<number | null>(editLoop?.repository_id || null);
   const [selectedBranch, setSelectedBranch] = useState(editLoop?.branch_name || "");
-  // Credential / runtime bundles are initialized empty here. LoopCreateDialog
-  // reconciles them from editLoop.used_env_bundles once the bundle list has
-  // loaded (so we can classify each name by kind).
-  const [selectedCredentialName, setSelectedCredentialName] = useState<string>("");
   const [selectedRuntimeBundleNames, setSelectedRuntimeBundleNames] = useState<string[]>([]);
 
-  // Loop-only
   const [executionMode, setExecutionMode] = useState<string>(editLoop?.execution_mode || "autopilot");
   const [cronEnabled, setCronEnabled] = useState(!!editLoop?.cron_expression);
   const [cronExpression, setCronExpression] = useState(editLoop?.cron_expression || "");
@@ -110,12 +88,6 @@ export function useLoopForm(args: {
   const [maxConcurrentRuns, setMaxConcurrentRuns] = useState(editLoop?.max_concurrent_runs || 1);
   const [maxRetainedRuns, setMaxRetainedRuns] = useState(editLoop?.max_retained_runs || 0);
 
-  // Sync form state when the dialog opens. We deliberately depend on `open`
-  // only — `editLoop` reference can churn (useCurrentLoop returns a fresh
-  // JSON.parse on every store tick), and re-running this effect on every
-  // churn would clobber user edits (or the LoopCreateDialog reconcile that
-  // patches credential/runtime picks from `used_env_bundles` after bundles
-  // load). Capture the snapshot once at open time.
   useEffect(() => {
     if (!open) return;
     setName(editLoop?.name || "");
@@ -125,8 +97,6 @@ export function useLoopForm(args: {
     setSelectedRunnerId(editLoop?.runner_id || null);
     setSelectedRepositoryId(editLoop?.repository_id || null);
     setSelectedBranch(editLoop?.branch_name || "");
-    // Reset bundle picks; LoopCreateDialog reconciles them after bundles load.
-    setSelectedCredentialName("");
     setSelectedRuntimeBundleNames([]);
     setExecutionMode(editLoop?.execution_mode || "autopilot");
     setCronEnabled(!!editLoop?.cron_expression);
@@ -142,15 +112,19 @@ export function useLoopForm(args: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  // When AI fallback sets wizardIdea while the form is already visible, sync prompt.
   useEffect(() => {
     if (!open || editLoop || !initialIdea) return;
     setPromptTemplate(initialIdea);
   }, [open, editLoop, initialIdea]);
 
   const submit = useCallback(
-    async (configValues: Record<string, unknown>) => {
+    async (
+      configValues: Record<string, unknown>,
+      modelResourceId: number | null,
+      modelResourceRequired: boolean,
+    ) => {
       if (!name.trim() || !promptTemplate.trim() || !selectedAgentSlug) return;
+      if (modelResourceRequired && !modelResourceId) return;
 
       setLoading(true);
       try {
@@ -162,11 +136,9 @@ export function useLoopForm(args: {
           runner_id: selectedRunnerId || undefined,
           repository_id: selectedRepositoryId || undefined,
           branch_name: selectedBranch || undefined,
-          // Merge credential first + runtime bundles after. Send always so
-          // create and update are symmetric: [] explicitly clears.
-          used_env_bundles: [selectedCredentialName, ...selectedRuntimeBundleNames].filter(Boolean),
-          config_overrides:
-            Object.keys(configValues).length > 0 ? configValues : undefined,
+          model_resource_id: modelResourceId || undefined,
+          used_env_bundles: selectedRuntimeBundleNames.filter(Boolean),
+          config_overrides: Object.keys(configValues).length > 0 ? configValues : undefined,
           execution_mode: executionMode,
           cron_expression: cronEnabled && cronExpression ? cronExpression : "",
           sandbox_strategy: sandboxStrategy,
@@ -197,11 +169,10 @@ export function useLoopForm(args: {
     },
     [
       name, description, promptTemplate, selectedAgentSlug, selectedRunnerId,
-      selectedRepositoryId, selectedBranch, selectedCredentialName, selectedRuntimeBundleNames,
-      executionMode, cronEnabled, cronExpression, sandboxStrategy,
-      concurrencyPolicy, timeoutMinutes, callbackUrl, sessionPersistence,
-      maxConcurrentRuns, maxRetainedRuns, isEdit, editLoop,
-      createLoop, updateLoop, onCreated, t,
+      selectedRepositoryId, selectedBranch, selectedRuntimeBundleNames,
+      executionMode, cronEnabled, cronExpression, sandboxStrategy, concurrencyPolicy,
+      timeoutMinutes, callbackUrl, sessionPersistence, maxConcurrentRuns,
+      maxRetainedRuns, isEdit, editLoop, createLoop, updateLoop, onCreated, t,
     ]
   );
 
@@ -213,7 +184,6 @@ export function useLoopForm(args: {
     selectedRunnerId, setSelectedRunnerId,
     selectedRepositoryId, setSelectedRepositoryId,
     selectedBranch, setSelectedBranch,
-    selectedCredentialName, setSelectedCredentialName,
     selectedRuntimeBundleNames, setSelectedRuntimeBundleNames,
     executionMode, setExecutionMode,
     cronEnabled, setCronEnabled,

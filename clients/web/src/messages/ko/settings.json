@@ -30,8 +30,8 @@
         "gitDesc": "Repository providers and credentials",
         "agentConfig": "Agent Config",
         "agentConfigDesc": "AI agent runtime parameters",
-        "agentCredentials": "Agent Credentials",
-        "agentCredentialsDesc": "API keys for AI agents",
+        "agentCredentials": "AI Resources",
+        "agentCredentialsDesc": "Provider connections and model resources",
         "notifications": "Notifications",
         "notificationsDesc": "Push notification preferences"
       },
@@ -137,7 +137,7 @@
       "configureTitle": "Configure {name}",
       "configureHint": "Set default configuration values for this agent. These values will be used when creating new pods.",
       "configureHintGraphical": "Set default runtime parameters for this agent. These values will be used when creating new pods.",
-      "credentialsMovedNotice": "API credentials have been moved to Personal Settings > Agent Credentials. Each user manages their own credentials.",
+      "credentialsMovedNotice": "Model provider credentials are managed in AI Resources. This page only stores non-secret runtime preferences.",
       "cancel": "Cancel",
       "saving": "Saving...",
       "saveConfig": "Save Configuration",
@@ -148,7 +148,7 @@
       "invalidJson": "Invalid JSON format",
       "credentials": {
         "title": "API Credentials",
-        "description": "이 에이전트의 API 자격 증명을 구성합니다. 설정되지 않은 경우 에이전트의 내장 인증 흐름(OAuth, 로그인된 CLI 등)을 사용합니다."
+        "description": "Provider credentials are managed in AI Resources. Runtime env bundles must not contain model API secrets."
       },
       "runtime": {
         "title": "Runtime Configuration",
@@ -245,18 +245,18 @@
       "saveCredentials": "Save Credentials"
     },
     "agentCredentials": {
-      "title": "Agent Credentials",
-      "description": "에이전트별 API 자격 증명을 관리합니다. 자격 증명이 없는 에이전트는 내장 인증 흐름을 사용하며, 자격 증명을 추가하면 시작 시 주입됩니다.",
-      "failedToLoad": "Failed to load agent credentials",
+      "title": "Runtime Env Variables",
+      "description": "Manage reusable runtime environment variables. Model API credentials are selected through AI Resources.",
+      "failedToLoad": "Failed to load runtime environment variables",
       "profiles": "profiles",
       "noAgents": "No agents available",
       "default": "Default",
       "configured": "Configured",
       "notConfigured": "Not configured",
       "setAsDefault": "Set as default",
-      "addProfile": "Add Custom Credentials",
-      "editProfile": "Edit Credentials",
-      "customProfileDescription": "이 에이전트에 대한 자체 API 자격 증명을 추가합니다. 에이전트 시작 시 환경에 주입됩니다.",
+      "addProfile": "Add Runtime Env Variables",
+      "editProfile": "Edit Runtime Env Variables",
+      "customProfileDescription": "Add non-secret runtime variables for this image.",
       "name": "Profile Name",
       "namePlaceholder": "e.g., Work Config, Personal",
       "descriptionLabel": "Description",
@@ -279,8 +279,8 @@
       "credentialMethod": "Authentication Method",
       "credentialMethodApiKey": "API Key",
       "credentialMethodAuthToken": "Auth Token",
-      "noBundleLabel": "에이전트 기본 인증 사용",
-      "noBundleHint": "추가 자격 증명을 주입하지 않습니다. 에이전트의 내장 인증 흐름(OAuth, 로그인된 CLI 등)이 사용됩니다.",
+      "noBundleLabel": "No runtime env variables",
+      "noBundleHint": "No runtime environment variable bundle is selected.",
       "removeSecret": "이 자격 증명 제거",
       "willRemove": "저장 시 제거됩니다",
       "baseUrlSecurityHint": "URL에 토큰을 넣지 마세요. 평문으로 저장되며 편집 시 여기에 표시됩니다."

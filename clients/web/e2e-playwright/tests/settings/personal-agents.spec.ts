@@ -27,14 +27,13 @@ test.describe("Personal Agent Configuration", () => {
 
     const body = await page.textContent("body");
     expect(body).toMatch(/Claude Code/i);
-    // Should have credential and runtime sections
-    expect(body).toMatch(/credential|凭据|API/i);
+    expect(body).toMatch(/runtime|运行时/i);
   });
 
   /**
-   * TC-AGENT-003: Add custom credential EnvBundle via the new Connect API
+   * TC-AGENT-003: Add runtime EnvBundle via the Connect API
    */
-  test("add and delete custom credential bundle", async ({ api, db }) => {
+  test("add and delete runtime env bundle", async ({ api, db }) => {
     db.cleanup(
       `DELETE FROM env_bundles WHERE name = 'E2E Test Bundle'`
     );
@@ -42,9 +41,9 @@ test.describe("Personal Agent Configuration", () => {
     await cc.envBundle.createEnvBundle({
       agentSlug: "claude-code",
       name: "E2E Test Bundle",
-      description: "Test credential bundle for E2E",
-      kind: "credential",
-      data: { ANTHROPIC_API_KEY: "sk-ant-test-key-12345" },
+      description: "Test runtime bundle for E2E",
+      kind: "runtime",
+      data: { LOG_LEVEL: "debug" },
     });
 
     db.cleanup(

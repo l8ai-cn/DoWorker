@@ -5,17 +5,12 @@ import { legacyPersistStorage } from "@/lib/zustand-legacy-persist";
 /**
  * Pod creation preferences - remembers last user choices.
  *
- * EnvBundle preferences are split by kind to mirror the dialog UI:
- *   - `lastCredentialName`: single-select pick (empty = "use Agent default")
- *   - `lastRuntimeBundleNames`: ordered list of runtime bundle names
- *
- * Names (not IDs) are stored because bundle names are stable across
- * rename/recreate while IDs are not.
+ * Runtime bundle names are stored instead of IDs because names survive
+ * bundle recreation while IDs do not.
  */
 interface PodCreationPreferences {
   lastAgentSlug: string | null;
   lastRepositoryId: number | null;
-  lastCredentialName: string;
   lastRuntimeBundleNames: string[];
   lastBranchName: string | null;
   // Slugs are stable across rename/reinstall and repo-scoped; restored as the
@@ -31,7 +26,6 @@ interface PodCreationPreferences {
         PodCreationPreferences,
         | "lastAgentSlug"
         | "lastRepositoryId"
-        | "lastCredentialName"
         | "lastRuntimeBundleNames"
         | "lastBranchName"
         | "lastSkillSlugs"
@@ -53,7 +47,6 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
     (set) => ({
       lastAgentSlug: null,
       lastRepositoryId: null,
-      lastCredentialName: "",
       lastRuntimeBundleNames: [],
       lastBranchName: null,
       lastSkillSlugs: [],
@@ -66,7 +59,6 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
         set({
           lastAgentSlug: null,
           lastRepositoryId: null,
-          lastCredentialName: "",
           lastRuntimeBundleNames: [],
           lastBranchName: null,
           lastSkillSlugs: [],
@@ -82,7 +74,7 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
     {
       name: "do-worker-pod-creation",
       storage: legacyPersistStorage("agentsmesh-pod-creation"),
-      version: 6,
+      version: 7,
       // v1 stored `lastBundleName: string | null`; v2 unified into
       // `lastBundleNames: string[]`; v3 splits back into credential
       // (single) + runtime (multi) to match the dialog UI. Legacy values
@@ -94,7 +86,6 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
         if (version < 3) {
           delete s.lastBundleName;
           delete s.lastBundleNames;
-          s.lastCredentialName = "";
           s.lastRuntimeBundleNames = [];
         }
         if (version < 4) {
@@ -110,12 +101,14 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
           delete s.lastKnowledgeBaseIds;
           s.lastKnowledgeMounts = [];
         }
+        if (version < 7) {
+          delete s.lastCredentialName;
+        }
         return s as unknown as PodCreationPreferences;
       },
       partialize: (state) => ({
         lastAgentSlug: state.lastAgentSlug,
         lastRepositoryId: state.lastRepositoryId,
-        lastCredentialName: state.lastCredentialName,
         lastRuntimeBundleNames: state.lastRuntimeBundleNames,
         lastBranchName: state.lastBranchName,
         lastSkillSlugs: state.lastSkillSlugs,

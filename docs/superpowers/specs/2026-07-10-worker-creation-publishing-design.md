@@ -40,7 +40,7 @@ The existing internal `Pod` name may remain during migration. User-facing copy u
 
 ```text
 runtime
-  model_binding (ai_model_id | virtual_api_key_id | agent_managed)
+  model_binding (model_resource | virtual key | agent_managed)
   worker_type_slug
   runtime_image_id
 

@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { CustomEnvEntry } from "@/components/settings/AgentCredentialsSettings/credentialForms/types";
+import type { CustomEnvEntry } from "@/components/settings/envBundleCredentialForms/types";
 import { hasInvalidCustomEnvKey } from "@/components/settings/CustomEnvSection";
 import type { EffectiveResource } from "@/lib/api/facade/aiResource";
 import { requiresModelResource } from "./useWorkerModelResources";

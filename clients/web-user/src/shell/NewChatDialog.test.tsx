@@ -43,7 +43,10 @@ vi.mock("@/lib/identity", async (importOriginal) => ({
 }));
 vi.mock("@/hooks/useHosts", () => ({ useHosts: vi.fn() }));
 vi.mock("@/hooks/useAvailableAgents", () => ({ useAvailableAgents: vi.fn() }));
-vi.mock("@/hooks/useModelConfigs", () => ({ useModelConfigs: vi.fn(), defaultModelConfig: vi.fn() }));
+vi.mock("@/hooks/useModelConfigs", () => ({
+  useModelConfigs: vi.fn(),
+  defaultModelConfig: vi.fn(),
+}));
 vi.mock("@/hooks/useHostFilesystem", () => ({
   useHostFilesystem: vi.fn(),
   // WorkspacePicker (rendered by the file browser) reads this on mount;
@@ -560,8 +563,20 @@ function mockModelConfigs(models: ModelConfig[]) {
   useModelConfigsMock.mockReturnValue({
     data: models,
     isLoading: false,
+    isError: false,
+    error: null,
   } as unknown as ReturnType<typeof useModelConfigs>);
-  defaultModelConfigMock.mockImplementation((rows) => rows?.find((m) => m.is_default) ?? rows?.[0] ?? null);
+  defaultModelConfigMock.mockImplementation((rows) => rows?.find((m) => m.is_default) ?? null);
+}
+
+function mockModelConfigError(message: string) {
+  useModelConfigsMock.mockReturnValue({
+    data: undefined,
+    isLoading: false,
+    isError: true,
+    error: new Error(message),
+  } as unknown as ReturnType<typeof useModelConfigs>);
+  defaultModelConfigMock.mockReturnValue(null);
 }
 
 // Shared mock setup for the landing-screen tests: one online host (host_1,
@@ -1399,7 +1414,7 @@ describe("NewChatLandingScreen", () => {
     });
   });
 
-  it("shows the model pool picker for codex-cli and sends model_config_id on create", async () => {
+  it("shows the model pool picker for codex-cli and sends model_resource_id on create", async () => {
     mockAgents([
       {
         id: "codex-cli",
@@ -1414,11 +1429,9 @@ describe("NewChatLandingScreen", () => {
       {
         id: 4,
         name: "OpenAI Codex",
-        provider_type: "openai",
+        provider_key: "openai",
         model: "gpt-5.5",
-        base_url: "https://proxy.example/v1",
         is_default: true,
-        scope: "org",
       },
     ]);
     authenticatedFetchMock.mockResolvedValue({
@@ -1439,9 +1452,55 @@ describe("NewChatLandingScreen", () => {
     fireEvent.submit(screen.getByTestId("new-chat-landing-composer"));
 
     await waitFor(() => expect(authenticatedFetchMock).toHaveBeenCalledTimes(1));
-    const body = JSON.parse((authenticatedFetchMock.mock.calls[0][1] as RequestInit).body as string);
+    const body = JSON.parse(
+      (authenticatedFetchMock.mock.calls[0][1] as RequestInit).body as string,
+    );
     expect(body.agent_id).toBe("codex-cli");
-    expect(body.model_config_id).toBe(4);
+    expect(body.model_resource_id).toBe(4);
+  });
+
+  it("blocks model-backed Worker creation until a model resource is selected", async () => {
+    mockAgents([
+      {
+        id: "codex-cli",
+        name: "codex-cli",
+        display_name: "Codex",
+        description: null,
+        harness: "codex",
+        skills: [],
+      },
+    ]);
+    mockModelConfigs([]);
+    renderLanding({}, "/?agent=codex-cli");
+
+    fireEvent.change(screen.getByTestId("new-chat-landing-input"), {
+      target: { value: "fix the bug" },
+    });
+
+    expect(screen.getByTestId("new-chat-landing-submit")).toBeDisabled();
+    expect(screen.getByText("No compatible model resources are configured.")).toBeTruthy();
+  });
+
+  it("shows model resource load failures and keeps creation disabled", async () => {
+    mockAgents([
+      {
+        id: "codex-cli",
+        name: "codex-cli",
+        display_name: "Codex",
+        description: null,
+        harness: "codex",
+        skills: [],
+      },
+    ]);
+    mockModelConfigError("model resource service unavailable");
+    renderLanding({}, "/?agent=codex-cli");
+
+    fireEvent.change(screen.getByTestId("new-chat-landing-input"), {
+      target: { value: "fix the bug" },
+    });
+
+    expect(screen.getByTestId("new-chat-landing-submit")).toBeDisabled();
+    expect(screen.getByText("model resource service unavailable")).toBeTruthy();
   });
 
   it.each([

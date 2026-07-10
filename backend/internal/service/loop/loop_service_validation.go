@@ -111,6 +111,7 @@ type CreateLoopRequest struct {
 	RunnerID        *int64
 	BranchName      *string
 	TicketID        *int64
+	ModelResourceID *int64
 	// UsedEnvBundles is an ordered list (nil/empty = no bundles).
 	UsedEnvBundles  []string
 	ConfigOverrides []byte
@@ -141,6 +142,7 @@ type UpdateLoopRequest struct {
 	RunnerID        *int64
 	BranchName      *string
 	TicketID        *int64
+	ModelResourceID *int64
 	// UsedEnvBundles: nil leaves the binding unchanged; non-nil replaces
 	// the entire list (an empty slice clears it).
 	UsedEnvBundles  *[]string

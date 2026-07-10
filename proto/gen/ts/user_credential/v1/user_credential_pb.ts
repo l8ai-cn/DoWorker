@@ -15,11 +15,8 @@
 // `has_bot_token`, `has_client_id` fields. The Rust DTO drift on these flags
 // is fixed at the .proto SSOT.
 //
-// Three services share this package because they are tightly coupled at the
-// data layer: GitCredential references RepositoryProvider, and
-// AgentCredentialProfile sits alongside both under the same user-scope
-// auth boundary. Splitting them into three .proto files would duplicate the
-// auth interceptor wiring three times without semantic benefit.
+// Two services share this package because GitCredential references
+// RepositoryProvider and both enforce the same user-scope auth boundary.
 //
 // SENSITIVE DATA: PAT, SSH private key, OAuth secret never appear on the
 // wire. Server-side handlers omit them (mirrors `json:"-"` on the GORM
@@ -39,7 +36,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file user_credential/v1/user_credential.proto.
  */
 export const file_user_credential_v1_user_credential: GenFile = /*@__PURE__*/
-  fileDesc("Cih1c2VyX2NyZWRlbnRpYWwvdjEvdXNlcl9jcmVkZW50aWFsLnByb3RvEhhwcm90by51c2VyX2NyZWRlbnRpYWwudjEipwQKDUdpdENyZWRlbnRpYWwSEgoCaWQYASABKANCBqq7GAJJRBIMCgRuYW1lGAIgASgJEhcKD2NyZWRlbnRpYWxfdHlwZRgDIAEoCRI9ChZyZXBvc2l0b3J5X3Byb3ZpZGVyX2lkGAQgASgDQhiquxgUUmVwb3NpdG9yeVByb3ZpZGVySURIAIgBARIqCg1wcm92aWRlcl9uYW1lGAUgASgJQg7KuxgKc3RyaW5nX3B0ckgBiAEBEicKCnB1YmxpY19rZXkYBiABKAlCDsq7GApzdHJpbmdfcHRySAKIAQESKAoLZmluZ2VycHJpbnQYByABKAlCDsq7GApzdHJpbmdfcHRySAOIAQESKQoMaG9zdF9wYXR0ZXJuGAggASgJQg7KuxgKc3RyaW5nX3B0ckgEiAEBEhIKCmlzX2RlZmF1bHQYCSABKAgSEgoKY3JlYXRlZF9hdBgKIAEoCRISCgp1cGRhdGVkX2F0GAsgASgJOlmKtRhVClNnaXRodWIuY29tL2FudGhyb3BpY3MvYWdlbnRzbWVzaC9iYWNrZW5kL2ludGVybmFsL2RvbWFpbi91c2VyLkdpdENyZWRlbnRpYWxSZXNwb25zZUIZChdfcmVwb3NpdG9yeV9wcm92aWRlcl9pZEIQCg5fcHJvdmlkZXJfbmFtZUINCgtfcHVibGljX2tleUIOCgxfZmluZ2VycHJpbnRCDwoNX2hvc3RfcGF0dGVybiIbChlMaXN0R2l0Q3JlZGVudGlhbHNSZXF1ZXN0IqMBChpMaXN0R2l0Q3JlZGVudGlhbHNSZXNwb25zZRI2CgVpdGVtcxgBIAMoCzInLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5HaXRDcmVkZW50aWFsEg0KBXRvdGFsGAIgASgDEg0KBWxpbWl0GAMgASgFEg4KBm9mZnNldBgEIAEoBRIfChdydW5uZXJfbG9jYWxfaXNfZGVmYXVsdBgFIAEoCCIlChdHZXRHaXRDcmVkZW50aWFsUmVxdWVzdBIKCgJpZBgBIAEoAyLzAQoaQ3JlYXRlR2l0Q3JlZGVudGlhbFJlcXVlc3QSDAoEbmFtZRgBIAEoCRIXCg9jcmVkZW50aWFsX3R5cGUYAiABKAkSIwoWcmVwb3NpdG9yeV9wcm92aWRlcl9pZBgDIAEoA0gAiAEBEhAKA3BhdBgEIAEoCUgBiAEBEhgKC3ByaXZhdGVfa2V5GAUgASgJSAKIAQESGQoMaG9zdF9wYXR0ZXJuGAYgASgJSAOIAQFCGQoXX3JlcG9zaXRvcnlfcHJvdmlkZXJfaWRCBgoEX3BhdEIOCgxfcHJpdmF0ZV9rZXlCDwoNX2hvc3RfcGF0dGVybiK0AQoaVXBkYXRlR2l0Q3JlZGVudGlhbFJlcXVlc3QSCgoCaWQYASABKAMSEQoEbmFtZRgCIAEoCUgAiAEBEhAKA3BhdBgDIAEoCUgBiAEBEhgKC3ByaXZhdGVfa2V5GAQgASgJSAKIAQESGQoMaG9zdF9wYXR0ZXJuGAUgASgJSAOIAQFCBwoFX25hbWVCBgoEX3BhdEIOCgxfcHJpdmF0ZV9rZXlCDwoNX2hvc3RfcGF0dGVybiIoChpEZWxldGVHaXRDcmVkZW50aWFsUmVxdWVzdBIKCgJpZBgBIAEoAyIdChtEZWxldGVHaXRDcmVkZW50aWFsUmVzcG9uc2UiIAoeR2V0RGVmYXVsdEdpdENyZWRlbnRpYWxSZXF1ZXN0IosBCh9HZXREZWZhdWx0R2l0Q3JlZGVudGlhbFJlc3BvbnNlEkAKCmNyZWRlbnRpYWwYASABKAsyJy5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuR2l0Q3JlZGVudGlhbEgAiAEBEhcKD2lzX3J1bm5lcl9sb2NhbBgCIAEoCEINCgtfY3JlZGVudGlhbCJOCh5TZXREZWZhdWx0R2l0Q3JlZGVudGlhbFJlcXVlc3QSGgoNY3JlZGVudGlhbF9pZBgBIAEoA0gAiAEBQhAKDl9jcmVkZW50aWFsX2lkIjoKH1NldERlZmF1bHRHaXRDcmVkZW50aWFsUmVzcG9uc2USFwoPaXNfcnVubmVyX2xvY2FsGAEgASgIIiIKIENsZWFyRGVmYXVsdEdpdENyZWRlbnRpYWxSZXF1ZXN0IiMKIUNsZWFyRGVmYXVsdEdpdENyZWRlbnRpYWxSZXNwb25zZSLHAwoWQWdlbnRDcmVkZW50aWFsUHJvZmlsZRIKCgJpZBgBIAEoAxIPCgd1c2VyX2lkGAIgASgDEhIKCmFnZW50X3NsdWcYAyABKAkSDAoEbmFtZRgEIAEoCRIYCgtkZXNjcmlwdGlvbhgFIAEoCUgAiAEBEhYKDmlzX3J1bm5lcl9ob3N0GAYgASgIEhIKCmlzX2RlZmF1bHQYByABKAgSEQoJaXNfYWN0aXZlGAggASgIEhkKEWNvbmZpZ3VyZWRfZmllbGRzGAkgAygJEmEKEWNvbmZpZ3VyZWRfdmFsdWVzGAogAygLMkYucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkFnZW50Q3JlZGVudGlhbFByb2ZpbGUuQ29uZmlndXJlZFZhbHVlc0VudHJ5EhcKCmFnZW50X25hbWUYCyABKAlIAYgBARISCgpjcmVhdGVkX2F0GAwgASgJEhIKCnVwZGF0ZWRfYXQYDSABKAkaNwoVQ29uZmlndXJlZFZhbHVlc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCDgoMX2Rlc2NyaXB0aW9uQg0KC19hZ2VudF9uYW1lIocBChlDcmVkZW50aWFsUHJvZmlsZXNCeUFnZW50EhIKCmFnZW50X3NsdWcYASABKAkSEgoKYWdlbnRfbmFtZRgCIAEoCRJCCghwcm9maWxlcxgDIAMoCzIwLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5BZ2VudENyZWRlbnRpYWxQcm9maWxlIiQKIkxpc3RBZ2VudENyZWRlbnRpYWxQcm9maWxlc1JlcXVlc3QilwEKI0xpc3RBZ2VudENyZWRlbnRpYWxQcm9maWxlc1Jlc3BvbnNlEkIKBWl0ZW1zGAEgAygLMjMucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkNyZWRlbnRpYWxQcm9maWxlc0J5QWdlbnQSDQoFdG90YWwYAiABKAMSDQoFbGltaXQYAyABKAUSDgoGb2Zmc2V0GAQgASgFIkAKKkxpc3RBZ2VudENyZWRlbnRpYWxQcm9maWxlc0ZvckFnZW50UmVxdWVzdBISCgphZ2VudF9zbHVnGAEgASgJIjgKDlJ1bm5lckhvc3RJbmZvEhEKCWF2YWlsYWJsZRgBIAEoCBITCgtkZXNjcmlwdGlvbhgCIAEoCSLbAQorTGlzdEFnZW50Q3JlZGVudGlhbFByb2ZpbGVzRm9yQWdlbnRSZXNwb25zZRI/CgVpdGVtcxgBIAMoCzIwLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5BZ2VudENyZWRlbnRpYWxQcm9maWxlEg0KBXRvdGFsGAIgASgDEg0KBWxpbWl0GAMgASgFEg4KBm9mZnNldBgEIAEoBRI9CgtydW5uZXJfaG9zdBgFIAEoCzIoLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5SdW5uZXJIb3N0SW5mbyIuCiBHZXRBZ2VudENyZWRlbnRpYWxQcm9maWxlUmVxdWVzdBIKCgJpZBgBIAEoAyK2AgojQ3JlYXRlQWdlbnRDcmVkZW50aWFsUHJvZmlsZVJlcXVlc3QSEgoKYWdlbnRfc2x1ZxgBIAEoCRIMCgRuYW1lGAIgASgJEhgKC2Rlc2NyaXB0aW9uGAMgASgJSACIAQESFgoOaXNfcnVubmVyX2hvc3QYBCABKAgSYwoLY3JlZGVudGlhbHMYBSADKAsyTi5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuQ3JlYXRlQWdlbnRDcmVkZW50aWFsUHJvZmlsZVJlcXVlc3QuQ3JlZGVudGlhbHNFbnRyeRISCgppc19kZWZhdWx0GAYgASgIGjIKEENyZWRlbnRpYWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUIOCgxfZGVzY3JpcHRpb24ijgMKI1VwZGF0ZUFnZW50Q3JlZGVudGlhbFByb2ZpbGVSZXF1ZXN0EgoKAmlkGAEgASgDEhEKBG5hbWUYAiABKAlIAIgBARIYCgtkZXNjcmlwdGlvbhgDIAEoCUgBiAEBEhsKDmlzX3J1bm5lcl9ob3N0GAQgASgISAKIAQESYwoLY3JlZGVudGlhbHMYBSADKAsyTi5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuVXBkYXRlQWdlbnRDcmVkZW50aWFsUHJvZmlsZVJlcXVlc3QuQ3JlZGVudGlhbHNFbnRyeRIXCgppc19kZWZhdWx0GAYgASgISAOIAQESFgoJaXNfYWN0aXZlGAcgASgISASIAQEaMgoQQ3JlZGVudGlhbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQgcKBV9uYW1lQg4KDF9kZXNjcmlwdGlvbkIRCg9faXNfcnVubmVyX2hvc3RCDQoLX2lzX2RlZmF1bHRCDAoKX2lzX2FjdGl2ZSIxCiNEZWxldGVBZ2VudENyZWRlbnRpYWxQcm9maWxlUmVxdWVzdBIKCgJpZBgBIAEoAyImCiREZWxldGVBZ2VudENyZWRlbnRpYWxQcm9maWxlUmVzcG9uc2UiNQonU2V0RGVmYXVsdEFnZW50Q3JlZGVudGlhbFByb2ZpbGVSZXF1ZXN0EgoKAmlkGAEgASgDIvACChJSZXBvc2l0b3J5UHJvdmlkZXISEgoCaWQYASABKANCBqq7GAJJRBIVCg1wcm92aWRlcl90eXBlGAIgASgJEgwKBG5hbWUYAyABKAkSHQoIYmFzZV91cmwYBCABKAlCC6q7GAdCYXNlVVJMEiYKDWhhc19jbGllbnRfaWQYBSABKAhCD6q7GAtIYXNDbGllbnRJRBIVCg1oYXNfYm90X3Rva2VuGAYgASgIEhQKDGhhc19pZGVudGl0eRgHIAEoCBISCgppc19kZWZhdWx0GAggASgIEhEKCWlzX2FjdGl2ZRgJIAEoCBISCgpjcmVhdGVkX2F0GAogASgJEhIKCnVwZGF0ZWRfYXQYCyABKAk6Xoq1GFoKWGdpdGh1Yi5jb20vYW50aHJvcGljcy9hZ2VudHNtZXNoL2JhY2tlbmQvaW50ZXJuYWwvZG9tYWluL3VzZXIuUmVwb3NpdG9yeVByb3ZpZGVyUmVzcG9uc2UiIAoeTGlzdFJlcG9zaXRvcnlQcm92aWRlcnNSZXF1ZXN0IowBCh9MaXN0UmVwb3NpdG9yeVByb3ZpZGVyc1Jlc3BvbnNlEjsKBWl0ZW1zGAEgAygLMiwucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLlJlcG9zaXRvcnlQcm92aWRlchINCgV0b3RhbBgCIAEoAxINCgVsaW1pdBgDIAEoBRIOCgZvZmZzZXQYBCABKAUiKgocR2V0UmVwb3NpdG9yeVByb3ZpZGVyUmVxdWVzdBIKCgJpZBgBIAEoAyLSAQofQ3JlYXRlUmVwb3NpdG9yeVByb3ZpZGVyUmVxdWVzdBIVCg1wcm92aWRlcl90eXBlGAEgASgJEgwKBG5hbWUYAiABKAkSEAoIYmFzZV91cmwYAyABKAkSFgoJY2xpZW50X2lkGAQgASgJSACIAQESGgoNY2xpZW50X3NlY3JldBgFIAEoCUgBiAEBEhYKCWJvdF90b2tlbhgGIAEoCUgCiAEBQgwKCl9jbGllbnRfaWRCEAoOX2NsaWVudF9zZWNyZXRCDAoKX2JvdF90b2tlbiKNAgofVXBkYXRlUmVwb3NpdG9yeVByb3ZpZGVyUmVxdWVzdBIKCgJpZBgBIAEoAxIRCgRuYW1lGAIgASgJSACIAQESFQoIYmFzZV91cmwYAyABKAlIAYgBARIWCgljbGllbnRfaWQYBCABKAlIAogBARIaCg1jbGllbnRfc2VjcmV0GAUgASgJSAOIAQESFgoJYm90X3Rva2VuGAYgASgJSASIAQESFgoJaXNfYWN0aXZlGAcgASgISAWIAQFCBwoFX25hbWVCCwoJX2Jhc2VfdXJsQgwKCl9jbGllbnRfaWRCEAoOX2NsaWVudF9zZWNyZXRCDAoKX2JvdF90b2tlbkIMCgpfaXNfYWN0aXZlIi0KH0RlbGV0ZVJlcG9zaXRvcnlQcm92aWRlclJlcXVlc3QSCgoCaWQYASABKAMiIgogRGVsZXRlUmVwb3NpdG9yeVByb3ZpZGVyUmVzcG9uc2UiMQojU2V0RGVmYXVsdFJlcG9zaXRvcnlQcm92aWRlclJlcXVlc3QSCgoCaWQYASABKAMiJgokU2V0RGVmYXVsdFJlcG9zaXRvcnlQcm92aWRlclJlc3BvbnNlIjUKJ1Rlc3RSZXBvc2l0b3J5UHJvdmlkZXJDb25uZWN0aW9uUmVxdWVzdBIKCgJpZBgBIAEoAyJMCihUZXN0UmVwb3NpdG9yeVByb3ZpZGVyQ29ubmVjdGlvblJlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSDwoHbWVzc2FnZRgCIAEoCSK9AQoSUHJvdmlkZXJSZXBvc2l0b3J5EgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSDAoEc2x1ZxgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRIWCg5kZWZhdWx0X2JyYW5jaBgFIAEoCRISCgp2aXNpYmlsaXR5GAYgASgJEhYKDmh0dHBfY2xvbmVfdXJsGAcgASgJEhUKDXNzaF9jbG9uZV91cmwYCCABKAkSDwoHd2ViX3VybBgJIAEoCSKNAQofTGlzdFByb3ZpZGVyUmVwb3NpdG9yaWVzUmVxdWVzdBIKCgJpZBgBIAEoAxIRCgRwYWdlGAIgASgFSACIAQESFQoIcGVyX3BhZ2UYAyABKAVIAYgBARITCgZzZWFyY2gYBCABKAlIAogBAUIHCgVfcGFnZUILCglfcGVyX3BhZ2VCCQoHX3NlYXJjaCKNAQogTGlzdFByb3ZpZGVyUmVwb3NpdG9yaWVzUmVzcG9uc2USOwoFaXRlbXMYASADKAsyLC5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuUHJvdmlkZXJSZXBvc2l0b3J5Eg0KBXRvdGFsGAIgASgDEg0KBWxpbWl0GAMgASgFEg4KBm9mZnNldBgEIAEoBTK1CAoYVXNlckdpdENyZWRlbnRpYWxTZXJ2aWNlEn8KEkxpc3RHaXRDcmVkZW50aWFscxIzLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5MaXN0R2l0Q3JlZGVudGlhbHNSZXF1ZXN0GjQucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkxpc3RHaXRDcmVkZW50aWFsc1Jlc3BvbnNlEm4KEEdldEdpdENyZWRlbnRpYWwSMS5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuR2V0R2l0Q3JlZGVudGlhbFJlcXVlc3QaJy5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuR2l0Q3JlZGVudGlhbBJ0ChNDcmVhdGVHaXRDcmVkZW50aWFsEjQucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkNyZWF0ZUdpdENyZWRlbnRpYWxSZXF1ZXN0GicucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkdpdENyZWRlbnRpYWwSdAoTVXBkYXRlR2l0Q3JlZGVudGlhbBI0LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5VcGRhdGVHaXRDcmVkZW50aWFsUmVxdWVzdBonLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5HaXRDcmVkZW50aWFsEoIBChNEZWxldGVHaXRDcmVkZW50aWFsEjQucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkRlbGV0ZUdpdENyZWRlbnRpYWxSZXF1ZXN0GjUucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkRlbGV0ZUdpdENyZWRlbnRpYWxSZXNwb25zZRKOAQoXR2V0RGVmYXVsdEdpdENyZWRlbnRpYWwSOC5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuR2V0RGVmYXVsdEdpdENyZWRlbnRpYWxSZXF1ZXN0GjkucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkdldERlZmF1bHRHaXRDcmVkZW50aWFsUmVzcG9uc2USjgEKF1NldERlZmF1bHRHaXRDcmVkZW50aWFsEjgucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLlNldERlZmF1bHRHaXRDcmVkZW50aWFsUmVxdWVzdBo5LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5TZXREZWZhdWx0R2l0Q3JlZGVudGlhbFJlc3BvbnNlEpQBChlDbGVhckRlZmF1bHRHaXRDcmVkZW50aWFsEjoucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkNsZWFyRGVmYXVsdEdpdENyZWRlbnRpYWxSZXF1ZXN0GjsucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkNsZWFyRGVmYXVsdEdpdENyZWRlbnRpYWxSZXNwb25zZTLYCAoaVXNlckFnZW50Q3JlZGVudGlhbFNlcnZpY2USmgEKG0xpc3RBZ2VudENyZWRlbnRpYWxQcm9maWxlcxI8LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5MaXN0QWdlbnRDcmVkZW50aWFsUHJvZmlsZXNSZXF1ZXN0Gj0ucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkxpc3RBZ2VudENyZWRlbnRpYWxQcm9maWxlc1Jlc3BvbnNlErIBCiNMaXN0QWdlbnRDcmVkZW50aWFsUHJvZmlsZXNGb3JBZ2VudBJELnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5MaXN0QWdlbnRDcmVkZW50aWFsUHJvZmlsZXNGb3JBZ2VudFJlcXVlc3QaRS5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuTGlzdEFnZW50Q3JlZGVudGlhbFByb2ZpbGVzRm9yQWdlbnRSZXNwb25zZRKJAQoZR2V0QWdlbnRDcmVkZW50aWFsUHJvZmlsZRI6LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5HZXRBZ2VudENyZWRlbnRpYWxQcm9maWxlUmVxdWVzdBowLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5BZ2VudENyZWRlbnRpYWxQcm9maWxlEo8BChxDcmVhdGVBZ2VudENyZWRlbnRpYWxQcm9maWxlEj0ucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkNyZWF0ZUFnZW50Q3JlZGVudGlhbFByb2ZpbGVSZXF1ZXN0GjAucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkFnZW50Q3JlZGVudGlhbFByb2ZpbGUSjwEKHFVwZGF0ZUFnZW50Q3JlZGVudGlhbFByb2ZpbGUSPS5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuVXBkYXRlQWdlbnRDcmVkZW50aWFsUHJvZmlsZVJlcXVlc3QaMC5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuQWdlbnRDcmVkZW50aWFsUHJvZmlsZRKdAQocRGVsZXRlQWdlbnRDcmVkZW50aWFsUHJvZmlsZRI9LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5EZWxldGVBZ2VudENyZWRlbnRpYWxQcm9maWxlUmVxdWVzdBo+LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5EZWxldGVBZ2VudENyZWRlbnRpYWxQcm9maWxlUmVzcG9uc2USlwEKIFNldERlZmF1bHRBZ2VudENyZWRlbnRpYWxQcm9maWxlEkEucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLlNldERlZmF1bHRBZ2VudENyZWRlbnRpYWxQcm9maWxlUmVxdWVzdBowLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5BZ2VudENyZWRlbnRpYWxQcm9maWxlMq8JCh1Vc2VyUmVwb3NpdG9yeVByb3ZpZGVyU2VydmljZRKOAQoXTGlzdFJlcG9zaXRvcnlQcm92aWRlcnMSOC5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuTGlzdFJlcG9zaXRvcnlQcm92aWRlcnNSZXF1ZXN0GjkucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkxpc3RSZXBvc2l0b3J5UHJvdmlkZXJzUmVzcG9uc2USfQoVR2V0UmVwb3NpdG9yeVByb3ZpZGVyEjYucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkdldFJlcG9zaXRvcnlQcm92aWRlclJlcXVlc3QaLC5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuUmVwb3NpdG9yeVByb3ZpZGVyEoMBChhDcmVhdGVSZXBvc2l0b3J5UHJvdmlkZXISOS5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuQ3JlYXRlUmVwb3NpdG9yeVByb3ZpZGVyUmVxdWVzdBosLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5SZXBvc2l0b3J5UHJvdmlkZXISgwEKGFVwZGF0ZVJlcG9zaXRvcnlQcm92aWRlchI5LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5VcGRhdGVSZXBvc2l0b3J5UHJvdmlkZXJSZXF1ZXN0GiwucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLlJlcG9zaXRvcnlQcm92aWRlchKRAQoYRGVsZXRlUmVwb3NpdG9yeVByb3ZpZGVyEjkucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkRlbGV0ZVJlcG9zaXRvcnlQcm92aWRlclJlcXVlc3QaOi5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuRGVsZXRlUmVwb3NpdG9yeVByb3ZpZGVyUmVzcG9uc2USnQEKHFNldERlZmF1bHRSZXBvc2l0b3J5UHJvdmlkZXISPS5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuU2V0RGVmYXVsdFJlcG9zaXRvcnlQcm92aWRlclJlcXVlc3QaPi5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuU2V0RGVmYXVsdFJlcG9zaXRvcnlQcm92aWRlclJlc3BvbnNlEqkBCiBUZXN0UmVwb3NpdG9yeVByb3ZpZGVyQ29ubmVjdGlvbhJBLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5UZXN0UmVwb3NpdG9yeVByb3ZpZGVyQ29ubmVjdGlvblJlcXVlc3QaQi5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuVGVzdFJlcG9zaXRvcnlQcm92aWRlckNvbm5lY3Rpb25SZXNwb25zZRKRAQoYTGlzdFByb3ZpZGVyUmVwb3NpdG9yaWVzEjkucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkxpc3RQcm92aWRlclJlcG9zaXRvcmllc1JlcXVlc3QaOi5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuTGlzdFByb3ZpZGVyUmVwb3NpdG9yaWVzUmVzcG9uc2VCnAFaUWdpdGh1Yi5jb20vYW50aHJvcGljcy9hZ2VudHNtZXNoL3Byb3RvL2dlbi9nby91c2VyX2NyZWRlbnRpYWwvdjE7dXNlcmNyZWRlbnRpYWx2MYq1GEUKLGJhY2tlbmQvaW50ZXJuYWwvYXBpL2Nvbm5lY3QvdXNlcl9jcmVkZW50aWFsEhV1c2VyY3JlZGVudGlhbGNvbm5lY3RiBnByb3RvMw", [file_codegen_v1_options]);
+  fileDesc("Cih1c2VyX2NyZWRlbnRpYWwvdjEvdXNlcl9jcmVkZW50aWFsLnByb3RvEhhwcm90by51c2VyX2NyZWRlbnRpYWwudjEipwQKDUdpdENyZWRlbnRpYWwSEgoCaWQYASABKANCBqq7GAJJRBIMCgRuYW1lGAIgASgJEhcKD2NyZWRlbnRpYWxfdHlwZRgDIAEoCRI9ChZyZXBvc2l0b3J5X3Byb3ZpZGVyX2lkGAQgASgDQhiquxgUUmVwb3NpdG9yeVByb3ZpZGVySURIAIgBARIqCg1wcm92aWRlcl9uYW1lGAUgASgJQg7KuxgKc3RyaW5nX3B0ckgBiAEBEicKCnB1YmxpY19rZXkYBiABKAlCDsq7GApzdHJpbmdfcHRySAKIAQESKAoLZmluZ2VycHJpbnQYByABKAlCDsq7GApzdHJpbmdfcHRySAOIAQESKQoMaG9zdF9wYXR0ZXJuGAggASgJQg7KuxgKc3RyaW5nX3B0ckgEiAEBEhIKCmlzX2RlZmF1bHQYCSABKAgSEgoKY3JlYXRlZF9hdBgKIAEoCRISCgp1cGRhdGVkX2F0GAsgASgJOlmKtRhVClNnaXRodWIuY29tL2FudGhyb3BpY3MvYWdlbnRzbWVzaC9iYWNrZW5kL2ludGVybmFsL2RvbWFpbi91c2VyLkdpdENyZWRlbnRpYWxSZXNwb25zZUIZChdfcmVwb3NpdG9yeV9wcm92aWRlcl9pZEIQCg5fcHJvdmlkZXJfbmFtZUINCgtfcHVibGljX2tleUIOCgxfZmluZ2VycHJpbnRCDwoNX2hvc3RfcGF0dGVybiIbChlMaXN0R2l0Q3JlZGVudGlhbHNSZXF1ZXN0IqMBChpMaXN0R2l0Q3JlZGVudGlhbHNSZXNwb25zZRI2CgVpdGVtcxgBIAMoCzInLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5HaXRDcmVkZW50aWFsEg0KBXRvdGFsGAIgASgDEg0KBWxpbWl0GAMgASgFEg4KBm9mZnNldBgEIAEoBRIfChdydW5uZXJfbG9jYWxfaXNfZGVmYXVsdBgFIAEoCCIlChdHZXRHaXRDcmVkZW50aWFsUmVxdWVzdBIKCgJpZBgBIAEoAyLzAQoaQ3JlYXRlR2l0Q3JlZGVudGlhbFJlcXVlc3QSDAoEbmFtZRgBIAEoCRIXCg9jcmVkZW50aWFsX3R5cGUYAiABKAkSIwoWcmVwb3NpdG9yeV9wcm92aWRlcl9pZBgDIAEoA0gAiAEBEhAKA3BhdBgEIAEoCUgBiAEBEhgKC3ByaXZhdGVfa2V5GAUgASgJSAKIAQESGQoMaG9zdF9wYXR0ZXJuGAYgASgJSAOIAQFCGQoXX3JlcG9zaXRvcnlfcHJvdmlkZXJfaWRCBgoEX3BhdEIOCgxfcHJpdmF0ZV9rZXlCDwoNX2hvc3RfcGF0dGVybiK0AQoaVXBkYXRlR2l0Q3JlZGVudGlhbFJlcXVlc3QSCgoCaWQYASABKAMSEQoEbmFtZRgCIAEoCUgAiAEBEhAKA3BhdBgDIAEoCUgBiAEBEhgKC3ByaXZhdGVfa2V5GAQgASgJSAKIAQESGQoMaG9zdF9wYXR0ZXJuGAUgASgJSAOIAQFCBwoFX25hbWVCBgoEX3BhdEIOCgxfcHJpdmF0ZV9rZXlCDwoNX2hvc3RfcGF0dGVybiIoChpEZWxldGVHaXRDcmVkZW50aWFsUmVxdWVzdBIKCgJpZBgBIAEoAyIdChtEZWxldGVHaXRDcmVkZW50aWFsUmVzcG9uc2UiIAoeR2V0RGVmYXVsdEdpdENyZWRlbnRpYWxSZXF1ZXN0IosBCh9HZXREZWZhdWx0R2l0Q3JlZGVudGlhbFJlc3BvbnNlEkAKCmNyZWRlbnRpYWwYASABKAsyJy5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuR2l0Q3JlZGVudGlhbEgAiAEBEhcKD2lzX3J1bm5lcl9sb2NhbBgCIAEoCEINCgtfY3JlZGVudGlhbCJOCh5TZXREZWZhdWx0R2l0Q3JlZGVudGlhbFJlcXVlc3QSGgoNY3JlZGVudGlhbF9pZBgBIAEoA0gAiAEBQhAKDl9jcmVkZW50aWFsX2lkIjoKH1NldERlZmF1bHRHaXRDcmVkZW50aWFsUmVzcG9uc2USFwoPaXNfcnVubmVyX2xvY2FsGAEgASgIIiIKIENsZWFyRGVmYXVsdEdpdENyZWRlbnRpYWxSZXF1ZXN0IiMKIUNsZWFyRGVmYXVsdEdpdENyZWRlbnRpYWxSZXNwb25zZSLwAgoSUmVwb3NpdG9yeVByb3ZpZGVyEhIKAmlkGAEgASgDQgaquxgCSUQSFQoNcHJvdmlkZXJfdHlwZRgCIAEoCRIMCgRuYW1lGAMgASgJEh0KCGJhc2VfdXJsGAQgASgJQguquxgHQmFzZVVSTBImCg1oYXNfY2xpZW50X2lkGAUgASgIQg+quxgLSGFzQ2xpZW50SUQSFQoNaGFzX2JvdF90b2tlbhgGIAEoCBIUCgxoYXNfaWRlbnRpdHkYByABKAgSEgoKaXNfZGVmYXVsdBgIIAEoCBIRCglpc19hY3RpdmUYCSABKAgSEgoKY3JlYXRlZF9hdBgKIAEoCRISCgp1cGRhdGVkX2F0GAsgASgJOl6KtRhaClhnaXRodWIuY29tL2FudGhyb3BpY3MvYWdlbnRzbWVzaC9iYWNrZW5kL2ludGVybmFsL2RvbWFpbi91c2VyLlJlcG9zaXRvcnlQcm92aWRlclJlc3BvbnNlIiAKHkxpc3RSZXBvc2l0b3J5UHJvdmlkZXJzUmVxdWVzdCKMAQofTGlzdFJlcG9zaXRvcnlQcm92aWRlcnNSZXNwb25zZRI7CgVpdGVtcxgBIAMoCzIsLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5SZXBvc2l0b3J5UHJvdmlkZXISDQoFdG90YWwYAiABKAMSDQoFbGltaXQYAyABKAUSDgoGb2Zmc2V0GAQgASgFIioKHEdldFJlcG9zaXRvcnlQcm92aWRlclJlcXVlc3QSCgoCaWQYASABKAMi0gEKH0NyZWF0ZVJlcG9zaXRvcnlQcm92aWRlclJlcXVlc3QSFQoNcHJvdmlkZXJfdHlwZRgBIAEoCRIMCgRuYW1lGAIgASgJEhAKCGJhc2VfdXJsGAMgASgJEhYKCWNsaWVudF9pZBgEIAEoCUgAiAEBEhoKDWNsaWVudF9zZWNyZXQYBSABKAlIAYgBARIWCglib3RfdG9rZW4YBiABKAlIAogBAUIMCgpfY2xpZW50X2lkQhAKDl9jbGllbnRfc2VjcmV0QgwKCl9ib3RfdG9rZW4ijQIKH1VwZGF0ZVJlcG9zaXRvcnlQcm92aWRlclJlcXVlc3QSCgoCaWQYASABKAMSEQoEbmFtZRgCIAEoCUgAiAEBEhUKCGJhc2VfdXJsGAMgASgJSAGIAQESFgoJY2xpZW50X2lkGAQgASgJSAKIAQESGgoNY2xpZW50X3NlY3JldBgFIAEoCUgDiAEBEhYKCWJvdF90b2tlbhgGIAEoCUgEiAEBEhYKCWlzX2FjdGl2ZRgHIAEoCEgFiAEBQgcKBV9uYW1lQgsKCV9iYXNlX3VybEIMCgpfY2xpZW50X2lkQhAKDl9jbGllbnRfc2VjcmV0QgwKCl9ib3RfdG9rZW5CDAoKX2lzX2FjdGl2ZSItCh9EZWxldGVSZXBvc2l0b3J5UHJvdmlkZXJSZXF1ZXN0EgoKAmlkGAEgASgDIiIKIERlbGV0ZVJlcG9zaXRvcnlQcm92aWRlclJlc3BvbnNlIjEKI1NldERlZmF1bHRSZXBvc2l0b3J5UHJvdmlkZXJSZXF1ZXN0EgoKAmlkGAEgASgDIiYKJFNldERlZmF1bHRSZXBvc2l0b3J5UHJvdmlkZXJSZXNwb25zZSI1CidUZXN0UmVwb3NpdG9yeVByb3ZpZGVyQ29ubmVjdGlvblJlcXVlc3QSCgoCaWQYASABKAMiTAooVGVzdFJlcG9zaXRvcnlQcm92aWRlckNvbm5lY3Rpb25SZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEg8KB21lc3NhZ2UYAiABKAkivQEKElByb3ZpZGVyUmVwb3NpdG9yeRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEgwKBHNsdWcYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSFgoOZGVmYXVsdF9icmFuY2gYBSABKAkSEgoKdmlzaWJpbGl0eRgGIAEoCRIWCg5odHRwX2Nsb25lX3VybBgHIAEoCRIVCg1zc2hfY2xvbmVfdXJsGAggASgJEg8KB3dlYl91cmwYCSABKAkijQEKH0xpc3RQcm92aWRlclJlcG9zaXRvcmllc1JlcXVlc3QSCgoCaWQYASABKAMSEQoEcGFnZRgCIAEoBUgAiAEBEhUKCHBlcl9wYWdlGAMgASgFSAGIAQESEwoGc2VhcmNoGAQgASgJSAKIAQFCBwoFX3BhZ2VCCwoJX3Blcl9wYWdlQgkKB19zZWFyY2gijQEKIExpc3RQcm92aWRlclJlcG9zaXRvcmllc1Jlc3BvbnNlEjsKBWl0ZW1zGAEgAygLMiwucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLlByb3ZpZGVyUmVwb3NpdG9yeRINCgV0b3RhbBgCIAEoAxINCgVsaW1pdBgDIAEoBRIOCgZvZmZzZXQYBCABKAUytQgKGFVzZXJHaXRDcmVkZW50aWFsU2VydmljZRJ/ChJMaXN0R2l0Q3JlZGVudGlhbHMSMy5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuTGlzdEdpdENyZWRlbnRpYWxzUmVxdWVzdBo0LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5MaXN0R2l0Q3JlZGVudGlhbHNSZXNwb25zZRJuChBHZXRHaXRDcmVkZW50aWFsEjEucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkdldEdpdENyZWRlbnRpYWxSZXF1ZXN0GicucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkdpdENyZWRlbnRpYWwSdAoTQ3JlYXRlR2l0Q3JlZGVudGlhbBI0LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5DcmVhdGVHaXRDcmVkZW50aWFsUmVxdWVzdBonLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5HaXRDcmVkZW50aWFsEnQKE1VwZGF0ZUdpdENyZWRlbnRpYWwSNC5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuVXBkYXRlR2l0Q3JlZGVudGlhbFJlcXVlc3QaJy5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuR2l0Q3JlZGVudGlhbBKCAQoTRGVsZXRlR2l0Q3JlZGVudGlhbBI0LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5EZWxldGVHaXRDcmVkZW50aWFsUmVxdWVzdBo1LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5EZWxldGVHaXRDcmVkZW50aWFsUmVzcG9uc2USjgEKF0dldERlZmF1bHRHaXRDcmVkZW50aWFsEjgucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLkdldERlZmF1bHRHaXRDcmVkZW50aWFsUmVxdWVzdBo5LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5HZXREZWZhdWx0R2l0Q3JlZGVudGlhbFJlc3BvbnNlEo4BChdTZXREZWZhdWx0R2l0Q3JlZGVudGlhbBI4LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5TZXREZWZhdWx0R2l0Q3JlZGVudGlhbFJlcXVlc3QaOS5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuU2V0RGVmYXVsdEdpdENyZWRlbnRpYWxSZXNwb25zZRKUAQoZQ2xlYXJEZWZhdWx0R2l0Q3JlZGVudGlhbBI6LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5DbGVhckRlZmF1bHRHaXRDcmVkZW50aWFsUmVxdWVzdBo7LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5DbGVhckRlZmF1bHRHaXRDcmVkZW50aWFsUmVzcG9uc2UyrwkKHVVzZXJSZXBvc2l0b3J5UHJvdmlkZXJTZXJ2aWNlEo4BChdMaXN0UmVwb3NpdG9yeVByb3ZpZGVycxI4LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5MaXN0UmVwb3NpdG9yeVByb3ZpZGVyc1JlcXVlc3QaOS5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuTGlzdFJlcG9zaXRvcnlQcm92aWRlcnNSZXNwb25zZRJ9ChVHZXRSZXBvc2l0b3J5UHJvdmlkZXISNi5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuR2V0UmVwb3NpdG9yeVByb3ZpZGVyUmVxdWVzdBosLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5SZXBvc2l0b3J5UHJvdmlkZXISgwEKGENyZWF0ZVJlcG9zaXRvcnlQcm92aWRlchI5LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5DcmVhdGVSZXBvc2l0b3J5UHJvdmlkZXJSZXF1ZXN0GiwucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLlJlcG9zaXRvcnlQcm92aWRlchKDAQoYVXBkYXRlUmVwb3NpdG9yeVByb3ZpZGVyEjkucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLlVwZGF0ZVJlcG9zaXRvcnlQcm92aWRlclJlcXVlc3QaLC5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuUmVwb3NpdG9yeVByb3ZpZGVyEpEBChhEZWxldGVSZXBvc2l0b3J5UHJvdmlkZXISOS5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuRGVsZXRlUmVwb3NpdG9yeVByb3ZpZGVyUmVxdWVzdBo6LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5EZWxldGVSZXBvc2l0b3J5UHJvdmlkZXJSZXNwb25zZRKdAQocU2V0RGVmYXVsdFJlcG9zaXRvcnlQcm92aWRlchI9LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5TZXREZWZhdWx0UmVwb3NpdG9yeVByb3ZpZGVyUmVxdWVzdBo+LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5TZXREZWZhdWx0UmVwb3NpdG9yeVByb3ZpZGVyUmVzcG9uc2USqQEKIFRlc3RSZXBvc2l0b3J5UHJvdmlkZXJDb25uZWN0aW9uEkEucHJvdG8udXNlcl9jcmVkZW50aWFsLnYxLlRlc3RSZXBvc2l0b3J5UHJvdmlkZXJDb25uZWN0aW9uUmVxdWVzdBpCLnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5UZXN0UmVwb3NpdG9yeVByb3ZpZGVyQ29ubmVjdGlvblJlc3BvbnNlEpEBChhMaXN0UHJvdmlkZXJSZXBvc2l0b3JpZXMSOS5wcm90by51c2VyX2NyZWRlbnRpYWwudjEuTGlzdFByb3ZpZGVyUmVwb3NpdG9yaWVzUmVxdWVzdBo6LnByb3RvLnVzZXJfY3JlZGVudGlhbC52MS5MaXN0UHJvdmlkZXJSZXBvc2l0b3JpZXNSZXNwb25zZUKcAVpRZ2l0aHViLmNvbS9hbnRocm9waWNzL2FnZW50c21lc2gvcHJvdG8vZ2VuL2dvL3VzZXJfY3JlZGVudGlhbC92MTt1c2VyY3JlZGVudGlhbHYxirUYRQosYmFja2VuZC9pbnRlcm5hbC9hcGkvY29ubmVjdC91c2VyX2NyZWRlbnRpYWwSFXVzZXJjcmVkZW50aWFsY29ubmVjdGIGcHJvdG8z", [file_codegen_v1_options]);
 
 /**
  * GitCredential mirrors backend/internal/domain/user/GitCredential.ToResponse().
@@ -403,402 +400,6 @@ export const ClearDefaultGitCredentialResponseSchema: GenMessage<ClearDefaultGit
   messageDesc(file_user_credential_v1_user_credential, 13);
 
 /**
- * AgentCredentialProfile mirrors agent.CredentialProfileResponse — the public
- * JSON shape after secrets are stripped. `configured_fields` lists field
- * names that were set; `configured_values` echoes only the text (non-secret)
- * values back for edit forms. Secret values stay server-side.
- *
- * @generated from message proto.user_credential.v1.AgentCredentialProfile
- */
-export type AgentCredentialProfile = Message<"proto.user_credential.v1.AgentCredentialProfile"> & {
-  /**
-   * @generated from field: int64 id = 1;
-   */
-  id: bigint;
-
-  /**
-   * @generated from field: int64 user_id = 2;
-   */
-  userId: bigint;
-
-  /**
-   * @generated from field: string agent_slug = 3;
-   */
-  agentSlug: string;
-
-  /**
-   * @generated from field: string name = 4;
-   */
-  name: string;
-
-  /**
-   * @generated from field: optional string description = 5;
-   */
-  description?: string | undefined;
-
-  /**
-   * @generated from field: bool is_runner_host = 6;
-   */
-  isRunnerHost: boolean;
-
-  /**
-   * @generated from field: bool is_default = 7;
-   */
-  isDefault: boolean;
-
-  /**
-   * @generated from field: bool is_active = 8;
-   */
-  isActive: boolean;
-
-  /**
-   * Field names whose values were stored (some may be secrets — values absent).
-   *
-   * @generated from field: repeated string configured_fields = 9;
-   */
-  configuredFields: string[];
-
-  /**
-   * Non-secret (text) field values, echoed for edit forms.
-   *
-   * @generated from field: map<string, string> configured_values = 10;
-   */
-  configuredValues: { [key: string]: string };
-
-  /**
-   * @generated from field: optional string agent_name = 11;
-   */
-  agentName?: string | undefined;
-
-  /**
-   * @generated from field: string created_at = 12;
-   */
-  createdAt: string;
-
-  /**
-   * @generated from field: string updated_at = 13;
-   */
-  updatedAt: string;
-};
-
-/**
- * Describes the message proto.user_credential.v1.AgentCredentialProfile.
- * Use `create(AgentCredentialProfileSchema)` to create a new message.
- */
-export const AgentCredentialProfileSchema: GenMessage<AgentCredentialProfile> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 14);
-
-/**
- * CredentialProfilesByAgent mirrors agent.CredentialProfilesByAgent —
- * returned by the grouped-by-agent list endpoint.
- *
- * @generated from message proto.user_credential.v1.CredentialProfilesByAgent
- */
-export type CredentialProfilesByAgent = Message<"proto.user_credential.v1.CredentialProfilesByAgent"> & {
-  /**
-   * @generated from field: string agent_slug = 1;
-   */
-  agentSlug: string;
-
-  /**
-   * @generated from field: string agent_name = 2;
-   */
-  agentName: string;
-
-  /**
-   * @generated from field: repeated proto.user_credential.v1.AgentCredentialProfile profiles = 3;
-   */
-  profiles: AgentCredentialProfile[];
-};
-
-/**
- * Describes the message proto.user_credential.v1.CredentialProfilesByAgent.
- * Use `create(CredentialProfilesByAgentSchema)` to create a new message.
- */
-export const CredentialProfilesByAgentSchema: GenMessage<CredentialProfilesByAgent> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 15);
-
-/**
- * @generated from message proto.user_credential.v1.ListAgentCredentialProfilesRequest
- */
-export type ListAgentCredentialProfilesRequest = Message<"proto.user_credential.v1.ListAgentCredentialProfilesRequest"> & {
-};
-
-/**
- * Describes the message proto.user_credential.v1.ListAgentCredentialProfilesRequest.
- * Use `create(ListAgentCredentialProfilesRequestSchema)` to create a new message.
- */
-export const ListAgentCredentialProfilesRequestSchema: GenMessage<ListAgentCredentialProfilesRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 16);
-
-/**
- * @generated from message proto.user_credential.v1.ListAgentCredentialProfilesResponse
- */
-export type ListAgentCredentialProfilesResponse = Message<"proto.user_credential.v1.ListAgentCredentialProfilesResponse"> & {
-  /**
-   * @generated from field: repeated proto.user_credential.v1.CredentialProfilesByAgent items = 1;
-   */
-  items: CredentialProfilesByAgent[];
-
-  /**
-   * @generated from field: int64 total = 2;
-   */
-  total: bigint;
-
-  /**
-   * @generated from field: int32 limit = 3;
-   */
-  limit: number;
-
-  /**
-   * @generated from field: int32 offset = 4;
-   */
-  offset: number;
-};
-
-/**
- * Describes the message proto.user_credential.v1.ListAgentCredentialProfilesResponse.
- * Use `create(ListAgentCredentialProfilesResponseSchema)` to create a new message.
- */
-export const ListAgentCredentialProfilesResponseSchema: GenMessage<ListAgentCredentialProfilesResponse> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 17);
-
-/**
- * @generated from message proto.user_credential.v1.ListAgentCredentialProfilesForAgentRequest
- */
-export type ListAgentCredentialProfilesForAgentRequest = Message<"proto.user_credential.v1.ListAgentCredentialProfilesForAgentRequest"> & {
-  /**
-   * @generated from field: string agent_slug = 1;
-   */
-  agentSlug: string;
-};
-
-/**
- * Describes the message proto.user_credential.v1.ListAgentCredentialProfilesForAgentRequest.
- * Use `create(ListAgentCredentialProfilesForAgentRequestSchema)` to create a new message.
- */
-export const ListAgentCredentialProfilesForAgentRequestSchema: GenMessage<ListAgentCredentialProfilesForAgentRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 18);
-
-/**
- * RunnerHostInfo mirrors gin.H{"runner_host": ...} in
- * user_agent_credentials.go:81 — the virtual RunnerHost option.
- *
- * @generated from message proto.user_credential.v1.RunnerHostInfo
- */
-export type RunnerHostInfo = Message<"proto.user_credential.v1.RunnerHostInfo"> & {
-  /**
-   * @generated from field: bool available = 1;
-   */
-  available: boolean;
-
-  /**
-   * @generated from field: string description = 2;
-   */
-  description: string;
-};
-
-/**
- * Describes the message proto.user_credential.v1.RunnerHostInfo.
- * Use `create(RunnerHostInfoSchema)` to create a new message.
- */
-export const RunnerHostInfoSchema: GenMessage<RunnerHostInfo> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 19);
-
-/**
- * @generated from message proto.user_credential.v1.ListAgentCredentialProfilesForAgentResponse
- */
-export type ListAgentCredentialProfilesForAgentResponse = Message<"proto.user_credential.v1.ListAgentCredentialProfilesForAgentResponse"> & {
-  /**
-   * @generated from field: repeated proto.user_credential.v1.AgentCredentialProfile items = 1;
-   */
-  items: AgentCredentialProfile[];
-
-  /**
-   * @generated from field: int64 total = 2;
-   */
-  total: bigint;
-
-  /**
-   * @generated from field: int32 limit = 3;
-   */
-  limit: number;
-
-  /**
-   * @generated from field: int32 offset = 4;
-   */
-  offset: number;
-
-  /**
-   * @generated from field: proto.user_credential.v1.RunnerHostInfo runner_host = 5;
-   */
-  runnerHost?: RunnerHostInfo | undefined;
-};
-
-/**
- * Describes the message proto.user_credential.v1.ListAgentCredentialProfilesForAgentResponse.
- * Use `create(ListAgentCredentialProfilesForAgentResponseSchema)` to create a new message.
- */
-export const ListAgentCredentialProfilesForAgentResponseSchema: GenMessage<ListAgentCredentialProfilesForAgentResponse> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 20);
-
-/**
- * @generated from message proto.user_credential.v1.GetAgentCredentialProfileRequest
- */
-export type GetAgentCredentialProfileRequest = Message<"proto.user_credential.v1.GetAgentCredentialProfileRequest"> & {
-  /**
-   * @generated from field: int64 id = 1;
-   */
-  id: bigint;
-};
-
-/**
- * Describes the message proto.user_credential.v1.GetAgentCredentialProfileRequest.
- * Use `create(GetAgentCredentialProfileRequestSchema)` to create a new message.
- */
-export const GetAgentCredentialProfileRequestSchema: GenMessage<GetAgentCredentialProfileRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 21);
-
-/**
- * @generated from message proto.user_credential.v1.CreateAgentCredentialProfileRequest
- */
-export type CreateAgentCredentialProfileRequest = Message<"proto.user_credential.v1.CreateAgentCredentialProfileRequest"> & {
-  /**
-   * @generated from field: string agent_slug = 1;
-   */
-  agentSlug: string;
-
-  /**
-   * @generated from field: string name = 2;
-   */
-  name: string;
-
-  /**
-   * @generated from field: optional string description = 3;
-   */
-  description?: string | undefined;
-
-  /**
-   * @generated from field: bool is_runner_host = 4;
-   */
-  isRunnerHost: boolean;
-
-  /**
-   * Plaintext credentials map (encrypted server-side before storage). The
-   * server never echoes secrets back via Get/List/Update — only field names.
-   *
-   * @generated from field: map<string, string> credentials = 5;
-   */
-  credentials: { [key: string]: string };
-
-  /**
-   * @generated from field: bool is_default = 6;
-   */
-  isDefault: boolean;
-};
-
-/**
- * Describes the message proto.user_credential.v1.CreateAgentCredentialProfileRequest.
- * Use `create(CreateAgentCredentialProfileRequestSchema)` to create a new message.
- */
-export const CreateAgentCredentialProfileRequestSchema: GenMessage<CreateAgentCredentialProfileRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 22);
-
-/**
- * @generated from message proto.user_credential.v1.UpdateAgentCredentialProfileRequest
- */
-export type UpdateAgentCredentialProfileRequest = Message<"proto.user_credential.v1.UpdateAgentCredentialProfileRequest"> & {
-  /**
-   * @generated from field: int64 id = 1;
-   */
-  id: bigint;
-
-  /**
-   * @generated from field: optional string name = 2;
-   */
-  name?: string | undefined;
-
-  /**
-   * @generated from field: optional string description = 3;
-   */
-  description?: string | undefined;
-
-  /**
-   * @generated from field: optional bool is_runner_host = 4;
-   */
-  isRunnerHost?: boolean | undefined;
-
-  /**
-   * @generated from field: map<string, string> credentials = 5;
-   */
-  credentials: { [key: string]: string };
-
-  /**
-   * @generated from field: optional bool is_default = 6;
-   */
-  isDefault?: boolean | undefined;
-
-  /**
-   * @generated from field: optional bool is_active = 7;
-   */
-  isActive?: boolean | undefined;
-};
-
-/**
- * Describes the message proto.user_credential.v1.UpdateAgentCredentialProfileRequest.
- * Use `create(UpdateAgentCredentialProfileRequestSchema)` to create a new message.
- */
-export const UpdateAgentCredentialProfileRequestSchema: GenMessage<UpdateAgentCredentialProfileRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 23);
-
-/**
- * @generated from message proto.user_credential.v1.DeleteAgentCredentialProfileRequest
- */
-export type DeleteAgentCredentialProfileRequest = Message<"proto.user_credential.v1.DeleteAgentCredentialProfileRequest"> & {
-  /**
-   * @generated from field: int64 id = 1;
-   */
-  id: bigint;
-};
-
-/**
- * Describes the message proto.user_credential.v1.DeleteAgentCredentialProfileRequest.
- * Use `create(DeleteAgentCredentialProfileRequestSchema)` to create a new message.
- */
-export const DeleteAgentCredentialProfileRequestSchema: GenMessage<DeleteAgentCredentialProfileRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 24);
-
-/**
- * @generated from message proto.user_credential.v1.DeleteAgentCredentialProfileResponse
- */
-export type DeleteAgentCredentialProfileResponse = Message<"proto.user_credential.v1.DeleteAgentCredentialProfileResponse"> & {
-};
-
-/**
- * Describes the message proto.user_credential.v1.DeleteAgentCredentialProfileResponse.
- * Use `create(DeleteAgentCredentialProfileResponseSchema)` to create a new message.
- */
-export const DeleteAgentCredentialProfileResponseSchema: GenMessage<DeleteAgentCredentialProfileResponse> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 25);
-
-/**
- * @generated from message proto.user_credential.v1.SetDefaultAgentCredentialProfileRequest
- */
-export type SetDefaultAgentCredentialProfileRequest = Message<"proto.user_credential.v1.SetDefaultAgentCredentialProfileRequest"> & {
-  /**
-   * @generated from field: int64 id = 1;
-   */
-  id: bigint;
-};
-
-/**
- * Describes the message proto.user_credential.v1.SetDefaultAgentCredentialProfileRequest.
- * Use `create(SetDefaultAgentCredentialProfileRequestSchema)` to create a new message.
- */
-export const SetDefaultAgentCredentialProfileRequestSchema: GenMessage<SetDefaultAgentCredentialProfileRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 26);
-
-/**
  * RepositoryProvider mirrors user.RepositoryProviderResponse — boolean
  * indicator fields (has_client_id, has_bot_token, has_identity) flag whether
  * the secret is configured, the secret itself never leaves the server.
@@ -867,7 +468,7 @@ export type RepositoryProvider = Message<"proto.user_credential.v1.RepositoryPro
  * Use `create(RepositoryProviderSchema)` to create a new message.
  */
 export const RepositoryProviderSchema: GenMessage<RepositoryProvider> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 27);
+  messageDesc(file_user_credential_v1_user_credential, 14);
 
 /**
  * @generated from message proto.user_credential.v1.ListRepositoryProvidersRequest
@@ -880,7 +481,7 @@ export type ListRepositoryProvidersRequest = Message<"proto.user_credential.v1.L
  * Use `create(ListRepositoryProvidersRequestSchema)` to create a new message.
  */
 export const ListRepositoryProvidersRequestSchema: GenMessage<ListRepositoryProvidersRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 28);
+  messageDesc(file_user_credential_v1_user_credential, 15);
 
 /**
  * @generated from message proto.user_credential.v1.ListRepositoryProvidersResponse
@@ -912,7 +513,7 @@ export type ListRepositoryProvidersResponse = Message<"proto.user_credential.v1.
  * Use `create(ListRepositoryProvidersResponseSchema)` to create a new message.
  */
 export const ListRepositoryProvidersResponseSchema: GenMessage<ListRepositoryProvidersResponse> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 29);
+  messageDesc(file_user_credential_v1_user_credential, 16);
 
 /**
  * @generated from message proto.user_credential.v1.GetRepositoryProviderRequest
@@ -929,7 +530,7 @@ export type GetRepositoryProviderRequest = Message<"proto.user_credential.v1.Get
  * Use `create(GetRepositoryProviderRequestSchema)` to create a new message.
  */
 export const GetRepositoryProviderRequestSchema: GenMessage<GetRepositoryProviderRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 30);
+  messageDesc(file_user_credential_v1_user_credential, 17);
 
 /**
  * @generated from message proto.user_credential.v1.CreateRepositoryProviderRequest
@@ -975,7 +576,7 @@ export type CreateRepositoryProviderRequest = Message<"proto.user_credential.v1.
  * Use `create(CreateRepositoryProviderRequestSchema)` to create a new message.
  */
 export const CreateRepositoryProviderRequestSchema: GenMessage<CreateRepositoryProviderRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 31);
+  messageDesc(file_user_credential_v1_user_credential, 18);
 
 /**
  * @generated from message proto.user_credential.v1.UpdateRepositoryProviderRequest
@@ -1022,7 +623,7 @@ export type UpdateRepositoryProviderRequest = Message<"proto.user_credential.v1.
  * Use `create(UpdateRepositoryProviderRequestSchema)` to create a new message.
  */
 export const UpdateRepositoryProviderRequestSchema: GenMessage<UpdateRepositoryProviderRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 32);
+  messageDesc(file_user_credential_v1_user_credential, 19);
 
 /**
  * @generated from message proto.user_credential.v1.DeleteRepositoryProviderRequest
@@ -1039,7 +640,7 @@ export type DeleteRepositoryProviderRequest = Message<"proto.user_credential.v1.
  * Use `create(DeleteRepositoryProviderRequestSchema)` to create a new message.
  */
 export const DeleteRepositoryProviderRequestSchema: GenMessage<DeleteRepositoryProviderRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 33);
+  messageDesc(file_user_credential_v1_user_credential, 20);
 
 /**
  * @generated from message proto.user_credential.v1.DeleteRepositoryProviderResponse
@@ -1052,7 +653,7 @@ export type DeleteRepositoryProviderResponse = Message<"proto.user_credential.v1
  * Use `create(DeleteRepositoryProviderResponseSchema)` to create a new message.
  */
 export const DeleteRepositoryProviderResponseSchema: GenMessage<DeleteRepositoryProviderResponse> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 34);
+  messageDesc(file_user_credential_v1_user_credential, 21);
 
 /**
  * @generated from message proto.user_credential.v1.SetDefaultRepositoryProviderRequest
@@ -1069,7 +670,7 @@ export type SetDefaultRepositoryProviderRequest = Message<"proto.user_credential
  * Use `create(SetDefaultRepositoryProviderRequestSchema)` to create a new message.
  */
 export const SetDefaultRepositoryProviderRequestSchema: GenMessage<SetDefaultRepositoryProviderRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 35);
+  messageDesc(file_user_credential_v1_user_credential, 22);
 
 /**
  * @generated from message proto.user_credential.v1.SetDefaultRepositoryProviderResponse
@@ -1082,7 +683,7 @@ export type SetDefaultRepositoryProviderResponse = Message<"proto.user_credentia
  * Use `create(SetDefaultRepositoryProviderResponseSchema)` to create a new message.
  */
 export const SetDefaultRepositoryProviderResponseSchema: GenMessage<SetDefaultRepositoryProviderResponse> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 36);
+  messageDesc(file_user_credential_v1_user_credential, 23);
 
 /**
  * @generated from message proto.user_credential.v1.TestRepositoryProviderConnectionRequest
@@ -1099,7 +700,7 @@ export type TestRepositoryProviderConnectionRequest = Message<"proto.user_creden
  * Use `create(TestRepositoryProviderConnectionRequestSchema)` to create a new message.
  */
 export const TestRepositoryProviderConnectionRequestSchema: GenMessage<TestRepositoryProviderConnectionRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 37);
+  messageDesc(file_user_credential_v1_user_credential, 24);
 
 /**
  * @generated from message proto.user_credential.v1.TestRepositoryProviderConnectionResponse
@@ -1121,7 +722,7 @@ export type TestRepositoryProviderConnectionResponse = Message<"proto.user_crede
  * Use `create(TestRepositoryProviderConnectionResponseSchema)` to create a new message.
  */
 export const TestRepositoryProviderConnectionResponseSchema: GenMessage<TestRepositoryProviderConnectionResponse> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 38);
+  messageDesc(file_user_credential_v1_user_credential, 25);
 
 /**
  * ProviderRepository mirrors REST RepositoryResponse — a repository fetched
@@ -1181,7 +782,7 @@ export type ProviderRepository = Message<"proto.user_credential.v1.ProviderRepos
  * Use `create(ProviderRepositorySchema)` to create a new message.
  */
 export const ProviderRepositorySchema: GenMessage<ProviderRepository> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 39);
+  messageDesc(file_user_credential_v1_user_credential, 26);
 
 /**
  * @generated from message proto.user_credential.v1.ListProviderRepositoriesRequest
@@ -1213,7 +814,7 @@ export type ListProviderRepositoriesRequest = Message<"proto.user_credential.v1.
  * Use `create(ListProviderRepositoriesRequestSchema)` to create a new message.
  */
 export const ListProviderRepositoriesRequestSchema: GenMessage<ListProviderRepositoriesRequest> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 40);
+  messageDesc(file_user_credential_v1_user_credential, 27);
 
 /**
  * @generated from message proto.user_credential.v1.ListProviderRepositoriesResponse
@@ -1245,7 +846,7 @@ export type ListProviderRepositoriesResponse = Message<"proto.user_credential.v1
  * Use `create(ListProviderRepositoriesResponseSchema)` to create a new message.
  */
 export const ListProviderRepositoriesResponseSchema: GenMessage<ListProviderRepositoriesResponse> = /*@__PURE__*/
-  messageDesc(file_user_credential_v1_user_credential, 41);
+  messageDesc(file_user_credential_v1_user_credential, 28);
 
 /**
  * ============================================================================
@@ -1324,73 +925,6 @@ export const UserGitCredentialService: GenService<{
 
 /**
  * ============================================================================
- * UserAgentCredentialService — Agent-specific credential profiles
- * ============================================================================
- *
- * @generated from service proto.user_credential.v1.UserAgentCredentialService
- */
-export const UserAgentCredentialService: GenService<{
-  /**
-   * @generated from rpc proto.user_credential.v1.UserAgentCredentialService.ListAgentCredentialProfiles
-   */
-  listAgentCredentialProfiles: {
-    methodKind: "unary";
-    input: typeof ListAgentCredentialProfilesRequestSchema;
-    output: typeof ListAgentCredentialProfilesResponseSchema;
-  },
-  /**
-   * @generated from rpc proto.user_credential.v1.UserAgentCredentialService.ListAgentCredentialProfilesForAgent
-   */
-  listAgentCredentialProfilesForAgent: {
-    methodKind: "unary";
-    input: typeof ListAgentCredentialProfilesForAgentRequestSchema;
-    output: typeof ListAgentCredentialProfilesForAgentResponseSchema;
-  },
-  /**
-   * @generated from rpc proto.user_credential.v1.UserAgentCredentialService.GetAgentCredentialProfile
-   */
-  getAgentCredentialProfile: {
-    methodKind: "unary";
-    input: typeof GetAgentCredentialProfileRequestSchema;
-    output: typeof AgentCredentialProfileSchema;
-  },
-  /**
-   * @generated from rpc proto.user_credential.v1.UserAgentCredentialService.CreateAgentCredentialProfile
-   */
-  createAgentCredentialProfile: {
-    methodKind: "unary";
-    input: typeof CreateAgentCredentialProfileRequestSchema;
-    output: typeof AgentCredentialProfileSchema;
-  },
-  /**
-   * @generated from rpc proto.user_credential.v1.UserAgentCredentialService.UpdateAgentCredentialProfile
-   */
-  updateAgentCredentialProfile: {
-    methodKind: "unary";
-    input: typeof UpdateAgentCredentialProfileRequestSchema;
-    output: typeof AgentCredentialProfileSchema;
-  },
-  /**
-   * @generated from rpc proto.user_credential.v1.UserAgentCredentialService.DeleteAgentCredentialProfile
-   */
-  deleteAgentCredentialProfile: {
-    methodKind: "unary";
-    input: typeof DeleteAgentCredentialProfileRequestSchema;
-    output: typeof DeleteAgentCredentialProfileResponseSchema;
-  },
-  /**
-   * @generated from rpc proto.user_credential.v1.UserAgentCredentialService.SetDefaultAgentCredentialProfile
-   */
-  setDefaultAgentCredentialProfile: {
-    methodKind: "unary";
-    input: typeof SetDefaultAgentCredentialProfileRequestSchema;
-    output: typeof AgentCredentialProfileSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_user_credential_v1_user_credential, 1);
-
-/**
- * ============================================================================
  * UserRepositoryProviderService — OAuth/Bot Token git provider connections
  * ============================================================================
  *
@@ -1462,5 +996,5 @@ export const UserRepositoryProviderService: GenService<{
     output: typeof ListProviderRepositoriesResponseSchema;
   },
 }> = /*@__PURE__*/
-  serviceDesc(file_user_credential_v1_user_credential, 2);
+  serviceDesc(file_user_credential_v1_user_credential, 1);
 

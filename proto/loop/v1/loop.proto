@@ -48,7 +48,7 @@ message Loop {
   optional int64 runner_id = 15;
   optional string branch_name = 16;
   optional int64 ticket_id = 17;
-  optional int64 credential_profile_id = 18;
+  optional int64 model_resource_id = 18;
   string status = 19;
   string sandbox_strategy = 20;
   bool session_persistence = 21;
@@ -119,7 +119,7 @@ message CreateLoopRequest {
   optional int64 runner_id = 12;
   string branch_name = 13;
   optional int64 ticket_id = 14;
-  optional int64 credential_profile_id = 15;
+  optional int64 model_resource_id = 15;
   string execution_mode = 16;
   string cron_expression = 17;
   string callback_url = 18;
@@ -149,7 +149,7 @@ message UpdateLoopRequest {
   optional int64 runner_id = 12;
   optional string branch_name = 13;
   optional int64 ticket_id = 14;
-  optional int64 credential_profile_id = 15;
+  optional int64 model_resource_id = 15;
   optional string execution_mode = 16;
   optional string cron_expression = 17;
   optional string callback_url = 18;

@@ -88,13 +88,13 @@ Add typed Connect services for:
 
 Mutation handlers enforce owner scope. Effective reads merge user and organization resources once and return explicit scope/permission metadata. Custom endpoint validation blocks loopback, link-local, private network, and metadata-service targets unless a separately authorized deployment policy allows them.
 
-`CreatePodRequest` replaces the ignored `credential_profile_id` and ambiguous model/credential combination with `model_resource_id`. The backend validates visibility, enabled state, modality compatibility, and connection health before resolving credentials.
+`CreatePodRequest` replaces the old credential-profile field and ambiguous model/credential combination with `model_resource_id`. The backend validates visibility, enabled state, modality compatibility, and connection health before resolving credentials.
 
 ## Worker Runtime
 
 The backend resolves exactly the submitted `model_resource_id`, decrypts its provider connection, and generates the harness-specific environment or config bundle. Model credentials do not travel through user-authored AgentFile text.
 
-Remove `AppendPrimaryCredentialBundle`. Remove credential-kind EnvBundle selection from Worker creation. Runtime EnvBundles remain ordered overlays, but cannot provide model authentication fields after the migration gate.
+Remove implicit primary credential bundle mounting. Remove credential-kind EnvBundle selection from Worker creation. Runtime EnvBundles remain ordered overlays, but cannot provide model authentication fields after the migration gate.
 
 Worker compatibility is capability-based:
 
@@ -123,7 +123,7 @@ Migration is explicit and fail-closed:
 2. Run an application migrator with the production encryptor. It decrypts existing `ai_models` and credential EnvBundles, writes canonical connections/resources, and records source-to-target mappings.
 3. Verify source/target counts, configured-field parity, owner scope, and decryptability. Any failed row blocks cutover and produces an operator-visible report.
 4. Switch settings and Worker creation to model resources in one release gate. No runtime dual-read or fallback is allowed.
-5. Remove implicit primary injection, old AgentCredential clients/proto, `credential_profile_id`, credential EnvBundle UI, and obsolete tests/docs.
+5. Remove implicit primary injection, old AgentCredential clients/proto, the credential-profile request field, credential EnvBundle UI, and obsolete tests/docs.
 6. Drop old credential storage only after the verification report is clean and rollback snapshots exist.
 
 Existing virtual API keys are remapped to the migrated model resource IDs before the old `ai_models` table is retired.

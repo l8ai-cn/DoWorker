@@ -30,8 +30,8 @@
         "gitDesc": "Repository providers and credentials",
         "agentConfig": "Agent Config",
         "agentConfigDesc": "AI agent runtime parameters",
-        "agentCredentials": "Agent Credentials",
-        "agentCredentialsDesc": "API keys for AI agents",
+        "agentCredentials": "AI Resources",
+        "agentCredentialsDesc": "Provider connections and model resources",
         "notifications": "Notifications",
         "notificationsDesc": "Push notification preferences"
       },
@@ -137,7 +137,7 @@
       "configureTitle": "Configure {name}",
       "configureHint": "Set default configuration values for this agent. These values will be used when creating new pods.",
       "configureHintGraphical": "Set default runtime parameters for this agent. These values will be used when creating new pods.",
-      "credentialsMovedNotice": "API credentials have been moved to Personal Settings > Agent Credentials. Each user manages their own credentials.",
+      "credentialsMovedNotice": "Model provider credentials are managed in AI Resources. This page only stores non-secret runtime preferences.",
       "cancel": "Cancel",
       "saving": "Saving...",
       "saveConfig": "Save Configuration",
@@ -148,7 +148,7 @@
       "invalidJson": "Invalid JSON format",
       "credentials": {
         "title": "API Credentials",
-        "description": "このエージェントの API 認証情報を設定します。未設定の場合、エージェントの組み込み認証フロー（OAuth、ログイン済み CLI など）が使われます。"
+        "description": "Provider credentials are managed in AI Resources. Runtime env bundles must not contain model API secrets."
       },
       "runtime": {
         "title": "Runtime Configuration",
@@ -245,18 +245,18 @@
       "saveCredentials": "Save Credentials"
     },
     "agentCredentials": {
-      "title": "Agent Credentials",
-      "description": "エージェントごとの API 認証情報を管理します。未設定のエージェントは組み込みの認証フローを使用し、認証情報を追加すると起動時に注入されます。",
-      "failedToLoad": "Failed to load agent credentials",
+      "title": "Runtime Env Variables",
+      "description": "Manage reusable runtime environment variables. Model API credentials are selected through AI Resources.",
+      "failedToLoad": "Failed to load runtime environment variables",
       "profiles": "profiles",
       "noAgents": "No agents available",
       "default": "Default",
       "configured": "Configured",
       "notConfigured": "Not configured",
       "setAsDefault": "Set as default",
-      "addProfile": "Add Custom Credentials",
-      "editProfile": "Edit Credentials",
-      "customProfileDescription": "このエージェント用の独自 API 認証情報を追加します。起動時にエージェント環境に注入されます。",
+      "addProfile": "Add Runtime Env Variables",
+      "editProfile": "Edit Runtime Env Variables",
+      "customProfileDescription": "Add non-secret runtime variables for this image.",
       "name": "Profile Name",
       "namePlaceholder": "e.g., Work Config, Personal",
       "descriptionLabel": "Description",
@@ -279,8 +279,8 @@
       "credentialMethod": "Authentication Method",
       "credentialMethodApiKey": "API Key",
       "credentialMethodAuthToken": "Auth Token",
-      "noBundleLabel": "エージェントの既定認証を使用",
-      "noBundleHint": "追加の認証情報を注入しません。エージェントの組み込み認証フロー（OAuth、ログイン済み CLI など）が使われます。",
+      "noBundleLabel": "No runtime env variables",
+      "noBundleHint": "No runtime environment variable bundle is selected.",
       "removeSecret": "この認証情報を削除",
       "willRemove": "保存時に削除されます",
       "baseUrlSecurityHint": "URL にトークンを埋め込まないでください。平文で保存され、編集時にここに表示されます。"

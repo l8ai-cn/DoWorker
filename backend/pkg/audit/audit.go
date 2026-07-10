@@ -24,12 +24,12 @@ const (
 	ActionTeamDeleted     = "team.deleted"
 	ActionTeamMemberAdded = "team.member_added"
 
-	ActionUserLogin    = "user.login"
-	ActionUserLogout   = "user.logout"
-	ActionUserCreated  = "user.created"
-	ActionUserUpdated  = "user.updated"
-	ActionUserInvited  = "user.invited"
-	ActionUserRemoved  = "user.removed"
+	ActionUserLogin       = "user.login"
+	ActionUserLogout      = "user.logout"
+	ActionUserCreated     = "user.created"
+	ActionUserUpdated     = "user.updated"
+	ActionUserInvited     = "user.invited"
+	ActionUserRemoved     = "user.removed"
 	ActionUserRoleChanged = "user.role_changed"
 
 	ActionRunnerRegistered   = "runner.registered"
@@ -54,11 +54,11 @@ const (
 	ActionChannelCreated  = "channel.created"
 	ActionChannelArchived = "channel.archived"
 
-	ActionTicketCreated   = "ticket.created"
-	ActionTicketUpdated   = "ticket.updated"
-	ActionTicketDeleted   = "ticket.deleted"
-	ActionTicketAssigned  = "ticket.assigned"
-	ActionTicketMRLinked  = "ticket.mr_linked"
+	ActionTicketCreated  = "ticket.created"
+	ActionTicketUpdated  = "ticket.updated"
+	ActionTicketDeleted  = "ticket.deleted"
+	ActionTicketAssigned = "ticket.assigned"
+	ActionTicketMRLinked = "ticket.mr_linked"
 
 	ActionSubscriptionCreated = "subscription.created"
 	ActionSubscriptionUpdated = "subscription.updated"
@@ -71,7 +71,6 @@ const (
 	ActionRepoRemoved        = "repository.removed"
 
 	ActionAgentConfigured = "agent.configured"
-	ActionAgentCredentialUpdated = "agent.credential_updated"
 )
 
 const (

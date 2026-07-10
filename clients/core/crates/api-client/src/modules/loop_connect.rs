@@ -15,10 +15,7 @@ impl ApiClient {
         connect_call(self, "/proto.loop.v1.LoopService/ListLoops", req).await
     }
 
-    pub async fn get_loop_connect(
-        &self,
-        req: &lp::GetLoopRequest,
-    ) -> Result<lp::Loop, ApiError> {
+    pub async fn get_loop_connect(&self, req: &lp::GetLoopRequest) -> Result<lp::Loop, ApiError> {
         connect_call(self, "/proto.loop.v1.LoopService/GetLoop", req).await
     }
 

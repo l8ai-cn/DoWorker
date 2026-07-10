@@ -8,7 +8,7 @@ import { getLocalizedErrorMessage } from "@/lib/api/errors";
  * which sub-feature fired the success/failure, so this is centralised.
  *
  * Why a separate hook (not inline `useState`s): the sub-hooks
- * (`useCredentialBundles`, `useRuntimeBundles`, `useAgentRuntimeConfig`)
+ * (`useRuntimeBundles`, `useAgentRuntimeConfig`)
  * all need to surface "operation X succeeded" / "operation Y failed";
  * threading the same setters into each would duplicate logic and risk
  * divergence (one hook auto-clears after 3s, another doesn't, etc.).

@@ -14,15 +14,15 @@ interface AcpPromptInputProps {
 }
 
 export function AcpPromptInput({ podKey }: AcpPromptInputProps) {
-  const tPrompt = useTranslations("acp.promptInput");
-  const tSlash = useTranslations("workerSlash");
+  const tRoot = useTranslations();
+  const tPrompt = (key: string) => tRoot(`acp.promptInput.${key}`);
   const [prompt, setPrompt] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const sessionState = useAcpSessionField(podKey, (s) => s.state);
   const isProcessing = sessionState === "processing" || sessionState === "waiting_permission";
 
-  const slash = useWorkerSlashComposer((key) => tSlash(key));
+  const slash = useWorkerSlashComposer(tRoot);
   const matches = useMemo(
     () => slash.matchesFor(prompt, prompt.length),
     [slash, prompt],

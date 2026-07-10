@@ -1,4 +1,5 @@
 import { apiFetch } from "./api-fetch";
+import { resolveRequiredModelResourceId } from "./model-resources-api";
 import { PROJECT_LABEL_KEY } from "./project-label";
 
 export type SessionStatus = "idle" | "launching" | "running" | "waiting" | "failed";
@@ -99,35 +100,12 @@ export async function getSession(sessionId: string): Promise<LiveSessionSummary>
   return summaryFromWire(body);
 }
 
-export interface ModelConfig {
-  id: number;
-  name: string;
-  provider_type: string;
-  model: string;
-  is_default: boolean;
-}
-
-async function resolveModelConfigId(agentId: string): Promise<number | undefined> {
-  const res = await apiFetch("/v1/model-configs");
-  if (!res.ok) return undefined;
-  const body = (await res.json()) as { data?: ModelConfig[] };
-  const models = body.data ?? [];
-  const preferred = agentId === "codex-cli" ? "openai" : agentId === "do-agent" ? undefined : undefined;
-  if (preferred) {
-    const match = models.find((m) => m.provider_type === preferred && m.is_default)
-      ?? models.find((m) => m.provider_type === preferred);
-    if (match) return match.id;
-  }
-  const fallback = models.find((m) => m.is_default);
-  return fallback?.id;
-}
-
 export async function createSession(
   agentId: string,
   title?: string,
   initialText?: string,
 ): Promise<LiveSessionSummary> {
-  const modelConfigId = await resolveModelConfigId(agentId);
+  const modelResourceId = await resolveRequiredModelResourceId(agentId);
   const initial_items = initialText?.trim()
     ? [
         {
@@ -145,8 +123,8 @@ export async function createSession(
     body: JSON.stringify({
       agent_id: agentId,
       initial_items,
+      ...(modelResourceId !== undefined ? { model_resource_id: modelResourceId } : {}),
       ...(title ? { title } : {}),
-      ...(modelConfigId != null ? { model_config_id: modelConfigId } : {}),
     }),
   });
   const body = await readJson<SessionWire>(res);

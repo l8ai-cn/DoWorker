@@ -113,14 +113,14 @@
       "aliasPlaceholder": "Podの表示名を入力...",
       "perpetual": "永続モード",
       "perpetualDescription": "エージェント終了時に自動再起動。Podは常にオンラインのまま。",
-      "noBundleLabel": "Do not inject credentials",
-      "noBundleHint": "No credential bundle is injected from this legacy picker.",
+      "noBundleLabel": "No runtime env variables",
+      "noBundleHint": "No runtime environment variable bundle is selected.",
       "multiBundleHint": "選択したバンドルは順番に Pod 環境変数へマージされます。後に選んだものが同名キーを上書きします。",
       "selectedOrderHint": "選択中（マージ順）",
       "moveUp": "上へ",
       "moveDown": "下へ",
       "bundleKind": {
-        "credential": "認証情報",
+        "credential": "Legacy",
         "runtime": "ランタイム"
       },
       "selectSkills": "Skill",

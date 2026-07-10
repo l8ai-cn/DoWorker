@@ -9,7 +9,7 @@ func loopTableDDLs() []string {
 			permission_mode TEXT NOT NULL DEFAULT 'bypassPermissions',
 			prompt_template TEXT NOT NULL DEFAULT '',
 			repository_id INTEGER, runner_id INTEGER, branch_name TEXT,
-			ticket_id INTEGER,
+			ticket_id INTEGER, model_resource_id INTEGER,
 			used_env_bundles TEXT NOT NULL DEFAULT '{}',
 			config_overrides BLOB DEFAULT NULL, prompt_variables BLOB DEFAULT NULL,
 			execution_mode TEXT NOT NULL DEFAULT 'autopilot',

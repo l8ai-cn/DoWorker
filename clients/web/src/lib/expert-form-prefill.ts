@@ -1,6 +1,6 @@
 import type { Expert } from "@/lib/api/expertApi";
 import { parseExpertKnowledgeMounts } from "@/lib/api/expertApi";
-import type { CreatePodFormState } from "../pod/hooks/useCreatePodFormTypes";
+import type { CreatePodFormState } from "@/components/pod/hooks/useCreatePodFormTypes";
 import type { PodMode } from "@/lib/pod-modes";
 
 export function applyExpertToForm(

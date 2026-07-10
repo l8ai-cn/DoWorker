@@ -7,10 +7,9 @@ import { clearAuthRateLimit } from "../../helpers/redis";
  *
  * Complements the API-level coverage in loop-env-bundle.spec.ts:
  *
- *   - This file drives the actual LoopCreateDialog, asserting the dialog
- *     renders a split UI (credential `<select>` + runtime checkbox list),
- *     that user picks survive the round-trip to the backend, and that edit
- *     mode reconciles `used_env_bundles` back into the right pickers.
+ *   - This file drives the actual LoopCreateDialog, asserting runtime bundle
+ *     picks survive the round-trip to the backend and edit mode reconciles
+ *     `used_env_bundles` back into checked rows.
  *   - loop-env-bundle.spec.ts asserts the wire contract (POST/PUT round-trip,
  *     `[]` clears, dangling names tolerated).
  */
@@ -49,26 +48,17 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
     clearAuthRateLimit();
   });
 
-  test("create flow: credential select + runtime checkbox bind and submit in merge order", async ({
+  test("create flow: runtime checkbox binds and submits selected bundle", async ({
     page,
     api,
     db,
   }) => {
-    const credName = unique(BUNDLE_PREFIX, "cred");
     const runtimeName = unique(BUNDLE_PREFIX, "runtime");
     const loopName = unique(LOOP_PREFIX, "create");
 
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${BUNDLE_PREFIX}%'`);
 
     const cc = await api.connect();
-    const cred = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
-      name: credName,
-      kind: "credential",
-      data: { ANTHROPIC_API_KEY: "sk-ant-e2e-loopui" },
-    }) as { id: bigint };
-    const credId = cred.id;
-
     const runtime = await cc.envBundle.createEnvBundle({
       agentSlug: "claude-code",
       name: runtimeName,
@@ -105,10 +95,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
 
       const overlay = page.locator('[data-dialog-overlay]');
 
-      // Credential picker is a <select id="credential-bundle-select">.
-      const credSelect = overlay.locator('select#credential-bundle-select').first();
-      await credSelect.waitFor({ state: "visible", timeout: 5000 });
-      await credSelect.selectOption(credName);
+      await expect(overlay.locator('select#credential-bundle-select')).toHaveCount(0);
 
       // Runtime picker is a checkbox list. Toggle the seeded runtime bundle.
       const runtimeCheckbox = overlay
@@ -121,7 +108,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
         .getByRole("button", { name: /^(Create Loop|创建 ?Loop)$/i })
         .click();
 
-      // Backend should persist credential first then runtime.
+      // Backend should persist only the selected runtime bundle.
       await expect
         .poll(
           () => {
@@ -132,7 +119,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
           },
           { timeout: 10_000 }
         )
-        .toBe(`${credName},${runtimeName}`);
+        .toBe(runtimeName);
 
       loopSlug = db.queryValue(
         `SELECT slug FROM loops WHERE name = '${loopName.replace(/'/g, "''")}'`
@@ -141,32 +128,22 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
       if (loopSlug) {
         await cc.loop.deleteLoop({ orgSlug: TEST_ORG_SLUG, loopSlug }).catch(() => null);
       }
-      if (credId) await cc.envBundle.deleteEnvBundle({ id: credId }).catch(() => null);
       if (runtimeId) await cc.envBundle.deleteEnvBundle({ id: runtimeId }).catch(() => null);
       db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${BUNDLE_PREFIX}%'`);
     }
   });
 
-  test("edit flow: existing used_env_bundles split back into credential select + runtime checkbox", async ({
+  test("edit flow: existing used_env_bundles reconcile to runtime checkbox", async ({
     page,
     api,
     db,
   }) => {
-    const credName = unique(BUNDLE_PREFIX, "edit-cred");
     const runtimeName = unique(BUNDLE_PREFIX, "edit-runtime");
     const loopName = unique(LOOP_PREFIX, "edit");
 
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${BUNDLE_PREFIX}%'`);
 
     const cc = await api.connect();
-    const cred = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
-      name: credName,
-      kind: "credential",
-      data: { ANTHROPIC_API_KEY: "sk-ant-e2e-loopui-edit" },
-    }) as { id: bigint };
-    const credId = cred.id;
-
     const runtime = await cc.envBundle.createEnvBundle({
       agentSlug: "claude-code",
       name: runtimeName,
@@ -180,7 +157,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
       name: loopName,
       agentSlug: "claude-code",
       promptTemplate: "echo bound",
-      usedEnvBundles: [credName, runtimeName],
+      usedEnvBundles: [runtimeName],
     }) as { slug: string };
     const loopSlug = loopRes.slug;
 
@@ -206,10 +183,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
 
       const overlay = page.locator('[data-dialog-overlay]');
 
-      // Credential select should be reconciled to the saved credential name.
-      const credSelect = overlay.locator('select#credential-bundle-select').first();
-      await credSelect.waitFor({ state: "visible", timeout: 5000 });
-      await expect(credSelect).toHaveValue(credName);
+      await expect(overlay.locator('select#credential-bundle-select')).toHaveCount(0);
 
       // Runtime checkbox should be pre-checked for the saved runtime bundle.
       const runtimeCheckbox = overlay
@@ -221,7 +195,6 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
       if (loopSlug) {
         await cc.loop.deleteLoop({ orgSlug: TEST_ORG_SLUG, loopSlug }).catch(() => null);
       }
-      if (credId) await cc.envBundle.deleteEnvBundle({ id: credId }).catch(() => null);
       if (runtimeId) await cc.envBundle.deleteEnvBundle({ id: runtimeId }).catch(() => null);
       db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${BUNDLE_PREFIX}%'`);
     }

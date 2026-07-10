@@ -9,6 +9,7 @@ import type { AgentData, ConfigField, EnvBundleSummary, RepositoryData, RunnerDa
 import type { UseLoopFormResult } from "./useLoopForm";
 import { LoopPodConfigSection } from "./LoopPodConfigSection";
 import { LoopScheduleSection } from "./LoopScheduleSection";
+import type { EffectiveResource } from "@/lib/api/facade/aiResource";
 
 interface Props {
   form: UseLoopFormResult;
@@ -17,6 +18,12 @@ interface Props {
   compatibleRunners: RunnerData[];
   repositories: RepositoryData[];
   envBundles: EnvBundleSummary[];
+  modelResources: EffectiveResource[];
+  selectedModelResourceId: number | null;
+  onSelectModelResource: (id: number | null) => void;
+  loadingModelResources: boolean;
+  modelResourceError: string | null;
+  modelResourceRequired: boolean;
   configFields: ConfigField[];
   configValues: Record<string, unknown>;
   loadingConfig: boolean;
@@ -34,6 +41,12 @@ export function LoopCreateDialogBody({
   compatibleRunners,
   repositories,
   envBundles,
+  modelResources,
+  selectedModelResourceId,
+  onSelectModelResource,
+  loadingModelResources,
+  modelResourceError,
+  modelResourceRequired,
   configFields,
   configValues,
   loadingConfig,
@@ -86,8 +99,12 @@ export function LoopCreateDialogBody({
             loadingBundles={loadingBundles}
             selectedRunnerId={form.selectedRunnerId}
             onSelectRunner={form.setSelectedRunnerId}
-            selectedCredentialName={form.selectedCredentialName}
-            onSelectCredential={form.setSelectedCredentialName}
+            modelResources={modelResources}
+            selectedModelResourceId={selectedModelResourceId}
+            onSelectModelResource={onSelectModelResource}
+            loadingModelResources={loadingModelResources}
+            modelResourceError={modelResourceError}
+            modelResourceRequired={modelResourceRequired}
             selectedRuntimeBundleNames={form.selectedRuntimeBundleNames}
             onSelectRuntimeBundles={form.setSelectedRuntimeBundleNames}
             selectedRepositoryId={form.selectedRepositoryId}

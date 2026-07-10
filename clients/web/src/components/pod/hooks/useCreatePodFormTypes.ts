@@ -1,5 +1,5 @@
 import { PodData } from "@/lib/api";
-import type { CustomEnvEntry } from "@/components/settings/AgentCredentialsSettings/credentialForms/types";
+import type { CustomEnvEntry } from "@/components/settings/envBundleCredentialForms/types";
 import type { EffectiveResource } from "@/lib/api/facade/aiResource";
 import type { KnowledgeMountSelection } from "@/lib/api/facade/knowledgeBaseApi";
 import type { PodMode } from "@/lib/pod-modes";

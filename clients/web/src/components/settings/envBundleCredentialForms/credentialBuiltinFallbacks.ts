@@ -24,6 +24,7 @@ export const BUILTIN_CREDENTIAL_FALLBACK: Record<string, CredentialField[]> = {
     { name: "OPENAI_API_KEY", type: "secret", optional: true },
     { name: "ANTHROPIC_API_KEY", type: "secret", optional: true },
   ],
+  "grok-build": [{ name: "XAI_API_KEY", type: "secret", optional: false }],
 };
 
 export function getBuiltinCredentialFallback(agentSlug: string): CredentialField[] {

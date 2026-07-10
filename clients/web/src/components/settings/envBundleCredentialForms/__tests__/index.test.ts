@@ -65,6 +65,13 @@ describe("credentialForms registry", () => {
     );
   });
 
+  it("grok-build exposes XAI_API_KEY + allows custom env", () => {
+    const spec = getCredentialFormSpec("grok-build");
+    expect(spec.agentSlug).toBe("grok-build");
+    expect(spec.allowCustomEnv).toBe(true);
+    expect(getEnvKeysFromSpec(spec)).toEqual(new Set(["XAI_API_KEY"]));
+  });
+
   it("falls back to pure custom-env form for unknown slug", () => {
     const spec = getCredentialFormSpec("custom-user-agent-xyz");
     expect(spec).toEqual({

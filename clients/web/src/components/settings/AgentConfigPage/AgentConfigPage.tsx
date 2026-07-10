@@ -6,48 +6,32 @@ import { AlertMessage } from "@/components/ui/alert-message";
 import { ConfirmDialog, useConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useTranslations } from "next-intl";
 import { Bot, AlertCircle } from "lucide-react";
-import type { CredentialProfileViewModel } from "../_shared/credentialViewModel";
 import { useAgentConfig } from "./useAgentConfig";
-import { CredentialsSection } from "./CredentialsSection";
 import { RuntimeConfigSection } from "./RuntimeConfigSection";
 import { RuntimeBundlesSection } from "./RuntimeBundlesSection";
-import { CredentialFormDialog } from "../CredentialFormDialog";
 import { RuntimeBundleDialog } from "./RuntimeBundleDialog";
 import { ConfigFilesSection } from "./ConfigFilesSection";
 import { ConfigFileDialog } from "./ConfigFileDialog";
 import type {
   AgentConfigPageProps,
-  CredentialFormData,
   RuntimeBundleViewModel,
   ConfigFileBundleViewModel,
 } from "./types";
 
-/**
- * AgentConfigPage - Unified configuration page for a single agent
- *
- * Combines credentials management and runtime configuration in one place.
- * Acts as the coordinator for the extracted sub-components.
- */
 export function AgentConfigPage({ agentSlug }: AgentConfigPageProps) {
   const t = useTranslations();
 
-  // Dialog state
-  const [showCredentialDialog, setShowCredentialDialog] = useState(false);
-  const [editingProfile, setEditingProfile] = useState<CredentialProfileViewModel | null>(null);
   const [showRuntimeDialog, setShowRuntimeDialog] = useState(false);
   const [editingRuntime, setEditingRuntime] = useState<RuntimeBundleViewModel | null>(null);
   const [showConfigDialog, setShowConfigDialog] = useState(false);
   const [editingConfig, setEditingConfig] = useState<ConfigFileBundleViewModel | null>(null);
 
-  // Use the custom hook for data and actions
   const {
     loading,
     savingConfig,
     agent,
     configFields,
     configValues,
-    credentialProfiles,
-    noPrimaryBundle,
     runtimeBundles,
     configFileSpecs,
     configFileBundles,
@@ -55,10 +39,6 @@ export function AgentConfigPage({ agentSlug }: AgentConfigPageProps) {
     success,
     handleConfigChange,
     handleSaveConfig,
-    handleClearPrimaryBundle,
-    handleSetDefault,
-    handleDeleteProfile,
-    handleSaveProfile,
     handleSetRuntimePrimary,
     handleClearRuntimePrimary,
     handleDeleteRuntimeBundle,
@@ -71,45 +51,8 @@ export function AgentConfigPage({ agentSlug }: AgentConfigPageProps) {
     setSuccess,
   } = useAgentConfig(agentSlug, t);
 
-  // Confirm dialog for delete
   const { dialogProps, confirm } = useConfirmDialog();
 
-  // Open credential add dialog
-  const handleOpenAddDialog = useCallback(() => {
-    setEditingProfile(null);
-    setShowCredentialDialog(true);
-  }, []);
-
-  // Open credential edit dialog
-  const handleOpenEditDialog = useCallback((profile: CredentialProfileViewModel) => {
-    setEditingProfile(profile);
-    setShowCredentialDialog(true);
-  }, []);
-
-  // Handle credential form submission
-  const handleCredentialSubmit = useCallback(async (
-    data: CredentialFormData,
-    profile: CredentialProfileViewModel | null
-  ) => {
-    await handleSaveProfile(data, profile);
-    setShowCredentialDialog(false);
-  }, [handleSaveProfile]);
-
-  // Handle delete with confirmation
-  const handleDeleteWithConfirm = useCallback(async (profileId: number) => {
-    const confirmed = await confirm({
-      title: t("common.confirmDelete"),
-      description: t("settings.agentCredentials.confirmDelete"),
-      variant: "destructive",
-      confirmText: t("common.delete"),
-      cancelText: t("common.cancel"),
-    });
-    if (confirmed) {
-      await handleDeleteProfile(profileId);
-    }
-  }, [confirm, handleDeleteProfile, t]);
-
-  // Runtime bundle dialog handlers
   const handleOpenAddRuntime = useCallback(() => {
     setEditingRuntime(null);
     setShowRuntimeDialog(true);
@@ -176,19 +119,6 @@ export function AgentConfigPage({ agentSlug }: AgentConfigPageProps) {
       {error && <AlertMessage type="error" message={error} onDismiss={() => setError(null)} />}
       {success && <AlertMessage type="success" message={success} onDismiss={() => setSuccess(null)} />}
 
-      {/* Credentials Section */}
-      <CredentialsSection
-        agentSlug={agentSlug}
-        noPrimaryBundle={noPrimaryBundle}
-        credentialProfiles={credentialProfiles}
-        onClearPrimary={handleClearPrimaryBundle}
-        onSetDefault={handleSetDefault}
-        onEdit={handleOpenEditDialog}
-        onDelete={handleDeleteWithConfirm}
-        onAdd={handleOpenAddDialog}
-        t={t}
-      />
-
       {/* Runtime Config Section */}
       <RuntimeConfigSection
         configFields={configFields}
@@ -226,16 +156,6 @@ export function AgentConfigPage({ agentSlug }: AgentConfigPageProps) {
           setEditingConfig(null);
           setShowConfigDialog(true);
         }}
-        t={t}
-      />
-
-      {/* Add/Edit Credential Dialog */}
-      <CredentialFormDialog
-        open={showCredentialDialog}
-        onOpenChange={setShowCredentialDialog}
-        agentSlug={agentSlug}
-        editingProfile={editingProfile}
-        onSubmit={handleCredentialSubmit}
         t={t}
       />
 

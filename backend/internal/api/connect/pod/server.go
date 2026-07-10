@@ -8,11 +8,11 @@
 // on Relay/WebSocket — this migration is unary RPC only.
 //
 // Handler shape follows runbook §3:
-//   * ResolveOrgScope reads org_slug + injects TenantContext.
-//   * Single-entity get/create/update return the entity directly.
-//   * List responses follow {items, total, limit, offset}.
-//   * CreatePod keeps {pod, warning?} envelope locked by 986a38ca6 (PR #340).
-//   * Errors map to Connect codes (conventions §10).
+//   - ResolveOrgScope reads org_slug + injects TenantContext.
+//   - Single-entity get/create/update return the entity directly.
+//   - List responses follow {items, total, limit, offset}.
+//   - CreatePod keeps {pod, warning?} envelope locked by 986a38ca6 (PR #340).
+//   - Errors map to Connect codes (conventions §10).
 package podconnect
 
 import (

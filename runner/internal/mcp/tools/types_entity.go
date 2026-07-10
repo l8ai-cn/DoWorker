@@ -174,15 +174,15 @@ type Repository struct {
 
 // PodCreateRequest represents a request to create a new pod.
 type PodCreateRequest struct {
-	RunnerID            int     `json:"runner_id,omitempty"`
-	AgentSlug           string  `json:"agent_slug,omitempty"`
-	TicketSlug          *string `json:"ticket_slug,omitempty"`
-	Alias               *string `json:"alias,omitempty"`
-	RepositoryID        *int64  `json:"repository_id,omitempty"`
-	RepositoryURL       *string `json:"repository_url,omitempty"`
-	BranchName          *string `json:"branch_name,omitempty"`
-	CredentialProfileID *int64  `json:"credential_profile_id,omitempty"`
-	AgentfileLayer      *string `json:"agentfile_layer,omitempty"` // AgentFile Layer — SSOT for all CONFIG values
+	RunnerID        int     `json:"runner_id,omitempty"`
+	AgentSlug       string  `json:"agent_slug,omitempty"`
+	TicketSlug      *string `json:"ticket_slug,omitempty"`
+	Alias           *string `json:"alias,omitempty"`
+	RepositoryID    *int64  `json:"repository_id,omitempty"`
+	RepositoryURL   *string `json:"repository_url,omitempty"`
+	BranchName      *string `json:"branch_name,omitempty"`
+	ModelResourceID *int64  `json:"model_resource_id,omitempty"`
+	AgentfileLayer  *string `json:"agentfile_layer,omitempty"` // AgentFile Layer — SSOT for all CONFIG values
 }
 
 // PodCreateResponse represents the response from creating a pod.

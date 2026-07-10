@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { buildAgentfileLayer } from "@/lib/agentfile-layer";
 import type { PodMode } from "@/lib/pod-modes";
 import type { RepositoryData } from "@/lib/api";
-import type { CustomEnvEntry } from "@/components/settings/AgentCredentialsSettings/credentialForms/types";
+import type { CustomEnvEntry } from "@/components/settings/envBundleCredentialForms/types";
 import type { KnowledgeMountSelection } from "@/lib/api/facade/knowledgeBaseApi";
 
 export function useCreatePodGeneratedLayer(params: {

@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { usePodCreationData } from "@/components/pod/hooks";
+import { requiresModelResource, useWorkerModelResources } from "@/components/pod/hooks/useWorkerModelResources";
 import { useConfigOptions } from "@/components/ide/hooks";
 import {
   hasRunnerForAgent,
@@ -37,6 +38,10 @@ export function LoopCreateContent({
   const t = useTranslations();
   const [wizardIdea, setWizardIdea] = useState<string | undefined>();
   const form = useLoopForm({ open: true, editLoop, initialIdea: wizardIdea, onCreated, t });
+  const modelResources = useWorkerModelResources(
+    form.selectedAgentSlug,
+    editLoop?.model_resource_id ?? null,
+  );
 
   const {
     runners,
@@ -95,7 +100,6 @@ export function LoopCreateContent({
     if (!editLoop || envBundles.length === 0) return;
     const kindByName = new Map(envBundles.map((b) => [b.name, b.kind]));
     const saved = editLoop.used_env_bundles ?? [];
-    form.setSelectedCredentialName(saved.find((n) => kindByName.get(n) === "credential") ?? "");
     form.setSelectedRuntimeBundleNames(saved.filter((n) => kindByName.get(n) === "runtime"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editLoop, envBundles]);
@@ -112,6 +116,14 @@ export function LoopCreateContent({
   }, [availableAgents, form.selectedAgentSlug]);
 
   const formTitle = form.isEdit ? t("loops.editLoop") : t("loops.manualSectionTitle");
+  const modelResourceRequired = requiresModelResource(form.selectedAgentSlug);
+  const canSubmitWithModelResource =
+    !modelResourceRequired ||
+    Boolean(
+      modelResources.selectedModelResource &&
+        !modelResources.loadingModelResources &&
+        !modelResources.modelResourceError,
+    );
 
   return (
     <div className="space-y-6">
@@ -134,6 +146,12 @@ export function LoopCreateContent({
           compatibleRunners={compatibleRunners}
           repositories={repositories}
           envBundles={envBundles}
+          modelResources={modelResources.modelResources}
+          selectedModelResourceId={modelResources.selectedModelResourceId}
+          onSelectModelResource={modelResources.setSelectedModelResourceId}
+          loadingModelResources={modelResources.loadingModelResources}
+          modelResourceError={modelResources.modelResourceError}
+          modelResourceRequired={modelResourceRequired}
           configFields={configFields}
           configValues={configValues}
           loadingConfig={loadingConfig}
@@ -149,13 +167,18 @@ export function LoopCreateContent({
             </Button>
           )}
           <Button
-            onClick={() => form.submit(configValues)}
+            onClick={() => form.submit(
+              configValues,
+              modelResources.selectedModelResourceId,
+              modelResourceRequired,
+            )}
             disabled={
               form.loading ||
               !form.name.trim() ||
               !form.promptTemplate.trim() ||
               !form.selectedAgentSlug ||
-              !canSubmitWithRunner
+              !canSubmitWithRunner ||
+              !canSubmitWithModelResource
             }
           >
             {form.loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

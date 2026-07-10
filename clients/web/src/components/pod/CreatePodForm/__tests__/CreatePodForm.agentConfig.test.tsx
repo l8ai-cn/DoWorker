@@ -79,7 +79,6 @@ vi.mock("@/stores/podCreation", () => ({
   usePodCreationStore: () => ({
     lastAgentSlug: null,
     lastRepositoryId: null,
-    lastCredentialName: "",
     lastRuntimeBundleNames: [],
     lastBranchName: null,
     lastSkillSlugs: [],
@@ -218,9 +217,7 @@ describe("CreatePodForm - Agent Configuration", () => {
       render(<CreatePodForm config={workspaceConfig} />);
       // Runtime bundle shows up.
       expect(screen.getByText("dev-preferences")).toBeInTheDocument();
-      // Credential bundles only appear in the credential select <option> elements
-      // — never as checkbox rows. There must be exactly zero checkboxes labeled
-      // with a credential name.
+      // Credential bundles are not selectable from Worker creation.
       const checkboxes = screen.getAllByRole("checkbox");
       const checkboxLabels = checkboxes.map((cb) => cb.getAttribute("aria-label") ?? "");
       expect(checkboxLabels.every((l) => !l.includes("My Credentials"))).toBe(true);

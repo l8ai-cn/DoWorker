@@ -30,8 +30,8 @@
         "gitDesc": "Repository providers and credentials",
         "agentConfig": "Agent Config",
         "agentConfigDesc": "AI agent runtime parameters",
-        "agentCredentials": "Agent Credentials",
-        "agentCredentialsDesc": "API keys for AI agents",
+        "agentCredentials": "AI Resources",
+        "agentCredentialsDesc": "Provider connections and model resources",
         "notifications": "Notifications",
         "notificationsDesc": "Push notification preferences"
       },
@@ -137,7 +137,7 @@
       "configureTitle": "Configure {name}",
       "configureHint": "Set default configuration values for this agent. These values will be used when creating new pods.",
       "configureHintGraphical": "Set default runtime parameters for this agent. These values will be used when creating new pods.",
-      "credentialsMovedNotice": "API credentials have been moved to Personal Settings > Agent Credentials. Each user manages their own credentials.",
+      "credentialsMovedNotice": "Model provider credentials are managed in AI Resources. This page only stores non-secret runtime preferences.",
       "cancel": "Cancel",
       "saving": "Saving...",
       "saveConfig": "Save Configuration",
@@ -148,7 +148,7 @@
       "invalidJson": "Invalid JSON format",
       "credentials": {
         "title": "API Credentials",
-        "description": "Configurar credenciais API para este agente. Se nenhuma estiver definida, o agente usa seu fluxo de autenticação integrado (OAuth, CLI conectado, etc.)."
+        "description": "Provider credentials are managed in AI Resources. Runtime env bundles must not contain model API secrets."
       },
       "runtime": {
         "title": "Runtime Configuration",
@@ -245,18 +245,18 @@
       "saveCredentials": "Save Credentials"
     },
     "agentCredentials": {
-      "title": "Agent Credentials",
-      "description": "Gerenciar credenciais API para cada agente. Sem credencial, o agente usa seu fluxo de autenticação integrado; adicione uma para injetar suas próprias chaves no início.",
-      "failedToLoad": "Failed to load agent credentials",
+      "title": "Runtime Env Variables",
+      "description": "Manage reusable runtime environment variables. Model API credentials are selected through AI Resources.",
+      "failedToLoad": "Failed to load runtime environment variables",
       "profiles": "profiles",
       "noAgents": "No agents available",
       "default": "Default",
       "configured": "Configured",
       "notConfigured": "Not configured",
       "setAsDefault": "Set as default",
-      "addProfile": "Add Custom Credentials",
-      "editProfile": "Edit Credentials",
-      "customProfileDescription": "Adicione suas próprias credenciais API para este agente. Serão injetadas no ambiente do agente no início.",
+      "addProfile": "Add Runtime Env Variables",
+      "editProfile": "Edit Runtime Env Variables",
+      "customProfileDescription": "Add non-secret runtime variables for this image.",
       "name": "Profile Name",
       "namePlaceholder": "e.g., Work Config, Personal",
       "descriptionLabel": "Description",
@@ -279,8 +279,8 @@
       "credentialMethod": "Authentication Method",
       "credentialMethodApiKey": "API Key",
       "credentialMethodAuthToken": "Auth Token",
-      "noBundleLabel": "Usar autenticação padrão do agente",
-      "noBundleHint": "Sem credenciais personalizadas injetadas; o agente usa seu fluxo de autenticação integrado (OAuth, CLI conectado, etc.).",
+      "noBundleLabel": "No runtime env variables",
+      "noBundleHint": "No runtime environment variable bundle is selected.",
       "removeSecret": "Remover esta credencial",
       "willRemove": "Será removido ao salvar",
       "baseUrlSecurityHint": "Não coloque um token na URL — ela é armazenada em texto simples e exibida aqui ao editar."

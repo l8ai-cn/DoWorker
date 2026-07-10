@@ -62,9 +62,9 @@ Legacy alias (same handler): `POST /api/v1/ext/orgs/{org_slug}/pods`
 
 | UI field | API field | Required | Notes |
 |----------|-----------|----------|-------|
-| API credentials bundle | `agentfile_layer` → `USE_ENV_BUNDLE "name"` | No | Credential bundle first; uses agent default auth if omitted. |
+| AI model resource | `model_resource_id` | Yes for model-backed workers | Exact resource selected from AI Resource Center. |
 | Runtime env bundles | `agentfile_layer` → `USE_ENV_BUNDLE "name"` (multiple) | No | Merged in declaration order; later keys win. |
-| Image plugin config | `agentfile_layer` → `CONFIG key = value` | No | Agent-specific options (model, etc.). |
+| Image plugin config | `agentfile_layer` → `CONFIG key = value` | No | Agent-specific non-secret options. Model credentials are not supplied here. |
 
 ### Association & resume
 

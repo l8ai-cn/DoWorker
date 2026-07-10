@@ -1,22 +1,19 @@
 "use client";
 
 import { RunnerSelect } from "@/components/pod/CreatePodForm/RunnerSelect";
-import { CredentialBundleSelect } from "@/components/pod/CreatePodForm/CredentialBundleSelect";
 import { EnvBundleMultiSelect } from "@/components/pod/CreatePodForm/EnvBundleMultiSelect";
+import { WorkerModelResourceSelect } from "@/components/pod/CreatePodForm/WorkerModelResourceSelect";
 import { RepositorySelect, BranchInput } from "@/components/pod/CreatePodForm/RepositorySelect";
 import { AdvancedOptions } from "@/components/pod/CreatePodForm/AdvancedOptions";
 import { ConfigForm } from "@/components/ide/ConfigForm";
 import { Spinner } from "@/components/ui/spinner";
 import type { ConfigField, EnvBundleSummary, RepositoryData, RunnerData } from "@/lib/api";
+import type { EffectiveResource } from "@/lib/api/facade/aiResource";
 
 /**
  * LoopPodConfigSection — the "Pod runtime" half of the create dialog,
  * wrapped in an AdvancedOptions disclosure. Reuses Pod-creation primitives
  * so a Loop's Pods configure identically to ad-hoc Pods.
- *
- * EnvBundle picker is split into two:
- *   - Credential (single-select): kind='credential' bundles, plus "use default".
- *   - Runtime (multi-select): kind='runtime' bundles, ordered.
  *
  * Stateless: parent owns selection state and passes setters.
  */
@@ -33,8 +30,12 @@ interface LoopPodConfigSectionProps {
   selectedRunnerId: number | null;
   onSelectRunner: (id: number | null) => void;
 
-  selectedCredentialName: string;
-  onSelectCredential: (name: string) => void;
+  modelResources: EffectiveResource[];
+  selectedModelResourceId: number | null;
+  onSelectModelResource: (id: number | null) => void;
+  loadingModelResources: boolean;
+  modelResourceError: string | null;
+  modelResourceRequired: boolean;
 
   selectedRuntimeBundleNames: string[];
   onSelectRuntimeBundles: (names: string[]) => void;
@@ -61,8 +62,12 @@ export function LoopPodConfigSection({
   loadingBundles,
   selectedRunnerId,
   onSelectRunner,
-  selectedCredentialName,
-  onSelectCredential,
+  modelResources,
+  selectedModelResourceId,
+  onSelectModelResource,
+  loadingModelResources,
+  modelResourceError,
+  modelResourceRequired,
   selectedRuntimeBundleNames,
   onSelectRuntimeBundles,
   selectedRepositoryId,
@@ -81,13 +86,16 @@ export function LoopPodConfigSection({
         t={t}
       />
 
-      <CredentialBundleSelect
-        bundles={envBundles.filter((b) => b.kind === "credential")}
-        selectedBundleName={selectedCredentialName}
-        onSelect={onSelectCredential}
-        loading={loadingBundles}
-        t={t}
-      />
+      {modelResourceRequired && (
+        <WorkerModelResourceSelect
+          resources={modelResources}
+          selectedResourceId={selectedModelResourceId}
+          onSelect={onSelectModelResource}
+          loading={loadingModelResources}
+          error={modelResourceError}
+          t={t}
+        />
+      )}
 
       <EnvBundleMultiSelect
         bundles={envBundles.filter((b) => b.kind === "runtime")}

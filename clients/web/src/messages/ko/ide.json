@@ -113,14 +113,14 @@
       "aliasPlaceholder": "Pod 표시 이름을 입력하세요...",
       "perpetual": "영구 모드",
       "perpetualDescription": "에이전트 종료 시 자동 재시작. Pod가 지속적으로 온라인 상태를 유지합니다.",
-      "noBundleLabel": "Do not inject credentials",
-      "noBundleHint": "No credential bundle is injected from this legacy picker.",
+      "noBundleLabel": "No runtime env variables",
+      "noBundleHint": "No runtime environment variable bundle is selected.",
       "multiBundleHint": "선택한 번들은 순서대로 Pod 환경 변수에 병합됩니다. 나중에 선택한 항목이 동일한 키를 덮어씁니다.",
       "selectedOrderHint": "선택됨 (병합 순서)",
       "moveUp": "위로",
       "moveDown": "아래로",
       "bundleKind": {
-        "credential": "자격 증명",
+        "credential": "Legacy",
         "runtime": "런타임"
       },
       "selectSkills": "Skill",

@@ -7,15 +7,12 @@ import { useCurrentOrg } from "@/stores/auth";
 import type {
   AgentConfigState,
   AgentConfigActions,
-  CredentialFormData,
   RuntimeBundleFormData,
   RuntimeBundleViewModel,
   ConfigFileFormData,
   ConfigFileBundleViewModel,
 } from "./types";
-import type { CredentialProfileViewModel } from "../_shared/credentialViewModel";
 import { useAgentConfigMessages } from "./useAgentConfigMessages";
-import { useCredentialBundles } from "./useCredentialBundles";
 import { useRuntimeBundles } from "./useRuntimeBundles";
 import { useConfigFileBundles } from "./useConfigFileBundles";
 import { useAgentRuntimeConfig } from "./useAgentRuntimeConfig";
@@ -29,7 +26,6 @@ export function useAgentConfig(
   const currentOrg = useCurrentOrg();
 
   const msgs = useAgentConfigMessages();
-  const creds = useCredentialBundles(msgs, t);
   const runtime = useRuntimeBundles(msgs, t);
   const configFiles = useConfigFileBundles(msgs, t);
   const cfg = useAgentRuntimeConfig(msgs, t);
@@ -57,7 +53,6 @@ export function useAgentConfig(
       }
       setAgent(found);
       await Promise.all([
-        creds.loadCredentialBundles(found),
         runtime.loadRuntimeBundles(found),
         configFiles.loadConfigFileBundles(found),
         cfg.loadRuntimeConfig(found),
@@ -67,20 +62,12 @@ export function useAgentConfig(
     } finally {
       setLoading(false);
     }
-  }, [agentSlug, t, creds, runtime, configFiles, cfg, msgs, currentOrg]);
+  }, [agentSlug, t, runtime, configFiles, cfg, msgs, currentOrg]);
 
   useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentSlug, currentOrg?.slug]);
-
-  const handleSaveProfile = useCallback(
-    (data: CredentialFormData, editingProfile: CredentialProfileViewModel | null) => {
-      if (!agent) return Promise.resolve();
-      return creds.handleSaveProfile(data, editingProfile, agent);
-    },
-    [agent, creds]
-  );
 
   const handleSaveRuntimeBundle = useCallback(
     (data: RuntimeBundleFormData, editingBundle: RuntimeBundleViewModel | null) => {
@@ -109,17 +96,11 @@ export function useAgentConfig(
     agent,
     configFields: cfg.configFields,
     configValues: cfg.configValues,
-    credentialProfiles: creds.credentialProfiles,
-    noPrimaryBundle: creds.noPrimaryBundle,
     runtimeBundles: runtime.runtimeBundles,
     configFileSpecs: configFiles.configFileSpecs,
     configFileBundles: configFiles.configFileBundles,
     error: msgs.error,
     success: msgs.success,
-    handleClearPrimaryBundle: creds.handleClearPrimaryBundle,
-    handleSetDefault: creds.handleSetDefault,
-    handleDeleteProfile: creds.handleDeleteProfile,
-    handleSaveProfile,
     handleSetRuntimePrimary: runtime.handleSetRuntimePrimary,
     handleClearRuntimePrimary: runtime.handleClearRuntimePrimary,
     handleDeleteRuntimeBundle: runtime.handleDeleteRuntimeBundle,

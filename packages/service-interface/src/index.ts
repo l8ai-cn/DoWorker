@@ -647,26 +647,19 @@ export interface IUserApiService {
 
 export interface IUserCredentialService {
   clear_default_git_credential(): Promise<void>;
-  create_agent_credential(agent_slug: string, json: string): Promise<string>;
   create_git_credential(json: string): Promise<string>;
   create_repo_provider(json: string): Promise<string>;
-  delete_agent_credential(id: bigint): Promise<void>;
   delete_git_credential(id: bigint): Promise<void>;
   delete_repo_provider(id: bigint): Promise<void>;
-  get_agent_credential(id: bigint): Promise<string>;
   get_default_git_credential(): Promise<string>;
   get_git_credential(id: bigint): Promise<string>;
   get_repo_provider(id: bigint): Promise<string>;
-  list_agent_credentials(): Promise<string>;
-  list_agent_credentials_for_agent(agent_slug: string): Promise<string>;
   list_git_credentials(): Promise<string>;
   list_provider_repositories(id: bigint, page?: number | null, per_page?: number | null, search?: string | null): Promise<string>;
   list_repo_providers(): Promise<string>;
-  set_default_agent_credential(id: bigint): Promise<void>;
   set_default_git_credential(json: string): Promise<void>;
   set_default_repo_provider(id: bigint): Promise<void>;
   test_repo_provider(id: bigint): Promise<void>;
-  update_agent_credential(id: bigint, json: string): Promise<string>;
   update_git_credential(id: bigint, json: string): Promise<string>;
   update_repo_provider(id: bigint, json: string): Promise<string>;
 }

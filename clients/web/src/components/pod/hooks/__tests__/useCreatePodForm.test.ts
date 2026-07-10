@@ -25,7 +25,6 @@ vi.mock("@/stores/podCreation", () => ({
   usePodCreationStore: () => ({
     lastAgentSlug: null,
     lastRepositoryId: null,
-    lastCredentialName: "",
     lastRuntimeBundleNames: [],
     lastBranchName: null,
     lastSkillSlugs: [],

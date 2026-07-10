@@ -95,6 +95,12 @@ const OVERRIDES: Record<string, CredentialUxOverride> = {
     allowCustomEnv: true,
     customEnvHint: "settings.credentialForm.doAgent.customEnvHint",
   },
+  "grok-build": {
+    labels: { XAI_API_KEY: "settings.credentialForm.xai.apiKey" },
+    placeholders: { XAI_API_KEY: "xai-..." },
+    allowCustomEnv: true,
+    customEnvHint: "settings.credentialForm.grok.customEnvHint",
+  },
   "e2e-echo": {
     labels: { E2E_TEST_CRED_KEY: "E2E Test Credential Key" },
     descriptions: {

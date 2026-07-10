@@ -55,7 +55,7 @@ func TestHTTPServerMCPToolsCallCreatePodWithAllParams(t *testing.T) {
 				"model": "claude-opus-4",
 				"repository_id": 456,
 				"branch_name": "feature/new-feature",
-				"credential_profile_id": 789,
+				"model_resource_id": 789,
 				"permission_mode": "plan",
 				"config_overrides": {
 					"timeout": 300,

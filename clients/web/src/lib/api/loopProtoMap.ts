@@ -40,7 +40,7 @@ export function loopToProtoLoop(l: LoopData): ProtoLoop {
     runnerId: asBigInt(l.runner_id),
     branchName: l.branch_name ?? "",
     ticketId: asBigInt(l.ticket_id),
-    credentialProfileId: asBigInt(l.credential_profile_id),
+    modelResourceId: asBigInt(l.model_resource_id),
     status: l.status,
     sandboxStrategy: l.sandbox_strategy,
     sessionPersistence: l.session_persistence,

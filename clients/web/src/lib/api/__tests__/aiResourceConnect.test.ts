@@ -22,7 +22,7 @@ describe("AI resource Connect boundary", () => {
       createOrganizationConnectionConnect: createConnection,
     } as unknown as ReturnType<typeof getAIResourceService>);
     createConnection.mockResolvedValue(toBinary(ProviderConnectionSchema, create(ProviderConnectionSchema, {
-      id: 9n,
+      id: BigInt(9),
       ownerScope: "organization",
       identifier: "openai-main",
       configuredFields: ["api_key"],
@@ -53,7 +53,7 @@ describe("AI resource Connect boundary", () => {
 
   it("rejects connection identifiers that exceed JavaScript's safe integer range", () => {
     expect(() => fromProviderConnection(create(ProviderConnectionSchema, {
-      id: BigInt(Number.MAX_SAFE_INTEGER) + 1n,
+      id: BigInt(Number.MAX_SAFE_INTEGER) + BigInt(1),
     }))).toThrow("unsafe provider connection id");
   });
 });

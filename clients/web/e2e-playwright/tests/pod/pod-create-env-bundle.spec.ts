@@ -9,14 +9,8 @@ import { CreatePodModal } from "../../pages/modals/create-pod.modal";
 /**
  * Pod creation × EnvBundle UI flow.
  *
- * The Pod create dialog renders two independent pickers inside
- * AdvancedOptions:
- *   - `<select>` for API credential (kind='credential', single-select)
- *   - checkbox list for runtime bundles (kind='runtime', ordered multi-select)
- *
- * On submit the form merges them as: credential first, then runtime in
- * selection order — one `USE_ENV_BUNDLE "..."` line per bundle in the
- * agentfile_layer.
+ * The Pod create dialog renders runtime bundles as an ordered multi-select.
+ * Model/API credentials are selected through AI Resources, not EnvBundles.
  *
  * We don't have a persisted `pods.agentfile_layer` column — the merged
  * layer is built per-request and shipped to Runner. So we verify the wire
@@ -49,7 +43,7 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     await terminateAllPods();
   });
 
-  test("Pod create dialog attaches credential first then runtime in order", async ({
+  test("Pod create dialog attaches selected runtime bundles in order", async ({
     page,
     api,
     db,
@@ -66,18 +60,10 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     expect(claudeCode, "dev env must include the claude-code builtin agent").toBeTruthy();
 
     const stamp = Date.now();
-    const credName = `E2E PodUI Cred ${stamp}`;
     const runtimeName = `E2E PodUI Runtime ${stamp}`;
     db.cleanup(
       `DELETE FROM env_bundles WHERE name LIKE 'E2E PodUI %'`
     );
-    const cred = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
-      name: credName,
-      kind: "credential",
-      data: { ANTHROPIC_API_KEY: "sk-ant-e2e-multi" },
-    }) as { id: bigint };
-    const credId = cred.id;
     const runtime = await cc.envBundle.createEnvBundle({
       agentSlug: "claude-code",
       name: runtimeName,
@@ -114,37 +100,23 @@ test.describe("Pod create — EnvBundle binding UI", () => {
 
       await modal.expandAdvancedOptions();
 
-      // Credential picker is a <select id="credential-bundle-select">,
-      // runtime is a checkbox list. Verify both seeded bundles surface in
-      // their respective pickers before submitting.
+      // Runtime checkbox label is visible; credential EnvBundles are not
+      // selectable from Worker creation.
       const dialog = page.locator('[role="dialog"]');
-      const credSelect = dialog.locator('select#credential-bundle-select');
-      await expect(credSelect).toBeVisible({ timeout: 10_000 });
-      // Credential <option> for our seed must exist.
-      const credOption = credSelect.locator('option', { hasText: credName });
-      await expect(credOption).toHaveCount(1);
-      // Runtime checkbox label visible.
+      await expect(dialog.locator('select#credential-bundle-select')).toHaveCount(0);
       await expect(dialog.locator('label', { hasText: runtimeName })).toBeVisible();
 
-      // Select credential, then runtime — merged order on submit should
-      // be credential first then runtime.
-      await modal.selectCredential(credName);
       await modal.selectRuntimeBundles([runtimeName]);
 
       await modal.submit();
       await modal.waitForClosed(15_000);
 
-      // Two USE_ENV_BUNDLE lines: credential first, runtime after.
       const layer = capturedLayer ?? "";
       const useLines = layer
         .split("\n")
         .filter((l) => l.startsWith("USE_ENV_BUNDLE"));
-      expect(useLines).toEqual([
-        `USE_ENV_BUNDLE "${credName}"`,
-        `USE_ENV_BUNDLE "${runtimeName}"`,
-      ]);
+      expect(useLines).toEqual([`USE_ENV_BUNDLE "${runtimeName}"`]);
     } finally {
-      if (credId) await cc.envBundle.deleteEnvBundle({ id: credId }).catch(() => null);
       if (runtimeId) await cc.envBundle.deleteEnvBundle({ id: runtimeId }).catch(() => null);
       db.cleanup(`DELETE FROM env_bundles WHERE name LIKE 'E2E PodUI %'`);
     }
@@ -166,11 +138,11 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     const claudeCode = builtinAgents?.find((a) => a.slug === "claude-code");
     expect(claudeCode, "dev env must include the claude-code builtin agent").toBeTruthy();
 
-    // The Pod multi-select auto-checks every primary bundle, so any
+    // The Pod multi-select auto-checks every primary runtime bundle, so any
     // stray primary for claude-code would flip the assertion below.
     // Purge them up-front to keep the empty-selection path testable.
     db.cleanup(
-      `DELETE FROM env_bundles WHERE agent_slug = 'claude-code' AND kind_primary = TRUE`
+      `DELETE FROM env_bundles WHERE agent_slug = 'claude-code' AND kind = 'runtime' AND kind_primary = TRUE`
     );
 
     let capturedLayer: string | undefined;

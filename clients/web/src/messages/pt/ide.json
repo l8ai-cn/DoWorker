@@ -113,14 +113,14 @@
       "aliasPlaceholder": "Digite um nome de exibição para este pod...",
       "perpetual": "Perpétuo",
       "perpetualDescription": "Reinício automático ao sair do agente. O Pod permanece ativo indefinidamente.",
-      "noBundleLabel": "Do not inject credentials",
-      "noBundleHint": "No credential bundle is injected from this legacy picker.",
+      "noBundleLabel": "No runtime env variables",
+      "noBundleHint": "No runtime environment variable bundle is selected.",
       "multiBundleHint": "Os pacotes selecionados são mesclados no ambiente do Pod em ordem; entradas posteriores substituem as anteriores em chaves conflitantes.",
       "selectedOrderHint": "Selecionados (ordem de mesclagem)",
       "moveUp": "Mover para cima",
       "moveDown": "Mover para baixo",
       "bundleKind": {
-        "credential": "Credencial",
+        "credential": "Legacy",
         "runtime": "Tempo de execução"
       },
       "selectSkills": "Skills",

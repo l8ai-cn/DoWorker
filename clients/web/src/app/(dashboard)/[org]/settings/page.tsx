@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCurrentUser, useCurrentOrg, useAuthStore } from "@/stores/auth";
 import { Button } from "@/components/ui/button";
-import { LanguageSettings, ThemeSettings, NotificationSettings, AgentCredentialsSettings, AgentConfigPage, GitSettingsContent, AIResourcesSettings } from "@/components/settings";
+import { LanguageSettings, ThemeSettings, NotificationSettings, AgentConfigPage, GitSettingsContent, AIResourcesSettings } from "@/components/settings";
 import { GeneralSettings, MembersSettings, BillingSettings, APIKeysSettings, IMChannelsSettings, ExtensionsSettings, UsageSettings, InfrastructureOverview, ModelQuotasSettings } from "@/components/settings/organization";
 import { SupportTicketsContent } from "@/components/support/SupportTicketsContent";
 import { useTranslations } from "next-intl";
@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const activeTab = searchParams.get("tab") || "general";
   const currentOrg = useCurrentOrg();
   const t = useTranslations();
+  const translate = t as unknown as TranslationFn;
 
   const renderContent = () => {
     if (scope === "personal") {
@@ -28,12 +29,10 @@ export default function SettingsPage() {
           return <PersonalGeneralSettings />;
         case "git":
           return <GitSettingsContent />;
-        case "agent-credentials":
-          return <PersonalAgentCredentialsSettings />;
         case "ai-resources":
           return <AIResourcesSettings scope="personal" canManage />;
         case "notifications":
-          return <PersonalNotificationsSettings t={t} />;
+          return <PersonalNotificationsSettings t={translate} />;
         case "support":
           return <SupportTicketsContent variant="narrow" />;
         default:
@@ -43,19 +42,19 @@ export default function SettingsPage() {
 
     switch (activeTab) {
       case "general":
-        return <GeneralSettings org={currentOrg} t={t} />;
+        return <GeneralSettings org={currentOrg} t={translate} />;
       case "members":
-        return <MembersSettings t={t} />;
+        return <MembersSettings t={translate} />;
       case "extensions":
-        return <ExtensionsSettings t={t} />;
+        return <ExtensionsSettings t={translate} />;
       case "api-keys":
-        return <APIKeysSettings t={t} />;
+        return <APIKeysSettings t={translate} />;
       case "im-channels":
-        return <IMChannelsSettings t={t} />;
+        return <IMChannelsSettings t={translate} />;
       case "billing":
-        return <BillingSettings t={t} />;
+        return <BillingSettings t={translate} />;
       case "usage":
-        return <UsageSettings t={t} />;
+        return <UsageSettings t={translate} />;
       case "ai-resources":
         return <AIResourcesSettings
           scope="organization"
@@ -67,7 +66,7 @@ export default function SettingsPage() {
       case "infrastructure":
         return <InfrastructureOverview />;
       default:
-        return <GeneralSettings org={currentOrg} t={t} />;
+        return <GeneralSettings org={currentOrg} t={translate} />;
     }
   };
 
@@ -143,16 +142,6 @@ function PersonalGeneralSettings() {
           <LogOut className="w-4 h-4" />
           {t("settings.personal.general.logout")}
         </Button>
-      </div>
-    </div>
-  );
-}
-
-function PersonalAgentCredentialsSettings() {
-  return (
-    <div className="space-y-6">
-      <div className="surface-card p-6">
-        <AgentCredentialsSettings />
       </div>
     </div>
   );

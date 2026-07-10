@@ -13,12 +13,13 @@ pub mod credential_types;
 pub mod event_dispatch;
 pub mod expert_state;
 pub mod expert_types;
-mod persist_helpers;
 pub mod loop_state;
+pub mod loop_types;
 pub mod loopal_dispatch;
 pub mod loopal_session;
 pub mod loopal_types;
 pub mod mesh_state;
+mod persist_helpers;
 pub mod pod_state;
 pub mod repo_state;
 pub mod runner_state;
@@ -29,26 +30,26 @@ mod acp_session_tests;
 #[cfg(test)]
 mod app_runtime_tests;
 #[cfg(test)]
+mod autopilot_state_tests;
+#[cfg(test)]
 mod blockstore_state_tests;
 #[cfg(test)]
 mod channel_state_tests;
 #[cfg(test)]
-mod mesh_state_tests;
-#[cfg(test)]
-mod pod_state_tests;
-#[cfg(test)]
-mod runner_state_tests;
-#[cfg(test)]
-mod ticket_state_tests;
-#[cfg(test)]
-mod repo_state_tests;
-#[cfg(test)]
 mod expert_state_tests;
-#[cfg(test)]
-mod autopilot_state_tests;
 #[cfg(test)]
 mod loop_state_tests;
 #[cfg(test)]
 mod loopal_dispatch_tests;
 #[cfg(test)]
 mod loopal_fold_contract_tests;
+#[cfg(test)]
+mod mesh_state_tests;
+#[cfg(test)]
+mod pod_state_tests;
+#[cfg(test)]
+mod repo_state_tests;
+#[cfg(test)]
+mod runner_state_tests;
+#[cfg(test)]
+mod ticket_state_tests;

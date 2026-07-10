@@ -114,9 +114,9 @@ func (s *HTTPServer) createCreatePodTool() *MCPTool {
 					"type":        "string",
 					"description": "Git branch name to checkout. If not specified, uses repository's default branch.",
 				},
-				"credential_profile_id": map[string]interface{}{
+				"model_resource_id": map[string]interface{}{
 					"type":        "integer",
-					"description": "ID of the credential profile to use. If not specified or 0, uses RunnerHost mode (runner's local environment).",
+					"description": "Exact AI model resource ID to use for this pod.",
 				},
 				"config_overrides": map[string]interface{}{
 					"type":        "object",
@@ -154,14 +154,11 @@ func (s *HTTPServer) createCreatePodTool() *MCPTool {
 			if v := getStringArg(args, "ticket_slug"); v != "" {
 				req.TicketSlug = &v
 			}
-			// repository_id and credential_profile_id remain as separate fields
-			// because they are platform-level ID references that cannot be resolved
-			// to AgentFile slugs/names on the Runner side (no DB access).
 			if v := getInt64PtrArg(args, "repository_id"); v != nil {
 				req.RepositoryID = v
 			}
-			if v := getInt64PtrArg(args, "credential_profile_id"); v != nil {
-				req.CredentialProfileID = v
+			if v := getInt64PtrArg(args, "model_resource_id"); v != nil {
+				req.ModelResourceID = v
 			}
 			if agentfileLayer != "" {
 				req.AgentfileLayer = &agentfileLayer

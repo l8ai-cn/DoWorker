@@ -48,11 +48,12 @@ export function WorkerRepositoryField({ value, onChange }: WorkerRepositoryField
             {t("ide.createPod.importRepository")}
           </Button>
           {orgSlug && (
-            <Button type="button" size="sm" variant="outline" asChild>
-              <Link href={`/${orgSlug}/infra?tab=repositories`}>
-                {t("ide.createPod.manageRepositories")}
-              </Link>
-            </Button>
+            <Link
+              href={`/${orgSlug}/infra?tab=repositories`}
+              className="inline-flex h-8 items-center justify-center rounded-md bg-surface-raised px-3 text-xs font-medium text-foreground shadow-xs ring-1 ring-border/30 hover:bg-accent hover:text-accent-foreground hover:shadow-[var(--shadow-soft)] hover:ring-border/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {t("ide.createPod.manageRepositories")}
+            </Link>
           )}
         </div>
         <p className="text-xs text-muted-foreground">{t("ide.createPod.repositoryOptionalHint")}</p>

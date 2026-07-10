@@ -418,8 +418,7 @@ start_frontend() {
     # NEXT_PUBLIC_E2E=true enables build-time conditional registration of
     # test-only UI surfaces (e.g. the e2e-echo credential form). Production
     # builds never see this flag, so the e2e form is tree-shaken out. See
-    # clients/web/src/components/settings/AgentCredentialsSettings/
-    # credentialForms/index.ts.
+    # clients/web/src/components/settings/envBundleCredentialForms/index.ts.
     API_PROXY_TARGET="http://127.0.0.1:${BACKEND_HTTP_PORT}" \
     NEXT_PUBLIC_E2E="true" \
         _launch_setsid web "$log_file" \

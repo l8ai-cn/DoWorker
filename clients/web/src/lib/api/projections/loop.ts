@@ -16,7 +16,7 @@ export function loopToCache(p: ProtoLoop): LoopData {
     runner_id: p.runnerId != null ? Number(p.runnerId) : undefined,
     branch_name: p.branchName || undefined,
     ticket_id: p.ticketId != null ? Number(p.ticketId) : undefined,
-    credential_profile_id: p.credentialProfileId != null ? Number(p.credentialProfileId) : undefined,
+    model_resource_id: p.modelResourceId != null ? Number(p.modelResourceId) : undefined,
     used_env_bundles: p.usedEnvBundles ?? [],
     config_overrides: parseJSONObject(p.configOverridesJson),
     execution_mode: p.executionMode as LoopData["execution_mode"],

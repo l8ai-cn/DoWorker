@@ -250,7 +250,6 @@ message CreatePodRequest {
   // Platform-level ID references (cannot be expressed as AgentFile declarations).
   optional int64 repository_id = 7;
   reserved 8;
-  reserved "credential_profile_id";
 
   // Terminal size from browser xterm.js.
   int32 cols = 9;
@@ -267,7 +266,6 @@ message CreatePodRequest {
   repeated PodKnowledgeMount knowledge_mounts = 14;
 
   reserved 15, 16;
-  reserved "virtual_api_key_id", "model_config_id";
   optional int64 model_resource_id = 19;
   optional int64 token_budget = 17;
 

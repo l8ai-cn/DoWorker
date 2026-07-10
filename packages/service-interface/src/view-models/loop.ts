@@ -24,7 +24,7 @@ export interface LoopData {
   runner_id?: number;
   branch_name?: string;
   ticket_id?: number;
-  credential_profile_id?: number;
+  model_resource_id?: number;
   /**
    * Ordered list of EnvBundle names attached to every run. Each name is
    * emitted as a `USE_ENV_BUNDLE "<name>"` line in the generated AgentFile
@@ -91,7 +91,7 @@ export interface CreateLoopRequest {
   runner_id?: number;
   branch_name?: string;
   ticket_id?: number;
-  credential_profile_id?: number;
+  model_resource_id?: number;
   used_env_bundles?: string[];
   config_overrides?: Record<string, unknown>;
   execution_mode?: string;
@@ -118,7 +118,7 @@ export interface UpdateLoopRequest {
   runner_id?: number;
   branch_name?: string;
   ticket_id?: number;
-  credential_profile_id?: number;
+  model_resource_id?: number;
   used_env_bundles?: string[];
   config_overrides?: Record<string, unknown>;
   execution_mode?: string;

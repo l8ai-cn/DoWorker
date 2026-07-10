@@ -251,7 +251,7 @@
           "configDesc": "定义用户可配置的选项。类型：BOOL、STRING、NUMBER、SECRET、SELECT(\"opt1\",\"opt2\")。可使用 = 设置默认值。",
           "envDesc": "声明环境变量。SECRET 用于敏感值，TEXT 用于纯文本，OPTIONAL 标记为非必需。使用 = \"value\" 设置静态值。",
           "modeDesc": "设置执行模式。'pty' 在 PTY 终端中运行智能体。'acp' 使用智能体通信协议，可带可选参数。",
-          "credentialDesc": "指定使用哪个凭据配置文件。使用带引号的配置文件名或 'runner_host' 来使用 Runner 机器的凭据。",
+          "credentialDesc": "历史 AgentFile 示例保留的旧声明。模型凭据通过 AI 资源与 model_resource_id 精确选择。",
           "promptDesc": "设置发送给智能体的初始提示。PROMPT_POSITION 控制提示注入位置：prepend（用户提示之前）、append（之后）或 none（禁用）。",
           "repoDesc": "REPO 通过 slug 或 URL 设置仓库。BRANCH 设置分支名称。GIT_CREDENTIAL 选择 Git 认证方式：http、ssh 或 token。",
           "mcpDesc": "启用或禁用 MCP 工具集成。启用时可选 FORMAT 指定协议格式（如 streamable-http）。",

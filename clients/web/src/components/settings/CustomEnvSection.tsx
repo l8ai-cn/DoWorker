@@ -5,7 +5,7 @@ import { Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { CustomEnvEntry } from "./AgentCredentialsSettings/credentialForms/types";
+import type { CustomEnvEntry } from "./envBundleCredentialForms/types";
 
 const ENV_NAME_PATTERN = /^[A-Z_][A-Z0-9_]*$/;
 

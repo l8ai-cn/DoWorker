@@ -11,7 +11,7 @@ import { requiresModelResource, useWorkerModelResources } from "./useWorkerModel
 import type { CreatePodFormState } from "./useCreatePodFormTypes";
 import type { DestroyPolicy } from "../CreatePodForm/podLifecycleOptions";
 import type { KnowledgeMountSelection } from "@/lib/api/facade/knowledgeBaseApi";
-import type { CustomEnvEntry } from "@/components/settings/AgentCredentialsSettings/credentialForms/types";
+import type { CustomEnvEntry } from "@/components/settings/envBundleCredentialForms/types";
 
 export type { CreatePodFormState, FormValidationErrors } from "./useCreatePodFormTypes";
 

@@ -21,7 +21,7 @@ func HarnessEnvVars(agentSlug, overrideModel string, m *AIModel, credentials map
 }
 
 // PreferredProvider returns the model-pool provider type a harness expects
-// when auto-selecting a default model (no explicit model_config_id).
+// when auto-selecting a default legacy pool model.
 func PreferredProvider(agentSlug string) string {
 	switch agentSlug {
 	case "codex-cli":

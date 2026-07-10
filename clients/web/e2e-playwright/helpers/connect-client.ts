@@ -48,7 +48,6 @@ import {
 } from "../../../../proto/gen/ts/invitation/v1/invitation_pb";
 import {
   UserGitCredentialService,
-  UserAgentCredentialService,
   UserRepositoryProviderService,
 } from "../../../../proto/gen/ts/user_credential/v1/user_credential_pb";
 import { MeshService } from "../../../../proto/gen/ts/mesh/v1/mesh_pb";
@@ -179,7 +178,6 @@ export function makeConnectClient(token: string | null) {
     userInvitation: makeServiceClient(UserInvitationService, token),
     publicInvitation: makeServiceClient(PublicInvitationService, token),
     userGitCredential: makeServiceClient(UserGitCredentialService, token),
-    userAgentCredential: makeServiceClient(UserAgentCredentialService, token),
     userRepositoryProvider: makeServiceClient(UserRepositoryProviderService, token),
     mesh: makeServiceClient(MeshService, token),
     autopilot: makeServiceClient(AutopilotControllerService, token),

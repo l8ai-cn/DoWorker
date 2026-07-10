@@ -78,11 +78,11 @@ const eslintConfig = defineConfig([
             },
             {
               group: [
-                "**/credentialForms/e2e-echo",
-                "**/credentialForms/e2e-echo.ts",
+                "**/envBundleCredentialForms/e2e-echo",
+                "**/envBundleCredentialForms/e2e-echo.ts",
               ],
               message:
-                "e2e-echo is a test-only credential form. Production code must not import it directly — the form is registered conditionally via `require()` inside credentialForms/index.ts gated on NEXT_PUBLIC_E2E. See ADR 2026-05-26-test-fixture-isolation.",
+                "e2e-echo is a test-only credential form. Production code must not import it directly — the form is registered conditionally via `require()` inside envBundleCredentialForms/index.ts gated on NEXT_PUBLIC_E2E. See ADR 2026-05-26-test-fixture-isolation.",
             },
           ],
         },

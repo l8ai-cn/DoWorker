@@ -935,7 +935,7 @@ vi.mock('@/lib/wasm-core', () => {
     max_concurrent_runs: l.maxConcurrentRuns, max_retained_runs: l.maxRetainedRuns,
     timeout_minutes: l.timeoutMinutes, total_runs: Number(l.totalRuns),
     successful_runs: Number(l.successfulRuns), failed_runs: Number(l.failedRuns),
-    active_run_count: Number(l.activeRunCount), used_env_bundles: l.usedEnvBundles ?? [],
+    active_run_count: Number(l.activeRunCount), model_resource_id: l.modelResourceId != null ? Number(l.modelResourceId) : undefined, used_env_bundles: l.usedEnvBundles ?? [],
     autopilot_config: {}, created_at: l.createdAt, updated_at: l.updatedAt,
   })
   const cacheToProtoLoopMin = (l: LoopObj) => create(LoopSchema, {
@@ -947,7 +947,7 @@ vi.mock('@/lib/wasm-core', () => {
     maxRetainedRuns: (l.max_retained_runs as number) ?? 0, timeoutMinutes: (l.timeout_minutes as number) ?? 0,
     totalRuns: BigInt((l.total_runs as number) ?? 0), successfulRuns: BigInt((l.successful_runs as number) ?? 0),
     failedRuns: BigInt((l.failed_runs as number) ?? 0), activeRunCount: BigInt((l.active_run_count as number) ?? 0),
-    usedEnvBundles: (l.used_env_bundles as string[]) ?? [], createdAt: (l.created_at as string) ?? '', updatedAt: (l.updated_at as string) ?? '',
+    modelResourceId: (l.model_resource_id as number | undefined) != null ? BigInt(l.model_resource_id as number) : undefined, usedEnvBundles: (l.used_env_bundles as string[]) ?? [], createdAt: (l.created_at as string) ?? '', updatedAt: (l.updated_at as string) ?? '',
   })
   const protoRunToCacheMin = (r: ReturnType<typeof create<typeof LoopRunSchema>>): LoopObj => ({
     id: Number(r.id), loop_id: Number(r.loopId), run_number: Number(r.runNumber), status: r.status,
