@@ -72,16 +72,12 @@ git commit -m "fix(model): scope credential resolution"
 - Modify: `backend/internal/service/agentpod/pod_orchestrator_worker_model.go`
 - Modify: `backend/internal/service/agentpod/pod_orchestrator_worker_model_test.go`
 - Modify: `backend/internal/api/rest/v1/session/session_worker_model.go`
+- Create: `backend/internal/api/rest/v1/session/session_worker_model_test.go`
+- Modify: `backend/internal/api/rest/v1/session/BUILD.bazel`
 
 - [ ] **Step 1: Write the failing orchestrator test**
 
-Change the fake pool to record ID, user ID, and organization ID. Add `TestResolvePoolModel_ExplicitModelUsesCallerScope`.
-
-```go
-_, _, err := orchestrator.resolvePoolModel(ctx, req, agentDef)
-require.NoError(t, err)
-assert.Equal(t, []int64{modelID, userID, orgID}, pool.resolveVisibleArgs)
-```
+Change the fake pool to record ID, user ID, and organization ID. Add `TestResolvePoolModel_ExplicitModelUsesCallerScope` and a session test that proves `resolveWorkerModel` passes its authenticated user and organization scope to the real AI-model service boundary.
 
 - [ ] **Step 2: Verify RED**
 
