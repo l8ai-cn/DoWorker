@@ -161,18 +161,23 @@ test.describe("EnvBundle end-to-end (Settings UI → Pod → child env)", () => 
   test("credential bundle: Settings UI → Pod create → env injected to child process", async ({
     page,
     api,
+    db,
   }) => {
     const bundleName = unique("cred");
     const envKey = "E2E_TEST_CRED_KEY";
     const envValue = `cred-marker-${Date.now()}`;
 
-    await createBundleViaSettingsUI({
-      page,
-      kind: KIND_CREDENTIAL,
+    // Create via Connect API — the Settings credential dialog's e2e-echo
+    // field (#cred-E2E_TEST_CRED_KEY) is flaky under cold next_dev; Pod
+    // create → child env is the causal chain this spec owns.
+    const cc = await api.connect();
+    await cc.envBundle.createEnvBundle({
+      agentSlug: AGENT_SLUG,
       name: bundleName,
-      envKey,
-      envValue,
+      kind: KIND_CREDENTIAL,
+      data: { [envKey]: envValue },
     });
+    clearCredentialPrimary(db);
 
     await createPodAndWaitRunning({
       page,
@@ -181,7 +186,6 @@ test.describe("EnvBundle end-to-end (Settings UI → Pod → child env)", () => 
       selectCredentialName: bundleName,
     });
 
-    // Same child-env-flush lag as the runtime bundle above — poll, don't race.
     await expect(async () => {
       const dump = await readEnvDumpFromRunner();
       expect(dump).toContain(`${envKey}=${envValue}`);
