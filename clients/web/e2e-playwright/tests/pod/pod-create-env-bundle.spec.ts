@@ -2,6 +2,7 @@ import { test, expect } from "../../fixtures/index";
 import { fromBinary } from "@bufbuild/protobuf";
 import { CreatePodRequestSchema } from "../../../../../proto/gen/ts/pod/v1/pod_pb";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { E2E_ECHO_AGENT_SLUG, resolveE2EPodCreateTargets } from "../../helpers/e2e-echo-runner";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { CreatePodModal } from "../../pages/modals/create-pod.modal";
@@ -41,15 +42,7 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     db,
   }) => {
     const cc = await api.connect();
-    const { items: runners } = await cc.runner.listAvailableRunners({
-      orgSlug: TEST_ORG_SLUG,
-    }) as { items: unknown[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const { builtinAgents } = await cc.agent.listAgents({
-      orgSlug: TEST_ORG_SLUG,
-    }) as { builtinAgents: { slug: string }[] };
-    const claudeCode = builtinAgents?.find((a) => a.slug === "claude-code");
-    expect(claudeCode, "dev env must include the claude-code builtin agent").toBeTruthy();
+    await resolveE2EPodCreateTargets(cc);
 
     const stamp = Date.now();
     const credName = `E2E PodUI Cred ${stamp}`;
@@ -58,17 +51,17 @@ test.describe("Pod create — EnvBundle binding UI", () => {
       `DELETE FROM env_bundles WHERE name LIKE 'E2E PodUI %'`
     );
     const cred = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
+      agentSlug: E2E_ECHO_AGENT_SLUG,
       name: credName,
       kind: "credential",
-      data: { ANTHROPIC_API_KEY: "sk-ant-e2e-multi" },
+      data: { E2E_TEST_CRED_KEY: "sk-ant-e2e-multi" },
     }) as { id: bigint };
     const credId = cred.id;
     const runtime = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
+      agentSlug: E2E_ECHO_AGENT_SLUG,
       name: runtimeName,
       kind: "runtime",
-      data: { CLAUDE_LOG_LEVEL: "debug" },
+      data: { E2E_RUNTIME_MARKER: "debug" },
     }) as { id: bigint };
     const runtimeId = runtime.id;
 
@@ -99,7 +92,7 @@ test.describe("Pod create — EnvBundle binding UI", () => {
 
       const modal = new CreatePodModal(page);
       await modal.waitForOpen();
-      await modal.selectAgent("claude-code");
+      await modal.selectAgent(E2E_ECHO_AGENT_SLUG);
 
       // Credential + runtime pickers appear on step 1 after image select.
       await expect(modal.credentialTrigger()).toBeVisible({ timeout: 10_000 });
@@ -136,21 +129,13 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     db,
   }) => {
     const cc = await api.connect();
-    const { items: runners } = await cc.runner.listAvailableRunners({
-      orgSlug: TEST_ORG_SLUG,
-    }) as { items: unknown[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const { builtinAgents } = await cc.agent.listAgents({
-      orgSlug: TEST_ORG_SLUG,
-    }) as { builtinAgents: { slug: string }[] };
-    const claudeCode = builtinAgents?.find((a) => a.slug === "claude-code");
-    expect(claudeCode, "dev env must include the claude-code builtin agent").toBeTruthy();
+    await resolveE2EPodCreateTargets(cc);
 
     // The Pod multi-select auto-checks every primary bundle, so any
-    // stray primary for claude-code would flip the assertion below.
+    // stray primary for e2e-echo would flip the assertion below.
     // Purge them up-front to keep the empty-selection path testable.
     db.cleanup(
-      `DELETE FROM env_bundles WHERE agent_slug = 'claude-code' AND kind_primary = TRUE`
+      `DELETE FROM env_bundles WHERE agent_slug = '${E2E_ECHO_AGENT_SLUG}' AND kind_primary = TRUE`
     );
 
     let capturedLayer: string | undefined;
@@ -179,7 +164,7 @@ test.describe("Pod create — EnvBundle binding UI", () => {
 
     const modal = new CreatePodModal(page);
     await modal.waitForOpen();
-    await modal.selectAgent("claude-code");
+    await modal.selectAgent(E2E_ECHO_AGENT_SLUG);
     // Leave the default empty selection alone (we purged primaries above).
     await modal.submit();
     await modal.waitForClosed(15_000);

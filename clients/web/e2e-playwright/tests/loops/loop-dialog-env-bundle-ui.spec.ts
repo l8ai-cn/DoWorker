@@ -1,5 +1,6 @@
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { E2E_ECHO_AGENT_SLUG } from "../../helpers/e2e-echo-runner";
 import { clearAuthRateLimit } from "../../helpers/redis";
 
 /**
@@ -8,11 +9,14 @@ import { clearAuthRateLimit } from "../../helpers/redis";
  * Complements the API-level coverage in loop-env-bundle.spec.ts:
  *
  *   - This file drives the actual LoopCreateDialog, asserting the dialog
- *     renders a split UI (credential `<select>` + runtime checkbox list),
+ *     renders a split UI (credential Select + runtime checkbox list),
  *     that user picks survive the round-trip to the backend, and that edit
  *     mode reconciles `used_env_bundles` back into the right pickers.
  *   - loop-env-bundle.spec.ts asserts the wire contract (POST/PUT round-trip,
  *     `[]` clears, dangling names tolerated).
+ *
+ * CI only starts e2e-echo runners (`DEV_E2E_RUNNERS_ONLY=1`), so the image
+ * picker only lists e2e-echo — not claude-code.
  */
 const BUNDLE_PREFIX = "E2E LoopUI Bundle";
 const LOOP_PREFIX = "E2E LoopUI Loop";
@@ -31,17 +35,30 @@ async function openCreateLoopDialog(page: import("@playwright/test").Page) {
     .first();
   await btn.waitFor({ state: "visible", timeout: 15_000 });
   await btn.click();
-  await page.locator('[data-dialog-overlay]').first().waitFor({ state: "visible" });
+  await page.locator("[data-dialog-overlay]").first().waitFor({ state: "visible" });
 }
 
 async function expandAdvancedOptions(page: import("@playwright/test").Page) {
   const adv = page
-    .locator('[data-dialog-overlay]')
-    .getByRole("button", { name: /advanced options|高级选项/i });
+    .locator("[data-dialog-overlay]")
+    .getByRole("button", { name: /advanced options|高级选项|more options|更多选项/i });
   if (await adv.isVisible().catch(() => false)) {
     const state = await adv.getAttribute("data-state");
     if (state !== "open") await adv.click();
   }
+}
+
+async function pickOverlaySelect(
+  page: import("@playwright/test").Page,
+  triggerId: string,
+  optionValue: string,
+): Promise<void> {
+  const overlay = page.locator("[data-dialog-overlay]");
+  await overlay.locator(`#${triggerId}`).first().click();
+  await page
+    .locator(`[role="option"][data-option-value="${optionValue}"]`)
+    .first()
+    .click();
 }
 
 test.describe("Loop dialog — EnvBundle binding UI", () => {
@@ -61,20 +78,20 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${BUNDLE_PREFIX}%'`);
 
     const cc = await api.connect();
-    const cred = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
+    const cred = (await cc.envBundle.createEnvBundle({
+      agentSlug: E2E_ECHO_AGENT_SLUG,
       name: credName,
       kind: "credential",
-      data: { ANTHROPIC_API_KEY: "sk-ant-e2e-loopui" },
-    }) as { id: bigint };
+      data: { E2E_TEST_CRED_KEY: "sk-ant-e2e-loopui" },
+    })) as { id: bigint };
     const credId = cred.id;
 
-    const runtime = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
+    const runtime = (await cc.envBundle.createEnvBundle({
+      agentSlug: E2E_ECHO_AGENT_SLUG,
       name: runtimeName,
       kind: "runtime",
-      data: { CLAUDE_LOG_LEVEL: "debug" },
-    }) as { id: bigint };
+      data: { E2E_RUNTIME_MARKER: "debug" },
+    })) as { id: bigint };
     const runtimeId = runtime.id;
 
     let loopSlug: string | undefined;
@@ -86,31 +103,29 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
         .first()
         .fill(loopName);
 
-      // The dialog opens before usePodCreationData finishes loading; the
-      // agent <select> mounts only once runners + agents arrive, so wait
-      // for visibility instead of racing the selectOption call.
-      const agentSelect = page
-        .locator('[data-dialog-overlay] select#worker-image-select')
+      // Custom Select mounts once runners + agents arrive.
+      const agentTrigger = page
+        .locator("[data-dialog-overlay] #worker-image-select")
         .first();
-      await agentSelect.waitFor({ state: "visible", timeout: 15_000 });
-      await agentSelect.selectOption("claude-code");
+      await agentTrigger.waitFor({ state: "visible", timeout: 15_000 });
+      await pickOverlaySelect(page, "worker-image-select", E2E_ECHO_AGENT_SLUG);
 
       const promptInput = page
-        .locator('[data-dialog-overlay] textarea#prompt-input')
+        .locator("[data-dialog-overlay] textarea#prompt-input")
         .first();
       await promptInput.waitFor({ state: "visible", timeout: 5000 });
       await promptInput.fill("run nightly tests");
 
       await expandAdvancedOptions(page);
 
-      const overlay = page.locator('[data-dialog-overlay]');
+      const overlay = page.locator("[data-dialog-overlay]");
 
-      // Credential picker is a <select id="credential-bundle-select">.
-      const credSelect = overlay.locator('select#credential-bundle-select').first();
-      await credSelect.waitFor({ state: "visible", timeout: 5000 });
-      await credSelect.selectOption(credName);
+      await overlay.locator("#credential-bundle-select").first().waitFor({
+        state: "visible",
+        timeout: 5000,
+      });
+      await pickOverlaySelect(page, "credential-bundle-select", credName);
 
-      // Runtime picker is a checkbox list. Toggle the seeded runtime bundle.
       const runtimeCheckbox = overlay
         .getByRole("checkbox", { name: new RegExp(runtimeName) })
         .first();
@@ -121,22 +136,22 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
         .getByRole("button", { name: /^(Create Loop|创建 ?Loop)$/i })
         .click();
 
-      // Backend should persist credential first then runtime.
       await expect
         .poll(
           () => {
             const raw = db.queryValue(
-              `SELECT array_to_string(used_env_bundles, ',') FROM loops WHERE name = '${loopName.replace(/'/g, "''")}'`
+              `SELECT array_to_string(used_env_bundles, ',') FROM loops WHERE name = '${loopName.replace(/'/g, "''")}'`,
             );
             return raw ?? "";
           },
-          { timeout: 10_000 }
+          { timeout: 10_000 },
         )
         .toBe(`${credName},${runtimeName}`);
 
-      loopSlug = db.queryValue(
-        `SELECT slug FROM loops WHERE name = '${loopName.replace(/'/g, "''")}'`
-      ) ?? undefined;
+      loopSlug =
+        db.queryValue(
+          `SELECT slug FROM loops WHERE name = '${loopName.replace(/'/g, "''")}'`,
+        ) ?? undefined;
     } finally {
       if (loopSlug) {
         await cc.loop.deleteLoop({ orgSlug: TEST_ORG_SLUG, loopSlug }).catch(() => null);
@@ -159,29 +174,29 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
     db.cleanup(`DELETE FROM env_bundles WHERE name LIKE '${BUNDLE_PREFIX}%'`);
 
     const cc = await api.connect();
-    const cred = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
+    const cred = (await cc.envBundle.createEnvBundle({
+      agentSlug: E2E_ECHO_AGENT_SLUG,
       name: credName,
       kind: "credential",
-      data: { ANTHROPIC_API_KEY: "sk-ant-e2e-loopui-edit" },
-    }) as { id: bigint };
+      data: { E2E_TEST_CRED_KEY: "sk-ant-e2e-loopui-edit" },
+    })) as { id: bigint };
     const credId = cred.id;
 
-    const runtime = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
+    const runtime = (await cc.envBundle.createEnvBundle({
+      agentSlug: E2E_ECHO_AGENT_SLUG,
       name: runtimeName,
       kind: "runtime",
-      data: { CLAUDE_LOG_LEVEL: "debug" },
-    }) as { id: bigint };
+      data: { E2E_RUNTIME_MARKER: "debug" },
+    })) as { id: bigint };
     const runtimeId = runtime.id;
 
-    const loopRes = await cc.loop.createLoop({
+    const loopRes = (await cc.loop.createLoop({
       orgSlug: TEST_ORG_SLUG,
       name: loopName,
-      agentSlug: "claude-code",
+      agentSlug: E2E_ECHO_AGENT_SLUG,
       promptTemplate: "echo bound",
       usedEnvBundles: [credName, runtimeName],
-    }) as { slug: string };
+    })) as { slug: string };
     const loopSlug = loopRes.slug;
 
     try {
@@ -197,21 +212,21 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
         .getByRole("button")
         .filter({ hasText: /^(Edit|编辑)$/i })
         .first();
-      await expect(editBtn, "loop detail page must render an Edit button for the loop creator")
-        .toBeVisible({ timeout: 10_000 });
+      await expect(
+        editBtn,
+        "loop detail page must render an Edit button for the loop creator",
+      ).toBeVisible({ timeout: 10_000 });
       await editBtn.click();
-      await page.locator('[data-dialog-overlay]').first().waitFor({ state: "visible" });
+      await page.locator("[data-dialog-overlay]").first().waitFor({ state: "visible" });
 
       await expandAdvancedOptions(page);
 
-      const overlay = page.locator('[data-dialog-overlay]');
+      const overlay = page.locator("[data-dialog-overlay]");
 
-      // Credential select should be reconciled to the saved credential name.
-      const credSelect = overlay.locator('select#credential-bundle-select').first();
-      await credSelect.waitFor({ state: "visible", timeout: 5000 });
-      await expect(credSelect).toHaveValue(credName);
+      const credTrigger = overlay.locator("#credential-bundle-select").first();
+      await credTrigger.waitFor({ state: "visible", timeout: 5000 });
+      await expect(credTrigger).toContainText(credName);
 
-      // Runtime checkbox should be pre-checked for the saved runtime bundle.
       const runtimeCheckbox = overlay
         .getByRole("checkbox", { name: new RegExp(runtimeName) })
         .first();

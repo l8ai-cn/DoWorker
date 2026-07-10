@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { LoginPage } from "../../pages/login.page";
 import { TEST_USER } from "../../helpers/env";
+import { clearAuthRateLimit } from "../../helpers/redis";
 
 test.describe("Login Flow", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
@@ -8,6 +9,7 @@ test.describe("Login Flow", () => {
   let loginPage: LoginPage;
 
   test.beforeEach(async ({ page }) => {
+    clearAuthRateLimit();
     loginPage = new LoginPage(page);
     await loginPage.goto();
   });

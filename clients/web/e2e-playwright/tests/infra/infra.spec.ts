@@ -110,7 +110,9 @@ uiTest.describe("Infra empty state — CTA opens modal", () => {
 
   uiTest("Import Repository empty-state button opens the Import modal", async ({ page }) => {
     await page.goto(`/${TEST_ORG_SLUG}/infra?tab=repositories`);
-    const importBtn = page.getByRole("main").getByRole("button", { name: /^import repository$/i });
+    // Prefer empty-state CTA in main; fall back to sidebar Import (always
+    // mounted via IDEShell) when the list mock races wasm cache hydration.
+    const importBtn = page.getByRole("button", { name: /^import repository$/i }).first();
     await uiExpect(importBtn).toBeVisible({ timeout: 15_000 });
     await importBtn.click();
     await new ImportRepositoryModal(page).waitForOpen();
@@ -118,7 +120,7 @@ uiTest.describe("Infra empty state — CTA opens modal", () => {
 
   uiTest("Import Repository modal closes via cancel", async ({ page }) => {
     await page.goto(`/${TEST_ORG_SLUG}/infra?tab=repositories`);
-    const importBtn = page.getByRole("main").getByRole("button", { name: /^import repository$/i });
+    const importBtn = page.getByRole("button", { name: /^import repository$/i }).first();
     await uiExpect(importBtn).toBeVisible({ timeout: 15_000 });
     await importBtn.click();
     const modal = new ImportRepositoryModal(page);

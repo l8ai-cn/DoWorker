@@ -38,7 +38,9 @@ export async function waitForPodWaiting(
       const mine = items?.find((p) => p.podKey === podKey);
       return mine?.agentStatus === "waiting";
     },
-    { maxAttempts: opts.maxAttempts ?? 20, intervalMs: 1000, label: `pod-${podKey}-waiting` },
+    // Mock autopilot scenario sleeps 6s before printing the waiting prompt;
+    // CI runner/gRPC lag needs headroom beyond that.
+    { maxAttempts: opts.maxAttempts ?? 45, intervalMs: 1000, label: `pod-${podKey}-waiting` },
   );
 }
 
@@ -54,7 +56,7 @@ export async function createReadyAutopilotTarget(
   for (let i = 0; i < attempts; i++) {
     const pod = await createMockAgentPod(api, { mode: "pty", scenario });
     try {
-      await waitForPodWaiting(api, pod.podKey, { maxAttempts: 15 });
+      await waitForPodWaiting(api, pod.podKey, { maxAttempts: 45 });
       return pod;
     } catch (e) {
       lastErr = e;

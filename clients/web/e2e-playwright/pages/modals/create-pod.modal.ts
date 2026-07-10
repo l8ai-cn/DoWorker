@@ -3,21 +3,22 @@ import type { Locator, Page } from "@playwright/test";
 /**
  * Create-pod form surface: legacy `[role=dialog]` modal or full-page
  * wizard at `/{org}/workers/new` (same CreatePodForm).
+ *
+ * On `/workers/new`, NlWorkerCreate also has a "Create worker" button —
+ * submit must target the form actions row only (exact "Create Worker").
  */
 export class CreatePodModal {
   constructor(private page: Page) {}
 
   /** Dialog when present; otherwise the wizard column (excludes NL create). */
   private root(): Locator {
-    return this.page
+    const dialog = this.page
       .locator('[role="dialog"]')
-      .filter({ has: this.page.locator("#worker-image-select") })
-      .or(
-        this.page
-          .locator(".flex-1.min-w-0")
-          .filter({ has: this.page.locator("#worker-image-select") }),
-      )
-      .first();
+      .filter({ has: this.page.locator("#worker-image-select") });
+    const pageColumn = this.page
+      .locator(".flex-1.min-w-0")
+      .filter({ has: this.page.locator("#worker-image-select") });
+    return dialog.or(pageColumn).first();
   }
 
   async waitForOpen(): Promise<void> {
@@ -46,7 +47,6 @@ export class CreatePodModal {
   private async pickSelectOption(triggerId: string, optionValue: string): Promise<void> {
     const root = this.root();
     await root.locator(`#${triggerId}`).click();
-    // Options render inside the Select's relative wrapper (not a portal).
     await this.page
       .locator(`[role="option"][data-option-value="${optionValue}"]`)
       .first()
@@ -127,9 +127,20 @@ export class CreatePodModal {
   }
 
   async submit(): Promise<void> {
-    await this.root()
-      .getByRole("button", { name: /create worker|创建 worker|^create$|^创建$/i })
-      .click();
+    // Exact match avoids NlWorkerCreate's "Create worker" (lowercase w).
+    const createBtn = this.root().getByRole("button", {
+      name: "Create Worker",
+      exact: true,
+    });
+    const zhBtn = this.root().getByRole("button", {
+      name: "创建 Worker",
+      exact: true,
+    });
+    if (await createBtn.isVisible().catch(() => false)) {
+      await createBtn.click();
+      return;
+    }
+    await zhBtn.click();
   }
 
   async cancel(): Promise<void> {

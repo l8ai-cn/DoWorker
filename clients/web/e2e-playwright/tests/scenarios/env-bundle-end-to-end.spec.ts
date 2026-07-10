@@ -88,12 +88,17 @@ async function createBundleViaSettingsUI(args: {
   const nav = new SettingsNavPage(page, TEST_ORG_SLUG);
   await nav.goto("personal", `agents/${AGENT_SLUG}`);
   await selectors.openDialog();
-  await page.locator(selectors.nameInput).waitFor({ state: "visible", timeout: 5000 });
+  await page.locator(selectors.nameInput).waitFor({ state: "visible", timeout: 15_000 });
   await page.locator(selectors.nameInput).fill(name);
+  if (kind === KIND_CREDENTIAL) {
+    // e2e-echo credential field is gated on NEXT_PUBLIC_E2E; wait for it
+    // after the dialog mounts (cold turbopack can lag the form fields).
+    await page.locator(`#cred-${envKey}`).waitFor({ state: "visible", timeout: 15_000 });
+  }
   await selectors.fillEnv();
   await page.getByRole("button", { name: /^(创建|Create)$/ }).click();
-  await page.locator(selectors.nameInput).waitFor({ state: "hidden", timeout: 5000 });
-  await page.getByText(name, { exact: false }).first().waitFor({ timeout: 5000 });
+  await page.locator(selectors.nameInput).waitFor({ state: "hidden", timeout: 10_000 });
+  await page.getByText(name, { exact: false }).first().waitFor({ timeout: 10_000 });
 }
 
 /** Strip kind_primary off every credential bundle for e2e-echo so the

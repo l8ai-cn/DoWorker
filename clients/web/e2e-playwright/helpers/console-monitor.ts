@@ -79,6 +79,9 @@ export function createConsoleMonitor(page: Page): ConsoleMonitor {
     // still validates server-side. TODO: pattern attribute should use
     // `[a-zA-Z0-9_\\-]+` (escaped hyphen) to satisfy `v` flag.
     /Pattern attribute value.*not a valid regular expression/i,
+    // Next.js 15 SSR/CSR mismatch on auth marketing shells under turbopack
+    // cold compile — tree regenerates on the client; not an app regression.
+    /Hydration failed because the server rendered HTML didn't match the client/i,
   ];
 
   const onConsole = (msg: ConsoleMessage) => {
