@@ -163,27 +163,27 @@ git commit -m "fix(model): scope virtual key resolution"
 - Modify: `backend/internal/service/agentpod/pod_orchestrator_worker_model_test.go`
 - Modify: `backend/internal/service/virtualkey/service.go`
 
-- [ ] **Step 1: Write the failing propagation test**
+- [x] **Step 1: Write the failing propagation test**
 
 Add `TestResolvePoolModel_VirtualKeyUsesCallerScope`; the fake records key ID, organization ID, and user ID.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `bazel test //backend/internal/service/agentpod:agentpod_test --test_filter=TestResolvePoolModel_VirtualKeyUsesCallerScope`
 
 Expected: current interface receives only key ID.
 
-- [ ] **Step 3: Replace the interface and call**
+- [x] **Step 3: Replace the interface and call**
 
 Change `VirtualKeyPoolForOrchestrator.ResolveModel` to `ResolveModelForScope(ctx, keyID, orgID, userID)` and pass request scope without reordering it. Once the only Worker caller is migrated, remove the obsolete unscoped `Service.ResolveModel` entry point so it cannot bypass the new boundary.
 
-- [ ] **Step 4: Verify GREEN and package regression**
+- [x] **Step 4: Verify GREEN and package regression**
 
 Run: `bazel test //backend/internal/service/agentpod:agentpod_test`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/internal/service/agentpod/pod_orchestrator_worker_model.go backend/internal/service/agentpod/pod_orchestrator_worker_model_test.go

@@ -40,7 +40,7 @@ All conditions must hold:
 
 | Phase | Deliverable | Status |
 | --- | --- | --- |
-| 0 | Authorization and current-flow correctness | In progress (Runner and repository boundaries complete) |
+| 0 | Authorization and current-flow correctness | In progress (create-path boundaries complete; management API audit active) |
 | 1 | WorkerSpec V1 contract and immutable snapshot | Pending |
 | 2 | Runtime image, compute target, deployment, resource profile | Pending |
 | 3 | Canonical four-step web create workflow | Pending |
@@ -76,3 +76,4 @@ The main worktree has uncommitted lifecycle, Proto, Runner ACP, and frontend cha
 - 2026-07-10: Connect generated-source repair completed: all 15 duplicate literals were removed, all 16 converter targets remain in the server graph, and the full backend server build plus independent reviews passed.
 - 2026-07-10: Explicit Worker and Session model selection now propagates authenticated user and organization scope; old unscoped model lookup is no longer called, with independent reviews passed.
 - 2026-07-10: Virtual-key create and scoped resolution boundaries completed: model visibility precedes minting, key ownership is exact, model visibility is rechecked, and usage-touch failures are not swallowed.
+- 2026-07-10: Worker Virtual Key binding now propagates exact key, organization, and user scope; the obsolete unscoped credential resolver was removed after spec and quality approval.
