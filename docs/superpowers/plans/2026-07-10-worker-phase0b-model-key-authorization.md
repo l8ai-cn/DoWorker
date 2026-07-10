@@ -75,17 +75,17 @@ git commit -m "fix(model): scope credential resolution"
 - Create: `backend/internal/api/rest/v1/session/session_worker_model_test.go`
 - Modify: `backend/internal/api/rest/v1/session/BUILD.bazel`
 
-- [ ] **Step 1: Write the failing orchestrator test**
+- [x] **Step 1: Write the failing orchestrator test**
 
 Change the fake pool to record ID, user ID, and organization ID. Add `TestResolvePoolModel_ExplicitModelUsesCallerScope` and a session test that proves `resolveWorkerModel` passes its authenticated user and organization scope to the real AI-model service boundary.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `bazel test //backend/internal/service/agentpod:agentpod_test --test_filter=TestResolvePoolModel_ExplicitModelUsesCallerScope`
 
 Expected: fake interface only receives model ID.
 
-- [ ] **Step 3: Replace unscoped resolution**
+- [x] **Step 3: Replace unscoped resolution**
 
 Change `AIModelPoolForOrchestrator.Resolve` to:
 
@@ -95,7 +95,7 @@ ResolveVisible(ctx context.Context, id, userID, orgID int64) (*aimodelsvc.Resolv
 
 Pass `req.UserID` and `req.OrganizationID`. In `sessionapi.resolveWorkerModel`, replace `AIModels.Resolve` with `ResolveVisible(ctx, id, userID, orgID)` using the authenticated session scope already passed to the function.
 
-- [ ] **Step 4: Verify GREEN and session compilation**
+- [x] **Step 4: Verify GREEN and session compilation**
 
 Run: `bazel test //backend/internal/service/agentpod:agentpod_test --test_filter='Test(ResolvePoolModel|ApplyWorkerModel)'`
 
@@ -103,7 +103,7 @@ Run: `bazel test //backend/internal/api/rest/v1/session:sessionapi_test`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/internal/service/agentpod backend/internal/api/rest/v1/session/session_worker_model.go
@@ -115,23 +115,15 @@ git commit -m "fix(worker): propagate model visibility scope"
 **Files:**
 - Modify: `backend/internal/domain/virtualkey/repository.go`
 - Modify: `backend/internal/infra/virtual_api_key_repo.go`
+- Create: `backend/internal/infra/virtual_api_key_repo_test.go`
+- Modify: `backend/internal/infra/BUILD.bazel`
 - Modify: `backend/internal/service/virtualkey/service.go`
 - Create: `backend/internal/service/virtualkey/service_test.go`
 - Modify: `backend/internal/service/virtualkey/BUILD.bazel`
 
 - [ ] **Step 1: Write failing service tests**
 
-Create complete fake repositories and add `TestCreateRejectsInvisibleModel` plus `TestResolveModelForScope`. Cover wrong org, wrong user, revoked key, invisible underlying model, and success. Assert `TouchLastUsed` runs only after full success.
-
-```go
-_, _, err := service.ResolveModelForScope(ctx, key.ID, orgID, userID)
-require.NoError(t, err)
-assert.Equal(t, 1, repo.touchCalls)
-
-_, _, err = service.ResolveModelForScope(ctx, key.ID, otherOrgID, userID)
-assert.ErrorIs(t, err, ErrNotFound)
-assert.Equal(t, 1, repo.touchCalls)
-```
+Create complete fake repositories and add `TestCreateRejectsInvisibleModel` plus `TestResolveModelForScope`. Cover wrong org, wrong user, revoked key, invisible underlying model, success, and touch failure. Add a real GORM test for exact key scope. Assert `TouchLastUsed` runs only after model resolution succeeds.
 
 - [ ] **Step 2: Verify RED**
 
@@ -147,11 +139,13 @@ Add repository method:
 GetByIDForScope(ctx context.Context, id, orgID, userID int64) (*VirtualAPIKey, error)
 ```
 
-Query exact `id`, `organization_id`, and `user_id`. `Create` calls `models.GetVisible` before minting or persistence. `ResolveModelForScope` loads the scoped active key, calls `models.ResolveVisible`, and touches usage only after success. Return `ErrNotFound` for invisible keys.
+Query exact `id`, `organization_id`, and `user_id`. `Create` calls `models.GetVisible` before minting or persistence. `ResolveModelForScope` loads the scoped active key, calls `models.ResolveVisible`, and touches usage only after success. Return `ErrNotFound` for invisible keys and propagate touch failures instead of silently accepting missing usage metadata.
 
 - [ ] **Step 4: Verify GREEN**
 
 Run: `bazel test //backend/internal/service/virtualkey:virtualkey_test`
+
+Run: `bazel test //backend/internal/infra:infra_test --test_filter=VirtualAPIKey`
 
 Expected: PASS.
 
