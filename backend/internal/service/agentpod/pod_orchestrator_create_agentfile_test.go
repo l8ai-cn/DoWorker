@@ -17,11 +17,12 @@ func TestCreatePod_AgentFilePrompt_ExtractedToDB(t *testing.T) {
 	orch, podSvc, _ := setupOrchestrator(t, withCoordinator(coord))
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr(`PROMPT "from agentfile"`),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr(`PROMPT "from agentfile"`),
 	})
 
 	require.NoError(t, err)
@@ -36,12 +37,13 @@ func TestCreatePod_AgentFileBranch_OverridesReqBranch(t *testing.T) {
 
 	reqBranch := "req-branch"
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		BranchName:     &reqBranch,
-		AgentfileLayer: ptrStr(`BRANCH "agentfile-branch"`),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		BranchName:      &reqBranch,
+		AgentfileLayer:  ptrStr(`BRANCH "agentfile-branch"`),
 	})
 
 	require.NoError(t, err)
@@ -56,11 +58,12 @@ func TestCreatePod_AgentFilePermissionMode_ExtractedToDB(t *testing.T) {
 	orch, podSvc, _ := setupOrchestrator(t, withCoordinator(coord))
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr(`CONFIG permission_mode = "bypassPermissions"`),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr(`CONFIG permission_mode = "bypassPermissions"`),
 	})
 
 	require.NoError(t, err)
@@ -78,11 +81,12 @@ func TestCreatePod_CodexUsesConfigOverridesNotClaudeLegacyFields(t *testing.T) {
 	)
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "codex-cli",
-		AgentfileLayer: ptrStr(`CONFIG approval_mode = "never"`),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "codex-cli",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr(`CONFIG approval_mode = "never"`),
 	})
 
 	require.NoError(t, err)
@@ -105,11 +109,12 @@ func TestCreatePod_ExplicitPTYMode_SurvivesAutonomous_Claude(t *testing.T) {
 	orch, podSvc, _ := setupOrchestrator(t, withCoordinator(coord))
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("MODE pty"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("MODE pty"),
 	})
 
 	require.NoError(t, err)
@@ -129,11 +134,12 @@ func TestCreatePod_ExplicitPTYMode_SurvivesAutonomous_Codex(t *testing.T) {
 	)
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "codex-cli",
-		AgentfileLayer: ptrStr("MODE pty"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "codex-cli",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("MODE pty"),
 	})
 
 	require.NoError(t, err)
@@ -151,11 +157,12 @@ func TestCreatePod_NoLayer_BranchInheritedFromResume(t *testing.T) {
 
 	reqBranch := "my-branch"
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		BranchName:     &reqBranch,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		BranchName:      &reqBranch,
 	})
 
 	require.NoError(t, err)

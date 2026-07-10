@@ -9,6 +9,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
@@ -82,6 +83,24 @@ func TestCreatePod_OrchestratorNotConfigured_Unavailable(t *testing.T) {
 	assert.Equal(t, connect.CodeUnavailable, connectCodeOf(t, err))
 }
 
+func TestCreatePodWireContractRemovesLegacyCredentialFields(t *testing.T) {
+	descriptor := (&podv1.CreatePodRequest{}).ProtoReflect().Descriptor()
+	for _, name := range []string{
+		"credential" + "_profile_id",
+		"model" + "_config_id",
+		"virtual_api" + "_key_id",
+	} {
+		fieldName := protoreflect.Name(name)
+		assert.Nil(t, descriptor.Fields().ByName(fieldName))
+	}
+	assert.True(t, descriptor.ReservedRanges().Has(8))
+	assert.True(t, descriptor.ReservedRanges().Has(15))
+	assert.True(t, descriptor.ReservedRanges().Has(16))
+	modelResourceID := descriptor.Fields().ByName("model" + "_resource_id")
+	require.NotNil(t, modelResourceID)
+	assert.Equal(t, protoreflect.Int64Kind, modelResourceID.Kind())
+}
+
 func TestTerminatePod_CoordinatorNotConfigured_Unavailable(t *testing.T) {
 	srv := NewServer(nil, &fakeOrgService{role: "admin"})
 	_, err := srv.TerminatePod(ctxAsUser(42), connect.NewRequest(&podv1.TerminatePodRequest{OrgSlug: "acme", PodKey: "p"}))
@@ -121,6 +140,10 @@ func TestMapServiceError(t *testing.T) {
 		{"resume_runner_mismatch", agentpodservice.ErrResumeRunnerMismatch, connect.CodeInvalidArgument},
 		{"unsupported_interaction_mode", agentpodservice.ErrUnsupportedInteractionMode, connect.CodeInvalidArgument},
 		{"invalid_agentfile_layer", agentpodservice.ErrInvalidAgentfileLayer, connect.CodeInvalidArgument},
+		{"missing_model_resource", agentpodservice.ErrMissingModelResource, connect.CodeInvalidArgument},
+		{"model_resource_env_conflict", agentpodservice.ErrModelResourceEnvConflict, connect.CodeInvalidArgument},
+		{"model_resource_command_conflict", agentpodservice.ErrModelResourceCommandConflict, connect.CodeInvalidArgument},
+		{"model_resource_resolver_unavailable", agentpodservice.ErrModelResourceResolverUnavailable, connect.CodeInternal},
 		{"create_resource_unavailable", agentpodservice.ErrCreateResourceUnavailable, connect.CodeInvalidArgument},
 		{"quota_exceeded", billingservice.ErrQuotaExceeded, connect.CodeResourceExhausted},
 		{"subscription_frozen", billingservice.ErrSubscriptionFrozen, connect.CodeFailedPrecondition},

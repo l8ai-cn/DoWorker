@@ -52,6 +52,9 @@ func (o *PodOrchestrator) handleResumeMode(ctx context.Context, req *Orchestrate
 	if req.BranchName == nil {
 		req.BranchName = sourcePod.BranchName
 	}
+	if req.ModelResourceID == nil {
+		req.ModelResourceID = sourcePod.ModelResourceID
+	}
 	req.Perpetual = sourcePod.Perpetual
 
 	var sessionID string

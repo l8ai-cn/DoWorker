@@ -11,6 +11,7 @@ import { useCreatePodSubmitHandler } from "./useCreatePodSubmitHandler";
 import { useCreatePodRunnerCompatibility } from "./useCreatePodRunnerCompatibility";
 import { CreatePodFormActions } from "./CreatePodFormActions";
 import { CreatePodFormFields } from "./CreatePodFormFields";
+import { AlertMessage } from "@/components/ui/alert-message";
 
 export function CreatePodForm({
   config,
@@ -36,6 +37,7 @@ export function CreatePodForm({
     runners,
     repositories,
     loading: loadingData,
+    error: dataError,
     selectedRunner,
     setSelectedRunnerId,
     availableAgents,
@@ -136,7 +138,7 @@ export function CreatePodForm({
     <CreatePodFormActions
       onCancel={onCancel}
       onCreate={handleCreate}
-      disabled={!canCreate || form.loading || loadingData}
+      disabled={!canCreate || !form.isValid || form.loading || loadingData}
       loading={form.loading}
       t={t}
     />
@@ -146,6 +148,8 @@ export function CreatePodForm({
     <div className={className}>
       {loadingData ? (
         <CenteredSpinner className="py-8" />
+      ) : dataError ? (
+        <AlertMessage type="error" message={dataError} />
       ) : (
         <CreatePodFormFields
           form={form}

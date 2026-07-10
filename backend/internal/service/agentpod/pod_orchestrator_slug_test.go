@@ -26,11 +26,12 @@ func TestSlugResolution_ResolvesTicketIDFromSlug(t *testing.T) {
 	agentSlug := "claude-code"
 	ticketSlug := "AM-42"
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		TicketSlug:     &ticketSlug,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		TicketSlug:      &ticketSlug,
 	})
 
 	require.NoError(t, err)
@@ -55,11 +56,12 @@ func TestSlugResolution_FailureDoesNotBlockPodCreation(t *testing.T) {
 	agentSlug := "claude-code"
 	ticketSlug := "NONEXIST-999"
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		TicketSlug:     &ticketSlug,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		TicketSlug:      &ticketSlug,
 	})
 
 	require.NoError(t, err, "Slug resolution failure should not block pod creation")
@@ -81,12 +83,13 @@ func TestSlugResolution_ExplicitTicketIDTakesPriority(t *testing.T) {
 	ticketID := int64(7) // Explicitly provided TicketID
 	ticketSlug := "AM-99"
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		TicketID:       &ticketID,
-		TicketSlug:     &ticketSlug,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		TicketID:        &ticketID,
+		TicketSlug:      &ticketSlug,
 	})
 
 	require.NoError(t, err)

@@ -6,112 +6,128 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/anthropics/agentsmesh/agentfile"
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/aimodel"
-	aimodelsvc "github.com/anthropics/agentsmesh/backend/internal/service/aimodel"
+	resourceDomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 )
 
 const workerModelBundleName = "worker-model"
 
-// AIModelPoolForOrchestrator resolves a real ai_models row into decrypted
-// provider credentials for pod injection.
-type AIModelPoolForOrchestrator interface {
-	ResolveVisible(ctx context.Context, id, userID, orgID int64) (*aimodelsvc.ResolvedModel, error)
-	// ResolveDefaultForAgent picks the org/user default pool row for a harness
-	// when CreatePod omits model_config_id / virtual_api_key_id (same as session create).
-	ResolveDefaultForAgent(ctx context.Context, userID, orgID int64, agentSlug string) (*aimodelsvc.ResolvedModel, error)
+type ModelResourceResolver interface {
+	ResolveExact(context.Context, resourcesvc.Actor, int64, int64, resourcesvc.ResolutionRequirements) (*resourcesvc.ResolvedResource, error)
 }
 
-// VirtualKeyPoolForOrchestrator resolves a virtual API key into the underlying
-// ai_models credential plus the key's informational token budget.
-type VirtualKeyPoolForOrchestrator interface {
-	ResolveModelForScope(ctx context.Context, keyID, orgID, userID int64) (*aimodelsvc.ResolvedModel, *int64, error)
-}
-
-// applyWorkerModel injects the selected model's credentials into the pod's
-// AgentFile layer (config bundle for do-agent, env bundle for codex/claude)
-// and appends an informational token_budget CONFIG. Usage is attributed to
-// req.VirtualAPIKeyID when a virtual key was selected.
-//
-// When no explicit model binding is set, mounts the org default pool model
-// for the agent harness (mirrors session create resolveWorkerModel).
 func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *OrchestrateCreatePodRequest, agentDef *agentDomain.Agent) error {
-	resolved, budget, err := o.resolvePoolModel(ctx, req, agentDef)
+	harness := workerModelHarness(req.AgentSlug, agentDef)
+	requirements, needsResource := modelResourceRequirements(req.AgentSlug, agentDef)
+	if !needsResource {
+		return nil
+	}
+	if req.ModelResourceID == nil || *req.ModelResourceID <= 0 {
+		return ErrMissingModelResource
+	}
+	if o.modelResources == nil {
+		return ErrModelResourceResolverUnavailable
+	}
+	resource, err := o.modelResources.ResolveExact(
+		ctx,
+		resourcesvc.Actor{UserID: req.UserID},
+		req.OrganizationID,
+		*req.ModelResourceID,
+		requirements,
+	)
 	if err != nil {
 		return err
 	}
-	if resolved == nil || resolved.Model == nil {
-		return nil
-	}
-
-	isDoAgent := agentDef != nil && agentDef.Executable == "do-agent"
-	kind := aimodel.HarnessMountKindFor(req.AgentSlug, isDoAgent)
-	if kind == aimodel.HarnessMountEnv {
-		env := aimodel.HarnessEnvVars(req.AgentSlug, "", resolved.Model, resolved.Credentials)
-		if len(env) > 0 {
-			if req.SessionEnvBundles == nil {
-				req.SessionEnvBundles = map[string]map[string]string{}
-			}
-			req.SessionEnvBundles[workerModelBundleName] = env
-			appendAgentfileLayer(&req.AgentfileLayer, fmt.Sprintf(`USE_ENV_BUNDLE "%s"`, workerModelBundleName))
+	if harness == "do-agent" {
+		settings, err := doAgentModelSettings(resource)
+		if err != nil {
+			return err
 		}
-	} else {
 		if req.SessionConfigBundles == nil {
 			req.SessionConfigBundles = map[string]interface{}{}
 		}
-		req.SessionConfigBundles[workerModelBundleName] = resolved.SettingsJSON("")
+		req.SessionConfigBundles[workerModelBundleName] = settings
 		appendAgentfileLayer(&req.AgentfileLayer, fmt.Sprintf(`USE_CONFIG_BUNDLE "%s"`, workerModelBundleName))
+	} else {
+		env, err := modelResourceEnvironment(harness, resource)
+		if err != nil {
+			return err
+		}
+		req.ModelResourceEnv = env
+		modelID := strings.TrimSpace(resource.Resource.ModelID)
+		if harness == "claude-code" && modelID != "" {
+			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
+		}
+		if harness == "gemini-cli" {
+			if modelID == "" {
+				return ErrMissingModelResource
+			}
+			req.ModelResourceArgs = []string{"--model", modelID}
+		}
 	}
-
-	tb := req.TokenBudget
-	if tb == nil {
-		tb = budget
-	}
-	if tb != nil && *tb > 0 {
-		appendAgentfileLayer(&req.AgentfileLayer, fmt.Sprintf(`CONFIG token_budget = "%s"`, strconv.FormatInt(*tb, 10)))
+	if req.TokenBudget != nil && *req.TokenBudget > 0 {
+		appendAgentfileLayer(&req.AgentfileLayer, fmt.Sprintf(`CONFIG token_budget = "%s"`, strconv.FormatInt(*req.TokenBudget, 10)))
 	}
 	return nil
 }
 
-func (o *PodOrchestrator) resolvePoolModel(ctx context.Context, req *OrchestrateCreatePodRequest, agentDef *agentDomain.Agent) (*aimodelsvc.ResolvedModel, *int64, error) {
-	if req.VirtualAPIKeyID != nil {
-		if o.virtualKeyPool == nil {
-			return nil, nil, nil
-		}
-		return o.virtualKeyPool.ResolveModelForScope(ctx, *req.VirtualAPIKeyID, req.OrganizationID, req.UserID)
+func modelResourceRequirements(agentSlug string, agentDef *agentDomain.Agent) (resourcesvc.ResolutionRequirements, bool) {
+	switch workerModelHarness(agentSlug, agentDef) {
+	case "do-agent":
+		return chatRequirements("openai-compatible", "anthropic", "minimax"), true
+	case "codex-cli":
+		return chatRequirements("openai-compatible"), true
+	case "claude-code":
+		return chatRequirements("anthropic"), true
+	case "gemini-cli":
+		return chatRequirements("gemini"), true
+	default:
+		return resourcesvc.ResolutionRequirements{}, false
 	}
-	if req.ModelConfigID != nil {
-		if o.aiModelPool == nil {
-			return nil, nil, nil
-		}
-		resolved, err := o.aiModelPool.ResolveVisible(ctx, *req.ModelConfigID, req.UserID, req.OrganizationID)
-		return resolved, nil, err
+}
+
+func workerModelHarness(agentSlug string, agentDef *agentDomain.Agent) string {
+	value := agentSlug
+	if agentDef != nil && strings.TrimSpace(agentDef.Executable) != "" {
+		value = agentDef.Executable
 	}
-	if o.aiModelPool == nil {
-		return nil, nil, nil
+	switch strings.TrimSpace(value) {
+	case "codex", "codex-cli":
+		return "codex-cli"
+	case "claude", "claude-code":
+		return "claude-code"
+	case "gemini", "gemini-cli":
+		return "gemini-cli"
+	case "do-agent":
+		return "do-agent"
+	default:
+		return ""
 	}
-	isDoAgent := agentDef != nil && agentDef.Executable == "do-agent"
-	if aimodel.HarnessMountKindFor(req.AgentSlug, isDoAgent) == aimodel.HarnessMountNone {
-		return nil, nil, nil
+}
+
+func chatRequirements(adapters ...string) resourcesvc.ResolutionRequirements {
+	return resourcesvc.ResolutionRequirements{
+		Modality:                resourceDomain.ModalityChat,
+		Capability:              resourceDomain.CapabilityTextGeneration,
+		AllowedProtocolAdapters: adapters,
 	}
-	resolved, err := o.aiModelPool.ResolveDefaultForAgent(ctx, req.UserID, req.OrganizationID, req.AgentSlug)
-	return resolved, nil, err
 }
 
 func appendAgentfileLayer(layer **string, lines ...string) {
-	var base string
-	if *layer != nil {
-		base = **layer
-	}
 	parts := make([]string, 0, len(lines)+1)
-	if strings.TrimSpace(base) != "" {
-		parts = append(parts, base)
+	if layer != nil && *layer != nil && strings.TrimSpace(**layer) != "" {
+		parts = append(parts, **layer)
 	}
-	for _, l := range lines {
-		if strings.TrimSpace(l) != "" {
-			parts = append(parts, l)
+	for _, line := range lines {
+		if strings.TrimSpace(line) != "" {
+			parts = append(parts, line)
 		}
 	}
-	out := strings.Join(parts, "\n")
-	*layer = &out
+	if len(parts) == 0 {
+		return
+	}
+	result := strings.Join(parts, "\n")
+	*layer = &result
 }

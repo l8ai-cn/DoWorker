@@ -45,35 +45,25 @@ export function usePodCreationData(enabled: boolean): PodCreationData {
       setError(null);
       try {
         const orgSlug = readCurrentOrg()?.slug ?? "";
-        const [runnersRes, agentsRes] = await Promise.allSettled([
+        const [runnersRes, agentsRes] = await Promise.all([
           listRunners(orgSlug),
           listAgents(orgSlug),
         ]);
 
         if (cancelled) return;
 
-        if (runnersRes.status === "fulfilled") {
-          const allRunners: RunnerData[] = runnersRes.value.items;
-          const onlineRunners = allRunners.filter((r: RunnerData) => r.status === "online");
-          setRunners(onlineRunners);
+        const allRunners: RunnerData[] = runnersRes.items;
+        const onlineRunners = allRunners.filter((r: RunnerData) => r.status === "online");
+        setRunners(onlineRunners);
+
+        const seen = new Set<string>();
+        const agentList: AgentData[] = [];
+        for (const a of [...agentsRes.builtin_agents, ...agentsRes.custom_agents, ...agentsRes.agents]) {
+          if (seen.has(a.slug)) continue;
+          seen.add(a.slug);
+          agentList.push(a);
         }
-        if (agentsRes.status === "fulfilled") {
-          const res = agentsRes.value;
-          // listAgents() returns three overlapping arrays (builtin / custom /
-          // org-level); the backend may include the same slug in more than
-          // one, which trips React's "duplicate key" warning when the select
-          // iterates `agents.map((a) => <option key={a.slug}>)`. Dedupe by
-          // slug, keeping the first occurrence (precedence:
-          // builtin > custom > org-level).
-          const seen = new Set<string>();
-          const agentList: AgentData[] = [];
-          for (const a of [...res.builtin_agents, ...res.custom_agents, ...res.agents]) {
-            if (seen.has(a.slug)) continue;
-            seen.add(a.slug);
-            agentList.push(a);
-          }
-          setAgents(agentList);
-        }
+        setAgents(agentList);
       } catch (err) {
         if (cancelled) return;
         const message = err instanceof Error ? err.message : "Failed to load data";

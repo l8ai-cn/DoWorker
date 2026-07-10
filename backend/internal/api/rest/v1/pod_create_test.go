@@ -124,6 +124,18 @@ func TestMapOrchestratorErrorToHTTP(t *testing.T) {
 			wantJSON: map[string]string{"code": "POD_CONFIG_BUILD_FAILED"},
 		},
 		{
+			name:     "ErrModelResourceResolverUnavailable -> 500",
+			err:      agentpod.ErrModelResourceResolverUnavailable,
+			wantCode: http.StatusInternalServerError,
+			wantJSON: map[string]string{"code": "INTERNAL_ERROR"},
+		},
+		{
+			name:     "ErrModelResourceCommandConflict -> 400",
+			err:      agentpod.ErrModelResourceCommandConflict,
+			wantCode: http.StatusBadRequest,
+			wantJSON: map[string]string{"code": "VALIDATION_FAILED"},
+		},
+		{
 			name:     "unknown error -> 500 fallback",
 			err:      assert.AnError,
 			wantCode: http.StatusInternalServerError,
@@ -152,6 +164,21 @@ func TestMapOrchestratorErrorToHTTP(t *testing.T) {
 			for _, sensitive := range tt.wantNotContain {
 				assert.NotContains(t, w.Body.String(), sensitive)
 			}
+		})
+	}
+}
+
+func TestLegacyPodCreateModelFieldsAreRejected(t *testing.T) {
+	for _, field := range []string{
+		"credential" + "_profile_id",
+		"model" + "_config_id",
+		"virtual_api" + "_key_id",
+	} {
+		t.Run(field, func(t *testing.T) {
+			got, ok := legacyPodCreateModelField([]byte(`{"agent_slug":"codex-cli","` + field + `":99}`))
+
+			require.True(t, ok)
+			assert.Equal(t, field, got)
 		})
 	}
 }

@@ -1,31 +1,20 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { PodData, AgentData, RepositoryData } from "@/lib/api";
 import { usePodCreationStore } from "@/stores/podCreation";
-import { buildAgentfileLayer } from "@/lib/agentfile-layer";
-import { POD_MODE_PTY, POD_MODE_ACP } from "@/lib/pod-modes";
-import type { PodMode } from "@/lib/pod-modes";
-import { submitCreatePod } from "./useCreatePodFormSubmit";
+import { POD_MODE_PTY } from "@/lib/pod-modes";
 import { usePrefsAutoFill, useEnvBundles, useRepoSkills } from "./useCreatePodFormEffects";
-import type { CreatePodFormState, FormValidationErrors } from "./useCreatePodFormTypes";
+import { useCreatePodGeneratedLayer } from "./useCreatePodGeneratedLayer";
+import { useCreatePodInteractionMode } from "./useCreatePodInteractionMode";
+import { useCreatePodSubmitAction } from "./useCreatePodSubmitAction";
+import { useCreatePodValidation } from "./useCreatePodValidation";
+import { requiresModelResource, useWorkerModelResources } from "./useWorkerModelResources";
+import type { CreatePodFormState } from "./useCreatePodFormTypes";
 import type { DestroyPolicy } from "../CreatePodForm/podLifecycleOptions";
 import type { KnowledgeMountSelection } from "@/lib/api/facade/knowledgeBaseApi";
 import type { CustomEnvEntry } from "@/components/settings/AgentCredentialsSettings/credentialForms/types";
-import { hasInvalidCustomEnvKey } from "@/components/settings/CustomEnvSection";
 
-// Re-export types for consumers
 export type { CreatePodFormState, FormValidationErrors } from "./useCreatePodFormTypes";
 
-/**
- * Hook to manage Create Pod form state and submission.
- *
- * EnvBundle attachment is split into two dimensions mirroring the dialog UI:
- *   - `selectedCredentialName` (single): API credential bundle.
- *   - `selectedRuntimeBundleNames` (ordered list): runtime preference bundles.
- *
- * On submit, the two are merged at the AgentFile layer with credential
- * first and runtime bundles after — so runtime preferences (model, log
- * level) can override credential defaults on conflicting keys.
- */
 export function useCreatePodForm(
   availableAgents: AgentData[],
   repositories: RepositoryData[],
@@ -33,136 +22,88 @@ export function useCreatePodForm(
   configValues?: Record<string, unknown>,
   overrides?: { repositoryId?: number | null },
 ): CreatePodFormState {
-  const {
-    lastDestroyAfterMinutes,
-    lastDestroyPolicy,
-    lastKnowledgeMounts,
-    setLastChoices,
-  } = usePodCreationStore();
+  const { lastDestroyAfterMinutes, lastDestroyPolicy, lastKnowledgeMounts, setLastChoices } =
+    usePodCreationStore();
 
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [selectedRepository, setSelectedRepository] = useState<number | null>(null);
   const [selectedBranch, setSelectedBranch] = useState<string>("");
-  const [interactionMode, setInteractionMode] = useState<PodMode>(POD_MODE_PTY);
   const [automationLevel, setAutomationLevel] = useState<string>("autonomous");
   const [prompt, setPrompt] = useState<string>("");
   const [alias, setAlias] = useState<string>("");
   const [perpetual, setPerpetual] = useState(false);
   const [destroyPolicy, setDestroyPolicy] = useState<DestroyPolicy>(lastDestroyPolicy);
   const [destroyAfterMinutes, setDestroyAfterMinutes] = useState(lastDestroyAfterMinutes);
-  const [selectedKnowledgeMounts, setSelectedKnowledgeMounts] = useState<
-    KnowledgeMountSelection[]
-  >(lastKnowledgeMounts ?? []);
+  const [selectedKnowledgeMounts, setSelectedKnowledgeMounts] =
+    useState<KnowledgeMountSelection[]>(lastKnowledgeMounts ?? []);
   const [tokenBudget, setTokenBudget] = useState<number | null>(null);
-  const [selectedVirtualKeyId, setSelectedVirtualKeyId] = useState<number | null>(null);
   const [customEnv, setCustomEnv] = useState<CustomEnvEntry[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [warning, setWarning] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<FormValidationErrors>({});
-
-  // AgentFile Layer state
   const [rawLayerMode, setRawLayerModeState] = useState(false);
   const [rawLayerText, setRawLayerText] = useState("");
-
-  // EnvBundles for the selected agent
-  const bundles = useEnvBundles(selectedAgent);
-  const skills = useRepoSkills(selectedRepository);
-
-  // Auto-fill from saved preferences
-  const prefsInitializedRef = usePrefsAutoFill(
-    availableAgents, repositories, setSelectedAgent, setSelectedRepository, setSelectedBranch,
-    overrides,
-  );
-
-  // Compute agent slug from selected agent
   const selectedAgentSlug = useMemo(() => {
     if (!selectedAgent) return "";
     return availableAgents.find((a) => a.slug === selectedAgent)?.slug || "";
   }, [selectedAgent, availableAgents]);
 
-  // Parse supported modes from selected agent type
-  const supportedModes = useMemo(() => {
-    if (!selectedAgent) return [POD_MODE_PTY];
-    const agent = availableAgents.find((a) => a.slug === selectedAgent);
-    const raw = agent?.supported_modes;
-    const modes = Array.isArray(raw)
-      ? raw.map((m: string) => m.trim()).filter(Boolean)
-      : (typeof raw === "string" ? raw.split(",").map((m: string) => m.trim()).filter(Boolean) : []);
-    return modes.length > 0 ? modes : [POD_MODE_PTY];
-  }, [selectedAgent, availableAgents]);
+  const bundles = useEnvBundles(selectedAgent);
+  const modelResources = useWorkerModelResources(selectedAgentSlug);
+  const skills = useRepoSkills(selectedRepository);
+  const mode = useCreatePodInteractionMode(selectedAgent, availableAgents, automationLevel);
 
-  const isValid = useMemo(() => selectedAgent !== null && selectedAgent !== "", [selectedAgent]);
+  const handleSelectedAgent = useCallback((slug: string | null) => {
+    setSelectedAgent(slug);
+    bundles.setSelectedRuntimeBundleNames([]);
+    modelResources.setSelectedModelResourceId(null);
+    skills.setSelectedSkillSlugs([]);
+    mode.setInteractionMode(POD_MODE_PTY);
+    if (!slug) bundles.setEnvBundles([]);
+  }, [bundles, modelResources, skills, mode]);
 
-  // Reset agent selection when available agents change
-  useEffect(() => {
-    if (selectedAgent && !availableAgents.find(a => a.slug === selectedAgent)) {
-      setSelectedAgent(null);
-      bundles.setEnvBundles([]);
-      bundles.setSelectedCredentialName("");
-      bundles.setSelectedRuntimeBundleNames([]);
-      skills.setSelectedSkillSlugs([]);
-      setInteractionMode(POD_MODE_PTY);
-    }
-  }, [availableAgents, selectedAgent, bundles, skills]);
+  const handleSelectedRepository = useCallback((id: number | null) => {
+    setSelectedRepository(id);
+    const repo = id ? repositories.find((r) => r.id === id) : undefined;
+    setSelectedBranch(repo?.default_branch ?? "");
+  }, [repositories]);
 
-  // Auto-set interaction mode when agent changes based on supported modes
-  useEffect(() => {
-    if (!selectedAgent) { setInteractionMode(POD_MODE_PTY); return; }
-    if (!supportedModes.includes(interactionMode)) {
-      setInteractionMode(supportedModes[0] as PodMode);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAgent, supportedModes]);
+  const prefsInitializedRef = usePrefsAutoFill(
+    availableAgents, repositories, handleSelectedAgent, handleSelectedRepository, setSelectedBranch,
+    overrides,
+  );
 
-  // Autonomous runs non-interactively — lock to ACP when the agent supports it
-  // (PTY cannot be programmatically approved). The backend adapter also
-  // enforces this, but reflecting it here keeps the mode toggle honest.
-  useEffect(() => {
-    if (automationLevel === "autonomous" && supportedModes.includes(POD_MODE_ACP)) {
-      setInteractionMode(POD_MODE_ACP as PodMode);
-    }
-  }, [automationLevel, supportedModes]);
+  const isValid = useMemo(() => {
+    if (!selectedAgent || !selectedAgentSlug) return false;
+    if (bundles.loadingBundles || bundles.bundleLoadError) return false;
+    if (!requiresModelResource(selectedAgentSlug)) return true;
+    return Boolean(
+      modelResources.selectedModelResourceId &&
+        modelResources.selectedModelResource &&
+        !modelResources.loadingModelResources &&
+        !modelResources.modelResourceError,
+    );
+  }, [selectedAgent, selectedAgentSlug, bundles.loadingBundles, bundles.bundleLoadError, modelResources]);
 
-  // Auto-select default branch when repository is selected
-  useEffect(() => {
-    if (!selectedRepository) { setSelectedBranch(""); return; }
-    const repo = repositories.find((r) => r.id === selectedRepository);
-    if (repo?.default_branch) setSelectedBranch(repo.default_branch);
-  }, [selectedRepository, repositories]);
-
-  // Clear validation error when field changes
-  useEffect(() => {
-    if (selectedAgent && validationErrors.agent) {
-      setValidationErrors((prev) => ({ ...prev, agent: undefined }));
-    }
-  }, [selectedAgent, validationErrors.agent]);
-
-  const validate = useCallback((): boolean => {
-    const errors: FormValidationErrors = {};
-    if (!selectedAgent) errors.agent = "Please select an agent";
-    if (selectedRepository && !selectedBranch.trim()) {
-      errors.branch = "Branch name is recommended when using a repository";
-    }
-    if (selectedBranch.trim() && !/^[a-zA-Z0-9._/-]+$/.test(selectedBranch)) {
-      errors.branch = "Branch name contains invalid characters";
-    }
-    if (hasInvalidCustomEnvKey(customEnv, new Set())) {
-      errors.env = "One or more environment variable names are invalid";
-    }
-    setValidationErrors(errors);
-    return Object.keys(errors).filter(k => errors[k as keyof FormValidationErrors]).length === 0;
-  }, [selectedAgent, selectedRepository, selectedBranch, customEnv]);
+  const validation = useCreatePodValidation({
+    selectedAgent,
+    selectedRepository,
+    selectedBranch,
+    customEnv,
+    bundleLoadError: bundles.bundleLoadError,
+    selectedAgentSlug,
+    modelResourceError: modelResources.modelResourceError,
+    loadingModelResources: modelResources.loadingModelResources,
+    selectedModelResourceId: modelResources.selectedModelResourceId,
+    selectedModelResource: modelResources.selectedModelResource,
+  });
 
   const reset = useCallback(() => {
     setSelectedAgent(null);
     setSelectedRepository(null);
     setSelectedBranch("");
-    bundles.setSelectedCredentialName("");
     bundles.setSelectedRuntimeBundleNames([]);
+    modelResources.setSelectedModelResourceId(null);
     skills.setSelectedSkillSlugs([]);
     bundles.setEnvBundles([]);
-    setInteractionMode(POD_MODE_PTY);
+    mode.setInteractionMode(POD_MODE_PTY);
     setAutomationLevel("autonomous");
     setPrompt("");
     setAlias("");
@@ -171,48 +112,26 @@ export function useCreatePodForm(
     setDestroyAfterMinutes(120);
     setSelectedKnowledgeMounts([]);
     setTokenBudget(null);
-    setSelectedVirtualKeyId(null);
     setCustomEnv([]);
-    setError(null);
-    setWarning(null);
-    setValidationErrors({});
+    validation.setValidationErrors({});
     setRawLayerModeState(false);
     setRawLayerText("");
     prefsInitializedRef.current = false;
-  }, [bundles, skills, prefsInitializedRef]);
+  }, [bundles, modelResources, skills, mode, prefsInitializedRef, validation]);
 
-  // AgentFile Layer: compute from form fields
-  const generatedLayer = useMemo(() => {
-    const repoSlug = selectedRepository
-      ? repositories.find((r) => r.id === selectedRepository)?.slug
-      : undefined;
-    return buildAgentfileLayer({
-      configValues: configValues ?? {},
-      repositorySlug: repoSlug,
-      branchName: selectedBranch || undefined,
-      interactionMode,
-      credentialBundleName: bundles.selectedCredentialName || undefined,
-      runtimeBundleNames: bundles.selectedRuntimeBundleNames.length > 0
-        ? bundles.selectedRuntimeBundleNames
-        : undefined,
-      skillSlugs: skills.selectedSkillSlugs.length > 0
-        ? skills.selectedSkillSlugs
-        : undefined,
-      knowledgeMounts: selectedKnowledgeMounts.length > 0
-        ? selectedKnowledgeMounts
-        : undefined,
-      tokenBudget,
-      prompt: prompt.trim() || undefined,
-      customEnv: customEnv.length > 0
-        ? customEnv.map((e) => ({ key: e.key, value: e.value }))
-        : undefined,
-    });
-  }, [
-    configValues, selectedRepository, repositories, selectedBranch,
-    bundles.selectedCredentialName, bundles.selectedRuntimeBundleNames,
-    skills.selectedSkillSlugs,
-    interactionMode, prompt, selectedKnowledgeMounts, tokenBudget, customEnv,
-  ]);
+  const generatedLayer = useCreatePodGeneratedLayer({
+    configValues,
+    repositories,
+    selectedRepository,
+    selectedBranch,
+    interactionMode: mode.interactionMode,
+    selectedRuntimeBundleNames: bundles.selectedRuntimeBundleNames,
+    selectedSkillSlugs: skills.selectedSkillSlugs,
+    selectedKnowledgeMounts,
+    tokenBudget,
+    prompt,
+    customEnv,
+  });
 
   const agentfileLayer = rawLayerMode ? rawLayerText : generatedLayer;
 
@@ -223,79 +142,57 @@ export function useCreatePodForm(
     setRawLayerModeState(enabled);
   }, [generatedLayer, rawLayerText]);
 
-  const submit = useCallback(
-    async (
-      selectedRunnerId: number | null | undefined,
-      pluginConfig: Record<string, unknown>,
-      options?: { ticketSlug?: string; cols?: number; rows?: number }
-    ): Promise<PodData | null> => {
-      if (!validate()) return null;
-      if (!selectedAgent) { setError("Please select an agent"); return null; }
-      setLoading(true);
-      setError(null);
-      setWarning(null);
-      try {
-        const result = await submitCreatePod({
-          selectedAgent, alias, perpetual, selectedRunnerId,
-          agentfileLayer: agentfileLayer || undefined,
-          automationLevel,
-          repositoryId: selectedRepository,
-          virtualApiKeyId: selectedVirtualKeyId,
-          options,
-        });
-        if (result) {
-          setLastChoices({
-            lastAgentSlug: selectedAgent,
-            lastRepositoryId: selectedRepository,
-            lastCredentialName: bundles.selectedCredentialName,
-            lastRuntimeBundleNames: bundles.selectedRuntimeBundleNames,
-            lastBranchName: selectedBranch || null,
-            lastSkillSlugs: skills.selectedSkillSlugs,
-            lastDestroyPolicy: destroyPolicy,
-            lastDestroyAfterMinutes: destroyAfterMinutes,
-            lastKnowledgeMounts: selectedKnowledgeMounts,
-          });
-          if (result.warning) setWarning(result.warning);
-          onSuccess?.(result.pod);
-        }
-        return result?.pod ?? null;
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to create pod";
-        setError(message);
-        console.error("Failed to create pod:", err);
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [
-      selectedAgent, selectedRepository, selectedBranch,
-      bundles.selectedCredentialName, bundles.selectedRuntimeBundleNames,
-      skills.selectedSkillSlugs,
-      alias, perpetual, destroyPolicy, destroyAfterMinutes, selectedKnowledgeMounts,
-      selectedVirtualKeyId, agentfileLayer, automationLevel, onSuccess, validate, setLastChoices,
-    ]
-  );
+  const submission = useCreatePodSubmitAction({
+    selectedAgent,
+    selectedRepository,
+    selectedBranch,
+    selectedRuntimeBundleNames: bundles.selectedRuntimeBundleNames,
+    selectedSkillSlugs: skills.selectedSkillSlugs,
+    alias,
+    perpetual,
+    destroyPolicy,
+    destroyAfterMinutes,
+    selectedKnowledgeMounts,
+    modelResourceId: modelResources.selectedModelResourceId,
+    agentfileLayer,
+    automationLevel,
+    validate: validation.validate,
+    setLastChoices,
+    onSuccess,
+  });
 
   return {
     selectedAgent, selectedRepository, selectedBranch,
-    selectedCredentialName: bundles.selectedCredentialName,
+    selectedModelResourceId: modelResources.selectedModelResourceId,
     selectedRuntimeBundleNames: bundles.selectedRuntimeBundleNames,
     selectedSkillSlugs: skills.selectedSkillSlugs,
-    interactionMode, automationLevel, prompt, alias, perpetual,
+    interactionMode: mode.interactionMode, automationLevel, prompt, alias, perpetual,
     destroyPolicy, destroyAfterMinutes, selectedKnowledgeMounts, tokenBudget,
-    selectedVirtualKeyId, customEnv,
+    customEnv,
+    modelResources: modelResources.modelResources,
+    loadingModelResources: modelResources.loadingModelResources,
+    modelResourceError: modelResources.modelResourceError,
     envBundles: bundles.envBundles, loadingBundles: bundles.loadingBundles,
+    bundleLoadError: bundles.bundleLoadError,
     repoSkills: skills.repoSkills, loadingSkills: skills.loadingSkills,
-    setSelectedAgent, setSelectedRepository, setSelectedBranch,
-    setSelectedCredentialName: bundles.setSelectedCredentialName,
+    setSelectedAgent: handleSelectedAgent,
+    setSelectedRepository: handleSelectedRepository,
+    setSelectedBranch,
+    setSelectedModelResourceId: modelResources.setSelectedModelResourceId,
     setSelectedRuntimeBundleNames: bundles.setSelectedRuntimeBundleNames,
     setSelectedSkillSlugs: skills.setSelectedSkillSlugs,
-    setInteractionMode, setAutomationLevel, setPrompt, setAlias, setPerpetual, selectedAgentSlug, supportedModes,
+    setInteractionMode: mode.setInteractionMode, setAutomationLevel, setPrompt, setAlias, setPerpetual,
+    selectedAgentSlug, supportedModes: mode.supportedModes,
     setDestroyPolicy, setDestroyAfterMinutes, setSelectedKnowledgeMounts, setTokenBudget,
-    setSelectedVirtualKeyId, setCustomEnv,
-    loading, error, warning, validationErrors, isValid, reset, validate, submit,
-    // AgentFile Layer
+    setCustomEnv,
+    loading: submission.loading,
+    error: submission.error,
+    warning: submission.warning,
+    validationErrors: validation.validationErrors,
+    isValid,
+    reset,
+    validate: validation.validate,
+    submit: submission.submit,
     rawLayerMode, rawLayerText, agentfileLayer, setRawLayerMode, setRawLayerText,
   };
 }

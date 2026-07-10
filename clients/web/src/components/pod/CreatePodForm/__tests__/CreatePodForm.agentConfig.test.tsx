@@ -4,6 +4,7 @@ import { CreatePodForm } from "../index";
 import {
   mockSetPrompt,
   mockSetAlias,
+  mockSetSelectedModelResourceId,
   defaultPodCreationData,
   defaultFormState,
   defaultConfigOptions,
@@ -13,6 +14,7 @@ import {
   clearAllMocks,
   pickSelectOption,
 } from "./test-utils";
+import type { EffectiveResource } from "@/lib/api/facade/aiResource";
 
 vi.mock("../../hooks", () => ({
   usePodCreationData: vi.fn(() => defaultPodCreationData),
@@ -93,6 +95,38 @@ import { useConfigOptions } from "@/components/ide/hooks";
 
 const workspaceConfig = { scenario: "workspace" as const };
 
+const openAIChatResource: EffectiveResource = {
+  selectable: true,
+  blockingReason: "",
+  connection: {
+    id: 1,
+    ownerScope: "user",
+    identifier: "openai-main",
+    providerKey: "openai",
+    name: "OpenAI",
+    baseUrl: "https://api.openai.com/v1",
+    configuredFields: ["api_key"],
+    status: "valid",
+    isEnabled: true,
+    validationError: "",
+    canManage: true,
+    resources: [],
+  },
+  resource: {
+    id: 42,
+    providerConnectionId: 1,
+    identifier: "gpt-5",
+    modelId: "gpt-5",
+    displayName: "GPT-5",
+    modalities: ["chat"],
+    capabilities: ["text-generation"],
+    defaultModalities: ["chat"],
+    status: "valid",
+    isEnabled: true,
+    validationError: "",
+  },
+};
+
 describe("CreatePodForm - Agent Configuration", () => {
   beforeEach(() => {
     clearAllMocks();
@@ -102,7 +136,6 @@ describe("CreatePodForm - Agent Configuration", () => {
   const setupAgentSelectedState = (overrides = {}) => {
     const mockSetSelectedRepository = vi.fn();
     const mockSetSelectedBranch = vi.fn();
-    const mockSetSelectedCredentialName = vi.fn();
     const mockSetSelectedRuntimeBundleNames = vi.fn();
 
     vi.mocked(usePodCreationData).mockReturnValue({
@@ -117,13 +150,11 @@ describe("CreatePodForm - Agent Configuration", () => {
       ...defaultFormState,
       selectedAgent: "claude-code",
       envBundles: [
-        { id: 1, agent_slug: "claude-code", name: "My Credentials", kind: "credential", kind_primary: false },
-        { id: 2, agent_slug: "claude-code", name: "Default Creds", kind: "credential", kind_primary: true },
         { id: 3, agent_slug: "claude-code", name: "dev-preferences", kind: "runtime", kind_primary: false },
       ],
+      modelResources: [openAIChatResource],
       setSelectedRepository: mockSetSelectedRepository,
       setSelectedBranch: mockSetSelectedBranch,
-      setSelectedCredentialName: mockSetSelectedCredentialName,
       setSelectedRuntimeBundleNames: mockSetSelectedRuntimeBundleNames,
       selectedAgentSlug: "claude-code",
       isValid: true,
@@ -133,43 +164,45 @@ describe("CreatePodForm - Agent Configuration", () => {
     return {
       mockSetSelectedRepository,
       mockSetSelectedBranch,
-      mockSetSelectedCredentialName,
       mockSetSelectedRuntimeBundleNames,
     };
   };
 
-  describe("API credential single-select", () => {
-    it("renders the credential dropdown with the default-auth option", () => {
+  describe("AI model resource selection", () => {
+    it("renders model resource select without default credential option", () => {
       setupAgentSelectedState();
       render(<CreatePodForm config={workspaceConfig} />);
-      expect(screen.getByLabelText("ide.createPod.selectCredential")).toBeInTheDocument();
-      expect(screen.getByText("ide.createPod.useAgentDefaultAuth")).toBeInTheDocument();
+      expect(screen.getByLabelText("ide.createPod.selectModelResource")).toBeInTheDocument();
+      expect(screen.queryByLabelText("ide.createPod.selectCredential")).not.toBeInTheDocument();
     });
 
-    it("lists every credential-kind bundle as a select option", () => {
+    it("lists selectable model resources", () => {
       setupAgentSelectedState();
       render(<CreatePodForm config={workspaceConfig} />);
-      fireEvent.click(screen.getByLabelText("ide.createPod.selectCredential"));
+      fireEvent.click(screen.getByLabelText("ide.createPod.selectModelResource"));
       const options = screen
         .getAllByRole("option")
         .map((el) => el.getAttribute("data-option-value") ?? "");
-      expect(options).toContain("My Credentials");
-      expect(options).toContain("Default Creds");
-      // Runtime bundles should NOT appear in the credential dropdown.
-      expect(options).not.toContain("dev-preferences");
+      expect(options).toContain("42");
     });
 
-    it("calls setSelectedCredentialName when a credential is picked", () => {
-      const { mockSetSelectedCredentialName } = setupAgentSelectedState();
+    it("calls setSelectedModelResourceId when a resource is picked", () => {
+      setupAgentSelectedState();
       render(<CreatePodForm config={workspaceConfig} />);
-      pickSelectOption("ide.createPod.selectCredential", "My Credentials");
-      expect(mockSetSelectedCredentialName).toHaveBeenCalledWith("My Credentials");
+      pickSelectOption("ide.createPod.selectModelResource", "42");
+      expect(mockSetSelectedModelResourceId).toHaveBeenCalledWith(42);
     });
 
-    it("shows no-credential hint when nothing is selected", () => {
-      setupAgentSelectedState({ selectedCredentialName: "" });
+    it("shows no-resource blocking state", () => {
+      setupAgentSelectedState({ modelResources: [] });
       render(<CreatePodForm config={workspaceConfig} />);
-      expect(screen.getByText("ide.createPod.noCredentialHint")).toBeInTheDocument();
+      expect(screen.getByText("ide.createPod.noModelResourcesAvailableHint")).toBeInTheDocument();
+    });
+
+    it("shows model resource load error", () => {
+      setupAgentSelectedState({ modelResourceError: "AI Resource RPC failed" });
+      render(<CreatePodForm config={workspaceConfig} />);
+      expect(screen.getByRole("alert")).toHaveTextContent("AI Resource RPC failed");
     });
   });
 

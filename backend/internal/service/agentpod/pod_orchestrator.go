@@ -4,33 +4,37 @@ import (
 	"context"
 	"errors"
 
+	"github.com/anthropics/agentsmesh/agentfile"
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/anthropics/agentsmesh/agentfile"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	kbservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
-	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
 	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
+	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
 var (
-	ErrMissingRunnerID            = errors.New("runner_id is required")
-	ErrMissingAgentSlug           = errors.New("agent_slug is required")
-	ErrSourcePodNotFound          = errors.New("source pod not found")
-	ErrSourcePodAccessDenied      = errors.New("source pod belongs to different organization")
-	ErrSourcePodNotTerminated     = errors.New("source pod is not terminated")
-	ErrSourcePodAlreadyResumed    = errors.New("source pod already resumed")
-	ErrResumeAgentMismatch        = errors.New("resume requires same agent as source pod")
-	ErrResumeRunnerMismatch       = errors.New("resume requires same runner")
-	ErrConfigBuildFailed          = errors.New("failed to build pod configuration")
-	ErrInvalidAgentfileLayer        = errors.New("invalid agentfile layer")
-	ErrRunnerDispatchFailed       = errors.New("failed to dispatch pod to runner")
-	ErrUnsupportedInteractionMode = errors.New("agent type does not support the requested interaction mode")
+	ErrMissingRunnerID                  = errors.New("runner_id is required")
+	ErrMissingAgentSlug                 = errors.New("agent_slug is required")
+	ErrSourcePodNotFound                = errors.New("source pod not found")
+	ErrSourcePodAccessDenied            = errors.New("source pod belongs to different organization")
+	ErrSourcePodNotTerminated           = errors.New("source pod is not terminated")
+	ErrSourcePodAlreadyResumed          = errors.New("source pod already resumed")
+	ErrResumeAgentMismatch              = errors.New("resume requires same agent as source pod")
+	ErrResumeRunnerMismatch             = errors.New("resume requires same runner")
+	ErrConfigBuildFailed                = errors.New("failed to build pod configuration")
+	ErrInvalidAgentfileLayer            = errors.New("invalid agentfile layer")
+	ErrRunnerDispatchFailed             = errors.New("failed to dispatch pod to runner")
+	ErrUnsupportedInteractionMode       = errors.New("agent type does not support the requested interaction mode")
+	ErrMissingModelResource             = errors.New("model_resource_id is required for this agent")
+	ErrModelResourceResolverUnavailable = errors.New("model resource resolver is not configured")
+	ErrModelResourceEnvConflict         = errors.New("model resource conflicts with an existing runtime environment value")
+	ErrModelResourceCommandConflict     = errors.New("model resource conflicts with an existing model launch argument")
 )
 
 const (
@@ -87,47 +91,43 @@ type KnowledgeBaseResolverForOrchestrator interface {
 }
 
 type PodOrchestratorDeps struct {
-	PodService      *PodService
-	ConfigBuilder   *agent.ConfigBuilder
-	PodCoordinator  PodCoordinatorForOrchestrator
-	BillingService  BillingServiceForOrchestrator
-	UserService     UserServiceForOrchestrator
-	RepoService     RepositoryServiceForOrchestrator
-	TicketService   TicketServiceForOrchestrator
-	RunnerSelector  RunnerSelectorForOrchestrator
-	AgentResolver   AgentResolverForOrchestrator
-	RunnerQuery     RunnerQueryForOrchestrator
-	UserConfigQuery UserConfigQueryForOrchestrator
-	PodRepo         podDomain.PodRepository
+	PodService       *PodService
+	ConfigBuilder    *agent.ConfigBuilder
+	PodCoordinator   PodCoordinatorForOrchestrator
+	BillingService   BillingServiceForOrchestrator
+	UserService      UserServiceForOrchestrator
+	RepoService      RepositoryServiceForOrchestrator
+	TicketService    TicketServiceForOrchestrator
+	RunnerSelector   RunnerSelectorForOrchestrator
+	AgentResolver    AgentResolverForOrchestrator
+	RunnerQuery      RunnerQueryForOrchestrator
+	UserConfigQuery  UserConfigQueryForOrchestrator
+	PodRepo          podDomain.PodRepository
 	PermissionPolicy *permissionpolicysvc.Service
-	KnowledgeBases  KnowledgeBaseResolverForOrchestrator
-	PrimaryCredential PrimaryCredentialResolver
-	AIModelPool     AIModelPoolForOrchestrator
-	VirtualKeyPool  VirtualKeyPoolForOrchestrator
+	KnowledgeBases   KnowledgeBaseResolverForOrchestrator
+	ModelResources   ModelResourceResolver
 }
 
 type PodOrchestrator struct {
-	podService      *PodService
-	configBuilder   *agent.ConfigBuilder
-	podCoordinator  PodCoordinatorForOrchestrator
-	billingService  BillingServiceForOrchestrator
-	userService     UserServiceForOrchestrator
-	repoService     RepositoryServiceForOrchestrator
-	ticketService   TicketServiceForOrchestrator
-	runnerSelector  RunnerSelectorForOrchestrator
-	agentResolver   AgentResolverForOrchestrator
-	runnerQuery     RunnerQueryForOrchestrator
-	userConfigQuery UserConfigQueryForOrchestrator
-	podRepo         podDomain.PodRepository
+	podService       *PodService
+	configBuilder    *agent.ConfigBuilder
+	podCoordinator   PodCoordinatorForOrchestrator
+	billingService   BillingServiceForOrchestrator
+	userService      UserServiceForOrchestrator
+	repoService      RepositoryServiceForOrchestrator
+	ticketService    TicketServiceForOrchestrator
+	runnerSelector   RunnerSelectorForOrchestrator
+	agentResolver    AgentResolverForOrchestrator
+	runnerQuery      RunnerQueryForOrchestrator
+	userConfigQuery  UserConfigQueryForOrchestrator
+	podRepo          podDomain.PodRepository
 	permissionPolicy *permissionpolicysvc.Service
-	knowledgeBases  KnowledgeBaseResolverForOrchestrator
-	primaryCredential PrimaryCredentialResolver
-	aiModelPool     AIModelPoolForOrchestrator
-	virtualKeyPool  VirtualKeyPoolForOrchestrator
+	knowledgeBases   KnowledgeBaseResolverForOrchestrator
+	modelResources   ModelResourceResolver
 }
 
 type agentfileResolved struct {
-	InteractionMode      string
+	InteractionMode       string
 	BranchName            string
 	RepositoryID          *int64
 	Repository            *gitprovider.Repository
@@ -139,22 +139,20 @@ type agentfileResolved struct {
 
 func NewPodOrchestrator(deps *PodOrchestratorDeps) *PodOrchestrator {
 	return &PodOrchestrator{
-		podService:      deps.PodService,
-		configBuilder:   deps.ConfigBuilder,
-		podCoordinator:  deps.PodCoordinator,
-		billingService:  deps.BillingService,
-		userService:     deps.UserService,
-		repoService:     deps.RepoService,
-		ticketService:   deps.TicketService,
-		runnerSelector:  deps.RunnerSelector,
-		agentResolver:   deps.AgentResolver,
-		runnerQuery:     deps.RunnerQuery,
-		userConfigQuery: deps.UserConfigQuery,
-		podRepo:         deps.PodRepo,
+		podService:       deps.PodService,
+		configBuilder:    deps.ConfigBuilder,
+		podCoordinator:   deps.PodCoordinator,
+		billingService:   deps.BillingService,
+		userService:      deps.UserService,
+		repoService:      deps.RepoService,
+		ticketService:    deps.TicketService,
+		runnerSelector:   deps.RunnerSelector,
+		agentResolver:    deps.AgentResolver,
+		runnerQuery:      deps.RunnerQuery,
+		userConfigQuery:  deps.UserConfigQuery,
+		podRepo:          deps.PodRepo,
 		permissionPolicy: deps.PermissionPolicy,
-		knowledgeBases:  deps.KnowledgeBases,
-		primaryCredential: deps.PrimaryCredential,
-		aiModelPool:     deps.AIModelPool,
-		virtualKeyPool:  deps.VirtualKeyPool,
+		knowledgeBases:   deps.KnowledgeBases,
+		modelResources:   deps.ModelResources,
 	}
 }

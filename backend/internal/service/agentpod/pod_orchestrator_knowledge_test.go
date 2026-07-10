@@ -48,11 +48,12 @@ func TestCreatePod_KnowledgeMountsFromLayerAndRequest(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord), withKnowledgeResolver(resolver))
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("KNOWLEDGE team-docs [rw]"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("KNOWLEDGE team-docs [rw]"),
 		KnowledgeMounts: []KnowledgeMountRequest{
 			{Slug: "product-wiki"},
 		},
@@ -92,11 +93,12 @@ func TestCreatePod_KnowledgeDeclaredButFeatureDisabled(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("KNOWLEDGE team-docs"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("KNOWLEDGE team-docs"),
 	})
 	require.Error(t, err)
 	assert.ErrorIs(t, err, ErrConfigBuildFailed)
@@ -108,11 +110,12 @@ func TestCreatePod_NoKnowledgeMounts(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord), withKnowledgeResolver(resolver))
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 	require.NoError(t, err)
 	require.NotNil(t, coord.lastCmd)

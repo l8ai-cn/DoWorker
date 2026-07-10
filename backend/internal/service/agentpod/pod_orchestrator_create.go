@@ -58,8 +58,6 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		sessionID = uuid.New().String()
 	}
 
-	AppendPrimaryCredentialBundle(ctx, o.primaryCredential, req.UserID, req.OrganizationID, req.AgentSlug, &req.AgentfileLayer)
-
 	if err := o.applyWorkerModel(ctx, req, agentDef); err != nil {
 		return nil, err
 	}
@@ -86,7 +84,7 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 			agentDef.SupportsMode(podDomain.InteractionModeACP) &&
 			!agentfileLayerHasModeDecl(req.AgentfileLayer)
 		if lines := automation.LayerLinesFor(req.AgentSlug, req.AutomationLevel, canForceMode); lines != "" {
-			appendAgentfileLayerLines(&req.AgentfileLayer, lines)
+			appendAgentfileLayer(&req.AgentfileLayer, lines)
 		}
 	}
 
@@ -164,6 +162,11 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 
 	o.resolveTicketID(ctx, req)
 
+	agentfileLayer := ""
+	if req.AgentfileLayer != nil {
+		agentfileLayer = *req.AgentfileLayer
+	}
+
 	pod, err := o.podService.CreatePod(ctx, &CreatePodRequest{
 		OrganizationID:  req.OrganizationID,
 		RunnerID:        req.RunnerID,
@@ -183,7 +186,8 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		Perpetual:       req.Perpetual,
 		ResolvedConfig:  resolved.ConfigValues,
 		InitialStatus:   o.initialPodStatus(req),
-		VirtualAPIKeyID: req.VirtualAPIKeyID,
+		ModelResourceID: req.ModelResourceID,
+		AgentfileLayer:  agentfileLayer,
 	})
 	if err != nil {
 		return nil, err

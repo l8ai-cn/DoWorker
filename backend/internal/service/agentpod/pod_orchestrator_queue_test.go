@@ -12,11 +12,12 @@ import (
 
 func queueTestRequest() *OrchestrateCreatePodRequest {
 	return &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       9,
-		AgentSlug:      "claude-code",
-		Cols:           80, Rows: 24,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        9,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		Cols:            80, Rows: 24,
 	}
 }
 

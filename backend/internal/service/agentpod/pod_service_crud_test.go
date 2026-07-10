@@ -78,11 +78,8 @@ func TestCreatePod(t *testing.T) {
 	}
 }
 
-// TestCreatePod_CredentialProfileID was retired by the EnvBundle refactor —
-// the pods table no longer carries a credential_profile_id column, and
-// credential routing now lives entirely in AgentFile USE_ENV_BUNDLE
-// declarations. End-to-end coverage moved to
-// TestPodChain_CredentialFlow in pod_chain_integration_test.go.
+// Per-agent credential profile pod fields were retired by the AI Resource
+// cutover; model selection now uses model_resource_id.
 
 func TestCreatePod_Alias(t *testing.T) {
 	db := setupTestDB(t)
@@ -142,12 +139,13 @@ func TestCreatePod_DefaultValues(t *testing.T) {
 	// NOT inject any agent-specific defaults. This test verifies that explicit
 	// caller-supplied Model/PermissionMode round-trip correctly.
 	req := &CreatePodRequest{
-		OrganizationID: 1,
-		RunnerID:       1,
-		CreatedByID:    1,
-		AgentSlug:      "claude-code",
-		Model:          "opus",
-		PermissionMode: agentpod.PermissionModeBypass,
+		OrganizationID:  1,
+		RunnerID:        1,
+		CreatedByID:     1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		Model:           "opus",
+		PermissionMode:  agentpod.PermissionModeBypass,
 	}
 
 	sess, err := svc.CreatePod(ctx, req)
@@ -193,10 +191,11 @@ func TestCreatePod_NonClaudeDoesNotDefaultLegacyFields(t *testing.T) {
 	ctx := context.Background()
 
 	pod, err := svc.CreatePod(ctx, &CreatePodRequest{
-		OrganizationID: 1,
-		RunnerID:       1,
-		AgentSlug:      "codex-cli",
-		CreatedByID:    1,
+		OrganizationID:  1,
+		RunnerID:        1,
+		AgentSlug:       "codex-cli",
+		ModelResourceID: testModelResourceID(),
+		CreatedByID:     1,
 	})
 	if err != nil {
 		t.Fatalf("CreatePod failed: %v", err)

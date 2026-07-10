@@ -15,12 +15,12 @@ export async function submitCreatePod(params: {
   agentfileLayer?: string;
   automationLevel?: string;
   repositoryId?: number | null;
-  virtualApiKeyId?: number | null;
+  modelResourceId?: number | null;
   options?: { ticketSlug?: string; cols?: number; rows?: number };
 }): Promise<CreatePodResult | null> {
   const {
     selectedAgent, alias, perpetual, selectedRunnerId, agentfileLayer,
-    automationLevel, repositoryId, virtualApiKeyId, options,
+    automationLevel, repositoryId, modelResourceId, options,
   } = params;
 
   const result = await createPod(readCurrentOrg()?.slug ?? "", {
@@ -33,7 +33,7 @@ export async function submitCreatePod(params: {
     agentfile_layer: agentfileLayer || undefined,
     automation_level: automationLevel || undefined,
     ...(repositoryId != null ? { repository_id: repositoryId } : {}),
-    ...(virtualApiKeyId != null ? { virtual_api_key_id: virtualApiKeyId } : {}),
+    ...(modelResourceId != null ? { model_resource_id: modelResourceId } : {}),
     perpetual: perpetual || undefined,
   });
 

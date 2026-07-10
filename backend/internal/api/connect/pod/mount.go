@@ -49,7 +49,7 @@ func mapServiceError(err error) error {
 	}
 	switch {
 	case errors.Is(err, agentpod.ErrCreateResourceUnavailable):
-		return connect.NewError(connect.CodeInvalidArgument, errors.New("selected repository is unavailable"))
+		return connect.NewError(connect.CodeInvalidArgument, errors.New("Selected repository is unavailable"))
 
 	// Validation → InvalidArgument
 	case errors.Is(err, agentpod.ErrMissingRunnerID),
@@ -57,7 +57,10 @@ func mapServiceError(err error) error {
 		errors.Is(err, agentpod.ErrSourcePodNotTerminated),
 		errors.Is(err, agentpod.ErrResumeRunnerMismatch),
 		errors.Is(err, agentpod.ErrUnsupportedInteractionMode),
-		errors.Is(err, agentpod.ErrInvalidAgentfileLayer):
+		errors.Is(err, agentpod.ErrInvalidAgentfileLayer),
+		errors.Is(err, agentpod.ErrMissingModelResource),
+		errors.Is(err, agentpod.ErrModelResourceEnvConflict),
+		errors.Is(err, agentpod.ErrModelResourceCommandConflict):
 		return connect.NewError(connect.CodeInvalidArgument, err)
 
 	// Billing → ResourceExhausted / FailedPrecondition
@@ -88,6 +91,8 @@ func mapServiceError(err error) error {
 
 	// Config build failure → Internal
 	case errors.Is(err, agentpod.ErrConfigBuildFailed):
+		return connect.NewError(connect.CodeInternal, err)
+	case errors.Is(err, agentpod.ErrModelResourceResolverUnavailable):
 		return connect.NewError(connect.CodeInternal, err)
 
 	default:

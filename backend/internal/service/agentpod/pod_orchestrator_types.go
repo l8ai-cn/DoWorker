@@ -33,23 +33,14 @@ type OrchestrateCreatePodRequest struct {
 	AgentSessionID          string
 	SessionMcpServers       map[string]interface{}
 
-	// SessionConfigBundles are ephemeral config-kind bundles (name → parsed
-	// JSON doc) resolved per-session, consumed by USE_CONFIG_BUNDLE in the
-	// AgentfileLayer. Used by the model-pool flow to inject the do-agent
-	// settings.json (provider key + model) without persisting a bundle row.
+	// SessionConfigBundles are ephemeral config-kind documents consumed by
+	// USE_CONFIG_BUNDLE declarations.
 	SessionConfigBundles map[string]interface{}
 
-	// SessionEnvBundles are ephemeral credential env maps (name → KV) consumed
-	// by USE_ENV_BUNDLE. The model-pool flow injects codex OPENAI_* here.
-	SessionEnvBundles map[string]map[string]string
-
-	// Worker model binding (quota/billing). VirtualAPIKeyID binds a virtual
-	// key (its wrapped ai_models credential is injected, usage attributed to
-	// the key). ModelConfigID binds a real ai_models row directly. TokenBudget
-	// is an informational per-Worker hint surfaced to the harness.
-	ModelConfigID   *int64
-	VirtualAPIKeyID *int64
-	TokenBudget     *int64
+	ModelResourceID   *int64
+	ModelResourceEnv  map[string]string
+	ModelResourceArgs []string
+	TokenBudget       *int64
 
 	Perpetual           bool
 	DeferRunnerDispatch bool

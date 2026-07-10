@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
@@ -33,12 +35,13 @@ func TestBuildPodCommand_WithRepository(t *testing.T) {
 	agentSlug := "claude-code"
 	repoID := int64(10)
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
-		RepositoryID:   &repoID,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
+		RepositoryID:    &repoID,
 	})
 
 	require.NoError(t, err)
@@ -63,13 +66,14 @@ func TestBuildPodCommand_BranchOverride(t *testing.T) {
 	repoID := int64(10)
 	branch := "feature/my-branch"
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
-		RepositoryID:   &repoID,
-		BranchName:     &branch,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
+		RepositoryID:    &repoID,
+		BranchName:      &branch,
 	})
 
 	require.NoError(t, err)
@@ -89,12 +93,13 @@ func TestBuildPodCommand_WithTicket(t *testing.T) {
 	agentSlug := "claude-code"
 	ticketID := int64(1)
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
-		TicketID:       &ticketID,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
+		TicketID:        &ticketID,
 	})
 
 	require.NoError(t, err)
@@ -108,16 +113,54 @@ func TestBuildPodCommand_WithTicketSlug(t *testing.T) {
 	agentSlug := "claude-code"
 	ticketSlug := "AM-99"
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
-		TicketSlug:     &ticketSlug,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
+		TicketSlug:      &ticketSlug,
 	})
 
 	require.NoError(t, err)
 	assert.True(t, coord.createPodCalled)
+}
+
+func TestBuildPodCommand_GeminiUsesExactModelResource(t *testing.T) {
+	agentfileSource := "AGENT gemini\nEXECUTABLE gemini\nMODE pty\nENV GOOGLE_API_KEY SECRET OPTIONAL\nPROMPT_POSITION append\n"
+	provider := &mockAgentConfigProvider{
+		agentDef: &agentDomain.Agent{
+			Slug:              "gemini-cli",
+			LaunchCommand:     "gemini",
+			SupportedModes:    "pty",
+			AgentfileSource:   &agentfileSource,
+			UsesLegacyColumns: false,
+		},
+	}
+	coord := &mockPodCoordinator{}
+	orch, _, _ := setupOrchestrator(t,
+		withCoordinator(coord),
+		withAgentConfigProvider(provider),
+		func(deps *PodOrchestratorDeps) {
+			deps.ModelResources = &recordingModelResourceResolver{
+				resource: resolvedResource("gemini", "", "gemini-pro"),
+			}
+		},
+	)
+
+	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "gemini-cli",
+		ModelResourceID: testModelResourceID(),
+		AutomationLevel: podDomain.AutomationLevelInteractive,
+	})
+
+	require.NoError(t, err)
+	require.NotNil(t, coord.lastCmd)
+	assert.Equal(t, "sk-test", coord.lastCmd.EnvVars["GOOGLE_API_KEY"])
+	assert.Equal(t, []string{"--model", "gemini-pro"}, coord.lastCmd.LaunchArgs)
 }
 
 func TestBuildPodCommand_WithOAuthCredential(t *testing.T) {
@@ -141,12 +184,13 @@ func TestBuildPodCommand_WithOAuthCredential(t *testing.T) {
 
 	agentSlug := "claude-code"
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
-		RepositoryID:   &repoID,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
+		RepositoryID:    &repoID,
 	})
 
 	require.NoError(t, err)
@@ -176,12 +220,13 @@ func TestBuildPodCommand_WithSSHCredential(t *testing.T) {
 
 	agentSlug := "claude-code"
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
-		RepositoryID:   &repoID,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
+		RepositoryID:    &repoID,
 	})
 
 	require.NoError(t, err)
@@ -207,12 +252,13 @@ func TestBuildPodCommand_RunnerLocalCredential_NoCredsSent(t *testing.T) {
 
 	agentSlug := "claude-code"
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
-		RepositoryID:   &repoID,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
+		RepositoryID:    &repoID,
 	})
 
 	require.NoError(t, err)
@@ -332,12 +378,13 @@ func TestCreatePod_RepoServiceError_Propagates(t *testing.T) {
 	agentSlug := "claude-code"
 	repoID := int64(999)
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
-		RepositoryID:   &repoID,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
+		RepositoryID:    &repoID,
 	})
 
 	require.ErrorIs(t, err, repoErr)
@@ -352,12 +399,13 @@ func TestBuildPodCommand_TicketServiceError_IgnoresTicket(t *testing.T) {
 	agentSlug := "claude-code"
 	ticketID := int64(999)
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
-		TicketID:       &ticketID,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
+		TicketID:        &ticketID,
 	})
 
 	require.NoError(t, err) // Ticket error is not fatal

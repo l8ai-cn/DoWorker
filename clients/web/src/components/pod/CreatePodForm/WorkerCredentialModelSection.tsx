@@ -3,16 +3,23 @@
 import { KeyRound } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { ConfigForm } from "@/components/ide/ConfigForm";
-import { CredentialBundleSelect } from "./CredentialBundleSelect";
 import { EnvBundleMultiSelect } from "./EnvBundleMultiSelect";
+import { WorkerModelResourceSelect } from "./WorkerModelResourceSelect";
 import type { ConfigField, EnvBundleSummary } from "@/lib/api";
+import type { EffectiveResource } from "@/lib/api/facade/aiResource";
 
 interface WorkerCredentialModelSectionProps {
   agentSlug: string | null;
+  modelResources: EffectiveResource[];
+  selectedModelResourceId: number | null;
+  onSelectModelResource: (id: number | null) => void;
+  loadingModelResources: boolean;
+  modelResourceError: string | null;
+  modelResourceValidationError?: string;
   envBundles: EnvBundleSummary[];
   loadingBundles: boolean;
-  selectedCredentialName: string;
-  onSelectCredential: (name: string) => void;
+  bundleLoadError: string | null;
+  runtimeBundleValidationError?: string;
   selectedRuntimeBundleNames: string[];
   onSelectRuntimeBundles: (names: string[]) => void;
   configFields: ConfigField[];
@@ -23,13 +30,19 @@ interface WorkerCredentialModelSectionProps {
   t: (key: string) => string;
 }
 
-/** API credentials, runtime env bundles, and model/plugin config for the selected image. */
+/** Model resource, runtime env bundles, and image config for the selected Worker. */
 export function WorkerCredentialModelSection({
   agentSlug,
+  modelResources,
+  selectedModelResourceId,
+  onSelectModelResource,
+  loadingModelResources,
+  modelResourceError,
+  modelResourceValidationError,
   envBundles,
   loadingBundles,
-  selectedCredentialName,
-  onSelectCredential,
+  bundleLoadError,
+  runtimeBundleValidationError,
   selectedRuntimeBundleNames,
   onSelectRuntimeBundles,
   configFields,
@@ -39,7 +52,7 @@ export function WorkerCredentialModelSection({
   rawLayerMode,
   t,
 }: WorkerCredentialModelSectionProps) {
-  if (rawLayerMode || !agentSlug) return null;
+  if (!agentSlug) return null;
 
   return (
     <div
@@ -56,43 +69,51 @@ export function WorkerCredentialModelSection({
         </div>
       </div>
 
-      <CredentialBundleSelect
-        bundles={envBundles.filter((b) => b.kind === "credential")}
-        selectedBundleName={selectedCredentialName}
-        onSelect={onSelectCredential}
-        loading={loadingBundles}
+      <WorkerModelResourceSelect
+        resources={modelResources}
+        selectedResourceId={selectedModelResourceId}
+        onSelect={onSelectModelResource}
+        loading={loadingModelResources}
+        error={modelResourceError}
+        validationError={modelResourceValidationError}
         t={t}
       />
 
-      <EnvBundleMultiSelect
-        bundles={envBundles.filter((b) => b.kind === "runtime")}
-        selectedBundleNames={selectedRuntimeBundleNames}
-        onChange={onSelectRuntimeBundles}
-        loading={loadingBundles}
-        t={t}
-      />
+      {!rawLayerMode && (
+        <>
+          <EnvBundleMultiSelect
+            bundles={envBundles}
+            selectedBundleNames={selectedRuntimeBundleNames}
+            onChange={onSelectRuntimeBundles}
+            loading={loadingBundles}
+            error={bundleLoadError}
+            validationError={runtimeBundleValidationError}
+            t={t}
+          />
 
-      {loadingConfig ? (
-        <div className="flex items-center justify-center py-4">
-          <Spinner size="sm" className="mr-2" />
-          <span className="text-sm text-muted-foreground">
-            {t("ide.createPod.loadingPlugins")}
-          </span>
-        </div>
-      ) : (
-        configFields.length > 0 && (
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              {t("ide.createPod.pluginConfig")}
-            </label>
-            <ConfigForm
-              fields={configFields}
-              values={configValues}
-              onChange={onConfigChange}
-              agentSlug={agentSlug}
-            />
-          </div>
-        )
+          {loadingConfig ? (
+            <div className="flex items-center justify-center py-4">
+              <Spinner size="sm" className="mr-2" />
+              <span className="text-sm text-muted-foreground">
+                {t("ide.createPod.loadingPlugins")}
+              </span>
+            </div>
+          ) : (
+            configFields.length > 0 && (
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  {t("ide.createPod.pluginConfig")}
+                </label>
+                <ConfigForm
+                  fields={configFields}
+                  values={configValues}
+                  onChange={onConfigChange}
+                  agentSlug={agentSlug}
+                />
+              </div>
+            )
+          )}
+        </>
       )}
     </div>
   );

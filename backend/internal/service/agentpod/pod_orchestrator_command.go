@@ -95,34 +95,45 @@ func (o *PodOrchestrator) buildPodCommand(
 	}
 
 	buildReq := &agent.ConfigBuildRequest{
-		AgentSlug:           req.AgentSlug,
-		OrganizationID:      req.OrganizationID,
-		UserID:              req.UserID,
-		RepositoryID:        effectiveRepoID,
-		HttpCloneURL:        httpCloneURL,
-		SshCloneURL:         sshCloneURL,
-		SourceBranch:        sourceBranch,
-		CredentialType:      credentialType,
-		GitToken:            gitToken,
-		SSHPrivateKey:       sshPrivateKey,
-		TicketSlug:          ticketSlug,
-		PreparationScript:   preparationScript,
-		PreparationTimeout:  preparationTimeout,
-		LocalPath:           localPath,
-		Prompt:              resolved.Prompt,
-		PodKey:              pod.PodKey,
-		MCPPort:             19000,
-		Cols:                req.Cols,
-		Rows:                req.Rows,
-		RunnerAgentVersions: runnerAgentVersions,
+		AgentSlug:             req.AgentSlug,
+		OrganizationID:        req.OrganizationID,
+		UserID:                req.UserID,
+		RepositoryID:          effectiveRepoID,
+		HttpCloneURL:          httpCloneURL,
+		SshCloneURL:           sshCloneURL,
+		SourceBranch:          sourceBranch,
+		CredentialType:        credentialType,
+		GitToken:              gitToken,
+		SSHPrivateKey:         sshPrivateKey,
+		TicketSlug:            ticketSlug,
+		PreparationScript:     preparationScript,
+		PreparationTimeout:    preparationTimeout,
+		LocalPath:             localPath,
+		Prompt:                resolved.Prompt,
+		PodKey:                pod.PodKey,
+		MCPPort:               19000,
+		Cols:                  req.Cols,
+		Rows:                  req.Rows,
+		RunnerAgentVersions:   runnerAgentVersions,
 		MergedAgentfileSource: resolved.MergedAgentfileSource,
 		KnowledgeMounts:       knowledgeMounts,
 		SessionMcpInstalled:   req.SessionMcpServers,
 		SessionConfigBundles:  req.SessionConfigBundles,
-		SessionEnvBundles:     req.SessionEnvBundles,
 	}
 
 	cmd, err := o.configBuilder.BuildPodCommand(ctx, buildReq)
+	if err != nil {
+		return nil, err
+	}
+	if len(req.ModelResourceEnv) > 0 {
+		if cmd.EnvVars == nil {
+			cmd.EnvVars = map[string]string{}
+		}
+		if err := applyModelResourceEnv(cmd.EnvVars, req.ModelResourceEnv); err != nil {
+			return nil, err
+		}
+	}
+	cmd.LaunchArgs, err = applyModelResourceArgs(cmd.LaunchArgs, req.ModelResourceArgs)
 	if err != nil {
 		return nil, err
 	}

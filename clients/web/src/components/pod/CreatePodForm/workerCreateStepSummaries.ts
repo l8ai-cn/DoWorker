@@ -9,7 +9,6 @@ export function step1Summary(
   destroyPolicy: string,
   repositorySlug: string | undefined,
   branchName: string | undefined,
-  credentialName: string | undefined,
   t: (key: string, values?: Record<string, string | number>) => string,
 ): string | undefined {
   if (!imageSlug) return undefined;
@@ -19,9 +18,6 @@ export function step1Summary(
       : t("ide.createPod.modeAcp");
   const duration = durationLabel(perpetual, destroyPolicy, t);
   const parts = [`${imageSlug} · ${duration} · ${mode}`];
-  if (credentialName?.trim()) {
-    parts.push(credentialName.trim());
-  }
   if (repositorySlug) {
     const branch = branchName?.trim();
     parts.push(branch ? `${repositorySlug}@${branch}` : repositorySlug);

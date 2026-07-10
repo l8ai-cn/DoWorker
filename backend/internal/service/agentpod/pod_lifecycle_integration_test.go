@@ -38,8 +38,8 @@ func setupIntegrationOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDep
 			LaunchCommand: "claude", SupportedModes: "pty",
 			AgentfileSource: &agentfileSrc, UsesLegacyColumns: true,
 		},
-		config: agentDomain.ConfigValues{},
-		creds:  agentDomain.EncryptedCredentials{},
+		config:   agentDomain.ConfigValues{},
+		creds:    agentDomain.EncryptedCredentials{},
 		isRunner: true,
 	}
 	configBuilder := agent.NewConfigBuilder(provider, noopBundleLoader{})
@@ -49,6 +49,7 @@ func setupIntegrationOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDep
 		ConfigBuilder:  configBuilder,
 		AgentResolver:  &mockAgentResolver{agentDef: provider.agentDef},
 		RunnerSelector: &mockRunnerSelector{resolveRunner: &runnerDomain.Runner{ID: runnerID}},
+		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
 	}
 	for _, opt := range opts {
 		opt(deps)
@@ -83,11 +84,12 @@ func TestPodLifecycle_CreateToTerminated(t *testing.T) {
 
 	// Step 1: Create pod via orchestrator
 	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "claude-code",
-		Cols:           120, Rows: 40,
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		Cols:            120, Rows: 40,
 	})
 	require.NoError(t, err)
 	podKey := result.Pod.PodKey
@@ -126,9 +128,12 @@ func TestPodLifecycle_ResumeMode(t *testing.T) {
 
 	// Create and terminate source pod
 	source, err := podSvc.CreatePod(ctx, &CreatePodRequest{
-		OrganizationID: orgID, RunnerID: runnerID,
-		AgentSlug: "claude-code", CreatedByID: userID,
-		SessionID: "session-abc",
+		OrganizationID:  orgID,
+		RunnerID:        runnerID,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		CreatedByID:     userID,
+		SessionID:       "session-abc",
 	})
 	require.NoError(t, err)
 	err = podSvc.UpdatePodStatus(ctx, source.PodKey, podDomain.StatusTerminated)
@@ -158,10 +163,11 @@ func TestPodLifecycle_BillingQuotaReject(t *testing.T) {
 	orch, _, ctx := setupIntegrationOrchestrator(t, withBilling(billing))
 
 	_, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "claude-code",
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
 	})
 
 	require.Error(t, err)
@@ -190,10 +196,11 @@ func TestPodLifecycle_RunnerAutoSelect(t *testing.T) {
 	)
 
 	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       0, // trigger auto-select
-		AgentSlug:      "claude-code",
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        0, // trigger auto-select
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
 	})
 
 	require.NoError(t, err)
@@ -208,10 +215,11 @@ func TestPodLifecycle_DispatchFailure(t *testing.T) {
 	orch, podSvc, ctx := setupIntegrationOrchestrator(t, withCoordinator(coord))
 
 	_, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "claude-code",
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
 	})
 
 	require.Error(t, err)
@@ -249,12 +257,13 @@ CONFIG permission_mode = "bypassPermissions"
 PROMPT "Do the thing"
 `
 	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "claude-code",
-		AgentfileLayer:   &layer,
-		Cols:           120, Rows: 40,
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  &layer,
+		Cols:            120, Rows: 40,
 	})
 
 	require.NoError(t, err)

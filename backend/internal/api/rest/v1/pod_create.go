@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
@@ -11,11 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CreatePodRequest represents pod creation request. After the EnvBundle
-// refactor every aspect of pod configuration — including which credential
-// bundle to mount — is expressed inside `agentfile_layer`. The legacy
-// `credential_profile_id` field has been removed; clients should emit
-// `USE_ENV_BUNDLE "name"` in the layer instead.
+// CreatePodRequest represents pod creation request. Model credentials are
+// selected by exact model_resource_id; runtime EnvBundles stay in
+// agentfile_layer as explicit USE_ENV_BUNDLE declarations.
 type CreatePodRequest struct {
 	AgentSlug  string  `json:"agent_slug"`  // Required: determines base AgentFile
 	RunnerID   int64   `json:"runner_id"`   // Optional: auto-select if omitted
@@ -34,11 +33,7 @@ type CreatePodRequest struct {
 	// Platform-level ID references (cannot be expressed as AgentFile declarations)
 	RepositoryID *int64 `json:"repository_id,omitempty"`
 
-	// Worker model binding (quota/billing). Bind either a virtual API key
-	// (usage attributed to it) or a real ai_models row directly. TokenBudget
-	// is an optional per-Worker hint.
-	VirtualAPIKeyID *int64 `json:"virtual_api_key_id,omitempty"`
-	ModelConfigID   *int64 `json:"model_config_id,omitempty"`
+	ModelResourceID *int64 `json:"model_resource_id,omitempty"`
 	TokenBudget     *int64 `json:"token_budget,omitempty"`
 
 	// Terminal size (from browser xterm.js)
@@ -72,7 +67,16 @@ type PodKnowledgeMountRequest struct {
 // Supports Resume mode when source_pod_key is provided
 func (h *PodHandler) CreatePod(c *gin.Context) {
 	var req CreatePodRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	raw, err := c.GetRawData()
+	if err != nil {
+		apierr.ValidationError(c, err.Error())
+		return
+	}
+	if field, ok := legacyPodCreateModelField(raw); ok {
+		apierr.BadRequest(c, apierr.VALIDATION_FAILED, field+" is no longer supported; use model_resource_id")
+		return
+	}
+	if err := json.Unmarshal(raw, &req); err != nil {
 		apierr.ValidationError(c, err.Error())
 		return
 	}
@@ -109,8 +113,7 @@ func (h *PodHandler) CreatePod(c *gin.Context) {
 		ResumeAgentSession: req.ResumeAgentSession,
 		Perpetual:          req.Perpetual != nil && *req.Perpetual,
 		QueueIfUnavailable: req.QueueIfOffline,
-		VirtualAPIKeyID:    req.VirtualAPIKeyID,
-		ModelConfigID:      req.ModelConfigID,
+		ModelResourceID:    req.ModelResourceID,
 		TokenBudget:        req.TokenBudget,
 	}
 	if req.QueueIfOffline {

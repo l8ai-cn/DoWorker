@@ -179,12 +179,13 @@ func TestCreatePod_UsesNoRepositoryWithoutResolver(t *testing.T) {
 
 func repositoryCreateRequest(repoID *int64, layer *string) *OrchestrateCreatePodRequest {
 	return &OrchestrateCreatePodRequest{
-		OrganizationID: 7,
-		UserID:         11,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		RepositoryID:   repoID,
-		AgentfileLayer: layer,
+		OrganizationID:  7,
+		UserID:          11,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		RepositoryID:    repoID,
+		AgentfileLayer:  layer,
 	}
 }
 

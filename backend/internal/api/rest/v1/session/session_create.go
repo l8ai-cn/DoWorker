@@ -9,7 +9,6 @@ import (
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	"github.com/gin-gonic/gin"
 )
@@ -25,16 +24,9 @@ type createSessionBody struct {
 	Scenario        *string           `json:"scenario"`
 	PTYOnly         *bool             `json:"pty_only"`
 
-	// Model pool selection: mount a configured model (provider key + model id)
-	// into the Worker. ModelConfigID references an ai_models row; Model
-	// optionally overrides the row's default model id; TokenBudget caps the
-	// Worker's token usage.
-	ModelConfigID *int64  `json:"model_config_id"`
-	Model         *string `json:"model"`
-	TokenBudget   *int64  `json:"token_budget"`
+	ModelResourceID *int64 `json:"model_resource_id"`
+	TokenBudget     *int64 `json:"token_budget"`
 }
-
-const workerModelBundleName = "worker-model"
 
 func (d *Deps) handleCreateSession(c *gin.Context) {
 	if d.PodOrchestrator == nil || d.Sessions == nil {
@@ -47,7 +39,16 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 		return
 	}
 	var body createSessionBody
-	if err := c.ShouldBindJSON(&body); err != nil || body.AgentID == "" {
+	raw, err := c.GetRawData()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "code": "validation_failed"})
+		return
+	}
+	if field, ok := legacySessionCreateModelField(raw); ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": field + " is no longer supported; use model_resource_id", "code": "validation_failed"})
+		return
+	}
+	if err := json.Unmarshal(raw, &body); err != nil || body.AgentID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "agent_id is required", "code": "validation_failed"})
 		return
 	}
@@ -67,28 +68,7 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 	layer := sessionAgentfileLayer(body.AgentID, ptyOnly, layerExtras...)
 	workspace := strings.TrimSpace(body.Workspace)
 
-	// Mount a model from the pool: resolve credentials → do-agent settings.json
-	// injected as an ephemeral config bundle + a CONFIG model line, so the
-	// Worker launches with a working provider instead of exiting on a missing
-	// key. Falls back to the caller's default model when none is specified.
-	mount, modelErr := d.resolveWorkerModel(c, tenant.UserID, tenant.OrganizationID, body, &layer)
-	if modelErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": modelErr.Error(), "code": "model_unavailable"})
-		return
-	}
-	if mount == nil || !mount.mounted() {
-		d.resolvePrimaryEnvBundle(c.Request.Context(), tenant.UserID, tenant.OrganizationID, body.AgentID, &layer)
-	}
-
-	orchReq := &agentpod.OrchestrateCreatePodRequest{
-		OrganizationID:       tenant.OrganizationID,
-		UserID:               tenant.UserID,
-		AgentSlug:            body.AgentID,
-		AgentfileLayer:       layer,
-		LocalPath:            workspace,
-		SessionConfigBundles: configBundlesFromMount(mount),
-		SessionEnvBundles:    envBundlesFromMount(mount),
-	}
+	orchReq := sessionCreatePodRequest(tenant.UserID, tenant.OrganizationID, body, layer, workspace)
 	// pty_only sessions must stay on PTY. Default automation (autonomous)
 	// appends MODE acp and would override the MODE pty layer above.
 	if ptyOnly {

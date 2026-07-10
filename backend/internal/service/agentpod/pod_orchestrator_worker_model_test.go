@@ -3,205 +3,270 @@ package agentpod
 import (
 	"context"
 	"errors"
-	"strings"
 	"testing"
 
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
-	"github.com/anthropics/agentsmesh/backend/internal/domain/aimodel"
-	aimodelsvc "github.com/anthropics/agentsmesh/backend/internal/service/aimodel"
+	resourceDomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-type fakeAIPool struct {
-	rm             *aimodelsvc.ResolvedModel
-	defaultRM      *aimodelsvc.ResolvedModel
-	resolveErr     error
-	visibleCalls   int
-	defaultCalls   int
-	modelID        int64
-	userID         int64
-	organizationID int64
-}
-
-type recordingVirtualKeyPool struct {
-	resolved       *aimodelsvc.ResolvedModel
-	budget         *int64
-	resolveErr     error
+type recordingModelResourceResolver struct {
+	resource       *resourcesvc.ResolvedResource
+	err            error
 	calls          int
-	keyID          int64
-	organizationID int64
 	userID         int64
+	organizationID int64
+	resourceID     int64
+	requirements   resourcesvc.ResolutionRequirements
 }
 
-func (f *recordingVirtualKeyPool) ResolveModelForScope(
-	_ context.Context, keyID, organizationID, userID int64,
-) (*aimodelsvc.ResolvedModel, *int64, error) {
-	f.calls++
-	f.keyID = keyID
-	f.organizationID = organizationID
-	f.userID = userID
-	if f.resolveErr != nil {
-		return nil, nil, f.resolveErr
+func (r *recordingModelResourceResolver) ResolveExact(
+	_ context.Context,
+	actor resourcesvc.Actor,
+	orgID, resourceID int64,
+	requirements resourcesvc.ResolutionRequirements,
+) (*resourcesvc.ResolvedResource, error) {
+	r.calls++
+	r.userID = actor.UserID
+	r.organizationID = orgID
+	r.resourceID = resourceID
+	r.requirements = requirements
+	if r.err != nil {
+		return nil, r.err
 	}
-	return f.resolved, f.budget, nil
+	return r.resource, nil
 }
 
-func (f *fakeAIPool) ResolveVisible(_ context.Context, id, userID, organizationID int64) (*aimodelsvc.ResolvedModel, error) {
-	f.visibleCalls++
-	f.modelID = id
-	f.userID = userID
-	f.organizationID = organizationID
-	return f.rm, f.resolveErr
-}
-
-func (f *fakeAIPool) ResolveDefaultForAgent(_ context.Context, _, _ int64, _ string) (*aimodelsvc.ResolvedModel, error) {
-	f.defaultCalls++
-	return f.defaultRM, nil
-}
-
-func resolvedFixture() *aimodelsvc.ResolvedModel {
-	return &aimodelsvc.ResolvedModel{
-		Model:       &aimodel.AIModel{ProviderType: "anthropic", Model: "claude-sonnet"},
+func resolvedOpenAIResource() *resourcesvc.ResolvedResource {
+	provider, _ := resourceDomain.Provider("openai")
+	return &resourcesvc.ResolvedResource{
+		Provider: provider,
+		Connection: resourceDomain.Connection{
+			ID: 1, ProviderKey: slugkit.Slug("openai"), BaseURL: "https://api.openai.com/v1",
+		},
+		Resource:    resourceDomain.ModelResource{ID: 9, ModelID: "gpt-5.1"},
 		Credentials: map[string]string{"api_key": "sk-test"},
 	}
 }
 
-func TestApplyWorkerModel_ConfigBundleForDoAgent(t *testing.T) {
-	o := NewPodOrchestrator(&PodOrchestratorDeps{AIModelPool: &fakeAIPool{rm: resolvedFixture()}})
-	id := int64(5)
-	budget := int64(1000)
-	req := &OrchestrateCreatePodRequest{AgentSlug: "do-agent", ModelConfigID: &id, TokenBudget: &budget}
-
-	require.NoError(t, o.applyWorkerModel(context.Background(), req, &agentDomain.Agent{Executable: "do-agent"}))
-
-	require.NotNil(t, req.AgentfileLayer)
-	layer := *req.AgentfileLayer
-	assert.Contains(t, layer, `USE_CONFIG_BUNDLE "worker-model"`)
-	assert.Contains(t, layer, `token_budget = "1000"`)
-	assert.NotNil(t, req.SessionConfigBundles["worker-model"])
+func resolvedResource(providerKey, baseURL, modelID string) *resourcesvc.ResolvedResource {
+	provider, _ := resourceDomain.Provider(providerKey)
+	return &resourcesvc.ResolvedResource{
+		Provider: provider,
+		Connection: resourceDomain.Connection{
+			ID: 1, ProviderKey: slugkit.Slug(providerKey), BaseURL: baseURL,
+		},
+		Resource:    resourceDomain.ModelResource{ID: 9, ModelID: modelID},
+		Credentials: map[string]string{"api_key": "sk-test"},
+	}
 }
 
-func TestApplyWorkerModel_NoBindingIsNoop(t *testing.T) {
-	o := NewPodOrchestrator(&PodOrchestratorDeps{})
-	req := &OrchestrateCreatePodRequest{AgentSlug: "do-agent"}
+func TestApplyWorkerModelRequiresExactResource(t *testing.T) {
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: &recordingModelResourceResolver{}})
+	req := &OrchestrateCreatePodRequest{AgentSlug: "codex-cli", UserID: 7, OrganizationID: 11}
 
-	require.NoError(t, o.applyWorkerModel(context.Background(), req, nil))
-	assert.Nil(t, req.AgentfileLayer)
+	err := orchestrator.applyWorkerModel(context.Background(), req, nil)
+
+	require.ErrorIs(t, err, ErrMissingModelResource)
+}
+
+func TestApplyWorkerModelRequiresResolverWiring(t *testing.T) {
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "codex-cli", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+	}
+
+	err := orchestrator.applyWorkerModel(context.Background(), req, nil)
+
+	require.ErrorIs(t, err, ErrModelResourceResolverUnavailable)
+}
+
+func TestApplyWorkerModelResolvesExactResourceForCodex(t *testing.T) {
+	resolver := &recordingModelResourceResolver{resource: resolvedOpenAIResource()}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "codex-cli", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+	}
+
+	require.NoError(t, orchestrator.applyWorkerModel(context.Background(), req, nil))
+
+	assert.Equal(t, 1, resolver.calls)
+	assert.Equal(t, int64(7), resolver.userID)
+	assert.Equal(t, int64(11), resolver.organizationID)
+	assert.Equal(t, resourceID, resolver.resourceID)
+	assert.Equal(t, resourceDomain.ModalityChat, resolver.requirements.Modality)
+	assert.Equal(t, resourceDomain.CapabilityTextGeneration, resolver.requirements.Capability)
+	assert.Equal(t, []string{"openai-compatible"}, resolver.requirements.AllowedProtocolAdapters)
 	assert.Empty(t, req.SessionConfigBundles)
+	assert.Nil(t, req.AgentfileLayer)
+	assert.Equal(t, "sk-test", req.ModelResourceEnv["OPENAI_API_KEY"])
+	assert.Equal(t, "gpt-5.1", req.ModelResourceEnv["OPENAI_MODEL"])
 }
 
-func TestApplyWorkerModel_OrgDefaultForDoAgent(t *testing.T) {
-	rm := &aimodelsvc.ResolvedModel{
-		Model:       &aimodel.AIModel{ProviderType: "minimax", Model: "MiniMax-M3", BaseURL: "https://api.minimax.chat/anthropic"},
-		Credentials: map[string]string{"api_key": "sk-test"},
+func TestApplyWorkerModelUsesCustomAgentExecutable(t *testing.T) {
+	resolver := &recordingModelResourceResolver{resource: resolvedOpenAIResource()}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "custom-codex", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
 	}
-	o := NewPodOrchestrator(&PodOrchestratorDeps{AIModelPool: &fakeAIPool{defaultRM: rm}})
-	req := &OrchestrateCreatePodRequest{AgentSlug: "do-agent", OrganizationID: 1, UserID: 1}
 
-	require.NoError(t, o.applyWorkerModel(context.Background(), req, &agentDomain.Agent{Executable: "do-agent"}))
+	require.NoError(t, orchestrator.applyWorkerModel(
+		context.Background(),
+		req,
+		&agentDomain.Agent{Executable: "codex-cli"},
+	))
+
+	assert.Equal(t, 1, resolver.calls)
+	assert.Equal(t, []string{"openai-compatible"}, resolver.requirements.AllowedProtocolAdapters)
+	assert.Equal(t, "sk-test", req.ModelResourceEnv["OPENAI_API_KEY"])
+	assert.Equal(t, "gpt-5.1", req.ModelResourceEnv["OPENAI_MODEL"])
+}
+
+func TestApplyWorkerModelCodexOmitsEmptyBaseURLAndModel(t *testing.T) {
+	resolver := &recordingModelResourceResolver{resource: resolvedResource("openai", "", "")}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "codex-cli", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+	}
+
+	require.NoError(t, orchestrator.applyWorkerModel(context.Background(), req, nil))
+
+	assert.Equal(t, map[string]string{"OPENAI_API_KEY": "sk-test"}, req.ModelResourceEnv)
+}
+
+func TestApplyWorkerModelClaudeUsesConfigModelNotModelEnv(t *testing.T) {
+	resolver := &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", `claude "quoted"`)}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "claude-code", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+	}
+
+	require.NoError(t, orchestrator.applyWorkerModel(context.Background(), req, nil))
+
+	assert.Equal(t, "sk-test", req.ModelResourceEnv["ANTHROPIC_API_KEY"])
+	assert.Equal(t, "https://api.anthropic.com", req.ModelResourceEnv["ANTHROPIC_BASE_URL"])
+	assert.NotContains(t, req.ModelResourceEnv, "ANTHROPIC_MODEL")
+	require.NotNil(t, req.AgentfileLayer)
+	assert.Contains(t, *req.AgentfileLayer, `CONFIG model = "claude \"quoted\""`)
+}
+
+func TestApplyWorkerModelConfiguresGeminiModelExactly(t *testing.T) {
+	resolver := &recordingModelResourceResolver{resource: resolvedResource("gemini", "", "gemini-pro")}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "gemini-cli", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+	}
+
+	require.NoError(t, orchestrator.applyWorkerModel(context.Background(), req, nil))
+
+	assert.Equal(t, "sk-test", req.ModelResourceEnv["GOOGLE_API_KEY"])
+	assert.Equal(t, []string{"--model", "gemini-pro"}, req.ModelResourceArgs)
+	assert.Nil(t, req.AgentfileLayer)
+}
+
+func TestApplyModelResourceArgsRejectsConflictingModel(t *testing.T) {
+	args := []string{"--sandbox", "--model", "gemini-flash"}
+
+	_, err := applyModelResourceArgs(args, []string{"--model", "gemini-pro"})
+
+	require.ErrorIs(t, err, ErrModelResourceCommandConflict)
+}
+
+func TestModelResourceRequirementsDoNotInventMiniMaxCli(t *testing.T) {
+	_, needsResource := modelResourceRequirements("unsupported-cli", nil)
+
+	assert.False(t, needsResource)
+}
+
+func TestApplyWorkerModelDoAgentUsesConfigBundle(t *testing.T) {
+	resolver := &recordingModelResourceResolver{resource: resolvedOpenAIResource()}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "do-agent", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+	}
+
+	require.NoError(t, orchestrator.applyWorkerModel(
+		context.Background(), req, &agentDomain.Agent{Executable: "do-agent"},
+	))
+
 	require.NotNil(t, req.AgentfileLayer)
 	assert.Contains(t, *req.AgentfileLayer, `USE_CONFIG_BUNDLE "worker-model"`)
+	assert.Contains(t, req.SessionConfigBundles, "worker-model")
+	assert.Nil(t, req.ModelResourceEnv)
 }
 
-func TestResolvePoolModel_ExplicitModelUsesCallerScope(t *testing.T) {
-	pool := &fakeAIPool{rm: resolvedFixture()}
-	o := NewPodOrchestrator(&PodOrchestratorDeps{AIModelPool: pool})
-	modelID := int64(5)
-	req := &OrchestrateCreatePodRequest{
-		ModelConfigID:  modelIDPointer(modelID),
-		UserID:         11,
-		OrganizationID: 21,
-	}
-
-	resolved, budget, err := o.resolvePoolModel(context.Background(), req, nil)
+func TestDoAgentModelSettingsOmitsEmptyBaseURL(t *testing.T) {
+	settings, err := doAgentModelSettings(resolvedResource("openai", "", "gpt-5.1"))
 
 	require.NoError(t, err)
-	assert.Same(t, pool.rm, resolved)
-	assert.Nil(t, budget)
-	assert.Equal(t, 1, pool.visibleCalls)
-	assert.Equal(t, modelID, pool.modelID)
-	assert.Equal(t, int64(11), pool.userID)
-	assert.Equal(t, int64(21), pool.organizationID)
-	assert.Zero(t, pool.defaultCalls)
+	providers := settings["provider"].(map[string]interface{})
+	openai := providers["openai"].(map[string]interface{})
+	options := openai["options"].(map[string]interface{})
+	assert.NotContains(t, options, "baseURL")
+	assert.Equal(t, "openai", options["kind"])
+	assert.Equal(t, "openai/gpt-5.1", settings["model"])
 }
 
-func TestResolvePoolModel_ExplicitModelErrorDoesNotUseDefault(t *testing.T) {
-	resolveErr := errors.New("resolve visible model")
-	pool := &fakeAIPool{resolveErr: resolveErr, defaultRM: resolvedFixture()}
-	o := NewPodOrchestrator(&PodOrchestratorDeps{AIModelPool: pool})
+func TestDoAgentModelSettingsRequiresAPIKeyAndModel(t *testing.T) {
+	withoutKey := resolvedResource("openai", "", "gpt-5.1")
+	withoutKey.Credentials = map[string]string{}
+	_, err := doAgentModelSettings(withoutKey)
+	require.ErrorIs(t, err, ErrMissingModelResource)
+
+	withoutModel := resolvedResource("openai", "", "")
+	_, err = doAgentModelSettings(withoutModel)
+	require.ErrorIs(t, err, ErrMissingModelResource)
+}
+
+func TestApplyWorkerModelPropagatesResolverError(t *testing.T) {
+	resolveErr := errors.New("resolve exact")
+	resolver := &recordingModelResourceResolver{err: resolveErr}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
 	req := &OrchestrateCreatePodRequest{
-		ModelConfigID:  modelIDPointer(5),
-		UserID:         11,
-		OrganizationID: 21,
+		AgentSlug: "codex-cli", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
 	}
 
-	resolved, budget, err := o.resolvePoolModel(context.Background(), req, nil)
+	err := orchestrator.applyWorkerModel(context.Background(), req, nil)
 
-	assert.ErrorIs(t, err, resolveErr)
-	assert.Nil(t, resolved)
-	assert.Nil(t, budget)
-	assert.Zero(t, pool.defaultCalls)
+	require.ErrorIs(t, err, resolveErr)
 }
 
-func TestResolvePoolModel_VirtualKeyUsesCallerScope(t *testing.T) {
-	budget := int64(32000)
-	virtualPool := &recordingVirtualKeyPool{resolved: resolvedFixture(), budget: &budget}
-	aiPool := &fakeAIPool{rm: resolvedFixture(), defaultRM: resolvedFixture()}
-	o := NewPodOrchestrator(&PodOrchestratorDeps{AIModelPool: aiPool, VirtualKeyPool: virtualPool})
-	keyID := int64(7)
-	modelID := int64(5)
-	req := &OrchestrateCreatePodRequest{
-		VirtualAPIKeyID: &keyID,
-		ModelConfigID:   &modelID,
-		OrganizationID:  21,
-		UserID:          11,
+func TestApplyModelResourceEnvRejectsConflictWithoutPartialWrites(t *testing.T) {
+	existing := map[string]string{
+		"OPENAI_API_KEY": "custom-key",
+		"FEATURE_FLAG":   "enabled",
 	}
 
-	resolved, resolvedBudget, err := o.resolvePoolModel(context.Background(), req, nil)
+	err := applyModelResourceEnv(existing, map[string]string{
+		"OPENAI_API_KEY": "resource-key",
+		"OPENAI_MODEL":   "gpt-5.1",
+	})
 
-	require.NoError(t, err)
-	assert.Same(t, virtualPool.resolved, resolved)
-	assert.Same(t, virtualPool.budget, resolvedBudget)
-	assert.Equal(t, 1, virtualPool.calls)
-	assert.Equal(t, keyID, virtualPool.keyID)
-	assert.Equal(t, int64(21), virtualPool.organizationID)
-	assert.Equal(t, int64(11), virtualPool.userID)
-	assert.Zero(t, aiPool.visibleCalls)
-	assert.Zero(t, aiPool.defaultCalls)
+	require.ErrorIs(t, err, ErrModelResourceEnvConflict)
+	assert.Equal(t, map[string]string{
+		"OPENAI_API_KEY": "custom-key",
+		"FEATURE_FLAG":   "enabled",
+	}, existing)
 }
 
-func TestResolvePoolModel_VirtualKeyErrorDoesNotResolveAnotherModel(t *testing.T) {
-	resolveErr := errors.New("resolve scoped virtual key")
-	virtualPool := &recordingVirtualKeyPool{resolveErr: resolveErr}
-	aiPool := &fakeAIPool{rm: resolvedFixture(), defaultRM: resolvedFixture()}
-	o := NewPodOrchestrator(&PodOrchestratorDeps{AIModelPool: aiPool, VirtualKeyPool: virtualPool})
-	keyID := int64(7)
-	modelID := int64(5)
-	req := &OrchestrateCreatePodRequest{
-		VirtualAPIKeyID: &keyID,
-		ModelConfigID:   &modelID,
-		OrganizationID:  21,
-		UserID:          11,
-	}
+func TestApplyModelResourceEnvMergesMatchingValues(t *testing.T) {
+	existing := map[string]string{"OPENAI_API_KEY": "resource-key"}
 
-	resolved, budget, err := o.resolvePoolModel(context.Background(), req, nil)
+	require.NoError(t, applyModelResourceEnv(existing, map[string]string{
+		"OPENAI_API_KEY": "resource-key",
+		"OPENAI_MODEL":   "gpt-5.1",
+	}))
 
-	assert.ErrorIs(t, err, resolveErr)
-	assert.Nil(t, resolved)
-	assert.Nil(t, budget)
-	assert.Equal(t, 1, virtualPool.calls)
-	assert.Zero(t, aiPool.visibleCalls)
-	assert.Zero(t, aiPool.defaultCalls)
+	assert.Equal(t, "gpt-5.1", existing["OPENAI_MODEL"])
 }
-
-func TestAppendAgentfileLayerJoinsLines(t *testing.T) {
-	var layer *string
-	appendAgentfileLayer(&layer, `USE_ENV_BUNDLE "a"`)
-	appendAgentfileLayer(&layer, `CONFIG token_budget = "5"`)
-	require.NotNil(t, layer)
-	lines := strings.Split(*layer, "\n")
-	assert.Equal(t, 2, len(lines))
-}
-
-func modelIDPointer(value int64) *int64 { return &value }

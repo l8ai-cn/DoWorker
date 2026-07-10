@@ -40,19 +40,7 @@ export function buildAgentfileLayer(params: {
   repositorySlug?: string;
   branchName?: string;
   interactionMode?: string;
-  /**
-   * Credential bundle name (kind='credential') to attach. Emitted FIRST in
-   * the USE_ENV_BUNDLE sequence so runtime preferences listed after can
-   * override credential defaults on conflicting keys.
-   * Empty string / undefined = no credential injection (Agent uses its own
-   * default auth: OAuth, CLI login, etc.).
-   */
-  credentialBundleName?: string;
-  /**
-   * Runtime bundle names (kind='runtime') to attach. Emitted AFTER the
-   * credential line, in array order. Later entries override earlier ones
-   * on conflicting env keys (mirrors backend eval order).
-   */
+  /** Runtime bundle names (kind='runtime') to attach in explicit selection order. */
   runtimeBundleNames?: string[];
   /** Config JSON bundle names (kind='config') — emitted as USE_CONFIG_BUNDLE. */
   configBundleNames?: string[];
@@ -83,20 +71,13 @@ export function buildAgentfileLayer(params: {
     lines.push(`MODE ${params.interactionMode}`);
   }
 
-  // USE_ENV_BUNDLE declarations — credential first, then runtime bundles
-  // in selection order. Backend's eval merges each bundle's KV into the
-  // Pod's env in declaration order; later wins on conflicts.
-  const bundleNames: string[] = [];
-  if (params.credentialBundleName) {
-    bundleNames.push(params.credentialBundleName);
-  }
+  // USE_ENV_BUNDLE declarations for explicit runtime preferences.
   if (params.runtimeBundleNames) {
     for (const name of params.runtimeBundleNames) {
-      if (name) bundleNames.push(name);
+      if (name) {
+        lines.push(`USE_ENV_BUNDLE "${escapeAgentfileString(name)}"`);
+      }
     }
-  }
-  for (const name of bundleNames) {
-    lines.push(`USE_ENV_BUNDLE "${escapeAgentfileString(name)}"`);
   }
   if (params.configBundleNames) {
     for (const name of params.configBundleNames) {

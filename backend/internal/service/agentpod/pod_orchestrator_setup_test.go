@@ -338,6 +338,7 @@ func setupOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDeps)) (*PodOr
 		RunnerSelector: &mockRunnerSelector{
 			resolveRunner: &runnerDomain.Runner{ID: 1},
 		},
+		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
 	}
 
 	for _, opt := range opts {
@@ -375,10 +376,6 @@ func withAgentResolver(ar AgentResolverForOrchestrator) func(*PodOrchestratorDep
 	return func(d *PodOrchestratorDeps) { d.AgentResolver = ar }
 }
 
-func withPrimaryCredential(resolver PrimaryCredentialResolver) func(*PodOrchestratorDeps) {
-	return func(d *PodOrchestratorDeps) { d.PrimaryCredential = resolver }
-}
-
 func withAgentConfigProvider(provider *mockAgentConfigProvider) func(*PodOrchestratorDeps) {
 	return func(d *PodOrchestratorDeps) {
 		d.ConfigBuilder = agent.NewConfigBuilder(provider, noopBundleLoader{})
@@ -387,3 +384,8 @@ func withAgentConfigProvider(provider *mockAgentConfigProvider) func(*PodOrchest
 }
 
 func ptrStr(s string) *string { return &s }
+
+func testModelResourceID() *int64 {
+	id := int64(9)
+	return &id
+}

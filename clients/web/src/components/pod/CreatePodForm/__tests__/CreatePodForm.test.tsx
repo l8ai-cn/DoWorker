@@ -104,6 +104,19 @@ describe("CreatePodForm", () => {
       expect(screen.getByText("ide.createPod.noImagesForCluster")).toBeInTheDocument();
     });
 
+    it("should show data loading errors instead of no images message", () => {
+      vi.mocked(usePodCreationData).mockReturnValue({
+        ...defaultPodCreationData,
+        error: "runner service unavailable",
+        runners: [],
+        availableAgents: [],
+      });
+
+      render(<CreatePodForm config={{ scenario: "workspace" }} />);
+      expect(screen.getByRole("alert")).toHaveTextContent("runner service unavailable");
+      expect(screen.queryByText("ide.createPod.noImagesForCluster")).not.toBeInTheDocument();
+    });
+
     it("should show cluster select when runners are online", () => {
       vi.mocked(usePodCreationData).mockReturnValue({
         ...defaultPodCreationData,

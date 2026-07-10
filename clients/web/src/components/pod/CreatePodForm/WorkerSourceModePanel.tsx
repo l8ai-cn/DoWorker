@@ -8,6 +8,7 @@ import { RunnerSelect } from "./RunnerSelect";
 import { WorkerImageSelect } from "./WorkerImageSelect";
 import { AutomationLevelSelect } from "./AutomationLevelSelect";
 import { AgentfileCodeEditor } from "./AgentfileCodeEditor";
+import { WorkerModelResourceSelect } from "./WorkerModelResourceSelect";
 
 interface WorkerSourceModePanelProps {
   form: CreatePodFormState;
@@ -65,6 +66,17 @@ export function WorkerSourceModePanel({
         error={form.validationErrors.agent}
         t={t}
       />
+      {form.selectedAgent && (
+        <WorkerModelResourceSelect
+          resources={form.modelResources}
+          selectedResourceId={form.selectedModelResourceId}
+          onSelect={form.setSelectedModelResourceId}
+          loading={form.loadingModelResources}
+          error={form.modelResourceError}
+          validationError={form.validationErrors.modelResource}
+          t={t}
+        />
+      )}
       <AutomationLevelSelect
         value={form.automationLevel}
         onChange={form.setAutomationLevel}

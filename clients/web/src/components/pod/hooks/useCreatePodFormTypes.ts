@@ -1,5 +1,6 @@
 import { PodData } from "@/lib/api";
 import type { CustomEnvEntry } from "@/components/settings/AgentCredentialsSettings/credentialForms/types";
+import type { EffectiveResource } from "@/lib/api/facade/aiResource";
 import type { KnowledgeMountSelection } from "@/lib/api/facade/knowledgeBaseApi";
 import type { PodMode } from "@/lib/pod-modes";
 import type { EnvBundleSummary } from "@/lib/viewModels/envBundleSummary";
@@ -16,20 +17,15 @@ export interface FormValidationErrors {
   branch?: string;
   prompt?: string;
   env?: string;
+  modelResource?: string;
+  runtimeBundles?: string;
 }
 
 export interface CreatePodFormState {
-  // Selection state (order: Runner -> Agent -> Others)
   selectedAgent: string | null;
   selectedRepository: number | null;
   selectedBranch: string;
-  // Credential bundle (kind='credential') — single-select. Empty string
-  // means "use the Agent's default authentication" (OAuth / CLI login etc.).
-  selectedCredentialName: string;
-  // Runtime bundle names (kind='runtime') — ordered multi-select. Each name
-  // maps to a `USE_ENV_BUNDLE "..."` directive emitted AFTER the credential
-  // line, so runtime preferences (model, log level, proxy) can override
-  // credential defaults when keys conflict.
+  selectedModelResourceId: number | null;
   selectedRuntimeBundleNames: string[];
   selectedSkillSlugs: string[];
   interactionMode: PodMode;
@@ -45,15 +41,14 @@ export interface CreatePodFormState {
   // Optional per-Worker token budget cap. null = no cap (org quota still
   // applies). Emitted as CONFIG token_budget in the AgentFile layer.
   tokenBudget: number | null;
-  // Virtual API key binding for quota/billing attribution. Null = agent default.
-  selectedVirtualKeyId: number | null;
-  // Per-Worker custom environment variables. Emitted as `ENV KEY = "value"`
-  // lines in the generated AgentFile layer.
   customEnv: CustomEnvEntry[];
 
-  // EnvBundles (credential + runtime kinds) available for the selected agent
+  modelResources: EffectiveResource[];
+  loadingModelResources: boolean;
+  modelResourceError: string | null;
   envBundles: EnvBundleSummary[];
   loadingBundles: boolean;
+  bundleLoadError: string | null;
   repoSkills: InstalledSkill[];
   loadingSkills: boolean;
 
@@ -61,7 +56,7 @@ export interface CreatePodFormState {
   setSelectedAgent: (slug: string | null) => void;
   setSelectedRepository: (id: number | null) => void;
   setSelectedBranch: (branch: string) => void;
-  setSelectedCredentialName: (name: string) => void;
+  setSelectedModelResourceId: (id: number | null) => void;
   setSelectedRuntimeBundleNames: (names: string[]) => void;
   setSelectedSkillSlugs: (slugs: string[]) => void;
   setInteractionMode: (mode: PodMode) => void;
@@ -73,7 +68,6 @@ export interface CreatePodFormState {
   setDestroyAfterMinutes: (minutes: number) => void;
   setSelectedKnowledgeMounts: (mounts: KnowledgeMountSelection[]) => void;
   setTokenBudget: (budget: number | null) => void;
-  setSelectedVirtualKeyId: (id: number | null) => void;
   setCustomEnv: (entries: CustomEnvEntry[]) => void;
 
   // AgentFile Layer

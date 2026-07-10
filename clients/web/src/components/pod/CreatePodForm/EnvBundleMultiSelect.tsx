@@ -10,6 +10,8 @@ interface Props {
   selectedBundleNames: string[];
   onChange: (names: string[]) => void;
   loading?: boolean;
+  error?: string | null;
+  validationError?: string;
   t: (key: string) => string;
 }
 
@@ -31,6 +33,8 @@ export function EnvBundleMultiSelect({
   selectedBundleNames,
   onChange,
   loading,
+  error,
+  validationError,
   t,
 }: Props) {
   const toggle = useCallback(
@@ -178,10 +182,13 @@ export function EnvBundleMultiSelect({
         </div>
       )}
 
-      <p className="text-xs text-muted-foreground mt-1">
-        {selectedBundleNames.length === 0
+      <p
+        role={validationError || error ? "alert" : undefined}
+        className={validationError || error ? "text-xs text-destructive mt-1" : "text-xs text-muted-foreground mt-1"}
+      >
+        {validationError || error || (selectedBundleNames.length === 0
           ? t("ide.createPod.noRuntimeBundleSelectedHint")
-          : t("ide.createPod.multiBundleHint")}
+          : t("ide.createPod.multiBundleHint"))}
       </p>
     </div>
   );

@@ -11,9 +11,9 @@ import { WorkerCreateModeToggle } from "./WorkerCreateModeToggle";
 import { WorkerSourceModePanel } from "./WorkerSourceModePanel";
 import {
   WorkerStepRuntimePanel,
-  WorkerStepCapabilitiesPanel,
   WorkerStepAgentPanel,
 } from "./WorkerStepPanels";
+import { WorkerStepCapabilitiesPanel } from "./WorkerStepCapabilitiesPanel";
 import { step1Summary, step2Summary, step3Summary } from "./workerCreateStepSummaries";
 
 interface CreatePodFormFieldsProps {
@@ -37,7 +37,7 @@ interface CreatePodFormFieldsProps {
 }
 
 export function CreatePodFormFields(props: CreatePodFormFieldsProps) {
-  const { form, showPerpetual, t, initialWizardStep = 1, initialExpertSlug, repositories, actions } = props;
+  const { form, showPerpetual, t, initialWizardStep = 1, repositories, actions } = props;
   const [step, setStep] = useState<WorkerCreateStepId>(initialWizardStep);
   const agentReady = Boolean(form.selectedAgent);
 
@@ -58,7 +58,6 @@ export function CreatePodFormFields(props: CreatePodFormFieldsProps) {
           form.destroyPolicy,
           selectedRepoSlug,
           form.selectedBranch,
-          form.selectedCredentialName,
           t,
         ),
         complete: agentReady,

@@ -25,6 +25,10 @@ func mapOrchestratorErrorToHTTP(c *gin.Context, err error) {
 		apierr.BadRequest(c, apierr.UNSUPPORTED_INTERACTION_MODE, err.Error())
 	case errors.Is(err, agentpod.ErrInvalidAgentfileLayer):
 		apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
+	case errors.Is(err, agentpod.ErrMissingModelResource),
+		errors.Is(err, agentpod.ErrModelResourceEnvConflict),
+		errors.Is(err, agentpod.ErrModelResourceCommandConflict):
+		apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
 
 	case errors.Is(err, ErrQuotaExceeded):
 		apierr.PaymentRequired(c, apierr.CONCURRENT_POD_QUOTA_EXCEEDED, "Concurrent pod quota exceeded. Please upgrade your plan or terminate existing pods.")
@@ -50,6 +54,8 @@ func mapOrchestratorErrorToHTTP(c *gin.Context, err error) {
 
 	case errors.Is(err, agentpod.ErrConfigBuildFailed):
 		apierr.Respond(c, http.StatusInternalServerError, apierr.POD_CONFIG_BUILD_FAILED, "Failed to build pod configuration")
+	case errors.Is(err, agentpod.ErrModelResourceResolverUnavailable):
+		apierr.InternalError(c, err.Error())
 
 	default:
 		apierr.InternalError(c, "Failed to create pod")

@@ -6,38 +6,39 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra/email"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/websocket"
-	"github.com/redis/go-redis/v9"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	aimodelsvc "github.com/anthropics/agentsmesh/backend/internal/service/aimodel"
-	tokenquotasvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenquota"
-	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
+	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
 	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
 	"github.com/anthropics/agentsmesh/backend/internal/service/channel"
-	coordinatorservice 	"github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
-	extensionservice 	"github.com/anthropics/agentsmesh/backend/internal/service/extension"
+	coordinatorservice "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
 	envbundlesvc "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
+	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
 	"github.com/anthropics/agentsmesh/backend/internal/service/geo"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
+	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
 	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
-	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	skillSvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
-	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
 	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
 	"github.com/anthropics/agentsmesh/backend/internal/service/promocode"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	runnerlogservice "github.com/anthropics/agentsmesh/backend/internal/service/runnerlog"
+	skillSvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
 	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
 	supportticketservice "github.com/anthropics/agentsmesh/backend/internal/service/supportticket"
 	"github.com/anthropics/agentsmesh/backend/internal/service/ticket"
+	tokenquotasvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenquota"
 	tokenusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenusage"
 	"github.com/anthropics/agentsmesh/backend/internal/service/user"
+	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
+	"github.com/redis/go-redis/v9"
 )
 
 // MessageService is a type alias for agent.MessageService
@@ -61,9 +62,10 @@ type Services struct {
 	Autopilot          *agentpod.AutopilotControllerService // AutopilotController automation service
 	Channel            *channel.Service
 	Ticket             *ticket.Service
-	MRSync             *ticket.MRSyncService // MR sync for webhook events
+	MRSync             *ticket.MRSyncService       // MR sync for webhook events
 	AgentPodSettings   *agentpod.SettingsService   // AgentPod user settings
 	AgentPodAIProvider *agentpod.AIProviderService // AgentPod AI provider management
+	AIResource         *airesourcesvc.Service      // Unified AI resource center
 	AIModel            *aimodelsvc.Service         // Model pool (org/user model configs)
 	VirtualKey         *virtualkeysvc.Service      // Virtual API keys (quota/billing handles)
 	TokenQuota         *tokenquotasvc.Service      // Token quotas + usage report
@@ -85,8 +87,8 @@ type Services struct {
 	RunnerGRPCAdapter *grpcserver.GRPCRunnerAdapter
 
 	// Sandbox query service
-	SandboxQueryService  *runner.SandboxQueryService  // Sandbox status query service
-	SandboxFsService     *runner.SandboxFsService     // Sandbox filesystem ops
+	SandboxQueryService *runner.SandboxQueryService // Sandbox status query service
+	SandboxFsService    *runner.SandboxFsService    // Sandbox filesystem ops
 
 	// Upgrade command sender (gRPC adapter)
 	UpgradeCommandSender runner.UpgradeCommandSender

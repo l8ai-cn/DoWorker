@@ -189,11 +189,12 @@ func repositoryAgentDefinition(repoSlug string) *agentDomain.Agent {
 
 func repositoryOverrideRequest(layer *string, repositoryID *int64) *OrchestrateCreatePodRequest {
 	return &OrchestrateCreatePodRequest{
-		OrganizationID: 7,
-		UserID:         11,
-		RunnerID:       0,
-		AgentSlug:      "claude-code",
-		RepositoryID:   repositoryID,
-		AgentfileLayer: layer,
+		OrganizationID:  7,
+		UserID:          11,
+		RunnerID:        0,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		RepositoryID:    repositoryID,
+		AgentfileLayer:  layer,
 	}
 }

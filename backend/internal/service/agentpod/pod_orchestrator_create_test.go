@@ -35,13 +35,14 @@ func TestCreatePod_NormalMode_Success(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
-		Cols:           120,
-		Rows:           40,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
+		Cols:            120,
+		Rows:            40,
 	})
 
 	require.NoError(t, err)
@@ -58,11 +59,12 @@ func TestCreatePod_NormalMode_MissingRunnerID(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withRunnerSelector(nil))
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       0, // missing
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        0, // missing
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 
 	require.Error(t, err)
@@ -87,11 +89,12 @@ func TestCreatePod_AutoSelectRunner_Success(t *testing.T) {
 	)
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       0, // auto-select
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        0, // auto-select
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 
 	require.NoError(t, err)
@@ -118,11 +121,12 @@ func TestCreatePod_AutoSelectRunner_NoAvailableRunner(t *testing.T) {
 	)
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       0,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        0,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 
 	require.Error(t, err)
@@ -143,11 +147,12 @@ func TestCreatePod_AutoSelectRunner_AgentResolveError(t *testing.T) {
 	)
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       0,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        0,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 
 	require.Error(t, err)
@@ -174,11 +179,12 @@ func TestCreatePod_QuotaExceeded(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withBilling(billing))
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 
 	require.Error(t, err)
@@ -190,11 +196,12 @@ func TestCreatePod_NilBilling_SkipsQuotaCheck(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 
 	require.NoError(t, err)
@@ -206,11 +213,12 @@ func TestCreatePod_NilCoordinator(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t)
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 
 	require.NoError(t, err)
@@ -223,11 +231,12 @@ func TestCreatePod_CoordinatorSendFailure_ReturnsError(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 
 	require.Error(t, err)
@@ -248,14 +257,16 @@ func TestCreatePod_ConfigBuildFailure(t *testing.T) {
 		PodService:     podSvc,
 		ConfigBuilder:  configBuilder,
 		RunnerSelector: &mockRunnerSelector{resolveRunner: &runnerDomain.Runner{ID: 1}},
+		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
 	})
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 
 	require.Error(t, err)
@@ -267,11 +278,12 @@ func TestCreatePod_SessionID_SetForNormalMode(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		AgentfileLayer: ptrStr("CONFIG mcp_enabled = true"),
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  ptrStr("CONFIG mcp_enabled = true"),
 	})
 
 	require.NoError(t, err)

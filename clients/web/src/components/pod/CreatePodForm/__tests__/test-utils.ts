@@ -8,6 +8,7 @@ export const mockFormSubmit = vi.fn();
 export const mockSetPrompt = vi.fn();
 export const mockSetAlias = vi.fn();
 export const mockSetSelectedAgent = vi.fn();
+export const mockSetSelectedModelResourceId = vi.fn();
 export const mockResetPluginConfig = vi.fn();
 
 export const defaultPodCreationData = {
@@ -25,23 +26,29 @@ export const defaultFormState = {
   selectedAgent: null,
   selectedRepository: null,
   selectedBranch: "",
-  selectedCredentialName: "",
+  selectedModelResourceId: null,
   selectedRuntimeBundleNames: [] as string[],
   selectedSkillSlugs: [] as string[],
   interactionMode: POD_MODE_PTY,
+  automationLevel: "autonomous",
   prompt: "",
   alias: "",
   envBundles: [],
   loadingBundles: false,
+  bundleLoadError: null,
+  modelResources: [],
+  loadingModelResources: false,
+  modelResourceError: null,
   repoSkills: [],
   loadingSkills: false,
   setSelectedAgent: mockSetSelectedAgent,
   setSelectedRepository: vi.fn(),
   setSelectedBranch: vi.fn(),
-  setSelectedCredentialName: vi.fn(),
+  setSelectedModelResourceId: mockSetSelectedModelResourceId,
   setSelectedRuntimeBundleNames: vi.fn(),
   setSelectedSkillSlugs: vi.fn(),
   setInteractionMode: vi.fn(),
+  setAutomationLevel: vi.fn(),
   setPrompt: mockSetPrompt,
   setAlias: mockSetAlias,
   perpetual: false,
@@ -49,14 +56,12 @@ export const defaultFormState = {
   destroyAfterMinutes: 120,
   selectedKnowledgeMounts: [],
   tokenBudget: null,
-  selectedVirtualKeyId: null,
   customEnv: [],
   setPerpetual: vi.fn(),
   setDestroyPolicy: vi.fn(),
   setDestroyAfterMinutes: vi.fn(),
   setSelectedKnowledgeMounts: vi.fn(),
   setTokenBudget: vi.fn(),
-  setSelectedVirtualKeyId: vi.fn(),
   setCustomEnv: vi.fn(),
   selectedAgentSlug: "",
   supportedModes: [POD_MODE_PTY],
@@ -119,18 +124,6 @@ export const mockRepository = {
   updated_at: "2024-01-01T00:00:00Z",
 };
 
-export const mockCredentialProfile = {
-  id: 1,
-  user_id: 1,
-  agent_slug: "claude-code",
-  name: "My Credentials",
-  is_runner_host: false,
-  is_default: false,
-  is_active: true,
-  created_at: "2024-01-01T00:00:00Z",
-  updated_at: "2024-01-01T00:00:00Z",
-};
-
 export function clearAllMocks() {
   mockSetSelectedRunnerId.mockClear();
   mockFormReset.mockClear();
@@ -138,6 +131,7 @@ export function clearAllMocks() {
   mockSetPrompt.mockClear();
   mockSetAlias.mockClear();
   mockSetSelectedAgent.mockClear();
+  mockSetSelectedModelResourceId.mockClear();
   mockResetPluginConfig.mockClear();
 }
 

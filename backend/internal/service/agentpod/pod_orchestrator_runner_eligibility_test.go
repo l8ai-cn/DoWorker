@@ -28,6 +28,7 @@ func TestCreatePod_ExplicitRunner_UsesEligibilityResolver(t *testing.T) {
 		UserID:             23,
 		RunnerID:           5,
 		AgentSlug:          "claude-code",
+		ModelResourceID:    testModelResourceID(),
 		AgentfileLayer:     ptrStr("CONFIG mcp_enabled = true"),
 		QueueIfUnavailable: true,
 	})
@@ -55,10 +56,11 @@ func TestCreatePod_ExplicitRunner_ResolverRejectsBeforePersistenceOrDispatch(t *
 	)
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 17,
-		UserID:         23,
-		RunnerID:       5,
-		AgentSlug:      "claude-code",
+		OrganizationID:  17,
+		UserID:          23,
+		RunnerID:        5,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
 	})
 
 	require.ErrorIs(t, err, ErrNoAvailableRunner)
@@ -87,11 +89,12 @@ func TestCreatePod_ExplicitRunner_RejectsBeforeAgentOrRepositoryResolution(t *te
 	)
 
 	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 17,
-		UserID:         23,
-		RunnerID:       5,
-		AgentSlug:      "claude-code",
-		RepositoryID:   intPtr(61),
+		OrganizationID:  17,
+		UserID:          23,
+		RunnerID:        5,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		RepositoryID:    intPtr(61),
 	})
 
 	assert.ErrorIs(t, err, ErrNoAvailableRunner)
@@ -110,10 +113,11 @@ func TestCreatePod_ExplicitRunner_MissingResolverRejectsBeforePersistenceOrDispa
 	)
 
 	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 17,
-		UserID:         23,
-		RunnerID:       5,
-		AgentSlug:      "claude-code",
+		OrganizationID:  17,
+		UserID:          23,
+		RunnerID:        5,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
 	})
 
 	require.ErrorIs(t, err, ErrNoAvailableRunner)

@@ -83,12 +83,13 @@ func TestPodChain_AgentfileLayerToCommand(t *testing.T) {
 
 	layer := "MODE acp\nBRANCH \"feature-x\"\nPROMPT \"do something\"\nCONFIG permission_mode = \"bypassPermissions\"\n"
 	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "claude-code",
-		AgentfileLayer:   &layer,
-		Cols:           120, Rows: 40,
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  &layer,
+		Cols:            120, Rows: 40,
 	})
 	require.NoError(t, err)
 
@@ -144,11 +145,12 @@ func TestPodChain_RepoSlugResolution(t *testing.T) {
 
 	layer := "REPO \"org/repo-slug\"\n"
 	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "claude-code",
-		AgentfileLayer:   &layer,
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  &layer,
 	})
 	require.NoError(t, err)
 
@@ -185,7 +187,7 @@ func TestPodChain_CredentialFlow(t *testing.T) {
 
 	bundleLoader := &fakeEnvBundleLoader{
 		bundles: map[string]map[string]string{
-			"my-profile": {"ANTHROPIC_API_KEY": "enc-key-123"},
+			"runtime": {"FEATURE_FLAG": "enabled"},
 		},
 	}
 	cb := agent.NewConfigBuilder(provider, bundleLoader)
@@ -196,75 +198,22 @@ func TestPodChain_CredentialFlow(t *testing.T) {
 		withConfigBuilder(cb),
 	)
 
-	layer := "USE_ENV_BUNDLE \"my-profile\"\n"
+	layer := "USE_ENV_BUNDLE \"runtime\"\n"
 	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "claude-code",
-		AgentfileLayer: &layer,
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  &layer,
 	})
 	require.NoError(t, err)
 	require.NotNil(t, result.Pod)
 
 	cmd := coord.lastCmd
 	require.NotNil(t, cmd)
-	assert.Equal(t, "enc-key-123", cmd.EnvVars["ANTHROPIC_API_KEY"])
-}
-
-func TestPodChain_AutoPrimaryCredentialBundle(t *testing.T) {
-	coord := &mockPodCoordinator{}
-	agentfileSrc := "AGENT codex\nEXECUTABLE codex\nMODE acp \"app-server\"\nENV OPENAI_API_KEY SECRET OPTIONAL\nPROMPT_POSITION append\n"
-	provider := &mockAgentConfigProvider{
-		agentDef: &agentDomain.Agent{
-			Slug: "codex-cli", Name: "Codex CLI",
-			LaunchCommand: "codex", SupportedModes: "pty,acp",
-			AgentfileSource: &agentfileSrc, UsesLegacyColumns: false,
-		},
-		config: agentDomain.ConfigValues{},
-	}
-	resolver := &mockAgentResolver{
-		agentDef: &agentDomain.Agent{
-			Slug: "codex-cli", SupportedModes: "pty,acp",
-			AgentfileSource: &agentfileSrc, UsesLegacyColumns: false,
-		},
-	}
-	bundleLoader := &fakeEnvBundleLoader{
-		bundles: map[string]map[string]string{
-			"codex": {
-				"OPENAI_API_KEY":  "sk-auto-mounted",
-				"OPENAI_BASE_URL": "https://token.example.test",
-				"OPENAI_MODEL":    "gpt-5.5",
-			},
-		},
-	}
-	cb := agent.NewConfigBuilder(provider, bundleLoader)
-
-	orch, _, ctx := setupIntegrationOrchestrator(t,
-		withCoordinator(coord),
-		withAgentResolver(resolver),
-		withConfigBuilder(cb),
-		withPrimaryCredential(stubPrimaryCredentialResolver{name: "codex"}),
-	)
-
-	layer := "MODE acp\nPROMPT \"ping\"\n"
-	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "codex-cli",
-		AgentfileLayer: &layer,
-	})
-	require.NoError(t, err)
-	require.NotNil(t, result.Pod)
-
-	cmd := coord.lastCmd
-	require.NotNil(t, cmd)
-	assert.Equal(t, "sk-auto-mounted", cmd.EnvVars["OPENAI_API_KEY"])
-	assert.Equal(t, "https://token.example.test", cmd.EnvVars["OPENAI_BASE_URL"])
-	assert.Equal(t, "gpt-5.5", cmd.EnvVars["OPENAI_MODEL"])
-	assert.Equal(t, []string{"app-server"}, cmd.LaunchArgs)
-	assert.Equal(t, "ping", cmd.Prompt)
+	assert.Equal(t, "enabled", cmd.EnvVars["FEATURE_FLAG"])
+	assert.Equal(t, "sk-test", cmd.EnvVars["ANTHROPIC_API_KEY"])
 }
 
 // ==================== Test 4: Unsupported Interaction Mode ====================
@@ -291,11 +240,12 @@ func TestPodChain_UnsupportedInteractionMode(t *testing.T) {
 	// AgentFile layer requests MODE acp, but agent only supports pty
 	layer := "MODE acp\n"
 	_, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "claude-code",
-		AgentfileLayer:   &layer,
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  &layer,
 	})
 	require.Error(t, err)
 	assert.ErrorIs(t, err, ErrUnsupportedInteractionMode)
@@ -326,10 +276,11 @@ func TestPodChain_ConfigBuilderFailure(t *testing.T) {
 	)
 
 	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "claude-code",
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
 	})
 	require.Error(t, err)
 	assert.ErrorIs(t, err, ErrConfigBuildFailed)
@@ -358,11 +309,12 @@ func TestPodChain_DispatchFailureMarksError(t *testing.T) {
 
 	layer := "PROMPT \"deploy fix\"\n"
 	_, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "claude-code",
-		AgentfileLayer:   &layer,
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  &layer,
 	})
 	require.Error(t, err)
 	assert.ErrorIs(t, err, ErrRunnerDispatchFailed)
@@ -418,11 +370,12 @@ func TestResumeIntegration_CodexFullChain(t *testing.T) {
 
 	sourceLayer := `CONFIG approval_mode = "never"`
 	source, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID: ctxOrgID(ctx),
-		UserID:         ctxUserID(ctx),
-		RunnerID:       ctxRunnerID(ctx),
-		AgentSlug:      "codex-cli",
-		AgentfileLayer: &sourceLayer,
+		OrganizationID:  ctxOrgID(ctx),
+		UserID:          ctxUserID(ctx),
+		RunnerID:        ctxRunnerID(ctx),
+		AgentSlug:       "codex-cli",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  &sourceLayer,
 	})
 	require.NoError(t, err)
 	require.NotNil(t, source.Pod)

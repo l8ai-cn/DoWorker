@@ -43,23 +43,13 @@ describe('buildAgentfileLayer', () => {
     expect(result).toContain('CONFIG model = "opus"')
   })
 
-  it('emits USE_ENV_BUNDLE for the credential bundle', () => {
+  it('emits runtime bundles in selection order', () => {
     const result = buildAgentfileLayer({
       configValues: {},
-      credentialBundleName: 'my-profile',
-    })
-    expect(result).toContain('USE_ENV_BUNDLE "my-profile"')
-  })
-
-  it('emits credential first then runtime bundles in selection order', () => {
-    const result = buildAgentfileLayer({
-      configValues: {},
-      credentialBundleName: 'creds-work',
       runtimeBundleNames: ['runtime-debug', 'shared-proxy'],
     })
     const lines = result.split('\n').filter((l) => l.startsWith('USE_ENV_BUNDLE'))
     expect(lines).toEqual([
-      'USE_ENV_BUNDLE "creds-work"',
       'USE_ENV_BUNDLE "runtime-debug"',
       'USE_ENV_BUNDLE "shared-proxy"',
     ])
@@ -80,7 +70,7 @@ describe('buildAgentfileLayer', () => {
   it('omits USE_ENV_BUNDLE entirely when nothing is selected', () => {
     expect(buildAgentfileLayer({ configValues: {} })).not.toContain('USE_ENV_BUNDLE')
     expect(
-      buildAgentfileLayer({ configValues: {}, credentialBundleName: '', runtimeBundleNames: [] }),
+      buildAgentfileLayer({ configValues: {}, runtimeBundleNames: [] }),
     ).not.toContain('USE_ENV_BUNDLE')
   })
 
@@ -93,14 +83,12 @@ describe('buildAgentfileLayer', () => {
     const result = buildAgentfileLayer({
       configValues: { model: 'opus', permission_mode: 'plan' },
       interactionMode: 'acp',
-      credentialBundleName: 'my-creds',
       runtimeBundleNames: ['dev-preferences'],
       prompt: 'fix the bug',
       repositorySlug: 'dev-org/demo-api',
       branchName: 'develop',
     })
     expect(result).toContain('MODE acp')
-    expect(result).toContain('USE_ENV_BUNDLE "my-creds"')
     expect(result).toContain('USE_ENV_BUNDLE "dev-preferences"')
     expect(result).toContain('PROMPT "fix the bug"')
     expect(result).toContain('CONFIG model = "opus"')
@@ -193,7 +181,7 @@ describe('buildAgentfileLayer', () => {
   it('emits ENV after USE_ENV_BUNDLE so custom vars win on conflicts', () => {
     const result = buildAgentfileLayer({
       configValues: {},
-      credentialBundleName: 'creds',
+      runtimeBundleNames: ['runtime'],
       customEnv: [{ key: 'FOO', value: 'bar' }],
     })
     const bundleIdx = result.indexOf('USE_ENV_BUNDLE')

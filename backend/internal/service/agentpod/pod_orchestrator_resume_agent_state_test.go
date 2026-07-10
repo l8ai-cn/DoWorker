@@ -17,11 +17,12 @@ func TestCreatePod_ResumeMode_SessionReused(t *testing.T) {
 
 	agentSlug := "claude-code"
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID: 1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		CreatedByID:    1,
-		SessionID:      "my-session-id",
+		OrganizationID:  1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		CreatedByID:     1,
+		SessionID:       "my-session-id",
 	})
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
@@ -48,11 +49,12 @@ func TestCreatePod_ResumeMode_CodexUsesCodexResumeLast(t *testing.T) {
 	)
 
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID: 1,
-		RunnerID:       1,
-		AgentSlug:      "codex-cli",
-		CreatedByID:    1,
-		SessionID:      "platform-session-id-not-codex-thread",
+		OrganizationID:  1,
+		RunnerID:        1,
+		AgentSlug:       "codex-cli",
+		ModelResourceID: testModelResourceID(),
+		CreatedByID:     1,
+		SessionID:       "platform-session-id-not-codex-thread",
 	})
 	require.NoError(t, err)
 
@@ -91,11 +93,12 @@ func TestCreatePod_ResumeMode_CodexPreservesSourceApprovalMode(t *testing.T) {
 
 	sourceLayer := `CONFIG approval_mode = "never"`
 	source, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
-		OrganizationID: 1,
-		UserID:         1,
-		RunnerID:       1,
-		AgentSlug:      "codex-cli",
-		AgentfileLayer: &sourceLayer,
+		OrganizationID:  1,
+		UserID:          1,
+		RunnerID:        1,
+		AgentSlug:       "codex-cli",
+		ModelResourceID: testModelResourceID(),
+		AgentfileLayer:  &sourceLayer,
 	})
 	require.NoError(t, err)
 
@@ -140,6 +143,7 @@ func TestCreatePod_ResumeMode_ClaudePreservesSourcePermissionMode(t *testing.T) 
 		UserID:          1,
 		RunnerID:        1,
 		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
 		AutomationLevel: podDomain.AutomationLevelAutoEdit,
 	})
 	require.NoError(t, err)
@@ -172,12 +176,13 @@ func TestCreatePod_ResumeMode_ClaudePreservesLegacyPermissionColumn(t *testing.T
 	)
 
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID: 1,
-		RunnerID:       1,
-		AgentSlug:      "claude-code",
-		CreatedByID:    1,
-		SessionID:      "legacy-session",
-		PermissionMode: "dontAsk",
+		OrganizationID:  1,
+		RunnerID:        1,
+		AgentSlug:       "claude-code",
+		ModelResourceID: testModelResourceID(),
+		CreatedByID:     1,
+		SessionID:       "legacy-session",
+		PermissionMode:  "dontAsk",
 	})
 	require.NoError(t, err)
 	db.Model(&podDomain.Pod{}).Where("pod_key = ?", sourcePod.PodKey).Update("status", podDomain.StatusTerminated)
@@ -201,11 +206,12 @@ func TestCreatePod_ResumeMode_NoSessionID_GeneratesNew(t *testing.T) {
 
 	agentSlug := "claude-code"
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID: 1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		CreatedByID:    1,
-		SessionID:      "", // No session ID
+		OrganizationID:  1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		CreatedByID:     1,
+		SessionID:       "", // No session ID
 	})
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
@@ -227,11 +233,12 @@ func TestCreatePod_ResumeMode_DisableResumeAgentSession(t *testing.T) {
 
 	agentSlug := "claude-code"
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID: 1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		CreatedByID:    1,
-		SessionID:      "session-1",
+		OrganizationID:  1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		CreatedByID:     1,
+		SessionID:       "session-1",
 	})
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
@@ -257,11 +264,12 @@ func TestCreatePod_ResumeMode_CompletedPod(t *testing.T) {
 
 	agentSlug := "claude-code"
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID: 1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		CreatedByID:    1,
-		SessionID:      "session-1",
+		OrganizationID:  1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		CreatedByID:     1,
+		SessionID:       "session-1",
 	})
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusCompleted, sourcePod.PodKey)
@@ -282,11 +290,12 @@ func TestCreatePod_ResumeMode_OrphanedPod(t *testing.T) {
 
 	agentSlug := "claude-code"
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID: 1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		CreatedByID:    1,
-		SessionID:      "session-1",
+		OrganizationID:  1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		CreatedByID:     1,
+		SessionID:       "session-1",
 	})
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusOrphaned, sourcePod.PodKey)
@@ -307,11 +316,12 @@ func TestCreatePod_ResumeMode_SandboxPath(t *testing.T) {
 
 	agentSlug := "claude-code"
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
-		OrganizationID: 1,
-		RunnerID:       1,
-		AgentSlug:    agentSlug,
-		CreatedByID:    1,
-		SessionID:      "session-1",
+		OrganizationID:  1,
+		RunnerID:        1,
+		AgentSlug:       agentSlug,
+		ModelResourceID: testModelResourceID(),
+		CreatedByID:     1,
+		SessionID:       "session-1",
 	})
 	require.NoError(t, err)
 

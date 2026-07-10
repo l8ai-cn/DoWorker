@@ -73,10 +73,6 @@ type ConfigBuildRequest struct {
 	// here without persisting an EnvBundle row.
 	SessionConfigBundles map[string]interface{}
 
-	// SessionEnvBundles are ephemeral credential maps merged into eval
-	// EnvBundles for USE_ENV_BUNDLE (model-pool → codex-cli OPENAI_*).
-	SessionEnvBundles map[string]map[string]string
-
 	// MergedAgentfileSource is the merged AgentFile source (base + user layer, serialized).
 	// Populated by orchestrator's extractFromAgentfileLayer when AgentfileLayer is provided.
 	// When empty (resume mode or no layer): buildFromAgentfile falls back to agent's base AgentFile.

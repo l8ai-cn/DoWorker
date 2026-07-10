@@ -115,14 +115,12 @@ export interface CreatePodInput {
   agentfile_layer?: string;
   automation_level?: string;
   repository_id?: number;
-  credential_profile_id?: number;
   cols?: number;
   rows?: number;
   source_pod_key?: string;
   resume_agent_session?: boolean;
   perpetual?: boolean;
-  virtual_api_key_id?: number;
-  model_config_id?: number;
+  model_resource_id?: number;
   token_budget?: number;
 }
 
@@ -139,17 +137,13 @@ export async function createPod(
     agentfileLayer: input.agentfile_layer,
     automationLevel: input.automation_level,
     repositoryId: input.repository_id === undefined ? undefined : BigInt(input.repository_id),
-    credentialProfileId:
-      input.credential_profile_id === undefined ? undefined : BigInt(input.credential_profile_id),
     cols: input.cols ?? 0,
     rows: input.rows ?? 0,
     sourcePodKey: input.source_pod_key,
     resumeAgentSession: input.resume_agent_session,
     perpetual: input.perpetual,
-    virtualApiKeyId:
-      input.virtual_api_key_id === undefined ? undefined : BigInt(input.virtual_api_key_id),
-    modelConfigId:
-      input.model_config_id === undefined ? undefined : BigInt(input.model_config_id),
+    modelResourceId:
+      input.model_resource_id === undefined ? undefined : BigInt(input.model_resource_id),
     tokenBudget: input.token_budget === undefined ? undefined : BigInt(input.token_budget),
   });
   const bytes = toBinary(CreatePodRequestSchema, req);
