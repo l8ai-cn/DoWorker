@@ -6,4 +6,4 @@ export type {
   RepositoryData,
   CreateRepositoryRequest,
   UpdateRepositoryRequest,
-} from "@agentsmesh/service-interface";
+} from "@do-worker/service-interface";

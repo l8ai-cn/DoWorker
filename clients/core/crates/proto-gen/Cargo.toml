@@ -1,0 +1,12 @@
+[package]
+name = "do_worker_proto_gen"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "gen-proto"
+path = "src/main.rs"
+
+[dependencies]
+prost-build = { workspace = true }

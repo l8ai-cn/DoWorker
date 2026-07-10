@@ -1,12 +1,13 @@
 {
-  "name": "agentsmesh-workspace-root",
+  "name": "do-worker-workspace-root",
   "private": true,
-  "description": "Workspace root. All frontend dependencies live here. First-party @agentsmesh/* packages are NOT in this manifest — they are managed entirely by Bazel via `internal_npm_package` macro and linked at //:node_modules via `npm_link_package`. See build_defs/web/internal_package.bzl.",
+  "description": "Workspace root. Frontend deps live here; first-party @do-worker/* and do-worker-wasm are pnpm workspace packages under packages/ and proto/. Bazel also links them via npm_link_package for hermetic builds.",
   "scripts": {
     "proto:gen-ts": "buf generate",
     "proto:gen-go": "bash scripts/proto-gen-go.sh",
     "proto:gen-amesh": "bash scripts/sync-amesh-convert.sh",
-    "proto:gen-go-all": "bash scripts/proto-gen-go.sh --force && bash scripts/sync-amesh-convert.sh --force"
+    "proto:gen-go-all": "bash scripts/proto-gen-go.sh --force && bash scripts/sync-amesh-convert.sh --force",
+    "build:wasm": "bash scripts/build-wasm.sh"
   },
   "dependencies": {
     "@blocknote/core": "^0.47.3",
@@ -23,6 +24,9 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@do-worker/proto": "workspace:*",
+    "@do-worker/service-interface": "workspace:*",
+    "@do-worker/service-runtime": "workspace:*",
     "@lezer/common": "^1.5.2",
     "@lezer/highlight": "^1.2.3",
     "@lezer/lr": "^1.4.8",
@@ -57,6 +61,7 @@
     "cmdk": "^1.1.1",
     "codemirror": "^6.0.2",
     "date-fns": "^4.1.0",
+    "do-worker-wasm": "workspace:*",
     "framer-motion": "^12.38.0",
     "gray-matter": "^4.0.3",
     "katex": "^0.16.45",
@@ -102,5 +107,21 @@
     "typescript": "^5",
     "vite": "^7",
     "vitest": "4.0.18"
+  },
+  "pnpm": {
+    "overrides": {
+      "@playwright/test": "1.50.1",
+      "playwright": "1.50.1",
+      "playwright-core": "1.50.1",
+      "eslint-plugin-react-hooks": "7.0.1"
+    },
+    "ignoredBuiltDependencies": [
+      "sharp",
+      "unrs-resolver"
+    ],
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "@parcel/watcher"
+    ]
   }
 }

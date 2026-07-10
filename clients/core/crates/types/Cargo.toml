@@ -1,0 +1,53 @@
+[package]
+name = "agentsmesh_types"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+prost = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+agent_proto = { workspace = true }
+apikey_proto = { workspace = true }
+app_state_proto = { workspace = true }
+auth_proto = { workspace = true }
+auth_state_proto = { workspace = true }
+autopilot_proto = { workspace = true }
+billing_proto = { workspace = true }
+binding_proto = { workspace = true }
+blockstore_proto = { workspace = true }
+blockstore_state_proto = { workspace = true }
+channel_proto = { workspace = true }
+channel_state_proto = { workspace = true }
+env_bundle_proto = { workspace = true }
+extension_proto = { workspace = true }
+events_proto = { workspace = true }
+file_proto = { workspace = true }
+grant_proto = { workspace = true }
+invitation_proto = { workspace = true }
+knowledgebase_proto = { workspace = true }
+license_proto = { workspace = true }
+loop_proto = { workspace = true }
+loop_state_proto = { workspace = true }
+mesh_proto = { workspace = true }
+mesh_state_proto = { workspace = true }
+notification_proto = { workspace = true }
+org_proto = { workspace = true }
+pod_proto = { workspace = true }
+pod_state_proto = { workspace = true }
+promocode_proto = { workspace = true }
+repository_proto = { workspace = true }
+repo_state_proto = { workspace = true }
+runner_api_proto = { workspace = true }
+runner_state_proto = { workspace = true }
+autopilot_state_proto = { workspace = true }
+acp_state_proto = { workspace = true }
+sso_proto = { workspace = true }
+support_ticket_proto = { workspace = true }
+ticket_proto = { workspace = true }
+ticket_state_proto = { workspace = true }
+ticket_relations_proto = { workspace = true }
+token_usage_proto = { workspace = true }
+user_proto = { workspace = true }
+user_credential_proto = { workspace = true }

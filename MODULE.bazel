@@ -27,9 +27,10 @@ bazel_dep(name = "platforms", version = "0.0.11")
 bazel_dep(name = "rules_cc", version = "0.0.17")
 
 # Resolution-only stub CC toolchain so `--platforms=…:linux_amd64` cross builds
-# (arm64 host → amd64 nodes) can resolve the CC toolchain that rust
+# (arm64 macOS host → amd64 nodes) can resolve the CC toolchain that rust
 # prost/crate_universe targets reference. Never invoked — see
-# //tools/crosscc:cc_toolchain_config.bzl.
+# //tools/crosscc:cc_toolchain_config.bzl. Registered with
+# exec_compatible_with=[macos] so linux/amd64 CI never selects the stub.
 register_toolchains("//tools/crosscc:stub_cc_linux_amd64")
 
 ###############################################################################

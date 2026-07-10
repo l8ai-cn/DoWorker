@@ -1,6 +1,6 @@
 name: Bazel
 
-# Unified CI workflow — one entry point for everything. Delegates to
+# Unified CI workflow — one entry point for everything (PR gate). Delegates to
 # Bazel targets where they exist (Go tests, Rust tests, buildifier,
 # Vitest) and falls back to pnpm / go / docker CLIs for jobs whose
 # Bazel equivalents aren't wired yet (lint, Next.js build, Docker
@@ -188,12 +188,12 @@ jobs:
           set -euo pipefail
           cd bazel-bin/runner/cmd/runner
           expected=(
-            agentsmesh-runner_linux_amd64.tar.gz
-            agentsmesh-runner_linux_arm64.tar.gz
-            agentsmesh-runner_darwin_amd64.tar.gz
-            agentsmesh-runner_darwin_arm64.tar.gz
-            agentsmesh-runner_windows_amd64.zip
-            agentsmesh-runner_windows_arm64.zip
+            do-worker-runner_linux_amd64.tar.gz
+            do-worker-runner_linux_arm64.tar.gz
+            do-worker-runner_darwin_amd64.tar.gz
+            do-worker-runner_darwin_arm64.tar.gz
+            do-worker-runner_windows_amd64.zip
+            do-worker-runner_windows_arm64.zip
             checksums.txt
           )
           for f in "${expected[@]}"; do
@@ -237,10 +237,10 @@ jobs:
           mkdir -p release-staging
           sign_script="${GITHUB_WORKSPACE}/runner/build/scripts/sign-darwin.sh"
 
-          for arch in bazel-bin/runner/cmd/runner/agentsmesh-runner_*.tar.gz \
-                     bazel-bin/runner/cmd/runner/agentsmesh-runner_*.zip; do
+          for arch in bazel-bin/runner/cmd/runner/do-worker-runner_*.tar.gz \
+                     bazel-bin/runner/cmd/runner/do-worker-runner_*.zip; do
               base="$(basename "$arch")"
-              new_name="${base/agentsmesh-runner_/agentsmesh-runner_${version}_}"
+              new_name="${base/do-worker-runner_/do-worker-runner_${version}_}"
               dest="${GITHUB_WORKSPACE}/release-staging/${new_name}"
 
               if [[ "$base" == *darwin*.tar.gz ]]; then
@@ -248,7 +248,7 @@ jobs:
                   tar -xzf "$arch" -C "$tmp"
                   # In a real release, sign-darwin.sh runs here. PR smoke
                   # has no cert secret, so we just exercise the unpack/repack.
-                  tar -C "$tmp" -czf "$dest" agentsmesh-runner README.md LICENSE
+                  tar -C "$tmp" -czf "$dest" do-worker-runner README.md LICENSE
                   rm -rf "$tmp"
               else
                   cp "$arch" "$dest"
@@ -257,7 +257,7 @@ jobs:
 
           (
               cd release-staging
-              sha256sum agentsmesh-runner_*.tar.gz agentsmesh-runner_*.zip > checksums.txt
+              sha256sum do-worker-runner_*.tar.gz do-worker-runner_*.zip > checksums.txt
           )
           ls -la release-staging/
           # Sanity: each renamed file should round-trip through `sha256sum -c`.
@@ -331,6 +331,14 @@ jobs:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
+      # web image layers + Next.js node_modules can exhaust the ~14 GiB
+      # ubuntu-latest rootfs when disk-cache restore leaves large leftovers.
+      - name: Free disk for OCI layer packing
+        if: matrix.service == 'web' || matrix.service == 'web-admin'
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
+          df -h /
       # Replaces the legacy ci/<service>.Dockerfile verify. The rules_oci
       # target produces the same distroless-based image release.yml pushes
       # to Docker Hub + registry.agentsmesh.ai on main.
@@ -338,14 +346,14 @@ jobs:
 
   web-e2e:
     name: E2E (Web — Playwright shard ${{ matrix.shard }}/${{ strategy.job-total }})
-    # Default route: self-hosted on server-8t (web-e2e-1, web-e2e-2 — 8 vCPU /
-    # 12 GiB / 300 GB each, GH Actions runner v2.334.0 systemd-managed). Set
-    # repository variable WEB_E2E_RUNNER=hosted to fall back to ubuntu-latest
-    # if the self-hosted pair is offline / under maintenance — sharding still
-    # applies (two shards run on two GH-hosted runners in parallel).
-    # Per-call override: workflow_dispatch input "runner_override".
-    runs-on: ${{ vars.WEB_E2E_RUNNER == 'hosted' && 'ubuntu-latest' || fromJSON('["self-hosted", "web-e2e"]') }}
-    timeout-minutes: 45
+    # Default to ubuntu-latest so PRs are not blocked when the self-hosted
+    # web-e2e pair is offline / unregistered. Set repository variable
+    # WEB_E2E_RUNNER=self-hosted to pin shards onto ["self-hosted","web-e2e"].
+    runs-on: ${{ vars.WEB_E2E_RUNNER == 'self-hosted' && fromJSON('["self-hosted", "web-e2e"]') || 'ubuntu-latest' }}
+    # Hosted cold start: next_dev (Rust wasm + Next) can take ~15-20 min before
+    # listen; the Playwright shard itself needs another ~20-30 min. 45 min was
+    # cancelling mid-suite on ubuntu-latest.
+    timeout-minutes: 75
     needs: smoke
     strategy:
       fail-fast: false
@@ -369,6 +377,13 @@ jobs:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
+      # next_dev extracts npm + Rust wasm on ~14 GiB ubuntu-latest rootfs;
+      # without pruning, cold builds hit ENOSPC mid-extract.
+      - name: Free disk for Playwright next_dev
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
+          df -h /
 
       # dev.sh requires ibazel for hot reload of host backend / relay.
       # Install the linux-amd64 release binary; the doctor check in dev.sh
@@ -424,6 +439,11 @@ jobs:
           bazel run //deploy/dev:clean || true
 
       - name: Bring up dev backend stack
+        env:
+          DEV_SKIP_DOAGENT: "1"
+          # Only e2e-echo images ship e2e-mock-agent; other agent runtimes
+          # would steal CreatePod scheduling and fail with not-found-in-PATH.
+          DEV_E2E_RUNNERS_ONLY: "1"
         run: |
           bazel run //deploy/dev:backend_only
           # `dev.sh` exits 0 once compose is up and migrations + seed have
@@ -449,6 +469,28 @@ jobs:
             sleep 3
           done
           echo "backend never reported healthy"; exit 1
+
+      - name: Wait for e2e-echo runners online
+        run: |
+          source deploy/dev/.env
+          for i in {1..60}; do
+            online=$(docker exec "${COMPOSE_PROJECT_NAME}-postgres-1" \
+              psql -U agentsmesh -d agentsmesh -Atc \
+              "SELECT count(*) FROM runners
+               WHERE node_id IN ('dev-runner','dev-runner-2')
+                 AND status='online'
+                 AND last_heartbeat > now()-interval '60 seconds'" 2>/dev/null || echo 0)
+            if [[ "${online}" -ge 1 ]]; then
+              echo "e2e-echo runner(s) online: ${online}"; exit 0
+            fi
+            sleep 3
+          done
+          echo "no e2e-echo runner online after wait"
+          docker compose -f deploy/dev/docker-compose.yml \
+            -f deploy/dev/docker-compose.runners.yml \
+            --project-name "${COMPOSE_PROJECT_NAME}" \
+            logs --tail=80 runner-e2e-echo runner-e2e-echo-2 || true
+          exit 1
 
       - name: Install Playwright chromium-headless-shell
         run: |
@@ -532,8 +574,10 @@ jobs:
         if: failure()
         working-directory: deploy/dev
         run: |
-          docker compose logs --tail=200 backend  || true
-          docker compose logs --tail=200 runner   || true
+          source .env
+          docker compose logs --tail=200 || true
+          docker compose -f docker-compose.yml -f docker-compose.runners.yml \
+            logs --tail=200 runner-e2e-echo runner-e2e-echo-2 || true
 
   hive-e2e:
     name: E2E (Hive — compat API + browser)
@@ -570,6 +614,8 @@ jobs:
           pnpm exec playwright install chromium-headless-shell
 
       - name: Bring up dev backend stack
+        env:
+          DEV_SKIP_DOAGENT: "1"
         run: |
           bazel run //deploy/dev:backend_only
           sleep 15
@@ -615,6 +661,8 @@ jobs:
           sudo chmod +x /usr/local/bin/ibazel
 
       - name: Bring up dev backend stack
+        env:
+          DEV_SKIP_DOAGENT: "1"
         run: |
           bazel run //deploy/dev:backend_only
           # Two runner containers (dev-runner + dev-runner-2 for cross-runner

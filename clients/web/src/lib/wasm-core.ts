@@ -1,8 +1,8 @@
 import initWasm, {
   version, WasmApiClient, WasmAuthManager, WasmEventsManager, WasmWebSocket,
   init_logger, log_event,
-} from "agentsmesh-wasm";
-import { markServiceReady, setPlatformInit } from "@agentsmesh/service-runtime";
+} from "do-worker-wasm";
+import { markServiceReady, setPlatformInit } from "@do-worker/service-runtime";
 import { getApiBaseUrl } from "./env";
 import { registerAll } from "./wasm-getters";
 import { installConsoleCapture } from "./console-capture";
@@ -36,8 +36,8 @@ async function doWasmInit(): Promise<void> {
 
 setPlatformInit(doWasmInit);
 
-export { ensurePlatformReady as initWasmCore } from "@agentsmesh/service-runtime";
-export { isServiceReady as isWasmReady, NOOP_PROXY, parseWasmAny } from "@agentsmesh/service-runtime";
+export { ensurePlatformReady as initWasmCore } from "@do-worker/service-runtime";
+export { isServiceReady as isWasmReady, NOOP_PROXY, parseWasmAny } from "@do-worker/service-runtime";
 
 export { WasmEventsManager, WasmWebSocket };
 export { log_event as wasmLogEvent };
@@ -57,4 +57,4 @@ export {
   getUserCredentialService, getEnvBundleService, getOrgApiService, getAgentService,
   getTicketRelationsService, getFileService, getSupportTicketService,
   getAuthConnectService, getBlockstoreService, getKnowledgeBaseService,
-} from "@agentsmesh/service-runtime";
+} from "@do-worker/service-runtime";

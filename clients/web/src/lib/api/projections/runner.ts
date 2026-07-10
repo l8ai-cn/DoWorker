@@ -1,5 +1,5 @@
-import type { Runner as ProtoRunner } from "@agentsmesh/proto/runner_api/v1/runner_pb";
-import type { RunnerData } from "@agentsmesh/service-interface";
+import type { Runner as ProtoRunner } from "@do-worker/proto/runner_api/v1/runner_pb";
+import type { RunnerData } from "@do-worker/service-interface";
 import { parseJSON } from "./parse-json";
 
 // Single source of truth for the proto.runner_api.v1.Runner → RunnerData

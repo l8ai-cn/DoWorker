@@ -34,7 +34,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 	}
 
 	r := gin.New()
-	r.Use(otelgin.Middleware("agentsmesh-backend"))
+	r.Use(otelgin.Middleware("do-worker-backend"))
 	r.Use(gin.Logger())
 	r.Use(gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
 		slog.ErrorContext(c.Request.Context(), "Panic recovered in handler",

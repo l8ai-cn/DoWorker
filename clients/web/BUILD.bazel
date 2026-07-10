@@ -54,16 +54,16 @@ ts_project(
     visibility = ["//clients:__subpackages__"],
     deps = [
         "//:node_modules",
-        # Bazel-native first-party packages (`@agentsmesh/*` + the
-        # `agentsmesh-wasm` npm wrapper around the Rust→wasm-bindgen
+        # Bazel-native first-party packages (`@do-worker/*` + the
+        # `do-worker-wasm` npm wrapper around the Rust→wasm-bindgen
         # pipeline) aren't in the pnpm-derived `//:node_modules`
         # aggregate; tsc needs explicit link targets to resolve them.
-        "//:node_modules/@agentsmesh/service-interface",
-        "//:node_modules/@agentsmesh/service-runtime",
-        # `@agentsmesh/proto` ships the generated Connect-RPC TS
+        "//:node_modules/@do-worker/service-interface",
+        "//:node_modules/@do-worker/service-runtime",
+        # `@do-worker/proto` ships the generated Connect-RPC TS
         # modules; `@proto/*` in tsconfig resolves through this mount.
-        "//:node_modules/@agentsmesh/proto",
-        "//:node_modules/agentsmesh-wasm",
+        "//:node_modules/@do-worker/proto",
+        "//:node_modules/do-worker-wasm",
     ],
 )
 
@@ -113,13 +113,13 @@ _SRC_FILES = glob(
 )
 
 # Runtime data bundle the Next.js build needs: config files, package
-# manifests, linked node_modules. `agentsmesh-wasm` resolves through
-# `//:node_modules/agentsmesh-wasm` → `//clients/core/crates/wasm:wasm_pkg_npm`
+# manifests, linked node_modules. `do-worker-wasm` resolves through
+# `//:node_modules/do-worker-wasm` → `//clients/core/crates/wasm:wasm_pkg_npm`
 # (Bazel-native rust→wasm-bindgen pipeline; the wasm closure is
 # tokio-free, see clients/core/crates/wasm/BUILD.bazel for the
 # architectural rationale).
 #
-# First-party `@agentsmesh/*` packages are also Bazel-native (no
+# First-party `@do-worker/*` packages are also Bazel-native (no
 # `workspace:*` in root package.json; see build_defs/web/internal_package.bzl).
 # We must list each `npm_link_package` link explicitly because
 # `//:node_modules` only aggregates pnpm-lock.yaml-derived externals.
@@ -130,10 +130,10 @@ _NEXT_DATA_COMMON = [
     "postcss.config.mjs",
     "tsconfig.json",
     "//:node_modules",
-    "//:node_modules/@agentsmesh/service-interface",
-    "//:node_modules/@agentsmesh/service-runtime",
-    "//:node_modules/@agentsmesh/proto",
-    "//:node_modules/agentsmesh-wasm",
+    "//:node_modules/@do-worker/service-interface",
+    "//:node_modules/@do-worker/service-runtime",
+    "//:node_modules/@do-worker/proto",
+    "//:node_modules/do-worker-wasm",
     "//:package_json_bin",
     # Generated TS proto message classes — `@proto/*` alias resolves
     # to `../../proto/gen/ts/*` (tsconfig.json paths). Next.js's
@@ -196,9 +196,9 @@ next_standalone_app(
         "//:node_modules/caniuse-lite",
         "//:node_modules/postcss",
         "//:node_modules/styled-jsx",
-        "//:node_modules/@agentsmesh/service-runtime",
-        "//:node_modules/@agentsmesh/service-interface",
-        "//:node_modules/agentsmesh-wasm",
+        "//:node_modules/@do-worker/service-runtime",
+        "//:node_modules/@do-worker/service-interface",
+        "//:node_modules/do-worker-wasm",
     ],
 )
 
@@ -254,9 +254,9 @@ vitest_test(
         "//:node_modules",
         # First-party Bazel-managed links that vitest needs to resolve
         # at runtime via Node's `node_modules/<name>` walk.
-        "//:node_modules/@agentsmesh/service-interface",
-        "//:node_modules/@agentsmesh/service-runtime",
-        "//:node_modules/agentsmesh-wasm",
+        "//:node_modules/@do-worker/service-interface",
+        "//:node_modules/@do-worker/service-runtime",
+        "//:node_modules/do-worker-wasm",
         "//:package_json_bin",
         # Generated TS proto message classes used by Connect adapters
         # under src/lib/api/. vitest's `@proto/*` alias resolves to

@@ -10,4 +10,4 @@ export type {
   SandboxStatus,
   RunnerAuthStatus,
   RunnerAuthorizeResponse,
-} from "@agentsmesh/service-interface";
+} from "@do-worker/service-interface";

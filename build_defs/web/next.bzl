@@ -21,7 +21,7 @@ Usage:
             "next.config.ts",
             "package.json",
             ":node_modules",
-            "//:node_modules/agentsmesh-wasm",  # bazel-built wasm pkg
+            "//:node_modules/do-worker-wasm",  # bazel-built wasm pkg
             ...
         ],
         next_js_binary = ":next_js_binary",

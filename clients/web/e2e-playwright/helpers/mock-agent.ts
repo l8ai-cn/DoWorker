@@ -1,4 +1,5 @@
 import type { ApiFixture } from "../fixtures/api.fixture";
+import { pickE2EEchoRunner } from "./e2e-echo-runner";
 import { TEST_ORG_SLUG, getApiBaseUrl } from "./env";
 import { pollUntil } from "./retry";
 
@@ -44,7 +45,7 @@ export interface MockAgentPod {
   cleanup: () => Promise<void>;
 }
 
-interface Runner { id: bigint }
+interface Runner { id: bigint; nodeId?: string }
 interface Pod { podKey: string }
 
 // createMockAgentPod spawns a pod backed by the e2e-mock-agent binary via
@@ -58,10 +59,7 @@ export async function createMockAgentPod(
 ): Promise<MockAgentPod> {
   const cc = await api.connect();
   const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items?: Runner[] };
-  if (!runners?.length) {
-    throw new Error("createMockAgentPod: dev env must have at least one online runner");
-  }
-  const runnerId = runners[0].id;
+  const runnerId = pickE2EEchoRunner(runners).id;
 
   const input: Record<string, unknown> = {
     orgSlug: TEST_ORG_SLUG,

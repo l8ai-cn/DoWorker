@@ -76,7 +76,7 @@ rust_wasm_library(
 )
 
 # package.json that turns the `wasm_pkg` directory into an importable
-# npm package called `agentsmesh-wasm`. `main`/`types` point at the
+# npm package called `do-worker-wasm`. `main`/`types` point at the
 # rust_wasm_bindgen-generated files (named after the target — `wasm_pkg.js`
 # etc.). `sideEffects: ["./snippets/*"]` mirrors the wasm-pack contract:
 # snippets contain wasm-bindgen-generated JS shims that must NOT be
@@ -86,7 +86,7 @@ write_file(
     out = "wasm_pkg/package.json",
     content = [
         "{",
-        '  "name": "agentsmesh-wasm",',
+        '  "name": "do-worker-wasm",',
         '  "type": "module",',
         '  "version": "0.1.0",',
         '  "main": "wasm_pkg.js",',
@@ -111,7 +111,7 @@ npm_package(
         ":wasm_pkg",
         ":wasm_pkg_package_json",
     ],
-    package = "agentsmesh-wasm",
+    package = "do-worker-wasm",
     root_paths = ["clients/core/crates/wasm/wasm_pkg"],
     visibility = ["//visibility:public"],
 )

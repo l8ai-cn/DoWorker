@@ -291,7 +291,7 @@ func (p *DingTalkProvider) accessToken(ctx context.Context, cfg dingTalkBridgeCo
 	var out struct {
 		AccessToken string `json:"accessToken"`
 	}
-	u := fmt.Sprintf("https://api.dingtalk.com/v1.0/oauth2/accessToken")
+	const u = "https://api.dingtalk.com/v1.0/oauth2/accessToken"
 	err := doJSONRequest(ctx, p.client(), http.MethodPost, u, nil, map[string]string{
 		"appKey": cfg.AppKey, "appSecret": cfg.AppSecret,
 	}, &out)

@@ -215,17 +215,17 @@ jobs:
           mkdir -p release-staging
           sign_script="${GITHUB_WORKSPACE}/runner/build/scripts/sign-darwin.sh"
 
-          for arch in bazel-bin/runner/cmd/runner/agentsmesh-runner_*.tar.gz \
-                     bazel-bin/runner/cmd/runner/agentsmesh-runner_*.zip; do
+          for arch in bazel-bin/runner/cmd/runner/do-worker-runner_*.tar.gz \
+                     bazel-bin/runner/cmd/runner/do-worker-runner_*.zip; do
               base="$(basename "$arch")"
-              new_name="${base/agentsmesh-runner_/agentsmesh-runner_${version}_}"
+              new_name="${base/do-worker-runner_/do-worker-runner_${version}_}"
               dest="${GITHUB_WORKSPACE}/release-staging/${new_name}"
 
               if [[ "$base" == *darwin*.tar.gz ]]; then
                   tmp="$(mktemp -d)"
                   tar -xzf "$arch" -C "$tmp"
-                  (cd "$tmp" && "$sign_script" agentsmesh-runner)
-                  tar -C "$tmp" -czf "$dest" agentsmesh-runner README.md LICENSE
+                  (cd "$tmp" && "$sign_script" do-worker-runner)
+                  tar -C "$tmp" -czf "$dest" do-worker-runner README.md LICENSE
                   rm -rf "$tmp"
               else
                   cp "$arch" "$dest"
@@ -234,7 +234,7 @@ jobs:
 
           (
               cd release-staging
-              sha256sum agentsmesh-runner_*.tar.gz agentsmesh-runner_*.zip > checksums.txt
+              sha256sum do-worker-runner_*.tar.gz do-worker-runner_*.zip > checksums.txt
           )
           ls -la release-staging/
           cat release-staging/checksums.txt
@@ -250,7 +250,7 @@ jobs:
           # mode here before the release goes out: extract the linux
           # archive (no signing dance, fast on ubuntu) and assert
           # --version contains the expected nightly version string.
-          archive="release-staging/agentsmesh-runner_${EXPECT_VERSION}_linux_amd64.tar.gz"
+          archive="release-staging/do-worker-runner_${EXPECT_VERSION}_linux_amd64.tar.gz"
           if [[ ! -f "$archive" ]]; then
             echo "::error::expected staged archive missing: $archive" >&2
             ls -la release-staging/ >&2
@@ -259,7 +259,7 @@ jobs:
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
           tar -xzf "$archive" -C "$tmp"
-          actual="$("$tmp/agentsmesh-runner" --version 2>&1)"
+          actual="$("$tmp/do-worker-runner" --version 2>&1)"
           echo "Got: $actual"
           if ! grep -qF "$EXPECT_VERSION" <<<"$actual"; then
             echo "::error::binary --version output does not contain expected '$EXPECT_VERSION'" >&2

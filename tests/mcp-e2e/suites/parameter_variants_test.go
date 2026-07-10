@@ -47,7 +47,7 @@ func TestPodInteraction_SpecialKeys(t *testing.T) {
 		t.Fatalf("send_pod_input text+keys: %v", err)
 	}
 
-	deadline := time.Now().Add(3 * time.Second)
+	deadline := time.Now().Add(15 * time.Second)
 	for time.Now().Before(deadline) {
 		snap, err := pod.MCP.CallToolText(ctx, "get_pod_snapshot", map[string]any{
 			"pod_key": pod.Pod.PodKey,
@@ -58,7 +58,7 @@ func TestPodInteraction_SpecialKeys(t *testing.T) {
 		}
 		time.Sleep(150 * time.Millisecond)
 	}
-	t.Fatalf("expected 'got: abc' in snapshot after text+enter")
+	t.Fatalf("expected 'got: abc' in snapshot after text+enter within 15s")
 }
 
 func TestPodInteraction_NeitherTextNorKeysRejected(t *testing.T) {

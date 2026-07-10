@@ -22,7 +22,7 @@ func main() {
 	slog.Info("Starting AgentsMesh Relay Server")
 
 	// Initialize OpenTelemetry
-	otelProvider, err := otelinit.InitProvider(context.Background(), "agentsmesh-relay", "1.0.0")
+	otelProvider, err := otelinit.InitProvider(context.Background(), "do-worker-relay", "1.0.0")
 	if err != nil {
 		slog.Warn("OpenTelemetry initialization failed, continuing without tracing", "error", err)
 	} else {

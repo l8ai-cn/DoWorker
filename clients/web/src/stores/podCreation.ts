@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { legacyPersistStorage } from "@/lib/zustand-legacy-persist";
 
 /**
  * Pod creation preferences - remembers last user choices.
@@ -79,7 +80,8 @@ export const usePodCreationStore = create<PodCreationPreferences>()(
       setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
-      name: "agentsmesh-pod-creation",
+      name: "do-worker-pod-creation",
+      storage: legacyPersistStorage("agentsmesh-pod-creation"),
       version: 6,
       // v1 stored `lastBundleName: string | null`; v2 unified into
       // `lastBundleNames: string[]`; v3 splits back into credential

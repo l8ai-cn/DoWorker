@@ -4,7 +4,23 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 )
+
+func waitForRelayData(t *testing.T, relay *mockRelayWriter, minLen int, timeout time.Duration) []byte {
+	t.Helper()
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		data := relay.getData()
+		if len(data) >= minLen {
+			return data
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	data := relay.getData()
+	t.Fatalf("relay data len=%d want>=%d within %s", len(data), minLen, timeout)
+	return data
+}
 
 // mockRelayWriter implements RelayWriter for testing.
 type mockRelayWriter struct {

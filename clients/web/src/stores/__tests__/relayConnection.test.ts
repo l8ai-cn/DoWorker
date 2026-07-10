@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { registerServiceProvider, markServiceReady } from "@agentsmesh/service-runtime";
+import { registerServiceProvider, markServiceReady } from "@do-worker/service-runtime";
 
 // The adapter delegates all connection management to getRelayManager(). These
 // tests pin the adapter's remaining responsibilities: endpoint delegation, the

@@ -6,7 +6,7 @@
 #   playwright.bzl        → playwright_test
 #   ts.bzl                → ts_project
 #   internal_package.bzl  → internal_npm_package, generated_package_json
-#                           (Bazel-native @agentsmesh/* package layout)
+#                           (Bazel-native @do-worker/* package layout)
 
 load("@aspect_rules_js//js:defs.bzl", "js_library")
 

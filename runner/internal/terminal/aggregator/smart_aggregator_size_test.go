@@ -72,10 +72,8 @@ func TestSmartAggregator_BufferLimitWithClearScreen(t *testing.T) {
 	agg.Write([]byte("\x1b[2J"))
 	agg.Write([]byte("new frame content"))
 
-	time.Sleep(100 * time.Millisecond)
+	lastFlush := waitForRelayData(t, relay, 1, 2*time.Second)
 	agg.Stop()
-
-	lastFlush := relay.getData()
 
 	if !bytes.Contains(lastFlush, []byte("\x1b[2J")) {
 		t.Error("Clear screen should be preserved")

@@ -20,7 +20,7 @@ func TestGetPath(t *testing.T) {
 	assert.NotEmpty(t, path)
 	assert.True(t, filepath.IsAbs(path))
 	assert.Equal(t, "runner.pid", filepath.Base(path))
-	assert.Equal(t, ".agentsmesh", filepath.Base(filepath.Dir(path)))
+	assert.Equal(t, ".do-worker", filepath.Base(filepath.Dir(path)))
 }
 
 func TestWriteAndRemove(t *testing.T) {

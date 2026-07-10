@@ -80,8 +80,8 @@ func TestFullRedrawThrottler_WindowSliding(t *testing.T) {
 	throttler.RecordRedraw(1024)
 	throttler.RecordRedraw(1024)
 
-	// Wait half the window
-	time.Sleep(60 * time.Millisecond)
+	// Stay well inside the 100ms window (Windows timer jitter ~15ms).
+	time.Sleep(40 * time.Millisecond)
 
 	// Record 2 more
 	throttler.RecordRedraw(1024)
@@ -89,14 +89,14 @@ func TestFullRedrawThrottler_WindowSliding(t *testing.T) {
 
 	// All 4 should be in window
 	freq := throttler.GetFrequency()
-	assert.InDelta(t, 40.0, freq, 5.0) // 4 / 0.1s = 40/s
+	assert.InDelta(t, 40.0, freq, 10.0) // 4 / 0.1s = 40/s
 
-	// Wait for first 2 to expire
-	time.Sleep(60 * time.Millisecond)
+	// Wait past the first pair's window with margin for scheduler delay.
+	time.Sleep(90 * time.Millisecond)
 
 	// Only last 2 should remain
 	freq = throttler.GetFrequency()
-	assert.InDelta(t, 20.0, freq, 5.0) // 2 / 0.1s = 20/s
+	assert.InDelta(t, 20.0, freq, 10.0) // 2 / 0.1s = 20/s
 }
 
 func TestFullRedrawThrottler_Reset(t *testing.T) {

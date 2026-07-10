@@ -2,7 +2,7 @@
 // `tsc --noEmit` (= `bazel build //clients/web:src --output_groups=typecheck`)
 // is the gate: if any of the listed wasm-bindgen method signatures the
 // stores actually call drifts away from what's exported in
-// `agentsmesh-wasm` (the npm wrapper around the Bazel-built wasm_pkg),
+// `do-worker-wasm` (the npm wrapper around the Bazel-built wasm_pkg),
 // these type assertions fail and the build fails.
 //
 // This catches the regression class that motivated this PR: the renderer
@@ -37,7 +37,7 @@ import type {
   WasmAppState,
   WasmBlockstoreService,
   WasmAuthManager,
-} from "agentsmesh-wasm";
+} from "do-worker-wasm";
 
 // Plain identity helper — `_Sig<F>` accepts any function type. We use it
 // only to surface a type error if the wasm method's signature changes

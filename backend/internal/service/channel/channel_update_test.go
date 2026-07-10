@@ -2,6 +2,7 @@ package channel
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
@@ -13,7 +14,8 @@ func TestListChannels(t *testing.T) {
 	ctx := context.Background()
 
 	for i := 0; i < 5; i++ {
-		svc.CreateChannel(ctx, &CreateChannelRequest{OrganizationID: 1, Name: string(rune('a' + i))})
+		// Names must yield slugkit-valid identifiers (len >= 2).
+		svc.CreateChannel(ctx, &CreateChannelRequest{OrganizationID: 1, Name: fmt.Sprintf("ch-%d", i)})
 	}
 
 	channels, _, _ := svc.ListChannels(ctx, 1, 1, &channel.ChannelListFilter{IncludeArchived: true, Limit: 10, Offset: 0})
