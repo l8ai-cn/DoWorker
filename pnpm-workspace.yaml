@@ -4,6 +4,9 @@
 # when the field is absent (CI `pnpm install` for Hive/Playwright).
 #
 # pnpm 11+ reads overrides / build-policy from this file (not package.json#pnpm).
+# Packages that need postinstall must be allowBuilds:true or onlyBuiltDependencies;
+# everything else that would otherwise trip ERR_PNPM_IGNORED_BUILDS goes in
+# ignoredBuiltDependencies.
 packages:
   - "."
   - "packages/*"
@@ -17,9 +20,22 @@ overrides:
   playwright: "1.50.1"
   playwright-core: "1.50.1"
   eslint-plugin-react-hooks: "7.0.1"
+allowBuilds:
+  "@bufbuild/buf": true
+  "@parcel/watcher": true
+  "@swc/core": true
+  core-js: false
+  esbuild: true
+  protobufjs: false
+  sharp: false
+  unrs-resolver: false
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+  - core-js
+  - protobufjs
 onlyBuiltDependencies:
   - esbuild
   - "@parcel/watcher"
+  - "@swc/core"
+  - "@bufbuild/buf"

@@ -607,9 +607,15 @@ jobs:
           node-version: 22
       - name: Install node deps + chromium
         run: |
-          # packageManager pins pnpm 11; overrides live in pnpm-workspace.yaml.
-          pnpm install --frozen-lockfile \
-            || { echo "frozen-lockfile rejected; refreshing lockfile for hive smoke"; pnpm install --no-frozen-lockfile; }
+          # packageManager pins pnpm 11; overrides/allowBuilds live in
+          # pnpm-workspace.yaml. Hive only needs playwright + node_modules
+          # resolvable from plain node — ignore lifecycle scripts if the
+          # lockfile still trips ERR_PNPM_IGNORED_BUILDS under frozen mode.
+          set -euo pipefail
+          if ! pnpm install --frozen-lockfile; then
+            echo "frozen-lockfile rejected; refreshing lockfile for hive smoke"
+            pnpm install --no-frozen-lockfile || pnpm install --no-frozen-lockfile --ignore-scripts
+          fi
           pnpm exec playwright install chromium-headless-shell
 
       - name: Bring up dev backend stack
