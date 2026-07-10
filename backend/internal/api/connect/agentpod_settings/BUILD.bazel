@@ -11,7 +11,6 @@ amesh_proto_convert(
 go_library(
     name = "agentpod_settings",
     srcs = [
-        "agentpod_settings_convert.amesh.go",
         "agentpod_settings_convert_custom.go",
         "handlers.go",
         "server.go",
