@@ -121,17 +121,17 @@ git commit -m "fix(worker): propagate model visibility scope"
 - Create: `backend/internal/service/virtualkey/service_test.go`
 - Modify: `backend/internal/service/virtualkey/BUILD.bazel`
 
-- [ ] **Step 1: Write failing service tests**
+- [x] **Step 1: Write failing service tests**
 
 Create complete fake repositories and add `TestCreateRejectsInvisibleModel` plus `TestResolveModelForScope`. Cover wrong org, wrong user, revoked key, invisible underlying model, success, and touch failure. Add a real GORM test for exact key scope. Assert `TouchLastUsed` runs only after model resolution succeeds.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `bazel test //backend/internal/service/virtualkey:virtualkey_test --test_filter='Test(CreateRejectsInvisibleModel|ResolveModelForScope)'`
 
 Expected: scoped repository and service methods do not exist.
 
-- [ ] **Step 3: Implement exact key scope and underlying-model validation**
+- [x] **Step 3: Implement exact key scope and underlying-model validation**
 
 Add repository method:
 
@@ -141,7 +141,7 @@ GetByIDForScope(ctx context.Context, id, orgID, userID int64) (*VirtualAPIKey, e
 
 Query exact `id`, `organization_id`, and `user_id`. `Create` calls `models.GetVisible` before minting or persistence. `ResolveModelForScope` loads the scoped active key, calls `models.ResolveVisible`, and touches usage only after success. Return `ErrNotFound` for invisible keys and propagate touch failures instead of silently accepting missing usage metadata.
 
-- [ ] **Step 4: Verify GREEN**
+- [x] **Step 4: Verify GREEN**
 
 Run: `bazel test //backend/internal/service/virtualkey:virtualkey_test`
 
@@ -149,7 +149,7 @@ Run: `bazel test //backend/internal/infra:infra_test --test_filter=VirtualAPIKey
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/internal/domain/virtualkey backend/internal/infra/virtual_api_key_repo.go backend/internal/service/virtualkey
@@ -161,6 +161,7 @@ git commit -m "fix(model): scope virtual key resolution"
 **Files:**
 - Modify: `backend/internal/service/agentpod/pod_orchestrator_worker_model.go`
 - Modify: `backend/internal/service/agentpod/pod_orchestrator_worker_model_test.go`
+- Modify: `backend/internal/service/virtualkey/service.go`
 
 - [ ] **Step 1: Write the failing propagation test**
 
@@ -174,7 +175,7 @@ Expected: current interface receives only key ID.
 
 - [ ] **Step 3: Replace the interface and call**
 
-Change `VirtualKeyPoolForOrchestrator.ResolveModel` to `ResolveModelForScope(ctx, keyID, orgID, userID)` and pass request scope without reordering it.
+Change `VirtualKeyPoolForOrchestrator.ResolveModel` to `ResolveModelForScope(ctx, keyID, orgID, userID)` and pass request scope without reordering it. Once the only Worker caller is migrated, remove the obsolete unscoped `Service.ResolveModel` entry point so it cannot bypass the new boundary.
 
 - [ ] **Step 4: Verify GREEN and package regression**
 
