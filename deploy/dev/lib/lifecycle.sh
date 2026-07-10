@@ -28,27 +28,20 @@ print_banner() {
 print_usage() {
     cat << 'EOF'
 用法:
-  bazel run //deploy/dev:up                 # 一键启动完整开发环境
-  bazel run //deploy/dev:backend_only       # 仅启动 docker + host backend/relay (CI)
-  bazel run //deploy/dev:up_coordinator_runners # 平台托管：Coordinator 按需起 runner
-  bazel run //deploy/dev:up_k8s_runners      # runner 部署到本地 K8s 集群
-  bazel run //deploy/dev:rebuild_runner     # 重 build runner binary + 重启容器
-  bazel run //deploy/dev:reset_runners      # 重启 host runner+relay (backend 不动)
-  bazel run //deploy/dev:clean              # 停止并清理所有服务
+  ./dev.sh                                  # 一键启动完整开发环境 (air + plain next)
+  ./dev.sh --backend-only                   # 仅启动 docker + host backend/relay (CI)
+  ./dev.sh --coordinator-runners            # 平台托管：Coordinator 按需起 runner
+  ./dev.sh --runners-k8s                    # runner 部署到本地 K8s 集群
+  ./dev.sh --rebuild-runner                 # 重 build runner binary + 重启容器
+  ./dev.sh --reset-runners                  # 重启 host runner+relay (backend 不动)
+  ./dev.sh --clean                          # 停止并清理所有服务
+  ./dev.sh --lite                           # 仅 web 主前端 + Coordinator runners
+  ./dev-lite.sh                             # 同 --lite
 
-  低内存 / 无 ibazel 模式:
-  ./dev-lite.sh                             # air 热重载 Go + 按需 runner + 仅 web 前端
-  ./dev-lite.sh --backend-only              # 不启前端
-  DEV_NO_BAZEL=1 ./dev.sh                   # 同上（Go 走 air，其余同 dev.sh）
-
-  或直接调脚本（backward-compat）:
-  ./dev.sh [--backend-only|--frontends|--lite|--coordinator-runners|--runners-k8s|--rebuild-runner|--reset-runners|--clean|--help]
-
-  改动 backend / relay 源码: ibazel 自动重 build (host)；dev-lite 下为 air
-  仅重启三个前端:           ./dev.sh --frontends
-  改动 runner 源码:        bazel run //deploy/dev:reset_runners
-  Hive 验收 (dev 栈已起):  bash deploy/dev/hive_smoke.sh
-  或 bazel test //deploy/dev:hive_smoke --test_tag_filters=hive
+  改动 backend / relay 源码: air 自动重编译
+  仅重启前端:               ./dev.sh --frontends
+  改动 runner 源码:         ./dev.sh --rebuild-runner
+  Hive 验收 (dev 栈已起):   bash deploy/dev/hive_smoke.sh
 
 前端日志: tail -f deploy/dev/web.log
 web-user 日志: tail -f deploy/dev/web-user.log

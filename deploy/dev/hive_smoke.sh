@@ -55,7 +55,7 @@ preflight_check_migrations
 
 if ! curl -sf "${API}/health" >/dev/null 2>&1; then
   echo "hive smoke: backend not reachable at ${API}"
-  echo "Start dev stack: bazel run //deploy/dev:up"
+  echo "Start dev stack: ./deploy/dev/dev.sh --backend-only"
   exit 1
 fi
 

@@ -45,25 +45,5 @@ if command -v buf >/dev/null 2>&1; then
     exit 0
 fi
 
-if ! command -v bazel >/dev/null 2>&1; then
-    echo "error: need buf (brew install bufbuild/buf/buf) or bazel for amesh codegen" >&2
-    exit 1
-fi
-
-echo "buf not found — syncing amesh convert from bazel build..."
-mapfile -t targets < <(bazel query 'filter(_convert_amesh, //backend/...)' 2>/dev/null)
-bazel build "${targets[@]}"
-copied=0
-while IFS= read -r -d '' src; do
-    rel="${src#"$ROOT/bazel-bin/backend/"}"
-    dest="$ROOT/backend/$rel"
-    mkdir -p "$(dirname "$dest")"
-    rm -f "$dest"
-    cat "$src" > "$dest"
-    copied=$((copied + 1))
-done < <(find "$ROOT/bazel-bin/backend" -name '*_convert.amesh.go' -print0 2>/dev/null || true)
-echo "Synced $copied amesh convert files from bazel-bin"
-if (( copied == 0 )); then
-    echo "error: no amesh files produced" >&2
-    exit 1
-fi
+echo "error: buf not found — install: brew install bufbuild/buf/buf" >&2
+exit 1

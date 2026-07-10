@@ -3,8 +3,7 @@
 #
 # Triggered ONLY on `vX.Y.Z` tags. Server-side OCI image build +
 # deploy + migrate live in `.github/workflows/deploy.yml` and run on
-# main pushes — they don't repeat for tag pushes (since v0.30.0
-# they did, wasting 5–15 min/tag for zero new artifacts).
+# main pushes.
 
 name: Release
 
@@ -14,10 +13,6 @@ on:
       - "v*"
 
 jobs:
-  # ===========================================================================
-  # Compute version from the pushed tag.
-  # ===========================================================================
-
   version:
     name: Compute Version Tag
     runs-on: ubuntu-latest
@@ -29,18 +24,10 @@ jobs:
       - id: compute
         run: |
           set -euo pipefail
-          # v1.2.3 → version=1.2.3, minor=1.2
           full="${GITHUB_REF#refs/tags/v}"
           minor="${full%.*}"
           echo "version=${full}" >> "$GITHUB_OUTPUT"
           echo "minor=${minor}" >> "$GITHUB_OUTPUT"
-
-  # ===========================================================================
-  # Build Runner CLI release archives (6-platform tar.gz/zip + checksums)
-  # and publish a GitHub Release. Independent of OCI image build:
-  # `release_assets` is a host build via Bazel cross-compile, not a
-  # docker push — does not need the deploy.yml `build-images` step.
-  # ===========================================================================
 
   release:
     name: Create Release
@@ -52,35 +39,22 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: bazel-contrib/setup-bazel@0.9.1
+      - uses: actions/setup-go@v5
         with:
-          bazelisk-cache: true
-          disk-cache: true
-          repository-cache: true
+          go-version: "1.25"
+          cache: true
+      - name: Install protoc
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+      - name: Generate Go protos
+        run: |
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          bash scripts/ensure-go-codegen.sh
 
-      # Bazel cross-compiles 6 platform binaries (linux/darwin/windows ×
-      # amd64/arm64), packs each into tar.gz/zip, and emits checksums.txt.
-      # The hermetic Go SDK + rules_pkg replace the goreleaser-action that
-      # previously did the same job via `go build` + nfpm. See
-      # build_defs/release/release_bundle.bzl.
-      #
-      # `--stamp` + `workspace_status.sh` injects the tag into
-      # `main.version` via the `cross_binary(x_defs)` template (see
-      # build_defs/release/cross_binary.bzl). Without these flags the
-      # binaries ship the source-tree placeholder `"dev"`.
       - name: Build release assets
         env:
-          IMAGE_VERSION: ${{ needs.version.outputs.version }}
-          IMAGE_MINOR: ${{ needs.version.outputs.minor }}
-        run: |
-          bazel build \
-            --stamp \
-            --workspace_status_command=build_defs/workspace_status.sh \
-            //runner/cmd/runner:release_assets
+          VERSION: ${{ needs.version.outputs.version }}
+        run: bash scripts/build-runner-release.sh
 
-      # Install rcodesign — cross-platform Apple code signing tool. Runs on
-      # ubuntu-latest because rcodesign signs Mach-O binaries from any host
-      # OS (signing is byte-level patching, not a macOS-only API).
       - name: Install rcodesign
         run: |
           RCODESIGN_VERSION="0.29.0"
@@ -89,10 +63,6 @@ jobs:
           sudo cp ./apple-codesign-*/rcodesign /usr/local/bin/
           rm -rf ./apple-codesign-*
 
-      # Bazel can't include stamp data in output filenames (analysis-time
-      # constraint), so we copy + rename to insert the version segment
-      # before uploading. Final names: `do-worker-runner_<TAG>_<goos>_<goarch>.{tar.gz,zip}`.
-      # macOS archives get re-packed after rcodesign signs the binary in place.
       - name: Stage + sign release artifacts
         env:
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
@@ -107,14 +77,12 @@ jobs:
           mkdir -p release-staging
           sign_script="${GITHUB_WORKSPACE}/runner/build/scripts/sign-darwin.sh"
 
-          for arch in bazel-bin/runner/cmd/runner/do-worker-runner_*.tar.gz \
-                     bazel-bin/runner/cmd/runner/do-worker-runner_*.zip; do
+          for arch in dist/runner-release/do-worker-runner_*.tar.gz \
+                     dist/runner-release/do-worker-runner_*.zip; do
               base="$(basename "$arch")"
               new_name="${base/do-worker-runner_/do-worker-runner_${version}_}"
               dest="${GITHUB_WORKSPACE}/release-staging/${new_name}"
 
-              # macOS binaries need rcodesign before being repacked. Linux /
-              # Windows archives pass through unchanged.
               if [[ "$base" == *darwin*.tar.gz ]]; then
                   tmp="$(mktemp -d)"
                   tar -xzf "$arch" -C "$tmp"
@@ -126,11 +94,6 @@ jobs:
               fi
           done
 
-          # Recompute checksums.txt against the FINAL staged archives. The
-          # Bazel-emitted checksums.txt is invalid for darwin entries
-          # (re-packed after signing) and uses the pre-rename names.
-          # `sha256sum` (GNU coreutils) is preinstalled on ubuntu-latest;
-          # macOS runners don't run this job, so no `shasum` fallback needed.
           (
               cd release-staging
               sha256sum do-worker-runner_*.tar.gz do-worker-runner_*.zip > checksums.txt
@@ -138,18 +101,15 @@ jobs:
           ls -la release-staging/
           cat release-staging/checksums.txt
 
-      # Generate the release notes from `git log` between the previous
-      # tag and this one. Replaces GoReleaser's `changelog:` block —
-      # same conventional-commit grouping, no extra tooling.
       - name: Generate changelog
         run: |
           set -euo pipefail
           version="${GITHUB_REF#refs/tags/v}"
           previous_tag="$(git describe --tags --abbrev=0 "${GITHUB_REF}^" 2>/dev/null || echo "")"
           {
-            echo "## AgentsMesh Runner v${version}"
+            echo "## Do Worker Runner v${version}"
             echo ""
-            echo "AgentsMesh Runner is an AI Agent task executor that connects to the AgentsMesh server and executes AI agent tasks in isolated terminal environments."
+            echo "Do Worker Runner is an AI Agent task executor that connects to the Do Worker server and executes AI agent tasks in isolated terminal environments."
             echo ""
             echo "### Quick Install"
             echo ""
@@ -166,7 +126,6 @@ jobs:
             if [[ -n "$previous_tag" ]]; then
               echo "### Changes since ${previous_tag}"
               echo ""
-              # Conventional-commit groups, mirroring the old goreleaser config.
               for prefix in "feat" "fix" "perf"; do
                 title=""
                 case "$prefix" in
@@ -192,15 +151,12 @@ jobs:
         run: |
           set -euo pipefail
           version="${GITHUB_REF#refs/tags/v}"
-          # `gh release create` is idempotent on tag re-runs (returns 0 + a
-          # warning if the release already exists). Pre-release detection
-          # mirrors goreleaser's `prerelease: auto` (anything with a `-`).
           prerelease_flag=""
           if [[ "$version" == *-* ]]; then
               prerelease_flag="--prerelease"
           fi
           gh release create "${GITHUB_REF#refs/tags/}" \
-              --title "AgentsMesh Runner v${version}" \
+              --title "Do Worker Runner v${version}" \
               --notes-file release-notes.md \
               $prerelease_flag \
               release-staging/*

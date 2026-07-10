@@ -2,26 +2,26 @@
 
 One-click local stack: Postgres, Redis, MinIO, Traefik, Gitea, Backend, Relay, agent-specific Runner containers, plus local Next.js frontends with hot reload.
 
+Go services use `air`; frontends use plain `next dev`. Wasm is built via `pnpm run build:wasm` when the package is missing or stale.
+
 ## Quick start
 
 ```bash
-bazel run //deploy/dev:up                # docker infra + host backend/relay + runner images + frontends
-bazel run //deploy/dev:backend_only      # CI-style: skip frontends
-bazel run //deploy/dev:clean             # stop and wipe volumes
-bazel run //deploy/dev:reset_runners     # restart host runner+relay
-bazel run //deploy/dev:rebuild_runner    # rebuild runner binary + restart runner containers
+./dev.sh                         # docker infra + host backend/relay + runners + frontends
+./dev.sh --backend-only          # CI-style: skip frontends
+./dev.sh --clean                 # stop and wipe volumes
+./dev.sh --reset-runners         # restart host runner+relay
+./dev.sh --rebuild-runner        # rebuild runner binary + restart runner containers
 ```
 
-**Low-memory local dev** (no ibazel / no Bazel daemon for Go; ~2 GB less RAM):
+**Low-memory / web-only frontend**:
 
 ```bash
-cd deploy/dev && ./dev-lite.sh           # air backend/relay + coordinator runners + web only
-./dev-lite.sh --backend-only             # skip frontend
-cp ../../.bazelrc.local.example ../../.bazelrc.local   # cap Bazel jobs/RAM for next_dev
-pnpm proto:gen-go                        # regenerate proto/gen/go (needs protoc or one-shot bazel)
+./dev-lite.sh                    # air backend/relay + coordinator runners + web only
+./dev-lite.sh --backend-only     # skip frontend
+pnpm proto:gen-go                # regenerate proto/gen/go (needs protoc)
+pnpm proto:gen-go-all            # proto + amesh convert sync
 ```
-
-`./dev.sh [--clean|--reset-runners|...]` still works — same flags, same behavior.
 
 The script auto-generates `.env` with worktree-hashed ports so multiple worktrees can coexist. Actual ports are printed on startup (or read from `deploy/dev/.env`).
 
@@ -51,9 +51,9 @@ Do **not** hard-code mirror prefixes into the Dockerfiles — mirror metadata oc
 ## Logs
 
 ```bash
-tail -f deploy/dev/runtime/backend/backend.log   # ibazel + backend stdout
+tail -f deploy/dev/runtime/backend/backend.log   # air + backend stdout
 tail -f deploy/dev/runtime/relay/relay.log
-tail -f deploy/dev/web.log                       # bazel next_dev (web)
+tail -f deploy/dev/web.log                       # next dev (web)
 docker compose logs -f postgres                  # docker infra
 docker compose logs -f runner-e2e-echo runner-claude-code runner-codex-cli
 ```

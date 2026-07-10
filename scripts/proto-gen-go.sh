@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 # Generate Go protobuf/grpc stubs into proto/gen/go/ (committed mirror).
 #
-# Primary path: protoc + protoc-gen-go + protoc-gen-go-grpc (no Bazel daemon).
-# Fallback: one-shot `bazel build` of all go_proto_library targets, then sync
-# from bazel-bin — used when protoc is not installed yet.
+# Requires: protoc + protoc-gen-go + protoc-gen-go-grpc
 #
 # Usage:
 #   ./scripts/proto-gen-go.sh          # regenerate if needed
@@ -40,26 +38,13 @@ _install_go_plugins() {
     fi
 }
 
-_sync_from_bazel_bin() {
-    local copied=0
-    while IFS= read -r -d '' src; do
-        local rel="${src#*github.com/anthropics/agentsmesh/proto/gen/go/}"
-        local dest="$ROOT/proto/gen/go/$rel"
-        mkdir -p "$(dirname "$dest")"
-        cp "$src" "$dest"
-        copied=$((copied + 1))
-    done < <(find "$ROOT/bazel-bin/proto" -name '*.pb.go' -print0 2>/dev/null || true)
-    if (( copied == 0 )); then
-        echo "error: bazel build produced no .pb.go files under bazel-bin/proto" >&2
-        return 1
-    fi
-    echo "Synced $copied Go proto files from bazel-bin → proto/gen/go/"
-}
-
 _gen_with_protoc() {
     _install_go_plugins
     mkdir -p "$ROOT/proto/gen/go"
-    mapfile -t proto_files < <(find "$ROOT/proto" -name '*.proto' ! -path '*/gen/*' | sort)
+    local proto_files=()
+    while IFS= read -r f; do
+        proto_files+=("$f")
+    done < <(find "$ROOT/proto" -name '*.proto' ! -path '*/gen/*' | sort)
     if ((${#proto_files[@]} == 0)); then
         echo "error: no .proto files found under proto/" >&2
         return 1
@@ -72,20 +57,10 @@ _gen_with_protoc() {
     echo "Generated ${#proto_files[@]} proto inputs → proto/gen/go/ (protoc)"
 }
 
-_gen_with_bazel() {
-    if ! command -v bazel >/dev/null 2>&1; then
-        echo "error: protoc not found and bazel unavailable" >&2
-        echo "  Install protoc:  brew install protobuf" >&2
-        echo "  Or install bazel for one-time bootstrap sync" >&2
-        return 1
-    fi
-    echo "protoc not found — bootstrapping via one-shot bazel build //proto/..."
-    bazel build //proto/...
-    _sync_from_bazel_bin
-}
-
-if command -v protoc >/dev/null 2>&1; then
-    _gen_with_protoc
-else
-    _gen_with_bazel
+if ! command -v protoc >/dev/null 2>&1; then
+    echo "error: protoc not found" >&2
+    echo "  Install: brew install protobuf" >&2
+    exit 1
 fi
+
+_gen_with_protoc

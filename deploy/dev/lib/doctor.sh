@@ -1,31 +1,32 @@
 # shellcheck shell=bash
-# doctor.sh — fail-fast prereq check.
-#
-# Why ibazel is mandatory: dev.sh's contract is "hot-reload dev environment".
-# Without ibazel, host services can't pick up `.go` edits without manual
-# restart, breaking the contract. CI installs ibazel explicitly (see
-# .github/workflows/bazel.yml) — no fallback in this script.
+# doctor.sh — fail-fast prereq check (Go + Docker + pnpm; no Bazel).
 
 check_ibazel_doctor() {
-    if [[ "${DEV_NO_BAZEL:-}" == "1" || "${DEV_LITE:-}" == "1" ]]; then
-        check_lite_doctor
-        return
-    fi
+    # Name kept for call-site compatibility in lifecycle.sh / bootstrap.
+    check_dev_doctor
+}
+
+check_dev_doctor() {
     local missing=()
-    command -v bazel  >/dev/null 2>&1 || missing+=("bazel (bazelisk)")
-    command -v ibazel >/dev/null 2>&1 || missing+=("ibazel (bazel-watcher)")
+    command -v go >/dev/null 2>&1 || missing+=("go")
+    command -v docker >/dev/null 2>&1 || missing+=("docker")
+    command -v pnpm >/dev/null 2>&1 || missing+=("pnpm")
     if (( ${#missing[@]} > 0 )); then
         error "缺少必需工具：${missing[*]}"
-        echo "  bazel:   brew install bazelisk (macOS) | bazelisk releases (Linux)"
-        echo "  ibazel:  https://github.com/bazelbuild/bazel-watcher/releases"
-        echo "           (no homebrew formula — grab the darwin-arm64 / linux-amd64 binary)"
-        echo ""
-        echo "  低内存模式可跳过 Bazel/ibazel: ./dev-lite.sh"
+        echo "  go:     https://go.dev/dl/"
+        echo "  docker: Docker Desktop"
+        echo "  pnpm:   npm install -g pnpm"
         exit 1
     fi
 
-    # Host AI CLIs are only needed when running a non-Docker runner locally.
-    # deploy/dev runner images install their selected runtime at build time.
+    if ! command -v air >/dev/null 2>&1 && [[ ! -x "$(go env GOPATH)/bin/air" ]]; then
+        info "air 未安装 — 启动时会自动 go install"
+    fi
+
+    if ! command -v protoc >/dev/null 2>&1 && [[ ! -f "$SCRIPT_DIR/../../proto/gen/go/loop/v1/loop.pb.go" ]]; then
+        warn "protoc 未安装且 proto/gen/go 缺失 — 请先: brew install protobuf && pnpm proto:gen-go"
+    fi
+
     local ai_missing=()
     command -v claude >/dev/null 2>&1 || ai_missing+=("claude")
     command -v codex  >/dev/null 2>&1 || ai_missing+=("codex")
@@ -33,30 +34,6 @@ check_ibazel_doctor() {
     if (( ${#ai_missing[@]} > 0 )); then
         warn "宿主机 AI CLI 未全装（${ai_missing[*]}）— 仅影响非 Docker runner"
         echo "  npm i -g @anthropic-ai/claude-code @openai/codex @google/gemini-cli"
-    fi
-}
-
-# Lite dev: Go + air for backend/relay; Bazel only for Next.js frontend (one app).
-check_lite_doctor() {
-    local missing=()
-    command -v go >/dev/null 2>&1 || missing+=("go")
-    command -v docker >/dev/null 2>&1 || missing+=("docker")
-    command -v pnpm >/dev/null 2>&1 || missing+=("pnpm")
-    command -v bazel >/dev/null 2>&1 || missing+=("bazel (frontend next_dev only)")
-    if (( ${#missing[@]} > 0 )); then
-        error "dev-lite 缺少工具：${missing[*]}"
-        echo "  go:     https://go.dev/dl/"
-        echo "  docker: Docker Desktop"
-        echo "  pnpm:   npm install -g pnpm"
-        echo "  bazel:  brew install bazelisk  (仅启动 web 前端时需要)"
-        exit 1
-    fi
-    if ! command -v air >/dev/null 2>&1 && [[ ! -x "$(go env GOPATH)/bin/air" ]]; then
-        info "air 未安装 — dev-lite 启动时会自动 go install"
-    fi
-    if ! command -v protoc >/dev/null 2>&1 && [[ ! -f "$SCRIPT_DIR/../../proto/gen/go/loop/v1/loop.pb.go" ]]; then
-        warn "protoc 未安装且 proto/gen/go 缺失 — 首次启动会用 bazel 一次性生成 Go proto"
-        echo "  推荐: brew install protobuf && ./scripts/proto-gen-go.sh"
     fi
 }
 

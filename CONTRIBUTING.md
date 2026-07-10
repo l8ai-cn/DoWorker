@@ -9,46 +9,60 @@ Thanks for your interest in contributing.
 
 ## Development Setup
 
-1. Start local dependencies and seed data:
+1. Start local dependencies and seed data (air + plain next + wasm as needed):
 
 ```bash
 ./deploy/dev/dev.sh
 ```
 
-2. Start frontend locally (in a separate terminal):
+Optional web-only frontend (lower memory):
 
 ```bash
-cd web
-pnpm install
-pnpm dev
+cd deploy/dev && ./dev-lite.sh
+```
+
+2. First-time proto codegen (if stubs are missing):
+
+```bash
+pnpm proto:gen-go-all
 ```
 
 ## Build and Test
 
-Run relevant checks before opening a PR.
+Run relevant checks before opening a PR. CI is `.github/workflows/ci.yml`.
 
-### Backend
+### Backend / Runner / Relay
 
 ```bash
-bazel test //backend/...
-bazel run //backend:lint
+go test ./backend/... ./runner/... ./relay/...
+(cd backend && golangci-lint run)
+(cd runner && golangci-lint run)
+(cd relay && golangci-lint run)
 ```
 
 ### Web
 
 ```bash
-pnpm install --frozen-lockfile          # one-shot at repo root
-bazel test //clients/web:lint
-bazel build //clients/web:src           # tsc --noEmit (type check)
-bazel test //clients/web:unit           # vitest
+pnpm install --frozen-lockfile   # one-shot at repo root
+pnpm run build:wasm
+pnpm run web:lint
+pnpm run web:typecheck
+pnpm run web:test
+pnpm run web:build
 ```
 
-### Runner
+### Rust Core
 
 ```bash
-bazel test //runner/...
-bazel build //runner/cmd/runner:runner
-bazel run //runner:lint
+cd clients/core && cargo test --workspace
+```
+
+### Runner release / images
+
+```bash
+bash scripts/build-runner-release.sh
+docker build -f backend/Dockerfile .
+docker build -f runner/Dockerfile .
 ```
 
 ## Pull Request Guidelines

@@ -1,9 +1,0 @@
-# Reusable Bazel macros, split by language / domain.
-#
-#   web/    — next_app, next_oci_image, eslint_test, vitest_test,
-#             playwright_test, ts_project
-#   go/     — golangci_lint
-#   docker/ — go_oci_image
-#
-# Each subdirectory carries its own BUILD.bazel so the macros themselves
-# are queryable (`bazel query //build_defs/...`).

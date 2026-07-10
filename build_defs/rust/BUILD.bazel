@@ -1,2 +1,0 @@
-# Rust packaging macros. Loaded by clients/core/crates/wasm.
-#   wasm.bzl  -> rust_wasm_library  (Rust -> wasm-bindgen ESM pkg)

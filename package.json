@@ -1,13 +1,26 @@
 {
   "name": "do-worker-workspace-root",
   "private": true,
-  "description": "Workspace root. Frontend deps live here; first-party @do-worker/* and do-worker-wasm are pnpm workspace packages under packages/ and proto/. Bazel also links them via npm_link_package for hermetic builds.",
+  "description": "Workspace root. Frontend deps live here; first-party @do-worker/* and do-worker-wasm are pnpm workspace packages under packages/ and proto/.",
   "scripts": {
     "proto:gen-ts": "buf generate",
     "proto:gen-go": "bash scripts/proto-gen-go.sh",
     "proto:gen-amesh": "bash scripts/sync-amesh-convert.sh",
     "proto:gen-go-all": "bash scripts/proto-gen-go.sh --force && bash scripts/sync-amesh-convert.sh --force",
-    "build:wasm": "bash scripts/build-wasm.sh"
+    "build:wasm": "bash scripts/build-wasm.sh",
+    "web:lint": "pnpm exec eslint --no-warn-ignored --no-error-on-unmatched-pattern --cwd clients/web .",
+    "web:typecheck": "pnpm exec tsc --noEmit -p clients/web/tsconfig.json",
+    "web:test": "VITEST=true NODE_OPTIONS='--experimental-require-module' pnpm exec vitest run --config clients/web/vitest.config.ts --reporter=default --no-color",
+    "web:dev": "cd clients/web && node ../../node_modules/next/dist/bin/next dev --turbopack",
+    "web:build": "cd clients/web && BAZEL_BUILD=standalone node ../../node_modules/next/dist/bin/next build --webpack",
+    "web:check": "pnpm run web:lint && pnpm run web:typecheck && pnpm run web:test",
+    "web-admin:lint": "pnpm exec eslint --no-warn-ignored --no-error-on-unmatched-pattern --cwd clients/web-admin .",
+    "web-admin:typecheck": "pnpm exec tsc --noEmit -p clients/web-admin/tsconfig.json",
+    "web-admin:test": "VITEST=true NODE_OPTIONS='--experimental-require-module' pnpm exec vitest run --config clients/web-admin/vitest.config.ts --reporter=default --no-color",
+    "web-admin:dev": "cd clients/web-admin && node ../../node_modules/next/dist/bin/next dev --turbopack",
+    "web-admin:build": "cd clients/web-admin && BAZEL_BUILD=standalone node ../../node_modules/next/dist/bin/next build --webpack",
+    "web-admin:check": "pnpm run web-admin:lint && pnpm run web-admin:typecheck && pnpm run web-admin:test",
+    "check:web": "pnpm run web:check && pnpm run web-admin:check"
   },
   "dependencies": {
     "@blocknote/core": "^0.47.3",

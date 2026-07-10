@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build + push every image AgentsMesh needs into the cluster Harbor so pods
+# Build + push every image Do Worker needs into the cluster Harbor so pods
 # on doops-114-k8s pull from repo.aiedulab.cn:8443/agentsmesh/* (fast, node-local).
 #
 #   ./push-images.sh all        # platform + infra + runners
@@ -14,15 +14,8 @@ REG="repo.aiedulab.cn:8443"
 PROJ="${REG}/agentsmesh"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 TARGET="${1:-all}"
+PLATFORM="${PLATFORM:-linux/amd64}"
 
-# Cluster nodes are linux/amd64; this build host may be arm64 (Apple Silicon),
-# so every image must be forced to amd64 or pods hit `exec format error`.
-# `pure` builds static Go binaries (no cgo) so the resolution-only stub CC
-# toolchain (//tools/crosscc) is never invoked during the cross build.
-AMD64_FLAGS=(--platforms=@rules_go//go/toolchain:linux_amd64 --@rules_go//go/config:pure)
-
-# Reads Harbor user/pass from the docker credential store (credsStore), since
-# Docker Desktop keeps the secret out of config.json.
 harbor_creds() {
   local store
   store="$(python3 -c "import json,os;print(json.load(open(os.path.expanduser('~/.docker/config.json'))).get('credsStore',''))")"
@@ -41,21 +34,18 @@ ensure_project() {
     -d '{"project_name":"agentsmesh","public":true}' || true
 }
 
-# bazel_push <bazel_tarball_target> <loaded_local_tag> <dest_repo>
-bazel_push() {
-  local target="$1" local_tag="$2" dest="$3"
-  echo "==> bazel build+load ${target} (linux/amd64)"
-  ( cd "${REPO_ROOT}" && bazel run "${target}" "${AMD64_FLAGS[@]}" )
-  docker tag "${local_tag}" "${PROJ}/${dest}:latest"
-  docker push "${PROJ}/${dest}:latest"
+# docker_push <dockerfile> <dest_repo>
+docker_push() {
+  local file="$1" dest="$2"
+  local tag="${PROJ}/${dest}:latest"
+  echo "==> docker build ${file} -> ${tag} (${PLATFORM})"
+  docker build --platform "${PLATFORM}" \
+    -f "${REPO_ROOT}/${file}" \
+    -t "${tag}" \
+    "${REPO_ROOT}"
+  docker push "${tag}"
 }
 
-# mirror <public_image> <dest_repo:tag>
-# Uses `buildx imagetools create` to copy the source's full multi-arch manifest
-# list straight into Harbor. `docker pull --platform` is unreliable on Apple
-# Silicon (it reuses the cached arm64 layer), which would push an arm64-only
-# image and break the amd64 nodes with `exec format error`. Copying the index
-# lets the amd64 nodes auto-select their variant.
 mirror() {
   local src="$1" dest="$2"
   echo "==> mirror ${src} -> ${PROJ}/${dest} (multi-arch index)"
@@ -67,10 +57,10 @@ mirror() {
 }
 
 push_platform() {
-  bazel_push //backend/cmd/server:image_tarball agentsmesh/server:latest backend
-  bazel_push //relay/cmd/relay:image_tarball     agentsmesh/relay:latest  relay
-  bazel_push //clients/web:image_tarball         agentsmesh/image:latest  web
-  bazel_push //clients/web-admin:image_tarball   agentsmesh/image:latest  web-admin
+  docker_push backend/Dockerfile backend
+  docker_push relay/Dockerfile relay
+  docker_push clients/web/Dockerfile web
+  docker_push clients/web-admin/Dockerfile web-admin
 }
 
 push_infra() {
@@ -82,17 +72,14 @@ push_infra() {
 }
 
 push_runners() {
-  # build_claude_code stages binaries + builds the shared base; codex/gemini reuse cache.
-  ( cd "${REPO_ROOT}" && bazel run //docker/agent-runtime:build_claude_code )
-  ( cd "${REPO_ROOT}" && bazel run //docker/agent-runtime:build_codex_cli )
-  ( cd "${REPO_ROOT}" && bazel run //docker/agent-runtime:build_gemini_cli )
-  # e2e-echo has no bazel target (dev/CI only); build it from the staged _context.
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh claude-code )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh codex-cli )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh gemini-cli )
   docker build --platform linux/amd64 --target runtime \
     -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
     --build-arg AGENT_RUNTIME=e2e-echo \
     -t do-worker/runner-e2e-echo:latest \
     "${REPO_ROOT}/docker/agent-runtime/_context"
-  # minimax-cli may already exist as l8ai/runner-minimax-cli (Hub) or local build.
   if docker image inspect "do-worker/runner-minimax-cli:latest" >/dev/null 2>&1; then
     :
   elif docker image inspect "l8ai/runner-minimax-cli:latest" >/dev/null 2>&1; then

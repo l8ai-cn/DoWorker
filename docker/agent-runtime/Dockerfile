@@ -1,7 +1,7 @@
 # Do Worker agent runtime image: runner daemon + one pre-installed AI CLI.
 #
-#   bazel run //docker/agent-runtime:build_all
-#   bazel run //docker/agent-runtime:build_claude_code
+#   bash docker/agent-runtime/build.sh all
+#   bash docker/agent-runtime/build.sh claude-code
 #
 # Shared `base` stage is built once as do-worker/runner-base:latest so apt/npm
 # layers are not re-run for every agent variant.

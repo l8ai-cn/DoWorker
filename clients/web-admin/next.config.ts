@@ -1,38 +1,25 @@
 import type { NextConfig } from "next";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// `output: 'standalone'` collapses the server + its transitive
-// node_modules into `.next/standalone/`. It's great for a hand-rolled
-// Dockerfile, but aspect_rules_js can't track the self-referential
-// `.next/standalone/node_modules/next` symlink that Next.js plants
-// during that pipeline (the link points back into the pnpm virtual
-// store, which lives outside the Bazel execroot). So leave standalone
-// off by default; the legacy Dockerfile flow can flip it back on via
-// `BAZEL_BUILD=standalone`.
-const enableStandalone = process.env.BAZEL_BUILD === "standalone";
+const here = path.dirname(fileURLToPath(import.meta.url));
+const monorepoRoot = path.resolve(here, "../..");
+
+const enableStandalone =
+  process.env.BAZEL_BUILD === "standalone" ||
+  process.env.STANDALONE === "1";
 
 const nextConfig: NextConfig = {
-  ...(enableStandalone ? { output: "standalone" as const } : {}),
-
-  // See clients/web/next.config.ts for the matching note — keeps the
-  // dev-path build out of the `.next/` directory the standalone
-  // pipeline owns.
-  ...(process.env.BAZEL_TARGET_NAME === "next"
-    ? { distDir: ".next-dev" as const }
+  ...(enableStandalone
+    ? {
+        output: "standalone" as const,
+        outputFileTracingRoot: monorepoRoot,
+      }
     : {}),
 
-  // `@do-worker/proto` ships raw .ts files (the generated Connect-RPC
-  // message classes). Webpack/SWC needs to compile them — same reason
-  // clients/web lists this in transpilePackages.
   transpilePackages: ["@do-worker/proto"],
 
-  // =============================================================================
-  // Unified Domain Configuration
-  // 将 PRIMARY_DOMAIN / USE_HTTPS 映射为 NEXT_PUBLIC_* 变量
-  // 这样配置文件中可以统一使用 PRIMARY_DOMAIN，与 Backend/Relay 保持一致
-  // =============================================================================
   env: {
-    // 使用占位符，运行时由 entrypoint.mjs 替换为实际值
-    // 构建时直接读 process.env 会被 Next.js 内联求值，导致占位符替换失效
     NEXT_PUBLIC_PRIMARY_DOMAIN:
       process.env.PRIMARY_DOMAIN || "__PRIMARY_DOMAIN__",
     NEXT_PUBLIC_USE_HTTPS: process.env.USE_HTTPS || "__USE_HTTPS__",

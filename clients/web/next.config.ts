@@ -33,27 +33,23 @@ function getDevProxyTarget(): string {
 // and Bazel falls through to the default `.next/` output which the
 // image entrypoint (build_defs/web/next.bzl) launches via
 // `next start`.
-const enableStandalone = process.env.BAZEL_BUILD === "standalone";
+const enableStandalone =
+  process.env.BAZEL_BUILD === "standalone" ||
+  process.env.STANDALONE === "1";
 
 const nextConfig: NextConfig = {
-  ...(enableStandalone ? { output: "standalone" as const } : {}),
-
-  // Bazel runs `:next` and `:next_image` in the same package. The
-  // standalone build writes to `.next/` (hard-coded inside
-  // build_defs/web/next_bazel_wrapper.mjs); the dev build is moved
-  // to `.next-dev/` so Bazel's wildcard build (`//...`) doesn't see
-  // two actions declaring the same output. `BAZEL_TARGET_NAME` is
-  // set by js_run_binary and matches the BUILD `next_build_out` arg.
-  ...(process.env.BAZEL_TARGET_NAME === "next"
-    ? { distDir: ".next-dev" as const }
+  ...(enableStandalone
+    ? {
+        output: "standalone" as const,
+        // pnpm monorepo: NFT must walk the virtual store at repo root.
+        outputFileTracingRoot: monorepoRoot,
+      }
     : {}),
 
-  // Type checks live in the separate "Web (lint + type-check +
-  // vitest)" Bazel job (plain `pnpm type-check`). Don't re-run them
+  // Type checks live in `pnpm run web:typecheck`. Don't re-run them
   // inside `next build` — the Next.js build path hits a stricter
   // JSX-inference pass that flags pre-existing implicit-any sites the
-  // top-level `tsc --noEmit` already accepts. Cleanup is a follow-up;
-  // the production image build passes via ignore-build-errors.
+  // top-level `tsc --noEmit` already accepts.
   typescript: { ignoreBuildErrors: true },
 
   // Workspace packages ship their raw .ts sources (see

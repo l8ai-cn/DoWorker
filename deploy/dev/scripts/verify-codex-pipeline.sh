@@ -49,7 +49,7 @@ for attempt in 1 2 3 4 5 6 7 8 9 10; do
 done
 if [[ -z "$BASE" ]]; then
   fail "backend not reachable on :${API_PORT} or ${PRIMARY}"
-  echo "  Hint: bazel build //backend/cmd/server:server && start host backend (see deploy/dev/lib/host_services.sh)"
+  echo "  Hint: go build ./backend/cmd/server && start host backend (see deploy/dev/lib/host_services.sh)"
   exit 1
 fi
 

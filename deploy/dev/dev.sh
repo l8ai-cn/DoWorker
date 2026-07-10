@@ -50,6 +50,9 @@ source "$SCRIPT_DIR/lib/lifecycle.sh"
 main() {
     cd "$SCRIPT_DIR"
 
+    # Default: air + plain next (no Bazel / ibazel).
+    export DEV_NO_BAZEL="${DEV_NO_BAZEL:-1}"
+
     case "${1:-}" in
         --clean|-c)
             clean

@@ -15,15 +15,15 @@ fi
 
 grep -q "ARG AGENT_RUNTIME" "$DOCKERFILE"
 grep -q "case \"\${AGENT_RUNTIME}\"" "$DOCKERFILE"
-# final stage must redeclare ARG AGENT_RUNTIME or the prune case sees ""
-# and deletes e2e-mock-agent from every image.
+# AGENT_RUNTIME must be redeclared after COPY layers (ARG from a prior
+# stage is not inherited). Without it the prune case sees "" and deletes
+# e2e-mock-agent from every image.
 awk '
-  /^FROM runtime-\$\{DO_AGENT_STAGE\} AS final/ { in_final=1; next }
-  in_final && /^ARG AGENT_RUNTIME/ { found=1; exit }
-  in_final && /^FROM / { exit }
+  /^COPY --chmod=0755 runner-entrypoint\.sh/ { after_copy=1; next }
+  after_copy && /^ARG AGENT_RUNTIME/ { found=1; exit }
   END { exit found ? 0 : 1 }
 ' "$DOCKERFILE" || {
-  echo "Dockerfile final stage must redeclare ARG AGENT_RUNTIME" >&2
+  echo "Dockerfile must redeclare ARG AGENT_RUNTIME after binary COPY" >&2
   exit 1
 }
 grep -q "@anthropic-ai/claude-code" "$DOCKERFILE"

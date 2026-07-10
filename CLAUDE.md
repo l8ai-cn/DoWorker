@@ -16,33 +16,33 @@ Client-side:
 
 ## Development Environment
 
-**Bazel host-side mode**: Go services (backend / runner / relay) and the
-Next.js apps (web / web-admin) all run on your host via `ibazel run` /
-`bazel run :next_dev`. Docker only hosts stateful infrastructure
-(PostgreSQL, Redis, MinIO, Traefik, Jaeger, Gitea, OTel collector,
-Adminer). This means **every Go binary the dev environment runs is the
-same artifact CI's `bazel build` produces** — no air, no per-service
-Dockerfile, no parallel compile path.
+Go services (backend / runner / relay) run on the host via `air` hot-reload.
+Next.js apps (web / web-admin) run via plain `next dev`. Docker only hosts
+stateful infrastructure (PostgreSQL, Redis, MinIO, Traefik, Jaeger, Gitea,
+OTel collector, Adminer). Wasm is built with `pnpm run build:wasm` when needed.
 
 ### Quick Start
 
 ```bash
-bazel run //deploy/dev:up                # docker infra + host backend/relay/runner + host web/web-admin
-bazel run //deploy/dev:clean             # stop everything, drop docker volumes, clear runtime/
-bazel run //deploy/dev:reset_runners     # only restart host runner+relay (backend stays up)
-bazel run //deploy/dev:rebuild_runner    # rebuild runner binary + restart container
-bazel run //deploy/dev:backend_only      # CI-style: skip frontends
+./deploy/dev/dev.sh                  # docker infra + host backend/relay/runner + host web/web-admin
+./deploy/dev/dev.sh --clean          # stop everything, drop docker volumes, clear runtime/
+./deploy/dev/dev.sh --reset-runners  # only restart host runner+relay (backend stays up)
+./deploy/dev/dev.sh --rebuild-runner # rebuild runner binary + restart containers
+./deploy/dev/dev.sh --backend-only   # CI-style: skip frontends
 ```
 
-> Backward-compat: `cd deploy/dev && ./dev.sh [--clean|--reset-runners|...]`
-> still works — same flags, same behavior.
+**Low-memory / web-only frontend** (optional):
+
+```bash
+cd deploy/dev && ./dev-lite.sh       # air backend/relay + coordinator runners + web only
+pnpm proto:gen-go-all                # first-time: proto + amesh codegen
+```
 
 Prerequisites (one-time):
 
 ```bash
-brew install bazelisk                        # macOS (bazel)
-# ibazel is GitHub-Release-only (no homebrew formula); pick the
-# darwin-arm64 binary off https://github.com/bazelbuild/bazel-watcher/releases
+# Go, Docker, pnpm required; air auto-installs on first start if missing
+# protoc needed when regenerating proto stubs: brew install protobuf
 npm i -g @anthropic-ai/claude-code @openai/codex @google/gemini-cli  # for runner pods
 ```
 
@@ -51,15 +51,15 @@ The dev pipeline automatically:
 2. Generates traefik dynamic configs that route `host.docker.internal:<host-port>`
 3. Starts the docker infra stack
 4. Runs migrations via the `migrate/migrate` oneshot service (no backend container needed)
-5. Launches `ibazel run` for backend / relay / runner in the background, with isolated `$HOME` for the runner so its `~/.claude/*` writes don't touch your real configs
-6. Starts `bazel run //clients/web:next_dev` and `//clients/web-admin:next_dev`
+5. Launches `air` for backend / relay / runner in the background, with isolated `$HOME` for the runner so its `~/.claude/*` writes don't touch your real configs
+6. Runs `pnpm run build:wasm` if needed, then starts plain `next dev` for web and web-admin
 
 ### Services & Ports (offset 0 / main worktree)
 
 | Service | URL | Notes |
 |---------|-----|-------|
-| **Frontend** | http://localhost:10007 | Bazel `next_dev` (host) |
-| **Admin Console** | http://localhost:10011 | Bazel `next_dev` (host) |
+| **Frontend** | http://localhost:10007 | `next dev` (host) |
+| **Admin Console** | http://localhost:10011 | `next dev` (host) |
 | **web-user** | http://localhost:10020 | Vite dev server (host) |
 | **API** | http://localhost:10000/api | traefik → host backend :10015 |
 | **Relay** | ws://localhost:10000/relay | traefik → host relay :10017 |
@@ -82,10 +82,10 @@ Test accounts:
 ### Logs
 
 ```bash
-tail -f deploy/dev/runtime/backend/backend.log   # ibazel + backend stdout
+tail -f deploy/dev/runtime/backend/backend.log   # air + backend stdout
 tail -f deploy/dev/runtime/relay/relay.log
 tail -f deploy/dev/runtime/runner/runner.log
-tail -f deploy/dev/web.log                       # bazel next_dev (web)
+tail -f deploy/dev/web.log                       # next dev (web)
 tail -f deploy/dev/web-user.log                  # Vite (web-user)
 docker compose logs -f postgres                  # docker infra
 ```
@@ -93,56 +93,52 @@ docker compose logs -f postgres                  # docker infra
 ### Hot Reload
 
 - **Frontend (web / web-admin)**: Next.js dev server fast refresh
-- **Go services (backend / runner / relay)**: `ibazel run //path:target` — watches Bazel's dependency graph and rebuilds incrementally on `.go` change. Same compile path as `bazel test //...`, no parallel toolchain.
+- **Go services (backend / runner / relay)**: `air` watches `.go` changes and rebuilds incrementally
 
 ## Build Commands (for CI/testing outside Docker)
 
-> **Note — Bazel migration in progress.** The Bazel-based build system
-> (see `.claude/plans/snuggly-spinning-dewdrop.md`) is landing
-> incrementally. Until it's complete the **legacy commands below stay
-> authoritative**; Bazel targets listed under "Bazel (migration)" are
-> opt-in and verified in CI on `bazel.yml` only.
+CI is defined in `.github/workflows/ci.yml`.
 
-### Bazel (migration in progress)
+### Backend / Runner / Relay (Go)
 
 ```bash
-# One-shot validation that the workspace still parses
-bazel info workspace
-bazel run //:buildifier_check
+go test ./backend/... ./runner/... ./relay/...
+go test ./backend/internal/service/... -run TestAuth   # specific test
 
-# Regenerate Go BUILD.bazel files after editing imports / adding packages
-bazel run //:gazelle
-
-# Build a Go binary + its OCI image
-bazel build //backend/cmd/server:server
-bazel build //backend/cmd/server:image
-bazel run //backend/cmd/server:image_tarball   # → docker load
+# Lint — run golangci-lint in each module directory
+(cd backend && golangci-lint run)
+(cd runner && golangci-lint run)
+(cd relay && golangci-lint run)
 ```
 
-### Backend (Go)
+### Images (Docker)
+
+Dockerfiles live next to each service; build from the repo root:
 
 ```bash
-bazel build //backend/cmd/server:server                   # Build binary
-bazel test //backend/...                                  # Run all tests
-bazel test //backend/internal/service/... --test_filter=TestAuth  # Run specific test
-bazel run //backend:lint                                  # golangci-lint
+docker build -f backend/Dockerfile .
+docker build -f relay/Dockerfile .
+docker build -f runner/Dockerfile .
+docker build -f clients/web/Dockerfile .
+docker build -f clients/web-admin/Dockerfile .
 ```
 
 ### Web (Next.js)
 
-所有前端的依赖（web / web-admin）统一放在根 `package.json`。Lint / type-check / 单测全部走 Bazel：
+所有前端的依赖（web / web-admin）统一放在根 `package.json`：
 
 ```bash
-pnpm install                              # Install at repo root (one-shot)
-bazel run //clients/web:next_dev          # Dev server (preferred)
-bazel build //clients/web:image           # Production OCI image
-bazel test //clients/web:unit             # Vitest (1510 tests)
-bazel test //clients/web:lint             # ESLint
-bazel build //clients/web:src             # tsc --noEmit (type check)
-bazel test //clients/web-admin:lint       # ESLint web-admin
-bazel build //clients/web-admin:src       # tsc --noEmit web-admin
+pnpm install                 # Install at repo root (one-shot)
+pnpm run build:wasm          # Build Rust → WASM package
+pnpm run web:lint            # ESLint
+pnpm run web:typecheck       # tsc --noEmit
+pnpm run web:test            # Vitest
+pnpm run web:build           # Production Next.js build
+pnpm run web-admin:lint
+pnpm run web-admin:typecheck
+pnpm run web-admin:build
 
-# Dev server shell alternative (for IDE / non-Bazel workflows)
+# Dev server (also started by ./deploy/dev/dev.sh)
 (cd clients/web && node ../../node_modules/next/dist/bin/next dev --turbopack)
 ```
 
@@ -167,62 +163,36 @@ bazel build //clients/web-admin:src       # tsc --noEmit web-admin
 
 **校验**：CI / 本地构建后跑 `bash clients/web/scripts/check-no-wasm-in-marketing.sh` 验证营销 chunk 不含 wasm 符号。
 
-### Web-Admin (Next.js)
+### Runner release
 
 ```bash
-bazel run //clients/web-admin:next_dev
-bazel build //clients/web-admin:image
-bazel test //clients/web-admin:lint
-bazel build //clients/web-admin:src
+bash scripts/build-runner-release.sh   # 6-platform tar.gz/zip + checksums
 ```
 
+Cross-compiles linux/darwin/windows × amd64/arm64, packages tar.gz/zip plus
+`checksums.txt`. The release.yml workflow stamps version into the staged
+filenames and runs `rcodesign` over darwin binaries before `gh release create`.
 
-### Runner (Go)
+### Proto
 
 ```bash
-bazel build //runner/cmd/runner:runner            # Native binary
-bazel test //runner/...                            # Run tests
-bazel build //runner/cmd/runner:image              # OCI image (distroless)
-bazel build //runner/cmd/runner:release_assets     # 6-platform tar.gz/zip + checksums
-bazel run //runner:lint                            # golangci-lint (hermetic v2.11.4)
+pnpm proto:gen-go        # regenerate proto/gen/go (requires protoc)
+pnpm proto:gen-go-all    # proto + amesh convert sync
 ```
 
-Release assets (`release_assets`) replace the previous GoReleaser
-pipeline: 6 cross-compiled binaries (linux/darwin/windows ×
-amd64/arm64) packaged as tar.gz/zip, plus `checksums.txt`. The
-release.yml workflow stamps version into the staged filenames and
-runs `rcodesign` over darwin binaries before `gh release create`.
+Requires `protoc` plus `protoc-gen-go` / `protoc-gen-go-grpc` (auto-installed by the script if missing). No Bazel fallback.
 
-### Go Lint (backend / runner / relay)
+### Rust Core (Cargo workspace)
+
+Rust 业务代码在 `clients/core/`（Cargo workspace）。依赖在各 crate 的
+`Cargo.toml` 中声明；WASM 产物通过根目录 `pnpm run build:wasm` 产出。
 
 ```bash
-bazel run //backend:lint    # golangci-lint over backend/
-bazel run //runner:lint     # golangci-lint over runner/
-bazel run //relay:lint      # golangci-lint over relay/
+cd clients/core && cargo test --workspace
+pnpm run build:wasm      # from repo root — builds wasm package for web
 ```
 
-The golangci-lint binary is fetched hermetically by `rules_multitool`
-(`multitool.lock.json` pins v2.11.4 across linux/macOS amd64+arm64).
-Each module reads its own `.golangci.yml`. CI runs the same
-`bazel run //<module>:lint` commands — no parallel `golangci-lint-action`.
-
-### Rust Core (Bazel-only — no Cargo workspace)
-
-Rust 业务代码（`clients/core/crates/`）的构建/测试/lint **完全走 Bazel**。
-仓库**没有** `Cargo.toml` workspace、`Cargo.lock`、或 `.cargo/config.toml`。
-依赖在 `MODULE.bazel` 的 `crate.spec()` 块声明（SSOT），BUILD.bazel
-通过 `@crates//:<name>` 引用。
-
-```bash
-bazel test //clients/core/crates/auth:auth_test
-bazel build //clients/core/crates/wasm:wasm_lib
-
-# Generate rust-project.json for IDE / rust-analyzer
-bazel run //:rust_project
-```
-
-**加新依赖**：编辑 `MODULE.bazel` 的 `crate.spec()` 块 → 加 `BUILD.bazel` 的 deps 引用 `@crates//:<name>`。**不要新建 Cargo.toml**。
-
+**加新依赖**：编辑对应 crate 的 `Cargo.toml`，然后 `cargo test` / `pnpm run build:wasm` 验证。
 
 ### Database Migrations
 
@@ -230,7 +200,7 @@ Migrations are located in `backend/migrations/` using golang-migrate format.
 
 **Development** (via Docker):
 ```bash
-bazel run //deploy/dev:up    # automatically runs all migrations
+./deploy/dev/dev.sh      # automatically runs all migrations
 ```
 
 **Production** (via backend container):
@@ -414,7 +384,7 @@ runner/
 
 ## Configuration
 
-**Development** (Docker): Run `bazel run //deploy/dev:up` - auto-generates all configs
+**Development** (Docker): Run `./deploy/dev/dev.sh` — auto-generates all configs
 
 **Runner**: `~/.agentsmesh/config.yaml` (created after `runner register`)
 

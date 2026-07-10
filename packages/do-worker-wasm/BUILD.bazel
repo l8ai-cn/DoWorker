@@ -1,8 +1,0 @@
-# pnpm workspace member `do-worker-wasm`. rules_js links workspace
-# packages to `//{dir}:pkg`; hermetic content lives in the Rust wasm
-# pipeline. Plain next uses wasm-pack output beside this BUILD.
-alias(
-    name = "pkg",
-    actual = "//clients/core/crates/wasm:wasm_pkg_npm",
-    visibility = ["//visibility:public"],
-)

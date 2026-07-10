@@ -5,32 +5,24 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 STAGING="${1:?staging directory required}"
 DEPLOY_DEV="${REPO_ROOT}/deploy/dev"
-LINUX_PLATFORM="@rules_go//go/toolchain:linux_amd64"
 
 rm -rf "$STAGING"
 mkdir -p "$STAGING"
 
-bazel_build() {
-  local target="$1" bazel_out="$2" staging_name="$3"
+go_cross() {
+  local out="$1" pkg="$2"
   (
     cd "$REPO_ROOT"
-    # `pure` keeps cgo off so the resolution-only stub CC toolchain
-    # (//tools/crosscc, registered for linux/amd64) is never invoked.
-    bazel build "$target" --platforms="$LINUX_PLATFORM" --@rules_go//go/config:pure
+    GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o "${STAGING}/${out}" "${pkg}"
   )
-  cp -L "${REPO_ROOT}/bazel-bin/${bazel_out}" "${STAGING}/${staging_name}"
-  chmod +x "${STAGING}/${staging_name}"
+  chmod +x "${STAGING}/${out}"
 }
 
-echo "▶ bazel build runner (linux/amd64)..."
-bazel_build //runner/cmd/runner:runner \
-  "runner/cmd/runner/runner_/runner" \
-  "runner-binary"
+echo "▶ go build runner (linux/amd64)..."
+go_cross "runner-binary" ./runner/cmd/runner
 
-echo "▶ bazel build e2e-mock-agent (linux/amd64)..."
-bazel_build //runner/internal/agents/mockagent/cmd/e2e-mock-agent:e2e-mock-agent \
-  "runner/internal/agents/mockagent/cmd/e2e-mock-agent/e2e-mock-agent_/e2e-mock-agent" \
-  "e2e-mock-agent-binary"
+echo "▶ go build e2e-mock-agent (linux/amd64)..."
+go_cross "e2e-mock-agent-binary" ./runner/internal/agents/mockagent/cmd/e2e-mock-agent
 
 if [[ -f "${DEPLOY_DEV}/loopal-binary" ]]; then
   cp "${DEPLOY_DEV}/loopal-binary" "${STAGING}/loopal-binary"
@@ -44,7 +36,6 @@ if [[ -f "${DEPLOY_DEV}/do-agent-binary" ]]; then
 else
   # shellcheck source=../../deploy/dev/lib/build_do_agent_binary.sh
   source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
-  # build may return 0 after writing a CI stub; still fall back if no file.
   if build_do_agent_binary && [[ -f "${DEPLOY_DEV}/do-agent-binary" ]]; then
     cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
   else
