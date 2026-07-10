@@ -44,13 +44,8 @@ if [[ "$REQUESTED_RUNTIME" == "all" || "$REQUESTED_RUNTIME" == "do-agent" ]]; th
   SCRIPT_DIR="$DEPLOY_DEV"
   # shellcheck source=../../deploy/dev/lib/build_do_agent_binary.sh
   source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
-  # build may return 0 after writing a CI stub; still fall back if no file.
-  if build_do_agent_binary && [[ -f "${DEPLOY_DEV}/do-agent-binary" ]]; then
-    cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
-  else
-    echo "⚠ do-agent 不可用，使用 e2e-mock-agent 占位" >&2
-    cp "${STAGING}/e2e-mock-agent-binary" "${STAGING}/do-agent-binary"
-  fi
+  build_do_agent_binary
+  cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
   chmod +x "${STAGING}/do-agent-binary"
 fi
 

@@ -6,6 +6,8 @@
 # Shared `base` stage is built once as do-worker/runner-base:latest so apt/npm
 # layers are not re-run for every agent variant.
 
+ARG DO_AGENT_STAGE=without-do-agent
+
 FROM node:20-bookworm-slim AS base
 
 ARG HTTP_PROXY=
@@ -73,8 +75,14 @@ COPY --chmod=0755 runner-binary /usr/local/bin/do-worker-runner
 RUN ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner
 COPY --chmod=0755 e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent
 COPY --chmod=0755 loopal-binary /usr/local/bin/loopal
-COPY --chmod=0755 do-agent-binary /usr/local/bin/do-agent
 COPY --chmod=0755 runner-entrypoint.sh /usr/local/bin/runner-entrypoint.sh
+
+FROM runtime AS runtime-with-do-agent
+COPY --chmod=0755 do-agent-binary /usr/local/bin/do-agent
+
+FROM runtime AS runtime-without-do-agent
+
+FROM runtime-${DO_AGENT_STAGE} AS final
 
 # ARG from a prior stage is not inherited; without this redeclare
 # AGENT_RUNTIME is empty and the *) branch deletes e2e-mock-agent.
