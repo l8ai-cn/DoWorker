@@ -18,6 +18,7 @@ const mockSessionID = "mock-session-001"
 //
 // Returns process exit code (0 on clean EOF).
 func RunACP(scenario string, logger *slog.Logger) int {
+	writeEnvDump(os.Environ())
 	return runACPWithIO(scenario, os.Stdin, os.Stdout, logger)
 }
 
