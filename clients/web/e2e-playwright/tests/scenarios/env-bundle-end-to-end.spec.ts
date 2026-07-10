@@ -93,7 +93,7 @@ async function createBundleViaSettingsUI(args: {
   if (kind === KIND_CREDENTIAL) {
     // e2e-echo credential field is gated on NEXT_PUBLIC_E2E; wait for it
     // after the dialog mounts (cold turbopack can lag the form fields).
-    await page.locator(`#cred-${envKey}`).waitFor({ state: "visible", timeout: 15_000 });
+    await page.locator(`#cred-${envKey}`).waitFor({ state: "visible", timeout: 45_000 });
   }
   await selectors.fillEnv();
   await page.getByRole("button", { name: /^(创建|Create)$/ }).click();

@@ -22,7 +22,16 @@ func writeEnvDump(env []string) {
 	matched := filterEnvByPrefix(env, envDumpPrefixes)
 	sort.Strings(matched)
 
-	if err := os.WriteFile(path, []byte(strings.Join(matched, "\n")+"\n"), 0o644); err != nil {
+	// Always write a sentinel so "no matching vars" (e.g. default-auth
+	// specs) still produces a non-empty file for docker-exec polling.
+	var b strings.Builder
+	b.WriteString("# e2e-echo-env-dump\n")
+	if len(matched) > 0 {
+		b.WriteString(strings.Join(matched, "\n"))
+		b.WriteByte('\n')
+	}
+
+	if err := os.WriteFile(path, []byte(b.String()), 0o644); err != nil {
 		// Stay silent in PTY (printing to stdout would pollute the echo
 		// protocol consumers test against). The dump's absence is itself
 		// the failure signal the env-bundle e2e watches for.
