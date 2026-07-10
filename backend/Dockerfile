@@ -5,10 +5,12 @@ RUN apk add --no-cache git ca-certificates protobuf protobuf-dev bash
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
+ENV PATH="/go/bin:${PATH}"
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11 \
   && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1 \
+  && go install github.com/bufbuild/buf/cmd/buf@v1.50.0 \
   && bash scripts/proto-gen-go.sh --force \
-  && (command -v buf >/dev/null && bash scripts/sync-amesh-convert.sh --force || true)
+  && bash scripts/sync-amesh-convert.sh --force
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
   -o /out/server ./backend/cmd/server
 

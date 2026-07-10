@@ -3,11 +3,13 @@ FROM rust:1.88-bookworm AS wasm
 WORKDIR /src
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh \
   && rustup target add wasm32-unknown-unknown
-RUN apt-get update && apt-get install -y --no-install-recommends protobuf-compiler \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      protobuf-compiler python3 \
   && rm -rf /var/lib/apt/lists/*
+COPY proto/ proto/
 COPY clients/core/ clients/core/
 COPY packages/do-worker-wasm/ packages/do-worker-wasm/
-COPY scripts/build-wasm.sh scripts/build-wasm.sh
+COPY scripts/build-wasm.sh scripts/seed-rust-proto-stubs.sh scripts/
 RUN bash scripts/build-wasm.sh
 
 FROM node:20-bookworm AS build
