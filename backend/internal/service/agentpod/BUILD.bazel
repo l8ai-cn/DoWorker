@@ -90,6 +90,7 @@ go_test(
         "pod_orchestrator_command_test.go",
         "pod_orchestrator_create_test.go",
         "pod_orchestrator_knowledge_test.go",
+        "pod_orchestrator_mode_test.go",
         "pod_orchestrator_queue_test.go",
         "pod_orchestrator_resume_test.go",
         "pod_orchestrator_setup_test.go",
