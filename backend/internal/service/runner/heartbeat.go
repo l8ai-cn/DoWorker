@@ -23,14 +23,6 @@ type HeartbeatPodInfo struct {
 }
 
 func (s *Service) UpdateHeartbeatWithPods(ctx context.Context, runnerID int64, pods []HeartbeatPodInfo, version string) error {
-	r, err := s.repo.GetByID(ctx, runnerID)
-	if err != nil {
-		return err
-	}
-	if r == nil {
-		return ErrRunnerNotFound
-	}
-
 	now := time.Now()
 	updates := map[string]interface{}{
 		"last_heartbeat": now,
@@ -41,17 +33,37 @@ func (s *Service) UpdateHeartbeatWithPods(ctx context.Context, runnerID int64, p
 		updates["runner_version"] = version
 	}
 
-	r.CurrentPods = len(pods)
-	r.Status = runner.RunnerStatusOnline
-	r.LastHeartbeat = &now
+	if err := s.repo.UpdateFields(ctx, runnerID, updates); err != nil {
+		return err
+	}
 
+	r, err := s.repo.GetByID(ctx, runnerID)
+	if err != nil {
+		return err
+	}
+	if r == nil {
+		return ErrRunnerNotFound
+	}
+
+	cached := r
+	s.activeMu.Lock()
+	if active, ok := s.activeRunners.Load(runnerID); ok {
+		if ar, ok := active.(*ActiveRunner); ok && ar.Runner != nil {
+			updated := *ar.Runner
+			updated.Status = r.Status
+			updated.LastHeartbeat = r.LastHeartbeat
+			updated.CurrentPods = r.CurrentPods
+			updated.RunnerVersion = r.RunnerVersion
+			cached = &updated
+		}
+	}
 	s.activeRunners.Store(runnerID, &ActiveRunner{
-		Runner:   r,
+		Runner:   cached,
 		LastPing: now,
 		PodCount: len(pods),
 	})
-
-	return s.repo.UpdateFields(ctx, runnerID, updates)
+	s.activeMu.Unlock()
+	return nil
 }
 
 func (s *Service) MarkOfflineRunners(ctx context.Context, timeout time.Duration) error {

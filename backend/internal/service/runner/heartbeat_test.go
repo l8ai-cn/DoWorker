@@ -8,6 +8,33 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 )
 
+type heartbeatOrderingRepository struct {
+	runner.RunnerRepository
+	runner *runner.Runner
+}
+
+func (r *heartbeatOrderingRepository) GetByID(context.Context, int64) (*runner.Runner, error) {
+	copy := *r.runner
+	copy.AvailableAgents = nil
+	return &copy, nil
+}
+
+func (r *heartbeatOrderingRepository) UpdateFields(_ context.Context, _ int64, updates map[string]interface{}) error {
+	if currentPods, ok := updates["current_pods"].(int); ok {
+		r.runner.CurrentPods = currentPods
+	}
+	if status, ok := updates["status"].(string); ok {
+		r.runner.Status = status
+	}
+	if lastHeartbeat, ok := updates["last_heartbeat"].(time.Time); ok {
+		r.runner.LastHeartbeat = &lastHeartbeat
+	}
+	if version, ok := updates["runner_version"].(string); ok {
+		r.runner.RunnerVersion = &version
+	}
+	return nil
+}
+
 // --- Heartbeat Tests ---
 
 func TestHeartbeat(t *testing.T) {
@@ -85,6 +112,37 @@ func TestUpdateHeartbeatWithPodsNotFound(t *testing.T) {
 	err := service.UpdateHeartbeatWithPods(ctx, 99999, nil, "1.0.0")
 	if err != ErrRunnerNotFound {
 		t.Errorf("expected ErrRunnerNotFound, got %v", err)
+	}
+}
+
+func TestUpdateHeartbeatWithPodsRefreshesActiveRunnerFromUpdatedState(t *testing.T) {
+	repository := &heartbeatOrderingRepository{
+		runner: &runner.Runner{
+			ID: 1,
+		},
+	}
+	service := NewService(repository)
+	service.activeRunners.Store(int64(1), &ActiveRunner{
+		Runner: &runner.Runner{
+			ID:              1,
+			AvailableAgents: runner.StringSlice{"e2e-echo"},
+		},
+	})
+
+	if err := service.UpdateHeartbeatWithPods(context.Background(), 1, []HeartbeatPodInfo{{PodKey: "pod-1"}}, "1.0.0"); err != nil {
+		t.Fatalf("failed to update heartbeat: %v", err)
+	}
+
+	active, ok := service.activeRunners.Load(int64(1))
+	if !ok {
+		t.Fatal("expected active runner")
+	}
+	activeRunner := active.(*ActiveRunner).Runner
+	if got := activeRunner.AvailableAgents; len(got) != 1 || got[0] != "e2e-echo" {
+		t.Fatalf("expected refreshed available agents, got %v", got)
+	}
+	if activeRunner.CurrentPods != 1 || activeRunner.Status != runner.RunnerStatusOnline {
+		t.Fatalf("expected heartbeat runtime fields, got pods=%d status=%s", activeRunner.CurrentPods, activeRunner.Status)
 	}
 }
 

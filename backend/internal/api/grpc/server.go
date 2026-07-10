@@ -27,21 +27,24 @@ type Server struct {
 }
 
 type ServerDependencies struct {
-	Logger             *slog.Logger
-	Config             *config.GRPCConfig
-	DB                 *gorm.DB
-	PKIService         *pki.Service
-	RunnerService      RunnerServiceInterface
-	OrgService         OrganizationServiceInterface
+	Logger         *slog.Logger
+	Config         *config.GRPCConfig
+	DB             *gorm.DB
+	PKIService     *pki.Service
+	RunnerService  RunnerServiceInterface
+	OrgService     OrganizationServiceInterface
 	AgentsProvider interfaces.AgentsProvider
-	ConnManager        *runner.RunnerConnectionManager // 256-shard locks
-	MCPDeps            *MCPDependencies                // optional
+	ConnManager    *runner.RunnerConnectionManager // 256-shard locks
+	MCPDeps        *MCPDependencies                // optional
 }
 
 type RunnerServiceInterface interface {
 	GetByNodeID(ctx context.Context, nodeID string) (RunnerInfo, error)
 	GetByNodeIDAndOrgID(ctx context.Context, nodeID string, orgID int64) (RunnerInfo, error)
 	UpdateLastSeen(ctx context.Context, runnerID int64) error
+	MarkConnected(ctx context.Context, runnerID int64) error
+	MarkDisconnected(ctx context.Context, runnerID int64) error
+	RefreshActiveHeartbeat(runnerID int64, currentPods int)
 	UpdateAvailableAgents(ctx context.Context, runnerID int64, agents []string) error
 	UpdateAgentVersions(ctx context.Context, runnerID int64, versions []runnerDomain.AgentVersion) error
 	IsCertificateRevoked(ctx context.Context, serialNumber string) (bool, error)

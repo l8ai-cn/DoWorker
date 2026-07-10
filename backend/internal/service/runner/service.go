@@ -17,6 +17,7 @@ type Service struct {
 	repo           runner.RunnerRepository
 	billingService *billing.Service
 	grantQuerier   GrantQuerier
+	activeMu       sync.Mutex
 	activeRunners  sync.Map
 }
 

@@ -120,10 +120,7 @@ func TestUpdateAvailableAgentsRefreshesActiveRunner(t *testing.T) {
 		Visibility:        runnerDomain.VisibilityOrganization,
 	}
 	require.NoError(t, db.Create(r).Error)
-	service.activeRunners.Store(r.ID, &ActiveRunner{
-		Runner:   r,
-		LastPing: time.Now(),
-	})
+	require.NoError(t, service.MarkConnected(ctx, r.ID))
 
 	require.NoError(t, service.UpdateAvailableAgents(ctx, r.ID, []string{"e2e-echo"}))
 

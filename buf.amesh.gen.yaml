@@ -8,9 +8,7 @@
 # Activation: only messages with `(amesh.codegen.v1.go_domain) = {...}` get
 # converters generated; others are skipped silently.
 #
-# Plugin binary: built by
-#   bazel build //tools/protoc-gen-amesh-convert
-# then copied to /tmp (Bazel output dir varies by transition).
+# Plugin binary is built by scripts/sync-amesh-convert.sh into GOBIN.
 
 version: v2
 plugins:
@@ -24,7 +22,7 @@ plugins:
   #    `out: .` so the plugin's workspace-relative filenames land where the
   #    `convert_target.output_dir` annotation declared (e.g.
   #    `backend/internal/api/connect/binding/binding_convert.amesh.go`).
-  - local: /tmp/protoc-gen-amesh-convert
+  - local: protoc-gen-amesh-convert
     out: .
     strategy: directory
 inputs:

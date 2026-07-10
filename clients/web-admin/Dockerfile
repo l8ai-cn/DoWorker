@@ -11,7 +11,8 @@ RUN pnpm install --frozen-lockfile
 ENV BAZEL_BUILD=standalone
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /src/clients/web-admin
-RUN node ../../node_modules/next/dist/bin/next build --webpack
+RUN mkdir -p public \
+  && node ../../node_modules/next/dist/bin/next build --webpack
 
 FROM gcr.io/distroless/nodejs20-debian12:nonroot
 WORKDIR /app

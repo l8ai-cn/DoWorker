@@ -33,7 +33,7 @@ fi
 GOBIN="${GOBIN:-$(go env GOPATH)/bin}"
 export PATH="$GOBIN:$PATH"
 
-PLUGIN="/tmp/protoc-gen-amesh-convert"
+PLUGIN="$GOBIN/protoc-gen-amesh-convert"
 echo "Building protoc-gen-amesh-convert..."
 go build -o "$PLUGIN" ./tools/protoc-gen-amesh-convert
 
