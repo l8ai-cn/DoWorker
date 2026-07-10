@@ -439,6 +439,11 @@ jobs:
           bazel run //deploy/dev:clean || true
 
       - name: Bring up dev backend stack
+        env:
+          DEV_SKIP_DOAGENT: "1"
+          # Only e2e-echo images ship e2e-mock-agent; other agent runtimes
+          # would steal CreatePod scheduling and fail with not-found-in-PATH.
+          DEV_E2E_RUNNERS_ONLY: "1"
         run: |
           bazel run //deploy/dev:backend_only
           # `dev.sh` exits 0 once compose is up and migrations + seed have
@@ -609,6 +614,8 @@ jobs:
           pnpm exec playwright install chromium-headless-shell
 
       - name: Bring up dev backend stack
+        env:
+          DEV_SKIP_DOAGENT: "1"
         run: |
           bazel run //deploy/dev:backend_only
           sleep 15
@@ -654,6 +661,8 @@ jobs:
           sudo chmod +x /usr/local/bin/ibazel
 
       - name: Bring up dev backend stack
+        env:
+          DEV_SKIP_DOAGENT: "1"
         run: |
           bazel run //deploy/dev:backend_only
           # Two runner containers (dev-runner + dev-runner-2 for cross-runner
