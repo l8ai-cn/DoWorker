@@ -1,4 +1,5 @@
 mod agent;
+mod ai_resource;
 mod apikey;
 mod auth_connect;
 mod autopilot;
@@ -30,6 +31,7 @@ mod user_credential;
 
 pub use agent::AgentService;
 pub use apikey::ApiKeyService;
+pub use ai_resource::AIResourceService;
 pub use auth_connect::AuthConnectService;
 pub use autopilot::AutopilotService;
 pub use billing::BillingService;

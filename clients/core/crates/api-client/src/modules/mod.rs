@@ -1,4 +1,5 @@
 pub mod agent;
+pub mod ai_resource;
 pub mod agentpod;
 pub mod apikey;
 pub mod auth_connect;

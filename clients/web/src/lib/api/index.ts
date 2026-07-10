@@ -27,6 +27,8 @@ export type { SupportTicket, SupportTicketDetail, SupportTicketMessage, SupportT
 export type { AgentData, UserAgentConfigData, ConfigField, ConfigFieldOption, ConfigSchema, CredentialField } from "./connect/agentConnect";
 export type { PromoCodeType, ValidatePromoCodeResponse, RedeemPromoCodeResponse, PromoCodeRedemption } from "./connect/promocodeConnect";
 export type { NotificationPreference } from "./connect/notificationConnect";
+export * from "./facade/aiResource";
+export * from "./facade/aiResourceConnect";
 export type { TokenUsageSummary, TokenUsageTimeSeriesPoint, TokenUsageByAgent, TokenUsageByUser, TokenUsageByModel, TokenUsageQueryParams } from "@/lib/viewModels/tokenUsage";
 export type { MessageContent, MessageMentions, InlineElement, Block, MentionRefInput, MessageSendPayload, MessageEditPayload } from "@/lib/viewModels/channelMessage";
 

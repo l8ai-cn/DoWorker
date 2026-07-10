@@ -1,0 +1,120 @@
+use crate::{connect_call, ApiClient, ApiError};
+use agentsmesh_types::proto_ai_resource_v1 as ai;
+
+macro_rules! rpc {
+    ($name:ident, $request:ty, $response:ty, $procedure:literal) => {
+        pub async fn $name(&self, request: &$request) -> Result<$response, ApiError> {
+            connect_call(
+                self,
+                concat!("/proto.ai_resource.v1.AIResourceService/", $procedure),
+                request,
+            )
+            .await
+        }
+    };
+}
+
+impl ApiClient {
+    rpc!(
+        get_ai_resource_catalog_connect,
+        ai::GetCatalogRequest,
+        ai::GetCatalogResponse,
+        "GetCatalog"
+    );
+    rpc!(
+        list_personal_connections_connect,
+        ai::ListPersonalConnectionsRequest,
+        ai::ListConnectionsResponse,
+        "ListPersonalConnections"
+    );
+    rpc!(
+        list_organization_connections_connect,
+        ai::ListOrganizationConnectionsRequest,
+        ai::ListConnectionsResponse,
+        "ListOrganizationConnections"
+    );
+    rpc!(
+        list_personal_effective_resources_connect,
+        ai::ListPersonalEffectiveResourcesRequest,
+        ai::ListEffectiveResourcesResponse,
+        "ListPersonalEffectiveResources"
+    );
+    rpc!(
+        list_organization_effective_resources_connect,
+        ai::ListOrganizationEffectiveResourcesRequest,
+        ai::ListEffectiveResourcesResponse,
+        "ListOrganizationEffectiveResources"
+    );
+    rpc!(
+        create_personal_connection_connect,
+        ai::CreatePersonalConnectionRequest,
+        ai::ProviderConnection,
+        "CreatePersonalConnection"
+    );
+    rpc!(
+        create_organization_connection_connect,
+        ai::CreateOrganizationConnectionRequest,
+        ai::ProviderConnection,
+        "CreateOrganizationConnection"
+    );
+    rpc!(
+        update_ai_resource_connection_connect,
+        ai::UpdateConnectionRequest,
+        ai::ProviderConnection,
+        "UpdateConnection"
+    );
+    rpc!(
+        rotate_connection_credentials_connect,
+        ai::RotateConnectionCredentialsRequest,
+        ai::MutationResponse,
+        "RotateConnectionCredentials"
+    );
+    rpc!(
+        set_connection_enabled_connect,
+        ai::SetConnectionEnabledRequest,
+        ai::MutationResponse,
+        "SetConnectionEnabled"
+    );
+    rpc!(
+        validate_ai_resource_connection_connect,
+        ai::ValidateConnectionRequest,
+        ai::MutationResponse,
+        "ValidateConnection"
+    );
+    rpc!(
+        delete_ai_resource_connection_connect,
+        ai::DeleteConnectionRequest,
+        ai::MutationResponse,
+        "DeleteConnection"
+    );
+    rpc!(
+        create_ai_resource_connect,
+        ai::CreateResourceRequest,
+        ai::ModelResource,
+        "CreateResource"
+    );
+    rpc!(
+        update_ai_resource_connect,
+        ai::UpdateResourceRequest,
+        ai::ModelResource,
+        "UpdateResource"
+    );
+    rpc!(
+        set_ai_resource_enabled_connect,
+        ai::SetResourceEnabledRequest,
+        ai::MutationResponse,
+        "SetResourceEnabled"
+    );
+    rpc!(
+        delete_ai_resource_connect,
+        ai::DeleteResourceRequest,
+        ai::MutationResponse,
+        "DeleteResource"
+    );
+    rpc!(
+        set_ai_resource_default_connect,
+        ai::SetDefaultRequest,
+        ai::MutationResponse,
+        "SetDefault"
+    );
+}

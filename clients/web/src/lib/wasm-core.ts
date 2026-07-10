@@ -57,4 +57,5 @@ export {
   getUserCredentialService, getEnvBundleService, getOrgApiService, getAgentService,
   getTicketRelationsService, getFileService, getSupportTicketService,
   getAuthConnectService, getBlockstoreService, getKnowledgeBaseService,
+  getAIResourceService,
 } from "@do-worker/service-runtime";

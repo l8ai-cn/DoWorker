@@ -8,6 +8,7 @@ pub struct Domain {
 
 pub const DOMAINS: &[Domain] = &[
     Domain { name: "agent", srcs: &["agent.proto"], deps: &[] },
+    Domain { name: "ai_resource", srcs: &["ai_resource.proto", "types.proto"], deps: &[] },
     Domain { name: "apikey", srcs: &["api_key.proto"], deps: &[] },
     Domain { name: "app_state", srcs: &["app_state.proto"], deps: &[] },
     Domain { name: "auth", srcs: &["auth.proto"], deps: &[] },
@@ -24,7 +25,7 @@ pub const DOMAINS: &[Domain] = &[
     Domain { name: "env_bundle", srcs: &["env_bundle.proto"], deps: &[] },
     Domain {
         name: "extension",
-        srcs: &["market.proto", "repo_mcp.proto", "repo_skill.proto", "skill_registry.proto", "skill_registry_admin.proto"],
+        srcs: &["market.proto", "repo_mcp.proto", "repo_skill.proto"],
         deps: &[],
     },
     Domain { name: "events", srcs: &["event_data.proto", "events.proto"], deps: &[] },

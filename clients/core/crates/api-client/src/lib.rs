@@ -16,6 +16,8 @@ mod api_core_tests;
 mod api_agent_billing_tests;
 #[cfg(test)]
 mod api_pod_runner_tests;
+#[cfg(test)]
+mod ai_resource_tests;
 
 pub use client::ApiClient;
 pub use connect_call::connect_call;

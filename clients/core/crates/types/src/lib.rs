@@ -29,6 +29,10 @@ pub mod proto_agent_v1 {
     pub use ::agent_proto::proto::agent::v1::*;
 }
 
+pub mod proto_ai_resource_v1 {
+    pub use ::ai_resource_proto::proto::ai_resource::v1::*;
+}
+
 pub mod proto_apikey_v1 {
     pub use ::apikey_proto::proto::apikey::v1::*;
 }
