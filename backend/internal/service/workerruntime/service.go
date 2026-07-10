@@ -26,42 +26,30 @@ func (service *Service) Resolve(
 	if service == nil || service.repository == nil {
 		return domain.Resolved{}, domain.ErrRepositoryUnavailable
 	}
-	image, err := service.repository.GetRuntimeImageByIDForOrganization(
-		ctx,
-		request.OrganizationID,
-		request.RuntimeImageID,
-	)
+	selection, err := service.repository.ResolveSelection(ctx, request)
 	if err != nil {
 		return domain.Resolved{}, err
 	}
-	if err := validateImage(image, request.RuntimeImageID); err != nil {
+	if selection == nil {
+		return domain.Resolved{}, domain.ErrNotFound
+	}
+	if err := validateImage(selection.RuntimeImage, request.RuntimeImageID); err != nil {
 		return domain.Resolved{}, err
 	}
-	target, err := service.repository.GetComputeTargetByIDForOrganization(
-		ctx,
-		request.OrganizationID,
-		request.ComputeTargetID,
-	)
-	if err != nil {
+	if err := validateTarget(selection.ComputeTarget, request.ComputeTargetID); err != nil {
 		return domain.Resolved{}, err
 	}
-	if err := validateTarget(target, request.ComputeTargetID); err != nil {
+	if err := validateProfile(selection.ResourceProfile, request.ResourceProfileID); err != nil {
 		return domain.Resolved{}, err
 	}
-	profile, err := service.repository.GetResourceProfileByIDForOrganization(
-		ctx,
-		request.OrganizationID,
-		request.ResourceProfileID,
-	)
-	if err != nil {
-		return domain.Resolved{}, err
+	if !selection.ImageCompatible ||
+		!selection.DeploymentCompatible ||
+		!selection.ResourceProfileCompatible {
+		return domain.Resolved{}, domain.ErrIncompatible
 	}
-	if err := validateProfile(profile, request.ResourceProfileID); err != nil {
-		return domain.Resolved{}, err
-	}
-	if err := service.validateCompatibility(ctx, request); err != nil {
-		return domain.Resolved{}, err
-	}
+	image := selection.RuntimeImage
+	target := selection.ComputeTarget
+	profile := selection.ResourceProfile
 	imageValue, placement, err := workerspec.NormalizeAndValidateRuntimePlacement(
 		workerspec.RuntimeImage{ID: image.ID, Digest: image.Digest},
 		workerspec.Placement{
@@ -84,49 +72,6 @@ func (service *Service) Resolve(
 		RuntimeImage: imageValue,
 		Placement:    placement,
 	}, nil
-}
-
-func (service *Service) validateCompatibility(
-	ctx context.Context,
-	request domain.Request,
-) error {
-	imageCompatible, err := service.repository.IsRuntimeImageCompatibleWithWorkerType(
-		ctx,
-		request.OrganizationID,
-		request.WorkerTypeSlug,
-		request.RuntimeImageID,
-	)
-	if err != nil {
-		return err
-	}
-	if !imageCompatible {
-		return domain.ErrIncompatible
-	}
-	targetCompatible, err := service.repository.IsComputeTargetCompatibleWithDeployment(
-		ctx,
-		request.OrganizationID,
-		request.ComputeTargetID,
-		request.DeploymentMode,
-	)
-	if err != nil {
-		return err
-	}
-	if !targetCompatible {
-		return domain.ErrIncompatible
-	}
-	profileCompatible, err := service.repository.IsComputeTargetCompatibleWithResourceProfile(
-		ctx,
-		request.OrganizationID,
-		request.ComputeTargetID,
-		request.ResourceProfileID,
-	)
-	if err != nil {
-		return err
-	}
-	if !profileCompatible {
-		return domain.ErrIncompatible
-	}
-	return nil
 }
 
 func validateImage(image *domain.RuntimeImage, expectedID int64) error {

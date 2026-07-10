@@ -33,6 +33,15 @@ type Request struct {
 	ResourceProfileID int64
 }
 
+type RepositorySelection struct {
+	RuntimeImage              *RuntimeImage
+	ComputeTarget             *ComputeTarget
+	ResourceProfile           *ResourceProfile
+	ImageCompatible           bool
+	DeploymentCompatible      bool
+	ResourceProfileCompatible bool
+}
+
 type Resolved struct {
 	RuntimeImage workerspec.RuntimeImage
 	Placement    workerspec.Placement

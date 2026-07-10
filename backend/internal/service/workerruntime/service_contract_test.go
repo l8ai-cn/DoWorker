@@ -3,7 +3,6 @@ package workerruntime
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"testing"
 
@@ -37,14 +36,16 @@ func TestResolveReturnsScopedRuntimePlacement(t *testing.T) {
 			Resources: repo.profile.Resources,
 		},
 	}, resolved.Placement)
-	assert.Equal(t, []string{
-		"image:77:41",
-		"target:77:52",
-		"profile:77:63",
-		"image-compatible:77:codex-cli:41",
-		"deployment-compatible:77:52:dedicated",
-		"profile-compatible:77:52:63",
-	}, repo.calls)
+	assert.Equal(t, 1, repo.atomicCalls)
+}
+
+func TestResolveUsesSingleAtomicRepositorySelection(t *testing.T) {
+	repo := newRuntimeRepoForTest()
+
+	_, err := NewService(repo).Resolve(context.Background(), validRuntimeRequest())
+
+	require.NoError(t, err)
+	assert.Equal(t, 1, repo.atomicCalls)
 }
 
 func TestResolveFailsWithoutFallback(t *testing.T) {
@@ -112,7 +113,25 @@ type runtimeRepoForTest struct {
 	imageOK         bool
 	deploymentOK    bool
 	targetProfileOK bool
-	calls           []string
+	atomicCalls     int
+}
+
+func (repo *runtimeRepoForTest) ResolveSelection(
+	_ context.Context,
+	request domain.Request,
+) (*domain.RepositorySelection, error) {
+	repo.atomicCalls++
+	if request != validRuntimeRequest() {
+		return nil, domain.ErrNotFound
+	}
+	return &domain.RepositorySelection{
+		RuntimeImage:              cloneRuntimeImage(repo.image),
+		ComputeTarget:             cloneComputeTarget(repo.target),
+		ResourceProfile:           cloneResourceProfile(repo.profile),
+		ImageCompatible:           repo.imageOK,
+		DeploymentCompatible:      repo.deploymentOK,
+		ResourceProfileCompatible: repo.targetProfileOK,
+	}, nil
 }
 
 func newRuntimeRepoForTest() *runtimeRepoForTest {
@@ -143,93 +162,6 @@ func newRuntimeRepoForTest() *runtimeRepoForTest {
 	}
 }
 
-func (repo *runtimeRepoForTest) GetRuntimeImageByIDForOrganization(
-	_ context.Context,
-	organizationID, imageID int64,
-) (*domain.RuntimeImage, error) {
-	repo.calls = append(repo.calls, fmt.Sprintf("image:%d:%d", organizationID, imageID))
-	if organizationID != 77 || imageID != 41 || repo.image == nil {
-		return nil, domain.ErrNotFound
-	}
-	image := *repo.image
-	return &image, nil
-}
-
-func (repo *runtimeRepoForTest) GetComputeTargetByIDForOrganization(
-	_ context.Context,
-	organizationID, targetID int64,
-) (*domain.ComputeTarget, error) {
-	repo.calls = append(repo.calls, fmt.Sprintf("target:%d:%d", organizationID, targetID))
-	if organizationID != 77 || targetID != 52 || repo.target == nil {
-		return nil, domain.ErrNotFound
-	}
-	target := *repo.target
-	return &target, nil
-}
-
-func (repo *runtimeRepoForTest) GetResourceProfileByIDForOrganization(
-	_ context.Context,
-	organizationID, profileID int64,
-) (*domain.ResourceProfile, error) {
-	repo.calls = append(repo.calls, fmt.Sprintf("profile:%d:%d", organizationID, profileID))
-	if organizationID != 77 || profileID != 63 || repo.profile == nil {
-		return nil, domain.ErrNotFound
-	}
-	profile := *repo.profile
-	return &profile, nil
-}
-
-func (repo *runtimeRepoForTest) IsRuntimeImageCompatibleWithWorkerType(
-	_ context.Context,
-	organizationID int64,
-	workerType slugkit.Slug,
-	imageID int64,
-) (bool, error) {
-	repo.calls = append(repo.calls, fmt.Sprintf(
-		"image-compatible:%d:%s:%d",
-		organizationID,
-		workerType.String(),
-		imageID,
-	))
-	if organizationID != 77 || workerType.String() != "codex-cli" || imageID != 41 {
-		return false, domain.ErrNotFound
-	}
-	return repo.imageOK, nil
-}
-
-func (repo *runtimeRepoForTest) IsComputeTargetCompatibleWithDeployment(
-	_ context.Context,
-	organizationID, targetID int64,
-	mode workerspec.DeploymentMode,
-) (bool, error) {
-	repo.calls = append(repo.calls, fmt.Sprintf(
-		"deployment-compatible:%d:%d:%s",
-		organizationID,
-		targetID,
-		mode,
-	))
-	if organizationID != 77 || targetID != 52 || mode != workerspec.DeploymentModeDedicated {
-		return false, domain.ErrNotFound
-	}
-	return repo.deploymentOK, nil
-}
-
-func (repo *runtimeRepoForTest) IsComputeTargetCompatibleWithResourceProfile(
-	_ context.Context,
-	organizationID, targetID, profileID int64,
-) (bool, error) {
-	repo.calls = append(repo.calls, fmt.Sprintf(
-		"profile-compatible:%d:%d:%d",
-		organizationID,
-		targetID,
-		profileID,
-	))
-	if organizationID != 77 || targetID != 52 || profileID != 63 {
-		return false, domain.ErrNotFound
-	}
-	return repo.targetProfileOK, nil
-}
-
 func (repo *runtimeRepoForTest) withoutImage() *runtimeRepoForTest {
 	repo.image = nil
 	return repo
@@ -253,6 +185,30 @@ func (repo *runtimeRepoForTest) withImageCompatibility(ok bool) *runtimeRepoForT
 func (repo *runtimeRepoForTest) withCPURequest(cpu uint32) *runtimeRepoForTest {
 	repo.profile.Resources.CPURequestMilliCPU = cpu
 	return repo
+}
+
+func cloneRuntimeImage(image *domain.RuntimeImage) *domain.RuntimeImage {
+	if image == nil {
+		return nil
+	}
+	cloned := *image
+	return &cloned
+}
+
+func cloneComputeTarget(target *domain.ComputeTarget) *domain.ComputeTarget {
+	if target == nil {
+		return nil
+	}
+	cloned := *target
+	return &cloned
+}
+
+func cloneResourceProfile(profile *domain.ResourceProfile) *domain.ResourceProfile {
+	if profile == nil {
+		return nil
+	}
+	cloned := *profile
+	return &cloned
 }
 
 func validRuntimeRequest() domain.Request {

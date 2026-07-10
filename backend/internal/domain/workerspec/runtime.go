@@ -12,8 +12,17 @@ type RuntimeImage struct {
 	Digest string `json:"digest"`
 }
 
+type ModelBinding struct {
+	ResourceID         int64        `json:"resource_id"`
+	ResourceRevision   int64        `json:"resource_revision"`
+	ConnectionID       int64        `json:"connection_id"`
+	ConnectionRevision int64        `json:"connection_revision"`
+	ProviderKey        slugkit.Slug `json:"provider_key"`
+	ModelID            string       `json:"model_id"`
+}
+
 type Runtime struct {
-	ModelResourceID int64        `json:"model_resource_id"`
-	WorkerType      WorkerType   `json:"worker_type"`
-	Image           RuntimeImage `json:"image"`
+	ModelBinding ModelBinding `json:"model_binding"`
+	WorkerType   WorkerType   `json:"worker_type"`
+	Image        RuntimeImage `json:"image"`
 }

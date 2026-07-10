@@ -32,8 +32,8 @@ func Validate(spec Spec) error {
 	if spec.Version != VersionV1 {
 		return fmt.Errorf("workerspec version %d is unsupported", spec.Version)
 	}
-	if spec.Runtime.ModelResourceID <= 0 {
-		return fmt.Errorf("runtime model resource id must be positive")
+	if err := validateModelBinding(spec.Runtime.ModelBinding); err != nil {
+		return err
 	}
 	if err := validateWorkerType(spec.Runtime.WorkerType); err != nil {
 		return err
@@ -55,6 +55,26 @@ func Validate(spec Spec) error {
 	}
 	if spec.Metadata.SourceExpertID != nil && *spec.Metadata.SourceExpertID <= 0 {
 		return fmt.Errorf("metadata source expert id must be positive")
+	}
+	return nil
+}
+
+func validateModelBinding(binding ModelBinding) error {
+	switch {
+	case binding.ResourceID <= 0:
+		return fmt.Errorf("runtime model binding resource id must be positive")
+	case binding.ResourceRevision <= 0:
+		return fmt.Errorf("runtime model binding resource revision must be positive")
+	case binding.ConnectionID <= 0:
+		return fmt.Errorf("runtime model binding connection id must be positive")
+	case binding.ConnectionRevision <= 0:
+		return fmt.Errorf("runtime model binding connection revision must be positive")
+	}
+	if err := slugkit.Validate(binding.ProviderKey.String()); err != nil {
+		return fmt.Errorf("runtime model binding provider key: %w", err)
+	}
+	if strings.TrimSpace(binding.ModelID) == "" {
+		return fmt.Errorf("runtime model binding model id is required")
 	}
 	return nil
 }

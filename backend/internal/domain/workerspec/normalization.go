@@ -10,6 +10,9 @@ import (
 
 func Normalize(spec Spec) (Spec, error) {
 	normalized := spec
+	normalized.Runtime.ModelBinding.ModelID = strings.TrimSpace(
+		spec.Runtime.ModelBinding.ModelID,
+	)
 	normalized.Runtime.WorkerType.DefinitionHash = strings.TrimSpace(
 		spec.Runtime.WorkerType.DefinitionHash,
 	)
@@ -24,12 +27,6 @@ func Normalize(spec Spec) (Spec, error) {
 	}
 	normalized.TypeConfig.Values = values
 	normalized.TypeConfig.SecretRefs = cloneSecretReferences(spec.TypeConfig.SecretRefs)
-	if normalized.TypeConfig.InteractionMode == "" {
-		normalized.TypeConfig.InteractionMode = InteractionModePTY
-	}
-	if normalized.TypeConfig.AutomationLevel == "" {
-		normalized.TypeConfig.AutomationLevel = AutomationLevelAutonomous
-	}
 
 	normalized.Workspace.RepositoryID = cloneInt64Pointer(spec.Workspace.RepositoryID)
 	normalized.Workspace.Branch = strings.TrimSpace(spec.Workspace.Branch)
@@ -41,11 +38,6 @@ func Normalize(spec Spec) (Spec, error) {
 		[]KnowledgeMount{},
 		spec.Workspace.KnowledgeMounts...,
 	)
-	for index := range normalized.Workspace.KnowledgeMounts {
-		if normalized.Workspace.KnowledgeMounts[index].Mode == "" {
-			normalized.Workspace.KnowledgeMounts[index].Mode = KnowledgeMountReadOnly
-		}
-	}
 	sort.Slice(normalized.Workspace.KnowledgeMounts, func(i, j int) bool {
 		return normalized.Workspace.KnowledgeMounts[i].KnowledgeBaseID <
 			normalized.Workspace.KnowledgeMounts[j].KnowledgeBaseID
@@ -57,9 +49,6 @@ func Normalize(spec Spec) (Spec, error) {
 	normalized.Workspace.Instructions = strings.TrimSpace(spec.Workspace.Instructions)
 	normalized.Workspace.InitialTask = strings.TrimSpace(spec.Workspace.InitialTask)
 
-	if normalized.Lifecycle.TerminationPolicy == "" {
-		normalized.Lifecycle.TerminationPolicy = TerminationPolicyManual
-	}
 	normalized.Metadata.Alias = strings.TrimSpace(spec.Metadata.Alias)
 	normalized.Metadata.SourceExpertID = cloneInt64Pointer(spec.Metadata.SourceExpertID)
 	return normalized, nil
@@ -67,7 +56,7 @@ func Normalize(spec Spec) (Spec, error) {
 
 func cloneJSONValues(values map[string]any) (map[string]any, error) {
 	if values == nil {
-		return map[string]any{}, nil
+		return nil, nil
 	}
 	raw, err := json.Marshal(values)
 	if err != nil {
@@ -85,6 +74,9 @@ func cloneJSONValues(values map[string]any) (map[string]any, error) {
 func cloneSecretReferences(
 	references map[string]SecretReference,
 ) map[string]SecretReference {
+	if references == nil {
+		return nil
+	}
 	cloned := make(map[string]SecretReference, len(references))
 	for field, reference := range references {
 		cloned[field] = reference

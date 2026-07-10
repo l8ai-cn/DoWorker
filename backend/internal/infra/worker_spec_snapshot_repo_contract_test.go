@@ -6,7 +6,9 @@ import (
 	"strings"
 	"testing"
 
+	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	workerspecservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/testkit"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
@@ -18,27 +20,25 @@ func TestWorkerSpecSnapshotRepositoryPersistsCanonicalScopedDocuments(t *testing
 	ctx := context.Background()
 	db := workerSpecSnapshotDBForContract(t)
 	repo := NewWorkerSpecSnapshotRepository(db)
-	snapshot := workerSpecSnapshotForContract(t, 77)
-	snapshot.Spec.Workspace.SkillIDs = []int64{9, 3}
+	resolved := workerSpecSnapshotForContract(t, 77)
 
-	require.NoError(t, repo.Create(ctx, snapshot))
-	require.Positive(t, snapshot.ID)
+	created, err := repo.Create(ctx, resolved)
+	require.NoError(t, err)
+	require.Positive(t, created.ID)
 
 	var storedSpec string
 	require.NoError(t, db.Raw(
 		"SELECT spec_json FROM worker_spec_snapshots WHERE id = ?",
-		snapshot.ID,
+		created.ID,
 	).Scan(&storedSpec).Error)
-	expected, err := workerspec.EncodeSpec(snapshot.Spec)
-	require.NoError(t, err)
-	assert.JSONEq(t, string(expected), storedSpec)
+	assert.JSONEq(t, string(resolved.SpecJSON()), storedSpec)
 
-	loaded, err := repo.GetByID(ctx, 77, snapshot.ID)
+	loaded, err := repo.GetByID(ctx, 77, created.ID)
 	require.NoError(t, err)
 	assert.Equal(t, []int64{3, 9}, loaded.Spec.Workspace.SkillIDs)
-	assert.Equal(t, snapshot.Summary, loaded.Summary)
+	assert.Equal(t, created.Summary, loaded.Summary)
 
-	_, err = repo.GetByID(ctx, 78, snapshot.ID)
+	_, err = repo.GetByID(ctx, 78, created.ID)
 	assert.True(t, errors.Is(err, workerspec.ErrNotFound))
 }
 
@@ -46,8 +46,9 @@ func TestWorkerSpecSnapshotRepositoryRejectsCorruptStoredDocuments(t *testing.T)
 	ctx := context.Background()
 	db := workerSpecSnapshotDBForContract(t)
 	repo := NewWorkerSpecSnapshotRepository(db)
-	snapshot := workerSpecSnapshotForContract(t, 79)
-	require.NoError(t, repo.Create(ctx, snapshot))
+	resolved := workerSpecSnapshotForContract(t, 79)
+	snapshot, err := repo.Create(ctx, resolved)
+	require.NoError(t, err)
 
 	corrupt := snapshot.Summary
 	corrupt.Alias = "other"
@@ -61,6 +62,20 @@ func TestWorkerSpecSnapshotRepositoryRejectsCorruptStoredDocuments(t *testing.T)
 
 	_, err = repo.GetByID(ctx, 79, snapshot.ID)
 	assert.True(t, errors.Is(err, workerspec.ErrSummaryMismatch))
+}
+
+func TestWorkerSpecSnapshotRepositoryRejectsZeroAggregate(t *testing.T) {
+	ctx := context.Background()
+	db := workerSpecSnapshotDBForContract(t)
+	repo := NewWorkerSpecSnapshotRepository(db)
+
+	snapshot, err := repo.Create(ctx, workerspecservice.ResolvedSnapshot{})
+
+	assert.Equal(t, workerspec.Snapshot{}, snapshot)
+	assert.ErrorIs(t, err, workerspecservice.ErrInvalidResolvedSnapshot)
+	var count int64
+	require.NoError(t, db.Table("worker_spec_snapshots").Count(&count).Error)
+	assert.Zero(t, count)
 }
 
 func workerSpecSnapshotDBForContract(t *testing.T) *gorm.DB {
@@ -80,17 +95,111 @@ func workerSpecSnapshotDBForContract(t *testing.T) *gorm.DB {
 func workerSpecSnapshotForContract(
 	t *testing.T,
 	organizationID int64,
-) *workerspec.Snapshot {
+) workerspecservice.ResolvedSnapshot {
 	t.Helper()
-	snapshot, err := workerspec.NewSnapshot(organizationID, workerSpecForRepoContract())
+	spec := workerSpecForRepoContract()
+	ports := &workerSpecResolutionPorts{spec: spec}
+	resolver := workerspecservice.NewResolver(workerspecservice.ResolverDeps{
+		WorkerTypes: ports,
+		Runtime:     ports,
+		Models:      ports,
+		Secrets:     ports,
+		Workspaces:  ports,
+	})
+	snapshot, err := resolver.Resolve(
+		context.Background(),
+		workerspecservice.Scope{OrgID: organizationID, UserID: 7},
+		workerspecservice.Draft{
+			ModelResourceID: spec.Runtime.ModelBinding.ResourceID,
+			WorkerTypeSlug:  spec.Runtime.WorkerType.Slug,
+			Runtime: workerspecservice.RuntimeSelection{
+				RuntimeImageID:    spec.Runtime.Image.ID,
+				PlacementPolicy:   spec.Placement.Policy,
+				ComputeTargetID:   spec.Placement.ComputeTarget.ID,
+				DeploymentMode:    spec.Placement.DeploymentMode,
+				ResourceProfileID: spec.Placement.ResourceProfile.ID,
+			},
+			TypeConfig: spec.TypeConfig,
+			Workspace:  spec.Workspace,
+			Lifecycle:  spec.Lifecycle,
+			Metadata:   spec.Metadata,
+		},
+	)
 	require.NoError(t, err)
 	return snapshot
+}
+
+type workerSpecResolutionPorts struct {
+	spec workerspec.Spec
+}
+
+func (ports *workerSpecResolutionPorts) ResolveWorkerType(
+	context.Context,
+	workerspecservice.Scope,
+	slugkit.Slug,
+) (workerspecservice.WorkerTypeResolution, error) {
+	return workerspecservice.WorkerTypeResolution{
+		WorkerType: ports.spec.Runtime.WorkerType,
+		TypeSchema: workerspec.TypeSchema{
+			Version: ports.spec.TypeConfig.SchemaVersion,
+			Fields: map[string]workerspec.TypeFieldSchema{
+				"mode": {
+					Kind:    workerspec.TypeFieldSelect,
+					Options: []string{"careful"},
+				},
+			},
+		},
+	}, nil
+}
+
+func (ports *workerSpecResolutionPorts) ResolveRuntime(
+	context.Context,
+	workerspecservice.Scope,
+	slugkit.Slug,
+	workerspecservice.RuntimeSelection,
+) (workerruntime.Resolved, error) {
+	return workerruntime.Resolved{
+		RuntimeImage: ports.spec.Runtime.Image,
+		Placement:    ports.spec.Placement,
+	}, nil
+}
+
+func (ports *workerSpecResolutionPorts) ResolveModel(
+	context.Context,
+	workerspecservice.Scope,
+	int64,
+) (workerspec.ModelBinding, error) {
+	return ports.spec.Runtime.ModelBinding, nil
+}
+
+func (*workerSpecResolutionPorts) ResolveSecretReference(
+	context.Context,
+	workerspecservice.Scope,
+	string,
+	workerspec.SecretReference,
+) error {
+	return nil
+}
+
+func (*workerSpecResolutionPorts) ResolveWorkspace(
+	_ context.Context,
+	_ workerspecservice.Scope,
+	workspace workerspec.Workspace,
+) (workerspec.Workspace, error) {
+	return workspace, nil
 }
 
 func workerSpecForRepoContract() workerspec.Spec {
 	spec := workerspec.NewV1(
 		workerspec.Runtime{
-			ModelResourceID: 1001,
+			ModelBinding: workerspec.ModelBinding{
+				ResourceID:         1001,
+				ResourceRevision:   7,
+				ConnectionID:       2001,
+				ConnectionRevision: 9,
+				ProviderKey:        slugkit.MustNewForTest("openai"),
+				ModelID:            "gpt-5",
+			},
 			WorkerType: workerspec.WorkerType{
 				Slug:           slugkit.MustNewForTest("codex-cli"),
 				DefinitionHash: strings.Repeat("a", 64),
@@ -100,36 +209,40 @@ func workerSpecForRepoContract() workerspec.Spec {
 				Digest: "sha256:" + strings.Repeat("a", 64),
 			},
 		},
+		workerspec.Placement{
+			Policy: workerspec.PlacementPolicyExplicit,
+			ComputeTarget: workerspec.ComputeTarget{
+				ID:   52,
+				Kind: workerspec.ComputeTargetKindKubernetes,
+			},
+			DeploymentMode: workerspec.DeploymentModePooled,
+			ResourceProfile: workerspec.ResourceProfile{
+				ID: 63,
+				Resources: workerspec.ResourceRequestsLimits{
+					CPURequestMilliCPU: 250,
+					CPULimitMilliCPU:   500,
+					MemoryRequestBytes: 256 << 20,
+					MemoryLimitBytes:   512 << 20,
+				},
+			},
+		},
 		workerspec.TypeConfig{
-			SchemaVersion: 1,
-			Values:        map[string]any{"mode": "careful"},
-			SecretRefs:    map[string]workerspec.SecretReference{},
+			SchemaVersion:   1,
+			Values:          map[string]any{"mode": "careful"},
+			SecretRefs:      map[string]workerspec.SecretReference{},
+			InteractionMode: workerspec.InteractionModePTY,
+			AutomationLevel: workerspec.AutomationLevelAutonomous,
 		},
 		workerspec.Workspace{
 			RepositoryID: int64PointerForRepoContract(22),
 			Branch:       "main",
 			SkillIDs:     []int64{3, 9},
 		},
-		workerspec.Lifecycle{},
+		workerspec.Lifecycle{
+			TerminationPolicy: workerspec.TerminationPolicyManual,
+		},
 		workerspec.Metadata{Alias: "worker"},
 	)
-	spec.Placement = workerspec.Placement{
-		Policy: workerspec.PlacementPolicyExplicit,
-		ComputeTarget: workerspec.ComputeTarget{
-			ID:   52,
-			Kind: workerspec.ComputeTargetKindKubernetes,
-		},
-		DeploymentMode: workerspec.DeploymentModePooled,
-		ResourceProfile: workerspec.ResourceProfile{
-			ID: 63,
-			Resources: workerspec.ResourceRequestsLimits{
-				CPURequestMilliCPU: 250,
-				CPULimitMilliCPU:   500,
-				MemoryRequestBytes: 256 << 20,
-				MemoryLimitBytes:   512 << 20,
-			},
-		},
-	}
 	return spec
 }
 

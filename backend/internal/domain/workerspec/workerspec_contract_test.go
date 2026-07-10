@@ -16,11 +16,9 @@ func TestWorkerSpecV1CanonicalContract(t *testing.T) {
 	spec.Runtime.Image.Digest = "  " + spec.Runtime.Image.Digest + "  "
 	spec.Placement.ResourceProfile.Resources.GPURequest = nil
 	spec.Placement.ResourceProfile.Resources.GPULimit = nil
-	spec.TypeConfig.InteractionMode = ""
-	spec.TypeConfig.AutomationLevel = ""
 	spec.Workspace.SkillIDs = []int64{9, 3, 7}
 	spec.Workspace.KnowledgeMounts = []KnowledgeMount{
-		{KnowledgeBaseID: 10},
+		{KnowledgeBaseID: 10, Mode: KnowledgeMountReadOnly},
 		{KnowledgeBaseID: 4, Mode: KnowledgeMountReadWrite},
 	}
 	spec.Workspace.Instructions = "  Keep the review strict.  "
@@ -31,10 +29,10 @@ func TestWorkerSpecV1CanonicalContract(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, VersionV1, normalized.Version)
-	assert.Equal(t, int64(1001), normalized.Runtime.ModelResourceID)
+	assert.Equal(t, validModelBinding(), normalized.Runtime.ModelBinding)
 	assert.Equal(t, "codex-cli", normalized.Runtime.WorkerType.Slug.String())
 	assert.Equal(t, validWorkerImage().Digest, normalized.Runtime.Image.Digest)
-	assert.Equal(t, InteractionModePTY, normalized.TypeConfig.InteractionMode)
+	assert.Equal(t, InteractionModeACP, normalized.TypeConfig.InteractionMode)
 	assert.Equal(t, AutomationLevelAutonomous, normalized.TypeConfig.AutomationLevel)
 	assert.Equal(t, []int64{3, 7, 9}, normalized.Workspace.SkillIDs)
 	assert.Equal(t, []KnowledgeMount{
@@ -47,15 +45,16 @@ func TestWorkerSpecV1CanonicalContract(t *testing.T) {
 
 	encoded, err := EncodeSpec(normalized)
 	require.NoError(t, err)
-	assert.Contains(t, string(encoded), `"model_resource_id":1001`)
+	assert.Contains(t, string(encoded), `"resource_id":1001`)
+	assert.Contains(t, string(encoded), `"resource_revision":7`)
 	assert.NotContains(t, string(encoded), "secret_value")
 
 	summary, err := Summarize(normalized)
 	require.NoError(t, err)
-	assert.Equal(t, int64(1001), summary.ModelResourceID)
+	assert.Equal(t, validModelBinding(), summary.ModelBinding)
 	summaryJSON, err := EncodeSummary(summary)
 	require.NoError(t, err)
-	assert.Contains(t, string(summaryJSON), `"model_resource_id":1001`)
+	assert.Contains(t, string(summaryJSON), `"resource_id":1001`)
 	assert.NotContains(t, string(summaryJSON), "type_config")
 	assert.NotContains(t, string(summaryJSON), "secret_refs")
 	assert.NotContains(t, string(summaryJSON), "instructions")
@@ -64,6 +63,19 @@ func TestWorkerSpecV1CanonicalContract(t *testing.T) {
 	decoded, err := DecodeSpec(encoded)
 	require.NoError(t, err)
 	assert.Equal(t, normalized, decoded)
+}
+
+func TestNewV1IncludesResolvedPlacement(t *testing.T) {
+	spec := NewV1(
+		Runtime{},
+		validWorkerPlacement(),
+		TypeConfig{},
+		Workspace{},
+		Lifecycle{},
+		Metadata{},
+	)
+
+	assert.Equal(t, validWorkerPlacement(), spec.Placement)
 }
 
 func TestWorkerSpecRejectsInvalidRuntimePlacement(t *testing.T) {
@@ -76,8 +88,8 @@ func TestWorkerSpecRejectsInvalidRuntimePlacement(t *testing.T) {
 			spec.Runtime.Image.Digest = "ghcr.io/example/worker:latest"
 		}, "runtime image digest"},
 		{"missing model resource", func(spec *Spec) {
-			spec.Runtime.ModelResourceID = 0
-		}, "model resource"},
+			spec.Runtime.ModelBinding.ResourceID = 0
+		}, "model binding resource"},
 		{"unknown placement policy", func(spec *Spec) {
 			spec.Placement.Policy = "fallback"
 		}, "placement policy"},
@@ -93,6 +105,44 @@ func TestWorkerSpecRejectsInvalidRuntimePlacement(t *testing.T) {
 		{"partial gpu pair", func(spec *Spec) {
 			spec.Placement.ResourceProfile.Resources.GPULimit = nil
 		}, "gpu request and limit"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			spec := validWorkerSpec()
+			test.mutate(&spec)
+
+			_, err := NormalizeAndValidate(spec)
+			require.Error(t, err)
+			assert.ErrorContains(t, err, test.match)
+		})
+	}
+}
+
+func TestWorkerSpecRejectsMissingRequiredFields(t *testing.T) {
+	tests := []struct {
+		name   string
+		mutate func(*Spec)
+		match  string
+	}{
+		{"values", func(spec *Spec) {
+			spec.TypeConfig.Values = nil
+		}, "values must be an object"},
+		{"secret refs", func(spec *Spec) {
+			spec.TypeConfig.SecretRefs = nil
+		}, "secret refs must be an object"},
+		{"interaction mode", func(spec *Spec) {
+			spec.TypeConfig.InteractionMode = ""
+		}, "interaction mode"},
+		{"automation level", func(spec *Spec) {
+			spec.TypeConfig.AutomationLevel = ""
+		}, "automation level"},
+		{"knowledge mount mode", func(spec *Spec) {
+			spec.Workspace.KnowledgeMounts[0].Mode = ""
+		}, "invalid mode"},
+		{"termination policy", func(spec *Spec) {
+			spec.Lifecycle.TerminationPolicy = ""
+		}, "termination policy"},
 	}
 
 	for _, test := range tests {
@@ -143,13 +193,14 @@ func TestWorkerSpecCodecRejectsUnknownAndUnsupportedDocuments(t *testing.T) {
 func validWorkerSpec() Spec {
 	spec := NewV1(
 		Runtime{
-			ModelResourceID: 1001,
+			ModelBinding: validModelBinding(),
 			WorkerType: WorkerType{
 				Slug:           slugkit.MustNewForTest("codex-cli"),
 				DefinitionHash: strings.Repeat("a", 64),
 			},
 			Image: validWorkerImage(),
 		},
+		validWorkerPlacement(),
 		TypeConfig{
 			SchemaVersion: 1,
 			Values: map[string]any{
@@ -184,8 +235,18 @@ func validWorkerSpec() Spec {
 			SourceExpertID: int64PointerForWorkerSpecTest(31),
 		},
 	)
-	spec.Placement = validWorkerPlacement()
 	return spec
+}
+
+func validModelBinding() ModelBinding {
+	return ModelBinding{
+		ResourceID:         1001,
+		ResourceRevision:   7,
+		ConnectionID:       2001,
+		ConnectionRevision: 9,
+		ProviderKey:        slugkit.MustNewForTest("openai"),
+		ModelID:            "gpt-5",
+	}
 }
 
 func validWorkerImage() RuntimeImage {

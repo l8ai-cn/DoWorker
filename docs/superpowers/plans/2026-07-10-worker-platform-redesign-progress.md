@@ -2,7 +2,7 @@
 
 ## Goal
 
-Implement the approved Worker creation and publishing design from domain contract through browser verification without overwriting the dirty `feat/worker-config-lifecycle` worktree.
+Implement the approved Worker creation and publishing design from domain contract through browser verification directly on the shared `main` branch without overwriting concurrent task changes.
 
 ## Controller
 
@@ -41,7 +41,7 @@ All conditions must hold:
 | Phase | Deliverable | Status |
 | --- | --- | --- |
 | 0 | Authorization and current-flow correctness | In progress (create-path boundaries complete; management API audit active) |
-| 1 | WorkerSpec V1 contract and immutable snapshot | Pending |
+| 1 | WorkerSpec V1 contract and immutable snapshot | In progress (strict domain contract, atomic runtime selection, and `000197` model binding migration verified; opaque repository boundary active) |
 | 2 | Runtime image, compute target, deployment, resource profile | Pending |
 | 3 | Canonical four-step web create workflow | Pending |
 | 4 | Runtime Expert and Skill publishing | Pending |
@@ -49,17 +49,17 @@ All conditions must hold:
 
 ## Environment State
 
-- Worktree: `/Users/wwyz/Documents/code/AgentsMesh-Worktrees/codex-worker-creation-redesign`
-- Branch: `codex/worker-creation-redesign`
-- Base: `origin/main` at `a7067af2e68da9a3908901249f5b49847a6d5a7c`
-- Runner and mock-agent Bazel builds: passed during initialization.
-- DoAgent cache: reused from the same base worktree after architecture and SHA-256 verification.
-- Full dev startup: blocked after three retries by Debian package mirror HTTP 502 while building the Aider image.
-- E2E environment retry point: before Phase 3 browser work and again before terminal verification.
+- Repository: `/Users/wwyz/Documents/code/AgentsMesh`
+- Branch: `main`
+- Current committed base: `25ad3fe15` (`feat(pod): add mobile access plan b`)
+- Local `main` is three commits ahead of `origin/main`; final push remains gated on complete integration and fresh verification.
+- Shared worktree contains concurrent AI Resource, Loop, Grok, and Marketplace changes. Every commit must use an exact allowlist and a reviewed index.
+- Real PostgreSQL migration tests use an isolated schema in the main dev database at `127.0.0.1:10002`.
+- Browser verification remains required for the mobile Pod path and the final four-step Worker workflow.
 
 ## Integration Dependency
 
-The main worktree has uncommitted lifecycle, Proto, Runner ACP, and frontend changes on `feat/worker-config-lifecycle`. Do not copy, reset, stage, or modify them. Before starting any lifecycle implementation, inspect whether that branch has a new commit and integrate by reviewed commit rather than filesystem copying.
+All implementation now occurs on the shared `main` worktree. Do not create or switch branches/worktrees. Preserve file ownership across concurrent tasks, never reset unrelated edits, and inspect the exact staged file list before every commit.
 
 ## Change Log
 
@@ -77,3 +77,7 @@ The main worktree has uncommitted lifecycle, Proto, Runner ACP, and frontend cha
 - 2026-07-10: Explicit Worker and Session model selection now propagates authenticated user and organization scope; old unscoped model lookup is no longer called, with independent reviews passed.
 - 2026-07-10: Virtual-key create and scoped resolution boundaries completed: model visibility precedes minting, key ownership is exact, model visibility is rechecked, and usage-touch failures are not swallowed.
 - 2026-07-10: Worker Virtual Key binding now propagates exact key, organization, and user scope; the obsolete unscoped credential resolver was removed after spec and quality approval.
+- 2026-07-10: Shared Pod protocol landed as `5a52ced6b`; mobile access Plan B landed as `25ad3fe15`.
+- 2026-07-10: WorkerSpec validation was hardened to reject missing required fields, validate type schemas, and persist immutable model resource/connection revisions plus provider/model identity.
+- 2026-07-10: Runtime selection was reduced from six repository reads to one atomic repository operation, with focused tests passing.
+- 2026-07-10: Migration `000197_worker_spec_model_binding` passed static and real PostgreSQL up/down tests, including empty-table guards and invalid binding rejection.

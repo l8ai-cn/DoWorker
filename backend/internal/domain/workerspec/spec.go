@@ -12,6 +12,7 @@ type Spec struct {
 
 func NewV1(
 	runtime Runtime,
+	placement Placement,
 	typeConfig TypeConfig,
 	workspace Workspace,
 	lifecycle Lifecycle,
@@ -20,6 +21,7 @@ func NewV1(
 	return Spec{
 		Version:    VersionV1,
 		Runtime:    runtime,
+		Placement:  placement,
 		TypeConfig: typeConfig,
 		Workspace:  workspace,
 		Lifecycle:  lifecycle,

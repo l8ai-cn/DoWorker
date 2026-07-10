@@ -7,7 +7,7 @@ import (
 
 type Summary struct {
 	Version             Version      `json:"version"`
-	ModelResourceID     int64        `json:"model_resource_id"`
+	ModelBinding        ModelBinding `json:"model_binding"`
 	WorkerType          WorkerType   `json:"worker_type"`
 	RuntimeImage        RuntimeImage `json:"runtime_image"`
 	Placement           Placement    `json:"placement"`
@@ -27,7 +27,7 @@ func Summarize(spec Spec) (Summary, error) {
 	}
 	return Summary{
 		Version:             normalized.Version,
-		ModelResourceID:     normalized.Runtime.ModelResourceID,
+		ModelBinding:        normalized.Runtime.ModelBinding,
 		WorkerType:          normalized.Runtime.WorkerType,
 		RuntimeImage:        normalized.Runtime.Image,
 		Placement:           clonePlacement(normalized.Placement),
@@ -45,8 +45,8 @@ func ValidateSummary(summary Summary) error {
 	if summary.Version != VersionV1 {
 		return fmt.Errorf("workerspec summary version %d is unsupported", summary.Version)
 	}
-	if summary.ModelResourceID <= 0 {
-		return fmt.Errorf("workerspec summary model resource id must be positive")
+	if err := validateModelBinding(summary.ModelBinding); err != nil {
+		return fmt.Errorf("workerspec summary: %w", err)
 	}
 	if err := validateWorkerType(summary.WorkerType); err != nil {
 		return err
