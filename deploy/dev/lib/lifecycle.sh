@@ -63,18 +63,39 @@ docker_compose_up() {
         info "启动 Docker 基础设施 (Runner 由 Coordinator 按需创建)..."
     elif runners_k8s_enabled; then
         info "启动 Docker 基础设施 (runner 由 K8s 集群托管)..."
+    elif [[ "${DEV_E2E_RUNNERS_ONLY:-}" == "1" ]]; then
+        info "启动 Docker 基础设施 + e2e-echo runners only..."
     else
         info "启动 Docker 基础设施 + runner (首次可能需要几分钟)..."
     fi
     local up_attempt=0
     local up_max=3
+    # Playwright CI only needs runners that ship e2e-mock-agent. Starting
+    # claude/gemini/… images makes ListAvailableRunners return them first
+    # and CreatePod then fails with "e2e-mock-agent: not found in $PATH".
+    local -a up_services=()
+    if [[ "${DEV_E2E_RUNNERS_ONLY:-}" == "1" ]] \
+        && ! coordinator_runners_enabled \
+        && ! runners_k8s_enabled; then
+        up_services=(runner-e2e-echo runner-e2e-echo-2 runner-admin-workspace)
+    fi
     while [ $up_attempt -lt $up_max ]; do
         up_attempt=$((up_attempt + 1))
         # set -o pipefail so docker compose's non-zero exit (auth.docker.io
         # token timeouts, build failures) actually fails the pipe — without
         # it grep returns 0 even if compose crashed and the loop exits
         # success'fully' while postgres is missing.
-        if (set -o pipefail; docker compose up -d --build --quiet-pull 2>&1 | grep -v "^#" | grep -v "^\[" | grep -v "^$"); then
+        if [[ ${#up_services[@]} -gt 0 ]]; then
+            # Base stack first (no runners file), then only e2e-echo services.
+            if (set -o pipefail; COMPOSE_FILE=docker-compose.yml \
+                docker compose up -d --build --quiet-pull 2>&1 \
+                | grep -v "^#" | grep -v "^\[" | grep -v "^$") \
+                && (set -o pipefail; docker compose up -d --build --quiet-pull \
+                    "${up_services[@]}" 2>&1 \
+                | grep -v "^#" | grep -v "^\[" | grep -v "^$"); then
+                break
+            fi
+        elif (set -o pipefail; docker compose up -d --build --quiet-pull 2>&1 | grep -v "^#" | grep -v "^\[" | grep -v "^$"); then
             break
         fi
         if [ $up_attempt -eq $up_max ]; then

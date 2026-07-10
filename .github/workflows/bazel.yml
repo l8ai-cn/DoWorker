@@ -416,6 +416,9 @@ jobs:
       - name: Bring up dev backend stack
         env:
           DEV_SKIP_DOAGENT: "1"
+          # Only e2e-echo images ship e2e-mock-agent; other agent runtimes
+          # would steal CreatePod scheduling and fail with not-found-in-PATH.
+          DEV_E2E_RUNNERS_ONLY: "1"
         run: |
           bazel run //deploy/dev:backend_only
           # `dev.sh` exits 0 once compose is up and migrations + seed have
