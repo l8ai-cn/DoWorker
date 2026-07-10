@@ -3,6 +3,7 @@ package podconnect
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -144,4 +145,17 @@ func TestMapServiceError(t *testing.T) {
 			assert.Equal(t, tc.want, connectCodeOf(t, got))
 		})
 	}
+}
+
+func TestMapServiceErrorRedactsUnavailableRepositoryDetails(t *testing.T) {
+	wrapped := fmt.Errorf("repo 17 org 9 permission denied: %w", agentpodservice.ErrCreateResourceUnavailable)
+
+	got := mapServiceError(wrapped)
+	var connectErr *connect.Error
+	require.ErrorAs(t, got, &connectErr)
+	assert.Equal(t, connect.CodeInvalidArgument, connectErr.Code())
+	assert.Equal(t, "Selected repository is unavailable", connectErr.Message())
+	assert.NotContains(t, connectErr.Message(), "repo 17")
+	assert.NotContains(t, connectErr.Message(), "org 9")
+	assert.NotContains(t, connectErr.Message(), "permission denied")
 }
