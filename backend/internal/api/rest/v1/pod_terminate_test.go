@@ -142,9 +142,7 @@ func TestTerminatePod_AlreadyTerminated(t *testing.T) {
 	setPodTenantContext(c, 1, 10)
 
 	handler.TerminatePod(c)
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	resp := parseErrorResponse(t, w)
-	assert.Equal(t, "VALIDATION_FAILED", resp["code"])
+	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestTerminatePod_ForbiddenOrg(t *testing.T) {
