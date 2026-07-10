@@ -74,7 +74,7 @@ services:
   # Backend API Server
   # ===========================================================================
   backend:
-    image: agentsmesh/backend:${VERSION:-latest}
+    image: l8ai/doworker-backend:${VERSION:-latest}
     restart: unless-stopped
     depends_on:
       postgres:
@@ -143,7 +143,7 @@ services:
   # Web Frontend
   # ===========================================================================
   web:
-    image: agentsmesh/web:${VERSION:-latest}
+    image: l8ai/doworker-web:${VERSION:-latest}
     restart: unless-stopped
     depends_on:
       backend:
@@ -167,7 +167,7 @@ services:
   # Web Admin Console
   # ===========================================================================
   web-admin:
-    image: agentsmesh/web-admin:${VERSION:-latest}
+    image: l8ai/doworker-web-admin:${VERSION:-latest}
     restart: unless-stopped
     depends_on:
       backend:
@@ -189,7 +189,7 @@ services:
   # Relay Server (Terminal Streaming)
   # ===========================================================================
   relay:
-    image: agentsmesh/relay:${VERSION:-latest}
+    image: l8ai/doworker-relay:${VERSION:-latest}
     restart: unless-stopped
     depends_on:
       backend:

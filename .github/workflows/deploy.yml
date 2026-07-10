@@ -1,6 +1,5 @@
 # Deploy Do Worker server-side stack on every push to main.
-# Images push to Docker Hub under l8ai/doworker-* (writable), then
-# self-hosted deploy hosts retag to agentsmesh/* for existing compose.
+# Images publish to Docker Hub as l8ai/doworker-*.
 
 name: Deploy
 
@@ -124,8 +123,6 @@ jobs:
           ssh aliyun-us-west-001 "set -euo pipefail
             for svc in backend web web-admin relay; do
               docker pull l8ai/doworker-\$svc:${VERSION}
-              docker tag l8ai/doworker-\$svc:${VERSION} agentsmesh/\$svc:${VERSION}
-              docker tag l8ai/doworker-\$svc:${VERSION} agentsmesh/\$svc:latest
             done
             cd /opt/agentsmesh && git pull --rebase --autostash origin main
             ./deploy.sh uswest-prod --version ${VERSION}"
@@ -140,7 +137,6 @@ jobs:
           VERSION="${{ needs.build-images.outputs.version }}"
           ssh aliyun-us-west-relay-001 "set -euo pipefail
             docker pull l8ai/doworker-relay:${VERSION}
-            docker tag l8ai/doworker-relay:${VERSION} agentsmesh/relay:latest
             cd /opt/agentsmesh/relay && ./deploy.sh uswest-relay-01 --pull"
 
   deploy-uswest-relay-beijing-02:
@@ -153,7 +149,6 @@ jobs:
           VERSION="${{ needs.build-images.outputs.version }}"
           ssh aliyun-agentsmesh-us-relay-beijing-002 "set -euo pipefail
             docker pull l8ai/doworker-relay:${VERSION}
-            docker tag l8ai/doworker-relay:${VERSION} agentsmesh/relay:latest
             cd /opt/agentsmesh/relay && ./deploy.sh uswest-relay-beijing-02 --pull"
 
   migrate-uswest:
@@ -178,8 +173,6 @@ jobs:
           ssh aliyun-s001 "set -euo pipefail
             for svc in backend web web-admin relay; do
               docker pull l8ai/doworker-\$svc:${VERSION}
-              docker tag l8ai/doworker-\$svc:${VERSION} agentsmesh/\$svc:${VERSION}
-              docker tag l8ai/doworker-\$svc:${VERSION} agentsmesh/\$svc:latest
             done
             cd /opt/agentsmesh && git pull --rebase --autostash origin main
             ./deploy.sh cn-prod --version ${VERSION}"
@@ -194,7 +187,6 @@ jobs:
           VERSION="${{ needs.build-images.outputs.version }}"
           ssh aliyun-cn-relay-01 "set -euo pipefail
             docker pull l8ai/doworker-relay:${VERSION}
-            docker tag l8ai/doworker-relay:${VERSION} agentsmesh/relay:latest
             cd /opt/agentsmesh/relay && ./deploy.sh cn-relay-01 --pull"
 
   migrate-cn:
