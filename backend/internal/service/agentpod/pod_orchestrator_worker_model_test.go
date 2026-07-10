@@ -24,6 +24,29 @@ type fakeAIPool struct {
 	organizationID int64
 }
 
+type recordingVirtualKeyPool struct {
+	resolved       *aimodelsvc.ResolvedModel
+	budget         *int64
+	resolveErr     error
+	calls          int
+	keyID          int64
+	organizationID int64
+	userID         int64
+}
+
+func (f *recordingVirtualKeyPool) ResolveModelForScope(
+	_ context.Context, keyID, organizationID, userID int64,
+) (*aimodelsvc.ResolvedModel, *int64, error) {
+	f.calls++
+	f.keyID = keyID
+	f.organizationID = organizationID
+	f.userID = userID
+	if f.resolveErr != nil {
+		return nil, nil, f.resolveErr
+	}
+	return f.resolved, f.budget, nil
+}
+
 func (f *fakeAIPool) ResolveVisible(_ context.Context, id, userID, organizationID int64) (*aimodelsvc.ResolvedModel, error) {
 	f.visibleCalls++
 	f.modelID = id
@@ -119,6 +142,57 @@ func TestResolvePoolModel_ExplicitModelErrorDoesNotUseDefault(t *testing.T) {
 	assert.Nil(t, resolved)
 	assert.Nil(t, budget)
 	assert.Zero(t, pool.defaultCalls)
+}
+
+func TestResolvePoolModel_VirtualKeyUsesCallerScope(t *testing.T) {
+	budget := int64(32000)
+	virtualPool := &recordingVirtualKeyPool{resolved: resolvedFixture(), budget: &budget}
+	aiPool := &fakeAIPool{rm: resolvedFixture(), defaultRM: resolvedFixture()}
+	o := NewPodOrchestrator(&PodOrchestratorDeps{AIModelPool: aiPool, VirtualKeyPool: virtualPool})
+	keyID := int64(7)
+	modelID := int64(5)
+	req := &OrchestrateCreatePodRequest{
+		VirtualAPIKeyID: &keyID,
+		ModelConfigID:   &modelID,
+		OrganizationID:  21,
+		UserID:          11,
+	}
+
+	resolved, resolvedBudget, err := o.resolvePoolModel(context.Background(), req, nil)
+
+	require.NoError(t, err)
+	assert.Same(t, virtualPool.resolved, resolved)
+	assert.Same(t, virtualPool.budget, resolvedBudget)
+	assert.Equal(t, 1, virtualPool.calls)
+	assert.Equal(t, keyID, virtualPool.keyID)
+	assert.Equal(t, int64(21), virtualPool.organizationID)
+	assert.Equal(t, int64(11), virtualPool.userID)
+	assert.Zero(t, aiPool.visibleCalls)
+	assert.Zero(t, aiPool.defaultCalls)
+}
+
+func TestResolvePoolModel_VirtualKeyErrorDoesNotResolveAnotherModel(t *testing.T) {
+	resolveErr := errors.New("resolve scoped virtual key")
+	virtualPool := &recordingVirtualKeyPool{resolveErr: resolveErr}
+	aiPool := &fakeAIPool{rm: resolvedFixture(), defaultRM: resolvedFixture()}
+	o := NewPodOrchestrator(&PodOrchestratorDeps{AIModelPool: aiPool, VirtualKeyPool: virtualPool})
+	keyID := int64(7)
+	modelID := int64(5)
+	req := &OrchestrateCreatePodRequest{
+		VirtualAPIKeyID: &keyID,
+		ModelConfigID:   &modelID,
+		OrganizationID:  21,
+		UserID:          11,
+	}
+
+	resolved, budget, err := o.resolvePoolModel(context.Background(), req, nil)
+
+	assert.ErrorIs(t, err, resolveErr)
+	assert.Nil(t, resolved)
+	assert.Nil(t, budget)
+	assert.Equal(t, 1, virtualPool.calls)
+	assert.Zero(t, aiPool.visibleCalls)
+	assert.Zero(t, aiPool.defaultCalls)
 }
 
 func TestAppendAgentfileLayerJoinsLines(t *testing.T) {

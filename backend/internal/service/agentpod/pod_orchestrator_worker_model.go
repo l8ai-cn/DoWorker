@@ -25,7 +25,7 @@ type AIModelPoolForOrchestrator interface {
 // VirtualKeyPoolForOrchestrator resolves a virtual API key into the underlying
 // ai_models credential plus the key's informational token budget.
 type VirtualKeyPoolForOrchestrator interface {
-	ResolveModel(ctx context.Context, keyID int64) (*aimodelsvc.ResolvedModel, *int64, error)
+	ResolveModelForScope(ctx context.Context, keyID, orgID, userID int64) (*aimodelsvc.ResolvedModel, *int64, error)
 }
 
 // applyWorkerModel injects the selected model's credentials into the pod's
@@ -78,7 +78,7 @@ func (o *PodOrchestrator) resolvePoolModel(ctx context.Context, req *Orchestrate
 		if o.virtualKeyPool == nil {
 			return nil, nil, nil
 		}
-		return o.virtualKeyPool.ResolveModel(ctx, *req.VirtualAPIKeyID)
+		return o.virtualKeyPool.ResolveModelForScope(ctx, *req.VirtualAPIKeyID, req.OrganizationID, req.UserID)
 	}
 	if req.ModelConfigID != nil {
 		if o.aiModelPool == nil {

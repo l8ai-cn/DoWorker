@@ -82,28 +82,6 @@ func (s *Service) Revoke(ctx context.Context, id int64) error {
 	return s.repo.UpdateStatus(ctx, id, domain.StatusRevoked)
 }
 
-// ResolveModel loads the underlying ai_models credential for an active key and
-// touches its last-used marker. Returns the resolved model plus the key's
-// token budget for informational injection.
-func (s *Service) ResolveModel(ctx context.Context, keyID int64) (*aimodelsvc.ResolvedModel, *int64, error) {
-	k, err := s.repo.GetByID(ctx, keyID)
-	if err != nil {
-		return nil, nil, err
-	}
-	if k == nil {
-		return nil, nil, ErrNotFound
-	}
-	if k.Status != domain.StatusActive {
-		return nil, nil, ErrRevoked
-	}
-	resolved, err := s.models.Resolve(ctx, k.AIModelID)
-	if err != nil {
-		return nil, nil, err
-	}
-	_ = s.repo.TouchLastUsed(ctx, keyID)
-	return resolved, k.TokenBudget, nil
-}
-
 func (s *Service) ResolveModelForScope(
 	ctx context.Context, keyID, orgID, userID int64,
 ) (*aimodelsvc.ResolvedModel, *int64, error) {
