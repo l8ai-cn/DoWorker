@@ -26,6 +26,7 @@ func TestResolveRunnerForCreate(t *testing.T) {
 		configure        func(*runnerDomain.Runner, *ActiveRunner)
 		grant            bool
 		allowUnavailable bool
+		skipActive       bool
 		wantErr          bool
 	}{
 		{name: "eligible"},
@@ -52,6 +53,12 @@ func TestResolveRunnerForCreate(t *testing.T) {
 			empty.AvailableAgents = nil
 			ar.Runner = &empty
 		}},
+		{name: "db fallback when not in active cache", configure: func(r *runnerDomain.Runner, ar *ActiveRunner) {
+			r.Status = runnerDomain.RunnerStatusOnline
+		}, skipActive: true},
+		{name: "db fallback rejects offline", configure: func(r *runnerDomain.Runner, _ *ActiveRunner) {
+			r.Status = runnerDomain.RunnerStatusOffline
+		}, skipActive: true, wantErr: true},
 		{name: "at capacity", configure: func(r *runnerDomain.Runner, ar *ActiveRunner) {
 			r.CurrentPods = r.MaxConcurrentPods
 			ar.PodCount = r.MaxConcurrentPods
@@ -99,7 +106,9 @@ func TestResolveRunnerForCreate(t *testing.T) {
 					orgID, grant.TypeRunner, strconv.FormatInt(r.ID, 10), userID, userID,
 				).Error)
 			}
-			service.activeRunners.Store(r.ID, active)
+			if !tt.skipActive {
+				service.activeRunners.Store(r.ID, active)
+			}
 
 			resolved, err := service.ResolveRunnerForCreate(ctx, r.ID, orgID, userID, agentSlug, tt.allowUnavailable)
 			if tt.wantErr {

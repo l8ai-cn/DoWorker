@@ -34,6 +34,20 @@ func (s *Service) GetByNodeIDAndOrgID(ctx context.Context, nodeID string, orgID 
 
 func (s *Service) UpdateLastSeen(ctx context.Context, runnerID int64) error {
 	now := time.Now()
+	if _, ok := s.activeRunners.Load(runnerID); !ok {
+		if r, err := s.repo.GetByID(ctx, runnerID); err == nil && r != nil {
+			r.Status = runner.RunnerStatusOnline
+			s.activeRunners.Store(runnerID, &ActiveRunner{
+				Runner:   r,
+				LastPing: now,
+				PodCount: r.CurrentPods,
+			})
+		}
+	} else if value, ok := s.activeRunners.Load(runnerID); ok {
+		if ar, ok := value.(*ActiveRunner); ok && ar.Runner != nil {
+			s.TouchActiveRunner(runnerID, ar.PodCount)
+		}
+	}
 	return s.repo.UpdateFields(ctx, runnerID, map[string]interface{}{
 		"last_heartbeat": now,
 		"status":         runner.RunnerStatusOnline,

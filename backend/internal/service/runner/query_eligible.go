@@ -43,10 +43,18 @@ func (s *Service) ResolveRunnerForCreate(
 	if allowUnavailable {
 		return candidate, nil
 	}
-	if active == nil {
-		return nil, ErrNoRunnerForAgent
+	if active != nil {
+		if !isRunnerAvailableForAgent(withAgentFallback(active, candidate), orgID, agentSlug) {
+			return nil, ErrNoRunnerForAgent
+		}
+		return candidate, nil
 	}
-	if !isRunnerAvailableForAgent(withAgentFallback(active, candidate), orgID, agentSlug) {
+	// activeRunners is only populated after UpdateLastSeen/MarkConnected; until
+	// then mirror SelectRunnerWithAffinity's DB fallback so explicit placement
+	// works the same as auto-select.
+	if candidate.OrganizationID != orgID ||
+		candidate.Status != runnerDomain.RunnerStatusOnline ||
+		candidate.CurrentPods >= candidate.MaxConcurrentPods {
 		return nil, ErrNoRunnerForAgent
 	}
 	return candidate, nil
