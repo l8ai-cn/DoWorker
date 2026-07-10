@@ -33,21 +33,31 @@ jobs:
               - 'agentfile/**'
               - 'go.mod'
               - 'go.sum'
+              - 'backend/Dockerfile'
+              - '.github/workflows/deploy.yml'
+              - 'deploy/selfhost/**'
+              - 'deploy/onpremise/**'
             web:
               - 'clients/web/**'
               - 'clients/core/**'
               - 'packages/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
+              - 'clients/web/Dockerfile'
+              - '.github/workflows/deploy.yml'
             web-admin:
               - 'clients/web-admin/**'
               - 'packages/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
+              - 'clients/web-admin/Dockerfile'
+              - '.github/workflows/deploy.yml'
             relay:
               - 'relay/**'
               - 'go.mod'
               - 'go.sum'
+              - 'relay/Dockerfile'
+              - '.github/workflows/deploy.yml'
             migrations:
               - 'backend/migrations/**'
 
