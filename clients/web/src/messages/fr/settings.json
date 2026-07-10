@@ -697,6 +697,94 @@
         "delete": "Supprimer",
         "cancel": "Annuler"
       }
+    },
+    "aiResources": {
+      "navigation": "Ressources IA",
+      "title": "Ressources IA",
+      "description": "Connectez des comptes de fournisseurs et gérez les ressources de modèles disponibles pour les Workers.",
+      "addConnection": "Ajouter une connexion",
+      "validate": "Valider",
+      "setDefault": "Définir par défaut",
+      "defaultModality": "Modalité par défaut pour {name}",
+      "default": "Par défaut pour {modalities}",
+      "usageNotConnected": "Non connecté",
+      "usageAvailable": "Utilisation disponible",
+      "loadError": "Impossible de charger les ressources IA.",
+      "operationError": "L’action sur la ressource IA a échoué.",
+      "retry": "Réessayer",
+      "loading": "Chargement des ressources IA…",
+      "summary": {
+        "title": "Disponibilité",
+        "connections": "Connexions",
+        "selectable": "Ressources sélectionnables",
+        "usage": "Quota et utilisation"
+      },
+      "modality": {
+        "all": "Tout",
+        "chat": "Chat",
+        "image": "Image",
+        "audio": "Audio",
+        "video": "Vidéo",
+        "embedding": "Vecteurs",
+        "multimodal": "Multimodal"
+      },
+      "capability": {
+        "textGeneration": "Génération de texte",
+        "visionInput": "Entrée visuelle",
+        "imageGeneration": "Génération d’images",
+        "speechToText": "Parole vers texte",
+        "textToSpeech": "Texte vers parole",
+        "videoGeneration": "Génération de vidéo",
+        "embedding": "Vecteurs"
+      },
+      "status": {
+        "invalid": "Invalide",
+        "disabled": "Désactivé"
+      },
+      "connection": {
+        "createTitle": "Ajouter une connexion fournisseur",
+        "editTitle": "Modifier la connexion fournisseur",
+        "rotateTitle": "Renouveler les identifiants",
+        "rotateDescription": "Saisissez les identifiants de remplacement. Les identifiants existants ne sont jamais affichés.",
+        "createDescription": "Les identifiants sont chiffrés ; seuls les champs configurés sont affichés après l’enregistrement.",
+        "provider": "Fournisseur",
+        "name": "Nom de la connexion",
+        "identifier": "Identifiant",
+        "baseUrl": "URL de base",
+        "create": "Créer la connexion",
+        "save": "Enregistrer les modifications",
+        "edit": "Modifier la connexion",
+        "rotate": "Renouveler les identifiants",
+        "enabled": "Connexion activée",
+        "delete": "Supprimer la connexion"
+      },
+      "resource": {
+        "createTitle": "Ajouter une ressource de modèle",
+        "editTitle": "Modifier la ressource de modèle",
+        "name": "Nom d’affichage",
+        "modelId": "ID du modèle",
+        "identifier": "Identifiant",
+        "modalities": "Modalités",
+        "capabilities": "Capacités du modèle",
+        "create": "Créer la ressource",
+        "save": "Enregistrer les modifications",
+        "edit": "Modifier la ressource",
+        "enabled": "Ressource activée",
+        "delete": "Supprimer la ressource"
+      },
+      "deleteConfirm": {
+        "title": "Confirmer la suppression",
+        "connectionDescription": "La connexion {name} et toutes ses ressources de modèle seront supprimées définitivement.",
+        "resourceDescription": "La ressource de modèle {name} sera supprimée définitivement.",
+        "error": "La suppression a échoué. Aucune ressource n’a été supprimée.",
+        "action": "Supprimer"
+      },
+      "addResource": "Ajouter une ressource de modèle",
+      "emptyResources": "Aucune ressource de modèle ne correspond à ce filtre.",
+      "empty": {
+        "title": "Aucune ressource IA",
+        "description": "Ajoutez une connexion fournisseur pour rendre disponibles des ressources de chat, image, audio, vidéo ou vecteurs."
+      }
     }
   }
 }

@@ -697,6 +697,94 @@
         "delete": "削除",
         "cancel": "キャンセル"
       }
+    },
+    "aiResources": {
+      "navigation": "AI リソース",
+      "title": "AI リソース",
+      "description": "プロバイダーアカウントを接続し、Worker が利用できるモデルリソースを管理します。",
+      "addConnection": "接続を追加",
+      "validate": "検証",
+      "setDefault": "デフォルトに設定",
+      "defaultModality": "{name} のデフォルトモダリティ",
+      "default": "{modalities} のデフォルト",
+      "usageNotConnected": "未接続",
+      "usageAvailable": "利用量を取得済み",
+      "loadError": "AI リソースを読み込めませんでした。",
+      "operationError": "AI リソースの操作に失敗しました。",
+      "retry": "再試行",
+      "loading": "AI リソースを読み込んでいます…",
+      "summary": {
+        "title": "利用可能性",
+        "connections": "接続",
+        "selectable": "選択可能なリソース",
+        "usage": "クォータと利用量"
+      },
+      "modality": {
+        "all": "すべて",
+        "chat": "チャット",
+        "image": "画像",
+        "audio": "音声",
+        "video": "動画",
+        "embedding": "埋め込み",
+        "multimodal": "マルチモーダル"
+      },
+      "capability": {
+        "textGeneration": "テキスト生成",
+        "visionInput": "画像入力",
+        "imageGeneration": "画像生成",
+        "speechToText": "音声認識",
+        "textToSpeech": "音声合成",
+        "videoGeneration": "動画生成",
+        "embedding": "埋め込み"
+      },
+      "status": {
+        "invalid": "無効",
+        "disabled": "無効化済み"
+      },
+      "connection": {
+        "createTitle": "プロバイダー接続を追加",
+        "editTitle": "プロバイダー接続を編集",
+        "rotateTitle": "認証情報を更新",
+        "rotateDescription": "置換する認証情報を入力してください。既存の認証情報は表示されません。",
+        "createDescription": "認証情報は暗号化され、保存後は設定済みの項目のみ表示されます。",
+        "provider": "プロバイダー",
+        "name": "接続名",
+        "identifier": "識別子",
+        "baseUrl": "ベース URL",
+        "create": "接続を作成",
+        "save": "変更を保存",
+        "edit": "接続を編集",
+        "rotate": "認証情報を更新",
+        "enabled": "接続を有効化",
+        "delete": "接続を削除"
+      },
+      "resource": {
+        "createTitle": "モデルリソースを追加",
+        "editTitle": "モデルリソースを編集",
+        "name": "表示名",
+        "modelId": "モデル ID",
+        "identifier": "識別子",
+        "modalities": "モダリティ",
+        "capabilities": "モデル機能",
+        "create": "リソースを作成",
+        "save": "変更を保存",
+        "edit": "リソースを編集",
+        "enabled": "リソースを有効化",
+        "delete": "リソースを削除"
+      },
+      "deleteConfirm": {
+        "title": "削除を確認",
+        "connectionDescription": "{name} とそのすべてのモデルリソースを完全に削除します。",
+        "resourceDescription": "モデルリソース {name} を完全に削除します。",
+        "error": "削除に失敗しました。リソースは削除されていません。",
+        "action": "削除"
+      },
+      "addResource": "モデルリソースを追加",
+      "emptyResources": "このフィルターに一致するモデルリソースはありません。",
+      "empty": {
+        "title": "AI リソースはまだありません",
+        "description": "プロバイダー接続を追加して、チャット、画像、音声、動画、埋め込みリソースを利用可能にします。"
+      }
     }
   }
 }

@@ -54,20 +54,28 @@
 
 **Files:** Create `clients/core/crates/api-client/src/modules/ai_resource.rs`, `clients/core/crates/services/src/ai_resource.rs`, `clients/core/crates/wasm/src/service_ai_resource.rs`, `clients/web/src/lib/api/connect/aiResourceConnect.ts`, `clients/web/src/lib/api/facade/aiResource.ts`; modify corresponding `lib.rs`, BUILD files, WASM API/getters, and `packages/service-runtime/src/{service-getters.ts,index.ts}`.
 
-- [ ] Write Rust wire tests and TS adapter tests proving protobuf request fields, response decoding, and no secret-valued response field.
-- [ ] Run the focused Bazel Rust and Web unit targets; expect missing service/getter failures.
-- [ ] Implement Connect calls through `ApiClient`, service wrapper, WASM exports, runtime getter, and typed TS facade. Do not add direct `fetch` business calls.
-- [ ] Re-run focused tests plus `bazel build //clients/core/crates/wasm:wasm_lib //clients/web:src`; expect PASS. Commit `feat: add AI resource client boundary`.
+- [x] Write Rust wire tests and TS adapter tests proving protobuf request fields, response decoding, and no secret-valued response field.
+- [x] Run the focused client-boundary tests; expected missing service/getter failures before implementation.
+- [x] Implement Connect calls through `ApiClient`, service wrapper, WASM exports, runtime getter, and typed TS facade. Do not add direct `fetch` business calls.
+- [x] Re-run focused adapter tests and offline Cargo WASM checks; commit `feat: add AI resource client boundary`.
 
 ### Task 6: Unified Resource Center
 
 **Files:** Create `clients/web/src/components/settings/AIResourcesSettings/` with `AIResourcesSettings.tsx`, `ProviderConnectionCard.tsx`, `ModelResourceRow.tsx`, `ProviderConnectionDialog.tsx`, `ResourceSummary.tsx`, `useAIResources.ts`, `types.ts`, and tests; modify settings navigation, settings route switch, exports, and all locale message files.
 
-- [ ] Write UI tests for personal/org scopes, owner/admin/member actions, provider onboarding, validation, capability filters, loading/empty/error/invalid/disabled states, and absent usage displaying `未接入`.
-- [ ] Run targeted Vitest via `bazel test //clients/web:unit --test_arg=src/components/settings/AIResourcesSettings --test_output=errors`; expect missing component/navigation failures.
-- [ ] Implement approved layout A using existing tokens/components, named state components, capability filters, safe metadata, manage actions, and truthful usage placeholders.
-- [ ] Keep production files below 200 lines and ensure keyboard/focus labels on dialogs, filters, and actions.
-- [ ] Re-run tests, `bazel test //clients/web:lint`, and `bazel build //clients/web:src`; expect targeted tests PASS and record unrelated baseline failures separately. Commit `feat: add unified AI resource center`.
+- [x] Write UI tests for personal/org scopes, owner/admin/member actions, provider onboarding, validation, capability filters, loading/empty/error/invalid/disabled states, and absent usage displaying `未接入`.
+- [x] Run targeted Vitest and confirm the missing component boundary before implementation.
+- [x] Implement approved layout A using existing tokens/components, named state components, capability filters, safe metadata, manage actions, and truthful usage placeholders.
+- [x] Keep production files below 200 lines and ensure keyboard/focus labels on dialogs, filters, and actions.
+- [x] Re-run focused tests, scoped lint, and browser acceptance; record unrelated full-typecheck baseline failures separately. Commit `feat: add unified AI resource center`.
+
+
+#### Task 5-6 execution evidence — 2026-07-10
+
+- Task 5 compiles with offline Cargo WASM checks and its adapter test passes.
+- Task 6 focused Vitest passed 34/34; scoped lint has no errors (one pre-existing unused-import warning in the existing settings sidebar).
+- Browser acceptance covered personal create/edit/rotate/default/enable/delete, validation failure, loading/error, member read-only, desktop/mobile, console/network, and cleanup.
+- Full web typecheck has 285 unrelated baseline errors; none reference AI Resource settings or dialog code.
 
 ### Task 7: Exact Worker Resource Selection
 

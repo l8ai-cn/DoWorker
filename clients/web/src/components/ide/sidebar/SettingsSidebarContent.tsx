@@ -92,6 +92,7 @@ export function SettingsSidebarContent({ className }: SettingsSidebarContentProp
     { id: "infrastructure", labelKey: "ide.sidebar.settings.tabs.infrastructure", icon: Layers },
     { id: "api-keys", labelKey: "ide.sidebar.settings.tabs.apiKeys", icon: KeyRound },
     { id: "im-channels", labelKey: "ide.sidebar.settings.tabs.imChannels", icon: MessageSquareShare },
+    { id: "ai-resources", labelKey: "settings.aiResources.navigation", icon: KeyRound },
     { id: "model-quotas", label: "Quota & Billing", icon: Gauge },
     ...(isOrgAdminOrOwner
       ? [{ id: "usage", labelKey: "ide.sidebar.settings.tabs.usage", icon: BarChart3 }]
@@ -102,6 +103,7 @@ export function SettingsSidebarContent({ className }: SettingsSidebarContentProp
   const personalSettingsTabs: TabItem[] = [
     { id: "general", labelKey: "ide.sidebar.settings.tabs.general", icon: Settings },
     { id: "git", labelKey: "settings.personal.tabs.git", icon: GitBranch },
+    { id: "ai-resources", labelKey: "settings.aiResources.navigation", icon: KeyRound },
     {
       id: "agent-config",
       labelKey: "settings.personal.tabs.agentConfig",

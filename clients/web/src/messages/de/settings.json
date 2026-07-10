@@ -697,6 +697,94 @@
         "delete": "Löschen",
         "cancel": "Abbrechen"
       }
+    },
+    "aiResources": {
+      "navigation": "KI-Ressourcen",
+      "title": "KI-Ressourcen",
+      "description": "Verbinden Sie Anbieter-Konten und verwalten Sie die für Worker verfügbaren Modellressourcen.",
+      "addConnection": "Verbindung hinzufügen",
+      "validate": "Prüfen",
+      "setDefault": "Als Standard festlegen",
+      "defaultModality": "Standardmodalität für {name}",
+      "default": "Standard für {modalities}",
+      "usageNotConnected": "Nicht angebunden",
+      "usageAvailable": "Nutzungsdaten verfügbar",
+      "loadError": "KI-Ressourcen konnten nicht geladen werden.",
+      "operationError": "Die Aktion für die KI-Ressource ist fehlgeschlagen.",
+      "retry": "Erneut versuchen",
+      "loading": "KI-Ressourcen werden geladen…",
+      "summary": {
+        "title": "Verfügbarkeit",
+        "connections": "Verbindungen",
+        "selectable": "Auswählbare Ressourcen",
+        "usage": "Kontingent und Nutzung"
+      },
+      "modality": {
+        "all": "Alle",
+        "chat": "Chat",
+        "image": "Bild",
+        "audio": "Audio",
+        "video": "Video",
+        "embedding": "Einbettung",
+        "multimodal": "Multimodal"
+      },
+      "capability": {
+        "textGeneration": "Textgenerierung",
+        "visionInput": "Bildeingabe",
+        "imageGeneration": "Bildgenerierung",
+        "speechToText": "Sprache zu Text",
+        "textToSpeech": "Text zu Sprache",
+        "videoGeneration": "Videogenerierung",
+        "embedding": "Einbettung"
+      },
+      "status": {
+        "invalid": "Ungültig",
+        "disabled": "Deaktiviert"
+      },
+      "connection": {
+        "createTitle": "Anbieterverbindung hinzufügen",
+        "editTitle": "Anbieterverbindung bearbeiten",
+        "rotateTitle": "Zugangsdaten rotieren",
+        "rotateDescription": "Geben Sie Ersatz-Zugangsdaten ein. Bestehende Zugangsdaten werden nie angezeigt.",
+        "createDescription": "Anmeldedaten werden verschlüsselt gespeichert; nach dem Speichern werden nur konfigurierte Felder angezeigt.",
+        "provider": "Anbieter",
+        "name": "Verbindungsname",
+        "identifier": "Kennung",
+        "baseUrl": "Basis-URL",
+        "create": "Verbindung erstellen",
+        "save": "Änderungen speichern",
+        "edit": "Verbindung bearbeiten",
+        "rotate": "Zugangsdaten rotieren",
+        "enabled": "Verbindung aktiviert",
+        "delete": "Verbindung löschen"
+      },
+      "resource": {
+        "createTitle": "Modellressource hinzufügen",
+        "editTitle": "Modellressource bearbeiten",
+        "name": "Anzeigename",
+        "modelId": "Modell-ID",
+        "identifier": "Kennung",
+        "modalities": "Modalitäten",
+        "capabilities": "Modellfähigkeiten",
+        "create": "Ressource erstellen",
+        "save": "Änderungen speichern",
+        "edit": "Ressource bearbeiten",
+        "enabled": "Ressource aktiviert",
+        "delete": "Ressource löschen"
+      },
+      "deleteConfirm": {
+        "title": "Löschen bestätigen",
+        "connectionDescription": "Die Verbindung „{name}“ und alle zugehörigen Modellressourcen werden dauerhaft gelöscht.",
+        "resourceDescription": "Die Modellressource „{name}“ wird dauerhaft gelöscht.",
+        "error": "Das Löschen ist fehlgeschlagen. Es wurde nichts entfernt.",
+        "action": "Löschen"
+      },
+      "addResource": "Modellressource hinzufügen",
+      "emptyResources": "Keine Modellressourcen entsprechen diesem Filter.",
+      "empty": {
+        "title": "Noch keine KI-Ressourcen",
+        "description": "Fügen Sie eine Anbieterverbindung hinzu, um Chat-, Bild-, Audio-, Video- oder Einbettungsressourcen bereitzustellen."
+      }
     }
   }
 }

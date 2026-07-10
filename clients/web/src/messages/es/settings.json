@@ -697,6 +697,94 @@
         "delete": "Eliminar",
         "cancel": "Cancelar"
       }
+    },
+    "aiResources": {
+      "navigation": "Recursos de IA",
+      "title": "Recursos de IA",
+      "description": "Conecta cuentas de proveedores y administra los recursos de modelos disponibles para los Workers.",
+      "addConnection": "Añadir conexión",
+      "validate": "Validar",
+      "setDefault": "Establecer predeterminado",
+      "defaultModality": "Modalidad predeterminada para {name}",
+      "default": "Predeterminado para {modalities}",
+      "usageNotConnected": "Sin integración",
+      "usageAvailable": "Uso disponible",
+      "loadError": "No se pudieron cargar los recursos de IA.",
+      "operationError": "La acción del recurso de IA falló.",
+      "retry": "Reintentar",
+      "loading": "Cargando recursos de IA…",
+      "summary": {
+        "title": "Disponibilidad",
+        "connections": "Conexiones",
+        "selectable": "Recursos seleccionables",
+        "usage": "Cuota y uso"
+      },
+      "modality": {
+        "all": "Todos",
+        "chat": "Chat",
+        "image": "Imagen",
+        "audio": "Audio",
+        "video": "Vídeo",
+        "embedding": "Embeddings",
+        "multimodal": "Multimodal"
+      },
+      "capability": {
+        "textGeneration": "Generación de texto",
+        "visionInput": "Entrada de visión",
+        "imageGeneration": "Generación de imágenes",
+        "speechToText": "Voz a texto",
+        "textToSpeech": "Texto a voz",
+        "videoGeneration": "Generación de vídeo",
+        "embedding": "Embeddings"
+      },
+      "status": {
+        "invalid": "No válido",
+        "disabled": "Deshabilitado"
+      },
+      "connection": {
+        "createTitle": "Añadir conexión de proveedor",
+        "editTitle": "Editar conexión de proveedor",
+        "rotateTitle": "Rotar credenciales",
+        "rotateDescription": "Introduzca credenciales de reemplazo. Las credenciales actuales nunca se muestran.",
+        "createDescription": "Las credenciales se cifran; tras guardar solo se muestran los campos configurados.",
+        "provider": "Proveedor",
+        "name": "Nombre de conexión",
+        "identifier": "Identificador",
+        "baseUrl": "URL base",
+        "create": "Crear conexión",
+        "save": "Guardar cambios",
+        "edit": "Editar conexión",
+        "rotate": "Rotar credenciales",
+        "enabled": "Conexión habilitada",
+        "delete": "Eliminar conexión"
+      },
+      "resource": {
+        "createTitle": "Añadir recurso de modelo",
+        "editTitle": "Editar recurso de modelo",
+        "name": "Nombre visible",
+        "modelId": "ID de modelo",
+        "identifier": "Identificador",
+        "modalities": "Modalidades",
+        "capabilities": "Capacidades del modelo",
+        "create": "Crear recurso",
+        "save": "Guardar cambios",
+        "edit": "Editar recurso",
+        "enabled": "Recurso habilitado",
+        "delete": "Eliminar recurso"
+      },
+      "deleteConfirm": {
+        "title": "Confirmar eliminación",
+        "connectionDescription": "Se eliminarán permanentemente {name} y todos sus recursos de modelo.",
+        "resourceDescription": "Se eliminará permanentemente el recurso de modelo {name}.",
+        "error": "La eliminación falló. No se quitó ningún recurso.",
+        "action": "Eliminar"
+      },
+      "addResource": "Añadir recurso de modelo",
+      "emptyResources": "No hay recursos de modelo que coincidan con este filtro.",
+      "empty": {
+        "title": "Aún no hay recursos de IA",
+        "description": "Añade una conexión de proveedor para habilitar recursos de chat, imagen, audio, vídeo o embeddings."
+      }
     }
   }
 }

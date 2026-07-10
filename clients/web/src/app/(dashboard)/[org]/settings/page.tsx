@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCurrentUser, useCurrentOrg, useAuthStore } from "@/stores/auth";
 import { Button } from "@/components/ui/button";
-import { LanguageSettings, ThemeSettings, NotificationSettings, AgentCredentialsSettings, AgentConfigPage, GitSettingsContent } from "@/components/settings";
+import { LanguageSettings, ThemeSettings, NotificationSettings, AgentCredentialsSettings, AgentConfigPage, GitSettingsContent, AIResourcesSettings } from "@/components/settings";
 import { GeneralSettings, MembersSettings, BillingSettings, APIKeysSettings, IMChannelsSettings, ExtensionsSettings, UsageSettings, InfrastructureOverview, ModelQuotasSettings } from "@/components/settings/organization";
 import { SupportTicketsContent } from "@/components/support/SupportTicketsContent";
 import { useTranslations } from "next-intl";
@@ -30,6 +30,8 @@ export default function SettingsPage() {
           return <GitSettingsContent />;
         case "agent-credentials":
           return <PersonalAgentCredentialsSettings />;
+        case "ai-resources":
+          return <AIResourcesSettings scope="personal" canManage />;
         case "notifications":
           return <PersonalNotificationsSettings t={t} />;
         case "support":
@@ -54,6 +56,12 @@ export default function SettingsPage() {
         return <BillingSettings t={t} />;
       case "usage":
         return <UsageSettings t={t} />;
+      case "ai-resources":
+        return <AIResourcesSettings
+          scope="organization"
+          organizationSlug={currentOrg?.slug}
+          canManage={currentOrg?.role === "owner" || currentOrg?.role === "admin"}
+        />;
       case "model-quotas":
         return <ModelQuotasSettings />;
       case "infrastructure":

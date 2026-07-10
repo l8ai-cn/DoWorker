@@ -1,0 +1,1 @@
+export { AIResourcesSettings } from "./AIResourcesSettings";

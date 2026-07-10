@@ -4,6 +4,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDialogFocus } from "./useDialogFocus";
 
 interface DialogProps {
   open: boolean;
@@ -20,6 +21,7 @@ interface DialogContentProps {
 
 export function Dialog({ open, onOpenChange, children }: DialogProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(open, overlayRef);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -74,6 +76,9 @@ export function DialogContent({
 }: DialogContentProps) {
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
       className={cn(
         "bg-surface-raised rounded-xl shadow-[var(--shadow-panel)] w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col ring-1 ring-border/25 animate-panel-in",
         className

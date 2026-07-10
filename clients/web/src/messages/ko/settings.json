@@ -697,6 +697,94 @@
         "delete": "삭제",
         "cancel": "취소"
       }
+    },
+    "aiResources": {
+      "navigation": "AI 리소스",
+      "title": "AI 리소스",
+      "description": "공급자 계정을 연결하고 Worker에서 사용할 수 있는 모델 리소스를 관리합니다.",
+      "addConnection": "연결 추가",
+      "validate": "검증",
+      "setDefault": "기본값으로 설정",
+      "defaultModality": "{name}의 기본 모달리티",
+      "default": "{modalities} 기본값",
+      "usageNotConnected": "미연동",
+      "usageAvailable": "사용량 사용 가능",
+      "loadError": "AI 리소스를 불러오지 못했습니다.",
+      "operationError": "AI 리소스 작업에 실패했습니다.",
+      "retry": "다시 시도",
+      "loading": "AI 리소스 로드 중…",
+      "summary": {
+        "title": "가용성",
+        "connections": "연결",
+        "selectable": "선택 가능한 리소스",
+        "usage": "할당량 및 사용량"
+      },
+      "modality": {
+        "all": "전체",
+        "chat": "대화",
+        "image": "이미지",
+        "audio": "오디오",
+        "video": "비디오",
+        "embedding": "임베딩",
+        "multimodal": "멀티모달"
+      },
+      "capability": {
+        "textGeneration": "텍스트 생성",
+        "visionInput": "비전 입력",
+        "imageGeneration": "이미지 생성",
+        "speechToText": "음성 텍스트 변환",
+        "textToSpeech": "텍스트 음성 변환",
+        "videoGeneration": "동영상 생성",
+        "embedding": "임베딩"
+      },
+      "status": {
+        "invalid": "유효하지 않음",
+        "disabled": "비활성화됨"
+      },
+      "connection": {
+        "createTitle": "공급자 연결 추가",
+        "editTitle": "공급자 연결 편집",
+        "rotateTitle": "자격 증명 교체",
+        "rotateDescription": "교체할 자격 증명을 입력하세요. 기존 자격 증명은 표시되지 않습니다.",
+        "createDescription": "자격 증명은 암호화되며 저장 후에는 구성된 필드만 표시됩니다.",
+        "provider": "공급자",
+        "name": "연결 이름",
+        "identifier": "식별자",
+        "baseUrl": "기본 URL",
+        "create": "연결 만들기",
+        "save": "변경 사항 저장",
+        "edit": "연결 편집",
+        "rotate": "자격 증명 교체",
+        "enabled": "연결 활성화",
+        "delete": "연결 삭제"
+      },
+      "resource": {
+        "createTitle": "모델 리소스 추가",
+        "editTitle": "모델 리소스 편집",
+        "name": "표시 이름",
+        "modelId": "모델 ID",
+        "identifier": "식별자",
+        "modalities": "모달리티",
+        "capabilities": "모델 기능",
+        "create": "리소스 만들기",
+        "save": "변경 사항 저장",
+        "edit": "리소스 편집",
+        "enabled": "리소스 활성화",
+        "delete": "리소스 삭제"
+      },
+      "deleteConfirm": {
+        "title": "삭제 확인",
+        "connectionDescription": "{name} 및 연결된 모든 모델 리소스를 영구적으로 삭제합니다.",
+        "resourceDescription": "모델 리소스 {name}을(를) 영구적으로 삭제합니다.",
+        "error": "삭제하지 못했습니다. 어떤 리소스도 제거되지 않았습니다.",
+        "action": "삭제"
+      },
+      "addResource": "모델 리소스 추가",
+      "emptyResources": "이 필터와 일치하는 모델 리소스가 없습니다.",
+      "empty": {
+        "title": "아직 AI 리소스가 없습니다",
+        "description": "공급자 연결을 추가하여 대화, 이미지, 오디오, 비디오 또는 임베딩 리소스를 사용할 수 있습니다."
+      }
     }
   }
 }

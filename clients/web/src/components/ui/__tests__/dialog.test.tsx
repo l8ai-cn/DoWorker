@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import {
+  AlertDialog, AlertDialogContent, AlertDialogTitle,
+} from "../alert-dialog";
 import { Dialog, DialogContent } from "../dialog";
 
 describe("Dialog", () => {
@@ -109,6 +113,27 @@ describe("Dialog", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
+
+  it("moves focus into the dialog and keeps Tab navigation inside it", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <button>Outside</button>
+        <Dialog open={true} onOpenChange={vi.fn()}>
+          <DialogContent>
+            <button>First</button>
+            <button>Last</button>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+
+    await expect.poll(() => document.activeElement).toBe(screen.getByRole("button", { name: "First" }));
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Last" })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "First" })).toHaveFocus();
+  });
 });
 
 describe("DialogContent", () => {
@@ -136,5 +161,20 @@ describe("DialogContent", () => {
 
     const content = screen.getByText("Content").closest(".bg-surface-raised")!;
     expect(content.className).toContain("max-w-sm");
+  });
+});
+
+describe("AlertDialogContent", () => {
+  it("uses its title as the accessible alert dialog name", () => {
+    render(
+      <AlertDialog open={true} onOpenChange={vi.fn()}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Delete resource</AlertDialogTitle>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+
+    const dialog = screen.getByRole("alertdialog", { name: "Delete resource" });
+    expect(dialog).toHaveAttribute("aria-labelledby", screen.getByRole("heading", { name: "Delete resource" }).id);
   });
 });

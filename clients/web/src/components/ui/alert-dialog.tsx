@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useCallback, createContext, useContext } from "react";
+import { useEffect, useRef, useCallback, createContext, useContext, useId } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
+import { useDialogFocus } from "./useDialogFocus";
 
 const AlertDialogContext = createContext<{
   onOpenChange: (open: boolean) => void;
 }>({ onOpenChange: () => {} });
+const AlertDialogTitleIdContext = createContext<string | undefined>(undefined);
 
 interface AlertDialogProps {
   open: boolean;
@@ -17,6 +19,7 @@ interface AlertDialogProps {
 
 export function AlertDialog({ open, onOpenChange, children }: AlertDialogProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(open, overlayRef);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -59,16 +62,23 @@ export function AlertDialogContent({
   children: React.ReactNode;
   className?: string;
 }) {
+  const titleId = useId();
+
   return (
-    <div
-      className={cn(
-        "bg-background rounded-lg shadow-lg w-full max-w-md p-6",
-        className
-      )}
-      onClick={(e) => e.stopPropagation()}
-    >
-      {children}
-    </div>
+    <AlertDialogTitleIdContext.Provider value={titleId}>
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className={cn(
+          "bg-background rounded-lg shadow-lg w-full max-w-md p-6",
+          className
+        )}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
+      </div>
+    </AlertDialogTitleIdContext.Provider>
   );
 }
 
@@ -89,7 +99,8 @@ export function AlertDialogTitle({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <h2 className={cn("text-lg font-semibold", className)}>{children}</h2>;
+  const titleId = useContext(AlertDialogTitleIdContext);
+  return <h2 id={titleId} className={cn("text-lg font-semibold", className)}>{children}</h2>;
 }
 
 export function AlertDialogDescription({

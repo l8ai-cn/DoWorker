@@ -972,6 +972,94 @@
         "repositoriesDescription": "与任务和 Worker 关联的 Git 仓库。",
         "repositoriesHint": "从 GitHub、GitLab、Gitea 或手动 URL 导入。"
       }
+    },
+    "aiResources": {
+      "navigation": "AI 资源",
+      "title": "AI 资源",
+      "description": "连接模型服务商账号，并管理可供 Worker 使用的模型资源。",
+      "addConnection": "添加连接",
+      "validate": "验证连接",
+      "setDefault": "设为默认",
+      "defaultModality": "选择 {name} 的默认模态",
+      "default": "{modalities} 默认",
+      "usageNotConnected": "未接入",
+      "usageAvailable": "已接入",
+      "loadError": "加载 AI 资源失败。",
+      "operationError": "AI 资源操作失败。",
+      "retry": "重试",
+      "loading": "正在加载 AI 资源…",
+      "summary": {
+        "title": "可用性",
+        "connections": "服务连接",
+        "selectable": "可选择资源",
+        "usage": "配额与用量"
+      },
+      "modality": {
+        "all": "全部",
+        "chat": "对话",
+        "image": "图像",
+        "audio": "音频",
+        "video": "视频",
+        "embedding": "向量",
+        "multimodal": "多模态"
+      },
+      "capability": {
+        "textGeneration": "文本生成",
+        "visionInput": "视觉输入",
+        "imageGeneration": "图像生成",
+        "speechToText": "语音转文本",
+        "textToSpeech": "文本转语音",
+        "videoGeneration": "视频生成",
+        "embedding": "向量"
+      },
+      "status": {
+        "invalid": "验证失败",
+        "disabled": "已停用"
+      },
+      "connection": {
+        "createTitle": "添加服务商连接",
+        "editTitle": "编辑服务商连接",
+        "rotateTitle": "轮换凭据",
+        "rotateDescription": "请输入替换凭据；系统不会显示现有凭据。",
+        "createDescription": "凭据会加密保存；保存后只显示已配置字段，不会回显密钥。",
+        "provider": "服务商",
+        "name": "连接名称",
+        "identifier": "标识符",
+        "baseUrl": "基础 URL",
+        "create": "创建连接",
+        "save": "保存更改",
+        "edit": "编辑连接",
+        "rotate": "轮换凭据",
+        "enabled": "启用连接",
+        "delete": "删除连接"
+      },
+      "resource": {
+        "createTitle": "添加模型资源",
+        "editTitle": "编辑模型资源",
+        "name": "显示名称",
+        "modelId": "模型 ID",
+        "identifier": "标识符",
+        "modalities": "模态类型",
+        "capabilities": "模型能力",
+        "create": "创建资源",
+        "save": "保存更改",
+        "edit": "编辑资源",
+        "enabled": "启用资源",
+        "delete": "删除资源"
+      },
+      "deleteConfirm": {
+        "title": "确认删除",
+        "connectionDescription": "将永久删除“{name}”及其全部模型资源。",
+        "resourceDescription": "将永久删除模型资源“{name}”。",
+        "error": "删除失败，未移除任何资源。",
+        "action": "删除"
+      },
+      "addResource": "添加模型资源",
+      "emptyResources": "没有符合当前筛选条件的模型资源。",
+      "empty": {
+        "title": "尚未配置 AI 资源",
+        "description": "添加服务商连接后，即可提供对话、图像、音频、视频或向量模型资源。"
+      }
     }
   }
 }

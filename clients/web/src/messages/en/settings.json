@@ -972,6 +972,94 @@
         "repositoriesDescription": "Git repositories linked to tasks and Workers.",
         "repositoriesHint": "Import from GitHub, GitLab, Gitea, or a manual remote URL."
       }
+    },
+    "aiResources": {
+      "navigation": "AI Resources",
+      "title": "AI Resources",
+      "description": "Connect provider accounts and manage the model resources available to Workers.",
+      "addConnection": "Add connection",
+      "validate": "Validate",
+      "setDefault": "Set default",
+      "defaultModality": "Default modality for {name}",
+      "default": "Default for {modalities}",
+      "usageNotConnected": "Not connected",
+      "usageAvailable": "Usage available",
+      "loadError": "Could not load AI resources.",
+      "operationError": "AI resource action failed.",
+      "retry": "Retry",
+      "loading": "Loading AI resources…",
+      "summary": {
+        "title": "Availability",
+        "connections": "Connections",
+        "selectable": "Selectable resources",
+        "usage": "Quota and usage"
+      },
+      "modality": {
+        "all": "All",
+        "chat": "Chat",
+        "image": "Image",
+        "audio": "Audio",
+        "video": "Video",
+        "embedding": "Embedding",
+        "multimodal": "Multimodal"
+      },
+      "capability": {
+        "textGeneration": "Text generation",
+        "visionInput": "Vision input",
+        "imageGeneration": "Image generation",
+        "speechToText": "Speech to text",
+        "textToSpeech": "Text to speech",
+        "videoGeneration": "Video generation",
+        "embedding": "Embedding"
+      },
+      "status": {
+        "invalid": "Invalid",
+        "disabled": "Disabled"
+      },
+      "connection": {
+        "createTitle": "Add provider connection",
+        "editTitle": "Edit provider connection",
+        "rotateTitle": "Rotate credentials",
+        "rotateDescription": "Enter replacement credentials. Existing credentials will never be shown.",
+        "createDescription": "Credentials are encrypted and only their configured fields are shown after saving.",
+        "provider": "Provider",
+        "name": "Connection name",
+        "identifier": "Identifier",
+        "baseUrl": "Base URL",
+        "create": "Create connection",
+        "save": "Save changes",
+        "edit": "Edit connection",
+        "rotate": "Rotate credentials",
+        "enabled": "Connection enabled",
+        "delete": "Delete connection"
+      },
+      "resource": {
+        "createTitle": "Add model resource",
+        "editTitle": "Edit model resource",
+        "name": "Display name",
+        "modelId": "Model ID",
+        "identifier": "Identifier",
+        "modalities": "Modalities",
+        "capabilities": "Model capabilities",
+        "create": "Create resource",
+        "save": "Save changes",
+        "edit": "Edit resource",
+        "enabled": "Resource enabled",
+        "delete": "Delete resource"
+      },
+      "deleteConfirm": {
+        "title": "Confirm deletion",
+        "connectionDescription": "This permanently deletes {name} and all of its model resources.",
+        "resourceDescription": "This permanently deletes the {name} model resource.",
+        "error": "Deletion failed. Nothing was removed.",
+        "action": "Delete"
+      },
+      "addResource": "Add model resource",
+      "emptyResources": "No model resources match this filter.",
+      "empty": {
+        "title": "No AI resources yet",
+        "description": "Add a provider connection to make chat, image, audio, video, or embedding resources available."
+      }
     }
   }
 }
