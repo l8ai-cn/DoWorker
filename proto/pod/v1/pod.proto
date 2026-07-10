@@ -170,6 +170,11 @@ message Pod {
   // clients can suppress the resume affordance instead of surfacing the
   // backend's one-active-resume-per-source 409.
   optional string resumed_by_pod_key = 32 [(amesh.codegen.v1.field_skip) = true];
+
+  // Preview metadata enables clients to expose existing preview access without
+  // minting a preview token before the user opens it.
+  int32 preview_port = 33 [(amesh.codegen.v1.field_convert) = "int_to_int32"];
+  optional string preview_path = 34 [(amesh.codegen.v1.field_custom) = "previewPathToProto"];
 }
 
 message PodConnectionInfo {
@@ -260,12 +265,9 @@ message CreatePodRequest {
   // Knowledge base mounts; win over Agentfile KNOWLEDGE and agent defaults on mode conflicts.
   repeated PodKnowledgeMount knowledge_mounts = 14;
 
-  // Worker model binding for quota/billing attribution. Mutually informative,
-  // not exclusive: virtual_api_key_id binds a platform-issued virtual key
-  // (usage attributed to it); model_config_id binds a real ai_models row
-  // directly. token_budget is an optional per-Worker ceiling hint.
-  optional int64 virtual_api_key_id = 15;
-  optional int64 model_config_id = 16;
+  reserved 15, 16;
+  reserved "virtual_api_key_id", "model_config_id";
+  optional int64 model_resource_id = 19;
   optional int64 token_budget = 17;
 
   // Unified cross-agent automation/permission tier: "interactive" | "auto_edit"

@@ -72,6 +72,8 @@ export function podToProtoPod(p: PodData): ProtoPod {
     createdAt: p.created_at,
     errorCode: p.error_code,
     errorMessage: p.error_message,
+    previewPort: p.preview_port,
+    previewPath: p.preview_path,
   });
 }
 

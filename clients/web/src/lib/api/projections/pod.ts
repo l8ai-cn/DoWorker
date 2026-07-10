@@ -61,5 +61,7 @@ export function podToCache(p: ProtoPod): PodData {
     error_code: p.errorCode,
     error_message: p.errorMessage,
     resumed_by_pod_key: p.resumedByPodKey,
+    preview_port: p.previewPort,
+    preview_path: p.previewPath,
   };
 }

@@ -34,4 +34,6 @@ export interface PodData {
   created_by?: { id?: number; username?: string; name?: string };
   // Query-derived (ListPods only): the active pod resumed from this one.
   resumed_by_pod_key?: string;
+  preview_port?: number;
+  preview_path?: string;
 }
