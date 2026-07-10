@@ -15,7 +15,10 @@
 **Files:**
 - Modify: `backend/internal/domain/aimodel/repository.go`
 - Modify: `backend/internal/infra/ai_model_repo.go`
+- Create: `backend/internal/infra/ai_model_repo_test.go`
+- Modify: `backend/internal/infra/BUILD.bazel`
 - Modify: `backend/internal/service/aimodel/service.go`
+- Create: `backend/internal/service/aimodel/model_resolution.go`
 - Create: `backend/internal/service/aimodel/service_test.go`
 - Modify: `backend/internal/service/aimodel/BUILD.bazel`
 
@@ -48,13 +51,15 @@ GetVisibleByID(ctx context.Context, id, userID, orgID int64) (*AIModel, error)
 
 The GORM query is `id = ? AND is_enabled = ? AND (organization_id = ? OR user_id = ?)`. Add `Service.GetVisible` for non-secret validation and `Service.ResolveVisible` that calls it before `resolveRow`. Return `ErrNotFound` for missing or invisible rows.
 
+Move model-resolution types and methods from the already-near-limit `service.go` into `model_resolution.go`; keep existing unscoped method behavior unchanged until its callers are migrated in Task 2. Both production files must remain below 200 lines.
+
 - [ ] **Step 4: Verify GREEN and infra build**
 
 Run: `bazel test //backend/internal/service/aimodel:aimodel_test`
 
 Run: `bazel test //backend/internal/infra:infra_test --test_filter=AIModel`
 
-Expected: service PASS; infra target either PASS with matching tests or reports no filtered tests without compilation errors.
+The infra test must exercise the real GORM query for same-org shared, current-user private, other-org, other-user, disabled, and missing rows. Expected: service and infra tests PASS.
 
 - [ ] **Step 5: Commit**
 
