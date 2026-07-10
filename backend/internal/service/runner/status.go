@@ -66,9 +66,25 @@ func (s *Service) UpdateRunnerVersionAndHostInfo(ctx context.Context, runnerID i
 
 func (s *Service) UpdateAvailableAgents(ctx context.Context, runnerID int64, agents []string) error {
 	slog.InfoContext(ctx, "runner available agents updated", "runner_id", runnerID, "agents", agents)
-	return s.repo.UpdateFields(ctx, runnerID, map[string]interface{}{
-		"available_agents": runner.StringSlice(agents),
-	})
+	availableAgents := runner.StringSlice(append([]string(nil), agents...))
+	if err := s.repo.UpdateFields(ctx, runnerID, map[string]interface{}{
+		"available_agents": availableAgents,
+	}); err != nil {
+		return err
+	}
+
+	if active, ok := s.activeRunners.Load(runnerID); ok {
+		if ar, ok := active.(*ActiveRunner); ok && ar.Runner != nil {
+			updated := *ar.Runner
+			updated.AvailableAgents = append(runner.StringSlice(nil), availableAgents...)
+			s.activeRunners.Store(runnerID, &ActiveRunner{
+				Runner:   &updated,
+				LastPing: ar.LastPing,
+				PodCount: ar.PodCount,
+			})
+		}
+	}
+	return nil
 }
 
 func (s *Service) UpdateAgentVersions(ctx context.Context, runnerID int64, versions []runner.AgentVersion) error {
