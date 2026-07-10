@@ -45,7 +45,7 @@ echo ""
 
 wait_for_backend() {
     echo "等待 Backend 服务就绪..."
-    local health_url="${BACKEND_URL}/health"
+    local health_url="${BACKEND_URL}/health/ready"
     for ((i=1; i<=240; i++)); do
         if wget -q -O /dev/null "$health_url" 2>/dev/null; then
             echo "✓ Backend 服务就绪"
