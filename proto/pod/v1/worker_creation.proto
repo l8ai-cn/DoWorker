@@ -1,0 +1,141 @@
+syntax = "proto3";
+
+package proto.pod.v1;
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1;podv1";
+
+message WorkerSecretReference {
+  string field = 1;
+  string kind = 2;
+  int64 id = 3;
+}
+
+message WorkerKnowledgeMount {
+  int64 knowledge_base_id = 1;
+  string mode = 2;
+}
+
+message WorkerSpecDraft {
+  int64 model_resource_id = 1;
+  string worker_type_slug = 2;
+  int64 runtime_image_id = 3;
+  string placement_policy = 4;
+  int64 compute_target_id = 5;
+  string deployment_mode = 6;
+  int64 resource_profile_id = 7;
+  uint32 type_schema_version = 8;
+  string type_config_values_json = 9;
+  repeated WorkerSecretReference secret_refs = 10;
+  string interaction_mode = 11;
+  string automation_level = 12;
+  optional int64 repository_id = 13;
+  string branch = 14;
+  repeated int64 skill_ids = 15;
+  repeated WorkerKnowledgeMount knowledge_mounts = 16;
+  repeated int64 env_bundle_ids = 17;
+  string instructions = 18;
+  string initial_task = 19;
+  string termination_policy = 20;
+  uint32 idle_timeout_minutes = 21;
+  string alias = 22;
+  optional int64 source_expert_id = 23;
+  string options_revision = 24;
+}
+
+message WorkerTypeOption {
+  string slug = 1;
+  string name = 2;
+  string description = 3;
+  uint32 schema_version = 4;
+  string config_schema_json = 5;
+  bool selectable = 6;
+  string blocking_reason = 7;
+}
+
+message WorkerRuntimeImageOption {
+  int64 id = 1;
+  string slug = 2;
+  string name = 3;
+  string reference = 4;
+  string digest = 5;
+  repeated string worker_type_slugs = 6;
+  bool selectable = 7;
+  string blocking_reason = 8;
+}
+
+message WorkerComputeTargetOption {
+  int64 id = 1;
+  string slug = 2;
+  string name = 3;
+  string kind = 4;
+  bool supports_pooled = 5;
+  bool supports_dedicated = 6;
+  bool selectable = 7;
+  string blocking_reason = 8;
+}
+
+message WorkerDeploymentModeOption {
+  string value = 1;
+  string name = 2;
+  bool selectable = 3;
+  string blocking_reason = 4;
+}
+
+message WorkerResourceProfileOption {
+  int64 id = 1;
+  string slug = 2;
+  string name = 3;
+  uint32 cpu_request_millicpu = 4;
+  uint32 cpu_limit_millicpu = 5;
+  uint64 memory_request_bytes = 6;
+  uint64 memory_limit_bytes = 7;
+  optional uint32 gpu_request = 8;
+  optional uint32 gpu_limit = 9;
+  bool selectable = 10;
+  string blocking_reason = 11;
+}
+
+message ListWorkerCreateOptionsRequest {
+  string org_slug = 1;
+  optional string worker_type_slug = 2;
+  optional int64 compute_target_id = 3;
+  optional string deployment_mode = 4;
+}
+
+message ListWorkerCreateOptionsResponse {
+  string revision = 1;
+  repeated WorkerTypeOption worker_types = 2;
+  repeated WorkerRuntimeImageOption runtime_images = 3;
+  repeated WorkerComputeTargetOption compute_targets = 4;
+  repeated WorkerDeploymentModeOption deployment_modes = 5;
+  repeated WorkerResourceProfileOption resource_profiles = 6;
+}
+
+message WorkerPreflightIssue {
+  string code = 1;
+  string field = 2;
+  string message = 3;
+  string severity = 4;
+}
+
+message PreflightWorkerRequest {
+  string org_slug = 1;
+  WorkerSpecDraft draft = 2;
+}
+
+message PreflightWorkerResponse {
+  repeated WorkerPreflightIssue issues = 1;
+  optional string resolved_spec_json = 2;
+  string options_revision = 3;
+}
+
+message FillWorkerDraftRequest {
+  string org_slug = 1;
+  string prompt = 2;
+  optional WorkerSpecDraft current_draft = 3;
+}
+
+message FillWorkerDraftResponse {
+  WorkerSpecDraft draft = 1;
+  repeated WorkerPreflightIssue issues = 2;
+}

@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package proto.pod.v1;
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1;podv1";
+
+message DiscoverWorkerSkillsRequest {
+  string org_slug = 1;
+  string pod_key = 2;
+}
+
+message WorkerSkillCandidate {
+  string candidate_id = 1;
+  string relative_path = 2;
+  string name = 3;
+  string description = 4;
+  string content_hash = 5;
+  bool selectable = 6;
+  string blocking_reason = 7;
+}
+
+message DiscoverWorkerSkillsResponse {
+  string discovery_revision = 1;
+  repeated WorkerSkillCandidate candidates = 2;
+}
+
+message PublishWorkerSkillsRequest {
+  string org_slug = 1;
+  string pod_key = 2;
+  string discovery_revision = 3;
+  repeated string candidate_ids = 4;
+}
+
+message PublishedWorkerSkill {
+  int64 id = 1;
+  string slug = 2;
+  string name = 3;
+  string source_relative_path = 4;
+  string content_hash = 5;
+}
+
+message PublishWorkerSkillsResponse {
+  repeated PublishedWorkerSkill items = 1;
+}

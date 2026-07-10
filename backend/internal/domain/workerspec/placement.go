@@ -9,7 +9,10 @@ const (
 
 type ComputeTargetKind string
 
-const ComputeTargetKindKubernetes ComputeTargetKind = "kubernetes"
+const (
+	ComputeTargetKindRunnerPool ComputeTargetKind = "runner-pool"
+	ComputeTargetKindKubernetes ComputeTargetKind = "kubernetes"
+)
 
 type ComputeTarget struct {
 	ID   int64             `json:"id"`

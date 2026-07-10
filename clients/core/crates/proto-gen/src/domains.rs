@@ -20,7 +20,16 @@ pub const DOMAINS: &[Domain] = &[
     Domain { name: "blockstore", srcs: &["blockstore.proto"], deps: &[] },
     Domain { name: "blockstore_state", srcs: &["blockstore_state.proto"], deps: &["blockstore"] },
     Domain { name: "channel", srcs: &["channel.proto"], deps: &[] },
-    Domain { name: "pod", srcs: &["agentpod_settings.proto", "pod.proto"], deps: &[] },
+    Domain {
+        name: "pod",
+        srcs: &[
+            "agentpod_settings.proto",
+            "worker_creation.proto",
+            "worker_skill_publish.proto",
+            "pod.proto",
+        ],
+        deps: &[],
+    },
     Domain { name: "channel_state", srcs: &["channel_state.proto", "mutations.proto"], deps: &["pod"] },
     Domain { name: "env_bundle", srcs: &["env_bundle.proto"], deps: &[] },
     Domain {

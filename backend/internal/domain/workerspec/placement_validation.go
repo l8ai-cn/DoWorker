@@ -53,7 +53,9 @@ func validatePlacement(placement Placement) error {
 	if placement.ComputeTarget.ID <= 0 {
 		return fmt.Errorf("compute target id must be positive")
 	}
-	if placement.ComputeTarget.Kind != ComputeTargetKindKubernetes {
+	switch placement.ComputeTarget.Kind {
+	case ComputeTargetKindRunnerPool, ComputeTargetKindKubernetes:
+	default:
 		return fmt.Errorf("unsupported compute target kind %q", placement.ComputeTarget.Kind)
 	}
 	switch placement.DeploymentMode {

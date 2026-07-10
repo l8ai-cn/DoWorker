@@ -78,6 +78,16 @@ func TestNewV1IncludesResolvedPlacement(t *testing.T) {
 	assert.Equal(t, validWorkerPlacement(), spec.Placement)
 }
 
+func TestWorkerSpecAcceptsRunnerPoolPlacement(t *testing.T) {
+	spec := validWorkerSpec()
+	spec.Placement.ComputeTarget.Kind = ComputeTargetKindRunnerPool
+	spec.Placement.DeploymentMode = DeploymentModePooled
+
+	_, err := NormalizeAndValidate(spec)
+
+	require.NoError(t, err)
+}
+
 func TestWorkerSpecRejectsInvalidRuntimePlacement(t *testing.T) {
 	tests := []struct {
 		name   string

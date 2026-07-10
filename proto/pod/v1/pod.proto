@@ -25,6 +25,8 @@ syntax = "proto3";
 package proto.pod.v1;
 
 import "codegen/v1/options.proto";
+import "pod/v1/worker_creation.proto";
+import "pod/v1/worker_skill_publish.proto";
 
 option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1;podv1";
 
@@ -45,6 +47,11 @@ service PodService {
   rpc GetPodConnection(GetPodConnectionRequest) returns (PodConnectionInfo);
   rpc SendPodPrompt(SendPodPromptRequest) returns (SendPodPromptResponse);
   rpc ListPodsByTicket(ListPodsByTicketRequest) returns (ListPodsByTicketResponse);
+  rpc ListWorkerCreateOptions(ListWorkerCreateOptionsRequest) returns (ListWorkerCreateOptionsResponse);
+  rpc PreflightWorker(PreflightWorkerRequest) returns (PreflightWorkerResponse);
+  rpc FillWorkerDraft(FillWorkerDraftRequest) returns (FillWorkerDraftResponse);
+  rpc DiscoverWorkerSkills(DiscoverWorkerSkillsRequest) returns (DiscoverWorkerSkillsResponse);
+  rpc PublishWorkerSkills(PublishWorkerSkillsRequest) returns (PublishWorkerSkillsResponse);
 }
 
 // Pod nested sub-objects mirror the JSON response shape the REST handler
@@ -175,6 +182,7 @@ message Pod {
   // minting a preview token before the user opens it.
   int32 preview_port = 33 [(amesh.codegen.v1.field_convert) = "int_to_int32"];
   optional string preview_path = 34 [(amesh.codegen.v1.field_custom) = "previewPathToProto"];
+  optional int64 worker_spec_snapshot_id = 35 [(amesh.codegen.v1.field_skip) = true];
 }
 
 message PodConnectionInfo {
@@ -274,6 +282,7 @@ message CreatePodRequest {
   // unless the caller downgrades it. Translated to each agent's native
   // permission mechanism server-side.
   string automation_level = 18;
+  optional WorkerSpecDraft worker_spec = 20;
 }
 
 // PodKnowledgeMount selects one org knowledge base for a new pod.

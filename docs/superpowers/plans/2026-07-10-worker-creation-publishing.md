@@ -31,10 +31,10 @@
 - Modify: `backend/internal/domain/workerspec/placement.go`
 - Modify: `backend/internal/domain/workerspec/placement_validation.go`
 - Modify: `proto/pod/v1/pod.proto`
-- Modify generated Go/TypeScript/Rust proto mirrors
-- Test: `proto/gen/go/pod/v1/pod_contract_test.go`
+- Regenerate ignored Go/Rust mirrors and commit the TypeScript proto mirror
+- Test: `backend/internal/domain/agentpod/pod_proto_contract_test.go`
 
-- [ ] **Step 1: Write failing catalog and wire tests**
+- [x] **Step 1: Write failing catalog and wire tests**
 
 Assert that:
 
@@ -50,7 +50,7 @@ The protobuf contract must expose `WorkerSpecDraft`, `ListWorkerCreateOptions`,
 `PreflightWorker`, `FillWorkerDraft`, `worker_spec_snapshot_id`, and selected
 Skill publish messages without legacy default-auth fields.
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run:
 
@@ -60,7 +60,7 @@ go test ./backend/internal/domain/workerruntime ./proto/gen/go/pod/v1 -count=1
 
 Expected: missing catalog types and protobuf fields.
 
-- [ ] **Step 3: Implement the immutable catalog and protobuf messages**
+- [x] **Step 3: Implement the immutable catalog and protobuf messages**
 
 Use the verified OCI index digests for the currently published Codex, Claude,
 and Gemini runtime images. Keep unavailable Worker types absent instead of
@@ -69,7 +69,7 @@ Kubernetes target whose disabled reason is returned when dedicated
 provisioning is not configured. Define server-owned resource profiles with
 positive CPU and memory request/limit pairs.
 
-- [ ] **Step 4: Regenerate mirrors and verify GREEN**
+- [x] **Step 4: Regenerate mirrors and verify GREEN**
 
 Run:
 
@@ -79,12 +79,12 @@ pnpm proto:gen-go-all
 go test ./backend/internal/domain/workerruntime ./proto/gen/go/pod/v1 -count=1
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/internal/domain/workerruntime backend/internal/domain/workerspec \
-  proto/pod/v1/pod.proto proto/gen/go/pod/v1 proto/gen/ts/pod/v1 \
-  clients/core/crates/proto/pod
+  backend/internal/domain/agentpod/pod_proto_contract_test.go \
+  proto/pod/v1 proto/gen/ts/pod/v1 clients/core/crates/proto-gen/src/domains.rs
 git commit -m "feat(worker): define creation wire contract"
 git push origin main
 ```
