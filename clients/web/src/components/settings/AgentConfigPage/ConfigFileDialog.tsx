@@ -22,7 +22,7 @@ interface Props {
   editing: ConfigFileBundleViewModel | null;
   fileSpecs: ConfigFile[];
   onSubmit: (data: ConfigFileFormData, editing: ConfigFileBundleViewModel | null) => Promise<void>;
-  t: (key: string) => string;
+  t: (key: string, values?: Record<string, string | number>) => string;
 }
 
 const DEFAULT_JSON = `{

@@ -24,7 +24,7 @@ export type { LoopData, LoopRunData, LoopStatus, ExecutionMode, SandboxStrategy,
 export type { SSODiscoverConfig, LdapAuthResponse } from "./connect/ssoConnect";
 export type { SupportTicket, SupportTicketDetail, SupportTicketMessage, SupportTicketAttachment, SupportTicketListResponse, SupportTicketListParams } from "./connect/supportTicketConnect";
 
-export type { AgentData, UserAgentConfigData, ConfigField, ConfigFieldOption, ConfigSchema, CredentialField } from "./connect/agentConnect";
+export type { AgentData, UserAgentConfigData, ConfigField, ConfigFieldOption, ConfigSchema, ConfigFile, CredentialField } from "./connect/agentConnect";
 export type { PromoCodeType, ValidatePromoCodeResponse, RedeemPromoCodeResponse, PromoCodeRedemption } from "./connect/promocodeConnect";
 export type { NotificationPreference } from "./connect/notificationConnect";
 export * from "./facade/aiResource";

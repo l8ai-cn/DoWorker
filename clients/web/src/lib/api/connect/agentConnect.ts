@@ -43,6 +43,7 @@ import type {
 
 export type {
   AgentData,
+  ConfigFile,
   ConfigField,
   ConfigFieldOption,
   ConfigSchema,
