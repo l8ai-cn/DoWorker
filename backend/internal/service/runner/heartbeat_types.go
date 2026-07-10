@@ -33,6 +33,8 @@ type HeartbeatBatcher struct {
 	stopCh  chan struct{}
 	doneCh  chan struct{}
 	running bool
+
+	touchActive func(runnerID int64, podCount int)
 }
 
 type HeartbeatItem struct {
@@ -62,6 +64,10 @@ func NewHeartbeatBatcher(redisClient *redis.Client, runnerRepo runnerDomain.Runn
 
 func (b *HeartbeatBatcher) SetInterval(interval time.Duration) {
 	b.interval = interval
+}
+
+func (b *HeartbeatBatcher) SetActiveToucher(fn func(runnerID int64, podCount int)) {
+	b.touchActive = fn
 }
 
 func (b *HeartbeatBatcher) BufferSize() int {

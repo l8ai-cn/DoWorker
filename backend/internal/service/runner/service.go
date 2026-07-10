@@ -40,3 +40,25 @@ func NewService(repo runner.RunnerRepository, billingService ...*billing.Service
 func (s *Service) SetGrantQuerier(gq GrantQuerier) {
 	s.grantQuerier = gq
 }
+
+// TouchActiveRunner refreshes the in-memory eligibility clock. Heartbeats
+// otherwise only hit Redis/DB via HeartbeatBatcher, leaving LastPing stale and
+// causing ResolveRunnerForCreate to 503 after ~90s of idle (e.g. MCP bazel compile).
+func (s *Service) TouchActiveRunner(runnerID int64, podCount int) {
+	value, ok := s.activeRunners.Load(runnerID)
+	if !ok {
+		return
+	}
+	ar, ok := value.(*ActiveRunner)
+	if !ok || ar.Runner == nil {
+		return
+	}
+	updated := *ar.Runner
+	updated.CurrentPods = podCount
+	updated.Status = runner.RunnerStatusOnline
+	s.activeRunners.Store(runnerID, &ActiveRunner{
+		Runner:   &updated,
+		LastPing: time.Now(),
+		PodCount: podCount,
+	})
+}

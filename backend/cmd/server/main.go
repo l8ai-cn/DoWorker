@@ -115,6 +115,7 @@ func main() {
 	}
 
 	runnerConnMgr, podCoordinator, podRouter, heartbeatBatcher, sandboxQuerySvc, sandboxFsSvc := initializeRunnerComponents(services.pod, services.runnerRepo, redisClient, appLogger, services.agentSvc)
+	heartbeatBatcher.SetActiveToucher(services.runner.TouchActiveRunner)
 
 	pendingQueueWiring := initializePendingQueue(cfg, db, services.pod, podCoordinator, runnerConnMgr, eventBus, appLogger)
 

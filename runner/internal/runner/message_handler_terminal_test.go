@@ -85,8 +85,17 @@ func TestOnPodInputSuccess(t *testing.T) {
 		t.Skipf("Could not create pod: %v", err)
 	}
 
-	// Wait for terminal to be ready
-	time.Sleep(100 * time.Millisecond)
+	// Wait for terminal to be ready (Windows PTY bring-up is slower than Unix).
+	deadline := time.Now().Add(2 * time.Second)
+	for {
+		if _, ok := store.Get("input-success-pod"); ok {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("pod not registered after create")
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
 
 	// Send input
 	inputReq := client.PodInputRequest{

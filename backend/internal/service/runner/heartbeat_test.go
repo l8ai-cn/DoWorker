@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // --- Heartbeat Tests ---
@@ -15,7 +17,6 @@ func TestHeartbeat(t *testing.T) {
 	service := newTestService(db)
 	ctx := context.Background()
 
-	// Create runner directly
 	r := &runner.Runner{
 		OrganizationID:    1,
 		NodeID:            "test-runner",
@@ -26,13 +27,11 @@ func TestHeartbeat(t *testing.T) {
 	}
 	db.Create(r)
 
-	// Send heartbeat
 	err := service.Heartbeat(ctx, r.ID, 2)
 	if err != nil {
 		t.Fatalf("failed to send heartbeat: %v", err)
 	}
 
-	// Check runner status was updated
 	updated, _ := service.GetRunner(ctx, r.ID)
 	if updated.Status != runner.RunnerStatusOnline {
 		t.Errorf("expected Status '%s', got %s", runner.RunnerStatusOnline, updated.Status)
@@ -43,6 +42,32 @@ func TestHeartbeat(t *testing.T) {
 	if updated.LastHeartbeat == nil {
 		t.Error("expected LastHeartbeat to be set")
 	}
+}
+
+func TestHeartbeat_TouchesActiveRunner(t *testing.T) {
+	db := setupTestDB(t)
+	service := newTestService(db)
+	ctx := context.Background()
+
+	r := &runner.Runner{
+		OrganizationID: 1, NodeID: "touch-runner", Status: runner.RunnerStatusOffline,
+		MaxConcurrentPods: 5, IsEnabled: true,
+	}
+	require.NoError(t, db.Create(r).Error)
+	require.NoError(t, service.MarkConnected(ctx, r.ID))
+
+	value, ok := service.activeRunners.Load(r.ID)
+	require.True(t, ok)
+	ar := value.(*ActiveRunner)
+	ar.LastPing = time.Now().Add(-2 * time.Minute)
+	service.activeRunners.Store(r.ID, ar)
+
+	require.NoError(t, service.Heartbeat(ctx, r.ID, 2))
+
+	value, ok = service.activeRunners.Load(r.ID)
+	require.True(t, ok)
+	assert.WithinDuration(t, time.Now(), value.(*ActiveRunner).LastPing, 2*time.Second)
+	assert.Equal(t, 2, value.(*ActiveRunner).PodCount)
 }
 
 func TestUpdateHeartbeatWithPods(t *testing.T) {

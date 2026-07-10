@@ -9,6 +9,7 @@ import (
 
 func (s *Service) Heartbeat(ctx context.Context, runnerID int64, currentPods int) error {
 	now := time.Now()
+	s.TouchActiveRunner(runnerID, currentPods)
 	return s.repo.UpdateFields(ctx, runnerID, map[string]interface{}{
 		"last_heartbeat": now,
 		"current_pods":   currentPods,

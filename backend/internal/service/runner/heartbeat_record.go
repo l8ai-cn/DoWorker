@@ -39,6 +39,10 @@ func (b *HeartbeatBatcher) RecordHeartbeat(ctx context.Context, runnerID int64, 
 	}
 	b.mu.Unlock()
 
+	if b.touchActive != nil {
+		b.touchActive(runnerID, currentPods)
+	}
+
 	return nil
 }
 
