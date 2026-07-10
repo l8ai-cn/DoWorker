@@ -40,6 +40,7 @@ func (t *transport) handleThreadStatusChanged(params json.RawMessage) {
 		t.cancelIdleFallback()
 		t.notifyTurnIdle()
 	case "active":
+		t.resetTurnIdleGate()
 		t.cancelIdleFallback()
 	}
 }
@@ -49,9 +50,7 @@ func (t *transport) handleTurnCompleted(params json.RawMessage) {
 	t.cancelIdleFallback()
 	var tc turnCompletedParams
 	if err := json.Unmarshal(params, &tc); err != nil {
-		if t.callbacks.OnStateChange != nil {
-			t.callbacks.OnStateChange(acp.StateIdle)
-		}
+		t.notifyTurnIdle()
 		return
 	}
 	if tc.Turn.Status == "failed" && t.callbacks.OnLog != nil {
@@ -69,9 +68,7 @@ func (t *transport) handleTurnCompleted(params json.RawMessage) {
 			CacheReadTokens: u.CachedInputTokens,
 		})
 	}
-	if t.callbacks.OnStateChange != nil {
-		t.callbacks.OnStateChange(acp.StateIdle)
-	}
+	t.notifyTurnIdle()
 }
 
 func (t *transport) handleItemCompleted(sid string, params json.RawMessage) {

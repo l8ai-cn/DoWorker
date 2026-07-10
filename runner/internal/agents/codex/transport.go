@@ -32,6 +32,7 @@ type transport struct {
 	idleTimer          *time.Timer
 	idleFallback       time.Duration
 	hasLifecycleSignal bool
+	turnIdleEmitted    bool
 
 	ctx    context.Context
 	logger *slog.Logger

@@ -41,9 +41,24 @@ func (t *transport) agentMessageAlreadyEmitted(itemID string) bool {
 }
 
 func (t *transport) notifyTurnIdle() {
-	if t.callbacks.OnStateChange != nil {
-		t.callbacks.OnStateChange(acp.StateIdle)
+	t.idleMu.Lock()
+	if t.turnIdleEmitted {
+		t.idleMu.Unlock()
+		return
 	}
+	t.turnIdleEmitted = true
+	t.idleTimer = nil
+	cb := t.callbacks.OnStateChange
+	t.idleMu.Unlock()
+	if cb != nil {
+		cb(acp.StateIdle)
+	}
+}
+
+func (t *transport) resetTurnIdleGate() {
+	t.idleMu.Lock()
+	t.turnIdleEmitted = false
+	t.idleMu.Unlock()
 }
 
 // scheduleIdleAfterMessage arms the end-of-turn fallback for builds that omit
@@ -62,7 +77,7 @@ func (t *transport) scheduleIdleAfterMessage() {
 	// Builds that emit thread/status/changed or turn/completed drive idle
 	// authoritatively; arming the debounce there would end the turn during a
 	// long silent generation gap.
-	if t.hasLifecycleSignal {
+	if t.hasLifecycleSignal || t.turnIdleEmitted {
 		return
 	}
 	if t.idleTimer != nil {

@@ -17,6 +17,7 @@ func (t *transport) handleNotification(method string, params json.RawMessage) {
 
 	switch method {
 	case "turn/started":
+		t.resetTurnIdleGate()
 		t.cancelIdleFallback()
 
 	case "thread/status/changed":
