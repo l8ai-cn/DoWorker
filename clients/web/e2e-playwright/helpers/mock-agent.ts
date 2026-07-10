@@ -106,11 +106,8 @@ export async function createMockAgentPod(
 }
 
 function buildAgentfileLayer(opts: CreateMockPodOptions): string {
-  const lines: string[] = [];
-  if (opts.mode === "acp") {
-    // Selects MODE acp's resolved args declared in the base AgentFile.
-    lines.push("MODE acp");
-  }
+  // Autonomous policy can force ACP unless the layer declares a mode.
+  const lines: string[] = [`MODE ${opts.mode}`];
   if (opts.scenario && opts.scenario !== "echo") {
     lines.push(`CONFIG scenario = "${opts.scenario}"`);
   }

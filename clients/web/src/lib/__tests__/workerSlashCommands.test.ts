@@ -17,6 +17,7 @@ describe("workerSlashCommands", () => {
 
   it("filters commands by prefix", () => {
     const cmds = buildWorkerSlashCommands(t);
+    expect(cmds.find((command) => command.id === "compact")?.hint).toBe("commands.compact");
     expect(filterWorkerSlashCommands(cmds, "comp").map((c) => c.id)).toEqual(["compact"]);
   });
 

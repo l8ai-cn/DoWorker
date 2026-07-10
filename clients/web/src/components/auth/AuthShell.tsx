@@ -43,7 +43,7 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
         </div>
 
         {footer && (
-          <p className="mt-6 text-center text-sm text-muted-foreground">{footer}</p>
+          <div className="mt-6 text-center text-sm text-muted-foreground">{footer}</div>
         )}
       </div>
     </div>
