@@ -40,6 +40,9 @@ type Created struct {
 }
 
 func (s *Service) Create(ctx context.Context, in CreateInput) (*Created, error) {
+	if _, err := s.models.GetVisible(ctx, in.AIModelID, in.UserID, in.OrgID); err != nil {
+		return nil, err
+	}
 	tok, err := newToken()
 	if err != nil {
 		return nil, err
@@ -98,5 +101,28 @@ func (s *Service) ResolveModel(ctx context.Context, keyID int64) (*aimodelsvc.Re
 		return nil, nil, err
 	}
 	_ = s.repo.TouchLastUsed(ctx, keyID)
+	return resolved, k.TokenBudget, nil
+}
+
+func (s *Service) ResolveModelForScope(
+	ctx context.Context, keyID, orgID, userID int64,
+) (*aimodelsvc.ResolvedModel, *int64, error) {
+	k, err := s.repo.GetByIDForScope(ctx, keyID, orgID, userID)
+	if err != nil {
+		return nil, nil, err
+	}
+	if k == nil {
+		return nil, nil, ErrNotFound
+	}
+	if k.Status != domain.StatusActive {
+		return nil, nil, ErrRevoked
+	}
+	resolved, err := s.models.ResolveVisible(ctx, k.AIModelID, userID, orgID)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := s.repo.TouchLastUsed(ctx, keyID); err != nil {
+		return nil, nil, err
+	}
 	return resolved, k.TokenBudget, nil
 }

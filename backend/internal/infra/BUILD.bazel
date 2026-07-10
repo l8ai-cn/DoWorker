@@ -132,6 +132,7 @@ go_test(
         "token_usage_repo_aggregation_test.go",
         "token_usage_repo_filter_test.go",
         "token_usage_repo_test.go",
+        "virtual_api_key_repo_test.go",
     ],
     embed = [":infra"],
     deps = [
@@ -141,6 +142,7 @@ go_test(
         "//backend/internal/domain/loop",
         "//backend/internal/domain/organization",
         "//backend/internal/domain/tokenusage",
+        "//backend/internal/domain/virtualkey",
         "//backend/internal/testkit",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
