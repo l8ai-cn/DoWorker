@@ -1,6 +1,9 @@
 {
   "landing": {
     "nav": {
+      "scenarios": "Szenarien",
+      "workflow": "Ablauf",
+      "capabilities": "Funktionen",
       "features": "Funktionen",
       "pricing": "Preise",
       "docs": "Dokumentation",
@@ -314,10 +317,11 @@
       "contactSales": "Enterprise-Vertrieb kontaktieren"
     },
     "finalCta": {
-      "title1": "Ihr Team wird gleich",
-      "title2": "deutlich größer.",
-      "description": "Starten Sie mit einem Agenten. Skalieren Sie auf fünfzig. Kostenlos starten, keine Kreditkarte erforderlich.",
-      "getStartedFree": "Bauen Sie Ihr Team auf",
+      "title1": "Bereit, die nachste",
+      "title2": "Lieferung zu sehen?",
+      "description": "Wahlen Sie ein Szenario, beobachten Sie die Teamkoordination und bauen Sie Ihre KI-Workforce auf.",
+      "watchDemo": "Demo ansehen",
+      "getStartedFree": "Kostenlos starten",
       "scheduleDemo": "Sprechen Sie mit uns",
       "freeTier": "Kostenlose Stufe verfügbar",
       "noCreditCard": "Keine Kreditkarte erforderlich",

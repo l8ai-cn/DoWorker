@@ -1,6 +1,9 @@
 {
   "landing": {
     "nav": {
+      "scenarios": "Scenarios",
+      "workflow": "How it works",
+      "capabilities": "Capabilities",
       "features": "Features",
       "pricing": "Pricing",
       "docs": "Docs",
@@ -320,10 +323,11 @@
       "saasRegister": "Sign up free"
     },
     "finalCta": {
-      "title1": "Your team is about to get",
-      "title2": "a lot bigger.",
-      "description": "Start with one agent. Scale to fifty. Free to start, no credit card required.",
-      "getStartedFree": "Build Your Team",
+      "title1": "Ready to see",
+      "title2": "your next delivery?",
+      "description": "Pick a scenario, watch the team coordinate, then start building your AI workforce.",
+      "watchDemo": "Watch the demo",
+      "getStartedFree": "Start free",
       "scheduleDemo": "Talk to Us",
       "signInConsole": "Sign In to Console",
       "enterpriseNote": "Need private deployment?",

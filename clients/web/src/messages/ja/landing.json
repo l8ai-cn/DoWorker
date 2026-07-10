@@ -1,6 +1,9 @@
 {
   "landing": {
     "nav": {
+      "scenarios": "シナリオ",
+      "workflow": "進め方",
+      "capabilities": "機能",
       "features": "機能",
       "pricing": "料金",
       "docs": "ドキュメント",
@@ -314,10 +317,11 @@
       "contactSales": "エンタープライズ営業に連絡"
     },
     "finalCta": {
-      "title1": "あなたのチームが",
-      "title2": "一気に大きくなる。",
-      "description": "エージェント1人から始めて、50人まで拡大。無料で始められ、クレジットカード不要。",
-      "getStartedFree": "チームを構築する",
+      "title1": "次の成果を",
+      "title2": "見てみませんか？",
+      "description": "シナリオを選び、チームの連携を確認してから、AI ワークフォースを構築しましょう。",
+      "watchDemo": "デモを見る",
+      "getStartedFree": "無料で始める",
       "scheduleDemo": "相談する",
       "freeTier": "無料プランあり",
       "noCreditCard": "クレジットカード不要",

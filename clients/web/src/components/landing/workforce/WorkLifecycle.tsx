@@ -128,7 +128,7 @@ function LifecycleStage({ id, index, t }: { id: StageId; index: number; t: Trans
 export function WorkLifecycle() {
   const t = useTranslations()
   return (
-    <section className="bg-[var(--azure-bg-deeper)] px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+    <section id="lifecycle" className="scroll-mt-24 bg-[var(--azure-bg-highest)]/40 px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-6 lg:grid-cols-[0.65fr_1.35fr] lg:items-end">
           <p className="font-headline text-xs font-bold uppercase tracking-[0.2em] text-[var(--azure-mint)]">

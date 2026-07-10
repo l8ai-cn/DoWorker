@@ -1,6 +1,9 @@
 {
   "landing": {
     "nav": {
+      "scenarios": "应用场景",
+      "workflow": "工作流程",
+      "capabilities": "平台能力",
       "features": "功能特性",
       "pricing": "定价",
       "docs": "文档",
@@ -320,10 +323,11 @@
       "saasRegister": "免费注册"
     },
     "finalCta": {
-      "title1": "把 Agent 变成",
-      "title2": "可治理的生产力。",
-      "description": "从一个团队试点开始，逐步扩展为企业级 Agent 工作平台。私有可控、过程可见、结果可审计。",
-      "getStartedFree": "预约企业演示",
+      "title1": "准备好见证",
+      "title2": "下一项交付成果？",
+      "description": "选择一个场景，观看团队如何协作，然后开始组建你的 AI 智能团队。",
+      "watchDemo": "观看演示",
+      "getStartedFree": "免费开始",
       "scheduleDemo": "和我们聊聊",
       "signInConsole": "登录控制台",
       "enterpriseNote": "需要私有部署？",

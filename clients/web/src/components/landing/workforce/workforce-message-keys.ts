@@ -6,6 +6,7 @@ const componentMessageKeys = [
   'landing.workforce.hero.titleEmphasis',
   'landing.workforce.hero.description',
   'landing.workforce.hero.watchTeam',
+  'landing.workforce.hero.fullDemo',
   'landing.workforce.hero.startFree',
   'landing.workforce.mission.console',
   'landing.workforce.mission.goal',

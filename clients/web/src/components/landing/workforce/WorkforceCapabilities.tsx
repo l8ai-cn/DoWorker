@@ -121,7 +121,7 @@ export function WorkforceCapabilities({
   translate: WorkforceCapabilityTranslate
 }) {
   return (
-    <section className="bg-[var(--azure-bg-deeper)] px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+    <section id="features" className="scroll-mt-24 bg-[var(--azure-bg-deeper)] px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
           <p className="font-headline text-xs font-bold uppercase tracking-[0.2em] text-[var(--azure-mint)]">
