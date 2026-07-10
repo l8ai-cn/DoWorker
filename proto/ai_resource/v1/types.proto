@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package proto.ai_resource.v1;
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/ai_resource/v1;airesourcev1";
+
+message CredentialField {
+  string key = 1;
+  string label = 2;
+  bool secret = 3;
+  bool required = 4;
+}
+
+message ProviderDefinition {
+  string key = 1;
+  string display_name = 2;
+  repeated string modalities = 3;
+  repeated CredentialField credential_fields = 4;
+  string default_base_url = 5;
+  string protocol_adapter = 6;
+  bool supports_custom_endpoint = 7;
+  bool supports_model_discovery = 8;
+}
+
+message UsageSummary {
+  optional double quota_total = 1;
+  optional double usage_total = 2;
+  optional double remaining = 3;
+  optional string unit = 4;
+  optional string period = 5;
+  optional string measured_at = 6;
+}
+
+message ModelResource {
+  int64 id = 1;
+  int64 provider_connection_id = 2;
+  string identifier = 3;
+  string model_id = 4;
+  string display_name = 5;
+  repeated string modalities = 6;
+  repeated string capabilities = 7;
+  repeated string default_modalities = 8;
+  string status = 9;
+  bool is_enabled = 10;
+  optional string last_validated_at = 11;
+  string validation_error = 12;
+  optional UsageSummary usage_summary = 13;
+}
+
+message ProviderConnection {
+  int64 id = 1;
+  string owner_scope = 2;
+  string identifier = 3;
+  string provider_key = 4;
+  string name = 5;
+  string base_url = 6;
+  repeated string configured_fields = 7;
+  string status = 8;
+  bool is_enabled = 9;
+  optional string last_validated_at = 10;
+  string validation_error = 11;
+  bool can_manage = 12;
+  repeated ModelResource resources = 13;
+}
+
+message EffectiveResource {
+  ProviderConnection connection = 1;
+  ModelResource resource = 2;
+  bool selectable = 3;
+  string blocking_reason = 4;
+}
+
+message ConnectionUpdate {
+  string name = 1;
+  string base_url = 2;
+  bool has_credentials = 3;
+  map<string, string> credentials = 4;
+}
+
+message ResourceSpec {
+  string identifier = 1;
+  string model_id = 2;
+  string display_name = 3;
+  repeated string modalities = 4;
+  repeated string capabilities = 5;
+}
+
+message ResourceUpdate {
+  string model_id = 1;
+  string display_name = 2;
+  repeated string modalities = 3;
+  repeated string capabilities = 4;
+}

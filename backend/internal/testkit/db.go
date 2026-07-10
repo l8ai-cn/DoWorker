@@ -52,5 +52,6 @@ func allTableDDLs() []string {
 	ddls = append(ddls, supportTableDDLs()...)
 	ddls = append(ddls, blockstoreTableDDLs()...)
 	ddls = append(ddls, envBundleTableDDLs()...)
+	ddls = append(ddls, aiResourceTableDDLs()...)
 	return ddls
 }

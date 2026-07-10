@@ -37,13 +37,19 @@ PLUGIN="/tmp/protoc-gen-amesh-convert"
 echo "Building protoc-gen-amesh-convert..."
 go build -o "$PLUGIN" ./tools/protoc-gen-amesh-convert
 
-if command -v buf >/dev/null 2>&1; then
-    echo "Generating amesh convert via buf..."
-    buf generate --config buf.amesh.yaml --template buf.amesh.gen.yaml
-    count=$(find backend/internal/api/connect -name '*_convert.amesh.go' 2>/dev/null | wc -l | tr -d ' ')
-    echo "Generated $count amesh convert files (buf)"
-    exit 0
+if ! command -v protoc >/dev/null 2>&1; then
+    echo "error: protoc required" >&2
+    exit 1
 fi
 
-echo "error: buf not found — install: brew install bufbuild/buf/buf" >&2
-exit 1
+proto_files=()
+while IFS= read -r proto_file; do
+    proto_files+=("$proto_file")
+done < <(find proto -path proto/gen -prune -o -name '*.proto' -print)
+echo "Generating amesh convert via local protoc..."
+protoc -I proto \
+    --plugin=protoc-gen-amesh-convert="$PLUGIN" \
+    --amesh-convert_out=. \
+    "${proto_files[@]}"
+count=$(find backend/internal/api/connect -name '*_convert.amesh.go' 2>/dev/null | wc -l | tr -d ' ')
+echo "Generated $count amesh convert files (protoc)"

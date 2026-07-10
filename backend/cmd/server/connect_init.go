@@ -1,10 +1,14 @@
 package main
 
 import (
+	"crypto/rand"
 	"net/http"
 	"strings"
 
 	"connectrpc.com/connect"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 
 	agentconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/agent"
 	adminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin"
@@ -58,6 +62,37 @@ func routeConnectOrREST(connectHandler, restHandler http.Handler) http.Handler {
 	})
 }
 
+func withConnectTracing(handler http.Handler) http.Handler {
+	correlated := http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
+		if trace.SpanContextFromContext(request.Context()).IsValid() {
+			handler.ServeHTTP(w, request)
+			return
+		}
+		span, err := newRequestCorrelationSpan()
+		if err != nil {
+			http.Error(w, "request correlation unavailable", http.StatusInternalServerError)
+			return
+		}
+		ctx := trace.ContextWithSpanContext(request.Context(), span)
+		handler.ServeHTTP(w, request.WithContext(ctx))
+	})
+	return otelhttp.NewHandler(correlated, "connect.rpc", otelhttp.WithPropagators(
+		propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}),
+	))
+}
+
+func newRequestCorrelationSpan() (trace.SpanContext, error) {
+	var traceID trace.TraceID
+	if _, err := rand.Read(traceID[:]); err != nil {
+		return trace.SpanContext{}, err
+	}
+	var spanID trace.SpanID
+	if _, err := rand.Read(spanID[:]); err != nil {
+		return trace.SpanContext{}, err
+	}
+	return trace.NewSpanContext(trace.SpanContextConfig{TraceID: traceID, SpanID: spanID}), nil
+}
+
 // defaultConnectHandlerOptions returns the HandlerOption set applied to
 // every Connect handler. The auth interceptor mirrors REST's
 // `middleware.AuthMiddleware`: it parses `Authorization: Bearer …`,
@@ -97,7 +132,7 @@ func wrapWithConnect(cfg *config.Config, svc *serviceContainer, rest *v1.Service
 
 	mountConnectServices(connectMux, svc, rest, cfg, opts)
 
-	return routeConnectOrREST(connectMux, restHandler)
+	return routeConnectOrREST(withConnectTracing(connectMux), restHandler)
 }
 
 // mountConnectServices is the seam each per-service migration PR adds
@@ -130,6 +165,7 @@ func mountConnectServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Se
 	mountRunnerService(mux, svc, rest, cfg, opts)
 	mountPodService(mux, svc, rest, opts)
 	mountAgentPodSettingsService(mux, svc, opts)
+	mountAIResourceService(mux, svc, opts)
 	usercredentialconnect.Mount(mux, usercredentialconnect.NewServer(svc.user), opts...)
 	userconnect.Mount(mux, userconnect.NewServer(svc.user, svc.org), opts...)
 	agentconnect.Mount(mux, agentconnect.NewServer(
@@ -202,4 +238,3 @@ func mountAdminServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Serv
 		adminauthconnect.MountSession(mux, adminauthconnect.NewSessionServer(svc.adminDB), opts...)
 	}
 }
-

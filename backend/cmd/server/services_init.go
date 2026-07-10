@@ -15,6 +15,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	aimodelsvc "github.com/anthropics/agentsmesh/backend/internal/service/aimodel"
+	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
 	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
 	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
@@ -79,6 +80,7 @@ type serviceContainer struct {
 	promoCode         *promocode.Service
 	agentpodSettings   *agentpod.SettingsService
 	agentpodAIProvider *agentpod.AIProviderService
+	aiResource         *airesourceservice.Service
 	aiModel            *aimodelsvc.Service
 	virtualKey         *virtualkeysvc.Service
 	tokenQuota         *tokenquotasvc.Service
@@ -151,6 +153,7 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 	billingSvc := billing.NewServiceWithConfig(billingRepo, cfg)
 	orgRepo := infra.NewOrganizationRepository(db)
 	orgSvc := organization.NewServiceWithBilling(orgRepo, billingSvc)
+	aiResourceSvc := initializeAIResourceService(db, orgSvc, encryptor)
 	runnerRepo := infra.NewRunnerRepository(db)
 	runnerSvc := runner.NewService(runnerRepo, billingSvc)
 	grantRepo := infra.NewGrantRepository(db)
@@ -268,6 +271,7 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 		promoCode:          promoCodeSvc,
 		agentpodSettings:   agentpodSettingsSvc,
 		agentpodAIProvider: agentpodAIProviderSvc,
+		aiResource:         aiResourceSvc,
 		aiModel:            aiModelSvc,
 		virtualKey:         virtualKeySvc,
 		tokenQuota:         tokenQuotaSvc,

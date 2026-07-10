@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS ai_resource_migration_map;
+DROP TABLE IF EXISTS model_resource_defaults;
+DROP TRIGGER IF EXISTS prevent_org_with_provider_connections_delete ON organizations;
+DROP TRIGGER IF EXISTS prevent_user_with_provider_connections_delete ON users;
+DROP TRIGGER IF EXISTS keep_model_resource_parent ON model_resources;
+DROP TABLE IF EXISTS model_resources;
+DROP TRIGGER IF EXISTS keep_provider_connection_owner ON provider_connections;
+DROP TABLE IF EXISTS provider_connections;
+DROP FUNCTION IF EXISTS keep_ai_resource_parent_invariants();
+DROP FUNCTION IF EXISTS enforce_model_resource_default();
+DROP FUNCTION IF EXISTS enforce_provider_connection_owner();
+DROP FUNCTION IF EXISTS prevent_ai_resource_owner_delete();

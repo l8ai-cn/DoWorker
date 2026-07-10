@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package proto.ai_resource.v1;
+
+import "ai_resource/v1/types.proto";
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/ai_resource/v1;airesourcev1";
+
+service AIResourceService {
+  rpc GetCatalog(GetCatalogRequest) returns (GetCatalogResponse);
+  rpc ListPersonalConnections(ListPersonalConnectionsRequest) returns (ListConnectionsResponse);
+  rpc ListOrganizationConnections(ListOrganizationConnectionsRequest) returns (ListConnectionsResponse);
+  rpc ListPersonalEffectiveResources(ListPersonalEffectiveResourcesRequest) returns (ListEffectiveResourcesResponse);
+  rpc ListOrganizationEffectiveResources(ListOrganizationEffectiveResourcesRequest) returns (ListEffectiveResourcesResponse);
+  rpc CreatePersonalConnection(CreatePersonalConnectionRequest) returns (ProviderConnection);
+  rpc CreateOrganizationConnection(CreateOrganizationConnectionRequest) returns (ProviderConnection);
+  rpc UpdateConnection(UpdateConnectionRequest) returns (ProviderConnection);
+  rpc RotateConnectionCredentials(RotateConnectionCredentialsRequest) returns (MutationResponse);
+  rpc SetConnectionEnabled(SetConnectionEnabledRequest) returns (MutationResponse);
+  rpc ValidateConnection(ValidateConnectionRequest) returns (MutationResponse);
+  rpc DeleteConnection(DeleteConnectionRequest) returns (MutationResponse);
+  rpc CreateResource(CreateResourceRequest) returns (ModelResource);
+  rpc UpdateResource(UpdateResourceRequest) returns (ModelResource);
+  rpc SetResourceEnabled(SetResourceEnabledRequest) returns (MutationResponse);
+  rpc DeleteResource(DeleteResourceRequest) returns (MutationResponse);
+  rpc SetDefault(SetDefaultRequest) returns (MutationResponse);
+}
+
+message GetCatalogRequest {}
+message GetCatalogResponse { repeated ProviderDefinition providers = 1; }
+message ListPersonalConnectionsRequest {}
+message ListOrganizationConnectionsRequest { string org_slug = 1; }
+message ListConnectionsResponse { repeated ProviderConnection connections = 1; }
+message ListPersonalEffectiveResourcesRequest { repeated string modalities = 1; }
+message ListOrganizationEffectiveResourcesRequest { string org_slug = 1; repeated string modalities = 2; }
+message ListEffectiveResourcesResponse { repeated EffectiveResource resources = 1; }
+
+message CreatePersonalConnectionRequest {
+  string identifier = 1;
+  string provider_key = 2;
+  string name = 3;
+  string base_url = 4;
+  map<string, string> credentials = 5;
+}
+message CreateOrganizationConnectionRequest {
+  string org_slug = 1;
+  string identifier = 2;
+  string provider_key = 3;
+  string name = 4;
+  string base_url = 5;
+  map<string, string> credentials = 6;
+}
+message UpdateConnectionRequest { int64 connection_id = 1; ConnectionUpdate connection = 2; }
+message RotateConnectionCredentialsRequest { int64 connection_id = 1; map<string, string> credentials = 2; }
+message SetConnectionEnabledRequest { int64 connection_id = 1; bool enabled = 2; }
+message ValidateConnectionRequest { int64 connection_id = 1; }
+message DeleteConnectionRequest { int64 connection_id = 1; }
+
+message CreateResourceRequest { int64 connection_id = 1; ResourceSpec resource = 2; }
+message UpdateResourceRequest { int64 resource_id = 1; ResourceUpdate resource = 2; }
+message SetResourceEnabledRequest { int64 resource_id = 1; bool enabled = 2; }
+message DeleteResourceRequest { int64 resource_id = 1; }
+message SetDefaultRequest { int64 resource_id = 1; string modality = 2; }
+message MutationResponse {}
