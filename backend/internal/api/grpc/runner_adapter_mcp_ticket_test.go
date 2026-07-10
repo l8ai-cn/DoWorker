@@ -41,6 +41,12 @@ func TestMapOrchestratorErrorToMCP(t *testing.T) {
 			wantMessage: "resume requires same runner",
 		},
 		{
+			name:        "ErrCreateResourceUnavailable -> 400",
+			err:         agentpod.ErrCreateResourceUnavailable,
+			wantCode:    400,
+			wantMessage: "Selected repository is unavailable",
+		},
+		{
 			name:        "ErrSourcePodAccessDenied -> 403",
 			err:         agentpod.ErrSourcePodAccessDenied,
 			wantCode:    403,

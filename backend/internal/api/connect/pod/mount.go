@@ -57,7 +57,8 @@ func mapServiceError(err error) error {
 		errors.Is(err, agentpod.ErrSourcePodNotTerminated),
 		errors.Is(err, agentpod.ErrResumeRunnerMismatch),
 		errors.Is(err, agentpod.ErrUnsupportedInteractionMode),
-		errors.Is(err, agentpod.ErrInvalidAgentfileLayer):
+		errors.Is(err, agentpod.ErrInvalidAgentfileLayer),
+		errors.Is(err, agentpod.ErrCreateResourceUnavailable):
 		return connect.NewError(connect.CodeInvalidArgument, err)
 
 	// Billing → ResourceExhausted / FailedPrecondition

@@ -24,6 +24,7 @@ go_library(
         "pod_actions.go",
         "pod_commands.go",
         "pod_create.go",
+        "pod_create_errors.go",
         "pod_interfaces.go",
         "pod_preview.go",
         "pod_query.go",

@@ -12,6 +12,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
+	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
 )
 
 func TestMapOrchestratorErrorToHTTP(t *testing.T) {
@@ -46,6 +47,15 @@ func TestMapOrchestratorErrorToHTTP(t *testing.T) {
 			err:      agentpod.ErrResumeRunnerMismatch,
 			wantCode: http.StatusBadRequest,
 			wantJSON: map[string]string{"code": "RESUME_RUNNER_MISMATCH"},
+		},
+		{
+			name:     "ErrCreateResourceUnavailable -> 400",
+			err:      agentpod.ErrCreateResourceUnavailable,
+			wantCode: http.StatusBadRequest,
+			wantJSON: map[string]string{
+				"code":  apierr.VALIDATION_FAILED,
+				"error": "Selected repository is unavailable",
+			},
 		},
 		{
 			name:     "ErrQuotaExceeded -> 402",

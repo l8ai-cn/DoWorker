@@ -83,6 +83,8 @@ func mapOrchestratorErrorToMCP(err error) *mcpError {
 		return newMcpError(400, "resume requires same runner")
 	case errors.Is(err, agentpod.ErrInvalidAgentfileLayer):
 		return newMcpError(400, err.Error())
+	case errors.Is(err, agentpod.ErrCreateResourceUnavailable):
+		return newMcpError(400, "Selected repository is unavailable")
 	case errors.Is(err, agentpod.ErrSourcePodAccessDenied):
 		return newMcpError(403, "source pod access denied")
 	case errors.Is(err, agentpod.ErrSourcePodNotFound):

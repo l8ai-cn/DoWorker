@@ -120,6 +120,7 @@ func TestMapServiceError(t *testing.T) {
 		{"resume_runner_mismatch", agentpodservice.ErrResumeRunnerMismatch, connect.CodeInvalidArgument},
 		{"unsupported_interaction_mode", agentpodservice.ErrUnsupportedInteractionMode, connect.CodeInvalidArgument},
 		{"invalid_agentfile_layer", agentpodservice.ErrInvalidAgentfileLayer, connect.CodeInvalidArgument},
+		{"create_resource_unavailable", agentpodservice.ErrCreateResourceUnavailable, connect.CodeInvalidArgument},
 		{"quota_exceeded", billingservice.ErrQuotaExceeded, connect.CodeResourceExhausted},
 		{"subscription_frozen", billingservice.ErrSubscriptionFrozen, connect.CodeFailedPrecondition},
 		{"source_pod_access_denied", agentpodservice.ErrSourcePodAccessDenied, connect.CodePermissionDenied},
