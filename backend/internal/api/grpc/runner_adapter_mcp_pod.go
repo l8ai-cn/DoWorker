@@ -73,6 +73,8 @@ func (a *GRPCRunnerAdapter) mcpCreatePod(ctx context.Context, tc *middleware.Ten
 // mapOrchestratorErrorToMCP maps PodOrchestrator errors to MCP error responses.
 func mapOrchestratorErrorToMCP(err error) *mcpError {
 	switch {
+	case errors.Is(err, agentpod.ErrCreateResourceUnavailable):
+		return newMcpError(400, "Selected repository is unavailable")
 	case errors.Is(err, agentpod.ErrMissingRunnerID):
 		return newMcpError(400, "runner_id is required")
 	case errors.Is(err, agentpod.ErrMissingAgentSlug):
@@ -83,8 +85,6 @@ func mapOrchestratorErrorToMCP(err error) *mcpError {
 		return newMcpError(400, "resume requires same runner")
 	case errors.Is(err, agentpod.ErrInvalidAgentfileLayer):
 		return newMcpError(400, err.Error())
-	case errors.Is(err, agentpod.ErrCreateResourceUnavailable):
-		return newMcpError(400, "Selected repository is unavailable")
 	case errors.Is(err, agentpod.ErrSourcePodAccessDenied):
 		return newMcpError(403, "source pod access denied")
 	case errors.Is(err, agentpod.ErrSourcePodNotFound):

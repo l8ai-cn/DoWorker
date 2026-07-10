@@ -43,9 +43,6 @@ func Mount(mux *http.ServeMux, srv *Server, opts ...connect.HandlerOption) {
 	))
 }
 
-// mapServiceError translates agentpod / runner / billing sentinels to
-// Connect codes per conventions §10. Mirrors mapOrchestratorErrorToHTTP in
-// v1/pod_create.go and the apierr.* calls in v1/pod_*.go handlers.
 func mapServiceError(err error) error {
 	if err == nil {
 		return nil

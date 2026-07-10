@@ -1,6 +1,8 @@
 package grpc
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,11 +12,13 @@ import (
 )
 
 func TestMapOrchestratorErrorToMCP(t *testing.T) {
+	wrappedRepositoryError := fmt.Errorf("repository 17 org 9 permission denied: %w", agentpod.ErrCreateResourceUnavailable)
 	tests := []struct {
-		name        string
-		err         error
-		wantCode    int32
-		wantMessage string
+		name           string
+		err            error
+		wantCode       int32
+		wantMessage    string
+		wantNotContain []string
 	}{
 		{
 			name:        "ErrMissingRunnerID -> 400",
@@ -45,6 +49,20 @@ func TestMapOrchestratorErrorToMCP(t *testing.T) {
 			err:         agentpod.ErrCreateResourceUnavailable,
 			wantCode:    400,
 			wantMessage: "Selected repository is unavailable",
+		},
+		{
+			name:           "wrapped ErrCreateResourceUnavailable -> 400",
+			err:            wrappedRepositoryError,
+			wantCode:       400,
+			wantMessage:    "Selected repository is unavailable",
+			wantNotContain: []string{"repository 17", "org 9", "permission denied"},
+		},
+		{
+			name:           "joined repository and agentfile validation errors -> 400",
+			err:            errors.Join(agentpod.ErrInvalidAgentfileLayer, wrappedRepositoryError),
+			wantCode:       400,
+			wantMessage:    "Selected repository is unavailable",
+			wantNotContain: []string{"repository 17", "org 9", "permission denied"},
 		},
 		{
 			name:        "ErrSourcePodAccessDenied -> 403",
@@ -90,6 +108,9 @@ func TestMapOrchestratorErrorToMCP(t *testing.T) {
 			require.NotNil(t, result)
 			assert.Equal(t, tt.wantCode, result.code)
 			assert.Equal(t, tt.wantMessage, result.message)
+			for _, sensitive := range tt.wantNotContain {
+				assert.NotContains(t, result.message, sensitive)
+			}
 		})
 	}
 }

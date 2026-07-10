@@ -11,6 +11,8 @@ import (
 
 func mapOrchestratorErrorToHTTP(c *gin.Context, err error) {
 	switch {
+	case errors.Is(err, agentpod.ErrCreateResourceUnavailable):
+		apierr.BadRequest(c, apierr.VALIDATION_FAILED, "Selected repository is unavailable")
 	case errors.Is(err, agentpod.ErrMissingRunnerID):
 		apierr.BadRequest(c, apierr.MISSING_RUNNER_ID, err.Error())
 	case errors.Is(err, agentpod.ErrMissingAgentSlug):
@@ -23,8 +25,6 @@ func mapOrchestratorErrorToHTTP(c *gin.Context, err error) {
 		apierr.BadRequest(c, apierr.UNSUPPORTED_INTERACTION_MODE, err.Error())
 	case errors.Is(err, agentpod.ErrInvalidAgentfileLayer):
 		apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
-	case errors.Is(err, agentpod.ErrCreateResourceUnavailable):
-		apierr.BadRequest(c, apierr.VALIDATION_FAILED, "Selected repository is unavailable")
 
 	case errors.Is(err, ErrQuotaExceeded):
 		apierr.PaymentRequired(c, apierr.CONCURRENT_POD_QUOTA_EXCEEDED, "Concurrent pod quota exceeded. Please upgrade your plan or terminate existing pods.")
