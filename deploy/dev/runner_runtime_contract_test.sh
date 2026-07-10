@@ -31,8 +31,16 @@ grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
 grep -q "'e2e-mock-agent'," seed/e2e_echo.sql
 
-if grep -q "do-agent stub" lib/build_do_agent_binary.sh; then
+# Local/dev must still fail closed when doagent source is missing.
+# CI may write a gated /bin/sh stub so Dockerfile COPY succeeds without
+# cloning AgentForge/doagent — that path must stay behind CI/SKIP_DOAGENT_BUILD.
+if ! grep -q 'doagent 源码未找到' lib/build_do_agent_binary.sh; then
   echo "build_do_agent_binary.sh must fail closed without real do-agent source" >&2
+  exit 1
+fi
+if grep -q "_write_do_agent_stub\|do-agent stub" lib/build_do_agent_binary.sh \
+  && ! grep -Eq 'CI:-|SKIP_DOAGENT_BUILD' lib/build_do_agent_binary.sh; then
+  echo "do-agent stub must be gated on CI or SKIP_DOAGENT_BUILD" >&2
   exit 1
 fi
 
