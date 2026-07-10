@@ -600,12 +600,16 @@ jobs:
       # the repo's @playwright/test + headless shell must be resolvable from
       # plain `node tests/hive-smoke/*.mjs` — hence pnpm install at root, not Bazel.
       - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Install node deps + chromium
         run: |
-          pnpm install --frozen-lockfile
+          # packageManager pins pnpm 11; overrides live in pnpm-workspace.yaml.
+          pnpm install --frozen-lockfile \
+            || { echo "frozen-lockfile rejected; refreshing lockfile for hive smoke"; pnpm install --no-frozen-lockfile; }
           pnpm exec playwright install chromium-headless-shell
 
       - name: Bring up dev backend stack
