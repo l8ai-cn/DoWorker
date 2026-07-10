@@ -78,7 +78,7 @@ git commit -m "fix(worker): reject unavailable repositories"
 - Modify: `backend/internal/api/grpc/runner_adapter_mcp_pod.go`
 - Modify: `backend/internal/api/grpc/runner_adapter_mcp_ticket_test.go`
 
-- [ ] **Step 1: Write failing transport mapping tests**
+- [x] **Step 1: Write failing transport mapping tests**
 
 Add table cases for `ErrCreateResourceUnavailable`:
 
@@ -89,7 +89,7 @@ Add table cases for `ErrCreateResourceUnavailable`:
 
 The MCP assertion requires code 400 and a generic unavailable message.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `bazel test //backend/internal/api/rest/v1:rest_test --test_filter=TestMapOrchestratorErrorToHTTP`
 
@@ -99,11 +99,11 @@ Run: `bazel test //backend/internal/api/grpc:grpc_test --test_filter=TestMapOrch
 
 Expected: all transports currently map the sentinel to internal error behavior.
 
-- [ ] **Step 3: Add explicit mappings**
+- [x] **Step 3: Add explicit mappings**
 
 REST returns HTTP 400 with `VALIDATION_FAILED` and `Selected repository is unavailable`. Connect returns `CodeInvalidArgument`. MCP returns code 400 with the same generic meaning. Do not include repository ID, slug, organization, or underlying permission error.
 
-- [ ] **Step 4: Verify GREEN and transport regression**
+- [x] **Step 4: Verify GREEN and transport regression**
 
 Run the three scoped commands, then:
 
@@ -115,7 +115,7 @@ bazel test //backend/internal/api/rest/v1:rest_test \
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/internal/api/rest/v1 backend/internal/api/connect/pod backend/internal/api/grpc

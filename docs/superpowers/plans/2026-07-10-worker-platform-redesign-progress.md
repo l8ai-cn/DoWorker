@@ -40,7 +40,7 @@ All conditions must hold:
 
 | Phase | Deliverable | Status |
 | --- | --- | --- |
-| 0 | Authorization and current-flow correctness | In progress (Runner resolver complete) |
+| 0 | Authorization and current-flow correctness | In progress (Runner and repository boundaries complete) |
 | 1 | WorkerSpec V1 contract and immutable snapshot | Pending |
 | 2 | Runtime image, compute target, deployment, resource profile | Pending |
 | 3 | Canonical four-step web create workflow | Pending |
@@ -69,3 +69,4 @@ The main worktree has uncommitted lifecycle, Proto, Runner ACP, and frontend cha
 - 2026-07-10: PodOrchestrator explicit placement gate completed with TDD, full AgentPod regression, spec review, and quality review.
 - 2026-07-10: Repository ID and slug access resolvers completed; ambiguous multi-provider slugs now fail explicitly after TDD and two review loops.
 - 2026-07-10: Worker repository enforcement completed: explicit/auto/resume paths resolve once before persistence, preserve empty AgentFile overrides, and passed cross-task spec and quality reviews.
+- 2026-07-10: Repository validation transport mappings completed: REST, Connect, and MCP return fixed client errors; wrapped and joined errors remain redacted; all transport regressions and independent reviews passed.
