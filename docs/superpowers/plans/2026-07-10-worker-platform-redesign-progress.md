@@ -15,7 +15,7 @@ Implement the approved Worker creation and publishing design from domain contrac
 ## Guardrails
 
 - Maximum implementation cycles: 48 reviewed tasks.
-- Soft token ceiling: 1,000,000 goal tokens; inspect goal usage after every phase.
+- Soft token ceiling: 3,000,000 goal tokens; inspect goal usage after every phase.
 - Active wall-clock ceiling before human checkpoint: 10 hours.
 - No-progress exit: stop after three consecutive attempts with the same root cause and no new verified state.
 - Integrity rule: tests, coverage expectations, CI checks, and schema validators may not be weakened to obtain green output.
@@ -70,3 +70,6 @@ The main worktree has uncommitted lifecycle, Proto, Runner ACP, and frontend cha
 - 2026-07-10: Repository ID and slug access resolvers completed; ambiguous multi-provider slugs now fail explicitly after TDD and two review loops.
 - 2026-07-10: Worker repository enforcement completed: explicit/auto/resume paths resolve once before persistence, preserve empty AgentFile overrides, and passed cross-task spec and quality reviews.
 - 2026-07-10: Repository validation transport mappings completed: REST, Connect, and MCP return fixed client errors; wrapped and joined errors remain redacted; all transport regressions and independent reviews passed.
+- 2026-07-10: AI-model visibility boundary completed: scoped rows are selected before credential decryption, with service and real GORM coverage plus independent reviews.
+- 2026-07-10: Token-budget checkpoint inspected at 1.53M; the user explicitly accepted high token use, so the soft ceiling was raised to 3M while verification and time limits remain unchanged.
+- 2026-07-10: Full backend build exposed 15 pre-existing Connect BUILD files that duplicate generated `*.amesh.go` outputs as literal sources; Phase 0D tracks the surgical repair.

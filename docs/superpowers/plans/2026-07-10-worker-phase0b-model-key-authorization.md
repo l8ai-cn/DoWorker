@@ -22,7 +22,7 @@
 - Create: `backend/internal/service/aimodel/service_test.go`
 - Modify: `backend/internal/service/aimodel/BUILD.bazel`
 
-- [ ] **Step 1: Write failing service tests**
+- [x] **Step 1: Write failing service tests**
 
 Create a complete fake `aimodel.Repository` and `TestResolveVisible`. Cover same-org shared, current-user private, other-org, other-user, disabled, and missing models. Track decrypt calls through an Encryptor fixture or malformed encrypted JSON so an inaccessible row proves it was rejected before decryption.
 
@@ -35,13 +35,13 @@ _, err = service.ResolveVisible(ctx, foreign.ID, userID, orgID)
 assert.ErrorIs(t, err, ErrNotFound)
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run: `bazel test //backend/internal/service/aimodel:aimodel_test --test_filter=TestResolveVisible`
 
 Expected: target or method does not exist.
 
-- [ ] **Step 3: Add repository and service boundaries**
+- [x] **Step 3: Add repository and service boundaries**
 
 Extend the repository with:
 
@@ -53,7 +53,7 @@ The GORM query is `id = ? AND is_enabled = ? AND (organization_id = ? OR user_id
 
 Move model-resolution types and methods from the already-near-limit `service.go` into `model_resolution.go`; keep existing unscoped method behavior unchanged until its callers are migrated in Task 2. Both production files must remain below 200 lines.
 
-- [ ] **Step 4: Verify GREEN and infra build**
+- [x] **Step 4: Verify GREEN and infra build**
 
 Run: `bazel test //backend/internal/service/aimodel:aimodel_test`
 
@@ -61,7 +61,7 @@ Run: `bazel test //backend/internal/infra:infra_test --test_filter=AIModel`
 
 The infra test must exercise the real GORM query for same-org shared, current-user private, other-org, other-user, disabled, and missing rows. Expected: service and infra tests PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/internal/domain/aimodel backend/internal/infra/ai_model_repo.go backend/internal/service/aimodel
