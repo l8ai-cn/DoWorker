@@ -29,6 +29,32 @@ func (r *podRepo) Create(ctx context.Context, pod *agentpod.Pod) error {
 	return err
 }
 
+func (r *podRepo) CreateWithConfig(ctx context.Context, pod *agentpod.Pod, revision *agentpod.PodConfigRevision) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(pod).Error; err != nil {
+			if isUniqueConstraintViolation(err, "idx_pods_source_pod_key_active_unique") {
+				return agentpod.ErrSandboxAlreadyResumed
+			}
+			return err
+		}
+		revision.PodID = pod.ID
+		if err := tx.Create(revision).Error; err != nil {
+			return err
+		}
+		nextGeneration := pod.Generation + 1
+		if err := tx.Model(pod).Updates(map[string]interface{}{
+			"active_config_revision_id": revision.ID,
+			"generation":                nextGeneration,
+		}).Error; err != nil {
+			return err
+		}
+		pod.Generation = nextGeneration
+		pod.ActiveConfigRevisionID = &revision.ID
+		pod.ActiveConfigRevision = revision
+		return nil
+	})
+}
+
 func (r *podRepo) GetByKey(ctx context.Context, podKey string) (*agentpod.Pod, error) {
 	var pod agentpod.Pod
 	err := r.db.WithContext(ctx).

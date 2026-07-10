@@ -12,6 +12,7 @@ describe("ide-chrome", () => {
   it("hides full chrome on agent consoles", () => {
     expect(hideIdeChrome("/acme/do-agent/pod-1")).toBe(true);
     expect(hideIdeChrome("/acme/loopal/pod-1")).toBe(true);
+    expect(hideIdeChrome("/acme/mobile/pods/pod-1")).toBe(true);
     expect(hideIdeChrome("/acme/loops/my-loop")).toBe(false);
   });
 

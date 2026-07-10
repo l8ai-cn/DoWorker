@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Pencil, Share2, Square, RefreshCw, Bot } from "lucide-react";
+import { Pencil, Share2, Square, RefreshCw, Bot, Smartphone } from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -15,6 +15,7 @@ interface SidebarPodContextMenuProps {
   pod: Pod;
   onRename: () => void;
   onShare: () => void;
+  onOpenMobile: () => void;
   onPublishExpert?: () => void;
   onTerminate: () => void;
   onTogglePerpetual: (perpetual: boolean) => void;
@@ -25,6 +26,7 @@ export function SidebarPodContextMenu({
   pod,
   onRename,
   onShare,
+  onOpenMobile,
   onPublishExpert,
   onTerminate,
   onTogglePerpetual,
@@ -45,6 +47,10 @@ export function SidebarPodContextMenu({
         <ContextMenuItem onClick={onShare}>
           <Share2 className="mr-2 h-4 w-4" />
           {t("contextMenu.share")}
+        </ContextMenuItem>
+        <ContextMenuItem onClick={onOpenMobile}>
+          <Smartphone className="mr-2 h-4 w-4" />
+          {t("contextMenu.mobileAccess")}
         </ContextMenuItem>
         {onPublishExpert && (
           <ContextMenuItem onClick={onPublishExpert}>

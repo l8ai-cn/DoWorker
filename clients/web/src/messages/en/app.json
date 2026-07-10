@@ -426,6 +426,7 @@
     "contextMenu": {
       "rename": "Rename",
       "share": "Share",
+      "mobileAccess": "Open on mobile",
       "terminate": "Terminate",
       "enablePerpetual": "Enable Perpetual",
       "disablePerpetual": "Disable Perpetual"
@@ -534,6 +535,21 @@
   },
   "mobile": {
     "more": "More",
+    "access": {
+      "title": "Mobile Access",
+      "console": "Console",
+      "preview": "Preview",
+      "copy": "Copy link",
+      "copied": "Mobile link copied",
+      "copyFailed": "Could not copy the link",
+      "open": "Open",
+      "mobileAccess": "Open on mobile"
+    },
+    "preview": {
+      "error": "Preview is unavailable",
+      "unavailable": "Preview unavailable",
+      "backToConsole": "Back to console"
+    },
     "drawer": {
       "navigationMenu": "Navigation Menu",
       "organization": "Organization",

@@ -98,9 +98,9 @@ type Pod struct {
 	AgentWaitingSince *time.Time `json:"-"`
 
 	// Prompt and configuration
-	Prompt string  `gorm:"column:prompt;type:text" json:"prompt,omitempty"`
-	BranchName    *string `gorm:"size:255" json:"branch_name,omitempty"`
-	SandboxPath   *string `gorm:"column:sandbox_path;size:500" json:"sandbox_path,omitempty"`
+	Prompt      string  `gorm:"column:prompt;type:text" json:"prompt,omitempty"`
+	BranchName  *string `gorm:"size:255" json:"branch_name,omitempty"`
+	SandboxPath *string `gorm:"column:sandbox_path;size:500" json:"sandbox_path,omitempty"`
 
 	// Agent configuration used for this pod
 	Model           *string `gorm:"size:50" json:"model,omitempty"`           // opus/sonnet/haiku
@@ -131,9 +131,10 @@ type Pod struct {
 	// Enables tracking the chain of resumed sessions
 	SourcePodKey *string `gorm:"size:100" json:"source_pod_key,omitempty"`
 
-	// VirtualAPIKeyID attributes this pod's token usage to a virtual API key
-	// (quota/billing). Nil when the Worker binds a real model directly.
 	VirtualAPIKeyID *int64 `gorm:"column:virtual_api_key_id" json:"virtual_api_key_id,omitempty"`
+	ModelResourceID *int64 `gorm:"column:model_resource_id" json:"model_resource_id,omitempty"`
+
+	PodLifecycleMetadata `gorm:"embedded"`
 
 	// Preview: HTTP data-plane exposure of a loopback service inside the pod.
 	// PreviewPort==0 means preview is disabled. PreviewPath is an optional
@@ -157,11 +158,11 @@ type Pod struct {
 	UpdatedAt time.Time `gorm:"not null;default:now()" json:"updated_at"`
 
 	// Associations
-	Runner     *runner.Runner         `gorm:"foreignKey:RunnerID" json:"runner,omitempty"`
-	Agent      *agent.Agent           `gorm:"foreignKey:AgentSlug;references:Slug" json:"agent,omitempty"`
+	Runner     *runner.Runner          `gorm:"foreignKey:RunnerID" json:"runner,omitempty"`
+	Agent      *agent.Agent            `gorm:"foreignKey:AgentSlug;references:Slug" json:"agent,omitempty"`
 	Repository *gitprovider.Repository `gorm:"foreignKey:RepositoryID" json:"repository,omitempty"`
-	Ticket     *ticket.Ticket         `gorm:"foreignKey:TicketID" json:"ticket,omitempty"`
-	CreatedBy  *user.User             `gorm:"foreignKey:CreatedByID" json:"created_by,omitempty"`
+	Ticket     *ticket.Ticket          `gorm:"foreignKey:TicketID" json:"ticket,omitempty"`
+	CreatedBy  *user.User              `gorm:"foreignKey:CreatedByID" json:"created_by,omitempty"`
 
 	// Virtual field: populated by service layer via loop_runs join, not a DB column
 	Loop *PodLoopInfo `gorm:"-" json:"loop,omitempty"`

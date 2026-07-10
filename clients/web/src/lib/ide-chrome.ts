@@ -5,7 +5,7 @@ export function hideIdeSidebar(pathname: string): boolean {
 }
 
 export function hideIdeChrome(pathname: string): boolean {
-  return pathname.includes("/do-agent/") || pathname.includes("/loopal/");
+  return pathname.includes("/do-agent/") || pathname.includes("/loopal/") || pathname.includes("/mobile/pods/");
 }
 
 export function hideMobileTabBar(pathname: string): boolean {

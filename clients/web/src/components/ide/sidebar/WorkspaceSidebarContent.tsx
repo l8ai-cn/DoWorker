@@ -16,6 +16,7 @@ import { WorkspaceFilters } from "./WorkspaceFilters";
 import { ImportedSessionsSection } from "./ImportedSessionsSection";
 import { useWorkspaceSidebar } from "./useWorkspaceSidebar";
 import { PublishExpertDialog } from "@/components/experts/PublishExpertDialog";
+import { PodMobileAccessDialog } from "@/components/mobile/PodMobileAccessDialog";
 import type { Pod } from "@/stores/pod";
 
 interface WorkspaceSidebarContentProps {
@@ -29,6 +30,7 @@ export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod
   const router = useRouter();
   const s = useWorkspaceSidebar(t, onTerminatePod);
   const [sharePodKey, setSharePodKey] = useState<string | null>(null);
+  const [mobileAccessPod, setMobileAccessPod] = useState<Pod | null>(null);
   const [publishPod, setPublishPod] = useState<Pod | null>(null);
 
   const handleCreatePod = useCallback(() => {
@@ -85,6 +87,7 @@ export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod
               <PodListItem key={pod.pod_key} pod={pod} isOpen={s.isPodOpen(pod.pod_key)}
                 onClick={() => s.handleOpenTerminal(pod)} onTerminate={() => s.handleTerminateClick(pod.pod_key)}
                 onRename={() => s.setRenamePod(pod)} onShare={() => setSharePodKey(pod.pod_key)}
+                onOpenMobile={() => setMobileAccessPod(pod)}
                 onPublishExpert={() => setPublishPod(pod)}
                 onTogglePerpetual={(perpetual) => s.handleTogglePerpetual(pod.pod_key, perpetual)} />
             ))}
@@ -116,6 +119,13 @@ export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod
         onOpenChange={(open) => { if (!open) setSharePodKey(null); }}
         resourceType="pod"
         resourceId={sharePodKey || ""}
+      />
+
+      <PodMobileAccessDialog
+        open={mobileAccessPod !== null}
+        onOpenChange={(open) => { if (!open) setMobileAccessPod(null); }}
+        orgSlug={s.currentOrg?.slug ?? ""}
+        pod={mobileAccessPod}
       />
 
       <PublishExpertDialog
