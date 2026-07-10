@@ -46,6 +46,12 @@ func TestResolveRunnerForCreate(t *testing.T) {
 		{name: "unsupported agent", configure: func(r *runnerDomain.Runner, _ *ActiveRunner) {
 			r.AvailableAgents = runnerDomain.StringSlice{"aider"}
 		}, allowUnavailable: true, wantErr: true},
+		{name: "stale memory agents uses db", configure: func(r *runnerDomain.Runner, ar *ActiveRunner) {
+			// Simulate MarkConnected before UpdateAvailableAgents synced memory.
+			empty := *r
+			empty.AvailableAgents = nil
+			ar.Runner = &empty
+		}},
 		{name: "at capacity", configure: func(r *runnerDomain.Runner, ar *ActiveRunner) {
 			r.CurrentPods = r.MaxConcurrentPods
 			ar.PodCount = r.MaxConcurrentPods

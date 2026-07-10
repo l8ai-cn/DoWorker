@@ -53,6 +53,12 @@ func (d *Deps) handleForkSession(c *gin.Context) {
 		orchReq.ResumeExternalSessionID = *sourcePod.ExternalSessionID
 	}
 	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
+	// Source runner may be at capacity after long smoke suites; fall back to
+	// auto-placement rather than 503 the fork.
+	if err != nil && runnerID != 0 {
+		orchReq.RunnerID = 0
+		result, err = d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
+	}
 	if err != nil {
 		writeOrchestratorError(c, err)
 		return

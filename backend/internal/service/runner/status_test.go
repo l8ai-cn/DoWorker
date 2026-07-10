@@ -3,8 +3,11 @@ package runner
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // --- Runner Status Tests ---
@@ -214,6 +217,21 @@ func TestUpdateAvailableAgents(t *testing.T) {
 		if updated.AvailableAgents != nil && len(updated.AvailableAgents) != 0 {
 			t.Errorf("expected nil or empty agents, got %v", updated.AvailableAgents)
 		}
+	})
+
+	t.Run("syncs active runner cache", func(t *testing.T) {
+		service.activeRunners.Store(r.ID, &ActiveRunner{
+			Runner:   &runner.Runner{ID: r.ID, OrganizationID: 1, Status: runner.RunnerStatusOnline, IsEnabled: true},
+			LastPing: time.Now(),
+		})
+		agents := []string{"e2e-echo"}
+		require.NoError(t, service.UpdateAvailableAgents(ctx, r.ID, agents))
+
+		value, ok := service.activeRunners.Load(r.ID)
+		require.True(t, ok)
+		ar := value.(*ActiveRunner)
+		require.NotNil(t, ar.Runner)
+		assert.Equal(t, runner.StringSlice(agents), ar.Runner.AvailableAgents)
 	})
 
 	t.Run("runner supports agent check", func(t *testing.T) {

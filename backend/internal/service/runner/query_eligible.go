@@ -28,22 +28,50 @@ func (s *Service) ResolveRunnerForCreate(
 			break
 		}
 	}
-	if candidate == nil || !candidate.IsEnabled || !candidate.SupportsAgent(agentSlug) {
+	if candidate == nil || !candidate.IsEnabled {
+		return nil, ErrNoRunnerForAgent
+	}
+
+	value, ok := s.activeRunners.Load(runnerID)
+	var active *ActiveRunner
+	if ok {
+		active, _ = value.(*ActiveRunner)
+	}
+	if !runnerSupportsAgent(candidate, active, agentSlug) {
 		return nil, ErrNoRunnerForAgent
 	}
 	if allowUnavailable {
 		return candidate, nil
 	}
-
-	value, ok := s.activeRunners.Load(runnerID)
-	if !ok {
+	if active == nil {
 		return nil, ErrNoRunnerForAgent
 	}
-	active, ok := value.(*ActiveRunner)
-	if !ok || !isRunnerAvailableForAgent(active, orgID, agentSlug) {
+	if !isRunnerAvailableForAgent(withAgentFallback(active, candidate), orgID, agentSlug) {
 		return nil, ErrNoRunnerForAgent
 	}
 	return candidate, nil
+}
+
+func runnerSupportsAgent(candidate *runnerDomain.Runner, active *ActiveRunner, agentSlug string) bool {
+	if agentSlug == "" {
+		return true
+	}
+	if candidate != nil && candidate.SupportsAgent(agentSlug) {
+		return true
+	}
+	return active != nil && active.Runner != nil && active.Runner.SupportsAgent(agentSlug)
+}
+
+func withAgentFallback(active *ActiveRunner, candidate *runnerDomain.Runner) *ActiveRunner {
+	if active == nil || active.Runner == nil || candidate == nil {
+		return active
+	}
+	if len(active.Runner.AvailableAgents) > 0 || len(candidate.AvailableAgents) == 0 {
+		return active
+	}
+	patched := *active.Runner
+	patched.AvailableAgents = candidate.AvailableAgents
+	return &ActiveRunner{Runner: &patched, LastPing: active.LastPing, PodCount: active.PodCount}
 }
 
 func (s *Service) collectEligibleRunners(ctx context.Context, orgID, userID int64, agentSlug string) []*ActiveRunner {
