@@ -4,17 +4,17 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
-  type ModelConfig,
   type VirtualKey,
   createVirtualKey,
   listVirtualKeys,
   revokeVirtualKey,
 } from "@/lib/api/quotaApi";
+import type { TokenModelResource } from "./ModelQuotasSettings";
 
 const inputCls =
   "w-full rounded-md border border-border bg-background px-3 py-1.5 text-sm";
 
-export function VirtualKeysPanel({ models }: { models: ModelConfig[] }) {
+export function VirtualKeysPanel({ models }: { models: TokenModelResource[] }) {
   const [keys, setKeys] = useState<VirtualKey[]>([]);
   const [name, setName] = useState("");
   const [modelId, setModelId] = useState<number | "">("");
@@ -44,7 +44,7 @@ export function VirtualKeysPanel({ models }: { models: ModelConfig[] }) {
     try {
       const res = await createVirtualKey({
         name: name.trim(),
-        ai_model_id: Number(modelId),
+        model_resource_id: Number(modelId),
         token_budget: budget ? Number(budget) : undefined,
       });
       setNewToken(res.token);
@@ -71,7 +71,7 @@ export function VirtualKeysPanel({ models }: { models: ModelConfig[] }) {
       <div>
         <h2 className="text-lg font-semibold">Virtual API Keys</h2>
         <p className="text-sm text-muted-foreground">
-          Issue a token-budgeted handle over one of your model credentials. Bind it to a Worker to attribute usage.
+          Issue and manage a token-budgeted key for one model resource.
         </p>
       </div>
 

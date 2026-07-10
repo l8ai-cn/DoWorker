@@ -2,18 +2,33 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { type ModelConfig, listModelConfigs } from "@/lib/api/quotaApi";
+import { listOrganizationEffectiveResources } from "@/lib/api/connect/aiResourceConnect";
+import { readCurrentOrg } from "@/stores/auth";
 import { VirtualKeysPanel } from "./VirtualKeysPanel";
 import { TokenQuotaPanel } from "./TokenQuotaPanel";
 import { QuotaReportPanel } from "./QuotaReportPanel";
 
+export type TokenModelResource = {
+  id: number;
+  name: string;
+  model: string;
+};
+
 export function ModelQuotasSettings() {
-  const [models, setModels] = useState<ModelConfig[]>([]);
+  const [models, setModels] = useState<TokenModelResource[]>([]);
 
   useEffect(() => {
-    listModelConfigs()
-      .then(setModels)
-      .catch((e) => toast.error(e instanceof Error ? e.message : "Failed to load models"));
+    const orgSlug = readCurrentOrg()?.slug;
+    if (!orgSlug) return;
+    listOrganizationEffectiveResources(orgSlug)
+      .then((resources) => {
+        setModels(resources.flatMap((entry) => (
+          entry.selectable && entry.resource
+            ? [{ id: entry.resource.id, name: entry.resource.displayName, model: entry.resource.modelId }]
+            : []
+        )));
+      })
+      .catch((e) => toast.error(e instanceof Error ? e.message : "Failed to load model resources"));
   }, []);
 
   return (

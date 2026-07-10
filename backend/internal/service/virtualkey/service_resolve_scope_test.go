@@ -5,50 +5,49 @@ import (
 	"errors"
 	"testing"
 
-	aimodeldomain "github.com/anthropics/agentsmesh/backend/internal/domain/aimodel"
 	virtualkeydomain "github.com/anthropics/agentsmesh/backend/internal/domain/virtualkey"
-	aimodelsvc "github.com/anthropics/agentsmesh/backend/internal/service/aimodel"
+	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestResolveModelForScopeRejectsInvisibleAndRevokedKeys(t *testing.T) {
+func TestResolveResourceForScopeRejectsInvisibleAndRevokedKeys(t *testing.T) {
 	const (
-		keyID   = int64(41)
-		modelID = int64(31)
-		orgID   = int64(21)
-		userID  = int64(11)
+		keyID      = int64(41)
+		resourceID = int64(31)
+		orgID      = int64(21)
+		userID     = int64(11)
 	)
 	tests := []struct {
 		name   string
-		lookup func(*Service) (*aimodelsvc.ResolvedModel, *int64, error)
+		lookup func(*Service) (int64, *int64, error)
 		status string
 	}{
 		{
 			name: "wrong organization",
-			lookup: func(service *Service) (*aimodelsvc.ResolvedModel, *int64, error) {
-				return service.ResolveModelForScope(context.Background(), keyID, 22, userID)
+			lookup: func(service *Service) (int64, *int64, error) {
+				return service.ResolveResourceForScope(context.Background(), keyID, 22, userID)
 			},
 			status: virtualkeydomain.StatusActive,
 		},
 		{
 			name: "wrong user",
-			lookup: func(service *Service) (*aimodelsvc.ResolvedModel, *int64, error) {
-				return service.ResolveModelForScope(context.Background(), keyID, orgID, 12)
+			lookup: func(service *Service) (int64, *int64, error) {
+				return service.ResolveResourceForScope(context.Background(), keyID, orgID, 12)
 			},
 			status: virtualkeydomain.StatusActive,
 		},
 		{
 			name: "missing",
-			lookup: func(service *Service) (*aimodelsvc.ResolvedModel, *int64, error) {
-				return service.ResolveModelForScope(context.Background(), 99, orgID, userID)
+			lookup: func(service *Service) (int64, *int64, error) {
+				return service.ResolveResourceForScope(context.Background(), 99, orgID, userID)
 			},
 			status: virtualkeydomain.StatusActive,
 		},
 		{
 			name: "revoked",
-			lookup: func(service *Service) (*aimodelsvc.ResolvedModel, *int64, error) {
-				return service.ResolveModelForScope(context.Background(), keyID, orgID, userID)
+			lookup: func(service *Service) (int64, *int64, error) {
+				return service.ResolveResourceForScope(context.Background(), keyID, orgID, userID)
 			},
 			status: virtualkeydomain.StatusRevoked,
 		},
@@ -59,50 +58,41 @@ func TestResolveModelForScopeRejectsInvisibleAndRevokedKeys(t *testing.T) {
 			keyRepo := &fakeVirtualKeyRepository{
 				trace: trace,
 				keys: map[int64]*virtualkeydomain.VirtualAPIKey{
-					keyID: {ID: keyID, OrganizationID: orgID, UserID: userID, AIModelID: modelID, Status: test.status},
+					keyID: {ID: keyID, OrganizationID: orgID, UserID: userID, ModelResourceID: resourceID, Status: test.status},
 				},
 			}
-			modelRepo := &fakeAIModelRepository{trace: trace}
-			service := NewService(keyRepo, aimodelsvc.NewService(modelRepo, nil))
+			resourceValidator := &fakeModelResourceValidator{trace: trace}
+			service := NewService(keyRepo, resourceValidator)
 
-			resolved, budget, err := test.lookup(service)
+			resolvedID, budget, err := test.lookup(service)
 
-			assert.Nil(t, resolved)
+			assert.Zero(t, resolvedID)
 			assert.Nil(t, budget)
 			if test.status == virtualkeydomain.StatusRevoked {
 				assert.ErrorIs(t, err, ErrRevoked)
 			} else {
 				assert.ErrorIs(t, err, ErrNotFound)
 			}
-			assert.Empty(t, modelRepo.visibleCalls)
+			assert.Empty(t, resourceValidator.visibleCalls)
 			assert.Empty(t, keyRepo.touchCalls)
 			assert.Equal(t, []string{"key.get-scoped"}, trace.calls)
 		})
 	}
 }
 
-func TestResolveModelForScopeValidatesModelBeforeTouch(t *testing.T) {
+func TestResolveResourceForScopeValidatesResourceBeforeTouch(t *testing.T) {
 	const (
-		keyID   = int64(41)
-		modelID = int64(31)
-		orgID   = int64(21)
-		userID  = int64(11)
+		keyID      = int64(41)
+		resourceID = int64(31)
+		orgID      = int64(21)
+		userID     = int64(11)
 	)
 	tests := []struct {
-		name     string
-		model    *aimodeldomain.AIModel
-		modelErr error
-		wantErr  error
+		name        string
+		resourceErr error
 	}{
-		{name: "invisible model", wantErr: aimodelsvc.ErrNotFound},
-		{name: "model query failure", modelErr: errors.New("model query failed")},
-		{
-			name: "credential resolution failure",
-			model: &aimodeldomain.AIModel{
-				ID: modelID, OrganizationID: int64Pointer(orgID), IsEnabled: true,
-				EncryptedCredentials: "invalid-json",
-			},
-		},
+		{name: "invisible resource", resourceErr: airesourcesvc.ErrNotFound},
+		{name: "resource query failure", resourceErr: errors.New("resource query failed")},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -110,50 +100,39 @@ func TestResolveModelForScopeValidatesModelBeforeTouch(t *testing.T) {
 			keyRepo := &fakeVirtualKeyRepository{
 				trace: trace,
 				keys: map[int64]*virtualkeydomain.VirtualAPIKey{
-					keyID: {ID: keyID, OrganizationID: orgID, UserID: userID, AIModelID: modelID, Status: virtualkeydomain.StatusActive},
+					keyID: {ID: keyID, OrganizationID: orgID, UserID: userID, ModelResourceID: resourceID, Status: virtualkeydomain.StatusActive},
 				},
 			}
-			models := map[int64]*aimodeldomain.AIModel{}
-			if test.model != nil {
-				models[modelID] = test.model
-			}
-			modelRepo := &fakeAIModelRepository{models: models, visibleErr: test.modelErr, trace: trace}
-			service := NewService(keyRepo, aimodelsvc.NewService(modelRepo, nil))
+			resourceValidator := &fakeModelResourceValidator{err: test.resourceErr, trace: trace}
+			service := NewService(keyRepo, resourceValidator)
 
-			resolved, budget, err := service.ResolveModelForScope(context.Background(), keyID, orgID, userID)
+			resolvedID, budget, err := service.ResolveResourceForScope(context.Background(), keyID, orgID, userID)
 
-			assert.Nil(t, resolved)
+			assert.Zero(t, resolvedID)
 			assert.Nil(t, budget)
-			require.Error(t, err)
-			if test.wantErr != nil {
-				assert.ErrorIs(t, err, test.wantErr)
-			}
-			if test.modelErr != nil {
-				assert.ErrorIs(t, err, test.modelErr)
-			}
+			assert.ErrorIs(t, err, test.resourceErr)
 			assert.Empty(t, keyRepo.touchCalls)
-			assert.Equal(t, []string{"key.get-scoped", "model.get-visible"}, trace.calls)
+			assert.Equal(t, []string{"key.get-scoped", "resource.ensure-selectable"}, trace.calls)
 		})
 	}
 }
 
-func TestResolveModelForScopePropagatesScopedQueryAndTouchErrors(t *testing.T) {
+func TestResolveResourceForScopePropagatesScopedQueryAndTouchErrors(t *testing.T) {
 	const (
-		keyID   = int64(41)
-		modelID = int64(31)
-		orgID   = int64(21)
-		userID  = int64(11)
+		keyID  = int64(41)
+		orgID  = int64(21)
+		userID = int64(11)
 	)
 	t.Run("scoped query", func(t *testing.T) {
 		queryErr := errors.New("scoped query failed")
 		trace := &callTrace{}
 		keyRepo := &fakeVirtualKeyRepository{scopedErr: queryErr, trace: trace}
-		modelRepo := &fakeAIModelRepository{trace: trace}
-		service := NewService(keyRepo, aimodelsvc.NewService(modelRepo, nil))
+		resourceValidator := &fakeModelResourceValidator{trace: trace}
+		service := NewService(keyRepo, resourceValidator)
 
-		resolved, budget, err := service.ResolveModelForScope(context.Background(), keyID, orgID, userID)
+		resolvedID, budget, err := service.ResolveResourceForScope(context.Background(), keyID, orgID, userID)
 
-		assert.Nil(t, resolved)
+		assert.Zero(t, resolvedID)
 		assert.Nil(t, budget)
 		assert.ErrorIs(t, err, queryErr)
 		assert.Equal(t, []string{"key.get-scoped"}, trace.calls)
@@ -163,60 +142,50 @@ func TestResolveModelForScopePropagatesScopedQueryAndTouchErrors(t *testing.T) {
 		touchErr := errors.New("touch failed")
 		trace := &callTrace{}
 		budget := int64(500)
-		keyRepo, modelRepo := successfulResolveRepositories(trace, touchErr, &budget)
-		service := NewService(keyRepo, aimodelsvc.NewService(modelRepo, nil))
+		keyRepo, resourceValidator := successfulResolveRepositories(trace, touchErr, &budget)
+		service := NewService(keyRepo, resourceValidator)
 
-		resolved, resolvedBudget, err := service.ResolveModelForScope(context.Background(), keyID, orgID, userID)
+		resolvedID, resolvedBudget, err := service.ResolveResourceForScope(context.Background(), keyID, orgID, userID)
 
-		assert.Nil(t, resolved)
+		assert.Zero(t, resolvedID)
 		assert.Nil(t, resolvedBudget)
 		assert.ErrorIs(t, err, touchErr)
 		assert.Equal(t, []int64{keyID}, keyRepo.touchCalls)
-		assert.Equal(t, []string{"key.get-scoped", "model.get-visible", "key.touch"}, trace.calls)
+		assert.Equal(t, []string{"key.get-scoped", "resource.ensure-selectable", "key.touch"}, trace.calls)
 	})
 }
 
-func TestResolveModelForScopeReturnsResolvedModelAndBudget(t *testing.T) {
+func TestResolveResourceForScopeReturnsResourceIDAndBudget(t *testing.T) {
 	trace := &callTrace{}
 	budget := int64(500)
-	keyRepo, modelRepo := successfulResolveRepositories(trace, nil, &budget)
-	service := NewService(keyRepo, aimodelsvc.NewService(modelRepo, nil))
+	keyRepo, resourceValidator := successfulResolveRepositories(trace, nil, &budget)
+	service := NewService(keyRepo, resourceValidator)
 
-	resolved, resolvedBudget, err := service.ResolveModelForScope(context.Background(), 41, 21, 11)
+	resolvedID, resolvedBudget, err := service.ResolveResourceForScope(context.Background(), 41, 21, 11)
 
 	require.NoError(t, err)
-	require.NotNil(t, resolved)
-	assert.Equal(t, int64(31), resolved.Model.ID)
-	assert.Equal(t, "secret", resolved.Credentials["api_key"])
+	assert.Equal(t, int64(31), resolvedID)
 	require.NotNil(t, resolvedBudget)
 	assert.Equal(t, budget, *resolvedBudget)
 	assert.Equal(t, []scopedKeyCall{{id: 41, orgID: 21, userID: 11}}, keyRepo.scopedCalls)
-	assert.Equal(t, []visibleModelCall{{id: 31, userID: 11, orgID: 21}}, modelRepo.visibleCalls)
+	assert.Equal(t, []visibleModelCall{{id: 31, actor: airesourcesvc.Actor{UserID: 11}, orgID: 21}}, resourceValidator.visibleCalls)
 	assert.Equal(t, []int64{41}, keyRepo.touchCalls)
-	assert.Equal(t, []string{"key.get-scoped", "model.get-visible", "key.touch"}, trace.calls)
+	assert.Equal(t, []string{"key.get-scoped", "resource.ensure-selectable", "key.touch"}, trace.calls)
 }
 
 func successfulResolveRepositories(
 	trace *callTrace, touchErr error, budget *int64,
-) (*fakeVirtualKeyRepository, *fakeAIModelRepository) {
+) (*fakeVirtualKeyRepository, *fakeModelResourceValidator) {
 	keyRepo := &fakeVirtualKeyRepository{
 		trace:    trace,
 		touchErr: touchErr,
 		keys: map[int64]*virtualkeydomain.VirtualAPIKey{
 			41: {
-				ID: 41, OrganizationID: 21, UserID: 11, AIModelID: 31,
+				ID: 41, OrganizationID: 21, UserID: 11, ModelResourceID: 31,
 				Status: virtualkeydomain.StatusActive, TokenBudget: budget,
 			},
 		},
 	}
-	modelRepo := &fakeAIModelRepository{
-		trace: trace,
-		models: map[int64]*aimodeldomain.AIModel{
-			31: {
-				ID: 31, OrganizationID: int64Pointer(21), IsEnabled: true,
-				EncryptedCredentials: `{"api_key":"secret"}`,
-			},
-		},
-	}
-	return keyRepo, modelRepo
+	resourceValidator := &fakeModelResourceValidator{trace: trace}
+	return keyRepo, resourceValidator
 }

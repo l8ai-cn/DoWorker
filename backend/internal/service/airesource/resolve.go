@@ -61,6 +61,36 @@ func (s *Service) ResolveExact(ctx context.Context, actor Actor, orgID, resource
 	return &ResolvedResource{Provider: provider, Connection: *connection, Resource: *resource, Credentials: credentials}, nil
 }
 
+func (s *Service) EnsureSelectable(ctx context.Context, actor Actor, orgID, resourceID int64) error {
+	views, err := s.ListEffective(ctx, actor, orgID, nil)
+	if err != nil {
+		return err
+	}
+	for _, view := range views {
+		if view.Resource.ID != resourceID {
+			continue
+		}
+		if view.Selectable {
+			return nil
+		}
+		return blockingReasonError(view.BlockingReason)
+	}
+	return ErrNotFound
+}
+
+func blockingReasonError(reason BlockingReason) error {
+	switch reason {
+	case BlockingConnectionDisabled, BlockingResourceDisabled:
+		return ErrDisabled
+	case BlockingConnectionUnchecked, BlockingResourceUnchecked:
+		return ErrUnchecked
+	case BlockingConnectionInvalid, BlockingResourceInvalid:
+		return ErrUnhealthy
+	default:
+		return ErrUnhealthy
+	}
+}
+
 func validateResolutionRequirements(required ResolutionRequirements) error {
 	if !required.Modality.Valid() || !required.Capability.Valid() || len(required.AllowedProtocolAdapters) == 0 {
 		return ErrInvalidRequirements

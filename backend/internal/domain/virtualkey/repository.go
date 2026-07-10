@@ -10,6 +10,6 @@ type Repository interface {
 	GetByIDForScope(ctx context.Context, id, orgID, userID int64) (*VirtualAPIKey, error)
 	GetByHash(ctx context.Context, hash string) (*VirtualAPIKey, error)
 	ListByScope(ctx context.Context, orgID, userID int64) ([]*VirtualAPIKey, error)
-	UpdateStatus(ctx context.Context, id int64, status string) error
+	UpdateStatusForScope(ctx context.Context, id, orgID, userID int64, status string) (bool, error)
 	TouchLastUsed(ctx context.Context, id int64) error
 }

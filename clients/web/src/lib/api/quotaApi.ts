@@ -2,20 +2,11 @@ import { getApiBaseUrl } from "@/lib/env";
 import { getAuthManager } from "@/lib/wasm-core";
 import { readCurrentOrg } from "@/stores/auth";
 
-export type ModelConfig = {
-  id: number;
-  name: string;
-  provider_type: string;
-  model: string;
-  scope: string;
-  token_budget?: number;
-};
-
 export type VirtualKey = {
   id: number;
   name: string;
   key_prefix: string;
-  ai_model_id: number;
+  model_resource_id: number;
   token_budget?: number;
   status: string;
   last_used_at?: string;
@@ -73,11 +64,6 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function listModelConfigs(): Promise<ModelConfig[]> {
-  const data = await req<{ data: ModelConfig[] }>("/model-configs");
-  return data.data ?? [];
-}
-
 export async function listVirtualKeys(): Promise<VirtualKey[]> {
   const data = await req<{ data: VirtualKey[] }>("/virtual-keys");
   return data.data ?? [];
@@ -85,7 +71,7 @@ export async function listVirtualKeys(): Promise<VirtualKey[]> {
 
 export async function createVirtualKey(input: {
   name: string;
-  ai_model_id: number;
+  model_resource_id: number;
   token_budget?: number;
 }): Promise<{ token: string; key: VirtualKey }> {
   return req("/virtual-keys", { method: "POST", body: JSON.stringify(input) });

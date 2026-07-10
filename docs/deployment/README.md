@@ -118,6 +118,30 @@ helm install agentsmesh agentsmesh/agentsmesh \
 ./backend/migrate status
 ```
 
+### AI Resource Cutover
+
+Upgrades from the legacy `ai_models` and credential EnvBundle schema must run
+the application migration before applying `000198_ai_resource_cutover`.
+Use the same credential encryption key as the backend and an existing user ID:
+
+```bash
+export DATABASE_URL='postgres://user:password@host:5432/agentsmesh?sslmode=require'
+export AI_RESOURCE_MIGRATION_CIPHER_KEY="$JWT_SECRET"
+export AI_RESOURCE_MIGRATION_CREATED_BY='<existing-users.id>'
+
+go run ./backend/cmd/migrate-ai-resources --apply
+go run ./backend/cmd/migrate-ai-resources
+
+# Apply 000198 only after the check command exits 0.
+./agentsmesh-backend migrate up
+```
+
+The command exits non-zero on unmigrated rows, owner or field drift,
+undecryptable credentials, broken mappings, or unmapped virtual keys. Back up
+the database before cutover. The `000198` down migration also fails closed when
+a post-cutover virtual key cannot be mapped back to an existing `ai_models`
+row.
+
 ## Architecture
 
 ```

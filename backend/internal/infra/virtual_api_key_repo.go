@@ -70,10 +70,15 @@ func (r *virtualAPIKeyRepo) ListByScope(ctx context.Context, orgID, userID int64
 	return keys, err
 }
 
-func (r *virtualAPIKeyRepo) UpdateStatus(ctx context.Context, id int64, status string) error {
-	return r.db.WithContext(ctx).Model(&virtualkey.VirtualAPIKey{}).
-		Where("id = ?", id).
-		Updates(map[string]interface{}{"status": status, "updated_at": time.Now()}).Error
+func (r *virtualAPIKeyRepo) UpdateStatusForScope(
+	ctx context.Context,
+	id, orgID, userID int64,
+	status string,
+) (bool, error) {
+	result := r.db.WithContext(ctx).Model(&virtualkey.VirtualAPIKey{}).
+		Where("id = ? AND organization_id = ? AND user_id = ?", id, orgID, userID).
+		Updates(map[string]interface{}{"status": status, "updated_at": time.Now()})
+	return result.RowsAffected > 0, result.Error
 }
 
 func (r *virtualAPIKeyRepo) TouchLastUsed(ctx context.Context, id int64) error {

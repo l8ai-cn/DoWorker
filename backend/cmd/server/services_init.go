@@ -199,7 +199,7 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 	aiModelRepo := infra.NewAIModelRepository(db)
 	aiModelSvc := aimodelsvc.NewService(aiModelRepo, encryptor)
 	virtualKeyRepo := infra.NewVirtualAPIKeyRepository(db)
-	virtualKeySvc := virtualkeysvc.NewService(virtualKeyRepo, aiModelSvc)
+	virtualKeySvc := virtualkeysvc.NewService(virtualKeyRepo, aiResourceSvc)
 	tokenQuotaRepo := infra.NewTokenQuotaRepository(db)
 	tokenQuotaSvc := tokenquotasvc.NewService(tokenQuotaRepo, db)
 
