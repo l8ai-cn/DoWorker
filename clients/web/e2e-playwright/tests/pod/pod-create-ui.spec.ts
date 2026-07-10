@@ -5,12 +5,12 @@ import { E2E_ECHO_AGENT_SLUG, resolveE2EPodCreateTargets } from "../../helpers/e
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { CreatePodModal } from "../../pages/modals/create-pod.modal";
 
-test.describe("CreatePod dialog UI", () => {
+test.describe("CreatePod UI", () => {
   test.afterEach(async () => {
     await terminateAllPods();
   });
 
-  test("dialog auto-closes and new pod appears in sidebar", async ({ page, api }) => {
+  test("create flow leaves /workers/new and new pod appears", async ({ page, api }) => {
     const cc = await api.connect();
     await resolveE2EPodCreateTargets(cc);
 
@@ -26,6 +26,9 @@ test.describe("CreatePod dialog UI", () => {
       .getByRole("button", { name: /new pod|create new pod|新建 pod|新建 worker|新建环境/i })
       .first();
     await newPodBtn.click();
+    await page.waitForURL(new RegExp(`/${TEST_ORG_SLUG}/workers/new`), {
+      timeout: 15_000,
+    });
 
     const modal = new CreatePodModal(page);
     await modal.waitForOpen();

@@ -5,16 +5,7 @@ import { pollUntil } from "./retry";
 import { CreatePodModal } from "../pages/modals/create-pod.modal";
 import type { ApiFixture } from "../fixtures/api.fixture";
 
-// Dev compose has TWO runner services (runner-1 + runner-2 — see
-// deploy/dev/docker-compose.yml). The pod scheduler picks one via
-// least-loaded affinity, so we can't hard-code which container holds the
-// dump file. Discover candidates at runtime via `docker ps`; reads happen
-// against all of them and the first non-empty wins.
-//
-// docker-compose name suffix differs per service: `runner-1` has the
-// short form, `runner-2` has `runner-2-1` (compose appends an instance
-// index when the service name itself contains a digit). Filter by prefix
-// and trust docker to list them all.
+// Discover runner containers at runtime; dump reads try each until non-empty.
 function listRunnerContainers(): string[] {
   const prefix = `${getComposeProject()}-runner`;
   try {
@@ -30,20 +21,7 @@ function listRunnerContainers(): string[] {
 // PodService.CreatePod is org-scoped, lives on the Connect-RPC wire after R5.
 const CREATE_POD_RPC = "/proto.pod.v1.PodService/CreatePod";
 
-/**
- * Drive the Pod create dialog end-to-end and return the new pod's key.
- *
- * Owns the boilerplate that's identical across EnvBundle e2e specs:
- *   - navigate to /workspace (so the New-Pod button is mountable)
- *   - intercept the Connect-RPC CreatePod (binary proto, response carries
- *     pod_key in the typed envelope)
- *   - open dialog, select agent, expand advanced, apply bundle selection,
- *     submit, wait for close
- *   - poll backend until pod status reaches "running"
- *
- * Throws if the RPC returns non-2xx so the caller doesn't have to check
- * an error-state flag.
- */
+/** Workspace New Pod → /workers/new (or dialog), submit, wait until running. */
 export async function createPodAndWaitRunning(args: {
   page: Page;
   api: ApiFixture;
@@ -85,11 +63,21 @@ export async function createPodAndWaitRunning(args: {
     .getByRole("button", { name: /new pod|create new pod|新建 pod|新建 worker|新建环境/i })
     .first();
   await newPodBtn.click();
+  // Workspace "New Pod" navigates to /workers/new; legacy dialog still OK.
+  await Promise.race([
+    page.waitForURL((url) => url.pathname.includes("/workers/new"), {
+      timeout: 15_000,
+    }),
+    page.locator("#worker-image-select").first().waitFor({
+      state: "visible",
+      timeout: 15_000,
+    }),
+  ]);
 
   const modal = new CreatePodModal(page);
   await modal.waitForOpen();
   await modal.selectAgent(agentSlug);
-  await modal.expandAdvancedOptions();
+  // Credential / runtime pickers are on step 1 after image select.
   if (selectCredentialName !== undefined) {
     await modal.selectCredential(selectCredentialName);
   }
@@ -141,16 +129,8 @@ export async function createPodAndWaitRunning(args: {
 }
 
 /**
- * Read the env dump file that the e2e-echo agent writes on startup
- * (`/tmp/e2e-echo-env-dump-<pid>`). Polls every runner container until
- * one returns non-empty content or the timeout fires.
- *
- * 60s timeout (was 30s): the full chain is runner.gRPC stream →
- * create_pod RPC → PTY spawn → bash → `echo ready; env > /tmp/dump`,
- * which on a cold self-hosted runner with docker.io pulls + mTLS
- * cert exchange routinely takes 30-45s. PR #410's per-shard backend
- * isolation removed the cross-shard `terminateAllPods` race; what
- * remains is genuine cold-start latency, not a race.
+ * Read e2e-echo env dump (`/tmp/e2e-echo-env-dump-*`) from any runner
+ * container. 60s covers cold-start (gRPC + PTY + dump write).
  */
 export async function readEnvDumpFromRunner(timeoutMs = 60_000): Promise<string> {
   const deadline = Date.now() + timeoutMs;

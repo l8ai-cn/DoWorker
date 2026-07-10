@@ -47,12 +47,17 @@ export class WorkspacePage {
     return /no terminal|暂无|empty/i.test(body ?? "");
   }
 
-  /** Open the create pod modal. */
+  /** Open create-pod (navigates to /workers/new, or legacy dialog). */
   async openCreatePodModal(): Promise<void> {
     await this.createPodButton.click();
-    await this.page
-      .locator('[role="dialog"]')
-      .first()
-      .waitFor({ state: "visible" });
+    await Promise.race([
+      this.page.waitForURL((url) => url.pathname.includes("/workers/new"), {
+        timeout: 15_000,
+      }),
+      this.page
+        .locator('[role="dialog"] #worker-image-select')
+        .first()
+        .waitFor({ state: "visible", timeout: 15_000 }),
+    ]);
   }
 }

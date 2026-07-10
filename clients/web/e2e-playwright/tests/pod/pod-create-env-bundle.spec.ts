@@ -7,22 +7,8 @@ import { clearAuthRateLimit } from "../../helpers/redis";
 import { CreatePodModal } from "../../pages/modals/create-pod.modal";
 
 /**
- * Pod creation × EnvBundle UI flow.
- *
- * The Pod create dialog renders two independent pickers inside
- * AdvancedOptions:
- *   - `<select>` for API credential (kind='credential', single-select)
- *   - checkbox list for runtime bundles (kind='runtime', ordered multi-select)
- *
- * On submit the form merges them as: credential first, then runtime in
- * selection order — one `USE_ENV_BUNDLE "..."` line per bundle in the
- * agentfile_layer.
- *
- * We don't have a persisted `pods.agentfile_layer` column — the merged
- * layer is built per-request and shipped to Runner. So we verify the wire
- * contract via Playwright route interception: the Connect-RPC CreatePod
- * binary request carries the expected agentfile_layer with the expected
- * lines in the expected order.
+ * Pod create × EnvBundle: step-1 credential Select + runtime checkboxes.
+ * Wire contract checked via CreatePod request interception (agentfile_layer).
  */
 const CREATE_POD_RPC = "/proto.pod.v1.PodService/CreatePod";
 
@@ -49,7 +35,7 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     await terminateAllPods();
   });
 
-  test("Pod create dialog attaches credential first then runtime in order", async ({
+  test("Pod create attaches credential first then runtime in order", async ({
     page,
     api,
     db,
@@ -107,27 +93,21 @@ test.describe("Pod create — EnvBundle binding UI", () => {
         .first();
       await newPodBtn.waitFor({ state: "visible", timeout: 15_000 });
       await newPodBtn.click();
+      await page.waitForURL(new RegExp(`/${TEST_ORG_SLUG}/workers/new`), {
+        timeout: 15_000,
+      });
 
       const modal = new CreatePodModal(page);
       await modal.waitForOpen();
       await modal.selectAgent("claude-code");
 
-      await modal.expandAdvancedOptions();
+      // Credential + runtime pickers appear on step 1 after image select.
+      await expect(modal.credentialTrigger()).toBeVisible({ timeout: 10_000 });
+      await modal.credentialTrigger().click();
+      await expect(modal.credentialOption(credName)).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(modal.runtimeBundleLabel(runtimeName)).toBeVisible();
 
-      // Credential picker is a <select id="credential-bundle-select">,
-      // runtime is a checkbox list. Verify both seeded bundles surface in
-      // their respective pickers before submitting.
-      const dialog = page.locator('[role="dialog"]');
-      const credSelect = dialog.locator('select#credential-bundle-select');
-      await expect(credSelect).toBeVisible({ timeout: 10_000 });
-      // Credential <option> for our seed must exist.
-      const credOption = credSelect.locator('option', { hasText: credName });
-      await expect(credOption).toHaveCount(1);
-      // Runtime checkbox label visible.
-      await expect(dialog.locator('label', { hasText: runtimeName })).toBeVisible();
-
-      // Select credential, then runtime — merged order on submit should
-      // be credential first then runtime.
       await modal.selectCredential(credName);
       await modal.selectRuntimeBundles([runtimeName]);
 
@@ -193,6 +173,9 @@ test.describe("Pod create — EnvBundle binding UI", () => {
       .first();
     await newPodBtn.waitFor({ state: "visible", timeout: 15_000 });
     await newPodBtn.click();
+    await page.waitForURL(new RegExp(`/${TEST_ORG_SLUG}/workers/new`), {
+      timeout: 15_000,
+    });
 
     const modal = new CreatePodModal(page);
     await modal.waitForOpen();

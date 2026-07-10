@@ -1,45 +1,60 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 /**
- * Page Object Model for the Create Pod Modal.
- * Based on: web/src/components/ide/CreatePodModal.tsx
- *           web/src/components/pod/CreatePodForm/index.tsx
+ * Create-pod form surface: legacy `[role=dialog]` modal or full-page
+ * wizard at `/{org}/workers/new` (same CreatePodForm).
  */
 export class CreatePodModal {
   constructor(private page: Page) {}
 
-  /** Wait for the modal dialog to appear. */
+  /** Dialog when present; otherwise the wizard column (excludes NL create). */
+  private root(): Locator {
+    return this.page
+      .locator('[role="dialog"]')
+      .filter({ has: this.page.locator("#worker-image-select") })
+      .or(
+        this.page
+          .locator(".flex-1.min-w-0")
+          .filter({ has: this.page.locator("#worker-image-select") }),
+      )
+      .first();
+  }
+
   async waitForOpen(): Promise<void> {
     await this.page
-      .locator('[role="dialog"]')
+      .locator("#worker-image-select")
       .first()
-      .waitFor({ state: "visible" });
+      .waitFor({ state: "visible", timeout: 20_000 });
   }
 
-  /** Wait for the modal to disappear after a successful submit. */
+  /**
+   * Modal: dialog hides. Page: success navigates away from /workers/new.
+   */
   async waitForClosed(timeoutMs = 15_000): Promise<void> {
-    await this.page
-      .locator('[role="dialog"]')
-      .first()
-      .waitFor({ state: "hidden", timeout: timeoutMs });
+    const dialog = this.page.locator('[role="dialog"]').filter({
+      has: this.page.locator("#worker-image-select"),
+    });
+    if (await dialog.count()) {
+      await dialog.first().waitFor({ state: "hidden", timeout: timeoutMs });
+      return;
+    }
+    await this.page.waitForURL((url) => !url.pathname.includes("/workers/new"), {
+      timeout: timeoutMs,
+    });
   }
 
-  /** Open a custom Select trigger and pick an option by its value. */
   private async pickSelectOption(triggerId: string, optionValue: string): Promise<void> {
-    const dialog = this.page.locator('[role="dialog"]').first();
-    await dialog.locator(`#${triggerId}`).click();
-    await dialog
+    const root = this.root();
+    await root.locator(`#${triggerId}`).click();
+    // Options render inside the Select's relative wrapper (not a portal).
+    await this.page
       .locator(`[role="option"][data-option-value="${optionValue}"]`)
       .first()
       .click();
   }
 
-  /**
-   * Select a worker image. The form renders a custom Select trigger
-   * with id `worker-image-select`.
-   */
   async selectImage(imageSlug: string): Promise<void> {
-    const trigger = this.page.locator('[role="dialog"] #worker-image-select').first();
+    const trigger = this.root().locator("#worker-image-select");
     await trigger.waitFor({ state: "visible", timeout: 15_000 });
     await this.pickSelectOption("worker-image-select", imageSlug);
   }
@@ -49,22 +64,19 @@ export class CreatePodModal {
     return this.selectImage(agentSlug);
   }
 
-  /** Fill the prompt text area. */
   async fillPrompt(prompt: string): Promise<void> {
-    const textarea = this.page.locator("textarea").first();
-    await textarea.fill(prompt);
+    await this.root().locator("textarea").first().fill(prompt);
   }
 
   /**
-   * Expand the AdvancedOptions disclosure that wraps runner / env-bundle /
-   * repository / branch / config inputs. No-op when already open.
-   * AdvancedOptions defaults closed, so spec code that needs any field
-   * inside it must call this before locating the input.
+   * Legacy AdvancedOptions / current "More options" disclosure.
+   * Credential + runtime pickers live on step 1 after image select —
+   * this is only needed for alias / lifecycle fields.
    */
   async expandAdvancedOptions(): Promise<void> {
-    const trigger = this.page
-      .locator('[role="dialog"]')
-      .getByRole("button", { name: /advanced options|高级选项/i });
+    const trigger = this.root().getByRole("button", {
+      name: /advanced options|more options|高级选项|更多选项/i,
+    });
     if (!(await trigger.isVisible().catch(() => false))) return;
     const state = await trigger.getAttribute("data-state");
     if (state !== "open") {
@@ -72,40 +84,24 @@ export class CreatePodModal {
     }
   }
 
-  /**
-   * Select an API credential bundle by name. The credential picker is a
-   * custom Select with id `credential-bundle-select`; pass "" to pick
-   * the "Use Agent default auth" option (i.e. inject no credential).
-   * Shown on step 1 after an image is selected.
-   */
   async selectCredential(bundleName: string): Promise<void> {
+    await this.root()
+      .locator("#credential-bundle-select")
+      .waitFor({ state: "visible", timeout: 15_000 });
     await this.pickSelectOption("credential-bundle-select", bundleName);
   }
 
-  /**
-   * Toggle a runtime-kind EnvBundle row by name (multi-select). Calling
-   * once with a name not yet checked adds it to the ordered selection;
-   * calling again un-checks it. Multiple calls in succession build an
-   * ordered list — the order matches selection order and drives
-   * USE_ENV_BUNDLE emission order (later bundles override earlier ones on
-   * conflicting env keys). Shown on step 1 after an image is selected.
-   */
   async toggleRuntimeBundle(bundleName: string): Promise<void> {
-    const row = this.page
-      .locator('[role="dialog"]')
-      .locator('label', { hasText: bundleName })
-      .first();
-    const checkbox = row.locator('input[type="checkbox"]').first();
-    await checkbox.click();
+    const row = this.root().locator("label", { hasText: bundleName }).first();
+    await row.locator('input[type="checkbox"]').first().click();
   }
 
-  /**
-   * Convenience: clear the runtime selection then toggle each name in
-   * order so the post-call selection equals exactly `bundleNames`.
-   */
   async selectRuntimeBundles(bundleNames: string[]): Promise<void> {
-    const all = this.page
-      .locator('[role="dialog"] input[type="checkbox"]');
+    const section = this.root().locator(
+      '[data-testid="worker-credential-model-section"]',
+    );
+    await section.waitFor({ state: "visible", timeout: 15_000 });
+    const all = section.locator('input[type="checkbox"]');
     const count = await all.count();
     for (let i = 0; i < count; i += 1) {
       const box = all.nth(i);
@@ -116,19 +112,28 @@ export class CreatePodModal {
     }
   }
 
-  /** Click the submit/create button. */
-  async submit(): Promise<void> {
-    const btn = this.page
-      .locator('[role="dialog"]')
-      .getByRole("button", { name: /create|创建/i });
-    await btn.click();
+  credentialTrigger(): Locator {
+    return this.root().locator("#credential-bundle-select");
   }
 
-  /** Close the modal. */
+  credentialOption(bundleName: string): Locator {
+    return this.page.locator(
+      `[role="option"][data-option-value="${bundleName}"]`,
+    );
+  }
+
+  runtimeBundleLabel(bundleName: string): Locator {
+    return this.root().locator("label", { hasText: bundleName });
+  }
+
+  async submit(): Promise<void> {
+    await this.root()
+      .getByRole("button", { name: /create worker|创建 worker|^create$|^创建$/i })
+      .click();
+  }
+
   async cancel(): Promise<void> {
-    const btn = this.page
-      .locator('[role="dialog"]')
-      .getByRole("button", { name: /cancel|取消/i });
+    const btn = this.root().getByRole("button", { name: /cancel|取消/i });
     if (await btn.isVisible()) await btn.click();
   }
 }
