@@ -229,20 +229,20 @@ export const useChannelMessageStore = create<ChannelMessageState>((set, get) => 
     bumpMessages();
   },
 
-  fetchUnreadCounts: async () => {
+  fetchUnreadCounts: async (signal) => {
     const requestedOrgSlug = orgSlug();
-    if (!requestedOrgSlug) return;
+    if (!requestedOrgSlug || signal?.aborted) return;
 
     try {
       const unread = await getChannelUnreadCounts(requestedOrgSlug);
-      if (orgSlug() !== requestedOrgSlug) return;
+      if (signal?.aborted || orgSlug() !== requestedOrgSlug) return;
       const req = protoCreate(ReplaceChannelUnreadCountsRequestSchema, {
         counts: Object.fromEntries(Object.entries(unread).map(([k, v]) => [BigInt(k), v])) as unknown as { [k: string]: number },
       });
       svc().replace_channel_unread_counts(toBinary(ReplaceChannelUnreadCountsRequestSchema, req));
       set((s) => ({ _unreadTick: s._unreadTick + 1 }));
     } catch (error: unknown) {
-      if (orgSlug() !== requestedOrgSlug) return;
+      if (signal?.aborted || orgSlug() !== requestedOrgSlug) return;
       console.error("Failed to fetch unread counts:", getErrorMessage(error, "Unknown error"));
     }
   },

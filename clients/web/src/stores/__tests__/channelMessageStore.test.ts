@@ -179,6 +179,25 @@ describe("useChannelMessageStore — Connect adapter integration", () => {
     expect(useChannelMessageStore.getState()._unreadTick).toBe(0);
   });
 
+  it("fetchUnreadCounts: ignores a cancelled request without logging", async () => {
+    let rejectUnread: (error: Error) => void;
+    mocks.getChannelUnreadCounts.mockReturnValue(
+      new Promise<Record<string, number>>((_, reject) => {
+        rejectUnread = reject;
+      }),
+    );
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const controller = new AbortController();
+    const request = useChannelMessageStore.getState().fetchUnreadCounts(controller.signal);
+
+    controller.abort();
+    rejectUnread!(new Error("request aborted"));
+    await request;
+
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+
   it("markRead: calls markChannelRead and bumps unread tick", async () => {
     mocks.markChannelRead.mockResolvedValue(undefined);
     await act(async () => {

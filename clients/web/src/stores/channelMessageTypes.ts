@@ -29,7 +29,7 @@ export interface ChannelMessageState {
   updateMessage: (channelId: number, data: { id: number; body: string; content?: MessageContent; mentions?: MessageMentions; edited_at: string }) => void;
   removeMessage: (channelId: number, messageId: number) => void;
 
-  fetchUnreadCounts: () => Promise<void>;
+  fetchUnreadCounts: (signal?: AbortSignal) => Promise<void>;
   markRead: (channelId: number, messageId: number) => Promise<void>;
   muteChannel: (channelId: number, muted: boolean) => Promise<void>;
   incrementUnread: (channelId: number) => void;

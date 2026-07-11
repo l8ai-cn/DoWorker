@@ -53,7 +53,9 @@ export default function DashboardShell({
   // badge sits outside the org layout's gate) — refresh on org change.
   useEffect(() => {
     if (!currentOrg) return;
-    void useChannelMessageStore.getState().fetchUnreadCounts();
+    const controller = new AbortController();
+    void useChannelMessageStore.getState().fetchUnreadCounts(controller.signal);
+    return () => controller.abort();
   }, [currentOrg]);
 
   const handleEvent = useCallback(
