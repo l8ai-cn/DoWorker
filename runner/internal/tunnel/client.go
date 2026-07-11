@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net/http"
+	"net"
 	"net/url"
 	"path"
 	"strconv"
@@ -18,19 +18,12 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/tunnelframe"
 )
 
-// Dispatcher consumes inbound tunnel frames (REQ_START/BODY/END, CREDIT,
-// STREAM_CANCEL, WS_DATA...) and drives local stream handling.
 type Dispatcher interface {
 	Dispatch(f tunnelframe.Frame)
-	// SetSender wires the frame sink used to reply on streams.
 	SetSender(send func(tunnelframe.Frame) error)
-	// Close tears down all in-flight local streams.
 	Close()
 }
 
-// Client is the runner-side outbound tunnel WebSocket client. It follows the
-// same reconnect/backoff shape as runner/internal/relay but multiplexes HTTP
-// requests via tunnelframe instead of the terminal protocol.
 type Client struct {
 	gatewayURL string
 	token      string
@@ -38,22 +31,24 @@ type Client struct {
 	orgID      int64
 	dispatcher Dispatcher
 
-	conn   *websocket.Conn
-	connMu sync.RWMutex
+	conn     *websocket.Conn
+	dialConn net.Conn
+	connMu   sync.RWMutex
+	writeMu  sync.Mutex
 
-	writeMu sync.Mutex
-
-	connected atomic.Bool
-	stopped   atomic.Bool
-	stopCh    chan struct{}
-	stopOnce  sync.Once
-
-	ctx    context.Context
-	cancel context.CancelFunc
-	logger *slog.Logger
+	connected   atomic.Bool
+	stopped     atomic.Bool
+	stopOnce    sync.Once
+	lifecycleMu sync.Mutex
+	started     bool
+	wg          sync.WaitGroup
+	generation  uint64
+	reconnect   reconnectPolicy
+	ctx         context.Context
+	cancel      context.CancelFunc
+	logger      *slog.Logger
 }
 
-// NewClient creates a tunnel client. dispatcher may be nil (connect+hello only).
 func NewClient(parentCtx context.Context, gatewayURL, token string, runnerID, orgID int64, dispatcher Dispatcher) *Client {
 	if parentCtx == nil {
 		parentCtx = context.Background()
@@ -65,7 +60,7 @@ func NewClient(parentCtx context.Context, gatewayURL, token string, runnerID, or
 		runnerID:   runnerID,
 		orgID:      orgID,
 		dispatcher: dispatcher,
-		stopCh:     make(chan struct{}),
+		reconnect:  defaultReconnectPolicy(),
 		ctx:        ctx,
 		cancel:     cancel,
 		logger:     slog.With("component", "tunnel_client", "runner_id", runnerID),
@@ -76,25 +71,20 @@ func NewClient(parentCtx context.Context, gatewayURL, token string, runnerID, or
 	return c
 }
 
-// GatewayURL returns the configured gateway URL.
 func (c *Client) GatewayURL() string { return c.gatewayURL }
 
-// UpdateToken swaps the JWT used on the next (re)connect.
 func (c *Client) UpdateToken(newToken string) {
 	c.connMu.Lock()
 	c.token = newToken
 	c.connMu.Unlock()
 }
 
-// Connect dials the gateway tunnel endpoint and sends the HELLO frame.
-func (c *Client) Connect() error {
-	c.connMu.RLock()
-	token := c.token
-	c.connMu.RUnlock()
+func (c *Client) Connect() error { _, _, err := c.connectOnce(); return err }
 
+func (c *Client) tunnelURL() (*url.URL, error) {
 	u, err := url.Parse(c.gatewayURL)
 	if err != nil {
-		return fmt.Errorf("invalid gateway URL: %w", err)
+		return nil, fmt.Errorf("invalid gateway URL: %w", err)
 	}
 	switch u.Scheme {
 	case "http":
@@ -103,7 +93,7 @@ func (c *Client) Connect() error {
 		u.Scheme = "wss"
 	case "ws", "wss":
 	default:
-		return fmt.Errorf("unsupported scheme: %s", u.Scheme)
+		return nil, fmt.Errorf("unsupported scheme: %s", u.Scheme)
 	}
 	const tunnelPath = "/runner/tunnel"
 	if path.Clean(u.Path) == tunnelPath {
@@ -111,22 +101,16 @@ func (c *Client) Connect() error {
 	} else {
 		u.Path = path.Join(u.Path, tunnelPath)
 	}
-	q := u.Query()
-	q.Set("token", token)
-	u.RawQuery = q.Encode()
+	c.connMu.RLock()
+	token := c.token
+	c.connMu.RUnlock()
+	query := u.Query()
+	query.Set("token", token)
+	u.RawQuery = query.Encode()
+	return u, nil
+}
 
-	dialer := websocket.Dialer{HandshakeTimeout: 10 * time.Second, Proxy: http.ProxyFromEnvironment}
-	conn, _, err := dialer.DialContext(c.ctx, u.String(), nil)
-	if err != nil {
-		return fmt.Errorf("tunnel dial failed: %w", err)
-	}
-	conn.SetReadLimit(8 * 1024 * 1024)
-
-	c.connMu.Lock()
-	c.conn = conn
-	c.connMu.Unlock()
-	c.connected.Store(true)
-
+func (c *Client) helloFrame() tunnelframe.Frame {
 	hello := tunnelframe.HelloPayload{}
 	if c.runnerID > 0 {
 		hello.RunnerID = strconv.FormatInt(c.runnerID, 10)
@@ -134,16 +118,9 @@ func (c *Client) Connect() error {
 	if c.orgID > 0 {
 		hello.OrgID = strconv.FormatInt(c.orgID, 10)
 	}
-	if err := c.Send(tunnelframe.Frame{Type: tunnelframe.TypeHello, Payload: tunnelframe.EncodeJSON(hello)}); err != nil {
-		_ = conn.Close()
-		c.connected.Store(false)
-		return fmt.Errorf("tunnel hello failed: %w", err)
-	}
-	c.logger.Info("tunnel connected", "host", u.Host)
-	return nil
+	return tunnelframe.Frame{Type: tunnelframe.TypeHello, Payload: tunnelframe.EncodeJSON(hello)}
 }
 
-// Send writes a frame to the tunnel under the write mutex.
 func (c *Client) Send(f tunnelframe.Frame) error {
 	c.connMu.RLock()
 	conn := c.conn
@@ -151,65 +128,81 @@ func (c *Client) Send(f tunnelframe.Frame) error {
 	if conn == nil {
 		return fmt.Errorf("tunnel not connected")
 	}
+	return c.writeFrame(conn, f)
+}
+
+func (c *Client) writeFrame(conn *websocket.Conn, frame tunnelframe.Frame) error {
 	c.writeMu.Lock()
 	defer c.writeMu.Unlock()
-	return conn.WriteMessage(websocket.BinaryMessage, tunnelframe.Encode(f))
+	return conn.WriteMessage(websocket.BinaryMessage, tunnelframe.Encode(frame))
 }
 
-// Start launches the read loop.
 func (c *Client) Start() {
-	if c.stopped.Load() {
+	c.lifecycleMu.Lock()
+	defer c.lifecycleMu.Unlock()
+	if c.stopped.Load() || c.started {
 		return
 	}
-	safego.Go("tunnel-read", c.readLoop)
+	c.started = true
+	c.wg.Add(1)
+	safego.Go("tunnel-reconnect", func() {
+		defer c.wg.Done()
+		c.connectionLoop()
+	})
 }
 
-func (c *Client) readLoop() {
-	c.connMu.RLock()
-	conn := c.conn
-	c.connMu.RUnlock()
-	if conn == nil {
-		return
-	}
-	for {
-		_, data, err := conn.ReadMessage()
-		if err != nil {
-			c.connected.Store(false)
-			c.logger.Debug("tunnel read loop exiting", "error", err)
-			return
-		}
-		f, derr := tunnelframe.Decode(data)
-		if derr != nil {
-			continue
-		}
-		switch f.Type {
-		case tunnelframe.TypePing:
-			_ = c.Send(tunnelframe.Frame{Type: tunnelframe.TypePong})
-		case tunnelframe.TypePong:
-			// no-op
-		default:
-			if c.dispatcher != nil {
-				c.dispatcher.Dispatch(f)
-			}
-		}
-	}
-}
-
-// IsConnected reports connection state.
 func (c *Client) IsConnected() bool { return c.connected.Load() }
 
-// Stop closes the tunnel connection and dispatcher.
+func (c *Client) currentConnection() (*websocket.Conn, uint64) {
+	c.connMu.RLock()
+	defer c.connMu.RUnlock()
+	return c.conn, c.generation
+}
+
+func (c *Client) disconnect(conn *websocket.Conn, generation uint64) {
+	c.connMu.Lock()
+	defer c.connMu.Unlock()
+	if c.conn != conn || c.generation != generation {
+		return
+	}
+	c.conn = nil
+	c.connected.Store(false)
+	_ = conn.Close()
+}
+
+func (c *Client) clearDialConnection(conn net.Conn) {
+	c.connMu.Lock()
+	defer c.connMu.Unlock()
+	if c.dialConn == conn {
+		c.dialConn = nil
+	}
+}
+
+func nextBackoff(current, maximum time.Duration) time.Duration {
+	if current >= maximum/2 {
+		return maximum
+	}
+	return current * 2
+}
+
 func (c *Client) Stop() {
 	c.stopOnce.Do(func() {
+		c.lifecycleMu.Lock()
 		c.stopped.Store(true)
 		c.connected.Store(false)
-		close(c.stopCh)
 		c.cancel()
 		c.connMu.Lock()
 		if c.conn != nil {
 			_ = c.conn.Close()
+			c.conn = nil
+		}
+		if c.dialConn != nil {
+			_ = c.dialConn.Close()
+			c.dialConn = nil
 		}
 		c.connMu.Unlock()
+		c.lifecycleMu.Unlock()
+		c.wg.Wait()
 		if c.dispatcher != nil {
 			c.dispatcher.Close()
 		}
