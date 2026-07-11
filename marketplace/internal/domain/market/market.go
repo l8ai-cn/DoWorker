@@ -27,6 +27,7 @@ type Market struct {
 	Visibility              string
 	OwnerPlatformOrgID      int64
 	CreatedByPlatformUserID int64
+	revision                int64
 	slug                    slugkit.Slug
 	status                  Status
 }
@@ -40,6 +41,7 @@ type State struct {
 	Visibility              string
 	OwnerPlatformOrgID      int64
 	CreatedByPlatformUserID int64
+	Revision                int64
 }
 
 func New(rawSlug, name, summary string, ownerOrgID, actorUserID int64) (*Market, error) {
@@ -59,6 +61,7 @@ func New(rawSlug, name, summary string, ownerOrgID, actorUserID int64) (*Market,
 		Visibility:              "private",
 		OwnerPlatformOrgID:      ownerOrgID,
 		CreatedByPlatformUserID: actorUserID,
+		revision:                1,
 		slug:                    slug,
 		status:                  StatusDraft,
 	}, nil
@@ -81,9 +84,13 @@ func Restore(state State) (*Market, error) {
 	if state.Visibility != "public" && state.Visibility != "private" {
 		return nil, errors.New("invalid marketplace visibility")
 	}
+	if state.Revision <= 0 {
+		return nil, errors.New("invalid marketplace revision")
+	}
 	item.ID = state.ID
 	item.status = state.Status
 	item.Visibility = state.Visibility
+	item.revision = state.Revision
 	return item, nil
 }
 
@@ -97,6 +104,7 @@ func (m *Market) Transition(next Status) error {
 
 func (m Market) Status() Status     { return m.status }
 func (m Market) Slug() slugkit.Slug { return m.slug }
+func (m Market) Revision() int64    { return m.revision }
 
 var allowedTransitions = map[Status]map[Status]bool{
 	StatusDraft:       {StatusConfiguring: true},

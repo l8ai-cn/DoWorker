@@ -20,6 +20,7 @@ func TestTransitionRequiresConfiguredLifecycle(t *testing.T) {
 	require.NoError(t, item.Transition(StatusReview))
 	require.NoError(t, item.Transition(StatusPublished))
 	require.Equal(t, StatusPublished, item.Status())
+	require.Equal(t, int64(1), item.Revision())
 }
 
 func TestRestorePublishedMarket(t *testing.T) {
@@ -32,8 +33,10 @@ func TestRestorePublishedMarket(t *testing.T) {
 		Visibility:              "public",
 		OwnerPlatformOrgID:      9,
 		CreatedByPlatformUserID: 14,
+		Revision:                3,
 	})
 	require.NoError(t, err)
 	require.Equal(t, "higher-education", item.Slug().String())
 	require.Equal(t, StatusPublished, item.Status())
+	require.Equal(t, int64(3), item.Revision())
 }
