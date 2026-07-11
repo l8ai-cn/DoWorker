@@ -451,6 +451,7 @@
       "mobileAccess": "在移动端打开",
       "terminate": "终止",
       "delete": "删除记录",
+      "wake": "唤醒 Worker",
       "enablePerpetual": "启用永续模式",
       "disablePerpetual": "禁用永续模式"
     },

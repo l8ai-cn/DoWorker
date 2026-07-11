@@ -53,6 +53,7 @@ interface PodListItemProps {
   onClick: () => void;
   onTerminate: () => void;
   onDelete: () => void;
+  onWake: () => void;
   onRename: () => void;
   onShare: () => void;
   onOpenMobile: () => void;
@@ -60,7 +61,7 @@ interface PodListItemProps {
   onTogglePerpetual: (perpetual: boolean) => void;
 }
 
-export function PodListItem({ pod, isOpen, onClick, onTerminate, onDelete, onRename, onShare, onOpenMobile, onPublishExpert, onTogglePerpetual }: PodListItemProps) {
+export function PodListItem({ pod, isOpen, onClick, onTerminate, onDelete, onWake, onRename, onShare, onOpenMobile, onPublishExpert, onTogglePerpetual }: PodListItemProps) {
   const status = statusColors[pod.status] || statusColors.terminated;
 
   return (
@@ -72,6 +73,7 @@ export function PodListItem({ pod, isOpen, onClick, onTerminate, onDelete, onRen
       onPublishExpert={onPublishExpert}
       onTerminate={onTerminate}
       onDelete={onDelete}
+      onWake={onWake}
       onTogglePerpetual={onTogglePerpetual}
     >
       <div
@@ -112,6 +114,7 @@ export function PodListItem({ pod, isOpen, onClick, onTerminate, onDelete, onRen
           onOpenMobile={onOpenMobile}
           onPublishExpert={onPublishExpert}
           onDelete={onDelete}
+          onWake={onWake}
           onRename={onRename}
           onShare={onShare}
           onTerminate={onTerminate}

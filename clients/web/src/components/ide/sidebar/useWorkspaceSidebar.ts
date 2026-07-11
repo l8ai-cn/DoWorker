@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
+import { toast } from "sonner";
 import { useCurrentUser, useCurrentOrg } from "@/stores/auth";
 import { useWorkspaceStore } from "@/stores/workspace";
 import { usePodStore, usePods, Pod, SIDEBAR_STATUS_MAP } from "@/stores/pod";
@@ -20,6 +21,7 @@ export function useWorkspaceSidebar(
   const fetchSidebarPods = usePodStore((s) => s.fetchSidebarPods);
   const loadMorePods = usePodStore((s) => s.loadMorePods);
   const terminatePod = usePodStore((s) => s.terminatePod);
+  const wakePod = usePodStore((s) => s.wakePod);
   const deleteTerminalPod = usePodStore((s) => s.deleteTerminalPod);
   const updatePodAlias = usePodStore((s) => s.updatePodAlias);
   const updatePodPerpetual = usePodStore((s) => s.updatePodPerpetual);
@@ -103,6 +105,16 @@ export function useWorkspaceSidebar(
     if (confirmed) await deleteTerminalPod(podKey);
   }, [confirm, deleteTerminalPod, t]);
 
+  const handleWakeClick = useCallback(async (podKey: string) => {
+    try {
+      const resumedPod = await wakePod(podKey);
+      removePaneByPodKey(podKey);
+      addPane(resumedPod.pod_key);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to wake Worker");
+    }
+  }, [addPane, removePaneByPodKey, wakePod]);
+
   const handleRenameConfirm = useCallback(async (newName: string) => {
     if (!renamePod) return;
     try { await updatePodAlias(renamePod.pod_key, newName || null); } catch (error) { console.error("Failed to rename pod:", error); }
@@ -119,5 +131,6 @@ export function useWorkspaceSidebar(
     renamePod, setRenamePod, dialogProps, sortedPods, podHasMore, loadingMore,
     handleFilterChange, handleRefresh, isPodOpen, handleOpenTerminal,
     handleTerminateClick, handleDeleteClick, handleRenameConfirm, handleTogglePerpetual, loadMorePods,
+    handleWakeClick,
   };
 }

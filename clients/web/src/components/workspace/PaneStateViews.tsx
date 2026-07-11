@@ -23,6 +23,7 @@ interface PaneLoadingStateProps {
   podStatus: string;
   initProgress?: InitProgress;
   onClose?: () => void;
+  onWake?: () => void;
 }
 
 const SLOW_INIT_THRESHOLD_SEC = 120;
@@ -47,11 +48,8 @@ function formatElapsed(totalSeconds: number): string {
   return `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
 }
 
-export function PaneLoadingState({
-  podStatus,
-  initProgress,
-  onClose,
-}: PaneLoadingStateProps) {
+export function PaneLoadingState({ podStatus, initProgress, onClose, onWake }: PaneLoadingStateProps) {
+  const t = useTranslations("workspace");
   const isCompleted = podStatus === "completed";
   const elapsed = useElapsedSeconds();
   const isSlowInit = !isCompleted && elapsed >= SLOW_INIT_THRESHOLD_SEC;
@@ -109,6 +107,12 @@ export function PaneLoadingState({
             Close
           </Button>
         )}
+        {isCompleted && onWake && (
+          <Button variant="outline" size="sm" className="mt-4" onClick={onWake}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            {t("contextMenu.wake")}
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -118,9 +122,7 @@ interface PaneReconnectingStateProps {
   onClose?: () => void;
 }
 
-export function PaneReconnectingState({
-  onClose,
-}: PaneReconnectingStateProps) {
+export function PaneReconnectingState({ onClose }: PaneReconnectingStateProps) {
   const t = useTranslations("workspace.reconnecting");
   return (
     <div className="flex-1 flex items-center justify-center bg-terminal-bg">
@@ -151,12 +153,11 @@ export function PaneReconnectingState({
 interface PaneErrorStateProps {
   error: string;
   onClose?: () => void;
+  onWake?: () => void;
 }
 
-export function PaneErrorState({
-  error,
-  onClose,
-}: PaneErrorStateProps) {
+export function PaneErrorState({ error, onClose, onWake }: PaneErrorStateProps) {
+  const t = useTranslations("workspace");
   return (
     <div className="flex-1 flex items-center justify-center bg-terminal-bg">
       <div className="text-center p-4">
@@ -165,6 +166,17 @@ export function PaneErrorState({
         <p className="text-sm text-terminal-text-muted mb-4">
           The pod cannot be connected. Please check the pod status or create a new one.
         </p>
+        {onWake && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="mr-2"
+            onClick={onWake}
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            {t("contextMenu.wake")}
+          </Button>
+        )}
         {onClose && (
           <Button
             variant="outline"

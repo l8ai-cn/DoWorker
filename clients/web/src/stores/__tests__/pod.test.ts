@@ -1,9 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { act } from "@testing-library/react";
-import { create, toBinary } from "@bufbuild/protobuf";
-import { ListPodsResponseSchema, PodSchema } from "@proto/pod/v1/pod_pb";
+import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
+import {
+  CreatePodRequestSchema,
+  CreatePodResponseSchema,
+  ListPodsResponseSchema,
+  PodSchema,
+} from "@proto/pod/v1/pod_pb";
 import { usePodStore } from "../pod";
 import { getPodService } from "@/lib/wasm-core";
+import { useAuthStore } from "@/stores/auth";
 import {
   mockPod,
   mockPod2,
@@ -19,6 +25,7 @@ import {
 interface MockService {
   list_pods_connect: ReturnType<typeof vi.fn>;
   get_pod_connect: ReturnType<typeof vi.fn>;
+  create_pod_connect: ReturnType<typeof vi.fn>;
 }
 
 function svc(): MockService {
@@ -53,6 +60,20 @@ function mockGetPodConnect(pod: unknown) {
     createdAt: (pod as { created_at?: string }).created_at ?? "",
   });
   vi.mocked(svc().get_pod_connect).mockResolvedValue(toBinary(PodSchema, protoPod));
+}
+
+function mockWakePodConnect(pod: unknown) {
+  const protoPod = create(PodSchema, {
+    id: BigInt((pod as { id: number }).id),
+    podKey: (pod as { pod_key: string }).pod_key,
+    status: (pod as { status: string }).status,
+    agentStatus: (pod as { agent_status?: string }).agent_status ?? "",
+    createdAt: (pod as { created_at?: string }).created_at ?? "",
+  });
+  const response = create(CreatePodResponseSchema, { pod: protoPod });
+  vi.mocked(svc().create_pod_connect).mockResolvedValue(
+    toBinary(CreatePodResponseSchema, response),
+  );
 }
 
 describe("Pod Store — basic reads", () => {
@@ -165,6 +186,37 @@ describe("Pod Store — basic reads", () => {
       // fetchPod doesn't write `error` on failure — it just rethrows.
       expect(state.error).toBeNull();
       expect(state.loading).toBe(false);
+    });
+  });
+
+  describe("wakePod", () => {
+    it("creates a resumed pod from the stopped pod and caches the new pod", async () => {
+      await useAuthStore.getState().setCurrentOrg({ id: 1, name: "Dev", slug: "dev-org" });
+      const resumedPod = {
+        ...mockPod,
+        id: 3,
+        pod_key: "pod-resumed-789",
+        status: "initializing" as const,
+      };
+      mockWakePodConnect(resumedPod);
+
+      let result: typeof resumedPod | undefined;
+      await act(async () => {
+        result = await usePodStore.getState().wakePod("pod-abc-123");
+      });
+
+      const request = fromBinary(
+        CreatePodRequestSchema,
+        svc().create_pod_connect.mock.calls[0][0],
+      );
+      expect(request).toMatchObject({
+        orgSlug: "dev-org",
+        agentSlug: "",
+        sourcePodKey: "pod-abc-123",
+        resumeAgentSession: true,
+      });
+      expect(result?.pod_key).toBe("pod-resumed-789");
+      expect(lastInsertCreatedPod()?.pod_key).toBe("pod-resumed-789");
     });
   });
 

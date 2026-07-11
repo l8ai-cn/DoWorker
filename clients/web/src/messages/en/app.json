@@ -426,6 +426,7 @@
       "mobileAccess": "Open on mobile",
       "terminate": "Terminate",
       "delete": "Delete record",
+      "wake": "Wake Worker",
       "enablePerpetual": "Enable Perpetual",
       "disablePerpetual": "Disable Perpetual"
     },

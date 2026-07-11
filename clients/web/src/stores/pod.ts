@@ -11,6 +11,7 @@ import {
   listPodsRaw,
   getPod as getPodConnect,
   terminatePod as terminatePodConnect,
+  wakePod as wakePodConnect,
   updatePodAlias as updatePodAliasConnect,
   updatePodPerpetual as updatePodPerpetualConnect,
 } from "@/lib/api/facade/podConnect";
@@ -196,6 +197,18 @@ export const usePodStore = create<PodState>((set, get) => ({
       set({ podTotal: total, podHasMore: loaded < total, loadingMore: false, sidebarLoadedCount: loaded, _tick: get()._tick + 1 });
     } catch (error: unknown) {
       set({ error: getErrorMessage(error, "Failed to load more pods"), loadingMore: false });
+    }
+  },
+
+  wakePod: async (podKey) => {
+    await initWasmCore();
+    try {
+      const { pod } = await wakePodConnect(orgSlug(), podKey);
+      get().upsertPod(pod);
+      return pod;
+    } catch (error: unknown) {
+      set({ error: getErrorMessage(error, "Failed to wake pod") });
+      throw error;
     }
   },
 

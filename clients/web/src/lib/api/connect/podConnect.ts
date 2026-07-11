@@ -88,6 +88,17 @@ export async function createPod(
   return { pod: fromProtoPod(resp.pod!), warning: resp.warning };
 }
 
+export async function wakePod(
+  orgSlug: string,
+  sourcePodKey: string,
+): Promise<{ pod: PodData; warning?: string }> {
+  return createPod(orgSlug, {
+    agent_slug: "",
+    source_pod_key: sourcePodKey,
+    resume_agent_session: true,
+  });
+}
+
 export async function terminatePod(orgSlug: string, podKey: string): Promise<string> {
   const req = create(TerminatePodRequestSchema, { orgSlug, podKey });
   const bytes = toBinary(TerminatePodRequestSchema, req);

@@ -9,6 +9,7 @@ export {
   listPodsRaw,
   getPod,
   createPod,
+  wakePod,
   terminatePod,
   updatePodAlias,
   updatePodPerpetual,

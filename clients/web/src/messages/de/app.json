@@ -258,6 +258,7 @@
     "contextMenu": {
       "rename": "Umbenennen",
       "terminate": "Beenden",
+      "wake": "Worker starten",
       "enablePerpetual": "Dauerhaft aktivieren",
       "disablePerpetual": "Dauerhaft deaktivieren"
     },

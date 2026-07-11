@@ -259,6 +259,7 @@
       "rename": "Renommer",
       "terminate": "Terminer",
       "delete": "Supprimer l’enregistrement",
+      "wake": "Réveiller le Worker",
       "enablePerpetual": "Activer le mode perpétuel",
       "disablePerpetual": "Désactiver le mode perpétuel"
     },

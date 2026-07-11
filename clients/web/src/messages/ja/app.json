@@ -259,6 +259,7 @@
       "rename": "名前を変更",
       "terminate": "終了",
       "delete": "記録を削除",
+      "wake": "Worker を起動",
       "enablePerpetual": "永続モードを有効にする",
       "disablePerpetual": "永続モードを無効にする"
     },

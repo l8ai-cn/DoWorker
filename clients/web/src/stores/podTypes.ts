@@ -30,6 +30,7 @@ export interface PodState {
   fetchPod: (podKey: string) => Promise<void>;
   fetchSidebarPods: (statusFilter: string, opts?: { silent?: boolean }) => Promise<void>;
   loadMorePods: () => Promise<void>;
+  wakePod: (podKey: string) => Promise<Pod>;
   terminatePod: (podKey: string) => Promise<void>;
   deleteTerminalPod: (podKey: string) => Promise<void>;
   setCurrentPod: (pod: Pod | null) => void;

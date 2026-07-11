@@ -258,6 +258,7 @@
     "contextMenu": {
       "rename": "Renomear",
       "terminate": "Encerrar",
+      "wake": "Ativar Worker",
       "enablePerpetual": "Ativar modo perpétuo",
       "disablePerpetual": "Desativar modo perpétuo"
     },

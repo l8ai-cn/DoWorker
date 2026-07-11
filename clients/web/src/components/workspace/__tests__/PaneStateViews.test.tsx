@@ -104,6 +104,15 @@ describe("PaneLoadingState", () => {
 
       expect(screen.queryByText("Close")).not.toBeInTheDocument();
     });
+
+    it("wakes a completed Worker when recovery is available", () => {
+      const onWake = vi.fn();
+      render(<PaneLoadingState podStatus="completed" onWake={onWake} />);
+
+      fireEvent.click(screen.getByRole("button", { name: "Wake Worker" }));
+
+      expect(onWake).toHaveBeenCalledTimes(1);
+    });
   });
 });
 
@@ -129,6 +138,15 @@ describe("PaneErrorState", () => {
 
     fireEvent.click(screen.getByText("Close"));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("wakes a terminated Worker when recovery is available", () => {
+    const onWake = vi.fn();
+    render(<PaneErrorState error="Pod terminated" onClose={vi.fn()} onWake={onWake} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Wake Worker" }));
+
+    expect(onWake).toHaveBeenCalledTimes(1);
   });
 
   it("does not show close button when onClose is not provided", () => {

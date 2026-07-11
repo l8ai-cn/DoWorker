@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, MoreHorizontal, Pencil, RefreshCw, Share2, Smartphone, Square, Trash2 } from "lucide-react";
+import { Bot, MoreHorizontal, Pencil, RefreshCw, RotateCcw, Share2, Smartphone, Square, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ interface SidebarPodActionsMenuProps {
   onPublishExpert?: () => void;
   onDelete: () => void;
   onTerminate: () => void;
+  onWake: () => void;
   onTogglePerpetual: (perpetual: boolean) => void;
 }
 
@@ -31,11 +32,13 @@ export function SidebarPodActionsMenu({
   onPublishExpert,
   onDelete,
   onTerminate,
+  onWake,
   onTogglePerpetual,
 }: SidebarPodActionsMenuProps) {
   const t = useTranslations("workspace");
   const tExpert = useTranslations("experts.publish");
   const isActive = pod.status === "running" || pod.status === "initializing";
+  const isWakeable = pod.status === "terminated" || pod.status === "completed";
 
   return (
     <DropdownMenu>
@@ -69,6 +72,11 @@ export function SidebarPodActionsMenu({
           <DropdownMenuItem onClick={() => onTogglePerpetual(!pod.perpetual)}>
             <RefreshCw className="mr-2 h-4 w-4" />
             {pod.perpetual ? t("contextMenu.disablePerpetual") : t("contextMenu.enablePerpetual")}
+          </DropdownMenuItem>
+        )}
+        {isWakeable && (
+          <DropdownMenuItem onClick={onWake}>
+            <RotateCcw className="mr-2 h-4 w-4" />{t("contextMenu.wake")}
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />

@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import "@xterm/xterm/css/xterm.css";
 import { RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useWorkspaceStore, type SplitDirection } from "@/stores/workspace";
 import { usePodStore } from "@/stores/pod";
@@ -46,13 +47,13 @@ export function TerminalPane({
   const setActivePane = useWorkspaceStore((s) => s.setActivePane);
   const splitPane = useWorkspaceStore((s) => s.splitPane);
   const panes = useWorkspaceStore((s) => s.panes);
+  const addPane = useWorkspaceStore((s) => s.addPane);
+  const removePaneByPodKey = useWorkspaceStore((s) => s.removePaneByPodKey);
   const initProgress = usePodStore((state) => state.initProgress[podKey]);
+  const wakePod = usePodStore((state) => state.wakePod);
   const hasAutopilot = !!useAutopilotControllerByPodKey(podKey);
-
   const openPodKeys = useMemo(() => panes.map((p) => p.podKey), [panes]);
-
   const { podStatus, isPodReady, podError } = usePodStatus(podKey);
-
   const [showTerminal, setShowTerminal] = useState(false);
   if (isPodReady && !showTerminal) {
     setShowTerminal(true);
@@ -81,6 +82,16 @@ export function TerminalPane({
       syncSize();
     });
   }, [onMaximize, syncSize]);
+
+  const handleWake = useCallback(async () => {
+    try {
+      const resumedPod = await wakePod(podKey);
+      removePaneByPodKey(podKey);
+      addPane(resumedPod.pod_key);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to wake Worker");
+    }
+  }, [addPane, podKey, removePaneByPodKey, wakePod]);
 
   useEffect(() => {
     return () => {
@@ -120,7 +131,11 @@ export function TerminalPane({
 
       {!showTerminal ? (
         podError ? (
-          <PaneErrorState error={podError} onClose={onClose} />
+          <PaneErrorState
+            error={podError}
+            onClose={onClose}
+            onWake={podStatus === "terminated" ? handleWake : undefined}
+          />
         ) : podStatus === "orphaned" ? (
           <PaneReconnectingState onClose={onClose} />
         ) : (
@@ -128,6 +143,7 @@ export function TerminalPane({
             podStatus={podStatus}
             initProgress={initProgress}
             onClose={onClose}
+            onWake={podStatus === "completed" ? handleWake : undefined}
           />
         )
       ) : (
