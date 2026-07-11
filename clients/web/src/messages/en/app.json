@@ -425,6 +425,7 @@
       "share": "Share",
       "mobileAccess": "Open on mobile",
       "terminate": "Terminate",
+      "delete": "Delete record",
       "enablePerpetual": "Enable Perpetual",
       "disablePerpetual": "Disable Perpetual"
     },
@@ -434,6 +435,11 @@
       "hint": "Leave empty to use the default name.",
       "cancel": "Cancel",
       "confirm": "Save"
+    },
+    "deleteDialog": {
+      "title": "Delete Worker record",
+      "description": "Only completed Workers can be deleted. Their session record cannot be restored.",
+      "confirm": "Delete"
     },
     "loadMore": "Load more",
     "importedSessions": {

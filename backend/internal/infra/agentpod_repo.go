@@ -35,6 +35,20 @@ func (r *podRepo) CreateWithConfig(ctx context.Context, pod *agentpod.Pod, revis
 	})
 }
 
+func (r *podRepo) DeleteTerminalByKey(ctx context.Context, podKey string) (int64, error) {
+	var deleted int64
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec("DELETE FROM pod_session_usage WHERE pod_key = ?", podKey).Error; err != nil {
+			return err
+		}
+		result := tx.Where("pod_key = ? AND status IN ?", podKey, agentpod.TerminalStatuses()).
+			Delete(&agentpod.Pod{})
+		deleted = result.RowsAffected
+		return result.Error
+	})
+	return deleted, err
+}
+
 func (r *podRepo) GetByKey(ctx context.Context, podKey string) (*agentpod.Pod, error) {
 	var pod agentpod.Pod
 	err := r.db.WithContext(ctx).

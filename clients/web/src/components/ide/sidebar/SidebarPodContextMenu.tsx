@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Pencil, Share2, Square, RefreshCw, Bot, Smartphone } from "lucide-react";
+import { Pencil, Share2, Square, RefreshCw, Bot, Smartphone, Trash2 } from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -17,6 +17,7 @@ interface SidebarPodContextMenuProps {
   onShare: () => void;
   onOpenMobile: () => void;
   onPublishExpert?: () => void;
+  onDelete: () => void;
   onTerminate: () => void;
   onTogglePerpetual: (perpetual: boolean) => void;
   children: React.ReactNode;
@@ -28,6 +29,7 @@ export function SidebarPodContextMenu({
   onShare,
   onOpenMobile,
   onPublishExpert,
+  onDelete,
   onTerminate,
   onTogglePerpetual,
   children,
@@ -69,6 +71,12 @@ export function SidebarPodContextMenu({
         )}
 
         <ContextMenuSeparator />
+        {!isActive && (
+          <ContextMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+            <Trash2 className="mr-2 h-4 w-4" />
+            {t("contextMenu.delete")}
+          </ContextMenuItem>
+        )}
 
         <ContextMenuItem
           onClick={onTerminate}

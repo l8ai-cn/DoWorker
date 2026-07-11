@@ -5,6 +5,7 @@ import { ApiError } from "@/lib/api/api-types";
 import { reconnectRegistry } from "@/lib/realtime";
 import { readCurrentOrg, readCurrentUser } from "@/stores/auth";
 import { getErrorMessage } from "@/lib/utils";
+import { deleteTerminalPod as deleteTerminalPodRequest } from "@/lib/api/podDeletionApi";
 import { initWasmCore, getPodState } from "@/lib/wasm-core";
 import {
   listPodsRaw,
@@ -209,6 +210,16 @@ export const usePodStore = create<PodState>((set, get) => ({
       if (!isNotFound) { set({ error: getErrorMessage(error, "Failed to terminate pod") }); throw error; }
     }
     bump();
+  },
+
+  deleteTerminalPod: async (podKey) => {
+    try {
+      await deleteTerminalPodRequest(podKey);
+      await get().fetchSidebarPods(get().currentSidebarFilter);
+    } catch (error: unknown) {
+      set({ error: getErrorMessage(error, "Failed to delete pod") });
+      throw error;
+    }
   },
 
   upsertPod: (pod) => {

@@ -86,6 +86,7 @@ export function WorkspaceSidebarContent({ className, onCreatePod, onTerminatePod
             {s.sortedPods.map((pod) => (
               <PodListItem key={pod.pod_key} pod={pod} isOpen={s.isPodOpen(pod.pod_key)}
                 onClick={() => s.handleOpenTerminal(pod)} onTerminate={() => s.handleTerminateClick(pod.pod_key)}
+                onDelete={() => s.handleDeleteClick(pod.pod_key)}
                 onRename={() => s.setRenamePod(pod)} onShare={() => setSharePodKey(pod.pod_key)}
                 onOpenMobile={() => setMobileAccessPod(pod)}
                 onPublishExpert={() => setPublishPod(pod)}

@@ -258,6 +258,7 @@
     "contextMenu": {
       "rename": "Renombrar",
       "terminate": "Terminar",
+      "delete": "Eliminar registro",
       "enablePerpetual": "Activar modo perpetuo",
       "disablePerpetual": "Desactivar modo perpetuo"
     },
@@ -267,6 +268,11 @@
       "hint": "Dejar vacío para usar el nombre predeterminado.",
       "cancel": "Cancelar",
       "confirm": "Guardar"
+    },
+    "deleteDialog": {
+      "title": "Eliminar registro del Worker",
+      "description": "Solo se pueden eliminar Workers finalizados. Su sesión no se podrá restaurar.",
+      "confirm": "Eliminar"
     },
     "loadMore": "Cargar más",
     "pod": {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { useCurrentUser, useCurrentOrg, useAuthStore } from "@/stores/auth";
+import { useCurrentUser, useCurrentOrg } from "@/stores/auth";
 import { useWorkspaceStore } from "@/stores/workspace";
 import { usePodStore, usePods, Pod, SIDEBAR_STATUS_MAP } from "@/stores/pod";
 import { useRunnerStore, useRunners } from "@/stores/runner";
@@ -20,6 +20,7 @@ export function useWorkspaceSidebar(
   const fetchSidebarPods = usePodStore((s) => s.fetchSidebarPods);
   const loadMorePods = usePodStore((s) => s.loadMorePods);
   const terminatePod = usePodStore((s) => s.terminatePod);
+  const deleteTerminalPod = usePodStore((s) => s.deleteTerminalPod);
   const updatePodAlias = usePodStore((s) => s.updatePodAlias);
   const updatePodPerpetual = usePodStore((s) => s.updatePodPerpetual);
   const podHasMore = usePodStore((s) => s.podHasMore);
@@ -91,6 +92,17 @@ export function useWorkspaceSidebar(
     if (confirmed) { await terminatePod(podKey); removePaneByPodKey(podKey); onTerminatePod?.(); }
   }, [confirm, t, terminatePod, removePaneByPodKey, onTerminatePod]);
 
+  const handleDeleteClick = useCallback(async (podKey: string) => {
+    const confirmed = await confirm({
+      title: t("deleteDialog.title"),
+      description: t("deleteDialog.description"),
+      variant: "destructive",
+      confirmText: t("deleteDialog.confirm"),
+      cancelText: t("terminateDialog.cancel"),
+    });
+    if (confirmed) await deleteTerminalPod(podKey);
+  }, [confirm, deleteTerminalPod, t]);
+
   const handleRenameConfirm = useCallback(async (newName: string) => {
     if (!renamePod) return;
     try { await updatePodAlias(renamePod.pod_key, newName || null); } catch (error) { console.error("Failed to rename pod:", error); }
@@ -106,6 +118,6 @@ export function useWorkspaceSidebar(
     filter, searchQuery, setSearchQuery, runnersExpanded, setRunnersExpanded, refreshing,
     renamePod, setRenamePod, dialogProps, sortedPods, podHasMore, loadingMore,
     handleFilterChange, handleRefresh, isPodOpen, handleOpenTerminal,
-    handleTerminateClick, handleRenameConfirm, handleTogglePerpetual, loadMorePods,
+    handleTerminateClick, handleDeleteClick, handleRenameConfirm, handleTogglePerpetual, loadMorePods,
   };
 }

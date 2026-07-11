@@ -258,6 +258,7 @@
     "contextMenu": {
       "rename": "名前を変更",
       "terminate": "終了",
+      "delete": "記録を削除",
       "enablePerpetual": "永続モードを有効にする",
       "disablePerpetual": "永続モードを無効にする"
     },
@@ -267,6 +268,11 @@
       "hint": "空にするとデフォルト名が使用されます。",
       "cancel": "キャンセル",
       "confirm": "保存"
+    },
+    "deleteDialog": {
+      "title": "Worker の記録を削除",
+      "description": "完了した Worker のみ削除できます。セッション記録は復元できません。",
+      "confirm": "削除"
     },
     "loadMore": "さらに読み込む",
     "pod": {

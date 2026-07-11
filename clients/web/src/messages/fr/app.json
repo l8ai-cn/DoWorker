@@ -258,6 +258,7 @@
     "contextMenu": {
       "rename": "Renommer",
       "terminate": "Terminer",
+      "delete": "Supprimer l’enregistrement",
       "enablePerpetual": "Activer le mode perpétuel",
       "disablePerpetual": "Désactiver le mode perpétuel"
     },
@@ -267,6 +268,11 @@
       "hint": "Laisser vide pour utiliser le nom par défaut.",
       "cancel": "Annuler",
       "confirm": "Enregistrer"
+    },
+    "deleteDialog": {
+      "title": "Supprimer l’enregistrement du Worker",
+      "description": "Seuls les Workers terminés peuvent être supprimés. Leur session ne pourra pas être restaurée.",
+      "confirm": "Supprimer"
     },
     "loadMore": "Charger plus",
     "pod": {

@@ -7,11 +7,39 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/grant"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	agentpodsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
 	"github.com/anthropics/agentsmesh/backend/pkg/policy"
 	"github.com/gin-gonic/gin"
 )
+
+func (h *PodHandler) DeletePod(c *gin.Context) {
+	podKey := c.Param("key")
+	pod, err := h.podService.GetPod(c.Request.Context(), podKey)
+	if err != nil {
+		apierr.ResourceNotFound(c, "Pod not found")
+		return
+	}
+	tenant := middleware.GetTenant(c)
+	sub := policy.NewSubject(tenant.OrganizationID, tenant.UserID, tenant.UserRole)
+	if !policy.PodPolicy.AllowWrite(sub, h.podResourceWithGrants(c.Request.Context(), podKey, pod.OrganizationID, pod.CreatedByID)) {
+		apierr.ForbiddenAccess(c)
+		return
+	}
+	if err := h.podService.DeleteTerminalPod(c.Request.Context(), podKey); err != nil {
+		if errors.Is(err, agentpodsvc.ErrPodNotTerminal) {
+			apierr.BadRequest(c, apierr.VALIDATION_FAILED, "Only completed Workers can be deleted")
+			return
+		}
+		apierr.InternalError(c, "Failed to delete Worker")
+		return
+	}
+	if h.grantService != nil {
+		_ = h.grantService.CleanupByResource(c.Request.Context(), grant.TypePod, podKey)
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
 
 func (h *PodHandler) TerminatePod(c *gin.Context) {
 	podKey := c.Param("key")

@@ -15,6 +15,7 @@ import (
 
 var (
 	ErrPodNotFound       = errors.New("pod not found")
+	ErrPodNotTerminal    = errors.New("pod is not in a terminal state")
 	ErrNoAvailableRunner = errors.New("no available runner")
 	ErrRunnerNotFound    = errors.New("runner not found")
 	ErrRunnerOffline     = errors.New("runner is offline")

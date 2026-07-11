@@ -31,6 +31,7 @@ export interface PodState {
   fetchSidebarPods: (statusFilter: string, opts?: { silent?: boolean }) => Promise<void>;
   loadMorePods: () => Promise<void>;
   terminatePod: (podKey: string) => Promise<void>;
+  deleteTerminalPod: (podKey: string) => Promise<void>;
   setCurrentPod: (pod: Pod | null) => void;
   updatePodStatus: (podKey: string, status: Pod["status"], agentStatus?: string, errorCode?: string, errorMessage?: string) => void;
   updateAgentStatus: (podKey: string, agentStatus: string) => void;

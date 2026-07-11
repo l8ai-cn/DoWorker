@@ -25,6 +25,7 @@ func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services) {
 	podHandler := NewPodHandler(svc.Pod, svc.Runner, svc.PodOrchestrator, podOpts...)
 
 	rg.POST("/quick-tasks", podHandler.CreateQuickTask)
+	rg.DELETE("/pods/:key", podHandler.DeletePod)
 	rg.GET("/pods/queued", podHandler.ListQueuedPods)
 	rg.DELETE("/pods/:key/queue", podHandler.CancelQueuedPod)
 	rg.GET("/pods/:key/preview", podHandler.GetPodPreview)

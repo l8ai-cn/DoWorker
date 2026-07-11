@@ -25,6 +25,7 @@ import (
 // mockPodService implements PodServiceForHandler for testing.
 type mockPodService struct {
 	getPodFn          func(ctx context.Context, podKey string) (*agentpod.Pod, error)
+	deletePodFn       func(ctx context.Context, podKey string) error
 	updatePerpetualFn func(ctx context.Context, podKey string, perpetual bool) error
 }
 
@@ -51,6 +52,13 @@ func (m *mockPodService) GetPodsByTicket(context.Context, int64) ([]*agentpod.Po
 	return nil, nil
 }
 
+func (m *mockPodService) DeleteTerminalPod(ctx context.Context, podKey string) error {
+	if m.deletePodFn != nil {
+		return m.deletePodFn(ctx, podKey)
+	}
+	return nil
+}
+
 func (m *mockPodService) UpdateAlias(context.Context, string, *string) error { return nil }
 
 func (m *mockPodService) UpdatePerpetual(ctx context.Context, podKey string, perpetual bool) error {
@@ -66,8 +74,8 @@ func (m *mockPodService) GetActivePodBySourcePodKey(context.Context, string) (*a
 
 // mockCommandSender implements runner.RunnerCommandSender for testing.
 type mockCommandSender struct {
-	sendPromptFn              func(ctx context.Context, runnerID int64, podKey, prompt string) error
-	sendUpdatePodPerpetualFn  func(ctx context.Context, runnerID int64, podKey string, perpetual bool) error
+	sendPromptFn             func(ctx context.Context, runnerID int64, podKey, prompt string) error
+	sendUpdatePodPerpetualFn func(ctx context.Context, runnerID int64, podKey string, perpetual bool) error
 }
 
 func (m *mockCommandSender) SendCreatePod(context.Context, int64, *runnerv1.CreatePodCommand) error {
