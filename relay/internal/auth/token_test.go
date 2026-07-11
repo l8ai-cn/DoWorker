@@ -152,6 +152,53 @@ func TestRelayClaims_TokenType(t *testing.T) {
 	}
 }
 
+func TestValidateToken_PreviewRequiresNormalizedPath(t *testing.T) {
+	v := NewTokenValidator(testSecret, testIssuer)
+	for _, previewPath := range []string{"", "/app/", "/app/../admin", "/app%2F..%2Fadmin"} {
+		previewPath := previewPath
+		t.Run(previewPath, func(t *testing.T) {
+			token := signPreviewClaims(t, previewPath)
+			if _, err := v.ValidateToken(token); err != ErrInvalidToken {
+				t.Fatalf("ValidateToken path %q error = %v, want ErrInvalidToken", previewPath, err)
+			}
+		})
+	}
+
+	claims, err := v.ValidateToken(signPreviewClaims(t, "/app"))
+	if err != nil {
+		t.Fatalf("normalized preview path rejected: %v", err)
+	}
+	if claims.PreviewPath != "/app" {
+		t.Fatalf("PreviewPath = %q, want /app", claims.PreviewPath)
+	}
+}
+
+func signPreviewClaims(t *testing.T, previewPath string) string {
+	t.Helper()
+	now := time.Now()
+	claims := &RelayClaims{
+		PodKey:        "pod1",
+		RunnerID:      7,
+		UserID:        42,
+		OrgID:         3,
+		TokenType:     TokenTypePreview,
+		PreviewTarget: "127.0.0.1:3000",
+		PreviewPath:   previewPath,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now),
+			Issuer:    testIssuer,
+			Subject:   "pod1",
+		},
+	}
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(testSecret))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return token
+}
+
 func TestErrorVariables(t *testing.T) {
 	if ErrInvalidToken.Error() != "invalid token" {
 		t.Error("ErrInvalidToken message wrong")

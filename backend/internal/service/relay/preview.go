@@ -3,6 +3,9 @@ package relay
 import (
 	"errors"
 	"fmt"
+	"net/url"
+	"path"
+	"strings"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 )
@@ -20,7 +23,25 @@ var (
 	ErrPreviewDisabled = errors.New("preview_disabled")
 	// ErrPodNotActive indicates the pod is not in a routable/active state.
 	ErrPodNotActive = errors.New("pod_not_active")
+	// ErrInvalidPreviewPath indicates preview metadata cannot be routed safely.
+	ErrInvalidPreviewPath = errors.New("invalid_preview_path")
 )
+
+func NormalizePreviewPath(raw string) (string, error) {
+	if raw == "" {
+		return "/", nil
+	}
+	decoded, err := url.PathUnescape(raw)
+	if err != nil || !strings.HasPrefix(decoded, "/") || strings.ContainsAny(decoded, "?#") {
+		return "", ErrInvalidPreviewPath
+	}
+	for _, segment := range strings.Split(decoded, "/") {
+		if segment == ".." {
+			return "", ErrInvalidPreviewPath
+		}
+	}
+	return path.Clean(decoded), nil
+}
 
 // ResolvePreviewRoute derives the preview routing target from pod metadata
 // without any table lookup at request time (routing later relies on the JWT
@@ -32,9 +53,13 @@ func ResolvePreviewRoute(pod *agentpod.Pod) (PreviewRoute, error) {
 	if pod.PreviewPort <= 0 {
 		return PreviewRoute{}, ErrPreviewDisabled
 	}
+	previewPath, err := NormalizePreviewPath(pod.PreviewPath)
+	if err != nil {
+		return PreviewRoute{}, err
+	}
 	return PreviewRoute{
 		RunnerID: pod.RunnerID,
 		Target:   fmt.Sprintf("127.0.0.1:%d", pod.PreviewPort),
-		Path:     pod.PreviewPath,
+		Path:     previewPath,
 	}, nil
 }

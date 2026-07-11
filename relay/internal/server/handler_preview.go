@@ -1,8 +1,10 @@
 package server
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
+	"path"
 	"strings"
 	"time"
 
@@ -96,6 +98,11 @@ func (h *PreviewHandler) HandlePreview(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	upstreamPath, err := joinPreviewUpstreamPath(claims.PreviewPath, rest)
+	if err != nil {
+		writePreviewError(w, "invalid_path", http.StatusBadRequest)
+		return
+	}
 
 	ctx := r.Context()
 	tun := h.registry.WaitForTunnel(ctx, claims.RunnerID, h.cfg.ReconnectGrace)
@@ -118,7 +125,7 @@ func (h *PreviewHandler) HandlePreview(w http.ResponseWriter, r *http.Request) {
 	params := proxy.ProxyParams{
 		PodKey:      podKey,
 		Target:      claims.PreviewTarget,
-		Path:        "/" + rest,
+		Path:        upstreamPath,
 		WindowBytes: h.cfg.StreamWindowBytes,
 		Timeout:     h.cfg.StreamTimeout,
 	}
@@ -133,6 +140,22 @@ func (h *PreviewHandler) HandlePreview(w http.ResponseWriter, r *http.Request) {
 	if err := proxy.ProxyHTTP(ctx, tun, w, r, params); err != nil {
 		h.logger.Debug("preview proxy error", "pod_key", podKey, "error", err)
 	}
+}
+
+func joinPreviewUpstreamPath(base, rest string) (string, error) {
+	for _, segment := range strings.Split(rest, "/") {
+		if segment == ".." {
+			return "", errors.New("preview path traversal")
+		}
+	}
+	if rest == "" {
+		return base, nil
+	}
+	joined := path.Join(base, rest)
+	if strings.HasSuffix(rest, "/") && joined != "/" {
+		joined += "/"
+	}
+	return joined, nil
 }
 
 // authenticate validates the preview token (cookie or query param), enforcing

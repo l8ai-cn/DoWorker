@@ -8,12 +8,12 @@ import (
 )
 
 func TestResolvePreviewRoute(t *testing.T) {
-	pod := &agentpod.Pod{RunnerID: 7, PreviewPort: 3000, Status: agentpod.StatusRunning}
+	pod := &agentpod.Pod{RunnerID: 7, PreviewPort: 3000, PreviewPath: "/app/", Status: agentpod.StatusRunning}
 	r, err := ResolvePreviewRoute(pod)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r.Target != "127.0.0.1:3000" || r.RunnerID != 7 {
+	if r.Target != "127.0.0.1:3000" || r.RunnerID != 7 || r.Path != "/app" {
 		t.Fatalf("bad route %+v", r)
 	}
 
@@ -27,5 +27,59 @@ func TestResolvePreviewRoute(t *testing.T) {
 
 	if _, err := ResolvePreviewRoute(nil); !errors.Is(err, ErrPodNotActive) {
 		t.Fatalf("nil pod must error pod_not_active, got %v", err)
+	}
+}
+
+func TestNormalizePreviewPath(t *testing.T) {
+	t.Parallel()
+
+	valid := map[string]string{
+		"":           "/",
+		"/":          "/",
+		"/app/":      "/app",
+		"/app//api":  "/app/api",
+		"/app/./api": "/app/api",
+	}
+	for input, want := range valid {
+		input, want := input, want
+		t.Run(input, func(t *testing.T) {
+			got, err := NormalizePreviewPath(input)
+			if err != nil {
+				t.Fatalf("NormalizePreviewPath(%q): %v", input, err)
+			}
+			if got != want {
+				t.Fatalf("NormalizePreviewPath(%q) = %q, want %q", input, got, want)
+			}
+		})
+	}
+
+	for _, input := range []string{
+		"app",
+		"/app/../admin",
+		"/app/%2e%2e/admin",
+		"/app?debug=true",
+		"/app#fragment",
+		"/app%3Fdebug=true",
+		"/app%23fragment",
+		"/bad%2",
+	} {
+		input := input
+		t.Run("reject_"+input, func(t *testing.T) {
+			if _, err := NormalizePreviewPath(input); !errors.Is(err, ErrInvalidPreviewPath) {
+				t.Fatalf("NormalizePreviewPath(%q) error = %v, want ErrInvalidPreviewPath", input, err)
+			}
+		})
+	}
+}
+
+func TestResolvePreviewRouteRejectsInvalidPath(t *testing.T) {
+	pod := &agentpod.Pod{
+		RunnerID:    7,
+		PreviewPort: 3000,
+		PreviewPath: "/app/%2e%2e/admin",
+		Status:      agentpod.StatusRunning,
+	}
+	if _, err := ResolvePreviewRoute(pod); !errors.Is(err, ErrInvalidPreviewPath) {
+		t.Fatalf("expected ErrInvalidPreviewPath, got %v", err)
 	}
 }

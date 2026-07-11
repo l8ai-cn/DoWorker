@@ -2,6 +2,9 @@ package auth
 
 import (
 	"errors"
+	"net/url"
+	"path"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -31,6 +34,7 @@ type RelayClaims struct {
 	OrgID         int64     `json:"org_id"`
 	TokenType     TokenType `json:"token_type,omitempty"`
 	PreviewTarget string    `json:"preview_target,omitempty"` // e.g. 127.0.0.1:3000
+	PreviewPath   string    `json:"preview_path,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -96,8 +100,30 @@ func (v *TokenValidator) ValidateToken(tokenString string) (*RelayClaims, error)
 	if v.issuer != "" && claims.Issuer != v.issuer {
 		return nil, ErrInvalidToken
 	}
+	if claims.ResolvedType() == TokenTypePreview {
+		normalized, err := normalizePreviewPath(claims.PreviewPath)
+		if err != nil || normalized != claims.PreviewPath || claims.PreviewTarget == "" {
+			return nil, ErrInvalidToken
+		}
+	}
 
 	return claims, nil
+}
+
+func normalizePreviewPath(raw string) (string, error) {
+	if raw == "" {
+		return "", ErrInvalidToken
+	}
+	decoded, err := url.PathUnescape(raw)
+	if err != nil || !strings.HasPrefix(decoded, "/") || strings.ContainsAny(decoded, "?#") {
+		return "", ErrInvalidToken
+	}
+	for _, segment := range strings.Split(decoded, "/") {
+		if segment == ".." {
+			return "", ErrInvalidToken
+		}
+	}
+	return path.Clean(decoded), nil
 }
 
 // GenerateToken generates a relay token (used by Backend)

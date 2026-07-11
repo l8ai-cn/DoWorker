@@ -25,12 +25,19 @@ func (m *mockPreviewRelaySelector) SelectRelayForPodGeo(relaysvc.GeoSelectOption
 }
 
 type mockPreviewTokens struct {
-	tokenTypes []string
+	tokenTypes  []string
+	previewPath string
 }
 
 func (m *mockPreviewTokens) GenerateTypedToken(podKey string, runnerID, userID, orgID int64, tokenType, previewTarget string, expiry time.Duration) (string, error) {
 	m.tokenTypes = append(m.tokenTypes, tokenType)
 	return "JWT-" + tokenType, nil
+}
+
+func (m *mockPreviewTokens) GeneratePreviewToken(podKey string, runnerID, userID, orgID int64, previewTarget, previewPath string, expiry time.Duration) (string, error) {
+	m.tokenTypes = append(m.tokenTypes, "preview")
+	m.previewPath = previewPath
+	return "JWT-preview", nil
 }
 
 type previewCommandSender struct {
@@ -68,8 +75,9 @@ func performPreviewGET(h *PodHandler) *httptest.ResponseRecorder {
 }
 
 func TestGetPodPreview_ReturnsSessionURLWithoutRawToken(t *testing.T) {
-	pod := &agentpod.Pod{PodKey: "pod1", RunnerID: 7, PreviewPort: 3000, Status: agentpod.StatusRunning, OrganizationID: 1, CreatedByID: 10}
-	w := performPreviewGET(newPreviewHandler(pod))
+	pod := &agentpod.Pod{PodKey: "pod1", RunnerID: 7, PreviewPort: 3000, PreviewPath: "/app/", Status: agentpod.StatusRunning, OrganizationID: 1, CreatedByID: 10}
+	h := newPreviewHandler(pod)
+	w := performPreviewGET(h)
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d body=%s", w.Code, w.Body.String())
 	}
@@ -80,6 +88,7 @@ func TestGetPodPreview_ReturnsSessionURLWithoutRawToken(t *testing.T) {
 	assert.Contains(t, resp["session_url"], "__session")
 	assert.NotEmpty(t, resp["expires_at"])
 	assert.NotContains(t, resp, "token")
+	assert.Equal(t, "/app", h.relayTokens.(*mockPreviewTokens).previewPath)
 }
 
 func TestGetPodPreview_MissingCommandSenderReturns503(t *testing.T) {

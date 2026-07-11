@@ -70,6 +70,38 @@ func TestPreview_NonPreviewTokenRejected(t *testing.T) {
 	}
 }
 
+func TestJoinPreviewUpstreamPath(t *testing.T) {
+	t.Parallel()
+	for _, tt := range []struct {
+		name string
+		base string
+		rest string
+		want string
+	}{
+		{name: "root mount root request", base: "/", rest: "", want: "/"},
+		{name: "mounted root request", base: "/app", rest: "", want: "/app"},
+		{name: "mounted asset", base: "/app", rest: "assets/app.js", want: "/app/assets/app.js"},
+		{name: "preserve directory slash", base: "/app", rest: "docs/", want: "/app/docs/"},
+	} {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := joinPreviewUpstreamPath(tt.base, tt.rest)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != tt.want {
+				t.Fatalf("joinPreviewUpstreamPath(%q, %q) = %q, want %q", tt.base, tt.rest, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestJoinPreviewUpstreamPathRejectsTraversal(t *testing.T) {
+	if _, err := joinPreviewUpstreamPath("/app", "../admin"); err == nil {
+		t.Fatal("expected traversal to be rejected")
+	}
+}
+
 func TestPreviewSession_SetsCookieAndRedirects(t *testing.T) {
 	h := newTestPreviewHandler(t)
 	tok := mustPreviewToken(t, "pod1", 7, "127.0.0.1:3000")
@@ -108,6 +140,10 @@ func TestPreviewSession_SetsCookieAndRedirects(t *testing.T) {
 // builds an equivalent claim set directly since auth.GenerateTypedToken
 // (a gateway-side test helper) doesn't take a pod_key parameter.
 func mustPreviewToken(t *testing.T, podKey string, runnerID int64, target string) string {
+	return mustPreviewTokenWithPath(t, podKey, runnerID, target, "/")
+}
+
+func mustPreviewTokenWithPath(t *testing.T, podKey string, runnerID int64, target, previewPath string) string {
 	t.Helper()
 	now := time.Now()
 	claims := &auth.RelayClaims{
@@ -117,6 +153,7 @@ func mustPreviewToken(t *testing.T, podKey string, runnerID int64, target string
 		OrgID:         3,
 		TokenType:     auth.TokenTypePreview,
 		PreviewTarget: target,
+		PreviewPath:   previewPath,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(now),

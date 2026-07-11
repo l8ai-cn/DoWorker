@@ -28,6 +28,7 @@ type previewRelaySelector interface {
 // satisfies it; tests inject a fake.
 type previewTokenGenerator interface {
 	GenerateTypedToken(podKey string, runnerID, userID, orgID int64, tokenType, previewTarget string, expiry time.Duration) (string, error)
+	GeneratePreviewToken(podKey string, runnerID, userID, orgID int64, previewTarget, previewPath string, expiry time.Duration) (string, error)
 }
 
 // GetPodPreview requests the runner's outbound tunnel and issues a short-lived
@@ -86,7 +87,15 @@ func (h *PodHandler) GetPodPreview(c *gin.Context) {
 		return
 	}
 
-	previewToken, err := h.relayTokens.GenerateTypedToken(podKey, pod.RunnerID, tenant.UserID, tenant.OrganizationID, "preview", route.Target, previewTokenTTL)
+	previewToken, err := h.relayTokens.GeneratePreviewToken(
+		podKey,
+		pod.RunnerID,
+		tenant.UserID,
+		tenant.OrganizationID,
+		route.Target,
+		route.Path,
+		previewTokenTTL,
+	)
 	if err != nil {
 		apierr.InternalError(c, "failed to mint preview token")
 		return

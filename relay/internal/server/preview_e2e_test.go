@@ -260,10 +260,10 @@ func TestPreviewE2E_HTMLAndImage(t *testing.T) {
 	imageBytes := []byte{0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3, 4, 5}
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case "/":
+		case "/app":
 			w.Header().Set("Content-Type", "text/html")
 			_, _ = io.WriteString(w, "<h1>ok</h1>")
-		case "/logo.png":
+		case "/app/logo.png":
 			w.Header().Set("Content-Type", "image/png")
 			_, _ = w.Write(imageBytes)
 		default:
@@ -285,7 +285,7 @@ func TestPreviewE2E_HTMLAndImage(t *testing.T) {
 	defer fr.Close()
 	waitForRunnerRegistered(t, registry, runnerID)
 
-	previewToken := mustPreviewToken(t, "pod1", runnerID, target)
+	previewToken := mustPreviewTokenWithPath(t, "pod1", runnerID, target, "/app")
 
 	htmlResp, err := http.Get(gw.URL + "/preview/pod1/?token=" + previewToken)
 	if err != nil {

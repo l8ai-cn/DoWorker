@@ -7,18 +7,40 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func TestGenerateTypedToken_Preview(t *testing.T) {
+func TestGeneratePreviewToken(t *testing.T) {
 	g := NewTokenGenerator("secret", "iss")
-	tok, err := g.GenerateTypedToken("pod1", 7, 42, 3, "preview", "127.0.0.1:3000", time.Hour)
+	tok, err := g.GeneratePreviewToken("pod1", 7, 42, 3, "127.0.0.1:3000", "/app/", time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if tok == "" {
 		t.Fatal("empty token")
 	}
-	// 空 preview target 应报错（preview 必须绑定 target）
-	if _, err := g.GenerateTypedToken("pod1", 7, 42, 3, "preview", "", time.Hour); err == nil {
+
+	parsed, err := jwt.ParseWithClaims(tok, &TokenClaims{}, func(t *jwt.Token) (interface{}, error) {
+		return []byte("secret"), nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	claims := parsed.Claims.(*TokenClaims)
+	if claims.PreviewTarget != "127.0.0.1:3000" || claims.PreviewPath != "/app" {
+		t.Fatalf("unexpected preview claims: %+v", claims)
+	}
+
+	if _, err := g.GeneratePreviewToken("pod1", 7, 42, 3, "", "/app", time.Hour); err == nil {
 		t.Fatal("preview token without target must error")
+	}
+	if _, err := g.GeneratePreviewToken("pod1", 7, 42, 3, "127.0.0.1:3000", "/app/../admin", time.Hour); err == nil {
+		t.Fatal("preview token with invalid path must error")
+	}
+}
+
+func TestGenerateTypedToken_TunnelUnchanged(t *testing.T) {
+	g := NewTokenGenerator("secret", "iss")
+	tok, err := g.GenerateTypedToken("", 7, 0, 3, "tunnel", "", time.Hour)
+	if err != nil || tok == "" {
+		t.Fatalf("GenerateTypedToken tunnel failed: token=%q err=%v", tok, err)
 	}
 }
 
