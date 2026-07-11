@@ -106,3 +106,25 @@ func TestResolveRunnerForCreate(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdateAvailableAgentsRefreshesActiveRunner(t *testing.T) {
+	ctx := context.Background()
+	db := setupTestDB(t)
+	service := newTestService(db)
+	r := &runnerDomain.Runner{
+		OrganizationID:    1,
+		NodeID:            "runner-agent-refresh",
+		Status:            runnerDomain.RunnerStatusOnline,
+		IsEnabled:         true,
+		MaxConcurrentPods: 2,
+		Visibility:        runnerDomain.VisibilityOrganization,
+	}
+	require.NoError(t, db.Create(r).Error)
+	require.NoError(t, service.MarkConnected(ctx, r.ID))
+
+	require.NoError(t, service.UpdateAvailableAgents(ctx, r.ID, []string{"e2e-echo"}))
+
+	resolved, err := service.ResolveRunnerForCreate(ctx, r.ID, 1, 10, "e2e-echo", false)
+	require.NoError(t, err)
+	assert.Equal(t, r.ID, resolved.ID)
+}

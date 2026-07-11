@@ -5,9 +5,9 @@ import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 
 import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
 
 type Runner = { id: bigint };
-type Agent = { slug: string };
 type Pod = { podKey: string; status: string };
 type ConnectClient = Awaited<ReturnType<import("../../fixtures/api.fixture").ApiFixture["connect"]>>;
 
@@ -19,14 +19,12 @@ test.describe("Pod Resume", () => {
   async function createAndWaitPod(cc: ConnectClient): Promise<string> {
     const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
     expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
-    expect(agents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
+    const runnerId = pickE2EEchoRunner(runners).id;
 
     const resp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
-      agentSlug: agents[0].slug,
+      runnerId,
+      agentSlug: E2E_ECHO_AGENT_SLUG,
     }) as { pod: Pod };
     const podKey = resp.pod?.podKey;
     expect(podKey, "createPod must return a pod_key").toBeTruthy();
@@ -59,11 +57,9 @@ test.describe("Pod Resume", () => {
       { maxAttempts: 5, intervalMs: 2000, label: "pod-terminated" }
     ).catch(() => {});
 
-    // CreatePod still requires agent_slug — reuse the first builtin agent.
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
     const resumeResp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      agentSlug: agents[0].slug,
+      agentSlug: E2E_ECHO_AGENT_SLUG,
       sourcePodKey: podKey,
     }) as { pod: Pod };
     const newPodKey = resumeResp.pod?.podKey;
@@ -84,13 +80,10 @@ test.describe("Pod Resume", () => {
     await cc.pod.terminatePod({ orgSlug: TEST_ORG_SLUG, podKey });
     await new Promise((r) => setTimeout(r, 2000));
 
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
-    const agentSlug = agents[0].slug;
-
     // First resume
     const r1 = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      agentSlug,
+      agentSlug: E2E_ECHO_AGENT_SLUG,
       sourcePodKey: podKey,
     }) as { pod: Pod };
     const newKey = r1.pod?.podKey;
@@ -100,7 +93,7 @@ test.describe("Pod Resume", () => {
     try {
       await cc.pod.createPod({
         orgSlug: TEST_ORG_SLUG,
-        agentSlug,
+        agentSlug: E2E_ECHO_AGENT_SLUG,
         sourcePodKey: podKey,
       });
     } catch (e) {

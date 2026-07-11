@@ -17,26 +17,27 @@ import (
 )
 
 func main() {
-	apply := flag.Bool("apply", false, "migrate legacy ai_models and credential EnvBundles")
-	dsn := flag.String("dsn", defaultDSN(), "Postgres DSN; defaults to $DATABASE_URL or DB_*")
-	cipherKey := flag.String("cipher-key", defaultCipherKey(), "credential cipher key; defaults to $AI_RESOURCE_MIGRATION_CIPHER_KEY or $JWT_SECRET")
-	createdBy := flag.Int64("created-by", defaultCreatedBy(), "existing users.id recorded as provider_connections.created_by")
+	flags := registerFlags(flag.CommandLine)
 	flag.Parse()
 
-	if *dsn == "" || *cipherKey == "" {
+	dsn := resolvedString(*flags.dsn, defaultDSN)
+	cipherKey := resolvedString(*flags.cipherKey, defaultCipherKey)
+	createdBy := resolvedInt64(*flags.createdBy, defaultCreatedBy)
+
+	if dsn == "" || cipherKey == "" {
 		fmt.Fprintln(os.Stderr, "DATABASE_URL/--dsn and JWT_SECRET/--cipher-key are required")
 		os.Exit(2)
 	}
-	db, err := gorm.Open(postgres.Open(*dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Warn)})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Warn)})
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "db open:", err)
 		os.Exit(1)
 	}
 
-	migrator := airesourcesvc.NewLegacyMigrator(db, crypto.NewEncryptor(*cipherKey), *createdBy)
+	migrator := airesourcesvc.NewLegacyMigrator(db, crypto.NewEncryptor(cipherKey), createdBy)
 	ctx := context.Background()
-	if *apply {
-		if *createdBy <= 0 {
+	if *flags.apply {
+		if createdBy <= 0 {
 			fmt.Fprintln(os.Stderr, "--created-by or AI_RESOURCE_MIGRATION_CREATED_BY must be a positive users.id")
 			os.Exit(2)
 		}
@@ -57,6 +58,36 @@ func main() {
 	if !check.Clean() {
 		os.Exit(1)
 	}
+}
+
+type cliFlags struct {
+	apply     *bool
+	dsn       *string
+	cipherKey *string
+	createdBy *int64
+}
+
+func registerFlags(fs *flag.FlagSet) cliFlags {
+	return cliFlags{
+		apply:     fs.Bool("apply", false, "migrate legacy ai_models and credential EnvBundles"),
+		dsn:       fs.String("dsn", "", "Postgres DSN; defaults to $DATABASE_URL or DB_*"),
+		cipherKey: fs.String("cipher-key", "", "credential cipher key; defaults to $AI_RESOURCE_MIGRATION_CIPHER_KEY or $JWT_SECRET"),
+		createdBy: fs.Int64("created-by", 0, "existing users.id recorded as provider_connections.created_by"),
+	}
+}
+
+func resolvedString(value string, fallback func() string) string {
+	if value != "" {
+		return value
+	}
+	return fallback()
+}
+
+func resolvedInt64(value int64, fallback func() int64) int64 {
+	if value != 0 {
+		return value
+	}
+	return fallback()
 }
 
 func defaultCipherKey() string {

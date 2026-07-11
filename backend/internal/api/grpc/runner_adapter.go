@@ -50,14 +50,16 @@ func (a *GRPCRunnerAdapter) Connect(stream runnerv1.RunnerService_ConnectServer)
 	}
 
 	conn := a.connManager.AddConnection(runnerInfo.ID, identity.NodeID, identity.OrgSlug, grpcStream)
-	if err := a.runnerService.MarkConnected(ctx, runnerInfo.ID); err != nil {
-		a.connManager.RemoveConnection(runnerInfo.ID, conn.Generation)
-		a.logger.Error("failed to mark runner connected", "runner_id", runnerInfo.ID, "error", err)
-		return status.Error(codes.Internal, "failed to mark runner connected")
+	if a.runnerService != nil {
+		if err := a.runnerService.MarkConnected(ctx, runnerInfo.ID); err != nil {
+			a.connManager.RemoveConnection(runnerInfo.ID, conn.Generation)
+			a.logger.Error("failed to mark runner connected", "runner_id", runnerInfo.ID, "error", err)
+			return status.Error(codes.Internal, "failed to mark runner connected")
+		}
 	}
 	defer func() {
 		a.connManager.RemoveConnection(runnerInfo.ID, conn.Generation)
-		if a.connManager.IsConnected(runnerInfo.ID) {
+		if a.runnerService == nil || a.connManager.GetConnection(runnerInfo.ID) != nil {
 			return
 		}
 		disconnectCtx, disconnectCancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
@@ -89,8 +91,8 @@ func (a *GRPCRunnerAdapter) Connect(stream runnerv1.RunnerService_ConnectServer)
 		a.sendLoop(runnerInfo.ID, conn, grpcStream)
 		a.logger.Warn("sendLoop exited, marking connection as dead",
 			"runner_id", runnerInfo.ID)
-		conn.Close()  // mark closed; subsequent SendMessage() returns ErrConnectionClosed
-		cancel()      // cancel context so receiveLoop exits
+		conn.Close() // mark closed; subsequent SendMessage() returns ErrConnectionClosed
+		cancel()     // cancel context so receiveLoop exits
 	}()
 
 	returnErr = a.receiveLoop(ctx, runnerInfo.ID, conn, stream)

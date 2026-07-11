@@ -17,16 +17,20 @@ func newTestLogger() *slog.Logger {
 
 // mockRunnerService implements RunnerServiceInterface for testing
 type mockRunnerService struct {
-	runners             map[string]RunnerInfo
-	revokedCerts        map[string]bool
-	err                 error
-	revocationCheckErr  error // Separate error for IsCertificateRevoked
-	markConnectedErr    error
-	markDisconnectedErr error
-	mu                  sync.Mutex
-	connected           map[int64]bool
-	disconnected        map[int64]bool
-	heartbeats          map[int64]bool
+	runners               map[string]RunnerInfo
+	revokedCerts          map[string]bool
+	err                   error
+	revocationCheckErr    error // Separate error for IsCertificateRevoked
+	markConnectedErr      error
+	markDisconnectedErr   error
+	mu                    sync.Mutex
+	connected             map[int64]bool
+	disconnected          map[int64]bool
+	markConnectedCalls    int
+	markDisconnectedCalls int
+	refreshHeartbeatCalls int
+	lastHeartbeatPods     int
+	updateLastSeenCalls   int
 }
 
 func newMockRunnerService() *mockRunnerService {
@@ -35,7 +39,6 @@ func newMockRunnerService() *mockRunnerService {
 		revokedCerts: make(map[string]bool),
 		connected:    make(map[int64]bool),
 		disconnected: make(map[int64]bool),
-		heartbeats:   make(map[int64]bool),
 	}
 }
 
@@ -50,21 +53,32 @@ func (m *mockRunnerService) GetByNodeID(ctx context.Context, nodeID string) (Run
 }
 
 func (m *mockRunnerService) UpdateLastSeen(ctx context.Context, runnerID int64) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.updateLastSeenCalls++
 	return m.err
 }
 
 func (m *mockRunnerService) MarkConnected(ctx context.Context, runnerID int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	m.markConnectedCalls++
 	m.connected[runnerID] = true
-	return m.markConnectedErr
+	if m.markConnectedErr != nil {
+		return m.markConnectedErr
+	}
+	return m.err
 }
 
 func (m *mockRunnerService) MarkDisconnected(ctx context.Context, runnerID int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	m.markDisconnectedCalls++
 	m.disconnected[runnerID] = true
-	return m.markDisconnectedErr
+	if m.markDisconnectedErr != nil {
+		return m.markDisconnectedErr
+	}
+	return m.err
 }
 
 func (m *mockRunnerService) WasMarkedConnected(runnerID int64) bool {
@@ -79,16 +93,11 @@ func (m *mockRunnerService) WasMarkedDisconnected(runnerID int64) bool {
 	return m.disconnected[runnerID]
 }
 
-func (m *mockRunnerService) TouchActiveRunner(runnerID int64) {
+func (m *mockRunnerService) RefreshActiveHeartbeat(runnerID int64, currentPods int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.heartbeats[runnerID] = true
-}
-
-func (m *mockRunnerService) WasActiveRunnerTouched(runnerID int64) bool {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	return m.heartbeats[runnerID]
+	m.refreshHeartbeatCalls++
+	m.lastHeartbeatPods = currentPods
 }
 
 func (m *mockRunnerService) UpdateAvailableAgents(ctx context.Context, runnerID int64, agents []string) error {

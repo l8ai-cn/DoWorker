@@ -40,7 +40,8 @@ func TestGRPCRunnerAdapter_HandleProtoMessage(t *testing.T) {
 		}
 		adapter.handleProtoMessage(context.Background(), 1, conn, msg)
 		assert.True(t, heartbeatReceived)
-		assert.True(t, runnerSvc.WasActiveRunnerTouched(1))
+		assert.Equal(t, 1, runnerSvc.refreshHeartbeatCalls)
+		assert.Equal(t, 0, runnerSvc.lastHeartbeatPods)
 	})
 
 	t.Run("pod created message", func(t *testing.T) {

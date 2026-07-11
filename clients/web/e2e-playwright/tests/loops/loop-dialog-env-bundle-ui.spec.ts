@@ -15,6 +15,7 @@ import { clearAuthRateLimit } from "../../helpers/redis";
  */
 const BUNDLE_PREFIX = "E2E LoopUI Bundle";
 const LOOP_PREFIX = "E2E LoopUI Loop";
+const LOOP_AGENT_SLUG = "e2e-echo";
 
 function unique(prefix: string, label: string): string {
   return `${prefix} ${label} ${Date.now()}`;
@@ -43,6 +44,21 @@ async function expandAdvancedOptions(page: import("@playwright/test").Page) {
   }
 }
 
+async function pickDialogSelectOption(
+  page: import("@playwright/test").Page,
+  triggerId: string,
+  optionValue: string,
+) {
+  const overlay = page.locator("[data-dialog-overlay]").first();
+  const trigger = overlay.locator(`#${triggerId}`).first();
+  await trigger.waitFor({ state: "visible", timeout: 15_000 });
+  await trigger.click();
+  await overlay
+    .locator(`[role="option"][data-option-value="${optionValue}"]`)
+    .first()
+    .click();
+}
+
 test.describe("Loop dialog — EnvBundle binding UI", () => {
   test.beforeEach(async () => {
     clearAuthRateLimit();
@@ -60,7 +76,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
 
     const cc = await api.connect();
     const runtime = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
+      agentSlug: LOOP_AGENT_SLUG,
       name: runtimeName,
       kind: "runtime",
       data: { CLAUDE_LOG_LEVEL: "debug" },
@@ -76,14 +92,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
         .first()
         .fill(loopName);
 
-      // The dialog opens before usePodCreationData finishes loading; the
-      // agent <select> mounts only once runners + agents arrive, so wait
-      // for visibility instead of racing the selectOption call.
-      const agentSelect = page
-        .locator('[data-dialog-overlay] select#worker-image-select')
-        .first();
-      await agentSelect.waitFor({ state: "visible", timeout: 15_000 });
-      await agentSelect.selectOption("claude-code");
+      await pickDialogSelectOption(page, "worker-image-select", LOOP_AGENT_SLUG);
 
       const promptInput = page
         .locator('[data-dialog-overlay] textarea#prompt-input')
@@ -145,7 +154,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
 
     const cc = await api.connect();
     const runtime = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
+      agentSlug: LOOP_AGENT_SLUG,
       name: runtimeName,
       kind: "runtime",
       data: { CLAUDE_LOG_LEVEL: "debug" },
@@ -155,7 +164,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
     const loopRes = await cc.loop.createLoop({
       orgSlug: TEST_ORG_SLUG,
       name: loopName,
-      agentSlug: "claude-code",
+      agentSlug: LOOP_AGENT_SLUG,
       promptTemplate: "echo bound",
       usedEnvBundles: [runtimeName],
     }) as { slug: string };

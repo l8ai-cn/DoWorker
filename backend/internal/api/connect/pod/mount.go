@@ -58,7 +58,7 @@ func mapServiceError(err error) error {
 	}
 	switch {
 	case errors.Is(err, agentpod.ErrCreateResourceUnavailable):
-		return connect.NewError(connect.CodeInvalidArgument, errors.New("Selected repository is unavailable"))
+		return connect.NewError(connect.CodeInvalidArgument, errors.New("selected repository is unavailable"))
 
 	// Validation → InvalidArgument
 	case errors.Is(err, agentpod.ErrMissingRunnerID),

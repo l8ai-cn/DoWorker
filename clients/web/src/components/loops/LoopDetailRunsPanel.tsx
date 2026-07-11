@@ -1,23 +1,18 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import type { LoopData } from "@/stores/loop";
+import type { LoopData, LoopRunData } from "@/stores/loop";
 import { LoopStatsOverview } from "@/components/loops/LoopStatsOverview";
 import { LoopPromptPreview } from "@/components/loops/LoopPromptPreview";
 import { LoopRunCard } from "@/components/loops/LoopRunCard";
 
-interface LoopRun {
-  id: number;
-  pod_key?: string;
-}
-
 interface LoopDetailRunsPanelProps {
   loop: LoopData;
-  runs: LoopRun[];
+  runs: LoopRunData[];
   runsLoading: boolean;
   runsTotalCount: number;
   t: (key: string, params?: Record<string, string | number>) => string;
-  onOpenRun: (run: LoopRun) => void;
+  onOpenRun: (run: LoopRunData) => void;
   onCancelRun: (runId: number) => void;
   onLoadMore: () => void;
   onEdit: () => void;

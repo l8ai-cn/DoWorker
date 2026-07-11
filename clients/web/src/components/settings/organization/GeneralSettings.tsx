@@ -75,10 +75,10 @@ export function GeneralSettings({ org, t }: GeneralSettingsProps) {
       // Switching orgs already reinits wasm + Connect streams, so a full
       // reload costs nothing extra and removes the race.
       const target = remaining.length > 0 ? `/${remaining[0].slug}/workspace` : "/";
-      await setOrganizations(remaining);
-      if (remaining.length > 0) {
-        await setCurrentOrg(remaining[0]);
-      }
+      await Promise.all([
+        setOrganizations(remaining),
+        ...(remaining.length > 0 ? [setCurrentOrg(remaining[0])] : []),
+      ]);
       toast.success(t("settings.dangerZone.deleteSuccess") || "Organization deleted");
       window.location.assign(target);
     } catch (error) {

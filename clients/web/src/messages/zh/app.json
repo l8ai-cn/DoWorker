@@ -60,7 +60,7 @@
       "compact": "压缩对话上下文以释放空间",
       "context": "查看当前会话的上下文占用",
       "help": "显示可用 slash 命令",
-      "model": "切换模型：/model <名称> | default",
+      "model": "切换模型：/model [名称] | default",
       "effort": "设置推理强度：/effort low | medium | high | default"
     }
   },

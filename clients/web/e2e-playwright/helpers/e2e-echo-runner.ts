@@ -8,9 +8,13 @@ export interface RunnerWithNode {
   nodeId?: string;
 }
 
+export const E2E_ECHO_AGENT_SLUG = "e2e-echo";
+
 const E2E_ECHO_NODE_IDS = new Set(["dev-runner", "dev-runner-2"]);
 
-export function pickE2EEchoRunner(runners: RunnerWithNode[] | undefined): RunnerWithNode {
+export function pickE2EEchoRunner<TRunner extends RunnerWithNode>(
+  runners: TRunner[] | undefined,
+): TRunner {
   if (!runners?.length) {
     throw new Error("pickE2EEchoRunner: no online runners");
   }

@@ -140,6 +140,36 @@ func TestMarkConnectedDisconnected(t *testing.T) {
 	}
 }
 
+func TestRefreshActiveHeartbeat(t *testing.T) {
+	db := setupTestDB(t)
+	service := newTestService(db)
+	r := &runner.Runner{
+		OrganizationID:    1,
+		NodeID:            "test-runner-heartbeat",
+		Status:            runner.RunnerStatusOffline,
+		MaxConcurrentPods: 5,
+		IsEnabled:         true,
+	}
+	db.Create(r)
+
+	if err := service.MarkConnected(context.Background(), r.ID); err != nil {
+		t.Fatalf("failed to mark connected: %v", err)
+	}
+	service.RefreshActiveHeartbeat(r.ID, 2)
+
+	active, ok := service.activeRunners.Load(r.ID)
+	if !ok {
+		t.Fatal("expected active runner")
+	}
+	current := active.(*ActiveRunner)
+	if current.PodCount != 2 || current.Runner.CurrentPods != 2 {
+		t.Fatalf("expected current pods=2, got active=%d runner=%d", current.PodCount, current.Runner.CurrentPods)
+	}
+	if current.Runner.LastHeartbeat == nil {
+		t.Fatal("expected last heartbeat")
+	}
+}
+
 func TestSubscribeStatusChanges(t *testing.T) {
 	db := setupTestDB(t)
 	service := newTestService(db)
@@ -277,7 +307,7 @@ func TestUpdateAvailableAgentsSyncsActiveRunner(t *testing.T) {
 	}
 }
 
-func TestTouchActiveRunnerRefreshesLease(t *testing.T) {
+func TestRefreshActiveHeartbeatPreservesCapabilities(t *testing.T) {
 	service := newTestService(setupTestDB(t))
 	stale := time.Now().Add(-2 * time.Minute)
 	service.activeRunners.Store(int64(1), &ActiveRunner{
@@ -286,7 +316,7 @@ func TestTouchActiveRunnerRefreshesLease(t *testing.T) {
 		PodCount: 3,
 	})
 
-	service.TouchActiveRunner(1)
+	service.RefreshActiveHeartbeat(1, 3)
 
 	active, ok := service.activeRunners.Load(int64(1))
 	if !ok {
@@ -296,7 +326,7 @@ func TestTouchActiveRunnerRefreshesLease(t *testing.T) {
 	if !updated.LastPing.After(stale) {
 		t.Fatal("active runner lease was not refreshed")
 	}
-	if updated.PodCount != 3 || !updated.Runner.SupportsAgent("e2e-echo") {
+	if updated.PodCount != 3 || updated.Runner.CurrentPods != 3 || !updated.Runner.SupportsAgent("e2e-echo") {
 		t.Fatal("active runner state changed while refreshing lease")
 	}
 }

@@ -57,6 +57,7 @@ pkg = {
     'types': 'wasm_pkg.d.ts',
     'files': ['wasm_pkg_bg.wasm', 'wasm_pkg.js', 'wasm_pkg.d.ts'],
     'sideEffects': ['./snippets/*'],
+    'private': True,
 }
 (out / 'package.json').write_text(json.dumps(pkg, indent=2) + '\n')
 print('ok: wrote', out)

@@ -73,14 +73,14 @@ func createGRPCServer(
 	agentAdapter := &grpcAgentAdapter{svc: agentSvc}
 
 	grpcServerInst, err := grpcserver.NewServer(&grpcserver.ServerDependencies{
-		Logger:             appLogger.Logger,
-		Config:             &cfg.GRPC,
-		PKIService:         pkiService,
-		RunnerService:      runnerServiceAdapter,
-		OrgService:         orgServiceAdapter,
+		Logger:         appLogger.Logger,
+		Config:         &cfg.GRPC,
+		PKIService:     pkiService,
+		RunnerService:  runnerServiceAdapter,
+		OrgService:     orgServiceAdapter,
 		AgentsProvider: agentAdapter,
-		ConnManager:        runnerConnMgr,
-		MCPDeps:            mcpDeps,
+		ConnManager:    runnerConnMgr,
+		MCPDeps:        mcpDeps,
 	})
 	if err != nil {
 		slog.Error("Failed to create gRPC server", "error", err)
@@ -152,12 +152,12 @@ func (a *grpcRunnerServiceAdapter) MarkDisconnected(ctx context.Context, runnerI
 	return a.svc.MarkDisconnected(ctx, runnerID)
 }
 
-func (a *grpcRunnerServiceAdapter) TouchActiveRunner(runnerID int64) {
-	a.svc.TouchActiveRunner(runnerID)
-}
-
 func (a *grpcRunnerServiceAdapter) UpdateLastSeen(ctx context.Context, runnerID int64) error {
 	return a.svc.UpdateLastSeen(ctx, runnerID)
+}
+
+func (a *grpcRunnerServiceAdapter) RefreshActiveHeartbeat(runnerID int64, currentPods int) {
+	a.svc.RefreshActiveHeartbeat(runnerID, currentPods)
 }
 
 func (a *grpcRunnerServiceAdapter) UpdateAvailableAgents(ctx context.Context, runnerID int64, agents []string) error {

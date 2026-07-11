@@ -25,16 +25,6 @@ func (s *Service) IsConnected(runnerID int64) bool {
 	return exists
 }
 
-func (s *Service) TouchActiveRunner(runnerID int64) {
-	s.updateActiveRunner(runnerID, func(active *ActiveRunner) *ActiveRunner {
-		return &ActiveRunner{
-			Runner:   active.Runner,
-			LastPing: time.Now(),
-			PodCount: active.PodCount,
-		}
-	})
-}
-
 func (s *Service) MarkConnected(ctx context.Context, runnerID int64) error {
 	r, err := s.GetRunner(ctx, runnerID)
 	if err != nil {
@@ -48,20 +38,49 @@ func (s *Service) MarkConnected(ctx context.Context, runnerID int64) error {
 	if err := s.UpdateRunnerStatus(ctx, runnerID, runner.RunnerStatusOnline); err != nil {
 		return err
 	}
+	s.activeMu.Lock()
 	s.activeRunners.Store(runnerID, &ActiveRunner{
 		Runner:   r,
 		LastPing: now,
 		PodCount: r.CurrentPods,
 	})
+	s.activeMu.Unlock()
 
 	slog.InfoContext(ctx, "runner connected", "runner_id", runnerID)
 	return nil
 }
 
 func (s *Service) MarkDisconnected(ctx context.Context, runnerID int64) error {
+	s.activeMu.Lock()
 	s.activeRunners.Delete(runnerID)
+	s.activeMu.Unlock()
 	slog.InfoContext(ctx, "runner disconnected", "runner_id", runnerID)
 	return s.UpdateRunnerStatus(ctx, runnerID, runner.RunnerStatusOffline)
+}
+
+func (s *Service) RefreshActiveHeartbeat(runnerID int64, currentPods int) {
+	now := time.Now()
+	s.activeMu.Lock()
+	defer s.activeMu.Unlock()
+
+	active, ok := s.activeRunners.Load(runnerID)
+	if !ok {
+		return
+	}
+	ar, ok := active.(*ActiveRunner)
+	if !ok || ar.Runner == nil {
+		return
+	}
+
+	updated := *ar.Runner
+	updated.Status = runner.RunnerStatusOnline
+	updated.LastHeartbeat = &now
+	updated.CurrentPods = currentPods
+	s.activeRunners.Store(runnerID, &ActiveRunner{
+		Runner:   &updated,
+		LastPing: now,
+		PodCount: currentPods,
+	})
 }
 
 func (s *Service) UpdateHostInfo(ctx context.Context, runnerID int64, hostInfo map[string]interface{}) error {
@@ -79,21 +98,26 @@ func (s *Service) UpdateRunnerVersionAndHostInfo(ctx context.Context, runnerID i
 
 func (s *Service) UpdateAvailableAgents(ctx context.Context, runnerID int64, agents []string) error {
 	slog.InfoContext(ctx, "runner available agents updated", "runner_id", runnerID, "agents", agents)
+	availableAgents := runner.StringSlice(append([]string(nil), agents...))
 	if err := s.repo.UpdateFields(ctx, runnerID, map[string]interface{}{
-		"available_agents": runner.StringSlice(agents),
+		"available_agents": availableAgents,
 	}); err != nil {
 		return err
 	}
 
-	s.updateActiveRunner(runnerID, func(active *ActiveRunner) *ActiveRunner {
-		updated := *active.Runner
-		updated.AvailableAgents = runner.StringSlice(agents)
-		return &ActiveRunner{
-			Runner:   &updated,
-			LastPing: active.LastPing,
-			PodCount: active.PodCount,
+	s.activeMu.Lock()
+	defer s.activeMu.Unlock()
+	if active, ok := s.activeRunners.Load(runnerID); ok {
+		if ar, ok := active.(*ActiveRunner); ok && ar.Runner != nil {
+			updated := *ar.Runner
+			updated.AvailableAgents = append(runner.StringSlice(nil), availableAgents...)
+			s.activeRunners.Store(runnerID, &ActiveRunner{
+				Runner:   &updated,
+				LastPing: ar.LastPing,
+				PodCount: ar.PodCount,
+			})
 		}
-	})
+	}
 	return nil
 }
 
@@ -104,32 +128,20 @@ func (s *Service) UpdateAgentVersions(ctx context.Context, runnerID int64, versi
 		return err
 	}
 
-	s.updateActiveRunner(runnerID, func(active *ActiveRunner) *ActiveRunner {
-		updated := *active.Runner
-		updated.AgentVersions = runner.AgentVersionSlice(versions)
-		return &ActiveRunner{
-			Runner:   &updated,
-			LastPing: active.LastPing,
-			PodCount: active.PodCount,
-		}
-	})
-	return nil
-}
-
-func (s *Service) updateActiveRunner(runnerID int64, update func(*ActiveRunner) *ActiveRunner) {
-	for {
-		value, ok := s.activeRunners.Load(runnerID)
-		if !ok {
-			return
-		}
-		active, ok := value.(*ActiveRunner)
-		if !ok || active.Runner == nil {
-			return
-		}
-		if s.activeRunners.CompareAndSwap(runnerID, value, update(active)) {
-			return
+	s.activeMu.Lock()
+	defer s.activeMu.Unlock()
+	if active, ok := s.activeRunners.Load(runnerID); ok {
+		if ar, ok := active.(*ActiveRunner); ok && ar.Runner != nil {
+			updated := *ar.Runner
+			updated.AgentVersions = runner.AgentVersionSlice(versions)
+			s.activeRunners.Store(runnerID, &ActiveRunner{
+				Runner:   &updated,
+				LastPing: ar.LastPing,
+				PodCount: ar.PodCount,
+			})
 		}
 	}
+	return nil
 }
 
 func (s *Service) MergeAgentVersions(ctx context.Context, runnerID int64, changes map[string]runner.AgentVersion) error {

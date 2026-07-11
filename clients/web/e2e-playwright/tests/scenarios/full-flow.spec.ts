@@ -4,9 +4,9 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
 
 type Runner = { id: bigint; currentPods?: number };
-type Agent = { slug: string };
 type Repository = { id: bigint };
 type Ticket = { slug: string };
 type Pod = { podKey: string; status: string };
@@ -37,16 +37,13 @@ test.describe("Full E2E Scenario", () => {
     // Step 3: Check runner availability
     const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
     expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-
-    // Step 4: Get agents
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
-    expect(agents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
+    const runner = pickE2EEchoRunner(runners);
 
     // Step 5: Create pod with repository and ticket
     const podResp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
-      agentSlug: agents[0].slug,
+      runnerId: runner.id,
+      agentSlug: E2E_ECHO_AGENT_SLUG,
       repositoryId: repoId,
       ticketSlug,
     }) as { pod: Pod };
@@ -63,7 +60,7 @@ test.describe("Full E2E Scenario", () => {
       ).catch(() => {});
 
       // Step 7: Verify runner capacity changed
-      const runnerCheck = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runners[0].id }) as { runner: Runner };
+      const runnerCheck = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runner.id }) as { runner: Runner };
       expect((runnerCheck.runner?.currentPods ?? 0)).toBeGreaterThanOrEqual(0);
 
       // Step 8: Terminate pod

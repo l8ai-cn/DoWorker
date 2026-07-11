@@ -4,12 +4,13 @@ import { create, toBinary } from "@bufbuild/protobuf";
 import { ChannelMessageSchema, ListChannelMessagesResponseSchema } from "@proto/channel/v1/channel_pb";
 
 const orgSlug = "test-org";
+let currentOrgSlug = orgSlug;
 
 vi.mock("@/stores/auth", async () => {
   const actual = await vi.importActual<typeof import("@/stores/auth")>("@/stores/auth");
   return {
     ...actual,
-    readCurrentOrg: () => ({ id: 1, slug: orgSlug, name: "Test Org" }),
+    readCurrentOrg: () => ({ id: 1, slug: currentOrgSlug, name: "Test Org" }),
     readCurrentUser: () => null,
   };
 });
@@ -75,6 +76,7 @@ function wireMessagesBytes(msgs: ChannelMessage[], hasMore: boolean): Uint8Array
 beforeEach(() => {
   vi.clearAllMocks();
   Object.values(mocks).forEach((m) => m.mockReset());
+  currentOrgSlug = orgSlug;
   useChannelMessageStore.setState({ cache: {}, _messagesTick: 0, _unreadTick: 0 });
 });
 
@@ -158,6 +160,42 @@ describe("useChannelMessageStore — Connect adapter integration", () => {
     expect(mocks.getChannelUnreadCounts).toHaveBeenCalledWith(orgSlug);
     expect(useChannelMessageStore.getState()._unreadTick).toBeGreaterThan(0);
     expect(svc().get_unread_count(BigInt(1))).toBe(3);
+  });
+
+  it("fetchUnreadCounts: ignores a response after the organization changes", async () => {
+    let resolveUnread: (counts: Record<string, number>) => void;
+    mocks.getChannelUnreadCounts.mockReturnValue(
+      new Promise<Record<string, number>>((resolve) => {
+        resolveUnread = resolve;
+      }),
+    );
+
+    const request = useChannelMessageStore.getState().fetchUnreadCounts();
+    currentOrgSlug = "next-org";
+    resolveUnread!({ "1": 3 });
+    await request;
+
+    expect(mocks.getChannelUnreadCounts).toHaveBeenCalledWith(orgSlug);
+    expect(useChannelMessageStore.getState()._unreadTick).toBe(0);
+  });
+
+  it("fetchUnreadCounts: ignores a cancelled request without logging", async () => {
+    let rejectUnread: (error: Error) => void;
+    mocks.getChannelUnreadCounts.mockReturnValue(
+      new Promise<Record<string, number>>((_, reject) => {
+        rejectUnread = reject;
+      }),
+    );
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const controller = new AbortController();
+    const request = useChannelMessageStore.getState().fetchUnreadCounts(controller.signal);
+
+    controller.abort();
+    rejectUnread!(new Error("request aborted"));
+    await request;
+
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
   });
 
   it("markRead: calls markChannelRead and bumps unread tick", async () => {

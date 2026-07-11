@@ -77,6 +77,7 @@
       "selectRunnerPlaceholder": "Choose a cluster…",
       "noRunnersAvailable": "No online clusters",
       "noOnlineRunnersHint": "No online clusters in this organization. Switch to an org with a registered cluster, or register one under Infra → Clusters.",
+      "runnerHostHint": "Clusters provide compute. Workers are isolated workspaces started from the selected image.",
       "selectImage": "Select image",
       "selectImagePlaceholder": "Choose a worker image…",
       "imageHint": "Workers start from an image such as Claude Code, Codex, or Gemini.",

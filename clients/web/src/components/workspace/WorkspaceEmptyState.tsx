@@ -108,7 +108,7 @@ export function WorkspaceEmptyState({ onCreatePod }: WorkspaceEmptyStateProps) {
           <div className="flex items-center gap-2.5 pt-3">
             <button
               type="button"
-              onClick={onCreatePod}
+              onClick={() => onCreatePod()}
               className="flex h-10 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_8px_20px_color-mix(in_srgb,var(--primary)_18%,transparent)] hover:bg-primary-hover"
             >
               <span className="text-base leading-none">+</span>

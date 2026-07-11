@@ -13,7 +13,7 @@ interface Props {
   onEdit: (b: ConfigFileBundleViewModel) => void;
   onDelete: (id: number) => Promise<void>;
   onAdd: () => void;
-  t: (key: string) => string;
+  t: (key: string, values?: Record<string, string | number>) => string;
 }
 
 function previewJson(raw?: string): string {

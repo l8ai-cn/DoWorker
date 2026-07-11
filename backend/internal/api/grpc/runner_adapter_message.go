@@ -2,12 +2,12 @@ package grpc
 
 import (
 	"context"
-	"time"
 	otelinit "github.com/anthropics/agentsmesh/backend/internal/infra/otel"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+	"time"
 )
 
 func (a *GRPCRunnerAdapter) handleProtoMessage(ctx context.Context, runnerID int64, conn *runner.GRPCConnection, msg *runnerv1.RunnerMessage) {
@@ -24,10 +24,10 @@ func (a *GRPCRunnerAdapter) handleProtoMessage(ctx context.Context, runnerID int
 		a.handleInitialized(ctx, runnerID, conn, payload.Initialized)
 
 	case *runnerv1.RunnerMessage_Heartbeat:
-		if a.runnerService != nil {
-			a.runnerService.TouchActiveRunner(runnerID)
-		}
 		a.connManager.HandleHeartbeat(runnerID, payload.Heartbeat)
+		if a.runnerService != nil {
+			a.runnerService.RefreshActiveHeartbeat(runnerID, len(payload.Heartbeat.Pods))
+		}
 
 		ack := &runnerv1.ServerMessage{
 			Payload: &runnerv1.ServerMessage_HeartbeatAck{

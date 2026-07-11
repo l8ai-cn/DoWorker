@@ -11,6 +11,7 @@
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
+import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
 
 test.describe("Backend wrapper envelope contracts", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
@@ -37,15 +38,12 @@ test.describe("Backend wrapper envelope contracts", () => {
       items: { id: bigint }[];
     };
     expect(runners.items.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const agents = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as {
-      builtinAgents: { slug: string }[];
-    };
-    expect(agents.builtinAgents.length, "dev env must have a builtin agent").toBeGreaterThan(0);
+    const runnerId = pickE2EEchoRunner(runners.items).id;
 
     const resp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners.items[0].id,
-      agentSlug: agents.builtinAgents[0].slug,
+      runnerId,
+      agentSlug: E2E_ECHO_AGENT_SLUG,
     }) as { pod?: { podKey?: string } };
     // The legacy REST `{ "pod": {...} }` envelope is now the proto Pod field.
     expect(resp.pod).toBeDefined();

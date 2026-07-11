@@ -4,12 +4,12 @@ import { CreatePodRequestSchema } from "../../../../../proto/gen/ts/pod/v1/pod_p
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { CreatePodModal } from "../../pages/modals/create-pod.modal";
+import { CreateWorkerPage } from "../../pages/create-worker.page";
 
 /**
  * Pod creation × EnvBundle UI flow.
  *
- * The Pod create dialog renders runtime bundles as an ordered multi-select.
+ * The Create Worker page renders runtime bundles as an ordered multi-select.
  * Model/API credentials are selected through AI Resources, not EnvBundles.
  *
  * We don't have a persisted `pods.agentfile_layer` column — the merged
@@ -19,6 +19,7 @@ import { CreatePodModal } from "../../pages/modals/create-pod.modal";
  * lines in the expected order.
  */
 const CREATE_POD_RPC = "/proto.pod.v1.PodService/CreatePod";
+const AGENT_SLUG = "e2e-echo";
 
 function decodeCreatePodLayer(rawBody: Buffer | string | null): string | undefined {
   if (!rawBody) return undefined;
@@ -56,8 +57,10 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     const { builtinAgents } = await cc.agent.listAgents({
       orgSlug: TEST_ORG_SLUG,
     }) as { builtinAgents: { slug: string }[] };
-    const claudeCode = builtinAgents?.find((a) => a.slug === "claude-code");
-    expect(claudeCode, "dev env must include the claude-code builtin agent").toBeTruthy();
+    expect(
+      builtinAgents?.some((a) => a.slug === AGENT_SLUG),
+      "dev env must include the e2e-echo builtin agent",
+    ).toBeTruthy();
 
     const stamp = Date.now();
     const runtimeName = `E2E PodUI Runtime ${stamp}`;
@@ -65,7 +68,7 @@ test.describe("Pod create — EnvBundle binding UI", () => {
       `DELETE FROM env_bundles WHERE name LIKE 'E2E PodUI %'`
     );
     const runtime = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
+      agentSlug: AGENT_SLUG,
       name: runtimeName,
       kind: "runtime",
       data: { CLAUDE_LOG_LEVEL: "debug" },
@@ -85,31 +88,23 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     await terminateAllPods();
 
     try {
-      await page.goto(`/${TEST_ORG_SLUG}/workspace`);
-      await page.waitForLoadState("load");
+      const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
+      await worker.goto();
+      await worker.selectImage(AGENT_SLUG);
+      await expect(page.locator('select#credential-bundle-select')).toHaveCount(0);
+      await expect(page.locator("label", { hasText: runtimeName })).toBeVisible();
 
-      const newPodBtn = page
-        .getByRole("button", { name: /new pod|create new pod|新建 pod|新建 worker|新建环境/i })
-        .first();
-      await newPodBtn.waitFor({ state: "visible", timeout: 15_000 });
-      await newPodBtn.click();
-
-      const modal = new CreatePodModal(page);
-      await modal.waitForOpen();
-      await modal.selectAgent("claude-code");
-
-      await modal.expandAdvancedOptions();
-
-      // Runtime checkbox label is visible; credential EnvBundles are not
-      // selectable from Worker creation.
-      const dialog = page.locator('[role="dialog"]');
-      await expect(dialog.locator('select#credential-bundle-select')).toHaveCount(0);
-      await expect(dialog.locator('label', { hasText: runtimeName })).toBeVisible();
-
-      await modal.selectRuntimeBundles([runtimeName]);
-
-      await modal.submit();
-      await modal.waitForClosed(15_000);
+      const createResponse = page.waitForResponse(
+        (response) =>
+          response.request().method() === "POST" &&
+          response.url().endsWith(CREATE_POD_RPC),
+        { timeout: 20_000 },
+      );
+      await worker.selectRuntimeBundles([runtimeName]);
+      await worker.submit();
+      const response = await createResponse;
+      expect(response.ok()).toBeTruthy();
+      await worker.waitForWorkspace();
 
       const layer = capturedLayer ?? "";
       const useLines = layer
@@ -135,14 +130,16 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     const { builtinAgents } = await cc.agent.listAgents({
       orgSlug: TEST_ORG_SLUG,
     }) as { builtinAgents: { slug: string }[] };
-    const claudeCode = builtinAgents?.find((a) => a.slug === "claude-code");
-    expect(claudeCode, "dev env must include the claude-code builtin agent").toBeTruthy();
+    expect(
+      builtinAgents?.some((a) => a.slug === AGENT_SLUG),
+      "dev env must include the e2e-echo builtin agent",
+    ).toBeTruthy();
 
     // The Pod multi-select auto-checks every primary runtime bundle, so any
-    // stray primary for claude-code would flip the assertion below.
+    // stray primary for e2e-echo would flip the assertion below.
     // Purge them up-front to keep the empty-selection path testable.
     db.cleanup(
-      `DELETE FROM env_bundles WHERE agent_slug = 'claude-code' AND kind = 'runtime' AND kind_primary = TRUE`
+      `DELETE FROM env_bundles WHERE agent_slug = '${AGENT_SLUG}' AND kind = 'runtime' AND kind_primary = TRUE`
     );
 
     let capturedLayer: string | undefined;
@@ -157,21 +154,19 @@ test.describe("Pod create — EnvBundle binding UI", () => {
 
     await terminateAllPods();
 
-    await page.goto(`/${TEST_ORG_SLUG}/workspace`);
-    await page.waitForLoadState("load");
-
-    const newPodBtn = page
-      .getByRole("button", { name: /new pod|create new pod|新建 pod|新建 worker|新建环境/i })
-      .first();
-    await newPodBtn.waitFor({ state: "visible", timeout: 15_000 });
-    await newPodBtn.click();
-
-    const modal = new CreatePodModal(page);
-    await modal.waitForOpen();
-    await modal.selectAgent("claude-code");
-    // Leave the default empty selection alone (we purged primaries above).
-    await modal.submit();
-    await modal.waitForClosed(15_000);
+    const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
+    await worker.goto();
+    await worker.selectImage(AGENT_SLUG);
+    const createResponse = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        response.url().endsWith(CREATE_POD_RPC),
+      { timeout: 20_000 },
+    );
+    await worker.submit();
+    const response = await createResponse;
+    expect(response.ok()).toBeTruthy();
+    await worker.waitForWorkspace();
 
     expect(capturedLayer ?? "").not.toContain("USE_ENV_BUNDLE");
   });
