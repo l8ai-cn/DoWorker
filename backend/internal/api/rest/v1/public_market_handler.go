@@ -6,20 +6,35 @@ import (
 	"github.com/gin-gonic/gin"
 
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	expertservice "github.com/anthropics/agentsmesh/backend/internal/service/expert"
 	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
 )
 
 type PublicMarketHandler struct {
 	extension *extensionservice.Service
+	expert    *expertservice.Service
 }
 
-func NewPublicMarketHandler(extension *extensionservice.Service) *PublicMarketHandler {
-	return &PublicMarketHandler{extension: extension}
+func NewPublicMarketHandler(
+	extension *extensionservice.Service,
+	expert *expertservice.Service,
+) *PublicMarketHandler {
+	return &PublicMarketHandler{extension: extension, expert: expert}
 }
 
 func (h *PublicMarketHandler) RegisterRoutes(rg *gin.RouterGroup) {
+	rg.GET("/applications", h.ListApplications)
 	rg.GET("/skills", h.ListSkills)
+}
+
+func (h *PublicMarketHandler) ListApplications(c *gin.Context) {
+	if h.expert == nil {
+		apierr.InternalError(c, "Expert application market is unavailable")
+		return
+	}
+	items := h.expert.ListMarketApplications()
+	c.JSON(http.StatusOK, gin.H{"items": items, "total": len(items)})
 }
 
 func (h *PublicMarketHandler) ListSkills(c *gin.Context) {

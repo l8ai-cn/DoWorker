@@ -167,6 +167,29 @@ func (h *ExpertHandler) PublishFromPod(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"expert": row})
 }
 
+func (h *ExpertHandler) InstallMarketApplication(c *gin.Context) {
+	tenant := middleware.GetTenant(c)
+	row, alreadyInstalled, err := h.service.InstallMarketApplication(
+		c.Request.Context(),
+		tenant.OrganizationID,
+		tenant.UserID,
+		c.Param("marketSlug"),
+	)
+	if err != nil {
+		if errors.Is(err, expertSvc.ErrMarketApplicationNotFound) {
+			apierr.ResourceNotFound(c, "Market application not found")
+			return
+		}
+		apierr.InternalError(c, "Failed to install market application")
+		return
+	}
+	status := http.StatusCreated
+	if alreadyInstalled {
+		status = http.StatusOK
+	}
+	c.JSON(status, gin.H{"expert": row, "already_installed": alreadyInstalled})
+}
+
 func (h *ExpertHandler) notFoundOrInternal(c *gin.Context, err error) {
 	if errors.Is(err, expertdom.ErrNotFound) {
 		apierr.ResourceNotFound(c, "Expert not found")

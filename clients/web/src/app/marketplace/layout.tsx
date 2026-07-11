@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Skill Marketplace",
-  description:
-    "Browse public Do Worker Skills that can be installed into repositories and mounted into AI workers.",
+  title: "专家应用市场",
+  description: "浏览并启用已经装配好 Worker、提示词和 Skills 的 AI 专家应用。",
   alternates: {
     canonical: "https://agentsmesh.ai/marketplace",
   },
   openGraph: {
-    title: "Skill Marketplace | Do Worker",
-    description:
-      "Browse public Do Worker Skills for Codex, Claude Code, DoAgent, and other AI workers.",
+    title: "专家应用市场 | Do Worker",
+    description: "选择可直接进入工作的 AI 专家应用。",
     url: "https://agentsmesh.ai/marketplace",
   },
 };

@@ -24,6 +24,7 @@ func registerExpertRoutes(rg *gin.RouterGroup, svc *Services) {
 		}
 	}
 	rg.POST("/pods/:pod_key/publish-expert", h.PublishFromPod)
+	rg.POST("/marketplace/experts/:marketSlug/install", h.InstallMarketApplication)
 }
 
 func registerExtExpertRoutes(rg *gin.RouterGroup, svc *Services) {
