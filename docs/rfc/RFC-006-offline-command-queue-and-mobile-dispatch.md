@@ -3,7 +3,7 @@
 | 属性 | 值 |
 |------|-----|
 | **状态** | In Progress |
-| **作者** | AgentsMesh Team |
+| **作者** | Do Worker Team |
 | **创建日期** | 2026-07-05 |
 | **目标** | 手机经云端向本地 Runner「发了就走」地下发任务：Runner 离线/满载时任务持久排队，上线后自动重放 |
 | **参考** | doops.sh 网关隧道机制（`tunnel_hub.go` / `cmd/agent/main.go`） |
@@ -14,7 +14,7 @@
 
 ### 1.1 问题
 
-AgentsMesh 的 Runner 隧道（gRPC+mTLS 出站双向流）已经完整实现了「本地客户端监听、云端下发任务」。但下发是**纯在线语义**：
+Do Worker 的 Runner 隧道（gRPC+mTLS 出站双向流）已经完整实现了「本地客户端监听、云端下发任务」。但下发是**纯在线语义**：
 
 - `PodCoordinator.CreatePod` → `commandSender.SendCreatePod`，Runner 不在连接表立即返回 `ErrRunnerNotConnected`，Pod 被标 `init_failed`
 - Channel `@mention` 转 prompt 时 Runner 离线，只写一条「offline」系统消息，任务丢失

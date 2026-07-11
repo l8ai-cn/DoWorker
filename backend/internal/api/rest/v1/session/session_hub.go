@@ -114,4 +114,3 @@ func (h *SessionHub) RemoveSession(sessionID string) {
 	delete(h.turns, sessionID)
 	delete(h.scratch, sessionID)
 }
-

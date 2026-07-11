@@ -28,9 +28,7 @@ fn to_js(val: &serde_json::Value) -> JsValue {
     }
 }
 
-pub(crate) fn make_output_callback(
-    f: js_sys::Function,
-) -> agentsmesh_relay::OutputCallback {
+pub(crate) fn make_output_callback(f: js_sys::Function) -> agentsmesh_relay::OutputCallback {
     let f = JsFunction(f);
     Arc::new(move |data: Vec<u8>| {
         let arr = Uint8Array::from(data.as_slice());
@@ -38,17 +36,11 @@ pub(crate) fn make_output_callback(
     })
 }
 
-pub(crate) fn make_status_callback(
-    f: js_sys::Function,
-) -> agentsmesh_relay::StatusCallback {
+pub(crate) fn make_status_callback(f: js_sys::Function) -> agentsmesh_relay::StatusCallback {
     let f = JsFunction(f);
     Arc::new(move |info: agentsmesh_relay::RelayStatusInfo| {
         let obj = js_sys::Object::new();
-        let _ = js_sys::Reflect::set(
-            &obj,
-            &"status".into(),
-            &info.status.to_string().into(),
-        );
+        let _ = js_sys::Reflect::set(&obj, &"status".into(), &info.status.to_string().into());
         let _ = js_sys::Reflect::set(
             &obj,
             &"runnerDisconnected".into(),
@@ -58,9 +50,7 @@ pub(crate) fn make_status_callback(
     })
 }
 
-pub(crate) fn make_acp_callback(
-    f: js_sys::Function,
-) -> agentsmesh_relay::AcpCallback {
+pub(crate) fn make_acp_callback(f: js_sys::Function) -> agentsmesh_relay::AcpCallback {
     let f = JsFunction(f);
     Arc::new(
         move |msg_type: agentsmesh_protocol::MsgType, payload: serde_json::Value| {
@@ -80,9 +70,7 @@ pub(crate) fn make_disconnect_callback(
     })
 }
 
-pub(crate) fn make_event_handler(
-    f: js_sys::Function,
-) -> agentsmesh_events::EventHandler {
+pub(crate) fn make_event_handler(f: js_sys::Function) -> agentsmesh_events::EventHandler {
     let f = JsFunction(f);
     Arc::new(move |event: &agentsmesh_events::RealtimeEvent| {
         // The TS-side callback signature is `(eventJson: string) => void`
@@ -98,9 +86,7 @@ pub(crate) fn make_event_handler(
     })
 }
 
-pub(crate) fn make_state_listener(
-    f: js_sys::Function,
-) -> agentsmesh_events::StateListener {
+pub(crate) fn make_state_listener(f: js_sys::Function) -> agentsmesh_events::StateListener {
     let f = JsFunction(f);
     Arc::new(move |state: agentsmesh_events::ConnectionState| {
         f.call1(&state.to_string().into());

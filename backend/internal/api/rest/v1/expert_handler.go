@@ -61,7 +61,7 @@ func (h *ExpertHandler) CreateExpert(c *gin.Context) {
 		AgentSlug: req.AgentSlug, RunnerID: req.RunnerID, RepositoryID: req.RepositoryID,
 		BranchName: req.BranchName, Prompt: req.Prompt, InteractionMode: req.InteractionMode,
 		AutomationLevel: req.AutomationLevel,
-		Perpetual: req.Perpetual, UsedEnvBundles: req.UsedEnvBundles, SkillSlugs: req.SkillSlugs,
+		Perpetual:       req.Perpetual, UsedEnvBundles: req.UsedEnvBundles, SkillSlugs: req.SkillSlugs,
 		KnowledgeMounts: req.KnowledgeMounts, ConfigOverrides: req.ConfigOverrides,
 		AgentfileLayer: req.AgentfileLayer, Avatar: avatar, ExpertType: req.ExpertType,
 	})
@@ -118,76 +118,6 @@ func (h *ExpertHandler) DeleteExpert(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Expert deleted"})
-}
-
-func (h *ExpertHandler) RunExpert(c *gin.Context) {
-	tenant := middleware.GetTenant(c)
-	var req runExpertRequest
-	if err := c.ShouldBindJSON(&req); err != nil && c.Request.ContentLength > 0 {
-		apierr.ValidationError(c, err.Error())
-		return
-	}
-	result, err := h.service.Run(c.Request.Context(), &expertSvc.RunExpertRequest{
-		OrganizationID: tenant.OrganizationID, UserID: tenant.UserID,
-		ExpertSlug: c.Param("expertSlug"), Alias: req.Alias, PromptOverride: req.PromptOverride,
-		RunnerID: req.RunnerID, Cols: req.Cols, Rows: req.Rows,
-	})
-	if err != nil {
-		mapOrchestratorErrorToHTTP(c, err)
-		return
-	}
-	if result.Warning != "" {
-		c.JSON(http.StatusCreated, gin.H{"pod": result.Pod, "warning": result.Warning})
-		return
-	}
-	c.JSON(http.StatusCreated, gin.H{"pod": result.Pod})
-}
-
-func (h *ExpertHandler) PublishFromPod(c *gin.Context) {
-	tenant := middleware.GetTenant(c)
-	var req publishExpertRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		apierr.ValidationError(c, err.Error())
-		return
-	}
-	row, err := h.service.PublishFromPod(c.Request.Context(), &expertSvc.PublishFromPodRequest{
-		OrganizationID: tenant.OrganizationID, UserID: tenant.UserID,
-		PodKey: c.Param("pod_key"), Name: req.Name, Slug: req.Slug, Description: req.Description,
-		AgentfileLayer: req.AgentfileLayer, UsedEnvBundles: req.UsedEnvBundles,
-		SkillSlugs: req.SkillSlugs, KnowledgeMounts: req.KnowledgeMounts,
-	})
-	if err != nil {
-		if errors.Is(err, expertSvc.ErrPodAccessDenied) {
-			apierr.Forbidden(c, apierr.SOURCE_POD_ACCESS_DENIED, "Pod belongs to a different organization")
-			return
-		}
-		h.validationOrInternal(c, err)
-		return
-	}
-	c.JSON(http.StatusCreated, gin.H{"expert": row})
-}
-
-func (h *ExpertHandler) InstallMarketApplication(c *gin.Context) {
-	tenant := middleware.GetTenant(c)
-	row, alreadyInstalled, err := h.service.InstallMarketApplication(
-		c.Request.Context(),
-		tenant.OrganizationID,
-		tenant.UserID,
-		c.Param("marketSlug"),
-	)
-	if err != nil {
-		if errors.Is(err, expertSvc.ErrMarketApplicationNotFound) {
-			apierr.ResourceNotFound(c, "Market application not found")
-			return
-		}
-		apierr.InternalError(c, "Failed to install market application")
-		return
-	}
-	status := http.StatusCreated
-	if alreadyInstalled {
-		status = http.StatusOK
-	}
-	c.JSON(status, gin.H{"expert": row, "already_installed": alreadyInstalled})
 }
 
 func (h *ExpertHandler) notFoundOrInternal(c *gin.Context, err error) {

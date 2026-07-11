@@ -17,6 +17,7 @@ import {
   Network,
   MessageSquare,
   FolderGit2,
+  Target,
   MoreHorizontal,
   type LucideIcon,
 } from "lucide-react";
@@ -26,6 +27,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   ticket: Ticket,
   network: Network,
   "message-square": MessageSquare,
+  target: Target,
   repository: FolderGit2,
 };
 
@@ -55,6 +57,8 @@ export function MobileTabBar({ className }: MobileTabBarProps) {
         return `/${orgSlug}/mesh`;
       case "loops":
         return `/${orgSlug}/loops`;
+      case "workflows":
+        return `/${orgSlug}/workflows`;
       case "repositories":
         return `/${orgSlug}/repositories`;
       default:

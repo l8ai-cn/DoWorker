@@ -42,7 +42,7 @@ x-runner-common: &runner-common
   depends_on:
     traefik:
       condition: service_started
-  user: "0:0"
+  user: "1000:1000"
   extra_hosts:
     - "host.lan:host-gateway"
   entrypoint: ["/usr/local/bin/runner-entrypoint.sh"]
@@ -55,9 +55,9 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner_e2e_workspace:/workspace
-      - runner_e2e_config:/home/runner/.do-worker
+      - runner_e2e_config:/home/runner/.agentsmesh
     ports:
       - "${RUNNER_MCP_PORT:-19000}:19000"
 
@@ -68,9 +68,9 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner2_e2e_workspace:/workspace
-      - runner2_e2e_config:/home/runner/.do-worker
+      - runner2_e2e_config:/home/runner/.agentsmesh
     ports:
       - "${RUNNER_2_MCP_PORT:-19001}:19000"
 
@@ -81,9 +81,9 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner_claude_workspace:/workspace
-      - runner_claude_agentsmesh_config:/home/runner/.do-worker
+      - runner_claude_agentsmesh_config:/home/runner/.agentsmesh
       - runner_claude_config:/home/runner/.claude
 
   runner-codex-cli:
@@ -93,9 +93,9 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner_codex_workspace:/workspace
-      - runner_codex_agentsmesh_config:/home/runner/.do-worker
+      - runner_codex_agentsmesh_config:/home/runner/.agentsmesh
       - runner_codex_config:/home/runner/.codex
 
   runner-codex-cli-2:
@@ -106,9 +106,9 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner2_codex_workspace:/workspace
-      - runner2_codex_agentsmesh_config:/home/runner/.do-worker
+      - runner2_codex_agentsmesh_config:/home/runner/.agentsmesh
       - runner2_codex_config:/home/runner/.codex
 
   runner-gemini-cli:
@@ -118,9 +118,9 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner_gemini_workspace:/workspace
-      - runner_gemini_agentsmesh_config:/home/runner/.do-worker
+      - runner_gemini_agentsmesh_config:/home/runner/.agentsmesh
       - runner_gemini_config:/home/runner/.gemini
 
   runner-loopal:
@@ -130,9 +130,9 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner_loopal_workspace:/workspace
-      - runner_loopal_agentsmesh_config:/home/runner/.do-worker
+      - runner_loopal_agentsmesh_config:/home/runner/.agentsmesh
       - runner_loopal_config:/home/runner/.loopal
 
   runner-do-agent:
@@ -142,9 +142,45 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner_doagent_workspace:/workspace
-      - runner_doagent_agentsmesh_config:/home/runner/.do-worker
+      - runner_doagent_agentsmesh_config:/home/runner/.agentsmesh
+
+  runner-grok-build:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: grok-build } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-grok, AGENT_RUNTIME: grok-build, DEFAULT_AGENT: grok-build }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_grok_workspace:/workspace
+      - runner_grok_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_grok_config:/home/runner/.grok
+
+  runner-openclaw:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: openclaw } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-openclaw, AGENT_RUNTIME: openclaw, DEFAULT_AGENT: openclaw }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_openclaw_workspace:/workspace
+      - runner_openclaw_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_openclaw_config:/home/runner/.openclaw
+
+  runner-harn:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: harn } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-harn, AGENT_RUNTIME: harn, DEFAULT_AGENT: harn }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_harn_workspace:/workspace
+      - runner_harn_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_harn_config:/home/runner/.harn
 
   runner-aider:
     <<: *runner-common
@@ -153,9 +189,9 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner_aider_workspace:/workspace
-      - runner_aider_agentsmesh_config:/home/runner/.do-worker
+      - runner_aider_agentsmesh_config:/home/runner/.agentsmesh
 
   runner-opencode:
     <<: *runner-common
@@ -164,9 +200,9 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner_opencode_workspace:/workspace
-      - runner_opencode_agentsmesh_config:/home/runner/.do-worker
+      - runner_opencode_agentsmesh_config:/home/runner/.agentsmesh
 
   # System-admin personal org (admin-workspace) — dev-org runners are invisible there.
   runner-admin-workspace:
@@ -181,9 +217,9 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner_admin_workspace:/workspace
-      - runner_admin_workspace_config:/home/runner/.do-worker
+      - runner_admin_workspace_config:/home/runner/.agentsmesh
 
   runner-admin-workspace-do-agent:
     <<: *runner-common
@@ -197,9 +233,9 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/run/runner-ssh-source:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
       - runner_admin_doagent_workspace:/workspace
-      - runner_admin_doagent_config:/home/runner/.do-worker
+      - runner_admin_doagent_config:/home/runner/.agentsmesh
 
 volumes:
   runner_e2e_workspace:
@@ -225,6 +261,15 @@ volumes:
   runner_admin_workspace_config:
   runner_doagent_workspace:
   runner_doagent_agentsmesh_config:
+  runner_grok_workspace:
+  runner_grok_agentsmesh_config:
+  runner_grok_config:
+  runner_openclaw_workspace:
+  runner_openclaw_agentsmesh_config:
+  runner_openclaw_config:
+  runner_harn_workspace:
+  runner_harn_agentsmesh_config:
+  runner_harn_config:
   runner_aider_workspace:
   runner_aider_agentsmesh_config:
   runner_opencode_workspace:

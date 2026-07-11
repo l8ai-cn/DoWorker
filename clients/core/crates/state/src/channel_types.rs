@@ -10,8 +10,8 @@
 // working out of the box.
 
 pub use agentsmesh_types::proto_channel_state_v1::{
-    Channel, ChannelMember, ChannelMessage, MessagePreview, SenderAgentInfo,
-    SenderPodInfo, SenderUser,
+    Channel, ChannelMember, ChannelMessage, MessagePreview, SenderAgentInfo, SenderPodInfo,
+    SenderUser,
 };
 
 // Compatibility alias — `crate::channel_types::User` historically pointed

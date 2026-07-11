@@ -137,3 +137,55 @@
 - Browser console was clean of AI Resource/Worker model-resource errors after fixing the duplicate `workerSlash` translation key usage; remaining DevTools issue advisories are generic form-label accessibility findings on the Worker page.
 - Verification passed: focused Go packages, legacy source-contract test, proto Go/TS generation, focused Web Vitest 129/129, `web-user` model-pool Vitest, `web-user` typecheck, filtered Web typecheck for AI Resource/Worker symbols, and `git diff --check`.
 - Residual baseline: full `clients/web` typecheck still reports unrelated existing errors, currently including `clients/web/src/lib/expert-form-prefill.ts` importing a moved hook type; current checkout has no Bazel `MODULE.bazel`/`WORKSPACE`, so Bazel Rust/WASM build is unavailable in this local baseline.
+
+## Mainline follow-up verification — 2026-07-11
+
+**Purpose:** Verify the merged Task 7–10 chain on current `main` without
+absorbing unrelated in-progress Worker, Pod lifecycle, or Rust Core changes.
+
+- [x] Clear only verified stale local resources: no live `.git/index.lock`;
+  terminate the orphaned Playwright daemon and its headless Chrome children;
+  remove their unused browser profiles.
+- [x] Run the fail-closed source-contract and migration suites. Any legacy
+  credential-path reference in an active contract, migration parity mismatch,
+  or virtual-key remap error is a blocking defect.
+- [x] Run exact-resource regression suites for AgentPod, Loop, REST session,
+  and Connect Pod creation. Missing, invisible, disabled, unhealthy, or
+  incompatible `model_resource_id` must reject creation.
+- [x] Run focused Web unit/type probes and current-browser acceptance for the
+  Resource Center and Worker creation success, empty, error, and permission
+  states. Do not mask a test failure with a fallback or stale fixture.
+- [x] Review migration and public documentation against the executed behavior,
+  check the AI-resource commit range for whitespace/errors, and report only
+  reproducible residual blockers.
+
+**Execution limits:** Stop and report after three no-progress attempts with the
+same environmental root cause. Do not stage, discard, or reformat unrelated
+dirty files. Completion requires all focused checks to pass or each unrelated
+baseline failure to be reproduced and evidenced separately.
+
+#### Mainline follow-up execution evidence — 2026-07-11
+
+- There was no Git index lock. The only lock risk was a short-lived AutoSync
+  Git process; it exited normally. An orphaned Playwright daemon, six headless
+  Chrome children, and two unused profiles were removed after process checks.
+- Browser QA initially found `ListWorkerCreateOptions` returning 404. Source
+  registration was correct; the host backend binary had been running since
+  July 10, before the route existed. Restarting it through
+  `deploy/dev/lib/host_services.sh:start_backend_host` loaded current `main`;
+  the procedure now returns 401 without auth and 200 in the logged-in browser.
+- Resource Center personal-empty and Worker no-resource states render with
+  successful AI Resource/Pod Connect RPCs and no browser console errors.
+  The Worker form now shows the existing localized blocking explanation instead
+  of an empty model-resource listbox. Desktop and 390×844 mobile screenshots
+  are under `output/playwright/`.
+- Passed: AI resource migration/legacy contract suite, cutover migration test,
+  AgentPod/Loop/REST/Connect exact-resource suites, virtual-key suite, focused
+  Web tests (11/11), scoped ESLint, and whitespace/source-contract checks.
+- `pnpm run web:typecheck` still fails on unrelated repository-wide WASM,
+  i18n, E2E, and legacy component errors. Its output contains no error for the
+  touched Worker resource files.
+- The empty-state fix and request-id test correction are part of the current
+  untracked Worker creation file group. They remain unstaged because that group
+  also contains unrelated in-progress creation changes and must be committed
+  cohesively by its owner.

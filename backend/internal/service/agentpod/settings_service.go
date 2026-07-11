@@ -76,10 +76,10 @@ func (s *SettingsService) DeleteUserSettings(ctx context.Context, userID int64) 
 
 type UserSettingsUpdate struct {
 	DefaultAgentSlug *string `json:"default_agent_slug,omitempty"`
-	DefaultModel       *string `json:"default_model,omitempty"`
-	DefaultPermMode    *string `json:"default_perm_mode,omitempty"`
-	TerminalFontSize   *int    `json:"terminal_font_size,omitempty"`
-	TerminalTheme      *string `json:"terminal_theme,omitempty"`
+	DefaultModel     *string `json:"default_model,omitempty"`
+	DefaultPermMode  *string `json:"default_perm_mode,omitempty"`
+	TerminalFontSize *int    `json:"terminal_font_size,omitempty"`
+	TerminalTheme    *string `json:"terminal_theme,omitempty"`
 }
 
 func (s *SettingsService) GetDefaultAgentConfig(ctx context.Context, userID int64) (*DefaultAgentConfig, error) {
@@ -90,15 +90,15 @@ func (s *SettingsService) GetDefaultAgentConfig(ctx context.Context, userID int6
 
 	return &DefaultAgentConfig{
 		AgentSlug: settings.DefaultAgentSlug,
-		Model:       settings.DefaultModel,
-		PermMode:    settings.DefaultPermMode,
+		Model:     settings.DefaultModel,
+		PermMode:  settings.DefaultPermMode,
 	}, nil
 }
 
 type DefaultAgentConfig struct {
 	AgentSlug *string `json:"agent_slug,omitempty"`
-	Model       *string `json:"model,omitempty"`
-	PermMode    *string `json:"perm_mode,omitempty"`
+	Model     *string `json:"model,omitempty"`
+	PermMode  *string `json:"perm_mode,omitempty"`
 }
 
 func (s *SettingsService) GetTerminalPreferences(ctx context.Context, userID int64) (*TerminalPreferences, error) {

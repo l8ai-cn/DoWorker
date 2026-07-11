@@ -85,7 +85,7 @@ func TestMapServiceError(t *testing.T) {
 	}{
 		{"not_found", runner.ErrRunnerNotFound, connect.CodeNotFound},
 		{"token_not_found", runner.ErrGRPCTokenNotFound, connect.CodeNotFound},
-		{"has_loop_refs", runner.ErrRunnerHasLoopRefs, connect.CodeFailedPrecondition},
+		{"has_loop_refs", runner.ErrRunnerHasWorkflowRefs, connect.CodeFailedPrecondition},
 		{"not_connected", runner.ErrRunnerNotConnected, connect.CodeUnavailable},
 		{"offline", runner.ErrRunnerOffline, connect.CodeUnavailable},
 		{"quota_exceeded", runner.ErrRunnerQuotaExceeded, connect.CodeResourceExhausted},

@@ -16,7 +16,9 @@ fn decode_err<E: std::fmt::Display>(e: E) -> JsValue {
 impl WasmAppState {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
-        Self { inner: AppState::with_storage(crate::new_memory_backend()) }
+        Self {
+            inner: AppState::with_storage(crate::new_memory_backend()),
+        }
     }
 
     pub fn dispatch_event(&mut self, req_bytes: &[u8]) -> Result<(), JsValue> {
@@ -43,8 +45,8 @@ impl WasmAppState {
         serde_json::to_string(self.inner.tickets.get_tickets()).unwrap_or_default()
     }
 
-    pub fn loops_json(&self) -> String {
-        serde_json::to_string(self.inner.loops.get_loops()).unwrap_or_default()
+    pub fn workflows_json(&self) -> String {
+        serde_json::to_string(self.inner.workflows.get_workflows()).unwrap_or_default()
     }
 
     pub fn mesh_json(&self) -> String {

@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	ErrAgentNotFound    = errors.New("agent not found")
-	ErrAgentSlugExists  = errors.New("agent slug already exists")
-	ErrAgentHasLoopRefs = errors.New("cannot delete: agent is referenced by one or more loops")
+	ErrAgentNotFound        = errors.New("agent not found")
+	ErrAgentSlugExists      = errors.New("agent slug already exists")
+	ErrAgentHasWorkflowRefs = errors.New("cannot delete: agent is referenced by one or more workflows")
 )
 
 type AgentInfo struct {
@@ -23,11 +23,11 @@ type AgentInfo struct {
 }
 
 type CreateCustomAgentRequest struct {
-	Slug          string
-	Name          string
-	Description   *string
-	LaunchCommand string
-	DefaultArgs   *string
+	Slug            string
+	Name            string
+	Description     *string
+	LaunchCommand   string
+	DefaultArgs     *string
 	AgentfileSource *string
 }
 
@@ -100,14 +100,14 @@ func (s *AgentService) CreateCustomAgent(ctx context.Context, orgID int64, req *
 	}
 
 	customAgent := &agent.CustomAgent{
-		OrganizationID: orgID,
-		Slug:           req.Slug,
-		Name:           req.Name,
-		Description:    req.Description,
-		LaunchCommand:  req.LaunchCommand,
-		DefaultArgs:    req.DefaultArgs,
-		AgentfileSource:  req.AgentfileSource,
-		IsActive:       true,
+		OrganizationID:  orgID,
+		Slug:            req.Slug,
+		Name:            req.Name,
+		Description:     req.Description,
+		LaunchCommand:   req.LaunchCommand,
+		DefaultArgs:     req.DefaultArgs,
+		AgentfileSource: req.AgentfileSource,
+		IsActive:        true,
 	}
 
 	if err := s.repo.CreateCustom(ctx, customAgent); err != nil {
@@ -135,7 +135,7 @@ func (s *AgentService) DeleteCustomAgent(ctx context.Context, orgID int64, slug 
 		return err
 	}
 	if loopCount > 0 {
-		return ErrAgentHasLoopRefs
+		return ErrAgentHasWorkflowRefs
 	}
 	if err := s.repo.DeleteCustom(ctx, orgID, slug); err != nil {
 		slog.ErrorContext(ctx, "failed to delete custom agent", "org_id", orgID, "slug", slug, "error", err)

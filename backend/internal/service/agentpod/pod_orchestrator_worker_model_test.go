@@ -199,6 +199,42 @@ func TestApplyWorkerModelConfiguresGeminiModelExactly(t *testing.T) {
 	assert.Nil(t, req.AgentfileLayer)
 }
 
+func TestApplyWorkerModelConfiguresOpenClawModelExactly(t *testing.T) {
+	resolver := &recordingModelResourceResolver{resource: resolvedResource("xai", "https://api.x.ai/v1", `grok "fast"`)}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "openclaw", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+	}
+
+	require.NoError(t, orchestrator.applyWorkerModel(context.Background(), req, nil))
+
+	assert.Equal(t, []string{"openai-compatible", "anthropic", "gemini"}, resolver.requirements.AllowedProtocolAdapters)
+	assert.Equal(t, "sk-test", req.ModelResourceEnv["XAI_API_KEY"])
+	assert.Equal(t, "sk-test", req.ModelResourceEnv["OPENAI_API_KEY"])
+	assert.Equal(t, "https://api.x.ai/v1", req.ModelResourceEnv["OPENAI_BASE_URL"])
+	assert.Equal(t, `grok "fast"`, req.ModelResourceEnv["OPENAI_MODEL"])
+	require.NotNil(t, req.AgentfileLayer)
+	assert.Contains(t, *req.AgentfileLayer, `CONFIG model = "grok \"fast\""`)
+}
+
+func TestApplyWorkerModelConfiguresHarnGeminiResource(t *testing.T) {
+	resolver := &recordingModelResourceResolver{resource: resolvedResource("gemini", "", "gemini-pro")}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "harn", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+	}
+
+	require.NoError(t, orchestrator.applyWorkerModel(context.Background(), req, nil))
+
+	assert.Equal(t, []string{"openai-compatible", "anthropic", "gemini"}, resolver.requirements.AllowedProtocolAdapters)
+	assert.Equal(t, "sk-test", req.ModelResourceEnv["GOOGLE_API_KEY"])
+	assert.Equal(t, "sk-test", req.ModelResourceEnv["GEMINI_API_KEY"])
+	assert.Equal(t, "gemini-pro", req.ModelResourceEnv["GEMINI_MODEL"])
+	assert.Nil(t, req.AgentfileLayer)
+}
+
 func TestApplyModelResourceArgsRejectsConflictingModel(t *testing.T) {
 	args := []string{"--sandbox", "--model", "gemini-flash"}
 

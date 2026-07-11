@@ -1,15 +1,15 @@
 ---
-title: 'AgentsMesh mit AgentsMesh gebaut: 52 Tage Harness Engineering als Ein-Personen-Projekt'
+title: 'Do Worker mit Do Worker gebaut: 52 Tage Harness Engineering als Ein-Personen-Projekt'
 excerpt: "OpenAI nennt es Harness Engineering. Mit genau dieser Methodik hat eine einzelne Person in 52 Tagen, 600 Commits und 965.687 Zeilen Code-Durchsatz das Werkzeug gebaut, das Harness Engineering selbst ermöglicht. Die Codebasis ist der Kontext. Die Engineering-Umgebung bestimmt die Obergrenze der Agent-Qualität."
 date: "2026-03-04"
-author: "AgentsMesh Team"
+author: "Do Worker Team"
 category: "Insight"
 readTime: 12
 ---
 
 OpenAI hat kürzlich einen Artikel veröffentlicht, in dem beschrieben wird, wie sie mit KI-Agents in fünf Monaten über eine Million Zeilen Code produziert haben. Sie nennen diese Engineering-Praxis **Harness Engineering**.
 
-Ich habe vor gut 50 Tagen begonnen, **AgentsMesh** zu bauen. 52 Tage, 600 Commits, 965.687 Zeilen Code-Durchsatz, 356.220 Zeilen Produktionscode. Eine Person.
+Ich habe vor gut 50 Tagen begonnen, **Do Worker** zu bauen. 52 Tage, 600 Commits, 965.687 Zeilen Code-Durchsatz, 356.220 Zeilen Produktionscode. Eine Person.
 
 Aber die eigentlich bemerkenswerte Aussage sind nicht die Zahlen, sondern die Struktur des Vorhabens selbst: Ich habe mit der Methodik des Harness Engineering ein Werkzeug für Harness Engineering gebaut.
 
@@ -27,9 +27,9 @@ Wenn ein Agent eine neue Funktion hinzufügen muss, weiß er: Datenstrukturen ge
 
 ### Verzeichnisstruktur als Dokumentation
 
-Die Benennung ist über alle Schichten hinweg konsistent. Am Beispiel Loop: backend/internal/domain/loop/ für Datenstrukturen, backend/internal/service/loop/ für Geschäftslogik, web/src/components/loops/ für Frontend-Komponenten. Die Abbildung von Produktkonzept auf Codepfad ist direkt -- keine Suche nötig, der Verzeichnisname ist die Karte.
+Die Benennung ist über alle Schichten hinweg konsistent. Am Beispiel Workflow: backend/internal/domain/workflow/ für Datenstrukturen, backend/internal/service/workflow/ für Geschäftslogik, web/src/components/workflows/ für Frontend-Komponenten. Die Abbildung von Produktkonzept auf Codepfad ist direkt -- keine Suche nötig, der Verzeichnisname ist die Karte.
 
-Die 16 Domain-Module im Backend (agentpod, channel, ticket, loop, runner, ...) spiegeln die Service-Schicht 1:1; die Web-Komponenten sind nach Produktfunktionen gegliedert (pod, tickets, loops, mesh, workspace) und an die Backend-Domain-Benennung angelehnt. Ein Agent, der eine Ticket-bezogene Aufgabe erhält, muss nicht die gesamte Codebasis durchsuchen -- die Verzeichnisstruktur allein zeigt, wo Änderungen nötig sind.
+Die 16 Domain-Module im Backend (agentpod, channel, ticket, workflow, runner, ...) spiegeln die Service-Schicht 1:1; die Web-Komponenten sind nach Produktfunktionen gegliedert (pod, tickets, workflows, mesh, workspace) und an die Backend-Domain-Benennung angelehnt. Ein Agent, der eine Ticket-bezogene Aufgabe erhält, muss nicht die gesamte Codebasis durchsuchen -- die Verzeichnisstruktur allein zeigt, wo Änderungen nötig sind.
 
 Diese Konvention ist nicht in einer Dokumentation festgehalten worden. Sie wurde durch jeden einzelnen Agent-Commit in der gesamten Codebasis kontinuierlich verstärkt.
 
@@ -91,11 +91,11 @@ Drei Worktrees gleichzeitig geöffnet, drei Agents in Betrieb, ich wechselte zwi
 
 Der einzige Weg, diese Grenze zu durchbrechen: Delegation statt Skalierung. Nicht dem Agent mehr Aufgaben geben, sondern die Entscheidungsfindung selbst delegieren. Agents koordinieren Agents, während Sie selbst eine Ebene aufsteigen -- von der Überwachung einzelner Agents zur Überwachung des Systems, das Agents überwacht. Daraus entstand der **Autopilot**-Modus.
 
-Das ist die zentrale Designabsicht von AgentsMesh. Und es ist eine Erkenntnis, die ich erst im Prozess des Selbstbaus wirklich verstanden habe.
+Das ist die zentrale Designabsicht von Do Worker. Und es ist eine Erkenntnis, die ich erst im Prozess des Selbstbaus wirklich verstanden habe.
 
 ## Kollaps der Trial-and-Error-Kosten: Engineering-Methodik muss sich anpassen
 
-Die Relay-Architektur von AgentsMesh wurde nicht am Whiteboard entworfen. Sie wurde in der Produktionsumgebung durch reale Ausfälle geformt.
+Die Relay-Architektur von Do Worker wurde nicht am Whiteboard entworfen. Sie wurde in der Produktionsumgebung durch reale Ausfälle geformt.
 
 Drei gleichzeitig laufende Pods brachten das Backend zum Absturz. Ich beobachtete den Ausfall, verstand die Ursache und baute neu. Relay wurde hinzugefügt, um Terminal-Traffic zu isolieren. Neue Probleme traten auf, intelligente Aggregation und bedarfsgesteuerte Verbindungsverwaltung kamen hinzu. Die finale Architektur entstand aus einer Folge realer Ausfälle -- nicht aus einer Whiteboard-Diskussion.
 
@@ -109,9 +109,9 @@ Der Relay-Ausfall wurde innerhalb von zwei Tagen von der Entdeckung bis zur Behe
 
 ## Selbst-Bootstrap als Validierung
 
-Die zentrale These von AgentsMesh: KI-Agents können unter einem strukturierten Harness gemeinsam komplexe Engineering-Aufgaben bewältigen.
+Die zentrale These von Do Worker: KI-Agents können unter einem strukturierten Harness gemeinsam komplexe Engineering-Aufgaben bewältigen.
 
-Ich habe AgentsMesh mit AgentsMesh gebaut.
+Ich habe Do Worker mit Do Worker gebaut.
 
 Das ist die direkteste Prüfung dieser These. Wenn Harness Engineering tatsächlich funktioniert, muss dieses Werkzeug in der Lage sein, sich selbst zu bauen.
 
@@ -126,12 +126,12 @@ Die Commit History ist der Beweis. Jeder Ingenieur kann das Repository klonen un
 52 Tage Praxis und Selbst-Bootstrap-Validierung konvergierten schließlich zu drei Engineering-Primitiven. Das ist kein vorab entworfenes Produkt-Framework -- es wurde aus realen Engineering-Problemen destilliert.
 
 **Isolation** (Isolation)
-Jeder Agent benötigt seinen eigenen, unabhängigen Arbeitsbereich. Keine Best Practice, sondern eine harte Voraussetzung. Ohne Isolation ist paralleles Arbeiten strukturell unmöglich. AgentsMesh realisiert dies über **Pods**: Jeder Agent läuft in einem eigenen Git Worktree und einer eigenen Sandbox. Konflikte gehen von "können auftreten" zu "können strukturell nicht auftreten" über. Isolation bedeutet zugleich Kohäsion -- in der isolierten Pod-Umgebung wird der vollständige Kontext bereitgestellt, den der Agent für die Ausführung benötigt: Repository, Skills, MCP und mehr. Der Pod-Aufbau ist im Wesentlichen die Vorbereitung der Ausführungsumgebung für den Agent.
+Jeder Agent benötigt seinen eigenen, unabhängigen Arbeitsbereich. Keine Best Practice, sondern eine harte Voraussetzung. Ohne Isolation ist paralleles Arbeiten strukturell unmöglich. Do Worker realisiert dies über **Pods**: Jeder Agent läuft in einem eigenen Git Worktree und einer eigenen Sandbox. Konflikte gehen von "können auftreten" zu "können strukturell nicht auftreten" über. Isolation bedeutet zugleich Kohäsion -- in der isolierten Pod-Umgebung wird der vollständige Kontext bereitgestellt, den der Agent für die Ausführung benötigt: Repository, Skills, MCP und mehr. Der Pod-Aufbau ist im Wesentlichen die Vorbereitung der Ausführungsumgebung für den Agent.
 
 **Dekomposition** (Decomposition)
 Agents sind nicht gut darin, "kümmere dich um diese Codebasis" zu verarbeiten. Was sie beherrschen: "Du bist für diesen Scope zuständig, hier sind die Abnahmekriterien, hier ist die Definition of Done." Ownership ist nicht nur Aufgabenzuweisung -- es verändert die Art, wie der Agent denkt. Dekomposition ist die Engineering-Arbeit, die vor jedem Agent-Lauf abgeschlossen sein muss.
 
-AgentsMesh bietet zwei Abstraktionen für Dekomposition: **Tickets** für einmalige Arbeitspakete -- Feature-Entwicklung, Bugfixes, Refactoring, mit vollständigem Kanban-Statusfluss und MR-Verknüpfung; **Loops** für periodische, automatisierte Aufgaben -- tägliche Tests, geplante Builds, Code-Qualitätsscans, gesteuert über Cron-Ausdrücke, wobei jede Ausführung einen eigenen LoopRun-Datensatz hinterlässt. Die Grenze zwischen beiden Aufgabenformen ist klar: Eine Sache einmal erledigen -- Ticket. Dieselbe Sache wiederholt erledigen -- Loop.
+Do Worker bietet zwei Abstraktionen für Dekomposition: **Tickets** für einmalige Arbeitspakete -- Feature-Entwicklung, Bugfixes, Refactoring, mit vollständigem Kanban-Statusfluss und MR-Verknüpfung; **Workflows** für periodische, automatisierte Aufgaben -- tägliche Tests, geplante Builds, Code-Qualitätsscans, gesteuert über Cron-Ausdrücke, wobei jede Ausführung einen eigenen WorkflowRun-Datensatz hinterlässt. Die Grenze zwischen beiden Aufgabenformen ist klar: Eine Sache einmal erledigen -- Ticket. Dieselbe Sache wiederholt erledigen -- Workflow.
 
 **Koordination** (Coordination)
 Wir verwenden keine Rollen-Abstraktion für die Agent-Koordination. Traditionelle Teams benötigen Stellenprofile, weil jede Person nur wenige Fachgebiete beherrscht -- Frontend-Entwickler schreiben kein Backend, Produktmanager schreiben keinen Code. Agents unterliegen dieser Beschränkung nicht: Derselbe Agent kann Code schreiben, Dokumentation generieren, Wettbewerbsanalysen durchführen, Tests ausführen, Pull Requests reviewen und sogar Workflows anderer Agents orchestrieren. Seine Fähigkeitsgrenzen sind nicht fest, sondern werden über Kontext und Tool-Konfiguration definiert. Agent-Koordination muss daher menschliche Arbeitsteilung nicht nachahmen -- sie benötigt Kommunikation und Berechtigungen.
@@ -146,10 +146,10 @@ OpenAI nennt die entsprechenden Konzepte Context Engineering, Architektur-Constr
 
 Harness Engineering ist eine Engineering-Disziplin, kein Produktfeature. Statt das Wissen für sich zu behalten, setzen wir auf Offenheit als Impulsgeber.
 
-Wir haben uns entschieden, AgentsMesh als Open Source zu veröffentlichen. Wenn wir möglicherweise ein effektives Engineering-Werkzeug gebaut haben, war das Ziel nie, "den Code zu besitzen", sondern mehr Menschen zu ermöglichen, auf dieser Grundlage noch bessere Engineering-Werkzeuge zu entwickeln. Statt potenziell richtige Engineering-Praktiken in einem Produkt einzuschließen, machen wir sie offen -- damit die Community sie validieren, weiterentwickeln und übertreffen kann.
+Wir haben uns entschieden, Do Worker als Open Source zu veröffentlichen. Wenn wir möglicherweise ein effektives Engineering-Werkzeug gebaut haben, war das Ziel nie, "den Code zu besitzen", sondern mehr Menschen zu ermöglichen, auf dieser Grundlage noch bessere Engineering-Werkzeuge zu entwickeln. Statt potenziell richtige Engineering-Praktiken in einem Produkt einzuschließen, machen wir sie offen -- damit die Community sie validieren, weiterentwickeln und übertreffen kann.
 
 Der Code ist auf [GitHub](https://github.com/l8ai-cn/DoWorker)
 
-Sie können damit: einen eigenen Runner bereitstellen und KI-Agents in lokalen, isolierten Umgebungen ausführen; mit Tickets und Loops die Workflows Ihrer Agents verwalten; über Channels und Bindings mehrere Agents zur Bewältigung komplexer Aufgaben koordinieren.
+Sie können damit: einen eigenen Runner bereitstellen und KI-Agents in lokalen, isolierten Umgebungen ausführen; mit Tickets und Workflows die Workflows Ihrer Agents verwalten; über Channels und Bindings mehrere Agents zur Bewältigung komplexer Aufgaben koordinieren.
 
 Wenn Sie bei Ihrer eigenen Harness-Engineering-Praxis Erkenntnisse gewonnen haben -- besuchen Sie die [GitHub Discussions](https://github.com/l8ai-cn/DoWorker/discussions) oder eröffnen Sie direkt ein [Issue](https://github.com/l8ai-cn/DoWorker/issues). Dieses Projekt wurde selbst mit Agents gebaut. Es sollte weiterhin gemeinsam von Agents und Ingenieuren weiterentwickelt werden.

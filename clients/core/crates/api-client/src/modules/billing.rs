@@ -33,28 +33,48 @@ impl ApiClient {
         &self,
         req: &billing_proto::GetSubscriptionRequest,
     ) -> Result<billing_proto::Subscription, ApiError> {
-        connect_call(self, "/proto.billing.v1.BillingService/GetSubscription", req).await
+        connect_call(
+            self,
+            "/proto.billing.v1.BillingService/GetSubscription",
+            req,
+        )
+        .await
     }
 
     pub async fn create_billing_subscription_connect(
         &self,
         req: &billing_proto::CreateSubscriptionRequest,
     ) -> Result<billing_proto::Subscription, ApiError> {
-        connect_call(self, "/proto.billing.v1.BillingService/CreateSubscription", req).await
+        connect_call(
+            self,
+            "/proto.billing.v1.BillingService/CreateSubscription",
+            req,
+        )
+        .await
     }
 
     pub async fn update_billing_subscription_connect(
         &self,
         req: &billing_proto::UpdateSubscriptionRequest,
     ) -> Result<billing_proto::Subscription, ApiError> {
-        connect_call(self, "/proto.billing.v1.BillingService/UpdateSubscription", req).await
+        connect_call(
+            self,
+            "/proto.billing.v1.BillingService/UpdateSubscription",
+            req,
+        )
+        .await
     }
 
     pub async fn cancel_billing_subscription_connect(
         &self,
         req: &billing_proto::CancelSubscriptionRequest,
     ) -> Result<billing_proto::CancelSubscriptionResponse, ApiError> {
-        connect_call(self, "/proto.billing.v1.BillingService/CancelSubscription", req).await
+        connect_call(
+            self,
+            "/proto.billing.v1.BillingService/CancelSubscription",
+            req,
+        )
+        .await
     }
 
     pub async fn request_cancel_subscription_connect(
@@ -109,7 +129,12 @@ impl ApiClient {
         &self,
         req: &billing_proto::UpdateAutoRenewRequest,
     ) -> Result<billing_proto::Subscription, ApiError> {
-        connect_call(self, "/proto.billing.v1.BillingService/UpdateAutoRenew", req).await
+        connect_call(
+            self,
+            "/proto.billing.v1.BillingService/UpdateAutoRenew",
+            req,
+        )
+        .await
     }
 
     pub async fn get_seat_usage_connect(
@@ -224,12 +249,7 @@ impl ApiClient {
         &self,
         req: &billing_proto::SetCustomQuotaRequest,
     ) -> Result<billing_proto::SetCustomQuotaResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.billing.v1.BillingService/SetCustomQuota",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.billing.v1.BillingService/SetCustomQuota", req).await
     }
 
     pub async fn create_customer_portal_connect(

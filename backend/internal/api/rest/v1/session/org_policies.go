@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
 	"github.com/gin-gonic/gin"
 )
 

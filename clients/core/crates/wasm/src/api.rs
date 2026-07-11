@@ -13,7 +13,7 @@ pub struct WasmApiClient {
     /// Singleton AppRuntime for this client. Created once at construction
     /// time and shared by all services + the events manager. The events
     /// manager's dispatch hook is wired into `AppRuntime.state.dispatch`
-    /// at this point, so any event delivered through the connection_loop
+    /// at this point, so any event delivered through the connection_workflow
     /// updates the same `AppState` that services + selectors read from.
     runtime: Arc<AppRuntime>,
 }
@@ -30,7 +30,11 @@ impl WasmApiClient {
             EventSubscriptionManagerOptions::default(),
         ));
         let runtime = AppRuntime::new(events);
-        Self { client, base_url, runtime }
+        Self {
+            client,
+            base_url,
+            runtime,
+        }
     }
 
     #[wasm_bindgen(getter)]
@@ -61,8 +65,8 @@ impl WasmApiClient {
         crate::state_runner::WasmRunnerState::from_runtime(self.runtime.state.clone())
     }
 
-    pub fn get_loop_state(&self) -> crate::state_loop::WasmLoopState {
-        crate::state_loop::WasmLoopState::from_runtime(self.runtime.state.clone())
+    pub fn get_workflow_state(&self) -> crate::state_workflow::WasmWorkflowState {
+        crate::state_workflow::WasmWorkflowState::from_runtime(self.runtime.state.clone())
     }
 
     pub fn get_mesh_state(&self) -> crate::state_mesh::WasmMeshState {
@@ -100,12 +104,20 @@ impl WasmApiClient {
     }
 
     pub fn take_pending_browser_notifications(&self) -> String {
-        let notifs = self.runtime.state.write().take_pending_browser_notifications();
+        let notifs = self
+            .runtime
+            .state
+            .write()
+            .take_pending_browser_notifications();
         serde_json::to_string(&notifs).unwrap_or_else(|_| "[]".to_string())
     }
 
     pub fn take_pending_refetch_ticket_slugs(&self) -> String {
-        let slugs = self.runtime.state.write().take_pending_refetch_ticket_slugs();
+        let slugs = self
+            .runtime
+            .state
+            .write()
+            .take_pending_refetch_ticket_slugs();
         serde_json::to_string(&slugs).unwrap_or_else(|_| "[]".to_string())
     }
 
@@ -154,8 +166,12 @@ impl WasmApiClient {
         crate::service_runner::WasmRunnerService::new(self.client.clone())
     }
 
-    pub fn create_loop_service(&self) -> crate::service_loop::WasmLoopService {
-        crate::service_loop::WasmLoopService::new(self.client.clone())
+    pub fn create_workflow_service(&self) -> crate::service_workflow::WasmWorkflowService {
+        crate::service_workflow::WasmWorkflowService::new(self.client.clone())
+    }
+
+    pub fn create_goal_loop_service(&self) -> crate::service_goal_loop::WasmGoalLoopService {
+        crate::service_goal_loop::WasmGoalLoopService::new(self.client.clone())
     }
 
     pub fn create_autopilot_service(&self) -> crate::service_autopilot::WasmAutopilotService {
@@ -213,9 +229,7 @@ impl WasmApiClient {
         crate::service_promocode::WasmPromoCodeService::new(self.client.clone())
     }
 
-    pub fn create_token_usage_service(
-        &self,
-    ) -> crate::service_token_usage::WasmTokenUsageService {
+    pub fn create_token_usage_service(&self) -> crate::service_token_usage::WasmTokenUsageService {
         crate::service_token_usage::WasmTokenUsageService::new(self.client.clone())
     }
 
@@ -233,9 +247,7 @@ impl WasmApiClient {
         crate::service_user_credential::WasmUserCredentialService::new(self.client.clone())
     }
 
-    pub fn create_env_bundle_service(
-        &self,
-    ) -> crate::service_env_bundle::WasmEnvBundleService {
+    pub fn create_env_bundle_service(&self) -> crate::service_env_bundle::WasmEnvBundleService {
         crate::service_env_bundle::WasmEnvBundleService::new(self.client.clone())
     }
 
@@ -247,9 +259,7 @@ impl WasmApiClient {
         crate::service_agent::WasmAgentService::new(self.client.clone())
     }
 
-    pub fn create_ai_resource_service(
-        &self,
-    ) -> crate::service_ai_resource::WasmAIResourceService {
+    pub fn create_ai_resource_service(&self) -> crate::service_ai_resource::WasmAIResourceService {
         crate::service_ai_resource::WasmAIResourceService::new(self.client.clone())
     }
 

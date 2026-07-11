@@ -1,12 +1,12 @@
 pub mod channel_repo;
-pub mod loop_repo;
+pub mod workflow_repo;
 pub mod message_repo;
 pub mod pod_repo;
 pub mod runner_repo;
 pub mod ticket_repo;
 
 pub use channel_repo::{ChannelRepo, ChannelRow};
-pub use loop_repo::{LoopRepo, LoopRow, LoopRunRow};
+pub use workflow_repo::{WorkflowRepo, WorkflowRow, WorkflowRunRow};
 pub use message_repo::{MessageRepo, MessageRow};
 pub use pod_repo::PodRepo;
 pub use runner_repo::RunnerRepo;

@@ -20,7 +20,7 @@ export type { ApiKey } from "./facade/apikey";
 export type { AutopilotPhase, CircuitBreakerState, AutopilotControllerData, AutopilotIterationData, CreateAutopilotControllerRequest, ApproveRequest } from "@/lib/viewModels/autopilot";
 export type { CatalogSkill, SkillImportAuthType, SkillMarketItem, McpMarketItem, EnvVarSchemaEntry, InstalledSkill, InstalledMcpServer } from "@/lib/viewModels/extension";
 export type { Organization, OrganizationMember } from "./facade/org";
-export type { LoopData, LoopRunData, LoopStatus, ExecutionMode, SandboxStrategy, ConcurrencyPolicy, RunStatus, CreateLoopRequest, UpdateLoopRequest } from "@/lib/viewModels/loop";
+export type { WorkflowData, WorkflowRunData, WorkflowStatus, ExecutionMode, SandboxStrategy, ConcurrencyPolicy, RunStatus, CreateWorkflowRequest, UpdateWorkflowRequest } from "@/lib/viewModels/workflow";
 export type { SSODiscoverConfig, LdapAuthResponse } from "./connect/ssoConnect";
 export type { SupportTicket, SupportTicketDetail, SupportTicketMessage, SupportTicketAttachment, SupportTicketListResponse, SupportTicketListParams } from "./connect/supportTicketConnect";
 

@@ -44,9 +44,13 @@ fn save_ticket(repo: &TicketRepo, ticket: &Ticket) {
 impl TicketState {
     pub fn new() -> Self {
         Self {
-            tickets: Vec::new(), current_ticket: None, labels: Vec::new(),
-            board_columns: Vec::new(), view_mode: ViewMode::List,
-            pods_by_ticket_slug: HashMap::new(), repo: None,
+            tickets: Vec::new(),
+            current_ticket: None,
+            labels: Vec::new(),
+            board_columns: Vec::new(),
+            view_mode: ViewMode::List,
+            pods_by_ticket_slug: HashMap::new(),
+            repo: None,
         }
     }
 
@@ -54,15 +58,21 @@ impl TicketState {
         let repo = TicketRepo::new(backend);
         let tickets = repo.list_tickets().unwrap_or_default();
         Self {
-            tickets, current_ticket: None, labels: Vec::new(),
-            board_columns: Vec::new(), view_mode: ViewMode::List,
-            pods_by_ticket_slug: HashMap::new(), repo: Some(repo),
+            tickets,
+            current_ticket: None,
+            labels: Vec::new(),
+            board_columns: Vec::new(),
+            view_mode: ViewMode::List,
+            pods_by_ticket_slug: HashMap::new(),
+            repo: Some(repo),
         }
     }
 
     // --- Ticket CRUD ---
 
-    pub fn get_tickets(&self) -> &[Ticket] { &self.tickets }
+    pub fn get_tickets(&self) -> &[Ticket] {
+        &self.tickets
+    }
 
     pub fn get_ticket_by_slug(&self, slug: &str) -> Option<&Ticket> {
         self.tickets.iter().find(|t| t.slug == slug)
@@ -73,13 +83,17 @@ impl TicketState {
         self.tickets = tickets;
         if let Some(repo) = &self.repo {
             let _ = repo.clear();
-            for t in &self.tickets { save_ticket(repo, t); }
+            for t in &self.tickets {
+                save_ticket(repo, t);
+            }
         }
     }
 
     pub fn add_ticket(&mut self, ticket: Ticket) {
         tracing::info!(target: "ticket", slug = %ticket.slug, status = %ticket.status, "add ticket");
-        if let Some(repo) = &self.repo { save_ticket(repo, &ticket); }
+        if let Some(repo) = &self.repo {
+            save_ticket(repo, &ticket);
+        }
         self.tickets.push(ticket);
     }
 
@@ -87,26 +101,40 @@ impl TicketState {
         tracing::info!(target: "ticket", slug, "update ticket");
         if let Some(t) = self.tickets.iter_mut().find(|t| t.slug == slug) {
             *t = updated.clone();
-            if let Some(repo) = &self.repo { save_ticket(repo, t); }
+            if let Some(repo) = &self.repo {
+                save_ticket(repo, t);
+            }
         }
         for col in &mut self.board_columns {
             if let Some(t) = col.tickets.iter_mut().find(|t| t.slug == slug) {
                 *t = updated.clone();
             }
         }
-        if self.current_ticket.as_ref().is_some_and(|ct| ct.slug == slug) {
+        if self
+            .current_ticket
+            .as_ref()
+            .is_some_and(|ct| ct.slug == slug)
+        {
             self.current_ticket = Some(updated);
         }
     }
 
     pub fn update_ticket_status(&mut self, slug: &str, status: &str) {
-        if status.is_empty() { return; }
+        if status.is_empty() {
+            return;
+        }
         tracing::info!(target: "ticket", slug, status, "status changed");
         if let Some(t) = self.tickets.iter_mut().find(|t| t.slug == slug) {
             t.status = status.to_string();
-            if let Some(repo) = &self.repo { save_ticket(repo, t); }
+            if let Some(repo) = &self.repo {
+                save_ticket(repo, t);
+            }
         }
-        if self.current_ticket.as_ref().is_some_and(|ct| ct.slug == slug) {
+        if self
+            .current_ticket
+            .as_ref()
+            .is_some_and(|ct| ct.slug == slug)
+        {
             if let Some(ct) = &mut self.current_ticket {
                 ct.status = status.to_string();
             }
@@ -119,10 +147,16 @@ impl TicketState {
         for col in &mut self.board_columns {
             col.tickets.retain(|t| t.slug != slug);
         }
-        if self.current_ticket.as_ref().is_some_and(|ct| ct.slug == slug) {
+        if self
+            .current_ticket
+            .as_ref()
+            .is_some_and(|ct| ct.slug == slug)
+        {
             self.current_ticket = None;
         }
-        if let Some(repo) = &self.repo { let _ = repo.delete_ticket(slug); }
+        if let Some(repo) = &self.repo {
+            let _ = repo.delete_ticket(slug);
+        }
     }
 
     // --- Filtering ---
@@ -135,20 +169,29 @@ impl TicketState {
         repository_ids: &[i64],
     ) -> Vec<&Ticket> {
         let search_lower = search.map(|s| s.to_lowercase());
-        self.tickets.iter().filter(|t| {
-            if let Some(ref q) = search_lower {
-                if !t.title.to_lowercase().contains(q) && !t.slug.to_lowercase().contains(q) {
+        self.tickets
+            .iter()
+            .filter(|t| {
+                if let Some(ref q) = search_lower {
+                    if !t.title.to_lowercase().contains(q) && !t.slug.to_lowercase().contains(q) {
+                        return false;
+                    }
+                }
+                if !statuses.is_empty() && !statuses.iter().any(|s| s == &t.status) {
                     return false;
                 }
-            }
-            if !statuses.is_empty() && !statuses.iter().any(|s| s == &t.status) { return false; }
-            if !priorities.is_empty() && !priorities.iter().any(|p| p == &t.priority) { return false; }
-            if !repository_ids.is_empty() {
-                let rid = t.repository_id.unwrap_or(0);
-                if !repository_ids.contains(&rid) { return false; }
-            }
-            true
-        }).collect()
+                if !priorities.is_empty() && !priorities.iter().any(|p| p == &t.priority) {
+                    return false;
+                }
+                if !repository_ids.is_empty() {
+                    let rid = t.repository_id.unwrap_or(0);
+                    if !repository_ids.contains(&rid) {
+                        return false;
+                    }
+                }
+                true
+            })
+            .collect()
     }
 
     // --- Board columns ---
@@ -158,18 +201,24 @@ impl TicketState {
         self.tickets = columns.iter().flat_map(|c| c.tickets.clone()).collect();
         if let Some(repo) = &self.repo {
             let _ = repo.clear();
-            for t in &self.tickets { save_ticket(repo, t); }
+            for t in &self.tickets {
+                save_ticket(repo, t);
+            }
         }
         self.board_columns = columns;
     }
 
-    pub fn get_board_columns(&self) -> &[BoardColumn] { &self.board_columns }
+    pub fn get_board_columns(&self) -> &[BoardColumn] {
+        &self.board_columns
+    }
 
     pub fn append_column_tickets(&mut self, status: &str, tickets: Vec<Ticket>) {
         tracing::debug!(target: "ticket", status, count = tickets.len(), "append column tickets");
         if let Some(col) = self.board_columns.iter_mut().find(|c| c.status == status) {
             for t in &tickets {
-                if let Some(repo) = &self.repo { save_ticket(repo, t); }
+                if let Some(repo) = &self.repo {
+                    save_ticket(repo, t);
+                }
                 self.tickets.push(t.clone());
             }
             col.tickets.extend(tickets);
@@ -178,13 +227,21 @@ impl TicketState {
 
     // --- View mode ---
 
-    pub fn set_view_mode(&mut self, mode: ViewMode) { self.view_mode = mode; }
-    pub fn get_view_mode(&self) -> ViewMode { self.view_mode }
+    pub fn set_view_mode(&mut self, mode: ViewMode) {
+        self.view_mode = mode;
+    }
+    pub fn get_view_mode(&self) -> ViewMode {
+        self.view_mode
+    }
 
     // --- Labels ---
 
-    pub fn get_labels(&self) -> &[Label] { &self.labels }
-    pub fn set_labels(&mut self, labels: Vec<Label>) { self.labels = labels; }
+    pub fn get_labels(&self) -> &[Label] {
+        &self.labels
+    }
+    pub fn set_labels(&mut self, labels: Vec<Label>) {
+        self.labels = labels;
+    }
     pub fn add_label(&mut self, label: Label) {
         tracing::info!(target: "ticket", label_id = label.id, "add label");
         self.labels.push(label);
@@ -204,8 +261,12 @@ impl TicketState {
 
     // --- Current ticket ---
 
-    pub fn set_current_ticket(&mut self, ticket: Option<Ticket>) { self.current_ticket = ticket; }
-    pub fn get_current_ticket(&self) -> Option<&Ticket> { self.current_ticket.as_ref() }
+    pub fn set_current_ticket(&mut self, ticket: Option<Ticket>) {
+        self.current_ticket = ticket;
+    }
+    pub fn get_current_ticket(&self) -> Option<&Ticket> {
+        self.current_ticket.as_ref()
+    }
 
     // --- Pods per ticket cache ---
 
@@ -215,7 +276,10 @@ impl TicketState {
     }
 
     pub fn get_ticket_pods(&self, slug: &str) -> Vec<Pod> {
-        self.pods_by_ticket_slug.get(slug).cloned().unwrap_or_default()
+        self.pods_by_ticket_slug
+            .get(slug)
+            .cloned()
+            .unwrap_or_default()
     }
 
     pub fn clear_ticket_pods(&mut self, slug: &str) {
@@ -225,5 +289,7 @@ impl TicketState {
 }
 
 impl Default for TicketState {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }

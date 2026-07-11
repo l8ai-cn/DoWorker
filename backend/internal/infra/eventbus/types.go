@@ -54,10 +54,10 @@ const (
 
 	EventPipelineUpdated EventType = "pipeline:updated"
 
-	EventLoopRunStarted   EventType = "loop_run:started"
-	EventLoopRunCompleted EventType = "loop_run:completed"
-	EventLoopRunFailed    EventType = "loop_run:failed"
-	EventLoopRunWarning   EventType = "loop_run:warning"
+	EventWorkflowRunStarted   EventType = "workflow_run:started"
+	EventWorkflowRunCompleted EventType = "workflow_run:completed"
+	EventWorkflowRunFailed    EventType = "workflow_run:failed"
+	EventWorkflowRunWarning   EventType = "workflow_run:warning"
 	EventChannelMemberAdded   EventType = "channel:member_added"
 	EventChannelMemberRemoved EventType = "channel:member_removed"
 

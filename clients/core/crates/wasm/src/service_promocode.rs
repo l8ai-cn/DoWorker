@@ -12,7 +12,9 @@ pub struct WasmPromoCodeService {
 #[wasm_bindgen]
 impl WasmPromoCodeService {
     pub(crate) fn new(client: Arc<ApiClient>) -> Self {
-        Self { inner: PromoCodeService::new(client) }
+        Self {
+            inner: PromoCodeService::new(client),
+        }
     }
 
     // -------- Connect-RPC (binary wire) --------

@@ -170,8 +170,8 @@ func (l TicketList) FormatText() string {
 	return strings.TrimRight(b.String(), "\n")
 }
 
-// FormatText formats a LoopTriggerResult as key-value text.
-func (r *LoopTriggerResult) FormatText() string {
+// FormatText formats a WorkflowTriggerResult as key-value text.
+func (r *WorkflowTriggerResult) FormatText() string {
 	var b strings.Builder
 	if r.Skipped {
 		fmt.Fprintf(&b, "Skipped: %s", r.Reason)
@@ -190,28 +190,28 @@ func (r *LoopTriggerResult) FormatText() string {
 	return strings.TrimRight(b.String(), "\n")
 }
 
-// FormatText formats the loop list as a Markdown table.
-func (l LoopSummaryList) FormatText() string {
+// FormatText formats the workflow list as a Markdown table.
+func (l WorkflowSummaryList) FormatText() string {
 	if len(l) == 0 {
-		return "No loops found."
+		return "No workflows found."
 	}
 	var b strings.Builder
 	b.WriteString("| Slug | Name | Status | Mode | Runs (OK/Fail/Total) | Active | Cron |\n")
 	b.WriteString("|------|------|--------|------|----------------------|--------|------|\n")
-	for _, loop := range l {
+	for _, workflow := range l {
 		cron := ""
-		if loop.CronExpression != "" {
-			cron = loop.CronExpression
+		if workflow.CronExpression != "" {
+			cron = workflow.CronExpression
 		}
 		fmt.Fprintf(&b, "| %s | %s | %s | %s | %d/%d/%d | %d | %s |\n",
-			escapeTableCell(loop.Slug),
-			escapeTableCell(truncate(loop.Name, 40)),
-			loop.Status,
-			loop.ExecutionMode,
-			loop.SuccessfulRuns,
-			loop.FailedRuns,
-			loop.TotalRuns,
-			loop.ActiveRunCount,
+			escapeTableCell(workflow.Slug),
+			escapeTableCell(truncate(workflow.Name, 40)),
+			workflow.Status,
+			workflow.ExecutionMode,
+			workflow.SuccessfulRuns,
+			workflow.FailedRuns,
+			workflow.TotalRuns,
+			workflow.ActiveRunCount,
 			escapeTableCell(cron),
 		)
 	}

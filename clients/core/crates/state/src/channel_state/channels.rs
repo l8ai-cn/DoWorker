@@ -26,16 +26,29 @@ impl ChannelState {
         for c in &self.channels {
             prev.insert(
                 c.id,
-                (c.unread_count, c.mention_count, c.last_message.clone(), c.last_activity_at.clone()),
+                (
+                    c.unread_count,
+                    c.mention_count,
+                    c.last_message.clone(),
+                    c.last_activity_at.clone(),
+                ),
             );
         }
         self.channels = channels;
         for c in self.channels.iter_mut() {
             if let Some((u, m, lm, ts)) = prev.get(&c.id) {
-                if c.unread_count == 0 { c.unread_count = *u; }
-                if c.mention_count == 0 { c.mention_count = *m; }
-                if c.last_message.is_none() { c.last_message = lm.clone(); }
-                if c.last_activity_at.is_none() { c.last_activity_at = ts.clone(); }
+                if c.unread_count == 0 {
+                    c.unread_count = *u;
+                }
+                if c.mention_count == 0 {
+                    c.mention_count = *m;
+                }
+                if c.last_message.is_none() {
+                    c.last_message = lm.clone();
+                }
+                if c.last_activity_at.is_none() {
+                    c.last_activity_at = ts.clone();
+                }
             }
         }
         if let Some(repo) = &self.channel_repo {
@@ -88,9 +101,15 @@ impl ChannelState {
             .iter()
             .filter(|c| include_archived || !c.is_archived)
             .filter(|c| {
-                if q.is_empty() { return true; }
+                if q.is_empty() {
+                    return true;
+                }
                 c.name.to_lowercase().contains(&q)
-                    || c.description.as_deref().unwrap_or("").to_lowercase().contains(&q)
+                    || c.description
+                        .as_deref()
+                        .unwrap_or("")
+                        .to_lowercase()
+                        .contains(&q)
             })
             .collect()
     }
@@ -130,7 +149,9 @@ impl ChannelState {
                     if unread_cmp != std::cmp::Ordering::Equal {
                         return unread_cmp;
                     }
-                    b.last_activity_at.as_deref().cmp(&a.last_activity_at.as_deref())
+                    b.last_activity_at
+                        .as_deref()
+                        .cmp(&a.last_activity_at.as_deref())
                 });
             }
             ChannelSortMode::Name => {

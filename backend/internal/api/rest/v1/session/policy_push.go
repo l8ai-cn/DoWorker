@@ -62,4 +62,3 @@ func (d *Deps) policyRulesForPod(c *gin.Context, orgID int64, pod *podDomain.Pod
 	agentSlug := pod.AgentSlug
 	return d.Policies.SnapshotForPodCreate(c.Request.Context(), orgID, agentSlug)
 }
-

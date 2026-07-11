@@ -37,12 +37,18 @@ impl WasmSupportTicketService {
     }
 
     #[wasm_bindgen(js_name = addSupportTicketMessageConnect)]
-    pub async fn add_support_ticket_message_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn add_support_ticket_message_connect(
+        &self,
+        request: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.add_support_ticket_message_connect(request).await
     }
 
     #[wasm_bindgen(js_name = presignAttachmentUploadConnect)]
-    pub async fn presign_attachment_upload_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn presign_attachment_upload_connect(
+        &self,
+        request: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.presign_attachment_upload_connect(request).await
     }
 

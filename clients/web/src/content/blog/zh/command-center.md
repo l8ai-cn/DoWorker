@@ -2,7 +2,7 @@
 title: "AI 开发需要的是指挥中心，而不是又一个 IDE"
 excerpt: "AI Agent 已经全能化。当技能交易崩塌，岗位角色瓦解，建立在康威定律之上的工程流程必须被重塑。开发者现在需要的不是更好的 IDE，而是大规模编排 Agent 舰队的指挥中心。"
 date: "2026-02-23"
-author: "AgentsMesh Team"
+author: "Do Worker Team"
 category: "Insight"
 readTime: 10
 ---
@@ -72,9 +72,9 @@ readTime: 10
 
 数据支持这一点：在我们的观察中，AI 在执行类任务上提供 50 倍的效率提升（生成代码、测试、重构），但在决策类任务上几乎零提升（调试生产问题、选择架构、设定优先级）。**执行正在被商品化，判断力正在成为瓶颈。**
 
-## AgentsMesh：为这个现实而生
+## Do Worker：为这个现实而生
 
-AgentsMesh 从底层架构就被设计为一个 **Agent 舰队指挥中心**。
+Do Worker 从底层架构就被设计为一个 **Agent 舰队指挥中心**。
 
 第一层价值是指挥中心本身：
 
@@ -108,8 +108,8 @@ AgentsMesh 从底层架构就被设计为一个 **Agent 舰队指挥中心**。
 
 正在浮现的是全新的东西：个人开发者拥有整个团队的产出能力，通过指挥中心而非 IDE 来指挥 AI Agent 舰队。
 
-AgentsMesh 为这个未来而建。不是又一个加了 AI 功能的 IDE，而是让 Agent 舰队作战成为可能的指挥中心。
+Do Worker 为这个未来而建。不是又一个加了 AI 功能的 IDE，而是让 Agent 舰队作战成为可能的指挥中心。
 
 问题不是这个转变会不会发生，而是当它发生时你是否已经准备好了。
 
-[立即开始使用 AgentsMesh。](https://agentsmesh.ai)
+[立即开始使用 Do Worker。](https://agentsmesh.ai)

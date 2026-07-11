@@ -221,6 +221,78 @@ spec:
     requests:
       storage: 10Gi
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-openclaw-agentsmesh-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-openclaw-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-openclaw-workspace
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-harn-agentsmesh-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-harn-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-harn-workspace
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -296,6 +368,166 @@ spec:
       - name: agent-config
         persistentVolumeClaim:
           claimName: runner-claude-config
+      - name: runner-ssh
+        secret:
+          defaultMode: 384
+          secretName: agentsmesh-runner-ssh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    agentsmesh.io/runtime: openclaw
+  name: runner-openclaw
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-openclaw
+  template:
+    metadata:
+      labels:
+        agentsmesh.io/runtime: openclaw
+        app: runner-openclaw
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/runner-entrypoint.sh
+        env:
+        - name: RUNNER_NODE_ID
+          value: dev-runner-openclaw
+        - name: AGENT_RUNTIME
+          value: openclaw
+        - name: DEFAULT_AGENT
+          value: openclaw
+        envFrom:
+        - configMapRef:
+            name: agentsmesh-runner-env
+        - secretRef:
+            name: agentsmesh-runner-api-keys
+            optional: true
+        image: __COMPOSE_PROJECT_NAME__-runner-openclaw:latest
+        imagePullPolicy: Never
+        name: runner
+        volumeMounts:
+        - mountPath: /app/ssl
+          name: ssl
+          readOnly: true
+        - mountPath: /usr/local/bin/runner-entrypoint.sh
+          name: entrypoint
+          readOnly: true
+          subPath: runner-entrypoint.sh
+        - mountPath: /workspace
+          name: workspace
+        - mountPath: /home/runner/.do-worker
+          name: agentsmesh-config
+        - mountPath: /home/runner/.openclaw
+          name: agent-config
+        - mountPath: /run/runner-ssh-source
+          name: runner-ssh
+          readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      - name: ssl
+        secret:
+          secretName: agentsmesh-dev-ca
+      - configMap:
+          defaultMode: 493
+          name: runner-entrypoint
+        name: entrypoint
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: runner-openclaw-workspace
+      - name: agentsmesh-config
+        persistentVolumeClaim:
+          claimName: runner-openclaw-agentsmesh-config
+      - name: agent-config
+        persistentVolumeClaim:
+          claimName: runner-openclaw-config
+      - name: runner-ssh
+        secret:
+          defaultMode: 384
+          secretName: agentsmesh-runner-ssh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    agentsmesh.io/runtime: harn
+  name: runner-harn
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-harn
+  template:
+    metadata:
+      labels:
+        agentsmesh.io/runtime: harn
+        app: runner-harn
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/runner-entrypoint.sh
+        env:
+        - name: RUNNER_NODE_ID
+          value: dev-runner-harn
+        - name: AGENT_RUNTIME
+          value: harn
+        - name: DEFAULT_AGENT
+          value: harn
+        envFrom:
+        - configMapRef:
+            name: agentsmesh-runner-env
+        - secretRef:
+            name: agentsmesh-runner-api-keys
+            optional: true
+        image: __COMPOSE_PROJECT_NAME__-runner-harn:latest
+        imagePullPolicy: Never
+        name: runner
+        volumeMounts:
+        - mountPath: /app/ssl
+          name: ssl
+          readOnly: true
+        - mountPath: /usr/local/bin/runner-entrypoint.sh
+          name: entrypoint
+          readOnly: true
+          subPath: runner-entrypoint.sh
+        - mountPath: /workspace
+          name: workspace
+        - mountPath: /home/runner/.do-worker
+          name: agentsmesh-config
+        - mountPath: /home/runner/.harn
+          name: agent-config
+        - mountPath: /run/runner-ssh-source
+          name: runner-ssh
+          readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      - name: ssl
+        secret:
+          secretName: agentsmesh-dev-ca
+      - configMap:
+          defaultMode: 493
+          name: runner-entrypoint
+        name: entrypoint
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: runner-harn-workspace
+      - name: agentsmesh-config
+        persistentVolumeClaim:
+          claimName: runner-harn-agentsmesh-config
+      - name: agent-config
+        persistentVolumeClaim:
+          claimName: runner-harn-config
       - name: runner-ssh
         secret:
           defaultMode: 384

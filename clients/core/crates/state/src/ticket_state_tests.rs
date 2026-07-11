@@ -15,7 +15,12 @@ fn tk(slug: &str, title: &str) -> Ticket {
 }
 
 fn lbl(id: i64, name: &str) -> Label {
-    Label { id, name: name.into(), color: "#000".into(), ..Default::default() }
+    Label {
+        id,
+        name: name.into(),
+        color: "#000".into(),
+        ..Default::default()
+    }
 }
 
 #[test]
@@ -39,7 +44,11 @@ fn update_ticket_status_empty_keeps_status() {
     s.set_tickets(vec![tk("T-1", "a")]);
     s.update_ticket_status("T-1", "");
     assert_eq!(
-        s.get_tickets().iter().find(|t| t.slug == "T-1").unwrap().status,
+        s.get_tickets()
+            .iter()
+            .find(|t| t.slug == "T-1")
+            .unwrap()
+            .status,
         ticket_status::TODO,
         "empty status must not blank the ticket"
     );
@@ -97,8 +106,16 @@ fn labels() {
     s.add_label(lbl(1, "bug"));
     s.add_label(lbl(2, "feat"));
     assert_eq!(s.get_labels().len(), 2);
-    s.update_label(Label { id: 1, name: "hotfix".into(), color: "#f00".into(), ..Default::default() });
-    assert_eq!(s.get_labels().iter().find(|l| l.id == 1).unwrap().name, "hotfix");
+    s.update_label(Label {
+        id: 1,
+        name: "hotfix".into(),
+        color: "#f00".into(),
+        ..Default::default()
+    });
+    assert_eq!(
+        s.get_labels().iter().find(|l| l.id == 1).unwrap().name,
+        "hotfix"
+    );
     s.remove_label(2);
     assert_eq!(s.get_labels().len(), 1);
 }

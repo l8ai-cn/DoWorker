@@ -53,7 +53,10 @@ fn set_and_get_controllers() {
 fn set_current_controller() {
     let mut s = AutopilotState::new();
     s.set_current_controller(Some(make_controller("c1", "running")));
-    assert_eq!(s.current_controller().unwrap().autopilot_controller_key, "c1");
+    assert_eq!(
+        s.current_controller().unwrap().autopilot_controller_key,
+        "c1"
+    );
     s.set_current_controller(None);
     assert!(s.current_controller().is_none());
 }
@@ -102,7 +105,10 @@ fn update_controller_nonexistent_is_noop() {
 #[test]
 fn remove_controller() {
     let mut s = AutopilotState::new();
-    s.set_controllers(vec![make_controller("c1", "running"), make_controller("c2", "paused")]);
+    s.set_controllers(vec![
+        make_controller("c1", "running"),
+        make_controller("c2", "paused"),
+    ]);
     s.remove_controller("c1");
     assert_eq!(s.controllers().len(), 1);
     assert_eq!(s.controllers()[0].autopilot_controller_key, "c2");
@@ -120,7 +126,10 @@ fn remove_controller_clears_current_if_same() {
 #[test]
 fn remove_controller_keeps_current_if_different() {
     let mut s = AutopilotState::new();
-    s.set_controllers(vec![make_controller("c1", "running"), make_controller("c2", "paused")]);
+    s.set_controllers(vec![
+        make_controller("c1", "running"),
+        make_controller("c2", "paused"),
+    ]);
     s.set_current_controller(Some(make_controller("c2", "paused")));
     s.remove_controller("c1");
     assert!(s.current_controller().is_some());
@@ -130,7 +139,10 @@ fn remove_controller_keeps_current_if_different() {
 fn iterations_crud() {
     let mut s = AutopilotState::new();
     assert!(s.get_iterations("k1").is_none());
-    s.set_iterations("k1".into(), vec![make_iteration(1, "k1"), make_iteration(2, "k1")]);
+    s.set_iterations(
+        "k1".into(),
+        vec![make_iteration(1, "k1"), make_iteration(2, "k1")],
+    );
     assert_eq!(s.get_iterations("k1").unwrap().len(), 2);
     s.add_iteration("k1".into(), make_iteration(3, "k1"));
     assert_eq!(s.get_iterations("k1").unwrap().len(), 3);
@@ -191,7 +203,13 @@ fn get_controller_by_pod_key_ignores_inactive() {
 #[test]
 fn get_controller_by_pod_key_active_phases() {
     let mut s = AutopilotState::new();
-    let phases = ["initializing", "running", "paused", "user_takeover", "waiting_approval"];
+    let phases = [
+        "initializing",
+        "running",
+        "paused",
+        "user_takeover",
+        "waiting_approval",
+    ];
     for (i, phase) in phases.iter().enumerate() {
         let mut c = make_controller(&format!("c{i}"), phase);
         c.pod_key = format!("pod-{i}");

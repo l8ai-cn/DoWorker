@@ -1,8 +1,8 @@
-# AgentsMesh Deployment Guide
+# Do Worker Deployment Guide
 
 ## Overview
 
-AgentsMesh can be deployed using Docker Compose for development/staging or Kubernetes for production environments.
+Do Worker can be deployed using Docker Compose for development/staging or Kubernetes for production environments.
 
 ## Prerequisites
 

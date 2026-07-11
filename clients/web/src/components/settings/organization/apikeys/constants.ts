@@ -7,8 +7,8 @@ export const ALL_SCOPES = [
   "channels:write",
   "runners:read",
   "repos:read",
-  "loops:read",
-  "loops:write",
+  "workflows:read",
+  "workflows:write",
 ];
 
 export const SCOPE_GROUPS = [
@@ -33,8 +33,8 @@ export const SCOPE_GROUPS = [
     scopes: ["repos:read"],
   },
   {
-    groupKey: "settings.apiKeys.scopeGroupLoops",
-    scopes: ["loops:read", "loops:write"],
+    groupKey: "settings.apiKeys.scopeGroupWorkflows",
+    scopes: ["workflows:read", "workflows:write"],
   },
 ];
 
@@ -47,8 +47,8 @@ export const SCOPE_LABEL_KEYS: Record<string, string> = {
   "channels:write": "settings.apiKeys.createDialog.scopeChannelsWrite",
   "runners:read": "settings.apiKeys.createDialog.scopeRunnersRead",
   "repos:read": "settings.apiKeys.createDialog.scopeReposRead",
-  "loops:read": "settings.apiKeys.createDialog.scopeLoopsRead",
-  "loops:write": "settings.apiKeys.createDialog.scopeLoopsWrite",
+  "workflows:read": "settings.apiKeys.createDialog.scopeWorkflowsRead",
+  "workflows:write": "settings.apiKeys.createDialog.scopeWorkflowsWrite",
 };
 
 export const SCOPE_DESCRIPTION_KEYS: Record<string, string> = {
@@ -60,6 +60,6 @@ export const SCOPE_DESCRIPTION_KEYS: Record<string, string> = {
   "channels:write": "settings.apiKeys.createDialog.scopeChannelsWriteDesc",
   "runners:read": "settings.apiKeys.createDialog.scopeRunnersReadDesc",
   "repos:read": "settings.apiKeys.createDialog.scopeReposReadDesc",
-  "loops:read": "settings.apiKeys.createDialog.scopeLoopsReadDesc",
-  "loops:write": "settings.apiKeys.createDialog.scopeLoopsWriteDesc",
+  "workflows:read": "settings.apiKeys.createDialog.scopeWorkflowsReadDesc",
+  "workflows:write": "settings.apiKeys.createDialog.scopeWorkflowsWriteDesc",
 };

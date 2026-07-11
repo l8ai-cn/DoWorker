@@ -40,7 +40,8 @@ type ACPTransport struct {
 	// back to the Claude default set).
 	supportedPermissionModes []string
 
-	initResult json.RawMessage
+	initResult    json.RawMessage
+	handshakeHook HandshakeHook
 
 	ctx    context.Context
 	logger *slog.Logger
@@ -92,6 +93,11 @@ func (t *ACPTransport) Handshake(_ context.Context) (string, error) {
 
 	t.supportsControlRequest, t.supportedPermissionModes = parseAgentsmeshExtensions(resp.Result)
 	t.initResult = resp.Result
+	if t.handshakeHook != nil {
+		if err := t.handshakeHook(handshakeRequester{transport: t}, resp.Result); err != nil {
+			return "", fmt.Errorf("initialize hook: %w", err)
+		}
+	}
 	t.logger.Info("ACP initialize succeeded",
 		"supports_control_request", t.supportsControlRequest,
 		"permission_modes", t.supportedPermissionModes)

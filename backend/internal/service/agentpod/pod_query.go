@@ -20,7 +20,7 @@ func (s *PodService) GetPod(ctx context.Context, podKey string) (*agentpod.Pod, 
 	if err != nil {
 		return nil, ErrPodNotFound
 	}
-	_ = s.repo.EnrichWithLoopInfo(ctx, []*agentpod.Pod{pod})
+	_ = s.repo.EnrichWithWorkflowInfo(ctx, []*agentpod.Pod{pod})
 	return pod, nil
 }
 
@@ -68,7 +68,7 @@ func (s *PodService) ListPods(ctx context.Context, orgID int64, q agentpod.PodLi
 		slog.ErrorContext(ctx, "failed to list pods", "org_id", orgID, "error", err)
 		return nil, 0, err
 	}
-	_ = s.repo.EnrichWithLoopInfo(ctx, pods)
+	_ = s.repo.EnrichWithWorkflowInfo(ctx, pods)
 	return pods, total, nil
 }
 

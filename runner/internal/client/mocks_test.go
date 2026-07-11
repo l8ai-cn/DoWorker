@@ -117,8 +117,11 @@ func (h *mockHandler) OnUpdatePodPolicyRules(cmd *runnerv1.UpdatePodPolicyRulesC
 	return nil
 }
 
-func (h *mockHandler) OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error { return nil }
+func (h *mockHandler) OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error   { return nil }
 func (h *mockHandler) OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error { return nil }
+func (h *mockHandler) OnRunVerification(cmd *runnerv1.RunVerificationCommand) error {
+	return nil
+}
 
 // mockHandlerWithError is a mock handler that can return errors.
 type mockHandlerWithError struct {
@@ -195,8 +198,11 @@ func (h *mockHandlerWithError) OnUpdatePodPolicyRules(cmd *runnerv1.UpdatePodPol
 	return nil
 }
 
-func (h *mockHandlerWithError) OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error { return nil }
+func (h *mockHandlerWithError) OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error   { return nil }
 func (h *mockHandlerWithError) OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error { return nil }
+func (h *mockHandlerWithError) OnRunVerification(cmd *runnerv1.RunVerificationCommand) error {
+	return nil
+}
 
 // mockEventSender is a mock implementation of EventSender for testing.
 type mockEventSender struct {

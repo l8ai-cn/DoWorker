@@ -35,11 +35,13 @@ func TestMigration000188MiniMaxCLIAgent(t *testing.T) {
 	downSQL := string(down)
 
 	configsIdx := strings.Index(downSQL, "DELETE FROM organization_agent_configs")
+	orgAgentsIdx := strings.Index(downSQL, "DELETE FROM organization_agents WHERE")
+	userConfigsIdx := strings.Index(downSQL, "DELETE FROM user_agent_configs")
 	agentsIdx := strings.Index(downSQL, "DELETE FROM agents WHERE slug")
-	if configsIdx < 0 || agentsIdx < 0 {
-		t.Fatal("down migration must remove dependent organization agent rows and the agent")
+	if configsIdx < 0 || orgAgentsIdx < 0 || userConfigsIdx < 0 || agentsIdx < 0 {
+		t.Fatal("down migration must remove every dependent row before the agent")
 	}
-	if configsIdx > agentsIdx {
+	if configsIdx > agentsIdx || orgAgentsIdx > agentsIdx || userConfigsIdx > agentsIdx {
 		t.Error("down migration must remove dependent rows before deleting the agent")
 	}
 }

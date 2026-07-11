@@ -8,6 +8,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 )
@@ -24,20 +25,30 @@ type RepoResolver interface {
 	GetByID(ctx context.Context, id int64) (*gitprovider.Repository, error)
 }
 
+type WorkerSpecSnapshotLoader interface {
+	GetByID(
+		context.Context,
+		int64,
+		int64,
+	) (specdomain.Snapshot, error)
+}
+
 type Service struct {
-	store    expertdom.Repository
-	pods     PodLoader
-	dispatch PodDispatcher
-	repos    RepoResolver
-	gitops   gitops.Service
-	logger   *slog.Logger
+	store       expertdom.Repository
+	pods        PodLoader
+	dispatch    PodDispatcher
+	repos       RepoResolver
+	workerSpecs WorkerSpecSnapshotLoader
+	gitops      gitops.Service
+	logger      *slog.Logger
 }
 
 type Deps struct {
-	Store    expertdom.Repository
-	Pods     PodLoader
-	Dispatch PodDispatcher
-	Repos    RepoResolver
+	Store       expertdom.Repository
+	Pods        PodLoader
+	Dispatch    PodDispatcher
+	Repos       RepoResolver
+	WorkerSpecs WorkerSpecSnapshotLoader
 	// Gitops is the git-backing choke point (namespace am-experts). It may be
 	// nil, in which case the service runs in DB-only mode (identical to the
 	// pre-git-backing behavior).
@@ -51,12 +62,13 @@ func NewService(deps Deps) *Service {
 		logger = slog.Default()
 	}
 	return &Service{
-		store:    deps.Store,
-		pods:     deps.Pods,
-		dispatch: deps.Dispatch,
-		repos:    deps.Repos,
-		gitops:   deps.Gitops,
-		logger:   logger.With("component", "expert"),
+		store:       deps.Store,
+		pods:        deps.Pods,
+		dispatch:    deps.Dispatch,
+		repos:       deps.Repos,
+		workerSpecs: deps.WorkerSpecs,
+		gitops:      deps.Gitops,
+		logger:      logger.With("component", "expert"),
 	}
 }
 

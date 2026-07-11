@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package proto.goalloop.v1;
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1;goalloopv1";
+
+service GoalLoopService {
+  rpc ListGoalLoops(ListGoalLoopsRequest) returns (ListGoalLoopsResponse);
+  rpc GetGoalLoop(GetGoalLoopRequest) returns (GoalLoop);
+  rpc CreateGoalLoop(CreateGoalLoopRequest) returns (GoalLoop);
+  rpc StartGoalLoop(GoalLoopActionRequest) returns (GoalLoop);
+  rpc VerifyGoalLoop(GoalLoopActionRequest) returns (GoalLoop);
+  rpc CancelGoalLoop(GoalLoopActionRequest) returns (GoalLoop);
+}
+
+message GoalLoop {
+  int64 id = 1;
+  string slug = 2;
+  string name = 3;
+  optional string description = 4;
+  int64 worker_spec_snapshot_id = 5;
+  string objective = 6;
+  repeated string acceptance_criteria = 7;
+  string verification_command = 8;
+  string status = 9;
+  optional string pod_key = 10;
+  optional string autopilot_controller_key = 11;
+  int32 max_iterations = 12;
+  optional int64 token_budget = 13;
+  int32 timeout_minutes = 14;
+  int32 no_progress_limit = 15;
+  int32 same_error_limit = 16;
+  string escalation_policy = 17;
+  optional int32 verification_exit_code = 18;
+  optional string verification_output = 19;
+  bool verification_output_truncated = 20;
+  optional string verification_error = 21;
+  optional string started_at = 22;
+  optional string verified_at = 23;
+  optional string completed_at = 24;
+  string created_at = 25;
+  string updated_at = 26;
+}
+
+message ListGoalLoopsRequest {
+  string org_slug = 1;
+  string status = 2;
+  string query = 3;
+  optional int32 offset = 4;
+  optional int32 limit = 5;
+}
+
+message ListGoalLoopsResponse {
+  repeated GoalLoop items = 1;
+  int64 total = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message GetGoalLoopRequest {
+  string org_slug = 1;
+  string loop_slug = 2;
+}
+
+message CreateGoalLoopRequest {
+  string org_slug = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  int64 worker_spec_snapshot_id = 5;
+  string objective = 6;
+  repeated string acceptance_criteria = 7;
+  string verification_command = 8;
+  optional int32 max_iterations = 9;
+  optional int64 token_budget = 10;
+  optional int32 timeout_minutes = 11;
+  optional int32 no_progress_limit = 12;
+  optional int32 same_error_limit = 13;
+  string escalation_policy = 14;
+}
+
+message GoalLoopActionRequest {
+  string org_slug = 1;
+  string loop_slug = 2;
+}

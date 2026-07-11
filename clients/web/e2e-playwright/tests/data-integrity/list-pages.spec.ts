@@ -18,7 +18,7 @@ import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 
-const isEmptyHint = /no .*(pod|loop|channel|ticket|run)s?|no .*found|没有.*(pod|loop|channel|ticket|run)|empty|暂无|还没有|nothing here|此.*暂无/i;
+const isEmptyHint = /no .*(pod|workflow|channel|ticket|run)s?|no .*found|没有.*(pod|workflow|channel|ticket|run)|empty|暂无|还没有|nothing here|此.*暂无/i;
 
 test.describe("Data integrity: list pages match API counts", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
@@ -98,7 +98,7 @@ test.describe("Data integrity: list pages match API counts", () => {
     // Pods tab must be selected for rows to render (useRunnerDetail only
     // fires loadPods when activeTab === "pods"). Tie the wait to the actual
     // ListPods response instead of a fixed sleep: a heavily-populated runner
-    // makes the backend COUNT + loop-metadata join slow, so a fixed 4s
+    // makes the backend COUNT + workflow-metadata join slow, so a fixed 4s
     // budget flakes. waitForResponse is bounded by the real round-trip.
     const podsTab = page.locator('[data-testid="runner-detail-tab-pods"]');
     await expect(podsTab).toBeVisible({ timeout: 15_000 });
@@ -201,33 +201,33 @@ test.describe("Data integrity: list pages match API counts", () => {
     ).toBe(true);
   });
 
-  test("loops list count matches ListLoops API", async ({ page, api }) => {
+  test("workflows list count matches ListWorkflows API", async ({ page, api }) => {
     const cc = await api.connect();
-    const { items } = await cc.loop.listLoops({ orgSlug: TEST_ORG_SLUG }) as {
+    const { items } = await cc.workflow.listWorkflows({ orgSlug: TEST_ORG_SLUG }) as {
       items: Array<{ slug: string; name: string }>;
     };
 
-    await page.goto(`/${TEST_ORG_SLUG}/loops`);
+    await page.goto(`/${TEST_ORG_SLUG}/workflows`);
     await page.waitForLoadState("load");
     await page.waitForTimeout(2000);
 
     if (items.length === 0) {
       const empty = await page.getByText(isEmptyHint).first().isVisible({ timeout: 5_000 }).catch(() => false);
-      expect(empty, "no loops → page must render empty state").toBe(true);
+      expect(empty, "no workflows → page must render empty state").toBe(true);
       return;
     }
 
     const bodyText = await page.textContent("body") ?? "";
     let foundAny = false;
-    for (const loop of items) {
-      if (bodyText.includes(loop.name) || bodyText.includes(loop.slug)) {
+    for (const workflow of items) {
+      if (bodyText.includes(workflow.name) || bodyText.includes(workflow.slug)) {
         foundAny = true;
         break;
       }
     }
     expect(
       foundAny,
-      `loops list renders 0 of ${items.length} API-returned loop names/slugs — wasm cache likely dropped them`,
+      `workflows list renders 0 of ${items.length} API-returned workflow names/slugs — wasm cache likely dropped them`,
     ).toBe(true);
   });
 

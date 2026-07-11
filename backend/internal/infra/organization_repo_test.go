@@ -117,20 +117,20 @@ func TestOrganizationRepo_DeleteWithCleanup_WithLoops(t *testing.T) {
 	db := testkit.SetupTestDB(t)
 	repo := NewOrganizationRepository(db)
 
-	id := seedOrganization(t, db, "loops-org")
+	id := seedOrganization(t, db, "workflows-org")
 
 	require.NoError(t, db.Exec(
-		"INSERT INTO loops (id, organization_id, name, slug, prompt_template) VALUES (1, ?, 'L1', 'l1', 'p')",
+		"INSERT INTO workflows (id, organization_id, name, slug, prompt_template) VALUES (1, ?, 'L1', 'l1', 'p')",
 		id,
 	).Error)
 	require.NoError(t, db.Exec(
-		"INSERT INTO loop_runs (organization_id, loop_id, run_number) VALUES (?, 1, 1), (?, 1, 2)",
+		"INSERT INTO workflow_runs (organization_id, workflow_id, run_number) VALUES (?, 1, 1), (?, 1, 2)",
 		id, id,
 	).Error)
 
 	require.NoError(t, repo.DeleteWithCleanup(context.Background(), id))
 
 	assertOrgDeleted(t, db, id)
-	assert.Zero(t, countWhereOrg(t, db, "loops", id), "loops missing application-level cleanup")
-	assert.Zero(t, countWhereOrg(t, db, "loop_runs", id), "loop_runs missing application-level cleanup")
+	assert.Zero(t, countWhereOrg(t, db, "workflows", id), "workflows missing application-level cleanup")
+	assert.Zero(t, countWhereOrg(t, db, "workflow_runs", id), "workflow_runs missing application-level cleanup")
 }

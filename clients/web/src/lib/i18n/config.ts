@@ -22,7 +22,7 @@ export const LOCALE_COOKIE = "NEXT_LOCALE";
 export const MESSAGE_NAMESPACES = [
   "common", "auth", "landing", "workforce", "app", "settings", "ide",
   "repositories", "runners", "docs", "content", "extensions",
-  "loops", "channels", "blockstore", "infra", "automation",
+  "workflows", "channels", "blockstore", "infra", "automation",
   "experts",
   "changelog-entries",
 ] as const;

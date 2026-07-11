@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"os"
 
+	grpcserver "github.com/anthropics/agentsmesh/backend/internal/api/grpc"
+	"github.com/anthropics/agentsmesh/backend/internal/api/rest"
 	"github.com/anthropics/agentsmesh/backend/internal/config"
 	notifDomain "github.com/anthropics/agentsmesh/backend/internal/domain/notification"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
@@ -14,20 +16,19 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra/logger"
 	otelinit "github.com/anthropics/agentsmesh/backend/internal/infra/otel"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/websocket"
-	"github.com/anthropics/agentsmesh/backend/internal/api/rest"
-	grpcserver "github.com/anthropics/agentsmesh/backend/internal/api/grpc"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	channelService "github.com/anthropics/agentsmesh/backend/internal/service/channel"
 	coordinatorsvc "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
 	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
+	goalloop "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
 	"github.com/anthropics/agentsmesh/backend/internal/service/instance"
-	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	notifService "github.com/anthropics/agentsmesh/backend/internal/service/notification"
-	skillSvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	skillSvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
 	"github.com/anthropics/agentsmesh/backend/internal/service/ticket"
+	workflow "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
 )
 
 func main() {
@@ -166,12 +167,20 @@ func main() {
 	setupOrgAwarenessRefresh(eventBus, orgAwareness)
 	slog.Info("OrgAwarenessService started")
 
-	loopOrchestrator := loop.NewLoopOrchestrator(services.loop, services.loopRun, eventBus, appLogger.Logger)
-	loopOrchestrator.SetPodDependencies(podOrchestrator, services.autopilot, podCoordinator, services.ticket, services.repository)
-	loopScheduler := loop.NewLoopScheduler(services.loop, loopOrchestrator, orgAwareness, appLogger.Logger)
-	loopScheduler.Start()
-	setupLoopEventSubscriptions(eventBus, loopOrchestrator)
-	slog.Info("Loop orchestrator and scheduler created")
+	workflowOrchestrator := workflow.NewWorkflowOrchestrator(services.workflow, services.workflowRun, eventBus, appLogger.Logger)
+	workflowOrchestrator.SetPodDependencies(podOrchestrator, services.autopilot, podCoordinator, services.ticket, services.repository)
+	workflowScheduler := workflow.NewWorkflowScheduler(services.workflow, workflowOrchestrator, orgAwareness, appLogger.Logger)
+	workflowScheduler.Start()
+	setupWorkflowEventSubscriptions(eventBus, workflowOrchestrator)
+	slog.Info("Workflow orchestrator and scheduler created")
+
+	services.goalLoop.SetWorkerSpecSnapshotLoader(services.workerSpecs)
+	services.goalLoop.SetExecutionDependencies(podOrchestrator, services.pod, podCoordinator, services.autopilot)
+	setupGoalLoopEventSubscriptions(eventBus, services.goalLoop)
+	goalLoopTimeoutMonitor := goalloop.NewTimeoutMonitor(services.goalLoop, appLogger.Logger)
+	goalLoopTimeoutMonitor.Start()
+	defer goalLoopTimeoutMonitor.Stop()
+	slog.Info("Goal Loop service configured")
 
 	coordinatorEnsurer := coordinatorsvc.NewRunnerEnsurer(services.runner, nil, appLogger.Logger)
 	if launcher, kind, err := coordinatorsvc.NewRunnerLauncherFromEnv(appLogger.Logger); err != nil {
@@ -194,7 +203,7 @@ func main() {
 	setupCoordinatorEventSubscriptions(eventBus, coordinatorSvc)
 	slog.Info("Coordinator service and scheduler created")
 
-	grpcResult := initPKIAndGRPCWiring(cfg, services, runnerConnMgr, podCoordinator, podRouter, sandboxQuerySvc, sandboxFsSvc, podOrchestrator, loopOrchestrator, services.loopRun, appLogger, relayTokenGenerator, db)
+	grpcResult := initPKIAndGRPCWiring(cfg, services, runnerConnMgr, podCoordinator, podRouter, sandboxQuerySvc, sandboxFsSvc, podOrchestrator, workflowOrchestrator, services.workflowRun, appLogger, relayTokenGenerator, db)
 
 	if grpcResult.server != nil {
 		wirePendingQueueSender(pendingQueueWiring, grpcserver.NewGRPCCommandSender(grpcResult.server.RunnerAdapter()))
@@ -209,16 +218,17 @@ func main() {
 
 	svc := buildServicesContainer(services, runnerConnMgr, podCoordinator, podOrchestrator, hub, eventBus,
 		grpcResult, sandboxQuerySvc, sandboxFsSvc, logUploadSvc, relayManager, relayTokenGenerator, relayDNSService,
-		relayACMEManager, geoResolver, versionChecker, loopOrchestrator, loopScheduler, redisClient, pendingQueueWiring)
+		relayACMEManager, geoResolver, versionChecker, workflowOrchestrator, workflowScheduler, redisClient, pendingQueueWiring)
 	svc.Coordinator = coordinatorSvc
 	expertGitops := gitops.NewService(newGiteaClientForNamespace(cfg, "am-experts"), appLogger.Logger)
 	svc.Expert = expertSvc.NewService(expertSvc.Deps{
-		Store:    infra.NewExpertRepository(db),
-		Pods:     services.pod,
-		Dispatch: podOrchestrator,
-		Repos:    services.repository,
-		Gitops:   expertGitops,
-		Logger:   appLogger.Logger,
+		Store:       infra.NewExpertRepository(db),
+		Pods:        services.pod,
+		Dispatch:    podOrchestrator,
+		Repos:       services.repository,
+		WorkerSpecs: services.workerSpecs,
+		Gitops:      expertGitops,
+		Logger:      appLogger.Logger,
 	})
 
 	// Unified skill service (namespace am-skills): one internal git repo per
@@ -255,5 +265,5 @@ func main() {
 	// Start HTTP server (Connect-RPC handlers wrap the Gin router)
 	srv := startHTTPServer(cfg, wrapWithConnect(cfg, services, svc, router))
 
-	waitForShutdown(srv, grpcResult.server, eventBus, heartbeatBatcher, subscriptionScheduler, taskManager, loopScheduler, orgAwareness, relayManager, services, db, redisClient)
+	waitForShutdown(srv, grpcResult.server, eventBus, heartbeatBatcher, subscriptionScheduler, taskManager, workflowScheduler, orgAwareness, relayManager, services, db, redisClient)
 }

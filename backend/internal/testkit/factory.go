@@ -119,16 +119,16 @@ func CreateRepo(t *testing.T, db *gorm.DB, orgID int64, slug, cloneURL string) (
 	return id
 }
 
-func CreateLoop(t *testing.T, db *gorm.DB, orgID, userID int64, slug string) (id int64) {
+func CreateWorkflow(t *testing.T, db *gorm.DB, orgID, userID int64, slug string) (id int64) {
 	t.Helper()
 	result := db.Exec(
-		`INSERT INTO loops (organization_id, name, slug, created_by_id, prompt_template) VALUES (?, ?, ?, ?, 'test prompt')`,
-		orgID, "Loop "+slug, slug, userID,
+		`INSERT INTO workflows (organization_id, name, slug, created_by_id, prompt_template) VALUES (?, ?, ?, ?, 'test prompt')`,
+		orgID, "Workflow "+slug, slug, userID,
 	)
 	if result.Error != nil {
-		t.Fatalf("testkit.CreateLoop: %v", result.Error)
+		t.Fatalf("testkit.CreateWorkflow: %v", result.Error)
 	}
-	db.Raw(`SELECT id FROM loops WHERE slug = ? AND organization_id = ?`, slug, orgID).Scan(&id)
+	db.Raw(`SELECT id FROM workflows WHERE slug = ? AND organization_id = ?`, slug, orgID).Scan(&id)
 	return id
 }
 

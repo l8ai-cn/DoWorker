@@ -47,7 +47,7 @@ func allTableDDLs() []string {
 	ddls = append(ddls, podTableDDLs()...)
 	ddls = append(ddls, channelTableDDLs()...)
 	ddls = append(ddls, ticketTableDDLs()...)
-	ddls = append(ddls, loopTableDDLs()...)
+	ddls = append(ddls, workflowTableDDLs()...)
 	ddls = append(ddls, billingTableDDLs()...)
 	ddls = append(ddls, supportTableDDLs()...)
 	ddls = append(ddls, blockstoreTableDDLs()...)

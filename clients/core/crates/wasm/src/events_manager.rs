@@ -41,8 +41,7 @@ impl WasmEventsManager {
         client: Arc<ApiClient>,
         options: EventSubscriptionManagerOptions,
     ) -> Self {
-        let manager =
-            EventSubscriptionManager::with_runtime(PlatformRuntime, client, options);
+        let manager = EventSubscriptionManager::with_runtime(PlatformRuntime, client, options);
         Self {
             inner: Arc::new(manager),
         }

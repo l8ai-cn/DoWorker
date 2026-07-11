@@ -9,18 +9,20 @@ import (
 )
 
 var harnessLabelOverrides = map[string]string{
-	"claude":       "Claude SDK",
-	"claude-code":  "Claude Code",
-	"codex":        "Codex",
-	"codex-cli":    "Codex",
-	"gemini":       "Gemini",
-	"gemini-cli":   "Gemini",
-	"opencode":     "OpenCode",
-	"cursor-cli":   "Cursor",
-	"aider":        "Aider",
-	"loopal":       "Loopal",
-	"do-agent":   "DoAgent",
-	"doagent":    "DoAgent",
+	"claude":      "Claude SDK",
+	"claude-code": "Claude Code",
+	"codex":       "Codex",
+	"codex-cli":   "Codex",
+	"gemini":      "Gemini",
+	"gemini-cli":  "Gemini",
+	"opencode":    "OpenCode",
+	"cursor-cli":  "Cursor",
+	"aider":       "Aider",
+	"loopal":      "Loopal",
+	"do-agent":    "DoAgent",
+	"doagent":     "DoAgent",
+	"openclaw":    "OpenClaw",
+	"harn":        "Harn",
 }
 
 type harnessWire struct {

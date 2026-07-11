@@ -91,23 +91,23 @@ func RegisterExtRoutes(rg *gin.RouterGroup, svc *Services) {
 
 	registerExtExpertRoutes(rg, svc)
 
-	// Loop routes
-	if svc.Loop != nil && svc.LoopOrchestrator != nil {
-		loopHandler := NewLoopHandler(svc.Loop, svc.LoopRun, svc.LoopOrchestrator, svc.PodCoordinator)
+	// Workflow routes
+	if svc.Workflow != nil && svc.WorkflowOrchestrator != nil {
+		workflowHandler := NewWorkflowHandler(svc.Workflow, svc.WorkflowRun, svc.WorkflowOrchestrator, svc.PodCoordinator)
 
-		loopsRead := rg.Group("/loops")
-		loopsRead.Use(middleware.RequireScope("loops:read", "loops:write"))
+		workflowsRead := rg.Group("/workflows")
+		workflowsRead.Use(middleware.RequireScope("workflows:read", "workflows:write"))
 		{
-			loopsRead.GET("", loopHandler.ListLoops)
-			loopsRead.GET("/:loop_slug", loopHandler.GetLoop)
-			loopsRead.GET("/:loop_slug/runs", loopHandler.ListRuns)
-			loopsRead.GET("/:loop_slug/runs/:run_id", loopHandler.GetRun)
+			workflowsRead.GET("", workflowHandler.ListWorkflows)
+			workflowsRead.GET("/:workflow_slug", workflowHandler.GetWorkflow)
+			workflowsRead.GET("/:workflow_slug/runs", workflowHandler.ListWorkflowRuns)
+			workflowsRead.GET("/:workflow_slug/runs/:run_id", workflowHandler.GetRun)
 		}
-		loopsWrite := rg.Group("/loops")
-		loopsWrite.Use(middleware.RequireScope("loops:write"))
+		workflowsWrite := rg.Group("/workflows")
+		workflowsWrite.Use(middleware.RequireScope("workflows:write"))
 		{
-			loopsWrite.POST("/:loop_slug/trigger", loopHandler.TriggerLoop)
-			loopsWrite.POST("/:loop_slug/runs/:run_id/cancel", loopHandler.CancelRun)
+			workflowsWrite.POST("/:workflow_slug/trigger", workflowHandler.TriggerWorkflow)
+			workflowsWrite.POST("/:workflow_slug/runs/:run_id/cancel", workflowHandler.CancelRun)
 		}
 	}
 }

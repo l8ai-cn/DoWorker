@@ -24,7 +24,7 @@ export interface PodData {
   agent?: { name?: string; slug?: string };
   repository?: { id?: number; name?: string; slug?: string; provider_type?: string };
   ticket?: { id?: number; slug?: string; title?: string };
-  loop?: { id?: number; name?: string; slug?: string };
+  workflow?: { id?: number; name?: string; slug?: string };
   interaction_mode?: PodMode;
   perpetual?: boolean;
   restart_count?: number;
@@ -36,4 +36,5 @@ export interface PodData {
   resumed_by_pod_key?: string;
   preview_port?: number;
   preview_path?: string;
+  worker_spec_snapshot_id?: number;
 }

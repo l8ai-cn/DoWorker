@@ -9,7 +9,10 @@ impl ChannelState {
         let cache = self
             .message_cache
             .entry(channel_id)
-            .or_insert_with(|| ChannelMessageCache { messages: Vec::new(), has_more: false });
+            .or_insert_with(|| ChannelMessageCache {
+                messages: Vec::new(),
+                has_more: false,
+            });
 
         if cache.messages.iter().any(|m| m.id == message.id) {
             return false;
@@ -19,7 +22,9 @@ impl ChannelState {
         }
         cache.messages.push(message);
         if cache.messages.len() > MAX_MESSAGES_PER_CHANNEL {
-            cache.messages.drain(..cache.messages.len() - MAX_MESSAGES_PER_CHANNEL);
+            cache
+                .messages
+                .drain(..cache.messages.len() - MAX_MESSAGES_PER_CHANNEL);
             cache.has_more = true;
         }
         self.evict_stale_channels(channel_id);
@@ -47,8 +52,7 @@ impl ChannelState {
         self.set_last_message(channel_id, preview);
 
         // Read derived-count inputs before `msg` is moved into add_message.
-        let is_self =
-            msg.sender_user_id.is_some() && msg.sender_user_id == self.current_user_id();
+        let is_self = msg.sender_user_id.is_some() && msg.sender_user_id == self.current_user_id();
         let is_active = self.current_channel.as_ref().map(|c| c.id) == Some(channel_id);
         let mentions_me = self.message_mentions_current_user(&msg);
 
@@ -67,9 +71,15 @@ impl ChannelState {
     /// web `MessageMentions` shape `{ pods?: string[], users?: i64[],
     /// channel?: bool }`. Returns false when no current user is set.
     fn message_mentions_current_user(&self, msg: &ChannelMessage) -> bool {
-        let Some(uid) = self.current_user_id() else { return false };
-        let Some(json) = msg.mentions_json.as_ref() else { return false };
-        let Ok(v) = serde_json::from_str::<serde_json::Value>(json) else { return false };
+        let Some(uid) = self.current_user_id() else {
+            return false;
+        };
+        let Some(json) = msg.mentions_json.as_ref() else {
+            return false;
+        };
+        let Ok(v) = serde_json::from_str::<serde_json::Value>(json) else {
+            return false;
+        };
         if v.get("channel").and_then(|c| c.as_bool()).unwrap_or(false) {
             return true;
         }
@@ -83,19 +93,45 @@ impl ChannelState {
         tracing::debug!(target: "channel", channel_id, msg_id = message.id, "update message");
         if let Some(cache) = self.message_cache.get_mut(&channel_id) {
             if let Some(m) = cache.messages.iter_mut().find(|m| m.id == message.id) {
-                if !message.body.is_empty() { m.body = message.body; }
-                if message.content_json.is_some() { m.content_json = message.content_json; }
-                if message.mentions_json.is_some() { m.mentions_json = message.mentions_json; }
-                if message.reply_to.is_some() { m.reply_to = message.reply_to; }
-                if message.edited_at.is_some() { m.edited_at = message.edited_at; }
-                if message.metadata_json.is_some() { m.metadata_json = message.metadata_json; }
-                if message.sender_user.is_some() { m.sender_user = message.sender_user; }
-                if message.sender_user_id.is_some() { m.sender_user_id = message.sender_user_id; }
-                if message.sender_pod.is_some() { m.sender_pod = message.sender_pod; }
-                if message.sender_pod_info.is_some() { m.sender_pod_info = message.sender_pod_info; }
-                if message.message_type.is_some() { m.message_type = message.message_type; }
-                if message.is_deleted.is_some() { m.is_deleted = message.is_deleted; }
-                if let Some(repo) = &self.message_repo { let _ = repo.save_message(m); }
+                if !message.body.is_empty() {
+                    m.body = message.body;
+                }
+                if message.content_json.is_some() {
+                    m.content_json = message.content_json;
+                }
+                if message.mentions_json.is_some() {
+                    m.mentions_json = message.mentions_json;
+                }
+                if message.reply_to.is_some() {
+                    m.reply_to = message.reply_to;
+                }
+                if message.edited_at.is_some() {
+                    m.edited_at = message.edited_at;
+                }
+                if message.metadata_json.is_some() {
+                    m.metadata_json = message.metadata_json;
+                }
+                if message.sender_user.is_some() {
+                    m.sender_user = message.sender_user;
+                }
+                if message.sender_user_id.is_some() {
+                    m.sender_user_id = message.sender_user_id;
+                }
+                if message.sender_pod.is_some() {
+                    m.sender_pod = message.sender_pod;
+                }
+                if message.sender_pod_info.is_some() {
+                    m.sender_pod_info = message.sender_pod_info;
+                }
+                if message.message_type.is_some() {
+                    m.message_type = message.message_type;
+                }
+                if message.is_deleted.is_some() {
+                    m.is_deleted = message.is_deleted;
+                }
+                if let Some(repo) = &self.message_repo {
+                    let _ = repo.save_message(m);
+                }
             }
         }
     }
@@ -127,23 +163,37 @@ impl ChannelState {
         }
         let msg_len = messages.len();
         let (truncated, overflow) = if msg_len > MAX_MESSAGES_PER_CHANNEL {
-            (messages[msg_len - MAX_MESSAGES_PER_CHANNEL..].to_vec(), true)
+            (
+                messages[msg_len - MAX_MESSAGES_PER_CHANNEL..].to_vec(),
+                true,
+            )
         } else {
             (messages, false)
         };
         self.message_cache.insert(
             channel_id,
-            ChannelMessageCache { messages: truncated, has_more: has_more || overflow },
+            ChannelMessageCache {
+                messages: truncated,
+                has_more: has_more || overflow,
+            },
         );
         self.evict_stale_channels(channel_id);
     }
 
-    pub fn prepend_messages(&mut self, channel_id: i64, older: Vec<ChannelMessage>, has_more: bool) {
+    pub fn prepend_messages(
+        &mut self,
+        channel_id: i64,
+        older: Vec<ChannelMessage>,
+        has_more: bool,
+    ) {
         tracing::debug!(target: "channel", channel_id, count = older.len(), has_more, "prepend messages");
         let cache = self
             .message_cache
             .entry(channel_id)
-            .or_insert_with(|| ChannelMessageCache { messages: Vec::new(), has_more: false });
+            .or_insert_with(|| ChannelMessageCache {
+                messages: Vec::new(),
+                has_more: false,
+            });
 
         let existing_ids: HashSet<i64> = cache.messages.iter().map(|m| m.id).collect();
         let mut merged: Vec<ChannelMessage> = older
@@ -174,7 +224,9 @@ impl ChannelState {
         while self.message_cache.len() > MAX_CACHED_CHANNELS {
             let evict_key = self.message_cache.keys().find(|&&k| k != keep_id).copied();
             match evict_key {
-                Some(k) => { self.message_cache.remove(&k); }
+                Some(k) => {
+                    self.message_cache.remove(&k);
+                }
                 None => break,
             }
         }

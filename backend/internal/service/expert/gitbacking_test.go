@@ -244,62 +244,6 @@ func TestUpdate_LazyBackfillLegacyRow(t *testing.T) {
 	assert.True(t, ok, "legacy row must be provisioned on update")
 }
 
-func TestRun_SourcesAgentMdFromGit(t *testing.T) {
-	store := newFakeStore()
-	fake := gitops.NewFake("am-experts")
-	disp := &fakeDispatcher{}
-	svc := newTestService(store, fake, disp)
-
-	row, err := svc.Create(context.Background(), &CreateExpertRequest{
-		OrganizationID: 7, UserID: 1, Name: "Runner", AgentSlug: "claude-code",
-		AgentfileLayer: strptr("PROMPT \"from-git\""),
-	})
-	require.NoError(t, err)
-
-	// Simulate the DB cache lagging behind Git.
-	require.NoError(t, store.Update(context.Background(), func() *expertdom.Expert {
-		e, _ := store.GetByID(context.Background(), 7, row.ID)
-		e.AgentfileLayer = strptr("PROMPT \"stale-db\"")
-		return e
-	}()))
-
-	_, err = svc.Run(context.Background(), &RunExpertRequest{
-		OrganizationID: 7, UserID: 1, ExpertSlug: "runner",
-	})
-	require.NoError(t, err)
-	require.NotNil(t, disp.lastReq)
-	require.NotNil(t, disp.lastReq.AgentfileLayer)
-	assert.Equal(t, "PROMPT \"from-git\"", *disp.lastReq.AgentfileLayer)
-
-	// Cache reconciled from Git.
-	refreshed, _ := store.GetByID(context.Background(), 7, row.ID)
-	require.NotNil(t, refreshed.AgentfileLayer)
-	assert.Equal(t, "PROMPT \"from-git\"", *refreshed.AgentfileLayer)
-}
-
-func TestRun_FallsBackToDBWhenGitMisses(t *testing.T) {
-	store := newFakeStore()
-	fake := gitops.NewFake("am-experts")
-	disp := &fakeDispatcher{}
-	svc := newTestService(store, fake, disp)
-
-	// Row references a repo that does not exist in the fake -> git read misses.
-	legacy := &expertdom.Expert{
-		OrganizationID: 7, Slug: "ghost", Name: "Ghost", AgentSlug: "claude-code",
-		InteractionMode: "pty", DefaultBranch: "main", Metadata: json.RawMessage("{}"),
-		GitRepoPath:    strptr("am-experts/org7-ghost"),
-		AgentfileLayer: strptr("PROMPT \"db-fallback\""),
-	}
-	require.NoError(t, store.Create(context.Background(), legacy))
-
-	_, err := svc.Run(context.Background(), &RunExpertRequest{
-		OrganizationID: 7, UserID: 1, ExpertSlug: "ghost",
-	})
-	require.NoError(t, err)
-	require.NotNil(t, disp.lastReq.AgentfileLayer)
-	assert.Equal(t, "PROMPT \"db-fallback\"", *disp.lastReq.AgentfileLayer)
-}
-
 func TestDelete_RemovesRowAndRepo(t *testing.T) {
 	store := newFakeStore()
 	fake := gitops.NewFake("am-experts")

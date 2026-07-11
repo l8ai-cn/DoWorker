@@ -49,6 +49,8 @@ export function ActivityBar({ className }: ActivityBarProps) {
         return `/${orgSlug}/mesh`;
       case "loops":
         return `/${orgSlug}/loops`;
+      case "workflows":
+        return `/${orgSlug}/workflows`;
       case "experts":
         return `/${orgSlug}/experts`;
       case "automation":

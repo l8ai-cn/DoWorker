@@ -6,7 +6,13 @@ use serde_json::Value;
 const MAX_ITERATIONS: usize = 200;
 const MAX_THINKING_HISTORY: usize = 100;
 
-const ACTIVE_PHASES: &[&str] = &["initializing", "running", "paused", "user_takeover", "waiting_approval"];
+const ACTIVE_PHASES: &[&str] = &[
+    "initializing",
+    "running",
+    "paused",
+    "user_takeover",
+    "waiting_approval",
+];
 
 /// Client-side aggregated view of an Autopilot controller. Lives in the state
 /// crate because the cache shape carries fields the proto wire never had
@@ -111,8 +117,10 @@ impl AutopilotState {
 
     pub fn remove_controller(&mut self, key: &str) {
         tracing::info!(target: "autopilot", controller_key = key, "remove controller");
-        self.controllers.retain(|c| c.autopilot_controller_key != key);
-        if self.current_controller
+        self.controllers
+            .retain(|c| c.autopilot_controller_key != key);
+        if self
+            .current_controller
             .as_ref()
             .is_some_and(|c| c.autopilot_controller_key == key)
         {
@@ -167,8 +175,9 @@ impl AutopilotState {
     pub fn get_controller_by_pod_key(&self, pod_key: &str) -> Option<&AutopilotController> {
         self.controllers.iter().find(|c| {
             c.pod_key == pod_key
-                && c.phase.as_deref().is_some_and(|p| ACTIVE_PHASES.contains(&p))
+                && c.phase
+                    .as_deref()
+                    .is_some_and(|p| ACTIVE_PHASES.contains(&p))
         })
     }
 }
-

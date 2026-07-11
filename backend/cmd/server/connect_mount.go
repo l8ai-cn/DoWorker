@@ -10,14 +10,15 @@ import (
 	autopilotconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/autopilot"
 	billingconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/billing"
 	fileconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/file"
+	goalloopconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/goalloop"
 	grantconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/grant"
 	invitationconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/invitation"
 	knowledgebaseconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/knowledgebase"
 	licenseconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/license"
-	loopconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/loop"
 	notificationconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/notification"
 	ssoconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/sso"
 	tokenusageconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/token_usage"
+	workflowconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/workflow"
 	v1 "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
 	"github.com/anthropics/agentsmesh/backend/internal/config"
 )
@@ -163,20 +164,24 @@ func mountKnowledgeBaseService(mux *http.ServeMux, svc *serviceContainer, opts [
 	knowledgebaseconnect.Mount(mux, srv, opts...)
 }
 
-// mountLoopService wires LoopService — Loop CRUD + state actions
-// (Enable/Disable/Trigger) + Run management. Skips when the loop service
-// or orchestrator is not configured. PodCoordinator (when present)
-// satisfies the PodTerminatorForLoop interface used by CancelRun.
-func mountLoopService(mux *http.ServeMux, svc *serviceContainer, rest *v1.Services, opts []connect.HandlerOption) {
-	if svc.loop == nil || rest == nil || rest.LoopOrchestrator == nil {
+// mountWorkflowService wires reusable Workflow definitions and their runs.
+func mountWorkflowService(mux *http.ServeMux, svc *serviceContainer, rest *v1.Services, opts []connect.HandlerOption) {
+	if svc.workflow == nil || rest == nil || rest.WorkflowOrchestrator == nil {
 		return
 	}
-	var podTerm loopconnect.PodTerminatorForLoop
+	var podTerm workflowconnect.PodTerminatorForWorkflow
 	if rest.PodCoordinator != nil {
 		podTerm = rest.PodCoordinator
 	}
-	srv := loopconnect.NewServer(svc.loop, svc.loopRun, rest.LoopOrchestrator, svc.org, podTerm)
-	loopconnect.Mount(mux, srv, opts...)
+	srv := workflowconnect.NewServer(svc.workflow, svc.workflowRun, rest.WorkflowOrchestrator, svc.org, podTerm)
+	workflowconnect.Mount(mux, srv, opts...)
+}
+
+func mountGoalLoopService(mux *http.ServeMux, svc *serviceContainer, opts []connect.HandlerOption) {
+	if svc.goalLoop == nil {
+		return
+	}
+	goalloopconnect.Mount(mux, goalloopconnect.NewServer(svc.goalLoop, svc.org), opts...)
 }
 
 // mountLicenseService wires both LicenseService (auth-required: Activate /

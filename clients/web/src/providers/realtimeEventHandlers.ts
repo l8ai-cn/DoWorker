@@ -14,7 +14,7 @@ import {
 } from "@/lib/realtime";
 
 export { handlePodEvent } from "./realtimePodHandlers";
-export { handleAutopilotEvent, handleLoopEvent } from "./realtimeFeatureHandlers";
+export { handleAutopilotEvent, handleWorkflowEvent } from "./realtimeFeatureHandlers";
 export { handleBlockstoreEvent } from "@/stores/blockstoreSubscribe";
 
 export type DebounceRef = React.MutableRefObject<ReturnType<typeof setTimeout> | null>;

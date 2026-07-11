@@ -20,7 +20,7 @@ type BoundPodList []string
 type ChannelList []Channel
 type ChannelMessageList []ChannelMessage
 type TicketList []Ticket
-type LoopSummaryList []LoopSummary
+type WorkflowSummaryList []WorkflowSummary
 
 // --- Single entity FormatText ---
 

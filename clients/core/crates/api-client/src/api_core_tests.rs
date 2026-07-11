@@ -55,8 +55,8 @@ mod api_core_tests {
     // Connect handler tests in backend/internal/api/connect/mesh cover
     // the same surface.
 
-    // ── loop ────────────────────────────────────────────────────────────
-    // REST surface dropped; covered by loop_connect.rs.
+    // ── workflow ────────────────────────────────────────────────────────────
+    // REST surface dropped; covered by workflow_connect.rs.
 
     // ── agentpod ────────────────────────────────────────────────────────
     // REST surface dropped; covered by agentpod.rs Connect block.

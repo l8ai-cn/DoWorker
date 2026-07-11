@@ -32,11 +32,11 @@ import {
 import { ListTicketsResponseSchema, ListLabelsResponseSchema, TicketSchema, BoardColumnSchema, LabelSchema } from '@proto/ticket/v1/ticket_pb'
 import { ReplaceCachedTicketsRequestSchema, SetCurrentTicketRequestSchema, ReplaceBoardColumnsRequestSchema, ReplaceCachedLabelsRequestSchema } from '@proto/ticket_state/v1/ticket_state_pb'
 import {
-  ListLoopsResponseSchema, ListRunsResponseSchema, LoopSchema, LoopRunSchema,
-} from '@proto/loop/v1/loop_pb'
+  ListWorkflowsResponseSchema, ListWorkflowRunsResponseSchema, WorkflowSchema, WorkflowRunSchema,
+} from '@proto/workflow/v1/workflow_pb'
 import {
-  ReplaceCachedLoopsRequestSchema, ReplaceCachedRunsRequestSchema, SetCurrentLoopRequestSchema,
-} from '@proto/loop_state/v1/loop_state_pb'
+  ReplaceCachedWorkflowsRequestSchema, ReplaceCachedWorkflowRunsRequestSchema, SetCurrentWorkflowRequestSchema,
+} from '@proto/workflow_state/v1/workflow_state_pb'
 import { ListRepositoriesResponseSchema, RepositorySchema } from '@proto/repository/v1/repository_pb'
 import { ReplaceCachedRepositoriesRequestSchema } from '@proto/repo_state/v1/repo_state_pb'
 import {
@@ -67,7 +67,7 @@ const h = vi.hoisted(() => {
   };
   const ticket = { list: '[]', labels: '[]', boardCols: '[]', current: '' };
   const mesh = { topo: '', selected: undefined as string | undefined };
-  const loop = { list: '[]', current: '', runs: '[]' };
+  const workflow = { list: '[]', current: '', runs: '[]' };
   const gitProvider = mkStore();
   const repo = { list: '[]', current: '', branches: '[]' };
   const autopilot = {
@@ -83,14 +83,14 @@ const h = vi.hoisted(() => {
     channel.pods.clear(); channel.members.clear();
     ticket.list = '[]'; ticket.labels = '[]'; ticket.boardCols = '[]'; ticket.current = '';
     mesh.topo = ''; mesh.selected = undefined;
-    loop.list = '[]'; loop.current = ''; loop.runs = '[]';
+    workflow.list = '[]'; workflow.current = ''; workflow.runs = '[]';
     gitProvider.v = '';
     repo.list = '[]'; repo.current = ''; repo.branches = '[]';
     autopilot.controllers = '[]'; autopilot.current = '';
     autopilot.iterations.clear(); autopilot.thinkings.clear(); autopilot.thinkingHistory.clear();
   }
 
-  return { pod, runner, channel, ticket, mesh, loop, gitProvider, repo, autopilot, reset };
+  return { pod, runner, channel, ticket, mesh, workflow, gitProvider, repo, autopilot, reset };
 })
 
 const acpMgr = createAcpManager()
@@ -924,10 +924,10 @@ vi.mock('@/lib/wasm-core', () => {
     createPodForTicketConnect: fn().mockResolvedValue(new Uint8Array()),
   }
 
-  // Minimal loop proto↔cache for the B fetch/read mock — covers the fields loop
-  // store tests exercise; full round-trip is in loop_cache_to_bytes.test.ts.
-  type LoopObj = Record<string, unknown>
-  const protoLoopToCacheMin = (l: ReturnType<typeof create<typeof LoopSchema>>): LoopObj => ({
+  // Minimal workflow proto↔cache for the B fetch/read mock — covers the fields workflow
+  // store tests exercise; full round-trip is in workflow_cache_to_bytes.test.ts.
+  type WorkflowObj = Record<string, unknown>
+  const protoWorkflowToCacheMin = (l: ReturnType<typeof create<typeof WorkflowSchema>>): WorkflowObj => ({
     id: Number(l.id), slug: l.slug, name: l.name, status: l.status,
     permission_mode: l.permissionMode, prompt_template: l.promptTemplate,
     execution_mode: l.executionMode, sandbox_strategy: l.sandboxStrategy,
@@ -938,7 +938,7 @@ vi.mock('@/lib/wasm-core', () => {
     active_run_count: Number(l.activeRunCount), model_resource_id: l.modelResourceId != null ? Number(l.modelResourceId) : undefined, used_env_bundles: l.usedEnvBundles ?? [],
     autopilot_config: {}, created_at: l.createdAt, updated_at: l.updatedAt,
   })
-  const cacheToProtoLoopMin = (l: LoopObj) => create(LoopSchema, {
+  const cacheToProtoWorkflowMin = (l: WorkflowObj) => create(WorkflowSchema, {
     id: BigInt((l.id as number) ?? 0), slug: (l.slug as string) ?? '', name: (l.name as string) ?? '',
     status: (l.status as string) ?? '', permissionMode: (l.permission_mode as string) ?? '',
     promptTemplate: (l.prompt_template as string) ?? '', executionMode: (l.execution_mode as string) ?? '',
@@ -949,65 +949,65 @@ vi.mock('@/lib/wasm-core', () => {
     failedRuns: BigInt((l.failed_runs as number) ?? 0), activeRunCount: BigInt((l.active_run_count as number) ?? 0),
     modelResourceId: (l.model_resource_id as number | undefined) != null ? BigInt(l.model_resource_id as number) : undefined, usedEnvBundles: (l.used_env_bundles as string[]) ?? [], createdAt: (l.created_at as string) ?? '', updatedAt: (l.updated_at as string) ?? '',
   })
-  const protoRunToCacheMin = (r: ReturnType<typeof create<typeof LoopRunSchema>>): LoopObj => ({
-    id: Number(r.id), loop_id: Number(r.loopId), run_number: Number(r.runNumber), status: r.status,
+  const protoRunToCacheMin = (r: ReturnType<typeof create<typeof WorkflowRunSchema>>): WorkflowObj => ({
+    id: Number(r.id), workflow_id: Number(r.workflowId), run_number: Number(r.runNumber), status: r.status,
     pod_key: r.podKey, started_at: r.startedAt, finished_at: r.completedAt,
     error_message: r.errorMessage, created_at: r.createdAt, trigger_type: '',
   })
-  const cacheToProtoRunMin = (r: LoopObj) => create(LoopRunSchema, {
-    id: BigInt((r.id as number) ?? 0), loopId: BigInt((r.loop_id as number) ?? 0),
+  const cacheToProtoRunMin = (r: WorkflowObj) => create(WorkflowRunSchema, {
+    id: BigInt((r.id as number) ?? 0), workflowId: BigInt((r.workflow_id as number) ?? 0),
     runNumber: BigInt((r.run_number as number) ?? 0), status: (r.status as string) ?? '',
     podKey: (r.pod_key as string) ?? '', startedAt: (r.started_at as string) ?? '',
     completedAt: (r.finished_at as string) ?? '', errorMessage: (r.error_message as string) ?? '', createdAt: (r.created_at as string) ?? '',
   })
 
-  const loopState = {
-    loops_json: fn(() => h.loop.list),
-    current_loop_json: fn(() => h.loop.current || undefined),
-    runs_json: fn(() => h.loop.runs),
-    get_loop_by_slug_json: fn((slug: string) => {
-      const arr = JSON.parse(h.loop.list) as { slug: string }[]
+  const workflowState = {
+    workflows_json: fn(() => h.workflow.list),
+    current_workflow_json: fn(() => h.workflow.current || undefined),
+    runs_json: fn(() => h.workflow.runs),
+    get_workflow_by_slug_json: fn((slug: string) => {
+      const arr = JSON.parse(h.workflow.list) as { slug: string }[]
       const l = arr.find((x) => x.slug === slug)
       return l ? JSON.stringify(l) : undefined
     }),
     // Read side (B): cache → state proto bytes; fetch→state: wire response → cache.
-    loops_bytes: fn(() => toBinary(ReplaceCachedLoopsRequestSchema,
-      create(ReplaceCachedLoopsRequestSchema, { loops: (JSON.parse(h.loop.list) as LoopObj[]).map(cacheToProtoLoopMin) }))),
-    runs_bytes: fn(() => toBinary(ReplaceCachedRunsRequestSchema,
-      create(ReplaceCachedRunsRequestSchema, { runs: (JSON.parse(h.loop.runs) as LoopObj[]).map(cacheToProtoRunMin) }))),
-    current_loop_bytes: fn(() => h.loop.current
-      ? toBinary(SetCurrentLoopRequestSchema, create(SetCurrentLoopRequestSchema, { loop: cacheToProtoLoopMin(JSON.parse(h.loop.current) as LoopObj) }))
+    workflows_bytes: fn(() => toBinary(ReplaceCachedWorkflowsRequestSchema,
+      create(ReplaceCachedWorkflowsRequestSchema, { workflows: (JSON.parse(h.workflow.list) as WorkflowObj[]).map(cacheToProtoWorkflowMin) }))),
+    runs_bytes: fn(() => toBinary(ReplaceCachedWorkflowRunsRequestSchema,
+      create(ReplaceCachedWorkflowRunsRequestSchema, { runs: (JSON.parse(h.workflow.runs) as WorkflowObj[]).map(cacheToProtoRunMin) }))),
+    current_workflow_bytes: fn(() => h.workflow.current
+      ? toBinary(SetCurrentWorkflowRequestSchema, create(SetCurrentWorkflowRequestSchema, { workflow: cacheToProtoWorkflowMin(JSON.parse(h.workflow.current) as WorkflowObj) }))
       : new Uint8Array()),
-    apply_fetched_loops: fn((bytes: Uint8Array) => {
-      try { h.loop.list = JSON.stringify(fromBinary(ListLoopsResponseSchema, bytes).items.map(protoLoopToCacheMin)) } catch { /* noop */ }
+    apply_fetched_workflows: fn((bytes: Uint8Array) => {
+      try { h.workflow.list = JSON.stringify(fromBinary(ListWorkflowsResponseSchema, bytes).items.map(protoWorkflowToCacheMin)) } catch { /* noop */ }
     }),
-    apply_fetched_current_loop: fn((bytes: Uint8Array) => {
-      try { h.loop.current = JSON.stringify(protoLoopToCacheMin(fromBinary(LoopSchema, bytes))) } catch { /* noop */ }
+    apply_fetched_current_workflow: fn((bytes: Uint8Array) => {
+      try { h.workflow.current = JSON.stringify(protoWorkflowToCacheMin(fromBinary(WorkflowSchema, bytes))) } catch { /* noop */ }
     }),
     apply_fetched_runs: fn((bytes: Uint8Array) => {
-      try { h.loop.runs = JSON.stringify(fromBinary(ListRunsResponseSchema, bytes).items.map(protoRunToCacheMin)) } catch { /* noop */ }
+      try { h.workflow.runs = JSON.stringify(fromBinary(ListWorkflowRunsResponseSchema, bytes).items.map(protoRunToCacheMin)) } catch { /* noop */ }
     }),
     apply_appended_runs: fn((bytes: Uint8Array) => {
       try {
-        const existing = JSON.parse(h.loop.runs) as LoopObj[]
-        h.loop.runs = JSON.stringify([...existing, ...fromBinary(ListRunsResponseSchema, bytes).items.map(protoRunToCacheMin)])
+        const existing = JSON.parse(h.workflow.runs) as WorkflowObj[]
+        h.workflow.runs = JSON.stringify([...existing, ...fromBinary(ListWorkflowRunsResponseSchema, bytes).items.map(protoRunToCacheMin)])
       } catch { /* noop */ }
     }),
     // Proto-state mutations (binary wire) — TS store uses these.
-    set_current_loop: fn(), clear_current_loop: fn(),
-    patch_loop_from_action: fn(), insert_loop_run: fn(),
-    patch_loop_run_status: fn(), clear_loop_runs: fn(),
-    // Connect-RPC binary lane (proto.loop.v1.LoopService).
-    listLoopsConnect: fn().mockResolvedValue(new Uint8Array()),
-    getLoopConnect: fn().mockResolvedValue(new Uint8Array()),
-    createLoopConnect: fn().mockResolvedValue(new Uint8Array()),
-    updateLoopConnect: fn().mockResolvedValue(new Uint8Array()),
-    deleteLoopConnect: fn().mockResolvedValue(new Uint8Array()),
-    enableLoopConnect: fn().mockResolvedValue(new Uint8Array()),
-    disableLoopConnect: fn().mockResolvedValue(new Uint8Array()),
-    triggerLoopConnect: fn().mockResolvedValue(new Uint8Array()),
-    listRunsConnect: fn().mockResolvedValue(new Uint8Array()),
-    cancelRunConnect: fn().mockResolvedValue(new Uint8Array()),
+    set_current_workflow: fn(), clear_current_workflow: fn(),
+    patch_workflow_from_action: fn(), insert_workflow_run: fn(),
+    patch_workflow_run_status: fn(), clear_workflow_runs: fn(),
+    // Connect-RPC binary lane (proto.workflow.v1.WorkflowService).
+    listWorkflowsConnect: fn().mockResolvedValue(new Uint8Array()),
+    getWorkflowConnect: fn().mockResolvedValue(new Uint8Array()),
+    createWorkflowConnect: fn().mockResolvedValue(new Uint8Array()),
+    updateWorkflowConnect: fn().mockResolvedValue(new Uint8Array()),
+    deleteWorkflowConnect: fn().mockResolvedValue(new Uint8Array()),
+    enableWorkflowConnect: fn().mockResolvedValue(new Uint8Array()),
+    disableWorkflowConnect: fn().mockResolvedValue(new Uint8Array()),
+    triggerWorkflowConnect: fn().mockResolvedValue(new Uint8Array()),
+    listWorkflowRunsConnect: fn().mockResolvedValue(new Uint8Array()),
+    cancelWorkflowRunConnect: fn().mockResolvedValue(new Uint8Array()),
   }
 
   // Minimal repository proto↔cache for the B fetch/read mock — covers the fields
@@ -1097,8 +1097,8 @@ vi.mock('@/lib/wasm-core', () => {
     getTicketState: fn(() => ticketState),
     getChannelState: fn(() => channelState),
     getRunnerState: fn(() => runnerState),
-    getLoopState: fn(() => loopState),
-    getLoopService: fn(() => loopState),
+    getWorkflowState: fn(() => workflowState),
+    getWorkflowService: fn(() => workflowState),
     getMeshState: fn(() => meshState),
     getMeshService: fn(() => meshState),
     getAcpManager: fn(() => acpMgr),

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: runner-harn
+  namespace: agentsmesh
+  labels:
+    app.kubernetes.io/name: agentsmesh-runner
+    agentsmesh.io/runtime: harn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-harn
+  template:
+    metadata:
+      labels:
+        app: runner-harn
+        app.kubernetes.io/name: agentsmesh-runner
+        agentsmesh.io/runtime: harn
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      imagePullSecrets:
+        - name: agentsmesh-regcred
+      containers:
+        - name: runner
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-harn:latest
+          imagePullPolicy: Always
+          command: ["/usr/local/bin/runner-entrypoint.sh"]
+          env:
+            - name: HOME
+              value: /home/runner
+            - name: RUNNER_NODE_ID
+              value: dev-runner-harn
+            - name: RUNNER_ORG_SLUG
+              value: dev-org
+            - name: AGENT_RUNTIME
+              value: harn
+            - name: DEFAULT_AGENT
+              value: harn
+            - name: BACKEND_URL
+              value: http://backend:8080
+            - name: GRPC_ENDPOINT
+              value: backend:9090
+            - name: RELAY_BASE_URL
+              value: ws://relay:8090
+            - name: MAX_CONCURRENT_PODS
+              value: "10"
+            - name: SSL_DIR
+              value: /app/ssl
+          envFrom:
+            - secretRef:
+                name: agentsmesh-runner-api-keys
+                optional: true
+          volumeMounts:
+            - name: ssl
+              mountPath: /app/ssl
+              readOnly: true
+            - name: home
+              mountPath: /home/runner
+            - name: workspace
+              mountPath: /workspace
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: ssl
+          secret:
+            secretName: agentsmesh-pki-ca
+        - name: home
+          emptyDir: {}
+        - name: workspace
+          emptyDir: {}

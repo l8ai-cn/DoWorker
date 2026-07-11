@@ -86,7 +86,10 @@ impl WasmChannelService {
     }
 
     #[wasm_bindgen(js_name = getChannelUnreadCountsConnect)]
-    pub async fn get_channel_unread_counts_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn get_channel_unread_counts_connect(
+        &self,
+        request: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.get_channel_unread_counts_connect(request).await
     }
 

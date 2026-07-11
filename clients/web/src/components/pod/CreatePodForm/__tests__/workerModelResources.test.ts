@@ -55,4 +55,28 @@ describe("workerModelResources", () => {
       geminiResource,
     ]);
   });
+
+  it.each(["openclaw", "harn"])("%s accepts multi-provider chat resources", (agentSlug) => {
+    const providers: ProviderDefinition[] = [
+      { ...geminiProvider, key: "openai", protocolAdapter: "openai-compatible" },
+      { ...geminiProvider, key: "anthropic", protocolAdapter: "anthropic" },
+      geminiProvider,
+    ];
+    const resources: EffectiveResource[] = providers.map((provider, index) => ({
+      ...geminiResource,
+      connection: {
+        ...geminiResource.connection!,
+        id: index + 1,
+        providerKey: provider.key,
+      },
+      resource: {
+        ...geminiResource.resource!,
+        id: index + 10,
+        providerConnectionId: index + 1,
+      },
+    }));
+
+    expect(agentRequiresModelResource(agentSlug)).toBe(true);
+    expect(compatibleModelResources(agentSlug, resources, providers)).toEqual(resources);
+  });
 });

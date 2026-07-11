@@ -49,6 +49,7 @@ export interface Expert {
   config_overrides?: Record<string, unknown>;
   agentfile_layer?: string | null;
   source_pod_key?: string | null;
+  worker_spec_snapshot_id?: number | null;
   run_count: number;
   last_run_at?: string | null;
   created_at: string;
@@ -104,16 +105,11 @@ export interface PublishExpertInput {
   name: string;
   slug: string;
   description?: string;
-  agentfile_layer?: string;
-  used_env_bundles?: string[];
-  skill_slugs?: string[];
-  knowledge_mounts?: ExpertKnowledgeMount[];
 }
 
 export interface RunExpertInput {
   alias?: string;
   prompt_override?: string;
-  runner_id?: number;
   cols?: number;
   rows?: number;
 }

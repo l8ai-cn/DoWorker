@@ -87,14 +87,14 @@ func podTicketInfoToProto(t *ticketdom.Ticket) *podv1.PodTicketInfo {
 	return &podv1.PodTicketInfo{Id: &id, Slug: &slug, Title: &title}
 }
 
-func podLoopInfoToProto(l *poddom.PodLoopInfo) *podv1.PodLoopInfo {
-	if l == nil {
+func podWorkflowInfoToProto(workflow *poddom.PodWorkflowInfo) *podv1.PodWorkflowInfo {
+	if workflow == nil {
 		return nil
 	}
-	id := l.ID
-	name := l.Name
-	slug := l.Slug
-	return &podv1.PodLoopInfo{Id: &id, Name: &name, Slug: &slug}
+	id := workflow.ID
+	name := workflow.Name
+	slug := workflow.Slug
+	return &podv1.PodWorkflowInfo{Id: &id, Name: &name, Slug: &slug}
 }
 
 func podCreatedByInfoToProto(u *userdom.User) *podv1.PodCreatedByInfo {

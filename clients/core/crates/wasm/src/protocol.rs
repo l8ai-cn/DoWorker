@@ -36,11 +36,7 @@ pub fn relay_decode_message(data: &[u8]) -> JsValue {
     match decode_message(data) {
         Ok((msg_type, payload)) => {
             let obj = js_sys::Object::new();
-            let _ = js_sys::Reflect::set(
-                &obj,
-                &"type".into(),
-                &(msg_type as u8).into(),
-            );
+            let _ = js_sys::Reflect::set(&obj, &"type".into(), &(msg_type as u8).into());
             let _ = js_sys::Reflect::set(
                 &obj,
                 &"payload".into(),

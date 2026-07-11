@@ -1,4 +1,4 @@
-# DoAgent × AgentsMesh 集成档案
+# DoAgent × Do Worker 集成档案
 
 > 状态：**P0–P2 已完成**（双模式对接 + ACP transport + Goal 控制台 + Token 解析）  
 > 上游仓库：[AgentForge/doagent](https://github.com/aiedulab/doagent)  
@@ -9,7 +9,7 @@
 | 项目 | 角色 |
 |------|------|
 | **DoAgent** | Rust 通用 coding agent：REPL / query / Goal / ACP stdio / skills / 多 provider |
-| **AgentsMesh** | 多租户平台：Pod 生命周期、终端流、MCP 注入、Autopilot、Web/Desktop 客户端 |
+| **Do Worker** | 多租户平台：Pod 生命周期、终端流、MCP 注入、Autopilot、Web/Desktop 客户端 |
 
 本集成让 Runner 安装 `do-agent` 后，用户可在 **New Pod** 选择 DoAgent，以 **PTY（CLI）** 或 **ACP（对话）** 模式运行。
 
@@ -17,7 +17,7 @@
 
 ```mermaid
 flowchart LR
-  subgraph AgentsMesh
+  subgraph Do Worker
     Web["Web / Desktop"]
     Console["/[org]/do-agent/[podKey]"]
     Workspace["Workspace AgentPanel"]
@@ -40,7 +40,7 @@ flowchart LR
   Runner -->|"MODE acp"| ACP
 ```
 
-| 模式 | AgentsMesh UI | do-agent 进程 |
+| 模式 | Do Worker UI | do-agent 进程 |
 |------|---------------|---------------|
 | **CLI / PTY** | Workspace 终端面板 | `do-agent`（TTY → 交互 REPL） |
 | **对话 / ACP** | AgentPanel 或 DoAgent 控制台 | `do-agent acp`（JSON-RPC stdio） |
@@ -52,7 +52,7 @@ do-agent 与标准 ACP 有几处差异，Runner 通过专属 transport（`runner
 | 差异 | 适配 |
 |------|------|
 | `session/new` 要求客户端提供 `sessionId` | Transport 生成 UUID 并写入 params |
-| 权限通知为 `permission.updated` + `permission/reply` | 映射到 AgentsMesh `OnPermissionRequest` / `RespondToPermission` |
+| 权限通知为 `permission.updated` + `permission/reply` | 映射到 Do Worker `OnPermissionRequest` / `RespondToPermission` |
 | 控制面为原生 RPC（`session/setModel`、`goal/*`） | `SendControlRequest` 映射；UI 可用 `doagent.rpc` 透传任意方法 |
 | 无 `session/control_request` 扩展 | 不依赖 agentsmeshExtensions |
 
@@ -97,7 +97,7 @@ cp target/release/do-agent ~/.local/bin/
 do-agent --version
 ```
 
-### AgentsMesh
+### Do Worker
 
 1. `bazel run //deploy/dev:up`（或现有 dev 环境）
 2. Settings → AI Resources：添加 DoAgent 所需的 provider connection 与 model resource
@@ -128,9 +128,14 @@ relayPool.sendAcpCommand(podKey, { type: "set_model", model: "sonnet" });
 
 Runner 将 `set_model` → `session/setModel`，`doagent.rpc` → 任意 JSON-RPC 方法。
 
+## 多 Agent 能力
+
+do-agent 的内置 AgentFile 声明 `SKILLS am-delegate, am-channel` 和
+`CAPABILITY subagents true`。前端可把它作为多 Agent Worker 创建入口。
+
 ## 6. 已知限制
 
-1. **运行时 permission mode**：do-agent 在 `session/new` 设置权限模式；AgentsMesh `set_permission_mode` 对该 agent 暂不支持（transport 返回 `ErrControlNotSupported`）
+1. **运行时 permission mode**：do-agent 在 `session/new` 设置权限模式；Do Worker `set_permission_mode` 对该 agent 暂不支持（transport 返回 `ErrControlNotSupported`）
 2. **Goal UI**：控制台提供列表/暂停/继续；完整 Goal 创建流程仍可在 REPL 或 ACP prompt 中使用 `/goal`
 3. **auto-harness 桥接**：已实现 → 见 [`auto-harness.md`](./auto-harness.md)（coordinator 定时扫描 CNB/Linear → ticket → 派发 do-agent pod → 回写评论）
 
@@ -138,6 +143,7 @@ Runner 将 `set_model` → `session/setModel`，`doagent.rpc` → 任意 JSON-RP
 
 ```
 backend/migrations/000159_add_doagent_agent.{up,down}.sql
+do-agent capability changes are managed through DoSQL-controlled updates
 runner/internal/agents/doagent/
 clients/web/src/app/(dashboard)/[org]/do-agent/[podKey]/page.tsx
 clients/web/src/components/doagent/

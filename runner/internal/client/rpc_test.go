@@ -34,9 +34,9 @@ func (m *mockSender) getLastMsg() *runnerv1.RunnerMessage {
 
 // stubSender stubs SendMessage and also provides the ConnectionSender interface methods.
 // Only SendMessage is used by RPCClient.
-func (m *mockSender) SendPodCreated(string, int32, string, string) error       { return nil }
-func (m *mockSender) SendPodTerminated(string, int32, string, string) error    { return nil }
-func (m *mockSender) SendPodRestarting(string, int32, int32, int32) error      { return nil }
+func (m *mockSender) SendPodCreated(string, int32, string, string) error    { return nil }
+func (m *mockSender) SendPodTerminated(string, int32, string, string) error { return nil }
+func (m *mockSender) SendPodRestarting(string, int32, int32, int32) error   { return nil }
 func (m *mockSender) SendPodInitProgress(string, string, int32, string) error {
 	return nil
 }
@@ -56,11 +56,14 @@ func (m *mockSender) SendTokenUsage(string, []*runnerv1.TokenModelUsage, time.Ti
 	return nil
 }
 func (m *mockSender) SendPodUsageEvent(string, string, int64, int64, int64, int64) error { return nil }
-func (m *mockSender) SendExternalSessionCaptured(string, string) error { return nil }
-func (m *mockSender) SendSandboxFsResult(*runnerv1.SandboxFsResultEvent) error { return nil }
-func (m *mockSender) QueueLength() int                                         { return 0 }
-func (m *mockSender) QueueCapacity() int                                       { return 100 }
-func (m *mockSender) QueueUsage() float64                                      { return 0 }
+func (m *mockSender) SendExternalSessionCaptured(string, string) error                   { return nil }
+func (m *mockSender) SendSandboxFsResult(*runnerv1.SandboxFsResultEvent) error           { return nil }
+func (m *mockSender) SendVerificationResult(*runnerv1.VerificationResultEvent) error {
+	return nil
+}
+func (m *mockSender) QueueLength() int    { return 0 }
+func (m *mockSender) QueueCapacity() int  { return 100 }
+func (m *mockSender) QueueUsage() float64 { return 0 }
 
 func TestRPCClient_HandleResponse(t *testing.T) {
 	sender := &mockSender{}

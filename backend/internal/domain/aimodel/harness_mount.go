@@ -17,7 +17,7 @@ func HarnessMountKindFor(agentSlug string, executableIsDoAgent bool) HarnessMoun
 	if executableIsDoAgent {
 		return HarnessMountConfig
 	}
-	if PreferredProvider(agentSlug) != "" {
+	if len(PreferredProviders(agentSlug)) > 0 {
 		return HarnessMountEnv
 	}
 	return HarnessMountNone

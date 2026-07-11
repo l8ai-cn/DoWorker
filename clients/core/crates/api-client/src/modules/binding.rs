@@ -13,12 +13,7 @@ impl ApiClient {
         &self,
         req: &bp::RequestBindingRequest,
     ) -> Result<bp::PodBinding, ApiError> {
-        connect_call(
-            self,
-            "/proto.binding.v1.BindingService/RequestBinding",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.binding.v1.BindingService/RequestBinding", req).await
     }
 
     pub async fn accept_binding_connect(

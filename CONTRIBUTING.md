@@ -1,4 +1,4 @@
-# Contributing to AgentsMesh
+# Contributing to Do Worker
 
 Thanks for your interest in contributing.
 

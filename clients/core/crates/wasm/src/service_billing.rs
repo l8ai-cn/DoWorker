@@ -20,7 +20,6 @@ impl WasmBillingService {
     // side) and returns prost-encoded bytes — TS callers encode via
     // @bufbuild/protobuf .toBinary() and decode via .fromBinary().
 
-
     pub async fn get_overview_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
         agentsmesh_services::BillingService::new(self.client.clone())
             .get_overview_connect(request_bytes)
@@ -39,19 +38,28 @@ impl WasmBillingService {
             .await
     }
 
-    pub async fn create_subscription_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn create_subscription_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         agentsmesh_services::BillingService::new(self.client.clone())
             .create_subscription_connect(request_bytes)
             .await
     }
 
-    pub async fn update_subscription_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn update_subscription_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         agentsmesh_services::BillingService::new(self.client.clone())
             .update_subscription_connect(request_bytes)
             .await
     }
 
-    pub async fn cancel_subscription_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn cancel_subscription_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         agentsmesh_services::BillingService::new(self.client.clone())
             .cancel_subscription_connect(request_bytes)
             .await
@@ -111,25 +119,37 @@ impl WasmBillingService {
             .await
     }
 
-    pub async fn get_checkout_status_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn get_checkout_status_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         agentsmesh_services::BillingService::new(self.client.clone())
             .get_checkout_status_connect(request_bytes)
             .await
     }
 
-    pub async fn get_deployment_info_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn get_deployment_info_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         agentsmesh_services::BillingService::new(self.client.clone())
             .get_deployment_info_connect(request_bytes)
             .await
     }
 
-    pub async fn get_public_pricing_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn get_public_pricing_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         agentsmesh_services::BillingService::new(self.client.clone())
             .get_public_pricing_connect(request_bytes)
             .await
     }
 
-    pub async fn get_public_deployment_info_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn get_public_deployment_info_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         agentsmesh_services::BillingService::new(self.client.clone())
             .get_public_deployment_info_connect(request_bytes)
             .await
@@ -166,7 +186,10 @@ impl WasmBillingService {
     }
 
     #[wasm_bindgen(js_name = createCustomerPortalConnect)]
-    pub async fn create_customer_portal_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn create_customer_portal_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         agentsmesh_services::BillingService::new(self.client.clone())
             .create_customer_portal_connect(request_bytes)
             .await

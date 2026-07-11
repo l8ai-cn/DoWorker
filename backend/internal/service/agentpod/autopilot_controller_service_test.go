@@ -50,7 +50,7 @@ func TestCreateAndStart_Success(t *testing.T) {
 	controller, err := svc.CreateAndStart(context.Background(), &CreateAndStartRequest{
 		OrganizationID: 1,
 		Pod:            pod,
-		Prompt:  "Review the code",
+		Prompt:         "Review the code",
 	})
 
 	require.NoError(t, err)
@@ -84,7 +84,7 @@ func TestCreateAndStart_NilPod(t *testing.T) {
 	controller, err := svc.CreateAndStart(context.Background(), &CreateAndStartRequest{
 		OrganizationID: 1,
 		Pod:            nil,
-		Prompt:  "test",
+		Prompt:         "test",
 	})
 
 	assert.Nil(t, controller)
@@ -100,7 +100,7 @@ func TestCreateAndStart_DefaultValues(t *testing.T) {
 	controller, err := svc.CreateAndStart(context.Background(), &CreateAndStartRequest{
 		OrganizationID: 1,
 		Pod:            newTestPod(),
-		Prompt:  "test",
+		Prompt:         "test",
 		// All config fields left at zero → should get domain defaults
 	})
 
@@ -148,7 +148,7 @@ func TestCreateAndStart_CustomKeyPrefix(t *testing.T) {
 	controller, err := svc.CreateAndStart(context.Background(), &CreateAndStartRequest{
 		OrganizationID: 1,
 		Pod:            newTestPod(),
-		Prompt:  "test",
+		Prompt:         "test",
 		KeyPrefix:      "loop-daily-review-run3",
 	})
 
@@ -163,7 +163,7 @@ func TestCreateAndStart_DefaultKeyPrefix(t *testing.T) {
 	controller, err := svc.CreateAndStart(context.Background(), &CreateAndStartRequest{
 		OrganizationID: 1,
 		Pod:            newTestPod(),
-		Prompt:  "test",
+		Prompt:         "test",
 		// KeyPrefix empty → defaults to "autopilot"
 	})
 
@@ -207,7 +207,7 @@ func TestCreateAndStart_OptionalFieldsOmitted(t *testing.T) {
 	controller, err := svc.CreateAndStart(context.Background(), &CreateAndStartRequest{
 		OrganizationID: 1,
 		Pod:            newTestPod(),
-		Prompt:  "test",
+		Prompt:         "test",
 		// No optional config fields
 	})
 
@@ -225,7 +225,7 @@ func TestCreateAndStart_NilCommandSender(t *testing.T) {
 	controller, err := svc.CreateAndStart(context.Background(), &CreateAndStartRequest{
 		OrganizationID: 1,
 		Pod:            newTestPod(),
-		Prompt:  "test",
+		Prompt:         "test",
 	})
 
 	// Should succeed — DB record created, gRPC skipped
@@ -242,7 +242,7 @@ func TestCreateAndStart_CommandSenderFailure(t *testing.T) {
 	controller, err := svc.CreateAndStart(context.Background(), &CreateAndStartRequest{
 		OrganizationID: 1,
 		Pod:            newTestPod(),
-		Prompt:  "test",
+		Prompt:         "test",
 	})
 
 	// Error returned, BUT controller is also returned (DB record exists)
@@ -259,7 +259,7 @@ func TestCreateAndStart_DBPersistence(t *testing.T) {
 	created, err := svc.CreateAndStart(context.Background(), &CreateAndStartRequest{
 		OrganizationID: 1,
 		Pod:            newTestPod(),
-		Prompt:  "persisted prompt",
+		Prompt:         "persisted prompt",
 	})
 	require.NoError(t, err)
 

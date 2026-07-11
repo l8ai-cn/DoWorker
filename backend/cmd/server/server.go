@@ -51,7 +51,7 @@ func startSubscriptionJobs(db *gorm.DB, appConfig *config.Config, emailSvc email
 	return scheduler
 }
 
-type LoopSchedulerStopper interface {
+type WorkflowSchedulerStopper interface {
 	Stop()
 }
 
@@ -62,7 +62,7 @@ func waitForShutdown(
 	heartbeatBatcher *runner.HeartbeatBatcher,
 	subscriptionScheduler *job.SubscriptionScheduler,
 	taskManager *tasksvc.Manager,
-	loopScheduler LoopSchedulerStopper,
+	workflowScheduler WorkflowSchedulerStopper,
 	orgAwareness *instance.OrgAwarenessService,
 	relayManager *relay.Manager,
 	services *serviceContainer,
@@ -95,8 +95,8 @@ func waitForShutdown(
 		taskManager.Stop()
 	}
 
-	if loopScheduler != nil {
-		loopScheduler.Stop()
+	if workflowScheduler != nil {
+		workflowScheduler.Stop()
 	}
 
 	if orgAwareness != nil {

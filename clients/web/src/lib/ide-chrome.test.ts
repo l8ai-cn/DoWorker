@@ -13,7 +13,7 @@ describe("ide-chrome", () => {
     expect(hideIdeChrome("/acme/do-agent/pod-1")).toBe(true);
     expect(hideIdeChrome("/acme/loopal/pod-1")).toBe(true);
     expect(hideIdeChrome("/acme/mobile/pods/pod-1")).toBe(true);
-    expect(hideIdeChrome("/acme/loops/my-loop")).toBe(false);
+    expect(hideIdeChrome("/acme/workflows/my-workflow")).toBe(false);
   });
 
   it("hides mobile tab bar when sidebar or chrome is hidden", () => {

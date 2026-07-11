@@ -455,7 +455,8 @@
         "apiKey": "OpenAI API Key"
       },
       "google": {
-        "apiKey": "Google API Key"
+        "apiKey": "Google API Key",
+        "geminiApiKey": "Gemini API Key"
       },
       "xai": {
         "apiKey": "xAI API Key"
@@ -495,6 +496,12 @@
       },
       "grok": {
         "customEnvHint": "Additional Grok runtime environment variables"
+      },
+      "openclaw": {
+        "customEnvHint": "Additional OpenClaw provider keys or runtime environment variables"
+      },
+      "harn": {
+        "customEnvHint": "Additional Harn provider keys or runtime environment variables"
       }
     },
     "sshKeys": {

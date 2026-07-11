@@ -2,7 +2,7 @@
 title: "Por qué el desarrollo con IA necesita un centro de mando, no otro IDE"
 excerpt: "Los agentes de IA son omnihábiles. Cuando el intercambio de habilidades colapsa, los roles profesionales se disuelven y los procesos de ingeniería construidos sobre la Ley de Conway deben reinventarse. Lo que los desarrolladores necesitan ahora no es un IDE mejor, sino un centro de mando para orquestar flotas de agentes a gran escala."
 date: "2026-02-23"
-author: "AgentsMesh Team"
+author: "Do Worker Team"
 category: "Insight"
 readTime: 10
 ---
@@ -72,9 +72,9 @@ A medida que los agentes de IA se vuelven más capaces, el rol del desarrollador
 
 Los datos respaldan esto: en nuestras observaciones, la IA proporciona ganancias de eficiencia de 50x en tareas de ejecución (generar código, pruebas, refactorización) pero casi cero mejora en tareas de decisión (depurar problemas en producción, elegir arquitecturas, establecer prioridades). **La ejecución se está comoditizando. El juicio se está convirtiendo en el cuello de botella.**
 
-## AgentsMesh: construido para esta realidad
+## Do Worker: construido para esta realidad
 
-AgentsMesh está diseñado desde cero como un **Centro de Mando para Flotas de Agentes**.
+Do Worker está diseñado desde cero como un **Centro de Mando para Flotas de Agentes**.
 
 La primera capa de valor es el centro de mando en sí:
 
@@ -108,8 +108,8 @@ Estamos en un punto de inflexión. Las herramientas que hemos estado usando fuer
 
 Lo que está emergiendo es algo nuevo: desarrolladores individuales con la producción de equipos enteros, comandando flotas de agentes de IA a través de centros de mando en lugar de escribir código en IDE.
 
-AgentsMesh está construido para este futuro. No como otro IDE con funcionalidades de IA añadidas, sino como el centro de mando que hace posibles las operaciones de flotas de agentes.
+Do Worker está construido para este futuro. No como otro IDE con funcionalidades de IA añadidas, sino como el centro de mando que hace posibles las operaciones de flotas de agentes.
 
 La pregunta no es si este cambio ocurrirá. Es si estarás preparado cuando suceda.
 
-[Comienza a usar AgentsMesh hoy.](https://agentsmesh.ai)
+[Comienza a usar Do Worker hoy.](https://agentsmesh.ai)

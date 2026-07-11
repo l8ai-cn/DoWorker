@@ -17,7 +17,7 @@
       "channels": "Channels",
       "meshTopology": "Topologia Mesh",
       "tickets": "Tickets",
-      "loops": "Loops",
+      "workflows": "Workflows",
       "repositories": "Repositórios",
       "repositoriesGit": "Repositórios e Git",
       "runners": "Runner",
@@ -33,7 +33,7 @@
       "apiPods": "Pods API",
       "apiTickets": "Tickets API",
       "apiChannels": "Channels API",
-      "apiLoops": "Loops API",
+      "apiWorkflows": "Workflows API",
       "apiRunners": "Runners API",
       "apiRepositories": "Repositories API",
       "tutorials": "Tutoriais",
@@ -43,7 +43,7 @@
       "tutorialFirstPod": "Seu Primeiro Pod",
       "tutorialTicketWorkflow": "Gestão de Tarefas",
       "tutorialMultiAgent": "Colaboração Multi-Agente",
-      "tutorialLoops": "Loops Automatizados",
+      "tutorialWorkflows": "Workflows Automatizados",
       "help": "Ajuda",
       "faq": "Perguntas frequentes",
       "menu": "Menu"
@@ -665,12 +665,12 @@
           "removeRepoSteps": "Removing a repository disconnects it from Do Worker. Existing Pods using this repository will not be affected, but new Pods cannot be created with it."
         }
       },
-      "loops": {
-        "title": "Loops",
+      "workflows": {
+        "title": "Workflows",
         "description": "CI/CD para tarefas de agentes IA. Defina tarefas automatizadas repet��veis e acione-as por agendamento ou via API — como cron jobs para seus agentes IA.",
         "overview": {
           "title": "Visão geral",
-          "description": "Loops permite definir uma tarefa uma vez e executá-la repetidamente. Cada Loop encapsula um Pod com um template de prompt, configuração de gatilho e política de execução. Funcionalidades principais:",
+          "description": "Workflows permite definir uma tarefa uma vez e executá-la repetidamente. Cada Workflow encapsula um Pod com um template de prompt, configuração de gatilho e política de execução. Funcionalidades principais:",
           "item1": "Agendamento cron ou execução acionada por API",
           "item2": "Modos de execução Autopilot (supervisionado) ou Direct (autônomo)",
           "item3": "Reutilização de sandbox persistente para trabalho incremental",
@@ -687,9 +687,9 @@
         },
         "triggerTypes": {
           "title": "Tipos de gatilho",
-          "description": "Loops suporta dois mecanismos de gatilho:",
+          "description": "Workflows suporta dois mecanismos de gatilho:",
           "cron": "Agendamento Cron",
-          "cronDesc": "Executar em agenda recorrente usando expressões cron padrão (ex: '0 9 * * *' para diariamente às 9h UTC). O agendador verifica a cada 30 segundos os Loops pendentes.",
+          "cronDesc": "Executar em agenda recorrente usando expressões cron padrão (ex: '0 9 * * *' para diariamente às 9h UTC). O agendador verifica a cada 30 segundos os Workflows pendentes.",
           "api": "Gatilho API",
           "apiDesc": "Acionar execuções programaticamente via HTTP POST. Passe variáveis em tempo de execução para personalizar cada execução. Ideal para pipelines CI/CD, webhooks e automação baseada em eventos."
         },
@@ -717,7 +717,7 @@
         },
         "promptTemplates": {
           "title": "Templates de prompt",
-          "description": "Use marcadores {{variable}} no seu prompt. Defina valores padrão ao criar o Loop e substitua-os no momento do acionamento. Exemplo:",
+          "description": "Use marcadores {{variable}} no seu prompt. Defina valores padrão ao criar o Workflow e substitua-os no momento do acionamento. Exemplo:",
           "example": "Revise todos os arquivos alterados na branch {{branch}} desde a última revisão. Foque em problemas de {{focus_area}}."
         },
         "webhookCallbacks": {
@@ -800,7 +800,7 @@
       },
       "mcpTools": {
         "title": "MCP Tools",
-        "description": "The Runner provides 26 MCP (Model Context Protocol) tools for AI agents to collaborate with other agents. Tools are organized into 7 categories: Discovery, Terminal, Binding, Channel, Ticket, Pod, and Loop.",
+        "description": "The Runner provides 26 MCP (Model Context Protocol) tools for AI agents to collaborate with other agents. Tools are organized into 7 categories: Discovery, Terminal, Binding, Channel, Ticket, Pod, and Workflow.",
         "overview": {
           "title": "Overview",
           "description": "MCP tools are automatically available to AI agents running in AgentPod. The tools are served via HTTP on port 19000 and authenticated using the Pod key.",
@@ -887,18 +887,18 @@
           "updateTicketDesc": "Update ticket",
           "updateTicketParams": "ticket_id, title?, status?, priority?, type?"
         },
-        "loop": {
-          "title": "Ferramentas de Loop",
-          "description": "Ferramentas para gerenciar loops automatizados — tarefas repetíveis que podem ser acionadas manualmente ou via agendamento cron.",
+        "workflow": {
+          "title": "Ferramentas de Workflow",
+          "description": "Ferramentas para gerenciar workflows automatizados — tarefas repetíveis que podem ser acionadas manualmente ou via agendamento cron.",
           "toolHeader": "Ferramenta",
           "descriptionHeader": "Descrição",
           "paramsHeader": "Parâmetros",
-          "listLoops": "list_loops",
-          "listLoopsDesc": "Listar loops automatizados na organização",
-          "listLoopsParams": "status?, query?, limit?, offset?",
-          "triggerLoop": "trigger_loop",
-          "triggerLoopDesc": "Acionar manualmente uma execução de loop",
-          "triggerLoopParams": "loop_slug (required), variables?"
+          "listWorkflows": "list_workflows",
+          "listWorkflowsDesc": "Listar workflows automatizados na organização",
+          "listWorkflowsParams": "status?, query?, limit?, offset?",
+          "triggerWorkflow": "trigger_workflow",
+          "triggerWorkflowDesc": "Acionar manualmente uma execução de workflow",
+          "triggerWorkflowParams": "workflow_slug (required), variables?"
         },
         "pod": {
           "title": "Pod Tools",
@@ -1476,39 +1476,39 @@
           }
         }
       },
-      "loops": {
-        "title": "Loops API",
-        "description": "Gerencie tarefas Loop automatizadas e suas execuções. Crie Loops, configure gatilhos e monitore a execução através da API REST.",
+      "workflows": {
+        "title": "Workflows API",
+        "description": "Gerencie tarefas Workflow automatizadas e suas execuções. Crie Workflows, configure gatilhos e monitore a execução através da API REST.",
         "endpoints": {
           "title": "Endpoints",
-          "list": "List all loops",
-          "create": "Create a new loop",
-          "get": "Get loop by slug",
-          "update": "Update a loop",
-          "delete": "Delete a loop",
-          "enable": "Enable a loop",
-          "disable": "Disable a loop",
+          "list": "List all workflows",
+          "create": "Create a new workflow",
+          "get": "Get workflow by slug",
+          "update": "Update a workflow",
+          "delete": "Delete a workflow",
+          "enable": "Enable a workflow",
+          "disable": "Disable a workflow",
           "trigger": "Manually trigger a run",
-          "listRuns": "List runs for a loop",
+          "listRuns": "List runs for a workflow",
           "getRun": "Get run details",
           "cancelRun": "Cancel an active run"
         },
         "examples": {
           "title": "Code Examples",
-          "createLoop": "Create a scheduled loop",
+          "createWorkflow": "Create a scheduled workflow",
           "triggerRun": "Trigger a run with variables"
         },
         "details": {
           "title": "Endpoint Details",
-          "listLoops": {
-            "title": "GET /loops",
-            "description": "Retrieve all loops in the organization. Returns loops sorted by creation date."
+          "listWorkflows": {
+            "title": "GET /workflows",
+            "description": "Retrieve all workflows in the organization. Returns workflows sorted by creation date."
           },
-          "createLoop": {
-            "title": "POST /loops",
-            "description": "Create a new loop with the specified configuration.",
+          "createWorkflow": {
+            "title": "POST /workflows",
+            "description": "Create a new workflow with the specified configuration.",
             "fields": {
-              "name": "Loop name (required, 1-255 characters)",
+              "name": "Workflow name (required, 1-255 characters)",
               "description": "Optional description",
               "agent_slug": "Built-in agent slug to use",
               "custom_agent_slug": "Custom agent slug (alternative to agent_slug)",
@@ -1518,7 +1518,7 @@
               "runner_id": "Preferred runner for execution",
               "branch_name": "Git branch to check out",
               "execution_mode": "autopilot or direct (default: autopilot)",
-              "cron_expression": "Cron schedule (e.g., '0 9 * * *'). If set, loop triggers on schedule",
+              "cron_expression": "Cron schedule (e.g., '0 9 * * *'). If set, workflow triggers on schedule",
               "sandbox_strategy": "persistent or fresh (default: persistent)",
               "session_persistence": "Keep agent session across runs (default: true)",
               "concurrency_policy": "skip, queue, or replace (default: skip)",
@@ -1528,59 +1528,59 @@
               "autopilot_config": "Autopilot parameters (max_iterations, iteration_timeout_sec)"
             }
           },
-          "getLoop": {
-            "title": "GET /loops/:slug",
-            "description": "Retrieve detailed information about a specific loop by its slug.",
+          "getWorkflow": {
+            "title": "GET /workflows/:slug",
+            "description": "Retrieve detailed information about a specific workflow by its slug.",
             "params": {
-              "slug": "Loop slug (auto-generated from name)"
+              "slug": "Workflow slug (auto-generated from name)"
             }
           },
-          "updateLoop": {
-            "title": "PUT /loops/:slug",
-            "description": "Update an existing loop. All fields are optional — only provided fields will be updated.",
+          "updateWorkflow": {
+            "title": "PUT /workflows/:slug",
+            "description": "Update an existing workflow. All fields are optional — only provided fields will be updated.",
             "params": {
-              "slug": "Loop slug"
+              "slug": "Workflow slug"
             }
           },
-          "deleteLoop": {
-            "title": "DELETE /loops/:slug",
-            "description": "Permanently delete a loop and all its run history. This action cannot be undone.",
+          "deleteWorkflow": {
+            "title": "DELETE /workflows/:slug",
+            "description": "Permanently delete a workflow and all its run history. This action cannot be undone.",
             "params": {
-              "slug": "Loop slug"
+              "slug": "Workflow slug"
             }
           },
-          "enableLoop": {
-            "title": "POST /loops/:slug/enable",
-            "description": "Enable a disabled loop. Re-enables cron scheduling if configured."
+          "enableWorkflow": {
+            "title": "POST /workflows/:slug/enable",
+            "description": "Enable a disabled workflow. Re-enables cron scheduling if configured."
           },
-          "disableLoop": {
-            "title": "POST /loops/:slug/disable",
-            "description": "Disable a loop. Cron scheduling is paused and manual triggers are blocked."
+          "disableWorkflow": {
+            "title": "POST /workflows/:slug/disable",
+            "description": "Disable a workflow. Cron scheduling is paused and manual triggers are blocked."
           },
-          "triggerLoop": {
-            "title": "POST /loops/:slug/trigger",
+          "triggerWorkflow": {
+            "title": "POST /workflows/:slug/trigger",
             "description": "Manually trigger a new run. Optionally pass variables to override prompt template defaults.",
             "fields": {
               "variables": "Variable overrides for the prompt template (JSON object)"
             }
           },
           "listRuns": {
-            "title": "GET /loops/:slug/runs",
-            "description": "Retrieve the run history for a loop, sorted by most recent first.",
+            "title": "GET /workflows/:slug/runs",
+            "description": "Retrieve the run history for a workflow, sorted by most recent first.",
             "params": {
               "limit": "Maximum number of results to return",
               "offset": "Number of results to skip for pagination"
             }
           },
           "getRun": {
-            "title": "GET /loops/:slug/runs/:run_id",
+            "title": "GET /workflows/:slug/runs/:run_id",
             "description": "Retrieve detailed information about a specific run.",
             "params": {
               "run_id": "Run ID"
             }
           },
           "cancelRun": {
-            "title": "POST /loops/:slug/runs/:run_id/cancel",
+            "title": "POST /workflows/:slug/runs/:run_id/cancel",
             "description": "Cancel an active run. Terminates the associated Pod and marks the run as cancelled.",
             "params": {
               "run_id": "Run ID"
@@ -1838,7 +1838,7 @@
           "item4": "Canal — Criar canais, enviar mensagens, compartilhar documentos",
           "item5": "Ticket — Pesquisar, criar e atualizar tickets",
           "item6": "Pod — Criar novos Pods, obter snapshots, enviar entrada",
-          "item7": "Loop — Listar e acionar loops automatizados",
+          "item7": "Workflow — Listar e acionar workflows automatizados",
           "autoNote": "Essas ferramentas integradas estão automaticamente disponíveis para todos os Pods — nenhuma configuração necessária."
         },
         "step1": {
@@ -1974,7 +1974,7 @@
           "description": "Parabéns! Você tem um Pod funcionando. Seu próximo passo depende do que você quer alcançar:",
           "item1": "Quero rastrear tarefas → Gestão de Tarefas — Use tickets e um quadro Kanban",
           "item2": "Quero múltiplos agentes trabalhando juntos → Colaboração Multi-Agente",
-          "item3": "Quero automatizar tarefas recorrentes → Loops Automatizados"
+          "item3": "Quero automatizar tarefas recorrentes → Workflows Automatizados"
         }
       },
       "ticketWorkflow": {
@@ -2030,7 +2030,7 @@
           "title": "Próximos Passos",
           "description": "Agora você sabe como gerenciar tarefas com tickets. Continue explorando:",
           "item1": "Colaboração Multi-Agente — Atribua múltiplos agentes a tickets relacionados",
-          "item2": "Loops Automatizados — Crie Pods automaticamente para tarefas recorrentes"
+          "item2": "Workflows Automatizados — Crie Pods automaticamente para tarefas recorrentes"
         }
       },
       "multiAgent": {
@@ -2099,29 +2099,29 @@
           "tip5": "Mantenha as descrições do channel específicas para que os agentes entendam o contexto da colaboração"
         }
       },
-      "loops": {
-        "title": "Tutorial: Automatizando com Loops",
+      "workflows": {
+        "title": "Tutorial: Automatizando com Workflows",
         "difficulty": "Intermediário — 10 minutos",
-        "description": "Aprenda como configurar loops automatizados que criam Pods em um agendamento. Loops são perfeitos para tarefas recorrentes como revisões de código, atualizações de dependências, execuções de testes e monitoramento.",
-        "whatAreLoops": {
-          "title": "O Que São Loops?",
-          "description": "Um Loop é uma automação agendada que periodicamente cria um AgentPod com uma configuração predefinida. Pense nele como um cron job para agentes IA — ele executa seu prompt em um agendamento, criando um Pod novo a cada vez.",
+        "description": "Aprenda como configurar workflows automatizados que criam Pods em um agendamento. Workflows são perfeitos para tarefas recorrentes como revisões de código, atualizações de dependências, execuções de testes e monitoramento.",
+        "whatAreWorkflows": {
+          "title": "O Que São Workflows?",
+          "description": "Um Workflow é uma automação agendada que periodicamente cria um AgentPod com uma configuração predefinida. Pense nele como um cron job para agentes IA — ele executa seu prompt em um agendamento, criando um Pod novo a cada vez.",
           "item1": "Revisões de código recorrentes — Verifique problemas de qualidade de código toda manhã",
           "item2": "Atualizações de dependências — Escaneie e atualize pacotes desatualizados semanalmente",
           "item3": "Monitoramento de testes — Execute suítes de teste e reporte falhas diariamente",
           "item4": "Documentação — Gere ou atualize documentação quando o código mudar"
         },
         "step1": {
-          "title": "Navegue até Loops",
-          "description": "Clique em Loops na barra lateral esquerda. Você verá uma lista dos seus loops existentes (vazia se esta for sua primeira vez) e um botão para criar um novo."
+          "title": "Navegue até Workflows",
+          "description": "Clique em Workflows na barra lateral esquerda. Você verá uma lista dos seus workflows existentes (vazia se esta for sua primeira vez) e um botão para criar um novo."
         },
         "step2": {
-          "title": "Crie um Novo Loop",
-          "description": "Clique em Novo Loop e configure a automação:",
-          "fields": "Preencha as configurações do loop:",
+          "title": "Crie um Novo Workflow",
+          "description": "Clique em Novo Workflow e configure a automação:",
+          "fields": "Preencha as configurações do workflow:",
           "field1": "Nome — Um nome descritivo, ex.: \"Revisão de Código Diária\"",
           "field2": "Agente — O agente IA a ser usado (ex.: Claude Code)",
-          "field3": "Runner — Qual Runner deve executar o loop",
+          "field3": "Runner — Qual Runner deve executar o workflow",
           "field4": "Repositório — O repositório para o agente trabalhar",
           "field5": "Branch — A branch para checkout (padrão é main)",
           "field6": "Prompt — A tarefa para o agente, ex.: \"Revise os commits recentes quanto a problemas de qualidade de código. Verifique vulnerabilidades de segurança, problemas de performance e inconsistências de estilo. Publique um resumo no channel.\"",
@@ -2129,32 +2129,32 @@
         },
         "step3": {
           "title": "Configure o Agendamento",
-          "description": "Loops usam expressões cron para agendamento. Aqui estão padrões comuns:",
+          "description": "Workflows usam expressões cron para agendamento. Aqui estão padrões comuns:",
           "pattern1": "Todo dia às 9h — 0 9 * * *",
           "pattern2": "Toda segunda-feira às 8h — 0 8 * * 1",
           "pattern3": "A cada 6 horas — 0 */6 * * *",
           "pattern4": "Dias úteis às 10h — 0 10 * * 1-5",
-          "tip": "O painel do loop mostra o próximo horário de execução agendado para que você possa verificar sua expressão cron."
+          "tip": "O painel do workflow mostra o próximo horário de execução agendado para que você possa verificar sua expressão cron."
         },
         "step4": {
-          "title": "Monitore as Execuções do Loop",
-          "description": "Após criar um loop, você pode monitorar sua atividade:",
-          "item1": "Painel de Loops — Veja todos os loops com status, última execução e próxima execução agendada",
-          "item2": "Histórico de Execuções — Clique em um loop para ver o histórico de Pods que ele criou",
+          "title": "Monitore as Execuções do Workflow",
+          "description": "Após criar um workflow, você pode monitorar sua atividade:",
+          "item1": "Painel de Workflows — Veja todos os workflows com status, última execução e próxima execução agendada",
+          "item2": "Histórico de Execuções — Clique em um workflow para ver o histórico de Pods que ele criou",
           "item3": "Resultados do Pod — Cada execução cria um Pod que você pode inspecionar para saída do terminal e alterações git",
-          "item4": "Notificações — Configure vinculações de channel para receber resultados do loop em um channel"
+          "item4": "Notificações — Configure vinculações de channel para receber resultados do workflow em um channel"
         },
         "step5": {
-          "title": "Gerencie Seus Loops",
-          "description": "Você pode gerenciar loops a partir do painel de Loops:",
-          "item1": "Pausar — Pare temporariamente um loop de criar novos Pods sem excluí-lo",
-          "item2": "Retomar — Reinicie um loop pausado",
+          "title": "Gerencie Seus Workflows",
+          "description": "Você pode gerenciar workflows a partir do painel de Workflows:",
+          "item1": "Pausar — Pare temporariamente um workflow de criar novos Pods sem excluí-lo",
+          "item2": "Retomar — Reinicie um workflow pausado",
           "item3": "Editar — Atualize o prompt, agendamento ou configuração",
           "item4": "Executar Agora — Acione uma execução imediata sem esperar pelo próximo agendamento",
-          "item5": "Excluir — Remova permanentemente um loop"
+          "item5": "Excluir — Remova permanentemente um workflow"
         },
         "commonPatterns": {
-          "title": "Padrões Comuns de Loops",
+          "title": "Padrões Comuns de Workflows",
           "pattern1": {
             "title": "Revisão de Código Matinal",
             "description": "Execute diariamente às 9h para revisar os commits do dia anterior. O agente verifica qualidade de código, problemas de segurança e publica um resumo no channel da equipe."
@@ -2170,9 +2170,9 @@
         },
         "nextSteps": {
           "title": "Próximos Passos",
-          "description": "Você configurou seu primeiro loop automatizado. Explore mais:",
-          "item1": "Colaboração Multi-Agente — Combine loops com channels para pipelines multi-agente automatizados",
-          "item2": "Gestão de Tarefas — Use tickets para rastrear problemas encontrados por loops"
+          "description": "Você configurou seu primeiro workflow automatizado. Explore mais:",
+          "item1": "Colaboração Multi-Agente — Combine workflows com channels para pipelines multi-agente automatizados",
+          "item2": "Gestão de Tarefas — Use tickets para rastrear problemas encontrados por workflows"
         }
       }
     }

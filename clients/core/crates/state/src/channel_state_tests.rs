@@ -1,14 +1,29 @@
-use std::collections::HashMap;
 use crate::channel_state::{ChannelSortMode, ChannelState};
 use crate::channel_types::{Channel, ChannelMessage, SenderAgentInfo, SenderPodInfo, User};
+use std::collections::HashMap;
 
 fn ch(id: i64, name: &str) -> Channel {
-    Channel { id, name: name.into(), ..Default::default() }
+    Channel {
+        id,
+        name: name.into(),
+        ..Default::default()
+    }
 }
 fn msg(id: i64, channel: i64, content: &str) -> ChannelMessage {
-    ChannelMessage { id, channel_id: channel, body: content.into(), ..Default::default() }
+    ChannelMessage {
+        id,
+        channel_id: channel,
+        body: content.into(),
+        ..Default::default()
+    }
 }
-fn msg_with_sender(id: i64, ch: i64, content: &str, user_id: i64, username: &str) -> ChannelMessage {
+fn msg_with_sender(
+    id: i64,
+    ch: i64,
+    content: &str,
+    user_id: i64,
+    username: &str,
+) -> ChannelMessage {
     let mut m = msg(id, ch, content);
     m.sender_user_id = Some(user_id);
     m.sender_user = Some(user(user_id, username));
@@ -23,20 +38,107 @@ fn msg_with_time(id: i64, ch: i64, content: &str, time: &str) -> ChannelMessage 
 
 // ── Basic operations (existing) ──
 
-#[test] fn new_state() { let s = ChannelState::new(); assert!(s.get_channels().is_empty()); assert!(s.get_current_channel().is_none()); }
-#[test] fn set_channels() { let mut s = ChannelState::new(); s.set_channels(vec![ch(1,"gen"), ch(2,"dev")]); assert_eq!(s.get_channels().len(), 2); }
-#[test] fn set_current_channel() { let mut s = ChannelState::new(); s.set_channels(vec![ch(1,"gen")]); s.set_current_channel(Some(1)); assert_eq!(s.get_current_channel().unwrap().name, "gen"); s.set_current_channel(Some(99)); assert!(s.get_current_channel().is_none()); }
-#[test] fn add_message() { let mut s = ChannelState::new(); s.add_message(1, msg(100,1,"hi")); assert_eq!(s.get_messages(1).unwrap().messages.len(), 1); }
-#[test] fn add_message_dedup() { let mut s = ChannelState::new(); s.add_message(1, msg(100,1,"hi")); s.add_message(1, msg(100,1,"dup")); assert_eq!(s.get_messages(1).unwrap().messages.len(), 1); }
-#[test] fn add_message_returns_true_for_new() { let mut s = ChannelState::new(); assert!(s.add_message(1, msg(100,1,"hi"))); assert!(!s.add_message(1, msg(100,1,"dup"))); }
-#[test] fn update_message() { let mut s = ChannelState::new(); s.add_message(1, msg(100,1,"old")); s.update_message(1, msg(100,1,"new")); assert_eq!(s.get_messages(1).unwrap().messages[0].body, "new"); }
-#[test] fn update_message_no_cache() { let mut s = ChannelState::new(); s.update_message(1, msg(100,1,"x")); assert!(s.get_messages(1).is_none()); }
-#[test] fn remove_message() { let mut s = ChannelState::new(); s.add_message(1, msg(100,1,"a")); s.add_message(1, msg(101,1,"b")); s.remove_message(1, 100); assert_eq!(s.get_messages(1).unwrap().messages.len(), 1); }
-#[test] fn set_messages() { let mut s = ChannelState::new(); s.set_messages(1, vec![msg(1,1,"a"), msg(2,1,"b")], true); let c = s.get_messages(1).unwrap(); assert_eq!(c.messages.len(), 2); assert!(c.has_more); }
-#[test] fn unread_counts() { let mut s = ChannelState::new(); s.set_channels(vec![ch(1,"a")]); assert_eq!(s.get_unread_count(1), 0); s.increment_unread(1); s.increment_unread(1); assert_eq!(s.get_unread_count(1), 2); s.clear_channel_unread(1); assert_eq!(s.get_unread_count(1), 0); }
-#[test] fn set_unread_counts() { let mut s = ChannelState::new(); s.set_channels(vec![ch(1,"a"), ch(2,"b")]); let mut c = HashMap::new(); c.insert(1,5); c.insert(2,3); s.set_unread_counts(c); assert_eq!(s.get_unread_count(1), 5); assert_eq!(s.get_unread_count(2), 3); }
-#[test] fn get_messages_no_cache() { let s = ChannelState::new(); assert!(s.get_messages(99).is_none()); }
-#[test] fn default_impl() { let s = ChannelState::default(); assert!(s.get_channels().is_empty()); }
+#[test]
+fn new_state() {
+    let s = ChannelState::new();
+    assert!(s.get_channels().is_empty());
+    assert!(s.get_current_channel().is_none());
+}
+#[test]
+fn set_channels() {
+    let mut s = ChannelState::new();
+    s.set_channels(vec![ch(1, "gen"), ch(2, "dev")]);
+    assert_eq!(s.get_channels().len(), 2);
+}
+#[test]
+fn set_current_channel() {
+    let mut s = ChannelState::new();
+    s.set_channels(vec![ch(1, "gen")]);
+    s.set_current_channel(Some(1));
+    assert_eq!(s.get_current_channel().unwrap().name, "gen");
+    s.set_current_channel(Some(99));
+    assert!(s.get_current_channel().is_none());
+}
+#[test]
+fn add_message() {
+    let mut s = ChannelState::new();
+    s.add_message(1, msg(100, 1, "hi"));
+    assert_eq!(s.get_messages(1).unwrap().messages.len(), 1);
+}
+#[test]
+fn add_message_dedup() {
+    let mut s = ChannelState::new();
+    s.add_message(1, msg(100, 1, "hi"));
+    s.add_message(1, msg(100, 1, "dup"));
+    assert_eq!(s.get_messages(1).unwrap().messages.len(), 1);
+}
+#[test]
+fn add_message_returns_true_for_new() {
+    let mut s = ChannelState::new();
+    assert!(s.add_message(1, msg(100, 1, "hi")));
+    assert!(!s.add_message(1, msg(100, 1, "dup")));
+}
+#[test]
+fn update_message() {
+    let mut s = ChannelState::new();
+    s.add_message(1, msg(100, 1, "old"));
+    s.update_message(1, msg(100, 1, "new"));
+    assert_eq!(s.get_messages(1).unwrap().messages[0].body, "new");
+}
+#[test]
+fn update_message_no_cache() {
+    let mut s = ChannelState::new();
+    s.update_message(1, msg(100, 1, "x"));
+    assert!(s.get_messages(1).is_none());
+}
+#[test]
+fn remove_message() {
+    let mut s = ChannelState::new();
+    s.add_message(1, msg(100, 1, "a"));
+    s.add_message(1, msg(101, 1, "b"));
+    s.remove_message(1, 100);
+    assert_eq!(s.get_messages(1).unwrap().messages.len(), 1);
+}
+#[test]
+fn set_messages() {
+    let mut s = ChannelState::new();
+    s.set_messages(1, vec![msg(1, 1, "a"), msg(2, 1, "b")], true);
+    let c = s.get_messages(1).unwrap();
+    assert_eq!(c.messages.len(), 2);
+    assert!(c.has_more);
+}
+#[test]
+fn unread_counts() {
+    let mut s = ChannelState::new();
+    s.set_channels(vec![ch(1, "a")]);
+    assert_eq!(s.get_unread_count(1), 0);
+    s.increment_unread(1);
+    s.increment_unread(1);
+    assert_eq!(s.get_unread_count(1), 2);
+    s.clear_channel_unread(1);
+    assert_eq!(s.get_unread_count(1), 0);
+}
+#[test]
+fn set_unread_counts() {
+    let mut s = ChannelState::new();
+    s.set_channels(vec![ch(1, "a"), ch(2, "b")]);
+    let mut c = HashMap::new();
+    c.insert(1, 5);
+    c.insert(2, 3);
+    s.set_unread_counts(c);
+    assert_eq!(s.get_unread_count(1), 5);
+    assert_eq!(s.get_unread_count(2), 3);
+}
+#[test]
+fn get_messages_no_cache() {
+    let s = ChannelState::new();
+    assert!(s.get_messages(99).is_none());
+}
+#[test]
+fn default_impl() {
+    let s = ChannelState::default();
+    assert!(s.get_channels().is_empty());
+}
 
 // ── on_new_message ──
 
@@ -208,7 +310,11 @@ fn sorted_by_name() {
 #[test]
 fn sorted_unread_first() {
     let mut s = ChannelState::new();
-    s.set_channels(vec![ch(1, "no-unread"), ch(2, "has-unread"), ch(3, "also-unread")]);
+    s.set_channels(vec![
+        ch(1, "no-unread"),
+        ch(2, "has-unread"),
+        ch(3, "also-unread"),
+    ]);
     s.increment_unread(2);
     s.increment_unread(3);
     // Give channel 3 an older last message than channel 2
@@ -236,10 +342,14 @@ fn sorted_channels_without_messages_come_last() {
 fn set_messages_updates_preview() {
     let mut s = ChannelState::new();
     s.set_channels(vec![ch(1, "gen")]);
-    s.set_messages(1, vec![
-        msg_with_time(1, 1, "first", "2026-01-01T00:00:00Z"),
-        msg_with_time(2, 1, "last", "2026-01-01T00:00:01Z"),
-    ], false);
+    s.set_messages(
+        1,
+        vec![
+            msg_with_time(1, 1, "first", "2026-01-01T00:00:00Z"),
+            msg_with_time(2, 1, "last", "2026-01-01T00:00:01Z"),
+        ],
+        false,
+    );
     let preview = s.get_last_message(1).unwrap();
     assert_eq!(preview.content_preview, "last");
 }
@@ -275,7 +385,10 @@ fn preview_sender_from_pod_info() {
     m.sender_pod_info = Some(SenderPodInfo {
         pod_key: "pod-abc".into(),
         alias: Some("my-agent".into()),
-        agent: Some(SenderAgentInfo { name: "claude".into(), ..Default::default() }),
+        agent: Some(SenderAgentInfo {
+            name: "claude".into(),
+            ..Default::default()
+        }),
     });
     let preview = ChannelState::make_preview(&m);
     assert_eq!(preview.sender_name, "my-agent");
@@ -287,7 +400,10 @@ fn preview_sender_from_pod_agent_when_no_alias() {
     m.sender_pod_info = Some(SenderPodInfo {
         pod_key: "pod-abc".into(),
         alias: None,
-        agent: Some(SenderAgentInfo { name: "claude".into(), ..Default::default() }),
+        agent: Some(SenderAgentInfo {
+            name: "claude".into(),
+            ..Default::default()
+        }),
     });
     let preview = ChannelState::make_preview(&m);
     assert_eq!(preview.sender_name, "claude");
@@ -325,7 +441,11 @@ fn prepend_messages_merges_and_deduplicates() {
     // Existing: messages 5, 6
     s.set_messages(1, vec![msg(5, 1, "e"), msg(6, 1, "f")], true);
     // Prepend: messages 3, 4, 5 (5 is duplicate)
-    s.prepend_messages(1, vec![msg(3, 1, "c"), msg(4, 1, "d"), msg(5, 1, "dup")], false);
+    s.prepend_messages(
+        1,
+        vec![msg(3, 1, "c"), msg(4, 1, "d"), msg(5, 1, "dup")],
+        false,
+    );
     let cache = s.get_messages(1).unwrap();
     assert_eq!(cache.messages.len(), 4); // 3, 4, 5, 6
     let ids: Vec<i64> = cache.messages.iter().map(|m| m.id).collect();
@@ -337,8 +457,18 @@ fn prepend_messages_merges_and_deduplicates() {
 fn prepend_messages_maintains_ascending_order() {
     let mut s = ChannelState::new();
     s.set_messages(1, vec![msg(10, 1, "j")], true);
-    s.prepend_messages(1, vec![msg(7, 1, "g"), msg(9, 1, "i"), msg(8, 1, "h")], true);
-    let ids: Vec<i64> = s.get_messages(1).unwrap().messages.iter().map(|m| m.id).collect();
+    s.prepend_messages(
+        1,
+        vec![msg(7, 1, "g"), msg(9, 1, "i"), msg(8, 1, "h")],
+        true,
+    );
+    let ids: Vec<i64> = s
+        .get_messages(1)
+        .unwrap()
+        .messages
+        .iter()
+        .map(|m| m.id)
+        .collect();
     assert_eq!(ids, vec![7, 8, 9, 10]);
 }
 
@@ -356,7 +486,7 @@ fn prepend_messages_to_empty_cache() {
 #[test]
 fn mention_count_tracking() {
     let mut s = ChannelState::new();
-    s.set_channels(vec![ch(1,"a"), ch(2,"b")]);
+    s.set_channels(vec![ch(1, "a"), ch(2, "b")]);
     assert_eq!(s.get_mention_count(1), 0);
     s.increment_mention(1);
     s.increment_mention(1);
@@ -468,7 +598,10 @@ fn update_channel_in_place() {
     updated.description = Some("updated desc".into());
     s.update_channel(1, updated);
     assert_eq!(s.get_channel(1).unwrap().name, "new");
-    assert_eq!(s.get_channel(1).unwrap().description.as_deref(), Some("updated desc"));
+    assert_eq!(
+        s.get_channel(1).unwrap().description.as_deref(),
+        Some("updated desc")
+    );
     assert_eq!(s.get_channels().len(), 2); // no duplication
 }
 
@@ -594,7 +727,7 @@ fn select_channel_nonexistent() {
 #[test]
 fn get_all_unread_counts() {
     let mut s = ChannelState::new();
-    s.set_channels(vec![ch(1,"a"), ch(2,"b")]);
+    s.set_channels(vec![ch(1, "a"), ch(2, "b")]);
     s.increment_unread(1);
     s.increment_unread(1);
     s.increment_unread(2);
@@ -607,7 +740,7 @@ fn get_all_unread_counts() {
 #[test]
 fn get_all_mention_counts() {
     let mut s = ChannelState::new();
-    s.set_channels(vec![ch(1,"a"), ch(3,"c")]);
+    s.set_channels(vec![ch(1, "a"), ch(3, "c")]);
     s.increment_mention(1);
     s.increment_mention(3);
     let counts = s.get_all_mention_counts();

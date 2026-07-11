@@ -130,40 +130,11 @@ func validatePreparedWorkerSpec(
 	if !bytes.Equal(encoded, prepared.Snapshot.SpecJSON()) {
 		return ErrInvalidPreparedWorkerSpec
 	}
-	repositoryID := prepared.Spec.Workspace.RepositoryID
-	if repositoryID == nil {
-		if prepared.Repository != nil {
-			return ErrInvalidPreparedWorkerSpec
-		}
-		return nil
-	}
-	if prepared.Repository == nil ||
-		prepared.Repository.ID != *repositoryID ||
-		prepared.Repository.OrganizationID != organizationID ||
-		!prepared.Repository.IsActive {
-		return ErrInvalidPreparedWorkerSpec
-	}
-	return nil
-}
-
-func projectPreparedWorkerSpec(
-	req *OrchestrateCreatePodRequest,
-	prepared workercreation.Prepared,
-) {
-	spec := prepared.Spec
-	req.AgentSlug = spec.Runtime.WorkerType.Slug.String()
-	req.ModelResourceID = workerSpecInt64Pointer(spec.Runtime.ModelBinding.ResourceID)
-	req.RepositoryID = cloneWorkerSpecInt64Pointer(spec.Workspace.RepositoryID)
-	req.BranchName = workerSpecStringPointer(spec.Workspace.Branch)
-	req.Alias = workerSpecStringPointer(spec.Metadata.Alias)
-	req.AutomationLevel = string(spec.TypeConfig.AutomationLevel)
-	req.AgentfileLayer = workerSpecStringPointer(prepared.AgentfileLayer)
-	req.resolvedWorkerSpec = &prepared.Snapshot
-	req.preparedWorkerSpec = &spec
-	req.preResolvedRepository = prepared.Repository
-	if prepared.Repository != nil {
-		req.preResolvedRepositorySlug = prepared.Repository.Slug
-	}
+	return validatePreparedWorkerRepository(
+		organizationID,
+		prepared.Spec.Workspace.RepositoryID,
+		prepared.Repository,
+	)
 }
 
 func int64PointersEqual(left, right *int64) bool {

@@ -10,7 +10,7 @@ use crate::autopilot_state::AutopilotState;
 use crate::channel_state::ChannelState;
 use crate::event_dispatch;
 use crate::expert_state::ExpertState;
-use crate::loop_state::LoopState;
+use crate::workflow_state::WorkflowState;
 use crate::loopal_session::LoopalSessionManager;
 use crate::mesh_state::MeshState;
 use crate::pod_state::PodState;
@@ -51,7 +51,7 @@ pub struct AppState {
     pub channels: ChannelState,
     pub runners: RunnerState,
     pub tickets: TicketState,
-    pub loops: LoopState,
+    pub workflows: WorkflowState,
     pub mesh: MeshState,
     pub autopilot: AutopilotState,
     pub acp: AcpSessionManager,
@@ -59,7 +59,7 @@ pub struct AppState {
     pub repo: RepoState,
     pub experts: ExpertState,
 
-    /// Toast notifications queued by dispatch (loop_run:warning,
+    /// Toast notifications queued by dispatch (workflow_run:warning,
     /// system:maintenance, etc). Drained per-tick by platform consumers.
     pub pending_toasts: Vec<ToastSpec>,
     /// Browser/OS-level notifications queued by `notification` events.
@@ -88,7 +88,7 @@ impl AppState {
             channels: ChannelState::new(),
             runners: RunnerState::new(),
             tickets: TicketState::new(),
-            loops: LoopState::new(),
+            workflows: WorkflowState::new(),
             mesh: MeshState::default(),
             autopilot: AutopilotState::default(),
             acp: AcpSessionManager::new(),
@@ -110,7 +110,7 @@ impl AppState {
             channels: ChannelState::with_storage(backend.clone()),
             runners: RunnerState::with_storage(backend.clone()),
             tickets: TicketState::with_storage(backend.clone()),
-            loops: LoopState::with_storage(backend.clone()),
+            workflows: WorkflowState::with_storage(backend.clone()),
             mesh: MeshState::default(),
             autopilot: AutopilotState::default(),
             acp: AcpSessionManager::new(),
@@ -166,7 +166,7 @@ impl AppState {
         self.channels = ChannelState::new();
         self.runners = RunnerState::new();
         self.tickets = TicketState::new();
-        self.loops = LoopState::new();
+        self.workflows = WorkflowState::new();
         self.mesh = MeshState::default();
         self.autopilot = AutopilotState::default();
         self.experts = ExpertState::new();
@@ -203,7 +203,8 @@ impl AppRuntime {
 
     pub fn with_state(events: Arc<EventSubscriptionManager>, state: AppState) -> Arc<Self> {
         let state = Arc::new(RwLock::new(state));
-        let hook: Arc<dyn EventDispatchHook> = Arc::new(AppStateDispatchHook::new(Arc::clone(&state)));
+        let hook: Arc<dyn EventDispatchHook> =
+            Arc::new(AppStateDispatchHook::new(Arc::clone(&state)));
         events.set_dispatch_hook(hook);
         Arc::new(Self { state, events })
     }

@@ -109,14 +109,16 @@ pub mod proto_license_v1 {
     pub use ::license_proto::proto::license::v1::*;
 }
 
-// `loop` is a Rust keyword; the prost-generated module uses the `r#loop`
-// raw identifier and we forward that through the re-export.
-pub mod proto_loop_v1 {
-    pub use ::loop_proto::proto::r#loop::v1::*;
+pub mod proto_goalloop_v1 {
+    pub use ::goalloop_proto::proto::goalloop::v1::*;
 }
 
-pub mod proto_loop_state_v1 {
-    pub use ::loop_state_proto::proto::loop_state::v1::*;
+pub mod proto_workflow_v1 {
+    pub use ::workflow_proto::proto::workflow::v1::*;
+}
+
+pub mod proto_workflow_state_v1 {
+    pub use ::workflow_state_proto::proto::workflow_state::v1::*;
 }
 
 pub mod proto_mesh_v1 {

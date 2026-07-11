@@ -50,7 +50,7 @@ func (s *Server) UpdateCustomAgent(
 }
 
 // DeleteCustomAgent mirrors REST `DeleteCustomAgent` (agents_custom.go:106).
-// Returns FailedPrecondition when loops reference the agent (REST returns 409,
+// Returns FailedPrecondition when workflows reference the agent (REST returns 409,
 // but FailedPrecondition is the closest Connect code per conventions §10).
 func (s *Server) DeleteCustomAgent(
 	ctx context.Context, req *connect.Request[agentv1.DeleteCustomAgentRequest],
@@ -70,7 +70,7 @@ func (s *Server) DeleteCustomAgent(
 		switch {
 		case errors.Is(err, agentservice.ErrAgentNotFound):
 			return nil, connect.NewError(connect.CodeNotFound, err)
-		case errors.Is(err, agentservice.ErrAgentHasLoopRefs):
+		case errors.Is(err, agentservice.ErrAgentHasWorkflowRefs):
 			return nil, connect.NewError(connect.CodeFailedPrecondition, err)
 		default:
 			return nil, connect.NewError(connect.CodeInternal, err)

@@ -17,7 +17,7 @@
       "channels": "频道",
       "meshTopology": "Mesh 拓扑",
       "tickets": "任务管理",
-      "loops": "循环任务",
+      "workflows": "循环任务",
       "repositories": "仓库管理",
       "repositoriesGit": "仓库与 Git 集成",
       "agentfile": "AgentFile",
@@ -35,7 +35,7 @@
       "apiPods": "Pods API",
       "apiTickets": "任务 API",
       "apiChannels": "Channels API",
-      "apiLoops": "Loops API",
+      "apiWorkflows": "Workflows API",
       "apiRunners": "Runners API",
       "apiRepositories": "Repositories API",
       "tutorials": "教程",
@@ -45,20 +45,20 @@
       "tutorialFirstPod": "创建你的第一个 Pod",
       "tutorialTicketWorkflow": "任务管理",
       "tutorialMultiAgent": "多智能体协作",
-      "tutorialLoops": "自动化循环",
+      "tutorialWorkflows": "自动化循环",
       "help": "帮助",
       "faq": "常见问题",
       "menu": "菜单"
     },
     "intro": {
       "title": "简介",
-      "description": "AgentsMesh 是一个 AI 智能体编排指挥中心，帮助团队大规模协调 Claude Code、Codex CLI、Gemini CLI 和 Aider 等 AI 编程智能体。管理远程 AI 工作站（AgentPod）、协调多智能体协作（AgentsMesh）、通过集成任务管理跟踪进度——一切尽在一个平台。",
+      "description": "Do Worker 是一个 AI 智能体编排指挥中心，帮助团队大规模协调 Claude Code、Codex CLI、Gemini CLI 和 Aider 等 AI 编程智能体。管理远程 AI 工作站（AgentPod）、协调多智能体协作（Do Worker）、通过集成任务管理跟踪进度——一切尽在一个平台。",
       "supportedAgents": "支持的 AI 智能体：",
       "customAgents": "通过 MCP 协议自定义智能体"
     },
     "architecture": {
       "title": "工作原理",
-      "description": "AgentsMesh 让你通过浏览器控制在任何地方运行的 AI 智能体——无论是你的笔记本电脑、服务器还是云虚拟机。命令通过加密连接安全传输，终端输出实时推流。你的代码永远不会离开你的基础设施。",
+      "description": "Do Worker 让你通过浏览器控制在任何地方运行的 AI 智能体——无论是你的笔记本电脑、服务器还是云虚拟机。命令通过加密连接安全传输，终端输出实时推流。你的代码永远不会离开你的基础设施。",
       "clientLayer": "客户端层",
       "clientSubtitle": "随时随地访问——浏览器、手机或平板",
       "cloudLayer": "云端",
@@ -87,7 +87,7 @@
     },
     "whatYouCanDo": {
       "title": "你可以做什么",
-      "description": "AgentsMesh 为你的团队赋予 AI 驱动开发的超能力。",
+      "description": "Do Worker 为你的团队赋予 AI 驱动开发的超能力。",
       "orchestrate": {
         "title": "编排多个 AI 智能体",
         "description": "协调 Claude Code、Codex CLI、Gemini CLI、Aider 等智能体，通过频道和 Pod 绑定协同工作。"
@@ -111,21 +111,21 @@
       "quickStartDesc": "5 分钟内快速启动",
       "agentpod": "AgentPod",
       "agentpodDesc": "远程 AI 开发工作站",
-      "agentsmesh": "AgentsMesh",
+      "agentsmesh": "Do Worker",
       "agentsmeshDesc": "多智能体协作网络",
       "mcpTools": "MCP 工具",
       "mcpToolsDesc": "26 个 AI 智能体工具"
     },
     "concepts": {
       "title": "核心概念",
-      "description": "了解 AgentsMesh 的基础概念，充分利用平台功能。",
+      "description": "了解 Do Worker 的基础概念，充分利用平台功能。",
       "architecture": {
         "title": "架构概述",
-        "description": "AgentsMesh 采用分层架构，组织管理团队，Runner 提供计算资源，Pod 执行 AI 智能体。",
+        "description": "Do Worker 采用分层架构，组织管理团队，Runner 提供计算资源，Pod 执行 AI 智能体。",
         "orgTitle": "组织 (Organization)",
         "orgDesc": "顶层实体。每个组织拥有独立的成员、设置、运行节点和计费。团队可以邀请不同角色的成员加入。",
         "runnerTitle": "运行节点 (Runner)",
-        "runnerDesc": "自托管的守护进程，通过 gRPC + mTLS 连接到 AgentsMesh 后端。Runner 提供 Pod 执行所需的计算环境。你可以在不同机器上运行多个 Runner。",
+        "runnerDesc": "自托管的守护进程，通过 gRPC + mTLS 连接到 Do Worker 后端。Runner 提供 Pod 执行所需的计算环境。你可以在不同机器上运行多个 Runner。",
         "podTitle": "Pod (AgentPod)",
         "podDesc": "隔离的执行环境，AI 编程智能体在其中运行。每个 Pod 拥有独立的 PTY 终端、沙箱和可选的 Git 工作树。Pod 在 Runner 上创建，通过 Web 界面管理。",
         "channelTitle": "频道 (Channel)",
@@ -135,7 +135,7 @@
       },
       "byok": {
         "title": "BYOK（自带密钥）",
-        "description": "AgentsMesh 采用 BYOK 模式——你需要提供自己的 AI 服务商 API 密钥（Anthropic、OpenAI、Google 等）。你的 API 密钥在静态存储时加密，绝不会被共享。这意味着你对成本和模型选择拥有完全控制权。"
+        "description": "Do Worker 采用 BYOK 模式——你需要提供自己的 AI 服务商 API 密钥（Anthropic、OpenAI、Google 等）。你的 API 密钥在静态存储时加密，绝不会被共享。这意味着你对成本和模型选择拥有完全控制权。"
       },
       "mtls": {
         "title": "mTLS 安全通信",
@@ -147,14 +147,14 @@
       },
       "mcp": {
         "title": "MCP（模型上下文协议）",
-        "description": "AgentsMesh 提供 26 个 MCP 工具，AI 智能体可以用它们来发现资源、与其他 Pod 通信、管理任务和控制终端。MCP 服务器运行在每个 Runner 上，并为 Claude Code 等支持的智能体自动配置。"
+        "description": "Do Worker 提供 26 个 MCP 工具，AI 智能体可以用它们来发现资源、与其他 Pod 通信、管理任务和控制终端。MCP 服务器运行在每个 Runner 上，并为 Claude Code 等支持的智能体自动配置。"
       },
       "repositoriesGit": {
         "title": "仓库与 Git 集成",
-        "description": "将你的 Git 仓库连接到 AgentsMesh，配置提供商访问权限，实现无缝的 AI 驱动开发工作流。",
+        "description": "将你的 Git 仓库连接到 Do Worker，配置提供商访问权限，实现无缝的 AI 驱动开发工作流。",
         "overview": {
           "title": "概述",
-          "description": "仓库将你的 Git 项目关联到平台。当使用关联仓库创建 Pod 时，Runner 会自动克隆项目并设置隔离的 Git 工作树。AgentsMesh 集成了主流 Git 托管平台，为 AI 智能体提供无缝的仓库访问。"
+          "description": "仓库将你的 Git 项目关联到平台。当使用关联仓库创建 Pod 时，Runner 会自动克隆项目并设置隔离的 Git 工作树。Do Worker 集成了主流 Git 托管平台，为 AI 智能体提供无缝的仓库访问。"
         },
         "providers": {
           "title": "支持的 Git 提供商",
@@ -173,10 +173,10 @@
           "step1": "在 GitHub 中，前往 Settings → Developer settings → Personal access tokens → Fine-grained tokens",
           "step2": "点击 Generate new token 并选择你要授权访问的仓库",
           "step3": "授予仓库权限：至少选择 Contents（只读）和 Metadata（只读）",
-          "step4": "在 AgentsMesh 中，前往 设置 → 个人 → Git 设置",
+          "step4": "在 Do Worker 中，前往 设置 → 个人 → Git 设置",
           "step5": "点击 添加 GitHub 提供商 并粘贴你的令牌",
           "oauthTitle": "方式 B：OAuth（仅限 GitHub 注册用户）",
-          "oauthDesc": "如果你使用 GitHub 账户注册了 AgentsMesh，可以使用 OAuth 连接：",
+          "oauthDesc": "如果你使用 GitHub 账户注册了 Do Worker，可以使用 OAuth 连接：",
           "oauthStep1": "前往 设置 → 个人 → Git 设置",
           "oauthStep2": "点击 连接 GitHub — 你的账户已通过 OAuth 关联",
           "oauthStep3": "选择要授权访问的仓库",
@@ -187,7 +187,7 @@
           "description": "使用个人访问令牌连接 GitLab：",
           "step1": "在 GitLab 中，前往 设置 → 访问令牌",
           "step2": "创建一个具有 api 和 read_repository 权限的新令牌",
-          "step3": "在 AgentsMesh 中，前往 设置 → 个人 → Git 设置",
+          "step3": "在 Do Worker 中，前往 设置 → 个人 → Git 设置",
           "step4": "点击 添加 GitLab 提供商 并粘贴你的令牌",
           "step5": "输入你的 GitLab 实例 URL（适用于自托管）",
           "selfHosted": "自托管 GitLab：输入你的 GitLab 实例的完整 URL（例如 https://gitlab.yourcompany.com）。"
@@ -197,7 +197,7 @@
           "description": "使用个人访问令牌连接 Gitee：",
           "step1": "在 Gitee 中，前往 设置 → 个人访问令牌",
           "step2": "创建一个具有 projects 权限的新令牌",
-          "step3": "在 AgentsMesh 中，前往 设置 → 个人 → Git 设置",
+          "step3": "在 Do Worker 中，前往 设置 → 个人 → Git 设置",
           "step4": "点击 添加 Gitee 提供商 并粘贴你的令牌"
         },
         "sshKeys": {
@@ -225,7 +225,7 @@
           "addRepo": "添加仓库",
           "addRepoSteps": "前往 设置 → 仓库 → 添加仓库。选择你的 Git 提供商，完成认证，然后选择要连接的仓库。",
           "removeRepo": "移除仓库",
-          "removeRepoSteps": "移除仓库会断开其与 AgentsMesh 的连接。已使用该仓库的现有 Pod 不受影响，但无法再使用该仓库创建新 Pod。"
+          "removeRepoSteps": "移除仓库会断开其与 Do Worker 的连接。已使用该仓库的现有 Pod 不受影响，但无法再使用该仓库创建新 Pod。"
         }
       },
       "agentfile": {
@@ -233,7 +233,7 @@
         "description": "AgentFile 完整参考 — 用于定义 AI 智能体执行环境配置的领域特定语言 (DSL)。",
         "whatIs": {
           "title": "什么是 AgentFile？",
-          "description": "AgentFile 是一种声明式 DSL，用于配置 AI 智能体的执行环境，类似于 Dockerfile 定义容器构建。AgentsMesh 中的每个智能体都有一个 AgentFile，指定启动智能体所需的 CLI 命令、环境变量、配置选项和构建逻辑。"
+          "description": "AgentFile 是一种声明式 DSL，用于配置 AI 智能体的执行环境，类似于 Dockerfile 定义容器构建。Do Worker 中的每个智能体都有一个 AgentFile，指定启动智能体所需的 CLI 命令、环境变量、配置选项和构建逻辑。"
         },
         "structure": {
           "title": "结构",
@@ -304,7 +304,7 @@
         "description": "AgentFile Layer 允许你在每个 Pod 的基础上覆盖智能体配置，无需修改基础 AgentFile。",
         "whatIs": {
           "title": "什么是 AgentFile Layer？",
-          "description": "AgentFile Layer 是用户提供的覆盖层，在创建 Pod 时合并到基础 AgentFile 之上。AgentsMesh 使用三层合并模型：基础 AgentFile（智能体默认值）与用户偏好设置（保存的设置）合并，然后应用 Layer（每个 Pod 的运行时覆盖）。Layer 具有最高优先级。"
+          "description": "AgentFile Layer 是用户提供的覆盖层，在创建 Pod 时合并到基础 AgentFile 之上。Do Worker 使用三层合并模型：基础 AgentFile（智能体默认值）与用户偏好设置（保存的设置）合并，然后应用 Layer（每个 Pod 的运行时覆盖）。Layer 具有最高优先级。"
         },
         "supported": {
           "title": "支持的声明",
@@ -332,7 +332,7 @@
     },
     "gettingStarted": {
       "title": "快速上手",
-      "description": "六步启动 AgentsMesh。这是一个快速概览——每个步骤都链接到包含故障排除和高级选项的详细教程。",
+      "description": "六步启动 Do Worker。这是一个快速概览——每个步骤都链接到包含故障排除和高级选项的详细教程。",
       "step1": {
         "title": "创建账户",
         "description": "前往注册页面，填写邮箱、用户名和密码。提交后你将收到一封验证邮件——如果几分钟内没有收到，请检查垃圾邮件文件夹。",
@@ -342,7 +342,7 @@
       },
       "step2": {
         "title": "配置 Runner",
-        "description": "Runner 是一个轻量级守护进程，运行在你的机器上，在称为 Pod 的隔离工作空间中执行 AI 智能体。在你的开发机器或服务器上安装 AgentsMesh Runner。",
+        "description": "Runner 是一个轻量级守护进程，运行在你的机器上，在称为 Pod 的隔离工作空间中执行 AI 智能体。在你的开发机器或服务器上安装 Do Worker Runner。",
         "methodToken": "使用令牌注册",
         "methodLogin": "使用浏览器登录注册",
         "seeSetup": "查看 {link} 了解 Docker、Linux 包和 Kubernetes 部署选项。"
@@ -674,7 +674,7 @@
         "description": "集成看板视图的任务管理。创建任务，分配给 AgentPod，通过工作流跟踪进度。",
         "overview": {
           "title": "概述",
-          "description": "AgentsMesh 任务提供为 AI 驱动开发设计的轻量级问题跟踪系统。核心功能包括：",
+          "description": "Do Worker 任务提供为 AI 驱动开发设计的轻量级问题跟踪系统。核心功能包括：",
           "item1": "看板视图",
           "item2": "任务 ↔ Pod 关联",
           "item3": "Git 提交和合并请求关联",
@@ -726,12 +726,12 @@
           "description": "使用斐波那契故事点估算工作量："
         }
       },
-      "loops": {
+      "workflows": {
         "title": "循环任务",
         "description": "AI Agent 任务的 CI/CD。定义可重复的自动化任务，按计划或通过 API 触发执行 — 为你的 AI Agent 提供定时任务能力。",
         "overview": {
           "title": "概述",
-          "description": "Loops 允许你一次定义任务，反复执行。每个 Loop 封装了一个 Pod 配置、Prompt 模板、触发器设置和执行策略。核心功能包括：",
+          "description": "Workflows 允许你一次定义任务，反复执行。每个 Workflow 封装了一个 Pod 配置、Prompt 模板、触发器设置和执行策略。核心功能包括：",
           "item1": "Cron 定时调度或 API 触发执行",
           "item2": "Autopilot（受监督）或 Direct（自主）执行模式",
           "item3": "持久化沙箱跨运行复用，支持增量工作",
@@ -748,9 +748,9 @@
         },
         "triggerTypes": {
           "title": "触发类型",
-          "description": "Loops 支持两种触发机制：",
+          "description": "Workflows 支持两种触发机制：",
           "cron": "Cron 定时调度",
-          "cronDesc": "使用标准 cron 表达式按周期运行（例如 '0 9 * * *' 表示每天上午 9 点 UTC）。调度器每 30 秒检查一次到期的 Loop。",
+          "cronDesc": "使用标准 cron 表达式按周期运行（例如 '0 9 * * *' 表示每天上午 9 点 UTC）。调度器每 30 秒检查一次到期的 Workflow。",
           "api": "API 触发",
           "apiDesc": "通过 HTTP POST 以编程方式触发运行。传递运行时变量来定制每次执行。适用于 CI/CD 流水线、Webhook 和事件驱动自动化。"
         },
@@ -780,7 +780,7 @@
         },
         "promptTemplates": {
           "title": "Prompt 模板",
-          "description": "在 Prompt 中使用 {{variable}} 占位符。创建 Loop 时定义默认值，触发时可以覆盖。示例：",
+          "description": "在 Prompt 中使用 {{variable}} 占位符。创建 Workflow 时定义默认值，触发时可以覆盖。示例：",
           "example": "审查 {{branch}} 分支自上次审查以来的所有变更文件。重点关注 {{focus_area}} 方面的问题。"
         },
         "webhookCallbacks": {
@@ -798,7 +798,7 @@
       },
       "repositories": {
         "title": "仓库管理",
-        "description": "将 Git 仓库连接到 AgentsMesh，实现无缝的 AI 辅助开发工作流。",
+        "description": "将 Git 仓库连接到 Do Worker，实现无缝的 AI 辅助开发工作流。",
         "overview": {
           "title": "概述",
           "description": "仓库将你的 Git 项目关联到平台。当创建关联了仓库的 Pod 时，Runner 会自动克隆项目并设置隔离的 Git 工作树。"
@@ -817,7 +817,7 @@
           "oauth": "OAuth",
           "oauthDesc": "适用于 GitHub——一键授权，支持细粒度仓库访问。令牌加密安全存储。",
           "pat": "个人访问令牌（PAT）",
-          "patDesc": "适用于 GitLab 和 Gitee——在服务商设置中生成令牌，然后在 AgentsMesh 中添加。需要仓库读写权限。"
+          "patDesc": "适用于 GitLab 和 Gitee——在服务商设置中生成令牌，然后在 Do Worker 中添加。需要仓库读写权限。"
         },
         "podAssociation": {
           "title": "仓库与 Pod 关联",
@@ -837,7 +837,7 @@
           "addRepo": "添加仓库",
           "addRepoSteps": "前往 设置 → 仓库 → 添加仓库。选择 Git 服务商，认证后选择要连接的仓库。",
           "removeRepo": "移除仓库",
-          "removeRepoSteps": "移除仓库会断开其与 AgentsMesh 的连接。已使用该仓库的 Pod 不受影响，但无法再用它创建新 Pod。"
+          "removeRepoSteps": "移除仓库会断开其与 Do Worker 的连接。已使用该仓库的 Pod 不受影响，但无法再用它创建新 Pod。"
         }
       }
     },
@@ -850,7 +850,7 @@
           "item1": "Linux、macOS 或 Windows（推荐 WSL2）",
           "item2": "已安装并配置 Git",
           "item3": "Docker（可选，用于容器化智能体）",
-          "item4": "可访问 AgentsMesh 服务器的网络",
+          "item4": "可访问 Do Worker 服务器的网络",
           "item5": "至少 4GB 内存（多 Pod 推荐 8GB+）"
         },
         "quickInstall": {
@@ -858,7 +858,7 @@
           "oneLineTitle": "一行命令安装（推荐）",
           "linuxTitle": "Linux（包管理器）",
           "afterInstall": "安装后",
-          "tokenHint": "在 AgentsMesh Web 界面的 设置 → Runner → 创建令牌 中获取注册令牌。",
+          "tokenHint": "在 Do Worker Web 界面的 设置 → Runner → 创建令牌 中获取注册令牌。",
           "methodToken": "选项 A：使用令牌注册",
           "methodLogin": "选项 B：使用浏览器登录注册"
         },
@@ -874,7 +874,7 @@
           "descriptionHeader": "说明",
           "defaultHeader": "默认值",
           "tokenDesc": "注册令牌（必需）",
-          "urlDesc": "AgentsMesh 服务器地址",
+          "urlDesc": "Do Worker 服务器地址",
           "maxPodsDesc": "最大并发 Pod 数",
           "workspaceDirDesc": "工作空间根目录",
           "mcpPortDesc": "MCP 服务器端口"
@@ -898,7 +898,7 @@
         "troubleshooting": {
           "title": "故障排除",
           "offline": "Runner 显示为离线",
-          "offlineDesc": "检查到 AgentsMesh 服务器的网络连接。确保防火墙允许出站 gRPC 连接（端口 9443，用于 mTLS）。",
+          "offlineDesc": "检查到 Do Worker 服务器的网络连接。确保防火墙允许出站 gRPC 连接（端口 9443，用于 mTLS）。",
           "podsFail": "Pod 启动失败",
           "podsFailDesc": "确认 Git 已安装并配置。检查 Runner 是否可以克隆仓库（SSH 密钥或令牌已配置）。",
           "tokenInvalid": "\"令牌无效\"错误",
@@ -907,7 +907,7 @@
       },
       "mcpTools": {
         "title": "MCP 工具",
-        "description": "Runner 提供 26 个 MCP（模型上下文协议）工具，供 AI 智能体与其他智能体协作。工具分为 7 个类别：发现、终端、绑定、频道、任务、Pod 和 Loop。",
+        "description": "Runner 提供 26 个 MCP（模型上下文协议）工具，供 AI 智能体与其他智能体协作。工具分为 7 个类别：发现、终端、绑定、频道、任务、Pod 和 Workflow。",
         "overview": {
           "title": "概述",
           "description": "MCP 工具自动提供给在 AgentPod 中运行的 AI 智能体。工具通过端口 19000 的 HTTP 服务提供，使用 Pod 密钥进行认证。",
@@ -994,18 +994,18 @@
           "updateTicketDesc": "更新任务",
           "updateTicketParams": "ticket_id, title?, status?, priority?, type?"
         },
-        "loop": {
-          "title": "Loop 工具",
-          "description": "管理自动化 Loop 的工具 — 可通过手动触发或 Cron 调度的重复性任务。",
+        "workflow": {
+          "title": "Workflow 工具",
+          "description": "管理自动化 Workflow 的工具 — 可通过手动触发或 Cron 调度的重复性任务。",
           "toolHeader": "工具",
           "descriptionHeader": "描述",
           "paramsHeader": "参数",
-          "listLoops": "list_loops",
-          "listLoopsDesc": "列出组织中的自动化 Loop",
-          "listLoopsParams": "status?, query?, limit?, offset?",
-          "triggerLoop": "trigger_loop",
-          "triggerLoopDesc": "手动触发 Loop 运行",
-          "triggerLoopParams": "loop_slug (required), variables?"
+          "listWorkflows": "list_workflows",
+          "listWorkflowsDesc": "列出组织中的自动化 Workflow",
+          "listWorkflowsParams": "status?, query?, limit?, offset?",
+          "triggerWorkflow": "trigger_workflow",
+          "triggerWorkflowDesc": "手动触发 Workflow 运行",
+          "triggerWorkflowParams": "workflow_slug (required), variables?"
         },
         "pod": {
           "title": "Pod 工具",
@@ -1031,17 +1031,17 @@
     "guides": {
       "gitIntegration": {
         "title": "Git 集成",
-        "description": "连接 Git 服务商并在 AgentsMesh 中使用仓库的完整指南。",
+        "description": "连接 Git 服务商并在 Do Worker 中使用仓库的完整指南。",
         "overview": {
           "title": "概述",
-          "description": "AgentsMesh 集成了主流 Git 托管平台，为 AI 智能体提供无缝的仓库访问。本指南涵盖端到端的设置流程。"
+          "description": "Do Worker 集成了主流 Git 托管平台，为 AI 智能体提供无缝的仓库访问。本指南涵盖端到端的设置流程。"
         },
         "github": {
           "title": "GitHub (OAuth)",
           "description": "使用 OAuth 连接你的 GitHub 账户，实现一键授权：",
           "step1": "前往 设置 → Git 服务商",
           "step2": "点击 连接 GitHub",
-          "step3": "在 GitHub 弹窗中授权 AgentsMesh",
+          "step3": "在 GitHub 弹窗中授权 Do Worker",
           "step4": "选择要授权访问的仓库",
           "step5": "你的仓库将出现在 设置 → 仓库 中"
         },
@@ -1050,7 +1050,7 @@
           "description": "使用个人访问令牌连接 GitLab：",
           "step1": "在 GitLab 中，前往 设置 → 访问令牌",
           "step2": "创建具有 api 和 read_repository 权限的新令牌",
-          "step3": "在 AgentsMesh 中，前往 设置 → Git 服务商",
+          "step3": "在 Do Worker 中，前往 设置 → Git 服务商",
           "step4": "点击 添加 GitLab 服务商 并粘贴令牌",
           "step5": "输入你的 GitLab 实例 URL（适用于自托管）",
           "selfHosted": "自托管 GitLab：输入 GitLab 实例的完整 URL（例如 https://gitlab.yourcompany.com）。"
@@ -1060,7 +1060,7 @@
           "description": "使用个人访问令牌连接 Gitee：",
           "step1": "在 Gitee 中，前往 设置 → 私人令牌",
           "step2": "创建具有 projects 权限的新令牌",
-          "step3": "在 AgentsMesh 中，前往 设置 → Git 服务商",
+          "step3": "在 Do Worker 中，前往 设置 → Git 服务商",
           "step4": "点击 添加 Gitee 服务商 并粘贴令牌"
         },
         "sshKeys": {
@@ -1082,10 +1082,10 @@
       },
       "teamManagement": {
         "title": "团队管理",
-        "description": "了解如何在 AgentsMesh 中设置和管理你的团队。",
+        "description": "了解如何在 Do Worker 中设置和管理你的团队。",
         "overview": {
           "title": "概述",
-          "description": "AgentsMesh 使用组织作为团队协作的基本单位。每个组织拥有独立的成员、Runner、仓库和设置。"
+          "description": "Do Worker 使用组织作为团队协作的基本单位。每个组织拥有独立的成员、Runner、仓库和设置。"
         },
         "createOrg": {
           "title": "创建组织",
@@ -1103,11 +1103,11 @@
           "step3": "输入被邀请者的邮箱地址",
           "step4": "选择角色（管理员或成员）",
           "step5": "被邀请者将收到包含加入链接的邮件",
-          "note": "没有 AgentsMesh 账户的被邀请者将被提示先注册。"
+          "note": "没有 Do Worker 账户的被邀请者将被提示先注册。"
         },
         "roles": {
           "title": "角色与权限",
-          "description": "AgentsMesh 支持基于角色的访问控制（RBAC）：",
+          "description": "Do Worker 支持基于角色的访问控制（RBAC）：",
           "ownerTitle": "所有者",
           "ownerDesc": "对所有设置、计费和成员管理拥有完全访问权限。可以删除组织。",
           "adminTitle": "管理员",
@@ -1193,10 +1193,10 @@
       },
       "overview": {
         "title": "API 概述",
-        "description": "使用组织级 API Key 将第三方服务与 AgentsMesh 集成。通过 REST API 自动化 Pod 管理、任务跟踪等操作。",
+        "description": "使用组织级 API Key 将第三方服务与 Do Worker 集成。通过 REST API 自动化 Pod 管理、任务跟踪等操作。",
         "overview": {
           "title": "概述",
-          "description": "AgentsMesh 提供组织级 API Key，用于第三方集成、CI/CD 流水线和自动化工作流。通过 API Key 你可以：",
+          "description": "Do Worker 提供组织级 API Key，用于第三方集成、CI/CD 流水线和自动化工作流。通过 API Key 你可以：",
           "item1": "以编程方式管理 AgentPod（创建、列表、终止）",
           "item2": "自动创建任务和更新状态",
           "item3": "查询频道和发送消息",
@@ -1428,9 +1428,9 @@
           }
         }
       },
-      "loops": {
-        "title": "Loops API",
-        "description": "管理自动化循环任务及其运行记录。通过 REST API 创建 Loop、配置触发器和监控执行。",
+      "workflows": {
+        "title": "Workflows API",
+        "description": "管理自动化循环任务及其运行记录。通过 REST API 创建 Workflow、配置触发器和监控执行。",
         "endpoints": {
           "title": "端点",
           "list": "列出所有循环任务",
@@ -1447,17 +1447,17 @@
         },
         "examples": {
           "title": "代码示例",
-          "createLoop": "创建定时循环任务",
+          "createWorkflow": "创建定时循环任务",
           "triggerRun": "带变量触发运行"
         },
         "details": {
           "title": "端点详情",
-          "listLoops": {
-            "title": "GET /loops",
+          "listWorkflows": {
+            "title": "GET /workflows",
             "description": "获取组织内的所有循环任务。按创建时间排序返回。"
           },
-          "createLoop": {
-            "title": "POST /loops",
+          "createWorkflow": {
+            "title": "POST /workflows",
             "description": "使用指定配置创建新的循环任务。",
             "fields": {
               "name": "循环任务名称（必填，1-255 字符）",
@@ -1480,44 +1480,44 @@
               "autopilot_config": "Autopilot 参数（max_iterations、iteration_timeout_sec）"
             }
           },
-          "getLoop": {
-            "title": "GET /loops/:slug",
+          "getWorkflow": {
+            "title": "GET /workflows/:slug",
             "description": "按 slug 获取循环任务的详细信息。",
             "params": {
-              "slug": "Loop slug（从名称自动生成）"
+              "slug": "Workflow slug（从名称自动生成）"
             }
           },
-          "updateLoop": {
-            "title": "PUT /loops/:slug",
+          "updateWorkflow": {
+            "title": "PUT /workflows/:slug",
             "description": "更新现有循环任务。所有字段可选 — 仅更新提供的字段。",
             "params": {
-              "slug": "Loop slug"
+              "slug": "Workflow slug"
             }
           },
-          "deleteLoop": {
-            "title": "DELETE /loops/:slug",
+          "deleteWorkflow": {
+            "title": "DELETE /workflows/:slug",
             "description": "永久删除循环任务及其所有运行历史。此操作不可撤销。",
             "params": {
-              "slug": "Loop slug"
+              "slug": "Workflow slug"
             }
           },
-          "enableLoop": {
-            "title": "POST /loops/:slug/enable",
+          "enableWorkflow": {
+            "title": "POST /workflows/:slug/enable",
             "description": "启用已禁用的循环任务。如果已配置 Cron 调度，将恢复定时触发。"
           },
-          "disableLoop": {
-            "title": "POST /loops/:slug/disable",
+          "disableWorkflow": {
+            "title": "POST /workflows/:slug/disable",
             "description": "禁用循环任务。Cron 调度暂停，手动触发也会被阻止。"
           },
-          "triggerLoop": {
-            "title": "POST /loops/:slug/trigger",
+          "triggerWorkflow": {
+            "title": "POST /workflows/:slug/trigger",
             "description": "手动触发一次运行。可传递变量覆盖 Prompt 模板默认值。",
             "fields": {
               "variables": "Prompt 模板的变量覆盖（JSON 对象）"
             }
           },
           "listRuns": {
-            "title": "GET /loops/:slug/runs",
+            "title": "GET /workflows/:slug/runs",
             "description": "获取循环任务的运行历史，按最近优先排序。",
             "params": {
               "limit": "返回的最大结果数",
@@ -1525,14 +1525,14 @@
             }
           },
           "getRun": {
-            "title": "GET /loops/:slug/runs/:run_id",
+            "title": "GET /workflows/:slug/runs/:run_id",
             "description": "获取指定运行的详细信息。",
             "params": {
               "run_id": "运行 ID"
             }
           },
           "cancelRun": {
-            "title": "POST /loops/:slug/runs/:run_id/cancel",
+            "title": "POST /workflows/:slug/runs/:run_id/cancel",
             "description": "取消正在运行的任务。终止关联的 Pod 并将运行标记为已取消。",
             "params": {
               "run_id": "运行 ID"
@@ -1698,7 +1698,7 @@
     },
     "faq": {
       "title": "常见问题",
-      "description": "查找关于使用 AgentsMesh 的常见问题解答。",
+      "description": "查找关于使用 Do Worker 的常见问题解答。",
       "categories": {
         "runner": "Runner 问题",
         "pod": "Pod 问题",
@@ -1709,7 +1709,7 @@
       "items": {
         "runnerConnection": {
           "question": "我的 Runner 显示为「离线」，如何修复？",
-          "answer": "请检查以下内容：1) 确认 Runner 进程正在运行（agentsmesh-runner run）。2) 验证到 AgentsMesh 服务器的网络连接。3) 确保防火墙允许端口 9443 的出站 gRPC 连接。4) 检查 Runner 日志是否有证书错误——如果证书已过期，可能需要重新注册。"
+          "answer": "请检查以下内容：1) 确认 Runner 进程正在运行（agentsmesh-runner run）。2) 验证到 Do Worker 服务器的网络连接。3) 确保防火墙允许端口 9443 的出站 gRPC 连接。4) 检查 Runner 日志是否有证书错误——如果证书已过期，可能需要重新注册。"
         },
         "runnerMultiple": {
           "question": "可以在同一台机器上运行多个 Runner 吗？",
@@ -1741,11 +1741,11 @@
         },
         "billingBYOK": {
           "question": "BYOK（自带密钥）计费模式如何运作？",
-          "answer": "你提供自己的 AI 服务商 API 密钥（Anthropic、OpenAI、Google 等）。你根据使用量直接向 AI 服务商付费。AgentsMesh 仅对平台使用（Runner、存储等）收费。"
+          "answer": "你提供自己的 AI 服务商 API 密钥（Anthropic、OpenAI、Google 等）。你根据使用量直接向 AI 服务商付费。Do Worker 仅对平台使用（Runner、存储等）收费。"
         },
         "billingFree": {
           "question": "有免费套餐吗？",
-          "answer": "是的，AgentsMesh 提供免费套餐，包含有限的并发 Pod 和存储空间。查看定价页面了解当前套餐详情和限制。"
+          "answer": "是的，Do Worker 提供免费套餐，包含有限的并发 Pod 和存储空间。查看定价页面了解当前套餐详情和限制。"
         }
       }
     },
@@ -1753,18 +1753,18 @@
       "runnerSetup": {
         "title": "教程：配置 Runner",
         "difficulty": "初学者 — 5 分钟",
-        "description": "逐步学习如何安装、注册和验证 AgentsMesh Runner。创建 Pod 之前需要先配置好 Runner。",
+        "description": "逐步学习如何安装、注册和验证 Do Worker Runner。创建 Pod 之前需要先配置好 Runner。",
         "prerequisites": {
           "title": "前提条件",
           "description": "开始之前，请确保你已准备好：",
-          "item1": "一个 AgentsMesh 账号（在注册页面注册）",
+          "item1": "一个 Do Worker 账号（在注册页面注册）",
           "item2": "一台运行 Linux、macOS 或 Windows（推荐 WSL2）的机器",
           "item3": "机器上已安装并配置好 Git",
-          "item4": "能够访问 AgentsMesh 服务器的网络连接"
+          "item4": "能够访问 Do Worker 服务器的网络连接"
         },
         "step1": {
           "title": "安装 Runner",
-          "description": "在你的机器上下载并安装 AgentsMesh Runner。选择最适合你的安装方式：",
+          "description": "在你的机器上下载并安装 Do Worker Runner。选择最适合你的安装方式：",
           "oneLine": "一键安装（推荐）— 适用于 Linux 和 macOS：",
           "linux": "Linux 包管理器 — 支持 Debian/Ubuntu 和 RHEL/Fedora",
           "docker": "Docker — 以容器方式运行 Runner，便于隔离",
@@ -1772,7 +1772,7 @@
         },
         "step2": {
           "title": "注册 Runner",
-          "description": "安装完成后，将 Runner 注册到你的 AgentsMesh 实例。你有两种方式：",
+          "description": "安装完成后，将 Runner 注册到你的 Do Worker 实例。你有两种方式：",
           "methodToken": "方式 A：使用令牌注册（无图形界面的服务器）",
           "methodTokenDesc": "在 Web 界面中前往 设置 → Runner → 创建令牌 获取注册令牌，然后使用令牌运行注册命令。",
           "methodLogin": "方式 B：通过浏览器登录注册（开发者机器）",
@@ -1783,7 +1783,7 @@
           "title": "启动 Runner",
           "description": "注册完成后，启动 Runner 守护进程：",
           "item1": "运行启动命令以开始 Runner 进程",
-          "item2": "Runner 通过 gRPC + mTLS 连接到 AgentsMesh 后端",
+          "item2": "Runner 通过 gRPC + mTLS 连接到 Do Worker 后端",
           "item3": "它会报告 PATH 中可用的 AI 智能体 CLI（Claude Code、Codex、Gemini 等）",
           "tip": "在生产环境中，建议将 Runner 安装为系统服务，以便开机自动启动。",
           "background": {
@@ -1864,11 +1864,11 @@
       "gitSetup": {
         "title": "教程：连接 Git 仓库",
         "difficulty": "初学者 — 5 分钟",
-        "description": "学习如何将你的 Git 提供商（GitHub、GitLab 或 Gitee）连接到 AgentsMesh，以便 AI 智能体可以操作你的代码仓库。",
+        "description": "学习如何将你的 Git 提供商（GitHub、GitLab 或 Gitee）连接到 Do Worker，以便 AI 智能体可以操作你的代码仓库。",
         "prerequisites": {
           "title": "前提条件",
           "description": "开始之前，请确保你已准备好：",
-          "item1": "一个已连接 Runner 的 AgentsMesh 账号（参见 Runner 配置教程）",
+          "item1": "一个已连接 Runner 的 Do Worker 账号（参见 Runner 配置教程）",
           "item2": "一个拥有你想使用的仓库的 GitHub、GitLab 或 Gitee 账号"
         },
         "step1": {
@@ -1880,16 +1880,16 @@
           "description": "对于 GitHub，你可以使用个人访问令牌（适用于所有人）或 OAuth（仅限使用 GitHub 注册的用户）：",
           "item1": "个人访问令牌：在 GitHub 中，前往 Settings → Developer settings → Personal access tokens → Fine-grained tokens",
           "item2": "生成一个令牌，为你的仓库授予 Contents（只读）和 Metadata（只读）权限",
-          "item3": "在 AgentsMesh 中，点击 添加 GitHub 提供商 并粘贴你的令牌",
+          "item3": "在 Do Worker 中，点击 添加 GitHub 提供商 并粘贴你的令牌",
           "item4": "你的仓库将出现在 设置 → 仓库 中",
-          "tip": "如果你使用 GitHub 账户注册了 AgentsMesh，也可以使用 连接 GitHub 按钮通过 OAuth 连接 — 你的账户已关联。使用邮箱注册的用户必须使用个人访问令牌。"
+          "tip": "如果你使用 GitHub 账户注册了 Do Worker，也可以使用 连接 GitHub 按钮通过 OAuth 连接 — 你的账户已关联。使用邮箱注册的用户必须使用个人访问令牌。"
         },
         "step3": {
           "title": "连接 GitLab（个人访问令牌）",
           "description": "对于 GitLab，使用个人访问令牌：",
           "item1": "在 GitLab 中，前往 设置 → 访问令牌",
           "item2": "创建一个具有 api 和 read_repository 权限的新令牌",
-          "item3": "回到 AgentsMesh，点击 添加 GitLab 提供商",
+          "item3": "回到 Do Worker，点击 添加 GitLab 提供商",
           "item4": "粘贴你的令牌并输入你的 GitLab URL",
           "tip": "完全支持自托管的 GitLab。输入你的实例完整 URL（例如 https://gitlab.yourcompany.com）。"
         },
@@ -1898,7 +1898,7 @@
           "description": "对于 Gitee，使用个人访问令牌：",
           "item1": "在 Gitee 中，前往 设置 → 个人访问令牌",
           "item2": "创建一个具有 projects 权限的新令牌",
-          "item3": "回到 AgentsMesh，点击 添加 Gitee 提供商 并粘贴你的令牌"
+          "item3": "回到 Do Worker，点击 添加 Gitee 提供商 并粘贴你的令牌"
         },
         "step5": {
           "title": "导入仓库",
@@ -1938,7 +1938,7 @@
         "description": "了解如何使用 MCP（模型上下文协议）服务器和技能来扩展你的 AI 智能体。MCP 工具让智能体能够协作、管理任务并与外部服务交互。技能为你的智能体添加可复用的工作流。",
         "whatIsMcp": {
           "title": "什么是 MCP 工具？",
-          "description": "MCP（模型上下文协议）工具是 AI 智能体在 Pod 内工作时可以使用的能力。AgentsMesh 提供 26 个内置 MCP 工具，分为 7 个类别：",
+          "description": "MCP（模型上下文协议）工具是 AI 智能体在 Pod 内工作时可以使用的能力。Do Worker 提供 26 个内置 MCP 工具，分为 7 个类别：",
           "item1": "发现 — 列出可用的 Pod、Runner 和仓库",
           "item2": "终端 — 观察和控制其他 Pod 的终端",
           "item3": "绑定 — 请求和管理 Pod 间连接",
@@ -1951,7 +1951,7 @@
         "step1": {
           "title": "了解内置与自定义 MCP 服务器",
           "description": "你的智能体可以使用两种类型的 MCP 工具：",
-          "builtinTitle": "内置 AgentsMesh MCP 服务器",
+          "builtinTitle": "内置 Do Worker MCP 服务器",
           "builtinDesc": "自动为每个 Pod 配置。提供 26 个协作工具（频道、任务、绑定等）。无需设置。",
           "customTitle": "自定义 MCP 服务器",
           "customDesc": "你安装的用于特定功能的额外 MCP 服务器——例如数据库 MCP 服务器、Slack 集成或自定义 API 连接器。这些按组织或按用户配置。"
@@ -1973,12 +1973,12 @@
           "description": "配置 MCP 服务器后，验证其是否正常工作：",
           "item1": "使用 Claude Code 创建一个新 Pod",
           "item2": "在终端中询问智能体：\"你有哪些可用的 MCP 工具？\"",
-          "item3": "智能体应列出内置的 AgentsMesh 工具和你安装的所有自定义 MCP 服务器",
+          "item3": "智能体应列出内置的 Do Worker 工具和你安装的所有自定义 MCP 服务器",
           "item4": "尝试使用一个工具——例如\"列出所有可用的 Pod\"或\"搜索任务\""
         },
         "whatAreSkills": {
           "title": "什么是技能？",
-          "description": "技能是以 Markdown 文件定义的可复用智能体工作流，包含指令说明。安装后，它们会被注入到你的智能体上下文中，以便按需执行。AgentsMesh 提供两个内置技能：",
+          "description": "技能是以 Markdown 文件定义的可复用智能体工作流，包含指令说明。安装后，它们会被注入到你的智能体上下文中，以便按需执行。Do Worker 提供两个内置技能：",
           "item1": "am-channel — 使智能体能够检查消息、同步任务状态，并通过频道与其他智能体交换信息",
           "item2": "am-delegate — 使智能体能够将任务委派给其他 Pod、创建子 Pod 以并行工作，并触发后续智能体"
         },
@@ -2021,7 +2021,7 @@
         "prerequisites": {
           "title": "前提条件",
           "description": "开始之前，请确保你已准备好：",
-          "item1": "一个 AgentsMesh 账号（在注册页面注册）",
+          "item1": "一个 Do Worker 账号（在注册页面注册）",
           "item2": "已安装并连接 Runner（参见快速上手 → 步骤 2）",
           "item3": "Runner 上至少安装了一个 AI 智能体 CLI（例如 Claude Code）",
           "item4": "已连接 Git 仓库（可选但推荐）"
@@ -2068,7 +2068,7 @@
         "troubleshooting": {
           "title": "故障排除",
           "noRunners": "下拉菜单中没有 Runner",
-          "noRunnersDesc": "你的 Runner 可能已离线。前往 设置 → Runner 检查状态。如果显示离线，请重启 Runner 进程并确保它能连接到 AgentsMesh 服务器。",
+          "noRunnersDesc": "你的 Runner 可能已离线。前往 设置 → Runner 检查状态。如果显示离线，请重启 Runner 进程并确保它能连接到 Do Worker 服务器。",
           "stuckInit": "Pod 一直停留在初始化状态",
           "stuckInitDesc": "这通常意味着仓库较大，仍在克隆中。请等待几分钟。如果问题仍未解决，请检查 Runner 日志中的克隆错误。尝试创建一个不带仓库的 Pod 来测试基本功能。",
           "agentNotResponding": "智能体无响应",
@@ -2087,7 +2087,7 @@
       "ticketWorkflow": {
         "title": "教程：使用任务管理任务",
         "difficulty": "初学者 — 10 分钟",
-        "description": "学习如何使用 AgentsMesh 的任务系统来组织工作、在看板上跟踪进度，以及将任务连接到 AgentPod 以自动注入上下文。",
+        "description": "学习如何使用 Do Worker 的任务系统来组织工作、在看板上跟踪进度，以及将任务连接到 AgentPod 以自动注入上下文。",
         "step1": {
           "title": "导航到任务看板",
           "description": "点击左侧边栏的任务。你将看到一个看板，包含各状态列：待办池、待处理、进行中、审查中和已完成。"
@@ -2206,11 +2206,11 @@
           "tip5": "保持频道描述的具体性，以便智能体理解协作上下文"
         }
       },
-      "loops": {
+      "workflows": {
         "title": "教程：使用循环实现自动化",
         "difficulty": "进阶 — 10 分钟",
         "description": "学习如何设置按计划自动创建 Pod 的循环任务。循环非常适合定期任务，如代码审查、依赖更新、测试运行和监控。",
-        "whatAreLoops": {
+        "whatAreWorkflows": {
           "title": "什么是循环？",
           "description": "循环是一种定时自动化机制，会按预设配置定期创建 AgentPod。你可以把它想象成 AI 智能体的 cron 任务 - 它按计划运行你的提示词，每次创建一个全新的 Pod。",
           "item1": "定期代码审查 - 每天早上检查代码质量问题",

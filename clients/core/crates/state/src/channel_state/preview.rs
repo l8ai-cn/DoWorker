@@ -23,7 +23,11 @@ impl ChannelState {
                 let _ = repo.save(c);
             }
         }
-        if self.current_channel.as_ref().is_some_and(|c| c.id == channel_id) {
+        if self
+            .current_channel
+            .as_ref()
+            .is_some_and(|c| c.id == channel_id)
+        {
             let preview_clone = self
                 .channels
                 .iter()

@@ -2,7 +2,7 @@
 title: "Pourquoi le développement IA a besoin d'un centre de commandement, pas d'un nouvel IDE"
 excerpt: "Les agents IA sont omniskilled. Quand l'échange de compétences s'effondre, les rôles se dissolvent et les processus d'ingénierie fondés sur la loi de Conway doivent être réinventés. Ce dont les développeurs ont besoin aujourd'hui, ce n'est pas d'un meilleur IDE, mais d'un centre de commandement pour orchestrer des flottes d'agents à grande échelle."
 date: "2026-02-23"
-author: "AgentsMesh Team"
+author: "Do Worker Team"
 category: "Insight"
 readTime: 10
 ---
@@ -72,9 +72,9 @@ Pensez à la différence entre un pilote et un contrôleur aérien.
 
 Les données le confirment : d'après nos observations, l'IA apporte un gain d'efficacité de 50x sur les tâches d'exécution (génération de code, tests, refactoring) mais pratiquement aucune amélioration sur les tâches de décision (débogage en production, choix d'architecture, définition des priorités). **L'exécution est en voie de commoditisation. Le jugement devient le goulot d'étranglement.**
 
-## AgentsMesh : conçu pour cette réalité
+## Do Worker : conçu pour cette réalité
 
-AgentsMesh est conçu dès le départ comme un **centre de commandement de flotte d'agents**.
+Do Worker est conçu dès le départ comme un **centre de commandement de flotte d'agents**.
 
 La première couche de valeur est le centre de commandement lui-même :
 
@@ -108,8 +108,8 @@ Nous sommes à un point d'inflexion. Les outils que nous utilisons ont été con
 
 Ce qui émerge est quelque chose de nouveau : des développeurs individuels avec la capacité de production d'équipes entières, commandant des flottes d'agents IA depuis des centres de commandement plutôt qu'en écrivant du code dans des IDE.
 
-AgentsMesh est conçu pour ce futur. Non pas comme un énième IDE avec des fonctionnalités IA greffées dessus, mais comme le centre de commandement qui rend possible les opérations de flotte d'agents.
+Do Worker est conçu pour ce futur. Non pas comme un énième IDE avec des fonctionnalités IA greffées dessus, mais comme le centre de commandement qui rend possible les opérations de flotte d'agents.
 
 La question n'est pas de savoir si ce changement aura lieu. C'est de savoir si vous serez prêt quand il arrivera.
 
-[Commencez avec AgentsMesh dès aujourd'hui.](https://agentsmesh.ai)
+[Commencez avec Do Worker dès aujourd'hui.](https://agentsmesh.ai)

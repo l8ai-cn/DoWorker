@@ -10,33 +10,33 @@ import (
 type Scope string
 
 const (
-	ScopePodRead      Scope = "pods:read"
-	ScopePodWrite     Scope = "pods:write"
-	ScopeTicketRead   Scope = "tickets:read"
-	ScopeTicketWrite  Scope = "tickets:write"
-	ScopeChannelRead  Scope = "channels:read"
-	ScopeChannelWrite Scope = "channels:write"
-	ScopeRunnerRead   Scope = "runners:read"
-	ScopeRepoRead     Scope = "repos:read"
-	ScopeLoopRead     Scope = "loops:read"
-	ScopeLoopWrite    Scope = "loops:write"
-	ScopeExpertRead   Scope = "experts:read"
-	ScopeExpertWrite  Scope = "experts:write"
+	ScopePodRead       Scope = "pods:read"
+	ScopePodWrite      Scope = "pods:write"
+	ScopeTicketRead    Scope = "tickets:read"
+	ScopeTicketWrite   Scope = "tickets:write"
+	ScopeChannelRead   Scope = "channels:read"
+	ScopeChannelWrite  Scope = "channels:write"
+	ScopeRunnerRead    Scope = "runners:read"
+	ScopeRepoRead      Scope = "repos:read"
+	ScopeWorkflowRead  Scope = "workflows:read"
+	ScopeWorkflowWrite Scope = "workflows:write"
+	ScopeExpertRead    Scope = "experts:read"
+	ScopeExpertWrite   Scope = "experts:write"
 )
 
 var AllScopes = map[Scope]bool{
-	ScopePodRead:      true,
-	ScopePodWrite:     true,
-	ScopeTicketRead:   true,
-	ScopeTicketWrite:  true,
-	ScopeChannelRead:  true,
-	ScopeChannelWrite: true,
-	ScopeRunnerRead:   true,
-	ScopeRepoRead:     true,
-	ScopeLoopRead:     true,
-	ScopeLoopWrite:    true,
-	ScopeExpertRead:   true,
-	ScopeExpertWrite:  true,
+	ScopePodRead:       true,
+	ScopePodWrite:      true,
+	ScopeTicketRead:    true,
+	ScopeTicketWrite:   true,
+	ScopeChannelRead:   true,
+	ScopeChannelWrite:  true,
+	ScopeRunnerRead:    true,
+	ScopeRepoRead:      true,
+	ScopeWorkflowRead:  true,
+	ScopeWorkflowWrite: true,
+	ScopeExpertRead:    true,
+	ScopeExpertWrite:   true,
 }
 
 func ValidateScope(s string) bool {

@@ -32,11 +32,27 @@ func TestHarnessEnvVars_ClaudeAnthropic(t *testing.T) {
 	assert.Equal(t, "https://api.anthropic.com", env["ANTHROPIC_BASE_URL"])
 }
 
+func TestHarnessEnvVars_MultiProviderWorkers(t *testing.T) {
+	openAI := &AIModel{ProviderType: ProviderTypeOpenAI, Model: "gpt-5.5"}
+	assert.Equal(t, "gpt-5.5", HarnessEnvVars("openclaw", "", openAI, map[string]string{"api_key": "sk-test"})["OPENAI_MODEL"])
+
+	anthropic := &AIModel{ProviderType: ProviderTypeAnthropic}
+	assert.Equal(t, "sk-ant-test", HarnessEnvVars("harn", "", anthropic, map[string]string{"api_key": "sk-ant-test"})["ANTHROPIC_API_KEY"])
+
+	gemini := &AIModel{ProviderType: ProviderTypeGemini, Model: "gemini-pro"}
+	geminiEnv := HarnessEnvVars("openclaw", "", gemini, map[string]string{"api_key": "gemini-test"})
+	assert.Equal(t, "gemini-test", geminiEnv["GOOGLE_API_KEY"])
+	assert.Equal(t, "gemini-test", geminiEnv["GEMINI_API_KEY"])
+	assert.Equal(t, "gemini-pro", geminiEnv["GEMINI_MODEL"])
+}
+
 func TestPreferredProviders(t *testing.T) {
 	assert.Equal(t, []string{ProviderTypeOpenAI}, PreferredProviders("codex-cli"))
 	assert.Equal(t, []string{ProviderTypeAnthropic}, PreferredProviders("claude-code"))
 	assert.Equal(t, []string{ProviderTypeGemini}, PreferredProviders("gemini-cli"))
 	assert.Equal(t, []string{ProviderTypeAnthropic, ProviderTypeMiniMax}, PreferredProviders("do-agent"))
+	assert.Equal(t, []string{ProviderTypeOpenAI, ProviderTypeAnthropic, ProviderTypeGemini}, PreferredProviders("openclaw"))
+	assert.Equal(t, []string{ProviderTypeOpenAI, ProviderTypeAnthropic, ProviderTypeGemini}, PreferredProviders("harn"))
 	assert.Nil(t, PreferredProviders("e2e-echo"))
 }
 
@@ -44,5 +60,7 @@ func TestHarnessMountKindFor(t *testing.T) {
 	assert.Equal(t, HarnessMountConfig, HarnessMountKindFor("do-agent", true))
 	assert.Equal(t, HarnessMountEnv, HarnessMountKindFor("codex-cli", false))
 	assert.Equal(t, HarnessMountEnv, HarnessMountKindFor("claude-code", false))
+	assert.Equal(t, HarnessMountEnv, HarnessMountKindFor("openclaw", false))
+	assert.Equal(t, HarnessMountEnv, HarnessMountKindFor("harn", false))
 	assert.Equal(t, HarnessMountNone, HarnessMountKindFor("e2e-echo", false))
 }

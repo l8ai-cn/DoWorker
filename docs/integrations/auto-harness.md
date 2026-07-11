@@ -1,10 +1,10 @@
 # auto-harness 整合（Coordinator）
 
-把 auto-harness 的「任务源驱动调度引擎」原生重写进 AgentsMesh backend：定时扫描外部任务源（CNB issue / Linear）→ 落成 **Ticket** → 认领 → 经 `PodOrchestrator` 起 **do-agent** Pod → Pod 终态后把结果回写到任务源评论。复用现有 Ticket/kanban、PodOrchestrator、eventbus、CNB token 体系。
+把 auto-harness 的「任务源驱动调度引擎」原生重写进 Do Worker backend：定时扫描外部任务源（CNB issue / Linear）→ 落成 **Ticket** → 认领 → 经 `PodOrchestrator` 起 **do-agent** Pod → Pod 终态后把结果回写到任务源评论。复用现有 Ticket/kanban、PodOrchestrator、eventbus、CNB token 体系。
 
 ## 架构映射
 
-| auto-harness | AgentsMesh 落点 |
+| auto-harness | Do Worker 落点 |
 |---|---|
 | `platform.Driver` | `coordinator.TaskPlatform` 接口 + CNB(HTTP) / Linear(GraphQL) 实现 |
 | `coordinator.Task` | 现有 **Ticket** + `ticket_external_links`（去重外部 issue） |
@@ -82,7 +82,7 @@ CNB / Linear 走 HTTP，不装 CLI。用户在 Settings 配 provider API key，c
 
 ## Runner 自动创建（auto-harness 对齐）
 
-auto-harness 在派发前会 `CreateInstance` 动态起 worker；AgentsMesh coordinator 在 `RunProject` 扫描前调用 **RunnerEnsurer**，无在线 runner 时走可插拔 **RunnerLauncher** 再轮询上线（默认 90s / 2s）。
+auto-harness 在派发前会 `CreateInstance` 动态起 worker；Do Worker coordinator 在 `RunProject` 扫描前调用 **RunnerEnsurer**，无在线 runner 时走可插拔 **RunnerLauncher** 再轮询上线（默认 90s / 2s）。
 
 | 组件 | 路径 |
 |---|---|

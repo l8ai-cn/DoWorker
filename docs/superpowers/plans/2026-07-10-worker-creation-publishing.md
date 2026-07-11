@@ -291,24 +291,24 @@ the Task 4 paths.
 - Modify: `backend/internal/service/expert/run.go`
 - Modify: `backend/internal/api/rest/v1/expert_handler.go`
 - Modify: `backend/internal/api/rest/v1/expert_handler_types.go`
-- Modify: `backend/migrations/000199_worker_spec_links.up.sql`
-- Modify: `backend/migrations/000199_worker_spec_links.down.sql`
-- Modify: `clients/web/src/components/experts/PublishExpertDialog.tsx`
+- Create: `backend/migrations/000203_expert_worker_spec_link.up.sql`
+- Create: `backend/migrations/000203_expert_worker_spec_link.down.sql`
+- Verify: `clients/web/src/components/experts/PublishExpertDialog.tsx`
 - Test: `backend/internal/service/expert/publish_test.go`
 
-- [ ] **Step 1: Write failing snapshot publication tests**
+- [x] **Step 1: Write failing snapshot publication tests**
 
 Publishing must copy the Pod snapshot ID, reject missing/cross-org snapshots,
 ignore client-supplied runtime configuration, and reproduce the source spec on
 run except for alias/prompt overrides.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
 go test ./backend/internal/service/expert -run 'Publish|WorkerSpec' -count=1
 ```
 
-- [ ] **Step 3: Implement fail-closed snapshot publication**
+- [x] **Step 3: Implement fail-closed snapshot publication**
 
 Add `experts.worker_spec_snapshot_id`. New publication accepts identity fields
 only. Legacy Experts with no snapshot remain readable but return a typed
@@ -322,6 +322,13 @@ go test ./backend/internal/service/expert ./backend/internal/api/rest/v1 -run Ex
 git commit -m "feat(expert): publish from workerspec snapshots"
 git push origin main
 ```
+
+Verification on 2026-07-11: focused Expert, Worker creation, AgentPod, REST, and
+API error tests pass under `-race`; the Expert migration passes static and real
+PostgreSQL up/down checks, including cross-organization rejection. Migration
+`000199` was already committed and applied locally, so it remains immutable.
+The Expert link is isolated in `000203`, after the integrated `000200` through
+`000202` migrations.
 
 ### Task 6: Selected Sandbox Skill Publishing
 

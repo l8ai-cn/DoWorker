@@ -25,7 +25,7 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	isResumeMode := req.SourcePodKey != ""
 
 	if isResumeMode {
-		if req.WorkerSpecDraft != nil {
+		if req.WorkerSpecDraft != nil || req.WorkerSpecSnapshotID != nil {
 			return nil, ErrConflictingWorkerCreateInput
 		}
 		var err error
@@ -34,8 +34,14 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 			return nil, err
 		}
 	} else {
-		if err := o.prepareStructuredWorkerCreate(ctx, req); err != nil {
-			return nil, err
+		if req.WorkerSpecSnapshotID != nil {
+			if err := o.prepareSnapshotWorkerCreate(ctx, req); err != nil {
+				return nil, err
+			}
+		} else {
+			if err := o.prepareStructuredWorkerCreate(ctx, req); err != nil {
+				return nil, err
+			}
 		}
 		if req.AgentSlug == "" {
 			return nil, ErrMissingAgentSlug

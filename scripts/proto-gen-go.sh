@@ -18,7 +18,7 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:${PATH}"
 FORCE=false
 [[ "${1:-}" == "--force" ]] && FORCE=true
 
-MARKER="$ROOT/proto/gen/go/loop/v1/loop.pb.go"
+MARKER="$ROOT/proto/gen/go/workflow/v1/workflow.pb.go"
 if [[ "$FORCE" == "false" && -f "$MARKER" ]]; then
     echo "proto/gen/go already present ($MARKER); use --force to regenerate"
     exit 0
@@ -42,8 +42,8 @@ _gen_with_protoc() {
     _install_go_plugins
     mkdir -p "$ROOT/proto/gen/go"
     local proto_files=()
-    while IFS= read -r proto_file; do
-        proto_files+=("$proto_file")
+    while IFS= read -r f; do
+        proto_files+=("$f")
     done < <(find "$ROOT/proto" -name '*.proto' ! -path '*/gen/*' | sort)
     if ((${#proto_files[@]} == 0)); then
         echo "error: no .proto files found under proto/" >&2

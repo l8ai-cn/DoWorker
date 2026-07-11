@@ -208,7 +208,7 @@ func mapServiceError(err error) error {
 		return connect.NewError(connect.CodeNotFound, err)
 	case errors.Is(err, runner.ErrGRPCTokenNotFound):
 		return connect.NewError(connect.CodeNotFound, err)
-	case errors.Is(err, runner.ErrRunnerHasLoopRefs):
+	case errors.Is(err, runner.ErrRunnerHasWorkflowRefs):
 		return connect.NewError(connect.CodeFailedPrecondition, err)
 	case errors.Is(err, runner.ErrRunnerNotConnected),
 		errors.Is(err, runner.ErrRunnerOffline):

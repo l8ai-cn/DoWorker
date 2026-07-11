@@ -9,15 +9,24 @@ use crate::app_state::{AppRuntime, AppState, AppStateDispatchHook};
 
 struct StubAuth;
 impl AuthTokenStore for StubAuth {
-    fn get_token(&self) -> Option<String> { Some("t".into()) }
-    fn get_refresh_token(&self) -> Option<String> { None }
+    fn get_token(&self) -> Option<String> {
+        Some("t".into())
+    }
+    fn get_refresh_token(&self) -> Option<String> {
+        None
+    }
     fn set_tokens(&self, _t: String, _r: String, _e: Option<i64>) {}
     fn clear_tokens(&self) {}
-    fn get_current_org_slug(&self) -> Option<String> { Some("o".into()) }
+    fn get_current_org_slug(&self) -> Option<String> {
+        Some("o".into())
+    }
 }
 
 fn make_client() -> Arc<ApiClient> {
-    Arc::new(ApiClient::new("http://localhost:9999".into(), Arc::new(StubAuth)))
+    Arc::new(ApiClient::new(
+        "http://localhost:9999".into(),
+        Arc::new(StubAuth),
+    ))
 }
 
 fn make_event(json: serde_json::Value) -> RealtimeEvent {
@@ -62,27 +71,36 @@ fn dispatch_across_domains_single_state() {
     let events = Arc::new(EventSubscriptionManager::with_default_options(make_client()));
     let rt = AppRuntime::new(events.clone());
 
-    dispatch(&rt.state, &make_event(serde_json::json!({
-        "type": "pod:created",
-        "category": "entity",
-        "organization_id": 1,
-        "data": {"pod_key": "p-1", "status": "running", "agent_slug": "claude"},
-        "timestamp": 1
-    })));
-    dispatch(&rt.state, &make_event(serde_json::json!({
-        "type": "ticket:created",
-        "category": "entity",
-        "organization_id": 1,
-        "data": {"slug": "T-9", "title": "fix", "status": "todo", "priority": "high"},
-        "timestamp": 2
-    })));
-    dispatch(&rt.state, &make_event(serde_json::json!({
-        "type": "channel:message",
-        "category": "entity",
-        "organization_id": 1,
-        "data": {"id": 5, "channel_id": 10, "content": "hello"},
-        "timestamp": 3
-    })));
+    dispatch(
+        &rt.state,
+        &make_event(serde_json::json!({
+            "type": "pod:created",
+            "category": "entity",
+            "organization_id": 1,
+            "data": {"pod_key": "p-1", "status": "running", "agent_slug": "claude"},
+            "timestamp": 1
+        })),
+    );
+    dispatch(
+        &rt.state,
+        &make_event(serde_json::json!({
+            "type": "ticket:created",
+            "category": "entity",
+            "organization_id": 1,
+            "data": {"slug": "T-9", "title": "fix", "status": "todo", "priority": "high"},
+            "timestamp": 2
+        })),
+    );
+    dispatch(
+        &rt.state,
+        &make_event(serde_json::json!({
+            "type": "channel:message",
+            "category": "entity",
+            "organization_id": 1,
+            "data": {"id": 5, "channel_id": 10, "content": "hello"},
+            "timestamp": 3
+        })),
+    );
 
     let guard = rt.state.read();
     assert_eq!(guard.pods.pods().len(), 1);
@@ -100,8 +118,10 @@ fn shared_state_clone_observes_same_writes() {
 
     state.write().pods.upsert_pod(
         agentsmesh_types::proto_pod_v1::Pod {
-            pod_key: "p".into(), status: "running".into(),
-            agent_slug: "c".into(), ..Default::default()
+            pod_key: "p".into(),
+            status: "running".into(),
+            agent_slug: "c".into(),
+            ..Default::default()
         },
         Some(1),
     );
@@ -115,27 +135,37 @@ fn reset_for_org_switch_clears_state_but_keeps_events() {
     let events = Arc::new(EventSubscriptionManager::with_default_options(make_client()));
     let rt = AppRuntime::new(events.clone());
 
-    dispatch(&rt.state, &make_event(serde_json::json!({
-        "type": "pod:created",
-        "category": "entity",
-        "organization_id": 1,
-        "data": {"pod_key": "p-1", "status": "running", "agent_slug": "claude"},
-        "timestamp": 1
-    })));
+    dispatch(
+        &rt.state,
+        &make_event(serde_json::json!({
+            "type": "pod:created",
+            "category": "entity",
+            "organization_id": 1,
+            "data": {"pod_key": "p-1", "status": "running", "agent_slug": "claude"},
+            "timestamp": 1
+        })),
+    );
     assert_eq!(rt.state.read().pods.pods().len(), 1);
 
     rt.state.write().reset_for_org_switch();
 
-    assert_eq!(rt.state.read().pods.pods().len(), 0, "org switch must clear pods");
+    assert_eq!(
+        rt.state.read().pods.pods().len(),
+        0,
+        "org switch must clear pods"
+    );
 
     // Subsequent events still flow into the same runtime.
-    dispatch(&rt.state, &make_event(serde_json::json!({
-        "type": "pod:created",
-        "category": "entity",
-        "organization_id": 2,
-        "data": {"pod_key": "p-2", "status": "running", "agent_slug": "claude"},
-        "timestamp": 2
-    })));
+    dispatch(
+        &rt.state,
+        &make_event(serde_json::json!({
+            "type": "pod:created",
+            "category": "entity",
+            "organization_id": 2,
+            "data": {"pod_key": "p-2", "status": "running", "agent_slug": "claude"},
+            "timestamp": 2
+        })),
+    );
     assert_eq!(rt.state.read().pods.pods().len(), 1);
 }
 
@@ -143,7 +173,7 @@ fn reset_for_org_switch_clears_state_but_keeps_events() {
 /// platform side-effects (toast, browser notification, refetch).
 #[test]
 fn pending_queues_drain_atomically() {
-    use crate::app_state::{ToastSpec, NotificationSpec};
+    use crate::app_state::{NotificationSpec, ToastSpec};
     let mut state = AppState::new();
 
     state.pending_toasts.push(ToastSpec {

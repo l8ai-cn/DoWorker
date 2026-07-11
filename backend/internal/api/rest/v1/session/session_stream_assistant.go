@@ -63,7 +63,7 @@ func (p *SessionStreamPublisher) finishAssistantMessage(ctx context.Context, ses
 	}
 	payload, _ := json.Marshal(map[string]any{
 		"id": itemID, "type": "message", "response_id": turnID, "status": "completed",
-		"role": "assistant",
+		"role":    "assistant",
 		"content": []map[string]any{{"type": "output_text", "text": text}},
 	})
 	_ = p.Items.Append(ctx, &domainitem.Item{
@@ -73,7 +73,7 @@ func (p *SessionStreamPublisher) finishAssistantMessage(ctx context.Context, ses
 	})
 	item := map[string]any{
 		"id": itemID, "type": "message", "response_id": turnID, "status": "completed",
-		"role": "assistant",
+		"role":    "assistant",
 		"content": []map[string]any{{"type": "output_text", "text": text}},
 	}
 	p.Hub.Publish(sessionID, formatSSE(sseTurnItemDone, map[string]any{"item": item}))

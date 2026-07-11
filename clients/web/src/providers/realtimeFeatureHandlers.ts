@@ -1,12 +1,12 @@
 import { useAutopilotStore } from "@/stores/autopilot";
-import { useLoopStore } from "@/stores/loop";
-import { getLoopState, parseWasmAny } from "@/lib/wasm-core";
+import { useWorkflowStore } from "@/stores/workflow";
+import { getWorkflowState, parseWasmAny } from "@/lib/wasm-core";
 import type { DebounceRef } from "./realtimeEventHandlers";
 import {
   type RealtimeEvent,
   decodeEventData,
-  LoopRunEventDataSchema,
-  LoopRunWarningEventDataSchema,
+  WorkflowRunEventDataSchema,
+  WorkflowRunWarningEventDataSchema,
 } from "@/lib/realtime";
 
 export function handleAutopilotEvent(event: RealtimeEvent) {
@@ -31,34 +31,34 @@ export function handleAutopilotEvent(event: RealtimeEvent) {
   }
 }
 
-export function handleLoopEvent(
+export function handleWorkflowEvent(
   event: RealtimeEvent,
   debounceRef: DebounceRef | undefined,
   t: (key: string, params?: Record<string, string | number>) => string,
   showWarning: (title: string, description: string) => void
 ) {
   switch (event.type) {
-    case "loop_run:started":
-    case "loop_run:completed":
-    case "loop_run:failed": {
+    case "workflow_run:started":
+    case "workflow_run:completed":
+    case "workflow_run:failed": {
       if (!debounceRef) return;
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         debounceRef.current = null;
-        const s = useLoopStore.getState();
-        s.fetchLoops?.();
-        const currentLoop = parseWasmAny<{ id: number; slug: string }>(getLoopState().current_loop_json());
-        const loopRunData = decodeEventData(LoopRunEventDataSchema, event.data);
-        if (currentLoop?.id === Number(loopRunData.loopId)) {
-          s.fetchLoop?.(currentLoop.slug);
+        const s = useWorkflowStore.getState();
+        s.fetchWorkflows?.();
+        const currentWorkflow = parseWasmAny<{ id: number; slug: string }>(getWorkflowState().current_workflow_json());
+        const workflowRunData = decodeEventData(WorkflowRunEventDataSchema, event.data);
+        if (currentWorkflow?.id === Number(workflowRunData.workflowId)) {
+          s.fetchWorkflow?.(currentWorkflow.slug);
           // Eventual-consistency retry: if the first fetch races the
           // publish path and returns no new rows, retry once at 750ms.
           // Cheap insurance against the multitab broadcast race.
-          const slug = currentLoop.slug;
-          const expectedRunId = Number(loopRunData.runId);
+          const slug = currentWorkflow.slug;
+          const expectedRunId = Number(workflowRunData.runId);
           s.fetchRuns?.(slug, { limit: 20, offset: 0 }).then(() => {
             if (!Number.isFinite(expectedRunId) || expectedRunId <= 0) return;
-            const seen = parseWasmAny<Array<{ id?: number | string }>>(getLoopState().runs_json()) ?? [];
+            const seen = parseWasmAny<Array<{ id?: number | string }>>(getWorkflowState().runs_json()) ?? [];
             const found = seen.some((r) => Number(r.id) === expectedRunId);
             if (!found) setTimeout(() => s.fetchRuns?.(slug, { limit: 20, offset: 0 }), 750);
           });
@@ -66,9 +66,9 @@ export function handleLoopEvent(
       }, 500);
       break;
     }
-    case "loop_run:warning": {
-      const data = decodeEventData(LoopRunWarningEventDataSchema, event.data);
-      showWarning(t("loops.runWarningTitle", { runNumber: data.runNumber }), data.detail || data.warning);
+    case "workflow_run:warning": {
+      const data = decodeEventData(WorkflowRunWarningEventDataSchema, event.data);
+      showWarning(t("workflows.runWarningTitle", { runNumber: data.runNumber }), data.detail || data.warning);
       break;
     }
   }

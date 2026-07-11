@@ -60,8 +60,8 @@ impl WasmBindingService {
 
     #[wasm_bindgen(js_name = unbindConnect)]
     pub async fn unbind_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
-        let req = bp::UnbindRequest::decode(request)
-            .map_err(|e| format!("decode UnbindRequest: {e}"))?;
+        let req =
+            bp::UnbindRequest::decode(request).map_err(|e| format!("decode UnbindRequest: {e}"))?;
         let resp = self
             .client_ref()
             .unbind_connect(&req)

@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	ErrRepositoryNotFound      = errors.New("repository not found")
-	ErrRepositoryExists        = errors.New("repository already exists")
-	ErrNoPermission            = errors.New("no permission to access this repository")
-	ErrAmbiguousRepositorySlug = errors.New("repository slug is ambiguous")
-	ErrRepositoryHasLoopRefs   = errors.New("cannot delete: repository is referenced by one or more loops")
+	ErrRepositoryNotFound        = errors.New("repository not found")
+	ErrRepositoryExists          = errors.New("repository already exists")
+	ErrNoPermission              = errors.New("no permission to access this repository")
+	ErrAmbiguousRepositorySlug   = errors.New("repository slug is ambiguous")
+	ErrRepositoryHasWorkflowRefs = errors.New("cannot delete: repository is referenced by one or more workflows")
 )
 
 type Service struct {
@@ -95,7 +95,7 @@ func (s *Service) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 	if loopCount > 0 {
-		return ErrRepositoryHasLoopRefs
+		return ErrRepositoryHasWorkflowRefs
 	}
 	if err := s.repo.SoftDelete(ctx, id); err != nil {
 		slog.ErrorContext(ctx, "failed to soft-delete repository", "repo_id", id, "error", err)
@@ -111,7 +111,7 @@ func (s *Service) HardDelete(ctx context.Context, id int64) error {
 		return err
 	}
 	if loopCount > 0 {
-		return ErrRepositoryHasLoopRefs
+		return ErrRepositoryHasWorkflowRefs
 	}
 	if err := s.repo.HardDelete(ctx, id); err != nil {
 		slog.ErrorContext(ctx, "failed to hard-delete repository", "repo_id", id, "error", err)

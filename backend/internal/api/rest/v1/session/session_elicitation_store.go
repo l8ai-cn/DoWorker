@@ -17,7 +17,7 @@ type ElicitationRecord struct {
 }
 
 type ElicitationStore struct {
-	mu       sync.RWMutex
+	mu        sync.RWMutex
 	bySession map[string]map[string]*ElicitationRecord
 }
 

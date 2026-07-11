@@ -36,6 +36,12 @@ type Prepared struct {
 	Repository     *gitprovider.Repository `json:"-"`
 }
 
+type PreparedSnapshot struct {
+	Spec           specdomain.Spec
+	AgentfileLayer string
+	Repository     *gitprovider.Repository `json:"-"`
+}
+
 type PreflightResult struct {
 	BlockingErrors  []Issue
 	Warnings        []Issue

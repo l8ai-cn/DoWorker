@@ -2,14 +2,14 @@ use std::sync::Arc;
 
 use agentsmesh_state::app_state::AppState;
 use agentsmesh_state::autopilot_state::{AutopilotController, AutopilotIteration};
-use agentsmesh_types::proto_autopilot_v1::{
-    AutopilotController as WireController, GetIterationsResponse, ListAutopilotControllersResponse,
-};
 use agentsmesh_types::proto_autopilot_state_v1::{
     AppendIterationRequest, AutopilotControllerSnapshot, AutopilotIterationSnapshot,
     InsertControllerRequest, PatchControllerRequest, RemoveControllerRequest,
-    ReplaceCachedControllersRequest, ReplaceCachedIterationsRequest,
-    SetCurrentControllerRequest, UpdateThinkingRequest,
+    ReplaceCachedControllersRequest, ReplaceCachedIterationsRequest, SetCurrentControllerRequest,
+    UpdateThinkingRequest,
+};
+use agentsmesh_types::proto_autopilot_v1::{
+    AutopilotController as WireController, GetIterationsResponse, ListAutopilotControllersResponse,
 };
 use parking_lot::RwLock;
 use prost::Message;
@@ -124,7 +124,14 @@ impl WasmAutopilotState {
     // Web decodes via fromBinary + controllerSnapshotToCache (re-folds
     // circuit_breaker), replacing controllers_json (flat state struct serde).
     pub fn controllers_bytes(&self) -> Vec<u8> {
-        let controllers = self.state.read().autopilot.controllers().iter().map(to_snapshot).collect();
+        let controllers = self
+            .state
+            .read()
+            .autopilot
+            .controllers()
+            .iter()
+            .map(to_snapshot)
+            .collect();
         ReplaceCachedControllersRequest { controllers }.encode_to_vec()
     }
 
@@ -132,14 +139,25 @@ impl WasmAutopilotState {
     // current_controller_json NULL sentinel).
     pub fn current_controller_bytes(&self) -> Vec<u8> {
         match self.state.read().autopilot.current_controller() {
-            Some(c) => SetCurrentControllerRequest { controller: Some(to_snapshot(c)) }.encode_to_vec(),
+            Some(c) => SetCurrentControllerRequest {
+                controller: Some(to_snapshot(c)),
+            }
+            .encode_to_vec(),
             None => Vec::new(),
         }
     }
 
     pub fn controller_by_pod_key_bytes(&self, pod_key: &str) -> Vec<u8> {
-        match self.state.read().autopilot.get_controller_by_pod_key(pod_key) {
-            Some(c) => SetCurrentControllerRequest { controller: Some(to_snapshot(c)) }.encode_to_vec(),
+        match self
+            .state
+            .read()
+            .autopilot
+            .get_controller_by_pod_key(pod_key)
+        {
+            Some(c) => SetCurrentControllerRequest {
+                controller: Some(to_snapshot(c)),
+            }
+            .encode_to_vec(),
             None => Vec::new(),
         }
     }
@@ -160,14 +178,20 @@ impl WasmAutopilotState {
     // replace_cached_controllers — web fetch hands raw wire bytes to Rust.
     pub fn apply_fetched_controllers(&self, resp_bytes: &[u8]) -> Result<(), JsValue> {
         let resp = ListAutopilotControllersResponse::decode(resp_bytes).map_err(decode_err)?;
-        self.state.write().autopilot.apply_fetched_controllers(resp.items);
+        self.state
+            .write()
+            .autopilot
+            .apply_fetched_controllers(resp.items);
         Ok(())
     }
 
     // Fetch→state: decode wire GetIterationsResponse + fold into state under key.
     pub fn apply_fetched_iterations(&self, key: &str, resp_bytes: &[u8]) -> Result<(), JsValue> {
         let resp = GetIterationsResponse::decode(resp_bytes).map_err(decode_err)?;
-        self.state.write().autopilot.apply_fetched_iterations(key.to_string(), resp.items);
+        self.state
+            .write()
+            .autopilot
+            .apply_fetched_iterations(key.to_string(), resp.items);
         Ok(())
     }
 
@@ -176,20 +200,29 @@ impl WasmAutopilotState {
     // controllerSnapshotToCache + insert/set_current dispatch round-trip.
     pub fn apply_fetched_current_controller(&self, resp_bytes: &[u8]) -> Result<(), JsValue> {
         let wire = WireController::decode(resp_bytes).map_err(decode_err)?;
-        self.state.write().autopilot.apply_fetched_current_controller(wire);
+        self.state
+            .write()
+            .autopilot
+            .apply_fetched_current_controller(wire);
         Ok(())
     }
 
     pub fn set_current_controller_proto(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = SetCurrentControllerRequest::decode(req_bytes).map_err(decode_err)?;
-        self.state.write().autopilot.set_current_controller(req.controller.map(from_snapshot));
+        self.state
+            .write()
+            .autopilot
+            .set_current_controller(req.controller.map(from_snapshot));
         Ok(())
     }
 
     pub fn insert_controller(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = InsertControllerRequest::decode(req_bytes).map_err(decode_err)?;
         if let Some(c) = req.controller {
-            self.state.write().autopilot.add_controller(from_snapshot(c));
+            self.state
+                .write()
+                .autopilot
+                .add_controller(from_snapshot(c));
         }
         Ok(())
     }
@@ -197,14 +230,20 @@ impl WasmAutopilotState {
     pub fn patch_controller(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = PatchControllerRequest::decode(req_bytes).map_err(decode_err)?;
         if let Some(c) = req.controller {
-            self.state.write().autopilot.update_controller(&req.autopilot_controller_key, from_snapshot(c));
+            self.state
+                .write()
+                .autopilot
+                .update_controller(&req.autopilot_controller_key, from_snapshot(c));
         }
         Ok(())
     }
 
     pub fn remove_controller(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = RemoveControllerRequest::decode(req_bytes).map_err(decode_err)?;
-        self.state.write().autopilot.remove_controller(&req.autopilot_controller_key);
+        self.state
+            .write()
+            .autopilot
+            .remove_controller(&req.autopilot_controller_key);
         Ok(())
     }
 
@@ -225,7 +264,10 @@ impl WasmAutopilotState {
     pub fn append_iteration(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = AppendIterationRequest::decode(req_bytes).map_err(decode_err)?;
         if let Some(iter) = req.iteration {
-            self.state.write().autopilot.add_iteration(req.autopilot_controller_key, from_iteration_snapshot(iter));
+            self.state
+                .write()
+                .autopilot
+                .add_iteration(req.autopilot_controller_key, from_iteration_snapshot(iter));
         }
         Ok(())
     }
@@ -247,7 +289,10 @@ impl WasmAutopilotState {
     pub fn update_thinking(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = UpdateThinkingRequest::decode(req_bytes).map_err(decode_err)?;
         if let Ok(thinking) = serde_json::from_str::<Value>(&req.thinking_json) {
-            self.state.write().autopilot.update_thinking(req.autopilot_controller_key, thinking);
+            self.state
+                .write()
+                .autopilot
+                .update_thinking(req.autopilot_controller_key, thinking);
         }
         Ok(())
     }
@@ -257,7 +302,12 @@ impl WasmAutopilotState {
     }
 
     pub fn get_controller_by_pod_key_json(&self, pod_key: &str) -> JsValue {
-        match self.state.read().autopilot.get_controller_by_pod_key(pod_key) {
+        match self
+            .state
+            .read()
+            .autopilot
+            .get_controller_by_pod_key(pod_key)
+        {
             Some(c) => JsValue::from_str(&serde_json::to_string(c).unwrap_or_default()),
             None => JsValue::NULL,
         }

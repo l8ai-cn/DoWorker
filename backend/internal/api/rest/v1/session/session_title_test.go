@@ -19,12 +19,12 @@ func TestDeriveSessionTitleFromPrompt(t *testing.T) {
 		{name: "empty", prompt: "", want: nil},
 		{name: "plain", prompt: "Build a gomoku game", want: strPtr("Build a gomoku game")},
 		{
-			name: "attachment markers stripped",
+			name:   "attachment markers stripped",
 			prompt: "[Attached: src/main.ts]\n[Attached file: README.md]\nFix the login bug",
 			want:   strPtr("Fix the login bug"),
 		},
 		{
-			name: "blockquote skipped",
+			name:   "blockquote skipped",
 			prompt: "> quoted context\n\nImplement dark mode",
 			want:   strPtr("Implement dark mode"),
 		},

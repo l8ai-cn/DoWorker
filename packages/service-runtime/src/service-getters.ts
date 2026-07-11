@@ -2,7 +2,7 @@
 import type {
   WasmApiClient, WasmAuthManager, WasmPodService, WasmPodState,
   WasmTicketService, WasmChannelService, WasmRunnerService,
-  WasmLoopService, WasmAutopilotService, WasmMeshService,
+  WasmWorkflowService, WasmGoalLoopService, WasmAutopilotService, WasmMeshService,
   WasmBillingService, WasmRepositoryService, WasmExtensionService,
   WasmInvitationService, WasmApiKeyService, WasmBindingService,
   WasmGrantService, WasmNotificationService, WasmPromoCodeService,
@@ -13,7 +13,7 @@ import type {
   WasmKnowledgeBaseService,
   WasmAIResourceService,
   WasmRunnerState, WasmMeshState, WasmTicketState, WasmChannelState,
-  WasmLoopState, WasmAcpSessionManager, WasmLoopalManager, WasmRepoState,
+  WasmWorkflowState, WasmAcpSessionManager, WasmLoopalManager, WasmRepoState,
   WasmExpertState, WasmAutopilotState, WasmRelayManager,
 } from "do-worker-wasm";
 
@@ -44,7 +44,8 @@ export interface ServiceRegistry {
   ticketService: WasmTicketService;
   channelService: WasmChannelService;
   runnerService: WasmRunnerService;
-  loopService: WasmLoopService;
+  workflowService: WasmWorkflowService;
+  goalLoopService: WasmGoalLoopService;
   autopilotService: WasmAutopilotService;
   meshService: WasmMeshService;
   billingService: WasmBillingService;
@@ -74,7 +75,7 @@ export interface ServiceRegistry {
   meshState: WasmMeshState;
   ticketState: WasmTicketState;
   channelState: WasmChannelState;
-  loopState: WasmLoopState;
+  workflowState: WasmWorkflowState;
   acpManager: WasmAcpSessionManager;
   // Loopal control-panel state. Optional — only the web build registers it;
   // missing services fall back to NOOP_PROXY (Loopal console shows empty panels).
@@ -148,7 +149,8 @@ export const getPodService = () => g("podService");
 export const getTicketService = () => g("ticketService");
 export const getChannelService = () => g("channelService");
 export const getRunnerService = () => g("runnerService");
-export const getLoopService = () => g("loopService");
+export const getWorkflowService = () => g("workflowService");
+export const getGoalLoopService = () => g("goalLoopService");
 export const getAutopilotService = () => g("autopilotService");
 export const getMeshService = () => g("meshService");
 export const getBillingService = () => g("billingService");
@@ -175,7 +177,7 @@ export const getRunnerState = () => g("runnerState");
 export const getMeshState = () => g("meshState");
 export const getTicketState = () => g("ticketState");
 export const getChannelState = () => g("channelState");
-export const getLoopState = () => g("loopState");
+export const getWorkflowState = () => g("workflowState");
 export const getAcpManager = () => g("acpManager");
 export const getLoopalManager = (): WasmLoopalManager => {
   const reg = registry();

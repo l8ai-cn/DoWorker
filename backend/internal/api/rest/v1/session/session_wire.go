@@ -9,19 +9,19 @@ import (
 )
 
 type sessionWire struct {
-	ID                       string             `json:"id"`
-	AgentID                  string             `json:"agent_id"`
-	AgentName                *string            `json:"agent_name,omitempty"`
-	RunnerID                 *string            `json:"runner_id,omitempty"`
-	Status                   string             `json:"status"`
-	CreatedAt                int64              `json:"created_at"`
-	Title                    *string            `json:"title,omitempty"`
-	Items                    []any              `json:"items,omitempty"`
-	Harness                  *string            `json:"harness,omitempty"`
-	PendingElicitations      []map[string]any   `json:"pending_elicitations,omitempty"`
-	PendingElicitationsCount int                `json:"pending_elicitations_count,omitempty"`
-	TotalCostUSD             *float64           `json:"total_cost_usd,omitempty"`
-	UsageByModel             map[string]any     `json:"usage_by_model,omitempty"`
+	ID                       string           `json:"id"`
+	AgentID                  string           `json:"agent_id"`
+	AgentName                *string          `json:"agent_name,omitempty"`
+	RunnerID                 *string          `json:"runner_id,omitempty"`
+	Status                   string           `json:"status"`
+	CreatedAt                int64            `json:"created_at"`
+	Title                    *string          `json:"title,omitempty"`
+	Items                    []any            `json:"items,omitempty"`
+	Harness                  *string          `json:"harness,omitempty"`
+	PendingElicitations      []map[string]any `json:"pending_elicitations,omitempty"`
+	PendingElicitationsCount int              `json:"pending_elicitations_count,omitempty"`
+	TotalCostUSD             *float64         `json:"total_cost_usd,omitempty"`
+	UsageByModel             map[string]any   `json:"usage_by_model,omitempty"`
 }
 
 func sessionWireFrom(row *domain.Session, pod *podDomain.Pod, runnerNodeID *string, pending []map[string]any, agg sessionusagesvc.Aggregate) sessionWire {

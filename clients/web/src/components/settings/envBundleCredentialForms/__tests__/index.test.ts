@@ -72,6 +72,21 @@ describe("credentialForms registry", () => {
     expect(getEnvKeysFromSpec(spec)).toEqual(new Set(["XAI_API_KEY"]));
   });
 
+  it.each(["openclaw", "harn"])("%s exposes common provider keys + custom env", (slug) => {
+    const spec = getCredentialFormSpec(slug);
+    expect(spec.agentSlug).toBe(slug);
+    expect(spec.allowCustomEnv).toBe(true);
+    expect(getEnvKeysFromSpec(spec)).toEqual(
+      new Set([
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "XAI_API_KEY",
+        "GOOGLE_API_KEY",
+        "GEMINI_API_KEY",
+      ]),
+    );
+  });
+
   it("falls back to pure custom-env form for unknown slug", () => {
     const spec = getCredentialFormSpec("custom-user-agent-xyz");
     expect(spec).toEqual({

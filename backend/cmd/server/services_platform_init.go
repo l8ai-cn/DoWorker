@@ -10,12 +10,13 @@ import (
 	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
 	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
 	blockstoreservice "github.com/anthropics/agentsmesh/backend/internal/service/blockstore"
+	goalloop "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
 	knowledgebaseservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
-	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	notifservice "github.com/anthropics/agentsmesh/backend/internal/service/notification"
 	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
 	podsessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
 	tokenusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenusage"
+	workflow "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -25,8 +26,9 @@ func initializePlatformServices(services *serviceContainer, cfg *config.Config, 
 	services.supportTicket = initializeSupportTicketService(cfg, db)
 	services.apikey = apikeyservice.NewService(infra.NewAPIKeyRepository(db), redisClient)
 	services.apikeyAdapter = apikeyservice.NewMiddlewareAdapter(services.apikey)
-	services.loop = loop.NewLoopService(infra.NewLoopRepository(db))
-	services.loopRun = loop.NewLoopRunService(infra.NewLoopRunRepository(db))
+	services.workflow = workflow.NewWorkflowService(infra.NewWorkflowRepository(db))
+	services.workflowRun = workflow.NewWorkflowRunService(infra.NewWorkflowRunRepository(db))
+	services.goalLoop = goalloop.NewService(infra.NewGoalLoopRepository(db))
 	services.license = initializeLicenseService(cfg, db)
 	services.extension, services.extensionRepo, services.marketplaceWorker = initializeExtensionServices(cfg, db)
 	services.knowledgeBase = initializeKnowledgeBaseService(cfg, db)

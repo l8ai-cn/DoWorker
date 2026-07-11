@@ -1,0 +1,44 @@
+// Client-side cache mutation contract for scheduled and manually triggered
+// Workflow definitions. Goal-oriented Loop state has a separate package.
+
+syntax = "proto3";
+
+package proto.workflow_state.v1;
+
+import "workflow/v1/workflow.proto";
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/workflow_state/v1;workflowstatev1";
+
+message ReplaceCachedWorkflowsRequest {
+  repeated proto.workflow.v1.Workflow workflows = 1;
+}
+
+message SetCurrentWorkflowRequest {
+  proto.workflow.v1.Workflow workflow = 1;
+}
+
+message ClearCurrentWorkflowRequest {}
+
+message PatchWorkflowFromActionRequest {
+  string slug = 1;
+  proto.workflow.v1.Workflow workflow = 2;
+}
+
+message InsertWorkflowRunRequest {
+  proto.workflow.v1.WorkflowRun run = 1;
+}
+
+message ReplaceCachedWorkflowRunsRequest {
+  repeated proto.workflow.v1.WorkflowRun runs = 1;
+}
+
+message AppendCachedWorkflowRunsRequest {
+  repeated proto.workflow.v1.WorkflowRun runs = 1;
+}
+
+message PatchWorkflowRunStatusRequest {
+  int64 run_id = 1;
+  string status = 2;
+}
+
+message ClearWorkflowRunsRequest {}

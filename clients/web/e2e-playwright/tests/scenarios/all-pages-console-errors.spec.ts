@@ -57,9 +57,9 @@ test.describe("All Pages Console Error Validation", () => {
     assertNoWasmErrors(errors);
   });
 
-  test("loops list page: no console errors", async ({ page }) => {
+  test("workflows list page: no console errors", async ({ page }) => {
     const errors = consoleErrorCollector(page);
-    await page.goto(`/${TEST_ORG_SLUG}/loops`);
+    await page.goto(`/${TEST_ORG_SLUG}/workflows`);
     await page.waitForLoadState("load");
     assertNoWasmErrors(errors);
   });

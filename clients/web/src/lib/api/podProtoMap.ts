@@ -13,7 +13,7 @@ import { create as protoCreate } from "@bufbuild/protobuf";
 import {
   PodSchema,
   PodRunnerInfoSchema, PodAgentInfoSchema, PodRepositoryInfoSchema,
-  PodTicketInfoSchema, PodLoopInfoSchema, PodCreatedByInfoSchema,
+  PodTicketInfoSchema, PodWorkflowInfoSchema, PodCreatedByInfoSchema,
   type Pod as ProtoPod,
 } from "@proto/pod/v1/pod_pb";
 import type { PodData } from "@/lib/api/facade/pod";
@@ -49,10 +49,10 @@ export function podToProtoPod(p: PodData): ProtoPod {
       slug: p.ticket.slug,
       title: p.ticket.title,
     }) : undefined,
-    loop: p.loop ? protoCreate(PodLoopInfoSchema, {
-      id: asBigInt(p.loop.id),
-      name: p.loop.name,
-      slug: p.loop.slug,
+    workflow: p.workflow ? protoCreate(PodWorkflowInfoSchema, {
+      id: asBigInt(p.workflow.id),
+      name: p.workflow.name,
+      slug: p.workflow.slug,
     }) : undefined,
     createdBy: p.created_by ? protoCreate(PodCreatedByInfoSchema, {
       id: asBigInt(p.created_by.id),

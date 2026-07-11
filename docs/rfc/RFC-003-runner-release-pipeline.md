@@ -3,7 +3,7 @@
 | 属性 | 值 |
 |------|-----|
 | **状态** | Accepted |
-| **作者** | AgentsMesh Team |
+| **作者** | Do Worker Team |
 | **创建日期** | 2026-01-16 |
 | **目标** | 规范 Runner 多平台发布流程 |
 
@@ -13,7 +13,7 @@
 
 ### 1.1 背景
 
-AgentsMesh Runner 需要支持多平台分发，包括：
+Do Worker Runner 需要支持多平台分发，包括：
 - **CLI 版本**：无 GUI，适用于服务器和命令行环境
 - **Desktop 版本**：带系统托盘，适用于桌面环境
 
@@ -177,11 +177,11 @@ package:macos-dmg:
     - cd runner
     - export VERSION="${CI_COMMIT_TAG:-dev}"
     # 创建 .app bundle
-    - mkdir -p "AgentsMesh Runner.app/Contents/MacOS"
-    - cp runner-desktop-darwin-universal "AgentsMesh Runner.app/Contents/MacOS/runner-desktop"
+    - mkdir -p "Do Worker Runner.app/Contents/MacOS"
+    - cp runner-desktop-darwin-universal "Do Worker Runner.app/Contents/MacOS/runner-desktop"
     # 创建 DMG
-    - DMG_NAME="AgentsMesh-Runner-${VERSION}-darwin-universal.dmg"
-    - create-dmg --volname "AgentsMesh Runner" "$DMG_NAME" "AgentsMesh Runner.app" || true
+    - DMG_NAME="Do Worker-Runner-${VERSION}-darwin-universal.dmg"
+    - create-dmg --volname "Do Worker Runner" "$DMG_NAME" "Do Worker Runner.app" || true
     # 处理 create-dmg AppleScript 超时留下的临时文件
     - |
       if [ ! -f "$DMG_NAME" ]; then
@@ -302,7 +302,7 @@ git push origin v0.2.0
 | `agentsmesh-runner_X.Y.Z_linux_amd64.apk` | Alpine 包 |
 | `agentsmesh-runner_X.Y.Z_windows_amd64.zip` | Windows CLI (x64) |
 | `agentsmesh-runner_X.Y.Z_windows_arm64.zip` | Windows CLI (ARM64) |
-| `AgentsMesh-Runner-vX.Y.Z-darwin-universal.dmg` | macOS Desktop (Universal) |
+| `Do Worker-Runner-vX.Y.Z-darwin-universal.dmg` | macOS Desktop (Universal) |
 
 ---
 

@@ -13,8 +13,8 @@ pub mod credential_types;
 pub mod event_dispatch;
 pub mod expert_state;
 pub mod expert_types;
-pub mod loop_state;
-pub mod loop_types;
+pub mod workflow_state;
+pub mod workflow_types;
 pub mod loopal_dispatch;
 pub mod loopal_session;
 pub mod loopal_types;
@@ -38,7 +38,7 @@ mod channel_state_tests;
 #[cfg(test)]
 mod expert_state_tests;
 #[cfg(test)]
-mod loop_state_tests;
+mod workflow_state_tests;
 #[cfg(test)]
 mod loopal_dispatch_tests;
 #[cfg(test)]

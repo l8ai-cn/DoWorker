@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { reconnectRegistry } from "@/lib/realtime";
 import {
   handlePodEvent, handleChannelEvent, handleInfraEvent,
-  handleAutopilotEvent, handleLoopEvent, handleBlockstoreEvent,
+  handleAutopilotEvent, handleWorkflowEvent, handleBlockstoreEvent,
   type DebounceRef,
 } from "./realtimeEventHandlers";
 import type { ConnectionState, RealtimeEvent } from "@/lib/realtime";
@@ -73,7 +73,7 @@ export function RealtimeProvider({ children, onEvent }: RealtimeProviderProps) {
   const t = useTranslations();
   const setReminder = useReminderStore((s) => s.setReminder);
   const clearReminder = useReminderStore((s) => s.clearReminder);
-  const loopDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const workflowDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ticketDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const channelDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tickPollRef = useRef<number>(0);
@@ -90,8 +90,8 @@ export function RealtimeProvider({ children, onEvent }: RealtimeProviderProps) {
       if (event.type.startsWith("pod:")) { handlePodEvent(event); return; }
       if (event.type.startsWith("channel:")) { handleChannelEvent(event, channelDebounceRef); return; }
       if (event.type.startsWith("autopilot:")) { handleAutopilotEvent(event); return; }
-      if (event.type.startsWith("loop_run:")) {
-        handleLoopEvent(event, loopDebounceRef, t, (title, desc) => {
+      if (event.type.startsWith("workflow_run:")) {
+        handleWorkflowEvent(event, workflowDebounceRef, t, (title, desc) => {
           toast.warning(title, { description: desc, duration: 8000 });
         });
         return;
@@ -148,7 +148,7 @@ export function RealtimeProvider({ children, onEvent }: RealtimeProviderProps) {
   );
 
   useEffect(() => {
-    const refs: DebounceRef[] = [loopDebounceRef, ticketDebounceRef, channelDebounceRef];
+    const refs: DebounceRef[] = [workflowDebounceRef, ticketDebounceRef, channelDebounceRef];
     return () => { refs.forEach((r) => { if (r.current) clearTimeout(r.current); }); };
   }, []);
 

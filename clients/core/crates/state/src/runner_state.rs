@@ -23,24 +23,42 @@ pub struct RunnerState {
 
 impl RunnerState {
     pub fn new() -> Self {
-        Self { runners: Vec::new(), available_runners: Vec::new(), current_runner: None, repo: None }
+        Self {
+            runners: Vec::new(),
+            available_runners: Vec::new(),
+            current_runner: None,
+            repo: None,
+        }
     }
 
     pub fn with_storage(backend: Arc<dyn StorageBackend>) -> Self {
         let repo = RunnerRepo::new(backend);
         let runners = repo.list_all().unwrap_or_default();
-        Self { runners, available_runners: Vec::new(), current_runner: None, repo: Some(repo) }
+        Self {
+            runners,
+            available_runners: Vec::new(),
+            current_runner: None,
+            repo: Some(repo),
+        }
     }
 
-    pub fn runners(&self) -> &[Runner] { &self.runners }
-    pub fn available_runners(&self) -> &[Runner] { &self.available_runners }
-    pub fn current_runner(&self) -> Option<&Runner> { self.current_runner.as_ref() }
+    pub fn runners(&self) -> &[Runner] {
+        &self.runners
+    }
+    pub fn available_runners(&self) -> &[Runner] {
+        &self.available_runners
+    }
+    pub fn current_runner(&self) -> Option<&Runner> {
+        self.current_runner.as_ref()
+    }
 
     pub fn set_runners(&mut self, runners: Vec<Runner>) {
         tracing::debug!(target: "runner", count = runners.len(), "set runners (baseline)");
         self.runners = runners;
         if let Some(repo) = &self.repo {
-            for r in &self.runners { let _ = repo.save(r); }
+            for r in &self.runners {
+                let _ = repo.save(r);
+            }
         }
     }
 
@@ -61,7 +79,9 @@ impl RunnerState {
         tracing::info!(target: "runner", runner_id = id, status = %runner.status, "update runner");
         if let Some(r) = self.runners.iter_mut().find(|r| r.id == id) {
             *r = runner.clone();
-            if let Some(repo) = &self.repo { let _ = repo.save(r); }
+            if let Some(repo) = &self.repo {
+                let _ = repo.save(r);
+            }
         }
         if let Some(r) = self.available_runners.iter_mut().find(|r| r.id == id) {
             *r = runner.clone();
@@ -78,13 +98,17 @@ impl RunnerState {
         if self.runners.iter().any(|r| r.id == runner.id) {
             self.update_runner(runner.id, runner);
         } else {
-            if let Some(repo) = &self.repo { let _ = repo.save(&runner); }
+            if let Some(repo) = &self.repo {
+                let _ = repo.save(&runner);
+            }
             self.runners.push(runner);
         }
     }
 
     pub fn update_runner_status(&mut self, id: i64, status: &str) {
-        if status.is_empty() { return; }
+        if status.is_empty() {
+            return;
+        }
         tracing::info!(target: "runner", runner_id = id, status, "status changed");
         for r in &mut self.runners {
             if r.id == id {
@@ -96,12 +120,16 @@ impl RunnerState {
             self.available_runners.retain(|r| r.id != id);
         } else {
             for r in &mut self.available_runners {
-                if r.id == id { r.status = status.to_string(); }
+                if r.id == id {
+                    r.status = status.to_string();
+                }
             }
         }
 
         if let Some(ref mut cur) = self.current_runner {
-            if cur.id == id { cur.status = status.to_string(); }
+            if cur.id == id {
+                cur.status = status.to_string();
+            }
         }
 
         if let Some(repo) = &self.repo {
@@ -116,9 +144,13 @@ impl RunnerState {
         self.runners.retain(|r| r.id != id);
         self.available_runners.retain(|r| r.id != id);
         if let Some(ref cur) = self.current_runner {
-            if cur.id == id { self.current_runner = None; }
+            if cur.id == id {
+                self.current_runner = None;
+            }
         }
-        if let Some(repo) = &self.repo { let _ = repo.delete(id); }
+        if let Some(repo) = &self.repo {
+            let _ = repo.delete(id);
+        }
     }
 
     pub fn can_accept_pods(runner: &Runner) -> bool {
@@ -129,5 +161,7 @@ impl RunnerState {
 }
 
 impl Default for RunnerState {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }

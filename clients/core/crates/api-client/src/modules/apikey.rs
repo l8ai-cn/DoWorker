@@ -18,71 +18,41 @@ impl ApiClient {
         &self,
         req: &apikey_proto::ListApiKeysRequest,
     ) -> Result<apikey_proto::ListApiKeysResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.apikey.v1.ApiKeyService/ListApiKeys",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.apikey.v1.ApiKeyService/ListApiKeys", req).await
     }
 
     pub async fn get_api_key_connect(
         &self,
         req: &apikey_proto::GetApiKeyRequest,
     ) -> Result<apikey_proto::ApiKey, ApiError> {
-        connect_call(
-            self,
-            "/proto.apikey.v1.ApiKeyService/GetApiKey",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.apikey.v1.ApiKeyService/GetApiKey", req).await
     }
 
     pub async fn create_api_key_connect(
         &self,
         req: &apikey_proto::CreateApiKeyRequest,
     ) -> Result<apikey_proto::CreateApiKeyResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.apikey.v1.ApiKeyService/CreateApiKey",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.apikey.v1.ApiKeyService/CreateApiKey", req).await
     }
 
     pub async fn update_api_key_connect(
         &self,
         req: &apikey_proto::UpdateApiKeyRequest,
     ) -> Result<apikey_proto::ApiKey, ApiError> {
-        connect_call(
-            self,
-            "/proto.apikey.v1.ApiKeyService/UpdateApiKey",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.apikey.v1.ApiKeyService/UpdateApiKey", req).await
     }
 
     pub async fn revoke_api_key_connect(
         &self,
         req: &apikey_proto::RevokeApiKeyRequest,
     ) -> Result<apikey_proto::RevokeApiKeyResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.apikey.v1.ApiKeyService/RevokeApiKey",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.apikey.v1.ApiKeyService/RevokeApiKey", req).await
     }
 
     pub async fn delete_api_key_connect(
         &self,
         req: &apikey_proto::DeleteApiKeyRequest,
     ) -> Result<apikey_proto::DeleteApiKeyResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.apikey.v1.ApiKeyService/DeleteApiKey",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.apikey.v1.ApiKeyService/DeleteApiKey", req).await
     }
 }

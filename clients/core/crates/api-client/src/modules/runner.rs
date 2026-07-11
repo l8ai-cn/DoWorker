@@ -1,8 +1,8 @@
 use crate::ApiClient;
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
-use agentsmesh_types::*;
 use agentsmesh_types::proto_runner_api_v1 as runner_proto;
+use agentsmesh_types::*;
 
 // =============================================================================
 // Connect-RPC (binary wire). See proto-naming-conventions.md §2.5.
@@ -17,12 +17,7 @@ impl ApiClient {
         &self,
         req: &runner_proto::ListRunnersRequest,
     ) -> Result<runner_proto::ListRunnersResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.runner_api.v1.RunnerService/ListRunners",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.runner_api.v1.RunnerService/ListRunners", req).await
     }
 
     pub async fn list_available_runners_connect(
@@ -41,36 +36,21 @@ impl ApiClient {
         &self,
         req: &runner_proto::GetRunnerRequest,
     ) -> Result<runner_proto::GetRunnerResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.runner_api.v1.RunnerService/GetRunner",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.runner_api.v1.RunnerService/GetRunner", req).await
     }
 
     pub async fn update_runner_connect(
         &self,
         req: &runner_proto::UpdateRunnerRequest,
     ) -> Result<runner_proto::Runner, ApiError> {
-        connect_call(
-            self,
-            "/proto.runner_api.v1.RunnerService/UpdateRunner",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.runner_api.v1.RunnerService/UpdateRunner", req).await
     }
 
     pub async fn delete_runner_connect(
         &self,
         req: &runner_proto::DeleteRunnerRequest,
     ) -> Result<runner_proto::DeleteRunnerResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.runner_api.v1.RunnerService/DeleteRunner",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.runner_api.v1.RunnerService/DeleteRunner", req).await
     }
 
     pub async fn upgrade_runner_connect(

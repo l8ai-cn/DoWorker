@@ -5,29 +5,50 @@ use crate::blockstore_types::{ActorType, Block, BlockOp, BlockRef, OpKind, Works
 
 fn mk_block(id: &str, ws: &str, ty: &str) -> Block {
     Block {
-        id: id.into(), workspace_id: ws.into(), block_type: ty.into(),
-        data: json!({}), text: None, meta: json!({}),
-        created_by: 1, created_at: "2026-04-19T00:00:00Z".into(),
-        updated_at: "2026-04-19T00:00:00Z".into(), deleted_at: None,
+        id: id.into(),
+        workspace_id: ws.into(),
+        block_type: ty.into(),
+        data: json!({}),
+        text: None,
+        meta: json!({}),
+        created_by: 1,
+        created_at: "2026-04-19T00:00:00Z".into(),
+        updated_at: "2026-04-19T00:00:00Z".into(),
+        deleted_at: None,
     }
 }
 
 fn mk_ref(id: i64, from: &str, to: &str, rel: &str, order: Option<&str>) -> BlockRef {
     BlockRef {
-        id, workspace_id: "ws".into(),
-        from_id: from.into(), to_id: to.into(), rel: rel.into(),
-        order_key: order.map(str::to_string), anchor: None, meta: json!({}),
-        created_by: 1, created_at: "t".into(), updated_at: "t".into(),
+        id,
+        workspace_id: "ws".into(),
+        from_id: from.into(),
+        to_id: to.into(),
+        rel: rel.into(),
+        order_key: order.map(str::to_string),
+        anchor: None,
+        meta: json!({}),
+        created_by: 1,
+        created_at: "t".into(),
+        updated_at: "t".into(),
     }
 }
 
 fn mk_op(id: i64, kind: OpKind, forward: serde_json::Value) -> BlockOp {
     BlockOp {
-        id, workspace_id: "ws".into(), idempotency_key: None,
-        actor_type: ActorType::User, actor_id: 1, op: kind,
-        target_block: None, target_ref: None,
-        payload: json!({}), forward, inverse: json!({}),
-        parent_op_id: None, applied_at: "2026-04-19T00:00:00Z".into(),
+        id,
+        workspace_id: "ws".into(),
+        idempotency_key: None,
+        actor_type: ActorType::User,
+        actor_id: 1,
+        op: kind,
+        target_block: None,
+        target_ref: None,
+        payload: json!({}),
+        forward,
+        inverse: json!({}),
+        parent_op_id: None,
+        applied_at: "2026-04-19T00:00:00Z".into(),
     }
 }
 
@@ -72,9 +93,13 @@ fn remove_block_cascades_refs() {
 #[test]
 fn apply_create_block_op() {
     let mut s = BlockstoreState::new();
-    let op = mk_op(1, OpKind::CreateBlock, json!({
-        "id": "b1", "type": "page", "data": {"title": "hi"},
-    }));
+    let op = mk_op(
+        1,
+        OpKind::CreateBlock,
+        json!({
+            "id": "b1", "type": "page", "data": {"title": "hi"},
+        }),
+    );
     s.apply_remote_op(&op);
     assert_eq!(s.blocks.get("b1").unwrap().block_type, "page");
     assert_eq!(s.get_last_op_id("ws"), 1);
@@ -83,9 +108,13 @@ fn apply_create_block_op() {
 #[test]
 fn apply_add_ref_op() {
     let mut s = BlockstoreState::new();
-    let op = mk_op(5, OpKind::AddRef, json!({
-        "id": 7, "from": "p", "to": "c", "rel": "nest", "order_key": "m",
-    }));
+    let op = mk_op(
+        5,
+        OpKind::AddRef,
+        json!({
+            "id": 7, "from": "p", "to": "c", "rel": "nest", "order_key": "m",
+        }),
+    );
     s.apply_remote_op(&op);
     assert!(s.refs.contains_key(&7));
     assert_eq!(s.nest_children.get("p").unwrap(), &vec![7]);
@@ -104,8 +133,12 @@ fn apply_delete_block_removes_it() {
 fn workspaces_roundtrip_json() {
     let mut s = BlockstoreState::new();
     s.upsert_workspace(Workspace {
-        id: "ws1".into(), organization_id: 1, slug: "main".into(),
-        name: "Main".into(), root_block_id: None, created_at: "t".into(),
+        id: "ws1".into(),
+        organization_id: 1,
+        slug: "main".into(),
+        name: "Main".into(),
+        root_block_id: None,
+        created_at: "t".into(),
     });
     let json = s.workspaces_json();
     assert!(json.contains("ws1"));

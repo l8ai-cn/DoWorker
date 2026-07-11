@@ -8,7 +8,7 @@ use serde_json::Value;
 use crate::app_state::{AppState, NotificationSpec, ToastSpec};
 use crate::autopilot_state::{AutopilotController, AutopilotIteration};
 use crate::channel_types::{ChannelMessage, SenderAgentInfo, SenderPodInfo, SenderUser};
-use crate::loop_state::{LoopRunData, loop_run_status};
+use crate::workflow_state::{WorkflowRunData, workflow_run_status};
 
 /// Extract an int64 from a protojson event field. The backend serializes
 /// proto `int64` as a JSON **string** (protojson UseProtoNames convention),
@@ -16,7 +16,8 @@ use crate::loop_state::{LoopRunData, loop_run_status};
 /// numeric-string encodings.
 fn ji64(data: &Value, key: &str) -> Option<i64> {
     let v = data.get(key)?;
-    v.as_i64().or_else(|| v.as_str().and_then(|s| s.parse::<i64>().ok()))
+    v.as_i64()
+        .or_else(|| v.as_str().and_then(|s| s.parse::<i64>().ok()))
 }
 
 fn jstr<'a>(data: &'a Value, key: &str) -> Option<&'a str> {
@@ -90,12 +91,23 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
         }
         EventType::PodStatusChanged => {
             if let Some(key) = event.data.get("pod_key").and_then(|v| v.as_str()) {
-                let status = event.data.get("status").and_then(|v| v.as_str()).unwrap_or("");
+                let status = event
+                    .data
+                    .get("status")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("");
                 let agent = event.data.get("agent_status").and_then(|v| v.as_str());
                 let code = event.data.get("error_code").and_then(|v| v.as_str());
                 let msg = event.data.get("error_message").and_then(|v| v.as_str());
                 if state.pods.get_pod(key).is_some() {
-                    state.pods.update_pod_status(key, status, agent, code, msg, Some(event.timestamp));
+                    state.pods.update_pod_status(
+                        key,
+                        status,
+                        agent,
+                        code,
+                        msg,
+                        Some(event.timestamp),
+                    );
                 } else {
                     // Pod missing from cache (e.g. created on another tab before this
                     // subscriber connected) — refetch the pod by key.
@@ -108,20 +120,31 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
         EventType::PodAgentStatusChanged => {
             if let Some(key) = event.data.get("pod_key").and_then(|v| v.as_str()) {
                 let agent = event.data.get("agent_status").and_then(|v| v.as_str());
-                if let Some(a) = agent { state.pods.update_agent_status(key, a); }
+                if let Some(a) = agent {
+                    state.pods.update_agent_status(key, a);
+                }
                 state.mesh.update_node_status(key, "", agent);
             }
         }
         EventType::PodTerminated => {
             if let Some(key) = event.data.get("pod_key").and_then(|v| v.as_str()) {
-                state.pods.update_pod_status(key, "terminated", None, None, None, Some(event.timestamp));
+                state.pods.update_pod_status(
+                    key,
+                    "terminated",
+                    None,
+                    None,
+                    None,
+                    Some(event.timestamp),
+                );
                 state.mesh.update_node_status(key, "terminated", None);
             }
         }
         EventType::PodTitleChanged => {
             if let Some(key) = event.data.get("pod_key").and_then(|v| v.as_str()) {
                 if let Some(title) = event.data.get("title").and_then(|v| v.as_str()) {
-                    state.pods.update_pod_title(key, title, Some(event.timestamp));
+                    state
+                        .pods
+                        .update_pod_title(key, title, Some(event.timestamp));
                 }
             }
         }
@@ -134,10 +157,20 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
         }
         EventType::PodInitProgress => {
             if let Some(key) = event.data.get("pod_key").and_then(|v| v.as_str()) {
-                let phase = event.data.get("phase").and_then(|v| v.as_str()).unwrap_or("");
-                let progress = event.data.get("progress").and_then(|v| v.as_f64()).unwrap_or(0.0);
+                let phase = event
+                    .data
+                    .get("phase")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("");
+                let progress = event
+                    .data
+                    .get("progress")
+                    .and_then(|v| v.as_f64())
+                    .unwrap_or(0.0);
                 let message = event.data.get("message").and_then(|v| v.as_str());
-                state.pods.update_init_progress(key, phase, progress, message);
+                state
+                    .pods
+                    .update_init_progress(key, phase, progress, message);
             }
         }
         EventType::ChannelMessage => {
@@ -163,8 +196,7 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
             }
         }
         EventType::ChannelMessageDeleted => {
-            if let (Some(ch), Some(id)) =
-                (ji64(&event.data, "channel_id"), ji64(&event.data, "id"))
+            if let (Some(ch), Some(id)) = (ji64(&event.data, "channel_id"), ji64(&event.data, "id"))
             {
                 state.channels.remove_message(ch, id);
             }
@@ -213,33 +245,45 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
                 state.runners.update_runner_status(id, status);
             }
         }
-        EventType::LoopRunStarted => {
+        EventType::WorkflowRunStarted => {
             // Full run row is pulled by the platform refetch (fetchRuns).
-            // Queue it; if the payload is a full LoopRunData (tests) insert.
-            if let Ok(run) = serde_json::from_value::<LoopRunData>(event.data.clone()) {
-                state.loops.add_run(run);
+            // Queue it; if the payload is a full WorkflowRunData (tests) insert.
+            if let Ok(run) = serde_json::from_value::<WorkflowRunData>(event.data.clone()) {
+                state.workflows.add_run(run);
             }
         }
-        EventType::LoopRunCompleted => {
+        EventType::WorkflowRunCompleted => {
             if let Some(id) = ji64(&event.data, "run_id").or_else(|| ji64(&event.data, "id")) {
-                state.loops.update_run_status(id, loop_run_status::COMPLETED);
+                state
+                    .workflows
+                    .update_run_status(id, workflow_run_status::COMPLETED);
             }
         }
-        EventType::LoopRunFailed => {
+        EventType::WorkflowRunFailed => {
             if let Some(id) = ji64(&event.data, "run_id").or_else(|| ji64(&event.data, "id")) {
-                state.loops.update_run_status(id, loop_run_status::FAILED);
+                state.workflows.update_run_status(id, workflow_run_status::FAILED);
             }
         }
         EventType::AutopilotStatusChanged => {
-            if let Some(key) = event.data.get("autopilot_controller_key").and_then(|v| v.as_str()) {
-                let ctrls: Vec<AutopilotController> = serde_json::from_value(
-                    serde_json::Value::Array(
-                        state.autopilot.controllers().iter()
+            if let Some(key) = event
+                .data
+                .get("autopilot_controller_key")
+                .and_then(|v| v.as_str())
+            {
+                let ctrls: Vec<AutopilotController> =
+                    serde_json::from_value(serde_json::Value::Array(
+                        state
+                            .autopilot
+                            .controllers()
+                            .iter()
                             .map(|c| serde_json::to_value(c).unwrap_or_default())
-                            .collect()
-                    )
-                ).unwrap_or_default();
-                if let Some(mut c) = ctrls.into_iter().find(|c| c.autopilot_controller_key == key) {
+                            .collect(),
+                    ))
+                    .unwrap_or_default();
+                if let Some(mut c) = ctrls
+                    .into_iter()
+                    .find(|c| c.autopilot_controller_key == key)
+                {
                     if let Some(phase) = event.data.get("phase").and_then(|v| v.as_str()) {
                         c.phase = Some(phase.to_string());
                     }
@@ -254,7 +298,11 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
             }
         }
         EventType::AutopilotIteration => {
-            if let Some(key) = event.data.get("autopilot_controller_key").and_then(|v| v.as_str()) {
+            if let Some(key) = event
+                .data
+                .get("autopilot_controller_key")
+                .and_then(|v| v.as_str())
+            {
                 if let Ok(iter) = serde_json::from_value::<AutopilotIteration>(event.data.clone()) {
                     state.autopilot.add_iteration(key.to_string(), iter);
                 }
@@ -266,13 +314,23 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
             }
         }
         EventType::AutopilotTerminated => {
-            if let Some(key) = event.data.get("autopilot_controller_key").and_then(|v| v.as_str()) {
+            if let Some(key) = event
+                .data
+                .get("autopilot_controller_key")
+                .and_then(|v| v.as_str())
+            {
                 state.autopilot.remove_controller(key);
             }
         }
         EventType::AutopilotThinking => {
-            if let Some(key) = event.data.get("autopilot_controller_key").and_then(|v| v.as_str()) {
-                state.autopilot.update_thinking(key.to_string(), event.data.clone());
+            if let Some(key) = event
+                .data
+                .get("autopilot_controller_key")
+                .and_then(|v| v.as_str())
+            {
+                state
+                    .autopilot
+                    .update_thinking(key.to_string(), event.data.clone());
             }
         }
 
@@ -291,7 +349,11 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
         // ── Pod perpetual toggle (Phase 3) ──
         EventType::PodPerpetualChanged => {
             if let Some(key) = event.data.get("pod_key").and_then(|v| v.as_str()) {
-                let perpetual = event.data.get("perpetual").and_then(|v| v.as_bool()).unwrap_or(false);
+                let perpetual = event
+                    .data
+                    .get("perpetual")
+                    .and_then(|v| v.as_bool())
+                    .unwrap_or(false);
                 state.pods.patch_perpetual(key, perpetual);
             }
         }
@@ -312,7 +374,10 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
                 // Resolve pod_id → pod_key against current cache. Platform
                 // refetches by key. If not found, skip — the event will be
                 // re-emitted when the pod is created.
-                let key = state.pods.pods().iter()
+                let key = state
+                    .pods
+                    .pods()
+                    .iter()
                     .find(|p| p.id == pod_id)
                     .map(|p| p.pod_key.clone());
                 if let Some(k) = key {
@@ -323,27 +388,62 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
 
         // ── Notification → browser notification queue (Phase 3) ──
         EventType::Notification => {
-            let title = event.data.get("title").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            let body = event.data.get("body").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            let icon = event.data.get("icon").and_then(|v| v.as_str()).map(String::from);
-            let link = event.data.get("link").and_then(|v| v.as_str()).map(String::from);
+            let title = event
+                .data
+                .get("title")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            let body = event
+                .data
+                .get("body")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            let icon = event
+                .data
+                .get("icon")
+                .and_then(|v| v.as_str())
+                .map(String::from);
+            let link = event
+                .data
+                .get("link")
+                .and_then(|v| v.as_str())
+                .map(String::from);
             state.pending_browser_notifications.push(NotificationSpec {
-                title, body, icon, link,
+                title,
+                body,
+                icon,
+                link,
             });
         }
 
-        // ── LoopRunWarning → toast queue (Phase 3) ──
-        // Handled separately from LoopRunStarted/Completed/Failed even
-        // though those share the LoopRunFailed arm above — warnings carry
+        // ── WorkflowRunWarning → toast queue (Phase 3) ──
+        // Handled separately from WorkflowRunStarted/Completed/Failed even
+        // though those share the WorkflowRunFailed arm above — warnings carry
         // additional context (run_number + detail) for the toast.
-        EventType::LoopRunWarning => {
-            let run_number = event.data.get("run_number").and_then(|v| v.as_i64()).unwrap_or(0);
-            let detail = event.data.get("detail").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            let warning = event.data.get("warning").and_then(|v| v.as_str()).unwrap_or("").to_string();
+        EventType::WorkflowRunWarning => {
+            let run_number = event
+                .data
+                .get("run_number")
+                .and_then(|v| v.as_i64())
+                .unwrap_or(0);
+            let detail = event
+                .data
+                .get("detail")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            let warning = event
+                .data
+                .get("warning")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
             let description = if detail.is_empty() { warning } else { detail };
             state.pending_toasts.push(ToastSpec {
                 kind: "warning".into(),
-                title_key: "loops.runWarningTitle".into(),
+                title_key: "workflows.runWarningTitle".into(),
                 title_params: serde_json::json!({"runNumber": run_number}),
                 description,
                 duration_ms: 8000,
@@ -364,7 +464,12 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
         // Backend doesn't currently publish this, but if/when it does,
         // queue a toast with the maintenance message.
         EventType::SystemMaintenance => {
-            let message = event.data.get("message").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let message = event
+                .data
+                .get("message")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
             state.pending_toasts.push(ToastSpec {
                 kind: "info".into(),
                 title_key: "system.maintenanceMode".into(),
@@ -385,16 +490,25 @@ mod tests {
 
     fn make_event(event_type: EventType, data: serde_json::Value) -> RealtimeEvent {
         RealtimeEvent {
-            event_type, category: None, organization_id: 1,
-            target_user_id: None, target_user_ids: None,
-            entity_type: None, entity_id: None, data, timestamp: 1000,
+            event_type,
+            category: None,
+            organization_id: 1,
+            target_user_id: None,
+            target_user_ids: None,
+            entity_type: None,
+            entity_id: None,
+            data,
+            timestamp: 1000,
         }
     }
 
     #[test]
     fn pod_created() {
         let mut s = AppState::new();
-        let e = make_event(EventType::PodCreated, json!({"pod_key":"p1","status":"running","agent_slug":"claude"}));
+        let e = make_event(
+            EventType::PodCreated,
+            json!({"pod_key":"p1","status":"running","agent_slug":"claude"}),
+        );
         dispatch(&mut s, &e);
         assert_eq!(s.pods.pods().len(), 1);
         assert_eq!(s.pods.get_pod("p1").unwrap().status, "running");
@@ -403,18 +517,32 @@ mod tests {
     #[test]
     fn pod_terminated() {
         let mut s = AppState::new();
-        s.pods.upsert_pod(Pod {
-            pod_key: "p1".into(), status: "running".into(),
-            agent_slug: "claude".into(), ..Default::default()
-        }, Some(100));
-        dispatch(&mut s, &make_event(EventType::PodTerminated, json!({"pod_key":"p1"})));
+        s.pods.upsert_pod(
+            Pod {
+                pod_key: "p1".into(),
+                status: "running".into(),
+                agent_slug: "claude".into(),
+                ..Default::default()
+            },
+            Some(100),
+        );
+        dispatch(
+            &mut s,
+            &make_event(EventType::PodTerminated, json!({"pod_key":"p1"})),
+        );
         assert_eq!(s.pods.get_pod("p1").unwrap().status, "terminated");
     }
 
     #[test]
     fn channel_message() {
         let mut s = AppState::new();
-        dispatch(&mut s, &make_event(EventType::ChannelMessage, json!({"id":1,"channel_id":10,"body":"hi"})));
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::ChannelMessage,
+                json!({"id":1,"channel_id":10,"body":"hi"}),
+            ),
+        );
         assert_eq!(s.channels.get_messages(10).unwrap().messages.len(), 1);
         assert_eq!(s.channels.get_messages(10).unwrap().messages[0].body, "hi");
     }
@@ -427,14 +555,24 @@ mod tests {
     #[test]
     fn channel_message_protojson_string_int64() {
         let mut s = AppState::new();
-        s.channels.set_channels(vec![agentsmesh_types::proto_channel_state_v1::Channel {
-            id: 10, name: "gen".into(), member_count: Some(1), ..Default::default()
-        }]);
+        s.channels
+            .set_channels(vec![agentsmesh_types::proto_channel_state_v1::Channel {
+                id: 10,
+                name: "gen".into(),
+                member_count: Some(1),
+                ..Default::default()
+            }]);
         s.channels.set_current_user_id(Some(1));
-        dispatch(&mut s, &make_event(EventType::ChannelMessage, json!({
-            "id": "55", "channel_id": "10", "sender_user_id": "2",
-            "sender_name": "bob", "body": "wire hi", "message_type": "text",
-        })));
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::ChannelMessage,
+                json!({
+                    "id": "55", "channel_id": "10", "sender_user_id": "2",
+                    "sender_name": "bob", "body": "wire hi", "message_type": "text",
+                }),
+            ),
+        );
         let msgs = &s.channels.get_messages(10).unwrap().messages;
         assert_eq!(msgs.len(), 1);
         assert_eq!(msgs[0].id, 55);
@@ -446,24 +584,46 @@ mod tests {
     #[test]
     fn channel_member_added_protojson_string_int64() {
         let mut s = AppState::new();
-        s.channels.set_channels(vec![agentsmesh_types::proto_channel_state_v1::Channel {
-            id: 10, name: "gen".into(), member_count: Some(1), ..Default::default()
-        }]);
-        dispatch(&mut s, &make_event(EventType::ChannelMemberAdded, json!({
-            "channel_id": "10", "user_id": "3", "role": "member",
-        })));
+        s.channels
+            .set_channels(vec![agentsmesh_types::proto_channel_state_v1::Channel {
+                id: 10,
+                name: "gen".into(),
+                member_count: Some(1),
+                ..Default::default()
+            }]);
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::ChannelMemberAdded,
+                json!({
+                    "channel_id": "10", "user_id": "3", "role": "member",
+                }),
+            ),
+        );
         assert_eq!(s.channels.get_channel(10).unwrap().member_count, Some(2));
     }
 
     #[test]
     fn channel_message_edited_protojson() {
         let mut s = AppState::new();
-        s.channels.add_message(10, ChannelMessage {
-            id: 55, channel_id: 10, body: "old".into(), ..Default::default()
-        });
-        dispatch(&mut s, &make_event(EventType::ChannelMessageEdited, json!({
-            "id": "55", "channel_id": "10", "body": "new", "edited_at": "2026-01-01T00:00:00Z",
-        })));
+        s.channels.add_message(
+            10,
+            ChannelMessage {
+                id: 55,
+                channel_id: 10,
+                body: "old".into(),
+                ..Default::default()
+            },
+        );
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::ChannelMessageEdited,
+                json!({
+                    "id": "55", "channel_id": "10", "body": "new", "edited_at": "2026-01-01T00:00:00Z",
+                }),
+            ),
+        );
         let m = &s.channels.get_messages(10).unwrap().messages[0];
         assert_eq!(m.body, "new");
         assert_eq!(m.edited_at.as_deref(), Some("2026-01-01T00:00:00Z"));
@@ -472,15 +632,35 @@ mod tests {
     #[test]
     fn channel_message_deleted_protojson() {
         let mut s = AppState::new();
-        s.channels.add_message(10, ChannelMessage { id: 55, channel_id: 10, body: "x".into(), ..Default::default() });
-        dispatch(&mut s, &make_event(EventType::ChannelMessageDeleted, json!({"id":"55","channel_id":"10"})));
+        s.channels.add_message(
+            10,
+            ChannelMessage {
+                id: 55,
+                channel_id: 10,
+                body: "x".into(),
+                ..Default::default()
+            },
+        );
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::ChannelMessageDeleted,
+                json!({"id":"55","channel_id":"10"}),
+            ),
+        );
         assert_eq!(s.channels.get_messages(10).unwrap().messages.len(), 0);
     }
 
     #[test]
     fn ticket_created() {
         let mut s = AppState::new();
-        dispatch(&mut s, &make_event(EventType::TicketCreated, json!({"slug":"T-1","title":"Fix","status":"todo","priority":"high"})));
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::TicketCreated,
+                json!({"slug":"T-1","title":"Fix","status":"todo","priority":"high"}),
+            ),
+        );
         assert_eq!(s.tickets.get_tickets().len(), 1);
     }
 
@@ -488,12 +668,22 @@ mod tests {
     fn runner_online() {
         let mut s = AppState::new();
         s.runners.set_runners(vec![Runner {
-            id: 1, node_id: "r1".into(), status: "offline".into(),
-            max_concurrent_pods: 4, current_pods: 0,
-            is_enabled: true, ..Default::default()
+            id: 1,
+            node_id: "r1".into(),
+            status: "offline".into(),
+            max_concurrent_pods: 4,
+            current_pods: 0,
+            is_enabled: true,
+            ..Default::default()
         }]);
         // Wire RunnerStatusEventData carries `runner_id` as a protojson string.
-        dispatch(&mut s, &make_event(EventType::RunnerOnline, json!({"runner_id":"1","node_id":"r1","status":"online"})));
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::RunnerOnline,
+                json!({"runner_id":"1","node_id":"r1","status":"online"}),
+            ),
+        );
         assert_eq!(s.runners.get_runner(1).unwrap().status, "online");
     }
 
@@ -501,36 +691,79 @@ mod tests {
     fn runner_updated_protojson() {
         let mut s = AppState::new();
         s.runners.set_runners(vec![Runner {
-            id: 7, node_id: "r7".into(), status: "online".into(),
-            max_concurrent_pods: 4, is_enabled: true, ..Default::default()
+            id: 7,
+            node_id: "r7".into(),
+            status: "online".into(),
+            max_concurrent_pods: 4,
+            is_enabled: true,
+            ..Default::default()
         }]);
-        dispatch(&mut s, &make_event(EventType::RunnerUpdated, json!({"runner_id":"7","node_id":"r7","status":"maintenance"})));
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::RunnerUpdated,
+                json!({"runner_id":"7","node_id":"r7","status":"maintenance"}),
+            ),
+        );
         assert_eq!(s.runners.get_runner(7).unwrap().status, "maintenance");
     }
 
     #[test]
     fn ticket_status_changed_protojson() {
         let mut s = AppState::new();
-        dispatch(&mut s, &make_event(EventType::TicketCreated, json!({"slug":"T-1","title":"Fix","status":"todo","priority":"high"})));
-        dispatch(&mut s, &make_event(EventType::TicketStatusChanged, json!({"slug":"T-1","status":"in_progress","previous_status":"todo"})));
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::TicketCreated,
+                json!({"slug":"T-1","title":"Fix","status":"todo","priority":"high"}),
+            ),
+        );
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::TicketStatusChanged,
+                json!({"slug":"T-1","status":"in_progress","previous_status":"todo"}),
+            ),
+        );
         assert_eq!(s.tickets.get_tickets()[0].status, "in_progress");
         // refetch queued for full ticket fields
-        assert!(s.take_pending_refetch_ticket_slugs().contains(&"T-1".to_string()));
+        assert!(
+            s.take_pending_refetch_ticket_slugs()
+                .contains(&"T-1".to_string())
+        );
     }
 
     #[test]
-    fn loop_run_completed_protojson() {
+    fn workflow_run_completed_protojson() {
         let mut s = AppState::new();
-        dispatch(&mut s, &make_event(EventType::LoopRunStarted, json!({"id":5,"loop_slug":"l-1","status":"running"})));
-        dispatch(&mut s, &make_event(EventType::LoopRunCompleted, json!({"run_id":"5","loop_id":"1","status":"completed"})));
-        assert_eq!(s.loops.get_runs()[0].status, loop_run_status::COMPLETED);
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::WorkflowRunStarted,
+                json!({"id":5,"workflow_slug":"l-1","status":"running"}),
+            ),
+        );
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::WorkflowRunCompleted,
+                json!({"run_id":"5","workflow_id":"1","status":"completed"}),
+            ),
+        );
+        assert_eq!(s.workflows.get_runs()[0].status, workflow_run_status::COMPLETED);
     }
 
     #[test]
-    fn loop_run_started() {
+    fn workflow_run_started() {
         let mut s = AppState::new();
-        dispatch(&mut s, &make_event(EventType::LoopRunStarted, json!({"id":1,"loop_slug":"l-1","status":"running"})));
-        assert_eq!(s.loops.get_runs().len(), 1);
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::WorkflowRunStarted,
+                json!({"id":1,"workflow_slug":"l-1","status":"running"}),
+            ),
+        );
+        assert_eq!(s.workflows.get_runs().len(), 1);
     }
 
     #[test]
@@ -547,42 +780,80 @@ mod tests {
             ..Default::default()
         });
         // status_changed patches the mesh node even when the pod isn't cached.
-        dispatch(&mut s, &make_event(EventType::PodStatusChanged, json!({"pod_key":"p1","status":"running"})));
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::PodStatusChanged,
+                json!({"pod_key":"p1","status":"running"}),
+            ),
+        );
         assert_eq!(s.mesh.get_node_by_key("p1").unwrap().status, "running");
         // agent_status_changed (no status field) patches agent_status only,
         // keeping the node status intact.
-        dispatch(&mut s, &make_event(EventType::PodAgentStatusChanged, json!({"pod_key":"p1","agent_status":"executing"})));
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::PodAgentStatusChanged,
+                json!({"pod_key":"p1","agent_status":"executing"}),
+            ),
+        );
         let n = s.mesh.get_node_by_key("p1").unwrap();
         assert_eq!(n.agent_status, "executing");
         assert_eq!(n.status, "running");
         // terminated flips the mesh node status too.
-        dispatch(&mut s, &make_event(EventType::PodTerminated, json!({"pod_key":"p1"})));
+        dispatch(
+            &mut s,
+            &make_event(EventType::PodTerminated, json!({"pod_key":"p1"})),
+        );
         assert_eq!(s.mesh.get_node_by_key("p1").unwrap().status, "terminated");
     }
 
     #[test]
     fn pod_agent_status_changed_keeps_pod_status() {
         let mut s = AppState::new();
-        s.pods.upsert_pod(Pod {
-            pod_key: "p1".into(), status: "running".into(),
-            agent_slug: "claude".into(), agent_status: "idle".into(), ..Default::default()
-        }, Some(1));
-        dispatch(&mut s, &make_event(EventType::PodAgentStatusChanged, json!({"pod_key":"p1","agent_status":"executing"})));
+        s.pods.upsert_pod(
+            Pod {
+                pod_key: "p1".into(),
+                status: "running".into(),
+                agent_slug: "claude".into(),
+                agent_status: "idle".into(),
+                ..Default::default()
+            },
+            Some(1),
+        );
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::PodAgentStatusChanged,
+                json!({"pod_key":"p1","agent_status":"executing"}),
+            ),
+        );
         let p = s.pods.get_pod("p1").unwrap();
-        assert_eq!(p.status, "running", "agent-only event must not blank status");
+        assert_eq!(
+            p.status, "running",
+            "agent-only event must not blank status"
+        );
         assert_eq!(p.agent_status, "executing");
     }
 
     #[test]
     fn agent_status_event_does_not_poison_status_watermark() {
         let mut s = AppState::new();
-        s.pods.upsert_pod(Pod {
-            pod_key: "p1".into(), status: "running".into(),
-            agent_slug: "claude".into(), ..Default::default()
-        }, Some(100));
+        s.pods.upsert_pod(
+            Pod {
+                pod_key: "p1".into(),
+                status: "running".into(),
+                agent_slug: "claude".into(),
+                ..Default::default()
+            },
+            Some(100),
+        );
         let agent_evt = RealtimeEvent {
             timestamp: 200,
-            ..make_event(EventType::PodAgentStatusChanged, json!({"pod_key":"p1","agent_status":"executing"}))
+            ..make_event(
+                EventType::PodAgentStatusChanged,
+                json!({"pod_key":"p1","agent_status":"executing"}),
+            )
         };
         dispatch(&mut s, &agent_evt);
         let term_evt = RealtimeEvent {
@@ -590,8 +861,11 @@ mod tests {
             ..make_event(EventType::PodTerminated, json!({"pod_key":"p1"}))
         };
         dispatch(&mut s, &term_evt);
-        assert_eq!(s.pods.get_pod("p1").unwrap().status, "terminated",
-            "agent heartbeat must not advance the status watermark and drop a later terminated event");
+        assert_eq!(
+            s.pods.get_pod("p1").unwrap().status,
+            "terminated",
+            "agent heartbeat must not advance the status watermark and drop a later terminated event"
+        );
     }
 
     #[test]
@@ -604,40 +878,84 @@ mod tests {
     #[test]
     fn channel_member_added_increments_count() {
         let mut s = AppState::new();
-        s.channels.add_channel(agentsmesh_types::proto_channel_state_v1::Channel {
-            id: 7, name: "general".into(), is_archived: false, is_member: true,
-            member_count: Some(1), ..Default::default()
-        });
-        dispatch(&mut s, &make_event(EventType::ChannelMemberAdded, json!({"channel_id": 7, "user_id": 42})));
+        s.channels
+            .add_channel(agentsmesh_types::proto_channel_state_v1::Channel {
+                id: 7,
+                name: "general".into(),
+                is_archived: false,
+                is_member: true,
+                member_count: Some(1),
+                ..Default::default()
+            });
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::ChannelMemberAdded,
+                json!({"channel_id": 7, "user_id": 42}),
+            ),
+        );
         assert_eq!(s.channels.get_channel(7).unwrap().member_count, Some(2));
     }
 
     #[test]
     fn channel_member_removed_decrements_count_clamped() {
         let mut s = AppState::new();
-        s.channels.add_channel(agentsmesh_types::proto_channel_state_v1::Channel {
-            id: 7, name: "general".into(), is_archived: false, is_member: true,
-            member_count: Some(0), ..Default::default()
-        });
-        dispatch(&mut s, &make_event(EventType::ChannelMemberRemoved, json!({"channel_id": 7, "user_id": 42})));
-        assert_eq!(s.channels.get_channel(7).unwrap().member_count, Some(0), "must clamp at 0");
+        s.channels
+            .add_channel(agentsmesh_types::proto_channel_state_v1::Channel {
+                id: 7,
+                name: "general".into(),
+                is_archived: false,
+                is_member: true,
+                member_count: Some(0),
+                ..Default::default()
+            });
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::ChannelMemberRemoved,
+                json!({"channel_id": 7, "user_id": 42}),
+            ),
+        );
+        assert_eq!(
+            s.channels.get_channel(7).unwrap().member_count,
+            Some(0),
+            "must clamp at 0"
+        );
     }
 
     #[test]
     fn pod_perpetual_changed_toggles_field() {
         let mut s = AppState::new();
-        s.pods.upsert_pod(Pod {
-            pod_key: "p".into(), status: "running".into(),
-            agent_slug: "claude".into(), perpetual: false, ..Default::default()
-        }, Some(1));
-        dispatch(&mut s, &make_event(EventType::PodPerpetualChanged, json!({"pod_key": "p", "perpetual": true})));
+        s.pods.upsert_pod(
+            Pod {
+                pod_key: "p".into(),
+                status: "running".into(),
+                agent_slug: "claude".into(),
+                perpetual: false,
+                ..Default::default()
+            },
+            Some(1),
+        );
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::PodPerpetualChanged,
+                json!({"pod_key": "p", "perpetual": true}),
+            ),
+        );
         assert!(s.pods.get_pod("p").unwrap().perpetual);
     }
 
     #[test]
     fn mr_event_queues_refetch_ticket() {
         let mut s = AppState::new();
-        dispatch(&mut s, &make_event(EventType::MrCreated, json!({"ticket_slug": "T-9", "pod_id": 0})));
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::MrCreated,
+                json!({"ticket_slug": "T-9", "pod_id": 0}),
+            ),
+        );
         let drained = s.take_pending_refetch_ticket_slugs();
         assert_eq!(drained, vec!["T-9".to_string()]);
         // Second drain returns empty.
@@ -647,35 +965,77 @@ mod tests {
     #[test]
     fn pipeline_event_resolves_pod_id_to_key() {
         let mut s = AppState::new();
-        s.pods.upsert_pod(Pod {
-            id: 42, pod_key: "pod-abc".into(), status: "running".into(),
-            agent_slug: "claude".into(), ..Default::default()
-        }, Some(1));
-        dispatch(&mut s, &make_event(EventType::PipelineUpdated, json!({"ticket_slug": "T-1", "pod_id": 42})));
-        assert_eq!(s.take_pending_refetch_pod_keys(), vec!["pod-abc".to_string()]);
-        assert_eq!(s.take_pending_refetch_ticket_slugs(), vec!["T-1".to_string()]);
+        s.pods.upsert_pod(
+            Pod {
+                id: 42,
+                pod_key: "pod-abc".into(),
+                status: "running".into(),
+                agent_slug: "claude".into(),
+                ..Default::default()
+            },
+            Some(1),
+        );
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::PipelineUpdated,
+                json!({"ticket_slug": "T-1", "pod_id": 42}),
+            ),
+        );
+        assert_eq!(
+            s.take_pending_refetch_pod_keys(),
+            vec!["pod-abc".to_string()]
+        );
+        assert_eq!(
+            s.take_pending_refetch_ticket_slugs(),
+            vec!["T-1".to_string()]
+        );
     }
 
     #[test]
     fn pipeline_event_resolves_protojson_string_pod_id() {
         let mut s = AppState::new();
-        s.pods.upsert_pod(Pod {
-            id: 42, pod_key: "pod-abc".into(), status: "running".into(),
-            agent_slug: "claude".into(), ..Default::default()
-        }, Some(1));
-        dispatch(&mut s, &make_event(EventType::MrUpdated, json!({"ticket_slug": "T-2", "pod_id": "42"})));
-        assert_eq!(s.take_pending_refetch_pod_keys(), vec!["pod-abc".to_string()]);
-        assert_eq!(s.take_pending_refetch_ticket_slugs(), vec!["T-2".to_string()]);
+        s.pods.upsert_pod(
+            Pod {
+                id: 42,
+                pod_key: "pod-abc".into(),
+                status: "running".into(),
+                agent_slug: "claude".into(),
+                ..Default::default()
+            },
+            Some(1),
+        );
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::MrUpdated,
+                json!({"ticket_slug": "T-2", "pod_id": "42"}),
+            ),
+        );
+        assert_eq!(
+            s.take_pending_refetch_pod_keys(),
+            vec!["pod-abc".to_string()]
+        );
+        assert_eq!(
+            s.take_pending_refetch_ticket_slugs(),
+            vec!["T-2".to_string()]
+        );
     }
 
     #[test]
     fn notification_event_queues_browser_notification() {
         let mut s = AppState::new();
-        dispatch(&mut s, &make_event(EventType::Notification, json!({
-            "title": "New message",
-            "body": "@you got mentioned",
-            "link": "/channels/5"
-        })));
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::Notification,
+                json!({
+                    "title": "New message",
+                    "body": "@you got mentioned",
+                    "link": "/channels/5"
+                }),
+            ),
+        );
         let notifs = s.take_pending_browser_notifications();
         assert_eq!(notifs.len(), 1);
         assert_eq!(notifs[0].title, "New message");
@@ -683,16 +1043,22 @@ mod tests {
     }
 
     #[test]
-    fn loop_run_warning_queues_toast() {
+    fn workflow_run_warning_queues_toast() {
         let mut s = AppState::new();
-        dispatch(&mut s, &make_event(EventType::LoopRunWarning, json!({
-            "run_number": 7,
-            "detail": "step timeout after 5m"
-        })));
+        dispatch(
+            &mut s,
+            &make_event(
+                EventType::WorkflowRunWarning,
+                json!({
+                    "run_number": 7,
+                    "detail": "step timeout after 5m"
+                }),
+            ),
+        );
         let toasts = s.take_pending_toasts();
         assert_eq!(toasts.len(), 1);
         assert_eq!(toasts[0].kind, "warning");
-        assert_eq!(toasts[0].title_key, "loops.runWarningTitle");
+        assert_eq!(toasts[0].title_key, "workflows.runWarningTitle");
         assert_eq!(toasts[0].description, "step timeout after 5m");
     }
 }

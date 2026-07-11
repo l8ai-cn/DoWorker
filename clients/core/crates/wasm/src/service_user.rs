@@ -12,7 +12,9 @@ pub struct WasmUserApiService {
 #[wasm_bindgen]
 impl WasmUserApiService {
     pub(crate) fn new(client: Arc<ApiClient>) -> Self {
-        Self { inner: UserApiService::new(client) }
+        Self {
+            inner: UserApiService::new(client),
+        }
     }
 
     // -------- Connect-RPC (binary wire) --------

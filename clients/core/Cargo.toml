@@ -35,8 +35,9 @@ members = [
     "crates/proto/invitation",
     "crates/proto/knowledgebase",
     "crates/proto/license",
-    "crates/proto/loop",
-    "crates/proto/loop_state",
+    "crates/proto/goalloop",
+    "crates/proto/workflow",
+    "crates/proto/workflow_state",
     "crates/proto/mesh",
     "crates/proto/mesh_state",
     "crates/proto/notification",
@@ -99,8 +100,9 @@ grant_proto = { path = "crates/proto/grant" }
 invitation_proto = { path = "crates/proto/invitation" }
 knowledgebase_proto = { path = "crates/proto/knowledgebase" }
 license_proto = { path = "crates/proto/license" }
-loop_proto = { path = "crates/proto/loop" }
-loop_state_proto = { path = "crates/proto/loop_state" }
+goalloop_proto = { path = "crates/proto/goalloop" }
+workflow_proto = { path = "crates/proto/workflow" }
+workflow_state_proto = { path = "crates/proto/workflow_state" }
 mesh_proto = { path = "crates/proto/mesh" }
 mesh_state_proto = { path = "crates/proto/mesh_state" }
 notification_proto = { path = "crates/proto/notification" }

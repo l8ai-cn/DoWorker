@@ -4,8 +4,8 @@ metadata:
   name: backend
   namespace: agentsmesh
   annotations:
-    kubernetes.io/change-cause: "Pin backend image with Worker liveness refresh fix"
-    agentsmesh.ai/verified-image-digest: "sha256:3785b6cf8b4c0a815d174be9e7d2187974420f95b4cca53bbcbccf05a545c219"
+    kubernetes.io/change-cause: "Pin backend image verified by Codex PTY and ACP worker launch probes"
+    agentsmesh.ai/verified-image-digest: "sha256:5ad2dfc3ebfea823a2ff2f0818dbae1b1bc1a9638cd852084e2927532ce6a2fd"
 spec:
   replicas: 1
   selector:
@@ -16,7 +16,7 @@ spec:
       labels:
         app: backend
       annotations:
-        agentsmesh.ai/verified-image-digest: "sha256:3785b6cf8b4c0a815d174be9e7d2187974420f95b4cca53bbcbccf05a545c219"
+        agentsmesh.ai/verified-image-digest: "sha256:5ad2dfc3ebfea823a2ff2f0818dbae1b1bc1a9638cd852084e2927532ce6a2fd"
     spec:
       serviceAccountName: agentsmesh-backend
       securityContext:
@@ -35,7 +35,7 @@ spec:
               mountPath: /kube-tools
       containers:
         - name: backend
-          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:3785b6cf8b4c0a815d174be9e7d2187974420f95b4cca53bbcbccf05a545c219
+          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:5ad2dfc3ebfea823a2ff2f0818dbae1b1bc1a9638cd852084e2927532ce6a2fd
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -71,7 +71,7 @@ spec:
             - name: COORDINATOR_RUNNER_RELAY_BASE_URL
               value: "ws://relay:8090"
             - name: COORDINATOR_RUNNER_IMAGES
-              value: "claude-code=repo.aiedulab.cn:8443/agentsmesh/runner-claude-code:latest,codex-cli=repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli:latest,gemini-cli=repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli:latest,e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo:latest,minimax-cli=repo.aiedulab.cn:8443/agentsmesh/runner-minimax-cli:latest"
+              value: "claude-code=repo.aiedulab.cn:8443/agentsmesh/runner-claude-code:latest,codex-cli=repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli:latest,gemini-cli=repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli:latest,e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo:latest,minimax-cli=repo.aiedulab.cn:8443/agentsmesh/runner-minimax-cli:latest,grok-build=repo.aiedulab.cn:8443/agentsmesh/runner-grok-build:latest,openclaw=repo.aiedulab.cn:8443/agentsmesh/runner-openclaw:latest,harn=repo.aiedulab.cn:8443/agentsmesh/runner-harn:latest"
           volumeMounts:
             - name: pki-ca
               mountPath: /app/ssl

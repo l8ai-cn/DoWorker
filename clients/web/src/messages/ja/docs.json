@@ -17,7 +17,7 @@
       "channels": "Channels",
       "meshTopology": "Mesh トポロジー",
       "tickets": "チケット",
-      "loops": "Loops",
+      "workflows": "Workflows",
       "repositories": "リポジトリ",
       "repositoriesGit": "リポジトリと Git 連携",
       "runners": "Runner",
@@ -33,7 +33,7 @@
       "apiPods": "Pods API",
       "apiTickets": "Tickets API",
       "apiChannels": "Channels API",
-      "apiLoops": "Loops API",
+      "apiWorkflows": "Workflows API",
       "apiRunners": "Runners API",
       "apiRepositories": "Repositories API",
       "tutorials": "チュートリアル",
@@ -43,7 +43,7 @@
       "tutorialFirstPod": "はじめての Pod",
       "tutorialTicketWorkflow": "タスク管理",
       "tutorialMultiAgent": "マルチエージェントコラボレーション",
-      "tutorialLoops": "自動化ループ",
+      "tutorialWorkflows": "自動化ループ",
       "help": "ヘルプ",
       "faq": "よくある質問",
       "menu": "メニュー"
@@ -665,12 +665,12 @@
           "removeRepoSteps": "Removing a repository disconnects it from Do Worker. Existing Pods using this repository will not be affected, but new Pods cannot be created with it."
         }
       },
-      "loops": {
-        "title": "Loops",
+      "workflows": {
+        "title": "Workflows",
         "description": "AI エージェントタスクのCI/CD。繰り返し可能な自動化タスクを定義し、スケジュールまたはAPI経由でトリガーします — AI エージェント用のcronジョブのようなものです。",
         "overview": {
           "title": "概要",
-          "description": "Loopsはタスクを一度定義して繰り返し実行できます。各LoopはPromptテンプレート、トリガー設定、実行ポリシーを持つPodをラップします。主な機能：",
+          "description": "Workflowsはタスクを一度定義して繰り返し実行できます。各WorkflowはPromptテンプレート、トリガー設定、実行ポリシーを持つPodをラップします。主な機能：",
           "item1": "CronスケジューリングまたはAPIトリガー実行",
           "item2": "Autopilot（監督付き）またはDirect��自律）実行モード",
           "item3": "増���作業のための永続サンドボックス再利用",
@@ -687,9 +687,9 @@
         },
         "triggerTypes": {
           "title": "トリガータイプ",
-          "description": "Loopsは2つのトリガーメカニズムをサポートします：",
+          "description": "Workflowsは2つのトリガーメカニズムをサポートします：",
           "cron": "Cronスケジュール",
-          "cronDesc": "標準的なcron式を使用して定期的に実行（例：'0 9 * * *' で毎日午前9時UTC）。スケジューラーは30秒ごとに実行待ちのLoopsをチェックします。",
+          "cronDesc": "標準的なcron式を使用して定期的に実行（例：'0 9 * * *' で毎日午前9時UTC）。スケジューラーは30秒ごとに実行待ちのWorkflowsをチェックします。",
           "api": "APIトリガー",
           "apiDesc": "HTTP POSTでプログラム的に実行をトリガー。ランタイム変数を渡して各実行をカスタマイズできます。CI/CDパイプライン、Webhook、イベント駆動型自動化に最適です。"
         },
@@ -717,7 +717,7 @@
         },
         "promptTemplates": {
           "title": "Promptテンプレート",
-          "description": "Promptで{{variable}}プレースホルダーを使用します。Loop作成時にデフ��ルト値を定義し、トリガー時にオーバーライドできます。例：",
+          "description": "Promptで{{variable}}プレースホルダーを使用します。Workflow作成時にデフ��ルト値を定義し、トリガー時にオーバーライドできます。例：",
           "example": "前��のレビュー以降の{{branch}}ブランチの全変更ファイルをレビュー。{{focus_area}}の問題に焦点を当てる。"
         },
         "webhookCallbacks": {
@@ -800,7 +800,7 @@
       },
       "mcpTools": {
         "title": "MCP Tools",
-        "description": "The Runner provides 26 MCP (Model Context Protocol) tools for AI agents to collaborate with other agents. Tools are organized into 7 categories: Discovery, Terminal, Binding, Channel, Ticket, Pod, and Loop.",
+        "description": "The Runner provides 26 MCP (Model Context Protocol) tools for AI agents to collaborate with other agents. Tools are organized into 7 categories: Discovery, Terminal, Binding, Channel, Ticket, Pod, and Workflow.",
         "overview": {
           "title": "Overview",
           "description": "MCP tools are automatically available to AI agents running in AgentPod. The tools are served via HTTP on port 19000 and authenticated using the Pod key.",
@@ -887,18 +887,18 @@
           "updateTicketDesc": "Update ticket",
           "updateTicketParams": "ticket_id, title?, status?, priority?, type?"
         },
-        "loop": {
-          "title": "Loop ツール",
-          "description": "自動化されたLoopを管理するツール — 手動またはcronスケジュールでトリガーできる繰り返しタスクです。",
+        "workflow": {
+          "title": "Workflow ツール",
+          "description": "自動化されたWorkflowを管理するツール — 手動またはcronスケジュールでトリガーできる繰り返しタスクです。",
           "toolHeader": "ツール",
           "descriptionHeader": "説明",
           "paramsHeader": "パラメータ",
-          "listLoops": "list_loops",
-          "listLoopsDesc": "組織内の自動化されたLoopを一覧表示",
-          "listLoopsParams": "status?, query?, limit?, offset?",
-          "triggerLoop": "trigger_loop",
-          "triggerLoopDesc": "Loop実行を手動でトリガー",
-          "triggerLoopParams": "loop_slug (required), variables?"
+          "listWorkflows": "list_workflows",
+          "listWorkflowsDesc": "組織内の自動化されたWorkflowを一覧表示",
+          "listWorkflowsParams": "status?, query?, limit?, offset?",
+          "triggerWorkflow": "trigger_workflow",
+          "triggerWorkflowDesc": "Workflow実行を手動でトリガー",
+          "triggerWorkflowParams": "workflow_slug (required), variables?"
         },
         "pod": {
           "title": "Pod Tools",
@@ -1476,39 +1476,39 @@
           }
         }
       },
-      "loops": {
-        "title": "Loops API",
-        "description": "自動化されたLoopタスクとその実行を���理します。Loopの作成、トリガーの設定、��行の監視をREST APIで行います。",
+      "workflows": {
+        "title": "Workflows API",
+        "description": "自動化されたWorkflowタスクとその実行を���理します。Workflowの作成、トリガーの設定、��行の監視をREST APIで行います。",
         "endpoints": {
           "title": "Endpoints",
-          "list": "List all loops",
-          "create": "Create a new loop",
-          "get": "Get loop by slug",
-          "update": "Update a loop",
-          "delete": "Delete a loop",
-          "enable": "Enable a loop",
-          "disable": "Disable a loop",
+          "list": "List all workflows",
+          "create": "Create a new workflow",
+          "get": "Get workflow by slug",
+          "update": "Update a workflow",
+          "delete": "Delete a workflow",
+          "enable": "Enable a workflow",
+          "disable": "Disable a workflow",
           "trigger": "Manually trigger a run",
-          "listRuns": "List runs for a loop",
+          "listRuns": "List runs for a workflow",
           "getRun": "Get run details",
           "cancelRun": "Cancel an active run"
         },
         "examples": {
           "title": "Code Examples",
-          "createLoop": "Create a scheduled loop",
+          "createWorkflow": "Create a scheduled workflow",
           "triggerRun": "Trigger a run with variables"
         },
         "details": {
           "title": "Endpoint Details",
-          "listLoops": {
-            "title": "GET /loops",
-            "description": "Retrieve all loops in the organization. Returns loops sorted by creation date."
+          "listWorkflows": {
+            "title": "GET /workflows",
+            "description": "Retrieve all workflows in the organization. Returns workflows sorted by creation date."
           },
-          "createLoop": {
-            "title": "POST /loops",
-            "description": "Create a new loop with the specified configuration.",
+          "createWorkflow": {
+            "title": "POST /workflows",
+            "description": "Create a new workflow with the specified configuration.",
             "fields": {
-              "name": "Loop name (required, 1-255 characters)",
+              "name": "Workflow name (required, 1-255 characters)",
               "description": "Optional description",
               "agent_slug": "Built-in agent slug to use",
               "custom_agent_slug": "Custom agent slug (alternative to agent_slug)",
@@ -1518,7 +1518,7 @@
               "runner_id": "Preferred runner for execution",
               "branch_name": "Git branch to check out",
               "execution_mode": "autopilot or direct (default: autopilot)",
-              "cron_expression": "Cron schedule (e.g., '0 9 * * *'). If set, loop triggers on schedule",
+              "cron_expression": "Cron schedule (e.g., '0 9 * * *'). If set, workflow triggers on schedule",
               "sandbox_strategy": "persistent or fresh (default: persistent)",
               "session_persistence": "Keep agent session across runs (default: true)",
               "concurrency_policy": "skip, queue, or replace (default: skip)",
@@ -1528,59 +1528,59 @@
               "autopilot_config": "Autopilot parameters (max_iterations, iteration_timeout_sec)"
             }
           },
-          "getLoop": {
-            "title": "GET /loops/:slug",
-            "description": "Retrieve detailed information about a specific loop by its slug.",
+          "getWorkflow": {
+            "title": "GET /workflows/:slug",
+            "description": "Retrieve detailed information about a specific workflow by its slug.",
             "params": {
-              "slug": "Loop slug (auto-generated from name)"
+              "slug": "Workflow slug (auto-generated from name)"
             }
           },
-          "updateLoop": {
-            "title": "PUT /loops/:slug",
-            "description": "Update an existing loop. All fields are optional — only provided fields will be updated.",
+          "updateWorkflow": {
+            "title": "PUT /workflows/:slug",
+            "description": "Update an existing workflow. All fields are optional — only provided fields will be updated.",
             "params": {
-              "slug": "Loop slug"
+              "slug": "Workflow slug"
             }
           },
-          "deleteLoop": {
-            "title": "DELETE /loops/:slug",
-            "description": "Permanently delete a loop and all its run history. This action cannot be undone.",
+          "deleteWorkflow": {
+            "title": "DELETE /workflows/:slug",
+            "description": "Permanently delete a workflow and all its run history. This action cannot be undone.",
             "params": {
-              "slug": "Loop slug"
+              "slug": "Workflow slug"
             }
           },
-          "enableLoop": {
-            "title": "POST /loops/:slug/enable",
-            "description": "Enable a disabled loop. Re-enables cron scheduling if configured."
+          "enableWorkflow": {
+            "title": "POST /workflows/:slug/enable",
+            "description": "Enable a disabled workflow. Re-enables cron scheduling if configured."
           },
-          "disableLoop": {
-            "title": "POST /loops/:slug/disable",
-            "description": "Disable a loop. Cron scheduling is paused and manual triggers are blocked."
+          "disableWorkflow": {
+            "title": "POST /workflows/:slug/disable",
+            "description": "Disable a workflow. Cron scheduling is paused and manual triggers are blocked."
           },
-          "triggerLoop": {
-            "title": "POST /loops/:slug/trigger",
+          "triggerWorkflow": {
+            "title": "POST /workflows/:slug/trigger",
             "description": "Manually trigger a new run. Optionally pass variables to override prompt template defaults.",
             "fields": {
               "variables": "Variable overrides for the prompt template (JSON object)"
             }
           },
           "listRuns": {
-            "title": "GET /loops/:slug/runs",
-            "description": "Retrieve the run history for a loop, sorted by most recent first.",
+            "title": "GET /workflows/:slug/runs",
+            "description": "Retrieve the run history for a workflow, sorted by most recent first.",
             "params": {
               "limit": "Maximum number of results to return",
               "offset": "Number of results to skip for pagination"
             }
           },
           "getRun": {
-            "title": "GET /loops/:slug/runs/:run_id",
+            "title": "GET /workflows/:slug/runs/:run_id",
             "description": "Retrieve detailed information about a specific run.",
             "params": {
               "run_id": "Run ID"
             }
           },
           "cancelRun": {
-            "title": "POST /loops/:slug/runs/:run_id/cancel",
+            "title": "POST /workflows/:slug/runs/:run_id/cancel",
             "description": "Cancel an active run. Terminates the associated Pod and marks the run as cancelled.",
             "params": {
               "run_id": "Run ID"
@@ -2099,11 +2099,11 @@
           "tip5": "エージェントがコラボレーションのコンテキストを理解できるよう、チャンネルの説明を具体的にする"
         }
       },
-      "loops": {
+      "workflows": {
         "title": "チュートリアル：ループによる自動化",
         "difficulty": "中級 — 10分",
         "description": "スケジュールに基づいて Pod を自動作成するループの設定方法を学びます。ループはコードレビュー、依存関係の更新、テスト実行、モニタリングなどの繰り返しタスクに最適です。",
-        "whatAreLoops": {
+        "whatAreWorkflows": {
           "title": "ループとは？",
           "description": "ループは、事前定義された設定で定期的に AgentPod を作成するスケジュール自動化です。AI エージェントの cron ジョブのようなもので、スケジュールに従ってプロンプトを実行し、毎回新しい Pod を作成します。",
           "item1": "定期的なコードレビュー — 毎朝コード品質の問題をチェック",
@@ -2113,11 +2113,11 @@
         },
         "step1": {
           "title": "ループに移動する",
-          "description": "左サイドバーの「Loops」をクリックします。既存のループ一覧（初めての場合は空）と新規作成ボタンが表示されます。"
+          "description": "左サイドバーの「Workflows」をクリックします。既存のループ一覧（初めての場合は空）と新規作成ボタンが表示されます。"
         },
         "step2": {
           "title": "新しいループを作成する",
-          "description": "「New Loop」をクリックして自動化を設定します：",
+          "description": "「New Workflow」をクリックして自動化を設定します：",
           "fields": "ループの設定を入力してください：",
           "field1": "名前 — わかりやすい名前（例：「デイリーコードレビュー」）",
           "field2": "エージェント — 使用する AI エージェント（例：Claude Code）",

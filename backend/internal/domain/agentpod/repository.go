@@ -52,7 +52,7 @@ type PodRepository interface {
 	UpdateByKeyAndActiveStatus(ctx context.Context, podKey string, updates map[string]interface{}) (int64, error)
 	GetByKeyAndRunner(ctx context.Context, podKey string, runnerID int64) (*Pod, error)
 	CountActiveByKeys(ctx context.Context, podKeys []string) (int, error)
-	EnrichWithLoopInfo(ctx context.Context, pods []*Pod) error
+	EnrichWithWorkflowInfo(ctx context.Context, pods []*Pod) error
 	ListRunnersByRepo(ctx context.Context, orgID, repoID int64, limit int) ([]RunnerRepoHistory, error)
 }
 

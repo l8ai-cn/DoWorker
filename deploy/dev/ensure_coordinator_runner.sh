@@ -25,6 +25,9 @@ case "$agent_slug" in
   e2e-echo) service=runner-e2e-echo ;;
   loopal) service=runner-loopal ;;
   do-agent) service=runner-do-agent ;;
+  grok-build) service=runner-grok-build ;;
+  openclaw) service=runner-openclaw ;;
+  harn) service=runner-harn ;;
   aider) service=runner-aider ;;
   opencode) service=runner-opencode ;;
   *)

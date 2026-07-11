@@ -5,7 +5,7 @@
 #   ./push-images.sh all        # platform + infra + runners
 #   ./push-images.sh platform   # backend/relay/web/web-admin only
 #   ./push-images.sh infra      # postgres/redis/minio/mc/kubectl mirrors
-#   ./push-images.sh runners    # agent-runtime images (claude/codex/gemini/e2e-echo)
+#   ./push-images.sh runners    # agent-runtime images (claude/codex/gemini/grok/openclaw/harn/e2e-echo)
 #
 # The build host must already be `docker login repo.aiedulab.cn:8443`.
 set -euo pipefail
@@ -75,6 +75,9 @@ push_runners() {
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh claude-code )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh codex-cli )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh gemini-cli )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh grok-build )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh openclaw )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh harn )
   docker build --platform linux/amd64 --target runtime \
     -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
     --build-arg AGENT_RUNTIME=e2e-echo \
@@ -91,7 +94,7 @@ push_runners() {
       -t do-worker/runner-minimax-cli:latest \
       "${REPO_ROOT}/docker/agent-runtime/_context"
   fi
-  for rt in claude-code codex-cli gemini-cli e2e-echo minimax-cli; do
+  for rt in claude-code codex-cli gemini-cli grok-build openclaw harn e2e-echo minimax-cli; do
     docker tag "do-worker/runner-${rt}:latest" "${PROJ}/runner-${rt}:latest"
     docker push "${PROJ}/runner-${rt}:latest"
   done

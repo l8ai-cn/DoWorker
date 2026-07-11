@@ -57,7 +57,10 @@ fn wire_sender_pod_to_state(w: WireSenderPod) -> SenderPodInfo {
     SenderPodInfo {
         pod_key: w.pod_key,
         alias: w.alias,
-        agent: w.agent.map(|a| SenderAgentInfo { name: a.name, ..Default::default() }),
+        agent: w.agent.map(|a| SenderAgentInfo {
+            name: a.name,
+            ..Default::default()
+        }),
     }
 }
 
@@ -121,13 +124,26 @@ impl ChannelState {
         // doesn't carry (mirror set_channels), so a GetChannel refresh can't
         // blank the unread badge / preview / sort key on an existing channel.
         let prev = self.get_channel(id).map(|p| {
-            (p.unread_count, p.mention_count, p.last_message.clone(), p.last_activity_at.clone())
+            (
+                p.unread_count,
+                p.mention_count,
+                p.last_message.clone(),
+                p.last_activity_at.clone(),
+            )
         });
         if let Some((u, m, lm, ts)) = prev {
-            if channel.unread_count == 0 { channel.unread_count = u; }
-            if channel.mention_count == 0 { channel.mention_count = m; }
-            if channel.last_message.is_none() { channel.last_message = lm; }
-            if channel.last_activity_at.is_none() { channel.last_activity_at = ts; }
+            if channel.unread_count == 0 {
+                channel.unread_count = u;
+            }
+            if channel.mention_count == 0 {
+                channel.mention_count = m;
+            }
+            if channel.last_message.is_none() {
+                channel.last_message = lm;
+            }
+            if channel.last_activity_at.is_none() {
+                channel.last_activity_at = ts;
+            }
             self.update_channel(id, channel);
         } else {
             self.add_channel(channel);
@@ -137,14 +153,24 @@ impl ChannelState {
     // Fetch→state for a channel's messages. Replaces TS messageFromProto +
     // channelMessageToProto + replace_cached_channel_messages. set_messages
     // owns dedup/preview/persist + LRU eviction.
-    pub fn apply_fetched_messages(&mut self, channel_id: i64, wire: Vec<WireMessage>, has_more: bool) {
+    pub fn apply_fetched_messages(
+        &mut self,
+        channel_id: i64,
+        wire: Vec<WireMessage>,
+        has_more: bool,
+    ) {
         let messages = wire.into_iter().map(wire_message_to_state).collect();
         self.set_messages(channel_id, messages, has_more);
     }
 
     // Fetch→state for older messages (pagination load-more). prepend_messages
     // keeps chronological order + dedup. Replaces prepend_cached_channel_messages.
-    pub fn apply_fetched_messages_prepend(&mut self, channel_id: i64, wire: Vec<WireMessage>, has_more: bool) {
+    pub fn apply_fetched_messages_prepend(
+        &mut self,
+        channel_id: i64,
+        wire: Vec<WireMessage>,
+        has_more: bool,
+    ) {
         let messages = wire.into_iter().map(wire_message_to_state).collect();
         self.prepend_messages(channel_id, messages, has_more);
     }
@@ -202,11 +228,19 @@ mod tests {
     #[test]
     fn apply_fetched_channels_preserves_client_derived_state() {
         let mut st = ChannelState::new();
-        st.set_channels(vec![StateChannel { id: 1, name: "a".into(), ..Default::default() }]);
+        st.set_channels(vec![StateChannel {
+            id: 1,
+            name: "a".into(),
+            ..Default::default()
+        }]);
         st.increment_unread(1);
         st.increment_unread(1);
         // fetch returns the channel with no unread — set_channels must preserve it
-        st.apply_fetched_channels(vec![WireChannel { id: 1, name: "renamed".into(), ..Default::default() }]);
+        st.apply_fetched_channels(vec![WireChannel {
+            id: 1,
+            name: "renamed".into(),
+            ..Default::default()
+        }]);
         assert_eq!(st.get_channel(1).unwrap().name, "renamed"); // wire field applied
         assert_eq!(st.get_unread_count(1), 2); // client-derived preserved
     }
@@ -229,7 +263,9 @@ mod tests {
             sender_pod_info: Some(WireSenderPod {
                 pod_key: "pod-1".into(),
                 alias: Some("bot".into()),
-                agent: Some(ChannelMessageSenderAgent { name: "claude".into() }),
+                agent: Some(ChannelMessageSenderAgent {
+                    name: "claude".into(),
+                }),
             }),
             ..Default::default()
         };
@@ -247,24 +283,30 @@ mod tests {
     #[test]
     fn apply_fetched_members_and_pods() {
         let mut st = ChannelState::new();
-        st.apply_fetched_members(1, vec![WireMember {
-            channel_id: 1,
-            user_id: 2,
-            role: "member".into(),
-            is_muted: false,
-            joined_at: "t".into(),
-        }]);
+        st.apply_fetched_members(
+            1,
+            vec![WireMember {
+                channel_id: 1,
+                user_id: 2,
+                role: "member".into(),
+                is_muted: false,
+                joined_at: "t".into(),
+            }],
+        );
         let members = st.get_channel_members(1);
         assert_eq!(members.len(), 1);
         assert_eq!(members[0].user_id, 2);
 
-        st.apply_fetched_pods(1, vec![WirePod {
-            id: 9,
-            pod_key: "p".into(),
-            alias: None,
-            status: "running".into(),
-            agent_status: "idle".into(),
-        }]);
+        st.apply_fetched_pods(
+            1,
+            vec![WirePod {
+                id: 9,
+                pod_key: "p".into(),
+                alias: None,
+                status: "running".into(),
+                agent_status: "idle".into(),
+            }],
+        );
         let pods = st.get_channel_pods(1);
         assert_eq!(pods.len(), 1);
         assert_eq!(pods[0].pod_key, "p");

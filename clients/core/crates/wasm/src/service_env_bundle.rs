@@ -15,7 +15,9 @@ pub struct WasmEnvBundleService {
 #[wasm_bindgen]
 impl WasmEnvBundleService {
     pub(crate) fn new(client: Arc<ApiClient>) -> Self {
-        Self { inner: EnvBundleService::new(client) }
+        Self {
+            inner: EnvBundleService::new(client),
+        }
     }
 
     #[wasm_bindgen(js_name = listEnvBundlesConnect)]

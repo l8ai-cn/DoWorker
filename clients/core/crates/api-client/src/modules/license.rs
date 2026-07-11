@@ -39,7 +39,12 @@ impl ApiClient {
         &self,
         req: &lp::ValidateLicenseRequest,
     ) -> Result<lp::ValidatedLicense, ApiError> {
-        connect_call(self, "/proto.license.v1.LicenseService/ValidateLicense", req).await
+        connect_call(
+            self,
+            "/proto.license.v1.LicenseService/ValidateLicense",
+            req,
+        )
+        .await
     }
 
     pub async fn get_license_status_connect(

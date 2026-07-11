@@ -43,16 +43,16 @@ type KnowledgeMount struct {
 }
 
 type Expert struct {
-	ID             int64  `gorm:"primaryKey" json:"id"`
-	OrganizationID int64  `gorm:"not null;index" json:"organization_id"`
-	Slug           string `gorm:"size:100;not null;uniqueIndex:idx_experts_org_slug" json:"slug"`
-	Name           string `gorm:"size:255;not null" json:"name"`
+	ID             int64   `gorm:"primaryKey" json:"id"`
+	OrganizationID int64   `gorm:"not null;index" json:"organization_id"`
+	Slug           string  `gorm:"size:100;not null;uniqueIndex:idx_experts_org_slug" json:"slug"`
+	Name           string  `gorm:"size:255;not null" json:"name"`
 	Description    *string `gorm:"type:text" json:"description,omitempty"`
 
-	AgentSlug      string  `gorm:"size:100;not null;column:agent_slug" json:"agent_slug"`
-	RunnerID       *int64  `json:"runner_id,omitempty"`
-	RepositoryID   *int64  `json:"repository_id,omitempty"`
-	BranchName     *string `gorm:"size:255" json:"branch_name,omitempty"`
+	AgentSlug    string  `gorm:"size:100;not null;column:agent_slug" json:"agent_slug"`
+	RunnerID     *int64  `json:"runner_id,omitempty"`
+	RepositoryID *int64  `json:"repository_id,omitempty"`
+	BranchName   *string `gorm:"size:255" json:"branch_name,omitempty"`
 
 	Prompt          *string `gorm:"type:text" json:"prompt,omitempty"`
 	InteractionMode string  `gorm:"size:20;not null;default:pty" json:"interaction_mode"`
@@ -67,12 +67,11 @@ type Expert struct {
 	ConfigOverrides json.RawMessage `gorm:"type:jsonb;not null;default:'{}'" json:"config_overrides"`
 	AgentfileLayer  *string         `gorm:"type:text" json:"agentfile_layer,omitempty"`
 
-	SourcePodKey *string `gorm:"size:100" json:"source_pod_key,omitempty"`
+	SourcePodKey         *string `gorm:"size:100" json:"source_pod_key,omitempty"`
+	WorkerSpecSnapshotID *int64  `json:"worker_spec_snapshot_id,omitempty"`
 
-	// Git-backing index/cache columns. Git (agent.md / expert.json / assets/)
-	// is the source of truth; these columns are a derived cache. GitRepoPath is
-	// a pointer so NULL legacy rows (not yet git-backed) are distinguishable
-	// from "".
+	// Git-backing columns index editable metadata. Worker execution is bound to
+	// WorkerSpecSnapshotID and never reconstructed from these cached fields.
 	GitRepoPath   *string         `gorm:"size:255;column:git_repo_path" json:"git_repo_path,omitempty"`
 	DefaultBranch string          `gorm:"size:255;not null;default:main;column:default_branch" json:"default_branch"`
 	HTTPCloneURL  *string         `gorm:"size:1000;column:http_clone_url" json:"http_clone_url,omitempty"`

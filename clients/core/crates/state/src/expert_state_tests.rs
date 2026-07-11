@@ -2,7 +2,12 @@ use crate::expert_state::ExpertState;
 use crate::expert_types::{Expert, ExpertListResponse};
 
 fn make_expert(id: i64, slug: &str) -> Expert {
-    Expert { id, slug: slug.to_string(), name: slug.to_uppercase(), ..Default::default() }
+    Expert {
+        id,
+        slug: slug.to_string(),
+        name: slug.to_uppercase(),
+        ..Default::default()
+    }
 }
 
 #[test]

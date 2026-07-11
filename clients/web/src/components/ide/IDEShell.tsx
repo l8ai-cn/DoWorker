@@ -20,7 +20,7 @@ import { RunnersSidebarContent } from "./sidebar/RunnersSidebarContent";
 import { InfraSidebarContent } from "./sidebar/InfraSidebarContent";
 import { MeshSidebarContent } from "./sidebar/MeshSidebarContent";
 import { ChannelsSidebarContent } from "./sidebar/ChannelsSidebarContent";
-import { LoopsSidebarContent } from "./sidebar/LoopsSidebarContent";
+import { WorkflowsSidebarContent } from "./sidebar/WorkflowsSidebarContent";
 import { ExpertsSidebarContent } from "@/components/experts/ExpertsSidebarContent";
 import { SettingsSidebarContent } from "./sidebar/SettingsSidebarContent";
 import { SkillsSidebarContent } from "./sidebar/SkillsSidebarContent";
@@ -60,8 +60,8 @@ function getSidebarContent(
       return <ChannelsSidebarContent />;
     case "mesh":
       return <MeshSidebarContent />;
-    case "loops":
-      return <LoopsSidebarContent />;
+    case "workflows":
+      return <WorkflowsSidebarContent />;
     case "experts":
       return <ExpertsSidebarContent />;
     case "blocks":

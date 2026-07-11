@@ -41,7 +41,10 @@ impl WasmExpertState {
     pub fn apply_fetched_experts(&self, resp_json: &str) -> Result<(), JsValue> {
         let resp: ExpertListResponse = serde_json::from_str(resp_json)
             .map_err(|e| JsValue::from_str(&format!("decode experts: {e}")))?;
-        self.state.write().experts.set_experts(resp.experts, resp.total);
+        self.state
+            .write()
+            .experts
+            .set_experts(resp.experts, resp.total);
         Ok(())
     }
 
@@ -49,7 +52,10 @@ impl WasmExpertState {
     pub fn apply_fetched_expert(&self, resp_json: &str) -> Result<(), JsValue> {
         let resp: ExpertEnvelope = serde_json::from_str(resp_json)
             .map_err(|e| JsValue::from_str(&format!("decode expert: {e}")))?;
-        self.state.write().experts.set_current_expert(Some(resp.expert));
+        self.state
+            .write()
+            .experts
+            .set_current_expert(Some(resp.expert));
         Ok(())
     }
 

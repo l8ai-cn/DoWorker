@@ -19,12 +19,12 @@ import (
 	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
 	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
+	goalloop "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
 	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
 	knowledgebaseservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
 	"github.com/anthropics/agentsmesh/backend/internal/service/license"
-	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	"github.com/anthropics/agentsmesh/backend/internal/service/mesh"
 	notifservice "github.com/anthropics/agentsmesh/backend/internal/service/notification"
 	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
@@ -40,6 +40,7 @@ import (
 	tokenusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenusage"
 	"github.com/anthropics/agentsmesh/backend/internal/service/user"
 	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
+	workflow "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
 )
 
 var _ runner.PodStore = (*agentpod.PodService)(nil)
@@ -80,8 +81,9 @@ type serviceContainer struct {
 	extension          *extensionservice.Service
 	extensionRepo      extension.Repository
 	marketplaceWorker  *extensionservice.MarketplaceWorker
-	loop               *loop.LoopService
-	loopRun            *loop.LoopRunService
+	workflow           *workflow.WorkflowService
+	workflowRun        *workflow.WorkflowRunService
+	goalLoop           *goalloop.Service
 	sso                *ssoservice.Service
 	supportTicket      *supportticketservice.Service
 	tokenUsage         *tokenusagesvc.Service
@@ -92,12 +94,14 @@ type serviceContainer struct {
 	knowledgeBase      *knowledgebaseservice.Service
 	kbSyncWorker       *knowledgebaseservice.SyncWorker
 	workerServices
-	imBridge        *imbridgesvc.Bridge
+	imBridge *imbridgesvc.Bridge
+
 	notifDispatcher *notifservice.Dispatcher
 	notifPrefStore  *notifservice.PreferenceStore
-	podRepo         agentpodDomain.PodRepository
-	runnerRepo      runnerDomain.RunnerRepository
-	autopilotRepo   agentpodDomain.AutopilotRepository
+
+	podRepo       agentpodDomain.PodRepository
+	runnerRepo    runnerDomain.RunnerRepository
+	autopilotRepo agentpodDomain.AutopilotRepository
 }
 
 func (s *serviceContainer) Close() {

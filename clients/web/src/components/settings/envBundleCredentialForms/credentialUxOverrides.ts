@@ -101,6 +101,40 @@ const OVERRIDES: Record<string, CredentialUxOverride> = {
     allowCustomEnv: true,
     customEnvHint: "settings.credentialForm.grok.customEnvHint",
   },
+  openclaw: {
+    labels: {
+      OPENAI_API_KEY: "settings.credentialForm.openai.apiKey",
+      ANTHROPIC_API_KEY: "settings.credentialForm.anthropic.apiKey",
+      XAI_API_KEY: "settings.credentialForm.xai.apiKey",
+      GOOGLE_API_KEY: "settings.credentialForm.google.apiKey",
+      GEMINI_API_KEY: "settings.credentialForm.google.geminiApiKey",
+    },
+    placeholders: {
+      OPENAI_API_KEY: "sk-...",
+      ANTHROPIC_API_KEY: "sk-ant-...",
+      XAI_API_KEY: "xai-...",
+      GEMINI_API_KEY: "AIza...",
+    },
+    allowCustomEnv: true,
+    customEnvHint: "settings.credentialForm.openclaw.customEnvHint",
+  },
+  harn: {
+    labels: {
+      OPENAI_API_KEY: "settings.credentialForm.openai.apiKey",
+      ANTHROPIC_API_KEY: "settings.credentialForm.anthropic.apiKey",
+      XAI_API_KEY: "settings.credentialForm.xai.apiKey",
+      GOOGLE_API_KEY: "settings.credentialForm.google.apiKey",
+      GEMINI_API_KEY: "settings.credentialForm.google.geminiApiKey",
+    },
+    placeholders: {
+      OPENAI_API_KEY: "sk-...",
+      ANTHROPIC_API_KEY: "sk-ant-...",
+      XAI_API_KEY: "xai-...",
+      GEMINI_API_KEY: "AIza...",
+    },
+    allowCustomEnv: true,
+    customEnvHint: "settings.credentialForm.harn.customEnvHint",
+  },
   "e2e-echo": {
     labels: { E2E_TEST_CRED_KEY: "E2E Test Credential Key" },
     descriptions: {

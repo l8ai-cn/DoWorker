@@ -192,8 +192,8 @@ type PodCreateResponse struct {
 	TerminalURL string `json:"terminal_url,omitempty"`
 }
 
-// LoopSummary represents a Loop in list results (token-efficient).
-type LoopSummary struct {
+// WorkflowSummary represents a Workflow in list results (token-efficient).
+type WorkflowSummary struct {
 	Slug           string `json:"slug"`
 	Name           string `json:"name"`
 	Description    string `json:"description,omitempty"`
@@ -209,8 +209,8 @@ type LoopSummary struct {
 	CreatedAt      string `json:"created_at"`
 }
 
-// LoopRunSummary represents a LoopRun result.
-type LoopRunSummary struct {
+// WorkflowRunSummary represents a LoopRun result.
+type WorkflowRunSummary struct {
 	ID          int64  `json:"id"`
 	RunNumber   int    `json:"run_number"`
 	Status      string `json:"status"`
@@ -222,9 +222,9 @@ type LoopRunSummary struct {
 	CreatedAt   string `json:"created_at"`
 }
 
-// LoopTriggerResult represents the result of triggering a loop.
-type LoopTriggerResult struct {
-	Run     *LoopRunSummary `json:"run"`
-	Skipped bool            `json:"skipped,omitempty"`
-	Reason  string          `json:"reason,omitempty"`
+// WorkflowTriggerResult represents the result of triggering a workflow.
+type WorkflowTriggerResult struct {
+	Run     *WorkflowRunSummary `json:"run"`
+	Skipped bool                `json:"skipped,omitempty"`
+	Reason  string              `json:"reason,omitempty"`
 }

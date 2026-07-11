@@ -144,20 +144,20 @@ func TestRepo_DeleteBlockedByLoop(t *testing.T) {
 	created, err := svc.Create(ctx, fullCreateRequest(1))
 	require.NoError(t, err)
 
-	// Insert a loop referencing this repository
+	// Insert a workflow referencing this repository
 	err = db.Exec(
-		`INSERT INTO loops (organization_id, name, slug, created_by_id, prompt_template, repository_id)
-		 VALUES (1, 'ci-loop', 'ci-loop', 1, 'run tests', ?)`, created.ID,
+		`INSERT INTO workflows (organization_id, name, slug, created_by_id, prompt_template, repository_id)
+		 VALUES (1, 'ci-workflow', 'ci-workflow', 1, 'run tests', ?)`, created.ID,
 	).Error
 	require.NoError(t, err)
 
 	// Soft delete should be blocked
 	err = svc.Delete(ctx, created.ID)
-	assert.ErrorIs(t, err, ErrRepositoryHasLoopRefs)
+	assert.ErrorIs(t, err, ErrRepositoryHasWorkflowRefs)
 
 	// Hard delete should also be blocked
 	err = svc.HardDelete(ctx, created.ID)
-	assert.ErrorIs(t, err, ErrRepositoryHasLoopRefs)
+	assert.ErrorIs(t, err, ErrRepositoryHasWorkflowRefs)
 }
 
 func TestRepo_VisibilityFiltering(t *testing.T) {

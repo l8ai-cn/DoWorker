@@ -10,7 +10,7 @@ import runners from "@/messages/en/runners.json";
 import docs from "@/messages/en/docs.json";
 import content from "@/messages/en/content.json";
 import extensions from "@/messages/en/extensions.json";
-import loops from "@/messages/en/loops.json";
+import workflows from "@/messages/en/workflows.json";
 import channels from "@/messages/en/channels.json";
 import blockstore from "@/messages/en/blockstore.json";
 import infra from "@/messages/en/infra.json";
@@ -30,7 +30,7 @@ type Messages = typeof common &
   typeof docs &
   typeof content &
   typeof extensions &
-  typeof loops &
+  typeof workflows &
   typeof channels &
   typeof blockstore &
   typeof infra &

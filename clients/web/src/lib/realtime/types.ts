@@ -33,10 +33,10 @@ export type EventType =
   | "mr:merged"
   | "mr:closed"
   | "pipeline:updated"
-  | "loop_run:started"
-  | "loop_run:completed"
-  | "loop_run:failed"
-  | "loop_run:warning"
+  | "workflow_run:started"
+  | "workflow_run:completed"
+  | "workflow_run:failed"
+  | "workflow_run:warning"
   | "blockstore:op"
   | "notification"
   | "system:maintenance"
@@ -99,8 +99,8 @@ export type {
   AutopilotThinkingEventData,
   MrEventData,
   PipelineEventData,
-  LoopRunEventData,
-  LoopRunWarningEventData,
+  WorkflowRunEventData,
+  WorkflowRunWarningEventData,
   NotificationPayloadEventData,
 } from "@proto/events/v1/event_data_pb";
 
@@ -125,8 +125,8 @@ export {
   AutopilotThinkingEventDataSchema,
   MrEventDataSchema,
   PipelineEventDataSchema,
-  LoopRunEventDataSchema,
-  LoopRunWarningEventDataSchema,
+  WorkflowRunEventDataSchema,
+  WorkflowRunWarningEventDataSchema,
   NotificationPayloadEventDataSchema,
 } from "@proto/events/v1/event_data_pb";
 

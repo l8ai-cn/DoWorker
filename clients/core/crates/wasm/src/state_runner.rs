@@ -30,7 +30,9 @@ impl WasmRunnerState {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self {
-            state: Arc::new(RwLock::new(AppState::with_storage(crate::new_memory_backend()))),
+            state: Arc::new(RwLock::new(AppState::with_storage(
+                crate::new_memory_backend(),
+            ))),
         }
     }
 
@@ -39,15 +41,12 @@ impl WasmRunnerState {
     }
 
     pub fn available_runners_json(&self) -> String {
-        serde_json::to_string(self.state.read().runners.available_runners())
-            .unwrap_or_default()
+        serde_json::to_string(self.state.read().runners.available_runners()).unwrap_or_default()
     }
 
     pub fn current_runner_json(&self) -> JsValue {
         match self.state.read().runners.current_runner() {
-            Some(r) => JsValue::from_str(
-                &serde_json::to_string(r).unwrap_or_default(),
-            ),
+            Some(r) => JsValue::from_str(&serde_json::to_string(r).unwrap_or_default()),
             None => JsValue::NULL,
         }
     }

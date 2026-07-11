@@ -109,8 +109,8 @@ func (s *Service) DeleteOrganization(ctx context.Context, orgID int64) error {
 
 	return s.db.Transaction(func(tx database.DB) error {
 		gormTx := tx.GormDB()
-		gormTx.Exec("DELETE FROM loop_runs WHERE organization_id = ?", orgID)
-		gormTx.Exec("DELETE FROM loops WHERE organization_id = ?", orgID)
+		gormTx.Exec("DELETE FROM workflow_runs WHERE organization_id = ?", orgID)
+		gormTx.Exec("DELETE FROM workflows WHERE organization_id = ?", orgID)
 
 		if err := tx.Delete(&org); err != nil {
 			slog.ErrorContext(ctx, "admin: failed to delete organization", "org_id", orgID, "error", err)

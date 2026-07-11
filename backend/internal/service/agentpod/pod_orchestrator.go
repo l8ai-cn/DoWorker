@@ -128,6 +128,7 @@ type PodOrchestrator struct {
 	knowledgeBases   KnowledgeBaseResolverForOrchestrator
 	modelResources   ModelResourceResolver
 	workerCreation   WorkerCreationPreparer
+	workerSnapshots  WorkerSnapshotPreparer
 	workerSpecs      WorkerSpecSnapshotLoader
 }
 
@@ -143,6 +144,7 @@ type agentfileResolved struct {
 }
 
 func NewPodOrchestrator(deps *PodOrchestratorDeps) *PodOrchestrator {
+	workerSnapshots, _ := deps.WorkerCreation.(WorkerSnapshotPreparer)
 	return &PodOrchestrator{
 		podService:       deps.PodService,
 		configBuilder:    deps.ConfigBuilder,
@@ -160,6 +162,7 @@ func NewPodOrchestrator(deps *PodOrchestratorDeps) *PodOrchestrator {
 		knowledgeBases:   deps.KnowledgeBases,
 		modelResources:   deps.ModelResources,
 		workerCreation:   deps.WorkerCreation,
+		workerSnapshots:  workerSnapshots,
 		workerSpecs:      deps.WorkerSpecs,
 	}
 }

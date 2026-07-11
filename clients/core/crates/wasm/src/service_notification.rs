@@ -12,7 +12,9 @@ pub struct WasmNotificationService {
 #[wasm_bindgen]
 impl WasmNotificationService {
     pub(crate) fn new(client: Arc<ApiClient>) -> Self {
-        Self { svc: NotificationService::new(client) }
+        Self {
+            svc: NotificationService::new(client),
+        }
     }
 
     // -------- Connect-RPC (binary wire) --------

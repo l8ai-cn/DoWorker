@@ -1,10 +1,10 @@
-# AgentsMesh Self-Hosted Deployment Guide
+# Do Worker Self-Hosted Deployment Guide
 
-This guide covers deploying AgentsMesh on your own infrastructure for private/enterprise use.
+This guide covers deploying Do Worker on your own infrastructure for private/enterprise use.
 
 ## Overview
 
-AgentsMesh can be fully self-hosted, giving you complete control over your data and infrastructure. The self-hosted version includes all features of the cloud version.
+Do Worker can be fully self-hosted, giving you complete control over your data and infrastructure. The self-hosted version includes all features of the cloud version.
 
 ## System Requirements
 
@@ -75,7 +75,7 @@ helm install agentsmesh agentsmesh/agentsmesh \
 ### values.yaml Example
 
 ```yaml
-# AgentsMesh Helm Values
+# Do Worker Helm Values
 
 global:
   domain: agentsmesh.company.com
@@ -203,7 +203,7 @@ oauth:
 
 1. Create GitLab Application:
    - Go to Admin → Applications
-   - Name: AgentsMesh
+   - Name: Do Worker
    - Redirect URI: `https://agentsmesh.company.com/api/v1/auth/oauth/gitlab/callback`
    - Scopes: `api`, `read_user`, `read_repository`
 

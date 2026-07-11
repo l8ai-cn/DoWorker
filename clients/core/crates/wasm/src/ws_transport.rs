@@ -74,9 +74,7 @@ impl WasmWebSocket {
     }
 
     pub fn send_text(&self, text: &str) -> Result<(), String> {
-        self.ws
-            .send_with_str(text)
-            .map_err(|e| format!("{e:?}"))
+        self.ws.send_with_str(text).map_err(|e| format!("{e:?}"))
     }
 
     pub fn close(&self) {

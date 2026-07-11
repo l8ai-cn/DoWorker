@@ -15,8 +15,8 @@ func TestBuildTicketPrompt(t *testing.T) {
 		{
 			name: "basic ticket",
 			ticket: &ticket.Ticket{
-				Slug: "PROJ-123",
-				Title:      "Fix the bug",
+				Slug:  "PROJ-123",
+				Title: "Fix the bug",
 			},
 			contains: []string{"PROJ-123", "Fix the bug"},
 		},

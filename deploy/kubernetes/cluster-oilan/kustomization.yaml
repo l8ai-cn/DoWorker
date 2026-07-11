@@ -20,5 +20,8 @@ resources:
   - 35-runner-claude.yaml
   - 36-runner-codex-cli.yaml
   - 37-runner-minimax-cli.yaml
+  - 38-runner-grok-build.yaml
+  - 39-runner-openclaw.yaml
+  - 41-runner-harn.yaml
   - 40-ingress.yaml
   - 60-prepull-daemonset.yaml

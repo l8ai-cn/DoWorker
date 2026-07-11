@@ -22,7 +22,6 @@ import (
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
 	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
-	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
 	"github.com/anthropics/agentsmesh/backend/internal/service/promocode"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
@@ -37,6 +36,7 @@ import (
 	tokenusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenusage"
 	"github.com/anthropics/agentsmesh/backend/internal/service/user"
 	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
+	workflow "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -114,11 +114,11 @@ type Services struct {
 	// consumer, so keeping them here would be dead state.
 	Extension *extensionservice.Service
 
-	// Loop services
-	Loop             *loop.LoopService
-	LoopRun          *loop.LoopRunService
-	LoopOrchestrator *loop.LoopOrchestrator
-	LoopScheduler    *loop.LoopScheduler
+	// Workflow services
+	Workflow             *workflow.WorkflowService
+	WorkflowRun          *workflow.WorkflowRunService
+	WorkflowOrchestrator *workflow.WorkflowOrchestrator
+	WorkflowScheduler    *workflow.WorkflowScheduler
 
 	// Coordinator service (auto-harness integration: scans external task sources
 	// → tickets → dispatches do-agent pods).

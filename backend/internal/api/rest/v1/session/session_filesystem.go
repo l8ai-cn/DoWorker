@@ -69,7 +69,7 @@ func (d *Deps) handleSessionFilesystemWrite(c *gin.Context) {
 	res, ok := d.execSandboxFs(c, pod, &runnerv1.SandboxFsCommand{
 		Op: "write", Path: path, Payload: body.Content, PodKey: podKeyOf(pod),
 	})
-		if !ok || fsAPIError(c, res) {
+	if !ok || fsAPIError(c, res) {
 		return
 	}
 	c.Status(http.StatusNoContent)

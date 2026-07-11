@@ -6,7 +6,8 @@ use crate::loopal_session::LoopalSessionManager;
 #[test]
 fn bg_task_spawned_inserts() {
     let mut mgr = LoopalSessionManager::new();
-    let data = json!({"id": "bg1", "description": "npm test", "created_at_unix_ms": 1_717_000_000_000u64});
+    let data =
+        json!({"id": "bg1", "description": "npm test", "created_at_unix_ms": 1_717_000_000_000u64});
     dispatch_event(&mut mgr, "p", "loopal.bgTask.spawned", &data);
     let s = mgr.get("p").unwrap();
     assert_eq!(s.bg_tasks.len(), 1);
@@ -225,7 +226,11 @@ fn bg_task_completed_output_capped() {
         &json!({"id":"bg1","status":"Completed","exit_code":0,"output": big}),
     );
     let out = &mgr.get("p").unwrap().bg_tasks[0].output;
-    assert!(out.len() <= 64 * 1024, "completed output len = {}", out.len());
+    assert!(
+        out.len() <= 64 * 1024,
+        "completed output len = {}",
+        out.len()
+    );
 }
 
 #[test]
@@ -283,7 +288,12 @@ fn goal_set_and_cleared() {
         &json!({"goal":{"goal_id":"g1","objective":"ship it","status":"active"}}),
     );
     assert_eq!(
-        mgr.get("p").unwrap().thread_goal.as_ref().unwrap().objective,
+        mgr.get("p")
+            .unwrap()
+            .thread_goal
+            .as_ref()
+            .unwrap()
+            .objective,
         "ship it"
     );
     dispatch_event(&mut mgr, "p", "loopal.goal", &json!({ "goal": null }));
@@ -308,7 +318,10 @@ fn mode_thinking_model_set_and_replace() {
     );
     let s = mgr.get("p").unwrap();
     assert_eq!(s.mode.as_deref(), Some("plan"));
-    assert_eq!(s.thinking.as_deref(), Some(r#"{"type":"effort","level":"high"}"#));
+    assert_eq!(
+        s.thinking.as_deref(),
+        Some(r#"{"type":"effort","level":"high"}"#)
+    );
     assert_eq!(s.model.as_deref(), Some("claude-opus-4-7"));
 
     dispatch_event(&mut mgr, "p", "loopal.mode", &json!({"mode": "act"}));

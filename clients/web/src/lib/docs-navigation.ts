@@ -49,8 +49,8 @@ export const docsNavSections: DocNavSection[] = [
         href: "/docs/tutorials/multi-agent-collaboration",
       },
       {
-        titleKey: "docs.nav.tutorialLoops",
-        href: "/docs/tutorials/automated-loops",
+        titleKey: "docs.nav.tutorialWorkflows",
+        href: "/docs/tutorials/automated-workflows",
       },
     ],
   },
@@ -63,7 +63,7 @@ export const docsNavSections: DocNavSection[] = [
       { titleKey: "docs.nav.channels", href: "/docs/features/channels" },
       { titleKey: "docs.nav.meshTopology", href: "/docs/features/mesh" },
       { titleKey: "docs.nav.tickets", href: "/docs/features/tickets" },
-      { titleKey: "docs.nav.loops", href: "/docs/features/loops" },
+      { titleKey: "docs.nav.workflows", href: "/docs/features/workflows" },
       { titleKey: "docs.nav.repositories", href: "/docs/features/repositories" },
       {
         titleKey: "docs.nav.repositoriesGit",
@@ -100,7 +100,7 @@ export const docsNavSections: DocNavSection[] = [
       { titleKey: "docs.nav.apiPods", href: "/docs/api/pods" },
       { titleKey: "docs.nav.apiTickets", href: "/docs/api/tickets" },
       { titleKey: "docs.nav.apiChannels", href: "/docs/api/channels" },
-      { titleKey: "docs.nav.apiLoops", href: "/docs/api/loops" },
+      { titleKey: "docs.nav.apiWorkflows", href: "/docs/api/workflows" },
       { titleKey: "docs.nav.apiRunners", href: "/docs/api/runners" },
       {
         titleKey: "docs.nav.apiRepositories",

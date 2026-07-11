@@ -1,15 +1,15 @@
 ---
-title: 'Construindo o AgentsMesh com o AgentsMesh: a prática de Harness Engineering de uma pessoa em 52 dias'
+title: 'Construindo o Do Worker com o Do Worker: a prática de Harness Engineering de uma pessoa em 52 dias'
 excerpt: "A OpenAI chamou de Harness Engineering. Com essa metodologia, uma pessoa em 52 dias, 600 commits e 965.687 linhas de throughput, construiu a própria ferramenta de Harness Engineering. O codebase é o contexto, e o ambiente de engenharia determina o teto de qualidade do Agent."
 date: "2026-03-04"
-author: "AgentsMesh Team"
+author: "Do Worker Team"
 category: "Insight"
 readTime: 12
 ---
 
 A OpenAI publicou recentemente um artigo descrevendo como usaram AI Agents para produzir mais de um milhão de linhas de código em 5 meses. Eles chamaram essa prática de engenharia de **Harness Engineering**.
 
-Comecei a construir o **AgentsMesh** há pouco mais de 50 dias. 52 dias, 600 commits, 965.687 linhas de throughput de código, 356.220 linhas de código em produção. Uma pessoa.
+Comecei a construir o **Do Worker** há pouco mais de 50 dias. 52 dias, 600 commits, 965.687 linhas de throughput de código, 356.220 linhas de código em produção. Uma pessoa.
 
 Mas o mais interessante não são os números. É a estrutura da coisa em si: usei a abordagem de Harness Engineering para construir uma ferramenta de Harness Engineering.
 
@@ -27,9 +27,9 @@ Quando o Agent precisa adicionar uma nova funcionalidade, ele sabe: estruturas d
 
 ### Estrutura de diretórios como documentação
 
-A nomenclatura é totalmente alinhada entre frontend e backend. Tomando Loop como exemplo: backend/internal/domain/loop/ contém as estruturas de dados, backend/internal/service/loop/ contém a lógica de negócios, web/src/components/loops/ contém os componentes do frontend. O mapeamento do conceito de produto para o caminho no código é direto: sem necessidade de buscar, o nome do diretório já é o mapa.
+A nomenclatura é totalmente alinhada entre frontend e backend. Tomando Workflow como exemplo: backend/internal/domain/workflow/ contém as estruturas de dados, backend/internal/service/workflow/ contém a lógica de negócios, web/src/components/workflows/ contém os componentes do frontend. O mapeamento do conceito de produto para o caminho no código é direto: sem necessidade de buscar, o nome do diretório já é o mapa.
 
-Os 16 módulos de domain do backend (agentpod, channel, ticket, loop, runner...) espelham 1:1 a camada service; os components do frontend são organizados por funcionalidade de produto (pod, tickets, loops, mesh, workspace), alinhados com a nomenclatura do domain no backend. Um Agent que recebe uma tarefa relacionada a Ticket não precisa explorar todo o codebase; basta olhar os diretórios para saber onde atuar.
+Os 16 módulos de domain do backend (agentpod, channel, ticket, workflow, runner...) espelham 1:1 a camada service; os components do frontend são organizados por funcionalidade de produto (pod, tickets, workflows, mesh, workspace), alinhados com a nomenclatura do domain no backend. Um Agent que recebe uma tarefa relacionada a Ticket não precisa explorar todo o codebase; basta olhar os diretórios para saber onde atuar.
 
 Essa convenção não foi escrita em documentação. Ela se reforça continuamente a cada commit do Agent ao longo de todo o codebase.
 
@@ -51,11 +51,11 @@ Go + TypeScript + Proto. Tipagem forte desloca uma enorme quantidade de erros do
 
 O Agent gerou uma função com assinatura incompatível? Falha de compilação. O Agent modificou o formato da API mas esqueceu de atualizar a definição de tipos? TypeScript reporta o erro diretamente. O Agent alterou o formato de mensagem do Runner sem sincronizar com o Backend? O código gerado pelo Proto não compila.
 
-Esses erros, em linguagens de tipagem fraca, entrariam silenciosamente no runtime. Tipagem forte os barra antes do commit. Quanto mais curto o loop de feedback, maior a eficiência de iteração do Agent.
+Esses erros, em linguagens de tipagem fraca, entrariam silenciosamente no runtime. Tipagem forte os barra antes do commit. Quanto mais curto o workflow de feedback, maior a eficiência de iteração do Agent.
 
-### Quatro camadas de feedback em loop fechado
+### Quatro camadas de feedback em workflow fechado
 
-O Agent precisa saber rapidamente o que fez de errado. Uma camada não basta; quatro é o ponto ideal. E quanto mais curto e preciso o loop de feedback, melhor o resultado entregue pelo Agent.
+O Agent precisa saber rapidamente o que fez de errado. Uma camada não basta; quatro é o ponto ideal. E quanto mais curto e preciso o workflow de feedback, melhor o resultado entregue pelo Agent.
 
 Primeira camada: compilação. Hot reload com Air, reinício do código Go em menos de 1 segundo após modificação; erros de tipo TypeScript marcados em tempo real. Erros de sintaxe e de tipo são eliminados nesta camada.
 
@@ -91,11 +91,11 @@ O throughput diário de 50 mil linhas não é limitação da ferramenta: é o te
 
 A única forma de romper essa barreira: trocar delegação por escala. Não dar mais tarefas ao Agent, mas delegar a própria tomada de decisão. Fazer Agents coordenarem Agents, e você subir um nível: de supervisionar um Agent individual para supervisionar o sistema que supervisiona Agents. Por isso criamos o modo **Autopilot**.
 
-Essa é a intenção central de design do AgentsMesh. E algo que só entendi de verdade ao construí-lo com ele mesmo.
+Essa é a intenção central de design do Do Worker. E algo que só entendi de verdade ao construí-lo com ele mesmo.
 
 ## Colapso do custo de tentativa e erro: a metodologia de engenharia precisa ser atualizada
 
-A arquitetura Relay do AgentsMesh não foi projetada. Foi forjada pelo ambiente de produção.
+A arquitetura Relay do Do Worker não foi projetada. Foi forjada pelo ambiente de produção.
 
 Três Pods rodando simultaneamente derrubaram o Backend. Eu vi cair, entendi a causa, reconstruí. Adicionei o Relay para isolar o tráfego de terminal. Novos problemas surgiram; adicionei agregação inteligente, gerenciamento de conexão sob demanda. A arquitetura final veio de falhas reais sucessivas, não de discussões em quadro branco.
 
@@ -109,9 +109,9 @@ Aquela falha do Relay levou menos de dois dias da descoberta à correção. Em u
 
 ## Validação por auto-bootstrap
 
-A proposta central do AgentsMesh: AI Agents podem, sob um Harness estruturado, colaborar para completar tarefas complexas de engenharia.
+A proposta central do Do Worker: AI Agents podem, sob um Harness estruturado, colaborar para completar tarefas complexas de engenharia.
 
-Eu usei o AgentsMesh para construir o AgentsMesh.
+Eu usei o Do Worker para construir o Do Worker.
 
 Essa é a verificação mais direta da proposta. Se Harness Engineering realmente funciona, a ferramenta deveria ser capaz de construir a si mesma.
 
@@ -126,12 +126,12 @@ O histórico de commits é a evidência. Qualquer engenheiro pode clonar o repos
 52 dias de prática e validação por auto-bootstrap convergiram em três primitivas de engenharia. Não foram um framework de produto pré-desenhado; foram forçadas por problemas reais de engenharia.
 
 **Isolamento** (Isolation)
-Cada Agent precisa de seu próprio espaço de trabalho independente. Não é best practice: é pré-requisito inegociável. Sem isolamento, trabalho paralelo é estruturalmente impossível. O AgentsMesh implementa isso com **Pods**: cada Agent roda em um Git worktree e sandbox independentes. Conflitos passam de "podem acontecer" para "estruturalmente impossíveis". E isolamento também significa coesão: no ambiente independente do Pod, todo o contexto necessário para a execução do Agent é preparado: Repo, Skills, MCP e mais. Na prática, o processo de construir o Pod é o processo de preparar o ambiente para a execução do Agent.
+Cada Agent precisa de seu próprio espaço de trabalho independente. Não é best practice: é pré-requisito inegociável. Sem isolamento, trabalho paralelo é estruturalmente impossível. O Do Worker implementa isso com **Pods**: cada Agent roda em um Git worktree e sandbox independentes. Conflitos passam de "podem acontecer" para "estruturalmente impossíveis". E isolamento também significa coesão: no ambiente independente do Pod, todo o contexto necessário para a execução do Agent é preparado: Repo, Skills, MCP e mais. Na prática, o processo de construir o Pod é o processo de preparar o ambiente para a execução do Agent.
 
 **Decomposição** (Decomposition)
 Agents não lidam bem com "me ajuda com esse codebase". O que funciona é: você é dono deste escopo, estes são os critérios de aceitação, esta é a definição de pronto. Ownership não é apenas atribuição de tarefas; muda a forma como o Agent raciocina. Decomposição é o trabalho de engenharia que precisa estar pronto antes de qualquer Agent rodar.
 
-O AgentsMesh oferece duas abstrações para decomposição: **Ticket** corresponde a itens de trabalho pontuais (desenvolvimento de feature, correção de bug, refatoração) com fluxo completo de status em kanban e associação com MR; **Loop** corresponde a tarefas automatizadas recorrentes (testes diários, builds agendados, varredura de qualidade de código) com agendamento via expressão Cron, cada execução gerando um registro de LoopRun independente. As fronteiras são claras: para fazer algo uma vez, use Ticket; para fazer a mesma coisa repetidamente, use Loop.
+O Do Worker oferece duas abstrações para decomposição: **Ticket** corresponde a itens de trabalho pontuais (desenvolvimento de feature, correção de bug, refatoração) com fluxo completo de status em kanban e associação com MR; **Workflow** corresponde a tarefas automatizadas recorrentes (testes diários, builds agendados, varredura de qualidade de código) com agendamento via expressão Cron, cada execução gerando um registro de WorkflowRun independente. As fronteiras são claras: para fazer algo uma vez, use Ticket; para fazer a mesma coisa repetidamente, use Workflow.
 
 **Coordenação** (Coordination)
 Não usamos abstração de cargos para organizar a colaboração entre Agents. Equipes tradicionais precisam de funções porque cada pessoa domina poucas especialidades: engenheiro de frontend não escreve backend, product manager não escreve código. Mas Agents não têm essa restrição: o mesmo Agent pode escrever código, gerar documentação, fazer análise competitiva, executar testes, revisar PRs e até orquestrar workflows de outros Agents. Seus limites de capacidade não são fixos; são configurados via contexto e ferramentas. Portanto, a colaboração entre Agents não precisa simular a divisão de trabalho humana. Precisa de comunicação e permissões.
@@ -146,10 +146,10 @@ A OpenAI chama os equivalentes de Context Engineering, restrições arquiteturai
 
 Harness Engineering é uma disciplina de engenharia, não uma funcionalidade de produto. Em vez de guardar para nós mesmos, preferimos colocar a primeira pedra para que outros construam algo maior.
 
-Escolhemos tornar o AgentsMesh open source. Quando o que estamos construindo pode ser uma ferramenta de engenharia eficaz, o objetivo nunca foi "possuir o código", mas permitir que mais pessoas construam ferramentas de engenharia ainda melhores a partir daqui. Em vez de trancar práticas possivelmente corretas dentro de um produto, melhor abri-las para que a comunidade valide, evolua e supere.
+Escolhemos tornar o Do Worker open source. Quando o que estamos construindo pode ser uma ferramenta de engenharia eficaz, o objetivo nunca foi "possuir o código", mas permitir que mais pessoas construam ferramentas de engenharia ainda melhores a partir daqui. Em vez de trancar práticas possivelmente corretas dentro de um produto, melhor abri-las para que a comunidade valide, evolua e supere.
 
 O código está no [GitHub](https://github.com/l8ai-cn/DoWorker)
 
-Você pode usá-lo para: implantar seu próprio Runner e rodar AI Agents em ambientes locais isolados; gerenciar workflows de Agents com Tickets e Loops; fazer múltiplos Agents colaborarem em tarefas complexas via Channels e Bindings.
+Você pode usá-lo para: implantar seu próprio Runner e rodar AI Agents em ambientes locais isolados; gerenciar workflows de Agents com Tickets e Workflows; fazer múltiplos Agents colaborarem em tarefas complexas via Channels e Bindings.
 
 Se você fez descobertas na sua própria prática de Harness Engineering, venha trocar ideia no [GitHub Discussions](https://github.com/l8ai-cn/DoWorker/discussions) ou abra uma [Issue](https://github.com/l8ai-cn/DoWorker/issues). Este projeto foi construído com Agents, e deve continuar evoluindo com Agents e engenheiros juntos.

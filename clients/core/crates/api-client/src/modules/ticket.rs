@@ -51,7 +51,12 @@ impl ApiClient {
         &self,
         req: &ticket_proto::UpdateTicketStatusRequest,
     ) -> Result<ticket_proto::UpdateTicketStatusResponse, ApiError> {
-        connect_call(self, "/proto.ticket.v1.TicketService/UpdateTicketStatus", req).await
+        connect_call(
+            self,
+            "/proto.ticket.v1.TicketService/UpdateTicketStatus",
+            req,
+        )
+        .await
     }
 
     pub async fn get_active_tickets_connect(

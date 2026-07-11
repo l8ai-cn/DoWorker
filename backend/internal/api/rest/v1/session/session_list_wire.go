@@ -104,15 +104,15 @@ func mergeSessionGet(item conversationListItem, wire sessionWire, pod *podDomain
 		"labels": item.Labels, "permission_level": item.PermissionLevel,
 		"agent_id": item.AgentID, "agent_name": item.AgentName,
 		"pod_key": item.PodKey,
-		"status": item.Status, "runner_id": item.RunnerID,
+		"status":  item.Status, "runner_id": item.RunnerID,
 		"host_id": item.HostID, "runner_online": item.RunnerOnline,
 		"host_online": item.HostOnline, "archived": item.Archived,
 		"viewer_last_seen": item.ViewerLastSeen, "viewer_unread": item.ViewerUnread,
-		"owner": item.Owner,
+		"owner":                      item.Owner,
 		"pending_elicitations_count": item.PendingElicitationsCount,
-		"harness": wire.Harness, "items": wire.Items,
+		"harness":                    wire.Harness, "items": wire.Items,
 		"pending_elicitations": wire.PendingElicitations,
-		"total_cost_usd": wire.TotalCostUSD, "usage_by_model": wire.UsageByModel,
+		"total_cost_usd":       wire.TotalCostUSD, "usage_by_model": wire.UsageByModel,
 	}
 	if errWire := lastTaskErrorFromPod(pod); errWire != nil {
 		out["last_task_error"] = errWire

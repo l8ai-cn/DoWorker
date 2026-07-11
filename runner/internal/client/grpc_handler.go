@@ -94,6 +94,13 @@ func (c *GRPCConnection) handleServerMessage(ctx context.Context, msg *runnerv1.
 			c.handleCreateAutopilot(payload.CreateAutopilot)
 		})
 
+	case *runnerv1.ServerMessage_RunVerification:
+		c.handlerWg.Add(1)
+		c.podQueue.Enqueue(payload.RunVerification.PodKey, func() {
+			defer c.handlerWg.Done()
+			c.handleRunVerification(payload.RunVerification)
+		})
+
 	// Lightweight operations - synchronous to preserve ordering
 	case *runnerv1.ServerMessage_PodInput:
 		c.handlePodInput(payload.PodInput)

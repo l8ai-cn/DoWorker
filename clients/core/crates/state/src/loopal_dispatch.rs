@@ -69,8 +69,14 @@ pub fn dispatch_event(
                 AgentNode {
                     name: spawn["name"].as_str().unwrap_or_default().to_string(),
                     agent_id: spawn["agent_id"].as_str().unwrap_or_default().to_string(),
-                    parent: spawn["parent"]["agent"].as_str().filter(|s| !s.is_empty()).map(String::from),
-                    model: spawn["model"].as_str().filter(|s| !s.is_empty()).map(String::from),
+                    parent: spawn["parent"]["agent"]
+                        .as_str()
+                        .filter(|s| !s.is_empty())
+                        .map(String::from),
+                    model: spawn["model"]
+                        .as_str()
+                        .filter(|s| !s.is_empty())
+                        .map(String::from),
                 },
             );
         }
@@ -88,17 +94,29 @@ pub fn dispatch_event(
         // (loopal_snapshot.go `if v != ""`): a malformed event (field absent /
         // non-string / empty) must not wipe a previously-set value.
         "mode" => {
-            if let Some(m) = data.get("mode").and_then(|v| v.as_str()).filter(|s| !s.is_empty()) {
+            if let Some(m) = data
+                .get("mode")
+                .and_then(|v| v.as_str())
+                .filter(|s| !s.is_empty())
+            {
                 mgr.set_mode(pod_key, Some(m.to_string()));
             }
         }
         "thinking" => {
-            if let Some(t) = data.get("thinking").and_then(|v| v.as_str()).filter(|s| !s.is_empty()) {
+            if let Some(t) = data
+                .get("thinking")
+                .and_then(|v| v.as_str())
+                .filter(|s| !s.is_empty())
+            {
                 mgr.set_thinking(pod_key, Some(t.to_string()));
             }
         }
         "model" => {
-            if let Some(m) = data.get("model").and_then(|v| v.as_str()).filter(|s| !s.is_empty()) {
+            if let Some(m) = data
+                .get("model")
+                .and_then(|v| v.as_str())
+                .filter(|s| !s.is_empty())
+            {
                 mgr.set_model(pod_key, Some(m.to_string()));
             }
         }
@@ -147,13 +165,25 @@ pub fn dispatch_snapshot(mgr: &mut LoopalSessionManager, pod_key: &str, snapshot
             .unwrap_or_default();
         mgr.set_goal(pod_key, goal);
     }
-    if let Some(m) = snapshot.get("mode").and_then(|v| v.as_str()).filter(|s| !s.is_empty()) {
+    if let Some(m) = snapshot
+        .get("mode")
+        .and_then(|v| v.as_str())
+        .filter(|s| !s.is_empty())
+    {
         mgr.set_mode(pod_key, Some(m.to_string()));
     }
-    if let Some(t) = snapshot.get("thinking").and_then(|v| v.as_str()).filter(|s| !s.is_empty()) {
+    if let Some(t) = snapshot
+        .get("thinking")
+        .and_then(|v| v.as_str())
+        .filter(|s| !s.is_empty())
+    {
         mgr.set_thinking(pod_key, Some(t.to_string()));
     }
-    if let Some(m) = snapshot.get("model").and_then(|v| v.as_str()).filter(|s| !s.is_empty()) {
+    if let Some(m) = snapshot
+        .get("model")
+        .and_then(|v| v.as_str())
+        .filter(|s| !s.is_empty())
+    {
         mgr.set_model(pod_key, Some(m.to_string()));
     }
 }

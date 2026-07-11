@@ -10,7 +10,7 @@ func (s *Service) DeleteRunner(ctx context.Context, runnerID int64) error {
 		return err
 	}
 	if loopCount > 0 {
-		return ErrRunnerHasLoopRefs
+		return ErrRunnerHasWorkflowRefs
 	}
 	return s.repo.Delete(ctx, runnerID)
 }

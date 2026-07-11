@@ -3,7 +3,7 @@
 | 属性 | 值 |
 |------|-----|
 | **状态** | Draft |
-| **作者** | AgentsMesh Team |
+| **作者** | Do Worker Team |
 | **创建日期** | 2026-01-09 |
 | **目标** | 支撑 100,000 个并发 Runner 连接 |
 
@@ -13,7 +13,7 @@
 
 ### 1.1 背景
 
-AgentsMesh 平台需要支撑大规模用户自托管的 Runner 连接。Runner 是用户部署在自己机器上的运行节点，承载多个 AgentPod（AI Agent 运行实例）。随着用户规模增长，平台需要能够处理 10 万级别的并发 WebSocket 长连接。
+Do Worker 平台需要支撑大规模用户自托管的 Runner 连接。Runner 是用户部署在自己机器上的运行节点，承载多个 AgentPod（AI Agent 运行实例）。随着用户规模增长，平台需要能够处理 10 万级别的并发 WebSocket 长连接。
 
 ### 1.2 目标
 
@@ -256,7 +256,7 @@ nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
 
 #### 4.4.1 设计原则
 
-AgentsMesh 的资源模型以 Organization 为边界：
+Do Worker 的资源模型以 Organization 为边界：
 
 ```
 Organization

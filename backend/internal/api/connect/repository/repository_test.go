@@ -144,7 +144,7 @@ func TestMapServiceError(t *testing.T) {
 		{"webhook_not_found", repositoryservice.ErrWebhookNotFound, connect.CodeNotFound},
 		{"no_permission", repositoryservice.ErrNoPermission, connect.CodePermissionDenied},
 		{"exists", repositoryservice.ErrRepositoryExists, connect.CodeAlreadyExists},
-		{"has_loop_refs", repositoryservice.ErrRepositoryHasLoopRefs, connect.CodeFailedPrecondition},
+		{"has_loop_refs", repositoryservice.ErrRepositoryHasWorkflowRefs, connect.CodeFailedPrecondition},
 		{"generic_error", errors.New("oops"), connect.CodeInternal},
 	}
 	for _, tc := range cases {

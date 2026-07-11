@@ -14,7 +14,10 @@ impl WasmFileService {
     }
 
     pub async fn upload_file(
-        &self, file_data: js_sys::Uint8Array, filename: &str, content_type: &str,
+        &self,
+        file_data: js_sys::Uint8Array,
+        filename: &str,
+        content_type: &str,
     ) -> Result<String, String> {
         let bytes = file_data.to_vec();
         self.0.upload_file(bytes, filename, content_type).await

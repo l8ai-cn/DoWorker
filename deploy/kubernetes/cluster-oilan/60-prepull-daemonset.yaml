@@ -31,6 +31,18 @@ spec:
           image: repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli:latest
           imagePullPolicy: IfNotPresent
           command: ["true"]
+        - name: pull-grok
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-grok-build:latest
+          imagePullPolicy: IfNotPresent
+          command: ["true"]
+        - name: pull-openclaw
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-openclaw:latest
+          imagePullPolicy: IfNotPresent
+          command: ["true"]
+        - name: pull-harn
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-harn:latest
+          imagePullPolicy: IfNotPresent
+          command: ["true"]
       containers:
         - name: hold
           image: repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo:latest

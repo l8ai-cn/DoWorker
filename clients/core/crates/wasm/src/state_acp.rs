@@ -36,15 +36,16 @@ impl WasmAcpSessionManager {
 
     pub fn get_session_json(&self, pod_key: &str) -> JsValue {
         match self.state.read().acp.get_session(pod_key) {
-            Some(s) => JsValue::from_str(
-                &serde_json::to_string(s).unwrap_or_default(),
-            ),
+            Some(s) => JsValue::from_str(&serde_json::to_string(s).unwrap_or_default()),
             None => JsValue::NULL,
         }
     }
 
     pub fn add_content_chunk(&self, pod_key: &str, text: &str, role: &str) {
-        self.state.write().acp.add_content_chunk(pod_key, text, role);
+        self.state
+            .write()
+            .acp
+            .add_content_chunk(pod_key, text, role);
     }
 
     pub fn mark_last_message_complete(&self, pod_key: &str) {
@@ -91,13 +92,19 @@ impl WasmAcpSessionManager {
     pub fn add_permission_request(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = AddPermissionRequestRequest::decode(req_bytes).map_err(decode_err)?;
         if let Ok(perm) = serde_json::from_str::<AcpPermissionRequest>(&req.request_json) {
-            self.state.write().acp.add_permission_request(&req.pod_key, perm);
+            self.state
+                .write()
+                .acp
+                .add_permission_request(&req.pod_key, perm);
         }
         Ok(())
     }
 
     pub fn remove_permission_request(&self, pod_key: &str, request_id: &str) {
-        self.state.write().acp.remove_permission_request(pod_key, request_id);
+        self.state
+            .write()
+            .acp
+            .remove_permission_request(pod_key, request_id);
     }
 
     pub fn update_session_state(&self, pod_key: &str, state_str: &str) {
@@ -112,7 +119,11 @@ impl WasmAcpSessionManager {
     pub fn update_configuration(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = UpdateConfigurationRequest::decode(req_bytes).map_err(decode_err)?;
         match serde_json::from_str::<AcpConfiguration>(&req.config_json) {
-            Ok(cfg) => self.state.write().acp.update_configuration(&req.pod_key, cfg),
+            Ok(cfg) => self
+                .state
+                .write()
+                .acp
+                .update_configuration(&req.pod_key, cfg),
             Err(e) => tracing::warn!(
                 target: "acp",
                 pod_key = %req.pod_key,

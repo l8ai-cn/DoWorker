@@ -196,7 +196,7 @@ func (r *runnerRepository) GetOrgSlug(ctx context.Context, orgID int64) (string,
 func (r *runnerRepository) CountLoopsByRunner(ctx context.Context, runnerID int64) (int64, error) {
 	var count int64
 	if err := r.db.WithContext(ctx).Raw(
-		"SELECT COUNT(*) FROM loops WHERE runner_id = ?", runnerID,
+		"SELECT COUNT(*) FROM workflows WHERE runner_id = ?", runnerID,
 	).Scan(&count).Error; err != nil {
 		return 0, err
 	}

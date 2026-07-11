@@ -1,4 +1,4 @@
-# AgentsMesh 整改计划
+# Do Worker 整改计划
 
 基于 10 批次 bug-hunter 结论，分阶段修复 P0/P1 缺陷并对齐前端架构演进方向。
 

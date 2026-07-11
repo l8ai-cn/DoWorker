@@ -32,10 +32,10 @@ fn test_all_event_types_serialize() {
         (EventType::MrMerged, "\"mr:merged\""),
         (EventType::MrClosed, "\"mr:closed\""),
         (EventType::PipelineUpdated, "\"pipeline:updated\""),
-        (EventType::LoopRunStarted, "\"loop_run:started\""),
-        (EventType::LoopRunCompleted, "\"loop_run:completed\""),
-        (EventType::LoopRunFailed, "\"loop_run:failed\""),
-        (EventType::LoopRunWarning, "\"loop_run:warning\""),
+        (EventType::WorkflowRunStarted, "\"workflow_run:started\""),
+        (EventType::WorkflowRunCompleted, "\"workflow_run:completed\""),
+        (EventType::WorkflowRunFailed, "\"workflow_run:failed\""),
+        (EventType::WorkflowRunWarning, "\"workflow_run:warning\""),
         (EventType::Notification, "\"notification\""),
         (EventType::SystemMaintenance, "\"system:maintenance\""),
         (EventType::Connected, "\"connected\""),
@@ -63,7 +63,7 @@ fn test_all_event_types_deserialize() {
         "autopilot:created", "autopilot:terminated", "autopilot:thinking",
         "mr:created", "mr:updated", "mr:merged", "mr:closed",
         "pipeline:updated",
-        "loop_run:started", "loop_run:completed", "loop_run:failed", "loop_run:warning",
+        "workflow_run:started", "workflow_run:completed", "workflow_run:failed", "workflow_run:warning",
         "notification", "system:maintenance",
         "connected", "ping", "pong",
     ];
@@ -87,7 +87,7 @@ fn test_event_type_roundtrip() {
 fn test_event_type_as_str() {
     assert_eq!(EventType::PodCreated.as_str(), "pod:created");
     assert_eq!(EventType::Notification.as_str(), "notification");
-    assert_eq!(EventType::LoopRunWarning.as_str(), "loop_run:warning");
+    assert_eq!(EventType::WorkflowRunWarning.as_str(), "workflow_run:warning");
 }
 
 #[test]

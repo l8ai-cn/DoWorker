@@ -69,7 +69,10 @@ impl AutopilotState {
     }
 
     pub fn apply_fetched_iterations(&mut self, key: String, wire: Vec<WireIteration>) {
-        let iters = wire.into_iter().map(|w| wire_iteration_to_state(&key, w)).collect();
+        let iters = wire
+            .into_iter()
+            .map(|w| wire_iteration_to_state(&key, w))
+            .collect();
         self.set_iterations(key, iters);
     }
 
@@ -78,7 +81,11 @@ impl AutopilotState {
     pub fn apply_fetched_current_controller(&mut self, wire: WireController) {
         let ctrl = wire_controller_to_state(wire);
         let key = ctrl.autopilot_controller_key.clone();
-        if self.controllers().iter().any(|c| c.autopilot_controller_key == key) {
+        if self
+            .controllers()
+            .iter()
+            .any(|c| c.autopilot_controller_key == key)
+        {
             self.update_controller(&key, ctrl.clone());
         } else {
             self.add_controller(ctrl.clone());
@@ -100,7 +107,10 @@ mod tests {
             phase: "running".into(),
             current_iteration: 3,
             max_iterations: 10,
-            circuit_breaker: Some(CircuitBreaker { state: "closed".into(), reason: String::new() }),
+            circuit_breaker: Some(CircuitBreaker {
+                state: "closed".into(),
+                reason: String::new(),
+            }),
             user_takeover: true,
             prompt: "fix the bug".into(),
             started_at: Some("s".into()),
@@ -135,7 +145,10 @@ mod tests {
     #[test]
     fn circuit_breaker_keeps_reason_when_set() {
         let mut w = wire_ctrl();
-        w.circuit_breaker = Some(CircuitBreaker { state: "open".into(), reason: "too many".into() });
+        w.circuit_breaker = Some(CircuitBreaker {
+            state: "open".into(),
+            reason: "too many".into(),
+        });
         let s = wire_controller_to_state(w);
         assert_eq!(s.circuit_breaker_state.as_deref(), Some("open"));
         assert_eq!(s.circuit_breaker_reason.as_deref(), Some("too many"));

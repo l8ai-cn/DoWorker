@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { DocsHorizontalScroll } from "./DocsHorizontalScroll";
 
 interface DocsTableColumn {
   header: string;
@@ -17,10 +18,12 @@ interface DocsTableProps {
 
 export type { DocsTableRow };
 export function DocsTable({ columns, rows }: DocsTableProps) {
+  const tableWidth = columns.length > 2 ? "min-w-[640px]" : "w-full";
+
   return (
-    <div className="overflow-x-auto">
+    <DocsHorizontalScroll>
       <div className="rounded-lg overflow-hidden surface-card">
-        <table className="w-full text-sm divide-y divide-border/20">
+        <table className={`${tableWidth} text-sm divide-y divide-border/20`}>
           <thead>
             <tr className="bg-surface-muted/50">
               {columns.map((col) => (
@@ -43,6 +46,6 @@ export function DocsTable({ columns, rows }: DocsTableProps) {
           </tbody>
         </table>
       </div>
-    </div>
+    </DocsHorizontalScroll>
   );
 }

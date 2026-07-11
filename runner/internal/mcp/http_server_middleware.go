@@ -45,10 +45,10 @@ func (s *HTTPServer) registerTools() {
 		// Pod tools
 		s.createCreatePodTool(),
 
-		// Loop tools
-		s.createListLoopsTool(),
-		s.createCreateLoopTool(),
-		s.createTriggerLoopTool(),
+		// Workflow tools
+		s.createListWorkflowsTool(),
+		s.createCreateWorkflowTool(),
+		s.createTriggerWorkflowTool(),
 
 		// Block Store tools — structured collaboration substrate (notes,
 		// tasks, views, indicators, triggers). See http_tools_block.go.

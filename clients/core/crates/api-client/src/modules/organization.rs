@@ -82,4 +82,3 @@ impl ApiClient {
         connect_call(self, "/proto.org.v1.OrgService/UpdateMemberRole", req).await
     }
 }
-

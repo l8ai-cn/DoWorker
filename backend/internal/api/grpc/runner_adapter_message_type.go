@@ -54,6 +54,8 @@ func extractMessageType(msg *runnerv1.RunnerMessage) string {
 		return "TokenUsage"
 	case *runnerv1.RunnerMessage_PodRestarting:
 		return "PodRestarting"
+	case *runnerv1.RunnerMessage_VerificationResult:
+		return "VerificationResult"
 	default:
 		return "Unknown"
 	}

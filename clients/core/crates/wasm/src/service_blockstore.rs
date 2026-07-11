@@ -41,7 +41,10 @@ impl WasmBlockstoreService {
     }
 
     #[wasm_bindgen(js_name = ensureDefaultWorkspaceConnect)]
-    pub async fn ensure_default_workspace_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn ensure_default_workspace_connect(
+        &self,
+        request: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.ensure_default_workspace_connect(request).await
     }
 
@@ -138,7 +141,9 @@ impl WasmBlockstoreService {
 
     // ── Sync getters ──
 
-    pub fn workspaces_json(&self) -> String { self.0.workspaces_json() }
+    pub fn workspaces_json(&self) -> String {
+        self.0.workspaces_json()
+    }
 
     pub fn get_block_json(&self, id: &str) -> JsValue {
         match self.0.get_block_json(id) {
@@ -190,9 +195,19 @@ impl WasmBlockstoreService {
         self.0.project_local_ops(req_bytes)
     }
 
-    pub fn blocks_json(&self) -> String { self.0.blocks_json() }
-    pub fn refs_json(&self) -> String { self.0.refs_json() }
-    pub fn nest_children_json(&self) -> String { self.0.nest_children_json() }
-    pub fn backlinks_json(&self) -> String { self.0.backlinks_json() }
-    pub fn last_op_ids_json(&self) -> String { self.0.last_op_ids_json() }
+    pub fn blocks_json(&self) -> String {
+        self.0.blocks_json()
+    }
+    pub fn refs_json(&self) -> String {
+        self.0.refs_json()
+    }
+    pub fn nest_children_json(&self) -> String {
+        self.0.nest_children_json()
+    }
+    pub fn backlinks_json(&self) -> String {
+        self.0.backlinks_json()
+    }
+    pub fn last_op_ids_json(&self) -> String {
+        self.0.last_op_ids_json()
+    }
 }

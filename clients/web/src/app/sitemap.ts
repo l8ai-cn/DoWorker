@@ -81,13 +81,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const docPages = [
     "", "/getting-started", "/concepts", "/faq",
-    "/features/agentpod", "/features/channels", "/features/loops",
+    "/features/agentpod", "/features/channels", "/features/workflows",
     "/features/mesh", "/features/repositories", "/features/tickets",
     "/features/workspace",
     "/runners/setup", "/runners/mcp-tools",
     "/guides/git-integration", "/guides/multi-agent-workflows",
     "/guides/team-management",
-    "/api", "/api/authentication", "/api/channels", "/api/loops",
+    "/api", "/api/authentication", "/api/channels", "/api/workflows",
     "/api/pods", "/api/repositories", "/api/runners", "/api/tickets",
   ].map((path) => ({
     url: `${baseUrl}/docs${path}`,

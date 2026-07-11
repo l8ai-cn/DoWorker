@@ -12,11 +12,6 @@ impl ApiClient {
         &self,
         req: &fp::PresignUploadRequest,
     ) -> Result<fp::PresignUploadResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.file.v1.FileService/PresignUpload",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.file.v1.FileService/PresignUpload", req).await
     }
 }

@@ -2,15 +2,14 @@ use std::sync::Arc;
 
 use agentsmesh_state::app_state::AppState;
 use agentsmesh_types::proto_pod_state_v1::ReplaceCachedPodsRequest;
-use agentsmesh_types::proto_ticket_v1::{Board, ListTicketsResponse, Ticket};
 use agentsmesh_types::proto_ticket_state_v1::{
-    ApplyTicketDeletedEventRequest, ApplyTicketStatusEventRequest,
-    AppendBoardColumnTicketsRequest, FilterTicketsRequest, FilterTicketsResponse,
-    InsertCreatedLabelRequest, InsertCreatedTicketRequest,
-    PatchCachedTicketRequest, RemoveCachedLabelRequest,
-    ReplaceBoardColumnsRequest, ReplaceCachedLabelsRequest,
-    ReplaceCachedTicketsRequest, SetCurrentTicketRequest,
+    AppendBoardColumnTicketsRequest, ApplyTicketDeletedEventRequest, ApplyTicketStatusEventRequest,
+    FilterTicketsRequest, FilterTicketsResponse, InsertCreatedLabelRequest,
+    InsertCreatedTicketRequest, PatchCachedTicketRequest, RemoveCachedLabelRequest,
+    ReplaceBoardColumnsRequest, ReplaceCachedLabelsRequest, ReplaceCachedTicketsRequest,
+    SetCurrentTicketRequest,
 };
+use agentsmesh_types::proto_ticket_v1::{Board, ListTicketsResponse, Ticket};
 use parking_lot::RwLock;
 use prost::Message;
 use wasm_bindgen::prelude::*;
@@ -35,7 +34,9 @@ impl WasmTicketState {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self {
-            state: Arc::new(RwLock::new(AppState::with_storage(crate::new_memory_backend()))),
+            state: Arc::new(RwLock::new(AppState::with_storage(
+                crate::new_memory_backend(),
+            ))),
         }
     }
 
@@ -112,7 +113,10 @@ impl WasmTicketState {
     // current_ticket_json NULL sentinel).
     pub fn current_ticket_bytes(&self) -> Vec<u8> {
         match self.state.read().tickets.get_current_ticket() {
-            Some(t) => SetCurrentTicketRequest { ticket: Some(t.clone()) }.encode_to_vec(),
+            Some(t) => SetCurrentTicketRequest {
+                ticket: Some(t.clone()),
+            }
+            .encode_to_vec(),
             None => Vec::new(),
         }
     }
@@ -134,10 +138,15 @@ impl WasmTicketState {
 
     // Fetch→state (B): wire ListTicketsResponse.items appended to a column.
     pub fn apply_appended_board_column_tickets(
-        &self, status: &str, resp_bytes: &[u8],
+        &self,
+        status: &str,
+        resp_bytes: &[u8],
     ) -> Result<(), JsValue> {
         let resp = ListTicketsResponse::decode(resp_bytes).map_err(decode_err)?;
-        self.state.write().tickets.append_column_tickets(status, resp.items);
+        self.state
+            .write()
+            .tickets
+            .append_column_tickets(status, resp.items);
         Ok(())
     }
 
@@ -151,21 +160,28 @@ impl WasmTicketState {
 
     pub fn insert_created_ticket(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = InsertCreatedTicketRequest::decode(req_bytes).map_err(decode_err)?;
-        let ticket = req.ticket.ok_or_else(|| JsValue::from_str("missing ticket"))?;
+        let ticket = req
+            .ticket
+            .ok_or_else(|| JsValue::from_str("missing ticket"))?;
         self.state.write().tickets.add_ticket(ticket);
         Ok(())
     }
 
     pub fn patch_cached_ticket(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = PatchCachedTicketRequest::decode(req_bytes).map_err(decode_err)?;
-        let ticket = req.ticket.ok_or_else(|| JsValue::from_str("missing ticket"))?;
+        let ticket = req
+            .ticket
+            .ok_or_else(|| JsValue::from_str("missing ticket"))?;
         self.state.write().tickets.update_ticket(&req.slug, ticket);
         Ok(())
     }
 
     pub fn apply_ticket_status_event(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = ApplyTicketStatusEventRequest::decode(req_bytes).map_err(decode_err)?;
-        self.state.write().tickets.update_ticket_status(&req.slug, &req.status);
+        self.state
+            .write()
+            .tickets
+            .update_ticket_status(&req.slug, &req.status);
         Ok(())
     }
 
@@ -183,7 +199,10 @@ impl WasmTicketState {
 
     pub fn append_board_column_tickets(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = AppendBoardColumnTicketsRequest::decode(req_bytes).map_err(decode_err)?;
-        self.state.write().tickets.append_column_tickets(&req.status, req.tickets);
+        self.state
+            .write()
+            .tickets
+            .append_column_tickets(&req.status, req.tickets);
         Ok(())
     }
 
@@ -201,7 +220,9 @@ impl WasmTicketState {
 
     pub fn insert_created_label(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = InsertCreatedLabelRequest::decode(req_bytes).map_err(decode_err)?;
-        let label = req.label.ok_or_else(|| JsValue::from_str("missing label"))?;
+        let label = req
+            .label
+            .ok_or_else(|| JsValue::from_str("missing label"))?;
         self.state.write().tickets.add_label(label);
         Ok(())
     }
@@ -214,11 +235,18 @@ impl WasmTicketState {
 
     pub fn filter_tickets(&self, req_bytes: &[u8]) -> Result<Vec<u8>, JsValue> {
         let req = FilterTicketsRequest::decode(req_bytes).map_err(decode_err)?;
-        let search = if req.search.is_empty() { None } else { Some(req.search.as_str()) };
+        let search = if req.search.is_empty() {
+            None
+        } else {
+            Some(req.search.as_str())
+        };
         let guard = self.state.read();
-        let tickets: Vec<_> = guard.tickets
+        let tickets: Vec<_> = guard
+            .tickets
             .filter_tickets(search, &req.statuses, &req.priorities, &req.repository_ids)
-            .into_iter().cloned().collect();
+            .into_iter()
+            .cloned()
+            .collect();
         let resp = FilterTicketsResponse { tickets };
         Ok(resp.encode_to_vec())
     }

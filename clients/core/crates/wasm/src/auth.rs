@@ -27,24 +27,40 @@ unsafe impl Send for JsStorageBackend {}
 unsafe impl Sync for JsStorageBackend {}
 
 impl PersistentStorage for JsStorageBackend {
-    fn get(&self, key: &str) -> Option<String> { JsStorageBackend::get(self, key) }
-    fn set(&self, key: &str, value: &str) { JsStorageBackend::set(self, key, value); }
-    fn remove(&self, key: &str) { JsStorageBackend::remove(self, key); }
+    fn get(&self, key: &str) -> Option<String> {
+        JsStorageBackend::get(self, key)
+    }
+    fn set(&self, key: &str, value: &str) {
+        JsStorageBackend::set(self, key, value);
+    }
+    fn remove(&self, key: &str) {
+        JsStorageBackend::remove(self, key);
+    }
 }
 
 struct WebLocalStorage;
 
 impl PersistentStorage for WebLocalStorage {
     fn get(&self, key: &str) -> Option<String> {
-        web_sys::window()?.local_storage().ok()??.get_item(key).ok()?
+        web_sys::window()?
+            .local_storage()
+            .ok()??
+            .get_item(key)
+            .ok()?
     }
     fn set(&self, key: &str, value: &str) {
-        if let Some(s) = web_sys::window().and_then(|w| w.local_storage().ok()).flatten() {
+        if let Some(s) = web_sys::window()
+            .and_then(|w| w.local_storage().ok())
+            .flatten()
+        {
             let _ = s.set_item(key, value);
         }
     }
     fn remove(&self, key: &str) {
-        if let Some(s) = web_sys::window().and_then(|w| w.local_storage().ok()).flatten() {
+        if let Some(s) = web_sys::window()
+            .and_then(|w| w.local_storage().ok())
+            .flatten()
+        {
             let _ = s.remove_item(key);
         }
     }
@@ -82,19 +98,32 @@ impl WasmAuthManager {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn base_url(&self) -> String { self.base_url.clone() }
+    pub fn base_url(&self) -> String {
+        self.base_url.clone()
+    }
 
     pub async fn login(&self, username: String, password: String) -> Result<String, String> {
-        let session = self.manager.login(&username, &password).await.map_err(agentsmesh_services::wire)?;
+        let session = self
+            .manager
+            .login(&username, &password)
+            .await
+            .map_err(agentsmesh_services::wire)?;
         serde_json::to_string(&session).map_err(agentsmesh_services::wire)
     }
 
     pub async fn logout(&self) -> Result<(), String> {
-        self.manager.logout().await.map_err(agentsmesh_services::wire)
+        self.manager
+            .logout()
+            .await
+            .map_err(agentsmesh_services::wire)
     }
 
     pub async fn refresh_token(&self) -> Result<String, String> {
-        let tokens = self.manager.refresh_token().await.map_err(agentsmesh_services::wire)?;
+        let tokens = self
+            .manager
+            .refresh_token()
+            .await
+            .map_err(agentsmesh_services::wire)?;
         serde_json::to_string(&tokens).map_err(agentsmesh_services::wire)
     }
 
@@ -104,15 +133,23 @@ impl WasmAuthManager {
     }
 
     pub async fn fetch_organizations(&self) -> Result<String, String> {
-        let orgs = self.manager.fetch_organizations().await.map_err(agentsmesh_services::wire)?;
+        let orgs = self
+            .manager
+            .fetch_organizations()
+            .await
+            .map_err(agentsmesh_services::wire)?;
         serde_json::to_string(&orgs).map_err(agentsmesh_services::wire)
     }
 
     pub fn switch_org(&self, slug: &str) -> Result<(), String> {
-        self.manager.switch_org(slug).map_err(agentsmesh_services::wire)
+        self.manager
+            .switch_org(slug)
+            .map_err(agentsmesh_services::wire)
     }
 
-    pub fn is_authenticated(&self) -> bool { self.manager.is_authenticated() }
+    pub fn is_authenticated(&self) -> bool {
+        self.manager.is_authenticated()
+    }
 
     pub fn get_current_user_json(&self) -> JsValue {
         match self.manager.current_user() {
@@ -135,7 +172,9 @@ impl WasmAuthManager {
     pub fn apply_session(&self, req_bytes: &[u8]) -> Result<(), String> {
         let req = auth_state::ApplySessionRequest::decode(req_bytes)
             .map_err(|e| format!("decode ApplySessionRequest: {e}"))?;
-        let user_proto = req.user.ok_or_else(|| "ApplySessionRequest.user missing".to_string())?;
+        let user_proto = req
+            .user
+            .ok_or_else(|| "ApplySessionRequest.user missing".to_string())?;
         let session = AuthSession {
             token: req.token,
             refresh_token: req.refresh_token,
@@ -169,6 +208,10 @@ impl WasmAuthManager {
         self.manager.clear();
     }
 
-    pub fn get_token(&self) -> Option<String> { self.manager.get_token() }
-    pub fn get_refresh_token(&self) -> Option<String> { self.manager.get_refresh_token() }
+    pub fn get_token(&self) -> Option<String> {
+        self.manager.get_token()
+    }
+    pub fn get_refresh_token(&self) -> Option<String> {
+        self.manager.get_refresh_token()
+    }
 }

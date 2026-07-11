@@ -32,9 +32,7 @@ impl WasmMeshState {
 
     pub fn topology_json(&self) -> JsValue {
         match self.state.read().mesh.topology() {
-            Some(t) => JsValue::from_str(
-                &serde_json::to_string(t).unwrap_or_default(),
-            ),
+            Some(t) => JsValue::from_str(&serde_json::to_string(t).unwrap_or_default()),
             None => JsValue::NULL,
         }
     }
@@ -74,9 +72,7 @@ impl WasmMeshState {
 
     pub fn get_node_json(&self, pod_key: &str) -> JsValue {
         match self.state.read().mesh.get_node_by_key(pod_key) {
-            Some(n) => JsValue::from_str(
-                &serde_json::to_string(n).unwrap_or_default(),
-            ),
+            Some(n) => JsValue::from_str(&serde_json::to_string(n).unwrap_or_default()),
             None => JsValue::NULL,
         }
     }
@@ -107,9 +103,7 @@ impl WasmMeshState {
 
     pub fn get_runner_info_json(&self, runner_id: i64) -> JsValue {
         match self.state.read().mesh.get_runner_info(runner_id) {
-            Some(r) => JsValue::from_str(
-                &serde_json::to_string(r).unwrap_or_default(),
-            ),
+            Some(r) => JsValue::from_str(&serde_json::to_string(r).unwrap_or_default()),
             None => JsValue::NULL,
         }
     }

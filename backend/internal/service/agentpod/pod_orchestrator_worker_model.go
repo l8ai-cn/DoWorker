@@ -69,6 +69,9 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 		if harness == "claude-code" && modelID != "" {
 			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
 		}
+		if harness == "openclaw" && modelID != "" {
+			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
+		}
 		if harness == "gemini-cli" {
 			if modelID == "" {
 				return ErrMissingModelResource
@@ -108,6 +111,8 @@ func modelResourceRequirements(agentSlug string, agentDef *agentDomain.Agent) (r
 		return chatRequirements("anthropic"), true
 	case "gemini-cli":
 		return chatRequirements("gemini"), true
+	case "openclaw", "harn":
+		return chatRequirements("openai-compatible", "anthropic", "gemini"), true
 	default:
 		return resourcesvc.ResolutionRequirements{}, false
 	}
@@ -127,6 +132,10 @@ func workerModelHarness(agentSlug string, agentDef *agentDomain.Agent) string {
 		return "gemini-cli"
 	case "do-agent":
 		return "do-agent"
+	case "openclaw":
+		return "openclaw"
+	case "harn":
+		return "harn"
 	default:
 		return ""
 	}

@@ -20,23 +20,13 @@ impl ApiClient {
         &self,
         req: &sso_proto::DiscoverRequest,
     ) -> Result<sso_proto::DiscoverResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.sso.v1.SSOService/Discover",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.sso.v1.SSOService/Discover", req).await
     }
 
     pub async fn sso_ldap_auth_connect(
         &self,
         req: &sso_proto::LdapAuthRequest,
     ) -> Result<sso_proto::LdapAuthResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.sso.v1.SSOService/LdapAuth",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.sso.v1.SSOService/LdapAuth", req).await
     }
 }

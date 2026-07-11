@@ -29,8 +29,9 @@ grant_proto = { workspace = true }
 invitation_proto = { workspace = true }
 knowledgebase_proto = { workspace = true }
 license_proto = { workspace = true }
-loop_proto = { workspace = true }
-loop_state_proto = { workspace = true }
+goalloop_proto = { workspace = true }
+workflow_proto = { workspace = true }
+workflow_state_proto = { workspace = true }
 mesh_proto = { workspace = true }
 mesh_state_proto = { workspace = true }
 notification_proto = { workspace = true }

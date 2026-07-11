@@ -100,6 +100,6 @@ func (r *agentRepo) DeleteCustom(ctx context.Context, orgID int64, slug string) 
 
 func (r *agentRepo) CountLoopReferences(ctx context.Context, orgID int64, slug string) (int64, error) {
 	var count int64
-	err := r.db.WithContext(ctx).Raw("SELECT COUNT(*) FROM loops WHERE agent_slug = ?", slug).Scan(&count).Error
+	err := r.db.WithContext(ctx).Raw("SELECT COUNT(*) FROM workflows WHERE agent_slug = ?", slug).Scan(&count).Error
 	return count, err
 }

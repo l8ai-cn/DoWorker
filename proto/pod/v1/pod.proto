@@ -83,7 +83,7 @@ message PodTicketInfo {
   optional string title = 3;
 }
 
-message PodLoopInfo {
+message PodWorkflowInfo {
   optional int64 id = 1;
   optional string name = 2;
   optional string slug = 3;
@@ -129,14 +129,14 @@ message Pod {
   ];
 
   // Nested objects mirror REST handler response. Each is sourced from a
-  // preloaded GORM association (Runner, Agent, Repository, Ticket, Loop,
+  // preloaded GORM association (Runner, Agent, Repository, Ticket, Workflow,
   // CreatedBy), so the wire shape doesn't correspond to a single Go type.
   // Custom helpers stay in convert.go.
   optional PodRunnerInfo runner = 10 [(amesh.codegen.v1.field_custom) = "podRunnerInfoToProto"];
   optional PodAgentInfo agent = 11 [(amesh.codegen.v1.field_custom) = "podAgentInfoToProto"];
   optional PodRepositoryInfo repository = 12 [(amesh.codegen.v1.field_custom) = "podRepositoryInfoToProto"];
   optional PodTicketInfo ticket = 13 [(amesh.codegen.v1.field_custom) = "podTicketInfoToProto"];
-  optional PodLoopInfo loop = 14 [(amesh.codegen.v1.field_custom) = "podLoopInfoToProto"];
+  optional PodWorkflowInfo workflow = 14 [(amesh.codegen.v1.field_custom) = "podWorkflowInfoToProto"];
   optional PodCreatedByInfo created_by = 15 [(amesh.codegen.v1.field_custom) = "podCreatedByInfoToProto"];
 
   // Prompt + sandbox metadata

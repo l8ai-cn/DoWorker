@@ -16,10 +16,10 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/geo"
 	knowledgebaseservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
-	loop "github.com/anthropics/agentsmesh/backend/internal/service/loop"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	runnerlogservice "github.com/anthropics/agentsmesh/backend/internal/service/runnerlog"
+	workflow "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -42,8 +42,8 @@ func initPKIAndGRPCWiring(
 	sandboxQuerySvc *runner.SandboxQueryService,
 	sandboxFsSvc *runner.SandboxFsService,
 	podOrchestrator *agentpod.PodOrchestrator,
-	loopOrchestrator *loop.LoopOrchestrator,
-	loopRunSvc *loop.LoopRunService,
+	workflowOrchestrator *workflow.WorkflowOrchestrator,
+	workflowRunSvc *workflow.WorkflowRunService,
 	appLogger *logger.Logger,
 	relayTokenGenerator *relay.TokenGenerator,
 	db *gorm.DB,
@@ -66,9 +66,10 @@ func initPKIAndGRPCWiring(
 		AgentSvc:             services.agentSvc,
 		UserConfigSvc:        services.userConfig,
 		PodRouter:            podRouter,
-		LoopService:          services.loop,
-		LoopRunService:       services.loopRun,
-		LoopOrchestrator:     loopOrchestrator,
+		WorkflowService:      services.workflow,
+		WorkflowRunService:   services.workflowRun,
+		WorkflowOrchestrator: workflowOrchestrator,
+		GoalLoopService:      services.goalLoop,
 		BlockstoreService:    services.blockstore,
 		KnowledgebaseService: services.knowledgeBase,
 	}
@@ -77,6 +78,7 @@ func initPKIAndGRPCWiring(
 	result := &grpcWiringResult{handler: grpcRunnerHandler, server: grpcServer}
 	if grpcServer != nil {
 		result.runnerAdapter = grpcServer.RunnerAdapter()
+		services.goalLoop.SetVerificationDispatcher(result.runnerAdapter)
 		grpcCommandSender := grpcserver.NewGRPCCommandSender(result.runnerAdapter)
 		podCoordinator.SetCommandSender(grpcCommandSender)
 		podRouter.SetCommandSender(grpcCommandSender)
@@ -175,8 +177,8 @@ func buildServicesContainer(
 	relayACMEManager *acme.Manager,
 	geoResolver geo.Resolver,
 	versionChecker *runner.VersionChecker,
-	loopOrchestrator *loop.LoopOrchestrator,
-	loopScheduler *loop.LoopScheduler,
+	workflowOrchestrator *workflow.WorkflowOrchestrator,
+	workflowScheduler *workflow.WorkflowScheduler,
 	redisClient *redis.Client,
 	pendingQueueWiring *pendingQueueWiring,
 ) *v1.Services {
@@ -225,10 +227,10 @@ func buildServicesContainer(
 		GeoResolver:          geoResolver,
 		VersionChecker:       versionChecker,
 		Extension:            services.extension,
-		Loop:                 services.loop,
-		LoopRun:              services.loopRun,
-		LoopOrchestrator:     loopOrchestrator,
-		LoopScheduler:        loopScheduler,
+		Workflow:             services.workflow,
+		WorkflowRun:          services.workflowRun,
+		WorkflowOrchestrator: workflowOrchestrator,
+		WorkflowScheduler:    workflowScheduler,
 		SSO:                  services.sso,
 		SupportTicket:        services.supportTicket,
 		TokenUsage:           services.tokenUsage,

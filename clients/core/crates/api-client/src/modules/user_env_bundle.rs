@@ -9,7 +9,8 @@ use agentsmesh_types::proto_env_bundle_v1 as eb_proto;
 
 impl ApiClient {
     pub async fn list_user_env_bundles_connect(
-        &self, req: &eb_proto::ListEnvBundlesRequest,
+        &self,
+        req: &eb_proto::ListEnvBundlesRequest,
     ) -> Result<eb_proto::ListEnvBundlesResponse, ApiError> {
         connect_call(
             self,
@@ -20,7 +21,8 @@ impl ApiClient {
     }
 
     pub async fn get_user_env_bundle_connect(
-        &self, req: &eb_proto::GetEnvBundleRequest,
+        &self,
+        req: &eb_proto::GetEnvBundleRequest,
     ) -> Result<eb_proto::EnvBundle, ApiError> {
         connect_call(
             self,
@@ -31,7 +33,8 @@ impl ApiClient {
     }
 
     pub async fn create_user_env_bundle_connect(
-        &self, req: &eb_proto::CreateEnvBundleRequest,
+        &self,
+        req: &eb_proto::CreateEnvBundleRequest,
     ) -> Result<eb_proto::EnvBundle, ApiError> {
         connect_call(
             self,
@@ -42,7 +45,8 @@ impl ApiClient {
     }
 
     pub async fn update_user_env_bundle_connect(
-        &self, req: &eb_proto::UpdateEnvBundleRequest,
+        &self,
+        req: &eb_proto::UpdateEnvBundleRequest,
     ) -> Result<eb_proto::EnvBundle, ApiError> {
         connect_call(
             self,
@@ -53,7 +57,8 @@ impl ApiClient {
     }
 
     pub async fn delete_user_env_bundle_connect(
-        &self, req: &eb_proto::DeleteEnvBundleRequest,
+        &self,
+        req: &eb_proto::DeleteEnvBundleRequest,
     ) -> Result<eb_proto::DeleteEnvBundleResponse, ApiError> {
         connect_call(
             self,
@@ -64,7 +69,8 @@ impl ApiClient {
     }
 
     pub async fn set_primary_env_bundle_connect(
-        &self, req: &eb_proto::SetPrimaryEnvBundleRequest,
+        &self,
+        req: &eb_proto::SetPrimaryEnvBundleRequest,
     ) -> Result<eb_proto::SetPrimaryEnvBundleResponse, ApiError> {
         connect_call(
             self,

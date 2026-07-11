@@ -30,6 +30,12 @@ func modelResourceEnvironment(agentSlug string, resource *resourcesvc.ResolvedRe
 			return nil, ErrMissingModelResource
 		}
 		return map[string]string{"GOOGLE_API_KEY": apiKey}, nil
+	case "openclaw", "harn":
+		env := multiProviderModelResourceEnvironment(resource, apiKey, baseURL, modelID)
+		if len(env) == 0 {
+			return nil, ErrMissingModelResource
+		}
+		return env, nil
 	default:
 		return nil, ErrMissingModelResource
 	}
@@ -74,6 +80,38 @@ func doAgentModelSettings(resource *resourcesvc.ResolvedResource) (map[string]in
 		"provider": map[string]interface{}{provider: map[string]interface{}{"options": options}},
 		"model":    model,
 	}, nil
+}
+
+func multiProviderModelResourceEnvironment(
+	resource *resourcesvc.ResolvedResource,
+	apiKey, baseURL, modelID string,
+) map[string]string {
+	switch resource.Provider.ProtocolAdapter {
+	case "openai-compatible":
+		env := map[string]string{
+			"OPENAI_API_KEY":  apiKey,
+			"OPENAI_BASE_URL": baseURL,
+			"OPENAI_MODEL":    modelID,
+		}
+		if resource.Provider.Key.String() == "xai" {
+			env["XAI_API_KEY"] = apiKey
+		}
+		return compactEnv(env)
+	case "anthropic":
+		return compactEnv(map[string]string{
+			"ANTHROPIC_API_KEY":  apiKey,
+			"ANTHROPIC_BASE_URL": baseURL,
+			"ANTHROPIC_MODEL":    modelID,
+		})
+	case "gemini":
+		return compactEnv(map[string]string{
+			"GOOGLE_API_KEY": apiKey,
+			"GEMINI_API_KEY": apiKey,
+			"GEMINI_MODEL":   modelID,
+		})
+	default:
+		return nil
+	}
 }
 
 func compactEnv(values map[string]string) map[string]string {

@@ -44,10 +44,18 @@ impl BlockstoreState {
     }
 
     pub fn update_block_fields(&mut self, id: &str, patch: &Value) -> bool {
-        let Some(b) = self.blocks.get_mut(id) else { return false };
-        if let Some(v) = patch.get("data") { b.data = v.clone(); }
-        if let Some(v) = patch.get("text") { b.text = v.as_str().map(str::to_string); }
-        if let Some(v) = patch.get("meta") { b.meta = v.clone(); }
+        let Some(b) = self.blocks.get_mut(id) else {
+            return false;
+        };
+        if let Some(v) = patch.get("data") {
+            b.data = v.clone();
+        }
+        if let Some(v) = patch.get("text") {
+            b.text = v.as_str().map(str::to_string);
+        }
+        if let Some(v) = patch.get("meta") {
+            b.meta = v.clone();
+        }
         if let Some(v) = patch.get("updated_at").and_then(Value::as_str) {
             b.updated_at = v.to_string();
         }
@@ -55,10 +63,15 @@ impl BlockstoreState {
     }
 
     pub fn remove_block(&mut self, id: &str) {
-        if self.blocks.remove(id).is_none() { return; }
-        let doomed: Vec<i64> = self.refs.iter()
+        if self.blocks.remove(id).is_none() {
+            return;
+        }
+        let doomed: Vec<i64> = self
+            .refs
+            .iter()
             .filter(|(_, r)| r.from_id == id || r.to_id == id)
-            .map(|(k, _)| *k).collect();
+            .map(|(k, _)| *k)
+            .collect();
         for rid in doomed {
             if let Some(r) = self.refs.remove(&rid) {
                 self.unindex_ref(&r);
@@ -83,16 +96,22 @@ impl BlockstoreState {
     }
 
     pub fn update_ref_fields(&mut self, ref_id: i64, patch: &Value) -> bool {
-        let Some(prev) = self.refs.get(&ref_id).cloned() else { return false };
+        let Some(prev) = self.refs.get(&ref_id).cloned() else {
+            return false;
+        };
         let mut next = prev.clone();
-        if let Some(v) = patch.get("from_id").and_then(Value::as_str) { next.from_id = v.into(); }
+        if let Some(v) = patch.get("from_id").and_then(Value::as_str) {
+            next.from_id = v.into();
+        }
         if let Some(v) = patch.get("order_key") {
             next.order_key = v.as_str().map(str::to_string);
         }
         if let Some(v) = patch.get("anchor") {
             next.anchor = v.as_str().map(str::to_string);
         }
-        if let Some(v) = patch.get("meta") { next.meta = v.clone(); }
+        if let Some(v) = patch.get("meta") {
+            next.meta = v.clone();
+        }
         if let Some(v) = patch.get("updated_at").and_then(Value::as_str) {
             next.updated_at = v.to_string();
         }
@@ -112,16 +131,28 @@ impl BlockstoreState {
             }
         } else {
             let list = self.backlinks.entry(r.to_id.clone()).or_default();
-            if !list.contains(&r.id) { list.push(r.id); }
+            if !list.contains(&r.id) {
+                list.push(r.id);
+            }
         }
     }
 
     fn unindex_ref(&mut self, r: &BlockRef) {
-        let bucket = if r.rel == "nest" { &mut self.nest_children } else { &mut self.backlinks };
-        let key = if r.rel == "nest" { &r.from_id } else { &r.to_id };
+        let bucket = if r.rel == "nest" {
+            &mut self.nest_children
+        } else {
+            &mut self.backlinks
+        };
+        let key = if r.rel == "nest" {
+            &r.from_id
+        } else {
+            &r.to_id
+        };
         if let Some(list) = bucket.get_mut(key) {
             list.retain(|id| *id != r.id);
-            if list.is_empty() { bucket.remove(key); }
+            if list.is_empty() {
+                bucket.remove(key);
+            }
         }
     }
 
@@ -141,14 +172,22 @@ impl BlockstoreState {
     }
 
     pub fn get_block_json(&self, id: &str) -> Option<String> {
-        self.blocks.get(id).map(|b| serde_json::to_string(b).unwrap_or_default())
+        self.blocks
+            .get(id)
+            .map(|b| serde_json::to_string(b).unwrap_or_default())
     }
 
     pub fn list_children_json(&self, parent_id: &str) -> String {
-        let ids = self.nest_children.get(parent_id).cloned().unwrap_or_default();
-        let blocks: Vec<&Block> = ids.iter()
+        let ids = self
+            .nest_children
+            .get(parent_id)
+            .cloned()
+            .unwrap_or_default();
+        let blocks: Vec<&Block> = ids
+            .iter()
             .filter_map(|rid| self.refs.get(rid))
-            .filter_map(|r| self.blocks.get(&r.to_id)).collect();
+            .filter_map(|r| self.blocks.get(&r.to_id))
+            .collect();
         let refs: Vec<&BlockRef> = ids.iter().filter_map(|rid| self.refs.get(rid)).collect();
         serde_json::to_string(&SubtreeView { blocks, refs }).unwrap_or_else(|_| "{}".into())
     }
@@ -160,10 +199,13 @@ impl BlockstoreState {
     }
 
     pub fn type_defs_json(&self, workspace_id: &str) -> String {
-        let blocks: Vec<&Block> = self.blocks.values()
+        let blocks: Vec<&Block> = self
+            .blocks
+            .values()
             .filter(|b| b.workspace_id == workspace_id && b.block_type == "block_type_def")
             .collect();
-        serde_json::to_string(&serde_json::json!({ "blocks": blocks })).unwrap_or_else(|_| "{}".into())
+        serde_json::to_string(&serde_json::json!({ "blocks": blocks }))
+            .unwrap_or_else(|_| "{}".into())
     }
 
     pub fn get_last_op_id(&self, workspace_id: &str) -> i64 {
@@ -195,9 +237,15 @@ pub fn compare_order_key(a: Option<&BlockRef>, b: Option<&BlockRef>) -> Ordering
     let ak = a.and_then(|r| r.order_key.as_deref());
     let bk = b.and_then(|r| r.order_key.as_deref());
     match (ak, bk) {
-        (Some(x), Some(y)) if x == y => a.map(|r| r.id).unwrap_or(0).cmp(&b.map(|r| r.id).unwrap_or(0)),
+        (Some(x), Some(y)) if x == y => a
+            .map(|r| r.id)
+            .unwrap_or(0)
+            .cmp(&b.map(|r| r.id).unwrap_or(0)),
         (Some(x), Some(y)) => x.cmp(y),
-        (None, None) => a.map(|r| r.id).unwrap_or(0).cmp(&b.map(|r| r.id).unwrap_or(0)),
+        (None, None) => a
+            .map(|r| r.id)
+            .unwrap_or(0)
+            .cmp(&b.map(|r| r.id).unwrap_or(0)),
         (None, Some(_)) => Ordering::Greater,
         (Some(_), None) => Ordering::Less,
     }

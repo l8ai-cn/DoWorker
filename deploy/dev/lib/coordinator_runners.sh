@@ -12,7 +12,7 @@ export_coordinator_runner_env() {
     export COORDINATOR_RUNNER_LAUNCHER=docker
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR="$SCRIPT_DIR"
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_FILES=docker-compose.yml,docker-compose.runners.yml
-    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,aider=runner-aider,opencode=runner-opencode"
+    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,grok-build=runner-grok-build,openclaw=runner-openclaw,harn=runner-harn,aider=runner-aider,opencode=runner-opencode"
     export COORDINATOR_RUNNER_BACKEND_URL=http://traefik:80
     export COORDINATOR_RUNNER_GRPC_ENDPOINT="host.lan:${BACKEND_GRPC_PORT}"
     export COORDINATOR_RUNNER_RELAY_BASE_URL=ws://traefik:80/relay
@@ -58,6 +58,7 @@ stop_compose_runners() {
     docker compose stop \
         runner-e2e-echo runner-e2e-echo-2 runner-claude-code \
         runner-codex-cli runner-gemini-cli runner-loopal \
-        runner-do-agent runner-aider runner-opencode \
+        runner-do-agent runner-grok-build runner-openclaw runner-harn \
+        runner-aider runner-opencode \
         runner-admin-workspace runner-admin-workspace-do-agent 2>/dev/null || true
 }

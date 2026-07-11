@@ -43,12 +43,18 @@ impl WasmExtensionService {
     }
 
     #[wasm_bindgen(js_name = installSkillFromMarketConnect)]
-    pub async fn install_skill_from_market_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn install_skill_from_market_connect(
+        &self,
+        request: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.install_skill_from_market_connect(request).await
     }
 
     #[wasm_bindgen(js_name = installSkillFromGithubConnect)]
-    pub async fn install_skill_from_github_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn install_skill_from_github_connect(
+        &self,
+        request: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.install_skill_from_github_connect(request).await
     }
 
@@ -58,8 +64,13 @@ impl WasmExtensionService {
     }
 
     #[wasm_bindgen(js_name = installSkillFromUploadedFileConnect)]
-    pub async fn install_skill_from_uploaded_file_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
-        self.0.install_skill_from_uploaded_file_connect(request).await
+    pub async fn install_skill_from_uploaded_file_connect(
+        &self,
+        request: &[u8],
+    ) -> Result<Vec<u8>, String> {
+        self.0
+            .install_skill_from_uploaded_file_connect(request)
+            .await
     }
 
     #[wasm_bindgen(js_name = updateSkillConnect)]
@@ -85,7 +96,10 @@ impl WasmExtensionService {
     }
 
     #[wasm_bindgen(js_name = installCustomMcpServerConnect)]
-    pub async fn install_custom_mcp_server_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn install_custom_mcp_server_connect(
+        &self,
+        request: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.install_custom_mcp_server_connect(request).await
     }
 

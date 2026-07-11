@@ -225,7 +225,7 @@ func mapServiceError(err error) error {
 		errors.Is(err, adminservice.ErrEmailAlreadyExists),
 		errors.Is(err, adminservice.ErrOrganizationHasActiveRunner),
 		errors.Is(err, adminservice.ErrRunnerHasActivePods),
-		errors.Is(err, adminservice.ErrRunnerHasLoopRefs):
+		errors.Is(err, adminservice.ErrRunnerHasWorkflowRefs):
 		return connect.NewError(connect.CodeAlreadyExists, err)
 	case errors.Is(err, adminservice.ErrCannotRevokeOwnAdmin),
 		errors.Is(err, adminservice.ErrCannotDisableSelf):

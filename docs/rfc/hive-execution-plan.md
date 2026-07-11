@@ -6,7 +6,7 @@
 
 在 **不引入 Omnigent Python 控制面** 的前提下，完成 Hive 五工作流 + web-user 对接，使：
 
-1. `clients/web-user` 通过 AgentsMesh `/v1/*` compat 层可启动、建会话、发消息
+1. `clients/web-user` 通过 Do Worker `/v1/*` compat 层可启动、建会话、发消息
 2. `clients/web` 管理面由 AgentFile `CAPABILITY` 驱动，消除 slug 硬编码
 3. Backend/Runner 具备 Policy、Usage、Resume 的 **可扩展基础**（表 + proto + 评估桩）
 
@@ -34,7 +34,7 @@
 - [x] F2 POST/GET/LIST/PATCH sessions → Pod
 - [x] F4 POST events（message → SendPrompt）
 - [x] F3 SSE stream（status + keepalive）
-- [x] web-user vite 默认代理 AgentsMesh
+- [x] web-user vite 默认代理 Do Worker
 
 ### B/C/D — 基础
 - [x] 000163 permission_policies 表

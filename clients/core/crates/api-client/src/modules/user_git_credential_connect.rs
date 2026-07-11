@@ -7,12 +7,11 @@ use agentsmesh_types::proto_user_credential_v1 as uc_proto;
 // Connect-RPC (binary wire). See proto-naming-conventions.md §2.5.
 // =============================================================================
 //
-// Three user-scoped services share the proto.user_credential.v1 package:
-// UserGitCredentialService, UserAgentCredentialService,
-// UserRepositoryProviderService. The Connect handler at
-// backend/internal/api/connect/user_credential/ implements all three.
+// Two user-scoped services share the proto.user_credential.v1 package:
+// UserGitCredentialService and UserRepositoryProviderService. The Connect
+// handler at backend/internal/api/connect/user_credential/ implements both.
 //
-// Methods are split across three files (one per sub-service) to stay
+// Methods are split across files (one per sub-service) to stay
 // under the 200-line file limit.
 
 impl ApiClient {
@@ -28,7 +27,8 @@ impl ApiClient {
     }
 
     pub async fn get_git_credential_connect(
-        &self, req: &uc_proto::GetGitCredentialRequest,
+        &self,
+        req: &uc_proto::GetGitCredentialRequest,
     ) -> Result<uc_proto::GitCredential, ApiError> {
         connect_call(
             self,
@@ -39,7 +39,8 @@ impl ApiClient {
     }
 
     pub async fn create_git_credential_connect(
-        &self, req: &uc_proto::CreateGitCredentialRequest,
+        &self,
+        req: &uc_proto::CreateGitCredentialRequest,
     ) -> Result<uc_proto::GitCredential, ApiError> {
         connect_call(
             self,
@@ -50,7 +51,8 @@ impl ApiClient {
     }
 
     pub async fn update_git_credential_connect(
-        &self, req: &uc_proto::UpdateGitCredentialRequest,
+        &self,
+        req: &uc_proto::UpdateGitCredentialRequest,
     ) -> Result<uc_proto::GitCredential, ApiError> {
         connect_call(
             self,
@@ -61,7 +63,8 @@ impl ApiClient {
     }
 
     pub async fn delete_git_credential_connect(
-        &self, req: &uc_proto::DeleteGitCredentialRequest,
+        &self,
+        req: &uc_proto::DeleteGitCredentialRequest,
     ) -> Result<uc_proto::DeleteGitCredentialResponse, ApiError> {
         connect_call(
             self,
@@ -83,7 +86,8 @@ impl ApiClient {
     }
 
     pub async fn set_default_git_credential_connect(
-        &self, req: &uc_proto::SetDefaultGitCredentialRequest,
+        &self,
+        req: &uc_proto::SetDefaultGitCredentialRequest,
     ) -> Result<uc_proto::SetDefaultGitCredentialResponse, ApiError> {
         connect_call(
             self,

@@ -39,7 +39,7 @@ export interface IApiClient {
   create_extension_service(): IExtensionService;
   create_file_service(): IFileService;
   create_invitation_service(): IInvitationService;
-  create_loop_service(): ILoopService;
+  create_workflow_service(): IWorkflowService;
   create_mesh_service(): IMeshService;
   create_notification_service(): INotificationService;
   create_org_api_service(): IOrgApiService;
@@ -339,40 +339,40 @@ export interface IInvitationService {
 // the auth_connect.ts / *_connect.ts naming convention.
 export type IInvitationConnectService = IInvitationService;
 
-export interface ILoopService {
-  current_loop_json(): any;
-  get_loop_by_slug_json(slug: string): any;
-  loops_json(): string;
+export interface IWorkflowService {
+  current_workflow_json(): any;
+  get_workflow_by_slug_json(slug: string): any;
+  workflows_json(): string;
   runs_json(): string;
-  // Read side (B): prost-encoded state bytes of the cached loops/runs/current,
+  // Read side (B): prost-encoded state bytes of the cached workflows/runs/current,
   // so the shared web selector decodes web identically.
-  loops_bytes(): Uint8Array;
+  workflows_bytes(): Uint8Array;
   runs_bytes(): Uint8Array;
-  current_loop_bytes(): Uint8Array;
-  // Fetch→state (B): decode wire ListLoops/ListRuns response → cache.
-  apply_fetched_loops(respBytes: Uint8Array): void;
-  apply_fetched_current_loop(respBytes: Uint8Array): void;
+  current_workflow_bytes(): Uint8Array;
+  // Fetch→state (B): decode wire ListWorkflows/ListRuns response → cache.
+  apply_fetched_workflows(respBytes: Uint8Array): void;
+  apply_fetched_current_workflow(respBytes: Uint8Array): void;
   apply_fetched_runs(respBytes: Uint8Array): void;
   apply_appended_runs(respBytes: Uint8Array): void;
-  // Proto-bytes mutators (mirror WasmLoopService).  set_current_loop(req_bytes: Uint8Array): void;
-  clear_current_loop(req_bytes: Uint8Array): void;
-  patch_loop_from_action(req_bytes: Uint8Array): void;
-  insert_loop_run(req_bytes: Uint8Array): void;  patch_loop_run_status(req_bytes: Uint8Array): void;
-  clear_loop_runs(req_bytes: Uint8Array): void;
+  // Proto-bytes mutators (mirror WasmWorkflowService).  set_current_workflow(req_bytes: Uint8Array): void;
+  clear_current_workflow(req_bytes: Uint8Array): void;
+  patch_workflow_from_action(req_bytes: Uint8Array): void;
+  insert_workflow_run(req_bytes: Uint8Array): void;  patch_workflow_run_status(req_bytes: Uint8Array): void;
+  clear_workflow_runs(req_bytes: Uint8Array): void;
 }
 
-export interface ILoopState {
+export interface IWorkflowState {
   add_run(run_json: string): void;
   append_runs(json: string): void;
   clear_runs(): void;
-  current_loop_json(): any;
-  get_loop_by_slug_json(slug: string): any;
-  loops_json(): string;
+  current_workflow_json(): any;
+  get_workflow_by_slug_json(slug: string): any;
+  workflows_json(): string;
   runs_json(): string;
-  set_current_loop(json: string): void;
-  set_loops(json: string): void;
+  set_current_workflow(json: string): void;
+  set_workflows(json: string): void;
   set_runs(json: string): void;
-  update_loop(slug: string, json: string): void;
+  update_workflow(slug: string, json: string): void;
   update_run_status(run_id: bigint, status: string): void;
 }
 
@@ -671,7 +671,7 @@ export {
 } from "./service-error-kinds";
 
 // Shared client view-model types (proto→cache projection targets).
-export * from "./view-models/loop";
+export * from "./view-models/workflow";
 export * from "./view-models/ticket";
 export * from "./view-models/pod";
 export * from "./view-models/runner";

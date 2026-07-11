@@ -46,7 +46,10 @@ impl ChannelState {
     }
 
     pub fn get_all_unread_counts(&self) -> HashMap<i64, u32> {
-        self.channels.iter().map(|c| (c.id, c.unread_count)).collect()
+        self.channels
+            .iter()
+            .map(|c| (c.id, c.unread_count))
+            .collect()
     }
 
     pub fn set_mention_counts(&mut self, counts: HashMap<i64, u32>) {
@@ -86,14 +89,19 @@ impl ChannelState {
     }
 
     pub fn get_all_mention_counts(&self) -> HashMap<i64, u32> {
-        self.channels.iter().map(|c| (c.id, c.mention_count)).collect()
+        self.channels
+            .iter()
+            .map(|c| (c.id, c.mention_count))
+            .collect()
     }
 
     /// Mirror current channel's counters from the main list. Without this,
     /// `get_current_channel()` would return a snapshot frozen at select time
     /// while the sidebar's badge counts kept ticking.
     fn sync_current_channel_counters(&mut self) {
-        let Some(curr_id) = self.current_channel.as_ref().map(|c| c.id) else { return };
+        let Some(curr_id) = self.current_channel.as_ref().map(|c| c.id) else {
+            return;
+        };
         let snap = self
             .channels
             .iter()

@@ -28,7 +28,10 @@ impl WasmTicketRelationsService {
         self.0.delete_relation_connect(request_bytes).await
     }
 
-    pub async fn list_merge_requests_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn list_merge_requests_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.list_merge_requests_connect(request_bytes).await
     }
 

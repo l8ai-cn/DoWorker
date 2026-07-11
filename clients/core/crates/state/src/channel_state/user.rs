@@ -6,7 +6,10 @@ impl ChannelState {
         match user_id {
             Some(id) => {
                 if self.current_user.as_ref().map(|u| u.id) != Some(id) {
-                    self.current_user = Some(User { id, ..Default::default() });
+                    self.current_user = Some(User {
+                        id,
+                        ..Default::default()
+                    });
                 }
             }
             None => self.current_user = None,

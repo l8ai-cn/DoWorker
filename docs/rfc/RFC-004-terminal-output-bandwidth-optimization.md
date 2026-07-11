@@ -3,7 +3,7 @@
 | 属性 | 值 |
 |------|-----|
 | **状态** | Proposed |
-| **作者** | AgentsMesh Team |
+| **作者** | Do Worker Team |
 | **创建日期** | 2026-01-24 |
 | **目标** | 通过 VT Serialize 模式减少 30-50% 终端输出带宽 |
 
@@ -13,7 +13,7 @@
 
 ### 1.1 背景
 
-AgentsMesh Runner 通过 PTY 捕获 AI Agent（如 Claude Code）的终端输出，并通过 gRPC/Relay 传输到前端浏览器。在实际运行中，发现终端输出流量非常大：
+Do Worker Runner 通过 PTY 捕获 AI Agent（如 Claude Code）的终端输出，并通过 gRPC/Relay 传输到前端浏览器。在实际运行中，发现终端输出流量非常大：
 
 **实测数据（Claude Code 正常使用场景）：**
 - 单帧大小：~880KB（包含完整终端界面）

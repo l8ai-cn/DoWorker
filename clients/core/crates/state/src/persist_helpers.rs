@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use agentsmesh_persistence::StorageBackend;
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 pub(crate) struct JsonStore {
     backend: Arc<dyn StorageBackend>,
@@ -11,7 +11,10 @@ pub(crate) struct JsonStore {
 
 impl JsonStore {
     pub fn new(backend: Arc<dyn StorageBackend>, table: impl Into<String>) -> Self {
-        Self { backend, table: table.into() }
+        Self {
+            backend,
+            table: table.into(),
+        }
     }
 
     pub fn save<T: Serialize>(&self, key: &str, value: &T) {

@@ -18,7 +18,9 @@ impl WasmTicketService {
     // by the caller (useTicketPods), so the cache is the shared SSOT.
 
     pub async fn get_ticket_pods(
-        &self, slug: &str, active_only: Option<bool>,
+        &self,
+        slug: &str,
+        active_only: Option<bool>,
     ) -> Result<String, String> {
         self.0.get_ticket_pods(slug, active_only).await
     }
@@ -49,11 +51,17 @@ impl WasmTicketService {
         self.0.delete_ticket_connect(request_bytes).await
     }
 
-    pub async fn update_ticket_status_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn update_ticket_status_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.update_ticket_status_connect(request_bytes).await
     }
 
-    pub async fn get_active_tickets_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn get_active_tickets_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.get_active_tickets_connect(request_bytes).await
     }
 

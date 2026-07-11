@@ -18,6 +18,7 @@ import {
   Server,
   Settings,
   Repeat,
+  Target,
   Sparkles,
   LogOut,
   ChevronRight,
@@ -33,6 +34,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   server: Server,
   settings: Settings,
   repeat: Repeat,
+  target: Target,
   sparkles: Sparkles,
 };
 
@@ -69,6 +71,8 @@ export function MobileDrawer({ className }: MobileDrawerProps) {
         return `/${orgSlug}/runners`;
       case "loops":
         return `/${orgSlug}/loops`;
+      case "workflows":
+        return `/${orgSlug}/workflows`;
       case "automation":
         return `/${orgSlug}/automation`;
       case "skills":

@@ -11,84 +11,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { docsNavSections, getBreadcrumbs } from "@/lib/docs-navigation";
+import { getBreadcrumbs } from "@/lib/docs-navigation";
 import { LightAuthButtons, Logo } from "@/components/common";
-
-function SidebarNav({
-  onNavigate,
-}: {
-  onNavigate?: () => void;
-}) {
-  const pathname = usePathname();
-  const t = useTranslations();
-
-  return (
-    <nav className="space-y-8">
-      {docsNavSections.map((section) => (
-        <div key={section.titleKey}>
-          <h3 className="text-[11px] font-semibold mb-3 uppercase tracking-[0.14em] text-[var(--azure-light-ink-soft)]">
-            {t(section.titleKey)}
-          </h3>
-          <ul className="space-y-1">
-            {section.items.map((item) => {
-              const active = pathname === item.href;
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    onClick={onNavigate}
-                    className={cn(
-                      "text-sm block px-3 py-1.5 rounded-full transition-colors",
-                      active
-                        ? "bg-[var(--azure-light-cyan-soft)] text-[var(--azure-light-cyan-ink)] font-semibold"
-                        : "text-[var(--azure-light-ink-muted)] hover:text-[var(--azure-light-ink)] hover:bg-[var(--azure-light-surface-high)]"
-                    )}
-                  >
-                    {t(item.titleKey)}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
-    </nav>
-  );
-}
-
-function BreadcrumbJsonLd({
-  breadcrumbs,
-  labels,
-}: {
-  breadcrumbs: Array<{ titleKey: string; href?: string }>;
-  labels: string[];
-}) {
-  if (breadcrumbs.length <= 1) return null;
-
-  const items = breadcrumbs.map((crumb, i) => ({
-    "@type": "ListItem" as const,
-    position: i + 1,
-    name: labels[i],
-    ...(crumb.href
-      ? { item: `https://agentsmesh.ai${crumb.href}` }
-      : {}),
-  }));
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: items,
-        }),
-      }}
-    />
-  );
-}
+import { DocsArticle } from "./DocsArticle";
+import { DocsBreadcrumbJsonLd } from "./DocsBreadcrumbJsonLd";
+import { DocsSidebarNav } from "./DocsSidebarNav";
 
 export default function DocsShell({
   children,
@@ -103,17 +31,17 @@ export default function DocsShell({
 
   return (
     <div className="azure-light azure-light-mesh min-h-screen">
-      <BreadcrumbJsonLd breadcrumbs={breadcrumbs} labels={breadcrumbLabels} />
+      <DocsBreadcrumbJsonLd breadcrumbs={breadcrumbs} labels={breadcrumbLabels} />
 
       <header className="azure-light-glass sticky top-0 z-10">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
+        <div className="px-4 md:px-5 py-3 sm:py-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden flex-shrink-0"
+                  className="lg:hidden flex-shrink-0"
                   aria-label={t("docs.nav.menu")}
                 >
                   <svg
@@ -135,7 +63,7 @@ export default function DocsShell({
                 <SheetHeader className="mb-4">
                   <SheetTitle>{t("docs.title")}</SheetTitle>
                 </SheetHeader>
-                <SidebarNav onNavigate={() => setMobileOpen(false)} />
+                <DocsSidebarNav onNavigate={() => setMobileOpen(false)} />
               </SheetContent>
             </Sheet>
 
@@ -164,11 +92,11 @@ export default function DocsShell({
       </header>
 
       <div className="flex">
-        <aside className="w-64 min-h-[calc(100vh-65px)] px-5 py-8 hidden md:block sticky top-[65px] h-[calc(100vh-65px)] overflow-y-auto bg-[var(--azure-light-surface)]">
-          <SidebarNav />
+        <aside className="w-64 min-h-[calc(100vh-65px)] px-5 py-8 hidden lg:block sticky top-[65px] h-[calc(100vh-65px)] overflow-y-auto bg-[var(--azure-light-surface)]">
+          <DocsSidebarNav />
         </aside>
 
-        <main className="flex-1 px-4 sm:px-6 md:px-10 py-8 sm:py-10 max-w-4xl mx-auto min-w-0 w-full">
+        <main className="flex-1 px-4 sm:px-6 lg:px-10 py-8 sm:py-10 max-w-4xl mx-auto min-w-0 w-full">
           {breadcrumbs.length > 1 && (
             <nav className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs mb-6 sm:mb-8 text-[var(--azure-light-ink-muted)]">
               {breadcrumbs.map((crumb, index) => (
@@ -193,12 +121,12 @@ export default function DocsShell({
             </nav>
           )}
 
-          {children}
+          <DocsArticle>{children}</DocsArticle>
         </main>
       </div>
 
       <footer className="mt-24 bg-[var(--azure-light-surface)]">
-        <div className="container mx-auto px-4 py-10">
+        <div className="px-4 md:px-5 py-10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-[var(--azure-light-ink-muted)]">
               &copy; {new Date().getFullYear()} Do Worker.{" "}

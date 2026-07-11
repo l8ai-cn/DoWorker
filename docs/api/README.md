@@ -1,8 +1,8 @@
-# AgentsMesh API Documentation
+# Do Worker API Documentation
 
 ## Overview
 
-AgentsMesh provides APIs for managing multi-agent AI development workspaces:
+Do Worker provides APIs for managing multi-agent AI development workspaces:
 
 - **REST API**: For web/mobile clients (authentication, resources, management)
 - **External API**: For third-party integrations (API key authentication)
@@ -632,7 +632,7 @@ Runners connect to the backend via gRPC with mTLS (mutual TLS) authentication.
 
 ### Authentication
 
-Runners authenticate using client certificates issued by the AgentsMesh PKI:
+Runners authenticate using client certificates issued by the Do Worker PKI:
 
 1. **Registration**: Runner obtains a certificate via `RegisterWithToken` or browser-based authorization
 2. **Connection**: Runner presents certificate during TLS handshake

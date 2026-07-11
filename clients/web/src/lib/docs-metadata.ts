@@ -51,10 +51,10 @@ const docsMetadataMap: Record<string, DocsMeta> = {
     description:
       "Multi-agent collaboration spaces where AI agents communicate, share context, and coordinate work in real time.",
   },
-  "/docs/features/loops": {
-    title: "Loops",
+  "/docs/features/workflows": {
+    title: "Workflows",
     description:
-      "Automated feedback loops for iterative agent-driven development — define triggers, conditions, and actions.",
+      "Automated feedback workflows for iterative agent-driven development — define triggers, conditions, and actions.",
   },
   "/docs/features/mesh": {
     title: "Mesh Topology",
@@ -106,10 +106,10 @@ const docsMetadataMap: Record<string, DocsMeta> = {
     description:
       "Set up multiple AI agents that communicate through channels to collaboratively build features.",
   },
-  "/docs/tutorials/automated-loops": {
-    title: "Tutorial: Automated Loops",
+  "/docs/tutorials/automated-workflows": {
+    title: "Tutorial: Automated Workflows",
     description:
-      "Configure scheduled loops to automate recurring AI agent tasks like code reviews and dependency audits.",
+      "Configure scheduled workflows to automate recurring AI agent tasks like code reviews and dependency audits.",
   },
   "/docs/runners/setup": {
     title: "Runner Setup",
@@ -151,10 +151,10 @@ const docsMetadataMap: Record<string, DocsMeta> = {
     description:
       "Create, list, and manage multi-agent collaboration channels via the Do Worker REST API.",
   },
-  "/docs/api/loops": {
-    title: "Loops API",
+  "/docs/api/workflows": {
+    title: "Workflows API",
     description:
-      "Manage automated feedback loops programmatically — create triggers, monitor executions, and retrieve results.",
+      "Manage automated feedback workflows programmatically — create triggers, monitor executions, and retrieve results.",
   },
   "/docs/api/pods": {
     title: "Pods API",

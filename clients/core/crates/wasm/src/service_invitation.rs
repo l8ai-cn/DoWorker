@@ -12,7 +12,9 @@ pub struct WasmInvitationService {
 #[wasm_bindgen]
 impl WasmInvitationService {
     pub(crate) fn new(client: Arc<ApiClient>) -> Self {
-        Self { inner: InvitationService::new(client) }
+        Self {
+            inner: InvitationService::new(client),
+        }
     }
 
     // -------- Connect-RPC (binary wire) --------
@@ -49,7 +51,10 @@ impl WasmInvitationService {
     }
 
     #[wasm_bindgen(js_name = listPendingInvitationsConnect)]
-    pub async fn list_pending_invitations_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn list_pending_invitations_connect(
+        &self,
+        request: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.inner.list_pending_invitations_connect(request).await
     }
 

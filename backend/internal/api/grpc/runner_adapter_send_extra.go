@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"context"
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -8,6 +9,21 @@ import (
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
+
+func (a *GRPCRunnerAdapter) SendRunVerification(
+	_ context.Context,
+	runnerID int64,
+	cmd *runnerv1.RunVerificationCommand,
+) error {
+	conn := a.connManager.GetConnection(runnerID)
+	if conn == nil {
+		return status.Errorf(codes.NotFound, "runner %d not connected", runnerID)
+	}
+	return conn.SendMessage(&runnerv1.ServerMessage{
+		Payload:   &runnerv1.ServerMessage_RunVerification{RunVerification: cmd},
+		Timestamp: time.Now().UnixMilli(),
+	})
+}
 
 func (a *GRPCRunnerAdapter) SendObservePod(runnerID int64, requestID, podKey string, lines int32, includeScreen bool) error {
 	conn := a.connManager.GetConnection(runnerID)

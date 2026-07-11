@@ -1,6 +1,6 @@
 // Aggregated proto→viewModel projections used by Web Connect adapters and
 // state stores.
-export { loopToCache, loopRunToCache } from "./loop";
+export { workflowToCache, workflowRunToCache } from "./workflow";
 export {
   ticketToCache,
   boardColumnToCache,

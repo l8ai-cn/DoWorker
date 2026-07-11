@@ -9,9 +9,9 @@ import (
 func headerTenant(orgSvc middleware.OrganizationService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		orgSlug := c.GetHeader("X-Organization-Slug")
-	if orgSlug == "" {
-		orgSlug = c.Query("org_slug")
-	}
+		if orgSlug == "" {
+			orgSlug = c.Query("org_slug")
+		}
 		if orgSlug == "" {
 			apierr.AbortBadRequest(c, apierr.VALIDATION_FAILED, "X-Organization-Slug header is required")
 			return

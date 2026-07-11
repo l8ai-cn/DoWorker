@@ -20,7 +20,7 @@ func TestSetupTestDB_CreatesAllTables(t *testing.T) {
 		"autopilot_controllers", "autopilot_iterations",
 		"channels", "channel_messages", "channel_members", "channel_message_edits",
 		"tickets", "ticket_comments", "ticket_merge_requests",
-		"loops", "loop_runs",
+		"workflows", "workflow_runs",
 		"subscription_plans", "subscriptions", "payment_orders", "licenses",
 		"api_keys", "invitations", "sso_configs", "support_tickets",
 		"token_usages", "custom_agents",

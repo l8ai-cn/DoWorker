@@ -1,15 +1,15 @@
 ---
-title: "Building AgentsMesh with AgentsMesh: 52 Days of Harness Engineering by One Person"
+title: "Building Do Worker with Do Worker: 52 Days of Harness Engineering by One Person"
 excerpt: "OpenAI calls it Harness Engineering. Using this methodology, one person in 52 days, 600 commits, and 965,687 lines of code throughput, built the Harness Engineering tool itself. The codebase is the context. The engineering environment sets the ceiling for agent output quality."
 date: "2026-03-04"
-author: "AgentsMesh Team"
+author: "Do Worker Team"
 category: "Insight"
 readTime: 12
 ---
 
 OpenAI recently published a piece describing how they used AI agents to produce over a million lines of code in five months. They call this engineering practice **Harness Engineering**.
 
-I started building **AgentsMesh** a little over 50 days ago. 52 days, 600 commits, 965,687 lines of code throughput, 356,220 lines of production code still standing. One person.
+I started building **Do Worker** a little over 50 days ago. 52 days, 600 commits, 965,687 lines of code throughput, 356,220 lines of production code still standing. One person.
 
 But what's worth talking about isn't the numbers — it's the structure of the endeavor itself: I used Harness Engineering to build a Harness Engineering tool.
 
@@ -27,9 +27,9 @@ When an agent needs to add a new feature, it knows: data structures go in domain
 
 ### Directory Structure as Documentation
 
-Cross-stack naming is fully aligned. Take Loop as an example: backend/internal/domain/loop/ for data structures, backend/internal/service/loop/ for business logic, web/src/components/loops/ for frontend components. The mapping from product concept to code path is direct — no searching needed, the directory name is the map.
+Cross-stack naming is fully aligned. Take Workflow as an example: backend/internal/domain/workflow/ for data structures, backend/internal/service/workflow/ for business logic, web/src/components/workflows/ for frontend components. The mapping from product concept to code path is direct — no searching needed, the directory name is the map.
 
-The backend's 16 domain modules (agentpod, channel, ticket, loop, runner...) mirror the service layer 1:1; the web's components are organized by product function (pod, tickets, loops, mesh, workspace), aligned with backend domain naming. An agent receiving a Ticket-related task doesn't need to explore the entire codebase — the directory structure alone tells it where to work.
+The backend's 16 domain modules (agentpod, channel, ticket, workflow, runner...) mirror the service layer 1:1; the web's components are organized by product function (pod, tickets, workflows, mesh, workspace), aligned with backend domain naming. An agent receiving a Ticket-related task doesn't need to explore the entire codebase — the directory structure alone tells it where to work.
 
 This convention wasn't written in a document. It was continuously reinforced by every agent commit across the entire codebase.
 
@@ -51,11 +51,11 @@ Go + TypeScript + Proto. Strong typing shifts a massive number of errors from ru
 
 Agent generates a function with a mismatched signature? Build failure. Agent modifies an API format but forgets to update the type definition? TypeScript catches it immediately. Agent changes the Runner's message format without syncing the Backend? The Proto-generated code won't compile.
 
-These errors would silently slip into runtime in weakly typed languages. Strong typing blocks them before commit. The shorter the feedback loop, the higher the agent's iteration efficiency.
+These errors would silently slip into runtime in weakly typed languages. Strong typing blocks them before commit. The shorter the feedback workflow, the higher the agent's iteration efficiency.
 
-### Four-Layer Feedback Loop
+### Four-Layer Feedback Workflow
 
-An agent needs to know quickly what it did wrong. One layer isn't enough; four is just right. And the shorter and more precise the feedback loop, the better the agent's deliverables.
+An agent needs to know quickly what it did wrong. One layer isn't enough; four is just right. And the shorter and more precise the feedback workflow, the better the agent's deliverables.
 
 Layer one: compilation. Air hot-reload — Go code restarts within 1 second of modification; TypeScript type errors are flagged in real time. Syntax and type-level errors are eliminated at this layer.
 
@@ -91,11 +91,11 @@ The daily throughput ceiling of 50,000 lines isn't a tooling limitation; it's th
 
 The only way to break through: trade delegation for scale. Not giving the agent more tasks, but delegating the decision-making itself. Let agents coordinate agents, and move yourself up one level — from supervising individual agents to supervising the system that supervises agents. That's how **Autopilot** mode was born.
 
-This is the core design intent of AgentsMesh. And something I only truly understood through the process of using it to build itself.
+This is the core design intent of Do Worker. And something I only truly understood through the process of using it to build itself.
 
 ## When Experimentation Costs Collapse, Engineering Methodology Must Evolve
 
-The Relay architecture in AgentsMesh wasn't designed. It was forged in production.
+The Relay architecture in Do Worker wasn't designed. It was forged in production.
 
 Three Pods running simultaneously hammered the Backend down. I watched it crash, understood why, and rebuilt. Added Relay to isolate terminal traffic. New problems emerged — added intelligent aggregation, added on-demand connection management. The final architecture came from a succession of real failures, not whiteboard discussions.
 
@@ -109,9 +109,9 @@ That Relay failure went from discovery to fix in under two days. In a traditiona
 
 ## Self-Bootstrapping as Validation
 
-The core claim of AgentsMesh: AI agents can collaboratively complete complex engineering tasks under a structured Harness.
+The core claim of Do Worker: AI agents can collaboratively complete complex engineering tasks under a structured Harness.
 
-I used AgentsMesh to build AgentsMesh.
+I used Do Worker to build Do Worker.
 
 This is the most direct test of that claim. If Harness Engineering truly works, this tool should be capable of building itself.
 
@@ -126,12 +126,12 @@ The commit history is the evidence. Any engineer can clone the repository, run g
 52 days of practice and self-bootstrapping validation ultimately converged into three engineering primitives. This isn't a pre-designed product framework — it was forged by real engineering problems.
 
 **Isolation**
-Every agent needs its own independent workspace. Not a best practice — a hard prerequisite. Without isolation, parallel work is structurally impossible. AgentsMesh implements this with **Pods**: each agent runs in its own Git worktree and sandbox. Conflicts go from "could happen" to "structurally cannot happen." Isolation also means cohesion — within the isolated Pod environment, all the context the agent needs for execution is prepared: Repo, Skills, MCP and more. In practice, building a Pod is the process of preparing the execution environment for the agent.
+Every agent needs its own independent workspace. Not a best practice — a hard prerequisite. Without isolation, parallel work is structurally impossible. Do Worker implements this with **Pods**: each agent runs in its own Git worktree and sandbox. Conflicts go from "could happen" to "structurally cannot happen." Isolation also means cohesion — within the isolated Pod environment, all the context the agent needs for execution is prepared: Repo, Skills, MCP and more. In practice, building a Pod is the process of preparing the execution environment for the agent.
 
 **Decomposition**
 Agents aren't good at "help me with this codebase." They're good at: you own this scope, these are the acceptance criteria, this is the definition of done. Ownership isn't just task assignment — it changes how the agent reasons. Decomposition is the engineering work that must be completed before any agent runs.
 
-AgentsMesh provides two abstractions for decomposition: **Tickets** map to one-shot work items ��� feature development, bug fixes, refactoring, with full kanban status flow and MR association; **Loops** map to recurring automated tasks — daily tests, scheduled builds, code quality scans, scheduled via Cron expressions, each run leaving an independent LoopRun record. The boundary between the two task forms is clear: do something once, use a Ticket; do the same thing repeatedly, use a Loop.
+Do Worker provides two abstractions for decomposition: **Tickets** map to one-shot work items ��� feature development, bug fixes, refactoring, with full kanban status flow and MR association; **Workflows** map to recurring automated tasks — daily tests, scheduled builds, code quality scans, scheduled via Cron expressions, each run leaving an independent WorkflowRun record. The boundary between the two task forms is clear: do something once, use a Ticket; do the same thing repeatedly, use a Workflow.
 
 **Coordination**
 We don't use role-based abstractions to organize agent collaboration. Traditional teams need job roles because each person only masters a few specialties — frontend engineers don't write backend code, product managers don't write code. But agents aren't bound by this constraint: the same agent can write code, generate documentation, do competitive analysis, run tests, review PRs, and even orchestrate other agents' workflows. Its capability boundaries aren't fixed — they're configured through context and tools. So coordination between agents doesn't need to mimic human division of labor; it needs communication and permissions.
@@ -146,10 +146,10 @@ OpenAI calls the corresponding concepts Context Engineering, architectural const
 
 Harness Engineering is an engineering discipline, not a product feature. Rather than keeping it to ourselves, we'd rather put it out there to inspire what comes next.
 
-We chose to open source AgentsMesh. When what we've built might be an effective engineering tool, the goal was never "owning the code" — it was enabling more people to build even better engineering tools on this foundation. Rather than locking potentially sound engineering practices inside a product, we open source them so the community can verify, evolve, and surpass them.
+We chose to open source Do Worker. When what we've built might be an effective engineering tool, the goal was never "owning the code" — it was enabling more people to build even better engineering tools on this foundation. Rather than locking potentially sound engineering practices inside a product, we open source them so the community can verify, evolve, and surpass them.
 
 The code is on [GitHub](https://github.com/l8ai-cn/DoWorker)
 
-You can use it to: deploy your own Runner and run AI agents in local isolated environments; manage agent workflows with Tickets and Loops; coordinate multiple agents on complex tasks through Channels and Bindings.
+You can use it to: deploy your own Runner and run AI agents in local isolated environments; manage agent workflows with Tickets and Workflows; coordinate multiple agents on complex tasks through Channels and Bindings.
 
 If you've made your own discoveries while practicing Harness Engineering — come chat on [GitHub Discussions](https://github.com/l8ai-cn/DoWorker/discussions), or open an [Issue](https://github.com/l8ai-cn/DoWorker/issues) directly. This project was built with agents. It should continue to evolve through agents and engineers together.

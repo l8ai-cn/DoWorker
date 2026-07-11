@@ -24,7 +24,7 @@ if [[ "$FORCE" == "false" && -f "$MARKER" ]]; then
     exit 0
 fi
 
-if [[ -f "$ROOT/proto/gen/go/loop/v1/loop.pb.go" ]]; then
+if [[ -f "$ROOT/proto/gen/go/workflow/v1/workflow.pb.go" ]]; then
     echo "proto/gen/go present — skipping proto regen"
 else
     bash "$ROOT/scripts/proto-gen-go.sh"
@@ -33,7 +33,7 @@ fi
 GOBIN="${GOBIN:-$(go env GOPATH)/bin}"
 export PATH="$GOBIN:$PATH"
 
-PLUGIN="$GOBIN/protoc-gen-amesh-convert"
+PLUGIN="/tmp/protoc-gen-amesh-convert"
 echo "Building protoc-gen-amesh-convert..."
 go build -o "$PLUGIN" ./tools/protoc-gen-amesh-convert
 

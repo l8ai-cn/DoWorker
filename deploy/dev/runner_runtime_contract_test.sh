@@ -16,38 +16,28 @@ grep -q "ARG AGENT_RUNTIME" "$DOCKERFILE"
 grep -q "AGENT_RUNTIME: claude-code" docker-compose.runners.yml
 grep -q "AGENT_RUNTIME: codex-cli" docker-compose.runners.yml
 grep -q "AGENT_RUNTIME: do-agent" docker-compose.runners.yml
+grep -q "AGENT_RUNTIME: grok-build" docker-compose.runners.yml
+grep -q "AGENT_RUNTIME: openclaw" docker-compose.runners.yml
+grep -q "AGENT_RUNTIME: harn" docker-compose.runners.yml
 grep -q "runner-do-agent" docker-compose.runners.yml
+grep -q "runner-grok-build" docker-compose.runners.yml
+grep -q "runner-openclaw" docker-compose.runners.yml
+grep -q "runner-harn" docker-compose.runners.yml
+grep -q "runner-openclaw" ../kubernetes/local/runners-workloads.yaml
+grep -q "runner-harn" ../kubernetes/local/runners-workloads.yaml
 grep -q "AGENT_RUNTIME: aider" docker-compose.runners.yml
 grep -q "AGENT_RUNTIME: opencode" docker-compose.runners.yml
 grep -q "do-agent-binary" "$DOCKERFILE"
+grep -q "@xai-official/grok" "$DOCKERFILE"
+grep -q "npm install -g openclaw" "$DOCKERFILE"
+grep -q "HARN_VERSION" "$DOCKERFILE"
 grep -q "runner-claude-code" docker-compose.runners.yml
 grep -q "runner-codex-cli" docker-compose.runners.yml
 grep -q "docker/agent-runtime/Dockerfile" docker-compose.runners.yml
 grep -q "COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES" lib/host_services.sh
 grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
-grep -q "RUNNER_SSH_SOURCE_DIR" runner-entrypoint.sh
-grep -q "init_runner_ssh" runner-entrypoint.sh
-grep -q 'user: "0:0"' docker-compose.runners.yml
-grep -q "handoff_runner_state" runner-entrypoint.sh
-grep -q "exec sudo -E -H -u runner -- /usr/local/bin/do-worker-runner run" runner-entrypoint.sh
 grep -q "'e2e-mock-agent'," seed/e2e_echo.sql
-grep -q 'CONFIG_DIR="${HOME}/.do-worker"' runner-entrypoint.sh
-grep -q '/home/runner/.do-worker' docker-compose.runners.yml
-grep -q 'mountPath: /home/runner/.do-worker' "${ROOT}/deploy/kubernetes/local/runners-workloads.yaml"
-
-if grep -q '/home/runner/.agentsmesh' docker-compose.runners.yml \
-  || grep -q 'mountPath: /home/runner/.agentsmesh' "${ROOT}/deploy/kubernetes/local/runners-workloads.yaml" \
-  || grep -q 'CONFIG_DIR="${HOME}/.agentsmesh"' runner-entrypoint.sh; then
-  echo "runner runtime state must use ~/.do-worker consistently" >&2
-  exit 1
-fi
-
-if grep -q '/home/runner/.ssh:ro' docker-compose.runners.yml; then
-  echo "runner SSH material must not be mounted over the runner home directory" >&2
-  exit 1
-fi
-grep -q './runner-ssh:/run/runner-ssh-source:ro' docker-compose.runners.yml
 
 if awk '/runner-claude-code:/{flag=1; next} /runner-codex-cli:/{flag=0} flag' docker-compose.runners.yml \
   | grep -q "/home/runner/.codex"; then

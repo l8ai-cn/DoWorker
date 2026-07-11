@@ -1,8 +1,8 @@
-# Hive 方案：AgentsMesh 底座 + Omnigent 机制吸收
+# Hive 方案：Do Worker 底座 + Omnigent 机制吸收
 
 > 状态：Hive S0–S4 验收通过（2026-07-05）| 平台阶段 2+ 延伸见 execution-plan
 > 前置调研：Omnigent clone（/private/tmp/omnigent_explain，HEAD 3124850）
-> 结论前提：AgentsMesh 是唯一控制面 SSOT；Omnigent 只吸收契约与机制，不引入其 Python 控制面。
+> 结论前提：Do Worker 是唯一控制面 SSOT；Omnigent 只吸收契约与机制，不引入其 Python 控制面。
 
 ## 0. 双前端架构
 
@@ -11,7 +11,7 @@
 | 管理面 | `clients/web` + `clients/web-admin` | 组织、Runner、配额、审计、高级配置 | Next.js + Rust WASM |
 | 用户工作台 | `clients/web-user` | 终端用户直接跑 agent、聊天、协作 | Vite + React（源自 Omnigent `web/`） |
 
-`clients/web-user` 已从 Omnigent 摘出（Apache-2.0，见 `clients/web-user/THIRD_PARTY.md`），后续通过 **Session API**（`backend/internal/api/rest/v1/session`）对接 AgentsMesh Backend，不再依赖 Omnigent Server。
+`clients/web-user` 已从 Omnigent 摘出（Apache-2.0，见 `clients/web-user/THIRD_PARTY.md`），后续通过 **Session API**（`backend/internal/api/rest/v1/session`）对接 Do Worker Backend，不再依赖 Omnigent Server。
 
 ## 0.1 语言分工（不是整体转 Rust）
 
@@ -26,7 +26,7 @@ Omnigent 的 Python 代码**不迁移**；只迁移前端 UI 与机制契约（c
 
 ## 1. 定位
 
-Hive = 在现有 AgentsMesh（Backend/Runner/Relay/Web）之上做四个机制升级
+Hive = 在现有 Do Worker（Backend/Runner/Relay/Web）之上做四个机制升级
 （Capability 声明、Policy 引擎、实时 Usage/Cost、Session 恢复统一）+ 一次
 前端体验分层改造。所有升级都挂在已存在的扩展点上，不新建平行链路。
 

@@ -42,11 +42,17 @@ impl WasmPodService {
         self.0.update_pod_alias_connect(request_bytes).await
     }
 
-    pub async fn update_pod_perpetual_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn update_pod_perpetual_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.update_pod_perpetual_connect(request_bytes).await
     }
 
-    pub async fn get_pod_connection_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn get_pod_connection_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.get_pod_connection_connect(request_bytes).await
     }
 
@@ -54,7 +60,10 @@ impl WasmPodService {
         self.0.send_pod_prompt_connect(request_bytes).await
     }
 
-    pub async fn list_pods_by_ticket_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn list_pods_by_ticket_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         self.0.list_pods_by_ticket_connect(request_bytes).await
     }
 }

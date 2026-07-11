@@ -13,10 +13,10 @@ import (
 )
 
 type agentfileExtractResult struct {
-	Mode                  string   // MODE pty/acp
-	Branch                string   // BRANCH "branch-name"
-	RepoSlug              string   // REPO "slug" (e.g., "dev-org/demo-api")
-	Prompt                string   // PROMPT "prompt content"
+	Mode                  string                    // MODE pty/acp
+	Branch                string                    // BRANCH "branch-name"
+	RepoSlug              string                    // REPO "slug" (e.g., "dev-org/demo-api")
+	Prompt                string                    // PROMPT "prompt content"
 	Knowledge             []agentfile.KnowledgeSpec // KNOWLEDGE slug [mode], ...
 	ConfigValues          agentDomain.ConfigValues
 	MergedAgentfileSource string

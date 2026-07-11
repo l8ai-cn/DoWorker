@@ -3,14 +3,24 @@ package expert
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/anthropics/agentsmesh/agentfile/serialize"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	"github.com/anthropics/agentsmesh/agentfile/serialize"
+)
+
+var (
+	ErrExpertRepublishRequired = errors.New(
+		"expert must be republished from a workerspec-backed pod",
+	)
+	ErrExpertDispatchUnavailable = errors.New(
+		"expert pod dispatcher is not configured",
+	)
 )
 
 func (s *Service) buildAgentfileLayer(ctx context.Context, expert *expertdom.Expert) string {
@@ -77,25 +87,12 @@ func (s *Service) buildAgentfileLayer(ctx context.Context, expert *expertdom.Exp
 	return strings.Join(lines, "\n")
 }
 
-func knowledgeMountsForRun(expert *expertdom.Expert) []agentpodSvc.KnowledgeMountRequest {
-	parsed := expertdom.ParseKnowledgeMounts(expert.KnowledgeMounts)
-	out := make([]agentpodSvc.KnowledgeMountRequest, 0, len(parsed))
-	for _, m := range parsed {
-		if m.Slug == "" {
-			continue
-		}
-		out = append(out, agentpodSvc.KnowledgeMountRequest{Slug: m.Slug, Mode: m.Mode})
-	}
-	return out
-}
-
 type RunExpertRequest struct {
 	OrganizationID int64
 	UserID         int64
 	ExpertSlug     string
 	Alias          *string
 	PromptOverride *string
-	RunnerID       *int64
 	Cols           int32
 	Rows           int32
 }
@@ -110,42 +107,20 @@ func (s *Service) Run(ctx context.Context, req *RunExpertRequest) (*RunExpertRes
 	if err != nil {
 		return nil, err
 	}
-	// Git is the source of truth: read agent.md from the repo first, refreshing
-	// the DB cache when it lags. On miss/disabled/transient-error fall back to
-	// the DB agentfile_layer cache / generator so Run never hard-fails.
-	layer, fromGit := s.readAgentFileFromGit(ctx, expert)
-	if fromGit {
-		s.refreshAgentfileCache(ctx, expert, layer)
-	} else {
-		layer = s.buildAgentfileLayer(ctx, expert)
+	if expert.WorkerSpecSnapshotID == nil {
+		return nil, ErrExpertRepublishRequired
 	}
-	if req.PromptOverride != nil && strings.TrimSpace(*req.PromptOverride) != "" {
-		override := fmt.Sprintf("PROMPT %s", serialize.QuoteString(strings.TrimSpace(*req.PromptOverride)))
-		if layer == "" {
-			layer = override
-		} else {
-			layer = override + "\n" + layer
-		}
-	}
-	runnerID := int64(0)
-	if req.RunnerID != nil {
-		runnerID = *req.RunnerID
-	} else if expert.RunnerID != nil {
-		runnerID = *expert.RunnerID
+	if s.dispatch == nil {
+		return nil, ErrExpertDispatchUnavailable
 	}
 	orchReq := &agentpodSvc.OrchestrateCreatePodRequest{
-		OrganizationID:  req.OrganizationID,
-		UserID:          req.UserID,
-		RunnerID:        runnerID,
-		AgentSlug:       expert.AgentSlug,
-		RepositoryID:    expert.RepositoryID,
-		Alias:           req.Alias,
-		AgentfileLayer:  &layer,
-		AutomationLevel: expert.AutomationLevel,
-		Cols:            req.Cols,
-		Rows:            req.Rows,
-		Perpetual:       expert.Perpetual,
-		KnowledgeMounts: knowledgeMountsForRun(expert),
+		OrganizationID:           req.OrganizationID,
+		UserID:                   req.UserID,
+		Alias:                    req.Alias,
+		WorkerSpecSnapshotID:     workerSpecSnapshotPointer(*expert.WorkerSpecSnapshotID),
+		WorkerSpecPromptOverride: req.PromptOverride,
+		Cols:                     req.Cols,
+		Rows:                     req.Rows,
 	}
 	result, err := s.dispatch.CreatePod(ctx, orchReq)
 	if err != nil {
@@ -153,4 +128,8 @@ func (s *Service) Run(ctx context.Context, req *RunExpertRequest) (*RunExpertRes
 	}
 	_ = s.store.RecordRun(ctx, req.OrganizationID, expert.ID, time.Now())
 	return &RunExpertResult{Pod: result.Pod, Warning: result.Warning}, nil
+}
+
+func workerSpecSnapshotPointer(value int64) *int64 {
+	return &value
 }

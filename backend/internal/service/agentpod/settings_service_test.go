@@ -184,10 +184,10 @@ func TestGetDefaultAgentConfig(t *testing.T) {
 	model := "claude-3-sonnet"
 	permMode := "accept-edits"
 	existing := &agentpod.UserAgentPodSettings{
-		UserID:             20,
+		UserID:           20,
 		DefaultAgentSlug: strPtr("claude-code"),
-		DefaultModel:       &model,
-		DefaultPermMode:    &permMode,
+		DefaultModel:     &model,
+		DefaultPermMode:  &permMode,
 	}
 	if err := db.Create(existing).Error; err != nil {
 		t.Fatalf("failed to create settings: %v", err)

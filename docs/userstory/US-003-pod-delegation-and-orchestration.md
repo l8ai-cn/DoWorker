@@ -3,7 +3,7 @@
 | 属性 | 值 |
 |------|-----|
 | **状态** | Draft |
-| **作者** | AgentsMesh Team |
+| **作者** | Do Worker Team |
 | **创建日期** | 2026-01-16 |
 | **角色** | 开发者 / 架构师 |
 
@@ -66,7 +66,7 @@
 
 | 条件 | 说明 |
 |------|------|
-| 用户已登录 | 拥有有效的 AgentsMesh 账户 |
+| 用户已登录 | 拥有有效的 Do Worker 账户 |
 | Runner 资源充足 | 有足够的 Runner 支撑多 Pod 运行 |
 | Channel 已创建 | 多 Pod 协作需要在 Channel 中进行 |
 | Agent 配置就绪 | Supervisor 和 Worker 使用的 Agent 已配置 |
@@ -173,7 +173,7 @@ channel:
 
 #### Step 3: Supervisor 委托创建 Worker Pod
 
-1. Supervisor 调用 AgentsMesh API 创建 Worker Pod
+1. Supervisor 调用 Do Worker API 创建 Worker Pod
 2. 系统分配 Runner 并启动 Worker
 3. Supervisor 向 Worker 发送任务指令
 
@@ -449,7 +449,7 @@ Worker 贡献:
 
 ### 7.2 MCP 工具集成
 
-Supervisor Pod 通过 MCP (Model Context Protocol) 调用 AgentsMesh 能力：
+Supervisor Pod 通过 MCP (Model Context Protocol) 调用 Do Worker 能力：
 
 ```typescript
 // MCP 工具定义

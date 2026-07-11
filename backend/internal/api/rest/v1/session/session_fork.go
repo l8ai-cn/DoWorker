@@ -6,8 +6,8 @@ import (
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	itemdomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
+	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 	"github.com/gin-gonic/gin"
 )
 

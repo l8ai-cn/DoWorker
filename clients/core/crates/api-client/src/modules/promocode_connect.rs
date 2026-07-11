@@ -25,24 +25,14 @@ impl ApiClient {
         &self,
         req: &pc_proto::ValidatePromoCodeRequest,
     ) -> Result<pc_proto::ValidatePromoCodeResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.promocode.v1.PromoCodeService/Validate",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.promocode.v1.PromoCodeService/Validate", req).await
     }
 
     pub async fn redeem_promo_code_connect(
         &self,
         req: &pc_proto::RedeemPromoCodeRequest,
     ) -> Result<pc_proto::RedeemPromoCodeResponse, ApiError> {
-        connect_call(
-            self,
-            "/proto.promocode.v1.PromoCodeService/Redeem",
-            req,
-        )
-        .await
+        connect_call(self, "/proto.promocode.v1.PromoCodeService/Redeem", req).await
     }
 
     pub async fn get_redemption_history_connect(

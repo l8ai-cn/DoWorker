@@ -1,7 +1,14 @@
 use crate::runner_state::RunnerState;
 use agentsmesh_types::proto_runner_api_v1::Runner;
 
-fn make_runner(id: i64, node_id: &str, status: &str, enabled: bool, max: i32, active: i32) -> Runner {
+fn make_runner(
+    id: i64,
+    node_id: &str,
+    status: &str,
+    enabled: bool,
+    max: i32,
+    active: i32,
+) -> Runner {
     Runner {
         id,
         node_id: node_id.into(),
@@ -88,7 +95,11 @@ fn update_runner_status_empty_keeps_status_and_availability() {
     s.set_available_runners(vec![r]);
     s.update_runner_status(1, "");
     assert_eq!(s.get_runner(1).unwrap().status, "online");
-    assert_eq!(s.available_runners().len(), 1, "empty status must not evict from available_runners");
+    assert_eq!(
+        s.available_runners().len(),
+        1,
+        "empty status must not evict from available_runners"
+    );
 }
 
 #[test]

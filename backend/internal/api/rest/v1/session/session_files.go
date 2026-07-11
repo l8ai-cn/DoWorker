@@ -40,7 +40,7 @@ func (d *Deps) handleUploadSessionFile(c *gin.Context) {
 	rowFile, err := d.SessionFiles.Create(c.Request.Context(), sessionfilesvc.CreateInput{
 		SessionID: row.ID, Filename: filename,
 		ContentType: header.Header.Get("Content-Type"),
-		Reader: file, Size: header.Size,
+		Reader:      file, Size: header.Size,
 	})
 	if err != nil {
 		writeSessionFileError(c, err)

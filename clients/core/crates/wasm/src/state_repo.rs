@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
 use agentsmesh_state::app_state::AppState;
-use agentsmesh_types::proto_repository_v1::ListRepositoriesResponse;
 use agentsmesh_types::proto_repo_state_v1::{
     InsertRepositoryRequest, PatchRepositoryRequest, ReplaceBranchesRequest,
     ReplaceCachedRepositoriesRequest, SetCurrentRepoRequest,
 };
+use agentsmesh_types::proto_repository_v1::ListRepositoriesResponse;
 use parking_lot::RwLock;
 use prost::Message;
 use wasm_bindgen::prelude::*;
@@ -30,7 +30,9 @@ impl WasmRepoState {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self {
-            state: Arc::new(RwLock::new(AppState::with_storage(crate::new_memory_backend()))),
+            state: Arc::new(RwLock::new(AppState::with_storage(
+                crate::new_memory_backend(),
+            ))),
         }
     }
 

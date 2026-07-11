@@ -34,6 +34,10 @@ export function MobileHeader({ className, title, actions }: MobileHeaderProps) {
         return t("ide.activities.tickets");
       case "mesh":
         return t("ide.activities.mesh");
+      case "loops":
+        return t("ide.activities.loops");
+      case "workflows":
+        return t("ide.activities.workflows");
       case "repositories":
         return t("ide.activities.repositories");
       case "runners":

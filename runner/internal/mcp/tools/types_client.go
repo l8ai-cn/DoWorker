@@ -54,11 +54,11 @@ type PodClient interface {
 	CreatePod(ctx context.Context, req *PodCreateRequest) (*PodCreateResponse, error)
 }
 
-// LoopClient defines the interface for loop operations.
+// LoopClient defines the interface for workflow operations.
 type LoopClient interface {
-	ListLoops(ctx context.Context, status, query string, limit, offset int) ([]LoopSummary, error)
-	TriggerLoop(ctx context.Context, loopSlug string, variables map[string]interface{}) (*LoopTriggerResult, error)
-	CreateLoop(ctx context.Context, req *LoopCreateRequest) (*LoopCreateResult, error)
+	ListWorkflows(ctx context.Context, status, query string, limit, offset int) ([]WorkflowSummary, error)
+	TriggerWorkflow(ctx context.Context, workflowSlug string, variables map[string]interface{}) (*WorkflowTriggerResult, error)
+	CreateWorkflow(ctx context.Context, req *WorkflowCreateRequest) (*WorkflowCreateResult, error)
 }
 
 // BlockStoreClient exposes Block Store agent tools. Each method maps 1:1 to

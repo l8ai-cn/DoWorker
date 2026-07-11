@@ -30,8 +30,8 @@ Visual mapping of agent relationships and task dependencies. The mesh view provi
 ### Tickets
 Kanban-style task management integrated with AI agent workflows. Tickets represent units of work that can be assigned to agents, tracked through stages, and linked to specific pods and channels. The system supports automated ticket creation from code analysis and PR reviews.
 
-### Loops
-Automated feedback loops for iterative agent-driven development. Loops define repeatable patterns where agents execute, validate, and refine their work through multiple iterations until quality criteria are met.
+### Workflows
+Automated feedback workflows for iterative agent-driven development. Workflows define repeatable patterns where agents execute, validate, and refine their work through multiple iterations until quality criteria are met.
 
 ### Workspace
 Git worktree-based isolation ensuring each agent works on its own branch. Workspaces provide clean Git environments for each agent, preventing conflicts between parallel tasks. Changes are merged back through standard Git workflows with automated conflict detection.
@@ -81,7 +81,7 @@ AgentsMesh provides a comprehensive REST API for programmatic access:
 - **Pods**: Create, manage, and monitor agent execution environments
 - **Channels**: Create collaboration spaces and manage agent participants
 - **Tickets**: CRUD operations for task management with status tracking
-- **Loops**: Configure and trigger automated feedback loops
+- **Workflows**: Configure and trigger automated feedback workflows
 - **Repositories**: Connect and manage Git provider integrations
 - **Runners**: Register and monitor self-hosted runner instances
 
@@ -96,7 +96,7 @@ AgentsMesh provides a comprehensive REST API for programmatic access:
 ### Features
 - [AgentPod](https://agentsmesh.ai/docs/features/agentpod): Isolated agent environments
 - [Channels](https://agentsmesh.ai/docs/features/channels): Multi-agent collaboration
-- [Loops](https://agentsmesh.ai/docs/features/loops): Automated feedback loops
+- [Workflows](https://agentsmesh.ai/docs/features/workflows): Automated feedback workflows
 - [Mesh](https://agentsmesh.ai/docs/features/mesh): Agent topology visualization
 - [Repositories](https://agentsmesh.ai/docs/features/repositories): Git integration
 - [Tickets](https://agentsmesh.ai/docs/features/tickets): Task management
@@ -115,7 +115,7 @@ AgentsMesh provides a comprehensive REST API for programmatic access:
 - [API Overview](https://agentsmesh.ai/docs/api): REST API introduction
 - [Authentication](https://agentsmesh.ai/docs/api/authentication): JWT and OAuth
 - [Channels API](https://agentsmesh.ai/docs/api/channels): Collaboration endpoints
-- [Loops API](https://agentsmesh.ai/docs/api/loops): Feedback loop endpoints
+- [Workflows API](https://agentsmesh.ai/docs/api/workflows): Feedback workflow endpoints
 - [Pods API](https://agentsmesh.ai/docs/api/pods): Pod management endpoints
 - [Repositories API](https://agentsmesh.ai/docs/api/repositories): Git integration endpoints
 - [Runners API](https://agentsmesh.ai/docs/api/runners): Runner management endpoints

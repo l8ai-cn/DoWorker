@@ -33,17 +33,17 @@ describe("getPodDisplayName", () => {
     ).toBe("Ticket Title");
   });
 
-  it("returns loop name when no alias or ticket title", () => {
+  it("returns workflow name when no alias or ticket title", () => {
     expect(
       getPodDisplayName({
         pod_key: "pod-key-12345678",
         title: "OSC Title",
-        loop: { name: "My Loop" },
+        workflow: { name: "My Workflow" },
       })
-    ).toBe("My Loop");
+    ).toBe("My Workflow");
   });
 
-  it("returns OSC title when no alias, ticket, or loop", () => {
+  it("returns OSC title when no alias, ticket, or workflow", () => {
     expect(
       getPodDisplayName({
         pod_key: "pod-key-12345678",
@@ -52,7 +52,7 @@ describe("getPodDisplayName", () => {
     ).toBe("OSC Title");
   });
 
-  it("returns ticket slug when no alias, title, or loop", () => {
+  it("returns ticket slug when no alias, title, or workflow", () => {
     expect(
       getPodDisplayName({
         pod_key: "pod-key-12345678",
@@ -90,10 +90,10 @@ describe("getPodDisplayName", () => {
     ).toBe("T".repeat(17) + "...");
   });
 
-  it("truncates long loop name to maxLength", () => {
+  it("truncates long workflow name to maxLength", () => {
     const longName = "L".repeat(30);
     expect(
-      getPodDisplayName({ pod_key: "k", loop: { name: longName } }, 20)
+      getPodDisplayName({ pod_key: "k", workflow: { name: longName } }, 20)
     ).toBe("L".repeat(17) + "...");
   });
 

@@ -178,11 +178,11 @@ func (m *mockFormatClient) PostComment(_ context.Context, _ string, _ string, _ 
 	return &tools.TicketComment{ID: 1, Content: "test comment"}, nil
 }
 
-func (m *mockFormatClient) ListLoops(_ context.Context, _, _ string, _, _ int) ([]tools.LoopSummary, error) {
+func (m *mockFormatClient) ListWorkflows(_ context.Context, _, _ string, _, _ int) ([]tools.WorkflowSummary, error) {
 	return nil, nil
 }
 
-func (m *mockFormatClient) TriggerLoop(_ context.Context, _ string, _ map[string]interface{}) (*tools.LoopTriggerResult, error) {
+func (m *mockFormatClient) TriggerWorkflow(_ context.Context, _ string, _ map[string]interface{}) (*tools.WorkflowTriggerResult, error) {
 	return nil, nil
 }
 

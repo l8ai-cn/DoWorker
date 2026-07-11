@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { listRunners } from "@/lib/api/facade/runnerConnect";
 import { readCurrentOrg } from "@/stores/auth";
 import { useRepositories, useRepositoryStore } from "@/stores/repository";
-import { useLoopEnvBundles } from "@/components/loops/useLoopEnvBundles";
+import { useWorkflowEnvBundles } from "@/components/workflows/useWorkflowEnvBundles";
 import type { RepositoryData, RunnerData } from "@/lib/api";
 import type { EnvBundleSummary } from "@/lib/viewModels/envBundleSummary";
 
@@ -19,7 +19,7 @@ export function useExpertConfigData(open: boolean, agentSlug: string): ExpertCon
   const [runners, setRunners] = useState<RunnerData[]>([]);
   const repositories = useRepositories();
   const fetchRepositories = useRepositoryStore((s) => s.fetchRepositories);
-  const { envBundles, loadingBundles } = useLoopEnvBundles({
+  const { envBundles, loadingBundles } = useWorkflowEnvBundles({
     open,
     agentSlug: agentSlug || null,
   });

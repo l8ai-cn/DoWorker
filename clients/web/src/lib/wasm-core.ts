@@ -45,9 +45,9 @@ export { log_event as wasmLogEvent };
 export {
   getApiClient, getAuthManager, getPodState, getPodService,
   getTicketService, getChannelService, getRunnerService,
-  getLoopService, getAutopilotService, getMeshService,
+  getWorkflowService, getGoalLoopService, getAutopilotService, getMeshService,
   getRunnerState, getMeshState, getTicketState, getChannelState,
-  getLoopState, getAcpManager, getLoopalManager,
+  getWorkflowState, getAcpManager, getLoopalManager,
   getRepoState, getExpertState, getAutopilotState, getRelayManager,
   getBillingService, getRepositoryService, getExtensionService,
   getInvitationService, getApiKeyService, getBindingService,

@@ -44,18 +44,18 @@ func TestErrors(t *testing.T) {
 
 func TestCreatePodRequest(t *testing.T) {
 	req := &CreatePodRequest{
-		OrganizationID:    1,
-		RunnerID:          3,
-		AgentSlug:         "agent-4",
-		RepositoryID:      intPtr(6),
-		TicketID:          intPtr(7),
-		CreatedByID:       8,
-		Prompt:            "Test prompt",
-		BranchName:        strPtr("feature/test"),
-		Model:             "opus",
-		PermissionMode:    "plan",
-		SkipPermissions:   true,
-		EnvVars:           map[string]string{"KEY": "VALUE"},
+		OrganizationID:  1,
+		RunnerID:        3,
+		AgentSlug:       "agent-4",
+		RepositoryID:    intPtr(6),
+		TicketID:        intPtr(7),
+		CreatedByID:     8,
+		Prompt:          "Test prompt",
+		BranchName:      strPtr("feature/test"),
+		Model:           "opus",
+		PermissionMode:  "plan",
+		SkipPermissions: true,
+		EnvVars:         map[string]string{"KEY": "VALUE"},
 	}
 
 	if req.OrganizationID != 1 {

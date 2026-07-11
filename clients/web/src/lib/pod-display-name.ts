@@ -6,7 +6,7 @@ interface PodDisplayInfo {
     slug?: string;
     title?: string;
   };
-  loop?: {
+  workflow?: {
     name?: string;
   };
   agent?: {
@@ -20,13 +20,13 @@ interface PodDisplayInfo {
  * Priority:
  * 1. Alias (user-defined display name)
  * 2. Ticket title (if associated with a ticket)
- * 3. Loop name (if created by a loop job)
+ * 3. Workflow name (if created by a workflow job)
  * 4. OSC title (set by terminal applications like Claude Code)
  * 5. Ticket slug fallback
  * 6. Agent name + truncated pod_key
  * 7. Truncated pod_key
  *
- * @param pod - Pod data with optional alias, title, ticket, and loop
+ * @param pod - Pod data with optional alias, title, ticket, and workflow
  * @param maxLength - Maximum length before truncation (default: 20)
  * @returns Display name string
  */
@@ -53,12 +53,12 @@ export function getPodDisplayName(
     return ticketTitle;
   }
 
-  const loopName = pod.loop?.name?.trim();
-  if (loopName) {
-    if (loopName.length > maxLength) {
-      return loopName.substring(0, maxLength - 3) + "...";
+  const workflowName = pod.workflow?.name?.trim();
+  if (workflowName) {
+    if (workflowName.length > maxLength) {
+      return workflowName.substring(0, maxLength - 3) + "...";
     }
-    return loopName;
+    return workflowName;
   }
 
   const title = pod.title?.trim();

@@ -148,7 +148,7 @@ func (r *podRepo) CountActiveByKeys(ctx context.Context, podKeys []string) (int,
 	return int(count), err
 }
 
-func (r *podRepo) EnrichWithLoopInfo(ctx context.Context, pods []*agentpod.Pod) error {
+func (r *podRepo) EnrichWithWorkflowInfo(ctx context.Context, pods []*agentpod.Pod) error {
 	if len(pods) == 0 {
 		return nil
 	}
@@ -158,36 +158,36 @@ func (r *podRepo) EnrichWithLoopInfo(ctx context.Context, pods []*agentpod.Pod) 
 		podKeys = append(podKeys, p.PodKey)
 	}
 
-	type loopRow struct {
-		PodKey   string `gorm:"column:pod_key"`
-		LoopID   int64  `gorm:"column:loop_id"`
-		LoopName string `gorm:"column:loop_name"`
-		LoopSlug string `gorm:"column:loop_slug"`
+	type workflowRow struct {
+		PodKey       string `gorm:"column:pod_key"`
+		WorkflowID   int64  `gorm:"column:workflow_id"`
+		WorkflowName string `gorm:"column:workflow_name"`
+		WorkflowSlug string `gorm:"column:workflow_slug"`
 	}
 
-	var rows []loopRow
+	var rows []workflowRow
 	err := r.db.WithContext(ctx).
-		Table("loop_runs").
-		Select("loop_runs.pod_key, loops.id AS loop_id, loops.name AS loop_name, loops.slug AS loop_slug").
-		Joins("JOIN loops ON loops.id = loop_runs.loop_id").
-		Where("loop_runs.pod_key IN ?", podKeys).
+		Table("workflow_runs").
+		Select("workflow_runs.pod_key, workflows.id AS workflow_id, workflows.name AS workflow_name, workflows.slug AS workflow_slug").
+		Joins("JOIN workflows ON workflows.id = workflow_runs.workflow_id").
+		Where("workflow_runs.pod_key IN ?", podKeys).
 		Find(&rows).Error
 	if err != nil {
 		return err
 	}
 
-	loopByKey := make(map[string]*agentpod.PodLoopInfo, len(rows))
+	workflowByKey := make(map[string]*agentpod.PodWorkflowInfo, len(rows))
 	for _, row := range rows {
-		loopByKey[row.PodKey] = &agentpod.PodLoopInfo{
-			ID:   row.LoopID,
-			Name: row.LoopName,
-			Slug: row.LoopSlug,
+		workflowByKey[row.PodKey] = &agentpod.PodWorkflowInfo{
+			ID:   row.WorkflowID,
+			Name: row.WorkflowName,
+			Slug: row.WorkflowSlug,
 		}
 	}
 
 	for _, p := range pods {
-		if info, ok := loopByKey[p.PodKey]; ok {
-			p.Loop = info
+		if info, ok := workflowByKey[p.PodKey]; ok {
+			p.Workflow = info
 		}
 	}
 	return nil

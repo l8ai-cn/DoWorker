@@ -8,6 +8,7 @@ export type ActivityType =
   | "channels"
   | "mesh"
   | "loops"
+  | "workflows"
   | "experts"
   | "automation"
   | "apiAccess"
@@ -144,6 +145,13 @@ export const ACTIVITIES: ActivityConfig[] = [
   {
     id: "loops",
     label: "Loops",
+    icon: "target",
+    group: "build",
+    mobileVisible: false,
+  },
+  {
+    id: "workflows",
+    label: "Workflows",
     icon: "repeat",
     group: "build",
     mobileVisible: false,

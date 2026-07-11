@@ -63,7 +63,7 @@ func (r *gitProviderRepo) Update(ctx context.Context, id int64, updates map[stri
 func (r *gitProviderRepo) CountLoopRefs(ctx context.Context, repoID int64) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
-		Raw("SELECT COUNT(*) FROM loops WHERE repository_id = ?", repoID).
+		Raw("SELECT COUNT(*) FROM workflows WHERE repository_id = ?", repoID).
 		Scan(&count).Error
 	return count, err
 }

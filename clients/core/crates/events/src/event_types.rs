@@ -73,14 +73,14 @@ pub enum EventType {
     #[serde(rename = "pipeline:updated")]
     PipelineUpdated,
 
-    #[serde(rename = "loop_run:started")]
-    LoopRunStarted,
-    #[serde(rename = "loop_run:completed")]
-    LoopRunCompleted,
-    #[serde(rename = "loop_run:failed")]
-    LoopRunFailed,
-    #[serde(rename = "loop_run:warning")]
-    LoopRunWarning,
+    #[serde(rename = "workflow_run:started")]
+    WorkflowRunStarted,
+    #[serde(rename = "workflow_run:completed")]
+    WorkflowRunCompleted,
+    #[serde(rename = "workflow_run:failed")]
+    WorkflowRunFailed,
+    #[serde(rename = "workflow_run:warning")]
+    WorkflowRunWarning,
 
     // Blockstore events — fan-out of every accepted op so other connected
     // clients can apply it to their cache without polling. See
@@ -137,10 +137,10 @@ impl EventType {
             Self::MrMerged => "mr:merged",
             Self::MrClosed => "mr:closed",
             Self::PipelineUpdated => "pipeline:updated",
-            Self::LoopRunStarted => "loop_run:started",
-            Self::LoopRunCompleted => "loop_run:completed",
-            Self::LoopRunFailed => "loop_run:failed",
-            Self::LoopRunWarning => "loop_run:warning",
+            Self::WorkflowRunStarted => "workflow_run:started",
+            Self::WorkflowRunCompleted => "workflow_run:completed",
+            Self::WorkflowRunFailed => "workflow_run:failed",
+            Self::WorkflowRunWarning => "workflow_run:warning",
             Self::BlockstoreOp => "blockstore:op",
             Self::Notification => "notification",
             Self::SystemMaintenance => "system:maintenance",

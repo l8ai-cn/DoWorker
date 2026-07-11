@@ -59,6 +59,8 @@ message RunnerMessage {
     ExternalSessionCapturedEvent external_session_captured = 33;
     // Sandbox filesystem op result
     SandboxFsResultEvent sandbox_fs_result = 34;
+    // Goal Loop verification result
+    VerificationResultEvent verification_result = 35;
   }
   reserved 28, 29, 30;
   int64 timestamp = 15;
@@ -235,6 +237,8 @@ message ServerMessage {
     SandboxFsCommand sandbox_fs = 26;
     // 建立到 Gateway 的 HTTP 隧道长连接（Backend -> Runner）
     ConnectTunnelCommand connect_tunnel = 27;
+    // Execute a Goal Loop verification command inside the pod workspace
+    RunVerificationCommand run_verification = 28;
   }
   int64 timestamp = 15;
 }
@@ -884,4 +888,25 @@ message UpdatePodPerpetualCommand {
 message UpdatePodPolicyRulesCommand {
   string pod_key = 1;
   repeated PolicyRuleSnapshot policy_rules = 2;
+}
+
+// RunVerificationCommand executes a backend-defined acceptance command in the
+// workspace belonging to the referenced pod. The Runner resolves the local
+// workspace from pod_key and never accepts an arbitrary filesystem path.
+message RunVerificationCommand {
+  string request_id = 1;
+  string pod_key = 2;
+  string command = 3;
+  int32 timeout_seconds = 4;
+}
+
+// VerificationResultEvent returns the authoritative command result for a Goal
+// Loop. output is merged stdout/stderr and may be truncated by the Runner.
+message VerificationResultEvent {
+  string request_id = 1;
+  string pod_key = 2;
+  int32 exit_code = 3;
+  string output = 4;
+  bool output_truncated = 5;
+  string error = 6;
 }

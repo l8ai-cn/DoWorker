@@ -146,6 +146,17 @@ func (c *GRPCConnection) handleSandboxFs(cmd *runnerv1.SandboxFsCommand) {
 	}
 }
 
+func (c *GRPCConnection) handleRunVerification(cmd *runnerv1.RunVerificationCommand) {
+	log := logger.GRPC()
+	if c.handler == nil {
+		log.Warn("No handler set, ignoring run_verification")
+		return
+	}
+	if err := c.handler.OnRunVerification(cmd); err != nil {
+		log.Error("Failed to run verification", "request_id", cmd.RequestId, "pod_key", cmd.PodKey, "error", err)
+	}
+}
+
 // handleCreateAutopilot handles create_autopilot command from server.
 func (c *GRPCConnection) handleCreateAutopilot(cmd *runnerv1.CreateAutopilotCommand) {
 	log := logger.GRPC()

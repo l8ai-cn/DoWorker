@@ -160,6 +160,7 @@ type MessageHandler interface {
 	OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error
 
 	OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error
+	OnRunVerification(cmd *runnerv1.RunVerificationCommand) error
 
 	// OnConnectTunnel handles connect_tunnel command from server.
 	// The Runner should establish/refresh its outbound HTTP tunnel to the Gateway.

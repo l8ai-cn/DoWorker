@@ -1,0 +1,206 @@
+// WorkflowService manages reusable tasks that can run on demand, by API, or
+// by cron. Goal-oriented one-time Loop runs use a separate contract.
+
+syntax = "proto3";
+
+package proto.workflow.v1;
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/workflow/v1;workflowv1";
+
+service WorkflowService {
+  rpc ListWorkflows(ListWorkflowsRequest) returns (ListWorkflowsResponse);
+  rpc GetWorkflow(GetWorkflowRequest) returns (Workflow);
+  rpc CreateWorkflow(CreateWorkflowRequest) returns (Workflow);
+  rpc UpdateWorkflow(UpdateWorkflowRequest) returns (Workflow);
+  rpc DeleteWorkflow(DeleteWorkflowRequest) returns (DeleteWorkflowResponse);
+  rpc EnableWorkflow(WorkflowActionRequest) returns (Workflow);
+  rpc DisableWorkflow(WorkflowActionRequest) returns (Workflow);
+  rpc TriggerWorkflow(TriggerWorkflowRequest) returns (TriggerWorkflowResponse);
+  rpc ListWorkflowRuns(ListWorkflowRunsRequest) returns (ListWorkflowRunsResponse);
+  rpc CancelWorkflowRun(CancelWorkflowRunRequest) returns (CancelWorkflowRunResponse);
+}
+
+message Workflow {
+  int64 id = 1;
+  string slug = 2;
+  string name = 3;
+  optional string description = 4;
+  string agent_slug = 5;
+  string permission_mode = 6;
+  string prompt_template = 7;
+  string config_overrides_json = 8;
+  string prompt_variables_json = 9;
+  string execution_mode = 10;
+  optional string cron_expression = 11;
+  string autopilot_config_json = 12;
+  optional string callback_url = 13;
+  optional int64 repository_id = 14;
+  optional int64 runner_id = 15;
+  optional string branch_name = 16;
+  optional int64 ticket_id = 17;
+  optional int64 model_resource_id = 18;
+  string status = 19;
+  string sandbox_strategy = 20;
+  bool session_persistence = 21;
+  string concurrency_policy = 22;
+  int32 max_concurrent_runs = 23;
+  int32 max_retained_runs = 24;
+  int32 timeout_minutes = 25;
+  int32 idle_timeout_sec = 26;
+  int64 total_runs = 27;
+  int64 successful_runs = 28;
+  int64 failed_runs = 29;
+  int64 active_run_count = 30;
+  optional double avg_duration_sec = 31;
+  optional string last_run_at = 32;
+  string created_at = 33;
+  string updated_at = 34;
+  repeated string used_env_bundles = 35;
+}
+
+message WorkflowRun {
+  int64 id = 1;
+  int64 workflow_id = 2;
+  int64 run_number = 3;
+  string status = 4;
+  optional string pod_key = 5;
+  optional string started_at = 6;
+  optional string completed_at = 7;
+  optional string error_message = 8;
+  string created_at = 9;
+}
+
+message ListWorkflowsRequest {
+  string org_slug = 1;
+  string status = 2;
+  string execution_mode = 3;
+  optional bool cron_enabled = 4;
+  string query = 5;
+  optional int32 offset = 6;
+  optional int32 limit = 7;
+}
+
+message ListWorkflowsResponse {
+  repeated Workflow items = 1;
+  int64 total = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message GetWorkflowRequest {
+  string org_slug = 1;
+  string workflow_slug = 2;
+}
+
+message CreateWorkflowRequest {
+  string org_slug = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  string agent_slug = 5;
+  string permission_mode = 6;
+  string prompt_template = 7;
+  string prompt_variables_json = 8;
+  string config_overrides_json = 9;
+  string autopilot_config_json = 10;
+  optional int64 repository_id = 11;
+  optional int64 runner_id = 12;
+  string branch_name = 13;
+  optional int64 ticket_id = 14;
+  optional int64 model_resource_id = 15;
+  string execution_mode = 16;
+  string cron_expression = 17;
+  string callback_url = 18;
+  string sandbox_strategy = 19;
+  optional bool session_persistence = 20;
+  string concurrency_policy = 21;
+  optional int32 max_concurrent_runs = 22;
+  optional int32 max_retained_runs = 23;
+  optional int32 timeout_minutes = 24;
+  optional int32 idle_timeout_sec = 25;
+  repeated string used_env_bundles = 26;
+}
+
+message UpdateWorkflowRequest {
+  string org_slug = 1;
+  string workflow_slug = 2;
+  optional string name = 3;
+  optional string description = 4;
+  string agent_slug = 5;
+  optional string permission_mode = 6;
+  optional string prompt_template = 7;
+  string prompt_variables_json = 8;
+  string config_overrides_json = 9;
+  string autopilot_config_json = 10;
+  optional int64 repository_id = 11;
+  optional int64 runner_id = 12;
+  optional string branch_name = 13;
+  optional int64 ticket_id = 14;
+  optional int64 model_resource_id = 15;
+  optional string execution_mode = 16;
+  optional string cron_expression = 17;
+  optional string callback_url = 18;
+  optional string sandbox_strategy = 19;
+  optional bool session_persistence = 20;
+  optional string concurrency_policy = 21;
+  optional int32 max_concurrent_runs = 22;
+  optional int32 max_retained_runs = 23;
+  optional int32 timeout_minutes = 24;
+  optional int32 idle_timeout_sec = 25;
+  optional EnvBundleList used_env_bundles = 26;
+}
+
+message EnvBundleList {
+  repeated string names = 1;
+}
+
+message DeleteWorkflowRequest {
+  string org_slug = 1;
+  string workflow_slug = 2;
+}
+
+message DeleteWorkflowResponse {
+  string message = 1;
+}
+
+message WorkflowActionRequest {
+  string org_slug = 1;
+  string workflow_slug = 2;
+}
+
+message TriggerWorkflowRequest {
+  string org_slug = 1;
+  string workflow_slug = 2;
+  string variables_json = 3;
+}
+
+message TriggerWorkflowResponse {
+  optional WorkflowRun run = 1;
+  bool skipped = 2;
+  string reason = 3;
+}
+
+message ListWorkflowRunsRequest {
+  string org_slug = 1;
+  string workflow_slug = 2;
+  string status = 3;
+  optional int32 offset = 4;
+  optional int32 limit = 5;
+}
+
+message ListWorkflowRunsResponse {
+  repeated WorkflowRun items = 1;
+  int64 total = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message CancelWorkflowRunRequest {
+  string org_slug = 1;
+  string workflow_slug = 2;
+  int64 run_id = 3;
+}
+
+message CancelWorkflowRunResponse {
+  string message = 1;
+}

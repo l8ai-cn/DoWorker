@@ -2,7 +2,7 @@
 title: "Why AI Development Needs a Command Center, Not Another IDE"
 excerpt: "AI agents are omniskilled. When skill trading collapses, job roles dissolve, and engineering processes built on Conway's Law must be reinvented. What developers need now isn't a better IDE — it's a command center for orchestrating agent fleets at scale."
 date: "2026-02-23"
-author: "AgentsMesh Team"
+author: "Do Worker Team"
 category: "Insight"
 readTime: 10
 ---
@@ -72,9 +72,9 @@ As AI agents become more capable, the developer's role shifts **from pilot to ai
 
 The data supports this: in our observations, AI provides 50x efficiency gains on execution tasks (generating code, tests, refactoring) but nearly zero improvement on decision tasks (debugging production issues, choosing architectures, setting priorities). **Execution is being commoditized. Judgment is becoming the bottleneck.**
 
-## AgentsMesh: Built for This Reality
+## Do Worker: Built for This Reality
 
-AgentsMesh is designed from the ground up as an **Agent Fleet Command Center**.
+Do Worker is designed from the ground up as an **Agent Fleet Command Center**.
 
 The first layer of value is the command center itself:
 
@@ -108,8 +108,8 @@ We're at an inflection point. The tools we've been using were designed for a wor
 
 What's emerging is something new: individual developers with the output of entire teams, commanding fleets of AI agents through command centers rather than writing code in IDEs.
 
-AgentsMesh is built for this future. Not as another IDE with AI features bolted on, but as the command center that makes agent fleet operations possible.
+Do Worker is built for this future. Not as another IDE with AI features bolted on, but as the command center that makes agent fleet operations possible.
 
 The question isn't whether this shift will happen. It's whether you'll be ready when it does.
 
-[Get started with AgentsMesh today.](https://agentsmesh.ai)
+[Get started with Do Worker today.](https://agentsmesh.ai)

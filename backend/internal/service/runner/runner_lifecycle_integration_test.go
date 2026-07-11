@@ -140,7 +140,7 @@ func TestRunnerLifecycle_DisableEnable(t *testing.T) {
 }
 
 // TestRunnerLifecycle_DeleteWithLoopCheck verifies that deleting a runner
-// referenced by a loop returns ErrRunnerHasLoopRefs.
+// referenced by a workflow returns ErrRunnerHasWorkflowRefs.
 func TestRunnerLifecycle_DeleteWithLoopCheck(t *testing.T) {
 	db := testkit.SetupTestDB(t)
 	svc := NewService(infra.NewRunnerRepository(db))
@@ -160,18 +160,18 @@ func TestRunnerLifecycle_DeleteWithLoopCheck(t *testing.T) {
 		t.Fatalf("create runner: %v", err)
 	}
 
-	// Create a loop referencing this runner
+	// Create a workflow referencing this runner
 	if err := db.Exec(
-		`INSERT INTO loops (organization_id, name, slug, runner_id, created_by_id, prompt_template) VALUES (?, ?, ?, ?, ?, ?)`,
-		orgID, "loop1", "loop-1", r.ID, userID, "test",
+		`INSERT INTO workflows (organization_id, name, slug, runner_id, created_by_id, prompt_template) VALUES (?, ?, ?, ?, ?, ?)`,
+		orgID, "loop1", "workflow-1", r.ID, userID, "test",
 	).Error; err != nil {
-		t.Fatalf("create loop: %v", err)
+		t.Fatalf("create workflow: %v", err)
 	}
 
 	// Delete should fail
 	err := svc.DeleteRunner(ctx, r.ID)
-	if err != ErrRunnerHasLoopRefs {
-		t.Errorf("expected ErrRunnerHasLoopRefs, got %v", err)
+	if err != ErrRunnerHasWorkflowRefs {
+		t.Errorf("expected ErrRunnerHasWorkflowRefs, got %v", err)
 	}
 
 	// Confirm runner still exists

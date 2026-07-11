@@ -4,13 +4,18 @@ use crate::repo_state::RepoState;
 
 fn make_repo(id: i64, name: &str) -> Repository {
     Repository {
-        id, name: name.to_string(), slug: name.to_lowercase(),
+        id,
+        name: name.to_string(),
+        slug: name.to_lowercase(),
         ..Default::default()
     }
 }
 
 fn make_branch(name: &str) -> Branch {
-    Branch { name: name.to_string(), ..Default::default() }
+    Branch {
+        name: name.to_string(),
+        ..Default::default()
+    }
 }
 
 #[test]

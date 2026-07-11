@@ -83,10 +83,10 @@ func (r *organizationRepo) CreateWithMember(ctx context.Context, params *organiz
 
 func (r *organizationRepo) DeleteWithCleanup(ctx context.Context, id int64) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Exec("DELETE FROM loop_runs WHERE organization_id = ?", id).Error; err != nil {
+		if err := tx.Exec("DELETE FROM workflow_runs WHERE organization_id = ?", id).Error; err != nil {
 			return err
 		}
-		if err := tx.Exec("DELETE FROM loops WHERE organization_id = ?", id).Error; err != nil {
+		if err := tx.Exec("DELETE FROM workflows WHERE organization_id = ?", id).Error; err != nil {
 			return err
 		}
 

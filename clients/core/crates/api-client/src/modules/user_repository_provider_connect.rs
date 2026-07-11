@@ -16,7 +16,8 @@ impl ApiClient {
     }
 
     pub async fn get_repository_provider_connect(
-        &self, req: &uc_proto::GetRepositoryProviderRequest,
+        &self,
+        req: &uc_proto::GetRepositoryProviderRequest,
     ) -> Result<uc_proto::RepositoryProvider, ApiError> {
         connect_call(
             self,
@@ -27,7 +28,8 @@ impl ApiClient {
     }
 
     pub async fn create_repository_provider_connect(
-        &self, req: &uc_proto::CreateRepositoryProviderRequest,
+        &self,
+        req: &uc_proto::CreateRepositoryProviderRequest,
     ) -> Result<uc_proto::RepositoryProvider, ApiError> {
         connect_call(
             self,
@@ -38,7 +40,8 @@ impl ApiClient {
     }
 
     pub async fn update_repository_provider_connect(
-        &self, req: &uc_proto::UpdateRepositoryProviderRequest,
+        &self,
+        req: &uc_proto::UpdateRepositoryProviderRequest,
     ) -> Result<uc_proto::RepositoryProvider, ApiError> {
         connect_call(
             self,
@@ -49,7 +52,8 @@ impl ApiClient {
     }
 
     pub async fn delete_repository_provider_connect(
-        &self, req: &uc_proto::DeleteRepositoryProviderRequest,
+        &self,
+        req: &uc_proto::DeleteRepositoryProviderRequest,
     ) -> Result<uc_proto::DeleteRepositoryProviderResponse, ApiError> {
         connect_call(
             self,
@@ -60,7 +64,8 @@ impl ApiClient {
     }
 
     pub async fn set_default_repository_provider_connect(
-        &self, req: &uc_proto::SetDefaultRepositoryProviderRequest,
+        &self,
+        req: &uc_proto::SetDefaultRepositoryProviderRequest,
     ) -> Result<uc_proto::SetDefaultRepositoryProviderResponse, ApiError> {
         connect_call(
             self,
@@ -71,7 +76,8 @@ impl ApiClient {
     }
 
     pub async fn test_repository_provider_connection_connect(
-        &self, req: &uc_proto::TestRepositoryProviderConnectionRequest,
+        &self,
+        req: &uc_proto::TestRepositoryProviderConnectionRequest,
     ) -> Result<uc_proto::TestRepositoryProviderConnectionResponse, ApiError> {
         connect_call(
             self,
@@ -82,7 +88,8 @@ impl ApiClient {
     }
 
     pub async fn list_provider_repositories_connect(
-        &self, req: &uc_proto::ListProviderRepositoriesRequest,
+        &self,
+        req: &uc_proto::ListProviderRepositoriesRequest,
     ) -> Result<uc_proto::ListProviderRepositoriesResponse, ApiError> {
         connect_call(
             self,

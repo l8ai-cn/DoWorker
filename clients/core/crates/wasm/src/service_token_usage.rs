@@ -21,7 +21,10 @@ impl WasmTokenUsageService {
     pub async fn get_dashboard_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
         let req = agentsmesh_types::proto_token_usage_v1::GetDashboardRequest::decode(request)
             .map_err(|e| format!("decode get_dashboard request: {e}"))?;
-        let resp = self.client.get_token_usage_dashboard_connect(&req).await
+        let resp = self
+            .client
+            .get_token_usage_dashboard_connect(&req)
+            .await
             .map_err(agentsmesh_services::wire)?;
         Ok(resp.encode_to_vec())
     }

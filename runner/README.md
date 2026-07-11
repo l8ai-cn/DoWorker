@@ -1,10 +1,10 @@
-# AgentsMesh Runner
+# Do Worker Runner
 
 [![Release](https://img.shields.io/github/v/release/l8ai-cn/DoWorker?style=flat-square)](https://github.com/l8ai-cn/DoWorker/releases/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/anthropics/agentsmesh/runner?style=flat-square)](https://goreportcard.com/report/github.com/anthropics/agentsmesh/runner)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 
-AgentsMesh Runner is a lightweight agent that connects to the AgentsMesh server and executes AI agent tasks in isolated terminal environments.
+Do Worker Runner is a lightweight agent that connects to the Do Worker server and executes AI agent tasks in isolated terminal environments.
 
 ## Features
 
@@ -12,7 +12,7 @@ AgentsMesh Runner is a lightweight agent that connects to the AgentsMesh server 
 - 🔒 **Secure execution**: Isolated terminal environments for each task
 - 🌐 **Cross-platform**: macOS, Linux, Windows support
 - 📊 **Web console**: Built-in status monitoring and log viewer
-- 🔄 **Auto-reconnect**: Resilient connection to AgentsMesh server
+- 🔄 **Auto-reconnect**: Resilient connection to Do Worker server
 
 ## Installation
 
@@ -34,7 +34,7 @@ All binaries are available on the [Releases](https://github.com/l8ai-cn/DoWorker
 
 ### 1. Register the runner
 
-Get a registration token from your AgentsMesh dashboard, then:
+Get a registration token from your Do Worker dashboard, then:
 
 ```bash
 # Global: https://agentsmesh.ai (or your own server address)
@@ -65,13 +65,13 @@ agentsmesh-runner service status
 ## Usage
 
 ```
-AgentsMesh Runner
+Do Worker Runner
 
 Usage:
   agentsmesh-runner <command> [options]
 
 Commands:
-  register    Register this runner with the AgentsMesh server
+  register    Register this runner with the Do Worker server
   run         Start the runner in CLI mode
   webconsole  Open the web console in browser
   service     Manage runner as a system service
@@ -86,7 +86,7 @@ Use "agentsmesh-runner <command> --help" for more information about a command.
 Configuration is stored in `~/.agentsmesh/config.yaml` after registration:
 
 ```yaml
-server_url: <SERVER_URL>  # Your AgentsMesh server address
+server_url: <SERVER_URL>  # Your Do Worker server address
 node_id: my-runner
 max_concurrent_pods: 5
 workspace_root: /tmp/agentsmesh-workspace
@@ -152,6 +152,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Links
 
-- [AgentsMesh](https://agentsmesh.ai) - Main product website
+- [Do Worker](https://agentsmesh.ai) - Main product website
 - [Documentation](https://agentsmesh.ai/docs/runner) - Full documentation
 - [Releases](https://github.com/l8ai-cn/DoWorker/releases) - Download binaries

@@ -41,11 +41,7 @@ impl WasmRelayManager {
         Ok(())
     }
 
-    pub async fn unsubscribe(
-        &self,
-        pod_key: String,
-        subscription_id: String,
-    ) {
+    pub async fn unsubscribe(&self, pod_key: String, subscription_id: String) {
         self.pool.unsubscribe(&pod_key, &subscription_id).await;
     }
 
@@ -53,29 +49,15 @@ impl WasmRelayManager {
         self.pool.send(&pod_key, &data).await;
     }
 
-    pub async fn send_resize(
-        &self,
-        pod_key: String,
-        cols: u16,
-        rows: u16,
-    ) {
+    pub async fn send_resize(&self, pod_key: String, cols: u16, rows: u16) {
         self.pool.send_resize(&pod_key, cols, rows).await;
     }
 
-    pub async fn force_resize(
-        &self,
-        pod_key: String,
-        cols: u16,
-        rows: u16,
-    ) {
+    pub async fn force_resize(&self, pod_key: String, cols: u16, rows: u16) {
         self.pool.force_resize(&pod_key, cols, rows).await;
     }
 
-    pub async fn send_acp_command(
-        &self,
-        pod_key: String,
-        command: String,
-    ) -> Result<(), String> {
+    pub async fn send_acp_command(&self, pod_key: String, command: String) -> Result<(), String> {
         let val: serde_json::Value =
             serde_json::from_str(&command).map_err(agentsmesh_services::wire)?;
         self.pool
@@ -84,20 +66,12 @@ impl WasmRelayManager {
             .map_err(agentsmesh_services::wire)
     }
 
-    pub async fn on_status_change(
-        &self,
-        pod_key: String,
-        callback: js_sys::Function,
-    ) {
+    pub async fn on_status_change(&self, pod_key: String, callback: js_sys::Function) {
         let cb = make_status_callback(callback);
         self.pool.on_status_change(&pod_key, cb).await;
     }
 
-    pub async fn on_acp_message(
-        &self,
-        pod_key: String,
-        callback: js_sys::Function,
-    ) {
+    pub async fn on_acp_message(&self, pod_key: String, callback: js_sys::Function) {
         let cb = make_acp_callback(callback);
         self.pool.on_acp_message(&pod_key, cb).await;
     }

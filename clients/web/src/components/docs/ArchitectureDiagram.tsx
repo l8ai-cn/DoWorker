@@ -1,12 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { DocsHorizontalScroll } from "./DocsHorizontalScroll";
 
 export default function ArchitectureDiagram() {
   const t = useTranslations("docs.architecture");
 
   return (
-    <div className="my-8 overflow-x-auto">
+    <DocsHorizontalScroll className="my-8" hintPosition="top">
       <div className="min-w-[600px] max-w-3xl mx-auto flex flex-col items-center gap-0">
         <LayerBox
           label={t("clientLayer")}
@@ -141,7 +142,7 @@ export default function ArchitectureDiagram() {
           </div>
         </div>
       </div>
-    </div>
+    </DocsHorizontalScroll>
   );
 }
 

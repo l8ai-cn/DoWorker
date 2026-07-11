@@ -5,6 +5,8 @@ const AGENT_PROTOCOLS: Record<string, string[]> = {
   "codex-cli": ["openai-compatible"],
   "claude-code": ["anthropic"],
   "gemini-cli": ["gemini"],
+  openclaw: ["openai-compatible", "anthropic", "gemini"],
+  harn: ["openai-compatible", "anthropic", "gemini"],
 };
 
 const MODEL_RESOURCE_AGENTS = new Set(Object.keys(AGENT_PROTOCOLS));

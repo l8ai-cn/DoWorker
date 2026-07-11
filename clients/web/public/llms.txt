@@ -10,7 +10,7 @@ AgentsMesh is a multi-tenant AI Code Agent collaboration platform. It sits at th
 - **Channels**: Multi-agent collaboration spaces where agents communicate and coordinate work
 - **Mesh Topology**: Visual mapping of agent relationships and task dependencies
 - **Tickets**: Kanban-style task management integrated with AI agent workflows
-- **Loops**: Automated feedback loops for iterative agent-driven development
+- **Workflows**: Automated feedback workflows for iterative agent-driven development
 - **Workspace**: Git worktree-based isolation ensuring each agent works on its own branch
 - **Repositories**: Git provider integration (GitHub, GitLab) with OAuth-based access
 

@@ -145,7 +145,7 @@ func codexGoalWire(goal *domain.CodexGoal) any {
 		"thread_id": goal.ThreadID, "objective": goal.Objective, "status": goal.Status,
 		"token_budget": goal.TokenBudget, "tokens_used": goal.TokensUsed,
 		"time_used_seconds": goal.TimeUsedSeconds,
-		"created_at": goal.CreatedAt, "updated_at": goal.UpdatedAt,
+		"created_at":        goal.CreatedAt, "updated_at": goal.UpdatedAt,
 	}
 }
 

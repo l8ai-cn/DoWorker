@@ -1,8 +1,8 @@
 package testkit
 
-func loopTableDDLs() []string {
+func workflowTableDDLs() []string {
 	return []string{
-		`CREATE TABLE IF NOT EXISTS loops (
+		`CREATE TABLE IF NOT EXISTS workflows (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			organization_id INTEGER NOT NULL, name TEXT NOT NULL, slug TEXT NOT NULL,
 			description TEXT, agent_slug TEXT, custom_agent_slug TEXT,
@@ -32,9 +32,9 @@ func loopTableDDLs() []string {
 			updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			UNIQUE(organization_id, slug)
 		)`,
-		`CREATE TABLE IF NOT EXISTS loop_runs (
+		`CREATE TABLE IF NOT EXISTS workflow_runs (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			organization_id INTEGER NOT NULL, loop_id INTEGER NOT NULL,
+			organization_id INTEGER NOT NULL, workflow_id INTEGER NOT NULL,
 			run_number INTEGER NOT NULL,
 			status TEXT NOT NULL DEFAULT 'pending',
 			pod_key TEXT, autopilot_controller_key TEXT,

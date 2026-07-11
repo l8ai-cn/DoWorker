@@ -33,11 +33,11 @@ export function podToCache(p: ProtoPod): PodData {
           title: p.ticket.title,
         }
       : undefined,
-    loop: p.loop
+    workflow: p.workflow
       ? {
-          id: p.loop.id === undefined ? undefined : Number(p.loop.id),
-          name: p.loop.name,
-          slug: p.loop.slug,
+          id: p.workflow.id === undefined ? undefined : Number(p.workflow.id),
+          name: p.workflow.name,
+          slug: p.workflow.slug,
         }
       : undefined,
     created_by: p.createdBy
@@ -63,5 +63,7 @@ export function podToCache(p: ProtoPod): PodData {
     resumed_by_pod_key: p.resumedByPodKey,
     preview_port: p.previewPort,
     preview_path: p.previewPath,
+    worker_spec_snapshot_id:
+      p.workerSpecSnapshotId === undefined ? undefined : Number(p.workerSpecSnapshotId),
   };
 }

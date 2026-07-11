@@ -168,9 +168,9 @@ func (s *Service) DeleteRunner(ctx context.Context, runnerID int64) (*runner.Run
 	}
 
 	var loopCount int64
-	s.db.GormDB().Raw("SELECT COUNT(*) FROM loops WHERE runner_id = ?", runnerID).Scan(&loopCount)
+	s.db.GormDB().Raw("SELECT COUNT(*) FROM workflows WHERE runner_id = ?", runnerID).Scan(&loopCount)
 	if loopCount > 0 {
-		return nil, ErrRunnerHasLoopRefs
+		return nil, ErrRunnerHasWorkflowRefs
 	}
 
 	if err := s.db.Delete(&r); err != nil {
