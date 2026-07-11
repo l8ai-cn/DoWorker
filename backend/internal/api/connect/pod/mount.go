@@ -41,6 +41,15 @@ func Mount(mux *http.ServeMux, srv *Server, opts ...connect.HandlerOption) {
 	mux.Handle(ListPodsByTicketProcedure, connect.NewUnaryHandler(
 		ListPodsByTicketProcedure, srv.ListPodsByTicket, opts...,
 	))
+	mux.Handle(ListWorkerCreateOptionsProcedure, connect.NewUnaryHandler(
+		ListWorkerCreateOptionsProcedure, srv.ListWorkerCreateOptions, opts...,
+	))
+	mux.Handle(PreflightWorkerProcedure, connect.NewUnaryHandler(
+		PreflightWorkerProcedure, srv.PreflightWorker, opts...,
+	))
+	mux.Handle(FillWorkerDraftProcedure, connect.NewUnaryHandler(
+		FillWorkerDraftProcedure, srv.FillWorkerDraft, opts...,
+	))
 }
 
 func mapServiceError(err error) error {

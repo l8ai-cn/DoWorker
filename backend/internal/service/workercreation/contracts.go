@@ -42,3 +42,8 @@ type PreflightResult struct {
 	Resolved        *Prepared
 	OptionsRevision string
 }
+
+type FillResult struct {
+	Draft  Draft
+	Issues []Issue
+}

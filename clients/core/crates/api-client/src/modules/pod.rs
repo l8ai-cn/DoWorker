@@ -32,6 +32,32 @@ impl ApiClient {
         connect_call(self, "/proto.pod.v1.PodService/CreatePod", req).await
     }
 
+    pub async fn list_worker_create_options_connect(
+        &self,
+        req: &pod_proto::ListWorkerCreateOptionsRequest,
+    ) -> Result<pod_proto::ListWorkerCreateOptionsResponse, ApiError> {
+        connect_call(
+            self,
+            "/proto.pod.v1.PodService/ListWorkerCreateOptions",
+            req,
+        )
+        .await
+    }
+
+    pub async fn preflight_worker_connect(
+        &self,
+        req: &pod_proto::PreflightWorkerRequest,
+    ) -> Result<pod_proto::PreflightWorkerResponse, ApiError> {
+        connect_call(self, "/proto.pod.v1.PodService/PreflightWorker", req).await
+    }
+
+    pub async fn fill_worker_draft_connect(
+        &self,
+        req: &pod_proto::FillWorkerDraftRequest,
+    ) -> Result<pod_proto::FillWorkerDraftResponse, ApiError> {
+        connect_call(self, "/proto.pod.v1.PodService/FillWorkerDraft", req).await
+    }
+
     pub async fn terminate_pod_connect(
         &self,
         req: &pod_proto::TerminatePodRequest,

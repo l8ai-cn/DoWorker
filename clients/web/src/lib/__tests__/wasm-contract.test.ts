@@ -89,6 +89,9 @@ type _PodSvc_update_perpetual  = _Sig<WasmPodService["update_pod_perpetual_conne
 type _PodSvc_get_conn          = _Sig<WasmPodService["get_pod_connection_connect"]>;
 type _PodSvc_send_prompt       = _Sig<WasmPodService["send_pod_prompt_connect"]>;
 type _PodSvc_by_ticket         = _Sig<WasmPodService["list_pods_by_ticket_connect"]>;
+type _PodSvc_worker_options    = _Sig<WasmPodService["list_worker_create_options_connect"]>;
+type _PodSvc_worker_preflight  = _Sig<WasmPodService["preflight_worker_connect"]>;
+type _PodSvc_worker_fill       = _Sig<WasmPodService["fill_worker_draft_connect"]>;
 
 // ── RunnerService (production callers: stores/runner.ts) ─────────────
 type _RunnerSvc_list           = _Sig<WasmRunnerService["fetch_runners"]>;

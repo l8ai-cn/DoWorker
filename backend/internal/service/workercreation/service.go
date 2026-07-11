@@ -5,12 +5,15 @@ import (
 	"errors"
 	"fmt"
 
+	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )
 
 type Service struct {
 	revision      string
+	catalog       runtimedomain.Catalog
+	agents        AgentProvider
 	workerTypes   specservice.WorkerTypeResolver
 	runtime       specservice.RuntimeResolver
 	models        specservice.ModelResolver
@@ -27,6 +30,8 @@ func NewService(deps Deps) *Service {
 	workerTypes := newWorkerTypeResolver(deps.Agents)
 	return &Service{
 		revision:      deps.Catalog.Revision(),
+		catalog:       deps.Catalog,
+		agents:        deps.Agents,
 		workerTypes:   workerTypes,
 		runtime:       newRuntimeCatalogResolver(deps.Catalog),
 		models:        newModelResolver(deps.Models),

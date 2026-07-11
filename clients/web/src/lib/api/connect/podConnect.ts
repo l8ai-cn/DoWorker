@@ -12,13 +12,9 @@ import {
   CreatePodRequestSchema,
   CreatePodResponseSchema,
   GetPodConnectionRequestSchema,
-  GetPodRequestSchema,
   ListPodsByTicketRequestSchema,
   ListPodsByTicketResponseSchema,
-  ListPodsRequestSchema,
-  ListPodsResponseSchema,
   PodConnectionInfoSchema,
-  PodSchema,
   SendPodPromptRequestSchema,
   SendPodPromptResponseSchema,
   TerminatePodRequestSchema,
@@ -34,6 +30,8 @@ import { create, toBinary, fromBinary } from "@bufbuild/protobuf";
 import { podToCache as fromProtoPod } from "@/lib/api/projections";
 import { getPodService } from "@/lib/wasm-core";
 import type { PodData } from "@/lib/api/facade/pod";
+import { workerDraftToProto } from "./podWorkerDraftProto";
+import type { WorkerSpecDraft } from "./podWorkerCreationTypes";
 
 export { fromProtoPod };
 
@@ -41,70 +39,6 @@ export interface PodConnectionInfo {
   relay_url: string;
   token: string;
   pod_key: string;
-}
-
-// ============== Pod CRUD ==============
-
-export async function listPods(
-  orgSlug: string,
-  opts: {
-    status?: string;
-    created_by_id?: number;
-    runner_id?: number;
-    limit?: number;
-    offset?: number;
-  } = {},
-): Promise<{ items: PodData[]; total: number; limit: number; offset: number }> {
-  const req = create(ListPodsRequestSchema, {
-    orgSlug,
-    status: opts.status,
-    createdById: opts.created_by_id === undefined ? undefined : BigInt(opts.created_by_id),
-    runnerId: opts.runner_id === undefined ? undefined : BigInt(opts.runner_id),
-    limit: opts.limit,
-    offset: opts.offset,
-  });
-  const bytes = toBinary(ListPodsRequestSchema, req);
-  const respBytes = await getPodService().list_pods_connect(bytes);
-  const resp = fromBinary(ListPodsResponseSchema, new Uint8Array(respBytes));
-  return {
-    items: resp.items.map(fromProtoPod),
-    total: Number(resp.total),
-    limit: resp.limit,
-    offset: resp.offset,
-  };
-}
-
-// Raw wire bytes for the fetch→state path: the ListPodsResponse goes straight
-// to Rust apply_fetched_pods / apply_appended_pods (no TS fromProtoPod +
-// podToProtoPod). Same opts surface as listPods so the sidebar's status/limit/
-// offset/created_by/runner filters carry through unchanged.
-export async function listPodsRaw(
-  orgSlug: string,
-  opts: {
-    status?: string;
-    created_by_id?: number;
-    runner_id?: number;
-    limit?: number;
-    offset?: number;
-  } = {},
-): Promise<Uint8Array> {
-  const req = create(ListPodsRequestSchema, {
-    orgSlug,
-    status: opts.status,
-    createdById: opts.created_by_id === undefined ? undefined : BigInt(opts.created_by_id),
-    runnerId: opts.runner_id === undefined ? undefined : BigInt(opts.runner_id),
-    limit: opts.limit,
-    offset: opts.offset,
-  });
-  const bytes = toBinary(ListPodsRequestSchema, req);
-  return new Uint8Array(await getPodService().list_pods_connect(bytes));
-}
-
-export async function getPod(orgSlug: string, podKey: string): Promise<PodData> {
-  const req = create(GetPodRequestSchema, { orgSlug, podKey });
-  const bytes = toBinary(GetPodRequestSchema, req);
-  const respBytes = await getPodService().get_pod_connect(bytes);
-  return fromProtoPod(fromBinary(PodSchema, new Uint8Array(respBytes)));
 }
 
 export interface CreatePodInput {
@@ -122,6 +56,7 @@ export interface CreatePodInput {
   perpetual?: boolean;
   model_resource_id?: number;
   token_budget?: number;
+  worker_spec?: WorkerSpecDraft;
 }
 
 export async function createPod(
@@ -145,6 +80,7 @@ export async function createPod(
     modelResourceId:
       input.model_resource_id === undefined ? undefined : BigInt(input.model_resource_id),
     tokenBudget: input.token_budget === undefined ? undefined : BigInt(input.token_budget),
+    workerSpec: input.worker_spec ? workerDraftToProto(input.worker_spec) : undefined,
   });
   const bytes = toBinary(CreatePodRequestSchema, req);
   const respBytes = await getPodService().create_pod_connect(bytes);
@@ -222,3 +158,5 @@ export async function listPodsByTicket(
   const resp = fromBinary(ListPodsByTicketResponseSchema, new Uint8Array(respBytes));
   return { items: resp.items.map(fromProtoPod), total: Number(resp.total) };
 }
+
+export { getPod, listPods, listPodsRaw } from "./podQueryConnect";

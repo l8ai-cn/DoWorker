@@ -18,3 +18,15 @@ export {
   type CreatePodInput,
   type PodConnectionInfo,
 } from "../connect/podConnect";
+
+export {
+  fillWorkerDraft,
+  listWorkerCreateOptions,
+  preflightWorker,
+  type WorkerCreateOptions,
+  type WorkerCreateOptionsFilter,
+  type WorkerDraftFillResult,
+  type WorkerPreflightIssue,
+  type WorkerPreflightResult,
+  type WorkerSpecDraft,
+} from "../connect/podWorkerCreationConnect";

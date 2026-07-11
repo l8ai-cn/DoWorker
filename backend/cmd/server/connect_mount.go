@@ -153,6 +153,9 @@ func mountPodService(mux *http.ServeMux, svc *serviceContainer, rest *v1.Service
 	if rest.EventBus != nil {
 		serverOpts = append(serverOpts, podconnect.WithEventBus(rest.EventBus))
 	}
+	if svc.workerCreation != nil {
+		serverOpts = append(serverOpts, podconnect.WithWorkerCreation(svc.workerCreation))
+	}
 	srv := podconnect.NewServer(svc.pod, svc.org, serverOpts...)
 	podconnect.Mount(mux, srv, opts...)
 }

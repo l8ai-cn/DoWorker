@@ -26,6 +26,8 @@ import (
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/policy"
 )
 
@@ -34,32 +36,59 @@ import (
 const ServiceName = "proto.pod.v1.PodService"
 
 const (
-	ListPodsProcedure           = "/" + ServiceName + "/ListPods"
-	GetPodProcedure             = "/" + ServiceName + "/GetPod"
-	CreatePodProcedure          = "/" + ServiceName + "/CreatePod"
-	TerminatePodProcedure       = "/" + ServiceName + "/TerminatePod"
-	UpdatePodAliasProcedure     = "/" + ServiceName + "/UpdatePodAlias"
-	UpdatePodPerpetualProcedure = "/" + ServiceName + "/UpdatePodPerpetual"
-	GetPodConnectionProcedure   = "/" + ServiceName + "/GetPodConnection"
-	SendPodPromptProcedure      = "/" + ServiceName + "/SendPodPrompt"
-	ListPodsByTicketProcedure   = "/" + ServiceName + "/ListPodsByTicket"
+	ListPodsProcedure                = "/" + ServiceName + "/ListPods"
+	GetPodProcedure                  = "/" + ServiceName + "/GetPod"
+	CreatePodProcedure               = "/" + ServiceName + "/CreatePod"
+	TerminatePodProcedure            = "/" + ServiceName + "/TerminatePod"
+	UpdatePodAliasProcedure          = "/" + ServiceName + "/UpdatePodAlias"
+	UpdatePodPerpetualProcedure      = "/" + ServiceName + "/UpdatePodPerpetual"
+	GetPodConnectionProcedure        = "/" + ServiceName + "/GetPodConnection"
+	SendPodPromptProcedure           = "/" + ServiceName + "/SendPodPrompt"
+	ListPodsByTicketProcedure        = "/" + ServiceName + "/ListPodsByTicket"
+	ListWorkerCreateOptionsProcedure = "/" + ServiceName + "/ListWorkerCreateOptions"
+	PreflightWorkerProcedure         = "/" + ServiceName + "/PreflightWorker"
+	FillWorkerDraftProcedure         = "/" + ServiceName + "/FillWorkerDraft"
 )
+
+type WorkerCreationAPI interface {
+	ListOptions(
+		context.Context,
+		specservice.Scope,
+		workercreation.OptionsFilter,
+	) (workercreation.CreateOptions, error)
+	Preflight(
+		context.Context,
+		specservice.Scope,
+		workercreation.Draft,
+	) (workercreation.PreflightResult, error)
+}
+
+type WorkerDraftFiller interface {
+	Fill(
+		context.Context,
+		specservice.Scope,
+		string,
+		*workercreation.Draft,
+	) (workercreation.FillResult, error)
+}
 
 // Server implements PodService. Fields mirror PodHandler / PodConnectHandler
 // in v1/pods.go and v1/pod_relay_connect.go, threaded through cmd/server
 // wiring at mount time. Streaming endpoints (terminal data plane) intentionally
 // stay on Relay/WebSocket — Connect handles unary control plane only.
 type Server struct {
-	podSvc         *agentpod.PodService
-	orgSvc         middleware.OrganizationService
-	orchestrator   *agentpod.PodOrchestrator
-	podCoordinator *runner.PodCoordinator
-	commandSender  runner.RunnerCommandSender
-	relayManager   *relay.Manager
-	tokenGenerator *relay.TokenGenerator
-	geoResolver    geo.Resolver
-	grantSvc       *grantservice.Service
-	eventBus       *eventbus.EventBus
+	podSvc            *agentpod.PodService
+	orgSvc            middleware.OrganizationService
+	orchestrator      *agentpod.PodOrchestrator
+	podCoordinator    *runner.PodCoordinator
+	commandSender     runner.RunnerCommandSender
+	relayManager      *relay.Manager
+	tokenGenerator    *relay.TokenGenerator
+	geoResolver       geo.Resolver
+	grantSvc          *grantservice.Service
+	eventBus          *eventbus.EventBus
+	workerCreation    WorkerCreationAPI
+	workerDraftFiller WorkerDraftFiller
 }
 
 // NewServer constructs a Server. Optional dependencies can be left nil; the
@@ -111,6 +140,14 @@ func WithGrantService(gs *grantservice.Service) Option {
 
 func WithEventBus(eb *eventbus.EventBus) Option {
 	return func(s *Server) { s.eventBus = eb }
+}
+
+func WithWorkerCreation(service WorkerCreationAPI) Option {
+	return func(server *Server) { server.workerCreation = service }
+}
+
+func WithWorkerDraftFiller(filler WorkerDraftFiller) Option {
+	return func(server *Server) { server.workerDraftFiller = filler }
 }
 
 // podResourceWithGrants mirrors PodHandler.podResourceWithGrants (v1/pod_relay_connect.go:56).

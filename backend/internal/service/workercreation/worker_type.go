@@ -20,6 +20,7 @@ const workerTypeSchemaVersion uint32 = 1
 
 type AgentProvider interface {
 	GetAgent(context.Context, string) (*agentdomain.Agent, error)
+	ListBuiltinAgents(context.Context) ([]*agentdomain.Agent, error)
 }
 
 type workerTypeResolver struct {

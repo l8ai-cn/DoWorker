@@ -32,6 +32,7 @@ mod service_mesh_connect;
 mod service_notification;
 mod service_org;
 mod service_pod;
+mod service_pod_worker_creation;
 mod service_promocode;
 mod service_repository;
 mod service_runner;
@@ -56,6 +57,9 @@ mod state_repo;
 mod state_runner;
 mod state_ticket;
 mod ws_transport;
+
+#[cfg(test)]
+mod service_pod_worker_creation_tests;
 
 pub use api::*;
 pub use auth::*;

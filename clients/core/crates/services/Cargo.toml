@@ -20,3 +20,6 @@ reqwest = { workspace = true, features = ["rustls-tls"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 reqwest = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

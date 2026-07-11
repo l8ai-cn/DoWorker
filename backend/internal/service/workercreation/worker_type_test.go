@@ -205,6 +205,18 @@ func (provider *workerTypeAgentProvider) GetAgent(
 	return provider.agent, provider.err
 }
 
+func (provider *workerTypeAgentProvider) ListBuiltinAgents(
+	context.Context,
+) ([]*agentdomain.Agent, error) {
+	if provider.err != nil {
+		return nil, provider.err
+	}
+	if provider.agent == nil {
+		return nil, nil
+	}
+	return []*agentdomain.Agent{provider.agent}, nil
+}
+
 func activeWorkerTypeAgent(source string) *agentdomain.Agent {
 	return activeWorkerTypeAgentFor("codex-cli", "codex", source)
 }

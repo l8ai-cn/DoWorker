@@ -42,6 +42,42 @@ impl PodService {
         Ok(resp.encode_to_vec())
     }
 
+    pub async fn list_worker_create_options_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
+        let req = pod_proto::ListWorkerCreateOptionsRequest::decode(request_bytes)
+            .map_err(|e| format!("decode list_worker_create_options request: {e}"))?;
+        tracing::debug!(target: "pod", org_slug = %req.org_slug, "list worker create options");
+        let resp = self.client
+            .list_worker_create_options_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(resp.encode_to_vec())
+    }
+
+    pub async fn preflight_worker_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+        let req = pod_proto::PreflightWorkerRequest::decode(request_bytes)
+            .map_err(|e| format!("decode preflight_worker request: {e}"))?;
+        tracing::debug!(target: "pod", org_slug = %req.org_slug, "preflight worker");
+        let resp = self.client
+            .preflight_worker_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(resp.encode_to_vec())
+    }
+
+    pub async fn fill_worker_draft_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+        let req = pod_proto::FillWorkerDraftRequest::decode(request_bytes)
+            .map_err(|e| format!("decode fill_worker_draft request: {e}"))?;
+        tracing::debug!(target: "pod", org_slug = %req.org_slug, prompt_len = req.prompt.len(), "fill worker draft");
+        let resp = self.client
+            .fill_worker_draft_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(resp.encode_to_vec())
+    }
+
     pub async fn terminate_pod_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
         let req = pod_proto::TerminatePodRequest::decode(request_bytes)
             .map_err(|e| format!("decode terminate_pod request: {e}"))?;

@@ -29,6 +29,9 @@ mod ticket_relations;
 mod user;
 mod user_credential;
 
+#[cfg(test)]
+mod pod_worker_creation_tests;
+
 pub use agent::AgentService;
 pub use apikey::ApiKeyService;
 pub use ai_resource::AIResourceService;
