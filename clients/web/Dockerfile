@@ -2,6 +2,7 @@
 FROM rust:1.88-bookworm AS wasm
 WORKDIR /src
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh \
+  && cargo install wasm-bindgen-cli --version 0.2.105 --locked \
   && rustup target add wasm32-unknown-unknown
 RUN apt-get update && apt-get install -y --no-install-recommends \
       protobuf-compiler libprotobuf-dev python3 \
