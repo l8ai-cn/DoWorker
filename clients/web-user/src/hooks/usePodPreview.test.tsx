@@ -78,11 +78,12 @@ describe("usePodPreview", () => {
   });
 
   it("normalizes legacy preview payloads by dropping unknown fields", async () => {
+    const expiresAt = new Date(Date.now() + 30 * 60_000).toISOString();
     fetchMock.mockResolvedValueOnce(
       jsonResponse(200, {
         preview_base_url: "https://d/preview/pod1/",
         session_url: "https://d/preview/pod1/__session?token=legacy",
-        expires_at: "2026-07-12T00:00:00Z",
+        expires_at: expiresAt,
         token: "legacy",
         debug: "should be dropped",
       }),
@@ -94,7 +95,7 @@ describe("usePodPreview", () => {
     expect(result.current.data).toEqual({
       preview_base_url: "https://d/preview/pod1/",
       session_url: "https://d/preview/pod1/__session?token=legacy",
-      expires_at: "2026-07-12T00:00:00Z",
+      expires_at: expiresAt,
     });
     expect(Object.prototype.hasOwnProperty.call(result.current.data, "token")).toBe(false);
   });

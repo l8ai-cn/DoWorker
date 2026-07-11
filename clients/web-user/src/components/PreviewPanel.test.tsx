@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PodPreviewInfo } from "@/hooks/usePodPreview";
 
@@ -73,5 +73,28 @@ describe("PreviewPanel iframe key behavior", () => {
     rerender(<PreviewPanel podKey="pod1" />);
     const second = screen.getByTitle("Pod pod1 preview");
     expect(second).not.toBe(first);
+  });
+
+  it("rebuilds the iframe when only the expiry changes", () => {
+    usePodPreviewMock.mockReturnValueOnce(previewState({}));
+    const { rerender } = render(<PreviewPanel podKey="pod1" />);
+    const first = screen.getByTitle("Pod pod1 preview");
+
+    usePodPreviewMock.mockReturnValueOnce(previewState({ expires_at: "2026-07-12T01:00:00Z" }));
+    rerender(<PreviewPanel podKey="pod1" />);
+
+    expect(screen.getByTitle("Pod pod1 preview")).not.toBe(first);
+  });
+
+  it("rebuilds the iframe on manual refresh when the session URL is unchanged", () => {
+    const state = previewState({});
+    usePodPreviewMock.mockReturnValue(state);
+    render(<PreviewPanel podKey="pod1" />);
+    const first = screen.getByTitle("Pod pod1 preview");
+
+    fireEvent.click(screen.getByRole("button", { name: "Refresh preview" }));
+
+    expect(screen.getByTitle("Pod pod1 preview")).not.toBe(first);
+    expect(state.refetch).toHaveBeenCalledOnce();
   });
 });

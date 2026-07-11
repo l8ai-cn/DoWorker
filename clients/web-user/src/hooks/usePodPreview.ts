@@ -27,11 +27,7 @@ function toPodPreviewInfo(payload: unknown): PodPreviewInfo {
     throw new Error("Invalid preview response");
   }
 
-  const {
-    preview_base_url,
-    session_url,
-    expires_at,
-  } = payload as Record<string, unknown>;
+  const { preview_base_url, session_url, expires_at } = payload as Record<string, unknown>;
 
   if (
     typeof preview_base_url !== "string" ||

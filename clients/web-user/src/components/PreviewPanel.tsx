@@ -87,17 +87,14 @@ export function PreviewPanel({ podKey, className }: PreviewPanelProps) {
   );
 }
 
-export function getPreviewFrameKey(data: { session_url: string; expires_at: string }, nonce: number): string {
+export function getPreviewFrameKey(
+  data: { session_url: string; expires_at: string },
+  nonce: number,
+): string {
   return `${data.session_url}:${data.expires_at}:${nonce}`;
 }
 
-function PreviewErrorState({
-  error,
-  onRetry,
-}: {
-  error: Error | null;
-  onRetry: () => void;
-}) {
+function PreviewErrorState({ error, onRetry }: { error: Error | null; onRetry: () => void }) {
   const status = error instanceof PodPreviewError ? error.status : undefined;
   const { Icon, title, detail } = describeError(status);
   return (
