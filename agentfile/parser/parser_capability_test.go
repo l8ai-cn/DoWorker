@@ -2,6 +2,7 @@ package parser_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -40,6 +41,34 @@ CAPABILITY interrupt true
 func TestParse_CapabilityDecl_rejectsUnknownAxis(t *testing.T) {
 	_, errs := parser.Parse("CAPABILITY harness_mode native\n")
 	require.NotEmpty(t, errs)
+}
+
+func TestParse_CapabilityDecl_acceptsNoneValue(t *testing.T) {
+	src := "AGENT grok-build\nCAPABILITY resume none\nCAPABILITY permission none\nCAPABILITY usage none\n"
+	type result struct {
+		prog *parser.Program
+		errs []string
+	}
+	done := make(chan result, 1)
+	go func() {
+		prog, errs := parser.Parse(src)
+		done <- result{prog: prog, errs: errs}
+	}()
+
+	var parsed result
+	select {
+	case parsed = <-done:
+	case <-time.After(200 * time.Millisecond):
+		t.Fatal("CAPABILITY values must not make the parser loop")
+	}
+
+	prog, errs := parsed.prog, parsed.errs
+	require.Empty(t, errs)
+
+	spec := extract.Extract(prog)
+	assert.Equal(t, "none", spec.Capabilities["resume"])
+	assert.Equal(t, "none", spec.Capabilities["permission"])
+	assert.Equal(t, "none", spec.Capabilities["usage"])
 }
 
 func TestSerialize_CapabilityDecl_roundTrip(t *testing.T) {

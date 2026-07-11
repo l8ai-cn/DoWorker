@@ -126,7 +126,7 @@ func (p *Parser) parseCapabilityDecl(pos Position) *CapabilityDecl {
 	for !p.isNewlineOrEnd() {
 		tok := p.current()
 		switch tok.Type {
-		case lexer.IDENT, lexer.STRING, lexer.TRUE, lexer.FALSE:
+		case lexer.IDENT, lexer.STRING, lexer.TRUE, lexer.FALSE, lexer.KW_NONE:
 			valueParts = append(valueParts, tok.Literal)
 			p.advance()
 		case lexer.COMMA:
@@ -134,6 +134,7 @@ func (p *Parser) parseCapabilityDecl(pos Position) *CapabilityDecl {
 			p.advance()
 		default:
 			p.errorf("CAPABILITY %s: unexpected token %s", axis, tok.Literal)
+			p.advance()
 		}
 	}
 	var value string
