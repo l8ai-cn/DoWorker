@@ -3,8 +3,10 @@ package v1
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"testing"
 	"time"
 
@@ -22,10 +24,25 @@ func (m *mockPreviewRelaySelector) SelectRelayForPodGeo(relaysvc.GeoSelectOption
 	return m.info
 }
 
-type mockPreviewTokens struct{}
+type mockPreviewTokens struct {
+	tokenTypes []string
+}
 
 func (m *mockPreviewTokens) GenerateTypedToken(podKey string, runnerID, userID, orgID int64, tokenType, previewTarget string, expiry time.Duration) (string, error) {
+	m.tokenTypes = append(m.tokenTypes, tokenType)
 	return "JWT-" + tokenType, nil
+}
+
+type previewCommandSender struct {
+	mockCommandSender
+	sendConnectTunnelFn func(int64, string, string) error
+}
+
+func (m *previewCommandSender) SendConnectTunnel(runnerID int64, tunnelURL, token string) error {
+	if m.sendConnectTunnelFn != nil {
+		return m.sendConnectTunnelFn(runnerID, tunnelURL, token)
+	}
+	return nil
 }
 
 func newPreviewHandler(pod *agentpod.Pod) *PodHandler {
@@ -33,7 +50,7 @@ func newPreviewHandler(pod *agentpod.Pod) *PodHandler {
 		podService: &mockPodService{getPodFn: func(ctx context.Context, key string) (*agentpod.Pod, error) {
 			return pod, nil
 		}},
-		commandSender: &mockCommandSender{},
+		commandSender: &previewCommandSender{},
 		relaySelector: &mockPreviewRelaySelector{info: &relaysvc.RelayInfo{URL: "wss://example.com/relay"}},
 		relayTokens:   &mockPreviewTokens{},
 	}
@@ -50,21 +67,47 @@ func performPreviewGET(h *PodHandler) *httptest.ResponseRecorder {
 	return w
 }
 
-func TestGetPodPreview_ReturnsTokenAndURL(t *testing.T) {
+func TestGetPodPreview_ReturnsSessionURLWithoutRawToken(t *testing.T) {
 	pod := &agentpod.Pod{PodKey: "pod1", RunnerID: 7, PreviewPort: 3000, Status: agentpod.StatusRunning, OrganizationID: 1, CreatedByID: 10}
 	w := performPreviewGET(newPreviewHandler(pod))
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d body=%s", w.Code, w.Body.String())
 	}
-	var resp struct {
-		PreviewBaseURL string `json:"preview_base_url"`
-		SessionURL     string `json:"session_url"`
-		Token          string `json:"token"`
-	}
+	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
-	assert.NotEmpty(t, resp.Token)
-	assert.Contains(t, resp.PreviewBaseURL, "/preview/pod1/")
-	assert.Contains(t, resp.SessionURL, "__session")
+	assert.Equal(t, []string{"expires_at", "preview_base_url", "session_url"}, sortedKeys(resp))
+	assert.Contains(t, resp["preview_base_url"], "/preview/pod1/")
+	assert.Contains(t, resp["session_url"], "__session")
+	assert.NotEmpty(t, resp["expires_at"])
+	assert.NotContains(t, resp, "token")
+}
+
+func TestGetPodPreview_MissingCommandSenderReturns503(t *testing.T) {
+	pod := &agentpod.Pod{PodKey: "pod1", RunnerID: 7, PreviewPort: 3000, Status: agentpod.StatusRunning, OrganizationID: 1, CreatedByID: 10}
+	h := newPreviewHandler(pod)
+	h.commandSender = nil
+
+	w := performPreviewGET(h)
+
+	assert.Equal(t, http.StatusServiceUnavailable, w.Code)
+	assert.JSONEq(t, `{"code":"preview_unavailable","error":"Preview is not available"}`, w.Body.String())
+}
+
+func TestGetPodPreview_TunnelDispatchFailureReturns503WithoutPreviewToken(t *testing.T) {
+	pod := &agentpod.Pod{PodKey: "pod1", RunnerID: 7, PreviewPort: 3000, Status: agentpod.StatusRunning, OrganizationID: 1, CreatedByID: 10}
+	h := newPreviewHandler(pod)
+	tokens := h.relayTokens.(*mockPreviewTokens)
+	h.commandSender = &previewCommandSender{
+		sendConnectTunnelFn: func(int64, string, string) error {
+			return errors.New("runner unavailable")
+		},
+	}
+
+	w := performPreviewGET(h)
+
+	assert.Equal(t, http.StatusServiceUnavailable, w.Code)
+	assert.JSONEq(t, `{"code":"preview_unavailable","error":"Preview is not available"}`, w.Body.String())
+	assert.Equal(t, []string{"tunnel"}, tokens.tokenTypes)
 }
 
 func TestGetPodPreview_DisabledReturns404(t *testing.T) {
@@ -81,4 +124,13 @@ func TestGetPodPreview_InactiveReturns409(t *testing.T) {
 	if w.Code != http.StatusConflict {
 		t.Fatalf("expected 409, got %d", w.Code)
 	}
+}
+
+func sortedKeys(values map[string]any) []string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
 }

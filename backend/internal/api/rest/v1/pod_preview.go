@@ -30,10 +30,9 @@ type previewTokenGenerator interface {
 	GenerateTypedToken(podKey string, runnerID, userID, orgID int64, tokenType, previewTarget string, expiry time.Duration) (string, error)
 }
 
-// GetPodPreview issues a short-lived preview token and the Gateway preview URLs
-// for a pod. It also (re)instructs the pod's runner to establish its outbound
-// tunnel; if that dispatch fails we return 503 and do NOT hand back a token
-// (avoiding a token the browser could never use).
+// GetPodPreview requests the runner's outbound tunnel and issues a short-lived
+// Gateway session URL only after the command is accepted for delivery. The
+// preview request itself remains the end-to-end tunnel readiness check.
 //
 // GET /api/v1/orgs/:slug/pods/:key/preview
 func (h *PodHandler) GetPodPreview(c *gin.Context) {
@@ -66,7 +65,7 @@ func (h *PodHandler) GetPodPreview(c *gin.Context) {
 		return
 	}
 
-	if h.relaySelector == nil || h.relayTokens == nil {
+	if h.relaySelector == nil || h.relayTokens == nil || h.commandSender == nil {
 		apierr.ServiceUnavailable(c, "preview_unavailable", "Preview is not available")
 		return
 	}
@@ -77,17 +76,14 @@ func (h *PodHandler) GetPodPreview(c *gin.Context) {
 		return
 	}
 
-	// Instruct the runner to (re)connect its tunnel before issuing a token.
-	if h.commandSender != nil {
-		tunnelToken, terr := h.relayTokens.GenerateTypedToken("", pod.RunnerID, 0, tenant.OrganizationID, "tunnel", "", 24*time.Hour)
-		if terr != nil {
-			apierr.InternalError(c, "failed to mint tunnel token")
-			return
-		}
-		if serr := h.commandSender.SendConnectTunnel(pod.RunnerID, tunnelURLFromRelay(relayInfo.URL), tunnelToken); serr != nil {
-			apierr.ServiceUnavailable(c, "tunnel_unavailable", "Failed to establish preview tunnel")
-			return
-		}
+	tunnelToken, err := h.relayTokens.GenerateTypedToken("", pod.RunnerID, 0, tenant.OrganizationID, "tunnel", "", 24*time.Hour)
+	if err != nil {
+		apierr.InternalError(c, "failed to mint tunnel token")
+		return
+	}
+	if err := h.commandSender.SendConnectTunnel(pod.RunnerID, tunnelURLFromRelay(relayInfo.URL), tunnelToken); err != nil {
+		apierr.ServiceUnavailable(c, "preview_unavailable", "Preview is not available")
+		return
 	}
 
 	previewToken, err := h.relayTokens.GenerateTypedToken(podKey, pod.RunnerID, tenant.UserID, tenant.OrganizationID, "preview", route.Target, previewTokenTTL)
@@ -100,7 +96,6 @@ func (h *PodHandler) GetPodPreview(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"preview_base_url": base,
 		"session_url":      base + "__session?token=" + url.QueryEscape(previewToken),
-		"token":            previewToken,
 		"expires_at":       time.Now().Add(previewTokenTTL).UTC().Format(time.RFC3339),
 	})
 }
