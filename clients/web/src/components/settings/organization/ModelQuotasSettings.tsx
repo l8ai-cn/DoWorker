@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { listOrganizationEffectiveResources } from "@/lib/api/connect/aiResourceConnect";
+import { listOrganizationEffectiveResources } from "@/lib/api";
 import { readCurrentOrg } from "@/stores/auth";
 import { VirtualKeysPanel } from "./VirtualKeysPanel";
 import { TokenQuotaPanel } from "./TokenQuotaPanel";
