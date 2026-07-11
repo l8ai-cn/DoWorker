@@ -268,7 +268,7 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
         - mountPath: /home/runner/.claude
           name: agent-config
@@ -348,7 +348,7 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
         - mountPath: /home/runner/.codex
           name: agent-config
@@ -433,7 +433,7 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
         - mountPath: /run/runner-ssh-source
           name: runner-ssh
@@ -512,7 +512,7 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
         - mountPath: /run/runner-ssh-source
           name: runner-ssh
@@ -587,7 +587,7 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
         - mountPath: /home/runner/.gemini
           name: agent-config
@@ -667,7 +667,7 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
         - mountPath: /home/runner/.loopal
           name: agent-config

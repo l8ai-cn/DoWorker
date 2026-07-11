@@ -57,7 +57,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_e2e_workspace:/workspace
-      - runner_e2e_config:/home/runner/.agentsmesh
+      - runner_e2e_config:/home/runner/.do-worker
     ports:
       - "${RUNNER_MCP_PORT:-19000}:19000"
 
@@ -70,7 +70,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner2_e2e_workspace:/workspace
-      - runner2_e2e_config:/home/runner/.agentsmesh
+      - runner2_e2e_config:/home/runner/.do-worker
     ports:
       - "${RUNNER_2_MCP_PORT:-19001}:19000"
 
@@ -83,7 +83,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_claude_workspace:/workspace
-      - runner_claude_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_claude_agentsmesh_config:/home/runner/.do-worker
       - runner_claude_config:/home/runner/.claude
 
   runner-codex-cli:
@@ -95,7 +95,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_codex_workspace:/workspace
-      - runner_codex_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_codex_agentsmesh_config:/home/runner/.do-worker
       - runner_codex_config:/home/runner/.codex
 
   runner-codex-cli-2:
@@ -108,7 +108,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner2_codex_workspace:/workspace
-      - runner2_codex_agentsmesh_config:/home/runner/.agentsmesh
+      - runner2_codex_agentsmesh_config:/home/runner/.do-worker
       - runner2_codex_config:/home/runner/.codex
 
   runner-gemini-cli:
@@ -120,7 +120,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_gemini_workspace:/workspace
-      - runner_gemini_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_gemini_agentsmesh_config:/home/runner/.do-worker
       - runner_gemini_config:/home/runner/.gemini
 
   runner-loopal:
@@ -132,7 +132,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_loopal_workspace:/workspace
-      - runner_loopal_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_loopal_agentsmesh_config:/home/runner/.do-worker
       - runner_loopal_config:/home/runner/.loopal
 
   runner-do-agent:
@@ -144,7 +144,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_doagent_workspace:/workspace
-      - runner_doagent_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_doagent_agentsmesh_config:/home/runner/.do-worker
 
   runner-aider:
     <<: *runner-common
@@ -155,7 +155,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_aider_workspace:/workspace
-      - runner_aider_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_aider_agentsmesh_config:/home/runner/.do-worker
 
   runner-opencode:
     <<: *runner-common
@@ -166,7 +166,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_opencode_workspace:/workspace
-      - runner_opencode_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_opencode_agentsmesh_config:/home/runner/.do-worker
 
   # System-admin personal org (admin-workspace) — dev-org runners are invisible there.
   runner-admin-workspace:
@@ -183,7 +183,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_admin_workspace:/workspace
-      - runner_admin_workspace_config:/home/runner/.agentsmesh
+      - runner_admin_workspace_config:/home/runner/.do-worker
 
   runner-admin-workspace-do-agent:
     <<: *runner-common
@@ -199,7 +199,7 @@ services:
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_admin_doagent_workspace:/workspace
-      - runner_admin_doagent_config:/home/runner/.agentsmesh
+      - runner_admin_doagent_config:/home/runner/.do-worker
 
 volumes:
   runner_e2e_workspace:

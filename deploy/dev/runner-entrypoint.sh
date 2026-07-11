@@ -15,11 +15,6 @@ DEFAULT_AGENT="${DEFAULT_AGENT:-${AGENT_RUNTIME}}"
 RUNNER_SSH_SOURCE_DIR="${RUNNER_SSH_SOURCE_DIR:-/run/runner-ssh-source}"
 
 CONFIG_DIR="${HOME}/.do-worker"
-if [[ -d "${HOME}/.agentsmesh" && -w "${HOME}/.agentsmesh" ]]; then
-    CONFIG_DIR="${HOME}/.agentsmesh"
-elif [[ -d "${HOME}/.agentsmesh" && ! -w "${HOME}/.agentsmesh" ]]; then
-    echo "▶ ${HOME}/.agentsmesh not writable (uid $(id -u)); using ${CONFIG_DIR}" >&2
-fi
 CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 

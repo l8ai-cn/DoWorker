@@ -30,7 +30,7 @@ const DefaultConsolePort = 19080
 
 func runRunner(args []string) {
 	fs := flag.NewFlagSet("run", flag.ExitOnError)
-	configFile := fs.String("config", "", "Path to config file (default: ~/.agentsmesh/config.yaml)")
+	configFile := fs.String("config", "", "Path to config file (default: ~/.do-worker/config.yaml)")
 	logLevel := fs.String("log-level", "", "Log level: debug, info, warn, error (overrides config)")
 	logPTY := fs.Bool("logpty", false, "Log raw PTY and aggregator output to files for debugging")
 	logPTYDir := fs.String("logpty-dir", "", "Directory for PTY logs (default: $TMPDIR/agentsmesh/pty-logs)")
@@ -45,7 +45,7 @@ Options:`)
 		fs.PrintDefaults()
 		fmt.Println(`
 The runner must be registered first using 'do-worker-runner register'.
-Configuration is loaded from ~/.agentsmesh/config.yaml by default.
+Configuration is loaded from ~/.do-worker/config.yaml by default.
 Log file is written to $TMPDIR/agentsmesh/runner.log by default (with rotation).
 
 The runner uses gRPC/mTLS for secure communication with the server.`)
@@ -55,9 +55,6 @@ The runner uses gRPC/mTLS for secure communication with the server.`)
 		os.Exit(1)
 	}
 
-	// Determine config file path. Honour the rebranded ~/.do-worker dir
-	// (falling back to the legacy ~/.agentsmesh) so the container entrypoint
-	// and the run command agree on where config.yaml lives.
 	cfgFile := *configFile
 	if cfgFile == "" {
 		dir := config.UserConfigDir()
