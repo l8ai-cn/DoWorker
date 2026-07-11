@@ -17,7 +17,7 @@ spec:
         - name: agentsmesh-regcred
       containers:
         - name: web
-          image: repo.aiedulab.cn:8443/agentsmesh/web@sha256:6e029addd9c5f00c037174893ecf15a7ea01c42a2436c3f6390fdf07f2ccb5fa
+          image: repo.aiedulab.cn:8443/agentsmesh/web@sha256:2da1c3c211bd729fc56779bebca41e42f2653f5a8d46857da9519ece9bedb9e3
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
