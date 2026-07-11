@@ -30,6 +30,8 @@ spec:
               value: "dowork.l8ai.cn"
             - name: USE_HTTPS
               value: "true"
+            - name: ALLOWED_ORIGINS
+              value: "http://localhost:10007,http://127.0.0.1:10007,http://localhost:10022,http://127.0.0.1:10022"
             - name: RELAY_ID
               value: "k8s-relay-1"
             - name: RELAY_REGION
