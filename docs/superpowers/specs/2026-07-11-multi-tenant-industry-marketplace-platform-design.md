@@ -193,7 +193,5 @@ Hard-coded expert applications become seeded catalog items and listings.
 The existing organization Skill library remains an internal runtime management
 surface and must not be presented as the public marketplace. Existing Skill
 runtime semantics remain unchanged when linked to marketplace installations.
-Implementation planning must split this design into marketplace foundation,
-catalog publishing, consumer acquisition, runtime integration, and quota ledger
-subprojects. Each requires migrations, APIs, UI flows, browser E2E scenarios,
-deployment configuration, and a rollback path.
+Detailed design index:
+`2026-07-11-marketplace-detailed-design-index.md`
