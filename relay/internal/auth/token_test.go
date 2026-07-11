@@ -99,6 +99,43 @@ func TestValidateToken_WrongSigningMethod(t *testing.T) {
 	}
 }
 
+func TestValidateToken_RejectsMissingExpiration(t *testing.T) {
+	v := NewTokenValidator(testSecret, testIssuer)
+	claims := &RelayClaims{
+		PodKey: "pod-1",
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer: testIssuer,
+		},
+	}
+	tokenString, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(testSecret))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := v.ValidateToken(tokenString); err != ErrInvalidToken {
+		t.Fatalf("missing expiration error = %v, want ErrInvalidToken", err)
+	}
+}
+
+func TestValidateToken_RejectsNonHS256HMAC(t *testing.T) {
+	v := NewTokenValidator(testSecret, testIssuer)
+	for _, method := range []jwt.SigningMethod{jwt.SigningMethodHS384, jwt.SigningMethodHS512} {
+		claims := &RelayClaims{
+			PodKey: "pod-1",
+			RegisteredClaims: jwt.RegisteredClaims{
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+				Issuer:    testIssuer,
+			},
+		}
+		tokenString, err := jwt.NewWithClaims(method, claims).SignedString([]byte(testSecret))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := v.ValidateToken(tokenString); err != ErrInvalidToken {
+			t.Fatalf("%s error = %v, want ErrInvalidToken", method.Alg(), err)
+		}
+	}
+}
+
 func TestRelayClaims_AllFields(t *testing.T) {
 	now := time.Now()
 	claims := &RelayClaims{PodKey: "p1", RunnerID: 100, UserID: 200, OrgID: 300,
@@ -164,7 +201,13 @@ func TestValidateToken_PreviewRequiresNormalizedPath(t *testing.T) {
 		})
 	}
 
-	for _, previewPath := range []string{"/app", "/files/%25", "/app/%252e%252e"} {
+	for _, previewPath := range []string{
+		"/app",
+		"/files/%25",
+		"/files/report%23draft.pdf",
+		"/route/%3F",
+		"/app/%252e%252e",
+	} {
 		claims, err := v.ValidateToken(signPreviewClaims(t, previewPath))
 		if err != nil {
 			t.Fatalf("normalized preview path %q rejected: %v", previewPath, err)
@@ -176,7 +219,13 @@ func TestValidateToken_PreviewRequiresNormalizedPath(t *testing.T) {
 }
 
 func TestNormalizePreviewPath_Idempotent(t *testing.T) {
-	for _, previewPath := range []string{"/files/%25", "/app/%252e%252e", "/documents/%E4%B8%AD"} {
+	for _, previewPath := range []string{
+		"/files/%25",
+		"/files/report%23draft.pdf",
+		"/route/%3F",
+		"/app/%252e%252e",
+		"/documents/%E4%B8%AD",
+	} {
 		normalized, err := NormalizePreviewPath(previewPath)
 		if err != nil {
 			t.Fatalf("NormalizePreviewPath(%q): %v", previewPath, err)

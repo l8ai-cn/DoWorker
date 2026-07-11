@@ -78,11 +78,11 @@ func NewTokenValidator(secret, issuer string) *TokenValidator {
 // ValidateToken validates a relay token and returns claims
 func (v *TokenValidator) ValidateToken(tokenString string) (*RelayClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &RelayClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		if token.Method != jwt.SigningMethodHS256 {
 			return nil, ErrInvalidToken
 		}
 		return v.secretKey, nil
-	})
+	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}), jwt.WithExpirationRequired())
 
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
@@ -116,8 +116,11 @@ func NormalizePreviewPath(raw string) (string, error) {
 	if raw == "" {
 		return "", ErrInvalidToken
 	}
+	if strings.ContainsAny(raw, "?#") {
+		return "", ErrInvalidToken
+	}
 	decoded, err := url.PathUnescape(raw)
-	if err != nil || !strings.HasPrefix(decoded, "/") || strings.ContainsAny(decoded, "?#") {
+	if err != nil || !strings.HasPrefix(decoded, "/") {
 		return "", ErrInvalidToken
 	}
 	for _, segment := range strings.Split(decoded, "/") {
