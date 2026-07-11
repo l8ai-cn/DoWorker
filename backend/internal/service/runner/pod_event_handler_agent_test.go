@@ -2,6 +2,7 @@ package runner
 
 import (
 	"testing"
+	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
@@ -22,8 +23,9 @@ func TestHandleAgentStatus(t *testing.T) {
 	}
 
 	// Create a running pod
-	db.Exec(`INSERT INTO pods (pod_key, runner_id, status) VALUES (?, ?, ?)`,
-		"agent-pod-1", r.ID, agentpod.StatusRunning)
+	staleAt := time.Now().Add(-time.Hour)
+	db.Exec(`INSERT INTO pods (pod_key, runner_id, status, last_activity) VALUES (?, ?, ?, ?)`,
+		"agent-pod-1", r.ID, agentpod.StatusRunning, staleAt)
 
 	// Track status change callback
 	var callbackAgentStatus string
@@ -40,12 +42,18 @@ func TestHandleAgentStatus(t *testing.T) {
 	pc.handleAgentStatus(r.ID, data)
 
 	// Verify pod was updated
-	var agentStatus string
-	db.Raw(`SELECT agent_status FROM pods WHERE pod_key = ?`, "agent-pod-1").
-		Scan(&agentStatus)
+	var pod struct {
+		AgentStatus  string
+		LastActivity time.Time
+	}
+	db.Raw(`SELECT agent_status, last_activity FROM pods WHERE pod_key = ?`, "agent-pod-1").
+		Scan(&pod)
 
-	if agentStatus != agentpod.AgentStatusExecuting {
-		t.Errorf("agent_status: got %q, want %q", agentStatus, agentpod.AgentStatusExecuting)
+	if pod.AgentStatus != agentpod.AgentStatusExecuting {
+		t.Errorf("agent_status: got %q, want %q", pod.AgentStatus, agentpod.AgentStatusExecuting)
+	}
+	if !pod.LastActivity.After(staleAt.Add(30 * time.Minute)) {
+		t.Errorf("last_activity was not refreshed: got %v", pod.LastActivity)
 	}
 
 	// Verify callback was called

@@ -20,7 +20,8 @@ func (pc *PodCoordinator) handleAgentStatus(runnerID int64, data *runnerv1.Agent
 	ctx := context.Background()
 
 	updates := map[string]interface{}{
-		"agent_status": data.Status,
+		"agent_status":  data.Status,
+		"last_activity": time.Now(),
 	}
 
 	if data.Status == agentpod.AgentStatusWaiting {

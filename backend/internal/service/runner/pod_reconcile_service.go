@@ -51,6 +51,13 @@ func (r *PodReconcileService) reconcile(ctx context.Context, runnerID int64, rep
 			continue
 		}
 
+		if err := pc.podStore.UpdateField(ctx, podKey, "last_activity", now); err != nil {
+			pc.logger.Error("failed to refresh pod activity from heartbeat",
+				"pod_key", podKey,
+				"runner_id", runnerID,
+				"error", err)
+		}
+
 		if pod.Status == agentpod.StatusCompleted || pod.Status == agentpod.StatusTerminated {
 			if pc.isTerminateCooldown(podKey) {
 				continue
@@ -69,6 +76,10 @@ func (r *PodReconcileService) reconcile(ctx context.Context, runnerID int64, rep
 
 		if pod.Status == agentpod.StatusOrphaned {
 			r.recoverPodStatus(ctx, podKey, runnerID, agentpod.StatusOrphaned, now)
+		}
+
+		if pod.Status == agentpod.StatusDisconnected {
+			r.recoverPodStatus(ctx, podKey, runnerID, agentpod.StatusDisconnected, now)
 		}
 
 		if pod.Status == agentpod.StatusInitializing {

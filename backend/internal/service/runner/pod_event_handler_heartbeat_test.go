@@ -2,6 +2,7 @@ package runner
 
 import (
 	"testing"
+	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
@@ -22,8 +23,9 @@ func TestHandleHeartbeat(t *testing.T) {
 	}
 
 	// Create a pod
-	db.Exec(`INSERT INTO pods (pod_key, runner_id, status) VALUES (?, ?, ?)`,
-		"heartbeat-pod-1", r.ID, agentpod.StatusRunning)
+	staleAt := time.Now().Add(-time.Hour)
+	db.Exec(`INSERT INTO pods (pod_key, runner_id, status, last_activity) VALUES (?, ?, ?, ?)`,
+		"heartbeat-pod-1", r.ID, agentpod.StatusRunning, staleAt)
 
 	// Send heartbeat (using Proto type)
 	data := &runnerv1.HeartbeatData{
@@ -37,6 +39,12 @@ func TestHandleHeartbeat(t *testing.T) {
 	// Verify heartbeat was recorded (check buffer)
 	if pc.heartbeatBatcher.BufferSize() != 1 {
 		t.Errorf("heartbeat should be recorded, buffer size: %d", pc.heartbeatBatcher.BufferSize())
+	}
+
+	var lastActivity time.Time
+	db.Raw(`SELECT last_activity FROM pods WHERE pod_key = ?`, "heartbeat-pod-1").Scan(&lastActivity)
+	if !lastActivity.After(staleAt.Add(30 * time.Minute)) {
+		t.Errorf("last_activity was not refreshed: got %v", lastActivity)
 	}
 }
 
@@ -193,5 +201,43 @@ func TestHandleHeartbeatRestoreOrphanedPod(t *testing.T) {
 	db.Raw(`SELECT status FROM pods WHERE pod_key = ?`, "orphan-pod-1").Scan(&status)
 	if status != agentpod.StatusRunning {
 		t.Errorf("orphaned pod should be restored: got %q, want %q", status, agentpod.StatusRunning)
+	}
+}
+
+func TestHandleHeartbeatRestoresDisconnectedPod(t *testing.T) {
+	pc, _, _, db := setupPodEventHandlerDeps(t)
+
+	r := &runner.Runner{
+		OrganizationID: 1,
+		NodeID:         "restore-disconnected-node",
+		Status:         "online",
+	}
+	if err := db.Create(r).Error; err != nil {
+		t.Fatalf("failed to create runner: %v", err)
+	}
+
+	staleAt := time.Now().Add(-time.Hour)
+	db.Exec(`INSERT INTO pods (pod_key, runner_id, status, last_activity) VALUES (?, ?, ?, ?)`,
+		"disconnected-pod-1", r.ID, agentpod.StatusDisconnected, staleAt)
+
+	data := &runnerv1.HeartbeatData{
+		Pods: []*runnerv1.PodInfo{
+			{PodKey: "disconnected-pod-1", Status: "running"},
+		},
+	}
+
+	pc.handleHeartbeat(r.ID, data)
+
+	var pod struct {
+		Status       string
+		LastActivity time.Time
+	}
+	db.Raw(`SELECT status, last_activity FROM pods WHERE pod_key = ?`, "disconnected-pod-1").Scan(&pod)
+
+	if pod.Status != agentpod.StatusRunning {
+		t.Errorf("disconnected pod should be restored: got %q", pod.Status)
+	}
+	if !pod.LastActivity.After(staleAt.Add(30 * time.Minute)) {
+		t.Errorf("last_activity was not refreshed: got %v", pod.LastActivity)
 	}
 }
