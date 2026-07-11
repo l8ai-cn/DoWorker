@@ -37,6 +37,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     needs: smoke
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: agentsmesh_migrations
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d agentsmesh_migrations"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      CI: "true"
+      MIGRATIONS_POSTGRES_TEST_DSN: postgres://postgres:postgres@localhost:5432/agentsmesh_migrations?sslmode=disable
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v5
