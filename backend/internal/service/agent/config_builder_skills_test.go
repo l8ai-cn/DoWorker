@@ -83,12 +83,15 @@ func TestBuildSkillResources_FiltersByAgentfileSlugs(t *testing.T) {
 		},
 	})
 
-	resources := builder.buildSkillResources(
+	resources, err := builder.buildSkillResources(
 		context.Background(),
 		&ConfigBuildRequest{OrganizationID: 1, UserID: 2, RepositoryID: &repoID},
 		"claude-code",
 		[]string{"keep-me"},
 	)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if len(resources) != 1 {
 		t.Fatalf("len = %d, want 1", len(resources))
 	}

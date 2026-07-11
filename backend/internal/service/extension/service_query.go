@@ -37,11 +37,12 @@ func (s *Service) ListRepoMcpServers(ctx context.Context, orgID, repoID, userID 
 }
 
 type ResolvedSkill struct {
-	Slug        string
-	ContentSha  string
-	DownloadURL string // presigned URL
-	PackageSize int64
-	TargetDir   string // relative path in plugin directory
+	CatalogSkillID int64
+	Slug           string
+	ContentSha     string
+	DownloadURL    string // presigned URL
+	PackageSize    int64
+	TargetDir      string // relative path in plugin directory
 }
 
 func (s *Service) GetEffectiveMcpServers(ctx context.Context, orgID, userID, repoID int64, agentSlug string) ([]*extension.InstalledMcpServer, error) {
@@ -90,15 +91,23 @@ func (s *Service) GetEffectiveSkills(ctx context.Context, orgID, userID, repoID 
 		}
 
 		resolved = append(resolved, &ResolvedSkill{
-			Slug:        skill.Slug,
-			ContentSha:  sha,
-			DownloadURL: downloadURL,
-			PackageSize: packageSize,
-			TargetDir:   fmt.Sprintf("skills/%s", skill.Slug),
+			CatalogSkillID: installedCatalogSkillID(skill),
+			Slug:           skill.Slug,
+			ContentSha:     sha,
+			DownloadURL:    downloadURL,
+			PackageSize:    packageSize,
+			TargetDir:      fmt.Sprintf("skills/%s", skill.Slug),
 		})
 	}
 
 	return resolved, nil
+}
+
+func installedCatalogSkillID(skill *extension.InstalledSkill) int64 {
+	if skill == nil || skill.SkillID == nil {
+		return 0
+	}
+	return *skill.SkillID
 }
 
 func filterMcpServersByAgent(servers []*extension.InstalledMcpServer, agentSlug string) []*extension.InstalledMcpServer {

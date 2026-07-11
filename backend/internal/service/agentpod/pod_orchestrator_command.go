@@ -93,6 +93,9 @@ func (o *PodOrchestrator) buildPodCommand(
 	if err != nil {
 		return nil, err
 	}
+	requiredEnvBundleIDs, requiredSkillIDs := workerSpecResourceRequirements(
+		req.preparedWorkerSpec,
+	)
 
 	buildReq := &agent.ConfigBuildRequest{
 		AgentSlug:             req.AgentSlug,
@@ -119,6 +122,8 @@ func (o *PodOrchestrator) buildPodCommand(
 		KnowledgeMounts:       knowledgeMounts,
 		SessionMcpInstalled:   req.SessionMcpServers,
 		SessionConfigBundles:  req.SessionConfigBundles,
+		RequiredEnvBundleIDs:  requiredEnvBundleIDs,
+		RequiredSkillIDs:      requiredSkillIDs,
 	}
 
 	cmd, err := o.configBuilder.BuildPodCommand(ctx, buildReq)

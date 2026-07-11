@@ -100,7 +100,8 @@ type serviceContainer struct {
 	grant              *grantservice.Service
 	knowledgeBase      *knowledgebaseservice.Service
 	kbSyncWorker       *knowledgebaseservice.SyncWorker
-	imBridge           *imbridgesvc.Bridge
+	workerServices
+	imBridge *imbridgesvc.Bridge
 
 	notifDispatcher *notifService.Dispatcher
 	notifPrefStore  *notifService.PreferenceStore
@@ -289,6 +290,7 @@ func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Clie
 		grant:              grantSvc,
 		knowledgeBase:      knowledgeBaseSvc,
 		kbSyncWorker:       kbSyncWorker,
+		workerServices:     initializeWorkerServices(db, agentSvc, aiResourceSvc, repoSvc),
 		imBridge:           imBridgeBridge,
 		podRepo:            podRepo,
 		runnerRepo:         runnerRepo,

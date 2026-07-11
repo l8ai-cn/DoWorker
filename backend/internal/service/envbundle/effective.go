@@ -9,6 +9,7 @@ import (
 // process environment. The caller (ConfigBuilder) decides which subset is
 // actually mounted based on AgentFile USE_ENV_BUNDLE declarations.
 type EffectiveBundle struct {
+	ID         int64
 	Name       string
 	Kind       string
 	OwnerScope string
@@ -51,6 +52,7 @@ func (s *Service) GetEffectiveForUser(ctx context.Context, userID, orgID int64, 
 			continue
 		}
 		out = append(out, &EffectiveBundle{
+			ID:         b.ID,
 			Name:       b.Name,
 			Kind:       b.Kind,
 			OwnerScope: b.OwnerScope,

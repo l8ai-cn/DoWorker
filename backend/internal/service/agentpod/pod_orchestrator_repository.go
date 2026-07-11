@@ -16,8 +16,10 @@ func (o *PodOrchestrator) preResolveFreshRepository(
 	req *OrchestrateCreatePodRequest,
 	agentDef *agentDomain.Agent,
 ) error {
-	req.preResolvedRepository = nil
-	req.preResolvedRepositorySlug = ""
+	if req.preparedWorkerSpec == nil || req.preResolvedRepository == nil {
+		req.preResolvedRepository = nil
+		req.preResolvedRepositorySlug = ""
+	}
 
 	layerRepo := repositoryDeclaration{}
 	if req.AgentfileLayer != nil {

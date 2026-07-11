@@ -151,6 +151,8 @@ func createPodOrchestrator(services *serviceContainer, podCoordinator *runner.Po
 		PermissionPolicy: services.permissionPolicy,
 		KnowledgeBases:   knowledgeBaseResolverOrNil(services.knowledgeBase),
 		ModelResources:   services.aiResource,
+		WorkerCreation:   services.workerCreation,
+		WorkerSpecs:      services.workerSpecs,
 	})
 	slog.Info("PodOrchestrator created")
 	return orch

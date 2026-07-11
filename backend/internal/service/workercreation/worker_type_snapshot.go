@@ -1,0 +1,35 @@
+package workercreation
+
+import (
+	"context"
+	"fmt"
+
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+)
+
+func (service *Service) ValidateWorkerTypeSnapshot(
+	ctx context.Context,
+	scope specservice.Scope,
+	expected specdomain.WorkerType,
+) error {
+	if service == nil || service.workerTypes == nil {
+		return specservice.ErrResolverUnavailable
+	}
+	current, err := service.workerTypes.ResolveWorkerType(
+		ctx,
+		scope,
+		expected.Slug,
+	)
+	if err != nil {
+		return err
+	}
+	if current.WorkerType != expected {
+		return fmt.Errorf(
+			"%w: %q",
+			ErrWorkerTypeDefinitionChanged,
+			expected.Slug,
+		)
+	}
+	return nil
+}

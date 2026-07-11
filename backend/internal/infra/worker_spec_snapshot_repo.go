@@ -41,26 +41,7 @@ func (r *workerSpecSnapshotRepo) Create(
 	ctx context.Context,
 	resolved workerspecservice.ResolvedSnapshot,
 ) (domain.Snapshot, error) {
-	spec, summary, specJSON, summaryJSON, err := decodeResolvedSnapshot(resolved)
-	if err != nil {
-		return domain.Snapshot{}, err
-	}
-	record := workerSpecSnapshotRecord{
-		OrganizationID: resolved.OrganizationID(),
-		Version:        resolved.Version(),
-		SpecJSON:       specJSON,
-		SummaryJSON:    summaryJSON,
-	}
-	if err := r.db.WithContext(ctx).Create(&record).Error; err != nil {
-		return domain.Snapshot{}, err
-	}
-	return domain.Snapshot{
-		ID:             record.ID,
-		OrganizationID: record.OrganizationID,
-		Spec:           spec,
-		Summary:        summary,
-		CreatedAt:      record.CreatedAt,
-	}, nil
+	return createWorkerSpecSnapshot(r.db.WithContext(ctx), resolved)
 }
 
 func (r *workerSpecSnapshotRepo) GetByID(

@@ -35,6 +35,7 @@ var (
 	ErrModelResourceResolverUnavailable = errors.New("model resource resolver is not configured")
 	ErrModelResourceEnvConflict         = errors.New("model resource conflicts with an existing runtime environment value")
 	ErrModelResourceCommandConflict     = errors.New("model resource conflicts with an existing model launch argument")
+	ErrWorkerSpecModelChanged           = errors.New("model resource changed after workerspec resolution")
 )
 
 const (
@@ -106,6 +107,8 @@ type PodOrchestratorDeps struct {
 	PermissionPolicy *permissionpolicysvc.Service
 	KnowledgeBases   KnowledgeBaseResolverForOrchestrator
 	ModelResources   ModelResourceResolver
+	WorkerCreation   WorkerCreationPreparer
+	WorkerSpecs      WorkerSpecSnapshotLoader
 }
 
 type PodOrchestrator struct {
@@ -124,6 +127,8 @@ type PodOrchestrator struct {
 	permissionPolicy *permissionpolicysvc.Service
 	knowledgeBases   KnowledgeBaseResolverForOrchestrator
 	modelResources   ModelResourceResolver
+	workerCreation   WorkerCreationPreparer
+	workerSpecs      WorkerSpecSnapshotLoader
 }
 
 type agentfileResolved struct {
@@ -154,5 +159,7 @@ func NewPodOrchestrator(deps *PodOrchestratorDeps) *PodOrchestrator {
 		permissionPolicy: deps.PermissionPolicy,
 		knowledgeBases:   deps.KnowledgeBases,
 		modelResources:   deps.ModelResources,
+		workerCreation:   deps.WorkerCreation,
+		workerSpecs:      deps.WorkerSpecs,
 	}
 }

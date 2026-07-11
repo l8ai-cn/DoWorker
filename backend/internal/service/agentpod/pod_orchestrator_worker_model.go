@@ -9,6 +9,7 @@ import (
 	"github.com/anthropics/agentsmesh/agentfile"
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	resourceDomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 )
 
@@ -40,6 +41,14 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 	if err != nil {
 		return err
 	}
+	if req.preparedWorkerSpec != nil {
+		if err := validatePreparedModelBinding(
+			req.preparedWorkerSpec.Runtime.ModelBinding,
+			resource,
+		); err != nil {
+			return err
+		}
+	}
 	if harness == "do-agent" {
 		settings, err := doAgentModelSettings(resource)
 		if err != nil {
@@ -69,6 +78,22 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 	}
 	if req.TokenBudget != nil && *req.TokenBudget > 0 {
 		appendAgentfileLayer(&req.AgentfileLayer, fmt.Sprintf(`CONFIG token_budget = "%s"`, strconv.FormatInt(*req.TokenBudget, 10)))
+	}
+	return nil
+}
+
+func validatePreparedModelBinding(
+	expected specdomain.ModelBinding,
+	resolved *resourcesvc.ResolvedResource,
+) error {
+	if resolved == nil ||
+		resolved.Resource.ID != expected.ResourceID ||
+		resolved.Resource.Revision != expected.ResourceRevision ||
+		resolved.Connection.ID != expected.ConnectionID ||
+		resolved.Connection.Revision != expected.ConnectionRevision ||
+		resolved.Connection.ProviderKey != expected.ProviderKey ||
+		strings.TrimSpace(resolved.Resource.ModelID) != expected.ModelID {
+		return ErrWorkerSpecModelChanged
 	}
 	return nil
 }

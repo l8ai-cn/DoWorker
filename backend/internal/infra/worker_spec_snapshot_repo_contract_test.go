@@ -140,6 +140,9 @@ func (ports *workerSpecResolutionPorts) ResolveWorkerType(
 ) (workerspecservice.WorkerTypeResolution, error) {
 	return workerspecservice.WorkerTypeResolution{
 		WorkerType: ports.spec.Runtime.WorkerType,
+		SupportedInteractionModes: []workerspec.InteractionMode{
+			ports.spec.TypeConfig.InteractionMode,
+		},
 		TypeSchema: workerspec.TypeSchema{
 			Version: ports.spec.TypeConfig.SchemaVersion,
 			Fields: map[string]workerspec.TypeFieldSchema{
@@ -167,6 +170,7 @@ func (ports *workerSpecResolutionPorts) ResolveRuntime(
 func (ports *workerSpecResolutionPorts) ResolveModel(
 	context.Context,
 	workerspecservice.Scope,
+	slugkit.Slug,
 	int64,
 ) (workerspec.ModelBinding, error) {
 	return ports.spec.Runtime.ModelBinding, nil
@@ -175,6 +179,7 @@ func (ports *workerSpecResolutionPorts) ResolveModel(
 func (*workerSpecResolutionPorts) ResolveSecretReference(
 	context.Context,
 	workerspecservice.Scope,
+	slugkit.Slug,
 	string,
 	workerspec.SecretReference,
 ) error {
@@ -184,6 +189,7 @@ func (*workerSpecResolutionPorts) ResolveSecretReference(
 func (*workerSpecResolutionPorts) ResolveWorkspace(
 	_ context.Context,
 	_ workerspecservice.Scope,
+	_ slugkit.Slug,
 	workspace workerspec.Workspace,
 ) (workerspec.Workspace, error) {
 	return workspace, nil

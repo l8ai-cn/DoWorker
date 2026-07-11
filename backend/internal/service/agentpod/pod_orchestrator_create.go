@@ -25,13 +25,21 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	isResumeMode := req.SourcePodKey != ""
 
 	if isResumeMode {
+		if req.WorkerSpecDraft != nil {
+			return nil, ErrConflictingWorkerCreateInput
+		}
 		var err error
 		sourcePod, sessionID, err = o.handleResumeMode(ctx, req)
 		if err != nil {
 			return nil, err
 		}
-	} else if req.AgentSlug == "" {
-		return nil, ErrMissingAgentSlug
+	} else {
+		if err := o.prepareStructuredWorkerCreate(ctx, req); err != nil {
+			return nil, err
+		}
+		if req.AgentSlug == "" {
+			return nil, ErrMissingAgentSlug
+		}
 	}
 	if !isResumeMode && req.RunnerID != 0 {
 		if err := o.resolveRunnerForFreshCreate(ctx, req); err != nil {
@@ -47,6 +55,9 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		}
 	}
 	if !isResumeMode {
+		if err := o.validatePreparedWorkerType(ctx, req); err != nil {
+			return nil, err
+		}
 		if err := o.preResolveFreshRepository(ctx, req, agentDef); err != nil {
 			return nil, err
 		}
@@ -162,33 +173,17 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 
 	o.resolveTicketID(ctx, req)
 
-	agentfileLayer := ""
-	if req.AgentfileLayer != nil {
-		agentfileLayer = *req.AgentfileLayer
-	}
-
-	pod, err := o.podService.CreatePod(ctx, &CreatePodRequest{
-		OrganizationID:  req.OrganizationID,
-		RunnerID:        req.RunnerID,
-		AgentSlug:       req.AgentSlug,
-		RepositoryID:    effectiveRepoID,
-		TicketID:        req.TicketID,
-		CreatedByID:     req.UserID,
-		Prompt:          resolved.Prompt,
-		Alias:           req.Alias,
-		BranchName:      effectiveBranch,
-		Model:           effectiveModel,
-		PermissionMode:  effectivePermissionMode,
-		SessionID:       sessionID,
-		SourcePodKey:    req.SourcePodKey,
-		InteractionMode: effectiveInteractionMode,
-		AutomationLevel: req.AutomationLevel,
-		Perpetual:       req.Perpetual,
-		ResolvedConfig:  resolved.ConfigValues,
-		InitialStatus:   o.initialPodStatus(req),
-		ModelResourceID: req.ModelResourceID,
-		AgentfileLayer:  agentfileLayer,
-	})
+	pod, err := o.podService.CreatePod(ctx, newPodServiceCreateRequest(
+		req,
+		resolved,
+		effectiveRepoID,
+		effectiveBranch,
+		sessionID,
+		effectiveInteractionMode,
+		effectiveModel,
+		effectivePermissionMode,
+		o.initialPodStatus(req),
+	))
 	if err != nil {
 		return nil, err
 	}

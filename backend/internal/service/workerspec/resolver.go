@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
 type Resolver struct {
@@ -48,6 +49,12 @@ func (resolver *Resolver) Resolve(
 	if err := validateWorkerTypeResolution(draft.WorkerTypeSlug, workerType); err != nil {
 		return ResolvedSnapshot{}, err
 	}
+	if err := validateInteractionMode(
+		draft.TypeConfig.InteractionMode,
+		workerType.SupportedInteractionModes,
+	); err != nil {
+		return ResolvedSnapshot{}, err
+	}
 	runtime, err := resolver.runtime.ResolveRuntime(
 		ctx,
 		scope,
@@ -63,6 +70,7 @@ func (resolver *Resolver) Resolve(
 	modelBinding, err := resolver.models.ResolveModel(
 		ctx,
 		scope,
+		workerType.WorkerType.Slug,
 		draft.ModelResourceID,
 	)
 	if err != nil {
@@ -75,14 +83,24 @@ func (resolver *Resolver) Resolve(
 		draft.TypeConfig,
 		workerType.TypeSchema,
 	); err != nil {
-		return ResolvedSnapshot{}, fmt.Errorf("validate worker type config: %w", err)
+		return ResolvedSnapshot{}, fmt.Errorf(
+			"%w: validate worker type config: %v",
+			ErrInvalidDraft,
+			err,
+		)
 	}
-	if err := resolver.resolveSecretReferences(ctx, scope, draft.TypeConfig.SecretRefs); err != nil {
+	if err := resolver.resolveSecretReferences(
+		ctx,
+		scope,
+		workerType.WorkerType.Slug,
+		draft.TypeConfig.SecretRefs,
+	); err != nil {
 		return ResolvedSnapshot{}, err
 	}
 	workspace, err := resolver.workspaces.ResolveWorkspace(
 		ctx,
 		scope,
+		workerType.WorkerType.Slug,
 		cloneWorkspace(draft.Workspace),
 	)
 	if err != nil {
@@ -101,7 +119,11 @@ func (resolver *Resolver) Resolve(
 		draft.Metadata,
 	))
 	if err != nil {
-		return ResolvedSnapshot{}, fmt.Errorf("validate resolved workerspec: %w", err)
+		return ResolvedSnapshot{}, fmt.Errorf(
+			"%w: validate resolved workerspec: %v",
+			ErrInvalidDraft,
+			err,
+		)
 	}
 	return resolveSnapshot(scope.OrgID, spec)
 }
@@ -118,9 +140,28 @@ func (resolver *Resolver) validateDependencies() error {
 	return nil
 }
 
+func validateInteractionMode(
+	requested domain.InteractionMode,
+	supported []domain.InteractionMode,
+) error {
+	for _, mode := range supported {
+		if mode == requested {
+			return nil
+		}
+	}
+	return &InvalidDraftFieldError{
+		Field: "type_config.interaction_mode",
+		Reason: fmt.Sprintf(
+			"interaction mode %q is not supported by the selected worker type",
+			requested,
+		),
+	}
+}
+
 func (resolver *Resolver) resolveSecretReferences(
 	ctx context.Context,
 	scope Scope,
+	workerType slugkit.Slug,
 	references map[string]domain.SecretReference,
 ) error {
 	fields := make([]string, 0, len(references))
@@ -132,6 +173,7 @@ func (resolver *Resolver) resolveSecretReferences(
 		if err := resolver.secrets.ResolveSecretReference(
 			ctx,
 			scope,
+			workerType,
 			field,
 			references[field],
 		); err != nil {

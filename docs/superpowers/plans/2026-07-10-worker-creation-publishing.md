@@ -108,7 +108,7 @@ git push origin main
 - Modify: `backend/internal/infra/worker_spec_snapshot_repo.go`
 - Modify: `backend/cmd/server/main_startup.go`
 
-- [ ] **Step 1: Write failing resolution and persistence tests**
+- [x] **Step 1: Write failing resolution and persistence tests**
 
 Cover exact model binding, Worker-type hash, image digest, target kind, profile
 resources, repository branch, Skill IDs, knowledge IDs, environment bundle IDs,
@@ -126,22 +126,24 @@ assert.Equal(t, int64(42), result.Resolved.Spec.Runtime.ModelBinding.ResourceID)
 Create must persist one immutable snapshot and set
 `pods.worker_spec_snapshot_id` before dispatch.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
 go test ./backend/internal/service/workercreation \
   ./backend/internal/service/agentpod ./backend/migrations -run 'WorkerSpec|WorkerCreation' -count=1
 ```
 
-- [ ] **Step 3: Implement scoped resolvers and compiler**
+- [x] **Step 3: Implement scoped resolvers and compiler**
 
 Resolve every external ID through its organization/user-scoped service. Convert
 the existing Agent config schema into WorkerSpec type schema, compute a
 canonical SHA-256 definition hash, and compile the resolved spec into the
 existing AgentFile DSL using `agentfile/serialize`. Secret values must never be
-written into the draft or snapshot.
+written into the draft or snapshot. Model-resource-managed config and
+credential fields must not appear in the Worker type schema or runtime
+EnvBundles.
 
-- [ ] **Step 4: Link snapshots to Pods**
+- [x] **Step 4: Link snapshots to Pods**
 
 Migration:
 
@@ -157,7 +159,7 @@ CREATE INDEX idx_pods_worker_spec_snapshot_id
 Fresh structured creates require the WorkerSpec service. Resume inherits the
 source snapshot ID and does not re-resolve mutable references.
 
-- [ ] **Step 5: Verify GREEN and commit**
+- [x] **Step 5: Verify GREEN and commit**
 
 ```bash
 go test ./backend/internal/service/workercreation ./backend/internal/service/agentpod \

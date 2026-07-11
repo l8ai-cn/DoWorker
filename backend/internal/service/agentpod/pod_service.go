@@ -10,6 +10,7 @@ import (
 
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )
 
 var (
@@ -75,6 +76,9 @@ type CreatePodRequest struct {
 	VirtualAPIKeyID *int64
 	ModelResourceID *int64
 	AgentfileLayer  string
+
+	ResolvedWorkerSpec   *specservice.ResolvedSnapshot
+	WorkerSpecSnapshotID *int64
 }
 
 // CreatePod creates a new pod
@@ -129,35 +133,36 @@ func (s *PodService) CreatePod(ctx context.Context, req *CreatePodRequest) (*age
 	}
 
 	pod := &agentpod.Pod{
-		OrganizationID:  req.OrganizationID,
-		PodKey:          podKey,
-		RunnerID:        req.RunnerID,
-		AgentSlug:       req.AgentSlug,
-		RepositoryID:    req.RepositoryID,
-		TicketID:        req.TicketID,
-		CreatedByID:     req.CreatedByID,
-		Status:          initialStatus,
-		AgentStatus:     agentpod.AgentStatusIdle,
-		Prompt:          req.Prompt,
-		Alias:           req.Alias,
-		BranchName:      req.BranchName,
-		Model:           modelPtr,
-		PermissionMode:  permissionModePtr,
-		SessionID:       sessionID,
-		SourcePodKey:    sourcePodKey,
-		InteractionMode: interactionMode,
-		AutomationLevel: agentpod.NormalizeAutomationLevel(req.AutomationLevel),
-		Perpetual:       req.Perpetual,
-		ResolvedConfig:  req.ResolvedConfig,
-		VirtualAPIKeyID: req.VirtualAPIKeyID,
-		ModelResourceID: req.ModelResourceID,
+		OrganizationID:       req.OrganizationID,
+		PodKey:               podKey,
+		RunnerID:             req.RunnerID,
+		AgentSlug:            req.AgentSlug,
+		RepositoryID:         req.RepositoryID,
+		TicketID:             req.TicketID,
+		CreatedByID:          req.CreatedByID,
+		Status:               initialStatus,
+		AgentStatus:          agentpod.AgentStatusIdle,
+		Prompt:               req.Prompt,
+		Alias:                req.Alias,
+		BranchName:           req.BranchName,
+		Model:                modelPtr,
+		PermissionMode:       permissionModePtr,
+		SessionID:            sessionID,
+		SourcePodKey:         sourcePodKey,
+		InteractionMode:      interactionMode,
+		AutomationLevel:      agentpod.NormalizeAutomationLevel(req.AutomationLevel),
+		Perpetual:            req.Perpetual,
+		ResolvedConfig:       req.ResolvedConfig,
+		VirtualAPIKeyID:      req.VirtualAPIKeyID,
+		ModelResourceID:      req.ModelResourceID,
+		WorkerSpecSnapshotID: req.WorkerSpecSnapshotID,
 	}
 
 	revision, err := newInitialPodConfigRevision(req)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.repo.CreateWithConfig(ctx, pod, revision); err != nil {
+	if err := s.persistPodWithWorkerSpec(ctx, req, pod, revision); err != nil {
 		return nil, err
 	}
 

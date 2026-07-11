@@ -32,6 +32,9 @@ func newResolverPortsForTest() *resolverPortsForTest {
 				Slug:           mustSlugForTest("codex-cli"),
 				DefinitionHash: strings.Repeat("a", 64),
 			},
+			SupportedInteractionModes: []domain.InteractionMode{
+				domain.InteractionModePTY,
+			},
 			TypeSchema: domain.TypeSchema{
 				Version: 7,
 				Fields: map[string]domain.TypeFieldSchema{
@@ -92,6 +95,7 @@ func (ports *resolverPortsForTest) ResolveRuntime(
 func (ports *resolverPortsForTest) ResolveModel(
 	_ context.Context,
 	scope Scope,
+	_ slugkit.Slug,
 	resourceID int64,
 ) (domain.ModelBinding, error) {
 	ports.modelResourceID = resourceID
@@ -104,6 +108,7 @@ func (ports *resolverPortsForTest) ResolveModel(
 func (ports *resolverPortsForTest) ResolveSecretReference(
 	_ context.Context,
 	scope Scope,
+	_ slugkit.Slug,
 	field string,
 	_ domain.SecretReference,
 ) error {
@@ -113,6 +118,7 @@ func (ports *resolverPortsForTest) ResolveSecretReference(
 func (ports *resolverPortsForTest) ResolveWorkspace(
 	_ context.Context,
 	scope Scope,
+	_ slugkit.Slug,
 	workspace domain.Workspace,
 ) (domain.Workspace, error) {
 	if err := ports.record("workspace", scope); err != nil {

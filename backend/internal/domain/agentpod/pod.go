@@ -131,8 +131,9 @@ type Pod struct {
 	// Enables tracking the chain of resumed sessions
 	SourcePodKey *string `gorm:"size:100" json:"source_pod_key,omitempty"`
 
-	VirtualAPIKeyID *int64 `gorm:"column:virtual_api_key_id" json:"virtual_api_key_id,omitempty"`
-	ModelResourceID *int64 `gorm:"column:model_resource_id" json:"model_resource_id,omitempty"`
+	VirtualAPIKeyID      *int64 `gorm:"column:virtual_api_key_id" json:"virtual_api_key_id,omitempty"`
+	ModelResourceID      *int64 `gorm:"column:model_resource_id" json:"model_resource_id,omitempty"`
+	WorkerSpecSnapshotID *int64 `gorm:"column:worker_spec_snapshot_id" json:"worker_spec_snapshot_id,omitempty"`
 
 	PodLifecycleMetadata `gorm:"embedded"`
 

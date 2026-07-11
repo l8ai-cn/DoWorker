@@ -42,7 +42,7 @@ All conditions must hold:
 | --- | --- | --- |
 | 0 | Authorization and current-flow correctness | Complete |
 | 1 | WorkerSpec V1 contract and immutable snapshot | Complete foundation; Pod/Expert linkage is tracked in the active implementation plan |
-| 2 | Runtime image, compute target, deployment, resource profile | Runtime catalog and wire contract complete; scoped resolution and persistence in progress |
+| 2 | Runtime image, compute target, deployment, resource profile | Runtime catalog, scoped resolution, preflight, immutable snapshot persistence, and Pod resume linkage complete |
 | 3 | Canonical four-step web create workflow | Pending |
 | 4 | Runtime Expert and Skill publishing | Pending |
 | 5 | Migration, full regression, browser QA, documentation | Pending |
@@ -51,7 +51,7 @@ All conditions must hold:
 
 - Repository: `/Users/wwyz/Documents/code/AgentsMesh`
 - Branch: `main`
-- Current committed base: `40857ef4c` (`docs(worker): define creation publishing execution plan`)
+- Current committed base: `aca06b3c6` (`feat(worker): define creation wire contract`)
 - Local `main` is synchronized with `origin/main`.
 - Shared worktree contains concurrent AI Resource, Loop, Grok, and Marketplace changes. Every commit must use an exact allowlist and a reviewed index.
 - Real PostgreSQL migration tests use an isolated schema in the main dev database at `127.0.0.1:10002`.
@@ -85,3 +85,4 @@ All implementation now occurs on the shared `main` worktree. Do not create or sw
 - 2026-07-10: Worker execution moved permanently to shared `main`; no Worker worktree may be created or used for writes.
 - 2026-07-10: The approved Worker creation/publishing spec was converted into `2026-07-10-worker-creation-publishing.md`; execution is inline on `main` with commit-level checkpoints.
 - 2026-07-10: Task 1 completed: immutable Codex/Claude/Gemini image catalog, runner-pool and managed-Kubernetes target capabilities, server-owned resource profiles, four-step Worker draft/preflight/fill/publish wire contract, and Go/Rust/TypeScript generation checks all passed.
+- 2026-07-10: Task 2 completed: organization-scoped WorkerSpec resolution, exact model and runtime metadata, removal of model-managed fields from Worker type and runtime EnvBundle contracts, interaction-mode and package preflight, deterministic AgentFile compilation, atomic snapshot/Pod/config persistence, same-organization database constraints, exact EnvBundle and Skill runtime loading, and fail-closed fresh-create/resume definition validation all passed focused, full package, Proto generation, and real PostgreSQL tests.

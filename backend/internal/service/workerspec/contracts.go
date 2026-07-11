@@ -32,8 +32,9 @@ type Draft struct {
 }
 
 type WorkerTypeResolution struct {
-	WorkerType domain.WorkerType
-	TypeSchema domain.TypeSchema
+	WorkerType                domain.WorkerType
+	TypeSchema                domain.TypeSchema
+	SupportedInteractionModes []domain.InteractionMode
 }
 
 type WorkerTypeResolver interface {
@@ -57,6 +58,7 @@ type ModelResolver interface {
 	ResolveModel(
 		ctx context.Context,
 		scope Scope,
+		workerType slugkit.Slug,
 		resourceID int64,
 	) (domain.ModelBinding, error)
 }
@@ -65,6 +67,7 @@ type SecretReferenceResolver interface {
 	ResolveSecretReference(
 		ctx context.Context,
 		scope Scope,
+		workerType slugkit.Slug,
 		field string,
 		reference domain.SecretReference,
 	) error
@@ -74,6 +77,7 @@ type WorkspaceResolver interface {
 	ResolveWorkspace(
 		ctx context.Context,
 		scope Scope,
+		workerType slugkit.Slug,
 		workspace domain.Workspace,
 	) (domain.Workspace, error)
 }

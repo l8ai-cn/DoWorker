@@ -81,15 +81,18 @@ type ConfigBuildRequest struct {
 	// KnowledgeMounts are pre-resolved KB mounts (orchestrator merges agent
 	// defaults + Agentfile KNOWLEDGE + request selections and issues tokens).
 	KnowledgeMounts []*runnerv1.KnowledgeMount
+
+	RequiredEnvBundleIDs []int64
+	RequiredSkillIDs     []int64
 }
 
 // ConfigSchemaResponse is the config schema returned to frontend.
 // CredentialFields are derived from AgentFile ENV SECRET/TEXT declarations;
 // frontend merges them with per-agent UX overrides (oneof groups, i18n labels).
 type ConfigSchemaResponse struct {
-	Fields            []ConfigFieldResponse     `json:"fields"`
-	CredentialFields  []CredentialFieldResponse `json:"credential_fields,omitempty"`
-	ConfigFiles       []ConfigFileResponse      `json:"config_files,omitempty"`
+	Fields           []ConfigFieldResponse     `json:"fields"`
+	CredentialFields []CredentialFieldResponse `json:"credential_fields,omitempty"`
+	ConfigFiles      []ConfigFileResponse      `json:"config_files,omitempty"`
 }
 
 // CredentialFieldResponse describes one user-editable credential ENV key.

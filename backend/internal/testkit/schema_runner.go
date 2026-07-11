@@ -88,6 +88,7 @@ func podTableDDLs() []string {
 			external_session_id TEXT,
 			virtual_api_key_id INTEGER,
 			model_resource_id INTEGER,
+			worker_spec_snapshot_id INTEGER,
 			generation INTEGER NOT NULL DEFAULT 0,
 			active_config_revision_id INTEGER,
 			pending_config_revision_id INTEGER,

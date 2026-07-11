@@ -5,6 +5,9 @@ import (
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )
 
 // OrchestrateCreatePodRequest is the unified Pod creation request (protocol-agnostic).
@@ -13,13 +16,14 @@ type OrchestrateCreatePodRequest struct {
 	OrganizationID int64
 	UserID         int64
 
-	RunnerID       int64
-	AgentSlug      string
-	RepositoryID   *int64 // Platform-level ID (from AgentFile REPO slug resolution or resume inheritance)
-	TicketID       *int64
-	TicketSlug     *string
-	Alias          *string
-	AgentfileLayer *string // SSOT for all CONFIG, MODE, PROMPT, REPO, BRANCH, USE_ENV_BUNDLE
+	RunnerID        int64
+	AgentSlug       string
+	RepositoryID    *int64 // Platform-level ID (from AgentFile REPO slug resolution or resume inheritance)
+	TicketID        *int64
+	TicketSlug      *string
+	Alias           *string
+	AgentfileLayer  *string // SSOT for all CONFIG, MODE, PROMPT, REPO, BRANCH, USE_ENV_BUNDLE
+	WorkerSpecDraft *workercreation.Draft
 	// AutomationLevel is the unified permission/automation tier requested at
 	// creation (interactive/auto_edit/autonomous). Empty ⇒ autonomous default.
 	// The orchestrator translates it into agent-native CONFIG/MODE layer lines.
@@ -56,6 +60,9 @@ type OrchestrateCreatePodRequest struct {
 
 	preResolvedRepository     *gitprovider.Repository
 	preResolvedRepositorySlug string
+	resolvedWorkerSpec        *specservice.ResolvedSnapshot
+	preparedWorkerSpec        *specdomain.Spec
+	workerSpecSnapshotID      *int64
 }
 
 // KnowledgeMountRequest selects one knowledge base for the pod being created.

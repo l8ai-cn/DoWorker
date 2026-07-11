@@ -182,7 +182,9 @@ message Pod {
   // minting a preview token before the user opens it.
   int32 preview_port = 33 [(amesh.codegen.v1.field_convert) = "int_to_int32"];
   optional string preview_path = 34 [(amesh.codegen.v1.field_custom) = "previewPathToProto"];
-  optional int64 worker_spec_snapshot_id = 35 [(amesh.codegen.v1.field_skip) = true];
+  optional int64 worker_spec_snapshot_id = 35 [
+    (amesh.codegen.v1.field_rename) = "WorkerSpecSnapshotID"
+  ];
 }
 
 message PodConnectionInfo {

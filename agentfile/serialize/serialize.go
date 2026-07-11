@@ -4,6 +4,7 @@
 package serialize
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -201,6 +202,8 @@ func FormatValue(v interface{}) string {
 			return fmt.Sprintf("%d", int64(val))
 		}
 		return fmt.Sprintf("%g", val)
+	case json.Number:
+		return val.String()
 	default:
 		return fmt.Sprintf("%q", fmt.Sprintf("%v", val))
 	}

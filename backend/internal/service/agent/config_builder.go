@@ -16,11 +16,29 @@ type ExtensionProvider interface {
 	GetEffectiveSkills(ctx context.Context, orgID, userID, repoID int64, agentSlug string) ([]*extensionservice.ResolvedSkill, error)
 }
 
+type WorkerSkillProvider interface {
+	GetWorkerSkillsByIDs(
+		ctx context.Context,
+		orgID int64,
+		ids []int64,
+		agentSlug string,
+	) ([]*extensionservice.ResolvedSkill, error)
+}
+
 // EnvBundleLoader is the minimal slice of envbundle.Service that
 // ConfigBuilder depends on. Declared as an interface here so tests can
 // inject a fake without standing up a full service + repo + encryptor.
 type EnvBundleLoader interface {
 	GetEffectiveForUser(ctx context.Context, userID, orgID int64, agentSlug string) ([]*envbundleservice.EffectiveBundle, error)
+}
+
+type ExactEnvBundleLoader interface {
+	GetEffectiveByIDs(
+		ctx context.Context,
+		userID, orgID int64,
+		agentSlug string,
+		ids []int64,
+	) ([]*envbundleservice.EffectiveBundle, error)
 }
 
 // ConfigBuilder builds pod configurations by evaluating AgentFile scripts.
