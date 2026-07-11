@@ -6,19 +6,19 @@ import (
 	"strings"
 	"time"
 
-	sessionapi "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1/session"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/internal"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
+	sessionapi "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1/session"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/v1/webhooks"
 	"github.com/anthropics/agentsmesh/backend/internal/config"
+	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
 	commentsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessioncomment"
-	permgrantsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionpermission"
 	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
+	permgrantsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionpermission"
 	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -115,6 +115,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		// Public config routes migrated to
 		// proto.billing.v1.BillingPublicService — marketing pages reach it
 		// over plain-fetch Connect (clients/web/src/lib/public-api.ts).
+		v1.NewPublicMarketHandler(svc.Extension).RegisterRoutes(apiV1.Group("/public/market"))
 
 		// gRPC Runner routes (public, for Runner CLI registration with mTLS)
 		if svc.GRPCRunnerHandler != nil {

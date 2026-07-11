@@ -22,10 +22,11 @@ export function Navbar() {
   const t = useTranslations();
 
   const navLinks = [
-    { href: "#scenarios", label: t("landing.nav.scenarios") },
-    { href: "#lifecycle", label: t("landing.nav.workflow") },
-    { href: "#features", label: t("landing.nav.capabilities") },
-    { href: "#pricing", label: t("landing.nav.pricing") },
+    { href: "/#scenarios", label: t("landing.nav.scenarios") },
+    { href: "/#lifecycle", label: t("landing.nav.workflow") },
+    { href: "/#features", label: t("landing.nav.capabilities") },
+    { href: "/marketplace", label: t("landing.nav.marketplace") },
+    { href: "/#pricing", label: t("landing.nav.pricing") },
     { href: "/docs", label: t("landing.nav.docs") },
   ];
 
