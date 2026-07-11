@@ -35,7 +35,7 @@ spec:
               mountPath: /kube-tools
       containers:
         - name: backend
-          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:5ad2dfc3ebfea823a2ff2f0818dbae1b1bc1a9638cd852084e2927532ce6a2fd
+          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:bd692b2f46a85f27d1610d3d75c3a96aeaef2b673b757c1cb1bc807ec6185013
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
