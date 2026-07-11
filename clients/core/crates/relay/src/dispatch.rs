@@ -10,10 +10,17 @@ pub(crate) const ANSI_CLEAR: &[u8] = b"\x1b[2J\x1b[H\x1b[3J";
 pub enum DispatchAction {
     None,
     Snapshot(SnapshotPayload),
-    PodResized { cols: u16, rows: u16 },
+    PodResized {
+        cols: u16,
+        rows: u16,
+    },
     RunnerDisconnected,
     RunnerReconnected,
-    AcpMessage { msg_type: MsgType, payload: serde_json::Value },
+    ControlLease(crate::types::ControlLeaseInfo),
+    AcpMessage {
+        msg_type: MsgType,
+        payload: serde_json::Value,
+    },
 }
 
 #[derive(Debug, PartialEq)]
@@ -105,18 +112,23 @@ fn handle_snapshot(payload: &[u8], subscribers: &[&OutputCallback]) -> DispatchA
 }
 
 fn handle_control(payload: &[u8]) -> DispatchAction {
-    match serde_json::from_slice::<ControlJson>(payload) {
-        Ok(ctrl) if ctrl.msg_type.as_deref() == Some("pod_resized") => {
-            DispatchAction::PodResized {
-                cols: ctrl.cols,
-                rows: ctrl.rows,
-            }
-        }
-        Ok(_) => DispatchAction::None,
+    let value = match serde_json::from_slice::<serde_json::Value>(payload) {
+        Ok(value) => value,
         Err(e) => {
             warn!("failed to parse control message: {e}");
-            DispatchAction::None
+            return DispatchAction::None;
         }
+    };
+    if let Some(lease) = crate::control_lease::parse_status(&value) {
+        return DispatchAction::ControlLease(lease);
+    }
+    match serde_json::from_value::<ControlJson>(value) {
+        Ok(ctrl) if ctrl.msg_type.as_deref() == Some("pod_resized") => DispatchAction::PodResized {
+            cols: ctrl.cols,
+            rows: ctrl.rows,
+        },
+        Ok(_) => DispatchAction::None,
+        Err(_) => DispatchAction::None,
     }
 }
 

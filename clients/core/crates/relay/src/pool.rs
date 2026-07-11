@@ -9,9 +9,11 @@ use crate::command::Command;
 use crate::driver::Driver;
 use crate::error::RelayError;
 use crate::types::{
-    AcpCallback, ConnectionHandle, DisconnectCallback, OutputCallback, RelayStatus, RelayStatusInfo,
-    StatusCallback, StatusSnapshot,
+    AcpCallback, ConnectionHandle, ControlLeaseInfo, DisconnectCallback, OutputCallback,
+    RelayStatus, RelayStatusInfo, StatusCallback, StatusSnapshot,
 };
+
+mod control_lease;
 
 /// Thin routing table over per-pod driver actors. Holds only each pod's command
 /// sender + status mirror, plus pool-scoped listeners (which may be registered
@@ -91,6 +93,7 @@ impl<R: Runtime> RelayConnectionPool<R> {
                     status: RelayStatus::Connecting,
                     runner_disconnected: false,
                     pod_size: None,
+                    control_lease: ControlLeaseInfo::default(),
                 }));
                 router.pods.insert(
                     pod_key.to_string(),
@@ -208,11 +211,13 @@ impl<R: Runtime> RelayConnectionPool<R> {
                     RelayStatusInfo {
                         status: s.status,
                         runner_disconnected: s.runner_disconnected,
+                        control_lease: s.control_lease.clone(),
                     }
                 })
                 .unwrap_or(RelayStatusInfo {
                     status: RelayStatus::Disconnected,
                     runner_disconnected: false,
+                    control_lease: ControlLeaseInfo::default(),
                 })
         };
         listener(info);

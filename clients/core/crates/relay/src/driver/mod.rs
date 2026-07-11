@@ -14,9 +14,10 @@ use crate::connection;
 use crate::pool::PoolRouter;
 use crate::retry;
 use crate::types::{
-    OutputCallback, RelayStatus, RelayStatusInfo, StatusCallback, StatusSnapshot,
+    ControlLeaseInfo, OutputCallback, RelayStatus, RelayStatusInfo, StatusCallback, StatusSnapshot,
 };
 
+mod control_lease;
 mod session;
 
 /// Idle ceiling for the session select when no timer (snapshot retry / resize
@@ -54,6 +55,7 @@ pub(crate) struct Driver<R: Runtime> {
     reconnect_attempts: u32,
     runner_disconnected: bool,
     pod_size: Option<(u16, u16)>,
+    control_lease: ControlLeaseInfo,
     subscribers: HashMap<String, OutputCallback>,
     last_input: Option<(String, Instant)>,
     pending_resize: Option<(u16, u16, Instant)>,
@@ -85,6 +87,7 @@ impl<R: Runtime> Driver<R> {
             reconnect_attempts: 0,
             runner_disconnected: false,
             pod_size: None,
+            control_lease: ControlLeaseInfo::default(),
             subscribers,
             last_input: None,
             pending_resize: None,
@@ -95,6 +98,7 @@ impl<R: Runtime> Driver<R> {
 
     async fn run(mut self, mut cmd_rx: mpsc::UnboundedReceiver<Command>) {
         loop {
+            self.set_control_lease(ControlLeaseInfo::default());
             self.set_status(RelayStatus::Connecting);
             let connect = agentsmesh_transport::timeout(
                 &self.runtime,
@@ -198,6 +202,7 @@ impl<R: Runtime> Driver<R> {
         g.status = self.status;
         g.runner_disconnected = self.runner_disconnected;
         g.pod_size = self.pod_size;
+        g.control_lease = self.control_lease.clone();
     }
 
     fn notify_status(&self) {
@@ -223,6 +228,7 @@ impl<R: Runtime> Driver<R> {
         RelayStatusInfo {
             status: self.status,
             runner_disconnected: self.runner_disconnected,
+            control_lease: self.control_lease.clone(),
         }
     }
 

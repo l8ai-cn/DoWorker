@@ -2,16 +2,30 @@ import { getPodConnection } from "@/lib/api/facade/podConnect";
 import { readCurrentOrg } from "@/stores/auth";
 import { getRelayManager } from "@do-worker/service-runtime";
 import type {
-  ConnectionStatus, ConnectionHandle, RelayStatusInfo, StatusListener,
+  ConnectionStatus, ConnectionHandle, ControlLeaseInfo, ControlLeaseStatus,
+  RelayStatusInfo, StatusListener,
 } from "./relayConnectionTypes";
 
-export type { ConnectionStatus, ConnectionHandle, RelayStatusInfo } from "./relayConnectionTypes";
+export type {
+  ConnectionStatus, ConnectionHandle, ControlLeaseInfo, ControlLeaseStatus, RelayStatusInfo,
+} from "./relayConnectionTypes";
 
 type OnMessage = (data: Uint8Array | string) => void;
 type AcpListener = (msgType: number, payload: unknown) => void;
-type StatusInfoRaw = { status: string; runnerDisconnected: boolean };
+type StatusInfoRaw = {
+  status: string;
+  runnerDisconnected: boolean;
+  controlLeaseStatus: ControlLeaseStatus;
+  controlLeaseId?: string;
+  controlLeaseExpiresAt?: number;
+};
 
-const NONE: RelayStatusInfo = { status: "none", runnerDisconnected: false };
+const OBSERVER: ControlLeaseInfo = { status: "observer" };
+const NONE: RelayStatusInfo = {
+  status: "none",
+  runnerDisconnected: false,
+  controlLease: OBSERVER,
+};
 
 // Thin adapter over the Rust relay pool (via getRelayManager(): WasmRelayManager
 // on web, WasmRelayManager). All connection
@@ -60,6 +74,18 @@ class RelayConnectionPool {
 
   forceResize(podKey: string, cols: number, rows: number): void {
     if (cols > 0 && rows > 0) void this.mgr().force_resize(podKey, cols, rows);
+  }
+
+  async acquireControl(podKey: string, clientLabel: string): Promise<void> {
+    await this.mgr().acquire_control(podKey, clientLabel);
+  }
+
+  async renewControl(podKey: string, leaseId: string): Promise<void> {
+    await this.mgr().renew_control(podKey, leaseId);
+  }
+
+  async releaseControl(podKey: string, leaseId: string): Promise<void> {
+    await this.mgr().release_control(podKey, leaseId);
   }
 
   unsubscribe(podKey: string, subscriptionId: string): void {
@@ -115,6 +141,10 @@ class RelayConnectionPool {
     return this.statusCache.get(podKey)?.runnerDisconnected ?? false;
   }
 
+  getControlLease(podKey: string): ControlLeaseInfo {
+    return this.statusCache.get(podKey)?.controlLease ?? OBSERVER;
+  }
+
   getPodSize(): { rows: number; cols: number } | undefined {
     // podSize lives in the Rust pool; no synchronous consumer needs it.
     return undefined;
@@ -144,8 +174,16 @@ class RelayConnectionPool {
       // (yellow) instead of flashing "disconnected" (red) before first connect.
       const info: RelayStatusInfo =
         raw.status === "disconnected" && !this.connectedPods.has(podKey)
-          ? { status: "none", runnerDisconnected: raw.runnerDisconnected }
-          : { status: raw.status as ConnectionStatus, runnerDisconnected: raw.runnerDisconnected };
+          ? {
+              status: "none",
+              runnerDisconnected: raw.runnerDisconnected,
+              controlLease: controlLeaseFromRaw(raw),
+            }
+          : {
+              status: raw.status as ConnectionStatus,
+              runnerDisconnected: raw.runnerDisconnected,
+              controlLease: controlLeaseFromRaw(raw),
+            };
       this.statusCache.set(podKey, info);
       const set = this.statusListeners.get(podKey);
       if (set) for (const l of set) l(info);
@@ -161,6 +199,14 @@ class RelayConnectionPool {
       if (set) for (const l of set) l(msgType, payload);
     });
   }
+}
+
+function controlLeaseFromRaw(raw: StatusInfoRaw): ControlLeaseInfo {
+  return {
+    status: raw.controlLeaseStatus,
+    leaseId: raw.controlLeaseId,
+    expiresAt: raw.controlLeaseExpiresAt,
+  };
 }
 
 function getOrCreatePool(): RelayConnectionPool {

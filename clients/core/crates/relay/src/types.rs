@@ -28,6 +28,69 @@ pub type OutputCallback = Arc<dyn Fn(Vec<u8>) + Send + Sync>;
 pub struct RelayStatusInfo {
     pub status: RelayStatus,
     pub runner_disconnected: bool,
+    pub control_lease: ControlLeaseInfo,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ControlLeaseState {
+    Observer,
+    Granted,
+    Busy,
+    Released,
+    Expired,
+    Required,
+}
+
+impl ControlLeaseState {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Observer => "observer",
+            Self::Granted => "granted",
+            Self::Busy => "busy",
+            Self::Released => "released",
+            Self::Expired => "expired",
+            Self::Required => "control_required",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlLeaseInfo {
+    pub state: ControlLeaseState,
+    pub lease_id: Option<String>,
+    pub expires_at: Option<i64>,
+}
+
+impl ControlLeaseInfo {
+    pub(crate) fn from_wire(
+        status: &str,
+        lease_id: Option<&str>,
+        expires_at: Option<i64>,
+    ) -> Option<Self> {
+        let state = match status {
+            "granted" => ControlLeaseState::Granted,
+            "busy" => ControlLeaseState::Busy,
+            "released" => ControlLeaseState::Released,
+            "expired" => ControlLeaseState::Expired,
+            "control_required" => ControlLeaseState::Required,
+            _ => return None,
+        };
+        Some(Self {
+            state,
+            lease_id: lease_id.map(str::to_owned),
+            expires_at: expires_at.filter(|value| *value > 0),
+        })
+    }
+}
+
+impl Default for ControlLeaseInfo {
+    fn default() -> Self {
+        Self {
+            state: ControlLeaseState::Observer,
+            lease_id: None,
+            expires_at: None,
+        }
+    }
 }
 
 /// Driver-owned, pool-readable status mirror. The driver task is the single
@@ -38,6 +101,7 @@ pub(crate) struct StatusSnapshot {
     pub status: RelayStatus,
     pub runner_disconnected: bool,
     pub pod_size: Option<(u16, u16)>,
+    pub control_lease: ControlLeaseInfo,
 }
 
 impl Default for StatusSnapshot {
@@ -46,6 +110,7 @@ impl Default for StatusSnapshot {
             status: RelayStatus::Disconnected,
             runner_disconnected: false,
             pod_size: None,
+            control_lease: ControlLeaseInfo::default(),
         }
     }
 }

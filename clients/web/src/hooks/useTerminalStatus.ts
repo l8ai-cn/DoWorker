@@ -7,6 +7,7 @@ export function useTerminalStatus(podKey: string): RelayStatusInfo {
   const [status, setStatus] = useState<RelayStatusInfo>({
     status: "none",
     runnerDisconnected: false,
+    controlLease: { status: "observer" },
   });
 
   useEffect(() => {

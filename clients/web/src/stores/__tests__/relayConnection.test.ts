@@ -12,6 +12,9 @@ const mgr = {
   send: vi.fn().mockResolvedValue(undefined),
   send_resize: vi.fn().mockResolvedValue(undefined),
   force_resize: vi.fn().mockResolvedValue(undefined),
+  acquire_control: vi.fn().mockResolvedValue(undefined),
+  renew_control: vi.fn().mockResolvedValue(undefined),
+  release_control: vi.fn().mockResolvedValue(undefined),
   send_acp_command: vi.fn().mockResolvedValue(undefined),
   disconnect: vi.fn().mockResolvedValue(undefined),
   disconnect_all: vi.fn().mockResolvedValue(undefined),
@@ -31,7 +34,19 @@ vi.mock("@/lib/api/facade/podConnect", () => ({
   }),
 }));
 
-type StatusRaw = { status: string; runnerDisconnected: boolean };
+type StatusRaw = {
+  status: string;
+  runnerDisconnected: boolean;
+  controlLeaseStatus: "observer" | "granted" | "busy" | "released" | "expired" | "control_required";
+  controlLeaseId?: string;
+  controlLeaseExpiresAt?: number;
+};
+
+const observer = (status: string, runnerDisconnected = false): StatusRaw => ({
+  status,
+  runnerDisconnected,
+  controlLeaseStatus: "observer",
+});
 
 async function freshPool() {
   delete (globalThis as Record<string, unknown>).__relayPool;
@@ -104,16 +119,34 @@ describe("relayConnection adapter", () => {
         "pod-1", JSON.stringify({ type: "prompt", prompt: "hi" }),
       );
     });
+
+    it("delegates explicit control lease commands", async () => {
+      await pool.acquireControl("pod-1", "mobile");
+      await pool.renewControl("pod-1", "lease-1");
+      await pool.releaseControl("pod-1", "lease-1");
+
+      expect(mgr.acquire_control).toHaveBeenCalledWith("pod-1", "mobile");
+      expect(mgr.renew_control).toHaveBeenCalledWith("pod-1", "lease-1");
+      expect(mgr.release_control).toHaveBeenCalledWith("pod-1", "lease-1");
+    });
   });
 
   describe("status fan-out + 'none' baseline", () => {
     it("emits 'none' immediately for an unknown pod and maps pre-connect 'disconnected' to 'none'", () => {
       const listener = vi.fn();
       pool.onStatusChange("pod-1", listener);
-      expect(listener).toHaveBeenCalledWith({ status: "none", runnerDisconnected: false });
+      expect(listener).toHaveBeenCalledWith({
+        status: "none",
+        runnerDisconnected: false,
+        controlLease: { status: "observer" },
+      });
 
-      lastStatusCb()({ status: "disconnected", runnerDisconnected: false });
-      expect(listener).toHaveBeenLastCalledWith({ status: "none", runnerDisconnected: false });
+      lastStatusCb()(observer("disconnected"));
+      expect(listener).toHaveBeenLastCalledWith({
+        status: "none",
+        runnerDisconnected: false,
+        controlLease: { status: "observer" },
+      });
     });
 
     it("passes through real statuses once subscribed and updates isConnected/getStatus", async () => {
@@ -121,12 +154,27 @@ describe("relayConnection adapter", () => {
       pool.onStatusChange("pod-1", listener);
       await pool.subscribe("pod-1", "sub-1", vi.fn());
 
-      lastStatusCb()({ status: "connected", runnerDisconnected: false });
-      expect(listener).toHaveBeenLastCalledWith({ status: "connected", runnerDisconnected: false });
+      lastStatusCb()({
+        status: "connected",
+        runnerDisconnected: false,
+        controlLeaseStatus: "granted",
+        controlLeaseId: "lease-1",
+        controlLeaseExpiresAt: 1234,
+      });
+      expect(listener).toHaveBeenLastCalledWith({
+        status: "connected",
+        runnerDisconnected: false,
+        controlLease: { status: "granted", leaseId: "lease-1", expiresAt: 1234 },
+      });
+      expect(pool.getControlLease("pod-1")).toEqual({
+        status: "granted",
+        leaseId: "lease-1",
+        expiresAt: 1234,
+      });
       expect(pool.isConnected("pod-1")).toBe(true);
       expect(pool.getStatus("pod-1")).toBe("connected");
 
-      lastStatusCb()({ status: "disconnected", runnerDisconnected: true });
+      lastStatusCb()(observer("disconnected", true));
       expect(pool.isConnected("pod-1")).toBe(false);
       expect(pool.isRunnerDisconnected("pod-1")).toBe(true);
     });
@@ -136,7 +184,7 @@ describe("relayConnection adapter", () => {
       const off = pool.onStatusChange("pod-1", listener);
       listener.mockClear();
       off();
-      lastStatusCb()({ status: "connected", runnerDisconnected: false });
+      lastStatusCb()(observer("connected"));
       expect(listener).not.toHaveBeenCalled();
     });
   });
@@ -160,6 +208,7 @@ describe("relayConnection adapter", () => {
       expect(pool.getStatus("unknown")).toBe("none");
       expect(pool.isConnected("unknown")).toBe(false);
       expect(pool.isRunnerDisconnected("unknown")).toBe(false);
+      expect(pool.getControlLease("unknown")).toEqual({ status: "observer" });
     });
 
     it("disconnect / disconnectAll delegate to the manager", async () => {

@@ -57,6 +57,31 @@ impl WasmRelayManager {
         self.pool.force_resize(&pod_key, cols, rows).await;
     }
 
+    pub async fn acquire_control(
+        &self,
+        pod_key: String,
+        client_label: String,
+    ) -> Result<(), String> {
+        self.pool
+            .acquire_control(&pod_key, &client_label)
+            .await
+            .map_err(agentsmesh_services::wire)
+    }
+
+    pub async fn renew_control(&self, pod_key: String, lease_id: String) -> Result<(), String> {
+        self.pool
+            .renew_control(&pod_key, &lease_id)
+            .await
+            .map_err(agentsmesh_services::wire)
+    }
+
+    pub async fn release_control(&self, pod_key: String, lease_id: String) -> Result<(), String> {
+        self.pool
+            .release_control(&pod_key, &lease_id)
+            .await
+            .map_err(agentsmesh_services::wire)
+    }
+
     pub async fn send_acp_command(&self, pod_key: String, command: String) -> Result<(), String> {
         let val: serde_json::Value =
             serde_json::from_str(&command).map_err(agentsmesh_services::wire)?;
@@ -102,6 +127,19 @@ impl WasmRelayManager {
             }
             None => JsValue::NULL,
         }
+    }
+
+    pub async fn get_control_lease(&self, pod_key: String) -> JsValue {
+        let lease = self.pool.get_control_lease(&pod_key).await;
+        let obj = js_sys::Object::new();
+        let _ = js_sys::Reflect::set(&obj, &"status".into(), &lease.state.as_str().into());
+        if let Some(lease_id) = lease.lease_id {
+            let _ = js_sys::Reflect::set(&obj, &"leaseId".into(), &lease_id.into());
+        }
+        if let Some(expires_at) = lease.expires_at {
+            let _ = js_sys::Reflect::set(&obj, &"expiresAt".into(), &(expires_at as f64).into());
+        }
+        obj.into()
     }
 
     pub async fn disconnect(&self, pod_key: String) {

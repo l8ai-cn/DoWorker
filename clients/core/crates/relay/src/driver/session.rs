@@ -137,6 +137,7 @@ impl<R: Runtime> Driver<R> {
                 self.write_snapshot();
                 self.notify_status();
             }
+            DispatchAction::ControlLease(lease) => self.set_control_lease(lease),
             DispatchAction::AcpMessage { msg_type, payload } => {
                 // AcpSnapshot is the ACP pod's data-ready signal: ACP pods send
                 // MsgType::AcpSnapshot on subscribe (pod_relay_acp.go), never the
@@ -200,6 +201,21 @@ impl<R: Runtime> Driver<R> {
             }
             Command::SendAcp { command } => {
                 if let Ok(msg) = encode_json_message(MsgType::AcpCommand, &command) {
+                    let _ = sender.send_binary(msg);
+                }
+            }
+            Command::AcquireControl { client_label } => {
+                if let Some(msg) = crate::control_lease::encode_acquire(&client_label) {
+                    let _ = sender.send_binary(msg);
+                }
+            }
+            Command::RenewControl { lease_id } => {
+                if let Some(msg) = crate::control_lease::encode_renew(&lease_id) {
+                    let _ = sender.send_binary(msg);
+                }
+            }
+            Command::ReleaseControl { lease_id } => {
+                if let Some(msg) = crate::control_lease::encode_release(&lease_id) {
                     let _ = sender.send_binary(msg);
                 }
             }

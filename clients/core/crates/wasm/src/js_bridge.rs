@@ -46,6 +46,21 @@ pub(crate) fn make_status_callback(f: js_sys::Function) -> agentsmesh_relay::Sta
             &"runnerDisconnected".into(),
             &info.runner_disconnected.into(),
         );
+        let _ = js_sys::Reflect::set(
+            &obj,
+            &"controlLeaseStatus".into(),
+            &info.control_lease.state.as_str().into(),
+        );
+        if let Some(lease_id) = info.control_lease.lease_id {
+            let _ = js_sys::Reflect::set(&obj, &"controlLeaseId".into(), &lease_id.into());
+        }
+        if let Some(expires_at) = info.control_lease.expires_at {
+            let _ = js_sys::Reflect::set(
+                &obj,
+                &"controlLeaseExpiresAt".into(),
+                &(expires_at as f64).into(),
+            );
+        }
         f.call1(&obj.into());
     })
 }
