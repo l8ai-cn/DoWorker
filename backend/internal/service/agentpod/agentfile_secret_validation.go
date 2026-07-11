@@ -10,7 +10,9 @@ import (
 
 var ErrAgentfileSecretLiteral = errors.New("agentfile layer contains a credential literal")
 
-var sensitiveConfigKey = regexp.MustCompile(`(?i)(api[_-]?key|token|secret|password|credential|private[_-]?key)`)
+var sensitiveCredentialName = regexp.MustCompile(
+	`(?i)(?:^|[_-])(?:api[_-]?key|access[_-]?token|auth[_-]?token|refresh[_-]?token|token|secret|client[_-]?secret|password|credential|private[_-]?key)$`,
+)
 
 func validateAgentfileLayerSecrets(layer string) error {
 	program, parseErrors := parser.Parse(layer)
@@ -25,7 +27,7 @@ func validateAgentfileLayerSecrets(layer string) error {
 			}
 		case *parser.ConfigDecl:
 			literal, _ := value.Default.(string)
-			if literal != "" && (sensitiveConfigKey.MatchString(value.Name) || looksLikeCredential(literal)) {
+			if literal != "" && (sensitiveCredentialName.MatchString(value.Name) || looksLikeCredential(literal)) {
 				return ErrAgentfileSecretLiteral
 			}
 		}
@@ -41,11 +43,11 @@ func envContainsCredentialLiteral(declaration *parser.EnvDecl) bool {
 	if declaration.ValueExpr != nil {
 		value, ok := declaration.ValueExpr.(*parser.StringLit)
 		if !ok {
-			return sensitiveConfigKey.MatchString(declaration.Name)
+			return sensitiveCredentialName.MatchString(declaration.Name)
 		}
 		literal = value.Value
 	}
-	return sensitiveConfigKey.MatchString(declaration.Name) || looksLikeCredential(literal)
+	return sensitiveCredentialName.MatchString(declaration.Name) || looksLikeCredential(literal)
 }
 
 var (

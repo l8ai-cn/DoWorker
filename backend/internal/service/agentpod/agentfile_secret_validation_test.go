@@ -9,7 +9,8 @@ import (
 func TestValidateAgentfileLayerSecretsAllowsModelAndBaseURL(t *testing.T) {
 	layer := `CONFIG model = "claude-3-7-sonnet-20250219"
 CONFIG base_url = "https://api.anthropic.com/v1"
-CONFIG backup_model = "gpt-4.1-mini-2025-04-14"`
+CONFIG backup_model = "gpt-4.1-mini-2025-04-14"
+CONFIG token_budget = "1000000"`
 
 	require.NoError(t, validateAgentfileLayerSecrets(layer))
 }
@@ -22,6 +23,10 @@ func TestValidateAgentfileLayerSecretsRejectsPlaintextCredentials(t *testing.T) 
 		{
 			name:  "sensitive config key",
 			layer: `CONFIG api_key = "sk-ant-api03-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"`,
+		},
+		{
+			name:  "sensitive token config key",
+			layer: `CONFIG access_token = "plaintext-token"`,
 		},
 		{
 			name:  "sensitive env key",
