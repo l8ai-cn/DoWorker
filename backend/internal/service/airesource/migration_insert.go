@@ -85,7 +85,7 @@ func (m *LegacyMigrator) insertResource(ctx context.Context, tx *gorm.DB, in leg
 }
 
 func syncModelResourceSequence(ctx context.Context, tx *gorm.DB) error {
-	if tx.Dialector.Name() != "postgres" || !tx.Migrator().HasTable("model_resources") {
+	if tx.Name() != "postgres" || !tx.Migrator().HasTable("model_resources") {
 		return nil
 	}
 	var sequenceValue int64
