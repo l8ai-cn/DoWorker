@@ -44,3 +44,21 @@ func TestRestorePassedVersion(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, ValidationPassed, version.ValidationStatus())
 }
+
+func TestCatalogItemActivatesOnlyItsPassedVersion(t *testing.T) {
+	item, err := NewItem(2, "listing-optimizer", "application", "应用", "开箱即用", "expert", 18, 14)
+	require.NoError(t, err)
+
+	version, err := NewVersion(1, "1.0.0", "git-sha", strings.Repeat("a", 64), []byte(`{}`), 14)
+	require.NoError(t, err)
+	version.id = 3
+	require.ErrorIs(t, item.ActivateVersion(version), ErrVersionNotPassed)
+
+	version.MarkValidationPassed()
+	require.ErrorIs(t, item.ActivateVersion(version), ErrVersionItemMismatch)
+
+	item.id = 1
+	require.NoError(t, item.ActivateVersion(version))
+	require.Equal(t, ItemStatusActive, item.Status())
+	require.Equal(t, int64(3), item.LatestVersionID())
+}

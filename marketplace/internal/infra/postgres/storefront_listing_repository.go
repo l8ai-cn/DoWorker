@@ -132,8 +132,9 @@ JOIN marketplace.marketplace_catalog_item_versions civ
   ON civ.id = lv.catalog_item_version_id AND civ.catalog_item_id = ci.id
 JOIN marketplace.marketplace_publishers p ON p.id = ci.publisher_id
 JOIN marketplace.marketplace_listing_spaces ls ON ls.listing_id = l.id
-JOIN marketplace.marketplace_spaces s ON s.id = ls.space_id
+JOIN marketplace.marketplace_spaces s ON s.id = ls.space_id AND s.status = 'published'
 WHERE l.marketplace_id = ? AND l.status = 'published' AND l.visibility = 'public'
+  AND lv.review_status = 'approved' AND civ.validation_status = 'passed'
   AND (? = '' OR l.slug = ?)
 GROUP BY l.id, ci.resource_type, lv.id, p.id, civ.id
 ORDER BY l.published_at DESC, l.id DESC
