@@ -32,7 +32,7 @@ export function buildWorkerSlashCommands(
   return [...WORKER_SLASH_COMMAND_DEFS, ...extra].map((def) => ({
     ...def,
     label: `/${def.id}`,
-    hint: t(`commands.${def.id}`),
+    hint: t(`workerSlash.commands.${def.id}`),
   }));
 }
 

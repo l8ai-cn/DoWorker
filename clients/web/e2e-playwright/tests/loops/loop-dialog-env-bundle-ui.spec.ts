@@ -15,6 +15,7 @@ import { clearAuthRateLimit } from "../../helpers/redis";
  */
 const BUNDLE_PREFIX = "E2E LoopUI Bundle";
 const LOOP_PREFIX = "E2E LoopUI Loop";
+const LOOP_AGENT_SLUG = "e2e-echo";
 
 function unique(prefix: string, label: string): string {
   return `${prefix} ${label} ${Date.now()}`;
@@ -75,7 +76,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
 
     const cc = await api.connect();
     const runtime = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
+      agentSlug: LOOP_AGENT_SLUG,
       name: runtimeName,
       kind: "runtime",
       data: { CLAUDE_LOG_LEVEL: "debug" },
@@ -91,7 +92,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
         .first()
         .fill(loopName);
 
-      await pickDialogSelectOption(page, "worker-image-select", "claude-code");
+      await pickDialogSelectOption(page, "worker-image-select", LOOP_AGENT_SLUG);
 
       const promptInput = page
         .locator('[data-dialog-overlay] textarea#prompt-input')
@@ -153,7 +154,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
 
     const cc = await api.connect();
     const runtime = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
+      agentSlug: LOOP_AGENT_SLUG,
       name: runtimeName,
       kind: "runtime",
       data: { CLAUDE_LOG_LEVEL: "debug" },
@@ -163,7 +164,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
     const loopRes = await cc.loop.createLoop({
       orgSlug: TEST_ORG_SLUG,
       name: loopName,
-      agentSlug: "claude-code",
+      agentSlug: LOOP_AGENT_SLUG,
       promptTemplate: "echo bound",
       usedEnvBundles: [runtimeName],
     }) as { slug: string };
