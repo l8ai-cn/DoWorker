@@ -99,3 +99,68 @@ func TestCreatePodRejectsInvalidPreviewConfigBeforeWrite(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdatePreviewConfigCreatesImmutableNextRevision(t *testing.T) {
+	db := setupTestDB(t)
+	service := newTestPodService(db)
+	pod, err := service.CreatePod(context.Background(), &CreatePodRequest{
+		OrganizationID: 1,
+		RunnerID:       1,
+		CreatedByID:    1,
+		AgentfileLayer: `CONFIG model = "claude-3-7-sonnet-20250219"`,
+		PreviewPort:    3000,
+		PreviewPath:    "/app",
+	})
+	require.NoError(t, err)
+	originalRevisionID := *pod.ActiveConfigRevisionID
+
+	updated, err := service.UpdatePreviewConfig(
+		context.Background(), pod.PodKey, 1, 4321, "/next//api/",
+	)
+	require.NoError(t, err)
+	require.Equal(t, 4321, updated.PreviewPort)
+	require.Equal(t, "/next/api", updated.PreviewPath)
+	require.Equal(t, int64(2), updated.Generation)
+	require.NotNil(t, updated.ActiveConfigRevisionID)
+	require.NotEqual(t, originalRevisionID, *updated.ActiveConfigRevisionID)
+	require.Equal(t, updated.ActiveConfigRevisionID, &updated.ActiveConfigRevision.ID)
+
+	var revisions []podDomain.PodConfigRevision
+	require.NoError(t, db.Where("pod_id = ?", pod.ID).Order("revision").Find(&revisions).Error)
+	require.Len(t, revisions, 2)
+	require.Equal(t, podDomain.ConfigRevisionStatusSuperseded, revisions[0].Status)
+	require.Equal(t, 3000, revisions[0].PreviewPort)
+	require.Equal(t, "/app", revisions[0].PreviewPath)
+	require.Equal(t, podDomain.ConfigRevisionStatusActive, revisions[1].Status)
+	require.Equal(t, 4321, revisions[1].PreviewPort)
+	require.Equal(t, "/next/api", revisions[1].PreviewPath)
+	require.Equal(t, revisions[0].AgentfileLayer, revisions[1].AgentfileLayer)
+	require.JSONEq(t, string(revisions[0].ConfigSummary), string(revisions[1].ConfigSummary))
+
+	persisted, err := service.GetPod(context.Background(), pod.PodKey)
+	require.NoError(t, err)
+	require.Equal(t, updated.Generation, persisted.Generation)
+	require.Equal(t, *updated.ActiveConfigRevisionID, *persisted.ActiveConfigRevisionID)
+	require.Equal(t, updated.PreviewPort, persisted.PreviewPort)
+	require.Equal(t, updated.PreviewPath, persisted.PreviewPath)
+}
+
+func TestUpdatePreviewConfigRejectsInvalidInputWithoutRevision(t *testing.T) {
+	db := setupTestDB(t)
+	service := newTestPodService(db)
+	pod, err := service.CreatePod(context.Background(), &CreatePodRequest{
+		OrganizationID: 1,
+		RunnerID:       1,
+		CreatedByID:    1,
+	})
+	require.NoError(t, err)
+
+	_, err = service.UpdatePreviewConfig(context.Background(), pod.PodKey, 1, 80, "/admin")
+	require.ErrorIs(t, err, relay.ErrInvalidPreviewPort)
+
+	var revisionCount int64
+	require.NoError(t, db.Model(&podDomain.PodConfigRevision{}).
+		Where("pod_id = ?", pod.ID).
+		Count(&revisionCount).Error)
+	require.Equal(t, int64(1), revisionCount)
+}

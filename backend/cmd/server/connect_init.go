@@ -103,7 +103,7 @@ func mountConnectServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Se
 		eventsconnect.Mount(mux, eventsconnect.NewServer(rest.Hub, svc.org), opts...)
 	}
 	mountRunnerService(mux, svc, rest, cfg, opts)
-	mountPodService(mux, svc, rest, opts)
+	mountPodService(mux, svc, rest, cfg, opts)
 	mountAgentPodSettingsService(mux, svc, opts)
 	mountAIResourceService(mux, svc, opts)
 	usercredentialconnect.Mount(mux, usercredentialconnect.NewServer(svc.user), opts...)

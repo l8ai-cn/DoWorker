@@ -44,6 +44,8 @@ service PodService {
   rpc TerminatePod(TerminatePodRequest) returns (TerminatePodResponse);
   rpc UpdatePodAlias(UpdatePodAliasRequest) returns (UpdatePodAliasResponse);
   rpc UpdatePodPerpetual(UpdatePodPerpetualRequest) returns (UpdatePodPerpetualResponse);
+  rpc UpdatePodPreviewConfig(UpdatePodPreviewConfigRequest) returns (UpdatePodPreviewConfigResponse);
+  rpc GetMobileAccessDescriptor(GetMobileAccessDescriptorRequest) returns (MobileAccessDescriptor);
   rpc GetPodConnection(GetPodConnectionRequest) returns (PodConnectionInfo);
   rpc SendPodPrompt(SendPodPromptRequest) returns (SendPodPromptResponse);
   rpc ListPodsByTicket(ListPodsByTicketRequest) returns (ListPodsByTicketResponse);
@@ -332,6 +334,33 @@ message UpdatePodPerpetualRequest {
 
 message UpdatePodPerpetualResponse {
   string message = 1;
+}
+
+message UpdatePodPreviewConfigRequest {
+  string org_slug = 1;
+  string pod_key = 2;
+  int32 preview_port = 3;
+  string preview_path = 4;
+}
+
+message UpdatePodPreviewConfigResponse {
+  Pod pod = 1;
+}
+
+message GetMobileAccessDescriptorRequest {
+  string org_slug = 1;
+  string pod_key = 2;
+}
+
+message MobileAccessDescriptor {
+  string canonical_url = 1;
+  string pod_key = 2;
+  string status = 3;
+  string interaction_mode = 4;
+  bool console_available = 5;
+  bool preview_available = 6;
+  bool relay_available = 7;
+  optional string preview_path = 8;
 }
 
 message SendPodPromptRequest {

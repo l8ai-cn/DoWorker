@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	ConfigRevisionStatusDraft    = "draft"
-	ConfigRevisionStatusApplying = "applying"
-	ConfigRevisionStatusActive   = "active"
-	ConfigRevisionStatusFailed   = "failed"
+	ConfigRevisionStatusDraft      = "draft"
+	ConfigRevisionStatusApplying   = "applying"
+	ConfigRevisionStatusActive     = "active"
+	ConfigRevisionStatusFailed     = "failed"
+	ConfigRevisionStatusSuperseded = "superseded"
 )
 
 type PodConfigRevision struct {

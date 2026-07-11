@@ -102,6 +102,32 @@ impl PodService {
         Ok(resp.encode_to_vec())
     }
 
+    pub async fn update_pod_preview_config_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
+        let req = pod_proto::UpdatePodPreviewConfigRequest::decode(request_bytes)
+            .map_err(|e| format!("decode update_pod_preview_config request: {e}"))?;
+        let resp = self.client
+            .update_pod_preview_config_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(resp.encode_to_vec())
+    }
+
+    pub async fn get_mobile_access_descriptor_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
+        let req = pod_proto::GetMobileAccessDescriptorRequest::decode(request_bytes)
+            .map_err(|e| format!("decode get_mobile_access_descriptor request: {e}"))?;
+        let resp = self.client
+            .get_mobile_access_descriptor_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(resp.encode_to_vec())
+    }
+
     pub async fn get_pod_connection_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
         let req = pod_proto::GetPodConnectionRequest::decode(request_bytes)
             .map_err(|e| format!("decode get_pod_connection request: {e}"))?;

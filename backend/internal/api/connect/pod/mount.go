@@ -8,6 +8,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
+	relayservice "github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 )
 
@@ -31,6 +32,12 @@ func Mount(mux *http.ServeMux, srv *Server, opts ...connect.HandlerOption) {
 	))
 	mux.Handle(UpdatePodPerpetualProcedure, connect.NewUnaryHandler(
 		UpdatePodPerpetualProcedure, srv.UpdatePodPerpetual, opts...,
+	))
+	mux.Handle(UpdatePodPreviewConfigProcedure, connect.NewUnaryHandler(
+		UpdatePodPreviewConfigProcedure, srv.UpdatePodPreviewConfig, opts...,
+	))
+	mux.Handle(GetMobileAccessDescriptorProcedure, connect.NewUnaryHandler(
+		GetMobileAccessDescriptorProcedure, srv.GetMobileAccessDescriptor, opts...,
 	))
 	mux.Handle(GetPodConnectionProcedure, connect.NewUnaryHandler(
 		GetPodConnectionProcedure, srv.GetPodConnection, opts...,
@@ -69,7 +76,9 @@ func mapServiceError(err error) error {
 		errors.Is(err, agentpod.ErrInvalidAgentfileLayer),
 		errors.Is(err, agentpod.ErrMissingModelResource),
 		errors.Is(err, agentpod.ErrModelResourceEnvConflict),
-		errors.Is(err, agentpod.ErrModelResourceCommandConflict):
+		errors.Is(err, agentpod.ErrModelResourceCommandConflict),
+		errors.Is(err, relayservice.ErrInvalidPreviewPort),
+		errors.Is(err, relayservice.ErrInvalidPreviewPath):
 		return connect.NewError(connect.CodeInvalidArgument, err)
 
 	// Billing → ResourceExhausted / FailedPrecondition

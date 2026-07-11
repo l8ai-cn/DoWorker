@@ -37,18 +37,20 @@ import (
 const ServiceName = "proto.pod.v1.PodService"
 
 const (
-	ListPodsProcedure                = "/" + ServiceName + "/ListPods"
-	GetPodProcedure                  = "/" + ServiceName + "/GetPod"
-	CreatePodProcedure               = "/" + ServiceName + "/CreatePod"
-	TerminatePodProcedure            = "/" + ServiceName + "/TerminatePod"
-	UpdatePodAliasProcedure          = "/" + ServiceName + "/UpdatePodAlias"
-	UpdatePodPerpetualProcedure      = "/" + ServiceName + "/UpdatePodPerpetual"
-	GetPodConnectionProcedure        = "/" + ServiceName + "/GetPodConnection"
-	SendPodPromptProcedure           = "/" + ServiceName + "/SendPodPrompt"
-	ListPodsByTicketProcedure        = "/" + ServiceName + "/ListPodsByTicket"
-	ListWorkerCreateOptionsProcedure = "/" + ServiceName + "/ListWorkerCreateOptions"
-	PreflightWorkerProcedure         = "/" + ServiceName + "/PreflightWorker"
-	FillWorkerDraftProcedure         = "/" + ServiceName + "/FillWorkerDraft"
+	ListPodsProcedure                  = "/" + ServiceName + "/ListPods"
+	GetPodProcedure                    = "/" + ServiceName + "/GetPod"
+	CreatePodProcedure                 = "/" + ServiceName + "/CreatePod"
+	TerminatePodProcedure              = "/" + ServiceName + "/TerminatePod"
+	UpdatePodAliasProcedure            = "/" + ServiceName + "/UpdatePodAlias"
+	UpdatePodPerpetualProcedure        = "/" + ServiceName + "/UpdatePodPerpetual"
+	UpdatePodPreviewConfigProcedure    = "/" + ServiceName + "/UpdatePodPreviewConfig"
+	GetMobileAccessDescriptorProcedure = "/" + ServiceName + "/GetMobileAccessDescriptor"
+	GetPodConnectionProcedure          = "/" + ServiceName + "/GetPodConnection"
+	SendPodPromptProcedure             = "/" + ServiceName + "/SendPodPrompt"
+	ListPodsByTicketProcedure          = "/" + ServiceName + "/ListPodsByTicket"
+	ListWorkerCreateOptionsProcedure   = "/" + ServiceName + "/ListWorkerCreateOptions"
+	PreflightWorkerProcedure           = "/" + ServiceName + "/PreflightWorker"
+	FillWorkerDraftProcedure           = "/" + ServiceName + "/FillWorkerDraft"
 )
 
 type WorkerCreationAPI interface {
@@ -94,6 +96,7 @@ type Server struct {
 	eventBus          *eventbus.EventBus
 	workerCreation    WorkerCreationAPI
 	workerDraftFiller WorkerDraftFiller
+	baseURL           string
 }
 
 // NewServer constructs a Server. Optional dependencies can be left nil; the
@@ -153,6 +156,10 @@ func WithWorkerCreation(service WorkerCreationAPI) Option {
 
 func WithWorkerDraftFiller(filler WorkerDraftFiller) Option {
 	return func(server *Server) { server.workerDraftFiller = filler }
+}
+
+func WithBaseURL(baseURL string) Option {
+	return func(server *Server) { server.baseURL = baseURL }
 }
 
 // podResourceWithGrants mirrors PodHandler.podResourceWithGrants (v1/pod_relay_connect.go:56).

@@ -11,10 +11,12 @@
 import {
   CreatePodRequestSchema,
   CreatePodResponseSchema,
+  GetMobileAccessDescriptorRequestSchema,
   GetPodConnectionRequestSchema,
   ListPodsByTicketRequestSchema,
   ListPodsByTicketResponseSchema,
   PodConnectionInfoSchema,
+  MobileAccessDescriptorSchema,
   SendPodPromptRequestSchema,
   SendPodPromptResponseSchema,
   TerminatePodRequestSchema,
@@ -23,6 +25,8 @@ import {
   UpdatePodAliasResponseSchema,
   UpdatePodPerpetualRequestSchema,
   UpdatePodPerpetualResponseSchema,
+  UpdatePodPreviewConfigRequestSchema,
+  UpdatePodPreviewConfigResponseSchema,
 } from "@proto/pod/v1/pod_pb";
 import { create, toBinary, fromBinary } from "@bufbuild/protobuf";
 // Shared proto->PodData projection. Aliased to the historical fromProtoPod
@@ -39,6 +43,17 @@ export interface PodConnectionInfo {
   relay_url: string;
   token: string;
   pod_key: string;
+}
+
+export interface MobileAccessDescriptor {
+  canonical_url: string;
+  pod_key: string;
+  status: string;
+  interaction_mode: string;
+  console_available: boolean;
+  preview_available: boolean;
+  relay_available: boolean;
+  preview_path?: string;
 }
 
 export interface CreatePodInput {
@@ -131,6 +146,47 @@ export async function updatePodPerpetual(
   const bytes = toBinary(UpdatePodPerpetualRequestSchema, req);
   const respBytes = await getPodService().update_pod_perpetual_connect(bytes);
   return fromBinary(UpdatePodPerpetualResponseSchema, new Uint8Array(respBytes)).message;
+}
+
+export async function updatePodPreviewConfig(
+  orgSlug: string,
+  podKey: string,
+  previewPort: number,
+  previewPath: string,
+): Promise<PodData> {
+  const req = create(UpdatePodPreviewConfigRequestSchema, {
+    orgSlug,
+    podKey,
+    previewPort,
+    previewPath,
+  });
+  const bytes = toBinary(UpdatePodPreviewConfigRequestSchema, req);
+  const respBytes = await getPodService().update_pod_preview_config_connect(bytes);
+  const response = fromBinary(
+    UpdatePodPreviewConfigResponseSchema,
+    new Uint8Array(respBytes),
+  );
+  return fromProtoPod(response.pod!);
+}
+
+export async function getMobileAccessDescriptor(
+  orgSlug: string,
+  podKey: string,
+): Promise<MobileAccessDescriptor> {
+  const req = create(GetMobileAccessDescriptorRequestSchema, { orgSlug, podKey });
+  const bytes = toBinary(GetMobileAccessDescriptorRequestSchema, req);
+  const respBytes = await getPodService().get_mobile_access_descriptor_connect(bytes);
+  const response = fromBinary(MobileAccessDescriptorSchema, new Uint8Array(respBytes));
+  return {
+    canonical_url: response.canonicalUrl,
+    pod_key: response.podKey,
+    status: response.status,
+    interaction_mode: response.interactionMode,
+    console_available: response.consoleAvailable,
+    preview_available: response.previewAvailable,
+    relay_available: response.relayAvailable,
+    preview_path: response.previewPath,
+  };
 }
 
 export async function getPodConnection(

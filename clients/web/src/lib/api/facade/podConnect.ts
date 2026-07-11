@@ -13,11 +13,14 @@ export {
   terminatePod,
   updatePodAlias,
   updatePodPerpetual,
+  updatePodPreviewConfig,
+  getMobileAccessDescriptor,
   getPodConnection,
   sendPodPrompt,
   listPodsByTicket,
   type CreatePodInput,
   type PodConnectionInfo,
+  type MobileAccessDescriptor,
 } from "../connect/podConnect";
 
 export {

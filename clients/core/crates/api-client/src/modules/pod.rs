@@ -1,6 +1,6 @@
-use crate::ApiClient;
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
+use crate::ApiClient;
 use agentsmesh_types::proto_pod_v1 as pod_proto;
 
 // =============================================================================
@@ -77,6 +77,25 @@ impl ApiClient {
         req: &pod_proto::UpdatePodPerpetualRequest,
     ) -> Result<pod_proto::UpdatePodPerpetualResponse, ApiError> {
         connect_call(self, "/proto.pod.v1.PodService/UpdatePodPerpetual", req).await
+    }
+
+    pub async fn update_pod_preview_config_connect(
+        &self,
+        req: &pod_proto::UpdatePodPreviewConfigRequest,
+    ) -> Result<pod_proto::UpdatePodPreviewConfigResponse, ApiError> {
+        connect_call(self, "/proto.pod.v1.PodService/UpdatePodPreviewConfig", req).await
+    }
+
+    pub async fn get_mobile_access_descriptor_connect(
+        &self,
+        req: &pod_proto::GetMobileAccessDescriptorRequest,
+    ) -> Result<pod_proto::MobileAccessDescriptor, ApiError> {
+        connect_call(
+            self,
+            "/proto.pod.v1.PodService/GetMobileAccessDescriptor",
+            req,
+        )
+        .await
     }
 
     pub async fn get_pod_connection_connect(

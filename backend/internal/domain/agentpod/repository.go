@@ -22,6 +22,7 @@ type PodListQuery struct {
 type PodRepository interface {
 	Create(ctx context.Context, pod *Pod) error
 	CreateWithConfig(ctx context.Context, pod *Pod, revision *PodConfigRevision) error
+	UpdatePreviewConfig(ctx context.Context, podKey string, createdByID int64, previewPort int, previewPath string) (*Pod, error)
 	DeleteTerminalByKey(ctx context.Context, podKey string) (int64, error)
 	GetByKey(ctx context.Context, podKey string) (*Pod, error)
 	GetByID(ctx context.Context, podID int64) (*Pod, error)
