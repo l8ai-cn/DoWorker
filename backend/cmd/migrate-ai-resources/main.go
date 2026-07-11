@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/anthropics/agentsmesh/backend/internal/config"
 	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
 	"gorm.io/driver/postgres"
@@ -17,7 +18,7 @@ import (
 
 func main() {
 	apply := flag.Bool("apply", false, "migrate legacy ai_models and credential EnvBundles")
-	dsn := flag.String("dsn", os.Getenv("DATABASE_URL"), "Postgres DSN; defaults to $DATABASE_URL")
+	dsn := flag.String("dsn", defaultDSN(), "Postgres DSN; defaults to $DATABASE_URL or DB_*")
 	cipherKey := flag.String("cipher-key", defaultCipherKey(), "credential cipher key; defaults to $AI_RESOURCE_MIGRATION_CIPHER_KEY or $JWT_SECRET")
 	createdBy := flag.Int64("created-by", defaultCreatedBy(), "existing users.id recorded as provider_connections.created_by")
 	flag.Parse()
@@ -63,6 +64,17 @@ func defaultCipherKey() string {
 		return key
 	}
 	return os.Getenv("JWT_SECRET")
+}
+
+func defaultDSN() string {
+	if dsn := os.Getenv("DATABASE_URL"); dsn != "" {
+		return dsn
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		return ""
+	}
+	return cfg.Database.DSN()
 }
 
 func defaultCreatedBy() int64 {
