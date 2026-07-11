@@ -10,7 +10,7 @@ import (
 )
 
 // writeLoop sends messages to the gRPC stream with priority scheduling.
-// Control messages (heartbeat, pod events) have higher priority than terminal output.
+// Readiness results have highest priority, followed by control messages and terminal output.
 // This is the ONLY goroutine that calls stream.Send() to ensure thread-safety.
 // Includes stuck detection: triggers reconnect if no successful send for 30 seconds.
 func (c *GRPCConnection) writeLoop(ctx context.Context, done <-chan struct{}) {
@@ -45,12 +45,11 @@ func (c *GRPCConnection) writeLoop(ctx context.Context, done <-chan struct{}) {
 				return
 			}
 
-		case msg := <-c.controlCh:
-			// Control messages have highest priority
+		case msg := <-c.readyCh:
 			c.sendAndRecord(msg)
 
 		default:
-			// No control messages pending - use nested select for priority
+			// No readiness result pending - use nested select for priority
 			select {
 			case <-c.stopCh:
 				return
@@ -58,8 +57,9 @@ func (c *GRPCConnection) writeLoop(ctx context.Context, done <-chan struct{}) {
 				return
 			case <-ctx.Done():
 				return
+			case msg := <-c.readyCh:
+				c.sendAndRecord(msg)
 			case msg := <-c.controlCh:
-				// Double-check for control messages (priority)
 				c.sendAndRecord(msg)
 			case msg := <-c.terminalCh:
 				// Process terminal messages when no control messages pending

@@ -8,7 +8,6 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
 )
 
-// handlePodInput handles pod_input command from server.
 func (c *GRPCConnection) handlePodInput(cmd *runnerv1.PodInputCommand) {
 	if c.handler == nil {
 		return
@@ -23,7 +22,6 @@ func (c *GRPCConnection) handlePodInput(cmd *runnerv1.PodInputCommand) {
 	}
 }
 
-// handleSendPrompt handles send_prompt command from server.
 func (c *GRPCConnection) handleSendPrompt(cmd *runnerv1.SendPromptCommand) {
 	log := logger.GRPC()
 	log.Debug("Received send_prompt", "pod_key", cmd.PodKey)
@@ -36,31 +34,6 @@ func (c *GRPCConnection) handleSendPrompt(cmd *runnerv1.SendPromptCommand) {
 	}
 }
 
-// handleSubscribePod handles subscribe_pod command from server.
-// This notifies the Runner that a browser wants to observe the pod via Relay.
-// Channel is identified by PodKey (not session ID).
-func (c *GRPCConnection) handleSubscribePod(cmd *runnerv1.SubscribePodCommand) {
-	log := logger.GRPC()
-	log.Info("Received subscribe_pod", "pod_key", cmd.PodKey, "relay_url", cmd.RelayUrl)
-	if c.handler == nil {
-		log.Warn("No handler set, ignoring subscribe_pod")
-		return
-	}
-
-	req := SubscribePodRequest{
-		PodKey:          cmd.PodKey,
-		RelayURL:        cmd.RelayUrl,
-		RunnerToken:     cmd.RunnerToken,
-		IncludeSnapshot: cmd.IncludeSnapshot,
-		SnapshotHistory: cmd.SnapshotHistory,
-	}
-	if err := c.handler.OnSubscribePod(req); err != nil {
-		log.Error("Failed to subscribe pod", "pod_key", cmd.PodKey, "error", err)
-	}
-}
-
-// handleUnsubscribePod handles unsubscribe_pod command from server.
-// This notifies the Runner that all browsers have disconnected.
 func (c *GRPCConnection) handleUnsubscribePod(cmd *runnerv1.UnsubscribePodCommand) {
 	log := logger.GRPC()
 	log.Info("Received unsubscribe_pod", "pod_key", cmd.PodKey)
@@ -74,24 +47,6 @@ func (c *GRPCConnection) handleUnsubscribePod(cmd *runnerv1.UnsubscribePodComman
 	}
 	if err := c.handler.OnUnsubscribePod(req); err != nil {
 		log.Error("Failed to unsubscribe pod", "pod_key", cmd.PodKey, "error", err)
-	}
-}
-
-// handleConnectTunnel handles connect_tunnel command from server.
-// Instructs the Runner to open/refresh its outbound HTTP tunnel to the Gateway.
-func (c *GRPCConnection) handleConnectTunnel(cmd *runnerv1.ConnectTunnelCommand) {
-	log := logger.GRPC()
-	log.Info("Received connect_tunnel", "gateway_url", cmd.GatewayUrl)
-	if c.handler == nil {
-		log.Warn("No handler set, ignoring connect_tunnel")
-		return
-	}
-	req := ConnectTunnelRequest{
-		GatewayURL:  cmd.GatewayUrl,
-		TunnelToken: cmd.TunnelToken,
-	}
-	if err := c.handler.OnConnectTunnel(req); err != nil {
-		log.Error("Failed to connect tunnel", "gateway_url", cmd.GatewayUrl, "error", err)
 	}
 }
 

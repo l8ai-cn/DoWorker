@@ -50,7 +50,18 @@ func (d *Deps) handleTerminalAttach(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "token failed"})
 		return
 	}
-	_ = d.CommandSender.SendSubscribePod(ctx, pod.RunnerID, pod.PodKey, relayInfo.URL, runnerToken, true, 1000)
+	if err := d.CommandSender.SendSubscribePod(
+		ctx,
+		pod.RunnerID,
+		pod.PodKey,
+		relayInfo.URL,
+		runnerToken,
+		true,
+		1000,
+	); err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "relay subscription failed"})
+		return
+	}
 	browserToken, err := d.RelayTokens.GenerateToken(pod.PodKey, pod.RunnerID, tenant.UserID, tenant.OrganizationID, time.Hour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "token failed"})

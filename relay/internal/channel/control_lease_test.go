@@ -145,6 +145,60 @@ func TestChannel_ConcurrentControlAcquireHasSingleWinner(t *testing.T) {
 	}
 }
 
+func TestChannel_ControlHandoffWaitsForAcceptedInputWrite(t *testing.T) {
+	ch, publisher, first, _ := controlLeaseChannel(t, 2*time.Second)
+	leaseID := acquireControl(t, first)
+
+	ch.publisherWriteMu.Lock()
+	publisherWriteLocked := true
+	defer func() {
+		if publisherWriteLocked {
+			ch.publisherWriteMu.Unlock()
+		}
+	}()
+	inputDone := make(chan error, 1)
+	go func() {
+		inputDone <- ch.handleSubscriberMessage(
+			"first",
+			protocol.EncodeInput([]byte("before-handoff")),
+		)
+	}()
+
+	deadline := time.Now().Add(time.Second)
+	for ch.controlMu.TryLock() {
+		ch.controlMu.Unlock()
+		if time.Now().After(deadline) {
+			t.Fatal("input never entered the control lease critical section")
+		}
+		time.Sleep(time.Millisecond)
+	}
+
+	releaseDone := make(chan struct{})
+	go func() {
+		ch.releaseControlLease("first", leaseID)
+		close(releaseDone)
+	}()
+
+	select {
+	case <-releaseDone:
+		t.Fatal("control handoff completed before the accepted input write")
+	case <-time.After(20 * time.Millisecond):
+	}
+
+	ch.publisherWriteMu.Unlock()
+	publisherWriteLocked = false
+	requireMessageType(t, publisher, protocol.MsgTypeInput)
+
+	if err := <-inputDone; err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case <-releaseDone:
+	case <-time.After(time.Second):
+		t.Fatal("control release did not complete after the input write")
+	}
+}
+
 func TestChannel_ObserverStillReceivesOutputAndCanResync(t *testing.T) {
 	_, publisher, _, observer := controlLeaseChannel(t, 200*time.Millisecond)
 

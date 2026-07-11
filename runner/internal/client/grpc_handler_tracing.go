@@ -48,6 +48,8 @@ func extractServerMessageType(msg *runnerv1.ServerMessage) string {
 		return "UpdatePodPolicyRules"
 	case *runnerv1.ServerMessage_AcpRelay:
 		return "AcpRelay"
+	case *runnerv1.ServerMessage_ConnectTunnel:
+		return "ConnectTunnel"
 	default:
 		return "Unknown"
 	}

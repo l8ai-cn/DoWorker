@@ -146,6 +146,32 @@ func (a *GRPCRunnerAdapter) handleProtoMessage(ctx context.Context, runnerID int
 	case *runnerv1.RunnerMessage_PodRestarting:
 		a.connManager.HandlePodRestarting(runnerID, payload.PodRestarting)
 
+	case *runnerv1.RunnerMessage_RelaySubscriptionResult:
+		a.readyResults.complete(
+			runnerID,
+			conn.Generation,
+			payload.RelaySubscriptionResult.GetCommandId(),
+			relaySubscriptionReady,
+			runnerReadyResult{
+				success:   payload.RelaySubscriptionResult.GetSuccess(),
+				errorCode: payload.RelaySubscriptionResult.GetErrorCode(),
+				message:   payload.RelaySubscriptionResult.GetMessage(),
+			},
+		)
+
+	case *runnerv1.RunnerMessage_TunnelConnectionResult:
+		a.readyResults.complete(
+			runnerID,
+			conn.Generation,
+			payload.TunnelConnectionResult.GetCommandId(),
+			tunnelConnectionReady,
+			runnerReadyResult{
+				success:   payload.TunnelConnectionResult.GetSuccess(),
+				errorCode: payload.TunnelConnectionResult.GetErrorCode(),
+				message:   payload.TunnelConnectionResult.GetMessage(),
+			},
+		)
+
 	default:
 		a.logger.Warn("unknown message type", "runner_id", runnerID)
 	}

@@ -62,10 +62,14 @@ func (h *RunnerMessageHandler) OnConnectTunnel(req client.ConnectTunnelRequest) 
 	// Phase 3: under lock — swap pointer, guarding against a racing connect.
 	h.tunnelMu.Lock()
 	if h.tunnelClient != nil {
+		winner := h.tunnelClient
 		h.tunnelMu.Unlock()
 		cl.Stop()
-		log.Info("Another tunnel client was set while connecting, discarding ours")
-		return nil
+		if winner.IsConnected() && winner.GatewayURL() == gatewayURL {
+			winner.UpdateToken(req.TunnelToken)
+			return nil
+		}
+		return fmt.Errorf("tunnel connection superseded by another connection")
 	}
 	h.tunnelClient = cl
 	h.tunnelMu.Unlock()

@@ -69,6 +69,14 @@ func TestNoOpCommandSender_SendUnsubscribePod(t *testing.T) {
 	assert.Equal(t, ErrCommandSenderNotSet, err)
 }
 
+func TestNoOpCommandSender_SendConnectTunnel(t *testing.T) {
+	sender := NewNoOpCommandSender(newTestLogger())
+
+	err := sender.SendConnectTunnel(context.Background(), 1, "wss://gateway/runner/tunnel", "token")
+
+	assert.Equal(t, ErrCommandSenderNotSet, err)
+}
+
 func TestNoOpCommandSender_ImplementsInterface(t *testing.T) {
 	sender := NewNoOpCommandSender(newTestLogger())
 

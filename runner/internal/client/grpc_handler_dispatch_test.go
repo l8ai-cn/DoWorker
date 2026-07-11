@@ -13,6 +13,7 @@ import (
 // newTestConnection creates a GRPCConnection with test-friendly defaults.
 func newTestConnection() *GRPCConnection {
 	return &GRPCConnection{
+		readyCh:           make(chan *runnerv1.RunnerMessage, 32),
 		controlCh:         make(chan *runnerv1.RunnerMessage, 100),
 		terminalCh:        make(chan *runnerv1.RunnerMessage, 100),
 		stopCh:            make(chan struct{}),

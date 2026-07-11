@@ -408,6 +408,13 @@ start_frontend() {
     _ensure_do_worker_wasm || return 1
 
     local log_file="$SCRIPT_DIR/web.log"
+    local public_web_host
+    public_web_host=$(python3 -c \
+        'import sys, urllib.parse; host = urllib.parse.urlparse(sys.argv[1]).hostname; sys.exit(1) if not host else print(host)' \
+        "${PUBLIC_WEB_URL:-}") || {
+        error "PUBLIC_WEB_URL 必须是包含 hostname 的绝对 URL"
+        return 1
+    }
     info "启动前端服务 (端口: $web_port, plain next)..."
     local saved_dir="$PWD"
     cd "$web_dir"
@@ -420,6 +427,7 @@ start_frontend() {
     # builds never see this flag, so the e2e form is tree-shaken out. See
     # clients/web/src/components/settings/envBundleCredentialForms/index.ts.
     API_PROXY_TARGET="http://127.0.0.1:${BACKEND_HTTP_PORT}" \
+    ALLOWED_DEV_ORIGINS="$public_web_host" \
     NEXT_PUBLIC_E2E="true" \
         _launch_setsid web "$log_file" \
         node ../../node_modules/next/dist/bin/next dev --turbopack --port "$web_port"

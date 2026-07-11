@@ -90,27 +90,6 @@ func (a *GRPCRunnerAdapter) SendServerMessage(runnerID int64, msg *runnerv1.Serv
 	return conn.SendMessage(msg)
 }
 
-func (a *GRPCRunnerAdapter) SendSubscribePod(runnerID int64, podKey, relayURL, runnerToken string, includeSnapshot bool, snapshotHistory int32) error {
-	conn := a.connManager.GetConnection(runnerID)
-	if conn == nil {
-		return status.Errorf(codes.NotFound, "runner %d not connected", runnerID)
-	}
-
-	msg := &runnerv1.ServerMessage{
-		Payload: &runnerv1.ServerMessage_SubscribePod{
-			SubscribePod: &runnerv1.SubscribePodCommand{
-				PodKey:          podKey,
-				RelayUrl:        relayURL,
-				RunnerToken:     runnerToken,
-				IncludeSnapshot: includeSnapshot,
-				SnapshotHistory: snapshotHistory,
-			},
-		},
-		Timestamp: time.Now().UnixMilli(),
-	}
-	return conn.SendMessage(msg)
-}
-
 func (a *GRPCRunnerAdapter) SendUnsubscribePod(runnerID int64, podKey string) error {
 	conn := a.connManager.GetConnection(runnerID)
 	if conn == nil {
@@ -121,24 +100,6 @@ func (a *GRPCRunnerAdapter) SendUnsubscribePod(runnerID int64, podKey string) er
 		Payload: &runnerv1.ServerMessage_UnsubscribePod{
 			UnsubscribePod: &runnerv1.UnsubscribePodCommand{
 				PodKey: podKey,
-			},
-		},
-		Timestamp: time.Now().UnixMilli(),
-	}
-	return conn.SendMessage(msg)
-}
-
-func (a *GRPCRunnerAdapter) SendConnectTunnel(runnerID int64, gatewayURL, tunnelToken string) error {
-	conn := a.connManager.GetConnection(runnerID)
-	if conn == nil {
-		return status.Errorf(codes.NotFound, "runner %d not connected", runnerID)
-	}
-
-	msg := &runnerv1.ServerMessage{
-		Payload: &runnerv1.ServerMessage_ConnectTunnel{
-			ConnectTunnel: &runnerv1.ConnectTunnelCommand{
-				GatewayUrl:  gatewayURL,
-				TunnelToken: tunnelToken,
 			},
 		},
 		Timestamp: time.Now().UnixMilli(),

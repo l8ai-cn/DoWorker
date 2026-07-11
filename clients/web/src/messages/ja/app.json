@@ -367,6 +367,48 @@
   },
   "mobile": {
     "more": "その他",
+    "access": {
+      "title": "モバイルアクセス",
+      "console": "コンソール",
+      "preview": "プレビュー",
+      "copy": "リンクをコピー",
+      "copied": "モバイルリンクをコピーしました",
+      "copyFailed": "リンクをコピーできませんでした",
+      "open": "開く",
+      "mobileAccess": "モバイルで開く",
+      "loadFailed": "モバイルアクセスを準備できませんでした",
+      "retry": "再試行",
+      "unavailable": "この Worker は現在モバイル操作できません。"
+    },
+    "preview": {
+      "error": "プレビューを利用できません",
+      "unavailable": "プレビュー利用不可",
+      "backToConsole": "コンソールに戻る"
+    },
+    "control": {
+      "observer": "閲覧モードです",
+      "busy": "別の端末が操作中です",
+      "takeHint": "入力やコマンド送信には操作権を取得してください。",
+      "waiting": "Worker の接続を待っています。",
+      "takeControl": "操作権を取得"
+    },
+    "workers": {
+      "tab": "Workers",
+      "errorTitle": "Workers を読み込めませんでした",
+      "retry": "再試行",
+      "offline": "オフラインです。リアルタイム操作は利用できません。",
+      "emptyTitle": "稼働中の Worker はありません",
+      "emptyBody": "デスクトップで Worker を起動してから、ここで開いてください。",
+      "terminal": "ターミナル",
+      "acp": "エージェント",
+      "status": {
+        "running": "実行中",
+        "initializing": "起動中",
+        "paused": "一時停止",
+        "disconnected": "切断済み",
+        "orphaned": "再接続中"
+      }
+    },
     "drawer": {
       "navigationMenu": "ナビゲーションメニュー",
       "organization": "組織",

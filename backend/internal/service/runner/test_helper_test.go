@@ -78,16 +78,16 @@ func newTestLogger() *slog.Logger {
 // Shared across all test files in the runner package.
 // Thread-safe for use with async goroutines.
 type MockCommandSender struct {
-	mu                        sync.Mutex
-	CreatePodCalls            int
-	TerminatePodCalls         int
-	TerminatePodErr           error
-	PodInputCalls        int
-	SendPromptCalls           int
-	ServerMessageCalls        int
-	SendErr                   error
-	SubscribePodCalls    int
-	UnsubscribePodCalls  int
+	mu                  sync.Mutex
+	CreatePodCalls      int
+	TerminatePodCalls   int
+	TerminatePodErr     error
+	PodInputCalls       int
+	SendPromptCalls     int
+	ServerMessageCalls  int
+	SendErr             error
+	SubscribePodCalls   int
+	UnsubscribePodCalls int
 }
 
 func (m *MockCommandSender) SendCreatePod(ctx context.Context, runnerID int64, cmd *runnerv1.CreatePodCommand) error {
@@ -167,6 +167,6 @@ func (m *MockCommandSender) SendAcpRelay(ctx context.Context, runnerID int64, po
 	return nil
 }
 
-func (m *MockCommandSender) SendConnectTunnel(runnerID int64, gatewayURL, tunnelToken string) error {
+func (m *MockCommandSender) SendConnectTunnel(ctx context.Context, runnerID int64, gatewayURL, tunnelToken string) error {
 	return nil
 }

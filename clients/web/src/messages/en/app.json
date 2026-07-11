@@ -547,12 +547,39 @@
       "copied": "Mobile link copied",
       "copyFailed": "Could not copy the link",
       "open": "Open",
-      "mobileAccess": "Open on mobile"
+      "mobileAccess": "Open on mobile",
+      "loadFailed": "Mobile access could not be prepared",
+      "retry": "Retry",
+      "unavailable": "This Worker is not currently available for mobile control."
     },
     "preview": {
       "error": "Preview is unavailable",
       "unavailable": "Preview unavailable",
       "backToConsole": "Back to console"
+    },
+    "control": {
+      "observer": "Viewing in observer mode",
+      "busy": "Another device has control",
+      "takeHint": "Take control to type or send commands.",
+      "waiting": "Waiting for the Worker connection.",
+      "takeControl": "Take control"
+    },
+    "workers": {
+      "tab": "Workers",
+      "errorTitle": "Workers could not be loaded",
+      "retry": "Retry",
+      "offline": "You are offline. Live controls are unavailable.",
+      "emptyTitle": "No active Workers",
+      "emptyBody": "Start a Worker on desktop, then open it here.",
+      "terminal": "Terminal",
+      "acp": "Agent",
+      "status": {
+        "running": "Running",
+        "initializing": "Starting",
+        "paused": "Paused",
+        "disconnected": "Disconnected",
+        "orphaned": "Reconnecting"
+      }
     },
     "drawer": {
       "navigationMenu": "Navigation Menu",

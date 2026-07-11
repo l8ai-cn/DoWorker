@@ -367,6 +367,48 @@
   },
   "mobile": {
     "more": "Más",
+    "access": {
+      "title": "Acceso móvil",
+      "console": "Consola",
+      "preview": "Vista previa",
+      "copy": "Copiar enlace",
+      "copied": "Enlace móvil copiado",
+      "copyFailed": "No se pudo copiar el enlace",
+      "open": "Abrir",
+      "mobileAccess": "Abrir en móvil",
+      "loadFailed": "No se pudo preparar el acceso móvil",
+      "retry": "Reintentar",
+      "unavailable": "Este Worker no está disponible para control móvil."
+    },
+    "preview": {
+      "error": "La vista previa no está disponible",
+      "unavailable": "Vista previa no disponible",
+      "backToConsole": "Volver a la consola"
+    },
+    "control": {
+      "observer": "Modo de observación",
+      "busy": "Otro dispositivo tiene el control",
+      "takeHint": "Toma el control para escribir o enviar comandos.",
+      "waiting": "Esperando la conexión del Worker.",
+      "takeControl": "Tomar el control"
+    },
+    "workers": {
+      "tab": "Workers",
+      "errorTitle": "No se pudieron cargar los Workers",
+      "retry": "Reintentar",
+      "offline": "Sin conexión. Los controles en vivo no están disponibles.",
+      "emptyTitle": "No hay Workers activos",
+      "emptyBody": "Inicia un Worker en el escritorio y ábrelo aquí.",
+      "terminal": "Terminal",
+      "acp": "Agente",
+      "status": {
+        "running": "En ejecución",
+        "initializing": "Iniciando",
+        "paused": "En pausa",
+        "disconnected": "Desconectado",
+        "orphaned": "Reconectando"
+      }
+    },
     "drawer": {
       "navigationMenu": "Menú de navegación",
       "organization": "Organización",

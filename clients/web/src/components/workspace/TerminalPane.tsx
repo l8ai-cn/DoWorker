@@ -15,6 +15,7 @@ import { RelayStatusOverlay } from "./RelayStatusOverlay";
 import { AutopilotOverlay } from "./AutopilotOverlay";
 import { AutopilotStartButton } from "./AutopilotStartButton";
 import { PodSelectorModal } from "./PodSelectorModal";
+import { WorkerControlOverlay } from "@/components/mobile-worker/WorkerControlOverlay";
 
 interface TerminalPaneProps {
   paneId: string;
@@ -25,6 +26,7 @@ interface TerminalPaneProps {
   onPopout?: () => void;
   showHeader?: boolean;
   allowSplit?: boolean;
+  controlClientLabel?: string;
   className?: string;
 }
 
@@ -37,6 +39,7 @@ export function TerminalPane({
   onPopout,
   showHeader = true,
   allowSplit = true,
+  controlClientLabel = "desktop",
   className,
 }: TerminalPaneProps) {
   const [isMaximized, setIsMaximized] = useState(false);
@@ -102,7 +105,7 @@ export function TerminalPane({
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-terminal-bg rounded-lg overflow-hidden ring-1 transition-shadow",
+        "relative flex flex-col h-full bg-terminal-bg rounded-lg overflow-hidden ring-1 transition-shadow",
         isActive
           ? "ring-primary/70 shadow-[0_0_0_1px_color-mix(in_srgb,var(--primary)_30%,transparent),0_18px_48px_rgba(0,0,0,0.28)]"
           : "ring-terminal-border/70",
@@ -179,6 +182,7 @@ export function TerminalPane({
       )}
 
       <AutopilotStartButton podKey={podKey} triggerRef={triggerAutopilotRef} />
+      <WorkerControlOverlay podKey={podKey} clientLabel={controlClientLabel} />
 
       {pendingSplitDirection && (
         <PodSelectorModal

@@ -42,9 +42,9 @@ func (h *RunnerMessageHandler) OnSubscribePod(req client.SubscribePodRequest) er
 	// Reject subscribe for pods in terminal states. Initializing pods are
 	// allowed — backend may send subscribe_pod before the process starts.
 	if status := pod.GetStatus(); status == PodStatusStopped || status == PodStatusFailed {
-		log.Info("Pod is not active, ignoring subscribe",
+		log.Info("Pod is not active, rejecting subscribe",
 			"pod_key", req.PodKey, "status", status)
-		return nil
+		return fmt.Errorf("pod is not active: %s", status)
 	}
 
 	log.Debug("Pod interaction mode", "pod_key", req.PodKey, "mode", pod.InteractionMode)
@@ -102,12 +102,14 @@ func (h *RunnerMessageHandler) OnSubscribePod(req client.SubscribePodRequest) er
 	// Check for a race: another goroutine may have set a different client while we were connecting.
 	pod.LockRelay()
 	if pod.RelayClient != nil {
-		// Another subscribe_terminal won the race; discard our client.
+		winner := pod.RelayClient
 		pod.UnlockRelay()
-		log.Info("Another relay client was set while connecting, discarding ours",
-			"pod_key", req.PodKey)
 		relayClient.Stop()
-		return nil
+		if winner.IsConnected() && winner.GetRelayURL() == relayURL {
+			winner.UpdateToken(req.RunnerToken)
+			return nil
+		}
+		return fmt.Errorf("relay subscription superseded by another connection")
 	}
 	pod.RelayClient = relayClient
 	pod.UnlockRelay()

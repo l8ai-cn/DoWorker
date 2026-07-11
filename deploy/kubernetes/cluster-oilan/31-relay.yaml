@@ -31,7 +31,10 @@ spec:
             - name: USE_HTTPS
               value: "true"
             - name: ALLOWED_ORIGINS
-              value: "http://localhost:10007,http://127.0.0.1:10007,http://localhost:10022,http://127.0.0.1:10022"
+              valueFrom:
+                configMapKeyRef:
+                  name: agentsmesh-config
+                  key: PUBLIC_WEB_URL
             - name: RELAY_ID
               value: "k8s-relay-1"
             - name: RELAY_REGION

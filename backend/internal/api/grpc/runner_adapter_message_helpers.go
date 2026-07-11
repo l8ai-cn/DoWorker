@@ -9,11 +9,14 @@ import (
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
+const runnerProtocolVersion = 3
+
 func (a *GRPCRunnerAdapter) handleInitialize(ctx context.Context, runnerID int64, conn *runner.GRPCConnection, req *runnerv1.InitializeRequest) {
 	a.logger.Debug("received initialize request",
 		"runner_id", runnerID,
 		"protocol_version", req.ProtocolVersion,
 	)
+	conn.SetProtocolVersion(req.GetProtocolVersion())
 
 	var agents []*runnerv1.AgentInfo
 	if a.agentsProvider != nil {
@@ -44,7 +47,7 @@ func (a *GRPCRunnerAdapter) handleInitialize(ctx context.Context, runnerID int64
 	}
 
 	result := &runnerv1.InitializeResult{
-		ProtocolVersion: 2,
+		ProtocolVersion: runnerProtocolVersion,
 		ServerInfo: &runnerv1.ServerInfo{
 			Version: "1.0.0",
 		},

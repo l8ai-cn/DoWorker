@@ -22,6 +22,7 @@ import { AcpPermissionDialog } from "./acp/AcpPermissionDialog";
 import { AcpPromptInput } from "./acp/AcpPromptInput";
 import { AcpDebugPanel } from "./acp/AcpDebugPanel";
 import { PodSelectorModal } from "./PodSelectorModal";
+import { WorkerControlOverlay } from "@/components/mobile-worker/WorkerControlOverlay";
 
 interface AgentPanelProps {
   paneId: string;
@@ -31,6 +32,7 @@ interface AgentPanelProps {
   onMaximize?: () => void;
   onPopout?: () => void;
   showHeader?: boolean;
+  controlClientLabel?: string;
   className?: string;
 }
 
@@ -42,6 +44,7 @@ export function AgentPanel({
   onMaximize,
   onPopout,
   showHeader = true,
+  controlClientLabel = "desktop",
   className,
 }: AgentPanelProps) {
   const [isMaximized, setIsMaximized] = useState(false);
@@ -75,7 +78,7 @@ export function AgentPanel({
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-background rounded-lg overflow-hidden border",
+        "relative flex flex-col h-full bg-background rounded-lg overflow-hidden border",
         isActive ? "border-primary" : "border-border",
         isMaximized && "fixed inset-4 z-50",
         className
@@ -130,6 +133,7 @@ export function AgentPanel({
           )}
         </div>
       )}
+      <WorkerControlOverlay podKey={podKey} clientLabel={controlClientLabel} />
 
       {pendingSplitDirection && (
         <PodSelectorModal

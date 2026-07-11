@@ -117,10 +117,12 @@ func (c *Channel) handleSubscriberMessage(subscriberID string, data []byte) erro
 	}
 	switch message.Type {
 	case protocol.MsgTypeInput, protocol.MsgTypeResize, protocol.MsgTypeAcpCommand:
-		if !c.hasControlLease(subscriberID) {
+		allowed, writeErr := c.writeToPublisherWithControlLease(subscriberID, data)
+		if !allowed {
 			c.sendControlStatus(subscriberID, protocol.ControlLeaseStatusRequired, "", time.Time{})
 			return nil
 		}
+		return writeErr
 	}
 	return c.writeToPublisher(data)
 }

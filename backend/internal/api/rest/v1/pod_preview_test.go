@@ -42,12 +42,12 @@ func (m *mockPreviewTokens) GeneratePreviewToken(podKey string, runnerID, userID
 
 type previewCommandSender struct {
 	mockCommandSender
-	sendConnectTunnelFn func(int64, string, string) error
+	sendConnectTunnelFn func(context.Context, int64, string, string) error
 }
 
-func (m *previewCommandSender) SendConnectTunnel(runnerID int64, tunnelURL, token string) error {
+func (m *previewCommandSender) SendConnectTunnel(ctx context.Context, runnerID int64, tunnelURL, token string) error {
 	if m.sendConnectTunnelFn != nil {
-		return m.sendConnectTunnelFn(runnerID, tunnelURL, token)
+		return m.sendConnectTunnelFn(ctx, runnerID, tunnelURL, token)
 	}
 	return nil
 }
@@ -107,7 +107,7 @@ func TestGetPodPreview_TunnelDispatchFailureReturns503WithoutPreviewToken(t *tes
 	h := newPreviewHandler(pod)
 	tokens := h.relayTokens.(*mockPreviewTokens)
 	h.commandSender = &previewCommandSender{
-		sendConnectTunnelFn: func(int64, string, string) error {
+		sendConnectTunnelFn: func(context.Context, int64, string, string) error {
 			return errors.New("runner unavailable")
 		},
 	}

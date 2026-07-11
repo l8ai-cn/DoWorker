@@ -13,6 +13,8 @@ describe("ide-chrome", () => {
     expect(hideIdeChrome("/acme/do-agent/pod-1")).toBe(true);
     expect(hideIdeChrome("/acme/loopal/pod-1")).toBe(true);
     expect(hideIdeChrome("/acme/mobile/pods/pod-1")).toBe(true);
+    expect(hideIdeChrome("/acme/mobile/workers")).toBe(false);
+    expect(hideIdeChrome("/acme/mobile/workers/pod-1")).toBe(true);
     expect(hideIdeChrome("/acme/workflows/my-workflow")).toBe(false);
   });
 
@@ -20,5 +22,8 @@ describe("ide-chrome", () => {
     expect(hideMobileTabBar("/settings/git")).toBe(true);
     expect(hideMobileTabBar("/acme/do-agent/x")).toBe(true);
     expect(hideMobileTabBar("/acme/channels")).toBe(false);
+    expect(hideMobileTabBar("/acme/mobile/workers")).toBe(false);
+    expect(hideMobileTabBar("/acme/mobile/workers/")).toBe(false);
+    expect(hideMobileTabBar("/acme/mobile/workers/pod-1")).toBe(true);
   });
 });

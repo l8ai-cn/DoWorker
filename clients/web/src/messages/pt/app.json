@@ -361,6 +361,48 @@
   },
   "mobile": {
     "more": "Mais",
+    "access": {
+      "title": "Acesso móvel",
+      "console": "Console",
+      "preview": "Pré-visualização",
+      "copy": "Copiar link",
+      "copied": "Link móvel copiado",
+      "copyFailed": "Não foi possível copiar o link",
+      "open": "Abrir",
+      "mobileAccess": "Abrir no celular",
+      "loadFailed": "Não foi possível preparar o acesso móvel",
+      "retry": "Tentar novamente",
+      "unavailable": "Este Worker não está disponível para controle móvel."
+    },
+    "preview": {
+      "error": "A pré-visualização está indisponível",
+      "unavailable": "Pré-visualização indisponível",
+      "backToConsole": "Voltar ao console"
+    },
+    "control": {
+      "observer": "Visualizando no modo observador",
+      "busy": "Outro dispositivo está no controle",
+      "takeHint": "Assuma o controle para digitar ou enviar comandos.",
+      "waiting": "Aguardando a conexão do Worker.",
+      "takeControl": "Assumir controle"
+    },
+    "workers": {
+      "tab": "Workers",
+      "errorTitle": "Não foi possível carregar os Workers",
+      "retry": "Tentar novamente",
+      "offline": "Você está offline. Os controles em tempo real estão indisponíveis.",
+      "emptyTitle": "Nenhum Worker ativo",
+      "emptyBody": "Inicie um Worker no desktop e abra-o aqui.",
+      "terminal": "Terminal",
+      "acp": "Agente",
+      "status": {
+        "running": "Em execução",
+        "initializing": "Iniciando",
+        "paused": "Pausado",
+        "disconnected": "Desconectado",
+        "orphaned": "Reconectando"
+      }
+    },
     "drawer": {
       "navigationMenu": "Menu de navegação",
       "organization": "Organização",

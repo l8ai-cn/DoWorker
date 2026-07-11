@@ -8,6 +8,7 @@ import { usePod } from "@/stores/pod";
 import { usePodTitle } from "@/hooks/usePodTitle";
 import { getShortPodKey } from "@/lib/pod-display-name";
 import type { ConnectionStatus } from "@/stores/relayConnection";
+import { MobileAccessHeaderButton } from "@/components/mobile-worker/MobileAccessHeaderButton";
 import {
   X,
   Maximize2,
@@ -74,6 +75,7 @@ export function TerminalPaneHeader({
         <TerminalAgentStatus podKey={podKey} />
       </div>
       <HeaderActions
+        podKey={podKey}
         isPodReady={isPodReady}
         isMaximized={isMaximized}
         hasAutopilot={hasAutopilot}
@@ -90,6 +92,7 @@ export function TerminalPaneHeader({
 }
 
 function HeaderActions({
+  podKey,
   isPodReady,
   isMaximized,
   hasAutopilot,
@@ -101,6 +104,7 @@ function HeaderActions({
   onMaximize,
   onClose,
 }: {
+  podKey: string;
   isPodReady: boolean;
   isMaximized: boolean;
   hasAutopilot: boolean;
@@ -114,6 +118,7 @@ function HeaderActions({
 }) {
   return (
     <div className="flex items-center gap-1 flex-shrink-0">
+      <MobileAccessHeaderButton podKey={podKey} />
       <IconButton onClick={onSyncSize} title="Sync terminal size" icon={<Scaling className="w-3 h-3" />} />
       {!hasAutopilot && isPodReady && (
         <IconButton onClick={onStartAutopilot} title="Start Autopilot Mode" icon={<Bot className="w-3 h-3" />} hoverClass="hover:text-primary" />

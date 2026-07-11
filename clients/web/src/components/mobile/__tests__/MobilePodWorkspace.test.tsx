@@ -12,14 +12,40 @@ vi.mock("@/stores/pod", () => ({
 }));
 
 vi.mock("@/components/workspace/TerminalPane", () => ({
-  TerminalPane: ({ podKey, showHeader }: { podKey: string; showHeader: boolean }) => (
-    <div data-testid="terminal-pane" data-pod-key={podKey} data-show-header={String(showHeader)} />
+  TerminalPane: ({
+    podKey,
+    showHeader,
+    controlClientLabel,
+  }: {
+    podKey: string;
+    showHeader: boolean;
+    controlClientLabel: string;
+  }) => (
+    <div
+      data-testid="terminal-pane"
+      data-pod-key={podKey}
+      data-show-header={String(showHeader)}
+      data-control-client={controlClientLabel}
+    />
   ),
 }));
 
 vi.mock("@/components/workspace/AgentPanel", () => ({
-  AgentPanel: ({ podKey, showHeader }: { podKey: string; showHeader: boolean }) => (
-    <div data-testid="agent-panel" data-pod-key={podKey} data-show-header={String(showHeader)} />
+  AgentPanel: ({
+    podKey,
+    showHeader,
+    controlClientLabel,
+  }: {
+    podKey: string;
+    showHeader: boolean;
+    controlClientLabel: string;
+  }) => (
+    <div
+      data-testid="agent-panel"
+      data-pod-key={podKey}
+      data-show-header={String(showHeader)}
+      data-control-client={controlClientLabel}
+    />
   ),
 }));
 
@@ -37,6 +63,7 @@ describe("MobilePodWorkspace", () => {
 
     expect(screen.getByTestId("terminal-pane")).toHaveAttribute("data-pod-key", "pod-pty");
     expect(screen.getByTestId("terminal-pane")).toHaveAttribute("data-show-header", "false");
+    expect(screen.getByTestId("terminal-pane")).toHaveAttribute("data-control-client", "mobile");
     expect(screen.queryByTestId("agent-panel")).not.toBeInTheDocument();
   });
 
@@ -47,6 +74,7 @@ describe("MobilePodWorkspace", () => {
 
     expect(screen.getByTestId("agent-panel")).toHaveAttribute("data-pod-key", "pod-acp");
     expect(screen.getByTestId("agent-panel")).toHaveAttribute("data-show-header", "false");
+    expect(screen.getByTestId("agent-panel")).toHaveAttribute("data-control-client", "mobile");
     expect(screen.queryByTestId("terminal-pane")).not.toBeInTheDocument();
   });
 

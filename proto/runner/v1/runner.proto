@@ -61,6 +61,8 @@ message RunnerMessage {
     SandboxFsResultEvent sandbox_fs_result = 34;
     // Goal Loop verification result
     VerificationResultEvent verification_result = 35;
+    RelaySubscriptionResultEvent relay_subscription_result = 36;
+    TunnelConnectionResultEvent tunnel_connection_result = 37;
   }
   reserved 28, 29, 30;
   int64 timestamp = 15;
@@ -420,11 +422,13 @@ message SubscribePodCommand {
   string pod_key = 1;
   string relay_url = 2;        // Public Relay URL via reverse proxy (e.g. ws://host:port/relay)
   reserved 3;                  // Was public_relay_url — removed: all runners use the single public URL
+  reserved "public_relay_url";
   bool include_snapshot = 4;   // 是否发送快照
   int32 snapshot_history = 5;  // 快照历史行数
   string runner_token = 6;     // Runner 认证 Token（JWT）
   reserved 7;                  // Was local_token — removed with the same-host local relay fast-path
   reserved "local_token";
+  string command_id = 8;
 }
 
 // UnsubscribePodCommand 取消订阅 Pod 输出命令
@@ -439,6 +443,21 @@ message UnsubscribePodCommand {
 message ConnectTunnelCommand {
   string gateway_url = 1;   // e.g. wss://domain/relay
   string tunnel_token = 2;  // token_type=tunnel 的 JWT
+  string command_id = 3;
+}
+
+message RelaySubscriptionResultEvent {
+  string command_id = 1;
+  bool success = 2;
+  string error_code = 3;
+  string message = 4;
+}
+
+message TunnelConnectionResultEvent {
+  string command_id = 1;
+  bool success = 2;
+  string error_code = 3;
+  string message = 4;
 }
 
 // RequestTunnelTokenEvent Runner 请求刷新隧道 Token（复用 RequestRelayTokenEvent 语义）。

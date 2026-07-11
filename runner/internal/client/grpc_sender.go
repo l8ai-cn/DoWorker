@@ -3,10 +3,32 @@ package client
 
 import (
 	"fmt"
+	"time"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
 )
+
+func (c *GRPCConnection) sendReadyResult(msg *runnerv1.RunnerMessage) error {
+	c.mu.Lock()
+	if c.stream == nil {
+		c.mu.Unlock()
+		return fmt.Errorf("stream not connected")
+	}
+	c.mu.Unlock()
+
+	timer := time.NewTimer(time.Second)
+	defer timer.Stop()
+
+	select {
+	case c.readyCh <- msg:
+		return nil
+	case <-c.stopCh:
+		return fmt.Errorf("connection stopped")
+	case <-timer.C:
+		return fmt.Errorf("readiness result buffer full")
+	}
+}
 
 // sendControl queues a control message (high priority).
 // Control messages include: heartbeat, pod_created, pod_terminated, pty_resized, error.

@@ -55,6 +55,7 @@ export function MobilePodWorkspace({ podKey }: MobilePodWorkspaceProps) {
     podKey,
     isActive: true,
     showHeader: false,
+    controlClientLabel: "mobile",
     className: "rounded-none border-0 ring-0",
   };
 

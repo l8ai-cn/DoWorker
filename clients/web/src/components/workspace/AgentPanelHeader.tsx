@@ -8,6 +8,7 @@ import { usePod } from "@/stores/pod";
 import { useAcpSessionField } from "@/stores/acpSession";
 import { usePodTitle } from "@/hooks/usePodTitle";
 import { getShortPodKey } from "@/lib/pod-display-name";
+import { MobileAccessHeaderButton } from "@/components/mobile-worker/MobileAccessHeaderButton";
 import {
   X,
   Maximize2,
@@ -66,6 +67,7 @@ export function AgentPanelHeader({
         <AgentPanelAgentStatus podKey={podKey} />
       </div>
       <div className="flex items-center gap-1 flex-shrink-0">
+        <MobileAccessHeaderButton podKey={podKey} />
         {onSplitRight && (
           <IconButton
             onClick={onSplitRight}

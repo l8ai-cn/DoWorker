@@ -31,9 +31,8 @@ type previewTokenGenerator interface {
 	GeneratePreviewToken(podKey string, runnerID, userID, orgID int64, previewTarget, previewPath string, expiry time.Duration) (string, error)
 }
 
-// GetPodPreview requests the runner's outbound tunnel and issues a short-lived
-// Gateway session URL only after the command is accepted for delivery. The
-// preview request itself remains the end-to-end tunnel readiness check.
+// GetPodPreview issues a short-lived Gateway session URL only after the Runner
+// confirms its outbound tunnel is registered and ready.
 //
 // GET /api/v1/orgs/:slug/pods/:key/preview
 func (h *PodHandler) GetPodPreview(c *gin.Context) {
@@ -82,7 +81,7 @@ func (h *PodHandler) GetPodPreview(c *gin.Context) {
 		apierr.InternalError(c, "failed to mint tunnel token")
 		return
 	}
-	if err := h.commandSender.SendConnectTunnel(pod.RunnerID, tunnelURLFromRelay(relayInfo.URL), tunnelToken); err != nil {
+	if err := h.commandSender.SendConnectTunnel(ctx, pod.RunnerID, tunnelURLFromRelay(relayInfo.URL), tunnelToken); err != nil {
 		apierr.ServiceUnavailable(c, "preview_unavailable", "Preview is not available")
 		return
 	}

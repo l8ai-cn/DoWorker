@@ -34,7 +34,7 @@ type RunnerCommandSender interface {
 
 	// SendConnectTunnel tells the runner to establish/refresh its outbound HTTP
 	// tunnel to the Gateway. Not bound to a pod.
-	SendConnectTunnel(runnerID int64, gatewayURL, tunnelToken string) error
+	SendConnectTunnel(ctx context.Context, runnerID int64, gatewayURL, tunnelToken string) error
 }
 
 type NoOpCommandSender struct {
@@ -117,7 +117,7 @@ func (n *NoOpCommandSender) SendAcpRelay(ctx context.Context, runnerID int64, po
 	return ErrCommandSenderNotSet
 }
 
-func (n *NoOpCommandSender) SendConnectTunnel(runnerID int64, gatewayURL, tunnelToken string) error {
+func (n *NoOpCommandSender) SendConnectTunnel(ctx context.Context, runnerID int64, gatewayURL, tunnelToken string) error {
 	n.logger.Warn("command sender not configured, cannot send connect tunnel",
 		"runner_id", runnerID, "gateway_url", gatewayURL)
 	return ErrCommandSenderNotSet

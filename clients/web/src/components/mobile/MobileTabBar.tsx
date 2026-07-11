@@ -2,14 +2,14 @@
 
 import React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   useIDEStore,
   getMobileActivities,
   type ActivityType,
 } from "@/stores/ide";
-import { useCurrentOrg, useAuthStore } from "@/stores/auth";
+import { useCurrentOrg } from "@/stores/auth";
 import { useTranslations } from "next-intl";
 import {
   Terminal,
@@ -19,6 +19,7 @@ import {
   FolderGit2,
   Target,
   MoreHorizontal,
+  Smartphone,
   type LucideIcon,
 } from "lucide-react";
 
@@ -40,6 +41,7 @@ export function MobileTabBar({ className }: MobileTabBarProps) {
     useIDEStore();
   const currentOrg = useCurrentOrg();
   const params = useParams();
+  const pathname = usePathname();
   const t = useTranslations();
   const orgSlug = currentOrg?.slug || (params.org as string) || "";
 
@@ -48,7 +50,7 @@ export function MobileTabBar({ className }: MobileTabBarProps) {
   const getActivityRoute = (activity: ActivityType): string => {
     switch (activity) {
       case "workspace":
-        return `/${orgSlug}/workspace`;
+        return `/${orgSlug}/mobile/workers`;
       case "tickets":
         return `/${orgSlug}/tickets`;
       case "channels":
@@ -74,8 +76,12 @@ export function MobileTabBar({ className }: MobileTabBarProps) {
       )}
     >
       {mobileActivities.map((activity) => {
-        const Icon = ICON_MAP[activity.icon] || Terminal;
-        const isActive = activeActivity === activity.id;
+        const Icon = activity.id === "workspace"
+          ? Smartphone
+          : ICON_MAP[activity.icon] || Terminal;
+        const isActive = activity.id === "workspace"
+          ? pathname.includes("/mobile/workers")
+          : activeActivity === activity.id;
 
         return (
           <Link
@@ -90,7 +96,11 @@ export function MobileTabBar({ className }: MobileTabBarProps) {
             onClick={() => setActiveActivity(activity.id)}
           >
             <Icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium">{t(`ide.activities.${activity.id}`)}</span>
+            <span className="text-[10px] font-medium">
+              {activity.id === "workspace"
+                ? t("mobile.workers.tab")
+                : t(`ide.activities.${activity.id}`)}
+            </span>
           </Link>
         );
       })}

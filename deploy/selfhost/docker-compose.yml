@@ -84,6 +84,7 @@ services:
     environment:
       # Domain Configuration
       - PRIMARY_DOMAIN=${PRIMARY_DOMAIN}
+      - PUBLIC_WEB_URL=${PUBLIC_WEB_URL}
       - USE_HTTPS=false
       # Database
       - DB_HOST=postgres

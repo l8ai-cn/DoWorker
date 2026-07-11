@@ -371,8 +371,6 @@ func TestOnSubscribePod_ReconnectAfterDisconnect(t *testing.T) {
 	}
 }
 
-// TestOnSubscribePod_RejectsStoppedPod verifies that subscribe is silently ignored
-// for pods in terminal states.
 func TestOnSubscribePod_RejectsStoppedPod(t *testing.T) {
 	for _, status := range []string{PodStatusStopped, PodStatusFailed} {
 		t.Run(status, func(t *testing.T) {
@@ -390,8 +388,8 @@ func TestOnSubscribePod_RejectsStoppedPod(t *testing.T) {
 				RunnerToken: "token-123",
 			})
 
-			if err != nil {
-				t.Errorf("expected nil error for %s pod, got: %v", status, err)
+			if err == nil {
+				t.Errorf("expected error for %s pod", status)
 			}
 			if pod.GetRelayClient() != nil {
 				t.Errorf("no relay client should be set for %s pod", status)

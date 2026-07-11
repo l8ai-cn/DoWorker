@@ -16,7 +16,7 @@ import (
 )
 
 // GRPCProtocolVersion is the current gRPC protocol version.
-const GRPCProtocolVersion = 2
+const GRPCProtocolVersion = 3
 
 // GRPCConnection manages the gRPC connection to the server with mTLS.
 // Responsibilities: mTLS setup, bidirectional streaming, reconnection, message routing.
@@ -64,6 +64,7 @@ type GRPCConnection struct {
 
 	// Lifecycle - Priority-based channels for message sending
 	// Control messages (heartbeat, pod events, OSC) have higher priority than agent status
+	readyCh     chan *runnerv1.RunnerMessage // Highest priority: correlated command readiness results
 	controlCh   chan *runnerv1.RunnerMessage // High priority: heartbeat, pod_created, pod_terminated, OSC, etc.
 	terminalCh  chan *runnerv1.RunnerMessage // Low priority: agent_status (terminal output via Relay)
 	stopCh      chan struct{}
@@ -130,6 +131,7 @@ func NewGRPCConnection(endpoint, nodeID, orgSlug, certFile, keyFile, caFile stri
 		heartbeatInterval:        30 * time.Second,
 		initTimeout:              30 * time.Second,
 		reconnectStrategy:        NewReconnectStrategy(5*time.Second, 5*time.Minute),
+		readyCh:                  make(chan *runnerv1.RunnerMessage, 32),
 		controlCh:                make(chan *runnerv1.RunnerMessage, 100),  // Small buffer for control messages
 		terminalCh:               make(chan *runnerv1.RunnerMessage, 1000), // Large buffer for terminal output
 		stopCh:                   make(chan struct{}),

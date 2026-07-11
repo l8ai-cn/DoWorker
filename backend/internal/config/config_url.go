@@ -1,6 +1,9 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // BaseURL returns the base URL with protocol (http:// or https://)
 func (c *Config) BaseURL() string {
@@ -21,6 +24,10 @@ func (c *Config) WebSocketBaseURL() string {
 
 func (c *Config) FrontendURL() string {
 	return c.BaseURL()
+}
+
+func (c *Config) PublicWebBaseURL() string {
+	return strings.TrimRight(c.PublicWebURL, "/")
 }
 
 func (c *Config) APIBaseURL() string {

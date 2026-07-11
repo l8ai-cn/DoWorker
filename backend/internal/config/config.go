@@ -25,6 +25,7 @@ type Config struct {
 	PendingQueue  PendingQueueConfig
 
 	PrimaryDomain string // Primary domain (e.g., "localhost:10000" or "agentsmesh.ai")
+	PublicWebURL  string // Browser-visible Web origin used for mobile access links
 	UseHTTPS      bool   // Use HTTPS/WSS protocols
 }
 
@@ -37,6 +38,7 @@ type MarketplaceConfig struct {
 func Load() (*Config, error) {
 	return &Config{
 		PrimaryDomain: getEnv("PRIMARY_DOMAIN", "localhost:10000"),
+		PublicWebURL:  getEnv("PUBLIC_WEB_URL", ""),
 		UseHTTPS:      getEnvBool("USE_HTTPS", false),
 
 		Server: ServerConfig{

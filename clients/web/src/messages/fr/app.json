@@ -367,6 +367,48 @@
   },
   "mobile": {
     "more": "Plus",
+    "access": {
+      "title": "Accès mobile",
+      "console": "Console",
+      "preview": "Aperçu",
+      "copy": "Copier le lien",
+      "copied": "Lien mobile copié",
+      "copyFailed": "Impossible de copier le lien",
+      "open": "Ouvrir",
+      "mobileAccess": "Ouvrir sur mobile",
+      "loadFailed": "Impossible de préparer l'accès mobile",
+      "retry": "Réessayer",
+      "unavailable": "Ce Worker n'est pas disponible pour le contrôle mobile."
+    },
+    "preview": {
+      "error": "L'aperçu est indisponible",
+      "unavailable": "Aperçu indisponible",
+      "backToConsole": "Retour à la console"
+    },
+    "control": {
+      "observer": "Mode observation",
+      "busy": "Un autre appareil a le contrôle",
+      "takeHint": "Prenez le contrôle pour saisir ou envoyer des commandes.",
+      "waiting": "En attente de la connexion du Worker.",
+      "takeControl": "Prendre le contrôle"
+    },
+    "workers": {
+      "tab": "Workers",
+      "errorTitle": "Impossible de charger les Workers",
+      "retry": "Réessayer",
+      "offline": "Vous êtes hors ligne. Les contrôles en direct sont indisponibles.",
+      "emptyTitle": "Aucun Worker actif",
+      "emptyBody": "Démarrez un Worker sur ordinateur, puis ouvrez-le ici.",
+      "terminal": "Terminal",
+      "acp": "Agent",
+      "status": {
+        "running": "En cours",
+        "initializing": "Démarrage",
+        "paused": "En pause",
+        "disconnected": "Déconnecté",
+        "orphaned": "Reconnexion"
+      }
+    },
     "drawer": {
       "navigationMenu": "Menu de navigation",
       "organization": "Organisation",

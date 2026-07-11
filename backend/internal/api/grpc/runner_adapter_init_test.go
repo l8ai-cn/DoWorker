@@ -38,7 +38,8 @@ func TestGRPCRunnerAdapter_HandleInitialize(t *testing.T) {
 		case response := <-conn.Send:
 			initResult := response.GetInitializeResult()
 			require.NotNil(t, initResult)
-			assert.Equal(t, int32(2), initResult.ProtocolVersion)
+			assert.Equal(t, int32(3), initResult.ProtocolVersion)
+			assert.Equal(t, int32(2), conn.GetProtocolVersion())
 			assert.NotNil(t, initResult.ServerInfo)
 			assert.Empty(t, initResult.Agents)
 			assert.Contains(t, initResult.Features, "files_to_create")

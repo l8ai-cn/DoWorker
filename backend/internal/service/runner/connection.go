@@ -28,6 +28,7 @@ type GRPCConnection struct {
 	lastPong    time.Time // Last downstream pong received time
 
 	initialized     bool
+	protocolVersion int32
 	availableAgents []string
 
 	onlineEventSent atomic.Bool
@@ -66,6 +67,18 @@ func (c *GRPCConnection) SetInitialized(initialized bool, availableAgents []stri
 	defer c.mu.Unlock()
 	c.initialized = initialized
 	c.availableAgents = availableAgents
+}
+
+func (c *GRPCConnection) SetProtocolVersion(version int32) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.protocolVersion = version
+}
+
+func (c *GRPCConnection) GetProtocolVersion() int32 {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.protocolVersion
 }
 
 func (c *GRPCConnection) GetAvailableAgents() []string {

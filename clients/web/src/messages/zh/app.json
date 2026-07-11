@@ -572,12 +572,39 @@
       "copied": "移动端链接已复制",
       "copyFailed": "无法复制链接",
       "open": "打开",
-      "mobileAccess": "在移动端打开"
+      "mobileAccess": "在移动端打开",
+      "loadFailed": "无法准备移动端访问",
+      "retry": "重试",
+      "unavailable": "当前 Worker 暂时无法通过移动端控制。"
     },
     "preview": {
       "error": "预览不可用",
       "unavailable": "预览不可用",
       "backToConsole": "返回控制台"
+    },
+    "control": {
+      "observer": "当前为只读观察模式",
+      "busy": "另一台设备正在控制",
+      "takeHint": "取得控制权后才能输入或发送命令。",
+      "waiting": "正在等待 Worker 连接。",
+      "takeControl": "取得控制权"
+    },
+    "workers": {
+      "tab": "Workers",
+      "errorTitle": "无法加载 Workers",
+      "retry": "重试",
+      "offline": "当前处于离线状态，实时控制不可用。",
+      "emptyTitle": "暂无活动 Worker",
+      "emptyBody": "请先在桌面端启动 Worker，再从这里打开。",
+      "terminal": "终端",
+      "acp": "智能体",
+      "status": {
+        "running": "运行中",
+        "initializing": "启动中",
+        "paused": "已暂停",
+        "disconnected": "已断开",
+        "orphaned": "重连中"
+      }
     },
     "drawer": {
       "navigationMenu": "导航菜单",

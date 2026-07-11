@@ -66,6 +66,10 @@ vi.mock("../PodSelectorModal", () => ({
   PodSelectorModal: () => null,
 }));
 
+vi.mock("@/components/mobile-worker/WorkerControlOverlay", () => ({
+  WorkerControlOverlay: () => null,
+}));
+
 vi.mock("sonner", () => ({
   toast: { error: vi.fn() },
 }));

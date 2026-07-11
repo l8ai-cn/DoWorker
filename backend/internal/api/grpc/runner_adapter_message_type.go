@@ -56,6 +56,10 @@ func extractMessageType(msg *runnerv1.RunnerMessage) string {
 		return "PodRestarting"
 	case *runnerv1.RunnerMessage_VerificationResult:
 		return "VerificationResult"
+	case *runnerv1.RunnerMessage_RelaySubscriptionResult:
+		return "RelaySubscriptionResult"
+	case *runnerv1.RunnerMessage_TunnelConnectionResult:
+		return "TunnelConnectionResult"
 	default:
 		return "Unknown"
 	}

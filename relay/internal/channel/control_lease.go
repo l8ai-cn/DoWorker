@@ -81,12 +81,16 @@ func (c *Channel) releaseControlLease(subscriberID, leaseID string) {
 	c.Broadcast(protocol.EncodeControlLeaseStatus(protocol.ControlLeaseStatusReleased, "", 0))
 }
 
-func (c *Channel) hasControlLease(subscriberID string) bool {
+func (c *Channel) writeToPublisherWithControlLease(
+	subscriberID string,
+	data []byte,
+) (bool, error) {
 	c.controlMu.Lock()
 	now := time.Now()
 	if c.controlOwner == subscriberID && now.Before(c.controlExpiresAt) {
+		err := c.writeToPublisher(data)
 		c.controlMu.Unlock()
-		return true
+		return true, err
 	}
 	expired := c.controlOwner != "" && !now.Before(c.controlExpiresAt)
 	if expired {
@@ -96,7 +100,7 @@ func (c *Channel) hasControlLease(subscriberID string) bool {
 	if expired {
 		c.Broadcast(protocol.EncodeControlLeaseStatus(protocol.ControlLeaseStatusExpired, "", 0))
 	}
-	return false
+	return false, nil
 }
 
 func (c *Channel) releaseControlLeaseForSubscriber(subscriberID string) {

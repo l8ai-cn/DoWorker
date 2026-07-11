@@ -61,7 +61,7 @@ func (s *GRPCCommandSender) SendPrompt(ctx context.Context, runnerID int64, podK
 
 func (s *GRPCCommandSender) SendSubscribePod(ctx context.Context, runnerID int64, podKey, relayURL, runnerToken string, includeSnapshot bool, snapshotHistory int32) error {
 	slog.InfoContext(ctx, "sending subscribe_pod command", "runner_id", runnerID, "pod_key", podKey)
-	if err := s.adapter.SendSubscribePod(runnerID, podKey, relayURL, runnerToken, includeSnapshot, snapshotHistory); err != nil {
+	if err := s.adapter.SendSubscribePod(ctx, runnerID, podKey, relayURL, runnerToken, includeSnapshot, snapshotHistory); err != nil {
 		slog.ErrorContext(ctx, "failed to send subscribe_pod command", "runner_id", runnerID, "pod_key", podKey, "error", err)
 		return err
 	}
@@ -120,10 +120,10 @@ func (s *GRPCCommandSender) SendAcpRelay(ctx context.Context, runnerID int64, po
 	return nil
 }
 
-func (s *GRPCCommandSender) SendConnectTunnel(runnerID int64, gatewayURL, tunnelToken string) error {
-	slog.Info("sending connect_tunnel command", "runner_id", runnerID, "gateway_url", gatewayURL)
-	if err := s.adapter.SendConnectTunnel(runnerID, gatewayURL, tunnelToken); err != nil {
-		slog.Error("failed to send connect_tunnel command", "runner_id", runnerID, "error", err)
+func (s *GRPCCommandSender) SendConnectTunnel(ctx context.Context, runnerID int64, gatewayURL, tunnelToken string) error {
+	slog.InfoContext(ctx, "sending connect_tunnel command", "runner_id", runnerID, "gateway_url", gatewayURL)
+	if err := s.adapter.SendConnectTunnel(ctx, runnerID, gatewayURL, tunnelToken); err != nil {
+		slog.ErrorContext(ctx, "failed to send connect_tunnel command", "runner_id", runnerID, "error", err)
 		return err
 	}
 	return nil

@@ -57,7 +57,7 @@ func mountPodService(
 	cfg *config.Config,
 	opts []connect.HandlerOption,
 ) {
-	serverOpts := []podconnect.Option{podconnect.WithBaseURL(cfg.BaseURL())}
+	serverOpts := []podconnect.Option{podconnect.WithBaseURL(cfg.PublicWebBaseURL())}
 	if rest.PodOrchestrator != nil {
 		serverOpts = append(serverOpts, podconnect.WithOrchestrator(rest.PodOrchestrator))
 	}

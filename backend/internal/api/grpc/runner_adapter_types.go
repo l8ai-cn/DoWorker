@@ -45,7 +45,8 @@ type GRPCRunnerAdapter struct {
 	pkiService     *pki.Service
 	agentsProvider interfaces.AgentsProvider
 
-	connManager *runner.RunnerConnectionManager
+	connManager  *runner.RunnerConnectionManager
+	readyResults *runnerReadyResultTracker
 
 	podEvents PodEventSink
 
@@ -105,6 +106,7 @@ func NewGRPCRunnerAdapter(
 		pkiService:     pkiService,
 		agentsProvider: agentsProvider,
 		connManager:    connManager,
+		readyResults:   newRunnerReadyResultTracker(),
 	}
 
 	if mcpDeps != nil {

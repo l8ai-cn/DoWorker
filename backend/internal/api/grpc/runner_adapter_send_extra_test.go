@@ -1,7 +1,9 @@
 package grpc
 
 import (
+	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,17 +21,20 @@ func TestGRPCRunnerAdapter_SendSubscribePod(t *testing.T) {
 	adapter := NewGRPCRunnerAdapter(logger, nil, nil, nil, nil, nil, connMgr, nil)
 
 	t.Run("runner not connected", func(t *testing.T) {
-		err := adapter.SendSubscribePod(999, "pod-1", "ws://relay", "token", true, 100)
+		err := adapter.SendSubscribePod(context.Background(), 999, "pod-1", "ws://relay", "token", true, 100)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "not connected")
 	})
 
 	t.Run("successful send", func(t *testing.T) {
 		mockStream := &mockRunnerStream{}
-		connMgr.AddConnection(2, "test-node", "test-org", mockStream)
+		conn := connMgr.AddConnection(2, "test-node", "test-org", mockStream)
+		conn.SetProtocolVersion(runnerReadyProtocolVersion)
 
-		err := adapter.SendSubscribePod(2, "pod-1", "ws://relay", "token", true, 100)
-		require.NoError(t, err)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+		defer cancel()
+		err := adapter.SendSubscribePod(ctx, 2, "pod-1", "ws://relay", "token", true, 100)
+		require.ErrorIs(t, err, context.DeadlineExceeded)
 	})
 }
 
@@ -41,17 +46,20 @@ func TestGRPCRunnerAdapter_SendConnectTunnel(t *testing.T) {
 	adapter := NewGRPCRunnerAdapter(logger, nil, nil, nil, nil, nil, connMgr, nil)
 
 	t.Run("runner not connected", func(t *testing.T) {
-		err := adapter.SendConnectTunnel(999, "wss://d/relay", "tok")
+		err := adapter.SendConnectTunnel(context.Background(), 999, "wss://d/relay", "tok")
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "not connected")
 	})
 
 	t.Run("successful send", func(t *testing.T) {
 		mockStream := &mockRunnerStream{}
-		connMgr.AddConnection(1, "n", "o", mockStream)
+		conn := connMgr.AddConnection(1, "n", "o", mockStream)
+		conn.SetProtocolVersion(runnerReadyProtocolVersion)
 
-		err := adapter.SendConnectTunnel(1, "wss://d/relay", "tok")
-		require.NoError(t, err)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+		defer cancel()
+		err := adapter.SendConnectTunnel(ctx, 1, "wss://d/relay", "tok")
+		require.ErrorIs(t, err, context.DeadlineExceeded)
 	})
 }
 

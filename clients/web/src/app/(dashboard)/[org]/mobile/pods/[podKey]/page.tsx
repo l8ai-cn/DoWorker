@@ -1,11 +1,12 @@
-"use client";
+import { permanentRedirect } from "next/navigation";
 
-import { useParams } from "next/navigation";
-import { MobilePodWorkspace } from "@/components/mobile/MobilePodWorkspace";
-
-export default function MobilePodPage() {
-  const params = useParams<{ podKey: string }>();
-  const podKey = typeof params.podKey === "string" ? params.podKey : "";
-
-  return <MobilePodWorkspace podKey={podKey} />;
+export default async function LegacyMobilePodPage({
+  params,
+}: {
+  params: Promise<{ org: string; podKey: string }>;
+}) {
+  const { org, podKey } = await params;
+  permanentRedirect(
+    `/${encodeURIComponent(org)}/mobile/workers/${encodeURIComponent(podKey)}`,
+  );
 }

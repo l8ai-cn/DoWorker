@@ -116,7 +116,7 @@ func (m *mockCommandSender) SendUpdatePodPolicyRules(context.Context, int64, str
 func (m *mockCommandSender) SendAcpRelay(context.Context, int64, string, string) error {
 	return nil
 }
-func (m *mockCommandSender) SendConnectTunnel(int64, string, string) error {
+func (m *mockCommandSender) SendConnectTunnel(context.Context, int64, string, string) error {
 	return nil
 }
 

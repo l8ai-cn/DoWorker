@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { getPodDisplayName } from "@/lib/pod-display-name";
 import { Pod } from "@/stores/pod";
 import { AgentStatusBadge } from "@/components/shared/AgentStatusBadge";
+import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 import {
   Square,
   Terminal,
@@ -12,6 +14,7 @@ import {
   XCircle,
   Loader2,
   RefreshCw,
+  Smartphone,
 } from "lucide-react";
 import { SidebarPodContextMenu } from "./SidebarPodContextMenu";
 import { SidebarPodActionsMenu } from "./SidebarPodActionsMenu";
@@ -62,6 +65,7 @@ interface PodListItemProps {
 }
 
 export function PodListItem({ pod, isOpen, onClick, onTerminate, onDelete, onWake, onRename, onShare, onOpenMobile, onPublishExpert, onTogglePerpetual }: PodListItemProps) {
+  const t = useTranslations("mobile.access");
   const status = statusColors[pod.status] || statusColors.terminated;
 
   return (
@@ -109,6 +113,20 @@ export function PodListItem({ pod, isOpen, onClick, onTerminate, onDelete, onWak
             </p>
           )}
         </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+          title={t("mobileAccess")}
+          aria-label={t("mobileAccess")}
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenMobile();
+          }}
+        >
+          <Smartphone className="h-4 w-4" />
+        </Button>
         <SidebarPodActionsMenu
           pod={pod}
           onOpenMobile={onOpenMobile}

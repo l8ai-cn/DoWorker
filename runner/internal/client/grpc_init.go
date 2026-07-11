@@ -89,6 +89,13 @@ func (c *GRPCConnection) performInitialization(ctx context.Context) error {
 		logger.GRPC().DebugContext(ctx, "Received initialize_result",
 			"server_version", result.ServerInfo.Version,
 			"agents", len(result.Agents))
+		if result.GetProtocolVersion() != GRPCProtocolVersion {
+			return fmt.Errorf(
+				"incompatible backend protocol version: got %d, require %d",
+				result.GetProtocolVersion(),
+				GRPCProtocolVersion,
+			)
+		}
 
 		// Phase 3: Check available agents (with version detection) and send initialized
 		availableAgents, agentVersions := c.agentProbe.ProbeAll(result.Agents)

@@ -5,6 +5,7 @@ metadata:
   namespace: agentsmesh
 data:
   PRIMARY_DOMAIN: "dowork.l8ai.cn"
+  PUBLIC_WEB_URL: "https://dowork.l8ai.cn"
   USE_HTTPS: "true"
 
   DB_HOST: "postgres"

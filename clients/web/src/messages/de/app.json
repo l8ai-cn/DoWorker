@@ -361,6 +361,48 @@
   },
   "mobile": {
     "more": "Mehr",
+    "access": {
+      "title": "Mobiler Zugriff",
+      "console": "Konsole",
+      "preview": "Vorschau",
+      "copy": "Link kopieren",
+      "copied": "Mobiler Link kopiert",
+      "copyFailed": "Link konnte nicht kopiert werden",
+      "open": "Öffnen",
+      "mobileAccess": "Auf Mobilgerät öffnen",
+      "loadFailed": "Mobiler Zugriff konnte nicht vorbereitet werden",
+      "retry": "Erneut versuchen",
+      "unavailable": "Dieser Worker kann derzeit nicht mobil gesteuert werden."
+    },
+    "preview": {
+      "error": "Vorschau ist nicht verfügbar",
+      "unavailable": "Vorschau nicht verfügbar",
+      "backToConsole": "Zurück zur Konsole"
+    },
+    "control": {
+      "observer": "Beobachtungsmodus",
+      "busy": "Ein anderes Gerät hat die Kontrolle",
+      "takeHint": "Übernehmen Sie die Kontrolle, um Eingaben zu senden.",
+      "waiting": "Warten auf die Worker-Verbindung.",
+      "takeControl": "Kontrolle übernehmen"
+    },
+    "workers": {
+      "tab": "Workers",
+      "errorTitle": "Workers konnten nicht geladen werden",
+      "retry": "Erneut versuchen",
+      "offline": "Sie sind offline. Live-Steuerung ist nicht verfügbar.",
+      "emptyTitle": "Keine aktiven Workers",
+      "emptyBody": "Starten Sie einen Worker am Desktop und öffnen Sie ihn hier.",
+      "terminal": "Terminal",
+      "acp": "Agent",
+      "status": {
+        "running": "Aktiv",
+        "initializing": "Startet",
+        "paused": "Pausiert",
+        "disconnected": "Getrennt",
+        "orphaned": "Verbindet erneut"
+      }
+    },
     "drawer": {
       "navigationMenu": "Navigationsmenü",
       "organization": "Organisation",

@@ -53,6 +53,7 @@ type PodInputRequest struct {
 // SubscribePodRequest is sent when a browser wants to observe the pod via Relay.
 // The Runner should connect to the specified Relay URL and start streaming terminal output.
 type SubscribePodRequest struct {
+	CommandID       string `json:"command_id"`
 	PodKey          string `json:"pod_key"`
 	RelayURL        string `json:"relay_url"`    // Public URL via reverse proxy (e.g. wss://example.com/relay)
 	RunnerToken     string `json:"runner_token"` // JWT token for Relay authentication
@@ -70,6 +71,7 @@ type UnsubscribePodRequest struct {
 // HTTP tunnel to the Gateway. TunnelToken is a token_type=tunnel JWT not bound
 // to a single pod.
 type ConnectTunnelRequest struct {
+	CommandID   string `json:"command_id"`
 	GatewayURL  string `json:"gateway_url"`
 	TunnelToken string `json:"tunnel_token"`
 }

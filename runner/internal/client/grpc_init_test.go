@@ -79,8 +79,9 @@ func TestPerformInitialization_Success(t *testing.T) {
 		// Wait for init request to be sent
 		time.Sleep(50 * time.Millisecond)
 		conn.initResultCh <- &runnerv1.InitializeResult{
-			ServerInfo: &runnerv1.ServerInfo{Version: "2.0.0"},
-			Agents:     []*runnerv1.AgentInfo{},
+			ProtocolVersion: GRPCProtocolVersion,
+			ServerInfo:      &runnerv1.ServerInfo{Version: "2.0.0"},
+			Agents:          []*runnerv1.AgentInfo{},
 		}
 	}()
 
@@ -105,8 +106,9 @@ func TestPerformInitialization_DrainsStaleResult(t *testing.T) {
 	go func() {
 		time.Sleep(50 * time.Millisecond)
 		conn.initResultCh <- &runnerv1.InitializeResult{
-			ServerInfo: &runnerv1.ServerInfo{Version: "fresh"},
-			Agents:     []*runnerv1.AgentInfo{},
+			ProtocolVersion: GRPCProtocolVersion,
+			ServerInfo:      &runnerv1.ServerInfo{Version: "fresh"},
+			Agents:          []*runnerv1.AgentInfo{},
 		}
 	}()
 
@@ -114,4 +116,25 @@ func TestPerformInitialization_DrainsStaleResult(t *testing.T) {
 	err := conn.performInitialization(ctx)
 	require.NoError(t, err)
 	assert.True(t, conn.IsInitialized())
+}
+
+func TestPerformInitialization_RejectsIncompatibleBackendProtocol(t *testing.T) {
+	conn := newTestConnection()
+	setFakeStream(conn)
+	conn.initTimeout = 2 * time.Second
+	conn.agentProbe = NewAgentProbe()
+
+	go func() {
+		time.Sleep(50 * time.Millisecond)
+		conn.initResultCh <- &runnerv1.InitializeResult{
+			ProtocolVersion: GRPCProtocolVersion - 1,
+			ServerInfo:      &runnerv1.ServerInfo{Version: "legacy"},
+		}
+	}()
+
+	err := conn.performInitialization(context.Background())
+
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "incompatible backend protocol version")
+	assert.False(t, conn.IsInitialized())
 }
