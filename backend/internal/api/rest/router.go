@@ -115,7 +115,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		// Public config routes migrated to
 		// proto.billing.v1.BillingPublicService — marketing pages reach it
 		// over plain-fetch Connect (clients/web/src/lib/public-api.ts).
-		v1.NewPublicMarketHandler(svc.Extension).RegisterRoutes(apiV1.Group("/public/market"))
+		v1.NewPublicMarketHandler(svc.Extension, svc.Expert).RegisterRoutes(apiV1.Group("/public/market"))
 
 		// gRPC Runner routes (public, for Runner CLI registration with mTLS)
 		if svc.GRPCRunnerHandler != nil {
