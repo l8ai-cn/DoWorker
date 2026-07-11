@@ -26,7 +26,7 @@ spec:
         - name: agentsmesh-regcred
       containers:
         - name: runner
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-minimax-cli:latest
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-minimax-cli@sha256:a299ee625a6c6baadc85a8add73f6ba805e992f85a2b90faf5811617d70094c1
           imagePullPolicy: Always
           command: ["/usr/local/bin/runner-entrypoint.sh"]
           env:

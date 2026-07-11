@@ -4,7 +4,7 @@ metadata:
   name: migrate
   namespace: agentsmesh
   annotations:
-    agentsmesh.ai/verified-image-digest: "sha256:5ad2dfc3ebfea823a2ff2f0818dbae1b1bc1a9638cd852084e2927532ce6a2fd"
+    agentsmesh.ai/verified-image-digest: "sha256:452a8b053be8d479d9ad1b2581fcef251864d2228e913a67c07a5b34bcea8b80"
 spec:
   backoffLimit: 5
   ttlSecondsAfterFinished: 300
@@ -18,7 +18,7 @@ spec:
         - name: agentsmesh-regcred
       containers:
         - name: migrate
-          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:320ae817ae6eb074b723a3bcbe907809ef097b87b8145e6697cab89f7901573f
+          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:452a8b053be8d479d9ad1b2581fcef251864d2228e913a67c07a5b34bcea8b80
           imagePullPolicy: Always
           command: ["/app/server", "migrate", "up"]
           envFrom:
