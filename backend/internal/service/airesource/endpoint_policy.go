@@ -2,6 +2,7 @@ package airesource
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
@@ -40,7 +41,7 @@ func (policy *EndpointPolicy) Validate(ctx context.Context, rawURL string) error
 	if err != nil || parsed.Hostname() == "" || parsed.User != nil {
 		return ErrInvalidEndpoint
 	}
-	if parsed.Scheme != "https" && !(policy.allowHTTP && parsed.Scheme == "http") {
+	if parsed.Scheme != "https" && (!policy.allowHTTP || parsed.Scheme != "http") {
 		return ErrInvalidEndpoint
 	}
 	_, err = policy.resolveSafeIPs(ctx, parsed.Hostname())
@@ -93,12 +94,10 @@ func NewSafeHTTPClient(policy *EndpointPolicy, transport *http.Transport) *http.
 		transport = transport.Clone()
 	}
 	transport.Proxy = nil
-	transport.DialTLSContext = nil
-	transport.DialTLS = nil
 	transport.TLSHandshakeTimeout = providerTLSHandshakeTimeout
 	transport.ResponseHeaderTimeout = providerResponseHeaderTimeout
 	dialer := &net.Dialer{Timeout: providerDialTimeout, KeepAlive: 30 * time.Second}
-	transport.DialContext = func(ctx context.Context, network, address string) (net.Conn, error) {
+	dialSafe := func(ctx context.Context, network, address string) (net.Conn, error) {
 		host, port, err := net.SplitHostPort(address)
 		if err != nil {
 			return nil, ErrInvalidEndpoint
@@ -116,6 +115,35 @@ func NewSafeHTTPClient(policy *EndpointPolicy, transport *http.Transport) *http.
 			lastErr = dialErr
 		}
 		return nil, lastErr
+	}
+	transport.DialContext = dialSafe
+	transport.DialTLSContext = func(ctx context.Context, network, address string) (net.Conn, error) {
+		connection, err := dialSafe(ctx, network, address)
+		if err != nil {
+			return nil, err
+		}
+		host, _, err := net.SplitHostPort(address)
+		if err != nil {
+			_ = connection.Close()
+			return nil, ErrInvalidEndpoint
+		}
+		tlsConfig := transport.TLSClientConfig
+		if tlsConfig == nil {
+			tlsConfig = &tls.Config{}
+		} else {
+			tlsConfig = tlsConfig.Clone()
+		}
+		if tlsConfig.ServerName == "" {
+			tlsConfig.ServerName = host
+		}
+		handshakeCtx, cancel := context.WithTimeout(ctx, providerTLSHandshakeTimeout)
+		defer cancel()
+		tlsConnection := tls.Client(connection, tlsConfig)
+		if err := tlsConnection.HandshakeContext(handshakeCtx); err != nil {
+			_ = connection.Close()
+			return nil, err
+		}
+		return tlsConnection, nil
 	}
 	return &http.Client{Transport: transport, Timeout: providerRequestTimeout, CheckRedirect: func(*http.Request, []*http.Request) error { return ErrInvalidEndpoint }}
 }

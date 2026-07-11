@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import { execSync } from "node:child_process";
 import { TEST_ORG_SLUG, getComposeProject } from "./env";
 import { pollUntil } from "./retry";
-import { CreatePodModal } from "../pages/modals/create-pod.modal";
+import { CreateWorkerPage } from "../pages/create-worker.page";
 import type { ApiFixture } from "../fixtures/api.fixture";
 
 // Dev compose has TWO runner services (runner-1 + runner-2 — see
@@ -31,14 +31,13 @@ function listRunnerContainers(): string[] {
 const CREATE_POD_RPC = "/proto.pod.v1.PodService/CreatePod";
 
 /**
- * Drive the Pod create dialog end-to-end and return the new pod's key.
+ * Drive the Create Worker page end-to-end and return the new pod's key.
  *
  * Owns the boilerplate that's identical across EnvBundle e2e specs:
- *   - navigate to /workspace (so the New-Pod button is mountable)
+ *   - navigate to /workers/new
  *   - intercept the Connect-RPC CreatePod (binary proto, response carries
  *     pod_key in the typed envelope)
- *   - open dialog, select agent, expand advanced, apply runtime bundle selection,
- *     submit, wait for close
+ *   - select image, apply runtime bundle selection, submit, wait for workspace
  *   - poll backend until pod status reaches "running"
  *
  * Throws if the RPC returns non-2xx so the caller doesn't have to check
@@ -54,7 +53,7 @@ export async function createPodAndWaitRunning(args: {
    * the default credential/runtime picks but before submit. Useful for
    * exercising switch-paths (e.g. picking credential A then credential B).
    */
-  customizeModal?: (modal: CreatePodModal) => Promise<void>;
+  customizeModal?: (worker: CreateWorkerPage) => Promise<void>;
   /** Status-poll timeout (default 30s). */
   statusTimeoutMs?: number;
 }): Promise<string> {
@@ -67,8 +66,8 @@ export async function createPodAndWaitRunning(args: {
     statusTimeoutMs = 30_000,
   } = args;
 
-  await page.goto(`/${TEST_ORG_SLUG}/workspace`);
-  await page.waitForLoadState("domcontentloaded");
+  const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
+  await worker.goto();
 
   // waitForResponse filters by URL+method so unrelated traffic doesn't
   // burn the listener. The frontend issues a Connect-RPC binary POST
@@ -78,22 +77,15 @@ export async function createPodAndWaitRunning(args: {
     { timeout: 20_000 },
   );
 
-  const newPodBtn = page
-    .getByRole("button", { name: /new pod|create new pod|新建 pod|新建 worker|新建环境/i })
-    .first();
-  await newPodBtn.click();
-
-  const modal = new CreatePodModal(page);
-  await modal.waitForOpen();
-  await modal.selectAgent(agentSlug);
-  await modal.expandAdvancedOptions();
+  await worker.selectImage(agentSlug);
   if (selectRuntimeBundleNames !== undefined) {
-    await modal.selectRuntimeBundles(selectRuntimeBundleNames);
+    await worker.selectRuntimeBundles(selectRuntimeBundleNames);
   }
+  await worker.selectPtyMode();
   if (customizeModal) {
-    await customizeModal(modal);
+    await customizeModal(worker);
   }
-  await modal.submit();
+  await worker.submit();
 
   const podRes = await podCreatePromise;
   if (!podRes.ok()) {
@@ -101,7 +93,7 @@ export async function createPodAndWaitRunning(args: {
     throw new Error(`Pod create failed: HTTP ${podRes.status()}: ${text}`);
   }
 
-  await modal.waitForClosed(15_000);
+  await worker.waitForWorkspace(15_000);
 
   // The binary Connect response is awkward to decode here, so we resolve
   // the freshly-created pod by polling the org's most-recent running pod

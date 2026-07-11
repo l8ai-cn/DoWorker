@@ -4,18 +4,18 @@ import { useDoAgentConsoleStore, type DoAgentGoal } from "@/stores/doagentConsol
 function parseGoals(data: Record<string, unknown>): DoAgentGoal[] {
   const goals = data.goals ?? data.Goals;
   if (!Array.isArray(goals)) return [];
-  return goals
-    .map((raw) => {
-      const g = raw as Record<string, unknown>;
-      const id = String(g.id ?? g.goalId ?? "");
-      if (!id) return null;
-      return {
-        id,
-        title: typeof g.title === "string" ? g.title : undefined,
-        status: typeof g.status === "string" ? g.status : undefined,
-      } satisfies DoAgentGoal;
-    })
-    .filter((g): g is DoAgentGoal => g !== null);
+  const parsed: DoAgentGoal[] = [];
+  for (const raw of goals) {
+    const g = raw as Record<string, unknown>;
+    const id = String(g.id ?? g.goalId ?? "");
+    if (!id) continue;
+    parsed.push({
+      id,
+      title: typeof g.title === "string" ? g.title : undefined,
+      status: typeof g.status === "string" ? g.status : undefined,
+    });
+  }
+  return parsed;
 }
 
 export function dispatchDoAgentRelayEvent(

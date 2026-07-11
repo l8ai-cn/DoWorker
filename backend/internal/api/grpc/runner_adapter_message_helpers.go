@@ -78,7 +78,12 @@ func (a *GRPCRunnerAdapter) handleInitialized(ctx context.Context, runnerID int6
 	a.connManager.HandleInitialized(runnerID, msg.AvailableAgents)
 
 	if a.runnerService != nil {
-		_ = a.runnerService.UpdateLastSeen(ctx, runnerID)
+		if err := a.runnerService.MarkConnected(ctx, runnerID); err != nil {
+			a.logger.Error("failed to mark runner connected",
+				"runner_id", runnerID,
+				"error", err,
+			)
+		}
 		if err := a.runnerService.UpdateAvailableAgents(ctx, runnerID, msg.AvailableAgents); err != nil {
 			a.logger.Error("failed to update available agents",
 				"runner_id", runnerID,

@@ -19,6 +19,7 @@ import { clearAuthRateLimit } from "../../helpers/redis";
 import { withEventSubscription } from "../../helpers/eventbus-stream";
 import { createMockAgentPod } from "../../helpers/mock-agent";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
 
 test.describe("Realtime · pod events (wire)", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
@@ -33,7 +34,7 @@ test.describe("Realtime · pod events (wire)", () => {
       items?: Array<{ id: bigint }>;
     };
     expect(runners?.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runnerId = runners![0].id;
+    const runnerId = pickE2EEchoRunner(runners).id;
 
     let createdPodKey: string | undefined;
     const { event } = await withEventSubscription<unknown, { pod_key?: string; runner_id?: number | string }>(

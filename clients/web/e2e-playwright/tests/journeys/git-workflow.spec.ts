@@ -4,9 +4,9 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
 
 type Runner = { id: bigint };
-type Agent = { slug: string };
 type Repository = { id: bigint };
 type Ticket = { slug: string };
 type Pod = { podKey: string; status: string };
@@ -48,14 +48,13 @@ test.describe("Journey: Git Workflow", () => {
     // ── Step 4: Get available runner and agent ──
     const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
     expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-
-    const { builtinAgents: agents } = await cc.agent.listAgents({ orgSlug: TEST_ORG_SLUG }) as { builtinAgents: Agent[] };
+    const runner = pickE2EEchoRunner(runners);
 
     // ── Step 5: Create pod WITH repository and ticket context ──
     const podResp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
-      agentSlug: agents[0].slug,
+      runnerId: runner.id,
+      agentSlug: E2E_ECHO_AGENT_SLUG,
       repositoryId: repo.id,
       ticketSlug,
     }) as { pod: Pod };
@@ -82,7 +81,7 @@ test.describe("Journey: Git Workflow", () => {
     // pods list scoped to this runner, which is the authoritative source.
     const { items: podList } = await cc.pod.listPods({
       orgSlug: TEST_ORG_SLUG,
-      runnerId: runners[0].id,
+      runnerId: runner.id,
     }) as { items: Pod[] };
     expect(Array.isArray(podList)).toBe(true);
     expect(podList.some((p) => p.podKey === podKey)).toBe(true);

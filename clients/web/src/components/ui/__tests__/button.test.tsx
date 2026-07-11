@@ -13,6 +13,19 @@ describe('Button Component', () => {
       render(<Button>Test</Button>)
       expect(screen.getByRole('button')).toBeInTheDocument()
     })
+
+    it('should forward styles to a child element when asChild is enabled', () => {
+      const child = <a href="https://example.com/repositories">Manage repositories</a>
+      render(
+        <Button asChild variant="outline">
+          {child}
+        </Button>
+      )
+      const link = screen.getByRole('link', { name: 'Manage repositories' })
+      expect(link).toHaveAttribute('href', 'https://example.com/repositories')
+      expect(link).toHaveClass('bg-surface-raised')
+      expect(link.closest('button')).toBeNull()
+    })
   })
 
   describe('variants', () => {

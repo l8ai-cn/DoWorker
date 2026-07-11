@@ -34,7 +34,7 @@ export function KnowledgeBaseSourceSettings({
   kb,
   onUpdated,
 }: KnowledgeBaseSourceSettingsProps) {
-  const external = isExternalSource(kb.source_type);
+  const sourceType = isExternalSource(kb.source_type) ? kb.source_type : null;
   const [sourceConfig, setSourceConfig] = useState<SourceConfigForm>({});
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -42,12 +42,12 @@ export function KnowledgeBaseSourceSettings({
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!external) return;
+    if (!sourceType) return;
     const parsed = parseSourceConfigJson(kb.source_config_json);
-    setSourceConfig({ ...emptySourceConfig(kb.source_type), ...parsed });
-  }, [external, kb.source_config_json, kb.source_type]);
+    setSourceConfig({ ...emptySourceConfig(sourceType), ...parsed });
+  }, [kb.source_config_json, sourceType]);
 
-  if (!external) return null;
+  if (!sourceType) return null;
 
   const handleSave = async () => {
     setSaving(true);
@@ -56,7 +56,7 @@ export function KnowledgeBaseSourceSettings({
     try {
       const existing = parseSourceConfigJson(kb.source_config_json);
       const updated = await updateKnowledgeBase(orgSlug, kb.slug, {
-        sourceConfigJson: buildSourceConfigJson(kb.source_type, sourceConfig, existing),
+        sourceConfigJson: buildSourceConfigJson(sourceType, sourceConfig, existing),
       });
       setMessage("数据源配置已保存");
       onUpdated(updated);
@@ -117,7 +117,7 @@ export function KnowledgeBaseSourceSettings({
       {error && <p className="mb-3 text-sm text-destructive">{error}</p>}
       {message && <p className="mb-3 text-sm text-muted-foreground">{message}</p>}
       <SourceConfigFields
-        sourceType={kb.source_type}
+        sourceType={sourceType}
         value={sourceConfig}
         onChange={setSourceConfig}
         idPrefix={`kb-settings-${kb.slug}`}

@@ -47,6 +47,10 @@ test.describe("Forgot/reset password (light-auth)", () => {
       expect(token, "reset token should be persisted to users.password_reset_token").toBeTruthy();
 
       await page.goto(`/reset-password?token=${token}`);
+      // The page is server-rendered, so wait for the client render before
+      // filling controlled inputs; hydration can otherwise reset the first
+      // value written immediately after `load`.
+      await page.waitForTimeout(250);
       await page.locator("#password").fill(newPassword);
       await page.locator("#confirmPassword").fill(newPassword);
       await page.locator('button[type="submit"]').click();

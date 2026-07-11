@@ -18,6 +18,10 @@ func UserConfigDir() string {
 	if err != nil {
 		return ""
 	}
+	return userConfigDirForHome(home)
+}
+
+func userConfigDirForHome(home string) string {
 	newDir := filepath.Join(home, userConfigDirName)
 	legacyDir := filepath.Join(home, legacyConfigDirName)
 	if info, err := os.Stat(newDir); err == nil && info.IsDir() {

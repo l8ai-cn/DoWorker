@@ -144,6 +144,7 @@ func TestGRPCRunnerAdapter_HandleInitialized(t *testing.T) {
 	// Verify connection is marked as initialized
 	assert.True(t, conn.IsInitialized())
 	assert.Equal(t, []string{"claude-code", "aider"}, conn.GetAvailableAgents())
+	assert.Equal(t, 1, runnerSvc.markConnectedCalls)
 }
 
 func TestGRPCRunnerAdapter_HandleInitialized_NilRunnerService(t *testing.T) {

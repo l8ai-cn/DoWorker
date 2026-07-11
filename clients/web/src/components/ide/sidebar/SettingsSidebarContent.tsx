@@ -67,20 +67,28 @@ export function SettingsSidebarContent({ className }: SettingsSidebarContentProp
   const [agents, setAgents] = useState<AgentData[]>([]);
 
   useEffect(() => {
+    if (!currentOrg) return;
+    let active = true;
+
     const fetchAgents = async () => {
-      if (!currentOrg) return;
       try {
         const response = await listAgents(currentOrg.slug);
+        if (!active) return;
         const merged = [
           ...response.builtin_agents,
           ...response.custom_agents,
         ];
         setAgents(merged);
       } catch (error) {
+        if (!active) return;
         console.error("Failed to fetch agents:", error);
       }
     };
+
     fetchAgents();
+    return () => {
+      active = false;
+    };
   }, [currentOrg]);
 
   const isOrgAdminOrOwner = currentOrg?.role === "owner" || currentOrg?.role === "admin";

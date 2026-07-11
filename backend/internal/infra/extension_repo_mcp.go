@@ -95,7 +95,8 @@ func (r *extensionRepo) BatchUpsertMcpMarketItems(ctx context.Context, items []*
 
 	return r.db.WithContext(ctx).
 		Clauses(clause.OnConflict{
-			Columns: []clause.Column{{Name: "registry_name"}},
+			Columns:     []clause.Column{{Name: "registry_name"}},
+			TargetWhere: clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: "registry_name IS NOT NULL"}}},
 			DoUpdates: clause.AssignmentColumns([]string{
 				"name", "description", "icon", "transport_type", "command",
 				"default_args", "default_http_url", "default_http_headers",

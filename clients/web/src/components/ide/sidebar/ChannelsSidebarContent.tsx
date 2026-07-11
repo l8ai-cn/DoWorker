@@ -82,10 +82,11 @@ export function ChannelsSidebarContent({ className }: ChannelsSidebarContentProp
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    if (currentOrg) {
-      fetchChannels({ includeArchived: true });
-      fetchUnreadCounts();
-    }
+    if (!currentOrg) return;
+    const controller = new AbortController();
+    fetchChannels({ includeArchived: true });
+    void fetchUnreadCounts(controller.signal);
+    return () => controller.abort();
   }, [currentOrg, fetchChannels, fetchUnreadCounts]);
 
   const visible = useMemo(() => {

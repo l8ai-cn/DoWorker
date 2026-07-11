@@ -145,7 +145,7 @@ export function ExpertDetailPane({ slug, orgSlug }: ExpertDetailPaneProps) {
         onOpenChange={setDeleteOpen}
         title={t("deleteConfirmTitle")}
         description={t("deleteConfirmDescription")}
-        confirmLabel={t("deleteExpert")}
+        confirmText={t("deleteExpert")}
         variant="destructive"
         onConfirm={handleDelete}
       />

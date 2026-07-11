@@ -27,6 +27,7 @@ import {
   listChannelMembers as listChannelMembersConnect,
   listChannelMembersRaw,
 } from "./channelConnect";
+import type { ChannelMemberData, ChannelPodSummary } from "../connect/channelMembersConnect";
 
 export type { MessageContent, MessageMentions } from "@/lib/viewModels/channelMessage";
 export type { InlineElement, Block } from "@/lib/viewModels/channelMessage";

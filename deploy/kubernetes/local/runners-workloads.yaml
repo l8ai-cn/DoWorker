@@ -268,11 +268,11 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
         - mountPath: /home/runner/.claude
           name: agent-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:
@@ -348,11 +348,11 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
         - mountPath: /home/runner/.codex
           name: agent-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:
@@ -433,9 +433,9 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:
@@ -512,9 +512,9 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:
@@ -587,11 +587,11 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
         - mountPath: /home/runner/.gemini
           name: agent-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:
@@ -667,11 +667,11 @@ spec:
           subPath: runner-entrypoint.sh
         - mountPath: /workspace
           name: workspace
-        - mountPath: /home/runner/.agentsmesh
+        - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
         - mountPath: /home/runner/.loopal
           name: agent-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:

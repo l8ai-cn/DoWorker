@@ -25,8 +25,8 @@ build_do_agent_binary() {
         # CI / fresh clones often lack the sibling doagent repo. Docker still
         # COPY's do-agent-binary into every runner image, so emit a /bin/sh
         # stub that exits 127 — enough for image build; do-agent pods won't run.
-        if [[ "${CI:-}" == "true" || "${SKIP_DOAGENT_BUILD:-}" == "1" ]]; then
-            info "doagent 源码未找到 — CI 写入 do-agent stub (设 DOAGENT_DIR 可启用真编译)"
+        if [[ "${CI:-}" == "true" || "${DEV_SKIP_DOAGENT:-}" == "1" || "${SKIP_DOAGENT_BUILD:-}" == "1" ]]; then
+            info "doagent 源码未找到 — 写入 do-agent stub (设 DOAGENT_DIR 可启用真编译)"
             _write_do_agent_stub "$SCRIPT_DIR/do-agent-binary" || return 1
             return 0
         fi

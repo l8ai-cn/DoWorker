@@ -12,13 +12,9 @@ MAX_CONCURRENT_PODS="${MAX_CONCURRENT_PODS:-10}"
 SSL_DIR="${SSL_DIR:-/app/ssl}"
 AGENT_RUNTIME="${AGENT_RUNTIME:-e2e-echo}"
 DEFAULT_AGENT="${DEFAULT_AGENT:-${AGENT_RUNTIME}}"
+RUNNER_SSH_SOURCE_DIR="${RUNNER_SSH_SOURCE_DIR:-/run/runner-ssh-source}"
 
 CONFIG_DIR="${HOME}/.do-worker"
-if [[ -d "${HOME}/.agentsmesh" && -w "${HOME}/.agentsmesh" ]]; then
-    CONFIG_DIR="${HOME}/.agentsmesh"
-elif [[ -d "${HOME}/.agentsmesh" && ! -w "${HOME}/.agentsmesh" ]]; then
-    echo "▶ ${HOME}/.agentsmesh not writable (uid $(id -u)); using ${CONFIG_DIR}" >&2
-fi
 CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 
@@ -45,7 +41,7 @@ echo ""
 
 wait_for_backend() {
     echo "等待 Backend 服务就绪..."
-    local health_url="${BACKEND_URL}/health"
+    local health_url="${BACKEND_URL}/health/ready"
     for ((i=1; i<=240; i++)); do
         if wget -q -O /dev/null "$health_url" 2>/dev/null; then
             echo "✓ Backend 服务就绪"
@@ -56,6 +52,39 @@ wait_for_backend() {
     done
     echo "✗ Backend 服务启动超时" >&2
     exit 1
+}
+
+init_runner_ssh() {
+    [[ -d "$RUNNER_SSH_SOURCE_DIR" ]] || return
+
+    local ssh_dir="${HOME}/.ssh"
+    local file
+    mkdir -p "$ssh_dir"
+    chmod 700 "$ssh_dir"
+
+    for file in config id_ed25519 id_ed25519.pub known_hosts; do
+        [[ -f "${RUNNER_SSH_SOURCE_DIR}/${file}" ]] || continue
+        cp "${RUNNER_SSH_SOURCE_DIR}/${file}" "${ssh_dir}/${file}"
+    done
+
+    [[ ! -f "${ssh_dir}/id_ed25519" ]] || chmod 600 "${ssh_dir}/id_ed25519"
+    [[ ! -f "${ssh_dir}/config" ]] || chmod 600 "${ssh_dir}/config"
+    [[ ! -f "${ssh_dir}/id_ed25519.pub" ]] || chmod 644 "${ssh_dir}/id_ed25519.pub"
+    [[ ! -f "${ssh_dir}/known_hosts" ]] || chmod 644 "${ssh_dir}/known_hosts"
+}
+
+handoff_runner_state() {
+    [[ "$(id -u)" -eq 0 ]] || return
+
+    local state_paths=("$CONFIG_DIR" "${HOME}/.ssh")
+    case "${AGENT_RUNTIME}" in
+        claude-code) state_paths+=("${HOME}/.claude") ;;
+        codex-cli) state_paths+=("${HOME}/.codex") ;;
+        gemini-cli) state_paths+=("${HOME}/.gemini") ;;
+        do-agent) state_paths+=("${HOME}/.agent") ;;
+        loopal) state_paths+=("${HOME}/.loopal") ;;
+    esac
+    chown -R runner:runner "${state_paths[@]}"
 }
 
 generate_runner_cert() {
@@ -206,10 +235,15 @@ EOF
 }
 main() {
     wait_for_backend
+    init_runner_ssh
     generate_runner_cert
     init_ai_cli_configs
     create_config
     echo "启动 Runner (bazel-built binary)..."
+    handoff_runner_state
+    if [[ "$(id -u)" -eq 0 ]]; then
+        exec sudo -E -H -u runner -- /usr/local/bin/do-worker-runner run
+    fi
     exec /usr/local/bin/do-worker-runner run
 }
 main "$@"

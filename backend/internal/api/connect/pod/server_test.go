@@ -177,7 +177,7 @@ func TestMapServiceErrorRedactsUnavailableRepositoryDetails(t *testing.T) {
 	var connectErr *connect.Error
 	require.ErrorAs(t, got, &connectErr)
 	assert.Equal(t, connect.CodeInvalidArgument, connectErr.Code())
-	assert.Equal(t, "Selected repository is unavailable", connectErr.Message())
+	assert.Equal(t, "selected repository is unavailable", connectErr.Message())
 	assert.NotContains(t, connectErr.Message(), "repo 17")
 	assert.NotContains(t, connectErr.Message(), "org 9")
 	assert.NotContains(t, connectErr.Message(), "permission denied")

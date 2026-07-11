@@ -42,8 +42,8 @@ _gen_with_protoc() {
     _install_go_plugins
     mkdir -p "$ROOT/proto/gen/go"
     local proto_files=()
-    while IFS= read -r f; do
-        proto_files+=("$f")
+    while IFS= read -r proto_file; do
+        proto_files+=("$proto_file")
     done < <(find "$ROOT/proto" -name '*.proto' ! -path '*/gen/*' | sort)
     if ((${#proto_files[@]} == 0)); then
         echo "error: no .proto files found under proto/" >&2

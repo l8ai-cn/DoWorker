@@ -16,10 +16,14 @@ func newTestLogger() *slog.Logger {
 
 // mockRunnerService implements RunnerServiceInterface for testing
 type mockRunnerService struct {
-	runners            map[string]RunnerInfo
-	revokedCerts       map[string]bool
-	err                error
-	revocationCheckErr error // Separate error for IsCertificateRevoked
+	runners               map[string]RunnerInfo
+	revokedCerts          map[string]bool
+	err                   error
+	revocationCheckErr    error // Separate error for IsCertificateRevoked
+	markConnectedCalls    int
+	markDisconnectedCalls int
+	refreshHeartbeatCalls int
+	lastHeartbeatPods     int
 }
 
 func newMockRunnerService() *mockRunnerService {
@@ -41,6 +45,21 @@ func (m *mockRunnerService) GetByNodeID(ctx context.Context, nodeID string) (Run
 
 func (m *mockRunnerService) UpdateLastSeen(ctx context.Context, runnerID int64) error {
 	return m.err
+}
+
+func (m *mockRunnerService) MarkConnected(ctx context.Context, runnerID int64) error {
+	m.markConnectedCalls++
+	return m.err
+}
+
+func (m *mockRunnerService) MarkDisconnected(ctx context.Context, runnerID int64) error {
+	m.markDisconnectedCalls++
+	return m.err
+}
+
+func (m *mockRunnerService) RefreshActiveHeartbeat(runnerID int64, currentPods int) {
+	m.refreshHeartbeatCalls++
+	m.lastHeartbeatPods = currentPods
 }
 
 func (m *mockRunnerService) UpdateAvailableAgents(ctx context.Context, runnerID int64, agents []string) error {

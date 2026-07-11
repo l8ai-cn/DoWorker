@@ -1,30 +1,25 @@
 package main
 
 import (
-	"crypto/rand"
 	"net/http"
-	"strings"
 
 	"connectrpc.com/connect"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/trace"
 
-	agentconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/agent"
 	adminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin"
 	adminauthconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin/auth"
 	promocodeadminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin/promocode"
 	ssoadminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin/sso"
 	subscriptionadminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin/subscription"
 	supportticketadminconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/admin/support_ticket"
+	agentconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/agent"
 	apikeyconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/apikey"
 	bindingconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/binding"
 	blockstoreconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/blockstore"
 	channelconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/channel"
 	envbundleconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/env_bundle"
+	eventsconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/events"
 	extensionconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/extension"
 	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	eventsconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/events"
 	meshconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/mesh"
 	orgconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/org"
 	promocodeconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/promocode"
@@ -37,61 +32,6 @@ import (
 	v1 "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
 	"github.com/anthropics/agentsmesh/backend/internal/config"
 )
-
-// connectPathPrefix is the Connect-RPC canonical URL prefix —
-// `/<package>.<Service>/`. Any incoming request whose URL.Path starts
-// with `/proto.` is routed to the Connect mux before the Gin REST
-// router gets a look at it, so adding new Connect services is purely
-// additive against the existing REST surface.
-const connectPathPrefix = "/proto."
-
-// routeConnectOrREST is the top handler: `/proto.*` goes to Connect, everything
-// else to the Gin REST router. Connect responses are wrapped so a server-stream
-// gets a per-write sliding deadline and survives the server's WriteTimeout; the
-// wrapper auto-detects streaming from the response Content-Type
-// (streaming_writer.go), so unary RPCs keep the tighter WriteTimeout and a
-// newly-added server-stream is protected with no per-procedure allowlist to
-// maintain.
-func routeConnectOrREST(connectHandler, restHandler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, connectPathPrefix) {
-			connectHandler.ServeHTTP(newStreamingResponseWriter(w), r)
-			return
-		}
-		restHandler.ServeHTTP(w, r)
-	})
-}
-
-func withConnectTracing(handler http.Handler) http.Handler {
-	correlated := http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
-		if trace.SpanContextFromContext(request.Context()).IsValid() {
-			handler.ServeHTTP(w, request)
-			return
-		}
-		span, err := newRequestCorrelationSpan()
-		if err != nil {
-			http.Error(w, "request correlation unavailable", http.StatusInternalServerError)
-			return
-		}
-		ctx := trace.ContextWithSpanContext(request.Context(), span)
-		handler.ServeHTTP(w, request.WithContext(ctx))
-	})
-	return otelhttp.NewHandler(correlated, "connect.rpc", otelhttp.WithPropagators(
-		propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}),
-	))
-}
-
-func newRequestCorrelationSpan() (trace.SpanContext, error) {
-	var traceID trace.TraceID
-	if _, err := rand.Read(traceID[:]); err != nil {
-		return trace.SpanContext{}, err
-	}
-	var spanID trace.SpanID
-	if _, err := rand.Read(spanID[:]); err != nil {
-		return trace.SpanContext{}, err
-	}
-	return trace.NewSpanContext(trace.SpanContextConfig{TraceID: traceID, SpanID: spanID}), nil
-}
 
 // defaultConnectHandlerOptions returns the HandlerOption set applied to
 // every Connect handler. The auth interceptor mirrors REST's

@@ -35,20 +35,49 @@ func (s *Service) MarkConnected(ctx context.Context, runnerID int64) error {
 	r.Status = runner.RunnerStatusOnline
 
 	now := time.Now()
+	s.activeMu.Lock()
 	s.activeRunners.Store(runnerID, &ActiveRunner{
 		Runner:   r,
 		LastPing: now,
 		PodCount: r.CurrentPods,
 	})
+	s.activeMu.Unlock()
 
 	slog.InfoContext(ctx, "runner connected", "runner_id", runnerID)
 	return s.UpdateRunnerStatus(ctx, runnerID, runner.RunnerStatusOnline)
 }
 
 func (s *Service) MarkDisconnected(ctx context.Context, runnerID int64) error {
+	s.activeMu.Lock()
 	s.activeRunners.Delete(runnerID)
+	s.activeMu.Unlock()
 	slog.InfoContext(ctx, "runner disconnected", "runner_id", runnerID)
 	return s.UpdateRunnerStatus(ctx, runnerID, runner.RunnerStatusOffline)
+}
+
+func (s *Service) RefreshActiveHeartbeat(runnerID int64, currentPods int) {
+	now := time.Now()
+	s.activeMu.Lock()
+	defer s.activeMu.Unlock()
+
+	active, ok := s.activeRunners.Load(runnerID)
+	if !ok {
+		return
+	}
+	ar, ok := active.(*ActiveRunner)
+	if !ok || ar.Runner == nil {
+		return
+	}
+
+	updated := *ar.Runner
+	updated.Status = runner.RunnerStatusOnline
+	updated.LastHeartbeat = &now
+	updated.CurrentPods = currentPods
+	s.activeRunners.Store(runnerID, &ActiveRunner{
+		Runner:   &updated,
+		LastPing: now,
+		PodCount: currentPods,
+	})
 }
 
 func (s *Service) UpdateHostInfo(ctx context.Context, runnerID int64, hostInfo map[string]interface{}) error {
@@ -66,9 +95,27 @@ func (s *Service) UpdateRunnerVersionAndHostInfo(ctx context.Context, runnerID i
 
 func (s *Service) UpdateAvailableAgents(ctx context.Context, runnerID int64, agents []string) error {
 	slog.InfoContext(ctx, "runner available agents updated", "runner_id", runnerID, "agents", agents)
-	return s.repo.UpdateFields(ctx, runnerID, map[string]interface{}{
-		"available_agents": runner.StringSlice(agents),
-	})
+	availableAgents := runner.StringSlice(append([]string(nil), agents...))
+	if err := s.repo.UpdateFields(ctx, runnerID, map[string]interface{}{
+		"available_agents": availableAgents,
+	}); err != nil {
+		return err
+	}
+
+	s.activeMu.Lock()
+	defer s.activeMu.Unlock()
+	if active, ok := s.activeRunners.Load(runnerID); ok {
+		if ar, ok := active.(*ActiveRunner); ok && ar.Runner != nil {
+			updated := *ar.Runner
+			updated.AvailableAgents = append(runner.StringSlice(nil), availableAgents...)
+			s.activeRunners.Store(runnerID, &ActiveRunner{
+				Runner:   &updated,
+				LastPing: ar.LastPing,
+				PodCount: ar.PodCount,
+			})
+		}
+	}
+	return nil
 }
 
 func (s *Service) UpdateAgentVersions(ctx context.Context, runnerID int64, versions []runner.AgentVersion) error {
@@ -78,6 +125,8 @@ func (s *Service) UpdateAgentVersions(ctx context.Context, runnerID int64, versi
 		return err
 	}
 
+	s.activeMu.Lock()
+	defer s.activeMu.Unlock()
 	if active, ok := s.activeRunners.Load(runnerID); ok {
 		if ar, ok := active.(*ActiveRunner); ok && ar.Runner != nil {
 			updated := *ar.Runner

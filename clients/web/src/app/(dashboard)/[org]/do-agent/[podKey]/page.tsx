@@ -27,7 +27,7 @@ export default function DoAgentConsolePage() {
       <DoAgentGoalBar podKey={podKey} />
       <AcpPromptInput podKey={podKey} />
       {pendingPermissions.length > 0 && (
-        <AcpPermissionDialog podKey={podKey} permission={pendingPermissions[0]} />
+        <AcpPermissionDialog podKey={podKey} permissions={pendingPermissions} />
       )}
     </div>
   );

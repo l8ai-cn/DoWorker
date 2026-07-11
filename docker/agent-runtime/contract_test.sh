@@ -43,6 +43,25 @@ grep -q "runner-codex-cli" "$COMPOSE"
 grep -q "docker/agent-runtime/Dockerfile" "$COMPOSE"
 
 grep -q "case \"\${AGENT_RUNTIME}\"" "${ROOT}/deploy/dev/runner-entrypoint.sh"
+grep -q "RUNNER_SSH_SOURCE_DIR" "${ROOT}/deploy/dev/runner-entrypoint.sh"
+grep -q "init_runner_ssh" "${ROOT}/deploy/dev/runner-entrypoint.sh"
+grep -q 'user: "0:0"' "$COMPOSE"
+grep -q "handoff_runner_state" "${ROOT}/deploy/dev/runner-entrypoint.sh"
+grep -q "exec sudo -E -H -u runner -- /usr/local/bin/do-worker-runner run" "${ROOT}/deploy/dev/runner-entrypoint.sh"
+grep -q 'CONFIG_DIR="${HOME}/.do-worker"' "${ROOT}/deploy/dev/runner-entrypoint.sh"
+grep -q '/home/runner/.do-worker' "$COMPOSE"
+
+if grep -q '/home/runner/.agentsmesh' "$COMPOSE" \
+  || grep -q 'CONFIG_DIR="${HOME}/.agentsmesh"' "${ROOT}/deploy/dev/runner-entrypoint.sh"; then
+  echo "runner container state must use ~/.do-worker consistently" >&2
+  exit 1
+fi
+
+if grep -q '/home/runner/.ssh:ro' "$COMPOSE"; then
+  echo "runner SSH material must not be mounted over the runner home directory" >&2
+  exit 1
+fi
+grep -q './runner-ssh:/run/runner-ssh-source:ro' "$COMPOSE"
 
 if awk '/runner-claude-code:/{flag=1; next} /runner-codex-cli:/{flag=0} flag' "$COMPOSE" \
   | grep -q "/home/runner/.codex"; then
