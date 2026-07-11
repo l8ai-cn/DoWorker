@@ -39,7 +39,6 @@ func NewPodService(repo agentpod.PodRepository) *PodService {
 	return &PodService{repo: repo}
 }
 
-// CreatePodRequest represents a pod creation request
 type CreatePodRequest struct {
 	OrganizationID    int64
 	RunnerID          int64
@@ -77,13 +76,18 @@ type CreatePodRequest struct {
 	VirtualAPIKeyID *int64
 	ModelResourceID *int64
 	AgentfileLayer  string
+	PreviewPort     int
+	PreviewPath     string
 
 	ResolvedWorkerSpec   *specservice.ResolvedSnapshot
 	WorkerSpecSnapshotID *int64
 }
 
-// CreatePod creates a new pod
 func (s *PodService) CreatePod(ctx context.Context, req *CreatePodRequest) (*agentpod.Pod, error) {
+	previewPath, err := normalizeInitialPreviewPath(req)
+	if err != nil {
+		return nil, err
+	}
 	if err := validateAgentfileLayerSecrets(req.AgentfileLayer); err != nil {
 		return nil, err
 	}
@@ -110,19 +114,16 @@ func (s *PodService) CreatePod(ctx context.Context, req *CreatePodRequest) (*age
 		pm := req.PermissionMode
 		permissionModePtr = &pm
 	}
-	// Handle session ID
 	var sessionID *string
 	if req.SessionID != "" {
 		sessionID = &req.SessionID
 	}
 
-	// Handle source pod key for resume
 	var sourcePodKey *string
 	if req.SourcePodKey != "" {
 		sourcePodKey = &req.SourcePodKey
 	}
 
-	// Resolve interaction mode with default
 	interactionMode := req.InteractionMode
 	if interactionMode == "" {
 		interactionMode = agentpod.InteractionModePTY
@@ -157,9 +158,11 @@ func (s *PodService) CreatePod(ctx context.Context, req *CreatePodRequest) (*age
 		VirtualAPIKeyID:      req.VirtualAPIKeyID,
 		ModelResourceID:      req.ModelResourceID,
 		WorkerSpecSnapshotID: req.WorkerSpecSnapshotID,
+		PreviewPort:          req.PreviewPort,
+		PreviewPath:          previewPath,
 	}
 
-	revision, err := newInitialPodConfigRevision(req)
+	revision, err := newInitialPodConfigRevision(req, previewPath)
 	if err != nil {
 		return nil, err
 	}

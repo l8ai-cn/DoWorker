@@ -115,6 +115,8 @@ func podTableDDLs() []string {
 			status TEXT NOT NULL DEFAULT 'draft',
 			config_summary TEXT NOT NULL DEFAULT '{}',
 			model_resource_id INTEGER,
+			preview_port INTEGER NOT NULL DEFAULT 0,
+			preview_path TEXT NOT NULL DEFAULT '/',
 			created_by_id INTEGER NOT NULL,
 			error_message TEXT,
 			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

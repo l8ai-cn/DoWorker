@@ -22,6 +22,8 @@ type PodConfigRevision struct {
 	Status          string          `gorm:"size:20;not null;default:'draft';index" json:"status"`
 	ConfigSummary   json.RawMessage `gorm:"type:jsonb;not null;default:'{}'" json:"config_summary"`
 	ModelResourceID *int64          `gorm:"column:model_resource_id" json:"model_resource_id,omitempty"`
+	PreviewPort     int             `gorm:"column:preview_port;not null;default:0" json:"preview_port"`
+	PreviewPath     string          `gorm:"column:preview_path;size:255;not null;default:'/'" json:"preview_path"`
 	CreatedByID     int64           `gorm:"not null" json:"created_by_id"`
 	ErrorMessage    *string         `gorm:"type:text" json:"error_message,omitempty"`
 	CreatedAt       time.Time       `gorm:"not null;default:now()" json:"created_at"`

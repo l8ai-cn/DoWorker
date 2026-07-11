@@ -4,9 +4,14 @@ import (
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	relayservice "github.com/anthropics/agentsmesh/backend/internal/service/relay"
 )
 
-func newInitialPodConfigRevision(req *CreatePodRequest) (*agentpod.PodConfigRevision, error) {
+func normalizeInitialPreviewPath(req *CreatePodRequest) (string, error) {
+	return relayservice.NormalizePreviewConfig(req.PreviewPort, req.PreviewPath)
+}
+
+func newInitialPodConfigRevision(req *CreatePodRequest, previewPath string) (*agentpod.PodConfigRevision, error) {
 	summary, err := NewSafeConfigSummary(newInitialConfigReferences(req), nil)
 	if err != nil {
 		return nil, err
@@ -18,6 +23,8 @@ func newInitialPodConfigRevision(req *CreatePodRequest) (*agentpod.PodConfigRevi
 		Status:          agentpod.ConfigRevisionStatusActive,
 		ConfigSummary:   summary,
 		ModelResourceID: req.ModelResourceID,
+		PreviewPort:     req.PreviewPort,
+		PreviewPath:     previewPath,
 		CreatedByID:     req.CreatedByID,
 		AppliedAt:       &now,
 	}, nil
