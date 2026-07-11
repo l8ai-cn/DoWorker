@@ -79,12 +79,12 @@ on this cluster). Re-running seed alone does not change relay/web env — only s
 
 - App: https://dowork.l8ai.cn (`/api`, `/proto.`, `/relay`, `/health`)
 - Mobile Worker entry: https://mobile.l8ai.cn
-- Marketplace API: https://market.dowork.l8ai.cn
+- Marketplace API: https://market.l8ai.cn
 - Admin console: https://admin.dowork.l8ai.cn (separate host — no `/admin` basePath)
 - Object storage (presigned URLs): https://minio.dowork.l8ai.cn
 - Test account: `admin@agentsmesh.local / Ab123456`
 
-DNS for `dowork.l8ai.cn` / `market.dowork.l8ai.cn` / `mobile.l8ai.cn` /
+DNS for `dowork.l8ai.cn` / `market.l8ai.cn` / `mobile.l8ai.cn` /
 `admin.dowork.l8ai.cn` / `minio.dowork.l8ai.cn` must point at the oilan node. All
 public URLs share one domain family so relay/WebSocket URLs from
 `GetPodConnection` match the page origin (mixed `l8an.cn` / `l8ai.cn` hosts caused

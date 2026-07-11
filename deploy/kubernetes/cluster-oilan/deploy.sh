@@ -75,7 +75,7 @@ main() {
   push_manifests
   apply_all
   status
-  echo "==> deployed. https://dowork.l8ai.cn · https://market.dowork.l8ai.cn · https://mobile.l8ai.cn (admin@agentsmesh.local / Ab123456)"
+  echo "==> deployed. https://dowork.l8ai.cn · https://market.l8ai.cn · https://mobile.l8ai.cn (admin@agentsmesh.local / Ab123456)"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

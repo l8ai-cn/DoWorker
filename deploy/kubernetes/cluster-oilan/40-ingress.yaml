@@ -76,10 +76,10 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts: ["market.dowork.l8ai.cn"]
+    - hosts: ["market.l8ai.cn"]
       secretName: l8ai-wildcard-tls
   rules:
-    - host: market.dowork.l8ai.cn
+    - host: market.l8ai.cn
       http:
         paths:
           - path: /
