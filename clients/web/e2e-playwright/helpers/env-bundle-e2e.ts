@@ -81,6 +81,7 @@ export async function createPodAndWaitRunning(args: {
   if (selectRuntimeBundleNames !== undefined) {
     await worker.selectRuntimeBundles(selectRuntimeBundleNames);
   }
+  await worker.selectPtyMode();
   if (customizeModal) {
     await customizeModal(worker);
   }

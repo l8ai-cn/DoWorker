@@ -37,6 +37,17 @@ export class CreateWorkerPage {
     }
   }
 
+  async selectPtyMode(): Promise<void> {
+    const interactive = this.page.getByTestId("automation-level-interactive");
+    await interactive.waitFor({ state: "visible", timeout: 15_000 });
+    await interactive.click();
+    const pty = this.page.getByRole("button", {
+      name: /terminal \(pty\)|终端 \(pty\)/i,
+    });
+    await pty.waitFor({ state: "visible", timeout: 15_000 });
+    await pty.click();
+  }
+
   private submitButton() {
     return this.page
       .getByRole("button", { name: /^create worker$/i })
