@@ -182,7 +182,11 @@ export function TerminalPane({
       )}
 
       <AutopilotStartButton podKey={podKey} triggerRef={triggerAutopilotRef} />
-      <WorkerControlOverlay podKey={podKey} clientLabel={controlClientLabel} />
+      <WorkerControlOverlay
+        podKey={podKey}
+        clientLabel={controlClientLabel}
+        preserveHeader={showHeader}
+      />
 
       {pendingSplitDirection && (
         <PodSelectorModal

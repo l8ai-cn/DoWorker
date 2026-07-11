@@ -133,7 +133,11 @@ export function AgentPanel({
           )}
         </div>
       )}
-      <WorkerControlOverlay podKey={podKey} clientLabel={controlClientLabel} />
+      <WorkerControlOverlay
+        podKey={podKey}
+        clientLabel={controlClientLabel}
+        preserveHeader={showHeader}
+      />
 
       {pendingSplitDirection && (
         <PodSelectorModal

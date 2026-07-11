@@ -64,4 +64,17 @@ describe("WorkerControlOverlay", () => {
 
     expect(container).toBeEmptyDOMElement();
   });
+
+  it("keeps the panel header interactive in observer mode", () => {
+    const { container } = render(
+      <WorkerControlOverlay
+        podKey="pod-1"
+        clientLabel="desktop"
+        preserveHeader
+      />,
+    );
+
+    expect(container.firstChild).toHaveClass("top-8");
+    expect(container.firstChild).not.toHaveClass("top-0");
+  });
 });

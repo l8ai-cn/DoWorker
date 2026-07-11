@@ -5,15 +5,18 @@ import { Eye, Loader2, LockKeyhole } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useWorkerControlLease } from "@/hooks/useWorkerControlLease";
+import { cn } from "@/lib/utils";
 
 interface WorkerControlOverlayProps {
   podKey: string;
   clientLabel: string;
+  preserveHeader?: boolean;
 }
 
 export function WorkerControlOverlay({
   podKey,
   clientLabel,
+  preserveHeader = false,
 }: WorkerControlOverlayProps) {
   const t = useTranslations("mobile.control");
   const lease = useWorkerControlLease(podKey, clientLabel);
@@ -29,7 +32,12 @@ export function WorkerControlOverlay({
 
   const busy = lease.status === "busy";
   return (
-    <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 p-4 backdrop-blur-[1px]">
+    <div
+      className={cn(
+        "absolute inset-x-0 bottom-0 z-20 flex items-center justify-center bg-background/80 p-4 backdrop-blur-[1px]",
+        preserveHeader ? "top-8" : "top-0",
+      )}
+    >
       <div className="w-full max-w-sm space-y-3 rounded-md border bg-background p-4 text-center shadow-sm">
         {busy ? (
           <LockKeyhole className="mx-auto h-6 w-6 text-warning" />
