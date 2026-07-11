@@ -28,6 +28,9 @@ grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
 grep -q "RUNNER_SSH_SOURCE_DIR" runner-entrypoint.sh
 grep -q "init_runner_ssh" runner-entrypoint.sh
+grep -q 'user: "0:0"' docker-compose.runners.yml
+grep -q "handoff_runner_state" runner-entrypoint.sh
+grep -q "exec sudo -E -H -u runner -- /usr/local/bin/do-worker-runner run" runner-entrypoint.sh
 grep -q "'e2e-mock-agent'," seed/e2e_echo.sql
 
 if grep -q '/home/runner/.ssh:ro' docker-compose.runners.yml; then

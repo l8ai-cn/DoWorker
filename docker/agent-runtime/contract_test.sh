@@ -45,6 +45,9 @@ grep -q "docker/agent-runtime/Dockerfile" "$COMPOSE"
 grep -q "case \"\${AGENT_RUNTIME}\"" "${ROOT}/deploy/dev/runner-entrypoint.sh"
 grep -q "RUNNER_SSH_SOURCE_DIR" "${ROOT}/deploy/dev/runner-entrypoint.sh"
 grep -q "init_runner_ssh" "${ROOT}/deploy/dev/runner-entrypoint.sh"
+grep -q 'user: "0:0"' "$COMPOSE"
+grep -q "handoff_runner_state" "${ROOT}/deploy/dev/runner-entrypoint.sh"
+grep -q "exec sudo -E -H -u runner -- /usr/local/bin/do-worker-runner run" "${ROOT}/deploy/dev/runner-entrypoint.sh"
 
 if grep -q '/home/runner/.ssh:ro' "$COMPOSE"; then
   echo "runner SSH material must not be mounted over the runner home directory" >&2

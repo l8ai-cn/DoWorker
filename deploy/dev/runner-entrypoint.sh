@@ -78,6 +78,20 @@ init_runner_ssh() {
     [[ ! -f "${ssh_dir}/known_hosts" ]] || chmod 644 "${ssh_dir}/known_hosts"
 }
 
+handoff_runner_state() {
+    [[ "$(id -u)" -eq 0 ]] || return
+
+    local state_paths=("$CONFIG_DIR" "${HOME}/.ssh")
+    case "${AGENT_RUNTIME}" in
+        claude-code) state_paths+=("${HOME}/.claude") ;;
+        codex-cli) state_paths+=("${HOME}/.codex") ;;
+        gemini-cli) state_paths+=("${HOME}/.gemini") ;;
+        do-agent) state_paths+=("${HOME}/.agent") ;;
+        loopal) state_paths+=("${HOME}/.loopal") ;;
+    esac
+    chown -R runner:runner "${state_paths[@]}"
+}
+
 generate_runner_cert() {
     echo "▶ generate_runner_cert: CERTS_DIR=$CERTS_DIR SSL_DIR=$SSL_DIR"
     mkdir -p "$CERTS_DIR"
@@ -231,6 +245,10 @@ main() {
     init_ai_cli_configs
     create_config
     echo "启动 Runner (bazel-built binary)..."
+    handoff_runner_state
+    if [[ "$(id -u)" -eq 0 ]]; then
+        exec sudo -E -H -u runner -- /usr/local/bin/do-worker-runner run
+    fi
     exec /usr/local/bin/do-worker-runner run
 }
 main "$@"
