@@ -62,17 +62,19 @@ generate_runner_cert() {
     echo "▶ generate_runner_cert: CERTS_DIR=$CERTS_DIR SSL_DIR=$SSL_DIR"
     mkdir -p "$CERTS_DIR"
     ls -la "$CERTS_DIR" >&2 || true
-    if [[ -s "$CERTS_DIR/runner.crt" && -s "$CERTS_DIR/runner.key" && -s "$CERTS_DIR/ca.crt" ]]; then
-        echo "✓ Runner 证书已存在"
-        return 0
-    fi
-    rm -f "$CERTS_DIR/runner.crt" "$CERTS_DIR/runner.key" "$CERTS_DIR/ca.crt" \
-          "$CERTS_DIR/ca.srl" "$CERTS_DIR/runner.csr" "$CERTS_DIR/runner_ext.cnf"
     if [[ ! -f "$SSL_DIR/ca.crt" || ! -f "$SSL_DIR/ca.key" ]]; then
         echo "✗ CA 证书未找到: $SSL_DIR" >&2
         ls -la "$SSL_DIR" >&2 || true
         exit 1
     fi
+    if [[ -s "$CERTS_DIR/runner.crt" && -s "$CERTS_DIR/runner.key" ]] \
+        && openssl verify -CAfile "$SSL_DIR/ca.crt" "$CERTS_DIR/runner.crt" >/dev/null 2>&1; then
+        cp "$SSL_DIR/ca.crt" "$CERTS_DIR/ca.crt"
+        echo "✓ Runner 证书已存在"
+        return 0
+    fi
+    rm -f "$CERTS_DIR/runner.crt" "$CERTS_DIR/runner.key" "$CERTS_DIR/ca.crt" \
+          "$CERTS_DIR/ca.srl" "$CERTS_DIR/runner.csr" "$CERTS_DIR/runner_ext.cnf"
     echo "生成 Runner 客户端证书..."
     openssl genrsa -out "$CERTS_DIR/runner.key" 2048
     openssl req -new -key "$CERTS_DIR/runner.key" \
@@ -210,6 +212,6 @@ main() {
     init_ai_cli_configs
     create_config
     echo "启动 Runner (bazel-built binary)..."
-    exec /usr/local/bin/do-worker-runner run
+    exec /usr/local/bin/do-worker-runner run --config "$CONFIG_FILE"
 }
 main "$@"
