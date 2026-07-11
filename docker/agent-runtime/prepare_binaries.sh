@@ -9,6 +9,10 @@ DEPLOY_DEV="${REPO_ROOT}/deploy/dev"
 rm -rf "$STAGING"
 mkdir -p "$STAGING"
 
+if [[ ! -f "${REPO_ROOT}/proto/gen/go/runner/v1/runner.pb.go" ]]; then
+  bash "${REPO_ROOT}/scripts/proto-gen-go.sh" --force
+fi
+
 go_cross() {
   local out="$1" pkg="$2"
   (
