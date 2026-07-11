@@ -87,7 +87,6 @@ export default function WorkspacePage() {
           description: `Pod: ${getShortPodKey(podKey)}`,
         });
       }
-      router.replace(window.location.pathname);
     }
 
     if (searchParams.get("ingest_kb")) {
