@@ -315,7 +315,7 @@ only. Legacy Experts with no snapshot remain readable but return a typed
 republish-required error when run; do not reconstruct a WorkerSpec from
 incomplete legacy columns.
 
-- [ ] **Step 4: Verify GREEN and commit**
+- [x] **Step 4: Verify GREEN and commit**
 
 ```bash
 go test ./backend/internal/service/expert ./backend/internal/api/rest/v1 -run Expert -count=1
@@ -329,6 +329,9 @@ PostgreSQL up/down checks, including cross-organization rejection. Migration
 `000199` was already committed and applied locally, so it remains immutable.
 The Expert link is isolated in `000203`, after the integrated `000200` through
 `000202` migrations.
+
+Reverified on 2026-07-12: `go test ./backend/internal/service/expert
+./backend/internal/api/rest/v1 -run Expert -count=1` passed.
 
 ### Task 6: Selected Sandbox Skill Publishing
 
