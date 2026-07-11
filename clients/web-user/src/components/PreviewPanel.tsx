@@ -18,16 +18,12 @@ export interface PreviewPanelProps {
 
 /**
  * Embeds a pod's HTTP preview (dev server, static site, etc.) via the
- * Gateway's `/preview/{podKey}/*` HTTP data plane. The iframe navigates to a
- * one-shot session URL (see `usePodPreview`/`buildPreviewSrc`) rather than
- * carrying a raw token, and needs `allow-same-origin` (unlike the sandboxed
- * LLM-artifact preview elsewhere in this app) so the pod's own app can use
- * cookies, storage, and same-origin fetches/WebSockets like a normal page.
+ * Gateway's `/preview/{podKey}/*` HTTP data plane. The iframe uses the
+ * session URL so preview navigation can keep cookie-based auth separate from
+ * query-string credentials.
  */
 export function PreviewPanel({ podKey, className }: PreviewPanelProps) {
   const query = usePodPreview(podKey);
-  // Bumped on manual refresh to force the iframe to remount even when the
-  // fetched token/session URL happens to be identical (e.g. cached response).
   const [reloadNonce, setReloadNonce] = useState(0);
 
   const openInNewWindow = () => {
@@ -79,7 +75,7 @@ export function PreviewPanel({ podKey, className }: PreviewPanelProps) {
           <PreviewErrorState error={query.error} onRetry={refresh} />
         ) : query.data ? (
           <iframe
-            key={`${query.data.token}:${reloadNonce}`}
+            key={getPreviewFrameKey(query.data, reloadNonce)}
             title={`Pod ${podKey} preview`}
             src={buildPreviewSrc(query.data)}
             sandbox="allow-scripts allow-same-origin allow-forms"
@@ -89,6 +85,10 @@ export function PreviewPanel({ podKey, className }: PreviewPanelProps) {
       </div>
     </div>
   );
+}
+
+export function getPreviewFrameKey(data: { session_url: string; expires_at: string }, nonce: number): string {
+  return `${data.session_url}:${data.expires_at}:${nonce}`;
 }
 
 function PreviewErrorState({

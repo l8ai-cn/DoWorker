@@ -44,26 +44,22 @@ afterEach(() => {
 });
 
 describe("buildPreviewSrc", () => {
-  it("uses the session url so the iframe src never carries a persisted raw token", () => {
+  it("uses the session url as iframe source", () => {
     const src = buildPreviewSrc({
       preview_base_url: "https://d/preview/pod1/",
       session_url: "https://d/preview/pod1/__session?token=JWT",
-      token: "JWT",
       expires_at: "",
     });
-    expect(src).toContain("__session");
-    // After the browser follows the session exchange, it lands back on the base.
-    expect(src.startsWith("https://d/preview/pod1/")).toBe(true);
+    expect(src).toBe("https://d/preview/pod1/__session?token=JWT");
   });
 });
 
 describe("usePodPreview", () => {
-  it("fetches the org-scoped preview endpoint and returns the preview info", async () => {
+  it("fetches the org-scoped preview endpoint and returns only the preview contract", async () => {
     fetchMock.mockResolvedValueOnce(
       jsonResponse(200, {
         preview_base_url: "https://d/preview/pod1/",
         session_url: "https://d/preview/pod1/__session?token=JWT",
-        token: "JWT",
         expires_at: new Date(Date.now() + 30 * 60_000).toISOString(),
       }),
     );
@@ -72,8 +68,35 @@ describe("usePodPreview", () => {
 
     await waitFor(() => expect(result.current.data).toBeDefined());
     expect(result.current.data?.session_url).toContain("__session");
+    expect(Object.keys(result.current.data ?? {}).sort()).toEqual([
+      "expires_at",
+      "preview_base_url",
+      "session_url",
+    ]);
     const [url] = fetchMock.mock.calls[0];
     expect(url).toBe("/api/v1/orgs/acme/pods/pod1/preview");
+  });
+
+  it("normalizes legacy preview payloads by dropping unknown fields", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse(200, {
+        preview_base_url: "https://d/preview/pod1/",
+        session_url: "https://d/preview/pod1/__session?token=legacy",
+        expires_at: "2026-07-12T00:00:00Z",
+        token: "legacy",
+        debug: "should be dropped",
+      }),
+    );
+
+    const { result } = renderHook(() => usePodPreview("pod1"), { wrapper: Wrap });
+
+    await waitFor(() => expect(result.current.data).toBeDefined());
+    expect(result.current.data).toEqual({
+      preview_base_url: "https://d/preview/pod1/",
+      session_url: "https://d/preview/pod1/__session?token=legacy",
+      expires_at: "2026-07-12T00:00:00Z",
+    });
+    expect(Object.prototype.hasOwnProperty.call(result.current.data, "token")).toBe(false);
   });
 
   it("does not fetch when disabled or missing an org slug", () => {
@@ -99,7 +122,6 @@ describe("usePodPreview", () => {
         jsonResponse(200, {
           preview_base_url: "https://d/preview/pod1/",
           session_url: "https://d/preview/pod1/__session?token=JWT",
-          token: "JWT",
           expires_at: new Date(now + 5 * 60_000).toISOString(),
         }),
       );
@@ -108,8 +130,6 @@ describe("usePodPreview", () => {
 
       await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
 
-      // Advance past (expiry - refresh margin) so the hook refetches ahead of
-      // expiry instead of letting the iframe hit a dead token.
       await vi.advanceTimersByTimeAsync(5 * 60_000);
 
       await vi.waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2));
