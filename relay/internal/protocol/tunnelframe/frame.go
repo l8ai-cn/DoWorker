@@ -17,6 +17,7 @@ const (
 	TypeHello        FrameType = 0x01
 	TypePing         FrameType = 0x02
 	TypePong         FrameType = 0x03
+	TypeHelloAck     FrameType = 0x04
 	TypeReqStart     FrameType = 0x10
 	TypeReqBody      FrameType = 0x11
 	TypeReqEnd       FrameType = 0x12

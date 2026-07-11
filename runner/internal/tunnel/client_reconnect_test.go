@@ -356,6 +356,15 @@ func waitForCount(t *testing.T, count *atomic.Int32, want int32) {
 
 func readHello(t *testing.T, conn *websocket.Conn) tunnelframe.HelloPayload {
 	t.Helper()
+	hello := readHelloOnly(t, conn)
+	if err := conn.WriteMessage(websocket.BinaryMessage, tunnelframe.Encode(tunnelframe.Frame{Type: tunnelframe.TypeHelloAck})); err != nil {
+		t.Errorf("write HELLO_ACK: %v", err)
+	}
+	return hello
+}
+
+func readHelloOnly(t *testing.T, conn *websocket.Conn) tunnelframe.HelloPayload {
+	t.Helper()
 	_, data, err := conn.ReadMessage()
 	if err != nil {
 		t.Errorf("read HELLO: %v", err)

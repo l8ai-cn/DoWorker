@@ -63,6 +63,7 @@ type Client struct {
 	wg             sync.WaitGroup
 	wgMu           sync.Mutex // Protects wg.Add() to ensure atomicity with stopped check
 	reconnectMu    sync.Mutex
+	readyTimeout   time.Duration
 }
 
 // NewClient creates a new Relay WebSocket client
@@ -77,20 +78,21 @@ func NewClient(parentCtx context.Context, relayURL, podKey, token string, logger
 	ctx, cancel := context.WithCancel(parentCtx)
 
 	client := &Client{
-		relayURL:   relayURL,
-		podKey:     podKey,
-		token:      token,
-		stopCh:     make(chan struct{}),
-		connDoneCh: make(chan struct{}),
+		relayURL:    relayURL,
+		podKey:      podKey,
+		token:       token,
+		stopCh:      make(chan struct{}),
+		connDoneCh:  make(chan struct{}),
 		writeExitCh: make(chan struct{}),
-		sendCh:     make(chan []byte, 256), // Buffered send channel
-		handlers:   make(map[byte]func([]byte)),
+		sendCh:      make(chan []byte, 256), // Buffered send channel
+		handlers:    make(map[byte]func([]byte)),
 		logger: logger.With(
 			"component", "relay_client",
 			"pod_key", podKey,
 		),
-		ctx:    ctx,
-		cancel: cancel,
+		ctx:          ctx,
+		cancel:       cancel,
+		readyTimeout: 10 * time.Second,
 	}
 
 	client.logger.Info("Relay client created", "relay_url", relayURL)

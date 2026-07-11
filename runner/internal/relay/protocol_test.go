@@ -4,6 +4,21 @@ import (
 	"testing"
 )
 
+func TestVerifyPublisherReady(t *testing.T) {
+	if err := VerifyPublisherReady(EncodeMessage(MsgTypeControl, []byte(`{"type":"publisher_ready"}`))); err != nil {
+		t.Fatalf("verify publisher ready: %v", err)
+	}
+	for _, data := range [][]byte{
+		EncodeMessage(MsgTypeOutput, []byte(`{"type":"publisher_ready"}`)),
+		EncodeMessage(MsgTypeControl, []byte(`{"type":"other"}`)),
+		EncodeMessage(MsgTypeControl, []byte(`not-json`)),
+	} {
+		if err := VerifyPublisherReady(data); err == nil {
+			t.Fatalf("accepted invalid publisher ready message %q", data)
+		}
+	}
+}
+
 func TestEncodeDecodeMessage(t *testing.T) {
 	tests := []struct {
 		name    string

@@ -42,6 +42,14 @@ func newFakeRunnerTunnel(t *testing.T, gatewayWSURL, tunnelToken string, target 
 	if err := ft.writeFrame(tunnelframe.Frame{Type: tunnelframe.TypeHello, Payload: tunnelframe.EncodeJSON(hello)}); err != nil {
 		t.Fatalf("fake runner hello failed: %v", err)
 	}
+	_, data, err := conn.ReadMessage()
+	if err != nil {
+		t.Fatalf("fake runner HELLO_ACK read failed: %v", err)
+	}
+	ack, err := tunnelframe.Decode(data)
+	if err != nil || ack.Type != tunnelframe.TypeHelloAck || ack.StreamID != 0 || len(ack.Payload) != 0 {
+		t.Fatalf("fake runner invalid HELLO_ACK: frame=%+v error=%v", ack, err)
+	}
 	go ft.readLoop(t)
 	return ft
 }

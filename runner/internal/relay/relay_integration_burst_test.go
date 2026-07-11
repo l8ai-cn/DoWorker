@@ -24,7 +24,7 @@ func TestRelay_MultiMessageBurst_Integration(t *testing.T) {
 	allReceived := make(chan struct{})
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := integrationUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyIntegrationPublisher(w, r)
 		if err != nil {
 			return
 		}
@@ -108,7 +108,7 @@ func TestRelay_SnapshotAfterReconnect_Integration(t *testing.T) {
 	var connCount atomic.Int32
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		n := connCount.Add(1)
-		conn, err := integrationUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyIntegrationPublisher(w, r)
 		if err != nil {
 			return
 		}

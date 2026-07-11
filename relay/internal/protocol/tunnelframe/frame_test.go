@@ -25,3 +25,9 @@ func TestDecode_TooShort(t *testing.T) {
 		t.Fatal("expected error on short frame")
 	}
 }
+
+func TestHelloAckFrameType(t *testing.T) {
+	if TypeHelloAck != 0x04 {
+		t.Fatalf("TypeHelloAck = 0x%02x, want 0x04", TypeHelloAck)
+	}
+}

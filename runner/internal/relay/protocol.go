@@ -1,7 +1,9 @@
 package relay
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 )
 
 // Message types for Relay protocol
@@ -27,6 +29,8 @@ var (
 	ErrEmptyMessage   = errors.New("empty message")
 )
 
+var publisherReadyPayload = []byte(`{"type":"publisher_ready"}`)
+
 // Message represents a protocol message
 type Message struct {
 	Type    byte
@@ -51,6 +55,17 @@ func DecodeMessage(data []byte) (*Message, error) {
 		Type:    data[0],
 		Payload: data[1:],
 	}, nil
+}
+
+func VerifyPublisherReady(data []byte) error {
+	msg, err := DecodeMessage(data)
+	if err != nil {
+		return fmt.Errorf("publisher ready: %w", err)
+	}
+	if msg.Type != MsgTypeControl || !bytes.Equal(msg.Payload, publisherReadyPayload) {
+		return fmt.Errorf("publisher ready: unexpected message")
+	}
+	return nil
 }
 
 // EncodePing encodes a ping message

@@ -18,6 +18,18 @@ var testUpgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
+func upgradeReadyPublisher(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
+	conn, err := testUpgrader.Upgrade(w, r, nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := conn.WriteMessage(websocket.BinaryMessage, EncodeMessage(MsgTypeControl, publisherReadyPayload)); err != nil {
+		_ = conn.Close()
+		return nil, err
+	}
+	return conn, nil
+}
+
 func TestNewClient(t *testing.T) {
 	c := NewClient(context.TODO(), "ws://localhost:8080", "pod-1", "test-token", nil)
 	if c == nil {
@@ -145,7 +157,7 @@ func TestSendBufferFull(t *testing.T) {
 
 func TestConnectAndStop(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := testUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyPublisher(w, r)
 		if err != nil {
 			return
 		}
@@ -226,7 +238,7 @@ func TestHandleMessage(t *testing.T) {
 func TestSendSnapshot(t *testing.T) {
 	received := make(chan struct{})
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := testUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyPublisher(w, r)
 		if err != nil {
 			return
 		}
@@ -279,7 +291,7 @@ func TestGetConnectedAtBeforeConnect(t *testing.T) {
 
 func TestGetConnectedAtAfterConnect(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := testUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyPublisher(w, r)
 		if err != nil {
 			return
 		}

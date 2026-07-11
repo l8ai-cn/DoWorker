@@ -1,12 +1,16 @@
 package protocol
 
 import (
+	"bytes"
 	"encoding/binary"
 	"testing"
 )
 
 func TestEncodeDecodeMessage(t *testing.T) {
-	tests := []struct{ msgType byte; payload []byte }{
+	tests := []struct {
+		msgType byte
+		payload []byte
+	}{
 		{MsgTypeOutput, nil}, {MsgTypeOutput, []byte("hello")}, {MsgTypeOutput, make([]byte, 1024)},
 		{MsgTypeSnapshot, []byte("{}")}, {MsgTypeInput, []byte("test")}, {MsgTypeResize, []byte{0, 80, 0, 24}},
 		{MsgTypePing, nil}, {MsgTypePong, nil},
@@ -99,6 +103,14 @@ func TestEncodePingPong(t *testing.T) {
 	}
 }
 
+func TestEncodePublisherReady(t *testing.T) {
+	got := EncodePublisherReady()
+	want := append([]byte{MsgTypeControl}, []byte(`{"type":"publisher_ready"}`)...)
+	if !bytes.Equal(got, want) {
+		t.Fatalf("publisher ready = %q, want %q", got, want)
+	}
+}
+
 func TestEncodeRunnerDisconnectedReconnected(t *testing.T) {
 	if d := EncodeRunnerDisconnected(); d[0] != MsgTypeRunnerDisconnected || len(d) != 1 {
 		t.Error("EncodeRunnerDisconnected wrong")
@@ -113,7 +125,7 @@ func TestMessageConstants(t *testing.T) {
 		MsgTypeSnapshot: 0x01, MsgTypeOutput: 0x02, MsgTypeInput: 0x03, MsgTypeResize: 0x04,
 		MsgTypePing: 0x05, MsgTypePong: 0x06, MsgTypeControl: 0x07,
 		MsgTypeRunnerDisconnected: 0x08, MsgTypeRunnerReconnected: 0x09,
-		MsgTypeResync: 0x0A,
+		MsgTypeResync:   0x0A,
 		MsgTypeAcpEvent: 0x0B, MsgTypeAcpCommand: 0x0C, MsgTypeAcpSnapshot: 0x0D,
 	}
 	for got, want := range expected {

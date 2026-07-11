@@ -20,8 +20,11 @@ func (c *Client) Connect() error {
 		return err
 	}
 
-	// Mark as connected after successful dial
-	// For reconnectLoop, connected is set inside wgMu lock to prevent race with Stop()
+	c.wgMu.Lock()
+	defer c.wgMu.Unlock()
+	if c.stopped.Load() {
+		return c.ctx.Err()
+	}
 	c.connected.Store(true)
 	c.connectedAt.Store(time.Now().UnixMilli())
 	return nil
@@ -73,20 +76,49 @@ func (c *Client) connectInternal() error {
 		return fmt.Errorf("websocket dial failed: %w", err)
 	}
 
-	// Configure connection
 	conn.SetReadLimit(maxMessageSize)
+
+	c.connMu.Lock()
+	if c.stopped.Load() {
+		c.connMu.Unlock()
+		_ = conn.Close()
+		return c.ctx.Err()
+	}
+	c.conn = conn
+	c.connMu.Unlock()
+
+	if err := c.waitForPublisherReady(conn); err != nil {
+		c.connMu.Lock()
+		if c.conn == conn {
+			c.conn = nil
+		}
+		c.connMu.Unlock()
+		_ = conn.Close()
+		return err
+	}
 	conn.SetPongHandler(func(string) error {
 		return conn.SetReadDeadline(time.Now().Add(pongWait))
 	})
 
-	c.connMu.Lock()
-	c.conn = conn
-	c.connMu.Unlock()
-
-	// Note: connected and connectedAt are set by the caller (Connect or reconnectLoop)
-	// to ensure proper synchronization with Stop(). Do NOT set them here.
-
 	c.logger.Info("Connected to relay successfully")
+	return nil
+}
+
+func (c *Client) waitForPublisherReady(conn *websocket.Conn) error {
+	if err := conn.SetReadDeadline(time.Now().Add(c.readyTimeout)); err != nil {
+		return fmt.Errorf("publisher ready deadline: %w", err)
+	}
+	messageType, data, err := conn.ReadMessage()
+	_ = conn.SetReadDeadline(time.Time{})
+	if err != nil {
+		return fmt.Errorf("publisher ready read failed: %w", err)
+	}
+	if messageType != websocket.BinaryMessage {
+		return fmt.Errorf("publisher ready: unexpected websocket message type %d", messageType)
+	}
+	if err := VerifyPublisherReady(data); err != nil {
+		return err
+	}
 	return nil
 }
 

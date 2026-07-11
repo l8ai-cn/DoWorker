@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
 
 	"github.com/anthropics/agentsmesh/relay/internal/auth"
 	"github.com/anthropics/agentsmesh/relay/internal/channel"
@@ -73,70 +72,6 @@ func (h *Handler) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Co
 		return nil, false
 	}
 	return conn, true
-}
-
-// HandleRunnerWS handles runner WebSocket connections (Publisher)
-// Path: /runner/relay?token=xxx
-// The token contains pod_key and runner_id for authentication
-// Channel is identified by pod_key (not session_id)
-func (h *Handler) HandleRunnerWS(w http.ResponseWriter, r *http.Request) {
-	_, span := otel.Tracer("agentsmesh-relay").Start(r.Context(), "relay.ws.runner")
-	defer span.End()
-
-	if !h.acceptingConnections.Load() {
-		http.Error(w, "server shutting down", http.StatusServiceUnavailable)
-		return
-	}
-
-	tokenStr := r.URL.Query().Get("token")
-
-	if tokenStr == "" {
-		h.logger.Warn("Runner connection missing token")
-		http.Error(w, "token required", http.StatusUnauthorized)
-		return
-	}
-
-	// Validate token
-	claims, err := h.tokenValidator.ValidateToken(tokenStr)
-	if err != nil {
-		h.logger.Warn("Invalid runner token", "error", err)
-		http.Error(w, "invalid token", http.StatusUnauthorized)
-		return
-	}
-
-	// Enforce token type: runner endpoint only accepts runner tokens.
-	// Prevents browser tokens from being used to impersonate a publisher.
-	if claims.ResolvedType() != auth.TokenTypeRunner {
-		h.logger.Warn("Non-runner token used on runner endpoint", "user_id", claims.UserID, "pod_key", claims.PodKey)
-		http.Error(w, "invalid token type", http.StatusUnauthorized)
-		return
-	}
-
-	// Extract pod_key from token claims (channel identifier)
-	podKey := claims.PodKey
-
-	if podKey == "" {
-		h.logger.Warn("Runner token missing pod_key")
-		http.Error(w, "invalid token claims", http.StatusBadRequest)
-		return
-	}
-
-	span.SetAttributes(attribute.String("pod.key", podKey))
-
-	conn, ok := h.upgrade(w, r)
-	if !ok {
-		return
-	}
-
-	h.logger.Info("Publisher (runner) connecting",
-		"pod_key", podKey,
-		"runner_id", claims.RunnerID)
-
-	if err := h.channelManager.HandlePublisherConnect(podKey, conn); err != nil {
-		h.logger.Error("Failed to handle publisher connect", "error", err, "pod_key", podKey)
-		_ = conn.Close()
-		return
-	}
 }
 
 // HandleBrowserWS handles browser WebSocket connections (Subscriber)

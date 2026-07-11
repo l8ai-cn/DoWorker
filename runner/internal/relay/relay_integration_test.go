@@ -18,6 +18,18 @@ import (
 
 var integrationUpgrader = websocket.Upgrader{CheckOrigin: func(*http.Request) bool { return true }}
 
+func upgradeReadyIntegrationPublisher(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
+	conn, err := integrationUpgrader.Upgrade(w, r, nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := conn.WriteMessage(websocket.BinaryMessage, EncodeMessage(MsgTypeControl, publisherReadyPayload)); err != nil {
+		_ = conn.Close()
+		return nil, err
+	}
+	return conn, nil
+}
+
 func wsURL(srv *httptest.Server) string {
 	return "ws" + strings.TrimPrefix(srv.URL, "http")
 }
@@ -25,7 +37,7 @@ func wsURL(srv *httptest.Server) string {
 // Tests: connect → send → writeLoop → server → readLoop → handleMessage → handler callback
 func TestRelay_FullBidirectionalFlow_Integration(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := integrationUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyIntegrationPublisher(w, r)
 		if err != nil {
 			return
 		}
@@ -88,7 +100,7 @@ func TestRelay_ReconnectWithTokenRefresh_Integration(t *testing.T) {
 		n := connCount.Add(1)
 		token := r.URL.Query().Get("token")
 		if n == 1 {
-			conn, err := integrationUpgrader.Upgrade(w, r, nil)
+			conn, err := upgradeReadyIntegrationPublisher(w, r)
 			if err != nil {
 				return
 			}
@@ -100,7 +112,7 @@ func TestRelay_ReconnectWithTokenRefresh_Integration(t *testing.T) {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
-		conn, err := integrationUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyIntegrationPublisher(w, r)
 		if err != nil {
 			return
 		}

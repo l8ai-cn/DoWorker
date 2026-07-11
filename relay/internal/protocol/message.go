@@ -30,6 +30,8 @@ var (
 	ErrEmptyMessage   = errors.New("empty message")
 )
 
+const publisherReadyPayload = `{"type":"publisher_ready"}`
+
 // Message represents a protocol message
 type Message struct {
 	Type    byte
@@ -40,8 +42,8 @@ type Message struct {
 type TerminalSnapshot struct {
 	Cols              uint16   `json:"cols"`
 	Rows              uint16   `json:"rows"`
-	Lines             []string `json:"lines"`               // Plain text lines (kept for compatibility)
-	SerializedContent string   `json:"serialized_content"`  // ANSI-escaped serialized content for xterm.js
+	Lines             []string `json:"lines"`              // Plain text lines (kept for compatibility)
+	SerializedContent string   `json:"serialized_content"` // ANSI-escaped serialized content for xterm.js
 	CursorX           int      `json:"cursor_x"`
 	CursorY           int      `json:"cursor_y"`
 	CursorVisible     bool     `json:"cursor_visible"`
@@ -128,6 +130,10 @@ func EncodePing() []byte {
 // EncodePong encodes a pong message
 func EncodePong() []byte {
 	return EncodeMessage(MsgTypePong, nil)
+}
+
+func EncodePublisherReady() []byte {
+	return EncodeMessage(MsgTypeControl, []byte(publisherReadyPayload))
 }
 
 // EncodeRunnerDisconnected encodes a runner disconnected notification

@@ -71,5 +71,16 @@ func TestHandleTunnelWS_RegistersTunnel(t *testing.T) {
 
 	hello, _ := json.Marshal(tunnelframe.HelloPayload{RunnerID: "7"})
 	_ = conn.WriteMessage(websocket.BinaryMessage, tunnelframe.Encode(tunnelframe.Frame{Type: tunnelframe.TypeHello, Payload: hello}))
+	_, data, err := conn.ReadMessage()
+	if err != nil {
+		t.Fatalf("read HELLO_ACK: %v", err)
+	}
+	ack, err := tunnelframe.Decode(data)
+	if err != nil {
+		t.Fatalf("decode HELLO_ACK: %v", err)
+	}
+	if ack.Type != tunnelframe.TypeHelloAck || ack.StreamID != 0 || len(ack.Payload) != 0 {
+		t.Fatalf("unexpected HELLO_ACK: %+v", ack)
+	}
 	waitFor(t, func() bool { return h.registry.Get(7) != nil })
 }

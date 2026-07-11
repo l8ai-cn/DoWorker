@@ -36,17 +36,18 @@ type Client struct {
 	connMu   sync.RWMutex
 	writeMu  sync.Mutex
 
-	connected   atomic.Bool
-	stopped     atomic.Bool
-	stopOnce    sync.Once
-	lifecycleMu sync.Mutex
-	started     bool
-	wg          sync.WaitGroup
-	generation  uint64
-	reconnect   reconnectPolicy
-	ctx         context.Context
-	cancel      context.CancelFunc
-	logger      *slog.Logger
+	connected    atomic.Bool
+	stopped      atomic.Bool
+	stopOnce     sync.Once
+	lifecycleMu  sync.Mutex
+	started      bool
+	wg           sync.WaitGroup
+	generation   uint64
+	reconnect    reconnectPolicy
+	readyTimeout time.Duration
+	ctx          context.Context
+	cancel       context.CancelFunc
+	logger       *slog.Logger
 }
 
 func NewClient(parentCtx context.Context, gatewayURL, token string, runnerID, orgID int64, dispatcher Dispatcher) *Client {
@@ -55,18 +56,21 @@ func NewClient(parentCtx context.Context, gatewayURL, token string, runnerID, or
 	}
 	ctx, cancel := context.WithCancel(parentCtx)
 	c := &Client{
-		gatewayURL: gatewayURL,
-		token:      token,
-		runnerID:   runnerID,
-		orgID:      orgID,
-		dispatcher: dispatcher,
-		reconnect:  defaultReconnectPolicy(),
-		ctx:        ctx,
-		cancel:     cancel,
-		logger:     slog.With("component", "tunnel_client", "runner_id", runnerID),
+		gatewayURL:   gatewayURL,
+		token:        token,
+		runnerID:     runnerID,
+		orgID:        orgID,
+		dispatcher:   dispatcher,
+		reconnect:    defaultReconnectPolicy(),
+		readyTimeout: 10 * time.Second,
+		ctx:          ctx,
+		cancel:       cancel,
+		logger:       slog.With("component", "tunnel_client", "runner_id", runnerID),
 	}
 	if dispatcher != nil {
-		dispatcher.SetSender(c.Send)
+		dispatcher.SetSender(func(tunnelframe.Frame) error {
+			return fmt.Errorf("tunnel not connected")
+		})
 	}
 	return c
 }
@@ -122,13 +126,21 @@ func (c *Client) helloFrame() tunnelframe.Frame {
 }
 
 func (c *Client) Send(f tunnelframe.Frame) error {
-	c.connMu.RLock()
-	conn := c.conn
-	c.connMu.RUnlock()
+	conn, generation := c.currentConnection()
 	if conn == nil {
 		return fmt.Errorf("tunnel not connected")
 	}
-	return c.writeFrame(conn, f)
+	return c.sendOnConnection(conn, generation, f)
+}
+
+func (c *Client) sendOnConnection(conn *websocket.Conn, generation uint64, frame tunnelframe.Frame) error {
+	c.connMu.RLock()
+	isCurrent := c.conn == conn && c.generation == generation
+	c.connMu.RUnlock()
+	if !isCurrent {
+		return fmt.Errorf("tunnel connection replaced")
+	}
+	return c.writeFrame(conn, frame)
 }
 
 func (c *Client) writeFrame(conn *websocket.Conn, frame tunnelframe.Frame) error {
@@ -183,28 +195,4 @@ func nextBackoff(current, maximum time.Duration) time.Duration {
 		return maximum
 	}
 	return current * 2
-}
-
-func (c *Client) Stop() {
-	c.stopOnce.Do(func() {
-		c.lifecycleMu.Lock()
-		c.stopped.Store(true)
-		c.connected.Store(false)
-		c.cancel()
-		c.connMu.Lock()
-		if c.conn != nil {
-			_ = c.conn.Close()
-			c.conn = nil
-		}
-		if c.dialConn != nil {
-			_ = c.dialConn.Close()
-			c.dialConn = nil
-		}
-		c.connMu.Unlock()
-		c.lifecycleMu.Unlock()
-		c.wg.Wait()
-		if c.dispatcher != nil {
-			c.dispatcher.Close()
-		}
-	})
 }

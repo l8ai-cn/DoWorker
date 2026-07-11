@@ -86,6 +86,10 @@ func (c *Client) connectOnce() (*websocket.Conn, uint64, error) {
 		_ = conn.Close()
 		return nil, 0, fmt.Errorf("tunnel hello failed: %w", err)
 	}
+	if err := c.awaitHelloAck(conn); err != nil {
+		_ = conn.Close()
+		return nil, 0, err
+	}
 
 	c.connMu.Lock()
 	if c.stopped.Load() {
@@ -95,12 +99,20 @@ func (c *Client) connectOnce() (*websocket.Conn, uint64, error) {
 	}
 	if c.conn != nil {
 		_ = c.conn.Close()
+		if c.dispatcher != nil {
+			c.dispatcher.Close()
+		}
 	}
 	c.generation++
 	generation := c.generation
 	c.conn = conn
 	c.connected.Store(true)
 	c.connMu.Unlock()
+	if c.dispatcher != nil {
+		c.dispatcher.SetSender(func(frame tunnelframe.Frame) error {
+			return c.sendOnConnection(conn, generation, frame)
+		})
+	}
 	c.logger.Info("tunnel connected", "host", tunnelURL.Host)
 	return conn, generation, nil
 }
@@ -170,41 +182,5 @@ func (c *Client) waitForReconnect(delay time.Duration) bool {
 		return true
 	case <-c.ctx.Done():
 		return false
-	}
-}
-
-func (c *Client) readCurrentConnection(conn *websocket.Conn, generation uint64) error {
-	for {
-		for {
-			_, data, err := conn.ReadMessage()
-			if err != nil {
-				c.disconnect(conn, generation)
-				if c.stopped.Load() {
-					return err
-				}
-				replacement, replacementGeneration := c.currentConnection()
-				if replacement == nil || replacementGeneration == generation {
-					return err
-				}
-				conn, generation = replacement, replacementGeneration
-				break
-			}
-			frame, err := tunnelframe.Decode(data)
-			if err != nil {
-				continue
-			}
-			switch frame.Type {
-			case tunnelframe.TypePing:
-				if err := c.writeFrame(conn, tunnelframe.Frame{Type: tunnelframe.TypePong}); err != nil {
-					c.disconnect(conn, generation)
-					return err
-				}
-			case tunnelframe.TypePong:
-			default:
-				if c.dispatcher != nil {
-					c.dispatcher.Dispatch(frame)
-				}
-			}
-		}
 	}
 }

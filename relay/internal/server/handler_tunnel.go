@@ -105,6 +105,12 @@ func (h *TunnelHandler) HandleTunnelWS(w http.ResponseWriter, r *http.Request) {
 
 	tun := tunnel.NewTunnel(conn, claims.RunnerID, claims.OrgID, h.window, h.logger)
 	h.registry.Register(tun)
+	if err := tun.WriteFrame(tunnelframe.Frame{Type: tunnelframe.TypeHelloAck}); err != nil {
+		h.registry.Unregister(tun)
+		tun.Close()
+		h.logger.Warn("tunnel HELLO_ACK write failed", "runner_id", claims.RunnerID, "error", err)
+		return
+	}
 	h.logger.Info("tunnel registered", "runner_id", claims.RunnerID)
 
 	tun.Start() // blocks until the tunnel closes

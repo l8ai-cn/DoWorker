@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/relay/internal/auth"
 	"github.com/anthropics/agentsmesh/relay/internal/channel"
+	"github.com/anthropics/agentsmesh/relay/internal/protocol"
 	"github.com/gorilla/websocket"
 )
 
@@ -141,10 +143,50 @@ func TestHandler_HandleRunnerWS_Success(t *testing.T) {
 		t.Fatalf("dial failed: %v", err)
 	}
 	defer func() { _ = c.Close() }()
+	_, data, err := c.ReadMessage()
+	if err != nil {
+		t.Fatalf("read publisher ready: %v", err)
+	}
+	if want := protocol.EncodePublisherReady(); !bytes.Equal(data, want) {
+		t.Fatalf("publisher ready = %q, want %q", data, want)
+	}
 	// Wait for connection to be registered in channel manager
 	time.Sleep(50 * time.Millisecond)
 	if h.channelManager.Stats().PendingPublishers != 1 {
 		t.Error("should have pending publisher")
+	}
+}
+
+func TestHandler_PublisherReadyIsNotBroadcastToBrowser(t *testing.T) {
+	h := createTestHandler()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/runner") {
+			h.HandleRunnerWS(w, r)
+			return
+		}
+		h.HandleBrowserWS(w, r)
+	}))
+	defer srv.Close()
+
+	wsBase := "ws" + strings.TrimPrefix(srv.URL, "http")
+	browser, _, err := websocket.DefaultDialer.Dial(wsBase+"/browser?token="+validToken("pod-ready"), nil)
+	if err != nil {
+		t.Fatalf("browser dial: %v", err)
+	}
+	defer browser.Close()
+
+	runner, _, err := websocket.DefaultDialer.Dial(wsBase+"/runner?token="+runnerToken("pod-ready"), nil)
+	if err != nil {
+		t.Fatalf("runner dial: %v", err)
+	}
+	defer runner.Close()
+
+	if _, _, err := runner.ReadMessage(); err != nil {
+		t.Fatalf("runner did not receive publisher ready: %v", err)
+	}
+	_ = browser.SetReadDeadline(time.Now().Add(50 * time.Millisecond))
+	if _, data, err := browser.ReadMessage(); err == nil {
+		t.Fatalf("browser received runner-only ready message: %q", data)
 	}
 }
 

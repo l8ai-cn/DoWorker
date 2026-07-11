@@ -21,7 +21,7 @@ func TestReadLoop_PingRespondsWithPong(t *testing.T) {
 	gotPong := make(chan struct{})
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := testUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyPublisher(w, r)
 		if err != nil {
 			return
 		}
@@ -65,7 +65,7 @@ func TestReadLoop_RoutesMessageToHandler(t *testing.T) {
 	var received atomic.Value
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := testUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyPublisher(w, r)
 		if err != nil {
 			return
 		}
@@ -111,7 +111,7 @@ func TestWriteLoop_SendsQueuedMessages(t *testing.T) {
 	var serverReceived []byte
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := testUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyPublisher(w, r)
 		if err != nil {
 			return
 		}
@@ -161,7 +161,7 @@ func TestReadLoop_ResizeMessage(t *testing.T) {
 	var gotCols, gotRows atomic.Uint32
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := testUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyPublisher(w, r)
 		if err != nil {
 			return
 		}

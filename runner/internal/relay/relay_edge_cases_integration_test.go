@@ -20,7 +20,7 @@ import (
 // handler fires exactly once even when Stop() triggers multiple code paths.
 func TestRelay_CloseCallbackFiresOnce_Integration(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := integrationUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyIntegrationPublisher(w, r)
 		if err != nil {
 			return
 		}
@@ -59,7 +59,7 @@ func TestRelay_PingPongHeartbeat_Integration(t *testing.T) {
 	pongReceived := make(chan struct{}, 1)
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := integrationUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyIntegrationPublisher(w, r)
 		if err != nil {
 			return
 		}
@@ -117,7 +117,7 @@ func TestRelay_SendWhileDisconnected_Integration(t *testing.T) {
 // dispatched, verifying no race condition or panic occurs.
 func TestRelay_ConcurrentHandlerRegistration_Integration(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := integrationUpgrader.Upgrade(w, r, nil)
+		conn, err := upgradeReadyIntegrationPublisher(w, r)
 		if err != nil {
 			return
 		}
