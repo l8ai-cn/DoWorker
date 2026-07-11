@@ -12,8 +12,9 @@ import (
 )
 
 type workerServices struct {
-	workerCreation *workercreation.Service
-	workerSpecs    specservice.SnapshotRepository
+	workerCreation    *workercreation.Service
+	workerDraftFiller *workercreation.DraftFiller
+	workerSpecs       specservice.SnapshotRepository
 }
 
 func initializeWorkerServices(
@@ -22,9 +23,17 @@ func initializeWorkerServices(
 	models *airesourceservice.Service,
 	repositories *repository.Service,
 ) workerServices {
+	creation := initializeWorkerCreationService(db, agents, models, repositories)
+	generator := workercreation.NewProviderDraftGenerator(
+		airesourceservice.NewSafeHTTPClient(
+			airesourceservice.NewEndpointPolicy(false, nil),
+			nil,
+		),
+	)
 	return workerServices{
-		workerCreation: initializeWorkerCreationService(db, agents, models, repositories),
-		workerSpecs:    infra.NewWorkerSpecSnapshotRepository(db),
+		workerCreation:    creation,
+		workerDraftFiller: workercreation.NewDraftFiller(creation, models, generator),
+		workerSpecs:       infra.NewWorkerSpecSnapshotRepository(db),
 	}
 }
 

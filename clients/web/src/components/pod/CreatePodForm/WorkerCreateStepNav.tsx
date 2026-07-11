@@ -30,7 +30,7 @@ export function WorkerCreateStepNav({
       >
         {t("ide.createPod.stepNavBack")}
       </Button>
-      {step < 3 && (
+      {step < 4 && (
         <Button type="button" size="sm" onClick={onNext} disabled={!canNext}>
           {t("ide.createPod.stepNavNext")}
         </Button>

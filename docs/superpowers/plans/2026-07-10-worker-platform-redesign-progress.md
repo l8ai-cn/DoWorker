@@ -43,7 +43,7 @@ All conditions must hold:
 | 0 | Authorization and current-flow correctness | Complete |
 | 1 | WorkerSpec V1 contract and immutable snapshot | Complete foundation; Pod/Expert linkage is tracked in the active implementation plan |
 | 2 | Runtime image, compute target, deployment, resource profile | Runtime catalog, scoped resolution, preflight, immutable snapshot persistence, and Pod resume linkage complete |
-| 3 | Canonical four-step web create workflow | Pending |
+| 3 | Canonical four-step web create workflow | Complete |
 | 4 | Runtime Expert and Skill publishing | Pending |
 | 5 | Migration, full regression, browser QA, documentation | Pending |
 
@@ -51,8 +51,10 @@ All conditions must hold:
 
 - Repository: `/Users/wwyz/Documents/code/AgentsMesh`
 - Branch: `main`
-- Current committed base: `aca06b3c6` (`feat(worker): define creation wire contract`)
-- Local `main` is synchronized with `origin/main`.
+- Current branch tip must be read from `git rev-parse HEAD` each cycle; do not
+  rely on a copied SHA in this file.
+- Local `main` may diverge from `origin/main` while concurrent sessions land;
+  inspect both sides before every push.
 - Shared worktree contains concurrent AI Resource, Loop, Grok, and Marketplace changes. Every commit must use an exact allowlist and a reviewed index.
 - Real PostgreSQL migration tests use an isolated schema in the main dev database at `127.0.0.1:10002`.
 - Browser verification remains required for the mobile Pod path and the final four-step Worker workflow.
@@ -86,3 +88,5 @@ All implementation now occurs on the shared `main` worktree. Do not create or sw
 - 2026-07-10: The approved Worker creation/publishing spec was converted into `2026-07-10-worker-creation-publishing.md`; execution is inline on `main` with commit-level checkpoints.
 - 2026-07-10: Task 1 completed: immutable Codex/Claude/Gemini image catalog, runner-pool and managed-Kubernetes target capabilities, server-owned resource profiles, four-step Worker draft/preflight/fill/publish wire contract, and Go/Rust/TypeScript generation checks all passed.
 - 2026-07-10: Task 2 completed: organization-scoped WorkerSpec resolution, exact model and runtime metadata, removal of model-managed fields from Worker type and runtime EnvBundle contracts, interaction-mode and package preflight, deterministic AgentFile compilation, atomic snapshot/Pod/config persistence, same-organization database constraints, exact EnvBundle and Skill runtime loading, and fail-closed fresh-create/resume definition validation all passed focused, full package, Proto generation, and real PostgreSQL tests.
+- 2026-07-11: Task 3 completed in `8bc81eab3`: Connect, Rust Core, WASM, and Web expose scoped Worker creation options, preflight, and AI draft fill without empty-success transport behavior.
+- 2026-07-11: Task 4 completed: one reducer owns the four-step workflow, AI Fill patches that draft, preflight must return a resolved WorkerSpec, concurrent create clicks issue one request, and affected Go/Web tests plus desktop/mobile browser QA passed. Raw AgentFile editing is excluded from V1 because the current protocol has no lossless parse-back contract; the backend-compiled AgentFile remains a derived runtime artifact.

@@ -317,5 +317,74 @@
         "hint": "将 Skill 安装到仓库后，即可在环境中使用"
       }
     }
+  },
+  "workerCreate": {
+    "steps": {
+      "runtime": "运行资源",
+      "typeConfig": "Worker 类型",
+      "workspace": "工作区",
+      "preflight": "检查"
+    },
+    "stepContent": {
+      "1": {
+        "title": "选择运行资源",
+        "description": "绑定精确模型、Worker 类型、不可变镜像、算力目标、部署模式和资源规格。"
+      },
+      "2": {
+        "title": "配置 Worker 类型",
+        "description": "仅填写当前 Worker 类型声明的字段；密钥始终引用凭据 Bundle，不写入草稿。"
+      },
+      "3": {
+        "title": "配置工作区",
+        "description": "关联仓库、能力、指令、初始任务、交互模式和生命周期。"
+      },
+      "4": {
+        "title": "检查并创建",
+        "description": "服务端预检会解析全部作用域引用，通过后再创建不可变 WorkerSpec 快照。"
+      }
+    },
+    "runtime": {
+      "model": "模型资源",
+      "workerType": "Worker 类型",
+      "runtimeImage": "运行时镜像",
+      "computeTarget": "算力目标",
+      "deploymentMode": "部署模式",
+      "resourceProfile": "资源规格"
+    },
+    "typeChange": {
+      "title": "切换 Worker 类型？",
+      "description": "当前类型专属的模型、镜像、配置、Skill 和环境选择将被清空。",
+      "cancel": "保留当前类型",
+      "confirm": "切换类型"
+    },
+    "typeConfig": {
+      "optionsRequired": "Worker 创建选项加载完成后才能配置类型。",
+      "typeRequired": "请先选择 Worker 类型。",
+      "versionMismatch": "Worker 类型 Schema 版本与当前选项不一致。",
+      "empty": "此 Worker 类型没有额外配置字段。",
+      "invalid": "Worker 类型配置 Schema 无效。",
+      "useDefault": "使用 Worker 默认值",
+      "secretHint": "密钥只引用凭据 Bundle，不会写入 Worker 草稿。"
+    },
+    "workspace": {
+      "repositoryTitle": "代码仓库",
+      "capabilitiesTitle": "能力",
+      "branchRequired": "选择仓库后必须填写分支。",
+      "instructions": "Worker 指令",
+      "previewTitle": "结构化 WorkerSpec 草稿",
+      "missingReferences": "部分已选 Skill 或环境引用已不可用，请重新选择后再执行预检。"
+    },
+    "preflight": {
+      "run": "执行预检",
+      "loading": "正在解析 Worker 配置…",
+      "retry": "重新预检",
+      "blocking": "阻断问题",
+      "warnings": "警告",
+      "missingResolvedSpec": "预检未返回已解析的 WorkerSpec，请重新执行预检。",
+      "ready": "Worker 配置已就绪。"
+    },
+    "actions": {
+      "create": "创建 Worker"
+    }
   }
 }

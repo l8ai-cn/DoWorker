@@ -124,26 +124,35 @@ export function useEnvBundles(selectedAgent: string | null) {
  */
 export function useRepoSkills(repositoryId: number | null) {
   const orgSlug = readCurrentOrg()?.slug ?? "";
+  const requestKey = repositoryId && orgSlug ? `${orgSlug}:${repositoryId}` : "";
   const { lastSkillSlugs } = usePodCreationStore();
   const [repoSkills, setRepoSkills] = useState<InstalledSkill[]>([]);
   const [loadingSkills, setLoadingSkills] = useState(false);
+  const [skillLoadError, setSkillLoadError] = useState<string | null>(null);
+  const [loadedKey, setLoadedKey] = useState("");
   const [selectedSkillSlugs, setSelectedSkillSlugs] = useState<string[]>([]);
 
   useEffect(() => {
     if (!repositoryId || !orgSlug) {
       setRepoSkills([]);
       setSelectedSkillSlugs([]);
+      setSkillLoadError(null);
+      setLoadingSkills(false);
+      setLoadedKey("");
       return;
     }
 
+    let cancelled = false;
     const load = async () => {
       setLoadingSkills(true);
+      setSkillLoadError(null);
       setSelectedSkillSlugs([]);
       try {
         const [orgRes, userRes] = await Promise.all([
-          listRepoSkills(orgSlug, repositoryId, { scope: "org" }).catch(() => ({ items: [] })),
-          listRepoSkills(orgSlug, repositoryId, { scope: "user" }).catch(() => ({ items: [] })),
+          listRepoSkills(orgSlug, repositoryId, { scope: "org" }),
+          listRepoSkills(orgSlug, repositoryId, { scope: "user" }),
         ]);
+        if (cancelled) return;
         const enabled = [...orgRes.items, ...userRes.items].filter((s) => s.is_enabled);
         setRepoSkills(enabled);
         // Restore last selection, dropping slugs no longer installed/enabled.
@@ -151,24 +160,35 @@ export function useRepoSkills(repositoryId: number | null) {
         const restored = (lastSkillSlugs ?? []).filter((slug) => available.has(slug));
         if (restored.length > 0) setSelectedSkillSlugs(restored);
       } catch (err) {
-        console.error("Failed to load repo skills:", err);
+        if (cancelled) return;
         setRepoSkills([]);
+        setSkillLoadError(
+          err instanceof Error ? err.message : "Failed to load repository skills",
+        );
       } finally {
-        setLoadingSkills(false);
+        if (!cancelled) {
+          setLoadingSkills(false);
+          setLoadedKey(requestKey);
+        }
       }
     };
 
-    load();
+    void load();
+    return () => {
+      cancelled = true;
+    };
     // lastSkillSlugs is read once per repo/org change; excluded to avoid
     // re-running the load when the persisted value updates on submit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [repositoryId, orgSlug]);
+  }, [repositoryId, orgSlug, requestKey]);
 
+  const current = loadedKey === requestKey;
   return {
-    repoSkills,
+    repoSkills: current ? repoSkills : [],
     setRepoSkills,
-    loadingSkills,
-    selectedSkillSlugs,
+    loadingSkills: Boolean(requestKey) && (!current || loadingSkills),
+    skillLoadError: current ? skillLoadError : null,
+    selectedSkillSlugs: current ? selectedSkillSlugs : [],
     setSelectedSkillSlugs,
   };
 }

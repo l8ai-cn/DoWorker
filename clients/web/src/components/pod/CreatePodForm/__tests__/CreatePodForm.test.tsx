@@ -1,348 +1,110 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CreatePodForm } from "../index";
 import {
-  mockSetSelectedRunnerId,
-  mockSetSelectedAgent,
-  defaultPodCreationData,
-  defaultFormState,
-  defaultConfigOptions,
-  mockRunner,
-  mockAgent,
-  clearAllMocks,
-  pickSelectOption,
+  controllerFixture,
+  mockFillWithAI,
+  mockRepository,
+  mockSetFillPrompt,
 } from "./test-utils";
 
-// Mock hooks
+const mockUseWorkerCreateDraft = vi.fn((params?: unknown) => {
+  void params;
+  return controllerFixture();
+});
+const mockFetchRepositories = vi.fn(async () => undefined);
+
 vi.mock("../../hooks", () => ({
-  usePodCreationData: vi.fn(() => defaultPodCreationData),
-  useCreatePodForm: vi.fn(() => defaultFormState),
+  useWorkerCreateDraft: (params: unknown) => mockUseWorkerCreateDraft(params),
 }));
-
-vi.mock("@/components/ide/hooks", () => ({
-  useConfigOptions: vi.fn(() => defaultConfigOptions),
+vi.mock("@/stores/repository", () => ({
+  useRepositories: () => [mockRepository],
+  useRepositoryStore: (selector: (state: unknown) => unknown) =>
+    selector({
+      fetched: true,
+      isLoading: false,
+      fetchRepositories: mockFetchRepositories,
+    }),
 }));
-
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock("@/components/ide/ConfigForm", () => ({
-  ConfigForm: () => <div data-testid="config-form">Config Form</div>,
-}));
-
-vi.mock("../KnowledgeBaseMountSelect", () => ({
-  KnowledgeBaseMountSelect: () => <div data-testid="knowledge-base-mount-select" />,
-}));
-
-vi.mock("@/components/experts/ExpertPickerSection", () => ({
-  ExpertPickerSection: () => <div data-testid="expert-picker-section" />,
-}));
-
-vi.mock("@/lib/terminal-size", () => ({
-  estimateWorkspaceTerminalSize: () => ({ cols: 80, rows: 24 }),
-}));
-
-// Mock Collapsible to always render children (no collapse animation in tests)
-vi.mock("@/components/ui/collapsible", () => ({
-  Collapsible: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  CollapsibleTrigger: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
-  CollapsibleContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
-vi.mock("@/stores/podCreation", () => ({
-  usePodCreationStore: () => ({
-    lastAgentSlug: null,
-    lastRepositoryId: null,
-    lastBundleName: null,
-    lastBranchName: null,
-    setLastChoices: vi.fn(),
-    clearLastChoices: vi.fn(),
-    _hasHydrated: true,
-    setHasHydrated: vi.fn(),
-  }),
-}));
-
-import { usePodCreationData, useCreatePodForm } from "../../hooks";
-
 describe("CreatePodForm", () => {
   beforeEach(() => {
-    clearAllMocks();
     vi.clearAllMocks();
+    mockUseWorkerCreateDraft.mockReturnValue(controllerFixture());
   });
 
-  describe("rendering", () => {
-    it("should render loading state when data is loading", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        loading: true,
-      });
+  it("renders one four-step workflow and preserves the supplied class", () => {
+    const { container } = render(
+      <CreatePodForm
+        className="worker-form"
+        config={{ scenario: "workspace" }}
+      />,
+    );
 
-      const { container } = render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(container.querySelector(".animate-spin")).toBeTruthy();
-    });
-
-    it("should render agent select when agents are available", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [mockRunner],
-        availableAgents: [mockAgent],
-      });
-
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.getByLabelText("ide.createPod.selectImage")).toBeInTheDocument();
-    });
-
-    it("should show no agents message when no agents available", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [mockRunner],
-        availableAgents: [],
-      });
-
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.getByText("ide.createPod.noImagesForCluster")).toBeInTheDocument();
-    });
-
-    it("should show data loading errors instead of no images message", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        error: "runner service unavailable",
-        runners: [],
-        availableAgents: [],
-      });
-
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.getByRole("alert")).toHaveTextContent("runner service unavailable");
-      expect(screen.queryByText("ide.createPod.noImagesForCluster")).not.toBeInTheDocument();
-    });
-
-    it("should show cluster select when runners are online", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [mockRunner],
-        availableAgents: [mockAgent],
-      });
-
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.getByLabelText("ide.createPod.selectRunner")).toBeInTheDocument();
-    });
-
-    it("should show no online clusters hint when no runners available", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [],
-        availableAgents: [mockAgent],
-      });
-
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.getByText("ide.createPod.noOnlineRunnersHint")).toBeInTheDocument();
-    });
-
-    it("should apply custom className to container", () => {
-      const { container } = render(
-        <CreatePodForm config={{ scenario: "workspace" }} className="custom-class" />
-      );
-      expect(container.firstChild).toHaveClass("custom-class");
-    });
+    expect(container.firstChild).toHaveClass("worker-form");
+    expect(screen.getAllByText("workerCreate.steps.runtime").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("workerCreate.steps.typeConfig").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("workerCreate.steps.workspace").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("workerCreate.steps.preflight").length).toBeGreaterThan(0);
   });
 
-  describe("runner selection", () => {
-    it("should list all online clusters in the cluster select", () => {
-      const claudeRunner = {
-        ...mockRunner,
-        id: 1,
-        node_id: "runner-claude",
-        available_agents: ["claude-code"],
-      };
-      const codexRunner = {
-        ...mockRunner,
-        id: 2,
-        node_id: "runner-codex",
-        available_agents: ["codex-cli"],
-      };
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [claudeRunner, codexRunner],
-        availableAgents: [mockAgent],
-      });
-      vi.mocked(useCreatePodForm).mockReturnValue({
-        ...defaultFormState,
-        selectedAgent: "claude-code",
-      });
+  it("uses the natural-language panel to fill the same controller", () => {
+    render(<CreatePodForm config={{ scenario: "workspace" }} />);
 
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-
-      // Custom Select renders options only when the trigger is opened.
-      fireEvent.click(screen.getByLabelText("ide.createPod.selectRunner"));
-      const optionValues = screen
-        .getAllByRole("option")
-        .map((el) => el.textContent ?? "");
-      expect(optionValues.some((v) => v.includes("runner-claude"))).toBe(true);
-      expect(optionValues.some((v) => v.includes("runner-codex"))).toBe(true);
+    fireEvent.change(screen.getByPlaceholderText("workers.create.nl.placeholder"), {
+      target: { value: "Review authentication" },
     });
+    expect(mockSetFillPrompt).toHaveBeenCalledWith("Review authentication");
 
-    it("should call setSelectedRunnerId when runner is selected", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [mockRunner, { ...mockRunner, id: 2, node_id: "runner-2" }],
-        availableAgents: [mockAgent],
-      });
-      vi.mocked(useCreatePodForm).mockReturnValue({
-        ...defaultFormState,
-        selectedAgent: "claude-code",
-      });
-
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      pickSelectOption("ide.createPod.selectRunner", "1");
-      expect(mockSetSelectedRunnerId).toHaveBeenCalledWith(1);
-    });
-
-    it("should call setSelectedRunnerId with null when deselected", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [mockRunner],
-        selectedRunner: mockRunner,
-        availableAgents: [mockAgent],
-      });
-      vi.mocked(useCreatePodForm).mockReturnValue({
-        ...defaultFormState,
-        selectedAgent: "claude-code",
-      });
-
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      pickSelectOption("ide.createPod.selectRunner", "");
-      expect(mockSetSelectedRunnerId).toHaveBeenCalledWith(null);
-    });
-
-    it("should show runner validation error", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [mockRunner],
-        availableAgents: [mockAgent],
-      });
-      vi.mocked(useCreatePodForm).mockReturnValue({
-        ...defaultFormState,
-        selectedAgent: "claude-code",
-        validationErrors: { runner: "Runner is required" },
-      });
-
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.getByText("Runner is required")).toBeInTheDocument();
-    });
+    mockUseWorkerCreateDraft.mockReturnValue(controllerFixture({
+      state: { fillPrompt: "Review authentication" },
+    }));
+    const { rerender } = render(
+      <CreatePodForm config={{ scenario: "workspace" }} />,
+    );
+    rerender(<CreatePodForm config={{ scenario: "workspace" }} />);
+    fireEvent.click(screen.getAllByText("workers.create.nl.submit").at(-1)!);
+    expect(mockFillWithAI).toHaveBeenCalledWith("Review authentication");
   });
 
-  describe("agent selection", () => {
-    it("should call setSelectedAgent when agent is selected", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [mockRunner],
-        availableAgents: [mockAgent],
-      });
-
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      pickSelectOption("ide.createPod.selectImage", "claude-code");
-      expect(mockSetSelectedAgent).toHaveBeenCalledWith("claude-code");
-    });
-
-    it("should show agent validation error", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [mockRunner],
-        availableAgents: [mockAgent],
-      });
-      vi.mocked(useCreatePodForm).mockReturnValue({
-        ...defaultFormState,
-        validationErrors: { agent: "Agent is required" },
-      });
-
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.getByText("Agent is required")).toBeInTheDocument();
-    });
-  });
-
-  describe("cancel button", () => {
-    it("should render cancel button when onCancel is provided", () => {
-      render(<CreatePodForm config={{ scenario: "workspace", onCancel: vi.fn() }} />);
-      expect(screen.getByText("ide.createPod.cancel")).toBeInTheDocument();
-    });
-
-    it("should call onCancel when clicked", () => {
-      const onCancel = vi.fn();
-      render(<CreatePodForm config={{ scenario: "workspace", onCancel }} />);
-      fireEvent.click(screen.getByText("ide.createPod.cancel"));
-      expect(onCancel).toHaveBeenCalled();
-    });
-
-    it("should not render cancel button when onCancel is not provided", () => {
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      expect(screen.queryByText("ide.createPod.cancel")).not.toBeInTheDocument();
-    });
-  });
-
-  describe("ticket context priority over prefs", () => {
-    it("forwards ticket repositoryId as override into useCreatePodForm", () => {
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [mockRunner],
-        availableAgents: [mockAgent],
-      });
-
-      render(
-        <CreatePodForm
-          config={{
-            scenario: "ticket",
-            context: {
-              ticket: { id: 1, slug: "T-1", title: "x", repositoryId: 42 },
+  it("passes ticket context and generated task into the WorkerSpec hook", () => {
+    render(
+      <CreatePodForm
+        config={{
+          scenario: "ticket",
+          context: {
+            ticket: {
+              id: 7,
+              slug: "TASK-7",
+              title: "Fix flaky test",
+              repositoryId: 51,
             },
-          }}
-        />,
-      );
+          },
+        }}
+      />,
+    );
 
-      const lastCall = vi.mocked(useCreatePodForm).mock.calls.at(-1);
-      expect(lastCall?.[4]).toEqual({ repositoryId: 42 });
-    });
-
-    it("passes null override when no ticket context is provided", () => {
-      render(<CreatePodForm config={{ scenario: "workspace" }} />);
-      const lastCall = vi.mocked(useCreatePodForm).mock.calls.at(-1);
-      expect(lastCall?.[4]).toEqual({ repositoryId: null });
-    });
-
-    it("seeds prompt with ticket title and description via preset", () => {
-      const setPrompt = vi.fn();
-      vi.mocked(usePodCreationData).mockReturnValue({
-        ...defaultPodCreationData,
-        runners: [mockRunner],
-        availableAgents: [mockAgent],
-      });
-      vi.mocked(useCreatePodForm).mockReturnValue({
-        ...defaultFormState,
-        selectedAgent: "claude-code",
-        setPrompt,
-      });
-
-      render(
-        <CreatePodForm
-          config={{
-            scenario: "ticket",
-            context: {
-              ticket: {
-                id: 5,
-                slug: "T-5",
-                title: "Fix flaky test",
-                description: "Reproduce locally then bisect.",
-              },
-            },
-          }}
-        />,
-      );
-
-      expect(setPrompt).toHaveBeenCalledTimes(1);
-      const seeded = setPrompt.mock.calls[0][0] as string;
-      expect(seeded).toContain("Work on ticket T-5: Fix flaky test");
-      expect(seeded).toContain("Reproduce locally then bisect.");
-    });
+    expect(mockUseWorkerCreateDraft).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        initialTask: "Work on ticket TASK-7: Fix flaky test",
+        initialRepositoryId: 51,
+        ticketSlug: "TASK-7",
+      }),
+    );
   });
 
+  it("renders and invokes cancel only when configured", () => {
+    const onCancel = vi.fn();
+    const { rerender } = render(
+      <CreatePodForm config={{ scenario: "workspace", onCancel }} />,
+    );
+    fireEvent.click(screen.getByText("ide.createPod.cancel"));
+    expect(onCancel).toHaveBeenCalledOnce();
+
+    rerender(<CreatePodForm config={{ scenario: "workspace" }} />);
+    expect(screen.queryByText("ide.createPod.cancel")).not.toBeInTheDocument();
+  });
 });

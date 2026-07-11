@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   getCatalog,
   listOrganizationEffectiveResources,
@@ -22,7 +22,9 @@ export function useWorkerModelResources(
   const [resources, setResources] = useState<EffectiveResource[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadedAgentSlug, setLoadedAgentSlug] = useState("");
   const [selectedModelResourceId, setSelectedModelResourceId] = useState<number | null>(null);
+  const requestAgentSlug = agentSlug ?? "";
 
   useEffect(() => {
     setSelectedModelResourceId(initialModelResourceId);
@@ -30,6 +32,7 @@ export function useWorkerModelResources(
       setResources([]);
       setError(null);
       setLoading(false);
+      setLoadedAgentSlug(requestAgentSlug);
       return;
     }
 
@@ -52,7 +55,10 @@ export function useWorkerModelResources(
         setResources([]);
         setError(err instanceof Error ? err.message : "Failed to load model resources");
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setLoadedAgentSlug(requestAgentSlug);
+        }
       }
     };
 
@@ -60,17 +66,19 @@ export function useWorkerModelResources(
     return () => {
       cancelled = true;
     };
-  }, [agentSlug, initialModelResourceId]);
+  }, [agentSlug, initialModelResourceId, requestAgentSlug]);
 
-  const selectedModelResource = useMemo(
-    () => resources.find((item) => item.resource?.id === selectedModelResourceId),
-    [resources, selectedModelResourceId],
+  const current = loadedAgentSlug === requestAgentSlug;
+  const visibleResources = current ? resources : [];
+  const selectedModelResource = visibleResources.find(
+    (item) => item.resource?.id === selectedModelResourceId,
   );
 
   return {
-    modelResources: resources,
-    loadingModelResources: loading,
-    modelResourceError: error,
+    modelResources: visibleResources,
+    loadingModelResources:
+      requiresModelResource(agentSlug) && (!current || loading),
+    modelResourceError: current ? error : null,
     selectedModelResource,
     selectedModelResourceId,
     setSelectedModelResourceId,

@@ -26,7 +26,7 @@ export interface CreatePodFormConfig {
   initialAgentSlug?: string;
   initialPrompt?: string;
   /** Test / deep-link hook: open wizard on a specific step. */
-  initialWizardStep?: 1 | 2 | 3;
+  initialWizardStep?: 1 | 2 | 3 | 4;
   initialExpertSlug?: string;
   onSuccess?: (pod: PodData) => void;
   onError?: (error: Error) => void;

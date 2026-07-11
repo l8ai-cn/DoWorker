@@ -42,14 +42,17 @@ export function PodLifecycleSection({
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">
+          <label
+            htmlFor="worker-lifecycle-policy"
+            className="mb-1 block text-xs font-medium text-muted-foreground"
+          >
             {t("ide.createPod.lifecyclePolicyLabel")}
           </label>
           <Select
             value={destroyPolicy}
             onValueChange={(value) => onPolicyChange(value as DestroyPolicy)}
           >
-            <SelectTrigger>
+            <SelectTrigger id="worker-lifecycle-policy">
               <SelectValue placeholder={t("ide.createPod.lifecyclePolicyPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
@@ -67,15 +70,18 @@ export function PodLifecycleSection({
           )}
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">
+          <label
+            htmlFor="worker-lifecycle-after"
+            className="mb-1 block text-xs font-medium text-muted-foreground"
+          >
             {t("ide.createPod.lifecycleAfterLabel")}
           </label>
           <Select
             value={String(destroyAfterMinutes)}
             onValueChange={(value) => onAfterChange(Number(value))}
-            disabled={destroyPolicy === "manual"}
+            disabled={destroyPolicy !== "idle"}
           >
-            <SelectTrigger>
+            <SelectTrigger id="worker-lifecycle-after">
               <SelectValue placeholder={t("ide.createPod.lifecycleAfterPlaceholder")} />
             </SelectTrigger>
             <SelectContent>

@@ -1,11 +1,5 @@
 package main
 
-// Per-service Connect mount helpers — split out of connect_init.go for SRP.
-// The dispatchers (mountConnectServices + mountAdminServices) stay in
-// connect_init.go; each helper here wires exactly one Connect server with
-// its optional dependencies. New services should add a `mount<X>Service`
-// helper here + a single call line in mountConnectServices.
-
 import (
 	"net/http"
 
@@ -22,8 +16,6 @@ import (
 	licenseconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/license"
 	loopconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/loop"
 	notificationconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/notification"
-	podconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/pod"
-	runnerconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/runner"
 	ssoconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/sso"
 	tokenusageconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/token_usage"
 	v1 "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1"
@@ -85,79 +77,6 @@ func mountInvitationService(mux *http.ServeMux, svc *serviceContainer, opts []co
 func mountBillingService(mux *http.ServeMux, svc *serviceContainer, opts []connect.HandlerOption) {
 	billingconnect.Mount(mux, billingconnect.NewServer(svc.billing, svc.org), opts...)
 	billingconnect.MountPublic(mux, billingconnect.NewPublicServer(svc.billing))
-}
-
-// mountRunnerService wires the runner Connect server with its optional
-// dependencies. Mirrors the option-pattern used by REST's NewRunnerHandler
-// (runners.go:24), but draws each dep from the same v1.Services source so
-// Connect and REST see the same instance.
-func mountRunnerService(mux *http.ServeMux, svc *serviceContainer, rest *v1.Services, cfg *config.Config, opts []connect.HandlerOption) {
-	serverOpts := []runnerconnect.Option{
-		runnerconnect.WithBaseURL(cfg.BaseURL()),
-	}
-	if rest.VersionChecker != nil {
-		serverOpts = append(serverOpts, runnerconnect.WithVersionChecker(rest.VersionChecker))
-	}
-	if rest.PodCoordinator != nil {
-		serverOpts = append(serverOpts, runnerconnect.WithPodCoordinator(rest.PodCoordinator))
-	}
-	if rest.SandboxQueryService != nil {
-		serverOpts = append(serverOpts, runnerconnect.WithSandboxQueryService(rest.SandboxQueryService))
-	}
-	if rest.UpgradeCommandSender != nil {
-		serverOpts = append(serverOpts, runnerconnect.WithUpgradeCommandSender(rest.UpgradeCommandSender))
-	}
-	if rest.LogUploadSender != nil {
-		serverOpts = append(serverOpts, runnerconnect.WithLogUploadSender(rest.LogUploadSender))
-	}
-	if rest.LogUploadService != nil {
-		serverOpts = append(serverOpts, runnerconnect.WithLogUploadService(rest.LogUploadService))
-	}
-	if rest.GRPCRunnerHandler != nil && rest.GRPCRunnerHandler.PKIService() != nil {
-		serverOpts = append(serverOpts, runnerconnect.WithPKIService(rest.GRPCRunnerHandler.PKIService()))
-		serverOpts = append(serverOpts, runnerconnect.WithGRPCEndpoint(cfg.GRPC.Endpoint))
-	}
-	srv := runnerconnect.NewServer(svc.runner, svc.org, serverOpts...)
-	runnerconnect.Mount(mux, srv, opts...)
-	runnerconnect.MountPublic(mux, srv)
-}
-
-// mountPodService wires the pod Connect server with its optional
-// dependencies. Mirrors PodHandler / PodConnectHandler in v1/pods.go +
-// v1/pod_relay_connect.go — same deps drawn from v1.Services so Connect
-// and REST agree on every collaborator instance. RunnerCommandSender is
-// optional: when nil, perpetual / send-prompt return CodeUnavailable.
-func mountPodService(mux *http.ServeMux, svc *serviceContainer, rest *v1.Services, opts []connect.HandlerOption) {
-	serverOpts := []podconnect.Option{}
-	if rest.PodOrchestrator != nil {
-		serverOpts = append(serverOpts, podconnect.WithOrchestrator(rest.PodOrchestrator))
-	}
-	if rest.PodCoordinator != nil {
-		serverOpts = append(serverOpts, podconnect.WithPodCoordinator(rest.PodCoordinator))
-		if sender := rest.PodCoordinator.GetCommandSender(); sender != nil {
-			serverOpts = append(serverOpts, podconnect.WithCommandSender(sender))
-		}
-	}
-	if rest.RelayManager != nil {
-		serverOpts = append(serverOpts, podconnect.WithRelayManager(rest.RelayManager))
-	}
-	if rest.RelayTokenGenerator != nil {
-		serverOpts = append(serverOpts, podconnect.WithTokenGenerator(rest.RelayTokenGenerator))
-	}
-	if rest.GeoResolver != nil {
-		serverOpts = append(serverOpts, podconnect.WithGeoResolver(rest.GeoResolver))
-	}
-	if rest.Grant != nil {
-		serverOpts = append(serverOpts, podconnect.WithGrantService(rest.Grant))
-	}
-	if rest.EventBus != nil {
-		serverOpts = append(serverOpts, podconnect.WithEventBus(rest.EventBus))
-	}
-	if svc.workerCreation != nil {
-		serverOpts = append(serverOpts, podconnect.WithWorkerCreation(svc.workerCreation))
-	}
-	srv := podconnect.NewServer(svc.pod, svc.org, serverOpts...)
-	podconnect.Mount(mux, srv, opts...)
 }
 
 // mountAgentPodSettingsService wires the user-scoped AgentPod settings +

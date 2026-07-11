@@ -343,7 +343,7 @@
   "workers": {
     "create": {
       "title": "创建 Worker",
-      "subtitle": "按步骤配置：运行环境（含 Git 仓库）→ 挂载知识库与 Skill → Agent 指令，然后创建 Worker。",
+      "subtitle": "在同一个四步流程中配置运行资源、Worker 类型、工作区能力并完成服务端预检。",
       "stepsTitle": "创建步骤",
       "stepCluster": "集群与镜像 — 算力节点 + AI 运行时",
       "stepCapabilities": "能力挂载 — 知识库与 Skill",
@@ -351,13 +351,10 @@
       "stepLaunch": "初始任务与时长 — 创建后进入工作区",
       "backToWorkspace": "返回工作区",
       "nl": {
-        "title": "用一句话描述任务",
+        "title": "用 AI 填写 Worker 草稿",
         "placeholder": "例如：审查 auth 中间件的权限缺口并总结发现。",
-        "hint": "我们会自动为你选择 Runner 和 Agent。⌘/Ctrl + Enter 发送。",
-        "submit": "创建 Worker",
-        "queued": "Worker 已排队",
-        "fallback": "无法自动分配 Runner —— 请用下方向导完成配置。",
-        "error": "创建 Worker 失败"
+        "hint": "AI 只更新下方同一份草稿，不会自动创建 Worker。⌘/Ctrl + Enter 填写。",
+        "submit": "用 AI 填写"
       },
       "import": {
         "button": "从 Codex 导入",

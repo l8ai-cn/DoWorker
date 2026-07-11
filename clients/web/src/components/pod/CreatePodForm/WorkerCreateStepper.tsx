@@ -2,8 +2,9 @@
 
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { WorkerCreateStepId } from "../hooks/workerCreateDraft";
 
-export type WorkerCreateStepId = 1 | 2 | 3;
+export type { WorkerCreateStepId } from "../hooks/workerCreateDraft";
 
 export interface WorkerCreateStepDef {
   id: WorkerCreateStepId;

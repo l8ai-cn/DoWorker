@@ -316,5 +316,74 @@
         "hint": "Install skills to a repository to use them in pods"
       }
     }
+  },
+  "workerCreate": {
+    "steps": {
+      "runtime": "Runtime",
+      "typeConfig": "Worker type",
+      "workspace": "Workspace",
+      "preflight": "Review"
+    },
+    "stepContent": {
+      "1": {
+        "title": "Choose runtime",
+        "description": "Bind an exact model, Worker type, immutable image, compute target, deployment mode, and resource profile."
+      },
+      "2": {
+        "title": "Configure Worker type",
+        "description": "Set only fields declared by the selected Worker type. Secrets remain references to credential bundles."
+      },
+      "3": {
+        "title": "Configure workspace",
+        "description": "Attach a repository, capabilities, instructions, task, interaction mode, and lifecycle."
+      },
+      "4": {
+        "title": "Review and create",
+        "description": "Server preflight resolves every scoped reference before the immutable WorkerSpec snapshot is created."
+      }
+    },
+    "runtime": {
+      "model": "Model resource",
+      "workerType": "Worker type",
+      "runtimeImage": "Runtime image",
+      "computeTarget": "Compute target",
+      "deploymentMode": "Deployment mode",
+      "resourceProfile": "Resource profile"
+    },
+    "typeChange": {
+      "title": "Change Worker type?",
+      "description": "Type-specific model, image, configuration, Skill, and environment selections will be cleared.",
+      "cancel": "Keep current type",
+      "confirm": "Change type"
+    },
+    "typeConfig": {
+      "optionsRequired": "Worker creation options must load before type configuration.",
+      "typeRequired": "Select a Worker type first.",
+      "versionMismatch": "Worker type schema version does not match the selected option.",
+      "empty": "This Worker type has no additional configuration fields.",
+      "invalid": "Worker type configuration schema is invalid.",
+      "useDefault": "Use Worker default",
+      "secretHint": "Secrets are referenced from a credential bundle and are never stored in the Worker draft."
+    },
+    "workspace": {
+      "repositoryTitle": "Repository",
+      "capabilitiesTitle": "Capabilities",
+      "branchRequired": "Branch is required when a repository is selected.",
+      "instructions": "Worker instructions",
+      "previewTitle": "Structured WorkerSpec draft",
+      "missingReferences": "One or more selected Skill or environment references are no longer available. Select them again before preflight."
+    },
+    "preflight": {
+      "run": "Run preflight",
+      "loading": "Resolving Worker configuration…",
+      "retry": "Retry preflight",
+      "blocking": "Blocking issues",
+      "warnings": "Warnings",
+      "missingResolvedSpec": "Preflight did not return a resolved WorkerSpec. Run preflight again.",
+      "ready": "Worker configuration is ready."
+    },
+    "actions": {
+      "create": "Create Worker"
+    }
   }
 }

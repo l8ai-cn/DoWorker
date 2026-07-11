@@ -1,148 +1,191 @@
 import { vi } from "vitest";
-import { fireEvent, screen } from "@testing-library/react";
-import { POD_MODE_PTY } from "@/lib/pod-modes";
+import type { EffectiveResource } from "@/lib/api/facade/aiResource";
+import type {
+  WorkerCreateOptions,
+  WorkerSpecDraft,
+} from "@/lib/api/facade/podConnect";
+import type { WorkerCreateController } from "../../hooks/workerCreateController";
+import type { WorkerCreateDraftState } from "../../hooks/workerCreateDraft";
 
-export const mockSetSelectedRunnerId = vi.fn();
-export const mockFormReset = vi.fn();
-export const mockFormSubmit = vi.fn();
-export const mockSetPrompt = vi.fn();
-export const mockSetAlias = vi.fn();
-export const mockSetSelectedAgent = vi.fn();
-export const mockSetSelectedModelResourceId = vi.fn();
-export const mockResetPluginConfig = vi.fn();
+export const mockPatchDraft = vi.fn();
+export const mockChangeWorkerType = vi.fn();
+export const mockSetLifecycle = vi.fn();
+export const mockSetFillPrompt = vi.fn();
+export const mockFillWithAI = vi.fn(async () => undefined);
+export const mockGoToStep = vi.fn(async () => undefined);
+export const mockRunPreflight = vi.fn(async () => null);
+export const mockCreateWorker = vi.fn(async () => null);
+export const mockReset = vi.fn();
 
-export const defaultPodCreationData = {
-  runners: [],
-  repositories: [],
-  loading: false,
-  selectedRunner: null,
-  setSelectedRunnerId: mockSetSelectedRunnerId,
-  availableAgents: [],
-  agents: [],
-  error: null,
-};
+export function controllerFixture(overrides: {
+  state?: Partial<WorkerCreateDraftState>;
+  controller?: Partial<WorkerCreateController>;
+} = {}): WorkerCreateController {
+  const state: WorkerCreateDraftState = {
+    instanceId: "worker-create-test",
+    step: 1,
+    fillPrompt: "",
+    draft: completeDraft(),
+    fill: { status: "idle" },
+    fillRequestId: null,
+    preflight: { status: "idle" },
+    preflightRequestId: null,
+    create: { status: "idle" },
+    ...overrides.state,
+  };
+  return {
+    state,
+    options: { status: "ready", data: createOptions() },
+    modelResources: { status: "ready", data: [modelResource()] },
+    runtimeBundles: { status: "ready", data: [] },
+    credentialBundles: { status: "ready", data: [] },
+    skills: { status: "ready", data: [] },
+    repositories: [mockRepository],
+    validity: {
+      runtime: true,
+      typeConfig: true,
+      workspace: true,
+      accessible: () => true,
+    },
+    patchDraft: mockPatchDraft,
+    changeWorkerType: mockChangeWorkerType,
+    setLifecycle: mockSetLifecycle,
+    setFillPrompt: mockSetFillPrompt,
+    fillWithAI: mockFillWithAI,
+    goToStep: mockGoToStep,
+    runPreflight: mockRunPreflight,
+    createWorker: mockCreateWorker,
+    reset: mockReset,
+    ...overrides.controller,
+  };
+}
 
-export const defaultFormState = {
-  selectedAgent: null,
-  selectedRepository: null,
-  selectedBranch: "",
-  selectedModelResourceId: null,
-  selectedRuntimeBundleNames: [] as string[],
-  selectedSkillSlugs: [] as string[],
-  interactionMode: POD_MODE_PTY,
-  automationLevel: "autonomous",
-  prompt: "",
-  alias: "",
-  envBundles: [],
-  loadingBundles: false,
-  bundleLoadError: null,
-  modelResources: [],
-  loadingModelResources: false,
-  modelResourceError: null,
-  repoSkills: [],
-  loadingSkills: false,
-  setSelectedAgent: mockSetSelectedAgent,
-  setSelectedRepository: vi.fn(),
-  setSelectedBranch: vi.fn(),
-  setSelectedModelResourceId: mockSetSelectedModelResourceId,
-  setSelectedRuntimeBundleNames: vi.fn(),
-  setSelectedSkillSlugs: vi.fn(),
-  setInteractionMode: vi.fn(),
-  setAutomationLevel: vi.fn(),
-  setPrompt: mockSetPrompt,
-  setAlias: mockSetAlias,
-  perpetual: false,
-  destroyPolicy: "manual" as const,
-  destroyAfterMinutes: 120,
-  selectedKnowledgeMounts: [],
-  tokenBudget: null,
-  customEnv: [],
-  setPerpetual: vi.fn(),
-  setDestroyPolicy: vi.fn(),
-  setDestroyAfterMinutes: vi.fn(),
-  setSelectedKnowledgeMounts: vi.fn(),
-  setTokenBudget: vi.fn(),
-  setCustomEnv: vi.fn(),
-  selectedAgentSlug: "",
-  supportedModes: [POD_MODE_PTY],
-  loading: false,
-  error: null,
-  warning: null,
-  validationErrors: {},
-  isValid: false,
-  reset: mockFormReset,
-  validate: vi.fn(),
-  submit: mockFormSubmit,
-  rawLayerMode: false,
-  rawLayerText: "",
-  agentfileLayer: "",
-  setRawLayerMode: vi.fn(),
-  setRawLayerText: vi.fn(),
-};
+export function completeDraft(): WorkerSpecDraft {
+  return {
+    model_resource_id: 42,
+    worker_type_slug: "codex-cli",
+    runtime_image_id: 11,
+    placement_policy: "automatic",
+    compute_target_id: 21,
+    deployment_mode: "pooled",
+    resource_profile_id: 31,
+    type_schema_version: 1,
+    type_config_values: {},
+    secret_refs: [],
+    interaction_mode: "acp",
+    automation_level: "autonomous",
+    repository_id: 51,
+    branch: "main",
+    skill_ids: [],
+    knowledge_mounts: [],
+    env_bundle_ids: [],
+    instructions: "",
+    initial_task: "Fix the failing test.",
+    termination_policy: "manual",
+    idle_timeout_minutes: 0,
+    alias: "",
+    options_revision: "runtime-catalog-1",
+  };
+}
 
-export const defaultConfigOptions = {
-  fields: [],
-  loading: false,
-  config: {},
-  updateConfig: vi.fn(),
-  resetConfig: mockResetPluginConfig,
-};
-
-export const mockRunner = {
-  id: 1,
-  node_id: "runner-1",
-  current_pods: 0,
-  max_concurrent_pods: 5,
-  status: "online" as const,
-  available_agents: ["claude-code"],
-  capabilities: [],
-  is_enabled: true,
-  created_at: "2024-01-01T00:00:00Z",
-  updated_at: "2024-01-01T00:00:00Z",
-};
-
-export const mockAgent = {
-  name: "Claude Code",
-  slug: "claude-code",
-  is_builtin: true,
-  is_active: true,
-};
+export function createOptions(): WorkerCreateOptions {
+  return {
+    revision: "runtime-catalog-1",
+    worker_types: [{
+      slug: "codex-cli",
+      name: "Codex CLI",
+      description: "",
+      schema_version: 1,
+      config_schema: { version: 1, fields: {} },
+      selectable: true,
+      blocking_reason: "",
+    }],
+    runtime_images: [{
+      id: 11,
+      slug: "codex-stable",
+      name: "Codex stable",
+      reference: "registry/codex@sha256:test",
+      digest: "sha256:test",
+      worker_type_slugs: ["codex-cli"],
+      selectable: true,
+      blocking_reason: "",
+    }],
+    compute_targets: [{
+      id: 21,
+      slug: "runner-pool",
+      name: "Runner pool",
+      kind: "runner-pool",
+      supports_pooled: true,
+      supports_dedicated: false,
+      selectable: true,
+      blocking_reason: "",
+    }],
+    deployment_modes: [{
+      value: "pooled",
+      name: "Pooled",
+      selectable: true,
+      blocking_reason: "",
+    }],
+    resource_profiles: [{
+      id: 31,
+      slug: "standard",
+      name: "Standard",
+      cpu_request_millicpu: 200,
+      cpu_limit_millicpu: 1000,
+      memory_request_bytes: 268435456,
+      memory_limit_bytes: 1073741824,
+      selectable: true,
+      blocking_reason: "",
+    }],
+  };
+}
 
 export const mockRepository = {
-  id: 1,
+  id: 51,
   organization_id: 1,
   provider_type: "github",
   provider_base_url: "https://github.com",
-  http_clone_url: "https://github.com/org/repo1.git",
-  external_id: "org-repo1",
-  name: "repo1",
-  slug: "org/repo1",
+  http_clone_url: "https://github.com/org/repo.git",
+  external_id: "org-repo",
+  name: "repo",
+  slug: "org-repo",
   default_branch: "main",
   visibility: "organization",
   is_active: true,
-  created_at: "2024-01-01T00:00:00Z",
-  updated_at: "2024-01-01T00:00:00Z",
+  created_at: "2026-07-10T00:00:00Z",
+  updated_at: "2026-07-10T00:00:00Z",
 };
 
-export function clearAllMocks() {
-  mockSetSelectedRunnerId.mockClear();
-  mockFormReset.mockClear();
-  mockFormSubmit.mockClear();
-  mockSetPrompt.mockClear();
-  mockSetAlias.mockClear();
-  mockSetSelectedAgent.mockClear();
-  mockSetSelectedModelResourceId.mockClear();
-  mockResetPluginConfig.mockClear();
-}
-
-/** Open a custom Select by label and pick an option by data-option-value. */
-export function pickSelectOption(labelText: string | RegExp, optionValue: string) {
-  fireEvent.click(screen.getByLabelText(labelText));
-  const option = screen
-    .getAllByRole("option")
-    .find((el) => el.getAttribute("data-option-value") === optionValue);
-  if (!option) {
-    throw new Error(`Select option not found: ${optionValue}`);
-  }
-  fireEvent.click(option);
+export function modelResource(): EffectiveResource {
+  return {
+    selectable: true,
+    blockingReason: "",
+    connection: {
+      id: 1,
+      ownerScope: "organization",
+      identifier: "openai",
+      providerKey: "openai",
+      name: "OpenAI",
+      baseUrl: "https://api.openai.com/v1",
+      configuredFields: ["api_key"],
+      status: "valid",
+      isEnabled: true,
+      validationError: "",
+      canManage: true,
+      resources: [],
+    },
+    resource: {
+      id: 42,
+      providerConnectionId: 1,
+      identifier: "gpt-5",
+      modelId: "gpt-5",
+      displayName: "GPT-5",
+      modalities: ["chat"],
+      capabilities: ["text-generation"],
+      defaultModalities: ["chat"],
+      status: "valid",
+      isEnabled: true,
+      validationError: "",
+    },
+  };
 }

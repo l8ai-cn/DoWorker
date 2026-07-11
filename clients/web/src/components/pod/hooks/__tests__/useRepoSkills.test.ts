@@ -65,4 +65,69 @@ describe("useRepoSkills", () => {
     expect(result.current.selectedSkillSlugs).toEqual([]);
     expect(mockListRepoSkills).not.toHaveBeenCalled();
   });
+
+  it("hides previous repository skills while the next repository loads", async () => {
+    const next = deferred<{ items: InstalledSkill[] }>();
+    mockListRepoSkills.mockImplementation(
+      (_org, repositoryId, options: { scope?: string }) => {
+        if (repositoryId === 7) {
+          return Promise.resolve({
+            items: options.scope === "org" ? [skill("repo-seven")] : [],
+          });
+        }
+        return next.promise;
+      },
+    );
+    const { result, rerender } = renderHook(
+      ({ repositoryId }) => useRepoSkills(repositoryId),
+      { initialProps: { repositoryId: 7 } },
+    );
+    await waitFor(() =>
+      expect(result.current.repoSkills.map((item) => item.slug))
+        .toEqual(["repo-seven"]),
+    );
+
+    rerender({ repositoryId: 8 });
+
+    expect(result.current.loadingSkills).toBe(true);
+    expect(result.current.repoSkills).toEqual([]);
+    next.resolve({ items: [] });
+    await waitFor(() => expect(result.current.loadingSkills).toBe(false));
+  });
+
+  it("ignores an older repository response that finishes last", async () => {
+    const repoSeven = deferred<{ items: InstalledSkill[] }>();
+    mockListRepoSkills.mockImplementation(
+      (_org, repositoryId, options: { scope?: string }) => {
+        if (repositoryId === 7) return repoSeven.promise;
+        return Promise.resolve({
+          items: options.scope === "org" ? [skill("repo-eight")] : [],
+        });
+      },
+    );
+    const { result, rerender } = renderHook(
+      ({ repositoryId }) => useRepoSkills(repositoryId),
+      { initialProps: { repositoryId: 7 } },
+    );
+
+    rerender({ repositoryId: 8 });
+    await waitFor(() =>
+      expect(result.current.repoSkills.map((item) => item.slug))
+        .toEqual(["repo-eight"]),
+    );
+    repoSeven.resolve({ items: [skill("repo-seven")] });
+
+    await waitFor(() =>
+      expect(result.current.repoSkills.map((item) => item.slug))
+        .toEqual(["repo-eight"]),
+    );
+  });
 });
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}

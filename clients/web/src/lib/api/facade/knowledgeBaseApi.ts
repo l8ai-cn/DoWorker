@@ -27,6 +27,7 @@ export interface KbAgentMount {
 // `KNOWLEDGE slug [rw]` declaration; the backend resolves slugs to git
 // clone specs at orchestration time).
 export interface KnowledgeMountSelection {
+  id?: number;
   slug: string;
   mode: "ro" | "rw";
 }

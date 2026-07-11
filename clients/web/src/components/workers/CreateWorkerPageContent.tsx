@@ -7,7 +7,6 @@ import { ArrowLeft, FileInput } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CreatePodForm } from "@/components/pod/CreatePodForm";
-import { NlWorkerCreate } from "@/components/workers/NlWorkerCreate";
 import { ImportCodexDialog } from "@/components/workers/ImportCodexDialog";
 import { Button } from "@/components/ui/button";
 import type { PodData } from "@/lib/api";
@@ -22,10 +21,7 @@ export function CreateWorkerPageContent() {
   const orgSlug = params.org as string;
 
   const initialAgentSlug = searchParams.get("image") ?? undefined;
-  const [wizardPrompt, setWizardPrompt] = useState(
-    () => searchParams.get("prompt") ?? undefined,
-  );
-  const initialPrompt = wizardPrompt;
+  const initialPrompt = searchParams.get("prompt") ?? undefined;
   const initialExpertSlug = searchParams.get("expert") ?? undefined;
   const [importOpen, setImportOpen] = useState(false);
 
@@ -89,9 +85,7 @@ export function CreateWorkerPageContent() {
           }}
         />
 
-        <NlWorkerCreate orgSlug={orgSlug} onNeedsWizard={setWizardPrompt} />
-
-        <CreatePodForm key={wizardPrompt ?? ""} config={formConfig} className="pb-8" />
+        <CreatePodForm config={formConfig} className="pb-8" />
       </div>
     </div>
   );

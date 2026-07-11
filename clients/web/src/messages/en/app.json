@@ -318,7 +318,7 @@
   "workers": {
     "create": {
       "title": "Create Worker",
-      "subtitle": "Configure in steps: runtime (including Git repo) → knowledge & skills → agent instructions, then create.",
+      "subtitle": "Configure runtime, Worker type, workspace capabilities, and server preflight in one four-step workflow.",
       "stepsTitle": "Creation steps",
       "stepCluster": "Cluster & image — compute + AI runtime",
       "stepCapabilities": "Capabilities — knowledge bases & skills",
@@ -326,13 +326,10 @@
       "stepLaunch": "Task & duration — create and open workspace",
       "backToWorkspace": "Back to workspace",
       "nl": {
-        "title": "Describe the task in plain language",
+        "title": "Fill the Worker draft with AI",
         "placeholder": "e.g. Review the auth middleware for permission gaps and summarize findings.",
-        "hint": "We'll pick a runner and agent for you. ⌘/Ctrl + Enter to send.",
-        "submit": "Create worker",
-        "queued": "Worker queued",
-        "fallback": "Couldn't auto-assign a runner — finish setup with the wizard below.",
-        "error": "Failed to create worker"
+        "hint": "AI updates the same draft below and never creates a Worker automatically. ⌘/Ctrl + Enter to fill.",
+        "submit": "Fill with AI"
       },
       "import": {
         "button": "Import from Codex",

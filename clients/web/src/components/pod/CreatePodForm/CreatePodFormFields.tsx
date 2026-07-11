@@ -1,173 +1,197 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { AgentData, ConfigField, RepositoryData, RunnerData } from "@/lib/api";
-import type { CreatePodFormState } from "../hooks";
-import { AdvancedFormSection } from "./AdvancedFormSection";
-import { WorkerCreateStepper, type WorkerCreateStepId } from "./WorkerCreateStepper";
+import { useEffect, useMemo } from "react";
+import { AlertMessage } from "@/components/ui/alert-message";
+import { Button } from "@/components/ui/button";
+import type { WorkerCreateController } from "../hooks/workerCreateController";
+import { workerPreflightHasBlockingIssues } from "../hooks/workerCreateController";
+import { WorkerCreateStepper } from "./WorkerCreateStepper";
 import { WorkerCreateStepNav } from "./WorkerCreateStepNav";
-import { WorkerMoreOptionsSection } from "./WorkerMoreOptionsSection";
-import { WorkerCreateModeToggle } from "./WorkerCreateModeToggle";
-import { WorkerSourceModePanel } from "./WorkerSourceModePanel";
-import {
-  WorkerStepRuntimePanel,
-  WorkerStepAgentPanel,
-} from "./WorkerStepPanels";
-import { WorkerStepCapabilitiesPanel } from "./WorkerStepCapabilitiesPanel";
-import { step1Summary, step2Summary, step3Summary } from "./workerCreateStepSummaries";
+import { WorkerPreflightStep } from "./WorkerPreflightStep";
+import { WorkerRuntimeStep } from "./WorkerRuntimeStep";
+import { WorkerTypeConfigStep } from "./WorkerTypeConfigStep";
+import { WorkerWorkspaceStep } from "./WorkerWorkspaceStep";
 
 interface CreatePodFormFieldsProps {
-  form: CreatePodFormState;
-  agents: AgentData[];
-  runners: RunnerData[];
-  repositories: RepositoryData[];
-  selectedRunner: RunnerData | null;
-  setSelectedRunnerId: (id: number | null) => void;
-  configFields: ConfigField[];
-  loadingConfig: boolean;
-  configValues: Record<string, unknown>;
-  handleConfigChange: (key: string, value: unknown) => void;
-  hasOnlineRunners: boolean;
+  controller: WorkerCreateController;
+  initialWizardStep?: 1 | 2 | 3 | 4;
   promptPlaceholder?: string;
-  showPerpetual: boolean;
-  initialWizardStep?: 1 | 2 | 3;
-  initialExpertSlug?: string;
+  onCancel?: () => void;
   t: (key: string) => string;
-  actions?: React.ReactNode;
 }
 
-export function CreatePodFormFields(props: CreatePodFormFieldsProps) {
-  const { form, showPerpetual, t, initialWizardStep = 1, repositories, actions } = props;
-  const [step, setStep] = useState<WorkerCreateStepId>(initialWizardStep);
-  const agentReady = Boolean(form.selectedAgent);
-
-  const selectedRepoSlug = useMemo(
-    () => repositories.find((r) => r.id === form.selectedRepository)?.slug,
-    [repositories, form.selectedRepository],
-  );
-
-  const stepDefs = useMemo(
+export function CreatePodFormFields({
+  controller,
+  initialWizardStep = 1,
+  promptPlaceholder,
+  onCancel,
+  t,
+}: CreatePodFormFieldsProps) {
+  const { state, validity } = controller;
+  const step = state.step;
+  const steps = useMemo(
     () => [
-      {
-        id: 1 as const,
-        label: t("ide.createPod.stepperRuntime"),
-        summary: step1Summary(
-          form.selectedAgent,
-          form.interactionMode,
-          form.perpetual,
-          form.destroyPolicy,
-          selectedRepoSlug,
-          form.selectedBranch,
-          t,
-        ),
-        complete: agentReady,
-        accessible: true,
-      },
-      {
-        id: 2 as const,
-        label: t("ide.createPod.stepperCapabilities"),
-        summary: step2Summary(
-          form.selectedKnowledgeMounts.length,
-          form.selectedSkillSlugs.length,
-          t,
-        ),
-        complete:
-          form.selectedKnowledgeMounts.length > 0 || form.selectedSkillSlugs.length > 0,
-        accessible: agentReady,
-      },
-      {
-        id: 3 as const,
-        label: t("ide.createPod.stepperAgent"),
-        summary: step3Summary(
-          form.rawLayerMode,
-          Boolean(form.agentfileLayer?.trim()),
-          t,
-        ),
-        complete: Boolean(form.agentfileLayer?.trim()) || form.rawLayerMode,
-        accessible: agentReady,
-      },
+      stepDefinition(1, t("workerCreate.steps.runtime"), validity.runtime, true),
+      stepDefinition(
+        2,
+        t("workerCreate.steps.typeConfig"),
+        validity.typeConfig,
+        validity.accessible(2),
+      ),
+      stepDefinition(
+        3,
+        t("workerCreate.steps.workspace"),
+        validity.workspace,
+        validity.accessible(3),
+      ),
+      stepDefinition(
+        4,
+        t("workerCreate.steps.preflight"),
+        preflightReady(controller),
+        validity.accessible(4),
+      ),
     ],
-    [form, agentReady, selectedRepoSlug, t],
+    [controller, t, validity],
   );
 
-  const panelProps = { ...props, showPerpetual };
-  const sourceMode = form.rawLayerMode;
+  useEffect(() => {
+    if (
+      initialWizardStep !== 1 &&
+      state.step === 1 &&
+      validity.accessible(initialWizardStep)
+    ) {
+      void controller.goToStep(initialWizardStep);
+    }
+  }, [controller, initialWizardStep, state.step, validity]);
 
-  const canNext =
-    step === 1 ? agentReady : step === 2 ? true : false;
+  const nextStep = step < 4 ? ((step + 1) as 2 | 3 | 4) : 4;
+  const canNext = step < 4 && validity.accessible(nextStep);
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
-        <WorkerCreateModeToggle
-          sourceMode={sourceMode}
-          onChange={form.setRawLayerMode}
-          t={t}
+    <div className="space-y-5">
+      <div className="block md:hidden">
+        <WorkerCreateStepper
+          steps={steps}
+          current={step}
+          onChange={(next) => void controller.goToStep(next)}
         />
       </div>
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+        <div className="hidden w-56 shrink-0 md:sticky md:top-6 md:block">
+          <WorkerCreateStepper
+            steps={steps}
+            current={step}
+            orientation="vertical"
+            onChange={(next) => void controller.goToStep(next)}
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <header className="mb-5 border-b border-border pb-4">
+            <h2 className="text-lg font-semibold">{t(stepTitle(step))}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t(stepDescription(step))}
+            </p>
+          </header>
 
-      <div className={sourceMode ? undefined : "flex flex-col gap-6 md:flex-row md:items-start"}>
-        {!sourceMode && (
-          <div className="w-full md:w-64 md:shrink-0">
-            <div className="block md:hidden">
-              <WorkerCreateStepper
-                steps={stepDefs}
-                current={step}
-                onChange={setStep}
-                orientation="horizontal"
-              />
-            </div>
-            <div className="hidden md:block md:sticky md:top-6">
-              <WorkerCreateStepper
-                steps={stepDefs}
-                current={step}
-                onChange={setStep}
-                orientation="vertical"
-              />
-            </div>
-          </div>
-        )}
-
-        <div className="flex-1 min-w-0 space-y-4">
-          <div className="rounded-lg border border-border bg-card p-4 shadow-xs md:p-5">
-            {sourceMode ? (
-              <WorkerSourceModePanel {...panelProps} />
-            ) : (
-              <>
-                {step === 1 && <WorkerStepRuntimePanel {...panelProps} />}
-                {step === 2 && agentReady && <WorkerStepCapabilitiesPanel {...panelProps} />}
-                {step === 3 && agentReady && <WorkerStepAgentPanel {...panelProps} />}
-
-                <WorkerCreateStepNav
-                  step={step}
-                  canNext={canNext}
-                  onBack={() => setStep((s) => (s > 1 ? ((s - 1) as WorkerCreateStepId) : s))}
-                  onNext={() => setStep((s) => (s < 3 ? ((s + 1) as WorkerCreateStepId) : s))}
-                  t={t}
-                />
-              </>
-            )}
-          </div>
-
-          {agentReady && (
-            <WorkerMoreOptionsSection t={t}>
-              <AdvancedFormSection form={form} />
-            </WorkerMoreOptionsSection>
+          {step === 1 && (
+            <WorkerRuntimeStep
+              draft={state.draft}
+              options={controller.options}
+              modelResources={controller.modelResources}
+              onPatch={controller.patchDraft}
+              onWorkerTypeChange={controller.changeWorkerType}
+              t={t}
+            />
+          )}
+          {step === 2 && (
+            <WorkerTypeConfigStep
+              draft={state.draft}
+              options={controller.options}
+              credentialBundles={controller.credentialBundles}
+              onPatch={controller.patchDraft}
+              t={t}
+            />
+          )}
+          {step === 3 && (
+            <WorkerWorkspaceStep
+              controller={controller}
+              promptPlaceholder={promptPlaceholder}
+              t={t}
+            />
+          )}
+          {step === 4 && (
+            <WorkerPreflightStep
+              preflight={state.preflight}
+              creating={state.create.status === "loading"}
+              onRetry={() => void controller.runPreflight()}
+              onCreate={() => void controller.createWorker()}
+              t={t}
+            />
           )}
 
-          {form.error && (
-            <div
-              role="alert"
-              aria-live="assertive"
-              className="rounded-md border border-destructive/30 bg-destructive/10 p-3"
-            >
-              <p className="text-sm text-destructive">{form.error}</p>
+          <AsyncErrors controller={controller} />
+          <WorkerCreateStepNav
+            step={step}
+            canNext={canNext}
+            onBack={() => void controller.goToStep(previousStep(step))}
+            onNext={() => void controller.goToStep(nextStep)}
+            t={t}
+          />
+          {onCancel && (
+            <div className="mt-3 flex justify-start">
+              <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+                {t("ide.createPod.cancel")}
+              </Button>
             </div>
           )}
-
-          {actions}
         </div>
       </div>
     </div>
   );
+}
+
+function AsyncErrors({ controller }: { controller: WorkerCreateController }) {
+  const { fill, create } = controller.state;
+  const fillIssues = fill.status === "ready" ? fill.data.issues : [];
+  return (
+    <div className="mt-5 space-y-3">
+      {fill.status === "error" && <AlertMessage type="error" message={fill.error} />}
+      {create.status === "error" && <AlertMessage type="error" message={create.error} />}
+      {fillIssues.length > 0 && (
+        <AlertMessage
+          type={fillIssues.some((issue) => issue.severity === "blocking") ? "error" : "warning"}
+          message={fillIssues.map((issue) => issue.message).join(" ")}
+        />
+      )}
+    </div>
+  );
+}
+
+function preflightReady(controller: WorkerCreateController): boolean {
+  return (
+    controller.state.preflight.status === "ready" &&
+    !workerPreflightHasBlockingIssues(controller.state.preflight.data) &&
+    Boolean(controller.state.preflight.data.resolved_spec_json?.trim())
+  );
+}
+
+function previousStep(step: 1 | 2 | 3 | 4): 1 | 2 | 3 {
+  return ({ 1: 1, 2: 1, 3: 2, 4: 3 } as const)[step];
+}
+
+function stepDefinition(
+  id: 1 | 2 | 3 | 4,
+  label: string,
+  complete: boolean,
+  accessible: boolean,
+) {
+  return { id, label, complete, accessible };
+}
+
+function stepTitle(step: 1 | 2 | 3 | 4): string {
+  return `workerCreate.stepContent.${step}.title`;
+}
+
+function stepDescription(step: 1 | 2 | 3 | 4): string {
+  return `workerCreate.stepContent.${step}.description`;
 }

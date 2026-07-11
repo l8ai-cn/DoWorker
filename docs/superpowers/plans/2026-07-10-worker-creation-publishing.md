@@ -184,14 +184,14 @@ git push origin main
 - Modify: `clients/web/src/lib/api/facade/podApi.ts`
 - Test: `clients/web/src/lib/api/__tests__/podWorkerCreation.test.ts`
 
-- [ ] **Step 1: Write failing transport tests**
+- [x] **Step 1: Write failing transport tests**
 
 Test protobuf binary round-trip for all draft fields, options response disabled
 reasons, preflight blocking errors versus warnings, and Fill with AI patch
 response. Missing services return Unavailable; invalid references return
 InvalidArgument or PermissionDenied, never an empty success response.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
 go test ./backend/internal/api/connect/pod -run WorkerCreation -count=1
@@ -199,13 +199,13 @@ pnpm exec vitest run --config clients/web/vitest.config.ts \
   clients/web/src/lib/api/__tests__/podWorkerCreation.test.ts
 ```
 
-- [ ] **Step 3: Implement Connect and client bridge**
+- [x] **Step 3: Implement Connect and client bridge**
 
 Add the new unary handlers to the existing Pod service. Decode and encode only
 protobuf bytes across Rust/WASM. TypeScript exposes snake_case business shapes
 and throws on transport or decoding failure.
 
-- [ ] **Step 4: Verify GREEN and commit**
+- [x] **Step 4: Verify GREEN and commit**
 
 ```bash
 go test ./backend/internal/api/connect/pod ./backend/cmd/server -count=1
@@ -233,7 +233,7 @@ git push origin main
 - Modify locale files under `clients/web/src/messages/*`
 - Test: `clients/web/src/components/pod/CreatePodForm/__tests__/WorkerCreateFlow.test.tsx`
 
-- [ ] **Step 1: Write failing reducer and UI tests**
+- [x] **Step 1: Write failing reducer and UI tests**
 
 Cover:
 
@@ -247,21 +247,24 @@ Cover:
 - one `Create Worker` action;
 - `Fill with AI` patches the same reducer without submitting or remounting.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 ```bash
 pnpm exec vitest run --config clients/web/vitest.config.ts \
   clients/web/src/components/pod/CreatePodForm/__tests__/WorkerCreateFlow.test.tsx
 ```
 
-- [ ] **Step 3: Implement reducer-owned workflow**
+- [x] **Step 3: Implement reducer-owned workflow**
 
 Replace local field `useState` ownership with one reducer. Required async
 sections use `idle | loading | ready | error` states. Remove the separate quick
-task submit path and source/form mode toggle; raw AgentFile remains an advanced
-panel inside step 2 and must pass server preflight.
+task submit path and source/form mode toggle. V1 does not expose raw AgentFile
+editing: AgentFile is a server-compiled runtime artifact, and the current
+contract has no lossless AgentFile-to-WorkerSpec parse operation. Reintroducing
+editing requires an explicit parse-and-replace WorkerSpec API; dual structured
+and raw submission is prohibited.
 
-- [ ] **Step 4: Verify GREEN, affected lint/typecheck, and commit**
+- [x] **Step 4: Verify GREEN, affected lint/typecheck, and commit**
 
 ```bash
 pnpm exec vitest run --config clients/web/vitest.config.ts \
@@ -272,6 +275,12 @@ pnpm exec tsc --noEmit -p clients/web/tsconfig.json
 git commit -m "feat(worker): unify four-step creation workflow"
 git push origin main
 ```
+
+Verification on 2026-07-11: 12 focused Web files / 44 tests, affected ESLint,
+Worker creation Go packages, desktop and 390px browser flows, a real PostgreSQL
+create, and post-create workspace history lookup passed. The shared full Web
+typecheck still reports 401 concurrent WASM/Proto errors with zero matches in
+the Task 4 paths.
 
 ### Task 5: Snapshot-Backed Expert Publishing
 
