@@ -13,6 +13,8 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11 \
   && bash scripts/sync-amesh-convert.sh --force
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
   -o /out/server ./backend/cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
+  -o /out/migrate-ai-resources ./backend/cmd/migrate-ai-resources
 
 FROM alpine:3.19
 RUN apk add --no-cache ca-certificates wget \
@@ -21,6 +23,7 @@ RUN apk add --no-cache ca-certificates wget \
   && chown -R 1000:1000 /app /data
 WORKDIR /app
 COPY --from=build --chown=1000:1000 /out/server /app/server
+COPY --from=build --chown=1000:1000 /out/migrate-ai-resources /app/migrate-ai-resources
 USER 1000
 EXPOSE 8080 9443
 ENTRYPOINT ["/app/server"]
