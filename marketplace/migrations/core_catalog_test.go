@@ -13,7 +13,9 @@ func TestCoreCatalogMigrationContract(t *testing.T) {
 	require.NoError(t, err)
 	catalog, err := os.ReadFile("000002_core_catalog.up.sql")
 	require.NoError(t, err)
-	sql := string(foundation) + string(catalog)
+	integrity, err := os.ReadFile("000003_catalog_version_integrity.up.sql")
+	require.NoError(t, err)
+	sql := string(foundation) + string(catalog) + string(integrity)
 
 	requiredFragments := []string{
 		"CREATE SCHEMA IF NOT EXISTS marketplace",
@@ -34,6 +36,8 @@ func TestCoreCatalogMigrationContract(t *testing.T) {
 		"CHECK (status <> 'published' OR (current_version_id IS NOT NULL",
 		"FOREIGN KEY (id, current_version_id)",
 		"REFERENCES marketplace.marketplace_listing_versions(listing_id, id)",
+		"FOREIGN KEY (listing_id, catalog_item_id)",
+		"FOREIGN KEY (catalog_item_version_id, catalog_item_id)",
 		"FOREIGN KEY (marketplace_id, listing_id)",
 		"FOREIGN KEY (marketplace_id, space_id)",
 		"validate_listing_publication",
@@ -48,11 +52,13 @@ func TestCoreCatalogMigrationContract(t *testing.T) {
 }
 
 func TestCoreCatalogDownMigrationDropsDependenciesFirst(t *testing.T) {
+	integrity, err := os.ReadFile("000003_catalog_version_integrity.down.sql")
+	require.NoError(t, err)
 	catalog, err := os.ReadFile("000002_core_catalog.down.sql")
 	require.NoError(t, err)
 	foundation, err := os.ReadFile("000001_market_foundation.down.sql")
 	require.NoError(t, err)
-	sql := string(catalog) + string(foundation)
+	sql := string(integrity) + string(catalog) + string(foundation)
 
 	listingSpaces := strings.Index(sql, "DROP TABLE IF EXISTS marketplace.marketplace_listing_spaces")
 	listings := strings.Index(sql, "DROP TABLE IF EXISTS marketplace.marketplace_listings")

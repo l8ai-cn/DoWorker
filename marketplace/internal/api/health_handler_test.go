@@ -7,12 +7,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/anthropics/agentsmesh/marketplace/internal/service"
 	"github.com/stretchr/testify/require"
 )
 
 func TestLiveDoesNotDependOnDatabase(t *testing.T) {
 	router := NewRouter(Dependencies{
-		Ready: func(context.Context) error { return errors.New("database unavailable") },
+		Ready:      func(context.Context) error { return errors.New("database unavailable") },
+		Storefront: testStorefront(),
 	})
 
 	response := httptest.NewRecorder()
@@ -24,7 +26,8 @@ func TestLiveDoesNotDependOnDatabase(t *testing.T) {
 
 func TestReadyReportsDatabaseFailure(t *testing.T) {
 	router := NewRouter(Dependencies{
-		Ready: func(context.Context) error { return errors.New("database unavailable") },
+		Ready:      func(context.Context) error { return errors.New("database unavailable") },
+		Storefront: testStorefront(),
 	})
 
 	response := httptest.NewRecorder()
@@ -41,7 +44,8 @@ func TestReadyReportsDatabaseFailure(t *testing.T) {
 
 func TestReadySucceedsAfterDatabaseProbe(t *testing.T) {
 	router := NewRouter(Dependencies{
-		Ready: func(context.Context) error { return nil },
+		Ready:      func(context.Context) error { return nil },
+		Storefront: testStorefront(),
 	})
 
 	response := httptest.NewRecorder()
@@ -49,4 +53,40 @@ func TestReadySucceedsAfterDatabaseProbe(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, response.Code)
 	require.JSONEq(t, `{"status":"ready"}`, response.Body.String())
+}
+
+func TestRouterRequiresStorefront(t *testing.T) {
+	require.Panics(t, func() {
+		NewRouter(Dependencies{Ready: func(context.Context) error { return nil }})
+	})
+}
+
+func testStorefront() *service.StorefrontService {
+	return service.NewStorefrontService(healthRepository{})
+}
+
+type healthRepository struct{}
+
+func (healthRepository) ResolveMarket(
+	context.Context,
+	string,
+	string,
+) (service.MarketView, error) {
+	return service.MarketView{}, service.ErrMarketNotFound
+}
+
+func (healthRepository) ListPublishedListings(
+	context.Context,
+	int64,
+	int,
+) ([]service.ListingSummary, error) {
+	return nil, nil
+}
+
+func (healthRepository) GetPublishedListing(
+	context.Context,
+	int64,
+	string,
+) (service.ListingDetail, error) {
+	return service.ListingDetail{}, service.ErrListingNotFound
 }

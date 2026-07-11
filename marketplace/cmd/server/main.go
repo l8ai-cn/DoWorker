@@ -12,6 +12,8 @@ import (
 
 	"github.com/anthropics/agentsmesh/marketplace/internal/api"
 	"github.com/anthropics/agentsmesh/marketplace/internal/config"
+	marketplacepostgres "github.com/anthropics/agentsmesh/marketplace/internal/infra/postgres"
+	"github.com/anthropics/agentsmesh/marketplace/internal/service"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -34,7 +36,8 @@ func main() {
 	server := &http.Server{
 		Addr: cfg.HTTPAddress,
 		Handler: api.NewRouter(api.Dependencies{
-			Ready: sqlDB.PingContext,
+			Ready:      sqlDB.PingContext,
+			Storefront: service.NewStorefrontService(marketplacepostgres.NewStorefrontRepository(db)),
 		}),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
