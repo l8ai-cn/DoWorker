@@ -70,16 +70,16 @@ func (d *Deps) authorizeSessionByPodKey(c *gin.Context, podKey string) (*domain.
 		return nil, nil, false
 	}
 	row, err := d.Sessions.GetByPodKey(c.Request.Context(), podKey)
-	if err == sessionsvc.ErrNotFound || row == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "session not found", "code": "session_not_found"})
-		return nil, nil, false
-	}
 	if err != nil {
+		if err == sessionsvc.ErrNotFound {
+			c.Status(http.StatusNoContent)
+			return nil, nil, false
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "lookup failed"})
 		return nil, nil, false
 	}
-	if d.sessionAccessLevel(c, row) < levelRead {
-		c.JSON(http.StatusNotFound, gin.H{"error": "session not found", "code": "session_not_found"})
+	if row == nil || d.sessionAccessLevel(c, row) < levelRead {
+		c.Status(http.StatusNoContent)
 		return nil, nil, false
 	}
 	return row, d.loadPod(c, row.PodKey), true

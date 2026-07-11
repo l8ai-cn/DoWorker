@@ -25,7 +25,7 @@ function orgHeaders(): HeadersInit | null {
   };
 }
 
-async function sessionReq<T>(path: string, init?: RequestInit): Promise<T> {
+async function sessionFetch(path: string, init?: RequestInit): Promise<Response> {
   const h = orgHeaders();
   if (!h) throw new Error("not authenticated");
   const base = getApiBaseUrl().replace(/\/$/, "");
@@ -34,6 +34,11 @@ async function sessionReq<T>(path: string, init?: RequestInit): Promise<T> {
     const body = await res.text();
     throw new Error(body || `request failed: ${res.status}`);
   }
+  return res;
+}
+
+async function sessionReq<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await sessionFetch(path, init);
   return res.json() as Promise<T>;
 }
 
@@ -106,14 +111,10 @@ export async function listImportedSessions(): Promise<ImportedSessionSummary[]> 
 
 /** Fetch session metadata linked to a Worker pod_key. */
 export async function fetchSessionByPodKey(podKey: string): Promise<{ id: string; title: string | null } | null> {
-  try {
-    const wire = await sessionReq<{ id: string; title?: string | null }>(
-      `/sessions/by-pod/${encodeURIComponent(podKey)}`,
-    );
-    return { id: wire.id, title: wire.title ?? null };
-  } catch {
-    return null;
-  }
+  const res = await sessionFetch(`/sessions/by-pod/${encodeURIComponent(podKey)}`);
+  if (res.status === 204) return null;
+  const wire = await res.json() as { id: string; title?: string | null };
+  return { id: wire.id, title: wire.title ?? null };
 }
 
 export async function fetchAllSessionItems(sessionId: string): Promise<ConversationItemWire[]> {
