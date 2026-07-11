@@ -39,6 +39,14 @@ func promptToProto(s string) *string {
 	return &v
 }
 
+func previewPathToProto(s string) *string {
+	if s == "" {
+		return nil
+	}
+	v := s
+	return &v
+}
+
 func podRunnerInfoToProto(r *runnerdom.Runner) *podv1.PodRunnerInfo {
 	if r == nil {
 		return nil
