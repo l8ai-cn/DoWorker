@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/stretchr/testify/assert"
@@ -20,19 +21,51 @@ import (
 
 type connectionCommandSender struct {
 	runner.RunnerCommandSender
-	err    error
-	called bool
+	events      *connectionEventLog
+	err         error
+	called      bool
+	runnerToken string
 }
 
 func (s *connectionCommandSender) SendSubscribePod(
 	_ context.Context,
 	_ int64,
-	_, _, _ string,
+	_, _ string,
+	runnerToken string,
 	_ bool,
 	_ int32,
 ) error {
 	s.called = true
+	s.runnerToken = runnerToken
+	s.events.record("dispatch")
 	return s.err
+}
+
+type recordingConnectionTokenGenerator struct {
+	events *connectionEventLog
+}
+
+func (g *recordingConnectionTokenGenerator) GenerateToken(
+	_ string,
+	_, userID, _ int64,
+	_ time.Duration,
+) (string, error) {
+	if userID == 0 {
+		g.events.record("runner-token")
+		return "runner-token", nil
+	}
+	g.events.record("browser-token")
+	return "browser-token", nil
+}
+
+type connectionEventLog struct {
+	entries []string
+}
+
+func (l *connectionEventLog) record(event string) {
+	if l != nil {
+		l.entries = append(l.entries, event)
+	}
 }
 
 func TestGetPodConnectionFailsClosedWithoutCommandSender(t *testing.T) {
@@ -62,8 +95,17 @@ func TestGetPodConnectionFailsClosedWithoutRunner(t *testing.T) {
 }
 
 func TestGetPodConnectionFailsClosedWhenSubscriptionFails(t *testing.T) {
-	sender := &connectionCommandSender{err: errors.New("runner connection lost")}
-	srv := newConnectionTestServer(t, 11, sender)
+	events := &connectionEventLog{}
+	sender := &connectionCommandSender{
+		events: events,
+		err:    errors.New("runner connection lost"),
+	}
+	srv := newConnectionTestServerWithTokenGenerator(
+		t,
+		11,
+		sender,
+		&recordingConnectionTokenGenerator{events: events},
+	)
 
 	res, err := srv.GetPodConnection(ctxAsUser(42), connectionRequest())
 
@@ -71,26 +113,64 @@ func TestGetPodConnectionFailsClosedWhenSubscriptionFails(t *testing.T) {
 	assert.Nil(t, res)
 	assert.Equal(t, connect.CodeUnavailable, connectCodeOf(t, err))
 	assert.True(t, sender.called)
+	assert.Equal(t, "runner-token", sender.runnerToken)
+	assert.Equal(t, []string{"runner-token", "dispatch"}, events.entries)
 }
 
 func TestGetPodConnectionReturnsBrowserConnectionAfterSubscription(t *testing.T) {
-	sender := &connectionCommandSender{}
-	srv := newConnectionTestServer(t, 11, sender)
+	events := &connectionEventLog{}
+	sender := &connectionCommandSender{events: events}
+	srv := newConnectionTestServerWithTokenGenerator(
+		t,
+		11,
+		sender,
+		&recordingConnectionTokenGenerator{events: events},
+	)
 
 	res, err := srv.GetPodConnection(ctxAsUser(42), connectionRequest())
 
 	require.NoError(t, err)
 	require.NotNil(t, res)
 	assert.True(t, sender.called)
+	assert.Equal(t, "runner-token", sender.runnerToken)
 	assert.Equal(t, "test-pod", res.Msg.GetPodKey())
 	assert.Equal(t, "wss://relay.example", res.Msg.GetRelayUrl())
-	assert.NotEmpty(t, res.Msg.GetToken())
+	assert.Equal(t, "browser-token", res.Msg.GetToken())
+	assert.Equal(t, []string{"runner-token", "dispatch", "browser-token"}, events.entries)
+	assert.True(t, hasSafeConnectionTokenOrder(events.entries))
+}
+
+func TestConnectionTokenOrderRejectsBrowserBeforeDispatch(t *testing.T) {
+	deliberatelyWrong := []string{"runner-token", "browser-token", "dispatch"}
+
+	assert.False(t, hasSafeConnectionTokenOrder(deliberatelyWrong))
+}
+
+func hasSafeConnectionTokenOrder(events []string) bool {
+	return len(events) == 3 &&
+		events[0] == "runner-token" &&
+		events[1] == "dispatch" &&
+		events[2] == "browser-token"
 }
 
 func newConnectionTestServer(
 	t *testing.T,
 	runnerID int64,
 	sender runner.RunnerCommandSender,
+) *Server {
+	return newConnectionTestServerWithTokenGenerator(
+		t,
+		runnerID,
+		sender,
+		relay.NewTokenGenerator("test-secret", "test-issuer"),
+	)
+}
+
+func newConnectionTestServerWithTokenGenerator(
+	t *testing.T,
+	runnerID int64,
+	sender runner.RunnerCommandSender,
+	generator relayTokenGenerator,
 ) *Server {
 	t.Helper()
 	db := testkit.SetupTestDB(t)
@@ -117,8 +197,14 @@ func newConnectionTestServer(
 		&fakeOrgService{role: "member"},
 		WithCommandSender(sender),
 		WithRelayManager(relayManager),
-		WithTokenGenerator(relay.NewTokenGenerator("test-secret", "test-issuer")),
+		withConnectionTokenGenerator(generator),
 	)
+}
+
+func withConnectionTokenGenerator(generator relayTokenGenerator) Option {
+	return func(server *Server) {
+		server.tokenGenerator = generator
+	}
 }
 
 func connectionRequest() *connect.Request[podv1.GetPodConnectionRequest] {

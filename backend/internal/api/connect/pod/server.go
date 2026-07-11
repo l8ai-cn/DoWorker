@@ -17,6 +17,7 @@ package podconnect
 
 import (
 	"context"
+	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/grant"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
@@ -72,6 +73,10 @@ type WorkerDraftFiller interface {
 	) (workercreation.FillResult, error)
 }
 
+type relayTokenGenerator interface {
+	GenerateToken(string, int64, int64, int64, time.Duration) (string, error)
+}
+
 // Server implements PodService. Fields mirror PodHandler / PodConnectHandler
 // in v1/pods.go and v1/pod_relay_connect.go, threaded through cmd/server
 // wiring at mount time. Streaming endpoints (terminal data plane) intentionally
@@ -83,7 +88,7 @@ type Server struct {
 	podCoordinator    *runner.PodCoordinator
 	commandSender     runner.RunnerCommandSender
 	relayManager      *relay.Manager
-	tokenGenerator    *relay.TokenGenerator
+	tokenGenerator    relayTokenGenerator
 	geoResolver       geo.Resolver
 	grantSvc          *grantservice.Service
 	eventBus          *eventbus.EventBus
