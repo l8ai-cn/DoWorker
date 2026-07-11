@@ -4,8 +4,8 @@ metadata:
   name: backend
   namespace: agentsmesh
   annotations:
-    kubernetes.io/change-cause: "Pin backend image with AgentFile capability parser fix"
-    agentsmesh.ai/verified-image-digest: "sha256:0fba1e00f57e689c4c458ae2e9fce8a9156bad94be3665a8131ef825430a3ea3"
+    kubernetes.io/change-cause: "Pin backend image with Worker liveness refresh fix"
+    agentsmesh.ai/verified-image-digest: "sha256:3785b6cf8b4c0a815d174be9e7d2187974420f95b4cca53bbcbccf05a545c219"
 spec:
   replicas: 1
   selector:
@@ -16,7 +16,7 @@ spec:
       labels:
         app: backend
       annotations:
-        agentsmesh.ai/verified-image-digest: "sha256:0fba1e00f57e689c4c458ae2e9fce8a9156bad94be3665a8131ef825430a3ea3"
+        agentsmesh.ai/verified-image-digest: "sha256:3785b6cf8b4c0a815d174be9e7d2187974420f95b4cca53bbcbccf05a545c219"
     spec:
       serviceAccountName: agentsmesh-backend
       securityContext:
@@ -35,7 +35,7 @@ spec:
               mountPath: /kube-tools
       containers:
         - name: backend
-          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:0fba1e00f57e689c4c458ae2e9fce8a9156bad94be3665a8131ef825430a3ea3
+          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:3785b6cf8b4c0a815d174be9e7d2187974420f95b4cca53bbcbccf05a545c219
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
