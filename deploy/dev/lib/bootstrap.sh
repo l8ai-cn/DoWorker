@@ -76,6 +76,15 @@ run_migrations() {
     info "当前迁移版本: $final_version"
 }
 
+run_marketplace_migrations() {
+    source "$ENV_FILE"
+    local repo_root="$SCRIPT_DIR/../.."
+    export MARKETPLACE_MIGRATION_DATABASE_URL="postgres://agentsmesh:${POSTGRES_PASSWORD:-agentsmesh_dev}@localhost:${POSTGRES_PORT}/agentsmesh?sslmode=disable&x-migrations-table=marketplace_schema_migrations"
+    info "执行 Marketplace 数据库迁移..."
+    (cd "$repo_root" && go run ./marketplace/cmd/server migrate)
+    success "Marketplace 数据库迁移完成"
+}
+
 init_seed() {
     local pg_container="$1"
 

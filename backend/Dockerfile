@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 FROM golang:1.25-alpine AS build
 WORKDIR /src
 RUN apk add --no-cache git ca-certificates protobuf protobuf-dev bash

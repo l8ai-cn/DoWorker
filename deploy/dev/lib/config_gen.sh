@@ -3,13 +3,14 @@
 #
 # Reads:
 #   - `WORKTREE_NAME` / `PORT_OFFSET` (set by `generate_env`)
-#   - `BACKEND_HTTP_PORT` / `BACKEND_GRPC_PORT` / `RELAY_HTTP_PORT` (.env, by traefik_config)
+#   - host service ports from `.env` (backend, marketplace, relay)
 #   - `SCRIPT_DIR` / `ENV_FILE` (entry-point globals)
 # Writes:
 #   - .env (worktree-scoped ports)
 #   - clients/web/.env.local, clients/web-admin/.env.local
 #   - traefik/traefik.yml + traefik/dynamic/{http,grpc}.yml
 #   - ssl/* (delegates to generate-dev-certs.sh)
+#   - runtime/access-token/* (Core Auth RS256 key pair)
 #   - ai-cli-configs/{claude,codex,gemini}/* (claude code config etc)
 #   - runtime/runner/certs/* (runner mTLS cert; only the host-side helper)
 #   - runner-ssh/id_ed25519{,.pub}
@@ -37,6 +38,27 @@ generate_ssl_certs() {
     fi
 
     info "SSL 证书已存在"
+}
+
+generate_access_token_keys() {
+    local key_dir="$SCRIPT_DIR/runtime/access-token"
+    local private_key="$key_dir/private.pem"
+    local public_key="$key_dir/public.pem"
+    mkdir -p "$key_dir"
+
+    if [[ -f "$private_key" && -f "$public_key" ]] &&
+        openssl pkey -in "$private_key" -noout >/dev/null 2>&1 &&
+        openssl pkey -pubin -in "$public_key" -noout >/dev/null 2>&1; then
+        info "Access Token RSA 密钥已存在"
+        return 0
+    fi
+
+    info "生成 Access Token RSA 密钥..."
+    openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out "$private_key" >/dev/null 2>&1
+    openssl pkey -in "$private_key" -pubout -out "$public_key" >/dev/null 2>&1
+    chmod 600 "$private_key"
+    chmod 644 "$public_key"
+    success "Access Token RSA 密钥生成完成"
 }
 
 # Drop stale runner client certs after CA/server cert rotation. Runners
@@ -178,9 +200,16 @@ http:
     backend-api:
       entryPoints:
         - web
-      rule: "PathPrefix(\`/api\`) || PathPrefix(\`/health\`) || PathPrefix(\`/v1\`) || PathPrefix(\`/auth\`) || PathPrefix(\`/proto.\`)"
+      rule: "PathPrefix(\`/api\`) || PathPrefix(\`/health\`) || PathPrefix(\`/v1\`) || PathPrefix(\`/auth\`) || PathPrefix(\`/proto.\`) || PathPrefix(\`/.well-known\`)"
       service: backend-api
       priority: 100
+
+    marketplace-api:
+      entryPoints:
+        - web
+      rule: "PathPrefix(\`/api/marketplace\`)"
+      service: marketplace-api
+      priority: 110
 
     relay:
       entryPoints:
@@ -226,6 +255,11 @@ http:
         servers:
           - url: "http://host.lan:${BACKEND_HTTP_PORT}"
 
+    marketplace-api:
+      loadBalancer:
+        servers:
+          - url: "http://host.lan:${MARKETPLACE_HTTP_PORT}"
+
     relay:
       loadBalancer:
         servers:
@@ -252,7 +286,7 @@ tcp:
         servers:
           - address: "host.lan:${BACKEND_GRPC_PORT}"
 EOF
-    success "生成 Traefik 配置 (host backend=:${BACKEND_HTTP_PORT} grpc=:${BACKEND_GRPC_PORT} relay=:${RELAY_HTTP_PORT})"
+    success "生成 Traefik 配置 (backend=:${BACKEND_HTTP_PORT} marketplace=:${MARKETPLACE_HTTP_PORT} relay=:${RELAY_HTTP_PORT})"
 }
 
 # `.env` is the SSOT for ports across worktrees. Re-runs preserve existing
@@ -305,6 +339,12 @@ generate_env() {
             export BACKEND_GRPC_PORT="$backend_grpc"
             export RELAY_HTTP_PORT="$relay_http"
             info "补充 host service 端口: backend=$backend_http grpc=$backend_grpc relay=$relay_http"
+        fi
+        if ! grep -q "MARKETPLACE_HTTP_PORT" "$ENV_FILE"; then
+            local marketplace_http=$((10022 + PORT_OFFSET * 50))
+            echo "MARKETPLACE_HTTP_PORT=$marketplace_http" >> "$ENV_FILE"
+            export MARKETPLACE_HTTP_PORT="$marketplace_http"
+            info "补充 Marketplace 端口: $marketplace_http"
         fi
         # Backfill runner MCP port for legacy .env files generated before
         # tests/mcp-e2e/ existed.
@@ -392,6 +432,7 @@ JAEGER_UI_PORT=$((10014 + offset * 50))
 BACKEND_HTTP_PORT=$((10015 + offset * 50))
 BACKEND_GRPC_PORT=$((10016 + offset * 50))
 RELAY_HTTP_PORT=$((10017 + offset * 50))
+MARKETPLACE_HTTP_PORT=$((10022 + offset * 50))
 
 # Runner MCP HTTP port — exposed from the runner docker container so
 # tests/mcp-e2e/ (running on the host) can drive the agent-facing MCP

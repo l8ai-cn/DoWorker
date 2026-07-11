@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func (s *Service) GenerateTokenPair(u *user.User, orgID int64, role string) (*TokenPair, error) {
@@ -22,23 +21,16 @@ func (s *Service) GenerateTokenPairWithContext(ctx context.Context, u *user.User
 	expiresAt := now.Add(s.config.JWTExpiration)
 	refreshExpiresAt := now.Add(s.config.RefreshExpiration)
 
-	claims := &Claims{
-		UserID:         u.ID,
-		Email:          u.Email,
-		Username:       u.Username,
-		OrganizationID: orgID,
-		Role:           role,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expiresAt),
-			IssuedAt:  jwt.NewNumericDate(now),
-			NotBefore: jwt.NewNumericDate(now),
-			Issuer:    s.config.Issuer,
-			Subject:   u.Email,
-		},
+	if s.config.AccessTokens == nil {
+		return nil, ErrAccessTokenConfig
 	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	accessToken, err := token.SignedString([]byte(s.config.JWTSecret))
+	accessToken, err := s.config.AccessTokens.GenerateToken(
+		u.ID,
+		u.Email,
+		u.Username,
+		orgID,
+		role,
+	)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to sign access token", "user_id", u.ID, "error", err)
 		return nil, err

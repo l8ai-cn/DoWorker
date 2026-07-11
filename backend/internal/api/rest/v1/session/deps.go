@@ -22,7 +22,6 @@ import (
 )
 
 type Deps struct {
-	JWTSecret          string
 	Auth               *authservice.Service
 	User               *userservice.Service
 	Org                *organization.Service

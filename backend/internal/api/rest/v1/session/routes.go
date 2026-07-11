@@ -12,7 +12,7 @@ func RegisterRoutes(r *gin.Engine, d Deps) {
 	v1.GET("/info", d.handleInfo)
 
 	auth := v1.Group("")
-	auth.Use(middleware.AuthMiddleware(d.JWTSecret))
+	auth.Use(accessTokenMiddleware(d))
 	auth.GET("/me", d.handleMe)
 
 	orgScoped := auth.Group("")

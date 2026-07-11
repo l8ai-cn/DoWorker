@@ -7,10 +7,17 @@ import (
 	"gorm.io/gorm"
 )
 
-func initializeServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Client) *serviceContainer {
+func initializeServices(
+	cfg *config.Config,
+	db *gorm.DB,
+	redisClient *redis.Client,
+) (*serviceContainer, error) {
 	encryptor := crypto.NewEncryptor(cfg.JWT.Secret)
-	services := initializeIdentityServices(cfg, db, redisClient, encryptor)
+	services, err := initializeIdentityServices(cfg, db, redisClient, encryptor)
+	if err != nil {
+		return nil, err
+	}
 	initializeWorkspaceServices(services, cfg, db, encryptor)
 	initializePlatformServices(services, cfg, db, redisClient)
-	return services
+	return services, nil
 }

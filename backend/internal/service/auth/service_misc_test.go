@@ -10,7 +10,6 @@ import (
 
 func TestRevokeToken(t *testing.T) {
 	cfg := &Config{
-		JWTSecret:     "test-secret",
 		JWTExpiration: time.Hour,
 		Issuer:        "test-issuer",
 	}
@@ -26,7 +25,6 @@ func TestRevokeToken(t *testing.T) {
 
 func TestRefreshToken(t *testing.T) {
 	cfg := &Config{
-		JWTSecret:         "test-secret",
 		JWTExpiration:     time.Hour,
 		RefreshExpiration: 24 * time.Hour,
 		Issuer:            "test-issuer",
@@ -102,7 +100,6 @@ func TestTokenPair(t *testing.T) {
 
 func TestConfig(t *testing.T) {
 	cfg := &Config{
-		JWTSecret:         "secret",
 		JWTExpiration:     time.Hour,
 		RefreshExpiration: time.Hour * 24,
 		Issuer:            "issuer",
@@ -116,9 +113,6 @@ func TestConfig(t *testing.T) {
 		},
 	}
 
-	if cfg.JWTSecret != "secret" {
-		t.Errorf("JWTSecret = %s, want secret", cfg.JWTSecret)
-	}
 	if len(cfg.OAuthProviders) != 1 {
 		t.Errorf("OAuthProviders count = %d, want 1", len(cfg.OAuthProviders))
 	}

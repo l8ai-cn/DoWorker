@@ -1,0 +1,23 @@
+root = "."
+tmp_dir = "deploy/dev/runtime/marketplace/air"
+
+[build]
+cmd = "go build -o ./deploy/dev/runtime/marketplace/air/main ./marketplace/cmd/server"
+bin = "./deploy/dev/runtime/marketplace/air/main"
+full_bin = "./deploy/dev/runtime/marketplace/air/main"
+include_ext = ["go"]
+include_dir = ["marketplace", "backend/pkg/auth"]
+exclude_dir = ["marketplace/testdata"]
+delay = 800
+stop_delay = 500
+send_interrupt = true
+kill_delay = 500
+
+[log]
+time = false
+
+[color]
+main = "blue"
+watcher = "cyan"
+build = "yellow"
+runner = "green"

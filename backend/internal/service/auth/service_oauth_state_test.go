@@ -43,7 +43,6 @@ func TestGenerateOAuthState(t *testing.T) {
 	defer redisClient.Close()
 
 	cfg := &Config{
-		JWTSecret:     "test-secret",
 		JWTExpiration: time.Hour,
 		Issuer:        "test-issuer",
 	}
@@ -82,7 +81,6 @@ func TestValidateOAuthState(t *testing.T) {
 	defer redisClient.Close()
 
 	cfg := &Config{
-		JWTSecret:     "test-secret",
 		JWTExpiration: time.Hour,
 		Issuer:        "test-issuer",
 	}

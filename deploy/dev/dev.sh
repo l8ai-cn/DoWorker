@@ -96,6 +96,7 @@ main() {
 
     # Phase 1: configs (deterministic, no docker yet).
     generate_ssl_certs
+    generate_access_token_keys
     generate_ai_cli_configs
     generate_env
     source "$ENV_FILE"
@@ -138,6 +139,7 @@ main() {
     docker_compose_up
     wait_for_postgres
     run_migrations
+    run_marketplace_migrations
     init_seed "${COMPOSE_PROJECT_NAME}-postgres-1"
     init_gitea
     setup_gitea_ssh_config
@@ -146,6 +148,7 @@ main() {
     # complete their mTLS handshakes — runner containers connect via
     # traefik:9443, traefik passthroughs to host backend.
     start_backend_host
+    start_marketplace_host
     start_relay_host
 
     if runners_k8s_enabled; then

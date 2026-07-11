@@ -7,13 +7,14 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
 	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
-	"github.com/golang-jwt/jwt/v5"
+	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
 	"github.com/redis/go-redis/v9"
 )
 
 var (
-	ErrInvalidToken        = errors.New("invalid token")
-	ErrTokenExpired        = errors.New("token expired")
+	ErrInvalidToken        = authpkg.ErrInvalidToken
+	ErrTokenExpired        = authpkg.ErrTokenExpired
+	ErrAccessTokenConfig   = authpkg.ErrAccessTokenConfig
 	ErrRefreshExpired      = errors.New("refresh token expired")
 	ErrInvalidOAuthCode    = errors.New("invalid OAuth code")
 	ErrInvalidCredentials  = errors.New("invalid credentials")
@@ -32,11 +33,12 @@ const (
 )
 
 type Config struct {
-	JWTSecret         string
-	JWTExpiration     time.Duration
-	RefreshExpiration time.Duration
-	Issuer            string
-	OAuthProviders    map[string]OAuthConfig
+	JWTExpiration       time.Duration
+	RefreshExpiration   time.Duration
+	Issuer              string
+	AccessTokens        *authpkg.AccessTokenManager
+	AccessTokenAudience string
+	OAuthProviders      map[string]OAuthConfig
 }
 
 type OAuthConfig struct {
@@ -46,14 +48,7 @@ type OAuthConfig struct {
 	Scopes       []string
 }
 
-type Claims struct {
-	UserID         int64  `json:"user_id"`
-	Email          string `json:"email"`
-	Username       string `json:"username"`
-	OrganizationID int64  `json:"organization_id,omitempty"`
-	Role           string `json:"role,omitempty"`
-	jwt.RegisteredClaims
-}
+type Claims = authpkg.Claims
 
 type TokenPair struct {
 	AccessToken  string    `json:"access_token"`
@@ -133,4 +128,12 @@ func NewServiceWithRedis(cfg *Config, userSvc *userService.Service, redisClient 
 
 func (s *Service) SetSSOChecker(checker SSOEnforcementChecker) {
 	s.ssoChecker = checker
+}
+
+func (s *Service) AccessTokenManager() *authpkg.AccessTokenManager {
+	return s.config.AccessTokens
+}
+
+func (s *Service) AccessTokenAudience() string {
+	return s.config.AccessTokenAudience
 }

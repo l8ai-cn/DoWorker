@@ -28,6 +28,16 @@ data:
   LOG_FILE: "/dev/stdout"
   EMAIL_PROVIDER: "console"
   ADMIN_ENABLED: "true"
+  ACCESS_TOKEN_PRIVATE_KEY_FILE: "/app/access-token/private.pem"
+  ACCESS_TOKEN_PUBLIC_KEY_FILE: "/app/access-token/public.pem"
+  ACCESS_TOKEN_ISSUER: "https://dowork.l8ai.cn"
+  ACCESS_TOKEN_AUDIENCES: "agentsmesh-api,marketplace-api"
+  ACCESS_TOKEN_CORE_AUDIENCE: "agentsmesh-api"
+  ACCESS_TOKEN_EXPIRATION_HOURS: "24"
+  MARKETPLACE_HTTP_ADDRESS: ":8080"
+  MARKETPLACE_IDENTITY_ISSUER: "https://dowork.l8ai.cn"
+  MARKETPLACE_IDENTITY_AUDIENCE: "marketplace-api"
+  MARKETPLACE_IDENTITY_JWKS_URL: "https://dowork.l8ai.cn/.well-known/jwks.json"
 
   # Object storage: in-cluster MinIO for the SDK, public host for presigned URLs.
   STORAGE_ENDPOINT: "minio:9000"

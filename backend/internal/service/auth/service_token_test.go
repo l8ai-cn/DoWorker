@@ -7,11 +7,11 @@ import (
 
 func TestNewService(t *testing.T) {
 	cfg := &Config{
-		JWTSecret:         "test-secret",
 		JWTExpiration:     time.Hour,
 		RefreshExpiration: time.Hour * 24 * 7,
 		Issuer:            "test-issuer",
 	}
+	configureTestAccessTokens(t, cfg)
 
 	svc := NewService(cfg, nil)
 	if svc == nil {
@@ -24,11 +24,11 @@ func TestNewService(t *testing.T) {
 
 func TestGenerateTokenPair(t *testing.T) {
 	cfg := &Config{
-		JWTSecret:         "test-secret-key-at-least-32-bytes",
 		JWTExpiration:     time.Hour,
 		RefreshExpiration: time.Hour * 24 * 7,
 		Issuer:            "test-issuer",
 	}
+	configureTestAccessTokens(t, cfg)
 
 	svc := NewService(cfg, nil)
 	mockUser := createMockUser()
@@ -75,11 +75,11 @@ func TestGenerateTokenPair(t *testing.T) {
 
 func TestValidateToken(t *testing.T) {
 	cfg := &Config{
-		JWTSecret:         "test-secret-key-at-least-32-bytes",
 		JWTExpiration:     time.Hour,
 		RefreshExpiration: time.Hour * 24 * 7,
 		Issuer:            "test-issuer",
 	}
+	fixture := configureTestAccessTokens(t, cfg)
 
 	svc := NewService(cfg, nil)
 	mockUser := createMockUser()
@@ -131,10 +131,10 @@ func TestValidateToken(t *testing.T) {
 
 	t.Run("token with wrong secret", func(t *testing.T) {
 		otherCfg := &Config{
-			JWTSecret:     "different-secret-key-at-least-32-bytes",
 			JWTExpiration: time.Hour,
 			Issuer:        "test-issuer",
 		}
+		configureTestAccessTokens(t, otherCfg)
 		otherSvc := NewService(otherCfg, nil)
 		tokens, _ := otherSvc.GenerateTokenPair(mockUser, 0, "")
 
@@ -145,15 +145,8 @@ func TestValidateToken(t *testing.T) {
 	})
 
 	t.Run("expired token", func(t *testing.T) {
-		expiredCfg := &Config{
-			JWTSecret:     "test-secret-key-at-least-32-bytes",
-			JWTExpiration: -time.Hour, // Negative duration = already expired
-			Issuer:        "test-issuer",
-		}
-		expiredSvc := NewService(expiredCfg, nil)
-		tokens, _ := expiredSvc.GenerateTokenPair(mockUser, 0, "")
-
-		_, err := svc.ValidateToken(tokens.AccessToken)
+		expired := signExpiredTestAccessToken(t, fixture, mockUser.ID)
+		_, err := svc.ValidateToken(expired)
 		if err == nil {
 			t.Error("Expected error for expired token")
 		}

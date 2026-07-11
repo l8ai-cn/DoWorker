@@ -1,9 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# Long-running resources. Secrets + one-shot Jobs (migrate/seed/minio-setup) are
-# applied out-of-band by deploy.sh (Jobs are immutable, secrets are generated).
+# Long-running resources. Secrets + seed/minio Jobs are applied out-of-band by
+# deploy.sh because those resources are generated or immutable.
 namespace: agentsmesh
+
+components:
+  - release
 
 resources:
   - 00-namespace.yaml
@@ -20,6 +23,7 @@ resources:
   - 35-runner-claude.yaml
   - 36-runner-codex-cli.yaml
   - 37-runner-minimax-cli.yaml
+  - 38-marketplace.yaml
   - 38-runner-grok-build.yaml
   - 39-runner-openclaw.yaml
   - 41-runner-hermes.yaml

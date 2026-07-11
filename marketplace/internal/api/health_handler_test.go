@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
 	"github.com/anthropics/agentsmesh/marketplace/internal/service"
 	"github.com/stretchr/testify/require"
 )
@@ -15,6 +16,7 @@ func TestLiveDoesNotDependOnDatabase(t *testing.T) {
 	router := NewRouter(Dependencies{
 		Ready:      func(context.Context) error { return errors.New("database unavailable") },
 		Storefront: testStorefront(),
+		Identity:   healthTokenVerifier{},
 	})
 
 	response := httptest.NewRecorder()
@@ -28,6 +30,7 @@ func TestReadyReportsDatabaseFailure(t *testing.T) {
 	router := NewRouter(Dependencies{
 		Ready:      func(context.Context) error { return errors.New("database unavailable") },
 		Storefront: testStorefront(),
+		Identity:   healthTokenVerifier{},
 	})
 
 	response := httptest.NewRecorder()
@@ -46,6 +49,7 @@ func TestReadySucceedsAfterDatabaseProbe(t *testing.T) {
 	router := NewRouter(Dependencies{
 		Ready:      func(context.Context) error { return nil },
 		Storefront: testStorefront(),
+		Identity:   healthTokenVerifier{},
 	})
 
 	response := httptest.NewRecorder()
@@ -66,6 +70,12 @@ func testStorefront() *service.StorefrontService {
 }
 
 type healthRepository struct{}
+
+type healthTokenVerifier struct{}
+
+func (healthTokenVerifier) Verify(context.Context, string) (*authpkg.Claims, error) {
+	return nil, errors.New("not used")
+}
 
 func (healthRepository) ResolveMarket(
 	context.Context,

@@ -1,4 +1,3 @@
-
 package auth
 
 import (
@@ -29,7 +28,6 @@ func TestOAuthStateMultiInstance(t *testing.T) {
 	defer redisClient.Close()
 
 	cfg := &Config{
-		JWTSecret:     "test-secret-key-at-least-32-bytes",
 		JWTExpiration: time.Hour,
 		Issuer:        "test-issuer",
 	}
@@ -142,7 +140,6 @@ func TestOAuthStateMultiInstance(t *testing.T) {
 // This test verifies that the service panics without Redis, indicating that Redis is required
 func TestOAuthStateWithoutRedis(t *testing.T) {
 	cfg := &Config{
-		JWTSecret:     "test-secret-key-at-least-32-bytes",
 		JWTExpiration: time.Hour,
 		Issuer:        "test-issuer",
 	}

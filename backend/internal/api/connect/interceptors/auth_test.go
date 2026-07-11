@@ -2,129 +2,148 @@ package interceptors_test
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
 	"errors"
 	"testing"
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
+	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 )
 
-const testSecret = "test-secret-do-not-use-in-prod"
+const connectAudience = "agentsmesh-api"
 
 type echoReq struct{ Msg string }
 type echoRes struct{ Echo string }
 
-func issueToken(t *testing.T, secret string, userID int64, exp time.Duration) string {
+type tokenFixture struct {
+	manager    *authpkg.AccessTokenManager
+	privateKey *rsa.PrivateKey
+}
+
+func newTokenFixture(t *testing.T) tokenFixture {
 	t.Helper()
-	tok, err := middleware.GenerateToken(userID, "u@example.com", "user", secret, 1)
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	require.NoError(t, err)
-	if exp == 0 {
-		return tok
-	}
-	// Re-mint with custom expiration to support the "expired" case.
-	claims := middleware.JWTClaims{
+	manager, err := authpkg.NewAccessTokenManager(authpkg.AccessTokenConfig{
+		PrivateKey: privateKey,
+		PublicKey:  &privateKey.PublicKey,
+		KeyID:      "connect-test-key",
+		Issuer:     "connect-test",
+		Audiences:  []string{connectAudience},
+		Duration:   time.Hour,
+	})
+	require.NoError(t, err)
+	return tokenFixture{manager: manager, privateKey: privateKey}
+}
+
+func (f tokenFixture) issue(t *testing.T, userID int64) string {
+	t.Helper()
+	token, err := f.manager.GenerateToken(userID, "u@example.com", "user", 0, "")
+	require.NoError(t, err)
+	return token
+}
+
+func (f tokenFixture) issueExpired(t *testing.T, userID int64) string {
+	t.Helper()
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, middleware.JWTClaims{
 		UserID:   userID,
 		Email:    "u@example.com",
 		Username: "user",
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(exp)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now().Add(-time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(-time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now().Add(-2 * time.Hour)),
+			NotBefore: jwt.NewNumericDate(time.Now().Add(-2 * time.Hour)),
+			Issuer:    "connect-test",
+			Audience:  jwt.ClaimStrings{connectAudience},
 		},
-	}
-	signed, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secret))
+	})
+	token.Header["kid"] = "connect-test-key"
+	value, err := token.SignedString(f.privateKey)
 	require.NoError(t, err)
-	return signed
+	return value
 }
 
-// runInterceptor wraps a captureFunc with the auth interceptor and
-// invokes it the way connect-go does for handler-side unary RPCs.
-func runInterceptor(t *testing.T, header string, next connect.UnaryFunc) (connect.AnyResponse, error) {
+func runInterceptor(
+	t *testing.T,
+	manager *authpkg.AccessTokenManager,
+	audience string,
+	header string,
+	next connect.UnaryFunc,
+) (connect.AnyResponse, error) {
 	t.Helper()
-	interceptor := interceptors.NewAuthInterceptor(testSecret)
+	interceptor := interceptors.NewAuthInterceptor(manager, audience)
 	req := connect.NewRequest(&echoReq{Msg: "hi"})
 	if header != "" {
 		req.Header().Set("Authorization", header)
 	}
-	wrapped := interceptor.WrapUnary(next)
-	return wrapped(context.Background(), req)
+	return interceptor.WrapUnary(next)(context.Background(), req)
 }
 
-func okHandler(t *testing.T, capture *context.Context) connect.UnaryFunc {
-	t.Helper()
+func okHandler(capture *context.Context) connect.UnaryFunc {
 	return func(ctx context.Context, _ connect.AnyRequest) (connect.AnyResponse, error) {
 		*capture = ctx
 		return connect.NewResponse(&echoRes{Echo: "ok"}), nil
 	}
 }
 
-func TestAuthInterceptor_ValidToken_PopulatesContext(t *testing.T) {
-	token := issueToken(t, testSecret, 42, 0)
-
+func TestAuthInterceptorValidTokenPopulatesContext(t *testing.T) {
+	fixture := newTokenFixture(t)
 	var captured context.Context
-	resp, err := runInterceptor(t, "Bearer "+token, okHandler(t, &captured))
+
+	response, err := runInterceptor(
+		t,
+		fixture.manager,
+		connectAudience,
+		"Bearer "+fixture.issue(t, 42),
+		okHandler(&captured),
+	)
 
 	require.NoError(t, err)
-	require.NotNil(t, resp)
-	require.NotNil(t, captured, "downstream handler must have been called")
-
+	require.NotNil(t, response)
 	tenant := middleware.GetTenant(captured)
-	require.NotNil(t, tenant, "TenantContext must be injected via middleware.SetTenant")
+	require.NotNil(t, tenant)
 	assert.Equal(t, int64(42), tenant.UserID)
-
 	claims := interceptors.ClaimsFromContext(captured)
 	require.NotNil(t, claims)
-	assert.Equal(t, int64(42), claims.UserID)
 	assert.Equal(t, "u@example.com", claims.Email)
 }
 
-func TestAuthInterceptor_MissingHeader_ReturnsUnauthenticated(t *testing.T) {
-	called := false
-	resp, err := runInterceptor(t, "", func(context.Context, connect.AnyRequest) (connect.AnyResponse, error) {
-		called = true
-		return nil, nil
-	})
-
-	require.Error(t, err)
-	assert.Nil(t, resp)
-	assert.False(t, called, "downstream handler must NOT be called on auth failure")
-
-	var connectErr *connect.Error
-	require.True(t, errors.As(err, &connectErr))
-	assert.Equal(t, connect.CodeUnauthenticated, connectErr.Code())
-}
-
-func TestAuthInterceptor_InvalidTokens_ReturnUnauthenticated(t *testing.T) {
-	cases := []struct {
-		name   string
-		header string
-	}{
-		{"malformed_token", "Bearer not-a-jwt"},
-		{"wrong_signing_secret", "Bearer " + issueToken(t, "different-secret", 42, 0)},
-		{"missing_bearer_scheme", issueToken(t, testSecret, 42, 0)},
-		{"empty_bearer_value", "Bearer "},
-		{"non_bearer_scheme", "Basic dXNlcjpwYXNz"},
+func TestAuthInterceptorRejectsMissingOrInvalidToken(t *testing.T) {
+	fixture := newTokenFixture(t)
+	otherFixture := newTokenFixture(t)
+	cases := map[string]string{
+		"missing":        "",
+		"malformed":      "Bearer not-a-jwt",
+		"wrong key":      "Bearer " + otherFixture.issue(t, 42),
+		"missing scheme": fixture.issue(t, 42),
+		"empty bearer":   "Bearer ",
+		"non bearer":     "Basic dXNlcjpwYXNz",
+		"expired":        "Bearer " + fixture.issueExpired(t, 42),
 	}
 
-	for _, tc := range cases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
+	for name, header := range cases {
+		t.Run(name, func(t *testing.T) {
 			called := false
-			resp, err := runInterceptor(t, tc.header, func(context.Context, connect.AnyRequest) (connect.AnyResponse, error) {
-				called = true
-				return nil, nil
-			})
-
+			response, err := runInterceptor(
+				t,
+				fixture.manager,
+				connectAudience,
+				header,
+				func(context.Context, connect.AnyRequest) (connect.AnyResponse, error) {
+					called = true
+					return nil, nil
+				},
+			)
 			require.Error(t, err)
-			assert.Nil(t, resp)
+			assert.Nil(t, response)
 			assert.False(t, called)
-
 			var connectErr *connect.Error
 			require.True(t, errors.As(err, &connectErr))
 			assert.Equal(t, connect.CodeUnauthenticated, connectErr.Code())
@@ -132,35 +151,38 @@ func TestAuthInterceptor_InvalidTokens_ReturnUnauthenticated(t *testing.T) {
 	}
 }
 
-func TestAuthInterceptor_ExpiredToken_ReturnsUnauthenticated(t *testing.T) {
-	expired := issueToken(t, testSecret, 42, -time.Hour)
+func TestAuthInterceptorRejectsWrongAudience(t *testing.T) {
+	fixture := newTokenFixture(t)
 
-	called := false
-	resp, err := runInterceptor(t, "Bearer "+expired, func(context.Context, connect.AnyRequest) (connect.AnyResponse, error) {
-		called = true
-		return nil, nil
-	})
-
-	require.Error(t, err)
-	assert.Nil(t, resp)
-	assert.False(t, called)
+	_, err := runInterceptor(
+		t,
+		fixture.manager,
+		"marketplace-api",
+		"Bearer "+fixture.issue(t, 42),
+		okHandler(new(context.Context)),
+	)
 
 	var connectErr *connect.Error
-	require.True(t, errors.As(err, &connectErr))
+	require.ErrorAs(t, err, &connectErr)
 	assert.Equal(t, connect.CodeUnauthenticated, connectErr.Code())
 }
 
-func TestAuthInterceptor_PassesThroughHandlerErrors(t *testing.T) {
-	token := issueToken(t, testSecret, 42, 0)
+func TestAuthInterceptorPassesThroughHandlerErrors(t *testing.T) {
+	fixture := newTokenFixture(t)
 	downstreamErr := connect.NewError(connect.CodeNotFound, errors.New("resource missing"))
 
-	resp, err := runInterceptor(t, "Bearer "+token, func(context.Context, connect.AnyRequest) (connect.AnyResponse, error) {
-		return nil, downstreamErr
-	})
+	response, err := runInterceptor(
+		t,
+		fixture.manager,
+		connectAudience,
+		"Bearer "+fixture.issue(t, 42),
+		func(context.Context, connect.AnyRequest) (connect.AnyResponse, error) {
+			return nil, downstreamErr
+		},
+	)
 
-	assert.Nil(t, resp)
+	assert.Nil(t, response)
 	var connectErr *connect.Error
-	require.True(t, errors.As(err, &connectErr))
-	assert.Equal(t, connect.CodeNotFound, connectErr.Code(),
-		"interceptor must not re-wrap downstream errors as Unauthenticated")
+	require.ErrorAs(t, err, &connectErr)
+	assert.Equal(t, connect.CodeNotFound, connectErr.Code())
 }

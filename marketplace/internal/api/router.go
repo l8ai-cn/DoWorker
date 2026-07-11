@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	actorapi "github.com/anthropics/agentsmesh/marketplace/internal/api/actor"
+	consoleapi "github.com/anthropics/agentsmesh/marketplace/internal/api/console"
 	publicapi "github.com/anthropics/agentsmesh/marketplace/internal/api/public"
 	"github.com/anthropics/agentsmesh/marketplace/internal/service"
 	"github.com/gin-gonic/gin"
@@ -12,10 +14,11 @@ import (
 type Dependencies struct {
 	Ready      func(context.Context) error
 	Storefront *service.StorefrontService
+	Identity   actorapi.TokenVerifier
 }
 
 func NewRouter(deps Dependencies) *gin.Engine {
-	if deps.Ready == nil || deps.Storefront == nil {
+	if deps.Ready == nil || deps.Storefront == nil || deps.Identity == nil {
 		panic("marketplace router dependencies are required")
 	}
 	router := gin.New()
@@ -38,5 +41,8 @@ func NewRouter(deps Dependencies) *gin.Engine {
 	publicapi.NewHandler(deps.Storefront).RegisterRoutes(
 		router.Group("/api/marketplace/v1"),
 	)
+	console := router.Group("/api/marketplace/v1/console")
+	console.Use(actorapi.Middleware(deps.Identity))
+	consoleapi.NewSessionHandler().RegisterRoutes(console)
 	return router
 }
