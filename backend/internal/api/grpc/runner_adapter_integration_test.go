@@ -1,11 +1,14 @@
 package grpc
 
 import (
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/anthropics/agentsmesh/backend/internal/interfaces"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
@@ -56,9 +59,38 @@ func TestGRPCRunnerAdapter_Connect_Integration(t *testing.T) {
 		t.Fatal("timed out waiting for initialized callback")
 	}
 	assert.True(t, connMgr.IsConnected(1))
+	assert.True(t, runnerSvc.WasMarkedConnected(1))
 
 	// Close
 	_ = stream.CloseSend()
+}
+
+func TestGRPCRunnerAdapter_Connect_FailsClosedWhenRunnerStatusCannotUpdate(t *testing.T) {
+	logger := newTestLogger()
+	runnerSvc := newMockRunnerService()
+	runnerSvc.SetMarkConnectedError(errors.New("database unavailable"))
+	orgSvc := newMockOrgService()
+	connMgr := runner.NewRunnerConnectionManager(logger)
+	defer connMgr.Close()
+
+	runnerSvc.AddRunner("failing-node", RunnerInfo{
+		ID: 5, NodeID: "failing-node", OrganizationID: 100, IsEnabled: true,
+	})
+	orgSvc.AddOrg("test-org", OrganizationInfo{ID: 100, Slug: "test-org"})
+
+	adapter := NewGRPCRunnerAdapter(logger, nil, runnerSvc, orgSvc, nil, nil, connMgr, nil)
+	addr, cleanup := setupTestServer(t, adapter)
+	defer cleanup()
+
+	stream, conn, cancel := connectRunner(t, addr, "failing-node", "test-org")
+	defer cancel()
+	defer conn.Close()
+
+	_, err := stream.Recv()
+	require.Error(t, err)
+	assert.Equal(t, codes.Internal, status.Code(err))
+	assert.False(t, connMgr.IsConnected(5))
+	assert.True(t, runnerSvc.WasMarkedConnected(5))
 }
 
 // TestGRPCRunnerAdapter_SendCommands_Integration tests sending commands.

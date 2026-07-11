@@ -41,6 +41,9 @@ type ServerDependencies struct {
 type RunnerServiceInterface interface {
 	GetByNodeID(ctx context.Context, nodeID string) (RunnerInfo, error)
 	GetByNodeIDAndOrgID(ctx context.Context, nodeID string, orgID int64) (RunnerInfo, error)
+	MarkConnected(ctx context.Context, runnerID int64) error
+	MarkDisconnected(ctx context.Context, runnerID int64) error
+	TouchActiveRunner(runnerID int64)
 	UpdateLastSeen(ctx context.Context, runnerID int64) error
 	UpdateAvailableAgents(ctx context.Context, runnerID int64, agents []string) error
 	UpdateAgentVersions(ctx context.Context, runnerID int64, versions []runnerDomain.AgentVersion) error

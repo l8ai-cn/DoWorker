@@ -1,6 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { PaneLoadingState, PaneErrorState } from "../PaneStateViews";
+import { render, screen, fireEvent } from "@/test/test-utils";
+import {
+  PaneLoadingState,
+  PaneErrorState,
+  PaneReconnectingState,
+} from "../PaneStateViews";
 
 describe("PaneLoadingState", () => {
   const defaultProps = {
@@ -131,5 +135,16 @@ describe("PaneErrorState", () => {
     render(<PaneErrorState error="Pod terminated" />);
 
     expect(screen.queryByText("Close")).not.toBeInTheDocument();
+  });
+});
+
+describe("PaneReconnectingState", () => {
+  it("renders the workspace reconnecting messages", () => {
+    render(<PaneReconnectingState />);
+
+    expect(screen.getByText("Runner is restarting...")).toBeInTheDocument();
+    expect(
+      screen.getByText("Session will resume automatically. Your work is preserved.")
+    ).toBeInTheDocument();
   });
 });

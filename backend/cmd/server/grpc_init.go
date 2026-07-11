@@ -144,6 +144,18 @@ func (a *grpcRunnerServiceAdapter) GetByNodeIDAndOrgID(ctx context.Context, node
 	}, nil
 }
 
+func (a *grpcRunnerServiceAdapter) MarkConnected(ctx context.Context, runnerID int64) error {
+	return a.svc.MarkConnected(ctx, runnerID)
+}
+
+func (a *grpcRunnerServiceAdapter) MarkDisconnected(ctx context.Context, runnerID int64) error {
+	return a.svc.MarkDisconnected(ctx, runnerID)
+}
+
+func (a *grpcRunnerServiceAdapter) TouchActiveRunner(runnerID int64) {
+	a.svc.TouchActiveRunner(runnerID)
+}
+
 func (a *grpcRunnerServiceAdapter) UpdateLastSeen(ctx context.Context, runnerID int64) error {
 	return a.svc.UpdateLastSeen(ctx, runnerID)
 }

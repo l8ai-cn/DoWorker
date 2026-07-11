@@ -3,6 +3,7 @@ package runner
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 )
@@ -234,6 +235,70 @@ func TestUpdateAvailableAgents(t *testing.T) {
 			t.Error("expected runner to not support unknown-agent")
 		}
 	})
+}
+
+func TestUpdateAvailableAgentsSyncsActiveRunner(t *testing.T) {
+	db := setupTestDB(t)
+	service := newTestService(db)
+	ctx := context.Background()
+
+	r := &runner.Runner{
+		OrganizationID:    1,
+		NodeID:            "active-runner",
+		Status:            runner.RunnerStatusOnline,
+		MaxConcurrentPods: 5,
+		IsEnabled:         true,
+		AvailableAgents:   runner.StringSlice{"aider"},
+	}
+	if err := db.Create(r).Error; err != nil {
+		t.Fatalf("create runner: %v", err)
+	}
+
+	service.activeRunners.Store(r.ID, &ActiveRunner{
+		Runner:   r,
+		LastPing: time.Now(),
+		PodCount: 0,
+	})
+
+	if err := service.UpdateAvailableAgents(ctx, r.ID, []string{"e2e-echo"}); err != nil {
+		t.Fatalf("update available agents: %v", err)
+	}
+
+	active, ok := service.activeRunners.Load(r.ID)
+	if !ok {
+		t.Fatal("active runner not found")
+	}
+	updated := active.(*ActiveRunner).Runner
+	if !updated.SupportsAgent("e2e-echo") {
+		t.Fatal("active runner did not receive the new agent")
+	}
+	if updated.SupportsAgent("aider") {
+		t.Fatal("active runner retained the replaced agent")
+	}
+}
+
+func TestTouchActiveRunnerRefreshesLease(t *testing.T) {
+	service := newTestService(setupTestDB(t))
+	stale := time.Now().Add(-2 * time.Minute)
+	service.activeRunners.Store(int64(1), &ActiveRunner{
+		Runner:   &runner.Runner{ID: 1, AvailableAgents: runner.StringSlice{"e2e-echo"}},
+		LastPing: stale,
+		PodCount: 3,
+	})
+
+	service.TouchActiveRunner(1)
+
+	active, ok := service.activeRunners.Load(int64(1))
+	if !ok {
+		t.Fatal("active runner not found")
+	}
+	updated := active.(*ActiveRunner)
+	if !updated.LastPing.After(stale) {
+		t.Fatal("active runner lease was not refreshed")
+	}
+	if updated.PodCount != 3 || !updated.Runner.SupportsAgent("e2e-echo") {
+		t.Fatal("active runner state changed while refreshing lease")
+	}
 }
 
 func TestMergeAgentVersions(t *testing.T) {

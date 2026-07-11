@@ -24,6 +24,9 @@ func (a *GRPCRunnerAdapter) handleProtoMessage(ctx context.Context, runnerID int
 		a.handleInitialized(ctx, runnerID, conn, payload.Initialized)
 
 	case *runnerv1.RunnerMessage_Heartbeat:
+		if a.runnerService != nil {
+			a.runnerService.TouchActiveRunner(runnerID)
+		}
 		a.connManager.HandleHeartbeat(runnerID, payload.Heartbeat)
 
 		ack := &runnerv1.ServerMessage{

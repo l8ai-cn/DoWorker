@@ -121,7 +121,7 @@ interface PaneReconnectingStateProps {
 export function PaneReconnectingState({
   onClose,
 }: PaneReconnectingStateProps) {
-  const t = useTranslations("app.workspace.reconnecting");
+  const t = useTranslations("workspace.reconnecting");
   return (
     <div className="flex-1 flex items-center justify-center bg-terminal-bg">
       <div className="text-center p-4 max-w-sm">

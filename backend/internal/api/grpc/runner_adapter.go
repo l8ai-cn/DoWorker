@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -13,7 +14,7 @@ import (
 
 // Auth flow: nginx mTLS verify → CN via metadata → Runner sends org_slug → validate
 // belongs-to-org → check cert revocation → start periodic revocation check.
-func (a *GRPCRunnerAdapter) Connect(stream runnerv1.RunnerService_ConnectServer) error {
+func (a *GRPCRunnerAdapter) Connect(stream runnerv1.RunnerService_ConnectServer) (returnErr error) {
 	ctx, cancel := context.WithCancel(stream.Context())
 	defer cancel()
 
@@ -49,7 +50,25 @@ func (a *GRPCRunnerAdapter) Connect(stream runnerv1.RunnerService_ConnectServer)
 	}
 
 	conn := a.connManager.AddConnection(runnerInfo.ID, identity.NodeID, identity.OrgSlug, grpcStream)
-	defer a.connManager.RemoveConnection(runnerInfo.ID, conn.Generation)
+	if err := a.runnerService.MarkConnected(ctx, runnerInfo.ID); err != nil {
+		a.connManager.RemoveConnection(runnerInfo.ID, conn.Generation)
+		a.logger.Error("failed to mark runner connected", "runner_id", runnerInfo.ID, "error", err)
+		return status.Error(codes.Internal, "failed to mark runner connected")
+	}
+	defer func() {
+		a.connManager.RemoveConnection(runnerInfo.ID, conn.Generation)
+		if a.connManager.IsConnected(runnerInfo.ID) {
+			return
+		}
+		disconnectCtx, disconnectCancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+		defer disconnectCancel()
+		if err := a.runnerService.MarkDisconnected(disconnectCtx, runnerInfo.ID); err != nil {
+			a.logger.Error("failed to mark runner disconnected", "runner_id", runnerInfo.ID, "error", err)
+			if returnErr == nil {
+				returnErr = status.Error(codes.Internal, "failed to mark runner disconnected")
+			}
+		}
+	}()
 
 	a.logger.Info("Runner connected",
 		"runner_id", runnerInfo.ID,
@@ -74,13 +93,13 @@ func (a *GRPCRunnerAdapter) Connect(stream runnerv1.RunnerService_ConnectServer)
 		cancel()      // cancel context so receiveLoop exits
 	}()
 
-	err = a.receiveLoop(ctx, runnerInfo.ID, conn, stream)
+	returnErr = a.receiveLoop(ctx, runnerInfo.ID, conn, stream)
 
 	a.logAuditEvent(runnerInfo.ID, runnerInfo.OrganizationID, audit.ActionRunnerOffline, "")
 
 	close(grpcStream.done)
 
-	return err
+	return returnErr
 }
 
 func (a *GRPCRunnerAdapter) checkCertRevocation(ctx context.Context, identity *ClientIdentity, runnerInfo *RunnerInfo) error {

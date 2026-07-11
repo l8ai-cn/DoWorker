@@ -104,4 +104,5 @@ func TestGRPCRunnerAdapter_Disconnect_Integration(t *testing.T) {
 		t.Fatal("timed out waiting for disconnect callback")
 	}
 	assert.False(t, connMgr.IsConnected(4))
+	assert.True(t, runnerSvc.WasMarkedDisconnected(4))
 }
