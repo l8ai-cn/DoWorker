@@ -272,7 +272,7 @@ spec:
           name: agentsmesh-config
         - mountPath: /home/runner/.claude
           name: agent-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:
@@ -352,7 +352,7 @@ spec:
           name: agentsmesh-config
         - mountPath: /home/runner/.codex
           name: agent-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:
@@ -435,7 +435,7 @@ spec:
           name: workspace
         - mountPath: /home/runner/.agentsmesh
           name: agentsmesh-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:
@@ -514,7 +514,7 @@ spec:
           name: workspace
         - mountPath: /home/runner/.agentsmesh
           name: agentsmesh-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:
@@ -591,7 +591,7 @@ spec:
           name: agentsmesh-config
         - mountPath: /home/runner/.gemini
           name: agent-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:
@@ -671,7 +671,7 @@ spec:
           name: agentsmesh-config
         - mountPath: /home/runner/.loopal
           name: agent-config
-        - mountPath: /home/runner/.ssh
+        - mountPath: /run/runner-ssh-source
           name: runner-ssh
           readOnly: true
       securityContext:

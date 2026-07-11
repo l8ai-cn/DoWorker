@@ -26,7 +26,15 @@ grep -q "docker/agent-runtime/Dockerfile" docker-compose.runners.yml
 grep -q "COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES" lib/host_services.sh
 grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
+grep -q "RUNNER_SSH_SOURCE_DIR" runner-entrypoint.sh
+grep -q "init_runner_ssh" runner-entrypoint.sh
 grep -q "'e2e-mock-agent'," seed/e2e_echo.sql
+
+if grep -q '/home/runner/.ssh:ro' docker-compose.runners.yml; then
+  echo "runner SSH material must not be mounted over the runner home directory" >&2
+  exit 1
+fi
+grep -q './runner-ssh:/run/runner-ssh-source:ro' docker-compose.runners.yml
 
 if awk '/runner-claude-code:/{flag=1; next} /runner-codex-cli:/{flag=0} flag' docker-compose.runners.yml \
   | grep -q "/home/runner/.codex"; then

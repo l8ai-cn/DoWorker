@@ -12,6 +12,7 @@ MAX_CONCURRENT_PODS="${MAX_CONCURRENT_PODS:-10}"
 SSL_DIR="${SSL_DIR:-/app/ssl}"
 AGENT_RUNTIME="${AGENT_RUNTIME:-e2e-echo}"
 DEFAULT_AGENT="${DEFAULT_AGENT:-${AGENT_RUNTIME}}"
+RUNNER_SSH_SOURCE_DIR="${RUNNER_SSH_SOURCE_DIR:-/run/runner-ssh-source}"
 
 CONFIG_DIR="${HOME}/.do-worker"
 if [[ -d "${HOME}/.agentsmesh" && -w "${HOME}/.agentsmesh" ]]; then
@@ -56,6 +57,25 @@ wait_for_backend() {
     done
     echo "✗ Backend 服务启动超时" >&2
     exit 1
+}
+
+init_runner_ssh() {
+    [[ -d "$RUNNER_SSH_SOURCE_DIR" ]] || return
+
+    local ssh_dir="${HOME}/.ssh"
+    local file
+    mkdir -p "$ssh_dir"
+    chmod 700 "$ssh_dir"
+
+    for file in config id_ed25519 id_ed25519.pub known_hosts; do
+        [[ -f "${RUNNER_SSH_SOURCE_DIR}/${file}" ]] || continue
+        cp "${RUNNER_SSH_SOURCE_DIR}/${file}" "${ssh_dir}/${file}"
+    done
+
+    [[ ! -f "${ssh_dir}/id_ed25519" ]] || chmod 600 "${ssh_dir}/id_ed25519"
+    [[ ! -f "${ssh_dir}/config" ]] || chmod 600 "${ssh_dir}/config"
+    [[ ! -f "${ssh_dir}/id_ed25519.pub" ]] || chmod 644 "${ssh_dir}/id_ed25519.pub"
+    [[ ! -f "${ssh_dir}/known_hosts" ]] || chmod 644 "${ssh_dir}/known_hosts"
 }
 
 generate_runner_cert() {
@@ -206,6 +226,7 @@ EOF
 }
 main() {
     wait_for_backend
+    init_runner_ssh
     generate_runner_cert
     init_ai_cli_configs
     create_config

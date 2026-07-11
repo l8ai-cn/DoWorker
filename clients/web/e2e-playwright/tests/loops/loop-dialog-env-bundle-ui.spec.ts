@@ -43,6 +43,21 @@ async function expandAdvancedOptions(page: import("@playwright/test").Page) {
   }
 }
 
+async function pickDialogSelectOption(
+  page: import("@playwright/test").Page,
+  triggerId: string,
+  optionValue: string,
+) {
+  const overlay = page.locator("[data-dialog-overlay]").first();
+  const trigger = overlay.locator(`#${triggerId}`).first();
+  await trigger.waitFor({ state: "visible", timeout: 15_000 });
+  await trigger.click();
+  await overlay
+    .locator(`[role="option"][data-option-value="${optionValue}"]`)
+    .first()
+    .click();
+}
+
 test.describe("Loop dialog — EnvBundle binding UI", () => {
   test.beforeEach(async () => {
     clearAuthRateLimit();
@@ -76,14 +91,7 @@ test.describe("Loop dialog — EnvBundle binding UI", () => {
         .first()
         .fill(loopName);
 
-      // The dialog opens before usePodCreationData finishes loading; the
-      // agent <select> mounts only once runners + agents arrive, so wait
-      // for visibility instead of racing the selectOption call.
-      const agentSelect = page
-        .locator('[data-dialog-overlay] select#worker-image-select')
-        .first();
-      await agentSelect.waitFor({ state: "visible", timeout: 15_000 });
-      await agentSelect.selectOption("claude-code");
+      await pickDialogSelectOption(page, "worker-image-select", "claude-code");
 
       const promptInput = page
         .locator('[data-dialog-overlay] textarea#prompt-input')
