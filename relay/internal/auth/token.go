@@ -101,7 +101,7 @@ func (v *TokenValidator) ValidateToken(tokenString string) (*RelayClaims, error)
 		return nil, ErrInvalidToken
 	}
 	if claims.ResolvedType() == TokenTypePreview {
-		normalized, err := normalizePreviewPath(claims.PreviewPath)
+		normalized, err := NormalizePreviewPath(claims.PreviewPath)
 		if err != nil || normalized != claims.PreviewPath || claims.PreviewTarget == "" {
 			return nil, ErrInvalidToken
 		}
@@ -110,7 +110,9 @@ func (v *TokenValidator) ValidateToken(tokenString string) (*RelayClaims, error)
 	return claims, nil
 }
 
-func normalizePreviewPath(raw string) (string, error) {
+// NormalizePreviewPath keeps one canonical escaped representation across JWT
+// validation and proxy forwarding.
+func NormalizePreviewPath(raw string) (string, error) {
 	if raw == "" {
 		return "", ErrInvalidToken
 	}
@@ -123,7 +125,8 @@ func normalizePreviewPath(raw string) (string, error) {
 			return "", ErrInvalidToken
 		}
 	}
-	return path.Clean(decoded), nil
+	cleaned := path.Clean(decoded)
+	return (&url.URL{Path: cleaned}).EscapedPath(), nil
 }
 
 // GenerateToken generates a relay token (used by Backend)

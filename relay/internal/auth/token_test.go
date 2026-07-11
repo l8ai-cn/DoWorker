@@ -154,7 +154,7 @@ func TestRelayClaims_TokenType(t *testing.T) {
 
 func TestValidateToken_PreviewRequiresNormalizedPath(t *testing.T) {
 	v := NewTokenValidator(testSecret, testIssuer)
-	for _, previewPath := range []string{"", "/app/", "/app/../admin", "/app%2F..%2Fadmin"} {
+	for _, previewPath := range []string{"", "/app/", "/app/../admin", "/app%2F..%2Fadmin", "/files/%"} {
 		previewPath := previewPath
 		t.Run(previewPath, func(t *testing.T) {
 			token := signPreviewClaims(t, previewPath)
@@ -164,12 +164,27 @@ func TestValidateToken_PreviewRequiresNormalizedPath(t *testing.T) {
 		})
 	}
 
-	claims, err := v.ValidateToken(signPreviewClaims(t, "/app"))
-	if err != nil {
-		t.Fatalf("normalized preview path rejected: %v", err)
+	for _, previewPath := range []string{"/app", "/files/%25", "/app/%252e%252e"} {
+		claims, err := v.ValidateToken(signPreviewClaims(t, previewPath))
+		if err != nil {
+			t.Fatalf("normalized preview path %q rejected: %v", previewPath, err)
+		}
+		if claims.PreviewPath != previewPath {
+			t.Fatalf("PreviewPath = %q, want %q", claims.PreviewPath, previewPath)
+		}
 	}
-	if claims.PreviewPath != "/app" {
-		t.Fatalf("PreviewPath = %q, want /app", claims.PreviewPath)
+}
+
+func TestNormalizePreviewPath_Idempotent(t *testing.T) {
+	for _, previewPath := range []string{"/files/%25", "/app/%252e%252e", "/documents/%E4%B8%AD"} {
+		normalized, err := NormalizePreviewPath(previewPath)
+		if err != nil {
+			t.Fatalf("NormalizePreviewPath(%q): %v", previewPath, err)
+		}
+		again, err := NormalizePreviewPath(normalized)
+		if err != nil || again != normalized {
+			t.Fatalf("second normalization: first=%q second=%q err=%v", normalized, again, err)
+		}
 	}
 }
 

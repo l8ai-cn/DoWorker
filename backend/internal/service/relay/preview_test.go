@@ -34,11 +34,14 @@ func TestNormalizePreviewPath(t *testing.T) {
 	t.Parallel()
 
 	valid := map[string]string{
-		"":           "/",
-		"/":          "/",
-		"/app/":      "/app",
-		"/app//api":  "/app/api",
-		"/app/./api": "/app/api",
+		"":                     "/",
+		"/":                    "/",
+		"/app/":                "/app",
+		"/app//api":            "/app/api",
+		"/app/./api":           "/app/api",
+		"/files/%25":           "/files/%25",
+		"/app/%252e%252e":      "/app/%252e%252e",
+		"/documents/%E4%B8%AD": "/documents/%E4%B8%AD",
 	}
 	for input, want := range valid {
 		input, want := input, want
@@ -49,6 +52,13 @@ func TestNormalizePreviewPath(t *testing.T) {
 			}
 			if got != want {
 				t.Fatalf("NormalizePreviewPath(%q) = %q, want %q", input, got, want)
+			}
+			again, err := NormalizePreviewPath(got)
+			if err != nil {
+				t.Fatalf("NormalizePreviewPath(%q) second pass: %v", got, err)
+			}
+			if again != got {
+				t.Fatalf("NormalizePreviewPath is not idempotent: first %q, second %q", got, again)
 			}
 		})
 	}

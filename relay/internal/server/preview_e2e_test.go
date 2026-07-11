@@ -266,6 +266,13 @@ func TestPreviewE2E_HTMLAndImage(t *testing.T) {
 		case "/app/logo.png":
 			w.Header().Set("Content-Type", "image/png")
 			_, _ = w.Write(imageBytes)
+		case "/app/%2e%2e":
+			if got := r.URL.EscapedPath(); got != "/app/%252e%252e" {
+				t.Errorf("escaped upstream path = %q, want /app/%%252e%%252e", got)
+				http.Error(w, "wrong escaped path", http.StatusBadRequest)
+				return
+			}
+			_, _ = io.WriteString(w, "literal-double-encoding")
 		default:
 			http.NotFound(w, r)
 		}
@@ -317,5 +324,15 @@ func TestPreviewE2E_HTMLAndImage(t *testing.T) {
 	}
 	if string(imgBody) != string(imageBytes) {
 		t.Fatalf("image body mismatch: got %d bytes, want %d bytes", len(imgBody), len(imageBytes))
+	}
+
+	encodedResp, err := http.Get(gw.URL + "/preview/pod1/%252e%252e?token=" + previewToken)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer encodedResp.Body.Close()
+	encodedBody, _ := io.ReadAll(encodedResp.Body)
+	if encodedResp.StatusCode != http.StatusOK || string(encodedBody) != "literal-double-encoding" {
+		t.Fatalf("double-encoded path: status=%d body=%q", encodedResp.StatusCode, encodedBody)
 	}
 }

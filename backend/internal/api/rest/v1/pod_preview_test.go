@@ -75,7 +75,7 @@ func performPreviewGET(h *PodHandler) *httptest.ResponseRecorder {
 }
 
 func TestGetPodPreview_ReturnsSessionURLWithoutRawToken(t *testing.T) {
-	pod := &agentpod.Pod{PodKey: "pod1", RunnerID: 7, PreviewPort: 3000, PreviewPath: "/app/", Status: agentpod.StatusRunning, OrganizationID: 1, CreatedByID: 10}
+	pod := &agentpod.Pod{PodKey: "pod1", RunnerID: 7, PreviewPort: 3000, PreviewPath: "/files/%25", Status: agentpod.StatusRunning, OrganizationID: 1, CreatedByID: 10}
 	h := newPreviewHandler(pod)
 	w := performPreviewGET(h)
 	if w.Code != http.StatusOK {
@@ -88,7 +88,7 @@ func TestGetPodPreview_ReturnsSessionURLWithoutRawToken(t *testing.T) {
 	assert.Contains(t, resp["session_url"], "__session")
 	assert.NotEmpty(t, resp["expires_at"])
 	assert.NotContains(t, resp, "token")
-	assert.Equal(t, "/app", h.relayTokens.(*mockPreviewTokens).previewPath)
+	assert.Equal(t, "/files/%25", h.relayTokens.(*mockPreviewTokens).previewPath)
 }
 
 func TestGetPodPreview_MissingCommandSenderReturns503(t *testing.T) {

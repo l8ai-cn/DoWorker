@@ -1,7 +1,6 @@
 package server
 
 import (
-	"errors"
 	"log/slog"
 	"net/http"
 	"path"
@@ -25,10 +24,8 @@ type PreviewConfig struct {
 	CookieSecure      bool          // Secure flag on the gw_preview cookie
 }
 
-// PreviewHandler serves ANY /preview/{podKey}/* by resolving the pod's runner
-// tunnel from the JWT claim (no table lookup) and proxying the request over
-// it. Routing is entirely claim-driven: the token embeds runner_id and the
-// loopback target the backend already validated.
+// PreviewHandler routes authenticated preview requests through the runner
+// tunnel using only the target and canonical path bound into the JWT.
 type PreviewHandler struct {
 	validator *auth.TokenValidator
 	registry  *tunnel.Registry
@@ -48,8 +45,6 @@ func NewPreviewHandler(v *auth.TokenValidator, registry *tunnel.Registry, limite
 	}
 }
 
-// route dispatches all /preview/ traffic: the __session sub-path performs the
-// token->cookie exchange, everything else is proxied.
 func (h *PreviewHandler) route(w http.ResponseWriter, r *http.Request) {
 	_, rest, ok := parsePreviewPath(r.URL.Path)
 	if !ok {
@@ -63,8 +58,6 @@ func (h *PreviewHandler) route(w http.ResponseWriter, r *http.Request) {
 	h.HandlePreview(w, r)
 }
 
-// parsePreviewPath splits "/preview/{podKey}/{rest...}" into podKey and rest
-// (rest may be empty for the pod root, e.g. "/preview/pod1").
 func parsePreviewPath(p string) (podKey, rest string, ok bool) {
 	trimmed := strings.TrimPrefix(p, "/preview/")
 	if trimmed == "" || trimmed == p {
@@ -76,8 +69,6 @@ func parsePreviewPath(p string) (podKey, rest string, ok bool) {
 	return trimmed, "", true
 }
 
-// extractToken prefers the session cookie (set after __session exchange) and
-// falls back to a query-string token for the initial/direct request.
 func (h *PreviewHandler) extractToken(r *http.Request) string {
 	if c, err := r.Cookie(previewCookieName); err == nil && c.Value != "" {
 		return c.Value
@@ -85,20 +76,28 @@ func (h *PreviewHandler) extractToken(r *http.Request) string {
 	return r.URL.Query().Get("token")
 }
 
-// HandlePreview authenticates and proxies a single preview HTTP request (or,
-// once upgraded, a WebSocket) over the pod's runner tunnel.
 func (h *PreviewHandler) HandlePreview(w http.ResponseWriter, r *http.Request) {
-	podKey, rest, ok := parsePreviewPath(r.URL.Path)
+	podKey, _, ok := parsePreviewPath(r.URL.Path)
 	if !ok {
 		http.NotFound(w, r)
 		return
+	}
+	escapedPrefix := "/preview/" + podKey
+	escapedPath := r.URL.EscapedPath()
+	escapedRest := ""
+	if escapedPath != escapedPrefix {
+		if !strings.HasPrefix(escapedPath, escapedPrefix+"/") {
+			http.NotFound(w, r)
+			return
+		}
+		escapedRest = strings.TrimPrefix(escapedPath, escapedPrefix+"/")
 	}
 
 	claims, ok := h.authenticate(w, r, podKey)
 	if !ok {
 		return
 	}
-	upstreamPath, err := joinPreviewUpstreamPath(claims.PreviewPath, rest)
+	upstreamPath, err := joinPreviewUpstreamPath(claims.PreviewPath, escapedRest)
 	if err != nil {
 		writePreviewError(w, "invalid_path", http.StatusBadRequest)
 		return
@@ -143,16 +142,20 @@ func (h *PreviewHandler) HandlePreview(w http.ResponseWriter, r *http.Request) {
 }
 
 func joinPreviewUpstreamPath(base, rest string) (string, error) {
-	for _, segment := range strings.Split(rest, "/") {
-		if segment == ".." {
-			return "", errors.New("preview path traversal")
-		}
-	}
 	if rest == "" {
 		return base, nil
 	}
-	joined := path.Join(base, rest)
-	if strings.HasSuffix(rest, "/") && joined != "/" {
+	requestPath := "/" + rest
+	normalizedRest, err := auth.NormalizePreviewPath(requestPath)
+	if err != nil {
+		return "", err
+	}
+	hasTrailingSlash := strings.HasSuffix(requestPath, "/")
+	if requestPath != normalizedRest && (!hasTrailingSlash || strings.TrimSuffix(requestPath, "/") != normalizedRest) {
+		return "", auth.ErrInvalidToken
+	}
+	joined := path.Join(base, strings.TrimPrefix(normalizedRest, "/"))
+	if hasTrailingSlash && joined != "/" {
 		joined += "/"
 	}
 	return joined, nil

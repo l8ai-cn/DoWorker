@@ -40,7 +40,8 @@ func NormalizePreviewPath(raw string) (string, error) {
 			return "", ErrInvalidPreviewPath
 		}
 	}
-	return path.Clean(decoded), nil
+	cleaned := path.Clean(decoded)
+	return (&url.URL{Path: cleaned}).EscapedPath(), nil
 }
 
 // ResolvePreviewRoute derives the preview routing target from pod metadata

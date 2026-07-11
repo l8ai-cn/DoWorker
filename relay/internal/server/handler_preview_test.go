@@ -82,6 +82,8 @@ func TestJoinPreviewUpstreamPath(t *testing.T) {
 		{name: "mounted root request", base: "/app", rest: "", want: "/app"},
 		{name: "mounted asset", base: "/app", rest: "assets/app.js", want: "/app/assets/app.js"},
 		{name: "preserve directory slash", base: "/app", rest: "docs/", want: "/app/docs/"},
+		{name: "preserve escaped percent", base: "/files/%25", rest: "report%25.txt", want: "/files/%25/report%25.txt"},
+		{name: "preserve double encoding", base: "/app", rest: "%252e%252e", want: "/app/%252e%252e"},
 	} {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
@@ -97,8 +99,10 @@ func TestJoinPreviewUpstreamPath(t *testing.T) {
 }
 
 func TestJoinPreviewUpstreamPathRejectsTraversal(t *testing.T) {
-	if _, err := joinPreviewUpstreamPath("/app", "../admin"); err == nil {
-		t.Fatal("expected traversal to be rejected")
+	for _, rest := range []string{"../admin", "%2e%2e/admin"} {
+		if _, err := joinPreviewUpstreamPath("/app", rest); err == nil {
+			t.Fatalf("expected traversal %q to be rejected", rest)
+		}
 	}
 }
 

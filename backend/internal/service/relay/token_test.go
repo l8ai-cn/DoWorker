@@ -9,7 +9,7 @@ import (
 
 func TestGeneratePreviewToken(t *testing.T) {
 	g := NewTokenGenerator("secret", "iss")
-	tok, err := g.GeneratePreviewToken("pod1", 7, 42, 3, "127.0.0.1:3000", "/app/", time.Hour)
+	tok, err := g.GeneratePreviewToken("pod1", 7, 42, 3, "127.0.0.1:3000", "/files/%25", time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -24,7 +24,7 @@ func TestGeneratePreviewToken(t *testing.T) {
 		t.Fatal(err)
 	}
 	claims := parsed.Claims.(*TokenClaims)
-	if claims.PreviewTarget != "127.0.0.1:3000" || claims.PreviewPath != "/app" {
+	if claims.PreviewTarget != "127.0.0.1:3000" || claims.PreviewPath != "/files/%25" {
 		t.Fatalf("unexpected preview claims: %+v", claims)
 	}
 
