@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+@source not "./favicon.ico";
 
 /* Light Theme (default) — neutral product palette + restrained teal action accent */
 :root {
