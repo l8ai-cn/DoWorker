@@ -22,6 +22,6 @@ resources:
   - 37-runner-minimax-cli.yaml
   - 38-runner-grok-build.yaml
   - 39-runner-openclaw.yaml
-  - 41-runner-harn.yaml
+  - 41-runner-hermes.yaml
   - 40-ingress.yaml
   - 60-prepull-daemonset.yaml

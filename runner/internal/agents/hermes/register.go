@@ -1,4 +1,4 @@
-package harn
+package hermes
 
 import (
 	"github.com/anthropics/agentsmesh/runner/internal/agentkit"
@@ -6,10 +6,10 @@ import (
 )
 
 func init() {
-	tokenusage.RegisterParserOptOut([]string{"harn"})
-	agentkit.RegisterProcessNames("harn")
+	tokenusage.RegisterParserOptOut([]string{"hermes", "hermes-agent", "hermes-acp"})
+	agentkit.RegisterProcessNames("hermes", "hermes-agent", "hermes-acp")
 	agentkit.RegisterAgentHome(agentkit.AgentHomeSpec{
-		EnvVar:      "HARN_HOME",
-		UserDirName: ".harn",
+		EnvVar:      "HERMES_HOME",
+		UserDirName: ".hermes",
 	})
 }

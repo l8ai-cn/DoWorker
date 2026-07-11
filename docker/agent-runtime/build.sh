@@ -15,7 +15,7 @@ AGENT_RUNTIMES=(
   do-agent
   grok-build
   openclaw
-  harn
+  hermes
 )
 
 RUNTIME="${1:-all}"
@@ -39,7 +39,7 @@ Agent runtimes:
   do-agent      Do Agent binary
   grok-build    Grok Build CLI (@xai-official/grok)
   openclaw      OpenClaw CLI (openclaw)
-  harn          Harn ACP server
+  hermes        Hermes Agent CLI (hermes-agent)
 
   (e2e-echo 仅 dev compose / CI 使用，不走 build_all)
 
@@ -50,7 +50,8 @@ Agent runtimes:
   STAGING_DIR     二进制 staging 目录
   FORCE_REBUILD   设为 1 强制重建已有镜像
   BUILD_RETRIES   docker build 失败重试次数 (默认 3)
-  HARN_VERSION    Harn release version (默认 0.10.10)
+  HERMES_AGENT_VERSION
+                  hermes-agent npm/PyPI bridge version (默认 0.18.2)
 EOF
 }
 
@@ -114,7 +115,7 @@ build_one() {
     --build-arg "HTTPS_PROXY=" \
     --build-arg "http_proxy=" \
     --build-arg "https_proxy=" \
-    --build-arg "HARN_VERSION=${HARN_VERSION:-0.10.10}" \
+    --build-arg "HERMES_AGENT_VERSION=${HERMES_AGENT_VERSION:-0.18.2}" \
     --cache-from "$BASE_IMAGE" \
     -t "$tag" \
     "$STAGING"

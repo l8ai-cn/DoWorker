@@ -39,8 +39,8 @@ spec:
           image: repo.aiedulab.cn:8443/agentsmesh/runner-openclaw:latest
           imagePullPolicy: IfNotPresent
           command: ["true"]
-        - name: pull-harn
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-harn:latest
+        - name: pull-hermes
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-hermes:latest
           imagePullPolicy: IfNotPresent
           command: ["true"]
       containers:

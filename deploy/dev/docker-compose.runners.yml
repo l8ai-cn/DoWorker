@@ -170,17 +170,17 @@ services:
       - runner_openclaw_agentsmesh_config:/home/runner/.agentsmesh
       - runner_openclaw_config:/home/runner/.openclaw
 
-  runner-harn:
+  runner-hermes:
     <<: *runner-common
-    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: harn } }
-    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-harn, AGENT_RUNTIME: harn, DEFAULT_AGENT: harn }
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: hermes } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-hermes, AGENT_RUNTIME: hermes, DEFAULT_AGENT: hermes }
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
       - ./runner-ssh:/home/runner/.ssh:ro
-      - runner_harn_workspace:/workspace
-      - runner_harn_agentsmesh_config:/home/runner/.agentsmesh
-      - runner_harn_config:/home/runner/.harn
+      - runner_hermes_workspace:/workspace
+      - runner_hermes_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_hermes_config:/home/runner/.hermes
 
   runner-aider:
     <<: *runner-common
@@ -267,9 +267,9 @@ volumes:
   runner_openclaw_workspace:
   runner_openclaw_agentsmesh_config:
   runner_openclaw_config:
-  runner_harn_workspace:
-  runner_harn_agentsmesh_config:
-  runner_harn_config:
+  runner_hermes_workspace:
+  runner_hermes_agentsmesh_config:
+  runner_hermes_config:
   runner_aider_workspace:
   runner_aider_agentsmesh_config:
   runner_opencode_workspace:

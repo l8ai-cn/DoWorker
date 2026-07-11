@@ -118,7 +118,7 @@ const OVERRIDES: Record<string, CredentialUxOverride> = {
     allowCustomEnv: true,
     customEnvHint: "settings.credentialForm.openclaw.customEnvHint",
   },
-  harn: {
+  hermes: {
     labels: {
       OPENAI_API_KEY: "settings.credentialForm.openai.apiKey",
       ANTHROPIC_API_KEY: "settings.credentialForm.anthropic.apiKey",
@@ -133,7 +133,7 @@ const OVERRIDES: Record<string, CredentialUxOverride> = {
       GEMINI_API_KEY: "AIza...",
     },
     allowCustomEnv: true,
-    customEnvHint: "settings.credentialForm.harn.customEnvHint",
+    customEnvHint: "settings.credentialForm.hermes.customEnvHint",
   },
   "e2e-echo": {
     labels: { E2E_TEST_CRED_KEY: "E2E Test Credential Key" },

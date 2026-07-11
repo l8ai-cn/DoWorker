@@ -18,19 +18,20 @@ grep -q "AGENT_RUNTIME: codex-cli" docker-compose.runners.yml
 grep -q "AGENT_RUNTIME: do-agent" docker-compose.runners.yml
 grep -q "AGENT_RUNTIME: grok-build" docker-compose.runners.yml
 grep -q "AGENT_RUNTIME: openclaw" docker-compose.runners.yml
-grep -q "AGENT_RUNTIME: harn" docker-compose.runners.yml
+grep -q "AGENT_RUNTIME: hermes" docker-compose.runners.yml
 grep -q "runner-do-agent" docker-compose.runners.yml
 grep -q "runner-grok-build" docker-compose.runners.yml
 grep -q "runner-openclaw" docker-compose.runners.yml
-grep -q "runner-harn" docker-compose.runners.yml
+grep -q "runner-hermes" docker-compose.runners.yml
 grep -q "runner-openclaw" ../kubernetes/local/runners-workloads.yaml
-grep -q "runner-harn" ../kubernetes/local/runners-workloads.yaml
+grep -q "runner-hermes" ../kubernetes/local/runners-workloads.yaml
 grep -q "AGENT_RUNTIME: aider" docker-compose.runners.yml
 grep -q "AGENT_RUNTIME: opencode" docker-compose.runners.yml
 grep -q "do-agent-binary" "$DOCKERFILE"
 grep -q "@xai-official/grok" "$DOCKERFILE"
 grep -q "npm install -g openclaw" "$DOCKERFILE"
-grep -q "HARN_VERSION" "$DOCKERFILE"
+grep -q "hermes-agent" "$DOCKERFILE"
+grep -q "HERMES_AGENT_VERSION" "$DOCKERFILE"
 grep -q "runner-claude-code" docker-compose.runners.yml
 grep -q "runner-codex-cli" docker-compose.runners.yml
 grep -q "docker/agent-runtime/Dockerfile" docker-compose.runners.yml

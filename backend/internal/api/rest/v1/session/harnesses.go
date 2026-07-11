@@ -22,7 +22,7 @@ var harnessLabelOverrides = map[string]string{
 	"do-agent":    "DoAgent",
 	"doagent":     "DoAgent",
 	"openclaw":    "OpenClaw",
-	"harn":        "Harn",
+	"hermes":      "Hermes",
 }
 
 type harnessWire struct {

@@ -21,6 +21,11 @@ const docsMetadataMap: Record<string, DocsMeta> = {
     description:
       "Understand the key concepts behind Do Worker — Pods, Runners, Channels, Mesh topology, and how they work together.",
   },
+  "/docs/concepts/loop-and-workflow": {
+    title: "Loop and Workflow",
+    description:
+      "Understand the boundary between Workers, one-time goal loops, and repeatable workflows.",
+  },
   "/docs/faq": {
     title: "FAQ",
     description:

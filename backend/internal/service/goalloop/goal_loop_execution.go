@@ -270,13 +270,12 @@ func (s *Service) failStart(ctx context.Context, loop *domain.GoalLoop, cause er
 }
 
 func (s *Service) escalate(ctx context.Context, loop *domain.GoalLoop, reason string, extra map[string]any) error {
-	now := time.Now()
-	updates := map[string]any{
-		"verification_error": reason,
-	}
+	updates := map[string]any{}
 	for key, value := range extra {
 		updates[key] = value
 	}
+	updates["verification_error"] = reason
+	now := time.Now()
 	if loop.EscalationPolicy == domain.EscalationPause {
 		updates["status"] = domain.StatusPaused
 	} else {

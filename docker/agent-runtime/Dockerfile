@@ -37,7 +37,7 @@ RUN printf 'Acquire::http::Proxy "false";\nAcquire::https::Proxy "false";\n' \
 FROM base AS runtime
 
 ARG AGENT_RUNTIME=e2e-echo
-ARG HARN_VERSION=0.10.10
+ARG HERMES_AGENT_VERSION=0.18.2
 ENV AGENT_RUNTIME=${AGENT_RUNTIME}
 
 RUN case "${AGENT_RUNTIME}" in \
@@ -47,18 +47,11 @@ RUN case "${AGENT_RUNTIME}" in \
       opencode) npm install -g opencode-ai ;; \
       grok-build) npm install -g @xai-official/grok ;; \
       openclaw) npm install -g openclaw ;; \
-      harn) \
-        target="x86_64-unknown-linux-gnu"; \
-        case "$(uname -m)" in \
-          x86_64|amd64) target="x86_64-unknown-linux-gnu" ;; \
-          aarch64|arm64) target="aarch64-unknown-linux-gnu" ;; \
-          *) echo "unsupported harn architecture: $(uname -m)" >&2; exit 1 ;; \
-        esac; \
-        tmpdir="$(mktemp -d)"; \
-        wget -O "${tmpdir}/harn.tar.gz" "https://github.com/burin-labs/harn/releases/download/v${HARN_VERSION}/harn-${target}.tar.gz"; \
-        tar -xzf "${tmpdir}/harn.tar.gz" -C "${tmpdir}"; \
-        install -m 0755 "$(find "${tmpdir}" -type f -name harn | head -n 1)" /usr/local/bin/harn; \
-        rm -rf "${tmpdir}" ;; \
+      hermes) \
+        apt-get update \
+        && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip \
+        && npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" \
+        && rm -rf /var/lib/apt/lists/* ;; \
       aider) \
         apt-get update \
         && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip \
@@ -81,7 +74,7 @@ RUN groupmod -n runner node \
          do-agent) mkdir -p /home/runner/.agent ;; \
          grok-build) mkdir -p /home/runner/.grok ;; \
          openclaw) mkdir -p /home/runner/.openclaw ;; \
-         harn) mkdir -p /home/runner/.harn ;; \
+         hermes) mkdir -p /home/runner/.hermes ;; \
          e2e-echo) true ;; \
        esac \
     && chown -R runner:runner /workspace /app /home/runner \
@@ -102,7 +95,7 @@ RUN case "${AGENT_RUNTIME}" in \
       e2e-echo) rm -f /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
       loopal) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/do-agent ;; \
       do-agent) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal ;; \
-      grok-build|openclaw|harn) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
+      grok-build|openclaw|hermes) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
       *) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
     esac
 

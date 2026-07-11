@@ -15,7 +15,7 @@ func HarnessEnvVars(agentSlug, overrideModel string, m *AIModel, credentials map
 		return anthropicHarnessEnv(m, credentials)
 	case "gemini-cli":
 		return geminiHarnessEnv(m, credentials)
-	case "openclaw", "harn":
+	case "openclaw", "hermes":
 		return multiProviderHarnessEnv(m, credentials, overrideModel)
 	default:
 		return nil
@@ -49,7 +49,7 @@ func PreferredProviders(agentSlug string) []string {
 	if agentSlug == "do-agent" {
 		return []string{ProviderTypeAnthropic, ProviderTypeMiniMax}
 	}
-	if agentSlug == "openclaw" || agentSlug == "harn" {
+	if agentSlug == "openclaw" || agentSlug == "hermes" {
 		return []string{ProviderTypeOpenAI, ProviderTypeAnthropic, ProviderTypeGemini}
 	}
 	if p := PreferredProvider(agentSlug); p != "" {

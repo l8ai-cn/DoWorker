@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: runner-harn
+  name: runner-hermes
   namespace: agentsmesh
   labels:
     app.kubernetes.io/name: agentsmesh-runner
-    agentsmesh.io/runtime: harn
+    agentsmesh.io/runtime: hermes
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: runner-harn
+      app: runner-hermes
   template:
     metadata:
       labels:
-        app: runner-harn
+        app: runner-hermes
         app.kubernetes.io/name: agentsmesh-runner
-        agentsmesh.io/runtime: harn
+        agentsmesh.io/runtime: hermes
     spec:
       securityContext:
         runAsUser: 1000
@@ -26,20 +26,20 @@ spec:
         - name: agentsmesh-regcred
       containers:
         - name: runner
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-harn:latest
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-hermes:latest
           imagePullPolicy: Always
           command: ["/usr/local/bin/runner-entrypoint.sh"]
           env:
             - name: HOME
               value: /home/runner
             - name: RUNNER_NODE_ID
-              value: dev-runner-harn
+              value: dev-runner-hermes
             - name: RUNNER_ORG_SLUG
               value: dev-org
             - name: AGENT_RUNTIME
-              value: harn
+              value: hermes
             - name: DEFAULT_AGENT
-              value: harn
+              value: hermes
             - name: BACKEND_URL
               value: http://backend:8080
             - name: GRPC_ENDPOINT

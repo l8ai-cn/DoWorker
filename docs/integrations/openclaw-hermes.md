@@ -1,17 +1,17 @@
-# OpenClaw and Harn Workers
+# OpenClaw and Hermes Workers
 
-OpenClaw and Harn are available as builtin Worker agents.
+OpenClaw and Hermes are available as builtin Worker agents.
 
 ## Runtime Contract
 
-| Area | OpenClaw | Harn |
+| Area | OpenClaw | Hermes |
 | --- | --- | --- |
-| Agent slug | `openclaw` | `harn` |
-| Executable | `openclaw` | `harn` |
-| Image | `do-worker/runner-openclaw:latest` | `do-worker/runner-harn:latest` |
-| Mode | PTY | ACP |
-| Launch | `openclaw` | `harn serve acp {sandbox}/harn-agent.harn` |
-| Home env | `OPENCLAW_HOME` | `HARN_HOME` |
+| Agent slug | `openclaw` | `hermes` |
+| Executable | `openclaw` | `hermes` |
+| Image | `do-worker/runner-openclaw:latest` | `do-worker/runner-hermes:latest` |
+| Mode | PTY | PTY + ACP |
+| Launch | `openclaw` | `hermes` / `hermes acp` |
+| Home env | `OPENCLAW_HOME` | `HERMES_HOME` |
 
 Both agents accept optional provider credentials through EnvBundle fields:
 
@@ -27,26 +27,30 @@ Exact model resources are injected as ephemeral env bundles. OpenClaw also
 receives the selected model through AgentFile `CONFIG model`, which turns into
 `--model <model>`.
 
+Hermes also exposes TUI Gateway JSON-RPC and an OpenAI-compatible HTTP API.
+Those are separate transports and should be wired through dedicated runner
+protocol support instead of being disguised as ACP.
+
 ## Local Validation
 
 ```bash
 bash docker/agent-runtime/build.sh openclaw
-bash docker/agent-runtime/build.sh harn
+bash docker/agent-runtime/build.sh hermes
 cd deploy/dev
-docker compose up -d runner-openclaw runner-harn
+docker compose up -d runner-openclaw runner-hermes
 ```
 
 For local Kubernetes runners, set `RUNNERS_LAUNCHER=k8s`; the generated runner
-manifest includes `runner-openclaw` and `runner-harn`.
+manifest includes `runner-openclaw` and `runner-hermes`.
 
 ## Implementation Index
 
 ```text
 agents table rows are managed through DoSQL-controlled changes
 runner/internal/agents/openclaw/
-runner/internal/agents/harn/
+runner/internal/agents/hermes/
 docker/agent-runtime/Dockerfile
 deploy/dev/docker-compose.runners.yml
 deploy/kubernetes/cluster-oilan/39-runner-openclaw.yaml
-deploy/kubernetes/cluster-oilan/41-runner-harn.yaml
+deploy/kubernetes/cluster-oilan/41-runner-hermes.yaml
 ```

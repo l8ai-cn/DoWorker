@@ -260,7 +260,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: runner-harn-agentsmesh-config
+  name: runner-hermes-agentsmesh-config
   namespace: agentsmesh
 spec:
   accessModes:
@@ -272,7 +272,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: runner-harn-config
+  name: runner-hermes-config
   namespace: agentsmesh
 spec:
   accessModes:
@@ -284,7 +284,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: runner-harn-workspace
+  name: runner-hermes-workspace
   namespace: agentsmesh
 spec:
   accessModes:
@@ -457,37 +457,37 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    agentsmesh.io/runtime: harn
-  name: runner-harn
+    agentsmesh.io/runtime: hermes
+  name: runner-hermes
   namespace: agentsmesh
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: runner-harn
+      app: runner-hermes
   template:
     metadata:
       labels:
-        agentsmesh.io/runtime: harn
-        app: runner-harn
+        agentsmesh.io/runtime: hermes
+        app: runner-hermes
     spec:
       containers:
       - command:
         - /usr/local/bin/runner-entrypoint.sh
         env:
         - name: RUNNER_NODE_ID
-          value: dev-runner-harn
+          value: dev-runner-hermes
         - name: AGENT_RUNTIME
-          value: harn
+          value: hermes
         - name: DEFAULT_AGENT
-          value: harn
+          value: hermes
         envFrom:
         - configMapRef:
             name: agentsmesh-runner-env
         - secretRef:
             name: agentsmesh-runner-api-keys
             optional: true
-        image: __COMPOSE_PROJECT_NAME__-runner-harn:latest
+        image: __COMPOSE_PROJECT_NAME__-runner-hermes:latest
         imagePullPolicy: Never
         name: runner
         volumeMounts:
@@ -502,7 +502,7 @@ spec:
           name: workspace
         - mountPath: /home/runner/.do-worker
           name: agentsmesh-config
-        - mountPath: /home/runner/.harn
+        - mountPath: /home/runner/.hermes
           name: agent-config
         - mountPath: /run/runner-ssh-source
           name: runner-ssh
@@ -521,13 +521,13 @@ spec:
         name: entrypoint
       - name: workspace
         persistentVolumeClaim:
-          claimName: runner-harn-workspace
+          claimName: runner-hermes-workspace
       - name: agentsmesh-config
         persistentVolumeClaim:
-          claimName: runner-harn-agentsmesh-config
+          claimName: runner-hermes-agentsmesh-config
       - name: agent-config
         persistentVolumeClaim:
-          claimName: runner-harn-config
+          claimName: runner-hermes-config
       - name: runner-ssh
         secret:
           defaultMode: 384

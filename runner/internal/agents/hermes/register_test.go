@@ -1,4 +1,4 @@
-package harn
+package hermes
 
 import (
 	"testing"
@@ -8,7 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHarnRegistersRuntimeContracts(t *testing.T) {
-	assert.True(t, tokenusage.IsParserOptOut("harn"))
-	assert.True(t, agentkit.IsAgentProcess("harn"))
+func TestHermesRegistersRuntimeContracts(t *testing.T) {
+	assert.True(t, tokenusage.IsParserOptOut("hermes"))
+	assert.True(t, tokenusage.IsParserOptOut("hermes-acp"))
+	assert.True(t, agentkit.IsAgentProcess("hermes"))
+	assert.True(t, agentkit.IsAgentProcess("hermes-acp"))
 }

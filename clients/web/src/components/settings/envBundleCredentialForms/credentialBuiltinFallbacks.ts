@@ -32,7 +32,7 @@ export const BUILTIN_CREDENTIAL_FALLBACK: Record<string, CredentialField[]> = {
     { name: "GOOGLE_API_KEY", type: "secret", optional: true },
     { name: "GEMINI_API_KEY", type: "secret", optional: true },
   ],
-  harn: [
+  hermes: [
     { name: "OPENAI_API_KEY", type: "secret", optional: true },
     { name: "ANTHROPIC_API_KEY", type: "secret", optional: true },
     { name: "XAI_API_KEY", type: "secret", optional: true },

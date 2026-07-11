@@ -30,7 +30,7 @@ func modelResourceEnvironment(agentSlug string, resource *resourcesvc.ResolvedRe
 			return nil, ErrMissingModelResource
 		}
 		return map[string]string{"GOOGLE_API_KEY": apiKey}, nil
-	case "openclaw", "harn":
+	case "openclaw", "hermes":
 		env := multiProviderModelResourceEnvironment(resource, apiKey, baseURL, modelID)
 		if len(env) == 0 {
 			return nil, ErrMissingModelResource

@@ -218,12 +218,12 @@ func TestApplyWorkerModelConfiguresOpenClawModelExactly(t *testing.T) {
 	assert.Contains(t, *req.AgentfileLayer, `CONFIG model = "grok \"fast\""`)
 }
 
-func TestApplyWorkerModelConfiguresHarnGeminiResource(t *testing.T) {
+func TestApplyWorkerModelConfiguresHermesGeminiResource(t *testing.T) {
 	resolver := &recordingModelResourceResolver{resource: resolvedResource("gemini", "", "gemini-pro")}
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
 	resourceID := int64(9)
 	req := &OrchestrateCreatePodRequest{
-		AgentSlug: "harn", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+		AgentSlug: "hermes", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
 	}
 
 	require.NoError(t, orchestrator.applyWorkerModel(context.Background(), req, nil))

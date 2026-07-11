@@ -112,7 +112,7 @@ wait_for_postgres() {
 }
 
 runner_compose_services() {
-    echo runner-e2e-echo runner-e2e-echo-2 runner-claude-code runner-codex-cli runner-codex-cli-2 runner-gemini-cli runner-loopal runner-do-agent runner-grok-build runner-openclaw runner-harn runner-aider runner-opencode runner-admin-workspace runner-admin-workspace-do-agent
+    echo runner-e2e-echo runner-e2e-echo-2 runner-claude-code runner-codex-cli runner-codex-cli-2 runner-gemini-cli runner-loopal runner-do-agent runner-grok-build runner-openclaw runner-hermes runner-aider runner-opencode runner-admin-workspace runner-admin-workspace-do-agent
 }
 
 # Kill stale runner CLI processes (in case anyone installed agentsmesh-runner

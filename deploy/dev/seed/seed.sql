@@ -245,7 +245,7 @@ BEGIN
         ('dev-runner-do-agent', 'Development Docker Runner (DoAgent)'),
         ('dev-runner-grok', 'Development Docker Runner (Grok Build)'),
         ('dev-runner-openclaw', 'Development Docker Runner (OpenClaw)'),
-        ('dev-runner-harn', 'Development Docker Runner (Harn)'),
+        ('dev-runner-hermes', 'Development Docker Runner (Hermes)'),
         ('dev-runner-aider', 'Development Docker Runner (Aider)'),
         ('dev-runner-opencode', 'Development Docker Runner (OpenCode)')
     ) AS r(node_id, description)

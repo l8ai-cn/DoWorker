@@ -500,8 +500,8 @@
       "openclaw": {
         "customEnvHint": "Additional OpenClaw provider keys or runtime environment variables"
       },
-      "harn": {
-        "customEnvHint": "Additional Harn provider keys or runtime environment variables"
+      "hermes": {
+        "customEnvHint": "Additional Hermes provider keys or runtime environment variables"
       }
     },
     "sshKeys": {

@@ -56,7 +56,7 @@ describe("workerModelResources", () => {
     ]);
   });
 
-  it.each(["openclaw", "harn"])("%s accepts multi-provider chat resources", (agentSlug) => {
+  it.each(["openclaw", "hermes"])("%s accepts multi-provider chat resources", (agentSlug) => {
     const providers: ProviderDefinition[] = [
       { ...geminiProvider, key: "openai", protocolAdapter: "openai-compatible" },
       { ...geminiProvider, key: "anthropic", protocolAdapter: "anthropic" },

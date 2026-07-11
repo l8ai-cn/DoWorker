@@ -500,8 +500,8 @@
       "openclaw": {
         "customEnvHint": "OpenClaw 运行所需的其他 Provider 密钥或环境变量"
       },
-      "harn": {
-        "customEnvHint": "Harn 运行所需的其他 Provider 密钥或环境变量"
+      "hermes": {
+        "customEnvHint": "Hermes 运行所需的其他 Provider 密钥或环境变量"
       }
     },
     "sshKeys": {

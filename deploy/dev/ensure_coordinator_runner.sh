@@ -27,7 +27,7 @@ case "$agent_slug" in
   do-agent) service=runner-do-agent ;;
   grok-build) service=runner-grok-build ;;
   openclaw) service=runner-openclaw ;;
-  harn) service=runner-harn ;;
+  hermes) service=runner-hermes ;;
   aider) service=runner-aider ;;
   opencode) service=runner-opencode ;;
   *)

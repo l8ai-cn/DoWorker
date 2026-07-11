@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AlertCircle, RefreshCw, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoalLoopCreateForm } from "@/components/goal-loops/GoalLoopCreateForm";
@@ -75,7 +76,8 @@ export function GoalLoopPage({ orgSlug }: { orgSlug: string }) {
             </p>
           </div>
           <p className="max-w-sm text-xs text-muted-foreground sm:text-right">
-            需要定时、事件或 API 重复触发时，请使用 Workflow。
+            需要定时、事件或 API 重复触发时，请使用 Workflow。{" "}
+            <Link className="text-primary underline-offset-4 hover:underline" href="/docs/concepts/loop-and-workflow">查看字段差异</Link>
           </p>
         </header>
 

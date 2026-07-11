@@ -29,7 +29,7 @@ build_runner_compose_images() {
     info "构建 runner 镜像 (K8s 节点架构: ${platform})..."
     cd "$SCRIPT_DIR"
     local rt
-    for rt in e2e-echo claude-code codex-cli gemini-cli loopal openclaw harn; do
+    for rt in e2e-echo claude-code codex-cli gemini-cli loopal openclaw hermes; do
         docker build --platform "$platform" \
             -f ../../docker/agent-runtime/Dockerfile \
             --build-arg "AGENT_RUNTIME=${rt}" \
@@ -49,7 +49,7 @@ wait_for_runner_pods() {
     info "等待 runner Deployment 就绪..."
     local dep
     for dep in runner-claude-code runner-codex-cli runner-e2e-echo runner-e2e-echo-2 \
-               runner-gemini-cli runner-loopal runner-openclaw runner-harn; do
+               runner-gemini-cli runner-loopal runner-openclaw runner-hermes; do
         kubectl rollout status "deployment/${dep}" -n agentsmesh --timeout=300s || {
             warn "${dep} rollout 超时"
             kubectl get pods -n agentsmesh -l "app=${dep}" 2>/dev/null || true
@@ -85,7 +85,7 @@ teardown_runners_k8s() {
 hot_swap_runner_k8s_binary() {
     local dep pod
     for dep in runner-claude-code runner-codex-cli runner-e2e-echo runner-e2e-echo-2 \
-               runner-gemini-cli runner-loopal runner-openclaw runner-harn; do
+               runner-gemini-cli runner-loopal runner-openclaw runner-hermes; do
         pod="$(kubectl get pods -n agentsmesh -l "app=${dep}" \
             -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)"
         if [[ -z "$pod" ]]; then

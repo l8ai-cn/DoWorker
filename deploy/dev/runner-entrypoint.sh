@@ -23,7 +23,7 @@ CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 
 case "${AGENT_RUNTIME}" in
-    claude-code|codex-cli|gemini-cli|e2e-echo|loopal|do-agent|aider|opencode|grok-build|openclaw|harn) ;;
+    claude-code|codex-cli|gemini-cli|e2e-echo|loopal|do-agent|aider|opencode|grok-build|openclaw|hermes) ;;
     *)
         echo "✗ Unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2
         exit 1
@@ -170,7 +170,7 @@ init_ai_cli_configs() {
         do-agent) init_do_agent_config ;;
         grok-build) init_grok_config ;;
         openclaw) init_openclaw_config ;;
-        harn) init_harn_config ;;
+        hermes) init_hermes_config ;;
         e2e-echo|loopal|aider|opencode) ;;
     esac
 }
@@ -183,8 +183,8 @@ init_openclaw_config() {
     mkdir -p "${HOME}/.openclaw"
 }
 
-init_harn_config() {
-    mkdir -p "${HOME}/.harn"
+init_hermes_config() {
+    mkdir -p "${HOME}/.hermes"
 }
 
 init_do_agent_config() {

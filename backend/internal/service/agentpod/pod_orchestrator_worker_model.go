@@ -111,7 +111,7 @@ func modelResourceRequirements(agentSlug string, agentDef *agentDomain.Agent) (r
 		return chatRequirements("anthropic"), true
 	case "gemini-cli":
 		return chatRequirements("gemini"), true
-	case "openclaw", "harn":
+	case "openclaw", "hermes":
 		return chatRequirements("openai-compatible", "anthropic", "gemini"), true
 	default:
 		return resourcesvc.ResolutionRequirements{}, false
@@ -134,8 +134,8 @@ func workerModelHarness(agentSlug string, agentDef *agentDomain.Agent) string {
 		return "do-agent"
 	case "openclaw":
 		return "openclaw"
-	case "harn":
-		return "harn"
+	case "hermes":
+		return "hermes"
 	default:
 		return ""
 	}
