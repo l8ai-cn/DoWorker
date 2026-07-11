@@ -73,6 +73,7 @@ func (c *Channel) RemoveSubscriber(subscriberID string) {
 	c.subscribersMu.Unlock()
 
 	c.logger.Info("Subscriber disconnected", "subscriber_id", subscriberID, "remaining_subscribers", count)
+	c.releaseControlLeaseForSubscriber(subscriberID)
 
 	if count == 0 {
 		c.handleLastSubscriberGone()
@@ -137,6 +138,7 @@ func (c *Channel) closeInternal() {
 	c.closedMu.Unlock()
 
 	c.logger.Info("Closing channel")
+	c.stopControlLease()
 
 	c.subscribersMu.Lock()
 	if c.keepAliveTimer != nil {

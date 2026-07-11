@@ -1,5 +1,11 @@
 package channel
 
+import (
+	"time"
+
+	"github.com/anthropics/agentsmesh/relay/internal/protocol"
+)
+
 func (c *Channel) writeToPublisher(data []byte) error {
 	c.publisherWriteMu.Lock()
 	defer c.publisherWriteMu.Unlock()
@@ -87,8 +93,34 @@ func (c *Channel) forwardSubscriberToPublisher(subscriberID string) {
 			c.RemoveSubscriber(subscriberID)
 			break
 		}
-		if err := c.writeToPublisher(data); err != nil {
+		if err := c.handleSubscriberMessage(subscriberID, data); err != nil {
 			c.logger.Warn("Failed to forward to publisher", "error", err)
 		}
 	}
+}
+
+func (c *Channel) handleSubscriberMessage(subscriberID string, data []byte) error {
+	message, err := protocol.DecodeMessage(data)
+	if err != nil {
+		return c.writeToPublisher(data)
+	}
+	if message.Type == protocol.MsgTypeControl {
+		request, matched, decodeErr := protocol.DecodeControlLeaseRequest(message.Payload)
+		if matched {
+			if decodeErr != nil {
+				c.sendControlStatus(subscriberID, protocol.ControlLeaseStatusRequired, "", time.Time{})
+				return nil
+			}
+			c.handleControlLeaseRequest(subscriberID, request)
+			return nil
+		}
+	}
+	switch message.Type {
+	case protocol.MsgTypeInput, protocol.MsgTypeResize, protocol.MsgTypeAcpCommand:
+		if !c.hasControlLease(subscriberID) {
+			c.sendControlStatus(subscriberID, protocol.ControlLeaseStatusRequired, "", time.Time{})
+			return nil
+		}
+	}
+	return c.writeToPublisher(data)
 }

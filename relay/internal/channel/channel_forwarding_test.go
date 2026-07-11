@@ -43,6 +43,7 @@ func TestChannel_ForwardSubToPub(t *testing.T) {
 
 	ch.SetPublisher(pubServer)
 	ch.AddSubscriber("s1", subServer)
+	acquireControl(t, subClient)
 
 	inputPayload := []byte("user input")
 	inputMsg := protocol.EncodeInput(inputPayload)

@@ -71,6 +71,7 @@ func TestChannel_ForwardSubToPub_PublisherWriteError(t *testing.T) {
 
 	ch.SetPublisher(pubServer)
 	ch.AddSubscriber("s1", subServer)
+	acquireControl(t, subClient)
 
 	_ = pubClient.Close()
 

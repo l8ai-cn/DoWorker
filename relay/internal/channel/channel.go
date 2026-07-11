@@ -33,15 +33,17 @@ func (s *Subscriber) WriteMessage(data []byte) error {
 
 type ChannelConfig struct {
 	KeepAliveDuration          time.Duration
-	PublisherReconnectTimeout   time.Duration
+	PublisherReconnectTimeout  time.Duration
 	SubscriberReconnectTimeout time.Duration
+	ControlLeaseDuration       time.Duration
 }
 
 func DefaultChannelConfig() ChannelConfig {
 	return ChannelConfig{
 		KeepAliveDuration:          30 * time.Second,
-		PublisherReconnectTimeout:   30 * time.Second,
+		PublisherReconnectTimeout:  30 * time.Second,
 		SubscriberReconnectTimeout: 30 * time.Second,
+		ControlLeaseDuration:       30 * time.Second,
 	}
 }
 
@@ -57,6 +59,13 @@ type Channel struct {
 
 	subscribers   map[string]*Subscriber
 	subscribersMu sync.RWMutex
+
+	controlMu        sync.Mutex
+	controlOwner     string
+	controlLeaseID   string
+	controlExpiresAt time.Time
+	controlTimer     *time.Timer
+	controlEpoch     uint64
 
 	lastSubscriberDisconnect time.Time
 	keepAliveTimer           *time.Timer
