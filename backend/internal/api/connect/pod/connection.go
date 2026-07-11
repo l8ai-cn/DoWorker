@@ -3,7 +3,6 @@ package podconnect
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"time"
 
 	"connectrpc.com/connect"
@@ -52,14 +51,19 @@ func (s *Server) GetPodConnection(
 		return nil, connect.NewError(connect.CodeUnavailable, errors.New("no healthy relay available"))
 	}
 
-	if s.commandSender != nil && pod.RunnerID > 0 {
-		runnerToken, err := s.tokenGenerator.GenerateToken(podKey, pod.RunnerID, 0, tenant.OrganizationID, time.Hour)
-		if err != nil {
-			return nil, connect.NewError(connect.CodeInternal, errors.New("failed to generate runner token"))
-		}
-		if err := s.commandSender.SendSubscribePod(ctx, pod.RunnerID, podKey, relayInfo.URL, runnerToken, true, 1000); err != nil {
-			slog.WarnContext(ctx, "failed to send subscribe pod command", "pod_key", podKey, "runner_id", pod.RunnerID, "error", err)
-		}
+	if s.commandSender == nil {
+		return nil, connect.NewError(connect.CodeUnavailable, errors.New("pod subscription service is not available"))
+	}
+	if pod.RunnerID <= 0 {
+		return nil, connect.NewError(connect.CodeUnavailable, errors.New("pod runner is not available"))
+	}
+
+	runnerToken, err := s.tokenGenerator.GenerateToken(podKey, pod.RunnerID, 0, tenant.OrganizationID, time.Hour)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, errors.New("failed to generate runner token"))
+	}
+	if err := s.commandSender.SendSubscribePod(ctx, pod.RunnerID, podKey, relayInfo.URL, runnerToken, true, 1000); err != nil {
+		return nil, connect.NewError(connect.CodeUnavailable, errors.New("failed to subscribe pod to relay"))
 	}
 
 	token, err := s.tokenGenerator.GenerateToken(podKey, pod.RunnerID, tenant.UserID, tenant.OrganizationID, time.Hour)
