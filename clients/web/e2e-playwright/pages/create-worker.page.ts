@@ -42,7 +42,7 @@ export class CreateWorkerPage {
     await interactive.waitFor({ state: "visible", timeout: 15_000 });
     await interactive.click();
     const pty = this.page.getByRole("button", {
-      name: /terminal \(pty\)|终端 \(pty\)/i,
+      name: /^(Terminal \(PTY\)|终端 \(PTY\))$/i,
     });
     await pty.waitFor({ state: "visible", timeout: 15_000 });
     await pty.click();
