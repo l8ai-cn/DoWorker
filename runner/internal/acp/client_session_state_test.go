@@ -1,6 +1,10 @@
 package acp
 
-import "testing"
+import (
+	"context"
+	"io"
+	"testing"
+)
 
 // --- GetRecentMessages ---
 
@@ -109,3 +113,69 @@ func TestACPClient_SetState_NoCallbackWhenUnchanged(t *testing.T) {
 		t.Errorf("expected 1 state change (no duplicate), got %d", len(changes))
 	}
 }
+
+func TestACPClient_RespondToPermission_TransitionsBeforeTransportResponse(t *testing.T) {
+	var changes []string
+	c := NewClient(ClientConfig{
+		Callbacks: EventCallbacks{
+			OnStateChange: func(state string) { changes = append(changes, state) },
+		},
+	})
+	c.setState(StateWaitingPermission)
+	c.transport = permissionResponseTransport{onRespond: func() { c.setState(StateIdle) }}
+
+	if err := c.RespondToPermission("permission-1", false, nil); err != nil {
+		t.Fatalf("RespondToPermission: %v", err)
+	}
+
+	want := []string{StateWaitingPermission, StateProcessing, StateIdle}
+	if len(changes) != len(want) {
+		t.Fatalf("state changes = %v, want %v", changes, want)
+	}
+	for i, state := range want {
+		if changes[i] != state {
+			t.Errorf("stateChanges[%d] = %s, want %s", i, changes[i], state)
+		}
+	}
+}
+
+type permissionResponseTransport struct {
+	onRespond func()
+}
+
+func (t permissionResponseTransport) Initialize(context.Context, io.Writer, io.Reader, io.Reader) error {
+	return nil
+}
+
+func (permissionResponseTransport) Handshake(context.Context) (string, error) {
+	return "", nil
+}
+
+func (permissionResponseTransport) NewSession(string, map[string]any) (string, error) {
+	return "", nil
+}
+
+func (permissionResponseTransport) SendPrompt(string, string) error {
+	return nil
+}
+
+func (t permissionResponseTransport) RespondToPermission(string, bool, map[string]any) error {
+	t.onRespond()
+	return nil
+}
+
+func (permissionResponseTransport) CancelSession(string) error {
+	return nil
+}
+
+func (permissionResponseTransport) SendControlRequest(string, string, map[string]any) (map[string]any, error) {
+	return nil, nil
+}
+
+func (permissionResponseTransport) SupportedPermissionModes() []string {
+	return nil
+}
+
+func (permissionResponseTransport) ReadLoop(context.Context) {}
+
+func (permissionResponseTransport) Close() {}
