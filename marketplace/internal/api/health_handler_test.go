@@ -18,6 +18,7 @@ func TestLiveDoesNotDependOnDatabase(t *testing.T) {
 		Storefront:    testStorefront(),
 		Identity:      healthTokenVerifier{},
 		Installations: healthInstallations{},
+		Applications:  healthApplications{},
 	})
 
 	response := httptest.NewRecorder()
@@ -33,6 +34,7 @@ func TestReadyReportsDatabaseFailure(t *testing.T) {
 		Storefront:    testStorefront(),
 		Identity:      healthTokenVerifier{},
 		Installations: healthInstallations{},
+		Applications:  healthApplications{},
 	})
 
 	response := httptest.NewRecorder()
@@ -53,6 +55,7 @@ func TestReadySucceedsAfterDatabaseProbe(t *testing.T) {
 		Storefront:    testStorefront(),
 		Identity:      healthTokenVerifier{},
 		Installations: healthInstallations{},
+		Applications:  healthApplications{},
 	})
 
 	response := httptest.NewRecorder()
@@ -76,6 +79,7 @@ type healthRepository struct{}
 
 type healthTokenVerifier struct{}
 type healthInstallations struct{}
+type healthApplications struct{}
 
 func (healthTokenVerifier) Verify(context.Context, string) (*authpkg.Claims, error) {
 	return nil, errors.New("not used")
@@ -101,6 +105,14 @@ func (healthInstallations) GetOperation(
 	int64,
 ) (service.ApplyResult, error) {
 	return service.ApplyResult{}, errors.New("not used")
+}
+
+func (healthApplications) ListOrganizationApplications(
+	context.Context,
+	int64,
+	int64,
+) ([]service.OrganizationApplication, error) {
+	return nil, errors.New("not used")
 }
 
 func (healthRepository) ResolveMarket(

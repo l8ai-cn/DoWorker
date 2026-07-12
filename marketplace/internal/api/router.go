@@ -17,11 +17,12 @@ type Dependencies struct {
 	Storefront    *service.StorefrontService
 	Identity      actorapi.TokenVerifier
 	Installations consumerapi.InstallationOrchestrator
+	Applications  consumerapi.OrganizationApplicationsReader
 }
 
 func NewRouter(deps Dependencies) *gin.Engine {
 	if deps.Ready == nil || deps.Storefront == nil || deps.Identity == nil ||
-		deps.Installations == nil {
+		deps.Installations == nil || deps.Applications == nil {
 		panic("marketplace router dependencies are required")
 	}
 	router := gin.New()
@@ -50,5 +51,6 @@ func NewRouter(deps Dependencies) *gin.Engine {
 	consumer := router.Group("/api/marketplace/v1")
 	consumer.Use(actorapi.Middleware(deps.Identity))
 	consumerapi.NewInstallationHandler(deps.Installations).RegisterRoutes(consumer)
+	consumerapi.NewOrganizationApplicationsHandler(deps.Applications).RegisterRoutes(consumer)
 	return router
 }

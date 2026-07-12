@@ -74,6 +74,10 @@ func main() {
 				runtimeClient,
 				time.Now,
 			),
+			Applications: service.NewOrganizationApplicationsService(
+				marketplacepostgres.NewOrganizationApplicationsRepository(db),
+				runtimeClient,
+			),
 		}),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
