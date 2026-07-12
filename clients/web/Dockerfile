@@ -1,4 +1,4 @@
-FROM m.daocloud.io/docker.io/library/rust:1.88-bookworm AS wasm
+FROM docker.io/library/rust:1.88-bookworm AS wasm
 WORKDIR /src
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh \
   && cargo install wasm-bindgen-cli --version 0.2.105 --locked \
@@ -12,7 +12,7 @@ COPY packages/do-worker-wasm/ packages/do-worker-wasm/
 COPY scripts/build-wasm.sh scripts/seed-rust-proto-stubs.sh scripts/
 RUN bash scripts/build-wasm.sh
 
-FROM m.daocloud.io/docker.io/library/node:20-bookworm AS build
+FROM docker.io/library/node:20-bookworm AS build
 WORKDIR /src
 RUN corepack enable && corepack prepare pnpm@9 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
