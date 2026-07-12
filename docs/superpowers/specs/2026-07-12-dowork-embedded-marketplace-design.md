@@ -1,13 +1,13 @@
 # DoWorker Embedded Marketplace Design
 
 - **Date:** 2026-07-12
-- **Status:** Approved for MVP implementation
-- **Supersedes:** the standalone storefront deployment only. Marketplace service,
-  Space, catalog, entitlement, and quota designs remain authoritative.
+- **Status:** Superseded
+- **Superseded by:** `2026-07-12-public-app-marketplace-closed-loop-design.md`
 
 ## Product Decision
 
-Marketplace is a DoWorker capability page, not an independent application.
+This historical MVP made Marketplace a DoWorker capability page. It is no
+longer the product direction and must not be used for new implementation.
 
 | Concern | Decision |
 | --- | --- |
