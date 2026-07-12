@@ -132,7 +132,7 @@ main() {
     # which depend on the `e2e-echo` AgentFile resolving `EXECUTABLE
     # e2e-mock-agent` to a real binary on the runner's PATH.
     build_mock_agent_binary
-    if [[ "${DEV_E2E_RUNNERS_ONLY:-}" != "1" ]]; then
+    if [[ "${DEV_SKIP_DOAGENT:-}" != "1" && "${DEV_E2E_RUNNERS_ONLY:-}" != "1" ]]; then
         build_do_agent_binary || return 1
     fi
 
