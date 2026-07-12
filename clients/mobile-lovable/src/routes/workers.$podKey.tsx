@@ -1,10 +1,11 @@
-import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
+import { Link, Outlet, createFileRoute, useLocation, useRouter } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MobileFrame } from "@/components/mobile-frame";
 import { pageTitle } from "@/lib/app-brand";
 import { readAuthToken } from "@/lib/auth-store";
-import { getSessionByPodKey, type LiveSessionSummary } from "@/lib/sessions-api";
+import { getMobileWorkerDescriptor, type MobileWorkerDescriptor } from "@/lib/mobile-pod-api";
+import { resolveWorkerEntryRoute } from "@/lib/worker-entry-route";
 
 export const Route = createFileRoute("/workers/$podKey")({
   head: ({ params }) => ({ meta: [{ title: pageTitle(`Worker · ${params.podKey}`) }] }),
@@ -13,43 +14,45 @@ export const Route = createFileRoute("/workers/$podKey")({
 
 function WorkerEntryPage() {
   const { podKey } = Route.useParams();
+  const { pathname } = useLocation();
   const router = useRouter();
-  const [session, setSession] = useState<LiveSessionSummary | null | undefined>(undefined);
+  const [descriptor, setDescriptor] = useState<MobileWorkerDescriptor | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!readAuthToken()) return;
-    void getSessionByPodKey(podKey)
-      .then(setSession)
+    void getMobileWorkerDescriptor(podKey)
+      .then(setDescriptor)
       .catch((cause) => {
         setError(cause instanceof Error ? cause.message : "无法打开 Worker");
       });
   }, [podKey]);
 
   useEffect(() => {
-    if (!session) return;
-    if (session.interactionMode === "acp") {
+    if (!descriptor) return;
+    const target = resolveWorkerEntryRoute(descriptor);
+    if (target === "chat") {
       void router.navigate({
-        to: "/sessions/$sessionId",
-        params: { sessionId: session.id },
+        to: "/workers/$podKey/chat",
+        params: { podKey },
         replace: true,
       });
       return;
     }
-    if (session.interactionMode === "pty") {
+    if (target === "terminal") {
       void router.navigate({
-        to: "/sessions/$sessionId/terminal",
-        params: { sessionId: session.id },
+        to: "/workers/$podKey/terminal",
+        params: { podKey },
         replace: true,
       });
     }
-  }, [router, session]);
+  }, [descriptor, podKey, router]);
 
-  const missingInteractionMode =
-    session !== undefined &&
-    session !== null &&
-    session.interactionMode !== "acp" &&
-    session.interactionMode !== "pty";
+  const entryRoute = descriptor ? resolveWorkerEntryRoute(descriptor) : undefined;
+
+  if (pathname !== `/workers/${encodeURIComponent(podKey)}`) {
+    return <Outlet />;
+  }
 
   if (!readAuthToken()) {
     return (
@@ -68,15 +71,12 @@ function WorkerEntryPage() {
     );
   }
 
-  if (error || session === null || missingInteractionMode) {
+  if (error || entryRoute === null) {
     return (
       <MobileFrame hideNav>
         <div className="flex min-h-screen flex-col items-center justify-center gap-2 p-6 text-center">
           <p className="text-sm text-muted-foreground">
-            {error ??
-              (missingInteractionMode
-                ? "Worker 缺少交互模式，无法安全打开"
-                : "此 Worker 没有关联的移动会话")}
+            {error ?? "Worker 当前不可连接，或未提供受支持的移动交互模式"}
           </p>
           <Link to="/" className="text-xs text-primary">
             返回会话列表

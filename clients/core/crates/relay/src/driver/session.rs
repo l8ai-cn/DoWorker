@@ -154,7 +154,7 @@ impl<R: Runtime> Driver<R> {
                     router
                         .acp_listeners
                         .get(&self.pod_key)
-                        .cloned()
+                        .map(|listeners| listeners.values().cloned().collect())
                         .unwrap_or_default()
                 };
                 for l in &listeners {

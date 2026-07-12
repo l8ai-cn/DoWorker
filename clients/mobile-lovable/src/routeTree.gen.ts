@@ -20,6 +20,9 @@ import { Route as SessionsSessionIdRouteImport } from './routes/sessions.$sessio
 import { Route as ProjectsNewRouteImport } from './routes/projects.new'
 import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
 import { Route as ExpertsExpertIdRouteImport } from './routes/experts.$expertId'
+import { Route as WorkersPodKeyTerminalRouteImport } from './routes/workers.$podKey.terminal'
+import { Route as WorkersPodKeyPreviewRouteImport } from './routes/workers.$podKey.preview'
+import { Route as WorkersPodKeyChatRouteImport } from './routes/workers.$podKey.chat'
 import { Route as SessionsSessionIdTerminalRouteImport } from './routes/sessions.$sessionId.terminal'
 
 const NewRoute = NewRouteImport.update({
@@ -77,6 +80,21 @@ const ExpertsExpertIdRoute = ExpertsExpertIdRouteImport.update({
   path: '/$expertId',
   getParentRoute: () => ExpertsRoute,
 } as any)
+const WorkersPodKeyTerminalRoute = WorkersPodKeyTerminalRouteImport.update({
+  id: '/terminal',
+  path: '/terminal',
+  getParentRoute: () => WorkersPodKeyRoute,
+} as any)
+const WorkersPodKeyPreviewRoute = WorkersPodKeyPreviewRouteImport.update({
+  id: '/preview',
+  path: '/preview',
+  getParentRoute: () => WorkersPodKeyRoute,
+} as any)
+const WorkersPodKeyChatRoute = WorkersPodKeyChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => WorkersPodKeyRoute,
+} as any)
 const SessionsSessionIdTerminalRoute =
   SessionsSessionIdTerminalRouteImport.update({
     id: '/terminal',
@@ -95,8 +113,11 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
-  '/workers/$podKey': typeof WorkersPodKeyRoute
+  '/workers/$podKey': typeof WorkersPodKeyRouteWithChildren
   '/sessions/$sessionId/terminal': typeof SessionsSessionIdTerminalRoute
+  '/workers/$podKey/chat': typeof WorkersPodKeyChatRoute
+  '/workers/$podKey/preview': typeof WorkersPodKeyPreviewRoute
+  '/workers/$podKey/terminal': typeof WorkersPodKeyTerminalRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -109,8 +130,11 @@ export interface FileRoutesByTo {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
-  '/workers/$podKey': typeof WorkersPodKeyRoute
+  '/workers/$podKey': typeof WorkersPodKeyRouteWithChildren
   '/sessions/$sessionId/terminal': typeof SessionsSessionIdTerminalRoute
+  '/workers/$podKey/chat': typeof WorkersPodKeyChatRoute
+  '/workers/$podKey/preview': typeof WorkersPodKeyPreviewRoute
+  '/workers/$podKey/terminal': typeof WorkersPodKeyTerminalRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -124,8 +148,11 @@ export interface FileRoutesById {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
-  '/workers/$podKey': typeof WorkersPodKeyRoute
+  '/workers/$podKey': typeof WorkersPodKeyRouteWithChildren
   '/sessions/$sessionId/terminal': typeof SessionsSessionIdTerminalRoute
+  '/workers/$podKey/chat': typeof WorkersPodKeyChatRoute
+  '/workers/$podKey/preview': typeof WorkersPodKeyPreviewRoute
+  '/workers/$podKey/terminal': typeof WorkersPodKeyTerminalRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -142,6 +169,9 @@ export interface FileRouteTypes {
     | '/sessions/$sessionId'
     | '/workers/$podKey'
     | '/sessions/$sessionId/terminal'
+    | '/workers/$podKey/chat'
+    | '/workers/$podKey/preview'
+    | '/workers/$podKey/terminal'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -156,6 +186,9 @@ export interface FileRouteTypes {
     | '/sessions/$sessionId'
     | '/workers/$podKey'
     | '/sessions/$sessionId/terminal'
+    | '/workers/$podKey/chat'
+    | '/workers/$podKey/preview'
+    | '/workers/$podKey/terminal'
   id:
     | '__root__'
     | '/'
@@ -170,6 +203,9 @@ export interface FileRouteTypes {
     | '/sessions/$sessionId'
     | '/workers/$podKey'
     | '/sessions/$sessionId/terminal'
+    | '/workers/$podKey/chat'
+    | '/workers/$podKey/preview'
+    | '/workers/$podKey/terminal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -182,7 +218,7 @@ export interface RootRouteChildren {
   ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
   ProjectsNewRoute: typeof ProjectsNewRoute
   SessionsSessionIdRoute: typeof SessionsSessionIdRouteWithChildren
-  WorkersPodKeyRoute: typeof WorkersPodKeyRoute
+  WorkersPodKeyRoute: typeof WorkersPodKeyRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -264,6 +300,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExpertsExpertIdRouteImport
       parentRoute: typeof ExpertsRoute
     }
+    '/workers/$podKey/terminal': {
+      id: '/workers/$podKey/terminal'
+      path: '/terminal'
+      fullPath: '/workers/$podKey/terminal'
+      preLoaderRoute: typeof WorkersPodKeyTerminalRouteImport
+      parentRoute: typeof WorkersPodKeyRoute
+    }
+    '/workers/$podKey/preview': {
+      id: '/workers/$podKey/preview'
+      path: '/preview'
+      fullPath: '/workers/$podKey/preview'
+      preLoaderRoute: typeof WorkersPodKeyPreviewRouteImport
+      parentRoute: typeof WorkersPodKeyRoute
+    }
+    '/workers/$podKey/chat': {
+      id: '/workers/$podKey/chat'
+      path: '/chat'
+      fullPath: '/workers/$podKey/chat'
+      preLoaderRoute: typeof WorkersPodKeyChatRouteImport
+      parentRoute: typeof WorkersPodKeyRoute
+    }
     '/sessions/$sessionId/terminal': {
       id: '/sessions/$sessionId/terminal'
       path: '/terminal'
@@ -296,6 +353,22 @@ const SessionsSessionIdRouteChildren: SessionsSessionIdRouteChildren = {
 const SessionsSessionIdRouteWithChildren =
   SessionsSessionIdRoute._addFileChildren(SessionsSessionIdRouteChildren)
 
+interface WorkersPodKeyRouteChildren {
+  WorkersPodKeyChatRoute: typeof WorkersPodKeyChatRoute
+  WorkersPodKeyPreviewRoute: typeof WorkersPodKeyPreviewRoute
+  WorkersPodKeyTerminalRoute: typeof WorkersPodKeyTerminalRoute
+}
+
+const WorkersPodKeyRouteChildren: WorkersPodKeyRouteChildren = {
+  WorkersPodKeyChatRoute: WorkersPodKeyChatRoute,
+  WorkersPodKeyPreviewRoute: WorkersPodKeyPreviewRoute,
+  WorkersPodKeyTerminalRoute: WorkersPodKeyTerminalRoute,
+}
+
+const WorkersPodKeyRouteWithChildren = WorkersPodKeyRoute._addFileChildren(
+  WorkersPodKeyRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApprovalsRoute: ApprovalsRoute,
@@ -306,7 +379,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsProjectIdRoute: ProjectsProjectIdRoute,
   ProjectsNewRoute: ProjectsNewRoute,
   SessionsSessionIdRoute: SessionsSessionIdRouteWithChildren,
-  WorkersPodKeyRoute: WorkersPodKeyRoute,
+  WorkersPodKeyRoute: WorkersPodKeyRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
