@@ -59,11 +59,6 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
     terminal.loadAddon(fit);
     terminal.open(node);
     terminalRef.current = terminal;
-    try {
-      fit.fit();
-    } catch {
-      terminal.resize(80, 24);
-    }
 
     const sendSize = () => {
       try {
@@ -80,8 +75,17 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
       );
     };
     sendSizeRef.current = sendSize;
-    const resizeObserver = new ResizeObserver(sendSize);
+    let animationFrame: number | undefined;
+    const scheduleSize = () => {
+      if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => {
+        animationFrame = undefined;
+        if (!disposed) sendSize();
+      });
+    };
+    const resizeObserver = new ResizeObserver(scheduleSize);
     resizeObserver.observe(node);
+    scheduleSize();
     const input = terminal.onData((data) => {
       const relay = relayRef.current;
       const podKey = podKeyRef.current;
@@ -113,6 +117,7 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
           const nextConnection = relayConnectionState(status);
           setConnection(nextConnection);
           setLease(relayLeaseFromStatus(raw));
+          if (nextConnection === "connected") terminal.focus();
           if (nextConnection === "failed") setError("终端连接已失效，请重新连接");
         });
         await relay.subscribe(
@@ -125,9 +130,6 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
             if (output) terminal.write(output);
           },
         );
-        if (!disposed) {
-          terminal.focus();
-        }
       } catch (cause) {
         if (!disposed) {
           setConnection("failed");
@@ -139,6 +141,7 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
 
     return () => {
       disposed = true;
+      if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
       resizeObserver.disconnect();
       input.dispose();
       terminal.dispose();

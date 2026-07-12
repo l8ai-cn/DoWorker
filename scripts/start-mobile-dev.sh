@@ -14,4 +14,4 @@ BACKEND_PORT="${BACKEND_HTTP_PORT:-10015}"
 
 export DO_WORKER_API_URL="${DO_WORKER_API_URL:-http://127.0.0.1:${BACKEND_PORT}}"
 
-exec pnpm --dir "$ROOT" --filter @do-worker/mobile exec vite --host "$HOST" --port "$PORT"
+exec pnpm --dir "$ROOT" --filter @do-worker/mobile exec vite --mode mobiledev --host "$HOST" --port "$PORT"
