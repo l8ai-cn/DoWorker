@@ -20,10 +20,7 @@ function ExpertDetail() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authed) {
-      setExpert(null);
-      return;
-    }
+    if (!authed) return;
     let cancelled = false;
     (async () => {
       try {
@@ -43,7 +40,9 @@ function ExpertDetail() {
       <MobileFrame>
         <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-8 text-center">
           <p className="text-[13px] text-muted-foreground">请先登录查看专家详情</p>
-          <Link to="/login" className="text-[13px] text-primary">去登录</Link>
+          <Link to="/login" className="text-[13px] text-primary">
+            去登录
+          </Link>
         </div>
       </MobileFrame>
     );
@@ -64,7 +63,9 @@ function ExpertDetail() {
       <MobileFrame>
         <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-8 text-center">
           <p className="text-[13px] text-muted-foreground">{error ?? "找不到这位专家"}</p>
-          <Link to="/experts" className="text-[13px] text-primary">返回专家库</Link>
+          <Link to="/experts" className="text-[13px] text-primary">
+            返回专家库
+          </Link>
         </div>
       </MobileFrame>
     );
@@ -74,7 +75,10 @@ function ExpertDetail() {
     <MobileFrame>
       <div className="flex min-h-screen flex-col">
         <header className="safe-top sticky top-0 z-30 flex items-center gap-2 border-b border-border/60 bg-background/85 px-4 pb-3 pt-3 backdrop-blur-xl">
-          <Link to="/experts" className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-surface">
+          <Link
+            to="/experts"
+            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-surface"
+          >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <h1 className="flex-1 truncate text-[14px] font-semibold">{expert.name}</h1>

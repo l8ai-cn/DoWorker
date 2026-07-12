@@ -14,6 +14,7 @@
     "web:dev": "cd clients/web && node ../../node_modules/next/dist/bin/next dev --turbopack",
     "web:build": "cd clients/web && BAZEL_BUILD=standalone node ../../node_modules/next/dist/bin/next build --webpack",
     "web:check": "pnpm run web:lint && pnpm run web:typecheck && pnpm run web:test",
+    "mobile:dev": "bash scripts/start-mobile-dev.sh",
     "mobile:lint": "pnpm --filter @do-worker/mobile lint",
     "mobile:typecheck": "pnpm --filter @do-worker/mobile exec tsc --noEmit",
     "mobile:test": "pnpm --filter @do-worker/mobile test",
