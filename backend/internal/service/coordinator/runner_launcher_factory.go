@@ -18,9 +18,17 @@ func NewRunnerLauncherFromEnv(logger *slog.Logger) (RunnerLauncher, string, erro
 	}
 	switch strings.ToLower(raw) {
 	case "docker":
-		return NewDockerLauncher(loadDockerLauncherConfig(), logger), "docker", nil
+		config, err := loadDockerLauncherConfig()
+		if err != nil {
+			return nil, "", err
+		}
+		return NewDockerLauncher(config, logger), "docker", nil
 	case "k8s", "kubernetes":
-		return NewK8sLauncher(loadK8sLauncherConfig(), logger), "k8s", nil
+		config, err := loadK8sLauncherConfig()
+		if err != nil {
+			return nil, "", err
+		}
+		return NewK8sLauncher(config, logger), "k8s", nil
 	default:
 		return NewScriptLauncher(raw, logger), "script", nil
 	}

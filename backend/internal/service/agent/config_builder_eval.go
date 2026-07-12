@@ -20,6 +20,7 @@ func buildEvalContext(
 ) *eval.Context {
 	vars := map[string]interface{}{
 		"config": make(map[string]interface{}), // filled by CONFIG declarations during eval
+		"prompt": req.Prompt,
 		"sandbox": map[string]interface{}{
 			"root":     PlaceholderSandboxRoot,
 			"work_dir": PlaceholderWorkDir,

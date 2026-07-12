@@ -2,6 +2,7 @@ package workercreation
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
@@ -51,6 +52,33 @@ func TestServiceListOptionsReturnsSelectableRuntimeAndBlockingReasons(t *testing
 	assert.Contains(t, options.DeploymentModes[1].BlockingReason, "compute target")
 	require.Len(t, options.ResourceProfiles, 2)
 	assert.True(t, options.ResourceProfiles[0].Selectable)
+}
+
+func TestServiceListOptionsMakesDoAgentSelectableWhenImageIsConfigured(t *testing.T) {
+	digest := "sha256:" + strings.Repeat("d", 64)
+	t.Setenv(
+		"COORDINATOR_RUNNER_IMAGES",
+		"do-agent=repo.example/runner-do-agent@"+digest,
+	)
+	source := "AGENT do-agent\nEXECUTABLE do-agent\nMODE pty\n"
+	service := NewService(Deps{
+		Catalog: runtimedomain.DefaultCatalog(),
+		Agents: &workerOptionsAgentProvider{agents: []*agentdomain.Agent{
+			activeWorkerTypeAgentFor("do-agent", "do-agent", source),
+		}},
+	})
+
+	options, err := service.ListOptions(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		OptionsFilter{},
+	)
+
+	require.NoError(t, err)
+	require.Len(t, options.WorkerTypes, 1)
+	assert.True(t, options.WorkerTypes[0].Selectable)
+	require.Len(t, options.RuntimeImages, 1)
+	assert.True(t, options.RuntimeImages[0].Selectable)
 }
 
 type workerOptionsAgentProvider struct {

@@ -4,6 +4,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 STAGING="${1:?staging directory required}"
+RUNTIME="${2:-all}"
 DEPLOY_DEV="${REPO_ROOT}/deploy/dev"
 
 rm -rf "$STAGING"
@@ -35,19 +36,22 @@ else
 fi
 chmod +x "${STAGING}/loopal-binary"
 
-if [[ -f "${DEPLOY_DEV}/do-agent-binary" ]]; then
-  cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
-else
+if [[ "${RUNTIME}" == "all" || "${RUNTIME}" == "do-agent" ]]; then
+  if [[ ! -f "${DEPLOY_DEV}/do-agent-binary" ]]; then
   # shellcheck source=../../deploy/dev/lib/build_do_agent_binary.sh
-  source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
-  if build_do_agent_binary && [[ -f "${DEPLOY_DEV}/do-agent-binary" ]]; then
-    cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
-  else
-    echo "⚠ do-agent 不可用，使用 e2e-mock-agent 占位" >&2
-    cp "${STAGING}/e2e-mock-agent-binary" "${STAGING}/do-agent-binary"
+    source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
+    if ! build_do_agent_binary; then
+      echo "do-agent binary build failed" >&2
+      exit 1
+    fi
   fi
+  if [[ ! -x "${DEPLOY_DEV}/do-agent-binary" ]]; then
+    echo "do-agent binary is required for AGENT_RUNTIME=${RUNTIME}" >&2
+    exit 1
+  fi
+  cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
+  chmod +x "${STAGING}/do-agent-binary"
 fi
-chmod +x "${STAGING}/do-agent-binary"
 
 cp "${DEPLOY_DEV}/runner-entrypoint.sh" "${STAGING}/runner-entrypoint.sh"
 chmod +x "${STAGING}/runner-entrypoint.sh"

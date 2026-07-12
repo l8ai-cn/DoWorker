@@ -72,6 +72,26 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 		if harness == "openclaw" && modelID != "" {
 			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
 		}
+		if harness == "hermes" && modelID != "" {
+			provider, err := hermesModelProvider(resource.Provider.ProtocolAdapter)
+			if err != nil {
+				return err
+			}
+			appendAgentfileLayer(
+				&req.AgentfileLayer,
+				`CONFIG provider = `+agentfile.FormatStringLiteral(provider),
+				`CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID),
+			)
+		}
+		if harness == "grok-build" && modelID != "" {
+			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
+		}
+		if harness == "minimax-cli" {
+			if modelID == "" {
+				return ErrMissingModelResource
+			}
+			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(modelID))
+		}
 		if harness == "gemini-cli" {
 			if modelID == "" {
 				return ErrMissingModelResource
@@ -111,6 +131,10 @@ func modelResourceRequirements(agentSlug string, agentDef *agentDomain.Agent) (r
 		return chatRequirements("anthropic"), true
 	case "gemini-cli":
 		return chatRequirements("gemini"), true
+	case "grok-build":
+		return chatRequirements("openai-compatible"), true
+	case "minimax-cli":
+		return chatRequirements("minimax"), true
 	case "openclaw", "hermes":
 		return chatRequirements("openai-compatible", "anthropic", "gemini"), true
 	default:
@@ -130,6 +154,10 @@ func workerModelHarness(agentSlug string, agentDef *agentDomain.Agent) string {
 		return "claude-code"
 	case "gemini", "gemini-cli":
 		return "gemini-cli"
+	case "grok", "grok-build":
+		return "grok-build"
+	case "mmx", "minimax-cli":
+		return "minimax-cli"
 	case "do-agent":
 		return "do-agent"
 	case "openclaw":

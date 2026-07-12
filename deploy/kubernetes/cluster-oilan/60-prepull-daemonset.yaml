@@ -20,32 +20,20 @@ spec:
         - name: agentsmesh-regcred
       initContainers:
         - name: pull-claude
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-claude-code:latest
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:257f09676dd9d612c3b56be7aee129a06e4c0b6096e56203620aa7863b219f40
           imagePullPolicy: IfNotPresent
           command: ["true"]
         - name: pull-codex
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli:latest
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd
           imagePullPolicy: IfNotPresent
           command: ["true"]
         - name: pull-gemini
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli:latest
-          imagePullPolicy: IfNotPresent
-          command: ["true"]
-        - name: pull-grok
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-grok-build:latest
-          imagePullPolicy: IfNotPresent
-          command: ["true"]
-        - name: pull-openclaw
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-openclaw:latest
-          imagePullPolicy: IfNotPresent
-          command: ["true"]
-        - name: pull-hermes
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-hermes:latest
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:f67425c616f91a8ab3f70c1d3e0b49856ec8321ab6a9d43df193e0617b5a7bd5
           imagePullPolicy: IfNotPresent
           command: ["true"]
       containers:
         - name: hold
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo:latest
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa
           imagePullPolicy: IfNotPresent
           command: ["sleep", "infinity"]
           resources:

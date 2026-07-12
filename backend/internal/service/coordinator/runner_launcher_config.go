@@ -1,9 +1,12 @@
 package coordinator
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
+
+	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 )
 
 type runnerContainerEnv struct {
@@ -39,12 +42,18 @@ type k8sLauncherConfig struct {
 	ContainerEnv    runnerContainerEnv
 }
 
-func loadRunnerContainerEnv() runnerContainerEnv {
+func loadRunnerContainerEnv() (runnerContainerEnv, error) {
 	maxPods := 10
 	if v := strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_MAX_CONCURRENT_PODS")); v != "" {
 		if n, err := strconv.Atoi(v); err == nil && n > 0 {
 			maxPods = n
 		}
+	}
+	_, images, err := runtimedomain.ParseRuntimeImageReferences(
+		os.Getenv(runtimedomain.RuntimeImageReferencesEnv),
+	)
+	if err != nil {
+		return runnerContainerEnv{}, fmt.Errorf("coordinator runtime images: %w", err)
 	}
 	return runnerContainerEnv{
 		BackendURL:        strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_BACKEND_URL")),
@@ -53,11 +62,15 @@ func loadRunnerContainerEnv() runnerContainerEnv {
 		OrgSlug:           strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_ORG_SLUG")),
 		NodeIDPrefix:      defaultString(os.Getenv("COORDINATOR_RUNNER_NODE_ID_PREFIX"), "coord-runner-"),
 		MaxConcurrentPods: maxPods,
-		AgentImages:       parseLauncherMap(os.Getenv("COORDINATOR_RUNNER_IMAGES")),
-	}
+		AgentImages:       images,
+	}, nil
 }
 
-func loadDockerLauncherConfig() dockerLauncherConfig {
+func loadDockerLauncherConfig() (dockerLauncherConfig, error) {
+	containerEnv, err := loadRunnerContainerEnv()
+	if err != nil {
+		return dockerLauncherConfig{}, err
+	}
 	extra := []string{}
 	if raw := strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_DOCKER_EXTRA_VOLUMES")); raw != "" {
 		for _, part := range strings.Split(raw, ",") {
@@ -75,8 +88,8 @@ func loadDockerLauncherConfig() dockerLauncherConfig {
 		SSLHostPath:     strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_DOCKER_SSL_HOST_PATH")),
 		EntrypointPath:  strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_DOCKER_ENTRYPOINT_HOST_PATH")),
 		ExtraVolumes:    extra,
-		ContainerEnv:    loadRunnerContainerEnv(),
-	}
+		ContainerEnv:    containerEnv,
+	}, nil
 }
 
 func parseComposeFiles(raw string) []string {
@@ -93,7 +106,11 @@ func parseComposeFiles(raw string) []string {
 	return out
 }
 
-func loadK8sLauncherConfig() k8sLauncherConfig {
+func loadK8sLauncherConfig() (k8sLauncherConfig, error) {
+	containerEnv, err := loadRunnerContainerEnv()
+	if err != nil {
+		return k8sLauncherConfig{}, err
+	}
 	timeout := 120
 	if v := strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_K8S_READY_TIMEOUT_SECONDS")); v != "" {
 		if n, err := strconv.Atoi(v); err == nil && n > 0 {
@@ -108,8 +125,8 @@ func loadK8sLauncherConfig() k8sLauncherConfig {
 		ReadyTimeoutSec: timeout,
 		SSLHostPath:     strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_K8S_SSL_HOST_PATH")),
 		SSLSecretName:   strings.TrimSpace(os.Getenv("COORDINATOR_RUNNER_K8S_SSL_SECRET")),
-		ContainerEnv:    loadRunnerContainerEnv(),
-	}
+		ContainerEnv:    containerEnv,
+	}, nil
 }
 
 func defaultString(value, fallback string) string {

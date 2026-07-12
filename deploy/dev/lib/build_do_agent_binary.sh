@@ -22,14 +22,6 @@ build_do_agent_binary() {
         done
     fi
     if [[ ! -d "$doagent_dir" ]]; then
-        # CI / fresh clones often lack the sibling doagent repo. Docker still
-        # COPY's do-agent-binary into every runner image, so emit a /bin/sh
-        # stub that exits 127 — enough for image build; do-agent pods won't run.
-        if [[ "${CI:-}" == "true" || "${DEV_SKIP_DOAGENT:-}" == "1" || "${SKIP_DOAGENT_BUILD:-}" == "1" ]]; then
-            info "doagent 源码未找到 — 写入 do-agent stub (设 DOAGENT_DIR 可启用真编译)"
-            _write_do_agent_stub "$SCRIPT_DIR/do-agent-binary" || return 1
-            return 0
-        fi
         error "doagent 源码未找到 — 设置 DOAGENT_DIR 或 clone AgentForge/doagent"
         return 1
     fi
@@ -58,16 +50,4 @@ build_do_agent_binary() {
         return 1
     }
     success "do-agent binary 已复制到 deploy/dev/do-agent-binary"
-}
-
-# Shell stub that exits 127. Satisfies Dockerfile COPY without needing
-# AgentForge/doagent source in CI. agent-runtime image has /bin/sh.
-_write_do_agent_stub() {
-    local out="$1"
-    cat > "$out" <<'STUB'
-#!/bin/sh
-echo "do-agent stub: source not built in this environment" >&2
-exit 127
-STUB
-    chmod +x "$out"
 }

@@ -20,9 +20,6 @@ resources:
   - 35-runner-claude.yaml
   - 36-runner-codex-cli.yaml
   - 37-runner-minimax-cli.yaml
-  - 38-runner-grok-build.yaml
-  - 39-runner-openclaw.yaml
-  - 41-runner-hermes.yaml
   - 42-mobile.yaml
   - 40-ingress.yaml
   - 43-mobile-ingress.yaml

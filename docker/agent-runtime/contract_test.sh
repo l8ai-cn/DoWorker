@@ -5,6 +5,8 @@ cd "$(dirname "$0")"
 ROOT="$(cd ../.. && pwd)"
 DOCKERFILE="${ROOT}/docker/agent-runtime/Dockerfile"
 COMPOSE="${ROOT}/deploy/dev/docker-compose.runners.yml"
+PREPARE="${ROOT}/docker/agent-runtime/prepare_binaries.sh"
+DOAGENT_BUILD="${ROOT}/deploy/dev/lib/build_do_agent_binary.sh"
 
 if grep -q "^RUN npm install -g" "$DOCKERFILE" \
   && grep -A5 "^RUN npm install -g" "$DOCKERFILE" | grep -q "@anthropic-ai/claude-code" \
@@ -29,12 +31,21 @@ awk '
 grep -q "@anthropic-ai/claude-code" "$DOCKERFILE"
 grep -q "@openai/codex" "$DOCKERFILE"
 grep -q "@google/gemini-cli" "$DOCKERFILE"
+grep -q "npm install -g mmx-cli" "$DOCKERFILE"
 grep -q "@xai-official/grok" "$DOCKERFILE"
 grep -q "npm install -g openclaw" "$DOCKERFILE"
 grep -q "hermes-agent" "$DOCKERFILE"
 grep -q "HERMES_AGENT_VERSION" "$DOCKERFILE"
 grep -q "do-agent-binary" "$DOCKERFILE"
+grep -q "FROM runtime AS do-agent-runtime" "$DOCKERFILE"
 grep -q "runner-entrypoint.sh" "$DOCKERFILE"
+grep -q "minimax-cli) init_minimax_config" "${ROOT}/deploy/dev/runner-entrypoint.sh"
+
+if grep -Eq 'e2e-mock-agent.*do-agent-binary' "$PREPARE" \
+  || grep -q "_write_do_agent_stub" "$DOAGENT_BUILD"; then
+  echo "do-agent build must not substitute a mock or stub binary" >&2
+  exit 1
+fi
 
 grep -q "AGENT_RUNTIME: claude-code" "$COMPOSE"
 grep -q "AGENT_RUNTIME: codex-cli" "$COMPOSE"

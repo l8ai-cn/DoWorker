@@ -2,7 +2,6 @@ package agentpod
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
@@ -232,7 +231,9 @@ func TestApplyWorkerModelConfiguresHermesGeminiResource(t *testing.T) {
 	assert.Equal(t, "sk-test", req.ModelResourceEnv["GOOGLE_API_KEY"])
 	assert.Equal(t, "sk-test", req.ModelResourceEnv["GEMINI_API_KEY"])
 	assert.Equal(t, "gemini-pro", req.ModelResourceEnv["GEMINI_MODEL"])
-	assert.Nil(t, req.AgentfileLayer)
+	require.NotNil(t, req.AgentfileLayer)
+	assert.Contains(t, *req.AgentfileLayer, `CONFIG provider = "gemini"`)
+	assert.Contains(t, *req.AgentfileLayer, `CONFIG model = "gemini-pro"`)
 }
 
 func TestApplyModelResourceArgsRejectsConflictingModel(t *testing.T) {
@@ -267,68 +268,74 @@ func TestApplyWorkerModelDoAgentUsesConfigBundle(t *testing.T) {
 	assert.Nil(t, req.ModelResourceEnv)
 }
 
-func TestDoAgentModelSettingsOmitsEmptyBaseURL(t *testing.T) {
-	settings, err := doAgentModelSettings(resolvedResource("openai", "", "gpt-5.1"))
-
-	require.NoError(t, err)
-	providers := settings["provider"].(map[string]interface{})
-	openai := providers["openai"].(map[string]interface{})
-	options := openai["options"].(map[string]interface{})
-	assert.NotContains(t, options, "baseURL")
-	assert.Equal(t, "openai", options["kind"])
-	assert.Equal(t, "openai/gpt-5.1", settings["model"])
-}
-
-func TestDoAgentModelSettingsRequiresAPIKeyAndModel(t *testing.T) {
-	withoutKey := resolvedResource("openai", "", "gpt-5.1")
-	withoutKey.Credentials = map[string]string{}
-	_, err := doAgentModelSettings(withoutKey)
-	require.ErrorIs(t, err, ErrMissingModelResource)
-
-	withoutModel := resolvedResource("openai", "", "")
-	_, err = doAgentModelSettings(withoutModel)
-	require.ErrorIs(t, err, ErrMissingModelResource)
-}
-
-func TestApplyWorkerModelPropagatesResolverError(t *testing.T) {
-	resolveErr := errors.New("resolve exact")
-	resolver := &recordingModelResourceResolver{err: resolveErr}
+func TestApplyWorkerModelConfiguresMiniMaxCLI(t *testing.T) {
+	resolver := &recordingModelResourceResolver{
+		resource: resolvedResource("minimax", "https://api.minimax.io/v1", "MiniMax-M2.5"),
+	}
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
 	resourceID := int64(9)
 	req := &OrchestrateCreatePodRequest{
-		AgentSlug: "codex-cli", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+		AgentSlug: "minimax-cli", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
 	}
 
-	err := orchestrator.applyWorkerModel(context.Background(), req, nil)
+	require.NoError(t, orchestrator.applyWorkerModel(
+		context.Background(), req, &agentDomain.Agent{Executable: "mmx"},
+	))
 
-	require.ErrorIs(t, err, resolveErr)
+	assert.Equal(t, []string{"minimax"}, resolver.requirements.AllowedProtocolAdapters)
+	assert.Equal(t, map[string]string{"MINIMAX_API_KEY": "sk-test"}, req.ModelResourceEnv)
+	require.NotNil(t, req.AgentfileLayer)
+	assert.Contains(t, *req.AgentfileLayer, `CONFIG model = "MiniMax-M2.5"`)
 }
 
-func TestApplyModelResourceEnvRejectsConflictWithoutPartialWrites(t *testing.T) {
-	existing := map[string]string{
-		"OPENAI_API_KEY": "custom-key",
-		"FEATURE_FLAG":   "enabled",
+func TestApplyWorkerModelConfiguresGrokBuild(t *testing.T) {
+	resolver := &recordingModelResourceResolver{
+		resource: resolvedResource("xai", "https://api.x.ai/v1", "grok-4"),
+	}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "grok-build", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
 	}
 
-	err := applyModelResourceEnv(existing, map[string]string{
-		"OPENAI_API_KEY": "resource-key",
-		"OPENAI_MODEL":   "gpt-5.1",
-	})
+	require.NoError(t, orchestrator.applyWorkerModel(
+		context.Background(), req, &agentDomain.Agent{Executable: "grok"},
+	))
 
-	require.ErrorIs(t, err, ErrModelResourceEnvConflict)
-	assert.Equal(t, map[string]string{
-		"OPENAI_API_KEY": "custom-key",
-		"FEATURE_FLAG":   "enabled",
-	}, existing)
+	assert.Equal(t, []string{"openai-compatible"}, resolver.requirements.AllowedProtocolAdapters)
+	assert.Equal(t, map[string]string{"XAI_API_KEY": "sk-test"}, req.ModelResourceEnv)
+	require.NotNil(t, req.AgentfileLayer)
+	assert.Contains(t, *req.AgentfileLayer, `CONFIG model = "grok-4"`)
 }
 
-func TestApplyModelResourceEnvMergesMatchingValues(t *testing.T) {
-	existing := map[string]string{"OPENAI_API_KEY": "resource-key"}
+func TestApplyWorkerModelRejectsNonXaiGrokBuildResource(t *testing.T) {
+	resolver := &recordingModelResourceResolver{resource: resolvedOpenAIResource()}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "grok-build", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+	}
 
-	require.NoError(t, applyModelResourceEnv(existing, map[string]string{
-		"OPENAI_API_KEY": "resource-key",
-		"OPENAI_MODEL":   "gpt-5.1",
-	}))
+	err := orchestrator.applyWorkerModel(
+		context.Background(), req, &agentDomain.Agent{Executable: "grok"},
+	)
 
-	assert.Equal(t, "gpt-5.1", existing["OPENAI_MODEL"])
+	require.ErrorIs(t, err, ErrModelResourceProviderUnsupported)
+}
+
+func TestApplyWorkerModelConfiguresHermesProviderAndModel(t *testing.T) {
+	resolver := &recordingModelResourceResolver{resource: resolvedOpenAIResource()}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "hermes", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+	}
+
+	require.NoError(t, orchestrator.applyWorkerModel(
+		context.Background(), req, &agentDomain.Agent{Executable: "hermes"},
+	))
+
+	require.NotNil(t, req.AgentfileLayer)
+	assert.Contains(t, *req.AgentfileLayer, `CONFIG provider = "openai"`)
+	assert.Contains(t, *req.AgentfileLayer, `CONFIG model = "gpt-5.1"`)
 }

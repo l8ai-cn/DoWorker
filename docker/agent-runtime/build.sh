@@ -9,6 +9,7 @@ AGENT_RUNTIMES=(
   claude-code
   codex-cli
   gemini-cli
+  minimax-cli
   aider
   opencode
   loopal
@@ -33,6 +34,7 @@ Agent runtimes:
   claude-code   Claude Code CLI (@anthropic-ai/claude-code)
   codex-cli     OpenAI Codex CLI (@openai/codex)
   gemini-cli    Google Gemini CLI (@google/gemini-cli)
+  minimax-cli   MiniMax CLI (mmx-cli)
   aider         Aider (pip)
   opencode      OpenCode CLI
   loopal        Loopal CLI
@@ -98,6 +100,10 @@ build_base() {
 build_one() {
   local rt="$1"
   local tag="${IMAGE_PREFIX}-${rt}:latest"
+  local target="runtime"
+  if [[ "$rt" == "do-agent" ]]; then
+    target="do-agent-runtime"
+  fi
   if [[ "${FORCE_REBUILD:-0}" != "1" ]] && docker image inspect "$tag" >/dev/null 2>&1; then
     echo "⏭ ${tag} 已存在 (FORCE_REBUILD=1 可强制重建)"
     return 0
@@ -108,7 +114,7 @@ build_one() {
   echo "  AGENT_RUNTIME=${rt}  PLATFORM=${PLATFORM}"
   echo "=========================================="
   docker_build_with_retry docker build --platform "$PLATFORM" \
-    --target runtime \
+    --target "$target" \
     -f "${SCRIPT_DIR}/Dockerfile" \
     --build-arg "AGENT_RUNTIME=${rt}" \
     --build-arg "HTTP_PROXY=" \
@@ -133,7 +139,7 @@ if [[ "$RUNTIME" != "all" ]] && ! contains_runtime "$RUNTIME"; then
   exit 1
 fi
 
-"${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING"
+"${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING" "$RUNTIME"
 build_base
 
 if [[ "$RUNTIME" == "all" ]]; then

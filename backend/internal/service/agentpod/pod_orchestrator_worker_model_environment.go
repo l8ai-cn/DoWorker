@@ -1,6 +1,7 @@
 package agentpod
 
 import (
+	"fmt"
 	"strings"
 
 	resourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
@@ -30,6 +31,16 @@ func modelResourceEnvironment(agentSlug string, resource *resourcesvc.ResolvedRe
 			return nil, ErrMissingModelResource
 		}
 		return map[string]string{"GOOGLE_API_KEY": apiKey}, nil
+	case "grok-build":
+		if resource.Connection.ProviderKey.String() != "xai" {
+			return nil, fmt.Errorf("%w: grok-build requires xai", ErrModelResourceProviderUnsupported)
+		}
+		return map[string]string{"XAI_API_KEY": apiKey}, nil
+	case "minimax-cli":
+		if modelID == "" {
+			return nil, ErrMissingModelResource
+		}
+		return map[string]string{"MINIMAX_API_KEY": apiKey}, nil
 	case "openclaw", "hermes":
 		env := multiProviderModelResourceEnvironment(resource, apiKey, baseURL, modelID)
 		if len(env) == 0 {

@@ -6,7 +6,7 @@
 #   ./push-images.sh platform   # backend/relay/web/web-admin/mobile only
 #   ./push-images.sh mobile-access # backend/relay/mobile only
 #   ./push-images.sh infra      # postgres/redis/minio/mc/kubectl mirrors
-#   ./push-images.sh runners    # agent-runtime images (claude/codex/gemini/grok/openclaw/hermes/e2e-echo)
+#   ./push-images.sh runners    # agent-runtime images (claude/codex/gemini/minimax/grok/openclaw/hermes/e2e-echo)
 #
 # The build host must already be `docker login repo.aiedulab.cn:8443`.
 set -euo pipefail
@@ -83,6 +83,7 @@ push_runners() {
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh claude-code )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh codex-cli )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh gemini-cli )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh minimax-cli )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh grok-build )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh openclaw )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh hermes )
@@ -91,17 +92,6 @@ push_runners() {
     --build-arg AGENT_RUNTIME=e2e-echo \
     -t do-worker/runner-e2e-echo:latest \
     "${REPO_ROOT}/docker/agent-runtime/_context"
-  if docker image inspect "do-worker/runner-minimax-cli:latest" >/dev/null 2>&1; then
-    :
-  elif docker image inspect "l8ai/runner-minimax-cli:latest" >/dev/null 2>&1; then
-    docker tag "l8ai/runner-minimax-cli:latest" "do-worker/runner-minimax-cli:latest"
-  else
-    docker build --platform linux/amd64 --target runtime \
-      -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
-      --build-arg AGENT_RUNTIME=minimax-cli \
-      -t do-worker/runner-minimax-cli:latest \
-      "${REPO_ROOT}/docker/agent-runtime/_context"
-  fi
   for rt in claude-code codex-cli gemini-cli grok-build openclaw hermes e2e-echo minimax-cli; do
     docker tag "do-worker/runner-${rt}:latest" "${PROJ}/runner-${rt}:latest"
     docker push "${PROJ}/runner-${rt}:latest"

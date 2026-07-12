@@ -56,16 +56,24 @@ func TestModelResolverBindsExactResourceAndConnectionRevisions(t *testing.T) {
 func TestModelResolverUsesWorkerSpecificProtocolAdapters(t *testing.T) {
 	tests := []struct {
 		workerType string
-		adapter    string
+		adapters   []string
 	}{
-		{workerType: "codex-cli", adapter: "openai-compatible"},
-		{workerType: "claude-code", adapter: "anthropic"},
-		{workerType: "gemini-cli", adapter: "gemini"},
+		{workerType: "do-agent", adapters: []string{"openai-compatible", "anthropic", "minimax"}},
+		{workerType: "codex-cli", adapters: []string{"openai-compatible"}},
+		{workerType: "claude-code", adapters: []string{"anthropic"}},
+		{workerType: "gemini-cli", adapters: []string{"gemini"}},
+		{workerType: "grok-build", adapters: []string{"openai-compatible"}},
+		{workerType: "minimax-cli", adapters: []string{"minimax"}},
+		{workerType: "openclaw", adapters: []string{"openai-compatible", "anthropic", "gemini"}},
+		{workerType: "hermes", adapters: []string{"openai-compatible", "anthropic", "gemini"}},
 	}
 
 	for _, test := range tests {
 		t.Run(test.workerType, func(t *testing.T) {
 			resources := validModelResourceService()
+			if test.workerType == "grok-build" {
+				resources.resolved.Connection.ProviderKey = slugkit.MustNewForTest("xai")
+			}
 
 			_, err := newModelResolver(resources).ResolveModel(
 				context.Background(),
@@ -75,7 +83,7 @@ func TestModelResolverUsesWorkerSpecificProtocolAdapters(t *testing.T) {
 			)
 
 			require.NoError(t, err)
-			assert.Equal(t, []string{test.adapter}, resources.requirements.AllowedProtocolAdapters)
+			assert.Equal(t, test.adapters, resources.requirements.AllowedProtocolAdapters)
 		})
 	}
 }
@@ -87,7 +95,7 @@ func TestModelResolverRejectsUnsupportedOrInvalidSelections(t *testing.T) {
 		_, err := newModelResolver(resources).ResolveModel(
 			context.Background(),
 			specservice.Scope{OrgID: 77, UserID: 7},
-			slugkit.MustNewForTest("do-agent"),
+			slugkit.MustNewForTest("unknown-worker"),
 			101,
 		)
 
@@ -126,6 +134,21 @@ func TestModelResolverRejectsUnsupportedOrInvalidSelections(t *testing.T) {
 		assert.ErrorIs(t, err, assert.AnError)
 		assert.NotErrorIs(t, err, specservice.ErrInvalidDraft)
 	})
+}
+
+func TestModelResolverRejectsNonXaiGrokResource(t *testing.T) {
+	resources := validModelResourceService()
+
+	_, err := newModelResolver(resources).ResolveModel(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		slugkit.MustNewForTest("grok-build"),
+		101,
+	)
+
+	require.Error(t, err)
+	assert.ErrorIs(t, err, specservice.ErrInvalidDraft)
+	assert.ErrorContains(t, err, "xai")
 }
 
 type modelResourceService struct {

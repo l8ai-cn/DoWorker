@@ -76,6 +76,14 @@ func TestWorkerTypeResolverExcludesModelResourceManagedFields(t *testing.T) {
 		excluded   []string
 	}{
 		{
+			slug:       "do-agent",
+			executable: "do-agent",
+			source: "CONFIG model STRING = \"\"\n" +
+				"ENV OPENAI_API_KEY SECRET OPTIONAL\n" +
+				"ENV ANTHROPIC_API_KEY SECRET OPTIONAL\n",
+			excluded: []string{"model", "OPENAI_API_KEY", "ANTHROPIC_API_KEY"},
+		},
+		{
 			slug:       "codex-cli",
 			executable: "codex",
 			source: "CONFIG model STRING = \"\"\n" +
@@ -100,6 +108,32 @@ func TestWorkerTypeResolverExcludesModelResourceManagedFields(t *testing.T) {
 				"ENV GEMINI_API_KEY SECRET OPTIONAL\n" +
 				"ENV GOOGLE_API_KEY SECRET OPTIONAL\n",
 			excluded: []string{"model", "GEMINI_API_KEY", "GOOGLE_API_KEY"},
+		},
+		{
+			slug:       "grok-build",
+			executable: "grok",
+			source: "CONFIG model STRING = \"\"\n" +
+				"ENV XAI_API_KEY SECRET OPTIONAL\n",
+			excluded: []string{"model", "XAI_API_KEY"},
+		},
+		{
+			slug:       "minimax-cli",
+			executable: "mmx",
+			source: "CONFIG model STRING = \"\"\n" +
+				"ENV MINIMAX_API_KEY SECRET OPTIONAL\n",
+			excluded: []string{"model", "MINIMAX_API_KEY"},
+		},
+		{
+			slug:       "openclaw",
+			executable: "openclaw",
+			source:     multiProviderWorkerSource(),
+			excluded:   multiProviderWorkerFields(),
+		},
+		{
+			slug:       "hermes",
+			executable: "hermes",
+			source:     multiProviderWorkerSource(),
+			excluded:   multiProviderWorkerFields(),
 		},
 	}
 
@@ -229,5 +263,35 @@ func activeWorkerTypeAgentFor(slug, executable, source string) *agentdomain.Agen
 		AgentfileSource: &source,
 		IsActive:        true,
 		SupportedModes:  "pty,acp",
+	}
+}
+
+func multiProviderWorkerSource() string {
+	return "ENV OPENAI_API_KEY SECRET OPTIONAL\n" +
+		"ENV OPENAI_BASE_URL TEXT OPTIONAL\n" +
+		"ENV OPENAI_MODEL TEXT OPTIONAL\n" +
+		"ENV ANTHROPIC_API_KEY SECRET OPTIONAL\n" +
+		"ENV ANTHROPIC_AUTH_TOKEN SECRET OPTIONAL\n" +
+		"ENV ANTHROPIC_BASE_URL TEXT OPTIONAL\n" +
+		"ENV ANTHROPIC_MODEL TEXT OPTIONAL\n" +
+		"ENV GOOGLE_API_KEY SECRET OPTIONAL\n" +
+		"ENV GEMINI_API_KEY SECRET OPTIONAL\n" +
+		"ENV GEMINI_MODEL TEXT OPTIONAL\n" +
+		"ENV XAI_API_KEY SECRET OPTIONAL\n"
+}
+
+func multiProviderWorkerFields() []string {
+	return []string{
+		"OPENAI_API_KEY",
+		"OPENAI_BASE_URL",
+		"OPENAI_MODEL",
+		"ANTHROPIC_API_KEY",
+		"ANTHROPIC_AUTH_TOKEN",
+		"ANTHROPIC_BASE_URL",
+		"ANTHROPIC_MODEL",
+		"GOOGLE_API_KEY",
+		"GEMINI_API_KEY",
+		"GEMINI_MODEL",
+		"XAI_API_KEY",
 	}
 }

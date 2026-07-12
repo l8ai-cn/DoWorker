@@ -60,6 +60,31 @@ func TestDefaultCatalogDoesNotInventUnavailableWorkerImages(t *testing.T) {
 	assert.Empty(t, catalog.ImagesFor("unknown-worker"))
 }
 
+func TestDefaultCatalogExposesConfiguredDoAgentImage(t *testing.T) {
+	digest := "sha256:" + strings.Repeat("d", 64)
+	t.Setenv(
+		"COORDINATOR_RUNNER_IMAGES",
+		"do-agent=repo.example/runner-do-agent@"+digest,
+	)
+
+	images := DefaultCatalog().ImagesFor("do-agent")
+
+	require.Len(t, images, 1)
+	assert.Equal(t, digest, images[0].Digest)
+	assert.Equal(t, "do-agent", images[0].WorkerTypeSlugs[0])
+}
+
+func TestDefaultCatalogRejectsMutableConfiguredImage(t *testing.T) {
+	t.Setenv(
+		"COORDINATOR_RUNNER_IMAGES",
+		"do-agent=repo.example/runner-do-agent:latest",
+	)
+
+	require.Panics(t, func() {
+		DefaultCatalog()
+	})
+}
+
 func TestCatalogReturnsCopies(t *testing.T) {
 	catalog := DefaultCatalog()
 

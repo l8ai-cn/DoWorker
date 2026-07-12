@@ -44,6 +44,7 @@ RUN case "${AGENT_RUNTIME}" in \
       claude-code) npm install -g @anthropic-ai/claude-code ;; \
       codex-cli) npm install -g @openai/codex ;; \
       gemini-cli) npm install -g @google/gemini-cli ;; \
+      minimax-cli) npm install -g mmx-cli ;; \
       opencode) npm install -g opencode-ai ;; \
       grok-build) npm install -g @xai-official/grok ;; \
       openclaw) npm install -g openclaw ;; \
@@ -70,6 +71,7 @@ RUN groupmod -n runner node \
          claude-code) mkdir -p /home/runner/.claude ;; \
          codex-cli) mkdir -p /home/runner/.codex ;; \
          gemini-cli) mkdir -p /home/runner/.gemini ;; \
+         minimax-cli) mkdir -p /home/runner/.minimax ;; \
          loopal) mkdir -p /home/runner/.loopal ;; \
          do-agent) mkdir -p /home/runner/.agent ;; \
          grok-build) mkdir -p /home/runner/.grok ;; \
@@ -84,7 +86,6 @@ COPY --chmod=0755 runner-binary /usr/local/bin/do-worker-runner
 RUN ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner
 COPY --chmod=0755 e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent
 COPY --chmod=0755 loopal-binary /usr/local/bin/loopal
-COPY --chmod=0755 do-agent-binary /usr/local/bin/do-agent
 COPY --chmod=0755 runner-entrypoint.sh /usr/local/bin/runner-entrypoint.sh
 
 # ARG from a prior stage is not inherited; without this redeclare
@@ -95,9 +96,17 @@ RUN case "${AGENT_RUNTIME}" in \
       e2e-echo) rm -f /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
       loopal) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/do-agent ;; \
       do-agent) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal ;; \
-      grok-build|openclaw|hermes) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
+      minimax-cli|grok-build|openclaw|hermes) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
       *) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
     esac
+
+FROM runtime AS do-agent-runtime
+
+COPY --chmod=0755 do-agent-binary /usr/local/bin/do-agent
+
+USER runner
+WORKDIR /app
+ENTRYPOINT ["/usr/local/bin/runner-entrypoint.sh"]
 
 USER runner
 WORKDIR /app

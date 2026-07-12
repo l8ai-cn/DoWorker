@@ -4,6 +4,8 @@ set -euo pipefail
 cd "$(dirname "$0")"
 ROOT="$(cd ../.. && pwd)"
 DOCKERFILE="${ROOT}/docker/agent-runtime/Dockerfile"
+PREPARE="${ROOT}/docker/agent-runtime/prepare_binaries.sh"
+DOAGENT_BUILD="${ROOT}/deploy/dev/lib/build_do_agent_binary.sh"
 
 if grep -q "^RUN npm install -g" "$DOCKERFILE" \
   && grep -A5 "^RUN npm install -g" "$DOCKERFILE" | grep -q "@anthropic-ai/claude-code" \
@@ -28,6 +30,9 @@ grep -q "runner-hermes" ../kubernetes/local/runners-workloads.yaml
 grep -q "AGENT_RUNTIME: aider" docker-compose.runners.yml
 grep -q "AGENT_RUNTIME: opencode" docker-compose.runners.yml
 grep -q "do-agent-binary" "$DOCKERFILE"
+grep -q "FROM runtime AS do-agent-runtime" "$DOCKERFILE"
+grep -q "npm install -g mmx-cli" "$DOCKERFILE"
+grep -q "minimax-cli) init_minimax_config" runner-entrypoint.sh
 grep -q "@xai-official/grok" "$DOCKERFILE"
 grep -q "npm install -g openclaw" "$DOCKERFILE"
 grep -q "hermes-agent" "$DOCKERFILE"
@@ -39,6 +44,12 @@ grep -q "COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES" lib/host_services.sh
 grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
 grep -q "'e2e-mock-agent'," seed/e2e_echo.sql
+
+if grep -Eq 'e2e-mock-agent.*do-agent-binary' "$PREPARE" \
+  || grep -q "_write_do_agent_stub" "$DOAGENT_BUILD"; then
+  echo "do-agent build must not substitute a mock or stub binary" >&2
+  exit 1
+fi
 
 if awk '/runner-claude-code:/{flag=1; next} /runner-codex-cli:/{flag=0} flag' docker-compose.runners.yml \
   | grep -q "/home/runner/.codex"; then
