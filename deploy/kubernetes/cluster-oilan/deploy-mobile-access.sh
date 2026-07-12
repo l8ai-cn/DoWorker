@@ -26,7 +26,7 @@ dexec() {
 require_pinned_images
 echo "==> DoOps session ${SESSION} -> ${TARGET}"
 doops -session "${SESSION}" push --target "${TARGET}" --src "${DIR}"
-dexec "kubectl apply -f 02-configmap.yaml -f 30-backend.yaml -f 31-relay.yaml -f 40-ingress.yaml -f 42-mobile.yaml"
+dexec "kubectl apply -f 02-configmap.yaml -f 30-backend.yaml -f 31-relay.yaml -f 42-mobile.yaml -f 43-mobile-ingress.yaml"
 
 for deployment in backend relay mobile; do
   dexec "kubectl -n ${NAMESPACE} rollout status deploy/${deployment} --timeout=240s"

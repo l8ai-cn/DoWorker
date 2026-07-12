@@ -58,6 +58,7 @@ function WorkerEntryPage() {
           <p className="text-sm text-muted-foreground">登录后可打开此 Worker</p>
           <Link
             to="/login"
+            search={{ workerPodKey: podKey }}
             className="min-h-10 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
           >
             去登录

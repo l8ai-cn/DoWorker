@@ -1,16 +1,21 @@
 import { FitAddon } from "@xterm/addon-fit";
 import { Terminal } from "@xterm/xterm";
 import "@xterm/xterm/css/xterm.css";
-import { Loader2, LockKeyhole, RefreshCw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import {
+  RelayTerminalControlBar,
+  RelayTerminalOverlay,
+} from "@/components/relay-terminal-controls";
 import {
   useMobileControlLease,
   type MobileRelayControl,
   type RelayLease,
 } from "@/hooks/use-mobile-control-lease";
 import { getMobileRelayManager } from "@/lib/mobile-relay-manager";
+import { resetMobileRelayConnection } from "@/lib/mobile-relay-reset";
 import { relayConnectionState, type RelayConnectionState } from "@/lib/relay-connection-state";
 import { getSessionRelayConnection } from "@/lib/session-relay-api";
+import { sendGrantedTerminalResize } from "@/lib/relay-terminal-resize";
 import {
   observerRelayLease,
   relayLeaseFromStatus,
@@ -24,11 +29,13 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
   const relayRef = useRef<Awaited<ReturnType<typeof getMobileRelayManager>> | null>(null);
   const podKeyRef = useRef<string | null>(null);
   const leaseRef = useRef<RelayLease>(observerRelayLease);
+  const sendSizeRef = useRef<() => void>(() => {});
   const [relay, setRelay] = useState<MobileRelayControl | null>(null);
   const [podKey, setPodKey] = useState<string | null>(null);
   const [connection, setConnection] = useState<RelayConnectionState>("connecting");
   const [lease, setLease] = useState<RelayLease>(observerRelayLease);
   const [error, setError] = useState<string | null>(null);
+  const [connectionAttempt, setConnectionAttempt] = useState(0);
   const control = useMobileControlLease(relay, podKey, lease);
 
   useEffect(() => {
@@ -39,7 +46,6 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
     const node = containerRef.current;
     if (!node) return;
     let disposed = false;
-    let subscriptionId = "";
     const terminal = new Terminal({
       cursorBlink: true,
       disableStdin: true,
@@ -65,10 +71,15 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
       } catch {
         return;
       }
-      const relay = relayRef.current;
-      const podKey = podKeyRef.current;
-      if (relay && podKey) void relay.send_resize(podKey, terminal.cols, terminal.rows);
+      sendGrantedTerminalResize(
+        relayRef.current,
+        podKeyRef.current,
+        leaseRef.current,
+        terminal.cols,
+        terminal.rows,
+      );
     };
+    sendSizeRef.current = sendSize;
     const resizeObserver = new ResizeObserver(sendSize);
     resizeObserver.observe(node);
     const input = terminal.onData((data) => {
@@ -81,22 +92,28 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
 
     const connect = async () => {
       try {
-        const [relay, info] = await Promise.all([
-          getMobileRelayManager(),
-          getSessionRelayConnection(sessionId),
-        ]);
+        const relay = await getMobileRelayManager();
+        const previousPodKey = podKeyRef.current;
+        if (previousPodKey) await resetMobileRelayConnection(relay, previousPodKey);
+        if (disposed) return;
+        leaseRef.current = observerRelayLease;
+        setLease(observerRelayLease);
+        setConnection("connecting");
+        const info = await getSessionRelayConnection(sessionId);
         if (disposed) return;
         relayRef.current = relay;
         podKeyRef.current = info.podKey;
         setRelay(relay);
         setPodKey(info.podKey);
-        subscriptionId = `mobile-${sessionId}-${Math.random().toString(36).slice(2, 10)}`;
+        const subscriptionId = `mobile-${sessionId}-${Math.random().toString(36).slice(2, 10)}`;
         await relay.on_status_change(info.podKey, (raw: unknown) => {
           if (disposed) return;
           const status =
             raw && typeof raw === "object" ? (raw as { status?: unknown }).status : undefined;
-          setConnection(relayConnectionState(status));
+          const nextConnection = relayConnectionState(status);
+          setConnection(nextConnection);
           setLease(relayLeaseFromStatus(raw));
+          if (nextConnection === "failed") setError("终端连接已失效，请重新连接");
         });
         await relay.subscribe(
           info.podKey,
@@ -109,7 +126,6 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
           },
         );
         if (!disposed) {
-          sendSize();
           terminal.focus();
         }
       } catch (cause) {
@@ -127,59 +143,52 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
       input.dispose();
       terminal.dispose();
       terminalRef.current = null;
+      sendSizeRef.current = () => {};
       const relay = relayRef.current;
       const podKey = podKeyRef.current;
-      if (relay && podKey && subscriptionId) void relay.unsubscribe(podKey, subscriptionId);
-      relayRef.current = null;
-      podKeyRef.current = null;
+      const lease = leaseRef.current;
+      if (relay && podKey && lease.status === "granted" && lease.leaseId) {
+        void relay.release_control(podKey, lease.leaseId);
+      }
+      if (relay && podKey) void resetMobileRelayConnection(relay, podKey);
     };
-  }, [sessionId]);
+  }, [connectionAttempt, sessionId]);
 
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.options.disableStdin = lease.status !== "granted";
     }
+    if (lease.status === "granted") sendSizeRef.current();
   }, [lease.status]);
+
+  useEffect(() => {
+    const refreshAfterForeground = () => {
+      if (document.visibilityState === "visible") {
+        setError(null);
+        setConnectionAttempt((attempt) => attempt + 1);
+      }
+    };
+    document.addEventListener("visibilitychange", refreshAfterForeground);
+    return () => document.removeEventListener("visibilitychange", refreshAfterForeground);
+  }, []);
+
+  const reconnect = () => {
+    setError(null);
+    setConnection("connecting");
+    setConnectionAttempt((attempt) => attempt + 1);
+  };
 
   const hasControl = lease.status === "granted";
   return (
     <div className="relative flex min-h-0 flex-1 flex-col bg-card">
       <div ref={containerRef} className="min-h-0 flex-1 overflow-hidden p-1" />
-      <div className="safe-bottom flex min-h-12 items-center justify-between border-t border-border/60 px-3 py-2">
-        <span className="text-xs text-muted-foreground">
-          {hasControl ? "正在控制此 Worker" : "只读观察"}
-        </span>
-        {hasControl ? (
-          <span className="text-xs font-medium text-success">输入已启用</span>
-        ) : (
-          <button
-            type="button"
-            onClick={() => void control.acquire()}
-            disabled={connection !== "connected" || control.acquiring}
-            className="flex min-h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground disabled:opacity-50"
-          >
-            {control.acquiring ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <LockKeyhole className="h-3.5 w-3.5" />
-            )}
-            接管输入
-          </button>
-        )}
-      </div>
-      {connection !== "connected" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-background/85 px-6 text-center backdrop-blur-sm">
-          {connection !== "failed" && <Loader2 className="h-5 w-5 animate-spin text-primary" />}
-          {connection === "failed" && <RefreshCw className="h-5 w-5 text-destructive" />}
-          <p className="text-sm text-muted-foreground">
-            {connection === "connecting"
-              ? "正在连接 Worker…"
-              : connection === "reconnecting"
-                ? "正在重新连接 Worker…"
-                : (error ?? "终端连接失败")}
-          </p>
-        </div>
-      )}
+      <RelayTerminalControlBar
+        hasControl={hasControl}
+        connected={connection === "connected"}
+        acquiring={control.acquiring}
+        onAcquire={() => void control.acquire()}
+      />
+      <RelayTerminalOverlay connection={connection} error={error} onReconnect={reconnect} />
       {control.error && <p className="px-3 py-1 text-xs text-destructive">{control.error}</p>}
     </div>
   );

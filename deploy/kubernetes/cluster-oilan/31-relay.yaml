@@ -17,7 +17,7 @@ spec:
         - name: agentsmesh-regcred
       containers:
         - name: relay
-          image: repo.aiedulab.cn:8443/agentsmesh/relay@sha256:86c3c76ec7f8f3f331dbab6f177aa99cee8c15154acf78c0dea0fcd355657435
+          image: repo.aiedulab.cn:8443/agentsmesh/relay@sha256:c426c8cfda8ebac4a6ac232976d62013ac9f2befb789444c1e07cfe46160aab7
           imagePullPolicy: Always
           ports:
             - containerPort: 8090

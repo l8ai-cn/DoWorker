@@ -13,6 +13,13 @@ const DEV_ACCOUNTS = [
 ] as const;
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search: Record<string, unknown>): { workerPodKey?: string } => ({
+    workerPodKey:
+      typeof search.workerPodKey === "string" &&
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(search.workerPodKey)
+        ? search.workerPodKey
+        : undefined,
+  }),
   head: () => ({
     meta: [{ title: pageTitle("登录") }, { name: "description", content: `登录 ${APP_NAME}，连接 Codex / Claude Code 等 Agent。` }],
   }),
@@ -21,6 +28,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const router = useRouter();
+  const search = Route.useSearch();
   const [username, setUsername] = useState("dev@agentsmesh.local");
   const [password, setPassword] = useState("AdminAb123456");
   const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +41,15 @@ function LoginPage() {
     setError(null);
     try {
       await login(username.trim(), password);
-      router.navigate({ to: "/" });
+      if (search.workerPodKey) {
+        router.navigate({
+          to: "/workers/$podKey",
+          params: { podKey: search.workerPodKey },
+          replace: true,
+        });
+      } else {
+        router.navigate({ to: "/" });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "登录失败");
     } finally {

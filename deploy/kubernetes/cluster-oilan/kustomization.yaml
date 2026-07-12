@@ -25,4 +25,5 @@ resources:
   - 41-runner-hermes.yaml
   - 42-mobile.yaml
   - 40-ingress.yaml
+  - 43-mobile-ingress.yaml
   - 60-prepull-daemonset.yaml
