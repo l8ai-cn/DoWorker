@@ -83,18 +83,20 @@ BEGIN
     RAISE NOTICE 'Organization ID: %', v_org_id;
 
     INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
-    VALUES
-        (v_org_id, 'local', 'Local cluster', 'local', 'pending'),
-        (v_org_id, 'online', 'Online cluster', 'online', 'pending')
+    VALUES (v_org_id, 'online', 'Online cluster', 'online', 'pending')
     ON CONFLICT (organization_id, slug) DO NOTHING;
 
-    SELECT id INTO v_local_cluster_id
-    FROM execution_clusters
-    WHERE organization_id = v_org_id AND slug = 'local';
+    INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
+    VALUES (v_org_id, 'local', 'Local cluster', 'local', 'pending')
+    ON CONFLICT (organization_id, slug) DO NOTHING;
 
     SELECT id INTO v_online_cluster_id
     FROM execution_clusters
     WHERE organization_id = v_org_id AND slug = 'online';
+
+    SELECT id INTO v_local_cluster_id
+    FROM execution_clusters
+    WHERE organization_id = v_org_id AND slug = 'local';
 
     -- =========================================================================
     -- 2.1 创建第二个测试用户（同组织成员，用于多用户测试）
@@ -275,25 +277,19 @@ BEGIN
     );
 
     -- admin-workspace: system-admin personal org (may not exist on first seed run)
-    INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
-    SELECT id, 'online', 'Online cluster', 'online', 'pending'
-    FROM organizations
-    WHERE slug = 'admin-workspace'
-    ON CONFLICT (organization_id, slug) DO NOTHING;
-
     INSERT INTO runners (
         organization_id, cluster_id, node_id, description,
         status, max_concurrent_pods
     )
     SELECT o.id,
-           c.id,
+           cluster.id,
            'admin-workspace-runner',
            'Development Docker Runner (admin-workspace)',
            'offline',
            10
     FROM organizations o
-    JOIN execution_clusters c
-      ON c.organization_id = o.id AND c.slug = 'online'
+    JOIN execution_clusters cluster
+      ON cluster.organization_id = o.id AND cluster.slug = 'online'
     WHERE o.slug = 'admin-workspace'
       AND NOT EXISTS (
         SELECT 1 FROM runners
@@ -305,14 +301,14 @@ BEGIN
         status, max_concurrent_pods
     )
     SELECT o.id,
-           c.id,
+           cluster.id,
            'admin-workspace-do-agent',
            'Development Docker Runner (DoAgent, admin-workspace)',
            'offline',
            10
     FROM organizations o
-    JOIN execution_clusters c
-      ON c.organization_id = o.id AND c.slug = 'online'
+    JOIN execution_clusters cluster
+      ON cluster.organization_id = o.id AND cluster.slug = 'online'
     WHERE o.slug = 'admin-workspace'
       AND NOT EXISTS (
         SELECT 1 FROM runners
@@ -576,5 +572,18 @@ BEGIN
     RAISE NOTICE '  - Channel: dev-discussion (with sample messages)';
 
     END; -- inner DECLARE block
+
+    -- =========================================================================
+    -- 10. 创建示例 Workflow（Workflows 列表 + desktop e2e 渲染断言）
+    -- =========================================================================
+    INSERT INTO workflows (organization_id, name, slug, prompt_template, created_by_id)
+    SELECT v_org_id, 'Nightly Dependency Audit', 'nightly-dependency-audit',
+           'Audit project dependencies for known vulnerabilities and open a ticket per finding.',
+           v_user_id
+    WHERE NOT EXISTS (
+        SELECT 1 FROM workflows WHERE organization_id = v_org_id AND slug = 'nightly-dependency-audit'
+    );
+
+    RAISE NOTICE '  - Workflow: nightly-dependency-audit';
 
 END $$;

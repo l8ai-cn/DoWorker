@@ -7,6 +7,9 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import type { ProxyOptions } from "vite";
 
+const devBackendUrl =
+  process.env.DO_WORKER_API_URL ?? process.env.VITE_DO_WORKER_API_URL ?? "http://127.0.0.1:10015";
+
 export default defineConfig({
   nitro: { preset: "node-server" },
   tanstackStart: {
@@ -15,10 +18,10 @@ export default defineConfig({
   vite: {
     server: {
       proxy: {
-        "/auth": proxyTarget("http://localhost:10000"),
-        "/v1": proxyTarget("http://localhost:10000"),
-        "/api": proxyTarget("http://localhost:10000"),
-        "/proto": proxyTarget("http://localhost:10000"),
+        "/auth": proxyTarget(devBackendUrl),
+        "/v1": proxyTarget(devBackendUrl),
+        "/api": proxyTarget(devBackendUrl),
+        "/proto": proxyTarget(devBackendUrl),
       },
     },
   },

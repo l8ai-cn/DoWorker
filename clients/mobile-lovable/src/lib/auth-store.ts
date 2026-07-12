@@ -1,4 +1,4 @@
-const STORAGE_KEY = "agentsmesh-mobile-auth";
+import { getMobileAuthManager, mobileAuthSessionStorageKey } from "./mobile-auth-manager";
 
 export interface AuthSession {
   token: string;
@@ -6,15 +6,37 @@ export interface AuthSession {
   orgSlug: string | null;
   userId: string | null;
   email: string | null;
-  savedAt: number;
 }
 
-function readRaw(): AuthSession | null {
+export interface AuthIdentity {
+  authenticated: boolean;
+  email: string | null;
+  orgSlug: string | null;
+}
+
+interface PersistedAuthSession {
+  access_token: string;
+  expires_at: number;
+  current_org_slug?: string | null;
+}
+
+let currentEmail: string | null = null;
+
+function readRaw(): PersistedAuthSession | null {
   if (typeof localStorage === "undefined") return null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(mobileAuthSessionStorageKey());
     if (!raw) return null;
-    return JSON.parse(raw) as AuthSession;
+    return JSON.parse(raw) as PersistedAuthSession;
+  } catch {
+    return null;
+  }
+}
+
+function parseWasmJson<T>(value: unknown): T | null {
+  if (typeof value !== "string" || value.length === 0) return null;
+  try {
+    return JSON.parse(value) as T;
   } catch {
     return null;
   }
@@ -26,67 +48,67 @@ export function readAuthToken(): string | null {
     (import.meta.env.VITE_AGENTSMESH_JWT as string | undefined);
   if (env) return env;
   const s = readRaw();
-  if (!s?.token) return null;
-  if (s.expiresIn > 0 && s.savedAt + s.expiresIn * 1000 < Date.now()) return null;
-  return s.token;
+  if (!s?.access_token || s.expires_at * 1000 <= Date.now()) return null;
+  return s.access_token;
 }
 
 export function readOrgSlug(): string | null {
   const env = import.meta.env.VITE_AGENTSMESH_ORG_SLUG as string | undefined;
   if (env) return env;
-  return readRaw()?.orgSlug ?? null;
+  return readRaw()?.current_org_slug ?? null;
 }
 
 export function readAuthEmail(): string | null {
-  return readRaw()?.email ?? null;
+  return currentEmail;
 }
 
-export function saveAuthSession(input: Omit<AuthSession, "savedAt">): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...input, savedAt: Date.now() }));
-}
-
-export function clearAuthSession(): void {
-  localStorage.removeItem(STORAGE_KEY);
+export async function restoreAuthIdentity(): Promise<AuthIdentity> {
+  const manager = await getMobileAuthManager();
+  const result = parseWasmJson<{
+    kind?: string;
+    user?: { email?: string };
+    current_org?: { slug?: string } | null;
+  }>(await manager.bootstrap());
+  if (result?.kind !== "authenticated") {
+    currentEmail = null;
+    return { authenticated: false, email: null, orgSlug: null };
+  }
+  currentEmail = result.user?.email ?? null;
+  return {
+    authenticated: true,
+    email: currentEmail,
+    orgSlug: result.current_org?.slug ?? null,
+  };
 }
 
 export async function logout(): Promise<void> {
-  const token = readAuthToken();
+  const manager = await getMobileAuthManager();
   try {
-    const { apiFetch } = await import("./api-fetch");
-    const headers: HeadersInit = {};
-    if (token) headers.Authorization = `Bearer ${token}`;
-    await apiFetch("/auth/logout", { method: "POST", headers });
-  } catch {
-    // Network failure — still clear local session.
+    await manager.bootstrap();
+    await manager.logout();
+  } finally {
+    manager.clear_session();
+    currentEmail = null;
   }
-  clearAuthSession();
 }
 
 export async function login(username: string, password: string): Promise<AuthSession> {
-  const { apiFetch } = await import("./api-fetch");
-  const res = await apiFetch("/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
-  if (!res.ok) {
-    const body = (await res.json().catch(() => ({}))) as { error?: string };
-    throw new Error(body.error ?? `登录失败 (${res.status})`);
-  }
-  const data = (await res.json()) as {
+  const manager = await getMobileAuthManager();
+  const data = JSON.parse(await manager.login(username, password)) as {
     token: string;
+    refresh_token?: string;
     expires_in: number;
-    org_slug?: string;
-    user?: { id?: string };
+    user?: { id?: number; email?: string };
   };
+  await manager.fetch_organizations();
+  const org = parseWasmJson<{ slug?: string }>(manager.get_current_org_json());
+  currentEmail = data.user?.email ?? username;
   const session: AuthSession = {
     token: data.token,
     expiresIn: data.expires_in,
-    orgSlug: data.org_slug ?? null,
-    userId: data.user?.id ?? username,
-    email: username,
-    savedAt: Date.now(),
+    orgSlug: org?.slug ?? null,
+    userId: data.user?.id?.toString() ?? null,
+    email: currentEmail,
   };
-  saveAuthSession(session);
   return session;
 }
