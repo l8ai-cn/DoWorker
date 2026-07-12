@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import type { ApiFixture } from "../fixtures/api.fixture";
 import {
   assertNoWasmRecursiveBorrow,
@@ -17,6 +17,13 @@ export interface SetupAcpScenarioResult {
   pod: MockAgentPod;
   /** Asserts the wasm-bindgen recursive-borrow guard is intact. */
   assertWasmHealthy: () => void;
+}
+
+export async function takeWorkerControl(page: Page): Promise<void> {
+  const takeControl = page.getByRole("button", { name: "Take control" });
+  await expect(takeControl).toBeEnabled({ timeout: 30_000 });
+  await takeControl.click();
+  await expect(takeControl).toBeHidden({ timeout: 30_000 });
 }
 
 // setupAcpScenarioPage encapsulates the 4-step prologue every ACP UI spec

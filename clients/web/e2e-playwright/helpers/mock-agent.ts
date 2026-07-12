@@ -28,6 +28,7 @@ export interface CreateMockPodOptions {
   scenario?: MockAgentScenario;
   prompt?: string;
   alias?: string;
+  waitForRelay?: boolean;
 }
 
 export interface MockAgentPod {
@@ -66,22 +67,24 @@ export async function createMockAgentPod(
     throw new Error(`createMockAgentPod missing podKey: ${JSON.stringify(resp)}`);
   }
 
-  // CreatePod confirms dispatch, not that the runner has registered the Pod.
-  // Gate navigation on the browser's actual Relay connection contract.
-  await pollUntil(
-    async () => {
-      try {
-        const connection = await cc.pod.getPodConnection({
-          orgSlug: TEST_ORG_SLUG,
-          podKey,
-        }) as { relayUrl?: string };
-        return Boolean(connection.relayUrl);
-      } catch {
-        return false;
-      }
-    },
-    { maxAttempts: 30, intervalMs: 1000, label: `pod-${podKey}-relay-ready` },
-  );
+  if (opts.waitForRelay !== false) {
+    // CreatePod confirms dispatch, not that the runner has registered the Pod.
+    // Gate navigation on the browser's actual Relay connection contract.
+    await pollUntil(
+      async () => {
+        try {
+          const connection = await cc.pod.getPodConnection({
+            orgSlug: TEST_ORG_SLUG,
+            podKey,
+          }) as { relayUrl?: string };
+          return Boolean(connection.relayUrl);
+        } catch {
+          return false;
+        }
+      },
+      { maxAttempts: 30, intervalMs: 1000, label: `pod-${podKey}-relay-ready` },
+    );
+  }
 
   return {
     podKey,

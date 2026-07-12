@@ -3,7 +3,7 @@ import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { E2E_ECHO_AGENT_SLUG } from "../../helpers/e2e-echo-runner";
-import { CreatePodModal } from "../../pages/modals/create-pod.modal";
+import { CreateWorkerPage } from "../../pages/create-worker.page";
 
 type Runner = { id: bigint };
 type Agent = { slug: string };
@@ -31,9 +31,6 @@ test.describe("Create Pod UI", () => {
     // Start clean so the sidebar count is deterministic.
     await terminateAllPods();
 
-    await page.goto(`/${TEST_ORG_SLUG}/workspace`);
-    await page.waitForLoadState("load");
-
     // PodListItem renders with `data-testid="pod-list-item"` for each pod
     // in the workspace sidebar. The previous text-regex approach was too
     // brittle: pod_key is `<user_id>-<standalone|ticket_id>-<hex>` (not
@@ -51,24 +48,24 @@ test.describe("Create Pod UI", () => {
     const podsBefore = await cc.pod.listPods({ orgSlug: TEST_ORG_SLUG }) as { total: bigint | number };
     const beforeTotal = Number(podsBefore.total);
 
-    await page.getByRole("button", { name: /创建|Create|New Pod/i }).first().click();
-    const modal = new CreatePodModal(page);
-    await modal.waitForOpen();
     expect(
       agents.some((agent) => agent.slug === E2E_ECHO_AGENT_SLUG),
       "dev env must include the e2e-echo builtin agent",
     ).toBeTruthy();
-    await modal.selectImage(E2E_ECHO_AGENT_SLUG);
+    const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
+    await worker.goto();
+    await worker.selectImage(E2E_ECHO_AGENT_SLUG);
+    await worker.selectPtyMode();
     const createResponse = page.waitForResponse(
       (response) =>
         response.request().method() === "POST" &&
         response.url().endsWith("/proto.pod.v1.PodService/CreatePod"),
       { timeout: 20_000 },
     );
-    await modal.submit();
+    await worker.submit();
     const response = await createResponse;
     expect(response.ok()).toBeTruthy();
-    await modal.waitForClosed();
+    await worker.waitForWorkspace();
 
     await expect
       .poll(async () => {

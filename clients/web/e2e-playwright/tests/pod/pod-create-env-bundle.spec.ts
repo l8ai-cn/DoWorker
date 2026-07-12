@@ -4,7 +4,7 @@ import { CreatePodRequestSchema } from "../../../../../proto/gen/ts/pod/v1/pod_p
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { CreatePodModal } from "../../pages/modals/create-pod.modal";
+import { CreateWorkerPage } from "../../pages/create-worker.page";
 
 /**
  * Pod creation × EnvBundle UI flow.
@@ -88,13 +88,10 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     await terminateAllPods();
 
     try {
-      await page.goto(`/${TEST_ORG_SLUG}/workspace`);
-      await page.getByRole("button", { name: /创建|Create|New Pod/i }).first().click();
-      const modal = new CreatePodModal(page);
-      await modal.waitForOpen();
-      await modal.selectImage(AGENT_SLUG);
-      await expect(page.locator('select#credential-bundle-select')).toHaveCount(0);
-      await expect(page.locator('[role="dialog"] label', { hasText: runtimeName })).toBeVisible();
+      const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
+      await worker.goto();
+      await worker.selectImage(AGENT_SLUG);
+      await expect(page.locator("label", { hasText: runtimeName })).toBeVisible();
 
       const createResponse = page.waitForResponse(
         (response) =>
@@ -102,11 +99,12 @@ test.describe("Pod create — EnvBundle binding UI", () => {
           response.url().endsWith(CREATE_POD_RPC),
         { timeout: 20_000 },
       );
-      await modal.selectRuntimeBundles([runtimeName]);
-      await modal.submit();
+      await worker.selectRuntimeBundles([runtimeName]);
+      await worker.selectPtyMode();
+      await worker.submit();
       const response = await createResponse;
       expect(response.ok()).toBeTruthy();
-      await modal.waitForClosed();
+      await worker.waitForWorkspace();
 
       const layer = capturedLayer ?? "";
       const useLines = layer
@@ -156,21 +154,20 @@ test.describe("Pod create — EnvBundle binding UI", () => {
 
     await terminateAllPods();
 
-    await page.goto(`/${TEST_ORG_SLUG}/workspace`);
-    await page.getByRole("button", { name: /创建|Create|New Pod/i }).first().click();
-    const modal = new CreatePodModal(page);
-    await modal.waitForOpen();
-    await modal.selectImage(AGENT_SLUG);
+    const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
+    await worker.goto();
+    await worker.selectImage(AGENT_SLUG);
     const createResponse = page.waitForResponse(
       (response) =>
         response.request().method() === "POST" &&
         response.url().endsWith(CREATE_POD_RPC),
       { timeout: 20_000 },
     );
-    await modal.submit();
+    await worker.selectPtyMode();
+    await worker.submit();
     const response = await createResponse;
     expect(response.ok()).toBeTruthy();
-    await modal.waitForClosed();
+    await worker.waitForWorkspace();
 
     expect(capturedLayer ?? "").not.toContain("USE_ENV_BUNDLE");
   });

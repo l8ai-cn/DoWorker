@@ -1,6 +1,7 @@
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
+import { takeWorkerControl } from "../../helpers/acp-spec-setup";
 import {
   createMockAgentPod,
   workspaceUrlForPod,
@@ -47,6 +48,7 @@ test.describe("ACP UI: multi-tab Selector synchronization", () => {
       expect(tabA.getByText("Ready for mode switches", { exact: false })).toBeVisible({ timeout: 15_000 }),
       expect(tabB.getByText("Ready for mode switches", { exact: false })).toBeVisible({ timeout: 15_000 }),
     ]);
+    await takeWorkerControl(tabA);
 
     // Drive the change from tab A. DropdownMenuTrigger carries the active
     // mode's i18n description as `title` (see AcpPermissionModeSelector).
