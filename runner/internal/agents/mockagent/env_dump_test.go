@@ -16,10 +16,10 @@ func TestFilterEnvByPrefix(t *testing.T) {
 	got := filterEnvByPrefix(env, envDumpPrefixes)
 
 	wantSet := map[string]bool{
-		"E2E_TEST_FOO=1":         true,
+		"E2E_TEST_FOO=1":           true,
 		"ANTHROPIC_API_KEY=secret": true,
-		"CLAUDE_MODEL=sonnet":    true,
-		"E2E_TEST_BAR=2":         true,
+		"CLAUDE_MODEL=sonnet":      true,
+		"E2E_TEST_BAR=2":           true,
 	}
 	if len(got) != len(wantSet) {
 		t.Fatalf("got %d entries, want %d: %v", len(got), len(wantSet), got)
@@ -42,5 +42,13 @@ func TestFilterEnvByPrefix_EmptyInput(t *testing.T) {
 	got := filterEnvByPrefix(nil, envDumpPrefixes)
 	if len(got) != 0 {
 		t.Errorf("expected nil/empty result, got %v", got)
+	}
+}
+
+func TestEnvDumpContent_EmptyTrackedEnvironmentIncludesReadyMarker(t *testing.T) {
+	got := envDumpContent([]string{"PATH=/bin", "HOME=/x"})
+	want := "E2E_TEST_ENV_DUMP_READY=1\n"
+	if got != want {
+		t.Errorf("envDumpContent() = %q, want %q", got, want)
 	}
 }
