@@ -109,7 +109,7 @@ export function SuccessState({
         已在「{organization.name}」创建可用实例。
       </p>
       <Button asChild className="mt-6">
-        <Link href={`/${organization.slug}/experts`}>查看专家应用</Link>
+        <Link href={`/${organization.slug}/applications`}>去应用中心开始第一个任务</Link>
       </Button>
     </section>
   );
