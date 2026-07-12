@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiFetch } from "./api-fetch";
-import { createSession, getSessionByPodKey } from "./sessions-api";
+import { createSession, getSessionByPodKey, listAgents } from "./sessions-api";
 
 vi.mock("./api-fetch", () => ({
   apiFetch: vi.fn(),
@@ -92,7 +92,9 @@ describe("createSession model resources", () => {
         new Response(
           JSON.stringify({
             object: "list",
-            data: [{ id: 42, name: "Codex", provider_key: "openai", model: "gpt-5.5", is_default: true }],
+            data: [
+              { id: 42, name: "Codex", provider_key: "openai", model: "gpt-5.5", is_default: true },
+            ],
           }),
           { status: 200 },
         ),
@@ -130,5 +132,34 @@ describe("createSession model resources", () => {
       interactionMode: "pty",
     });
     expect(apiFetchMock).toHaveBeenCalledWith("/v1/sessions/by-pod/mobile-pod");
+  });
+
+  it("requires every Worker to declare its supported interaction modes", async () => {
+    apiFetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: [
+            { id: "codex-cli", name: "Codex", harness: "codex", supported_modes: ["acp", "pty"] },
+            { id: "aider", name: "Aider", harness: "aider", supported_modes: ["pty"] },
+          ],
+        }),
+        { status: 200 },
+      ),
+    );
+
+    await expect(listAgents()).resolves.toEqual([
+      { id: "codex-cli", name: "Codex", harness: "codex", supportedModes: ["acp", "pty"] },
+      { id: "aider", name: "Aider", harness: "aider", supportedModes: ["pty"] },
+    ]);
+  });
+
+  it("rejects a Worker catalog without a mode contract", async () => {
+    apiFetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ data: [{ id: "codex-cli", name: "Codex" }] }), {
+        status: 200,
+      }),
+    );
+
+    await expect(listAgents()).rejects.toThrow("未声明支持的交互模式");
   });
 });

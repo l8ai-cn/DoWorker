@@ -98,6 +98,11 @@ function NewTask() {
   }, [currentEngine, engineId]);
 
   useEffect(() => {
+    if (!currentEngine || currentEngine.supportedModes.includes(interactionMode)) return;
+    setInteractionMode(currentEngine.supportedModes[0]);
+  }, [currentEngine, interactionMode]);
+
+  useEffect(() => {
     if (projectNames.length > 0 && !projectNames.includes(projectName)) {
       setProjectName(projectNames[0]);
     }
@@ -173,6 +178,9 @@ function NewTask() {
         if (!engines.some((engine) => engine.id === "codex-cli")) {
           throw new Error("当前组织没有可用于目标模式的 Codex Worker");
         }
+        if (!engines.find((engine) => engine.id === "codex-cli")?.supportedModes.includes("acp")) {
+          throw new Error("当前组织的 Codex Worker 不支持可视化对话模式");
+        }
         const objective = buildCodexObjective(prompt, successCriteria);
         const budget = parseTokenBudget(tokenBudget);
         const title = taskTitleForSubmit(prompt, undefined, "Codex Goal");
@@ -205,6 +213,9 @@ function NewTask() {
         }
       }
       const agentSlug = currentExpert?.agent_slug ?? engineId;
+      if (!currentEngine.supportedModes.includes(interactionMode)) {
+        throw new Error(`${currentEngine.name} 不支持当前交互方式`);
+      }
       const fullText = messageWithExpertContext(text, currentExpert?.name, currentExpert?.description ?? currentExpert?.prompt);
       const title = taskTitleForSubmit(text, currentExpert?.name, currentEngine.name);
       const session = await createSession(agentSlug, title, fullText, { mode: interactionMode });
@@ -307,6 +318,7 @@ function NewTask() {
 
           <InteractionModeSelector
             mode={interactionMode}
+            supportedModes={currentEngine?.supportedModes ?? []}
             disabled={asGoal || !currentEngine}
             onChange={setInteractionMode}
           />

@@ -1,4 +1,5 @@
 import { displayAgentName } from "./agent-slugs";
+import type { SessionInteractionMode } from "./sessions-api";
 
 const VENDOR: Record<string, string> = {
   codex: "OpenAI",
@@ -24,6 +25,7 @@ export interface AgentPickerOption {
   vendor: string;
   avatar: string;
   desc: string;
+  supportedModes: SessionInteractionMode[];
 }
 
 function harnessFamily(harness: string | null | undefined): string {
@@ -40,6 +42,7 @@ function harnessFamily(harness: string | null | undefined): string {
 export function agentPickerOption(
   id: string,
   name: string,
+  supportedModes: SessionInteractionMode[],
   harness?: string | null,
 ): AgentPickerOption {
   const family = harnessFamily(harness ?? name);
@@ -50,5 +53,6 @@ export function agentPickerOption(
     vendor: VENDOR[family] ?? "Agent",
     avatar: AVATAR[family] ?? "🤖",
     desc: `${label} · ${harness ?? id}`,
+    supportedModes,
   };
 }

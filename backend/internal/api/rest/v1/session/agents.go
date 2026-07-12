@@ -1,9 +1,11 @@
 package sessionapi
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"sort"
+	"strings"
 
 	"github.com/anthropics/agentsmesh/agentfile/capability"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
@@ -11,14 +13,15 @@ import (
 )
 
 type agentWire struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Description  *string           `json:"description,omitempty"`
-	Harness      *string           `json:"harness,omitempty"`
-	Skills       []skillWire       `json:"skills,omitempty"`
-	Builtin      bool              `json:"builtin"`
-	CreatedAt    int64             `json:"created_at"`
-	Capabilities map[string]string `json:"capabilities,omitempty"`
+	ID             string            `json:"id"`
+	Name           string            `json:"name"`
+	Description    *string           `json:"description,omitempty"`
+	Harness        *string           `json:"harness,omitempty"`
+	Skills         []skillWire       `json:"skills,omitempty"`
+	Builtin        bool              `json:"builtin"`
+	CreatedAt      int64             `json:"created_at"`
+	Capabilities   map[string]string `json:"capabilities,omitempty"`
+	SupportedModes []string          `json:"supported_modes"`
 }
 
 type skillWire struct {
@@ -43,12 +46,18 @@ func (d *Deps) handleListAgents(c *gin.Context) {
 		if a.Executable != "" {
 			harness = a.Executable
 		}
+		modes, err := agentInteractionModes(a.SupportedModes)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid agent interaction modes"})
+			return
+		}
 		row := agentWire{
-			ID:        a.Slug,
-			Name:      a.Slug,
-			Builtin:   a.IsBuiltin,
-			CreatedAt: a.CreatedAt.Unix(),
-			Harness:   &harness,
+			ID:             a.Slug,
+			Name:           a.Slug,
+			Builtin:        a.IsBuiltin,
+			CreatedAt:      a.CreatedAt.Unix(),
+			Harness:        &harness,
+			SupportedModes: modes,
 		}
 		if a.Description != nil {
 			row.Description = a.Description
@@ -65,6 +74,26 @@ func (d *Deps) handleListAgents(c *gin.Context) {
 		"has_more": hasMore,
 		"last_id":  lastAgentID(page),
 	})
+}
+
+func agentInteractionModes(raw string) ([]string, error) {
+	modes := make([]string, 0, 2)
+	seen := make(map[string]struct{}, 2)
+	for _, mode := range strings.Split(raw, ",") {
+		mode = strings.TrimSpace(mode)
+		if mode != "acp" && mode != "pty" {
+			return nil, fmt.Errorf("unsupported interaction mode %q", mode)
+		}
+		if _, ok := seen[mode]; ok {
+			return nil, fmt.Errorf("duplicate interaction mode %q", mode)
+		}
+		seen[mode] = struct{}{}
+		modes = append(modes, mode)
+	}
+	if len(modes) == 0 {
+		return nil, fmt.Errorf("no interaction modes configured")
+	}
+	return modes, nil
 }
 
 const agentPageSize = 50

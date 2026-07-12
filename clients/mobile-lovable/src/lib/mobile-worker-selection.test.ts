@@ -8,6 +8,7 @@ const codex: AgentPickerOption = {
   vendor: "OpenAI",
   avatar: "O",
   desc: "codex-cli",
+  supportedModes: ["acp", "pty"],
 };
 
 const claude: AgentPickerOption = {
@@ -16,6 +17,7 @@ const claude: AgentPickerOption = {
   vendor: "Anthropic",
   avatar: "A",
   desc: "claude-code",
+  supportedModes: ["pty"],
 };
 
 describe("resolveMobileWorkerSelection", () => {
