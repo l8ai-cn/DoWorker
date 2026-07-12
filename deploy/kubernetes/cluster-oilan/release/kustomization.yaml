@@ -12,6 +12,6 @@ images:
   - name: repo.aiedulab.cn:8443/agentsmesh/relay
     digest: sha256:4e5992c1702cfc467d578ae4ff693cdece606c534c62c1c25dbd373498d4022d
   - name: repo.aiedulab.cn:8443/agentsmesh/web
-    digest: sha256:e404ba923bd72e9cdb4ca005a5aa100155b4dc62779de6a6f21e590326635cf2
+    digest: sha256:dd917a5a8286107c5a865a8bf625d6811da3b3656060b68b643cf5a3aa423437
   - name: repo.aiedulab.cn:8443/agentsmesh/web-admin
     digest: sha256:9fb12386b68f2888b51acade34e425ba122d33a12640a4e19659d1f741452ea8
