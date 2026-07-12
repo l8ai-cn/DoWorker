@@ -211,6 +211,15 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 			InternalSecret: cfg.Server.InternalAPISecret,
 		})
 	}
+	if svc.Expert != nil && svc.Org != nil {
+		internal.RegisterMarketplaceInstallationRoutes(
+			r.Group("/api/internal/marketplace/installations"),
+			internal.MarketplaceInstallationDeps{
+				Installer: svc.Expert, Authorizer: svc.Org,
+				InternalSecret: cfg.Server.InternalAPISecret,
+			},
+		)
+	}
 
 	sessionDeps := sessionapi.Deps{
 		Auth:               svc.Auth,

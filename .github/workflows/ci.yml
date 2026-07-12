@@ -39,7 +39,7 @@ jobs:
     needs: smoke
     services:
       postgres:
-        image: postgres:16
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -48,12 +48,13 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres -d agentsmesh_migrations"
-          --health-interval 10s
+          --health-interval 5s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
     env:
       CI: "true"
       MIGRATIONS_POSTGRES_TEST_DSN: postgres://postgres:postgres@localhost:5432/agentsmesh_migrations?sslmode=disable
+      MARKETPLACE_POSTGRES_TEST_DSN: postgres://postgres:postgres@localhost:5432/agentsmesh_migrations?sslmode=disable
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v5
@@ -68,7 +69,7 @@ jobs:
         run: bash scripts/ensure-go-codegen.sh
       - name: Unit tests
         run: |
-          go test -count=1 ./backend/... ./runner/... ./relay/... ./agentfile/... ./proto/...
+          go test -count=1 ./backend/... ./runner/... ./relay/... ./marketplace/... ./agentfile/... ./proto/...
       - name: Poddaemon integration
         run: |
           go test -count=1 -tags=integration ./runner/internal/poddaemon/...
@@ -81,7 +82,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [backend, runner, relay]
+        module: [backend, runner, relay, marketplace]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v5
@@ -225,6 +226,7 @@ jobs:
       - run: pnpm run web:typecheck
       - run: pnpm run web:test
       - run: pnpm run web-admin:typecheck
+      - run: pnpm run marketplace-web:check
 
   web-admin:
     name: Web-Admin (lint + vitest)
@@ -286,6 +288,10 @@ jobs:
         include:
           - service: backend
             file: backend/Dockerfile
+          - service: marketplace
+            file: marketplace/Dockerfile
+          - service: marketplace-web
+            file: clients/marketplace-web/Dockerfile
           - service: runner
             file: runner/Dockerfile
           - service: relay
@@ -299,7 +305,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Free disk
-        if: matrix.service == 'web' || matrix.service == 'web-admin' || matrix.service == 'mobile'
+        if: matrix.service == 'web' || matrix.service == 'web-admin' || matrix.service == 'marketplace-web' || matrix.service == 'mobile'
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
             /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true

@@ -6,11 +6,13 @@ import (
 )
 
 type Config struct {
-	HTTPAddress      string
-	DatabaseURL      string
-	IdentityIssuer   string
-	IdentityAudience string
-	IdentityJWKSURL  string
+	HTTPAddress       string
+	DatabaseURL       string
+	IdentityIssuer    string
+	IdentityAudience  string
+	IdentityJWKSURL   string
+	RuntimeBridgeURL  string
+	InternalAPISecret string
 }
 
 func Load() (Config, error) {
@@ -32,11 +34,18 @@ func LoadFrom(getenv func(string) string) (Config, error) {
 	if issuer == "" || audience == "" || jwksURL == "" {
 		return Config{}, errors.New("marketplace identity issuer, audience, and JWKS URL are required")
 	}
+	runtimeBridgeURL := getenv("MARKETPLACE_RUNTIME_BRIDGE_URL")
+	internalSecret := getenv("INTERNAL_API_SECRET")
+	if runtimeBridgeURL == "" || internalSecret == "" {
+		return Config{}, errors.New("marketplace runtime bridge URL and internal API secret are required")
+	}
 	return Config{
-		HTTPAddress:      address,
-		DatabaseURL:      databaseURL,
-		IdentityIssuer:   issuer,
-		IdentityAudience: audience,
-		IdentityJWKSURL:  jwksURL,
+		HTTPAddress:       address,
+		DatabaseURL:       databaseURL,
+		IdentityIssuer:    issuer,
+		IdentityAudience:  audience,
+		IdentityJWKSURL:   jwksURL,
+		RuntimeBridgeURL:  runtimeBridgeURL,
+		InternalAPISecret: internalSecret,
 	}, nil
 }

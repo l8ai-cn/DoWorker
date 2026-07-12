@@ -24,14 +24,16 @@ func TestListListingsReturnsPublicContract(t *testing.T) {
 			DefaultLocale: "zh-CN",
 		},
 		items: []service.ListingSummary{{
-			ListingID:    108,
-			Slug:         "listing-optimizer",
-			ResourceType: "application",
-			DisplayName:  "商品优化应用",
-			Tagline:      "提升商品发布效率",
-			Publisher:    service.PublisherView{Slug: "commerce-lab", DisplayName: "Commerce Lab", Verified: true},
-			Spaces:       []service.SpaceView{{Slug: "operations", Name: "运营"}},
-			PublishedAt:  publishedAt,
+			ListingID:        108,
+			ListingVersionID: 301,
+			Slug:             "listing-optimizer",
+			ResourceType:     "application",
+			DisplayName:      "商品优化应用",
+			Tagline:          "提升商品发布效率",
+			Publisher:        service.PublisherView{Slug: "commerce-lab", DisplayName: "Commerce Lab", Verified: true},
+			Spaces:           []service.SpaceView{{Slug: "operations", Name: "运营"}},
+			EstimatedCredits: 20_000_000,
+			PublishedAt:      publishedAt,
 		}},
 	})
 	router := gin.New()
@@ -46,12 +48,14 @@ func TestListListingsReturnsPublicContract(t *testing.T) {
 	require.JSONEq(t, `{
 	  "items":[{
 	    "listing_id":"108",
+	    "listing_version_id":"301",
 	    "slug":"listing-optimizer",
 	    "resource_type":"application",
 	    "display_name":"商品优化应用",
 	    "tagline":"提升商品发布效率",
 	    "publisher":{"slug":"commerce-lab","display_name":"Commerce Lab","verified":true},
 	    "spaces":[{"slug":"operations","name":"运营"}],
+	    "quota":{"mode":"per_install","estimated_credits_micro":"20000000"},
 	    "published_at":"2026-07-11T08:00:00Z"
 	  }],
 	  "next_cursor":null
@@ -72,13 +76,37 @@ func TestMarketNotFoundUsesStableChineseError(t *testing.T) {
 	require.JSONEq(t, `{"error":{"code":"MARKET_NOT_FOUND","message":"找不到这个市场"}}`, response.Body.String())
 }
 
-type repositoryStub struct {
-	market    service.MarketView
-	marketErr error
-	items     []service.ListingSummary
+func TestForwardedHostSelectsMarketplaceDomain(t *testing.T) {
+	repository := &repositoryStub{
+		market: service.MarketView{
+			MarketplaceID: 42,
+			Slug:          "commerce-market",
+			Status:        "published",
+		},
+	}
+	router := gin.New()
+	NewHandler(service.NewStorefrontService(repository)).
+		RegisterRoutes(router.Group("/api/marketplace/v1"))
+
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodGet, "/api/marketplace/v1/markets/commerce-market", nil)
+	request.Host = "marketplace:8080"
+	request.Header.Set("X-Forwarded-Host", "market.example.com, edge.example.com")
+	router.ServeHTTP(response, request)
+
+	require.Equal(t, http.StatusOK, response.Code)
+	require.Equal(t, "market.example.com", repository.resolvedHost)
 }
 
-func (r *repositoryStub) ResolveMarket(context.Context, string, string) (service.MarketView, error) {
+type repositoryStub struct {
+	market       service.MarketView
+	marketErr    error
+	items        []service.ListingSummary
+	resolvedHost string
+}
+
+func (r *repositoryStub) ResolveMarket(_ context.Context, _, host string) (service.MarketView, error) {
+	r.resolvedHost = host
 	return r.market, r.marketErr
 }
 

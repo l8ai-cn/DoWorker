@@ -14,9 +14,10 @@ import (
 
 func TestLiveDoesNotDependOnDatabase(t *testing.T) {
 	router := NewRouter(Dependencies{
-		Ready:      func(context.Context) error { return errors.New("database unavailable") },
-		Storefront: testStorefront(),
-		Identity:   healthTokenVerifier{},
+		Ready:         func(context.Context) error { return errors.New("database unavailable") },
+		Storefront:    testStorefront(),
+		Identity:      healthTokenVerifier{},
+		Installations: healthInstallations{},
 	})
 
 	response := httptest.NewRecorder()
@@ -28,9 +29,10 @@ func TestLiveDoesNotDependOnDatabase(t *testing.T) {
 
 func TestReadyReportsDatabaseFailure(t *testing.T) {
 	router := NewRouter(Dependencies{
-		Ready:      func(context.Context) error { return errors.New("database unavailable") },
-		Storefront: testStorefront(),
-		Identity:   healthTokenVerifier{},
+		Ready:         func(context.Context) error { return errors.New("database unavailable") },
+		Storefront:    testStorefront(),
+		Identity:      healthTokenVerifier{},
+		Installations: healthInstallations{},
 	})
 
 	response := httptest.NewRecorder()
@@ -47,9 +49,10 @@ func TestReadyReportsDatabaseFailure(t *testing.T) {
 
 func TestReadySucceedsAfterDatabaseProbe(t *testing.T) {
 	router := NewRouter(Dependencies{
-		Ready:      func(context.Context) error { return nil },
-		Storefront: testStorefront(),
-		Identity:   healthTokenVerifier{},
+		Ready:         func(context.Context) error { return nil },
+		Storefront:    testStorefront(),
+		Identity:      healthTokenVerifier{},
+		Installations: healthInstallations{},
 	})
 
 	response := httptest.NewRecorder()
@@ -72,9 +75,32 @@ func testStorefront() *service.StorefrontService {
 type healthRepository struct{}
 
 type healthTokenVerifier struct{}
+type healthInstallations struct{}
 
 func (healthTokenVerifier) Verify(context.Context, string) (*authpkg.Claims, error) {
 	return nil, errors.New("not used")
+}
+
+func (healthInstallations) CreatePlan(
+	context.Context,
+	service.CreateInstallationPlanCommand,
+) (service.InstallationPlanResult, error) {
+	return service.InstallationPlanResult{}, errors.New("not used")
+}
+
+func (healthInstallations) Apply(
+	context.Context,
+	service.ApplyInstallationCommand,
+) (service.ApplyResult, error) {
+	return service.ApplyResult{}, errors.New("not used")
+}
+
+func (healthInstallations) GetOperation(
+	context.Context,
+	string,
+	int64,
+) (service.ApplyResult, error) {
+	return service.ApplyResult{}, errors.New("not used")
 }
 
 func (healthRepository) ResolveMarket(

@@ -15,6 +15,13 @@ spec:
     - host: dowork.l8ai.cn
       http:
         paths:
+          - path: /api/marketplace/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: marketplace
+                port:
+                  number: 8080
           - path: /api
             pathType: Prefix
             backend:
@@ -82,13 +89,20 @@ spec:
     - host: market.l8ai.cn
       http:
         paths:
-          - path: /
+          - path: /api/marketplace/v1
             pathType: Prefix
             backend:
               service:
                 name: marketplace
                 port:
                   number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: marketplace-web
+                port:
+                  number: 3000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

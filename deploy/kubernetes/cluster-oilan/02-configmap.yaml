@@ -38,6 +38,7 @@ data:
   MARKETPLACE_IDENTITY_ISSUER: "https://dowork.l8ai.cn"
   MARKETPLACE_IDENTITY_AUDIENCE: "marketplace-api"
   MARKETPLACE_IDENTITY_JWKS_URL: "https://dowork.l8ai.cn/.well-known/jwks.json"
+  MARKETPLACE_RUNTIME_BRIDGE_URL: "http://backend:8080/api/internal/marketplace/installations"
 
   # Object storage: in-cluster MinIO for the SDK, public host for presigned URLs.
   STORAGE_ENDPOINT: "minio:9000"

@@ -57,6 +57,7 @@ apply_all() {
   echo "==> wait for embedded migrations"
   dexec "kubectl -n ${NS} rollout status deploy/backend --timeout=300s"
   dexec "kubectl -n ${NS} rollout status deploy/marketplace --timeout=300s"
+  dexec "kubectl -n ${NS} rollout status deploy/marketplace-web --timeout=300s"
   echo "==> seed + minio bucket"
   dexec "kubectl -n ${NS} delete job seed minio-setup --ignore-not-found"
   dexec "kubectl apply -f 21-seed-configmap.yaml -f 22-seed-job.yaml -f 13-minio-setup-job.yaml"
@@ -64,7 +65,7 @@ apply_all() {
 
 status() {
   echo "==> rollout status"
-  for d in backend marketplace relay web web-admin mobile runner-e2e-echo; do
+  for d in backend marketplace marketplace-web relay web web-admin mobile runner-e2e-echo; do
     dexec "kubectl -n ${NS} rollout status deploy/${d} --timeout=240s"
   done
   dexec "kubectl -n ${NS} get pods -o wide"

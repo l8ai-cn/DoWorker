@@ -1,0 +1,162 @@
+@media (max-width: 900px) {
+  .site-header nav {
+    gap: 18px;
+  }
+
+  .account-entry {
+    display: none;
+  }
+
+  .market-intro,
+  .detail-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .market-intro {
+    padding: 34px;
+  }
+
+  .trust-note {
+    max-width: 520px;
+  }
+
+  .space-grid,
+  .listing-grid,
+  .skeleton-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .detail-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .shell {
+    padding-inline: 16px;
+  }
+
+  .page-main {
+    padding-block: 20px 52px;
+  }
+
+  .header-inner {
+    height: 64px;
+  }
+
+  .brand small,
+  .site-header nav a:not(:last-child),
+  .site-header nav span {
+    display: none;
+  }
+
+  .site-header nav {
+    gap: 0;
+  }
+
+  .market-intro {
+    padding: 26px 22px;
+  }
+
+  .market-intro h1 {
+    font-size: 36px;
+  }
+
+  .market-intro p {
+    font-size: 16px;
+  }
+
+  .intro-mark {
+    display: none;
+  }
+
+  .search-form {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    padding: 14px;
+  }
+
+  .search-form > svg {
+    margin-top: 12px;
+  }
+
+  .search-form .button {
+    grid-column: 1 / -1;
+  }
+
+  .section-block {
+    margin-top: 38px;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+  }
+
+  .space-grid,
+  .listing-grid,
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .desktop-filters {
+    display: none;
+  }
+
+  .mobile-filters {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    display: block;
+    margin-bottom: 18px;
+    padding: 0 16px;
+  }
+
+  .mobile-filters summary {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    min-height: 48px;
+    padding-top: 14px;
+  }
+
+  .mobile-filters .filter-groups {
+    border: 0;
+    margin: 0;
+    padding: 6px 0 16px;
+  }
+
+  .filter-group {
+    align-items: flex-start;
+    grid-template-columns: 1fr;
+  }
+
+  .detail-hero {
+    padding: 22px;
+  }
+
+  .detail-hero h1 {
+    font-size: 36px;
+  }
+
+  .detail-section {
+    padding: 21px;
+  }
+
+  .site-footer .shell {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .listing-card,
+  .skeleton {
+    animation: none;
+    transition: none;
+  }
+}

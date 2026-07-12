@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/anthropics/agentsmesh/marketplace/internal/service"
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,7 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 }
 
 func (h *Handler) getMarket(c *gin.Context) {
-	item, err := h.storefront.GetMarket(c, c.Param("marketSlug"), c.Request.Host)
+	item, err := h.storefront.GetMarket(c, c.Param("marketSlug"), requestHost(c))
 	if err != nil {
 		writeStorefrontError(c, err)
 		return
@@ -44,7 +45,7 @@ func (h *Handler) listListings(c *gin.Context) {
 	items, err := h.storefront.ListListings(
 		c,
 		c.Param("marketSlug"),
-		c.Request.Host,
+		requestHost(c),
 		20,
 	)
 	if err != nil {
@@ -62,7 +63,7 @@ func (h *Handler) getListing(c *gin.Context) {
 	item, err := h.storefront.GetListing(
 		c,
 		c.Param("marketSlug"),
-		c.Request.Host,
+		requestHost(c),
 		c.Param("listingSlug"),
 	)
 	if err != nil {
@@ -70,6 +71,13 @@ func (h *Handler) getListing(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, mapListingDetail(item))
+}
+
+func requestHost(c *gin.Context) string {
+	if forwarded := c.GetHeader("X-Forwarded-Host"); forwarded != "" {
+		return strings.TrimSpace(strings.Split(forwarded, ",")[0])
+	}
+	return c.Request.Host
 }
 
 func writeStorefrontError(c *gin.Context, err error) {

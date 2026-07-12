@@ -210,6 +210,7 @@ start_marketplace_host_lite() {
     export MARKETPLACE_IDENTITY_ISSUER="http://${PRIMARY_DOMAIN}"
     export MARKETPLACE_IDENTITY_AUDIENCE="marketplace-api"
     export MARKETPLACE_IDENTITY_JWKS_URL="http://${PRIMARY_DOMAIN}/.well-known/jwks.json"
+    export MARKETPLACE_RUNTIME_BRIDGE_URL="http://localhost:${BACKEND_HTTP_PORT}/api/internal/marketplace/installations"
 
     info "预编译 Marketplace..."
     (cd "$repo_root" && go build -o "$(_runtime_dir)/marketplace/air/main" ./marketplace/cmd/server) || {

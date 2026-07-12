@@ -3,9 +3,9 @@
 # on doops-114-k8s pull from repo.aiedulab.cn:8443/agentsmesh/* (fast, node-local).
 #
 #   ./push-images.sh all        # platform + infra + runners
-#   ./push-images.sh platform   # backend/marketplace/relay/web/web-admin/mobile
+#   ./push-images.sh platform   # backend/marketplace/marketplace-web/relay/web/web-admin/mobile
 #   ./push-images.sh mobile-access # backend/relay/mobile only
-#   ./push-images.sh marketplace-core # backend/marketplace + existing UI digests
+#   ./push-images.sh marketplace-core # backend/marketplace/marketplace-web/web
 #   ./push-images.sh infra      # postgres/redis/minio/mc/kubectl mirrors
 #   ./push-images.sh runners    # agent-runtime images (claude/codex/gemini/grok/openclaw/hermes/e2e-echo)
 #
@@ -19,6 +19,7 @@ TARGET="${1:-all}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 PLATFORM_DIGEST_BACKEND=""
 PLATFORM_DIGEST_MARKETPLACE=""
+PLATFORM_DIGEST_MARKETPLACE_WEB=""
 PLATFORM_DIGEST_RELAY=""
 PLATFORM_DIGEST_WEB=""
 PLATFORM_DIGEST_WEB_ADMIN=""
@@ -65,6 +66,7 @@ docker_push() {
   case "${dest}" in
     backend)     PLATFORM_DIGEST_BACKEND="${digest}" ;;
     marketplace) PLATFORM_DIGEST_MARKETPLACE="${digest}" ;;
+    marketplace-web) PLATFORM_DIGEST_MARKETPLACE_WEB="${digest}" ;;
     relay)       PLATFORM_DIGEST_RELAY="${digest}" ;;
     web)         PLATFORM_DIGEST_WEB="${digest}" ;;
     web-admin)   PLATFORM_DIGEST_WEB_ADMIN="${digest}" ;;
@@ -86,6 +88,8 @@ images:
     digest: ${PLATFORM_DIGEST_BACKEND}
   - name: ${PROJ}/marketplace
     digest: ${PLATFORM_DIGEST_MARKETPLACE}
+  - name: ${PROJ}/marketplace-web
+    digest: ${PLATFORM_DIGEST_MARKETPLACE_WEB}
   - name: ${PROJ}/relay
     digest: ${PLATFORM_DIGEST_RELAY}
   - name: ${PROJ}/web
@@ -121,6 +125,7 @@ mirror() {
 push_platform() {
   docker_push backend/Dockerfile backend
   docker_push marketplace/Dockerfile marketplace
+  docker_push clients/marketplace-web/Dockerfile marketplace-web
   docker_push relay/Dockerfile relay
   docker_push clients/web/Dockerfile web
   docker_push clients/web-admin/Dockerfile web-admin
@@ -131,8 +136,9 @@ push_platform() {
 push_marketplace_core() {
   docker_push backend/Dockerfile backend
   docker_push marketplace/Dockerfile marketplace
+  docker_push clients/marketplace-web/Dockerfile marketplace-web
+  docker_push clients/web/Dockerfile web
   PLATFORM_DIGEST_RELAY="$(registry_digest relay)"
-  PLATFORM_DIGEST_WEB="$(registry_digest web)"
   PLATFORM_DIGEST_WEB_ADMIN="$(registry_digest web-admin)"
   write_platform_release
 }

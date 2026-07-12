@@ -14,15 +14,22 @@ type publisherResponse struct {
 	Verified    bool   `json:"verified"`
 }
 
+type quotaResponse struct {
+	Mode                  string `json:"mode"`
+	EstimatedCreditsMicro string `json:"estimated_credits_micro"`
+}
+
 type listingSummaryResponse struct {
-	ListingID    string              `json:"listing_id"`
-	Slug         string              `json:"slug"`
-	ResourceType string              `json:"resource_type"`
-	DisplayName  string              `json:"display_name"`
-	Tagline      string              `json:"tagline"`
-	Publisher    publisherResponse   `json:"publisher"`
-	Spaces       []service.SpaceView `json:"spaces"`
-	PublishedAt  time.Time           `json:"published_at"`
+	ListingID        string              `json:"listing_id"`
+	ListingVersionID string              `json:"listing_version_id"`
+	Slug             string              `json:"slug"`
+	ResourceType     string              `json:"resource_type"`
+	DisplayName      string              `json:"display_name"`
+	Tagline          string              `json:"tagline"`
+	Publisher        publisherResponse   `json:"publisher"`
+	Spaces           []service.SpaceView `json:"spaces"`
+	Quota            *quotaResponse      `json:"quota,omitempty"`
+	PublishedAt      time.Time           `json:"published_at"`
 }
 
 type listingDetailResponse struct {
@@ -38,12 +45,13 @@ type listingDetailResponse struct {
 }
 
 func mapListingSummary(item service.ListingSummary) listingSummaryResponse {
-	return listingSummaryResponse{
-		ListingID:    strconv.FormatInt(item.ListingID, 10),
-		Slug:         item.Slug,
-		ResourceType: item.ResourceType,
-		DisplayName:  item.DisplayName,
-		Tagline:      item.Tagline,
+	response := listingSummaryResponse{
+		ListingID:        strconv.FormatInt(item.ListingID, 10),
+		ListingVersionID: strconv.FormatInt(item.ListingVersionID, 10),
+		Slug:             item.Slug,
+		ResourceType:     item.ResourceType,
+		DisplayName:      item.DisplayName,
+		Tagline:          item.Tagline,
 		Publisher: publisherResponse{
 			Slug:        item.Publisher.Slug,
 			DisplayName: item.Publisher.DisplayName,
@@ -52,6 +60,13 @@ func mapListingSummary(item service.ListingSummary) listingSummaryResponse {
 		Spaces:      item.Spaces,
 		PublishedAt: item.PublishedAt.UTC(),
 	}
+	if item.EstimatedCredits > 0 {
+		response.Quota = &quotaResponse{
+			Mode:                  "per_install",
+			EstimatedCreditsMicro: strconv.FormatInt(item.EstimatedCredits, 10),
+		}
+	}
+	return response
 }
 
 func mapListingDetail(item service.ListingDetail) listingDetailResponse {

@@ -34,14 +34,16 @@ type SpaceView struct {
 }
 
 type ListingSummary struct {
-	ListingID    int64
-	Slug         string
-	ResourceType string
-	DisplayName  string
-	Tagline      string
-	Publisher    PublisherView
-	Spaces       []SpaceView
-	PublishedAt  time.Time
+	ListingID        int64
+	ListingVersionID int64
+	Slug             string
+	ResourceType     string
+	DisplayName      string
+	Tagline          string
+	Publisher        PublisherView
+	Spaces           []SpaceView
+	EstimatedCredits int64
+	PublishedAt      time.Time
 }
 
 type ListingDetail struct {

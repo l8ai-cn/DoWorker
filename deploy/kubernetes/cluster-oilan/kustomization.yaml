@@ -24,6 +24,7 @@ resources:
   - 36-runner-codex-cli.yaml
   - 37-runner-minimax-cli.yaml
   - 38-marketplace.yaml
+  - 39-marketplace-web.yaml
   - 38-runner-grok-build.yaml
   - 39-runner-openclaw.yaml
   - 41-runner-hermes.yaml

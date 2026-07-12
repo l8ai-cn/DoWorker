@@ -1,0 +1,147 @@
+.market-intro {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: 32px;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  overflow: hidden;
+  padding: 46px;
+  position: relative;
+}
+
+.market-intro h1 {
+  font-size: clamp(34px, 5vw, 56px);
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+  margin: 13px 0 18px;
+  max-width: 760px;
+}
+
+.market-intro p {
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.trust-note {
+  align-items: flex-start;
+  align-self: end;
+  background: var(--teal-soft);
+  border: 1px solid #c9e5df;
+  border-radius: var(--radius-md);
+  color: var(--teal-strong);
+  display: flex;
+  gap: 12px;
+  padding: 18px;
+}
+
+.trust-note span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trust-note small {
+  color: #41726b;
+  line-height: 1.5;
+}
+
+.intro-mark {
+  color: var(--teal-soft);
+  position: absolute;
+  right: 24px;
+  top: 18px;
+}
+
+.search-form {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 12px;
+  margin: 22px auto 0;
+  max-width: 860px;
+  padding: 8px 8px 8px 18px;
+}
+
+.search-form > svg {
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
+.search-form input {
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  min-width: 0;
+  outline: 0;
+  width: 100%;
+}
+
+.section-block {
+  margin-top: 48px;
+}
+
+.section-heading {
+  align-items: end;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 19px;
+}
+
+.section-heading h2 {
+  font-size: 28px;
+  letter-spacing: -0.025em;
+  margin: 5px 0 0;
+}
+
+.result-count {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.space-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.space-card {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  gap: 13px;
+  min-height: 82px;
+  padding: 18px;
+}
+
+.space-card > svg:first-child {
+  color: var(--teal);
+}
+
+.space-card > svg:last-child {
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.space-card span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.space-card small {
+  color: var(--text-muted);
+}
+
+.space-card:hover,
+.listing-card:hover {
+  border-color: #a9cbc5;
+  box-shadow: var(--shadow);
+}

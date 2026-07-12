@@ -54,6 +54,8 @@ func TestStorefrontRepositoryEnforcesHostAndPublication(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, items, 1)
 	require.Equal(t, "public-app", items[0].Slug)
+	require.Equal(t, int64(71), items[0].ListingVersionID)
+	require.Equal(t, int64(20_000_000), items[0].EstimatedCredits)
 
 	detail, err := repository.GetPublishedListing(ctx, market.MarketplaceID, "public-app")
 	require.NoError(t, err)
@@ -116,7 +118,8 @@ INSERT INTO marketplace.marketplace_catalog_item_versions
   (id, catalog_item_id, version, source_revision, content_digest, manifest,
    validation_status, created_by_platform_user_id)
 VALUES
-  (51, 41, '1.0.0', 'sha-1', repeat('a', 64), '{}', 'passed', 14),
+  (51, 41, '1.0.0', 'sha-1', repeat('a', 64),
+   '{"installation_credits":"20"}', 'passed', 14),
   (52, 42, '1.0.0', 'sha-2', repeat('b', 64), '{}', 'passed', 14),
   (53, 43, '1.0.0', 'sha-3', repeat('c', 64), '{}', 'passed', 14);
 INSERT INTO marketplace.marketplace_listings

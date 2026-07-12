@@ -4,7 +4,7 @@ set -euo pipefail
 rendered="${1:?rendered manifest path is required}"
 registry="repo.aiedulab.cn:8443/agentsmesh"
 
-for image in backend marketplace relay web web-admin; do
+for image in backend marketplace marketplace-web relay web web-admin; do
   references="$(awk -v prefix="${registry}/${image}@" \
     '$1 == "image:" && index($2, prefix) == 1 {print $2}' "${rendered}")"
   [[ -n "${references}" ]] || {

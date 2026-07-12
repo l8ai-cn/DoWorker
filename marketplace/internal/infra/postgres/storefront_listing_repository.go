@@ -10,6 +10,7 @@ import (
 
 type listingRow struct {
 	ListingID         int64
+	ListingVersionID  int64
 	Slug              string
 	ResourceType      string
 	DisplayName       string
@@ -18,6 +19,7 @@ type listingRow struct {
 	PublisherName     string
 	PublisherVerified bool
 	SpacesJSON        []byte
+	EstimatedCredits  int64
 	PublishedAt       time.Time
 	Description       string
 	Outcomes          []byte
@@ -102,27 +104,36 @@ func mapListingSummary(row listingRow) (service.ListingSummary, error) {
 		return service.ListingSummary{}, err
 	}
 	return service.ListingSummary{
-		ListingID:    row.ListingID,
-		Slug:         row.Slug,
-		ResourceType: row.ResourceType,
-		DisplayName:  row.DisplayName,
-		Tagline:      row.Tagline,
+		ListingID:        row.ListingID,
+		ListingVersionID: row.ListingVersionID,
+		Slug:             row.Slug,
+		ResourceType:     row.ResourceType,
+		DisplayName:      row.DisplayName,
+		Tagline:          row.Tagline,
 		Publisher: service.PublisherView{
 			Slug:        row.PublisherSlug,
 			DisplayName: row.PublisherName,
 			Verified:    row.PublisherVerified,
 		},
-		Spaces:      spaces,
-		PublishedAt: row.PublishedAt,
+		Spaces:           spaces,
+		EstimatedCredits: row.EstimatedCredits,
+		PublishedAt:      row.PublishedAt,
 	}, nil
 }
 
 const storefrontListingQuery = `
-SELECT l.id AS listing_id, l.slug, ci.resource_type, lv.display_name, lv.tagline,
+SELECT l.id AS listing_id, lv.id AS listing_version_id, l.slug,
+  ci.resource_type, lv.display_name, lv.tagline,
   p.slug AS publisher_slug, p.display_name AS publisher_name,
   p.verification_status = 'verified' AS publisher_verified,
   COALESCE(jsonb_agg(DISTINCT jsonb_build_object('slug', s.slug, 'name', s.name))
     FILTER (WHERE s.id IS NOT NULL), '[]') AS spaces_json,
+  CASE
+    WHEN civ.manifest->>'installation_credits'
+      ~ '^([0-9]+|[0-9]+\.[0-9]{1,6})$'
+    THEN ((civ.manifest->>'installation_credits')::numeric * 1000000)::bigint
+    ELSE 0
+  END AS estimated_credits,
   l.published_at, lv.description, lv.outcomes, lv.use_cases, lv.target_audience,
   lv.requirements, civ.permissions, civ.version, lv.release_notes
 FROM marketplace.marketplace_listings l
