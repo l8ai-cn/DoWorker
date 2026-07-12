@@ -31,6 +31,8 @@ jobs:
         run: bash deploy/dev/runner_runtime_contract_test.sh
       - name: Agent-runtime contract
         run: bash docker/agent-runtime/contract_test.sh
+      - name: Mobile release deployment contract
+        run: bash deploy/kubernetes/cluster-oilan/deploy-mobile-access-contract_test.sh
 
   go:
     name: Go (tests)
