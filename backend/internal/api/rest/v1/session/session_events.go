@@ -44,9 +44,33 @@ func (d *Deps) postMessageEvent(c *gin.Context, row *domain.Session, pod *podDom
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "unavailable"})
 		return
 	}
-	content, prompt := parseMessageContent(data)
+	content, _ := parseMessageContent(data)
 	if !messageHasContent(content) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "empty message"})
+		return
+	}
+	attachmentPaths, err := stageMessageAttachments(
+		c.Request.Context(),
+		d.SessionFiles,
+		d.SandboxFs,
+		pod,
+		row.ID,
+		messageAttachments(data),
+	)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "attachment delivery failed"})
+		return
+	}
+	prompt := materializedMessagePrompt(data, attachmentPaths)
+	if !d.checkCostBudget(c, pod.PodKey) {
+		return
+	}
+	if err := d.CommandSender.SendPrompt(c.Request.Context(), pod.RunnerID, pod.PodKey, prompt); err != nil {
+		if errors.Is(err, runnerservice.ErrRunnerNotConnected) || errors.Is(err, runnerservice.ErrRunnerOffline) {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "runner unavailable", "code": "runner_unavailable"})
+			return
+		}
+		c.JSON(http.StatusBadGateway, gin.H{"error": "send failed", "code": "runner_unreachable"})
 		return
 	}
 	d.maybeSeedSessionTitle(c.Request.Context(), row, prompt)
@@ -85,17 +109,6 @@ func (d *Deps) postMessageEvent(c *gin.Context, row *domain.Session, pod *podDom
 	if d.Stream != nil {
 		d.Stream.publishTurnStarted(row.ID, respID)
 		d.Stream.PublishInputConsumed(row.ID, itemID, authorStr, content)
-	}
-	if !d.checkCostBudget(c, pod.PodKey) {
-		return
-	}
-	if err := d.CommandSender.SendPrompt(c.Request.Context(), pod.RunnerID, pod.PodKey, prompt); err != nil {
-		if errors.Is(err, runnerservice.ErrRunnerNotConnected) || errors.Is(err, runnerservice.ErrRunnerOffline) {
-			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "runner unavailable", "code": "runner_unavailable"})
-			return
-		}
-		c.JSON(http.StatusBadGateway, gin.H{"error": "send failed", "code": "runner_unreachable"})
-		return
 	}
 	c.JSON(http.StatusAccepted, gin.H{"queued": true, "item_id": itemID})
 }

@@ -5,12 +5,12 @@ import {
   fetchSessionItems,
   getSession,
   openSessionStream,
-  postMessage,
   resolveElicitation,
   stopSession,
   type LiveSessionSummary,
   type SessionStatus as ApiStatus,
 } from "@/lib/sessions-api";
+import { postSessionMessageWithFiles } from "@/lib/session-message-upload";
 import { itemsToLiveEvents } from "@/lib/session-items-hydrator";
 import { displayAgentName } from "@/lib/agent-slugs";
 import { readAuthToken } from "@/lib/auth-store";
@@ -156,12 +156,10 @@ export function useLiveSession(sessionId: string) {
   const session: AgentSession | null = summary ? toAgentSession(summary, events) : null;
 
   const send = useCallback(
-    async (text: string) => {
-      reducerRef.current.appendUserMessage(text);
-      syncEvents();
-      await postMessage(sessionId, text);
+    async (text: string, files: File[]) => {
+      await postSessionMessageWithFiles(sessionId, text, files);
     },
-    [sessionId, syncEvents],
+    [sessionId],
   );
 
   const stop = useCallback(async () => {
