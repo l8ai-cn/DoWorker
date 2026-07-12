@@ -6,8 +6,7 @@ import { AuthFormAlert } from "@/components/auth/AuthFormAlert";
 import { useI18n } from "@/i18n/I18nProvider";
 import { AuthPageShell } from "@/components/auth/AuthPageShell";
 import { DevCredentialsPanel } from "@/components/auth/DevCredentialsPanel";
-import { getMe, login as loginRequest } from "@/lib/accountsApi";
-import { hostFetch } from "@/lib/do-worker";
+import { getMe, listMyOrgSlug, login as loginRequest } from "@/lib/accountsApi";
 import { persistDoWorkerSession } from "@/lib/do-worker-auth";
 import { sanitizeReturnTo } from "@/lib/auth-return-to";
 
@@ -77,28 +76,19 @@ export function LoginPage() {
     });
     if (result.ok) {
       rememberUsername(username.trim());
-      let orgSlug = typeof result.org_slug === "string" ? result.org_slug : null;
-      if (!orgSlug) {
-        try {
-          const meRes = await hostFetch("/v1/me", {
-            headers: { Authorization: `Bearer ${result.token}` },
-            cache: "no-store",
-          });
-          if (meRes.ok) {
-            const me = (await meRes.json()) as { org_slug?: string };
-            if (typeof me.org_slug === "string" && me.org_slug) {
-              orgSlug = me.org_slug;
-            }
-          }
-        } catch {
-          // Best-effort — resolveIdentity backfills on next load.
-        }
+      try {
+        const orgSlug = await listMyOrgSlug(result.token);
+        persistDoWorkerSession({
+          accessToken: result.token,
+          refreshToken: result.refresh_token,
+          expiresIn: result.expires_in,
+          orgSlug,
+        });
+      } catch {
+        setSubmitting(false);
+        setError("Could not load your organization access. Sign in was not completed.");
+        return;
       }
-      persistDoWorkerSession({
-        accessToken: result.token,
-        expiresIn: result.expires_in,
-        orgSlug,
-      });
       window.location.href = returnTo;
       return;
     }
