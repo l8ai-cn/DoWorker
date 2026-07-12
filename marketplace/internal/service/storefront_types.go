@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"time"
@@ -33,6 +34,67 @@ type SpaceView struct {
 	Name string `json:"name"`
 }
 
+type TaxonomyTagView struct {
+	Slug        string `json:"slug"`
+	DisplayName string `json:"display_name"`
+	Kind        string `json:"kind"`
+}
+
+type ListingCursor struct {
+	Sort         string    `json:"s"`
+	FeaturedRank int       `json:"f"`
+	Relevance    int       `json:"r"`
+	PublishedAt  time.Time `json:"p"`
+	ListingID    int64     `json:"i"`
+}
+
+type ListingQuery struct {
+	Q           string
+	Scene       string
+	Industry    string
+	Audience    string
+	Type        string
+	Integration string
+	Readiness   string
+	Space       string
+	Sort        string
+	Cursor      *ListingCursor
+}
+
+type listingQueryKey struct{}
+
+func WithListingQuery(ctx context.Context, query ListingQuery) context.Context {
+	return context.WithValue(ctx, listingQueryKey{}, query)
+}
+
+func ListingQueryFromContext(ctx context.Context) ListingQuery {
+	query, _ := ctx.Value(listingQueryKey{}).(ListingQuery)
+	return query
+}
+
+func EncodeListingCursor(cursor ListingCursor) (string, error) {
+	value, err := json.Marshal(cursor)
+	if err != nil {
+		return "", err
+	}
+	return base64.RawURLEncoding.EncodeToString(value), nil
+}
+
+func DecodeListingCursor(value string) (ListingCursor, error) {
+	raw, err := base64.RawURLEncoding.DecodeString(value)
+	if err != nil {
+		return ListingCursor{}, err
+	}
+	var cursor ListingCursor
+	if err := json.Unmarshal(raw, &cursor); err != nil {
+		return ListingCursor{}, err
+	}
+	if cursor.Sort == "" || cursor.PublishedAt.IsZero() || cursor.ListingID <= 0 {
+		return ListingCursor{}, errors.New("invalid listing cursor")
+	}
+	return cursor, nil
+}
+
 type ListingSummary struct {
 	ListingID        int64
 	ListingVersionID int64
@@ -42,8 +104,10 @@ type ListingSummary struct {
 	Tagline          string
 	Publisher        PublisherView
 	Spaces           []SpaceView
+	Tags             []TaxonomyTagView
 	EstimatedCredits int64
 	PublishedAt      time.Time
+	PageCursor       ListingCursor
 }
 
 type ListingDetail struct {

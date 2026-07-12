@@ -55,11 +55,114 @@ func TestListListingsReturnsPublicContract(t *testing.T) {
 	    "tagline":"提升商品发布效率",
 	    "publisher":{"slug":"commerce-lab","display_name":"Commerce Lab","verified":true},
 	    "spaces":[{"slug":"operations","name":"运营"}],
+	    "tags":[],
 	    "quota":{"mode":"per_install","estimated_credits_micro":"20000000"},
 	    "published_at":"2026-07-11T08:00:00Z"
 	  }],
 	  "next_cursor":null
 	}`, response.Body.String())
+}
+
+func TestListListingsFiltersTaxonomyAndReturnsTags(t *testing.T) {
+	storefront := service.NewStorefrontService(&repositoryStub{
+		market: service.MarketView{
+			MarketplaceID: 42,
+			Slug:          "commerce-market",
+			Status:        "published",
+		},
+		items: []service.ListingSummary{
+			{
+				ListingID:        108,
+				ListingVersionID: 301,
+				Slug:             "software-delivery-expert",
+				ResourceType:     "application",
+				DisplayName:      "软件交付专家",
+				Tagline:          "交付可验证的软件变更",
+				Publisher:        service.PublisherView{Slug: "do-worker", DisplayName: "Do Worker", Verified: true},
+				Tags: []service.TaxonomyTagView{
+					{Slug: "software-delivery", DisplayName: "软件交付", Kind: "scene"},
+					{Slug: "enterprise-services", DisplayName: "企业服务", Kind: "industry"},
+				},
+				PublishedAt: time.Date(2026, 7, 12, 8, 0, 0, 0, time.UTC),
+			},
+			{
+				ListingID:        109,
+				ListingVersionID: 302,
+				Slug:             "course-builder",
+				ResourceType:     "application",
+				DisplayName:      "课程构建专家",
+				Tagline:          "构建教学内容",
+				Publisher:        service.PublisherView{Slug: "do-worker", DisplayName: "Do Worker", Verified: true},
+				PublishedAt:      time.Date(2026, 7, 12, 7, 0, 0, 0, time.UTC),
+			},
+		},
+	})
+	router := gin.New()
+	NewHandler(storefront).RegisterRoutes(router.Group("/api/marketplace/v1"))
+
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		http.MethodGet,
+		"/api/marketplace/v1/markets/commerce-market/listings?scene=software-delivery&industry=enterprise-services",
+		nil,
+	)
+	request.Host = "market.example.com"
+	router.ServeHTTP(response, request)
+
+	require.Equal(t, http.StatusOK, response.Code)
+	require.JSONEq(t, `{
+	  "items":[{
+	    "listing_id":"108",
+	    "listing_version_id":"301",
+	    "slug":"software-delivery-expert",
+	    "resource_type":"application",
+	    "display_name":"软件交付专家",
+	    "tagline":"交付可验证的软件变更",
+	    "publisher":{"slug":"do-worker","display_name":"Do Worker","verified":true},
+	    "spaces":[],
+	    "tags":[
+	      {"slug":"software-delivery","display_name":"软件交付","kind":"scene"},
+	      {"slug":"enterprise-services","display_name":"企业服务","kind":"industry"}
+	    ],
+	    "published_at":"2026-07-12T08:00:00Z"
+	  }],
+	  "next_cursor":null
+	}`, response.Body.String())
+}
+
+func TestListListingsPassesAllQueryParametersToStorefront(t *testing.T) {
+	cursor, err := service.EncodeListingCursor(service.ListingCursor{
+		Sort: "relevance", PublishedAt: time.Date(2026, 7, 12, 8, 0, 0, 0, time.UTC), ListingID: 108,
+	})
+	require.NoError(t, err)
+	repository := &repositoryStub{
+		market: service.MarketView{MarketplaceID: 42, Slug: "commerce-market", Status: "published"},
+		items: []service.ListingSummary{{
+			ListingID: 108, ListingVersionID: 301, Slug: "software-delivery-expert",
+			ResourceType: "application", DisplayName: "软件交付专家",
+		}},
+	}
+	router := gin.New()
+	NewHandler(service.NewStorefrontService(repository)).RegisterRoutes(router.Group("/api/marketplace/v1"))
+
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		http.MethodGet,
+		"/api/marketplace/v1/markets/commerce-market/listings?q=delivery&scene=software-delivery&industry=enterprise-services&audience=delivery-engineer&type=application&integration=github&readiness=runner-required&space=software-delivery&sort=relevance&cursor="+cursor,
+		nil,
+	)
+	request.Host = "market.example.com"
+	router.ServeHTTP(response, request)
+
+	require.Equal(t, http.StatusOK, response.Code)
+	require.Equal(t, service.ListingQuery{
+		Q: "delivery", Scene: "software-delivery", Industry: "enterprise-services",
+		Audience: "delivery-engineer", Type: "application", Integration: "github",
+		Readiness: "runner-required", Space: "software-delivery", Sort: "relevance",
+		Cursor: &service.ListingCursor{
+			Sort: "relevance", PublishedAt: time.Date(2026, 7, 12, 8, 0, 0, 0, time.UTC), ListingID: 108,
+		},
+	}, repository.listingQuery)
 }
 
 func TestMarketNotFoundUsesStableChineseError(t *testing.T) {
@@ -103,6 +206,7 @@ type repositoryStub struct {
 	marketErr    error
 	items        []service.ListingSummary
 	resolvedHost string
+	listingQuery service.ListingQuery
 }
 
 func (r *repositoryStub) ResolveMarket(_ context.Context, _, host string) (service.MarketView, error) {
@@ -110,7 +214,16 @@ func (r *repositoryStub) ResolveMarket(_ context.Context, _, host string) (servi
 	return r.market, r.marketErr
 }
 
-func (r *repositoryStub) ListPublishedListings(context.Context, int64, int) ([]service.ListingSummary, error) {
+func (r *repositoryStub) ListPublishedListings(
+	ctx context.Context,
+	_ int64,
+	_ int,
+) ([]service.ListingSummary, error) {
+	query := service.ListingQueryFromContext(ctx)
+	r.listingQuery = query
+	if query.Scene == "software-delivery" && query.Industry == "enterprise-services" {
+		return r.items[:1], nil
+	}
 	return r.items, nil
 }
 

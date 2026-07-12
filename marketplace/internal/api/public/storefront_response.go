@@ -20,16 +20,17 @@ type quotaResponse struct {
 }
 
 type listingSummaryResponse struct {
-	ListingID        string              `json:"listing_id"`
-	ListingVersionID string              `json:"listing_version_id"`
-	Slug             string              `json:"slug"`
-	ResourceType     string              `json:"resource_type"`
-	DisplayName      string              `json:"display_name"`
-	Tagline          string              `json:"tagline"`
-	Publisher        publisherResponse   `json:"publisher"`
-	Spaces           []service.SpaceView `json:"spaces"`
-	Quota            *quotaResponse      `json:"quota,omitempty"`
-	PublishedAt      time.Time           `json:"published_at"`
+	ListingID        string                    `json:"listing_id"`
+	ListingVersionID string                    `json:"listing_version_id"`
+	Slug             string                    `json:"slug"`
+	ResourceType     string                    `json:"resource_type"`
+	DisplayName      string                    `json:"display_name"`
+	Tagline          string                    `json:"tagline"`
+	Publisher        publisherResponse         `json:"publisher"`
+	Spaces           []service.SpaceView       `json:"spaces"`
+	Tags             []service.TaxonomyTagView `json:"tags"`
+	Quota            *quotaResponse            `json:"quota,omitempty"`
+	PublishedAt      time.Time                 `json:"published_at"`
 }
 
 type listingDetailResponse struct {
@@ -57,7 +58,8 @@ func mapListingSummary(item service.ListingSummary) listingSummaryResponse {
 			DisplayName: item.Publisher.DisplayName,
 			Verified:    item.Publisher.Verified,
 		},
-		Spaces:      item.Spaces,
+		Spaces:      nonNilSpaces(item.Spaces),
+		Tags:        nonNilTags(item.Tags),
 		PublishedAt: item.PublishedAt.UTC(),
 	}
 	if item.EstimatedCredits > 0 {
@@ -67,6 +69,20 @@ func mapListingSummary(item service.ListingSummary) listingSummaryResponse {
 		}
 	}
 	return response
+}
+
+func nonNilSpaces(spaces []service.SpaceView) []service.SpaceView {
+	if spaces == nil {
+		return []service.SpaceView{}
+	}
+	return spaces
+}
+
+func nonNilTags(tags []service.TaxonomyTagView) []service.TaxonomyTagView {
+	if tags == nil {
+		return []service.TaxonomyTagView{}
+	}
+	return tags
 }
 
 func mapListingDetail(item service.ListingDetail) listingDetailResponse {

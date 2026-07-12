@@ -30,6 +30,9 @@ func TestStorefrontRepositoryEnforcesHostAndPublication(t *testing.T) {
 	applyMigration(t, sqlDB, "000001_market_foundation.up.sql")
 	applyMigration(t, sqlDB, "000002_core_catalog.up.sql")
 	applyMigration(t, sqlDB, "000003_catalog_version_integrity.up.sql")
+	applyMigration(t, sqlDB, "000004_console_revisions.up.sql")
+	applyMigration(t, sqlDB, "000005_console_publication_integrity.up.sql")
+	applyMigration(t, sqlDB, "000011_listing_taxonomy.up.sql")
 	seedStorefront(t, sqlDB)
 
 	db, err := gorm.Open(postgres.Open(dsn))
@@ -71,6 +74,110 @@ INSERT INTO marketplace.marketplace_listing_versions
 VALUES (74, 61, 42, 52, 2, '错误拼接', '错误拼接', '错误拼接', 'approved')
 `)
 	require.Error(t, err)
+}
+
+func TestStorefrontRepositoryFiltersTaxonomyTagsInPostgres(t *testing.T) {
+	dsn := os.Getenv("MARKETPLACE_POSTGRES_TEST_DSN")
+	if dsn == "" {
+		t.Skip("MARKETPLACE_POSTGRES_TEST_DSN is not configured")
+	}
+	sqlDB, err := sql.Open("postgres", dsn)
+	require.NoError(t, err)
+	defer sqlDB.Close()
+	_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
+	t.Cleanup(func() {
+		_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
+	})
+	for _, migration := range []string{
+		"000001_market_foundation.up.sql",
+		"000002_core_catalog.up.sql",
+		"000003_catalog_version_integrity.up.sql",
+		"000004_console_revisions.up.sql",
+		"000005_console_publication_integrity.up.sql",
+		"000011_listing_taxonomy.up.sql",
+	} {
+		applyMigration(t, sqlDB, migration)
+	}
+	seedStorefront(t, sqlDB)
+	_, err = sqlDB.Exec(storefrontTaxonomySeedSQL)
+	require.NoError(t, err)
+
+	db, err := gorm.Open(postgres.Open(dsn))
+	require.NoError(t, err)
+	repository := NewStorefrontRepository(db)
+	items, err := repository.ListPublishedListings(
+		service.WithListingQuery(context.Background(), service.ListingQuery{
+			Scene: "software-delivery", Industry: "enterprise-services", Sort: "featured",
+		}),
+		1,
+		20,
+	)
+
+	require.NoError(t, err)
+	require.Len(t, items, 1)
+	require.Equal(t, "public-app", items[0].Slug)
+	require.Equal(t, []service.TaxonomyTagView{
+		{Slug: "enterprise-services", DisplayName: "企业服务", Kind: "industry"},
+		{Slug: "software-delivery", DisplayName: "软件交付", Kind: "scene"},
+	}, items[0].Tags)
+}
+
+func TestStorefrontRepositoryPaginatesWithSortCursor(t *testing.T) {
+	dsn := os.Getenv("MARKETPLACE_POSTGRES_TEST_DSN")
+	if dsn == "" {
+		t.Skip("MARKETPLACE_POSTGRES_TEST_DSN is not configured")
+	}
+	sqlDB, err := sql.Open("postgres", dsn)
+	require.NoError(t, err)
+	defer sqlDB.Close()
+	_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
+	t.Cleanup(func() {
+		_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
+	})
+	for _, migration := range []string{
+		"000001_market_foundation.up.sql",
+		"000002_core_catalog.up.sql",
+		"000003_catalog_version_integrity.up.sql",
+		"000004_console_revisions.up.sql",
+		"000005_console_publication_integrity.up.sql",
+		"000011_listing_taxonomy.up.sql",
+	} {
+		applyMigration(t, sqlDB, migration)
+	}
+	seedStorefront(t, sqlDB)
+	_, err = sqlDB.Exec(storefrontTaxonomySeedSQL)
+	require.NoError(t, err)
+
+	db, err := gorm.Open(postgres.Open(dsn))
+	require.NoError(t, err)
+	repository := NewStorefrontRepository(db)
+	firstPage, err := repository.ListPublishedListings(
+		service.WithListingQuery(context.Background(), service.ListingQuery{Sort: "latest"}),
+		1,
+		1,
+	)
+	require.NoError(t, err)
+	require.Len(t, firstPage, 1)
+	require.Equal(t, "latest", firstPage[0].PageCursor.Sort)
+
+	cursor, err := service.EncodeListingCursor(firstPage[0].PageCursor)
+	require.NoError(t, err)
+	next, err := service.DecodeListingCursor(cursor)
+	require.NoError(t, err)
+	secondPage, err := repository.ListPublishedListings(
+		service.WithListingQuery(context.Background(), service.ListingQuery{
+			Sort: "latest", Cursor: &next,
+		}),
+		1,
+		1,
+	)
+	require.NoError(t, err)
+	require.Len(t, secondPage, 1)
+	require.NotEqual(t, firstPage[0].ListingID, secondPage[0].ListingID)
+
+	detail, err := repository.GetPublishedListing(context.Background(), 1, firstPage[0].Slug)
+	require.NoError(t, err)
+	require.Empty(t, detail.PageCursor.Sort)
 }
 
 func applyMigration(t *testing.T, db *sql.DB, name string) {
@@ -140,4 +247,48 @@ INSERT INTO marketplace.marketplace_listing_spaces
 VALUES (1, 61, 11, true), (1, 62, 11, true), (2, 63, 21, true);
 UPDATE marketplace.marketplace_listings
 SET status = 'published', current_version_id = id + 10, published_at = NOW();
+`
+
+const storefrontTaxonomySeedSQL = `
+INSERT INTO marketplace.marketplace_catalog_items
+  (id, publisher_id, slug, resource_type, name, summary, platform_resource_type,
+   platform_resource_id, status, created_by_platform_user_id)
+VALUES (44, 31, 'course-builder', 'application', '课程构建专家', '课程内容构建', 'expert', 104, 'active', 14);
+INSERT INTO marketplace.marketplace_catalog_item_versions
+  (id, catalog_item_id, version, source_revision, content_digest, manifest,
+   validation_status, created_by_platform_user_id)
+VALUES (54, 44, '1.0.0', 'sha-4', repeat('d', 64), '{}', 'passed', 14);
+INSERT INTO marketplace.marketplace_listings
+  (id, marketplace_id, catalog_item_id, slug, status, visibility)
+VALUES (64, 1, 44, 'course-builder', 'approved', 'public');
+INSERT INTO marketplace.marketplace_listing_versions
+  (id, listing_id, catalog_item_id, catalog_item_version_id, revision, display_name, tagline,
+   description, review_status)
+VALUES (74, 64, 44, 54, 1, '课程构建专家', '构建教学内容', '课程详情', 'approved');
+INSERT INTO marketplace.marketplace_listing_spaces
+  (marketplace_id, listing_id, space_id, is_primary)
+VALUES (1, 64, 11, true);
+UPDATE marketplace.marketplace_listings
+SET status = 'published', current_version_id = 74, published_at = NOW()
+WHERE id = 64;
+INSERT INTO marketplace.marketplace_taxonomy_tags
+  (id, marketplace_id, slug, display_name, kind)
+VALUES
+  (81, 1, 'software-delivery', '软件交付', 'scene'),
+  (82, 1, 'enterprise-services', '企业服务', 'industry'),
+  (83, 1, 'course-building', '课程建设', 'scene'),
+  (84, 1, 'higher-education', '高等教育', 'industry');
+INSERT INTO marketplace.marketplace_listing_version_tags
+  (marketplace_id, listing_id, listing_version_id, taxonomy_tag_id)
+VALUES
+  (1, 61, 71, 81),
+  (1, 61, 71, 82),
+  (1, 64, 74, 83),
+  (1, 64, 74, 84);
+UPDATE marketplace.marketplace_listings
+SET published_at = TIMESTAMPTZ '2026-07-12 12:00:00+00'
+WHERE id = 61;
+UPDATE marketplace.marketplace_listings
+SET published_at = TIMESTAMPTZ '2026-07-12 11:00:00+00'
+WHERE id = 64;
 `

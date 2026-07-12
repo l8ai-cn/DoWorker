@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const listingsPageSize = 20
+
 type Handler struct {
 	storefront *service.StorefrontService
 }
@@ -42,21 +44,35 @@ func (h *Handler) getMarket(c *gin.Context) {
 }
 
 func (h *Handler) listListings(c *gin.Context) {
+	query, err := parseListingQuery(c)
+	if err != nil {
+		writeInvalidListingQuery(c)
+		return
+	}
 	items, err := h.storefront.ListListings(
-		c,
+		service.WithListingQuery(c, query),
 		c.Param("marketSlug"),
 		requestHost(c),
-		20,
+		listingsPageSize+1,
 	)
 	if err != nil {
 		writeStorefrontError(c, err)
 		return
 	}
+	nextCursor := any(nil)
+	if len(items) > listingsPageSize {
+		items = items[:listingsPageSize]
+		nextCursor, err = service.EncodeListingCursor(items[len(items)-1].PageCursor)
+		if err != nil {
+			writeStorefrontError(c, err)
+			return
+		}
+	}
 	response := make([]listingSummaryResponse, 0, len(items))
 	for _, item := range items {
 		response = append(response, mapListingSummary(item))
 	}
-	c.JSON(http.StatusOK, gin.H{"items": response, "next_cursor": nil})
+	c.JSON(http.StatusOK, gin.H{"items": response, "next_cursor": nextCursor})
 }
 
 func (h *Handler) getListing(c *gin.Context) {
@@ -78,6 +94,67 @@ func requestHost(c *gin.Context) string {
 		return strings.TrimSpace(strings.Split(forwarded, ",")[0])
 	}
 	return c.Request.Host
+}
+
+func parseListingQuery(c *gin.Context) (service.ListingQuery, error) {
+	query := service.ListingQuery{
+		Q:           strings.TrimSpace(c.Query("q")),
+		Scene:       strings.TrimSpace(c.Query("scene")),
+		Industry:    strings.TrimSpace(c.Query("industry")),
+		Audience:    strings.TrimSpace(c.Query("audience")),
+		Type:        strings.TrimSpace(c.Query("type")),
+		Integration: strings.TrimSpace(c.Query("integration")),
+		Readiness:   strings.TrimSpace(c.Query("readiness")),
+		Space:       strings.TrimSpace(c.Query("space")),
+		Sort:        strings.TrimSpace(c.DefaultQuery("sort", "featured")),
+	}
+	if len(query.Q) > 200 || !validListingQueryValue(query) {
+		return service.ListingQuery{}, errors.New("invalid listing query")
+	}
+	if cursor := strings.TrimSpace(c.Query("cursor")); cursor != "" {
+		value, err := service.DecodeListingCursor(cursor)
+		if err != nil || value.Sort != query.Sort {
+			return service.ListingQuery{}, errors.New("invalid listing cursor")
+		}
+		query.Cursor = &value
+	}
+	return query, nil
+}
+
+func validListingQueryValue(query service.ListingQuery) bool {
+	if query.Sort != "featured" && query.Sort != "latest" && query.Sort != "relevance" {
+		return false
+	}
+	if query.Type != "" && query.Type != "application" && query.Type != "skill" &&
+		query.Type != "mcp_connector" && query.Type != "resource" {
+		return false
+	}
+	for _, value := range []string{
+		query.Scene, query.Industry, query.Audience, query.Integration, query.Readiness, query.Space,
+	} {
+		if value != "" && !isIdentifier(value) {
+			return false
+		}
+	}
+	return true
+}
+
+func isIdentifier(value string) bool {
+	if len(value) < 2 || len(value) > 100 || value[0] == '-' || value[len(value)-1] == '-' {
+		return false
+	}
+	for _, char := range value {
+		if char != '-' && (char < 'a' || char > 'z') && (char < '0' || char > '9') {
+			return false
+		}
+	}
+	return !strings.Contains(value, "--")
+}
+
+func writeInvalidListingQuery(c *gin.Context) {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": gin.H{"code": "INVALID_LISTING_QUERY", "message": "无效的列表查询参数"},
+	})
 }
 
 func writeStorefrontError(c *gin.Context, err error) {
