@@ -204,16 +204,13 @@ init_runner_ssh() {
     [[ -d "$RUNNER_SSH_SOURCE_DIR" ]] || return 0
 
     local ssh_dir="${HOME}/.ssh"
-    rm -rf "$ssh_dir"
-    mkdir -p "$ssh_dir"
-    cp "$RUNNER_SSH_SOURCE_DIR/id_ed25519" "$ssh_dir/id_ed25519"
-    cp "$RUNNER_SSH_SOURCE_DIR/config" "$ssh_dir/config"
-    chmod 700 "$ssh_dir"
-    chmod 600 "$ssh_dir/id_ed25519" "$ssh_dir/config"
+    sudo rm -rf "$ssh_dir"
+    sudo install -d -m 700 -o runner -g runner "$ssh_dir"
+    sudo install -m 600 -o runner -g runner "$RUNNER_SSH_SOURCE_DIR/id_ed25519" "$ssh_dir/id_ed25519"
+    sudo install -m 600 -o runner -g runner "$RUNNER_SSH_SOURCE_DIR/config" "$ssh_dir/config"
 
     if [[ -f "$RUNNER_SSH_SOURCE_DIR/known_hosts" ]]; then
-        cp "$RUNNER_SSH_SOURCE_DIR/known_hosts" "$ssh_dir/known_hosts"
-        chmod 644 "$ssh_dir/known_hosts"
+        sudo install -m 644 -o runner -g runner "$RUNNER_SSH_SOURCE_DIR/known_hosts" "$ssh_dir/known_hosts"
     fi
 }
 
