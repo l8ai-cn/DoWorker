@@ -12,7 +12,7 @@ import { localProjectMeta } from "@/lib/projects-local";
 import { projectIdFromName } from "@/lib/project-label";
 import { useIsAuthed } from "@/hooks/useIsAuthed";
 import { APP_NAME, pageTitle } from "@/lib/app-brand";
-import type { AgentSession } from "@/lib/mock-agents";
+import type { AgentSession } from "@/lib/session-types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({

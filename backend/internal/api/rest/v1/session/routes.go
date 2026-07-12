@@ -34,6 +34,7 @@ func RegisterRoutes(r *gin.Engine, d Deps) {
 		orgScoped.POST("/sessions", d.handleCreateSession)
 		orgScoped.POST("/sessions/import", d.handleImportSession)
 		orgScoped.GET("/sessions/:id", d.handleGetSession)
+		orgScoped.GET("/sessions/:id/relay-connection", d.handleGetSessionRelayConnection)
 		orgScoped.PATCH("/sessions/:id", d.handlePatchSession)
 		orgScoped.DELETE("/sessions/:id", d.handleDeleteSession)
 		orgScoped.GET("/sessions/:id/read-state", d.handleGetReadState)

@@ -84,6 +84,7 @@ export interface SessionMetrics {
 
 export interface AgentSession {
   id: string;
+  interactionMode?: "acp" | "pty" | null;
   projectId: string;
   title: string;
   agent: string;

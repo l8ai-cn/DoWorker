@@ -11,7 +11,7 @@ import {
 import { useState } from "react";
 import { Lightbox } from "@/components/lightbox";
 import { Markdown } from "@/components/markdown";
-import type { AgentEvent, PlanItem } from "@/lib/mock-agents";
+import type { AgentEvent, PlanItem } from "@/lib/session-types";
 import { dedupeRepeatedText } from "@/lib/text-normalizer";
 import { cn } from "@/lib/utils";
 

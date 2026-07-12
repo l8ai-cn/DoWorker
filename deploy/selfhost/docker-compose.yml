@@ -85,6 +85,7 @@ services:
       # Domain Configuration
       - PRIMARY_DOMAIN=${PRIMARY_DOMAIN}
       - PUBLIC_WEB_URL=${PUBLIC_WEB_URL}
+      - MOBILE_PUBLIC_BASE_URL=${MOBILE_PUBLIC_BASE_URL:-}
       - USE_HTTPS=false
       # Database
       - DB_HOST=postgres
@@ -207,6 +208,7 @@ services:
       - RELAY_CAPACITY=1000
       - PRIMARY_DOMAIN=${PRIMARY_DOMAIN}
       - USE_HTTPS=false
+      - ALLOWED_ORIGINS=${RELAY_ALLOWED_ORIGINS:-}
       - SESSION_KEEP_ALIVE_DURATION=30s
       - DEBUG=false
       - NO_PROXY=localhost,127.0.0.1,backend,web,web-admin,relay,minio,postgres,redis,traefik

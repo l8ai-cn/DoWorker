@@ -26,6 +26,11 @@ export function wireToSummary(wire: WireRow, base?: LiveSessionSummary): LiveSes
     title: (wire.title as string | null | undefined) ?? base?.title ?? null,
     agentId: (wire.agent_id as string | undefined) ?? base?.agentId ?? "agent",
     agentName: (wire.agent_name as string | null | undefined) ?? base?.agentName ?? null,
+    podKey: (wire.pod_key as string | null | undefined) ?? base?.podKey ?? null,
+    interactionMode:
+      (wire.interaction_mode as LiveSessionSummary["interactionMode"] | undefined) ??
+      base?.interactionMode ??
+      null,
     status: ((wire.status as SessionStatus | undefined) ?? base?.status ?? "idle") as SessionStatus,
     pendingApprovals: pending,
     updatedAt:

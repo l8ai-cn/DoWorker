@@ -18,6 +18,7 @@ type sessionWire struct {
 	Title                    *string          `json:"title,omitempty"`
 	Items                    []any            `json:"items,omitempty"`
 	Harness                  *string          `json:"harness,omitempty"`
+	InteractionMode          string           `json:"interaction_mode,omitempty"`
 	PendingElicitations      []map[string]any `json:"pending_elicitations,omitempty"`
 	PendingElicitationsCount int              `json:"pending_elicitations_count,omitempty"`
 	TotalCostUSD             *float64         `json:"total_cost_usd,omitempty"`
@@ -42,6 +43,9 @@ func sessionWireFrom(row *domain.Session, pod *podDomain.Pod, runnerNodeID *stri
 		w.RunnerID = runnerNodeID
 	} else if row.RunnerNodeID != nil {
 		w.RunnerID = row.RunnerNodeID
+	}
+	if pod != nil {
+		w.InteractionMode = pod.InteractionMode
 	}
 	if len(pending) > 0 {
 		w.PendingElicitations = pending

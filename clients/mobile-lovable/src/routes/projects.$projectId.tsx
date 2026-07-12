@@ -9,7 +9,7 @@ import { localProjectMeta } from "@/lib/projects-local";
 import { projectNameFromId } from "@/lib/project-label";
 import { pageTitle } from "@/lib/app-brand";
 import { readAuthToken } from "@/lib/auth-store";
-import type { AgentSession } from "@/lib/mock-agents";
+import type { AgentSession } from "@/lib/session-types";
 
 export const Route = createFileRoute("/projects/$projectId")({
   head: ({ params }) => ({

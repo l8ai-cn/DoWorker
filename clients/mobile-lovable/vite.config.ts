@@ -5,8 +5,10 @@
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import type { ProxyOptions } from "vite";
 
 export default defineConfig({
+  nitro: { preset: "node-server" },
   tanstackStart: {
     server: { entry: "server" },
   },
@@ -16,18 +18,19 @@ export default defineConfig({
         "/auth": proxyTarget("http://localhost:10000"),
         "/v1": proxyTarget("http://localhost:10000"),
         "/api": proxyTarget("http://localhost:10000"),
+        "/proto": proxyTarget("http://localhost:10000"),
       },
     },
   },
 });
 
-function proxyTarget(target: string) {
+function proxyTarget(target: string): ProxyOptions {
   return {
     target,
     changeOrigin: true,
     ws: true,
-    configure: (proxy: { on: (event: string, fn: (...args: unknown[]) => void) => void }) => {
-      proxy.on("proxyReq", (proxyReq: { removeHeader: (name: string) => void }) => {
+    configure: (proxy) => {
+      proxy.on("proxyReq", (proxyReq) => {
         proxyReq.removeHeader("origin");
       });
     },

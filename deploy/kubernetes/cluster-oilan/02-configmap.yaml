@@ -6,6 +6,8 @@ metadata:
 data:
   PRIMARY_DOMAIN: "dowork.l8ai.cn"
   PUBLIC_WEB_URL: "https://dowork.l8ai.cn"
+  MOBILE_PUBLIC_BASE_URL: "https://mobile.l8ai.cn"
+  RELAY_ALLOWED_ORIGINS: "https://dowork.l8ai.cn,https://mobile.l8ai.cn"
   USE_HTTPS: "true"
 
   DB_HOST: "postgres"

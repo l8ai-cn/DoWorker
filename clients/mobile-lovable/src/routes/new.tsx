@@ -10,6 +10,7 @@ import {
   type CodexGoalMode,
 } from "@/components/new-task-goal-panel";
 import { Lightbox } from "@/components/lightbox";
+import { InteractionModeSelector } from "@/components/interaction-mode-selector";
 import { useAvailableAgents } from "@/hooks/useAvailableAgents";
 import { useLiveExperts } from "@/hooks/useLiveExperts";
 import { useLiveProjects } from "@/hooks/useLiveProjects";
@@ -19,7 +20,7 @@ import { pageTitle } from "@/lib/app-brand";
 import { useIsAuthed } from "@/hooks/useIsAuthed";
 import { messageWithExpertContext, taskTitleForSubmit } from "@/lib/expert-agent-slugs";
 import { dispatchExpertBySlug } from "@/lib/expert-run-dispatch";
-import { assignSessionProject, createSession } from "@/lib/sessions-api";
+import { assignSessionProject, createSession, type SessionInteractionMode } from "@/lib/sessions-api";
 import { setCodexGoal } from "@/lib/codex-goal-api";
 import { localProjectMeta } from "@/lib/projects-local";
 import { projectNameFromId } from "@/lib/project-label";
@@ -74,6 +75,7 @@ function NewTask() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [images, setImages] = useState<{ id: string; url: string; name: string }[]>([]);
   const [asGoal, setAsGoal] = useState(false);
+  const [interactionMode, setInteractionMode] = useState<SessionInteractionMode>("acp");
   const [tokenBudget, setTokenBudget] = useState("");
   const [goalMode, setGoalMode] = useState<CodexGoalMode>("active");
   const [successCriteria, setSuccessCriteria] = useState("");
@@ -102,7 +104,12 @@ function NewTask() {
     if (!asGoal) return;
     setEngineId("codex-cli");
     setExpertSlug(undefined);
+    setInteractionMode("acp");
   }, [asGoal]);
+
+  useEffect(() => {
+    if (interactionMode === "pty") setExpertSlug(undefined);
+  }, [interactionMode]);
 
   const onPromptChange = (v: string, caret: number) => {
     setPrompt(v);
@@ -159,7 +166,7 @@ function NewTask() {
         const objective = buildCodexObjective(prompt, successCriteria);
         const budget = parseTokenBudget(tokenBudget);
         const title = taskTitleForSubmit(prompt, undefined, "Codex Goal");
-        const session = await createSession("codex-cli", title);
+        const session = await createSession("codex-cli", title, undefined, { mode: "acp" });
         await setCodexGoal(session.id, {
           objective,
           ...(budget !== undefined ? { tokenBudget: budget } : {}),
@@ -173,7 +180,7 @@ function NewTask() {
       }
 
       const text = (prompt.trim() || "分析附带的图片") + (images.length > 0 ? ` [附带 ${images.length} 张图片]` : "");
-      if (expertSlug) {
+      if (expertSlug && interactionMode === "acp") {
         const dispatched = await dispatchExpertBySlug(expertSlug, text);
         if (dispatched) {
           if (dispatched.kind === "session") {
@@ -190,11 +197,14 @@ function NewTask() {
       const agentSlug = currentExpert?.agent_slug ?? engineId;
       const fullText = messageWithExpertContext(text, currentExpert?.name, currentExpert?.description ?? currentExpert?.prompt);
       const title = taskTitleForSubmit(text, currentExpert?.name, currentEngine.name);
-      const session = await createSession(agentSlug, title, fullText);
+      const session = await createSession(agentSlug, title, fullText, { mode: interactionMode });
       if (projectName.trim()) {
         await assignSessionProject(session.id, projectName).catch(() => undefined);
       }
-      router.navigate({ to: "/sessions/$sessionId", params: { sessionId: session.id } });
+      router.navigate({
+        to: interactionMode === "pty" ? "/sessions/$sessionId/terminal" : "/sessions/$sessionId",
+        params: { sessionId: session.id },
+      });
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : "创建任务失败");
     } finally {
@@ -277,6 +287,12 @@ function NewTask() {
             )}
           </div>
 
+          <InteractionModeSelector
+            mode={interactionMode}
+            disabled={asGoal}
+            onChange={setInteractionMode}
+          />
+
           {/* Expert selector (optional) */}
           <div>
             <div className="mb-1.5 flex items-center justify-between px-1">
@@ -285,7 +301,7 @@ function NewTask() {
             </div>
             <button
               onClick={() => setExpertPickerOpen((o) => !o)}
-              disabled={asGoal}
+              disabled={asGoal || interactionMode === "pty"}
               className={cn(
                 "flex w-full items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border/50 transition hover:ring-primary/40",
                 asGoal && "opacity-70",
@@ -297,7 +313,7 @@ function NewTask() {
                   currentExpert ? "bg-primary/15" : "bg-surface",
                 )}
               >
-                {currentExpert?.avatar ?? "✨"}
+                {"🤖"}
               </span>
               <div className="min-w-0 flex-1 text-left">
                 <p className="truncate text-[13.5px] font-semibold">
@@ -311,7 +327,7 @@ function NewTask() {
             </button>
           </div>
 
-          {expertPickerOpen && !asGoal && (
+            {expertPickerOpen && !asGoal && interactionMode === "acp" && (
             <div className="-mt-2 max-h-64 space-y-1 overflow-y-auto rounded-2xl bg-card p-1.5 ring-1 ring-border/50 stream-in">
               <button
                 onClick={() => { setExpertSlug(undefined); setExpertPickerOpen(false); }}

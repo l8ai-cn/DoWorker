@@ -18,10 +18,10 @@ func (s *Server) GetMobileAccessDescriptor(
 	ctx context.Context,
 	req *connect.Request[podv1.GetMobileAccessDescriptorRequest],
 ) (*connect.Response[podv1.MobileAccessDescriptor], error) {
-	if strings.TrimSpace(s.baseURL) == "" {
-		return nil, connect.NewError(connect.CodeUnavailable, errors.New("public base URL not configured"))
+	if strings.TrimSpace(s.mobileBaseURL) == "" {
+		return nil, connect.NewError(connect.CodeUnavailable, errors.New("mobile public base URL not configured"))
 	}
-	ctx, org, err := interceptors.ResolveOrgScope(ctx, req.Msg, s.orgSvc)
+	ctx, _, err := interceptors.ResolveOrgScope(ctx, req.Msg, s.orgSvc)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (s *Server) GetMobileAccessDescriptor(
 	consoleAvailable := pod.IsActive() && pod.RunnerID > 0 && relayAvailable
 	previewAvailable := consoleAvailable && pod.PreviewPort > 0
 	descriptor := &podv1.MobileAccessDescriptor{
-		CanonicalUrl:     mobileWorkerURL(s.baseURL, org.GetSlug(), pod.PodKey),
+		CanonicalUrl:     mobileWorkerURL(s.mobileBaseURL, pod.PodKey),
 		PodKey:           pod.PodKey,
 		Status:           pod.Status,
 		InteractionMode:  pod.InteractionMode,
@@ -55,7 +55,6 @@ func (s *Server) GetMobileAccessDescriptor(
 	return connect.NewResponse(descriptor), nil
 }
 
-func mobileWorkerURL(baseURL, orgSlug, podKey string) string {
-	return strings.TrimRight(baseURL, "/") + "/" +
-		url.PathEscape(orgSlug) + "/mobile/workers/" + url.PathEscape(podKey)
+func mobileWorkerURL(baseURL, podKey string) string {
+	return strings.TrimRight(baseURL, "/") + "/workers/" + url.PathEscape(podKey)
 }

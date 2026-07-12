@@ -3,17 +3,20 @@ import { resolveRequiredModelResourceId } from "./model-resources-api";
 import { PROJECT_LABEL_KEY } from "./project-label";
 
 export type SessionStatus = "idle" | "launching" | "running" | "waiting" | "failed";
+export type SessionInteractionMode = "acp" | "pty";
 
 export interface LiveSessionSummary {
   id: string;
   title: string | null;
   agentId: string;
   agentName: string | null;
+  podKey: string | null;
   status: SessionStatus;
   pendingApprovals: number;
   updatedAt: string;
   workspace: string | null;
   project: string | null;
+  interactionMode: SessionInteractionMode | null;
 }
 
 export interface AvailableAgent {
@@ -30,6 +33,7 @@ interface SessionWire {
   id: string;
   agent_id: string;
   agent_name?: string | null;
+  pod_key?: string | null;
   title?: string | null;
   status: SessionStatus;
   pending_elicitations_count?: number;
@@ -37,6 +41,7 @@ interface SessionWire {
   updated_at?: number;
   created_at?: number;
   labels?: Record<string, string>;
+  interaction_mode?: SessionInteractionMode;
 }
 
 interface ListWire {
@@ -45,11 +50,13 @@ interface ListWire {
     title: string | null;
     agent_id?: string;
     agent_name?: string | null;
+    pod_key?: string | null;
     status?: SessionStatus;
     pending_elicitations_count?: number;
     workspace?: string | null;
     updated_at?: number;
     labels?: Record<string, string>;
+    interaction_mode?: SessionInteractionMode;
   }>;
 }
 
@@ -80,11 +87,13 @@ function summaryFromWire(w: SessionWire | ListWire["data"][number]): LiveSession
     title: w.title ?? null,
     agentId: w.agent_id ?? "agent",
     agentName: w.agent_name ?? null,
+    podKey: w.pod_key ?? null,
     status: w.status ?? "idle",
     pendingApprovals: w.pending_elicitations_count ?? 0,
     updatedAt: formatRelative(w.updated_at),
     workspace: w.workspace ?? null,
     project,
+    interactionMode: w.interaction_mode ?? null,
   };
 }
 
@@ -100,10 +109,18 @@ export async function getSession(sessionId: string): Promise<LiveSessionSummary>
   return summaryFromWire(body);
 }
 
+export async function getSessionByPodKey(podKey: string): Promise<LiveSessionSummary | null> {
+  const res = await apiFetch(`/v1/sessions/by-pod/${encodeURIComponent(podKey)}`);
+  if (res.status === 204) return null;
+  const body = await readJson<SessionWire>(res);
+  return summaryFromWire(body);
+}
+
 export async function createSession(
   agentId: string,
   title?: string,
   initialText?: string,
+  options?: { mode?: SessionInteractionMode },
 ): Promise<LiveSessionSummary> {
   const modelResourceId = await resolveRequiredModelResourceId(agentId);
   const initial_items = initialText?.trim()
@@ -125,6 +142,7 @@ export async function createSession(
       initial_items,
       ...(modelResourceId !== undefined ? { model_resource_id: modelResourceId } : {}),
       ...(title ? { title } : {}),
+      ...(options?.mode === "pty" ? { pty_only: true } : {}),
     }),
   });
   const body = await readJson<SessionWire>(res);

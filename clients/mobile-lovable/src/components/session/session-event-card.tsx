@@ -1,4 +1,4 @@
-import type { AgentEvent } from "@/lib/mock-agents";
+import type { AgentEvent } from "@/lib/session-types";
 import { AskUserCard } from "@/components/session/session-ask-user-card";
 import {
   AgentBubble,

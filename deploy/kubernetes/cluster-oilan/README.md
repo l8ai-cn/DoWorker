@@ -1,6 +1,6 @@
 # AgentsMesh on doops-oilan
 
-Deploys the full platform (backend, relay, web, web-admin + Postgres/Redis/MinIO)
+Deploys the full platform (backend, relay, web, web-admin, mobile + Postgres/Redis/MinIO)
 to the single-node `doops-oilan` k3s cluster (`gpu-ampere01`, amd64) via DoOps,
 with all images served from the in-cluster Harbor
 (`repo.aiedulab.cn:8443/agentsmesh/*`, node-local so pulls are effectively free).
@@ -38,6 +38,19 @@ DOOPS_TARGET=gw-oilan ./deploy.sh        # secrets + manifests + jobs via DoOps
 `deploy.sh` defaults to `gw-oilan`. `push-images.sh` subsets: `platform` |
 `infra` | `runners`.
 
+For the mobile Worker access path, do not run the full reconcile when unrelated
+workloads are newer in the cluster. Build the three affected images, pin their
+immutable digests in `30-backend.yaml`, `31-relay.yaml`, and `42-mobile.yaml`,
+then deploy only those resources:
+
+```bash
+./push-images.sh mobile-access
+DOOPS_TARGET=gw-oilan-node ./deploy-mobile-access.sh
+```
+
+`deploy-mobile-access.sh` applies the shared ConfigMap, backend, relay, mobile
+Ingress, and mobile Deployment only. It refuses mutable image tags.
+
 ### What `./deploy.sh` does (often called "reseed")
 
 Each run is a **full reconcile**, not a DB-only reset:
@@ -60,11 +73,12 @@ on this cluster). Re-running seed alone does not change relay/web env — only s
 ## Endpoints
 
 - App: https://dowork.l8ai.cn (`/api`, `/proto.`, `/relay`, `/health`)
+- Mobile Worker entry: https://mobile.l8ai.cn
 - Admin console: https://admin.dowork.l8ai.cn (separate host — no `/admin` basePath)
 - Object storage (presigned URLs): https://minio.dowork.l8ai.cn
 - Test account: `admin@agentsmesh.local / Ab123456`
 
-DNS for `dowork.l8ai.cn` / `admin.dowork.l8ai.cn` / `minio.dowork.l8ai.cn` must point at the
+DNS for `dowork.l8ai.cn` / `mobile.l8ai.cn` / `admin.dowork.l8ai.cn` / `minio.dowork.l8ai.cn` must point at the
 oilan node. All public URLs share one domain family so relay/WebSocket URLs from
 `GetPodConnection` match the page origin (mixed `l8an.cn` / `l8ai.cn` hosts caused
 403 on terminal attach). Ingress-nginx may expose **NodePort 10007** (HTTP) so
@@ -87,7 +101,7 @@ TLS cert secret `l8ai-wildcard-tls` must exist in the `default` namespace before
 | `10/11/12-*` `13-minio-setup-job` | Postgres / Redis / MinIO + bucket |
 | `20-migrate-job` `21/22-seed*` | DB migrate (embedded) + org/user/runner seed |
 | `30-backend*` | backend Deployment/Service + SA/RBAC (kubectl via init container) |
-| `31/32/33-*` | relay / web / web-admin (web-admin listens on :3001) |
+| `31/32/33/42-*` | relay / web / web-admin / mobile |
 | `34/35-runner-*` | standing runner pods |
 | `40-ingress` | ingress-nginx routes (app / admin host / relay rewrite / minio host) |
 | `60-prepull-daemonset` | warm agent-runtime image cache |

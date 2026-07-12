@@ -30,6 +30,10 @@ func (c *Config) PublicWebBaseURL() string {
 	return strings.TrimRight(c.PublicWebURL, "/")
 }
 
+func (c *Config) MobilePublicBaseURL() string {
+	return strings.TrimRight(c.MobilePublicURL, "/")
+}
+
 func (c *Config) APIBaseURL() string {
 	return c.BaseURL() + "/api"
 }

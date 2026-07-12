@@ -7,5 +7,6 @@
 # pnpm 10 (local) share one config surface.
 packages:
   - "."
+  - "clients/mobile-lovable"
   - "packages/*"
   - "proto"

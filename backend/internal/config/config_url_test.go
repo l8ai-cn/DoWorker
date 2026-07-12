@@ -18,4 +18,10 @@ func TestPublicWebBaseURLRequiresExplicitConfig(t *testing.T) {
 
 	cfg.PublicWebURL = ""
 	require.Empty(t, cfg.PublicWebBaseURL())
+
+	cfg.MobilePublicURL = "https://mobile.example.com/"
+	require.Equal(t, "https://mobile.example.com", cfg.MobilePublicBaseURL())
+
+	cfg.MobilePublicURL = ""
+	require.Empty(t, cfg.MobilePublicBaseURL())
 }

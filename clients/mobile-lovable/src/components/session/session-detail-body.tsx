@@ -16,7 +16,8 @@ import { SessionBottomBar } from "@/components/session/session-bottom-bar";
 import { EventCard } from "@/components/session/session-event-card";
 import { formatTokens, Metric } from "@/components/session/session-metrics-chips";
 import { useSessionVisibleEvents } from "@/hooks/useSessionVisibleEvents";
-import type { AgentEvent, AgentSession, Project } from "@/lib/mock-agents";
+import type { Project } from "@/lib/mock-agents";
+import type { AgentEvent, AgentSession } from "@/lib/session-types";
 import { pushNotification } from "@/lib/notifications";
 import { useDecisions } from "@/lib/session-approval-decisions";
 
@@ -61,7 +62,7 @@ export function SessionDetailBody({
     } else if (last.type === "ask_user") {
       pushNotification({
         kind: "ask_user",
-        title: "需要你的输入：" + (last.askUser?.title ?? last.title ?? ""),
+        title: "需要你的输入：" + (last.form?.title ?? last.title ?? ""),
         body: session.title,
         sessionId: session.id,
         href,
@@ -121,7 +122,13 @@ export function SessionDetailBody({
                 )}
               </div>
             </div>
-            {isLive && <SessionViewToggle sessionId={session.id} mode="chat" />}
+            {isLive && (
+              <SessionViewToggle
+                sessionId={session.id}
+                mode="chat"
+                interactionMode={session.interactionMode}
+              />
+            )}
             <button className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-surface">
               <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
             </button>

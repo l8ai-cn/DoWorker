@@ -82,7 +82,7 @@ export function syncNotificationsFromSessions(sessions: LiveSessionSummary[]): v
       read: true,
     });
   }
-  items = next.sort((a, b) => b.ts - a.t);
+  items = next.sort((a, b) => b.ts - a.ts);
   emit();
 }
 

@@ -1,4 +1,4 @@
-import type { AgentSession } from "./mock-agents";
+import type { AgentSession } from "./session-types";
 import { displayAgentName } from "./agent-slugs";
 import { projectIdFromName } from "./project-label";
 import type { LiveSessionSummary, SessionStatus } from "./sessions-api";
@@ -14,11 +14,14 @@ function mapStatus(s: LiveSessionSummary): AgentSession["status"] {
 export function liveSummaryToAgentSession(s: LiveSessionSummary): AgentSession {
   return {
     id: s.id,
+    interactionMode: s.interactionMode,
     projectId: s.project ? projectIdFromName(s.project) : "live",
     title: s.title ?? displayAgentName(s.agentId),
     agent: s.agentName ?? displayAgentName(s.agentId),
+    branch: s.workspace ?? "",
     status: mapStatus(s),
     updatedAt: s.updatedAt,
+    eventCount: 0,
     preview: s.workspace ?? "",
     events: [],
   };

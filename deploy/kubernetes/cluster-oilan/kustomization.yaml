@@ -23,5 +23,6 @@ resources:
   - 38-runner-grok-build.yaml
   - 39-runner-openclaw.yaml
   - 41-runner-hermes.yaml
+  - 42-mobile.yaml
   - 40-ingress.yaml
   - 60-prepull-daemonset.yaml

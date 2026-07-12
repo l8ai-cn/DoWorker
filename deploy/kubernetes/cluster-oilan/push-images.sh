@@ -3,7 +3,8 @@
 # on doops-114-k8s pull from repo.aiedulab.cn:8443/agentsmesh/* (fast, node-local).
 #
 #   ./push-images.sh all        # platform + infra + runners
-#   ./push-images.sh platform   # backend/relay/web/web-admin only
+#   ./push-images.sh platform   # backend/relay/web/web-admin/mobile only
+#   ./push-images.sh mobile-access # backend/relay/mobile only
 #   ./push-images.sh infra      # postgres/redis/minio/mc/kubectl mirrors
 #   ./push-images.sh runners    # agent-runtime images (claude/codex/gemini/grok/openclaw/hermes/e2e-echo)
 #
@@ -61,6 +62,13 @@ push_platform() {
   docker_push relay/Dockerfile relay
   docker_push clients/web/Dockerfile web
   docker_push clients/web-admin/Dockerfile web-admin
+  docker_push clients/mobile-lovable/Dockerfile mobile
+}
+
+push_mobile_access() {
+  docker_push backend/Dockerfile backend
+  docker_push relay/Dockerfile relay
+  docker_push clients/mobile-lovable/Dockerfile mobile
 }
 
 push_infra() {
@@ -103,9 +111,10 @@ push_runners() {
 ensure_project
 case "${TARGET}" in
   platform) push_platform ;;
+  mobile-access) push_mobile_access ;;
   infra)    push_infra ;;
   runners)  push_runners ;;
   all)      push_platform; push_infra; push_runners ;;
-  *) echo "usage: $0 [all|platform|infra|runners]" >&2; exit 1 ;;
+  *) echo "usage: $0 [all|platform|mobile-access|infra|runners]" >&2; exit 1 ;;
 esac
 echo "==> done: ${TARGET}"

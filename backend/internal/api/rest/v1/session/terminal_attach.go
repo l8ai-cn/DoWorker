@@ -3,11 +3,7 @@ package sessionapi
 import (
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
-	"github.com/anthropics/agentsmesh/backend/pkg/policy"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -17,7 +13,7 @@ var terminalUpgrader = websocket.Upgrader{
 }
 
 func (d *Deps) handleTerminalAttach(c *gin.Context) {
-	row, pod, ok := d.authorizeSession(c, c.Param("id"))
+	_, pod, ok := d.authorizeSession(c, c.Param("id"))
 	if !ok {
 		return
 	}
@@ -29,49 +25,16 @@ func (d *Deps) handleTerminalAttach(c *gin.Context) {
 		closeTerminalWS(c, 4404, "session not found")
 		return
 	}
-	if d.RelayManager == nil || d.RelayTokens == nil || d.CommandSender == nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "relay unavailable"})
-		return
-	}
-	tenant := middleware.GetTenant(c)
-	sub := policy.NewSubject(tenant.OrganizationID, tenant.UserID, tenant.UserRole)
-	if !policy.PodPolicy.AllowRead(sub, policy.PodResource(pod.OrganizationID, pod.CreatedByID)) {
-		c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
-		return
-	}
-	relayInfo := d.RelayManager.SelectRelayForPodGeo(relay.GeoSelectOptions{OrgSlug: tenant.OrganizationSlug})
-	if relayInfo == nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "no relay"})
-		return
-	}
-	ctx := c.Request.Context()
-	runnerToken, err := d.RelayTokens.GenerateToken(pod.PodKey, pod.RunnerID, 0, tenant.OrganizationID, time.Hour)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "token failed"})
-		return
-	}
-	if err := d.CommandSender.SendSubscribePod(
-		ctx,
-		pod.RunnerID,
-		pod.PodKey,
-		relayInfo.URL,
-		runnerToken,
-		true,
-		1000,
-	); err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "relay subscription failed"})
-		return
-	}
-	browserToken, err := d.RelayTokens.GenerateToken(pod.PodKey, pod.RunnerID, tenant.UserID, tenant.OrganizationID, time.Hour)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "token failed"})
+	connection, status, message := d.sessionRelayConnection(c, pod)
+	if status != 0 {
+		c.JSON(status, gin.H{"error": message})
 		return
 	}
 	clientWS, err := terminalUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return
 	}
-	upstream, _, err := dialRelayWS(relayInfo.URL, browserToken)
+	upstream, _, err := dialRelayWS(connection.RelayURL, connection.Token)
 	if err != nil {
 		_ = clientWS.Close()
 		return
@@ -83,7 +46,6 @@ func (d *Deps) handleTerminalAttach(c *gin.Context) {
 		defer upstream.Close()
 		bridgeTerminalWS(clientWS, upstream, readOnly)
 	}()
-	_ = row
 }
 
 func closeTerminalWS(c *gin.Context, code int, reason string) {

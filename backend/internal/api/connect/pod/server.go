@@ -96,7 +96,7 @@ type Server struct {
 	eventBus          *eventbus.EventBus
 	workerCreation    WorkerCreationAPI
 	workerDraftFiller WorkerDraftFiller
-	baseURL           string
+	mobileBaseURL     string
 }
 
 // NewServer constructs a Server. Optional dependencies can be left nil; the
@@ -158,8 +158,8 @@ func WithWorkerDraftFiller(filler WorkerDraftFiller) Option {
 	return func(server *Server) { server.workerDraftFiller = filler }
 }
 
-func WithBaseURL(baseURL string) Option {
-	return func(server *Server) { server.baseURL = baseURL }
+func WithMobileBaseURL(baseURL string) Option {
+	return func(server *Server) { server.mobileBaseURL = baseURL }
 }
 
 // podResourceWithGrants mirrors PodHandler.podResourceWithGrants (v1/pod_relay_connect.go:56).

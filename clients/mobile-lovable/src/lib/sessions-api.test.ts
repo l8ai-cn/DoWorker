@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiFetch } from "./api-fetch";
-import { createSession } from "./sessions-api";
+import { createSession, getSessionByPodKey } from "./sessions-api";
 
 vi.mock("./api-fetch", () => ({
   apiFetch: vi.fn(),
@@ -84,5 +84,51 @@ describe("createSession model resources", () => {
     expect(apiFetchMock).toHaveBeenCalledTimes(1);
     const createInit = apiFetchMock.mock.calls[0][1] as RequestInit;
     expect(JSON.parse(createInit.body as string)).not.toHaveProperty("model_resource_id");
+  });
+
+  it("marks command-line workers as PTY-only at creation", async () => {
+    apiFetchMock
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            object: "list",
+            data: [{ id: 42, name: "Codex", provider_key: "openai", model: "gpt-5.5", is_default: true }],
+          }),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({ id: "session-pty", agent_id: "codex-cli", status: "launching" }),
+          { status: 200 },
+        ),
+      );
+
+    await createSession("codex-cli", "Run command", undefined, { mode: "pty" });
+
+    const createInit = apiFetchMock.mock.calls[1][1] as RequestInit;
+    expect(JSON.parse(createInit.body as string)).toMatchObject({ pty_only: true });
+  });
+
+  it("resolves a mobile Worker link by its Pod key", async () => {
+    apiFetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "session-1",
+          pod_key: "mobile-pod",
+          agent_id: "codex-cli",
+          interaction_mode: "pty",
+          status: "running",
+        }),
+        { status: 200 },
+      ),
+    );
+
+    await expect(getSessionByPodKey("mobile-pod")).resolves.toMatchObject({
+      id: "session-1",
+      podKey: "mobile-pod",
+      interactionMode: "pty",
+    });
+    expect(apiFetchMock).toHaveBeenCalledWith("/v1/sessions/by-pod/mobile-pod");
   });
 });

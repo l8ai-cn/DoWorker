@@ -25,6 +25,7 @@ function mapStatus(api: ApiStatus, pending: number): SessionStatus {
 function toAgentSession(summary: LiveSessionSummary, events: AgentEvent[]): AgentSession {
   return {
     id: summary.id,
+    interactionMode: summary.interactionMode,
     projectId: "live",
     title: summary.title ?? summary.agentName ?? "新任务",
     agent: summary.agentName ?? displayAgentName(summary.agentId),

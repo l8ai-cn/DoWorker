@@ -34,7 +34,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: agentsmesh-config
-                  key: PUBLIC_WEB_URL
+                  key: RELAY_ALLOWED_ORIGINS
             - name: RELAY_ID
               value: "k8s-relay-1"
             - name: RELAY_REGION

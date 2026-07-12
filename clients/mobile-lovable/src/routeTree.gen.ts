@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ExpertsRouteImport } from './routes/experts'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkersPodKeyRouteImport } from './routes/workers.$podKey'
 import { Route as SessionsSessionIdRouteImport } from './routes/sessions.$sessionId'
 import { Route as ProjectsNewRouteImport } from './routes/projects.new'
 import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
@@ -49,6 +50,11 @@ const ApprovalsRoute = ApprovalsRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkersPodKeyRoute = WorkersPodKeyRouteImport.update({
+  id: '/workers/$podKey',
+  path: '/workers/$podKey',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SessionsSessionIdRoute = SessionsSessionIdRouteImport.update({
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
+  '/workers/$podKey': typeof WorkersPodKeyRoute
   '/sessions/$sessionId/terminal': typeof SessionsSessionIdTerminalRoute
 }
 export interface FileRoutesByTo {
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
+  '/workers/$podKey': typeof WorkersPodKeyRoute
   '/sessions/$sessionId/terminal': typeof SessionsSessionIdTerminalRoute
 }
 export interface FileRoutesById {
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
+  '/workers/$podKey': typeof WorkersPodKeyRoute
   '/sessions/$sessionId/terminal': typeof SessionsSessionIdTerminalRoute
 }
 export interface FileRouteTypes {
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId'
     | '/projects/new'
     | '/sessions/$sessionId'
+    | '/workers/$podKey'
     | '/sessions/$sessionId/terminal'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId'
     | '/projects/new'
     | '/sessions/$sessionId'
+    | '/workers/$podKey'
     | '/sessions/$sessionId/terminal'
   id:
     | '__root__'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId'
     | '/projects/new'
     | '/sessions/$sessionId'
+    | '/workers/$podKey'
     | '/sessions/$sessionId/terminal'
   fileRoutesById: FileRoutesById
 }
@@ -170,6 +182,7 @@ export interface RootRouteChildren {
   ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
   ProjectsNewRoute: typeof ProjectsNewRoute
   SessionsSessionIdRoute: typeof SessionsSessionIdRouteWithChildren
+  WorkersPodKeyRoute: typeof WorkersPodKeyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workers/$podKey': {
+      id: '/workers/$podKey'
+      path: '/workers/$podKey'
+      fullPath: '/workers/$podKey'
+      preLoaderRoute: typeof WorkersPodKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sessions/$sessionId': {
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsProjectIdRoute: ProjectsProjectIdRoute,
   ProjectsNewRoute: ProjectsNewRoute,
   SessionsSessionIdRoute: SessionsSessionIdRouteWithChildren,
+  WorkersPodKeyRoute: WorkersPodKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

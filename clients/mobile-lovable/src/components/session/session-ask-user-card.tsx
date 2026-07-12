@@ -1,6 +1,6 @@
 import { Check, MessageSquare } from "lucide-react";
 import { useState } from "react";
-import type { AgentEvent } from "@/lib/mock-agents";
+import type { AgentEvent } from "@/lib/session-types";
 import { cn } from "@/lib/utils";
 
 export function AskUserCard({ event }: { event: AgentEvent }) {

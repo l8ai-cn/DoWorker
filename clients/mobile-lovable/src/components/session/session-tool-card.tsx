@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import type { ComponentType } from "react";
 import { useState } from "react";
-import type { AgentEvent, DiffHunk, ToolKind } from "@/lib/mock-agents";
+import type { AgentEvent, DiffHunk, ToolKind } from "@/lib/session-types";
 import { useDecision } from "@/lib/session-approval-decisions";
 import { cn } from "@/lib/utils";
 

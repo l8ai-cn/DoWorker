@@ -70,7 +70,7 @@ func TestGetMobileAccessDescriptorReturnsTokenFreeCanonicalURL(t *testing.T) {
 		}),
 	)
 	require.NoError(t, err)
-	require.Equal(t, "https://app.example/acme/mobile/workers/"+pod.PodKey, response.Msg.CanonicalUrl)
+	require.Equal(t, "https://mobile.example/workers/"+pod.PodKey, response.Msg.CanonicalUrl)
 	require.NotContains(t, response.Msg.CanonicalUrl, "token")
 	require.True(t, response.Msg.ConsoleAvailable)
 	require.True(t, response.Msg.PreviewAvailable)
@@ -128,7 +128,7 @@ func newPreviewMobileServer(
 	})
 	require.NoError(t, err)
 
-	options := []Option{WithBaseURL("https://app.example/")}
+	options := []Option{WithMobileBaseURL("https://mobile.example/")}
 	if withRelay {
 		manager := relay.NewManagerWithOptions()
 		t.Cleanup(manager.Stop)

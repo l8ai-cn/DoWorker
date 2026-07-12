@@ -1,5 +1,5 @@
 import { ShieldAlert, Square } from "lucide-react";
-import type { AgentEvent } from "@/lib/mock-agents";
+import type { AgentEvent } from "@/lib/session-types";
 import { useSessionActions } from "@/lib/session-action-context";
 import { setApprovalDecision } from "@/lib/session-approval-decisions";
 import { SessionComposer } from "@/components/session/session-composer";

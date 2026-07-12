@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { AgentEvent, AgentSession } from "@/lib/mock-agents";
+import type { AgentEvent, AgentSession } from "@/lib/session-types";
 
 export function useSessionVisibleEvents(session: AgentSession, isLive: boolean) {
   const sessionActive =

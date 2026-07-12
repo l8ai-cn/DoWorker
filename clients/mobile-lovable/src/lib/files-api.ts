@@ -21,7 +21,7 @@ export async function uploadSessionFile(sessionId: string, file: File): Promise<
   };
   return {
     id: resource.id,
-    filename: resource.metadata?.filename ?? resource.name ?? file.name || "image.png",
+    filename: resource.metadata?.filename ?? resource.name ?? (file.name || "image.png"),
     bytes: resource.metadata?.bytes ?? file.size,
   };
 }

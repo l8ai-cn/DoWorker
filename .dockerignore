@@ -14,6 +14,5 @@ deploy/dev/.env
 .superpowers/
 docs/
 clients/web-user/
-clients/mobile-lovable/
 **/*_test.go
 **/.DS_Store

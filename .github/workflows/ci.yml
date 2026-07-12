@@ -244,6 +244,36 @@ jobs:
       - run: pnpm run web-admin:lint
       - run: pnpm run web-admin:test
 
+  mobile:
+    name: Mobile (type-check + vitest + build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: smoke
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: clients/core
+      - name: Install wasm-pack + protoc
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+          sudo apt-get update && sudo apt-get install -y protobuf-compiler
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build:wasm
+      - run: pnpm run mobile:typecheck
+      - run: pnpm run mobile:test
+      - run: pnpm run mobile:build
+
   docker-verify:
     name: Docker Image Build (${{ matrix.service }})
     runs-on: ubuntu-latest
@@ -253,11 +283,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [backend, runner, relay, web, web-admin]
+        include:
+          - service: backend
+            file: backend/Dockerfile
+          - service: runner
+            file: runner/Dockerfile
+          - service: relay
+            file: relay/Dockerfile
+          - service: web
+            file: clients/web/Dockerfile
+          - service: web-admin
+            file: clients/web-admin/Dockerfile
+          - service: mobile
+            file: clients/mobile-lovable/Dockerfile
     steps:
       - uses: actions/checkout@v6
       - name: Free disk
-        if: matrix.service == 'web' || matrix.service == 'web-admin'
+        if: matrix.service == 'web' || matrix.service == 'web-admin' || matrix.service == 'mobile'
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
             /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
@@ -267,7 +309,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.service == 'backend' && 'backend/Dockerfile' || matrix.service == 'runner' && 'runner/Dockerfile' || matrix.service == 'relay' && 'relay/Dockerfile' || matrix.service == 'web' && 'clients/web/Dockerfile' || 'clients/web-admin/Dockerfile' }}
+          file: ${{ matrix.file }}
           push: false
           tags: agentsmesh/${{ matrix.service }}:ci
           cache-from: type=gha,scope=${{ matrix.service }}

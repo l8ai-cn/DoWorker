@@ -94,7 +94,7 @@ apply_all() {
 
 status() {
   echo "==> rollout status"
-  for d in backend relay web web-admin runner-e2e-echo; do
+  for d in backend relay web web-admin mobile runner-e2e-echo; do
     dexec "kubectl -n ${NS} rollout status deploy/${d} --timeout=240s" || true
   done
   dexec "kubectl -n ${NS} get pods -o wide"
@@ -104,4 +104,4 @@ gen_secrets
 push_manifests
 apply_all
 status
-echo "==> deployed. https://dowork.l8ai.cn (admin@agentsmesh.local / Ab123456)"
+echo "==> deployed. https://dowork.l8ai.cn · https://mobile.l8ai.cn (admin@agentsmesh.local / Ab123456)"
