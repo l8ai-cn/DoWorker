@@ -94,21 +94,27 @@ export async function logout(): Promise<void> {
 
 export async function login(username: string, password: string): Promise<AuthSession> {
   const manager = await getMobileAuthManager();
-  const data = JSON.parse(await manager.login(username, password)) as {
-    token: string;
-    refresh_token?: string;
-    expires_in: number;
-    user?: { id?: number; email?: string };
-  };
-  await manager.fetch_organizations();
-  const org = parseWasmJson<{ slug?: string }>(manager.get_current_org_json());
-  currentEmail = data.user?.email ?? username;
-  const session: AuthSession = {
-    token: data.token,
-    expiresIn: data.expires_in,
-    orgSlug: org?.slug ?? null,
-    userId: data.user?.id?.toString() ?? null,
-    email: currentEmail,
-  };
-  return session;
+  const rawSession = await manager.login(username, password);
+  try {
+    const data = JSON.parse(rawSession) as {
+      token: string;
+      refresh_token?: string;
+      expires_in: number;
+      user?: { id?: number; email?: string };
+    };
+    await manager.fetch_organizations();
+    const org = parseWasmJson<{ slug?: string }>(manager.get_current_org_json());
+    currentEmail = data.user?.email ?? username;
+    return {
+      token: data.token,
+      expiresIn: data.expires_in,
+      orgSlug: org?.slug ?? null,
+      userId: data.user?.id?.toString() ?? null,
+      email: currentEmail,
+    };
+  } catch (error) {
+    manager.clear_session();
+    currentEmail = null;
+    throw error;
+  }
 }

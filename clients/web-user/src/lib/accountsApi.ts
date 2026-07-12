@@ -60,8 +60,20 @@ export async function listMyOrgSlug(token: string): Promise<string | null> {
   if (!res.ok) {
     throw new Error(`Organization lookup failed with status ${res.status}`);
   }
-  const data = (await res.json()) as { items?: Array<{ slug?: string }> };
-  return data.items?.[0]?.slug ?? null;
+  const data = (await res.json()) as unknown;
+  if (!data || typeof data !== "object" || !Array.isArray((data as { items?: unknown }).items)) {
+    throw new Error("Organization lookup returned an invalid response");
+  }
+  const first = (data as { items: unknown[] }).items[0];
+  if (first === undefined) return null;
+  if (
+    !first ||
+    typeof first !== "object" ||
+    typeof (first as { slug?: unknown }).slug !== "string"
+  ) {
+    throw new Error("Organization lookup returned an invalid organization");
+  }
+  return (first as { slug: string }).slug;
 }
 
 /** Shape of UserService.GetMe when authenticated. */
