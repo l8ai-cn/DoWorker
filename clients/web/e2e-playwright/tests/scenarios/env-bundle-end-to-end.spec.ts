@@ -112,10 +112,9 @@ test.describe("EnvBundle end-to-end (Settings UI → Pod → child env)", () => 
     });
 
     await createPodAndWaitRunning({
-      page,
       api,
       agentSlug: AGENT_SLUG,
-      selectRuntimeBundleNames: [bundleName],
+      runtimeBundleNames: [bundleName],
     });
 
     // The agent's env dump is written by the spawned child, which can lag
