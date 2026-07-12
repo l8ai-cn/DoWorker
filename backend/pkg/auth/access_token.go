@@ -60,8 +60,8 @@ func NewAccessTokenManager(config AccessTokenConfig) (*AccessTokenManager, error
 		}
 	}
 	if config.PrivateKey != nil &&
-		(config.PrivateKey.PublicKey.N.Cmp(config.PublicKey.N) != 0 ||
-			config.PrivateKey.PublicKey.E != config.PublicKey.E) {
+		(config.PrivateKey.N.Cmp(config.PublicKey.N) != 0 ||
+			config.PrivateKey.E != config.PublicKey.E) {
 		return nil, ErrAccessTokenConfig
 	}
 	return &AccessTokenManager{

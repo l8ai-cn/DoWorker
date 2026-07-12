@@ -40,34 +40,6 @@ func (o *WorkflowOrchestrator) publishRunEvent(orgID int64, eventType eventbus.E
 	})
 }
 
-func (o *WorkflowOrchestrator) publishWarningEvent(orgID int64, workflowID int64, runID int64, runNumber int, warning string, detail string) {
-	if o.eventBus == nil {
-		return
-	}
-
-	data, err := eventbus.MarshalEventData(&eventsv1.WorkflowRunWarningEventData{
-		WorkflowId: workflowID,
-		RunId:      runID,
-		RunNumber:  int32(runNumber),
-		Warning:    warning,
-		Detail:     detail,
-	})
-	if err != nil {
-		o.logger.Warn("failed to marshal workflow warning event", "error", err)
-		return
-	}
-
-	_ = o.eventBus.Publish(context.Background(), &eventbus.Event{
-		Type:           eventbus.EventWorkflowRunWarning,
-		Category:       eventbus.CategoryEntity,
-		OrganizationID: orgID,
-		EntityType:     "workflow_run",
-		EntityID:       fmt.Sprintf("%d", runID),
-		Data:           data,
-		Timestamp:      time.Now().UnixMilli(),
-	})
-}
-
 func (o *WorkflowOrchestrator) sendWebhookCallback(callbackURL string, workflow *workflowDomain.Workflow, run *workflowDomain.WorkflowRun, status string) {
 	payload, _ := json.Marshal(map[string]interface{}{
 		"workflow_id":   workflow.ID,

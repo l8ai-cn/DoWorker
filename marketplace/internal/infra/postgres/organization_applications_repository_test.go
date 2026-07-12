@@ -30,6 +30,7 @@ func TestOrganizationApplicationsRepositoryFiltersInstallationStatuses(t *testin
 		"000005_console_publication_integrity.up.sql",
 		"000006_quota_foundation.up.sql",
 		"000007_entitlement_installation.up.sql",
+		"000008_quota_ledger_audit.up.sql",
 	} {
 		applyMigration(t, sqlDB, migration)
 	}
@@ -62,8 +63,8 @@ INSERT INTO marketplace.marketplace_entitlements
    target_platform_org_id, status, source)
 VALUES
   ('10000000-0000-4000-8000-000000000001', 1, 41, 'organization', 9, 9, 'active', 'direct'),
-  ('10000000-0000-4000-8000-000000000002', 1, 41, 'organization', 9, 9, 'active', 'direct'),
-  ('10000000-0000-4000-8000-000000000003', 1, 41, 'organization', 9, 9, 'active', 'direct'),
+  ('10000000-0000-4000-8000-000000000002', 1, 41, 'organization', 9, 9, 'active', 'approval'),
+  ('10000000-0000-4000-8000-000000000003', 1, 41, 'organization', 9, 9, 'active', 'approval'),
   ('10000000-0000-4000-8000-000000000004', 1, 41, 'organization', 10, 10, 'active', 'direct');
 INSERT INTO marketplace.marketplace_installations
   (id, marketplace_id, listing_id, listing_version_id, entitlement_id,
