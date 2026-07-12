@@ -180,6 +180,73 @@ func TestStorefrontRepositoryPaginatesWithSortCursor(t *testing.T) {
 	require.Empty(t, detail.PageCursor.Sort)
 }
 
+func TestListingTaxonomyMigrationPreservesLegacyTagsOnUpAndDown(t *testing.T) {
+	dsn := os.Getenv("MARKETPLACE_POSTGRES_TEST_DSN")
+	if dsn == "" {
+		t.Skip("MARKETPLACE_POSTGRES_TEST_DSN is not configured")
+	}
+	sqlDB, err := sql.Open("postgres", dsn)
+	require.NoError(t, err)
+	defer sqlDB.Close()
+	_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
+	t.Cleanup(func() {
+		_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
+	})
+	for _, migration := range []string{
+		"000001_market_foundation.up.sql",
+		"000002_core_catalog.up.sql",
+		"000003_catalog_version_integrity.up.sql",
+		"000004_console_revisions.up.sql",
+		"000005_console_publication_integrity.up.sql",
+	} {
+		applyMigration(t, sqlDB, migration)
+	}
+	seedStorefront(t, sqlDB)
+	_, err = sqlDB.Exec(`ALTER TABLE marketplace.marketplace_listing_versions
+DISABLE TRIGGER marketplace_listing_version_immutable`)
+	require.NoError(t, err)
+	_, err = sqlDB.Exec(`UPDATE marketplace.marketplace_listing_versions
+SET tags = ARRAY['delivery'] WHERE id = 71`)
+	require.NoError(t, err)
+	_, err = sqlDB.Exec(`ALTER TABLE marketplace.marketplace_listing_versions
+ENABLE TRIGGER marketplace_listing_version_immutable`)
+	require.NoError(t, err)
+
+	applyMigration(t, sqlDB, "000011_listing_taxonomy.up.sql")
+	requireListingTagTriggerContract(t, sqlDB)
+	var columnExists bool
+	var relationCount int
+	err = sqlDB.QueryRow(`SELECT EXISTS (
+  SELECT 1 FROM information_schema.columns
+  WHERE table_schema = 'marketplace' AND table_name = 'marketplace_listing_versions' AND column_name = 'tags'
+)`).Scan(&columnExists)
+	require.NoError(t, err)
+	err = sqlDB.QueryRow(`SELECT COUNT(*)
+FROM marketplace.marketplace_listing_version_tags lvt
+JOIN marketplace.marketplace_taxonomy_tags tags ON tags.id = lvt.taxonomy_tag_id
+WHERE lvt.listing_version_id = 71 AND tags.display_name = 'delivery'`).Scan(&relationCount)
+	require.NoError(t, err)
+	require.True(t, columnExists)
+	require.Equal(t, 1, relationCount)
+
+	applyMigration(t, sqlDB, "000011_listing_taxonomy.down.sql")
+	requireListingTagTriggerContract(t, sqlDB)
+	var tags string
+	err = sqlDB.QueryRow(`SELECT tags::text FROM marketplace.marketplace_listing_versions WHERE id = 71`).Scan(&tags)
+	require.NoError(t, err)
+	require.Equal(t, "{delivery}", tags)
+}
+
+func requireListingTagTriggerContract(t *testing.T, db *sql.DB) {
+	t.Helper()
+	var definition string
+	err := db.QueryRow(`SELECT pg_get_functiondef(
+  'marketplace.prevent_submitted_listing_version_update()'::regprocedure
+)`).Scan(&definition)
+	require.NoError(t, err)
+	require.Contains(t, definition, "NEW.tags")
+}
+
 func applyMigration(t *testing.T, db *sql.DB, name string) {
 	t.Helper()
 	body, err := migrations.FS.ReadFile(name)

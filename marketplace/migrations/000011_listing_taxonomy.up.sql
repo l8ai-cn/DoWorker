@@ -64,36 +64,6 @@ JOIN marketplace.marketplace_taxonomy_tags tags
  AND tags.slug = 'legacy-' || MD5(legacy_tags.display_name)
 ON CONFLICT DO NOTHING;
 
-CREATE OR REPLACE FUNCTION marketplace.prevent_submitted_listing_version_update() RETURNS TRIGGER AS $$
-BEGIN
-    IF TG_OP = 'DELETE' THEN
-        IF OLD.review_status <> 'draft' THEN
-            RAISE EXCEPTION 'submitted listing versions are immutable';
-        END IF;
-        RETURN OLD;
-    END IF;
-    IF (OLD.review_status <> 'draft' OR NEW.review_status <> 'draft') AND
-       (NEW.listing_id, NEW.catalog_item_id, NEW.catalog_item_version_id, NEW.revision,
-        NEW.display_name, NEW.tagline, NEW.description, NEW.outcomes, NEW.use_cases,
-        NEW.target_audience, NEW.requirements, NEW.quota_plan_id, NEW.release_notes, NEW.created_at)
-       IS DISTINCT FROM
-       (OLD.listing_id, OLD.catalog_item_id, OLD.catalog_item_version_id, OLD.revision,
-        OLD.display_name, OLD.tagline, OLD.description, OLD.outcomes, OLD.use_cases,
-        OLD.target_audience, OLD.requirements, OLD.quota_plan_id, OLD.release_notes, OLD.created_at) THEN
-        RAISE EXCEPTION 'submitted listing version payload is immutable';
-    END IF;
-    IF NOT (
-        NEW.review_status = OLD.review_status
-        OR (OLD.review_status = 'draft' AND NEW.review_status = 'submitted')
-        OR (OLD.review_status = 'submitted' AND NEW.review_status IN ('approved', 'rejected'))
-    ) THEN
-        RAISE EXCEPTION 'invalid listing review transition';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-ALTER TABLE marketplace.marketplace_listing_versions DROP COLUMN tags;
 ALTER TABLE marketplace.marketplace_listings
     ADD COLUMN featured_rank INTEGER NOT NULL DEFAULT 0 CHECK (featured_rank >= 0);
 CREATE INDEX idx_marketplace_listings_featured
