@@ -24,12 +24,9 @@ export function AcquireButton({
 
   if (resourceType !== "application") {
     return (
-      <div className="acquire-action">
-        <button className="button button-primary" type="button" disabled>
-          {label}
-        </button>
-        <span className="helper-text">对应运行时接入后开放</span>
-      </div>
+      <p className="helper-text">
+        该资源用于应用装配，当前不提供单独启用。
+      </p>
     );
   }
 

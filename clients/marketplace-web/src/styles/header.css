@@ -1,6 +1,7 @@
 .site-header {
   background: rgb(255 255 255 / 94%);
   border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 20;
@@ -10,7 +11,6 @@
   align-items: center;
   display: flex;
   height: 72px;
-  justify-content: space-between;
 }
 
 .brand,
@@ -53,32 +53,18 @@
 }
 
 .site-header nav {
-  gap: 28px;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .site-header nav a {
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 570;
+  padding: 10px 12px;
 }
 
 .site-header nav a:hover {
+  background: var(--teal-soft);
   color: var(--teal);
-}
-
-.account-entry {
-  gap: 7px;
-}
-
-.pending-entry {
-  align-items: flex-start;
-  cursor: not-allowed;
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
-}
-
-.pending-entry small {
-  color: #8b9693;
-  font-size: 9px;
-  font-weight: 500;
 }

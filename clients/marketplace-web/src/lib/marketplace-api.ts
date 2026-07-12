@@ -1,6 +1,7 @@
 import type {
+  ListingCollection,
   ListingDetail,
-  ListingSummary,
+  ListingQuery,
   Market,
   MarketplaceErrorEnvelope,
 } from "./marketplace-types";
@@ -49,9 +50,17 @@ export function getMarket(): Promise<Market> {
   return request<Market>("");
 }
 
-export async function listListings(): Promise<ListingSummary[]> {
-  const response = await request<{ items: ListingSummary[] }>("/listings");
-  return response.items;
+function listingQueryPath(query: ListingQuery): string {
+  const params = new URLSearchParams();
+  const values = Object.entries(query) as Array<[keyof ListingQuery, string]>;
+  values.forEach(([key, value]) => {
+    if (value) params.set(key, value);
+  });
+  return `/listings?${params.toString()}`;
+}
+
+export function listListings(query: ListingQuery): Promise<ListingCollection> {
+  return request<ListingCollection>(listingQueryPath(query));
 }
 
 export function getListing(slug: string): Promise<ListingDetail> {

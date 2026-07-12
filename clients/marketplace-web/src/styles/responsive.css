@@ -3,10 +3,6 @@
     gap: 18px;
   }
 
-  .account-entry {
-    display: none;
-  }
-
   .market-intro,
   .detail-hero-grid {
     grid-template-columns: 1fr;
@@ -16,8 +12,10 @@
     padding: 34px;
   }
 
-  .trust-note {
-    max-width: 520px;
+  .market-intro-aside {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding: 22px 0 0;
   }
 
   .space-grid,
@@ -129,6 +127,18 @@
   .filter-group {
     align-items: flex-start;
     grid-template-columns: 1fr;
+  }
+
+  .filter-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-group:nth-last-child(-n + 2) {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filter-group:last-child {
+    border-bottom: 0;
   }
 
   .detail-hero {

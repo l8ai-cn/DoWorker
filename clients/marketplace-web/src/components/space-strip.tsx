@@ -15,7 +15,7 @@ export function SpaceStrip({
       <div className="section-heading">
         <div>
           <span className="eyebrow">按工作场景发现</span>
-          <h2>专区</h2>
+          <h2>从你要完成的业务开始</h2>
         </div>
       </div>
       <div className="space-grid">
@@ -32,7 +32,7 @@ export function SpaceStrip({
               <FolderKanban aria-hidden="true" size={22} />
               <span>
                 <strong>{space.name}</strong>
-                <small>{count} 个已上架内容</small>
+                <small>{count} 个已发布应用</small>
               </span>
               <ArrowRight aria-hidden="true" size={18} />
             </Link>

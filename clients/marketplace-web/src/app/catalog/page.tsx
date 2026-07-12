@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { CatalogPageContent } from "@/components/catalog-page-content";
 
 export const metadata: Metadata = {
-  title: "全部市场内容",
+  title: "全部应用",
 };
 
 export const dynamic = "force-dynamic";

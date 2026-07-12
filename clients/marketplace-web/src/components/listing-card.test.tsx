@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ListingCard } from "./listing-card";
@@ -20,6 +20,18 @@ describe("ListingCard", () => {
             verified: true,
           },
           spaces: [{ slug: "software-delivery", name: "软件交付" }],
+          tags: [
+            {
+              slug: "software-delivery",
+              display_name: "软件交付",
+              kind: "scene",
+            },
+            {
+              slug: "github",
+              display_name: "GitHub",
+              kind: "integration",
+            },
+          ],
           quota: {
             mode: "per_install",
             estimated_credits_micro: "20000000",
@@ -32,9 +44,12 @@ describe("ListingCard", () => {
     expect(screen.getByText("应用")).toBeInTheDocument();
     expect(screen.getByText("已认证")).toBeInTheDocument();
     expect(screen.getByText("启用需 20 市场额度")).toBeInTheDocument();
+    const tags = within(screen.getByLabelText("应用标签"));
+    expect(tags.getByText("软件交付")).toBeInTheDocument();
+    expect(tags.getByText("GitHub")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "查看软件交付专家" })).toHaveAttribute(
       "href",
-      "/listings/software-delivery-expert",
+      "/apps/software-delivery-expert",
     );
   });
 });

@@ -36,8 +36,16 @@ export function DetailContent({ listing }: { listing: ListingDetail }) {
         <ListSection title="可以完成什么" items={listing.outcomes || []} />
         <ListSection title="适用场景" items={listing.use_cases || []} />
         <ListSection title="适用对象" items={listing.target_audience || []} />
+        <ListSection title="应用包含什么" items={listing.package_summary || []} />
       </main>
       <aside>
+        {listing.first_task && (
+          <section className="detail-section first-task">
+            <h2>启用后从这里开始</h2>
+            <strong>{listing.first_task.title}</strong>
+            <p className="long-copy">{listing.first_task.description}</p>
+          </section>
+        )}
         <ListSection title="启用要求" items={listing.requirements || []} />
         <ListSection title="所需权限" items={listing.permissions || []} />
         <section className="detail-section">

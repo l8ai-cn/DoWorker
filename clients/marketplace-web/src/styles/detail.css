@@ -130,6 +130,21 @@
   margin: 0 0 15px;
 }
 
+.first-task {
+  background: var(--teal-soft);
+  border-color: var(--border-strong);
+}
+
+.first-task h2 {
+  margin-bottom: 8px;
+}
+
+.first-task strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
 .long-copy {
   color: var(--text-muted);
   line-height: 1.8;

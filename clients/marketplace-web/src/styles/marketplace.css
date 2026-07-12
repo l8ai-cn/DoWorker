@@ -3,11 +3,9 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   display: grid;
-  gap: 32px;
-  grid-template-columns: minmax(0, 1fr) 310px;
-  overflow: hidden;
-  padding: 46px;
-  position: relative;
+  gap: 48px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+  padding: 44px 46px;
 }
 
 .market-intro h1 {
@@ -15,7 +13,7 @@
   letter-spacing: -0.045em;
   line-height: 1.05;
   margin: 13px 0 18px;
-  max-width: 760px;
+  max-width: 710px;
 }
 
 .market-intro p {
@@ -25,11 +23,26 @@
   margin: 0;
 }
 
+.market-intro-aside {
+  align-self: stretch;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  justify-content: space-between;
+  padding-left: 34px;
+}
+
+.market-name {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 650;
+}
+
 .trust-note {
   align-items: flex-start;
-  align-self: end;
   background: var(--teal-soft);
-  border: 1px solid #c9e5df;
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   color: var(--teal-strong);
   display: flex;
@@ -44,15 +57,17 @@
 }
 
 .trust-note small {
-  color: #41726b;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
-.intro-mark {
-  color: var(--teal-soft);
-  position: absolute;
-  right: 24px;
-  top: 18px;
+.intro-direction {
+  align-items: center;
+  color: var(--teal);
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 700;
+  gap: 5px;
 }
 
 .search-form {
@@ -60,11 +75,10 @@
   background: var(--surface);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow);
   display: flex;
   gap: 12px;
-  margin: 22px auto 0;
-  max-width: 860px;
+  margin: 28px 0 0;
+  max-width: 100%;
   padding: 8px 8px 8px 18px;
 }
 
@@ -94,7 +108,7 @@
 }
 
 .section-heading h2 {
-  font-size: 28px;
+  font-size: 29px;
   letter-spacing: -0.025em;
   margin: 5px 0 0;
 }
@@ -117,7 +131,7 @@
   border-radius: var(--radius-md);
   display: flex;
   gap: 13px;
-  min-height: 82px;
+  min-height: 92px;
   padding: 18px;
 }
 
@@ -142,6 +156,6 @@
 
 .space-card:hover,
 .listing-card:hover {
-  border-color: #a9cbc5;
+  border-color: var(--border-strong);
   box-shadow: var(--shadow);
 }

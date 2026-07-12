@@ -4,7 +4,7 @@
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  min-height: 330px;
+  min-height: 346px;
   padding: 22px;
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
@@ -33,18 +33,18 @@
 }
 
 .type-skill {
-  background: #edf1fb;
-  color: #385da0;
+  background: var(--surface-muted);
+  color: var(--teal);
 }
 
 .type-mcp_connector {
-  background: var(--amber-soft);
-  color: var(--amber);
+  background: var(--surface-muted);
+  color: var(--teal);
 }
 
 .type-resource {
-  background: #f1eff9;
-  color: #65558e;
+  background: var(--surface-muted);
+  color: var(--teal);
 }
 
 .type-label {
@@ -95,7 +95,8 @@
 }
 
 .listing-card-meta span,
-.detail-badges span {
+.detail-badges span,
+.listing-tags span {
   background: var(--surface-muted);
   border-radius: 6px;
   color: var(--text-muted);
@@ -103,10 +104,18 @@
   padding: 5px 8px;
 }
 
+.listing-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+
 .card-link {
   color: var(--teal);
   font-size: 13px;
   font-weight: 700;
   justify-content: space-between;
-  margin-top: 18px;
+  margin-top: auto;
+  padding-top: 18px;
 }

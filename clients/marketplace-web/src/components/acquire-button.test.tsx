@@ -38,7 +38,7 @@ describe("AcquireButton", () => {
     expect(screen.getByText("获取入口尚未配置")).toBeInTheDocument();
   });
 
-  it("does not expose unsupported Skill installation as available", () => {
+  it("does not render a false acquisition control for an app component", () => {
     render(
       <AcquireButton
         coreWebUrl="https://dowork.l8ai.cn"
@@ -47,7 +47,9 @@ describe("AcquireButton", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "安装 Skill" })).toBeDisabled();
-    expect(screen.getByText("对应运行时接入后开放")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "安装 Skill" })).toBeNull();
+    expect(
+      screen.getByText("该资源用于应用装配，当前不提供单独启用。"),
+    ).toBeInTheDocument();
   });
 });

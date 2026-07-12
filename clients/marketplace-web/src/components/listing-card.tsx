@@ -53,12 +53,19 @@ export function ListingCard({ listing }: { listing: ListingSummary }) {
         <span>{listing.spaces[0]?.name || "未分配专区"}</span>
         {quota && <span>{quota}</span>}
       </div>
+      {listing.tags.length > 0 && (
+        <div className="listing-tags" aria-label="应用标签">
+          {listing.tags.map((tag) => (
+            <span key={`${tag.kind}:${tag.slug}`}>{tag.display_name}</span>
+          ))}
+        </div>
+      )}
       <Link
         className="card-link"
-        href={`/listings/${listing.slug}`}
+        href={`/apps/${listing.slug}`}
         aria-label={`查看${listing.display_name}`}
       >
-        查看详情
+        查看应用
         <span aria-hidden="true">→</span>
       </Link>
     </article>

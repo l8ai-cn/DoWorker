@@ -17,7 +17,7 @@ export function DetailHero({ listing }: { listing: ListingDetail }) {
     <section className="detail-hero">
       <Link className="back-link" href="/catalog">
         <ChevronLeft aria-hidden="true" size={17} />
-        返回全部内容
+        返回全部应用
       </Link>
       <div className="detail-hero-grid">
         <div>
@@ -40,11 +40,11 @@ export function DetailHero({ listing }: { listing: ListingDetail }) {
           </div>
         </div>
         <aside className="acquire-panel">
-          <span className="eyebrow">当前版本</span>
+          <span className="eyebrow">发布版本</span>
           <strong>{listing.version}</strong>
           <dl>
             <div>
-              <dt>额度</dt>
+              <dt>市场额度</dt>
               <dd>{quota || "请在启用确认页核对"}</dd>
             </div>
           </dl>
