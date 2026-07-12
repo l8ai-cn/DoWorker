@@ -4,6 +4,7 @@ import type {
   InstallationPlan,
   MarketplaceListingDetail,
 } from "@/lib/marketplace/acquire-api";
+import { formatMarketplaceCredits } from "@/lib/marketplace/presentation";
 
 interface Props {
   listing: MarketplaceListingDetail;
@@ -16,7 +17,10 @@ export function MarketplaceAcquireSummary({
   organizationName,
   plan,
 }: Props) {
-  const credits = Number(plan.plan.estimated_credits_micro) / 1_000_000;
+  const credits = formatMarketplaceCredits({
+    mode: "per_install",
+    estimated_credits_micro: plan.plan.estimated_credits_micro,
+  }) ?? "以实际结算为准";
 
   return (
     <section className="space-y-5" aria-labelledby="confirm-title">
@@ -31,7 +35,7 @@ export function MarketplaceAcquireSummary({
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <SummaryItem icon={Building2} label="目标组织" value={organizationName} />
-        <SummaryItem icon={Gauge} label="预计启用额度" value={`${credits} 市场额度`} />
+        <SummaryItem icon={Gauge} label="预计启用额度" value={credits} />
         <SummaryItem icon={BadgeCheck} label="应用版本" value={`v${listing.version}`} />
         <SummaryItem icon={ShieldCheck} label="权限数量" value={`${plan.plan.required_permissions.length} 项`} />
       </div>

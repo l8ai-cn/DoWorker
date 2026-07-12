@@ -24,6 +24,7 @@ import { WorkflowsSidebarContent } from "./sidebar/WorkflowsSidebarContent";
 import { ExpertsSidebarContent } from "@/components/experts/ExpertsSidebarContent";
 import { SettingsSidebarContent } from "./sidebar/SettingsSidebarContent";
 import { SkillsSidebarContent } from "./sidebar/SkillsSidebarContent";
+import { MarketplaceSidebarContent } from "./sidebar/MarketplaceSidebarContent";
 import { BlocksSidebar } from "@/components/blocks/BlocksSidebar";
 import { useIDEStore, type ActivityType } from "@/stores/ide";
 import { useWorkspaceStore } from "@/stores/workspace";
@@ -79,6 +80,8 @@ function getSidebarContent(
       return <RunnersSidebarContent onAddRunner={callbacks.onAddRunner} />;
     case "skills":
       return <SkillsSidebarContent />;
+    case "marketplace":
+      return <MarketplaceSidebarContent />;
     case "settings":
       return <SettingsSidebarContent />;
     default:

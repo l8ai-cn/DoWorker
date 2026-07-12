@@ -31,7 +31,11 @@ import {
 
 type Step = "select" | "confirm" | "installing" | "success";
 
-export function MarketplaceAcquireFlow() {
+export function MarketplaceAcquireFlow({
+  organizationSlug,
+}: {
+  organizationSlug?: string;
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const { session, hydrated } = useLightSession();
@@ -62,6 +66,16 @@ export function MarketplaceAcquireFlow() {
       .catch(() => setError("组织列表加载失败，请刷新后重试。"));
   }, [hydrated, session?.isAuthenticated]);
 
+  useEffect(() => {
+    if (!organizationSlug || organizations.length === 0) return;
+    const organization = organizations.find((item) => item.slug === organizationSlug);
+    if (!organization) {
+      setError("你没有在当前组织启用市场内容的权限。");
+      return;
+    }
+    setOrganizationID(String(organization.id));
+  }, [organizationSlug, organizations]);
+
   if (!hydrated || (!listing && !error)) {
     return <AcquireShell><LoadingState /></AcquireShell>;
   }
@@ -69,7 +83,9 @@ export function MarketplaceAcquireFlow() {
     return <AcquireShell><ErrorState message={error} /></AcquireShell>;
   }
   if (!session?.isAuthenticated) {
-    const redirect = `/marketplace/acquire?${params.toString()}`;
+    const redirect = organizationSlug
+      ? `/${organizationSlug}/marketplace/acquire?${params.toString()}`
+      : `/marketplace/acquire?${params.toString()}`;
     router.replace(`/login?redirect=${encodeURIComponent(redirect)}`);
     return <AcquireShell><LoadingState label="正在前往登录" /></AcquireShell>;
   }
@@ -117,7 +133,10 @@ export function MarketplaceAcquireFlow() {
   return (
     <AcquireShell>
       <header className="border-b border-border pb-6">
-        <Link href="https://market.l8ai.cn" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          href={organizationSlug ? `/${organizationSlug}/marketplace/${listingSlug}` : "/marketplace"}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-4 w-4" />
           返回应用市场
         </Link>
@@ -132,6 +151,7 @@ export function MarketplaceAcquireFlow() {
           value={organizationID}
           onChange={setOrganizationID}
           onContinue={preparePlan}
+          fixedOrganization={organizationSlug ? selectedOrganization : undefined}
         />
       ) : null}
       {step === "confirm" && plan && selectedOrganization ? (

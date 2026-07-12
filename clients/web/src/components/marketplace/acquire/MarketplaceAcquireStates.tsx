@@ -9,21 +9,31 @@ export function OrganizationStep({
   value,
   onChange,
   onContinue,
+  fixedOrganization,
 }: {
   organizations: LightOrganization[];
   value: string;
   onChange: (value: string) => void;
   onContinue: () => void;
+  fixedOrganization?: LightOrganization;
 }) {
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-foreground">选择使用组织</h2>
+        <h2 className="text-xl font-semibold text-foreground">
+          {fixedOrganization ? "检查当前组织的启用条件" : "选择使用组织"}
+        </h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          应用会安装到你选择的组织，创建后不能直接移动。
+          {fixedOrganization
+            ? `应用会安装到「${fixedOrganization.name}」，创建后不能直接移动。`
+            : "应用会安装到你选择的组织，创建后不能直接移动。"}
         </p>
       </div>
-      {organizations.length === 0 ? (
+      {fixedOrganization ? (
+        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm text-foreground">
+          启用目标：{fixedOrganization.name}
+        </div>
+      ) : organizations.length === 0 ? (
         <ErrorState message="当前账户还没有可用组织，请先创建组织。" />
       ) : (
         <select

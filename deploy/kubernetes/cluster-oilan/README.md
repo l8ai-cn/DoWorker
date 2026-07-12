@@ -38,9 +38,10 @@ DOOPS_TARGET=gw-oilan-node ./deploy.sh         # secrets + manifests + jobs via 
 ```
 
 `deploy.sh` defaults to `gw-oilan-node`. `push-images.sh` subsets: `platform` |
-`marketplace-core` | `infra` | `runners`. `marketplace-core` rebuilds Backend,
-Marketplace API, Marketplace Web, and Core Web while pinning the current
-Relay/Web-Admin registry digests.
+`marketplace-core` | `web` | `infra` | `runners`. `marketplace-core` rebuilds
+Backend, Marketplace API, Marketplace Web, and Core Web while pinning the current
+Relay/Web-Admin registry digests. `web` rebuilds only Core Web and retains all
+other digests.
 
 For the mobile Worker access path, do not run the full reconcile when unrelated
 workloads are newer in the cluster. Build the three affected images, pin their
@@ -82,6 +83,7 @@ on this cluster). Re-running seed alone does not change relay/web env — only s
 - Mobile Worker entry: https://mobile.l8ai.cn
 - Marketplace Storefront: https://market.l8ai.cn
 - Marketplace API: https://market.l8ai.cn/api/marketplace/v1
+- Organization marketplace: https://dowork.l8ai.cn/dev-org/marketplace
 - Admin console: https://admin.dowork.l8ai.cn (separate host — no `/admin` basePath)
 - Object storage (presigned URLs): https://minio.dowork.l8ai.cn
 - Test account: `admin@agentsmesh.local / Ab123456`
@@ -114,7 +116,7 @@ validate the existing `agentsmesh` Secret.
 | `31/32/33/42-*` | relay / web / web-admin / mobile |
 | `34/35-runner-*` | standing runner pods |
 | `38-marketplace` | Marketplace API Deployment/Service + init migration |
-| `39-marketplace-web` | Independent public Marketplace Storefront |
+| `39-marketplace-web` | independent public Marketplace Storefront |
 | `release/kustomization` | immutable platform image digests |
 | `40-ingress` | ingress-nginx routes (app / admin host / relay rewrite / minio host) |
 | `60-prepull-daemonset` | warm agent-runtime image cache |

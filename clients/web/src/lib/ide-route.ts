@@ -26,6 +26,7 @@ export function resolveActivityFromPathname(pathname: string): ActivityType | nu
   if (pathHasSegment(pathname, "infra")) return "infra";
   if (pathHasSegment(pathname, "repositories")) return "repositories";
   if (pathHasSegment(pathname, "runners")) return "runners";
+  if (pathHasSegment(pathname, "marketplace")) return "marketplace";
   if (pathHasSegment(pathname, "skills")) return "skills";
   if (pathHasSegment(pathname, "settings")) return "settings";
   return null;

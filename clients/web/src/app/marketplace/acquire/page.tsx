@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 
-import { MarketplaceAcquireFlow } from "@/components/marketplace/acquire/MarketplaceAcquireFlow";
+import { MarketplaceEntryRedirect } from "@/components/marketplace/MarketplaceEntryRedirect";
 
 export default function MarketplaceAcquirePage() {
   return (
     <Suspense fallback={<AcquirePageLoading />}>
-      <MarketplaceAcquireFlow />
+      <MarketplaceEntryRedirect acquisition />
     </Suspense>
   );
 }

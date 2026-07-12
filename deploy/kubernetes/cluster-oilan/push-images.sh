@@ -6,6 +6,7 @@
 #   ./push-images.sh platform   # backend/marketplace/marketplace-web/relay/web/web-admin/mobile
 #   ./push-images.sh mobile-access # backend/relay/mobile only
 #   ./push-images.sh marketplace-core # backend/marketplace/marketplace-web/web
+#   ./push-images.sh web        # rebuild Web and retain other current digests
 #   ./push-images.sh infra      # postgres/redis/minio/mc/kubectl mirrors
 #   ./push-images.sh runners    # agent-runtime images (claude/codex/gemini/grok/openclaw/hermes/e2e-echo)
 #
@@ -149,6 +150,16 @@ push_mobile_access() {
   docker_push clients/mobile-lovable/Dockerfile mobile
 }
 
+push_web() {
+  docker_push clients/web/Dockerfile web
+  PLATFORM_DIGEST_BACKEND="$(registry_digest backend)"
+  PLATFORM_DIGEST_MARKETPLACE="$(registry_digest marketplace)"
+  PLATFORM_DIGEST_MARKETPLACE_WEB="$(registry_digest marketplace-web)"
+  PLATFORM_DIGEST_RELAY="$(registry_digest relay)"
+  PLATFORM_DIGEST_WEB_ADMIN="$(registry_digest web-admin)"
+  write_platform_release
+}
+
 push_infra() {
   mirror pgvector/pgvector:pg16 pgvector:pg16
   mirror redis:7-alpine         redis:7-alpine
@@ -192,10 +203,11 @@ main() {
     platform) push_platform ;;
     marketplace-core) push_marketplace_core ;;
     mobile-access) push_mobile_access ;;
+    web)      push_web ;;
     infra)    push_infra ;;
     runners)  push_runners ;;
     all)      push_platform; push_infra; push_runners ;;
-    *) echo "usage: $0 [all|platform|marketplace-core|mobile-access|infra|runners]" >&2; exit 1 ;;
+    *) echo "usage: $0 [all|platform|marketplace-core|mobile-access|web|infra|runners]" >&2; exit 1 ;;
   esac
   echo "==> done: ${TARGET}"
 }
