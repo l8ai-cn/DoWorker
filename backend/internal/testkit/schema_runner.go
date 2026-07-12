@@ -5,6 +5,7 @@ func runnerTableDDLs() []string {
 		`CREATE TABLE IF NOT EXISTS runners (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			organization_id INTEGER NOT NULL, node_id TEXT NOT NULL DEFAULT '',
+			cluster_id INTEGER,
 			name TEXT,
 			description TEXT, status TEXT NOT NULL DEFAULT 'offline',
 			last_heartbeat DATETIME,
@@ -26,13 +27,14 @@ func runnerTableDDLs() []string {
 			auth_key TEXT NOT NULL UNIQUE, machine_key TEXT NOT NULL,
 			node_id TEXT, labels TEXT,
 			authorized BOOLEAN NOT NULL DEFAULT FALSE,
-			organization_id INTEGER, runner_id INTEGER,
+			organization_id INTEGER, cluster_id INTEGER, runner_id INTEGER,
 			expires_at DATETIME NOT NULL,
 			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE TABLE IF NOT EXISTS runner_grpc_registration_tokens (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			token_hash TEXT NOT NULL UNIQUE, organization_id INTEGER NOT NULL,
+			cluster_id INTEGER,
 			name TEXT, labels TEXT,
 			single_use BOOLEAN NOT NULL DEFAULT TRUE,
 			max_uses INTEGER NOT NULL DEFAULT 1, used_count INTEGER NOT NULL DEFAULT 0,
@@ -71,7 +73,7 @@ func podTableDDLs() []string {
 		`CREATE TABLE IF NOT EXISTS pods (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			organization_id INTEGER NOT NULL DEFAULT 0, pod_key TEXT NOT NULL UNIQUE,
-			runner_id INTEGER NOT NULL DEFAULT 0,
+			runner_id INTEGER NOT NULL DEFAULT 0, cluster_id INTEGER,
 			agent_slug TEXT, custom_agent_slug TEXT,
 			repository_id INTEGER, ticket_id INTEGER,
 			created_by_id INTEGER NOT NULL DEFAULT 0,

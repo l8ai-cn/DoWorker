@@ -120,6 +120,7 @@ func (s *Service) RegisterWithToken(ctx context.Context, req *RegisterWithTokenR
 
 	r := &runner.Runner{
 		OrganizationID:     regToken.OrganizationID,
+		ClusterID:          regToken.ClusterID,
 		NodeID:             nodeID,
 		Status:             runner.RunnerStatusOffline,
 		MaxConcurrentPods:  5,

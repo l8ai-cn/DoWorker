@@ -122,7 +122,7 @@ func TestCreatePod_ResumeMode_AccessDenied(t *testing.T) {
 	agentSlug := "claude-code"
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
 		OrganizationID:  999, // Different org
-		RunnerID:        1,
+		RunnerID:        2,
 		AgentSlug:       agentSlug,
 		ModelResourceID: testModelResourceID(),
 		CreatedByID:     1,

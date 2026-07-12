@@ -31,14 +31,24 @@ func CreateOrg(t *testing.T, db *gorm.DB, slug string, ownerID int64) (id int64)
 	if ownerID > 0 {
 		db.Exec(`INSERT INTO organization_members (organization_id, user_id, role) VALUES (?, ?, 'owner')`, id, ownerID)
 	}
+	result = db.Exec(`
+		INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
+		VALUES (?, 'local', 'Local cluster', 'local', 'ready'),
+		       (?, 'online', 'Online cluster', 'online', 'ready')
+	`, id, id)
+	if result.Error != nil {
+		t.Fatalf("testkit.CreateOrg clusters: %v", result.Error)
+	}
 	return id
 }
 
 func CreateRunner(t *testing.T, db *gorm.DB, orgID int64, nodeID string) (id int64) {
 	t.Helper()
+	var clusterID int64
+	db.Raw(`SELECT id FROM execution_clusters WHERE organization_id = ? AND slug = 'online'`, orgID).Scan(&clusterID)
 	result := db.Exec(
-		`INSERT INTO runners (organization_id, node_id, status, max_concurrent_pods) VALUES (?, ?, 'online', 5)`,
-		orgID, nodeID,
+		`INSERT INTO runners (organization_id, cluster_id, node_id, status, max_concurrent_pods) VALUES (?, ?, ?, 'online', 5)`,
+		orgID, clusterID, nodeID,
 	)
 	if result.Error != nil {
 		t.Fatalf("testkit.CreateRunner: %v", result.Error)
@@ -50,9 +60,11 @@ func CreateRunner(t *testing.T, db *gorm.DB, orgID int64, nodeID string) (id int
 func CreatePod(t *testing.T, db *gorm.DB, orgID, runnerID, userID int64) (podKey string) {
 	t.Helper()
 	podKey = fmt.Sprintf("pod-%d-%d", time.Now().UnixNano(), userID)
+	var clusterID int64
+	db.Raw(`SELECT cluster_id FROM runners WHERE id = ?`, runnerID).Scan(&clusterID)
 	result := db.Exec(
-		`INSERT INTO pods (organization_id, pod_key, runner_id, created_by_id, status) VALUES (?, ?, ?, ?, 'initializing')`,
-		orgID, podKey, runnerID, userID,
+		`INSERT INTO pods (organization_id, pod_key, runner_id, cluster_id, created_by_id, status) VALUES (?, ?, ?, ?, ?, 'initializing')`,
+		orgID, podKey, runnerID, clusterID, userID,
 	)
 	if result.Error != nil {
 		t.Fatalf("testkit.CreatePod: %v", result.Error)

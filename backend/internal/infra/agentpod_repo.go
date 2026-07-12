@@ -22,11 +22,9 @@ func NewPodRepository(db *gorm.DB) agentpod.PodRepository {
 }
 
 func (r *podRepo) Create(ctx context.Context, pod *agentpod.Pod) error {
-	err := r.db.WithContext(ctx).Create(pod).Error
-	if err != nil && isUniqueConstraintViolation(err, "idx_pods_source_pod_key_active_unique") {
-		return agentpod.ErrSandboxAlreadyResumed
-	}
-	return err
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		return createPod(tx, pod)
+	})
 }
 
 func (r *podRepo) CreateWithConfig(ctx context.Context, pod *agentpod.Pod, revision *agentpod.PodConfigRevision) error {

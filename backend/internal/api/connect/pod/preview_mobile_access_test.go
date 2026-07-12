@@ -112,7 +112,10 @@ func newPreviewMobileServer(
 	t.Helper()
 	db := testkit.SetupTestDB(t)
 	require.NoError(t, db.Exec(
-		"INSERT INTO runners (id, organization_id, node_id, status, current_pods) VALUES (11, 7, 'runner-11', 'online', 0)",
+		"INSERT INTO execution_clusters (id, organization_id, slug, name, kind, status) VALUES (71, 7, 'local', 'Local cluster', 'local', 'ready')",
+	).Error)
+	require.NoError(t, db.Exec(
+		"INSERT INTO runners (id, organization_id, cluster_id, node_id, status, current_pods) VALUES (11, 7, 71, 'runner-11', 'online', 0)",
 	).Error)
 	require.NoError(t, db.Exec(
 		"INSERT INTO users (id, username, name, email) VALUES (42, 'owner-42', 'Owner', 'owner@example.com')",

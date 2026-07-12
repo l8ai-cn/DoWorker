@@ -51,7 +51,26 @@ func createTestOrg(t *testing.T, db *gorm.DB, slug string) *testOrg {
 	if err != nil {
 		t.Fatalf("failed to get test org: %v", err)
 	}
+	result = db.Exec(`
+		INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
+		VALUES (?, 'local', 'Local cluster', 'local', 'ready'),
+		       (?, 'online', 'Online cluster', 'online', 'ready')
+	`, org.ID, org.ID)
+	if result.Error != nil {
+		t.Fatalf("failed to create test execution clusters: %v", result.Error)
+	}
 	return &org
+}
+
+func localClusterID(t *testing.T, db *gorm.DB, orgID int64) int64 {
+	t.Helper()
+	var clusterID int64
+	if err := db.Raw(`
+SELECT id FROM execution_clusters WHERE organization_id = ? AND slug = 'local'
+`, orgID).Scan(&clusterID).Error; err != nil {
+		t.Fatalf("failed to get local execution cluster: %v", err)
+	}
+	return clusterID
 }
 
 // createTestCA creates a self-signed CA certificate for testing

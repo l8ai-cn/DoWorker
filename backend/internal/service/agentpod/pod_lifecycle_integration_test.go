@@ -178,10 +178,9 @@ func TestPodLifecycle_BillingQuotaReject(t *testing.T) {
 
 func TestPodLifecycle_RunnerAutoSelect(t *testing.T) {
 	coord := &mockPodCoordinator{}
-	autoRunner := &runnerDomain.Runner{ID: 999, NodeID: "auto-runner"}
 	agentfileSrc := "AGENT claude\nEXECUTABLE claude\nPROMPT_POSITION prepend\n"
 
-	selector := &mockRunnerSelector{runner: autoRunner}
+	selector := &mockRunnerSelector{}
 	resolver := &mockAgentResolver{
 		agentDef: &agentDomain.Agent{
 			Slug: "claude-code", SupportedModes: "pty",
@@ -194,6 +193,7 @@ func TestPodLifecycle_RunnerAutoSelect(t *testing.T) {
 		withRunnerSelector(selector),
 		withAgentResolver(resolver),
 	)
+	selector.runner = &runnerDomain.Runner{ID: ctxRunnerID(ctx), NodeID: "auto-runner"}
 
 	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
 		OrganizationID:  ctxOrgID(ctx),
@@ -204,8 +204,8 @@ func TestPodLifecycle_RunnerAutoSelect(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	assert.Equal(t, int64(999), result.Pod.RunnerID, "auto-selected runner used")
-	assert.Equal(t, int64(999), coord.lastRunnerID)
+	assert.Equal(t, ctxRunnerID(ctx), result.Pod.RunnerID, "auto-selected runner used")
+	assert.Equal(t, ctxRunnerID(ctx), coord.lastRunnerID)
 }
 
 // ---------- Test 5: Dispatch failure marks pod init_failed ----------
