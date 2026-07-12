@@ -37,6 +37,9 @@ func (d *Deps) sessionRelayConnection(
 	if pod == nil || !pod.IsActive() || pod.RunnerID <= 0 {
 		return nil, http.StatusNotFound, "session not found"
 	}
+	if pod.InteractionMode != podDomain.InteractionModePTY {
+		return nil, http.StatusBadRequest, "terminal is only available for pty sessions"
+	}
 	if d.RelayManager == nil || d.RelayTokens == nil || d.CommandSender == nil {
 		return nil, http.StatusServiceUnavailable, "relay unavailable"
 	}

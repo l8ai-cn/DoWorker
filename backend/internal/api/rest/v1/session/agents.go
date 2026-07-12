@@ -10,19 +10,21 @@ import (
 	"github.com/anthropics/agentsmesh/agentfile/capability"
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	agentpodservice "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/gin-gonic/gin"
 )
 
 type agentWire struct {
-	ID             string            `json:"id"`
-	Name           string            `json:"name"`
-	Description    *string           `json:"description,omitempty"`
-	Harness        *string           `json:"harness,omitempty"`
-	Skills         []skillWire       `json:"skills,omitempty"`
-	Builtin        bool              `json:"builtin"`
-	CreatedAt      int64             `json:"created_at"`
-	Capabilities   map[string]string `json:"capabilities,omitempty"`
-	SupportedModes []string          `json:"supported_modes"`
+	ID                    string            `json:"id"`
+	Name                  string            `json:"name"`
+	Description           *string           `json:"description,omitempty"`
+	Harness               *string           `json:"harness,omitempty"`
+	Skills                []skillWire       `json:"skills,omitempty"`
+	Builtin               bool              `json:"builtin"`
+	CreatedAt             int64             `json:"created_at"`
+	Capabilities          map[string]string `json:"capabilities,omitempty"`
+	SupportedModes        []string          `json:"supported_modes"`
+	RequiresModelResource bool              `json:"requires_model_resource"`
 }
 
 type skillWire struct {
@@ -94,12 +96,13 @@ func availableAgentRows(
 			return nil, err
 		}
 		row := agentWire{
-			ID:             a.Slug,
-			Name:           a.Name,
-			Builtin:        a.IsBuiltin,
-			CreatedAt:      a.CreatedAt.Unix(),
-			Harness:        &harness,
-			SupportedModes: modes,
+			ID:                    a.Slug,
+			Name:                  a.Name,
+			Builtin:               a.IsBuiltin,
+			CreatedAt:             a.CreatedAt.Unix(),
+			Harness:               &harness,
+			SupportedModes:        modes,
+			RequiresModelResource: agentpodservice.AgentRequiresModelResource(a),
 		}
 		if a.Description != nil {
 			row.Description = a.Description

@@ -13,7 +13,7 @@ export function useAvailableAgents() {
   });
 
   const agents = (query.data ?? []).map((a) =>
-    agentPickerOption(a.id, a.name, a.supportedModes, a.harness),
+    agentPickerOption(a.id, a.name, a.supportedModes, a.requiresModelResource, a.harness),
   );
 
   return {

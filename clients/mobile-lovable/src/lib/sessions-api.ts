@@ -1,5 +1,5 @@
 import { apiFetch } from "./api-fetch";
-import { resolveRequiredModelResourceId } from "./model-resources-api";
+import { resolveDefaultModelResourceId } from "./model-resources-api";
 import { PROJECT_LABEL_KEY } from "./project-label";
 
 export type SessionStatus = "idle" | "launching" | "running" | "waiting" | "failed";
@@ -24,7 +24,10 @@ export interface AvailableAgent {
   name: string;
   harness: string | null;
   supportedModes: SessionInteractionMode[];
+  requiresModelResource: boolean;
 }
+
+export type SessionCreationAgent = Pick<AvailableAgent, "id" | "requiresModelResource">;
 
 export interface LiveSessionDetail extends LiveSessionSummary {
   events: import("./live-session-reducer").LiveAgentEvent[];
@@ -118,12 +121,14 @@ export async function getSessionByPodKey(podKey: string): Promise<LiveSessionSum
 }
 
 export async function createSession(
-  agentId: string,
+  agent: SessionCreationAgent,
   title?: string,
   initialText?: string,
   options?: { mode?: SessionInteractionMode },
 ): Promise<LiveSessionSummary> {
-  const modelResourceId = await resolveRequiredModelResourceId(agentId);
+  const modelResourceId = agent.requiresModelResource
+    ? await resolveDefaultModelResourceId()
+    : undefined;
   const initial_items = initialText?.trim()
     ? [
         {
@@ -139,7 +144,7 @@ export async function createSession(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      agent_id: agentId,
+      agent_id: agent.id,
       initial_items,
       ...(modelResourceId !== undefined ? { model_resource_id: modelResourceId } : {}),
       ...(title ? { title } : {}),
@@ -225,14 +230,34 @@ export async function fetchSessionItems(
 export async function listAgents(): Promise<AvailableAgent[]> {
   const res = await apiFetch("/v1/agents");
   const body = await readJson<{
-    data: Array<{ id: string; name: string; harness?: string; supported_modes?: string[] }>;
+    data: Array<{
+      id: string;
+      name: string;
+      harness?: string;
+      supported_modes?: string[];
+      requires_model_resource?: boolean;
+    }>;
   }>(res);
-  return (body.data ?? []).map((a) => ({
+  return (body.data ?? []).map((a) => availableAgentFromWire(a));
+}
+
+function availableAgentFromWire(a: {
+  id: string;
+  name: string;
+  harness?: string;
+  supported_modes?: string[];
+  requires_model_resource?: boolean;
+}): AvailableAgent {
+  if (typeof a.requires_model_resource !== "boolean") {
+    throw new Error(`Worker ${a.id} 未声明模型资源要求`);
+  }
+  return {
     id: a.id,
     name: a.name,
     harness: a.harness ?? null,
     supportedModes: readSupportedModes(a.id, a.supported_modes),
-  }));
+    requiresModelResource: a.requires_model_resource,
+  };
 }
 
 function readSupportedModes(

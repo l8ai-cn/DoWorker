@@ -9,6 +9,7 @@ const codex: AgentPickerOption = {
   avatar: "O",
   desc: "codex-cli",
   supportedModes: ["acp", "pty"],
+  requiresModelResource: true,
 };
 
 const claude: AgentPickerOption = {
@@ -18,6 +19,7 @@ const claude: AgentPickerOption = {
   avatar: "A",
   desc: "claude-code",
   supportedModes: ["pty"],
+  requiresModelResource: true,
 };
 
 describe("resolveMobileWorkerSelection", () => {
