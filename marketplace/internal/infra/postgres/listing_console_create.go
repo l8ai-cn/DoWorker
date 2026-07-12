@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/anthropics/agentsmesh/marketplace/internal/domain/listing"
+	"github.com/anthropics/agentsmesh/marketplace/internal/service"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
@@ -14,6 +15,7 @@ func (r *ListingConsoleRepository) CreateListingDraft(
 	marketSlug string,
 	item *listing.Listing,
 	version *listing.Version,
+	taxonomyTags []service.ListingTaxonomyTag,
 	spaceSlugs []string,
 	primarySpaceSlug string,
 ) error {
@@ -70,6 +72,15 @@ RETURNING id
 			return err
 		}
 		version.AssignID(versionRow.ID)
+		if err := insertListingTaxonomyTags(
+			tx,
+			item.MarketplaceID,
+			item.ID,
+			version.ID(),
+			taxonomyTags,
+		); err != nil {
+			return err
+		}
 		for _, space := range spaces {
 			if err := tx.Exec(`
 INSERT INTO marketplace.marketplace_listing_spaces

@@ -81,10 +81,11 @@ multiple tags.
 | `integration` | GitHub, Shopify, knowledge base |
 | `readiness` | Ready now, Runner required, authorization required, approval required |
 
-The public catalog supports `q`, `scene`, `industry`, `audience`, `type`,
-`integration`, `readiness`, `space`, `sort`, and cursor pagination. Supported
-sorts are `featured`, `latest`, and `relevance`; popularity is not shown until
-the platform has trustworthy usage data.
+The public catalog supports `q`, `scene`, `industry`, `audience`, `capability`,
+`type`, `integration`, `readiness`, `space`, `sort`, and cursor pagination.
+Each cursor is bound to the full query context. Supported sorts are `featured`,
+`latest`, and `relevance`; popularity is not shown until the platform has
+trustworthy usage data.
 
 ## Listing Evaluation
 
@@ -151,8 +152,10 @@ remains the source of truth for runtime execution and result evidence.
 
 Required additions:
 
-- Replace `listing_versions.tags TEXT[]` with market-scoped taxonomy tags and
-  a listing-tag relation. Preserve existing tag values through migration.
+- Use market-scoped taxonomy tags and a listing-tag relation as the only public
+  read model. Preserve the legacy text column only for existing domain
+  compatibility; create and publish flows write normalized tags as the source
+  of truth.
 - Extend public list and detail responses with tags, package summary,
   activation requirements, first-run templates, documentation, and support.
 - Add query filtering and cursor pagination to public listings.

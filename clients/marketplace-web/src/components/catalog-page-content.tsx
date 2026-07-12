@@ -26,17 +26,29 @@ async function loadCatalog(searchParams: SearchParams) {
   try {
     const rawParams = await searchParams;
     const filters = parseCatalogFilters(rawParams);
-    const [market, collection] = await Promise.all([
+    const [market, listings] = await Promise.all([
       getMarket(),
-      listListings(filters),
+      loadAllListings(filters),
     ]);
-    return { kind: "ready" as const, market, collection, filters };
+    return { kind: "ready" as const, market, listings, filters };
   } catch (error) {
     if (error instanceof MarketplaceApiError && error.code === "MARKET_SUSPENDED") {
       return { kind: "suspended" as const };
     }
     throw error;
   }
+}
+
+async function loadAllListings(filters: ReturnType<typeof parseCatalogFilters>) {
+  const first = await listListings(filters);
+  const items = [...first.items];
+  let cursor = first.next_cursor;
+  while (cursor) {
+    const page = await listListings(filters, cursor);
+    items.push(...page.items);
+    cursor = page.next_cursor;
+  }
+  return items;
 }
 
 export async function CatalogPageContent({
@@ -59,7 +71,7 @@ export async function CatalogPageContent({
     );
   }
 
-  const listings = data.collection.items;
+  const listings = data.listings;
   const spaces = uniqueSpaces(listings);
   return (
     <main className="shell page-main">

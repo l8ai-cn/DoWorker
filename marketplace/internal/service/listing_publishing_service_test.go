@@ -28,11 +28,13 @@ func TestListingPublishingLifecycle(t *testing.T) {
 		UseCases:             []byte(`["批量优化"]`),
 		TargetAudience:       []byte(`["跨境运营"]`),
 		Requirements:         []byte(`[]`),
-		Tags:                 []string{"跨境电商"},
-		ReleaseNotes:         "首次发布",
-		SpaceSlugs:           []string{"operations"},
-		PrimarySpaceSlug:     "operations",
-		ActorUserID:          14,
+		TaxonomyTags: []ListingTaxonomyTag{
+			{Slug: "cross-border-commerce", DisplayName: "跨境电商", Kind: "industry"},
+		},
+		ReleaseNotes:     "首次发布",
+		SpaceSlugs:       []string{"operations"},
+		PrimarySpaceSlug: "operations",
+		ActorUserID:      14,
 	})
 	require.NoError(t, err)
 	require.Equal(t, listing.StatusDraft, draft.Status)
@@ -65,6 +67,57 @@ func TestListingPublishingLifecycle(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, listing.StatusPublished, published.Status)
 	require.Equal(t, int64(71), published.CurrentVersionID)
+}
+
+func TestListingPublishingPassesNormalizedTaxonomyTags(t *testing.T) {
+	repository := &listingRepositoryStub{catalogItemID: 41}
+	publishing := NewListingPublishingService(repository, &listingAuthorizerStub{allowed: true})
+
+	_, err := publishing.CreateDraft(context.Background(), CreateListingDraftCommand{
+		MarketSlug:           "commerce-market",
+		CatalogItemVersionID: 51,
+		Slug:                 "listing-optimizer",
+		Visibility:           listing.VisibilityPublic,
+		AccessMode:           listing.AccessModeDirect,
+		DisplayName:          "商品优化应用",
+		Tagline:              "批量优化商品信息",
+		Description:          "面向跨境电商运营团队",
+		Outcomes:             []byte(`["提升转化"]`),
+		UseCases:             []byte(`["批量优化"]`),
+		TargetAudience:       []byte(`["跨境运营"]`),
+		Requirements:         []byte(`[]`),
+		TaxonomyTags: []ListingTaxonomyTag{
+			{Slug: "cross-border-commerce", DisplayName: "跨境电商", Kind: "industry"},
+			{Slug: "catalog-optimization", DisplayName: "商品优化", Kind: "capability"},
+		},
+		ReleaseNotes:     "首次发布",
+		SpaceSlugs:       []string{"operations"},
+		PrimarySpaceSlug: "operations",
+		ActorUserID:      14,
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, []ListingTaxonomyTag{
+		{Slug: "cross-border-commerce", DisplayName: "跨境电商", Kind: "industry"},
+		{Slug: "catalog-optimization", DisplayName: "商品优化", Kind: "capability"},
+	}, repository.taxonomyTags)
+}
+
+func TestListingPublishingRequiresNormalizedTaxonomyTags(t *testing.T) {
+	repository := &listingRepositoryStub{catalogItemID: 41}
+	publishing := NewListingPublishingService(repository, &listingAuthorizerStub{allowed: true})
+
+	_, err := publishing.CreateDraft(context.Background(), CreateListingDraftCommand{
+		MarketSlug: "commerce-market", CatalogItemVersionID: 51, Slug: "listing-optimizer",
+		Visibility: listing.VisibilityPublic, AccessMode: listing.AccessModeDirect,
+		DisplayName: "商品优化应用", Tagline: "批量优化商品信息", Description: "面向跨境电商运营团队",
+		Outcomes: []byte(`["提升转化"]`), UseCases: []byte(`["批量优化"]`),
+		TargetAudience: []byte(`["跨境运营"]`), Requirements: []byte(`[]`),
+		SpaceSlugs: []string{"operations"}, PrimarySpaceSlug: "operations", ActorUserID: 14,
+	})
+
+	require.ErrorIs(t, err, ErrInvalidListingTaxonomy)
+	require.Nil(t, repository.item)
 }
 
 func TestListingPublishRequiresAuthorization(t *testing.T) {
@@ -126,6 +179,7 @@ type listingRepositoryStub struct {
 	item          *listing.Listing
 	version       *listing.Version
 	catalogItemID int64
+	taxonomyTags  []ListingTaxonomyTag
 }
 
 func (r *listingRepositoryStub) ResolveListingDraftReferences(
@@ -141,6 +195,7 @@ func (r *listingRepositoryStub) CreateListingDraft(
 	_ string,
 	item *listing.Listing,
 	version *listing.Version,
+	tags []ListingTaxonomyTag,
 	_ []string,
 	_ string,
 ) error {
@@ -148,6 +203,7 @@ func (r *listingRepositoryStub) CreateListingDraft(
 	version.AssignID(71)
 	r.item = item
 	r.version = version
+	r.taxonomyTags = append([]ListingTaxonomyTag(nil), tags...)
 	return nil
 }
 

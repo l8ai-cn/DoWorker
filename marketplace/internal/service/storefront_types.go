@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"time"
@@ -41,11 +43,12 @@ type TaxonomyTagView struct {
 }
 
 type ListingCursor struct {
-	Sort         string    `json:"s"`
-	FeaturedRank int       `json:"f"`
-	Relevance    int       `json:"r"`
-	PublishedAt  time.Time `json:"p"`
-	ListingID    int64     `json:"i"`
+	Sort             string    `json:"s"`
+	QueryFingerprint string    `json:"q"`
+	FeaturedRank     int       `json:"f"`
+	Relevance        int       `json:"r"`
+	PublishedAt      time.Time `json:"p"`
+	ListingID        int64     `json:"i"`
 }
 
 type ListingQuery struct {
@@ -71,6 +74,27 @@ func WithListingQuery(ctx context.Context, query ListingQuery) context.Context {
 func ListingQueryFromContext(ctx context.Context) ListingQuery {
 	query, _ := ctx.Value(listingQueryKey{}).(ListingQuery)
 	return query
+}
+
+func ListingQueryFingerprint(marketSlug string, query ListingQuery) string {
+	payload, _ := json.Marshal(struct {
+		MarketSlug  string `json:"market_slug"`
+		Q           string `json:"q"`
+		Scene       string `json:"scene"`
+		Industry    string `json:"industry"`
+		Audience    string `json:"audience"`
+		Type        string `json:"type"`
+		Capability  string `json:"capability"`
+		Integration string `json:"integration"`
+		Readiness   string `json:"readiness"`
+		Space       string `json:"space"`
+		Sort        string `json:"sort"`
+	}{
+		marketSlug, query.Q, query.Scene, query.Industry, query.Audience, query.Type,
+		query.Capability, query.Integration, query.Readiness, query.Space, query.Sort,
+	})
+	sum := sha256.Sum256(payload)
+	return hex.EncodeToString(sum[:])
 }
 
 func EncodeListingCursor(cursor ListingCursor) (string, error) {

@@ -50,17 +50,18 @@ export function getMarket(): Promise<Market> {
   return request<Market>("");
 }
 
-function listingQueryPath(query: ListingQuery): string {
+function listingQueryPath(query: ListingQuery, cursor?: string): string {
   const params = new URLSearchParams();
   const values = Object.entries(query) as Array<[keyof ListingQuery, string]>;
   values.forEach(([key, value]) => {
     if (value) params.set(key, value);
   });
+  if (cursor) params.set("cursor", cursor);
   return `/listings?${params.toString()}`;
 }
 
-export function listListings(query: ListingQuery): Promise<ListingCollection> {
-  return request<ListingCollection>(listingQueryPath(query));
+export function listListings(query: ListingQuery, cursor?: string): Promise<ListingCollection> {
+  return request<ListingCollection>(listingQueryPath(query, cursor));
 }
 
 export function getListing(slug: string): Promise<ListingDetail> {

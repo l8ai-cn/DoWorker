@@ -32,3 +32,21 @@ func TestDefaultMarketplaceSeedContract(t *testing.T) {
 	require.NotContains(t, string(up), "REFERENCES public.")
 	require.False(t, strings.Contains(string(up), "ON CONFLICT"))
 }
+
+func TestDefaultMarketplaceSeedTaxonomyContract(t *testing.T) {
+	up, err := os.ReadFile("000012_default_marketplace_taxonomy.up.sql")
+	require.NoError(t, err)
+	down, err := os.ReadFile("000012_default_marketplace_taxonomy.down.sql")
+	require.NoError(t, err)
+
+	for _, fragment := range []string{
+		"'software-delivery'",
+		"'enterprise-services'",
+		"'engineering-team'",
+		"'runner-required'",
+		"marketplace_listing_version_tags",
+	} {
+		require.Contains(t, string(up), fragment)
+	}
+	require.Contains(t, string(down), "marketplace_listing_version_tags")
+}

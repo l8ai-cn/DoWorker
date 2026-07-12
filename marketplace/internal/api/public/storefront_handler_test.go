@@ -131,8 +131,14 @@ func TestListListingsFiltersTaxonomyAndReturnsTags(t *testing.T) {
 }
 
 func TestListListingsPassesAllQueryParametersToStorefront(t *testing.T) {
+	query := service.ListingQuery{
+		Q: "delivery", Scene: "software-delivery", Industry: "enterprise-services",
+		Audience: "delivery-engineer", Type: "application", Capability: "code-review", Integration: "github",
+		Readiness: "runner-required", Space: "software-delivery", Sort: "relevance",
+	}
 	cursor, err := service.EncodeListingCursor(service.ListingCursor{
-		Sort: "relevance", PublishedAt: time.Date(2026, 7, 12, 8, 0, 0, 0, time.UTC), ListingID: 108,
+		Sort: "relevance", QueryFingerprint: service.ListingQueryFingerprint("commerce-market", query),
+		PublishedAt: time.Date(2026, 7, 12, 8, 0, 0, 0, time.UTC), ListingID: 108,
 	})
 	require.NoError(t, err)
 	repository := &repositoryStub{
@@ -160,9 +166,59 @@ func TestListListingsPassesAllQueryParametersToStorefront(t *testing.T) {
 		Audience: "delivery-engineer", Type: "application", Capability: "code-review", Integration: "github",
 		Readiness: "runner-required", Space: "software-delivery", Sort: "relevance",
 		Cursor: &service.ListingCursor{
-			Sort: "relevance", PublishedAt: time.Date(2026, 7, 12, 8, 0, 0, 0, time.UTC), ListingID: 108,
+			Sort: "relevance", QueryFingerprint: service.ListingQueryFingerprint("commerce-market", query),
+			PublishedAt: time.Date(2026, 7, 12, 8, 0, 0, 0, time.UTC), ListingID: 108,
 		},
 	}, repository.listingQuery)
+}
+
+func TestListListingsRejectsCursorFromAnotherQuery(t *testing.T) {
+	cursor, err := service.EncodeListingCursor(service.ListingCursor{
+		Sort: "relevance", PublishedAt: time.Date(2026, 7, 12, 8, 0, 0, 0, time.UTC), ListingID: 108,
+	})
+	require.NoError(t, err)
+	router := gin.New()
+	NewHandler(service.NewStorefrontService(&repositoryStub{
+		market: service.MarketView{MarketplaceID: 42, Slug: "commerce-market", Status: "published"},
+	})).RegisterRoutes(router.Group("/api/marketplace/v1"))
+
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		http.MethodGet,
+		"/api/marketplace/v1/markets/commerce-market/listings?q=delivery&sort=relevance&cursor="+cursor,
+		nil,
+	)
+	request.Host = "market.example.com"
+	router.ServeHTTP(response, request)
+
+	require.Equal(t, http.StatusBadRequest, response.Code)
+	require.JSONEq(t, `{
+	  "error":{"code":"INVALID_LISTING_QUERY","message":"无效的列表查询参数"}
+	}`, response.Body.String())
+}
+
+func TestListListingsRejectsCursorFromAnotherMarket(t *testing.T) {
+	query := service.ListingQuery{Sort: "latest"}
+	cursor, err := service.EncodeListingCursor(service.ListingCursor{
+		Sort: "latest", QueryFingerprint: service.ListingQueryFingerprint("commerce-market", query),
+		PublishedAt: time.Date(2026, 7, 12, 8, 0, 0, 0, time.UTC), ListingID: 108,
+	})
+	require.NoError(t, err)
+	router := gin.New()
+	NewHandler(service.NewStorefrontService(&repositoryStub{
+		market: service.MarketView{MarketplaceID: 42, Status: "published"},
+	})).RegisterRoutes(router.Group("/api/marketplace/v1"))
+
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		http.MethodGet,
+		"/api/marketplace/v1/markets/campus-market/listings?sort=latest&cursor="+cursor,
+		nil,
+	)
+	request.Host = "market.example.com"
+	router.ServeHTTP(response, request)
+
+	require.Equal(t, http.StatusBadRequest, response.Code)
 }
 
 func TestMarketNotFoundUsesStableChineseError(t *testing.T) {

@@ -44,11 +44,12 @@ func (h *Handler) getMarket(c *gin.Context) {
 }
 
 func (h *Handler) listListings(c *gin.Context) {
-	query, err := parseListingQuery(c)
+	query, err := parseListingQuery(c, c.Param("marketSlug"))
 	if err != nil {
 		writeInvalidListingQuery(c)
 		return
 	}
+	queryFingerprint := service.ListingQueryFingerprint(c.Param("marketSlug"), query)
 	items, err := h.storefront.ListListings(
 		service.WithListingQuery(c, query),
 		c.Param("marketSlug"),
@@ -62,6 +63,7 @@ func (h *Handler) listListings(c *gin.Context) {
 	nextCursor := any(nil)
 	if len(items) > listingsPageSize {
 		items = items[:listingsPageSize]
+		items[len(items)-1].PageCursor.QueryFingerprint = queryFingerprint
 		nextCursor, err = service.EncodeListingCursor(items[len(items)-1].PageCursor)
 		if err != nil {
 			writeStorefrontError(c, err)
@@ -96,7 +98,7 @@ func requestHost(c *gin.Context) string {
 	return c.Request.Host
 }
 
-func parseListingQuery(c *gin.Context) (service.ListingQuery, error) {
+func parseListingQuery(c *gin.Context, marketSlug string) (service.ListingQuery, error) {
 	query := service.ListingQuery{
 		Q:           strings.TrimSpace(c.Query("q")),
 		Scene:       strings.TrimSpace(c.Query("scene")),
@@ -114,7 +116,8 @@ func parseListingQuery(c *gin.Context) (service.ListingQuery, error) {
 	}
 	if cursor := strings.TrimSpace(c.Query("cursor")); cursor != "" {
 		value, err := service.DecodeListingCursor(cursor)
-		if err != nil || value.Sort != query.Sort {
+		if err != nil || value.Sort != query.Sort ||
+			value.QueryFingerprint != service.ListingQueryFingerprint(marketSlug, query) {
 			return service.ListingQuery{}, errors.New("invalid listing cursor")
 		}
 		query.Cursor = &value

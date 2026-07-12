@@ -33,6 +33,10 @@ func (s *ListingPublishingService) CreateDraft(
 	if err != nil {
 		return ListingResult{}, err
 	}
+	tags, displayNames, err := normalizeListingTaxonomyTags(command.TaxonomyTags)
+	if err != nil {
+		return ListingResult{}, err
+	}
 	item, err := listing.New(marketplaceID, catalogItemID, command.Slug)
 	if err != nil {
 		return ListingResult{}, err
@@ -54,7 +58,7 @@ func (s *ListingPublishingService) CreateDraft(
 		command.UseCases,
 		command.TargetAudience,
 		command.Requirements,
-		command.Tags,
+		displayNames,
 		command.ReleaseNotes,
 	)
 	if err != nil {
@@ -65,6 +69,7 @@ func (s *ListingPublishingService) CreateDraft(
 		command.MarketSlug,
 		item,
 		version,
+		tags,
 		command.SpaceSlugs,
 		command.PrimarySpaceSlug,
 	); err != nil {

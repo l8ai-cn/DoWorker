@@ -32,6 +32,7 @@ func TestCatalogAndListingConsoleRepositoriesPublishImmutableListing(t *testing.
 		"000003_catalog_version_integrity.up.sql",
 		"000004_console_revisions.up.sql",
 		"000005_console_publication_integrity.up.sql",
+		"000011_listing_taxonomy.up.sql",
 	} {
 		applyMigration(t, sqlDB, migration)
 	}
@@ -74,8 +75,11 @@ VALUES (31, 'commerce-lab', 'platform', 'Commerce Lab', 'verified')`)
 		Tagline: "批量优化商品信息", Description: "面向跨境电商运营团队",
 		Outcomes: []byte(`["提升转化"]`), UseCases: []byte(`["批量优化"]`),
 		TargetAudience: []byte(`["跨境运营"]`), Requirements: []byte(`[]`),
-		Tags: []string{"跨境电商"}, ReleaseNotes: "首次发布",
-		SpaceSlugs: []string{space.Slug}, PrimarySpaceSlug: space.Slug, ActorUserID: 14,
+		TaxonomyTags: []service.ListingTaxonomyTag{
+			{Slug: "cross-border-commerce", DisplayName: "跨境电商", Kind: "industry"},
+		},
+		ReleaseNotes: "首次发布",
+		SpaceSlugs:   []string{space.Slug}, PrimarySpaceSlug: space.Slug, ActorUserID: 14,
 	})
 	require.NoError(t, err)
 	_, err = sqlDB.Exec(`UPDATE marketplace.marketplace_listing_versions
@@ -120,6 +124,9 @@ SET status = 'published', visibility = 'public' WHERE id = $1`, market.Marketpla
 	require.NoError(t, err)
 	require.Len(t, items, 1)
 	require.Equal(t, "listing-optimizer", items[0].Slug)
+	require.Equal(t, []service.TaxonomyTagView{
+		{Slug: "cross-border-commerce", DisplayName: "跨境电商", Kind: "industry"},
+	}, items[0].Tags)
 }
 
 func createConsoleMarketAndSpace(

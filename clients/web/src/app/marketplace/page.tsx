@@ -1,7 +1,5 @@
-import { Suspense } from "react";
-
-import { MarketplaceEntryRedirect } from "@/components/marketplace/MarketplaceEntryRedirect";
+import { redirect } from "next/navigation";
 
 export default function MarketplacePage() {
-  return <Suspense fallback={null}><MarketplaceEntryRedirect /></Suspense>;
+  redirect("https://market.l8ai.cn");
 }

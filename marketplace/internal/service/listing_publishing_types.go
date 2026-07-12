@@ -4,14 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strings"
 	"time"
 
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/anthropics/agentsmesh/marketplace/internal/domain/listing"
 )
 
 var (
 	ErrListingReviewForbidden  = errors.New("listing review is forbidden")
 	ErrListingPublishForbidden = errors.New("listing publish is forbidden")
+	ErrInvalidListingTaxonomy  = errors.New("invalid listing taxonomy")
 )
 
 type ListingPublishingRepository interface {
@@ -21,6 +24,7 @@ type ListingPublishingRepository interface {
 		string,
 		*listing.Listing,
 		*listing.Version,
+		[]ListingTaxonomyTag,
 		[]string,
 		string,
 	) error
@@ -56,11 +60,50 @@ type CreateListingDraftCommand struct {
 	UseCases             json.RawMessage
 	TargetAudience       json.RawMessage
 	Requirements         json.RawMessage
-	Tags                 []string
+	TaxonomyTags         []ListingTaxonomyTag
 	ReleaseNotes         string
 	SpaceSlugs           []string
 	PrimarySpaceSlug     string
 	ActorUserID          int64
+}
+
+type ListingTaxonomyTag struct {
+	Slug        string
+	DisplayName string
+	Kind        string
+}
+
+func normalizeListingTaxonomyTags(tags []ListingTaxonomyTag) ([]ListingTaxonomyTag, []string, error) {
+	if len(tags) == 0 || len(tags) > 12 {
+		return nil, nil, ErrInvalidListingTaxonomy
+	}
+	seen := make(map[string]struct{}, len(tags))
+	normalized := make([]ListingTaxonomyTag, 0, len(tags))
+	displayNames := make([]string, 0, len(tags))
+	for _, tag := range tags {
+		tag.Slug = strings.TrimSpace(tag.Slug)
+		tag.DisplayName = strings.TrimSpace(tag.DisplayName)
+		if slugkit.ValidateIdentifier("listing_taxonomy.slug", tag.Slug) != nil ||
+			tag.DisplayName == "" || !validTaxonomyKind(tag.Kind) {
+			return nil, nil, ErrInvalidListingTaxonomy
+		}
+		if _, exists := seen[tag.Slug]; exists {
+			return nil, nil, ErrInvalidListingTaxonomy
+		}
+		seen[tag.Slug] = struct{}{}
+		normalized = append(normalized, tag)
+		displayNames = append(displayNames, tag.DisplayName)
+	}
+	return normalized, displayNames, nil
+}
+
+func validTaxonomyKind(kind string) bool {
+	switch kind {
+	case "scene", "industry", "audience", "capability", "integration", "readiness":
+		return true
+	default:
+		return false
+	}
 }
 
 type ListingCommand struct {

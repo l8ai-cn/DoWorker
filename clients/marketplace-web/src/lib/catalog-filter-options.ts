@@ -18,6 +18,7 @@ export const taxonomyFilterGroups: Array<{
   { key: "scene", label: "业务场景" },
   { key: "industry", label: "所属行业" },
   { key: "audience", label: "适用角色" },
+  { key: "capability", label: "核心能力" },
   { key: "integration", label: "系统连接" },
   { key: "readiness", label: "启用条件" },
 ];
