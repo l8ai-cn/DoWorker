@@ -17,7 +17,7 @@ test.describe("Create Worker UI", () => {
       /no compatible model resources are available/i,
     );
     await expect(
-      page.getByRole("button", { name: /next|下一步/i }),
+      page.getByRole("button", { name: /^(Next|下一步)$/i }),
     ).toBeDisabled();
   });
 });

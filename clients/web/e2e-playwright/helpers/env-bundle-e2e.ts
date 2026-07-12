@@ -76,9 +76,9 @@ export async function createPodAndWaitRunning(args: {
   return podKey;
 }
 
-function runtimeBundleLayer(names: string[]): string | undefined {
-  if (names.length === 0) return undefined;
-  return `${names.map((name) => `USE_ENV_BUNDLE ${JSON.stringify(name)}`).join("\n")}\n`;
+function runtimeBundleLayer(names: string[]): string {
+  // e2e-echo writes the child-environment dump only through its PTY launch path.
+  return ["MODE pty", ...names.map((name) => `USE_ENV_BUNDLE ${JSON.stringify(name)}`), ""].join("\n");
 }
 
 /**
