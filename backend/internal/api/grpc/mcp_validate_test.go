@@ -37,7 +37,7 @@ func TestMcpCreatePod_RejectsEmptyAgentSlug(t *testing.T) {
 	}
 }
 
-func TestMcpCreateLoop_RejectsEmptyName(t *testing.T) {
+func TestMcpCreateWorkflow_RejectsEmptyName(t *testing.T) {
 	a := &GRPCRunnerAdapter{}
 	tc := &middleware.TenantContext{OrganizationID: 1, UserID: 1}
 	payload := []byte(`{"name":"  ","prompt_template":"do work"}`)
@@ -48,7 +48,7 @@ func TestMcpCreateLoop_RejectsEmptyName(t *testing.T) {
 	}
 }
 
-func TestMcpCreateLoop_RejectsEmptyPromptTemplate(t *testing.T) {
+func TestMcpCreateWorkflow_RejectsEmptyPromptTemplate(t *testing.T) {
 	a := &GRPCRunnerAdapter{}
 	tc := &middleware.TenantContext{OrganizationID: 1, UserID: 1}
 	payload := []byte(`{"name":"daily-review","prompt_template":""}`)

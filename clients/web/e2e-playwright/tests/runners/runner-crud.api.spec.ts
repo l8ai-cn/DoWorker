@@ -46,9 +46,12 @@ test.describe("Runner API CRUD", () => {
 
   test("update runner description", async ({ api, db }) => {
     db.setup(`
-      INSERT INTO runners (organization_id, node_id, description, status, max_concurrent_pods, is_enabled)
-      SELECT id, 'test-runner-config', 'Config Test', 'offline', 5, true
-      FROM organizations WHERE slug = '${TEST_ORG_SLUG}'
+      INSERT INTO runners (organization_id, cluster_id, node_id, description, status, max_concurrent_pods, is_enabled)
+      SELECT organization.id, cluster.id, 'test-runner-config', 'Config Test', 'offline', 5, true
+      FROM organizations AS organization
+      JOIN execution_clusters AS cluster
+        ON cluster.organization_id = organization.id AND cluster.slug = 'local'
+      WHERE organization.slug = '${TEST_ORG_SLUG}'
       ON CONFLICT (organization_id, node_id) DO UPDATE SET description = NULL
     `);
     const id = db.queryValue(
@@ -72,9 +75,12 @@ test.describe("Runner API CRUD", () => {
 
   test("disable and enable runner", async ({ api, db }) => {
     db.setup(`
-      INSERT INTO runners (organization_id, node_id, description, status, max_concurrent_pods, is_enabled)
-      SELECT id, 'test-runner-disable', 'Disable Test', 'offline', 5, true
-      FROM organizations WHERE slug = '${TEST_ORG_SLUG}'
+      INSERT INTO runners (organization_id, cluster_id, node_id, description, status, max_concurrent_pods, is_enabled)
+      SELECT organization.id, cluster.id, 'test-runner-disable', 'Disable Test', 'offline', 5, true
+      FROM organizations AS organization
+      JOIN execution_clusters AS cluster
+        ON cluster.organization_id = organization.id AND cluster.slug = 'local'
+      WHERE organization.slug = '${TEST_ORG_SLUG}'
       ON CONFLICT (organization_id, node_id) DO UPDATE SET is_enabled = true
     `);
     const id = db.queryValue(
@@ -101,9 +107,12 @@ test.describe("Runner API CRUD", () => {
 
   test("delete runner", async ({ api, db }) => {
     db.setup(`
-      INSERT INTO runners (organization_id, node_id, description, status, max_concurrent_pods, is_enabled)
-      SELECT id, 'test-runner-delete', 'Delete Test', 'offline', 5, true
-      FROM organizations WHERE slug = '${TEST_ORG_SLUG}'
+      INSERT INTO runners (organization_id, cluster_id, node_id, description, status, max_concurrent_pods, is_enabled)
+      SELECT organization.id, cluster.id, 'test-runner-delete', 'Delete Test', 'offline', 5, true
+      FROM organizations AS organization
+      JOIN execution_clusters AS cluster
+        ON cluster.organization_id = organization.id AND cluster.slug = 'local'
+      WHERE organization.slug = '${TEST_ORG_SLUG}'
       ON CONFLICT (organization_id, node_id) DO NOTHING
     `);
     const id = db.queryValue(

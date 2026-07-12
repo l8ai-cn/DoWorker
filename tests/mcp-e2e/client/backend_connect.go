@@ -152,13 +152,13 @@ func (r *REST) ListRunners(ctx context.Context, orgSlug string) ([]Runner, error
 // --- PodService.{CreatePod, TerminatePod, GetPod} ---
 
 type CreatePodRequest struct {
-	AgentSlug        string  `json:"agentSlug"`
-	RunnerID         int64   `json:"runnerId,omitempty,string"`
-	Alias            *string `json:"alias,omitempty"`
-	AgentfileLayer   *string `json:"agentfileLayer,omitempty"`
-	AutomationLevel  string  `json:"automationLevel,omitempty"`
-	Cols             int32   `json:"cols"`
-	Rows             int32   `json:"rows"`
+	AgentSlug       string  `json:"agentSlug"`
+	RunnerID        int64   `json:"runnerId,omitempty,string"`
+	Alias           *string `json:"alias,omitempty"`
+	AgentfileLayer  *string `json:"agentfileLayer,omitempty"`
+	AutomationLevel string  `json:"automationLevel,omitempty"`
+	Cols            int32   `json:"cols"`
+	Rows            int32   `json:"rows"`
 }
 
 type Pod struct {
@@ -297,22 +297,22 @@ func (r *REST) CreateTicket(ctx context.Context, orgSlug string, req CreateTicke
 	return &Ticket{ID: id, Slug: wire.Slug, Title: wire.Title}, nil
 }
 
-// --- LoopService.{CreateLoop, EnableLoop} ---
+// --- WorkflowService.{CreateWorkflow, EnableWorkflow} ---
 
-type CreateLoopRequest struct {
+type CreateWorkflowRequest struct {
 	Name           string `json:"name"`
 	AgentSlug      string `json:"agent_slug"`
 	PromptTemplate string `json:"prompt_template"`
 	RunnerID       *int64 `json:"runner_id,omitempty"`
 }
 
-type Loop struct {
+type Workflow struct {
 	ID   int64  `json:"-"`
 	Slug string `json:"slug"`
 	Name string `json:"name"`
 }
 
-func (r *REST) CreateLoop(ctx context.Context, orgSlug string, req CreateLoopRequest) (*Loop, error) {
+func (r *REST) CreateWorkflow(ctx context.Context, orgSlug string, req CreateWorkflowRequest) (*Workflow, error) {
 	wireReq := map[string]any{
 		"orgSlug":        orgSlug,
 		"name":           req.Name,
@@ -340,14 +340,14 @@ func (r *REST) CreateLoop(ctx context.Context, orgSlug string, req CreateLoopReq
 		Slug string `json:"slug"`
 		Name string `json:"name"`
 	}
-	if err := r.connectCall(ctx, "/proto.loop.v1.LoopService/CreateLoop", wireReq, &wire); err != nil {
+	if err := r.connectCall(ctx, "/proto.workflow.v1.WorkflowService/CreateWorkflow", wireReq, &wire); err != nil {
 		return nil, err
 	}
 	id, _ := strconv.ParseInt(wire.ID, 10, 64)
-	return &Loop{ID: id, Slug: wire.Slug, Name: wire.Name}, nil
+	return &Workflow{ID: id, Slug: wire.Slug, Name: wire.Name}, nil
 }
 
-func (r *REST) EnableLoop(ctx context.Context, orgSlug, loopSlug string) error {
-	req := map[string]string{"orgSlug": orgSlug, "loopSlug": loopSlug}
-	return r.connectCall(ctx, "/proto.loop.v1.LoopService/EnableLoop", req, nil)
+func (r *REST) EnableWorkflow(ctx context.Context, orgSlug, workflowSlug string) error {
+	req := map[string]string{"orgSlug": orgSlug, "workflowSlug": workflowSlug}
+	return r.connectCall(ctx, "/proto.workflow.v1.WorkflowService/EnableWorkflow", req, nil)
 }

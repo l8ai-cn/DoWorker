@@ -33,7 +33,7 @@ import { AgentPodSettingsService } from "../../../../proto/gen/ts/pod/v1/agentpo
 import { RepositoryService } from "../../../../proto/gen/ts/repository/v1/repository_pb";
 import { BlockstoreService } from "../../../../proto/gen/ts/blockstore/v1/blockstore_pb";
 import { BindingService } from "../../../../proto/gen/ts/binding/v1/binding_pb";
-import { LoopService } from "../../../../proto/gen/ts/loop/v1/loop_pb";
+import { WorkflowService } from "../../../../proto/gen/ts/workflow/v1/workflow_pb";
 import { BillingService } from "../../../../proto/gen/ts/billing/v1/billing_pb";
 import { EnvBundleService } from "../../../../proto/gen/ts/env_bundle/v1/env_bundle_pb";
 import { ApiKeyService } from "../../../../proto/gen/ts/apikey/v1/api_key_pb";
@@ -167,7 +167,7 @@ export function makeConnectClient(token: string | null) {
     repository: makeServiceClient(RepositoryService, token),
     blockstore: makeServiceClient(BlockstoreService, token),
     binding: makeServiceClient(BindingService, token),
-    loop: makeServiceClient(LoopService, token),
+    workflow: makeServiceClient(WorkflowService, token),
     billing: makeServiceClient(BillingService, token),
     envBundle: makeServiceClient(EnvBundleService, token),
     apikey: makeServiceClient(ApiKeyService, token),

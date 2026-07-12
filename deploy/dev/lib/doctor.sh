@@ -23,7 +23,7 @@ check_dev_doctor() {
         info "air 未安装 — 启动时会自动 go install"
     fi
 
-    if ! command -v protoc >/dev/null 2>&1 && [[ ! -f "$SCRIPT_DIR/../../proto/gen/go/loop/v1/loop.pb.go" ]]; then
+    if ! command -v protoc >/dev/null 2>&1 && [[ ! -f "$SCRIPT_DIR/../../proto/gen/go/workflow/v1/workflow.pb.go" ]]; then
         warn "protoc 未安装且 proto/gen/go 缺失 — 请先: brew install protobuf && pnpm proto:gen-go"
     fi
 

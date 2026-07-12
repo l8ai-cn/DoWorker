@@ -2,38 +2,38 @@
 name: am-looper
 description: |
   WHEN to use:
-  - 用户想创建可重复执行的自动化任务（Loop）
+  - 用户想创建可重复执行的自动化任务（Workflow）
   - 用户描述了一个"定期做 X"、"持续监控 Y"、"每次 Z 发生就处理"的需求
   - 用户要求把当前正在做的事情固化为自动化流程
 
   WHEN NOT to use:
   - 一次性任务、环境搭建、工具安装（直接做，不要发明循环）
-  - 用户只是想手动触发一次某个已有 Loop（用 trigger_loop）
+  - 用户只是想手动触发一次某个已有 Workflow（用 trigger_workflow）
 user-invocable: true
 ---
 
-# Looper — 对话引导创建 Loop
+# Looper — 对话引导创建 Workflow
 
-你负责通过对话引导用户，把模糊的自动化想法澄清为一个结构良好的 Loop，
-然后用 `create_loop` 工具落地。方法论源自 Recursive Loop Orchestration。
+你负责通过对话引导用户，把模糊的自动化想法澄清为一个结构良好的 Workflow，
+然后用 `create_workflow` 工具落地。方法论源自 Recursive Loop Orchestration。
 
 ## 可用工具
 
-- `list_loops` - 列出组织内已有 Loop（先查重，避免重复创建）
-- `create_loop` - 创建新 Loop（默认创建为禁用状态）
-- `trigger_loop` - 手动触发一次 Loop 运行
+- `list_workflows` - 列出组织内已有 Workflow（先查重，避免重复创建）
+- `create_workflow` - 创建新 Workflow（默认创建为禁用状态）
+- `trigger_workflow` - 手动触发一次 Workflow 运行
 
 ## 工作流程
 
-### 1. Loop 值得性判断（loop-worthiness gate）
+### 1. Workflow 值得性判断（workflow-worthiness gate）
 
-只有同时满足以下条件才建 Loop：
+只有同时满足以下条件才建 Workflow：
 
 - 每次运行的新观察会改变下一步动作（有真实的迭代价值）
 - 状态需要跨运行延续，或工作会持续到达
 - 每轮结果可以被机器检验（有明确的完成/失败标准）
 
-如果是一次性任务、环境搭建或工具安装：**直接告诉用户不需要 Loop**，
+如果是一次性任务、环境搭建或工具安装：**直接告诉用户不需要 Workflow**，
 建议一个有边界的单次任务。不要因为用户说了"循环"就发明循环。
 
 ### 2. 选择最小触发原语
@@ -48,7 +48,7 @@ user-invocable: true
 
 创建前必须和用户确认清楚（缺哪个问哪个，不要自行假设高风险项）：
 
-- **目标**：这个 Loop 每次运行要完成什么？
+- **目标**：这个 Workflow 每次运行要完成什么？
 - **验收标准**：怎么判断一次运行成功/失败？必须可检验，不能靠感觉。
 - **空闲退出**：没有工作可做时怎么办？（干净退出，不要编造工作）
 - **调度**：按需还是定时？定时的话什么频率？
@@ -66,11 +66,11 @@ user-invocable: true
 
 ### 5. 创建并交还控制权
 
-- 先 `list_loops` 查重
-- 用 `create_loop` 创建。**默认 enabled=false**（最低自主等级起步），
+- 先 `list_workflows` 查重
+- 用 `create_workflow` 创建。**默认 enabled=false**（最低自主等级起步），
   只有用户明确说"直接启用"才传 enabled=true
-- 创建后向用户汇报：Loop 名称、slug、调度方式、当前状态，
-  并告知可在 Loops 页面查看、启用和手动触发
+- 创建后向用户汇报：Workflow 名称、slug、调度方式、当前状态，
+  并告知可在 Workflows 页面查看、启用和手动触发
 
 ## 注意事项
 

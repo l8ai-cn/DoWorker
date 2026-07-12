@@ -21,7 +21,7 @@ func adapterWithWorkflowService(t *testing.T) *GRPCRunnerAdapter {
 	}
 }
 
-func TestMcpCreateLoop_CreatesDisabledByDefault(t *testing.T) {
+func TestMcpCreateWorkflow_CreatesDisabledByDefault(t *testing.T) {
 	a := adapterWithWorkflowService(t)
 	tc := &middleware.TenantContext{OrganizationID: 1, UserID: 1}
 	payload := []byte(`{"name":"Daily Review","prompt_template":"review changed files","agent_slug":"claude"}`)
@@ -46,7 +46,7 @@ func TestMcpCreateLoop_CreatesDisabledByDefault(t *testing.T) {
 	}
 }
 
-func TestMcpCreateLoop_EnabledWhenConfirmed(t *testing.T) {
+func TestMcpCreateWorkflow_EnabledWhenConfirmed(t *testing.T) {
 	a := adapterWithWorkflowService(t)
 	tc := &middleware.TenantContext{OrganizationID: 1, UserID: 1}
 	payload := []byte(`{"name":"Nightly Sync","prompt_template":"sync","agent_slug":"claude","enabled":true}`)
@@ -61,7 +61,7 @@ func TestMcpCreateLoop_EnabledWhenConfirmed(t *testing.T) {
 	}
 }
 
-func TestMcpCreateLoop_RejectsInvalidCron(t *testing.T) {
+func TestMcpCreateWorkflow_RejectsInvalidCron(t *testing.T) {
 	a := adapterWithWorkflowService(t)
 	tc := &middleware.TenantContext{OrganizationID: 1, UserID: 1}
 	payload := []byte(`{"name":"Bad Cron","prompt_template":"x","agent_slug":"claude","cron_expression":"not a cron"}`)
