@@ -17,7 +17,7 @@ spec:
         - name: agentsmesh-regcred
       containers:
         - name: mobile
-          image: repo.aiedulab.cn:8443/agentsmesh/mobile@sha256:1601e7213f2b8fe06e8fe5612de5a0d0bd274ac8deabaafc709fdc5242dce42e
+          image: repo.aiedulab.cn:8443/agentsmesh/mobile@sha256:d5f9e3a6761a87583e73f8329414a492e7bc92adcb027c22f0ffb6173f748051
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

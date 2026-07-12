@@ -15,9 +15,10 @@ RUN bash scripts/build-wasm.sh
 
 FROM node:20-bookworm AS build
 WORKDIR /src
-RUN corepack enable && corepack prepare pnpm@9 --activate
 ARG NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
-ENV npm_config_registry=$NPM_CONFIG_REGISTRY
+ENV npm_config_registry=$NPM_CONFIG_REGISTRY \
+    COREPACK_NPM_REGISTRY=$NPM_CONFIG_REGISTRY
+RUN corepack enable && corepack prepare pnpm@9 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/ packages/
 COPY proto/ proto/
