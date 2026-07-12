@@ -44,6 +44,7 @@ grep -q "COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES" lib/host_services.sh
 grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
 grep -q "'e2e-mock-agent'," seed/e2e_echo.sql
+grep -q 'DEV_E2E_RUNNERS_ONLY:-}" != "1"' dev.sh
 
 if grep -Eq 'e2e-mock-agent.*do-agent-binary' "$PREPARE" \
   || grep -q "_write_do_agent_stub" "$DOAGENT_BUILD"; then
