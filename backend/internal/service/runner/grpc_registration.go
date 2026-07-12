@@ -34,6 +34,7 @@ type AuthStatusResponse struct {
 
 type GenerateGRPCRegistrationTokenRequest struct {
 	Name      string            `json:"name,omitempty"`
+	ClusterID int64             `json:"cluster_id"`
 	Labels    map[string]string `json:"labels,omitempty"`
 	SingleUse bool              `json:"single_use"`
 	MaxUses   int               `json:"max_uses"`

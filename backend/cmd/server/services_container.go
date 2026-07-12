@@ -17,6 +17,7 @@ import (
 	blockstoreservice "github.com/anthropics/agentsmesh/backend/internal/service/blockstore"
 	"github.com/anthropics/agentsmesh/backend/internal/service/channel"
 	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
+	executionclusterservice "github.com/anthropics/agentsmesh/backend/internal/service/executioncluster"
 	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	fileservice "github.com/anthropics/agentsmesh/backend/internal/service/file"
 	goalloop "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
@@ -57,6 +58,7 @@ type serviceContainer struct {
 	repository         *repository.Service
 	webhook            *repository.WebhookService
 	runner             *runner.Service
+	executionCluster   *executionclusterservice.Service
 	pod                *agentpod.PodService
 	autopilot          *agentpod.AutopilotControllerService
 	channel            *channel.Service

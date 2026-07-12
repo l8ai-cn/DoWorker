@@ -6,7 +6,9 @@ import {
   lightFetchMe,
   lightGetRunnerAuthStatus,
   lightAuthorizeRunner,
+  lightListExecutionClusters,
   lightListOrganizations,
+  type LightExecutionCluster,
   type LightOrganization,
 } from "@/lib/light-auth";
 import { useLightSession } from "@/hooks/useLightSession";
@@ -35,6 +37,9 @@ export default function RunnerAuthorizePage() {
   const [meEmail, setMeEmail] = useState<string | undefined>(undefined);
   const [organizations, setOrganizations] = useState<LightOrganization[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<LightOrganization | null>(null);
+  const [clusters, setClusters] = useState<LightExecutionCluster[]>([]);
+  const [selectedCluster, setSelectedCluster] = useState<LightExecutionCluster | null>(null);
+  const [clustersLoading, setClustersLoading] = useState(false);
   const [nodeIdInput, setNodeIdInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [authorizing, setAuthorizing] = useState(false);
@@ -76,15 +81,39 @@ export default function RunnerAuthorizePage() {
   useEffect(() => {
     fetchUserAndOrgs();
   }, [fetchUserAndOrgs]);
+  useEffect(() => {
+    if (!selectedOrg) {
+      setClusters([]);
+      setSelectedCluster(null);
+      return;
+    }
+    let active = true;
+    setClustersLoading(true);
+    setSelectedCluster(null);
+    void lightListExecutionClusters(selectedOrg.slug)
+      .then((items) => {
+        if (active) setClusters(items);
+      })
+      .catch(() => {
+        if (active) setError(t("loadClustersFailed"));
+      })
+      .finally(() => {
+        if (active) setClustersLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [selectedOrg, t]);
 
   const handleAuthorize = async () => {
-    if (!authKey || !selectedOrg) return;
+    if (!authKey || !selectedOrg || !selectedCluster) return;
     setAuthorizing(true);
     setError("");
     try {
       await lightAuthorizeRunner({
         organizationSlug: selectedOrg.slug,
         authKey,
+        clusterId: selectedCluster.id,
         nodeId: nodeIdInput || undefined,
       });
       setAuthorized(true);
@@ -136,6 +165,10 @@ export default function RunnerAuthorizePage() {
         organizations={organizations}
         selectedOrg={selectedOrg}
         onSelectOrg={setSelectedOrg}
+        clusters={clusters}
+        selectedCluster={selectedCluster}
+        onSelectCluster={setSelectedCluster}
+        clustersLoading={clustersLoading}
         nodeIdInput={nodeIdInput}
         onNodeIdChange={setNodeIdInput}
         authorizing={authorizing}

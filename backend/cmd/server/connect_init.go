@@ -18,6 +18,7 @@ import (
 	channelconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/channel"
 	envbundleconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/env_bundle"
 	eventsconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/events"
+	executionclusterconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/executioncluster"
 	extensionconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/extension"
 	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
 	meshconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/mesh"
@@ -104,6 +105,9 @@ func mountConnectServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Se
 	}
 	if rest != nil && rest.Hub != nil {
 		eventsconnect.Mount(mux, eventsconnect.NewServer(rest.Hub, svc.org), opts...)
+	}
+	if svc.executionCluster != nil {
+		executionclusterconnect.Mount(mux, executionclusterconnect.NewServer(svc.executionCluster, svc.org), opts...)
 	}
 	mountRunnerService(mux, svc, rest, cfg, opts)
 	mountPodService(mux, svc, rest, cfg, opts)

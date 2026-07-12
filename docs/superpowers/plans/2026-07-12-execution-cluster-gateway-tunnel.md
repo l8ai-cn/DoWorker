@@ -237,17 +237,31 @@ Expected: 一个只包含 Cluster schema 与领域契约的原子提交。
 - Modify: `backend/internal/domain/runner/repository.go`
 - Modify: `backend/internal/infra/runner_repo.go`
 - Modify: `backend/internal/infra/runner_repo_registration.go`
+- Create: `backend/internal/infra/runner_repo_registration_test.go`
+- Create: `backend/internal/infra/execution_cluster_repository.go`
 - Modify: `backend/internal/service/runner/grpc_registration.go`
 - Modify: `backend/internal/service/runner/registration_token.go`
 - Modify: `backend/internal/service/runner/registration_interactive.go`
+- Create: `backend/internal/service/runner/registration_authorize.go`
+- Create: `backend/internal/service/runner/registration_cluster.go`
 - Modify: `backend/internal/service/runner/grpc_registration_token_test.go`
 - Modify: `backend/internal/service/runner/grpc_registration_auth_test.go`
 - Create: `backend/internal/service/runner/registration_cluster_test.go`
+- Modify: `backend/internal/api/connect/runner/handlers_auth.go`
+- Modify: `backend/internal/api/connect/runner/handlers_tokens.go`
+- Modify: `backend/internal/api/connect/runner/server.go`
+- Modify: `backend/internal/api/rest/v1/runners_grpc_token.go`
+- Modify: `backend/internal/api/rest/v1/runners_grpc_types.go`
+- Modify: `proto/runner_api/v1/runner.proto`
+- Modify: `proto/gen/ts/runner_api/v1/runner_pb.ts`
+- Modify: `clients/core/crates/api-client/src/modules/runner.rs`
+- Modify: `clients/core/crates/types/src/runner.rs`
+- Modify: `clients/web/src/lib/api/facade/runner.ts`
 
-- [ ] **Step 1: 写失败测试，证明客户端标签不能决定 Runner Cluster**
+- [x] **Step 1: 写失败测试，证明客户端标签不能决定 Runner Cluster**
 
 ```go
-func TestRegisterWithTokenUsesTokenClusterNotClientLabels(t *testing.T) {
+func TestRegisterWithTokenUsesPersistedClusterAndPreservesLabels(t *testing.T) {
     token := registrationToken(orgID, localClusterID)
     result, err := service.RegisterWithToken(ctx, &RegisterWithTokenRequest{
         Token: token.Plaintext,
@@ -256,17 +270,17 @@ func TestRegisterWithTokenUsesTokenClusterNotClientLabels(t *testing.T) {
     require.NoError(t, err)
     runner := mustRunner(t, repo, result.RunnerID)
     require.Equal(t, localClusterID, runner.ClusterID)
-    require.NotContains(t, runner.Tags, "cluster=online")
+    require.Contains(t, runner.Tags, "cluster=online")
 }
 ```
 
-- [ ] **Step 2: 运行 RED 测试**
+- [x] **Step 2: 运行 RED 测试**
 
-Run: `cd backend && go test ./internal/service/runner -run TestRegisterWithTokenUsesTokenClusterNotClientLabels -count=1`
+Run: `cd backend && go test ./internal/service/runner -run TestRegisterWithTokenUsesPersistedClusterAndPreservesLabels -count=1`
 
 Expected: FAIL because registration tokens and runners do not expose `ClusterID`.
 
-- [ ] **Step 3: 最小实现 Cluster 绑定**
+- [x] **Step 3: 最小实现 Cluster 绑定**
 
 在所有三个实体添加明确字段：
 
@@ -296,34 +310,46 @@ if err != nil || cluster == nil {
 }
 ```
 
-`RegisterWithToken` 和 `AuthorizeRunner` 均从已持久化 Token/PendingAuth 复制 `ClusterID`；禁止从 CLI 参数、标签或主机名推断 Cluster。保留 Labels，但将其复制进 `Runner.Tags`，以修复现有“Token labels 丢失”的真实数据问题。
+`RegisterWithToken` 从已持久化 Token 复制 `ClusterID`；交互授权在已确定组织的 `AuthorizeRunner` 动作中验证并原子写入 `PendingAuth.ClusterID` 与新 Runner。禁止从 CLI 参数、标签或主机名推断 Cluster。保留 Labels，但将其复制进 `Runner.Tags`，以修复现有“Token labels 丢失”的真实数据问题。
 
-- [ ] **Step 4: 扩展交互注册**
+- [x] **Step 4: 扩展交互注册**
 
-`RequestAuthURLRequest` 必须包含 `ClusterID`；创建 PendingAuth 前验证该 Cluster 对本次授权组织可见。`AuthorizeRunner` 只能使用 `pendingAuth.ClusterID`，不得接受 Cluster ID 参数。
+`RequestAuthURLRequest` 保持无 Cluster：Runner 发起请求时尚未有组织授权上下文。`AuthorizeRunner` 必须携带 `ClusterID`，先以当前组织验证该 Cluster，再用 CAS 将 `organization_id` 与 `cluster_id` 一起写入未授权 PendingAuth；创建 Runner 时只使用该服务端已验证的 Cluster。
 
-- [ ] **Step 5: 运行注册回归**
+- [x] **Step 5: 运行注册回归**
 
 Run:
 
 ```bash
 cd backend && go test ./internal/service/runner -run 'Test(RegisterWithToken|AuthorizeRunner|GenerateGRPCRegistrationToken)' -count=1
 go test ./internal/infra -run 'TestRunner.*Registration' -count=1
+go test ./internal/api/connect/runner -run 'Test(MapServiceError|AuthorizeRunner)' -count=1
+go build ./cmd/server
+cd ../clients/core && cargo test -p agentsmesh_types -p agentsmesh_api_client -p agentsmesh_services
+cd ../.. && pnpm run web:typecheck
 ```
 
 Expected: PASS，包含 token 已过期、使用次数耗尽、跨组织 Cluster、interactive 授权以及 Labels 保留。
 
-- [ ] **Step 6: 提交注册绑定**
+- [x] **Step 6: 完成 Cluster 选择入口后提交注册绑定**
+
+质量审查发现，现有“添加 Runner”和交互授权页没有合法 Cluster ID 来源；在 Connect handler 强制 `cluster_id` 后会直接失败。不能用默认 `online` 或前端标签推断代替用户选择。已先实现 Task 4 的 Cluster 列表 API，并将两个入口改为必选 Cluster 选择器和精确 ID 传参；Dashboard 入口经 Rust/WASM service，授权页使用认证前轻量 Connect 读取。
 
 Run:
 
 ```bash
-git add backend/internal/domain/runner backend/internal/infra/runner_repo.go \
-  backend/internal/infra/runner_repo_registration.go backend/internal/service/runner
+git add backend/cmd/server/services_workspace_init.go \
+  backend/internal/domain/runner backend/internal/infra/execution_cluster_repository.go \
+  backend/internal/infra/runner_repo_registration.go backend/internal/infra/runner_repo_registration_test.go \
+  backend/internal/testkit/schema_runner.go backend/internal/api/connect/runner \
+  backend/internal/api/rest/v1/runners_grpc_token.go backend/internal/api/rest/v1/runners_grpc_types.go \
+  proto/runner_api/v1/runner.proto proto/gen/ts/runner_api/v1/runner_pb.ts \
+  clients/core/crates/api-client/src/modules/runner.rs clients/core/crates/types/src/runner.rs \
+  clients/web/src/lib/api/facade/runner.ts docs/superpowers/plans/2026-07-12-execution-cluster-gateway-tunnel.md
 git commit -m "feat(cluster): bind runner registration to cluster"
 ```
 
-Expected: 一个不修改 Pod、Relay 或前端的原子提交。
+Expected: 一个包含必选 Cluster 入口的原子提交；不修改 Pod Cluster 选址或 Relay 隧道协议。
 
 ### Task 3: Cluster 作用域的 Runner 选择与 Pod 审计快照
 
@@ -484,6 +510,8 @@ Expected: 一个可独立创建线上 Cluster Worker 的原子提交。
 
 ### Task 4: 提供 Cluster 管理与本地注册命令 API
 
+> 2026-07-12 进度：Task 2 的浏览器入口不能在没有 Cluster 列表 API 的情况下保持严格绑定；因此先实现本 Task 的服务端 List/CreateRegistrationCommand、Connect 挂载和前端直连读取，再回填 Rust/WASM SSOT 适配与 Cluster 基础设施页面。当前本机浏览器的两个文档开发账户都被现有数据库拒绝，已完成协议/单元/类型验证，但需要有效本地测试会话补做已登录 UI 端到端验证。
+
 **Files:**
 - Create: `proto/execution_cluster/v1/execution_cluster.proto`
 - Create: `backend/internal/api/connect/executioncluster/server.go`
@@ -502,7 +530,7 @@ Expected: 一个可独立创建线上 Cluster Worker 的原子提交。
 - Modify: `clients/core/crates/services/src/lib.rs`
 - Modify: `clients/core/crates/wasm/src/lib.rs`
 
-- [ ] **Step 1: 写跨组织 API RED 测试**
+- [x] **Step 1: 写跨组织 API RED 测试**
 
 ```go
 func TestCreateRegistrationCommandRejectsOtherOrganizationCluster(t *testing.T) {
@@ -516,13 +544,13 @@ func TestCreateRegistrationCommandRejectsOtherOrganizationCluster(t *testing.T) 
 }
 ```
 
-- [ ] **Step 2: 运行 RED 测试**
+- [x] **Step 2: 运行 RED 测试**
 
 Run: `cd backend && go test ./internal/api/connect/executioncluster -run TestCreateRegistrationCommandRejectsOtherOrganizationCluster -count=1`
 
 Expected: FAIL because the service does not exist.
 
-- [ ] **Step 3: 定义最小 Connect 协议**
+- [x] **Step 3: 定义最小 Connect 协议**
 
 ```proto
 service ExecutionClusterService {
@@ -558,11 +586,11 @@ message CreateRegistrationCommandResponse {
 
 `CreateRegistrationCommand` 只允许组织管理员；服务生成的命令必须只包含 `runner register --server <canonical-server-url> --token <one-time-secret>`，不包含 Cluster ID、证书私钥或其他权限信息。
 
-- [ ] **Step 4: 实现 Cluster 服务**
+- [x] **Step 4: 实现 Cluster 服务**
 
 `ListExecutionClusters` 先调用 `EnsureDefaults`，再聚合 Cluster 下 Runner 数、可用数与最近 Tunnel 状态。`CreateRegistrationCommand` 将 Cluster ID 放进 `GenerateGRPCRegistrationTokenRequest`，并使用 `MaxUses=1`、`SingleUse=true`、`ExpiresIn=900`。
 
-- [ ] **Step 5: 运行 API、服务和代码生成回归**
+- [x] **Step 5: 运行 API、服务和代码生成回归**
 
 Run:
 
@@ -574,7 +602,7 @@ cd clients/core && cargo test -p api-client -p services -p agentsmesh-wasm
 
 Expected: PASS；跨组织 ID 不能泄露，非管理员不能生成本地注册命令，组织列表总能返回 `online`/`local`。
 
-- [ ] **Step 6: 提交 Cluster API**
+- [x] **Step 6: 提交 Cluster API 与注册绑定**
 
 Run:
 
@@ -586,7 +614,7 @@ git add proto/execution_cluster proto/gen backend/internal/domain/executionclust
 git commit -m "feat(cluster): expose cluster management and registration"
 ```
 
-Expected: 一个不修改 Gateway 连接机制的原子提交。
+Expected: 与 Task 2 必选 Cluster 入口一起形成一个不修改 Gateway 连接机制的原子提交。注册链接只能使用服务端签发的一次性命令；轻量授权页保留精确十进制 Cluster ID，拒绝不安全数值。已验证 Go 领域/服务/Connect/REST、Rust types/api-client/services/wasm、WASM 产物和 Web typecheck；已登录浏览器路径仍需有效本地测试会话，在 Task 8 补做。
 
 ### Task 5: 建立隧道持续状态与重调度闭环
 

@@ -119,7 +119,12 @@
       "installTitle": "Install Runner CLI",
       "installHint": "If you haven't installed the runner yet, run one of the following commands:",
       "serviceTitle": "Run as a Background Service (Recommended)",
-      "serviceHint": "Install the runner as a system service so it starts automatically and survives reboots:"
+      "serviceHint": "Install the runner as a system service so it starts automatically and survives reboots:",
+      "clusterLabel": "Execution cluster",
+      "clusterPlaceholder": "Select execution cluster...",
+      "clusterLoading": "Loading execution clusters...",
+      "clusterRequired": "Select an execution cluster before generating a token.",
+      "loadClustersFailed": "Failed to load execution clusters."
     },
     "configModal": {
       "title": "Runnerを設定",
@@ -220,6 +225,11 @@
       "selectOrganization": "Select Organization",
       "selectOrgPlaceholder": "Choose an organization...",
       "noOrganizations": "You don't have any organizations. Please create one first.",
+      "selectCluster": "Select execution cluster",
+      "selectClusterPlaceholder": "Choose an execution cluster...",
+      "loadingClusters": "Loading execution clusters...",
+      "noClusters": "No execution clusters are available for this organization.",
+      "loadClustersFailed": "Failed to load execution clusters.",
       "nodeIdLabel": "Runner Node ID",
       "nodeIdPlaceholder": "e.g., my-runner-01",
       "nodeIdHint": "A unique identifier for this runner. Leave empty to auto-generate.",

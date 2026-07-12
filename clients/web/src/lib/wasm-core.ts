@@ -59,4 +59,5 @@ export {
   getTicketRelationsService, getFileService, getSupportTicketService,
   getAuthConnectService, getBlockstoreService, getKnowledgeBaseService,
   getAIResourceService,
+  getExecutionClusterService,
 } from "@do-worker/service-runtime";

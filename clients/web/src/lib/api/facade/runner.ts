@@ -59,7 +59,7 @@ export const runnerApi = {
   delete: async (id: number) => {
     await deleteRunnerConnect(orgSlug(), id);
   },
-  createToken: async (data?: Record<string, unknown>) => {
+  createToken: async (data: { cluster_id: number; name?: string; labels?: string[]; max_uses?: number; expires_in_days?: number }) => {
     return await createRunnerTokenConnect(orgSlug(), data);
   },
   listLogs: async (id: number) => {
@@ -105,10 +105,11 @@ export const runnerAuthApi = {
       organization_name: resp.orgSlug,
     };
   },
-  authorize: async (data: { auth_key: string; node_id?: string }) => {
+  authorize: async (data: { auth_key: string; node_id?: string; cluster_id: number }) => {
     const req = protoCreate(AuthorizeRunnerRequestSchema, {
       authKey: data.auth_key,
       nodeId: data.node_id ?? "",
+      clusterId: BigInt(data.cluster_id),
       // orgSlug filled in by the service layer from session if empty.
       orgSlug: orgSlug(),
     });

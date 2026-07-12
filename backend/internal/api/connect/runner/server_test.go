@@ -85,6 +85,7 @@ func TestMapServiceError(t *testing.T) {
 	}{
 		{"not_found", runner.ErrRunnerNotFound, connect.CodeNotFound},
 		{"token_not_found", runner.ErrGRPCTokenNotFound, connect.CodeNotFound},
+		{"execution_cluster_not_found", runner.ErrExecutionClusterNotFound, connect.CodeNotFound},
 		{"has_loop_refs", runner.ErrRunnerHasWorkflowRefs, connect.CodeFailedPrecondition},
 		{"not_connected", runner.ErrRunnerNotConnected, connect.CodeUnavailable},
 		{"offline", runner.ErrRunnerOffline, connect.CodeUnavailable},
@@ -114,17 +115,17 @@ func TestToProtoRunner_AllFieldsPopulated(t *testing.T) {
 	registeredBy := int64(42)
 
 	r := &rundom.Runner{
-		ID:                 7,
-		OrganizationID:     99,
-		NodeID:             "node-abc",
-		Description:        "dev runner",
-		Status:             "online",
-		LastHeartbeat:      &heartbeat,
-		CurrentPods:        2,
-		MaxConcurrentPods:  5,
-		RunnerVersion:      &version,
-		IsEnabled:          true,
-		AvailableAgents:    rundom.StringSlice{"claude-code", "codex"},
+		ID:                7,
+		OrganizationID:    99,
+		NodeID:            "node-abc",
+		Description:       "dev runner",
+		Status:            "online",
+		LastHeartbeat:     &heartbeat,
+		CurrentPods:       2,
+		MaxConcurrentPods: 5,
+		RunnerVersion:     &version,
+		IsEnabled:         true,
+		AvailableAgents:   rundom.StringSlice{"claude-code", "codex"},
 		AgentVersions: rundom.AgentVersionSlice{
 			{Slug: "claude-code", Version: "1.2.3", Path: "/usr/local/bin/claude"},
 		},

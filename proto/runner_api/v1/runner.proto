@@ -328,6 +328,7 @@ message CreateRunnerTokenRequest {
   repeated string labels = 3;
   optional int32 max_uses = 4;
   optional int64 expires_in_days = 5;
+  int64 cluster_id = 6;
 }
 
 message ListRunnerTokensRequest {
@@ -377,6 +378,7 @@ message AuthorizeRunnerRequest {
   string org_slug = 1;
   string auth_key = 2;
   string node_id = 3;
+  int64 cluster_id = 4;
 }
 
 message AuthorizeRunnerResponse {

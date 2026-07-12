@@ -214,6 +214,7 @@ impl ApiClient {
             org_slug: self.current_org_slug(),
             auth_key: data.auth_key.clone(),
             node_id: data.node_id.clone().unwrap_or_default(),
+            cluster_id: data.cluster_id,
         };
         let resp: runner_proto::AuthorizeRunnerResponse = connect_call(
             self,

@@ -29,6 +29,7 @@ type RunnerRepository interface {
 	Delete(ctx context.Context, runnerID int64) error
 
 	ListByOrg(ctx context.Context, orgID, userID int64) ([]*Runner, error)
+	ListForClusterStatus(ctx context.Context, orgID int64) ([]*Runner, error)
 	ListAvailable(ctx context.Context, orgID, userID int64) ([]*Runner, error)
 	ListAvailableOrdered(ctx context.Context, orgID, userID int64) ([]*Runner, error)
 	ListAvailableForAgent(ctx context.Context, orgID, userID int64, agentJSON string) ([]*Runner, error)
@@ -49,8 +50,7 @@ type RunnerRepository interface {
 
 	CreatePendingAuth(ctx context.Context, pa *PendingAuth) error
 	GetPendingAuthByKey(ctx context.Context, authKey string) (*PendingAuth, error)
-	ClaimPendingAuth(ctx context.Context, id int64, orgID int64) (int64, int64, error)
-	UpdatePendingAuthRunnerID(ctx context.Context, id int64, runnerID int64) error
+	AuthorizePendingAuthAtomic(ctx context.Context, id, orgID, clusterID int64, runner *Runner) (int64, error)
 	DeleteClaimedPendingAuth(ctx context.Context, id int64) (int64, error)
 	CleanupExpiredPendingAuths(ctx context.Context) error
 
