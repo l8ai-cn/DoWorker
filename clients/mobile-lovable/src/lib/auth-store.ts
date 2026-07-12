@@ -21,6 +21,19 @@ interface PersistedAuthSession {
 }
 
 let currentEmail: string | null = null;
+const authChangeEvent = "do-worker-mobile-auth-change";
+
+function notifyAuthChange() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(authChangeEvent));
+  }
+}
+
+export function subscribeAuthChanges(listener: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(authChangeEvent, listener);
+  return () => window.removeEventListener(authChangeEvent, listener);
+}
 
 function readRaw(): PersistedAuthSession | null {
   if (typeof localStorage === "undefined") return null;
@@ -71,9 +84,11 @@ export async function restoreAuthIdentity(): Promise<AuthIdentity> {
   }>(await manager.bootstrap());
   if (result?.kind !== "authenticated") {
     currentEmail = null;
+    notifyAuthChange();
     return { authenticated: false, email: null, orgSlug: null };
   }
   currentEmail = result.user?.email ?? null;
+  notifyAuthChange();
   return {
     authenticated: true,
     email: currentEmail,
@@ -89,6 +104,7 @@ export async function logout(): Promise<void> {
   } finally {
     manager.clear_session();
     currentEmail = null;
+    notifyAuthChange();
   }
 }
 
@@ -105,6 +121,7 @@ export async function login(username: string, password: string): Promise<AuthSes
     await manager.fetch_organizations();
     const org = parseWasmJson<{ slug?: string }>(manager.get_current_org_json());
     currentEmail = data.user?.email ?? username;
+    notifyAuthChange();
     return {
       token: data.token,
       expiresIn: data.expires_in,
@@ -115,6 +132,7 @@ export async function login(username: string, password: string): Promise<AuthSes
   } catch (error) {
     manager.clear_session();
     currentEmail = null;
+    notifyAuthChange();
     throw error;
   }
 }

@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { login, readAuthToken, readOrgSlug, restoreAuthIdentity } from "./auth-store";
+import {
+  login,
+  readAuthToken,
+  readOrgSlug,
+  restoreAuthIdentity,
+  subscribeAuthChanges,
+} from "./auth-store";
 import {
   getMobileAuthManager,
   mobileAuthSessionStorageKey,
@@ -76,6 +82,25 @@ describe("mobile auth store", () => {
     });
     expect(manager.login).toHaveBeenCalledWith("dev@agentsmesh.local", "password");
     expect(manager.fetch_organizations).toHaveBeenCalledOnce();
+  });
+
+  it("notifies subscribers when the shared login state changes", async () => {
+    manager.login.mockResolvedValue(
+      JSON.stringify({
+        token: "token-1",
+        expires_in: 3600,
+        user: { id: 7, email: "dev@agentsmesh.local" },
+      }),
+    );
+    manager.fetch_organizations.mockResolvedValue("[]");
+    manager.get_current_org_json.mockReturnValue(JSON.stringify({ slug: "dev-org" }));
+    const listener = vi.fn();
+    const unsubscribe = subscribeAuthChanges(listener);
+
+    await login("dev@agentsmesh.local", "password");
+
+    expect(listener).toHaveBeenCalledOnce();
+    unsubscribe();
   });
 
   it("clears the persisted session when organization initialization fails", async () => {

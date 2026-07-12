@@ -20,6 +20,7 @@
     "marketplace-web:dev": "cd clients/marketplace-web && node ../../node_modules/next/dist/bin/next dev --turbopack",
     "marketplace-web:build": "cd clients/marketplace-web && BAZEL_BUILD=standalone node ../../node_modules/next/dist/bin/next build --webpack",
     "marketplace-web:check": "pnpm run marketplace-web:lint && pnpm run marketplace-web:typecheck && pnpm run marketplace-web:test",
+    "mobile:dev": "bash scripts/start-mobile-dev.sh",
     "mobile:lint": "pnpm --filter @do-worker/mobile lint",
     "mobile:typecheck": "pnpm --filter @do-worker/mobile exec tsc --noEmit",
     "mobile:test": "pnpm --filter @do-worker/mobile test",
