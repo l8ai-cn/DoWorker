@@ -1,4 +1,4 @@
-import { statusMeta, type SessionStatus } from "@/lib/mock-agents";
+import { statusMeta, type SessionStatus } from "@/lib/session-types";
 import { cn } from "@/lib/utils";
 
 export function StatusPill({ status, className }: { status: SessionStatus; className?: string }) {

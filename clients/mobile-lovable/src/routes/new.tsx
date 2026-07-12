@@ -14,7 +14,6 @@ import { InteractionModeSelector } from "@/components/interaction-mode-selector"
 import { useAvailableAgents } from "@/hooks/useAvailableAgents";
 import { useLiveExperts } from "@/hooks/useLiveExperts";
 import { useLiveProjects } from "@/hooks/useLiveProjects";
-import type { AgentPickerOption } from "@/lib/agent-display";
 import { cn } from "@/lib/utils";
 import { pageTitle } from "@/lib/app-brand";
 import { useIsAuthed } from "@/hooks/useIsAuthed";
@@ -25,6 +24,7 @@ import { setCodexGoal } from "@/lib/codex-goal-api";
 import { localProjectMeta } from "@/lib/projects-local";
 import { projectNameFromId } from "@/lib/project-label";
 import type { LiveExpert } from "@/lib/experts-api";
+import { resolveMobileWorkerSelection } from "@/lib/mobile-worker-selection";
 
 export const Route = createFileRoute("/new")({
   validateSearch: (s: Record<string, unknown>): { project?: string; expert?: string; prompt?: string } => ({
@@ -48,11 +48,7 @@ const goalTemplates = [
   "持续处理依赖安全告警",
   "维护 README 与 API 文档同步",
 ];
-
-const FALLBACK_AGENTS: AgentPickerOption[] = [
-  { id: "codex-cli", name: "Codex", vendor: "OpenAI", avatar: "🅾️", desc: "codex-cli" },
-  { id: "claude-code", name: "Claude Code", vendor: "Anthropic", avatar: "🅰️", desc: "claude-code" },
-];
+const DEFAULT_PROJECT_NAMES = ["默认项目"];
 
 function NewTask() {
   const router = useRouter();
@@ -61,8 +57,8 @@ function NewTask() {
   const availableAgents = useAvailableAgents();
   const liveExperts = useLiveExperts();
   const liveProjects = useLiveProjects();
-  const engines = authed && availableAgents.agents.length > 0 ? availableAgents.agents : FALLBACK_AGENTS;
-  const projectNames = authed ? liveProjects.names : ["默认项目"];
+  const engines = availableAgents.agents;
+  const projectNames = authed ? liveProjects.names : DEFAULT_PROJECT_NAMES;
 
   const [engineId, setEngineId] = useState<string>("codex-cli");
   const [enginePickerOpen, setEnginePickerOpen] = useState(false);
@@ -82,17 +78,24 @@ function NewTask() {
   const [slashToken, setSlashToken] = useState<{ start: number; token: string } | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const currentEngine = engines.find((e) => e.id === engineId) ?? engines[0];
+  const workerSelection = resolveMobileWorkerSelection(
+    engines,
+    engineId,
+    authed,
+    availableAgents.loading,
+    authed ? availableAgents.error : null,
+  );
+  const currentEngine = workerSelection.current;
   const currentExpert = liveExperts.items.find((e) => e.slug === expertSlug);
   const projectMeta = localProjectMeta(projectName);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (engines.length > 0 && !engines.some((e) => e.id === engineId)) {
-      setEngineId(engines[0].id);
+    if (currentEngine && currentEngine.id !== engineId) {
+      setEngineId(currentEngine.id);
     }
-  }, [engines, engineId]);
+  }, [currentEngine, engineId]);
 
   useEffect(() => {
     if (projectNames.length > 0 && !projectNames.includes(projectName)) {
@@ -158,11 +161,18 @@ function NewTask() {
       router.navigate({ to: "/login" });
       return;
     }
+    if (!currentEngine) {
+      setSubmitError(workerSelection.message);
+      return;
+    }
 
     setSubmitting(true);
     setSubmitError(null);
     try {
       if (asGoal) {
+        if (!engines.some((engine) => engine.id === "codex-cli")) {
+          throw new Error("当前组织没有可用于目标模式的 Codex Worker");
+        }
         const objective = buildCodexObjective(prompt, successCriteria);
         const budget = parseTokenBudget(tokenBudget);
         const title = taskTitleForSubmit(prompt, undefined, "Codex Goal");
@@ -247,22 +257,30 @@ function NewTask() {
             </div>
             <button
               onClick={() => setEnginePickerOpen((o) => !o)}
-              disabled={asGoal}
+              disabled={asGoal || !currentEngine}
               className={cn(
                 "flex w-full items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border/50 transition hover:ring-primary/40",
                 asGoal && "opacity-70",
               )}
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-lg ring-1 ring-white/5">
-                {currentEngine.avatar}
-              </span>
-              <div className="min-w-0 flex-1 text-left">
-                <p className="truncate text-[13.5px] font-semibold">{currentEngine.name}</p>
-                <p className="truncate text-[10.5px] text-muted-foreground">
-                  {currentEngine.vendor} · {currentEngine.desc}
+              {currentEngine ? (
+                <>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-lg ring-1 ring-white/5">
+                    {currentEngine.avatar}
+                  </span>
+                  <div className="min-w-0 flex-1 text-left">
+                    <p className="truncate text-[13.5px] font-semibold">{currentEngine.name}</p>
+                    <p className="truncate text-[10.5px] text-muted-foreground">
+                      {currentEngine.vendor} · {currentEngine.desc}
+                    </p>
+                  </div>
+                  <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", enginePickerOpen && "rotate-180")} />
+                </>
+              ) : (
+                <p className="min-w-0 flex-1 text-left text-[12px] text-muted-foreground">
+                  {workerSelection.message}
                 </p>
-              </div>
-              <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", enginePickerOpen && "rotate-180")} />
+              )}
             </button>
             {enginePickerOpen && !asGoal && (
               <div className="mt-1 grid grid-cols-2 gap-1.5 rounded-2xl bg-card p-1.5 ring-1 ring-border/50 stream-in">
@@ -289,7 +307,7 @@ function NewTask() {
 
           <InteractionModeSelector
             mode={interactionMode}
-            disabled={asGoal}
+            disabled={asGoal || !currentEngine}
             onChange={setInteractionMode}
           />
 
@@ -507,7 +525,7 @@ function NewTask() {
               </button>
               <button
                 onClick={submit}
-                disabled={submitting || (!prompt.trim() && images.length === 0)}
+                disabled={submitting || (!prompt.trim() && images.length === 0) || (authed && !currentEngine)}
                 className={cn(
                   "flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full bg-primary px-3 text-[13px] font-semibold text-primary-foreground transition active:scale-[0.98] disabled:opacity-40",
                   !submitting && "glow-primary",
