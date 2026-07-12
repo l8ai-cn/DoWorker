@@ -1,12 +1,5 @@
-import { createContext, useContext, type ReactNode } from "react";
-
-export interface SessionActions {
-  onSend?: (text: string, files: File[]) => Promise<void>;
-  onApprove?: (elicitationId: string, accept: boolean) => Promise<void>;
-  onStop?: () => Promise<void>;
-}
-
-const SessionActionContext = createContext<SessionActions>({});
+import type { ReactNode } from "react";
+import { SessionActionContext, type SessionActions } from "./session-action-state";
 
 export function SessionActionProvider({
   value,
@@ -16,8 +9,4 @@ export function SessionActionProvider({
   children: ReactNode;
 }) {
   return <SessionActionContext.Provider value={value}>{children}</SessionActionContext.Provider>;
-}
-
-export function useSessionActions(): SessionActions {
-  return useContext(SessionActionContext);
 }

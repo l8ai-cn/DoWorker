@@ -1,7 +1,16 @@
 import { Loader2, Paperclip, Send, Square, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { SlashMenu, detectSlashToken, type SlashCommand } from "@/components/slash-menu";
-import { useSessionActions } from "@/lib/session-action-context";
+import type { SessionMessageAttachment } from "@/lib/session-message-upload";
+import { useSessionActions } from "@/lib/session-action-state";
+
+type ComposerAttachment = SessionMessageAttachment & {
+  id: string;
+  name: string;
+  size: number;
+  kind: "image" | "file";
+  url?: string;
+};
 
 export function SessionComposer() {
   const actions = useSessionActions();
@@ -9,9 +18,7 @@ export function SessionComposer() {
   const [token, setToken] = useState<{ start: number; token: string } | null>(null);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
-  const [attachments, setAttachments] = useState<
-    { id: string; file: File; name: string; size: number; kind: "image" | "file"; url?: string }[]
-  >([]);
+  const [attachments, setAttachments] = useState<ComposerAttachment[]>([]);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -69,10 +76,7 @@ export function SessionComposer() {
     setSending(true);
     setSendError(null);
     try {
-      await actions.onSend(
-        text,
-        attachments.map((attachment) => attachment.file),
-      );
+      await actions.onSend(text, attachments);
       attachments.forEach((attachment) => attachment.url && URL.revokeObjectURL(attachment.url));
       setAttachments([]);
       setValue("");

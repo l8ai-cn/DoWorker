@@ -11,6 +11,7 @@ import {
   type SessionStatus as ApiStatus,
 } from "@/lib/sessions-api";
 import { postSessionMessageWithFiles } from "@/lib/session-message-upload";
+import type { SessionMessageAttachment } from "@/lib/session-message-upload";
 import { itemsToLiveEvents } from "@/lib/session-items-hydrator";
 import { displayAgentName } from "@/lib/agent-slugs";
 import { readAuthToken } from "@/lib/auth-store";
@@ -156,8 +157,8 @@ export function useLiveSession(sessionId: string) {
   const session: AgentSession | null = summary ? toAgentSession(summary, events) : null;
 
   const send = useCallback(
-    async (text: string, files: File[]) => {
-      await postSessionMessageWithFiles(sessionId, text, files);
+    async (text: string, attachments: SessionMessageAttachment[]) => {
+      await postSessionMessageWithFiles(sessionId, text, attachments);
     },
     [sessionId],
   );

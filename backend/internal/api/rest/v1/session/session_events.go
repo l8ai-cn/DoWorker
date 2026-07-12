@@ -4,13 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"time"
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
-	domainitem "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
-	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	sessionmessagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionmessage"
 	"github.com/gin-gonic/gin"
 )
 
@@ -40,7 +38,7 @@ func (d *Deps) handlePostEvent(c *gin.Context) {
 }
 
 func (d *Deps) postMessageEvent(c *gin.Context, row *domain.Session, pod *podDomain.Pod, data json.RawMessage) {
-	if d.CommandSender == nil || pod == nil || d.Items == nil || d.Hub == nil {
+	if d.MessageOutbox == nil || pod == nil || d.Hub == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "unavailable"})
 		return
 	}
@@ -65,15 +63,6 @@ func (d *Deps) postMessageEvent(c *gin.Context, row *domain.Session, pod *podDom
 	if !d.checkCostBudget(c, pod.PodKey) {
 		return
 	}
-	if err := d.CommandSender.SendPrompt(c.Request.Context(), pod.RunnerID, pod.PodKey, prompt); err != nil {
-		if errors.Is(err, runnerservice.ErrRunnerNotConnected) || errors.Is(err, runnerservice.ErrRunnerOffline) {
-			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "runner unavailable", "code": "runner_unavailable"})
-			return
-		}
-		c.JSON(http.StatusBadGateway, gin.H{"error": "send failed", "code": "runner_unreachable"})
-		return
-	}
-	d.maybeSeedSessionTitle(c.Request.Context(), row, prompt)
 	itemID, err := itemsvc.NewItemID()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "id failed"})
@@ -84,23 +73,34 @@ func (d *Deps) postMessageEvent(c *gin.Context, row *domain.Session, pod *podDom
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "id failed"})
 		return
 	}
-	pos, err := d.Items.NextPosition(c.Request.Context(), row.ID)
+	item, err := sessionmessagesvc.UserItem(itemID, row.ID, respID, content)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "persist failed"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "payload failed"})
 		return
 	}
-	payload, _ := json.Marshal(map[string]any{
-		"id": itemID, "type": "message", "response_id": respID, "status": "completed",
-		"role": "user", "content": content,
+	err = d.MessageOutbox.PersistAndQueue(c.Request.Context(), sessionmessagesvc.PromptInput{
+		OrganizationID: row.OrganizationID,
+		RunnerID:       pod.RunnerID,
+		PodKey:         pod.PodKey,
+		Item:           item,
+		Prompt:         prompt,
 	})
-	if err := d.Items.Append(c.Request.Context(), &domainitem.Item{
-		ID: itemID, SessionID: row.ID, ItemType: "message", ResponseID: respID,
-		Status: "completed", Position: pos, Payload: payload, CreatedAt: time.Now(),
-	}); err != nil {
+	if err != nil {
+		if errors.Is(err, sessionmessagesvc.ErrUnavailable) {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "runner unavailable", "code": "runner_unavailable"})
+			return
+		}
+		if errors.Is(err, podDomain.ErrQueueFull) {
+			c.JSON(http.StatusTooManyRequests, gin.H{"error": "runner queue full", "code": "runner_queue_full"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "persist failed"})
 		return
 	}
-	_ = d.Sessions.TouchUpdatedAt(c.Request.Context(), row.ID)
+	d.maybeSeedSessionTitle(c.Request.Context(), row, prompt)
+	if d.Sessions != nil {
+		_ = d.Sessions.TouchUpdatedAt(c.Request.Context(), row.ID)
+	}
 	if d.Updates != nil {
 		d.Updates.NotifyChanged(row.ID)
 	}

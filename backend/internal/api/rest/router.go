@@ -17,6 +17,7 @@ import (
 	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
 	commentsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessioncomment"
 	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
+	sessionmessagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionmessage"
 	permgrantsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionpermission"
 	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
@@ -240,6 +241,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		ReadState:          sessionapi.NewReadStateStore(db),
 		SandboxFs:          svc.SandboxFsService,
 		SessionFiles:       sessionfilesvc.NewService(db, svc.File),
+		MessageOutbox:      sessionmessagesvc.NewPromptOutbox(db, svc.PendingQueue),
 		SessionComments:    commentsvc.NewService(db),
 		SessionPermissions: permgrantsvc.NewService(db),
 		Grants:             svc.Grant,
