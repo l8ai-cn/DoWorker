@@ -576,17 +576,4 @@ BEGIN
 
     END; -- inner DECLARE block
 
-    -- =========================================================================
-    -- 10. 创建示例 Loop（Loops 列表 + desktop e2e 渲染断言）
-    -- =========================================================================
-    INSERT INTO loops (organization_id, name, slug, prompt_template, created_by_id)
-    SELECT v_org_id, 'Nightly Dependency Audit', 'nightly-dependency-audit',
-           'Audit project dependencies for known vulnerabilities and open a ticket per finding.',
-           v_user_id
-    WHERE NOT EXISTS (
-        SELECT 1 FROM loops WHERE organization_id = v_org_id AND slug = 'nightly-dependency-audit'
-    );
-
-    RAISE NOTICE '  - Loop: nightly-dependency-audit';
-
 END $$;
