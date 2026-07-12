@@ -23,6 +23,7 @@ export interface AvailableAgent {
   id: string;
   name: string;
   harness: string | null;
+  supportedModes: SessionInteractionMode[];
 }
 
 export interface LiveSessionDetail extends LiveSessionSummary {
@@ -223,12 +224,34 @@ export async function fetchSessionItems(
 
 export async function listAgents(): Promise<AvailableAgent[]> {
   const res = await apiFetch("/v1/agents");
-  const body = await readJson<{ data: Array<{ id: string; name: string; harness?: string }> }>(res);
+  const body = await readJson<{
+    data: Array<{ id: string; name: string; harness?: string; supported_modes?: string[] }>;
+  }>(res);
   return (body.data ?? []).map((a) => ({
     id: a.id,
     name: a.name,
     harness: a.harness ?? null,
+    supportedModes: readSupportedModes(a.id, a.supported_modes),
   }));
+}
+
+function readSupportedModes(
+  agentID: string,
+  modes: string[] | undefined,
+): SessionInteractionMode[] {
+  if (!modes || modes.length === 0) {
+    throw new Error(`Worker ${agentID} 未声明支持的交互模式`);
+  }
+  const supportedModes = modes.filter(
+    (mode): mode is SessionInteractionMode => mode === "acp" || mode === "pty",
+  );
+  if (
+    supportedModes.length !== modes.length ||
+    new Set(supportedModes).size !== supportedModes.length
+  ) {
+    throw new Error(`Worker ${agentID} 返回了无效的交互模式`);
+  }
+  return supportedModes;
 }
 
 export async function listProjects(): Promise<string[]> {

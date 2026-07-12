@@ -27,9 +27,17 @@ export function resolveMobileWorkerSelection(
       message: "当前组织没有可用 Worker，请先在工作区配置并启用 Worker。",
     };
   }
+  const compatibleAgents = agents.filter((agent) => agent.supportedModes.length > 0);
+  if (compatibleAgents.length === 0) {
+    return {
+      kind: "error",
+      current: null,
+      message: "可用 Worker 未声明支持的交互模式。",
+    };
+  }
   return {
     kind: "ready",
-    current: agents.find((agent) => agent.id === selectedID) ?? agents[0],
+    current: compatibleAgents.find((agent) => agent.id === selectedID) ?? compatibleAgents[0],
     message: null,
   };
 }
