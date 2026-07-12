@@ -1,8 +1,16 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import type { LightOrganization } from "@/lib/light-auth";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import type {
+  LightExecutionCluster,
+  LightOrganization,
+} from "@/lib/light-auth";
 
 interface AuthFormProps {
   isSignedIn: boolean;
@@ -11,6 +19,10 @@ interface AuthFormProps {
   organizations: LightOrganization[] | null;
   selectedOrg: LightOrganization | null;
   onSelectOrg: (org: LightOrganization | null) => void;
+  clusters: LightExecutionCluster[];
+  selectedCluster: LightExecutionCluster | null;
+  onSelectCluster: (cluster: LightExecutionCluster | null) => void;
+  clustersLoading: boolean;
   nodeIdInput: string;
   onNodeIdChange: (val: string) => void;
   authorizing: boolean;
@@ -27,6 +39,10 @@ export function AuthForm({
   organizations,
   selectedOrg,
   onSelectOrg,
+  clusters,
+  selectedCluster,
+  onSelectCluster,
+  clustersLoading,
   nodeIdInput,
   onNodeIdChange,
   authorizing,
@@ -39,7 +55,12 @@ export function AuthForm({
     <div className="space-y-4">
       <div className="flex justify-center">
         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-          <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            className="w-8 h-8 text-primary"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -51,7 +72,9 @@ export function AuthForm({
       </div>
 
       {error && (
-        <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">{error}</div>
+        <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+          {error}
+        </div>
       )}
 
       {!isSignedIn ? (
@@ -62,6 +85,10 @@ export function AuthForm({
           organizations={organizations}
           selectedOrg={selectedOrg}
           onSelectOrg={onSelectOrg}
+          clusters={clusters}
+          selectedCluster={selectedCluster}
+          onSelectCluster={onSelectCluster}
+          clustersLoading={clustersLoading}
           nodeIdInput={nodeIdInput}
           onNodeIdChange={onNodeIdChange}
           authorizing={authorizing}
@@ -83,7 +110,9 @@ function UnauthenticatedPrompt({
 }) {
   return (
     <div className="space-y-3">
-      <p className="text-sm text-center text-muted-foreground">{t("signInRequired")}</p>
+      <p className="text-sm text-center text-muted-foreground">
+        {t("signInRequired")}
+      </p>
       <Link href={`/login?redirect=/runners/authorize?key=${authKey}`}>
         <Button className="w-full">{t("signInToAuthorize")}</Button>
       </Link>
@@ -105,6 +134,10 @@ function AuthenticatedForm({
   organizations,
   selectedOrg,
   onSelectOrg,
+  clusters,
+  selectedCluster,
+  onSelectCluster,
+  clustersLoading,
   nodeIdInput,
   onNodeIdChange,
   authorizing,
@@ -116,6 +149,10 @@ function AuthenticatedForm({
   organizations: LightOrganization[] | null;
   selectedOrg: LightOrganization | null;
   onSelectOrg: (org: LightOrganization | null) => void;
+  clusters: LightExecutionCluster[];
+  selectedCluster: LightExecutionCluster | null;
+  onSelectCluster: (cluster: LightExecutionCluster | null) => void;
+  clustersLoading: boolean;
   nodeIdInput: string;
   onNodeIdChange: (val: string) => void;
   authorizing: boolean;
@@ -133,11 +170,15 @@ function AuthenticatedForm({
 
       {organizations && organizations.length > 0 ? (
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">{t("selectOrganization")}</label>
+          <label className="text-sm font-medium text-foreground">
+            {t("selectOrganization")}
+          </label>
           <Select
             value={selectedOrg ? String(selectedOrg.id) : ""}
             onValueChange={(value) => {
-              const org = organizations.find((o) => o.id === parseInt(value, 10));
+              const org = organizations.find(
+                (o) => o.id === parseInt(value, 10),
+              );
               onSelectOrg(org || null);
             }}
           >
@@ -156,7 +197,44 @@ function AuthenticatedForm({
           </Select>
         </div>
       ) : (
-        <div className="p-3 text-sm text-warning bg-warning-bg rounded-md">{t("noOrganizations")}</div>
+        <div className="p-3 text-sm text-warning bg-warning-bg rounded-md">
+          {t("noOrganizations")}
+        </div>
+      )}
+
+      {selectedOrg && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground">
+            {t("selectCluster")}
+          </label>
+          <Select
+            value={selectedCluster ? String(selectedCluster.id) : ""}
+            onValueChange={(value) => {
+              const cluster = clusters.find((item) => item.id === value);
+              onSelectCluster(cluster ?? null);
+            }}
+            disabled={clustersLoading}
+          >
+            <SelectTrigger>
+              <span className={selectedCluster ? "" : "text-muted-foreground"}>
+                {selectedCluster?.name ??
+                  (clustersLoading
+                    ? t("loadingClusters")
+                    : t("selectClusterPlaceholder"))}
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              {clusters.map((cluster) => (
+                <SelectItem key={cluster.id} value={String(cluster.id)}>
+                  {cluster.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {!clustersLoading && clusters.length === 0 && (
+            <p className="text-xs text-destructive">{t("noClusters")}</p>
+          )}
+        </div>
       )}
 
       <div className="space-y-2">
@@ -172,7 +250,11 @@ function AuthenticatedForm({
         <p className="text-xs text-muted-foreground">{t("nodeIdHint")}</p>
       </div>
 
-      <Button className="w-full" onClick={onAuthorize} disabled={authorizing || !selectedOrg}>
+      <Button
+        className="w-full"
+        onClick={onAuthorize}
+        disabled={authorizing || !selectedOrg || !selectedCluster}
+      >
         {authorizing ? t("authorizing") : t("authorizeButton")}
       </Button>
     </div>

@@ -11,6 +11,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
 	"github.com/anthropics/agentsmesh/backend/internal/service/binding"
 	"github.com/anthropics/agentsmesh/backend/internal/service/channel"
+	executionclusterservice "github.com/anthropics/agentsmesh/backend/internal/service/executioncluster"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
 	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
@@ -37,6 +38,9 @@ func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config,
 	services.aiResource = initializeAIResourceService(db, services.org, encryptor)
 	services.runnerRepo = infra.NewRunnerRepository(db)
 	services.runner = runner.NewService(services.runnerRepo, services.billing)
+	clusterRepo := infra.NewExecutionClusterRepository(db)
+	services.runner.SetExecutionClusterRepository(clusterRepo)
+	services.executionCluster = executionclusterservice.NewService(clusterRepo, services.runnerRepo, services.runner, cfg.BaseURL())
 	grantRepo := infra.NewGrantRepository(db)
 	services.grant = grantservice.NewService(grantRepo)
 	services.runner.SetGrantQuerier(grantRepo)

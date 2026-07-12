@@ -6,6 +6,7 @@ import {
   GetRunnerResponseSchema,
   RunnerSchema,
   RunnerTokenSchema,
+  CreateRunnerTokenRequestSchema,
   DeleteRunnerResponseSchema,
   type Runner as ProtoRunner,
 } from '@proto/runner_api/v1/runner_pb'
@@ -322,16 +323,17 @@ describe('Runner Store Actions', () => {
     it('should create token successfully', async () => {
       mockCreateToken('new-token-123')
 
-      const token = await useRunnerStore.getState().createToken()
+      const token = await useRunnerStore.getState().createToken({ cluster_id: 17 })
 
       expect(token).toBe('new-token-123')
-      expect(mockService.createRunnerTokenConnect).toHaveBeenCalled()
+      const [requestBytes] = mockService.createRunnerTokenConnect.mock.calls[0]
+      expect(fromBinary(CreateRunnerTokenRequestSchema, requestBytes).clusterId).toBe(BigInt(17))
     })
 
     it('should handle create token error', async () => {
       mockService.createRunnerTokenConnect.mockRejectedValue(new Error('Failed to create token'))
 
-      await expect(useRunnerStore.getState().createToken()).rejects.toThrow()
+      await expect(useRunnerStore.getState().createToken({ cluster_id: 17 })).rejects.toThrow()
       expect(useRunnerStore.getState().error).toBe('Failed to create token')
     })
   })

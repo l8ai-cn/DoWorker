@@ -1,5 +1,6 @@
 mod agent;
 mod ai_resource;
+mod execution_cluster;
 mod apikey;
 mod auth_connect;
 mod autopilot;
@@ -32,10 +33,13 @@ mod user_credential;
 
 #[cfg(test)]
 mod pod_worker_creation_tests;
+#[cfg(test)]
+mod execution_cluster_tests;
 
 pub use agent::AgentService;
 pub use apikey::ApiKeyService;
 pub use ai_resource::AIResourceService;
+pub use execution_cluster::ExecutionClusterService;
 pub use auth_connect::AuthConnectService;
 pub use autopilot::AutopilotService;
 pub use billing::BillingService;

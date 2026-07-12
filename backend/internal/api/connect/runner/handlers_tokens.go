@@ -30,6 +30,9 @@ func (s *Server) CreateRunnerToken(
 	if tenant.UserRole != "owner" && tenant.UserRole != "admin" {
 		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("organization admin role required"))
 	}
+	if req.Msg.GetClusterId() <= 0 {
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("cluster_id is required"))
+	}
 
 	// Convert labels from []string ("k=v") → map[string]string. The legacy
 	// REST handler accepted both shapes (map JSON) so the wasm callers send
@@ -47,6 +50,7 @@ func (s *Server) CreateRunnerToken(
 		tenant.UserID,
 		&runner.GenerateGRPCRegistrationTokenRequest{
 			Name:      req.Msg.GetName(),
+			ClusterID: req.Msg.GetClusterId(),
 			Labels:    labels,
 			SingleUse: maxUses == 0 || maxUses == 1,
 			MaxUses:   maxUses,

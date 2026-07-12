@@ -2,9 +2,21 @@ package testkit
 
 func runnerTableDDLs() []string {
 	return []string{
+		`CREATE TABLE IF NOT EXISTS execution_clusters (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			organization_id INTEGER NOT NULL,
+			slug TEXT NOT NULL,
+			name TEXT NOT NULL,
+			kind TEXT NOT NULL,
+			status TEXT NOT NULL,
+			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			UNIQUE(organization_id, slug)
+		)`,
 		`CREATE TABLE IF NOT EXISTS runners (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			organization_id INTEGER NOT NULL, node_id TEXT NOT NULL DEFAULT '',
+			organization_id INTEGER NOT NULL, cluster_id INTEGER,
+			node_id TEXT NOT NULL DEFAULT '',
 			name TEXT,
 			description TEXT, status TEXT NOT NULL DEFAULT 'offline',
 			last_heartbeat DATETIME,
@@ -16,6 +28,8 @@ func runnerTableDDLs() []string {
 			visibility TEXT NOT NULL DEFAULT 'organization',
 			registered_by_user_id INTEGER,
 			cert_serial_number TEXT, cert_fingerprint TEXT, cert_expires_at DATETIME,
+			tunnel_state TEXT NOT NULL DEFAULT 'disconnected',
+			tunnel_last_seen_at DATETIME, tunnel_last_error TEXT,
 			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 		)`,
@@ -26,13 +40,13 @@ func runnerTableDDLs() []string {
 			auth_key TEXT NOT NULL UNIQUE, machine_key TEXT NOT NULL,
 			node_id TEXT, labels TEXT,
 			authorized BOOLEAN NOT NULL DEFAULT FALSE,
-			organization_id INTEGER, runner_id INTEGER,
+			organization_id INTEGER, cluster_id INTEGER, runner_id INTEGER,
 			expires_at DATETIME NOT NULL,
 			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE TABLE IF NOT EXISTS runner_grpc_registration_tokens (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			token_hash TEXT NOT NULL UNIQUE, organization_id INTEGER NOT NULL,
+			token_hash TEXT NOT NULL UNIQUE, organization_id INTEGER NOT NULL, cluster_id INTEGER,
 			name TEXT, labels TEXT,
 			single_use BOOLEAN NOT NULL DEFAULT TRUE,
 			max_uses INTEGER NOT NULL DEFAULT 1, used_count INTEGER NOT NULL DEFAULT 0,

@@ -10,11 +10,11 @@
 // is the browser/desktop ↔ backend REST replacement.
 //
 // Handler shape follows runbook §3:
-//   * ResolveOrgScope reads org_slug + injects TenantContext.
-//   * Single-entity update returns the entity directly.
-//   * List responses follow {items, total, limit, offset} (+ optional
+//   - ResolveOrgScope reads org_slug + injects TenantContext.
+//   - Single-entity update returns the entity directly.
+//   - List responses follow {items, total, limit, offset} (+ optional
 //     latest_runner_version envelope field documented as DEVIATION).
-//   * Errors map to Connect codes (conventions §10).
+//   - Errors map to Connect codes (conventions §10).
 package runnerconnect
 
 import (
@@ -124,9 +124,11 @@ func NewServer(
 // from runners.go so wiring stays parallel between Gin and Connect.
 type Option func(*Server)
 
-func WithVersionChecker(v VersionChecker) Option           { return func(s *Server) { s.versionChecker = v } }
-func WithPodCoordinator(p PodCoordinator) Option           { return func(s *Server) { s.podCoordinator = p } }
-func WithSandboxQueryService(q SandboxQueryService) Option { return func(s *Server) { s.sandboxQuerySvc = q } }
+func WithVersionChecker(v VersionChecker) Option { return func(s *Server) { s.versionChecker = v } }
+func WithPodCoordinator(p PodCoordinator) Option { return func(s *Server) { s.podCoordinator = p } }
+func WithSandboxQueryService(q SandboxQueryService) Option {
+	return func(s *Server) { s.sandboxQuerySvc = q }
+}
 func WithUpgradeCommandSender(u UpgradeCommandSender) Option {
 	return func(s *Server) { s.upgradeSender = u }
 }
@@ -207,6 +209,8 @@ func mapServiceError(err error) error {
 	case errors.Is(err, runner.ErrRunnerNotFound):
 		return connect.NewError(connect.CodeNotFound, err)
 	case errors.Is(err, runner.ErrGRPCTokenNotFound):
+		return connect.NewError(connect.CodeNotFound, err)
+	case errors.Is(err, runner.ErrExecutionClusterNotFound):
 		return connect.NewError(connect.CodeNotFound, err)
 	case errors.Is(err, runner.ErrRunnerHasWorkflowRefs):
 		return connect.NewError(connect.CodeFailedPrecondition, err)

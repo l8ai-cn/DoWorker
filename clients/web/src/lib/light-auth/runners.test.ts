@@ -1,8 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import {
-  lightGetRunnerAuthStatus,
-  lightAuthorizeRunner,
-} from "./runners";
+import { lightGetRunnerAuthStatus, lightAuthorizeRunner } from "./runners";
 import { writeLightSession, resolveLightBaseUrl } from "@/lib/light-session";
 
 const ORIGIN = resolveLightBaseUrl();
@@ -30,15 +27,16 @@ describe("lightGetRunnerAuthStatus", () => {
   });
 
   it("POSTs authKey body to RunnerPublicService/GetRunnerAuthStatus and returns the status payload", async () => {
-    const fetchSpy = vi.fn<typeof fetch>(async () =>
-      new Response(
-        JSON.stringify({
-          status: "authorized",
-          nodeId: "node-1",
-          expiresAt: "2026-12-31T00:00:00Z",
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      ),
+    const fetchSpy = vi.fn<typeof fetch>(
+      async () =>
+        new Response(
+          JSON.stringify({
+            status: "authorized",
+            nodeId: "node-1",
+            expiresAt: "2026-12-31T00:00:00Z",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
     );
     globalThis.fetch = fetchSpy as typeof fetch;
 
@@ -71,12 +69,13 @@ describe("lightAuthorizeRunner", () => {
     window.localStorage.clear();
   });
 
-  it("POSTs to RunnerService/AuthorizeRunner with orgSlug + authKey + nodeId (camelCase)", async () => {
-    const fetchSpy = vi.fn<typeof fetch>(async () =>
-      new Response(
-        JSON.stringify({ runnerId: 42, nodeId: "node-42", message: "ok" }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      ),
+  it("POSTs to RunnerService/AuthorizeRunner with orgSlug + authKey + nodeId + clusterId", async () => {
+    const fetchSpy = vi.fn<typeof fetch>(
+      async () =>
+        new Response(
+          JSON.stringify({ runnerId: 42, nodeId: "node-42", message: "ok" }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
     );
     globalThis.fetch = fetchSpy as typeof fetch;
 
@@ -84,6 +83,7 @@ describe("lightAuthorizeRunner", () => {
       organizationSlug: "dev-org",
       authKey: "key-1",
       nodeId: "node-42",
+      clusterId: "12",
     });
 
     expect(resp.runner_id).toBe(42);
@@ -93,21 +93,28 @@ describe("lightAuthorizeRunner", () => {
     );
     expect((init as RequestInit).method).toBe("POST");
     expect((init as RequestInit).body).toBe(
-      JSON.stringify({ orgSlug: "dev-org", authKey: "key-1", nodeId: "node-42" }),
+      JSON.stringify({
+        orgSlug: "dev-org",
+        authKey: "key-1",
+        nodeId: "node-42",
+        clusterId: "12",
+      }),
     );
     const headers = (init as RequestInit).headers as Record<string, string>;
     expect(headers.Authorization).toBe("Bearer tok");
   });
 
   it("sends org slug as part of JSON body (Connect-RPC, no URL encoding)", async () => {
-    const fetchSpy = vi.fn<typeof fetch>(async () =>
-      new Response(JSON.stringify({ runnerId: 1 }), { status: 200 }),
+    const fetchSpy = vi.fn<typeof fetch>(
+      async () =>
+        new Response(JSON.stringify({ runnerId: 1 }), { status: 200 }),
     );
     globalThis.fetch = fetchSpy as typeof fetch;
 
     await lightAuthorizeRunner({
       organizationSlug: "ns/dev",
       authKey: "k",
+      clusterId: "13",
     });
 
     const [url, init] = fetchSpy.mock.calls[0];
@@ -119,16 +126,36 @@ describe("lightAuthorizeRunner", () => {
   });
 
   it("defaults nodeId to empty string when not provided", async () => {
-    const fetchSpy = vi.fn<typeof fetch>(async () =>
-      new Response(JSON.stringify({ runnerId: 1 }), { status: 200 }),
+    const fetchSpy = vi.fn<typeof fetch>(
+      async () =>
+        new Response(JSON.stringify({ runnerId: 1 }), { status: 200 }),
     );
     globalThis.fetch = fetchSpy as typeof fetch;
 
-    await lightAuthorizeRunner({ organizationSlug: "dev", authKey: "k" });
+    await lightAuthorizeRunner({
+      organizationSlug: "dev",
+      authKey: "k",
+      clusterId: "14",
+    });
 
     const [, init] = fetchSpy.mock.calls[0];
     expect((init as RequestInit).body).toBe(
-      JSON.stringify({ orgSlug: "dev", authKey: "k", nodeId: "" }),
+      JSON.stringify({
+        orgSlug: "dev",
+        authKey: "k",
+        nodeId: "",
+        clusterId: "14",
+      }),
     );
+  });
+
+  it("rejects a non-decimal cluster id before it is sent", async () => {
+    await expect(
+      lightAuthorizeRunner({
+        organizationSlug: "dev",
+        authKey: "k",
+        clusterId: "12.5",
+      }),
+    ).rejects.toThrow("invalid execution cluster id");
   });
 });

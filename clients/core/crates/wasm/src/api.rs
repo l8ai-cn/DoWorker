@@ -263,6 +263,12 @@ impl WasmApiClient {
         crate::service_ai_resource::WasmAIResourceService::new(self.client.clone())
     }
 
+    pub fn create_execution_cluster_service(
+        &self,
+    ) -> crate::service_execution_cluster::WasmExecutionClusterService {
+        crate::service_execution_cluster::WasmExecutionClusterService::new(self.client.clone())
+    }
+
     pub fn create_ticket_relations_service(
         &self,
     ) -> crate::service_ticket_relations::WasmTicketRelationsService {

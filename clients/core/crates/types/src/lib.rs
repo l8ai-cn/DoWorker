@@ -33,6 +33,10 @@ pub mod proto_ai_resource_v1 {
     pub use ::ai_resource_proto::proto::ai_resource::v1::*;
 }
 
+pub mod proto_execution_cluster_v1 {
+    pub use ::execution_cluster_proto::proto::execution_cluster::v1::*;
+}
+
 pub mod proto_apikey_v1 {
     pub use ::apikey_proto::proto::apikey::v1::*;
 }

@@ -11,7 +11,9 @@ interface ConnectRunnerAuthStatus {
   expiresAt?: string;
 }
 
-export async function lightGetRunnerAuthStatus(authKey: string): Promise<RunnerAuthStatus> {
+export async function lightGetRunnerAuthStatus(
+  authKey: string,
+): Promise<RunnerAuthStatus> {
   const resp = await lightConnect<{ authKey: string }, ConnectRunnerAuthStatus>(
     "proto.runner_api.v1.RunnerPublicService",
     "GetRunnerAuthStatus",
@@ -27,6 +29,7 @@ export async function lightGetRunnerAuthStatus(authKey: string): Promise<RunnerA
 export interface LightAuthorizeRunnerInput {
   organizationSlug: string;
   authKey: string;
+  clusterId: string;
   nodeId?: string;
 }
 
@@ -39,8 +42,11 @@ interface ConnectAuthorizeRunnerResponse {
 export async function lightAuthorizeRunner(
   input: LightAuthorizeRunnerInput,
 ): Promise<{ runner_id?: number; node_id?: string; message?: string }> {
+  if (!/^[1-9]\d*$/.test(input.clusterId)) {
+    throw new Error("invalid execution cluster id");
+  }
   const resp = await lightConnect<
-    { orgSlug: string; authKey: string; nodeId: string },
+    { orgSlug: string; authKey: string; nodeId: string; clusterId: string },
     ConnectAuthorizeRunnerResponse
   >(
     "proto.runner_api.v1.RunnerService",
@@ -49,6 +55,7 @@ export async function lightAuthorizeRunner(
       orgSlug: input.organizationSlug,
       authKey: input.authKey,
       nodeId: input.nodeId ?? "",
+      clusterId: input.clusterId,
     },
     { authenticated: true },
   );

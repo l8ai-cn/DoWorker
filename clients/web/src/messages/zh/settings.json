@@ -692,6 +692,7 @@
       "justNow": "刚刚",
       "edit": "编辑",
       "generateToken": "生成令牌",
+      "selectCluster": "选择执行集群",
       "delete": "删除",
       "disabled": "已禁用",
       "upgradeAvailable": "可升级",

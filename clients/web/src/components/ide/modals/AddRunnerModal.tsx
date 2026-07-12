@@ -2,12 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { useCurrentOrg } from "@/stores/auth";
-import { createRunnerToken } from "@/lib/api/facade/runnerConnect";
 import { isApiErrorCode, getLocalizedErrorMessage } from "@/lib/api/errors";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Check, Copy, Terminal, ShieldAlert } from "lucide-react";
-import { useServerUrl } from "@/hooks/useServerUrl";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
+import {
+  createRegistrationCommand,
+  listExecutionClusters,
+} from "@/lib/api/facade/executionClusterApi";
+import type { ExecutionCluster } from "@/lib/api/facade/executionCluster";
+import { RunnerRegistrationInstructions } from "./RunnerRegistrationInstructions";
 
 interface AddRunnerModalProps {
   open: boolean;
@@ -15,68 +25,89 @@ interface AddRunnerModalProps {
   onCreated?: () => void;
 }
 
-export function AddRunnerModal({ open, onClose, onCreated }: AddRunnerModalProps) {
+export function AddRunnerModal({
+  open,
+  onClose,
+  onCreated,
+}: AddRunnerModalProps) {
   const t = useTranslations();
-  const serverUrl = useServerUrl();
   const currentOrg = useCurrentOrg();
   const [loading, setLoading] = useState(false);
-  const [generatedToken, setGeneratedToken] = useState<string | null>(null);
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [generatedCommand, setGeneratedCommand] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [clusters, setClusters] = useState<ExecutionCluster[]>([]);
+  const [selectedClusterId, setSelectedClusterId] = useState("");
+  const [clustersLoading, setClustersLoading] = useState(false);
+  const orgSlug = currentOrg?.slug ?? "";
 
   useEffect(() => {
     if (!open) {
-      setGeneratedToken(null);
+      setGeneratedCommand(null);
       setLoading(false);
-      setCopiedKey(null);
       setError(null);
+      setClusters([]);
+      setSelectedClusterId("");
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!open || !orgSlug) return;
+    let active = true;
+    setClustersLoading(true);
+    void listExecutionClusters(orgSlug)
+      .then((items) => {
+        if (active) setClusters(items);
+      })
+      .catch(() => {
+        if (active) setError(t("runners.addRunnerModal.loadClustersFailed"));
+      })
+      .finally(() => {
+        if (active) setClustersLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [open, orgSlug, t]);
 
   if (!open) return null;
 
   const handleGenerate = async () => {
+    if (!selectedClusterId) {
+      setError(t("runners.addRunnerModal.clusterRequired"));
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const res = await createRunnerToken(currentOrg?.slug ?? "");
-      setGeneratedToken(res.token ?? null);
+      const result = await createRegistrationCommand(
+        orgSlug,
+        Number(selectedClusterId),
+      );
+      setGeneratedCommand(result.command);
     } catch (err) {
-      if (isApiErrorCode(err, "ADMIN_REQUIRED") || isApiErrorCode(err, "INSUFFICIENT_PERMISSIONS")) {
+      if (
+        isApiErrorCode(err, "ADMIN_REQUIRED") ||
+        isApiErrorCode(err, "INSUFFICIENT_PERMISSIONS")
+      ) {
         setError(t("apiErrors.INSUFFICIENT_PERMISSIONS"));
       } else {
-        setError(getLocalizedErrorMessage(err, t, t("apiErrors.INTERNAL_ERROR")));
+        setError(
+          getLocalizedErrorMessage(err, t, t("apiErrors.INTERNAL_ERROR")),
+        );
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const copyText = (text: string, key: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 2000);
-  };
-
-  const CopyBtn = ({ text, id, className }: { text: string; id: string; className?: string }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => copyText(text, id)}
-      className={className ?? "absolute top-2 right-2 h-7 text-xs text-muted-foreground hover:text-foreground"}
-    >
-      {copiedKey === id ? <Check className="w-3 h-3 text-success" /> : t("runners.addRunnerModal.copyCommand")}
-    </Button>
-  );
-
   const handleDone = () => {
-    setGeneratedToken(null);
+    setGeneratedCommand(null);
     onCreated?.();
     onClose();
   };
 
   const handleClose = () => {
-    setGeneratedToken(null);
+    setGeneratedCommand(null);
     onClose();
   };
 
@@ -90,110 +121,48 @@ export function AddRunnerModal({ open, onClose, onCreated }: AddRunnerModalProps
           {t("runners.addRunnerModal.subtitle")}
         </p>
 
-        {generatedToken ? (
-          <div className="space-y-4">
-            <div className="flex items-start gap-2 p-3 bg-warning-bg border border-warning/30 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-warning">
-                {t("runners.addRunnerModal.tokenWarning")}
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                {t("runners.addRunnerModal.tokenLabel")}
-              </label>
-              <div className="flex gap-2">
-                <code className="flex-1 p-3 bg-muted rounded text-sm break-all font-mono">
-                  {generatedToken}
-                </code>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyText(generatedToken, "token")}
-                  className="flex-shrink-0"
-                >
-                  {copiedKey === "token" ? (
-                    <Check className="w-4 h-4 text-success" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t("runners.addRunnerModal.installTitle")}
-              </label>
-              <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">{t("runners.addRunnerModal.installHint")}</p>
-                <div className="bg-muted rounded-lg p-3 relative">
-                  <p className="text-xs text-muted-foreground mb-1"># macOS / Linux</p>
-                  <code className="text-sm font-mono text-foreground block pr-24">
-                    {`curl -fsSL ${serverUrl}/install.sh | sh`}
-                  </code>
-                  <CopyBtn text={`curl -fsSL ${serverUrl}/install.sh | sh`} id="install-mac" />
-                </div>
-                <div className="bg-muted rounded-lg p-3 relative">
-                  <p className="text-xs text-muted-foreground mb-1"># Windows (PowerShell)</p>
-                  <code className="text-sm font-mono text-foreground block pr-24">
-                    {`irm ${serverUrl}/install.ps1 | iex`}
-                  </code>
-                  <CopyBtn text={`irm ${serverUrl}/install.ps1 | iex`} id="install-win" />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                {t("runners.addRunnerModal.usageTitle")}
-              </label>
-              <div className="bg-muted rounded-lg p-4 relative">
-                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2">
-                  <Terminal className="w-4 h-4" />
-                  <span>Terminal</span>
-                </div>
-                <code className="text-success text-sm font-mono block whitespace-pre-wrap pr-24">
-                  {`do-worker-runner register --server ${serverUrl} --token ${generatedToken.substring(0, 16)}...
-do-worker-runner run`}
-                </code>
-                <CopyBtn
-                  text={`do-worker-runner register --server ${serverUrl} --token ${generatedToken}\ndo-worker-runner run`}
-                  id="command"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t("runners.addRunnerModal.serviceTitle")}
-              </label>
-              <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">{t("runners.addRunnerModal.serviceHint")}</p>
-                <div className="bg-muted rounded-lg p-4 relative">
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2">
-                    <Terminal className="w-4 h-4" />
-                    <span>Terminal</span>
-                  </div>
-                  <code className="text-success text-sm font-mono block whitespace-pre-wrap pr-24">
-                    {`do-worker-runner service install
-do-worker-runner service start`}
-                  </code>
-                  <CopyBtn
-                    text={`do-worker-runner service install\ndo-worker-runner service start`}
-                    id="service"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <Button onClick={handleDone}>{t("runners.addRunnerModal.done")}</Button>
-            </div>
-          </div>
+        {generatedCommand ? (
+          <RunnerRegistrationInstructions
+            command={generatedCommand}
+            onDone={handleDone}
+          />
         ) : (
           <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {t("runners.addRunnerModal.clusterLabel")}
+              </label>
+              <Select
+                value={selectedClusterId}
+                onValueChange={setSelectedClusterId}
+                disabled={clustersLoading}
+              >
+                <SelectTrigger>
+                  <span
+                    className={selectedClusterId ? "" : "text-muted-foreground"}
+                  >
+                    {selectedClusterId
+                      ? clusters.find(
+                          (cluster) => String(cluster.id) === selectedClusterId,
+                        )?.name
+                      : t("runners.addRunnerModal.clusterPlaceholder")}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {clusters.map((cluster) => (
+                    <SelectItem key={cluster.id} value={String(cluster.id)}>
+                      {cluster.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {clustersLoading && (
+                <p className="text-xs text-muted-foreground">
+                  {t("runners.addRunnerModal.clusterLoading")}
+                </p>
+              )}
+            </div>
+
             {error ? (
               <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
                 <ShieldAlert className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
@@ -209,7 +178,10 @@ do-worker-runner service start`}
               <Button variant="outline" onClick={handleClose}>
                 {t("runners.addRunnerModal.cancel")}
               </Button>
-              <Button onClick={handleGenerate} disabled={loading}>
+              <Button
+                onClick={handleGenerate}
+                disabled={loading || clustersLoading || !selectedClusterId}
+              >
                 {loading
                   ? t("runners.addRunnerModal.generating")
                   : t("runners.addRunnerModal.generate")}

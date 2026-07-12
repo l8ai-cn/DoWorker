@@ -60,6 +60,7 @@ func TestAuthorizeRunnerSetsRegisteredByUserID(t *testing.T) {
 	ctx := context.Background()
 
 	org := createTestOrg(t, db, "test-org-regby")
+	clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 	authKey := generateTestAuthKey()
 	pendingAuth := &runner.PendingAuth{
@@ -71,7 +72,7 @@ func TestAuthorizeRunnerSetsRegisteredByUserID(t *testing.T) {
 	require.NoError(t, db.Create(pendingAuth).Error)
 
 	userID := int64(42)
-	r, err := service.AuthorizeRunner(ctx, authKey, org.ID, userID, "my-registered-runner")
+	r, err := service.AuthorizeRunner(ctx, authKey, org.ID, userID, clusterID, "my-registered-runner")
 	require.NoError(t, err)
 	assert.NotZero(t, r.ID)
 

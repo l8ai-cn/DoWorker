@@ -1,6 +1,7 @@
 pub mod agent;
 pub mod agentpod;
 pub mod ai_resource;
+pub mod execution_cluster;
 pub mod apikey;
 pub mod auth_connect;
 pub mod autopilot_connect;

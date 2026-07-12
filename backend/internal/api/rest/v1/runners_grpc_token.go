@@ -11,9 +11,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func respondRegisterWithTokenError(c *gin.Context, err error) {
+	switch {
+	case errors.Is(err, runner.ErrInvalidToken),
+		errors.Is(err, runner.ErrExecutionClusterNotFound):
+		apierr.Unauthorized(c, apierr.INVALID_TOKEN, "Invalid token")
+	case errors.Is(err, runner.ErrTokenExpired):
+		apierr.Unauthorized(c, apierr.INVALID_TOKEN, "Token expired")
+	case errors.Is(err, runner.ErrTokenExhausted):
+		apierr.Unauthorized(c, apierr.INVALID_TOKEN, "Token usage exhausted")
+	case errors.Is(err, runner.ErrRunnerAlreadyExists):
+		apierr.Conflict(c, apierr.ALREADY_EXISTS, "Runner with this node_id already exists")
+	case errors.Is(err, runner.ErrRunnerQuotaExceeded):
+		apierr.PaymentRequired(c, apierr.RUNNER_QUOTA_EXCEEDED, "Runner quota exceeded")
+	default:
+		apierr.InternalError(c, "Failed to register runner")
+	}
+}
+
 func (h *GRPCRunnerHandler) GenerateGRPCToken(c *gin.Context) {
 	var req GenerateGRPCTokenRequest
-	_ = c.ShouldBindJSON(&req)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		apierr.ValidationError(c, err.Error())
+		return
+	}
 
 	tenant := middleware.GetTenant(c)
 	if tenant == nil {
@@ -34,6 +55,7 @@ func (h *GRPCRunnerHandler) GenerateGRPCToken(c *gin.Context) {
 		tenant.UserID,
 		&runner.GenerateGRPCRegistrationTokenRequest{
 			Name:      req.Name,
+			ClusterID: req.ClusterID,
 			Labels:    req.Labels,
 			SingleUse: req.SingleUse,
 			MaxUses:   req.MaxUses,
@@ -42,6 +64,10 @@ func (h *GRPCRunnerHandler) GenerateGRPCToken(c *gin.Context) {
 		serverURL,
 	)
 	if err != nil {
+		if errors.Is(err, runner.ErrExecutionClusterNotFound) {
+			apierr.ResourceNotFound(c, "Execution cluster not found")
+			return
+		}
 		apierr.InternalError(c, "Failed to generate token")
 		return
 	}
@@ -127,20 +153,7 @@ func (h *GRPCRunnerHandler) RegisterWithToken(c *gin.Context) {
 		h.pkiService,
 	)
 	if err != nil {
-		switch {
-		case errors.Is(err, runner.ErrInvalidToken):
-			apierr.Unauthorized(c, apierr.INVALID_TOKEN, "Invalid token")
-		case errors.Is(err, runner.ErrTokenExpired):
-			apierr.Unauthorized(c, apierr.INVALID_TOKEN, "Token expired")
-		case errors.Is(err, runner.ErrTokenExhausted):
-			apierr.Unauthorized(c, apierr.INVALID_TOKEN, "Token usage exhausted")
-		case errors.Is(err, runner.ErrRunnerAlreadyExists):
-			apierr.Conflict(c, apierr.ALREADY_EXISTS, "Runner with this node_id already exists")
-		case errors.Is(err, runner.ErrRunnerQuotaExceeded):
-			apierr.PaymentRequired(c, apierr.RUNNER_QUOTA_EXCEEDED, "Runner quota exceeded")
-		default:
-			apierr.InternalError(c, "Failed to register runner")
-		}
+		respondRegisterWithTokenError(c, err)
 		return
 	}
 

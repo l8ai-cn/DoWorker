@@ -301,10 +301,11 @@ export async function querySandboxes(
 
 export async function createRunnerToken(
   orgSlug: string,
-  data: { name?: string; labels?: string[]; max_uses?: number; expires_in_days?: number } = {},
+  data: { cluster_id: number; name?: string; labels?: string[]; max_uses?: number; expires_in_days?: number },
 ): Promise<GRPCRegistrationToken & { token?: string }> {
   const req = create(CreateRunnerTokenRequestSchema, {
     orgSlug,
+    clusterId: BigInt(data.cluster_id),
     name: data.name,
     labels: data.labels ?? [],
     maxUses: data.max_uses,

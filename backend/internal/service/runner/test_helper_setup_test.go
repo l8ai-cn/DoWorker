@@ -27,7 +27,9 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 // newTestService creates a Service backed by an in-memory DB for testing.
 func newTestService(db *gorm.DB) *Service {
-	return NewService(infra.NewRunnerRepository(db))
+	service := NewService(infra.NewRunnerRepository(db))
+	service.SetExecutionClusterRepository(infra.NewExecutionClusterRepository(db))
+	return service
 }
 
 // testOrg represents a test organization
@@ -52,6 +54,26 @@ func createTestOrg(t *testing.T, db *gorm.DB, slug string) *testOrg {
 		t.Fatalf("failed to get test org: %v", err)
 	}
 	return &org
+}
+
+func createTestExecutionCluster(t *testing.T, db *gorm.DB, organizationID int64, slug string) int64 {
+	t.Helper()
+	kind := slug
+	result := db.Exec(`
+		INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
+		VALUES (?, ?, ?, ?, 'ready')
+	`, organizationID, slug, slug+" cluster", kind)
+	if result.Error != nil {
+		t.Fatalf("failed to create execution cluster: %v", result.Error)
+	}
+	var id int64
+	if err := db.Raw(`
+		SELECT id FROM execution_clusters
+		WHERE organization_id = ? AND slug = ?
+	`, organizationID, slug).Scan(&id).Error; err != nil {
+		t.Fatalf("failed to get execution cluster: %v", err)
+	}
+	return id
 }
 
 // createTestCA creates a self-signed CA certificate for testing

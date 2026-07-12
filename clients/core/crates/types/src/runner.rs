@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 pub struct AuthorizeRunnerRequest {
     pub auth_key: String,
     pub node_id: Option<String>,
+    pub cluster_id: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

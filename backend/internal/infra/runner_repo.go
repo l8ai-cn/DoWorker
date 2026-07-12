@@ -95,6 +95,16 @@ func (r *runnerRepository) ListByOrg(ctx context.Context, orgID, userID int64) (
 	return runners, nil
 }
 
+func (r *runnerRepository) ListForClusterStatus(ctx context.Context, orgID int64) ([]*runner.Runner, error) {
+	var runners []*runner.Runner
+	if err := r.db.WithContext(ctx).
+		Where("organization_id = ?", orgID).
+		Find(&runners).Error; err != nil {
+		return nil, err
+	}
+	return runners, nil
+}
+
 func (r *runnerRepository) ListAvailable(ctx context.Context, orgID, userID int64) ([]*runner.Runner, error) {
 	var runners []*runner.Runner
 	if err := r.db.WithContext(ctx).

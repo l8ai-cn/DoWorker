@@ -87,7 +87,12 @@
       "installTitle": "安装 do-worker-runner CLI",
       "installHint": "如果尚未安装 do-worker-runner，请运行以下命令：",
       "serviceTitle": "以后台服务方式运行（推荐）",
-      "serviceHint": "将集群安装为系统服务，使其自动启动并在重启后持续运行："
+      "serviceHint": "将集群安装为系统服务，使其自动启动并在重启后持续运行：",
+      "clusterLabel": "执行集群",
+      "clusterPlaceholder": "请选择执行集群...",
+      "clusterLoading": "正在加载执行集群...",
+      "clusterRequired": "请先选择执行集群再生成令牌。",
+      "loadClustersFailed": "加载执行集群失败。"
     },
     "configModal": {
       "title": "配置集群",
@@ -210,6 +215,11 @@
       "selectOrganization": "选择组织",
       "selectOrgPlaceholder": "请选择一个组织...",
       "noOrganizations": "您还没有任何组织，请先创建一个。",
+      "selectCluster": "选择执行集群",
+      "selectClusterPlaceholder": "请选择执行集群...",
+      "loadingClusters": "正在加载执行集群...",
+      "noClusters": "该组织没有可用的执行集群。",
+      "loadClustersFailed": "加载执行集群失败。",
       "nodeIdLabel": "集群 节点 ID",
       "nodeIdPlaceholder": "例如：my-runner-01",
       "nodeIdHint": "此集群的唯一标识符。留空将自动生成。",

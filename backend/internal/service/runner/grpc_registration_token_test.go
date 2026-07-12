@@ -18,9 +18,11 @@ func TestGenerateGRPCRegistrationToken(t *testing.T) {
 
 	t.Run("generates token with default settings", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-grpc-1")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		req := &GenerateGRPCRegistrationTokenRequest{
 			ExpiresIn: 3600,
+			ClusterID: clusterID,
 		}
 		// GenerateGRPCRegistrationToken(ctx, orgID, userID int64, req, serverURL)
 		resp, err := service.GenerateGRPCRegistrationToken(ctx, org.ID, 1, req, "https://example.com")
@@ -48,10 +50,12 @@ func TestGenerateGRPCRegistrationToken(t *testing.T) {
 
 	t.Run("generates single-use token explicitly", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-grpc-2")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		req := &GenerateGRPCRegistrationTokenRequest{
 			ExpiresIn: 7200,
 			SingleUse: true,
+			ClusterID: clusterID,
 		}
 		resp, err := service.GenerateGRPCRegistrationToken(ctx, org.ID, 1, req, "https://example.com")
 		require.NoError(t, err)
@@ -67,9 +71,11 @@ func TestGenerateGRPCRegistrationToken(t *testing.T) {
 
 	t.Run("generates token with labels", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-grpc-3")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		req := &GenerateGRPCRegistrationTokenRequest{
 			ExpiresIn: 3600,
+			ClusterID: clusterID,
 			Labels:    map[string]string{"env": "production"},
 		}
 		resp, err := service.GenerateGRPCRegistrationToken(ctx, org.ID, 1, req, "https://example.com")
@@ -94,6 +100,7 @@ func TestRegisterWithToken(t *testing.T) {
 
 	t.Run("returns error for expired token", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-reg-2")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create token that's already expired
 		token := generateTestAuthKey()
@@ -101,6 +108,7 @@ func TestRegisterWithToken(t *testing.T) {
 		grpcToken := &runner.GRPCRegistrationToken{
 			TokenHash:      tokenHash,
 			OrganizationID: org.ID,
+			ClusterID:      clusterID,
 			SingleUse:      true,
 			MaxUses:        1,
 			ExpiresAt:      time.Now().Add(-1 * time.Hour),
@@ -121,6 +129,7 @@ func TestRegisterWithToken(t *testing.T) {
 		defer os.RemoveAll(tmpDir)
 
 		org := createTestOrg(t, db, "test-org-reg-success")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create valid token
 		token := generateTestAuthKey()
@@ -128,6 +137,7 @@ func TestRegisterWithToken(t *testing.T) {
 		grpcToken := &runner.GRPCRegistrationToken{
 			TokenHash:      tokenHash,
 			OrganizationID: org.ID,
+			ClusterID:      clusterID,
 			SingleUse:      true,
 			MaxUses:        1,
 			ExpiresAt:      time.Now().Add(1 * time.Hour),
@@ -163,6 +173,7 @@ func TestRegisterWithToken(t *testing.T) {
 		defer os.RemoveAll(tmpDir)
 
 		org := createTestOrg(t, db, "test-org-reg-no-nodeid")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create valid token
 		token := generateTestAuthKey()
@@ -170,6 +181,7 @@ func TestRegisterWithToken(t *testing.T) {
 		grpcToken := &runner.GRPCRegistrationToken{
 			TokenHash:      tokenHash,
 			OrganizationID: org.ID,
+			ClusterID:      clusterID,
 			SingleUse:      true,
 			MaxUses:        1,
 			ExpiresAt:      time.Now().Add(1 * time.Hour),
@@ -192,6 +204,7 @@ func TestRegisterWithToken(t *testing.T) {
 
 	t.Run("returns error for exhausted token", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-reg-exhausted")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create exhausted token (used_count >= max_uses)
 		token := generateTestAuthKey()
@@ -199,6 +212,7 @@ func TestRegisterWithToken(t *testing.T) {
 		grpcToken := &runner.GRPCRegistrationToken{
 			TokenHash:      tokenHash,
 			OrganizationID: org.ID,
+			ClusterID:      clusterID,
 			SingleUse:      true,
 			MaxUses:        1,
 			UsedCount:      1, // Already used
@@ -222,10 +236,11 @@ func TestListGRPCRegistrationTokens(t *testing.T) {
 
 	t.Run("lists tokens for organization", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-list-1")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create some tokens
 		for i := 0; i < 3; i++ {
-			genReq := &GenerateGRPCRegistrationTokenRequest{ExpiresIn: 3600}
+			genReq := &GenerateGRPCRegistrationTokenRequest{ExpiresIn: 3600, ClusterID: clusterID}
 			_, err := service.GenerateGRPCRegistrationToken(ctx, org.ID, 1, genReq, "https://example.com")
 			require.NoError(t, err)
 		}
@@ -251,9 +266,10 @@ func TestDeleteGRPCRegistrationToken(t *testing.T) {
 
 	t.Run("deletes token", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-del-1")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create token
-		genReq := &GenerateGRPCRegistrationTokenRequest{ExpiresIn: 3600}
+		genReq := &GenerateGRPCRegistrationTokenRequest{ExpiresIn: 3600, ClusterID: clusterID}
 		_, err := service.GenerateGRPCRegistrationToken(ctx, org.ID, 1, genReq, "https://example.com")
 		require.NoError(t, err)
 

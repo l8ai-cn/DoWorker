@@ -17,6 +17,7 @@ export {
   getAutopilotState, getRelayManager, getBlockstoreService,
   getKnowledgeBaseService,
   getAIResourceService,
+  getExecutionClusterService,
 } from "./service-getters";
 
 export { setPlatformInit, ensurePlatformReady } from "./platform-init";

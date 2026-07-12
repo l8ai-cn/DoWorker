@@ -48,20 +48,34 @@ func (r *runnerRepository) GetPendingAuthByKey(ctx context.Context, authKey stri
 	return &pa, nil
 }
 
-func (r *runnerRepository) ClaimPendingAuth(ctx context.Context, id int64, orgID int64) (int64, error) {
-	result := r.db.WithContext(ctx).Model(&runner.PendingAuth{}).
-		Where("id = ? AND authorized = false AND expires_at > ?", id, time.Now()).
-		Updates(map[string]interface{}{
-			"authorized":      true,
-			"organization_id": orgID,
-		})
-	return result.RowsAffected, result.Error
-}
-
-func (r *runnerRepository) UpdatePendingAuthRunnerID(ctx context.Context, id int64, runnerID int64) error {
-	return r.db.WithContext(ctx).Model(&runner.PendingAuth{}).
-		Where("id = ?", id).
-		Update("runner_id", runnerID).Error
+func (r *runnerRepository) AuthorizePendingAuthAtomic(ctx context.Context, id, orgID, clusterID int64, rn *runner.Runner) (int64, error) {
+	var rowsAffected int64
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		result := tx.Model(&runner.PendingAuth{}).
+			Where("id = ? AND authorized = false AND expires_at > ?", id, time.Now()).
+			Updates(map[string]interface{}{
+				"authorized":      true,
+				"organization_id": orgID,
+				"cluster_id":      clusterID,
+			})
+		if result.Error != nil {
+			return result.Error
+		}
+		rowsAffected = result.RowsAffected
+		if rowsAffected == 0 {
+			return nil
+		}
+		if err := tx.Create(rn).Error; err != nil {
+			return err
+		}
+		return tx.Model(&runner.PendingAuth{}).
+			Where("id = ?", id).
+			Update("runner_id", rn.ID).Error
+	})
+	if err != nil {
+		return 0, err
+	}
+	return rowsAffected, nil
 }
 
 func (r *runnerRepository) DeleteClaimedPendingAuth(ctx context.Context, id int64) (int64, error) {
