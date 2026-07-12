@@ -1,6 +1,7 @@
 x-runner-build-base: &runner-build-base
   context: .
   dockerfile: ../../docker/agent-runtime/Dockerfile
+  target: runtime
 
 x-runner-build-args: &runner-build-args
   HTTP_PROXY: ""
@@ -137,7 +138,7 @@ services:
 
   runner-do-agent:
     <<: *runner-common
-    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: do-agent } }
+    build: { <<: *runner-build-base, target: do-agent-runtime, args: { <<: *runner-build-args, AGENT_RUNTIME: do-agent } }
     environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-do-agent, AGENT_RUNTIME: do-agent, DEFAULT_AGENT: do-agent }
     volumes:
       - ./ssl:/app/ssl:ro
@@ -223,7 +224,7 @@ services:
 
   runner-admin-workspace-do-agent:
     <<: *runner-common
-    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: do-agent } }
+    build: { <<: *runner-build-base, target: do-agent-runtime, args: { <<: *runner-build-args, AGENT_RUNTIME: do-agent } }
     environment:
       <<: *runner-env
       RUNNER_ORG_SLUG: admin-workspace

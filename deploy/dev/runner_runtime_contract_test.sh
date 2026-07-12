@@ -40,6 +40,7 @@ grep -q "HERMES_AGENT_VERSION" "$DOCKERFILE"
 grep -q "runner-claude-code" docker-compose.runners.yml
 grep -q "runner-codex-cli" docker-compose.runners.yml
 grep -q "docker/agent-runtime/Dockerfile" docker-compose.runners.yml
+grep -q "target: runtime" docker-compose.runners.yml
 grep -q "COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES" lib/host_services.sh
 grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
@@ -62,5 +63,11 @@ fi
 if awk '/runner-codex-cli:/{flag=1; next} /runner-gemini-cli:/{flag=0} flag' docker-compose.runners.yml \
   | grep -q "/home/runner/.claude"; then
   echo "runner-codex-cli mounts claude config" >&2
+  exit 1
+fi
+
+if ! awk '/runner-do-agent:/{flag=1; next} /runner-grok-build:/{flag=0} flag' docker-compose.runners.yml \
+  | grep -q "target: do-agent-runtime"; then
+  echo "runner-do-agent must use the do-agent runtime image stage" >&2
   exit 1
 fi
