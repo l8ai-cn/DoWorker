@@ -1,6 +1,3 @@
-import { FitAddon } from "@xterm/addon-fit";
-import { Terminal } from "@xterm/xterm";
-import "@xterm/xterm/css/xterm.css";
 import { useEffect, useRef, useState } from "react";
 import {
   RelayTerminalControlBar,
@@ -11,25 +8,38 @@ import {
   type MobileRelayControl,
   type RelayLease,
 } from "@/hooks/use-mobile-control-lease";
+import { useRelayTerminalViewport } from "@/hooks/use-relay-terminal-viewport";
 import { getMobileRelayManager } from "@/lib/mobile-relay-manager";
 import { resetMobileRelayConnection } from "@/lib/mobile-relay-reset";
+import { getMobilePodConnection } from "@/lib/mobile-pod-api";
 import { relayConnectionState, type RelayConnectionState } from "@/lib/relay-connection-state";
 import { getSessionRelayConnection } from "@/lib/session-relay-api";
-import { sendGrantedTerminalResize } from "@/lib/relay-terminal-resize";
 import {
   observerRelayLease,
   relayLeaseFromStatus,
   relayOutput,
-  relayTerminalTheme,
 } from "@/lib/relay-terminal-state";
 
-export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
+let nextTerminalListenerId = 0;
+
+type RelayTerminalPanelProps =
+  | { podKey: string; sessionId?: never }
+  | { sessionId: string; podKey?: never };
+
+export function RelayTerminalPanel(props: RelayTerminalPanelProps) {
+  const directPodKey = "podKey" in props ? props.podKey : undefined;
+  const sessionId = "sessionId" in props ? props.sessionId : undefined;
   const containerRef = useRef<HTMLDivElement>(null);
-  const terminalRef = useRef<Terminal | null>(null);
   const relayRef = useRef<Awaited<ReturnType<typeof getMobileRelayManager>> | null>(null);
   const podKeyRef = useRef<string | null>(null);
   const leaseRef = useRef<RelayLease>(observerRelayLease);
-  const sendSizeRef = useRef<() => void>(() => {});
+  const { sendSizeRef, terminalRef } = useRelayTerminalViewport({
+    containerRef,
+    leaseRef,
+    podKeyRef,
+    relayRef,
+  });
+  const [listenerId] = useState(() => `mobile-terminal-${++nextTerminalListenerId}`);
   const [relay, setRelay] = useState<MobileRelayControl | null>(null);
   const [podKey, setPodKey] = useState<string | null>(null);
   const [connection, setConnection] = useState<RelayConnectionState>("connecting");
@@ -43,56 +53,7 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
   }, [lease]);
 
   useEffect(() => {
-    const node = containerRef.current;
-    if (!node) return;
     let disposed = false;
-    const terminal = new Terminal({
-      cursorBlink: true,
-      disableStdin: true,
-      fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
-      fontSize: 13,
-      minimumContrastRatio: 4.5,
-      scrollback: 8000,
-      theme: relayTerminalTheme(document.documentElement.classList.contains("dark")),
-    });
-    const fit = new FitAddon();
-    terminal.loadAddon(fit);
-    terminal.open(node);
-    terminalRef.current = terminal;
-
-    const sendSize = () => {
-      try {
-        fit.fit();
-      } catch {
-        return;
-      }
-      sendGrantedTerminalResize(
-        relayRef.current,
-        podKeyRef.current,
-        leaseRef.current,
-        terminal.cols,
-        terminal.rows,
-      );
-    };
-    sendSizeRef.current = sendSize;
-    let animationFrame: number | undefined;
-    const scheduleSize = () => {
-      if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
-      animationFrame = requestAnimationFrame(() => {
-        animationFrame = undefined;
-        if (!disposed) sendSize();
-      });
-    };
-    const resizeObserver = new ResizeObserver(scheduleSize);
-    resizeObserver.observe(node);
-    scheduleSize();
-    const input = terminal.onData((data) => {
-      const relay = relayRef.current;
-      const podKey = podKeyRef.current;
-      if (relay && podKey && leaseRef.current.status === "granted") {
-        void relay.send(podKey, data);
-      }
-    });
 
     const connect = async () => {
       try {
@@ -103,23 +64,29 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
         leaseRef.current = observerRelayLease;
         setLease(observerRelayLease);
         setConnection("connecting");
-        const info = await getSessionRelayConnection(sessionId);
+        const info = directPodKey
+          ? await getMobilePodConnection(directPodKey)
+          : await getSessionRelayConnection(sessionId!);
         if (disposed) return;
         relayRef.current = relay;
         podKeyRef.current = info.podKey;
         setRelay(relay);
         setPodKey(info.podKey);
-        const subscriptionId = `mobile-${sessionId}-${Math.random().toString(36).slice(2, 10)}`;
-        await relay.on_status_change(info.podKey, (raw: unknown) => {
+        const subscriptionId = `mobile-${info.podKey}-${Math.random().toString(36).slice(2, 10)}`;
+        await relay.set_status_listener(info.podKey, listenerId, (raw: unknown) => {
           if (disposed) return;
           const status =
             raw && typeof raw === "object" ? (raw as { status?: unknown }).status : undefined;
           const nextConnection = relayConnectionState(status);
           setConnection(nextConnection);
           setLease(relayLeaseFromStatus(raw));
-          if (nextConnection === "connected") terminal.focus();
+          if (nextConnection === "connected") terminalRef.current?.focus();
           if (nextConnection === "failed") setError("终端连接已失效，请重新连接");
         });
+        if (disposed) {
+          relay.remove_status_listener(info.podKey, listenerId);
+          return;
+        }
         await relay.subscribe(
           info.podKey,
           subscriptionId,
@@ -127,9 +94,10 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
           info.token,
           (data: unknown) => {
             const output = relayOutput(data);
-            if (output) terminal.write(output);
+            if (output) terminalRef.current?.write(output);
           },
         );
+        if (disposed) void resetMobileRelayConnection(relay, info.podKey);
       } catch (cause) {
         if (!disposed) {
           setConnection("failed");
@@ -141,28 +109,25 @@ export function RelayTerminalPanel({ sessionId }: { sessionId: string }) {
 
     return () => {
       disposed = true;
-      if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
-      resizeObserver.disconnect();
-      input.dispose();
-      terminal.dispose();
-      terminalRef.current = null;
-      sendSizeRef.current = () => {};
       const relay = relayRef.current;
       const podKey = podKeyRef.current;
       const lease = leaseRef.current;
+      if (relay && podKey) {
+        relay.remove_status_listener(podKey, listenerId);
+      }
       if (relay && podKey && lease.status === "granted" && lease.leaseId) {
         void relay.release_control(podKey, lease.leaseId);
       }
       if (relay && podKey) void resetMobileRelayConnection(relay, podKey);
     };
-  }, [connectionAttempt, sessionId]);
+  }, [connectionAttempt, directPodKey, listenerId, sessionId, terminalRef]);
 
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.options.disableStdin = lease.status !== "granted";
     }
     if (lease.status === "granted") sendSizeRef.current();
-  }, [lease.status]);
+  }, [lease.status, sendSizeRef, terminalRef]);
 
   useEffect(() => {
     const refreshAfterForeground = () => {

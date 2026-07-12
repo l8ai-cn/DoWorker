@@ -15,12 +15,15 @@ const DEV_ACCOUNTS = import.meta.env.DEV
   : [];
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (search: Record<string, unknown>): { workerPodKey?: string } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { workerPodKey?: string; workerTarget?: "preview" } => ({
     workerPodKey:
       typeof search.workerPodKey === "string" &&
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(search.workerPodKey)
         ? search.workerPodKey
         : undefined,
+    workerTarget: search.workerTarget === "preview" ? "preview" : undefined,
   }),
   head: () => ({
     meta: [
@@ -48,7 +51,7 @@ function LoginPage() {
       await login(username.trim(), password);
       if (search.workerPodKey) {
         router.navigate({
-          to: "/workers/$podKey",
+          to: search.workerTarget === "preview" ? "/workers/$podKey/preview" : "/workers/$podKey",
           params: { podKey: search.workerPodKey },
           replace: true,
         });

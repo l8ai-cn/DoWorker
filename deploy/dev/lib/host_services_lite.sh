@@ -128,6 +128,7 @@ start_backend_host_lite() {
     export RATE_LIMIT_DISABLED=true
     export PRIMARY_DOMAIN="${PRIMARY_DOMAIN}"
     export PUBLIC_WEB_URL="${PUBLIC_WEB_URL}"
+    export MOBILE_PUBLIC_BASE_URL="${MOBILE_PUBLIC_BASE_URL}"
     export USE_HTTPS="${USE_HTTPS:-false}"
     export BLOCKSTORE_WEBHOOK_ALLOW_HOSTS="host.docker.internal,host.lan,localhost"
     export CORS_ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020},http://localhost:${MOBILE_LOVABLE_PORT:-10021},http://127.0.0.1:${MOBILE_LOVABLE_PORT:-10021},${PUBLIC_WEB_URL}"
