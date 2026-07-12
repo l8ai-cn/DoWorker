@@ -3,6 +3,7 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { createMockAgentPod, workspaceUrlForPod } from "../../helpers/mock-agent";
+import { takeWorkerControl } from "../../helpers/worker-control-lease";
 
 // End-to-end coverage of the terminal DATA PLANE after the relay-SSOT
 // migration: browser xterm ↔ relayConnection adapter ↔ WasmRelayManager ↔
@@ -51,6 +52,7 @@ test.describe("Terminal data-plane round-trip (relay SSOT)", () => {
     await expect(term).toBeVisible({ timeout: 30_000 });
     const input = page.locator(".xterm-helper-textarea");
     await expect(input).toBeAttached({ timeout: 30_000 });
+    await takeWorkerControl(page);
 
     // Assert the round-trip on the INPUT echo, delivered LIVE once the browser
     // subscribes: typed line → onData → relayPool.send → WasmRelayManager →

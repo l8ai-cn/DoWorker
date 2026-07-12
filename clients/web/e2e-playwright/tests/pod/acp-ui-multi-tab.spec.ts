@@ -5,6 +5,7 @@ import {
   createMockAgentPod,
   workspaceUrlForPod,
 } from "../../helpers/mock-agent";
+import { takeWorkerControl } from "../../helpers/worker-control-lease";
 
 // Multi-tab synchronization regression for the Phase D refactor
 // (AcpPermissionModeSelector → useAcpSessionField). Two browser tabs
@@ -47,6 +48,7 @@ test.describe("ACP UI: multi-tab Selector synchronization", () => {
       expect(tabA.getByText("Ready for mode switches", { exact: false })).toBeVisible({ timeout: 15_000 }),
       expect(tabB.getByText("Ready for mode switches", { exact: false })).toBeVisible({ timeout: 15_000 }),
     ]);
+    await takeWorkerControl(tabA);
 
     // Drive the change from tab A. DropdownMenuTrigger carries the active
     // mode's i18n description as `title` (see AcpPermissionModeSelector).

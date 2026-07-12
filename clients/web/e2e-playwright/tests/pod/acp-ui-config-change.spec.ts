@@ -5,6 +5,7 @@ import {
   createMockAgentPod,
   workspaceUrlForPod,
 } from "../../helpers/mock-agent";
+import { takeWorkerControl } from "../../helpers/worker-control-lease";
 
 // End-to-end regression for the ACP control plane round-trip:
 //
@@ -40,6 +41,7 @@ test.describe("ACP UI: control plane round-trip", () => {
     // Wait for the initial acknowledgment chunk so we know wasm session
     // is wired and Selector is mounted.
     await expect(page.getByText("Ready for mode switches", { exact: false })).toBeVisible({ timeout: 15_000 });
+    await takeWorkerControl(page);
 
     // Open the selector — DropdownMenuTrigger button carries the active
     // mode's i18n description as `title`. Empty/unknown initial seed maps
@@ -68,6 +70,7 @@ test.describe("ACP UI: control plane round-trip", () => {
     await page.goto(workspaceUrlForPod(pod.podKey));
     await page.waitForLoadState("load");
     await expect(page.getByText("Ready for mode switches", { exact: false })).toBeVisible({ timeout: 15_000 });
+    await takeWorkerControl(page);
 
     await page.locator('button[title*="Mode" i], button[title*="Approve" i], button[title*="Auto-approve" i]').first().click();
 

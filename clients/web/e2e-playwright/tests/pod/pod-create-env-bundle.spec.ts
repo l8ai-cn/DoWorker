@@ -89,10 +89,8 @@ test.describe("Pod create — EnvBundle binding UI", () => {
 
     try {
       const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
-      await worker.goto();
-      await worker.selectImage(AGENT_SLUG);
+      await worker.goto(AGENT_SLUG);
       await expect(page.locator('select#credential-bundle-select')).toHaveCount(0);
-      await expect(page.locator("label", { hasText: runtimeName })).toBeVisible();
 
       const createResponse = page.waitForResponse(
         (response) =>
@@ -101,6 +99,7 @@ test.describe("Pod create — EnvBundle binding UI", () => {
         { timeout: 20_000 },
       );
       await worker.selectRuntimeBundles([runtimeName]);
+      await expect(page.locator("label", { hasText: runtimeName })).toBeVisible();
       await worker.submit();
       const response = await createResponse;
       expect(response.ok()).toBeTruthy();
@@ -155,8 +154,7 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     await terminateAllPods();
 
     const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
-    await worker.goto();
-    await worker.selectImage(AGENT_SLUG);
+    await worker.goto(AGENT_SLUG);
     const createResponse = page.waitForResponse(
       (response) =>
         response.request().method() === "POST" &&

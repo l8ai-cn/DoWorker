@@ -15,8 +15,8 @@ import (
 // If already connected to the same Relay URL, just update the token without reconnecting.
 // This allows multiple clients (Web + Mobile) to share the same connection.
 //
-// Lock strategy: relayMu is held ONLY for the pointer check/swap to avoid
-// blocking on network I/O or cross-module locks (vt.mu via GetSnapshot).
+// Lock strategy: relaySubscribeMu serializes each pod's publisher lifecycle;
+// relayMu is held only for pointer reads and swaps.
 func (h *RunnerMessageHandler) OnSubscribePod(req client.SubscribePodRequest) error {
 	log := logger.Pod()
 
@@ -46,6 +46,9 @@ func (h *RunnerMessageHandler) OnSubscribePod(req client.SubscribePodRequest) er
 			"pod_key", req.PodKey, "status", status)
 		return fmt.Errorf("pod is not active: %s", status)
 	}
+
+	pod.LockRelaySubscription()
+	defer pod.UnlockRelaySubscription()
 
 	log.Debug("Pod interaction mode", "pod_key", req.PodKey, "mode", pod.InteractionMode)
 
@@ -99,7 +102,6 @@ func (h *RunnerMessageHandler) OnSubscribePod(req client.SubscribePodRequest) er
 	}
 
 	// Phase 3: Under lock — swap the pointer atomically.
-	// Check for a race: another goroutine may have set a different client while we were connecting.
 	pod.LockRelay()
 	if pod.RelayClient != nil {
 		winner := pod.RelayClient

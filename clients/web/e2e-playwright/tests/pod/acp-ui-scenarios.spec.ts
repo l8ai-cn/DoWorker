@@ -2,6 +2,7 @@ import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { setupAcpScenarioPage } from "../../helpers/acp-spec-setup";
+import { takeWorkerControl } from "../../helpers/worker-control-lease";
 
 // Scenario coverage for the universal mock agent — one spec per scenario,
 // each one exercises a distinct slice of the ACP UI render path.
@@ -50,6 +51,7 @@ test.describe("ACP UI: mock agent scenario matrix", () => {
     });
 
     await expect(page.getByText(/Tool: tc-mock-edit-perm-1/)).toBeVisible({ timeout: 15_000 });
+    await takeWorkerControl(page);
     await page.getByRole("button", { name: /Approve/i }).first().click();
     await expect(page.getByText(/Tool: tc-mock-edit-perm-1/)).not.toBeVisible({ timeout: 10_000 });
     ctx.assertWasmHealthy();

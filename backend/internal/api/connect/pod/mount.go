@@ -86,6 +86,8 @@ func mapServiceError(err error) error {
 		return connect.NewError(connect.CodeResourceExhausted, err)
 	case errors.Is(err, billing.ErrSubscriptionFrozen):
 		return connect.NewError(connect.CodeFailedPrecondition, err)
+	case errors.Is(err, runner.ErrPodAlreadyTerminated):
+		return connect.NewError(connect.CodeFailedPrecondition, err)
 
 	// Access → PermissionDenied
 	case errors.Is(err, agentpod.ErrSourcePodAccessDenied):
@@ -103,8 +105,7 @@ func mapServiceError(err error) error {
 
 	// Runner unavailability → Unavailable
 	case errors.Is(err, agentpod.ErrNoAvailableRunner),
-		errors.Is(err, agentpod.ErrRunnerDispatchFailed),
-		errors.Is(err, runner.ErrPodAlreadyTerminated):
+		errors.Is(err, agentpod.ErrRunnerDispatchFailed):
 		return connect.NewError(connect.CodeUnavailable, err)
 
 	// Config build failure → Internal

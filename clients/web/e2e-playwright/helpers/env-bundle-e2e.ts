@@ -37,7 +37,7 @@ const CREATE_POD_RPC = "/proto.pod.v1.PodService/CreatePod";
  *   - navigate to /workers/new
  *   - intercept the Connect-RPC CreatePod (binary proto, response carries
  *     pod_key in the typed envelope)
- *   - select image, apply runtime bundle selection, submit, wait for workspace
+ *   - select worker type, apply runtime bundle selection, submit, wait for workspace
  *   - poll backend until pod status reaches "running"
  *
  * Throws if the RPC returns non-2xx so the caller doesn't have to check
@@ -67,7 +67,7 @@ export async function createPodAndWaitRunning(args: {
   } = args;
 
   const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
-  await worker.goto();
+  await worker.goto(agentSlug);
 
   // waitForResponse filters by URL+method so unrelated traffic doesn't
   // burn the listener. The frontend issues a Connect-RPC binary POST
@@ -77,7 +77,6 @@ export async function createPodAndWaitRunning(args: {
     { timeout: 20_000 },
   );
 
-  await worker.selectImage(agentSlug);
   if (selectRuntimeBundleNames !== undefined) {
     await worker.selectRuntimeBundles(selectRuntimeBundleNames);
   }

@@ -154,9 +154,8 @@ func TestOnSubscribePod_ConcurrentSubscribes(t *testing.T) {
 	}
 }
 
-// TestOnSubscribePod_RaceConditionTwoSubscribers verifies that when two
-// goroutines concurrently complete Phase 2 (Connect + Start), only one wins
-// the Phase 3 pointer swap and the loser's client is properly stopped.
+// TestOnSubscribePod_RaceConditionTwoSubscribers verifies concurrent requests
+// for the same relay share a single publisher connection.
 func TestOnSubscribePod_RaceConditionTwoSubscribers(t *testing.T) {
 	store := NewInMemoryPodStore()
 	mockConn := client.NewMockConnection()
@@ -185,7 +184,7 @@ func TestOnSubscribePod_RaceConditionTwoSubscribers(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 
-	// Two subscribers with different relay URLs race to set the client.
+	// Two subscribers request the same relay concurrently.
 	for i := 0; i < 2; i++ {
 		i := i
 		go func() {
@@ -216,23 +215,11 @@ func TestOnSubscribePod_RaceConditionTwoSubscribers(t *testing.T) {
 		t.Fatal("expected a relay client to be set")
 	}
 
-	// Verify no leaked clients: every client that lost the race should have Stop() called.
+	// The subscription gate prevents a second publisher client from being created.
 	clientsMu.Lock()
 	defer clientsMu.Unlock()
-
-	var stoppedCount int32
-	for _, mc := range allClients {
-		if mc.StopCalled {
-			stoppedCount++
-		}
-	}
-
-	// With 2 clients created, at most 1 should remain (the winner).
-	// The loser(s) must have been stopped.
-	activeCount := int32(len(allClients)) - stoppedCount
-	if activeCount > 1 {
-		t.Errorf("relay client leak: %d clients active (expected at most 1), %d total created, %d stopped",
-			activeCount, len(allClients), stoppedCount)
+	if len(allClients) != 1 {
+		t.Fatalf("created %d relay clients, want one", len(allClients))
 	}
 }
 

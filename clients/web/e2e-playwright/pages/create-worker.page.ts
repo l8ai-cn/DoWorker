@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 export class CreateWorkerPage {
   constructor(
@@ -6,38 +6,37 @@ export class CreateWorkerPage {
     private orgSlug: string,
   ) {}
 
-  async goto(): Promise<void> {
-    await this.page.goto(`/${this.orgSlug}/workers/new`);
+  async goto(initialWorkerTypeSlug?: string): Promise<void> {
+    const query = initialWorkerTypeSlug
+      ? `?image=${encodeURIComponent(initialWorkerTypeSlug)}`
+      : "";
+    await this.page.goto(`/${this.orgSlug}/workers/new${query}`);
     await this.page.waitForLoadState("domcontentloaded");
     await this.page
       .getByRole("heading", { name: /create worker|创建 worker/i })
       .waitFor({ state: "visible", timeout: 15_000 });
   }
 
-  async selectImage(imageSlug: string): Promise<void> {
-    const trigger = this.page.locator("#worker-image-select");
-    await trigger.waitFor({ state: "visible", timeout: 15_000 });
-    await trigger.click();
-    await this.page
-      .locator(`[role="option"][data-option-value="${imageSlug}"]`)
-      .click();
-  }
-
   async selectRuntimeBundles(bundleNames: string[]): Promise<void> {
-    const checkboxes = this.page.locator(
-      '[data-testid="worker-credential-model-section"] input[type="checkbox"]',
-    );
-    for (let i = 0; i < await checkboxes.count(); i += 1) {
-      const checkbox = checkboxes.nth(i);
-      if (await checkbox.isChecked()) await checkbox.click();
+    await this.openWorkspaceStep();
+    const section = this.runtimeBundleSection();
+    const checkboxes = section.locator('input[type="checkbox"]');
+    for (let index = 0; index < await checkboxes.count(); index += 1) {
+      const checkbox = checkboxes.nth(index);
+      if (await checkbox.isChecked()) await checkbox.uncheck();
     }
     for (const name of bundleNames) {
-      const row = this.page.locator("label").filter({ hasText: name }).first();
-      await row.locator('input[type="checkbox"]').click();
+      const checkbox = section
+        .locator("label", { hasText: name })
+        .locator('input[type="checkbox"]')
+        .first();
+      await expect(checkbox).toBeVisible({ timeout: 15_000 });
+      if (!(await checkbox.isChecked())) await checkbox.check();
     }
   }
 
   async selectPtyMode(): Promise<void> {
+    await this.openWorkspaceStep();
     const interactive = this.page.getByTestId("automation-level-interactive");
     await interactive.waitFor({ state: "visible", timeout: 15_000 });
     await interactive.click();
@@ -55,15 +54,9 @@ export class CreateWorkerPage {
   }
 
   async submit(): Promise<void> {
+    await this.openPreflightStep();
     const button = this.submitButton();
-    await button.waitFor({ state: "visible", timeout: 15_000 });
-    const handle = await button.elementHandle();
-    if (!handle) throw new Error("Create Worker submit button is not mounted");
-    await this.page.waitForFunction(
-      (element) => !(element as HTMLButtonElement).disabled,
-      handle,
-      { timeout: 15_000 },
-    );
+    await expect(button).toBeEnabled({ timeout: 15_000 });
     await button.click();
   }
 
@@ -72,5 +65,33 @@ export class CreateWorkerPage {
       new RegExp(`/${this.orgSlug}/workspace\\?pod=`),
       { timeout: timeoutMs },
     );
+  }
+
+  private async openWorkspaceStep(): Promise<void> {
+    const task = this.page.locator("#worker-initial-task");
+    if (await task.isVisible()) return;
+    await this.next();
+    await this.next();
+    await expect(task).toBeVisible({ timeout: 15_000 });
+  }
+
+  private async openPreflightStep(): Promise<void> {
+    await this.openWorkspaceStep();
+    await this.next();
+  }
+
+  private async next(): Promise<void> {
+    const next = this.page.getByRole("button", { name: /^(Next|下一步)$/i });
+    await expect(next).toBeEnabled({ timeout: 15_000 });
+    await next.click();
+  }
+
+  private runtimeBundleSection() {
+    return this.page
+      .locator("label", {
+        hasText: /^(Select runtime bundles|选择运行时包)$/,
+      })
+      .first()
+      .locator("..");
   }
 }

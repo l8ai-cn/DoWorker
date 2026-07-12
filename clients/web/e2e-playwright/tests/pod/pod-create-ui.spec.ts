@@ -52,12 +52,11 @@ test.describe("Create Worker UI", () => {
     const beforeTotal = Number(podsBefore.total);
 
     const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
-    await worker.goto();
+    await worker.goto(E2E_ECHO_AGENT_SLUG);
     expect(
       agents.some((agent) => agent.slug === E2E_ECHO_AGENT_SLUG),
       "dev env must include the e2e-echo builtin agent",
     ).toBeTruthy();
-    await worker.selectImage(E2E_ECHO_AGENT_SLUG);
     const createResponse = page.waitForResponse(
       (response) =>
         response.request().method() === "POST" &&
