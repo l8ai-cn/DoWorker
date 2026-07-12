@@ -171,6 +171,7 @@ func listingQueryArgs(
 		sql.Named("industry", query.Industry),
 		sql.Named("audience", query.Audience),
 		sql.Named("type", query.Type),
+		sql.Named("capability", query.Capability),
 		sql.Named("integration", query.Integration),
 		sql.Named("readiness", query.Readiness),
 		sql.Named("space", query.Space),
@@ -253,6 +254,11 @@ WHERE l.marketplace_id = @marketplace_id AND l.status = 'published' AND l.visibi
     WHERE lvt.listing_version_id = lv.id AND t.kind = 'audience' AND t.slug = @audience
   ))
   AND (@type = '' OR ci.resource_type = @type)
+  AND (@capability = '' OR EXISTS (
+    SELECT 1 FROM marketplace.marketplace_listing_version_tags lvt
+    JOIN marketplace.marketplace_taxonomy_tags t ON t.id = lvt.taxonomy_tag_id
+    WHERE lvt.listing_version_id = lv.id AND t.kind = 'capability' AND t.slug = @capability
+  ))
   AND (@integration = '' OR EXISTS (
     SELECT 1 FROM marketplace.marketplace_listing_version_tags lvt
     JOIN marketplace.marketplace_taxonomy_tags t ON t.id = lvt.taxonomy_tag_id

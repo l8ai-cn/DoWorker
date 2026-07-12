@@ -148,7 +148,7 @@ func TestListListingsPassesAllQueryParametersToStorefront(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		http.MethodGet,
-		"/api/marketplace/v1/markets/commerce-market/listings?q=delivery&scene=software-delivery&industry=enterprise-services&audience=delivery-engineer&type=application&integration=github&readiness=runner-required&space=software-delivery&sort=relevance&cursor="+cursor,
+		"/api/marketplace/v1/markets/commerce-market/listings?q=delivery&scene=software-delivery&industry=enterprise-services&audience=delivery-engineer&type=application&capability=code-review&integration=github&readiness=runner-required&space=software-delivery&sort=relevance&cursor="+cursor,
 		nil,
 	)
 	request.Host = "market.example.com"
@@ -157,7 +157,7 @@ func TestListListingsPassesAllQueryParametersToStorefront(t *testing.T) {
 	require.Equal(t, http.StatusOK, response.Code)
 	require.Equal(t, service.ListingQuery{
 		Q: "delivery", Scene: "software-delivery", Industry: "enterprise-services",
-		Audience: "delivery-engineer", Type: "application", Integration: "github",
+		Audience: "delivery-engineer", Type: "application", Capability: "code-review", Integration: "github",
 		Readiness: "runner-required", Space: "software-delivery", Sort: "relevance",
 		Cursor: &service.ListingCursor{
 			Sort: "relevance", PublishedAt: time.Date(2026, 7, 12, 8, 0, 0, 0, time.UTC), ListingID: 108,

@@ -103,6 +103,7 @@ func parseListingQuery(c *gin.Context) (service.ListingQuery, error) {
 		Industry:    strings.TrimSpace(c.Query("industry")),
 		Audience:    strings.TrimSpace(c.Query("audience")),
 		Type:        strings.TrimSpace(c.Query("type")),
+		Capability:  strings.TrimSpace(c.Query("capability")),
 		Integration: strings.TrimSpace(c.Query("integration")),
 		Readiness:   strings.TrimSpace(c.Query("readiness")),
 		Space:       strings.TrimSpace(c.Query("space")),
@@ -130,7 +131,7 @@ func validListingQueryValue(query service.ListingQuery) bool {
 		return false
 	}
 	for _, value := range []string{
-		query.Scene, query.Industry, query.Audience, query.Integration, query.Readiness, query.Space,
+		query.Scene, query.Industry, query.Audience, query.Capability, query.Integration, query.Readiness, query.Space,
 	} {
 		if value != "" && !isIdentifier(value) {
 			return false

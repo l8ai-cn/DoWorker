@@ -54,6 +54,7 @@ type ListingQuery struct {
 	Industry    string
 	Audience    string
 	Type        string
+	Capability  string
 	Integration string
 	Readiness   string
 	Space       string

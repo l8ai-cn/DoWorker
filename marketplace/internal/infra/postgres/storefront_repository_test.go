@@ -107,7 +107,8 @@ func TestStorefrontRepositoryFiltersTaxonomyTagsInPostgres(t *testing.T) {
 	repository := NewStorefrontRepository(db)
 	items, err := repository.ListPublishedListings(
 		service.WithListingQuery(context.Background(), service.ListingQuery{
-			Scene: "software-delivery", Industry: "enterprise-services", Sort: "featured",
+			Scene: "software-delivery", Industry: "enterprise-services",
+			Capability: "code-review", Sort: "featured",
 		}),
 		1,
 		20,
@@ -117,6 +118,7 @@ func TestStorefrontRepositoryFiltersTaxonomyTagsInPostgres(t *testing.T) {
 	require.Len(t, items, 1)
 	require.Equal(t, "public-app", items[0].Slug)
 	require.Equal(t, []service.TaxonomyTagView{
+		{Slug: "code-review", DisplayName: "代码评审", Kind: "capability"},
 		{Slug: "enterprise-services", DisplayName: "企业服务", Kind: "industry"},
 		{Slug: "software-delivery", DisplayName: "软件交付", Kind: "scene"},
 	}, items[0].Tags)
@@ -344,12 +346,14 @@ VALUES
   (81, 1, 'software-delivery', '软件交付', 'scene'),
   (82, 1, 'enterprise-services', '企业服务', 'industry'),
   (83, 1, 'course-building', '课程建设', 'scene'),
-  (84, 1, 'higher-education', '高等教育', 'industry');
+  (84, 1, 'higher-education', '高等教育', 'industry'),
+  (85, 1, 'code-review', '代码评审', 'capability');
 INSERT INTO marketplace.marketplace_listing_version_tags
   (marketplace_id, listing_id, listing_version_id, taxonomy_tag_id)
 VALUES
   (1, 61, 71, 81),
   (1, 61, 71, 82),
+  (1, 61, 71, 85),
   (1, 64, 74, 83),
   (1, 64, 74, 84);
 UPDATE marketplace.marketplace_listings
