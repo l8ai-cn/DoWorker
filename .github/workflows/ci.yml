@@ -493,6 +493,7 @@ jobs:
       - name: Bring up dev backend stack
         env:
           DEV_SKIP_DOAGENT: "1"
+          DEV_E2E_RUNNERS_ONLY: "1"
         run: |
           ./deploy/dev/dev.sh --backend-only
           sleep 15
@@ -538,6 +539,7 @@ jobs:
       - name: Bring up dev backend stack
         env:
           DEV_SKIP_DOAGENT: "1"
+          DEV_E2E_RUNNERS_ONLY: "1"
         run: |
           ./deploy/dev/dev.sh --backend-only
           sleep 20
