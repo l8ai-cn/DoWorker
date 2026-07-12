@@ -13,9 +13,15 @@
 7. 执行桌面与真机 smoke。
 8. 检查日志、指标和错误率。
 9. 保留版本化回滚配置。
+10. 运行 `deploy/kubernetes/cluster-oilan/verify-mobile-worker-access.sh`。
 
 协议发布顺序必须保证新 Backend 不向旧 Runner 发送其无法理解的必需命令。
 不允许手工修改线上数据库或临时注入 Preview 配置。
+
+发布 smoke 必须先验证移动入口 HTTPS、认证、Codex `["acp","pty"]` 声明、
+`requires_model_resource=true` 和唯一默认模型资源。测试组织中以
+`MOBILE_SMOKE_RUN_INTERACTIONS=true` 运行时，还必须创建并清理 ACP/PTY
+临时会话，验证 ACP 回复、PTY Relay token 和 ACP Relay 拒绝。
 
 ## 2. 灰度
 
