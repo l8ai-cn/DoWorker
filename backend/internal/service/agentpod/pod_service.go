@@ -94,6 +94,7 @@ func (s *PodService) CreatePod(ctx context.Context, req *CreatePodRequest) (*age
 
 	pod := &agentpod.Pod{
 		OrganizationID:       req.OrganizationID,
+		ClusterID:            req.ClusterID,
 		PodKey:               podKey,
 		RunnerID:             req.RunnerID,
 		AgentSlug:            req.AgentSlug,

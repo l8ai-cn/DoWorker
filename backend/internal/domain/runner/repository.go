@@ -42,6 +42,7 @@ type RunnerRepository interface {
 
 	GetOrgSlug(ctx context.Context, orgID int64) (string, error)
 	CountLoopsByRunner(ctx context.Context, runnerID int64) (int64, error)
+	EnsureLocalClusterID(ctx context.Context, orgID int64) (int64, error)
 
 	CreateCertificate(ctx context.Context, cert *Certificate) error
 	GetCertificateBySerial(ctx context.Context, serial string) (*Certificate, error)
@@ -49,7 +50,7 @@ type RunnerRepository interface {
 
 	CreatePendingAuth(ctx context.Context, pa *PendingAuth) error
 	GetPendingAuthByKey(ctx context.Context, authKey string) (*PendingAuth, error)
-	ClaimPendingAuth(ctx context.Context, id int64, orgID int64) (int64, error)
+	ClaimPendingAuth(ctx context.Context, id, orgID, clusterID int64) (int64, error)
 	UpdatePendingAuthRunnerID(ctx context.Context, id int64, runnerID int64) error
 	DeleteClaimedPendingAuth(ctx context.Context, id int64) (int64, error)
 	CleanupExpiredPendingAuths(ctx context.Context) error

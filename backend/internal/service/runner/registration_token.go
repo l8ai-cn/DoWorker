@@ -33,10 +33,15 @@ func (s *Service) GenerateGRPCRegistrationToken(ctx context.Context, orgID, user
 	}
 
 	expiresAt := time.Now().Add(time.Duration(expiresIn) * time.Second)
+	clusterID, err := s.repo.EnsureLocalClusterID(ctx, orgID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to ensure local execution cluster: %w", err)
+	}
 
 	regToken := &runner.GRPCRegistrationToken{
 		TokenHash:      tokenHash,
 		OrganizationID: orgID,
+		ClusterID:      clusterID,
 		SingleUse:      req.SingleUse,
 		MaxUses:        maxUses,
 		ExpiresAt:      expiresAt,
@@ -120,6 +125,7 @@ func (s *Service) RegisterWithToken(ctx context.Context, req *RegisterWithTokenR
 
 	r := &runner.Runner{
 		OrganizationID:     regToken.OrganizationID,
+		ClusterID:          regToken.ClusterID,
 		NodeID:             nodeID,
 		Status:             runner.RunnerStatusOffline,
 		MaxConcurrentPods:  5,

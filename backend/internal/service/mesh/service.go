@@ -8,9 +8,9 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/mesh"
+	podService "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	bindingService "github.com/anthropics/agentsmesh/backend/internal/service/binding"
 	channelService "github.com/anthropics/agentsmesh/backend/internal/service/channel"
-	podService "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 )
 
 var (
@@ -179,6 +179,21 @@ func (s *Service) getChannelMessageCount(ctx context.Context, channelID int64) i
 // CreatePodForTicket is the legacy ticket-pod entry — predates AgentFile SSOT,
 // Claude-only by historical convention. New code uses PodOrchestrator.
 func (s *Service) CreatePodForTicket(ctx context.Context, req *mesh.CreatePodForTicketRequest) (*agentpod.Pod, error) {
+	runners, err := s.repo.ListEnabledRunners(ctx, req.OrganizationID)
+	if err != nil {
+		return nil, err
+	}
+	var clusterID int64
+	for _, r := range runners {
+		if r.ID == req.RunnerID {
+			clusterID = r.ClusterID
+			break
+		}
+	}
+	if clusterID == 0 {
+		return nil, ErrRunnerNotFound
+	}
+
 	model := req.Model
 	if model == "" {
 		model = mesh.LegacyTicketPodModel
@@ -190,6 +205,7 @@ func (s *Service) CreatePodForTicket(ctx context.Context, req *mesh.CreatePodFor
 	return s.podService.CreatePodForTicket(ctx, &podService.CreatePodRequest{
 		OrganizationID: req.OrganizationID,
 		RunnerID:       req.RunnerID,
+		ClusterID:      clusterID,
 		AgentSlug:      mesh.LegacyTicketPodAgentSlug,
 		TicketID:       &req.TicketID,
 		CreatedByID:    req.CreatedByID,

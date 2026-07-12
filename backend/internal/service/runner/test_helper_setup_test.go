@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -52,6 +53,16 @@ func createTestOrg(t *testing.T, db *gorm.DB, slug string) *testOrg {
 		t.Fatalf("failed to get test org: %v", err)
 	}
 	return &org
+}
+
+func testLocalClusterID(t *testing.T, db *gorm.DB, orgID int64) int64 {
+	t.Helper()
+	repo := infra.NewRunnerRepository(db)
+	clusterID, err := repo.EnsureLocalClusterID(context.Background(), orgID)
+	if err != nil {
+		t.Fatalf("failed to ensure local execution cluster: %v", err)
+	}
+	return clusterID
 }
 
 // createTestCA creates a self-signed CA certificate for testing

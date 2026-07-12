@@ -18,6 +18,7 @@ func newPodServiceCreateRequest(
 	return &CreatePodRequest{
 		OrganizationID:       req.OrganizationID,
 		RunnerID:             req.RunnerID,
+		ClusterID:            req.clusterID,
 		AgentSlug:            req.AgentSlug,
 		RepositoryID:         repositoryID,
 		TicketID:             req.TicketID,

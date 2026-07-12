@@ -6,6 +6,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	meshDomain "github.com/anthropics/agentsmesh/backend/internal/domain/mesh"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	podService "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/testkit"
@@ -122,6 +123,13 @@ func TestCreatePodForTicket_DefaultsLegacyClaudeFields(t *testing.T) {
 	repo, db := setupTestRepo(t)
 	ps := podService.NewPodService(infra.NewPodRepository(db))
 	service := NewService(repo, ps, nil, nil)
+	require.NoError(t, db.Create(&runner.Runner{
+		ID:             1,
+		OrganizationID: 1,
+		ClusterID:      1,
+		NodeID:         "mesh-defaults-runner",
+		IsEnabled:      true,
+	}).Error)
 
 	ticketID := testkit.CreateTicket(t, db, 1, 1, "default-fields-test")
 
@@ -148,6 +156,13 @@ func TestCreatePodForTicket_PreservesExplicitFields(t *testing.T) {
 	repo, db := setupTestRepo(t)
 	ps := podService.NewPodService(infra.NewPodRepository(db))
 	service := NewService(repo, ps, nil, nil)
+	require.NoError(t, db.Create(&runner.Runner{
+		ID:             1,
+		OrganizationID: 1,
+		ClusterID:      1,
+		NodeID:         "mesh-explicit-runner",
+		IsEnabled:      true,
+	}).Error)
 
 	ticketID := testkit.CreateTicket(t, db, 1, 1, "explicit-fields-test")
 

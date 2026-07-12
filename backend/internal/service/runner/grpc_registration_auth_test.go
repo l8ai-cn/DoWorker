@@ -195,6 +195,8 @@ func TestAuthorizeRunner(t *testing.T) {
 		assert.True(t, updated.Authorized)
 		assert.NotNil(t, updated.RunnerID)
 		assert.NotNil(t, updated.OrganizationID)
+		assert.NotNil(t, updated.ClusterID)
+		assert.Equal(t, resp.ClusterID, *updated.ClusterID)
 	})
 
 	t.Run("returns error for non-existent auth key", func(t *testing.T) {

@@ -36,6 +36,7 @@ func (o *PodOrchestrator) handleResumeMode(ctx context.Context, req *Orchestrate
 	} else if sourcePod.RunnerID != req.RunnerID {
 		return nil, "", ErrResumeRunnerMismatch
 	}
+	req.clusterID = sourcePod.ClusterID
 
 	if req.AgentSlug != "" && req.AgentSlug != sourcePod.AgentSlug {
 		return nil, "", ErrResumeAgentMismatch

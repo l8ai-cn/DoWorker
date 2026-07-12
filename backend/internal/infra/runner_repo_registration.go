@@ -48,12 +48,13 @@ func (r *runnerRepository) GetPendingAuthByKey(ctx context.Context, authKey stri
 	return &pa, nil
 }
 
-func (r *runnerRepository) ClaimPendingAuth(ctx context.Context, id int64, orgID int64) (int64, error) {
+func (r *runnerRepository) ClaimPendingAuth(ctx context.Context, id, orgID, clusterID int64) (int64, error) {
 	result := r.db.WithContext(ctx).Model(&runner.PendingAuth{}).
 		Where("id = ? AND authorized = false AND expires_at > ?", id, time.Now()).
 		Updates(map[string]interface{}{
 			"authorized":      true,
 			"organization_id": orgID,
+			"cluster_id":      clusterID,
 		})
 	return result.RowsAffected, result.Error
 }
