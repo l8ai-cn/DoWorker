@@ -104,6 +104,17 @@ func (s *Service) OpenObject(ctx context.Context, key string) (io.ReadCloser, in
 	return s.storage.Download(ctx, key)
 }
 
+func (s *Service) GetInternalURL(ctx context.Context, key string, expiry time.Duration) (string, error) {
+	if s == nil || s.storage == nil {
+		return "", ErrStorageError
+	}
+	url, err := s.storage.GetInternalURL(ctx, key, expiry)
+	if err != nil {
+		return "", fmt.Errorf("%w: %v", ErrStorageError, err)
+	}
+	return url, nil
+}
+
 func (s *Service) generateStorageKey(orgID int64, fileName string) string {
 	ext := path.Ext(fileName)
 	if ext == "" {

@@ -13,11 +13,10 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { APP_NAME, APP_TAGLINE } from "../lib/app-brand";
+import { AuthBootstrapGate } from "../components/auth-bootstrap-gate";
 import { ThemeToggle } from "../components/theme-toggle";
 import { Toaster } from "../components/ui/sonner";
 import { SessionsListProvider } from "../lib/sessions-list-provider";
-
-
 
 function NotFoundComponent() {
   return (
@@ -127,16 +126,17 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SessionsListProvider>
-        <Outlet />
-      </SessionsListProvider>
-      {showThemeToggle && (
-        <div className="fixed right-3 top-3 z-50">
-          <ThemeToggle />
-        </div>
-      )}
-      <Toaster />
+      <AuthBootstrapGate>
+        <SessionsListProvider>
+          <Outlet />
+        </SessionsListProvider>
+        {showThemeToggle && (
+          <div className="fixed right-3 top-3 z-50">
+            <ThemeToggle />
+          </div>
+        )}
+        <Toaster />
+      </AuthBootstrapGate>
     </QueryClientProvider>
   );
 }
-

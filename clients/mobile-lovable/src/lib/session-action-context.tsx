@@ -1,7 +1,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 
 export interface SessionActions {
-  onSend?: (text: string) => Promise<void>;
+  onSend?: (text: string, files: File[]) => Promise<void>;
   onApprove?: (elicitationId: string, accept: boolean) => Promise<void>;
   onStop?: () => Promise<void>;
 }
