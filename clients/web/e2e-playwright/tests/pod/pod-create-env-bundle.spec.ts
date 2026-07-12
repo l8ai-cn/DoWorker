@@ -30,7 +30,7 @@ test.describe("Pod create — EnvBundle binding", () => {
   test("selected runtime bundle reaches the Runner child environment", async ({ api }) => {
     const cc = await api.connect();
     const runtimeName = `e2e-pod-runtime-${uniqueSuffix()}`;
-    const envKey = `E2E_POD_RUNTIME_${Date.now()}`;
+    const envKey = `E2E_TEST_POD_RUNTIME_${Date.now()}`;
     const envValue = `runtime-marker-${Date.now()}`;
     const runtime = await cc.envBundle.createEnvBundle({
       agentSlug: AGENT_SLUG,
@@ -56,7 +56,7 @@ test.describe("Pod create — EnvBundle binding", () => {
   test("unselected runtime bundle is not injected into the child environment", async ({ api }) => {
     const cc = await api.connect();
     const runtimeName = `e2e-pod-unselected-${uniqueSuffix()}`;
-    const envKey = `E2E_POD_UNSELECTED_${Date.now()}`;
+    const envKey = `E2E_TEST_POD_UNSELECTED_${Date.now()}`;
     const runtime = await cc.envBundle.createEnvBundle({
       agentSlug: AGENT_SLUG,
       name: runtimeName,
