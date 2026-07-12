@@ -7,10 +7,12 @@ import { APP_NAME, APP_TAGLINE, pageTitle } from "@/lib/app-brand";
 import { login } from "@/lib/auth-store";
 import { cn } from "@/lib/utils";
 
-const DEV_ACCOUNTS = [
-  { label: "开发用户", email: "dev@agentsmesh.local", password: "AdminAb123456" },
-  { label: "管理员", email: "admin@agentsmesh.local", password: "Ab123456" },
-] as const;
+const DEV_ACCOUNTS = import.meta.env.DEV
+  ? [
+      { label: "开发用户", email: "dev@agentsmesh.local", password: "AdminAb123456" },
+      { label: "管理员", email: "admin@agentsmesh.local", password: "Ab123456" },
+    ]
+  : [];
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>): { workerPodKey?: string } => ({
@@ -21,7 +23,10 @@ export const Route = createFileRoute("/login")({
         : undefined,
   }),
   head: () => ({
-    meta: [{ title: pageTitle("登录") }, { name: "description", content: `登录 ${APP_NAME}，连接 Codex / Claude Code 等 Agent。` }],
+    meta: [
+      { title: pageTitle("登录") },
+      { name: "description", content: `登录 ${APP_NAME}，连接 Codex / Claude Code 等 Agent。` },
+    ],
   }),
   component: LoginPage,
 });
@@ -29,8 +34,8 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const router = useRouter();
   const search = Route.useSearch();
-  const [username, setUsername] = useState("dev@agentsmesh.local");
-  const [password, setPassword] = useState("AdminAb123456");
+  const [username, setUsername] = useState(DEV_ACCOUNTS[0]?.email ?? "");
+  const [password, setPassword] = useState(DEV_ACCOUNTS[0]?.password ?? "");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -83,11 +88,15 @@ function LoginPage() {
             onSubmit={submit}
             className="rounded-2xl border border-border/70 bg-surface/80 p-5 shadow-xl backdrop-blur-xl ring-1 ring-white/5"
           >
-            <p className="mb-4 text-center text-[13px] font-medium text-foreground/90">登录你的账号</p>
+            <p className="mb-4 text-center text-[13px] font-medium text-foreground/90">
+              登录你的账号
+            </p>
 
             <div className="space-y-3.5">
               <label className="block space-y-1.5">
-                <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">邮箱</span>
+                <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  邮箱
+                </span>
                 <div className="relative">
                   <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
@@ -102,7 +111,9 @@ function LoginPage() {
               </label>
 
               <label className="block space-y-1.5">
-                <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">密码</span>
+                <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  密码
+                </span>
                 <div className="relative">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
@@ -150,26 +161,30 @@ function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 rounded-xl border border-dashed border-border/60 bg-surface/40 px-3 py-3">
-            <p className="text-center text-[10px] font-medium uppercase tracking-wider text-muted-foreground">本地开发账号</p>
-            <div className="mt-2 flex flex-wrap justify-center gap-2">
-              {DEV_ACCOUNTS.map((acct) => (
-                <button
-                  key={acct.email}
-                  type="button"
-                  disabled={busy}
-                  onClick={() => {
-                    setUsername(acct.email);
-                    setPassword(acct.password);
-                    setError(null);
-                  }}
-                  className="rounded-full bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground/80 ring-1 ring-border/50 transition hover:ring-primary/40 disabled:opacity-50"
-                >
-                  {acct.label}
-                </button>
-              ))}
+          {DEV_ACCOUNTS.length > 0 && (
+            <div className="mt-6 rounded-xl border border-dashed border-border/60 bg-surface/40 px-3 py-3">
+              <p className="text-center text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                本地开发账号
+              </p>
+              <div className="mt-2 flex flex-wrap justify-center gap-2">
+                {DEV_ACCOUNTS.map((acct) => (
+                  <button
+                    key={acct.email}
+                    type="button"
+                    disabled={busy}
+                    onClick={() => {
+                      setUsername(acct.email);
+                      setPassword(acct.password);
+                      setError(null);
+                    }}
+                    className="rounded-full bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground/80 ring-1 ring-border/50 transition hover:ring-primary/40 disabled:opacity-50"
+                  >
+                    {acct.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </MobileFrame>
