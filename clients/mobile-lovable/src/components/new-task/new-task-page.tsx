@@ -21,7 +21,12 @@ import { NewTaskHeader } from "./new-task-header";
 import { ProjectPicker } from "./project-picker";
 import { TaskPrompt } from "./task-prompt";
 import { TaskShortcuts } from "./task-shortcuts";
-import { findSelectedExpert, type NewTaskSearch, useNewTaskState } from "./use-new-task-state";
+import {
+  availableAcpExperts,
+  findSelectedExpert,
+  type NewTaskSearch,
+  useNewTaskState,
+} from "./use-new-task-state";
 import { WorkerPicker } from "./worker-picker";
 
 export function NewTaskPage({ search }: { search: NewTaskSearch }) {
@@ -46,7 +51,8 @@ export function NewTaskPage({ search }: { search: NewTaskSearch }) {
     availableAgents.loading,
     authed ? availableAgents.error : null,
   );
-  const expert = findSelectedExpert(liveExperts.items, form.expertSlug);
+  const experts = availableAcpExperts(liveExperts.items, availableAgents.agents);
+  const expert = findSelectedExpert(experts, form.expertSlug);
 
   async function submit() {
     if (form.submitting || !form.prompt.trim()) return;
@@ -84,8 +90,8 @@ export function NewTaskPage({ search }: { search: NewTaskSearch }) {
       }
 
       const text = form.prompt.trim();
-      if (form.expertSlug && form.interactionMode === "acp") {
-        const dispatched = await dispatchExpertBySlug(form.expertSlug, text);
+      if (expert && form.interactionMode === "acp") {
+        const dispatched = await dispatchExpertBySlug(expert.slug, text);
         if (dispatched) {
           if (dispatched.kind === "session") {
             if (form.projectName.trim())
@@ -135,7 +141,7 @@ export function NewTaskPage({ search }: { search: NewTaskSearch }) {
             open={form.enginePickerOpen}
             selectedID={form.engineID}
             onOpenChange={form.setEnginePickerOpen}
-            onSelect={form.setEngineID}
+            onSelect={form.selectWorker}
           />
           <InteractionModeSelector
             mode={form.interactionMode}
@@ -146,12 +152,16 @@ export function NewTaskPage({ search }: { search: NewTaskSearch }) {
           <ExpertPicker
             authenticated={authed}
             disabled={form.asGoal || form.interactionMode === "pty"}
-            experts={authed ? liveExperts.items : []}
+            experts={authed ? experts : []}
             current={expert}
             open={form.expertPickerOpen}
             selectedSlug={form.expertSlug}
             onOpenChange={form.setExpertPickerOpen}
-            onSelect={form.setExpertSlug}
+            onSelect={(slug) => {
+              form.setExpertSlug(slug);
+              const selected = findSelectedExpert(experts, slug);
+              if (selected) form.setEngineID(selected.agent_slug);
+            }}
           />
           <ProjectPicker
             names={projectNames}

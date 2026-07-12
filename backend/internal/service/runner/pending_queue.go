@@ -8,8 +8,8 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	"google.golang.org/protobuf/proto"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 const (
@@ -59,6 +59,28 @@ func (q *PendingCommandQueue) SetConnectionChecker(c ConnectionChecker) {
 
 func (q *PendingCommandQueue) Enabled() bool {
 	return q.enabled
+}
+
+func (q *PendingCommandQueue) SendPromptTTL() time.Duration {
+	ttl := q.defaultTTL
+	if ttl <= 0 {
+		ttl = minQueueTTL
+	}
+	if ttl < minQueueTTL {
+		return minQueueTTL
+	}
+	if ttl > maxQueueTTL {
+		return maxQueueTTL
+	}
+	return ttl
+}
+
+func (q *PendingCommandQueue) MaxPerRunner() int {
+	return q.maxPerRunner
+}
+
+func (q *PendingCommandQueue) TriggerDrain(runnerID int64) {
+	q.maybeDrain(runnerID)
 }
 
 func (q *PendingCommandQueue) EnqueueCreatePod(
@@ -128,7 +150,7 @@ func (q *PendingCommandQueue) enqueue(
 		return time.Time{}, ErrRunnerNotConnected
 	}
 	if ttl <= 0 {
-		ttl = q.defaultTTL
+		ttl = q.SendPromptTTL()
 	}
 	if ttl < minQueueTTL {
 		ttl = minQueueTTL
@@ -158,10 +180,10 @@ func (q *PendingCommandQueue) enqueue(
 	}
 	pos, _ := q.repo.PositionByPodKey(ctx, runnerID, podKey)
 	publishQueueEvent(q.eventBus, q.logger, eventbus.EventPodQueued, orgID, podKey, map[string]interface{}{
-		"pod_key":         podKey,
-		"runner_id":       runnerID,
-		"queue_position":  pos,
-		"expires_at":      expiresAt.UTC().Format(time.RFC3339),
+		"pod_key":        podKey,
+		"runner_id":      runnerID,
+		"queue_position": pos,
+		"expires_at":     expiresAt.UTC().Format(time.RFC3339),
 	})
 	return expiresAt, nil
 }

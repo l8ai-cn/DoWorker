@@ -1,6 +1,8 @@
 package sessionapi
 
 import (
+	"context"
+
 	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
@@ -14,12 +16,17 @@ import (
 	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	commentsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessioncomment"
 	sessionfilesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionfile"
+	sessionmessagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionmessage"
 	permgrantsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionpermission"
 	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
 	tokenquotasvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenquota"
 	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
 	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
 )
+
+type sessionPromptOutbox interface {
+	PersistAndQueue(context.Context, sessionmessagesvc.PromptInput) error
+}
 
 type Deps struct {
 	JWTSecret          string
@@ -45,6 +52,7 @@ type Deps struct {
 	ReadState          *ReadStateStore
 	SandboxFs          *runnerservice.SandboxFsService
 	SessionFiles       *sessionfilesvc.Service
+	MessageOutbox      sessionPromptOutbox
 	SessionComments    *commentsvc.Service
 	SessionPermissions *permgrantsvc.Service
 	Grants             *grantservice.Service

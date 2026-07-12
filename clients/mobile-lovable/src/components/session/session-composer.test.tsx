@@ -17,6 +17,8 @@ describe("SessionComposer", () => {
     fireEvent.change(input as HTMLInputElement, { target: { files: [file] } });
     fireEvent.click(screen.getByLabelText("发送"));
 
-    await waitFor(() => expect(onSend).toHaveBeenCalledWith("", [file]));
+    await waitFor(() =>
+      expect(onSend).toHaveBeenCalledWith("", [expect.objectContaining({ file })]),
+    );
   });
 });

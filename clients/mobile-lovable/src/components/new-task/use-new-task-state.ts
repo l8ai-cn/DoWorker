@@ -52,6 +52,11 @@ export function useNewTaskState({
     setSelectedEngineID(id);
   }
 
+  function selectWorker(id: string) {
+    setSelectedEngineID(id);
+    setExpertSlug(undefined);
+  }
+
   function setAsGoal(value: boolean) {
     setGoalEnabled(value);
     if (value) {
@@ -88,6 +93,7 @@ export function useNewTaskState({
   return {
     engineID,
     setEngineID,
+    selectWorker,
     enginePickerOpen,
     setEnginePickerOpen,
     expertSlug,
@@ -122,6 +128,13 @@ export function useNewTaskState({
 
 export function findSelectedExpert(experts: LiveExpert[], slug: string | undefined) {
   return experts.find((expert) => expert.slug === slug);
+}
+
+export function availableAcpExperts(experts: LiveExpert[], engines: AgentPickerOption[]) {
+  return experts.filter((expert) => {
+    const worker = engines.find((engine) => engine.id === expert.agent_slug);
+    return expert.interaction_mode === "acp" && worker?.supportedModes.includes("acp");
+  });
 }
 
 export function resolveTaskInteractionMode(
