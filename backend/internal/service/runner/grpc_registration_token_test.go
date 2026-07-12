@@ -44,6 +44,7 @@ func TestGenerateGRPCRegistrationToken(t *testing.T) {
 		err = db.Where("token_hash = ?", tokenHash).First(&token).Error
 		require.NoError(t, err)
 		assert.Equal(t, token.ID, resp.ID, "response ID must match persisted record")
+		assert.Equal(t, localClusterID(t, db, org.ID), token.ClusterID)
 	})
 
 	t.Run("generates single-use token explicitly", func(t *testing.T) {
@@ -101,6 +102,7 @@ func TestRegisterWithToken(t *testing.T) {
 		grpcToken := &runner.GRPCRegistrationToken{
 			TokenHash:      tokenHash,
 			OrganizationID: org.ID,
+			ClusterID:      localClusterID(t, db, org.ID),
 			SingleUse:      true,
 			MaxUses:        1,
 			ExpiresAt:      time.Now().Add(-1 * time.Hour),
@@ -128,6 +130,7 @@ func TestRegisterWithToken(t *testing.T) {
 		grpcToken := &runner.GRPCRegistrationToken{
 			TokenHash:      tokenHash,
 			OrganizationID: org.ID,
+			ClusterID:      localClusterID(t, db, org.ID),
 			SingleUse:      true,
 			MaxUses:        1,
 			ExpiresAt:      time.Now().Add(1 * time.Hour),
@@ -150,6 +153,7 @@ func TestRegisterWithToken(t *testing.T) {
 		var r runner.Runner
 		require.NoError(t, db.First(&r, resp.RunnerID).Error)
 		assert.Equal(t, "my-successful-runner", r.NodeID)
+		assert.Equal(t, grpcToken.ClusterID, r.ClusterID)
 
 		// Verify token was incremented
 		var updatedToken runner.GRPCRegistrationToken
@@ -170,6 +174,7 @@ func TestRegisterWithToken(t *testing.T) {
 		grpcToken := &runner.GRPCRegistrationToken{
 			TokenHash:      tokenHash,
 			OrganizationID: org.ID,
+			ClusterID:      localClusterID(t, db, org.ID),
 			SingleUse:      true,
 			MaxUses:        1,
 			ExpiresAt:      time.Now().Add(1 * time.Hour),
@@ -199,6 +204,7 @@ func TestRegisterWithToken(t *testing.T) {
 		grpcToken := &runner.GRPCRegistrationToken{
 			TokenHash:      tokenHash,
 			OrganizationID: org.ID,
+			ClusterID:      localClusterID(t, db, org.ID),
 			SingleUse:      true,
 			MaxUses:        1,
 			UsedCount:      1, // Already used

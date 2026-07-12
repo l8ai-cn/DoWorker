@@ -14,6 +14,8 @@ data:
     DECLARE
         v_admin_id BIGINT;
         v_org_id BIGINT;
+        v_local_cluster_id BIGINT;
+        v_online_cluster_id BIGINT;
     BEGIN
         INSERT INTO users (email, username, name, password_hash, is_active, is_email_verified, is_system_admin)
         SELECT 'admin@agentsmesh.local', 'admin', 'System Admin',
@@ -32,6 +34,20 @@ data:
             SELECT id INTO v_org_id FROM organizations WHERE slug = 'dev-org';
         END IF;
 
+        INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
+        VALUES
+            (v_org_id, 'local', 'Local cluster', 'local', 'pending'),
+            (v_org_id, 'online', 'Online cluster', 'online', 'pending')
+        ON CONFLICT (organization_id, slug) DO NOTHING;
+
+        SELECT id INTO v_local_cluster_id
+        FROM execution_clusters
+        WHERE organization_id = v_org_id AND slug = 'local';
+
+        SELECT id INTO v_online_cluster_id
+        FROM execution_clusters
+        WHERE organization_id = v_org_id AND slug = 'online';
+
         INSERT INTO organization_members (organization_id, user_id, role)
         SELECT v_org_id, v_admin_id, 'owner'
         WHERE NOT EXISTS (SELECT 1 FROM organization_members WHERE organization_id = v_org_id AND user_id = v_admin_id);
@@ -45,13 +61,13 @@ data:
         SELECT v_org_id, 2, 'active', 'monthly', NOW(), NOW() + INTERVAL '30 days', TRUE, 10
         WHERE NOT EXISTS (SELECT 1 FROM subscriptions WHERE organization_id = v_org_id);
 
-        INSERT INTO runner_grpc_registration_tokens (organization_id, token_hash, description, created_by_id, is_active, max_uses)
-        SELECT v_org_id, 'cee9d12fb9fefdfafe98d97f5c8a247e071a0e6778089dee7cf2be571ee606d2',
+        INSERT INTO runner_grpc_registration_tokens (organization_id, cluster_id, token_hash, description, created_by_id, is_active, max_uses)
+        SELECT v_org_id, v_local_cluster_id, 'cee9d12fb9fefdfafe98d97f5c8a247e071a0e6778089dee7cf2be571ee606d2',
                'Cluster Runner Token', v_admin_id, TRUE, NULL
         WHERE NOT EXISTS (SELECT 1 FROM runner_grpc_registration_tokens WHERE organization_id = v_org_id AND description = 'Cluster Runner Token');
 
-        INSERT INTO runners (organization_id, node_id, description, status, max_concurrent_pods)
-        SELECT v_org_id, r.node_id, r.description, 'offline', 10
+        INSERT INTO runners (organization_id, cluster_id, node_id, description, status, max_concurrent_pods)
+        SELECT v_org_id, v_online_cluster_id, r.node_id, r.description, 'offline', 10
         FROM (VALUES
             ('dev-runner', 'K8s Runner (e2e-echo)'),
             ('dev-runner-claude', 'K8s Runner (Claude Code)'),
@@ -67,8 +83,8 @@ data:
         -- Pre-register the node_ids the coordinator K8sLauncher generates
         -- (COORDINATOR_RUNNER_NODE_ID_PREFIX + runnerInstanceID(org,agent)), so
         -- dynamically-launched runner pods pass mTLS validateRunner on first connect.
-        INSERT INTO runners (organization_id, node_id, description, status, max_concurrent_pods)
-        SELECT v_org_id,
+        INSERT INTO runners (organization_id, cluster_id, node_id, description, status, max_concurrent_pods)
+        SELECT v_org_id, v_online_cluster_id,
                'coord-runner-amesh-runner-' || v_org_id || '-' || a.agent,
                'Coordinator dynamic runner (' || a.agent || ')', 'offline', 10
         FROM (VALUES ('claude-code'), ('codex-cli'), ('gemini-cli'), ('e2e-echo'), ('minimax-cli'), ('grok-build'), ('openclaw'), ('hermes')) AS a(agent)

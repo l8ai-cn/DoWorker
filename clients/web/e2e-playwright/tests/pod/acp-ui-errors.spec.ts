@@ -42,7 +42,7 @@ test.describe("ACP UI: error and degradation paths", () => {
 
   test("fail_after_1s does not leave the UI wedged in a processing state", async ({ page, api, monitor }) => {
     const ctx = await setupAcpScenarioPage(page, api, monitor, {
-      mode: "acp", scenario: "fail_after_1s", prompt: "crash test",
+      mode: "acp", scenario: "fail_after_1s", prompt: "crash test", waitForRelay: false,
     });
 
     // The agent emits one content chunk and then os.Exit(1)s after 1s. We

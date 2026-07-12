@@ -240,11 +240,13 @@ show_result() {
     echo "  Admin:      http://localhost:$WEB_ADMIN_PORT"
     echo "  web-user:   http://localhost:${WEB_USER_PORT:-10020}"
     echo "  API:        http://localhost:$HTTP_PORT/api  (→ host backend :$BACKEND_HTTP_PORT)"
+    echo "  Marketplace:http://localhost:$HTTP_PORT/api/marketplace  (→ host :$MARKETPLACE_HTTP_PORT)"
     echo "  Relay:      ws://localhost:$HTTP_PORT/relay  (→ host relay :$RELAY_HTTP_PORT)"
     echo "  gRPC mTLS:  grpcs://localhost:$GRPC_PORT      (→ host backend :$BACKEND_GRPC_PORT)"
     echo ""
     echo "  Host services (ibazel hot-reload):"
     echo "    backend  日志: tail -f deploy/dev/runtime/backend/backend.log"
+    echo "    market   日志: tail -f deploy/dev/runtime/marketplace/marketplace.log"
     echo "    relay    日志: tail -f deploy/dev/runtime/relay/relay.log"
     echo ""
     if runners_k8s_enabled; then

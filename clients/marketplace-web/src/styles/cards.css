@@ -1,0 +1,121 @@
+.listing-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  min-height: 346px;
+  padding: 22px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.listing-card-topline,
+.publisher-line,
+.verified,
+.card-link {
+  align-items: center;
+  display: flex;
+}
+
+.listing-card-topline {
+  gap: 10px;
+}
+
+.listing-icon {
+  align-items: center;
+  background: var(--teal-soft);
+  border-radius: 9px;
+  color: var(--teal);
+  display: inline-flex;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+}
+
+.type-skill {
+  background: var(--surface-muted);
+  color: var(--teal);
+}
+
+.type-mcp_connector {
+  background: var(--surface-muted);
+  color: var(--teal);
+}
+
+.type-resource {
+  background: var(--surface-muted);
+  color: var(--teal);
+}
+
+.type-label {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.listing-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 0 18px;
+}
+
+.listing-card h3 {
+  font-size: 21px;
+  letter-spacing: -0.02em;
+  margin: 0 0 9px;
+}
+
+.listing-card p {
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.publisher-line {
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  font-size: 13px;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.verified {
+  color: var(--teal);
+  gap: 4px;
+}
+
+.listing-card-meta {
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding-top: 15px;
+}
+
+.listing-card-meta span,
+.detail-badges span,
+.listing-tags span {
+  background: var(--surface-muted);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 5px 8px;
+}
+
+.listing-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.card-link {
+  color: var(--teal);
+  font-size: 13px;
+  font-weight: 700;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 18px;
+}

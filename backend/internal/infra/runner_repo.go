@@ -63,7 +63,12 @@ func (r *runnerRepository) ExistsByNodeIDAndOrg(ctx context.Context, orgID int64
 }
 
 func (r *runnerRepository) Create(ctx context.Context, rn *runner.Runner) error {
-	return r.db.WithContext(ctx).Create(rn).Error
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := validateRunnerCluster(tx, rn); err != nil {
+			return err
+		}
+		return tx.Create(rn).Error
+	})
 }
 
 func (r *runnerRepository) UpdateFields(ctx context.Context, runnerID int64, updates map[string]interface{}) error {

@@ -38,6 +38,7 @@ func TestPodRepositoryCreatesWorkerSpecSnapshotAtomically(t *testing.T) {
 	var stored agentpod.Pod
 	require.NoError(t, db.First(&stored, pod.ID).Error)
 	assert.Equal(t, pod.WorkerSpecSnapshotID, stored.WorkerSpecSnapshotID)
+	assert.Equal(t, int64(700), stored.ClusterID)
 }
 
 func TestPodRepositoryRollsBackSnapshotWhenConfigRevisionFails(t *testing.T) {

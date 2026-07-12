@@ -53,11 +53,15 @@ func (c *ACPClient) sessionRequiredForPrompt() bool {
 // RespondToPermission approves or denies a permission request.
 // updatedInput is optional; when non-nil, it replaces the tool's original input (for AskUserQuestion).
 func (c *ACPClient) RespondToPermission(requestID string, approved bool, updatedInput map[string]any) error {
-	if err := c.transport.RespondToPermission(requestID, approved, updatedInput); err != nil {
-		return fmt.Errorf("write permission response: %w", err)
-	}
-	if c.State() == StateWaitingPermission {
+	wasWaiting := c.State() == StateWaitingPermission
+	if wasWaiting {
 		c.setState(StateProcessing)
+	}
+	if err := c.transport.RespondToPermission(requestID, approved, updatedInput); err != nil {
+		if wasWaiting && c.State() == StateProcessing {
+			c.setState(StateWaitingPermission)
+		}
+		return fmt.Errorf("write permission response: %w", err)
 	}
 	return nil
 }

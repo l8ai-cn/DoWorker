@@ -7,7 +7,6 @@ import (
 
 func TestGetOAuthURL(t *testing.T) {
 	cfg := &Config{
-		JWTSecret:     "test-secret",
 		JWTExpiration: time.Hour,
 		Issuer:        "test-issuer",
 		OAuthProviders: map[string]OAuthConfig{
@@ -110,7 +109,6 @@ func TestOAuthURLHelpers(t *testing.T) {
 
 func TestGetOAuthURLDefault(t *testing.T) {
 	cfg := &Config{
-		JWTSecret:     "test-secret",
 		JWTExpiration: time.Hour,
 		Issuer:        "test-issuer",
 		OAuthProviders: map[string]OAuthConfig{

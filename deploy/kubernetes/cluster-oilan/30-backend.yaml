@@ -26,6 +26,15 @@ spec:
       imagePullSecrets:
         - name: agentsmesh-regcred
       initContainers:
+        - name: migrate
+          image: repo.aiedulab.cn:8443/agentsmesh/backend:latest
+          imagePullPolicy: Always
+          command: ["/app/server", "migrate", "up"]
+          envFrom:
+            - configMapRef:
+                name: agentsmesh-config
+            - secretRef:
+                name: agentsmesh-secrets
         - name: kubectl-install
           image: repo.aiedulab.cn:8443/agentsmesh/kubectl:1.28
           imagePullPolicy: Always
@@ -76,6 +85,9 @@ spec:
             - name: pki-ca
               mountPath: /app/ssl
               readOnly: true
+            - name: access-token
+              mountPath: /app/access-token
+              readOnly: true
             - name: kube-tools
               mountPath: /kube-tools
               readOnly: true
@@ -103,6 +115,9 @@ spec:
         - name: pki-ca
           secret:
             secretName: agentsmesh-pki-ca
+        - name: access-token
+          secret:
+            secretName: agentsmesh-access-token
         - name: kube-tools
           emptyDir: {}
         - name: data

@@ -105,11 +105,13 @@ func TestFindByBranchAndRepo_DifferentOrgs(t *testing.T) {
 	// Create pods with same branch/repo on different orgs
 	orgIDs := []int64{1, 2, 3}
 	podsByOrg := make(map[int64]int64)
+	seedTestRunner(t, db, 2, 2)
+	seedTestRunner(t, db, 3, 3)
 
 	for _, orgID := range orgIDs {
 		req := &CreatePodRequest{
 			OrganizationID: orgID,
-			RunnerID:       1,
+			RunnerID:       orgID,
 			CreatedByID:    1,
 			RepositoryID:   intPtr(repoID),
 			BranchName:     strPtr(branchName),

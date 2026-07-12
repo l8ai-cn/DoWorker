@@ -43,6 +43,7 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 func allTableDDLs() []string {
 	var ddls []string
 	ddls = append(ddls, coreTableDDLs()...)
+	ddls = append(ddls, executionClusterTableDDLs()...)
 	ddls = append(ddls, runnerTableDDLs()...)
 	ddls = append(ddls, podTableDDLs()...)
 	ddls = append(ddls, channelTableDDLs()...)

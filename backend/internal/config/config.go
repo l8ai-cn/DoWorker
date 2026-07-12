@@ -10,6 +10,7 @@ type Config struct {
 	Database      DatabaseConfig
 	Redis         RedisConfig
 	JWT           JWTConfig
+	AccessToken   AccessTokenConfig
 	OAuth         OAuthConfig
 	Webhook       WebhookConfig
 	Log           LogConfig
@@ -69,8 +70,17 @@ func Load() (*Config, error) {
 		},
 
 		JWT: JWTConfig{
-			Secret:          getEnv("JWT_SECRET", "change-me-in-production"),
-			ExpirationHours: getEnvInt("JWT_EXPIRATION_HOURS", 24),
+			Secret: getEnv("JWT_SECRET", "change-me-in-production"),
+		},
+
+		AccessToken: AccessTokenConfig{
+			PrivateKeyFile:  getEnv("ACCESS_TOKEN_PRIVATE_KEY_FILE", ""),
+			PublicKeyFile:   getEnv("ACCESS_TOKEN_PUBLIC_KEY_FILE", ""),
+			KeyID:           getEnv("ACCESS_TOKEN_KEY_ID", ""),
+			Issuer:          getEnv("ACCESS_TOKEN_ISSUER", "agentsmesh"),
+			Audiences:       getEnvList("ACCESS_TOKEN_AUDIENCES", []string{"agentsmesh-api", "marketplace-api"}),
+			CoreAudience:    getEnv("ACCESS_TOKEN_CORE_AUDIENCE", "agentsmesh-api"),
+			ExpirationHours: getEnvInt("ACCESS_TOKEN_EXPIRATION_HOURS", 24),
 		},
 
 		OAuth: OAuthConfig{

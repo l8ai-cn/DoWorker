@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marketplace
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: marketplace
+  template:
+    metadata:
+      labels:
+        app: marketplace
+    spec:
+      imagePullSecrets:
+        - name: agentsmesh-regcred
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      initContainers:
+        - name: migrate
+          image: repo.aiedulab.cn:8443/agentsmesh/marketplace:latest
+          imagePullPolicy: Always
+          args: ["migrate"]
+          env:
+            - name: MARKETPLACE_MIGRATION_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: agentsmesh-secrets
+                  key: MARKETPLACE_MIGRATION_DATABASE_URL
+      containers:
+        - name: marketplace
+          image: repo.aiedulab.cn:8443/agentsmesh/marketplace:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: agentsmesh-config
+            - secretRef:
+                name: agentsmesh-secrets
+          env:
+            - name: GIN_MODE
+              value: release
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: marketplace
+  namespace: agentsmesh
+spec:
+  selector:
+    app: marketplace
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http

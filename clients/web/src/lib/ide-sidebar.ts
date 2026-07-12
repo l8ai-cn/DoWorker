@@ -11,6 +11,7 @@ const ACTIVITIES_WITH_SIDEBAR = new Set<ActivityType>([
   "infra",
   "repositories",
   "runners",
+  "marketplace",
   "skills",
   "settings",
 ]);

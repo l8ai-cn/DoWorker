@@ -15,11 +15,11 @@ func TestRegisterWithUserService(t *testing.T) {
 	ctx := context.Background()
 
 	cfg := &Config{
-		JWTSecret:         "test-secret-key-at-least-32-bytes",
 		JWTExpiration:     time.Hour,
 		RefreshExpiration: time.Hour * 24 * 7,
 		Issuer:            "test-issuer",
 	}
+	configureTestAccessTokens(t, cfg)
 
 	svc := NewService(cfg, userSvc)
 
@@ -100,11 +100,11 @@ func TestRegisterErrors(t *testing.T) {
 	ctx := context.Background()
 
 	cfg := &Config{
-		JWTSecret:         "test-secret-key-at-least-32-bytes",
 		JWTExpiration:     time.Hour,
 		RefreshExpiration: time.Hour * 24 * 7,
 		Issuer:            "test-issuer",
 	}
+	configureTestAccessTokens(t, cfg)
 	svc := NewService(cfg, userSvc)
 
 	t.Run("registration without name", func(t *testing.T) {

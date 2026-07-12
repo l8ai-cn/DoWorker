@@ -11,102 +11,79 @@ import (
 	"github.com/anthropics/agentsmesh/tests/mcp-e2e/fixture"
 )
 
-// Loops are agent-driven repeatable tasks. The dev seed doesn't include any,
-// so these specs seed via REST then exercise the agent surface (list_loops,
-// trigger_loop) and verify a real loop_run row materialises in the DB.
-
-func TestLoop_ListShowsSeededLoop(t *testing.T) {
+func TestGoalLoop_ListShowsCreatedLoop(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	snapshotID := fixture.NewGoalLoopSnapshot(t, env)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	loopName := fmt.Sprintf("e2e-loop-list-%d", time.Now().UnixMilli())
-	loop, err := rest.CreateLoop(ctx, env.DevOrgSlug, client.CreateLoopRequest{
-		Name:           loopName,
-		AgentSlug:      "e2e-echo",
-		PromptTemplate: "do something",
-		RunnerID:       &runner.ID,
+	name := fmt.Sprintf("e2e-goal-loop-list-%d", time.Now().UnixMilli())
+	loop, err := rest.CreateGoalLoop(ctx, env.DevOrgSlug, client.CreateGoalLoopRequest{
+		Name:                 name,
+		WorkerSpecSnapshotID: snapshotID,
+		Objective:            "Create a valid goal loop.",
+		AcceptanceCriteria:   []string{"The loop is visible in its organization."},
+		VerificationCommand:  "true",
 	})
 	if err != nil {
-		t.Fatalf("create loop via REST: %v", err)
+		t.Fatalf("create goal loop: %v", err)
+	}
+	if loop.Status != "draft" {
+		t.Fatalf("created goal loop status = %q, want draft", loop.Status)
 	}
 
-	out, err := pod.MCP.CallToolText(ctx, "list_loops", map[string]any{
-		"query": loopName,
-		"limit": 10,
-	})
+	page, err := rest.ListGoalLoops(ctx, env.DevOrgSlug, name, 10, 0)
 	if err != nil {
-		t.Fatalf("list_loops: %v", err)
+		t.Fatalf("list goal loops: %v", err)
 	}
-	if !strings.Contains(out, loopName) && !strings.Contains(out, loop.Slug) {
-		t.Errorf("seeded loop %q (slug=%s) not surfaced by list_loops:\n%s",
-			loopName, loop.Slug, out)
+	for _, item := range page.Items {
+		if item.ID == loop.ID && item.Slug == loop.Slug {
+			return
+		}
 	}
+	t.Fatalf("created goal loop %q was absent from filtered list: %+v", loop.Slug, page.Items)
 }
 
-func TestLoop_TriggerCreatesRun(t *testing.T) {
+func TestGoalLoop_StartFailureIsPersisted(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	snapshotID := fixture.NewGoalLoopSnapshot(t, env)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	loopName := fmt.Sprintf("e2e-loop-trigger-%d", time.Now().UnixMilli())
-	loop, err := rest.CreateLoop(ctx, env.DevOrgSlug, client.CreateLoopRequest{
-		Name:           loopName,
-		AgentSlug:      "e2e-echo",
-		PromptTemplate: "{{.task}}",
-		RunnerID:       &runner.ID,
+	loop, err := rest.CreateGoalLoop(ctx, env.DevOrgSlug, client.CreateGoalLoopRequest{
+		Name:                 fmt.Sprintf("e2e-goal-loop-start-%d", time.Now().UnixMilli()),
+		WorkerSpecSnapshotID: snapshotID,
+		Objective:            "Verify failed launch is retained.",
+		AcceptanceCriteria:   []string{"A failed launch is observable."},
+		VerificationCommand:  "true",
 	})
 	if err != nil {
-		t.Fatalf("create loop: %v", err)
+		t.Fatalf("create goal loop: %v", err)
 	}
-	if err := rest.EnableLoop(ctx, env.DevOrgSlug, loop.Slug); err != nil {
-		t.Fatalf("enable loop %s: %v", loop.Slug, err)
+	if _, err := rest.StartGoalLoop(ctx, env.DevOrgSlug, loop.Slug); err == nil {
+		t.Fatal("start goal loop unexpectedly succeeded without a configured model resource")
 	}
 
 	db, err := client.OpenDB(env.PostgresDSN)
 	if err != nil {
-		t.Fatalf("open db: %v", err)
+		t.Fatalf("open database: %v", err)
 	}
 	t.Cleanup(func() { _ = db.Close() })
 
-	var beforeRuns int
+	var status, launchError string
 	if err := db.QueryRow(ctx,
-		`SELECT count(*) FROM loop_runs WHERE loop_id = $1`, loop.ID,
-	).Scan(&beforeRuns); err != nil {
-		t.Fatalf("count loop_runs before: %v", err)
+		`SELECT status, COALESCE(verification_error, '') FROM goal_loops WHERE id = $1`, loop.ID,
+	).Scan(&status, &launchError); err != nil {
+		t.Fatalf("load failed goal loop: %v", err)
 	}
-
-	if _, err := pod.MCP.CallToolText(ctx, "trigger_loop", map[string]any{
-		"loop_slug": loop.Slug,
-		"variables": map[string]any{"task": "ping"},
-	}); err != nil {
-		t.Fatalf("trigger_loop %s: %v", loop.Slug, err)
+	if status != "failed" {
+		t.Fatalf("goal loop status = %q, want failed", status)
 	}
-
-	// Trigger creates a row in loop_runs synchronously, but the actual pod
-	// spawn is async. We only need the run row to land.
-	deadline := time.Now().Add(5 * time.Second)
-	for time.Now().Before(deadline) {
-		var after int
-		if err := db.QueryRow(ctx,
-			`SELECT count(*) FROM loop_runs WHERE loop_id = $1`, loop.ID,
-		).Scan(&after); err != nil {
-			t.Fatalf("count loop_runs after: %v", err)
-		}
-		if after > beforeRuns {
-			return // success
-		}
-		time.Sleep(200 * time.Millisecond)
+	if strings.TrimSpace(launchError) == "" {
+		t.Fatal("failed goal loop did not retain its launch error")
 	}
-	var final int
-	_ = db.QueryRow(ctx, `SELECT count(*) FROM loop_runs WHERE loop_id = $1`, loop.ID).Scan(&final)
-	t.Fatalf("trigger_loop did not produce a loop_run row within 5s (before=%d final=%d)", beforeRuns, final)
 }

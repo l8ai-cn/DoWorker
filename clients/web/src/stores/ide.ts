@@ -15,6 +15,7 @@ export type ActivityType =
   | "knowledge"
   | "blocks"
   | "infra"
+  | "marketplace"
   | "skills"
   | "repositories"
   | "runners"
@@ -188,6 +189,13 @@ export const ACTIVITIES: ActivityConfig[] = [
     id: "infra",
     label: "Infra",
     icon: "layers",
+    group: "ops",
+    mobileVisible: false,
+  },
+  {
+    id: "marketplace",
+    label: "Marketplace",
+    icon: "store",
     group: "ops",
     mobileVisible: false,
   },

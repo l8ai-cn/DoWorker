@@ -61,9 +61,12 @@ test.describe("Runner UI Dialogs", () => {
   test("delete button shows confirmation dialog", async ({ page, db }) => {
     // Create disposable runner for delete test
     db.setup(`
-      INSERT INTO runners (organization_id, node_id, description, status, max_concurrent_pods, is_enabled)
-      SELECT id, 'ui-delete-test', 'UI Delete Test', 'offline', 5, true
-      FROM organizations WHERE slug = '${TEST_ORG_SLUG}'
+      INSERT INTO runners (organization_id, cluster_id, node_id, description, status, max_concurrent_pods, is_enabled)
+      SELECT organization.id, cluster.id, 'ui-delete-test', 'UI Delete Test', 'offline', 5, true
+      FROM organizations AS organization
+      JOIN execution_clusters AS cluster
+        ON cluster.organization_id = organization.id AND cluster.slug = 'online'
+      WHERE organization.slug = '${TEST_ORG_SLUG}'
       ON CONFLICT (organization_id, node_id) DO NOTHING
     `);
     await page.reload();

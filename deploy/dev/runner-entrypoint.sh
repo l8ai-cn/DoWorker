@@ -12,6 +12,7 @@ MAX_CONCURRENT_PODS="${MAX_CONCURRENT_PODS:-10}"
 SSL_DIR="${SSL_DIR:-/app/ssl}"
 AGENT_RUNTIME="${AGENT_RUNTIME:-e2e-echo}"
 DEFAULT_AGENT="${DEFAULT_AGENT:-${AGENT_RUNTIME}}"
+RUNNER_SSH_SOURCE_DIR="${RUNNER_SSH_SOURCE_DIR:-/run/runner-ssh-source}"
 
 CONFIG_DIR="${HOME}/.do-worker"
 if [[ -d "${HOME}/.agentsmesh" && -w "${HOME}/.agentsmesh" ]]; then
@@ -199,6 +200,20 @@ EOF
     fi
 }
 
+init_runner_ssh() {
+    [[ -d "$RUNNER_SSH_SOURCE_DIR" ]] || return 0
+
+    local ssh_dir="${HOME}/.ssh"
+    sudo rm -rf "$ssh_dir"
+    sudo install -d -m 700 -o runner -g runner "$ssh_dir"
+    sudo install -m 600 -o runner -g runner "$RUNNER_SSH_SOURCE_DIR/id_ed25519" "$ssh_dir/id_ed25519"
+    sudo install -m 600 -o runner -g runner "$RUNNER_SSH_SOURCE_DIR/config" "$ssh_dir/config"
+
+    if [[ -f "$RUNNER_SSH_SOURCE_DIR/known_hosts" ]]; then
+        sudo install -m 644 -o runner -g runner "$RUNNER_SSH_SOURCE_DIR/known_hosts" "$ssh_dir/known_hosts"
+    fi
+}
+
 create_config() {
     mkdir -p "$CONFIG_DIR"
     cat > "$CONFIG_FILE" << EOF
@@ -224,6 +239,7 @@ EOF
 main() {
     wait_for_backend
     generate_runner_cert
+    init_runner_ssh
     init_ai_cli_configs
     create_config
     echo "启动 Runner (bazel-built binary)..."

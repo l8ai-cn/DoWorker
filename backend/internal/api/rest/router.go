@@ -85,6 +85,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		},
 	}
 	r.Use(cors.New(corsConfig))
+	registerJWKSRoute(r, svc.Auth.AccessTokenManager())
 
 	// Health check — session API deps wired below.
 	r.GET("/health/ready", func(c *gin.Context) {
@@ -152,7 +153,10 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 
 		// Protected routes (auth required)
 		protected := apiV1.Group("")
-		protected.Use(middleware.AuthMiddleware(cfg.JWT.Secret))
+		protected.Use(middleware.AuthMiddleware(
+			svc.Auth.AccessTokenManager(),
+			svc.Auth.AccessTokenAudience(),
+		))
 		{
 			// User-level routes (no tenant context required).
 			// /me + /me/organizations migrated to proto.user.v1.UserService
@@ -207,9 +211,17 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 			InternalSecret: cfg.Server.InternalAPISecret,
 		})
 	}
+	if svc.Expert != nil && svc.Org != nil {
+		internal.RegisterMarketplaceInstallationRoutes(
+			r.Group("/api/internal/marketplace/installations"),
+			internal.MarketplaceInstallationDeps{
+				Installer: svc.Expert, Authorizer: svc.Org,
+				InternalSecret: cfg.Server.InternalAPISecret,
+			},
+		)
+	}
 
 	sessionDeps := sessionapi.Deps{
-		JWTSecret:          cfg.JWT.Secret,
 		Auth:               svc.Auth,
 		User:               svc.User,
 		Org:                svc.Org,

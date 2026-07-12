@@ -13,6 +13,7 @@ DO $$
 DECLARE
     v_admin_id BIGINT;
     v_org_id BIGINT;
+    v_local_cluster_id BIGINT;
     v_token_id BIGINT;
 BEGIN
     -- =========================================================================
@@ -49,6 +50,16 @@ BEGIN
 
     RAISE NOTICE 'Organization ID: %', v_org_id;
 
+    INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
+    VALUES
+        (v_org_id, 'local', 'Local cluster', 'local', 'pending'),
+        (v_org_id, 'online', 'Online cluster', 'online', 'pending')
+    ON CONFLICT (organization_id, slug) DO NOTHING;
+
+    SELECT id INTO v_local_cluster_id
+    FROM execution_clusters
+    WHERE organization_id = v_org_id AND slug = 'local';
+
     -- =========================================================================
     -- 3. Add Admin as Organization Owner
     -- =========================================================================
@@ -82,9 +93,10 @@ BEGIN
     -- Token: selfhost-runner-token (bcrypt hash, cost=10)
 
     INSERT INTO runner_grpc_registration_tokens (
-        organization_id, token_hash, description, created_by_id, is_active, max_uses
+        organization_id, cluster_id, token_hash, description, created_by_id, is_active, max_uses
     )
     SELECT v_org_id,
+           v_local_cluster_id,
            '$2a$10$l2GZ7jRNQQHFXixCYoGB6eSMHGBMqf9mVwaq36ty5YVBxdBsSyGAq',
            'Self-Hosted Runner Registration Token',
            v_admin_id,

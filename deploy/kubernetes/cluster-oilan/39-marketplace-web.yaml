@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marketplace-web
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: marketplace-web
+  template:
+    metadata:
+      labels:
+        app: marketplace-web
+    spec:
+      imagePullSecrets:
+        - name: agentsmesh-regcred
+      containers:
+        - name: marketplace-web
+          image: repo.aiedulab.cn:8443/agentsmesh/marketplace-web:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: MARKETPLACE_API_INTERNAL_URL
+              value: "http://marketplace:8080"
+            - name: MARKETPLACE_REQUEST_HOST
+              value: "market.l8ai.cn"
+            - name: CORE_WEB_URL
+              value: "https://dowork.l8ai.cn"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: marketplace-web
+  namespace: agentsmesh
+spec:
+  selector:
+    app: marketplace-web
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http

@@ -48,6 +48,10 @@ start_backend_host() {
     start_backend_host_lite
 }
 
+start_marketplace_host() {
+    start_marketplace_host_lite
+}
+
 start_relay_host() {
     start_relay_host_lite
 }
@@ -56,7 +60,7 @@ stop_host_services() {
     local rt_root
     rt_root="$(_runtime_dir)"
     [[ -d "$rt_root" ]] || return 0
-    for svc in backend relay; do
+    for svc in backend marketplace relay; do
         local pgid_file="$rt_root/$svc/$svc.pgid"
         local pid_file="$rt_root/$svc/$svc.pid"
         if [[ -f "$pgid_file" ]]; then

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/config"
@@ -10,18 +11,36 @@ import (
 	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
 	ssoservice "github.com/anthropics/agentsmesh/backend/internal/service/sso"
 	"github.com/anthropics/agentsmesh/backend/internal/service/user"
+	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
 	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
-func initializeIdentityServices(cfg *config.Config, db *gorm.DB, redisClient *redis.Client, encryptor *crypto.Encryptor) *serviceContainer {
+func initializeIdentityServices(
+	cfg *config.Config,
+	db *gorm.DB,
+	redisClient *redis.Client,
+	encryptor *crypto.Encryptor,
+) (*serviceContainer, error) {
 	userSvc := user.NewServiceWithEncryption(infra.NewUserRepository(db), cfg.JWT.Secret)
+	accessTokens, err := authpkg.LoadAccessTokenManager(authpkg.AccessTokenFileConfig{
+		PrivateKeyFile: cfg.AccessToken.PrivateKeyFile,
+		PublicKeyFile:  cfg.AccessToken.PublicKeyFile,
+		KeyID:          cfg.AccessToken.KeyID,
+		Issuer:         cfg.AccessToken.Issuer,
+		Audiences:      cfg.AccessToken.Audiences,
+		Duration:       time.Duration(cfg.AccessToken.ExpirationHours) * time.Hour,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("initialize access tokens: %w", err)
+	}
 	authCfg := &auth.Config{
-		JWTSecret:         cfg.JWT.Secret,
-		JWTExpiration:     time.Duration(cfg.JWT.ExpirationHours) * time.Hour,
-		RefreshExpiration: time.Duration(cfg.JWT.ExpirationHours*7) * time.Hour,
-		Issuer:            "agentsmesh",
+		JWTExpiration:       time.Duration(cfg.AccessToken.ExpirationHours) * time.Hour,
+		RefreshExpiration:   time.Duration(cfg.AccessToken.ExpirationHours*7) * time.Hour,
+		Issuer:              cfg.AccessToken.Issuer,
+		AccessTokens:        accessTokens,
+		AccessTokenAudience: cfg.AccessToken.CoreAudience,
 	}
 	authSvc := auth.NewServiceWithRedis(authCfg, userSvc, redisClient)
 	ssoSvc := ssoservice.NewServiceWithRedis(infra.NewSSOConfigRepository(db), cfg.JWT.Secret, cfg, redisClient)
@@ -38,5 +57,5 @@ func initializeIdentityServices(cfg *config.Config, db *gorm.DB, redisClient *re
 		agentSvc:   agentSvc,
 		envBundle:  envBundleSvc,
 		userConfig: userConfigSvc,
-	}
+	}, nil
 }

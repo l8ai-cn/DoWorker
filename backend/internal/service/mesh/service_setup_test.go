@@ -16,6 +16,9 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 func setupTestRepo(t *testing.T) (mesh.MeshRepository, *gorm.DB) {
 	db := setupTestDB(t)
+	ownerID := testkit.CreateUser(t, db, "mesh-owner@example.com", "mesh-owner")
+	orgID := testkit.CreateOrg(t, db, "mesh-org", ownerID)
+	testkit.CreateRunner(t, db, orgID, "mesh-runner")
 	repo := infra.NewMeshRepository(db)
 	return repo, db
 }
@@ -33,8 +36,8 @@ func (ChannelPod) TableName() string {
 
 // ChannelAccess for testing
 type ChannelAccess struct {
-	ID        int64   `gorm:"primaryKey"`
-	ChannelID int64   `gorm:"not null"`
+	ID        int64 `gorm:"primaryKey"`
+	ChannelID int64 `gorm:"not null"`
 	PodKey    *string
 	UserID    *int64
 }

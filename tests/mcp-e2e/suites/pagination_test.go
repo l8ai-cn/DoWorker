@@ -77,51 +77,46 @@ func TestSearchTickets_PaginationPageSkipsRows(t *testing.T) {
 	}
 }
 
-// TestListLoops_OffsetSkipsRows mirrors the ticket pagination spec for the
-// loop list: offset=0 vs offset=N must surface different rows when more
-// loops exist than the page can hold.
-func TestListLoops_OffsetSkipsRows(t *testing.T) {
+func TestGoalLoops_OffsetSkipsRows(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	snapshotID := fixture.NewGoalLoopSnapshot(t, env)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	tag := fmt.Sprintf("e2e-loop-off-%d", time.Now().UnixMilli())
+	tag := fmt.Sprintf("e2e-goal-loop-off-%d", time.Now().UnixMilli())
 	const seedN = 4
 	for i := 0; i < seedN; i++ {
-		runnerID := runner.ID
-		if _, err := rest.CreateLoop(ctx, env.DevOrgSlug, client.CreateLoopRequest{
-			Name:           fmt.Sprintf("%s-%d", tag, i),
-			AgentSlug:      "e2e-echo",
-			PromptTemplate: "do",
-			RunnerID:       &runnerID,
+		if _, err := rest.CreateGoalLoop(ctx, env.DevOrgSlug, client.CreateGoalLoopRequest{
+			Name:                 fmt.Sprintf("%s-%d", tag, i),
+			WorkerSpecSnapshotID: snapshotID,
+			Objective:            "Verify goal loop pagination.",
+			AcceptanceCriteria:   []string{"The loop can be paginated."},
+			VerificationCommand:  "true",
 		}); err != nil {
-			t.Fatalf("seed loop %d: %v", i, err)
+			t.Fatalf("seed goal loop %d: %v", i, err)
 		}
+		time.Sleep(time.Millisecond)
 	}
 
-	page1, err := pod.MCP.CallToolText(ctx, "list_loops", map[string]any{
-		"query":  tag,
-		"limit":  2,
-		"offset": 0,
-	})
+	page1, err := rest.ListGoalLoops(ctx, env.DevOrgSlug, tag, 2, 0)
 	if err != nil {
-		t.Fatalf("list_loops offset=0: %v", err)
+		t.Fatalf("list goal loops offset=0: %v", err)
 	}
-	page2, err := pod.MCP.CallToolText(ctx, "list_loops", map[string]any{
-		"query":  tag,
-		"limit":  2,
-		"offset": 2,
-	})
+	page2, err := rest.ListGoalLoops(ctx, env.DevOrgSlug, tag, 2, 2)
 	if err != nil {
-		t.Fatalf("list_loops offset=2: %v", err)
+		t.Fatalf("list goal loops offset=2: %v", err)
 	}
-	// At minimum offset must change something — full equality means broken.
-	if page1 == page2 {
-		t.Errorf("list_loops offset=0 and offset=2 returned identical output:\n%s", page1)
+	if len(page1.Items) != 2 || len(page2.Items) != 2 {
+		t.Fatalf("unexpected page sizes: first=%d second=%d", len(page1.Items), len(page2.Items))
+	}
+	for _, first := range page1.Items {
+		for _, second := range page2.Items {
+			if first.ID == second.ID {
+				t.Fatalf("pagination overlap for goal loop id %d", first.ID)
+			}
+		}
 	}
 }
 

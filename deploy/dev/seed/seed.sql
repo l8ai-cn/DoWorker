@@ -20,6 +20,8 @@ DECLARE
     v_user2_id BIGINT;
     v_admin_id BIGINT;
     v_org_id BIGINT;
+    v_local_cluster_id BIGINT;
+    v_online_cluster_id BIGINT;
     v_token_id BIGINT;
     v_runner_id BIGINT;
 BEGIN
@@ -79,6 +81,20 @@ BEGIN
     END IF;
 
     RAISE NOTICE 'Organization ID: %', v_org_id;
+
+    INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
+    VALUES
+        (v_org_id, 'local', 'Local cluster', 'local', 'pending'),
+        (v_org_id, 'online', 'Online cluster', 'online', 'pending')
+    ON CONFLICT (organization_id, slug) DO NOTHING;
+
+    SELECT id INTO v_local_cluster_id
+    FROM execution_clusters
+    WHERE organization_id = v_org_id AND slug = 'local';
+
+    SELECT id INTO v_online_cluster_id
+    FROM execution_clusters
+    WHERE organization_id = v_org_id AND slug = 'online';
 
     -- =========================================================================
     -- 2.1 创建第二个测试用户（同组织成员，用于多用户测试）
@@ -165,9 +181,10 @@ BEGIN
     -- echo -n 'dev-runner-token' | shasum -a 256
 
     INSERT INTO runner_grpc_registration_tokens (
-        organization_id, token_hash, description, created_by_id, is_active, max_uses
+        organization_id, cluster_id, token_hash, description, created_by_id, is_active, max_uses
     )
     SELECT v_org_id,
+           v_local_cluster_id,
            'cee9d12fb9fefdfafe98d97f5c8a247e071a0e6778089dee7cf2be571ee606d2',
            'Development Runner Token',
            v_user_id,
@@ -188,10 +205,11 @@ BEGIN
     -- cert_serial_number 在 runner 首次连接时由 backend 自动填充
 
     INSERT INTO runners (
-        organization_id, node_id, description,
+        organization_id, cluster_id, node_id, description,
         status, max_concurrent_pods
     )
     SELECT v_org_id,
+           v_online_cluster_id,
            'dev-runner',
            'Development Docker Runner',
            'offline',
@@ -214,10 +232,11 @@ BEGIN
     -- carries CN=dev-runner-2; backend matches that against this row to
     -- attach the gRPC stream.
     INSERT INTO runners (
-        organization_id, node_id, description,
+        organization_id, cluster_id, node_id, description,
         status, max_concurrent_pods
     )
     SELECT v_org_id,
+           v_online_cluster_id,
            'dev-runner-2',
            'Development Docker Runner (cross-runner e2e)',
            'offline',
@@ -228,10 +247,11 @@ BEGIN
     );
 
     INSERT INTO runners (
-        organization_id, node_id, description,
+        organization_id, cluster_id, node_id, description,
         status, max_concurrent_pods
     )
     SELECT v_org_id,
+           v_online_cluster_id,
            r.node_id,
            r.description,
            'offline',
@@ -255,16 +275,25 @@ BEGIN
     );
 
     -- admin-workspace: system-admin personal org (may not exist on first seed run)
+    INSERT INTO execution_clusters (organization_id, slug, name, kind, status)
+    SELECT id, 'online', 'Online cluster', 'online', 'pending'
+    FROM organizations
+    WHERE slug = 'admin-workspace'
+    ON CONFLICT (organization_id, slug) DO NOTHING;
+
     INSERT INTO runners (
-        organization_id, node_id, description,
+        organization_id, cluster_id, node_id, description,
         status, max_concurrent_pods
     )
     SELECT o.id,
+           c.id,
            'admin-workspace-runner',
            'Development Docker Runner (admin-workspace)',
            'offline',
            10
     FROM organizations o
+    JOIN execution_clusters c
+      ON c.organization_id = o.id AND c.slug = 'online'
     WHERE o.slug = 'admin-workspace'
       AND NOT EXISTS (
         SELECT 1 FROM runners
@@ -272,15 +301,18 @@ BEGIN
     );
 
     INSERT INTO runners (
-        organization_id, node_id, description,
+        organization_id, cluster_id, node_id, description,
         status, max_concurrent_pods
     )
     SELECT o.id,
+           c.id,
            'admin-workspace-do-agent',
            'Development Docker Runner (DoAgent, admin-workspace)',
            'offline',
            10
     FROM organizations o
+    JOIN execution_clusters c
+      ON c.organization_id = o.id AND c.slug = 'online'
     WHERE o.slug = 'admin-workspace'
       AND NOT EXISTS (
         SELECT 1 FROM runners
@@ -544,18 +576,5 @@ BEGIN
     RAISE NOTICE '  - Channel: dev-discussion (with sample messages)';
 
     END; -- inner DECLARE block
-
-    -- =========================================================================
-    -- 10. 创建示例 Loop（Loops 列表 + desktop e2e 渲染断言）
-    -- =========================================================================
-    INSERT INTO loops (organization_id, name, slug, prompt_template, created_by_id)
-    SELECT v_org_id, 'Nightly Dependency Audit', 'nightly-dependency-audit',
-           'Audit project dependencies for known vulnerabilities and open a ticket per finding.',
-           v_user_id
-    WHERE NOT EXISTS (
-        SELECT 1 FROM loops WHERE organization_id = v_org_id AND slug = 'nightly-dependency-audit'
-    );
-
-    RAISE NOTICE '  - Loop: nightly-dependency-audit';
 
 END $$;

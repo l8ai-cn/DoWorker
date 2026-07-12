@@ -50,7 +50,7 @@ RUN case "${AGENT_RUNTIME}" in \
       hermes) \
         apt-get update \
         && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip \
-        && npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" \
+        && PIP_BREAK_SYSTEM_PACKAGES=1 npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" \
         && rm -rf /var/lib/apt/lists/* ;; \
       aider) \
         apt-get update \

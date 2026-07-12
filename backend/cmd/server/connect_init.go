@@ -49,10 +49,13 @@ import (
 //	}
 //
 // Callers in wrapWithConnect wire it as `Mount(mux, srv, defaults...)`.
-func defaultConnectHandlerOptions(cfg *config.Config) []connect.HandlerOption {
+func defaultConnectHandlerOptions(svc *serviceContainer) []connect.HandlerOption {
 	return []connect.HandlerOption{
 		connect.WithInterceptors(
-			interceptors.NewAuthInterceptor(cfg.JWT.Secret),
+			interceptors.NewAuthInterceptor(
+				svc.auth.AccessTokenManager(),
+				svc.auth.AccessTokenAudience(),
+			),
 		),
 	}
 }
@@ -68,7 +71,7 @@ func defaultConnectHandlerOptions(cfg *config.Config) []connect.HandlerOption {
 // alongside `svc` so Connect handlers can share the same wiring.
 func wrapWithConnect(cfg *config.Config, svc *serviceContainer, rest *v1.Services, restHandler http.Handler) http.Handler {
 	connectMux := http.NewServeMux()
-	opts := defaultConnectHandlerOptions(cfg)
+	opts := defaultConnectHandlerOptions(svc)
 
 	mountConnectServices(connectMux, svc, rest, cfg, opts)
 

@@ -11,7 +11,6 @@ import (
 
 func TestHandleOAuthCallback(t *testing.T) {
 	cfg := &Config{
-		JWTSecret:     "test-secret",
 		JWTExpiration: time.Hour,
 		Issuer:        "test-issuer",
 		OAuthProviders: map[string]OAuthConfig{
@@ -71,7 +70,6 @@ func TestHandleOAuthCallbackWithUserService(t *testing.T) {
 	userSvc := userService.NewService(infra.NewUserRepository(db))
 
 	cfg := &Config{
-		JWTSecret:         "test-secret-key-at-least-32-bytes",
 		JWTExpiration:     time.Hour,
 		RefreshExpiration: time.Hour * 24 * 7,
 		Issuer:            "test-issuer",

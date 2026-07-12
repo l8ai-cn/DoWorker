@@ -43,7 +43,16 @@ func (c RedisConfig) IsConfigured() bool {
 }
 
 type JWTConfig struct {
-	Secret          string
+	Secret string
+}
+
+type AccessTokenConfig struct {
+	PrivateKeyFile  string
+	PublicKeyFile   string
+	KeyID           string
+	Issuer          string
+	Audiences       []string
+	CoreAudience    string
 	ExpirationHours int
 }
 

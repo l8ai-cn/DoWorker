@@ -9,6 +9,11 @@ describe("resolveActivityFromPathname", () => {
     expect(resolveActivityFromPathname("/admin-workspace/api-access")).toBe("apiAccess");
     expect(resolveActivityFromPathname("/dev-org/workspace")).toBe("workspace");
   });
+
+  it("treats the organization marketplace as a first-class activity", () => {
+    expect(resolveActivityFromPathname("/dev-org/marketplace")).toBe("marketplace");
+    expect(resolveActivityFromPathname("/dev-org/marketplace/acquire")).toBe("marketplace");
+  });
 });
 
 describe("pathnameHidesIdeSidebar", () => {

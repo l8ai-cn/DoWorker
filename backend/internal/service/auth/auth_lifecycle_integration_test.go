@@ -11,7 +11,6 @@ import (
 	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
 	"github.com/anthropics/agentsmesh/backend/internal/testkit"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -33,11 +32,11 @@ func newTestAuthService(t *testing.T) (*Service, *userService.Service) {
 	t.Cleanup(func() { redisClient.Close() })
 
 	cfg := &Config{
-		JWTSecret:         "test-secret-key-at-least-32-bytes!!",
 		JWTExpiration:     time.Hour,
 		RefreshExpiration: 24 * time.Hour,
 		Issuer:            "test-issuer",
 	}
+	configureTestAccessTokens(t, cfg)
 
 	authSvc := NewServiceWithRedis(cfg, userSvc, redisClient)
 	return authSvc, userSvc
@@ -158,24 +157,15 @@ func TestAuth_ValidateTokenExpired(t *testing.T) {
 	userSvc := userService.NewService(infra.NewUserRepository(db))
 
 	cfg := &Config{
-		JWTSecret:         "test-secret-key-at-least-32-bytes!!",
-		JWTExpiration:     -1 * time.Second, // already expired
+		JWTExpiration:     time.Hour,
 		RefreshExpiration: 24 * time.Hour,
 		Issuer:            "test-issuer",
 	}
+	fixture := configureTestAccessTokens(t, cfg)
 	authSvc := NewService(cfg, userSvc)
 
-	// Create a user and generate a token that is already expired
-	ctx := context.Background()
-	u, err := userSvc.Create(ctx, &userService.CreateRequest{
-		Email: "exp@example.com", Username: "exp", Password: "p",
-	})
-	require.NoError(t, err)
-
-	pair, err := authSvc.GenerateTokenPair(u, 0, "")
-	require.NoError(t, err)
-
-	_, err = authSvc.ValidateToken(pair.AccessToken)
+	token := signExpiredTestAccessToken(t, fixture, 1)
+	_, err := authSvc.ValidateToken(token)
 	assert.ErrorIs(t, err, ErrTokenExpired)
 }
 
@@ -198,11 +188,11 @@ func TestAuth_ValidateTokenWrongSecret(t *testing.T) {
 
 	// Create a second service with a different secret
 	cfg2 := &Config{
-		JWTSecret:         "completely-different-secret-key!!!!",
 		JWTExpiration:     time.Hour,
 		RefreshExpiration: 24 * time.Hour,
 		Issuer:            "test-issuer",
 	}
+	configureTestAccessTokens(t, cfg2)
 	otherSvc := NewService(cfg2, userSvc)
 
 	_, err = otherSvc.ValidateToken(pair.AccessToken)
@@ -219,13 +209,9 @@ func TestAuth_TokenClaimsRoundTrip(t *testing.T) {
 	pair, err := authSvc.GenerateTokenPairWithContext(ctx, u, 7, "member")
 	require.NoError(t, err)
 
-	// Manually parse to verify registered claims
-	token, err := jwt.ParseWithClaims(pair.AccessToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("test-secret-key-at-least-32-bytes!!"), nil
-	})
+	claims, err := authSvc.ValidateToken(pair.AccessToken)
 	require.NoError(t, err)
 
-	claims := token.Claims.(*Claims)
 	assert.Equal(t, u.Email, claims.Subject)
 	assert.Equal(t, "test-issuer", claims.Issuer)
 	assert.WithinDuration(t, time.Now().Add(time.Hour), claims.ExpiresAt.Time, 5*time.Second)

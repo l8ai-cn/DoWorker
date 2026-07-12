@@ -1,9 +1,8 @@
-import type { Page } from "@playwright/test";
 import { execSync } from "node:child_process";
 import { TEST_ORG_SLUG, getComposeProject } from "./env";
 import { pollUntil } from "./retry";
-import { CreateWorkerPage } from "../pages/create-worker.page";
 import type { ApiFixture } from "../fixtures/api.fixture";
+import { pickE2EEchoRunner } from "./e2e-echo-runner";
 
 // Dev compose has TWO runner services (runner-1 + runner-2 — see
 // deploy/dev/docker-compose.yml). The pod scheduler picks one via
@@ -27,103 +26,60 @@ function listRunnerContainers(): string[] {
     return [];
   }
 }
-// PodService.CreatePod is org-scoped, lives on the Connect-RPC wire after R5.
-const CREATE_POD_RPC = "/proto.pod.v1.PodService/CreatePod";
-
 /**
- * Drive the Create Worker page end-to-end and return the new pod's key.
+ * Create an e2e-echo pod through the internal test-agent contract.
  *
- * Owns the boilerplate that's identical across EnvBundle e2e specs:
- *   - navigate to /workers/new
- *   - intercept the Connect-RPC CreatePod (binary proto, response carries
- *     pod_key in the typed envelope)
- *   - select image, apply runtime bundle selection, submit, wait for workspace
- *   - poll backend until pod status reaches "running"
- *
- * Throws if the RPC returns non-2xx so the caller doesn't have to check
- * an error-state flag.
+ * e2e-echo is intentionally excluded from the public WorkerSpec catalog, so
+ * browser worker creation cannot be used to validate Runner environment setup.
  */
 export async function createPodAndWaitRunning(args: {
-  page: Page;
   api: ApiFixture;
   agentSlug: string;
-  selectRuntimeBundleNames?: string[];
-  /**
-   * Optional escape hatch: run extra interactions against the modal after
-   * the default credential/runtime picks but before submit. Useful for
-   * exercising switch-paths (e.g. picking credential A then credential B).
-   */
-  customizeModal?: (worker: CreateWorkerPage) => Promise<void>;
-  /** Status-poll timeout (default 30s). */
+  runtimeBundleNames?: string[];
   statusTimeoutMs?: number;
 }): Promise<string> {
   const {
-    page,
     api,
     agentSlug,
-    selectRuntimeBundleNames,
-    customizeModal,
+    runtimeBundleNames = [],
     statusTimeoutMs = 30_000,
   } = args;
-
-  const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
-  await worker.goto();
-
-  // waitForResponse filters by URL+method so unrelated traffic doesn't
-  // burn the listener. The frontend issues a Connect-RPC binary POST
-  // against PodService.CreatePod — we wait on that path now.
-  const podCreatePromise = page.waitForResponse(
-    (r) => r.request().method() === "POST" && r.url().endsWith(CREATE_POD_RPC),
-    { timeout: 20_000 },
-  );
-
-  await worker.selectImage(agentSlug);
-  if (selectRuntimeBundleNames !== undefined) {
-    await worker.selectRuntimeBundles(selectRuntimeBundleNames);
-  }
-  await worker.selectPtyMode();
-  if (customizeModal) {
-    await customizeModal(worker);
-  }
-  await worker.submit();
-
-  const podRes = await podCreatePromise;
-  if (!podRes.ok()) {
-    const text = await podRes.text().catch(() => "");
-    throw new Error(`Pod create failed: HTTP ${podRes.status()}: ${text}`);
-  }
-
-  await worker.waitForWorkspace(15_000);
-
-  // The binary Connect response is awkward to decode here, so we resolve
-  // the freshly-created pod by polling the org's most-recent running pod
-  // via the typed Connect client. The previous pod was terminated by the
-  // spec's `terminateAllPods` so the first running pod we see is ours.
   const cc = await api.connect();
-  let createdPodKey: string | undefined;
+  const { items: runners } = await cc.runner.listAvailableRunners({
+    orgSlug: TEST_ORG_SLUG,
+  }) as { items?: Array<{ id: bigint; nodeId?: string }> };
+  const created = await cc.pod.createPod({
+    orgSlug: TEST_ORG_SLUG,
+    runnerId: pickE2EEchoRunner(runners).id,
+    agentSlug,
+    agentfileLayer: runtimeBundleLayer(runtimeBundleNames),
+    automationLevel: "interactive",
+  }) as { pod?: { podKey?: string } };
+  const podKey = created.pod?.podKey;
+  if (!podKey) {
+    throw new Error(`createPod missing podKey: ${JSON.stringify(created)}`);
+  }
+
   await pollUntil(
     async () => {
-      const { items } = (await cc.pod.listPods({
+      const pod = await cc.pod.getPod({
         orgSlug: TEST_ORG_SLUG,
-      })) as { items: Array<{ podKey?: string; status?: string }> };
-      const fresh = items?.find((p) => p.status === "running" && p.podKey);
-      if (fresh?.podKey) {
-        createdPodKey = fresh.podKey;
-        return true;
-      }
-      return false;
+        podKey,
+      }) as { status?: string };
+      return pod.status === "running";
     },
     {
       maxAttempts: Math.ceil(statusTimeoutMs / 1000),
-      intervalMs: 1000,
-      label: "pod-running-key",
+      intervalMs: 1_000,
+      label: `pod-${podKey}-running`,
     },
   );
+  return podKey;
+}
 
-  if (!createdPodKey) {
-    throw new Error("pollUntil resolved without capturing a pod key");
-  }
-  return createdPodKey;
+function runtimeBundleLayer(names: string[]): string {
+  // e2e-echo writes the child-environment dump only through its PTY launch path.
+  return ["MODE pty", ...names.map((name) => `USE_ENV_BUNDLE ${JSON.stringify(name)}`), ""].join("\n");
 }
 
 /**

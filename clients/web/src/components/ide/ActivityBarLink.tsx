@@ -14,6 +14,7 @@ import {
   Server,
   Settings,
   Sparkles,
+  Store,
   Terminal,
   Target,
   Ticket,
@@ -46,6 +47,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   settings: Settings,
   layers: Layers,
   sparkles: Sparkles,
+  store: Store,
 };
 
 interface ActivityBarLinkProps {

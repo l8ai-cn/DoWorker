@@ -3,6 +3,7 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { createMockAgentPod, workspaceUrlForPod } from "../../helpers/mock-agent";
+import { takeWorkerControl } from "../../helpers/acp-spec-setup";
 
 // End-to-end coverage of the terminal DATA PLANE after the relay-SSOT
 // migration: browser xterm ↔ relayConnection adapter ↔ WasmRelayManager ↔
@@ -43,6 +44,7 @@ test.describe("Terminal data-plane round-trip (relay SSOT)", () => {
 
     await page.goto(workspaceUrlForPod(pod.podKey));
     await page.waitForLoadState("load");
+    await takeWorkerControl(page);
 
     // xterm uses the DOM renderer (fit/weblinks/search addons only — no
     // webgl/canvas), so rendered rows are queryable text. Wait for the

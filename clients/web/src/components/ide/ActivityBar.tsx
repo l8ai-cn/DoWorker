@@ -67,6 +67,8 @@ export function ActivityBar({ className }: ActivityBarProps) {
         return `/${orgSlug}/repositories`;
       case "runners":
         return `/${orgSlug}/runners`;
+      case "marketplace":
+        return `/${orgSlug}/marketplace`;
       case "skills":
         return `/${orgSlug}/skills`;
       case "settings":

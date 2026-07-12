@@ -37,16 +37,17 @@ func (c *Certificate) IsValid() bool {
 }
 
 type PendingAuth struct {
-	ID             int64      `gorm:"primaryKey" json:"id"`
-	AuthKey        string     `gorm:"size:64;uniqueIndex;not null" json:"auth_key"`
-	MachineKey     string     `gorm:"size:128;not null" json:"machine_key"`
-	NodeID         *string    `gorm:"size:255" json:"node_id,omitempty"`
-	Labels         Labels     `gorm:"type:jsonb" json:"labels,omitempty"`
-	Authorized     bool       `gorm:"not null;default:false" json:"authorized"`
-	OrganizationID *int64     `json:"organization_id,omitempty"`
-	RunnerID       *int64     `json:"runner_id,omitempty"`
-	ExpiresAt      time.Time  `gorm:"not null" json:"expires_at"`
-	CreatedAt      time.Time  `gorm:"not null;default:now()" json:"created_at"`
+	ID             int64     `gorm:"primaryKey" json:"id"`
+	AuthKey        string    `gorm:"size:64;uniqueIndex;not null" json:"auth_key"`
+	MachineKey     string    `gorm:"size:128;not null" json:"machine_key"`
+	NodeID         *string   `gorm:"size:255" json:"node_id,omitempty"`
+	Labels         Labels    `gorm:"type:jsonb" json:"labels,omitempty"`
+	Authorized     bool      `gorm:"not null;default:false" json:"authorized"`
+	OrganizationID *int64    `json:"organization_id,omitempty"`
+	ClusterID      *int64    `json:"cluster_id,omitempty"`
+	RunnerID       *int64    `json:"runner_id,omitempty"`
+	ExpiresAt      time.Time `gorm:"not null" json:"expires_at"`
+	CreatedAt      time.Time `gorm:"not null;default:now()" json:"created_at"`
 }
 
 func (PendingAuth) TableName() string {
@@ -84,17 +85,18 @@ func (l Labels) Value() (driver.Value, error) {
 }
 
 type GRPCRegistrationToken struct {
-	ID             int64      `gorm:"primaryKey" json:"id"`
-	TokenHash      string     `gorm:"size:128;uniqueIndex;not null" json:"-"` // Never expose hash
-	OrganizationID int64      `gorm:"not null;index" json:"organization_id"`
-	Name           *string    `gorm:"size:255" json:"name,omitempty"`
-	Labels         Labels     `gorm:"type:jsonb" json:"labels,omitempty"`
-	SingleUse      bool       `gorm:"not null;default:true" json:"single_use"`
-	MaxUses        int        `gorm:"not null;default:1" json:"max_uses"`
-	UsedCount      int        `gorm:"not null;default:0" json:"used_count"`
-	ExpiresAt      time.Time  `gorm:"not null" json:"expires_at"`
-	CreatedBy      *int64     `json:"created_by,omitempty"`
-	CreatedAt      time.Time  `gorm:"not null;default:now()" json:"created_at"`
+	ID             int64     `gorm:"primaryKey" json:"id"`
+	TokenHash      string    `gorm:"size:128;uniqueIndex;not null" json:"-"` // Never expose hash
+	OrganizationID int64     `gorm:"not null;index" json:"organization_id"`
+	ClusterID      int64     `gorm:"not null;index" json:"cluster_id"`
+	Name           *string   `gorm:"size:255" json:"name,omitempty"`
+	Labels         Labels    `gorm:"type:jsonb" json:"labels,omitempty"`
+	SingleUse      bool      `gorm:"not null;default:true" json:"single_use"`
+	MaxUses        int       `gorm:"not null;default:1" json:"max_uses"`
+	UsedCount      int       `gorm:"not null;default:0" json:"used_count"`
+	ExpiresAt      time.Time `gorm:"not null" json:"expires_at"`
+	CreatedBy      *int64    `json:"created_by,omitempty"`
+	CreatedAt      time.Time `gorm:"not null;default:now()" json:"created_at"`
 }
 
 func (GRPCRegistrationToken) TableName() string {

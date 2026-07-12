@@ -202,6 +202,24 @@ func (m *mockAgentResolver) GetAgent(_ context.Context, _ string) (*agentDomain.
 func setupOrchestratorTestDB(t *testing.T) *gorm.DB {
 	t.Helper()
 	db := setupTestDB(t)
+	for _, runner := range []struct {
+		id    int64
+		orgID int64
+		node  string
+	}{
+		{id: 2, orgID: 999, node: "runner-2"},
+		{id: 5, orgID: 17, node: "runner-5"},
+		{id: 9, orgID: 1, node: "runner-9"},
+		{id: 23, orgID: 7, node: "runner-23"},
+		{id: 42, orgID: 1, node: "runner-42"},
+	} {
+		if err := db.Exec(`
+INSERT INTO runners (id, organization_id, cluster_id, node_id, status, current_pods)
+VALUES (?, ?, 1, ?, 'online', 0)
+`, runner.id, runner.orgID, runner.node).Error; err != nil {
+			t.Fatalf("seed orchestrator runner %d: %v", runner.id, err)
+		}
+	}
 
 	// agents table — needed by Preload("Agent") when AgentSlug is set
 	db.Exec(`CREATE TABLE IF NOT EXISTS agents (

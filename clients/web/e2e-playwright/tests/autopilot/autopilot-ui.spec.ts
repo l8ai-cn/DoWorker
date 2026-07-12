@@ -18,6 +18,11 @@ async function openWorkspaceWithAutopilot(page: Page, api: ApiFixture, monitor: 
   await page.goto(workspaceUrlForPod(pod.podKey));
   await page.waitForLoadState("load");
   await page.waitForTimeout(3000);
+  const takeControl = page.getByRole("button", { name: "Take control" });
+  await expect(takeControl).toBeEnabled({ timeout: 30_000 });
+  await takeControl.click();
+  await expect(takeControl).toBeHidden({ timeout: 30_000 });
+
   await createAutopilotForPod(api, {
     targetPodKey: pod.podKey,
     script: { decisions: [{ type: "continue", reasoning: "loop", send_input: "echo loop\n" }] },

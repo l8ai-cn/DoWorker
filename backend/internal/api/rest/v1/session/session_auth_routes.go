@@ -15,7 +15,7 @@ func registerAuthRoutes(r gin.IRouter, d Deps) {
 	auth := r.Group("/auth")
 	auth.POST("/login", d.handleAuthLogin)
 	auth.POST("/logout", d.handleAuthLogout)
-	auth.GET("/me", middleware.AuthMiddleware(d.JWTSecret), d.handleAuthMe)
+	auth.GET("/me", accessTokenMiddleware(d), d.handleAuthMe)
 }
 
 func (d *Deps) handleAuthLogin(c *gin.Context) {

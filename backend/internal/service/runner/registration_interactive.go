@@ -149,7 +149,7 @@ func (s *Service) AuthorizeRunner(ctx context.Context, authKey string, orgID int
 		return nil, ErrAuthRequestExpired
 	}
 
-	rowsAffected, err := s.repo.ClaimPendingAuth(ctx, pendingAuth.ID, orgID)
+	rowsAffected, clusterID, err := s.repo.ClaimPendingAuth(ctx, pendingAuth.ID, orgID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to claim auth request: %w", err)
 	}
@@ -185,6 +185,7 @@ func (s *Service) AuthorizeRunner(ctx context.Context, authKey string, orgID int
 
 	r := &runner.Runner{
 		OrganizationID:     orgID,
+		ClusterID:          clusterID,
 		NodeID:             finalNodeID,
 		Status:             runner.RunnerStatusOffline,
 		MaxConcurrentPods:  5,
