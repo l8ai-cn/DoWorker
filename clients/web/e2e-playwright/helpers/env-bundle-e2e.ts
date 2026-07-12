@@ -53,6 +53,7 @@ export async function createPodAndWaitRunning(args: {
     runnerId: pickE2EEchoRunner(runners).id,
     agentSlug,
     agentfileLayer: runtimeBundleLayer(runtimeBundleNames),
+    automationLevel: "interactive",
   }) as { pod?: { podKey?: string } };
   const podKey = created.pod?.podKey;
   if (!podKey) {
