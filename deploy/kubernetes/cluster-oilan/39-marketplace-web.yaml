@@ -21,6 +21,7 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
+              name: http
           env:
             - name: NODE_ENV
               value: "production"
@@ -34,14 +35,20 @@ spec:
             httpGet:
               path: /health
               port: 3000
-            initialDelaySeconds: 10
+            initialDelaySeconds: 5
             periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
           resources:
             requests:
               cpu: 50m
-              memory: 128Mi
+              memory: 96Mi
             limits:
-              memory: 512Mi
+              memory: 256Mi
 ---
 apiVersion: v1
 kind: Service
@@ -54,3 +61,4 @@ spec:
   ports:
     - port: 3000
       targetPort: 3000
+      name: http

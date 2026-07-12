@@ -1,4 +1,4 @@
-FROM mirror.gcr.io/library/node:20-bookworm AS build
+FROM docker.io/library/node:20-bookworm AS build
 WORKDIR /src
 RUN corepack enable && corepack prepare pnpm@9 --activate
 COPY clients/marketplace-web/package.json clients/marketplace-web/pnpm-lock.yaml ./
