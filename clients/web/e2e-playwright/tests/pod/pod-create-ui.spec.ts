@@ -3,24 +3,24 @@ import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { E2E_ECHO_AGENT_SLUG } from "../../helpers/e2e-echo-runner";
-import { CreateWorkerPage } from "../../pages/create-worker.page";
+import { CreatePodModal } from "../../pages/modals/create-pod.modal";
 
 type Runner = { id: bigint };
 type Agent = { slug: string };
 
 /**
- * UI regression for: Create Worker must submit successfully and the new pod
+ * UI regression for: Create Pod must submit successfully and the new pod
  * must appear in the workspace.
  *
- * The Connect-RPC response must reach the page success handler, which routes
- * back to workspace with the newly-created pod selected.
+ * The Connect-RPC response must reach the workspace success handler, which
+ * closes the modal and refreshes the workspace Pod list.
  */
-test.describe("Create Worker UI", () => {
+test.describe("Create Pod UI", () => {
   test.afterEach(async () => {
     await terminateAllPods();
   });
 
-  test("Create Worker submits and new pod appears in workspace", async ({ page, api }) => {
+  test("Create Pod submits and new pod appears in workspace", async ({ page, api }) => {
     const cc = await api.connect();
     const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
     expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
@@ -51,23 +51,24 @@ test.describe("Create Worker UI", () => {
     const podsBefore = await cc.pod.listPods({ orgSlug: TEST_ORG_SLUG }) as { total: bigint | number };
     const beforeTotal = Number(podsBefore.total);
 
-    const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
-    await worker.goto();
+    await page.getByRole("button", { name: /创建|Create|New Pod/i }).first().click();
+    const modal = new CreatePodModal(page);
+    await modal.waitForOpen();
     expect(
       agents.some((agent) => agent.slug === E2E_ECHO_AGENT_SLUG),
       "dev env must include the e2e-echo builtin agent",
     ).toBeTruthy();
-    await worker.selectImage(E2E_ECHO_AGENT_SLUG);
+    await modal.selectImage(E2E_ECHO_AGENT_SLUG);
     const createResponse = page.waitForResponse(
       (response) =>
         response.request().method() === "POST" &&
         response.url().endsWith("/proto.pod.v1.PodService/CreatePod"),
       { timeout: 20_000 },
     );
-    await worker.submit();
+    await modal.submit();
     const response = await createResponse;
     expect(response.ok()).toBeTruthy();
-    await worker.waitForWorkspace();
+    await modal.waitForClosed();
 
     await expect
       .poll(async () => {

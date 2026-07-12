@@ -4,12 +4,12 @@ import { CreatePodRequestSchema } from "../../../../../proto/gen/ts/pod/v1/pod_p
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { CreateWorkerPage } from "../../pages/create-worker.page";
+import { CreatePodModal } from "../../pages/modals/create-pod.modal";
 
 /**
  * Pod creation × EnvBundle UI flow.
  *
- * The Create Worker page renders runtime bundles as an ordered multi-select.
+ * The Create Pod modal renders runtime bundles as an ordered multi-select.
  * Model/API credentials are selected through AI Resources, not EnvBundles.
  *
  * We don't have a persisted `pods.agentfile_layer` column — the merged
@@ -88,11 +88,13 @@ test.describe("Pod create — EnvBundle binding UI", () => {
     await terminateAllPods();
 
     try {
-      const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
-      await worker.goto();
-      await worker.selectImage(AGENT_SLUG);
+      await page.goto(`/${TEST_ORG_SLUG}/workspace`);
+      await page.getByRole("button", { name: /创建|Create|New Pod/i }).first().click();
+      const modal = new CreatePodModal(page);
+      await modal.waitForOpen();
+      await modal.selectImage(AGENT_SLUG);
       await expect(page.locator('select#credential-bundle-select')).toHaveCount(0);
-      await expect(page.locator("label", { hasText: runtimeName })).toBeVisible();
+      await expect(page.locator('[role="dialog"] label', { hasText: runtimeName })).toBeVisible();
 
       const createResponse = page.waitForResponse(
         (response) =>
@@ -100,11 +102,11 @@ test.describe("Pod create — EnvBundle binding UI", () => {
           response.url().endsWith(CREATE_POD_RPC),
         { timeout: 20_000 },
       );
-      await worker.selectRuntimeBundles([runtimeName]);
-      await worker.submit();
+      await modal.selectRuntimeBundles([runtimeName]);
+      await modal.submit();
       const response = await createResponse;
       expect(response.ok()).toBeTruthy();
-      await worker.waitForWorkspace();
+      await modal.waitForClosed();
 
       const layer = capturedLayer ?? "";
       const useLines = layer
@@ -154,19 +156,21 @@ test.describe("Pod create — EnvBundle binding UI", () => {
 
     await terminateAllPods();
 
-    const worker = new CreateWorkerPage(page, TEST_ORG_SLUG);
-    await worker.goto();
-    await worker.selectImage(AGENT_SLUG);
+    await page.goto(`/${TEST_ORG_SLUG}/workspace`);
+    await page.getByRole("button", { name: /创建|Create|New Pod/i }).first().click();
+    const modal = new CreatePodModal(page);
+    await modal.waitForOpen();
+    await modal.selectImage(AGENT_SLUG);
     const createResponse = page.waitForResponse(
       (response) =>
         response.request().method() === "POST" &&
         response.url().endsWith(CREATE_POD_RPC),
       { timeout: 20_000 },
     );
-    await worker.submit();
+    await modal.submit();
     const response = await createResponse;
     expect(response.ok()).toBeTruthy();
-    await worker.waitForWorkspace();
+    await modal.waitForClosed();
 
     expect(capturedLayer ?? "").not.toContain("USE_ENV_BUNDLE");
   });

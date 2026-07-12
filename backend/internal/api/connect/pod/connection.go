@@ -8,6 +8,7 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/pkg/policy"
@@ -42,7 +43,7 @@ func (s *Server) GetPodConnection(
 	if !policy.PodPolicy.AllowRead(sub, s.podResourceWithGrants(ctx, podKey, pod.OrganizationID, pod.CreatedByID)) {
 		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("forbidden"))
 	}
-	if !pod.IsActive() {
+	if !agentpod.IsPodStatusRelayConnectable(pod.Status) {
 		return nil, connect.NewError(connect.CodeFailedPrecondition, errors.New("pod is not active"))
 	}
 

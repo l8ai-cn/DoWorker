@@ -16,6 +16,12 @@ func IsPodStatusActive(status string) bool {
 		status == StatusDisconnected
 }
 
+func IsPodStatusRelayConnectable(status string) bool {
+	return status == StatusRunning ||
+		status == StatusPaused ||
+		status == StatusDisconnected
+}
+
 func IsPodStatusTerminal(status string) bool {
 	return status == StatusTerminated ||
 		status == StatusOrphaned ||

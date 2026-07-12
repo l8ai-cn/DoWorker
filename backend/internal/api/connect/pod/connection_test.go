@@ -78,6 +78,18 @@ func TestGetPodConnectionFailsClosedWithoutCommandSender(t *testing.T) {
 	assert.Equal(t, connect.CodeUnavailable, connectCodeOf(t, err))
 }
 
+func TestGetPodConnectionRejectsInitializingPodBeforeSubscription(t *testing.T) {
+	sender := &connectionCommandSender{}
+	srv := newConnectionTestServerWithStatus(t, 11, sender, agentpod.StatusInitializing)
+
+	res, err := srv.GetPodConnection(ctxAsUser(42), connectionRequest())
+
+	require.Error(t, err)
+	assert.Nil(t, res)
+	assert.Equal(t, connect.CodeFailedPrecondition, connectCodeOf(t, err))
+	assert.False(t, sender.called)
+}
+
 func TestGetPodConnectionFailsClosedWithoutRunner(t *testing.T) {
 	for name, runnerID := range map[string]int64{"zero": 0, "negative": -1} {
 		t.Run(name, func(t *testing.T) {
@@ -105,6 +117,7 @@ func TestGetPodConnectionFailsClosedWhenSubscriptionFails(t *testing.T) {
 		11,
 		sender,
 		&recordingConnectionTokenGenerator{events: events},
+		agentpod.StatusRunning,
 	)
 
 	res, err := srv.GetPodConnection(ctxAsUser(42), connectionRequest())
@@ -125,6 +138,7 @@ func TestGetPodConnectionReturnsBrowserConnectionAfterSubscription(t *testing.T)
 		11,
 		sender,
 		&recordingConnectionTokenGenerator{events: events},
+		agentpod.StatusRunning,
 	)
 
 	res, err := srv.GetPodConnection(ctxAsUser(42), connectionRequest())
@@ -158,11 +172,21 @@ func newConnectionTestServer(
 	runnerID int64,
 	sender runner.RunnerCommandSender,
 ) *Server {
+	return newConnectionTestServerWithStatus(t, runnerID, sender, agentpod.StatusRunning)
+}
+
+func newConnectionTestServerWithStatus(
+	t *testing.T,
+	runnerID int64,
+	sender runner.RunnerCommandSender,
+	status string,
+) *Server {
 	return newConnectionTestServerWithTokenGenerator(
 		t,
 		runnerID,
 		sender,
 		relay.NewTokenGenerator("test-secret", "test-issuer"),
+		status,
 	)
 }
 
@@ -171,6 +195,7 @@ func newConnectionTestServerWithTokenGenerator(
 	runnerID int64,
 	sender runner.RunnerCommandSender,
 	generator relayTokenGenerator,
+	podStatus string,
 ) *Server {
 	t.Helper()
 	db := testkit.SetupTestDB(t)
@@ -179,7 +204,7 @@ func newConnectionTestServerWithTokenGenerator(
 		PodKey:          "test-pod",
 		RunnerID:        runnerID,
 		CreatedByID:     42,
-		Status:          agentpod.StatusRunning,
+		Status:          podStatus,
 		AgentStatus:     agentpod.AgentStatusIdle,
 		InteractionMode: agentpod.InteractionModePTY,
 		AutomationLevel: agentpod.AutomationLevelAutonomous,
