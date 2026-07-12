@@ -27,7 +27,7 @@ func fetchKeys(
 	if err != nil {
 		return nil, fmt.Errorf("fetch JWKS: %w", err)
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	if response.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("fetch JWKS: status %d", response.StatusCode)
 	}

@@ -48,7 +48,7 @@ func (c *Client) Authorize(
 	if err != nil {
 		return fmt.Errorf("%w: %v", service.ErrRuntimeAuthorizationFailed, err)
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	if response.StatusCode == http.StatusForbidden {
 		return service.ErrTargetOrganizationForbidden
 	}
@@ -85,7 +85,7 @@ func (c *Client) Install(
 			err,
 		)
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	payload, err := io.ReadAll(io.LimitReader(response.Body, 1<<20))
 	if err != nil {
 		return service.RuntimeInstallResult{}, service.ErrRuntimeInstallationUnknown

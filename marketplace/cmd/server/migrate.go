@@ -18,7 +18,7 @@ func migrateUp(databaseURL string) error {
 	if err != nil {
 		return err
 	}
-	defer runner.Close()
+	defer func() { _, _ = runner.Close() }()
 	if err := runner.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return err
 	}

@@ -22,7 +22,7 @@ func TestStorefrontRepositoryEnforcesHostAndPublication(t *testing.T) {
 	}
 	sqlDB, err := sql.Open("postgres", dsn)
 	require.NoError(t, err)
-	defer sqlDB.Close()
+	defer func() { _ = sqlDB.Close() }()
 	_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
 	t.Cleanup(func() {
 		_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
@@ -83,7 +83,7 @@ func TestStorefrontRepositoryFiltersTaxonomyTagsInPostgres(t *testing.T) {
 	}
 	sqlDB, err := sql.Open("postgres", dsn)
 	require.NoError(t, err)
-	defer sqlDB.Close()
+	defer func() { _ = sqlDB.Close() }()
 	_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
 	t.Cleanup(func() {
 		_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
@@ -131,7 +131,7 @@ func TestStorefrontRepositoryPaginatesWithSortCursor(t *testing.T) {
 	}
 	sqlDB, err := sql.Open("postgres", dsn)
 	require.NoError(t, err)
-	defer sqlDB.Close()
+	defer func() { _ = sqlDB.Close() }()
 	_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
 	t.Cleanup(func() {
 		_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
@@ -189,7 +189,7 @@ func TestListingTaxonomyMigrationPreservesLegacyTagsOnUpAndDown(t *testing.T) {
 	}
 	sqlDB, err := sql.Open("postgres", dsn)
 	require.NoError(t, err)
-	defer sqlDB.Close()
+	defer func() { _ = sqlDB.Close() }()
 	_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)
 	t.Cleanup(func() {
 		_, _ = sqlDB.Exec(`DROP SCHEMA IF EXISTS marketplace CASCADE`)

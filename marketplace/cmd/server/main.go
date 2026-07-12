@@ -43,7 +43,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("open marketplace database pool: %v", err)
 	}
-	defer sqlDB.Close()
+	defer func() { _ = sqlDB.Close() }()
 	identityVerifier, err := identity.NewJWKSVerifier(identity.JWKSConfig{
 		URL:             cfg.IdentityJWKSURL,
 		Issuer:          cfg.IdentityIssuer,
