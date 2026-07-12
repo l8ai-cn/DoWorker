@@ -68,6 +68,15 @@ func TestGetSessionRelayConnectionFailsClosedWhenSubscriptionFails(t *testing.T)
 	assert.Equal(t, 1, sender.calls)
 }
 
+func TestGetSessionRelayConnectionRejectsACP(t *testing.T) {
+	deps, sender := relayConnectionTestDepsWithMode(t, nil, podDomain.InteractionModeACP)
+
+	response := getSessionRelayConnection(t, deps)
+
+	assert.Equal(t, http.StatusBadRequest, response.Code)
+	assert.Equal(t, 0, sender.calls)
+}
+
 func TestSessionWireIncludesPodInteractionMode(t *testing.T) {
 	wire := sessionWireFrom(
 		&domain.Session{ID: "session-mode", AgentSlug: "codex-cli", CreatedAt: time.Now()},
@@ -81,6 +90,14 @@ func TestSessionWireIncludesPodInteractionMode(t *testing.T) {
 }
 
 func relayConnectionTestDeps(t *testing.T, sendErr error) (*Deps, *relayConnectionSender) {
+	return relayConnectionTestDepsWithMode(t, sendErr, podDomain.InteractionModePTY)
+}
+
+func relayConnectionTestDepsWithMode(
+	t *testing.T,
+	sendErr error,
+	interactionMode string,
+) (*Deps, *relayConnectionSender) {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
 	db := testkit.SetupTestDB(t)
@@ -112,7 +129,7 @@ func relayConnectionTestDeps(t *testing.T, sendErr error) (*Deps, *relayConnecti
 		Status:          podDomain.StatusRunning,
 		AgentStatus:     podDomain.AgentStatusIdle,
 		AgentSlug:       "codex-cli",
-		InteractionMode: podDomain.InteractionModePTY,
+		InteractionMode: interactionMode,
 	}
 	require.NoError(t, db.Create(pod).Error)
 	require.NoError(t, db.Create(&domain.Session{

@@ -53,6 +53,9 @@ export function NewTaskPage({ search }: { search: NewTaskSearch }) {
   );
   const experts = availableAcpExperts(liveExperts.items, availableAgents.agents);
   const expert = findSelectedExpert(experts, form.expertSlug);
+  const expertWorker = expert
+    ? availableAgents.agents.find((agent) => agent.id === expert.agent_slug)
+    : undefined;
 
   async function submit() {
     if (form.submitting || !form.prompt.trim()) return;
@@ -74,7 +77,7 @@ export function NewTaskPage({ search }: { search: NewTaskSearch }) {
         }
         const budget = parseTokenBudget(form.tokenBudget);
         const session = await createSession(
-          "codex-cli",
+          codex,
           taskTitleForSubmit(form.prompt, undefined, "Codex Goal"),
           undefined,
           { mode: "acp" },
@@ -91,7 +94,10 @@ export function NewTaskPage({ search }: { search: NewTaskSearch }) {
 
       const text = form.prompt.trim();
       if (expert && form.interactionMode === "acp") {
-        const dispatched = await dispatchExpertBySlug(expert.slug, text);
+        if (!expertWorker) {
+          throw new Error(`专家 ${expert.name} 对应的 Worker 不可用`);
+        }
+        const dispatched = await dispatchExpertBySlug(expert.slug, text, expertWorker);
         if (dispatched) {
           if (dispatched.kind === "session") {
             if (form.projectName.trim())
@@ -106,12 +112,16 @@ export function NewTaskPage({ search }: { search: NewTaskSearch }) {
           return;
         }
       }
-      if (!worker.current.supportedModes.includes(form.interactionMode)) {
-        throw new Error(`${worker.current.name} 不支持当前交互方式`);
+      const targetWorker = expertWorker ?? worker.current;
+      if (!targetWorker) {
+        throw new Error("当前 Worker 不可用");
+      }
+      if (!targetWorker.supportedModes.includes(form.interactionMode)) {
+        throw new Error(`${targetWorker.name} 不支持当前交互方式`);
       }
       const session = await createSession(
-        expert?.agent_slug ?? form.engineID,
-        taskTitleForSubmit(text, expert?.name, worker.current.name),
+        targetWorker,
+        taskTitleForSubmit(text, expert?.name, targetWorker.name),
         messageWithExpertContext(text, expert?.name, expert?.description ?? expert?.prompt),
         { mode: form.interactionMode },
       );

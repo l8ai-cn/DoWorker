@@ -26,6 +26,7 @@ export interface AgentPickerOption {
   avatar: string;
   desc: string;
   supportedModes: SessionInteractionMode[];
+  requiresModelResource: boolean;
 }
 
 function harnessFamily(harness: string | null | undefined): string {
@@ -43,6 +44,7 @@ export function agentPickerOption(
   id: string,
   name: string,
   supportedModes: SessionInteractionMode[],
+  requiresModelResource: boolean,
   harness?: string | null,
 ): AgentPickerOption {
   const family = harnessFamily(harness ?? name);
@@ -54,5 +56,6 @@ export function agentPickerOption(
     avatar: AVATAR[family] ?? "🤖",
     desc: `${label} · ${harness ?? id}`,
     supportedModes,
+    requiresModelResource,
   };
 }

@@ -10,17 +10,6 @@ interface ModelResourceList {
   data: ModelResource[];
 }
 
-const MODEL_BACKED_AGENTS = new Set([
-  "codex",
-  "codex-cli",
-  "claude",
-  "claude-code",
-  "gemini",
-  "gemini-cli",
-  "do-agent",
-  "doagent",
-]);
-
 async function readJson<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const message = (await res.text()).trim();
@@ -29,9 +18,7 @@ async function readJson<T>(res: Response): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function resolveRequiredModelResourceId(agentId: string): Promise<number | undefined> {
-  if (!MODEL_BACKED_AGENTS.has(agentId)) return undefined;
-
+export async function resolveDefaultModelResourceId(): Promise<number> {
   const response = await apiFetch("/v1/model-resources");
   const resources = await readJson<ModelResourceList>(response);
   const defaults = (resources.data ?? []).filter(
