@@ -56,6 +56,20 @@ DOOPS_TARGET=gw-oilan-node ./deploy-mobile-access.sh
 `deploy-mobile-access.sh` applies the shared ConfigMap, backend, relay, mobile
 Ingress, and mobile Deployment only. It refuses mutable image tags.
 
+After rollout, run the release smoke from a trusted operator machine. It fails
+closed when the Backend does not expose Codex ACP/PTY mode metadata or exactly
+one default model resource:
+
+```bash
+MOBILE_SMOKE_USERNAME=admin@agentsmesh.local \
+MOBILE_SMOKE_PASSWORD='...' \
+./verify-mobile-worker-access.sh
+```
+
+Set `MOBILE_SMOKE_RUN_INTERACTIONS=true` only in a test organization with a
+configured Codex model resource. That mode creates disposable ACP and PTY
+Workers, verifies the ACP reply and PTY Relay token, and deletes both sessions.
+
 ### What `./deploy.sh` does (often called "reseed")
 
 Each run is a **full reconcile**, not a DB-only reset:
