@@ -16,6 +16,7 @@ const manager = {
   bootstrap: vi.fn(),
   fetch_organizations: vi.fn(),
   get_current_org_json: vi.fn(),
+  clear_session: vi.fn(),
 };
 
 describe("mobile auth store", () => {
@@ -26,6 +27,7 @@ describe("mobile auth store", () => {
     manager.bootstrap.mockReset();
     manager.fetch_organizations.mockReset();
     manager.get_current_org_json.mockReset();
+    manager.clear_session.mockReset();
   });
 
   it("reads the shared AuthManager session format and rejects expired tokens", () => {
@@ -74,6 +76,22 @@ describe("mobile auth store", () => {
     });
     expect(manager.login).toHaveBeenCalledWith("dev@agentsmesh.local", "password");
     expect(manager.fetch_organizations).toHaveBeenCalledOnce();
+  });
+
+  it("clears the persisted session when organization initialization fails", async () => {
+    manager.login.mockResolvedValue(
+      JSON.stringify({
+        token: "token-1",
+        expires_in: 3600,
+        user: { id: 7, email: "dev@agentsmesh.local" },
+      }),
+    );
+    manager.fetch_organizations.mockRejectedValue(new Error("organization service unavailable"));
+
+    await expect(login("dev@agentsmesh.local", "password")).rejects.toThrow(
+      "organization service unavailable",
+    );
+    expect(manager.clear_session).toHaveBeenCalledOnce();
   });
 
   it("restores the user and organization from the Rust AuthManager bootstrap result", async () => {

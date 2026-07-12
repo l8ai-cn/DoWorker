@@ -214,7 +214,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@do-worker/agent-ui": path.resolve(__dirname, "../../packages/agent-ui/src/index.ts"),
     },
   },
   test: {
@@ -250,11 +249,5 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "./dist"),
     emptyOutDir: true,
-    rollupOptions: {
-      input: {
-        index: path.resolve(__dirname, "./index.html"),
-        iframe: path.resolve(__dirname, "./iframe.html"),
-      },
-    },
   },
 });

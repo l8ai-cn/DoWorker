@@ -90,4 +90,10 @@ describe("accountsApi shared auth protocol", () => {
       }),
     );
   });
+
+  it("rejects malformed organization responses instead of persisting an empty selection", async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }));
+
+    await expect(listMyOrgSlug("token-1")).rejects.toThrow("invalid response");
+  });
 });
