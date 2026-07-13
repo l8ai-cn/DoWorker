@@ -16,6 +16,7 @@ export interface UpdateCatalogSkillInput {
   description?: string;
   license?: string;
   instructions?: string;
+  tags?: string[];
 }
 
 export interface ImportSkillsResult {

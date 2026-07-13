@@ -19,10 +19,10 @@ import (
 // additive to the external-import/marketplace skill flow (which is served over
 // Connect-RPC and is untouched).
 type SkillHandler struct {
-	service *skillSvc.Service
+	service skillHandlerService
 }
 
-func NewSkillHandler(service *skillSvc.Service) *SkillHandler {
+func NewSkillHandler(service skillHandlerService) *SkillHandler {
 	return &SkillHandler{service: service}
 }
 
@@ -58,7 +58,7 @@ func (h *SkillHandler) CreateSkill(c *gin.Context) {
 	row, err := h.service.Create(c.Request.Context(), &skillSvc.CreateSkillRequest{
 		OrganizationID: tenant.OrganizationID, UserID: tenant.UserID,
 		Slug: req.Slug, Name: req.Name, Description: req.Description,
-		License: req.License, Instructions: req.Instructions,
+		License: req.License, Instructions: req.Instructions, Tags: req.Tags,
 	})
 	if err != nil {
 		h.validationOrInternal(c, err)
@@ -82,7 +82,7 @@ func (h *SkillHandler) UpdateSkill(c *gin.Context) {
 	updated, err := h.service.Update(c.Request.Context(), &skillSvc.UpdateSkillRequest{
 		OrganizationID: tenant.OrganizationID, SkillID: row.ID,
 		Name: req.Name, Description: req.Description,
-		License: req.License, Instructions: req.Instructions,
+		License: req.License, Instructions: req.Instructions, Tags: req.Tags,
 	})
 	if err != nil {
 		h.validationOrInternal(c, err)

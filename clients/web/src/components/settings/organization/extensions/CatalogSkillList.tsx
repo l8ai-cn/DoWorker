@@ -1,122 +1,163 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Spinner } from "@/components/ui/spinner";
 import type { CatalogSkill } from "@/lib/api";
-import { RefreshCw, Trash2, Plus, GitBranch, PenLine } from "lucide-react";
+import { AlertCircle, Plus, Tags } from "lucide-react";
 import type { TranslationFn } from "../GeneralSettings";
+import { CatalogSkillRow } from "./CatalogSkillRow";
+import { SkillCatalogFilters, type CatalogViewMode } from "./SkillCatalogFilters";
 
 interface CatalogSkillListProps {
   t: TranslationFn;
   loading: boolean;
+  loadError?: boolean;
   skills: CatalogSkill[];
   syncingSlug: string | null;
+  savingSlug: string | null;
+  saveErrorSlug: string | null;
   onSync: (slug: string) => void;
   onDelete: (slug: string) => void;
   onImport: () => void;
+  onRetry?: () => void;
+  onEditTags: () => void;
+  onUpdateTags: (slug: string, tags: string[]) => Promise<void>;
 }
 
-export function CatalogSkillList({
-  t,
-  loading,
-  skills,
-  syncingSlug,
-  onSync,
-  onDelete,
-  onImport,
-}: CatalogSkillListProps) {
+export function CatalogSkillList(props: CatalogSkillListProps) {
+  const { t, loading, loadError, skills, onImport, onRetry } = props;
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<CatalogViewMode>("flat");
+  const tags = useMemo(
+    () => [...new Set(skills.flatMap((skill) => skill.tags))].sort(),
+    [skills],
+  );
+  const filtered = useMemo(
+    () => selectedTags.length === 0
+      ? skills
+      : skills.filter((skill) => skill.tags.some((tag) => selectedTags.includes(tag))),
+    [selectedTags, skills],
+  );
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags((current) => current.includes(tag)
+      ? current.filter((item) => item !== tag)
+      : [...current, tag]);
+  };
+
   return (
-    <div className="surface-card p-6">
-      <div className="mb-4 flex items-center justify-between">
+    <section className="surface-card overflow-hidden">
+      <div className="flex items-start justify-between gap-4 px-4 py-4">
         <div>
-          <h2 className="text-lg font-semibold">{t("extensions.skillCatalog.title")}</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-base font-semibold">{t("extensions.skillCatalog.title")}</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             {t("extensions.skillCatalog.description")}
           </p>
         </div>
-        <Button onClick={onImport}>
-          <Plus className="w-4 h-4 mr-1" />
+        <Button onClick={onImport} className="shrink-0">
+          <Plus className="mr-1 h-4 w-4" />
           {t("extensions.skillCatalog.import")}
         </Button>
       </div>
 
-      {loading ? (
-        <div className="text-center py-4 text-muted-foreground">{t("extensions.loading")}</div>
-      ) : skills.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
-          {t("extensions.skillCatalog.noSkills")}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {skills.map((skill) => {
-            const imported = skill.install_source === "import";
-            return (
-              <div
-                key={skill.id}
-                className="surface-card p-4 flex items-center justify-between gap-4"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium truncate">{skill.display_name || skill.slug}</span>
-                    <Badge variant={imported ? "secondary" : "outline"} className="text-xs shrink-0">
-                      {imported ? (
-                        <>
-                          <GitBranch className="w-3 h-3 mr-1" />
-                          {t("extensions.skillCatalog.sourceImport")}
-                        </>
-                      ) : (
-                        <>
-                          <PenLine className="w-3 h-3 mr-1" />
-                          {t("extensions.skillCatalog.sourceGitops")}
-                        </>
-                      )}
-                    </Badge>
-                    {skill.version > 0 && (
-                      <Badge variant="outline" className="text-xs shrink-0">v{skill.version}</Badge>
-                    )}
-                    {!skill.is_active && (
-                      <Badge variant="destructive" className="text-xs shrink-0">
-                        {t("extensions.skillCatalog.inactive")}
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="font-mono text-xs text-muted-foreground truncate">{skill.slug}</p>
-                  {imported && skill.upstream_url && (
-                    <p className="text-xs text-muted-foreground truncate mt-0.5" title={skill.upstream_url}>
-                      {skill.upstream_url}
-                      {skill.upstream_subdir ? ` · ${skill.upstream_subdir}` : ""}
-                    </p>
-                  )}
-                  {skill.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{skill.description}</p>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {imported && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={syncingSlug === skill.slug}
-                      onClick={() => onSync(skill.slug)}
-                      title={t("extensions.skillCatalog.syncUpstream")}
-                    >
-                      <RefreshCw className={`w-4 h-4 ${syncingSlug === skill.slug ? "animate-spin" : ""}`} />
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDelete(skill.slug)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      {!loading && !loadError && skills.length > 0 && (
+        <SkillCatalogFilters
+          t={t}
+          tags={tags}
+          selectedTags={selectedTags}
+          viewMode={viewMode}
+          onTagToggle={toggleTag}
+          onClear={() => setSelectedTags([])}
+          onViewModeChange={setViewMode}
+        />
       )}
+
+      {loading ? (
+        <div className="flex items-center justify-center gap-2 border-t border-border/60 py-10 text-sm text-muted-foreground">
+          <Spinner size="sm" />
+          {t("extensions.loading")}
+        </div>
+      ) : loadError ? (
+        <EmptyState
+          size="compact"
+          icon={<AlertCircle className="h-5 w-5" />}
+          title={t("extensions.failedToLoadSkills")}
+          actions={onRetry && (
+            <Button size="sm" variant="outline" onClick={onRetry}>
+              {t("extensions.skillCatalog.retry")}
+            </Button>
+          )}
+        />
+      ) : skills.length === 0 ? (
+        <EmptyState
+          size="compact"
+          icon={<Tags className="h-5 w-5" />}
+          title={t("extensions.skillCatalog.noSkills")}
+        />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          size="compact"
+          icon={<Tags className="h-5 w-5" />}
+          title={t("extensions.skillCatalog.noFilterResults")}
+          actions={(
+            <Button size="sm" variant="outline" onClick={() => setSelectedTags([])}>
+              {t("extensions.skillCatalog.clearFilters")}
+            </Button>
+          )}
+        />
+      ) : viewMode === "flat" ? (
+        <div>{filtered.map((skill) => renderRow(skill, props, skill.id))}</div>
+      ) : (
+        <CatalogTagGroups skills={filtered} props={props} />
+      )}
+    </section>
+  );
+}
+
+function CatalogTagGroups({
+  skills,
+  props,
+}: {
+  skills: CatalogSkill[];
+  props: CatalogSkillListProps;
+}) {
+  const groups = new Map<string, CatalogSkill[]>();
+  for (const skill of skills) {
+    const groupTags = skill.tags.length > 0
+      ? skill.tags
+      : [props.t("extensions.skillCatalog.untagged")];
+    for (const tag of groupTags) groups.set(tag, [...(groups.get(tag) ?? []), skill]);
+  }
+
+  return (
+    <div className="divide-y divide-border/70">
+      {[...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([tag, groupSkills]) => (
+        <section key={tag} role="region" aria-label={tag}>
+          <div className="bg-surface-muted px-4 py-2 text-xs font-semibold text-muted-foreground">
+            {tag} <span className="font-normal">({groupSkills.length})</span>
+          </div>
+          {groupSkills.map((skill) => renderRow(skill, props, `${tag}-${skill.id}`))}
+        </section>
+      ))}
     </div>
+  );
+}
+
+function renderRow(skill: CatalogSkill, props: CatalogSkillListProps, key: React.Key) {
+  return (
+    <CatalogSkillRow
+      key={key}
+      t={props.t}
+      skill={skill}
+      syncing={props.syncingSlug === skill.slug}
+      saving={props.savingSlug === skill.slug}
+      saveFailed={props.saveErrorSlug === skill.slug}
+      onSync={props.onSync}
+      onDelete={props.onDelete}
+      onEditTags={props.onEditTags}
+      onUpdateTags={props.onUpdateTags}
+    />
   );
 }

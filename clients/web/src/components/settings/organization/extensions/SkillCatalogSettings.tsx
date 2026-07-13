@@ -19,21 +19,29 @@ export function SkillCatalogSettings({ t }: SkillCatalogSettingsProps) {
   const orgSlug = currentOrg?.slug ?? "";
   const [skills, setSkills] = useState<CatalogSkill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [syncingSlug, setSyncingSlug] = useState<string | null>(null);
+  const [savingSlug, setSavingSlug] = useState<string | null>(null);
+  const [saveErrorSlug, setSaveErrorSlug] = useState<string | null>(null);
 
   const load = useCallback(async (signal?: AbortSignal) => {
     if (!orgSlug) return;
+    setLoading(true);
+    setLoadError(false);
     try {
       const res = await skillCatalogApi.list();
       if (signal?.aborted) return;
       setSkills(res.skills);
     } catch (error) {
-      if (!signal?.aborted) console.error("Failed to load skills:", error);
+      if (!signal?.aborted) {
+        setLoadError(true);
+        toast.error(getLocalizedErrorMessage(error, t, t("extensions.failedToLoadSkills")));
+      }
     } finally {
       if (!signal?.aborted) setLoading(false);
     }
-  }, [orgSlug]);
+  }, [orgSlug, t]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -65,16 +73,42 @@ export function SkillCatalogSettings({ t }: SkillCatalogSettingsProps) {
     }
   }, [t, load]);
 
+  const handleUpdateTags = useCallback(async (slug: string, tags: string[]) => {
+    setSavingSlug(slug);
+    setSaveErrorSlug(null);
+    try {
+      const updated = await skillCatalogApi.update(slug, { tags });
+      setSkills((current) => current.map((skill) => skill.slug === slug ? updated : skill));
+      toast.success(t("extensions.skillCatalog.tagsSaved"));
+    } catch (error) {
+      setSaveErrorSlug(slug);
+      toast.error(getLocalizedErrorMessage(
+        error,
+        t,
+        t("extensions.skillCatalog.failedToSaveTags"),
+      ));
+      throw error;
+    } finally {
+      setSavingSlug(null);
+    }
+  }, [t]);
+
   return (
     <div className="space-y-6">
       <CatalogSkillList
         t={t}
         loading={loading}
+        loadError={loadError}
         skills={skills}
         syncingSlug={syncingSlug}
+        savingSlug={savingSlug}
+        saveErrorSlug={saveErrorSlug}
         onSync={handleSync}
         onDelete={handleDelete}
         onImport={() => setShowImport(true)}
+        onRetry={load}
+        onEditTags={() => setSaveErrorSlug(null)}
+        onUpdateTags={handleUpdateTags}
       />
       <ImportSkillDialog
         t={t}
