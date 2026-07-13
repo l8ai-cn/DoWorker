@@ -46,6 +46,7 @@ export function MarketplaceAcquireFlow({
   const [organizations, setOrganizations] = useState<LightOrganization[]>([]);
   const [organizationID, setOrganizationID] = useState("");
   const [plan, setPlan] = useState<InstallationPlan | null>(null);
+  const [installationID, setInstallationID] = useState("");
   const [step, setStep] = useState<Step>("select");
   const [error, setError] = useState("");
 
@@ -123,6 +124,7 @@ export function MarketplaceAcquireFlow({
       if (result.status !== "succeeded") {
         throw new Error("启用操作尚未完成，请稍后查看操作状态。");
       }
+      setInstallationID(result.installation_id);
       setStep("success");
     } catch (cause) {
       setStep("confirm");
@@ -165,8 +167,8 @@ export function MarketplaceAcquireFlow({
         </div>
       ) : null}
       {step === "installing" ? <LoadingState label="正在创建专家应用实例" /> : null}
-      {step === "success" && selectedOrganization ? (
-        <SuccessState organization={selectedOrganization} />
+      {step === "success" && selectedOrganization && installationID ? (
+        <SuccessState organization={selectedOrganization} installationID={installationID} />
       ) : null}
     </AcquireShell>
   );
