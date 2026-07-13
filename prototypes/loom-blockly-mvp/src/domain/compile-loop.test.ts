@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import { compileLoop } from "./compile-loop";
+import type { LoopDraft } from "./loop-types";
 
 const validDraft = {
   name: "Ship compiler",
   rootBlockId: "root",
   worker: {
     blockId: "worker",
-    value: { snapshotId: "snapshot-42", label: "Codex worker" },
+    value: { snapshotId: 42, label: "Codex worker" },
   },
   instructions: [
     { blockId: "task-1", value: "Implement the compiler." },
@@ -30,7 +31,8 @@ const validDraft = {
   escalationPolicy: { blockId: "escalation", value: "pause" as const },
   looseBlockIds: [],
   unknownBlockTypes: [],
-};
+  adapterDiagnostics: [],
+} satisfies LoopDraft;
 
 describe("compileLoop", () => {
   it("compiles a complete draft into canonical JSON", () => {
@@ -41,7 +43,7 @@ describe("compileLoop", () => {
       kind: "goal-loop-program",
       schema_version: 1,
       name: "Ship compiler",
-      worker: { snapshot_id: "snapshot-42", label: "Codex worker" },
+      worker: { snapshot_id: 42, label: "Codex worker" },
       objective: "Implement the compiler.\nRun the verification.",
       acceptance_criteria: ["All tests pass."],
       verification: { kind: "command", command: "pnpm test" },
@@ -62,12 +64,22 @@ describe("compileLoop", () => {
     ["acceptance", { acceptanceCriteria: [] }, "missing-acceptance-criteria"],
     ["verification", { verification: undefined }, "missing-verification"],
     ["limits", { limits: undefined }, "missing-limits"],
+    [
+      "failure handling",
+      { escalationPolicy: undefined },
+      "missing-escalation-policy",
+    ],
   ])("rejects a draft missing %s", (_label, override, code) => {
     const result = compileLoop({ ...validDraft, ...override });
 
     expect(result.program).toBeUndefined();
     expect(result.diagnostics).toContainEqual(
-      expect.objectContaining({ code, message: expect.any(String) }),
+      expect.objectContaining({
+        code,
+        message: expect.any(String),
+        blockId: "root",
+        slot: expect.any(String),
+      }),
     );
   });
 
@@ -101,6 +113,7 @@ describe("compileLoop", () => {
   it.each([
     ["maxIterations", 0],
     ["maxIterations", 101],
+    ["tokenBudget", undefined],
     ["tokenBudget", 0],
     ["timeoutMinutes", -1],
     ["noProgressLimit", 0],
@@ -127,12 +140,220 @@ describe("compileLoop", () => {
     expect(compileLoop(validDraft).executionBlockIds).toEqual([
       "root",
       "worker",
+      "limits",
+      "escalation",
       "task-1",
       "task-2",
       "acceptance-1",
       "verification",
-      "limits",
-      "escalation",
     ]);
+  });
+
+  it.each([
+    ["name", { name: "  " }, "missing-name"],
+    [
+      "instruction text",
+      { instructions: [{ blockId: "task-1", value: "  " }] },
+      "empty-instruction",
+    ],
+    [
+      "acceptance text",
+      { acceptanceCriteria: [{ blockId: "acceptance-1", value: "" }] },
+      "empty-acceptance-criterion",
+    ],
+    [
+      "verification command",
+      { verification: { blockId: "verification", value: "\n" } },
+      "empty-verification",
+    ],
+  ])("rejects blank %s", (_label, override, code) => {
+    const result = compileLoop({ ...validDraft, ...override });
+
+    expect(result.program).toBeUndefined();
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({ code }),
+    );
+  });
+
+  it.each([
+    ["zero", 0],
+    ["NaN", Number.NaN],
+    ["fraction", 1.5],
+  ])("rejects %s worker snapshot ids", (_label, snapshotId) => {
+    const result = compileLoop({
+      ...validDraft,
+      worker: {
+        blockId: "worker",
+        value: { snapshotId, label: "Codex worker" },
+      },
+    });
+
+    expect(result.program).toBeUndefined();
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "invalid-worker-snapshot",
+        blockId: "worker",
+      }),
+    );
+  });
+
+  it("rejects limits beyond the safe integer range", () => {
+    const result = compileLoop({
+      ...validDraft,
+      limits: {
+        ...validDraft.limits,
+        value: {
+          ...validDraft.limits.value,
+          tokenBudget: Number.MAX_SAFE_INTEGER + 1,
+        },
+      },
+    });
+
+    expect(result.program).toBeUndefined();
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({ code: "invalid-limits" }),
+    );
+  });
+
+  it("returns diagnostics instead of throwing on malformed text values", () => {
+    const malformed = {
+      ...validDraft,
+      instructions: [{ blockId: "task-1", value: 7 }],
+    } as unknown as LoopDraft;
+
+    expect(() => compileLoop(malformed)).not.toThrow();
+    expect(compileLoop(malformed).diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "invalid-instruction",
+        blockId: "task-1",
+      }),
+    );
+  });
+
+  it("rejects escalation policies outside the published contract", () => {
+    const malformed = {
+      ...validDraft,
+      escalationPolicy: { blockId: "escalation", value: "continue" },
+    } as unknown as LoopDraft;
+    const result = compileLoop(malformed);
+
+    expect(result.program).toBeUndefined();
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "invalid-escalation-policy",
+        blockId: "escalation",
+      }),
+    );
+  });
+
+  it("blocks adapter diagnostics from custom Blockly fields", () => {
+    const result = compileLoop({
+      ...validDraft,
+      adapterDiagnostics: [{
+        code: "missing-custom-parameter",
+        message: "自定义积木参数 command 不能为空。",
+        blockId: "custom-task",
+        slot: "command",
+      }],
+    });
+
+    expect(result.program).toBeUndefined();
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({ code: "missing-custom-parameter" }),
+    );
+  });
+
+  it("returns diagnostics for a null draft without throwing", () => {
+    const malformed = null as unknown as LoopDraft;
+
+    expect(() => compileLoop(malformed)).not.toThrow();
+    expect(compileLoop(malformed)).toEqual({
+      diagnostics: [
+        expect.objectContaining({ code: "invalid-draft" }),
+      ],
+      executionBlockIds: [],
+    });
+  });
+
+  it("rejects malformed block arrays without throwing", () => {
+    const malformed = {
+      ...validDraft,
+      instructions: [null],
+    } as unknown as LoopDraft;
+
+    expect(() => compileLoop(malformed)).not.toThrow();
+    expect(compileLoop(malformed).diagnostics).toContainEqual(
+      expect.objectContaining({ code: "invalid-instruction" }),
+    );
+    expect(compileLoop(malformed).executionBlockIds.every(
+      (blockId) => typeof blockId === "string",
+    )).toBe(true);
+  });
+
+  it.each([
+    [
+      "root block id",
+      { rootBlockId: 5 },
+      "invalid-root-block-id",
+    ],
+    [
+      "loose block metadata",
+      { looseBlockIds: undefined },
+      "invalid-loose-block-list",
+    ],
+    [
+      "unknown block metadata",
+      { unknownBlockTypes: undefined },
+      "invalid-unknown-block-list",
+    ],
+    [
+      "instruction block id",
+      { instructions: [{ blockId: 9, value: "Run tests" }] },
+      "invalid-instruction-block-id",
+    ],
+    [
+      "worker block id",
+      {
+        worker: {
+          blockId: " ",
+          value: { snapshotId: 42, label: "Codex worker" },
+        },
+      },
+      "invalid-worker-snapshot",
+    ],
+    [
+      "verification block id",
+      { verification: { blockId: "", value: "pnpm test" } },
+      "invalid-verification",
+    ],
+    [
+      "limits block id",
+      { limits: { ...validDraft.limits, blockId: "\n" } },
+      "invalid-limits",
+    ],
+    [
+      "escalation block id",
+      { escalationPolicy: { blockId: " ", value: "pause" } },
+      "invalid-escalation-policy",
+    ],
+    [
+      "unknown block id",
+      { unknownBlockTypes: [{ blockId: "", type: "future-block" }] },
+      "invalid-unknown-block-entry",
+    ],
+    [
+      "unknown block type",
+      { unknownBlockTypes: [{ blockId: "future", type: " " }] },
+      "invalid-unknown-block-entry",
+    ],
+  ])("rejects invalid %s", (_label, override, code) => {
+    const malformed = {
+      ...validDraft,
+      ...override,
+    } as unknown as LoopDraft;
+
+    expect(compileLoop(malformed).diagnostics).toContainEqual(
+      expect.objectContaining({ code }),
+    );
   });
 });

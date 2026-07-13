@@ -1,0 +1,94 @@
+.output-panel {
+  min-width: 0;
+  min-height: 0;
+  border-top: 1px solid #ccd3da;
+  background: #fff;
+  grid-column: 1 / 3;
+}
+
+.output-tabs {
+  display: flex;
+  height: 41px;
+  align-items: end;
+  border-bottom: 1px solid #d9dee4;
+  padding: 0 12px;
+}
+
+.output-tabs button {
+  display: flex;
+  height: 40px;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  padding: 0 12px;
+  color: #697683;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.output-tabs button.active {
+  border-bottom-color: #0f766e;
+  color: #1f2933;
+}
+
+.output-tabs button span {
+  border-radius: 8px;
+  background: #e5e9ed;
+  padding: 1px 6px;
+  font-size: 10px;
+}
+
+.output-content {
+  height: calc(100% - 41px);
+  overflow: auto;
+}
+
+.output-content pre {
+  margin: 0;
+  padding: 13px 16px;
+  color: #dfe7ef;
+  background: #202a31;
+  font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.diagnostic-list,
+.evidence-list {
+  display: grid;
+}
+
+.diagnostic-list button,
+.evidence-list button {
+  display: grid;
+  min-height: 38px;
+  align-items: center;
+  border: 0;
+  border-bottom: 1px solid #edf0f2;
+  background: #fff;
+  padding: 7px 14px;
+  text-align: left;
+}
+
+.diagnostic-list button {
+  grid-template-columns: 190px 1fr;
+}
+
+.diagnostic-list code {
+  color: #a33b20;
+  font-size: 11px;
+}
+
+.evidence-list button {
+  grid-template-columns: 92px 70px 1fr;
+  font-size: 12px;
+}
+
+.evidence-list time {
+  color: #7b8794;
+}
+
+.evidence-list strong {
+  color: #0f766e;
+  text-transform: uppercase;
+}
