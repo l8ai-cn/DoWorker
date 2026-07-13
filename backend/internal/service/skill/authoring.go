@@ -21,12 +21,15 @@ func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldo
 	if strings.TrimSpace(req.Instructions) == "" {
 		return nil, ErrInstructionsRequired
 	}
+	tags, err := ValidateTags(req.Tags)
+	if err != nil {
+		return nil, err
+	}
 	slug, err := s.resolveSlug(ctx, req.OrganizationID, req.Slug, req.Name, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	tags := skilldom.NormalizeTags(req.Tags)
 	files, err := renderSkillFiles(slug, req.Name, req.Description, req.License, req.Instructions, tags)
 	if err != nil {
 		return nil, err

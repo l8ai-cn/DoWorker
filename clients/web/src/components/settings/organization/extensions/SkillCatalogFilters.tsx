@@ -58,11 +58,15 @@ export function SkillCatalogFilters({
         )}
       </div>
 
-      <div className="inline-flex self-start rounded-md bg-surface-muted p-1" role="tablist">
+      <div
+        className="inline-flex self-start rounded-md bg-surface-muted p-1"
+        role="group"
+        aria-label={t("extensions.skillCatalog.viewMode")}
+      >
         <button
           type="button"
-          role="tab"
-          aria-selected={viewMode === "flat"}
+          aria-label={t("extensions.skillCatalog.groupFlat")}
+          aria-pressed={viewMode === "flat"}
           onClick={() => onViewModeChange("flat")}
           className={`flex h-7 items-center gap-1.5 rounded px-2 text-xs font-medium ${
             viewMode === "flat"
@@ -75,8 +79,8 @@ export function SkillCatalogFilters({
         </button>
         <button
           type="button"
-          role="tab"
-          aria-selected={viewMode === "tags"}
+          aria-label={t("extensions.skillCatalog.groupByTag")}
+          aria-pressed={viewMode === "tags"}
           onClick={() => onViewModeChange("tags")}
           className={`flex h-7 items-center gap-1.5 rounded px-2 text-xs font-medium ${
             viewMode === "tags"

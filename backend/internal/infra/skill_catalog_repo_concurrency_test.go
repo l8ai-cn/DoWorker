@@ -48,3 +48,27 @@ func TestSkillCatalogRepositoryUpdateIfVersionRejectsStaleRow(t *testing.T) {
 	assert.Equal(t, "First Writer", saved.DisplayName)
 	assert.Equal(t, 2, saved.Version)
 }
+
+func TestSkillCatalogRepositoryListAllIsOrgScopedAndIDOrdered(t *testing.T) {
+	ctx := context.Background()
+	db := workerSpecSnapshotDBForContract(t)
+	require.NoError(t, db.Exec(
+		"ALTER TABLE skills ADD COLUMN tags TEXT NOT NULL DEFAULT '{}'",
+	).Error)
+	repo := NewSkillCatalogRepository(db)
+	orgID := int64(77)
+	otherOrgID := int64(88)
+	for _, row := range []*skilldom.Skill{
+		{ID: 9, OrganizationID: &orgID, Slug: "ninth", DisplayName: "Ninth", GitRepoPath: "skills/ninth"},
+		{ID: 3, OrganizationID: &otherOrgID, Slug: "other", DisplayName: "Other", GitRepoPath: "skills/other"},
+		{ID: 5, OrganizationID: &orgID, Slug: "fifth", DisplayName: "Fifth", GitRepoPath: "skills/fifth"},
+	} {
+		require.NoError(t, repo.Create(ctx, row))
+	}
+
+	rows, err := repo.ListAll(ctx, orgID)
+
+	require.NoError(t, err)
+	require.Len(t, rows, 2)
+	assert.Equal(t, []int64{5, 9}, []int64{rows[0].ID, rows[1].ID})
+}

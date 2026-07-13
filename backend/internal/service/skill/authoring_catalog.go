@@ -33,6 +33,10 @@ func (s *Service) List(ctx context.Context, orgID int64, limit, offset int) ([]s
 	return s.store.List(ctx, orgID, limit, offset)
 }
 
+func (s *Service) ListAll(ctx context.Context, orgID int64) ([]skilldom.Skill, error) {
+	return s.store.ListAll(ctx, orgID)
+}
+
 func (s *Service) prepareFromGit(
 	ctx context.Context,
 	repoPath, branch string,

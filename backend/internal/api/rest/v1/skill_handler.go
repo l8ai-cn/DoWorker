@@ -28,6 +28,15 @@ func NewSkillHandler(service skillHandlerService) *SkillHandler {
 
 func (h *SkillHandler) ListSkills(c *gin.Context) {
 	tenant := middleware.GetTenant(c)
+	if c.Query("all") == "true" {
+		items, err := h.service.ListAll(c.Request.Context(), tenant.OrganizationID)
+		if err != nil {
+			apierr.InternalError(c, "Failed to list skills")
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"skills": items, "total": len(items)})
+		return
+	}
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 	items, total, err := h.service.List(c.Request.Context(), tenant.OrganizationID, limit, offset)
@@ -154,7 +163,8 @@ func (h *SkillHandler) notFoundOrInternal(c *gin.Context, err error) {
 func (h *SkillHandler) validationOrInternal(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, skillSvc.ErrNameRequired),
-		errors.Is(err, skillSvc.ErrInstructionsRequired):
+		errors.Is(err, skillSvc.ErrInstructionsRequired),
+		errors.Is(err, skillSvc.ErrInvalidTags):
 		apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
 	case errors.Is(err, skilldom.ErrNotFound):
 		apierr.ResourceNotFound(c, "Skill not found")

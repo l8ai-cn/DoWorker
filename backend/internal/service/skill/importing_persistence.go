@@ -18,7 +18,10 @@ func (s *Service) createImportedSkill(
 	if err != nil {
 		return nil, err
 	}
-	tags := skilldom.NormalizeTags(info.Tags)
+	tags, err := ValidateTags(info.Tags)
+	if err != nil {
+		return nil, err
+	}
 	files, err = prepareImportedSkillFiles(slug, tags, files)
 	if err != nil {
 		return nil, err

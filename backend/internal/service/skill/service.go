@@ -24,6 +24,7 @@ import (
 var (
 	ErrNameRequired         = errors.New("skill: name is required")
 	ErrInstructionsRequired = errors.New("skill: instructions (SKILL.md body) are required")
+	ErrInvalidTags          = errors.New("skill: invalid tags")
 )
 
 // SkillPackagerBridge separates local package preparation from publication.

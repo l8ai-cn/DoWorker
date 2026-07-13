@@ -16,7 +16,26 @@ describe("skillCatalogApi", () => {
 
     const result = await skillCatalogApi.list();
 
+    expect(lightFetch).toHaveBeenCalledWith(
+      "/api/v1/orgs/acme/authored-skills",
+      { authenticated: true, query: { limit: 50, offset: 0 } },
+    );
     expect(result.skills[0].tags).toEqual(["editing", "video"]);
+  });
+
+  it("requests the complete catalog through the stable all endpoint", async () => {
+    vi.mocked(lightFetch).mockResolvedValue({
+      skills: [{ slug: "video-editing", tags: ["video"] }],
+      total: 1,
+    });
+
+    const result = await skillCatalogApi.listAll();
+
+    expect(lightFetch).toHaveBeenCalledWith(
+      "/api/v1/orgs/acme/authored-skills",
+      { authenticated: true, query: { all: true } },
+    );
+    expect(result.skills).toHaveLength(1);
   });
 
   it("sends tag-only PATCH updates", async () => {

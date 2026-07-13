@@ -139,6 +139,15 @@ func (r *SkillCatalogRepository) List(ctx context.Context, orgID int64, limit, o
 	return rows, total, err
 }
 
+func (r *SkillCatalogRepository) ListAll(ctx context.Context, orgID int64) ([]skilldom.Skill, error) {
+	var rows []skilldom.Skill
+	err := r.db.WithContext(ctx).
+		Where("organization_id = ?", orgID).
+		Order("id ASC").
+		Find(&rows).Error
+	return rows, err
+}
+
 func (r *SkillCatalogRepository) ListCatalog(ctx context.Context, orgID int64, query, category string) ([]skilldom.Skill, error) {
 	q := r.db.WithContext(ctx).Model(&skilldom.Skill{}).
 		Where("is_active = ?", true).

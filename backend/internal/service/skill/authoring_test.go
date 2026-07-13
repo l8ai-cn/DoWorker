@@ -132,6 +132,16 @@ func (f *fakeStore) List(_ context.Context, orgID int64, limit, offset int) ([]s
 	return out, int64(len(out)), nil
 }
 
+func (f *fakeStore) ListAll(_ context.Context, orgID int64) ([]skilldom.Skill, error) {
+	var out []skilldom.Skill
+	for _, s := range f.rows {
+		if orgMatches(s.OrganizationID, orgID) {
+			out = append(out, *s)
+		}
+	}
+	return out, nil
+}
+
 func (f *fakeStore) ListCatalog(_ context.Context, orgID int64, query, category string) ([]skilldom.Skill, error) {
 	var out []skilldom.Skill
 	for _, s := range f.rows {

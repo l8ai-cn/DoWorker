@@ -39,6 +39,14 @@ export const skillCatalogApi = {
     return { skills: r?.skills ?? [], total: r?.total ?? 0 };
   },
 
+  listAll: async (): Promise<{ skills: CatalogSkill[]; total: number }> => {
+    const r = await lightFetch<{ skills: CatalogSkill[]; total: number }>(base(), {
+      authenticated: true,
+      query: { all: true },
+    });
+    return { skills: r?.skills ?? [], total: r?.total ?? 0 };
+  },
+
   get: async (skillSlug: string): Promise<CatalogSkill> => {
     const r = await lightFetch<{ skill: CatalogSkill }>(`${base()}/${skillSlug}`, {
       authenticated: true,

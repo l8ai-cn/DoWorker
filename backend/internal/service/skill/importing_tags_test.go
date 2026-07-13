@@ -3,6 +3,7 @@ package skill
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -60,6 +61,23 @@ func TestImportFromGit_ReimportPreservesCuratorTagsEverywhere(t *testing.T) {
 	assert.Equal(t, []string{"curated", "video"}, []string(row.Tags))
 	assertSkillConfigTags(t, internalGit.Repos["org7-video-editing"].Files["skill.json"], []string{"curated", "video"})
 	assertSkillConfigTags(t, []byte(packager.lastSkillCfg), []string{"curated", "video"})
+}
+
+func TestImportFromGitRejectsInvalidTags(t *testing.T) {
+	tags := make([]string, 21)
+	for i := range tags {
+		tags[i] = fmt.Sprintf("tag-%02d", i)
+	}
+	upstream := createTagUpstream(t, tags)
+	svc := newTestService(newFakeStore(), gitops.NewFake("am-skills"), &fakePackager{})
+
+	_, err := importTagSkill(t, svc, upstream, &ImportFromGitRequest{
+		OrganizationID: 7,
+		UserID:         3,
+		URL:            "https://example.test/video-editing.git",
+	})
+
+	assert.ErrorIs(t, err, ErrInvalidTags)
 }
 
 func createTagUpstream(t *testing.T, tags []string) string {

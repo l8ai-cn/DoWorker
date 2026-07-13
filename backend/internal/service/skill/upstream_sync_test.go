@@ -3,6 +3,7 @@ package skill
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -145,6 +146,28 @@ func TestExplicitUpstreamSync_PreservesCuratorTagsInGitAndPackage(t *testing.T) 
 	}, packager.catalogIdentities)
 	assertSkillConfigTags(t, internalGit.Repos["org7-video-editing"].Files["skill.json"], []string{"curated", "video"})
 	assertSkillConfigTags(t, []byte(packager.lastSkillCfg), []string{"curated", "video"})
+}
+
+func TestSyncFromUpstreamRejectsInvalidCuratorTags(t *testing.T) {
+	upstream := createTagUpstream(t, []string{"upstream"})
+	store := newFakeStore()
+	internalGit := gitops.NewFake("am-skills")
+	svc := newTestService(store, internalGit, &fakePackager{})
+	row, err := importTagSkill(t, svc, upstream, &ImportFromGitRequest{
+		OrganizationID: 7,
+		UserID:         3,
+		URL:            "https://example.test/video-editing.git",
+	})
+	require.NoError(t, err)
+	row.Tags = make([]string, 21)
+	for i := range row.Tags {
+		row.Tags[i] = fmt.Sprintf("tag-%02d", i)
+	}
+	store.rows[row.ID].Tags = row.Tags
+
+	_, err = svc.SyncFromUpstream(context.Background(), 7, row.Slug)
+
+	assert.ErrorIs(t, err, ErrInvalidTags)
 }
 
 func TestUpstreamSyncDoesNotIncrementVersionWhenContentIsUnchanged(t *testing.T) {

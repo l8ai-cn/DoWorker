@@ -14,7 +14,12 @@ export function groupCatalogSkills(skills: CatalogSkill[]): SkillCatalogGroup[] 
       continue;
     }
     for (const tag of skill.tags) {
-      tagged.set(tag, [...(tagged.get(tag) ?? []), skill]);
+      const group = tagged.get(tag);
+      if (group) {
+        group.push(skill);
+      } else {
+        tagged.set(tag, [skill]);
+      }
     }
   }
 

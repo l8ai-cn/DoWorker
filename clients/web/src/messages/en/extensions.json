@@ -89,6 +89,7 @@
       "clearFilters": "Clear",
       "groupFlat": "Flat",
       "groupByTag": "By tag",
+      "viewMode": "Catalog view",
       "untagged": "Untagged",
       "tagGroup": "Tag",
       "noFilterResults": "No skills match the selected tags.",

@@ -14,21 +14,6 @@ interface SkillCatalogSettingsProps {
   t: TranslationFn;
 }
 
-const SKILL_PAGE_SIZE = 50;
-
-async function loadAllSkills() {
-  const skills: CatalogSkill[] = [];
-  let total = Number.POSITIVE_INFINITY;
-
-  while (skills.length < total) {
-    const page = await skillCatalogApi.list(SKILL_PAGE_SIZE, skills.length);
-    if (page.skills.length === 0) break;
-    skills.push(...page.skills);
-    total = page.total;
-  }
-  return skills;
-}
-
 export function SkillCatalogSettings({ t }: SkillCatalogSettingsProps) {
   const currentOrg = useCurrentOrg();
   const orgSlug = currentOrg?.slug ?? "";
@@ -40,29 +25,38 @@ export function SkillCatalogSettings({ t }: SkillCatalogSettingsProps) {
   const [savingSlugs, setSavingSlugs] = useState<Set<string>>(() => new Set());
   const [saveErrorSlugs, setSaveErrorSlugs] = useState<Set<string>>(() => new Set());
   const savingSlugsRef = useRef(new Set<string>());
+  const loadGenerationRef = useRef(0);
 
-  const load = useCallback(async (signal?: AbortSignal) => {
-    if (!orgSlug) return;
+  const load = useCallback(async () => {
+    const generation = ++loadGenerationRef.current;
+    if (!orgSlug) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setLoadError(false);
     try {
-      const loadedSkills = await loadAllSkills();
-      if (signal?.aborted) return;
-      setSkills(loadedSkills);
+      const result = await skillCatalogApi.listAll();
+      if (generation === loadGenerationRef.current) {
+        setSkills(result.skills);
+      }
     } catch (error) {
-      if (!signal?.aborted) {
+      if (generation === loadGenerationRef.current) {
         setLoadError(true);
         toast.error(getLocalizedErrorMessage(error, t, t("extensions.failedToLoadSkills")));
       }
     } finally {
-      if (!signal?.aborted) setLoading(false);
+      if (generation === loadGenerationRef.current) {
+        setLoading(false);
+      }
     }
   }, [orgSlug, t]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    load(controller.signal);
-    return () => controller.abort();
+    load();
+    return () => {
+      loadGenerationRef.current += 1;
+    };
   }, [load]);
 
   const handleSync = useCallback(async (slug: string) => {

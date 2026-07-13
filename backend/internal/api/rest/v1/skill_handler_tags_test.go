@@ -20,6 +20,7 @@ type skillHandlerTagService struct {
 	skillHandlerService
 	createRequest *skillSvc.CreateSkillRequest
 	updateRequest *skillSvc.UpdateSkillRequest
+	serviceErr    error
 }
 
 func (s *skillHandlerTagService) Create(
@@ -27,6 +28,9 @@ func (s *skillHandlerTagService) Create(
 	req *skillSvc.CreateSkillRequest,
 ) (*skilldom.Skill, error) {
 	s.createRequest = req
+	if s.serviceErr != nil {
+		return nil, s.serviceErr
+	}
 	return &skilldom.Skill{ID: 1, Slug: req.Slug, Tags: skilldom.NormalizeTags(req.Tags)}, nil
 }
 
@@ -43,9 +47,27 @@ func (s *skillHandlerTagService) Update(
 	req *skillSvc.UpdateSkillRequest,
 ) (*skilldom.Skill, error) {
 	s.updateRequest = req
+	if s.serviceErr != nil {
+		return nil, s.serviceErr
+	}
 	return &skilldom.Skill{
 		ID: req.SkillID, Slug: "video-editing", Tags: skilldom.NormalizeTags(*req.Tags),
 	}, nil
+}
+
+func (s *skillHandlerTagService) ImportFromGit(
+	_ context.Context,
+	_ *skillSvc.ImportFromGitRequest,
+) ([]*skilldom.Skill, error) {
+	return []*skilldom.Skill{{ID: 1, Slug: "valid"}}, s.serviceErr
+}
+
+func (s *skillHandlerTagService) SyncFromUpstream(
+	_ context.Context,
+	_ int64,
+	_ string,
+) (*skilldom.Skill, error) {
+	return nil, s.serviceErr
 }
 
 func newSkillTagContext(method, path, body string) (*gin.Context, *httptest.ResponseRecorder) {
@@ -93,4 +115,39 @@ func TestUpdateSkillAcceptsTags(t *testing.T) {
 	require.NotNil(t, service.updateRequest.Tags)
 	assert.Equal(t, []string{" Motion ", "editing", "MOTION"}, *service.updateRequest.Tags)
 	assert.JSONEq(t, `{"skill":{"id":1,"organization_id":null,"slug":"video-editing","display_name":"","description":"","license":"","tags":["editing","motion"],"is_active":false,"git_repo_path":"","default_branch":"","install_source":"","content_sha":"","storage_key":"","package_size":0,"version":0,"created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z"}}`, recorder.Body.String())
+}
+
+func TestInvalidTagsMapToBadRequest(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	handler := NewSkillHandler(&skillHandlerTagService{serviceErr: skillSvc.ErrInvalidTags})
+	context, recorder := newSkillTagContext(
+		http.MethodPatch,
+		"/authored-skills/video-editing",
+		`{"tags":["invalid"]}`,
+	)
+
+	handler.UpdateSkill(context)
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+}
+
+func TestImportAndSyncInvalidTagsMapToBadRequest(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	handler := NewSkillHandler(&skillHandlerTagService{serviceErr: skillSvc.ErrInvalidTags})
+
+	importContext, importRecorder := newSkillTagContext(
+		http.MethodPost,
+		"/authored-skills/import",
+		`{"url":"https://example.test/skills.git"}`,
+	)
+	handler.ImportSkills(importContext)
+	assert.Equal(t, http.StatusBadRequest, importRecorder.Code)
+
+	syncContext, syncRecorder := newSkillTagContext(
+		http.MethodPost,
+		"/authored-skills/video-editing/sync-upstream",
+		"",
+	)
+	handler.SyncSkillUpstream(syncContext)
+	assert.Equal(t, http.StatusBadRequest, syncRecorder.Code)
 }

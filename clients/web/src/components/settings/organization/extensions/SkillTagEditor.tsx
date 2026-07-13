@@ -34,6 +34,7 @@ export function SkillTagEditor({
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(tags);
   const [input, setInput] = useState("");
+  const tagLimitReached = draft.length >= 20;
 
   const setEditorOpen = (nextOpen: boolean) => {
     if (saving) return;
@@ -46,6 +47,7 @@ export function SkillTagEditor({
   };
 
   const addInputTag = () => {
+    if (tagLimitReached) return;
     const next = normalizeTags([...draft, input]);
     if (next.length === draft.length && input.trim() === "") return;
     setDraft(next);
@@ -54,7 +56,7 @@ export function SkillTagEditor({
 
   const save = async () => {
     try {
-      await onSave(normalizeTags(draft));
+      await onSave(normalizeTags([...draft, input]));
       setOpen(false);
     } catch {
       // The parent owns the localized error state and toast.
@@ -102,7 +104,8 @@ export function SkillTagEditor({
         </div>
         <Input
           value={input}
-          disabled={saving}
+          disabled={saving || tagLimitReached}
+          maxLength={40}
           aria-label={t("extensions.skillCatalog.tagInput")}
           placeholder={t("extensions.skillCatalog.tagInputPlaceholder")}
           onChange={(event) => setInput(event.target.value)}

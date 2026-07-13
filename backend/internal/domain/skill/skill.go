@@ -118,6 +118,7 @@ type Repository interface {
 	SlugExists(ctx context.Context, orgID int64, slug string, excludeID int64) (bool, error)
 	FindByUpstream(ctx context.Context, orgID int64, upstreamURL, upstreamSubdir string) (*Skill, error)
 	List(ctx context.Context, orgID int64, limit, offset int) ([]Skill, int64, error)
+	ListAll(ctx context.Context, orgID int64) ([]Skill, error)
 	// ListCatalog returns active org-level + platform-level skills for
 	// marketplace browsing, optionally filtered by search query/category.
 	ListCatalog(ctx context.Context, orgID int64, query, category string) ([]Skill, error)

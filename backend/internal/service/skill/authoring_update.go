@@ -16,6 +16,16 @@ const maxSkillMutationAttempts = 4
 var ErrMutationConflict = errors.New("skill: concurrent mutation conflict")
 
 func (s *Service) Update(ctx context.Context, req *UpdateSkillRequest) (*skilldom.Skill, error) {
+	if req.Tags != nil {
+		normalized, err := ValidateTags(*req.Tags)
+		if err != nil {
+			return nil, err
+		}
+		validated := *req
+		tags := []string(normalized)
+		validated.Tags = &tags
+		req = &validated
+	}
 	var result *skilldom.Skill
 	err := s.store.WithMutationLock(ctx, req.SkillID, func(store skilldom.Repository) error {
 		for attempt := 0; attempt < maxSkillMutationAttempts; attempt++ {

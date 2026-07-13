@@ -32,6 +32,10 @@ func (h *SkillHandler) ImportSkills(c *gin.Context) {
 		AuthType:       req.AuthType,
 		AuthCredential: req.AuthCredential,
 	})
+	if errors.Is(err, skillSvc.ErrInvalidTags) {
+		apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
+		return
+	}
 	if err != nil && len(rows) == 0 {
 		if errors.Is(err, skillSvc.ErrImportURLRequired) {
 			apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
@@ -56,7 +60,8 @@ func (h *SkillHandler) SyncSkillUpstream(c *gin.Context) {
 		switch {
 		case errors.Is(err, skilldom.ErrNotFound):
 			apierr.ResourceNotFound(c, "Skill not found")
-		case errors.Is(err, skillSvc.ErrNotImported):
+		case errors.Is(err, skillSvc.ErrNotImported),
+			errors.Is(err, skillSvc.ErrInvalidTags):
 			apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
 		default:
 			apierr.BadRequest(c, apierr.VALIDATION_FAILED, "Sync failed: "+err.Error())

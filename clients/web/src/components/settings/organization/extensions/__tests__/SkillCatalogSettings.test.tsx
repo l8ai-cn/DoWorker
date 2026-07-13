@@ -1,11 +1,11 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { toast } from "sonner";
 import type { CatalogSkill } from "@/lib/api";
 import { SkillCatalogSettings } from "../SkillCatalogSettings";
 
 const api = vi.hoisted(() => ({
-  list: vi.fn(),
+  listAll: vi.fn(),
   update: vi.fn(),
   syncUpstream: vi.fn(),
   delete: vi.fn(),
@@ -52,26 +52,23 @@ function deferred<T>() {
 describe("SkillCatalogSettings", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    api.list.mockResolvedValue({ skills: [catalogSkill(1, "video-editing")], total: 1 });
+    api.listAll.mockResolvedValue({ skills: [catalogSkill(1, "video-editing")], total: 1 });
   });
 
-  it("loads every catalog page beyond the first 50 skills", async () => {
+  it("loads the complete catalog in one stable request", async () => {
     const skills = Array.from({ length: 51 }, (_, index) => (
       catalogSkill(index + 1, `skill-${index + 1}`)
     ));
-    api.list
-      .mockResolvedValueOnce({ skills: skills.slice(0, 50), total: 51 })
-      .mockResolvedValueOnce({ skills: skills.slice(50), total: 51 });
+    api.listAll.mockResolvedValueOnce({ skills, total: 51 });
 
     render(<SkillCatalogSettings t={t} />);
 
     expect(await screen.findByText("Skill 51")).toBeVisible();
-    expect(api.list).toHaveBeenNthCalledWith(1, 50, 0);
-    expect(api.list).toHaveBeenNthCalledWith(2, 50, 50);
+    expect(api.listAll).toHaveBeenCalledTimes(1);
   });
 
   it("shows a load error and retries the full catalog load", async () => {
-    api.list
+    api.listAll
       .mockRejectedValueOnce(new Error("catalog unavailable"))
       .mockResolvedValueOnce({ skills: [catalogSkill(2, "audio-mixing", ["audio"])], total: 1 });
 
@@ -87,9 +84,26 @@ describe("SkillCatalogSettings", () => {
 
     expect(await screen.findByText("Skill 2")).toBeVisible();
     expect(screen.queryByText("extensions.failedToLoadSkills")).not.toBeInTheDocument();
-    expect(api.list).toHaveBeenNthCalledWith(1, 50, 0);
-    expect(api.list).toHaveBeenNthCalledWith(2, 50, 0);
+    expect(api.listAll).toHaveBeenCalledTimes(2);
     expect(toast.error).toHaveBeenCalledWith("catalog unavailable");
+  });
+
+  it("does not let an older request overwrite the latest catalog", async () => {
+    const stale = deferred<{ skills: CatalogSkill[]; total: number }>();
+    api.listAll
+      .mockReturnValueOnce(stale.promise)
+      .mockResolvedValueOnce({ skills: [catalogSkill(2, "latest")], total: 1 });
+    const { rerender } = render(<SkillCatalogSettings t={t} />);
+
+    rerender(<SkillCatalogSettings t={(key) => key} />);
+    expect(await screen.findByText("Skill 2")).toBeVisible();
+
+    await act(async () => {
+      stale.resolve({ skills: [catalogSkill(1, "stale")], total: 1 });
+      await stale.promise;
+    });
+    expect(screen.getByText("Skill 2")).toBeVisible();
+    expect(screen.queryByText("Skill 1")).not.toBeInTheDocument();
   });
 
   it("holds independent saves and blocks reentry for the same skill", async () => {
@@ -97,7 +111,7 @@ describe("SkillCatalogSettings", () => {
     const second = catalogSkill(2, "audio-mixing", ["audio"]);
     const firstUpdate = deferred<CatalogSkill>();
     const secondUpdate = deferred<CatalogSkill>();
-    api.list.mockResolvedValue({ skills: [first, second], total: 2 });
+    api.listAll.mockResolvedValue({ skills: [first, second], total: 2 });
     api.update.mockImplementation((slug: string) => (
       slug === first.slug ? firstUpdate.promise : secondUpdate.promise
     ));

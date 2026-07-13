@@ -36,6 +36,7 @@ type importSkillsRequest struct {
 
 type skillHandlerService interface {
 	List(context.Context, int64, int, int) ([]skilldom.Skill, int64, error)
+	ListAll(context.Context, int64) ([]skilldom.Skill, error)
 	Get(context.Context, int64, string) (*skilldom.Skill, error)
 	Create(context.Context, *skillSvc.CreateSkillRequest) (*skilldom.Skill, error)
 	Update(context.Context, *skillSvc.UpdateSkillRequest) (*skilldom.Skill, error)

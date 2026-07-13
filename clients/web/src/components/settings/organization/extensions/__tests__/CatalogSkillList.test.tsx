@@ -81,7 +81,9 @@ describe("CatalogSkillList", () => {
   it("groups multi-tag skills in every tag group and includes untagged", () => {
     renderList();
 
-    fireEvent.click(screen.getByRole("tab", { name: "extensions.skillCatalog.groupByTag" }));
+    fireEvent.click(screen.getByRole("button", {
+      name: "extensions.skillCatalog.groupByTag",
+    }));
 
     const editing = screen.getByRole("region", {
       name: "extensions.skillCatalog.tagGroup: editing",
@@ -109,7 +111,9 @@ describe("CatalogSkillList", () => {
       ],
     });
 
-    fireEvent.click(screen.getByRole("tab", { name: "extensions.skillCatalog.groupByTag" }));
+    fireEvent.click(screen.getByRole("button", {
+      name: "extensions.skillCatalog.groupByTag",
+    }));
 
     const tagged = screen.getByRole("region", { name: "标签: 未标签" });
     const untagged = screen.getByRole("region", { name: "未标签" });
@@ -142,6 +146,38 @@ describe("CatalogSkillList", () => {
     rerender(<CatalogSkillList {...props} savingSlugs={new Set(["video-editing"])} />);
     expect(screen.getByRole("button", { name: "extensions.skillCatalog.savingTags" })).toBeDisabled();
     expect(screen.getByLabelText("extensions.skillCatalog.tagInput")).toBeDisabled();
+  });
+
+  it("includes pending input when save is clicked directly", async () => {
+    const onUpdateTags = vi.fn().mockResolvedValue(undefined);
+    renderList({ onUpdateTags });
+    fireEvent.click(screen.getByRole("button", {
+      name: "extensions.skillCatalog.editTags: video-editing",
+    }));
+    const input = screen.getByLabelText("extensions.skillCatalog.tagInput");
+    fireEvent.change(input, { target: { value: " Curated " } });
+
+    fireEvent.click(screen.getByRole("button", {
+      name: "extensions.skillCatalog.saveTags",
+    }));
+
+    await waitFor(() => expect(onUpdateTags).toHaveBeenCalledWith(
+      "video-editing",
+      ["curated", "editing", "video"],
+    ));
+  });
+
+  it("limits tag input and disables adding after twenty tags", () => {
+    renderList({
+      skills: [skill(7, "tag-limit", Array.from({ length: 20 }, (_, index) => `tag-${index}`))],
+    });
+    fireEvent.click(screen.getByRole("button", {
+      name: "extensions.skillCatalog.editTags: tag-limit",
+    }));
+
+    const input = screen.getByLabelText("extensions.skillCatalog.tagInput");
+    expect(input).toHaveAttribute("maxlength", "40");
+    expect(input).toBeDisabled();
   });
 
   it("keeps the editor open with a save failure state", () => {

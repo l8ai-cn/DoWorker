@@ -3,6 +3,8 @@ package skill
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,6 +30,70 @@ func TestSkillJSONExposesTags(t *testing.T) {
 	var payload map[string]any
 	require.NoError(t, json.Unmarshal(data, &payload))
 	assert.Equal(t, []any{"editing", "video"}, payload["tags"])
+}
+
+func TestValidateTagsEnforcesNormalizedBoundaries(t *testing.T) {
+	valid := make([]string, 20)
+	for i := range valid {
+		valid[i] = fmt.Sprintf("%02d-%s", i, strings.Repeat("界", 17))
+	}
+	normalized, err := ValidateTags(valid)
+	require.NoError(t, err)
+	assert.Len(t, normalized, 20)
+	_, err = ValidateTags([]string{strings.Repeat("界", 40)})
+	require.NoError(t, err)
+
+	tests := map[string][]string{
+		"more than twenty": append(valid, "extra"),
+		"tag over forty code points": {
+			strings.Repeat("界", 41),
+		},
+		"total over four hundred code points": func() []string {
+			tags := make([]string, 20)
+			for i := range tags {
+				tags[i] = fmt.Sprintf("%02d%s", i, strings.Repeat("a", 19))
+			}
+			return tags
+		}(),
+	}
+	for name, tags := range tests {
+		t.Run(name, func(t *testing.T) {
+			_, err := ValidateTags(tags)
+			assert.ErrorIs(t, err, ErrInvalidTags)
+		})
+	}
+}
+
+func TestCreateAndUpdateRejectInvalidTags(t *testing.T) {
+	store := newFakeStore()
+	fake := gitops.NewFake("am-skills")
+	svc := newTestService(store, fake, &fakePackager{})
+	tooMany := make([]string, 21)
+	for i := range tooMany {
+		tooMany[i] = fmt.Sprintf("tag-%02d", i)
+	}
+
+	_, err := svc.Create(context.Background(), &CreateSkillRequest{
+		OrganizationID: 7,
+		Name:           "Video Editing",
+		Instructions:   "Edit the video.",
+		Tags:           tooMany,
+	})
+	assert.ErrorIs(t, err, ErrInvalidTags)
+	assert.Empty(t, fake.Repos)
+
+	row, err := svc.Create(context.Background(), &CreateSkillRequest{
+		OrganizationID: 7,
+		Name:           "Audio Editing",
+		Instructions:   "Edit the audio.",
+	})
+	require.NoError(t, err)
+	_, err = svc.Update(context.Background(), &UpdateSkillRequest{
+		OrganizationID: 7,
+		SkillID:        row.ID,
+		Tags:           &tooMany,
+	})
+	assert.ErrorIs(t, err, ErrInvalidTags)
 }
 
 func TestCreate_NormalizesTagsInCatalogAndSkillConfig(t *testing.T) {

@@ -28,6 +28,9 @@ func (s *Service) SyncFromUpstream(ctx context.Context, orgID int64, slug string
 	if row.UpstreamURL == "" {
 		return nil, ErrNotImported
 	}
+	if _, err := ValidateTags(row.Tags); err != nil {
+		return nil, err
+	}
 
 	src, err := extensionsvc.CloneSkillSource(ctx, row.UpstreamURL, "", nil)
 	if err != nil {
@@ -53,7 +56,11 @@ func prepareImportedSkillFiles(
 	tags []string,
 	files []gitops.FileChange,
 ) ([]gitops.FileChange, error) {
-	synced, err := preserveCuratorTags(files, slug, tags)
+	normalized, err := ValidateTags(tags)
+	if err != nil {
+		return nil, err
+	}
+	synced, err := preserveCuratorTags(files, slug, normalized)
 	if err != nil {
 		return nil, err
 	}
