@@ -26,7 +26,8 @@ Mobile。不得把“页面镜像已更新”当成协议已发布。
 发布 smoke 必须先验证移动入口 HTTPS、认证、Codex `["acp","pty"]` 声明、
 `requires_model_resource=true` 和唯一默认模型资源。测试组织中以
 `MOBILE_SMOKE_RUN_INTERACTIONS=true` 运行时，还必须创建并清理 ACP/PTY
-临时会话，验证 ACP 回复、PTY Relay token 和 ACP Relay 拒绝。
+临时会话，验证 ACP 通过直连 Relay 返回回复，以及 PTY 通过直连 Relay
+获得终端控制租约。
 
 ## 2. 灰度
 

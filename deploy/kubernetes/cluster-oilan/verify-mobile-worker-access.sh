@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API_BASE_URL="${MOBILE_SMOKE_API_BASE_URL:-https://dowork.l8ai.cn}"
 MOBILE_BASE_URL="${MOBILE_SMOKE_MOBILE_BASE_URL:-https://mobile.l8ai.cn}"
 ORG_SLUG="${MOBILE_SMOKE_ORG_SLUG:-dev-org}"
@@ -18,6 +19,7 @@ require_command() {
 
 require_command curl
 require_command jq
+require_command node
 
 login_payload="$(curl -fsS -X POST "${API_BASE_URL}/auth/login" \
   -H 'Content-Type: application/json' \
@@ -40,6 +42,58 @@ api() {
     args+=(-H 'Content-Type: application/json' --data "$body")
   fi
   curl "${args[@]}"
+}
+
+pod_connection() {
+  local pod_key="$1"
+  curl -fsS -X POST "${API_BASE_URL}/proto.pod.v1.PodService/GetPodConnection" \
+    -H 'Connect-Protocol-Version: 1' \
+    -H 'Content-Type: application/json' \
+    -H "Authorization: Bearer ${TOKEN}" \
+    -H "X-Organization-Slug: ${ORG_SLUG}" \
+    --data "$(jq -n --arg org_slug "$ORG_SLUG" --arg pod_key "$pod_key" \
+      '{orgSlug: $org_slug, podKey: $pod_key}')"
+}
+
+wait_for_pod_key() {
+  local session_id="$1"
+  local pod_key=""
+  for attempt in $(seq 1 90); do
+    pod_key="$(api GET "/v1/sessions/${session_id}" | jq -r '.pod_key // empty')"
+    [[ -n "$pod_key" ]] && {
+      printf '%s' "$pod_key"
+      return
+    }
+    sleep 1
+  done
+  printf 'Pod key was not assigned to session %s\n' "$session_id" >&2
+  exit 1
+}
+
+wait_for_pod_connection() {
+  local pod_key="$1"
+  local response=""
+  for attempt in $(seq 1 90); do
+    if response="$(pod_connection "$pod_key")"; then
+      printf '%s' "$response" | jq -e '.relayUrl and .token and .podKey' >/dev/null
+      printf '%s' "$response"
+      return
+    fi
+    sleep 1
+  done
+  printf 'GetPodConnection did not become available for Worker %s\n' "$pod_key" >&2
+  exit 1
+}
+
+run_relay_smoke() {
+  local mode="$1"
+  local connection="$2"
+  local marker="${3:-}"
+  printf '%s' "$connection" |
+    jq -c --arg mode "$mode" --arg marker "$marker" \
+      '{mode: $mode, marker: $marker, relayUrl: .relayUrl, token: .token}' |
+    node --experimental-websocket "${ROOT}/mobile-relay-data-plane-smoke.mjs"
+  printf '%s Relay data-plane smoke passed\n' "$mode"
 }
 
 assert_status() {
@@ -95,37 +149,18 @@ cleanup() {
 }
 trap cleanup EXIT
 
-marker="MOBILE_RELEASE_SMOKE_$(date +%s)_$$"
 acp_body="$(jq -n \
   --arg agent "$AGENT_ID" \
-  --arg marker "$marker" \
   --argjson model_resource_id "$model_resource_id" \
   '{
     agent_id: $agent,
     model_resource_id: $model_resource_id,
-    title: "mobile-acp-release-smoke",
-    initial_items: [{
-      type: "message",
-      data: {
-        role: "user",
-        content: [{type: "input_text", text: ("Reply with exactly " + $marker + ".")}]
-      }
-    }]
+    title: "mobile-acp-release-smoke"
   }')"
 acp_session_id="$(api POST '/v1/sessions' "$acp_body" | jq -er '.id')"
-
-for attempt in $(seq 1 90); do
-  items="$(api GET "/v1/sessions/${acp_session_id}/items?limit=100&order=desc")"
-  if printf '%s' "$items" | jq -e --arg marker "$marker" \
-    '[.data[]? | tostring | select(contains($marker))] | length > 0' >/dev/null; then
-    break
-  fi
-  [[ "$attempt" -lt 90 ]] || {
-    printf 'ACP response marker was not observed for session %s\n' "$acp_session_id" >&2
-    exit 1
-  }
-  sleep 1
-done
+acp_pod_key="$(wait_for_pod_key "$acp_session_id")"
+acp_connection="$(wait_for_pod_connection "$acp_pod_key")"
+run_relay_smoke acp "$acp_connection" "MOBILE_ACP_RELAY_$(date +%s)_$$"
 
 pty_body="$(jq -n \
   --arg agent "$AGENT_ID" \
@@ -137,32 +172,8 @@ pty_body="$(jq -n \
     pty_only: true
   }')"
 pty_session_id="$(api POST '/v1/sessions' "$pty_body" | jq -er '.id')"
+pty_pod_key="$(wait_for_pod_key "$pty_session_id")"
+pty_connection="$(wait_for_pod_connection "$pty_pod_key")"
+run_relay_smoke pty "$pty_connection"
 
-relay_file="$(mktemp)"
-trap 'rm -f "$relay_file"; cleanup' EXIT
-for attempt in $(seq 1 30); do
-  relay_status="$(curl -sS -o "$relay_file" -w '%{http_code}' \
-    "${API_BASE_URL}/v1/sessions/${pty_session_id}/relay-connection" \
-    -H "Authorization: Bearer ${TOKEN}" \
-    -H "X-Organization-Slug: ${ORG_SLUG}")"
-  if [[ "$relay_status" == "200" ]]; then
-    jq -e '.relay_url and .token and .pod_key' "$relay_file" >/dev/null
-    break
-  fi
-  [[ "$attempt" -lt 30 ]] || {
-    printf 'PTY relay connection did not become available: HTTP %s\n' "$relay_status" >&2
-    exit 1
-  }
-  sleep 1
-done
-
-acp_relay_status="$(curl -sS -o /dev/null -w '%{http_code}' \
-  "${API_BASE_URL}/v1/sessions/${acp_session_id}/relay-connection" \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -H "X-Organization-Slug: ${ORG_SLUG}")"
-[[ "$acp_relay_status" == "400" ]] || {
-  printf 'ACP relay connection must be rejected, got HTTP %s\n' "$acp_relay_status" >&2
-  exit 1
-}
-
-printf 'interaction smoke passed: ACP reply, PTY relay token, and ACP relay rejection verified\n'
+printf 'interaction smoke passed: direct ACP reply and PTY Relay control verified\n'

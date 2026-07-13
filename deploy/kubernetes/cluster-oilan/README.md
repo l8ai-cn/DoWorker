@@ -67,7 +67,8 @@ MOBILE_SMOKE_PASSWORD='...' \
 
 Set `MOBILE_SMOKE_RUN_INTERACTIONS=true` only in a test organization with a
 configured Codex model resource. That mode creates disposable ACP and PTY
-Workers, verifies the ACP reply and PTY Relay token, and deletes both sessions.
+Workers, verifies an ACP response and PTY control lease over the direct Relay
+data plane, and deletes both sessions.
 
 ### What `./deploy.sh` does (often called "reseed")
 
