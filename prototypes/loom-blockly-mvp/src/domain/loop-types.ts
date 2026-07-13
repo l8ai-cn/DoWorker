@@ -4,13 +4,13 @@ export interface SourceBlock<T> {
 }
 
 export interface WorkerSelection {
-  snapshotId: string;
+  snapshotId: number;
   label: string;
 }
 
 export interface LoopLimits {
   maxIterations: number;
-  tokenBudget?: number;
+  tokenBudget: number;
   timeoutMinutes: number;
   noProgressLimit: number;
   sameErrorLimit: number;
@@ -32,6 +32,7 @@ export interface LoopDraft {
   escalationPolicy?: SourceBlock<"pause" | "fail">;
   looseBlockIds: string[];
   unknownBlockTypes: UnknownBlockType[];
+  adapterDiagnostics: Diagnostic[];
 }
 
 export interface GoalLoopProgram {
@@ -39,7 +40,7 @@ export interface GoalLoopProgram {
   schema_version: 1;
   name: string;
   worker: {
-    snapshot_id: string;
+    snapshot_id: number;
     label: string;
   };
   objective: string;
@@ -50,7 +51,7 @@ export interface GoalLoopProgram {
   };
   limits: {
     max_iterations: number;
-    token_budget?: number;
+    token_budget: number;
     timeout_minutes: number;
     no_progress_limit: number;
     same_error_limit: number;
@@ -58,14 +59,15 @@ export interface GoalLoopProgram {
   escalation_policy: "pause" | "fail";
 }
 
-export interface CompileDiagnostic {
+export interface Diagnostic {
   code: string;
   message: string;
   blockId?: string;
+  slot?: string;
 }
 
-export interface CompileLoopResult {
-  diagnostics: CompileDiagnostic[];
+export interface CompileResult {
+  diagnostics: Diagnostic[];
   program?: GoalLoopProgram;
   executionBlockIds: string[];
 }
