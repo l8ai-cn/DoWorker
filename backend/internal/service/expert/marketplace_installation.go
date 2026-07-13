@@ -20,18 +20,7 @@ type MarketplaceInstallationRequest struct {
 }
 
 type marketplaceExpertSnapshot struct {
-	Name            string                     `json:"name"`
-	Description     *string                    `json:"description"`
-	AgentSlug       string                     `json:"agent_slug"`
-	Prompt          *string                    `json:"prompt"`
-	InteractionMode string                     `json:"interaction_mode"`
-	AutomationLevel string                     `json:"automation_level"`
-	Perpetual       bool                       `json:"perpetual"`
-	UsedEnvBundles  []string                   `json:"used_env_bundles"`
-	SkillSlugs      []string                   `json:"skill_slugs"`
-	KnowledgeMounts []expertdom.KnowledgeMount `json:"knowledge_mounts"`
-	ConfigOverrides map[string]interface{}     `json:"config_overrides"`
-	AgentfileLayer  *string                    `json:"agentfile_layer"`
+	MarketApplicationSlug string `json:"market_application_slug"`
 }
 
 func (s *Service) InstallMarketplaceExpert(
@@ -53,23 +42,17 @@ func (s *Service) InstallMarketplaceExpert(
 	if json.Unmarshal(request.RuntimeSnapshot, &snapshot) != nil {
 		return nil, false, ErrMarketplaceInstallationInvalid
 	}
-	row, err := s.Create(ctx, &CreateExpertRequest{
-		OrganizationID:  request.TargetOrganizationID,
-		UserID:          request.ActorUserID,
-		Name:            snapshot.Name,
-		Slug:            slug,
-		Description:     snapshot.Description,
-		AgentSlug:       snapshot.AgentSlug,
-		Prompt:          snapshot.Prompt,
-		InteractionMode: snapshot.InteractionMode,
-		AutomationLevel: snapshot.AutomationLevel,
-		Perpetual:       snapshot.Perpetual,
-		UsedEnvBundles:  append([]string(nil), snapshot.UsedEnvBundles...),
-		SkillSlugs:      append([]string(nil), snapshot.SkillSlugs...),
-		KnowledgeMounts: append([]expertdom.KnowledgeMount(nil), snapshot.KnowledgeMounts...),
-		ConfigOverrides: snapshot.ConfigOverrides,
-		AgentfileLayer:  snapshot.AgentfileLayer,
-	})
+	app, ok := findMarketApplication(snapshot.MarketApplicationSlug)
+	if !ok {
+		return nil, false, ErrMarketApplicationNotFound
+	}
+	row, _, err := s.installMarketApplication(
+		ctx,
+		request.TargetOrganizationID,
+		request.ActorUserID,
+		app,
+		slug,
+	)
 	if err != nil {
 		existing, lookupErr := s.store.GetBySlug(
 			ctx,

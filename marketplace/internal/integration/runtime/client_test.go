@@ -19,7 +19,7 @@ func TestClientInstallsExpertThroughInternalBridge(t *testing.T) {
 		require.Equal(t, "secret", request.Header.Get("X-Internal-Secret"))
 		body, err := io.ReadAll(request.Body)
 		require.NoError(t, err)
-		require.Contains(t, string(body), `"runtime_snapshot":{"name":"商品优化应用"}`)
+		require.Contains(t, string(body), `"runtime_snapshot":{"market_application_slug":"software-delivery-expert"}`)
 		require.Contains(t, string(body), `"actor_platform_user_id":14`)
 		writer.Header().Set("Content-Type", "application/json")
 		_, _ = writer.Write([]byte(`{
@@ -34,7 +34,7 @@ func TestClientInstallsExpertThroughInternalBridge(t *testing.T) {
 	result, err := client.Install(context.Background(), service.RuntimeInstallRequest{
 		InstallationID:       "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
 		PlatformResourceType: "expert",
-		RuntimeSnapshot:      []byte(`{"name":"商品优化应用"}`),
+		RuntimeSnapshot:      []byte(`{"market_application_slug":"software-delivery-expert"}`),
 		TargetOrganizationID: 9, ActorUserID: 14,
 	})
 	require.NoError(t, err)
