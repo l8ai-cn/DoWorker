@@ -21,6 +21,14 @@ type conflictingSkillStore struct {
 	allowCAS  chan struct{}
 }
 
+func (s *conflictingSkillStore) WithMutationLock(
+	_ context.Context,
+	_ int64,
+	mutate func(skilldom.Repository) error,
+) error {
+	return mutate(s)
+}
+
 func (s *conflictingSkillStore) UpdateIfVersion(
 	ctx context.Context,
 	row *skilldom.Skill,

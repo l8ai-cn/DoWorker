@@ -141,3 +141,36 @@ func TestExplicitUpstreamSync_PreservesCuratorTagsInGitAndPackage(t *testing.T) 
 	assertSkillConfigTags(t, internalGit.Repos["org7-video-editing"].Files["skill.json"], []string{"curated", "video"})
 	assertSkillConfigTags(t, []byte(packager.lastSkillCfg), []string{"curated", "video"})
 }
+
+func TestUpstreamSyncDoesNotIncrementVersionWhenContentIsUnchanged(t *testing.T) {
+	upstream := createTagUpstream(t, []string{"video"})
+	store := newFakeStore()
+	internalGit := gitops.NewFake("am-skills")
+	svc := newTestService(store, internalGit, &fakePackager{})
+	request := &ImportFromGitRequest{
+		OrganizationID: 7,
+		UserID:         3,
+		URL:            "https://example.test/video-editing.git",
+	}
+	row, err := importTagSkill(t, svc, upstream, request)
+	require.NoError(t, err)
+	require.Equal(t, 1, row.Version)
+	beforeContentSha := row.ContentSha
+
+	infos, err := extensionsvc.ScanSkillSource(upstream, "")
+	require.NoError(t, err)
+	files, err := readSkillDirFiles(infos[0].DirPath)
+	require.NoError(t, err)
+	updated, err := svc.refreshImportedSkill(
+		context.Background(),
+		row,
+		&extensionsvc.ClonedSkillSource{CommitSha: "fedcba654321"},
+		infos[0],
+		files,
+	)
+	require.NoError(t, err)
+
+	assert.Equal(t, beforeContentSha, updated.ContentSha)
+	assert.Equal(t, 1, updated.Version)
+	assert.Equal(t, "fedcba654321", updated.UpstreamCommitSha)
+}

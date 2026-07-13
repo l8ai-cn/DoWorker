@@ -16,30 +16,39 @@ func (s *Service) refreshImportedSkill(
 	info extensionsvc.SkillInfo,
 	upstreamFiles []gitops.FileChange,
 ) (*skilldom.Skill, error) {
-	row := initial
-	for attempt := 0; attempt < maxSkillMutationAttempts; attempt++ {
-		if attempt > 0 {
-			var err error
-			row, err = s.store.GetByID(ctx, *initial.OrganizationID, initial.ID)
+	var result *skilldom.Skill
+	err := s.store.WithMutationLock(ctx, initial.ID, func(store skilldom.Repository) error {
+		row := initial
+		for attempt := 0; attempt < maxSkillMutationAttempts; attempt++ {
+			if attempt > 0 {
+				var err error
+				row, err = store.GetByID(ctx, *initial.OrganizationID, initial.ID)
+				if err != nil {
+					return err
+				}
+			}
+			updated, conflict, err := s.refreshImportedSkillOnce(
+				ctx, store, row, src, info, upstreamFiles,
+			)
 			if err != nil {
-				return nil, err
+				return err
+			}
+			if !conflict {
+				result = updated
+				return nil
 			}
 		}
-		updated, conflict, err := s.refreshImportedSkillOnce(
-			ctx, row, src, info, upstreamFiles,
-		)
-		if err != nil {
-			return nil, err
-		}
-		if !conflict {
-			return updated, nil
-		}
+		return ErrMutationConflict
+	})
+	if err != nil {
+		return nil, err
 	}
-	return nil, ErrMutationConflict
+	return result, nil
 }
 
 func (s *Service) refreshImportedSkillOnce(
 	ctx context.Context,
+	store skilldom.Repository,
 	row *skilldom.Skill,
 	src *extensionsvc.ClonedSkillSource,
 	info extensionsvc.SkillInfo,
@@ -51,6 +60,10 @@ func (s *Service) refreshImportedSkillOnce(
 	}
 	repoName := s.gitops.RepoNameFromPath(row.GitRepoPath)
 	branch := branchOrDefault(row.DefaultBranch)
+	snapshot, err := gitops.CaptureTree(ctx, s.gitops, repoName, branch)
+	if err != nil {
+		return nil, false, err
+	}
 	if err := s.gitops.Commit(ctx, repoName, branch,
 		fmt.Sprintf("sync: upstream %s", shortSha(src.CommitSha)),
 		gitops.Author{}, files); err != nil {
@@ -58,14 +71,24 @@ func (s *Service) refreshImportedSkillOnce(
 	}
 	pkg, err := s.packageImportedFiles(ctx, files)
 	if err != nil {
-		return nil, false, err
+		return nil, false, s.restoreMutation(ctx, repoName, branch, snapshot, err)
 	}
 	expectedVersion := row.Version
+	previousContentSha := row.ContentSha
 	applyImportedSkillRefresh(row, src, info, pkg)
-	row.Version = expectedVersion + 1
-	updated, err := s.store.UpdateIfVersion(ctx, row, expectedVersion)
+	if pkg.ContentSha != previousContentSha {
+		row.Version = expectedVersion + 1
+	}
+	updated, err := store.UpdateIfVersion(ctx, row, expectedVersion)
 	if err != nil {
-		return nil, false, fmt.Errorf("skill: update row: %w", err)
+		return nil, false, s.restoreMutation(
+			ctx, repoName, branch, snapshot, fmt.Errorf("skill: update row: %w", err),
+		)
+	}
+	if !updated {
+		if err := s.restoreMutation(ctx, repoName, branch, snapshot, nil); err != nil {
+			return nil, false, err
+		}
 	}
 	return row, !updated, nil
 }

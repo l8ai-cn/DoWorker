@@ -107,6 +107,7 @@ type Repository interface {
 	Create(ctx context.Context, s *Skill) error
 	Update(ctx context.Context, s *Skill) error
 	UpdateIfVersion(ctx context.Context, s *Skill, expectedVersion int) (bool, error)
+	WithMutationLock(ctx context.Context, id int64, mutate func(Repository) error) error
 	Delete(ctx context.Context, orgID, id int64) error
 	GetByID(ctx context.Context, orgID, id int64) (*Skill, error)
 	// GetAnyByID fetches without org scoping — callers must check VisibleTo.

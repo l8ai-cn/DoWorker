@@ -15,32 +15,45 @@ const maxSkillMutationAttempts = 4
 var ErrMutationConflict = errors.New("skill: concurrent mutation conflict")
 
 func (s *Service) Update(ctx context.Context, req *UpdateSkillRequest) (*skilldom.Skill, error) {
-	for attempt := 0; attempt < maxSkillMutationAttempts; attempt++ {
-		row, err := s.store.GetByID(ctx, req.OrganizationID, req.SkillID)
-		if err != nil {
-			return nil, err
+	var result *skilldom.Skill
+	err := s.store.WithMutationLock(ctx, req.SkillID, func(store skilldom.Repository) error {
+		for attempt := 0; attempt < maxSkillMutationAttempts; attempt++ {
+			row, err := store.GetByID(ctx, req.OrganizationID, req.SkillID)
+			if err != nil {
+				return err
+			}
+			updated, conflict, err := s.updateOnce(ctx, store, row, req)
+			if err != nil {
+				return err
+			}
+			if !conflict {
+				result = updated
+				return nil
+			}
 		}
-		updated, conflict, err := s.updateOnce(ctx, row, req)
-		if err != nil {
-			return nil, err
-		}
-		if !conflict {
-			return updated, nil
-		}
+		return ErrMutationConflict
+	})
+	if err != nil {
+		return nil, err
 	}
-	return nil, ErrMutationConflict
+	return result, nil
 }
 
 func (s *Service) updateOnce(
 	ctx context.Context,
+	store skilldom.Repository,
 	row *skilldom.Skill,
 	req *UpdateSkillRequest,
 ) (*skilldom.Skill, bool, error) {
+	repoName := s.gitops.RepoNameFromPath(row.GitRepoPath)
+	branch := branchOrDefault(row.DefaultBranch)
+	snapshot, err := gitops.CaptureTree(ctx, s.gitops, repoName, branch)
+	if err != nil {
+		return nil, false, err
+	}
 	if err := applySkillUpdate(row, req); err != nil {
 		return nil, false, err
 	}
-	repoName := s.gitops.RepoNameFromPath(row.GitRepoPath)
-	branch := branchOrDefault(row.DefaultBranch)
 	body, err := s.updatedSkillBody(ctx, repoName, branch, req.Instructions)
 	if err != nil {
 		return nil, false, err
@@ -55,16 +68,23 @@ func (s *Service) updateOnce(
 	}
 	pkg, err := s.packageFromGit(ctx, repoName, branch)
 	if err != nil {
-		return nil, false, err
+		return nil, false, s.restoreMutation(ctx, repoName, branch, snapshot, err)
 	}
 	expectedVersion := row.Version
 	row.ContentSha = pkg.ContentSha
 	row.StorageKey = pkg.StorageKey
 	row.PackageSize = pkg.PackageSize
 	row.Version = expectedVersion + 1
-	updated, err := s.store.UpdateIfVersion(ctx, row, expectedVersion)
+	updated, err := store.UpdateIfVersion(ctx, row, expectedVersion)
 	if err != nil {
-		return nil, false, fmt.Errorf("skill: update row: %w", err)
+		return nil, false, s.restoreMutation(
+			ctx, repoName, branch, snapshot, fmt.Errorf("skill: update row: %w", err),
+		)
+	}
+	if !updated {
+		if err := s.restoreMutation(ctx, repoName, branch, snapshot, nil); err != nil {
+			return nil, false, err
+		}
 	}
 	return row, !updated, nil
 }
