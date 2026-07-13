@@ -11,7 +11,7 @@ const TRAEFIK_API = process.env.TRAEFIK_API_URL || "http://127.0.0.1:10000";
 // web-user reads import.meta.env.VITE_AGENTSMESH_API_URL ?? "http://localhost:10000"
 // for localStorage key — must match hostname, not 127.0.0.1.
 const WEB_USER_AUTH_BASE = process.env.WEB_USER_AUTH_URL || "http://localhost:10000";
-const API_DIRECT = process.env.HIVE_API_URL || "http://localhost:10015";
+const API_DIRECT = process.env.SESSION_COMPAT_API_URL || "http://localhost:10015";
 const ORG = "dev-org";
 const USER = { username: "devuser", password: "AdminAb123456" };
 

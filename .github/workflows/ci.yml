@@ -469,8 +469,8 @@ jobs:
           docker compose -f docker-compose.yml -f docker-compose.runners.yml \
             logs --tail=200 runner-e2e-echo runner-e2e-echo-2 || true
 
-  hive-e2e:
-    name: E2E (Hive — compat API + browser)
+  session-compat-e2e:
+    name: E2E (Session Compatibility API + Browser)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: smoke
@@ -507,10 +507,10 @@ jobs:
         run: |
           source deploy/dev/.env
           echo "BACKEND_HTTP_PORT=$BACKEND_HTTP_PORT" >> $GITHUB_OUTPUT
-      - name: Run hive smoke
+      - name: Run session compatibility smoke
         env:
-          HIVE_API_URL: http://localhost:${{ steps.ports.outputs.BACKEND_HTTP_PORT }}
-        run: bash deploy/dev/hive_smoke.sh
+          SESSION_COMPAT_API_URL: http://localhost:${{ steps.ports.outputs.BACKEND_HTTP_PORT }}
+        run: bash deploy/dev/session_compat_smoke.sh
       - name: Dump logs on failure
         if: failure()
         working-directory: deploy/dev

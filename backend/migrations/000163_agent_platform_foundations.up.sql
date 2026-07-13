@@ -1,4 +1,4 @@
--- Hive foundations: builtin CAPABILITY declarations, policy, usage pricing, resume id.
+-- Agent platform foundations: capability declarations, policy, usage pricing, resume id.
 
 -- A4b: claude-code
 UPDATE agents SET agentfile_source = agentfile_source || E'\nCAPABILITY resume cli\nCAPABILITY permission acp\nCAPABILITY usage live\nCAPABILITY interrupt true\nCAPABILITY streaming true\nCAPABILITY model_family claude\n', updated_at = NOW()

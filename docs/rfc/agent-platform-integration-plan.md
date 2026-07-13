@@ -1,6 +1,6 @@
-# Hive 方案：Do Worker 底座 + Omnigent 机制吸收
+# Agent 平台机制整合方案：Do Worker 底座 + Omnigent 机制吸收
 
-> 状态：Hive S0–S4 验收通过（2026-07-05）| 平台阶段 2+ 延伸见 execution-plan
+> 状态：S0–S4 验收通过（2026-07-05）| 平台阶段 2+ 延伸见执行计划
 > 前置调研：Omnigent clone（/private/tmp/omnigent_explain，HEAD 3124850）
 > 结论前提：Do Worker 是唯一控制面 SSOT；Omnigent 只吸收契约与机制，不引入其 Python 控制面。
 
@@ -18,7 +18,7 @@
 | 层 | 语言 | 职责 |
 |----|------|------|
 | 业务 SSOT | **Rust → WASM** | 现有 `clients/core`：auth、cache、DTO（管理面 web 继续用） |
-| 控制面 / 执行面 | **Go** | Backend、Runner、AgentFile、Policy、Usage（Hive 机制落这里） |
+| 控制面 / 执行面 | **Go** | Backend、Runner、AgentFile、Policy、Usage（平台机制落这里） |
 | 管理面 UI | **TypeScript / Next.js** | `clients/web`、`clients/web-admin` |
 | 用户工作台 UI | **TypeScript / Vite** | `clients/web-user`（Omnigent 前端改造） |
 
@@ -26,7 +26,7 @@ Omnigent 的 Python 代码**不迁移**；只迁移前端 UI 与机制契约（c
 
 ## 1. 定位
 
-Hive = 在现有 Do Worker（Backend/Runner/Relay/Web）之上做四个机制升级
+本次整合在现有 Do Worker（Backend/Runner/Relay/Web）之上做四个机制升级
 （Capability 声明、Policy 引擎、实时 Usage/Cost、Session 恢复统一）+ 一次
 前端体验分层改造。所有升级都挂在已存在的扩展点上，不新建平行链路。
 
@@ -39,7 +39,7 @@ Hive = 在现有 Do Worker（Backend/Runner/Relay/Web）之上做四个机制升
 - **A3**：`proto/agent/v1/agent.proto` `capabilities` map + Connect handler enrichment
 - **A4**：migration `000161_doagent_capabilities`（do-agent 首批声明）
 
-**待做**：A5 ACP runtime 校准；其余 P1+ 见 `hive-execution-plan.md`。
+**待做**：A5 ACP runtime 校准；其余 P1+ 见 `agent-platform-execution-plan.md`。
 
 ## 2.1 Workstream F — Session Compat API（P0 MVP ✅）
 
@@ -139,7 +139,7 @@ resume 只有 claude/codex 在各自 AgentFile 手写；vendor session id 无统
 
 ## 6. Workstream E — 前端体验分层（与 A-D 并行推进）
 
-原则：Omnigent 赢在入口体验，输在平台模型。Hive 保留平台对象，但按
+原则：Omnigent 赢在入口体验，输在平台模型。平台保留对象，但按
 用户角色分层暴露：
 
 1. 普通用户首页 = 任务工作台：入口是"开始一个任务"（选 agent + 描述 +
