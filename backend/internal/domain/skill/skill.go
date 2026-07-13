@@ -9,7 +9,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"sort"
+	"strings"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 // ErrNotFound is returned when a skill catalog row does not exist.
@@ -23,15 +27,16 @@ const (
 
 // Skill is a unified catalog row for a git-backed skill.
 type Skill struct {
-	ID             int64  `gorm:"primaryKey" json:"id"`
-	OrganizationID *int64 `gorm:"column:organization_id" json:"organization_id"` // NULL = platform-level
-	Slug           string `gorm:"size:100;not null" json:"slug"`
-	DisplayName    string `gorm:"size:255;not null;default:''" json:"display_name"`
-	Description    string `gorm:"not null;default:''" json:"description"`
-	License        string `gorm:"size:100;not null;default:''" json:"license"`
-	Category       string `gorm:"size:50;not null;default:''" json:"category,omitempty"`
-	Compatibility  string `gorm:"size:500;not null;default:''" json:"compatibility,omitempty"`
-	AllowedTools   string `gorm:"not null;default:''" json:"allowed_tools,omitempty"`
+	ID             int64          `gorm:"primaryKey" json:"id"`
+	OrganizationID *int64         `gorm:"column:organization_id" json:"organization_id"` // NULL = platform-level
+	Slug           string         `gorm:"size:100;not null" json:"slug"`
+	DisplayName    string         `gorm:"size:255;not null;default:''" json:"display_name"`
+	Description    string         `gorm:"not null;default:''" json:"description"`
+	License        string         `gorm:"size:100;not null;default:''" json:"license"`
+	Category       string         `gorm:"size:50;not null;default:''" json:"category,omitempty"`
+	Compatibility  string         `gorm:"size:500;not null;default:''" json:"compatibility,omitempty"`
+	AllowedTools   string         `gorm:"not null;default:''" json:"allowed_tools,omitempty"`
+	Tags           pq.StringArray `gorm:"type:text[];not null;default:'{}'" json:"tags"`
 
 	// AgentFilter whitelists agent slugs; empty means all agents.
 	AgentFilter json.RawMessage `gorm:"type:jsonb;default:'[]'" json:"agent_filter,omitempty"`
@@ -60,6 +65,22 @@ type Skill struct {
 }
 
 func (Skill) TableName() string { return "skills" }
+
+func NormalizeTags(tags []string) pq.StringArray {
+	unique := make(map[string]struct{}, len(tags))
+	for _, tag := range tags {
+		tag = strings.ToLower(strings.TrimSpace(tag))
+		if tag != "" {
+			unique[tag] = struct{}{}
+		}
+	}
+	normalized := make(pq.StringArray, 0, len(unique))
+	for tag := range unique {
+		normalized = append(normalized, tag)
+	}
+	sort.Strings(normalized)
+	return normalized
+}
 
 // IsPlatformLevel reports whether this skill is visible to every org.
 func (s *Skill) IsPlatformLevel() bool { return s.OrganizationID == nil }
