@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 const OUT = join(process.cwd(), "output", "browser-integration");
 mkdirSync(OUT, { recursive: true });
-const API = process.env.HIVE_API_URL || "http://localhost:10015";
+const API = process.env.SESSION_COMPAT_API_URL || "http://localhost:10015";
 const ORG = "dev-org";
 
 async function login() {

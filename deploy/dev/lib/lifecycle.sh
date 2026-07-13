@@ -41,7 +41,7 @@ print_usage() {
   改动 backend / relay 源码: air 自动重编译
   仅重启前端:               ./dev.sh --frontends
   改动 runner 源码:         ./dev.sh --rebuild-runner
-  Hive 验收 (dev 栈已起):   bash deploy/dev/hive_smoke.sh
+  会话兼容验收 (dev 栈已起): bash deploy/dev/session_compat_smoke.sh
 
 前端日志: tail -f deploy/dev/web.log
 web-user 日志: tail -f deploy/dev/web-user.log

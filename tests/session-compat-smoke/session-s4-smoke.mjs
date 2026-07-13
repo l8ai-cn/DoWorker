@@ -1,4 +1,4 @@
-const API = process.env.HIVE_API_URL || "http://localhost:10015";
+const API = process.env.SESSION_COMPAT_API_URL || "http://localhost:10015";
 const ORG = "dev-org";
 const USER = { username: "devuser", password: "AdminAb123456" };
 

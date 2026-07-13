@@ -2,7 +2,7 @@
 // Connect-RPC path so the runner frees its in-memory slots (a plain DB
 // UPDATE leaves the runner at max_concurrent_pods and later creates 503).
 // Mirrors clients/web/e2e-playwright/helpers/pod-cleanup.ts.
-const API = process.env.HIVE_API_URL || "http://localhost:10015";
+const API = process.env.SESSION_COMPAT_API_URL || "http://localhost:10015";
 const ORG = "dev-org";
 const HEADERS = { "Content-Type": "application/json", "Connect-Protocol-Version": "1" };
 
