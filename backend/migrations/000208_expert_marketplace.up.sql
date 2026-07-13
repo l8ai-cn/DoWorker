@@ -9,6 +9,8 @@ CREATE TABLE expert_market_applications (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT expert_market_applications_slug_unique UNIQUE (slug),
+  CONSTRAINT expert_market_applications_id_publisher_unique
+    UNIQUE (id, publisher_organization_id),
   CONSTRAINT expert_market_applications_slug_check CHECK (
     slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'
     AND char_length(slug) BETWEEN 2 AND 100
@@ -17,8 +19,7 @@ CREATE TABLE expert_market_applications (
 
 CREATE TABLE expert_market_releases (
   id BIGSERIAL PRIMARY KEY,
-  application_id BIGINT NOT NULL
-    REFERENCES expert_market_applications(id) ON DELETE CASCADE,
+  application_id BIGINT NOT NULL,
   source_expert_id BIGINT NOT NULL,
   publisher_organization_id BIGINT NOT NULL
     REFERENCES organizations(id) ON DELETE CASCADE,
@@ -50,6 +51,10 @@ CREATE TABLE expert_market_releases (
     UNIQUE (application_id, version),
   CONSTRAINT expert_market_releases_application_id_id_unique
     UNIQUE (application_id, id),
+  CONSTRAINT expert_market_releases_application_publisher_fkey
+    FOREIGN KEY (application_id, publisher_organization_id)
+    REFERENCES expert_market_applications(id, publisher_organization_id)
+    ON DELETE CASCADE,
   CONSTRAINT expert_market_releases_expert_snapshot_check CHECK (
     jsonb_typeof(expert_snapshot) = 'object'
     AND (expert_snapshot->>'version') ~ '^[1-9][0-9]*$'

@@ -7,8 +7,9 @@ import (
 )
 
 var (
-	ErrNotFound = errors.New("expert market resource not found")
-	ErrConflict = errors.New("expert market resource conflicts with persisted state")
+	ErrNotFound                   = errors.New("expert market resource not found")
+	ErrConflict                   = errors.New("expert market resource conflicts with persisted state")
+	ErrInvalidLatestReleaseStatus = errors.New("latest expert market release must be published")
 )
 
 type ApplicationListFilter struct {

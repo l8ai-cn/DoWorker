@@ -38,6 +38,9 @@ func (repo *expertMarketRepo) UpdateReleaseLifecycleAndLatest(
 	if err := update.Validate(); err != nil {
 		return err
 	}
+	if update.Status != expertmarket.ReleaseStatusPublished {
+		return expertmarket.ErrInvalidLatestReleaseStatus
+	}
 	return repo.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		result := updateReleaseLifecycle(
 			tx,

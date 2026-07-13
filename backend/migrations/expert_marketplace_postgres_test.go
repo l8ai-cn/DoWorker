@@ -69,6 +69,18 @@ VALUES ('video-production', 2, 2)
 `))
 
 	require.NoError(t, insertMarketRelease(ctx, conn, 100, 10, 1, "pending_review"))
+	require.Error(t, execSQL(ctx, conn, `
+INSERT INTO expert_market_releases (
+	id, application_id, source_expert_id,
+	publisher_organization_id, publisher_user_id,
+	version, status, name,
+	expert_snapshot, worker_spec_snapshot, skill_dependencies
+)
+VALUES (
+	105, 10, 1, 2, 1, 2, 'draft', 'Wrong Publisher',
+	'{"version":1}', '{"version":1}', '[]'
+)
+`))
 	require.Error(t, insertMarketRelease(ctx, conn, 101, 10, 1, "draft"))
 	require.Error(t, insertMarketReleaseWithSnapshots(ctx, conn, 102, 10, 2, `[]`, `{"version":1}`, `[]`))
 	require.Error(t, insertMarketReleaseWithSnapshots(ctx, conn, 103, 10, 2, `{"version":1}`, `[]`, `[]`))

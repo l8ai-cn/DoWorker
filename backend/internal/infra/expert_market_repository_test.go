@@ -146,6 +146,48 @@ func TestExpertMarketRepositoryUpdatesLifecycleAndLatestAtomically(t *testing.T)
 	require.Equal(t, release.ID, *application.LatestPublishedReleaseID)
 }
 
+func TestExpertMarketRepositoryRejectsNonPublishedLatestUpdates(t *testing.T) {
+	repo := newExpertMarketTestRepository(t)
+	ctx := context.Background()
+	app := testApplication("video-production", 10)
+	require.NoError(t, repo.CreateApplication(ctx, &app))
+	release := testRelease(app.ID, 1, expertmarket.ReleaseStatusPendingReview)
+	require.NoError(t, repo.CreateRelease(ctx, &release))
+
+	reviewerID := int64(99)
+	reviewedAt := time.Now().UTC()
+	for _, status := range []expertmarket.ReleaseStatus{
+		expertmarket.ReleaseStatusDraft,
+		expertmarket.ReleaseStatusPendingReview,
+		expertmarket.ReleaseStatusRejected,
+		expertmarket.ReleaseStatusWithdrawn,
+	} {
+		t.Run(string(status), func(t *testing.T) {
+			err := repo.UpdateReleaseLifecycleAndLatest(
+				ctx,
+				app.ID,
+				release.ID,
+				expertmarket.LifecycleUpdate{
+					Status:         status,
+					ReviewerUserID: &reviewerID,
+					ReviewedAt:     &reviewedAt,
+				},
+			)
+			require.ErrorIs(t, err, expertmarket.ErrInvalidLatestReleaseStatus)
+
+			storedRelease, getErr := repo.GetReleaseByID(ctx, release.ID)
+			require.NoError(t, getErr)
+			require.Equal(t, expertmarket.ReleaseStatusPendingReview, storedRelease.Status)
+			require.Nil(t, storedRelease.ReviewerUserID)
+			require.Nil(t, storedRelease.ReviewedAt)
+
+			storedApplication, getErr := repo.GetApplicationByID(ctx, app.ID)
+			require.NoError(t, getErr)
+			require.Nil(t, storedApplication.LatestPublishedReleaseID)
+		})
+	}
+}
+
 func newExpertMarketTestRepository(t *testing.T) expertmarket.Repository {
 	t.Helper()
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{

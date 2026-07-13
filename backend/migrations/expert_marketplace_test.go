@@ -15,8 +15,13 @@ func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
 	for _, fragment := range []string{
 		"CREATE TABLE expert_market_applications",
 		"CONSTRAINT expert_market_applications_slug_unique UNIQUE (slug)",
+		"CONSTRAINT expert_market_applications_id_publisher_unique",
+		"UNIQUE (id, publisher_organization_id)",
 		"expert_market_applications_slug_check",
 		"CREATE TABLE expert_market_releases",
+		"CONSTRAINT expert_market_releases_application_publisher_fkey",
+		"FOREIGN KEY (application_id, publisher_organization_id)",
+		"REFERENCES expert_market_applications(id, publisher_organization_id)",
 		"UNIQUE (application_id, version)",
 		"UNIQUE (application_id, id)",
 		"status IN ('draft', 'pending_review', 'published', 'rejected', 'withdrawn')",
@@ -40,6 +45,10 @@ func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
 	}
 	require.NotContains(t, upSQL, "BEFORE DELETE")
 	require.NotContains(t, upSQL, "organization_id, source_market_application_id, source_market_release_id")
+	require.Less(t,
+		strings.Index(upSQL, "CONSTRAINT expert_market_applications_id_publisher_unique"),
+		strings.Index(upSQL, "CONSTRAINT expert_market_releases_application_publisher_fkey"),
+	)
 
 	down, err := FS.ReadFile("000208_expert_marketplace.down.sql")
 	require.NoError(t, err)
@@ -56,8 +65,12 @@ func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
 	} {
 		require.Contains(t, downSQL, fragment)
 	}
-	require.Less(t,
-		strings.Index(downSQL, "DROP TABLE IF EXISTS expert_market_releases"),
-		strings.Index(downSQL, "DROP TABLE IF EXISTS expert_market_applications"),
+	latestFKIndex := strings.Index(
+		downSQL,
+		"DROP CONSTRAINT IF EXISTS expert_market_applications_latest_release_fkey",
 	)
+	releasesIndex := strings.Index(downSQL, "DROP TABLE IF EXISTS expert_market_releases")
+	applicationsIndex := strings.Index(downSQL, "DROP TABLE IF EXISTS expert_market_applications")
+	require.Less(t, latestFKIndex, releasesIndex)
+	require.Less(t, releasesIndex, applicationsIndex)
 }
