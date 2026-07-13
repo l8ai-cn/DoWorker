@@ -1,8 +1,9 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, Loader2, MessageSquare } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MobileAcpPanel } from "@/components/mobile-acp-panel";
 import { MobileFrame } from "@/components/mobile-frame";
+import { MobileWorkerConsoleHeader } from "@/components/mobile-worker-console-header";
 import { pageTitle } from "@/lib/app-brand";
 import { readAuthToken } from "@/lib/auth-store";
 import { getMobileWorkerDescriptor, type MobileWorkerDescriptor } from "@/lib/mobile-pod-api";
@@ -64,21 +65,11 @@ function WorkerChatPage() {
   return (
     <MobileFrame hideNav>
       <div className="flex h-[100dvh] flex-col">
-        <header className="safe-top flex shrink-0 items-center gap-2 border-b border-border/60 bg-background/90 px-3 pb-2 pt-2 backdrop-blur-xl">
-          <Link
-            to="/"
-            className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-surface"
-            aria-label="返回会话列表"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-1.5 text-sm font-semibold">
-              <MessageSquare className="h-4 w-4 text-primary" /> 对话
-            </p>
-            <p className="truncate font-mono text-[10px] text-muted-foreground">{podKey}</p>
-          </div>
-        </header>
+        <MobileWorkerConsoleHeader
+          mode="acp"
+          podKey={podKey}
+          previewAvailable={descriptor.previewAvailable}
+        />
         <MobileAcpPanel podKey={podKey} />
       </div>
     </MobileFrame>
