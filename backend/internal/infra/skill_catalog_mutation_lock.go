@@ -36,32 +36,62 @@ func (r *SkillCatalogRepository) WithMutationLock(
 	id int64,
 	mutate func(skilldom.Repository) error,
 ) error {
+	return r.withAdvisoryLock(ctx, skillMutationLockKey(id), mutate)
+}
+
+func (r *SkillCatalogRepository) WithPackageLock(
+	ctx context.Context,
+	storageKey string,
+	mutate func(skilldom.Repository) error,
+) error {
+	return r.withAdvisoryLock(
+		ctx,
+		skillAdvisoryLockKey("skill-package", storageKey),
+		mutate,
+	)
+}
+
+func (r *SkillCatalogRepository) withAdvisoryLock(
+	ctx context.Context,
+	key int64,
+	mutate func(skilldom.Repository) error,
+) error {
 	if r.db.Name() != "postgres" {
 		return mutate(r)
 	}
-	key := skillMutationLockKey(id)
+	if r.sessionBound {
+		return r.executeAdvisoryLock(ctx, key, mutate)
+	}
 	return r.db.WithContext(ctx).Connection(func(lockedDB *gorm.DB) error {
-		return executeSkillMutationLock(
-			func() error {
-				if err := lockedDB.Exec("SELECT pg_advisory_lock(?)", key).Error; err != nil {
-					return fmt.Errorf("skill: acquire mutation lock: %w", err)
-				}
-				return nil
-			},
-			func() error {
-				unlockDB := lockedDB.Session(&gorm.Session{
-					Context: context.WithoutCancel(ctx),
-				})
-				if err := unlockDB.Exec("SELECT pg_advisory_unlock(?)", key).Error; err != nil {
-					return fmt.Errorf("skill: release mutation lock: %w", err)
-				}
-				return nil
-			},
-			func() error {
-				return mutate(&SkillCatalogRepository{db: lockedDB})
-			},
-		)
+		bound := &SkillCatalogRepository{db: lockedDB, sessionBound: true}
+		return bound.executeAdvisoryLock(ctx, key, mutate)
 	})
+}
+
+func (r *SkillCatalogRepository) executeAdvisoryLock(
+	ctx context.Context,
+	key int64,
+	mutate func(skilldom.Repository) error,
+) error {
+	lockedDB := r.db.WithContext(ctx)
+	return executeSkillMutationLock(
+		func() error {
+			if err := lockedDB.Exec("SELECT pg_advisory_lock(?)", key).Error; err != nil {
+				return fmt.Errorf("skill: acquire mutation lock: %w", err)
+			}
+			return nil
+		},
+		func() error {
+			unlockDB := lockedDB.Session(&gorm.Session{
+				Context: context.WithoutCancel(ctx),
+			})
+			if err := unlockDB.Exec("SELECT pg_advisory_unlock(?)", key).Error; err != nil {
+				return fmt.Errorf("skill: release mutation lock: %w", err)
+			}
+			return nil
+		},
+		func() error { return mutate(r) },
+	)
 }
 
 func executeSkillMutationLock(
@@ -86,6 +116,12 @@ func executeSkillMutationLock(
 			panic(mutationPanic)
 		}
 		if releasePanic != nil {
+			if err != nil {
+				panic(&SkillMutationPanic{
+					Value:     err,
+					UnlockErr: unlockErr,
+				})
+			}
 			panic(releasePanic)
 		}
 		err = errors.Join(err, releaseErr)
@@ -112,9 +148,13 @@ func skillMutationUnlockError(releaseErr error, releasePanic any) error {
 }
 
 func skillMutationLockKey(id int64) int64 {
+	return skillAdvisoryLockKey("skill-mutation", strconv.FormatInt(id, 10))
+}
+
+func skillAdvisoryLockKey(namespace, value string) int64 {
 	hash := fnv.New64a()
-	_, _ = hash.Write([]byte("skill-mutation"))
+	_, _ = hash.Write([]byte(namespace))
 	_, _ = hash.Write([]byte{0})
-	_, _ = hash.Write([]byte(strconv.FormatInt(id, 10)))
+	_, _ = hash.Write([]byte(value))
 	return int64(hash.Sum64())
 }

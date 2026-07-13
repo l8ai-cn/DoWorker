@@ -103,20 +103,33 @@ func (runtimeBindingPackager) DeletePackage(context.Context, string) error {
 	return nil
 }
 
-func (runtimeBindingPackager) PackageFromDir(
+func (runtimeBindingPackager) PrepareFromDir(
 	_ context.Context,
 	dir string,
-) (*extensionsvc.PackagedSkill, error) {
+) (*extensionsvc.PreparedSkill, error) {
 	content, err := os.ReadFile(filepath.Join(dir, "skill.json"))
 	if err != nil {
 		return nil, err
 	}
 	sum := sha256.Sum256(content)
-	return &extensionsvc.PackagedSkill{
+	return &extensionsvc.PreparedSkill{
 		Slug:        "video-editing",
 		ContentSha:  hex.EncodeToString(sum[:]),
 		StorageKey:  "skills/video-editing.tar.gz",
 		PackageSize: int64(len(content)),
+		Data:        content,
+	}, nil
+}
+
+func (runtimeBindingPackager) StorePrepared(
+	_ context.Context,
+	prepared *extensionsvc.PreparedSkill,
+) (*extensionsvc.PackagedSkill, error) {
+	return &extensionsvc.PackagedSkill{
+		Slug:        prepared.Slug,
+		ContentSha:  prepared.ContentSha,
+		StorageKey:  prepared.StorageKey,
+		PackageSize: prepared.PackageSize,
 	}, nil
 }
 

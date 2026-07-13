@@ -35,7 +35,7 @@ func (s *Service) createImportedSkill(
 	}
 	repoName := s.gitops.RepoNameFromPath(repo.Path)
 
-	pkg, err := s.packageImportedFiles(ctx, files)
+	prepared, err := s.prepareImportedFiles(ctx, files)
 	if err != nil {
 		s.cleanupRepo(ctx, repoName)
 		return nil, err
@@ -61,9 +61,9 @@ func (s *Service) createImportedSkill(
 		UpstreamSubdir:    subdir,
 		UpstreamCommitSha: src.CommitSha,
 		InstallSource:     skilldom.SourceImport,
-		ContentSha:        pkg.ContentSha,
-		StorageKey:        pkg.StorageKey,
-		PackageSize:       pkg.PackageSize,
+		ContentSha:        prepared.ContentSha,
+		StorageKey:        prepared.StorageKey,
+		PackageSize:       prepared.PackageSize,
 		Version:           1,
 		CreatedByID:       &userID,
 	}
@@ -72,27 +72,46 @@ func (s *Service) createImportedSkill(
 		row.HTTPCloneURL = &u
 	}
 
-	if err := s.store.Create(ctx, row); err != nil {
+	_, err = s.publishPreparedPackage(
+		ctx,
+		s.store,
+		prepared,
+		func(store skilldom.Repository, pkg *extensionsvc.PackagedSkill) (bool, error) {
+			applyStoredPackage(row, pkg)
+			return false, store.Create(ctx, row)
+		},
+		func(
+			store skilldom.Repository,
+			pkg *extensionsvc.PackagedSkill,
+			cause error,
+		) error {
+			return s.cleanupCreatedPackage(
+				ctx,
+				store,
+				pkg,
+				fmt.Errorf("skill: persist row: %w", cause),
+			)
+		},
+	)
+	if err != nil {
 		s.cleanupRepo(ctx, repoName)
-		return nil, fmt.Errorf("skill: persist row: %w", err)
+		return nil, err
 	}
 	return row, nil
 }
 
-func (s *Service) packageImportedFiles(ctx context.Context, files []gitops.FileChange) (*packagedSkill, error) {
+func (s *Service) prepareImportedFiles(
+	ctx context.Context,
+	files []gitops.FileChange,
+) (*extensionsvc.PreparedSkill, error) {
 	dir, cleanup, err := materializeFileChanges(files)
 	if err != nil {
 		return nil, err
 	}
 	defer cleanup()
-	pkg, err := s.packager.PackageFromDir(ctx, dir)
+	prepared, err := s.packager.PrepareFromDir(ctx, dir)
 	if err != nil {
 		return nil, fmt.Errorf("skill: package: %w", err)
 	}
-	return &packagedSkill{
-		ContentSha:  pkg.ContentSha,
-		StorageKey:  pkg.StorageKey,
-		PackageSize: pkg.PackageSize,
-		Created:     pkg.Created,
-	}, nil
+	return prepared, nil
 }

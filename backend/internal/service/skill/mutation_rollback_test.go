@@ -32,6 +32,14 @@ func (s *installedReferenceSkillStore) WithMutationLock(
 	return mutate(s)
 }
 
+func (s *installedReferenceSkillStore) WithPackageLock(
+	_ context.Context,
+	_ string,
+	mutate func(skilldom.Repository) error,
+) error {
+	return mutate(s)
+}
+
 func (s *installedReferenceSkillStore) IsPackageReferenced(
 	_ context.Context,
 	storageKey string,
@@ -43,6 +51,14 @@ func (s *installedReferenceSkillStore) IsPackageReferenced(
 func (s *alwaysConflictingSkillStore) WithMutationLock(
 	_ context.Context,
 	_ int64,
+	mutate func(skilldom.Repository) error,
+) error {
+	return mutate(s)
+}
+
+func (s *alwaysConflictingSkillStore) WithPackageLock(
+	_ context.Context,
+	_ string,
 	mutate func(skilldom.Repository) error,
 ) error {
 	return mutate(s)

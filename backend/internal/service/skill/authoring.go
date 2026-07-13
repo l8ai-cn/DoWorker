@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
@@ -42,7 +43,7 @@ func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldo
 	}
 	repoName := s.gitops.RepoNameFromPath(repo.Path)
 
-	pkg, err := s.packageFromGit(ctx, repoName, branchOf(repo))
+	prepared, err := s.prepareFromGit(ctx, repoName, branchOf(repo))
 	if err != nil {
 		s.cleanupRepo(ctx, repoName)
 		return nil, err
@@ -61,9 +62,9 @@ func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldo
 		GitRepoPath:    repo.Path,
 		DefaultBranch:  branchOf(repo),
 		InstallSource:  skilldom.SourceGitops,
-		ContentSha:     pkg.ContentSha,
-		StorageKey:     pkg.StorageKey,
-		PackageSize:    pkg.PackageSize,
+		ContentSha:     prepared.ContentSha,
+		StorageKey:     prepared.StorageKey,
+		PackageSize:    prepared.PackageSize,
 		Version:        1,
 		CreatedByID:    &userID,
 	}
@@ -72,19 +73,41 @@ func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldo
 		row.HTTPCloneURL = &u
 	}
 
-	if err := s.store.Create(ctx, row); err != nil {
+	_, err = s.publishPreparedPackage(
+		ctx,
+		s.store,
+		prepared,
+		func(store skilldom.Repository, pkg *extensionsvc.PackagedSkill) (bool, error) {
+			applyStoredPackage(row, pkg)
+			return false, store.Create(ctx, row)
+		},
+		func(
+			store skilldom.Repository,
+			pkg *extensionsvc.PackagedSkill,
+			cause error,
+		) error {
+			return s.cleanupCreatedPackage(
+				ctx,
+				store,
+				pkg,
+				fmt.Errorf("skill: persist row: %w", cause),
+			)
+		},
+	)
+	if err != nil {
 		s.cleanupRepo(ctx, repoName)
-		return nil, fmt.Errorf("skill: persist row: %w", err)
+		return nil, err
 	}
 	return row, nil
 }
 
-// packagedSkill decouples authoring from the extension package struct.
-type packagedSkill struct {
-	ContentSha  string
-	StorageKey  string
-	PackageSize int64
-	Created     bool
+func applyStoredPackage(
+	row *skilldom.Skill,
+	pkg *extensionsvc.PackagedSkill,
+) {
+	row.ContentSha = pkg.ContentSha
+	row.StorageKey = pkg.StorageKey
+	row.PackageSize = pkg.PackageSize
 }
 
 func (s *Service) resolveSlug(ctx context.Context, orgID int64, explicit, nameSeed string, excludeID int64) (string, error) {

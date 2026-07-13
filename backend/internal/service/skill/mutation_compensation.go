@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 )
 
@@ -31,31 +32,11 @@ func (s *Service) compensatePackagedMutation(
 	store skilldom.Repository,
 	repoName, branch string,
 	snapshot *gitops.TreeSnapshot,
-	pkg *packagedSkill,
+	pkg *extensionsvc.PackagedSkill,
 	cause error,
 ) error {
 	compensationErr := s.restoreMutation(
 		ctx, repoName, branch, snapshot, cause,
 	)
-	if pkg == nil || pkg.StorageKey == "" || !pkg.Created {
-		return compensationErr
-	}
-	cleanupCtx := context.WithoutCancel(ctx)
-	referenced, err := store.IsPackageReferenced(cleanupCtx, pkg.StorageKey)
-	if err != nil {
-		return errors.Join(
-			compensationErr,
-			fmt.Errorf("skill: check package references: %w", err),
-		)
-	}
-	if referenced {
-		return compensationErr
-	}
-	if err := s.packager.DeletePackage(cleanupCtx, pkg.StorageKey); err != nil {
-		return errors.Join(
-			compensationErr,
-			fmt.Errorf("skill: delete unreferenced package: %w", err),
-		)
-	}
-	return compensationErr
+	return s.cleanupCreatedPackage(ctx, store, pkg, compensationErr)
 }

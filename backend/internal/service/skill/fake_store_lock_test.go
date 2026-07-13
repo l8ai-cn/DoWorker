@@ -14,6 +14,14 @@ func (f *fakeStore) WithMutationLock(
 	return mutate(f)
 }
 
+func (f *fakeStore) WithPackageLock(
+	_ context.Context,
+	_ string,
+	mutate func(skilldom.Repository) error,
+) error {
+	return mutate(f)
+}
+
 func (f *fakeStore) IsPackageReferenced(_ context.Context, storageKey string) (bool, error) {
 	for _, row := range f.rows {
 		if row.StorageKey == storageKey {

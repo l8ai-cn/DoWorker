@@ -22,7 +22,10 @@ type fakePackager struct {
 	deleteHook   func()
 }
 
-func (p *fakePackager) PackageFromDir(_ context.Context, dir string) (*extensionsvc.PackagedSkill, error) {
+func (p *fakePackager) PrepareFromDir(
+	_ context.Context,
+	dir string,
+) (*extensionsvc.PreparedSkill, error) {
 	if p.failErr != nil {
 		return nil, p.failErr
 	}
@@ -41,12 +44,27 @@ func (p *fakePackager) PackageFromDir(_ context.Context, dir string) (*extension
 	sum := sha256.Sum256(append(md, cfg...))
 	sha := fmt.Sprintf("%x", sum)
 	slug := frontmatterName(string(md))
-	return &extensionsvc.PackagedSkill{
+	return &extensionsvc.PreparedSkill{
 		Slug:        slug,
 		DisplayName: slug,
 		ContentSha:  sha,
 		StorageKey:  fmt.Sprintf("skills/direct/%s/%s.tar.gz", slug, sha),
 		PackageSize: int64(len(md) + len(cfg)),
+		Data:        append(append([]byte(nil), md...), cfg...),
+	}, nil
+}
+
+func (p *fakePackager) StorePrepared(
+	_ context.Context,
+	prepared *extensionsvc.PreparedSkill,
+) (*extensionsvc.PackagedSkill, error) {
+	return &extensionsvc.PackagedSkill{
+		Slug:        prepared.Slug,
+		DisplayName: prepared.DisplayName,
+		Description: prepared.Description,
+		ContentSha:  prepared.ContentSha,
+		StorageKey:  prepared.StorageKey,
+		PackageSize: prepared.PackageSize,
 		Created:     !p.reused,
 	}, nil
 }

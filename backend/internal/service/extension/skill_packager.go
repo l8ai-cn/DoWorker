@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -101,6 +100,14 @@ func (p *SkillPackager) PackageFromUpload(ctx context.Context, reader io.Reader,
 }
 
 func (p *SkillPackager) packageDir(ctx context.Context, dirPath string) (*PackagedSkill, error) {
+	prepared, err := p.prepareDir(dirPath)
+	if err != nil {
+		return nil, err
+	}
+	return p.StorePrepared(ctx, prepared)
+}
+
+func (p *SkillPackager) prepareDir(dirPath string) (*PreparedSkill, error) {
 	info, err := parseSkillDir(dirPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse skill: %w", err)
@@ -116,31 +123,25 @@ func (p *SkillPackager) packageDir(ctx context.Context, dirPath string) (*Packag
 		return nil, fmt.Errorf("failed to package: %w", err)
 	}
 
-	storageKey := fmt.Sprintf("skills/direct/%s/%s.tar.gz", info.Slug, sha)
-	exists, err := p.storage.Exists(ctx, storageKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to check existing package: %w", err)
-	}
-	created := !exists
-	if created {
-		_, err = p.storage.Upload(ctx, storageKey, bytes.NewReader(packageData), int64(len(packageData)), "application/gzip")
-		if err != nil {
-			slog.ErrorContext(ctx, "failed to upload skill package", "slug", info.Slug, "storage_key", storageKey, "error", err)
-			return nil, fmt.Errorf("failed to upload: %w", err)
-		}
-	}
-
-	slog.InfoContext(ctx, "skill package ready", "slug", info.Slug, "content_sha", sha, "package_size", len(packageData), "created", created)
-
-	return &PackagedSkill{
+	return &PreparedSkill{
 		Slug:        info.Slug,
 		DisplayName: info.DisplayName,
 		Description: info.Description,
 		ContentSha:  sha,
-		StorageKey:  storageKey,
+		StorageKey:  fmt.Sprintf("skills/direct/%s/%s.tar.gz", info.Slug, sha),
 		PackageSize: int64(len(packageData)),
-		Created:     created,
+		Data:        packageData,
 	}, nil
+}
+
+type PreparedSkill struct {
+	Slug        string
+	DisplayName string
+	Description string
+	ContentSha  string
+	StorageKey  string
+	PackageSize int64
+	Data        []byte
 }
 
 type PackagedSkill struct {

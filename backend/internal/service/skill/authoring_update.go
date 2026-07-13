@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 )
 
@@ -66,30 +67,44 @@ func (s *Service) updateOnce(
 		"update: skill configuration", gitops.Author{}, files); err != nil {
 		return nil, false, fmt.Errorf("skill: commit: %w", err)
 	}
-	pkg, err := s.packageFromGit(ctx, repoName, branch)
+	prepared, err := s.prepareFromGit(ctx, repoName, branch)
 	if err != nil {
 		return nil, false, s.restoreMutation(ctx, repoName, branch, snapshot, err)
 	}
 	expectedVersion := row.Version
-	row.ContentSha = pkg.ContentSha
-	row.StorageKey = pkg.StorageKey
-	row.PackageSize = pkg.PackageSize
-	row.Version = expectedVersion + 1
-	updated, err := store.UpdateIfVersion(ctx, row, expectedVersion)
+	conflict, err := s.publishPreparedPackage(
+		ctx,
+		store,
+		prepared,
+		func(locked skilldom.Repository, pkg *extensionsvc.PackagedSkill) (bool, error) {
+			applyStoredPackage(row, pkg)
+			row.Version = expectedVersion + 1
+			updated, updateErr := locked.UpdateIfVersion(ctx, row, expectedVersion)
+			if updateErr != nil {
+				return false, fmt.Errorf("skill: update row: %w", updateErr)
+			}
+			return !updated, nil
+		},
+		func(
+			locked skilldom.Repository,
+			pkg *extensionsvc.PackagedSkill,
+			cause error,
+		) error {
+			return s.compensatePackagedMutation(
+				ctx,
+				locked,
+				repoName,
+				branch,
+				snapshot,
+				pkg,
+				cause,
+			)
+		},
+	)
 	if err != nil {
-		return nil, false, s.compensatePackagedMutation(
-			ctx, store, repoName, branch, snapshot, pkg,
-			fmt.Errorf("skill: update row: %w", err),
-		)
+		return nil, false, err
 	}
-	if !updated {
-		if err := s.compensatePackagedMutation(
-			ctx, store, repoName, branch, snapshot, pkg, nil,
-		); err != nil {
-			return nil, false, err
-		}
-	}
-	return row, !updated, nil
+	return row, conflict, nil
 }
 
 func applySkillUpdate(row *skilldom.Skill, req *UpdateSkillRequest) error {

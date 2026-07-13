@@ -69,38 +69,54 @@ func (s *Service) refreshImportedSkillOnce(
 		gitops.Author{}, files); err != nil {
 		return nil, false, fmt.Errorf("skill: commit upstream sync: %w", err)
 	}
-	pkg, err := s.packageImportedFiles(ctx, files)
+	prepared, err := s.prepareImportedFiles(ctx, files)
 	if err != nil {
 		return nil, false, s.restoreMutation(ctx, repoName, branch, snapshot, err)
 	}
 	expectedVersion := row.Version
 	previousContentSha := row.ContentSha
-	applyImportedSkillRefresh(row, src, info, pkg)
-	if pkg.ContentSha != previousContentSha {
-		row.Version = expectedVersion + 1
-	}
-	updated, err := store.UpdateIfVersion(ctx, row, expectedVersion)
+	conflict, err := s.publishPreparedPackage(
+		ctx,
+		store,
+		prepared,
+		func(locked skilldom.Repository, pkg *extensionsvc.PackagedSkill) (bool, error) {
+			applyImportedSkillRefresh(row, src, info, pkg)
+			if pkg.ContentSha != previousContentSha {
+				row.Version = expectedVersion + 1
+			}
+			updated, updateErr := locked.UpdateIfVersion(ctx, row, expectedVersion)
+			if updateErr != nil {
+				return false, fmt.Errorf("skill: update row: %w", updateErr)
+			}
+			return !updated, nil
+		},
+		func(
+			locked skilldom.Repository,
+			pkg *extensionsvc.PackagedSkill,
+			cause error,
+		) error {
+			return s.compensatePackagedMutation(
+				ctx,
+				locked,
+				repoName,
+				branch,
+				snapshot,
+				pkg,
+				cause,
+			)
+		},
+	)
 	if err != nil {
-		return nil, false, s.compensatePackagedMutation(
-			ctx, store, repoName, branch, snapshot, pkg,
-			fmt.Errorf("skill: update row: %w", err),
-		)
+		return nil, false, err
 	}
-	if !updated {
-		if err := s.compensatePackagedMutation(
-			ctx, store, repoName, branch, snapshot, pkg, nil,
-		); err != nil {
-			return nil, false, err
-		}
-	}
-	return row, !updated, nil
+	return row, conflict, nil
 }
 
 func applyImportedSkillRefresh(
 	row *skilldom.Skill,
 	src *extensionsvc.ClonedSkillSource,
 	info extensionsvc.SkillInfo,
-	pkg *packagedSkill,
+	pkg *extensionsvc.PackagedSkill,
 ) {
 	row.DisplayName = displayNameOr(info.DisplayName, row.Slug)
 	row.Description = info.Description

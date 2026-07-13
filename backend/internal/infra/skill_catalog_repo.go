@@ -12,7 +12,8 @@ import (
 // SkillCatalogRepository is the gorm-backed store for the unified skills
 // catalog (git-backed rows, namespace am-skills).
 type SkillCatalogRepository struct {
-	db *gorm.DB
+	db           *gorm.DB
+	sessionBound bool
 }
 
 func NewSkillCatalogRepository(db *gorm.DB) *SkillCatalogRepository {

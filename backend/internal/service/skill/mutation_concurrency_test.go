@@ -29,6 +29,14 @@ func (s *conflictingSkillStore) WithMutationLock(
 	return mutate(s)
 }
 
+func (s *conflictingSkillStore) WithPackageLock(
+	_ context.Context,
+	_ string,
+	mutate func(skilldom.Repository) error,
+) error {
+	return mutate(s)
+}
+
 func (s *conflictingSkillStore) UpdateIfVersion(
 	ctx context.Context,
 	row *skilldom.Skill,

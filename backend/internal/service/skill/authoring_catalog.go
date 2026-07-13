@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 )
 
 func (s *Service) Delete(ctx context.Context, orgID, id int64) error {
@@ -32,20 +33,18 @@ func (s *Service) List(ctx context.Context, orgID int64, limit, offset int) ([]s
 	return s.store.List(ctx, orgID, limit, offset)
 }
 
-func (s *Service) packageFromGit(ctx context.Context, repoName, branch string) (*packagedSkill, error) {
+func (s *Service) prepareFromGit(
+	ctx context.Context,
+	repoName, branch string,
+) (*extensionsvc.PreparedSkill, error) {
 	dir, cleanup, err := materializeRepo(ctx, s.gitops, repoName, branch)
 	if err != nil {
 		return nil, err
 	}
 	defer cleanup()
-	pkg, err := s.packager.PackageFromDir(ctx, dir)
+	prepared, err := s.packager.PrepareFromDir(ctx, dir)
 	if err != nil {
 		return nil, fmt.Errorf("skill: package: %w", err)
 	}
-	return &packagedSkill{
-		ContentSha:  pkg.ContentSha,
-		StorageKey:  pkg.StorageKey,
-		PackageSize: pkg.PackageSize,
-		Created:     pkg.Created,
-	}, nil
+	return prepared, nil
 }
