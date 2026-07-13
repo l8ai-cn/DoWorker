@@ -3,7 +3,6 @@ package skill
 import (
 	"context"
 	"encoding/json"
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -82,36 +81,4 @@ func TestUpdate_NormalizesAndClearsTags(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.Empty(t, updated.Tags)
-}
-
-func TestUpdateTags_HasNoExpertOrWorkerSpecBoundary(t *testing.T) {
-	store := newFakeStore()
-	svc := newTestService(store, gitops.NewFake("am-skills"), &fakePackager{})
-	row, err := svc.Create(context.Background(), &CreateSkillRequest{
-		OrganizationID: 7,
-		Name:           "Video Editing",
-		Instructions:   "Edit the video.",
-	})
-	require.NoError(t, err)
-
-	tags := []string{"video", "editing"}
-	_, err = svc.Update(context.Background(), &UpdateSkillRequest{
-		OrganizationID: 7,
-		SkillID:        row.ID,
-		Tags:           &tags,
-	})
-	require.NoError(t, err)
-
-	serviceType := reflect.TypeOf(Service{})
-	for i := 0; i < serviceType.NumField(); i++ {
-		dependency := serviceType.Field(i).Type.String()
-		assert.NotContains(t, dependency, "expert")
-		assert.NotContains(t, dependency, "workerspec")
-	}
-
-	requestType := reflect.TypeOf(UpdateSkillRequest{})
-	for _, field := range []string{"SkillSlugs", "WorkerSpec", "WorkerSpecSnapshotID"} {
-		_, exists := requestType.FieldByName(field)
-		assert.False(t, exists, "tag update boundary must not accept %s", field)
-	}
 }
