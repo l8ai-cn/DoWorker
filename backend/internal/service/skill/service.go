@@ -32,6 +32,7 @@ var (
 // service reuse the package->object-storage pipeline without re-cloning.
 type SkillPackagerBridge interface {
 	PackageFromDir(ctx context.Context, dir string) (*extensionsvc.PackagedSkill, error)
+	DeletePackage(ctx context.Context, storageKey string) error
 }
 
 type Service struct {

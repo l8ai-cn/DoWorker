@@ -155,6 +155,9 @@ type fakePackager struct {
 	lastSkillCfg string
 	calls        int
 	failErr      error
+	deletedKeys  []string
+	deleteErr    error
+	deleteHook   func()
 }
 
 func (p *fakePackager) PackageFromDir(_ context.Context, dir string) (*extensionsvc.PackagedSkill, error) {

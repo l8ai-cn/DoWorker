@@ -99,6 +99,10 @@ func TestSkillTagUpdatePreservesExpertAndWorkerSpecBindings(t *testing.T) {
 
 type runtimeBindingPackager struct{}
 
+func (runtimeBindingPackager) DeletePackage(context.Context, string) error {
+	return nil
+}
+
 func (runtimeBindingPackager) PackageFromDir(
 	_ context.Context,
 	dir string,

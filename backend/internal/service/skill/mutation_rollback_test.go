@@ -38,7 +38,8 @@ func (s *alwaysConflictingSkillStore) UpdateIfVersion(
 func TestUpdateRestoresGitWhenDatabaseUpdateFails(t *testing.T) {
 	store := newFakeStore()
 	internalGit := gitops.NewFake("am-skills")
-	svc := newTestService(store, internalGit, &fakePackager{})
+	packager := &fakePackager{}
+	svc := newTestService(store, internalGit, packager)
 	row, err := svc.Create(context.Background(), &CreateSkillRequest{
 		OrganizationID: 7,
 		Name:           "Video Editing",
@@ -48,6 +49,10 @@ func TestUpdateRestoresGitWhenDatabaseUpdateFails(t *testing.T) {
 	require.NoError(t, err)
 	beforeRepo := cloneRepoFiles(internalGit.Repos["org7-video-editing"].Files)
 	beforeRow := *row
+	packager.deletedKeys = nil
+	packager.deleteHook = func() {
+		assert.Equal(t, beforeRepo, internalGit.Repos["org7-video-editing"].Files)
+	}
 	store.updateErr = errors.New("database unavailable")
 
 	tags := []string{"curated"}
@@ -65,6 +70,8 @@ func TestUpdateRestoresGitWhenDatabaseUpdateFails(t *testing.T) {
 	assert.Equal(t, beforeRow.StorageKey, saved.StorageKey)
 	assert.Equal(t, beforeRow.PackageSize, saved.PackageSize)
 	assert.Equal(t, beforeRow.Version, saved.Version)
+	require.Len(t, packager.deletedKeys, 1)
+	assert.NotEqual(t, beforeRow.StorageKey, packager.deletedKeys[0])
 }
 
 func TestUpstreamSyncRestoresGitAfterContinuousConflicts(t *testing.T) {
@@ -72,7 +79,8 @@ func TestUpstreamSyncRestoresGitAfterContinuousConflicts(t *testing.T) {
 	baseStore := newFakeStore()
 	store := &alwaysConflictingSkillStore{fakeStore: baseStore}
 	internalGit := gitops.NewFake("am-skills")
-	svc := newTestService(store, internalGit, &fakePackager{})
+	packager := &fakePackager{}
+	svc := newTestService(store, internalGit, packager)
 	request := &ImportFromGitRequest{
 		OrganizationID: 7,
 		UserID:         3,
@@ -82,6 +90,7 @@ func TestUpstreamSyncRestoresGitAfterContinuousConflicts(t *testing.T) {
 	require.NoError(t, err)
 	beforeRepo := cloneRepoFiles(internalGit.Repos["org7-video-editing"].Files)
 	beforeRow := *row
+	packager.deletedKeys = nil
 
 	require.NoError(t, os.WriteFile(
 		filepath.Join(upstream, "SKILL.md"),
@@ -110,6 +119,71 @@ func TestUpstreamSyncRestoresGitAfterContinuousConflicts(t *testing.T) {
 	assert.Equal(t, beforeRow.StorageKey, saved.StorageKey)
 	assert.Equal(t, beforeRow.PackageSize, saved.PackageSize)
 	assert.Equal(t, beforeRow.Version, saved.Version)
+	require.Len(t, packager.deletedKeys, maxSkillMutationAttempts)
+	for _, storageKey := range packager.deletedKeys {
+		assert.NotEqual(t, beforeRow.StorageKey, storageKey)
+	}
+}
+
+func TestUpdateReturnsDatabaseAndPackageCleanupErrors(t *testing.T) {
+	store := newFakeStore()
+	internalGit := gitops.NewFake("am-skills")
+	packager := &fakePackager{}
+	svc := newTestService(store, internalGit, packager)
+	row, err := svc.Create(context.Background(), &CreateSkillRequest{
+		OrganizationID: 7,
+		Name:           "Video Editing",
+		Instructions:   "Original body.",
+		Tags:           []string{"initial"},
+	})
+	require.NoError(t, err)
+	beforeRepo := cloneRepoFiles(internalGit.Repos["org7-video-editing"].Files)
+	packager.deletedKeys = nil
+	store.updateErr = errors.New("database unavailable")
+	packager.deleteErr = errors.New("object delete failed")
+
+	tags := []string{"curated"}
+	_, err = svc.Update(context.Background(), &UpdateSkillRequest{
+		OrganizationID: 7,
+		SkillID:        row.ID,
+		Tags:           &tags,
+	})
+
+	require.ErrorContains(t, err, "database unavailable")
+	require.ErrorContains(t, err, "object delete failed")
+	assert.Equal(t, beforeRepo, internalGit.Repos["org7-video-editing"].Files)
+	require.Len(t, packager.deletedKeys, 1)
+}
+
+func TestUpstreamDatabaseErrorKeepsCurrentlyReferencedPackage(t *testing.T) {
+	upstream := createTagUpstream(t, []string{"initial"})
+	store := newFakeStore()
+	internalGit := gitops.NewFake("am-skills")
+	packager := &fakePackager{}
+	svc := newTestService(store, internalGit, packager)
+	row, err := importTagSkill(t, svc, upstream, &ImportFromGitRequest{
+		OrganizationID: 7,
+		UserID:         3,
+		URL:            "https://example.test/video-editing.git",
+	})
+	require.NoError(t, err)
+	packager.deletedKeys = nil
+	store.updateErr = errors.New("database unavailable")
+	infos, err := extensionsvc.ScanSkillSource(upstream, "")
+	require.NoError(t, err)
+	files, err := readSkillDirFiles(infos[0].DirPath)
+	require.NoError(t, err)
+
+	_, err = svc.refreshImportedSkill(
+		context.Background(),
+		row,
+		&extensionsvc.ClonedSkillSource{CommitSha: "fedcba654321"},
+		infos[0],
+		files,
+	)
+
+	require.ErrorContains(t, err, "database unavailable")
+	assert.Empty(t, packager.deletedKeys)
 }
 
 func cloneRepoFiles(files map[string][]byte) map[string][]byte {

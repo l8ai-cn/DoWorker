@@ -28,3 +28,10 @@ func (p *SkillPackager) PackageFromDir(ctx context.Context, dir string) (*Packag
 	}
 	return p.packageDir(ctx, dir)
 }
+
+func (p *SkillPackager) DeletePackage(ctx context.Context, storageKey string) error {
+	if err := p.storage.Delete(ctx, storageKey); err != nil {
+		return fmt.Errorf("delete skill package %q: %w", storageKey, err)
+	}
+	return nil
+}

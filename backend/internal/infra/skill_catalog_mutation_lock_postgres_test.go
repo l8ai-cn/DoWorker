@@ -85,3 +85,56 @@ func TestSkillMutationLockSerializesRepositoryInstancesPostgres(t *testing.T) {
 	}
 	require.NoError(t, <-secondDone)
 }
+
+func TestSkillMutationLockReleasesAfterPanicPostgres(t *testing.T) {
+	db1, db2 := openSkillMutationLockTestDBs(t)
+	repo1 := NewSkillCatalogRepository(db1)
+	repo2 := NewSkillCatalogRepository(db2)
+	skillID := time.Now().UnixNano()
+	panicValue := "mutation panic"
+
+	recovered := func() (recovered any) {
+		defer func() { recovered = recover() }()
+		_ = repo1.WithMutationLock(
+			context.Background(),
+			skillID,
+			func(skilldom.Repository) error { panic(panicValue) },
+		)
+		return nil
+	}()
+	require.Equal(t, panicValue, recovered)
+
+	acquired := make(chan error, 1)
+	go func() {
+		acquired <- repo2.WithMutationLock(
+			context.Background(),
+			skillID,
+			func(skilldom.Repository) error { return nil },
+		)
+	}()
+	select {
+	case err := <-acquired:
+		require.NoError(t, err)
+	case <-time.After(2 * time.Second):
+		t.Fatal("second connection could not acquire lock after mutate panic")
+	}
+}
+
+func openSkillMutationLockTestDBs(t *testing.T) (*gorm.DB, *gorm.DB) {
+	t.Helper()
+	dsn := os.Getenv("MIGRATIONS_POSTGRES_TEST_DSN")
+	if dsn == "" {
+		t.Skip("MIGRATIONS_POSTGRES_TEST_DSN is not configured")
+	}
+	open := func() *gorm.DB {
+		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Silent),
+		})
+		require.NoError(t, err)
+		sqlDB, err := db.DB()
+		require.NoError(t, err)
+		t.Cleanup(func() { _ = sqlDB.Close() })
+		return db
+	}
+	return open(), open()
+}
