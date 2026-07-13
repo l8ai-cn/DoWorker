@@ -49,6 +49,21 @@ ensure_project() {
   echo "  create project -> HTTP ${status}"
 }
 
+manifest_digest() {
+  local image="$1" digest="" attempt=1
+  until digest="$(docker buildx imagetools inspect "${image}" --format '{{.Manifest.Digest}}')" &&
+    [[ "${digest}" =~ ^sha256:[a-f0-9]{64}$ ]]; do
+    [[ "${attempt}" -ge 4 ]] && {
+      echo "invalid registry digest for ${image}: ${digest}" >&2
+      return 1
+    }
+    echo "  registry manifest query failed; retry ${attempt}/4..." >&2
+    sleep 3
+    attempt=$((attempt + 1))
+  done
+  printf '%s' "${digest}"
+}
+
 # docker_push <dockerfile> <dest_repo>
 docker_push() {
   local file="$1" dest="$2"
@@ -60,11 +75,7 @@ docker_push() {
     "${REPO_ROOT}"
   docker push "${tag}"
   local digest
-  digest="$(docker buildx imagetools inspect "${tag}" --format '{{.Manifest.Digest}}')"
-  [[ "${digest}" =~ ^sha256:[a-f0-9]{64}$ ]] || {
-    echo "invalid registry digest for ${dest}: ${digest}" >&2
-    return 1
-  }
+  digest="$(manifest_digest "${tag}")"
   case "${dest}" in
     backend)     PLATFORM_DIGEST_BACKEND="${digest}" ;;
     marketplace) PLATFORM_DIGEST_MARKETPLACE="${digest}" ;;
@@ -105,12 +116,7 @@ EOF
 
 registry_digest() {
   local image="$1" digest
-  digest="$(docker buildx imagetools inspect "${PROJ}/${image}:latest" \
-    --format '{{.Manifest.Digest}}')"
-  [[ "${digest}" =~ ^sha256:[a-f0-9]{64}$ ]] || {
-    echo "invalid existing registry digest for ${image}: ${digest}" >&2
-    return 1
-  }
+  digest="$(manifest_digest "${PROJ}/${image}:latest")"
   printf '%s' "${digest}"
 }
 
