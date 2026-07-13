@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
@@ -51,7 +49,7 @@ func (s *Service) SyncFromUpstream(ctx context.Context, orgID int64, slug string
 }
 
 func prepareImportedSkillFiles(
-	dir, slug string,
+	slug string,
 	tags []string,
 	files []gitops.FileChange,
 ) ([]gitops.FileChange, error) {
@@ -60,13 +58,9 @@ func prepareImportedSkillFiles(
 		return nil, err
 	}
 	for _, file := range synced {
-		if file.Path != "skill.json" {
-			continue
+		if file.Path == "skill.json" {
+			return synced, nil
 		}
-		if err := os.WriteFile(filepath.Join(dir, "skill.json"), file.Content, 0644); err != nil {
-			return nil, fmt.Errorf("skill: write synchronized skill.json: %w", err)
-		}
-		return synced, nil
 	}
 	return nil, errors.New("skill: synchronized skill.json is missing")
 }
@@ -78,18 +72,15 @@ func preserveCuratorTags(files []gitops.FileChange, slug string, tags []string) 
 		if synced[i].Path != "skill.json" {
 			continue
 		}
-		var config map[string]any
-		if err := json.Unmarshal(synced[i].Content, &config); err != nil {
-			return nil, fmt.Errorf("skill: parse upstream skill.json: %w", err)
-		}
-		config["schema"] = skillConfigSchema
-		config["slug"] = slug
-		config["tags"] = normalized
-		content, err := json.MarshalIndent(config, "", "  ")
+		content, err := replaceSkillConfigFields(synced[i].Content, map[string]any{
+			"schema": skillConfigSchema,
+			"slug":   slug,
+			"tags":   normalized,
+		})
 		if err != nil {
-			return nil, fmt.Errorf("skill: render synchronized skill.json: %w", err)
+			return nil, fmt.Errorf("skill: synchronize skill.json: %w", err)
 		}
-		synced[i].Content = append(content, '\n')
+		synced[i].Content = content
 		return synced, nil
 	}
 

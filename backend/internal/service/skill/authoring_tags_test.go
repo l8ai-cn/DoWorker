@@ -82,3 +82,33 @@ func TestUpdate_NormalizesAndClearsTags(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, updated.Tags)
 }
+
+func TestUpdateTags_PreservesUnknownLargeInteger(t *testing.T) {
+	store := newFakeStore()
+	fake := gitops.NewFake("am-skills")
+	svc := newTestService(store, fake, &fakePackager{})
+
+	row, err := svc.Create(context.Background(), &CreateSkillRequest{
+		OrganizationID: 7,
+		Name:           "Video Editing",
+		Instructions:   "Edit the video.",
+		Tags:           []string{"video"},
+	})
+	require.NoError(t, err)
+
+	repo := fake.Repos["org7-video-editing"]
+	repo.Files["skill.json"] = []byte(
+		`{"schema":2,"slug":"video-editing","tags":["video"],"future_number":9007199254740993}`,
+	)
+	tags := []string{"curated"}
+	_, err = svc.Update(context.Background(), &UpdateSkillRequest{
+		OrganizationID: 7,
+		SkillID:        row.ID,
+		Tags:           &tags,
+	})
+	require.NoError(t, err)
+
+	var config map[string]json.RawMessage
+	require.NoError(t, json.Unmarshal(repo.Files["skill.json"], &config))
+	assert.Equal(t, "9007199254740993", string(config["future_number"]))
+}

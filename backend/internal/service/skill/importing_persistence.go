@@ -19,7 +19,7 @@ func (s *Service) createImportedSkill(
 		return nil, err
 	}
 	tags := skilldom.NormalizeTags(info.Tags)
-	files, err = prepareImportedSkillFiles(info.DirPath, slug, tags, files)
+	files, err = prepareImportedSkillFiles(slug, tags, files)
 	if err != nil {
 		return nil, err
 	}
@@ -35,10 +35,10 @@ func (s *Service) createImportedSkill(
 	}
 	repoName := s.gitops.RepoNameFromPath(repo.Path)
 
-	pkg, err := s.packager.PackageFromDir(ctx, info.DirPath)
+	pkg, err := s.packageImportedFiles(ctx, files)
 	if err != nil {
 		s.cleanupRepo(ctx, repoName)
-		return nil, fmt.Errorf("skill: package: %w", err)
+		return nil, err
 	}
 
 	orgID := req.OrganizationID
@@ -79,43 +79,19 @@ func (s *Service) createImportedSkill(
 	return row, nil
 }
 
-func (s *Service) refreshImportedSkill(
-	ctx context.Context, row *skilldom.Skill,
-	src *extensionsvc.ClonedSkillSource, info extensionsvc.SkillInfo,
-	files []gitops.FileChange,
-) (*skilldom.Skill, error) {
-	files, err := prepareImportedSkillFiles(info.DirPath, row.Slug, row.Tags, files)
+func (s *Service) packageImportedFiles(ctx context.Context, files []gitops.FileChange) (*packagedSkill, error) {
+	dir, cleanup, err := materializeFileChanges(files)
 	if err != nil {
 		return nil, err
 	}
-	repoName := s.gitops.RepoNameFromPath(row.GitRepoPath)
-	branch := branchOrDefault(row.DefaultBranch)
-
-	if err := s.gitops.Commit(ctx, repoName, branch,
-		fmt.Sprintf("sync: upstream %s", shortSha(src.CommitSha)), gitops.Author{}, files); err != nil {
-		return nil, fmt.Errorf("skill: commit upstream sync: %w", err)
-	}
-
-	pkg, err := s.packager.PackageFromDir(ctx, info.DirPath)
+	defer cleanup()
+	pkg, err := s.packager.PackageFromDir(ctx, dir)
 	if err != nil {
 		return nil, fmt.Errorf("skill: package: %w", err)
 	}
-	if pkg.ContentSha != row.ContentSha {
-		row.Version++
-	}
-	row.DisplayName = displayNameOr(info.DisplayName, row.Slug)
-	row.Description = info.Description
-	row.License = info.License
-	row.Category = info.Category
-	row.Compatibility = info.Compatibility
-	row.AllowedTools = info.AllowedTools
-	row.UpstreamCommitSha = src.CommitSha
-	row.ContentSha = pkg.ContentSha
-	row.StorageKey = pkg.StorageKey
-	row.PackageSize = pkg.PackageSize
-
-	if err := s.store.Update(ctx, row); err != nil {
-		return nil, fmt.Errorf("skill: update row: %w", err)
-	}
-	return row, nil
+	return &packagedSkill{
+		ContentSha:  pkg.ContentSha,
+		StorageKey:  pkg.StorageKey,
+		PackageSize: pkg.PackageSize,
+	}, nil
 }

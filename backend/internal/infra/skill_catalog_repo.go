@@ -27,6 +27,22 @@ func (r *SkillCatalogRepository) Update(ctx context.Context, s *skilldom.Skill) 
 	return r.db.WithContext(ctx).Save(s).Error
 }
 
+func (r *SkillCatalogRepository) UpdateIfVersion(
+	ctx context.Context,
+	s *skilldom.Skill,
+	expectedVersion int,
+) (bool, error) {
+	result := r.db.WithContext(ctx).
+		Model(&skilldom.Skill{}).
+		Where("id = ? AND version = ?", s.ID, expectedVersion).
+		Select("*").
+		Updates(s)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return result.RowsAffected == 1, nil
+}
+
 func (r *SkillCatalogRepository) Delete(ctx context.Context, orgID, id int64) error {
 	res := r.db.WithContext(ctx).
 		Where("organization_id = ? AND id = ?", orgID, id).

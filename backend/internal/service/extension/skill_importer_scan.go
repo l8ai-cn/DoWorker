@@ -127,10 +127,18 @@ func parseSkillDir(dirPath string) (*SkillInfo, error) {
 }
 
 func readSkillConfigTags(dirPath string) ([]string, error) {
-	content, err := os.ReadFile(filepath.Join(dirPath, "skill.json"))
+	path := filepath.Join(dirPath, "skill.json")
+	info, err := os.Lstat(path)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, nil
 	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to inspect skill.json: %w", err)
+	}
+	if !info.Mode().IsRegular() {
+		return nil, errors.New("skill.json must be a regular file")
+	}
+	content, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read skill.json: %w", err)
 	}

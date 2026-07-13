@@ -106,6 +106,7 @@ func (s *Skill) VisibleTo(orgID int64) bool {
 type Repository interface {
 	Create(ctx context.Context, s *Skill) error
 	Update(ctx context.Context, s *Skill) error
+	UpdateIfVersion(ctx context.Context, s *Skill, expectedVersion int) (bool, error)
 	Delete(ctx context.Context, orgID, id int64) error
 	GetByID(ctx context.Context, orgID, id int64) (*Skill, error)
 	// GetAnyByID fetches without org scoping — callers must check VisibleTo.

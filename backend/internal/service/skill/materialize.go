@@ -63,3 +63,34 @@ func materializeRepo(
 
 	return dir, cleanup, nil
 }
+
+func materializeFileChanges(files []gitops.FileChange) (string, func(), error) {
+	dir, err := os.MkdirTemp("", "skill-import-*")
+	if err != nil {
+		return "", nil, fmt.Errorf("skill: create import temp dir: %w", err)
+	}
+	cleanup := func() { _ = os.RemoveAll(dir) }
+	root := filepath.Clean(dir)
+
+	for _, file := range files {
+		rel := filepath.Clean(filepath.FromSlash(strings.TrimPrefix(file.Path, "/")))
+		if rel == "." || rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) || filepath.IsAbs(rel) {
+			cleanup()
+			return "", nil, fmt.Errorf("skill: unsafe import path %q", file.Path)
+		}
+		target := filepath.Join(root, rel)
+		if target != root && !strings.HasPrefix(target, root+string(os.PathSeparator)) {
+			cleanup()
+			return "", nil, fmt.Errorf("skill: import path escapes temp dir %q", file.Path)
+		}
+		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			cleanup()
+			return "", nil, fmt.Errorf("skill: mkdir for %q: %w", file.Path, err)
+		}
+		if err := os.WriteFile(target, file.Content, 0o644); err != nil {
+			cleanup()
+			return "", nil, fmt.Errorf("skill: write %q: %w", file.Path, err)
+		}
+	}
+	return dir, cleanup, nil
+}

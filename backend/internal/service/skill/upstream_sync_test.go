@@ -45,6 +45,22 @@ func TestPreserveCuratorTags_CreatesMissingSkillConfig(t *testing.T) {
 	assert.JSONEq(t, `{"schema":2,"slug":"video-editing","tags":["video"]}`, string(synced[1].Content))
 }
 
+func TestPreserveCuratorTags_PreservesUnknownLargeInteger(t *testing.T) {
+	files := []gitops.FileChange{{
+		Path: "skill.json",
+		Content: []byte(
+			`{"schema":2,"slug":"video-editing","tags":["upstream"],"future_number":9007199254740993}`,
+		),
+	}}
+
+	synced, err := preserveCuratorTags(files, "video-editing", []string{"curated"})
+	require.NoError(t, err)
+
+	var config map[string]json.RawMessage
+	require.NoError(t, json.Unmarshal(synced[0].Content, &config))
+	assert.Equal(t, "9007199254740993", string(config["future_number"]))
+}
+
 func TestRefreshImportedSkill_PreservesCatalogTags(t *testing.T) {
 	dir := t.TempDir()
 	skillMD := []byte("---\nname: video-editing\n---\n")

@@ -56,6 +56,22 @@ func (f *fakeStore) Update(_ context.Context, s *skilldom.Skill) error {
 	return nil
 }
 
+func (f *fakeStore) UpdateIfVersion(_ context.Context, s *skilldom.Skill, expectedVersion int) (bool, error) {
+	if f.updateErr != nil {
+		return false, f.updateErr
+	}
+	current, ok := f.rows[s.ID]
+	if !ok {
+		return false, skilldom.ErrNotFound
+	}
+	if current.Version != expectedVersion {
+		return false, nil
+	}
+	cp := *s
+	f.rows[s.ID] = &cp
+	return true, nil
+}
+
 func (f *fakeStore) Delete(_ context.Context, orgID, id int64) error {
 	s, ok := f.rows[id]
 	if !ok || !orgMatches(s.OrganizationID, orgID) {
