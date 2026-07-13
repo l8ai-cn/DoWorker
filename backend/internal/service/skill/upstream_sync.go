@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
@@ -45,11 +47,28 @@ func (s *Service) SyncFromUpstream(ctx context.Context, orgID int64, slug string
 	if err != nil {
 		return nil, err
 	}
-	files, err = preserveCuratorTags(files, row.Slug, row.Tags)
+	return s.refreshImportedSkill(ctx, row, src, info, files)
+}
+
+func prepareImportedSkillFiles(
+	dir, slug string,
+	tags []string,
+	files []gitops.FileChange,
+) ([]gitops.FileChange, error) {
+	synced, err := preserveCuratorTags(files, slug, tags)
 	if err != nil {
 		return nil, err
 	}
-	return s.refreshImportedSkill(ctx, row, src, info, files)
+	for _, file := range synced {
+		if file.Path != "skill.json" {
+			continue
+		}
+		if err := os.WriteFile(filepath.Join(dir, "skill.json"), file.Content, 0644); err != nil {
+			return nil, fmt.Errorf("skill: write synchronized skill.json: %w", err)
+		}
+		return synced, nil
+	}
+	return nil, errors.New("skill: synchronized skill.json is missing")
 }
 
 func preserveCuratorTags(files []gitops.FileChange, slug string, tags []string) ([]gitops.FileChange, error) {

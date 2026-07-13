@@ -90,3 +90,38 @@ func TestRefreshImportedSkill_PreservesCatalogTags(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, []string{"curated", "video"}, []string(updated.Tags))
 }
+
+func TestExplicitUpstreamSync_PreservesCuratorTagsInGitAndPackage(t *testing.T) {
+	upstream := createTagUpstream(t, []string{"upstream"})
+	store := newFakeStore()
+	internalGit := gitops.NewFake("am-skills")
+	packager := &fakePackager{}
+	svc := newTestService(store, internalGit, packager)
+	request := &ImportFromGitRequest{
+		OrganizationID: 7,
+		UserID:         3,
+		URL:            "https://example.test/video-editing.git",
+	}
+
+	row, err := importTagSkill(t, svc, upstream, request)
+	require.NoError(t, err)
+	row.Tags = skilldom.NormalizeTags([]string{"curated", "video"})
+	store.rows[row.ID].Tags = row.Tags
+	replaceUpstreamTags(t, upstream, []string{"upstream-new"})
+
+	infos, err := extensionsvc.ScanSkillSource(upstream, "")
+	require.NoError(t, err)
+	files, err := readSkillDirFiles(infos[0].DirPath)
+	require.NoError(t, err)
+	row, err = svc.refreshImportedSkill(
+		context.Background(),
+		row,
+		&extensionsvc.ClonedSkillSource{Dir: upstream, CommitSha: "fedcba654321"},
+		infos[0],
+		files,
+	)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"curated", "video"}, []string(row.Tags))
+	assertSkillConfigTags(t, internalGit.Repos["org7-video-editing"].Files["skill.json"], []string{"curated", "video"})
+	assertSkillConfigTags(t, []byte(packager.lastSkillCfg), []string{"curated", "video"})
+}
