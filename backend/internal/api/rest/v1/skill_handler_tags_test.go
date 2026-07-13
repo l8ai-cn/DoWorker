@@ -43,7 +43,9 @@ func (s *skillHandlerTagService) Update(
 	req *skillSvc.UpdateSkillRequest,
 ) (*skilldom.Skill, error) {
 	s.updateRequest = req
-	return &skilldom.Skill{ID: req.SkillID, Slug: "video-editing", Tags: skilldom.NormalizeTags(*req.Tags)}, nil
+	return &skilldom.Skill{
+		ID: req.SkillID, Slug: "video-editing", Tags: skilldom.NormalizeTags(*req.Tags),
+	}, nil
 }
 
 func newSkillTagContext(method, path, body string) (*gin.Context, *httptest.ResponseRecorder) {
@@ -74,14 +76,14 @@ func TestCreateSkillAcceptsTags(t *testing.T) {
 	assert.JSONEq(t, `{"skill":{"id":1,"organization_id":null,"slug":"video-editing","display_name":"","description":"","license":"","tags":["editing","video"],"is_active":false,"git_repo_path":"","default_branch":"","install_source":"","content_sha":"","storage_key":"","package_size":0,"version":0,"created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z"}}`, recorder.Body.String())
 }
 
-func TestUpdateSkillAcceptsTagsWithoutExpertMutation(t *testing.T) {
+func TestUpdateSkillAcceptsTags(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	service := &skillHandlerTagService{}
 	handler := NewSkillHandler(service)
 	context, recorder := newSkillTagContext(
 		http.MethodPatch,
 		"/authored-skills/video-editing",
-		`{"tags":[" Motion ","editing","MOTION"],"skill_slugs":["expert-owned"]}`,
+		`{"tags":[" Motion ","editing","MOTION"]}`,
 	)
 
 	handler.UpdateSkill(context)

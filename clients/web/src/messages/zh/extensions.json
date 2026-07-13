@@ -90,6 +90,7 @@
       "groupFlat": "平铺",
       "groupByTag": "按标签",
       "untagged": "未标签",
+      "tagGroup": "标签",
       "noFilterResults": "没有 Skill 匹配所选标签。",
       "editTags": "编辑标签",
       "tagInput": "新标签",

@@ -9,6 +9,7 @@ import { AlertCircle, Plus, Tags } from "lucide-react";
 import type { TranslationFn } from "../GeneralSettings";
 import { CatalogSkillRow } from "./CatalogSkillRow";
 import { SkillCatalogFilters, type CatalogViewMode } from "./SkillCatalogFilters";
+import { groupCatalogSkills, type SkillCatalogGroup } from "./skillCatalogGroups";
 
 interface CatalogSkillListProps {
   t: TranslationFn;
@@ -16,13 +17,13 @@ interface CatalogSkillListProps {
   loadError?: boolean;
   skills: CatalogSkill[];
   syncingSlug: string | null;
-  savingSlug: string | null;
-  saveErrorSlug: string | null;
+  savingSlugs: ReadonlySet<string>;
+  saveErrorSlugs: ReadonlySet<string>;
   onSync: (slug: string) => void;
   onDelete: (slug: string) => void;
   onImport: () => void;
   onRetry?: () => void;
-  onEditTags: () => void;
+  onEditTags: (slug: string) => void;
   onUpdateTags: (slug: string, tags: string[]) => Promise<void>;
 }
 
@@ -123,26 +124,39 @@ function CatalogTagGroups({
   skills: CatalogSkill[];
   props: CatalogSkillListProps;
 }) {
-  const groups = new Map<string, CatalogSkill[]>();
-  for (const skill of skills) {
-    const groupTags = skill.tags.length > 0
-      ? skill.tags
-      : [props.t("extensions.skillCatalog.untagged")];
-    for (const tag of groupTags) groups.set(tag, [...(groups.get(tag) ?? []), skill]);
-  }
+  const groups = groupCatalogSkills(skills);
 
   return (
     <div className="divide-y divide-border/70">
-      {[...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([tag, groupSkills]) => (
-        <section key={tag} role="region" aria-label={tag}>
+      {groups.map((group) => (
+        <section key={groupKey(group)} role="region" aria-label={groupLabel(group, props.t)}>
           <div className="bg-surface-muted px-4 py-2 text-xs font-semibold text-muted-foreground">
-            {tag} <span className="font-normal">({groupSkills.length})</span>
+            {groupTitle(group, props.t)}{" "}
+            <span className="font-normal">({group.skills.length})</span>
           </div>
-          {groupSkills.map((skill) => renderRow(skill, props, `${tag}-${skill.id}`))}
+          {group.skills.map((skill) => renderRow(
+            skill,
+            props,
+            `${groupKey(group)}-${skill.id}`,
+          ))}
         </section>
       ))}
     </div>
   );
+}
+
+function groupKey(group: SkillCatalogGroup) {
+  return group.kind === "tag" ? `tag:${group.tag}` : "untagged";
+}
+
+function groupTitle(group: SkillCatalogGroup, t: TranslationFn) {
+  return group.kind === "tag" ? group.tag : t("extensions.skillCatalog.untagged");
+}
+
+function groupLabel(group: SkillCatalogGroup, t: TranslationFn) {
+  return group.kind === "tag"
+    ? `${t("extensions.skillCatalog.tagGroup")}: ${group.tag}`
+    : t("extensions.skillCatalog.untagged");
 }
 
 function renderRow(skill: CatalogSkill, props: CatalogSkillListProps, key: React.Key) {
@@ -152,11 +166,11 @@ function renderRow(skill: CatalogSkill, props: CatalogSkillListProps, key: React
       t={props.t}
       skill={skill}
       syncing={props.syncingSlug === skill.slug}
-      saving={props.savingSlug === skill.slug}
-      saveFailed={props.saveErrorSlug === skill.slug}
+      saving={props.savingSlugs.has(skill.slug)}
+      saveFailed={props.saveErrorSlugs.has(skill.slug)}
       onSync={props.onSync}
       onDelete={props.onDelete}
-      onEditTags={props.onEditTags}
+      onEditTags={() => props.onEditTags(skill.slug)}
       onUpdateTags={props.onUpdateTags}
     />
   );

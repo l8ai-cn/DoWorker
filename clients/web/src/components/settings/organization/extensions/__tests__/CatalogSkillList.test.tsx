@@ -40,8 +40,8 @@ function renderList(overrides: Partial<React.ComponentProps<typeof CatalogSkillL
     loading: false,
     skills,
     syncingSlug: null,
-    savingSlug: null,
-    saveErrorSlug: null,
+    savingSlugs: new Set(),
+    saveErrorSlugs: new Set(),
     onSync: vi.fn(),
     onDelete: vi.fn(),
     onImport: vi.fn(),
@@ -83,12 +83,40 @@ describe("CatalogSkillList", () => {
 
     fireEvent.click(screen.getByRole("tab", { name: "extensions.skillCatalog.groupByTag" }));
 
-    const editing = screen.getByRole("region", { name: "editing" });
-    const video = screen.getByRole("region", { name: "video" });
+    const editing = screen.getByRole("region", {
+      name: "extensions.skillCatalog.tagGroup: editing",
+    });
+    const video = screen.getByRole("region", {
+      name: "extensions.skillCatalog.tagGroup: video",
+    });
     const untagged = screen.getByRole("region", { name: "extensions.skillCatalog.untagged" });
     expect(within(editing).getAllByText("video-editing")).toHaveLength(2);
     expect(within(video).getAllByText("video-editing")).toHaveLength(2);
     expect(within(untagged).getAllByText("general-review")).toHaveLength(2);
+  });
+
+  it("keeps a real 未标签 tag separate from the untagged group", () => {
+    const collisionT = (key: string) => {
+      if (key === "extensions.skillCatalog.untagged") return "未标签";
+      if (key === "extensions.skillCatalog.tagGroup") return "标签";
+      return key;
+    };
+    renderList({
+      t: collisionT,
+      skills: [
+        skill(5, "named-untagged", ["未标签"]),
+        skill(6, "actually-untagged", []),
+      ],
+    });
+
+    fireEvent.click(screen.getByRole("tab", { name: "extensions.skillCatalog.groupByTag" }));
+
+    const tagged = screen.getByRole("region", { name: "标签: 未标签" });
+    const untagged = screen.getByRole("region", { name: "未标签" });
+    expect(within(tagged).getAllByText("named-untagged")).toHaveLength(2);
+    expect(within(tagged).queryByText("actually-untagged")).not.toBeInTheDocument();
+    expect(within(untagged).getAllByText("actually-untagged")).toHaveLength(2);
+    expect(within(untagged).queryByText("named-untagged")).not.toBeInTheDocument();
   });
 
   it("edits tags with Enter, delete, save, and disabled saving state", async () => {
@@ -111,13 +139,13 @@ describe("CatalogSkillList", () => {
       ["curated", "video"],
     ));
 
-    rerender(<CatalogSkillList {...props} savingSlug="video-editing" />);
+    rerender(<CatalogSkillList {...props} savingSlugs={new Set(["video-editing"])} />);
     expect(screen.getByRole("button", { name: "extensions.skillCatalog.savingTags" })).toBeDisabled();
     expect(screen.getByLabelText("extensions.skillCatalog.tagInput")).toBeDisabled();
   });
 
   it("keeps the editor open with a save failure state", () => {
-    renderList({ saveErrorSlug: "video-editing" });
+    renderList({ saveErrorSlugs: new Set(["video-editing"]) });
     fireEvent.click(screen.getByRole("button", {
       name: "extensions.skillCatalog.editTags: video-editing",
     }));

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { CatalogSkill } from "@/lib/api";
 import { skillCatalogApi } from "@/lib/api";
 import { useCurrentOrg } from "@/stores/auth";
@@ -14,6 +14,21 @@ interface SkillCatalogSettingsProps {
   t: TranslationFn;
 }
 
+const SKILL_PAGE_SIZE = 50;
+
+async function loadAllSkills() {
+  const skills: CatalogSkill[] = [];
+  let total = Number.POSITIVE_INFINITY;
+
+  while (skills.length < total) {
+    const page = await skillCatalogApi.list(SKILL_PAGE_SIZE, skills.length);
+    if (page.skills.length === 0) break;
+    skills.push(...page.skills);
+    total = page.total;
+  }
+  return skills;
+}
+
 export function SkillCatalogSettings({ t }: SkillCatalogSettingsProps) {
   const currentOrg = useCurrentOrg();
   const orgSlug = currentOrg?.slug ?? "";
@@ -22,17 +37,18 @@ export function SkillCatalogSettings({ t }: SkillCatalogSettingsProps) {
   const [loadError, setLoadError] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [syncingSlug, setSyncingSlug] = useState<string | null>(null);
-  const [savingSlug, setSavingSlug] = useState<string | null>(null);
-  const [saveErrorSlug, setSaveErrorSlug] = useState<string | null>(null);
+  const [savingSlugs, setSavingSlugs] = useState<Set<string>>(() => new Set());
+  const [saveErrorSlugs, setSaveErrorSlugs] = useState<Set<string>>(() => new Set());
+  const savingSlugsRef = useRef(new Set<string>());
 
   const load = useCallback(async (signal?: AbortSignal) => {
     if (!orgSlug) return;
     setLoading(true);
     setLoadError(false);
     try {
-      const res = await skillCatalogApi.list();
+      const loadedSkills = await loadAllSkills();
       if (signal?.aborted) return;
-      setSkills(res.skills);
+      setSkills(loadedSkills);
     } catch (error) {
       if (!signal?.aborted) {
         setLoadError(true);
@@ -74,14 +90,20 @@ export function SkillCatalogSettings({ t }: SkillCatalogSettingsProps) {
   }, [t, load]);
 
   const handleUpdateTags = useCallback(async (slug: string, tags: string[]) => {
-    setSavingSlug(slug);
-    setSaveErrorSlug(null);
+    if (savingSlugsRef.current.has(slug)) return;
+    savingSlugsRef.current.add(slug);
+    setSavingSlugs(new Set(savingSlugsRef.current));
+    setSaveErrorSlugs((current) => {
+      const next = new Set(current);
+      next.delete(slug);
+      return next;
+    });
     try {
       const updated = await skillCatalogApi.update(slug, { tags });
       setSkills((current) => current.map((skill) => skill.slug === slug ? updated : skill));
       toast.success(t("extensions.skillCatalog.tagsSaved"));
     } catch (error) {
-      setSaveErrorSlug(slug);
+      setSaveErrorSlugs((current) => new Set(current).add(slug));
       toast.error(getLocalizedErrorMessage(
         error,
         t,
@@ -89,7 +111,8 @@ export function SkillCatalogSettings({ t }: SkillCatalogSettingsProps) {
       ));
       throw error;
     } finally {
-      setSavingSlug(null);
+      savingSlugsRef.current.delete(slug);
+      setSavingSlugs(new Set(savingSlugsRef.current));
     }
   }, [t]);
 
@@ -101,13 +124,17 @@ export function SkillCatalogSettings({ t }: SkillCatalogSettingsProps) {
         loadError={loadError}
         skills={skills}
         syncingSlug={syncingSlug}
-        savingSlug={savingSlug}
-        saveErrorSlug={saveErrorSlug}
+        savingSlugs={savingSlugs}
+        saveErrorSlugs={saveErrorSlugs}
         onSync={handleSync}
         onDelete={handleDelete}
         onImport={() => setShowImport(true)}
         onRetry={load}
-        onEditTags={() => setSaveErrorSlug(null)}
+        onEditTags={(slug) => setSaveErrorSlugs((current) => {
+          const next = new Set(current);
+          next.delete(slug);
+          return next;
+        })}
         onUpdateTags={handleUpdateTags}
       />
       <ImportSkillDialog

@@ -90,6 +90,7 @@
       "groupFlat": "Flat",
       "groupByTag": "By tag",
       "untagged": "Untagged",
+      "tagGroup": "Tag",
       "noFilterResults": "No skills match the selected tags.",
       "editTags": "Edit tags",
       "tagInput": "New tag",
