@@ -22,6 +22,7 @@ func TestDefaultMarketplaceSeedContract(t *testing.T) {
 		"'software-delivery-expert'",
 		"'expert', NULL",
 		`"runtime_snapshot"`,
+		`"market_application_slug":"software-delivery-expert"`,
 		"'organization-starter'",
 		"'d0000000-0000-4000-8000-000000000001'",
 		"'default_marketplace_seed'",
@@ -49,4 +50,15 @@ func TestDefaultMarketplaceSeedTaxonomyContract(t *testing.T) {
 		require.Contains(t, string(up), fragment)
 	}
 	require.Contains(t, string(down), "marketplace_listing_version_tags")
+}
+
+func TestMarketplaceRuntimeSnapshotMigrationTargetsBackendExpertTemplate(t *testing.T) {
+	up, err := os.ReadFile("000013_backend_expert_template_runtime_snapshot.up.sql")
+	require.NoError(t, err)
+	down, err := os.ReadFile("000013_backend_expert_template_runtime_snapshot.down.sql")
+	require.NoError(t, err)
+
+	require.Contains(t, string(up), `"market_application_slug":"software-delivery-expert"`)
+	require.Contains(t, string(up), "backend-expert-template-v1")
+	require.Contains(t, string(down), "inline-expert-v1")
 }

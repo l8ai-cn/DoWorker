@@ -156,6 +156,11 @@ Required additions:
   read model. Preserve the legacy text column only for existing domain
   compatibility; create and publish flows write normalized tags as the source
   of truth.
+- For expert applications, the listing manifest carries a backend expert
+  template reference such as `market_application_slug`. Marketplace does not
+  inline agent prompts, Skill lists, or execution settings as the authority for
+  runtime creation; Do Worker resolves the template and creates the real
+  organization expert, returning `runtime_ref` as `expert:{id}`.
 - Extend public list and detail responses with tags, package summary,
   activation requirements, first-run templates, documentation, and support.
 - Add query filtering and cursor pagination to public listings.

@@ -2,6 +2,7 @@ package expert
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
@@ -88,7 +89,16 @@ func (s *Service) InstallMarketApplication(
 	if !ok {
 		return nil, false, ErrMarketApplicationNotFound
 	}
-	existing, err := s.store.GetBySlug(ctx, orgID, app.Slug)
+	return s.installMarketApplication(ctx, orgID, userID, app, app.Slug)
+}
+
+func (s *Service) installMarketApplication(
+	ctx context.Context,
+	orgID, userID int64,
+	app MarketApplication,
+	expertSlug string,
+) (*expertdom.Expert, bool, error) {
+	existing, err := s.store.GetBySlug(ctx, orgID, expertSlug)
 	if err == nil {
 		return existing, true, nil
 	}
@@ -102,7 +112,7 @@ func (s *Service) InstallMarketApplication(
 		OrganizationID:  orgID,
 		UserID:          userID,
 		Name:            app.Name,
-		Slug:            app.Slug,
+		Slug:            expertSlug,
 		Description:     &description,
 		AgentSlug:       app.AgentSlug,
 		Prompt:          &prompt,
@@ -111,7 +121,26 @@ func (s *Service) InstallMarketApplication(
 		SkillSlugs:      app.SkillSlugs,
 		ExpertType:      &expertType,
 	})
+	if err != nil {
+		existing, lookupErr := s.store.GetBySlug(ctx, orgID, expertSlug)
+		if lookupErr == nil {
+			return existing, true, nil
+		}
+	}
 	return row, false, err
+}
+
+func (app MarketApplication) RuntimeSnapshot() json.RawMessage {
+	payload := struct {
+		MarketApplicationSlug string `json:"market_application_slug"`
+	}{
+		MarketApplicationSlug: app.Slug,
+	}
+	encoded, err := json.Marshal(payload)
+	if err != nil {
+		return json.RawMessage(`{}`)
+	}
+	return encoded
 }
 
 func findMarketApplication(slug string) (MarketApplication, bool) {

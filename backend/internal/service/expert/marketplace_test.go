@@ -19,6 +19,10 @@ func TestListMarketApplicationsReturnsInstallableExpertTemplates(t *testing.T) {
 	assert.Equal(t, "codex-cli", items[0].AgentSlug)
 	assert.Contains(t, items[0].SkillSlugs, "e2e")
 	assert.NotEmpty(t, items[0].Outcomes)
+	assert.JSONEq(t,
+		`{"market_application_slug":"software-delivery-expert"}`,
+		string(items[0].RuntimeSnapshot()),
+	)
 }
 
 func TestInstallMarketApplicationCreatesExpertAndIsIdempotent(t *testing.T) {

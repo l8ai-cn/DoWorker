@@ -32,7 +32,7 @@ func TestMarketplaceInstallationRouteClonesExpert(t *testing.T) {
 		  "platform_resource_type":"expert",
 		  "target_platform_organization_id":9,
 		  "actor_platform_user_id":14,
-		  "runtime_snapshot":{"name":"商品优化应用","agent_slug":"codex-cli"}
+		  "runtime_snapshot":{"market_application_slug":"software-delivery-expert"}
 		}`),
 	)
 	request.Header.Set("Content-Type", "application/json")
@@ -45,7 +45,7 @@ func TestMarketplaceInstallationRouteClonesExpert(t *testing.T) {
 	  "result":{"expert_id":"201","already_installed":false}
 	}`, response.Body.String())
 	require.Equal(t, int64(9), installer.request.TargetOrganizationID)
-	require.JSONEq(t, `{"name":"商品优化应用","agent_slug":"codex-cli"}`,
+	require.JSONEq(t, `{"market_application_slug":"software-delivery-expert"}`,
 		string(installer.request.RuntimeSnapshot))
 }
 

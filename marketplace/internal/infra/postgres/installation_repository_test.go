@@ -325,7 +325,7 @@ INSERT INTO marketplace.marketplace_catalog_item_versions
   (id, catalog_item_id, version, source_revision, content_digest, manifest,
    validation_status, created_by_platform_user_id)
 VALUES (51, 41, '1.0.0', 'sha-1', '$CONTENT_DIGEST$',
-  '{"installation_credits":"20","runtime_snapshot":{"name":"商品优化应用","agent_slug":"codex-cli"}}',
+  '{"installation_credits":"20","runtime_snapshot":{"market_application_slug":"software-delivery-expert"}}',
   'passed', 14);
 UPDATE marketplace.marketplace_catalog_items SET latest_version_id = 51 WHERE id = 41;
 INSERT INTO marketplace.marketplace_quota_plans
