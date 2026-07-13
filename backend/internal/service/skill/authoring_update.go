@@ -67,7 +67,7 @@ func (s *Service) updateOnce(
 		"update: skill configuration", gitops.Author{}, files); err != nil {
 		return nil, false, fmt.Errorf("skill: commit: %w", err)
 	}
-	prepared, err := s.prepareFromGit(ctx, repoName, branch)
+	prepared, err := s.prepareFromGit(ctx, row.GitRepoPath, branch)
 	if err != nil {
 		return nil, false, s.restoreMutation(ctx, repoName, branch, snapshot, err)
 	}

@@ -30,6 +30,8 @@ func TestImportFromGit_InitialImportSynchronizesTags(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, []string{"editing", "video"}, []string(row.Tags))
+	assert.Contains(t, row.StorageKey, "skills/catalog/")
+	assert.Equal(t, []string{"am-skills/org7-video-editing"}, packager.catalogIdentities)
 	assertSkillConfigTags(t, internalGit.Repos["org7-video-editing"].Files["skill.json"], []string{"editing", "video"})
 	assertSkillConfigTags(t, []byte(packager.lastSkillCfg), []string{"editing", "video"})
 }

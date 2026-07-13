@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/infra/storage"
@@ -34,6 +35,51 @@ func TestPrepareFromDirDoesNotAccessStorage(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotEmpty(t, prepared.Data)
 	assert.Zero(t, storageCalls)
+}
+
+func TestPrepareCatalogFromDirUsesIsolatedNamespace(t *testing.T) {
+	packager := NewSkillPackager(nil, &svcMockStorage{})
+	dir := ownershipTestSkillDir(t)
+
+	direct, err := packager.PrepareFromDir(context.Background(), dir)
+	require.NoError(t, err)
+	catalog, err := packager.PrepareCatalogFromDir(
+		context.Background(),
+		dir,
+		"am-skills/org7-ownership-test",
+	)
+	require.NoError(t, err)
+
+	assert.Equal(t, direct.ContentSha, catalog.ContentSha)
+	assert.NotEqual(t, direct.StorageKey, catalog.StorageKey)
+	assert.Equal(t, "skills/direct/ownership-test/"+direct.ContentSha+".tar.gz", direct.StorageKey)
+	parts := strings.Split(catalog.StorageKey, "/")
+	require.Len(t, parts, 4)
+	assert.Equal(t, []string{"skills", "catalog"}, parts[:2])
+	assert.Regexp(t, `^[a-f0-9]{64}$`, parts[2])
+	assert.Equal(t, catalog.ContentSha+".tar.gz", parts[3])
+}
+
+func TestPrepareCatalogFromDirSeparatesInternalRepositories(t *testing.T) {
+	packager := NewSkillPackager(nil, &svcMockStorage{})
+	dir := ownershipTestSkillDir(t)
+
+	first, err := packager.PrepareCatalogFromDir(
+		context.Background(),
+		dir,
+		"am-skills/org7-ownership-test",
+	)
+	require.NoError(t, err)
+	second, err := packager.PrepareCatalogFromDir(
+		context.Background(),
+		dir,
+		"../../am-skills/org8-ownership-test",
+	)
+	require.NoError(t, err)
+
+	assert.Equal(t, first.ContentSha, second.ContentSha)
+	assert.NotEqual(t, first.StorageKey, second.StorageKey)
+	assert.NotContains(t, second.StorageKey, "..")
 }
 
 func TestStorePreparedReusesExistingObject(t *testing.T) {

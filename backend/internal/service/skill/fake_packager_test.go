@@ -12,14 +12,15 @@ import (
 )
 
 type fakePackager struct {
-	lastSkillMd  string
-	lastSkillCfg string
-	calls        int
-	failErr      error
-	reused       bool
-	deletedKeys  []string
-	deleteErr    error
-	deleteHook   func()
+	lastSkillMd       string
+	lastSkillCfg      string
+	calls             int
+	catalogIdentities []string
+	failErr           error
+	reused            bool
+	deletedKeys       []string
+	deleteErr         error
+	deleteHook        func()
 }
 
 func (p *fakePackager) PrepareFromDir(
@@ -52,6 +53,24 @@ func (p *fakePackager) PrepareFromDir(
 		PackageSize: int64(len(md) + len(cfg)),
 		Data:        append(append([]byte(nil), md...), cfg...),
 	}, nil
+}
+
+func (p *fakePackager) PrepareCatalogFromDir(
+	ctx context.Context,
+	dir, repoIdentity string,
+) (*extensionsvc.PreparedSkill, error) {
+	prepared, err := p.PrepareFromDir(ctx, dir)
+	if err != nil {
+		return nil, err
+	}
+	p.catalogIdentities = append(p.catalogIdentities, repoIdentity)
+	identityHash := sha256.Sum256([]byte(repoIdentity))
+	prepared.StorageKey = fmt.Sprintf(
+		"skills/catalog/%x/%s.tar.gz",
+		identityHash,
+		prepared.ContentSha,
+	)
+	return prepared, nil
 }
 
 func (p *fakePackager) StorePrepared(

@@ -35,14 +35,15 @@ func (s *Service) List(ctx context.Context, orgID int64, limit, offset int) ([]s
 
 func (s *Service) prepareFromGit(
 	ctx context.Context,
-	repoName, branch string,
+	repoPath, branch string,
 ) (*extensionsvc.PreparedSkill, error) {
+	repoName := s.gitops.RepoNameFromPath(repoPath)
 	dir, cleanup, err := materializeRepo(ctx, s.gitops, repoName, branch)
 	if err != nil {
 		return nil, err
 	}
 	defer cleanup()
-	prepared, err := s.packager.PrepareFromDir(ctx, dir)
+	prepared, err := s.packager.PrepareCatalogFromDir(ctx, dir, repoPath)
 	if err != nil {
 		return nil, fmt.Errorf("skill: package: %w", err)
 	}

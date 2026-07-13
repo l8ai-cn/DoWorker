@@ -12,7 +12,7 @@ func TestSkillCatalogRepositoryDetectsCatalogAndHistoricalInstallReferences(t *t
 	ctx := context.Background()
 	db := testkit.SetupTestDB(t)
 	repo := NewSkillCatalogRepository(db)
-	const storageKey = "skills/direct/video/shared.tar.gz"
+	const storageKey = "skills/catalog/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef/shared.tar.gz"
 
 	referenced, err := repo.IsPackageReferenced(ctx, storageKey)
 	require.NoError(t, err)

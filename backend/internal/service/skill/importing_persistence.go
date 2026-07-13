@@ -35,7 +35,7 @@ func (s *Service) createImportedSkill(
 	}
 	repoName := s.gitops.RepoNameFromPath(repo.Path)
 
-	prepared, err := s.prepareImportedFiles(ctx, files)
+	prepared, err := s.prepareImportedFiles(ctx, repo.Path, files)
 	if err != nil {
 		s.cleanupRepo(ctx, repoName)
 		return nil, err
@@ -102,6 +102,7 @@ func (s *Service) createImportedSkill(
 
 func (s *Service) prepareImportedFiles(
 	ctx context.Context,
+	repoPath string,
 	files []gitops.FileChange,
 ) (*extensionsvc.PreparedSkill, error) {
 	dir, cleanup, err := materializeFileChanges(files)
@@ -109,7 +110,7 @@ func (s *Service) prepareImportedFiles(
 		return nil, err
 	}
 	defer cleanup()
-	prepared, err := s.packager.PrepareFromDir(ctx, dir)
+	prepared, err := s.packager.PrepareCatalogFromDir(ctx, dir, repoPath)
 	if err != nil {
 		return nil, fmt.Errorf("skill: package: %w", err)
 	}

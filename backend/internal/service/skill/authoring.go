@@ -43,7 +43,7 @@ func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldo
 	}
 	repoName := s.gitops.RepoNameFromPath(repo.Path)
 
-	prepared, err := s.prepareFromGit(ctx, repoName, branchOf(repo))
+	prepared, err := s.prepareFromGit(ctx, repo.Path, branchOf(repo))
 	if err != nil {
 		s.cleanupRepo(ctx, repoName)
 		return nil, err

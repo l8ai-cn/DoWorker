@@ -138,6 +138,11 @@ func TestExplicitUpstreamSync_PreservesCuratorTagsInGitAndPackage(t *testing.T) 
 	)
 	require.NoError(t, err)
 	assert.Equal(t, []string{"curated", "video"}, []string(row.Tags))
+	assert.Contains(t, row.StorageKey, "skills/catalog/")
+	assert.Equal(t, []string{
+		"am-skills/org7-video-editing",
+		"am-skills/org7-video-editing",
+	}, packager.catalogIdentities)
 	assertSkillConfigTags(t, internalGit.Repos["org7-video-editing"].Files["skill.json"], []string{"curated", "video"})
 	assertSkillConfigTags(t, []byte(packager.lastSkillCfg), []string{"curated", "video"})
 }

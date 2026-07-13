@@ -3,10 +3,13 @@ package extension
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // PackageFromDir is the combined compatibility path for callers that do not
@@ -30,6 +33,26 @@ func (p *SkillPackager) PrepareFromDir(_ context.Context, dir string) (*Prepared
 		return nil, fmt.Errorf("skill dir: %w", err)
 	}
 	return p.prepareDir(dir)
+}
+
+func (p *SkillPackager) PrepareCatalogFromDir(
+	ctx context.Context,
+	dir, repoIdentity string,
+) (*PreparedSkill, error) {
+	if strings.TrimSpace(repoIdentity) == "" {
+		return nil, fmt.Errorf("catalog repository identity is required")
+	}
+	prepared, err := p.PrepareFromDir(ctx, dir)
+	if err != nil {
+		return nil, err
+	}
+	identityHash := sha256.Sum256([]byte(repoIdentity))
+	prepared.StorageKey = fmt.Sprintf(
+		"skills/catalog/%s/%s.tar.gz",
+		hex.EncodeToString(identityHash[:]),
+		prepared.ContentSha,
+	)
+	return prepared, nil
 }
 
 func (p *SkillPackager) StorePrepared(

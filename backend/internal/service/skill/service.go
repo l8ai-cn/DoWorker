@@ -28,7 +28,10 @@ var (
 
 // SkillPackagerBridge separates local package preparation from publication.
 type SkillPackagerBridge interface {
-	PrepareFromDir(ctx context.Context, dir string) (*extensionsvc.PreparedSkill, error)
+	PrepareCatalogFromDir(
+		ctx context.Context,
+		dir, repoIdentity string,
+	) (*extensionsvc.PreparedSkill, error)
 	StorePrepared(
 		ctx context.Context,
 		prepared *extensionsvc.PreparedSkill,

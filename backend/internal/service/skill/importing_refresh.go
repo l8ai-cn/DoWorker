@@ -69,7 +69,7 @@ func (s *Service) refreshImportedSkillOnce(
 		gitops.Author{}, files); err != nil {
 		return nil, false, fmt.Errorf("skill: commit upstream sync: %w", err)
 	}
-	prepared, err := s.prepareImportedFiles(ctx, files)
+	prepared, err := s.prepareImportedFiles(ctx, row.GitRepoPath, files)
 	if err != nil {
 		return nil, false, s.restoreMutation(ctx, repoName, branch, snapshot, err)
 	}

@@ -103,9 +103,9 @@ func (runtimeBindingPackager) DeletePackage(context.Context, string) error {
 	return nil
 }
 
-func (runtimeBindingPackager) PrepareFromDir(
+func (runtimeBindingPackager) PrepareCatalogFromDir(
 	_ context.Context,
-	dir string,
+	dir, _ string,
 ) (*extensionsvc.PreparedSkill, error) {
 	content, err := os.ReadFile(filepath.Join(dir, "skill.json"))
 	if err != nil {

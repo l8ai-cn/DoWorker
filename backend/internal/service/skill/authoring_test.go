@@ -175,7 +175,7 @@ func TestCreate_ProvisionsSeedsAndPackages(t *testing.T) {
 	assert.Equal(t, "main", row.DefaultBranch)
 	assert.Equal(t, skilldom.SourceGitops, row.InstallSource)
 	assert.NotEmpty(t, row.ContentSha)
-	assert.NotEmpty(t, row.StorageKey)
+	assert.Contains(t, row.StorageKey, "skills/catalog/")
 	assert.Positive(t, row.PackageSize)
 	assert.Equal(t, 1, row.Version)
 	require.NotNil(t, row.HTTPCloneURL)
@@ -189,6 +189,7 @@ func TestCreate_ProvisionsSeedsAndPackages(t *testing.T) {
 
 	// Packager saw the materialized files and derived the matching slug.
 	assert.Equal(t, 1, pkg.calls)
+	assert.Equal(t, []string{"am-skills/org7-web-search"}, pkg.catalogIdentities)
 	assert.Equal(t, "web-search", frontmatterName(pkg.lastSkillMd))
 	assert.Contains(t, pkg.lastSkillCfg, `"name": "Web Search"`)
 }
@@ -250,6 +251,11 @@ func TestUpdate_CommitsAndRepackages(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, 2, updated.Version)
 	assert.NotEqual(t, shaV1, updated.ContentSha)
+	assert.Contains(t, updated.StorageKey, "skills/catalog/")
+	assert.Equal(t, []string{
+		"am-skills/org7-web-search",
+		"am-skills/org7-web-search",
+	}, pkg.catalogIdentities)
 
 	repo := fake.Repos["org7-web-search"]
 	assert.Contains(t, string(repo.Files["SKILL.md"]), "# v2 body")

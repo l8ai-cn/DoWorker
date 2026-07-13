@@ -72,14 +72,17 @@ type publicationPackager struct {
 	onStore   func()
 }
 
-func (p *publicationPackager) PrepareFromDir(
+const sharedCatalogKey = "skills/catalog/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef/shared-content.tar.gz"
+
+func (p *publicationPackager) PrepareCatalogFromDir(
 	context.Context,
+	string,
 	string,
 ) (*extensionsvc.PreparedSkill, error) {
 	return &extensionsvc.PreparedSkill{
 		Slug:        "shared-skill",
 		ContentSha:  "shared-content",
-		StorageKey:  "skills/direct/shared-skill/shared-content.tar.gz",
+		StorageKey:  sharedCatalogKey,
 		PackageSize: 4,
 		Data:        []byte("data"),
 	}, nil
@@ -189,7 +192,7 @@ func TestConcurrentCreateSerializesPackagePublicationAndFailedCleanup(t *testing
 	assert.True(t, artifacts.exists)
 	assert.Equal(t, 2, artifacts.uploads)
 	assert.Equal(t, 1, artifacts.deletes)
-	assert.Equal(t, resultB.row.StorageKey, "skills/direct/shared-skill/shared-content.tar.gz")
+	assert.Equal(t, resultB.row.StorageKey, sharedCatalogKey)
 	saved, err := rows.GetByID(context.Background(), 2, resultB.row.ID)
 	require.NoError(t, err)
 	assert.Equal(t, resultB.row.StorageKey, saved.StorageKey)
