@@ -98,8 +98,10 @@ export function InlineError({ message }: { message: string }) {
 
 export function SuccessState({
   organization,
+  installationID,
 }: {
   organization: LightOrganization;
+  installationID: string;
 }) {
   return (
     <section className="py-4 text-center">
@@ -109,7 +111,7 @@ export function SuccessState({
         已在「{organization.name}」创建可用实例。
       </p>
       <Button asChild className="mt-6">
-        <Link href={`/${organization.slug}/applications`}>去应用中心开始第一个任务</Link>
+        <Link href={`/${organization.slug}/applications/${installationID}`}>去应用中心开始第一个任务</Link>
       </Button>
     </section>
   );

@@ -21,7 +21,13 @@ type LoadState =
   | { kind: "ready"; applications: MarketplaceOrganizationApplication[] }
   | { kind: "error"; message: string };
 
-export function ApplicationsPage({ orgSlug }: { orgSlug: string }) {
+export function ApplicationsPage({
+  orgSlug,
+  installationID,
+}: {
+  orgSlug: string;
+  installationID?: string;
+}) {
   const currentOrg = useCurrentOrg();
   const experts = useExperts();
   const fetchExperts = useExpertStore((state) => state.fetchExperts);
@@ -47,13 +53,16 @@ export function ApplicationsPage({ orgSlug }: { orgSlug: string }) {
   if (!currentOrg || currentOrg.slug !== orgSlug || state.kind === "loading") {
     return <CenteredSpinner className="h-full" />;
   }
+  const applications = state.kind === "ready" && installationID
+    ? state.applications.filter((application) => application.installation_id === installationID)
+    : state.kind === "ready" ? state.applications : [];
 
   return (
     <main className="mx-auto w-full max-w-6xl space-y-8 px-5 py-8 lg:px-8">
       <ApplicationsHeader />
       {state.kind === "error" ? <ApplicationsError message={state.message} /> : null}
-      {state.kind === "ready" && state.applications.length === 0 ? <ApplicationsEmpty /> : null}
-      {state.kind === "ready" && state.applications.length > 0 ? (
+      {state.kind === "ready" && applications.length === 0 ? <ApplicationsEmpty focused={Boolean(installationID)} /> : null}
+      {state.kind === "ready" && applications.length > 0 ? (
         <>
           {expertError ? (
             <p role="status" className="rounded-lg border border-warning/30 bg-warning-bg px-4 py-3 text-sm text-foreground">
@@ -61,7 +70,7 @@ export function ApplicationsPage({ orgSlug }: { orgSlug: string }) {
             </p>
           ) : null}
           <section aria-label="已启用应用列表" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {state.applications.map((application) => (
+            {applications.map((application) => (
               <ApplicationCard
                 key={application.installation_id}
                 application={application}
@@ -96,13 +105,13 @@ function ApplicationsHeader() {
   );
 }
 
-function ApplicationsEmpty() {
+function ApplicationsEmpty({ focused = false }: { focused?: boolean }) {
   return (
     <EmptyState
       size="full"
       icon={<AppWindow className="h-12 w-12" />}
-      title="还没有已启用的应用"
-      description="请先在公开应用市场选择应用，完成启用后会显示在这里。"
+      title={focused ? "找不到这个已启用应用" : "还没有已启用的应用"}
+      description={focused ? "该应用可能已移除，或你没有当前组织的访问权限。" : "请先在公开应用市场选择应用，完成启用后会显示在这里。"}
       actions={(
         <Button asChild>
           <Link href="https://market.l8ai.cn">前往应用市场</Link>

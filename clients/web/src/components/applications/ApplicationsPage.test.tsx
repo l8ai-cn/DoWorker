@@ -60,6 +60,38 @@ describe("ApplicationsPage", () => {
       .toHaveAttribute("href", "/dev-org/experts/delivery-agent");
   });
 
+  it("shows only the selected installation on its first-run route", async () => {
+    applications = [{
+      installation_id: "installation-1",
+      market_slug: "do-worker-market",
+      listing_slug: "software-delivery-expert",
+      display_name: "软件交付专家",
+      tagline: "把需求变成可验证的代码交付",
+      resource_type: "application",
+      outcomes: ["执行关键路径验证"],
+      runtime_ref: "expert:12",
+      status: "active",
+      installed_at: "2026-07-12T08:00:00Z",
+    }, {
+      installation_id: "installation-2",
+      market_slug: "do-worker-market",
+      listing_slug: "course-builder",
+      display_name: "课程构建专家",
+      tagline: "把教学目标变成课程任务",
+      resource_type: "application",
+      outcomes: ["生成课程任务"],
+      runtime_ref: "expert:12",
+      status: "active",
+      installed_at: "2026-07-12T08:00:00Z",
+    }];
+    const props = { orgSlug: "dev-org", installationID: "installation-1" };
+
+    render(<ApplicationsPage {...props} />);
+
+    expect(await screen.findByText("软件交付专家")).toBeInTheDocument();
+    expect(screen.queryByText("课程构建专家")).not.toBeInTheDocument();
+  });
+
   it("does not fabricate a runtime action when the app has no runtime reference", async () => {
     applications = [{
       installation_id: "installation-2",
