@@ -13,3 +13,12 @@ func (f *fakeStore) WithMutationLock(
 ) error {
 	return mutate(f)
 }
+
+func (f *fakeStore) IsPackageReferenced(_ context.Context, storageKey string) (bool, error) {
+	for _, row := range f.rows {
+		if row.StorageKey == storageKey {
+			return true, nil
+		}
+	}
+	return false, nil
+}

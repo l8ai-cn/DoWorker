@@ -75,7 +75,6 @@ func (s *Service) refreshImportedSkillOnce(
 	}
 	expectedVersion := row.Version
 	previousContentSha := row.ContentSha
-	previousStorageKey := row.StorageKey
 	applyImportedSkillRefresh(row, src, info, pkg)
 	if pkg.ContentSha != previousContentSha {
 		row.Version = expectedVersion + 1
@@ -83,13 +82,13 @@ func (s *Service) refreshImportedSkillOnce(
 	updated, err := store.UpdateIfVersion(ctx, row, expectedVersion)
 	if err != nil {
 		return nil, false, s.compensatePackagedMutation(
-			ctx, repoName, branch, snapshot, previousStorageKey, pkg,
+			ctx, store, repoName, branch, snapshot, pkg,
 			fmt.Errorf("skill: update row: %w", err),
 		)
 	}
 	if !updated {
 		if err := s.compensatePackagedMutation(
-			ctx, repoName, branch, snapshot, previousStorageKey, pkg, nil,
+			ctx, store, repoName, branch, snapshot, pkg, nil,
 		); err != nil {
 			return nil, false, err
 		}

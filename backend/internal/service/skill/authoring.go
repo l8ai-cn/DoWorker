@@ -84,6 +84,7 @@ type packagedSkill struct {
 	ContentSha  string
 	StorageKey  string
 	PackageSize int64
+	Created     bool
 }
 
 func (s *Service) resolveSlug(ctx context.Context, orgID int64, explicit, nameSeed string, excludeID int64) (string, error) {

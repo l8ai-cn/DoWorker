@@ -71,7 +71,6 @@ func (s *Service) updateOnce(
 		return nil, false, s.restoreMutation(ctx, repoName, branch, snapshot, err)
 	}
 	expectedVersion := row.Version
-	previousStorageKey := row.StorageKey
 	row.ContentSha = pkg.ContentSha
 	row.StorageKey = pkg.StorageKey
 	row.PackageSize = pkg.PackageSize
@@ -79,13 +78,13 @@ func (s *Service) updateOnce(
 	updated, err := store.UpdateIfVersion(ctx, row, expectedVersion)
 	if err != nil {
 		return nil, false, s.compensatePackagedMutation(
-			ctx, repoName, branch, snapshot, previousStorageKey, pkg,
+			ctx, store, repoName, branch, snapshot, pkg,
 			fmt.Errorf("skill: update row: %w", err),
 		)
 	}
 	if !updated {
 		if err := s.compensatePackagedMutation(
-			ctx, repoName, branch, snapshot, previousStorageKey, pkg, nil,
+			ctx, store, repoName, branch, snapshot, pkg, nil,
 		); err != nil {
 			return nil, false, err
 		}

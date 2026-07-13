@@ -11,6 +11,26 @@ import (
 	"gorm.io/gorm"
 )
 
+type SkillMutationPanic struct {
+	Value     any
+	UnlockErr error
+}
+
+func (p *SkillMutationPanic) Error() string {
+	return fmt.Sprintf("skill mutation panic: %v; unlock failed: %v", p.Value, p.UnlockErr)
+}
+
+func (p *SkillMutationPanic) Unwrap() []error {
+	errs := make([]error, 0, 2)
+	if mutationErr, ok := p.Value.(error); ok {
+		errs = append(errs, mutationErr)
+	}
+	if p.UnlockErr != nil {
+		errs = append(errs, p.UnlockErr)
+	}
+	return errs
+}
+
 func (r *SkillCatalogRepository) WithMutationLock(
 	ctx context.Context,
 	id int64,
@@ -55,7 +75,14 @@ func executeSkillMutationLock(
 	defer func() {
 		mutationPanic := recover()
 		releaseErr, releasePanic := callSkillMutationUnlock(release)
+		unlockErr := skillMutationUnlockError(releaseErr, releasePanic)
 		if mutationPanic != nil {
+			if unlockErr != nil {
+				panic(&SkillMutationPanic{
+					Value:     mutationPanic,
+					UnlockErr: unlockErr,
+				})
+			}
 			panic(mutationPanic)
 		}
 		if releasePanic != nil {
@@ -69,6 +96,19 @@ func executeSkillMutationLock(
 func callSkillMutationUnlock(release func() error) (err error, panicValue any) {
 	defer func() { panicValue = recover() }()
 	return release(), nil
+}
+
+func skillMutationUnlockError(releaseErr error, releasePanic any) error {
+	if releasePanic == nil {
+		return releaseErr
+	}
+	if panicErr, ok := releasePanic.(error); ok {
+		return errors.Join(releaseErr, panicErr)
+	}
+	return errors.Join(
+		releaseErr,
+		fmt.Errorf("skill mutation unlock panic: %v", releasePanic),
+	)
 }
 
 func skillMutationLockKey(id int64) int64 {

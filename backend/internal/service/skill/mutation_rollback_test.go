@@ -19,6 +19,27 @@ type alwaysConflictingSkillStore struct {
 	*fakeStore
 }
 
+type installedReferenceSkillStore struct {
+	*fakeStore
+	checkedKeys []string
+}
+
+func (s *installedReferenceSkillStore) WithMutationLock(
+	_ context.Context,
+	_ int64,
+	mutate func(skilldom.Repository) error,
+) error {
+	return mutate(s)
+}
+
+func (s *installedReferenceSkillStore) IsPackageReferenced(
+	_ context.Context,
+	storageKey string,
+) (bool, error) {
+	s.checkedKeys = append(s.checkedKeys, storageKey)
+	return true, nil
+}
+
 func (s *alwaysConflictingSkillStore) WithMutationLock(
 	_ context.Context,
 	_ int64,
@@ -35,7 +56,7 @@ func (s *alwaysConflictingSkillStore) UpdateIfVersion(
 	return false, nil
 }
 
-func TestUpdateRestoresGitWhenDatabaseUpdateFails(t *testing.T) {
+func TestUpdateRestoresGitAndCleansNewPackageWhenDatabaseUpdateFails(t *testing.T) {
 	store := newFakeStore()
 	internalGit := gitops.NewFake("am-skills")
 	packager := &fakePackager{}
@@ -155,7 +176,36 @@ func TestUpdateReturnsDatabaseAndPackageCleanupErrors(t *testing.T) {
 	require.Len(t, packager.deletedKeys, 1)
 }
 
-func TestUpstreamDatabaseErrorKeepsCurrentlyReferencedPackage(t *testing.T) {
+func TestUpdateKeepsNewPackageReferencedByHistoricalInstall(t *testing.T) {
+	baseStore := newFakeStore()
+	store := &installedReferenceSkillStore{fakeStore: baseStore}
+	internalGit := gitops.NewFake("am-skills")
+	packager := &fakePackager{}
+	svc := newTestService(store, internalGit, packager)
+	row, err := svc.Create(context.Background(), &CreateSkillRequest{
+		OrganizationID: 7,
+		Name:           "Video Editing",
+		Instructions:   "Original body.",
+		Tags:           []string{"initial"},
+	})
+	require.NoError(t, err)
+	packager.deletedKeys = nil
+	store.updateErr = errors.New("database unavailable")
+
+	tags := []string{"curated"}
+	_, err = svc.Update(context.Background(), &UpdateSkillRequest{
+		OrganizationID: 7,
+		SkillID:        row.ID,
+		Tags:           &tags,
+	})
+
+	require.ErrorContains(t, err, "database unavailable")
+	require.Len(t, store.checkedKeys, 1)
+	assert.NotEqual(t, row.StorageKey, store.checkedKeys[0])
+	assert.Empty(t, packager.deletedKeys)
+}
+
+func TestUpstreamDatabaseErrorKeepsReusedPackage(t *testing.T) {
 	upstream := createTagUpstream(t, []string{"initial"})
 	store := newFakeStore()
 	internalGit := gitops.NewFake("am-skills")
@@ -168,6 +218,7 @@ func TestUpstreamDatabaseErrorKeepsCurrentlyReferencedPackage(t *testing.T) {
 	})
 	require.NoError(t, err)
 	packager.deletedKeys = nil
+	packager.reused = true
 	store.updateErr = errors.New("database unavailable")
 	infos, err := extensionsvc.ScanSkillSource(upstream, "")
 	require.NoError(t, err)

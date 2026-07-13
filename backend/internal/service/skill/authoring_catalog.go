@@ -46,5 +46,6 @@ func (s *Service) packageFromGit(ctx context.Context, repoName, branch string) (
 		ContentSha:  pkg.ContentSha,
 		StorageKey:  pkg.StorageKey,
 		PackageSize: pkg.PackageSize,
+		Created:     pkg.Created,
 	}, nil
 }

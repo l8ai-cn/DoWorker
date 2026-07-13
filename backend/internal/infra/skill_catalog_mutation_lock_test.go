@@ -35,7 +35,8 @@ func TestExecuteSkillMutationLockAlwaysReleases(t *testing.T) {
 
 func TestExecuteSkillMutationLockRepanicsAfterRelease(t *testing.T) {
 	var released bool
-	panicValue := errors.New("mutation panic")
+	mutationErr := errors.New("mutation panic")
+	releaseErr := errors.New("release failed")
 
 	recovered := func() (recovered any) {
 		defer func() { recovered = recover() }()
@@ -43,13 +44,42 @@ func TestExecuteSkillMutationLockRepanicsAfterRelease(t *testing.T) {
 			func() error { return nil },
 			func() error {
 				released = true
-				return errors.New("release failed")
+				return releaseErr
 			},
-			func() error { panic(panicValue) },
+			func() error { panic(mutationErr) },
 		)
 		return nil
 	}()
 
 	assert.True(t, released)
-	assert.Same(t, panicValue, recovered)
+	combined, ok := recovered.(error)
+	require.True(t, ok)
+	require.ErrorIs(t, combined, mutationErr)
+	require.ErrorIs(t, combined, releaseErr)
+	require.ErrorContains(t, combined, "mutation panic")
+	var panicErr *SkillMutationPanic
+	require.ErrorAs(t, combined, &panicErr)
+	assert.Same(t, mutationErr, panicErr.Value)
+}
+
+func TestExecuteSkillMutationLockCombinesMutationAndReleasePanics(t *testing.T) {
+	mutationErr := errors.New("mutation panic")
+	releasePanic := errors.New("release panic")
+
+	recovered := func() (recovered any) {
+		defer func() { recovered = recover() }()
+		_ = executeSkillMutationLock(
+			func() error { return nil },
+			func() error { panic(releasePanic) },
+			func() error { panic(mutationErr) },
+		)
+		return nil
+	}()
+
+	combined, ok := recovered.(error)
+	require.True(t, ok)
+	require.ErrorIs(t, combined, mutationErr)
+	require.ErrorIs(t, combined, releasePanic)
+	require.ErrorContains(t, combined, "mutation panic")
+	require.ErrorContains(t, combined, "release panic")
 }

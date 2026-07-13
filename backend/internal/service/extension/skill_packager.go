@@ -117,13 +117,20 @@ func (p *SkillPackager) packageDir(ctx context.Context, dirPath string) (*Packag
 	}
 
 	storageKey := fmt.Sprintf("skills/direct/%s/%s.tar.gz", info.Slug, sha)
-	_, err = p.storage.Upload(ctx, storageKey, bytes.NewReader(packageData), int64(len(packageData)), "application/gzip")
+	exists, err := p.storage.Exists(ctx, storageKey)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to upload skill package", "slug", info.Slug, "storage_key", storageKey, "error", err)
-		return nil, fmt.Errorf("failed to upload: %w", err)
+		return nil, fmt.Errorf("failed to check existing package: %w", err)
+	}
+	created := !exists
+	if created {
+		_, err = p.storage.Upload(ctx, storageKey, bytes.NewReader(packageData), int64(len(packageData)), "application/gzip")
+		if err != nil {
+			slog.ErrorContext(ctx, "failed to upload skill package", "slug", info.Slug, "storage_key", storageKey, "error", err)
+			return nil, fmt.Errorf("failed to upload: %w", err)
+		}
 	}
 
-	slog.InfoContext(ctx, "skill packaged and uploaded", "slug", info.Slug, "content_sha", sha, "package_size", len(packageData))
+	slog.InfoContext(ctx, "skill package ready", "slug", info.Slug, "content_sha", sha, "package_size", len(packageData), "created", created)
 
 	return &PackagedSkill{
 		Slug:        info.Slug,
@@ -132,6 +139,7 @@ func (p *SkillPackager) packageDir(ctx context.Context, dirPath string) (*Packag
 		ContentSha:  sha,
 		StorageKey:  storageKey,
 		PackageSize: int64(len(packageData)),
+		Created:     created,
 	}, nil
 }
 
@@ -142,4 +150,5 @@ type PackagedSkill struct {
 	ContentSha  string
 	StorageKey  string
 	PackageSize int64
+	Created     bool
 }

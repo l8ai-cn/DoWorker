@@ -43,6 +43,21 @@ func (r *SkillCatalogRepository) UpdateIfVersion(
 	return result.RowsAffected == 1, nil
 }
 
+func (r *SkillCatalogRepository) IsPackageReferenced(
+	ctx context.Context,
+	storageKey string,
+) (bool, error) {
+	var referenced bool
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT EXISTS (
+			SELECT 1 FROM skills WHERE storage_key = ?
+			UNION ALL
+			SELECT 1 FROM installed_skills WHERE storage_key = ?
+		)
+	`, storageKey, storageKey).Scan(&referenced).Error
+	return referenced, err
+}
+
 func (r *SkillCatalogRepository) Delete(ctx context.Context, orgID, id int64) error {
 	res := r.db.WithContext(ctx).
 		Where("organization_id = ? AND id = ?", orgID, id).

@@ -2,6 +2,8 @@ package storage
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
@@ -63,5 +65,57 @@ func TestGetInternalURL_FallsBackToInternalEndpoint(t *testing.T) {
 	}
 	if !strings.HasPrefix(url, "http://localhost:10004/") {
 		t.Errorf("expected presigned URL to fall back to internal endpoint, got %q", url)
+	}
+}
+
+func TestS3ExistsReturnsNonNotFoundHeadError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, "forbidden", http.StatusForbidden)
+	}))
+	t.Cleanup(server.Close)
+	s, err := NewS3Storage(S3Config{
+		Endpoint:     strings.TrimPrefix(server.URL, "http://"),
+		Region:       "us-east-1",
+		Bucket:       "agentsmesh",
+		AccessKey:    "test",
+		SecretKey:    "test",
+		UsePathStyle: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	exists, err := s.Exists(context.Background(), "skills/direct/test/package.tar.gz")
+
+	if err == nil {
+		t.Fatal("expected HeadObject authorization error")
+	}
+	if exists {
+		t.Fatal("unauthorized object must not be reported as existing")
+	}
+}
+
+func TestS3ExistsReturnsFalseForNotFound(t *testing.T) {
+	server := httptest.NewServer(http.NotFoundHandler())
+	t.Cleanup(server.Close)
+	s, err := NewS3Storage(S3Config{
+		Endpoint:     strings.TrimPrefix(server.URL, "http://"),
+		Region:       "us-east-1",
+		Bucket:       "agentsmesh",
+		AccessKey:    "test",
+		SecretKey:    "test",
+		UsePathStyle: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	exists, err := s.Exists(context.Background(), "skills/direct/test/missing.tar.gz")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	if exists {
+		t.Fatal("missing object reported as existing")
 	}
 }

@@ -2,19 +2,13 @@ package skill
 
 import (
 	"context"
-	"crypto/sha256"
 	"errors"
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
-	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 )
 
@@ -146,58 +140,6 @@ func (f *fakeStore) ListCatalog(_ context.Context, orgID int64, query, category 
 		}
 	}
 	return out, nil
-}
-
-// --- fake packager bridge (reads the materialized dir, like the real one) ---
-
-type fakePackager struct {
-	lastSkillMd  string
-	lastSkillCfg string
-	calls        int
-	failErr      error
-	deletedKeys  []string
-	deleteErr    error
-	deleteHook   func()
-}
-
-func (p *fakePackager) PackageFromDir(_ context.Context, dir string) (*extensionsvc.PackagedSkill, error) {
-	if p.failErr != nil {
-		return nil, p.failErr
-	}
-	p.calls++
-	// The materialized dir must contain the seeded files — assert by reading.
-	md, err := os.ReadFile(filepath.Join(dir, "SKILL.md"))
-	if err != nil {
-		return nil, fmt.Errorf("SKILL.md missing in materialized dir: %w", err)
-	}
-	cfg, err := os.ReadFile(filepath.Join(dir, "skill.json"))
-	if err != nil {
-		return nil, fmt.Errorf("skill.json missing in materialized dir: %w", err)
-	}
-	p.lastSkillMd = string(md)
-	p.lastSkillCfg = string(cfg)
-
-	sum := sha256.Sum256(append(md, cfg...))
-	sha := fmt.Sprintf("%x", sum)
-	// Slug parsed from frontmatter `name`, mirroring the real parseSkillDir.
-	slug := frontmatterName(string(md))
-	return &extensionsvc.PackagedSkill{
-		Slug:        slug,
-		DisplayName: slug,
-		ContentSha:  sha,
-		StorageKey:  fmt.Sprintf("skills/direct/%s/%s.tar.gz", slug, sha),
-		PackageSize: int64(len(md) + len(cfg)),
-	}, nil
-}
-
-func frontmatterName(md string) string {
-	for _, line := range strings.Split(md, "\n") {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "name:") {
-			return strings.TrimSpace(strings.TrimPrefix(line, "name:"))
-		}
-	}
-	return ""
 }
 
 func newTestService(store skilldom.Repository, g gitops.Service, pkg SkillPackagerBridge) *Service {

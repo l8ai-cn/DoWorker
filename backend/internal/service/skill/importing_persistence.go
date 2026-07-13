@@ -93,5 +93,6 @@ func (s *Service) packageImportedFiles(ctx context.Context, files []gitops.FileC
 		ContentSha:  pkg.ContentSha,
 		StorageKey:  pkg.StorageKey,
 		PackageSize: pkg.PackageSize,
+		Created:     pkg.Created,
 	}, nil
 }
