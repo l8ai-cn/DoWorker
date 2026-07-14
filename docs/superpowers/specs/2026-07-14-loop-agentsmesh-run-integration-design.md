@@ -55,7 +55,9 @@ terminal_reason
 4. LoopRun 保存 GoalLoop key 作为 backend run key。
 5. 后续状态、cancel、pause、verification 从 GoalLoop 派生到 LoopRun projection。
 
-发布阶段不创建 GoalLoop。V1 使用现有 WorkerSpec、Pod、Autopilot 和 Runner verification 链，但 assurance 受 VerifierTrustPolicy 限制。
+发布阶段不创建 GoalLoop。V1 使用现有 WorkerSpec、Pod、Runner command
+queue 和 Runner verification 链，但 assurance 受 VerifierTrustPolicy
+限制。
 
 ## 5. LoopPlan V2 启动
 
@@ -73,25 +75,44 @@ terminal_reason
 2. 后端重新解析、校验并编译 GoalLoop launch spec。
 3. Worker snapshot 在启动前经过当前 WorkerDefinition 一致性校验。
 4. GoalLoop 被创建并进入启动流程。
-5. Pod 被真实创建，Runner 启动目标 Agent，Autopilot 控制器开始工作。
+5. Pod 被真实创建，Runner 启动目标 Worker。
 
-本次证据对应 GoalLoop `checkout-fix-2`、Pod
-`7-standalone-62c1f8c9` 和 Worker snapshot `23`。
+初始垂直切片证据对应 GoalLoop `checkout-fix-2`、Pod
+`7-standalone-62c1f8c9` 和 Worker snapshot `23`。控制器修复后的真实
+浏览器联调对应 GoalLoop `checkout-fix-7` 和 Pod
+`7-standalone-616af48d`：Worker 进入等待后触发 verifier，GoalLoop 未创建
+Autopilot controller，取消后 Pod 和循环均进入终态。
 
-目标 Agent 为 `openclaw` 时，现有 Autopilot 随后尝试启动固定的
-`claude` 控制命令。当前 runner 镜像遵守单运行时契约，不包含该命令，
-因此控制器连续三次失败后按现有熔断规则暂停 GoalLoop。该问题属于现有
-Autopilot 控制面与单运行时 runner 的契约冲突，不属于 LoopScript 编译、
-双向编辑或 GoalLoop 启动失败。
+GoalLoop V1 不再创建第二个 Autopilot 控制进程。控制循环由后端状态机
+确定性驱动：
 
-正式运行闭环必须选择一个显式方案：
+1. 目标 Worker 进入 `waiting` 后，后端在同一 Pod workspace 运行 verifier。
+2. verifier 成功时完成 GoalLoop 并终止 Pod。
+3. verifier 非零退出时，后端持久化迭代、验证输出、进展指纹和错误指纹，
+   再把验证证据作为下一轮 prompt 发回同一个 Worker。
+4. 达到最大迭代、同错、无进展或墙钟时间上限时，按 escalation policy
+   进入 paused 或 failed。
+5. Runner/验证器自身错误直接升级，不伪装成可由 Worker 修复的任务失败。
 
-- 为控制器定义独立、受管的 control-plane runner；或
-- 把控制 Agent transport 作为 GoalLoop launch spec 的必填字段，并由
-  Worker runtime catalog 验证其可执行性。
+验证结果以 `verification_request_id` 做精确 CAS 消费。失败结果和下一轮
+`retry_prompt_command_id` 在同一数据库更新中持久化，随后进入现有 Runner
+命令队列。命令 ID 在一次迭代内稳定，Runner 按命令 ID 去重，因此重复事件
+和恢复扫描不会重复执行成功写入的 prompt；若目标 Worker 尚未就绪或写入
+失败，Runner 释放该 command ID，允许恢复扫描用同一 ID 重试。成功或结果
+不确定的 prompt ID 持久化在 Runner 的受控 receipt 目录，Runner 重启后
+仍按 at-most-once 语义吸收重复命令。只有时间戳
+不早于该命令创建时间的
+`executing` 事件才能激活下一轮，旧 `waiting`/`executing` 事件不能推进
+状态机；事件携带的 agent status 还必须与 Pod 当前持久化状态一致。超时
+监控先终止本轮已超预算的 Loop，再恢复其余活跃 Loop 尚未入队的 retry
+prompt 和 verifier 请求。Verifier 使用原 request ID 恢复发送；Runner
+先原子持久化结果再回传，同 request ID 在进程或 Runner 重启后直接重放
+结果。Pod 终止入口同步删除该 Pod 的待发送命令和 receipt。
 
-禁止通过向所有 runner 镜像静默安装 `claude` 或运行时猜测可用 CLI
-来掩盖该冲突。
+该实现消除了固定 `claude` 控制命令与单运行时 runner 的契约冲突，也不
+需要向 Worker 镜像静默安装第二套 CLI。Worker runtime 自身仍必须通过
+catalog、镜像和非交互启动契约校验；控制器修复不构成对无效 Worker
+launch contract 的兼容或降级。
 
 ## 6. WorkerSpec 与 AgentFile
 

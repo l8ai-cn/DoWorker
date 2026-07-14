@@ -7,8 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
-
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
@@ -27,8 +25,20 @@ func (s *Service) Verify(ctx context.Context, orgID int64, slug string) (*domain
 		}
 		return s.GetBySlug(ctx, orgID, slug)
 	}
+	if loop.RetryPromptCommandID != nil {
+		if err := s.queueRetryPrompt(ctx, loop); err != nil {
+			return nil, err
+		}
+		return s.GetBySlug(ctx, orgID, slug)
+	}
 	if loop.Status == domain.StatusVerifying && loop.VerificationExitCode != nil {
 		if err := s.finishPersistedVerification(ctx, loop); err != nil {
+			return nil, err
+		}
+		return s.GetBySlug(ctx, orgID, slug)
+	}
+	if loop.Status == domain.StatusVerifying && loop.VerificationRequestID != nil {
+		if err := s.dispatchVerification(ctx, loop, *loop.VerificationRequestID); err != nil {
 			return nil, err
 		}
 		return s.GetBySlug(ctx, orgID, slug)
@@ -90,45 +100,22 @@ func (s *Service) HandleVerificationResult(
 		"verification_exit_code": int(result.GetExitCode()), "verification_output": output,
 		"verification_output_truncated": result.GetOutputTruncated() || len(result.GetOutput()) > len(output),
 		"verification_error":            nullableString(result.GetError()), "verified_at": now,
+		"verification_request_id": nil,
 	}
 	if result.GetError() == "" && result.GetExitCode() == 0 {
-		return s.completeVerifiedLoop(ctx, loop, updates)
+		updates["current_iteration"] = loop.CurrentIteration + 1
+		updates["retry_prompt_command_id"] = nil
+		updates["retry_prompt_created_at"] = nil
+		claimed, err := s.repo.ConsumeVerificationResult(
+			ctx,
+			loop.ID,
+			result.GetRequestId(),
+			updates,
+		)
+		if err != nil || !claimed {
+			return err
+		}
+		return s.completeVerifiedLoop(ctx, loop, nil)
 	}
-	return s.escalate(ctx, loop, verificationFailureReason(result), updates)
-}
-
-func (s *Service) beginVerification(ctx context.Context, loop *domain.GoalLoop) error {
-	if loop.Status == domain.StatusVerifying || loop.IsTerminal() || loop.Status == domain.StatusPaused {
-		return nil
-	}
-	if !s.verificationReady() || loop.PodKey == nil {
-		return ErrVerificationPending
-	}
-	pod, err := s.podLookup.GetPod(ctx, *loop.PodKey)
-	if err != nil {
-		return err
-	}
-	if pod.OrganizationID != loop.OrganizationID || pod.RunnerID <= 0 {
-		return ErrInvalidInput
-	}
-	requestID := uuid.NewString()
-	claimed, err := s.repo.TransitionStatus(ctx, loop.ID, []string{
-		domain.StatusActive,
-	}, map[string]any{
-		"status": domain.StatusVerifying, "verification_request_id": requestID,
-		"verification_error": nil,
-	})
-	if err != nil {
-		return err
-	}
-	if !claimed {
-		return nil
-	}
-	if err := s.verificationSender.SendRunVerification(ctx, pod.RunnerID, &runnerv1.RunVerificationCommand{
-		RequestId: requestID, PodKey: pod.PodKey, Command: loop.VerificationCommand,
-		TimeoutSeconds: int32(min(loop.TimeoutMinutes*60, 900)),
-	}); err != nil {
-		return s.escalate(ctx, loop, fmt.Sprintf("verification dispatch failed: %v", err), nil)
-	}
-	return nil
+	return s.continueAfterVerificationFailure(ctx, loop, result, updates)
 }

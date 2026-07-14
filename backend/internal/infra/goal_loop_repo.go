@@ -56,6 +56,26 @@ func (r *goalLoopRepo) GetByVerificationRequestID(ctx context.Context, requestID
 	return &loop, nil
 }
 
+func (r *goalLoopRepo) ListVerificationPending(ctx context.Context) ([]*goalloop.GoalLoop, error) {
+	var loops []*goalloop.GoalLoop
+	err := r.db.WithContext(ctx).
+		Where(
+			"status = ? AND verification_request_id IS NOT NULL "+
+				"AND verification_exit_code IS NULL AND retry_prompt_command_id IS NULL",
+			goalloop.StatusVerifying,
+		).
+		Find(&loops).Error
+	return loops, err
+}
+
+func (r *goalLoopRepo) ListRetryPromptPending(ctx context.Context) ([]*goalloop.GoalLoop, error) {
+	var loops []*goalloop.GoalLoop
+	err := r.db.WithContext(ctx).
+		Where("status = ? AND retry_prompt_command_id IS NOT NULL", goalloop.StatusVerifying).
+		Find(&loops).Error
+	return loops, err
+}
+
 func (r *goalLoopRepo) ListTimedOut(ctx context.Context, now time.Time) ([]*goalloop.GoalLoop, error) {
 	var loops []*goalloop.GoalLoop
 	err := r.db.WithContext(ctx).
@@ -118,6 +138,44 @@ func (r *goalLoopRepo) TransitionStatus(
 	result := r.db.WithContext(ctx).
 		Model(&goalloop.GoalLoop{}).
 		Where("id = ? AND status IN ?", id, from).
+		Updates(updates)
+	return result.RowsAffected == 1, result.Error
+}
+
+func (r *goalLoopRepo) ConsumeVerificationResult(
+	ctx context.Context,
+	id int64,
+	requestID string,
+	updates map[string]any,
+) (bool, error) {
+	updates["updated_at"] = time.Now()
+	result := r.db.WithContext(ctx).
+		Model(&goalloop.GoalLoop{}).
+		Where(
+			"id = ? AND status = ? AND verification_request_id = ?",
+			id,
+			goalloop.StatusVerifying,
+			requestID,
+		).
+		Updates(updates)
+	return result.RowsAffected == 1, result.Error
+}
+
+func (r *goalLoopRepo) TransitionRetryPrompt(
+	ctx context.Context,
+	id int64,
+	commandID string,
+	updates map[string]any,
+) (bool, error) {
+	updates["updated_at"] = time.Now()
+	result := r.db.WithContext(ctx).
+		Model(&goalloop.GoalLoop{}).
+		Where(
+			"id = ? AND status = ? AND retry_prompt_command_id = ?",
+			id,
+			goalloop.StatusVerifying,
+			commandID,
+		).
 		Updates(updates)
 	return result.RowsAffected == 1, result.Error
 }

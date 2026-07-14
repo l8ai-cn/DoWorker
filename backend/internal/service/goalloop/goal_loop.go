@@ -3,6 +3,7 @@ package goalloop
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
@@ -37,11 +38,14 @@ type VerificationDispatcher interface {
 	SendRunVerification(ctx context.Context, runnerID int64, cmd *runnerv1.RunVerificationCommand) error
 }
 
-type AutopilotStarter interface {
-	CreateAndStart(
+type PromptDispatcher interface {
+	Enabled() bool
+	EnqueueSendPrompt(
 		ctx context.Context,
-		req *agentpodsvc.CreateAndStartRequest,
-	) (*agentpod.AutopilotController, error)
+		organizationID, runnerID int64,
+		podKey, commandID, prompt string,
+		ttl time.Duration,
+	) error
 }
 
 type WorkerSpecSnapshotLoader interface {
@@ -62,8 +66,8 @@ type Service struct {
 	podCreator         PodCreator
 	podLookup          PodLookup
 	podTerminator      PodTerminator
-	autopilot          AutopilotStarter
 	verificationSender VerificationDispatcher
+	promptSender       PromptDispatcher
 	workerSpecs        WorkerSpecSnapshotLoader
 	workerTypes        WorkerTypeSnapshotValidator
 }
@@ -76,16 +80,18 @@ func (s *Service) SetExecutionDependencies(
 	podCreator PodCreator,
 	podLookup PodLookup,
 	podTerminator PodTerminator,
-	autopilot AutopilotStarter,
 ) {
 	s.podCreator = podCreator
 	s.podLookup = podLookup
 	s.podTerminator = podTerminator
-	s.autopilot = autopilot
 }
 
 func (s *Service) SetVerificationDispatcher(sender VerificationDispatcher) {
 	s.verificationSender = sender
+}
+
+func (s *Service) SetPromptDispatcher(sender PromptDispatcher) {
+	s.promptSender = sender
 }
 
 func (s *Service) SetWorkerSpecSnapshotLoader(loader WorkerSpecSnapshotLoader) {

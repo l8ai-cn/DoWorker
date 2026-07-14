@@ -112,7 +112,7 @@ CodeMirror 6 提供事务化文本状态；Lezer 和 Tree-sitter 支持增量语
 现有 GoalLoop 可复用：
 
 - WorkerSpec 不可变快照；
-- Pod 创建与 Autopilot；
+- Pod 创建、Runner 命令队列与 verifier 调度；
 - 最大迭代、Token、超时、无进展和同错边界；
 - Runner 外部命令验证；
 - pause/fail 升级策略。
@@ -173,7 +173,19 @@ V1 实现采用 Blockly 13、CodeMirror 6、Go LoopScript 编译器、ConnectRPC
 | 桌面和 390px 移动端渲染 | 通过 |
 | 任意 TypeScript 无损往返 | 不支持，按设计拒绝 |
 
-真实执行已到达 Runner 目标进程和 Autopilot 启动。当前未闭合的最后一段
-来自既有 Autopilot 固定 `claude` 控制命令与单运行时 runner 镜像的契约
-冲突；这不会改变双向编辑和 V1 启动接入的可行性结论，但会阻止把
-“任意 Worker runtime 都能完成自治控制循环”作为当前产品承诺。
+真实执行控制链已改为 Verifier 驱动：目标 Worker 等待时运行验证，失败
+证据回送同一 Worker，成功或预算出口由后端状态机判定。V1 不再依赖固定
+`claude` 的第二控制进程，因此单运行时 runner 可以执行 GoalLoop。具体
+Worker 是否可运行仍由其 runtime catalog、镜像和非交互启动证据决定。
+
+验证回调按 request ID 精确消费，失败证据与稳定 retry command ID 原子
+持久化。后端恢复扫描重新入队未完成命令，Runner 按 command ID 去重；事件
+时间戳和 Pod 当前持久化状态共同阻止乱序事件推进下一轮。超时 Loop 先完成
+终止和升级，再恢复其余活跃 Loop 的命令；Pod 终止时清理该 Pod 的待发送
+命令。Verifier 请求以原 request ID 恢复，Runner 持久化 verifier 结果并在
+重启后直接重放。该协议覆盖回调重放、并发重复回调、事件乱序和后端在
+持久化与发送之间重启的故障。
+
+Runner 只把成功写入 Worker 的 command ID 保留为已消费；Pod/IO 不可用或
+prompt 正文写入失败时释放预留，使同一稳定 ID 可以被恢复队列重试。成功
+写入或 Enter 提交结果不确定时保留持久 receipt，避免自动重发正文。

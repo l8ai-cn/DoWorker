@@ -1,11 +1,12 @@
 package runner
 
 import (
+	"errors"
 	"testing"
 
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/anthropics/agentsmesh/runner/internal/client"
 	"github.com/anthropics/agentsmesh/runner/internal/config"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
 func TestOnSendPrompt_DuplicateCommandID_Dropped(t *testing.T) {
@@ -29,6 +30,113 @@ func TestOnSendPrompt_DuplicateCommandID_Dropped(t *testing.T) {
 	defer base.mu.Unlock()
 	if len(base.inputs) != 1 {
 		t.Fatalf("duplicate command_id must write to PTY once; got %d writes", len(base.inputs))
+	}
+}
+
+func TestOnSendPrompt_FailedCommandIDCanRetry(t *testing.T) {
+	base := &sendPromptMockIO{mode: InteractionModePTY, inputErr: errors.New("write failed")}
+	io := &ptyTerminalMock{sendPromptMockIO: base}
+	pod := &Pod{PodKey: "retry-pod", InteractionMode: InteractionModePTY, IO: io}
+
+	store := NewInMemoryPodStore()
+	store.Put(pod.PodKey, pod)
+	h := &RunnerMessageHandler{podStore: store}
+	cmd := &runnerv1.SendPromptCommand{
+		PodKey: pod.PodKey, Prompt: "retry me", CommandId: "cmd-retry",
+	}
+
+	if err := h.OnSendPrompt(cmd); err == nil {
+		t.Fatal("first OnSendPrompt should fail")
+	}
+	base.mu.Lock()
+	base.inputErr = nil
+	base.mu.Unlock()
+	if err := h.OnSendPrompt(cmd); err != nil {
+		t.Fatalf("retry OnSendPrompt error: %v", err)
+	}
+	if err := h.OnSendPrompt(cmd); err != nil {
+		t.Fatalf("duplicate successful retry error: %v", err)
+	}
+
+	base.mu.Lock()
+	defer base.mu.Unlock()
+	if len(base.inputs) != 2 {
+		t.Fatalf("failed command_id must remain retryable; got %d writes", len(base.inputs))
+	}
+	if len(base.keys) != 1 || base.keys[0].payload != "enter" {
+		t.Fatalf("successful retry must submit once; got keys %v", base.keys)
+	}
+}
+
+func TestOnSendPrompt_EnterFailureDoesNotResendBody(t *testing.T) {
+	base := &sendPromptMockIO{mode: InteractionModePTY, keysErr: errors.New("enter failed")}
+	io := &ptyTerminalMock{sendPromptMockIO: base}
+	pod := &Pod{PodKey: "partial-pod", InteractionMode: InteractionModePTY, IO: io}
+
+	store := NewInMemoryPodStore()
+	store.Put(pod.PodKey, pod)
+	h := &RunnerMessageHandler{podStore: store}
+	cmd := &runnerv1.SendPromptCommand{
+		PodKey: pod.PodKey, Prompt: "run once", CommandId: "cmd-partial",
+	}
+
+	requirePromptError(t, h.OnSendPrompt(cmd))
+	if err := h.OnSendPrompt(cmd); err != nil {
+		t.Fatalf("uncertain duplicate should be absorbed: %v", err)
+	}
+
+	base.mu.Lock()
+	defer base.mu.Unlock()
+	if len(base.inputs) != 1 {
+		t.Fatalf("body must not be resent after Enter failure; got %d writes", len(base.inputs))
+	}
+	if len(base.keys) != 1 {
+		t.Fatalf("Enter must only be attempted once; got %d attempts", len(base.keys))
+	}
+}
+
+func TestOnSendPrompt_DedupSurvivesHandlerRestart(t *testing.T) {
+	receiptRoot := t.TempDir()
+	firstIO := &ptyTerminalMock{sendPromptMockIO: &sendPromptMockIO{mode: InteractionModePTY}}
+	firstStore := NewInMemoryPodStore()
+	firstStore.Put("durable-pod", &Pod{
+		PodKey: "durable-pod", InteractionMode: InteractionModePTY, IO: firstIO,
+	})
+	first := &RunnerMessageHandler{
+		podStore: firstStore,
+		receipts: newCommandReceiptStore(receiptRoot),
+	}
+	command := &runnerv1.SendPromptCommand{
+		PodKey: "durable-pod", Prompt: "run once", CommandId: "cmd-durable",
+	}
+	if err := first.OnSendPrompt(command); err != nil {
+		t.Fatalf("first OnSendPrompt error: %v", err)
+	}
+
+	secondIO := &ptyTerminalMock{sendPromptMockIO: &sendPromptMockIO{mode: InteractionModePTY}}
+	secondStore := NewInMemoryPodStore()
+	secondStore.Put("durable-pod", &Pod{
+		PodKey: "durable-pod", InteractionMode: InteractionModePTY, IO: secondIO,
+	})
+	second := &RunnerMessageHandler{
+		podStore: secondStore,
+		receipts: newCommandReceiptStore(receiptRoot),
+	}
+
+	if err := second.OnSendPrompt(command); err != nil {
+		t.Fatalf("replayed OnSendPrompt error: %v", err)
+	}
+	secondIO.mu.Lock()
+	defer secondIO.mu.Unlock()
+	if len(secondIO.inputs) != 0 {
+		t.Fatalf("durable duplicate must not rewrite prompt; got %d writes", len(secondIO.inputs))
+	}
+}
+
+func requirePromptError(t *testing.T, err error) {
+	t.Helper()
+	if err == nil {
+		t.Fatal("OnSendPrompt should fail")
 	}
 }
 

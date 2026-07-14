@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 	"unicode/utf8"
 
 	"github.com/stretchr/testify/require"
@@ -197,6 +198,81 @@ func TestBeginVerificationDoesNotDispatchWhenStatusClaimIsLost(t *testing.T) {
 	require.Zero(t, dispatcher.calls)
 }
 
+func TestBeginVerificationClearsPreviousAttemptEvidence(t *testing.T) {
+	podKey := "goal-loop-pod"
+	exitCode := 1
+	output := "previous failure"
+	verifiedAt := time.Now()
+	loop := &domain.GoalLoop{
+		ID: 1, OrganizationID: 1, Status: domain.StatusActive,
+		PodKey: &podKey, VerificationCommand: "go test ./...", TimeoutMinutes: 60,
+		VerificationExitCode: &exitCode, VerificationOutput: &output,
+		VerificationOutputTruncated: true, VerifiedAt: &verifiedAt,
+	}
+	dispatcher := &countingVerificationDispatcher{}
+	service := NewService(newGoalLoopTestRepo(loop))
+	service.podLookup = &goalLoopPodStore{pod: runningPod(podKey)}
+	service.verificationSender = dispatcher
+
+	err := service.beginVerification(context.Background(), loop)
+
+	require.NoError(t, err)
+	require.Equal(t, domain.StatusVerifying, loop.Status)
+	require.Nil(t, loop.VerificationExitCode)
+	require.Nil(t, loop.VerificationOutput)
+	require.False(t, loop.VerificationOutputTruncated)
+	require.Nil(t, loop.VerifiedAt)
+	require.Equal(t, 1, dispatcher.calls)
+}
+
+func TestVerifyRedispatchesPersistedVerificationRequest(t *testing.T) {
+	podKey := "goal-loop-pod"
+	requestID := "verify-persisted"
+	loop := &domain.GoalLoop{
+		ID: 1, OrganizationID: 1, Slug: "verify-recovery",
+		Status: domain.StatusVerifying, PodKey: &podKey,
+		VerificationRequestID: &requestID,
+		VerificationCommand:   "go test ./...",
+		TimeoutMinutes:        60,
+	}
+	dispatcher := &countingVerificationDispatcher{}
+	service := NewService(newGoalLoopTestRepo(loop))
+	service.podLookup = &goalLoopPodStore{pod: runningPod(podKey)}
+	service.verificationSender = dispatcher
+
+	updated, err := service.Verify(context.Background(), loop.OrganizationID, loop.Slug)
+
+	require.NoError(t, err)
+	require.Equal(t, domain.StatusVerifying, updated.Status)
+	require.Len(t, dispatcher.commands, 1)
+	require.Equal(t, requestID, dispatcher.commands[0].GetRequestId())
+}
+
+func TestVerificationDispatchFailureRemainsRecoverable(t *testing.T) {
+	podKey := "goal-loop-pod"
+	loop := &domain.GoalLoop{
+		ID: 1, OrganizationID: 1, Slug: "verify-recovery",
+		Status: domain.StatusActive, PodKey: &podKey,
+		VerificationCommand: "go test ./...", TimeoutMinutes: 60,
+	}
+	dispatcher := &countingVerificationDispatcher{err: errors.New("runner disconnected")}
+	service := NewService(newGoalLoopTestRepo(loop))
+	service.podLookup = &goalLoopPodStore{pod: runningPod(podKey)}
+	service.verificationSender = dispatcher
+
+	err := service.beginVerification(context.Background(), loop)
+
+	require.ErrorContains(t, err, "runner disconnected")
+	require.Equal(t, domain.StatusVerifying, loop.Status)
+	require.NotNil(t, loop.VerificationRequestID)
+	require.Equal(t, 1, dispatcher.calls)
+
+	dispatcher.err = nil
+	require.NoError(t, service.RecoverPendingVerifications(context.Background()))
+	require.Equal(t, 2, dispatcher.calls)
+	require.Equal(t, dispatcher.commands[0].GetRequestId(), dispatcher.commands[1].GetRequestId())
+}
+
 func verificationServiceWithStopError(loop *domain.GoalLoop) *Service {
 	service := NewService(newGoalLoopTestRepo(loop))
 	service.podLookup = &goalLoopPodStore{pod: runningPod(*loop.PodKey)}
@@ -215,14 +291,19 @@ func (r *lostVerificationClaimRepo) TransitionStatus(
 }
 
 type countingVerificationDispatcher struct {
-	calls int
+	calls    int
+	commands []*runnerv1.RunVerificationCommand
+	err      error
 }
 
 func (d *countingVerificationDispatcher) SendRunVerification(
-	context.Context, int64, *runnerv1.RunVerificationCommand,
+	_ context.Context,
+	_ int64,
+	command *runnerv1.RunVerificationCommand,
 ) error {
 	d.calls++
-	return nil
+	d.commands = append(d.commands, command)
+	return d.err
 }
 
 type cancelBeforeTerminalRepo struct {

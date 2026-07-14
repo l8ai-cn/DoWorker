@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"google.golang.org/protobuf/encoding/protojson"
 
@@ -34,6 +35,26 @@ func setupGoalLoopEventSubscriptions(eventBus *eventbus.EventBus, service *goall
 			if err := service.HandlePodStatus(context.Background(), data.PodKey, data.Status); err != nil {
 				slog.Error("failed to handle goal loop pod status", "pod_key", data.PodKey, "error", err)
 			}
+		}
+	})
+
+	eventBus.Subscribe(eventbus.EventPodAgentChanged, func(event *eventbus.Event) {
+		var data eventsv1.PodStatusChangedEventData
+		if err := protojson.Unmarshal(event.Data, &data); err != nil {
+			return
+		}
+		if err := service.HandlePodAgentStatus(
+			context.Background(),
+			data.PodKey,
+			data.AgentStatus,
+			time.UnixMilli(event.Timestamp),
+		); err != nil {
+			slog.Error(
+				"failed to handle goal loop worker status",
+				"pod_key", data.PodKey,
+				"agent_status", data.AgentStatus,
+				"error", err,
+			)
 		}
 	})
 

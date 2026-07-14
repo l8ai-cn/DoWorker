@@ -2,14 +2,16 @@ package runner
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"gorm.io/gorm"
 )
 
 func TestTerminateQueuedPod_UsesCompletedStatus(t *testing.T) {
@@ -67,5 +69,82 @@ func TestTerminatePod_CancelsPendingSendPrompt(t *testing.T) {
 	if err != nil {
 		t.Logf("TerminatePod err (SQLite GREATEST in DecrementPods): %v", err)
 	}
+	assert.Empty(t, repo.rows)
+}
+
+func TestHandlePodTerminated_CancelsPendingSendPrompt(t *testing.T) {
+	logger := newTestLogger()
+	db, cm, tr, hb, podStore, runnerRepo := setupPodCoordinatorDeps(t)
+	orgID := int64(1)
+	r := createOnlineRunner(t, db, runnerRepo, 1, 5)
+	podKey := "run-exited-pending"
+	require.NoError(t, db.Exec(
+		`INSERT INTO pods (organization_id, pod_key, runner_id, created_by_id, status) VALUES (?, ?, ?, 1, ?)`,
+		orgID, podKey, r.ID, agentpod.StatusRunning,
+	).Error)
+
+	repo := &memPendingRepo{}
+	require.NoError(t, repo.Enqueue(context.Background(), &agentpod.PendingCommand{
+		OrganizationID: orgID,
+		RunnerID:       r.ID,
+		PodKey:         podKey,
+		CommandType:    agentpod.CommandTypeSendPrompt,
+		CommandID:      "goal-loop-1-iteration-2",
+		Payload:        []byte{1},
+		ExpiresAt:      time.Now().Add(time.Minute),
+	}))
+
+	pc := NewPodCoordinator(podStore, runnerRepo, cm, tr, hb, logger)
+	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, time.Minute, true, logger))
+
+	pc.handlePodTerminated(r.ID, &runnerv1.PodTerminatedEvent{
+		PodKey:   podKey,
+		ExitCode: 0,
+	})
+
+	assert.Empty(t, repo.rows)
+}
+
+func TestHandlePodTerminated_CancelsPendingWhenStoreUpdateFails(t *testing.T) {
+	logger := newTestLogger()
+	db, cm, tr, hb, podStore, runnerRepo := setupPodCoordinatorDeps(t)
+	orgID := int64(1)
+	r := createOnlineRunner(t, db, runnerRepo, 1, 5)
+	podKey := "run-exited-update-failed"
+	require.NoError(t, db.Exec(
+		`INSERT INTO pods (organization_id, pod_key, runner_id, created_by_id, status) VALUES (?, ?, ?, 1, ?)`,
+		orgID, podKey, r.ID, agentpod.StatusRunning,
+	).Error)
+
+	repo := &memPendingRepo{}
+	require.NoError(t, repo.Enqueue(context.Background(), &agentpod.PendingCommand{
+		OrganizationID: orgID,
+		RunnerID:       r.ID,
+		PodKey:         podKey,
+		CommandType:    agentpod.CommandTypeSendPrompt,
+		CommandID:      "goal-loop-1-iteration-2",
+		Payload:        []byte{1},
+		ExpiresAt:      time.Now().Add(time.Minute),
+	}))
+
+	const callbackName = "force_pod_termination_update_failure"
+	require.NoError(t, db.Callback().Update().Before("gorm:update").Register(
+		callbackName,
+		func(tx *gorm.DB) {
+			tx.AddError(errors.New("database unavailable"))
+		},
+	))
+	t.Cleanup(func() {
+		_ = db.Callback().Update().Remove(callbackName)
+	})
+
+	pc := NewPodCoordinator(podStore, runnerRepo, cm, tr, hb, logger)
+	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, time.Minute, true, logger))
+
+	pc.handlePodTerminated(r.ID, &runnerv1.PodTerminatedEvent{
+		PodKey:   podKey,
+		ExitCode: 0,
+	})
+
 	assert.Empty(t, repo.rows)
 }

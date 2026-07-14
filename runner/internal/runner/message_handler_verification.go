@@ -21,7 +21,10 @@ const (
 )
 
 func (h *RunnerMessageHandler) OnRunVerification(cmd *runnerv1.RunVerificationCommand) error {
-	result := h.runVerification(cmd)
+	result, err := h.verificationResult(cmd)
+	if err != nil {
+		return err
+	}
 	if err := h.conn.SendVerificationResult(result); err != nil {
 		return fmt.Errorf("send verification result: %w", err)
 	}

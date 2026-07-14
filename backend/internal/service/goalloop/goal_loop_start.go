@@ -33,6 +33,9 @@ func (s *Service) Start(ctx context.Context, orgID, userID int64, slug string) (
 		domain.StatusPaused,
 	}, map[string]any{
 		"status": domain.StatusActive, "pod_key": nil, "autopilot_controller_key": nil,
+		"current_iteration": 0, "no_progress_count": 0, "same_error_count": 0,
+		"last_progress_fingerprint": nil, "last_error_fingerprint": nil,
+		"retry_prompt_command_id": nil, "retry_prompt_created_at": nil,
 		"verification_request_id": nil, "verification_exit_code": nil,
 		"verification_output": nil, "verification_output_truncated": false,
 		"verification_error": nil, "started_at": now, "verified_at": nil, "completed_at": nil,
@@ -63,33 +66,6 @@ func (s *Service) Start(ctx context.Context, orgID, userID int64, slug string) (
 	if !persisted {
 		return s.abortCancelledStart(ctx, loop, podResult.Pod.PodKey)
 	}
-
-	controller, err := s.autopilot.CreateAndStart(ctx, &agentpodsvc.CreateAndStartRequest{
-		OrganizationID: loop.OrganizationID, Pod: podResult.Pod, Prompt: loopPrompt(loop),
-		MaxIterations:       int32(loop.MaxIterations),
-		IterationTimeoutSec: int32(min(loop.TimeoutMinutes*60, 900)),
-		NoProgressThreshold: int32(loop.NoProgressLimit),
-		SameErrorThreshold:  int32(loop.SameErrorLimit),
-		ApprovalTimeoutMin:  5, KeyPrefix: fmt.Sprintf("goal-loop-%d", loop.ID),
-	})
-	if err != nil {
-		return s.failAfterPod(ctx, loop, podResult.Pod.PodKey, "autopilot creation failed", err)
-	}
-	if controller == nil {
-		return s.failAfterPod(
-			ctx, loop, podResult.Pod.PodKey, "autopilot creation failed",
-			fmt.Errorf("autopilot creation returned nil controller"),
-		)
-	}
-	persisted, err = s.persistStartKey(
-		ctx, loop, "autopilot_controller_key", controller.AutopilotControllerKey,
-	)
-	if err != nil {
-		return s.failAfterPod(ctx, loop, podResult.Pod.PodKey, "persist autopilot key", err)
-	}
-	if !persisted {
-		return s.abortCancelledStart(ctx, loop, podResult.Pod.PodKey)
-	}
 	return s.GetBySlug(ctx, orgID, slug)
 }
 
@@ -106,7 +82,7 @@ func (s *Service) persistStartKey(
 
 func (s *Service) executionReady() bool {
 	return s.podCreator != nil && s.podLookup != nil && s.podTerminator != nil &&
-		s.autopilot != nil && s.verificationSender != nil
+		s.verificationSender != nil && s.promptSender != nil && s.promptSender.Enabled()
 }
 
 func loopPrompt(loop *domain.GoalLoop) string {

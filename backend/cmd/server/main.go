@@ -179,7 +179,8 @@ func main() {
 
 	services.goalLoop.SetWorkerSpecSnapshotLoader(services.workerSpecs)
 	services.goalLoop.SetWorkerTypeSnapshotValidator(services.workerCreation)
-	services.goalLoop.SetExecutionDependencies(podOrchestrator, services.pod, podCoordinator, services.autopilot)
+	services.goalLoop.SetExecutionDependencies(podOrchestrator, services.pod, podCoordinator)
+	services.goalLoop.SetPromptDispatcher(pendingQueueWiring.queue)
 	setupGoalLoopEventSubscriptions(eventBus, services.goalLoop)
 	goalLoopTimeoutMonitor := goalloop.NewTimeoutMonitor(services.goalLoop, appLogger.Logger)
 	goalLoopTimeoutMonitor.Start()
