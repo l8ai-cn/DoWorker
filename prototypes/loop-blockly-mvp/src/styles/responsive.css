@@ -1,0 +1,63 @@
+@media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    height: auto;
+    min-height: 100%;
+  }
+
+  .loop-app {
+    min-height: 100vh;
+    grid-template-rows: auto auto auto;
+  }
+
+  .workbench-toolbar {
+    align-items: start;
+    grid-template-columns: 1fr;
+    gap: 9px;
+    padding: 10px;
+  }
+
+  .toolbar-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    overflow: visible;
+    padding-bottom: 2px;
+  }
+
+  .toolbar-actions button {
+    flex: 0 0 auto;
+  }
+
+  .workbench-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 62vh auto 300px;
+  }
+
+  .canvas-shell {
+    border-right: 0;
+  }
+
+  .inspector-panel {
+    max-height: 310px;
+    border-top: 1px solid #ccd3da;
+  }
+
+  .output-panel {
+    grid-column: 1;
+  }
+
+  .diagnostic-list button {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .evidence-list button {
+    grid-template-columns: 70px 60px 1fr;
+  }
+
+  .quick-insert {
+    width: min(216px, calc(100vw - 24px));
+  }
+}

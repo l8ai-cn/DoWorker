@@ -93,6 +93,10 @@ impl WasmApiClient {
         crate::state_loopal::WasmLoopalManager::from_runtime(self.runtime.state.clone())
     }
 
+    pub fn get_loop_builder_state(&self) -> crate::state_loop_builder::WasmLoopBuilderState {
+        crate::state_loop_builder::WasmLoopBuilderState::from_runtime(self.runtime.state.clone())
+    }
+
     // ── Pending side-effect drains ──
     // Rust SSOT dispatch queues side-effects (toast, browser notification,
     // refetch keys) into AppState.pending_*. JS drains these per tick;
