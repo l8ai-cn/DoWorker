@@ -1,6 +1,6 @@
 # Loop V1 Progress
 
-- Goal status: active
+- Goal status: complete
 - Branch: `codex/loop-blockly-mvp`
 - Started: 2026-07-14
 - Maximum implementation iterations: 12
@@ -16,7 +16,7 @@
 - [x] Web projection/editor tests, typecheck and lint pass.
 - [x] Browser E2E proves both edit directions, invalid-code lockout and real GoalLoop creation/start.
 - [x] Final review has no blocking findings.
-- [ ] Commit is pushed and visible on the remote branch.
+- [x] Commit is pushed and visible on the remote branch.
 
 ## Iterations
 
@@ -28,7 +28,7 @@
 | 4 | Rust Core LoopState and WASM bridge | State/service tests, Cargo checks and WASM build pass | complete |
 | 5 | Blockly and CodeMirror workbench | Projection tests, typecheck, lint and responsive browser QA pass | complete |
 | 6 | Real execution integration | GoalLoop `checkout-fix-2` and Pod `7-standalone-62c1f8c9` were created and started | complete |
-| 7 | Final review and delivery | Independent review found no P1/P2; clean candidate tree passed Go, Rust/WASM, TypeScript, Vitest, prototype and E2E checks | delivery in progress |
+| 7 | Final review and delivery | Independent review found no P1/P2; clean candidate tree passed all checks; commit `3b23b774290b4c7ba30ed3d1a159d5029360e556` is visible on `origin/codex/loop-blockly-mvp` | complete |
 
 ## Integration Evidence
 
