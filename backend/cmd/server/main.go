@@ -175,6 +175,7 @@ func main() {
 	slog.Info("Workflow orchestrator and scheduler created")
 
 	services.goalLoop.SetWorkerSpecSnapshotLoader(services.workerSpecs)
+	services.goalLoop.SetWorkerTypeSnapshotValidator(services.workerCreation)
 	services.goalLoop.SetExecutionDependencies(podOrchestrator, services.pod, podCoordinator, services.autopilot)
 	setupGoalLoopEventSubscriptions(eventBus, services.goalLoop)
 	goalLoopTimeoutMonitor := goalloop.NewTimeoutMonitor(services.goalLoop, appLogger.Logger)

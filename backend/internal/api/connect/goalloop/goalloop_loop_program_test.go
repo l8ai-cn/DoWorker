@@ -1,0 +1,271 @@
+package goalloopconnect
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"strings"
+	"testing"
+	"time"
+
+	"connectrpc.com/connect"
+	"github.com/stretchr/testify/require"
+
+	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
+	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	goalloopsvc "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
+	goalloopv1 "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1"
+)
+
+const loopSource = `@id(n-checkout-fix)
+loop checkout-fix {
+  @id(n-coder)
+  worker coder = snapshot(42)
+  limits(iterations: 5, tokens: 80000, timeout: 60m, no_progress: 3, same_error: 2)
+  @id(n-fix-cycle)
+  repeat fix-cycle(max: 5, until: tests.passed) {
+    @id(n-fix-tax)
+    agent fix-tax(using: coder) { prompt """fix checkout tax""" }
+    @id(n-tests)
+    verify tests { command "pnpm test" accept "tests pass" }
+  }
+  on_failure pause
+}`
+
+func TestCompileLoopProgramReturnsCanonicalAST(t *testing.T) {
+	server := NewServer(&loopGoalLoopService{}, loopOrgService{})
+
+	response, err := server.CompileLoopProgram(
+		loopContext(), connect.NewRequest(&goalloopv1.CompileLoopProgramRequest{
+			OrgSlug:  "acme",
+			Source:   loopSource,
+			Revision: 7,
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Empty(t, response.Msg.Diagnostics)
+	require.NotEmpty(t, response.Msg.CanonicalSource)
+	require.Equal(t, "n-checkout-fix", response.Msg.Program.Loop.NodeId)
+	require.Equal(t, int64(42), response.Msg.Program.Worker.SnapshotId)
+	require.Equal(t, "fix checkout tax", response.Msg.Program.Repeat.Agent.Prompt)
+	require.Equal(t, uint64(7), response.Msg.Revision)
+}
+
+func TestCompileLoopProgramReturnsDiagnosticsForInvalidSource(t *testing.T) {
+	server := NewServer(&loopGoalLoopService{}, loopOrgService{})
+
+	response, err := server.CompileLoopProgram(
+		loopContext(), connect.NewRequest(&goalloopv1.CompileLoopProgramRequest{
+			OrgSlug: "acme",
+			Source:  "loop broken {}",
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Nil(t, response.Msg.Program)
+	require.Empty(t, response.Msg.CanonicalSource)
+	require.NotEmpty(t, response.Msg.Diagnostics)
+	require.NotEmpty(t, response.Msg.Diagnostics[0].Code)
+}
+
+func TestCompileLoopProgramRejectsStaleWorkerSnapshot(t *testing.T) {
+	service := &loopGoalLoopService{validateErr: goalloopsvc.ErrInvalidInput}
+	server := NewServer(service, loopOrgService{})
+
+	response, err := server.CompileLoopProgram(
+		loopContext(), connect.NewRequest(&goalloopv1.CompileLoopProgramRequest{
+			OrgSlug: "acme",
+			Source:  loopSource,
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Nil(t, response.Msg.Program)
+	require.Empty(t, response.Msg.CanonicalSource)
+	require.Equal(t, "loop.worker-snapshot.unavailable", response.Msg.Diagnostics[0].Code)
+}
+
+func TestRunLoopProgramCompilesCreatesAndStartsGoalLoop(t *testing.T) {
+	service := &loopGoalLoopService{}
+	server := NewServer(service, loopOrgService{})
+
+	response, err := server.RunLoopProgram(
+		loopContext(), connect.NewRequest(&goalloopv1.RunLoopProgramRequest{
+			OrgSlug: "acme",
+			Source:  loopSource,
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, domain.StatusActive, response.Msg.Status)
+	require.Equal(t, int64(7), service.createReq.OrganizationID)
+	require.Equal(t, int64(9), service.createReq.CreatedByID)
+	require.Equal(t, int64(42), service.createReq.WorkerSpecSnapshotID)
+	require.Equal(t, "fix checkout tax", service.createReq.Objective)
+	require.Equal(t, []string{"tests pass"}, service.createReq.AcceptanceCriteria)
+	require.Empty(t, service.createReq.Slug)
+	require.Equal(t, "checkout-fix", service.startedSlug)
+}
+
+func TestRunLoopProgramRejectsInvalidSourceWithoutCreating(t *testing.T) {
+	service := &loopGoalLoopService{}
+	server := NewServer(service, loopOrgService{})
+
+	_, err := server.RunLoopProgram(
+		loopContext(), connect.NewRequest(&goalloopv1.RunLoopProgramRequest{
+			OrgSlug: "acme",
+			Source:  "loop broken {}",
+		}),
+	)
+
+	require.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
+	require.Zero(t, service.createCalls)
+}
+
+func TestRunLoopProgramRejectsUnavailableWorkerWithoutStarting(t *testing.T) {
+	service := &loopGoalLoopService{createErr: goalloopsvc.ErrInvalidInput}
+	server := NewServer(service, loopOrgService{})
+
+	_, err := server.RunLoopProgram(
+		loopContext(), connect.NewRequest(&goalloopv1.RunLoopProgramRequest{
+			OrgSlug: "acme",
+			Source:  loopSource,
+		}),
+	)
+
+	require.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
+	require.Empty(t, service.startedSlug)
+}
+
+func TestRunLoopProgramRejectsStaleWorkerWithoutCreating(t *testing.T) {
+	service := &loopGoalLoopService{validateErr: goalloopsvc.ErrInvalidInput}
+	server := NewServer(service, loopOrgService{})
+
+	_, err := server.RunLoopProgram(
+		loopContext(), connect.NewRequest(&goalloopv1.RunLoopProgramRequest{
+			OrgSlug: "acme",
+			Source:  loopSource,
+		}),
+	)
+
+	require.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
+	require.Zero(t, service.createCalls)
+	require.Empty(t, service.startedSlug)
+}
+
+func TestRunLoopProgramRejectsUnavailableExecutionWithoutCreating(t *testing.T) {
+	service := &loopGoalLoopService{readyErr: goalloopsvc.ErrExecutionUnavailable}
+	server := NewServer(service, loopOrgService{})
+
+	_, err := server.RunLoopProgram(
+		loopContext(), connect.NewRequest(&goalloopv1.RunLoopProgramRequest{
+			OrgSlug: "acme",
+			Source:  loopSource,
+		}),
+	)
+
+	require.Equal(t, connect.CodeUnavailable, connect.CodeOf(err))
+	require.Zero(t, service.createCalls)
+}
+
+func TestRunLoopProgramStartFailureReportsCreatedLoopSlug(t *testing.T) {
+	service := &loopGoalLoopService{startErr: errors.New("dispatch failed")}
+	server := NewServer(service, loopOrgService{})
+
+	_, err := server.RunLoopProgram(
+		loopContext(), connect.NewRequest(&goalloopv1.RunLoopProgramRequest{
+			OrgSlug: "acme",
+			Source:  loopSource,
+		}),
+	)
+
+	require.Equal(t, connect.CodeInternal, connect.CodeOf(err))
+	require.True(t, strings.Contains(err.Error(), "checkout-fix"), err.Error())
+	require.Equal(t, 1, service.createCalls)
+}
+
+func TestToProtoRejectsNilGoalLoop(t *testing.T) {
+	item, err := toProto(nil)
+
+	require.Nil(t, item)
+	require.Error(t, err)
+}
+
+type loopGoalLoopService struct {
+	GoalLoopService
+	createReq   goalloopsvc.CreateRequest
+	createErr   error
+	createCalls int
+	startedSlug string
+	created     *domain.GoalLoop
+	startErr    error
+	validateErr error
+	readyErr    error
+}
+
+func (s *loopGoalLoopService) ValidateExecutionReady() error {
+	return s.readyErr
+}
+
+func (s *loopGoalLoopService) ValidateWorkerSnapshotForExecution(
+	context.Context, int64, int64, int64,
+) error {
+	return s.validateErr
+}
+
+func (s *loopGoalLoopService) Create(_ context.Context, req goalloopsvc.CreateRequest) (*domain.GoalLoop, error) {
+	s.createCalls++
+	s.createReq = req
+	if s.createErr != nil {
+		return nil, s.createErr
+	}
+	criteria, _ := json.Marshal(req.AcceptanceCriteria)
+	now := time.Now()
+	slug := req.Slug
+	if slug == "" {
+		slug = req.Name
+	}
+	s.created = &domain.GoalLoop{
+		ID: 1, OrganizationID: req.OrganizationID, CreatedByID: req.CreatedByID,
+		Slug: slug, Name: req.Name, WorkerSpecSnapshotID: req.WorkerSpecSnapshotID,
+		Objective: req.Objective, AcceptanceCriteria: criteria,
+		VerificationCommand: req.VerificationCommand, Status: domain.StatusDraft,
+		MaxIterations: req.MaxIterations, TokenBudget: req.TokenBudget,
+		TimeoutMinutes: req.TimeoutMinutes, NoProgressLimit: req.NoProgressLimit,
+		SameErrorLimit: req.SameErrorLimit, EscalationPolicy: req.EscalationPolicy,
+		CreatedAt: now, UpdatedAt: now,
+	}
+	return s.created, nil
+}
+
+func (s *loopGoalLoopService) Start(
+	_ context.Context, _, _ int64, slug string,
+) (*domain.GoalLoop, error) {
+	s.startedSlug = slug
+	if s.startErr != nil {
+		return nil, s.startErr
+	}
+	s.created.Status = domain.StatusActive
+	return s.created, nil
+}
+
+type loopOrg struct{}
+
+func (loopOrg) GetID() int64    { return 7 }
+func (loopOrg) GetSlug() string { return "acme" }
+func (loopOrg) GetName() string { return "Acme" }
+
+type loopOrgService struct{}
+
+func (loopOrgService) GetBySlug(context.Context, string) (middleware.OrganizationGetter, error) {
+	return loopOrg{}, nil
+}
+func (loopOrgService) IsMember(context.Context, int64, int64) (bool, error) { return true, nil }
+func (loopOrgService) GetMemberRole(context.Context, int64, int64) (string, error) {
+	return "owner", nil
+}
+
+func loopContext() context.Context {
+	return middleware.SetTenant(context.Background(), &middleware.TenantContext{UserID: 9})
+}

@@ -2,7 +2,9 @@ package runner
 
 import (
 	"runtime"
+	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/stretchr/testify/require"
 
@@ -61,6 +63,19 @@ func TestOnRunVerificationSendsResult(t *testing.T) {
 	result, ok := conn.Events[0].Data.(*runnerv1.VerificationResultEvent)
 	require.True(t, ok)
 	require.Equal(t, int32(3), result.ExitCode)
+}
+
+func TestCappedOutputBufferPreservesUTF8AtLimit(t *testing.T) {
+	buffer := &cappedOutputBuffer{limit: maxVerificationOutputBytes}
+	output := strings.Repeat("a", maxVerificationOutputBytes-1) + "界"
+
+	written, err := buffer.Write([]byte(output))
+
+	require.NoError(t, err)
+	require.Equal(t, len(output), written)
+	require.True(t, utf8.ValidString(buffer.String()))
+	require.Len(t, buffer.String(), maxVerificationOutputBytes-1)
+	require.True(t, buffer.Truncated())
 }
 
 func verificationHandler(t *testing.T) (*RunnerMessageHandler, *client.MockConnection) {

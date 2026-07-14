@@ -48,6 +48,7 @@ export {
   getWorkflowService, getGoalLoopService, getAutopilotService, getMeshService,
   getRunnerState, getMeshState, getTicketState, getChannelState,
   getWorkflowState, getAcpManager, getLoopalManager,
+  getLoopBuilderState,
   getRepoState, getExpertState, getAutopilotState, getRelayManager,
   getBillingService, getRepositoryService, getExtensionService,
   getInvitationService, getApiKeyService, getBindingService,

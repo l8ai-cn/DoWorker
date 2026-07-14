@@ -15,7 +15,7 @@ import type {
   WasmExecutionClusterService,
   WasmRunnerState, WasmMeshState, WasmTicketState, WasmChannelState,
   WasmWorkflowState, WasmAcpSessionManager, WasmLoopalManager, WasmRepoState,
-  WasmExpertState, WasmAutopilotState, WasmRelayManager,
+  WasmExpertState, WasmAutopilotState, WasmLoopBuilderState, WasmRelayManager,
 } from "do-worker-wasm";
 
 // SSR / hydration fallback. Returns "[]" for `*_json` reads so SSR-rendered
@@ -82,6 +82,7 @@ export interface ServiceRegistry {
   // Loopal control-panel state. Optional — only the web build registers it;
   // missing services fall back to NOOP_PROXY (Loopal console shows empty panels).
   loopalManager?: WasmLoopalManager;
+  loopBuilderState: WasmLoopBuilderState;
   repoState: WasmRepoState;
   expertState: WasmExpertState;
   autopilotState: WasmAutopilotState;
@@ -185,6 +186,7 @@ export const getLoopalManager = (): WasmLoopalManager => {
   const reg = registry();
   return (reg.ready ? reg.instances.loopalManager ?? NOOP_PROXY : NOOP_PROXY) as WasmLoopalManager;
 };
+export const getLoopBuilderState = () => g("loopBuilderState");
 export const getRepoState = () => g("repoState");
 export const getExpertState = () => g("expertState");
 export const getAutopilotState = () => g("autopilotState");

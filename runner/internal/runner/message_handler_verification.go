@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/anthropics/agentsmesh/runner/internal/envpath"
@@ -113,7 +114,15 @@ func (buffer *cappedOutputBuffer) Write(data []byte) (int, error) {
 }
 
 func (buffer *cappedOutputBuffer) String() string {
-	return buffer.buffer.String()
+	output := buffer.buffer.Bytes()
+	end := len(output)
+	for end > 0 && !utf8.Valid(output[:end]) {
+		end--
+	}
+	if end != len(output) {
+		buffer.truncated = true
+	}
+	return string(output[:end])
 }
 
 func (buffer *cappedOutputBuffer) Truncated() bool {

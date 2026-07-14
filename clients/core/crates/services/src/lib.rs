@@ -34,6 +34,8 @@ mod user_credential;
 #[cfg(test)]
 mod pod_worker_creation_tests;
 #[cfg(test)]
+mod goal_loop_service_tests;
+#[cfg(test)]
 mod execution_cluster_tests;
 
 pub use agent::AgentService;

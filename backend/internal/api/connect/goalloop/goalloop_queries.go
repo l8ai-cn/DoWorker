@@ -3,6 +3,7 @@ package goalloopconnect
 import (
 	"context"
 	"errors"
+	"time"
 
 	"connectrpc.com/connect"
 
@@ -12,6 +13,37 @@ import (
 	goalloopsvc "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
 	goalloopv1 "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1"
 )
+
+func (s *Server) ListWorkerSnapshots(
+	ctx context.Context, req *connect.Request[goalloopv1.ListWorkerSnapshotsRequest],
+) (*connect.Response[goalloopv1.ListWorkerSnapshotsResponse], error) {
+	ctx, _, err := interceptors.ResolveOrgScope(ctx, req.Msg, s.orgSvc)
+	if err != nil {
+		return nil, err
+	}
+	if s.service == nil {
+		return nil, unavailable()
+	}
+	tenant := middleware.GetTenant(ctx)
+	snapshots, err := s.service.ListWorkerSnapshots(
+		ctx,
+		tenant.OrganizationID,
+		tenant.UserID,
+	)
+	if err != nil {
+		return nil, mapServiceError(err)
+	}
+	items := make([]*goalloopv1.WorkerSnapshot, 0, len(snapshots))
+	for _, snapshot := range snapshots {
+		items = append(items, &goalloopv1.WorkerSnapshot{
+			Id:         snapshot.ID,
+			Alias:      snapshot.Summary.Alias,
+			WorkerType: string(snapshot.Summary.WorkerType.Slug),
+			CreatedAt:  snapshot.CreatedAt.UTC().Format(time.RFC3339),
+		})
+	}
+	return connect.NewResponse(&goalloopv1.ListWorkerSnapshotsResponse{Items: items}), nil
+}
 
 func (s *Server) ListGoalLoops(
 	ctx context.Context, req *connect.Request[goalloopv1.ListGoalLoopsRequest],

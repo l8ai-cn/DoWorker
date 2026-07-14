@@ -23,4 +23,10 @@ type Repository interface {
 	List(ctx context.Context, filter ListFilter) ([]*GoalLoop, int64, error)
 	ExistsSlug(ctx context.Context, organizationID int64, slug string) (bool, error)
 	Update(ctx context.Context, id int64, updates map[string]any) error
+	TransitionStatus(
+		ctx context.Context,
+		id int64,
+		from []string,
+		updates map[string]any,
+	) (bool, error)
 }
