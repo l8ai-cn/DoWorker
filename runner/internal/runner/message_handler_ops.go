@@ -139,32 +139,28 @@ func (h *RunnerMessageHandler) OnObservePod(req client.ObservePodRequest) error 
 // chat UI (consistent with the Relay command path in handleAcpRelayCommand).
 func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) error {
 	log := logger.Pod()
-	if cmd.CommandId != "" {
-		h.promptDedupMu.Lock()
-		if h.promptDedup == nil {
-			h.promptDedup = make(map[string]*promptDedupRing)
-		}
-		ring := h.promptDedup[cmd.PodKey]
-		if ring == nil {
-			ring = newPromptDedupRing(32)
-			h.promptDedup[cmd.PodKey] = ring
-		}
-		if ring.seen(cmd.CommandId) {
-			h.promptDedupMu.Unlock()
-			log.Info("duplicate send_prompt absorbed", "pod_key", cmd.PodKey, "command_id", cmd.CommandId)
-			return nil
-		}
-		ring.add(cmd.CommandId)
-		h.promptDedupMu.Unlock()
+	duplicate, err := h.isDuplicatePrompt(cmd)
+	if err != nil {
+		return fmt.Errorf("reserve prompt command: %w", err)
+	}
+	if duplicate {
+		log.Info("duplicate send_prompt absorbed", "pod_key", cmd.PodKey, "command_id", cmd.CommandId)
+		return nil
 	}
 	pod, ok := h.podStore.Get(cmd.PodKey)
 	if !ok {
 		log.Warn("Pod not found for send_prompt", "pod_key", cmd.PodKey)
-		return fmt.Errorf("pod not found: %s", cmd.PodKey)
+		return errors.Join(
+			fmt.Errorf("pod not found: %s", cmd.PodKey),
+			h.releasePromptCommand(cmd),
+		)
 	}
 	if pod.IO == nil {
 		log.Warn("PodIO not available for send_prompt", "pod_key", cmd.PodKey)
-		return fmt.Errorf("pod IO not available: %s", cmd.PodKey)
+		return errors.Join(
+			fmt.Errorf("pod IO not available: %s", cmd.PodKey),
+			h.releasePromptCommand(cmd),
+		)
 	}
 	// ACP: echo user message to Relay so it appears in the chat panel.
 	if pod.IsACPMode() {
@@ -172,12 +168,12 @@ func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) err
 			"text": cmd.Prompt, "role": "user",
 		})
 		if err := acpSendPromptWhenReady(pod, cmd.Prompt); err != nil {
-			return err
+			return errors.Join(err, h.releasePromptCommand(cmd))
 		}
 		return nil
 	}
 	if err := pod.IO.SendInput(cmd.Prompt); err != nil {
-		return err
+		return errors.Join(err, h.releasePromptCommand(cmd))
 	}
 	if ta, ok := pod.IO.(TerminalAccess); ok {
 		time.Sleep(ptySubmitGap)

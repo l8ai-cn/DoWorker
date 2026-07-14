@@ -49,7 +49,14 @@ func TestPendingCommandRepo_Enqueue_DuplicateReturnsSentinel(t *testing.T) {
 	ctx := context.Background()
 
 	require.NoError(t, repo.Enqueue(ctx, newPendingCmd(1, "pd-1", "cmd-1")))
-	err := repo.Enqueue(ctx, newPendingCmd(1, "pd-1", "cmd-1"))
+	exists, err := repo.ExistsCommandID(ctx, "cmd-1")
+	require.NoError(t, err)
+	assert.True(t, exists)
+	exists, err = repo.ExistsCommandID(ctx, "missing")
+	require.NoError(t, err)
+	assert.False(t, exists)
+
+	err = repo.Enqueue(ctx, newPendingCmd(1, "pd-1", "cmd-1"))
 	assert.ErrorIs(t, err, agentpod.ErrDuplicateCommand)
 }
 

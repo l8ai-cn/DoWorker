@@ -45,6 +45,15 @@ func (r *pendingCommandRepo) Enqueue(ctx context.Context, cmd *agentpod.PendingC
 	return nil
 }
 
+func (r *pendingCommandRepo) ExistsCommandID(ctx context.Context, commandID string) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&agentpod.PendingCommand{}).
+		Where("command_id = ?", commandID).
+		Limit(1).
+		Count(&count).Error
+	return count > 0, err
+}
+
 func (r *pendingCommandRepo) CountByRunner(ctx context.Context, runnerID int64) (int, error) {
 	var n int64
 	err := r.db.WithContext(ctx).Model(&agentpod.PendingCommand{}).

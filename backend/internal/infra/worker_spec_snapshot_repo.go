@@ -58,6 +58,32 @@ func (r *workerSpecSnapshotRepo) GetByID(
 	if err != nil {
 		return domain.Snapshot{}, err
 	}
+	return workerSpecSnapshotFromRecord(record)
+}
+
+func (r *workerSpecSnapshotRepo) ListByOrganization(
+	ctx context.Context,
+	organizationID int64,
+) ([]domain.Snapshot, error) {
+	var records []workerSpecSnapshotRecord
+	if err := r.db.WithContext(ctx).
+		Where("organization_id = ?", organizationID).
+		Order("created_at DESC, id DESC").
+		Find(&records).Error; err != nil {
+		return nil, err
+	}
+	snapshots := make([]domain.Snapshot, 0, len(records))
+	for _, record := range records {
+		snapshot, err := workerSpecSnapshotFromRecord(record)
+		if err != nil {
+			return nil, err
+		}
+		snapshots = append(snapshots, snapshot)
+	}
+	return snapshots, nil
+}
+
+func workerSpecSnapshotFromRecord(record workerSpecSnapshotRecord) (domain.Snapshot, error) {
 	if record.Version != domain.VersionV1 {
 		return domain.Snapshot{}, fmt.Errorf("%w: %d", domain.ErrUnsupportedVersion, record.Version)
 	}

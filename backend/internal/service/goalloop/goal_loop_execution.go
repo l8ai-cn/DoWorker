@@ -40,6 +40,8 @@ func (s *Service) Cancel(ctx context.Context, orgID int64, slug string) (*domain
 		domain.StatusVerifying,
 	}, map[string]any{
 		"status": domain.StatusCancelled, "completed_at": time.Now(),
+		"verification_request_id": nil, "retry_prompt_command_id": nil,
+		"retry_prompt_created_at": nil,
 	})
 	if err != nil {
 		return nil, err
@@ -116,7 +118,11 @@ func (s *Service) ExpireTimedOut(ctx context.Context, now time.Time) error {
 			sweepErr = errors.Join(sweepErr, err)
 		}
 	}
-	return sweepErr
+	return errors.Join(
+		sweepErr,
+		s.RecoverPendingVerifications(ctx),
+		s.RecoverPendingRetryPrompts(ctx),
+	)
 }
 
 func (s *Service) stopPod(ctx context.Context, loop *domain.GoalLoop) error {

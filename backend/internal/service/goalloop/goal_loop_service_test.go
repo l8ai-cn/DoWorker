@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -163,10 +162,6 @@ func stringValue(value *string) string {
 	return *value
 }
 
-type goalLoopTestRepo struct {
-	loops map[int64]*domain.GoalLoop
-}
-
 type goalLoopWorkerTypeValidator struct {
 	errs []error
 }
@@ -182,146 +177,6 @@ func (v *goalLoopWorkerTypeValidator) ValidateWorkerTypeSnapshot(
 	err := v.errs[0]
 	v.errs = v.errs[1:]
 	return err
-}
-
-func newGoalLoopTestRepo(loops ...*domain.GoalLoop) *goalLoopTestRepo {
-	repo := &goalLoopTestRepo{loops: map[int64]*domain.GoalLoop{}}
-	for _, loop := range loops {
-		repo.loops[loop.ID] = loop
-	}
-	return repo
-}
-
-func (r *goalLoopTestRepo) Create(_ context.Context, loop *domain.GoalLoop) error {
-	loop.ID = int64(len(r.loops) + 1)
-	r.loops[loop.ID] = loop
-	return nil
-}
-
-func (r *goalLoopTestRepo) GetBySlug(_ context.Context, orgID int64, slug string) (*domain.GoalLoop, error) {
-	for _, loop := range r.loops {
-		if loop.OrganizationID == orgID && loop.Slug == slug {
-			return loop, nil
-		}
-	}
-	return nil, domain.ErrNotFound
-}
-
-func (r *goalLoopTestRepo) GetByPodKey(_ context.Context, podKey string) (*domain.GoalLoop, error) {
-	for _, loop := range r.loops {
-		if loop.PodKey != nil && *loop.PodKey == podKey {
-			return loop, nil
-		}
-	}
-	return nil, domain.ErrNotFound
-}
-
-func (r *goalLoopTestRepo) GetByAutopilotControllerKey(_ context.Context, key string) (*domain.GoalLoop, error) {
-	return nil, domain.ErrNotFound
-}
-
-func (r *goalLoopTestRepo) GetByVerificationRequestID(_ context.Context, requestID string) (*domain.GoalLoop, error) {
-	for _, loop := range r.loops {
-		if loop.VerificationRequestID != nil && *loop.VerificationRequestID == requestID {
-			return loop, nil
-		}
-	}
-	return nil, domain.ErrNotFound
-}
-
-func (r *goalLoopTestRepo) ListTimedOut(_ context.Context, _ time.Time) ([]*domain.GoalLoop, error) {
-	return nil, nil
-}
-
-func (r *goalLoopTestRepo) List(_ context.Context, _ domain.ListFilter) ([]*domain.GoalLoop, int64, error) {
-	return nil, 0, nil
-}
-
-func (r *goalLoopTestRepo) ExistsSlug(_ context.Context, _ int64, _ string) (bool, error) {
-	return false, nil
-}
-
-func (r *goalLoopTestRepo) Update(_ context.Context, id int64, updates map[string]any) error {
-	loop := r.loops[id]
-	if loop == nil {
-		return domain.ErrNotFound
-	}
-	for key, value := range updates {
-		switch key {
-		case "status":
-			loop.Status = value.(string)
-		case "completed_at":
-			loop.CompletedAt = timePointer(value)
-		case "verified_at":
-			loop.VerifiedAt = timePointer(value)
-		case "verification_exit_code":
-			loop.VerificationExitCode = intPointer(value)
-		case "verification_output":
-			loop.VerificationOutput = stringPointerValue(value)
-		case "verification_output_truncated":
-			loop.VerificationOutputTruncated = value.(bool)
-		case "verification_error":
-			loop.VerificationError = stringPointerValue(value)
-		case "verification_request_id":
-			loop.VerificationRequestID = stringPointerValue(value)
-		case "pod_key":
-			loop.PodKey = stringPointerValue(value)
-		case "autopilot_controller_key":
-			loop.AutopilotControllerKey = stringPointerValue(value)
-		case "started_at":
-			loop.StartedAt = timePointer(value)
-		}
-	}
-	return nil
-}
-
-func (r *goalLoopTestRepo) TransitionStatus(
-	ctx context.Context,
-	id int64,
-	from []string,
-	updates map[string]any,
-) (bool, error) {
-	loop := r.loops[id]
-	if loop == nil {
-		return false, domain.ErrNotFound
-	}
-	allowed := false
-	for _, status := range from {
-		if loop.Status == status {
-			allowed = true
-			break
-		}
-	}
-	if !allowed {
-		return false, nil
-	}
-	if err := r.Update(ctx, id, updates); err != nil {
-		return false, err
-	}
-	return true, nil
-}
-func timePointer(value any) *time.Time {
-	timeValue, ok := value.(time.Time)
-	if !ok {
-		return nil
-	}
-	return &timeValue
-}
-
-func intPointer(value any) *int {
-	intValue, ok := value.(int)
-	if !ok {
-		return nil
-	}
-	return &intValue
-}
-
-func stringPointerValue(value any) *string {
-	stringValue, ok := value.(string)
-	if !ok {
-		return nil
-	}
-	return &stringValue
 }
 
 type goalLoopSnapshotLoader struct {
@@ -364,9 +219,3 @@ var _ domain.Repository = (*goalLoopTestRepo)(nil)
 var _ WorkerSpecSnapshotLoader = goalLoopSnapshotLoader{}
 var _ PodLookup = (*goalLoopPodStore)(nil)
 var _ PodTerminator = (*goalLoopTerminator)(nil)
-
-func TestGoalLoopTestRepoRejectsUnknownUpdate(t *testing.T) {
-	repo := newGoalLoopTestRepo()
-	err := repo.Update(context.Background(), 99, nil)
-	require.True(t, errors.Is(err, domain.ErrNotFound))
-}

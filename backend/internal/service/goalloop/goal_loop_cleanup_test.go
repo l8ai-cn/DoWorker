@@ -60,6 +60,33 @@ func TestExpireTimedOutContinuesAfterCleanupFailure(t *testing.T) {
 	require.Equal(t, domain.StatusCompleted, second.Status)
 }
 
+func TestExpireTimedOutDoesNotRecoverRetryPromptBeforeEscalation(t *testing.T) {
+	podKey := "timed-out-pod"
+	commandID := "goal-loop-1-iteration-2"
+	createdAt := time.Now().Add(-time.Minute)
+	loop := &domain.GoalLoop{
+		ID: 1, OrganizationID: 1, Slug: "timed-out-loop",
+		Status: domain.StatusVerifying, PodKey: &podKey,
+		RetryPromptCommandID: &commandID, RetryPromptCreatedAt: &createdAt,
+		EscalationPolicy: domain.EscalationPause,
+	}
+	repo := &timedOutGoalLoopRepo{
+		goalLoopTestRepo: newGoalLoopTestRepo(loop),
+		timedOut:         []*domain.GoalLoop{loop},
+	}
+	prompts := &recordingPromptDispatcher{}
+	service := NewService(repo)
+	service.podLookup = &goalLoopPodStore{pod: runningPod(podKey)}
+	service.podTerminator = &goalLoopTerminator{}
+	service.promptSender = prompts
+
+	err := service.ExpireTimedOut(context.Background(), time.Now())
+
+	require.NoError(t, err)
+	require.Equal(t, domain.StatusPaused, loop.Status)
+	require.Zero(t, prompts.attempts)
+}
+
 func pendingCleanupLoop(id int64, podKey string) *domain.GoalLoop {
 	cleanup := domain.EncodePendingPodCleanup(
 		domain.StatusCompleted,

@@ -21,7 +21,7 @@ func TestStartFailsClosedWhenPodKeyPersistenceFails(t *testing.T) {
 		failOnCall:       2,
 	}
 	terminator := &goalLoopTerminator{}
-	service := startFailureService(repo, terminator, nil)
+	service := startFailureService(repo, terminator)
 
 	started, err := service.Start(context.Background(), 1, 2, loop.Slug)
 
@@ -32,29 +32,27 @@ func TestStartFailsClosedWhenPodKeyPersistenceFails(t *testing.T) {
 	require.Contains(t, stringValue(loop.VerificationError), "persist pod key")
 }
 
-func TestStartFailsClosedWhenAutopilotKeyPersistenceFails(t *testing.T) {
+func TestStartLeavesAutopilotControllerUnset(t *testing.T) {
 	loop := startableGoalLoop()
-	repo := &failingGoalLoopUpdateRepo{
-		goalLoopTestRepo: newGoalLoopTestRepo(loop),
-		failOnCall:       3,
-	}
+	repo := newGoalLoopTestRepo(loop)
 	terminator := &goalLoopTerminator{}
-	service := startFailureService(repo, terminator, loopAutopilotStarter{})
+	service := startFailureService(repo, terminator)
 
 	started, err := service.Start(context.Background(), 1, 2, loop.Slug)
 
-	require.Nil(t, started)
-	require.ErrorContains(t, err, "persist autopilot key")
-	require.Equal(t, domain.StatusFailed, loop.Status)
-	require.Equal(t, []string{"loop-pod"}, terminator.keys)
-	require.Contains(t, stringValue(loop.VerificationError), "persist autopilot key")
+	require.NoError(t, err)
+	require.NotNil(t, started)
+	require.Equal(t, domain.StatusActive, loop.Status)
+	require.Equal(t, "loop-pod", stringValue(loop.PodKey))
+	require.Nil(t, loop.AutopilotControllerKey)
+	require.Empty(t, terminator.keys)
 }
 
 func TestStartDoesNotCreatePodWhenStatusClaimIsLost(t *testing.T) {
 	loop := startableGoalLoop()
 	repo := &lostStartClaimRepo{goalLoopTestRepo: newGoalLoopTestRepo(loop)}
 	creator := &countingLoopPodCreator{}
-	service := startFailureService(repo, &goalLoopTerminator{}, loopAutopilotStarter{})
+	service := startFailureService(repo, &goalLoopTerminator{})
 	service.podCreator = creator
 
 	started, err := service.Start(context.Background(), 1, 2, loop.Slug)
@@ -70,7 +68,7 @@ func TestStartTerminatesCreatedPodWhenCancelWins(t *testing.T) {
 	repo := &cancelDuringStartRepo{goalLoopTestRepo: newGoalLoopTestRepo(loop)}
 	creator := &countingLoopPodCreator{}
 	terminator := &goalLoopTerminator{}
-	service := startFailureService(repo, terminator, loopAutopilotStarter{})
+	service := startFailureService(repo, terminator)
 	service.podCreator = creator
 
 	started, err := service.Start(context.Background(), 1, 2, loop.Slug)
@@ -86,7 +84,7 @@ func TestStartPersistsCleanupWhenCancelWinsAndPodStopFails(t *testing.T) {
 	loop := startableGoalLoop()
 	repo := &cancelDuringStartRepo{goalLoopTestRepo: newGoalLoopTestRepo(loop)}
 	terminator := &goalLoopTerminator{err: errors.New("runner unavailable")}
-	service := startFailureService(repo, terminator, loopAutopilotStarter{})
+	service := startFailureService(repo, terminator)
 
 	started, err := service.Start(context.Background(), 1, 2, loop.Slug)
 
@@ -114,7 +112,7 @@ func TestStartFailureRetainsPodUntilCleanupCanBeRetried(t *testing.T) {
 		failOnCall:       2,
 	}
 	terminator := &goalLoopTerminator{err: errors.New("runner unavailable")}
-	service := startFailureService(repo, terminator, nil)
+	service := startFailureService(repo, terminator)
 
 	started, err := service.Start(context.Background(), 1, 2, loop.Slug)
 
@@ -149,7 +147,6 @@ func startableGoalLoop() *domain.GoalLoop {
 func startFailureService(
 	repo domain.Repository,
 	terminator *goalLoopTerminator,
-	autopilot AutopilotStarter,
 ) *Service {
 	service := NewService(repo)
 	service.SetWorkerSpecSnapshotLoader(goalLoopSnapshotLoader{
@@ -161,11 +158,8 @@ func startFailureService(
 		OrganizationID: 1, PodKey: "loop-pod", RunnerID: 7, Status: agentpod.StatusRunning,
 	}}
 	service.podTerminator = terminator
-	service.autopilot = autopilot
-	if service.autopilot == nil {
-		service.autopilot = loopAutopilotStarter{}
-	}
 	service.verificationSender = loopVerificationDispatcher{}
+	service.promptSender = &recordingPromptDispatcher{}
 	return service
 }
 
@@ -244,14 +238,6 @@ func (c *countingLoopPodCreator) CreatePod(
 ) (*agentpodsvc.OrchestrateCreatePodResult, error) {
 	c.calls++
 	return (&loopPodCreator{}).CreatePod(context.Background(), nil)
-}
-
-type loopAutopilotStarter struct{}
-
-func (loopAutopilotStarter) CreateAndStart(
-	context.Context, *agentpodsvc.CreateAndStartRequest,
-) (*agentpod.AutopilotController, error) {
-	return &agentpod.AutopilotController{AutopilotControllerKey: "loop-controller"}, nil
 }
 
 type loopVerificationDispatcher struct{}
