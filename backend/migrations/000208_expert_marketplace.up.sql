@@ -17,9 +17,6 @@ CREATE TABLE expert_market_applications (
   )
 );
 
-ALTER TABLE experts
-  ADD CONSTRAINT experts_id_organization_unique UNIQUE (id, organization_id);
-
 CREATE TABLE expert_market_releases (
   id BIGSERIAL PRIMARY KEY,
   application_id BIGINT NOT NULL,
@@ -58,10 +55,6 @@ CREATE TABLE expert_market_releases (
     FOREIGN KEY (application_id, publisher_organization_id)
     REFERENCES expert_market_applications(id, publisher_organization_id)
     ON DELETE CASCADE,
-  CONSTRAINT expert_market_releases_source_expert_publisher_fkey
-    FOREIGN KEY (source_expert_id, publisher_organization_id)
-    REFERENCES experts(id, organization_id)
-    ON DELETE RESTRICT,
   CONSTRAINT expert_market_releases_expert_snapshot_check CHECK (
     jsonb_typeof(expert_snapshot) = 'object'
     AND COALESCE(
@@ -83,6 +76,27 @@ CREATE TABLE expert_market_releases (
   CONSTRAINT expert_market_releases_skill_dependencies_check
     CHECK (jsonb_typeof(skill_dependencies) = 'array')
 );
+
+CREATE FUNCTION validate_expert_market_release_source()
+RETURNS TRIGGER AS $$
+BEGIN
+  PERFORM 1
+  FROM experts
+  WHERE id = NEW.source_expert_id
+    AND organization_id = NEW.publisher_organization_id
+  FOR KEY SHARE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'source expert must belong to the publisher organization'
+      USING ERRCODE = '23503',
+        CONSTRAINT = 'expert_market_releases_source_expert_publisher';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER expert_market_releases_validate_source
+BEFORE INSERT ON expert_market_releases
+FOR EACH ROW EXECUTE FUNCTION validate_expert_market_release_source();
 
 CREATE INDEX idx_expert_market_applications_publisher
   ON expert_market_applications(publisher_organization_id, created_at DESC);

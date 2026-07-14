@@ -123,7 +123,6 @@ VALUES (
 	'{"version":1}', '{"version":1}', '[]'
 )
 `))
-	require.Error(t, execSQL(ctx, conn, `DELETE FROM experts WHERE id = 9001`))
 	require.Error(t, insertMarketRelease(ctx, conn, 101, 10, 1, "draft"))
 	require.Error(t, insertMarketReleaseWithSnapshots(ctx, conn, 102, 10, 2, `[]`, `{"version":1}`, `[]`))
 	require.Error(t, insertMarketReleaseWithSnapshots(ctx, conn, 103, 10, 2, `{"version":1}`, `[]`, `[]`))
@@ -159,6 +158,13 @@ INSERT INTO experts
 	(id, organization_id, source_market_application_id, source_market_release_id)
 VALUES (4, 2, 10, NULL)
 `))
+
+	require.NoError(t, execSQL(ctx, conn, `DELETE FROM experts WHERE id = 9001`))
+	var sourceExpertID int64
+	require.NoError(t, conn.QueryRowContext(ctx, `
+SELECT source_expert_id FROM expert_market_releases WHERE id = 100
+`).Scan(&sourceExpertID))
+	require.Equal(t, int64(9001), sourceExpertID)
 
 	require.NoError(t, execSQL(ctx, conn, `DELETE FROM organizations WHERE id = 1`))
 	var appID, releaseID sql.NullInt64

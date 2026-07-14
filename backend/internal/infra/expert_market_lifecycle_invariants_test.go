@@ -95,3 +95,79 @@ func TestExpertMarketDelayedOlderPublicationDoesNotRollbackLatest(t *testing.T) 
 	require.NoError(t, err)
 	require.Equal(t, v2.ID, *storedApplication.LatestPublishedReleaseID)
 }
+
+func TestExpertMarketWithdrawalRefreshesLatest(t *testing.T) {
+	repo := newExpertMarketTestRepository(t)
+	ctx := context.Background()
+	app := testApplication("video-production", 10)
+	require.NoError(t, repo.CreateApplication(ctx, &app))
+	v1 := testRelease(app.ID, 1, expertmarket.ReleaseStatusPendingReview)
+	v2 := testRelease(app.ID, 2, expertmarket.ReleaseStatusPendingReview)
+	require.NoError(t, repo.CreateRelease(ctx, &v1))
+	require.NoError(t, repo.CreateRelease(ctx, &v2))
+
+	for _, releaseID := range []int64{v1.ID, v2.ID} {
+		require.NoError(t, repo.UpdateReleaseLifecycleAndLatest(
+			ctx,
+			app.ID,
+			releaseID,
+			expertmarket.LifecycleUpdate{
+				Status: expertmarket.ReleaseStatusPublished,
+			},
+		))
+	}
+	withdrawnAt := time.Now().UTC()
+	require.NoError(t, repo.WithdrawReleaseAndRefreshLatest(
+		ctx,
+		app.ID,
+		v2.ID,
+		expertmarket.LifecycleUpdate{
+			Status:      expertmarket.ReleaseStatusWithdrawn,
+			WithdrawnAt: &withdrawnAt,
+		},
+	))
+
+	storedApplication, err := repo.GetApplicationByID(ctx, app.ID)
+	require.NoError(t, err)
+	require.Equal(t, v1.ID, *storedApplication.LatestPublishedReleaseID)
+	storedV2, err := repo.GetReleaseByID(ctx, v2.ID)
+	require.NoError(t, err)
+	require.Equal(t, expertmarket.ReleaseStatusWithdrawn, storedV2.Status)
+}
+
+func TestExpertMarketWithdrawalClearsOnlyLatest(t *testing.T) {
+	repo := newExpertMarketTestRepository(t)
+	ctx := context.Background()
+	app := testApplication("video-production", 10)
+	require.NoError(t, repo.CreateApplication(ctx, &app))
+	release := testRelease(app.ID, 1, expertmarket.ReleaseStatusPendingReview)
+	require.NoError(t, repo.CreateRelease(ctx, &release))
+	require.NoError(t, repo.UpdateReleaseLifecycleAndLatest(
+		ctx,
+		app.ID,
+		release.ID,
+		expertmarket.LifecycleUpdate{
+			Status: expertmarket.ReleaseStatusPublished,
+		},
+	))
+	require.NoError(t, repo.WithdrawReleaseAndRefreshLatest(
+		ctx,
+		app.ID,
+		release.ID,
+		expertmarket.LifecycleUpdate{
+			Status: expertmarket.ReleaseStatusWithdrawn,
+		},
+	))
+
+	storedApplication, err := repo.GetApplicationByID(ctx, app.ID)
+	require.NoError(t, err)
+	require.Nil(t, storedApplication.LatestPublishedReleaseID)
+	require.ErrorIs(t, repo.WithdrawReleaseAndRefreshLatest(
+		ctx,
+		app.ID,
+		release.ID,
+		expertmarket.LifecycleUpdate{
+			Status: expertmarket.ReleaseStatusRejected,
+		},
+	), expertmarket.ErrInvalidWithdrawalStatus)
+}

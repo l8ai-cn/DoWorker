@@ -16,6 +16,9 @@ var (
 	ErrLatestReleaseStatusConflict = errors.New(
 		"latest expert market release cannot be demoted",
 	)
+	ErrInvalidWithdrawalStatus = errors.New(
+		"expert market release withdrawal must use withdrawn status",
+	)
 )
 
 type ApplicationListFilter struct {
@@ -61,6 +64,11 @@ type Repository interface {
 	ListReleases(ctx context.Context, filter ReleaseListFilter) ([]Release, int64, error)
 	UpdateReleaseLifecycle(ctx context.Context, releaseID int64, update LifecycleUpdate) error
 	UpdateReleaseLifecycleAndLatest(
+		ctx context.Context,
+		applicationID, releaseID int64,
+		update LifecycleUpdate,
+	) error
+	WithdrawReleaseAndRefreshLatest(
 		ctx context.Context,
 		applicationID, releaseID int64,
 		update LifecycleUpdate,

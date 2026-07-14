@@ -92,6 +92,47 @@ func TestExpertMarketPostgresConcurrentPublicationKeepsNewestLatest(t *testing.T
 	require.Equal(t, v2.ID, *stored.LatestPublishedReleaseID)
 }
 
+func TestExpertMarketPostgresWithdrawalRestoresPreviousRelease(t *testing.T) {
+	db := openExpertMarketPostgresTestDB(t)
+	repo := NewExpertMarketRepository(db)
+	ctx := context.Background()
+	app := expertmarket.Application{
+		Slug:                    slugkit.Slug("withdraw-video"),
+		PublisherOrganizationID: 1,
+		PublisherUserID:         1,
+	}
+	require.NoError(t, repo.CreateApplication(ctx, &app))
+
+	v1 := postgresTestRelease(app.ID, 9001, 1)
+	v1.Status = expertmarket.ReleaseStatusPendingReview
+	v2 := v1
+	v2.Version = 2
+	require.NoError(t, repo.CreateRelease(ctx, &v1))
+	require.NoError(t, repo.CreateRelease(ctx, &v2))
+	for _, releaseID := range []int64{v1.ID, v2.ID} {
+		require.NoError(t, repo.UpdateReleaseLifecycleAndLatest(
+			ctx,
+			app.ID,
+			releaseID,
+			expertmarket.LifecycleUpdate{
+				Status: expertmarket.ReleaseStatusPublished,
+			},
+		))
+	}
+	require.NoError(t, repo.WithdrawReleaseAndRefreshLatest(
+		ctx,
+		app.ID,
+		v2.ID,
+		expertmarket.LifecycleUpdate{
+			Status: expertmarket.ReleaseStatusWithdrawn,
+		},
+	))
+
+	stored, err := repo.GetApplicationByID(ctx, app.ID)
+	require.NoError(t, err)
+	require.Equal(t, v1.ID, *stored.LatestPublishedReleaseID)
+}
+
 func openExpertMarketPostgresTestDB(t *testing.T) *gorm.DB {
 	t.Helper()
 	dsn := os.Getenv("MIGRATIONS_POSTGRES_TEST_DSN")

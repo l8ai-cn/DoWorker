@@ -59,6 +59,14 @@ func setLatestPublishedRelease(
 	tx *gorm.DB,
 	applicationID, releaseID int64,
 ) error {
+	return setLatestPublishedReleaseID(tx, applicationID, &releaseID)
+}
+
+func setLatestPublishedReleaseID(
+	tx *gorm.DB,
+	applicationID int64,
+	releaseID *int64,
+) error {
 	result := tx.Model(&expertmarket.Application{}).
 		Where("id = ?", applicationID).
 		Updates(map[string]any{
