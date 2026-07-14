@@ -13,10 +13,7 @@ func (repo *expertMarketRepo) CreateApplication(
 	application *expertmarket.Application,
 ) error {
 	err := repo.db.WithContext(ctx).Create(application).Error
-	if isUniqueViolation(err) {
-		return expertmarket.ErrConflict
-	}
-	return err
+	return expertMarketConflictError(err)
 }
 
 func (repo *expertMarketRepo) GetApplicationByID(

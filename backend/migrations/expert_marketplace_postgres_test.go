@@ -69,6 +69,24 @@ VALUES ('video-production', 2, 2)
 `))
 
 	require.NoError(t, insertMarketRelease(ctx, conn, 100, 10, 1, "pending_review"))
+	invalidSnapshots := []string{
+		`{}`,
+		`{"version":null}`,
+		`{"version":"1"}`,
+		`{"version":0}`,
+		`{"version":-1}`,
+		`{"version":1.5}`,
+	}
+	for index, snapshot := range invalidSnapshots {
+		require.Error(t, insertMarketReleaseWithSnapshots(
+			ctx, conn, 200+index, 10, 10+index,
+			snapshot, `{"version":1}`, `[]`,
+		))
+		require.Error(t, insertMarketReleaseWithSnapshots(
+			ctx, conn, 300+index, 10, 20+index,
+			`{"version":1}`, snapshot, `[]`,
+		))
+	}
 	require.Error(t, execSQL(ctx, conn, `
 INSERT INTO expert_market_releases (
 	id, application_id, source_expert_id,
@@ -81,6 +99,31 @@ VALUES (
 	'{"version":1}', '{"version":1}', '[]'
 )
 `))
+	require.Error(t, execSQL(ctx, conn, `
+INSERT INTO expert_market_releases (
+	id, application_id, source_expert_id,
+	publisher_organization_id, publisher_user_id,
+	version, status, name,
+	expert_snapshot, worker_spec_snapshot, skill_dependencies
+)
+VALUES (
+	106, 10, 9002, 1, 1, 30, 'draft', 'Foreign Expert',
+	'{"version":1}', '{"version":1}', '[]'
+)
+`))
+	require.Error(t, execSQL(ctx, conn, `
+INSERT INTO expert_market_releases (
+	id, application_id, source_expert_id,
+	publisher_organization_id, publisher_user_id,
+	version, status, name,
+	expert_snapshot, worker_spec_snapshot, skill_dependencies
+)
+VALUES (
+	107, 10, 9999, 1, 1, 31, 'draft', 'Missing Expert',
+	'{"version":1}', '{"version":1}', '[]'
+)
+`))
+	require.Error(t, execSQL(ctx, conn, `DELETE FROM experts WHERE id = 9001`))
 	require.Error(t, insertMarketRelease(ctx, conn, 101, 10, 1, "draft"))
 	require.Error(t, insertMarketReleaseWithSnapshots(ctx, conn, 102, 10, 2, `[]`, `{"version":1}`, `[]`))
 	require.Error(t, insertMarketReleaseWithSnapshots(ctx, conn, 103, 10, 2, `{"version":1}`, `[]`, `[]`))
@@ -157,7 +200,7 @@ INSERT INTO expert_market_releases (
 	version, status, name,
 	expert_snapshot, worker_spec_snapshot, skill_dependencies
 )
-VALUES ($1, $2, 1, 1, 1, $3, $4, 'Video Expert', $5::jsonb, $6::jsonb, $7::jsonb)
+VALUES ($1, $2, 9001, 1, 1, $3, $4, 'Video Expert', $5::jsonb, $6::jsonb, $7::jsonb)
 `, id, applicationID, version, releaseStatus, expertSnapshot, workerSnapshot, dependencies)
 	return err
 }
@@ -187,5 +230,5 @@ CREATE TABLE experts (
 );
 INSERT INTO users(id) VALUES (1), (2);
 INSERT INTO organizations(id) VALUES (1), (2);
-INSERT INTO experts(id, organization_id) VALUES (1000, 1);
+INSERT INTO experts(id, organization_id) VALUES (9001, 1), (9002, 2);
 `

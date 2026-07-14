@@ -14,6 +14,8 @@ func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
 
 	for _, fragment := range []string{
 		"CREATE TABLE expert_market_applications",
+		"ADD CONSTRAINT experts_id_organization_unique",
+		"UNIQUE (id, organization_id)",
 		"CONSTRAINT expert_market_applications_slug_unique UNIQUE (slug)",
 		"CONSTRAINT expert_market_applications_id_publisher_unique",
 		"UNIQUE (id, publisher_organization_id)",
@@ -22,6 +24,10 @@ func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
 		"CONSTRAINT expert_market_releases_application_publisher_fkey",
 		"FOREIGN KEY (application_id, publisher_organization_id)",
 		"REFERENCES expert_market_applications(id, publisher_organization_id)",
+		"CONSTRAINT expert_market_releases_source_expert_publisher_fkey",
+		"FOREIGN KEY (source_expert_id, publisher_organization_id)",
+		"REFERENCES experts(id, organization_id)",
+		"ON DELETE RESTRICT",
 		"UNIQUE (application_id, version)",
 		"UNIQUE (application_id, id)",
 		"status IN ('draft', 'pending_review', 'published', 'rejected', 'withdrawn')",
@@ -46,6 +52,10 @@ func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
 	require.NotContains(t, upSQL, "BEFORE DELETE")
 	require.NotContains(t, upSQL, "organization_id, source_market_application_id, source_market_release_id")
 	require.Less(t,
+		strings.Index(upSQL, "ADD CONSTRAINT experts_id_organization_unique"),
+		strings.Index(upSQL, "CONSTRAINT expert_market_releases_source_expert_publisher_fkey"),
+	)
+	require.Less(t,
 		strings.Index(upSQL, "CONSTRAINT expert_market_applications_id_publisher_unique"),
 		strings.Index(upSQL, "CONSTRAINT expert_market_releases_application_publisher_fkey"),
 	)
@@ -62,6 +72,7 @@ func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
 		"DROP FUNCTION IF EXISTS prevent_expert_market_release_immutable_update",
 		"DROP TABLE IF EXISTS expert_market_releases",
 		"DROP TABLE IF EXISTS expert_market_applications",
+		"DROP CONSTRAINT IF EXISTS experts_id_organization_unique",
 	} {
 		require.Contains(t, downSQL, fragment)
 	}
@@ -71,6 +82,8 @@ func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
 	)
 	releasesIndex := strings.Index(downSQL, "DROP TABLE IF EXISTS expert_market_releases")
 	applicationsIndex := strings.Index(downSQL, "DROP TABLE IF EXISTS expert_market_applications")
+	expertUniqueIndex := strings.Index(downSQL, "DROP CONSTRAINT IF EXISTS experts_id_organization_unique")
 	require.Less(t, latestFKIndex, releasesIndex)
 	require.Less(t, releasesIndex, applicationsIndex)
+	require.Less(t, releasesIndex, expertUniqueIndex)
 }

@@ -74,6 +74,9 @@ func TestExpertMarketRepositoryReleases(t *testing.T) {
 	duplicate := testRelease(app.ID, 1, expertmarket.ReleaseStatusDraft)
 	require.ErrorIs(t, repo.CreateRelease(ctx, &duplicate), expertmarket.ErrConflict)
 
+	orphan := testRelease(9999, 1, expertmarket.ReleaseStatusDraft)
+	require.ErrorIs(t, repo.CreateRelease(ctx, &orphan), expertmarket.ErrConflict)
+
 	_, err = repo.GetReleaseByID(ctx, 9999)
 	require.ErrorIs(t, err, expertmarket.ErrNotFound)
 }
@@ -89,18 +92,18 @@ func TestExpertMarketRepositoryUpdatesLifecycle(t *testing.T) {
 	now := time.Now().UTC().Truncate(time.Second)
 	reviewerID := int64(99)
 	update := expertmarket.LifecycleUpdate{
-		Status:         expertmarket.ReleaseStatusPublished,
+		Status:         expertmarket.ReleaseStatusRejected,
 		ReviewerUserID: &reviewerID,
 		ReviewedAt:     &now,
-		PublishedAt:    &now,
+		RejectedAt:     &now,
 	}
 	require.NoError(t, repo.UpdateReleaseLifecycle(ctx, release.ID, update))
 
 	got, err := repo.GetReleaseByID(ctx, release.ID)
 	require.NoError(t, err)
-	require.Equal(t, expertmarket.ReleaseStatusPublished, got.Status)
+	require.Equal(t, expertmarket.ReleaseStatusRejected, got.Status)
 	require.Equal(t, reviewerID, *got.ReviewerUserID)
-	require.Equal(t, now, got.PublishedAt.UTC())
+	require.Equal(t, now, got.RejectedAt.UTC())
 
 	withdrawnAt := now.Add(time.Hour)
 	require.NoError(t, repo.UpdateReleaseLifecycle(ctx, release.ID, expertmarket.LifecycleUpdate{
@@ -110,7 +113,7 @@ func TestExpertMarketRepositoryUpdatesLifecycle(t *testing.T) {
 	got, err = repo.GetReleaseByID(ctx, release.ID)
 	require.NoError(t, err)
 	require.Equal(t, reviewerID, *got.ReviewerUserID)
-	require.Equal(t, now, got.PublishedAt.UTC())
+	require.Equal(t, now, got.RejectedAt.UTC())
 	require.Equal(t, withdrawnAt, got.WithdrawnAt.UTC())
 
 	require.ErrorIs(t,

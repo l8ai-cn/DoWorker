@@ -5,6 +5,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func (repo *expertMarketRepo) UpdateReleaseLifecycle(
@@ -15,19 +16,35 @@ func (repo *expertMarketRepo) UpdateReleaseLifecycle(
 	if err := update.Validate(); err != nil {
 		return err
 	}
-	result := updateReleaseLifecycle(
-		repo.db.WithContext(ctx),
-		"id = ?",
-		[]any{releaseID},
-		update,
-	)
-	if result.Error != nil {
-		return result.Error
+	if update.Status == expertmarket.ReleaseStatusPublished {
+		return expertmarket.ErrPublicationRequiresLatestUpdate
 	}
-	if result.RowsAffected == 0 {
-		return expertmarket.ErrNotFound
-	}
-	return nil
+	return repo.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var release expertmarket.Release
+		if err := tx.Select("id", "application_id").
+			First(&release, releaseID).Error; err != nil {
+			return releaseNotFoundError(err)
+		}
+		application, err := lockMarketApplication(tx, release.ApplicationID)
+		if err != nil {
+			return err
+		}
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Select("id").
+			Where("id = ? AND application_id = ?", releaseID, release.ApplicationID).
+			First(&release).Error; err != nil {
+			return releaseNotFoundError(err)
+		}
+		if application.LatestPublishedReleaseID != nil &&
+			*application.LatestPublishedReleaseID == releaseID {
+			return expertmarket.ErrLatestReleaseStatusConflict
+		}
+		result := updateReleaseLifecycle(tx, "id = ?", []any{releaseID}, update)
+		if result.Error != nil {
+			return expertMarketConflictError(result.Error)
+		}
+		return nil
+	})
 }
 
 func (repo *expertMarketRepo) UpdateReleaseLifecycleAndLatest(
@@ -42,6 +59,18 @@ func (repo *expertMarketRepo) UpdateReleaseLifecycleAndLatest(
 		return expertmarket.ErrInvalidLatestReleaseStatus
 	}
 	return repo.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		application, err := lockMarketApplication(tx, applicationID)
+		if err != nil {
+			return err
+		}
+
+		var release expertmarket.Release
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Select("id", "version").
+			Where("id = ? AND application_id = ?", releaseID, applicationID).
+			First(&release).Error; err != nil {
+			return releaseApplicationError(tx, releaseID, err)
+		}
 		result := updateReleaseLifecycle(
 			tx,
 			"id = ? AND application_id = ?",
@@ -49,33 +78,21 @@ func (repo *expertMarketRepo) UpdateReleaseLifecycleAndLatest(
 			update,
 		)
 		if result.Error != nil {
-			return result.Error
+			return expertMarketConflictError(result.Error)
 		}
-		if result.RowsAffected == 0 {
-			var count int64
-			if err := tx.Model(&expertmarket.Release{}).
-				Where("id = ?", releaseID).
-				Count(&count).Error; err != nil {
-				return err
-			}
-			if count > 0 {
-				return expertmarket.ErrConflict
-			}
-			return expertmarket.ErrNotFound
+		if application.LatestPublishedReleaseID == nil {
+			return setLatestPublishedRelease(tx, applicationID, releaseID)
 		}
-		result = tx.Model(&expertmarket.Application{}).
-			Where("id = ?", applicationID).
-			Updates(map[string]any{
-				"latest_published_release_id": releaseID,
-				"updated_at":                  gorm.Expr("CURRENT_TIMESTAMP"),
-			})
-		if result.Error != nil {
-			return result.Error
+
+		var latest expertmarket.Release
+		if err := tx.Select("version").
+			First(&latest, *application.LatestPublishedReleaseID).Error; err != nil {
+			return err
 		}
-		if result.RowsAffected == 0 {
-			return expertmarket.ErrNotFound
+		if release.Version <= latest.Version {
+			return nil
 		}
-		return nil
+		return setLatestPublishedRelease(tx, applicationID, releaseID)
 	})
 }
 

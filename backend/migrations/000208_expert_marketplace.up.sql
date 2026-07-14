@@ -17,6 +17,9 @@ CREATE TABLE expert_market_applications (
   )
 );
 
+ALTER TABLE experts
+  ADD CONSTRAINT experts_id_organization_unique UNIQUE (id, organization_id);
+
 CREATE TABLE expert_market_releases (
   id BIGSERIAL PRIMARY KEY,
   application_id BIGINT NOT NULL,
@@ -55,13 +58,25 @@ CREATE TABLE expert_market_releases (
     FOREIGN KEY (application_id, publisher_organization_id)
     REFERENCES expert_market_applications(id, publisher_organization_id)
     ON DELETE CASCADE,
+  CONSTRAINT expert_market_releases_source_expert_publisher_fkey
+    FOREIGN KEY (source_expert_id, publisher_organization_id)
+    REFERENCES experts(id, organization_id)
+    ON DELETE RESTRICT,
   CONSTRAINT expert_market_releases_expert_snapshot_check CHECK (
     jsonb_typeof(expert_snapshot) = 'object'
+    AND COALESCE(
+      jsonb_typeof(expert_snapshot->'version') = 'number',
+      FALSE
+    )
     AND (expert_snapshot->>'version') ~ '^[1-9][0-9]*$'
     AND (expert_snapshot->>'version')::NUMERIC <= 9223372036854775807
   ),
   CONSTRAINT expert_market_releases_worker_spec_snapshot_check CHECK (
     jsonb_typeof(worker_spec_snapshot) = 'object'
+    AND COALESCE(
+      jsonb_typeof(worker_spec_snapshot->'version') = 'number',
+      FALSE
+    )
     AND (worker_spec_snapshot->>'version') ~ '^[1-9][0-9]*$'
     AND (worker_spec_snapshot->>'version')::NUMERIC <= 9223372036854775807
   ),

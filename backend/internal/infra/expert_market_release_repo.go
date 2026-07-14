@@ -16,10 +16,7 @@ func (repo *expertMarketRepo) CreateRelease(
 		return err
 	}
 	err := repo.db.WithContext(ctx).Create(release).Error
-	if isUniqueViolation(err) {
-		return expertmarket.ErrConflict
-	}
-	return err
+	return expertMarketConflictError(err)
 }
 
 func (repo *expertMarketRepo) GetReleaseByID(

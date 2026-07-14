@@ -15,3 +15,6 @@ DROP FUNCTION IF EXISTS prevent_expert_market_release_immutable_update;
 
 DROP TABLE IF EXISTS expert_market_releases;
 DROP TABLE IF EXISTS expert_market_applications;
+
+ALTER TABLE experts
+  DROP CONSTRAINT IF EXISTS experts_id_organization_unique;
