@@ -38,13 +38,15 @@ describe("public marketing contract", () => {
 
     for (const path of [
       "/solutions",
-      "/how-it-works",
-      "/capabilities",
+      "/product",
       "/marketplace",
       "/docs",
     ]) {
       expect(urls).toContain(`https://agentsmesh.ai${path}`);
     }
+
+    expect(urls).not.toContain("https://agentsmesh.ai/how-it-works");
+    expect(urls).not.toContain("https://agentsmesh.ai/capabilities");
   });
 
   it("keeps the enterprise page focused on capabilities without pricing copy", () => {

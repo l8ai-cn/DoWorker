@@ -2,11 +2,13 @@
   "landing": {
     "nav": {
       "home": "Home",
+      "product": "Product",
+      "solutions": "Solutions",
       "scenarios": "Scenarios",
       "workflow": "How it works",
       "capabilities": "Capabilities",
       "features": "Governance",
-      "marketplace": "Marketplace",
+      "marketplace": "Agent Market",
       "docs": "Docs",
       "signIn": "Sign In",
       "getStarted": "Get Started",
@@ -339,7 +341,7 @@
       "highlight3": "Autonomous task completion"
     },
     "footer": {
-      "tagline": "Turn fragmented AI capabilities into Experts that finish the work.",
+      "tagline": "Supply Agents. Incubate AI-native organizations.",
       "copyright": "Do Worker. All rights reserved.",
       "madeWith": "Built for real work outcomes",
       "product": {

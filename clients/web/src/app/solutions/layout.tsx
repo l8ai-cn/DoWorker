@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Expert Solutions",
+  title: "Agent Supply Solutions",
   description:
-    "Explore outcome-first AI partners for cross-border growth, course development, and cross-functional collaboration.",
+    "Apply one governed Agent supply platform to enterprise internal supply, OPC incubation, and higher-education digital employees.",
   alternates: { canonical: "https://agentsmesh.ai/solutions" },
 };
 

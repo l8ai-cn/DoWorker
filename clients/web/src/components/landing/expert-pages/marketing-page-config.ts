@@ -1,4 +1,4 @@
-export type MarketingPageId = "solutions" | "how-it-works" | "capabilities";
+export type MarketingPageId = "product" | "solutions";
 
 interface MarketingPageDefinition {
   index: string;
@@ -10,28 +10,20 @@ interface MarketingPageDefinition {
 }
 
 export const marketingPageConfig: Record<MarketingPageId, MarketingPageDefinition> = {
-  solutions: {
+  product: {
     index: "01",
-    eyebrowKey: "landing.nav.scenarios",
-    titleKey: "landing.workforce.expertHome.solutions.title",
-    descriptionKey: "landing.workforce.expertHome.solutions.description",
-    nextHref: "/how-it-works",
-    nextLabelKey: "landing.nav.workflow",
-  },
-  "how-it-works": {
-    index: "02",
-    eyebrowKey: "landing.nav.workflow",
+    eyebrowKey: "landing.nav.product",
     titleKey: "landing.workforce.expertHome.operating.title",
     descriptionKey: "landing.workforce.expertHome.operating.description",
-    nextHref: "/capabilities",
-    nextLabelKey: "landing.nav.capabilities",
+    nextHref: "/solutions",
+    nextLabelKey: "landing.nav.solutions",
   },
-  capabilities: {
-    index: "03",
-    eyebrowKey: "landing.nav.capabilities",
-    titleKey: "landing.workforce.expertHome.capabilities.title",
-    descriptionKey: "landing.workforce.expertHome.capabilities.description",
-    nextHref: "/marketplace",
-    nextLabelKey: "landing.nav.marketplace",
+  solutions: {
+    index: "02",
+    eyebrowKey: "landing.nav.solutions",
+    titleKey: "landing.workforce.expertHome.solutions.title",
+    descriptionKey: "landing.workforce.expertHome.solutions.description",
+    nextHref: "/product",
+    nextLabelKey: "landing.nav.product",
   },
 };

@@ -35,6 +35,10 @@ type DefinitionResolver interface {
 	) (resource.PromptSpec, error)
 }
 
+type GoalLoopSlugChecker interface {
+	ExistsSlug(context.Context, int64, string) (bool, error)
+}
+
 type WorkerCompilation struct {
 	ArtifactJSON json.RawMessage
 	Issues       []control.PlanIssue

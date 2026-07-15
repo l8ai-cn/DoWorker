@@ -17,15 +17,17 @@ type DefinitionApplyArtifact struct {
 }
 
 type DefinitionPlanner struct {
-	meta     resource.TypeMeta
-	resolver DefinitionResolver
+	meta      resource.TypeMeta
+	resolver  DefinitionResolver
+	goalLoops GoalLoopSlugChecker
 }
 
 func NewDefinitionPlanner(
 	kind string,
 	resolver DefinitionResolver,
+	goalLoops GoalLoopSlugChecker,
 ) (*DefinitionPlanner, error) {
-	if !isDefinitionKind(kind) || resolver == nil {
+	if !isDefinitionKind(kind) || resolver == nil || goalLoops == nil {
 		return nil, fmt.Errorf(
 			"%w: invalid definition planner dependencies",
 			controlservice.ErrUnavailable,
@@ -36,7 +38,7 @@ func NewDefinitionPlanner(
 			APIVersion: resource.APIVersionV1Alpha1,
 			Kind:       kind,
 		},
-		resolver: resolver,
+		resolver: resolver, goalLoops: goalLoops,
 	}, nil
 }
 
@@ -65,16 +67,39 @@ func (planner *DefinitionPlanner) Plan(
 		!matchesDefinitionSpec(planner.meta.Kind, input.TypedSpec) {
 		return controlservice.TargetPlanOutput{}, control.ErrCorrupt
 	}
-	if planner.meta.Kind == resource.KindWorker &&
-		input.Operation == control.PlanOperationUpdate {
-		return controlservice.TargetPlanOutput{
-			Issues: []control.PlanIssue{{
-				Severity: control.PlanIssueBlocking,
-				Path:     "/",
-				Code:     "worker-is-create-only",
-				Message:  "Worker resources are one-shot and cannot be updated.",
-			}},
-		}, nil
+	if input.Operation == control.PlanOperationUpdate {
+		switch planner.meta.Kind {
+		case resource.KindWorker:
+			return createOnlyIssue(
+				"worker-is-create-only",
+				"Worker resources are one-shot and cannot be updated.",
+			), nil
+		case resource.KindGoalLoop:
+			return createOnlyIssue(
+				"goal-loop-is-create-only",
+				"GoalLoop resources are one-shot and cannot be updated.",
+			), nil
+		}
+	}
+	if planner.meta.Kind == resource.KindGoalLoop {
+		exists, err := planner.goalLoops.ExistsSlug(
+			ctx,
+			input.Scope.OrganizationID,
+			input.Manifest.Metadata.Name.String(),
+		)
+		if err != nil {
+			return controlservice.TargetPlanOutput{}, err
+		}
+		if exists {
+			return controlservice.TargetPlanOutput{
+				Issues: []control.PlanIssue{{
+					Severity: control.PlanIssueBlocking,
+					Path:     "/metadata/name",
+					Code:     "goal-loop-name-already-exists",
+					Message:  "A GoalLoop with this name already exists.",
+				}},
+			}, nil
+		}
 	}
 	if planner.meta.Kind == resource.KindPrompt {
 		artifact, err := control.CanonicalJSONObject(input.Manifest.Spec)
@@ -121,6 +146,17 @@ func (planner *DefinitionPlanner) Plan(
 		OptionsRevision: DefinitionSchemaRevision,
 		Issues:          issues,
 	}, nil
+}
+
+func createOnlyIssue(code string, message string) controlservice.TargetPlanOutput {
+	return controlservice.TargetPlanOutput{
+		Issues: []control.PlanIssue{{
+			Severity: control.PlanIssueBlocking,
+			Path:     "/",
+			Code:     code,
+			Message:  message,
+		}},
+	}
 }
 
 func isDefinitionKind(kind string) bool {

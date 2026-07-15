@@ -98,6 +98,7 @@ describe("resource draft reducer", () => {
     const invalid = resourceDraftReducer(changed, {
       type: "source_invalid",
       error: "YAML syntax error at line 2",
+      version: changed.version,
     });
 
     expect(invalid.source.text).toContain("secret-value");
@@ -120,6 +121,7 @@ describe("resource draft reducer", () => {
     const parsed = resourceDraftReducer(changed, {
       type: "source_parsed",
       draft: parsedDraft,
+      version: changed.version,
     });
 
     expect(parsed.draft.metadata.name).toBe("yaml-reviewer");

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { expertStoryRoutes } from "../marketing-routes";
+import { productStoryRoutes } from "../marketing-routes";
 import { marketingPageConfig, type MarketingPageId } from "./marketing-page-config";
 
 export function MarketingPageHero({ page }: { page: MarketingPageId }) {
@@ -27,7 +27,7 @@ export function MarketingPageHero({ page }: { page: MarketingPageId }) {
             {t(config.descriptionKey)}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/register" className="expert-primary-button">
+            <Link href="/marketplace" className="expert-primary-button">
               {t("landing.workforce.expertHome.hero.primaryAction")}
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -41,8 +41,8 @@ export function MarketingPageHero({ page }: { page: MarketingPageId }) {
           </p>
         </div>
 
-        <nav aria-label={t("landing.nav.scenarios")} className="mt-14 grid border-y border-white/10 sm:grid-cols-3">
-          {expertStoryRoutes.map((route, index) => {
+        <nav aria-label={t("landing.nav.product")} className="mt-14 grid border-y border-white/10 sm:grid-cols-2">
+          {productStoryRoutes.map((route, index) => {
             const active = route.id === page;
             return (
               <Link

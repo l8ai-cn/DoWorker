@@ -7,6 +7,6 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://agentsmesh.ai/product" },
 };
 
-export default function CapabilitiesLayout({ children }: { children: React.ReactNode }) {
+export default function ProductLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

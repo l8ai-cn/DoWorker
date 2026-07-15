@@ -9,8 +9,8 @@ export function ExpertHome() {
   return (
     <>
       <ExpertHero />
-      <SolutionDomains />
       <ExpertOperatingModel />
+      <SolutionDomains />
       <CapabilitySpectrum />
       <ExpertMarketplace />
       <ExpertGovernance />

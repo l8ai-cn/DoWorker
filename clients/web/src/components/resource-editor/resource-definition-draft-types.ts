@@ -49,17 +49,19 @@ export type WorkflowDraft = ResourceManifest<WorkflowSpec> & {
   kind: "Workflow";
 };
 
+export type GoalLoopIntegerDraft = number | string;
+
 export interface GoalLoopSpec {
   workerTemplateRef: ResourceReference;
   description: string;
   objective: string;
   acceptanceCriteria: string[];
   verificationCommand: string;
-  maxIterations: number;
-  tokenBudget?: number;
-  timeoutMinutes: number;
-  noProgressLimit: number;
-  sameErrorLimit: number;
+  maxIterations: GoalLoopIntegerDraft;
+  tokenBudget?: GoalLoopIntegerDraft;
+  timeoutMinutes: GoalLoopIntegerDraft;
+  noProgressLimit: GoalLoopIntegerDraft;
+  sameErrorLimit: GoalLoopIntegerDraft;
   escalationPolicy: "pause" | "fail";
 }
 

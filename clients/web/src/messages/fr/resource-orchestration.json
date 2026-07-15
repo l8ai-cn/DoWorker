@@ -54,8 +54,8 @@
       },
       "goalLoop": {
         "name": "GoalLoop",
-        "apply": "Pas encore",
-        "purpose": "Permet Validate et Plan d'une boucle par objectif ; typed Apply n'est pas encore exposé."
+        "apply": "Oui, comme brouillon",
+        "purpose": "Crée un brouillon GoalLoop avec un snapshot WorkerSpec figé. Le démarrage reste une action explicite."
       }
     },
     "referencesTitle": "Résolution immuable des ResourceRef",
@@ -83,7 +83,7 @@
       }
     },
     "boundaryTitle": "Limite actuelle",
-    "goalLoopBoundary": "GoalLoop prend en charge Validate et Plan, mais aucun endpoint typed Apply n'est exposé. Un Plan réussi ne crée pas la Loop.",
+    "goalLoopBoundary": "GoalLoop Apply crée un brouillon avec des révisions figées, sans le démarrer ni créer de Pod. Démarrer, vérifier et annuler restent des actions explicites.",
     "reconciliationBoundary": "Le modèle est déclaratif sans réconciliation continue de type Kubernetes. Supprimer un Worker ou Pod ne le recrée pas."
   }
 }

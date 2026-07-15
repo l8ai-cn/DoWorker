@@ -119,7 +119,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_cursor_workspace:/workspace
       - runner_cursor_agentsmesh_config:/home/runner/.agentsmesh
       - runner_cursor_config:/home/runner/.cursor
@@ -178,7 +178,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_minimax_workspace:/workspace
       - runner_minimax_agentsmesh_config:/home/runner/.agentsmesh
 

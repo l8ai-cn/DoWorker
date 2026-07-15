@@ -1,12 +1,5 @@
-import { ExpertOperatingModel } from "@/components/landing/expert-home/ExpertOperatingModel";
-import { MarketingPageHero } from "@/components/landing/expert-pages/MarketingPageHero";
-import { MarketingPageShell } from "@/components/landing/expert-pages/MarketingPageShell";
+import { redirect } from "next/navigation";
 
 export default function HowItWorksPage() {
-  return (
-    <MarketingPageShell>
-      <MarketingPageHero page="how-it-works" />
-      <ExpertOperatingModel showIntro={false} />
-    </MarketingPageShell>
-  );
+  redirect("/product#operating-model");
 }

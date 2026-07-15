@@ -37,12 +37,16 @@ const cases = [
   {
     route: "solutions",
     hero: "hero-solutions",
-    regions: ["solutions-content"],
+    regions: [{ id: "solutions-content", showIntro: false }],
   },
   {
     route: "product",
     hero: "hero-product",
-    regions: ["operating-content", "capabilities-content", "governance-content"],
+    regions: [
+      { id: "operating-content", showIntro: false },
+      { id: "capabilities-content", showIntro: true },
+      { id: "governance-content" },
+    ],
   },
 ] as const;
 
@@ -60,10 +64,13 @@ describe("Agent supply marketing pages", () => {
       expect(screen.getByTestId("marketing-shell")).toBeVisible();
       expect(screen.getByTestId(pageCase.hero)).toBeVisible();
       for (const region of pageCase.regions) {
-        const content = screen.getByTestId(region);
+        const content = screen.getByTestId(region.id);
         expect(content).toBeVisible();
-        if (region !== "governance-content") {
-          expect(content).toHaveAttribute("data-show-intro", "false");
+        if ("showIntro" in region) {
+          expect(content).toHaveAttribute(
+            "data-show-intro",
+            String(region.showIntro),
+          );
         }
       }
     });

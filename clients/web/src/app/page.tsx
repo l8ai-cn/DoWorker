@@ -45,11 +45,11 @@ export default function Home() {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web, Linux, macOS, Windows",
     description:
-      "Do Worker organizes AI capabilities, organizational knowledge, tools, and execution runtimes behind one Expert that carries cross-functional work through to inspectable delivery.",
+      "Do Worker builds, governs, distributes, and operates reusable Agents for enterprise teams, OPC founders, and higher-education digital employee programs.",
     alternateName: ["AgentMesh", "Agents Mesh"],
     url: "https://agentsmesh.ai",
     keywords:
-      "AI experts, cross-functional AI, agent orchestration, Skills, organizational knowledge, human checkpoints, self-hosted AI agents",
+      "enterprise Agent supply, OPC incubation, digital employees, internal Agent marketplace, AI partners, self-hosted AI agents",
     publisher: {
       "@type": "Organization",
       name: "Do Worker",

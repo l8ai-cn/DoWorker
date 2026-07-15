@@ -54,8 +54,8 @@
       },
       "goalLoop": {
         "name": "GoalLoop",
-        "apply": "Noch nicht",
-        "purpose": "Unterstützt Validate und Plan einer Zielschleife; typed Apply ist noch nicht verfügbar."
+        "apply": "Ja, als Entwurf",
+        "purpose": "Erstellt einen GoalLoop-Entwurf mit fixiertem WorkerSpec-Snapshot. Der Start bleibt eine explizite Aktion."
       }
     },
     "referencesTitle": "Unveränderliche ResourceRef-Auflösung",
@@ -83,7 +83,7 @@
       }
     },
     "boundaryTitle": "Aktuelle Grenze",
-    "goalLoopBoundary": "GoalLoop unterstützt Validate und Plan, aber noch keinen typed Apply-Endpunkt. Ein erfolgreicher Plan erstellt keine Loop.",
+    "goalLoopBoundary": "GoalLoop Apply erstellt einen Entwurf mit fixierten Revisionen, startet ihn aber nicht und erstellt keinen Pod. Start, Prüfung und Abbruch bleiben explizite Loop-Aktionen.",
     "reconciliationBoundary": "Das Modell ist deklarativ, führt aber keine Kubernetes-artige dauerhafte Reconciliation aus. Gelöschte Worker oder Pods werden nicht neu erstellt."
   }
 }

@@ -28,11 +28,9 @@ protobuf 类型和 Rust/WASM service runtime，不应手写 JSON REST 请求。
 | `ApplyPromptPlan` | 是 | Apply Prompt |
 | `ApplyWorkerTemplatePlan` | 是 | Apply 模板并返回 WorkerSpec 快照 ID |
 | `CreateWorkerFromPlan` | 是 | 创建一次性 Worker launch 与 Pod |
+| `CreateGoalLoopFromPlan` | 是 | 创建 GoalLoop 草稿与固定 WorkerSpec 快照 |
 | `ApplyExpertPlan` | 是 | Apply Expert 并返回领域 Expert ID |
 | `ApplyWorkflowPlan` | 是 | Apply Workflow 并返回领域 Workflow ID |
-
-`GoalLoop` 可以通过 Validate 和 Plan 处理，但当前服务没有
-`ApplyGoalLoopPlan`，调用方不能把 Plan 当作已创建的 Loop。
 
 ## 查询与导出
 
@@ -81,6 +79,7 @@ binding kinds -> ApplyBindingResourcePlan
 Prompt        -> ApplyPromptPlan
 WorkerTemplate-> ApplyWorkerTemplatePlan
 Worker        -> CreateWorkerFromPlan
+GoalLoop      -> CreateGoalLoopFromPlan
 Expert        -> ApplyExpertPlan
 Workflow      -> ApplyWorkflowPlan
 ```
@@ -119,11 +118,15 @@ message ResourceSource {
 - 绑定资源和 Prompt 返回 `Resource`。
 - WorkerTemplate 额外返回 `worker_spec_snapshot_id`。
 - Worker 返回 `launch_id`、`pod_id`、`pod_key`、snapshot、revision 和 runner。
+- GoalLoop 返回 `goal_loop_id`、snapshot 和 resource revision。
 - Expert 返回 `expert_id`、snapshot 和 resource revision。
 - Workflow 返回 `workflow_id`、snapshot 和 resource revision。
 
 Apply 会重新校验 actor、组织权限、Plan 是否过期或已消费、目标 head 是否仍为
 基线版本，以及固定引用是否仍可读取。它不会在失败后走旧 API。
+
+`CreateGoalLoopFromPlan` 只创建状态为 `draft` 的领域对象，不创建 Pod、不启动
+循环。Start、Verify 和 Cancel 由 GoalLoop 服务的显式领域 RPC 负责。
 
 ## 错误代码
 
@@ -145,3 +148,5 @@ Apply 会重新校验 actor、组织权限、Plan 是否过期或已消费、目
 - CREATE 遇到同 identity 已存在时返回冲突。
 - Worker 使用持久 launch 记录和唯一 plan 约束；重试不会创建第二个 Worker
   资源或第二个 Pod 关联。
+- GoalLoop 使用 create-only 计划；同名 resource 或历史 GoalLoop 会在 Plan
+  阶段返回 blocking issue。

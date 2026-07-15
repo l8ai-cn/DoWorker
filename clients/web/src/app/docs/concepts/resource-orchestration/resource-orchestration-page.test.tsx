@@ -8,7 +8,7 @@ vi.mock("@/components/docs/DocNavigation", () => ({
 }));
 
 describe("ResourceOrchestrationPage", () => {
-  it("documents the resource lifecycle, YAML draft, and current GoalLoop boundary", () => {
+  it("documents the resource lifecycle, YAML draft, and GoalLoop Apply boundary", () => {
     render(<ResourceOrchestrationPage />);
 
     expect(
@@ -16,6 +16,6 @@ describe("ResourceOrchestrationPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Validate → Plan → Apply")).toBeInTheDocument();
     expect(screen.getByText("One draft, two views")).toBeInTheDocument();
-    expect(screen.getByText(/GoalLoop supports Validate and Plan/)).toBeInTheDocument();
+    expect(screen.getByText(/GoalLoop Apply creates a draft/)).toBeInTheDocument();
   });
 });

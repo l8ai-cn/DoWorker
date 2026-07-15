@@ -20,7 +20,7 @@
 - [Loop 与 Workflow 产品边界](loop-and-workflow.md)：区分一次性目标闭环和
   可重复自动化任务。
 
-WorkerTemplate、Worker、Prompt、Expert、Workflow 和绑定资源已经接入持久化
-Validate/Plan/typed Apply、领域表单与 YAML 单一 Draft。GoalLoop 当前仅支持
-schema、Validate 和 Plan；在 typed Apply 接入前，不应把成功 Plan 视为已创建
-的 Loop，也不能通过旧 API 模拟资源 Apply。
+WorkerTemplate、Worker、Prompt、Expert、Workflow、GoalLoop 和绑定资源已经
+接入持久化 Validate/Plan/typed Apply、领域表单与 YAML 单一 Draft。GoalLoop
+Apply 创建固定 WorkerSpec 快照的草稿；启动、验证和取消仍使用显式领域操作，
+不能通过旧 API 模拟资源 Apply。

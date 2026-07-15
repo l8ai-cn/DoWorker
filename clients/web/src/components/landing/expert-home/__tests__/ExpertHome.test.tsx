@@ -23,7 +23,7 @@ vi.mock("../ExpertGovernance", () => ({
 }));
 
 describe("ExpertHome", () => {
-  it("presents the business menu before the detailed operating model", () => {
+  it("explains the supply lifecycle before presenting solution directions", () => {
     render(<ExpertHome />);
 
     expect(
@@ -32,8 +32,8 @@ describe("ExpertHome", () => {
       ).map((node) => node.dataset.testid),
     ).toEqual([
       "hero",
-      "solutions",
       "operating",
+      "solutions",
       "capabilities",
       "marketplace",
       "governance",

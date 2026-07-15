@@ -1,12 +1,11 @@
-export const expertStoryRoutes = [
-  { id: "solutions", href: "/solutions", labelKey: "landing.nav.scenarios" },
-  { id: "how-it-works", href: "/how-it-works", labelKey: "landing.nav.workflow" },
-  { id: "capabilities", href: "/capabilities", labelKey: "landing.nav.capabilities" },
+export const productStoryRoutes = [
+  { id: "product", href: "/product", labelKey: "landing.nav.product" },
+  { id: "solutions", href: "/solutions", labelKey: "landing.nav.solutions" },
 ] as const;
 
 export const marketingRoutes = [
   { id: "home", href: "/", labelKey: "landing.nav.home" },
-  ...expertStoryRoutes,
+  ...productStoryRoutes,
   { id: "marketplace", href: "/marketplace", labelKey: "landing.nav.marketplace" },
   { id: "docs", href: "/docs", labelKey: "landing.nav.docs" },
 ] as const;

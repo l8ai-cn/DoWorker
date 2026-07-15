@@ -28,17 +28,18 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL("https://agentsmesh.ai"),
   title: {
-    default: "Do Worker - Build AI Experts That Work Across Teams",
+    default: "Do Worker - Enterprise Agent Supply and OPC Incubation",
     template: "%s | Do Worker",
   },
-  description: "Do Worker organizes AI capabilities, organizational knowledge, tools, and execution runtimes behind one Expert that carries cross-functional work through to inspectable delivery.",
+  description: "Build, govern, distribute, and operate reusable Agents for enterprise teams, OPC founders, and higher-education digital employee programs.",
   keywords: [
     "do-worker", "do worker", "l8ai",
-    "AI expert platform", "cross-functional AI", "AI expert orchestration",
+    "enterprise agent supply", "OPC incubation", "digital employees",
+    "AI partner platform", "internal agent marketplace",
     "AI agents", "AI coding", "Claude Code", "Codex CLI", "Gemini CLI", "Aider",
     "multi-agent orchestration", "AI skills", "terminal AI", "code automation",
     "developer tools", "enterprise development", "self-hosted", "agent fleet",
-    "AI developer tools", "coding agents", "expert workflows",
+    "AI developer tools", "coding agents", "agent workflows",
     "organizational knowledge", "human checkpoints",
   ],
   manifest: "/manifest.json",
@@ -53,14 +54,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Do Worker",
-    title: "Do Worker - Build AI Experts That Work Across Teams",
-    description: "Organize AI capabilities, knowledge, tools, and execution runtimes behind one Expert that delivers cross-functional work.",
+    title: "Do Worker - Enterprise Agent Supply and OPC Incubation",
+    description: "Build, govern, distribute, and operate reusable Agents across organizations.",
     url: "https://agentsmesh.ai",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Do Worker - Build AI Experts That Work Across Teams",
-    description: "Organize AI capabilities, knowledge, tools, and execution runtimes behind one Expert that delivers cross-functional work.",
+    title: "Do Worker - Enterprise Agent Supply and OPC Incubation",
+    description: "Build, govern, distribute, and operate reusable Agents across organizations.",
   },
   alternates: {
     canonical: "https://agentsmesh.ai",

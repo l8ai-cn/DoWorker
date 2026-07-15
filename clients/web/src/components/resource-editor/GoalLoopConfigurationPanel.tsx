@@ -11,6 +11,12 @@ import { Textarea } from "@/components/ui/textarea";
 import type { GoalLoopDraft } from "./resource-editor-types";
 import { GoalLoopAcceptanceCriteriaField } from "./GoalLoopAcceptanceCriteriaField";
 import { GoalLoopExecutionNumberField } from "./GoalLoopExecutionNumberField";
+import {
+  goalLoopIntegerError,
+  parseGoalLoopIntegerDraft,
+  type GoalLoopIntegerError,
+  type GoalLoopIntegerField,
+} from "./goal-loop-integer-draft";
 import { ResourceEnumField } from "./ResourceEnumField";
 import { ResourceIdentityFields } from "./ResourceIdentityFields";
 import { ResourceReferenceField } from "./ResourceReferenceField";
@@ -22,12 +28,6 @@ interface GoalLoopConfigurationPanelProps {
   onChange: (draft: GoalLoopDraft) => void;
 }
 
-type RequiredNumberField =
-  | "maxIterations"
-  | "timeoutMinutes"
-  | "noProgressLimit"
-  | "sameErrorLimit";
-
 export function GoalLoopConfigurationPanel({
   orgSlug,
   draft,
@@ -38,8 +38,11 @@ export function GoalLoopConfigurationPanel({
   const setSpec = (patch: Partial<GoalLoopDraft["spec"]>) => {
     onChange({ ...draft, spec: { ...draft.spec, ...patch } });
   };
-  const setNumber = (field: RequiredNumberField, value: string) => {
-    setSpec({ [field]: Number(value) });
+  const setNumber = (field: GoalLoopIntegerField, value: string) => {
+    setSpec({ [field]: parseGoalLoopIntegerDraft(value) });
+  };
+  const numberError = (field: GoalLoopIntegerField) => {
+    return formatNumberError(t, goalLoopIntegerError(field, draft.spec[field]));
   };
 
   return (
@@ -109,6 +112,8 @@ export function GoalLoopConfigurationPanel({
             value={draft.spec.maxIterations}
             min={1}
             max={100}
+            required
+            error={numberError("maxIterations")}
             onChange={(value) => setNumber("maxIterations", value)}
           />
           <GoalLoopExecutionNumberField
@@ -116,8 +121,11 @@ export function GoalLoopConfigurationPanel({
             label={t("fields.tokenBudget")}
             value={draft.spec.tokenBudget ?? ""}
             min={1}
+            error={numberError("tokenBudget")}
             onChange={(value) => setSpec({
-              tokenBudget: value === "" ? undefined : Number(value),
+              tokenBudget: value === ""
+                ? undefined
+                : parseGoalLoopIntegerDraft(value),
             })}
           />
         </FormRow>
@@ -128,6 +136,8 @@ export function GoalLoopConfigurationPanel({
             value={draft.spec.timeoutMinutes}
             min={1}
             max={1440}
+            required
+            error={numberError("timeoutMinutes")}
             onChange={(value) => setNumber("timeoutMinutes", value)}
           />
           <GoalLoopExecutionNumberField
@@ -136,6 +146,8 @@ export function GoalLoopConfigurationPanel({
             value={draft.spec.noProgressLimit}
             min={1}
             max={20}
+            required
+            error={numberError("noProgressLimit")}
             onChange={(value) => setNumber("noProgressLimit", value)}
           />
         </FormRow>
@@ -146,6 +158,8 @@ export function GoalLoopConfigurationPanel({
             value={draft.spec.sameErrorLimit}
             min={1}
             max={20}
+            required
+            error={numberError("sameErrorLimit")}
             onChange={(value) => setNumber("sameErrorLimit", value)}
           />
           <div className="flex-1">
@@ -166,4 +180,15 @@ export function GoalLoopConfigurationPanel({
       </FormFieldGroup>
     </div>
   );
+}
+
+function formatNumberError(
+  t: ReturnType<typeof useTranslations<"resourceEditor">>,
+  error: GoalLoopIntegerError | null,
+): string | undefined {
+  if (!error) return undefined;
+  if (error.code !== "range") return t(`numberErrors.${error.code}`);
+  return error.max === undefined
+    ? t("numberErrors.minimum", { min: error.min })
+    : t("numberErrors.range", { min: error.min, max: error.max });
 }

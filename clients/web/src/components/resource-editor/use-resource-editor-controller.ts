@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useReducer, useRef } from "react";
 import { SourceFormat } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import {
   planResource,
@@ -11,6 +11,7 @@ import { applyResourcePlan } from "./apply-resource-plan";
 import {
   createResourceDraftState,
   resourceDraftCanApply,
+  resourceDraftCanSubmit,
   resourceDraftReducer,
 } from "./resource-draft-reducer";
 import type {
@@ -22,6 +23,11 @@ import {
   switchYamlToForm,
 } from "./resource-editor-source-transition";
 import { createResourceDraft } from "./resource-draft-factory";
+import {
+  hasCurrentPlan,
+  isCurrentYaml,
+} from "./resource-editor-request-guards";
+import { useResourcePlanExpiry } from "./use-resource-plan-expiry";
 
 export function useResourceEditorController(
   orgSlug: string,
@@ -32,18 +38,10 @@ export function useResourceEditorController(
     orgSlug,
     (namespace) => createResourceDraftState(createResourceDraft(kind, namespace)),
   );
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
-  useEffect(() => {
-    if (state.plan.status !== "ready" || !state.plan.response.plan) return;
-    const expiresAt = Date.parse(state.plan.response.plan.expiresAt);
-    const delay = Number.isFinite(expiresAt)
-      ? Math.max(0, expiresAt - Date.now())
-      : 0;
-    const timer = window.setTimeout(() => {
-      dispatch({ type: "plan_expired" });
-    }, Math.min(delay, 2_147_483_647));
-    return () => window.clearTimeout(timer);
-  }, [state.plan]);
+  useResourcePlanExpiry(state.plan, dispatch);
 
   const replaceDraft = useCallback((draft: ResourceDraft) => {
     dispatch({ type: "replace_draft", draft });
@@ -60,19 +58,27 @@ export function useResourceEditorController(
         content: JSON.stringify(state.draft),
       };
     }
+    const version = state.version;
+    const source = state.source.text;
     const codec = await import("./resource-yaml-codec");
+    if (!isCurrentYaml(stateRef.current, version, source)) {
+      throw new Error("Resource draft changed while preparing YAML.");
+    }
     try {
-      const draft = codec.parseResourceYaml(state.source.text, kind);
-      dispatch({ type: "source_parsed", draft });
-      return { format: SourceFormat.YAML, content: state.source.text };
+      const draft = codec.parseResourceYaml(source, kind);
+      dispatch({ type: "source_parsed", draft, version });
+      return { format: SourceFormat.YAML, content: source };
     } catch (error) {
-      const message = safeResourceError(error, "YAML validation failed.");
-      dispatch({ type: "source_invalid", error: message });
+      if (isCurrentYaml(stateRef.current, version, source)) {
+        const message = safeResourceError(error, "YAML validation failed.");
+        dispatch({ type: "source_invalid", error: message, version });
+      }
       throw error;
     }
-  }, [kind, state.draft, state.mode, state.source.text]);
+  }, [kind, state.draft, state.mode, state.source.text, state.version]);
 
   const runValidation = useCallback(async () => {
+    if (!resourceDraftCanSubmit(state)) return null;
     const requestId = crypto.randomUUID();
     const version = state.version;
     dispatch({ type: "validation_loading", requestId, version });
@@ -94,9 +100,10 @@ export function useResourceEditorController(
       });
       return null;
     }
-  }, [orgSlug, prepareDocument, state.version]);
+  }, [orgSlug, prepareDocument, state]);
 
   const runPlan = useCallback(async () => {
+    if (!resourceDraftCanSubmit(state)) return null;
     const requestId = crypto.randomUUID();
     const version = state.version;
     dispatch({ type: "plan_loading", requestId, version });
@@ -104,7 +111,6 @@ export function useResourceEditorController(
       const document = await prepareDocument();
       const response = await planResource(orgSlug, document);
       dispatch({ type: "plan_succeeded", requestId, version, response });
-      dispatch({ type: "set_mode", mode: "plan" });
       return response;
     } catch (error) {
       dispatch({
@@ -114,19 +120,25 @@ export function useResourceEditorController(
       });
       return null;
     }
-  }, [orgSlug, prepareDocument, state.version]);
+  }, [orgSlug, prepareDocument, state]);
 
   const setMode = useCallback(async (
     mode: "form" | "yaml" | "plan",
   ): Promise<boolean> => {
     if (mode === state.mode) return true;
     if (mode === "yaml") {
+      const version = state.version;
+      const currentMode = state.mode;
       const codec = await import("./resource-yaml-codec");
+      if (
+        stateRef.current.version !== version ||
+        stateRef.current.mode !== currentMode
+      ) return false;
       dispatch({
-        type: "source_synced",
+        type: "open_yaml",
         text: codec.stringifyResourceYaml(state.draft),
+        version,
       });
-      dispatch({ type: "set_mode", mode });
       return true;
     }
     if (mode === "form" && state.mode === "yaml") {
@@ -136,6 +148,11 @@ export function useResourceEditorController(
         kind,
         state.version,
         dispatch,
+        () => isCurrentYaml(
+          stateRef.current,
+          state.version,
+          state.source.text,
+        ),
       );
     }
     dispatch({ type: "set_mode", mode });
@@ -146,14 +163,19 @@ export function useResourceEditorController(
     if (!resourceDraftCanApply(state) || state.plan.status !== "ready") return null;
     const planId = state.plan.response.plan?.planId;
     if (!planId) return null;
-    dispatch({ type: "apply_loading", planId });
+    const version = state.version;
+    dispatch({ type: "apply_loading", planId, version });
     try {
       const result = await applyResourcePlan(orgSlug, state.draft.kind, planId);
-      dispatch({ type: "apply_succeeded", result });
+      if (!hasCurrentPlan(stateRef.current, planId, version)) return null;
+      dispatch({ type: "apply_succeeded", planId, version, result });
       return result;
     } catch (error) {
+      if (!hasCurrentPlan(stateRef.current, planId, version)) return null;
       dispatch({
         type: "apply_failed",
+        planId,
+        version,
         error: safeResourceError(error, "Resource apply failed."),
       });
       return null;
@@ -168,6 +190,7 @@ export function useResourceEditorController(
     runValidation,
     runPlan,
     apply,
+    canSubmit: resourceDraftCanSubmit(state),
     canApply: resourceDraftCanApply(state),
   };
 }

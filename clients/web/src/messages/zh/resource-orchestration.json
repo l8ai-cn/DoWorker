@@ -54,8 +54,8 @@
       },
       "goalLoop": {
         "name": "GoalLoop",
-        "apply": "暂未开放",
-        "purpose": "可校验和规划目标循环；尚未暴露 typed resource Apply。"
+        "apply": "支持，创建草稿",
+        "purpose": "创建固定 WorkerSpec 快照的 GoalLoop 草稿；启动仍是显式操作。"
       }
     },
     "referencesTitle": "不可变 ResourceRef 解析",
@@ -83,7 +83,7 @@
       }
     },
     "boundaryTitle": "当前边界",
-    "goalLoopBoundary": "GoalLoop 支持 Validate 和 Plan，但尚未暴露 typed Apply 入口。Plan 成功不代表 Loop 已创建。",
+    "goalLoopBoundary": "GoalLoop Apply 会创建固定 revision 的草稿，但不会启动或创建 Pod；启动、验证和取消仍是显式 Loop 操作。",
     "reconciliationBoundary": "该模型是声明式的，但不运行 Kubernetes 式持续调谐。删除 Worker 或 Pod 后不会自动重建。"
   }
 }

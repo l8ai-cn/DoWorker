@@ -5,11 +5,9 @@ import { Navbar } from "../Navbar";
 
 const labels = vi.hoisted(() => ({
   "landing.nav.home": "Home",
-  "landing.nav.workflow": "How it works",
-  "landing.nav.scenarios": "Scenarios",
-  "landing.nav.capabilities": "Capabilities",
-  "landing.nav.marketplace": "Marketplace",
-  "landing.nav.pricing": "Pricing",
+  "landing.nav.product": "Product",
+  "landing.nav.solutions": "Solutions",
+  "landing.nav.marketplace": "Agent Market",
   "landing.nav.docs": "Docs",
   "landing.nav.language": "Language",
   "landing.nav.toggleMenu": "Open navigation",
@@ -19,7 +17,7 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: keyof typeof labels) => labels[key] ?? key,
 }));
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/capabilities",
+  usePathname: () => "/product",
 }));
 vi.mock("@/components/i18n", () => ({
   LanguageSwitcher: () => <button type="button">Language</button>,
@@ -35,10 +33,9 @@ describe("Navbar", () => {
 
     const expectedLinks = [
       ["Home", "/"],
-      ["Scenarios", "/solutions"],
-      ["How it works", "/how-it-works"],
-      ["Capabilities", "/capabilities"],
-      ["Marketplace", "/marketplace"],
+      ["Product", "/product"],
+      ["Solutions", "/solutions"],
+      ["Agent Market", "/marketplace"],
       ["Docs", "/docs"],
     ] as const;
 
@@ -46,11 +43,10 @@ describe("Navbar", () => {
       expect(screen.getAllByRole("link", { name })[0]).toHaveAttribute("href", href);
     }
 
-    expect(screen.getAllByRole("link", { name: "Capabilities" })[0]).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: "Product" })[0]).toHaveAttribute(
       "aria-current",
       "page",
     );
     expect(screen.getByRole("button", { name: "Open navigation" })).toBeVisible();
-    expect(screen.queryByRole("link", { name: "Pricing" })).not.toBeInTheDocument();
   });
 });

@@ -5,11 +5,11 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const messages = vi.hoisted(() => ({
-  "landing.nav.scenarios": "Scenarios",
-  "landing.nav.workflow": "How it works",
-  "landing.workforce.expertHome.solutions.title": "Outcome-first Experts",
-  "landing.workforce.expertHome.solutions.description": "Carry one business goal to delivery.",
-  "landing.workforce.expertHome.hero.primaryAction": "Create your Expert",
+  "landing.nav.product": "Product",
+  "landing.nav.solutions": "Solutions",
+  "landing.workforce.expertHome.solutions.title": "Three organization models",
+  "landing.workforce.expertHome.solutions.description": "Apply one Agent supply system in three contexts.",
+  "landing.workforce.expertHome.hero.primaryAction": "Explore the Agent market",
   "landing.workforce.expertHome.hero.proof": "Shared context and evidence-backed delivery",
 }));
 
@@ -27,9 +27,12 @@ describe("MarketingPageHero", () => {
     const { MarketingPageHero } = await import(/* @vite-ignore */ componentUrl);
     render(<MarketingPageHero page="solutions" />);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Outcome-first Experts" })).toBeVisible();
-    expect(screen.getByText("Carry one business goal to delivery.")).toBeVisible();
-    expect(screen.getByRole("link", { name: "Create your Expert" })).toHaveAttribute("href", "/register");
-    expect(screen.getByRole("link", { name: "How it works" })).toHaveAttribute("href", "/how-it-works");
+    expect(screen.getByRole("heading", { level: 1, name: "Three organization models" })).toBeVisible();
+    expect(screen.getByText("Apply one Agent supply system in three contexts.")).toBeVisible();
+    expect(screen.getByRole("link", { name: "Explore the Agent market" })).toHaveAttribute(
+      "href",
+      "/marketplace",
+    );
+    expect(screen.getByRole("link", { name: "Product" })).toHaveAttribute("href", "/product");
   });
 });

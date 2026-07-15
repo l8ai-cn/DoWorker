@@ -81,6 +81,7 @@ func initializeOrchestrationControl(
 	planners, required, err := orchestrationTargetPlanners(
 		workerTemplate,
 		bindings,
+		infra.NewGoalLoopRepository(db),
 	)
 	if err != nil {
 		return orchestrationControlServices{}, err
@@ -144,6 +145,7 @@ func attachOrchestrationControl(
 func orchestrationTargetPlanners(
 	workerTemplate controlservice.TargetPlanner,
 	definitions workerplanner.DefinitionResolver,
+	goalLoops workerplanner.GoalLoopSlugChecker,
 ) ([]controlservice.TargetPlanner, []resource.TypeMeta, error) {
 	kinds := []string{
 		resource.KindModelBinding,
@@ -183,7 +185,11 @@ func orchestrationTargetPlanners(
 	planners = append(planners, workerTemplate)
 	required = append(required, workerTemplate.TypeMeta())
 	for _, kind := range definitionKinds {
-		planner, err := workerplanner.NewDefinitionPlanner(kind, definitions)
+		planner, err := workerplanner.NewDefinitionPlanner(
+			kind,
+			definitions,
+			goalLoops,
+		)
 		if err != nil {
 			return nil, nil, err
 		}

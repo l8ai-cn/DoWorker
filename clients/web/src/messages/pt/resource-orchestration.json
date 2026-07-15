@@ -54,8 +54,8 @@
       },
       "goalLoop": {
         "name": "GoalLoop",
-        "apply": "Ainda não",
-        "purpose": "Permite Validate e Plan de um loop por objetivo; typed Apply ainda não está exposto."
+        "apply": "Sim, como rascunho",
+        "purpose": "Cria um rascunho de GoalLoop com snapshot de WorkerSpec fixado. Iniciar continua sendo uma ação explícita."
       }
     },
     "referencesTitle": "Resolução imutável de ResourceRef",
@@ -83,7 +83,7 @@
       }
     },
     "boundaryTitle": "Limite atual",
-    "goalLoopBoundary": "GoalLoop suporta Validate e Plan, mas ainda não há endpoint typed Apply. Um Plan bem-sucedido não cria o Loop.",
+    "goalLoopBoundary": "GoalLoop Apply cria um rascunho com revisões fixadas, mas não o inicia nem cria um Pod. Iniciar, verificar e cancelar continuam sendo ações explícitas.",
     "reconciliationBoundary": "O modelo é declarativo, mas não executa reconciliação contínua como Kubernetes. Excluir um Worker ou Pod não o recria."
   }
 }

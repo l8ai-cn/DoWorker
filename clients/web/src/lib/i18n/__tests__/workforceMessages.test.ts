@@ -35,14 +35,14 @@ function channelName(messages: MessageTree): string {
   return channel.name as string;
 }
 
-function aiPartnerTitle(messages: MessageTree): string {
+function solutionTitle(messages: MessageTree, solutionId: string): string {
   const landing = messages.landing as MessageTree;
   const workforce = landing.workforce as MessageTree;
   const expertHome = workforce.expertHome as MessageTree;
   const solutions = expertHome.solutions as MessageTree;
   const items = solutions.items as MessageTree[];
-  const aiPartner = items.find(({ id }) => id === "digital-employees");
-  return aiPartner?.title as string;
+  const solution = items.find(({ id }) => id === solutionId);
+  return solution?.title as string;
 }
 
 describe("workforce message namespaces", () => {
@@ -83,20 +83,25 @@ describe("workforce message namespaces", () => {
     }
   });
 
-  it("names the recurring-work solution as AI partners in every locale", () => {
-    const expectedTitles: Record<string, string> = {
-      de: "KI-Partner",
-      en: "AI partners",
-      es: "Compañeros de IA",
-      fr: "Partenaires IA",
-      ja: "AIパートナー",
-      ko: "AI 파트너",
-      pt: "Parceiros de IA",
-      zh: "AI 伙伴",
+  it("uses the approved supply-first solution names in English and Chinese", () => {
+    const expectedTitles = {
+      en: {
+        "enterprise-agent-supply": "Enterprise Agent supply",
+        "opc-incubation": "OPC incubation",
+        "higher-education-digital-employees": "Higher-education digital employees",
+      },
+      zh: {
+        "enterprise-agent-supply": "企业 Agent 供给",
+        "opc-incubation": "OPC 孵化",
+        "higher-education-digital-employees": "高校数字员工",
+      },
     };
 
-    for (const locale of locales) {
-      expect(aiPartnerTitle(readWorkforce(locale)), locale).toBe(expectedTitles[locale]);
+    for (const [locale, titles] of Object.entries(expectedTitles)) {
+      const messages = readWorkforce(locale);
+      for (const [solutionId, title] of Object.entries(titles)) {
+        expect(solutionTitle(messages, solutionId), `${locale}:${solutionId}`).toBe(title);
+      }
     }
   });
 });

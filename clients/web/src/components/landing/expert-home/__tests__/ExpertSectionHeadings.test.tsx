@@ -26,7 +26,7 @@ const humanItems = vi.hoisted(() => [
   { id: "review", title: "Review", description: "Review decisions" },
 ]);
 const capabilities = vi.hoisted(() =>
-  Array.from({ length: 12 }, (_, index) => ({
+  Array.from({ length: 5 }, (_, index) => ({
     id: `capability-${index}`,
     title: `Capability ${index}`,
     description: `Capability description ${index}`,

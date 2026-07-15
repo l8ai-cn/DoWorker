@@ -41,9 +41,9 @@ export function Footer() {
     product: {
       title: t("landing.footer.product.title"),
       links: [
-        { label: t("landing.footer.product.agentpod"), href: "/docs/concepts/workers" },
-        { label: t("landing.footer.product.agentsmesh"), href: "/docs/features/channels" },
-        { label: t("landing.footer.product.tickets"), href: "/docs/features/tickets" },
+        { label: t("landing.nav.product"), href: "/product" },
+        { label: t("landing.nav.solutions"), href: "/solutions" },
+        { label: t("landing.nav.marketplace"), href: "/marketplace" },
         { label: t("landing.footer.product.runners"), href: "/docs/runners/setup" },
       ],
     },

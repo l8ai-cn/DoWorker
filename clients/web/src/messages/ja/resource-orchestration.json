@@ -54,8 +54,8 @@
       },
       "goalLoop": {
         "name": "GoalLoop",
-        "apply": "未対応",
-        "purpose": "目標ループの Validate と Plan に対応しますが、typed Apply はまだ公開されていません。"
+        "apply": "対応（Draft 作成）",
+        "purpose": "固定 WorkerSpec スナップショットを持つ GoalLoop Draft を作成します。開始は明示的な操作です。"
       }
     },
     "referencesTitle": "不変 ResourceRef の解決",
@@ -83,7 +83,7 @@
       }
     },
     "boundaryTitle": "現在の境界",
-    "goalLoopBoundary": "GoalLoop は Validate と Plan に対応しますが、typed Apply エンドポイントはまだありません。Plan 成功だけでは Loop は作成されません。",
+    "goalLoopBoundary": "GoalLoop Apply は固定 revision の Draft を作成しますが、開始や Pod 作成は行いません。開始、検証、キャンセルは明示的な Loop 操作です。",
     "reconciliationBoundary": "宣言的モデルですが、Kubernetes のような継続的 reconciliation は行いません。Worker や Pod を削除しても自動再作成されません。"
   }
 }

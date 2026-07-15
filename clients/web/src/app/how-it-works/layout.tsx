@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "How Do Worker Experts Work",
+  title: "Enterprise Agent Supply Platform",
   description:
-    "See how one Expert combines Workers, models, Skills, organizational knowledge, tools, and operating rules.",
-  alternates: { canonical: "https://agentsmesh.ai/how-it-works" },
+    "Build, validate, publish, install, operate, and improve governed Agents across your organization.",
+  alternates: { canonical: "https://agentsmesh.ai/product" },
 };
 
 export default function HowItWorksLayout({ children }: { children: React.ReactNode }) {

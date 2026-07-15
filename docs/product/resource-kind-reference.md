@@ -24,7 +24,7 @@ ResourceRef 引用。上层资源不会复制凭据或可变配置。
 - `Worker`：一次性启动声明，创建后不能更新。
 - `Expert`：可复用专家定义，固定 WorkerTemplate 与可选 Prompt。
 - `Workflow`：可重复或定时执行，固定 WorkerTemplate 与必填 Prompt。
-- `GoalLoop`：目标驱动循环；当前支持 Validate 和 Plan，尚无 typed Apply。
+- `GoalLoop`：目标驱动循环；Apply 创建固定 WorkerSpec 快照的草稿，启动需显式操作。
 
 ## 共同约束
 
@@ -34,3 +34,4 @@ ResourceRef 引用。上层资源不会复制凭据或可变配置。
   实际 revision 和 digest。
 - Secret 只能通过受控资源引用，不能写入 YAML。
 - Apply 必须消费当前、未过期且未被使用的 Plan。
+- Worker 与 GoalLoop 是 create-only；已有同名对象会在 Plan 阶段阻塞。

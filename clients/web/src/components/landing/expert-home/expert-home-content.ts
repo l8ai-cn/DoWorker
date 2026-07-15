@@ -1,27 +1,22 @@
 import workerRuntimeCatalog from "@/generated/worker-runtime-catalog.json";
 
 export const solutionDomains = [
-  { id: "cross-border-commerce", messageId: "crossBorderCommerce" },
-  { id: "ai-education", messageId: "aiEducation" },
-  { id: "digital-employees", messageId: "aiPartners" },
-  { id: "marketplace", messageId: "marketplace" },
+  { id: "enterprise-agent-supply", messageId: "enterpriseAgentSupply" },
+  { id: "opc-incubation", messageId: "opcIncubation" },
+  {
+    id: "higher-education-digital-employees",
+    messageId: "higherEducationDigitalEmployees",
+  },
 ] as const;
 
 export const workerTypes = workerRuntimeCatalog.workers.map(({ slug, name }) => ({ slug, name }));
 
 export const capabilityGroups = [
-  { id: "programming", level: "implemented" },
-  { id: "research", level: "composable" },
-  { id: "documents", level: "composable" },
-  { id: "office", level: "composable" },
-  { id: "content", level: "composable" },
-  { id: "screenwriting", level: "composable" },
-  { id: "image", level: "composable" },
-  { id: "audio", level: "composable" },
-  { id: "video", level: "composable" },
-  { id: "data", level: "composable" },
-  { id: "education", level: "composable" },
-  { id: "industryMarket", level: "planned" },
+  { id: "agent-factory", level: "implemented" },
+  { id: "agent-market", level: "implemented" },
+  { id: "collaboration-workspace", level: "implemented" },
+  { id: "automation", level: "implemented" },
+  { id: "governance", level: "implemented" },
 ] as const;
 
 export const marketplaceApplications = [
@@ -30,7 +25,7 @@ export const marketplaceApplications = [
   { slug: "dual-repo-sync-expert", messageId: "dualRepo" },
 ] as const;
 
-export type CapabilityLevel = (typeof capabilityGroups)[number]["level"];
+export type CapabilityLevel = "implemented" | "composable" | "planned";
 
 export interface LocalizedSolution {
   id: (typeof solutionDomains)[number]["id"];

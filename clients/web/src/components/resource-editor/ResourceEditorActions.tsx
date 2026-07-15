@@ -9,6 +9,7 @@ import type { ResourceDraftState } from "./resource-draft-reducer";
 interface ResourceEditorActionsProps {
   state: ResourceDraftState;
   kind: ResourceEditorKind;
+  canSubmit: boolean;
   canApply: boolean;
   onValidate: () => void;
   onPlan: () => void;
@@ -18,6 +19,7 @@ interface ResourceEditorActionsProps {
 export function ResourceEditorActions({
   state,
   kind,
+  canSubmit,
   canApply,
   onValidate,
   onPlan,
@@ -29,6 +31,7 @@ export function ResourceEditorActions({
       <Button
         type="button"
         variant="outline"
+        disabled={!canSubmit}
         loading={state.validation.status === "loading"}
         onClick={onValidate}
       >
@@ -40,6 +43,7 @@ export function ResourceEditorActions({
       <Button
         type="button"
         variant="outline"
+        disabled={!canSubmit}
         loading={state.plan.status === "loading"}
         onClick={onPlan}
       >

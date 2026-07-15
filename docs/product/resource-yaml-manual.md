@@ -7,13 +7,13 @@ YAML 是资源编辑器的高级视图，适合代码审查、复制、版本管
 
 当前可完整 Apply 的 Kind：
 
-- `WorkerTemplate`、`Worker`、`Prompt`、`Expert`、`Workflow`
+- `WorkerTemplate`、`Worker`、`Prompt`、`Expert`、`Workflow`、`GoalLoop`
 - `ModelBinding`、`ToolBinding`、`Repository`、`Skill`
 - `KnowledgeBase`、`EnvironmentBundle`、`ComputeTarget`
 - `ResourceProfile`
 
-`GoalLoop` 当前可以 Validate 和 Plan，但没有 typed Apply 入口。各 Kind 的字段和
-示例见[资源 Kind 声明参考](resource-kind-reference.md)。
+各 Kind 的字段和示例见[资源 Kind 声明参考](resource-kind-reference.md)。
+GoalLoop Apply 创建草稿和固定 WorkerSpec 快照，启动仍是后续显式操作。
 
 ## 编辑流程
 
@@ -22,7 +22,7 @@ YAML 是资源编辑器的高级视图，适合代码审查、复制、版本管
 3. 执行“校验”，先处理 schema、语义、权限和引用问题。
 4. 执行“生成计划”，审查 CREATE/UPDATE、语义 Diff 和固定引用。
 5. 确认 Plan 对应当前草稿后，执行该 Kind 的 Apply。
-6. 检查返回的 revision、WorkerSpec 快照、Expert、Workflow 或 Pod。
+6. 检查返回的 revision、WorkerSpec 快照、领域对象或 Pod。
 
 任意草稿修改都会使旧 Plan 失效。当前 Plan 默认 15 分钟过期，且只能消费一次。
 
@@ -59,6 +59,7 @@ YAML 是资源编辑器的高级视图，适合代码审查、复制、版本管
 - 自定义 tag
 - timestamp 和 binary 类型
 - 十六进制、`.inf`、`.NaN` 等非 JSON 数字
+- 超出 JavaScript 安全整数范围的整数
 - 非字符串 mapping key
 - 多文档输入
 - 未知字段和大小写错误字段
@@ -90,7 +91,9 @@ releaseDate: "2026-07-15"
 hexLabel: "0x10"
 ```
 
-极大 JSON 数字会保留原始数值词法，不先转换为浮点数。
+超过 `Number.MAX_SAFE_INTEGER` 的整数会被拒绝，避免浏览器在 Validate 前
+静默舍入。需要更大值时，应使用后端 schema 明确声明的字符串字段，不能把数字
+伪装成字符串绕过当前 Kind 的类型校验。
 
 ## 字段与 identifier
 
@@ -180,7 +183,8 @@ Apply 前至少检查：
 | `reference not found` | 先 Apply 被引用资源或修正名称 |
 | `options revision is stale` | 使用当前 Worker 创建选项返回的版本 |
 | `worker-is-create-only` | 使用新名称创建新的 Worker |
-| `GoalLoop` Apply 不可用 | 使用现有 Loop 流程，等待 typed Apply 接入 |
+| `goal-loop-is-create-only` | 使用新名称创建新的 GoalLoop |
+| `goal-loop-name-already-exists` | 选择未被资源或历史 Loop 占用的名称 |
 
 错误消息有长度上限，重复 key 和未知 key 不回显用户输入，避免误粘贴的 Secret
 进入日志。

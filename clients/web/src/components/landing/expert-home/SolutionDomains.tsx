@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
-import { ArrowRight, BookOpen, BriefcaseBusiness, ShoppingBag, Store } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Building2, GraduationCap, Rocket } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { LocalizedSolution } from "./expert-home-content";
 
-const icons = [ShoppingBag, BookOpen, BriefcaseBusiness, Store];
+const icons = [Building2, Rocket, GraduationCap];
 
 export function SolutionDomains({ showIntro = true }: { showIntro?: boolean }) {
   const t = useTranslations();
@@ -74,7 +75,7 @@ export function SolutionDomains({ showIntro = true }: { showIntro?: boolean }) {
                 <button
                   key={item.id}
                   ref={(node) => { tabRefs.current[index] = node; }}
-                  id={item.id === "marketplace" ? `${baseId}-tab-${index}` : item.id}
+                  id={item.id}
                   role="tab"
                   type="button"
                   aria-label={item.title}
@@ -119,7 +120,7 @@ export function SolutionDomains({ showIntro = true }: { showIntro?: boolean }) {
                 key={item.id}
                 id={`${baseId}-panel-${index}`}
                 role="tabpanel"
-                aria-labelledby={item.id === "marketplace" ? `${baseId}-tab-${index}` : item.id}
+                aria-labelledby={item.id}
                 tabIndex={index === activeIndex ? 0 : -1}
                 hidden={index !== activeIndex}
                 className="min-h-[390px] border-t-2 border-[var(--expert-paper-ink)] pt-7"
@@ -145,13 +146,13 @@ export function SolutionDomains({ showIntro = true }: { showIntro?: boolean }) {
                     <p className="mt-3 text-base font-medium leading-7">{item.outcome}</p>
                   </div>
                 </div>
-                <a
-                  href={item.id === "marketplace" ? "/marketplace" : "/register"}
+                <Link
+                  href="/register"
                   className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[var(--expert-paper-accent)]"
                 >
                   {item.action}
                   <ArrowRight className="h-4 w-4" />
-                </a>
+                </Link>
               </article>
             ))}
           </div>

@@ -17,10 +17,10 @@ The platform supports multi-tenancy, OAuth authentication, and real-time termina
 The resource-native control plane uses the Connect service
 `proto.orchestration_resource.v1.OrchestrationResourceService`. It provides
 Validate, Plan, query, export, and Kind-specific Apply methods for bindings,
-Prompt, WorkerTemplate, Worker, Expert, and Workflow.
+Prompt, WorkerTemplate, Worker, Expert, Workflow, and GoalLoop.
 
-See [Resource Orchestration API](orchestration-resources.md). GoalLoop currently
-supports validation and planning only; typed Apply is not exposed.
+See [Resource Orchestration API](orchestration-resources.md). GoalLoop Apply
+creates a pinned draft and does not start the loop or create a Pod.
 
 ## Base URL
 

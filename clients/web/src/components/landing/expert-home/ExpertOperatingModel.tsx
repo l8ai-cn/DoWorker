@@ -1,19 +1,19 @@
 "use client";
 
 import {
-  Blocks,
-  BrainCircuit,
+  BadgeCheck,
   CheckCircle2,
-  Cpu,
-  Database,
-  Plug,
-  Workflow,
+  Download,
+  PackageCheck,
+  PlayCircle,
+  RefreshCw,
+  Wrench,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { LocalizedContentItem } from "./expert-home-content";
 
-const partIcons = [Cpu, BrainCircuit, Blocks, Database, Plug, Workflow];
+const partIcons = [Wrench, BadgeCheck, PackageCheck, Download, PlayCircle, RefreshCw];
 
 export function ExpertOperatingModel({ showIntro = true }: { showIntro?: boolean }) {
   const t = useTranslations();

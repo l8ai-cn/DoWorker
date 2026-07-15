@@ -74,6 +74,7 @@ function enforceTreeLimits(document: ReturnType<typeof parseAllDocuments>[number
   let count = 0;
   let forbidden = false;
   let unsupportedNumber = false;
+  let unsafeInteger = false;
   const countNode = (depth: number) => {
     count += 1;
     if (count > MAX_NODES || depth > MAX_DEPTH) {
@@ -99,6 +100,13 @@ function enforceTreeLimits(document: ReturnType<typeof parseAllDocuments>[number
       )) {
         unsupportedNumber = true;
       }
+      if (
+        typeof node.value === "number" &&
+        Number.isInteger(node.value) &&
+        !Number.isSafeInteger(node.value)
+      ) {
+        unsafeInteger = true;
+      }
     },
   });
   if (forbidden) {
@@ -106,6 +114,9 @@ function enforceTreeLimits(document: ReturnType<typeof parseAllDocuments>[number
   }
   if (unsupportedNumber) {
     throw new Error("YAML contains a non-JSON number.");
+  }
+  if (unsafeInteger) {
+    throw new Error("YAML contains an integer outside the safe integer range.");
   }
 }
 

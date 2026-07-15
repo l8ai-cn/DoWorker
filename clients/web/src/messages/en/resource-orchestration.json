@@ -54,8 +54,8 @@
       },
       "goalLoop": {
         "name": "GoalLoop",
-        "apply": "Not yet",
-        "purpose": "Validate and plan a goal-driven loop; typed resource Apply is not exposed yet."
+        "apply": "Yes, as draft",
+        "purpose": "Creates a GoalLoop draft with a pinned WorkerSpec snapshot. Starting the loop remains an explicit action."
       }
     },
     "referencesTitle": "Immutable ResourceRef resolution",
@@ -83,7 +83,7 @@
       }
     },
     "boundaryTitle": "Current boundary",
-    "goalLoopBoundary": "GoalLoop supports Validate and Plan, but no typed Apply endpoint is exposed. A successful Plan does not create a loop.",
+    "goalLoopBoundary": "GoalLoop Apply creates a draft with pinned revisions and does not start it or create a Pod. Start, verify, and cancel remain explicit loop actions.",
     "reconciliationBoundary": "This model is declarative but does not run a Kubernetes-style reconciliation loop. Deleting a Worker or Pod does not recreate it automatically."
   }
 }

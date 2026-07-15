@@ -1,74 +1,14 @@
-import {
-  type PlanResourceResponse,
-  type ValidateResourceResponse,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
-import type { ResourceApplyResult } from "./resource-apply-result";
 import type { ResourceDraft } from "./resource-editor-types";
+import type {
+  ResourceDraftAction,
+  ResourceDraftState,
+  ResourceRequestState,
+} from "./resource-draft-state-types";
 
-type Idle = { status: "idle" };
-type Loading = { status: "loading"; requestId: string; version: number };
-type Failed = { status: "error"; error: string };
-
-export interface ResourceDraftState {
-  draft: ResourceDraft;
-  mode: "form" | "yaml" | "plan";
-  version: number;
-  source: {
-    text: string;
-    dirty: boolean;
-    error: string | null;
-  };
-  validation:
-    | Idle
-    | Loading
-    | Failed
-    | { status: "ready"; response: ValidateResourceResponse; version: number };
-  plan:
-    | Idle
-    | Loading
-    | Failed
-    | { status: "expired" }
-    | { status: "ready"; response: PlanResourceResponse; version: number };
-  apply:
-    | Idle
-    | { status: "loading"; planId: string }
-    | Failed
-    | {
-      status: "ready";
-      result: ResourceApplyResult;
-    };
-}
-
-export type ResourceDraftAction =
-  | { type: "set_mode"; mode: ResourceDraftState["mode"] }
-  | { type: "replace_draft"; draft: ResourceDraft }
-  | { type: "source_synced"; text: string }
-  | { type: "source_changed"; text: string }
-  | { type: "source_invalid"; error: string }
-  | { type: "source_parsed"; draft: ResourceDraft }
-  | { type: "validation_loading"; requestId: string; version: number }
-  | {
-    type: "validation_succeeded";
-    requestId: string;
-    version: number;
-    response: ValidateResourceResponse;
-  }
-  | { type: "validation_failed"; requestId: string; error: string }
-  | { type: "plan_loading"; requestId: string; version: number }
-  | {
-    type: "plan_succeeded";
-    requestId: string;
-    version: number;
-    response: PlanResourceResponse;
-  }
-  | { type: "plan_failed"; requestId: string; error: string }
-  | { type: "plan_expired" }
-  | { type: "apply_loading"; planId: string }
-  | {
-    type: "apply_succeeded";
-    result: ResourceApplyResult;
-  }
-  | { type: "apply_failed"; error: string };
+export type {
+  ResourceDraftAction,
+  ResourceDraftState,
+} from "./resource-draft-state-types";
 
 export function createResourceDraftState(
   draft: ResourceDraft,
@@ -93,9 +33,11 @@ export function resourceDraftReducer(
       return { ...state, mode: action.mode };
     case "replace_draft":
       return changed(state, action.draft, state.source);
-    case "source_synced":
+    case "open_yaml":
+      if (action.version !== state.version) return state;
       return {
         ...state,
+        mode: "yaml",
         source: { text: action.text, dirty: false, error: null },
       };
     case "source_changed":
@@ -105,15 +47,35 @@ export function resourceDraftReducer(
         error: null,
       });
     case "source_invalid":
+      if (action.version !== state.version) return state;
       return {
         ...state,
         source: { ...state.source, dirty: true, error: action.error },
       };
     case "source_parsed":
+      if (action.version !== state.version) return state;
       return {
         ...state,
         draft: action.draft,
         source: { ...state.source, dirty: false, error: null },
+      };
+    case "yaml_form_loaded":
+      if (!matches(
+        state.validation,
+        action.requestId,
+        action.version,
+        state.version,
+      )) return state;
+      return {
+        ...state,
+        mode: "form",
+        draft: action.draft,
+        source: { ...state.source, dirty: false, error: null },
+        validation: {
+          status: "ready",
+          response: action.response,
+          version: action.version,
+        },
       };
     case "validation_loading":
       return {
@@ -146,6 +108,7 @@ export function resourceDraftReducer(
       if (!matches(state.plan, action.requestId, action.version, state.version)) return state;
       return {
         ...state,
+        mode: "plan",
         plan: { status: "ready", response: action.response, version: action.version },
       };
     case "plan_failed":
@@ -155,10 +118,20 @@ export function resourceDraftReducer(
       if (state.plan.status !== "ready") return state;
       return { ...state, plan: { status: "expired" } };
     case "apply_loading":
-      return { ...state, apply: { status: "loading", planId: action.planId } };
+      if (action.version !== state.version) return state;
+      return {
+        ...state,
+        apply: {
+          status: "loading",
+          planId: action.planId,
+          version: action.version,
+        },
+      };
     case "apply_succeeded":
+      if (!matchesApply(state, action.planId, action.version)) return state;
       return { ...state, apply: { status: "ready", result: action.result } };
     case "apply_failed":
+      if (!matchesApply(state, action.planId, action.version)) return state;
       return { ...state, apply: { status: "error", error: action.error } };
   }
 }
@@ -180,7 +153,7 @@ function changed(
 }
 
 function matches(
-  state: Idle | Loading | Failed | { status: "expired" } | { status: "ready" },
+  state: ResourceRequestState,
   requestId: string,
   version: number,
   currentVersion: number,
@@ -191,9 +164,24 @@ function matches(
     version === currentVersion;
 }
 function matchesRequest(
-  state: Idle | Loading | Failed | { status: "expired" } | { status: "ready" },
+  state: ResourceRequestState,
   requestId: string,
 ): boolean {
   return state.status === "loading" && state.requestId === requestId;
 }
-export { resourceDraftCanApply } from "./resource-draft-selectors";
+
+function matchesApply(
+  state: ResourceDraftState,
+  planId: string,
+  version: number,
+): boolean {
+  return state.apply.status === "loading" &&
+    state.apply.planId === planId &&
+    state.apply.version === version &&
+    state.version === version;
+}
+
+export {
+  resourceDraftCanApply,
+  resourceDraftCanSubmit,
+} from "./resource-draft-selectors";

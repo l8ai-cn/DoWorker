@@ -158,14 +158,21 @@ func TestValidateToken(t *testing.T) {
 	})
 
 	t.Run("embed token use", func(t *testing.T) {
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"user_id":   mockUser.ID,
-			"email":     mockUser.Email,
-			"username":  mockUser.Username,
-			"token_use": "agent_embed_session",
-			"exp":       time.Now().Add(time.Minute).Unix(),
+		token := jwt.NewWithClaims(jwt.SigningMethodRS256, Claims{
+			UserID:   mockUser.ID,
+			Email:    mockUser.Email,
+			Username: mockUser.Username,
+			TokenUse: "agent_embed_session",
+			RegisteredClaims: jwt.RegisteredClaims{
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute)),
+				IssuedAt:  jwt.NewNumericDate(time.Now()),
+				NotBefore: jwt.NewNumericDate(time.Now()),
+				Issuer:    "test-issuer",
+				Audience:  jwt.ClaimStrings{testAccessTokenAudience},
+			},
 		})
-		signed, err := token.SignedString([]byte("embed-token-test-secret"))
+		token.Header["kid"] = "test-access-token-key"
+		signed, err := token.SignedString(fixture.privateKey)
 		if err != nil {
 			t.Fatalf("sign token: %v", err)
 		}

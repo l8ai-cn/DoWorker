@@ -63,7 +63,7 @@ describe("GoalLoopConfigurationPanel", () => {
       "pnpm test",
     );
     await user.selectOptions(screen.getByLabelText("Escalation policy"), "fail");
-    fireEvent.change(screen.getByLabelText("Maximum iterations"), {
+    fireEvent.change(screen.getByLabelText(/^Maximum iterations/), {
       target: { value: "25" },
     });
     fireEvent.change(screen.getByLabelText("Token budget"), {
@@ -117,11 +117,53 @@ describe("GoalLoopConfigurationPanel", () => {
       kind: "WorkerTemplate",
       name: "code-reviewer",
     });
-    expectBounds("Maximum iterations", "1", "100");
-    expectBounds("Run timeout (minutes)", "1", "1440");
-    expectBounds("No-progress limit", "1", "20");
-    expectBounds("Same-error limit", "1", "20");
+    expectBounds(/^Maximum iterations/, "1", "100");
+    expectBounds(/^Run timeout \(minutes\)/, "1", "1440");
+    expectBounds(/^No-progress limit/, "1", "20");
+    expectBounds(/^Same-error limit/, "1", "20");
     expect(screen.getByLabelText("Token budget")).toHaveAttribute("min", "1");
+  });
+
+  it("keeps invalid numeric text visible and reports why it cannot be used", () => {
+    render(<GoalLoopPanelHarness />);
+
+    fireEvent.change(screen.getByLabelText(/^Maximum iterations/), {
+      target: { value: "" },
+    });
+
+    expect(currentDraft().spec.maxIterations).toBe("");
+    expect(screen.getByText("Enter a whole number.")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/^Maximum iterations/), {
+      target: { value: "1.5" },
+    });
+
+    expect(currentDraft().spec.maxIterations).toBe("1.5");
+    expect(screen.getByText("Use a whole number without decimals."))
+      .toBeInTheDocument();
+  });
+
+  it("does not round an unsafe token budget", () => {
+    render(<GoalLoopPanelHarness />);
+
+    fireEvent.change(screen.getByLabelText("Token budget"), {
+      target: { value: "9007199254740993" },
+    });
+
+    expect(currentDraft().spec.tokenBudget).toBe("9007199254740993");
+    expect(screen.getByText("Use an integer within the safe numeric range."))
+      .toBeInTheDocument();
+  });
+
+  it("blocks Validate and Plan while GoalLoop numeric fields are invalid", () => {
+    render(<ResourceEditorShell orgSlug="acme" kind="GoalLoop" />);
+
+    fireEvent.change(screen.getByLabelText(/^Maximum iterations/), {
+      target: { value: "" },
+    });
+
+    expect(screen.getByRole("button", { name: "Validate" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Generate plan" })).toBeDisabled();
   });
 
   it("shows the GoalLoop resource heading", () => {
@@ -153,7 +195,7 @@ function currentDraft(): GoalLoopDraft {
   return JSON.parse(screen.getByTestId("goal-loop-draft").textContent ?? "");
 }
 
-function expectBounds(label: string, min: string, max: string) {
+function expectBounds(label: RegExp, min: string, max: string) {
   const input = screen.getByLabelText(label);
   expect(input).toHaveAttribute("min", min);
   expect(input).toHaveAttribute("max", max);

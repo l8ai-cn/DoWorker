@@ -4,11 +4,11 @@ import { describe, expect, it, vi } from "vitest";
 import { ExpertHero } from "../ExpertHero";
 
 const labels = vi.hoisted(() => ({
-  "landing.workforce.expertHome.hero.eyebrow": "One expert interface",
-  "landing.workforce.expertHome.hero.title": "Describe the outcome",
-  "landing.workforce.expertHome.hero.description": "One place for the full delivery chain.",
-  "landing.workforce.expertHome.hero.primaryAction": "Create an expert",
-  "landing.workforce.expertHome.hero.secondaryAction": "Explore the operating model",
+  "landing.workforce.expertHome.hero.eyebrow": "Enterprise Agent supply",
+  "landing.workforce.expertHome.hero.title": "Make Agents reusable organizational capacity",
+  "landing.workforce.expertHome.hero.description": "Build and operate governed Agents.",
+  "landing.workforce.expertHome.hero.primaryAction": "Enter the Agent market",
+  "landing.workforce.expertHome.hero.secondaryAction": "Explore the supply system",
   "landing.workforce.expertHome.hero.proof": "Human checkpoints",
   "landing.workforce.expertHome.console.title": "Expert control surface",
   "landing.workforce.expertHome.console.status": "Running",
@@ -34,11 +34,12 @@ const labels = vi.hoisted(() => ({
 
 const rawLabels = vi.hoisted(() => ({
   "landing.workforce.expertHome.console.steps": [
-    "Intake",
-    "Plan",
-    "Execute",
+    "Understand demand",
+    "Match capabilities",
+    "Confirm access",
+    "Coordinate work",
     "Human review",
-    "Deliver",
+    "Deliver evidence",
   ],
 }));
 
@@ -50,13 +51,21 @@ vi.mock("next-intl", () => ({
     ),
 }));
 
-describe("ExpertHero", () => {
-  it("presents one expert interface and a controllable delivery chain", () => {
+describe("Agent supply hero", () => {
+  it("presents the supply proposition and a controllable delivery chain", () => {
     render(<ExpertHero />);
 
-    expect(screen.getByRole("heading", { name: "Describe the outcome" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Make Agents reusable organizational capacity" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Enter the Agent market" })).toHaveAttribute(
+      "href",
+      "/marketplace",
+    );
+    expect(screen.getByRole("link", { name: "Explore the supply system" })).toHaveAttribute(
+      "href",
+      "/product",
+    );
     expect(screen.getByRole("region", { name: "Expert control surface" })).toBeVisible();
-    expect(screen.getAllByRole("listitem")).toHaveLength(5);
+    expect(screen.getAllByRole("listitem")).toHaveLength(6);
     expect(screen.getByRole("button", { name: "Pause" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Next step" })).toBeEnabled();
   });
@@ -72,6 +81,7 @@ describe("ExpertHero", () => {
     expect(nextButton).toBeDisabled();
 
     fireEvent.click(screen.getByRole("button", { name: "Resume" }));
+    fireEvent.click(nextButton);
     fireEvent.click(nextButton);
     fireEvent.click(nextButton);
 

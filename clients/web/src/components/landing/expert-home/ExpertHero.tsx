@@ -25,11 +25,11 @@ export function ExpertHero() {
             {t("landing.workforce.expertHome.hero.description")}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/register" className="expert-primary-button">
+            <Link href="/marketplace" className="expert-primary-button">
               {t("landing.workforce.expertHome.hero.primaryAction")}
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/solutions" className="expert-secondary-button">
+            <Link href="/product" className="expert-secondary-button">
               {t("landing.workforce.expertHome.hero.secondaryAction")}
               <ArrowRight className="h-4 w-4" />
             </Link>

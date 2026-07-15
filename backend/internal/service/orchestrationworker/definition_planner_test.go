@@ -18,6 +18,7 @@ func TestDefinitionPlannerReferencesEveryDeclaredDependency(t *testing.T) {
 	planner, err := NewDefinitionPlanner(
 		resource.KindExpert,
 		&definitionResolverStub{},
+		&goalLoopSlugCheckerStub{},
 	)
 	require.NoError(t, err)
 
@@ -33,7 +34,11 @@ func TestDefinitionPlannerReferencesEveryDeclaredDependency(t *testing.T) {
 
 func TestDefinitionPlannerPinsWorkerTemplateSnapshot(t *testing.T) {
 	resolver := &definitionResolverStub{snapshotID: 91}
-	planner, err := NewDefinitionPlanner(resource.KindGoalLoop, resolver)
+	planner, err := NewDefinitionPlanner(
+		resource.KindGoalLoop,
+		resolver,
+		&goalLoopSlugCheckerStub{},
+	)
 	require.NoError(t, err)
 	scope := definitionScope()
 	workerRef := reference(resource.KindWorkerTemplate, "reviewer")
@@ -73,6 +78,7 @@ func TestDefinitionPlannerBlocksWorkerUpdate(t *testing.T) {
 	planner, err := NewDefinitionPlanner(
 		resource.KindWorker,
 		&definitionResolverStub{snapshotID: 91},
+		&goalLoopSlugCheckerStub{},
 	)
 	require.NoError(t, err)
 	scope := definitionScope()
@@ -100,6 +106,60 @@ func TestDefinitionPlannerBlocksWorkerUpdate(t *testing.T) {
 	assert.Equal(t, "worker-is-create-only", output.Issues[0].Code)
 }
 
+func TestDefinitionPlannerBlocksGoalLoopUpdate(t *testing.T) {
+	planner, err := NewDefinitionPlanner(
+		resource.KindGoalLoop,
+		&definitionResolverStub{},
+		&goalLoopSlugCheckerStub{},
+	)
+	require.NoError(t, err)
+
+	output, err := planner.Plan(context.Background(), controlservice.TargetPlanInput{
+		Scope:     definitionScope(),
+		Operation: control.PlanOperationUpdate,
+		Manifest: resource.Manifest{
+			TypeMeta: planner.TypeMeta(),
+		},
+		TypedSpec: &resource.GoalLoopResourceSpec{},
+	})
+
+	require.NoError(t, err)
+	require.Len(t, output.Issues, 1)
+	assert.Equal(t, control.PlanIssueBlocking, output.Issues[0].Severity)
+	assert.Equal(t, "/", output.Issues[0].Path)
+	assert.Equal(t, "goal-loop-is-create-only", output.Issues[0].Code)
+}
+
+func TestDefinitionPlannerBlocksExistingGoalLoopName(t *testing.T) {
+	checker := &goalLoopSlugCheckerStub{exists: true}
+	planner, err := NewDefinitionPlanner(
+		resource.KindGoalLoop,
+		&definitionResolverStub{},
+		checker,
+	)
+	require.NoError(t, err)
+	scope := definitionScope()
+
+	output, err := planner.Plan(context.Background(), controlservice.TargetPlanInput{
+		Scope: scope,
+		Manifest: resource.Manifest{
+			TypeMeta: planner.TypeMeta(),
+			Metadata: resource.Metadata{
+				Name: slugkit.MustNewForTest("existing-loop"),
+			},
+		},
+		TypedSpec: &resource.GoalLoopResourceSpec{},
+	})
+
+	require.NoError(t, err)
+	require.Len(t, output.Issues, 1)
+	assert.Equal(t, control.PlanIssueBlocking, output.Issues[0].Severity)
+	assert.Equal(t, "/metadata/name", output.Issues[0].Path)
+	assert.Equal(t, "goal-loop-name-already-exists", output.Issues[0].Code)
+	assert.Equal(t, scope.OrganizationID, checker.organizationID)
+	assert.Equal(t, "existing-loop", checker.name)
+}
+
 func TestDefinitionPlannerBlocksMissingPromptInputs(t *testing.T) {
 	resolver := &definitionResolverStub{
 		snapshotID: 91,
@@ -110,7 +170,11 @@ func TestDefinitionPlannerBlocksMissingPromptInputs(t *testing.T) {
 			},
 		},
 	}
-	planner, err := NewDefinitionPlanner(resource.KindWorkflow, resolver)
+	planner, err := NewDefinitionPlanner(
+		resource.KindWorkflow,
+		resolver,
+		&goalLoopSlugCheckerStub{},
+	)
 	require.NoError(t, err)
 	scope := definitionScope()
 	workerRef := reference(resource.KindWorkerTemplate, "reviewer")
@@ -146,7 +210,11 @@ func TestDefinitionPlannerBlocksExpertPromptWithoutRequiredDefaults(t *testing.T
 			},
 		},
 	}
-	planner, err := NewDefinitionPlanner(resource.KindExpert, resolver)
+	planner, err := NewDefinitionPlanner(
+		resource.KindExpert,
+		resolver,
+		&goalLoopSlugCheckerStub{},
+	)
 	require.NoError(t, err)
 	scope := definitionScope()
 	workerRef := reference(resource.KindWorkerTemplate, "reviewer")
@@ -174,6 +242,7 @@ func TestDefinitionPlannerPlansPromptWithoutSnapshot(t *testing.T) {
 	planner, err := NewDefinitionPlanner(
 		resource.KindPrompt,
 		&definitionResolverStub{},
+		&goalLoopSlugCheckerStub{},
 	)
 	require.NoError(t, err)
 	spec := &resource.PromptSpec{
@@ -214,6 +283,22 @@ func (stub *definitionResolverStub) ResolvePromptSpec(
 	_ control.ResolvedReference,
 ) (resource.PromptSpec, error) {
 	return stub.prompt, nil
+}
+
+type goalLoopSlugCheckerStub struct {
+	exists         bool
+	organizationID int64
+	name           string
+}
+
+func (stub *goalLoopSlugCheckerStub) ExistsSlug(
+	_ context.Context,
+	organizationID int64,
+	name string,
+) (bool, error) {
+	stub.organizationID = organizationID
+	stub.name = name
+	return stub.exists, nil
 }
 
 func definitionScope() control.Scope {

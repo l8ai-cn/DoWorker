@@ -54,8 +54,8 @@
       },
       "goalLoop": {
         "name": "GoalLoop",
-        "apply": "미지원",
-        "purpose": "목표 루프를 Validate하고 Plan할 수 있지만 typed Apply는 아직 공개되지 않았습니다."
+        "apply": "지원, 초안 생성",
+        "purpose": "고정된 WorkerSpec 스냅샷으로 GoalLoop 초안을 생성합니다. 시작은 명시적 작업으로 남습니다."
       }
     },
     "referencesTitle": "불변 ResourceRef 해석",
@@ -83,7 +83,7 @@
       }
     },
     "boundaryTitle": "현재 경계",
-    "goalLoopBoundary": "GoalLoop는 Validate와 Plan을 지원하지만 typed Apply 엔드포인트는 아직 없습니다. Plan 성공만으로 Loop가 생성되지 않습니다.",
+    "goalLoopBoundary": "GoalLoop Apply는 고정 revision의 초안을 만들지만 시작하거나 Pod를 생성하지 않습니다. 시작, 검증, 취소는 명시적 Loop 작업입니다.",
     "reconciliationBoundary": "선언형 모델이지만 Kubernetes식 지속 reconciliation은 실행하지 않습니다. Worker나 Pod를 삭제해도 자동 재생성되지 않습니다."
   }
 }

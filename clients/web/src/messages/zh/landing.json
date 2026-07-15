@@ -2,11 +2,13 @@
   "landing": {
     "nav": {
       "home": "首页",
+      "product": "产品",
+      "solutions": "解决方案",
       "scenarios": "应用场景",
       "workflow": "工作流程",
       "capabilities": "平台能力",
       "features": "权限治理",
-      "marketplace": "专家市场",
+      "marketplace": "Agent 市场",
       "docs": "文档",
       "signIn": "登录",
       "getStarted": "立即开始",
@@ -339,7 +341,7 @@
       "highlight3": "自主任务完成"
     },
     "footer": {
-      "tagline": "把分散的 AI 能力组织成真正完成工作的 Expert。",
+      "tagline": "供给 Agent，孵化 AI 原生组织。",
       "copyright": "Do Worker. 保留所有权利。",
       "madeWith": "面向真实工作结果而造",
       "product": {

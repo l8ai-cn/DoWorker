@@ -84,7 +84,9 @@ spec:
 
 ## GoalLoop
 
-GoalLoop 当前支持 schema、Validate 和 Plan，但没有资源 Apply 入口。
+GoalLoop 是 create-only 资源。`CreateGoalLoopFromPlan` 会创建不可变 resource
+revision、固定 WorkerSpec 快照和状态为 `draft` 的 GoalLoop 领域对象。Apply
+不会创建 Pod，也不会自动启动。
 
 ```yaml
 apiVersion: agentsmesh.io/v1alpha1
@@ -109,4 +111,9 @@ spec:
   escalationPolicy: pause
 ```
 
-在 typed Apply 接入前，不要把成功 Plan 当作 GoalLoop 已创建。
+Apply 返回 `goal_loop_id`、`worker_spec_snapshot_id` 和
+`resource_revision`。用户随后从 Loop 列表显式执行 Start；验证与取消也继续使用
+GoalLoop 领域操作。
+
+已有同名资源或历史 GoalLoop 会在 Plan 阶段产生 blocking issue。需要修改目标
+或预算时，应使用新名称创建新的 GoalLoop，而不是更新既有声明。

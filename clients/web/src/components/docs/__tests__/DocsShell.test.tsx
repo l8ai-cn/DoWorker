@@ -7,9 +7,8 @@ const labels = vi.hoisted(() => ({
   "docs.nav.menu": "Documentation menu",
   "docs.title": "Documentation",
   "landing.nav.home": "Home",
-  "landing.nav.scenarios": "Scenarios",
-  "landing.nav.workflow": "How it works",
-  "landing.nav.capabilities": "Capabilities",
+  "landing.nav.product": "Product",
+  "landing.nav.solutions": "Solutions",
   "landing.nav.marketplace": "Marketplace",
   "landing.nav.docs": "Docs",
   "common.allRightsReserved": "All rights reserved",
@@ -58,9 +57,8 @@ describe("DocsShell", () => {
 
     for (const [name, href] of [
       ["Home", "/"],
-      ["Scenarios", "/solutions"],
-      ["How it works", "/how-it-works"],
-      ["Capabilities", "/capabilities"],
+      ["Product", "/product"],
+      ["Solutions", "/solutions"],
       ["Marketplace", "/marketplace"],
       ["Docs", "/docs"],
     ] as const) {

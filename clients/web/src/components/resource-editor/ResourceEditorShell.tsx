@@ -42,6 +42,7 @@ export function ResourceEditorShell({
   const t = useTranslations("resourceEditor");
   const controller = useResourceEditorController(orgSlug, kind);
   const { state } = controller;
+  const isApplying = state.apply.status === "loading";
   const status = state.apply.status === "ready"
     ? "applied"
     : state.plan.status === "ready" && state.plan.response.plan
@@ -49,7 +50,11 @@ export function ResourceEditorShell({
       : "draft";
 
   return (
-    <section className="space-y-5" data-testid="resource-editor">
+    <section
+      className="space-y-5"
+      data-testid="resource-editor"
+      aria-busy={isApplying}
+    >
       <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
         <div>
           <h2 className="text-lg font-semibold">
@@ -69,12 +74,16 @@ export function ResourceEditorShell({
         </Badge>
       </header>
 
-      <Tabs
-        value={state.mode}
-        onValueChange={(value) => {
-          void controller.setMode(value as "form" | "yaml" | "plan");
-        }}
+      <fieldset
+        disabled={isApplying}
+        className="m-0 min-w-0 space-y-5 border-0 p-0"
       >
+        <Tabs
+          value={state.mode}
+          onValueChange={(value) => {
+            void controller.setMode(value as "form" | "yaml" | "plan");
+          }}
+        >
         <TabsList className="h-auto max-w-full overflow-x-auto">
           <TabsTrigger value="form">
             <SlidersHorizontal className="mr-2 h-4 w-4" />
@@ -107,24 +116,26 @@ export function ResourceEditorShell({
         <TabsContent value="plan" className="pt-4">
           <ResourcePlanReview planState={state.plan} />
         </TabsContent>
-      </Tabs>
+        </Tabs>
 
-      <ResourceEditorFeedback state={state} />
-      <ResourceEditorActions
-        state={state}
-        kind={kind}
-        canApply={controller.canApply}
-        onValidate={() => void controller.runValidation()}
-        onPlan={() => void controller.runPlan()}
-        onApply={() => {
-          void controller.apply().then((result) => {
-            if (result) onApplied?.(result);
-            if (kind === "Worker" && result && "podKey" in result) {
-              onWorkerCreated?.(result.podKey);
-            }
-          });
-        }}
-      />
+        <ResourceEditorFeedback state={state} />
+        <ResourceEditorActions
+          state={state}
+          kind={kind}
+          canSubmit={controller.canSubmit}
+          canApply={controller.canApply}
+          onValidate={() => void controller.runValidation()}
+          onPlan={() => void controller.runPlan()}
+          onApply={() => {
+            void controller.apply().then((result) => {
+              if (result) onApplied?.(result);
+              if (kind === "Worker" && result && "podKey" in result) {
+                onWorkerCreated?.(result.podKey);
+              }
+            });
+          }}
+        />
+      </fieldset>
     </section>
   );
 }

@@ -136,6 +136,9 @@ func (m *AccessTokenManager) ValidateToken(
 	if !token.Valid {
 		return nil, ErrInvalidToken
 	}
+	if claims.TokenUse != "" {
+		return nil, ErrInvalidToken
+	}
 	return claims, nil
 }
 

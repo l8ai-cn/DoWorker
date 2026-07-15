@@ -13,18 +13,24 @@ export async function switchYamlToForm(
   expectedKind: ResourceEditorKind,
   version: number,
   dispatch: Dispatch<ResourceDraftAction>,
+  isCurrent: () => boolean,
 ): Promise<boolean> {
   const codec = await import("./resource-yaml-codec");
+  if (!isCurrent()) return false;
   try {
     codec.parseResourceYaml(source, expectedKind);
   } catch (error) {
-    dispatch({
-      type: "source_invalid",
-      error: safeResourceError(error, "YAML validation failed."),
-    });
+    if (isCurrent()) {
+      dispatch({
+        type: "source_invalid",
+        error: safeResourceError(error, "YAML validation failed."),
+        version,
+      });
+    }
     return false;
   }
 
+  if (!isCurrent()) return false;
   const requestId = crypto.randomUUID();
   dispatch({ type: "validation_loading", requestId, version });
   try {
@@ -32,6 +38,7 @@ export async function switchYamlToForm(
       format: SourceFormat.YAML,
       content: source,
     });
+    if (!isCurrent()) return false;
     dispatch({
       type: "validation_succeeded",
       requestId,
@@ -44,24 +51,31 @@ export async function switchYamlToForm(
       dispatch({
         type: "source_invalid",
         error: "Resource document failed validation.",
+        version,
       });
       return false;
     }
+    const draft = codec.parseCanonicalResourceJson(
+      response.canonicalJson,
+      expectedKind,
+    );
+    if (!isCurrent()) return false;
     dispatch({
-      type: "source_parsed",
-      draft: codec.parseCanonicalResourceJson(
-        response.canonicalJson,
-        expectedKind,
-      ),
+      type: "yaml_form_loaded",
+      requestId,
+      version,
+      response,
+      draft,
     });
-    dispatch({ type: "set_mode", mode: "form" });
     return true;
   } catch (error) {
-    dispatch({
-      type: "validation_failed",
-      requestId,
-      error: safeResourceError(error, "Resource validation failed."),
-    });
+    if (isCurrent()) {
+      dispatch({
+        type: "validation_failed",
+        requestId,
+        error: safeResourceError(error, "Resource validation failed."),
+      });
+    }
     return false;
   }
 }

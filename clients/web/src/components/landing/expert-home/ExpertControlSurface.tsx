@@ -66,7 +66,7 @@ export function ExpertControlSurface() {
         <p className="text-[10px] font-semibold uppercase text-[var(--expert-muted)]">
           {t("landing.workforce.expertHome.console.workflowLabel")}
         </p>
-        <ol className="mt-4 grid grid-cols-5 gap-2">
+        <ol className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6 sm:gap-2">
           {steps.map((step, index) => {
             const complete = index < activeStep;
             const active = index === activeStep;

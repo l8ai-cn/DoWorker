@@ -59,6 +59,20 @@ describe("resource YAML codec", () => {
       .toThrow("64 KiB");
   });
 
+  it("rejects integers that JavaScript cannot represent exactly", () => {
+    const source = [
+      "apiVersion: agentsmesh.io/v1alpha1",
+      "kind: GoalLoop",
+      "metadata:",
+      "  name: release-loop",
+      "spec:",
+      "  tokenBudget: 9007199254740993",
+    ].join("\n");
+
+    expect(() => parseResourceYaml(source, "GoalLoop"))
+      .toThrow("safe integer range");
+  });
+
   it("round trips a Worker invocation without changing kind", () => {
     const draft = createWorkerInvocationDraft("acme");
     draft.metadata.name = "review-run";

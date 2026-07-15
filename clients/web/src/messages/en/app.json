@@ -561,6 +561,13 @@
     "validation": {
       "valid": "The resource is valid."
     },
+    "numberErrors": {
+      "required": "Enter a whole number.",
+      "integer": "Use a whole number without decimals.",
+      "safeInteger": "Use an integer within the safe numeric range.",
+      "minimum": "Use a whole number of at least {min}.",
+      "range": "Use a whole number from {min} to {max}."
+    },
     "actions": {
       "validate": "Validate",
       "validating": "Validating",

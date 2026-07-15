@@ -38,14 +38,14 @@ Worker 引用一个 WorkerTemplate，可附加 Prompt、输入和别名。它是
 
 ### 创建目标 Loop
 
-Loop 必须有完成定义，创建后可以保存为草稿或立即启动。当前 Loop 产品流程选择
-已有 Worker 的不可变快照，因此不能重新填写 Runner、Agent、凭据或工作区。
-`GoalLoop` YAML schema 改为引用 WorkerTemplate，但 typed Apply 尚未开放。
+Loop 必须有完成定义。GoalLoop 资源引用 WorkerTemplate，Plan 固定实际 revision
+并编译 WorkerSpec 快照；Apply 只创建 `draft`，不会立即启动。Runner、Agent、
+凭据和工作区来自固定快照，不能在 GoalLoop 中复制或覆盖。
 
 | 字段 | 必填 | 说明 |
 | --- | --- | --- |
 | 名称 | 是 | 目标任务名称 |
-| 执行 Worker | 是 | 选择已有 Worker 的不可变配置快照 |
+| WorkerTemplate | 是 | Plan 时固定 revision 并编译 WorkerSpec 快照 |
 | 目标 | 是 | 这一次必须达成的结果 |
 | 验收标准 | 是 | 每条都应可检查 |
 | 验证命令 | 是 | Runner 在工作区执行；退出码 `0` 才会完成 |
@@ -56,6 +56,7 @@ Loop 必须有完成定义，创建后可以保存为草稿或立即启动。当
 | 升级策略 | 否 | 暂停等待人工处理，或标记失败 |
 
 Loop 不包含 Cron、并发策略、回调地址、跨运行会话或历史保留。
+创建完成后，用户必须在 Loop 列表显式启动；Apply 成功不等于已进入 active。
 
 ### 创建 Workflow
 

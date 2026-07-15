@@ -1,23 +1,17 @@
 "use client";
 
 import {
-  BarChart3,
-  Code2,
-  FileText,
-  Film,
-  GraduationCap,
-  Headphones,
-  Image,
-  Library,
-  Presentation,
-  Search,
+  Factory,
+  PanelsTopLeft,
+  ShieldCheck,
   Store,
+  Workflow,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { CapabilityLevel, LocalizedCapability } from "./expert-home-content";
 
-const icons = [Code2, Search, FileText, Presentation, Library, Film, Image, Headphones, Film, BarChart3, GraduationCap, Store];
+const icons = [Factory, Store, PanelsTopLeft, Workflow, ShieldCheck];
 const levelClasses: Record<CapabilityLevel, string> = {
   implemented: "border-[var(--expert-status)] text-[var(--expert-status)]",
   composable: "border-[var(--expert-info)] text-[var(--expert-info)]",
@@ -62,7 +56,7 @@ export function CapabilitySpectrum({ showIntro = true }: { showIntro?: boolean }
           ))}
         </div>
 
-        <div className={`${showIntro ? "mt-12 " : "mt-8 "}grid gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4`}>
+        <div className={`${showIntro ? "mt-12 " : "mt-8 "}grid gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-5`}>
           {items.map((item, index) => {
             const Icon = icons[index];
             return (
