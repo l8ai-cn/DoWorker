@@ -7,6 +7,18 @@ export { ConversationComposer } from "./ConversationComposer";
 export { ConversationEmptyState } from "./ConversationEmptyState";
 export { DEFAULT_AGENT_COMMANDS } from "./defaultCommands";
 export { MarkdownMessage } from "./MarkdownMessage";
+export {
+  ContentRendererRegistry,
+  type ContentRendererRegistration,
+} from "./registry/ContentRendererRegistry";
+export {
+  ToolRendererRegistry,
+  type ToolRendererRegistration,
+} from "./registry/ToolRendererRegistry";
+export type {
+  ContentRendererKey,
+  ToolRendererKey,
+} from "./registry/rendererKeys";
 export { markdownImageSource } from "./security/markdownResourcePolicy";
 export {
   STATIC_HTML_CSP,
