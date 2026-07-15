@@ -46,14 +46,18 @@ func (o *PodOrchestrator) dispatchCreatedPod(
 		}
 		return &OrchestrateCreatePodResult{Pod: pod, Queued: true}, nil
 	case errors.Is(dispatchErr, podDomain.ErrQueueFull):
-		if markErr := o.podService.MarkDispatchFailed(ctx, pod.PodKey, errCodeQueueFull,
+		cleanupCtx, cancel := detachedCleanupContext(ctx)
+		defer cancel()
+		if markErr := o.podService.MarkDispatchFailed(cleanupCtx, pod.PodKey, errCodeQueueFull,
 			"Runner pending queue is full"); markErr != nil {
 			slog.ErrorContext(ctx, "failed to mark pod after queue-full", "pod_key", pod.PodKey, "error", markErr)
 		}
 		return nil, podDomain.ErrQueueFull
 	default:
 		slog.ErrorContext(ctx, "failed to dispatch create_pod", "pod_key", pod.PodKey, "error", dispatchErr)
-		if markErr := o.podService.MarkDispatchFailed(ctx, pod.PodKey, errCodeRunnerUnreachable,
+		cleanupCtx, cancel := detachedCleanupContext(ctx)
+		defer cancel()
+		if markErr := o.podService.MarkDispatchFailed(cleanupCtx, pod.PodKey, errCodeRunnerUnreachable,
 			"Failed to dispatch pod to runner: "+dispatchErr.Error()); markErr != nil {
 			slog.ErrorContext(ctx, "failed to mark pod as dispatch failed", "pod_key", pod.PodKey, "error", markErr)
 		}

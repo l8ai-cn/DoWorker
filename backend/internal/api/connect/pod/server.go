@@ -19,6 +19,7 @@ import (
 	"context"
 	"time"
 
+	conversationitemdomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/grant"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
@@ -76,6 +77,11 @@ type WorkerDraftFiller interface {
 	) (workercreation.FillResult, error)
 }
 
+type ConversationItemWriter interface {
+	NextPosition(context.Context, string) (int64, error)
+	Append(context.Context, *conversationitemdomain.Item) error
+}
+
 type relayTokenGenerator interface {
 	GenerateToken(string, int64, int64, int64, time.Duration) (string, error)
 }
@@ -97,6 +103,7 @@ type Server struct {
 	eventBus          *eventbus.EventBus
 	workerCreation    WorkerCreationAPI
 	workerDraftFiller WorkerDraftFiller
+	conversationItems ConversationItemWriter
 	mobileBaseURL     string
 }
 
@@ -157,6 +164,10 @@ func WithWorkerCreation(service WorkerCreationAPI) Option {
 
 func WithWorkerDraftFiller(filler WorkerDraftFiller) Option {
 	return func(server *Server) { server.workerDraftFiller = filler }
+}
+
+func WithConversationItems(items ConversationItemWriter) Option {
+	return func(server *Server) { server.conversationItems = items }
 }
 
 func WithMobileBaseURL(baseURL string) Option {

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
@@ -115,6 +116,7 @@ func (h *PodHandler) CreatePod(c *gin.Context) {
 		QueueIfUnavailable: req.QueueIfOffline,
 		ModelResourceID:    req.ModelResourceID,
 		TokenBudget:        req.TokenBudget,
+		SessionProvision:   &sessionDomain.ProvisionSpec{},
 	}
 	if req.QueueIfOffline {
 		ttl := req.QueueTTLMinutes

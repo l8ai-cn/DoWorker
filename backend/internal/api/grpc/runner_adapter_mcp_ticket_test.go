@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	airesource "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 )
 
 func TestMapOrchestratorErrorToMCP(t *testing.T) {
@@ -31,6 +32,12 @@ func TestMapOrchestratorErrorToMCP(t *testing.T) {
 			err:         agentpod.ErrMissingAgentSlug,
 			wantCode:    400,
 			wantMessage: "agent_slug is required",
+		},
+		{
+			name:        "disabled model resource -> 400",
+			err:         airesource.ErrDisabled,
+			wantCode:    400,
+			wantMessage: "selected model resource is disabled",
 		},
 		{
 			name:        "ErrSourcePodNotTerminated -> 400",

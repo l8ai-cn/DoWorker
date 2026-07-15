@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	airesource "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
@@ -52,6 +54,7 @@ func (a *GRPCRunnerAdapter) mcpCreatePod(ctx context.Context, tc *middleware.Ten
 		Rows:               params.Rows,
 		SourcePodKey:       params.SourcePodKey,
 		ResumeAgentSession: params.ResumeAgentSession,
+		SessionProvision:   &sessionDomain.ProvisionSpec{},
 	})
 	if err != nil {
 		return nil, mapOrchestratorErrorToMCP(err)
@@ -79,6 +82,8 @@ func mapOrchestratorErrorToMCP(err error) *mcpError {
 		return newMcpError(400, "runner_id is required")
 	case errors.Is(err, agentpod.ErrMissingAgentSlug):
 		return newMcpError(400, "agent_slug is required")
+	case errors.Is(err, airesource.ErrDisabled):
+		return newMcpError(400, "selected model resource is disabled")
 	case errors.Is(err, agentpod.ErrSourcePodNotTerminated):
 		return newMcpError(400, "source pod is not terminated")
 	case errors.Is(err, agentpod.ErrResumeRunnerMismatch):

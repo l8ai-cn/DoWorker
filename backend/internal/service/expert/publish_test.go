@@ -2,6 +2,7 @@ package expert
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	poddomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	sessiondomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
+	itemdomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
@@ -173,7 +176,13 @@ func TestRunDispatchesSnapshotWithOnlyAliasAndPromptOverrides(t *testing.T) {
 		WorkerSpecSnapshotID: &snapshotID,
 	}))
 	dispatcher := &fakeDispatcher{}
-	service := NewService(Deps{Store: store, Dispatch: dispatcher})
+	items := &expertConversationItemWriter{position: 1}
+	service := NewService(Deps{
+		Store:       store,
+		Dispatch:    dispatcher,
+		WorkerSpecs: &expertSnapshotLoader{snapshot: expertWorkerSpecSnapshot(snapshotID, 7)},
+		Items:       items,
+	})
 	alias := "one-off"
 	prompt := "Review only the security boundary."
 
@@ -196,6 +205,87 @@ func TestRunDispatchesSnapshotWithOnlyAliasAndPromptOverrides(t *testing.T) {
 	assert.Empty(t, dispatcher.lastReq.AgentSlug)
 	assert.Nil(t, dispatcher.lastReq.RepositoryID)
 	assert.Nil(t, dispatcher.lastReq.AgentfileLayer)
+	require.NotNil(t, dispatcher.lastReq.SessionProvision)
+	assert.False(t, dispatcher.lastReq.SessionProvision.UpdateExisting)
+	require.NotNil(t, dispatcher.lastReq.PrepareSession)
+	require.NoError(t, dispatcher.lastReq.PrepareSession(
+		context.Background(),
+		&sessiondomain.Session{ID: "conv-review"},
+	))
+	require.NotNil(t, items.item)
+	assert.Equal(t, "conv-review", items.item.SessionID)
+	var payload struct {
+		Role    string `json:"role"`
+		Content []struct {
+			Text string `json:"text"`
+		} `json:"content"`
+	}
+	require.NoError(t, json.Unmarshal(items.item.Payload, &payload))
+	assert.Equal(t, "user", payload.Role)
+	require.Len(t, payload.Content, 1)
+	assert.Equal(t, prompt, payload.Content[0].Text)
+}
+
+func TestRunPersistsSnapshotInitialTaskWithoutPromptOverride(t *testing.T) {
+	snapshotID := int64(42)
+	store := newFakeStore()
+	require.NoError(t, store.Create(context.Background(), &expertdom.Expert{
+		OrganizationID:       7,
+		Slug:                 "review",
+		Name:                 "Review",
+		WorkerSpecSnapshotID: &snapshotID,
+	}))
+	dispatcher := &fakeDispatcher{}
+	items := &expertConversationItemWriter{position: 1}
+	service := NewService(Deps{
+		Store:       store,
+		Dispatch:    dispatcher,
+		WorkerSpecs: &expertSnapshotLoader{snapshot: expertWorkerSpecSnapshot(snapshotID, 7)},
+		Items:       items,
+	})
+
+	_, err := service.Run(context.Background(), &RunExpertRequest{
+		OrganizationID: 7,
+		UserID:         5,
+		ExpertSlug:     "review",
+	})
+
+	require.NoError(t, err)
+	require.NotNil(t, dispatcher.lastReq)
+	require.NotNil(t, dispatcher.lastReq.PrepareSession)
+	require.NoError(t, dispatcher.lastReq.PrepareSession(
+		context.Background(),
+		&sessiondomain.Session{ID: "conv-review"},
+	))
+	require.NotNil(t, items.item)
+	var payload struct {
+		Content []struct {
+			Text string `json:"text"`
+		} `json:"content"`
+	}
+	require.NoError(t, json.Unmarshal(items.item.Payload, &payload))
+	require.Len(t, payload.Content, 1)
+	assert.Equal(t, "Run checks.", payload.Content[0].Text)
+}
+
+type expertConversationItemWriter struct {
+	position int64
+	item     *itemdomain.Item
+}
+
+func (writer *expertConversationItemWriter) NextPosition(
+	context.Context,
+	string,
+) (int64, error) {
+	return writer.position, nil
+}
+
+func (writer *expertConversationItemWriter) Append(
+	_ context.Context,
+	item *itemdomain.Item,
+) error {
+	writer.item = item
+	return nil
 }
 
 type expertPodLoader struct {

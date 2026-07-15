@@ -10,6 +10,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/agentfile/serialize"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 )
@@ -113,6 +114,15 @@ func (s *Service) Run(ctx context.Context, req *RunExpertRequest) (*RunExpertRes
 	if s.dispatch == nil {
 		return nil, ErrExpertDispatchUnavailable
 	}
+	prepareSession, err := s.prepareRunInitialMessage(
+		ctx,
+		req.OrganizationID,
+		*expert.WorkerSpecSnapshotID,
+		req.PromptOverride,
+	)
+	if err != nil {
+		return nil, err
+	}
 	orchReq := &agentpodSvc.OrchestrateCreatePodRequest{
 		OrganizationID:           req.OrganizationID,
 		UserID:                   req.UserID,
@@ -121,6 +131,8 @@ func (s *Service) Run(ctx context.Context, req *RunExpertRequest) (*RunExpertRes
 		WorkerSpecPromptOverride: req.PromptOverride,
 		Cols:                     req.Cols,
 		Rows:                     req.Rows,
+		SessionProvision:         &sessionDomain.ProvisionSpec{},
+		PrepareSession:           prepareSession,
 	}
 	result, err := s.dispatch.CreatePod(ctx, orchReq)
 	if err != nil {

@@ -3,6 +3,7 @@ package sessionapi
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"time"
 
 	domainitem "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
@@ -22,9 +23,12 @@ func initialItemsContainAttachments(items []json.RawMessage) bool {
 	return false
 }
 
-func (d *Deps) persistInitialUserItems(ctx context.Context, sessionID string, items []json.RawMessage) {
-	if d.Items == nil || len(items) == 0 {
-		return
+func (d *Deps) persistInitialUserItems(ctx context.Context, sessionID string, items []json.RawMessage) error {
+	if len(items) == 0 {
+		return nil
+	}
+	if d.Items == nil {
+		return errors.New("conversation item service unavailable")
 	}
 	for _, raw := range items {
 		var evt struct {
@@ -46,26 +50,32 @@ func (d *Deps) persistInitialUserItems(ctx context.Context, sessionID string, it
 		}
 		itemID, err := itemsvc.NewItemID()
 		if err != nil {
-			continue
+			return err
 		}
 		respID, err := itemsvc.NewResponseID()
 		if err != nil {
-			continue
+			return err
 		}
 		pos, err := d.Items.NextPosition(ctx, sessionID)
 		if err != nil {
-			continue
+			return err
 		}
-		payload, _ := json.Marshal(map[string]any{
+		payload, err := json.Marshal(map[string]any{
 			"id": itemID, "type": "message", "response_id": respID, "status": "completed",
 			"role": "user", "content": content,
 		})
-		_ = d.Items.Append(ctx, &domainitem.Item{
+		if err != nil {
+			return err
+		}
+		if err := d.Items.Append(ctx, &domainitem.Item{
 			ID: itemID, SessionID: sessionID, ItemType: "message", ResponseID: respID,
 			Status: "completed", Position: pos, Payload: payload, CreatedAt: time.Now(),
-		})
+		}); err != nil {
+			return err
+		}
 		if d.Stream != nil {
 			d.Stream.PublishInputConsumed(sessionID, itemID, "", content)
 		}
 	}
+	return nil
 }

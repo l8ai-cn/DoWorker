@@ -232,6 +232,7 @@ func main() {
 		Dispatch:    podOrchestrator,
 		Repos:       services.repository,
 		WorkerSpecs: services.workerSpecs,
+		Items:       services.conversationItems,
 		Gitops:      expertGitops,
 		Logger:      appLogger.Logger,
 	})

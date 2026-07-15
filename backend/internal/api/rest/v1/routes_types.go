@@ -8,6 +8,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra/websocket"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
 	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
@@ -57,7 +58,8 @@ type Services struct {
 	RunnerConnMgr      *runner.RunnerConnectionManager // Runner gRPC connection manager
 	PodCoordinator     *runner.PodCoordinator          // Pod lifecycle coordinator
 	Pod                *agentpod.PodService
-	PodOrchestrator    *agentpod.PodOrchestrator            // Unified Pod creation orchestrator
+	PodOrchestrator    *agentpod.PodOrchestrator // Unified Pod creation orchestrator
+	AgentSessions      *sessionsvc.Service
 	Autopilot          *agentpod.AutopilotControllerService // AutopilotController automation service
 	Channel            *channel.Service
 	Ticket             *ticket.Service
