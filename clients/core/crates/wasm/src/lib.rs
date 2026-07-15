@@ -32,6 +32,7 @@ mod service_workflow;
 mod service_mesh;
 mod service_mesh_connect;
 mod service_notification;
+mod service_orchestration_resource;
 mod service_org;
 mod service_pod;
 mod service_pod_worker_creation;
@@ -62,6 +63,8 @@ mod state_ticket;
 mod ws_transport;
 
 #[cfg(test)]
+mod service_orchestration_resource_tests;
+#[cfg(test)]
 mod service_pod_worker_creation_tests;
 
 pub use api::*;
@@ -89,6 +92,7 @@ pub use service_kb::*;
 pub use service_workflow::*;
 pub use service_mesh::*;
 pub use service_notification::*;
+pub use service_orchestration_resource::*;
 pub use service_org::*;
 pub use service_pod::*;
 pub use service_promocode::*;

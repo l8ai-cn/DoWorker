@@ -50,6 +50,11 @@ pub const DOMAINS: &[Domain] = &[
     Domain { name: "mesh", srcs: &["mesh.proto"], deps: &[] },
     Domain { name: "mesh_state", srcs: &["mesh_state.proto"], deps: &["mesh"] },
     Domain { name: "notification", srcs: &["notification.proto"], deps: &[] },
+    Domain {
+        name: "orchestration_resource",
+        srcs: &["orchestration_resource.proto"],
+        deps: &[],
+    },
     Domain { name: "pod_state", srcs: &["pod_state.proto"], deps: &["pod"] },
     Domain { name: "promocode", srcs: &["promocode.proto", "promocode_admin.proto"], deps: &[] },
     Domain { name: "repository", srcs: &["repository.proto"], deps: &[] },

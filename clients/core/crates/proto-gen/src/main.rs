@@ -83,7 +83,7 @@ fn generate_domain(
     let mut config = prost_build::Config::new();
     config.out_dir(&tmp);
     config.type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]");
-    config.type_attribute(".", "#[serde(default)]");
+    config.message_attribute(".", "#[serde(default)]");
 
     for dep in domain.deps {
         let path = format!("::{dep}_proto::proto::{}::v1", rust_mod(dep));

@@ -19,6 +19,7 @@ pub mod license;
 pub mod workflow_connect;
 pub mod mesh_connect;
 pub mod notification_connect;
+pub mod orchestration_resource;
 pub mod organization;
 pub mod pod;
 pub mod promocode_connect;

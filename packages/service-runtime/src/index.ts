@@ -17,6 +17,7 @@ export {
   getAutopilotState, getRelayManager, getBlockstoreService,
   getKnowledgeBaseService,
   getAIResourceService,
+  getOrchestrationResourceService,
   getExecutionClusterService,
 } from "./service-getters";
 
