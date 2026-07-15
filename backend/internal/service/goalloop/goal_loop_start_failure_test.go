@@ -11,6 +11,7 @@ import (
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
 	workerspecdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	agentpodsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
@@ -61,6 +62,25 @@ func TestStartDoesNotCreatePodWhenStatusClaimIsLost(t *testing.T) {
 	require.ErrorIs(t, err, ErrInvalidState)
 	require.Zero(t, creator.calls)
 	require.Equal(t, domain.StatusDraft, loop.Status)
+}
+
+func TestStartRejectsStaleWorkerSnapshotBeforeClaim(t *testing.T) {
+	loop := startableGoalLoop()
+	repo := newGoalLoopTestRepo(loop)
+	creator := &countingLoopPodCreator{}
+	service := startFailureService(repo, &goalLoopTerminator{})
+	service.podCreator = creator
+	service.SetWorkerTypeSnapshotValidator(&goalLoopWorkerTypeValidator{
+		errs: []error{workercreation.ErrWorkerTypeDefinitionChanged},
+	})
+
+	started, err := service.Start(context.Background(), 1, 2, loop.Slug)
+
+	require.Nil(t, started)
+	require.ErrorIs(t, err, ErrInvalidInput)
+	require.Equal(t, domain.StatusDraft, loop.Status)
+	require.Zero(t, creator.calls)
+	require.Nil(t, loop.VerificationError)
 }
 
 func TestStartTerminatesCreatedPodWhenCancelWins(t *testing.T) {

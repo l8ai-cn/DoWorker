@@ -1,5 +1,9 @@
 import { expect, test } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import {
+  cleanupLoopRuntimeFixture,
+  createLoopRuntimeFixture,
+} from "../../helpers/loop-runtime-fixture";
 
 test.describe("Loop workbench", () => {
   test("keeps Blockly and LoopScript synchronized through invalid edits", async ({
@@ -8,15 +12,13 @@ test.describe("Loop workbench", () => {
     await page.goto(`/${TEST_ORG_SLUG}/loops/workbench`);
 
     await expect(
-      page.getByRole("heading", { name: "Loop 工作台" }),
+      page.getByRole("heading", { name: "循环工作台" }),
     ).toBeVisible();
-    const runButton = page.getByRole("button", { name: "发给 AI 运行" });
+    const runButton = page.getByRole("button", { name: "运行循环" });
     await expect(runButton).toBeEnabled();
 
     await page
-      .getByRole("button", {
-        name: "Edit text: 修复结算页税额计算，并补充边界测试。",
-      })
+      .getByText("修复结算页税额计算，并补充边界测试。", { exact: true })
       .click();
     const blocklyInput = page.locator(".blocklyHtmlInput");
     await blocklyInput.fill("浏览器积木联动验证");
@@ -35,7 +37,7 @@ test.describe("Loop workbench", () => {
 
     await expect(runButton).toBeDisabled();
     await expect(
-      page.getByText("loop.syntax.unexpected-token"),
+      page.getByText("循环脚本结构不符合语法"),
     ).toBeVisible();
 
     await codeEditor.fill(validSource);
@@ -48,21 +50,49 @@ test.describe("Loop workbench", () => {
       ),
     );
     await expect(
-      page.getByRole("button", {
-        name: "Edit text: 浏览器代码联动验证",
-      }),
+      page.getByText("浏览器代码联动验证", { exact: true }),
     ).toBeVisible();
   });
 
-  test("creates and starts a real GoalLoop from LoopScript", async ({ page }) => {
-    await page.goto(`/${TEST_ORG_SLUG}/loops/workbench`);
+  test("selects a runtime before starting a real GoalLoop", async ({
+    page,
+    db,
+    monitor,
+  }) => {
+    monitor.allow(/GoalLoopService\/RunLoopProgram/);
+    const runtime = createLoopRuntimeFixture(db);
+    try {
+      await page.goto(`/${TEST_ORG_SLUG}/loops/workbench`);
 
-    const runButton = page.getByRole("button", { name: "发给 AI 运行" });
-    await expect(runButton).toBeEnabled();
-    await runButton.click();
+      const runButton = page.getByRole("button", { name: "运行循环" });
+      await expect(runButton).toBeEnabled();
+      await runButton.click();
 
-    await expect(page.getByText("尚未发起真实 GoalLoop。")).toBeHidden();
-    await expect(page.getByText(/状态 active/)).toBeVisible();
-    await expect(page.getByText(/Pod \S+/)).toBeVisible();
+      const dialog = page.getByRole("dialog", { name: "选择运行环境" });
+      await expect(dialog).toContainText(
+        "运行环境只在本次启动时绑定，不属于循环编排。",
+      );
+      const startButton = dialog.getByRole("button", { name: "启动循环" });
+      await expect(startButton).toBeDisabled();
+      await dialog.getByRole("button", { name: "选择运行环境" }).click();
+      await dialog.getByRole("option", { name: new RegExp(runtime.alias) }).click();
+      await expect(startButton).toBeEnabled();
+      await startButton.click();
+
+      await expect(
+        page.getByText("循环启动失败，请确认运行环境仍然可用"),
+      ).toBeVisible();
+      expect(
+        db.queryValue(`
+          SELECT status
+          FROM goal_loops
+          WHERE worker_spec_snapshot_id = ${runtime.snapshotId}
+          ORDER BY id DESC
+          LIMIT 1
+        `),
+      ).toBe("failed");
+    } finally {
+      cleanupLoopRuntimeFixture(db, runtime);
+    }
   });
 });

@@ -174,6 +174,13 @@ func (*snapshotRepositoryForTest) GetByID(
 	return domain.Snapshot{}, domain.ErrNotFound
 }
 
+func (*snapshotRepositoryForTest) ListByOrganization(
+	context.Context,
+	int64,
+) ([]domain.Snapshot, error) {
+	return nil, nil
+}
+
 func validScopeForTest() Scope {
 	return Scope{OrgID: 77, UserID: 7}
 }
