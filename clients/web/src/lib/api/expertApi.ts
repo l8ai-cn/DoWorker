@@ -50,6 +50,8 @@ export interface Expert {
   agentfile_layer?: string | null;
   source_pod_key?: string | null;
   worker_spec_snapshot_id?: number | null;
+  source_market_application_id?: number | null;
+  source_market_release_id?: number | null;
   run_count: number;
   last_run_at?: string | null;
   created_at: string;

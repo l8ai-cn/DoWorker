@@ -2,7 +2,7 @@ package workerruntime
 
 import "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 
-const DefaultCatalogRevision = "runtime-catalog-2026-07-10"
+const DefaultCatalogRevision = "runtime-catalog-2026-07-15"
 
 type CatalogRuntimeImage struct {
 	ID              int64
@@ -69,6 +69,15 @@ func DefaultCatalog() Catalog {
 				Reference:       "repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
 				Digest:          "sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
 				WorkerTypeSlugs: []string{"gemini-cli"},
+				Enabled:         true,
+			},
+			{
+				ID:              4,
+				Slug:            "video-studio-stable",
+				Name:            "Video Studio",
+				Reference:       "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:21bc8f143d304f361b58862b9c33b4e7257307132f9507cf22d461fca1d61716",
+				Digest:          "sha256:21bc8f143d304f361b58862b9c33b4e7257307132f9507cf22d461fca1d61716",
+				WorkerTypeSlugs: []string{"video-studio"},
 				Enabled:         true,
 			},
 		},

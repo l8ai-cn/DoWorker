@@ -38,6 +38,12 @@ export type {
   LoginRequest,
   LoginResponse,
 } from "./adminTypesExtended";
+export type {
+  ExpertMarketRelease,
+  ExpertMarketReleaseList,
+  ExpertMarketReleaseListParams,
+  ExpertMarketReleaseStatus,
+} from "./adminExpertMarketTypes";
 
 // Dashboard & Users
 export { getDashboardStats, listUsers, getUser, updateUser, disableUser, enableUser, grantAdmin, revokeAdmin, verifyUserEmail, unverifyUserEmail } from "./adminUsers";
@@ -62,6 +68,9 @@ export { listRelays, getRelayStats, getRelay, forceUnregisterRelay, listSessions
 
 // Support Tickets
 export { listSupportTickets, getSupportTicketStats, getSupportTicketDetail, getSupportTicketMessages, replySupportTicket, updateSupportTicketStatus, assignSupportTicket, getSupportTicketAttachmentUrl } from "./adminSupportTickets";
+
+// Expert Marketplace
+export { listExpertMarketReleases, getExpertMarketRelease, approveExpertMarketRelease, rejectExpertMarketRelease } from "./adminExpertMarket";
 
 // Auth
 export { login, getCurrentAdmin } from "./adminAuth";

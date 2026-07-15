@@ -43,6 +43,7 @@ func (status ReleaseStatus) Valid() bool {
 type Release struct {
 	ID                      int64         `gorm:"primaryKey" json:"id"`
 	ApplicationID           int64         `gorm:"not null;index" json:"application_id"`
+	ApplicationSlug         string        `gorm:"-" json:"application_slug,omitempty"`
 	SourceExpertID          int64         `gorm:"not null" json:"source_expert_id"`
 	PublisherOrganizationID int64         `gorm:"not null;index" json:"publisher_organization_id"`
 	PublisherUserID         int64         `gorm:"not null" json:"publisher_user_id"`

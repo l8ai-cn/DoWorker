@@ -34,6 +34,20 @@ func Normalize(spec Spec) (Spec, error) {
 	sort.Slice(normalized.Workspace.SkillIDs, func(i, j int) bool {
 		return normalized.Workspace.SkillIDs[i] < normalized.Workspace.SkillIDs[j]
 	})
+	normalized.Workspace.SkillPackages = append(
+		[]SkillPackageBinding{},
+		spec.Workspace.SkillPackages...,
+	)
+	for index := range normalized.Workspace.SkillPackages {
+		pkg := &normalized.Workspace.SkillPackages[index]
+		pkg.Slug = strings.TrimSpace(pkg.Slug)
+		pkg.ContentSHA = strings.TrimSpace(pkg.ContentSHA)
+		pkg.StorageKey = strings.TrimSpace(pkg.StorageKey)
+	}
+	sort.Slice(normalized.Workspace.SkillPackages, func(i, j int) bool {
+		return normalized.Workspace.SkillPackages[i].SkillID <
+			normalized.Workspace.SkillPackages[j].SkillID
+	})
 	normalized.Workspace.KnowledgeMounts = append(
 		[]KnowledgeMount{},
 		spec.Workspace.KnowledgeMounts...,

@@ -22,9 +22,12 @@ import (
 
 // Domain errors surfaced to the REST layer.
 var (
-	ErrNameRequired         = errors.New("skill: name is required")
-	ErrInstructionsRequired = errors.New("skill: instructions (SKILL.md body) are required")
-	ErrInvalidTags          = errors.New("skill: invalid tags")
+	ErrNameRequired          = errors.New("skill: name is required")
+	ErrInstructionsRequired  = errors.New("skill: instructions (SKILL.md body) are required")
+	ErrInvalidTags           = errors.New("skill: invalid tags")
+	ErrPlatformSkillConflict = errors.New(
+		"skill: platform skill exists with different content",
+	)
 )
 
 // SkillPackagerBridge separates local package preparation from publication.

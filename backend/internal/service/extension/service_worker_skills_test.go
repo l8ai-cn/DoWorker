@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -41,6 +42,36 @@ func TestGetWorkerSkillsByIDsResolvesExactCatalogPackages(t *testing.T) {
 	assert.Equal(t, "reviewer", skills[0].Slug)
 	assert.Equal(t, "sha-reviewer", skills[0].ContentSha)
 	assert.Contains(t, skills[0].DownloadURL, "skills/reviewer.tar.gz")
+}
+
+func TestGetWorkerSkillsByPackagesUsesPinnedStorageWithoutCatalogLookup(t *testing.T) {
+	catalog := &svcMockCatalog{
+		getAnyByIDFn: func(context.Context, int64) (*skilldom.Skill, error) {
+			t.Fatal("catalog must not be queried for pinned packages")
+			return nil, nil
+		},
+	}
+	service := newTestService(&svcMockRepo{}, &svcMockStorage{}, nil)
+	service.SetSkillCatalog(catalog)
+	binding := specdomain.SkillPackageBinding{
+		SkillID:     41,
+		Slug:        "reviewer",
+		Version:     2,
+		ContentSHA:  "sha-approved",
+		StorageKey:  "skills/reviewer-approved.tar.gz",
+		PackageSize: 123,
+	}
+
+	skills, err := service.GetWorkerSkillsByPackages(
+		context.Background(),
+		[]specdomain.SkillPackageBinding{binding},
+		"codex-cli",
+	)
+
+	require.NoError(t, err)
+	require.Len(t, skills, 1)
+	assert.Equal(t, binding.ContentSHA, skills[0].ContentSha)
+	assert.Contains(t, skills[0].DownloadURL, binding.StorageKey)
 }
 
 func TestGetWorkerSkillsByIDsRejectsCrossOrganizationSkill(t *testing.T) {

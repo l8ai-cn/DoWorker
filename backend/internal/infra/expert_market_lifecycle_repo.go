@@ -30,10 +30,13 @@ func (repo *expertMarketRepo) UpdateReleaseLifecycle(
 			return err
 		}
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Select("id").
+			Select("id", "status").
 			Where("id = ? AND application_id = ?", releaseID, release.ApplicationID).
 			First(&release).Error; err != nil {
 			return releaseNotFoundError(err)
+		}
+		if err := ensureExpectedReleaseStatus(release.Status, update); err != nil {
+			return err
 		}
 		if application.LatestPublishedReleaseID != nil &&
 			*application.LatestPublishedReleaseID == releaseID {
@@ -66,10 +69,13 @@ func (repo *expertMarketRepo) UpdateReleaseLifecycleAndLatest(
 
 		var release expertmarket.Release
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Select("id", "version").
+			Select("id", "version", "status").
 			Where("id = ? AND application_id = ?", releaseID, applicationID).
 			First(&release).Error; err != nil {
 			return releaseApplicationError(tx, releaseID, err)
+		}
+		if err := ensureExpectedReleaseStatus(release.Status, update); err != nil {
+			return err
 		}
 		result := updateReleaseLifecycle(
 			tx,
@@ -94,6 +100,16 @@ func (repo *expertMarketRepo) UpdateReleaseLifecycleAndLatest(
 		}
 		return setLatestPublishedRelease(tx, applicationID, releaseID)
 	})
+}
+
+func ensureExpectedReleaseStatus(
+	current expertmarket.ReleaseStatus,
+	update expertmarket.LifecycleUpdate,
+) error {
+	if update.ExpectedStatus != nil && current != *update.ExpectedStatus {
+		return expertmarket.ErrLifecycleStatusConflict
+	}
+	return nil
 }
 
 func updateReleaseLifecycle(

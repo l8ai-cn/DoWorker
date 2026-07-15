@@ -3,16 +3,18 @@
 # runner.Dockerfile COPY. Uses a one-shot rust container so macOS hosts
 # don't need a working openssl cross toolchain.
 
+DOAGENT_BUILD_OUTPUT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 build_do_agent_binary() {
-    if [[ -x "$SCRIPT_DIR/do-agent-binary" ]]; then
-        info "do-agent binary 已存在，跳过 Docker 编译"
+    if [[ -x "$DOAGENT_BUILD_OUTPUT_DIR/do-agent-binary" ]]; then
+        doagent_build_log info "do-agent binary 已存在，跳过 Docker 编译"
         return 0
     fi
 
     local doagent_dir="${DOAGENT_DIR:-}"
     if [[ -z "$doagent_dir" ]]; then
         for candidate in \
-            "$SCRIPT_DIR/../../doagent" \
+            "$DOAGENT_BUILD_OUTPUT_DIR/../../doagent" \
             "$HOME/Documents/code/doagent" \
             "$HOME/Documents/code/AgentForge/doagent"; do
             if [[ -d "$candidate" ]]; then
@@ -26,19 +28,19 @@ build_do_agent_binary() {
         # COPY's do-agent-binary into every runner image, so emit a /bin/sh
         # stub that exits 127 — enough for image build; do-agent pods won't run.
         if [[ "${CI:-}" == "true" || "${DEV_SKIP_DOAGENT:-}" == "1" || "${SKIP_DOAGENT_BUILD:-}" == "1" ]]; then
-            info "doagent 源码未找到 — 写入 do-agent stub (设 DOAGENT_DIR 可启用真编译)"
-            _write_do_agent_stub "$SCRIPT_DIR/do-agent-binary" || return 1
+            doagent_build_log info "doagent 源码未找到 — 写入 do-agent stub (设 DOAGENT_DIR 可启用真编译)"
+            _write_do_agent_stub "$DOAGENT_BUILD_OUTPUT_DIR/do-agent-binary" || return 1
             return 0
         fi
-        error "doagent 源码未找到 — 设置 DOAGENT_DIR 或 clone AgentForge/doagent"
+        doagent_build_log error "doagent 源码未找到 — 设置 DOAGENT_DIR 或 clone AgentForge/doagent"
         return 1
     fi
 
-    info "Docker build do-agent (linux/amd64) from ${doagent_dir}..."
+    doagent_build_log info "Docker build do-agent (linux/amd64) from ${doagent_dir}..."
     docker run --rm --platform linux/amd64 \
         -e HTTP_PROXY= -e HTTPS_PROXY= -e http_proxy= -e https_proxy= -e NO_PROXY='*' \
         -v "${doagent_dir}:/src:ro" \
-        -v "${SCRIPT_DIR}:/out" \
+        -v "${DOAGENT_BUILD_OUTPUT_DIR}:/out" \
         rust:1.85-bookworm \
         bash -c 'set -e
             rustup update stable
@@ -54,10 +56,20 @@ build_do_agent_binary() {
             chmod +x /out/do-agent-binary
             file /out/do-agent-binary
             /out/do-agent-binary --version' || {
-        error "do-agent 编译失败"
+        doagent_build_log error "do-agent 编译失败"
         return 1
     }
-    success "do-agent binary 已复制到 deploy/dev/do-agent-binary"
+    doagent_build_log success "do-agent binary 已复制到 deploy/dev/do-agent-binary"
+}
+
+doagent_build_log() {
+    local level="$1"
+    shift
+    if declare -F "$level" >/dev/null; then
+        "$level" "$@"
+        return
+    fi
+    printf '%s\n' "$*"
 }
 
 # Shell stub that exits 127. Satisfies Dockerfile COPY without needing

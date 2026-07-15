@@ -103,6 +103,19 @@ func (f *fakeStore) GetBySlug(_ context.Context, orgID int64, slug string) (*ski
 	return nil, skilldom.ErrNotFound
 }
 
+func (f *fakeStore) GetPlatformBySlug(
+	_ context.Context,
+	slug string,
+) (*skilldom.Skill, error) {
+	for _, skill := range f.rows {
+		if skill.OrganizationID == nil && skill.Slug == slug {
+			copy := *skill
+			return &copy, nil
+		}
+	}
+	return nil, skilldom.ErrNotFound
+}
+
 func (f *fakeStore) FindByUpstream(_ context.Context, orgID int64, upstreamURL, upstreamSubdir string) (*skilldom.Skill, error) {
 	for _, s := range f.rows {
 		if orgMatches(s.OrganizationID, orgID) && s.UpstreamURL == upstreamURL && s.UpstreamSubdir == upstreamSubdir {
@@ -137,6 +150,24 @@ func (f *fakeStore) ListAll(_ context.Context, orgID int64) ([]skilldom.Skill, e
 	for _, s := range f.rows {
 		if orgMatches(s.OrganizationID, orgID) {
 			out = append(out, *s)
+		}
+	}
+	return out, nil
+}
+
+func (f *fakeStore) ListActivePlatformBySlugs(
+	_ context.Context,
+	slugs []string,
+) ([]skilldom.Skill, error) {
+	required := make(map[string]struct{}, len(slugs))
+	for _, slug := range slugs {
+		required[slug] = struct{}{}
+	}
+	var out []skilldom.Skill
+	for _, skill := range f.rows {
+		if _, ok := required[skill.Slug]; ok &&
+			skill.OrganizationID == nil && skill.IsActive {
+			out = append(out, *skill)
 		}
 	}
 	return out, nil

@@ -18,13 +18,15 @@ func TestLayerLinesFor_ClaudeLevels(t *testing.T) {
 }
 
 func TestLayerLinesFor_CodexLevels(t *testing.T) {
-	assert.Equal(t, `CONFIG approval_mode = "untrusted"`,
-		LayerLinesFor("codex-cli", podDomain.AutomationLevelInteractive, true))
-	assert.Equal(t, `CONFIG approval_mode = "on-request"`,
-		LayerLinesFor("codex-cli", podDomain.AutomationLevelAutoEdit, true))
-	autonomous := LayerLinesFor("codex-cli", podDomain.AutomationLevelAutonomous, true)
-	assert.Contains(t, autonomous, `CONFIG approval_mode = "never"`)
-	assert.Contains(t, autonomous, "MODE acp")
+	for _, agentSlug := range []string{"codex-cli", "video-studio"} {
+		assert.Equal(t, `CONFIG approval_mode = "untrusted"`,
+			LayerLinesFor(agentSlug, podDomain.AutomationLevelInteractive, true))
+		assert.Equal(t, `CONFIG approval_mode = "on-request"`,
+			LayerLinesFor(agentSlug, podDomain.AutomationLevelAutoEdit, true))
+		autonomous := LayerLinesFor(agentSlug, podDomain.AutomationLevelAutonomous, true)
+		assert.Contains(t, autonomous, `CONFIG approval_mode = "never"`)
+		assert.Contains(t, autonomous, "MODE acp")
+	}
 }
 
 func TestLayerLinesFor_LoopalLevels(t *testing.T) {

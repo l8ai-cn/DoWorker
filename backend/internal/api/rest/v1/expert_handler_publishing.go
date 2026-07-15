@@ -6,8 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
+	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
 )
 
@@ -106,18 +109,22 @@ func (h *ExpertHandler) publishError(c *gin.Context, err error) {
 
 func (h *ExpertHandler) InstallMarketApplication(c *gin.Context) {
 	tenant := middleware.GetTenant(c)
-	row, alreadyInstalled, err := h.service.InstallMarketApplication(
+	var request installMarketApplicationRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		apierr.ValidationError(c, err.Error())
+		return
+	}
+	row, alreadyInstalled, err := h.service.InstallPublishedMarketApplication(
 		c.Request.Context(),
-		tenant.OrganizationID,
-		tenant.UserID,
-		c.Param("marketSlug"),
+		expertSvc.InstallMarketApplicationRequest{
+			OrganizationID:  tenant.OrganizationID,
+			UserID:          tenant.UserID,
+			ModelResourceID: request.ModelResourceID,
+			MarketSlug:      c.Param("marketSlug"),
+		},
 	)
 	if err != nil {
-		if errors.Is(err, expertSvc.ErrMarketApplicationNotFound) {
-			apierr.ResourceNotFound(c, "Market application not found")
-			return
-		}
-		apierr.InternalError(c, "Failed to install market application")
+		h.installMarketError(c, err)
 		return
 	}
 	status := http.StatusCreated
@@ -128,4 +135,36 @@ func (h *ExpertHandler) InstallMarketApplication(c *gin.Context) {
 		status,
 		gin.H{"expert": row, "already_installed": alreadyInstalled},
 	)
+}
+
+func (h *ExpertHandler) installMarketError(c *gin.Context, err error) {
+	switch {
+	case errors.Is(err, expertSvc.ErrMarketApplicationNotFound):
+		apierr.ResourceNotFound(c, "Market application not found")
+	case errors.Is(err, expertSvc.ErrMarketUnavailable):
+		apierr.ServiceUnavailable(
+			c,
+			apierr.SERVICE_UNAVAILABLE,
+			"Expert application market is unavailable",
+		)
+	case errors.Is(err, specservice.ErrInvalidDraft):
+		apierr.BadRequest(
+			c,
+			apierr.INVALID_INPUT,
+			"Selected model resource is unavailable or incompatible",
+		)
+	case errors.Is(err, expertSvc.ErrMarketSnapshotInvalid),
+		errors.Is(err, expertSvc.ErrMarketReleaseNotPublished),
+		errors.Is(err, expertmarket.ErrConflict),
+		errors.Is(err, expertdom.ErrConflict):
+		apierr.Conflict(
+			c,
+			apierr.ALREADY_EXISTS,
+			"Market application changed; reload and try again",
+		)
+	case errors.Is(err, expertdom.ErrNotFound):
+		apierr.ResourceNotFound(c, "Installed expert not found")
+	default:
+		apierr.InternalError(c, "Failed to install market application")
+	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
@@ -82,8 +83,9 @@ type ConfigBuildRequest struct {
 	// defaults + Agentfile KNOWLEDGE + request selections and issues tokens).
 	KnowledgeMounts []*runnerv1.KnowledgeMount
 
-	RequiredEnvBundleIDs []int64
-	RequiredSkillIDs     []int64
+	RequiredEnvBundleIDs  []int64
+	RequiredSkillIDs      []int64
+	RequiredSkillPackages []specdomain.SkillPackageBinding
 }
 
 // ConfigSchemaResponse is the config schema returned to frontend.

@@ -3,6 +3,7 @@ import type { EffectiveResource, ProviderDefinition } from "@/lib/api/facade/aiR
 const AGENT_PROTOCOLS: Record<string, string[]> = {
   "do-agent": ["openai-compatible", "anthropic", "minimax"],
   "codex-cli": ["openai-compatible"],
+  "video-studio": ["openai-compatible"],
   "claude-code": ["anthropic"],
   "gemini-cli": ["gemini"],
   openclaw: ["openai-compatible", "anthropic", "gemini"],
@@ -13,6 +14,10 @@ const MODEL_RESOURCE_AGENTS = new Set(Object.keys(AGENT_PROTOCOLS));
 
 export function agentRequiresModelResource(agentSlug: string | null): boolean {
   return Boolean(agentSlug && MODEL_RESOURCE_AGENTS.has(agentSlug));
+}
+
+export function agentSupportsProtocol(agentSlug: string, protocol: string): boolean {
+  return AGENT_PROTOCOLS[agentSlug]?.includes(protocol) ?? false;
 }
 
 export function compatibleModelResources(
@@ -33,7 +38,7 @@ export function compatibleModelResources(
         item.resource.modalities.includes("chat") &&
         item.resource.capabilities.includes("text-generation") &&
         protocol &&
-        allowed.includes(protocol),
+        agentSupportsProtocol(agentSlug ?? "", protocol),
     );
   });
 }

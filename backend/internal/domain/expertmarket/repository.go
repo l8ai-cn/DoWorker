@@ -19,6 +19,12 @@ var (
 	ErrInvalidWithdrawalStatus = errors.New(
 		"expert market release withdrawal must use withdrawn status",
 	)
+	ErrPendingReleaseExists = errors.New(
+		"expert market application already has a pending release",
+	)
+	ErrLifecycleStatusConflict = errors.New(
+		"expert market release status changed before lifecycle update",
+	)
 )
 
 type ApplicationListFilter struct {
@@ -37,6 +43,7 @@ type ReleaseListFilter struct {
 
 type LifecycleUpdate struct {
 	Status          ReleaseStatus
+	ExpectedStatus  *ReleaseStatus
 	ReviewerUserID  *int64
 	RejectionReason *string
 	SubmittedAt     *time.Time
@@ -50,6 +57,9 @@ func (update LifecycleUpdate) Validate() error {
 	if !update.Status.Valid() {
 		return ErrInvalidStatus
 	}
+	if update.ExpectedStatus != nil && !update.ExpectedStatus.Valid() {
+		return ErrInvalidStatus
+	}
 	return nil
 }
 
@@ -60,6 +70,11 @@ type Repository interface {
 	ListApplications(ctx context.Context, filter ApplicationListFilter) ([]Application, int64, error)
 
 	CreateRelease(ctx context.Context, release *Release) error
+	CreateSubmission(
+		ctx context.Context,
+		application *Application,
+		release *Release,
+	) error
 	GetReleaseByID(ctx context.Context, id int64) (*Release, error)
 	ListReleases(ctx context.Context, filter ReleaseListFilter) ([]Release, int64, error)
 	UpdateReleaseLifecycle(ctx context.Context, releaseID int64, update LifecycleUpdate) error

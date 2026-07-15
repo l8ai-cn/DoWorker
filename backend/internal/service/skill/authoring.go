@@ -15,6 +15,14 @@ import (
 // it through the extension bridge, and records the DB cache row. On any
 // post-provision failure the fresh repo is compensating-deleted.
 func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldom.Skill, error) {
+	return s.create(ctx, req, false)
+}
+
+func (s *Service) create(
+	ctx context.Context,
+	req *CreateSkillRequest,
+	platformLevel bool,
+) (*skilldom.Skill, error) {
 	if strings.TrimSpace(req.Name) == "" {
 		return nil, ErrNameRequired
 	}
@@ -25,7 +33,7 @@ func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldo
 	if err != nil {
 		return nil, err
 	}
-	slug, err := s.resolveSlug(ctx, req.OrganizationID, req.Slug, req.Name, 0)
+	slug, err := s.resolveCreateSlug(ctx, req, platformLevel)
 	if err != nil {
 		return nil, err
 	}
@@ -52,24 +60,26 @@ func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldo
 		return nil, err
 	}
 
-	orgID := req.OrganizationID
 	userID := req.UserID
 	row := &skilldom.Skill{
-		OrganizationID: &orgID,
-		Slug:           slug,
-		DisplayName:    strings.TrimSpace(req.Name),
-		Description:    strings.TrimSpace(req.Description),
-		License:        strings.TrimSpace(req.License),
-		Tags:           tags,
-		IsActive:       true,
-		GitRepoPath:    repo.Path,
-		DefaultBranch:  branchOf(repo),
-		InstallSource:  skilldom.SourceGitops,
-		ContentSha:     prepared.ContentSha,
-		StorageKey:     prepared.StorageKey,
-		PackageSize:    prepared.PackageSize,
-		Version:        1,
-		CreatedByID:    &userID,
+		Slug:          slug,
+		DisplayName:   strings.TrimSpace(req.Name),
+		Description:   strings.TrimSpace(req.Description),
+		License:       strings.TrimSpace(req.License),
+		Tags:          tags,
+		IsActive:      true,
+		GitRepoPath:   repo.Path,
+		DefaultBranch: branchOf(repo),
+		InstallSource: skilldom.SourceGitops,
+		ContentSha:    prepared.ContentSha,
+		StorageKey:    prepared.StorageKey,
+		PackageSize:   prepared.PackageSize,
+		Version:       1,
+		CreatedByID:   &userID,
+	}
+	if !platformLevel {
+		orgID := req.OrganizationID
+		row.OrganizationID = &orgID
 	}
 	if repo.HTTPCloneURL != "" {
 		u := repo.HTTPCloneURL
@@ -102,6 +112,27 @@ func (s *Service) Create(ctx context.Context, req *CreateSkillRequest) (*skilldo
 		return nil, err
 	}
 	return row, nil
+}
+
+func (s *Service) resolveCreateSlug(
+	ctx context.Context,
+	req *CreateSkillRequest,
+	platformLevel bool,
+) (string, error) {
+	if !platformLevel {
+		return s.resolveSlug(
+			ctx,
+			req.OrganizationID,
+			req.Slug,
+			req.Name,
+			0,
+		)
+	}
+	slug := strings.TrimSpace(req.Slug)
+	if err := slugkit.ValidateIdentifier("skills.slug", slug); err != nil {
+		return "", err
+	}
+	return slug, nil
 }
 
 func applyStoredPackage(

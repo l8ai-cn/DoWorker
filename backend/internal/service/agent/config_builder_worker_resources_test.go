@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
 	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	"github.com/stretchr/testify/assert"
@@ -38,9 +39,19 @@ func (loader *exactBundleLoader) GetEffectiveByIDs(
 }
 
 type exactSkillProvider struct {
-	skills []*extensionservice.ResolvedSkill
-	err    error
-	ids    []int64
+	skills   []*extensionservice.ResolvedSkill
+	err      error
+	ids      []int64
+	packages []specdomain.SkillPackageBinding
+}
+
+func (provider *exactSkillProvider) GetWorkerSkillsByPackages(
+	_ context.Context,
+	packages []specdomain.SkillPackageBinding,
+	_ string,
+) ([]*extensionservice.ResolvedSkill, error) {
+	provider.packages = append([]specdomain.SkillPackageBinding{}, packages...)
+	return provider.skills, provider.err
 }
 
 func (*exactSkillProvider) GetEffectiveMcpServers(
@@ -146,4 +157,39 @@ func TestWorkerSpecSkillFailureIsNotIgnored(t *testing.T) {
 	)
 
 	assert.ErrorContains(t, err, "sign URL failed")
+}
+
+func TestWorkerSpecSkillsLoadFromPinnedPackages(t *testing.T) {
+	binding := specdomain.SkillPackageBinding{
+		SkillID:     3,
+		Slug:        "reviewer",
+		Version:     2,
+		ContentSHA:  "sha-reviewer",
+		StorageKey:  "skills/reviewer-v2.tar.gz",
+		PackageSize: 123,
+	}
+	provider := &exactSkillProvider{
+		skills: []*extensionservice.ResolvedSkill{{
+			CatalogSkillID: binding.SkillID,
+			Slug:           binding.Slug,
+			ContentSha:     binding.ContentSHA,
+			DownloadURL:    "https://example/reviewer-v2",
+			PackageSize:    binding.PackageSize,
+		}},
+	}
+	builder := NewConfigBuilder(nilAgentConfigProvider{}, &exactBundleLoader{})
+	builder.SetExtensionProvider(provider)
+
+	resources, err := builder.buildSkillResources(
+		context.Background(),
+		&ConfigBuildRequest{RequiredSkillPackages: []specdomain.SkillPackageBinding{binding}},
+		"codex-cli",
+		nil,
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, []specdomain.SkillPackageBinding{binding}, provider.packages)
+	assert.Empty(t, provider.ids)
+	require.Len(t, resources, 1)
+	assert.Equal(t, binding.ContentSHA, resources[0].Sha)
 }

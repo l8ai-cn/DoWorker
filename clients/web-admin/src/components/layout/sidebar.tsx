@@ -13,6 +13,7 @@ import {
   Radio,
   MessageSquare,
   KeyRound,
+  Store,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth";
@@ -64,6 +65,11 @@ const navItems = [
     title: "支持工单",
     href: "/support-tickets",
     icon: MessageSquare,
+  },
+  {
+    title: "专家市场审核",
+    href: "/expert-market",
+    icon: Store,
   },
   {
     title: "审计日志",

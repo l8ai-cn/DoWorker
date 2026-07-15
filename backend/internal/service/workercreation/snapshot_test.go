@@ -39,7 +39,7 @@ func TestPrepareSnapshotCompilesThePersistedSpec(t *testing.T) {
 	assert.Equal(t, *source.Spec.Workspace.RepositoryID, replayed.Repository.ID)
 }
 
-func TestPrepareSnapshotFailsWhenAReferencedResourceIsUnavailable(t *testing.T) {
+func TestPrepareSnapshotUsesPinnedSkillPackageAfterCatalogChanges(t *testing.T) {
 	fixture := newWorkerCreationServiceFixture()
 	service := NewService(fixture.deps())
 	scope := specservice.Scope{OrgID: 77, UserID: 7}
@@ -49,6 +49,36 @@ func TestPrepareSnapshotFailsWhenAReferencedResourceIsUnavailable(t *testing.T) 
 		validWorkerCreationDraft(),
 	)
 	require.NoError(t, err)
+	skill := fixture.workspace.skills.rows[source.Spec.Workspace.SkillIDs[0]]
+	skill.IsActive = false
+	skill.ContentSha = "changed-sha"
+	skill.StorageKey = "skills/changed.tar.gz"
+
+	replayed, err := service.PrepareSnapshot(
+		context.Background(),
+		scope,
+		specdomain.Snapshot{
+			ID:             91,
+			OrganizationID: scope.OrgID,
+			Spec:           source.Spec,
+		},
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, source.Spec.Workspace.SkillPackages, replayed.Spec.Workspace.SkillPackages)
+}
+
+func TestPrepareLegacySnapshotFailsWhenAReferencedSkillIsUnavailable(t *testing.T) {
+	fixture := newWorkerCreationServiceFixture()
+	service := NewService(fixture.deps())
+	scope := specservice.Scope{OrgID: 77, UserID: 7}
+	source, err := service.Prepare(
+		context.Background(),
+		scope,
+		validWorkerCreationDraft(),
+	)
+	require.NoError(t, err)
+	source.Spec.Workspace.SkillPackages = nil
 	fixture.workspace.skills.rows[source.Spec.Workspace.SkillIDs[0]].IsActive = false
 
 	_, err = service.PrepareSnapshot(

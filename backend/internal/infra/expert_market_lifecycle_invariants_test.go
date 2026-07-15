@@ -65,6 +65,39 @@ func TestExpertMarketGenericLifecycleCannotDemoteLatest(t *testing.T) {
 	require.Equal(t, release.ID, *storedApplication.LatestPublishedReleaseID)
 }
 
+func TestExpertMarketReviewTransitionRejectsStaleExpectedStatus(t *testing.T) {
+	repo := newExpertMarketTestRepository(t)
+	ctx := context.Background()
+	app := testApplication("stale-review", 10)
+	require.NoError(t, repo.CreateApplication(ctx, &app))
+	release := testRelease(app.ID, 1, expertmarket.ReleaseStatusPendingReview)
+	require.NoError(t, repo.CreateRelease(ctx, &release))
+	pending := expertmarket.ReleaseStatusPendingReview
+
+	require.NoError(t, repo.UpdateReleaseLifecycle(
+		ctx,
+		release.ID,
+		expertmarket.LifecycleUpdate{
+			Status:         expertmarket.ReleaseStatusRejected,
+			ExpectedStatus: &pending,
+		},
+	))
+	err := repo.UpdateReleaseLifecycleAndLatest(
+		ctx,
+		app.ID,
+		release.ID,
+		expertmarket.LifecycleUpdate{
+			Status:         expertmarket.ReleaseStatusPublished,
+			ExpectedStatus: &pending,
+		},
+	)
+	require.ErrorIs(t, err, expertmarket.ErrLifecycleStatusConflict)
+
+	stored, err := repo.GetReleaseByID(ctx, release.ID)
+	require.NoError(t, err)
+	require.Equal(t, expertmarket.ReleaseStatusRejected, stored.Status)
+}
+
 func TestExpertMarketDelayedOlderPublicationDoesNotRollbackLatest(t *testing.T) {
 	repo := newExpertMarketTestRepository(t)
 	ctx := context.Background()

@@ -95,6 +95,10 @@ type SnapshotRepository interface {
 		ctx context.Context,
 		organizationID int64,
 	) ([]domain.Snapshot, error)
+	Delete(
+		ctx context.Context,
+		organizationID, snapshotID int64,
+	) error
 }
 
 type ResolverDeps struct {

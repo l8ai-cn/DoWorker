@@ -115,10 +115,12 @@ type Repository interface {
 	// GetAnyByID fetches without org scoping — callers must check VisibleTo.
 	GetAnyByID(ctx context.Context, id int64) (*Skill, error)
 	GetBySlug(ctx context.Context, orgID int64, slug string) (*Skill, error)
+	GetPlatformBySlug(ctx context.Context, slug string) (*Skill, error)
 	SlugExists(ctx context.Context, orgID int64, slug string, excludeID int64) (bool, error)
 	FindByUpstream(ctx context.Context, orgID int64, upstreamURL, upstreamSubdir string) (*Skill, error)
 	List(ctx context.Context, orgID int64, limit, offset int) ([]Skill, int64, error)
 	ListAll(ctx context.Context, orgID int64) ([]Skill, error)
+	ListActivePlatformBySlugs(ctx context.Context, slugs []string) ([]Skill, error)
 	// ListCatalog returns active org-level + platform-level skills for
 	// marketplace browsing, optionally filtered by search query/category.
 	ListCatalog(ctx context.Context, orgID int64, query, category string) ([]Skill, error)

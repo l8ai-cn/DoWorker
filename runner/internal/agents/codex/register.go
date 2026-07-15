@@ -15,11 +15,15 @@ func init() {
 		return newTransport(cb, l)
 	})
 
-	tokenusage.RegisterParser([]string{"codex", "codex-cli"}, &codexParser{})
+	tokenusage.RegisterParser(
+		[]string{"codex", "codex-cli", "video-studio"},
+		&codexParser{},
+	)
 
 	adapter := &codexInputAdapter{}
 	agentkit.RegisterInputAdapter("codex", adapter)
 	agentkit.RegisterInputAdapter("codex-cli", adapter)
+	agentkit.RegisterInputAdapter("video-studio", adapter)
 
 	agentkit.RegisterAgentHome(agentkit.AgentHomeSpec{
 		EnvVar:      "CODEX_HOME",

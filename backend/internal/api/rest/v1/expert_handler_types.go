@@ -64,3 +64,7 @@ type runExpertRequest struct {
 	Cols           int32   `json:"cols"`
 	Rows           int32   `json:"rows"`
 }
+
+type installMarketApplicationRequest struct {
+	ModelResourceID int64 `json:"model_resource_id" binding:"required,gt=0"`
+}

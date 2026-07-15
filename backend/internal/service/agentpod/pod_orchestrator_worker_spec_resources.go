@@ -8,9 +8,9 @@ import (
 
 func workerSpecResourceRequirements(
 	spec *specdomain.Spec,
-) ([]int64, []int64) {
+) ([]int64, []int64, []specdomain.SkillPackageBinding) {
 	if spec == nil {
-		return nil, nil
+		return nil, nil, nil
 	}
 	envBundleSet := make(
 		map[int64]struct{},
@@ -33,5 +33,9 @@ func workerSpecResourceRequirements(
 	sort.Slice(skillIDs, func(left, right int) bool {
 		return skillIDs[left] < skillIDs[right]
 	})
-	return envBundleIDs, skillIDs
+	skillPackages := append(
+		[]specdomain.SkillPackageBinding{},
+		spec.Workspace.SkillPackages...,
+	)
+	return envBundleIDs, skillIDs, skillPackages
 }

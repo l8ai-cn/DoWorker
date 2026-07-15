@@ -30,6 +30,13 @@ func (snapshot ResolvedSnapshot) SummaryJSON() []byte {
 	return bytes.Clone(snapshot.summaryJSON)
 }
 
+func NewResolvedSnapshot(
+	organizationID int64,
+	spec domain.Spec,
+) (ResolvedSnapshot, error) {
+	return resolveSnapshot(organizationID, spec)
+}
+
 func resolveSnapshot(
 	organizationID int64,
 	spec domain.Spec,

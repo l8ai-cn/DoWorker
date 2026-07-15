@@ -234,6 +234,7 @@ func podServiceWorkerSpec() specdomain.Spec {
 		},
 		specdomain.Workspace{
 			SkillIDs:        []int64{},
+			SkillPackages:   []specdomain.SkillPackageBinding{},
 			KnowledgeMounts: []specdomain.KnowledgeMount{},
 			EnvBundleIDs:    []specdomain.RuntimeEnvBundleID{},
 			InitialTask:     "Run checks.",

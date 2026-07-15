@@ -59,6 +59,7 @@ func TestModelResolverUsesWorkerSpecificProtocolAdapters(t *testing.T) {
 		adapter    string
 	}{
 		{workerType: "codex-cli", adapter: "openai-compatible"},
+		{workerType: "video-studio", adapter: "openai-compatible"},
 		{workerType: "claude-code", adapter: "anthropic"},
 		{workerType: "gemini-cli", adapter: "gemini"},
 	}

@@ -3,10 +3,12 @@ package infra
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"net/url"
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -92,6 +94,167 @@ func TestExpertMarketPostgresConcurrentPublicationKeepsNewestLatest(t *testing.T
 	require.Equal(t, v2.ID, *stored.LatestPublishedReleaseID)
 }
 
+func TestExpertMarketPostgresConcurrentSubmissionCreatesOnePendingVersion(t *testing.T) {
+	db := openExpertMarketPostgresTestDB(t)
+	repo := NewExpertMarketRepository(db)
+	ctx := context.Background()
+	app := expertmarket.Application{
+		Slug:                    slugkit.Slug("concurrent-submission"),
+		PublisherOrganizationID: 1,
+		PublisherUserID:         1,
+	}
+	v1 := postgresTestRelease(0, 9001, 1)
+	v1.Status = expertmarket.ReleaseStatusPendingReview
+	require.NoError(t, repo.CreateSubmission(ctx, &app, &v1))
+	require.NoError(t, repo.UpdateReleaseLifecycle(
+		ctx,
+		v1.ID,
+		expertmarket.LifecycleUpdate{Status: expertmarket.ReleaseStatusRejected},
+	))
+
+	start := make(chan struct{})
+	errs := make(chan error, 2)
+	var workers sync.WaitGroup
+	for range 2 {
+		workers.Add(1)
+		go func() {
+			defer workers.Done()
+			<-start
+			application := app
+			release := postgresTestRelease(app.ID, 9001, 1)
+			release.Status = expertmarket.ReleaseStatusPendingReview
+			errs <- repo.CreateSubmission(ctx, &application, &release)
+		}()
+	}
+	close(start)
+	workers.Wait()
+	close(errs)
+
+	var succeeded, blocked int
+	for err := range errs {
+		switch {
+		case err == nil:
+			succeeded++
+		case errors.Is(err, expertmarket.ErrPendingReleaseExists):
+			blocked++
+		default:
+			require.NoError(t, err)
+		}
+	}
+	require.Equal(t, 1, succeeded)
+	require.Equal(t, 1, blocked)
+
+	status := expertmarket.ReleaseStatusPendingReview
+	releases, total, err := repo.ListReleases(
+		ctx,
+		expertmarket.ReleaseListFilter{
+			ApplicationID: &app.ID,
+			Status:        &status,
+			Limit:         10,
+		},
+	)
+	require.NoError(t, err)
+	require.Equal(t, int64(1), total)
+	require.Len(t, releases, 1)
+	require.Equal(t, 2, releases[0].Version)
+}
+
+func TestExpertMarketPostgresInstallationLockSerializesSameTarget(t *testing.T) {
+	db := openExpertMarketPostgresTestDB(t)
+	locker := NewExpertMarketInstallationLocker(db)
+	ctx := context.Background()
+	start := make(chan struct{})
+	errs := make(chan error, 2)
+	var active atomic.Int32
+	var maximum atomic.Int32
+	var workers sync.WaitGroup
+	for range 2 {
+		workers.Add(1)
+		go func() {
+			defer workers.Done()
+			<-start
+			errs <- locker.WithinMarketInstallationLock(
+				ctx,
+				77,
+				88,
+				func() error {
+					current := active.Add(1)
+					for {
+						observed := maximum.Load()
+						if current <= observed ||
+							maximum.CompareAndSwap(observed, current) {
+							break
+						}
+					}
+					time.Sleep(50 * time.Millisecond)
+					active.Add(-1)
+					return nil
+				},
+			)
+		}()
+	}
+	close(start)
+	workers.Wait()
+	close(errs)
+	for err := range errs {
+		require.NoError(t, err)
+	}
+	require.Equal(t, int32(1), maximum.Load())
+}
+
+func TestExpertMarketPostgresApplicationLockSerializesLifecycle(t *testing.T) {
+	db := openExpertMarketPostgresTestDB(t)
+	locker := NewExpertMarketInstallationLocker(db)
+	start := make(chan struct{})
+	errs := make(chan error, 2)
+	var active atomic.Int32
+	var maximum atomic.Int32
+	var workers sync.WaitGroup
+	for range 2 {
+		workers.Add(1)
+		go func() {
+			defer workers.Done()
+			<-start
+			errs <- locker.WithinMarketApplicationLock(
+				context.Background(),
+				88,
+				func() error {
+					current := active.Add(1)
+					for {
+						observed := maximum.Load()
+						if current <= observed ||
+							maximum.CompareAndSwap(observed, current) {
+							break
+						}
+					}
+					time.Sleep(50 * time.Millisecond)
+					active.Add(-1)
+					return nil
+				},
+			)
+		}()
+	}
+	close(start)
+	workers.Wait()
+	close(errs)
+	for err := range errs {
+		require.NoError(t, err)
+	}
+	require.Equal(t, int32(1), maximum.Load())
+}
+
+func TestExpertRevisionMigrationBackfillsAndConstrainsRows(t *testing.T) {
+	db := openExpertMarketPostgresTestDB(t)
+	var revisions []int64
+	require.NoError(t, db.Raw(
+		"SELECT revision FROM experts ORDER BY id",
+	).Scan(&revisions).Error)
+	require.Equal(t, []int64{1, 1}, revisions)
+	require.Error(t, db.Exec(
+		"UPDATE experts SET revision = 0 WHERE id = 9001",
+	).Error)
+}
+
 func TestExpertMarketPostgresWithdrawalRestoresPreviousRelease(t *testing.T) {
 	db := openExpertMarketPostgresTestDB(t)
 	repo := NewExpertMarketRepository(db)
@@ -163,9 +326,14 @@ func openExpertMarketPostgresTestDB(t *testing.T) *gorm.DB {
 	})
 	require.NoError(t, err)
 	require.NoError(t, db.Exec(expertMarketRepositoryBaseDDL).Error)
-	up, err := os.ReadFile("../../migrations/000208_expert_marketplace.up.sql")
-	require.NoError(t, err)
-	require.NoError(t, db.Exec(string(up)).Error)
+	for _, migration := range []string{
+		"000208_expert_marketplace.up.sql",
+		"000209_add_expert_revision.up.sql",
+	} {
+		up, readErr := os.ReadFile("../../migrations/" + migration)
+		require.NoError(t, readErr)
+		require.NoError(t, db.Exec(string(up)).Error)
+	}
 	return db
 }
 

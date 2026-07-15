@@ -35,6 +35,14 @@ func TestServicePreflightResolvesAndCompilesCompleteWorkerSpec(t *testing.T) {
 	assert.Equal(t, int64(1), result.Resolved.Spec.Placement.ComputeTarget.ID)
 	assert.Equal(t, int64(1), result.Resolved.Spec.Placement.ResourceProfile.ID)
 	assert.Equal(t, []int64{3}, result.Resolved.Spec.Workspace.SkillIDs)
+	assert.Equal(t, []specdomain.SkillPackageBinding{{
+		SkillID:     3,
+		Slug:        "code-review",
+		Version:     2,
+		ContentSHA:  "sha-code-review",
+		StorageKey:  "skills/code-review.tar.gz",
+		PackageSize: 128,
+	}}, result.Resolved.Spec.Workspace.SkillPackages)
 	assert.Equal(t, "worker", result.Resolved.Spec.Metadata.Alias)
 	assert.Contains(t, result.Resolved.AgentfileLayer, `CONFIG approval_mode = "never"`)
 	assert.Contains(t, result.Resolved.AgentfileLayer, `USE_ENV_BUNDLE "signing-secrets"`)

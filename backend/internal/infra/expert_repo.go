@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 )
@@ -23,7 +24,27 @@ func (r *ExpertRepository) Create(ctx context.Context, expert *expertdom.Expert)
 }
 
 func (r *ExpertRepository) Update(ctx context.Context, expert *expertdom.Expert) error {
-	return r.db.WithContext(ctx).Save(expert).Error
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var current expertdom.Expert
+		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where(
+				"organization_id = ? AND id = ?",
+				expert.OrganizationID,
+				expert.ID,
+			).
+			First(&current).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return expertdom.ErrNotFound
+		}
+		if err != nil {
+			return err
+		}
+		if current.Revision != expert.Revision {
+			return expertdom.ErrConflict
+		}
+		expert.Revision++
+		return tx.Save(expert).Error
+	})
 }
 
 func (r *ExpertRepository) Delete(ctx context.Context, orgID, id int64) error {
@@ -100,6 +121,7 @@ func (r *ExpertRepository) RecordRun(ctx context.Context, orgID, id int64, at ti
 		Updates(map[string]interface{}{
 			"run_count":   gorm.Expr("run_count + 1"),
 			"last_run_at": at,
+			"revision":    gorm.Expr("revision + 1"),
 			"updated_at":  at,
 		})
 	if res.Error != nil {

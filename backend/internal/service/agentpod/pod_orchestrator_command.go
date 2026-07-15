@@ -93,7 +93,7 @@ func (o *PodOrchestrator) buildPodCommand(
 	if err != nil {
 		return nil, err
 	}
-	requiredEnvBundleIDs, requiredSkillIDs := workerSpecResourceRequirements(
+	requiredEnvBundleIDs, requiredSkillIDs, requiredSkillPackages := workerSpecResourceRequirements(
 		req.preparedWorkerSpec,
 	)
 
@@ -124,6 +124,7 @@ func (o *PodOrchestrator) buildPodCommand(
 		SessionConfigBundles:  req.SessionConfigBundles,
 		RequiredEnvBundleIDs:  requiredEnvBundleIDs,
 		RequiredSkillIDs:      requiredSkillIDs,
+		RequiredSkillPackages: requiredSkillPackages,
 	}
 
 	cmd, err := o.configBuilder.BuildPodCommand(ctx, buildReq)

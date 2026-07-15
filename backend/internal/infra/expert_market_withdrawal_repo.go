@@ -27,10 +27,13 @@ func (repo *expertMarketRepo) WithdrawReleaseAndRefreshLatest(
 		}
 		var release expertmarket.Release
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Select("id").
+			Select("id", "status").
 			Where("id = ? AND application_id = ?", releaseID, applicationID).
 			First(&release).Error; err != nil {
 			return releaseApplicationError(tx, releaseID, err)
+		}
+		if err := ensureExpectedReleaseStatus(release.Status, update); err != nil {
+			return err
 		}
 		result := updateReleaseLifecycle(
 			tx,

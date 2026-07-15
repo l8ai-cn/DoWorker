@@ -56,6 +56,26 @@ describe("workerModelResources", () => {
     ]);
   });
 
+  it("allows OpenAI-compatible resources for video-studio", () => {
+    const openAIProvider: ProviderDefinition = {
+      ...geminiProvider,
+      key: "openai",
+      protocolAdapter: "openai-compatible",
+    };
+    const openAIResource: EffectiveResource = {
+      ...geminiResource,
+      connection: {
+        ...geminiResource.connection!,
+        providerKey: "openai",
+      },
+    };
+
+    expect(agentRequiresModelResource("video-studio")).toBe(true);
+    expect(
+      compatibleModelResources("video-studio", [openAIResource], [openAIProvider]),
+    ).toEqual([openAIResource]);
+  });
+
   it.each(["openclaw", "hermes"])("%s accepts multi-provider chat resources", (agentSlug) => {
     const providers: ProviderDefinition[] = [
       { ...geminiProvider, key: "openai", protocolAdapter: "openai-compatible" },

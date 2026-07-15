@@ -180,6 +180,7 @@ func createRuntimeBindingExpertsTable(t *testing.T, db *gorm.DB) {
 		created_by_id INTEGER NOT NULL,
 		run_count INTEGER NOT NULL DEFAULT 0,
 		last_run_at DATETIME,
+		revision INTEGER NOT NULL DEFAULT 1,
 		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 	)`).Error)

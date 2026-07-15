@@ -19,7 +19,7 @@ grep -q "case \"\${AGENT_RUNTIME}\"" "$DOCKERFILE"
 # stage is not inherited). Without it the prune case sees "" and deletes
 # e2e-mock-agent from every image.
 awk '
-  /^COPY --chmod=0755 runner-entrypoint\.sh/ { after_copy=1; next }
+  /^COPY --chmod=0755 \. \/tmp\/agent-runtime-context\// { after_copy=1; next }
   after_copy && /^ARG AGENT_RUNTIME/ { found=1; exit }
   END { exit found ? 0 : 1 }
 ' "$DOCKERFILE" || {
@@ -28,16 +28,30 @@ awk '
 }
 grep -q "@anthropic-ai/claude-code" "$DOCKERFILE"
 grep -q "@openai/codex" "$DOCKERFILE"
+grep -q "video-studio)" "$DOCKERFILE"
+grep -q "chromium ffmpeg fontconfig fonts-noto-cjk python3 python3-pip" "$DOCKERFILE"
+grep -q "/usr/local/bin/video-studio-codex" "$DOCKERFILE"
+grep -q "@remotion/cli@" "$DOCKERFILE"
+grep -q "REMOTION_VERSION" "$DOCKERFILE"
+! grep -q 'NO_PROXY=\*' "$DOCKERFILE"
+! grep -q 'Acquire::http::Proxy "false"' "$DOCKERFILE"
+! grep -q '^ENV HTTP_PROXY=' "$DOCKERFILE"
+! grep -q -- '--build-arg "HTTP_PROXY="' "${ROOT}/docker/agent-runtime/build.sh"
+grep -q 'GOARCH="\$TARGET_ARCH"' "${ROOT}/docker/agent-runtime/prepare_binaries.sh"
+grep -q 'ARG DEBIAN_MIRROR=' "$DOCKERFILE"
+grep -q 'DEBIAN_SECURITY_MIRROR' "${ROOT}/docker/agent-runtime/build.sh"
 grep -q "@google/gemini-cli" "$DOCKERFILE"
 grep -q "@xai-official/grok" "$DOCKERFILE"
 grep -q "npm install -g openclaw" "$DOCKERFILE"
 grep -q "hermes-agent" "$DOCKERFILE"
 grep -q "HERMES_AGENT_VERSION" "$DOCKERFILE"
-grep -q "do-agent-binary" "$DOCKERFILE"
+grep -q 'PIP_BREAK_SYSTEM_PACKAGES=1 npm install -g "hermes-agent@' "$DOCKERFILE"
+grep -q "do-agent) install .*do-agent-binary" "$DOCKERFILE"
 grep -q "runner-entrypoint.sh" "$DOCKERFILE"
 
 grep -q "AGENT_RUNTIME: claude-code" "$COMPOSE"
 grep -q "AGENT_RUNTIME: codex-cli" "$COMPOSE"
+grep -q "AGENT_RUNTIME: video-studio" "$COMPOSE"
 grep -q "AGENT_RUNTIME: gemini-cli" "$COMPOSE"
 grep -q "AGENT_RUNTIME: do-agent" "$COMPOSE"
 grep -q "AGENT_RUNTIME: grok-build" "$COMPOSE"
@@ -47,6 +61,7 @@ grep -q "AGENT_RUNTIME: aider" "$COMPOSE"
 grep -q "AGENT_RUNTIME: opencode" "$COMPOSE"
 grep -q "runner-claude-code" "$COMPOSE"
 grep -q "runner-codex-cli" "$COMPOSE"
+grep -q "runner-video-studio" "$COMPOSE"
 grep -q "runner-grok-build" "$COMPOSE"
 grep -q "runner-openclaw" "$COMPOSE"
 grep -q "runner-hermes" "$COMPOSE"

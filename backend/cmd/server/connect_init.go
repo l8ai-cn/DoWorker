@@ -155,6 +155,9 @@ func mountAdminServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Serv
 	if rest != nil && rest.Message != nil {
 		adminOpts = append(adminOpts, adminconnect.WithMessageService(rest.Message))
 	}
+	if rest != nil && rest.Expert != nil {
+		adminOpts = append(adminOpts, adminconnect.WithExpertService(rest.Expert))
+	}
 	adminconnect.Mount(mux, adminconnect.NewServer(svc.admin, svc.adminDB, adminOpts...), opts...)
 	promocodeadminconnect.Mount(mux, promocodeadminconnect.NewServer(svc.admin, svc.adminDB), opts...)
 	if svc.billing != nil {

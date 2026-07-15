@@ -40,8 +40,12 @@ func TestServiceListOptionsReturnsSelectableRuntimeAndBlockingReasons(t *testing
 	assert.True(t, options.WorkerTypes[0].Selectable)
 	assert.False(t, options.WorkerTypes[1].Selectable)
 	assert.Contains(t, options.WorkerTypes[1].BlockingReason, "runtime image")
-	require.Len(t, options.RuntimeImages, 3)
+	require.Len(t, options.RuntimeImages, 4)
 	assert.True(t, options.RuntimeImages[0].Selectable)
+	assert.Contains(t, options.RuntimeImages, RuntimeImageOption{
+		Image:      runtimedomain.DefaultCatalog().ImagesFor("video-studio")[0],
+		Selectable: true,
+	})
 	require.Len(t, options.ComputeTargets, 2)
 	assert.True(t, options.ComputeTargets[0].Selectable)
 	assert.False(t, options.ComputeTargets[1].Selectable)

@@ -9,7 +9,6 @@ import (
 	grpcserver "github.com/anthropics/agentsmesh/backend/internal/api/grpc"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest"
 	"github.com/anthropics/agentsmesh/backend/internal/config"
-	notifDomain "github.com/anthropics/agentsmesh/backend/internal/domain/notification"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	blockstoreinfra "github.com/anthropics/agentsmesh/backend/internal/infra/blockstore"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
@@ -18,21 +17,21 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra/websocket"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	channelService "github.com/anthropics/agentsmesh/backend/internal/service/channel"
-	coordinatorsvc "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
-	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
-	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
-	"github.com/anthropics/agentsmesh/backend/internal/service/instance"
 	notifService "github.com/anthropics/agentsmesh/backend/internal/service/notification"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
-	skillSvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
 	"github.com/anthropics/agentsmesh/backend/internal/service/ticket"
-	workflow "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
 )
 
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "migrate" {
 		runMigrate(os.Args[2:])
+		return
+	}
+	if len(os.Args) > 1 && os.Args[1] == "bootstrap-marketplace" {
+		if err := runBootstrapMarketplace(os.Args[2:]); err != nil {
+			log.Fatalf("bootstrap marketplace: %v", err)
+		}
 		return
 	}
 
@@ -136,69 +135,34 @@ func main() {
 	podRouter.SetEventBus(eventBus)
 	podRouter.SetPodInfoGetter(services.pod)
 
-	podRouter.SetNotifyFunc(func(ctx context.Context, orgID int64, source, entityID, title, body, link, resolver string) {
-		if err := notifDispatcher.Dispatch(ctx, &notifDomain.NotificationRequest{
-			OrganizationID:    orgID,
-			Source:            source,
-			SourceEntityID:    entityID,
-			Title:             title,
-			Body:              body,
-			Link:              link,
-			RecipientResolver: resolver,
-		}); err != nil {
-			slog.Error("failed to dispatch notification", "source", source, "error", err)
-		}
-		RecordOSCNotification(entityID)
-	})
+	configurePodNotificationRouting(podRouter, notifDispatcher)
 
 	podOrchestrator := createPodOrchestrator(services, podCoordinator)
 
 	services.channel.AddPostSendHook(channelService.NewPodPromptHook(podRouter, channelRepo, runner.NewChannelPromptQueuer(services.pod, pendingQueueWiring.queue)))
 	slog.Info("PodPromptHook registered with PodRouter")
 
-	setupRunnerEventCallbacks(db, runnerConnMgr, eventBus)
-	setupPodEventCallbacks(db, podCoordinator, eventBus, notifDispatcher)
-	setupPerpetualPodCallbacks(db, podCoordinator, eventBus)
-	startOSCDedupCleanup()
+	configurePodRuntimeEvents(
+		db, runnerConnMgr, podCoordinator, eventBus, notifDispatcher,
+	)
+	orgAwareness, workflowOrchestrator, workflowScheduler, stopGoalMonitor :=
+		initializeAutomationRuntime(
+			cfg,
+			services,
+			db,
+			runnerConnMgr,
+			redisClient,
+			eventBus,
+			podOrchestrator,
+			podCoordinator,
+			appLogger.Logger,
+		)
+	defer stopGoalMonitor()
 
-	services.autopilot.SetCommandSender(podCoordinator)
-
-	runnerOrgQuerier := infra.NewRunnerOrgQuerier(db)
-	orgAwareness := instance.NewOrgAwarenessService(runnerOrgQuerier, runnerConnMgr, redisClient, cfg.Server.Address, appLogger.Logger)
-	orgAwareness.Start()
-	setupOrgAwarenessRefresh(eventBus, orgAwareness)
-	slog.Info("OrgAwarenessService started")
-
-	workflowOrchestrator := workflow.NewWorkflowOrchestrator(services.workflow, services.workflowRun, eventBus, appLogger.Logger)
-	workflowOrchestrator.SetPodDependencies(podOrchestrator, services.autopilot, podCoordinator, services.ticket, services.repository)
-	workflowScheduler := workflow.NewWorkflowScheduler(services.workflow, workflowOrchestrator, orgAwareness, appLogger.Logger)
-	workflowScheduler.Start()
-	setupWorkflowEventSubscriptions(eventBus, workflowOrchestrator)
-	slog.Info("Workflow orchestrator and scheduler created")
-
-	goalLoopTimeoutMonitor := configureGoalLoopService(services, podOrchestrator, podCoordinator, pendingQueueWiring.queue, eventBus, appLogger.Logger)
-	defer goalLoopTimeoutMonitor.Stop()
-
-	coordinatorEnsurer := coordinatorsvc.NewRunnerEnsurer(services.runner, nil, appLogger.Logger)
-	if launcher, kind, err := coordinatorsvc.NewRunnerLauncherFromEnv(appLogger.Logger); err != nil {
-		slog.Error("Coordinator runner launcher config invalid", "error", err)
-	} else if launcher != nil {
-		coordinatorEnsurer = coordinatorsvc.NewRunnerEnsurer(services.runner, launcher, appLogger.Logger)
-		slog.Info("Coordinator runner auto-provision enabled", "launcher", kind)
-	}
-	coordinatorSvc := coordinatorsvc.NewService(coordinatorsvc.Deps{
-		Store:         infra.NewCoordinatorRepository(db),
-		Tickets:       services.ticket,
-		Dispatch:      podOrchestrator,
-		Platform:      coordinatorsvc.NewPlatformFactory(services.repository, services.user),
-		RunnerEnsurer: coordinatorEnsurer,
-		Logger:        appLogger.Logger,
-	})
-	coordinatorScheduler := coordinatorsvc.NewScheduler(coordinatorSvc, appLogger.Logger)
-	coordinatorScheduler.Start()
+	coordinatorSvc, coordinatorScheduler := initializeCoordinatorRuntime(
+		services, db, podOrchestrator, eventBus, appLogger.Logger,
+	)
 	defer coordinatorScheduler.Stop()
-	setupCoordinatorEventSubscriptions(eventBus, coordinatorSvc)
-	slog.Info("Coordinator service and scheduler created")
 
 	grpcResult := initPKIAndGRPCWiring(cfg, services, runnerConnMgr, podCoordinator, podRouter, sandboxQuerySvc, sandboxFsSvc, podOrchestrator, workflowOrchestrator, services.workflowRun, appLogger, relayTokenGenerator, db)
 
@@ -217,35 +181,9 @@ func main() {
 		grpcResult, sandboxQuerySvc, sandboxFsSvc, logUploadSvc, relayManager, relayTokenGenerator, relayDNSService,
 		relayACMEManager, geoResolver, versionChecker, workflowOrchestrator, workflowScheduler, redisClient, pendingQueueWiring)
 	svc.Coordinator = coordinatorSvc
-	expertGitops := gitops.NewService(newGiteaClientForNamespace(cfg, "am-experts"), appLogger.Logger)
-	svc.Expert = expertSvc.NewService(expertSvc.Deps{
-		Store:       infra.NewExpertRepository(db),
-		Pods:        services.pod,
-		Dispatch:    podOrchestrator,
-		Repos:       services.repository,
-		WorkerSpecs: services.workerSpecs,
-		Gitops:      expertGitops,
-		Logger:      appLogger.Logger,
-	})
-
-	// Unified skill service (namespace am-skills): one internal git repo per
-	// skill, for both in-platform authoring and external imports. It reuses
-	// the extension packager for the package->object-storage pipeline.
-	// NewService returns nil (routes no-op) when gitea or the packager is not
-	// configured.
-	skillGitops := gitops.NewService(newGiteaClientForNamespace(cfg, "am-skills"), appLogger.Logger)
-	var skillPackager skillSvc.SkillPackagerBridge
-	if services.extension != nil {
-		if pkg := services.extension.SkillPackager(); pkg != nil {
-			skillPackager = pkg
-		}
-	}
-	svc.Skill = skillSvc.NewService(skillSvc.Deps{
-		Store:    infra.NewSkillCatalogRepository(db),
-		Gitops:   skillGitops,
-		Packager: skillPackager,
-		Logger:   appLogger.Logger,
-	})
+	wireExpertAndSkillServices(
+		cfg, db, services, svc, podOrchestrator, appLogger.Logger,
+	)
 
 	router := rest.NewRouter(cfg, svc, db, appLogger.Logger, redisClient)
 	grpcResult.server = startGRPCServer(cfg, grpcResult.server)

@@ -2,7 +2,10 @@ package automation
 
 import podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 
-func init() { register("codex-cli", codexAdapter{}) }
+func init() {
+	register("codex-cli", codexAdapter{})
+	register("video-studio", codexAdapter{})
+}
 
 // codexApprovalModeKey is codex-cli's native approval CONFIG. Options are
 // untrusted / on-request / never (see the builtin codex AgentFile).

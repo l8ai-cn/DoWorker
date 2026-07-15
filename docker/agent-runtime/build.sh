@@ -8,6 +8,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 AGENT_RUNTIMES=(
   claude-code
   codex-cli
+  video-studio
   gemini-cli
   aider
   opencode
@@ -24,6 +25,16 @@ BASE_IMAGE="${BASE_IMAGE:-do-worker/runner-base:latest}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 STAGING="${STAGING_DIR:-${SCRIPT_DIR}/_context}"
 BUILD_RETRIES="${BUILD_RETRIES:-3}"
+DEBIAN_MIRROR="${DEBIAN_MIRROR:-http://mirrors.aliyun.com/debian}"
+DEBIAN_SECURITY_MIRROR="${DEBIAN_SECURITY_MIRROR:-http://mirrors.aliyun.com/debian-security}"
+PROXY_BUILD_ARGS=(--build-arg "BUILDKIT_INLINE_CACHE=1")
+
+for proxy_name in HTTP_PROXY HTTPS_PROXY NO_PROXY; do
+  proxy_value="${!proxy_name:-}"
+  if [[ -n "$proxy_value" ]]; then
+    PROXY_BUILD_ARGS+=(--build-arg "${proxy_name}=${proxy_value}")
+  fi
+done
 
 usage() {
   cat <<EOF
@@ -32,6 +43,7 @@ usage() {
 Agent runtimes:
   claude-code   Claude Code CLI (@anthropic-ai/claude-code)
   codex-cli     OpenAI Codex CLI (@openai/codex)
+  video-studio  Codex + FFmpeg/libass + Chromium + Remotion + Python + CJK fonts
   gemini-cli    Google Gemini CLI (@google/gemini-cli)
   aider         Aider (pip)
   opencode      OpenCode CLI
@@ -50,8 +62,13 @@ Agent runtimes:
   STAGING_DIR     二进制 staging 目录
   FORCE_REBUILD   设为 1 强制重建已有镜像
   BUILD_RETRIES   docker build 失败重试次数 (默认 3)
+  DEBIAN_MIRROR   Debian 软件源
+  DEBIAN_SECURITY_MIRROR
+                  Debian security 软件源
   HERMES_AGENT_VERSION
                   hermes-agent npm/PyPI bridge version (默认 0.18.2)
+  REMOTION_VERSION
+                  Remotion runtime version (默认 4.0.489)
 EOF
 }
 
@@ -86,10 +103,9 @@ build_base() {
   docker_build_with_retry docker build --platform "$PLATFORM" \
     --target base \
     -f "${SCRIPT_DIR}/Dockerfile" \
-    --build-arg "HTTP_PROXY=" \
-    --build-arg "HTTPS_PROXY=" \
-    --build-arg "http_proxy=" \
-    --build-arg "https_proxy=" \
+    "${PROXY_BUILD_ARGS[@]}" \
+    --build-arg "DEBIAN_MIRROR=${DEBIAN_MIRROR}" \
+    --build-arg "DEBIAN_SECURITY_MIRROR=${DEBIAN_SECURITY_MIRROR}" \
     -t "$BASE_IMAGE" \
     "$SCRIPT_DIR"
   echo "✓ ${BASE_IMAGE}"
@@ -110,13 +126,12 @@ build_one() {
   docker_build_with_retry docker build --platform "$PLATFORM" \
     --target runtime \
     -f "${SCRIPT_DIR}/Dockerfile" \
+    "${PROXY_BUILD_ARGS[@]}" \
     --build-arg "AGENT_RUNTIME=${rt}" \
-    --build-arg "HTTP_PROXY=" \
-    --build-arg "HTTPS_PROXY=" \
-    --build-arg "http_proxy=" \
-    --build-arg "https_proxy=" \
+    --build-arg "DEBIAN_MIRROR=${DEBIAN_MIRROR}" \
+    --build-arg "DEBIAN_SECURITY_MIRROR=${DEBIAN_SECURITY_MIRROR}" \
     --build-arg "HERMES_AGENT_VERSION=${HERMES_AGENT_VERSION:-0.18.2}" \
-    --cache-from "$BASE_IMAGE" \
+    --build-arg "REMOTION_VERSION=${REMOTION_VERSION:-4.0.489}" \
     -t "$tag" \
     "$STAGING"
   echo "✓ ${tag}"
@@ -133,7 +148,7 @@ if [[ "$RUNTIME" != "all" ]] && ! contains_runtime "$RUNTIME"; then
   exit 1
 fi
 
-"${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING"
+TARGET_ARCH="${PLATFORM#linux/}" "${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING"
 build_base
 
 if [[ "$RUNTIME" == "all" ]]; then

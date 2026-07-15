@@ -191,6 +191,40 @@ func TestExpertMarketRepositoryRejectsNonPublishedLatestUpdates(t *testing.T) {
 	}
 }
 
+func TestExpertMarketRepositoryCreatesMonotonicSubmissions(t *testing.T) {
+	repo := newExpertMarketTestRepository(t)
+	ctx := context.Background()
+	application := testApplication("video-production", 10)
+	first := testRelease(0, 0, expertmarket.ReleaseStatusPendingReview)
+	require.NoError(t, repo.CreateSubmission(ctx, &application, &first))
+	require.Equal(t, 1, first.Version)
+	require.Positive(t, application.ID)
+
+	pending := testRelease(0, 0, expertmarket.ReleaseStatusPendingReview)
+	require.ErrorIs(t,
+		repo.CreateSubmission(ctx, &application, &pending),
+		expertmarket.ErrPendingReleaseExists,
+	)
+	require.NoError(t, repo.UpdateReleaseLifecycle(
+		ctx,
+		first.ID,
+		expertmarket.LifecycleUpdate{
+			Status: expertmarket.ReleaseStatusRejected,
+		},
+	))
+	second := testRelease(0, 0, expertmarket.ReleaseStatusPendingReview)
+	require.NoError(t, repo.CreateSubmission(ctx, &application, &second))
+	require.Equal(t, 2, second.Version)
+
+	wrongOwner := application
+	wrongOwner.PublisherOrganizationID = 20
+	third := testRelease(0, 0, expertmarket.ReleaseStatusPendingReview)
+	require.ErrorIs(t,
+		repo.CreateSubmission(ctx, &wrongOwner, &third),
+		expertmarket.ErrConflict,
+	)
+}
+
 func newExpertMarketTestRepository(t *testing.T) expertmarket.Repository {
 	t.Helper()
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{

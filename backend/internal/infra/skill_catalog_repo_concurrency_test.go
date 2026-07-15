@@ -72,3 +72,49 @@ func TestSkillCatalogRepositoryListAllIsOrgScopedAndIDOrdered(t *testing.T) {
 	require.Len(t, rows, 2)
 	assert.Equal(t, []int64{5, 9}, []int64{rows[0].ID, rows[1].ID})
 }
+
+func TestSkillCatalogRepositoryListsOnlyActivePlatformDependencies(t *testing.T) {
+	ctx := context.Background()
+	db := workerSpecSnapshotDBForContract(t)
+	require.NoError(t, db.Exec(
+		"ALTER TABLE skills ADD COLUMN tags TEXT NOT NULL DEFAULT '{}'",
+	).Error)
+	repo := NewSkillCatalogRepository(db)
+	orgID := int64(77)
+	seeded := []*skilldom.Skill{
+		{OrganizationID: nil, Slug: "active", GitRepoPath: "skills/active", IsActive: true},
+		{OrganizationID: nil, Slug: "inactive", GitRepoPath: "skills/inactive", IsActive: true},
+		{OrganizationID: &orgID, Slug: "org-only", GitRepoPath: "skills/org-only", IsActive: true},
+		{OrganizationID: nil, Slug: "unrequested", GitRepoPath: "skills/unrequested", IsActive: true},
+	}
+	for _, row := range seeded {
+		require.NoError(t, repo.Create(ctx, row))
+	}
+	require.NoError(t, db.Model(&skilldom.Skill{}).
+		Where("slug = ?", "inactive").
+		Update("is_active", false).Error)
+
+	rows, err := repo.ListActivePlatformBySlugs(
+		ctx,
+		[]string{"org-only", "active", "inactive", "missing"},
+	)
+	require.NoError(t, err)
+	require.Len(t, rows, 1)
+	assert.Equal(t, "active", rows[0].Slug)
+
+	rows, err = repo.ListActivePlatformBySlugs(ctx, nil)
+	require.NoError(t, err)
+	assert.Empty(t, rows)
+
+	rows, err = repo.ListByIDs(
+		ctx,
+		[]int64{seeded[2].ID, seeded[1].ID, seeded[0].ID, 9999},
+	)
+	require.NoError(t, err)
+	require.Len(t, rows, 3)
+	assert.Equal(
+		t,
+		[]int64{seeded[0].ID, seeded[1].ID, seeded[2].ID},
+		[]int64{rows[0].ID, rows[1].ID, rows[2].ID},
+	)
+}

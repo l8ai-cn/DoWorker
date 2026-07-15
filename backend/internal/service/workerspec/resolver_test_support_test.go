@@ -166,6 +166,14 @@ func (repository *snapshotRepositoryForTest) Create(
 	}, nil
 }
 
+func (repository *snapshotRepositoryForTest) Delete(
+	context.Context,
+	int64,
+	int64,
+) error {
+	return nil
+}
+
 func (*snapshotRepositoryForTest) GetByID(
 	context.Context,
 	int64,

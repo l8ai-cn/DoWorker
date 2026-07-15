@@ -79,7 +79,7 @@ func modelRequirements(
 ) (resourceservice.ResolutionRequirements, error) {
 	var adapter string
 	switch workerType.String() {
-	case "codex-cli":
+	case "codex-cli", "video-studio":
 		adapter = "openai-compatible"
 	case "claude-code":
 		adapter = "anthropic"

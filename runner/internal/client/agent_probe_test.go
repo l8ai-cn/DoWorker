@@ -69,6 +69,23 @@ func TestAgentProbeProbeAll(t *testing.T) {
 	}
 }
 
+func TestAgentProbeRequiresVideoStudioRuntimeMarker(t *testing.T) {
+	probe := NewAgentProbe()
+
+	available, _ := probe.ProbeAll([]*runnerv1.AgentInfo{
+		{Slug: "codex-cli", Command: "go", Name: "Codex"},
+		{
+			Slug:    "video-studio",
+			Command: "video-studio-codex",
+			Name:    "Video Studio",
+		},
+	})
+
+	if len(available) != 1 || available[0] != "codex-cli" {
+		t.Fatalf("expected only codex-cli without video runtime marker, got %v", available)
+	}
+}
+
 func TestAgentProbeProbeAndDiff_NoChanges(t *testing.T) {
 	probe := NewAgentProbe()
 
