@@ -16,7 +16,7 @@
 - [x] Web projection/editor tests, typecheck and lint pass.
 - [x] Browser E2E proves both edit directions, invalid-code lockout and real GoalLoop creation/start.
 - [x] Final review has no blocking findings.
-- [ ] Fix commit is pushed and visible on the remote branch.
+- [x] Fix commit is pushed and visible on the remote branch.
 
 ## Iterations
 
@@ -29,7 +29,7 @@
 | 5 | Blockly and CodeMirror workbench | Projection tests, typecheck, lint and responsive browser QA pass | complete |
 | 6 | Real execution integration | GoalLoop `checkout-fix-2` and Pod `7-standalone-62c1f8c9` were created and started | complete |
 | 7 | Final review and delivery | Independent review found no P1/P2; clean candidate tree passed all checks; commit `3b23b774290b4c7ba30ed3d1a159d5029360e556` is visible on `origin/codex/loop-blockly-mvp` | complete |
-| 8 | Single-runtime deterministic controller | Race tests, real browser integration and independent review cover exact verification consumption, durable retry commands, replay filtering and recovery | implementation complete; delivery waiting on migration sequence |
+| 8 | Single-runtime deterministic controller | Race tests, real browser integration and independent review cover exact verification consumption, durable retry commands, replay filtering and recovery | complete; merge and deployment gated on migration sequence |
 
 ## Integration Evidence
 
@@ -49,4 +49,5 @@
 - Duplicate command IDs are detected before per-Runner capacity checks, preserving idempotent retry semantics when a queue is full.
 - GoalLoop `checkout-fix-7` and Pod `7-standalone-616af48d` exercised the repaired path in the browser without creating an Autopilot controller.
 - Independent final review found no P0, P1 or P2 issue after the Runner handler and deterministic controller test files were split by responsibility.
-- Delivery remains blocked until the shared-worktree owners publish migrations `000207` through `000212`; pushing `000213` and `000214` first would make the lower migration versions permanently ineligible after deployment.
+- Fix commit `bd3136d5132bca49579f0708ce5b5eb93ed969fe` is visible on `origin/codex/loop-blockly-mvp`.
+- Merge and deployment remain gated until migrations `000207` through `000212` are published into the target history; deploying `000213` and `000214` first would make the lower migration versions permanently ineligible.
