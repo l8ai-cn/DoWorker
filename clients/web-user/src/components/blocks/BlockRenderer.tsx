@@ -32,6 +32,7 @@ import {
 } from "@/shell/FileViewerContext";
 import { toWorkspaceRelativePath, useWorkspaceFileExists } from "@/hooks/useWorkspaceChangedFiles";
 import { ElicitationCard } from "./ApprovalCard";
+import { OutputFileArtifact } from "./OutputFileArtifact";
 import { ReasoningView } from "./ReasoningView";
 import { SlashCommandCard } from "./SlashCommandCard";
 import { SmartRoutingCard } from "./SmartRoutingCard";
@@ -570,6 +571,15 @@ function renderItem(
           input={item.input}
           stdout={item.stdout}
           stderr={item.stderr}
+        />
+      );
+    case "file":
+      return (
+        <OutputFileArtifact
+          key={key}
+          fileId={item.fileId}
+          filename={item.filename}
+          contentType={item.contentType}
         />
       );
     case "error":

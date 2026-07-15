@@ -1547,4 +1547,29 @@ describe("buildBubbles — incremental reuse cache", () => {
     expect(bubbles).toHaveLength(1);
     expect((bubbles[0] as Extract<Bubble, { kind: "assistant" }>).lifecycle).toBe("cancelled");
   });
+
+  it("renders output files inside the assistant bubble", () => {
+    const blocks: AnyBlock[] = [
+      {
+        type: "file",
+        ctx: ctx({ itemId: "file_item", responseId: "resp_file" }),
+        fileId: "file_123",
+        filename: "seedance.mp4",
+        contentType: "video/mp4",
+      },
+    ];
+
+    const bubbles = buildBubbles(blocks, null);
+    const assistant = bubbles[0] as Extract<Bubble, { kind: "assistant" }>;
+
+    expect(assistant.items).toEqual([
+      {
+        kind: "file",
+        itemId: "file_item",
+        fileId: "file_123",
+        filename: "seedance.mp4",
+        contentType: "video/mp4",
+      },
+    ]);
+  });
 });
