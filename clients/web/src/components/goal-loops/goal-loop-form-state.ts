@@ -1,4 +1,4 @@
-import type { Pod } from "@/stores/pod";
+import type { GoalLoopWorkerSnapshot } from "@/lib/viewModels/goal-loop";
 
 export interface GoalLoopFormState {
   name: string;
@@ -34,17 +34,7 @@ export function optionalNumber(value: string): number | undefined {
   return value.trim() === "" ? undefined : Number(value);
 }
 
-export function workerSnapshotOptions(workers: Pod[]) {
-  const snapshots = new Map<number, Pod>();
-  for (const worker of workers) {
-    if (worker.worker_spec_snapshot_id !== undefined && !snapshots.has(worker.worker_spec_snapshot_id)) {
-      snapshots.set(worker.worker_spec_snapshot_id, worker);
-    }
-  }
-  return [...snapshots.entries()].map(([snapshotId, worker]) => ({ snapshotId, worker }));
-}
-
-export function workerLabel(worker: Pod): string {
-  const name = worker.alias ?? worker.title ?? worker.pod_key;
-  return worker.agent?.name ? `${name} · ${worker.agent.name}` : name;
+export function workerLabel(worker: GoalLoopWorkerSnapshot): string {
+  const workerType = worker.worker_type || "Worker";
+  return worker.alias ? `${worker.alias} · ${workerType}` : `${workerType} · 快照 #${worker.id}`;
 }

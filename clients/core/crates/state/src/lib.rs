@@ -1,5 +1,6 @@
 pub mod acp_session;
 pub mod acp_types;
+mod app_runtime;
 pub mod app_state;
 pub mod auth_types;
 pub mod autopilot_state;
@@ -13,6 +14,7 @@ pub mod credential_types;
 pub mod event_dispatch;
 pub mod expert_state;
 pub mod expert_types;
+pub mod loop_builder_state;
 pub mod workflow_state;
 pub mod workflow_types;
 pub mod loopal_dispatch;
@@ -37,6 +39,8 @@ mod blockstore_state_tests;
 mod channel_state_tests;
 #[cfg(test)]
 mod expert_state_tests;
+#[cfg(test)]
+mod loop_builder_state_tests;
 #[cfg(test)]
 mod workflow_state_tests;
 #[cfg(test)]

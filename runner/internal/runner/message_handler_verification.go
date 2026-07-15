@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/anthropics/agentsmesh/runner/internal/envpath"
@@ -20,7 +21,10 @@ const (
 )
 
 func (h *RunnerMessageHandler) OnRunVerification(cmd *runnerv1.RunVerificationCommand) error {
-	result := h.runVerification(cmd)
+	result, err := h.verificationResult(cmd)
+	if err != nil {
+		return err
+	}
 	if err := h.conn.SendVerificationResult(result); err != nil {
 		return fmt.Errorf("send verification result: %w", err)
 	}
@@ -113,7 +117,15 @@ func (buffer *cappedOutputBuffer) Write(data []byte) (int, error) {
 }
 
 func (buffer *cappedOutputBuffer) String() string {
-	return buffer.buffer.String()
+	output := buffer.buffer.Bytes()
+	end := len(output)
+	for end > 0 && !utf8.Valid(output[:end]) {
+		end--
+	}
+	if end != len(output) {
+		buffer.truncated = true
+	}
+	return string(output[:end])
 }
 
 func (buffer *cappedOutputBuffer) Truncated() bool {

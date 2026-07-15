@@ -1,23 +1,13 @@
 package runner
 
 import (
-	"errors"
 	"fmt"
 	"strings"
-	"time"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
-	"github.com/anthropics/agentsmesh/runner/internal/acp"
 	"github.com/anthropics/agentsmesh/runner/internal/client"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
 )
-
-// ptySubmitGap separates the prompt-body Write from the Enter keystroke so
-// the TUI's read(2) loop ticks between them. Without this gap both writes
-// land in one read and the TUI treats the whole chunk (incl. trailing \r)
-// as a paste — the Enter never fires. MCP's two-RPC path gets this gap
-// implicitly via network round-trip; the in-process gRPC path does not.
-const ptySubmitGap = 80 * time.Millisecond
 
 // OnListRelayConnections returns current relay connections.
 func (h *RunnerMessageHandler) OnListRelayConnections() []client.RelayConnectionInfo {
@@ -127,88 +117,6 @@ func (h *RunnerMessageHandler) OnObservePod(req client.ObservePodRequest) error 
 
 	log.Debug("Sent observe PTY result", "request_id", req.RequestID, "pod_key", req.PodKey, "lines", totalLines)
 	return nil
-}
-
-// OnSendPrompt handles send_prompt command from server (gRPC control plane).
-// Mode-transparent submission: ACP submits via its structured SendPrompt RPC;
-// PTY writes the body then issues a separate Enter keystroke via SendKeys
-// (the "press Enter" semantic — not SendInput which is "raw bytes"). A small
-// gap between the two writes is required so the TUI doesn't fold them into
-// a single paste.
-// For ACP mode, also echoes the user message via Relay so it appears in the
-// chat UI (consistent with the Relay command path in handleAcpRelayCommand).
-func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) error {
-	log := logger.Pod()
-	if cmd.CommandId != "" {
-		h.promptDedupMu.Lock()
-		if h.promptDedup == nil {
-			h.promptDedup = make(map[string]*promptDedupRing)
-		}
-		ring := h.promptDedup[cmd.PodKey]
-		if ring == nil {
-			ring = newPromptDedupRing(32)
-			h.promptDedup[cmd.PodKey] = ring
-		}
-		if ring.seen(cmd.CommandId) {
-			h.promptDedupMu.Unlock()
-			log.Info("duplicate send_prompt absorbed", "pod_key", cmd.PodKey, "command_id", cmd.CommandId)
-			return nil
-		}
-		ring.add(cmd.CommandId)
-		h.promptDedupMu.Unlock()
-	}
-	pod, ok := h.podStore.Get(cmd.PodKey)
-	if !ok {
-		log.Warn("Pod not found for send_prompt", "pod_key", cmd.PodKey)
-		return fmt.Errorf("pod not found: %s", cmd.PodKey)
-	}
-	if pod.IO == nil {
-		log.Warn("PodIO not available for send_prompt", "pod_key", cmd.PodKey)
-		return fmt.Errorf("pod IO not available: %s", cmd.PodKey)
-	}
-	// ACP: echo user message to Relay so it appears in the chat panel.
-	if pod.IsACPMode() {
-		sendAcpViaRelay(pod, "contentChunk", "", map[string]string{
-			"text": cmd.Prompt, "role": "user",
-		})
-		if err := acpSendPromptWhenReady(pod, cmd.Prompt); err != nil {
-			return err
-		}
-		return nil
-	}
-	if err := pod.IO.SendInput(cmd.Prompt); err != nil {
-		return err
-	}
-	if ta, ok := pod.IO.(TerminalAccess); ok {
-		time.Sleep(ptySubmitGap)
-		return ta.SendKeys([]string{"enter"})
-	}
-	return nil
-}
-
-// acpSendPromptWhenReady retries until the ACP client leaves initializing and
-// NewSession has assigned a thread/session id (Codex/ACP; Claude is exempt).
-func acpSendPromptWhenReady(pod *Pod, prompt string) error {
-	const attempts = 100
-	for i := 0; i < attempts; i++ {
-		err := pod.IO.SendInput(prompt)
-		if err == nil {
-			return nil
-		}
-		if acpPromptRetryable(err) {
-			time.Sleep(100 * time.Millisecond)
-			continue
-		}
-		return err
-	}
-	return fmt.Errorf("timeout waiting for ACP pod %s to accept prompt", pod.PodKey)
-}
-
-func acpPromptRetryable(err error) bool {
-	if errors.Is(err, acp.ErrPromptNotReady) {
-		return true
-	}
-	return strings.Contains(err.Error(), "cannot send prompt in state")
 }
 
 func (h *RunnerMessageHandler) OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error {

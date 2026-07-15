@@ -8,27 +8,25 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createGoalLoop, startGoalLoop } from "@/lib/api/facade/goalLoopConnect";
-import type { GoalLoopData } from "@/lib/viewModels/goal-loop";
-import type { Pod } from "@/stores/pod";
+import type { GoalLoopData, GoalLoopWorkerSnapshot } from "@/lib/viewModels/goal-loop";
 import {
   initialGoalLoopForm,
   optionalNumber,
   type GoalLoopFormState,
   workerLabel,
-  workerSnapshotOptions,
 } from "./goal-loop-form-state";
 
 interface GoalLoopCreateFormProps {
   orgSlug: string;
-  workers: Pod[];
+  workerSnapshots: GoalLoopWorkerSnapshot[];
   onCreated: (loop: GoalLoopData) => void;
 }
 
-export function GoalLoopCreateForm({ orgSlug, workers, onCreated }: GoalLoopCreateFormProps) {
+export function GoalLoopCreateForm({ orgSlug, workerSnapshots, onCreated }: GoalLoopCreateFormProps) {
   const [form, setForm] = useState<GoalLoopFormState>(initialGoalLoopForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const availableWorkers = workerSnapshotOptions(workers);
+  const selectedWorker = workerSnapshots.find((worker) => String(worker.id) === form.workerSnapshotId);
   const criteria = form.criteria.split("\n").map((item) => item.trim()).filter(Boolean);
   const canSubmit = Boolean(
     form.name.trim() &&
@@ -71,19 +69,7 @@ export function GoalLoopCreateForm({ orgSlug, workers, onCreated }: GoalLoopCrea
   }
 
   return (
-    <section className="rounded-xl bg-surface-raised p-5 shadow-[var(--shadow-soft)] ring-1 ring-border/30">
-      <div className="mb-5 flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <Play className="h-4 w-4" />
-        </div>
-        <div>
-          <h2 className="font-semibold">创建目标 Loop</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Loop 只执行一次，完成必须由验证命令退出码为 0 判定。
-          </p>
-        </div>
-      </div>
-
+    <div className="px-6 py-4">
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="goal-loop-name">名称</Label>
@@ -91,17 +77,22 @@ export function GoalLoopCreateForm({ orgSlug, workers, onCreated }: GoalLoopCrea
         </div>
         <div className="space-y-2">
           <Label>执行 Worker</Label>
-          <Select value={form.workerSnapshotId} onValueChange={(value) => update("workerSnapshotId", value)}>
-            <SelectTrigger><SelectValue placeholder="选择已有 Worker" /></SelectTrigger>
+          <Select disabled={workerSnapshots.length === 0} value={form.workerSnapshotId} onValueChange={(value) => update("workerSnapshotId", value)}>
+            <SelectTrigger>
+              {selectedWorker ? workerLabel(selectedWorker) : <SelectValue placeholder="选择已有 Worker" />}
+            </SelectTrigger>
             <SelectContent>
-              {availableWorkers.map(({ snapshotId, worker }) => (
-                <SelectItem key={snapshotId} value={String(snapshotId)}>
+              {workerSnapshots.map((worker) => (
+                <SelectItem key={worker.id} value={String(worker.id)}>
                   {workerLabel(worker)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">Loop 固定使用该 Worker 的不可变配置快照，不复用运行时会话。</p>
+          {workerSnapshots.length === 0 && (
+            <p className="text-xs text-amber-700 dark:text-amber-300">当前组织没有可用 Worker。请先在工作区创建 Worker。</p>
+          )}
         </div>
         <div className="space-y-2 md:col-span-2">
           <Label htmlFor="goal-loop-objective">目标</Label>
@@ -161,7 +152,7 @@ export function GoalLoopCreateForm({ orgSlug, workers, onCreated }: GoalLoopCrea
           <Play className="mr-2 h-4 w-4" />创建并启动
         </Button>
       </div>
-    </section>
+    </div>
   );
 }
 

@@ -7,6 +7,7 @@ import (
 
 type PendingCommandRepository interface {
 	Enqueue(ctx context.Context, cmd *PendingCommand) error
+	ExistsCommandID(ctx context.Context, commandID string) (bool, error)
 	CountByRunner(ctx context.Context, runnerID int64) (int, error)
 	ListByRunnerFIFO(ctx context.Context, runnerID int64, limit int) ([]*PendingCommand, error)
 	Delete(ctx context.Context, id int64) error

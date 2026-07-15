@@ -32,3 +32,15 @@ func (r *promptDedupRing) add(id string) {
 	r.ids[r.index] = id
 	r.index = (r.index + 1) % r.cap
 }
+
+func (r *promptDedupRing) remove(id string) {
+	for i := 0; i < r.count; i++ {
+		if r.ids[i] != id {
+			continue
+		}
+		r.count--
+		r.ids[i] = r.ids[r.count]
+		r.ids[r.count] = ""
+		return
+	}
+}

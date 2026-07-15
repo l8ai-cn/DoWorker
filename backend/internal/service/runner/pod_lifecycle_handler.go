@@ -75,6 +75,7 @@ func (pc *PodCoordinator) handlePodTerminated(runnerID int64, data *runnerv1.Pod
 		updates["error_message"] = data.ErrorMessage
 	}
 
+	pc.cancelPendingForPod(ctx, data.PodKey)
 	var rowsAffected int64
 	var err error
 	if status == agentpod.StatusError {

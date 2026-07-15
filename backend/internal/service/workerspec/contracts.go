@@ -91,6 +91,10 @@ type SnapshotRepository interface {
 		ctx context.Context,
 		organizationID, snapshotID int64,
 	) (domain.Snapshot, error)
+	ListByOrganization(
+		ctx context.Context,
+		organizationID int64,
+	) ([]domain.Snapshot, error)
 }
 
 type ResolverDeps struct {

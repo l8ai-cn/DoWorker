@@ -10,7 +10,457 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file goalloop/v1/goalloop.proto.
  */
 export const file_goalloop_v1_goalloop: GenFile = /*@__PURE__*/
-  fileDesc("Chpnb2FsbG9vcC92MS9nb2FsbG9vcC5wcm90bxIRcHJvdG8uZ29hbGxvb3AudjEi7QYKCEdvYWxMb29wEgoKAmlkGAEgASgDEgwKBHNsdWcYAiABKAkSDAoEbmFtZRgDIAEoCRIYCgtkZXNjcmlwdGlvbhgEIAEoCUgAiAEBEh8KF3dvcmtlcl9zcGVjX3NuYXBzaG90X2lkGAUgASgDEhEKCW9iamVjdGl2ZRgGIAEoCRIbChNhY2NlcHRhbmNlX2NyaXRlcmlhGAcgAygJEhwKFHZlcmlmaWNhdGlvbl9jb21tYW5kGAggASgJEg4KBnN0YXR1cxgJIAEoCRIUCgdwb2Rfa2V5GAogASgJSAGIAQESJQoYYXV0b3BpbG90X2NvbnRyb2xsZXJfa2V5GAsgASgJSAKIAQESFgoObWF4X2l0ZXJhdGlvbnMYDCABKAUSGQoMdG9rZW5fYnVkZ2V0GA0gASgDSAOIAQESFwoPdGltZW91dF9taW51dGVzGA4gASgFEhkKEW5vX3Byb2dyZXNzX2xpbWl0GA8gASgFEhgKEHNhbWVfZXJyb3JfbGltaXQYECABKAUSGQoRZXNjYWxhdGlvbl9wb2xpY3kYESABKAkSIwoWdmVyaWZpY2F0aW9uX2V4aXRfY29kZRgSIAEoBUgEiAEBEiAKE3ZlcmlmaWNhdGlvbl9vdXRwdXQYEyABKAlIBYgBARIlCh12ZXJpZmljYXRpb25fb3V0cHV0X3RydW5jYXRlZBgUIAEoCBIfChJ2ZXJpZmljYXRpb25fZXJyb3IYFSABKAlIBogBARIXCgpzdGFydGVkX2F0GBYgASgJSAeIAQESGAoLdmVyaWZpZWRfYXQYFyABKAlICIgBARIZCgxjb21wbGV0ZWRfYXQYGCABKAlICYgBARISCgpjcmVhdGVkX2F0GBkgASgJEhIKCnVwZGF0ZWRfYXQYGiABKAlCDgoMX2Rlc2NyaXB0aW9uQgoKCF9wb2Rfa2V5QhsKGV9hdXRvcGlsb3RfY29udHJvbGxlcl9rZXlCDwoNX3Rva2VuX2J1ZGdldEIZChdfdmVyaWZpY2F0aW9uX2V4aXRfY29kZUIWChRfdmVyaWZpY2F0aW9uX291dHB1dEIVChNfdmVyaWZpY2F0aW9uX2Vycm9yQg0KC19zdGFydGVkX2F0Qg4KDF92ZXJpZmllZF9hdEIPCg1fY29tcGxldGVkX2F0IoUBChRMaXN0R29hbExvb3BzUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIOCgZzdGF0dXMYAiABKAkSDQoFcXVlcnkYAyABKAkSEwoGb2Zmc2V0GAQgASgFSACIAQESEgoFbGltaXQYBSABKAVIAYgBAUIJCgdfb2Zmc2V0QggKBl9saW1pdCJxChVMaXN0R29hbExvb3BzUmVzcG9uc2USKgoFaXRlbXMYASADKAsyGy5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcBINCgV0b3RhbBgCIAEoAxINCgVsaW1pdBgDIAEoBRIOCgZvZmZzZXQYBCABKAUiOQoSR2V0R29hbExvb3BSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEhEKCWxvb3Bfc2x1ZxgCIAEoCSLcAwoVQ3JlYXRlR29hbExvb3BSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEgwKBG5hbWUYAiABKAkSDAoEc2x1ZxgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRIfChd3b3JrZXJfc3BlY19zbmFwc2hvdF9pZBgFIAEoAxIRCglvYmplY3RpdmUYBiABKAkSGwoTYWNjZXB0YW5jZV9jcml0ZXJpYRgHIAMoCRIcChR2ZXJpZmljYXRpb25fY29tbWFuZBgIIAEoCRIbCg5tYXhfaXRlcmF0aW9ucxgJIAEoBUgAiAEBEhkKDHRva2VuX2J1ZGdldBgKIAEoA0gBiAEBEhwKD3RpbWVvdXRfbWludXRlcxgLIAEoBUgCiAEBEh4KEW5vX3Byb2dyZXNzX2xpbWl0GAwgASgFSAOIAQESHQoQc2FtZV9lcnJvcl9saW1pdBgNIAEoBUgEiAEBEhkKEWVzY2FsYXRpb25fcG9saWN5GA4gASgJQhEKD19tYXhfaXRlcmF0aW9uc0IPCg1fdG9rZW5fYnVkZ2V0QhIKEF90aW1lb3V0X21pbnV0ZXNCFAoSX25vX3Byb2dyZXNzX2xpbWl0QhMKEV9zYW1lX2Vycm9yX2xpbWl0IjwKFUdvYWxMb29wQWN0aW9uUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIRCglsb29wX3NsdWcYAiABKAkyqwQKD0dvYWxMb29wU2VydmljZRJiCg1MaXN0R29hbExvb3BzEicucHJvdG8uZ29hbGxvb3AudjEuTGlzdEdvYWxMb29wc1JlcXVlc3QaKC5wcm90by5nb2FsbG9vcC52MS5MaXN0R29hbExvb3BzUmVzcG9uc2USUQoLR2V0R29hbExvb3ASJS5wcm90by5nb2FsbG9vcC52MS5HZXRHb2FsTG9vcFJlcXVlc3QaGy5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcBJXCg5DcmVhdGVHb2FsTG9vcBIoLnByb3RvLmdvYWxsb29wLnYxLkNyZWF0ZUdvYWxMb29wUmVxdWVzdBobLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wElYKDVN0YXJ0R29hbExvb3ASKC5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcEFjdGlvblJlcXVlc3QaGy5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcBJXCg5WZXJpZnlHb2FsTG9vcBIoLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wQWN0aW9uUmVxdWVzdBobLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wElcKDkNhbmNlbEdvYWxMb29wEigucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3BBY3Rpb25SZXF1ZXN0GhsucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3BCRlpEZ2l0aHViLmNvbS9hbnRocm9waWNzL2FnZW50c21lc2gvcHJvdG8vZ2VuL2dvL2dvYWxsb29wL3YxO2dvYWxsb29wdjFiBnByb3RvMw");
+  fileDesc("Chpnb2FsbG9vcC92MS9nb2FsbG9vcC5wcm90bxIRcHJvdG8uZ29hbGxvb3AudjEiVAoOV29ya2VyU25hcHNob3QSCgoCaWQYASABKAMSDQoFYWxpYXMYAiABKAkSEwoLd29ya2VyX3R5cGUYAyABKAkSEgoKY3JlYXRlZF9hdBgEIAEoCSIuChpMaXN0V29ya2VyU25hcHNob3RzUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCSJPChtMaXN0V29ya2VyU25hcHNob3RzUmVzcG9uc2USMAoFaXRlbXMYASADKAsyIS5wcm90by5nb2FsbG9vcC52MS5Xb3JrZXJTbmFwc2hvdCI1ChBMb29wTm9kZUlkZW50aXR5Eg8KB25vZGVfaWQYASABKAkSEAoIbG9jYWxfaWQYAiABKAkicgoKTG9vcExpbWl0cxISCgppdGVyYXRpb25zGAEgASgDEg4KBnRva2VucxgCIAEoAxIXCg90aW1lb3V0X21pbnV0ZXMYAyABKAMSEwoLbm9fcHJvZ3Jlc3MYBCABKAMSEgoKc2FtZV9lcnJvchgFIAEoAyIwCg1Mb29wUmVmZXJlbmNlEhAKCGxvY2FsX2lkGAEgASgJEg0KBWZpZWxkGAIgASgJImgKDUxvb3BBZ2VudE5vZGUSNQoIaWRlbnRpdHkYASABKAsyIy5wcm90by5nb2FsbG9vcC52MS5Mb29wTm9kZUlkZW50aXR5Eg4KBnByb21wdBgDIAEoCUoECAIQA1IKd29ya2VyX3JlZiJqChBMb29wVmVyaWZpZXJOb2RlEjUKCGlkZW50aXR5GAEgASgLMiMucHJvdG8uZ29hbGxvb3AudjEuTG9vcE5vZGVJZGVudGl0eRIPCgdjb21tYW5kGAIgASgJEg4KBmFjY2VwdBgDIAEoCSLtAQoOTG9vcFJlcGVhdE5vZGUSNQoIaWRlbnRpdHkYASABKAsyIy5wcm90by5nb2FsbG9vcC52MS5Mb29wTm9kZUlkZW50aXR5EgsKA21heBgCIAEoAxIvCgV1bnRpbBgDIAEoCzIgLnByb3RvLmdvYWxsb29wLnYxLkxvb3BSZWZlcmVuY2USLwoFYWdlbnQYBCABKAsyIC5wcm90by5nb2FsbG9vcC52MS5Mb29wQWdlbnROb2RlEjUKCHZlcmlmaWVyGAUgASgLMiMucHJvdG8uZ29hbGxvb3AudjEuTG9vcFZlcmlmaWVyTm9kZSLgAQoLTG9vcFByb2dyYW0SFgoOc2NoZW1hX3ZlcnNpb24YASABKAUSMQoEbG9vcBgCIAEoCzIjLnByb3RvLmdvYWxsb29wLnYxLkxvb3BOb2RlSWRlbnRpdHkSLQoGbGltaXRzGAQgASgLMh0ucHJvdG8uZ29hbGxvb3AudjEuTG9vcExpbWl0cxIxCgZyZXBlYXQYBSABKAsyIS5wcm90by5nb2FsbG9vcC52MS5Mb29wUmVwZWF0Tm9kZRIWCg5mYWlsdXJlX3BvbGljeRgGIAEoCUoECAMQBFIGd29ya2VyIl4KDkxvb3BEaWFnbm9zdGljEgwKBGNvZGUYASABKAkSDwoHbWVzc2FnZRgCIAEoCRIPCgdub2RlX2lkGAMgASgJEgwKBGxpbmUYBCABKAUSDgoGY29sdW1uGAUgASgFIk8KGUNvbXBpbGVMb29wUHJvZ3JhbVJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDgoGc291cmNlGAIgASgJEhAKCHJldmlzaW9uGAMgASgEIrEBChpDb21waWxlTG9vcFByb2dyYW1SZXNwb25zZRIYChBjYW5vbmljYWxfc291cmNlGAEgASgJEi8KB3Byb2dyYW0YAiABKAsyHi5wcm90by5nb2FsbG9vcC52MS5Mb29wUHJvZ3JhbRI2CgtkaWFnbm9zdGljcxgDIAMoCzIhLnByb3RvLmdvYWxsb29wLnYxLkxvb3BEaWFnbm9zdGljEhAKCHJldmlzaW9uGAQgASgEIloKFVJ1bkxvb3BQcm9ncmFtUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIOCgZzb3VyY2UYAiABKAkSHwoXd29ya2VyX3NwZWNfc25hcHNob3RfaWQYAyABKAMiqgIKEUxvb3BEcmFmdFNuYXBzaG90Eg4KBnNvdXJjZRgBIAEoCRIYChBjYW5vbmljYWxfc291cmNlGAIgASgJEi8KB3Byb2dyYW0YAyABKAsyHi5wcm90by5nb2FsbG9vcC52MS5Mb29wUHJvZ3JhbRI2CgtkaWFnbm9zdGljcxgEIAMoCzIhLnByb3RvLmdvYWxsb29wLnYxLkxvb3BEaWFnbm9zdGljEhQKDHBhcnNlX3N0YXR1cxgFIAEoCRIVCg1hY3RpdmVfZWRpdG9yGAYgASgJEhAKCHJldmlzaW9uGAcgASgEEhkKEXNlbWFudGljX3JldmlzaW9uGAggASgEEigKA3J1bhgJIAEoCzIbLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wIu0GCghHb2FsTG9vcBIKCgJpZBgBIAEoAxIMCgRzbHVnGAIgASgJEgwKBG5hbWUYAyABKAkSGAoLZGVzY3JpcHRpb24YBCABKAlIAIgBARIfChd3b3JrZXJfc3BlY19zbmFwc2hvdF9pZBgFIAEoAxIRCglvYmplY3RpdmUYBiABKAkSGwoTYWNjZXB0YW5jZV9jcml0ZXJpYRgHIAMoCRIcChR2ZXJpZmljYXRpb25fY29tbWFuZBgIIAEoCRIOCgZzdGF0dXMYCSABKAkSFAoHcG9kX2tleRgKIAEoCUgBiAEBEiUKGGF1dG9waWxvdF9jb250cm9sbGVyX2tleRgLIAEoCUgCiAEBEhYKDm1heF9pdGVyYXRpb25zGAwgASgFEhkKDHRva2VuX2J1ZGdldBgNIAEoA0gDiAEBEhcKD3RpbWVvdXRfbWludXRlcxgOIAEoBRIZChFub19wcm9ncmVzc19saW1pdBgPIAEoBRIYChBzYW1lX2Vycm9yX2xpbWl0GBAgASgFEhkKEWVzY2FsYXRpb25fcG9saWN5GBEgASgJEiMKFnZlcmlmaWNhdGlvbl9leGl0X2NvZGUYEiABKAVIBIgBARIgChN2ZXJpZmljYXRpb25fb3V0cHV0GBMgASgJSAWIAQESJQoddmVyaWZpY2F0aW9uX291dHB1dF90cnVuY2F0ZWQYFCABKAgSHwoSdmVyaWZpY2F0aW9uX2Vycm9yGBUgASgJSAaIAQESFwoKc3RhcnRlZF9hdBgWIAEoCUgHiAEBEhgKC3ZlcmlmaWVkX2F0GBcgASgJSAiIAQESGQoMY29tcGxldGVkX2F0GBggASgJSAmIAQESEgoKY3JlYXRlZF9hdBgZIAEoCRISCgp1cGRhdGVkX2F0GBogASgJQg4KDF9kZXNjcmlwdGlvbkIKCghfcG9kX2tleUIbChlfYXV0b3BpbG90X2NvbnRyb2xsZXJfa2V5Qg8KDV90b2tlbl9idWRnZXRCGQoXX3ZlcmlmaWNhdGlvbl9leGl0X2NvZGVCFgoUX3ZlcmlmaWNhdGlvbl9vdXRwdXRCFQoTX3ZlcmlmaWNhdGlvbl9lcnJvckINCgtfc3RhcnRlZF9hdEIOCgxfdmVyaWZpZWRfYXRCDwoNX2NvbXBsZXRlZF9hdCKFAQoUTGlzdEdvYWxMb29wc1JlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDgoGc3RhdHVzGAIgASgJEg0KBXF1ZXJ5GAMgASgJEhMKBm9mZnNldBgEIAEoBUgAiAEBEhIKBWxpbWl0GAUgASgFSAGIAQFCCQoHX29mZnNldEIICgZfbGltaXQicQoVTGlzdEdvYWxMb29wc1Jlc3BvbnNlEioKBWl0ZW1zGAEgAygLMhsucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3ASDQoFdG90YWwYAiABKAMSDQoFbGltaXQYAyABKAUSDgoGb2Zmc2V0GAQgASgFIjkKEkdldEdvYWxMb29wUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIRCglsb29wX3NsdWcYAiABKAki3AMKFUNyZWF0ZUdvYWxMb29wUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIMCgRuYW1lGAIgASgJEgwKBHNsdWcYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSHwoXd29ya2VyX3NwZWNfc25hcHNob3RfaWQYBSABKAMSEQoJb2JqZWN0aXZlGAYgASgJEhsKE2FjY2VwdGFuY2VfY3JpdGVyaWEYByADKAkSHAoUdmVyaWZpY2F0aW9uX2NvbW1hbmQYCCABKAkSGwoObWF4X2l0ZXJhdGlvbnMYCSABKAVIAIgBARIZCgx0b2tlbl9idWRnZXQYCiABKANIAYgBARIcCg90aW1lb3V0X21pbnV0ZXMYCyABKAVIAogBARIeChFub19wcm9ncmVzc19saW1pdBgMIAEoBUgDiAEBEh0KEHNhbWVfZXJyb3JfbGltaXQYDSABKAVIBIgBARIZChFlc2NhbGF0aW9uX3BvbGljeRgOIAEoCUIRCg9fbWF4X2l0ZXJhdGlvbnNCDwoNX3Rva2VuX2J1ZGdldEISChBfdGltZW91dF9taW51dGVzQhQKEl9ub19wcm9ncmVzc19saW1pdEITChFfc2FtZV9lcnJvcl9saW1pdCI8ChVHb2FsTG9vcEFjdGlvblJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSEQoJbG9vcF9zbHVnGAIgASgJMu0GCg9Hb2FsTG9vcFNlcnZpY2USdAoTTGlzdFdvcmtlclNuYXBzaG90cxItLnByb3RvLmdvYWxsb29wLnYxLkxpc3RXb3JrZXJTbmFwc2hvdHNSZXF1ZXN0Gi4ucHJvdG8uZ29hbGxvb3AudjEuTGlzdFdvcmtlclNuYXBzaG90c1Jlc3BvbnNlEnEKEkNvbXBpbGVMb29wUHJvZ3JhbRIsLnByb3RvLmdvYWxsb29wLnYxLkNvbXBpbGVMb29wUHJvZ3JhbVJlcXVlc3QaLS5wcm90by5nb2FsbG9vcC52MS5Db21waWxlTG9vcFByb2dyYW1SZXNwb25zZRJXCg5SdW5Mb29wUHJvZ3JhbRIoLnByb3RvLmdvYWxsb29wLnYxLlJ1bkxvb3BQcm9ncmFtUmVxdWVzdBobLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wEmIKDUxpc3RHb2FsTG9vcHMSJy5wcm90by5nb2FsbG9vcC52MS5MaXN0R29hbExvb3BzUmVxdWVzdBooLnByb3RvLmdvYWxsb29wLnYxLkxpc3RHb2FsTG9vcHNSZXNwb25zZRJRCgtHZXRHb2FsTG9vcBIlLnByb3RvLmdvYWxsb29wLnYxLkdldEdvYWxMb29wUmVxdWVzdBobLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wElcKDkNyZWF0ZUdvYWxMb29wEigucHJvdG8uZ29hbGxvb3AudjEuQ3JlYXRlR29hbExvb3BSZXF1ZXN0GhsucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3ASVgoNU3RhcnRHb2FsTG9vcBIoLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wQWN0aW9uUmVxdWVzdBobLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wElcKDlZlcmlmeUdvYWxMb29wEigucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3BBY3Rpb25SZXF1ZXN0GhsucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3ASVwoOQ2FuY2VsR29hbExvb3ASKC5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcEFjdGlvblJlcXVlc3QaGy5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcEJGWkRnaXRodWIuY29tL2FudGhyb3BpY3MvYWdlbnRzbWVzaC9wcm90by9nZW4vZ28vZ29hbGxvb3AvdjE7Z29hbGxvb3B2MWIGcHJvdG8z");
+
+/**
+ * @generated from message proto.goalloop.v1.WorkerSnapshot
+ */
+export type WorkerSnapshot = Message<"proto.goalloop.v1.WorkerSnapshot"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: string alias = 2;
+   */
+  alias: string;
+
+  /**
+   * @generated from field: string worker_type = 3;
+   */
+  workerType: string;
+
+  /**
+   * @generated from field: string created_at = 4;
+   */
+  createdAt: string;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.WorkerSnapshot.
+ * Use `create(WorkerSnapshotSchema)` to create a new message.
+ */
+export const WorkerSnapshotSchema: GenMessage<WorkerSnapshot> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 0);
+
+/**
+ * @generated from message proto.goalloop.v1.ListWorkerSnapshotsRequest
+ */
+export type ListWorkerSnapshotsRequest = Message<"proto.goalloop.v1.ListWorkerSnapshotsRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.ListWorkerSnapshotsRequest.
+ * Use `create(ListWorkerSnapshotsRequestSchema)` to create a new message.
+ */
+export const ListWorkerSnapshotsRequestSchema: GenMessage<ListWorkerSnapshotsRequest> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 1);
+
+/**
+ * @generated from message proto.goalloop.v1.ListWorkerSnapshotsResponse
+ */
+export type ListWorkerSnapshotsResponse = Message<"proto.goalloop.v1.ListWorkerSnapshotsResponse"> & {
+  /**
+   * @generated from field: repeated proto.goalloop.v1.WorkerSnapshot items = 1;
+   */
+  items: WorkerSnapshot[];
+};
+
+/**
+ * Describes the message proto.goalloop.v1.ListWorkerSnapshotsResponse.
+ * Use `create(ListWorkerSnapshotsResponseSchema)` to create a new message.
+ */
+export const ListWorkerSnapshotsResponseSchema: GenMessage<ListWorkerSnapshotsResponse> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 2);
+
+/**
+ * @generated from message proto.goalloop.v1.LoopNodeIdentity
+ */
+export type LoopNodeIdentity = Message<"proto.goalloop.v1.LoopNodeIdentity"> & {
+  /**
+   * @generated from field: string node_id = 1;
+   */
+  nodeId: string;
+
+  /**
+   * @generated from field: string local_id = 2;
+   */
+  localId: string;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.LoopNodeIdentity.
+ * Use `create(LoopNodeIdentitySchema)` to create a new message.
+ */
+export const LoopNodeIdentitySchema: GenMessage<LoopNodeIdentity> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 3);
+
+/**
+ * @generated from message proto.goalloop.v1.LoopLimits
+ */
+export type LoopLimits = Message<"proto.goalloop.v1.LoopLimits"> & {
+  /**
+   * @generated from field: int64 iterations = 1;
+   */
+  iterations: bigint;
+
+  /**
+   * @generated from field: int64 tokens = 2;
+   */
+  tokens: bigint;
+
+  /**
+   * @generated from field: int64 timeout_minutes = 3;
+   */
+  timeoutMinutes: bigint;
+
+  /**
+   * @generated from field: int64 no_progress = 4;
+   */
+  noProgress: bigint;
+
+  /**
+   * @generated from field: int64 same_error = 5;
+   */
+  sameError: bigint;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.LoopLimits.
+ * Use `create(LoopLimitsSchema)` to create a new message.
+ */
+export const LoopLimitsSchema: GenMessage<LoopLimits> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 4);
+
+/**
+ * @generated from message proto.goalloop.v1.LoopReference
+ */
+export type LoopReference = Message<"proto.goalloop.v1.LoopReference"> & {
+  /**
+   * @generated from field: string local_id = 1;
+   */
+  localId: string;
+
+  /**
+   * @generated from field: string field = 2;
+   */
+  field: string;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.LoopReference.
+ * Use `create(LoopReferenceSchema)` to create a new message.
+ */
+export const LoopReferenceSchema: GenMessage<LoopReference> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 5);
+
+/**
+ * @generated from message proto.goalloop.v1.LoopAgentNode
+ */
+export type LoopAgentNode = Message<"proto.goalloop.v1.LoopAgentNode"> & {
+  /**
+   * @generated from field: proto.goalloop.v1.LoopNodeIdentity identity = 1;
+   */
+  identity?: LoopNodeIdentity | undefined;
+
+  /**
+   * @generated from field: string prompt = 3;
+   */
+  prompt: string;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.LoopAgentNode.
+ * Use `create(LoopAgentNodeSchema)` to create a new message.
+ */
+export const LoopAgentNodeSchema: GenMessage<LoopAgentNode> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 6);
+
+/**
+ * @generated from message proto.goalloop.v1.LoopVerifierNode
+ */
+export type LoopVerifierNode = Message<"proto.goalloop.v1.LoopVerifierNode"> & {
+  /**
+   * @generated from field: proto.goalloop.v1.LoopNodeIdentity identity = 1;
+   */
+  identity?: LoopNodeIdentity | undefined;
+
+  /**
+   * @generated from field: string command = 2;
+   */
+  command: string;
+
+  /**
+   * @generated from field: string accept = 3;
+   */
+  accept: string;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.LoopVerifierNode.
+ * Use `create(LoopVerifierNodeSchema)` to create a new message.
+ */
+export const LoopVerifierNodeSchema: GenMessage<LoopVerifierNode> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 7);
+
+/**
+ * @generated from message proto.goalloop.v1.LoopRepeatNode
+ */
+export type LoopRepeatNode = Message<"proto.goalloop.v1.LoopRepeatNode"> & {
+  /**
+   * @generated from field: proto.goalloop.v1.LoopNodeIdentity identity = 1;
+   */
+  identity?: LoopNodeIdentity | undefined;
+
+  /**
+   * @generated from field: int64 max = 2;
+   */
+  max: bigint;
+
+  /**
+   * @generated from field: proto.goalloop.v1.LoopReference until = 3;
+   */
+  until?: LoopReference | undefined;
+
+  /**
+   * @generated from field: proto.goalloop.v1.LoopAgentNode agent = 4;
+   */
+  agent?: LoopAgentNode | undefined;
+
+  /**
+   * @generated from field: proto.goalloop.v1.LoopVerifierNode verifier = 5;
+   */
+  verifier?: LoopVerifierNode | undefined;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.LoopRepeatNode.
+ * Use `create(LoopRepeatNodeSchema)` to create a new message.
+ */
+export const LoopRepeatNodeSchema: GenMessage<LoopRepeatNode> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 8);
+
+/**
+ * @generated from message proto.goalloop.v1.LoopProgram
+ */
+export type LoopProgram = Message<"proto.goalloop.v1.LoopProgram"> & {
+  /**
+   * @generated from field: int32 schema_version = 1;
+   */
+  schemaVersion: number;
+
+  /**
+   * @generated from field: proto.goalloop.v1.LoopNodeIdentity loop = 2;
+   */
+  loop?: LoopNodeIdentity | undefined;
+
+  /**
+   * @generated from field: proto.goalloop.v1.LoopLimits limits = 4;
+   */
+  limits?: LoopLimits | undefined;
+
+  /**
+   * @generated from field: proto.goalloop.v1.LoopRepeatNode repeat = 5;
+   */
+  repeat?: LoopRepeatNode | undefined;
+
+  /**
+   * @generated from field: string failure_policy = 6;
+   */
+  failurePolicy: string;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.LoopProgram.
+ * Use `create(LoopProgramSchema)` to create a new message.
+ */
+export const LoopProgramSchema: GenMessage<LoopProgram> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 9);
+
+/**
+ * @generated from message proto.goalloop.v1.LoopDiagnostic
+ */
+export type LoopDiagnostic = Message<"proto.goalloop.v1.LoopDiagnostic"> & {
+  /**
+   * @generated from field: string code = 1;
+   */
+  code: string;
+
+  /**
+   * @generated from field: string message = 2;
+   */
+  message: string;
+
+  /**
+   * @generated from field: string node_id = 3;
+   */
+  nodeId: string;
+
+  /**
+   * @generated from field: int32 line = 4;
+   */
+  line: number;
+
+  /**
+   * @generated from field: int32 column = 5;
+   */
+  column: number;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.LoopDiagnostic.
+ * Use `create(LoopDiagnosticSchema)` to create a new message.
+ */
+export const LoopDiagnosticSchema: GenMessage<LoopDiagnostic> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 10);
+
+/**
+ * @generated from message proto.goalloop.v1.CompileLoopProgramRequest
+ */
+export type CompileLoopProgramRequest = Message<"proto.goalloop.v1.CompileLoopProgramRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: string source = 2;
+   */
+  source: string;
+
+  /**
+   * @generated from field: uint64 revision = 3;
+   */
+  revision: bigint;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.CompileLoopProgramRequest.
+ * Use `create(CompileLoopProgramRequestSchema)` to create a new message.
+ */
+export const CompileLoopProgramRequestSchema: GenMessage<CompileLoopProgramRequest> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 11);
+
+/**
+ * @generated from message proto.goalloop.v1.CompileLoopProgramResponse
+ */
+export type CompileLoopProgramResponse = Message<"proto.goalloop.v1.CompileLoopProgramResponse"> & {
+  /**
+   * @generated from field: string canonical_source = 1;
+   */
+  canonicalSource: string;
+
+  /**
+   * @generated from field: proto.goalloop.v1.LoopProgram program = 2;
+   */
+  program?: LoopProgram | undefined;
+
+  /**
+   * @generated from field: repeated proto.goalloop.v1.LoopDiagnostic diagnostics = 3;
+   */
+  diagnostics: LoopDiagnostic[];
+
+  /**
+   * @generated from field: uint64 revision = 4;
+   */
+  revision: bigint;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.CompileLoopProgramResponse.
+ * Use `create(CompileLoopProgramResponseSchema)` to create a new message.
+ */
+export const CompileLoopProgramResponseSchema: GenMessage<CompileLoopProgramResponse> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 12);
+
+/**
+ * @generated from message proto.goalloop.v1.RunLoopProgramRequest
+ */
+export type RunLoopProgramRequest = Message<"proto.goalloop.v1.RunLoopProgramRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: string source = 2;
+   */
+  source: string;
+
+  /**
+   * @generated from field: int64 worker_spec_snapshot_id = 3;
+   */
+  workerSpecSnapshotId: bigint;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.RunLoopProgramRequest.
+ * Use `create(RunLoopProgramRequestSchema)` to create a new message.
+ */
+export const RunLoopProgramRequestSchema: GenMessage<RunLoopProgramRequest> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 13);
+
+/**
+ * @generated from message proto.goalloop.v1.LoopDraftSnapshot
+ */
+export type LoopDraftSnapshot = Message<"proto.goalloop.v1.LoopDraftSnapshot"> & {
+  /**
+   * @generated from field: string source = 1;
+   */
+  source: string;
+
+  /**
+   * @generated from field: string canonical_source = 2;
+   */
+  canonicalSource: string;
+
+  /**
+   * @generated from field: proto.goalloop.v1.LoopProgram program = 3;
+   */
+  program?: LoopProgram | undefined;
+
+  /**
+   * @generated from field: repeated proto.goalloop.v1.LoopDiagnostic diagnostics = 4;
+   */
+  diagnostics: LoopDiagnostic[];
+
+  /**
+   * @generated from field: string parse_status = 5;
+   */
+  parseStatus: string;
+
+  /**
+   * @generated from field: string active_editor = 6;
+   */
+  activeEditor: string;
+
+  /**
+   * @generated from field: uint64 revision = 7;
+   */
+  revision: bigint;
+
+  /**
+   * @generated from field: uint64 semantic_revision = 8;
+   */
+  semanticRevision: bigint;
+
+  /**
+   * @generated from field: proto.goalloop.v1.GoalLoop run = 9;
+   */
+  run?: GoalLoop | undefined;
+};
+
+/**
+ * Describes the message proto.goalloop.v1.LoopDraftSnapshot.
+ * Use `create(LoopDraftSnapshotSchema)` to create a new message.
+ */
+export const LoopDraftSnapshotSchema: GenMessage<LoopDraftSnapshot> = /*@__PURE__*/
+  messageDesc(file_goalloop_v1_goalloop, 14);
 
 /**
  * @generated from message proto.goalloop.v1.GoalLoop
@@ -152,7 +602,7 @@ export type GoalLoop = Message<"proto.goalloop.v1.GoalLoop"> & {
  * Use `create(GoalLoopSchema)` to create a new message.
  */
 export const GoalLoopSchema: GenMessage<GoalLoop> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 0);
+  messageDesc(file_goalloop_v1_goalloop, 15);
 
 /**
  * @generated from message proto.goalloop.v1.ListGoalLoopsRequest
@@ -189,7 +639,7 @@ export type ListGoalLoopsRequest = Message<"proto.goalloop.v1.ListGoalLoopsReque
  * Use `create(ListGoalLoopsRequestSchema)` to create a new message.
  */
 export const ListGoalLoopsRequestSchema: GenMessage<ListGoalLoopsRequest> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 1);
+  messageDesc(file_goalloop_v1_goalloop, 16);
 
 /**
  * @generated from message proto.goalloop.v1.ListGoalLoopsResponse
@@ -221,7 +671,7 @@ export type ListGoalLoopsResponse = Message<"proto.goalloop.v1.ListGoalLoopsResp
  * Use `create(ListGoalLoopsResponseSchema)` to create a new message.
  */
 export const ListGoalLoopsResponseSchema: GenMessage<ListGoalLoopsResponse> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 2);
+  messageDesc(file_goalloop_v1_goalloop, 17);
 
 /**
  * @generated from message proto.goalloop.v1.GetGoalLoopRequest
@@ -243,7 +693,7 @@ export type GetGoalLoopRequest = Message<"proto.goalloop.v1.GetGoalLoopRequest">
  * Use `create(GetGoalLoopRequestSchema)` to create a new message.
  */
 export const GetGoalLoopRequestSchema: GenMessage<GetGoalLoopRequest> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 3);
+  messageDesc(file_goalloop_v1_goalloop, 18);
 
 /**
  * @generated from message proto.goalloop.v1.CreateGoalLoopRequest
@@ -325,7 +775,7 @@ export type CreateGoalLoopRequest = Message<"proto.goalloop.v1.CreateGoalLoopReq
  * Use `create(CreateGoalLoopRequestSchema)` to create a new message.
  */
 export const CreateGoalLoopRequestSchema: GenMessage<CreateGoalLoopRequest> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 4);
+  messageDesc(file_goalloop_v1_goalloop, 19);
 
 /**
  * @generated from message proto.goalloop.v1.GoalLoopActionRequest
@@ -347,12 +797,36 @@ export type GoalLoopActionRequest = Message<"proto.goalloop.v1.GoalLoopActionReq
  * Use `create(GoalLoopActionRequestSchema)` to create a new message.
  */
 export const GoalLoopActionRequestSchema: GenMessage<GoalLoopActionRequest> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 5);
+  messageDesc(file_goalloop_v1_goalloop, 20);
 
 /**
  * @generated from service proto.goalloop.v1.GoalLoopService
  */
 export const GoalLoopService: GenService<{
+  /**
+   * @generated from rpc proto.goalloop.v1.GoalLoopService.ListWorkerSnapshots
+   */
+  listWorkerSnapshots: {
+    methodKind: "unary";
+    input: typeof ListWorkerSnapshotsRequestSchema;
+    output: typeof ListWorkerSnapshotsResponseSchema;
+  },
+  /**
+   * @generated from rpc proto.goalloop.v1.GoalLoopService.CompileLoopProgram
+   */
+  compileLoopProgram: {
+    methodKind: "unary";
+    input: typeof CompileLoopProgramRequestSchema;
+    output: typeof CompileLoopProgramResponseSchema;
+  },
+  /**
+   * @generated from rpc proto.goalloop.v1.GoalLoopService.RunLoopProgram
+   */
+  runLoopProgram: {
+    methodKind: "unary";
+    input: typeof RunLoopProgramRequestSchema;
+    output: typeof GoalLoopSchema;
+  },
   /**
    * @generated from rpc proto.goalloop.v1.GoalLoopService.ListGoalLoops
    */

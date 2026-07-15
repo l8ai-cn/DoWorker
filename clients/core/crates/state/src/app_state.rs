@@ -1,15 +1,14 @@
 use std::sync::Arc;
 
-use agentsmesh_events::subscription_manager::EventSubscriptionManager;
-use agentsmesh_events::types::{EventDispatchHook, RealtimeEvent};
+use agentsmesh_events::types::RealtimeEvent;
 use agentsmesh_persistence::StorageBackend;
-use parking_lot::RwLock;
 
 use crate::acp_session::AcpSessionManager;
 use crate::autopilot_state::AutopilotState;
 use crate::channel_state::ChannelState;
 use crate::event_dispatch;
 use crate::expert_state::ExpertState;
+use crate::loop_builder_state::LoopBuilderState;
 use crate::workflow_state::WorkflowState;
 use crate::loopal_session::LoopalSessionManager;
 use crate::mesh_state::MeshState;
@@ -17,6 +16,8 @@ use crate::pod_state::PodState;
 use crate::repo_state::RepoState;
 use crate::runner_state::RunnerState;
 use crate::ticket_state::TicketState;
+
+pub use crate::app_runtime::{AppRuntime, AppStateDispatchHook};
 
 /// Specification of a transient toast notification that the Rust-SSOT
 /// dispatch wants the platform layer to display. Rust never ships locale
@@ -56,6 +57,7 @@ pub struct AppState {
     pub autopilot: AutopilotState,
     pub acp: AcpSessionManager,
     pub loopal: LoopalSessionManager,
+    pub loop_builder: LoopBuilderState,
     pub repo: RepoState,
     pub experts: ExpertState,
 
@@ -93,6 +95,7 @@ impl AppState {
             autopilot: AutopilotState::default(),
             acp: AcpSessionManager::new(),
             loopal: LoopalSessionManager::new(),
+            loop_builder: LoopBuilderState::new(),
             repo: RepoState::new(),
             experts: ExpertState::new(),
             pending_toasts: Vec::new(),
@@ -115,6 +118,7 @@ impl AppState {
             autopilot: AutopilotState::default(),
             acp: AcpSessionManager::new(),
             loopal: LoopalSessionManager::new(),
+            loop_builder: LoopBuilderState::new(),
             repo: RepoState::with_storage(backend),
             experts: ExpertState::new(),
             pending_toasts: Vec::new(),
@@ -170,6 +174,7 @@ impl AppState {
         self.mesh = MeshState::default();
         self.autopilot = AutopilotState::default();
         self.experts = ExpertState::new();
+        self.loop_builder.reset();
         self.pending_toasts.clear();
         self.pending_browser_notifications.clear();
         self.pending_refetch_ticket_slugs.clear();
@@ -182,57 +187,5 @@ impl AppState {
 impl Default for AppState {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-/// Lock-wrapped AppState + dispatch hook adapter. Owns the only mutable
-/// reference path into the in-memory state tree; binding facades
-/// (wasm/ffi) share `Arc<AppRuntime>` and pass it into services.
-pub struct AppRuntime {
-    pub state: Arc<RwLock<AppState>>,
-    pub events: Arc<EventSubscriptionManager>,
-}
-
-impl AppRuntime {
-    /// Construct the runtime + wire the dispatch hook into the manager.
-    /// The hook holds an `Arc<RwLock<AppState>>` weak-free; failure mode
-    /// is "hook is dropped when AppRuntime is dropped".
-    pub fn new(events: Arc<EventSubscriptionManager>) -> Arc<Self> {
-        Self::with_state(events, AppState::new())
-    }
-
-    pub fn with_state(events: Arc<EventSubscriptionManager>, state: AppState) -> Arc<Self> {
-        let state = Arc::new(RwLock::new(state));
-        let hook: Arc<dyn EventDispatchHook> =
-            Arc::new(AppStateDispatchHook::new(Arc::clone(&state)));
-        events.set_dispatch_hook(hook);
-        Arc::new(Self { state, events })
-    }
-
-    /// Snapshot of the events-side tick counter.
-    pub fn tick(&self) -> u64 {
-        self.events.tick()
-    }
-}
-
-/// Adapter that lets `EventSubscriptionManager` call `AppState.dispatch`
-/// without inverting the crate dep direction (state already depends on
-/// events; events cannot depend on state).
-///
-/// Public so tests + alternate binding facades can construct one
-/// without going through `AppRuntime::new`.
-pub struct AppStateDispatchHook {
-    state: Arc<RwLock<AppState>>,
-}
-
-impl AppStateDispatchHook {
-    pub fn new(state: Arc<RwLock<AppState>>) -> Self {
-        Self { state }
-    }
-}
-
-impl EventDispatchHook for AppStateDispatchHook {
-    fn dispatch(&self, event: &RealtimeEvent) {
-        self.state.write().dispatch(event);
     }
 }
