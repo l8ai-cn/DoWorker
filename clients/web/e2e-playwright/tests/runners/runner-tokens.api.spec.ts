@@ -1,6 +1,7 @@
 // Migrated R5+: Connect-RPC only (no REST middle layer).
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { getOnlineExecutionClusterId } from "../../helpers/execution-cluster";
 import { clearAuthRateLimit } from "../../helpers/redis";
 
 /**
@@ -20,6 +21,7 @@ test.describe("Runner Registration Tokens", () => {
     const cc = await api.connect();
     const created = await cc.runner.createRunnerToken({
       orgSlug: TEST_ORG_SLUG,
+      clusterId: getOnlineExecutionClusterId(db, TEST_ORG_SLUG),
       name: "E2E reg token test",
     }) as { token?: string };
     expect(created.token).toBeTruthy();
@@ -29,9 +31,13 @@ test.describe("Runner Registration Tokens", () => {
     );
   });
 
-  test("revoke registration token", async ({ api }) => {
+  test("revoke registration token", async ({ api, db }) => {
     const cc = await api.connect();
-    await cc.runner.createRunnerToken({ orgSlug: TEST_ORG_SLUG, name: "E2E revoke test" });
+    await cc.runner.createRunnerToken({
+      orgSlug: TEST_ORG_SLUG,
+      clusterId: getOnlineExecutionClusterId(db, TEST_ORG_SLUG),
+      name: "E2E revoke test",
+    });
 
     const list = await cc.runner.listRunnerTokens({ orgSlug: TEST_ORG_SLUG }) as { items: Array<{ id: number; name?: string }> };
     const token = list.items.find((t) => t.name === "E2E revoke test");
