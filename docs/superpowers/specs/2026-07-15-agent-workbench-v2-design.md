@@ -4,6 +4,12 @@
 **Date:** 2026-07-15  
 **Scope:** shared Agent protocol, React workbench, tool renderers, result viewers, Web/Web User adapters, page mounting, and iframe embedding.
 
+Normative appendices:
+
+- `2026-07-15-agent-workbench-protocol-v2-design.md`
+- `2026-07-15-agent-workbench-renderer-media-design.md`
+- `2026-07-15-agent-workbench-security-profiles-design.md`
+
 ## 1. Product Definition
 
 Agent Workbench helps a user direct an Agent, inspect its actions, approve risky operations, review generated results, and continue editing without leaving the task. Conversation is the control thread; tools, terminals, files, previews, and media are task resources rather than separate modules.
@@ -41,27 +47,13 @@ flowchart TB
   Registry["Built-in and host renderers"] --> Surfaces["Summary · Detail · Workbench"]
 ```
 
-Runtime owns durable and recoverable state. React owns only draft text, scroll anchors, open state, result selection, modal state, and split ratio.
+Runtime is the host interface over durable and recoverable state, not a second Web state store. React owns only draft text, scroll anchors, open state, result selection, modal state, and split ratio.
 
-Web retains Rust Core as business-state SSOT. Snapshot and delta reduction must be atomic in Rust before one revision notification. Zustand may mirror ticks/projections but cannot mutate session, turn, tool, permission, command, artifact, or resource state.
+Web retains Rust Core as business-state SSOT. Snapshot and delta reduction must be atomic in Rust before one revision notification. Zustand may hold only the revision tick and temporary UI state; session projections and selectors remain in Rust Core.
 
 ## 4. Protocol V2
 
-Every ordered item carries:
-
-```ts
-interface AgentEventEnvelope {
-  sessionId: string;
-  streamEpoch: string;
-  revision: number;
-  sequence: number;
-  turnId: string;
-  itemId: string;
-  parentId?: string;
-  agentId?: string;
-  createdAt: string;
-}
-```
+Every ordered item carries the IDL-generated `EventEnvelope` defined by the protocol appendix. The main design does not maintain a second handwritten protocol shape.
 
 Timeline variants are `message`, `reasoning`, `tool_execution`, `plan`, `artifact_reference`, `approval`, `status`, `error`, and `system`.
 
@@ -75,12 +67,13 @@ Capabilities declare protocol version, command schemas, models, permission modes
 
 ## 5. Renderer Registry
 
-Trusted hosts register renderers by exact semantic key and supported version:
+Trusted hosts register renderers by exact namespace, semantic key, and schema version:
 
 ```ts
 interface ToolRendererRegistration {
-  toolKey: string;
-  versions: readonly string[];
+  namespace: string;
+  semanticKey: string;
+  schemaVersions: readonly string[];
   summary?: ToolSummaryRenderer;
   detail?: ToolDetailRenderer;
   workbench?: ToolWorkbenchRenderer;
@@ -89,9 +82,11 @@ interface ToolRendererRegistration {
 
 Built-ins cover shell, file read/write/diff, search, browser, HTTP, image generation/editing, video generation/playback, documents, presentations, spreadsheets, tables, workflows, and generic structured output.
 
-Unregistered keys render an explicit unsupported-tool surface containing key, version, phase, and inspectable structured blocks. It does not pretend to be specialized and does not classify from display text.
+Unregistered keys render an explicit unsupported-tool surface containing namespace, semantic key, version, phase, and inspectable structured blocks. It does not pretend to be specialized and does not classify from display text.
 
-Trusted same-bundle hosts may register React renderers. Remote or untrusted tools may return standard content blocks or a restricted iframe descriptor; they may not provide a JavaScript module URL.
+Content and artifact representations use a separate registry keyed by block kind, media type, role, and schema version. Tool renderers control execution presentation; content renderers view or edit results.
+
+Trusted same-bundle React and imperative mounts may register executable renderers. Iframe configuration may select only serializable IDs for prebundled renderers. Remote or untrusted tools may return standard content blocks or a restricted iframe descriptor; they may not provide a JavaScript module URL.
 
 ## 6. Content And Artifact Model
 
@@ -151,18 +146,19 @@ The existing one-time embed context, parent-held redemption proof, exact parent 
 - Plain page: `mountAgentWorkbench(element, options)`
 - Iframe: capability-scoped `/iframe.html?embed_context=...`
 
-Mounting and iframe APIs expose locale, theme tokens, initial surface, host actions, and renderer registration without exposing credentials.
+Mounting APIs expose locale, theme tokens, initial surface, host actions, and renderer registration without exposing credentials. Iframe APIs expose the same serializable configuration except executable renderer registration.
 
 ## 11. Migration
 
-1. Add V2 contracts, fixtures, command receipts, and renderer registry.
-2. Extract artifact loading and pure renderers from Web User one renderer at a time; switch Web User immediately and delete the replaced implementation.
-3. Add ResultWorkbench and built-in code, diff, Markdown, HTML, image, video, PDF, and presentation renderers with dynamic heavy dependencies.
-4. Replace Web User's lossy embedded projection with V2 block preservation.
-5. Publish atomic Rust session snapshots and replace Web's TS reconstruction.
-6. Normalize permission, artifact, history, terminal, and command state.
-7. Add React, imperative mount, and iframe V2 entries.
-8. Remove full inline ArtifactCard previews, tool-name guessing, duplicate renderers, and V1 contracts in the same release migration.
+1. Remove HTML, live-preview, preview-token, and remote-Markdown escape paths defined in the security appendix.
+2. Add generated V2 contracts, fixtures, command receipts, snapshot/delta reducers, and both renderer registries.
+3. Extract artifact loading and pure renderers from Web User one renderer at a time; switch Web User immediately and delete the replaced implementation.
+4. Add ResultWorkbench and built-in code, diff, Markdown, HTML, image, video, PDF, and presentation renderers with dynamic heavy dependencies.
+5. Replace Web User's lossy embedded projection with direct V2 preservation and revision-watermarked reconnect.
+6. Publish atomic Rust session snapshots and delta batches and replace Web's TypeScript reconstruction.
+7. Normalize permission, artifact, history, terminal, command, and fencing state.
+8. Add React, imperative mount, and iframe V2 entries.
+9. Remove full inline ArtifactCard previews, tool-name guessing, duplicate renderers, and V1 contracts in the same release migration.
 
 There is no runtime transport fallback. During development each host selects one explicit adapter; unsupported V2 data fails visibly.
 
@@ -174,7 +170,7 @@ Real Runner tasks must prove:
 
 - programming: collapsed commands, file diff, code artifact, and live HTML;
 - image: generation, comparison, annotation/mask, and continued edit;
-- presentation: original PPTX plus browser preview;
+- presentation: original PPTX, browser preview, permission-gated slide edit against a base revision, and refreshed export;
 - video: durable progress, reconnect recovery, playback, and download;
 - permissions: approve, reject, expired, and read-only iframe;
 - terminal: multiple resources, observer mode, lease acquisition, and input.
