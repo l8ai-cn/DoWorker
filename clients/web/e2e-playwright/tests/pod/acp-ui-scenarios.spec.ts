@@ -47,7 +47,7 @@ test.describe("ACP UI: mock agent scenario matrix", () => {
     await takeWorkerControl(page);
     await page.getByRole("button", { name: /Approve/i }).first().click();
     await expect(page.getByText("Changed 1 file", { exact: true })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText("Edited 1 line", { exact: true })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId("tool-summary").getByText("Edited 1 line", { exact: true })).toBeVisible({ timeout: 10_000 });
     ctx.assertWasmHealthy();
   });
 });

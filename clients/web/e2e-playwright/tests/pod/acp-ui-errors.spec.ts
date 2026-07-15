@@ -18,7 +18,7 @@ test.describe("ACP UI: error and degradation paths", () => {
 
     await expect(page.getByText("Trying to edit: edit me")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText("Changed 1 file", { exact: true })).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText("file not found", { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("tool-summary").getByText("file not found", { exact: true })).toBeVisible({ timeout: 15_000 });
     ctx.assertWasmHealthy();
   });
 
