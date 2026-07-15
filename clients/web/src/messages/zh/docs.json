@@ -5,19 +5,132 @@
       "previous": "上一篇",
       "next": "下一篇"
     },
+    "workerRuntime": {
+      "title": "Worker 类型与运行时",
+      "description": "Worker 是用户创建、运行和管理的 AI 执行单元。内部控制面仍使用 PodService 和 pod_key，但产品、表单和文档统一使用 Worker。正式 Definition 本身不等于支持：发布运行时 digest 必须可拉取，完整产品路径也必须通过验证。",
+      "catalog": {
+        "title": "当前目录状态",
+        "defined": "正式定义",
+        "deployable": "正式可部署",
+        "localEvidence": "本地链路已验证，发布被阻断",
+        "releaseBlocked": "发布被阻断",
+        "note": "这些是独立的发布信号。状态由 Worker Definition、运行时锁镜像的拉取探针和证据矩阵共同生成。锁文件写有 digest 不等于配置的镜像仓库实际能够提供它。",
+        "workersTitle": "每种 Worker 的真实契约"
+      },
+      "createFlow": {
+        "title": "创建表单的四步流程",
+        "description": "创建向导按依赖顺序收集参数；只有前一步有效时，才能进入下一步或执行预检。",
+        "step": "第 {number} 步",
+        "runtime": {
+          "title": "运行时",
+          "description": "需要模型资源时先选择协议兼容的资源，再选择 Worker 类型、运行时镜像、计算目标、部署模式和资源规格。"
+        },
+        "typeConfig": {
+          "title": "类型配置",
+          "description": "填写该类型 Definition 声明的 CONFIG 字段。凭据只从该类型声明的凭据包或模型资源引用进入，表单不接收明文密钥。"
+        },
+        "workspace": {
+          "title": "工作空间",
+          "description": "可选配置仓库、分支、技能、知识库、环境包、说明、初始任务、别名和终止策略。"
+        },
+        "preflight": {
+          "title": "预检与创建",
+          "description": "服务端校验选项版本、Definition 派生的类型契约、模型资源、运行时镜像、放置、引用和配置，再创建 Worker。"
+        }
+      },
+      "truth": {
+        "title": "三层事实来源",
+        "definition": "Worker Definition 决定可执行文件、显式适配器、PTY/ACP 模式、模型协议、凭据注入、类型配置与配置文件。",
+        "runtime": "Runtime Catalog 需要 sha256 digest 和对该确切引用的成功拉取探针。配置了但无法拉取的 digest 属于发布阻断，不是可用运行时。",
+        "evidence": "Evidence Matrix 记录真实镜像、Runner、API、Rust Core 和浏览器结果。本地产品证据不能覆盖发布运行时探针失败。"
+      },
+      "labels": {
+        "executable": "可执行文件",
+        "adapter": "显式适配器",
+        "modes": "交互模式",
+        "modelResource": "模型资源",
+        "runtimeImage": "运行时镜像",
+        "credentials": "凭据绑定",
+        "configFields": "类型表单字段",
+        "configDocuments": "配置文件"
+      },
+      "model": {
+        "required": "需要兼容协议：{protocols}",
+        "notRequired": "不要求平台模型资源"
+      },
+      "runtime": {
+        "locked_available": "发布 digest 已验证",
+        "invalid_published_digest": "配置的 digest 无法拉取",
+        "blocked_no_published_digest": "未发布不可变运行时 digest"
+      },
+      "binding": {
+        "model_resource": "模型资源",
+        "credential_bundle": "凭据包"
+      },
+      "none": "无",
+      "noConfigFields": "没有 Worker 专属表单字段。",
+      "noConfigDocuments": "没有额外配置文件。",
+      "status": {
+        "verified_local_dev": "本地开发已验证",
+        "local_evidence_release_blocked": "本地产品链路已验证，发布镜像被阻断",
+        "requires_model_resource": "运行时已就绪，缺少模型资源",
+        "runtime_ready_unverified": "运行时已就绪，尚未完成验证",
+        "invalid_published_runtime": "配置的发布 digest 无法拉取",
+        "runtime_image_unavailable": "缺少运行时镜像"
+      },
+      "runnerLink": "继续阅读 Runner 配置与运行环境要求"
+    },
+    "workerTutorial": {
+      "title": "创建第一个 Worker",
+      "description": "本教程严格对应当前四步创建向导。它不会要求在 Runner 宿主机手工探测任意 CLI，也不会把 API key 作为表单明文输入。",
+      "beforeYouStart": {
+        "title": "开始前确认",
+        "runner": "至少有一个在线 Runner，并且组织拥有可选的计算目标。",
+        "runtime": "选择的 Worker 类型必须有不可变运行时镜像；目录页会显示没有镜像的类型。",
+        "resource": "对于要求模型资源的类型，先在“设置 → AI 资源”创建并启用协议兼容的模型资源。"
+      },
+      "steps": {
+        "runtime": {
+          "title": "选择运行时",
+          "description": "选择没有阻塞原因的 Worker 类型，再选择运行时镜像、计算目标、部署方式、资源规格和交互模式。",
+          "details": "如果类型要求模型资源，模型下拉框只显示已启用、具备 chat/text-generation 能力且协议匹配的资源。"
+        },
+        "configuration": {
+          "title": "填写类型配置",
+          "description": "仅填写该 Worker Definition 声明的类型字段，例如 Codex CLI 的 approval_mode 或 Gemini CLI 的 sandbox_mode。",
+          "details": "凭据包只显示该类型声明的字段；模型资源绑定由平台注入目标环境变量，明文密钥不会写入 WorkerSpec。"
+        },
+        "workspace": {
+          "title": "配置工作空间",
+          "description": "按需选择仓库和分支，添加技能、知识库、环境包、说明和初始任务，并设置别名和终止策略。",
+          "details": "不选择仓库时，Worker 仍可在独立工作目录中启动，适合先验证运行时和模型资源。"
+        },
+        "preflight": {
+          "title": "通过预检后创建",
+          "description": "预检返回阻塞问题时先修正对应字段；只有返回解析后的 WorkerSpec 后，“创建 Worker”才可用。",
+          "details": "创建成功后获取控制权并发送无副作用提示。验证完成后应终止临时 Worker，避免留下资源。"
+        }
+      },
+      "result": {
+        "title": "完成标准",
+        "description": "Worker 创建后能连接 Web 和 Relay，获得控制权，执行提示并返回预期结果。对临时验证 Worker，结束后确认状态已完成或已终止。",
+        "catalogLink": "查看每种 Worker 的配置与验证状态"
+      }
+    },
     "nav": {
       "gettingStarted": "快速开始",
       "introduction": "简介",
       "quickStart": "快速上手",
       "coreConcepts": "核心概念",
+      "loopAndWorkflow": "Loop 与 Workflow",
       "concepts": "概念",
       "features": "功能特性",
-      "agentpod": "AgentPod",
+      "agentpod": "Worker",
       "workspace": "工作空间",
       "channels": "频道",
       "meshTopology": "Mesh 拓扑",
       "tickets": "任务管理",
-      "workflows": "循环任务",
+      "workflows": "工作流",
       "repositories": "仓库管理",
       "repositoriesGit": "仓库与 Git 集成",
       "agentfile": "AgentFile",
@@ -32,7 +145,7 @@
       "api": "API",
       "apiOverview": "概述",
       "apiAuthentication": "认证",
-      "apiPods": "Pods API",
+      "apiPods": "Worker API",
       "apiTickets": "任务 API",
       "apiChannels": "Channels API",
       "apiWorkflows": "Workflows API",
@@ -42,23 +155,23 @@
       "tutorialRunnerSetup": "Runner 配置",
       "tutorialGitSetup": "连接 Git 仓库",
       "tutorialMcpSkills": "MCP 与技能",
-      "tutorialFirstPod": "创建你的第一个 Pod",
+      "tutorialFirstPod": "创建你的第一个 Worker",
       "tutorialTicketWorkflow": "任务管理",
       "tutorialMultiAgent": "多智能体协作",
-      "tutorialWorkflows": "自动化循环",
+      "tutorialWorkflows": "自动化工作流",
       "help": "帮助",
       "faq": "常见问题",
       "menu": "菜单"
     },
     "intro": {
       "title": "简介",
-      "description": "Do Worker 是一个 AI 智能体编排指挥中心，帮助团队大规模协调 Claude Code、Codex CLI、Gemini CLI 和 Aider 等 AI 编程智能体。管理远程 AI 工作站（AgentPod）、协调多智能体协作（Do Worker）、通过集成任务管理跟踪进度——一切尽在一个平台。",
+      "description": "Do Worker 将 AI 工具按可验证的 Worker 契约运行：正式 Definition 声明适配器、配置和凭据引用，运行时目录选择不可变镜像，Runner 执行隔离工作空间。创建向导会显示真实可用性和阻塞原因，而不是把已定义的工具直接宣称为已支持。",
       "supportedAgents": "支持的 AI 智能体：",
       "customAgents": "通过 MCP 协议自定义智能体"
     },
     "architecture": {
       "title": "工作原理",
-      "description": "Do Worker 让你通过浏览器控制在任何地方运行的 AI 智能体——无论是你的笔记本电脑、服务器还是云虚拟机。命令通过加密连接安全传输，终端输出实时推流。你的代码永远不会离开你的基础设施。",
+      "description": "Do Worker 让你通过浏览器控制在笔记本电脑、服务器或云虚拟机上运行的 Worker。命令通过加密连接传输，终端输出实时推流；代码始终留在你的基础设施内。",
       "clientLayer": "客户端层",
       "clientSubtitle": "随时随地访问——浏览器、手机或平板",
       "cloudLayer": "云端",
@@ -70,7 +183,7 @@
         "security": "安全保障"
       },
       "controlPlane": "控制面",
-      "controlPlaneDesc": "Pod 生命周期、智能体指令、状态同步",
+      "controlPlaneDesc": "Worker 生命周期、任务指令、状态同步",
       "dataPlane": "数据面",
       "dataPlaneDesc": "终端 I/O、实时数据流",
       "cluster": "集群",
@@ -80,25 +193,28 @@
       "runnerMac": "macOS",
       "runnerLinux": "Linux",
       "runnerCloud": "云服务器",
-      "agentLayer": "智能体层",
-      "agentSubtitle": "AI 编程智能体在隔离的 Pod 中运行",
+      "workerLayer": "Worker 契约层",
+      "workerSubtitle": "Definition、不可变运行时镜像和验证证据共同决定可用性",
+      "workerDefinition": "Worker Definition",
+      "runtimeCatalog": "Runtime Catalog",
+      "evidenceMatrix": "Evidence Matrix",
       "securityTitle": "安全架构——双通道设计",
-      "securityDesc": "控制信号（Pod 创建、智能体指令、状态更新）通过 gRPC + 双向 TLS (mTLS) 传输——每个 Runner 持有平台 PKI 颁发的唯一 X.509 证书。终端数据流（按键、输出）通过 Relay 集群转发，将延迟敏感的 I/O 放在独立的优化通道上。这种双通道设计确保你可以在世界任何地方、通过任何设备，安全地操控任意机器上的 AI 智能体。"
+      "securityDesc": "控制信号（Worker 创建、任务指令、状态更新）通过 gRPC + 双向 TLS (mTLS) 传输——每个 Runner 持有平台 PKI 颁发的唯一 X.509 证书。终端数据流（按键、输出）通过 Relay 集群转发，将延迟敏感的 I/O 放在独立的优化通道上。"
     },
     "whatYouCanDo": {
       "title": "你可以做什么",
       "description": "Do Worker 为你的团队赋予 AI 驱动开发的超能力。",
       "orchestrate": {
-        "title": "编排多个 AI 智能体",
-        "description": "协调 Claude Code、Codex CLI、Gemini CLI、Aider 等智能体，通过频道和 Pod 绑定协同工作。"
+        "title": "协调多个 Worker",
+        "description": "通过频道和任务关联协调不同 Worker；可创建的类型、凭据和运行时以 Worker 目录的真实状态为准。"
       },
       "remoteWorkstation": {
-        "title": "远程 AI 工作站",
-        "description": "启动 AgentPod——基于云的开发环境，提供实时终端访问、Git 工作树隔离和完整的 AI 智能体能力。"
+        "title": "隔离的 Worker 运行环境",
+        "description": "每个 Worker 在 Runner 上的隔离 Pod 中运行，提供终端、可选 Git 工作树和受控的模型资源注入。"
       },
       "taskDriven": {
         "title": "任务驱动开发",
-        "description": "创建任务，绑定到 AgentPod，在看板上跟踪进度。从需求到执行到交付，一气呵成。"
+        "description": "将任务关联到 Worker，在看板上跟踪进度，并通过初始任务和说明向运行时传递上下文。"
       },
       "selfHosted": {
         "title": "自托管 & 安全可控",
@@ -109,10 +225,10 @@
       "title": "快速链接",
       "quickStart": "快速上手",
       "quickStartDesc": "5 分钟内快速启动",
-      "agentpod": "AgentPod",
-      "agentpodDesc": "远程 AI 开发工作站",
-      "agentsmesh": "Do Worker",
-      "agentsmeshDesc": "多智能体协作网络",
+      "agentpod": "Worker 类型与运行时",
+      "agentpodDesc": "每种工具的适配器、凭据、配置与真实验证状态",
+      "agentsmesh": "频道协作",
+      "agentsmeshDesc": "在 Worker 之间共享消息、文档和任务上下文",
       "mcpTools": "MCP 工具",
       "mcpToolsDesc": "26 个 AI 智能体工具"
     },
@@ -121,17 +237,17 @@
       "description": "了解 Do Worker 的基础概念，充分利用平台功能。",
       "architecture": {
         "title": "架构概述",
-        "description": "Do Worker 采用分层架构，组织管理团队，Runner 提供计算资源，Pod 执行 AI 智能体。",
+        "description": "Do Worker 采用分层架构：组织管理成员和资源，Runner 提供计算，Worker 在 Pod 中执行。",
         "orgTitle": "组织 (Organization)",
         "orgDesc": "顶层实体。每个组织拥有独立的成员、设置、运行节点和计费。团队可以邀请不同角色的成员加入。",
         "runnerTitle": "运行节点 (Runner)",
-        "runnerDesc": "自托管的守护进程，通过 gRPC + mTLS 连接到 Do Worker 后端。Runner 提供 Pod 执行所需的计算环境。你可以在不同机器上运行多个 Runner。",
-        "podTitle": "Pod (AgentPod)",
-        "podDesc": "隔离的执行环境，AI 编程智能体在其中运行。每个 Pod 拥有独立的 PTY 终端、沙箱和可选的 Git 工作树。Pod 在 Runner 上创建，通过 Web 界面管理。",
+        "runnerDesc": "自托管的守护进程，通过 gRPC + mTLS 连接到 Do Worker 后端。Runner 提供 Worker 和 Pod 执行所需的计算环境。",
+        "podTitle": "Worker 与 Pod",
+        "podDesc": "Worker 是用户创建和配置的执行单元；Runner 将其解析为隔离 Pod。每个 Pod 拥有独立 PTY、沙箱和可选 Git 工作树。",
         "channelTitle": "频道 (Channel)",
-        "channelDesc": "通信中心，多个 Pod 可以在此交换消息、共享文档和协调工作。频道可以关联到项目和任务。",
+        "channelDesc": "通信中心，多个 Worker 可以在此交换消息、共享文档和协调工作。频道可以关联到项目和任务。",
         "ticketTitle": "任务",
-        "ticketDesc": "支持看板视图的任务管理单元。任务可以关联到 Pod，实现自动上下文注入和进度跟踪。"
+        "ticketDesc": "支持看板视图的任务管理单元。任务可以关联到 Worker，实现自动上下文注入和进度跟踪。"
       },
       "byok": {
         "title": "BYOK（自带密钥）",
@@ -143,7 +259,7 @@
       },
       "sandbox": {
         "title": "沙箱与 Git 工作树隔离",
-        "description": "每个 Pod 运行在隔离的沙箱环境中。当关联仓库时，Runner 会创建专用的 Git 工作树，使多个 Pod 可以同时在同一仓库上工作而互不冲突。Pod 终止时工作树会自动清理。"
+        "description": "每个 Worker 对应的 Pod 运行在隔离沙箱中。关联仓库时，Runner 会创建专用 Git 工作树，使多个 Worker 可同时操作同一仓库而不冲突。Pod 终止时工作树会自动清理。"
       },
       "mcp": {
         "title": "MCP（模型上下文协议）",
@@ -342,14 +458,14 @@
       },
       "step2": {
         "title": "配置 Runner",
-        "description": "Runner 是一个轻量级守护进程，运行在你的机器上，在称为 Pod 的隔离工作空间中执行 AI 智能体。在你的开发机器或服务器上安装 Do Worker Runner。",
+        "description": "Runner 是运行在你的机器或服务器上的轻量级守护进程。它接收已解析的 WorkerSpec，并在隔离 Pod 中执行 Worker。",
         "methodToken": "使用令牌注册",
         "methodLogin": "使用浏览器登录注册",
         "seeSetup": "查看 {link} 了解 Docker、Linux 包和 Kubernetes 部署选项。"
       },
       "step3": {
-        "title": "安装 AI 智能体 CLI",
-        "description": "在 Runner 机器上安装你需要的 CLI 工具并设置 API 密钥环境变量。Runner 会通过 PATH 自动检测已安装的 CLI，并向平台报告可用智能体。",
+        "title": "配置模型资源与凭据",
+        "description": "在设置中创建或启用与 Worker Definition 协议匹配的模型资源；需要凭据包的 Worker 只显示其声明的字段。平台在创建时按目标环境变量注入引用，明文密钥不会写入 WorkerSpec。",
         "claudeCode": "Claude Code",
         "claudeCodeInstall": "npm install -g @anthropic-ai/claude-code",
         "claudeCodeEnv": "export ANTHROPIC_API_KEY=sk-ant-...",
@@ -360,14 +476,14 @@
         "codexCliHint": "从以下网站获取 API 密钥",
         "geminiCli": "Gemini CLI",
         "geminiCliInstall": "npm install -g @google/gemini-cli",
-        "geminiCliEnv": "export GOOGLE_API_KEY=...",
+        "geminiCliEnv": "export GEMINI_API_KEY=...",
         "geminiCliHint": "从以下网站获取 API 密钥",
-        "tip": "安装后重启 Runner 或等待下一次心跳。新的可用智能体将出现在新建 Pod 对话框中。",
+        "tip": "运行时可选性由不可变镜像目录决定；模型资源与凭据是否可选由该 Worker 的 Definition 决定。创建页面会对缺少的前置条件给出明确阻塞原因。",
         "seeSetup": "查看 {link} 了解更多关于 MCP 工具和技能配置的详情。"
       },
       "step4": {
         "title": "连接 Git 服务商",
-        "description": "连接 Git 服务商后，Pod 可以克隆仓库并在隔离的 Git 工作树中工作。前往 设置 → 个人 → Git 设置 添加服务商。",
+        "description": "连接 Git 服务商后，Worker 可以克隆仓库并在隔离 Git 工作树中工作。前往 设置 → 个人 → Git 设置 添加服务商。",
         "github": "GitHub",
         "githubDesc": "添加具有 repo 权限的个人访问令牌。",
         "githubTokenUrl": "github.com/settings/tokens",
@@ -376,55 +492,55 @@
         "seeGuide": "查看 {link} 了解完整配置说明，包括 SSH 密钥和 Gitee。"
       },
       "step5": {
-        "title": "启动 Pod",
-        "description": "Pod（AgentPod）是一个虚拟工作站，AI 智能体在其中运行，拥有自己的终端和隔离的代码工作空间。现在创建你的第一个 Pod！",
-        "item1": "在侧边栏中导航到工作空间",
-        "item2": "点击 新建 Pod",
-        "item3": "选择 AI 智能体（Claude Code、Codex CLI 等）",
-        "item4": "选择一个 Runner",
-        "item5": "可选地选择仓库和分支——智能体将在隔离副本（Git worktree）中工作，你的主分支保持安全",
-        "item6": "可选地关联任务以提供上下文",
-        "item7": "添加描述任务的初始提示（例如「为登录表单添加输入验证」或「修复 auth.test.ts 中失败的测试」）",
-        "item8": "点击 创建",
+        "title": "创建 Worker",
+        "description": "Worker 是可配置的执行单元。创建流程会将它解析为 Runner 上隔离的 Pod，并在预检通过后启动。",
+        "item1": "在工作空间中点击 新建 Worker",
+        "item2": "选择没有阻塞原因的 Worker 类型与运行时镜像",
+        "item3": "选择匹配协议的模型资源，并填写该类型声明的凭据包和配置字段",
+        "item4": "选择 Runner、计算目标、部署方式和交互模式",
+        "item5": "可选地选择仓库和分支；Worker 会在隔离 Git 工作树中工作",
+        "item6": "按需关联任务、技能、知识库或环境包",
+        "item7": "填写说明、初始任务、别名和终止策略",
+        "item8": "修复所有预检阻塞项后点击 创建 Worker",
         "seeSetup": "查看 {link} 了解包含故障排除的详细操作指南。"
       },
       "step6": {
         "title": "与智能体交互",
-        "description": "创建后将打开终端视图，显示实时会话。AI 智能体开始执行初始提示，如果未提供则等待输入。",
+        "description": "创建后将打开终端视图，显示实时会话。Worker 会执行初始任务，或在未提供任务时等待输入。",
         "item1": "直接在终端中输入后续提示或命令",
-        "item2": "观察智能体状态指示器——空闲（等待输入）、执行中（正在处理任务）或等待中（需要你的批准）",
-        "item3": "如果关联了仓库，智能体在仓库工作树中工作",
+        "item2": "观察 Worker 状态指示器——空闲、执行中或等待批准",
+        "item3": "如果关联了仓库，Worker 在仓库工作树中工作",
         "item4": "任务完成后从工具栏终止 Pod"
       },
       "tryIt": {
-        "title": "试一试：60 秒创建你的第一个 Pod",
+        "title": "试一试：创建一个临时 Worker",
         "description": "想立刻看到效果？这是最快的方式——无需仓库：",
-        "item1": "点击 工作空间 → 新建 Pod",
-        "item2": "选择 Claude Code（或任何已安装的智能体）和你的 Runner",
-        "item3": "跳过仓库和任务字段",
-        "item4": "将初始提示设置为：\"打个招呼，然后列出当前目录中的文件并解释你看到的内容。\"",
-        "item5": "点击 创建，观看智能体在终端中响应",
-        "tip": "这会创建一个没有仓库的 Pod——智能体在临时目录中运行。非常适合在使用真实代码之前测试你的设置。"
+        "item1": "点击 工作空间 → 新建 Worker",
+        "item2": "选择目录中显示为可创建的 Worker 类型和已连接 Runner",
+        "item3": "按该类型要求选择模型资源或凭据包，跳过仓库",
+        "item4": "将初始任务设置为：\"列出当前目录中的文件并解释你看到的内容。\"",
+        "item5": "通过预检后点击 创建 Worker，并在终端中确认响应",
+        "tip": "这会创建一个没有仓库的临时 Worker。验证完成后终止它，避免留下计算资源。"
       },
       "nextSteps": {
         "title": "下一步",
-        "agentpod": "了解 AgentPod →",
-        "agentpodDesc": "远程 AI 开发工作站",
+        "agentpod": "查看 Worker 类型与运行时 →",
+        "agentpodDesc": "适配器、凭据、类型配置和真实验证状态",
         "mesh": "探索 Mesh →",
         "meshDesc": "多智能体协作功能",
         "tickets": "任务与看板 →",
-        "ticketsDesc": "关联 Pod 的任务管理",
+        "ticketsDesc": "关联 Worker 的任务管理",
         "multiAgent": "多智能体工作流 →",
         "multiAgentDesc": "协调多个 AI 智能体"
       }
     },
     "features": {
       "agentpod": {
-        "title": "AgentPod",
-        "description": "AgentPod 提供集成终端访问的远程 AI 开发工作站。每个 Pod 在 Runner 上运行，提供完整的 AI 辅助开发环境。",
+        "title": "Worker",
+        "description": "Worker 是可配置的 AI 执行单元，在 Runner 上解析为隔离 Pod，并提供终端、工作空间和资源绑定。",
         "overview": {
           "title": "概述",
-          "description": "AgentPod 是一个隔离的开发环境，AI 编程智能体（如 Claude Code）在其中以完整终端访问权限运行。每个 Pod 包含：",
+          "description": "Worker 通过正式 Definition 声明适配器、配置和凭据引用；Runner 将其解析为具备完整终端访问权限的隔离 Pod。每个 Pod 包含：",
           "terminal": "Web 终端 — 通过 WebSocket 实时终端访问",
           "worktree": "Git 工作树 — 每个 Pod 独立的工作空间",
           "agent": "AI 智能体 — 你选择的编程助手",
@@ -497,7 +613,7 @@
       },
       "workspace": {
         "title": "工作空间",
-        "description": "工作空间是你管理和交互所有活跃 AgentPod 的中心枢纽。",
+        "description": "工作空间是你管理和交互所有活跃 Worker 的中心枢纽。",
         "overview": {
           "title": "概述",
           "description": "工作空间提供多面板视图，你可以同时监控和交互多个 Pod。它专为并行运行多个 AI 智能体的开发者设计。"
@@ -671,7 +787,7 @@
       },
       "tickets": {
         "title": "任务管理",
-        "description": "集成看板视图的任务管理。创建任务，分配给 AgentPod，通过工作流跟踪进度。",
+        "description": "集成看板视图的任务管理。创建任务，关联到 Worker，并通过工作流跟踪进度。",
         "overview": {
           "title": "概述",
           "description": "Do Worker 任务提供为 AI 驱动开发设计的轻量级问题跟踪系统。核心功能包括：",
@@ -706,8 +822,8 @@
           "noneDesc": "优先级尚未分配"
         },
         "podIntegration": {
-          "title": "Pod 集成",
-          "description": "将任务关联到 AgentPod：",
+          "title": "Worker 集成",
+          "description": "将任务关联到 Worker：",
           "context": "提供上下文 — AI 智能体将任务详情作为初始上下文",
           "progress": "跟踪进度 — 查看哪些 Pod 正在处理哪些任务",
           "autoUpdate": "自动更新 — Pod 完成后可自动更新任务状态",
@@ -727,7 +843,7 @@
         }
       },
       "workflows": {
-        "title": "循环任务",
+        "title": "工作流",
         "description": "AI Agent 任务的 CI/CD。定义可重复的自动化任务，按计划或通过 API 触发执行 — 为你的 AI Agent 提供定时任务能力。",
         "overview": {
           "title": "概述",
@@ -893,7 +1009,7 @@
           "description": "启动 Runner 后，验证其连接状态：",
           "step1": "在 Web 界面中前往 设置 → Runner",
           "step2": "在列表中找到你的 Runner——应显示 ● 在线",
-          "step3": "尝试使用该 Runner 创建 AgentPod"
+          "step3": "尝试使用该 Runner 创建 Worker"
         },
         "troubleshooting": {
           "title": "故障排除",
@@ -910,7 +1026,7 @@
         "description": "Runner 提供 26 个 MCP（模型上下文协议）工具，供 AI 智能体与其他智能体协作。工具分为 7 个类别：发现、终端、绑定、频道、任务、Pod 和 Workflow。",
         "overview": {
           "title": "概述",
-          "description": "MCP 工具自动提供给在 AgentPod 中运行的 AI 智能体。工具通过端口 19000 的 HTTP 服务提供，使用 Pod 密钥进行认证。",
+          "description": "MCP 工具自动提供给 Worker 内运行的 AI 工具。工具通过端口 19000 的 HTTP 服务提供，使用 Pod 密钥进行认证。",
           "autoConfig": "自动配置：使用 Claude Code 时，Runner 会自动生成包含正确 URL 和请求头的 MCP 配置文件。"
         },
         "discovery": {
@@ -1013,7 +1129,7 @@
           "descriptionHeader": "说明",
           "paramsHeader": "参数",
           "createPod": "create_pod",
-          "createPodDesc": "创建新的 AgentPod",
+          "createPodDesc": "创建新的 Worker（底层 Pod）",
           "createPodParams": "agent_slug（必需）, runner_id?, ticket_slug?, prompt?, model?, automation_level?",
           "description": "用于创建、观察和控制 Pod 的工具。观察和输入工具需要具有适当范围的活跃绑定。",
           "getPodSnapshot": "get_pod_snapshot",
@@ -1197,7 +1313,7 @@
         "overview": {
           "title": "概述",
           "description": "Do Worker 提供组织级 API Key，用于第三方集成、CI/CD 流水线和自动化工作流。通过 API Key 你可以：",
-          "item1": "以编程方式管理 AgentPod（创建、列表、终止）",
+          "item1": "以编程方式管理 Worker（创建、列表、终止）",
           "item2": "自动创建任务和更新状态",
           "item3": "查询频道和发送消息",
           "item4": "监控 Runner 和仓库状态"
@@ -1271,8 +1387,8 @@
         }
       },
       "pods": {
-        "title": "Pods API",
-        "description": "以编程方式管理 AgentPod。通过 REST API 创建、列表和终止 Pod。",
+        "title": "Worker API（PodService）",
+        "description": "通过底层 PodService REST API 以编程方式创建、列表和终止 Worker。",
         "endpoints": {
           "title": "端点",
           "list": "列出所有 Pod",
@@ -1305,7 +1421,7 @@
           },
           "createPod": {
             "title": "POST /pods",
-            "description": "在指定 Runner 上创建新的 AgentPod。Pod 将使用给定配置初始化并开始执行。",
+            "description": "在指定 Runner 上创建新的 Worker。服务会使用给定配置初始化底层 Pod 并开始执行。",
             "fields": {
               "runner_id": "创建 Pod 的 Runner ID",
               "agent_slug": "智能体标识符（如 claude-code、aider）",
@@ -1430,16 +1546,16 @@
       },
       "workflows": {
         "title": "Workflows API",
-        "description": "管理自动化循环任务及其运行记录。通过 REST API 创建 Workflow、配置触发器和监控执行。",
+        "description": "管理自动化工作流及其运行记录。通过 REST API 创建 Workflow、配置触发器和监控执行。",
         "endpoints": {
           "title": "端点",
-          "list": "列出所有循环任务",
-          "create": "创建循环任务",
-          "get": "按 slug 获取循环任务",
-          "update": "更新循环任务",
-          "delete": "删除循环任务",
-          "enable": "启用循环任务",
-          "disable": "禁用循环任务",
+          "list": "列出所有工作流",
+          "create": "创建工作流",
+          "get": "按 slug 获取工作流",
+          "update": "更新工作流",
+          "delete": "删除工作流",
+          "enable": "启用工作流",
+          "disable": "禁用工作流",
           "trigger": "手动触发运行",
           "listRuns": "列出运行历史",
           "getRun": "获取运行详情",
@@ -1447,20 +1563,20 @@
         },
         "examples": {
           "title": "代码示例",
-          "createWorkflow": "创建定时循环任务",
+          "createWorkflow": "创建定时工作流",
           "triggerRun": "带变量触发运行"
         },
         "details": {
           "title": "端点详情",
           "listWorkflows": {
             "title": "GET /workflows",
-            "description": "获取组织内的所有循环任务。按创建时间排序返回。"
+            "description": "获取组织内的所有工作流。按创建时间排序返回。"
           },
           "createWorkflow": {
             "title": "POST /workflows",
-            "description": "使用指定配置创建新的循环任务。",
+            "description": "使用指定配置创建新的工作流。",
             "fields": {
-              "name": "循环任务名称（必填，1-255 字符）",
+              "name": "工作流名称（必填，1-255 字符）",
               "description": "可选描述",
               "agent_slug": "使用的内置 Agent 类型 ID",
               "custom_agent_slug": "自定义 Agent 类型 ID（与 agent_slug 二选一）",
@@ -1482,32 +1598,32 @@
           },
           "getWorkflow": {
             "title": "GET /workflows/:slug",
-            "description": "按 slug 获取循环任务的详细信息。",
+            "description": "按 slug 获取工作流的详细信息。",
             "params": {
               "slug": "Workflow slug（从名称自动生成）"
             }
           },
           "updateWorkflow": {
             "title": "PUT /workflows/:slug",
-            "description": "更新现有循环任务。所有字段可选 — 仅更新提供的字段。",
+            "description": "更新现有工作流。所有字段可选 — 仅更新提供的字段。",
             "params": {
               "slug": "Workflow slug"
             }
           },
           "deleteWorkflow": {
             "title": "DELETE /workflows/:slug",
-            "description": "永久删除循环任务及其所有运行历史。此操作不可撤销。",
+            "description": "永久删除工作流及其所有运行历史。此操作不可撤销。",
             "params": {
               "slug": "Workflow slug"
             }
           },
           "enableWorkflow": {
             "title": "POST /workflows/:slug/enable",
-            "description": "启用已禁用的循环任务。如果已配置 Cron 调度，将恢复定时触发。"
+            "description": "启用已禁用的工作流。如果已配置 Cron 调度，将恢复定时触发。"
           },
           "disableWorkflow": {
             "title": "POST /workflows/:slug/disable",
-            "description": "禁用循环任务。Cron 调度暂停，手动触发也会被阻止。"
+            "description": "禁用工作流。Cron 调度暂停，手动触发也会被阻止。"
           },
           "triggerWorkflow": {
             "title": "POST /workflows/:slug/trigger",
@@ -1518,7 +1634,7 @@
           },
           "listRuns": {
             "title": "GET /workflows/:slug/runs",
-            "description": "获取循环任务的运行历史，按最近优先排序。",
+            "description": "获取工作流的运行历史，按最近优先排序。",
             "params": {
               "limit": "返回的最大结果数",
               "offset": "跳过的结果数（分页用）"
@@ -1703,8 +1819,7 @@
         "runner": "Runner 问题",
         "pod": "Pod 问题",
         "apiKey": "API 密钥配置",
-        "git": "Git 集成",
-        "billing": "计费与套餐"
+        "git": "Git 集成"
       },
       "items": {
         "runnerConnection": {
@@ -1738,14 +1853,6 @@
         "gitWorktreeConflict": {
           "question": "多个 Pod 可以同时在同一仓库上工作吗？",
           "answer": "可以！每个 Pod 获得独立的 Git 工作树，所以多个 Pod 可以在同一仓库上同时工作而不会冲突。每个工作树在自己的分支上操作，更改相互隔离。"
-        },
-        "billingBYOK": {
-          "question": "BYOK（自带密钥）计费模式如何运作？",
-          "answer": "你提供自己的 AI 服务商 API 密钥（Anthropic、OpenAI、Google 等）。你根据使用量直接向 AI 服务商付费。Do Worker 仅对平台使用（Runner、存储等）收费。"
-        },
-        "billingFree": {
-          "question": "有免费套餐吗？",
-          "answer": "是的，Do Worker 提供免费套餐，包含有限的并发 Pod 和存储空间。查看定价页面了解当前套餐详情和限制。"
         }
       }
     },
@@ -1810,7 +1917,7 @@
           "description": "在 Runner 机器上安装你想使用的 AI 编程智能体：",
           "item1": "Claude Code — npm install -g @anthropic-ai/claude-code（设置 ANTHROPIC_API_KEY）",
           "item2": "Codex CLI — npm install -g @openai/codex（设置 OPENAI_API_KEY）",
-          "item3": "Gemini CLI — npm install -g @google/gemini-cli（设置 GOOGLE_API_KEY）",
+          "item3": "Gemini CLI — npm install -g @google/gemini-cli（设置 GEMINI_API_KEY）",
           "tip": "安装完成后，重启 Runner 或等待下一次心跳检测。新可用的智能体会出现在新建 Pod 对话框中。"
         },
         "step5": {
@@ -1945,7 +2052,7 @@
           "item4": "频道 — 创建频道、发送消息、共享文档",
           "item5": "任务 — 搜索、创建和更新任务",
           "item6": "Pod — 创建新 Pod、获取快照、发送输入",
-          "item7": "循环 — 列出和触发自动化循环",
+          "item7": "工作流 — 列出和触发自动化工作流",
           "autoNote": "这些内置工具自动对每个 Pod 可用——无需任何配置。"
         },
         "step1": {
@@ -2017,7 +2124,7 @@
       "firstPod": {
         "title": "教程：创建你的第一个 Pod",
         "difficulty": "初学者 — 5 分钟",
-        "description": "逐步学习如何创建并使用你的第一个 AgentPod。完成本教程后，你将成功启动一个 AI 编程智能体，将其连接到代码仓库，并完成一项任务。",
+        "description": "逐步学习如何创建并使用你的第一个 Worker。完成本教程后，你将成功启动一个 AI 工具，将其连接到代码仓库，并完成一项任务。",
         "prerequisites": {
           "title": "前提条件",
           "description": "开始之前，请确保你已准备好：",
@@ -2081,13 +2188,13 @@
           "description": "恭喜！你已经有了一个可用的 Pod。下一步取决于你想实现什么：",
           "item1": "我想跟踪任务 → 任务管理 — 使用任务和看板",
           "item2": "我想让多个智能体协同工作 → 多智能体协作",
-          "item3": "我想自动化定期任务 → 自动化循环"
+          "item3": "我想自动化定期任务 → 自动化工作流"
         }
       },
       "ticketWorkflow": {
         "title": "教程：使用任务管理任务",
         "difficulty": "初学者 — 10 分钟",
-        "description": "学习如何使用 Do Worker 的任务系统来组织工作、在看板上跟踪进度，以及将任务连接到 AgentPod 以自动注入上下文。",
+        "description": "学习如何使用 Do Worker 的任务系统来组织工作、在看板上跟踪进度，以及将任务连接到 Worker 以自动注入上下文。",
         "step1": {
           "title": "导航到任务看板",
           "description": "点击左侧边栏的任务。你将看到一个看板，包含各状态列：待办池、待处理、进行中、审查中和已完成。"
@@ -2103,9 +2210,9 @@
           "field5": "负责人 - 可选择将任务分配给团队成员"
         },
         "step3": {
-          "title": "将任务绑定到 Pod",
-          "description": "任务的真正威力在于与 AgentPod 的集成。创建新 Pod 时：",
-          "item1": "在新建 Pod 对话框中，从任务下拉菜单中选择你的任务",
+          "title": "将任务绑定到 Worker",
+          "description": "任务的真正威力在于与 Worker 的集成。创建新 Worker 时：",
+          "item1": "在新建 Worker 向导中，从任务下拉菜单中选择你的任务",
           "item2": "任务的标题和描述会自动作为上下文注入给 AI 智能体",
           "item3": "当 Pod 启动时，任务状态自动变为进行中",
           "tip": "你也可以在 Pod 的详情面板中将任务绑定到已有的 Pod。"
@@ -2137,7 +2244,7 @@
           "title": "下一步",
           "description": "你现在已经了解如何使用任务管理任务。继续探索：",
           "item1": "多智能体协作 - 将多个智能体分配到相关任务",
-          "item2": "自动化循环 - 为定期任务自动创建 Pod"
+          "item2": "自动化工作流 - 为定期任务自动创建 Pod"
         }
       },
       "multiAgent": {
@@ -2207,28 +2314,28 @@
         }
       },
       "workflows": {
-        "title": "教程：使用循环实现自动化",
+        "title": "教程：使用 Workflow 实现自动化",
         "difficulty": "进阶 — 10 分钟",
-        "description": "学习如何设置按计划自动创建 Pod 的循环任务。循环非常适合定期任务，如代码审查、依赖更新、测试运行和监控。",
+        "description": "学习如何设置按计划自动创建 Pod 的工作流。Workflow 非常适合定期任务，如代码审查、依赖更新、测试运行和监控。",
         "whatAreWorkflows": {
-          "title": "什么是循环？",
-          "description": "循环是一种定时自动化机制，会按预设配置定期创建 AgentPod。你可以把它想象成 AI 智能体的 cron 任务 - 它按计划运行你的提示词，每次创建一个全新的 Pod。",
+          "title": "什么是 Workflow？",
+          "description": "Workflow 是一种定时或事件驱动的自动化机制，会按预设配置重复创建 Worker。你可以把它想象成 AI 工具的 cron 任务：它按计划运行任务，每次创建一个新的底层 Pod。",
           "item1": "定期代码审查 - 每天早上检查代码质量问题",
           "item2": "依赖更新 - 每周扫描并更新过期的依赖包",
           "item3": "测试监控 - 每天运行测试套件并报告失败",
           "item4": "文档维护 - 在代码变更时生成或更新文档"
         },
         "step1": {
-          "title": "导航到循环",
-          "description": "点击左侧边栏的循环。你将看到现有循环的列表（如果是第一次使用则为空）以及创建新循环的按钮。"
+          "title": "导航到 Workflow",
+          "description": "点击左侧边栏的工作流。你将看到现有 Workflow 的列表（如果是第一次使用则为空）以及创建新 Workflow 的按钮。"
         },
         "step2": {
-          "title": "创建新循环",
-          "description": "点击新建循环并配置自动化：",
-          "fields": "填写循环设置：",
+          "title": "创建新 Workflow",
+          "description": "点击新建 Workflow 并配置自动化：",
+          "fields": "填写 Workflow 设置：",
           "field1": "名称 - 描述性名称，例如「每日代码审查」",
           "field2": "智能体 - 要使用的 AI 智能体（例如 Claude Code）",
-          "field3": "Runner - 执行循环的 Runner",
+          "field3": "Runner - 执行 Workflow 的 Runner",
           "field4": "仓库 - 智能体要处理的仓库",
           "field5": "分支 - 要检出的分支（默认为 main）",
           "field6": "提示词 - 智能体的任务，例如「审查最近的提交，检查代码质量问题。检查安全漏洞、性能问题和风格不一致。将摘要发布到频道。」",
@@ -2236,32 +2343,32 @@
         },
         "step3": {
           "title": "配置计划",
-          "description": "循环使用 cron 表达式进行调度。以下是常见模式：",
+          "description": "Workflow 使用 cron 表达式进行调度。以下是常见模式：",
           "pattern1": "每天上午 9 点 - 0 9 * * *",
           "pattern2": "每周一上午 8 点 - 0 8 * * 1",
           "pattern3": "每 6 小时 - 0 */6 * * *",
           "pattern4": "工作日上午 10 点 - 0 10 * * 1-5",
-          "tip": "循环仪表板显示下次计划执行时间，方便你验证 cron 表达式。"
+          "tip": "Workflow 仪表板显示下次计划执行时间，方便你验证 cron 表达式。"
         },
         "step4": {
-          "title": "监控循环执行",
-          "description": "创建循环后，你可以监控其活动：",
-          "item1": "循环仪表板 - 查看所有循环的状态、上次运行时间和下次计划运行时间",
-          "item2": "执行历史 - 点击循环查看其创建的 Pod 历史记录",
+          "title": "监控 Workflow 执行",
+          "description": "创建 Workflow 后，你可以监控其活动：",
+          "item1": "Workflow 仪表板 - 查看所有工作流的状态、上次运行时间和下次计划运行时间",
+          "item2": "执行历史 - 点击 Workflow 查看其创建的 Pod 历史记录",
           "item3": "Pod 结果 - 每次执行都会创建一个 Pod，你可以查看终端输出和 Git 变更",
           "item4": "通知 - 设置频道绑定以在频道中接收循环结果"
         },
         "step5": {
-          "title": "管理你的循环",
-          "description": "你可以在循环仪表板中管理循环：",
-          "item1": "暂停 - 临时停止循环创建新 Pod，但不删除它",
-          "item2": "恢复 - 重新启动已暂停的循环",
+          "title": "管理你的 Workflow",
+          "description": "你可以在 Workflow 仪表板中管理工作流：",
+          "item1": "暂停 - 临时停止 Workflow 创建新 Pod，但不删除它",
+          "item2": "恢复 - 重新启动已暂停的 Workflow",
           "item3": "编辑 - 更新提示词、计划或配置",
           "item4": "立即运行 - 无需等待下次计划，立即触发一次执行",
-          "item5": "删除 - 永久移除循环"
+          "item5": "删除 - 永久移除 Workflow"
         },
         "commonPatterns": {
-          "title": "常见循环模式",
+          "title": "常见 Workflow 模式",
           "pattern1": {
             "title": "每日代码审查",
             "description": "每天上午 9 点运行，审查昨天的提交。智能体检查代码质量、安全问题，并将摘要发布到团队频道。"
@@ -2277,9 +2384,9 @@
         },
         "nextSteps": {
           "title": "下一步",
-          "description": "你已经设置了第一个自动化循环。继续探索更多：",
-          "item1": "多智能体协作 - 将循环与频道结合，构建自动化多智能体流水线",
-          "item2": "任务管理 - 使用任务跟踪循环发现的问题"
+          "description": "你已经设置了第一个自动化工作流。继续探索更多：",
+          "item1": "多智能体协作 - 将 Workflow 与频道结合，构建自动化多智能体流水线",
+          "item2": "任务管理 - 使用任务跟踪 Workflow 发现的问题"
         }
       }
     }

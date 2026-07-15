@@ -50,6 +50,10 @@ class FakeWebSocket {
     if (bytes[0] === 0x0c) {
       this.command = JSON.parse(new TextDecoder().decode(bytes.slice(1)));
     }
+    if (bytes[0] === 0x03) {
+      this.input = new TextDecoder().decode(bytes.slice(1));
+      queueMicrotask(() => this.onmessage?.({ data: Uint8Array.from([0x02, ...bytes.slice(1)]) }));
+    }
   }
 }
 
@@ -95,9 +99,10 @@ test("ACP smoke renews control until the assistant answers", async () => {
   assert.equal(diagnostics.join(" ").includes("secret"), false);
 });
 
-test("PTY smoke requires a terminal snapshot and granted control", async () => {
+test("PTY smoke verifies terminal resize, input, and output after control", async () => {
   FakeWebSocket.instances = [];
   await runMobileRelayDataPlaneSmoke({
+    marker: "marker-pty",
     mode: "pty",
     relayUrl: "wss://relay.example/relay",
     token: "secret",
@@ -105,8 +110,11 @@ test("PTY smoke requires a terminal snapshot and granted control", async () => {
   });
 
   const [socket] = FakeWebSocket.instances;
-  assert.equal(socket.sent.length, 1);
+  assert.equal(socket.sent.length, 3);
   assert.equal(socket.sent[0][0], 0x07);
+  assert.equal(socket.sent[1][0], 0x04);
+  assert.equal(socket.sent[2][0], 0x03);
+  assert.equal(socket.input, "marker-pty\n");
 });
 
 function frame(type, payload) {

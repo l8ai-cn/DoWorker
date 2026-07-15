@@ -93,11 +93,12 @@ func (h *ExpertHandler) publishError(c *gin.Context, err error) {
 			apierr.EXPERT_WORKER_SPEC_REQUIRED,
 			"Pod must have a valid WorkerSpec snapshot before publishing",
 		)
-	case errors.Is(err, expertSvc.ErrWorkerSpecSnapshotUnavailable):
+	case errors.Is(err, expertSvc.ErrWorkerSpecSnapshotUnavailable),
+		errors.Is(err, expertSvc.ErrWorkerSpecSkillUnavailable):
 		apierr.ServiceUnavailable(
 			c,
 			apierr.SERVICE_UNAVAILABLE,
-			"WorkerSpec snapshot service is unavailable",
+			"WorkerSpec publishing dependencies are unavailable",
 		)
 	default:
 		h.validationOrInternal(c, err)

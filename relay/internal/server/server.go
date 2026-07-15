@@ -106,7 +106,8 @@ func New(cfg *config.Config) *Server {
 			ReconnectGrace:    cfg.Tunnel.ReconnectGrace,
 			StreamTimeout:     cfg.Tunnel.StreamTimeout,
 			StreamWindowBytes: cfg.Tunnel.StreamWindowBytes,
-			CookieSecure:      cfg.UseHTTPS || cfg.Server.TLS.Enabled,
+			CookieSecure:      cfg.PreviewUsesHTTPS(),
+			PublicHost:        cfg.PreviewPublicHost(),
 		})
 		registry := s.tunnelRegistry
 		backendClient.SetTunnelStatsProvider(func() (int, int) {

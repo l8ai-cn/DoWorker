@@ -3,8 +3,10 @@ package expert
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
+	skilldomain "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 )
 
@@ -13,6 +15,7 @@ var (
 	ErrPodWorkerSpecSnapshotRequired = errors.New("pod must have a workerspec snapshot")
 	ErrWorkerSpecSnapshotUnavailable = errors.New("workerspec snapshot is unavailable")
 	ErrWorkerSpecSnapshotMismatch    = errors.New("workerspec snapshot does not match the source pod")
+	ErrWorkerSpecSkillUnavailable    = errors.New("workerspec skill catalog is unavailable")
 )
 
 type PublishFromPodRequest struct {
@@ -64,6 +67,14 @@ func (s *Service) PublishFromPod(ctx context.Context, req *PublishFromPodRequest
 		snapshot.OrganizationID != req.OrganizationID {
 		return nil, ErrWorkerSpecSnapshotMismatch
 	}
+	skillSlugs, err := s.resolveSnapshotSkillSlugs(
+		ctx,
+		req.OrganizationID,
+		spec.Workspace.SkillIDs,
+	)
+	if err != nil {
+		return nil, err
+	}
 	name := req.Name
 	if name == "" && pod.Alias != nil {
 		name = *pod.Alias
@@ -80,8 +91,43 @@ func (s *Service) PublishFromPod(ctx context.Context, req *PublishFromPodRequest
 		AgentSlug:            spec.Runtime.WorkerType.Slug.String(),
 		InteractionMode:      string(spec.TypeConfig.InteractionMode),
 		AutomationLevel:      string(spec.TypeConfig.AutomationLevel),
+		SkillSlugs:           skillSlugs,
 		SourcePodKey:         &pod.PodKey,
 		WorkerSpecSnapshotID: &snapshotID,
 	}
 	return s.Create(ctx, createReq)
+}
+
+func (s *Service) resolveSnapshotSkillSlugs(
+	ctx context.Context,
+	organizationID int64,
+	skillIDs []int64,
+) ([]string, error) {
+	if len(skillIDs) == 0 {
+		return nil, nil
+	}
+	if s.skills == nil {
+		return nil, ErrWorkerSpecSkillUnavailable
+	}
+	slugs := make([]string, 0, len(skillIDs))
+	for _, skillID := range skillIDs {
+		row, err := s.skills.GetAnyByID(ctx, skillID)
+		if err != nil {
+			if errors.Is(err, skilldomain.ErrNotFound) {
+				return nil, errors.Join(
+					ErrWorkerSpecSnapshotMismatch,
+					fmt.Errorf("skill %d is missing", skillID),
+				)
+			}
+			return nil, errors.Join(ErrWorkerSpecSkillUnavailable, err)
+		}
+		if row == nil || !row.VisibleTo(organizationID) || row.Slug == "" {
+			return nil, errors.Join(
+				ErrWorkerSpecSnapshotMismatch,
+				fmt.Errorf("skill %d is not visible to organization", skillID),
+			)
+		}
+		slugs = append(slugs, row.Slug)
+	}
+	return slugs, nil
 }

@@ -67,8 +67,10 @@ type Expert struct {
 	ConfigOverrides json.RawMessage `gorm:"type:jsonb;not null;default:'{}'" json:"config_overrides"`
 	AgentfileLayer  *string         `gorm:"type:text" json:"agentfile_layer,omitempty"`
 
-	SourcePodKey         *string `gorm:"size:100" json:"source_pod_key,omitempty"`
-	WorkerSpecSnapshotID *int64  `json:"worker_spec_snapshot_id,omitempty"`
+	SourcePodKey                  *string `gorm:"size:100" json:"source_pod_key,omitempty"`
+	WorkerSpecSnapshotID          *int64  `json:"worker_spec_snapshot_id,omitempty"`
+	OrchestrationResourceID       *int64  `json:"orchestration_resource_id,omitempty"`
+	OrchestrationResourceRevision *int64  `json:"orchestration_resource_revision,omitempty"`
 
 	// Git-backing columns index editable metadata. Worker execution is bound to
 	// WorkerSpecSnapshotID and never reconstructed from these cached fields.

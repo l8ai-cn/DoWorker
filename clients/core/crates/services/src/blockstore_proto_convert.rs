@@ -10,11 +10,15 @@ use agentsmesh_state::blockstore_types::{
 use agentsmesh_types::proto_blockstore_v1 as blockstore_proto;
 use serde_json::Value;
 
-
 // Synthesize a BlockOp from an envelope when the server returned op_ids but
 // no full ops (happy path on apply_ops). Keeps the local mutation logic in one
 // place (apply_remote_op) so replay and realtime paths converge.
-pub(super) fn synthesize_op(workspace_id: &str, id: i64, env: &OpEnvelope, applied_at: &str) -> BlockOp {
+pub(super) fn synthesize_op(
+    workspace_id: &str,
+    id: i64,
+    env: &OpEnvelope,
+    applied_at: &str,
+) -> BlockOp {
     let mut forward = env.payload.clone();
     // Server assigns ids/timestamps on create. For local apply we tolerate
     // missing fields — the forward is a best-effort projection used only to
@@ -55,7 +59,9 @@ pub(super) fn chrono_like_now() -> String {
 // REST path delivered.
 
 pub(super) fn json_string_to_value(s: &str) -> Result<Value, String> {
-    if s.is_empty() { return Ok(Value::Null); }
+    if s.is_empty() {
+        return Ok(Value::Null);
+    }
     serde_json::from_str(s).map_err(|e| format!("invalid JSON string: {e}"))
 }
 
@@ -168,7 +174,9 @@ pub(super) fn op_envelope_to_proto(env: &OpEnvelope) -> blockstore_proto::OpEnve
     }
 }
 
-pub(super) fn op_envelope_from_proto(env: &blockstore_proto::OpEnvelope) -> Result<OpEnvelope, String> {
+pub(super) fn op_envelope_from_proto(
+    env: &blockstore_proto::OpEnvelope,
+) -> Result<OpEnvelope, String> {
     let op = match env.op.as_str() {
         "createBlock" => OpKind::CreateBlock,
         "updateBlock" => OpKind::UpdateBlock,

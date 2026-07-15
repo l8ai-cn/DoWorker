@@ -93,6 +93,11 @@ describe("RelayTerminalPanel", () => {
     render(<RelayTerminalPanel sessionId="session-1" />);
 
     await waitFor(() => expect(relayState.relay.subscribe).toHaveBeenCalledOnce());
+    expect(relayState.relay.set_status_listener).toHaveBeenCalledWith(
+      "pod-1",
+      "mobile-terminal-session-session-1",
+      expect.any(Function),
+    );
     expect(screen.getByText("正在连接 Worker…")).not.toBeNull();
     expect((screen.getByRole("button", { name: "接管输入" }) as HTMLButtonElement).disabled).toBe(
       true,
@@ -119,6 +124,11 @@ describe("RelayTerminalPanel", () => {
       expect.any(String),
       "wss://relay.example",
       "pod-relay-token",
+      expect.any(Function),
+    );
+    expect(relayState.relay.set_status_listener).toHaveBeenCalledWith(
+      "pod-1",
+      "mobile-terminal-pod-pod-1",
       expect.any(Function),
     );
   });

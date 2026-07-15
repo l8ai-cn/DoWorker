@@ -14,17 +14,27 @@ const docsMetadataMap: Record<string, DocsMeta> = {
   "/docs/getting-started": {
     title: "Quick Start",
     description:
-      "Get up and running with Do Worker in minutes. Set up your Runner, create your first Pod, and start collaborating with AI agents.",
+      "Set up a Runner, configure a model resource, and create your first Worker through the current four-step wizard.",
   },
   "/docs/concepts": {
     title: "Core Concepts",
     description:
-      "Understand the key concepts behind Do Worker — Pods, Runners, Channels, Mesh topology, and how they work together.",
+      "Understand Workers, Runners, model resources, credential bindings, workspaces, channels, and task workflows.",
+  },
+  "/docs/concepts/workers": {
+    title: "Worker Types & Runtime",
+    description:
+      "Inspect every formal Worker Definition, its adapter, interaction modes, credentials, configuration fields, runtime image state, and verification status.",
   },
   "/docs/concepts/loop-and-workflow": {
     title: "Loop and Workflow",
     description:
       "Understand the boundary between Workers, one-time goal loops, and repeatable workflows.",
+  },
+  "/docs/concepts/resource-orchestration": {
+    title: "Resource-native Orchestration",
+    description:
+      "Declare, validate, plan, and apply versioned Worker, Expert, Workflow, Prompt, and binding resources.",
   },
   "/docs/faq": {
     title: "FAQ",
@@ -47,9 +57,9 @@ const docsMetadataMap: Record<string, DocsMeta> = {
       "Connect GitHub, GitLab, or Gitee to Do Worker and import repositories for AI agent workflows.",
   },
   "/docs/features/agentpod": {
-    title: "AgentPod",
+    title: "Worker Types & Runtime",
     description:
-      "Learn about AgentPod — isolated execution environments with PTY terminals for running AI coding agents securely.",
+      "Legacy path redirected to the Worker Types & Runtime documentation.",
   },
   "/docs/features/channels": {
     title: "Channels",
@@ -62,9 +72,9 @@ const docsMetadataMap: Record<string, DocsMeta> = {
       "Automated feedback workflows for iterative agent-driven development — define triggers, conditions, and actions.",
   },
   "/docs/features/mesh": {
-    title: "Mesh Topology",
+    title: "Core Concepts",
     description:
-      "Visualize and manage agent relationships, task dependencies, and collaboration patterns across your organization.",
+      "Legacy path redirected to the current Worker-centered documentation model.",
   },
   "/docs/features/repositories": {
     title: "Repositories",
@@ -97,9 +107,14 @@ const docsMetadataMap: Record<string, DocsMeta> = {
       "Git worktree-based workspace isolation ensuring each agent operates on its own branch without conflicts.",
   },
   "/docs/tutorials/first-pod": {
-    title: "Tutorial: Your First Pod",
+    title: "Tutorial: Your First Worker",
     description:
-      "Step-by-step guide to creating and interacting with your first AgentPod — from setup to task completion.",
+      "Legacy path redirected to the current Worker creation tutorial.",
+  },
+  "/docs/tutorials/first-worker": {
+    title: "Tutorial: Your First Worker",
+    description:
+      "Create a Worker through the current runtime, type configuration, workspace, and preflight flow.",
   },
   "/docs/tutorials/ticket-workflow": {
     title: "Tutorial: Task Management with Tickets",
@@ -162,9 +177,9 @@ const docsMetadataMap: Record<string, DocsMeta> = {
       "Manage automated feedback workflows programmatically — create triggers, monitor executions, and retrieve results.",
   },
   "/docs/api/pods": {
-    title: "Pods API",
+    title: "Worker API",
     description:
-      "Create, monitor, and terminate AgentPods via the REST API — full lifecycle management for agent execution.",
+      "The PodService API used to create, monitor, and terminate Workers.",
   },
   "/docs/api/repositories": {
     title: "Repositories API",

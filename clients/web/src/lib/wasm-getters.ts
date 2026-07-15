@@ -65,6 +65,7 @@ export function registerAll(client: WasmApiClient, authManager: WasmAuthManager)
     blockstoreService: client.create_blockstore_service(),
     knowledgeBaseService: client.create_knowledgebase_service(),
     aiResourceService: client.create_ai_resource_service(),
+    orchestrationResourceService: client.create_orchestration_resource_service(),
     executionClusterService: client.create_execution_cluster_service(),
     runnerState: client.get_runner_state(),
     meshState: client.get_mesh_state(),
@@ -102,5 +103,6 @@ export {
   getAutopilotState, getRelayManager, getBlockstoreService,
   getKnowledgeBaseService,
   getAIResourceService,
+  getOrchestrationResourceService,
   getExecutionClusterService,
 } from "@do-worker/service-runtime";

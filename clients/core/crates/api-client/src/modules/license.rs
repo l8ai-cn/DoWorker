@@ -10,9 +10,9 @@
 // token when one exists. The public-service endpoints work with or without
 // the token; the auth-required ones surface 401 → ApiError::AuthExpired.
 
-use crate::ApiClient;
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
+use crate::ApiClient;
 use agentsmesh_types::proto_license_v1 as lp;
 
 impl ApiClient {

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "worker_slug": "aider",
+  "validated_at": "2026-07-12T18:55:35Z",
+  "image": "do-worker/runner-aider:latest",
+  "platform": "linux/amd64",
+  "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh aider",
+  "verdict": "blocked_external_apt_repository",
+  "observed_failure": "Debian apt repositories returned repeated HTTP 502 responses while installing python3-pip after eight bounded retries.",
+  "limits": [
+    "No Aider image or binary smoke result exists.",
+    "No substitute image, cached mock, or fallback binary was accepted."
+  ]
+}

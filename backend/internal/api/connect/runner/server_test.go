@@ -9,6 +9,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	rundom "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
@@ -111,12 +112,15 @@ func TestToProtoRunner_AllFieldsPopulated(t *testing.T) {
 	heartbeat := mustParseTime(t, "2026-05-12T13:16:10Z")
 	createdAt := mustParseTime(t, "2026-05-01T00:00:00Z")
 	updatedAt := mustParseTime(t, "2026-05-10T00:00:00Z")
+	tunnelLastSeenAt := mustParseTime(t, "2026-05-12T13:17:10Z")
 	version := "0.29.0"
 	registeredBy := int64(42)
+	tunnelLastError := "gateway_unavailable"
 
 	r := &rundom.Runner{
 		ID:                7,
 		OrganizationID:    99,
+		ClusterID:         13,
 		NodeID:            "node-abc",
 		Description:       "dev runner",
 		Status:            "online",
@@ -133,6 +137,9 @@ func TestToProtoRunner_AllFieldsPopulated(t *testing.T) {
 		Tags:               rundom.StringSlice{"prod", "edge"},
 		Visibility:         "organization",
 		RegisteredByUserID: &registeredBy,
+		TunnelState:        "disconnected",
+		TunnelLastSeenAt:   &tunnelLastSeenAt,
+		TunnelLastError:    &tunnelLastError,
 		CreatedAt:          createdAt,
 		UpdatedAt:          updatedAt,
 	}
@@ -141,6 +148,7 @@ func TestToProtoRunner_AllFieldsPopulated(t *testing.T) {
 	require.NotNil(t, got)
 	assert.Equal(t, int64(7), got.GetId())
 	assert.Equal(t, int64(99), got.GetOrganizationId())
+	assert.Equal(t, int64(13), got.GetClusterId())
 	assert.Equal(t, "node-abc", got.GetNodeId())
 	assert.Equal(t, "dev runner", got.GetDescription())
 	assert.Equal(t, "online", got.GetStatus())
@@ -155,12 +163,28 @@ func TestToProtoRunner_AllFieldsPopulated(t *testing.T) {
 	assert.Equal(t, []string{"prod", "edge"}, got.GetTags())
 	assert.Equal(t, "organization", got.GetVisibility())
 	assert.Equal(t, int64(42), got.GetRegisteredByUserId())
+	assert.Equal(t, "disconnected", got.GetTunnelState())
+	assert.Equal(t, "2026-05-12T13:17:10Z", got.GetTunnelLastSeenAt())
+	assert.Equal(t, "gateway_unavailable", got.GetTunnelLastError())
 	assert.Equal(t, "2026-05-01T00:00:00Z", got.GetCreatedAt())
 	assert.Equal(t, "2026-05-10T00:00:00Z", got.GetUpdatedAt())
 	// host_info JSON contains both keys, regardless of map iteration order.
 	hostJSON := got.GetHostInfoJson()
 	assert.Contains(t, hostJSON, `"os":"linux"`)
 	assert.Contains(t, hostJSON, `"arch":"arm64"`)
+}
+
+func TestRunnerWireSchemaIncludesTunnelFields(t *testing.T) {
+	fields := (&runnerapiv1.Runner{}).ProtoReflect().Descriptor().Fields()
+
+	for _, name := range []protoreflect.Name{
+		"cluster_id",
+		"tunnel_state",
+		"tunnel_last_seen_at",
+		"tunnel_last_error",
+	} {
+		assert.NotNilf(t, fields.ByName(name), "Runner wire schema must expose %s", name)
+	}
 }
 
 func TestToProtoRunner_NilInput_ReturnsNil(t *testing.T) {

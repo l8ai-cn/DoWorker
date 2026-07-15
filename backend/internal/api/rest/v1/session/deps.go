@@ -22,10 +22,18 @@ import (
 	tokenquotasvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenquota"
 	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
 	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
+	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
 )
 
 type sessionPromptOutbox interface {
 	PersistAndQueue(context.Context, sessionmessagesvc.PromptInput) error
+}
+
+type sessionPodOrchestrator interface {
+	CreatePod(
+		context.Context,
+		*agentpod.OrchestrateCreatePodRequest,
+	) (*agentpod.OrchestrateCreatePodResult, error)
 }
 
 type Deps struct {
@@ -40,7 +48,7 @@ type Deps struct {
 	Updates            *SessionUpdatesHub
 	Elicitations       *ElicitationStore
 	Stream             *SessionStreamPublisher
-	PodOrchestrator    *agentpod.PodOrchestrator
+	PodOrchestrator    sessionPodOrchestrator
 	Pod                *agentpod.PodService
 	PodCoordinator     *runnerservice.PodCoordinator
 	CommandSender      runnerservice.RunnerCommandSender
@@ -59,5 +67,6 @@ type Deps struct {
 	EnvBundles         *envbundlesvc.Service
 	VirtualKeys        *virtualkeysvc.Service
 	TokenQuotas        *tokenquotasvc.Service
+	EmbedTokens        *embedtoken.Service
 	Version            string
 }

@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use agentsmesh_persistence::{WorkflowRepo, StorageBackend};
+use agentsmesh_persistence::{StorageBackend, WorkflowRepo};
 
-pub use crate::workflow_types::{WorkflowData, WorkflowRunData, workflow_run_status};
+pub use crate::workflow_types::{workflow_run_status, WorkflowData, WorkflowRunData};
 
 pub struct WorkflowState {
     workflows: Vec<WorkflowData>,
@@ -68,7 +68,11 @@ impl WorkflowState {
                 let _ = repo.save_workflow(l);
             }
         }
-        if self.current_workflow.as_ref().is_some_and(|l| l.slug == slug) {
+        if self
+            .current_workflow
+            .as_ref()
+            .is_some_and(|l| l.slug == slug)
+        {
             self.current_workflow = Some(workflow_data);
         }
     }

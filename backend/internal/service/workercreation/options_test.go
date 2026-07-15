@@ -7,6 +7,7 @@ import (
 	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,13 +16,19 @@ import (
 func TestServiceListOptionsReturnsSelectableRuntimeAndBlockingReasons(t *testing.T) {
 	codexSource := "AGENT codex\nEXECUTABLE codex\nMODE acp\n"
 	unsupportedSource := "AGENT aider\nEXECUTABLE aider\nMODE pty\n"
+	aider := activeWorkerTypeAgentFor("aider", "aider", unsupportedSource)
+	aider.SupportedModes = "pty"
 	agents := &workerOptionsAgentProvider{agents: []*agentdomain.Agent{
 		activeWorkerTypeAgentFor("codex-cli", "codex", codexSource),
-		activeWorkerTypeAgentFor("aider", "aider", unsupportedSource),
+		aider,
 	}}
 	service := NewService(Deps{
-		Catalog: runtimedomain.DefaultCatalog(),
-		Agents:  agents,
+		Catalog: enabledCodexRuntimeCatalog(),
+		Definitions: staticWorkerDefinitions{
+			"codex-cli": workerDefinition("codex-cli", "codex", codexSource, "pty", "acp"),
+			"aider":     workerDefinition("aider", "aider", unsupportedSource, "pty"),
+		},
+		Agents: agents,
 	})
 	targetID := int64(1)
 
@@ -35,12 +42,12 @@ func TestServiceListOptionsReturnsSelectableRuntimeAndBlockingReasons(t *testing
 	)
 
 	require.NoError(t, err)
-	assert.Equal(t, runtimedomain.DefaultCatalogRevision, options.Revision)
+	assert.Equal(t, runtimedomain.DefaultCatalogRevision(), options.Revision)
 	require.Len(t, options.WorkerTypes, 2)
 	assert.True(t, options.WorkerTypes[0].Selectable)
 	assert.False(t, options.WorkerTypes[1].Selectable)
 	assert.Contains(t, options.WorkerTypes[1].BlockingReason, "runtime image")
-	require.Len(t, options.RuntimeImages, 3)
+	require.Len(t, options.RuntimeImages, 1)
 	assert.True(t, options.RuntimeImages[0].Selectable)
 	require.Len(t, options.ComputeTargets, 2)
 	assert.True(t, options.ComputeTargets[0].Selectable)
@@ -51,6 +58,32 @@ func TestServiceListOptionsReturnsSelectableRuntimeAndBlockingReasons(t *testing
 	assert.Contains(t, options.DeploymentModes[1].BlockingReason, "compute target")
 	require.Len(t, options.ResourceProfiles, 2)
 	assert.True(t, options.ResourceProfiles[0].Selectable)
+}
+
+func TestServiceListOptionsExposesModelRequirement(t *testing.T) {
+	source := "AGENT cursor\nEXECUTABLE agent\nMODE acp\n"
+	definition := workerDefinition("cursor-cli", "agent", source, "acp")
+	definition.ModelRequirement = workerdefinition.ModelRequirement{}
+	agents := &workerOptionsAgentProvider{agents: []*agentdomain.Agent{
+		activeWorkerTypeAgentFor("cursor-cli", "agent", source),
+	}}
+	service := NewService(Deps{
+		Catalog: runtimedomain.DefaultCatalog(),
+		Definitions: staticWorkerDefinitions{
+			"cursor-cli": definition,
+		},
+		Agents: agents,
+	})
+
+	options, err := service.ListOptions(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		OptionsFilter{},
+	)
+
+	require.NoError(t, err)
+	require.Len(t, options.WorkerTypes, 1)
+	assert.False(t, options.WorkerTypes[0].RequiresModelResource)
 }
 
 type workerOptionsAgentProvider struct {

@@ -42,6 +42,7 @@ type RunnerServiceInterface interface {
 	GetByNodeID(ctx context.Context, nodeID string) (RunnerInfo, error)
 	GetByNodeIDAndOrgID(ctx context.Context, nodeID string, orgID int64) (RunnerInfo, error)
 	UpdateLastSeen(ctx context.Context, runnerID int64) error
+	UpdateTunnelConnection(ctx context.Context, runnerID int64, connected bool, errorCode string) error
 	MarkConnected(ctx context.Context, runnerID int64) error
 	MarkDisconnected(ctx context.Context, runnerID int64) error
 	RefreshActiveHeartbeat(runnerID int64, currentPods int)

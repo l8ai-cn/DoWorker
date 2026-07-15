@@ -27,12 +27,15 @@ type CreateOptions struct {
 }
 
 type WorkerTypeOption struct {
-	Slug           string
-	Name           string
-	Description    string
-	Schema         specdomain.TypeSchema
-	Selectable     bool
-	BlockingReason string
+	Slug                      string
+	Name                      string
+	Description               string
+	Schema                    specdomain.TypeSchema
+	SupportedInteractionModes []specdomain.InteractionMode
+	RequiresModelResource     bool
+	ToolModelRequirements     []specdomain.ToolModelRequirement
+	Selectable                bool
+	BlockingReason            string
 }
 
 type RuntimeImageOption struct {
@@ -127,6 +130,15 @@ func (service *Service) listWorkerTypeOptions(
 			continue
 		}
 		option.Schema = resolved.TypeSchema
+		option.SupportedInteractionModes = append(
+			[]specdomain.InteractionMode{},
+			resolved.SupportedInteractionModes...,
+		)
+		option.RequiresModelResource = resolved.ModelRequirement.Required
+		option.ToolModelRequirements = append(
+			[]specdomain.ToolModelRequirement{},
+			resolved.ToolModelRequirements...,
+		)
 		option.Selectable = hasEnabledRuntimeImage(service.catalog, agent.Slug)
 		if !option.Selectable {
 			option.BlockingReason = "No runtime image is available for this worker type"

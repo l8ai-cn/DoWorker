@@ -2,8 +2,11 @@ package sessionapi
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
@@ -39,10 +42,48 @@ func (p *SessionStreamPublisher) sessionForPod(ctx context.Context, podKey strin
 		return "", false
 	}
 	row, err := p.Sessions.GetByPodKey(ctx, podKey)
-	if err != nil || row == nil {
+	if err == nil && row != nil {
+		return row.ID, true
+	}
+	if !errors.Is(err, sessionsvc.ErrNotFound) {
 		return "", false
 	}
-	return row.ID, true
+	return p.createSessionForPod(ctx, podKey)
+}
+
+func (p *SessionStreamPublisher) createSessionForPod(
+	ctx context.Context,
+	podKey string,
+) (string, bool) {
+	if p.Pods == nil {
+		return "", false
+	}
+	pod, err := p.Pods.GetByKey(ctx, podKey)
+	if err != nil || pod == nil || pod.InteractionMode != podDomain.InteractionModeACP {
+		return "", false
+	}
+	id, err := sessionsvc.NewID()
+	if err != nil {
+		return "", false
+	}
+	title := pod.Alias
+	if title == nil {
+		title = pod.Title
+	}
+	now := time.Now()
+	row := &sessionDomain.Session{
+		ID: id, OrganizationID: pod.OrganizationID, UserID: pod.CreatedByID,
+		PodKey: pod.PodKey, AgentSlug: pod.AgentSlug, Title: title,
+		Status: "idle", CreatedAt: now, UpdatedAt: now,
+	}
+	if err := p.Sessions.Create(ctx, row); err == nil {
+		return row.ID, true
+	}
+	existing, err := p.Sessions.GetByPodKey(ctx, podKey)
+	if err != nil || existing == nil {
+		return "", false
+	}
+	return existing.ID, true
 }
 
 func (p *SessionStreamPublisher) ensureTurn(sessionID, turnID string) string {

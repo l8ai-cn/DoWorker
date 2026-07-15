@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "worker_slug": "gemini-cli",
+  "definition_hash": "sha256:deed6b7513abcc40aca9e7cc5f09ca90dd3bab5a54233efdd3422bee09f582e8",
+  "platform": "linux/amd64",
+  "observed_at": "2026-07-13T00:44:45.000Z",
+  "image_reference": "do-worker/runner-gemini-cli:latest",
+  "image_id": "sha256:d4e71bab5ea98d4c3a2a0af295e403a3059280dcf0e864893f72190181b7fd2e",
+  "probe_command": [
+    "gemini",
+    "--version"
+  ],
+  "status": "passed",
+  "exit_code": 0,
+  "output": "0.50.0"
+}

@@ -1,22 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-  <defs>
-    <linearGradient id="am-logo-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0F766E"/>
-      <stop offset="100%" stop-color="#0B5F59"/>
-    </linearGradient>
-  </defs>
-  <rect width="400" height="400" rx="32" fill="url(#am-logo-bg)"/>
-  <g stroke="#FFFFFF" stroke-width="22" stroke-linecap="round">
-    <line x1="118" y1="118" x2="282" y2="118"/>
-    <line x1="118" y1="282" x2="282" y2="282"/>
-    <line x1="118" y1="118" x2="118" y2="282"/>
-    <line x1="282" y1="118" x2="282" y2="282"/>
-    <line x1="118" y1="118" x2="282" y2="282"/>
-    <line x1="282" y1="118" x2="118" y2="282"/>
-  </g>
-  <circle cx="200" cy="200" r="34" fill="#5EEAD4"/>
-  <circle cx="118" cy="118" r="26" fill="#CCFBF1"/>
-  <circle cx="282" cy="118" r="26" fill="#FFFFFF"/>
-  <circle cx="118" cy="282" r="26" fill="#FFFFFF"/>
-  <circle cx="282" cy="282" r="26" fill="#CCFBF1"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="88" fill="#0B0F14"/>
+  <path d="M120 80H292V224H80V120Z" fill="#F4F7F6"/>
+  <path d="M308 80H392L432 120V224H308Z" fill="#F4F7F6"/>
+  <path d="M80 240H216V432H120L80 392Z" fill="#F4F7F6"/>
+  <path d="M232 240H432V392L392 432H232Z" fill="#4FD1C5"/>
 </svg>

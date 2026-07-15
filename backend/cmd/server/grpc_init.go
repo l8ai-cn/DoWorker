@@ -156,6 +156,10 @@ func (a *grpcRunnerServiceAdapter) UpdateLastSeen(ctx context.Context, runnerID 
 	return a.svc.UpdateLastSeen(ctx, runnerID)
 }
 
+func (a *grpcRunnerServiceAdapter) UpdateTunnelConnection(ctx context.Context, runnerID int64, connected bool, errorCode string) error {
+	return a.svc.UpdateTunnelConnection(ctx, runnerID, connected, errorCode)
+}
+
 func (a *grpcRunnerServiceAdapter) RefreshActiveHeartbeat(runnerID int64, currentPods int) {
 	a.svc.RefreshActiveHeartbeat(runnerID, currentPods)
 }

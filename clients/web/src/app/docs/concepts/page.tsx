@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { DocNavigation } from "@/components/docs/DocNavigation";
 
@@ -13,6 +14,21 @@ export default function ConceptsPage() {
       <p className="text-muted-foreground leading-relaxed mb-8">
         {t("docs.concepts.description")}
       </p>
+
+      <section className="mb-12 border-y border-border/60 py-6">
+        <h2 className="text-2xl font-semibold text-foreground">
+          {t("resourceOrchestration.navTitle")}
+        </h2>
+        <p className="mt-3 max-w-3xl leading-relaxed text-muted-foreground">
+          {t("resourceOrchestration.description")}
+        </p>
+        <Link
+          href="/docs/concepts/resource-orchestration"
+          className="mt-4 inline-block font-medium text-primary hover:underline"
+        >
+          {t("resourceOrchestration.openGuide")}
+        </Link>
+      </section>
 
       {/* Architecture Overview */}
       <section className="mb-12">

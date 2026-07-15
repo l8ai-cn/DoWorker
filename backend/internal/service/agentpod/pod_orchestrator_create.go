@@ -6,8 +6,6 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/google/uuid"
-
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	otelinit "github.com/anthropics/agentsmesh/backend/internal/infra/otel"
@@ -19,63 +17,23 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	defer func() {
 		otelinit.PodCreateDuration.Record(ctx, float64(time.Since(createStart).Milliseconds()))
 	}()
+	if req.OrchestrationWorkerLaunchID != nil && !req.DeferRunnerDispatch {
+		return nil, ErrWorkerLaunchRequiresDeferredDispatch
+	}
 
-	var sourcePod *podDomain.Pod
-	var sessionID string
-	isResumeMode := req.SourcePodKey != ""
-
-	if isResumeMode {
-		if req.WorkerSpecDraft != nil || req.WorkerSpecSnapshotID != nil {
-			return nil, ErrConflictingWorkerCreateInput
-		}
-		var err error
-		sourcePod, sessionID, err = o.handleResumeMode(ctx, req)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		if req.WorkerSpecSnapshotID != nil {
-			if err := o.prepareSnapshotWorkerCreate(ctx, req); err != nil {
-				return nil, err
-			}
-		} else {
-			if err := o.prepareStructuredWorkerCreate(ctx, req); err != nil {
-				return nil, err
-			}
-		}
-		if req.AgentSlug == "" {
-			return nil, ErrMissingAgentSlug
-		}
+	creation, err := o.preparePodCreationContext(ctx, req)
+	if err != nil {
+		return nil, err
 	}
-	if !isResumeMode && req.RunnerID != 0 {
-		if err := o.resolveRunnerForFreshCreate(ctx, req); err != nil {
-			return nil, err
-		}
-	}
-	var agentDef *agentDomain.Agent
-	if req.AgentSlug != "" && o.agentResolver != nil {
-		var err error
-		agentDef, err = o.agentResolver.GetAgent(ctx, req.AgentSlug)
-		if err != nil {
-			return nil, ErrMissingAgentSlug
-		}
-	}
-	if !isResumeMode {
-		if err := o.validatePreparedWorkerType(ctx, req); err != nil {
-			return nil, err
-		}
-		if err := o.preResolveFreshRepository(ctx, req, agentDef); err != nil {
-			return nil, err
-		}
-		if req.RunnerID == 0 {
-			if err := o.resolveRunnerForFreshCreate(ctx, req); err != nil {
-				return nil, err
-			}
-		}
-		sessionID = uuid.New().String()
-	}
+	sourcePod := creation.sourcePod
+	sessionID := creation.sessionID
+	isResumeMode := creation.isResumeMode
+	agentDef := creation.agentDef
 
 	if err := o.applyWorkerModel(ctx, req, agentDef); err != nil {
+		return nil, err
+	}
+	if err := o.applyWorkerToolModels(ctx, req); err != nil {
 		return nil, err
 	}
 
@@ -170,7 +128,7 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		return nil, err
 	}
 
-	if o.billingService != nil {
+	if o.billingService != nil && creation.workerLaunchPod == nil {
 		if err := o.billingService.CheckQuota(ctx, req.OrganizationID, "concurrent_pods", 1); err != nil {
 			slog.WarnContext(ctx, "pod quota check failed", "org_id", req.OrganizationID, "error", err)
 			return nil, err
@@ -194,7 +152,15 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		return nil, err
 	}
 
-	podCmd, err := o.buildPodCommand(ctx, req, pod, sourcePod, isResumeMode, resolved)
+	podCmd, err := o.buildPodCommand(
+		ctx,
+		req,
+		pod,
+		sourcePod,
+		isResumeMode,
+		resolved,
+		agentDef.AdapterID,
+	)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to build pod command", "pod_key", pod.PodKey, "error", err)
 		return nil, errors.Join(ErrConfigBuildFailed, err)

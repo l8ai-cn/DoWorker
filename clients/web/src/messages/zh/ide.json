@@ -88,10 +88,18 @@
       "selectModelResourcePlaceholder": "请选择模型资源…",
       "loadingModelResources": "正在加载模型资源…",
       "modelResourceHint": "Worker 启动时从选中的 AI 资源解析凭据。",
-      "noModelResourcesAvailableHint": "暂无兼容的模型资源。请前往「设置 → AI 资源」添加。",
+      "manageModelResources": "配置模型与 API Key",
+      "noModelResourcesAvailableHint": "当前 Agent 需要兼容的模型和 API Key。请前往「设置 → AI 资源」选择已有配置，或添加新的配置。",
       "selectRuntimeBundles": "运行时环境变量 Bundle",
       "noRuntimeBundlesAvailableHint": "此镜像暂无运行时环境变量 Bundle。前往「设置 → 镜像」添加。",
       "noRuntimeBundleSelectedHint": "未选中任何运行时 Bundle，Worker 不会注入额外的运行时偏好。",
+      "selectConfigFile": "选择 Agent 配置文件",
+      "selectConfigFileHint": "可选择已有 JSON 配置，也可以上传一个新的 JSON 配置文件。",
+      "uploadConfigFile": "上传 JSON 配置",
+      "configFileTooLarge": "配置文件不能超过 1 MiB。",
+      "configFileMustBeObject": "配置文件必须是 JSON 对象。",
+      "configFileUploaded": "从 Worker 创建流程上传的配置文件",
+      "configFileUploadFailed": "配置文件上传失败，请检查文件内容后重试。",
       "selectRepository": "选择仓库",
       "selectRepositoryPlaceholder": "请选择一个仓库...",
       "noRepositoryOption": "不关联仓库",
@@ -132,7 +140,8 @@
         "autonomous": "全自动",
         "interactiveHint": "每一步都需要你确认，全程人工参与。",
         "auto_editHint": "自动批准读取和修改，仅高风险操作才询问。",
-        "autonomousHint": "完全自主、非交互式运行，强制使用 ACP 模式。"
+        "autonomousHint": "完全自主运行，Agent 会自动处理任务。",
+        "autonomousPtyHint": "终端全自动运行，Agent 会自动处理任务。"
       },
       "noBundleLabel": "不注入运行时环境变量",
       "noBundleHint": "未选择运行时环境变量 Bundle。",
@@ -144,11 +153,11 @@
         "credential": "旧类型",
         "runtime": "运行时"
       },
-      "selectSkills": "Skill",
-      "noSkillsAvailableHint": "此仓库尚未安装 Skill。前往「设置 → 扩展」或 Skills 侧边栏安装。",
+      "selectSkills": "选择 Skill",
+      "noSkillsAvailableHint": "当前没有可选择的 Skill。可以先在 Skill 市场创建或启用 Skill。",
       "noSkillsSelectedHint": "未选择 Skill；将加载与此镜像兼容的全部已安装 Skill。",
       "skillsSelectedHint": "选中的 Skill 会通过 AgentFile 的 SKILLS 指令附加到 Worker。",
-      "skillsRequireRepositoryHint": "请先在「运行环境」步骤关联 Git 仓库，再加载 Skill。",
+      "skillsRequireRepositoryHint": "可以不选代码仓库，直接选择 Skill。",
       "skillScope": {
         "org": "组织",
         "user": "个人"
@@ -214,12 +223,15 @@
       "durationLongTitle": "长期工作区",
       "durationLongDescription": "进程退出后自动重启，适合持续开发与会话型工作。",
       "moreOptions": "更多选项",
-      "knowledgeBases": "知识库",
-      "manageKnowledgeBases": "维护知识库",
+      "knowledgeBases": "选择知识库",
+      "manageKnowledgeBases": "新建知识库",
       "loadingKnowledgeBases": "正在加载知识库…",
+      "knowledgeBasesLoadFailed": "知识库加载失败，请重试。",
       "noKnowledgeBasesHint": "暂无知识库。创建后可在 Worker 启动时挂载到运行环境。",
-      "knowledgeBasesHint": "知识库会克隆到 Worker 沙箱的 kb/ 目录；读写（rw）挂载允许 Agent 提交并推送修改。",
+      "knowledgeBasesHint": "知识库会克隆到 Worker 沙箱的 kb/ 目录；可写挂载允许 Agent 提交并推送修改。",
       "knowledgeModeToggle": "切换只读 / 读写",
+      "knowledgeModeReadOnly": "只读",
+      "knowledgeModeReadWrite": "可写",
       "removeKnowledgeBase": "移除知识库",
       "lifecycleTitle": "生命周期策略",
       "lifecycleDescription": "细粒度控制 Worker 何时自动销毁（覆盖上方「使用时长」预设）。",
@@ -322,19 +334,19 @@
   },
   "workerCreate": {
     "steps": {
-      "runtime": "运行资源",
-      "typeConfig": "Worker 类型",
+      "runtime": "运行方式",
+      "typeConfig": "Agent 配置",
       "workspace": "工作区",
       "preflight": "检查"
     },
     "stepContent": {
       "1": {
-        "title": "选择运行资源",
-        "description": "绑定精确模型、Worker 类型、不可变镜像、算力目标、部署模式和资源规格。"
+        "title": "选择运行方式",
+        "description": "选择 Agent、模型、运行环境和资源大小。"
       },
       "2": {
-        "title": "配置 Worker 类型",
-        "description": "仅填写当前 Worker 类型声明的字段；密钥始终引用凭据 Bundle，不写入草稿。"
+        "title": "配置 Agent 变量",
+        "description": "按表单填写这个 Agent 需要的变量；密钥只引用已配置的凭据。"
       },
       "3": {
         "title": "配置工作区",
@@ -346,12 +358,46 @@
       }
     },
     "runtime": {
-      "model": "模型资源",
-      "workerType": "Worker 类型",
-      "runtimeImage": "运行时镜像",
-      "computeTarget": "算力目标",
-      "deploymentMode": "部署模式",
-      "resourceProfile": "资源规格"
+      "model": "模型与 API",
+      "workerType": "Agent 类型",
+      "runtimeImage": "运行环境",
+      "computeTarget": "运行位置",
+      "computeTargetHint": "本地开发会使用组织中在线的 Runner。",
+      "deploymentMode": "资源使用方式",
+      "deploymentModeHint": "开发调试请选择共享资源；独占资源需要额外部署节点。",
+      "resourceProfile": "资源大小",
+      "resourceProfileHint": "可以选择预设，也可以直接填写 CPU、内存和存储。",
+      "options": {
+        "codex": "OpenAI Codex",
+        "claude": "Claude Code",
+        "gemini": "Gemini CLI",
+        "minimax": "MiniMax CLI",
+        "openclaw": "OpenClaw",
+        "doAgent": "DoAgent",
+        "seedance": "Seedance 专家",
+        "aider": "Aider",
+        "openCode": "OpenCode",
+        "cursor": "Cursor",
+        "organizationRunnerPool": "组织共享 Runner",
+        "managedKubernetes": "托管 Kubernetes 节点",
+        "pooled": "共享资源",
+        "dedicated": "独占资源",
+        "standard": "标准规格",
+        "large": "大规格",
+        "noRuntimeImage": "没有可用的运行环境",
+        "dedicatedUnavailable": "独占资源需要额外部署节点",
+        "computeTargetDisabled": "这个运行位置当前不可用",
+        "noTargetForMode": "没有运行位置支持这种资源使用方式",
+        "selectedTargetUnavailable": "所选运行位置当前不可用",
+        "targetDoesNotSupportMode": "所选运行位置不支持这种资源使用方式",
+        "resourceDisabled": "这个资源规格当前不可用"
+      },
+      "resources": {
+        "custom": "自定义资源",
+        "cpu": "CPU",
+        "memory": "内存",
+        "storage": "存储"
+      }
     },
     "typeChange": {
       "title": "切换 Worker 类型？",
@@ -360,13 +406,46 @@
       "confirm": "切换类型"
     },
     "typeConfig": {
+      "title": "Agent 配置变量",
+      "description": "这些变量用于调整当前 Agent 的行为。密钥字段只引用凭据，不会在页面中保存明文。",
+      "defaultPrefix": "默认：",
       "optionsRequired": "Worker 创建选项加载完成后才能配置类型。",
       "typeRequired": "请先选择 Worker 类型。",
       "versionMismatch": "Worker 类型 Schema 版本与当前选项不一致。",
       "empty": "此 Worker 类型没有额外配置字段。",
       "invalid": "Worker 类型配置 Schema 无效。",
       "useDefault": "使用 Worker 默认值",
-      "secretHint": "密钥只引用凭据 Bundle，不会写入 Worker 草稿。"
+      "secretHint": "密钥只引用凭据 Bundle，不会写入 Worker 草稿。",
+      "manageCredentials": "配置这个 Agent 的凭据",
+      "fields": {
+        "approvalMode": "审批方式",
+        "editFormat": "编辑格式",
+        "effort": "工作强度",
+        "mcpEnabled": "启用工具",
+        "model": "模型",
+        "permissionMode": "权限模式",
+        "sandboxMode": "沙箱模式"
+      },
+      "options": {
+        "empty": "默认",
+        "approvalUntrusted": "仅不信任操作需要审批",
+        "approvalOnRequest": "按需审批",
+        "approvalNever": "不审批（全自动）",
+        "whole": "完整文件",
+        "diff": "差异补丁",
+        "udiff": "统一差异补丁",
+        "low": "低",
+        "medium": "中",
+        "high": "高",
+        "permissionDefault": "默认权限",
+        "permissionPlan": "计划模式",
+        "permissionAcceptEdits": "自动接受编辑",
+        "permissionDontAsk": "不再询问",
+        "permissionBypassPermissions": "绕过权限检查",
+        "permissionSupervised": "监督模式",
+        "permissionAuto": "自动模式",
+        "permissionBypass": "旁路模式"
+      }
     },
     "workspace": {
       "repositoryTitle": "代码仓库",

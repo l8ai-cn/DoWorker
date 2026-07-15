@@ -47,7 +47,11 @@ impl ApiError {
         ServiceError::from(self).to_wire()
     }
 
-    fn describe_http(status_text: &str, server_message: Option<&str>, code: Option<&str>) -> String {
+    fn describe_http(
+        status_text: &str,
+        server_message: Option<&str>,
+        code: Option<&str>,
+    ) -> String {
         match (server_message, code) {
             (Some(msg), Some(c)) => format!("{msg} [{c}]"),
             (Some(msg), None) => msg.to_string(),
@@ -169,7 +173,11 @@ mod tests {
         };
         let svc: ServiceError = (&err).into();
         match svc {
-            ServiceError::Http { status, code, message } => {
+            ServiceError::Http {
+                status,
+                code,
+                message,
+            } => {
                 assert_eq!(status, 500);
                 assert_eq!(code.as_deref(), Some("DB_DOWN"));
                 assert_eq!(message, "db unreachable");
@@ -190,7 +198,9 @@ mod tests {
         };
         let svc: ServiceError = (&err).into();
         match svc {
-            ServiceError::Http { status, message, .. } => {
+            ServiceError::Http {
+                status, message, ..
+            } => {
                 assert_eq!(status, 502);
                 assert!(
                     message.contains("Bad Gateway") && message.contains("localhost:25350"),

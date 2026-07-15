@@ -16,6 +16,7 @@ type Agent struct {
 
 	LaunchCommand string  `gorm:"size:500;not null" json:"launch_command"`
 	Executable    string  `gorm:"size:100" json:"executable,omitempty"`
+	AdapterID     string  `gorm:"size:100;not null" json:"adapter_id"`
 	DefaultArgs   *string `gorm:"type:text" json:"default_args,omitempty"`
 
 	AgentfileSource *string `gorm:"type:text;column:agentfile_source" json:"agentfile_source,omitempty"`

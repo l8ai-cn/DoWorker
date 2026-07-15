@@ -9,6 +9,7 @@ agentsmesh_api_client = { workspace = true }
 agentsmesh_persistence = { workspace = true }
 agentsmesh_state = { workspace = true }
 agentsmesh_types = { workspace = true }
+orchestration_resource_proto = { workspace = true }
 prost = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

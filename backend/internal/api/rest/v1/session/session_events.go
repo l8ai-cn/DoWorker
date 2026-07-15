@@ -14,7 +14,7 @@ import (
 
 func (d *Deps) handlePostEvent(c *gin.Context) {
 	row, pod, ok := d.authorizeSession(c, c.Param("id"))
-	if !ok {
+	if !ok || !d.requireSessionLevel(c, row, levelEdit) {
 		return
 	}
 	var evt struct {
@@ -23,6 +23,9 @@ func (d *Deps) handlePostEvent(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&evt); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid event"})
+		return
+	}
+	if !authorizeEmbedEvent(c, evt.Type) {
 		return
 	}
 	switch evt.Type {
@@ -37,9 +40,31 @@ func (d *Deps) handlePostEvent(c *gin.Context) {
 	}
 }
 
+func authorizeEmbedEvent(c *gin.Context, eventType string) bool {
+	claims := embedClaims(c)
+	if claims == nil {
+		return true
+	}
+	capability := "write"
+	if eventType == "interrupt" || eventType == "stop_session" {
+		capability = "control"
+	}
+	if hasEmbedCapability(claims, capability) {
+		return true
+	}
+	c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+	return false
+}
+
 func (d *Deps) postMessageEvent(c *gin.Context, row *domain.Session, pod *podDomain.Pod, data json.RawMessage) {
 	if d.MessageOutbox == nil || pod == nil || d.Hub == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "unavailable"})
+		return
+	}
+	var err error
+	pod, err = d.ensureMessagePod(c.Request.Context(), row, pod)
+	if err != nil {
+		writeSessionPodError(c, err)
 		return
 	}
 	content, _ := parseMessageContent(data)

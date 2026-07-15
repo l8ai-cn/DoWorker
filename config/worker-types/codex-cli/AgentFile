@@ -1,0 +1,38 @@
+# === Identity ===
+AGENT codex
+EXECUTABLE codex
+
+# === Mode ===
+MODE pty
+MODE acp "app-server"
+
+# === Configuration ===
+CONFIG approval_mode SELECT("untrusted", "on-request", "never") = "untrusted"
+
+# === Environment ===
+ENV OPENAI_API_KEY SECRET OPTIONAL
+ENV CODEX_HOME = sandbox.root + "/codex-home"
+
+# === Prompt ===
+PROMPT_POSITION append
+
+# === Capabilities ===
+MCP ON
+
+# === Build Logic ===
+arg "resume" "--last" when config.resume_enabled and mode != "acp"
+arg "--ask-for-approval" config.approval_mode when config.approval_mode != "" and mode != "acp"
+
+if mcp.enabled {
+  file sandbox.root + "/codex-home/config.toml" codex_mcp_toml(mcp.servers)
+
+  mkdir sandbox.work_dir + "/.codex"
+  file sandbox.work_dir + "/.codex/mcp.json" json({ mcpServers: mcp.servers })
+}
+
+CAPABILITY resume cli
+CAPABILITY permission acp
+CAPABILITY usage live
+CAPABILITY interrupt true
+CAPABILITY streaming true
+CAPABILITY model_family gpt

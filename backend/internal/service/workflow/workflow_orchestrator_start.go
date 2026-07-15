@@ -40,8 +40,14 @@ func (o *WorkflowOrchestrator) StartRun(ctx context.Context, workflow *workflowD
 		o.logger.Error("failed to persist resolved prompt", "run_id", run.ID, "error", err)
 	}
 
-	// Build AgentFile Layer from workflow configuration (AgentFile SSOT)
-	agentfileLayer := o.buildWorkflowAgentfileLayer(ctx, workflow, resolvedPrompt)
+	agentfileLayer := ""
+	if !workflow.IsResourceManaged() {
+		agentfileLayer = o.buildWorkflowAgentfileLayer(
+			ctx,
+			workflow,
+			resolvedPrompt,
+		)
+	}
 
 	var sourcePodKey string
 	resumeSession := workflow.SessionPersistence
@@ -49,8 +55,20 @@ func (o *WorkflowOrchestrator) StartRun(ctx context.Context, workflow *workflowD
 		sourcePodKey = *workflow.LastPodKey
 	}
 
-	podResult, err := o.podOrchestrator.CreatePod(ctx,
-		buildWorkflowCreatePodRequest(workflow, userID, agentfileLayer, sourcePodKey, resumeSession))
+	podRequest, err := buildWorkflowRunPodRequest(
+		workflow,
+		currentRun,
+		userID,
+		resolvedPrompt,
+		agentfileLayer,
+		sourcePodKey,
+		resumeSession,
+	)
+	if err != nil {
+		_ = o.MarkRunFailed(ctx, run.ID, err.Error())
+		return
+	}
+	podResult, err := o.podOrchestrator.CreatePod(ctx, podRequest)
 	if err != nil {
 		_ = o.MarkRunFailed(ctx, run.ID, fmt.Sprintf("Pod creation failed: %v", err))
 		return

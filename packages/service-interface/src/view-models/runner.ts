@@ -26,6 +26,10 @@ export interface RunnerData {
   tags?: string[];
   created_at?: string;
   updated_at?: string;
+  cluster_id?: number;
+  tunnel_state?: "connected" | "disconnected" | "unknown";
+  tunnel_last_seen_at?: string;
+  tunnel_last_error?: string;
   active_pods?: Array<{
     pod_key: string;
     status: string;

@@ -21,7 +21,20 @@ func newTestPreviewHandler(t *testing.T) *PreviewHandler {
 		ReconnectGrace:    50 * time.Millisecond,
 		StreamTimeout:     5 * time.Second,
 		StreamWindowBytes: 1 << 20,
+		PublicHost:        "example.com",
 	})
+}
+
+func TestPreview_RejectsUnexpectedHost(t *testing.T) {
+	h := newTestPreviewHandler(t)
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "https://app.example.com/preview/pod1/index.html", nil)
+
+	h.HandlePreview(rec, req)
+
+	if rec.Code != http.StatusMisdirectedRequest {
+		t.Fatalf("expected 421, got %d", rec.Code)
+	}
 }
 
 func TestPreview_UnauthorizedWithoutToken(t *testing.T) {

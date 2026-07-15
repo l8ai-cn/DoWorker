@@ -1,17 +1,19 @@
 {
   "landing": {
     "nav": {
+      "home": "Inicio",
       "scenarios": "Escenarios",
       "workflow": "Como funciona",
       "capabilities": "Capacidades",
-      "features": "Funciones",
+      "features": "Gobernanza",
       "marketplace": "Marketplace",
-      "pricing": "Precios",
       "docs": "Documentacion",
       "signIn": "Iniciar sesion",
       "getStarted": "Comenzar",
       "console": "Consola",
+      "consoleUnavailable": "No se puede abrir la consola ahora. Inténtalo de nuevo.",
       "language": "Idioma",
+      "toggleMenu": "Abrir o cerrar menú",
       "download": "Descargar"
     },
     "hero": {
@@ -234,78 +236,6 @@
         }
       }
     },
-    "pricing": {
-      "title": "Escala tu equipo,",
-      "titleHighlight": "no tu presupuesto.",
-      "description": "Trae tus propias API keys. Paga por la plataforma, no por token. Sin limites de uso.",
-      "mostPopular": "Mas popular",
-      "annualDiscount": "Ahorra 20%",
-      "perSeat": "/puesto",
-      "monthly": "Mensual",
-      "yearly": "Anual",
-      "yearlyDiscount": "Ahorra 17%",
-      "month": "mes",
-      "year": "ano",
-      "seatMonth": "puesto/mes",
-      "seatYear": "puesto/ano",
-      "based": {
-        "name": "Based",
-        "badge": "Prueba gratuita de 30 dias",
-        "description": "Empieza solo. Descubre lo que un agente puede lograr.",
-        "features": {
-          "0": "1 puesto (modo solo)",
-          "1": "5 agentes simultaneos",
-          "2": "1 Runner",
-          "3": "5 repositorios",
-          "4": "Soporte comunitario"
-        },
-        "cta": "Prueba gratuita"
-      },
-      "pro": {
-        "name": "Pro",
-        "description": "Tu primer equipo de agentes. Hasta 5 puestos, 10 agentes en paralelo.",
-        "features": {
-          "0": "Hasta 5 puestos",
-          "1": "10 agentes simultaneos",
-          "2": "10 Runners",
-          "3": "10 repositorios",
-          "4": "Soporte por email prioritario",
-          "5": "Soporte multi-proveedor Git"
-        },
-        "cta": "Actualizar a Pro"
-      },
-      "enterprise": {
-        "name": "Team",
-        "description": "Escala departamental. 50 puestos con sus propios squads de agentes.",
-        "features": {
-          "0": "Hasta 50 puestos",
-          "1": "50 agentes simultaneos",
-          "2": "100 Runners",
-          "3": "Repositorios ilimitados",
-          "4": "Soporte prioritario"
-        },
-        "cta": "Actualizar a Team"
-      },
-      "onpremise": {
-        "name": "OnPremise",
-        "price": "Personalizado",
-        "period": "contactanos",
-        "description": "Despliegue privado completo. Tu infraestructura, tus reglas.",
-        "features": {
-          "0": "Puestos ilimitados",
-          "1": "Agentes ilimitados",
-          "2": "Runners ilimitados",
-          "3": "Soporte air-gapped",
-          "4": "Soporte dedicado",
-          "5": "SLA personalizado",
-          "6": "Onboarding premium"
-        },
-        "cta": "Contactar ventas"
-      },
-      "footer": "Todos los planes incluyen BYOK (Bring Your Own Key) — usa tus propias API keys de IA sin limites de uso.",
-      "customPlan": "Necesitas despliegue enterprise?",
-      "contactUs": "Contactanos"
-    },
     "selfHosted": {
       "title": "Necesitas un Despliegue",
       "titleHighlight": "Self-Hosted",
@@ -322,10 +252,7 @@
       "title2": "tu proxima entrega?",
       "description": "Elige un escenario, observa la coordinacion del equipo y empieza a construir tu fuerza laboral de IA.",
       "watchDemo": "Ver la demo",
-      "getStartedFree": "Empezar gratis",
       "scheduleDemo": "Hablemos",
-      "freeTier": "Nivel gratuito disponible",
-      "noCreditCard": "Sin tarjeta de credito",
       "selfHostedOption": "Opcion self-hosted"
     },
     "heroDemo": {
@@ -403,16 +330,15 @@
       "highlight3": "Ejecucion autonoma de tareas"
     },
     "footer": {
-      "tagline": "Donde los equipos escalan mas alla del headcount.",
+      "tagline": "Convierte capacidades de IA fragmentadas en Experts que terminan el trabajo.",
       "copyright": "Do Worker. Todos los derechos reservados.",
-      "madeWith": "Construido para equipos ambiciosos",
+      "madeWith": "Creado para resultados de trabajo reales",
       "product": {
         "title": "Producto",
-        "agentpod": "AgentPod",
-        "agentsmesh": "Do Worker",
-        "tickets": "Tickets",
-        "runners": "Runners",
-        "pricing": "Precios",
+        "agentpod": "Worker",
+        "agentsmesh": "Colaboración",
+        "tickets": "Tareas",
+        "runners": "Flota de Runners",
         "enterprise": "Enterprise"
       },
       "resources": {

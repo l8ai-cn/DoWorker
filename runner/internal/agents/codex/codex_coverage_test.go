@@ -34,7 +34,8 @@ func TestRespondToPermission_InvalidID(t *testing.T) {
 }
 
 func TestRegisterInit_TransportFactory(t *testing.T) {
-	tr := acp.NewTransport(TransportType, acp.EventCallbacks{}, slog.Default())
+	tr, err := acp.NewTransport(TransportType, acp.EventCallbacks{}, slog.Default())
+	assert.NoError(t, err)
 	assert.NotNil(t, tr)
 }
 

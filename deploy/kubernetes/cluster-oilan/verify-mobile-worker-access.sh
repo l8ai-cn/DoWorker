@@ -174,6 +174,6 @@ pty_body="$(jq -n \
 pty_session_id="$(api POST '/v1/sessions' "$pty_body" | jq -er '.id')"
 pty_pod_key="$(wait_for_pod_key "$pty_session_id")"
 pty_connection="$(wait_for_pod_connection "$pty_pod_key")"
-run_relay_smoke pty "$pty_connection"
+run_relay_smoke pty "$pty_connection" "MOBILE_PTY_RELAY_$(date +%s)_$$"
 
-printf 'interaction smoke passed: direct ACP reply and PTY Relay control verified\n'
+printf 'interaction smoke passed: direct ACP reply plus PTY Relay resize/input/output verified\n'

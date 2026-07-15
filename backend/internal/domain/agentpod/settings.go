@@ -80,7 +80,7 @@ var ProviderEnvVarMapping = map[string]map[string]string{
 		"base_url":     "OPENAI_BASE_URL",
 	},
 	AIProviderTypeGemini: {
-		"api_key": "GOOGLE_API_KEY",
+		"api_key": "GEMINI_API_KEY",
 	},
 	AIProviderTypeCodex: {
 		"api_key":      "OPENAI_API_KEY",

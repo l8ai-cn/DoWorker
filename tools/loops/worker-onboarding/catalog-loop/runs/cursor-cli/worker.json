@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "slug": "cursor-cli",
+  "status": "planned",
+  "definition_hash": "sha256:338b2fef7a6fefbb9034268f14ecdf529ed99438a3885a93598e607ae4144c5a",
+  "source_refs": [
+    "config/worker-types/catalog.json"
+  ]
+}

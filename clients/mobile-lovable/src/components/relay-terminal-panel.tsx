@@ -20,8 +20,6 @@ import {
   relayOutput,
 } from "@/lib/relay-terminal-state";
 
-let nextTerminalListenerId = 0;
-
 type RelayTerminalPanelProps =
   | { podKey: string; sessionId?: never }
   | { sessionId: string; podKey?: never };
@@ -39,7 +37,9 @@ export function RelayTerminalPanel(props: RelayTerminalPanelProps) {
     podKeyRef,
     relayRef,
   });
-  const [listenerId] = useState(() => `mobile-terminal-${++nextTerminalListenerId}`);
+  const listenerId = directPodKey
+    ? `mobile-terminal-pod-${directPodKey}`
+    : `mobile-terminal-session-${sessionId}`;
   const [relay, setRelay] = useState<MobileRelayControl | null>(null);
   const [podKey, setPodKey] = useState<string | null>(null);
   const [connection, setConnection] = useState<RelayConnectionState>("connecting");
@@ -120,7 +120,7 @@ export function RelayTerminalPanel(props: RelayTerminalPanelProps) {
       }
       if (relay && podKey) void resetMobileRelayConnection(relay, podKey);
     };
-  }, [connectionAttempt, directPodKey, listenerId, sessionId, terminalRef]);
+  }, [connectionAttempt, directPodKey, sessionId, terminalRef]);
 
   useEffect(() => {
     if (terminalRef.current) {

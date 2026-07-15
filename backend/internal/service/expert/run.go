@@ -21,6 +21,9 @@ var (
 	ErrExpertDispatchUnavailable = errors.New(
 		"expert pod dispatcher is not configured",
 	)
+	ErrExpertResourceBindingCorrupt = errors.New(
+		"expert orchestration resource binding is corrupt",
+	)
 )
 
 func (s *Service) buildAgentfileLayer(ctx context.Context, expert *expertdom.Expert) string {
@@ -107,7 +110,15 @@ func (s *Service) Run(ctx context.Context, req *RunExpertRequest) (*RunExpertRes
 	if err != nil {
 		return nil, err
 	}
-	if expert.WorkerSpecSnapshotID == nil {
+	promptOverride, err := resourceManagedPromptOverride(
+		expert,
+		req.PromptOverride,
+	)
+	if err != nil {
+		return nil, err
+	}
+	if expert.WorkerSpecSnapshotID == nil ||
+		*expert.WorkerSpecSnapshotID <= 0 {
 		return nil, ErrExpertRepublishRequired
 	}
 	if s.dispatch == nil {
@@ -118,7 +129,7 @@ func (s *Service) Run(ctx context.Context, req *RunExpertRequest) (*RunExpertRes
 		UserID:                   req.UserID,
 		Alias:                    req.Alias,
 		WorkerSpecSnapshotID:     workerSpecSnapshotPointer(*expert.WorkerSpecSnapshotID),
-		WorkerSpecPromptOverride: req.PromptOverride,
+		WorkerSpecPromptOverride: promptOverride,
 		Cols:                     req.Cols,
 		Rows:                     req.Rows,
 	}
@@ -132,4 +143,27 @@ func (s *Service) Run(ctx context.Context, req *RunExpertRequest) (*RunExpertRes
 
 func workerSpecSnapshotPointer(value int64) *int64 {
 	return &value
+}
+
+func resourceManagedPromptOverride(
+	expert *expertdom.Expert,
+	requestOverride *string,
+) (*string, error) {
+	resourceManaged := expert.OrchestrationResourceID != nil ||
+		expert.OrchestrationResourceRevision != nil
+	if !resourceManaged {
+		return requestOverride, nil
+	}
+	if expert.OrchestrationResourceID == nil ||
+		*expert.OrchestrationResourceID <= 0 ||
+		expert.OrchestrationResourceRevision == nil ||
+		*expert.OrchestrationResourceRevision <= 0 ||
+		expert.WorkerSpecSnapshotID == nil ||
+		*expert.WorkerSpecSnapshotID <= 0 {
+		return nil, ErrExpertResourceBindingCorrupt
+	}
+	if requestOverride != nil {
+		return requestOverride, nil
+	}
+	return expert.Prompt, nil
 }

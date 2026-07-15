@@ -17,7 +17,9 @@ import type {
   WorkerDraftFillResult,
   WorkerPreflightIssue,
   WorkerPreflightResult,
+  WorkerResourceRequest,
   WorkerSpecDraft,
+  WorkerToolModelRequirement,
 } from "./podWorkerCreationTypes";
 
 export async function listWorkerCreateOptions(
@@ -48,6 +50,15 @@ export async function listWorkerCreateOptions(
       description: option.description,
       schema_version: option.schemaVersion,
       config_schema: parseConfigSchema(option.configSchemaJson),
+      supported_interaction_modes: option.supportedInteractionModes,
+      requires_model_resource: option.requiresModelResource,
+      tool_model_requirements: option.toolModelRequirements.map((requirement) => ({
+        role: requirement.role,
+        provider_keys: requirement.providerKeys,
+        protocol_adapters: requirement.protocolAdapters,
+        modality: requirement.modality,
+        capability: requirement.capability,
+      })),
       selectable: option.selectable,
       blocking_reason: option.blockingReason,
     })),
@@ -90,6 +101,14 @@ export async function listWorkerCreateOptions(
       memory_limit_bytes: workerNumber(
         option.memoryLimitBytes,
         "resource_profiles.memory_limit_bytes",
+      ),
+      storage_request_bytes: workerNumber(
+        option.storageRequestBytes,
+        "resource_profiles.storage_request_bytes",
+      ),
+      storage_limit_bytes: workerNumber(
+        option.storageLimitBytes,
+        "resource_profiles.storage_limit_bytes",
       ),
       gpu_request: option.gpuRequest,
       gpu_limit: option.gpuLimit,
@@ -176,5 +195,7 @@ export type {
   WorkerDraftFillResult,
   WorkerPreflightIssue,
   WorkerPreflightResult,
+  WorkerResourceRequest,
   WorkerSpecDraft,
+  WorkerToolModelRequirement,
 } from "./podWorkerCreationTypes";

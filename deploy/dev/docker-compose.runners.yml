@@ -1,6 +1,7 @@
 x-runner-build-base: &runner-build-base
   context: .
   dockerfile: ../../docker/agent-runtime/Dockerfile
+  target: runtime
 
 x-runner-build-args: &runner-build-args
   HTTP_PROXY: ""
@@ -111,6 +112,18 @@ services:
       - runner2_codex_agentsmesh_config:/home/runner/.agentsmesh
       - runner2_codex_config:/home/runner/.codex
 
+  runner-cursor-cli:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: cursor-cli } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-cursor, AGENT_RUNTIME: cursor-cli, DEFAULT_AGENT: cursor-cli }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_cursor_workspace:/workspace
+      - runner_cursor_agentsmesh_config:/home/runner/.agentsmesh
+      - runner_cursor_config:/home/runner/.cursor
+
   runner-gemini-cli:
     <<: *runner-common
     build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: gemini-cli } }
@@ -157,6 +170,17 @@ services:
       - runner_grok_workspace:/workspace
       - runner_grok_agentsmesh_config:/home/runner/.agentsmesh
       - runner_grok_config:/home/runner/.grok
+
+  runner-minimax-cli:
+    <<: *runner-common
+    build: { <<: *runner-build-base, args: { <<: *runner-build-args, AGENT_RUNTIME: minimax-cli } }
+    environment: { <<: *runner-env, RUNNER_NODE_ID: dev-runner-minimax, AGENT_RUNTIME: minimax-cli, DEFAULT_AGENT: minimax-cli }
+    volumes:
+      - ./ssl:/app/ssl:ro
+      - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
+      - ./runner-ssh:/home/runner/.ssh:ro
+      - runner_minimax_workspace:/workspace
+      - runner_minimax_agentsmesh_config:/home/runner/.agentsmesh
 
   runner-openclaw:
     <<: *runner-common
@@ -251,6 +275,9 @@ volumes:
   runner2_codex_workspace:
   runner2_codex_agentsmesh_config:
   runner2_codex_config:
+  runner_cursor_workspace:
+  runner_cursor_agentsmesh_config:
+  runner_cursor_config:
   runner_gemini_workspace:
   runner_gemini_agentsmesh_config:
   runner_gemini_config:
@@ -264,6 +291,8 @@ volumes:
   runner_grok_workspace:
   runner_grok_agentsmesh_config:
   runner_grok_config:
+  runner_minimax_workspace:
+  runner_minimax_agentsmesh_config:
   runner_openclaw_workspace:
   runner_openclaw_agentsmesh_config:
   runner_openclaw_config:

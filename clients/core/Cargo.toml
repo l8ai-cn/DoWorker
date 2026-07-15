@@ -42,6 +42,7 @@ members = [
     "crates/proto/mesh",
     "crates/proto/mesh_state",
     "crates/proto/notification",
+    "crates/proto/orchestration_resource",
     "crates/proto/org",
     "crates/proto/pod",
     "crates/proto/pod_state",
@@ -108,6 +109,7 @@ workflow_state_proto = { path = "crates/proto/workflow_state" }
 mesh_proto = { path = "crates/proto/mesh" }
 mesh_state_proto = { path = "crates/proto/mesh_state" }
 notification_proto = { path = "crates/proto/notification" }
+orchestration_resource_proto = { path = "crates/proto/orchestration_resource" }
 org_proto = { path = "crates/proto/org" }
 pod_proto = { path = "crates/proto/pod" }
 pod_state_proto = { path = "crates/proto/pod_state" }

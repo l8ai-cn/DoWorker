@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { fetchFirstOrgSlug, resolvePostLoginUrlLight } from "./post-login-redirect";
+import {
+  discoverFirstOrgSlug,
+  fetchFirstOrgSlug,
+  resolvePostLoginUrlLight,
+} from "./post-login-redirect";
 import { writeLightSession } from "@/lib/light-session";
 
 const ORIGIN = "http://localhost:10000";
@@ -91,5 +95,37 @@ describe("fetchFirstOrgSlug", () => {
       new Response(JSON.stringify({ items: [] }), { status: 200 }),
     ) as typeof fetch;
     expect(await fetchFirstOrgSlug()).toBeNull();
+  });
+});
+
+describe("discoverFirstOrgSlug", () => {
+  let originalFetch: typeof fetch;
+
+  beforeEach(() => {
+    originalFetch = globalThis.fetch;
+    window.localStorage.clear();
+    writeLightSession({
+      accessToken: "tok",
+      refreshToken: "r",
+      expiresAt: Math.floor(Date.now() / 1000) + 3600,
+      baseUrl: ORIGIN,
+    });
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+    window.localStorage.clear();
+  });
+
+  it("distinguishes an empty organization list from a failed lookup", async () => {
+    globalThis.fetch = vi.fn<typeof fetch>(async () =>
+      new Response(JSON.stringify({ items: [] }), { status: 200 }),
+    ) as typeof fetch;
+    expect(await discoverFirstOrgSlug()).toEqual({ status: "empty" });
+
+    globalThis.fetch = vi.fn<typeof fetch>(async () =>
+      new Response("server error", { status: 500 }),
+    ) as typeof fetch;
+    expect(await discoverFirstOrgSlug()).toEqual({ status: "unavailable" });
   });
 });

@@ -38,6 +38,8 @@ source "$SCRIPT_DIR/lib/worktree.sh"
 source "$SCRIPT_DIR/lib/doctor.sh"
 # shellcheck source=lib/config_gen.sh
 source "$SCRIPT_DIR/lib/config_gen.sh"
+# shellcheck source=lib/worker_runtime_catalog.sh
+source "$SCRIPT_DIR/lib/worker_runtime_catalog.sh"
 # shellcheck source=lib/coordinator_runners.sh
 source "$SCRIPT_DIR/lib/coordinator_runners.sh"
 # shellcheck source=lib/host_services.sh
@@ -106,6 +108,7 @@ main() {
     generate_web_admin_env
     generate_runner_ssh_key
     warn_loopback_port_conflict
+    prepare_local_worker_runtime_catalog
 
     if [[ -n "${RUNNERS_LAUNCHER:-}" ]]; then
         persist_runners_launcher_mode "$RUNNERS_LAUNCHER"
@@ -141,6 +144,7 @@ main() {
     run_migrations
     run_marketplace_migrations
     init_seed "${COMPOSE_PROJECT_NAME}-postgres-1"
+    sync_worker_definition_projections
     init_gitea
     setup_gitea_ssh_config
 

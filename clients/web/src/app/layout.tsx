@@ -28,18 +28,18 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL("https://agentsmesh.ai"),
   title: {
-    default: "Do Worker - The AI Agent Workforce Platform",
+    default: "Do Worker - Build AI Experts That Work Across Teams",
     template: "%s | Do Worker",
   },
-  description: "Ship like a team of fifty. With a team of five. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
+  description: "Do Worker organizes AI capabilities, organizational knowledge, tools, and execution runtimes behind one Expert that carries cross-functional work through to inspectable delivery.",
   keywords: [
     "do-worker", "do worker", "l8ai",
-    "AI agent workforce platform", "agent team management", "AI agent team",
+    "AI expert platform", "cross-functional AI", "AI expert orchestration",
     "AI agents", "AI coding", "Claude Code", "Codex CLI", "Gemini CLI", "Aider",
-    "multi-agent collaboration", "agent coordination", "terminal AI", "code automation",
+    "multi-agent orchestration", "AI skills", "terminal AI", "code automation",
     "developer tools", "enterprise development", "self-hosted", "agent fleet",
-    "AI developer tools", "coding agents", "agent management",
-    "multi-agent orchestration", "team productivity",
+    "AI developer tools", "coding agents", "expert workflows",
+    "organizational knowledge", "human checkpoints",
   ],
   manifest: "/manifest.json",
   appleWebApp: {
@@ -53,14 +53,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Do Worker",
-    title: "Do Worker - The AI Agent Workforce Platform",
-    description: "Ship like a team of fifty. With a team of five. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
+    title: "Do Worker - Build AI Experts That Work Across Teams",
+    description: "Organize AI capabilities, knowledge, tools, and execution runtimes behind one Expert that delivers cross-functional work.",
     url: "https://agentsmesh.ai",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Do Worker - The AI Agent Workforce Platform",
-    description: "Ship like a team of fifty. With a team of five. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
+    title: "Do Worker - Build AI Experts That Work Across Teams",
+    description: "Organize AI capabilities, knowledge, tools, and execution runtimes behind one Expert that delivers cross-functional work.",
   },
   alternates: {
     canonical: "https://agentsmesh.ai",

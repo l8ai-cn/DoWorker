@@ -77,7 +77,7 @@ func sourceMatchesWorkerSpec(
 	return source.AgentSlug == spec.Runtime.WorkerType.Slug.String() &&
 		int64PointersEqual(
 			source.ModelResourceID,
-			workerSpecInt64Pointer(spec.Runtime.ModelBinding.ResourceID),
+			workerSpecModelResourcePointer(spec.Runtime.ModelBinding),
 		) &&
 		int64PointersEqual(source.RepositoryID, spec.Workspace.RepositoryID) &&
 		stringPointerMatches(source.BranchName, spec.Workspace.Branch) &&

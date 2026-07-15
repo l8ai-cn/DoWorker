@@ -3,13 +3,8 @@
 import { useEffect, useMemo } from "react";
 
 import { useRouter } from "next/navigation";
-import {
-  Navbar,
-  PricingSection,
-  FinalCTA,
-  Footer,
-} from "@/components/landing";
-import { WorkforceLanding } from "@/components/landing/workforce/WorkforceLanding";
+import { Navbar, FinalCTA, Footer } from "@/components/landing";
+import { ExpertHome } from "@/components/landing/expert-home/ExpertHome";
 import { getDefaultRoute } from "@/lib/default-route";
 import { useLightSession } from "@/hooks/useLightSession";
 
@@ -50,17 +45,11 @@ export default function Home() {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web, Linux, macOS, Windows",
     description:
-      "Do Worker is an AI workforce platform for organizing specialized agents into teams that research, create, operate, and deliver outcomes with human oversight.",
+      "Do Worker organizes AI capabilities, organizational knowledge, tools, and execution runtimes behind one Expert that carries cross-functional work through to inspectable delivery.",
     alternateName: ["AgentMesh", "Agents Mesh"],
     url: "https://agentsmesh.ai",
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-      description: "Free tier available",
-    },
     keywords:
-      "AI workforce, digital team, agent orchestration, multi-agent collaboration, knowledge work automation, self-hosted AI agents",
+      "AI experts, cross-functional AI, agent orchestration, Skills, organizational knowledge, human checkpoints, self-hosted AI agents",
     publisher: {
       "@type": "Organization",
       name: "Do Worker",
@@ -75,15 +64,14 @@ export default function Home() {
   };
 
   return (
-    <div className="azure-theme min-h-screen bg-background">
+    <div className="azure-theme expert-home min-h-screen bg-[var(--expert-bg)]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Navbar />
       <main>
-        <WorkforceLanding />
-        <PricingSection />
+        <ExpertHome />
         <FinalCTA />
       </main>
       <Footer />

@@ -1,0 +1,124 @@
+{
+  "landing": {
+    "workforce": {
+      "expertHome": {
+        "hero": {
+          "eyebrow": "One Expert. Connected organizational capability.",
+          "title": "Turn fragmented AI capabilities into experts that finish the work",
+          "description": "State the goal once. Do Worker organizes methods, organizational knowledge, execution tools, and AI capabilities behind one Expert that works across engineering, content, data, and operations.",
+          "primaryAction": "Create your Expert",
+          "secondaryAction": "Browse the business menu",
+          "proof": "Shared context · Cross-system execution · Human confirmation · Evidence-backed delivery"
+        },
+        "console": {
+          "title": "Cross-functional work in progress",
+          "status": "One Expert owns the goal with human confirmation at key decisions",
+          "live": "Live",
+          "paused": "Paused",
+          "complete": "Complete",
+          "goalLabel": "Current goal",
+          "goal": "Launch a verified multilingual campaign for a new market",
+          "expertLabel": "Active Expert",
+          "expert": "Cross-border growth Expert",
+          "formulaLabel": "Capabilities behind it",
+          "formula": "Research · Knowledge · Content · Data · System action",
+          "workflowLabel": "Unified delivery chain",
+          "steps": ["Understand", "Organize", "Execute", "Confirm", "Deliver"],
+          "checkpointLabel": "Human checkpoint",
+          "checkpoint": "Approve positioning, brand language, and compliance boundaries before publishing.",
+          "deliverableLabel": "Inspectable result",
+          "deliverable": "Market brief, localized assets, process evidence, and next actions",
+          "controls": { "pause": "Pause", "resume": "Resume", "next": "Next step", "replay": "Replay" }
+        },
+        "solutions": {
+          "eyebrow": "Homepage business menu",
+          "title": "Enter through a real goal and follow the work to delivery",
+          "description": "Choose the outcome you need instead of assembling a crowd of agents. Each entry keeps one Expert and one context while calling the required cross-functional capabilities.",
+          "workflowLabel": "Delivery path",
+          "deliverablesLabel": "Inspectable result",
+          "items": [
+            { "id": "cross-border-commerce", "title": "Cross-border growth", "description": "Connect market research, positioning, content, localization, launch preparation, and performance review around one expansion goal.", "chain": "Research → Positioning → Content → Localization → Launch prep → Review", "outcome": "Market plans, product assets, localized content, and process evidence.", "action": "Create an Expert for this goal" },
+            { "id": "ai-education", "title": "Course development", "description": "Start from learning outcomes and organize research, curriculum, lessons, labs, assessments, and instructor review.", "chain": "Outcomes → Curriculum → Lessons → Labs → Assessment → Review", "outcome": "Syllabi, lessons, labs, quizzes, and acceptance evidence.", "action": "Create an Expert for this goal" },
+            { "id": "digital-employees", "title": "AI partners", "description": "Work alongside an AI partner that shares context with your team and combines research, documents, data, content, and system actions across departmental boundaries.", "chain": "Set the goal together → Read organizational knowledge → Act across tools → Share progress → Human confirmation → Deliver evidence", "outcome": "Collaborative results, system actions, progress notes, and inspectable evidence.", "action": "Create your AI partner" },
+            { "id": "marketplace", "title": "Expert marketplace", "description": "Discover reusable Experts and Skills by outcome, then inspect capabilities, permissions, and deliverables before installation.", "chain": "Discover → Inspect → Install → Configure → Run → Govern", "outcome": "Reusable Experts with visible capabilities, permissions, and delivery expectations.", "action": "Open the Expert marketplace" }
+          ]
+        },
+        "capabilities": {
+          "eyebrow": "Composable capabilities",
+          "title": "One Expert can call many professional capabilities",
+          "description": "A single delivery chain can use research, documents, data, code, and media. Maturity labels distinguish platform features, capabilities assembled through Skills or tools, and planned directions.",
+          "levels": { "implemented": "Platform feature", "composable": "Composable", "planned": "Planned" },
+          "items": [
+            { "id": "programming", "level": "implemented", "title": "Programming and delivery", "description": "Change code, run tests, review work, and deliver a PR or MR in an isolated workspace." },
+            { "id": "research", "level": "composable", "title": "Research and judgment", "description": "Combine retrieval and analysis into sourced conclusions and briefs." },
+            { "id": "documents", "level": "composable", "title": "Professional documents", "description": "Read, structure, revise, and deliver documents ready for continued use." },
+            { "id": "office", "level": "composable", "title": "Office production", "description": "Work with spreadsheets, presentations, reports, and repeatable operations." },
+            { "id": "content", "level": "composable", "title": "Content operations", "description": "Connect research, drafting, editing, localization, review, and launch preparation." },
+            { "id": "screenwriting", "level": "composable", "title": "Scripts and direction", "description": "Organize narrative structure, scripts, shot plans, and production handoffs." },
+            { "id": "image", "level": "composable", "title": "Image assets", "description": "Generate, edit, inspect, and package visual assets through connected tools." },
+            { "id": "audio", "level": "composable", "title": "Audio assets", "description": "Plan, generate, process, and review voice or music through connected tools." },
+            { "id": "video", "level": "composable", "title": "Video production", "description": "Coordinate scripts, assets, generation, editing, and quality review." },
+            { "id": "data", "level": "composable", "title": "Data and system operations", "description": "Query, transform, analyze, and verify structured data with controlled tools." },
+            { "id": "education", "level": "composable", "title": "Courses and learning", "description": "Connect course design, lessons, labs, assessment, and learning evidence." },
+            { "id": "industryMarket", "level": "planned", "title": "Industry Expert marketplace", "description": "A catalog of industry Experts and business connectors for organizations." }
+          ]
+        },
+        "operating": {
+          "eyebrow": "Expert operating model",
+          "title": "One Expert in front. Your organization's capabilities behind it.",
+          "description": "The Expert keeps one identity, goal, context, and task state. The platform organizes the execution runtime, model, professional methods, organizational knowledge, system tools, and operating rules around it.",
+          "formulaTitle": "Six capability layers behind an Expert",
+          "parts": [
+            { "id": "worker", "title": "Execution runtime", "description": "Select the Worker runtime suited to the assignment." },
+            { "id": "model", "title": "Reasoning and generation", "description": "Choose models by task instead of making model names the user interface." },
+            { "id": "skills", "title": "Professional methods", "description": "Capture domain methods and delivery standards as reusable Skills." },
+            { "id": "knowledge", "title": "Organizational knowledge", "description": "Connect files, standards, history, and business context." },
+            { "id": "tools", "title": "System action", "description": "Use controlled connections to act in browsers, databases, and business systems." },
+            { "id": "workflow", "title": "Operating rules", "description": "Define order, checkpoints, budgets, stop conditions, and evidence." }
+          ],
+          "humanTitle": "Continuous progress with explicit control",
+          "humanDescription": "The Expert can keep working while important decisions, privileged actions, and final delivery remain visible.",
+          "humanItems": [
+            { "id": "checkpoint", "title": "Key confirmation", "description": "Pause high-impact decisions for approval, rejection, or revision." },
+            { "id": "deliverable", "title": "Complete delivery", "description": "Return artifacts together with status, evidence, and unresolved risks." },
+            { "id": "repeatability", "title": "Reusable practice", "description": "Turn proven methods into versioned Skills, Experts, and workflows." }
+          ]
+        },
+        "market": {
+          "eyebrow": "Expert marketplace",
+          "title": "Reuse catalog Experts instead of rebuilding an AI team",
+          "description": "The current catalog starts with software-engineering Experts that map to real platform capabilities. Begin with outcomes, permissions, and delivery expectations, then inspect the underlying Worker, Skills, and runtime configuration.",
+          "apps": [
+            { "slug": "software-delivery-expert", "title": "Software delivery Expert", "description": "From requirement breakdown and isolated development to testing, review, and PR or MR delivery." },
+            { "slug": "multi-worker-orchestrator", "title": "Complex work orchestration Expert", "description": "Split complex goals into parallel assignments and consolidate one accepted result." },
+            { "slug": "dual-repo-sync-expert", "title": "Dual-repository sync Expert", "description": "Synchronize GitLab and GitHub with divergence detection and the correct review path." }
+          ],
+          "status": "Listed",
+          "plannedTitle": "Industry Experts are expanding",
+          "plannedDescription": "Cross-border growth, course development, and AI partners will enter the market only after their Skills, connectors, and delivery chains are verified.",
+          "action": "Browse the Expert marketplace"
+        },
+        "trust": {
+          "eyebrow": "Permissions and governance",
+          "title": "One interface does not mean unlimited access",
+          "description": "An Expert can work across systems while every run remains constrained by infrastructure, isolated workspaces, credential scope, human confirmation, and evidence requirements.",
+          "items": [
+            { "id": "selfHosting", "title": "Controlled execution location", "description": "Run Workers inside infrastructure and network boundaries defined by the organization.", "status": "Controlled" },
+            { "id": "workspaces", "title": "Isolated workspaces", "description": "Separate each assignment, its files, and execution context.", "status": "Isolated" },
+            { "id": "credentials", "title": "Scoped credentials", "description": "Grant only the access required by the Expert and assignment.", "status": "Scoped" },
+            { "id": "audit", "title": "Inspectable evidence", "description": "Retain activity, decisions, artifacts, and delivery status.", "status": "Recorded" }
+          ],
+          "runtimesTitle": "Worker runtime directory",
+          "runtimesDescription": "The platform defines Worker types including Codex CLI, Claude Code, Gemini CLI, Aider, and OpenCode. Deployability still depends on runtime catalog and release verification status."
+        },
+        "cta": {
+          "eyebrow": "Start from a real goal",
+          "title": "Let your first Expert own one complete delivery chain",
+          "description": "Choose an existing Expert or combine the Workers, Skills, knowledge, and tools your organization trusts into one expert interface.",
+          "primary": "Create your first Expert",
+          "secondary": "Browse Expert marketplace"
+        }
+      }
+    }
+  }
+}

@@ -23,6 +23,7 @@ func (o *PodOrchestrator) resolveRunnerForFreshCreate(ctx context.Context, req *
 		return ErrNoAvailableRunner
 	}
 	req.RunnerID = selectedRunner.ID
+	req.clusterID = selectedRunner.ClusterID
 	slog.InfoContext(ctx, "runner auto-selected", "runner_id", selectedRunner.ID, "org_id", req.OrganizationID, "agent_slug", req.AgentSlug)
 	return nil
 }
@@ -31,12 +32,13 @@ func (o *PodOrchestrator) resolveExplicitRunner(ctx context.Context, req *Orches
 	if o.runnerSelector == nil {
 		return ErrNoAvailableRunner
 	}
-	_, err := o.runnerSelector.ResolveRunnerForCreate(
+	selectedRunner, err := o.runnerSelector.ResolveRunnerForCreate(
 		ctx, req.RunnerID, req.OrganizationID, req.UserID, req.AgentSlug, req.QueueIfUnavailable,
 	)
 	if err != nil {
 		slog.WarnContext(ctx, "explicit runner eligibility failed", "runner_id", req.RunnerID, "org_id", req.OrganizationID, "agent_slug", req.AgentSlug, "error", err)
 		return ErrNoAvailableRunner
 	}
+	req.clusterID = selectedRunner.ClusterID
 	return nil
 }

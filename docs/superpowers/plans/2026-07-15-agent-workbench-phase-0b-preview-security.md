@@ -27,7 +27,7 @@
 - Modify: `backend/.env.example`
 - Modify: `relay/.env.example`
 
-- [ ] **Step 1: Add fail-closed tests**
+- [x] **Step 1: Add fail-closed tests**
 
 ```go
 require.Equal(t, "https://preview.example.com", cfg.PreviewPublicOrigin)
@@ -35,16 +35,16 @@ require.Equal(t, http.StatusMisdirectedRequest, requestWithHost("app.example.com
 require.Equal(t, "https://preview.example.com/preview/pod1/", response.PreviewBaseURL)
 ```
 
-- [ ] **Step 2: Verify tests fail**
+- [x] **Step 2: Verify tests fail**
 
 Run: `go test ./backend/internal/config ./backend/internal/api/rest/v1 ./relay/internal/config ./relay/internal/server`
 Expected: FAIL because `PREVIEW_PUBLIC_ORIGIN` and Host enforcement do not exist.
 
-- [ ] **Step 3: Implement explicit origin wiring**
+- [x] **Step 3: Implement explicit origin wiring**
 
 Add required `PREVIEW_PUBLIC_ORIGIN`; production startup fails when it equals an authenticated application origin. `PodHandler` receives the parsed origin and constructs preview URLs only from it. Relay requires the exact configured host. Dev generates `http://preview.localhost:${HTTP_PORT}` and Traefik exposes only `/preview/*` on that host.
 
-- [ ] **Step 4: Run tests and commit**
+- [x] **Step 4: Run tests and commit**
 
 Run: `go test ./backend/internal/config ./backend/internal/api/rest/v1 ./relay/internal/config ./relay/internal/server`
 Expected: PASS.

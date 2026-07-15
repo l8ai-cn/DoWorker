@@ -1,10 +1,19 @@
 import { pathToFileURL } from "node:url";
-
-const ACP_EVENT = 0x0b;
-const ACP_COMMAND = 0x0c;
-const ACP_SNAPSHOT = 0x0d;
-const CONTROL = 0x07;
-const TERMINAL_SNAPSHOT = 0x01;
+import {
+  ACP_COMMAND,
+  ACP_EVENT,
+  ACP_SNAPSHOT,
+  binaryFrame,
+  CONTROL,
+  TERMINAL_INPUT,
+  TERMINAL_OUTPUT,
+  TERMINAL_SNAPSHOT,
+  browserRelayUrl,
+  jsonFrame,
+  messageBytes,
+  parseJson,
+  resizeFrame,
+} from "./mobile-relay-frame-codec.mjs";
 const RENEW_AHEAD_MS = 10_000;
 const MIN_RENEW_DELAY_MS = 5_000;
 
@@ -21,14 +30,14 @@ export async function runMobileRelayDataPlaneSmoke({
 }) {
   if (mode !== "acp" && mode !== "pty") throw new Error("mode must be acp or pty");
   if (!relayUrl || !token || !WebSocketImpl) throw new Error("relay connection is unavailable");
-  if (mode === "acp" && !marker) throw new Error("ACP smoke requires a response marker");
+  if (!marker) throw new Error(`${mode.toUpperCase()} smoke requires a response marker`);
 
   return new Promise((resolve, reject) => {
     const log = typeof debug === "function" ? debug : () => {};
     let completed = false;
     let dataReady = false;
     let leaseRequested = false;
-    let promptSent = false;
+    let interactionSent = false;
     let renewalTimer = null;
     let assistantText = "";
     const socket = new WebSocketImpl(browserRelayUrl(relayUrl, token));
@@ -47,7 +56,8 @@ export async function runMobileRelayDataPlaneSmoke({
       const bytes = await messageBytes(data);
       if (bytes.length < 1) throw new Error("Relay returned an empty frame");
       const type = bytes[0];
-      const payload = parseJson(bytes.subarray(1));
+      const payloadBytes = bytes.subarray(1);
+      const payload = parseJson(payloadBytes);
 
       if (!dataReady && type === (mode === "acp" ? ACP_SNAPSHOT : TERMINAL_SNAPSHOT)) {
         dataReady = true;
@@ -65,10 +75,15 @@ export async function runMobileRelayDataPlaneSmoke({
         log(`${mode.toUpperCase()} control lease status=${payload.status ?? "unknown"}`);
         if (payload.status === "granted" && leaseRequested) {
           log(`${mode.toUpperCase()} control lease granted`);
-          if (mode === "pty") return finish();
           scheduleRenewal(payload);
-          if (!promptSent) {
-            promptSent = true;
+          if (!interactionSent) {
+            interactionSent = true;
+            if (mode === "pty") {
+              socket.send(resizeFrame(120, 40));
+              socket.send(binaryFrame(TERMINAL_INPUT, new TextEncoder().encode(`${marker}\n`)));
+              log("sent PTY resize and input");
+              return;
+            }
             socket.send(jsonFrame(ACP_COMMAND, {
               prompt: `Reply with exactly ${marker}.`,
               type: "prompt",
@@ -86,6 +101,10 @@ export async function runMobileRelayDataPlaneSmoke({
           throw new Error(`${mode} Relay control lease was not granted`);
         }
         return;
+      }
+      if (mode === "pty" && type === TERMINAL_OUTPUT && text(payloadBytes).includes(marker)) {
+        log("received matching PTY output");
+        finish();
       }
       if (
         mode === "acp" &&
@@ -116,13 +135,13 @@ export async function runMobileRelayDataPlaneSmoke({
       const leaseId = payload.lease_id;
       const expiresAt = Number(payload.expires_at);
       if (!leaseId || !Number.isFinite(expiresAt)) {
-        throw new Error("ACP Relay granted an invalid control lease");
+        throw new Error(`${mode.toUpperCase()} Relay granted an invalid control lease`);
       }
       if (renewalTimer !== null) cancelSchedule(renewalTimer);
       const delay = Math.max(MIN_RENEW_DELAY_MS, expiresAt - Date.now() - RENEW_AHEAD_MS);
       renewalTimer = schedule(() => {
         renewalTimer = null;
-        log("renewed ACP control lease");
+        log(`renewed ${mode.toUpperCase()} control lease`);
         socket.send(jsonFrame(CONTROL, {
           action: "renew",
           lease_id: leaseId,
@@ -133,32 +152,8 @@ export async function runMobileRelayDataPlaneSmoke({
   });
 }
 
-export function browserRelayUrl(relayUrl, token) {
-  const url = new URL(relayUrl);
-  url.pathname = `${url.pathname.replace(/\/$/, "")}/browser/relay`;
-  url.searchParams.set("token", token);
-  return url.toString();
-}
-
-function jsonFrame(type, value) {
-  const payload = new TextEncoder().encode(JSON.stringify(value));
-  return Uint8Array.from([type, ...payload]);
-}
-
-function parseJson(bytes) {
-  if (bytes.length === 0) return null;
-  try {
-    return JSON.parse(new TextDecoder().decode(bytes));
-  } catch {
-    return null;
-  }
-}
-
-async function messageBytes(data) {
-  if (data instanceof ArrayBuffer) return new Uint8Array(data);
-  if (ArrayBuffer.isView(data)) return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-  if (data && typeof data.arrayBuffer === "function") return new Uint8Array(await data.arrayBuffer());
-  throw new Error("Relay returned an unsupported frame");
+function text(bytes) {
+  return new TextDecoder().decode(bytes);
 }
 
 async function main() {

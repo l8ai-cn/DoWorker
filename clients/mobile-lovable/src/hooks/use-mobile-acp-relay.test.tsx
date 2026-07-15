@@ -13,6 +13,10 @@ const relay = vi.hoisted(() => ({
   set_status_listener: vi.fn(),
   subscribe: vi.fn().mockResolvedValue(undefined),
 }));
+const listeners = vi.hoisted(() => ({
+  acp: undefined as ((messageType: number, payload: unknown) => void) | undefined,
+  status: undefined as ((payload: unknown) => void) | undefined,
+}));
 
 const acp = vi.hoisted(() => ({
   add_content_chunk: vi.fn(),
@@ -44,8 +48,14 @@ vi.mock("@/lib/mobile-wasm", () => ({
 describe("useMobileAcpRelay", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    relay.set_acp_listener.mockResolvedValue(undefined);
-    relay.set_status_listener.mockResolvedValue(undefined);
+    listeners.acp = undefined;
+    listeners.status = undefined;
+    relay.set_acp_listener.mockImplementation(async (_podKey, _listenerId, listener) => {
+      listeners.acp = listener;
+    });
+    relay.set_status_listener.mockImplementation(async (_podKey, _listenerId, listener) => {
+      listeners.status = listener;
+    });
     relay.subscribe.mockResolvedValue(undefined);
   });
 
@@ -53,12 +63,13 @@ describe("useMobileAcpRelay", () => {
     vi.clearAllMocks();
   });
 
-  it("registers one named listener pair and removes both on unmount", async () => {
+  it("uses the Pod as the listener key and removes both listeners on unmount", async () => {
     const { unmount } = renderHook(() => useMobileAcpRelay("pod-1"));
 
     await waitFor(() => expect(relay.subscribe).toHaveBeenCalledOnce());
     const statusListenerId = relay.set_status_listener.mock.calls[0][1];
     const acpListenerId = relay.set_acp_listener.mock.calls[0][1];
+    expect(statusListenerId).toBe("mobile-acp-pod-1");
     expect(statusListenerId).toBe(acpListenerId);
 
     await act(async () => {
@@ -67,5 +78,33 @@ describe("useMobileAcpRelay", () => {
 
     expect(relay.remove_status_listener).toHaveBeenCalledWith("pod-1", statusListenerId);
     expect(relay.remove_acp_listener).toHaveBeenCalledWith("pod-1", acpListenerId);
+  });
+
+  it("waits for Runner prompt acceptance before resolving the send", async () => {
+    const { result } = renderHook(() => useMobileAcpRelay("pod-1"));
+
+    await waitFor(() => expect(relay.subscribe).toHaveBeenCalledOnce());
+    await act(async () => {
+      listeners.status?.({
+        status: "connected",
+        controlLeaseExpiresAt: Date.now() + 30_000,
+        controlLeaseId: "lease-1",
+        controlLeaseStatus: "granted",
+      });
+    });
+    const sent = result.current.sendPrompt("hello");
+    await waitFor(() => expect(relay.send_acp_command).toHaveBeenCalledOnce());
+    const command = JSON.parse(relay.send_acp_command.mock.calls[0][1]);
+
+    await act(async () => {
+      listeners.acp?.(0x0b, {
+        requestId: command.requestId,
+        role: "user",
+        text: "hello",
+        type: "contentChunk",
+      });
+    });
+
+    await expect(sent).resolves.toBeUndefined();
   });
 });

@@ -118,6 +118,10 @@ message Runner {
   string updated_at = 16 [(amesh.codegen.v1.field_convert) = "rfc3339"];
   int64 organization_id = 17 [(amesh.codegen.v1.field_rename) = "OrganizationID"];
   repeated AgentVersion agent_versions = 18 [(amesh.codegen.v1.field_custom) = "agentVersionsToProto"];
+  int64 cluster_id = 19 [(amesh.codegen.v1.field_rename) = "ClusterID"];
+  string tunnel_state = 20 [(amesh.codegen.v1.field_rename) = "TunnelState"];
+  optional string tunnel_last_seen_at = 21 [(amesh.codegen.v1.field_convert) = "rfc3339_ptr"];
+  optional string tunnel_last_error = 22 [(amesh.codegen.v1.field_convert) = "string_ptr"];
 }
 
 // AgentVersion mirrors domain/runner.AgentVersion — installed agent runtime info.

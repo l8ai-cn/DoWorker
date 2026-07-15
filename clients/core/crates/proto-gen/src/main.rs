@@ -18,14 +18,20 @@ fn main() {
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let crate_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let core_dir = crate_dir.parent().and_then(|p| p.parent()).ok_or("clients/core")?;
-    let repo_root = core_dir.parent().and_then(|p| p.parent()).ok_or("repo root")?;
+    let core_dir = crate_dir
+        .parent()
+        .and_then(|p| p.parent())
+        .ok_or("clients/core")?;
+    let repo_root = core_dir
+        .parent()
+        .and_then(|p| p.parent())
+        .ok_or("repo root")?;
     let proto_root = repo_root.join("proto");
     let out_root = core_dir.join("crates/proto");
 
     if std::env::var_os("PROTOC").is_none() {
-        let home_protoc = PathBuf::from(std::env::var_os("HOME").unwrap_or_default())
-            .join(".local/bin/protoc");
+        let home_protoc =
+            PathBuf::from(std::env::var_os("HOME").unwrap_or_default()).join(".local/bin/protoc");
         if home_protoc.is_file() {
             std::env::set_var("PROTOC", home_protoc);
         }
@@ -83,7 +89,7 @@ fn generate_domain(
     let mut config = prost_build::Config::new();
     config.out_dir(&tmp);
     config.type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]");
-    config.type_attribute(".", "#[serde(default)]");
+    config.message_attribute(".", "#[serde(default)]");
 
     for dep in domain.deps {
         let path = format!("::{dep}_proto::proto::{}::v1", rust_mod(dep));
@@ -103,7 +109,8 @@ fn generate_domain(
 
     let mut includes = vec![proto_root.to_path_buf()];
     for candidate in [
-        PathBuf::from(std::env::var_os("HOME").unwrap_or_default()).join(".local/protoc-29.3/include"),
+        PathBuf::from(std::env::var_os("HOME").unwrap_or_default())
+            .join(".local/protoc-29.3/include"),
         PathBuf::from("/opt/homebrew/include"),
         PathBuf::from("/usr/local/include"),
         PathBuf::from("/usr/include"),
@@ -128,10 +135,7 @@ fn write_lib_rs(
     tmp: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let candidates = [format!("proto.{}.v1.rs", domain.name)];
-    let generated = candidates
-        .iter()
-        .map(|n| tmp.join(n))
-        .find(|p| p.is_file());
+    let generated = candidates.iter().map(|n| tmp.join(n)).find(|p| p.is_file());
     let Some(generated) = generated else {
         let entries: Vec<_> = fs::read_dir(tmp)?
             .filter_map(|e| e.ok())

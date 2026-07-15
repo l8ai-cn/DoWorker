@@ -1,17 +1,19 @@
 {
   "landing": {
     "nav": {
+      "home": "홈",
       "scenarios": "시나리오",
       "workflow": "작업 흐름",
       "capabilities": "플랫폼 기능",
-      "features": "기능",
+      "features": "권한 관리",
       "marketplace": "마켓플레이스",
-      "pricing": "요금제",
       "docs": "문서",
       "signIn": "로그인",
       "getStarted": "시작하기",
       "console": "콘솔",
+      "consoleUnavailable": "지금은 콘솔을 열 수 없습니다. 다시 시도해 주세요.",
       "language": "언어",
+      "toggleMenu": "메뉴 열기 또는 닫기",
       "download": "다운로드"
     },
     "hero": {
@@ -234,78 +236,6 @@
         }
       }
     },
-    "pricing": {
-      "title": "팀을 스케일하세요,",
-      "titleHighlight": "예산은 그대로.",
-      "description": "자체 API 키를 가져오세요. 플랫폼 비용만 지불, 토큰 과금 없음. 사용량 제한 없음.",
-      "mostPopular": "가장 인기",
-      "annualDiscount": "20% 할인",
-      "perSeat": "/석",
-      "monthly": "월간",
-      "yearly": "연간",
-      "yearlyDiscount": "17% 할인",
-      "month": "월",
-      "year": "년",
-      "seatMonth": "석/월",
-      "seatYear": "석/년",
-      "based": {
-        "name": "Based",
-        "badge": "30일 무료 체험",
-        "description": "혼자서 시작하세요. 에이전트 하나로 뭘 할 수 있는지 확인하세요.",
-        "features": {
-          "0": "1석 (솔로 모드)",
-          "1": "5 에이전트 동시 실행",
-          "2": "1 Runner",
-          "3": "5 리포지토리",
-          "4": "커뮤니티 지원"
-        },
-        "cta": "무료 체험 시작"
-      },
-      "pro": {
-        "name": "Pro",
-        "description": "첫 에이전트 팀. 최대 5석, 10 에이전트 병렬 실행.",
-        "features": {
-          "0": "최대 5석",
-          "1": "10 에이전트 동시 실행",
-          "2": "10 Runners",
-          "3": "10 리포지토리",
-          "4": "우선 이메일 지원",
-          "5": "멀티 Git 프로바이더 지원"
-        },
-        "cta": "Pro로 업그레이드"
-      },
-      "enterprise": {
-        "name": "Team",
-        "description": "부서 규모. 50석으로 각자의 에이전트 스쿼드를 운영.",
-        "features": {
-          "0": "최대 50석",
-          "1": "50 에이전트 동시 실행",
-          "2": "100 Runners",
-          "3": "무제한 리포지토리",
-          "4": "우선 지원"
-        },
-        "cta": "Team으로 업그레이드"
-      },
-      "onpremise": {
-        "name": "OnPremise",
-        "price": "맞춤",
-        "period": "문의하기",
-        "description": "완전한 프라이빗 배포. 당신의 인프라, 당신의 규칙.",
-        "features": {
-          "0": "무제한 석수",
-          "1": "무제한 에이전트",
-          "2": "무제한 Runners",
-          "3": "에어갭 지원",
-          "4": "전담 지원",
-          "5": "맞춤 SLA",
-          "6": "화이트 글러브 온보딩"
-        },
-        "cta": "영업팀 연락"
-      },
-      "footer": "모든 요금제에 BYOK(Bring Your Own Key) 포함 — 자체 AI API 키를 사용하며, 사용량 제한 없음.",
-      "customPlan": "엔터프라이즈 배포가 필요하신가요?",
-      "contactUs": "문의하기"
-    },
     "selfHosted": {
       "title": "완전한",
       "titleHighlight": "셀프 호스트",
@@ -322,10 +252,7 @@
       "title2": "확인할 준비가 되셨나요?",
       "description": "시나리오를 고르고 팀 협업을 확인한 뒤 AI 워크포스를 구축하세요.",
       "watchDemo": "데모 보기",
-      "getStartedFree": "무료로 시작",
       "scheduleDemo": "상담하기",
-      "freeTier": "무료 플랜 제공",
-      "noCreditCard": "신용카드 불필요",
       "selfHostedOption": "셀프 호스트 옵션"
     },
     "heroDemo": {
@@ -403,16 +330,15 @@
       "highlight3": "자율형 작업 완료"
     },
     "footer": {
-      "tagline": "팀이 인원 한계를 넘어 스케일하는 곳.",
+      "tagline": "분산된 AI 역량을 업무를 끝내는 Expert로 전환합니다.",
       "copyright": "Do Worker. All rights reserved.",
-      "madeWith": "야심 찬 팀을 위해 구축됨",
+      "madeWith": "실제 업무 결과를 위해 설계",
       "product": {
         "title": "제품",
-        "agentpod": "AgentPod",
-        "agentsmesh": "Do Worker",
-        "tickets": "티켓",
-        "runners": "Runners",
-        "pricing": "요금제",
+        "agentpod": "Worker",
+        "agentsmesh": "협업",
+        "tickets": "작업 관리",
+        "runners": "Runner 플릿",
         "enterprise": "엔터프라이즈"
       },
       "resources": {

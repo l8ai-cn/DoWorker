@@ -1,0 +1,89 @@
+{
+  "resourceOrchestration": {
+    "navTitle": "资源原生编排",
+    "title": "资源原生编排",
+    "description": "将 Worker、专家、Workflow、Prompt、模型、工具、知识和计算声明为可版本化资源。控制面校验引用、展示语义计划，并 Apply 为不可变 revision 或执行快照。",
+    "openGuide": "打开资源编排指南",
+    "lifecycleTitle": "校验 → 计划 → 应用",
+    "lifecycleDescription": "该流程把编写、审查和执行分开。Plan 是预期变更的证据，不代表资源已经创建。",
+    "lifecycle": {
+      "validate": {
+        "title": "校验",
+        "description": "检查资源信封、schema、identifier、字段语义、权限和被引用资源。"
+      },
+      "plan": {
+        "title": "计划",
+        "description": "生成 canonical manifest、语义 Diff、阻塞问题、警告和固定引用 digest。"
+      },
+      "apply": {
+        "title": "应用",
+        "description": "重新校验操作者权限，拒绝过期计划，只消费一次 Plan，并创建对应 revision 或领域对象。"
+      }
+    },
+    "kindsTitle": "资源 Kind 与 Apply 行为",
+    "kindsColumns": {
+      "kind": "Kind",
+      "apply": "Typed Apply",
+      "purpose": "用途"
+    },
+    "kinds": {
+      "bindings": {
+        "name": "绑定资源",
+        "apply": "支持",
+        "purpose": "版本化引用模型、工具、仓库、Skill、知识、Secret、计算目标和资源规格。"
+      },
+      "prompt": {
+        "name": "Prompt",
+        "apply": "支持",
+        "purpose": "把可复用 Prompt 内容和声明变量保存为不可变 revision。"
+      },
+      "workerTemplate": {
+        "name": "WorkerTemplate",
+        "apply": "支持",
+        "purpose": "把可复用运行时、模型、工作空间和生命周期配置编译为 WorkerSpec 快照。"
+      },
+      "worker": {
+        "name": "Worker",
+        "apply": "仅创建",
+        "purpose": "从固定资源启动一次 Worker；同一 Worker 资源不能更新。"
+      },
+      "expertWorkflow": {
+        "name": "Expert / Workflow",
+        "apply": "支持",
+        "purpose": "创建固定 WorkerTemplate、Prompt 和 WorkerSpec 快照的可复用领域定义。"
+      },
+      "goalLoop": {
+        "name": "GoalLoop",
+        "apply": "暂未开放",
+        "purpose": "可校验和规划目标循环；尚未暴露 typed resource Apply。"
+      }
+    },
+    "referencesTitle": "不可变 ResourceRef 解析",
+    "referencesDescription": "资源通过 kind、name、namespace 和可选 revision 互相引用。省略 revision 表示 Plan 时解析 active revision，而不是永久跟随最新版。",
+    "referencesPinned": "Plan 会固定 apiVersion、kind、namespace、name、UID、revision 和 digest。Apply 与后续运行都使用该固定结果。",
+    "editorTitle": "一份 Draft，两种视图",
+    "editorDescription": "领域表单和 YAML 编辑器操作同一份 typed draft。无效 YAML 会保留原文并阻止切换表单、Plan 和 Apply，编辑器不会沿用旧的有效草稿。",
+    "editor": {
+      "steps": {
+        "form": "普通字段和资源选择使用领域表单。",
+        "yaml": "代码审查、版本管理或精确高级编辑使用 YAML。",
+        "validate": "解决 schema、权限、identifier 和引用错误。",
+        "plan": "审查 CREATE 或 UPDATE、语义 Diff、警告、revision 和 digest。",
+        "apply": "只 Apply 当前 Plan，并检查返回的 revision、快照、领域对象或 Worker。"
+      }
+    },
+    "yamlTitle": "YAML 示例",
+    "securityTitle": "Secret 与权限边界",
+    "securityDescription": "资源 YAML 只声明引用，不保存明文凭据。namespace 是身份字段，不能替代权限校验。",
+    "security": {
+      "items": {
+        "credentials": "ModelBinding 只保存模型资源 ID；服务商凭据仍由 AI 资源连接加密保存。",
+        "authorization": "Validate、Plan 和 Apply 都会拒绝跨组织或不可读引用，包括 Plan 后被撤销的权限。",
+        "stale": "Draft、资源 head 或运行时目录变化，以及 Plan 过期或已消费，都必须重新生成 Plan。"
+      }
+    },
+    "boundaryTitle": "当前边界",
+    "goalLoopBoundary": "GoalLoop 支持 Validate 和 Plan，但尚未暴露 typed Apply 入口。Plan 成功不代表 Loop 已创建。",
+    "reconciliationBoundary": "该模型是声明式的，但不运行 Kubernetes 式持续调谐。删除 Worker 或 Pod 后不会自动重建。"
+  }
+}

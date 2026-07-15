@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLightSession } from "@/hooks/useLightSession";
+import { discoverFirstOrgSlug } from "@/lib/light-auth";
+import { updateLightSessionOrgSlug } from "@/lib/light-session";
 import { useTranslations } from "next-intl";
 
 interface LightAuthButtonsProps {
@@ -25,32 +29,61 @@ export function LightAuthButtons({
   onClick,
   className,
 }: LightAuthButtonsProps) {
+  const router = useRouter();
+  const [consoleError, setConsoleError] = useState<string | null>(null);
   const { session, hydrated } = useLightSession();
   const t = useTranslations();
 
   if (!hydrated) return null;
 
   const isLoggedIn = !!session?.isAuthenticated;
-  const consoleHref = isLoggedIn && session?.currentOrgSlug
-    ? `/${session.currentOrgSlug}/workspace`
-    : "/login";
+
+  async function openConsole() {
+    setConsoleError(null);
+    let orgSlug = session?.currentOrgSlug;
+    if (!orgSlug) {
+      const result = await discoverFirstOrgSlug();
+      if (result.status === "unavailable") {
+        setConsoleError(t("landing.nav.consoleUnavailable"));
+        return;
+      }
+      if (result.status === "empty") {
+        onClick?.();
+        router.push("/onboarding/create-org");
+        return;
+      }
+      orgSlug = result.slug;
+    }
+
+    onClick?.();
+    updateLightSessionOrgSlug(orgSlug);
+    router.push(`/${orgSlug}/workspace`);
+  }
 
   if (isLoggedIn) {
     return (
-      <div className={className}>
-        <Link href={consoleHref} onClick={onClick}>
-          <Button
-            size={size}
-            variant={consoleVariant === "outline" ? "outline" : "default"}
-            className={
-              consoleVariant === "primary"
-                ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                : undefined
-            }
+      <div className={`relative ${className ?? ""}`}>
+        <Button
+          type="button"
+          size={size}
+          variant={consoleVariant === "outline" ? "outline" : "default"}
+          onClick={openConsole}
+          className={
+            consoleVariant === "primary"
+              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+              : undefined
+          }
+        >
+          {t("landing.nav.console")}
+        </Button>
+        {consoleError && (
+          <p
+            role="alert"
+            className="absolute right-0 top-full z-[60] mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-md border border-destructive/30 bg-background p-3 text-xs leading-5 text-foreground shadow-lg"
           >
-            {t("landing.nav.console")}
-          </Button>
-        </Link>
+            {consoleError}
+          </p>
+        )}
       </div>
     );
   }

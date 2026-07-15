@@ -91,6 +91,10 @@ func (d *Deps) authorizeSession(c *gin.Context, id string) (*domain.Session, *po
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return nil, nil, false
 	}
+	if claims := embedClaims(c); claims != nil && claims.SessionID != id {
+		c.JSON(http.StatusNotFound, gin.H{"error": "session not found", "code": "session_not_found"})
+		return nil, nil, false
+	}
 	row, err := d.Sessions.GetActive(c.Request.Context(), id)
 	if err == sessionsvc.ErrNotFound {
 		c.JSON(http.StatusNotFound, gin.H{"error": "session not found", "code": "session_not_found"})

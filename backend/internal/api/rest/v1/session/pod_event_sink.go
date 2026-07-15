@@ -3,10 +3,12 @@ package sessionapi
 import (
 	"context"
 
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
 type PodUpdater interface {
+	GetByKey(ctx context.Context, podKey string) (*podDomain.Pod, error)
 	UpdateExternalSessionID(ctx context.Context, podKey, externalID string) error
 }
 

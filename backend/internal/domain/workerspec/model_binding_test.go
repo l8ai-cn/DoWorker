@@ -28,6 +28,9 @@ func TestWorkerSpecRejectsIncompleteModelBindingSnapshot(t *testing.T) {
 		{"provider key", func(binding *ModelBinding) {
 			binding.ProviderKey = ""
 		}, "provider key"},
+		{"protocol adapter", func(binding *ModelBinding) {
+			binding.ProtocolAdapter = ""
+		}, "protocol adapter"},
 		{"model id", func(binding *ModelBinding) {
 			binding.ModelID = ""
 		}, "model id"},

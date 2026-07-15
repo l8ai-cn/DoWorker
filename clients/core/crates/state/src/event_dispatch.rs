@@ -8,7 +8,7 @@ use serde_json::Value;
 use crate::app_state::{AppState, NotificationSpec, ToastSpec};
 use crate::autopilot_state::{AutopilotController, AutopilotIteration};
 use crate::channel_types::{ChannelMessage, SenderAgentInfo, SenderPodInfo, SenderUser};
-use crate::workflow_state::{WorkflowRunData, workflow_run_status};
+use crate::workflow_state::{workflow_run_status, WorkflowRunData};
 
 /// Extract an int64 from a protojson event field. The backend serializes
 /// proto `int64` as a JSON **string** (protojson UseProtoNames convention),
@@ -261,7 +261,9 @@ pub fn dispatch(state: &mut AppState, event: &RealtimeEvent) {
         }
         EventType::WorkflowRunFailed => {
             if let Some(id) = ji64(&event.data, "run_id").or_else(|| ji64(&event.data, "id")) {
-                state.workflows.update_run_status(id, workflow_run_status::FAILED);
+                state
+                    .workflows
+                    .update_run_status(id, workflow_run_status::FAILED);
             }
         }
         EventType::AutopilotStatusChanged => {
@@ -727,10 +729,9 @@ mod tests {
         );
         assert_eq!(s.tickets.get_tickets()[0].status, "in_progress");
         // refetch queued for full ticket fields
-        assert!(
-            s.take_pending_refetch_ticket_slugs()
-                .contains(&"T-1".to_string())
-        );
+        assert!(s
+            .take_pending_refetch_ticket_slugs()
+            .contains(&"T-1".to_string()));
     }
 
     #[test]
@@ -750,7 +751,10 @@ mod tests {
                 json!({"run_id":"5","workflow_id":"1","status":"completed"}),
             ),
         );
-        assert_eq!(s.workflows.get_runs()[0].status, workflow_run_status::COMPLETED);
+        assert_eq!(
+            s.workflows.get_runs()[0].status,
+            workflow_run_status::COMPLETED
+        );
     }
 
     #[test]

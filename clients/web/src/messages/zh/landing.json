@@ -1,17 +1,19 @@
 {
   "landing": {
     "nav": {
+      "home": "首页",
       "scenarios": "应用场景",
       "workflow": "工作流程",
       "capabilities": "平台能力",
-      "features": "功能特性",
+      "features": "权限治理",
       "marketplace": "专家市场",
-      "pricing": "定价",
       "docs": "文档",
       "signIn": "登录",
       "getStarted": "立即开始",
       "console": "控制台",
+      "consoleUnavailable": "暂时无法打开控制台，请检查网络后重试。",
       "language": "语言",
+      "toggleMenu": "切换菜单",
       "download": "下载"
     },
     "hero": {
@@ -238,78 +240,6 @@
         }
       }
     },
-    "pricing": {
-      "title": "按团队规模扩展，",
-      "titleHighlight": "按治理要求部署。",
-      "description": "支持自带模型 API Key，也支持完整私有化部署。企业可以先从团队试点开始，再逐步扩展到部门级 Agent 平台。",
-      "mostPopular": "最受欢迎",
-      "annualDiscount": "年付省20%",
-      "perSeat": "/席位",
-      "monthly": "月付",
-      "yearly": "年付",
-      "yearlyDiscount": "省17%",
-      "month": "月",
-      "year": "年",
-      "seatMonth": "席位/月",
-      "seatYear": "席位/年",
-      "based": {
-        "name": "基础版",
-        "badge": "30天免费试用",
-        "description": "适合个人或小团队验证 Agent 工作流。",
-        "features": {
-          "0": "1 个席位（单人模式）",
-          "1": "5 个并发 Agent",
-          "2": "1 个集群",
-          "3": "5 个仓库",
-          "4": "社区支持"
-        },
-        "cta": "开始免费试用"
-      },
-      "pro": {
-        "name": "专业版",
-        "description": "适合研发小组建立第一套 Agent 协作流程。",
-        "features": {
-          "0": "最多 5 个席位",
-          "1": "10 个并发 Agent",
-          "2": "10 个集群",
-          "3": "10 个仓库",
-          "4": "优先邮件支持",
-          "5": "多 Git 平台支持"
-        },
-        "cta": "升级专业版"
-      },
-      "enterprise": {
-        "name": "Team",
-        "description": "适合部门级推广，统一管理席位、仓库和并发 Agent。",
-        "features": {
-          "0": "最多 50 个席位",
-          "1": "50 个并发 Agent",
-          "2": "100 个集群",
-          "3": "无限仓库",
-          "4": "优先支持"
-        },
-        "cta": "升级 Team"
-      },
-      "onpremise": {
-        "name": "OnPremise",
-        "price": "商务报价",
-        "period": "联系我们",
-        "description": "完整私有化部署。代码、数据、密钥和执行日志都留在你的基础设施内。",
-        "features": {
-          "0": "无限席位",
-          "1": "无限 Agent",
-          "2": "无限集群",
-          "3": "离线环境支持",
-          "4": "专属支持",
-          "5": "定制 SLA",
-          "6": "白手套上门服务"
-        },
-        "cta": "联系销售"
-      },
-      "footer": "所有方案均支持 BYOK（自带 API Key）。私有化部署可按你的安全、合规和网络边界要求交付。",
-      "customPlan": "需要私有部署？",
-      "contactUs": "联系我们"
-    },
     "selfHosted": {
       "title": "需要完整的",
       "titleHighlight": "自托管",
@@ -321,20 +251,17 @@
       "viewDocs": "查看部署文档",
       "contactSales": "联系企业销售",
       "saasNote": "无需私有部署？SaaS 版本可直接使用 —",
-      "saasRegister": "免费注册"
+      "saasRegister": "注册"
     },
     "finalCta": {
       "title1": "准备好见证",
       "title2": "下一项交付成果？",
       "description": "选择一个场景，观看团队如何协作，然后开始组建你的 AI 智能团队。",
       "watchDemo": "观看演示",
-      "getStartedFree": "免费开始",
       "scheduleDemo": "和我们聊聊",
       "signInConsole": "登录控制台",
       "enterpriseNote": "需要私有部署？",
       "contactUs": "和我们聊聊",
-      "freeTier": "提供免费版",
-      "noCreditCard": "无需信用卡",
       "selfHostedOption": "可自托管部署"
     },
     "heroDemo": {
@@ -412,16 +339,15 @@
       "highlight3": "自主任务完成"
     },
     "footer": {
-      "tagline": "让 AI Agent 安全进入企业研发流程。",
+      "tagline": "把分散的 AI 能力组织成真正完成工作的 Expert。",
       "copyright": "Do Worker. 保留所有权利。",
-      "madeWith": "为有雄心的团队而造",
+      "madeWith": "面向真实工作结果而造",
       "product": {
         "title": "产品",
-        "agentpod": "AgentPod",
-        "agentsmesh": "Do Worker",
+        "agentpod": "Worker",
+        "agentsmesh": "协作频道",
         "tickets": "任务管理",
-        "runners": "集群",
-        "pricing": "定价",
+        "runners": "Runner 集群",
         "enterprise": "企业版"
       },
       "resources": {

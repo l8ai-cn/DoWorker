@@ -58,6 +58,7 @@ func TestListWorkerCreateOptionsMapsServiceResult(t *testing.T) {
 						},
 					},
 				},
+				RequiresModelResource: true,
 				Selectable: true,
 			}},
 			RuntimeImages: []workercreation.RuntimeImageOption{{
@@ -123,6 +124,7 @@ func TestListWorkerCreateOptionsMapsServiceResult(t *testing.T) {
 	assert.Equal(t, "runtime-catalog-1", response.Msg.Revision)
 	require.Len(t, response.Msg.WorkerTypes, 1)
 	assert.Equal(t, "codex-cli", response.Msg.WorkerTypes[0].Slug)
+	assert.True(t, response.Msg.WorkerTypes[0].RequiresModelResource)
 	assert.JSONEq(t, `{"version":1,"fields":{"approval_mode":{"kind":"select","options":["never"]}}}`, response.Msg.WorkerTypes[0].ConfigSchemaJson)
 	require.Len(t, response.Msg.RuntimeImages, 1)
 	assert.Equal(t, int64(1), response.Msg.RuntimeImages[0].Id)

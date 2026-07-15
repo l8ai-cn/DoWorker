@@ -38,6 +38,7 @@ func (t *transport) handleThreadStatusChanged(params json.RawMessage) {
 	switch p.Status.Type {
 	case "idle":
 		t.cancelIdleFallback()
+		t.clearToolOutputs()
 		t.notifyTurnIdle()
 	case "active":
 		t.cancelIdleFallback()
@@ -47,6 +48,7 @@ func (t *transport) handleThreadStatusChanged(params json.RawMessage) {
 func (t *transport) handleTurnCompleted(params json.RawMessage) {
 	t.markLifecycleSignal()
 	t.cancelIdleFallback()
+	defer t.clearToolOutputs()
 	var tc turnCompletedParams
 	if err := json.Unmarshal(params, &tc); err != nil {
 		if t.callbacks.OnStateChange != nil {
@@ -84,8 +86,9 @@ func (t *transport) handleItemCompleted(sid string, params json.RawMessage) {
 	case "agentMessage":
 		text := agentMessageText(ic.Item.Text, ic.Item.Content)
 		if !t.agentMessageAlreadyEmitted(ic.Item.ID) {
-			emitAssistantChunk(t.callbacks, sid, text)
+			emitAssistantChunk(t.callbacks, sid, t.applyAgentMessageBoundary(text))
 		}
+		t.markAgentMessageCompleted()
 		// A completed agentMessage may be only a preamble before the agent runs
 		// tools, so end the turn on a debounce that later turn activity cancels —
 		// authoritative end comes from turn/completed.
@@ -110,9 +113,10 @@ func (t *transport) handleItemCompleted(sid string, params json.RawMessage) {
 			exitCode = *ic.Item.ExitCode
 		}
 		if t.callbacks.OnToolCallResult != nil {
+			output := t.commandOutput(ic.Item)
 			t.callbacks.OnToolCallResult(sid, acp.ToolCallResult{
 				ToolCallID: ic.Item.ID, ToolName: "shell",
-				Success: exitCode == 0, ResultText: ic.Item.AggregatedOutput,
+				Success: exitCode == 0, ResultText: output,
 			})
 		}
 	case "fileChange":
@@ -120,7 +124,7 @@ func (t *transport) handleItemCompleted(sid string, params json.RawMessage) {
 		if t.callbacks.OnToolCallResult != nil {
 			t.callbacks.OnToolCallResult(sid, acp.ToolCallResult{
 				ToolCallID: ic.Item.ID, ToolName: "fileChange",
-				Success: success, ResultText: ic.Item.FilePath,
+				Success: success, ResultText: t.fileChangeOutput(ic.Item),
 			})
 		}
 	}

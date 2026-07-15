@@ -1,0 +1,124 @@
+{
+  "landing": {
+    "workforce": {
+      "expertHome": {
+        "hero": {
+          "eyebrow": "Ein Expert. Vernetzte Organisationsfähigkeit.",
+          "title": "Verwandle fragmentierte KI-Fähigkeiten in Experten, die die Arbeit abschließen",
+          "description": "Formuliere das Ziel einmal. Do Worker organisiert Methoden, Organisationswissen, Ausführungswerkzeuge und KI-Fähigkeiten hinter einem Expert, der bereichsübergreifend arbeitet.",
+          "primaryAction": "Erstelle deinen Expert",
+          "secondaryAction": "Geschäftsmenü ansehen",
+          "proof": "Gemeinsamer Kontext · Systemübergreifende Ausführung · Menschliche Bestätigung · Belegbare Übergabe"
+        },
+        "console": {
+          "title": "Funktionsübergreifende Arbeit im Verlauf",
+          "status": "Ein Expert trägt das Ziel und bestätigt kritische Entscheidungen mit Mensch",
+          "live": "Aktiv",
+          "paused": "Pausiert",
+          "complete": "Abgeschlossen",
+          "goalLabel": "Aktuelles Ziel",
+          "goal": "Eine verifizierte mehrsprachige Kampagne für einen neuen Markt starten",
+          "expertLabel": "Aktiver Expert",
+          "expert": "Expert für Cross-Border-Wachstum",
+          "formulaLabel": "Dahinter liegende Fähigkeiten",
+          "formula": "Research · Knowledge · Content · Data · System action",
+          "workflowLabel": "Einheitliche Delivery-Kette",
+          "steps": ["Verstehen", "Ordnen", "Ausführen", "Bestätigen", "Liefern"],
+          "checkpointLabel": "Menschlicher Checkpoint",
+          "checkpoint": "Positionierung, Markensprache und Compliance-Grenzen vor der Veröffentlichung freigeben.",
+          "deliverableLabel": "Prüfbares Ergebnis",
+          "deliverable": "Marktbrief, lokalisierte Assets, Prozessnachweise und nächste Schritte",
+          "controls": { "pause": "Pause", "resume": "Fortsetzen", "next": "Nächster Schritt", "replay": "Wiederholen" }
+        },
+        "solutions": {
+          "eyebrow": "Menü für Arbeitsbereiche",
+          "title": "Starte mit einem echten Ziel und verfolge die Auslieferung durchgängig",
+          "description": "Wähle das gewünschte Ergebnis statt eine Menge Agents zu kombinieren. Jeder Bereich behält einen Expert und einen Kontext und aktiviert die benötigten bereichsübergreifenden Fähigkeiten.",
+          "workflowLabel": "Delivery-Pfad",
+          "deliverablesLabel": "Prüfbares Ergebnis",
+          "items": [
+            { "id": "cross-border-commerce", "title": "Cross-Border-Wachstum", "description": "Verknüpfe Marktanalyse, Positionierung, Inhalt, Lokalisierung, Launch-Vorbereitung und Review zu einem Expansionsziel.", "chain": "Research → Positioning → Content → Localization → Launch prep → Review", "outcome": "Marktpläne, Produkt-Assets, lokalisierte Inhalte und Prozessbelege.", "action": "Expert für dieses Ziel erstellen" },
+            { "id": "ai-education", "title": "Kursentwicklung", "description": "Starte bei Lernergebnissen und ordne Research, Curriculum, Lessons, Labs, Assessments und Dozenten-Review.", "chain": "Outcomes → Curriculum → Lessons → Labs → Assessment → Review", "outcome": "Syllabi, Lessons, Labs, Quizzes und Abnahmebelege.", "action": "Expert für dieses Ziel erstellen" },
+            { "id": "digital-employees", "title": "KI-Partner", "description": "Arbeite mit einem KI-Partner, der Kontext mit deinem Team teilt und Research, Dokumente, Daten, Inhalte und Systemaktionen bereichsübergreifend kombiniert.", "chain": "Ziel gemeinsam setzen → Organisationswissen lesen → Über Tools handeln → Fortschritt teilen → Menschlich bestätigen → Nachweise liefern", "outcome": "Gemeinsame Ergebnisse, Systemaktionen, Fortschrittsnotizen und prüfbare Nachweise.", "action": "KI-Partner erstellen" },
+            { "id": "marketplace", "title": "Expert-Marktplatz", "description": "Finde wiederverwendbare Experts und Skills nach Ergebnis, prüfe Fähigkeiten, Berechtigungen und Auslieferungen vor der Installation.", "chain": "Entdecken → Prüfen → Installieren → Konfigurieren → Ausführen → Steuern", "outcome": "Wiederverwendbare Experts mit sichtbaren Fähigkeiten, Berechtigungen und Liefererwartungen.", "action": "Expert-Marktplatz öffnen" }
+          ]
+        },
+        "capabilities": {
+          "eyebrow": "Komponierbare Fähigkeiten",
+          "title": "Ein Expert kann viele professionelle Fähigkeiten aufrufen",
+          "description": "Eine Delivery-Chain nutzt Research, Documents, Data, Code und Medien. Reifestufen markieren Plattformfunktionen, über Skills/Tools zusammensetzbare Fähigkeiten und geplante Richtungen.",
+          "levels": { "implemented": "Plattformfunktion", "composable": "Komponierbar", "planned": "Geplant" },
+          "items": [
+            { "id": "programming", "level": "implemented", "title": "Programmierung und Auslieferung", "description": "Code ändern, Tests ausführen, Arbeit prüfen und PR oder MR in einem isolierten Workspace liefern." },
+            { "id": "research", "level": "composable", "title": "Research und Urteil", "description": "Quellenrecherche und Analyse zu begründeten Schlussfolgerungen und Briefings bündeln." },
+            { "id": "documents", "level": "composable", "title": "Professionelle Dokumente", "description": "Dokumente lesen, strukturieren, überarbeiten und für die Weiterverwendung liefern." },
+            { "id": "office", "level": "composable", "title": "Office-Produktion", "description": "Arbeite mit Tabellen, Präsentationen, Berichten und wiederholbaren Abläufen." },
+            { "id": "content", "level": "composable", "title": "Content Operations", "description": "Research, Entwurf, Redaktion, Lokalisierung, Review und Launch-Vorbereitung verbinden." },
+            { "id": "screenwriting", "level": "composable", "title": "Drehbuch und Direction", "description": "Erarbeite Erzählstruktur, Skripte, Shot-Pläne und Produktionsübergaben." },
+            { "id": "image", "level": "composable", "title": "Image-Assets", "description": "Erstelle, prüfe, inspiziere und paketiere visuelle Assets über verbundene Tools." },
+            { "id": "audio", "level": "composable", "title": "Audio-Assets", "description": "Plane, generiere, verarbeite und prüfe Voice- oder Musik-Assets über verbundene Tools." },
+            { "id": "video", "level": "composable", "title": "Videoproduktion", "description": "Koordiniere Skripte, Assets, Generierung, Editing und Qualitätsprüfung." },
+            { "id": "data", "level": "composable", "title": "Daten und Systembetrieb", "description": "Strukturierte Daten kontrolliert abfragen, transformieren, analysieren und verifizieren." },
+            { "id": "education", "level": "composable", "title": "Kurse und Lernen", "description": "Kursdesign, Lessons, Labs, Assessments und Lernnachweise verbinden." },
+            { "id": "industryMarket", "level": "planned", "title": "Marktplatz für Branchenspezialisten", "description": "Ein Katalog von Branchen-Experts und Business-Connectors für Organisationen." }
+          ]
+        },
+        "operating": {
+          "eyebrow": "Expert-Betriebsmodell",
+          "title": "Ein Expert im Vordergrund. Organisationsfähigkeiten dahinter.",
+          "description": "Der Expert behält Identität, Ziel, Kontext und Aufgabenzustand. Die Plattform ordnet Runtime, Modell, Methoden, Wissen, Tools und Betriebsregeln darum an.",
+          "formulaTitle": "Sechs Fähigkeitslagen hinter einem Expert",
+          "parts": [
+            { "id": "worker", "title": "Ausführungs-Runtime", "description": "Wähle die für die Aufgabe passende Worker-Runtime." },
+            { "id": "model", "title": "Reasoning und Generierung", "description": "Wähle Modelle nach Aufgabe, nicht nach Modellname in der Oberfläche." },
+            { "id": "skills", "title": "Professionelle Methoden", "description": "Erfasse Methoden und Delivery-Standards als wiederverwendbare Skills." },
+            { "id": "knowledge", "title": "Organisationswissen", "description": "Verknüpfe Dateien, Standards, Historie und Geschäftskontext." },
+            { "id": "tools", "title": "Systemaktion", "description": "Nutze kontrollierte Verbindungen für Aktionen in Browser, Datenbanken und Geschäftssystemen." },
+            { "id": "workflow", "title": "Betriebsregeln", "description": "Lege Reihenfolge, Checkpoints, Budgets, Stoppkriterien und Evidenz fest." }
+          ],
+          "humanTitle": "Kontinuierlicher Fortschritt mit expliziter Kontrolle",
+          "humanDescription": "Der Expert kann arbeiten, während wichtige Entscheidungen, privilegierte Aktionen und die Endauslieferung transparent bleiben.",
+          "humanItems": [
+            { "id": "checkpoint", "title": "Wichtige Bestätigung", "description": "Stoppe hochkritische Entscheidungen für Freigabe, Ablehnung oder Überarbeitung." },
+            { "id": "deliverable", "title": "Komplette Übergabe", "description": "Liefere Artefakte mit Status, Evidenz und offenen Risiken." },
+            { "id": "repeatability", "title": "Wiederverwendbare Praxis", "description": "Wandle bewährte Methoden in versionierte Skills, Experts und Workflows um." }
+          ]
+        },
+        "market": {
+          "eyebrow": "Expert-Marktplatz",
+          "title": "Nutze katalogisierte Experts, statt ein KI-Team neu aufzubauen",
+          "description": "Der aktuelle Katalog beginnt mit Software-Engineering-Experts, die zu echten Plattformfähigkeiten gehören. Beginne mit Ergebnis, Berechtigungen und Liefererwartungen, dann prüfe Worker, Skills und Runtime-Konfiguration.",
+          "apps": [
+            { "slug": "software-delivery-expert", "title": "Expert für Software-Auslieferung", "description": "Von Anforderungszerlegung und isolierter Entwicklung bis zu Tests, Review und PR oder MR Auslieferung." },
+            { "slug": "multi-worker-orchestrator", "title": "Expert für komplexe Orchestrierung", "description": "Teile komplexe Ziele in parallele Aufgaben und konsolidiere ein akzeptiertes Ergebnis." },
+            { "slug": "dual-repo-sync-expert", "title": "Expert für Dual-Repository-Synchronisierung", "description": "Synchronisiere GitLab und GitHub mit Abweichungserkennung und geeignetem Review-Pfad." }
+          ],
+          "status": "Gelistet",
+          "plannedTitle": "Branchenspezialisten werden erweitert",
+          "plannedDescription": "Cross-Border-Wachstum, Kursentwicklung und KI-Partner betreten den Markt erst nach Verifikation ihrer Skills, Connectors und Delivery-Ketten.",
+          "action": "Expert-Marktplatz durchsuchen"
+        },
+        "trust": {
+          "eyebrow": "Berechtigungen und Governance",
+          "title": "Eine Oberfläche bedeutet nicht uneingeschränkten Zugriff",
+          "description": "Ein Expert kann systemübergreifend arbeiten, wobei jeder Lauf durch Infrastrukturgrenzen, isolierte Arbeitsbereiche, Credential-Scope, menschliche Bestätigung und Evidenzpflicht begrenzt bleibt.",
+          "items": [
+            { "id": "selfHosting", "title": "Kontrollierter Ausführungsort", "description": "Führe Workers innerhalb der Infrastruktur- und Netzwerkgrenzen der Organisation aus.", "status": "Kontrolliert" },
+            { "id": "workspaces", "title": "Isolierte Arbeitsbereiche", "description": "Trenne jede Aufgabe, Dateien und Ausführungskontexte.", "status": "Isoliert" },
+            { "id": "credentials", "title": "Scope Credentials", "description": "Gewähre nur den Zugriff, der für Expert und Aufgabe benötigt wird.", "status": "Gezielt" },
+            { "id": "audit", "title": "Prüfbare Evidenz", "description": "Aktivitäten, Entscheidungen, Artefakte und Auslieferungsstatus werden nachweisbar gehalten.", "status": "Aufgezeichnet" }
+          ],
+          "runtimesTitle": "Worker-Runtime-Verzeichnis",
+          "runtimesDescription": "Das Verzeichnis enthält Worker-Runtime-Typen wie Codex CLI, Claude Code, Gemini CLI, Aider und OpenCode. Die Bereitstellung hängt vom jeweiligen Eintrag und dem Verifizierungsstatus der Veröffentlichung ab."
+        },
+        "cta": {
+          "eyebrow": "Beginne mit einem echten Ziel",
+          "title": "Lass deinen ersten Expert eine vollständige Delivery-Kette tragen",
+          "description": "Nutze einen bestehenden Expert oder kombiniere Worker, Skills, Wissen und Tools, die deine Organisation vertraut, in einer Expert-Oberfläche.",
+          "primary": "Deinen ersten Expert erstellen",
+          "secondary": "Expert-Marktplatz öffnen"
+        }
+      }
+    }
+  }
+}

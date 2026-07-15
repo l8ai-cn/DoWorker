@@ -17,7 +17,7 @@ This will:
 - Start docker infra only (postgres, traefik, …) — **no** compose runner containers
 - Build runner images locally via `docker compose build` (same images as compose mode)
 - Generate `deploy/dev/runtime/runners-k8s/manifest.yaml` from `.env` ports + dev SSL/SSH
-- `kubectl apply` six Deployments into namespace `agentsmesh`
+- `kubectl apply` the configured runner Deployments into namespace `agentsmesh`
 
 ## Files
 

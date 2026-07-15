@@ -35,13 +35,17 @@ func (h *RunnerMessageHandler) handleAcpRelayCommand(pod *Pod, payload []byte) {
 
 	switch cmd.Type {
 	case "prompt":
-		// Echo user message back to all relay subscribers so it appears in chat.
-		sendAcpViaRelay(pod, "contentChunk", "", map[string]string{
-			"text": cmd.Prompt, "role": "user",
-		})
 		if err := acpSendPromptWhenReady(pod, cmd.Prompt); err != nil {
 			log.Error("Failed to send ACP prompt via relay", "pod_key", pod.PodKey, "error", err)
+			sendAcpViaRelay(pod, "commandFailed", "", map[string]string{
+				"requestId": cmd.ReqID,
+				"message":   "Worker 未能接收消息，请重试",
+			})
+			return
 		}
+		sendAcpViaRelay(pod, "contentChunk", "", map[string]string{
+			"text": cmd.Prompt, "role": "user", "requestId": cmd.ReqID,
+		})
 
 	case "permission_response":
 		if !ok {

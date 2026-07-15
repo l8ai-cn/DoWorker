@@ -1,4 +1,5 @@
-import type { ConfigField, ConfigFile, AgentData } from "@/lib/api";
+import type { AgentData, ConfigField, ConfigFile, CredentialField } from "@/lib/api";
+import type { CredentialProfileViewModel } from "../_shared/credentialViewModel";
 
 /**
  * Props for AgentConfigPage component
@@ -19,6 +20,8 @@ export interface AgentConfigState {
   agent: AgentData | null;
   configFields: ConfigField[];
   configValues: Record<string, unknown>;
+  credentialFields: CredentialField[];
+  credentialBundles: CredentialProfileViewModel[];
   runtimeBundles: RuntimeBundleViewModel[];
   configFileSpecs: ConfigFile[];
   configFileBundles: ConfigFileBundleViewModel[];
@@ -35,6 +38,14 @@ export interface AgentConfigActions {
   // Config actions
   handleConfigChange: (fieldName: string, value: unknown) => void;
   handleSaveConfig: () => Promise<void>;
+
+  handleSetCredentialPrimary: (id: number) => Promise<void>;
+  handleClearCredentialPrimary: () => Promise<void>;
+  handleDeleteCredentialBundle: (id: number) => Promise<void>;
+  handleSaveCredentialBundle: (
+    data: CredentialBundleFormData,
+    editing: CredentialProfileViewModel | null
+  ) => Promise<void>;
 
   // Runtime bundle actions
   handleSetRuntimePrimary: (id: number) => Promise<void>;
@@ -80,6 +91,12 @@ export interface RuntimeBundleViewModel {
  * with kind="runtime".
  */
 export interface RuntimeBundleFormData {
+  name: string;
+  description: string;
+  data: Record<string, string>;
+}
+
+export interface CredentialBundleFormData {
   name: string;
   description: string;
   data: Record<string, string>;

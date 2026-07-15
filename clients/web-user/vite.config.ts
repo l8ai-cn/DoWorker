@@ -214,7 +214,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@do-worker/agent-ui": path.resolve(__dirname, "../../packages/agent-ui/src/index.ts"),
+      "react-markdown": path.resolve(__dirname, "./node_modules/react-markdown/index.js"),
+      "remark-gfm": path.resolve(__dirname, "./node_modules/remark-gfm/index.js"),
     },
+    dedupe: ["lucide-react", "react", "react-dom"],
   },
   test: {
     globals: true,
@@ -249,5 +253,12 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "./dist"),
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        index: path.resolve(__dirname, "./index.html"),
+        iframe: path.resolve(__dirname, "./iframe.html"),
+        worker: path.resolve(__dirname, "./worker.html"),
+      },
+    },
   },
 });

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogBody, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getAIResourceCredentialLabel } from "./aiResourceCredentialLabel";
 import type { ProviderConnection, ProviderDefinition } from "./types";
 
 interface ConnectionCredentialsDialogProps {
@@ -44,7 +45,7 @@ export function ConnectionCredentialsDialog({ connection, provider, onOpenChange
           <DialogBody className="space-y-4">
             {provider?.credentialFields.map((field) => {
               const id = `rotate-credential-${field.key}`;
-              return <div key={field.key} className="space-y-2"><Label htmlFor={id}>{field.label}</Label><Input id={id} type={field.secret ? "password" : "text"} value={credentials[field.key] ?? ""} onChange={(event) => setCredentials((current) => ({ ...current, [field.key]: event.target.value }))} /></div>;
+              return <div key={field.key} className="space-y-2"><Label htmlFor={id}>{getAIResourceCredentialLabel(field, t)}</Label><Input id={id} type={field.secret ? "password" : "text"} value={credentials[field.key] ?? ""} onChange={(event) => setCredentials((current) => ({ ...current, [field.key]: event.target.value }))} /></div>;
             })}
           </DialogBody>
           <DialogFooter>

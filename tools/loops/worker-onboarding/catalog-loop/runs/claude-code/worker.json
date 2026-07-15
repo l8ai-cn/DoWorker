@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "slug": "claude-code",
+  "status": "planned",
+  "definition_hash": "sha256:f7dd1bfec7f293ded406006f514e6d7e25aaefcd29d78272bbe2e875ce9d205c",
+  "source_refs": [
+    "config/worker-types/catalog.json"
+  ]
+}

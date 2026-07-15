@@ -5,11 +5,22 @@
 Do Worker provides APIs for managing multi-agent AI development workspaces:
 
 - **REST API**: For web/mobile clients (authentication, resources, management)
+- **Connect API**: For typed browser/WASM services, including resource orchestration
 - **External API**: For third-party integrations (API key authentication)
 - **gRPC + mTLS**: For Runner connections (bidirectional streaming, certificate-based authentication)
 - **WebSocket**: For real-time terminal streaming and events
 
 The platform supports multi-tenancy, OAuth authentication, and real-time terminal streaming.
+
+## Resource Orchestration
+
+The resource-native control plane uses the Connect service
+`proto.orchestration_resource.v1.OrchestrationResourceService`. It provides
+Validate, Plan, query, export, and Kind-specific Apply methods for bindings,
+Prompt, WorkerTemplate, Worker, Expert, and Workflow.
+
+See [Resource Orchestration API](orchestration-resources.md). GoalLoop currently
+supports validation and planning only; typed Apply is not exposed.
 
 ## Base URL
 

@@ -1,0 +1,532 @@
+{
+  "schemaVersion": 1,
+  "runtimeCatalogRevision": "runtime-catalog-2026-07-13-release-gated",
+  "workers": [
+    {
+      "slug": "aider",
+      "name": "Aider",
+      "executable": "aider",
+      "adapterId": "aider-pty",
+      "interactionModes": [
+        "pty"
+      ],
+      "modelRequirement": {
+        "required": false,
+        "protocol_adapters": []
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "credential_bundle",
+          "sourceRef": "aider",
+          "environmentVariable": "OPENAI_API_KEY"
+        },
+        {
+          "sourceKind": "credential_bundle",
+          "sourceRef": "aider",
+          "environmentVariable": "ANTHROPIC_API_KEY"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "model",
+          "kind": "string",
+          "options": [],
+          "defaultValue": "\"\""
+        },
+        {
+          "name": "edit_format",
+          "kind": "select",
+          "options": [
+            "",
+            "whole",
+            "diff",
+            "udiff"
+          ],
+          "defaultValue": "\"\""
+        }
+      ],
+      "configDocuments": [],
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
+    },
+    {
+      "slug": "claude-code",
+      "name": "Claude Code",
+      "executable": "claude",
+      "adapterId": "claude-stream-json",
+      "interactionModes": [
+        "pty",
+        "acp"
+      ],
+      "modelRequirement": {
+        "required": true,
+        "protocol_adapters": [
+          "anthropic"
+        ]
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "anthropic",
+          "environmentVariable": "ANTHROPIC_API_KEY"
+        },
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "anthropic",
+          "environmentVariable": "ANTHROPIC_BASE_URL"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "model",
+          "kind": "select",
+          "options": [
+            "",
+            "sonnet",
+            "opus"
+          ],
+          "defaultValue": "\"\""
+        },
+        {
+          "name": "permission_mode",
+          "kind": "select",
+          "options": [
+            "default",
+            "plan",
+            "acceptEdits",
+            "dontAsk",
+            "bypassPermissions"
+          ],
+          "defaultValue": "\"bypassPermissions\""
+        }
+      ],
+      "configDocuments": [],
+      "runtimeImage": {
+        "name": "Claude Code",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
+        "availability": "invalid_published_digest"
+      },
+      "validationStatus": "invalid_published_runtime"
+    },
+    {
+      "slug": "codex-cli",
+      "name": "Codex CLI",
+      "executable": "codex",
+      "adapterId": "codex-app-server",
+      "interactionModes": [
+        "pty",
+        "acp"
+      ],
+      "modelRequirement": {
+        "required": true,
+        "protocol_adapters": [
+          "openai-compatible"
+        ]
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "openai-compatible",
+          "environmentVariable": "OPENAI_API_KEY"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "approval_mode",
+          "kind": "select",
+          "options": [
+            "untrusted",
+            "on-request",
+            "never"
+          ],
+          "defaultValue": "\"untrusted\""
+        }
+      ],
+      "configDocuments": [],
+      "runtimeImage": {
+        "name": "Codex CLI",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
+        "availability": "invalid_published_digest"
+      },
+      "validationStatus": "local_evidence_release_blocked"
+    },
+    {
+      "slug": "cursor-cli",
+      "name": "Cursor CLI",
+      "executable": "agent",
+      "adapterId": "cursor-acp",
+      "interactionModes": [
+        "pty",
+        "acp"
+      ],
+      "modelRequirement": {
+        "required": false,
+        "protocol_adapters": []
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "credential_bundle",
+          "sourceRef": "cursor",
+          "environmentVariable": "CURSOR_API_KEY"
+        }
+      ],
+      "configFields": [],
+      "configDocuments": [],
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
+    },
+    {
+      "slug": "do-agent",
+      "name": "Do Agent",
+      "executable": "do-agent",
+      "adapterId": "do-agent-acp",
+      "interactionModes": [
+        "pty",
+        "acp"
+      ],
+      "modelRequirement": {
+        "required": true,
+        "protocol_adapters": [
+          "openai-compatible",
+          "anthropic"
+        ]
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "openai-compatible",
+          "environmentVariable": "OPENAI_API_KEY"
+        },
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "anthropic",
+          "environmentVariable": "ANTHROPIC_API_KEY"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "model",
+          "kind": "string",
+          "options": [],
+          "defaultValue": "\"\""
+        }
+      ],
+      "configDocuments": [
+        {
+          "id": "settings",
+          "format": "json",
+          "target_path": "DO_AGENT_SETTINGS"
+        }
+      ],
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
+    },
+    {
+      "slug": "gemini-cli",
+      "name": "Gemini CLI",
+      "executable": "gemini",
+      "adapterId": "gemini-acp",
+      "interactionModes": [
+        "pty",
+        "acp"
+      ],
+      "modelRequirement": {
+        "required": true,
+        "protocol_adapters": [
+          "gemini"
+        ]
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "gemini",
+          "environmentVariable": "GEMINI_API_KEY"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "sandbox_mode",
+          "kind": "boolean",
+          "options": [],
+          "defaultValue": "false"
+        }
+      ],
+      "configDocuments": [],
+      "runtimeImage": {
+        "name": "Gemini CLI",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
+        "availability": "invalid_published_digest"
+      },
+      "validationStatus": "invalid_published_runtime"
+    },
+    {
+      "slug": "grok-build",
+      "name": "Grok Build",
+      "executable": "grok",
+      "adapterId": "grok-build-acp",
+      "interactionModes": [
+        "pty",
+        "acp"
+      ],
+      "modelRequirement": {
+        "required": false,
+        "protocol_adapters": []
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "credential_bundle",
+          "sourceRef": "grok-build",
+          "environmentVariable": "XAI_API_KEY"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "model",
+          "kind": "string",
+          "options": [],
+          "defaultValue": "\"\""
+        },
+        {
+          "name": "effort",
+          "kind": "select",
+          "options": [
+            "",
+            "low",
+            "medium",
+            "high"
+          ],
+          "defaultValue": "\"\""
+        }
+      ],
+      "configDocuments": [],
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
+    },
+    {
+      "slug": "hermes",
+      "name": "Hermes",
+      "executable": "hermes",
+      "adapterId": "hermes-pty",
+      "interactionModes": [
+        "pty"
+      ],
+      "modelRequirement": {
+        "required": true,
+        "protocol_adapters": [
+          "openai-compatible"
+        ]
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "openai-compatible",
+          "environmentVariable": "OPENAI_API_KEY"
+        }
+      ],
+      "configFields": [],
+      "configDocuments": [],
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
+    },
+    {
+      "slug": "loopal",
+      "name": "Loopal",
+      "executable": "loopal",
+      "adapterId": "loopal-acp",
+      "interactionModes": [
+        "pty",
+        "acp"
+      ],
+      "modelRequirement": {
+        "required": false,
+        "protocol_adapters": []
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "credential_bundle",
+          "sourceRef": "loopal",
+          "environmentVariable": "ANTHROPIC_API_KEY"
+        },
+        {
+          "sourceKind": "credential_bundle",
+          "sourceRef": "loopal",
+          "environmentVariable": "OPENAI_API_KEY"
+        },
+        {
+          "sourceKind": "credential_bundle",
+          "sourceRef": "loopal",
+          "environmentVariable": "GOOGLE_API_KEY"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "permission_mode",
+          "kind": "select",
+          "options": [
+            "supervised",
+            "auto",
+            "bypass"
+          ],
+          "defaultValue": "\"supervised\""
+        }
+      ],
+      "configDocuments": [],
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
+    },
+    {
+      "slug": "minimax-cli",
+      "name": "MiniMax CLI",
+      "executable": "mmx",
+      "adapterId": "minimax-pty",
+      "interactionModes": [
+        "pty"
+      ],
+      "modelRequirement": {
+        "required": true,
+        "protocol_adapters": [
+          "minimax"
+        ]
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "minimax",
+          "environmentVariable": "MINIMAX_API_KEY"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "model",
+          "kind": "string",
+          "options": [],
+          "defaultValue": "\"\""
+        },
+        {
+          "name": "base_url",
+          "kind": "string",
+          "options": [],
+          "defaultValue": "\"\""
+        }
+      ],
+      "configDocuments": [],
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
+    },
+    {
+      "slug": "openclaw",
+      "name": "OpenClaw",
+      "executable": "openclaw",
+      "adapterId": "openclaw-pty",
+      "interactionModes": [
+        "pty"
+      ],
+      "modelRequirement": {
+        "required": true,
+        "protocol_adapters": [
+          "openai-compatible"
+        ]
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "openai-compatible",
+          "environmentVariable": "OPENAI_API_KEY"
+        }
+      ],
+      "configFields": [],
+      "configDocuments": [
+        {
+          "id": "openclaw-json",
+          "format": "json",
+          "target_path": "openclaw-home/.openclaw/openclaw.json"
+        }
+      ],
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
+    },
+    {
+      "slug": "opencode",
+      "name": "OpenCode",
+      "executable": "opencode",
+      "adapterId": "opencode-acp",
+      "interactionModes": [
+        "pty",
+        "acp"
+      ],
+      "modelRequirement": {
+        "required": false,
+        "protocol_adapters": []
+      },
+      "credentialBindings": [],
+      "configFields": [],
+      "configDocuments": [],
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
+    },
+    {
+      "slug": "seedance-expert",
+      "name": "Seedance Expert",
+      "executable": "do-agent",
+      "adapterId": "do-agent-acp",
+      "interactionModes": [
+        "pty",
+        "acp"
+      ],
+      "modelRequirement": {
+        "required": true,
+        "protocol_adapters": [
+          "openai-compatible",
+          "anthropic"
+        ]
+      },
+      "toolModelRequirements": [
+        {
+          "id": "seedance-video",
+          "provider_keys": [
+            "doubao"
+          ],
+          "protocol_adapters": [
+            "openai-compatible"
+          ],
+          "modality": "video",
+          "capability": "video-generation",
+          "environment": {
+            "api_key": "SEEDANCE_API_KEY",
+            "base_url": "SEEDANCE_BASE_URL",
+            "model_id": "SEEDANCE_MODEL"
+          }
+        }
+      ],
+      "credentialBindings": [
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "openai-compatible",
+          "environmentVariable": "OPENAI_API_KEY"
+        },
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "anthropic",
+          "environmentVariable": "ANTHROPIC_API_KEY"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "model",
+          "kind": "string",
+          "options": [],
+          "defaultValue": "\"\""
+        }
+      ],
+      "configDocuments": [
+        {
+          "id": "settings",
+          "format": "json",
+          "target_path": "DO_AGENT_SETTINGS"
+        }
+      ],
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
+    }
+  ]
+}

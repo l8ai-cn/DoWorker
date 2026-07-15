@@ -1,17 +1,19 @@
 {
   "landing": {
     "nav": {
+      "home": "Home",
       "scenarios": "Scenarios",
       "workflow": "How it works",
       "capabilities": "Capabilities",
-      "features": "Features",
+      "features": "Governance",
       "marketplace": "Marketplace",
-      "pricing": "Pricing",
       "docs": "Docs",
       "signIn": "Sign In",
       "getStarted": "Get Started",
       "console": "Console",
+      "consoleUnavailable": "Unable to open the console. Check your connection and try again.",
       "language": "Language",
+      "toggleMenu": "Toggle menu",
       "download": "Download"
     },
     "hero": {
@@ -238,78 +240,6 @@
         }
       }
     },
-    "pricing": {
-      "title": "Scale your team,",
-      "titleHighlight": "not your budget.",
-      "description": "Bring your own API keys. Pay for the platform, not per-token. No usage caps.",
-      "mostPopular": "Most Popular",
-      "annualDiscount": "Save 20%",
-      "perSeat": "/seat",
-      "monthly": "Monthly",
-      "yearly": "Yearly",
-      "yearlyDiscount": "Save 17%",
-      "month": "month",
-      "year": "year",
-      "seatMonth": "seat/month",
-      "seatYear": "seat/year",
-      "based": {
-        "name": "Based",
-        "badge": "30-Day Free Trial",
-        "description": "Start solo. See what one agent can do.",
-        "features": {
-          "0": "1 seat (solo mode)",
-          "1": "5 concurrent agents",
-          "2": "1 Runner",
-          "3": "5 repositories",
-          "4": "Community support"
-        },
-        "cta": "Start Free Trial"
-      },
-      "pro": {
-        "name": "Pro",
-        "description": "Your first agent team. Up to 5 seats, 10 agents in parallel.",
-        "features": {
-          "0": "Up to 5 seats",
-          "1": "10 concurrent agents",
-          "2": "10 Runners",
-          "3": "10 repositories",
-          "4": "Priority email support",
-          "5": "Multi-Git provider support"
-        },
-        "cta": "Upgrade to Pro"
-      },
-      "enterprise": {
-        "name": "Team",
-        "description": "Department-scale. 50 seats with their own agent squads.",
-        "features": {
-          "0": "Up to 50 seats",
-          "1": "50 concurrent agents",
-          "2": "100 Runners",
-          "3": "Unlimited repositories",
-          "4": "Priority support"
-        },
-        "cta": "Upgrade to Team"
-      },
-      "onpremise": {
-        "name": "OnPremise",
-        "price": "Custom",
-        "period": "contact us",
-        "description": "Full private deployment. Your infrastructure, your rules.",
-        "features": {
-          "0": "Unlimited seats",
-          "1": "Unlimited agents",
-          "2": "Unlimited Runners",
-          "3": "Air-gapped support",
-          "4": "Dedicated support",
-          "5": "Custom SLA",
-          "6": "White-glove onboarding"
-        },
-        "cta": "Contact Sales"
-      },
-      "footer": "All plans include BYOK (Bring Your Own Key) — use your own AI API keys with no usage limits.",
-      "customPlan": "Need enterprise deployment?",
-      "contactUs": "Contact Us"
-    },
     "selfHosted": {
       "title": "Need Complete",
       "titleHighlight": "Self-Hosted",
@@ -321,20 +251,17 @@
       "viewDocs": "View Deployment Docs",
       "contactSales": "Contact Enterprise Sales",
       "saasNote": "Don't need private deployment? SaaS version is ready to use —",
-      "saasRegister": "Sign up free"
+      "saasRegister": "Sign up"
     },
     "finalCta": {
       "title1": "Ready to see",
       "title2": "your next delivery?",
       "description": "Pick a scenario, watch the team coordinate, then start building your AI workforce.",
       "watchDemo": "Watch the demo",
-      "getStartedFree": "Start free",
       "scheduleDemo": "Talk to Us",
       "signInConsole": "Sign In to Console",
       "enterpriseNote": "Need private deployment?",
       "contactUs": "Talk to us",
-      "freeTier": "Free tier available",
-      "noCreditCard": "No credit card required",
       "selfHostedOption": "Self-hosted option"
     },
     "heroDemo": {
@@ -412,16 +339,15 @@
       "highlight3": "Autonomous task completion"
     },
     "footer": {
-      "tagline": "Where teams scale beyond headcount.",
+      "tagline": "Turn fragmented AI capabilities into Experts that finish the work.",
       "copyright": "Do Worker. All rights reserved.",
-      "madeWith": "Built for ambitious teams",
+      "madeWith": "Built for real work outcomes",
       "product": {
         "title": "Product",
-        "agentpod": "AgentPod",
-        "agentsmesh": "Do Worker",
+        "agentpod": "Worker",
+        "agentsmesh": "Collaboration",
         "tickets": "Tickets",
-        "runners": "Runners",
-        "pricing": "Pricing",
+        "runners": "Runner fleet",
         "enterprise": "Enterprise"
       },
       "resources": {

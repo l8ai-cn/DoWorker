@@ -1,0 +1,89 @@
+{
+  "resourceOrchestration": {
+    "navTitle": "Resource orchestration",
+    "title": "Resource-native orchestration",
+    "description": "Declare Workers, Experts, Workflows, prompts, models, tools, knowledge, and compute as versioned resources. The control plane validates references, shows a semantic plan, and applies an immutable revision or execution snapshot.",
+    "openGuide": "Open the resource orchestration guide",
+    "lifecycleTitle": "Validate → Plan → Apply",
+    "lifecycleDescription": "The workflow separates authoring from review and execution. A Plan is evidence of the intended change, not proof that the resource already exists.",
+    "lifecycle": {
+      "validate": {
+        "title": "Validate",
+        "description": "Check the envelope, schema, identifiers, field semantics, permissions, and referenced resources."
+      },
+      "plan": {
+        "title": "Plan",
+        "description": "Produce a canonical manifest, semantic diff, blocking issues, warnings, and pinned reference digests."
+      },
+      "apply": {
+        "title": "Apply",
+        "description": "Reauthorize the actor, reject stale plans, consume the plan once, and create the typed revision or domain object."
+      }
+    },
+    "kindsTitle": "Resource kinds and Apply behavior",
+    "kindsColumns": {
+      "kind": "Kind",
+      "apply": "Typed Apply",
+      "purpose": "Purpose"
+    },
+    "kinds": {
+      "bindings": {
+        "name": "Binding resources",
+        "apply": "Yes",
+        "purpose": "Version references to models, tools, repositories, skills, knowledge, secrets, compute targets, and resource profiles."
+      },
+      "prompt": {
+        "name": "Prompt",
+        "apply": "Yes",
+        "purpose": "Store reusable prompt content and declared variables as an immutable revision."
+      },
+      "workerTemplate": {
+        "name": "WorkerTemplate",
+        "apply": "Yes",
+        "purpose": "Compile reusable runtime, model, workspace, and lifecycle configuration into a WorkerSpec snapshot."
+      },
+      "worker": {
+        "name": "Worker",
+        "apply": "Create only",
+        "purpose": "Launch one Worker from pinned resources. The same Worker resource cannot be updated."
+      },
+      "expertWorkflow": {
+        "name": "Expert / Workflow",
+        "apply": "Yes",
+        "purpose": "Create reusable domain definitions with pinned WorkerTemplate, Prompt, and WorkerSpec snapshots."
+      },
+      "goalLoop": {
+        "name": "GoalLoop",
+        "apply": "Not yet",
+        "purpose": "Validate and plan a goal-driven loop; typed resource Apply is not exposed yet."
+      }
+    },
+    "referencesTitle": "Immutable ResourceRef resolution",
+    "referencesDescription": "Resources reference one another by kind, name, namespace, and optional revision. Omitting revision means resolve the active revision while planning, not follow the latest revision forever.",
+    "referencesPinned": "The Plan pins apiVersion, kind, namespace, name, UID, revision, and digest. Apply and later execution use that fixed result.",
+    "editorTitle": "One draft, two views",
+    "editorDescription": "The domain form and YAML editor operate on one typed draft. Invalid YAML remains visible and blocks form switching, planning, and applying; the editor never continues with an older valid draft.",
+    "editor": {
+      "steps": {
+        "form": "Use the form for ordinary fields and resource selectors.",
+        "yaml": "Use YAML for review, version control, or precise advanced editing.",
+        "validate": "Resolve schema, permission, identifier, and reference errors.",
+        "plan": "Review CREATE or UPDATE, semantic diff, warnings, revisions, and digests.",
+        "apply": "Apply only the current plan and verify the returned revision, snapshot, domain object, or Worker."
+      }
+    },
+    "yamlTitle": "YAML example",
+    "securityTitle": "Secret and permission boundaries",
+    "securityDescription": "Resource YAML describes references, not plaintext credentials. Namespace is an identity field and never replaces authorization.",
+    "security": {
+      "items": {
+        "credentials": "ModelBinding stores a model resource ID; provider credentials remain encrypted in the AI resource connection.",
+        "authorization": "Validate, Plan, and Apply reject cross-organization or unreadable references, including permissions revoked after planning.",
+        "stale": "Draft changes, expired plans, consumed plans, changed heads, and changed runtime catalogs require a new Plan."
+      }
+    },
+    "boundaryTitle": "Current boundary",
+    "goalLoopBoundary": "GoalLoop supports Validate and Plan, but no typed Apply endpoint is exposed. A successful Plan does not create a loop.",
+    "reconciliationBoundary": "This model is declarative but does not run a Kubernetes-style reconciliation loop. Deleting a Worker or Pod does not recreate it automatically."
+  }
+}

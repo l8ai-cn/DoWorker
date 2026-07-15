@@ -14,6 +14,13 @@ import (
 //
 // GET /preview/{podKey}/__session?token=<preview-jwt>
 func (h *PreviewHandler) HandlePreviewSession(w http.ResponseWriter, r *http.Request) {
+	if !h.requirePublicHost(w, r) {
+		return
+	}
+	h.handlePreviewSession(w, r)
+}
+
+func (h *PreviewHandler) handlePreviewSession(w http.ResponseWriter, r *http.Request) {
 	podKey, _, ok := parsePreviewPath(r.URL.Path)
 	if !ok {
 		http.NotFound(w, r)

@@ -59,6 +59,27 @@ func TestResolverBuildsCanonicalSnapshotFromScopedResolutions(t *testing.T) {
 	assert.Equal(t, spec.Runtime.WorkerType, summary.WorkerType)
 }
 
+func TestResolverSkipsModelResolutionForWorkerWithoutModelRequirement(t *testing.T) {
+	ports := newResolverPortsForTest()
+	ports.workerType.WorkerType.Slug = mustSlugForTest("cursor-cli")
+	ports.workerType.ModelRequirement = domain.ModelRequirement{}
+	draft := validDraftForTest()
+	draft.WorkerTypeSlug = mustSlugForTest("cursor-cli")
+	draft.ModelResourceID = 0
+
+	resolved, err := NewResolver(ports.deps()).Resolve(
+		context.Background(),
+		validScopeForTest(),
+		draft,
+	)
+
+	require.NoError(t, err)
+	assert.NotContains(t, ports.calls, "model")
+	spec, err := domain.DecodeSpec(resolved.SpecJSON())
+	require.NoError(t, err)
+	assert.True(t, spec.Runtime.ModelBinding.IsEmpty())
+}
+
 func TestResolverValidatesTypeConfigBeforeReferencesAndWorkspace(t *testing.T) {
 	ports := newResolverPortsForTest()
 	draft := validDraftForTest()

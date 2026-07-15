@@ -82,6 +82,38 @@ func TestPodServiceRejectsNewAndInheritedWorkerSpecTogether(t *testing.T) {
 	assert.Nil(t, pod)
 }
 
+func TestProjectWorkerSpecOmitsModelResourceForCredentialManagedWorker(t *testing.T) {
+	spec := podServiceWorkerSpec()
+	spec.Runtime.ModelBinding = specdomain.ModelBinding{}
+	request := &OrchestrateCreatePodRequest{}
+
+	projectWorkerSpec(request, spec, "MODE acp\n", nil)
+
+	assert.Nil(t, request.ModelResourceID)
+}
+
+func TestProjectWorkerSpecAppliesLifecyclePolicy(t *testing.T) {
+	tests := []struct {
+		policy    specdomain.TerminationPolicy
+		perpetual bool
+	}{
+		{policy: specdomain.TerminationPolicyManual, perpetual: true},
+		{policy: specdomain.TerminationPolicyOnIdle, perpetual: false},
+		{policy: specdomain.TerminationPolicyOnCompleted, perpetual: false},
+	}
+	for _, test := range tests {
+		t.Run(string(test.policy), func(t *testing.T) {
+			spec := podServiceWorkerSpec()
+			spec.Lifecycle.TerminationPolicy = test.policy
+			request := &OrchestrateCreatePodRequest{}
+
+			projectWorkerSpec(request, spec, "MODE acp\n", nil)
+
+			assert.Equal(t, test.perpetual, request.Perpetual)
+		})
+	}
+}
+
 func resolvedWorkerSpecForPodServiceTest(
 	t *testing.T,
 	organizationID int64,
@@ -141,6 +173,12 @@ func (ports *podServiceWorkerSpecPorts) ResolveWorkerType(
 		SupportedInteractionModes: []specdomain.InteractionMode{
 			ports.spec.TypeConfig.InteractionMode,
 		},
+		ModelRequirement: specdomain.ModelRequirement{
+			Required: true,
+			ProtocolAdapters: []slugkit.Slug{
+				slugkit.MustNewForTest("openai-compatible"),
+			},
+		},
 		TypeSchema: specdomain.TypeSchema{
 			Version: 1,
 			Fields:  map[string]specdomain.TypeFieldSchema{},
@@ -163,7 +201,7 @@ func (ports *podServiceWorkerSpecPorts) ResolveRuntime(
 func (ports *podServiceWorkerSpecPorts) ResolveModel(
 	context.Context,
 	specservice.Scope,
-	slugkit.Slug,
+	specdomain.ModelRequirement,
 	int64,
 ) (specdomain.ModelBinding, error) {
 	return ports.spec.Runtime.ModelBinding, nil
@@ -197,6 +235,7 @@ func podServiceWorkerSpec() specdomain.Spec {
 				ConnectionID:       201,
 				ConnectionRevision: 9,
 				ProviderKey:        slugkit.MustNewForTest("openai"),
+				ProtocolAdapter:    slugkit.MustNewForTest("openai-compatible"),
 				ModelID:            "gpt-5",
 			},
 			WorkerType: specdomain.WorkerType{
@@ -236,6 +275,7 @@ func podServiceWorkerSpec() specdomain.Spec {
 			SkillIDs:        []int64{},
 			KnowledgeMounts: []specdomain.KnowledgeMount{},
 			EnvBundleIDs:    []specdomain.RuntimeEnvBundleID{},
+			ConfigBundleIDs: []int64{},
 			InitialTask:     "Run checks.",
 		},
 		specdomain.Lifecycle{TerminationPolicy: specdomain.TerminationPolicyManual},

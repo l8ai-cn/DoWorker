@@ -83,6 +83,8 @@ func (b *PodBuilder) Build(ctx context.Context) (*Pod, error) {
 				resolvedArgs = append([]string{prompt}, resolvedArgs...)
 			case "append":
 				resolvedArgs = append(resolvedArgs, prompt)
+			case "after_first":
+				resolvedArgs = insertPromptAfterFirst(resolvedArgs, prompt)
 			}
 		}
 	}

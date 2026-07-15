@@ -1,6 +1,6 @@
-use crate::ApiClient;
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
+use crate::ApiClient;
 use agentsmesh_types::proto_extension_v1 as ext_proto;
 
 // Connect-RPC (binary wire). See proto-naming-conventions.md §2.5.

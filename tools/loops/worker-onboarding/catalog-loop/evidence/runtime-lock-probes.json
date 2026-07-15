@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "runtime_catalog_revision": "runtime-catalog-2026-07-13-release-gated",
+  "probes": [
+    {
+      "schema_version": 1,
+      "worker_slug": "claude-code",
+      "runtime_catalog_revision": "runtime-catalog-2026-07-13-release-gated",
+      "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
+      "image_digest": "sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
+      "status": "not_found",
+      "exit_code": 1,
+      "output": "Error response from daemon: failed to resolve reference \"repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f\": repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f: not found",
+      "observed_at": "2026-07-13T00:28:42.106Z"
+    },
+    {
+      "schema_version": 1,
+      "worker_slug": "codex-cli",
+      "runtime_catalog_revision": "runtime-catalog-2026-07-13-release-gated",
+      "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
+      "image_digest": "sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
+      "status": "not_found",
+      "exit_code": 1,
+      "output": "Error response from daemon: failed to resolve reference \"repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1\": repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1: not found",
+      "observed_at": "2026-07-13T00:28:40.057Z"
+    },
+    {
+      "schema_version": 1,
+      "worker_slug": "gemini-cli",
+      "runtime_catalog_revision": "runtime-catalog-2026-07-13-release-gated",
+      "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
+      "image_digest": "sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
+      "status": "not_found",
+      "exit_code": 1,
+      "output": "Error response from daemon: failed to resolve reference \"repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4\": repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4: not found",
+      "observed_at": "2026-07-13T00:28:44.218Z"
+    }
+  ]
+}

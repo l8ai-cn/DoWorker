@@ -41,11 +41,10 @@ export function Footer() {
     product: {
       title: t("landing.footer.product.title"),
       links: [
-        { label: t("landing.footer.product.agentpod"), href: "/docs/features/agentpod" },
+        { label: t("landing.footer.product.agentpod"), href: "/docs/concepts/workers" },
         { label: t("landing.footer.product.agentsmesh"), href: "/docs/features/channels" },
         { label: t("landing.footer.product.tickets"), href: "/docs/features/tickets" },
         { label: t("landing.footer.product.runners"), href: "/docs/runners/setup" },
-        { label: t("landing.footer.product.pricing"), href: "/#pricing" },
       ],
     },
     resources: {
@@ -76,7 +75,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-[var(--azure-bg-deeper)] py-20">
+    <footer className="border-t border-white/8 bg-[var(--expert-bg)] py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 sm:gap-12 mb-12 sm:mb-16">
           <div className="col-span-2 md:col-span-1">

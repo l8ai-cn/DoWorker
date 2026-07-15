@@ -1,17 +1,19 @@
 {
   "landing": {
     "nav": {
+      "home": "ホーム",
       "scenarios": "シナリオ",
       "workflow": "進め方",
       "capabilities": "機能",
-      "features": "機能",
+      "features": "権限管理",
       "marketplace": "マーケットプレイス",
-      "pricing": "料金",
       "docs": "ドキュメント",
       "signIn": "ログイン",
       "getStarted": "始める",
       "console": "コンソール",
+      "consoleUnavailable": "現在コンソールを開けません。もう一度お試しください。",
       "language": "言語",
+      "toggleMenu": "メニューを開閉",
       "download": "ダウンロード"
     },
     "hero": {
@@ -234,78 +236,6 @@
         }
       }
     },
-    "pricing": {
-      "title": "チームをスケールせよ、",
-      "titleHighlight": "予算はそのまま。",
-      "description": "自分のAPIキーを持ち込もう。プラットフォーム料金だけ、トークン課金なし。利用上限なし。",
-      "mostPopular": "最も人気",
-      "annualDiscount": "20%オフ",
-      "perSeat": "/席",
-      "monthly": "月額",
-      "yearly": "年額",
-      "yearlyDiscount": "17%オフ",
-      "month": "月",
-      "year": "年",
-      "seatMonth": "席/月",
-      "seatYear": "席/年",
-      "based": {
-        "name": "Based",
-        "badge": "30日間無料トライアル",
-        "description": "ソロで始めよう。一人のエージェントに何ができるか、試してみて。",
-        "features": {
-          "0": "1席（ソロモード）",
-          "1": "5エージェント同時実行",
-          "2": "1 Runner",
-          "3": "5リポジトリ",
-          "4": "コミュニティサポート"
-        },
-        "cta": "無料トライアルを始める"
-      },
-      "pro": {
-        "name": "Pro",
-        "description": "最初のエージェントチーム。最大5シート、10エージェント並列実行。",
-        "features": {
-          "0": "最大5席",
-          "1": "10エージェント同時実行",
-          "2": "10 Runners",
-          "3": "10リポジトリ",
-          "4": "優先メールサポート",
-          "5": "マルチGitプロバイダー対応"
-        },
-        "cta": "Proにアップグレード"
-      },
-      "enterprise": {
-        "name": "Team",
-        "description": "部門規模。50シートがそれぞれのエージェント部隊を持つ。",
-        "features": {
-          "0": "最大50席",
-          "1": "50エージェント同時実行",
-          "2": "100 Runners",
-          "3": "無制限リポジトリ",
-          "4": "優先サポート"
-        },
-        "cta": "Teamにアップグレード"
-      },
-      "onpremise": {
-        "name": "OnPremise",
-        "price": "カスタム",
-        "period": "お問い合わせ",
-        "description": "完全なプライベートデプロイ。あなたのインフラ、あなたのルール。",
-        "features": {
-          "0": "無制限の席数",
-          "1": "無制限のエージェント",
-          "2": "無制限のRunners",
-          "3": "エアギャップサポート",
-          "4": "専任サポート",
-          "5": "カスタムSLA",
-          "6": "ホワイトグローブオンボーディング"
-        },
-        "cta": "営業に連絡"
-      },
-      "footer": "すべてのプランにBYOK（Bring Your Own Key）対応 — 自分のAI APIキーを使用でき、利用制限なし。",
-      "customPlan": "エンタープライズデプロイが必要ですか？",
-      "contactUs": "お問い合わせ"
-    },
     "selfHosted": {
       "title": "完全な",
       "titleHighlight": "セルフホスト",
@@ -322,10 +252,7 @@
       "title2": "見てみませんか？",
       "description": "シナリオを選び、チームの連携を確認してから、AI ワークフォースを構築しましょう。",
       "watchDemo": "デモを見る",
-      "getStartedFree": "無料で始める",
       "scheduleDemo": "相談する",
-      "freeTier": "無料プランあり",
-      "noCreditCard": "クレジットカード不要",
       "selfHostedOption": "セルフホストオプション"
     },
     "heroDemo": {
@@ -403,16 +330,15 @@
       "highlight3": "自律型タスク完了"
     },
     "footer": {
-      "tagline": "チームが人員を超えてスケールする場所。",
+      "tagline": "分散したAI能力を、仕事を完遂するExpertへ。",
       "copyright": "Do Worker. All rights reserved.",
-      "madeWith": "意欲的なチームのために構築",
+      "madeWith": "実務成果のために設計",
       "product": {
         "title": "製品",
-        "agentpod": "AgentPod",
-        "agentsmesh": "Do Worker",
-        "tickets": "チケット",
-        "runners": "Runners",
-        "pricing": "料金",
+        "agentpod": "Worker",
+        "agentsmesh": "コラボレーション",
+        "tickets": "タスク管理",
+        "runners": "Runner群",
         "enterprise": "エンタープライズ"
       },
       "resources": {

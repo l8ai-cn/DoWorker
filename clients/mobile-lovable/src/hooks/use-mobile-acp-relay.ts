@@ -6,6 +6,7 @@ import {
   readMobileAcpSession,
   type MobileAcpSession,
 } from "@/lib/mobile-acp-session";
+import { createMobileAcpPromptConfirmation } from "@/lib/mobile-acp-prompt-confirmation";
 import { getMobileRelayManager } from "@/lib/mobile-relay-manager";
 import { resetMobileRelayConnection } from "@/lib/mobile-relay-reset";
 import { getMobileAcpManager } from "@/lib/mobile-wasm";
@@ -18,12 +19,13 @@ const EMPTY_SESSION: MobileAcpSession = {
   pendingPermissions: [],
 };
 
-let nextListenerId = 0;
+let nextPromptRequestId = 0;
 
 export function useMobileAcpRelay(podKey: string) {
   const relayRef = useRef<Awaited<ReturnType<typeof getMobileRelayManager>> | null>(null);
   const leaseRef = useRef<RelayLease>(observerRelayLease);
-  const [listenerId] = useState(() => `mobile-acp-${++nextListenerId}`);
+  const promptConfirmationRef = useRef(createMobileAcpPromptConfirmation());
+  const listenerId = `mobile-acp-${podKey}`;
   const [relayControl, setRelayControl] = useState<
     Awaited<ReturnType<typeof getMobileRelayManager>> | null
   >(null);
@@ -69,6 +71,7 @@ export function useMobileAcpRelay(podKey: string) {
         };
         const acpListener = (messageType: number, payload: unknown) => {
           if (disposed) return;
+          if (messageType === 0x0b) promptConfirmationRef.current.consume(payload);
           applyMobileAcpRelayMessage(manager, podKey, messageType, payload);
           setSession(readMobileAcpSession(manager, podKey));
         };
@@ -91,6 +94,7 @@ export function useMobileAcpRelay(podKey: string) {
         if (disposed) void resetMobileRelayConnection(nextRelay, podKey);
       } catch (cause) {
         if (!disposed) {
+          promptConfirmationRef.current.rejectAll("Worker 连接失败");
           setConnection("failed");
           setError(cause instanceof Error ? cause.message : "Worker 连接失败");
         }
@@ -100,6 +104,7 @@ export function useMobileAcpRelay(podKey: string) {
 
     return () => {
       disposed = true;
+      promptConfirmationRef.current.rejectAll("Worker 连接已关闭");
       setRelayControl(null);
       if (relay) {
         relay.remove_status_listener(podKey, listenerId);
@@ -110,7 +115,7 @@ export function useMobileAcpRelay(podKey: string) {
       }
       if (relay) void resetMobileRelayConnection(relay, podKey);
     };
-  }, [attempt, listenerId, podKey]);
+  }, [attempt, podKey]);
 
   const send = useCallback(
     async (command: Record<string, unknown>) => {
@@ -120,6 +125,24 @@ export function useMobileAcpRelay(podKey: string) {
       await relay.send_acp_command(podKey, JSON.stringify(command));
     },
     [connection, podKey],
+  );
+
+  const sendPrompt = useCallback(
+    async (prompt: string) => {
+      const requestId = `mobile-prompt-${Date.now()}-${++nextPromptRequestId}`;
+      const confirmed = promptConfirmationRef.current.waitFor(requestId);
+      try {
+        await send({ type: "prompt", prompt, requestId });
+      } catch (cause) {
+        promptConfirmationRef.current.consume({
+          type: "commandFailed",
+          requestId,
+          message: cause instanceof Error ? cause.message : "消息发送失败",
+        });
+      }
+      await confirmed;
+    },
+    [send],
   );
 
   const reconnect = useCallback(() => {
@@ -136,7 +159,7 @@ export function useMobileAcpRelay(podKey: string) {
     reconnect,
     respondPermission: (requestId: string, approved: boolean) =>
       send({ type: "permission_response", requestId, approved }),
-    sendPrompt: (prompt: string) => send({ type: "prompt", prompt }),
+    sendPrompt,
     session,
     interrupt: () => send({ type: "interrupt" }),
   };

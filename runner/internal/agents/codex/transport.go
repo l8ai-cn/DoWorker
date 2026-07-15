@@ -2,11 +2,9 @@ package codex
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
-	"strconv"
 	"sync"
 	"time"
 
@@ -27,6 +25,11 @@ type transport struct {
 	streamMu            sync.Mutex
 	streamedAgentMsgIDs map[string]struct{}
 	streamedSinceMsg    bool
+	messageBoundaryDue  bool
+	toolMu              sync.Mutex
+	toolOutputs         map[string]toolOutputBuffer
+	permissionMu        sync.Mutex
+	permissionMethods   map[string]string
 
 	idleMu             sync.Mutex
 	idleTimer          *time.Timer
@@ -45,9 +48,11 @@ const idleFallbackDelay = 4 * time.Second
 
 func newTransport(callbacks acp.EventCallbacks, logger *slog.Logger) *transport {
 	return &transport{
-		callbacks:    callbacks,
-		logger:       logger,
-		idleFallback: idleFallbackDelay,
+		callbacks:         callbacks,
+		logger:            logger,
+		idleFallback:      idleFallbackDelay,
+		toolOutputs:       make(map[string]toolOutputBuffer),
+		permissionMethods: make(map[string]string),
 	}
 }
 
@@ -92,73 +97,6 @@ func (t *transport) Handshake(_ context.Context) (string, error) {
 	return "", nil
 }
 
-func (t *transport) NewSession(cwd string, mcpServers map[string]any) (string, error) {
-	t.workDir = cwd
-	params := mergeHeadlessFields(nil, cwd)
-	if mcpServers != nil {
-		params["mcpServers"] = mcpServers
-	}
-
-	pr, err := t.tracker.SendRequest("thread/start", params)
-	if err != nil {
-		return "", fmt.Errorf("write thread/start: %w", err)
-	}
-
-	resp, err := t.tracker.WaitResponse(pr, 30*time.Second)
-	if err != nil {
-		return "", fmt.Errorf("wait thread/start response: %w", err)
-	}
-	if resp.Error != nil {
-		return "", fmt.Errorf("thread/start error: code=%d msg=%s",
-			resp.Error.Code, resp.Error.Message)
-	}
-
-	var result threadStartResult
-	if err := json.Unmarshal(resp.Result, &result); err != nil {
-		return "", fmt.Errorf("parse thread/start result: %w", err)
-	}
-
-	t.sessionMu.Lock()
-	t.sessionID = result.Thread.ID
-	t.sessionMu.Unlock()
-
-	return result.Thread.ID, nil
-}
-
-func (t *transport) ResumeSession(cwd string, mcpServers map[string]any, externalSessionID string) (string, error) {
-	if externalSessionID == "" {
-		return "", fmt.Errorf("thread id required")
-	}
-	t.workDir = cwd
-	params := mergeHeadlessFields(map[string]any{"threadId": externalSessionID}, cwd)
-	if mcpServers != nil {
-		params["mcpServers"] = mcpServers
-	}
-	pr, err := t.tracker.SendRequest("thread/resume", params)
-	if err != nil {
-		return "", fmt.Errorf("write thread/resume: %w", err)
-	}
-	resp, err := t.tracker.WaitResponse(pr, 30*time.Second)
-	if err != nil {
-		return "", fmt.Errorf("wait thread/resume response: %w", err)
-	}
-	if resp.Error != nil {
-		return "", fmt.Errorf("thread/resume error: code=%d msg=%s",
-			resp.Error.Code, resp.Error.Message)
-	}
-	var result threadStartResult
-	if err := json.Unmarshal(resp.Result, &result); err != nil {
-		return "", fmt.Errorf("parse thread/resume result: %w", err)
-	}
-	if result.Thread.ID == "" {
-		result.Thread.ID = externalSessionID
-	}
-	t.sessionMu.Lock()
-	t.sessionID = result.Thread.ID
-	t.sessionMu.Unlock()
-	return result.Thread.ID, nil
-}
-
 func (t *transport) SendPrompt(sessionID, prompt string) error {
 	if sessionID == "" {
 		return fmt.Errorf("thread id required")
@@ -187,19 +125,6 @@ func (t *transport) SendPrompt(sessionID, prompt string) error {
 	}()
 
 	return nil
-}
-
-func (t *transport) RespondToPermission(requestID string, approved bool, _ map[string]any) error {
-	rpcID, err := strconv.ParseInt(requestID, 10, 64)
-	if err != nil {
-		return fmt.Errorf("parse request ID %q: %w", requestID, err)
-	}
-	decision := "decline"
-	if approved {
-		decision = "accept"
-	}
-	result := map[string]any{"decision": decision}
-	return t.tracker.Writer.WriteResponse(rpcID, result, nil)
 }
 
 func (t *transport) CancelSession(sessionID string) error {
@@ -236,4 +161,8 @@ func (t *transport) ReadLoop(ctx context.Context) {
 	}
 }
 
-func (t *transport) Close() { t.cancelIdleFallback() }
+func (t *transport) Close() {
+	t.cancelIdleFallback()
+	t.clearToolOutputs()
+	t.clearPermissionMethods()
+}

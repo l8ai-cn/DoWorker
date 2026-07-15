@@ -1,0 +1,124 @@
+{
+  "landing": {
+    "workforce": {
+      "expertHome": {
+        "hero": {
+          "eyebrow": "Um especialista. Capacidade organizacional conectada.",
+          "title": "Transforme capacidades de IA fragmentadas em especialistas que concluem o trabalho",
+          "description": "Defina o objetivo uma única vez. Do Worker reúne métodos, conhecimento organizacional, ferramentas de execução e capacidades de IA por trás de um único Expert.",
+          "primaryAction": "Criar seu especialista",
+          "secondaryAction": "Ver menu de negócios",
+          "proof": "Contexto compartilhado · Execução entre sistemas · Confirmação humana · Entregável verificável"
+        },
+        "console": {
+          "title": "Trabalho funcional em andamento",
+          "status": "Um Expert assume o objetivo com confirmação humana nas decisões críticas",
+          "live": "Em execução",
+          "paused": "Pausado",
+          "complete": "Concluído",
+          "goalLabel": "Objetivo atual",
+          "goal": "Lançar uma campanha multilíngue verificada para um novo mercado",
+          "expertLabel": "Especialista ativo",
+          "expert": "Especialista de crescimento global",
+          "formulaLabel": "Capacidades por trás",
+          "formula": "Research · Knowledge · Content · Data · System action",
+          "workflowLabel": "Cadeia de entrega unificada",
+          "steps": ["Entender", "Organizar", "Executar", "Confirmar", "Entregar"],
+          "checkpointLabel": "Ponto de controle humano",
+          "checkpoint": "Aprovar posicionamento, linguagem de marca e limites de compliance antes da publicação.",
+          "deliverableLabel": "Resultado verificável",
+          "deliverable": "Brief de mercado, ativos localizados, evidência de processo e próximos passos",
+          "controls": { "pause": "Pausar", "resume": "Retomar", "next": "Próximo passo", "replay": "Reexecutar" }
+        },
+        "solutions": {
+          "eyebrow": "Menu de soluções",
+          "title": "Entre por um objetivo real e acompanhe até a entrega",
+          "description": "Escolha o resultado necessário em vez de montar uma multidão de agentes. Cada entrada mantém um Expert e um contexto único, acionando as capacidades cross-functional necessárias.",
+          "workflowLabel": "Rota de entrega",
+          "deliverablesLabel": "Resultado verificável",
+          "items": [
+            { "id": "cross-border-commerce", "title": "Crescimento internacional", "description": "Conecta pesquisa de mercado, posicionamento, conteúdo, localização, preparação de lançamento e revisão de desempenho em torno de um objetivo de expansão.", "chain": "Research → Positioning → Content → Localization → Launch prep → Review", "outcome": "Planos de mercado, assets de produto, conteúdo localizado e evidência de processo.", "action": "Criar um especialista para este objetivo" },
+            { "id": "ai-education", "title": "Desenvolvimento de cursos", "description": "Partindo dos resultados de aprendizagem, organiza pesquisa, currículo, aulas, laboratórios, avaliação e revisão do instrutor.", "chain": "Outcomes → Curriculum → Lessons → Labs → Assessment → Review", "outcome": "Sílabos, aulas, laboratórios, questionários e evidência de aceitação.", "action": "Criar um especialista para este objetivo" },
+            { "id": "digital-employees", "title": "Parceiros de IA", "description": "Trabalhe com um parceiro de IA que compartilha contexto com sua equipe e combina pesquisa, documentos, dados, conteúdo e ações de sistema entre departamentos.", "chain": "Definir a meta juntos → Ler conhecimento da organização → Agir entre ferramentas → Compartilhar progresso → Confirmação humana → Entregar evidências", "outcome": "Resultados colaborativos, ações de sistema, notas de progresso e evidências verificáveis.", "action": "Criar seu parceiro de IA" },
+            { "id": "marketplace", "title": "Mercado de especialistas", "description": "Encontre especialistas e Skills reutilizáveis por resultado e valide capacidades, permissões e entregáveis antes da instalação.", "chain": "Descobrir → Revisar → Instalar → Configurar → Executar → Governar", "outcome": "Especialistas reutilizáveis com capacidades visíveis, permissões e expectativas de entrega.", "action": "Abrir o mercado de especialistas" }
+          ]
+        },
+        "capabilities": {
+          "eyebrow": "Espectro de capacidades",
+          "title": "Um Expert pode invocar muitas capacidades profissionais",
+          "description": "Uma cadeia de entrega pode usar pesquisa, documentos, dados, código e mídia. As etiquetas de maturidade distinguem recursos de plataforma, capacidades compostas via Skills/ferramentas e capacidades planejadas.",
+          "levels": { "implemented": "Recurso da plataforma", "composable": "Componível", "planned": "Planejado" },
+          "items": [
+            { "id": "programming", "level": "implemented", "title": "Programação e entrega", "description": "Alterar código, executar testes, revisar e entregar PR ou MR em um workspace isolado." },
+            { "id": "research", "level": "composable", "title": "Pesquisa e julgamento", "description": "Unir busca e análise em conclusões e briefing com fontes." },
+            { "id": "documents", "level": "composable", "title": "Documentação profissional", "description": "Ler, estruturar, revisar e entregar documentos para uso contínuo." },
+            { "id": "office", "level": "composable", "title": "Rotinas de escritório", "description": "Trabalhar com planilhas, apresentações, relatórios e operações repetíveis." },
+            { "id": "content", "level": "composable", "title": "Operações de conteúdo", "description": "Conectar pesquisa, redação, edição, localização e preparação de lançamento." },
+            { "id": "screenwriting", "level": "composable", "title": "Roteiro e direção", "description": "Estruturar narrativa, roteiros, planos de tomada e passagem para produção." },
+            { "id": "image", "level": "composable", "title": "Assets de imagem", "description": "Gerar, editar, inspecionar e empacotar ativos visuais com ferramentas conectadas." },
+            { "id": "audio", "level": "composable", "title": "Assets de áudio", "description": "Planejar, gerar, processar e revisar voz ou música com ferramentas conectadas." },
+            { "id": "video", "level": "composable", "title": "Produção de vídeo", "description": "Coordenar roteiros, ativos, geração, edição e controle de qualidade." },
+            { "id": "data", "level": "composable", "title": "Dados e operações do sistema", "description": "Consultar, transformar, analisar e validar dados estruturados com ferramentas controladas." },
+            { "id": "education", "level": "composable", "title": "Educação", "description": "Conceber cursos, produzir aulas, laboratórios, avaliação e evidências de aprendizagem." },
+            { "id": "industryMarket", "level": "planned", "title": "Mercado de especialistas setoriais", "description": "Catálogo mais amplo de especialistas de setor e conectores empresariais para cada organização." }
+          ]
+        },
+        "operating": {
+          "eyebrow": "Modelo operacional do especialista",
+          "title": "Concentre competências no Expert em vez de fragmentá-las",
+          "description": "O usuário define o objetivo uma vez. O Expert seleciona e coordena o conjunto de execução, mantém o contexto entre etapas e entrega um resultado consistente.",
+          "formulaTitle": "Como um Expert é composto",
+          "parts": [
+            { "id": "worker", "title": "Runtime de execução", "description": "Ambiente de execução mais adequado para a tarefa." },
+            { "id": "model", "title": "Modelo", "description": "Modelo de raciocínio ou geração escolhido para o trabalho." },
+            { "id": "skills", "title": "Skills", "description": "Métodos especializados e instruções operacionais reutilizáveis." },
+            { "id": "knowledge", "title": "Conhecimento", "description": "Contexto da organização, arquivos, padrões e material de referência." },
+            { "id": "tools", "title": "Ferramentas", "description": "Serviços MCP, navegadores, bancos de dados, mídia e sistemas empresariais." },
+            { "id": "workflow", "title": "Workflow", "description": "Sequência, checkpoints, orçamento e requisitos de evidência." }
+          ],
+          "humanTitle": "Autonomia com controle explícito",
+          "humanDescription": "O Expert pode continuar trabalhando enquanto decisões-chave, ações privilegiadas e entrega final permanecem visíveis.",
+          "humanItems": [
+            { "id": "checkpoint", "title": "Confirmação humana", "description": "Interromper decisões de alto impacto para aprovação, rejeição ou revisão." },
+            { "id": "deliverable", "title": "Entrega completa", "description": "Retornar artefatos com status, evidência e riscos pendentes." },
+            { "id": "repeatability", "title": "Reuso operacional", "description": "Transformar métodos validados em Skills, especialistas e Workflows versionados." }
+          ]
+        },
+        "market": {
+          "eyebrow": "Mercado de especialistas",
+          "title": "Reutilize Experts do catálogo em vez de reconstruir uma equipe de IA",
+          "description": "O catálogo atual parte de Experts de engenharia de software alinhados com capacidades reais da plataforma. Inicie por resultados, permissões e expectativas de entrega, depois revise Worker, Skills e configuração de runtime subjacente.",
+          "apps": [
+            { "slug": "software-delivery-expert", "title": "Especialista de entrega de software", "description": "Do desdobramento de requisitos e desenvolvimento isolado até testes, revisão e entrega por PR/MR." },
+            { "slug": "multi-worker-orchestrator", "title": "Especialista de orquestração multi-Worker", "description": "Divide metas complexas em tarefas paralelas e consolida um resultado aceito." },
+            { "slug": "dual-repo-sync-expert", "title": "Especialista de sincronização de dois repositórios", "description": "Sincroniza GitLab e GitHub com detecção de divergência e rota de revisão." }
+          ],
+          "status": "Listagem",
+          "plannedTitle": "Ampliação dos especialistas por setor",
+          "plannedDescription": "Crescimento transfronteiriço, desenvolvimento de cursos e parceiros de IA entram apenas após validação de Skills, conectores e cadeias de entrega.",
+          "action": "Abrir o mercado de especialistas"
+        },
+        "trust": {
+          "eyebrow": "Implantação e governança",
+          "title": "A interface não significa acesso ilimitado",
+          "description": "Um Expert pode operar entre sistemas enquanto cada execução permanece limitada por infraestrutura, workspaces isolados, escopo de credenciais, confirmação humana e requisitos de evidência.",
+          "items": [
+            { "id": "selfHosting", "title": "Local de execução controlado", "description": "Execute Workers na infraestrutura controlada pela sua organização.", "status": "Controlado" },
+            { "id": "workspaces", "title": "Workspaces isolados", "description": "Separe cada tarefa, arquivos e contexto de execução.", "status": "Isolado" },
+            { "id": "credentials", "title": "Credenciais com escopo definido", "description": "Conceda apenas o acesso necessário ao Expert e à tarefa.", "status": "Restrito" },
+            { "id": "audit", "title": "Evidência verificável", "description": "Preserve atividades, decisões, artefatos e status da entrega.", "status": "Registrado" }
+          ],
+          "runtimesTitle": "Diretório de runtimes Worker",
+          "runtimesDescription": "O diretório inclui runtimes Worker como Codex CLI, Claude Code, Gemini CLI, Aider e OpenCode. A implantação depende de cada entrada e do estado de verificação de publicação."
+        },
+        "cta": {
+          "eyebrow": "Comece com um objetivo real",
+          "title": "Permita que seu primeiro Expert administre uma cadeia de entrega completa",
+          "description": "Comece com um Expert existente ou componha um com Workers, Skills, conhecimento e ferramentas com os quais sua organização confia.",
+          "primary": "Criar seu primeiro especialista",
+          "secondary": "Abrir o mercado de especialistas"
+        }
+      }
+    }
+  }
+}

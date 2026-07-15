@@ -155,13 +155,24 @@ func (s *Service) validatedBaseURL(ctx context.Context, provider domain.Provider
 			return "", ErrInvalidEndpoint
 		}
 	} else {
-		if requested != "" && strings.TrimRight(requested, "/") != strings.TrimRight(provider.DefaultBaseURL, "/") {
+		if requested != "" && !acceptsFixedProviderBaseURL(provider, requested) {
 			return "", ErrInvalidEndpoint
 		}
-		requested = provider.DefaultBaseURL
+		if requested == "" {
+			requested = provider.DefaultBaseURL
+		}
 	}
 	if err := s.endpoints.Validate(ctx, requested); err != nil {
 		return "", fmt.Errorf("%w: endpoint policy rejected URL", ErrInvalidEndpoint)
 	}
 	return strings.TrimRight(requested, "/"), nil
+}
+
+func acceptsFixedProviderBaseURL(provider domain.ProviderDefinition, requested string) bool {
+	normalized := strings.TrimRight(requested, "/")
+	if normalized == strings.TrimRight(provider.DefaultBaseURL, "/") {
+		return true
+	}
+	return provider.Key.String() == "minimax" &&
+		normalized == strings.TrimRight(domain.MiniMaxGlobalBaseURL, "/")
 }

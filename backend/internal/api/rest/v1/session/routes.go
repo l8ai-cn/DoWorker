@@ -10,6 +10,8 @@ func RegisterRoutes(r *gin.Engine, d Deps) {
 
 	v1 := r.Group("/v1")
 	v1.GET("/info", d.handleInfo)
+	registerEmbedContextRoutes(v1, d)
+	registerEmbedRoutes(v1, d)
 
 	auth := v1.Group("")
 	auth.Use(accessTokenMiddleware(d))
@@ -32,6 +34,7 @@ func RegisterRoutes(r *gin.Engine, d Deps) {
 		orgScoped.GET("/sessions/updates", d.handleSessionUpdates)
 		orgScoped.GET("/sessions/by-pod/:pod_key", d.handleGetSessionByPodKey)
 		orgScoped.POST("/sessions", d.handleCreateSession)
+		orgScoped.POST("/sessions/:id/embed-context", d.handleCreateEmbedContext)
 		orgScoped.POST("/sessions/import", d.handleImportSession)
 		orgScoped.GET("/sessions/:id", d.handleGetSession)
 		orgScoped.GET("/sessions/:id/relay-connection", d.handleGetSessionRelayConnection)
@@ -93,4 +96,53 @@ func RegisterRoutes(r *gin.Engine, d Deps) {
 		orgScoped.POST("/hosts/:id/directories", d.handleCreateHostDirectory)
 		orgScoped.POST("/hosts/:id/runners", d.handleBindHostRunner)
 	}
+}
+
+func registerEmbedContextRoutes(v1 *gin.RouterGroup, d Deps) {
+	v1.POST("/embed-contexts/inspect", d.handleInspectEmbedContext)
+	v1.POST("/embed-contexts/redeem", d.handleRedeemEmbedContext)
+}
+
+func registerEmbedRoutes(v1 *gin.RouterGroup, d Deps) {
+	embedded := v1.Group("/embed")
+	embedded.Use(d.embedSessionAuth())
+	embedded.GET("/sessions/:id", d.handleGetSession)
+	embedded.GET("/sessions/:id/items", d.handleListItems)
+	embedded.GET("/sessions/:id/stream", d.handleSessionStream)
+	embedded.GET(
+		"/sessions/:id/resources/files/:file_id/content",
+		d.handleGetSessionFileContent,
+	)
+	embedded.GET(
+		"/sessions/:id/resources/environments/:env/filesystem/*filepath",
+		d.handleSessionFilesystemList,
+	)
+	embedded.GET(
+		"/sessions/:id/resources/environments/:env/changes",
+		d.handleSessionFilesystemChanges,
+	)
+
+	embedded.POST("/sessions/:id/events", d.handlePostEvent)
+
+	approvals := embedded.Group("")
+	approvals.Use(requireEmbedCapability("approve"))
+	approvals.POST(
+		"/sessions/:id/elicitations/:elicitation_id/resolve",
+		d.handleResolveElicitation,
+	)
+
+	terminals := embedded.Group("")
+	terminals.Use(requireEmbedCapability("terminal"))
+	terminals.GET("/sessions/:id/resources/terminals", d.handleListTerminals)
+
+	control := terminals.Group("")
+	control.Use(requireEmbedCapability("control"))
+	control.GET("/sessions/:id/relay-connection", d.handleGetSessionRelayConnection)
+
+	acpControl := embedded.Group("")
+	acpControl.Use(requireEmbedCapability("control"))
+	acpControl.GET(
+		"/sessions/:id/acp-relay-connection",
+		d.handleGetSessionACPRelayConnection,
+	)
 }

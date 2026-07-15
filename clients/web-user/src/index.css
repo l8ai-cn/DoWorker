@@ -9,6 +9,7 @@
  * production build. Required by ai-elements/MessageResponse, which uses
  * Streamdown to render markdown (code blocks, math, GFM, mermaid). */
 @source "../node_modules/streamdown/dist/*.js";
+@source "../../../packages/agent-ui/src";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -655,6 +656,11 @@
 }
 
 @layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
   * {
     @apply border-border outline-ring/50;
   }

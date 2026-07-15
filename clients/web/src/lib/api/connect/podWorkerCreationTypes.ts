@@ -9,14 +9,25 @@ export interface WorkerKnowledgeMount {
   mode: string;
 }
 
+export interface WorkerResourceRequest {
+  cpu_request_millicpu: number;
+  cpu_limit_millicpu: number;
+  memory_request_bytes: number;
+  memory_limit_bytes: number;
+  storage_request_bytes: number;
+  storage_limit_bytes: number;
+}
+
 export interface WorkerSpecDraft {
   model_resource_id: number;
+  tool_model_resource_ids: Record<string, number>;
   worker_type_slug: string;
   runtime_image_id: number;
   placement_policy: string;
   compute_target_id: number;
   deployment_mode: string;
   resource_profile_id: number;
+  custom_resources?: WorkerResourceRequest;
   type_schema_version: number;
   type_config_values: Record<string, unknown>;
   secret_refs: WorkerSecretReference[];
@@ -27,6 +38,7 @@ export interface WorkerSpecDraft {
   skill_ids: number[];
   knowledge_mounts: WorkerKnowledgeMount[];
   env_bundle_ids: number[];
+  config_bundle_ids: number[];
   instructions: string;
   initial_task: string;
   termination_policy: string;
@@ -36,12 +48,23 @@ export interface WorkerSpecDraft {
   options_revision: string;
 }
 
+export interface WorkerToolModelRequirement {
+  role: string;
+  provider_keys: string[];
+  protocol_adapters: string[];
+  modality: string;
+  capability: string;
+}
+
 export interface WorkerTypeOption {
   slug: string;
   name: string;
   description: string;
   schema_version: number;
   config_schema: Record<string, unknown>;
+  supported_interaction_modes: string[];
+  requires_model_resource: boolean;
+  tool_model_requirements: WorkerToolModelRequirement[];
   selectable: boolean;
   blocking_reason: string;
 }
@@ -83,6 +106,8 @@ export interface WorkerResourceProfileOption {
   cpu_limit_millicpu: number;
   memory_request_bytes: number;
   memory_limit_bytes: number;
+  storage_request_bytes: number;
+  storage_limit_bytes: number;
   gpu_request?: number;
   gpu_limit?: number;
   selectable: boolean;

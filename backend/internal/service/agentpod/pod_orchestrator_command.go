@@ -18,6 +18,7 @@ func (o *PodOrchestrator) buildPodCommand(
 	sourcePod *podDomain.Pod,
 	isResumeMode bool,
 	resolved *agentfileResolved,
+	adapterID string,
 ) (*runnerv1.CreatePodCommand, error) {
 	localPath := ""
 	if isResumeMode && sourcePod != nil && sourcePod.SandboxPath != nil {
@@ -130,6 +131,7 @@ func (o *PodOrchestrator) buildPodCommand(
 	if err != nil {
 		return nil, err
 	}
+	cmd.AdapterId = adapterID
 	if len(req.ModelResourceEnv) > 0 {
 		if cmd.EnvVars == nil {
 			cmd.EnvVars = map[string]string{}

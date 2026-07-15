@@ -21,6 +21,7 @@ import (
 	permgrantsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionpermission"
 	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -173,7 +174,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 			orgScoped := protected.Group("/orgs/:slug")
 			orgScoped.Use(middleware.TenantMiddleware(svc.Org))
 			{
-				v1.RegisterOrgScopedRoutes(orgScoped, svc)
+				v1.RegisterOrgScopedRoutes(orgScoped, svc, cfg.PreviewPublicOrigin)
 
 				// Real-time events migrated to proto.events.v1.EventsService.Subscribe
 				// (Connect server-streaming). Terminal WebSocket moved to Relay
@@ -249,6 +250,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		EnvBundles:         svc.EnvBundle,
 		VirtualKeys:        svc.VirtualKey,
 		TokenQuotas:        svc.TokenQuota,
+		EmbedTokens:        embedtoken.NewService(cfg.JWT.Secret, redisClient),
 		Version:            "do-worker-dev",
 	}
 	sessionDeps.Stream = sessionapi.NewSessionStreamPublisher(

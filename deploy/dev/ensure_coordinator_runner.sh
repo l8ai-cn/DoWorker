@@ -21,11 +21,13 @@ export COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml:docker-compose.runners.y
 case "$agent_slug" in
   claude-code) service=runner-claude-code ;;
   codex-cli) service=runner-codex-cli ;;
+  cursor-cli) service=runner-cursor-cli ;;
   gemini-cli) service=runner-gemini-cli ;;
   e2e-echo) service=runner-e2e-echo ;;
   loopal) service=runner-loopal ;;
-  do-agent) service=runner-do-agent ;;
+  do-agent|seedance-expert) service=runner-do-agent ;;
   grok-build) service=runner-grok-build ;;
+  minimax-cli) service=runner-minimax-cli ;;
   openclaw) service=runner-openclaw ;;
   hermes) service=runner-hermes ;;
   aider) service=runner-aider ;;

@@ -6,13 +6,15 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 )
 
 type recordingCommandRunner struct {
-	calls           []string
-	running         map[string]bool
-	podPhase        map[string]string
-	inspectNotFound bool
+	calls            []string
+	running          map[string]bool
+	podPhase         map[string]string
+	inspectNotFound  bool
 	appliedManifests []string
 }
 
@@ -128,7 +130,7 @@ func TestDockerLauncherRunMode(t *testing.T) {
 	l := NewDockerLauncher(dockerLauncherConfig{
 		Binary: "docker",
 		ContainerEnv: runnerContainerEnv{
-			AgentImages: map[string]string{"do-agent": "agentsmesh/runner-do-agent:dev"},
+			AgentImages:  map[string]string{"do-agent": "agentsmesh/runner-do-agent:dev"},
 			BackendURL:   "http://backend:8080",
 			GRPCEndpoint: "backend:9443",
 			OrgSlug:      "dev-org",
@@ -192,7 +194,7 @@ func TestK8sLauncherApplyPod(t *testing.T) {
 		Kubectl:   "kubectl",
 		Namespace: "agentsmesh",
 		ContainerEnv: runnerContainerEnv{
-			AgentImages: map[string]string{"do-agent": "agentsmesh/runner-do-agent:prod"},
+			AgentImages:  map[string]string{"do-agent": "agentsmesh/runner-do-agent:prod"},
 			BackendURL:   "http://backend",
 			GRPCEndpoint: "backend:9443",
 			OrgSlug:      "acme",
@@ -250,7 +252,11 @@ func TestSanitizeRunnerResourceName(t *testing.T) {
 func TestNewRunnerLauncherFromEnv(t *testing.T) {
 	t.Setenv("COORDINATOR_RUNNER_LAUNCHER", "docker")
 	t.Setenv("COORDINATOR_RUNNER_IMAGES", "claude-code=agentsmesh/runner-claude-code:dev,codex-cli=agentsmesh/runner-codex-cli:dev")
-	launcher, kind, err := NewRunnerLauncherFromEnv(nil)
+	launcher, kind, err := NewRunnerLauncherFromEnv(
+		workerruntime.DefaultCatalog(),
+		nil,
+		nil,
+	)
 	if err != nil || kind != "docker" {
 		t.Fatalf("docker launcher: kind=%q err=%v", kind, err)
 	}
@@ -259,7 +265,15 @@ func TestNewRunnerLauncherFromEnv(t *testing.T) {
 	}
 
 	t.Setenv("COORDINATOR_RUNNER_LAUNCHER", "k8s")
-	launcher, kind, err = NewRunnerLauncherFromEnv(nil)
+	t.Setenv(
+		"COORDINATOR_RUNNER_IMAGES",
+		"e2e-echo=agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa",
+	)
+	launcher, kind, err = NewRunnerLauncherFromEnv(
+		workerruntime.DefaultCatalog(),
+		nil,
+		nil,
+	)
 	if err != nil || kind != "k8s" {
 		t.Fatalf("k8s launcher: kind=%q err=%v", kind, err)
 	}

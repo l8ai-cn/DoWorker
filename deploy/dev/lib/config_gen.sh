@@ -200,21 +200,21 @@ http:
     backend-api:
       entryPoints:
         - web
-      rule: "PathPrefix(\`/api\`) || PathPrefix(\`/health\`) || PathPrefix(\`/v1\`) || PathPrefix(\`/auth\`) || PathPrefix(\`/proto.\`) || PathPrefix(\`/.well-known\`)"
+      rule: "!Host(\`preview.localhost\`) && (PathPrefix(\`/api\`) || PathPrefix(\`/health\`) || PathPrefix(\`/v1\`) || PathPrefix(\`/auth\`) || PathPrefix(\`/proto.\`) || PathPrefix(\`/.well-known\`))"
       service: backend-api
       priority: 100
 
     marketplace-api:
       entryPoints:
         - web
-      rule: "PathPrefix(\`/api/marketplace\`)"
+      rule: "!Host(\`preview.localhost\`) && PathPrefix(\`/api/marketplace\`)"
       service: marketplace-api
       priority: 110
 
     relay:
       entryPoints:
         - web
-      rule: "PathPrefix(\`/relay\`)"
+      rule: "!Host(\`preview.localhost\`) && PathPrefix(\`/relay\`)"
       service: relay
       middlewares:
         - relay-strip
@@ -228,7 +228,7 @@ http:
     preview:
       entryPoints:
         - web
-      rule: "PathPrefix(\`/preview\`)"
+      rule: "Host(\`preview.localhost\`) && PathPrefix(\`/preview\`)"
       service: relay
       priority: 40
 
@@ -239,7 +239,7 @@ http:
     runner-tunnel:
       entryPoints:
         - web
-      rule: "PathPrefix(\`/runner/tunnel\`)"
+      rule: "!Host(\`preview.localhost\`) && PathPrefix(\`/runner/tunnel\`)"
       service: relay
       priority: 40
 
@@ -373,10 +373,26 @@ generate_env() {
             export WEB_USER_PORT="$web_user_port"
             info "补充 WEB_USER_PORT=$web_user_port 到 .env"
         fi
+        if ! grep -q "MOBILE_LOVABLE_PORT" "$ENV_FILE"; then
+            local mobile_port=$((10021 + PORT_OFFSET * 50))
+            echo "MOBILE_LOVABLE_PORT=$mobile_port" >> "$ENV_FILE"
+            export MOBILE_LOVABLE_PORT="$mobile_port"
+            info "补充 MOBILE_LOVABLE_PORT=$mobile_port 到 .env"
+        fi
         if ! grep -q "PUBLIC_WEB_URL" "$ENV_FILE"; then
             echo "PUBLIC_WEB_URL=http://localhost:$WEB_PORT" >> "$ENV_FILE"
             export PUBLIC_WEB_URL="http://localhost:$WEB_PORT"
             info "补充 PUBLIC_WEB_URL=$PUBLIC_WEB_URL 到 .env"
+        fi
+        if ! grep -q "MOBILE_PUBLIC_BASE_URL" "$ENV_FILE"; then
+            echo "MOBILE_PUBLIC_BASE_URL=http://localhost:$MOBILE_LOVABLE_PORT" >> "$ENV_FILE"
+            export MOBILE_PUBLIC_BASE_URL="http://localhost:$MOBILE_LOVABLE_PORT"
+            info "补充 MOBILE_PUBLIC_BASE_URL=$MOBILE_PUBLIC_BASE_URL 到 .env"
+        fi
+        if ! grep -q "PREVIEW_PUBLIC_ORIGIN" "$ENV_FILE"; then
+            echo "PREVIEW_PUBLIC_ORIGIN=http://preview.localhost:$HTTP_PORT" >> "$ENV_FILE"
+            export PREVIEW_PUBLIC_ORIGIN="http://preview.localhost:$HTTP_PORT"
+            info "补充 PREVIEW_PUBLIC_ORIGIN=$PREVIEW_PUBLIC_ORIGIN 到 .env"
         fi
         success "保留现有端口配置 (worktree: $worktree_name, PRIMARY_DOMAIN: localhost:$HTTP_PORT)"
         return 0
@@ -404,6 +420,8 @@ RUNNERS_LAUNCHER=docker
 # =============================================================================
 PRIMARY_DOMAIN=localhost:$http_port
 PUBLIC_WEB_URL=http://localhost:$((10007 + offset * 50))
+MOBILE_PUBLIC_BASE_URL=http://localhost:$((10021 + offset * 50))
+PREVIEW_PUBLIC_ORIGIN=http://preview.localhost:$http_port
 USE_HTTPS=false
 
 # =============================================================================
@@ -446,6 +464,7 @@ RUNNER_2_MCP_PORT=$((10019 + offset * 50))
 
 # End-user workbench (clients/web-user, Vite — proxies /v1 to traefik)
 WEB_USER_PORT=$((10020 + offset * 50))
+MOBILE_LOVABLE_PORT=$((10021 + offset * 50))
 
 # =============================================================================
 # Credentials

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "worker_slug": "grok-build",
+  "definition_hash": "sha256:0f76d4f5531ddb50791f5b887993feb750d637838f02b266a14e484c6610b2c2",
+  "platform": "linux/amd64",
+  "observed_at": "2026-07-12T23:09:30.547Z",
+  "image_reference": "do-worker/runner-grok-build:latest",
+  "image_id": "sha256:384d696460514bbe1b8a226884d8b26a3de1460fe9bde9c090badebead2dcf13",
+  "probe_command": [
+    "grok",
+    "--version"
+  ],
+  "status": "passed",
+  "exit_code": 0,
+  "output": "grok 0.2.93 (f00f96316d)"
+}

@@ -27,7 +27,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config, db *gorm.DB, encryptor *crypto.Encryptor) {
+func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config, db *gorm.DB, encryptor *crypto.Encryptor) error {
 	gitRepoRepo := infra.NewGitProviderRepository(db)
 	services.repository = repository.NewService(gitRepoRepo)
 	services.webhook = repository.NewWebhookService(gitRepoRepo, cfg, services.user, slog.Default())
@@ -68,5 +68,10 @@ func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config,
 	services.agentpodAIProvider = agentpod.NewAIProviderService(infra.NewAIProviderRepository(db), encryptor)
 	services.virtualKey = virtualkeysvc.NewService(infra.NewVirtualAPIKeyRepository(db), services.aiResource)
 	services.tokenQuota = tokenquotasvc.NewService(infra.NewTokenQuotaRepository(db), db)
-	services.workerServices = initializeWorkerServices(db, services.agentSvc, services.aiResource, services.repository)
+	workerServices, err := initializeWorkerServices(cfg, db, services.agentSvc, services.aiResource, services.repository)
+	if err != nil {
+		return err
+	}
+	services.workerServices = workerServices
+	return attachOrchestrationControl(services, db)
 }

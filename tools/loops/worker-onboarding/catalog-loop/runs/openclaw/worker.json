@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "slug": "openclaw",
+  "status": "blocked",
+  "definition_hash": "sha256:6dd46e7bf44d30cd5ececc7e7d87f317559d3892415dec9ab86aabe3b5a57518",
+  "blocker": "The declared bare openclaw command enters interactive onboarding and exits in non-interactive execution.",
+  "source_refs": [
+    "config/worker-types/catalog.json",
+    "evidence/openclaw-noninteractive-launch.json"
+  ]
+}

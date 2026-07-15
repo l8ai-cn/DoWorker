@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "worker_slug": "codex-cli",
+  "validated_at": "2026-07-12T12:26:07Z",
+  "image": "do-worker/runner-codex-cli:latest",
+  "image_id": "sha256:23b08ff7729c5c4673e42a1f6b42d3fc29f8aafe615dea61b7b7e1a4e9a841ad",
+  "platform": "linux/amd64",
+  "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh codex-cli",
+  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint sh do-worker/runner-codex-cli:latest -lc '<checks>'",
+  "checks": {
+    "container_user": "runner",
+    "cli_path": "/usr/local/bin/codex",
+    "cli_version": "codex-cli 0.144.1",
+    "config_directory": "/home/runner/.codex",
+    "unexpected_sidecars_absent": [
+      "e2e-mock-agent",
+      "loopal",
+      "do-agent"
+    ],
+    "runner_version_command": "Do Worker Runner dev (built unknown)"
+  },
+  "verdict": "runtime_smoke_verified",
+  "limits": [
+    "No Runner registration, backend create request, credential materialization, or browser flow was executed.",
+    "This evidence must not be used to mark codex-cli as product supported."
+  ]
+}

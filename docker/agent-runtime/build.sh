@@ -8,12 +8,14 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 AGENT_RUNTIMES=(
   claude-code
   codex-cli
+  cursor-cli
   gemini-cli
   aider
   opencode
   loopal
   do-agent
   grok-build
+  minimax-cli
   openclaw
   hermes
 )
@@ -32,12 +34,14 @@ usage() {
 Agent runtimes:
   claude-code   Claude Code CLI (@anthropic-ai/claude-code)
   codex-cli     OpenAI Codex CLI (@openai/codex)
+  cursor-cli    Cursor CLI (agent)
   gemini-cli    Google Gemini CLI (@google/gemini-cli)
   aider         Aider (pip)
   opencode      OpenCode CLI
   loopal        Loopal CLI
   do-agent      Do Agent binary
   grok-build    Grok Build CLI (@xai-official/grok)
+  minimax-cli   MiniMax CLI (mmx-cli)
   openclaw      OpenClaw CLI (openclaw)
   hermes        Hermes Agent CLI (hermes-agent)
 
@@ -50,8 +54,18 @@ Agent runtimes:
   STAGING_DIR     二进制 staging 目录
   FORCE_REBUILD   设为 1 强制重建已有镜像
   BUILD_RETRIES   docker build 失败重试次数 (默认 3)
+  LOOPAL_BINARY
+                  Loopal 的真实 CLI 二进制；构建 loopal 时必填且不得是 E2E mock
+  RUNTIME_EXTENSION_BASE
+                  用既有 Runner 镜像构建 OpenClaw/Hermes（本地离线初始化）
   HERMES_AGENT_VERSION
-                  hermes-agent npm/PyPI bridge version (默认 0.18.2)
+                  Hermes Agent version (默认 0.18.2)
+  MINIMAX_CLI_VERSION
+                  MiniMax CLI version (默认 1.0.16)
+  OPENCLAW_VERSION
+                  OpenClaw CLI version (默认 2026.6.11)
+  OPENCLAW_NODE_VERSION
+                  OpenClaw extension Node version (默认 24.18.0)
 EOF
 }
 
@@ -98,6 +112,16 @@ build_base() {
 build_one() {
   local rt="$1"
   local tag="${IMAGE_PREFIX}-${rt}:latest"
+  "${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING" "$rt"
+  local -a build_cmd=(
+    docker build --platform "$PLATFORM"
+    -f "${SCRIPT_DIR}/Dockerfile"
+  )
+  if [[ -n "${RUNTIME_EXTENSION_BASE:-}" ]]; then
+    build_cmd+=(--target runtime-extension --build-arg "RUNTIME_EXTENSION_BASE=${RUNTIME_EXTENSION_BASE}")
+  else
+    build_cmd+=(--target runtime)
+  fi
   if [[ "${FORCE_REBUILD:-0}" != "1" ]] && docker image inspect "$tag" >/dev/null 2>&1; then
     echo "⏭ ${tag} 已存在 (FORCE_REBUILD=1 可强制重建)"
     return 0
@@ -107,18 +131,20 @@ build_one() {
   echo "  Building ${tag}"
   echo "  AGENT_RUNTIME=${rt}  PLATFORM=${PLATFORM}"
   echo "=========================================="
-  docker_build_with_retry docker build --platform "$PLATFORM" \
-    --target runtime \
-    -f "${SCRIPT_DIR}/Dockerfile" \
-    --build-arg "AGENT_RUNTIME=${rt}" \
-    --build-arg "HTTP_PROXY=" \
-    --build-arg "HTTPS_PROXY=" \
-    --build-arg "http_proxy=" \
-    --build-arg "https_proxy=" \
-    --build-arg "HERMES_AGENT_VERSION=${HERMES_AGENT_VERSION:-0.18.2}" \
-    --cache-from "$BASE_IMAGE" \
-    -t "$tag" \
+  build_cmd+=(
+    --build-arg "AGENT_RUNTIME=${rt}"
+    --build-arg "HTTP_PROXY="
+    --build-arg "HTTPS_PROXY="
+    --build-arg "http_proxy="
+    --build-arg "https_proxy="
+    --build-arg "HERMES_AGENT_VERSION=${HERMES_AGENT_VERSION:-0.18.2}"
+    --build-arg "MINIMAX_CLI_VERSION=${MINIMAX_CLI_VERSION:-1.0.16}"
+    --build-arg "OPENCLAW_VERSION=${OPENCLAW_VERSION:-2026.6.11}"
+    --build-arg "OPENCLAW_NODE_VERSION=${OPENCLAW_NODE_VERSION:-24.18.0}"
+    -t "$tag"
     "$STAGING"
+  )
+  docker_build_with_retry "${build_cmd[@]}"
   echo "✓ ${tag}"
 }
 
@@ -133,8 +159,15 @@ if [[ "$RUNTIME" != "all" ]] && ! contains_runtime "$RUNTIME"; then
   exit 1
 fi
 
-"${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING"
-build_base
+if [[ -n "${RUNTIME_EXTENSION_BASE:-}" ]] \
+  && [[ "$RUNTIME" != "openclaw" && "$RUNTIME" != "hermes" ]]; then
+  echo "RUNTIME_EXTENSION_BASE is only supported for openclaw and hermes" >&2
+  exit 1
+fi
+
+if [[ -z "${RUNTIME_EXTENSION_BASE:-}" ]]; then
+  build_base
+fi
 
 if [[ "$RUNTIME" == "all" ]]; then
   failed=()

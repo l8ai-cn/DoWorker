@@ -21,6 +21,17 @@ func (s *stubAgentProvider) GetAgent(_ context.Context, _ string) (*agentDomain.
 	return s.agent, s.err
 }
 
+type stubCredentialFieldSource struct {
+	fields map[string][]string
+}
+
+func (s stubCredentialFieldSource) CredentialBundleFields(slug string) ([]string, bool) {
+	fields, found := s.fields[slug]
+	return fields, found
+}
+
+var unmanagedCredentialFields = stubCredentialFieldSource{}
+
 func TestResolveConfigSchema_ExtractsConfigFields(t *testing.T) {
 	src := `AGENT claude
 CONFIG model SELECT("", "sonnet", "opus") = "sonnet"
@@ -31,7 +42,9 @@ CONFIG permission_mode SELECT("default", "plan", "bypassPermissions") = "bypassP
 		agent: &agentDomain.Agent{Slug: "claude-code", AgentfileSource: &src},
 	}
 
-	schema, err := ResolveConfigSchema(context.Background(), p, "claude-code")
+	schema, err := ResolveConfigSchema(
+		context.Background(), p, unmanagedCredentialFields, "claude-code",
+	)
 	require.NoError(t, err)
 	require.Len(t, schema.Fields, 3)
 
@@ -66,7 +79,9 @@ ENV CODEX_HOME = sandbox.root + "/codex-home"
 		agent: &agentDomain.Agent{Slug: "claude-code", AgentfileSource: &src},
 	}
 
-	schema, err := ResolveConfigSchema(context.Background(), p, "claude-code")
+	schema, err := ResolveConfigSchema(
+		context.Background(), p, unmanagedCredentialFields, "claude-code",
+	)
 	require.NoError(t, err)
 	require.Len(t, schema.CredentialFields, 3)
 	assert.Equal(t, "ANTHROPIC_API_KEY", schema.CredentialFields[0].Name)
@@ -76,19 +91,43 @@ ENV CODEX_HOME = sandbox.root + "/codex-home"
 	assert.Equal(t, "text", schema.CredentialFields[2].Type)
 }
 
+func TestResolveConfigSchema_FiltersModelManagedCredentialFields(t *testing.T) {
+	src := `AGENT cursor
+ENV CURSOR_API_KEY SECRET OPTIONAL
+ENV MODEL_RESOURCE_KEY SECRET OPTIONAL
+`
+	p := &stubAgentProvider{
+		agent: &agentDomain.Agent{Slug: "cursor-cli", AgentfileSource: &src},
+	}
+	sources := stubCredentialFieldSource{
+		fields: map[string][]string{"cursor-cli": {"CURSOR_API_KEY"}},
+	}
+
+	schema, err := ResolveConfigSchema(context.Background(), p, sources, "cursor-cli")
+
+	require.NoError(t, err)
+	require.Equal(t, []CredentialFieldResponse{{
+		Name: "CURSOR_API_KEY", Type: "secret", Optional: true,
+	}}, schema.CredentialFields)
+}
+
 func TestResolveConfigSchema_EmptyAgentfileReturnsEmptySchema(t *testing.T) {
 	p := &stubAgentProvider{
 		agent: &agentDomain.Agent{Slug: "x", AgentfileSource: nil},
 	}
 
-	schema, err := ResolveConfigSchema(context.Background(), p, "x")
+	schema, err := ResolveConfigSchema(
+		context.Background(), p, unmanagedCredentialFields, "x",
+	)
 	require.NoError(t, err)
 	assert.Empty(t, schema.Fields)
 }
 
 func TestResolveConfigSchema_PropagatesProviderError(t *testing.T) {
 	p := &stubAgentProvider{err: assert.AnError}
-	_, err := ResolveConfigSchema(context.Background(), p, "missing")
+	_, err := ResolveConfigSchema(
+		context.Background(), p, unmanagedCredentialFields, "missing",
+	)
 	assert.ErrorIs(t, err, assert.AnError)
 }
 
@@ -98,6 +137,8 @@ func TestResolveConfigSchema_AgentFileParseError(t *testing.T) {
 		agent: &agentDomain.Agent{Slug: "x", AgentfileSource: &src},
 	}
 
-	_, err := ResolveConfigSchema(context.Background(), p, "x")
+	_, err := ResolveConfigSchema(
+		context.Background(), p, unmanagedCredentialFields, "x",
+	)
 	assert.Error(t, err, "garbage AgentFile must surface as parse error, not silent empty schema")
 }

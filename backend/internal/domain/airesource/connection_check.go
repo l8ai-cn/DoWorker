@@ -31,6 +31,8 @@ func connectionCheck(providerKey string) ConnectionCheck {
 		return bearerCheck("/key", "api_key")
 	case "deepseek", "xai", "mistral":
 		return bearerCheck("/models", "api_key")
+	case "doubao":
+		return bearerCheck("/contents/generations/tasks", "api_key")
 	case "anthropic":
 		return headerCheck("/v1/models", "api_key", "x-api-key", StaticHeader{Name: "anthropic-version", Value: "2023-06-01"})
 	case "gemini":
@@ -51,7 +53,7 @@ func connectionCheck(providerKey string) ConnectionCheck {
 		return bearerCheck("/models", "api_token")
 	case "ideogram":
 		return headerCheck("/models", "api_key", "Api-Key")
-	case "dashscope", "doubao", "zhipu", "moonshot",
+	case "dashscope", "zhipu", "moonshot",
 		"azure-speech", "kling", "hailuo", "fal", "custom-anthropic-compatible":
 		return unsupportedCheck()
 	default:

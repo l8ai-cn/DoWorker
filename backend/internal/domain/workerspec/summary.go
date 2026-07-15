@@ -6,18 +6,19 @@ import (
 )
 
 type Summary struct {
-	Version             Version      `json:"version"`
-	ModelBinding        ModelBinding `json:"model_binding"`
-	WorkerType          WorkerType   `json:"worker_type"`
-	RuntimeImage        RuntimeImage `json:"runtime_image"`
-	Placement           Placement    `json:"placement"`
-	Alias               string       `json:"alias"`
-	RepositoryID        *int64       `json:"repository_id,omitempty"`
-	Branch              string       `json:"branch"`
-	SkillCount          uint32       `json:"skill_count"`
-	KnowledgeMountCount uint32       `json:"knowledge_mount_count"`
-	EnvBundleCount      uint32       `json:"env_bundle_count"`
-	Lifecycle           Lifecycle    `json:"lifecycle"`
+	Version             Version            `json:"version"`
+	ModelBinding        ModelBinding       `json:"model_binding"`
+	ToolModelBindings   []ToolModelBinding `json:"tool_model_bindings,omitempty"`
+	WorkerType          WorkerType         `json:"worker_type"`
+	RuntimeImage        RuntimeImage       `json:"runtime_image"`
+	Placement           Placement          `json:"placement"`
+	Alias               string             `json:"alias"`
+	RepositoryID        *int64             `json:"repository_id,omitempty"`
+	Branch              string             `json:"branch"`
+	SkillCount          uint32             `json:"skill_count"`
+	KnowledgeMountCount uint32             `json:"knowledge_mount_count"`
+	EnvBundleCount      uint32             `json:"env_bundle_count"`
+	Lifecycle           Lifecycle          `json:"lifecycle"`
 }
 
 func Summarize(spec Spec) (Summary, error) {
@@ -28,6 +29,7 @@ func Summarize(spec Spec) (Summary, error) {
 	return Summary{
 		Version:             normalized.Version,
 		ModelBinding:        normalized.Runtime.ModelBinding,
+		ToolModelBindings:   cloneToolModelBindings(normalized.Runtime.ToolModelBindings),
 		WorkerType:          normalized.Runtime.WorkerType,
 		RuntimeImage:        normalized.Runtime.Image,
 		Placement:           clonePlacement(normalized.Placement),
@@ -46,6 +48,9 @@ func ValidateSummary(summary Summary) error {
 		return fmt.Errorf("workerspec summary version %d is unsupported", summary.Version)
 	}
 	if err := validateModelBinding(summary.ModelBinding); err != nil {
+		return fmt.Errorf("workerspec summary: %w", err)
+	}
+	if err := validateToolModelBindings(summary.ToolModelBindings); err != nil {
 		return fmt.Errorf("workerspec summary: %w", err)
 	}
 	if err := validateWorkerType(summary.WorkerType); err != nil {

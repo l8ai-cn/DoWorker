@@ -55,6 +55,10 @@ type WorkflowRun struct {
 
 	ResolvedPrompt *string `gorm:"type:text" json:"resolved_prompt,omitempty"`
 
+	OrchestrationResourceID       *int64 `json:"orchestration_resource_id,omitempty"`
+	OrchestrationResourceRevision *int64 `json:"orchestration_resource_revision,omitempty"`
+	WorkerSpecSnapshotID          *int64 `json:"worker_spec_snapshot_id,omitempty"`
+
 	StartedAt   *time.Time `json:"started_at,omitempty"`
 	FinishedAt  *time.Time `json:"finished_at,omitempty"`
 	DurationSec *int       `json:"duration_sec,omitempty"`

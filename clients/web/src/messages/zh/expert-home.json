@@ -1,0 +1,124 @@
+{
+  "landing": {
+    "workforce": {
+      "expertHome": {
+        "hero": {
+          "eyebrow": "一个 Expert，贯通组织能力",
+          "title": "把分散的 AI 能力，组织成真正完成工作的专家",
+          "description": "只需给出目标。Do Worker 将专业方法、组织知识、执行工具与 AI 能力组织在同一个 Expert 背后，跨越研发、内容、数据与运营，持续推进到可检查的结果。",
+          "primaryAction": "创建你的 Expert",
+          "secondaryAction": "浏览业务菜单",
+          "proof": "统一上下文 · 跨系统执行 · 人工确认 · 证据交付"
+        },
+        "console": {
+          "title": "跨部门任务正在运行",
+          "status": "一个 Expert 持续承接目标，关键节点由人确认",
+          "live": "运行中",
+          "paused": "已暂停",
+          "complete": "已完成",
+          "goalLabel": "当前目标",
+          "goal": "为新市场完成一套经过验证的多语言营销方案",
+          "expertLabel": "当前专家",
+          "expert": "跨境增长 Expert",
+          "formulaLabel": "后台能力",
+          "formula": "研究 · 知识 · 内容 · 数据 · 工具执行",
+          "workflowLabel": "统一交付链",
+          "steps": ["理解目标", "组织能力", "跨域执行", "人工确认", "结果交付"],
+          "checkpointLabel": "人工确认点",
+          "checkpoint": "素材发布前确认市场定位、品牌表达与合规边界。",
+          "deliverableLabel": "可查验结果",
+          "deliverable": "市场简报、本地化素材、过程证据和下一步行动",
+          "controls": { "pause": "暂停", "resume": "继续", "next": "下一步", "replay": "重放" }
+        },
+        "solutions": {
+          "eyebrow": "首页业务菜单",
+          "title": "从一个真实目标进入完整工作链",
+          "description": "选择你要交付的结果，而不是先组建一群 Agent。每个入口都由一个 Expert 保持上下文，并按需调用跨职能能力。",
+          "workflowLabel": "工作链路",
+          "deliverablesLabel": "交付结果",
+          "items": [
+            { "id": "cross-border-commerce", "title": "跨境增长", "description": "围绕进入新市场的目标，贯通研究、定位、内容、本地化、发布准备与效果复盘。", "chain": "市场研究 → 产品定位 → 内容生产 → 本地化 → 发布准备 → 复盘", "outcome": "市场方案、商品素材、本地化内容和过程证据。", "action": "用此目标创建 Expert" },
+            { "id": "ai-education", "title": "课程研发", "description": "从培养目标出发，组织课程研究、大纲、课件、实验、练习和教师审核。", "chain": "培养目标 → 课程架构 → 课件 → 实验 → 评价 → 审核", "outcome": "大纲、课件、实验、题库和教学验收证据。", "action": "用此目标创建 Expert" },
+            { "id": "digital-employees", "title": "AI 伙伴", "description": "围绕持续性业务目标与团队共享上下文，组合研究、文档、数据、内容和系统操作能力，跨越部门边界协同推进。", "chain": "共同设定目标 → 读取组织知识 → 跨工具执行 → 主动同步进展 → 人工确认 → 留痕交付", "outcome": "协作结果、系统动作、进展说明和可查验证据。", "action": "创建你的 AI 伙伴" },
+            { "id": "marketplace", "title": "Expert 市场", "description": "按业务结果发现并复用已收录的 Expert 与 Skills，先看能力、权限和交付物，再决定安装。", "chain": "发现 → 查验 → 安装 → 配置 → 运行 → 治理", "outcome": "能力、权限和交付结果清晰的可复用 Expert。", "action": "进入 Expert 市场" }
+          ]
+        },
+        "capabilities": {
+          "eyebrow": "可组合能力",
+          "title": "一个 Expert，可以调用多种专业能力",
+          "description": "同一条任务链可以同时使用研究、文档、数据、代码和多媒体能力。状态标签区分平台已实现、需要 Skills 或工具装配，以及仍在规划中的能力。",
+          "levels": { "implemented": "平台已实现", "composable": "可装配", "planned": "规划中" },
+          "items": [
+            { "id": "programming", "level": "implemented", "title": "编程与软件交付", "description": "在隔离工作区完成代码修改、测试、审查与 PR/MR 交付。" },
+            { "id": "research", "level": "composable", "title": "研究与判断", "description": "组合检索与分析能力，形成带来源和结论的研究结果。" },
+            { "id": "documents", "level": "composable", "title": "专业文档", "description": "读取、结构化、修订并交付可继续使用的文档。" },
+            { "id": "office", "level": "composable", "title": "办公生产", "description": "处理表格、演示文稿、报告和可重复的办公流程。" },
+            { "id": "content", "level": "composable", "title": "内容运营", "description": "连接调研、起草、编辑、本地化、审核与发布准备。" },
+            { "id": "screenwriting", "level": "composable", "title": "脚本与编导", "description": "组织叙事结构、脚本、分镜计划和制作交接。" },
+            { "id": "image", "level": "composable", "title": "图片资产", "description": "通过连接工具生成、编辑、检查并打包视觉素材。" },
+            { "id": "audio", "level": "composable", "title": "音频资产", "description": "通过连接工具规划、生成、处理并复核语音或音乐。" },
+            { "id": "video", "level": "composable", "title": "视频生产", "description": "协调脚本、素材、生成、剪辑与质量检查。" },
+            { "id": "data", "level": "composable", "title": "数据与系统操作", "description": "使用受控工具查询、转换、分析和验证结构化数据。" },
+            { "id": "education", "level": "composable", "title": "课程与教学", "description": "连接课程设计、课件、实验、评价与学习证据。" },
+            { "id": "industryMarket", "level": "planned", "title": "行业 Expert 市场", "description": "面向不同组织的行业 Expert 与业务连接器目录。" }
+          ]
+        },
+        "operating": {
+          "eyebrow": "Expert 运行模型",
+          "title": "前台是一个 Expert，后台是整个组织的能力",
+          "description": "Expert 保持同一身份、目标、上下文和任务状态；平台围绕它组织合适的执行引擎、模型、专业方法、组织知识、系统工具与运行规则。复杂协作留在后台，不再交给员工反复转述和协调。",
+          "formulaTitle": "组成 Expert 的六类能力",
+          "parts": [
+            { "id": "worker", "title": "执行引擎", "description": "选择适合当前任务的 Worker 运行时。" },
+            { "id": "model", "title": "推理与生成", "description": "按任务选择模型，不让模型名称成为用户入口。" },
+            { "id": "skills", "title": "专业方法", "description": "把领域方法和交付标准沉淀为可复用 Skills。" },
+            { "id": "knowledge", "title": "组织知识", "description": "接入文件、标准、历史资料与业务上下文。" },
+            { "id": "tools", "title": "系统行动", "description": "通过受控连接操作浏览器、数据库和业务系统。" },
+            { "id": "workflow", "title": "运行规则", "description": "定义顺序、确认点、预算、停止条件和证据要求。" }
+          ],
+          "humanTitle": "可以持续推进，也始终可被控制",
+          "humanDescription": "Expert 可以连续推进工作，但关键决策、权限动作和最终交付始终保持可见。",
+          "humanItems": [
+            { "id": "checkpoint", "title": "关键确认", "description": "高影响决策进入审批、驳回或修改节点。" },
+            { "id": "deliverable", "title": "完整交付", "description": "成果与状态、证据和未解决风险一起交付。" },
+            { "id": "repeatability", "title": "沉淀复用", "description": "把验证有效的方法沉淀为可版本化的 Skills、Expert 与 Workflow。" }
+          ]
+        },
+        "market": {
+          "eyebrow": "Expert 市场",
+          "title": "复用已收录的 Expert，不再重新组建一支 AI 团队",
+          "description": "当前先展示与平台能力真实对应的软件工程 Expert。用户从结果、所需权限和交付方式出发，再查看背后的 Worker、Skills 与运行配置。",
+          "apps": [
+            { "slug": "software-delivery-expert", "title": "软件交付 Expert", "description": "从需求拆解、隔离开发到测试、审查和 PR/MR 交付。" },
+            { "slug": "multi-worker-orchestrator", "title": "复杂任务编排 Expert", "description": "把复杂目标拆成并行任务，再整合为一个可验收结果。" },
+            { "slug": "dual-repo-sync-expert", "title": "双仓同步 Expert", "description": "同步 GitLab 与 GitHub，识别分叉并进入正确审查路径。" }
+          ],
+          "status": "已收录",
+          "plannedTitle": "行业 Expert 正在扩展",
+          "plannedDescription": "跨境增长、课程研发与 AI 伙伴仍需经过对应 Skills、连接器和交付链验证后再进入市场。",
+          "action": "浏览 Expert 市场"
+        },
+        "trust": {
+          "eyebrow": "权限与治理",
+          "title": "一个入口，不等于无限权限",
+          "description": "Expert 可以跨系统工作，但每次执行仍受基础设施、隔离工作区、凭证范围、人工确认和证据要求约束。",
+          "items": [
+            { "id": "selfHosting", "title": "运行位置可控", "description": "Worker 在组织定义的基础设施和网络边界中运行。", "status": "可控" },
+            { "id": "workspaces", "title": "隔离工作区", "description": "隔离每项任务、文件与执行上下文。", "status": "隔离" },
+            { "id": "credentials", "title": "限定范围的凭证", "description": "只授予 Expert 和任务实际需要的访问权限。", "status": "限定" },
+            { "id": "audit", "title": "可查验证据", "description": "保留活动、决策、成果与交付状态。", "status": "留痕" }
+          ],
+          "runtimesTitle": "Worker 运行时目录",
+          "runtimesDescription": "平台已定义 Codex CLI、Claude Code、Gemini CLI、Aider、OpenCode 等 Worker 类型；具体可部署状态以运行时目录和发布验证结果为准。"
+        },
+        "cta": {
+          "eyebrow": "从真实目标开始",
+          "title": "让第一个 Expert 承接一条完整工作链",
+          "description": "选择已有 Expert，或把组织信任的 Worker、Skills、知识与工具组合成自己的专家入口。",
+          "primary": "创建第一个 Expert",
+          "secondary": "浏览 Expert 市场"
+        }
+      }
+    }
+  }
+}

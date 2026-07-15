@@ -107,6 +107,7 @@ service AdminService {
   // ops surface, no tenant filtering). Connect drops the slug entirely.
   rpc ListDeadLetters(ListDeadLettersRequest) returns (ListDeadLettersResponse);
   rpc ReplayDeadLetter(ReplayDeadLetterRequest) returns (ReplayDeadLetterResponse);
+
 }
 
 // AdminAuthService — admin-console login flow. Public (no auth interceptor)

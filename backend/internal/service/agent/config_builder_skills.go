@@ -154,6 +154,8 @@ func skillTargetPath(agentSlug, skillSlug string) string {
 		return "{{.sandbox.root_path}}/codex-home/skills/" + skillSlug
 	case "claude-code", "claude":
 		return "{{.sandbox.work_dir}}/.claude/skills/" + skillSlug
+	case "do-agent", "seedance-expert":
+		return "{{.sandbox.work_dir}}/.agent/skills/" + skillSlug
 	default:
 		return "{{.sandbox.root_path}}/skills/" + skillSlug
 	}

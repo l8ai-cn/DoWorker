@@ -47,7 +47,7 @@ func (c *ACPClient) SendPrompt(prompt string) error {
 }
 
 func (c *ACPClient) sessionRequiredForPrompt() bool {
-	return c.cfg.TransportType != "claude-stream"
+	return c.cfg.TransportType != "claude-stream-json"
 }
 
 // RespondToPermission approves or denies a permission request.

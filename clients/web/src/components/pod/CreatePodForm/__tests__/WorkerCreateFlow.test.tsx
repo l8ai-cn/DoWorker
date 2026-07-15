@@ -49,6 +49,7 @@ describe("Worker create flow", () => {
       <WorkerRuntimeStep
         draft={completeDraft()}
         modelResources={{ status: "ready", data: [modelResource()] }}
+        toolModelResources={{ status: "ready", data: [] }}
         options={{ status: "ready", data: createOptions() }}
         onPatch={vi.fn()}
         onWorkerTypeChange={vi.fn()}
@@ -70,7 +71,9 @@ describe("Worker create flow", () => {
     ]);
 
     fireEvent.click(screen.getByLabelText("workerCreate.runtime.computeTarget"));
-    expect(screen.getByText("Dedicated provisioning is disabled")).toBeInTheDocument();
+    expect(
+      screen.getByText("workerCreate.runtime.options.dedicatedUnavailable"),
+    ).toBeInTheDocument();
   });
 
   it("renders required option-loading failures as errors", () => {
@@ -78,6 +81,7 @@ describe("Worker create flow", () => {
       <WorkerRuntimeStep
         draft={completeDraft()}
         modelResources={{ status: "ready", data: [modelResource()] }}
+        toolModelResources={{ status: "ready", data: [] }}
         options={{ status: "error", error: "catalog unavailable" }}
         onPatch={vi.fn()}
         onWorkerTypeChange={vi.fn()}
@@ -97,6 +101,7 @@ describe("Worker create flow", () => {
       secret_refs: [{ field: "SIGNING_KEY", kind: "env-bundle", id: 8 }],
       skill_ids: [13],
       env_bundle_ids: [8],
+      config_bundle_ids: [],
     });
 
     const next = workerCreateDraftReducer(state, {
@@ -120,6 +125,7 @@ describe("Worker create flow", () => {
       <WorkerRuntimeStep
         draft={state.draft}
         modelResources={{ status: "ready", data: [modelResource()] }}
+        toolModelResources={{ status: "ready", data: [] }}
         options={{ status: "ready", data: createOptions() }}
         onPatch={vi.fn()}
         onWorkerTypeChange={onWorkerTypeChange}
@@ -127,7 +133,7 @@ describe("Worker create flow", () => {
       />,
     );
     fireEvent.click(screen.getByLabelText("workerCreate.runtime.workerType"));
-    fireEvent.click(screen.getByText("Claude Code"));
+    fireEvent.click(screen.getByText("workerCreate.runtime.options.claude"));
     expect(screen.getByRole("alertdialog")).toBeInTheDocument();
     fireEvent.click(screen.getByText("workerCreate.typeChange.confirm"));
     expect(onWorkerTypeChange).toHaveBeenCalledWith("claude-code", 2);
@@ -166,6 +172,7 @@ function step(
 function completeDraft(): WorkerSpecDraft {
   return {
     model_resource_id: 42,
+    tool_model_resource_ids: {},
     worker_type_slug: "codex-cli",
     runtime_image_id: 11,
     placement_policy: "automatic",
@@ -182,6 +189,7 @@ function completeDraft(): WorkerSpecDraft {
     skill_ids: [],
     knowledge_mounts: [],
     env_bundle_ids: [],
+    config_bundle_ids: [],
     instructions: "Review before editing.",
     initial_task: "Fix the failing test.",
     termination_policy: "manual",
@@ -199,9 +207,11 @@ function createOptions(): WorkerCreateOptions {
         slug: "codex-cli",
         name: "Codex CLI",
         description: "",
-        schema_version: 1,
-        config_schema: { version: 1, fields: {} },
-        selectable: true,
+      schema_version: 1,
+      config_schema: { version: 1, fields: {} },
+      requires_model_resource: true,
+      tool_model_requirements: [],
+      selectable: true,
         blocking_reason: "",
       },
       {
@@ -210,6 +220,8 @@ function createOptions(): WorkerCreateOptions {
         description: "",
         schema_version: 2,
         config_schema: { version: 2, fields: {} },
+        requires_model_resource: true,
+        tool_model_requirements: [],
         selectable: true,
         blocking_reason: "",
       },

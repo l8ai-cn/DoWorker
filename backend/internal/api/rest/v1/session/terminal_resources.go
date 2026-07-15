@@ -3,6 +3,7 @@ package sessionapi
 import (
 	"net/http"
 
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,7 +29,7 @@ func (d *Deps) handleListTerminals(c *gin.Context) {
 	if !ok {
 		return
 	}
-	if pod == nil || !pod.IsActive() {
+	if pod == nil || !pod.IsActive() || pod.InteractionMode != podDomain.InteractionModePTY {
 		c.JSON(http.StatusOK, gin.H{"data": []any{}})
 		return
 	}

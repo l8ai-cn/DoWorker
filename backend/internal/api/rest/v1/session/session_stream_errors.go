@@ -3,6 +3,8 @@ package sessionapi
 import (
 	"context"
 	"encoding/json"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -10,7 +12,9 @@ import (
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 )
 
-const sseResponseError = "response.error"
+const sseResponseRetry = "response.retry"
+
+var reconnectLogPattern = regexp.MustCompile(`(?i)^reconnecting\.\.\.\s+([1-9][0-9]*)/([1-9][0-9]*)$`)
 
 func (p *SessionStreamPublisher) handleAcpLog(ctx context.Context, sessionID, payloadJSON string) {
 	if p == nil || p.Hub == nil {
@@ -28,6 +32,10 @@ func (p *SessionStreamPublisher) handleAcpLog(ctx context.Context, sessionID, pa
 	}
 	msg := strings.TrimSpace(body.Message)
 	if msg == "" {
+		return
+	}
+	if attempt, maxAttempts, ok := parseReconnectLog(msg); ok {
+		p.publishRetry(sessionID, msg, attempt, maxAttempts)
 		return
 	}
 	code := "agent_log"
@@ -67,10 +75,33 @@ func (p *SessionStreamPublisher) publishTurnError(ctx context.Context, sessionID
 		ResponseID: turnID, Status: "completed", Position: pos, Payload: payload, CreatedAt: time.Now(),
 	})
 	p.Hub.Publish(sessionID, formatSSE(sseTurnItemDone, map[string]any{"item": item}))
-	p.Hub.Publish(sessionID, formatSSE(sseResponseError, map[string]any{
-		"source":      "agent",
-		"response_id": turnID,
-		"error":       map[string]any{"code": code, "message": message},
-	}))
 	p.touchSession(ctx, sessionID)
+}
+
+func parseReconnectLog(message string) (int, int, bool) {
+	matches := reconnectLogPattern.FindStringSubmatch(message)
+	if len(matches) != 3 {
+		return 0, 0, false
+	}
+	attempt, attemptErr := strconv.Atoi(matches[1])
+	maxAttempts, maxErr := strconv.Atoi(matches[2])
+	if attemptErr != nil || maxErr != nil || attempt > maxAttempts {
+		return 0, 0, false
+	}
+	return attempt, maxAttempts, true
+}
+
+func (p *SessionStreamPublisher) publishRetry(
+	sessionID string,
+	message string,
+	attempt int,
+	maxAttempts int,
+) {
+	p.Hub.Publish(sessionID, formatSSE(sseResponseRetry, map[string]any{
+		"source":        "agent",
+		"attempt":       attempt,
+		"max_attempts":  maxAttempts,
+		"delay_seconds": 0,
+		"error":         map[string]any{"code": "agent_reconnecting", "message": message},
+	}))
 }

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { mergeMessageNamespaces } from "@/lib/i18n/messageFallback";
 import { locales } from "@/lib/i18n/config";
+import { requiredExpertHomeMessageKeys } from "@/components/landing/expert-home/expert-home-message-keys";
 import { requiredWorkforceMessageKeys } from "@/components/landing/workforce/workforce-message-keys";
 
 type MessageTree = Record<string, unknown>;
@@ -17,8 +18,12 @@ function flattenKeys(value: MessageTree, prefix = ""): string[] {
 }
 
 function readWorkforce(locale: string): MessageTree {
-  const path = resolve(__dirname, `../../../messages/${locale}/workforce.json`);
-  return JSON.parse(readFileSync(path, "utf8")) as MessageTree;
+  const workforcePath = resolve(__dirname, `../../../messages/${locale}/workforce.json`);
+  const expertHomePath = resolve(__dirname, `../../../messages/${locale}/expert-home.json`);
+  return mergeMessageNamespaces([
+    JSON.parse(readFileSync(workforcePath, "utf8")) as MessageTree,
+    JSON.parse(readFileSync(expertHomePath, "utf8")) as MessageTree,
+  ]);
 }
 
 function channelName(messages: MessageTree): string {
@@ -30,7 +35,22 @@ function channelName(messages: MessageTree): string {
   return channel.name as string;
 }
 
+function aiPartnerTitle(messages: MessageTree): string {
+  const landing = messages.landing as MessageTree;
+  const workforce = landing.workforce as MessageTree;
+  const expertHome = workforce.expertHome as MessageTree;
+  const solutions = expertHome.solutions as MessageTree;
+  const items = solutions.items as MessageTree[];
+  const aiPartner = items.find(({ id }) => id === "digital-employees");
+  return aiPartner?.title as string;
+}
+
 describe("workforce message namespaces", () => {
+  const requiredKeys = [
+    ...requiredWorkforceMessageKeys,
+    ...requiredExpertHomeMessageKeys,
+  ];
+
   it("deep-merges sibling namespaces under landing", () => {
     const landing = { landing: { navbar: { product: "Product" } } };
     const workforce = { landing: { workforce: { hero: { badge: "AI Workforce" } } } };
@@ -46,13 +66,13 @@ describe("workforce message namespaces", () => {
   it("contains exactly the keys required by production workforce components", () => {
     const englishKeys = flattenKeys(readWorkforce("en")).sort();
 
-    expect(englishKeys).toEqual([...requiredWorkforceMessageKeys].sort());
+    expect(englishKeys).toEqual([...requiredKeys].sort());
   });
 
   it("keeps the exact production workforce key set in every locale", () => {
     for (const locale of locales) {
       expect(flattenKeys(readWorkforce(locale)).sort(), locale).toEqual(
-        [...requiredWorkforceMessageKeys].sort(),
+        [...requiredKeys].sort(),
       );
     }
   });
@@ -60,6 +80,23 @@ describe("workforce message namespaces", () => {
   it("uses slug-style channel identifiers in every locale", () => {
     for (const locale of locales) {
       expect(channelName(readWorkforce(locale)), locale).toMatch(/^#[a-z0-9]+(?:-[a-z0-9]+)*$/);
+    }
+  });
+
+  it("names the recurring-work solution as AI partners in every locale", () => {
+    const expectedTitles: Record<string, string> = {
+      de: "KI-Partner",
+      en: "AI partners",
+      es: "Compañeros de IA",
+      fr: "Partenaires IA",
+      ja: "AIパートナー",
+      ko: "AI 파트너",
+      pt: "Parceiros de IA",
+      zh: "AI 伙伴",
+    };
+
+    for (const locale of locales) {
+      expect(aiPartnerTitle(readWorkforce(locale)), locale).toBe(expectedTitles[locale]);
     }
   });
 });

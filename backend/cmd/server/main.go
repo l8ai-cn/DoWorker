@@ -152,6 +152,14 @@ func main() {
 	})
 
 	podOrchestrator := createPodOrchestrator(services, podCoordinator)
+	if err := attachOrchestrationWorkerApply(
+		services,
+		podOrchestrator,
+		pendingQueueWiring.queue,
+	); err != nil {
+		log.Fatalf("Failed to initialize orchestration Worker apply: %v", err)
+	}
+	services.mesh.SetPodCreator(podOrchestrator)
 
 	services.channel.AddPostSendHook(channelService.NewPodPromptHook(podRouter, channelRepo, runner.NewChannelPromptQueuer(services.pod, pendingQueueWiring.queue)))
 	slog.Info("PodPromptHook registered with PodRouter")
@@ -180,7 +188,11 @@ func main() {
 	defer goalLoopTimeoutMonitor.Stop()
 
 	coordinatorEnsurer := coordinatorsvc.NewRunnerEnsurer(services.runner, nil, appLogger.Logger)
-	if launcher, kind, err := coordinatorsvc.NewRunnerLauncherFromEnv(appLogger.Logger); err != nil {
+	if launcher, kind, err := coordinatorsvc.NewRunnerLauncherFromEnv(
+		services.workerRuntimeCatalog,
+		services.workerDefinitions.Slugs(),
+		appLogger.Logger,
+	); err != nil {
 		slog.Error("Coordinator runner launcher config invalid", "error", err)
 	} else if launcher != nil {
 		coordinatorEnsurer = coordinatorsvc.NewRunnerEnsurer(services.runner, launcher, appLogger.Logger)
@@ -218,12 +230,14 @@ func main() {
 		relayACMEManager, geoResolver, versionChecker, workflowOrchestrator, workflowScheduler, redisClient, pendingQueueWiring)
 	svc.Coordinator = coordinatorSvc
 	expertGitops := gitops.NewService(newGiteaClientForNamespace(cfg, "am-experts"), appLogger.Logger)
+	skillStore := infra.NewSkillCatalogRepository(db)
 	svc.Expert = expertSvc.NewService(expertSvc.Deps{
 		Store:       infra.NewExpertRepository(db),
 		Pods:        services.pod,
 		Dispatch:    podOrchestrator,
 		Repos:       services.repository,
 		WorkerSpecs: services.workerSpecs,
+		Skills:      skillStore,
 		Gitops:      expertGitops,
 		Logger:      appLogger.Logger,
 	})
@@ -241,7 +255,7 @@ func main() {
 		}
 	}
 	svc.Skill = skillSvc.NewService(skillSvc.Deps{
-		Store:    infra.NewSkillCatalogRepository(db),
+		Store:    skillStore,
 		Gitops:   skillGitops,
 		Packager: skillPackager,
 		Logger:   appLogger.Logger,

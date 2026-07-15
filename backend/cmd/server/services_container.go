@@ -28,6 +28,8 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/license"
 	"github.com/anthropics/agentsmesh/backend/internal/service/mesh"
 	notifservice "github.com/anthropics/agentsmesh/backend/internal/service/notification"
+	orchestrationcontrol "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	orchestrationworker "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
 	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
 	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
 	"github.com/anthropics/agentsmesh/backend/internal/service/promocode"
@@ -47,54 +49,63 @@ import (
 var _ runner.PodStore = (*agentpod.PodService)(nil)
 
 type serviceContainer struct {
-	auth               *auth.Service
-	user               *user.Service
-	org                *organization.Service
-	admin              *adminservice.Service
-	adminDB            database.DB
-	agentSvc           *agent.AgentService
-	envBundle          *envbundleservice.Service
-	userConfig         *agent.UserConfigService
-	repository         *repository.Service
-	webhook            *repository.WebhookService
-	runner             *runner.Service
-	executionCluster   *executionclusterservice.Service
-	pod                *agentpod.PodService
-	autopilot          *agentpod.AutopilotControllerService
-	channel            *channel.Service
-	ticket             *ticket.Service
-	mrSync             *ticket.MRSyncService
-	billing            *billing.Service
-	binding            *binding.Service
-	mesh               *mesh.Service
-	message            *agent.MessageService
-	invitation         *invitation.Service
-	file               *fileservice.Service
-	promoCode          *promocode.Service
-	agentpodSettings   *agentpod.SettingsService
-	agentpodAIProvider *agentpod.AIProviderService
-	aiResource         *airesourceservice.Service
-	virtualKey         *virtualkeysvc.Service
-	tokenQuota         *tokenquotasvc.Service
-	license            *license.Service
-	apikey             *apikeyservice.Service
-	apikeyAdapter      *apikeyservice.MiddlewareAdapter
-	email              email.Service
-	extension          *extensionservice.Service
-	extensionRepo      extension.Repository
-	marketplaceWorker  *extensionservice.MarketplaceWorker
-	workflow           *workflow.WorkflowService
-	workflowRun        *workflow.WorkflowRunService
-	goalLoop           *goalloop.Service
-	sso                *ssoservice.Service
-	supportTicket      *supportticketservice.Service
-	tokenUsage         *tokenusagesvc.Service
-	podSessionUsage    *podsessionsvc.Service
-	permissionPolicy   *permissionpolicysvc.Service
-	blockstore         *blockstoreservice.Service
-	grant              *grantservice.Service
-	knowledgeBase      *knowledgebaseservice.Service
-	kbSyncWorker       *knowledgebaseservice.SyncWorker
+	auth                *auth.Service
+	user                *user.Service
+	org                 *organization.Service
+	admin               *adminservice.Service
+	adminDB             database.DB
+	agentSvc            *agent.AgentService
+	envBundle           *envbundleservice.Service
+	userConfig          *agent.UserConfigService
+	repository          *repository.Service
+	webhook             *repository.WebhookService
+	runner              *runner.Service
+	executionCluster    *executionclusterservice.Service
+	pod                 *agentpod.PodService
+	autopilot           *agentpod.AutopilotControllerService
+	channel             *channel.Service
+	ticket              *ticket.Service
+	mrSync              *ticket.MRSyncService
+	billing             *billing.Service
+	binding             *binding.Service
+	mesh                *mesh.Service
+	message             *agent.MessageService
+	invitation          *invitation.Service
+	file                *fileservice.Service
+	promoCode           *promocode.Service
+	agentpodSettings    *agentpod.SettingsService
+	agentpodAIProvider  *agentpod.AIProviderService
+	aiResource          *airesourceservice.Service
+	virtualKey          *virtualkeysvc.Service
+	tokenQuota          *tokenquotasvc.Service
+	license             *license.Service
+	apikey              *apikeyservice.Service
+	apikeyAdapter       *apikeyservice.MiddlewareAdapter
+	email               email.Service
+	extension           *extensionservice.Service
+	extensionRepo       extension.Repository
+	marketplaceWorker   *extensionservice.MarketplaceWorker
+	workflow            *workflow.WorkflowService
+	workflowRun         *workflow.WorkflowRunService
+	goalLoop            *goalloop.Service
+	sso                 *ssoservice.Service
+	supportTicket       *supportticketservice.Service
+	tokenUsage          *tokenusagesvc.Service
+	podSessionUsage     *podsessionsvc.Service
+	permissionPolicy    *permissionpolicysvc.Service
+	blockstore          *blockstoreservice.Service
+	grant               *grantservice.Service
+	knowledgeBase       *knowledgebaseservice.Service
+	kbSyncWorker        *knowledgebaseservice.SyncWorker
+	orchestration       *orchestrationcontrol.Service
+	bindingApply        *orchestrationworker.BindingApplyService
+	workerTemplateApply *orchestrationworker.WorkerTemplateApplyService
+	promptApply         *orchestrationworker.PromptApplyService
+	expertApply         *orchestrationworker.ExpertApplyService
+	workflowApply       *orchestrationworker.WorkflowApplyService
+	goalLoopApply       *orchestrationworker.GoalLoopApplyService
+	workerApply         *orchestrationworker.WorkerApplyService
+	workerApplyRuntime  orchestrationWorkerApplyRuntime
 	workerServices
 	imBridge *imbridgesvc.Bridge
 

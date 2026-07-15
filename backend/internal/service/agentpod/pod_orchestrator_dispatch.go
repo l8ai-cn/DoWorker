@@ -17,7 +17,13 @@ func (o *PodOrchestrator) dispatchCreatedPod(
 	sessionID string,
 	isResumeMode bool,
 ) (*OrchestrateCreatePodResult, error) {
-	if o.podCoordinator == nil || req.DeferRunnerDispatch {
+	if req.DeferRunnerDispatch {
+		return &OrchestrateCreatePodResult{
+			Pod:                   pod,
+			DeferredCreateCommand: podCmd,
+		}, nil
+	}
+	if o.podCoordinator == nil {
 		slog.WarnContext(ctx, "PodCoordinator is nil, cannot dispatch create_pod", "pod_key", pod.PodKey)
 		return &OrchestrateCreatePodResult{Pod: pod}, nil
 	}

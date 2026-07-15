@@ -377,6 +377,230 @@
       }
     }
   },
+  "resourceEditor": {
+    "mode": {
+      "run": "立即运行",
+      "template": "Worker 模板",
+      "resources": "引用资源"
+    },
+    "title": "Worker 模板",
+    "subtitle": "创建可版本化的 Worker 配置，审查变更计划，并应用为不可变运行快照。",
+    "worker": {
+      "title": "运行 Worker",
+      "subtitle": "基于固定版本的模板和可选 Prompt 创建一个 Worker，并审查准确的启动计划。"
+    },
+    "prompt": {
+      "title": "Prompt",
+      "subtitle": "版本化管理 Prompt 内容和变量，并在应用前审查准确版本。"
+    },
+    "expert": {
+      "title": "专家",
+      "subtitle": "通过固定版本的 WorkerTemplate 与 Prompt 资源声明专家。"
+    },
+    "workflow": {
+      "title": "Workflow",
+      "subtitle": "通过固定版本的 WorkerTemplate 与 Prompt 资源声明定时或直接执行流程。"
+    },
+    "goalLoop": {
+      "title": "目标循环",
+      "subtitle": "通过明确的完成证据定义有边界的自主工作。"
+    },
+    "binding": {
+      "title": "{kind} 绑定",
+      "subtitle": "把已有平台资源暴露为可版本管理的编排资源；凭证仍保存在被引用的平台资源中。"
+    },
+    "tabs": {
+      "form": "配置",
+      "yaml": "YAML",
+      "plan": "计划与差异"
+    },
+    "status": {
+      "draft": "草稿",
+      "planReady": "计划就绪",
+      "applied": "已应用"
+    },
+    "sections": {
+      "identity": "身份",
+      "invocation": "运行参数",
+      "bindings": "资源绑定",
+      "binding": "平台资源绑定",
+      "definition": "资源定义",
+      "prompt": "Prompt 内容",
+      "execution": "执行策略",
+      "runtime": "运行环境",
+      "typeConfig": "Worker 配置",
+      "workspace": "工作区",
+      "lifecycle": "生命周期"
+    },
+    "fields": {
+      "name": "资源名称",
+      "resourceKind": "资源 Kind",
+      "displayName": "显示名称",
+      "workerType": "Worker 类型",
+      "workerTemplateRef": "Worker 模板",
+      "promptRef": "Prompt",
+      "inputs": "输入参数",
+      "inputKey": "参数名",
+      "inputValue": "参数值",
+      "promptContent": "Prompt 内容",
+      "variables": "变量",
+      "variableName": "变量名",
+      "required": "必填",
+      "hasDefault": "有默认值",
+      "defaultValue": "默认值",
+      "description": "说明",
+      "category": "分类",
+      "releaseNotes": "发布说明",
+      "objective": "目标",
+      "acceptanceCriteria": "验收标准",
+      "verificationCommand": "验证命令",
+      "maxIterations": "最大迭代次数",
+      "tokenBudget": "Token 预算",
+      "noProgressLimit": "无进展上限",
+      "sameErrorLimit": "相同错误上限",
+      "escalationPolicy": "升级策略",
+      "modelResourceId": "模型 API 资源 ID",
+      "repositoryId": "代码仓库 ID",
+      "skillId": "Skill ID",
+      "knowledgeBaseId": "知识库 ID",
+      "environmentBundleId": "环境变量包 ID",
+      "computeTargetId": "计算目标 ID",
+      "resourceProfileId": "资源规格 ID",
+      "executionMode": "执行模式",
+      "sandboxStrategy": "沙箱策略",
+      "sessionPersistence": "保留会话",
+      "concurrencyPolicy": "并发策略",
+      "maxConcurrentRuns": "最大并发运行数",
+      "maxRetainedRuns": "最大保留运行数",
+      "timeoutMinutes": "运行超时（分钟）",
+      "idleTimeoutSeconds": "空闲超时（秒）",
+      "cronExpression": "Cron 表达式",
+      "callbackUrl": "回调 URL",
+      "optionsRevision": "选项版本",
+      "modelRef": "模型绑定",
+      "resourceReference": "资源引用",
+      "revision": "版本",
+      "alias": "Worker 别名",
+      "toolRefs": "工具绑定",
+      "toolRole": "工具角色",
+      "runtimeImageId": "运行镜像 ID",
+      "placementPolicy": "放置策略",
+      "computeTargetRef": "计算目标",
+      "deploymentMode": "部署模式",
+      "resourceProfileRef": "资源规格",
+      "resourceMode": "资源分配",
+      "cpuRequest": "CPU 请求（millicpu）",
+      "cpuLimit": "CPU 上限（millicpu）",
+      "memoryRequest": "内存请求（字节）",
+      "memoryLimit": "内存上限（字节）",
+      "storageRequest": "存储请求（字节）",
+      "storageLimit": "存储上限（字节）",
+      "gpuRequest": "GPU 请求",
+      "gpuLimit": "GPU 上限",
+      "interactionMode": "交互模式",
+      "automationLevel": "自动化级别",
+      "schemaVersion": "配置 Schema 版本",
+      "configValues": "配置值",
+      "configKey": "配置键",
+      "configValue": "值",
+      "valueType": "类型",
+      "secretRefs": "Secret 引用",
+      "repositoryRef": "代码仓库",
+      "branch": "分支",
+      "skillRefs": "Skills",
+      "knowledgeMounts": "知识库挂载",
+      "knowledgeBase": "知识库",
+      "mountMode": "挂载模式",
+      "environmentBundleRefs": "环境变量包",
+      "configBundleRefs": "配置包",
+      "instructions": "工作指令",
+      "terminationPolicy": "终止策略",
+      "idleTimeoutMinutes": "空闲超时（分钟）"
+    },
+    "options": {
+      "automatic": "自动",
+      "explicit": "指定",
+      "pooled": "共享池",
+      "dedicated": "独占",
+      "profile": "资源规格",
+      "custom": "自定义限制",
+      "manual": "手动",
+      "idle": "空闲时",
+      "completed": "完成时",
+      "pty": "PTY",
+      "acp": "ACP",
+      "interactive": "交互式",
+      "autonomous": "自主",
+      "autoEdit": "自动编辑",
+      "supervised": "监督",
+      "readOnly": "只读",
+      "readWrite": "读写",
+      "direct": "直接执行",
+      "autopilot": "Autopilot",
+      "fresh": "全新沙箱",
+      "persistent": "持久沙箱",
+      "pause": "暂停等待处理",
+      "fail": "标记循环失败"
+    },
+    "references": {
+      "loading": "正在加载可引用资源…",
+      "empty": "当前还没有可用的 {kind} 资源。",
+      "available": "可引用 {count} 个资源。"
+    },
+    "collections": {
+      "add": "添加",
+      "remove": "移除",
+      "none": "尚未配置。",
+      "acceptanceCriterion": "验收标准 {index}",
+      "addAcceptanceCriteria": "添加验收标准",
+      "removeAcceptanceCriterion": "移除验收标准 {index}"
+    },
+    "secrets": {
+      "referenceOnly": "这里只保存 EnvironmentBundle 资源引用，不录入也不显示任何 Secret 明文。"
+    },
+    "valueTypes": {
+      "string": "字符串",
+      "number": "数字",
+      "boolean": "布尔值",
+      "json": "JSON",
+      "true": "是",
+      "false": "否",
+      "yamlOnly": "嵌套 JSON 值在表单中只读，请在 YAML 中编辑。"
+    },
+    "yaml": {
+      "label": "{kind} YAML",
+      "invalid": "请先修复 YAML，才能返回表单或应用。",
+      "manual": "YAML 手册"
+    },
+    "plan": {
+      "empty": "生成计划后，可审查语义差异和被固定的资源版本。",
+      "operation": "操作",
+      "expires": "过期时间",
+      "changes": "语义变更",
+      "references": "固定引用",
+      "issues": "问题",
+      "noChanges": "没有语义变更。",
+      "noReferences": "没有引用其他资源。",
+      "expired": "该计划已过期，请重新生成计划后再应用。"
+    },
+    "validation": {
+      "valid": "资源校验通过。"
+    },
+    "actions": {
+      "validate": "校验",
+      "validating": "校验中",
+      "plan": "生成计划",
+      "planning": "计划生成中",
+      "apply": "应用模板",
+      "applyResource": "应用资源",
+      "createWorker": "创建 Worker",
+      "applying": "应用中"
+    },
+    "result": {
+      "revision": "版本 {revision}",
+      "snapshot": "WorkerSpec 快照 {snapshot}"
+    }
+  },
   "workspace": {
     "title": "工作区",
     "searchPlaceholder": "搜索 Worker…",

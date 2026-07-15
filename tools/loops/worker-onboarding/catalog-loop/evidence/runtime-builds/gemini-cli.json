@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "worker_slug": "gemini-cli",
+  "validated_at": "2026-07-12T18:55:35Z",
+  "image": "do-worker/runner-gemini-cli:latest",
+  "image_id": "sha256:d4e71bab5ea98d4c3a2a0af295e403a3059280dcf0e864893f72190181b7fd2e",
+  "platform": "linux/amd64",
+  "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh gemini-cli",
+  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint sh do-worker/runner-gemini-cli:latest -lc '<checks>'",
+  "checks": {
+    "cli_version": "gemini 0.50.0",
+    "config_directory": "/home/runner/.gemini",
+    "runner_version_command": "passed",
+    "adapter_unit_test": "go test ./runner/internal/agents/gemini -count=1"
+  },
+  "verdict": "runtime_smoke_verified",
+  "limits": [
+    "No provider-authenticated request, Runner create request, or browser flow was executed."
+  ]
+}

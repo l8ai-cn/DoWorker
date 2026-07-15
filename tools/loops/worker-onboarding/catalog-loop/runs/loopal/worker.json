@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "slug": "loopal",
+  "status": "planned",
+  "definition_hash": "sha256:29c0b8aa03cda214e72282983db4de6938b54f7c28e943c038d8cfa94966039b",
+  "source_refs": [
+    "config/worker-types/catalog.json"
+  ]
+}

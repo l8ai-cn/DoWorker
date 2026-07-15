@@ -190,11 +190,14 @@ Excluded:
 
 ## Acceptance checks
 
-1. A mobile user creates a Codex ACP Worker and sends a message; the ACP
-   response and tool events render through Session SSE.
+1. A mobile user creates a Codex ACP Worker and sends a message. The Session
+   route renders response and tool events through SSE; a direct Worker route
+   waits for the Relay confirmation carrying the same prompt request ID before
+   treating the message as accepted.
 2. A mobile user creates a Codex PTY Worker, taps Take control, types a
-   command, resizes, backgrounds and returns; input only works while the
-   control lease is granted.
+   command, resizes, backgrounds and returns. Release smoke sends Resize and
+   Input frames and requires matching terminal output; input only works while
+   the control lease is granted.
 3. The browser never calls the legacy terminal attach endpoint for the new
    terminal panel. Direct ACP uses `GetPodConnection` and Relay ACP frames.
 4. Unauthorized users cannot obtain a session relay token or resolve a private
@@ -209,7 +212,8 @@ Excluded:
 
 Local verification has passed the mobile lint/typecheck/Vitest suite, Vite
 production build, deployment-script contract, direct ACP Relay prompt
-round-trip, and PTY Relay snapshot/control acquisition.
+confirmation/round-trip, and PTY Relay snapshot, control, Resize, Input, and
+matching output frame coverage.
 
 As of 2026-07-13, `https://mobile.l8ai.cn/` and `/login` return HTTP 200, but
 the production `codex-cli` Worker definition does not expose

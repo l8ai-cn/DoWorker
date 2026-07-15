@@ -64,6 +64,7 @@ export function createInitialWorkerDraftState(
     fillPrompt: "",
     draft: {
       model_resource_id: 0,
+      tool_model_resource_ids: {},
       worker_type_slug: "",
       runtime_image_id: 0,
       placement_policy: "automatic",
@@ -79,6 +80,7 @@ export function createInitialWorkerDraftState(
       skill_ids: [],
       knowledge_mounts: [],
       env_bundle_ids: [],
+      config_bundle_ids: [],
       instructions: "",
       initial_task: "",
       termination_policy: "manual",
@@ -109,6 +111,7 @@ export function workerCreateDraftReducer(
       return invalidatePreflight(state, {
         ...state.draft,
         model_resource_id: 0,
+        tool_model_resource_ids: {},
         worker_type_slug: action.workerTypeSlug,
         runtime_image_id: 0,
         type_schema_version: action.schemaVersion,
@@ -116,6 +119,7 @@ export function workerCreateDraftReducer(
         secret_refs: [],
         skill_ids: [],
         env_bundle_ids: [],
+        config_bundle_ids: [],
       });
     case "set_lifecycle":
       return invalidatePreflight(state, {

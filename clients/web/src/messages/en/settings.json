@@ -288,11 +288,32 @@
       "loadSchemaFailed": "Failed to load configuration schema",
       "noConfigFields": "No configuration options available for this agent",
       "invalidJson": "Invalid JSON format",
-      "credentials": {
-        "title": "API Credentials",
-        "description": "Provider credentials are managed in AI Resources. Runtime env bundles must not contain model API secrets."
-      },
-      "runtime": {
+    "credentials": {
+      "title": "API Credentials",
+      "description": "Provider credentials are managed in AI Resources. Runtime env bundles must not contain model API secrets."
+    },
+    "credentialBundles": {
+      "title": "Credential bundles",
+      "description": "Store this Worker's connection credentials as encrypted bundles. Choose a default bundle when creating a Worker.",
+      "empty": "No credential bundles yet. Add one to reuse it when creating Workers.",
+      "noKeys": "No credential fields configured",
+      "add": "Add",
+      "addTitle": "Add credential bundle",
+      "editTitle": "Edit credential bundle",
+      "name": "Name",
+      "namePlaceholder": "e.g. personal-cursor / team-openai",
+      "descriptionLabel": "Description",
+      "clearDefault": "Clear default",
+      "confirmDelete": "Delete this credential bundle? Workers that reference it will no longer receive these credentials.",
+      "created": "Credential bundle created",
+      "updated": "Credential bundle updated",
+      "deleted": "Credential bundle deleted",
+      "defaultSet": "Default credential bundle updated",
+      "saveFailed": "Failed to save credential bundle",
+      "failedToSetDefault": "Failed to set default credential bundle",
+      "failedToDelete": "Failed to delete credential bundle"
+    },
+    "runtime": {
         "title": "Runtime Configuration",
         "description": "Set default runtime parameters for this agent. These settings will be used when creating new pods."
       },
@@ -488,8 +509,8 @@
       },
       "cursor": {
         "apiKey": "Cursor API Key",
-        "apiKeyHint": "Optional. Leave blank to use `cursor-agent login` (OAuth); set for headless / key-based auth.",
-        "customEnvHint": "Add any extra environment variables cursor-agent needs"
+        "apiKeyHint": "Optional. Leave blank to use `agent login` (OAuth); set for headless / key-based auth.",
+        "customEnvHint": "Add any extra environment variables Cursor CLI needs"
       },
       "doAgent": {
         "customEnvHint": "Additional provider keys or overrides, e.g. DEEPSEEK_API_KEY, DO_AGENT_PROFILE, OPENAI_BASE_URL"
@@ -1000,6 +1021,9 @@
       "usageAvailable": "Usage available",
       "loadError": "Could not load AI resources.",
       "operationError": "AI resource action failed.",
+      "validation": {
+        "credentialsRejected": "The provider rejected these credentials. Replace the API key and validate again."
+      },
       "retry": "Retry",
       "loading": "Loading AI resources…",
       "summary": {
@@ -1040,6 +1064,14 @@
         "name": "Connection name",
         "identifier": "Identifier",
         "baseUrl": "Base URL",
+        "credentials": {
+          "apiKey": "API key",
+          "apiToken": "API token",
+          "accessKey": "Access key",
+          "secretKey": "Secret key",
+          "subscriptionKey": "Subscription key",
+          "region": "Region"
+        },
         "create": "Create connection",
         "save": "Save changes",
         "edit": "Edit connection",

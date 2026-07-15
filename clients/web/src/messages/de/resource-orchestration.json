@@ -1,0 +1,89 @@
+{
+  "resourceOrchestration": {
+    "navTitle": "Ressourcen-Orchestrierung",
+    "title": "Ressourcen-native Orchestrierung",
+    "description": "Deklarieren Sie Worker, Experts, Workflows, Prompts, Modelle, Werkzeuge, Wissen und Compute als versionierte Ressourcen. Die Control Plane validiert Referenzen, zeigt einen semantischen Plan und wendet eine unveränderliche Revision oder Ausführungsaufnahme an.",
+    "openGuide": "Leitfaden zur Ressourcen-Orchestrierung öffnen",
+    "lifecycleTitle": "Validate → Plan → Apply",
+    "lifecycleDescription": "Der Ablauf trennt Erstellung, Prüfung und Ausführung. Ein Plan belegt die beabsichtigte Änderung, nicht die bereits erstellte Ressource.",
+    "lifecycle": {
+      "validate": {
+        "title": "Validate",
+        "description": "Prüft Envelope, Schema, Identifier, Feldsemantik, Berechtigungen und referenzierte Ressourcen."
+      },
+      "plan": {
+        "title": "Plan",
+        "description": "Erzeugt canonical manifest, semantischen Diff, Blocker, Warnungen und Digests fixierter Referenzen."
+      },
+      "apply": {
+        "title": "Apply",
+        "description": "Autorisiert den Akteur erneut, lehnt veraltete Plans ab, verbraucht den Plan einmalig und erstellt die typisierte Revision oder das Domänenobjekt."
+      }
+    },
+    "kindsTitle": "Ressourcen-Kinds und Apply-Verhalten",
+    "kindsColumns": {
+      "kind": "Kind",
+      "apply": "Typed Apply",
+      "purpose": "Zweck"
+    },
+    "kinds": {
+      "bindings": {
+        "name": "Binding-Ressourcen",
+        "apply": "Ja",
+        "purpose": "Versionieren Referenzen auf Modelle, Werkzeuge, Repositories, Skills, Wissen, Secrets, Compute-Ziele und Ressourcenprofile."
+      },
+      "prompt": {
+        "name": "Prompt",
+        "apply": "Ja",
+        "purpose": "Speichert wiederverwendbaren Prompt-Inhalt und deklarierte Variablen als unveränderliche Revision."
+      },
+      "workerTemplate": {
+        "name": "WorkerTemplate",
+        "apply": "Ja",
+        "purpose": "Kompiliert wiederverwendbare Runtime-, Modell-, Workspace- und Lifecycle-Konfiguration in einen WorkerSpec-Snapshot."
+      },
+      "worker": {
+        "name": "Worker",
+        "apply": "Nur erstellen",
+        "purpose": "Startet einen Worker aus fixierten Ressourcen. Dieselbe Worker-Ressource kann nicht aktualisiert werden."
+      },
+      "expertWorkflow": {
+        "name": "Expert / Workflow",
+        "apply": "Ja",
+        "purpose": "Erstellt wiederverwendbare Definitionen mit fixiertem WorkerTemplate, Prompt und WorkerSpec-Snapshot."
+      },
+      "goalLoop": {
+        "name": "GoalLoop",
+        "apply": "Noch nicht",
+        "purpose": "Unterstützt Validate und Plan einer Zielschleife; typed Apply ist noch nicht verfügbar."
+      }
+    },
+    "referencesTitle": "Unveränderliche ResourceRef-Auflösung",
+    "referencesDescription": "Referenzen verwenden kind, name, namespace und optional revision. Ohne revision wird beim Plan die aktive Revision aufgelöst, nicht dauerhaft die neueste verfolgt.",
+    "referencesPinned": "Der Plan fixiert apiVersion, kind, namespace, name, UID, revision und digest. Apply und spätere Ausführung verwenden dieses Ergebnis.",
+    "editorTitle": "Ein Draft, zwei Ansichten",
+    "editorDescription": "Domänenformular und YAML-Editor verwenden denselben typed draft. Ungültiges YAML bleibt sichtbar und blockiert Ansichtswechsel, Plan und Apply.",
+    "editor": {
+      "steps": {
+        "form": "Verwenden Sie das Formular für normale Felder und Ressourcenauswahl.",
+        "yaml": "Verwenden Sie YAML für Review, Versionskontrolle oder präzise erweiterte Bearbeitung.",
+        "validate": "Beheben Sie Schema-, Berechtigungs-, Identifier- und Referenzfehler.",
+        "plan": "Prüfen Sie CREATE oder UPDATE, semantischen Diff, Warnungen, revision und digest.",
+        "apply": "Wenden Sie nur den aktuellen Plan an und prüfen Sie Revision, Snapshot, Definition oder Worker."
+      }
+    },
+    "yamlTitle": "YAML-Beispiel",
+    "securityTitle": "Secret- und Berechtigungsgrenzen",
+    "securityDescription": "Ressourcen-YAML beschreibt Referenzen, keine Klartext-Zugangsdaten. namespace ist Identität und ersetzt keine Autorisierung.",
+    "security": {
+      "items": {
+        "credentials": "ModelBinding speichert nur die Modellressourcen-ID; Provider-Zugangsdaten bleiben in der KI-Verbindung verschlüsselt.",
+        "authorization": "Validate, Plan und Apply lehnen organisationsfremde, unlesbare oder nach dem Plan entzogene Referenzen ab.",
+        "stale": "Änderungen an Draft, Head oder Runtime-Katalog sowie abgelaufene oder verbrauchte Plans erfordern einen neuen Plan."
+      }
+    },
+    "boundaryTitle": "Aktuelle Grenze",
+    "goalLoopBoundary": "GoalLoop unterstützt Validate und Plan, aber noch keinen typed Apply-Endpunkt. Ein erfolgreicher Plan erstellt keine Loop.",
+    "reconciliationBoundary": "Das Modell ist deklarativ, führt aber keine Kubernetes-artige dauerhafte Reconciliation aus. Gelöschte Worker oder Pods werden nicht neu erstellt."
+  }
+}

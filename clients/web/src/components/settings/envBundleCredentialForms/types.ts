@@ -31,8 +31,6 @@ export type CredentialFieldSpec = SimpleCredentialField | OneOfCredentialField;
 export interface CredentialFormSpec {
   agentSlug: string;
   fields: CredentialFieldSpec[];
-  allowCustomEnv: boolean;
-  customEnvHint?: string;
 }
 
 export interface CustomEnvEntry {

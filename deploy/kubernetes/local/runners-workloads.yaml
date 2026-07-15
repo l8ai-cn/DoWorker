@@ -101,6 +101,42 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: runner-cursor-agentsmesh-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-cursor-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-cursor-workspace
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
   name: runner-e2e-echo-2-config
   namespace: agentsmesh
 spec:
@@ -293,6 +329,30 @@ spec:
     requests:
       storage: 10Gi
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-minimax-agentsmesh-config
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runner-minimax-workspace
+  namespace: agentsmesh
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -368,6 +428,161 @@ spec:
       - name: agent-config
         persistentVolumeClaim:
           claimName: runner-claude-config
+      - name: runner-ssh
+        secret:
+          defaultMode: 384
+          secretName: agentsmesh-runner-ssh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    agentsmesh.io/runtime: cursor-cli
+  name: runner-cursor-cli
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-cursor-cli
+  template:
+    metadata:
+      labels:
+        agentsmesh.io/runtime: cursor-cli
+        app: runner-cursor-cli
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/runner-entrypoint.sh
+        env:
+        - name: RUNNER_NODE_ID
+          value: dev-runner-cursor
+        - name: AGENT_RUNTIME
+          value: cursor-cli
+        - name: DEFAULT_AGENT
+          value: cursor-cli
+        envFrom:
+        - configMapRef:
+            name: agentsmesh-runner-env
+        - secretRef:
+            name: agentsmesh-runner-api-keys
+            optional: true
+        image: __COMPOSE_PROJECT_NAME__-runner-cursor-cli:latest
+        imagePullPolicy: Never
+        name: runner
+        volumeMounts:
+        - mountPath: /app/ssl
+          name: ssl
+          readOnly: true
+        - mountPath: /usr/local/bin/runner-entrypoint.sh
+          name: entrypoint
+          readOnly: true
+          subPath: runner-entrypoint.sh
+        - mountPath: /workspace
+          name: workspace
+        - mountPath: /home/runner/.do-worker
+          name: agentsmesh-config
+        - mountPath: /home/runner/.cursor
+          name: agent-config
+        - mountPath: /run/runner-ssh-source
+          name: runner-ssh
+          readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      - name: ssl
+        secret:
+          secretName: agentsmesh-dev-ca
+      - configMap:
+          defaultMode: 493
+          name: runner-entrypoint
+        name: entrypoint
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: runner-cursor-workspace
+      - name: agentsmesh-config
+        persistentVolumeClaim:
+          claimName: runner-cursor-agentsmesh-config
+      - name: agent-config
+        persistentVolumeClaim:
+          claimName: runner-cursor-config
+      - name: runner-ssh
+        secret:
+          defaultMode: 384
+          secretName: agentsmesh-runner-ssh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    agentsmesh.io/runtime: minimax-cli
+  name: runner-minimax-cli
+  namespace: agentsmesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-minimax-cli
+  template:
+    metadata:
+      labels:
+        agentsmesh.io/runtime: minimax-cli
+        app: runner-minimax-cli
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/runner-entrypoint.sh
+        env:
+        - name: RUNNER_NODE_ID
+          value: dev-runner-minimax
+        - name: AGENT_RUNTIME
+          value: minimax-cli
+        - name: DEFAULT_AGENT
+          value: minimax-cli
+        envFrom:
+        - configMapRef:
+            name: agentsmesh-runner-env
+        - secretRef:
+            name: agentsmesh-runner-api-keys
+            optional: true
+        image: __COMPOSE_PROJECT_NAME__-runner-minimax-cli:latest
+        imagePullPolicy: Never
+        name: runner
+        volumeMounts:
+        - mountPath: /app/ssl
+          name: ssl
+          readOnly: true
+        - mountPath: /usr/local/bin/runner-entrypoint.sh
+          name: entrypoint
+          readOnly: true
+          subPath: runner-entrypoint.sh
+        - mountPath: /workspace
+          name: workspace
+        - mountPath: /home/runner/.do-worker
+          name: agentsmesh-config
+        - mountPath: /run/runner-ssh-source
+          name: runner-ssh
+          readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      - name: ssl
+        secret:
+          secretName: agentsmesh-dev-ca
+      - configMap:
+          defaultMode: 493
+          name: runner-entrypoint
+        name: entrypoint
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: runner-minimax-workspace
+      - name: agentsmesh-config
+        persistentVolumeClaim:
+          claimName: runner-minimax-agentsmesh-config
       - name: runner-ssh
         secret:
           defaultMode: 384

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "worker_slug": "opencode",
+  "validated_at": "2026-07-12T18:55:35Z",
+  "image": "do-worker/runner-opencode:latest",
+  "image_id": "sha256:a1fcd74b5ec43505bac73e836a48407b0076777c99995997444a406b1a366837",
+  "platform": "linux/amd64",
+  "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh opencode",
+  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint sh do-worker/runner-opencode:latest -lc '<checks>'",
+  "checks": {
+    "cli_version": "opencode 1.17.18",
+    "runner_version_command": "passed",
+    "adapter_unit_test": "go test ./runner/internal/agents/opencode -count=1"
+  },
+  "verdict": "runtime_smoke_verified",
+  "limits": [
+    "No provider configuration, Runner create request, or browser flow was executed."
+  ]
+}

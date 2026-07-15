@@ -9,14 +9,12 @@ func HarnessEnvVars(agentSlug, overrideModel string, m *AIModel, credentials map
 		return nil
 	}
 	switch agentSlug {
-	case "codex-cli":
+	case "codex-cli", "openclaw", "hermes":
 		return openAIHarnessEnv(m, credentials, overrideModel)
 	case "claude-code":
 		return anthropicHarnessEnv(m, credentials)
 	case "gemini-cli":
 		return geminiHarnessEnv(m, credentials)
-	case "openclaw", "hermes":
-		return multiProviderHarnessEnv(m, credentials, overrideModel)
 	default:
 		return nil
 	}
@@ -26,7 +24,7 @@ func HarnessEnvVars(agentSlug, overrideModel string, m *AIModel, credentials map
 // when auto-selecting a default legacy pool model.
 func PreferredProvider(agentSlug string) string {
 	switch agentSlug {
-	case "codex-cli":
+	case "codex-cli", "openclaw", "hermes":
 		return ProviderTypeOpenAI
 	case "claude-code":
 		return ProviderTypeAnthropic
@@ -48,9 +46,6 @@ func PreferredProvider(agentSlug string) string {
 func PreferredProviders(agentSlug string) []string {
 	if agentSlug == "do-agent" {
 		return []string{ProviderTypeAnthropic, ProviderTypeMiniMax}
-	}
-	if agentSlug == "openclaw" || agentSlug == "hermes" {
-		return []string{ProviderTypeOpenAI, ProviderTypeAnthropic, ProviderTypeGemini}
 	}
 	if p := PreferredProvider(agentSlug); p != "" {
 		return []string{p}
@@ -110,46 +105,7 @@ func geminiHarnessEnv(m *AIModel, credentials map[string]string) map[string]stri
 	if apiKey == "" {
 		return nil
 	}
-	return map[string]string{"GOOGLE_API_KEY": apiKey}
-}
-
-func multiProviderHarnessEnv(m *AIModel, credentials map[string]string, overrideModel string) map[string]string {
-	switch m.ProviderType {
-	case ProviderTypeOpenAI:
-		return openAIHarnessEnv(m, credentials, overrideModel)
-	case ProviderTypeAnthropic:
-		env := anthropicHarnessEnv(m, credentials)
-		if env == nil {
-			return nil
-		}
-		if model := harnessModel(m, overrideModel); model != "" {
-			env["ANTHROPIC_MODEL"] = model
-		}
-		return env
-	case ProviderTypeGemini:
-		apiKey := credentialKey(credentials, "api_key")
-		if apiKey == "" {
-			return nil
-		}
-		out := map[string]string{
-			"GOOGLE_API_KEY": apiKey,
-			"GEMINI_API_KEY": apiKey,
-		}
-		if model := harnessModel(m, overrideModel); model != "" {
-			out["GEMINI_MODEL"] = model
-		}
-		return out
-	default:
-		return nil
-	}
-}
-
-func harnessModel(m *AIModel, overrideModel string) string {
-	model := strings.TrimSpace(overrideModel)
-	if model == "" {
-		model = strings.TrimSpace(m.Model)
-	}
-	return model
+	return map[string]string{"GEMINI_API_KEY": apiKey}
 }
 
 func credentialKey(credentials map[string]string, keys ...string) string {

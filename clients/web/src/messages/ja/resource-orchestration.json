@@ -1,0 +1,89 @@
+{
+  "resourceOrchestration": {
+    "navTitle": "リソースオーケストレーション",
+    "title": "リソースネイティブオーケストレーション",
+    "description": "Worker、Expert、Workflow、Prompt、モデル、ツール、ナレッジ、計算環境をバージョン付きリソースとして宣言します。コントロールプレーンは参照を検証し、意味的な Plan を表示して、不変 revision または実行スナップショットを適用します。",
+    "openGuide": "リソースオーケストレーションガイドを開く",
+    "lifecycleTitle": "Validate → Plan → Apply",
+    "lifecycleDescription": "作成、レビュー、実行を分離します。Plan は予定された変更の証拠であり、リソース作成済みの証拠ではありません。",
+    "lifecycle": {
+      "validate": {
+        "title": "Validate",
+        "description": "エンベロープ、schema、identifier、フィールド意味、権限、参照リソースを確認します。"
+      },
+      "plan": {
+        "title": "Plan",
+        "description": "canonical manifest、意味的 Diff、ブロッカー、警告、固定参照 digest を生成します。"
+      },
+      "apply": {
+        "title": "Apply",
+        "description": "操作者を再認可し、古い Plan を拒否して一度だけ消費し、型付き revision またはドメインオブジェクトを作成します。"
+      }
+    },
+    "kindsTitle": "リソース Kind と Apply 動作",
+    "kindsColumns": {
+      "kind": "Kind",
+      "apply": "Typed Apply",
+      "purpose": "用途"
+    },
+    "kinds": {
+      "bindings": {
+        "name": "バインディングリソース",
+        "apply": "対応",
+        "purpose": "モデル、ツール、リポジトリ、Skill、ナレッジ、Secret、計算ターゲット、リソースプロファイルへの参照をバージョン化します。"
+      },
+      "prompt": {
+        "name": "Prompt",
+        "apply": "対応",
+        "purpose": "再利用可能な Prompt と宣言変数を不変 revision として保存します。"
+      },
+      "workerTemplate": {
+        "name": "WorkerTemplate",
+        "apply": "対応",
+        "purpose": "再利用可能なランタイム、モデル、ワークスペース、ライフサイクル設定を WorkerSpec スナップショットへコンパイルします。"
+      },
+      "worker": {
+        "name": "Worker",
+        "apply": "作成のみ",
+        "purpose": "固定済みリソースから Worker を一度起動します。同じ Worker リソースは更新できません。"
+      },
+      "expertWorkflow": {
+        "name": "Expert / Workflow",
+        "apply": "対応",
+        "purpose": "固定 WorkerTemplate、Prompt、WorkerSpec スナップショットを持つ再利用可能な定義を作成します。"
+      },
+      "goalLoop": {
+        "name": "GoalLoop",
+        "apply": "未対応",
+        "purpose": "目標ループの Validate と Plan に対応しますが、typed Apply はまだ公開されていません。"
+      }
+    },
+    "referencesTitle": "不変 ResourceRef の解決",
+    "referencesDescription": "kind、name、namespace、任意の revision で参照します。revision の省略は Plan 時に active revision を解決する意味で、最新版を永続的に追従する意味ではありません。",
+    "referencesPinned": "Plan は apiVersion、kind、namespace、name、UID、revision、digest を固定します。Apply と後続実行はこの結果を使用します。",
+    "editorTitle": "1 つの Draft、2 つのビュー",
+    "editorDescription": "ドメインフォームと YAML は同じ typed draft を操作します。無効な YAML は保持され、フォーム切替、Plan、Apply をブロックします。",
+    "editor": {
+      "steps": {
+        "form": "通常のフィールドとリソース選択にはフォームを使用します。",
+        "yaml": "レビュー、バージョン管理、詳細編集には YAML を使用します。",
+        "validate": "schema、権限、identifier、参照エラーを解決します。",
+        "plan": "CREATE または UPDATE、意味的 Diff、警告、revision、digest を確認します。",
+        "apply": "現在の Plan のみを Apply し、返された revision、スナップショット、定義、Worker を確認します。"
+      }
+    },
+    "yamlTitle": "YAML 例",
+    "securityTitle": "Secret と権限の境界",
+    "securityDescription": "YAML は平文認証情報ではなく参照を記述します。namespace は識別子であり、認可の代替ではありません。",
+    "security": {
+      "items": {
+        "credentials": "ModelBinding はモデルリソース ID のみを保存し、プロバイダー認証情報は AI リソース接続で暗号化されます。",
+        "authorization": "Validate、Plan、Apply は組織外または読み取り不可の参照と、Plan 後に失効した権限を拒否します。",
+        "stale": "Draft、head、ランタイムカタログの変更、期限切れまたは消費済み Plan では新しい Plan が必要です。"
+      }
+    },
+    "boundaryTitle": "現在の境界",
+    "goalLoopBoundary": "GoalLoop は Validate と Plan に対応しますが、typed Apply エンドポイントはまだありません。Plan 成功だけでは Loop は作成されません。",
+    "reconciliationBoundary": "宣言的モデルですが、Kubernetes のような継続的 reconciliation は行いません。Worker や Pod を削除しても自動再作成されません。"
+  }
+}

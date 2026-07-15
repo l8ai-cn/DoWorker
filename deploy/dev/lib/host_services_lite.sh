@@ -8,11 +8,13 @@ dev_lite_enabled() {
 }
 
 ensure_go_codegen() {
+    [[ "${_DEV_GO_CODEGEN_READY:-}" == "1" ]] && return 0
     local repo_root="$SCRIPT_DIR/../.."
     bash "$repo_root/scripts/ensure-go-codegen.sh" || {
         error "Go codegen 失败 — brew install protobuf && brew install bufbuild/buf/buf && ./scripts/ensure-go-codegen.sh"
         return 1
     }
+    _DEV_GO_CODEGEN_READY=1
 }
 
 ensure_air() {
@@ -77,7 +79,21 @@ build_runner_binary_go() {
         return 1
     }
     chmod +x "$SCRIPT_DIR/runner-binary"
+    cp "$repo_root/docker/agent-runtime/minimax-cli-wrapper.sh" \
+        "$SCRIPT_DIR/minimax-cli-wrapper.sh"
+    chmod +x "$SCRIPT_DIR/minimax-cli-wrapper.sh"
     success "Runner binary 已编译 (go build → deploy/dev/runner-binary)"
+}
+
+stage_runner_sidecar_binary() {
+    local source="$1" destination="$2" label="$3"
+    if [[ ! -x "$source" ]]; then
+        error "缺少 ${label} 二进制: $source"
+        return 1
+    fi
+    mkdir -p "$(dirname "$destination")"
+    cp "$source" "$destination"
+    chmod +x "$destination"
 }
 
 build_mock_agent_binary_go() {
@@ -95,11 +111,11 @@ build_mock_agent_binary_go() {
     }
     chmod +x "$SCRIPT_DIR/e2e-mock-agent-binary"
     success "e2e-mock-agent binary 已编译 (go build)"
-
-    [ -f "$SCRIPT_DIR/loopal-binary" ] || {
-        cp "$SCRIPT_DIR/e2e-mock-agent-binary" "$SCRIPT_DIR/loopal-binary"
-        chmod +x "$SCRIPT_DIR/loopal-binary"
-    }
+    stage_runner_sidecar_binary \
+        "$SCRIPT_DIR/e2e-mock-agent-binary" \
+        "$SCRIPT_DIR/binaries/e2e-mock-agent-binary" \
+        "e2e-mock-agent" || return 1
+    rm -f "$SCRIPT_DIR/binaries/loopal-binary"
 }
 
 start_backend_host_lite() {
@@ -107,6 +123,7 @@ start_backend_host_lite() {
     local repo_root="$SCRIPT_DIR/../.."
     mkdir -p "$repo_root/backend/logs"
     mkdir -p "$(_runtime_dir)/backend"
+    prepare_local_worker_runtime_catalog || return 1
 
     # Re-use the same env exports as start_backend_host (call parent setup via
     # extracting shared block would be ideal; for now duplicate is avoided by
@@ -136,6 +153,7 @@ start_backend_host_lite() {
     export PRIMARY_DOMAIN="${PRIMARY_DOMAIN}"
     export PUBLIC_WEB_URL="${PUBLIC_WEB_URL}"
     export MOBILE_PUBLIC_BASE_URL="${MOBILE_PUBLIC_BASE_URL}"
+    export PREVIEW_PUBLIC_ORIGIN="${PREVIEW_PUBLIC_ORIGIN}"
     export USE_HTTPS="${USE_HTTPS:-false}"
     export BLOCKSTORE_WEBHOOK_ALLOW_HOSTS="host.docker.internal,host.lan,localhost"
     export CORS_ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020},http://localhost:${MOBILE_LOVABLE_PORT:-10021},http://127.0.0.1:${MOBILE_LOVABLE_PORT:-10021},${PUBLIC_WEB_URL}"
@@ -175,11 +193,10 @@ start_backend_host_lite() {
     export COORDINATOR_RUNNER_LAUNCHER=docker
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR="$SCRIPT_DIR"
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_FILES=docker-compose.yml,docker-compose.runners.yml
-    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,grok-build=runner-grok-build,openclaw=runner-openclaw,hermes=runner-hermes,aider=runner-aider,opencode=runner-opencode"
+    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,cursor-cli=runner-cursor-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,seedance-expert=runner-do-agent,grok-build=runner-grok-build,minimax-cli=runner-minimax-cli,openclaw=runner-openclaw,hermes=runner-hermes,aider=runner-aider,opencode=runner-opencode"
     if coordinator_runners_enabled; then
         export_coordinator_runner_env
     fi
-
     ensure_go_codegen || return 1
     info "预编译 backend (go build)..."
     (cd "$repo_root" && go build -o "$(_runtime_dir)/backend/air/main" ./backend/cmd/server) || {
@@ -239,14 +256,15 @@ start_relay_host_lite() {
     export WS_READ_BUFFER_SIZE=4096
     export WS_WRITE_BUFFER_SIZE=4096
     export JWT_SECRET="${JWT_SECRET:-dev-jwt-secret-change-in-production}"
-    export BACKEND_URL="http://localhost:${HTTP_PORT}"
+    export BACKEND_URL="http://127.0.0.1:${BACKEND_HTTP_PORT}"
     export INTERNAL_API_SECRET="${INTERNAL_API_SECRET:-dev-internal-secret}"
     export RELAY_ID=dev-relay-1
     export RELAY_REGION=local
     export RELAY_CAPACITY=1000
     export PRIMARY_DOMAIN="${PRIMARY_DOMAIN}"
+    export PREVIEW_PUBLIC_ORIGIN="${PREVIEW_PUBLIC_ORIGIN}"
     export USE_HTTPS="${USE_HTTPS:-false}"
-    export ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020},${PUBLIC_WEB_URL}"
+    export ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020},http://localhost:${MOBILE_LOVABLE_PORT:-10021},http://127.0.0.1:${MOBILE_LOVABLE_PORT:-10021},${PUBLIC_WEB_URL}"
     export SESSION_KEEP_ALIVE_DURATION=30s
     export DEBUG=true
     export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:${OTEL_GRPC_PORT}"

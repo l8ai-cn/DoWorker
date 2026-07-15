@@ -1,0 +1,124 @@
+{
+  "landing": {
+    "workforce": {
+      "expertHome": {
+        "hero": {
+          "eyebrow": "1つのエキスパート。組織の能力を連結します。",
+          "title": "断片化されたAI能力を、業務を完了するエキスパートへ統合します",
+          "description": "目標は一度だけ宣言します。Do Worker はメソッド・組織知識・実行ツール・AI能力を1つのExpertにまとめ、エンジニアリング、コンテンツ、データ、オペレーションを横断して実行します。",
+          "primaryAction": "Expertを作成",
+          "secondaryAction": "業務メニューを見る",
+          "proof": "共通コンテキスト · システム横断実行 · 人的確認 · 証跡付きデリバリー"
+        },
+        "console": {
+          "title": "進行中のクロスファンクショナルワーク",
+          "status": "1つのExpertが目標を持ち、重要判断は人的確認で進めます",
+          "live": "実行中",
+          "paused": "一時停止",
+          "complete": "完了",
+          "goalLabel": "現在の目標",
+          "goal": "新規市場向けに検証済みの多言語キャンペーンを立ち上げる",
+          "expertLabel": "アクティブなExpert",
+          "expert": "越境成長Expert",
+          "formulaLabel": "背後の能力",
+          "formula": "Research · Knowledge · Content · Data · System action",
+          "workflowLabel": "統一デリバリーチェーン",
+          "steps": ["理解", "構成", "実行", "確認", "納品"],
+          "checkpointLabel": "人的チェックポイント",
+          "checkpoint": "公開前に、ブランド言語・ポジショニング・コンプライアンス境界を承認します。",
+          "deliverableLabel": "検証可能な成果",
+          "deliverable": "市場ブリーフ、ローカライズ資産、プロセス証跡、次アクション",
+          "controls": { "pause": "一時停止", "resume": "再開", "next": "次ステップ", "replay": "再実行" }
+        },
+        "solutions": {
+          "eyebrow": "ソリューションカテゴリ",
+          "title": "実在の目標から入り、納品完了まで追跡する",
+          "description": "多数のAgentsを組み上げる代わりに、必要な成果から開始します。各カテゴリは同一のExpertとコンテキストを保ちつつ、必要な越境能力を呼び出します。",
+          "workflowLabel": "デリバリー経路",
+          "deliverablesLabel": "検査可能な成果",
+          "items": [
+            { "id": "cross-border-commerce", "title": "越境成長", "description": "市場調査、ポジショニング、コンテンツ、ローカライズ、ローンチ準備、レビューを拡張目標の周りで接続します。", "chain": "Research → Positioning → Content → Localization → Launch prep → Review", "outcome": "市場計画、製品アセット、ローカライズ済みコンテンツ、実行証跡。", "action": "この目標でExpertを作成" },
+            { "id": "ai-education", "title": "コース開発", "description": "学習成果から始め、リサーチ、カリキュラム、授業、ラボ、評価、教員レビューを編成します。", "chain": "Outcomes → Curriculum → Lessons → Labs → Assessment → Review", "outcome": "シラバス、授業、ラボ、クイズ、受入証跡。", "action": "この目標でExpertを作成" },
+            { "id": "digital-employees", "title": "AIパートナー", "description": "チームと文脈を共有するAIパートナーが、調査、ドキュメント、データ、コンテンツ、システム操作を部門横断で組み合わせます。", "chain": "目標を一緒に設定 → 組織知識を読む → ツールを横断して実行 → 進捗を共有 → 人が確認 → 証拠付きで納品", "outcome": "共同成果、システム操作、進捗説明、確認可能な証拠。", "action": "AIパートナーを作成" },
+            { "id": "marketplace", "title": "Expertマーケットプレイス", "description": "再利用可能なExpert/Skillを成果に合わせて選び、能力・権限・受入成果をインストール前に確認します。", "chain": "発見 → 検証 → インストール → 設定 → 実行 → ガバナンス", "outcome": "使い回せるExpertと可視化された能力・納品期待値。", "action": "Expertマーケットプレイスを開く" }
+          ]
+        },
+        "capabilities": {
+          "eyebrow": "構成可能な能力",
+          "title": "1人のExpertが複数の専門能力を呼び出す",
+          "description": "1つのデリバリーチェーンで、調査・文書・データ・コード・メディアを活用します。成熟度ラベルはプラットフォーム機能、Skills/ツールで構成される能力、計画中機能を区別します。",
+          "levels": { "implemented": "プラットフォーム機能", "composable": "構成可能", "planned": "計画中" },
+          "items": [
+            { "id": "programming", "level": "implemented", "title": "プログラミングと納品", "description": "コードを変更し、テスト実行・レビューを経て、隔離ワークスペースでPRまたはMRを納品します。" },
+            { "id": "research", "level": "composable", "title": "リサーチと判断", "description": "情報収集と分析を、根拠付きの結論・ブリーフに統合します。" },
+            { "id": "documents", "level": "composable", "title": "専門ドキュメント", "description": "専門文書を読み取り、構造化、修正、継続利用可能な状態で納品します。" },
+            { "id": "office", "level": "composable", "title": "オフィス運用", "description": "スプレッドシート、資料、レポート、再現可能な業務操作を実行します。" },
+            { "id": "content", "level": "composable", "title": "コンテンツ運用", "description": "調査、原稿作成、編集、ローカライズ、公開準備を接続します。" },
+            { "id": "screenwriting", "level": "composable", "title": "脚本・演出", "description": "物語構造、脚本、ショット計画、制作引き継ぎを設計します。" },
+            { "id": "image", "level": "composable", "title": "画像アセット", "description": "接続したツールで画像資産を生成・編集・検査・パッケージ化します。" },
+            { "id": "audio", "level": "composable", "title": "音声アセット", "description": "接続したツールで音声・音楽アセットを計画、生成、処理、レビューします。" },
+            { "id": "video", "level": "composable", "title": "動画制作", "description": "スクリプト、アセット、生成、編集、品質レビューを連携します。" },
+            { "id": "data", "level": "composable", "title": "データとシステム操作", "description": "構造化データを制御されたツールで照会、変換、分析、検証します。" },
+            { "id": "education", "level": "composable", "title": "コースと学習", "description": "コース設計、授業制作、ラボ、評価、学習証跡を統合します。" },
+            { "id": "industryMarket", "level": "planned", "title": "業界Expertマーケット", "description": "各組織向けの業界Expertとビジネスコネクタの拡張カタログ。" }
+          ]
+        },
+        "operating": {
+          "eyebrow": "Expert運用モデル",
+          "title": "1つのExpertを前面に、組織能力は背後で動作",
+          "description": "Expertは1つのアイデンティティ・1つの目標・1つのコンテキスト・タスク状態を維持し、実行ランタイム、モデル、専門手法、組織知識、システムツール、運用ルールをその周辺に配置します。",
+          "formulaTitle": "6層能力モデル",
+          "parts": [
+            { "id": "worker", "title": "実行ランタイム", "description": "タスクに適したWorkerランタイムを選択します。" },
+            { "id": "model", "title": "Reasoningと生成", "description": "目的に応じたモデルを選びます。" },
+            { "id": "skills", "title": "専門メソッド", "description": "領域固有の方法論と配信基準を再利用可能なSkillとして保存します。" },
+            { "id": "knowledge", "title": "組織知識", "description": "ファイル、標準、履歴、ビジネス文脈を接続します。" },
+            { "id": "tools", "title": "システムアクション", "description": "ブラウザ、DB、業務システムへ制御下で接続します。" },
+            { "id": "workflow", "title": "運用ルール", "description": "順序、チェックポイント、予算、停止条件、証跡要件を定義します。" }
+          ],
+          "humanTitle": "明示的制御による自律",
+          "humanDescription": "重要判断や最終納品は非表示にせず、Expertは継続して実行します。",
+          "humanItems": [
+            { "id": "checkpoint", "title": "人的確認", "description": "高インパクト判断を承認・拒否・修正のために停止できます。" },
+            { "id": "deliverable", "title": "完全な納品", "description": "成果物とステータス、証跡、未解決リスクを同時に返却します。" },
+            { "id": "repeatability", "title": "再利用可能な実践", "description": "実証済みの手法をバージョン化されたSkill・Expert・Workflowへ変換します。" }
+          ]
+        },
+        "market": {
+          "eyebrow": "Expertマーケットプレイス",
+          "title": "AIチームを再構築せず、カタログ掲載のExpertを再利用",
+          "description": "現在のカタログは既存のプラットフォーム能力に対応するソフトウェアエンジニアリングExpertから開始しています。先に成果・権限・納品期待値を確認し、その後Worker、Skill、ランタイム構成を検証します。",
+          "apps": [
+            { "slug": "software-delivery-expert", "title": "ソフトウェア納品Expert", "description": "要件分解と分離開発からテスト、レビュー、PR/MR納品までを実行します。" },
+            { "slug": "multi-worker-orchestrator", "title": "複雑作業オーケストレーションExpert", "description": "複雑な目標を並列タスクに分解し、1つの受入結果に統合します。" },
+            { "slug": "dual-repo-sync-expert", "title": "2リポジトリ同期Expert", "description": "GitLabとGitHubを差分検知付きで同期し、適切なレビュー経路を適用します。" }
+          ],
+          "status": "掲載中",
+          "plannedTitle": "業界向けExpertを拡張中",
+          "plannedDescription": "越境成長、コース開発、AIパートナーは、Skill・接続・デリバリーチェーンの検証完了時にのみ公開カテゴリへ展開します。",
+          "action": "Expertマーケットプレイスを開く"
+        },
+        "trust": {
+          "eyebrow": "権限とガバナンス",
+          "title": "1つのインターフェースが無制限な権限を意味しない",
+          "description": "Expertはシステム横断で動きますが、実行ごとにインフラ、隔離ワークスペース、Credentialスコープ、人的確認、証跡要件で制約されます。",
+          "items": [
+            { "id": "selfHosting", "title": "実行場所の制御", "description": "組織のインフラ境界内でWorkerを実行します。", "status": "制御中" },
+            { "id": "workspaces", "title": "隔離ワークスペース", "description": "各タスクのファイルと実行コンテキストを分離します。", "status": "分離" },
+            { "id": "credentials", "title": "権限制御Credential", "description": "Expertとタスクに必要なアクセスのみ付与します。", "status": "最小" },
+            { "id": "audit", "title": "検証可能な証跡", "description": "活動、意思決定、成果物、納品ステータスを保全します。", "status": "記録済" }
+          ],
+          "runtimesTitle": "Workerランタイムディレクトリ",
+          "runtimesDescription": "ディレクトリにはCodex CLI、Claude Code、Gemini CLI、Aider、OpenCodeなどのWorkerランタイムがあります。デプロイ可否は各エントリと公開検証ステータスで決まります。"
+        },
+        "cta": {
+          "eyebrow": "実務目標から開始",
+          "title": "最初のExpertに1本の納品チェーンを任せる",
+          "description": "既存のExpertを使うか、組織が信頼するWorker・Skill・知識・ツールでExpertを構成します。",
+          "primary": "最初のExpertを作成",
+          "secondary": "Expertマーケットプレイスを開く"
+        }
+      }
+    }
+  }
+}
