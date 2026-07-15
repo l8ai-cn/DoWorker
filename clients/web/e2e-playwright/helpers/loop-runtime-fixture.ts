@@ -98,10 +98,10 @@ export function createLoopRuntimeFixture(db: DbFixture): LoopRuntimeFixture {
 
   db.setup(`
     INSERT INTO agents (
-      slug, name, launch_command, executable, is_builtin, is_active,
+      slug, name, launch_command, executable, adapter_id, is_builtin, is_active,
       is_internal, supported_modes, agentfile_source
     ) VALUES (
-      '${agentSlug}', '${alias}', '${agentSlug}', '${agentSlug}', true, true,
+      '${agentSlug}', '${alias}', '${agentSlug}', '${agentSlug}', 'loop-e2e-pty', true, true,
       false, 'pty', '${agentfile}'
     );
   `);
