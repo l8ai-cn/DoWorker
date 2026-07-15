@@ -56,6 +56,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.2.4)
+      '@do-worker/agent-ui':
+        specifier: workspace:*
+        version: link:packages/agent-ui
       '@do-worker/proto':
         specifier: workspace:*
         version: link:proto
@@ -532,6 +535,58 @@ importers:
       vite:
         specifier: ^8.0.16
         version: 8.1.4(@types/node@22.20.1)(esbuild@0.27.7)(jiti@1.21.7)
+
+  packages/agent-ui:
+    dependencies:
+      '@xterm/addon-fit':
+        specifier: '*'
+        version: 0.11.0
+      '@xterm/xterm':
+        specifier: '*'
+        version: 6.0.0
+      lucide-react:
+        specifier: '*'
+        version: 0.577.0(react@19.2.4)
+      react:
+        specifier: '>=18.2.0 <20'
+        version: 19.2.4
+      react-dom:
+        specifier: '>=18.2.0 <20'
+        version: 19.2.4(react@19.2.4)
+      react-markdown:
+        specifier: '*'
+        version: 10.1.0(@types/react@19.2.14)(react@19.2.4)
+      remark-gfm:
+        specifier: '*'
+        version: 4.0.1
+    devDependencies:
+      '@testing-library/jest-dom':
+        specifier: ^6.9.1
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.2
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^5.1.4
+        version: 5.2.0(vite@7.3.2(@types/node@25.6.0)(jiti@2.7.0)(lightningcss@1.32.0))
+      jsdom:
+        specifier: ^28.1.0
+        version: 28.1.0
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+      vite:
+        specifier: ^7
+        version: 7.3.2(@types/node@25.6.0)(jiti@2.7.0)(lightningcss@1.32.0)
+      vitest:
+        specifier: 4.0.18
+        version: 4.0.18(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jiti@2.7.0)(jsdom@28.1.0)(lightningcss@1.32.0)
 
   packages/do-worker-wasm: {}
 

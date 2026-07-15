@@ -19,7 +19,7 @@
 - Create: `packages/agent-ui/src/security/markdownResourcePolicy.test.ts`
 - Modify: `packages/agent-ui/src/index.ts`
 
-- [ ] **Step 1: Write failing policy tests**
+- [x] **Step 1: Write failing policy tests**
 
 ```ts
 expect(STATIC_HTML_SANDBOX).toBe("");
@@ -28,12 +28,12 @@ expect(markdownImageSource("blob:https://app.test/id")).toBe("blob:https://app.t
 expect(markdownImageSource("data:image/png;base64,AA==")).toBe("data:image/png;base64,AA==");
 ```
 
-- [ ] **Step 2: Verify failure**
+- [x] **Step 2: Verify failure**
 
 Run: `pnpm --dir packages/agent-ui exec vitest run src/security`
 Expected: FAIL because the policy modules do not exist.
 
-- [ ] **Step 3: Implement exact policy**
+- [x] **Step 3: Implement exact policy**
 
 ```ts
 export const STATIC_HTML_SANDBOX = "";
@@ -46,8 +46,9 @@ export function markdownImageSource(src?: string): string | undefined {
 ```
 
 `openStaticHtmlInNewWindow` must open a trusted blank shell, set `opener = null`, create an iframe with the empty sandbox, set `referrerpolicy=no-referrer`, assign `srcdoc`, and never open the untrusted document as a top-level Blob.
+`staticHtmlDocument` must remove artifact-provided base, referrer, and CSP metadata before injecting the platform-owned deny-by-default CSP.
 
-- [ ] **Step 4: Run tests and commit**
+- [x] **Step 4: Run tests and commit**
 
 Run: `pnpm --dir packages/agent-ui exec vitest run src/security`
 Expected: PASS.
