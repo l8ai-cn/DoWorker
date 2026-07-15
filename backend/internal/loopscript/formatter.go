@@ -16,11 +16,6 @@ func Format(program *Program) (string, []Diagnostic) {
 	var output strings.Builder
 	fmt.Fprintf(&output, "@id(%s)\n", loop.NodeID)
 	fmt.Fprintf(&output, "loop %s {\n", loop.LocalID)
-	fmt.Fprintf(&output, "  @id(%s)\n", loop.Worker.NodeID)
-	fmt.Fprintf(
-		&output, "  worker %s = snapshot(%d)\n",
-		loop.Worker.LocalID, loop.Worker.SnapshotID,
-	)
 	fmt.Fprintf(
 		&output,
 		"  limits(iterations: %d, tokens: %d, timeout: %dm, no_progress: %d, same_error: %d)\n",
@@ -34,8 +29,8 @@ func Format(program *Program) (string, []Diagnostic) {
 	)
 	fmt.Fprintf(&output, "    @id(%s)\n", repeat.Agent.NodeID)
 	fmt.Fprintf(
-		&output, "    agent %s(using: %s) { prompt %s }\n",
-		repeat.Agent.LocalID, repeat.Agent.Using, formatPrompt(repeat.Agent.Prompt),
+		&output, "    agent %s { prompt %s }\n",
+		repeat.Agent.LocalID, formatPrompt(repeat.Agent.Prompt),
 	)
 	fmt.Fprintf(&output, "    @id(%s)\n", repeat.Verifier.NodeID)
 	fmt.Fprintf(

@@ -30,14 +30,13 @@ export function projectProgramToWorkspace(
   program: LoopProgram,
 ): Map<string, string> {
   const loop = program.loop;
-  const workerNode = program.worker;
   const limitsNode = program.limits;
   const repeatNode = program.repeat;
   const agentNode = repeatNode?.agent;
   const verifierNode = repeatNode?.verifier;
-  if (!loop || !workerNode?.identity || !limitsNode || !repeatNode?.identity ||
+  if (!loop || !limitsNode || !repeatNode?.identity ||
       !repeatNode.until || !agentNode?.identity || !verifierNode?.identity) {
-    throw new Error("Loop AST is incomplete and cannot be projected");
+    throw new Error("循环语法树不完整，无法投影为积木");
   }
 
   registerLoopBlocks();
@@ -45,7 +44,6 @@ export function projectProgramToWorkspace(
   try {
     workspace.clear();
     const root = block(workspace, LOOP_BLOCK_TYPES.loop);
-    const worker = block(workspace, LOOP_BLOCK_TYPES.worker);
     const limits = block(workspace, LOOP_BLOCK_TYPES.limits);
     const repeat = block(workspace, LOOP_BLOCK_TYPES.repeat);
     const agent = block(workspace, LOOP_BLOCK_TYPES.agent);
@@ -53,8 +51,6 @@ export function projectProgramToWorkspace(
     const failure = block(workspace, LOOP_BLOCK_TYPES.failure);
 
     field(root, "LOCAL_ID", loop.localId);
-    field(worker, "LOCAL_ID", workerNode.identity.localId);
-    field(worker, "SNAPSHOT_ID", workerNode.snapshotId);
     field(limits, "ITERATIONS", limitsNode.iterations);
     field(limits, "TOKENS", limitsNode.tokens);
     field(limits, "TIMEOUT", limitsNode.timeoutMinutes);
@@ -65,7 +61,6 @@ export function projectProgramToWorkspace(
     field(repeat, "UNTIL_ID", repeatNode.until.localId);
     field(repeat, "UNTIL_FIELD", repeatNode.until.field);
     field(agent, "LOCAL_ID", agentNode.identity.localId);
-    field(agent, "WORKER_REF", agentNode.workerRef);
     field(agent, "PROMPT", agentNode.prompt);
     field(verifier, "LOCAL_ID", verifierNode.identity.localId);
     field(verifier, "COMMAND", verifierNode.command);
@@ -73,12 +68,10 @@ export function projectProgramToWorkspace(
     field(failure, "POLICY", program.failurePolicy);
 
     setBlockNodeId(root, loop.nodeId);
-    setBlockNodeId(worker, workerNode.identity.nodeId);
     setBlockNodeId(repeat, repeatNode.identity.nodeId);
     setBlockNodeId(agent, agentNode.identity.nodeId);
     setBlockNodeId(verifier, verifierNode.identity.nodeId);
 
-    value(root, "WORKER", worker);
     value(root, "LIMITS", limits);
     statement(root, "BODY", repeat);
     statement(repeat, "BODY", agent);
@@ -87,7 +80,7 @@ export function projectProgramToWorkspace(
     }
     value(root, "FAILURE", failure);
 
-    for (const projected of [worker, limits, repeat, agent, verifier, failure, root]) {
+    for (const projected of [limits, repeat, agent, verifier, failure, root]) {
       if (projected instanceof Blockly.BlockSvg) projected.render();
     }
     if (root instanceof Blockly.BlockSvg) {
@@ -95,7 +88,6 @@ export function projectProgramToWorkspace(
     }
     return new Map([
       [loop.nodeId, root.id],
-      [workerNode.identity.nodeId, worker.id],
       [repeatNode.identity.nodeId, repeat.id],
       [agentNode.identity.nodeId, agent.id],
       [verifierNode.identity.nodeId, verifier.id],

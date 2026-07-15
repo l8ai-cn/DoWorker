@@ -14,7 +14,6 @@ func appendRangeDiagnostics(diagnostics []Diagnostic, loop LoopNode, positions *
 		nodeID   string
 		position sourcePosition
 	}{
-		{"worker snapshot", loop.Worker.SnapshotID, 1, int64(^uint64(0) >> 1), loop.Worker.NodeID, workerPosition(positions)},
 		{"limits.iterations", loop.Limits.Iterations, 1, 100, loop.NodeID, limitsPosition(positions)},
 		{"limits.tokens", loop.Limits.Tokens, 1, int64(^uint64(0) >> 1), loop.NodeID, limitsPosition(positions)},
 		{"limits.timeout", loop.Limits.TimeoutMins, 1, 1440, loop.NodeID, limitsPosition(positions)},

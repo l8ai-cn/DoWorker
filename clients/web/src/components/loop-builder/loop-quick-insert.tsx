@@ -2,13 +2,12 @@ import { Plus } from "lucide-react";
 import { LOOP_BLOCK_TYPES } from "./loop-block-catalog";
 
 const options = [
-  ["Loop", LOOP_BLOCK_TYPES.loop],
-  ["Worker", LOOP_BLOCK_TYPES.worker],
-  ["Repeat", LOOP_BLOCK_TYPES.repeat],
-  ["Agent", LOOP_BLOCK_TYPES.agent],
-  ["Verifier", LOOP_BLOCK_TYPES.verifier],
-  ["Limits", LOOP_BLOCK_TYPES.limits],
-  ["Failure", LOOP_BLOCK_TYPES.failure],
+  ["循环", LOOP_BLOCK_TYPES.loop],
+  ["重复执行", LOOP_BLOCK_TYPES.repeat],
+  ["智能体任务", LOOP_BLOCK_TYPES.agent],
+  ["验证步骤", LOOP_BLOCK_TYPES.verifier],
+  ["执行边界", LOOP_BLOCK_TYPES.limits],
+  ["失败处理", LOOP_BLOCK_TYPES.failure],
 ] as const;
 
 interface LoopQuickInsertProps {

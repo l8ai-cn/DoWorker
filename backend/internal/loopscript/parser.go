@@ -40,20 +40,12 @@ func (p *parser) parseProgram() *Program {
 	p.expect(tokenLBrace)
 
 	loop := LoopNode{NodeID: nodeID, LocalID: localID}
-	var hasWorker, hasLimits, hasRepeat, hasFailure bool
+	var hasLimits, hasRepeat, hasFailure bool
 	for !p.failed() && p.current().kind != tokenRBrace && p.current().kind != tokenEOF {
 		switch p.current().kind {
 		case tokenAt:
 			childID, childPosition := p.parseNodeID()
 			switch p.current().kind {
-			case tokenWorker:
-				if hasWorker {
-					p.failCurrent("loop.structure.worker-count", "exactly one worker is allowed", childID)
-					break
-				}
-				p.positions.worker = childPosition
-				loop.Worker = p.parseWorker(childID)
-				hasWorker = true
 			case tokenRepeat:
 				if hasRepeat {
 					p.failCurrent("loop.structure.repeat-count", "exactly one repeat is allowed", childID)
@@ -81,7 +73,7 @@ func (p *parser) parseProgram() *Program {
 			p.positions.failure = positionOf(p.current())
 			loop.FailurePolicy = p.parseFailurePolicy()
 			hasFailure = true
-		case tokenWorker, tokenRepeat:
+		case tokenRepeat:
 			p.failCurrent("loop.node-id.missing", "node must be preceded by @id(...)", "")
 		default:
 			p.failCurrent("loop.syntax.unknown", "unknown loop syntax", "")
@@ -92,8 +84,8 @@ func (p *parser) parseProgram() *Program {
 	if p.failed() {
 		return nil
 	}
-	if !hasWorker || !hasLimits || !hasRepeat || !hasFailure {
-		p.failMissingStructure(hasWorker, hasLimits, hasRepeat, hasFailure)
+	if !hasLimits || !hasRepeat || !hasFailure {
+		p.failMissingStructure(hasLimits, hasRepeat, hasFailure)
 		return nil
 	}
 	return &Program{SchemaVersion: 1, Loop: loop}

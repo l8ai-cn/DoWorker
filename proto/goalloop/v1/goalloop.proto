@@ -36,11 +36,6 @@ message LoopNodeIdentity {
   string local_id = 2;
 }
 
-message LoopWorkerNode {
-  LoopNodeIdentity identity = 1;
-  int64 snapshot_id = 2;
-}
-
 message LoopLimits {
   int64 iterations = 1;
   int64 tokens = 2;
@@ -56,7 +51,8 @@ message LoopReference {
 
 message LoopAgentNode {
   LoopNodeIdentity identity = 1;
-  string worker_ref = 2;
+  reserved 2;
+  reserved "worker_ref";
   string prompt = 3;
 }
 
@@ -77,7 +73,8 @@ message LoopRepeatNode {
 message LoopProgram {
   int32 schema_version = 1;
   LoopNodeIdentity loop = 2;
-  LoopWorkerNode worker = 3;
+  reserved 3;
+  reserved "worker";
   LoopLimits limits = 4;
   LoopRepeatNode repeat = 5;
   string failure_policy = 6;
@@ -107,6 +104,7 @@ message CompileLoopProgramResponse {
 message RunLoopProgramRequest {
   string org_slug = 1;
   string source = 2;
+  int64 worker_spec_snapshot_id = 3;
 }
 
 message LoopDraftSnapshot {

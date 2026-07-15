@@ -8,16 +8,9 @@ type Program struct {
 type LoopNode struct {
 	NodeID        string
 	LocalID       string
-	Worker        WorkerNode
 	Limits        Limits
 	Repeat        RepeatNode
 	FailurePolicy FailurePolicy
-}
-
-type WorkerNode struct {
-	NodeID     string
-	LocalID    string
-	SnapshotID int64
 }
 
 type Limits struct {
@@ -45,7 +38,6 @@ type Reference struct {
 type AgentNode struct {
 	NodeID  string
 	LocalID string
-	Using   string
 	Prompt  string
 }
 
@@ -74,7 +66,6 @@ type Diagnostic struct {
 type GoalLoopLaunchSpec struct {
 	Name                string
 	Slug                string
-	WorkerSnapshotID    int64
 	Objective           string
 	AcceptanceCriteria  []string
 	VerificationCommand string
@@ -93,7 +84,6 @@ type sourcePosition struct {
 
 type programPositions struct {
 	loop     sourcePosition
-	worker   sourcePosition
 	limits   sourcePosition
 	repeat   sourcePosition
 	agent    sourcePosition

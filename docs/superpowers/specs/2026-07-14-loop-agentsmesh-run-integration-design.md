@@ -1,5 +1,10 @@
 # Loop 与 AgentsMesh 运行领域接入详细设计
 
+> 2026-07-15 更新：运行环境快照不再进入 LoopScript、AST 或发布版本。
+> 启动请求显式携带 `worker_spec_snapshot_id`，后端在创建 GoalLoop 前完成
+> 归属、可用性和新鲜度校验。当前权威边界见
+> `2026-07-15-loop-runtime-separation-design.md`。
+
 - 日期：2026-07-14
 - 状态：已评审，V1 垂直切片已联调
 - 依赖：Loop Controller 可靠性与验证设计

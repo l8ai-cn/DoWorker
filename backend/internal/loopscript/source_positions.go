@@ -7,13 +7,6 @@ func loopPosition(p *programPositions) sourcePosition {
 	return sourcePosition{}
 }
 
-func workerPosition(p *programPositions) sourcePosition {
-	if p != nil {
-		return p.worker
-	}
-	return sourcePosition{}
-}
-
 func limitsPosition(p *programPositions) sourcePosition {
 	if p != nil {
 		return p.limits

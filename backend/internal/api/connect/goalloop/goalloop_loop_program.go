@@ -2,7 +2,6 @@ package goalloopconnect
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"connectrpc.com/connect"
@@ -22,30 +21,7 @@ func (s *Server) CompileLoopProgram(
 	if err != nil {
 		return nil, err
 	}
-	if s.service == nil {
-		return nil, unavailable()
-	}
 	program, canonical, diagnostics := compileLoopSource(req.Msg.GetSource())
-	if program != nil {
-		tenant := middleware.GetTenant(ctx)
-		if err := s.service.ValidateWorkerSnapshotForExecution(
-			ctx,
-			tenant.OrganizationID,
-			tenant.UserID,
-			program.Loop.Worker.SnapshotID,
-		); err != nil {
-			if !errors.Is(err, goalloopsvc.ErrInvalidInput) {
-				return nil, mapServiceError(err)
-			}
-			diagnostics = []loopscript.Diagnostic{{
-				Code:    "loop.worker-snapshot.unavailable",
-				Message: "worker snapshot is unavailable or stale",
-				NodeID:  program.Loop.Worker.NodeID,
-			}}
-			program = nil
-			canonical = ""
-		}
-	}
 	response := &goalloopv1.CompileLoopProgramResponse{
 		CanonicalSource: canonical,
 		Diagnostics:     loopDiagnosticsToProto(diagnostics),
@@ -68,6 +44,13 @@ func (s *Server) RunLoopProgram(
 	if s.service == nil {
 		return nil, unavailable()
 	}
+	workerSnapshotID := req.Msg.GetWorkerSpecSnapshotId()
+	if workerSnapshotID < 1 {
+		return nil, connect.NewError(
+			connect.CodeInvalidArgument,
+			fmt.Errorf("worker_spec_snapshot_id is required"),
+		)
+	}
 	program, _, diagnostics := compileLoopSource(req.Msg.GetSource())
 	if len(diagnostics) != 0 {
 		return nil, loopInvalid(diagnostics[0])
@@ -84,7 +67,7 @@ func (s *Server) RunLoopProgram(
 		ctx,
 		tenant.OrganizationID,
 		tenant.UserID,
-		spec.WorkerSnapshotID,
+		workerSnapshotID,
 	); err != nil {
 		return nil, mapServiceError(err)
 	}
@@ -93,7 +76,7 @@ func (s *Server) RunLoopProgram(
 		OrganizationID:       tenant.OrganizationID,
 		CreatedByID:          tenant.UserID,
 		Name:                 spec.Name,
-		WorkerSpecSnapshotID: spec.WorkerSnapshotID,
+		WorkerSpecSnapshotID: workerSnapshotID,
 		Objective:            spec.Objective,
 		AcceptanceCriteria:   spec.AcceptanceCriteria,
 		VerificationCommand:  spec.VerificationCommand,

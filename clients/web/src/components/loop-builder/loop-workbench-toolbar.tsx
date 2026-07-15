@@ -3,6 +3,7 @@ import { ArrowLeft, Blocks, Braces, Play, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { LoopEditor } from "@/lib/viewModels/loop-program";
+import { loopParseStatusLabel } from "./loop-display-text";
 
 interface LoopWorkbenchToolbarProps {
   orgSlug: string;
@@ -25,18 +26,20 @@ export function LoopWorkbenchToolbar({
   return (
     <header className="grid shrink-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-2 border-b border-border bg-surface-raised px-3 py-2 sm:flex sm:min-h-16 sm:gap-3 sm:px-4 sm:py-3">
       <Button asChild size="icon" variant="ghost">
-        <Link aria-label="返回 Loop 列表" href={`/${orgSlug}/loops`}>
+        <Link aria-label="返回循环列表" href={`/${orgSlug}/loops`}>
           <ArrowLeft className="h-4 w-4" />
         </Link>
       </Button>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <Blocks className="h-4 w-4 text-primary" />
-          <h1 className="truncate text-sm font-semibold">Loop 工作台</h1>
-          <Badge variant={valid ? "success" : "warning"}>{parseStatus}</Badge>
+          <h1 className="truncate text-sm font-semibold">循环工作台</h1>
+          <Badge variant={valid ? "success" : "warning"}>
+            {loopParseStatusLabel(parseStatus)}
+          </Badge>
         </div>
         <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">
-          Blockly 与 LoopScript 共用同一份后端确认语义
+          积木与循环脚本共享同一份后端确认语义
         </p>
       </div>
       <div className="col-span-2 flex min-w-0 items-center gap-2 sm:ml-auto">
@@ -62,7 +65,7 @@ export function LoopWorkbenchToolbar({
         </div>
         <Button className="shrink-0" disabled={!valid || running} loading={running} onClick={onRun}>
           {running ? <RefreshCw className="mr-1.5 h-4 w-4 animate-spin" /> : <Play className="mr-1.5 h-4 w-4" />}
-          发给 AI 运行
+          运行循环
         </Button>
       </div>
     </header>

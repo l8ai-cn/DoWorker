@@ -70,3 +70,22 @@ func setupGoalLoopEventSubscriptions(eventBus *eventbus.EventBus, service *goall
 
 	slog.Info("Goal Loop event subscriptions registered")
 }
+
+func configureGoalLoopService(
+	services *serviceContainer,
+	podCreator goalloop.PodCreator,
+	podTerminator goalloop.PodTerminator,
+	promptDispatcher goalloop.PromptDispatcher,
+	eventBus *eventbus.EventBus,
+	logger *slog.Logger,
+) *goalloop.TimeoutMonitor {
+	services.goalLoop.SetWorkerSpecSnapshotLoader(services.workerSpecs)
+	services.goalLoop.SetWorkerTypeSnapshotValidator(services.workerCreation)
+	services.goalLoop.SetExecutionDependencies(podCreator, services.pod, podTerminator)
+	services.goalLoop.SetPromptDispatcher(promptDispatcher)
+	setupGoalLoopEventSubscriptions(eventBus, services.goalLoop)
+	monitor := goalloop.NewTimeoutMonitor(services.goalLoop, logger)
+	monitor.Start()
+	slog.Info("Goal Loop service configured")
+	return monitor
+}

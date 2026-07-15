@@ -2,7 +2,6 @@ import * as Blockly from "blockly";
 
 export const LOOP_BLOCK_TYPES = {
   loop: "loop_loop",
-  worker: "loop_worker",
   limits: "loop_limits",
   repeat: "loop_repeat",
   agent: "loop_agent",
@@ -13,31 +12,19 @@ export const LOOP_BLOCK_TYPES = {
 const definitions = [
   {
     type: LOOP_BLOCK_TYPES.loop,
-    message0: "Loop %1",
+    message0: "循环 %1",
     args0: [{ type: "field_input", name: "LOCAL_ID", text: "checkout-fix" }],
-    message1: "Worker %1",
-    args1: [{ type: "input_value", name: "WORKER", check: "LoopWorker" }],
-    message2: "边界 %1",
-    args2: [{ type: "input_value", name: "LIMITS", check: "LoopLimits" }],
-    message3: "执行 %1",
-    args3: [{ type: "input_statement", name: "BODY", check: "LoopRepeat" }],
-    message4: "失败处理 %1",
-    args4: [{ type: "input_value", name: "FAILURE", check: "LoopFailure" }],
+    message1: "执行边界 %1",
+    args1: [{ type: "input_value", name: "LIMITS", check: "LoopLimits" }],
+    message2: "循环步骤 %1",
+    args2: [{ type: "input_statement", name: "BODY", check: "LoopRepeat" }],
+    message3: "失败处理 %1",
+    args3: [{ type: "input_value", name: "FAILURE", check: "LoopFailure" }],
     colour: 216,
   },
   {
-    type: LOOP_BLOCK_TYPES.worker,
-    message0: "Worker %1 · 快照 %2",
-    args0: [
-      { type: "field_input", name: "LOCAL_ID", text: "coder" },
-      { type: "field_number", name: "SNAPSHOT_ID", value: 1, min: 1, precision: 1 },
-    ],
-    output: "LoopWorker",
-    colour: 168,
-  },
-  {
     type: LOOP_BLOCK_TYPES.limits,
-    message0: "最多 %1 轮 · %2 tokens · %3 分钟",
+    message0: "最多 %1 轮 · %2 令牌 · %3 分钟",
     args0: [
       { type: "field_number", name: "ITERATIONS", value: 5, min: 1, precision: 1 },
       { type: "field_number", name: "TOKENS", value: 80000, min: 1, precision: 1 },
@@ -53,7 +40,7 @@ const definitions = [
   },
   {
     type: LOOP_BLOCK_TYPES.repeat,
-    message0: "重复 %1 · 最多 %2 次",
+    message0: "重复执行 %1 · 最多 %2 次",
     args0: [
       { type: "field_input", name: "LOCAL_ID", text: "fix-cycle" },
       { type: "field_number", name: "MAX", value: 5, min: 1, precision: 1 },
@@ -70,12 +57,9 @@ const definitions = [
   },
   {
     type: LOOP_BLOCK_TYPES.agent,
-    message0: "Agent %1 · 使用 %2",
-    args0: [
-      { type: "field_input", name: "LOCAL_ID", text: "fix-task" },
-      { type: "field_input", name: "WORKER_REF", text: "coder" },
-    ],
-    message1: "Prompt %1",
+    message0: "智能体任务 %1",
+    args0: [{ type: "field_input", name: "LOCAL_ID", text: "fix-task" }],
+    message1: "任务说明 %1",
     args1: [{ type: "field_input", name: "PROMPT", text: "描述要完成的任务" }],
     previousStatement: "LoopAgent",
     nextStatement: "LoopVerifier",
@@ -83,7 +67,7 @@ const definitions = [
   },
   {
     type: LOOP_BLOCK_TYPES.verifier,
-    message0: "验证 %1",
+    message0: "验证步骤 %1",
     args0: [{ type: "field_input", name: "LOCAL_ID", text: "tests" }],
     message1: "命令 %1",
     args1: [{ type: "field_input", name: "COMMAND", text: "pnpm test" }],
@@ -113,10 +97,9 @@ export function registerLoopBlocks(): void {
 export const loopToolbox: Blockly.utils.toolbox.ToolboxDefinition = {
   kind: "categoryToolbox",
   contents: [
-    { kind: "category", name: "程序", colour: "216", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.loop }] },
-    { kind: "category", name: "Worker", colour: "168", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.worker }] },
+    { kind: "category", name: "循环", colour: "216", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.loop }] },
     { kind: "category", name: "控制", colour: "216", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.repeat }] },
-    { kind: "category", name: "任务", colour: "292", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.agent }] },
+    { kind: "category", name: "智能体", colour: "292", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.agent }] },
     { kind: "category", name: "验证", colour: "122", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.verifier }] },
     { kind: "category", name: "边界", colour: "43", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.limits }] },
     { kind: "category", name: "失败", colour: "8", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.failure }] },

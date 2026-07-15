@@ -52,13 +52,6 @@ func validateProgram(program *Program, positions *programPositions) []Diagnostic
 
 	loop := program.Loop
 	diagnostics = appendRangeDiagnostics(diagnostics, loop, positions)
-	if loop.Repeat.Agent.Using != loop.Worker.LocalID {
-		diagnostics = append(diagnostics, diagnosticFor(
-			"loop.reference.worker-not-found",
-			fmt.Sprintf("agent using %q does not reference worker %q", loop.Repeat.Agent.Using, loop.Worker.LocalID),
-			loop.Repeat.Agent.NodeID, agentPosition(positions),
-		))
-	}
 	if loop.Repeat.Until.LocalID != loop.Repeat.Verifier.LocalID || loop.Repeat.Until.Field != "passed" {
 		diagnostics = append(diagnostics, diagnosticFor(
 			"loop.reference.until-invalid",
@@ -86,7 +79,6 @@ func programNodes(program *Program, positions *programPositions) []nodeDescripto
 	loop := program.Loop
 	return []nodeDescriptor{
 		{loop.NodeID, loop.LocalID, loopPosition(positions)},
-		{loop.Worker.NodeID, loop.Worker.LocalID, workerPosition(positions)},
 		{loop.Repeat.NodeID, loop.Repeat.LocalID, repeatPosition(positions)},
 		{loop.Repeat.Agent.NodeID, loop.Repeat.Agent.LocalID, agentPosition(positions)},
 		{loop.Repeat.Verifier.NodeID, loop.Repeat.Verifier.LocalID, verifierPosition(positions)},

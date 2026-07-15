@@ -3,16 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   applyLoopCompile,
+  listLoopRuntimeSnapshots,
   readLoopSnapshot,
   requestLoopCompile,
   runLoopProgram,
   setLoopActiveEditor,
   setLoopSource,
 } from "@/lib/api/facade/loopProgramConnect";
-import { listGoalLoopWorkerSnapshots } from "@/lib/api/facade/goalLoopConnect";
 import {
   createDefaultLoopSource,
   type LoopEditor,
+  type LoopRuntimeSnapshot,
   type LoopWorkbenchSnapshot,
 } from "@/lib/viewModels/loop-program";
 
@@ -31,6 +32,10 @@ export function useLoopWorkbench(orgSlug: string) {
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string>();
+  const [runtimeSnapshots, setRuntimeSnapshots] = useState<LoopRuntimeSnapshot[]>([]);
+  const [runtimeLoading, setRuntimeLoading] = useState(true);
+  const [runtimeError, setRuntimeError] = useState<string>();
+  const [runtimeLoadAttempt, setRuntimeLoadAttempt] = useState(0);
   const activeEditorRef = useRef<LoopEditor>("blocks");
   const compileSequence = useRef(0);
   const compileTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -53,7 +58,9 @@ export function useLoopWorkbench(orgSlug: string) {
         setSnapshot(await applyLoopCompile(response));
       } catch (cause) {
         if (sequence !== compileSequence.current) return;
-        setError(cause instanceof Error ? cause.message : "Loop 编译失败");
+        setError(
+          cause instanceof Error ? cause.message : "循环脚本校验失败，请检查网络或稍后重试",
+        );
       }
     }, delay);
   }, [orgSlug]);
@@ -69,16 +76,11 @@ export function useLoopWorkbench(orgSlug: string) {
           setSnapshot(current);
           return;
         }
-        const workers = await listGoalLoopWorkerSnapshots(orgSlug);
-        if (cancelled) return;
-        if (workers.length === 0) {
-          throw new Error("没有可执行的 Worker 快照，请先创建或更新 Worker");
-        }
-        const source = createDefaultLoopSource(workers[0].id);
+        const source = createDefaultLoopSource();
         await compile(source, "blocks");
       } catch (cause) {
         if (!cancelled) {
-          setError(cause instanceof Error ? cause.message : "Loop 初始化失败");
+          setError(cause instanceof Error ? cause.message : "循环工作台初始化失败");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -91,6 +93,26 @@ export function useLoopWorkbench(orgSlug: string) {
       if (compileTimer.current) clearTimeout(compileTimer.current);
     };
   }, [compile, orgSlug]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setRuntimeLoading(true);
+    setRuntimeError(undefined);
+    setRuntimeSnapshots([]);
+    listLoopRuntimeSnapshots(orgSlug)
+      .then((snapshots) => {
+        if (!cancelled) setRuntimeSnapshots(snapshots);
+      })
+      .catch(() => {
+        if (!cancelled) setRuntimeError("运行环境加载失败，请稍后重试");
+      })
+      .finally(() => {
+        if (!cancelled) setRuntimeLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [orgSlug, runtimeLoadAttempt]);
 
   const setEditor = useCallback(async (editor: LoopEditor) => {
     activeEditorRef.current = editor;
@@ -109,13 +131,17 @@ export function useLoopWorkbench(orgSlug: string) {
     }
   }, [compile]);
 
-  const run = useCallback(async () => {
+  const retryRuntimeLoad = useCallback(() => {
+    setRuntimeLoadAttempt((attempt) => attempt + 1);
+  }, []);
+
+  const run = useCallback(async (workerSnapshotId: string) => {
     setRunning(true);
     setError(undefined);
     try {
-      setSnapshot(await runLoopProgram(orgSlug, snapshot.source));
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Loop 运行失败");
+      setSnapshot(await runLoopProgram(orgSlug, snapshot.source, workerSnapshotId));
+    } catch {
+      setError("循环启动失败，请确认运行环境仍然可用");
     } finally {
       setRunning(false);
     }
@@ -126,6 +152,10 @@ export function useLoopWorkbench(orgSlug: string) {
     loading,
     running,
     error,
+    runtimeSnapshots,
+    runtimeLoading,
+    runtimeError,
+    retryRuntimeLoad,
     setEditor,
     updateBlocks,
     updateCode,

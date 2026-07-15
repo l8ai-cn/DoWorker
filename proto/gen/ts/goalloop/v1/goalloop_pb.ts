@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file goalloop/v1/goalloop.proto.
  */
 export const file_goalloop_v1_goalloop: GenFile = /*@__PURE__*/
-  fileDesc("Chpnb2FsbG9vcC92MS9nb2FsbG9vcC5wcm90bxIRcHJvdG8uZ29hbGxvb3AudjEiVAoOV29ya2VyU25hcHNob3QSCgoCaWQYASABKAMSDQoFYWxpYXMYAiABKAkSEwoLd29ya2VyX3R5cGUYAyABKAkSEgoKY3JlYXRlZF9hdBgEIAEoCSIuChpMaXN0V29ya2VyU25hcHNob3RzUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCSJPChtMaXN0V29ya2VyU25hcHNob3RzUmVzcG9uc2USMAoFaXRlbXMYASADKAsyIS5wcm90by5nb2FsbG9vcC52MS5Xb3JrZXJTbmFwc2hvdCI1ChBMb29wTm9kZUlkZW50aXR5Eg8KB25vZGVfaWQYASABKAkSEAoIbG9jYWxfaWQYAiABKAkiXAoOTG9vcFdvcmtlck5vZGUSNQoIaWRlbnRpdHkYASABKAsyIy5wcm90by5nb2FsbG9vcC52MS5Mb29wTm9kZUlkZW50aXR5EhMKC3NuYXBzaG90X2lkGAIgASgDInIKCkxvb3BMaW1pdHMSEgoKaXRlcmF0aW9ucxgBIAEoAxIOCgZ0b2tlbnMYAiABKAMSFwoPdGltZW91dF9taW51dGVzGAMgASgDEhMKC25vX3Byb2dyZXNzGAQgASgDEhIKCnNhbWVfZXJyb3IYBSABKAMiMAoNTG9vcFJlZmVyZW5jZRIQCghsb2NhbF9pZBgBIAEoCRINCgVmaWVsZBgCIAEoCSJqCg1Mb29wQWdlbnROb2RlEjUKCGlkZW50aXR5GAEgASgLMiMucHJvdG8uZ29hbGxvb3AudjEuTG9vcE5vZGVJZGVudGl0eRISCgp3b3JrZXJfcmVmGAIgASgJEg4KBnByb21wdBgDIAEoCSJqChBMb29wVmVyaWZpZXJOb2RlEjUKCGlkZW50aXR5GAEgASgLMiMucHJvdG8uZ29hbGxvb3AudjEuTG9vcE5vZGVJZGVudGl0eRIPCgdjb21tYW5kGAIgASgJEg4KBmFjY2VwdBgDIAEoCSLtAQoOTG9vcFJlcGVhdE5vZGUSNQoIaWRlbnRpdHkYASABKAsyIy5wcm90by5nb2FsbG9vcC52MS5Mb29wTm9kZUlkZW50aXR5EgsKA21heBgCIAEoAxIvCgV1bnRpbBgDIAEoCzIgLnByb3RvLmdvYWxsb29wLnYxLkxvb3BSZWZlcmVuY2USLwoFYWdlbnQYBCABKAsyIC5wcm90by5nb2FsbG9vcC52MS5Mb29wQWdlbnROb2RlEjUKCHZlcmlmaWVyGAUgASgLMiMucHJvdG8uZ29hbGxvb3AudjEuTG9vcFZlcmlmaWVyTm9kZSKFAgoLTG9vcFByb2dyYW0SFgoOc2NoZW1hX3ZlcnNpb24YASABKAUSMQoEbG9vcBgCIAEoCzIjLnByb3RvLmdvYWxsb29wLnYxLkxvb3BOb2RlSWRlbnRpdHkSMQoGd29ya2VyGAMgASgLMiEucHJvdG8uZ29hbGxvb3AudjEuTG9vcFdvcmtlck5vZGUSLQoGbGltaXRzGAQgASgLMh0ucHJvdG8uZ29hbGxvb3AudjEuTG9vcExpbWl0cxIxCgZyZXBlYXQYBSABKAsyIS5wcm90by5nb2FsbG9vcC52MS5Mb29wUmVwZWF0Tm9kZRIWCg5mYWlsdXJlX3BvbGljeRgGIAEoCSJeCg5Mb29wRGlhZ25vc3RpYxIMCgRjb2RlGAEgASgJEg8KB21lc3NhZ2UYAiABKAkSDwoHbm9kZV9pZBgDIAEoCRIMCgRsaW5lGAQgASgFEg4KBmNvbHVtbhgFIAEoBSJPChlDb21waWxlTG9vcFByb2dyYW1SZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEg4KBnNvdXJjZRgCIAEoCRIQCghyZXZpc2lvbhgDIAEoBCKxAQoaQ29tcGlsZUxvb3BQcm9ncmFtUmVzcG9uc2USGAoQY2Fub25pY2FsX3NvdXJjZRgBIAEoCRIvCgdwcm9ncmFtGAIgASgLMh4ucHJvdG8uZ29hbGxvb3AudjEuTG9vcFByb2dyYW0SNgoLZGlhZ25vc3RpY3MYAyADKAsyIS5wcm90by5nb2FsbG9vcC52MS5Mb29wRGlhZ25vc3RpYxIQCghyZXZpc2lvbhgEIAEoBCI5ChVSdW5Mb29wUHJvZ3JhbVJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDgoGc291cmNlGAIgASgJIqoCChFMb29wRHJhZnRTbmFwc2hvdBIOCgZzb3VyY2UYASABKAkSGAoQY2Fub25pY2FsX3NvdXJjZRgCIAEoCRIvCgdwcm9ncmFtGAMgASgLMh4ucHJvdG8uZ29hbGxvb3AudjEuTG9vcFByb2dyYW0SNgoLZGlhZ25vc3RpY3MYBCADKAsyIS5wcm90by5nb2FsbG9vcC52MS5Mb29wRGlhZ25vc3RpYxIUCgxwYXJzZV9zdGF0dXMYBSABKAkSFQoNYWN0aXZlX2VkaXRvchgGIAEoCRIQCghyZXZpc2lvbhgHIAEoBBIZChFzZW1hbnRpY19yZXZpc2lvbhgIIAEoBBIoCgNydW4YCSABKAsyGy5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcCLtBgoIR29hbExvb3ASCgoCaWQYASABKAMSDAoEc2x1ZxgCIAEoCRIMCgRuYW1lGAMgASgJEhgKC2Rlc2NyaXB0aW9uGAQgASgJSACIAQESHwoXd29ya2VyX3NwZWNfc25hcHNob3RfaWQYBSABKAMSEQoJb2JqZWN0aXZlGAYgASgJEhsKE2FjY2VwdGFuY2VfY3JpdGVyaWEYByADKAkSHAoUdmVyaWZpY2F0aW9uX2NvbW1hbmQYCCABKAkSDgoGc3RhdHVzGAkgASgJEhQKB3BvZF9rZXkYCiABKAlIAYgBARIlChhhdXRvcGlsb3RfY29udHJvbGxlcl9rZXkYCyABKAlIAogBARIWCg5tYXhfaXRlcmF0aW9ucxgMIAEoBRIZCgx0b2tlbl9idWRnZXQYDSABKANIA4gBARIXCg90aW1lb3V0X21pbnV0ZXMYDiABKAUSGQoRbm9fcHJvZ3Jlc3NfbGltaXQYDyABKAUSGAoQc2FtZV9lcnJvcl9saW1pdBgQIAEoBRIZChFlc2NhbGF0aW9uX3BvbGljeRgRIAEoCRIjChZ2ZXJpZmljYXRpb25fZXhpdF9jb2RlGBIgASgFSASIAQESIAoTdmVyaWZpY2F0aW9uX291dHB1dBgTIAEoCUgFiAEBEiUKHXZlcmlmaWNhdGlvbl9vdXRwdXRfdHJ1bmNhdGVkGBQgASgIEh8KEnZlcmlmaWNhdGlvbl9lcnJvchgVIAEoCUgGiAEBEhcKCnN0YXJ0ZWRfYXQYFiABKAlIB4gBARIYCgt2ZXJpZmllZF9hdBgXIAEoCUgIiAEBEhkKDGNvbXBsZXRlZF9hdBgYIAEoCUgJiAEBEhIKCmNyZWF0ZWRfYXQYGSABKAkSEgoKdXBkYXRlZF9hdBgaIAEoCUIOCgxfZGVzY3JpcHRpb25CCgoIX3BvZF9rZXlCGwoZX2F1dG9waWxvdF9jb250cm9sbGVyX2tleUIPCg1fdG9rZW5fYnVkZ2V0QhkKF192ZXJpZmljYXRpb25fZXhpdF9jb2RlQhYKFF92ZXJpZmljYXRpb25fb3V0cHV0QhUKE192ZXJpZmljYXRpb25fZXJyb3JCDQoLX3N0YXJ0ZWRfYXRCDgoMX3ZlcmlmaWVkX2F0Qg8KDV9jb21wbGV0ZWRfYXQihQEKFExpc3RHb2FsTG9vcHNSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEg4KBnN0YXR1cxgCIAEoCRINCgVxdWVyeRgDIAEoCRITCgZvZmZzZXQYBCABKAVIAIgBARISCgVsaW1pdBgFIAEoBUgBiAEBQgkKB19vZmZzZXRCCAoGX2xpbWl0InEKFUxpc3RHb2FsTG9vcHNSZXNwb25zZRIqCgVpdGVtcxgBIAMoCzIbLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wEg0KBXRvdGFsGAIgASgDEg0KBWxpbWl0GAMgASgFEg4KBm9mZnNldBgEIAEoBSI5ChJHZXRHb2FsTG9vcFJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSEQoJbG9vcF9zbHVnGAIgASgJItwDChVDcmVhdGVHb2FsTG9vcFJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDAoEbmFtZRgCIAEoCRIMCgRzbHVnGAMgASgJEhMKC2Rlc2NyaXB0aW9uGAQgASgJEh8KF3dvcmtlcl9zcGVjX3NuYXBzaG90X2lkGAUgASgDEhEKCW9iamVjdGl2ZRgGIAEoCRIbChNhY2NlcHRhbmNlX2NyaXRlcmlhGAcgAygJEhwKFHZlcmlmaWNhdGlvbl9jb21tYW5kGAggASgJEhsKDm1heF9pdGVyYXRpb25zGAkgASgFSACIAQESGQoMdG9rZW5fYnVkZ2V0GAogASgDSAGIAQESHAoPdGltZW91dF9taW51dGVzGAsgASgFSAKIAQESHgoRbm9fcHJvZ3Jlc3NfbGltaXQYDCABKAVIA4gBARIdChBzYW1lX2Vycm9yX2xpbWl0GA0gASgFSASIAQESGQoRZXNjYWxhdGlvbl9wb2xpY3kYDiABKAlCEQoPX21heF9pdGVyYXRpb25zQg8KDV90b2tlbl9idWRnZXRCEgoQX3RpbWVvdXRfbWludXRlc0IUChJfbm9fcHJvZ3Jlc3NfbGltaXRCEwoRX3NhbWVfZXJyb3JfbGltaXQiPAoVR29hbExvb3BBY3Rpb25SZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEhEKCWxvb3Bfc2x1ZxgCIAEoCTLtBgoPR29hbExvb3BTZXJ2aWNlEnQKE0xpc3RXb3JrZXJTbmFwc2hvdHMSLS5wcm90by5nb2FsbG9vcC52MS5MaXN0V29ya2VyU25hcHNob3RzUmVxdWVzdBouLnByb3RvLmdvYWxsb29wLnYxLkxpc3RXb3JrZXJTbmFwc2hvdHNSZXNwb25zZRJxChJDb21waWxlTG9vcFByb2dyYW0SLC5wcm90by5nb2FsbG9vcC52MS5Db21waWxlTG9vcFByb2dyYW1SZXF1ZXN0Gi0ucHJvdG8uZ29hbGxvb3AudjEuQ29tcGlsZUxvb3BQcm9ncmFtUmVzcG9uc2USVwoOUnVuTG9vcFByb2dyYW0SKC5wcm90by5nb2FsbG9vcC52MS5SdW5Mb29wUHJvZ3JhbVJlcXVlc3QaGy5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcBJiCg1MaXN0R29hbExvb3BzEicucHJvdG8uZ29hbGxvb3AudjEuTGlzdEdvYWxMb29wc1JlcXVlc3QaKC5wcm90by5nb2FsbG9vcC52MS5MaXN0R29hbExvb3BzUmVzcG9uc2USUQoLR2V0R29hbExvb3ASJS5wcm90by5nb2FsbG9vcC52MS5HZXRHb2FsTG9vcFJlcXVlc3QaGy5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcBJXCg5DcmVhdGVHb2FsTG9vcBIoLnByb3RvLmdvYWxsb29wLnYxLkNyZWF0ZUdvYWxMb29wUmVxdWVzdBobLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wElYKDVN0YXJ0R29hbExvb3ASKC5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcEFjdGlvblJlcXVlc3QaGy5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcBJXCg5WZXJpZnlHb2FsTG9vcBIoLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wQWN0aW9uUmVxdWVzdBobLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wElcKDkNhbmNlbEdvYWxMb29wEigucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3BBY3Rpb25SZXF1ZXN0GhsucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3BCRlpEZ2l0aHViLmNvbS9hbnRocm9waWNzL2FnZW50c21lc2gvcHJvdG8vZ2VuL2dvL2dvYWxsb29wL3YxO2dvYWxsb29wdjFiBnByb3RvMw");
+  fileDesc("Chpnb2FsbG9vcC92MS9nb2FsbG9vcC5wcm90bxIRcHJvdG8uZ29hbGxvb3AudjEiVAoOV29ya2VyU25hcHNob3QSCgoCaWQYASABKAMSDQoFYWxpYXMYAiABKAkSEwoLd29ya2VyX3R5cGUYAyABKAkSEgoKY3JlYXRlZF9hdBgEIAEoCSIuChpMaXN0V29ya2VyU25hcHNob3RzUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCSJPChtMaXN0V29ya2VyU25hcHNob3RzUmVzcG9uc2USMAoFaXRlbXMYASADKAsyIS5wcm90by5nb2FsbG9vcC52MS5Xb3JrZXJTbmFwc2hvdCI1ChBMb29wTm9kZUlkZW50aXR5Eg8KB25vZGVfaWQYASABKAkSEAoIbG9jYWxfaWQYAiABKAkicgoKTG9vcExpbWl0cxISCgppdGVyYXRpb25zGAEgASgDEg4KBnRva2VucxgCIAEoAxIXCg90aW1lb3V0X21pbnV0ZXMYAyABKAMSEwoLbm9fcHJvZ3Jlc3MYBCABKAMSEgoKc2FtZV9lcnJvchgFIAEoAyIwCg1Mb29wUmVmZXJlbmNlEhAKCGxvY2FsX2lkGAEgASgJEg0KBWZpZWxkGAIgASgJImgKDUxvb3BBZ2VudE5vZGUSNQoIaWRlbnRpdHkYASABKAsyIy5wcm90by5nb2FsbG9vcC52MS5Mb29wTm9kZUlkZW50aXR5Eg4KBnByb21wdBgDIAEoCUoECAIQA1IKd29ya2VyX3JlZiJqChBMb29wVmVyaWZpZXJOb2RlEjUKCGlkZW50aXR5GAEgASgLMiMucHJvdG8uZ29hbGxvb3AudjEuTG9vcE5vZGVJZGVudGl0eRIPCgdjb21tYW5kGAIgASgJEg4KBmFjY2VwdBgDIAEoCSLtAQoOTG9vcFJlcGVhdE5vZGUSNQoIaWRlbnRpdHkYASABKAsyIy5wcm90by5nb2FsbG9vcC52MS5Mb29wTm9kZUlkZW50aXR5EgsKA21heBgCIAEoAxIvCgV1bnRpbBgDIAEoCzIgLnByb3RvLmdvYWxsb29wLnYxLkxvb3BSZWZlcmVuY2USLwoFYWdlbnQYBCABKAsyIC5wcm90by5nb2FsbG9vcC52MS5Mb29wQWdlbnROb2RlEjUKCHZlcmlmaWVyGAUgASgLMiMucHJvdG8uZ29hbGxvb3AudjEuTG9vcFZlcmlmaWVyTm9kZSLgAQoLTG9vcFByb2dyYW0SFgoOc2NoZW1hX3ZlcnNpb24YASABKAUSMQoEbG9vcBgCIAEoCzIjLnByb3RvLmdvYWxsb29wLnYxLkxvb3BOb2RlSWRlbnRpdHkSLQoGbGltaXRzGAQgASgLMh0ucHJvdG8uZ29hbGxvb3AudjEuTG9vcExpbWl0cxIxCgZyZXBlYXQYBSABKAsyIS5wcm90by5nb2FsbG9vcC52MS5Mb29wUmVwZWF0Tm9kZRIWCg5mYWlsdXJlX3BvbGljeRgGIAEoCUoECAMQBFIGd29ya2VyIl4KDkxvb3BEaWFnbm9zdGljEgwKBGNvZGUYASABKAkSDwoHbWVzc2FnZRgCIAEoCRIPCgdub2RlX2lkGAMgASgJEgwKBGxpbmUYBCABKAUSDgoGY29sdW1uGAUgASgFIk8KGUNvbXBpbGVMb29wUHJvZ3JhbVJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDgoGc291cmNlGAIgASgJEhAKCHJldmlzaW9uGAMgASgEIrEBChpDb21waWxlTG9vcFByb2dyYW1SZXNwb25zZRIYChBjYW5vbmljYWxfc291cmNlGAEgASgJEi8KB3Byb2dyYW0YAiABKAsyHi5wcm90by5nb2FsbG9vcC52MS5Mb29wUHJvZ3JhbRI2CgtkaWFnbm9zdGljcxgDIAMoCzIhLnByb3RvLmdvYWxsb29wLnYxLkxvb3BEaWFnbm9zdGljEhAKCHJldmlzaW9uGAQgASgEIloKFVJ1bkxvb3BQcm9ncmFtUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIOCgZzb3VyY2UYAiABKAkSHwoXd29ya2VyX3NwZWNfc25hcHNob3RfaWQYAyABKAMiqgIKEUxvb3BEcmFmdFNuYXBzaG90Eg4KBnNvdXJjZRgBIAEoCRIYChBjYW5vbmljYWxfc291cmNlGAIgASgJEi8KB3Byb2dyYW0YAyABKAsyHi5wcm90by5nb2FsbG9vcC52MS5Mb29wUHJvZ3JhbRI2CgtkaWFnbm9zdGljcxgEIAMoCzIhLnByb3RvLmdvYWxsb29wLnYxLkxvb3BEaWFnbm9zdGljEhQKDHBhcnNlX3N0YXR1cxgFIAEoCRIVCg1hY3RpdmVfZWRpdG9yGAYgASgJEhAKCHJldmlzaW9uGAcgASgEEhkKEXNlbWFudGljX3JldmlzaW9uGAggASgEEigKA3J1bhgJIAEoCzIbLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wIu0GCghHb2FsTG9vcBIKCgJpZBgBIAEoAxIMCgRzbHVnGAIgASgJEgwKBG5hbWUYAyABKAkSGAoLZGVzY3JpcHRpb24YBCABKAlIAIgBARIfChd3b3JrZXJfc3BlY19zbmFwc2hvdF9pZBgFIAEoAxIRCglvYmplY3RpdmUYBiABKAkSGwoTYWNjZXB0YW5jZV9jcml0ZXJpYRgHIAMoCRIcChR2ZXJpZmljYXRpb25fY29tbWFuZBgIIAEoCRIOCgZzdGF0dXMYCSABKAkSFAoHcG9kX2tleRgKIAEoCUgBiAEBEiUKGGF1dG9waWxvdF9jb250cm9sbGVyX2tleRgLIAEoCUgCiAEBEhYKDm1heF9pdGVyYXRpb25zGAwgASgFEhkKDHRva2VuX2J1ZGdldBgNIAEoA0gDiAEBEhcKD3RpbWVvdXRfbWludXRlcxgOIAEoBRIZChFub19wcm9ncmVzc19saW1pdBgPIAEoBRIYChBzYW1lX2Vycm9yX2xpbWl0GBAgASgFEhkKEWVzY2FsYXRpb25fcG9saWN5GBEgASgJEiMKFnZlcmlmaWNhdGlvbl9leGl0X2NvZGUYEiABKAVIBIgBARIgChN2ZXJpZmljYXRpb25fb3V0cHV0GBMgASgJSAWIAQESJQoddmVyaWZpY2F0aW9uX291dHB1dF90cnVuY2F0ZWQYFCABKAgSHwoSdmVyaWZpY2F0aW9uX2Vycm9yGBUgASgJSAaIAQESFwoKc3RhcnRlZF9hdBgWIAEoCUgHiAEBEhgKC3ZlcmlmaWVkX2F0GBcgASgJSAiIAQESGQoMY29tcGxldGVkX2F0GBggASgJSAmIAQESEgoKY3JlYXRlZF9hdBgZIAEoCRISCgp1cGRhdGVkX2F0GBogASgJQg4KDF9kZXNjcmlwdGlvbkIKCghfcG9kX2tleUIbChlfYXV0b3BpbG90X2NvbnRyb2xsZXJfa2V5Qg8KDV90b2tlbl9idWRnZXRCGQoXX3ZlcmlmaWNhdGlvbl9leGl0X2NvZGVCFgoUX3ZlcmlmaWNhdGlvbl9vdXRwdXRCFQoTX3ZlcmlmaWNhdGlvbl9lcnJvckINCgtfc3RhcnRlZF9hdEIOCgxfdmVyaWZpZWRfYXRCDwoNX2NvbXBsZXRlZF9hdCKFAQoUTGlzdEdvYWxMb29wc1JlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDgoGc3RhdHVzGAIgASgJEg0KBXF1ZXJ5GAMgASgJEhMKBm9mZnNldBgEIAEoBUgAiAEBEhIKBWxpbWl0GAUgASgFSAGIAQFCCQoHX29mZnNldEIICgZfbGltaXQicQoVTGlzdEdvYWxMb29wc1Jlc3BvbnNlEioKBWl0ZW1zGAEgAygLMhsucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3ASDQoFdG90YWwYAiABKAMSDQoFbGltaXQYAyABKAUSDgoGb2Zmc2V0GAQgASgFIjkKEkdldEdvYWxMb29wUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIRCglsb29wX3NsdWcYAiABKAki3AMKFUNyZWF0ZUdvYWxMb29wUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIMCgRuYW1lGAIgASgJEgwKBHNsdWcYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSHwoXd29ya2VyX3NwZWNfc25hcHNob3RfaWQYBSABKAMSEQoJb2JqZWN0aXZlGAYgASgJEhsKE2FjY2VwdGFuY2VfY3JpdGVyaWEYByADKAkSHAoUdmVyaWZpY2F0aW9uX2NvbW1hbmQYCCABKAkSGwoObWF4X2l0ZXJhdGlvbnMYCSABKAVIAIgBARIZCgx0b2tlbl9idWRnZXQYCiABKANIAYgBARIcCg90aW1lb3V0X21pbnV0ZXMYCyABKAVIAogBARIeChFub19wcm9ncmVzc19saW1pdBgMIAEoBUgDiAEBEh0KEHNhbWVfZXJyb3JfbGltaXQYDSABKAVIBIgBARIZChFlc2NhbGF0aW9uX3BvbGljeRgOIAEoCUIRCg9fbWF4X2l0ZXJhdGlvbnNCDwoNX3Rva2VuX2J1ZGdldEISChBfdGltZW91dF9taW51dGVzQhQKEl9ub19wcm9ncmVzc19saW1pdEITChFfc2FtZV9lcnJvcl9saW1pdCI8ChVHb2FsTG9vcEFjdGlvblJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSEQoJbG9vcF9zbHVnGAIgASgJMu0GCg9Hb2FsTG9vcFNlcnZpY2USdAoTTGlzdFdvcmtlclNuYXBzaG90cxItLnByb3RvLmdvYWxsb29wLnYxLkxpc3RXb3JrZXJTbmFwc2hvdHNSZXF1ZXN0Gi4ucHJvdG8uZ29hbGxvb3AudjEuTGlzdFdvcmtlclNuYXBzaG90c1Jlc3BvbnNlEnEKEkNvbXBpbGVMb29wUHJvZ3JhbRIsLnByb3RvLmdvYWxsb29wLnYxLkNvbXBpbGVMb29wUHJvZ3JhbVJlcXVlc3QaLS5wcm90by5nb2FsbG9vcC52MS5Db21waWxlTG9vcFByb2dyYW1SZXNwb25zZRJXCg5SdW5Mb29wUHJvZ3JhbRIoLnByb3RvLmdvYWxsb29wLnYxLlJ1bkxvb3BQcm9ncmFtUmVxdWVzdBobLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wEmIKDUxpc3RHb2FsTG9vcHMSJy5wcm90by5nb2FsbG9vcC52MS5MaXN0R29hbExvb3BzUmVxdWVzdBooLnByb3RvLmdvYWxsb29wLnYxLkxpc3RHb2FsTG9vcHNSZXNwb25zZRJRCgtHZXRHb2FsTG9vcBIlLnByb3RvLmdvYWxsb29wLnYxLkdldEdvYWxMb29wUmVxdWVzdBobLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wElcKDkNyZWF0ZUdvYWxMb29wEigucHJvdG8uZ29hbGxvb3AudjEuQ3JlYXRlR29hbExvb3BSZXF1ZXN0GhsucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3ASVgoNU3RhcnRHb2FsTG9vcBIoLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wQWN0aW9uUmVxdWVzdBobLnByb3RvLmdvYWxsb29wLnYxLkdvYWxMb29wElcKDlZlcmlmeUdvYWxMb29wEigucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3BBY3Rpb25SZXF1ZXN0GhsucHJvdG8uZ29hbGxvb3AudjEuR29hbExvb3ASVwoOQ2FuY2VsR29hbExvb3ASKC5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcEFjdGlvblJlcXVlc3QaGy5wcm90by5nb2FsbG9vcC52MS5Hb2FsTG9vcEJGWkRnaXRodWIuY29tL2FudGhyb3BpY3MvYWdlbnRzbWVzaC9wcm90by9nZW4vZ28vZ29hbGxvb3AvdjE7Z29hbGxvb3B2MWIGcHJvdG8z");
 
 /**
  * @generated from message proto.goalloop.v1.WorkerSnapshot
@@ -101,28 +101,6 @@ export const LoopNodeIdentitySchema: GenMessage<LoopNodeIdentity> = /*@__PURE__*
   messageDesc(file_goalloop_v1_goalloop, 3);
 
 /**
- * @generated from message proto.goalloop.v1.LoopWorkerNode
- */
-export type LoopWorkerNode = Message<"proto.goalloop.v1.LoopWorkerNode"> & {
-  /**
-   * @generated from field: proto.goalloop.v1.LoopNodeIdentity identity = 1;
-   */
-  identity?: LoopNodeIdentity | undefined;
-
-  /**
-   * @generated from field: int64 snapshot_id = 2;
-   */
-  snapshotId: bigint;
-};
-
-/**
- * Describes the message proto.goalloop.v1.LoopWorkerNode.
- * Use `create(LoopWorkerNodeSchema)` to create a new message.
- */
-export const LoopWorkerNodeSchema: GenMessage<LoopWorkerNode> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 4);
-
-/**
  * @generated from message proto.goalloop.v1.LoopLimits
  */
 export type LoopLimits = Message<"proto.goalloop.v1.LoopLimits"> & {
@@ -157,7 +135,7 @@ export type LoopLimits = Message<"proto.goalloop.v1.LoopLimits"> & {
  * Use `create(LoopLimitsSchema)` to create a new message.
  */
 export const LoopLimitsSchema: GenMessage<LoopLimits> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 5);
+  messageDesc(file_goalloop_v1_goalloop, 4);
 
 /**
  * @generated from message proto.goalloop.v1.LoopReference
@@ -179,7 +157,7 @@ export type LoopReference = Message<"proto.goalloop.v1.LoopReference"> & {
  * Use `create(LoopReferenceSchema)` to create a new message.
  */
 export const LoopReferenceSchema: GenMessage<LoopReference> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 6);
+  messageDesc(file_goalloop_v1_goalloop, 5);
 
 /**
  * @generated from message proto.goalloop.v1.LoopAgentNode
@@ -189,11 +167,6 @@ export type LoopAgentNode = Message<"proto.goalloop.v1.LoopAgentNode"> & {
    * @generated from field: proto.goalloop.v1.LoopNodeIdentity identity = 1;
    */
   identity?: LoopNodeIdentity | undefined;
-
-  /**
-   * @generated from field: string worker_ref = 2;
-   */
-  workerRef: string;
 
   /**
    * @generated from field: string prompt = 3;
@@ -206,7 +179,7 @@ export type LoopAgentNode = Message<"proto.goalloop.v1.LoopAgentNode"> & {
  * Use `create(LoopAgentNodeSchema)` to create a new message.
  */
 export const LoopAgentNodeSchema: GenMessage<LoopAgentNode> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 7);
+  messageDesc(file_goalloop_v1_goalloop, 6);
 
 /**
  * @generated from message proto.goalloop.v1.LoopVerifierNode
@@ -233,7 +206,7 @@ export type LoopVerifierNode = Message<"proto.goalloop.v1.LoopVerifierNode"> & {
  * Use `create(LoopVerifierNodeSchema)` to create a new message.
  */
 export const LoopVerifierNodeSchema: GenMessage<LoopVerifierNode> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 8);
+  messageDesc(file_goalloop_v1_goalloop, 7);
 
 /**
  * @generated from message proto.goalloop.v1.LoopRepeatNode
@@ -270,7 +243,7 @@ export type LoopRepeatNode = Message<"proto.goalloop.v1.LoopRepeatNode"> & {
  * Use `create(LoopRepeatNodeSchema)` to create a new message.
  */
 export const LoopRepeatNodeSchema: GenMessage<LoopRepeatNode> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 9);
+  messageDesc(file_goalloop_v1_goalloop, 8);
 
 /**
  * @generated from message proto.goalloop.v1.LoopProgram
@@ -285,11 +258,6 @@ export type LoopProgram = Message<"proto.goalloop.v1.LoopProgram"> & {
    * @generated from field: proto.goalloop.v1.LoopNodeIdentity loop = 2;
    */
   loop?: LoopNodeIdentity | undefined;
-
-  /**
-   * @generated from field: proto.goalloop.v1.LoopWorkerNode worker = 3;
-   */
-  worker?: LoopWorkerNode | undefined;
 
   /**
    * @generated from field: proto.goalloop.v1.LoopLimits limits = 4;
@@ -312,7 +280,7 @@ export type LoopProgram = Message<"proto.goalloop.v1.LoopProgram"> & {
  * Use `create(LoopProgramSchema)` to create a new message.
  */
 export const LoopProgramSchema: GenMessage<LoopProgram> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 10);
+  messageDesc(file_goalloop_v1_goalloop, 9);
 
 /**
  * @generated from message proto.goalloop.v1.LoopDiagnostic
@@ -349,7 +317,7 @@ export type LoopDiagnostic = Message<"proto.goalloop.v1.LoopDiagnostic"> & {
  * Use `create(LoopDiagnosticSchema)` to create a new message.
  */
 export const LoopDiagnosticSchema: GenMessage<LoopDiagnostic> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 11);
+  messageDesc(file_goalloop_v1_goalloop, 10);
 
 /**
  * @generated from message proto.goalloop.v1.CompileLoopProgramRequest
@@ -376,7 +344,7 @@ export type CompileLoopProgramRequest = Message<"proto.goalloop.v1.CompileLoopPr
  * Use `create(CompileLoopProgramRequestSchema)` to create a new message.
  */
 export const CompileLoopProgramRequestSchema: GenMessage<CompileLoopProgramRequest> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 12);
+  messageDesc(file_goalloop_v1_goalloop, 11);
 
 /**
  * @generated from message proto.goalloop.v1.CompileLoopProgramResponse
@@ -408,7 +376,7 @@ export type CompileLoopProgramResponse = Message<"proto.goalloop.v1.CompileLoopP
  * Use `create(CompileLoopProgramResponseSchema)` to create a new message.
  */
 export const CompileLoopProgramResponseSchema: GenMessage<CompileLoopProgramResponse> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 13);
+  messageDesc(file_goalloop_v1_goalloop, 12);
 
 /**
  * @generated from message proto.goalloop.v1.RunLoopProgramRequest
@@ -423,6 +391,11 @@ export type RunLoopProgramRequest = Message<"proto.goalloop.v1.RunLoopProgramReq
    * @generated from field: string source = 2;
    */
   source: string;
+
+  /**
+   * @generated from field: int64 worker_spec_snapshot_id = 3;
+   */
+  workerSpecSnapshotId: bigint;
 };
 
 /**
@@ -430,7 +403,7 @@ export type RunLoopProgramRequest = Message<"proto.goalloop.v1.RunLoopProgramReq
  * Use `create(RunLoopProgramRequestSchema)` to create a new message.
  */
 export const RunLoopProgramRequestSchema: GenMessage<RunLoopProgramRequest> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 14);
+  messageDesc(file_goalloop_v1_goalloop, 13);
 
 /**
  * @generated from message proto.goalloop.v1.LoopDraftSnapshot
@@ -487,7 +460,7 @@ export type LoopDraftSnapshot = Message<"proto.goalloop.v1.LoopDraftSnapshot"> &
  * Use `create(LoopDraftSnapshotSchema)` to create a new message.
  */
 export const LoopDraftSnapshotSchema: GenMessage<LoopDraftSnapshot> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 15);
+  messageDesc(file_goalloop_v1_goalloop, 14);
 
 /**
  * @generated from message proto.goalloop.v1.GoalLoop
@@ -629,7 +602,7 @@ export type GoalLoop = Message<"proto.goalloop.v1.GoalLoop"> & {
  * Use `create(GoalLoopSchema)` to create a new message.
  */
 export const GoalLoopSchema: GenMessage<GoalLoop> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 16);
+  messageDesc(file_goalloop_v1_goalloop, 15);
 
 /**
  * @generated from message proto.goalloop.v1.ListGoalLoopsRequest
@@ -666,7 +639,7 @@ export type ListGoalLoopsRequest = Message<"proto.goalloop.v1.ListGoalLoopsReque
  * Use `create(ListGoalLoopsRequestSchema)` to create a new message.
  */
 export const ListGoalLoopsRequestSchema: GenMessage<ListGoalLoopsRequest> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 17);
+  messageDesc(file_goalloop_v1_goalloop, 16);
 
 /**
  * @generated from message proto.goalloop.v1.ListGoalLoopsResponse
@@ -698,7 +671,7 @@ export type ListGoalLoopsResponse = Message<"proto.goalloop.v1.ListGoalLoopsResp
  * Use `create(ListGoalLoopsResponseSchema)` to create a new message.
  */
 export const ListGoalLoopsResponseSchema: GenMessage<ListGoalLoopsResponse> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 18);
+  messageDesc(file_goalloop_v1_goalloop, 17);
 
 /**
  * @generated from message proto.goalloop.v1.GetGoalLoopRequest
@@ -720,7 +693,7 @@ export type GetGoalLoopRequest = Message<"proto.goalloop.v1.GetGoalLoopRequest">
  * Use `create(GetGoalLoopRequestSchema)` to create a new message.
  */
 export const GetGoalLoopRequestSchema: GenMessage<GetGoalLoopRequest> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 19);
+  messageDesc(file_goalloop_v1_goalloop, 18);
 
 /**
  * @generated from message proto.goalloop.v1.CreateGoalLoopRequest
@@ -802,7 +775,7 @@ export type CreateGoalLoopRequest = Message<"proto.goalloop.v1.CreateGoalLoopReq
  * Use `create(CreateGoalLoopRequestSchema)` to create a new message.
  */
 export const CreateGoalLoopRequestSchema: GenMessage<CreateGoalLoopRequest> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 20);
+  messageDesc(file_goalloop_v1_goalloop, 19);
 
 /**
  * @generated from message proto.goalloop.v1.GoalLoopActionRequest
@@ -824,7 +797,7 @@ export type GoalLoopActionRequest = Message<"proto.goalloop.v1.GoalLoopActionReq
  * Use `create(GoalLoopActionRequestSchema)` to create a new message.
  */
 export const GoalLoopActionRequestSchema: GenMessage<GoalLoopActionRequest> = /*@__PURE__*/
-  messageDesc(file_goalloop_v1_goalloop, 21);
+  messageDesc(file_goalloop_v1_goalloop, 20);
 
 /**
  * @generated from service proto.goalloop.v1.GoalLoopService

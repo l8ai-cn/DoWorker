@@ -6,7 +6,7 @@
 
 **Architecture:** A restricted LoopScript parser/compiler in Go is authoritative. A typed flat V1 AST is transported through the existing GoalLoop Connect service, stored in Rust Core `AppState`, and projected into CodeMirror and Blockly views. Running always recompiles source on the backend before using the existing GoalLoop service.
 
-**Tech Stack:** Go, ConnectRPC, protobuf, Rust/WASM, React 19, Next.js, CodeMirror 6, Blockly 13, Vitest, Playwright.
+**Tech Stack:** Go, ConnectRPC, protobuf, Rust/WASM, React 19, Next.js, CodeMirror 6, Blockly 12.5, Vitest, Playwright.
 
 ---
 
@@ -105,7 +105,7 @@ Excluded:
 - Modify: `pnpm-lock.yaml`
 - Test: `clients/web/src/components/loop-builder/__tests__/*`
 
-- [x] Add Blockly 13 at the workspace root and keep it lazy-loaded on the Loop route.
+- [x] Add Blockly 12.5 at the workspace root and keep it lazy-loaded on the Loop route.
 - [x] Add failing projection tests for AST-to-blocks, blocks-to-source and stable node IDs.
 - [x] Implement block catalog, projector, semantic edit adapter and CodeMirror editor.
 - [x] Implement single-writer mode, diagnostics, last-valid read-only blocks and run result.

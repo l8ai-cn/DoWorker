@@ -11,10 +11,6 @@ func loopProgramToProto(program *loopscript.Program) *goalloopv1.LoopProgram {
 	return &goalloopv1.LoopProgram{
 		SchemaVersion: int32(program.SchemaVersion),
 		Loop:          loopIdentity(loop.NodeID, loop.LocalID),
-		Worker: &goalloopv1.LoopWorkerNode{
-			Identity:   loopIdentity(loop.Worker.NodeID, loop.Worker.LocalID),
-			SnapshotId: loop.Worker.SnapshotID,
-		},
 		Limits: &goalloopv1.LoopLimits{
 			Iterations:     loop.Limits.Iterations,
 			Tokens:         loop.Limits.Tokens,
@@ -30,9 +26,8 @@ func loopProgramToProto(program *loopscript.Program) *goalloopv1.LoopProgram {
 				Field:   repeat.Until.Field,
 			},
 			Agent: &goalloopv1.LoopAgentNode{
-				Identity:  loopIdentity(repeat.Agent.NodeID, repeat.Agent.LocalID),
-				WorkerRef: repeat.Agent.Using,
-				Prompt:    repeat.Agent.Prompt,
+				Identity: loopIdentity(repeat.Agent.NodeID, repeat.Agent.LocalID),
+				Prompt:   repeat.Agent.Prompt,
 			},
 			Verifier: &goalloopv1.LoopVerifierNode{
 				Identity: loopIdentity(repeat.Verifier.NodeID, repeat.Verifier.LocalID),

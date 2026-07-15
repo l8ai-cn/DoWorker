@@ -1,16 +1,5 @@
 package loopscript
 
-func (p *parser) parseWorker(nodeID string) WorkerNode {
-	p.expect(tokenWorker)
-	localID := p.takeIdentifier()
-	p.expect(tokenEqual)
-	p.expect(tokenSnapshot)
-	p.expect(tokenLParen)
-	snapshotID := p.takeInteger(tokenNumber)
-	p.expect(tokenRParen)
-	return WorkerNode{NodeID: nodeID, LocalID: localID, SnapshotID: snapshotID}
-}
-
 func (p *parser) parseLimits() Limits {
 	p.expect(tokenLimits)
 	p.expect(tokenLParen)
@@ -109,27 +98,21 @@ func (p *parser) parseReference() Reference {
 func (p *parser) parseAgent(nodeID string) AgentNode {
 	p.expect(tokenAgent)
 	localID := p.takeIdentifier()
-	p.expect(tokenLParen)
-	p.expect(tokenUsing)
-	p.expect(tokenColon)
-	using := p.takeIdentifier()
-	p.expect(tokenRParen)
 	p.expect(tokenLBrace)
 	p.expect(tokenPromptKey)
 	if p.current().kind == tokenSecret {
 		p.failCurrent("loop.secret.literal-forbidden", "secret literals are forbidden", nodeID)
-		return AgentNode{NodeID: nodeID, LocalID: localID, Using: using}
+		return AgentNode{NodeID: nodeID, LocalID: localID}
 	}
 	prompt := p.current()
 	if prompt.kind != tokenPrompt && prompt.kind != tokenString {
 		p.failCurrent("loop.syntax.unexpected-token", "expected prompt string", nodeID)
-		return AgentNode{NodeID: nodeID, LocalID: localID, Using: using}
+		return AgentNode{NodeID: nodeID, LocalID: localID}
 	}
 	p.advance()
 	p.expect(tokenRBrace)
 	return AgentNode{
-		NodeID: nodeID, LocalID: localID, Using: using,
-		Prompt: prompt.literal,
+		NodeID: nodeID, LocalID: localID, Prompt: prompt.literal,
 	}
 }
 

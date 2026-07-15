@@ -1,6 +1,8 @@
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import {
   CompileLoopProgramRequestSchema,
+  ListWorkerSnapshotsRequestSchema,
+  ListWorkerSnapshotsResponseSchema,
   LoopDraftSnapshotSchema,
   RunLoopProgramRequestSchema,
 } from "@proto/goalloop/v1/goalloop_pb";
@@ -9,7 +11,11 @@ import {
   getLoopBuilderState,
   initWasmCore,
 } from "@/lib/wasm-core";
-import type { LoopEditor, LoopWorkbenchSnapshot } from "@/lib/viewModels/loop-program";
+import type {
+  LoopEditor,
+  LoopRuntimeSnapshot,
+  LoopWorkbenchSnapshot,
+} from "@/lib/viewModels/loop-program";
 
 function toSnapshot(): LoopWorkbenchSnapshot {
   const snapshot = fromBinary(
@@ -77,12 +83,38 @@ export async function applyLoopCompile(
   return toSnapshot();
 }
 
+export async function listLoopRuntimeSnapshots(
+  orgSlug: string,
+): Promise<LoopRuntimeSnapshot[]> {
+  await initWasmCore();
+  const request = create(ListWorkerSnapshotsRequestSchema, { orgSlug });
+  const response = fromBinary(
+    ListWorkerSnapshotsResponseSchema,
+    new Uint8Array(
+      await getGoalLoopService().listWorkerSnapshotsConnect(
+        toBinary(ListWorkerSnapshotsRequestSchema, request),
+      ),
+    ),
+  );
+  return response.items.map((snapshot) => ({
+    id: snapshot.id.toString(),
+    alias: snapshot.alias,
+    workerType: snapshot.workerType,
+    createdAt: snapshot.createdAt,
+  }));
+}
+
 export async function runLoopProgram(
   orgSlug: string,
   source: string,
+  workerSpecSnapshotId: string,
 ): Promise<LoopWorkbenchSnapshot> {
   await initWasmCore();
-  const request = create(RunLoopProgramRequestSchema, { orgSlug, source });
+  const request = create(RunLoopProgramRequestSchema, {
+    orgSlug,
+    source,
+    workerSpecSnapshotId: BigInt(workerSpecSnapshotId),
+  });
   const response = new Uint8Array(
     await getGoalLoopService().runLoopProgramConnect(
       toBinary(RunLoopProgramRequestSchema, request),

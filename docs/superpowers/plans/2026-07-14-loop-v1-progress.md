@@ -1,52 +1,46 @@
-# Loop V1 Progress
+# Loop V1 进度
 
-- Goal status: active
-- Branch: `codex/integrate-loop-workbench`
-- Started: 2026-07-14
-- Maximum implementation iterations: 12
-- Maximum wall time per iteration: 45 minutes
-- No-progress rule: two consecutive iterations without a new passing test, browser assertion, or resolved review finding
-- Escalation: stop on architecture/security/data ambiguity or repeated no-progress; record the exact blocker and required human decision
+- 目标状态：主线整合中
+- 分支：`codex/integrate-loop-workbench`
+- 开始日期：2026-07-14
+- 最大实现轮次：12
+- 单轮最长时间：45 分钟
+- 无进展判定：连续两轮没有新增通过的测试、浏览器断言或已解决的评审问题
+- 人工升级：架构、安全、数据存在歧义，或连续无进展时停止并记录阻塞点
 
-## Machine-Checkable Done
+## 可机器检查的完成条件
 
-- [x] Go parser/compiler round-trip and rejection tests pass.
-- [x] Compile and run Connect handler tests pass.
-- [x] Rust Core LoopState tests and WASM build pass.
-- [x] Web projection/editor tests, typecheck and lint pass.
-- [x] Browser E2E proves both edit directions, invalid-code lockout and real GoalLoop creation/start.
-- [x] Final review has no blocking findings.
-- [ ] Integration branch is pushed and visible on the remote.
+- [x] Go 解析、格式化、校验、编译和拒绝非法语法测试通过。
+- [x] Connect 编译与运行接口测试通过。
+- [x] Rust Core Loop 状态测试与 WASM 构建通过。
+- [x] Web 投影、编辑器测试、类型检查和 lint 通过。
+- [x] 浏览器验证双向编辑、非法代码锁定、中文界面和运行环境选择。
+- [x] 独立评审无阻塞问题。
+- [ ] 集成分支已推送，CI 通过并合并到 `main`。
 
-## Iterations
+## 实施轮次
 
-| Iteration | Scope | Evidence | Status |
+| 轮次 | 范围 | 证据 | 状态 |
 | --- | --- | --- | --- |
-| 1 | Plan and repository mapping | Plan line checks and `git diff --check` pass | complete |
-| 2 | Authoritative LoopScript core | Go tests, spec review and quality review pass | complete |
-| 3 | Connect compile/run contract | Handler/service tests and two-stage review pass | complete |
-| 4 | Rust Core LoopState and WASM bridge | State/service tests, Cargo checks and WASM build pass | complete |
-| 5 | Blockly and CodeMirror workbench | Projection tests, typecheck, lint and responsive browser QA pass | complete |
-| 6 | Real execution integration | GoalLoop `checkout-fix-2` and Pod `7-standalone-62c1f8c9` were created and started | complete |
-| 7 | Final review and delivery | Independent review found no P1/P2; clean candidate tree passed all checks; commit `3b23b774290b4c7ba30ed3d1a159d5029360e556` is visible on `origin/codex/loop-blockly-mvp` | complete |
-| 8 | Single-runtime deterministic controller | Race tests, real browser integration and independent review cover exact verification consumption, durable retry commands, replay filtering and recovery | implementation complete; delivery waiting on migration sequence |
+| 1 | 计划与代码库映射 | 计划检查与 `git diff --check` 通过 | 完成 |
+| 2 | LoopScript 核心 | Go 测试、规格评审和质量评审通过 | 完成 |
+| 3 | Connect 编译与运行契约 | Handler 和 Service 测试通过 | 完成 |
+| 4 | Rust Core 与 WASM | 状态测试、Cargo 检查和 WASM 构建通过 | 完成 |
+| 5 | Blockly 与代码工作台 | 投影测试、类型检查、lint 和响应式浏览器验证通过 | 完成 |
+| 6 | 真实执行联调 | GoalLoop 与 Pod 已创建并启动 | 完成 |
+| 7 | 确定性验证控制器 | 竞态测试、恢复测试和独立评审通过 | 完成 |
+| 8 | 运行环境与编排分离 | Worker 已从 AST、积木和编译中移除，运行时显式选择环境快照 | 完成 |
+| 9 | 主线整合 | 干净 worktree、连续迁移号、Node 20 兼容依赖和遮罩层修复 | 验证中 |
 
-## Integration Evidence
+## 当前证据
 
-- Worker snapshot `23` passed backend freshness validation and was compiled into the launch spec.
-- The browser exercised blocks to code, code to blocks, invalid source lockout and recovery without console warnings or errors.
-- The authenticated Run path reached GoalLoop creation, Pod creation and Runner target startup.
-- A clean candidate tree, built only from the exact delivery index, passed all focused tests and the three-test Playwright suite on port `10027`.
-- Start/cancel races and verification cleanup failures now persist an explicit retryable Pod cleanup state; timeout sweeping processes the full batch even when one Runner remains unavailable.
-- The target `openclaw` process started, then the existing Autopilot controller attempted its fixed `claude` control command. The single-runtime runner image does not contain that binary, so the existing same-error circuit breaker paused the loop after three errors.
-- GoalLoop V1 now uses a deterministic verifier-driven controller and sends failed verification evidence back to the same Worker. It no longer requires a second control-plane CLI inside the single-runtime runner image.
-- Failed verification evidence and a stable retry command ID are persisted together; the pending Runner command queue and Runner command-ID deduplication make dispatch recoverable.
-- Runner releases a reserved command ID when prompt delivery fails, so recovery retries are not absorbed as false duplicates.
-- Runner persists accepted or uncertain prompt command IDs and completed verifier results outside the Worker sandbox; restart replay does not repeat their side effects.
-- Persisted verifier requests are redispatched with the original request ID, closing the backend crash window between state claim and command delivery.
-- Persisted Pod agent status rejects reordered events; an `executing` callback activates a queued retry without re-enqueuing it.
-- Timeout sweeping terminates expired Loops before retry recovery, and every Pod termination path removes pending commands for that Pod.
-- Duplicate command IDs are detected before per-Runner capacity checks, preserving idempotent retry semantics when a queue is full.
-- GoalLoop `checkout-fix-7` and Pod `7-standalone-616af48d` exercised the repaired path in the browser without creating an Autopilot controller.
-- Independent final review found no P0, P1 or P2 issue after the Runner handler and deterministic controller test files were split by responsibility.
-- Delivery remains blocked until the shared-worktree owners publish migrations `000207` through `000212`; pushing `000213` and `000214` first would make the lower migration versions permanently ineligible after deployment.
+- LoopScript 只描述目标、任务、验证、预算和失败策略，不包含 Worker 声明或 `using` 参数。
+- 编译阶段不读取运行环境；运行请求必须提交 `worker_spec_snapshot_id`，后端在创建 GoalLoop 前校验。
+- Blockly 工具箱、积木标签、状态和结构诊断均为中文。
+- Blockly 使用 `12.5.1`，满足主线 Node 20 的运行要求。
+- 运行环境对话框遮罩层高于 Blockly 浮层，避免工具箱穿透点击。
+- 浏览器实测遮罩层 `z-index` 为 `100001`、Blockly 工具箱为 `70`；选择快照后启动按钮启用，控制台无错误。
+- 失败验证证据与稳定重试命令标识一并持久化，Runner 队列和命令去重支持恢复。
+- Runner 重启后不会重复已经接受的提示命令或已完成的验证副作用。
+- 超时清理、终止路径和待执行命令清理均有确定性测试覆盖。
+- 主线当前迁移版本为 `000207`；Loop 状态迁移连续编号为 `000208` 和 `000209`。

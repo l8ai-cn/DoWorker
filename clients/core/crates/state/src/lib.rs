@@ -1,5 +1,6 @@
 pub mod acp_session;
 pub mod acp_types;
+mod app_runtime;
 pub mod app_state;
 pub mod auth_types;
 pub mod autopilot_state;

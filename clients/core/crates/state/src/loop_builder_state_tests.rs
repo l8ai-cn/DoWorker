@@ -10,13 +10,6 @@ fn valid_program() -> lp::LoopProgram {
             node_id: "n-checkout-fix".into(),
             local_id: "checkout-fix".into(),
         }),
-        worker: Some(lp::LoopWorkerNode {
-            identity: Some(lp::LoopNodeIdentity {
-                node_id: "n-coder".into(),
-                local_id: "coder".into(),
-            }),
-            snapshot_id: 42,
-        }),
         ..Default::default()
     }
 }

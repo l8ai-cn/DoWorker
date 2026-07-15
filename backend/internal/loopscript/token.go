@@ -23,8 +23,6 @@ const (
 
 	tokenID         tokenKind = "id"
 	tokenLoop       tokenKind = "loop"
-	tokenWorker     tokenKind = "worker"
-	tokenSnapshot   tokenKind = "snapshot"
 	tokenLimits     tokenKind = "limits"
 	tokenIterations tokenKind = "iterations"
 	tokenTokens     tokenKind = "tokens"
@@ -35,7 +33,6 @@ const (
 	tokenMax        tokenKind = "max"
 	tokenUntil      tokenKind = "until"
 	tokenAgent      tokenKind = "agent"
-	tokenUsing      tokenKind = "using"
 	tokenPromptKey  tokenKind = "prompt"
 	tokenVerify     tokenKind = "verify"
 	tokenCommand    tokenKind = "command"
@@ -49,8 +46,6 @@ const (
 var keywords = map[string]tokenKind{
 	"id":          tokenID,
 	"loop":        tokenLoop,
-	"worker":      tokenWorker,
-	"snapshot":    tokenSnapshot,
 	"limits":      tokenLimits,
 	"iterations":  tokenIterations,
 	"tokens":      tokenTokens,
@@ -61,7 +56,6 @@ var keywords = map[string]tokenKind{
 	"max":         tokenMax,
 	"until":       tokenUntil,
 	"agent":       tokenAgent,
-	"using":       tokenUsing,
 	"prompt":      tokenPromptKey,
 	"verify":      tokenVerify,
 	"command":     tokenCommand,

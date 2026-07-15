@@ -9,7 +9,6 @@ func CompileGoalLoopV1(program *Program) (*GoalLoopLaunchSpec, []Diagnostic) {
 	return &GoalLoopLaunchSpec{
 		Name:                loop.LocalID,
 		Slug:                loop.LocalID,
-		WorkerSnapshotID:    loop.Worker.SnapshotID,
 		Objective:           loop.Repeat.Agent.Prompt,
 		AcceptanceCriteria:  []string{loop.Repeat.Verifier.Accept},
 		VerificationCommand: loop.Repeat.Verifier.Command,

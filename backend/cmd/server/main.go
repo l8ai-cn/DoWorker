@@ -21,7 +21,6 @@ import (
 	coordinatorsvc "github.com/anthropics/agentsmesh/backend/internal/service/coordinator"
 	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
-	goalloop "github.com/anthropics/agentsmesh/backend/internal/service/goalloop"
 	"github.com/anthropics/agentsmesh/backend/internal/service/instance"
 	notifService "github.com/anthropics/agentsmesh/backend/internal/service/notification"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
@@ -177,15 +176,8 @@ func main() {
 	setupWorkflowEventSubscriptions(eventBus, workflowOrchestrator)
 	slog.Info("Workflow orchestrator and scheduler created")
 
-	services.goalLoop.SetWorkerSpecSnapshotLoader(services.workerSpecs)
-	services.goalLoop.SetWorkerTypeSnapshotValidator(services.workerCreation)
-	services.goalLoop.SetExecutionDependencies(podOrchestrator, services.pod, podCoordinator)
-	services.goalLoop.SetPromptDispatcher(pendingQueueWiring.queue)
-	setupGoalLoopEventSubscriptions(eventBus, services.goalLoop)
-	goalLoopTimeoutMonitor := goalloop.NewTimeoutMonitor(services.goalLoop, appLogger.Logger)
-	goalLoopTimeoutMonitor.Start()
+	goalLoopTimeoutMonitor := configureGoalLoopService(services, podOrchestrator, podCoordinator, pendingQueueWiring.queue, eventBus, appLogger.Logger)
 	defer goalLoopTimeoutMonitor.Stop()
-	slog.Info("Goal Loop service configured")
 
 	coordinatorEnsurer := coordinatorsvc.NewRunnerEnsurer(services.runner, nil, appLogger.Logger)
 	if launcher, kind, err := coordinatorsvc.NewRunnerLauncherFromEnv(appLogger.Logger); err != nil {

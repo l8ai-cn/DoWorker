@@ -11,15 +11,12 @@ import {
   projectProgramToWorkspace,
   workspaceToLoopSource,
 } from "../loop-block-projection";
+import { loopToolbox } from "../loop-block-catalog";
 
 function program(): LoopProgram {
   return create(LoopProgramSchema, {
     schemaVersion: 1,
     loop: { nodeId: "n-checkout-fix", localId: "checkout-fix" },
-    worker: {
-      identity: { nodeId: "n-coder", localId: "coder" },
-      snapshotId: 42n,
-    },
     limits: {
       iterations: 5n,
       tokens: 80000n,
@@ -33,7 +30,6 @@ function program(): LoopProgram {
       until: { localId: "tests", field: "passed" },
       agent: {
         identity: { nodeId: "n-fix-tax", localId: "fix-tax" },
-        workerRef: "coder",
         prompt: "修复结算页税额计算，并补充边界测试。",
       },
       verifier: {
@@ -56,19 +52,22 @@ describe("Loop Blockly projection", () => {
 
     expect(workspaceToLoopSource(workspace).source).toBe(`@id(n-checkout-fix)
 loop checkout-fix {
-  @id(n-coder)
-  worker coder = snapshot(42)
   limits(iterations: 5, tokens: 80000, timeout: 60m, no_progress: 3, same_error: 2)
   @id(n-fix-cycle)
   repeat fix-cycle(max: 5, until: tests.passed) {
     @id(n-fix-tax)
-    agent fix-tax(using: coder) { prompt """修复结算页税额计算，并补充边界测试。""" }
+    agent fix-tax { prompt """修复结算页税额计算，并补充边界测试。""" }
     @id(n-tests)
     verify tests { command "pnpm test --filter billing" accept "完整测试集通过" }
   }
   on_failure pause
 }`);
     expect(repeat?.nextConnection).toBeNull();
+  });
+
+  it("does not expose Worker as a programmable block", () => {
+    expect(JSON.stringify(loopToolbox)).not.toContain("Worker");
+    expect(JSON.stringify(loopToolbox)).not.toContain("loop_worker");
   });
 
   it("preserves semantic node ids after block edits", () => {
@@ -120,7 +119,7 @@ loop checkout-fix {
 
     expect(result.complete).toBe(false);
     expect(result.issues).toContain(
-      "Repeat 必须且只能按顺序包含一个 Agent 和一个 Verifier",
+      "重复执行必须且只能按顺序包含一个智能体任务和一个验证步骤",
     );
     expect(result.source).toContain("invalid-block-structure");
   });

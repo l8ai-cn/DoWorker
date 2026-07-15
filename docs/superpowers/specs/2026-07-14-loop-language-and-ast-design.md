@@ -1,8 +1,13 @@
 # LoopScript 语言与 AST 详细设计
 
 - 日期：2026-07-14
-- 状态：待评审
+- 状态：历史方案，运行环境内嵌部分已废弃
 - 依赖：`2026-07-14-loop-bidirectional-feasibility-review.md`
+
+> 2026-07-15 更新：Worker 声明和 Agent 的 `using` 参数已从 LoopScript
+> 删除。当前权威边界见
+> `2026-07-15-loop-runtime-separation-design.md`；本文涉及运行环境内嵌的
+> 示例、语法和 AST 字段仅保留为历史设计记录。
 
 ## 1. 语言定位
 

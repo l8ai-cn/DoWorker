@@ -6,10 +6,8 @@ import (
 	"strings"
 )
 
-func (p *parser) failMissingStructure(worker, limits, repeat, failure bool) {
+func (p *parser) failMissingStructure(limits, repeat, failure bool) {
 	switch {
-	case !worker:
-		p.failCurrent("loop.structure.worker-count", "exactly one worker is required", "")
 	case !limits:
 		p.failCurrent("loop.structure.limits-count", "exactly one limits declaration is required", "")
 	case !repeat:

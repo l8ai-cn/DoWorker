@@ -28,12 +28,6 @@ func TestParseRejectsInvalidPrograms(t *testing.T) {
 			wantCode: "loop.identifier.invalid",
 		},
 		{
-			name:       "unknown worker reference",
-			source:     strings.Replace(canonicalSource, "using: coder", "using: reviewer", 1),
-			wantCode:   "loop.reference.worker-not-found",
-			wantNodeID: "n-fix-tax",
-		},
-		{
 			name:       "unknown verifier reference",
 			source:     strings.Replace(canonicalSource, "until: tests.passed", "until: checks.passed", 1),
 			wantCode:   "loop.reference.until-invalid",
@@ -48,6 +42,16 @@ func TestParseRejectsInvalidPrograms(t *testing.T) {
 		{
 			name:     "unknown syntax",
 			source:   strings.Replace(canonicalSource, "  on_failure pause", "  parallel work {}\n  on_failure pause", 1),
+			wantCode: "loop.syntax.unknown",
+		},
+		{
+			name: "worker declaration is not loop syntax",
+			source: strings.Replace(
+				canonicalSource,
+				"  limits(",
+				"  @id(n-coder)\n  worker coder = snapshot(42)\n  limits(",
+				1,
+			),
 			wantCode: "loop.syntax.unknown",
 		},
 		{

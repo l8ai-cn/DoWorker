@@ -7,13 +7,11 @@ import (
 
 const canonicalSource = `@id(n-checkout-fix)
 loop checkout-fix {
-  @id(n-coder)
-  worker coder = snapshot(42)
   limits(iterations: 5, tokens: 80000, timeout: 60m, no_progress: 3, same_error: 2)
   @id(n-fix-cycle)
   repeat fix-cycle(max: 5, until: tests.passed) {
     @id(n-fix-tax)
-    agent fix-tax(using: coder) { prompt """修复结算页税额计算，并补充边界测试。""" }
+    agent fix-tax { prompt """修复结算页税额计算，并补充边界测试。""" }
     @id(n-tests)
     verify tests { command "pnpm test --filter billing" accept "完整测试集通过" }
   }
@@ -31,11 +29,6 @@ func TestParseCanonicalGoalLoopV1(t *testing.T) {
 		Loop: LoopNode{
 			NodeID:  "n-checkout-fix",
 			LocalID: "checkout-fix",
-			Worker: WorkerNode{
-				NodeID:     "n-coder",
-				LocalID:    "coder",
-				SnapshotID: 42,
-			},
 			Limits: Limits{
 				Iterations:  5,
 				Tokens:      80000,
@@ -54,7 +47,6 @@ func TestParseCanonicalGoalLoopV1(t *testing.T) {
 				Agent: AgentNode{
 					NodeID:  "n-fix-tax",
 					LocalID: "fix-tax",
-					Using:   "coder",
 					Prompt:  "修复结算页税额计算，并补充边界测试。",
 				},
 				Verifier: VerifierNode{
@@ -139,7 +131,6 @@ func TestCompileGoalLoopV1MapsEveryField(t *testing.T) {
 	want := &GoalLoopLaunchSpec{
 		Name:                "checkout-fix",
 		Slug:                "checkout-fix",
-		WorkerSnapshotID:    42,
 		Objective:           "修复结算页税额计算，并补充边界测试。",
 		AcceptanceCriteria:  []string{"完整测试集通过"},
 		VerificationCommand: "pnpm test --filter billing",

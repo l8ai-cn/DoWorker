@@ -1,5 +1,6 @@
 export {
   applyLoopCompile,
+  listLoopRuntimeSnapshots,
   readLoopSnapshot,
   requestLoopCompile,
   runLoopProgram,
