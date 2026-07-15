@@ -58,7 +58,27 @@ func TestMarketplaceRuntimeSnapshotMigrationTargetsBackendExpertTemplate(t *test
 	down, err := os.ReadFile("000013_backend_expert_template_runtime_snapshot.down.sql")
 	require.NoError(t, err)
 
-	require.Contains(t, string(up), `"market_application_slug":"software-delivery-expert"`)
-	require.Contains(t, string(up), "backend-expert-template-v1")
-	require.Contains(t, string(down), "inline-expert-v1")
+	require.Contains(t, string(up), "000010 creates the immutable 1.0.0 catalog version")
+	require.Contains(t, string(down), "Catalog versions are immutable")
+	require.NotContains(t, string(up), "UPDATE marketplace.marketplace_catalog_item_versions")
+	require.NotContains(t, string(down), "UPDATE marketplace.marketplace_catalog_item_versions")
+}
+
+func TestMarketplaceInlineExpertSnapshotMigration(t *testing.T) {
+	up, err := os.ReadFile("000014_inline_expert_runtime_snapshot.up.sql")
+	require.NoError(t, err)
+	down, err := os.ReadFile("000014_inline_expert_runtime_snapshot.down.sql")
+	require.NoError(t, err)
+
+	require.Contains(t, string(up), `"skill_slugs":["delivery-worktree","delivery-e2e","delivery-github-merge","delivery-gitlab-merge"]`)
+	require.Contains(t, string(up), `"worker_spec":{"version":1`)
+	require.Contains(t, string(up), `"interaction_mode":"acp"`)
+	require.Contains(t, string(up), "inline-expert-v3")
+	require.Contains(t, string(up), "'1.1.0'")
+	require.Contains(t, string(up), "marketplace_expert_runtime_compatibility_guard")
+	require.Contains(t, string(up), "published expert listing requires a valid compatible agent identifier")
+	require.Contains(t, string(up), "~ '^[a-z0-9]+(-[a-z0-9]+)*$'")
+	require.NotContains(t, string(up), "SET source_revision")
+	require.Contains(t, string(down), "current_version_id = source_listing_version_id")
+	require.NotContains(t, string(down), "DELETE FROM marketplace.marketplace_catalog_item_versions")
 }

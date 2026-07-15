@@ -43,6 +43,13 @@ func (s *Server) ListExpertMarketReleases(
 	if err != nil {
 		return nil, mapExpertMarketError(err)
 	}
+	releasePointers := make([]*expertmarket.Release, 0, len(releases))
+	for index := range releases {
+		releasePointers = append(releasePointers, &releases[index])
+	}
+	if err := loadExpertMarketApplicationSlugs(ctx, s.db, releasePointers); err != nil {
+		return nil, mapExpertMarketError(err)
+	}
 	items := make([]*adminv1.ExpertMarketRelease, 0, len(releases))
 	for index := range releases {
 		items = append(items, toProtoExpertMarketRelease(&releases[index]))
@@ -66,6 +73,13 @@ func (s *Server) GetExpertMarketRelease(
 	release, err := s.marketRelease(ctx, req.Msg.GetReleaseId())
 	if err != nil {
 		return nil, err
+	}
+	if err := loadExpertMarketApplicationSlugs(
+		ctx,
+		s.db,
+		[]*expertmarket.Release{release},
+	); err != nil {
+		return nil, mapExpertMarketError(err)
 	}
 	return connect.NewResponse(toProtoExpertMarketRelease(release)), nil
 }
@@ -92,6 +106,13 @@ func (s *Server) ApproveExpertMarketRelease(
 		},
 	)
 	if err != nil {
+		return nil, mapExpertMarketError(err)
+	}
+	if err := loadExpertMarketApplicationSlugs(
+		ctx,
+		s.db,
+		[]*expertmarket.Release{release},
+	); err != nil {
 		return nil, mapExpertMarketError(err)
 	}
 	return connect.NewResponse(toProtoExpertMarketRelease(release)), nil
@@ -124,6 +145,13 @@ func (s *Server) RejectExpertMarketRelease(
 		},
 	)
 	if err != nil {
+		return nil, mapExpertMarketError(err)
+	}
+	if err := loadExpertMarketApplicationSlugs(
+		ctx,
+		s.db,
+		[]*expertmarket.Release{release},
+	); err != nil {
 		return nil, mapExpertMarketError(err)
 	}
 	return connect.NewResponse(toProtoExpertMarketRelease(release)), nil

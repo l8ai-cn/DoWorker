@@ -15,6 +15,7 @@ var (
 	ErrQuotaInsufficient           = errors.New("marketplace quota insufficient")
 	ErrPlanExpired                 = errors.New("installation plan expired")
 	ErrPlanMismatch                = errors.New("installation plan mismatch")
+	ErrApplicationAlreadyInstalled = errors.New("application already installed")
 	ErrOperationNotFound           = errors.New("installation operation not found")
 	ErrTargetOrganizationForbidden = errors.New("target organization forbidden")
 	ErrRuntimeAuthorizationFailed  = errors.New("runtime authorization failed")
@@ -32,6 +33,7 @@ type InstallSource struct {
 	Manifest             json.RawMessage
 	PlatformResourceType string
 	PlatformResourceID   int64
+	SourceReleaseID      int64
 	RuntimeSnapshot      json.RawMessage
 	QuotaPlanID          int64
 	QuotaChargeScope     string
@@ -100,6 +102,8 @@ type ApplyExecution struct {
 	ListingVersionID     int64
 	TargetOrganizationID int64
 	PlatformResourceType string
+	PlatformResourceID   int64
+	SourceReleaseID      int64
 	RuntimeSnapshot      json.RawMessage
 	ActorUserID          int64
 	Configuration        json.RawMessage
@@ -121,6 +125,8 @@ type RuntimeInstallRequest struct {
 	ListingVersionID     int64
 	TargetOrganizationID int64
 	PlatformResourceType string
+	PlatformResourceID   int64
+	SourceReleaseID      int64
 	RuntimeSnapshot      json.RawMessage
 	ActorUserID          int64
 	Configuration        json.RawMessage

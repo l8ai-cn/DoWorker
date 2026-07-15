@@ -7,6 +7,7 @@ export type ExpertMarketReleaseStatus =
 export interface ExpertMarketRelease {
   id: number;
   application_id: number;
+  application_slug: string;
   source_expert_id: number;
   publisher_organization_id: number;
   publisher_user_id: number;

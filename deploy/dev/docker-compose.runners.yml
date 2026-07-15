@@ -118,7 +118,7 @@ services:
     volumes:
       - ./ssl:/app/ssl:ro
       - ./runner-entrypoint.sh:/usr/local/bin/runner-entrypoint.sh:ro
-      - ./runner-ssh:/home/runner/.ssh:ro
+      - ./runner-ssh:/run/runner-ssh-source:ro
       - runner_video_studio_workspace:/workspace
       - runner_video_studio_agentsmesh_config:/home/runner/.agentsmesh
       - runner_video_studio_codex_config:/home/runner/.codex

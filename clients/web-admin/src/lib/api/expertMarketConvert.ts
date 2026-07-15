@@ -11,6 +11,7 @@ export function fromProtoExpertMarketRelease(
   return {
     id: Number(release.id),
     application_id: Number(release.applicationId),
+    application_slug: release.applicationSlug,
     source_expert_id: Number(release.sourceExpertId),
     publisher_organization_id: Number(release.publisherOrganizationId),
     publisher_user_id: Number(release.publisherUserId),

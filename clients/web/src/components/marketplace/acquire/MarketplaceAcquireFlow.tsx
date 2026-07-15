@@ -28,6 +28,7 @@ import {
   OrganizationStep,
   SuccessState,
 } from "./MarketplaceAcquireStates";
+import { useMarketplaceRuntimeModels } from "./useMarketplaceRuntimeModels";
 
 type Step = "select" | "confirm" | "installing" | "success";
 
@@ -44,11 +45,19 @@ export function MarketplaceAcquireFlow({
   const requestedVersion = params.get("version") ?? "";
   const [listing, setListing] = useState<MarketplaceListingDetail | null>(null);
   const [organizations, setOrganizations] = useState<LightOrganization[]>([]);
+  const [loadingOrganizations, setLoadingOrganizations] = useState(true);
   const [organizationID, setOrganizationID] = useState("");
   const [plan, setPlan] = useState<InstallationPlan | null>(null);
   const [installationID, setInstallationID] = useState("");
   const [step, setStep] = useState<Step>("select");
   const [error, setError] = useState("");
+  const selectedOrganization = organizations.find(
+    (organization) => String(organization.id) === organizationID,
+  );
+  const runtimeModels = useMarketplaceRuntimeModels(
+    selectedOrganization?.slug,
+    listing?.agent_slug,
+  );
 
   useEffect(() => {
     if (!marketSlug || !listingSlug) {
@@ -62,9 +71,11 @@ export function MarketplaceAcquireFlow({
 
   useEffect(() => {
     if (!hydrated || !session?.isAuthenticated) return;
+    setLoadingOrganizations(true);
     lightListOrganizations()
       .then(setOrganizations)
-      .catch(() => setError("组织列表加载失败，请刷新后重试。"));
+      .catch(() => setError("组织列表加载失败，请刷新后重试。"))
+      .finally(() => setLoadingOrganizations(false));
   }, [hydrated, session?.isAuthenticated]);
 
   useEffect(() => {
@@ -94,12 +105,8 @@ export function MarketplaceAcquireFlow({
     return <AcquireShell><ErrorState message={error} /></AcquireShell>;
   }
 
-  const selectedOrganization = organizations.find(
-    (organization) => String(organization.id) === organizationID,
-  );
-
   async function preparePlan() {
-    if (!selectedOrganization || !listing) return;
+    if (!selectedOrganization || !listing || !runtimeModels.modelResourceID) return;
     setError("");
     try {
       const result = await createInstallationPlan(
@@ -107,6 +114,7 @@ export function MarketplaceAcquireFlow({
         listingSlug,
         requestedVersion || listing.listing_version_id,
         selectedOrganization.id,
+        Number(runtimeModels.modelResourceID),
       );
       setPlan(result);
       setStep("confirm");
@@ -150,10 +158,23 @@ export function MarketplaceAcquireFlow({
       {step === "select" ? (
         <OrganizationStep
           organizations={organizations}
+          loadingOrganizations={loadingOrganizations}
           value={organizationID}
           onChange={setOrganizationID}
           onContinue={preparePlan}
           fixedOrganization={organizationSlug ? selectedOrganization : undefined}
+          modelResources={runtimeModels.modelResources}
+          modelResourceID={runtimeModels.modelResourceID}
+          onModelChange={runtimeModels.setModelResourceID}
+          loadingModels={runtimeModels.loadingModels}
+          modelError={runtimeModels.modelError}
+          incompatibleListing={runtimeModels.incompatibleListing}
+          onReloadModels={runtimeModels.reloadModels}
+          settingsHref={
+            selectedOrganization
+              ? `/${selectedOrganization.slug}/settings?tab=ai-resources`
+              : ""
+          }
         />
       ) : null}
       {step === "confirm" && plan && selectedOrganization ? (

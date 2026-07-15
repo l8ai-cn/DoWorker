@@ -3,10 +3,12 @@ package postgres
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/anthropics/agentsmesh/marketplace/internal/service"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 )
 
@@ -30,6 +32,8 @@ type storedPlan struct {
 	ExpiresAt            time.Time       `json:"expires_at"`
 	EstimatedCredits     int64           `json:"estimated_credits_micro"`
 	PlatformResourceType string          `json:"platform_resource_type"`
+	PlatformResourceID   int64           `json:"platform_resource_id"`
+	SourceReleaseID      int64           `json:"source_release_id"`
 	RuntimeSnapshot      json.RawMessage `json:"runtime_snapshot"`
 }
 
@@ -86,6 +90,12 @@ WHERE id = ?::uuid AND status = 'planned'
 UPDATE marketplace.marketplace_installations
 SET status = 'installing', updated_at = NOW() WHERE id = ?::uuid
 `, row.InstallationID).Error; err != nil {
+			var postgresError *pgconn.PgError
+			if errors.As(err, &postgresError) &&
+				postgresError.ConstraintName ==
+					"idx_marketplace_installations_single_active" {
+				return service.ErrApplicationAlreadyInstalled
+			}
 			return err
 		}
 		execution = applyExecution(row, plan)
@@ -100,6 +110,8 @@ func applyExecution(row applyRow, plan storedPlan) service.ApplyExecution {
 		ListingVersionID:     row.ListingVersionID,
 		TargetOrganizationID: row.TargetOrganizationID,
 		PlatformResourceType: plan.PlatformResourceType,
+		PlatformResourceID:   plan.PlatformResourceID,
+		SourceReleaseID:      plan.SourceReleaseID,
 		RuntimeSnapshot:      plan.RuntimeSnapshot,
 		ActorUserID:          row.ActorUserID,
 		Configuration:        row.Configuration,

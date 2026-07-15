@@ -13,8 +13,8 @@
 ### Task 1: Persist and synchronize Skill tags
 
 **Files:**
-- Create: `backend/migrations/000207_skill_tags.up.sql`
-- Create: `backend/migrations/000207_skill_tags.down.sql`
+- Create: `backend/migrations/000210_skill_tags.up.sql`
+- Create: `backend/migrations/000210_skill_tags.down.sql`
 - Create: `backend/migrations/skill_tags_test.go`
 - Modify: `backend/internal/domain/skill/skill.go`
 - Modify: `backend/internal/service/skill/authoring.go`
@@ -63,8 +63,8 @@ type skillConfig struct {
 ### Task 3: Add immutable marketplace persistence
 
 **Files:**
-- Create: `backend/migrations/000208_expert_marketplace.up.sql`
-- Create: `backend/migrations/000208_expert_marketplace.down.sql`
+- Create: `backend/migrations/000211_expert_marketplace.up.sql`
+- Create: `backend/migrations/000211_expert_marketplace.down.sql`
 - Create: `backend/migrations/expert_marketplace_test.go`
 - Create: `backend/internal/domain/expertmarket/application.go`
 - Create: `backend/internal/domain/expertmarket/release.go`

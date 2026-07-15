@@ -7,6 +7,7 @@ import type { ExpertMarketReleaseStatus } from "@/lib/api/admin";
 import { cn } from "@/lib/utils";
 import { ExpertReleaseDetail } from "./expert-release-detail";
 import { ExpertReleaseList } from "./expert-release-list";
+import { ExpertReleasePagination } from "./expert-release-pagination";
 import { statusLabels } from "./expert-release-status";
 import { useExpertMarketReview } from "./use-expert-market-review";
 
@@ -58,6 +59,14 @@ export default function ExpertMarketPage() {
         error={review.error}
         onRetry={review.loadReleases}
         onView={review.viewRelease}
+      />
+      <ExpertReleasePagination
+        total={review.total}
+        limit={review.limit}
+        offset={review.offset}
+        isLoading={review.isLoading}
+        onPrevious={review.previousPage}
+        onNext={review.nextPage}
       />
 
       {review.isDetailLoading && (

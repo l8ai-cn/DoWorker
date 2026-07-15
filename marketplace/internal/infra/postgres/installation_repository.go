@@ -28,6 +28,8 @@ func (r *InstallationRepository) ResolveInstallSource(
 SELECT m.id AS marketplace_id, l.id AS listing_id, lv.id AS listing_version_id,
   l.access_mode, civ.content_digest, civ.permissions, civ.manifest,
   ci.platform_resource_type, COALESCE(ci.platform_resource_id, 0) AS platform_resource_id,
+  COALESCE((civ.manifest->'source_release'->>'release_id')::bigint, 0)
+    AS source_release_id,
   civ.manifest->'runtime_snapshot' AS runtime_snapshot,
   qp.id AS quota_plan_id,
   qp.charge_scope AS quota_charge_scope,

@@ -46,6 +46,25 @@ func (repo *expertMarketRepo) GetApplicationBySlug(
 	return &application, nil
 }
 
+func (repo *expertMarketRepo) GetApplicationBySourceExpert(
+	ctx context.Context,
+	organizationID, sourceExpertID int64,
+) (*expertmarket.Application, error) {
+	var application expertmarket.Application
+	err := repo.db.WithContext(ctx).Where(
+		"publisher_organization_id = ? AND source_expert_id = ?",
+		organizationID,
+		sourceExpertID,
+	).First(&application).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, expertmarket.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &application, nil
+}
+
 func (repo *expertMarketRepo) ListApplications(
 	ctx context.Context,
 	filter expertmarket.ApplicationListFilter,

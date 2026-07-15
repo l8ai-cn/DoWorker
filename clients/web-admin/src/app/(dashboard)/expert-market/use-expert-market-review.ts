@@ -12,12 +12,17 @@ import {
   type ExpertMarketReleaseStatus,
 } from "@/lib/api/admin";
 import { errorMessage } from "./expert-market-errors";
+import { useExpertMarketPagination } from "./use-expert-market-pagination";
 
 type LoadResult = string | null | undefined;
 
 export function useExpertMarketReview() {
   const [status, setStatus] = useState<ExpertMarketReleaseStatus>("pending");
   const [releases, setReleases] = useState<ExpertMarketRelease[]>([]);
+  const {
+    total, limit, offset, requestLimit, applyResponse,
+    reset: resetPagination, previousPage, nextPage,
+  } = useExpertMarketPagination();
   const [selected, setSelected] = useState<ExpertMarketRelease | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
@@ -37,11 +42,12 @@ export function useExpertMarketReview() {
     try {
       const result = await listExpertMarketReleases({
         status,
-        limit: 50,
-        offset: 0,
+        limit: requestLimit,
+        offset,
       });
       if (requestId !== listRequestId.current) return undefined;
       setReleases(result.items);
+      applyResponse(result);
       return null;
     } catch (loadError) {
       if (requestId !== listRequestId.current) return undefined;
@@ -51,7 +57,7 @@ export function useExpertMarketReview() {
     } finally {
       if (requestId === listRequestId.current) setIsLoading(false);
     }
-  }, [status]);
+  }, [applyResponse, offset, requestLimit, status]);
 
   useEffect(() => {
     void loadReleases();
@@ -67,6 +73,7 @@ export function useExpertMarketReview() {
     if (nextStatus !== status) {
       listRequestId.current += 1;
       setStatus(nextStatus);
+      resetPagination();
     }
     detailRequestId.current += 1;
     activeReleaseId.current = null;
@@ -160,6 +167,9 @@ export function useExpertMarketReview() {
   return {
     status,
     releases,
+    total,
+    limit,
+    offset,
     selected,
     isLoading,
     isDetailLoading,
@@ -174,6 +184,8 @@ export function useExpertMarketReview() {
     approve,
     reject,
     refresh,
+    previousPage,
+    nextPage,
     startRejecting: () => setIsRejecting(true),
     cancelRejecting: () => {
       setIsRejecting(false);

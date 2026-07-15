@@ -33,9 +33,31 @@ func TestExpertMarketReviewListDefaultsToPending(t *testing.T) {
 	require.Equal(t, int64(1), resp.Msg.Total)
 	require.Len(t, resp.Msg.Items, 1)
 	require.Equal(t, pending.ID, resp.Msg.Items[0].Id)
+	require.Equal(t, "pending-video", resp.Msg.Items[0].ApplicationSlug)
 	require.Equal(t, "pending", resp.Msg.Items[0].Status)
 	require.JSONEq(t, `{"version":1,"slug":"pending-video"}`, resp.Msg.Items[0].ExpertSnapshotJson)
 	require.JSONEq(t, `[{"slug":"render","version":1}]`, resp.Msg.Items[0].SkillDependenciesJson)
+}
+
+func TestExpertMarketReviewListReturnsPaginationMetadata(t *testing.T) {
+	srv, repo := newExpertMarketAdminTestServer(t, true)
+	seedExpertMarketRelease(t, repo, "first-video", expertmarket.ReleaseStatusPendingReview)
+	seedExpertMarketRelease(t, repo, "second-video", expertmarket.ReleaseStatusPendingReview)
+
+	resp, err := srv.ListExpertMarketReleases(
+		adminCtx(99),
+		connect.NewRequest(&adminv1.ListExpertMarketReleasesRequest{
+			Limit:  int32Ptr(1),
+			Offset: int32Ptr(1),
+		}),
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, int64(2), resp.Msg.Total)
+	require.Equal(t, int32(1), resp.Msg.Limit)
+	require.Equal(t, int32(1), resp.Msg.Offset)
+	require.Len(t, resp.Msg.Items, 1)
+	require.NotEmpty(t, resp.Msg.Items[0].ApplicationSlug)
 }
 
 func TestExpertMarketReviewListSupportsPublishedStatus(t *testing.T) {
@@ -67,7 +89,11 @@ func TestExpertMarketReviewGetReturnsSnapshotFields(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, release.Name, resp.Msg.Name)
+	require.Equal(t, "detail-video", resp.Msg.ApplicationSlug)
 	require.Equal(t, "rejected", resp.Msg.Status)
+	require.Equal(t, "film", resp.Msg.Icon)
+	require.Equal(t, []string{"video"}, resp.Msg.Tags)
+	require.Equal(t, []string{"render"}, resp.Msg.Outcomes)
 	require.JSONEq(t, `{"version":1,"spec":{"agent":"codex"}}`, resp.Msg.WorkerSpecSnapshotJson)
 }
 
@@ -159,6 +185,7 @@ CREATE TABLE expert_market_applications (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	slug TEXT NOT NULL UNIQUE,
 	publisher_organization_id INTEGER NOT NULL,
+	source_expert_id INTEGER NOT NULL,
 	publisher_user_id INTEGER NOT NULL,
 	is_operator_owned BOOLEAN NOT NULL DEFAULT false,
 	latest_published_release_id INTEGER,
@@ -210,6 +237,7 @@ func seedExpertMarketRelease(
 	app := expertmarket.Application{
 		Slug:                    slugkit.Slug(slug),
 		PublisherOrganizationID: 10,
+		SourceExpertID:          30,
 		PublisherUserID:         20,
 	}
 	require.NoError(t, repo.CreateApplication(context.Background(), &app))
@@ -244,6 +272,10 @@ func adminCtx(userID int64) context.Context {
 }
 
 func stringPtr(value string) *string {
+	return &value
+}
+
+func int32Ptr(value int32) *int32 {
 	return &value
 }
 

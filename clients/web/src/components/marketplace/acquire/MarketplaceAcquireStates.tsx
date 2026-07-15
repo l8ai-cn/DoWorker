@@ -3,19 +3,39 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { LightOrganization } from "@/lib/light-auth";
+import type { MarketplaceModelResource } from "@/lib/marketplace-model-resources";
+import { MarketplaceModelResourceField } from "./MarketplaceModelResourceField";
 
 export function OrganizationStep({
   organizations,
+  loadingOrganizations,
   value,
   onChange,
   onContinue,
   fixedOrganization,
+  modelResources,
+  modelResourceID,
+  onModelChange,
+  loadingModels,
+  modelError,
+  incompatibleListing,
+  onReloadModels,
+  settingsHref,
 }: {
   organizations: LightOrganization[];
+  loadingOrganizations: boolean;
   value: string;
   onChange: (value: string) => void;
   onContinue: () => void;
   fixedOrganization?: LightOrganization;
+  modelResources: MarketplaceModelResource[];
+  modelResourceID: string;
+  onModelChange: (value: string) => void;
+  loadingModels: boolean;
+  modelError: boolean;
+  incompatibleListing: boolean;
+  onReloadModels: () => void;
+  settingsHref: string;
 }) {
   return (
     <section className="space-y-6">
@@ -29,7 +49,9 @@ export function OrganizationStep({
             : "应用会安装到你选择的组织，创建后不能直接移动。"}
         </p>
       </div>
-      {fixedOrganization ? (
+      {loadingOrganizations ? (
+        <LoadingState label="正在加载组织" />
+      ) : fixedOrganization ? (
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm text-foreground">
           启用目标：{fixedOrganization.name}
         </div>
@@ -50,7 +72,24 @@ export function OrganizationStep({
           ))}
         </select>
       )}
-      <Button className="w-full" size="lg" disabled={!value} onClick={onContinue}>
+      {value ? (
+        <MarketplaceModelResourceField
+          resources={modelResources}
+          value={modelResourceID}
+          onChange={onModelChange}
+          loading={loadingModels}
+          error={modelError}
+          incompatibleListing={incompatibleListing}
+          onReload={onReloadModels}
+          settingsHref={settingsHref}
+        />
+      ) : null}
+      <Button
+        className="w-full"
+        size="lg"
+        disabled={!value || !modelResourceID || loadingModels}
+        onClick={onContinue}
+      >
         检查启用条件
       </Button>
     </section>

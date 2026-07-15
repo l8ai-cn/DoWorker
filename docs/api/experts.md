@@ -132,8 +132,9 @@ release snapshot.
 
 ## Operator video catalog
 
-The backend command below idempotently creates the platform-owned video Skills,
-creates the three source experts, submits their releases, and approves them:
+The backend command below idempotently creates six platform-owned video Skills
+and four software-delivery Skills, creates the three video source experts,
+submits their releases, and approves them:
 
 ```bash
 backend bootstrap-marketplace \
@@ -148,3 +149,7 @@ The publisher must be an active member of the organization. The reviewer must
 be an active system administrator. Existing catalog content must match the
 embedded operator catalog exactly; drift stops the command with a conflict
 instead of overwriting marketplace data.
+
+Run this provisioning command before enabling platform-owned Marketplace
+experts. Their immutable runtime snapshots reference these active platform
+Skills and installation rejects missing or drifted dependencies.

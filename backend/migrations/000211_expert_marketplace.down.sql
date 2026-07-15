@@ -15,6 +15,9 @@ DROP FUNCTION IF EXISTS prevent_expert_market_release_immutable_update;
 DROP TRIGGER IF EXISTS expert_market_releases_validate_source
   ON expert_market_releases;
 DROP FUNCTION IF EXISTS validate_expert_market_release_source;
+DROP TRIGGER IF EXISTS expert_market_applications_validate_source
+  ON expert_market_applications;
+DROP FUNCTION IF EXISTS validate_expert_market_application_source;
 
 DROP TABLE IF EXISTS expert_market_releases;
 DROP TABLE IF EXISTS expert_market_applications;

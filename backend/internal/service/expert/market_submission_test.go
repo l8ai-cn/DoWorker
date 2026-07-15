@@ -159,6 +159,28 @@ func TestMarketSubmissionRejectsASecondApplicationForTheSameExpert(t *testing.T)
 	require.Len(t, fixture.market.applications, 1)
 }
 
+func TestMarketSubmissionRetryReportsConcurrentSlugMismatch(t *testing.T) {
+	fixture := newMarketServiceFixture(t)
+	winner := expertmarket.Application{
+		ID:                      77,
+		Slug:                    slugkit.Slug("winning-video-expert"),
+		PublisherOrganizationID: fixture.source.OrganizationID,
+		SourceExpertID:          fixture.source.ID,
+	}
+	fixture.market.applications[winner.ID] = winner
+	request := fixture.submissionRequest()
+	request.Slug = "losing-video-expert"
+
+	_, err := fixture.service.retryMarketSubmission(
+		context.Background(),
+		request,
+		&expertmarket.Release{},
+	)
+
+	require.ErrorIs(t, err, ErrMarketApplicationSlugMismatch)
+	require.Empty(t, fixture.market.releases)
+}
+
 func TestListPublisherMarketReleasesIncludesApplicationSlug(t *testing.T) {
 	fixture := newMarketServiceFixture(t)
 	ctx := context.Background()
@@ -180,36 +202,17 @@ func TestListPublisherMarketReleasesIncludesApplicationSlug(t *testing.T) {
 	require.Equal(t, submission.Application.Slug.String(), releases[0].ApplicationSlug)
 }
 
-func TestSourceMarketApplicationScansPastFirstReleasePage(t *testing.T) {
+func TestMarketApplicationLookupUsesSourceExpertIdentity(t *testing.T) {
 	fixture := newMarketServiceFixture(t)
 	ctx := context.Background()
-	for index := range 101 {
-		application := expertmarket.Application{
-			ID: int64(index + 10), Slug: slugkit.Slug("other-app"),
-			PublisherOrganizationID: fixture.source.OrganizationID,
-		}
-		release := expertmarket.Release{
-			ID: int64(index + 10), ApplicationID: application.ID,
-			PublisherOrganizationID: fixture.source.OrganizationID,
-			SourceExpertID:          int64(index + 1000),
-			Version:                 1,
-		}
-		fixture.market.applications[application.ID] = application
-		fixture.market.releases[release.ID] = release
-	}
 	targetApplication := expertmarket.Application{
 		ID: 999, Slug: slugkit.Slug("custom-video-production"),
 		PublisherOrganizationID: fixture.source.OrganizationID,
+		SourceExpertID:          fixture.source.ID,
 	}
 	fixture.market.applications[targetApplication.ID] = targetApplication
-	fixture.market.releases[999] = expertmarket.Release{
-		ID: 999, ApplicationID: targetApplication.ID,
-		PublisherOrganizationID: fixture.source.OrganizationID,
-		SourceExpertID:          fixture.source.ID,
-		Version:                 2,
-	}
 
-	found, err := fixture.service.sourceMarketApplication(
+	found, err := fixture.market.GetApplicationBySourceExpert(
 		ctx,
 		fixture.source.OrganizationID,
 		fixture.source.ID,
@@ -329,112 +332,4 @@ func TestMarketReviewPublishesRejectsAndWithdraws(t *testing.T) {
 	items, err = fixture.service.ListMarketApplications(ctx)
 	require.NoError(t, err)
 	require.Empty(t, items)
-}
-
-type marketServiceFixture struct {
-	service   *Service
-	store     *fakeStore
-	market    *fakeExpertMarket
-	skills    *fakeMarketSkills
-	snapshots *fakeMarketSnapshots
-	locker    *fakeMarketInstallationLocker
-	source    *expertdom.Expert
-}
-
-func newMarketServiceFixture(t *testing.T) *marketServiceFixture {
-	t.Helper()
-	store := newFakeStore()
-	market := newFakeExpertMarket()
-	skills := &fakeMarketSkills{
-		rows: []skilldom.Skill{
-			marketSkill("remotion-best-practices", nil, true),
-			marketSkill("video-delivery-qa", nil, true),
-		},
-	}
-	snapshotID := int64(77)
-	snapshots := &fakeMarketSnapshots{
-		source: expertWorkerSpecSnapshot(snapshotID, 7),
-	}
-	locker := &fakeMarketInstallationLocker{}
-	snapshots.source.Spec.Workspace.SkillIDs = []int64{11, 12}
-	snapshots.source.Spec.Workspace.Instructions = "produce a short video"
-	source := &expertdom.Expert{
-		OrganizationID:       7,
-		Slug:                 "video-production-source",
-		Name:                 "Video Production Expert",
-		Description:          stringPointer("production"),
-		AgentSlug:            "codex-cli",
-		Prompt:               stringPointer("produce a short video"),
-		InteractionMode:      expertdom.InteractionModeACP,
-		AutomationLevel:      expertdom.AutomationLevelAutonomous,
-		SkillSlugs:           pq.StringArray{"remotion-best-practices", "video-delivery-qa"},
-		KnowledgeMounts:      json.RawMessage("[]"),
-		ConfigOverrides:      json.RawMessage("{}"),
-		Metadata:             json.RawMessage(`{"expert_type":"video"}`),
-		WorkerSpecSnapshotID: &snapshotID,
-		CreatedByID:          3,
-	}
-	require.NoError(t, store.Create(context.Background(), source))
-	service := NewService(Deps{
-		Store:             store,
-		WorkerSpecs:       snapshots,
-		WorkerSpecWriter:  snapshots,
-		MarketWorkerSpecs: snapshots,
-		MarketInstallLock: locker,
-		Market:            market,
-		MarketSkills:      skills,
-	})
-	return &marketServiceFixture{
-		service:   service,
-		store:     store,
-		market:    market,
-		skills:    skills,
-		snapshots: snapshots,
-		locker:    locker,
-		source:    source,
-	}
-}
-
-func (fixture *marketServiceFixture) submissionRequest() SubmitMarketApplicationRequest {
-	return SubmitMarketApplicationRequest{
-		OrganizationID: fixture.source.OrganizationID,
-		UserID:         fixture.source.CreatedByID,
-		SourceExpertID: fixture.source.ID,
-		Slug:           "video-production-expert",
-		Summary:        "Creates vertical short videos",
-		Description:    "Plans, renders, and validates short videos.",
-		Category:       "video",
-		Icon:           "clapperboard",
-		Tags:           []string{"short-video", "production"},
-		Outcomes:       []string{"playable mp4"},
-	}
-}
-
-func marketSkill(
-	slug string,
-	organizationID *int64,
-	active bool,
-) skilldom.Skill {
-	id := map[string]int64{
-		"remotion-best-practices": 11,
-		"video-delivery-qa":       12,
-		"valid":                   21,
-		"inactive":                22,
-		"org-only":                23,
-		"unpackaged":              24,
-		"inactive-runtime-skill":  31,
-	}[slug]
-	return skilldom.Skill{
-		ID:             id,
-		Slug:           slug,
-		OrganizationID: organizationID,
-		IsActive:       active,
-		Version:        2,
-		ContentSha:     "sha-" + slug,
-		StorageKey:     "skills/" + slug,
-	}
-}
-
-func stringPointer(value string) *string {
-	return &value
 }

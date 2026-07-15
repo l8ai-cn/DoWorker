@@ -67,6 +67,10 @@ type Repository interface {
 	CreateApplication(ctx context.Context, application *Application) error
 	GetApplicationByID(ctx context.Context, id int64) (*Application, error)
 	GetApplicationBySlug(ctx context.Context, slug string) (*Application, error)
+	GetApplicationBySourceExpert(
+		ctx context.Context,
+		organizationID, sourceExpertID int64,
+	) (*Application, error)
 	ListApplications(ctx context.Context, filter ApplicationListFilter) ([]Application, int64, error)
 
 	CreateRelease(ctx context.Context, release *Release) error

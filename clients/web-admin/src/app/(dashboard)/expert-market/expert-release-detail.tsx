@@ -57,10 +57,12 @@ export function ExpertReleaseDetail(props: ExpertReleaseDetailProps) {
       <dl className="grid gap-3 rounded-md border border-border p-4 text-sm sm:grid-cols-3">
         <Meta label="发布 ID" value={`#${release.id}`} />
         <Meta label="申请 ID" value={`#${release.application_id}`} />
+        <Meta label="应用 Slug" value={release.application_slug} />
         <Meta label="来源专家 ID" value={`#${release.source_expert_id}`} />
         <Meta label="发布组织 ID" value={`#${release.publisher_organization_id}`} />
         <Meta label="发布用户 ID" value={`#${release.publisher_user_id}`} />
         <Meta label="版本" value={`v${release.version}`} />
+        <Meta label="图标" value={release.icon || "未提供"} />
       </dl>
 
       <section>
@@ -68,6 +70,34 @@ export function ExpertReleaseDetail(props: ExpertReleaseDetailProps) {
         <p className="whitespace-pre-wrap text-sm text-muted-foreground">
           {release.description || "未提供描述"}
         </p>
+      </section>
+
+      <section>
+        <h3 className="mb-2 text-sm font-semibold">标签</h3>
+        {release.tags.length === 0 ? (
+          <p className="text-sm text-muted-foreground">未提供标签</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {release.tags.map((tag) => (
+              <Badge key={tag} variant="secondary">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section>
+        <h3 className="mb-2 text-sm font-semibold">预期产出</h3>
+        {release.outcomes.length === 0 ? (
+          <p className="text-sm text-muted-foreground">未提供预期产出</p>
+        ) : (
+          <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+            {release.outcomes.map((outcome) => (
+              <li key={outcome}>{outcome}</li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <SkillDependencies value={release.skill_dependencies_json} />

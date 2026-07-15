@@ -155,6 +155,7 @@ func main() {
 			eventBus,
 			podOrchestrator,
 			podCoordinator,
+			pendingQueueWiring.queue,
 			appLogger.Logger,
 		)
 	defer stopGoalMonitor()

@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
-	up, err := FS.ReadFile("000208_expert_marketplace.up.sql")
+func TestMigration000211ExpertMarketplaceContract(t *testing.T) {
+	up, err := FS.ReadFile("000211_expert_marketplace.up.sql")
 	require.NoError(t, err)
 	upSQL := string(up)
 
@@ -17,7 +17,11 @@ func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
 		"CONSTRAINT expert_market_applications_slug_unique UNIQUE (slug)",
 		"CONSTRAINT expert_market_applications_id_publisher_unique",
 		"UNIQUE (id, publisher_organization_id)",
+		"CONSTRAINT expert_market_applications_source_unique",
+		"UNIQUE (publisher_organization_id, source_expert_id)",
 		"expert_market_applications_slug_check",
+		"CREATE FUNCTION validate_expert_market_application_source()",
+		"CREATE TRIGGER expert_market_applications_validate_source",
 		"CREATE TABLE expert_market_releases",
 		"CONSTRAINT expert_market_releases_application_publisher_fkey",
 		"FOREIGN KEY (application_id, publisher_organization_id)",
@@ -54,7 +58,7 @@ func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
 		strings.Index(upSQL, "CONSTRAINT expert_market_releases_application_publisher_fkey"),
 	)
 
-	down, err := FS.ReadFile("000208_expert_marketplace.down.sql")
+	down, err := FS.ReadFile("000211_expert_marketplace.down.sql")
 	require.NoError(t, err)
 	downSQL := string(down)
 	for _, fragment := range []string{
@@ -66,6 +70,8 @@ func TestMigration000208ExpertMarketplaceContract(t *testing.T) {
 		"DROP FUNCTION IF EXISTS prevent_expert_market_release_immutable_update",
 		"DROP TRIGGER IF EXISTS expert_market_releases_validate_source",
 		"DROP FUNCTION IF EXISTS validate_expert_market_release_source",
+		"DROP TRIGGER IF EXISTS expert_market_applications_validate_source",
+		"DROP FUNCTION IF EXISTS validate_expert_market_application_source",
 		"DROP TABLE IF EXISTS expert_market_releases",
 		"DROP TABLE IF EXISTS expert_market_applications",
 	} {

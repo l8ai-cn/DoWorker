@@ -65,6 +65,9 @@ func (s *InstallationOrchestrationService) CreatePlan(
 		return InstallationPlanResult{}, ErrInvalidInstallationRequest
 	}
 	if source.PlatformResourceType != "expert" ||
+		(source.PlatformResourceID == 0) != (source.SourceReleaseID == 0) ||
+		source.PlatformResourceID < 0 ||
+		source.SourceReleaseID < 0 ||
 		!json.Valid(source.RuntimeSnapshot) ||
 		source.QuotaPlanID <= 0 ||
 		source.EstimatedCredits <= 0 ||
@@ -117,6 +120,8 @@ func (s *InstallationOrchestrationService) Apply(
 		ListingVersionID:     execution.ListingVersionID,
 		TargetOrganizationID: execution.TargetOrganizationID,
 		PlatformResourceType: execution.PlatformResourceType,
+		PlatformResourceID:   execution.PlatformResourceID,
+		SourceReleaseID:      execution.SourceReleaseID,
 		RuntimeSnapshot:      execution.RuntimeSnapshot,
 		ActorUserID:          execution.ActorUserID,
 		Configuration:        execution.Configuration,

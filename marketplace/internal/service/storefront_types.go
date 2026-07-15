@@ -137,6 +137,7 @@ type ListingSummary struct {
 
 type ListingDetail struct {
 	ListingSummary
+	AgentSlug      string
 	Description    string
 	Outcomes       json.RawMessage
 	UseCases       json.RawMessage

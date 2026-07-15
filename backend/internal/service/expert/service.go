@@ -72,6 +72,10 @@ type MarketSkillLoader interface {
 		context.Context,
 		[]int64,
 	) ([]skilldom.Skill, error)
+	ListActivePlatformBySlugs(
+		context.Context,
+		[]string,
+	) ([]skilldom.Skill, error)
 }
 
 type Service struct {

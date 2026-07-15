@@ -30,7 +30,6 @@ func TestVideoExpertManifestIsCompleteAndInternallyConsistent(t *testing.T) {
 			require.NotEmpty(t, source.License)
 		}
 	}
-
 	expertSlugs := map[string]struct{}{}
 	for _, expert := range Experts() {
 		require.NoError(t, slugkit.Validate(expert.Slug))

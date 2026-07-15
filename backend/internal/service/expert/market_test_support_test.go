@@ -27,7 +27,9 @@ func (market *fakeExpertMarket) CreateApplication(
 	application *expertmarket.Application,
 ) error {
 	for _, existing := range market.applications {
-		if existing.Slug == application.Slug {
+		if existing.Slug == application.Slug ||
+			(existing.PublisherOrganizationID == application.PublisherOrganizationID &&
+				existing.SourceExpertID == application.SourceExpertID) {
 			return expertmarket.ErrConflict
 		}
 	}
@@ -55,6 +57,20 @@ func (market *fakeExpertMarket) GetApplicationBySlug(
 ) (*expertmarket.Application, error) {
 	for _, application := range market.applications {
 		if string(application.Slug) == slug {
+			copy := application
+			return &copy, nil
+		}
+	}
+	return nil, expertmarket.ErrNotFound
+}
+
+func (market *fakeExpertMarket) GetApplicationBySourceExpert(
+	_ context.Context,
+	organizationID, sourceExpertID int64,
+) (*expertmarket.Application, error) {
+	for _, application := range market.applications {
+		if application.PublisherOrganizationID == organizationID &&
+			application.SourceExpertID == sourceExpertID {
 			copy := application
 			return &copy, nil
 		}
@@ -256,6 +272,27 @@ func (skills *fakeMarketSkills) ListByIDs(
 	rows := make([]skilldom.Skill, 0)
 	for _, skill := range skills.rows {
 		if _, ok := required[skill.ID]; ok {
+			rows = append(rows, skill)
+		}
+	}
+	return rows, nil
+}
+
+func (skills *fakeMarketSkills) ListActivePlatformBySlugs(
+	_ context.Context,
+	slugs []string,
+) ([]skilldom.Skill, error) {
+	if skills.err != nil {
+		return nil, skills.err
+	}
+	required := map[string]struct{}{}
+	for _, slug := range slugs {
+		required[slug] = struct{}{}
+	}
+	rows := make([]skilldom.Skill, 0)
+	for _, skill := range skills.rows {
+		if _, ok := required[skill.Slug]; ok &&
+			skill.OrganizationID == nil && skill.IsActive {
 			rows = append(rows, skill)
 		}
 	}

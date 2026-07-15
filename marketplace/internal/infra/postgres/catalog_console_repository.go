@@ -41,11 +41,12 @@ func (r *CatalogConsoleRepository) CreateCatalogVersion(
 	err := r.db.WithContext(ctx).Raw(`
 INSERT INTO marketplace.marketplace_catalog_item_versions
   (catalog_item_id, version, source_revision, content_digest, manifest,
-   validation_status, created_by_platform_user_id)
-VALUES (?, ?, ?, ?, ?::jsonb, ?, ?)
+   compatibility, validation_status, created_by_platform_user_id)
+VALUES (?, ?, ?, ?, ?::jsonb, ?::jsonb, ?, ?)
 RETURNING id
 `, version.CatalogItemID(), version.Version(), version.SourceRevision(),
-		version.ContentDigest(), string(version.Manifest()), version.ValidationStatus(),
+		version.ContentDigest(), string(version.Manifest()),
+		string(version.Compatibility()), version.ValidationStatus(),
 		version.CreatedByPlatformUserID()).Scan(&row).Error
 	return row.ID, err
 }
@@ -77,7 +78,7 @@ func (r *CatalogConsoleRepository) GetCatalogVersion(
 	var row catalog.VersionState
 	result := r.db.WithContext(ctx).Raw(`
 SELECT id, catalog_item_id, version, source_revision, content_digest, manifest,
-  validation_status, created_by_platform_user_id
+  compatibility, validation_status, created_by_platform_user_id
 FROM marketplace.marketplace_catalog_item_versions WHERE id = ? LIMIT 1
 `, id).Scan(&row)
 	if result.Error != nil {

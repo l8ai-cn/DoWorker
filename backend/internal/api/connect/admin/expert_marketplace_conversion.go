@@ -1,13 +1,16 @@
 package adminconnect
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
 	"connectrpc.com/connect"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
+	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
 	adminv1 "github.com/anthropics/agentsmesh/proto/gen/go/admin/v1"
 )
 
@@ -60,6 +63,7 @@ func toProtoExpertMarketRelease(
 	return &adminv1.ExpertMarketRelease{
 		Id:                      release.ID,
 		ApplicationId:           release.ApplicationID,
+		ApplicationSlug:         release.ApplicationSlug,
 		SourceExpertId:          release.SourceExpertID,
 		PublisherOrganizationId: release.PublisherOrganizationID,
 		PublisherUserId:         release.PublisherUserID,
@@ -85,6 +89,46 @@ func toProtoExpertMarketRelease(
 		WithdrawnAt:             protoTime(release.WithdrawnAt),
 		CreatedAt:               release.CreatedAt.UTC().Format(time.RFC3339Nano),
 	}
+}
+
+func loadExpertMarketApplicationSlugs(
+	ctx context.Context,
+	db database.DB,
+	releases []*expertmarket.Release,
+) error {
+	if len(releases) == 0 {
+		return nil
+	}
+	applicationIDs := make([]int64, 0, len(releases))
+	seen := make(map[int64]struct{}, len(releases))
+	for _, release := range releases {
+		if _, exists := seen[release.ApplicationID]; exists {
+			continue
+		}
+		seen[release.ApplicationID] = struct{}{}
+		applicationIDs = append(applicationIDs, release.ApplicationID)
+	}
+	var applications []expertmarket.Application
+	if err := db.WithContext(ctx).
+		Where("id IN ?", applicationIDs).
+		Find(&applications); err != nil {
+		return err
+	}
+	slugs := make(map[int64]string, len(applications))
+	for _, application := range applications {
+		slugs[application.ID] = application.Slug.String()
+	}
+	for index := range releases {
+		slug, exists := slugs[releases[index].ApplicationID]
+		if !exists {
+			return fmt.Errorf(
+				"expert market application %d is missing",
+				releases[index].ApplicationID,
+			)
+		}
+		releases[index].ApplicationSlug = slug
+	}
+	return nil
 }
 
 func expertMarketStatusLabel(status expertmarket.ReleaseStatus) string {

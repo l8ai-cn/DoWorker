@@ -45,7 +45,8 @@ RUN install_apt() { \
       attempt=1; \
       while [ "$attempt" -le 3 ]; do \
         if apt-get update \
-          && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --fix-missing "$@"; then \
+          && DEBIAN_FRONTEND=noninteractive apt-get install \
+            -y --no-install-recommends --fix-missing "$@"; then \
           return 0; \
         fi; \
         echo "runtime apt install attempt ${attempt}/3 failed" >&2; \

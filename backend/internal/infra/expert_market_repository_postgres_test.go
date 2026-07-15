@@ -29,6 +29,7 @@ func TestExpertMarketRepositoryMapsPostgresForeignKeyConflicts(t *testing.T) {
 	app := expertmarket.Application{
 		Slug:                    slugkit.Slug("postgres-video"),
 		PublisherOrganizationID: 1,
+		SourceExpertID:          9001,
 		PublisherUserID:         1,
 	}
 	require.NoError(t, repo.CreateApplication(ctx, &app))
@@ -52,6 +53,7 @@ func TestExpertMarketPostgresConcurrentPublicationKeepsNewestLatest(t *testing.T
 	app := expertmarket.Application{
 		Slug:                    slugkit.Slug("concurrent-video"),
 		PublisherOrganizationID: 1,
+		SourceExpertID:          9001,
 		PublisherUserID:         1,
 	}
 	require.NoError(t, repo.CreateApplication(ctx, &app))
@@ -101,6 +103,7 @@ func TestExpertMarketPostgresConcurrentSubmissionCreatesOnePendingVersion(t *tes
 	app := expertmarket.Application{
 		Slug:                    slugkit.Slug("concurrent-submission"),
 		PublisherOrganizationID: 1,
+		SourceExpertID:          9001,
 		PublisherUserID:         1,
 	}
 	v1 := postgresTestRelease(0, 9001, 1)
@@ -262,6 +265,7 @@ func TestExpertMarketPostgresWithdrawalRestoresPreviousRelease(t *testing.T) {
 	app := expertmarket.Application{
 		Slug:                    slugkit.Slug("withdraw-video"),
 		PublisherOrganizationID: 1,
+		SourceExpertID:          9001,
 		PublisherUserID:         1,
 	}
 	require.NoError(t, repo.CreateApplication(ctx, &app))
@@ -327,8 +331,8 @@ func openExpertMarketPostgresTestDB(t *testing.T) *gorm.DB {
 	require.NoError(t, err)
 	require.NoError(t, db.Exec(expertMarketRepositoryBaseDDL).Error)
 	for _, migration := range []string{
-		"000208_expert_marketplace.up.sql",
-		"000209_add_expert_revision.up.sql",
+		"000211_expert_marketplace.up.sql",
+		"000212_add_expert_revision.up.sql",
 	} {
 		up, readErr := os.ReadFile("../../migrations/" + migration)
 		require.NoError(t, readErr)

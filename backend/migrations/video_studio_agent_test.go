@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestMigration000210VideoStudioAgent(t *testing.T) {
-	up, err := FS.ReadFile("000210_add_video_studio_agent.up.sql")
+func TestMigration000213VideoStudioAgent(t *testing.T) {
+	up, err := FS.ReadFile("000213_add_video_studio_agent.up.sql")
 	if err != nil {
 		t.Fatalf("read up migration: %v", err)
 	}
@@ -24,7 +24,7 @@ func TestMigration000210VideoStudioAgent(t *testing.T) {
 		}
 	}
 
-	down, err := FS.ReadFile("000210_add_video_studio_agent.down.sql")
+	down, err := FS.ReadFile("000213_add_video_studio_agent.down.sql")
 	if err != nil {
 		t.Fatalf("read down migration: %v", err)
 	}

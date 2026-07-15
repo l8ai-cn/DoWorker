@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMigration000207SkillTagsUpDownPostgres(t *testing.T) {
+func TestMigration000210SkillTagsUpDownPostgres(t *testing.T) {
 	dsn, err := migrationPostgresDSN()
 	require.NoError(t, err)
 	if dsn == "" {
@@ -35,7 +35,7 @@ func TestMigration000207SkillTagsUpDownPostgres(t *testing.T) {
 	require.NoError(t, execSQL(ctx, conn, `SET search_path TO `+schema))
 	require.NoError(t, execSQL(ctx, conn, `CREATE TABLE skills (id BIGINT PRIMARY KEY)`))
 
-	up, err := FS.ReadFile("000207_skill_tags.up.sql")
+	up, err := FS.ReadFile("000210_skill_tags.up.sql")
 	require.NoError(t, err)
 	require.NoError(t, execSQL(ctx, conn, string(up)))
 
@@ -63,7 +63,7 @@ WHERE schemaname = current_schema() AND tablename = 'skills' AND indexname = 'id
 `).Scan(&indexDefinition))
 	require.Contains(t, indexDefinition, "USING gin (tags)")
 
-	down, err := FS.ReadFile("000207_skill_tags.down.sql")
+	down, err := FS.ReadFile("000210_skill_tags.down.sql")
 	require.NoError(t, err)
 	require.NoError(t, execSQL(ctx, conn, string(down)))
 	require.False(t, postgresColumnExists(ctx, t, conn, "skills", "tags"))

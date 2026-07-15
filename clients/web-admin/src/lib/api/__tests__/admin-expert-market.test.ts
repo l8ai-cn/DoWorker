@@ -15,6 +15,7 @@ import {
 const protoRelease = {
   id: 12n,
   applicationId: 22n,
+  applicationSlug: "video-expert",
   sourceExpertId: 32n,
   publisherOrganizationId: 42n,
   publisherUserId: 52n,
@@ -69,6 +70,7 @@ describe("Admin API - Expert marketplace", () => {
       items: [{
         id: 12,
         application_id: 22,
+        application_slug: "video-expert",
         source_expert_id: 32,
         publisher_organization_id: 42,
         publisher_user_id: 52,

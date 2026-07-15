@@ -71,6 +71,7 @@ func initializeAutomationRuntime(
 	eventBus *eventbus.EventBus,
 	podOrchestrator *agentpod.PodOrchestrator,
 	podCoordinator *runner.PodCoordinator,
+	promptDispatcher goalloop.PromptDispatcher,
 	logger *slog.Logger,
 ) (
 	*instance.OrgAwarenessService,
@@ -111,15 +112,13 @@ func initializeAutomationRuntime(
 	scheduler.Start()
 	setupWorkflowEventSubscriptions(eventBus, orchestrator)
 
-	services.goalLoop.SetWorkerSpecSnapshotLoader(services.workerSpecs)
-	services.goalLoop.SetExecutionDependencies(
+	monitor := configureGoalLoopService(
+		services,
 		podOrchestrator,
-		services.pod,
 		podCoordinator,
-		services.autopilot,
+		promptDispatcher,
+		eventBus,
+		logger,
 	)
-	setupGoalLoopEventSubscriptions(eventBus, services.goalLoop)
-	monitor := goalloop.NewTimeoutMonitor(services.goalLoop, logger)
-	monitor.Start()
 	return orgAwareness, orchestrator, scheduler, monitor.Stop
 }

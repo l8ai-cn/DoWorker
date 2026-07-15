@@ -31,6 +31,14 @@ func TestExpertMarketRepositoryApplications(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, second.ID, bySlug.ID)
 
+	bySource, err := repo.GetApplicationBySourceExpert(
+		ctx,
+		first.PublisherOrganizationID,
+		first.SourceExpertID,
+	)
+	require.NoError(t, err)
+	require.Equal(t, first.ID, bySource.ID)
+
 	rows, total, err := repo.ListApplications(ctx, expertmarket.ApplicationListFilter{
 		PublisherOrganizationID: ptrInt64(10),
 		Limit:                   10,
@@ -241,11 +249,13 @@ CREATE TABLE expert_market_applications (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	slug TEXT NOT NULL UNIQUE,
 	publisher_organization_id INTEGER NOT NULL,
+	source_expert_id INTEGER NOT NULL,
 	publisher_user_id INTEGER NOT NULL,
 	is_operator_owned BOOLEAN NOT NULL DEFAULT false,
 	latest_published_release_id INTEGER,
 	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+	updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	UNIQUE(publisher_organization_id, source_expert_id)
 )`).Error)
 	require.NoError(t, db.Exec(`
 CREATE TABLE expert_market_releases (
@@ -286,6 +296,7 @@ func testApplication(slug string, orgID int64) expertmarket.Application {
 	return expertmarket.Application{
 		Slug:                    slugkit.Slug(slug),
 		PublisherOrganizationID: orgID,
+		SourceExpertID:          30 + orgID,
 		PublisherUserID:         1,
 	}
 }

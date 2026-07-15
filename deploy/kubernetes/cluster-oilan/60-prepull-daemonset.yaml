@@ -27,6 +27,10 @@ spec:
           image: repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli:latest
           imagePullPolicy: IfNotPresent
           command: ["true"]
+        - name: pull-video-studio
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-video-studio:latest
+          imagePullPolicy: IfNotPresent
+          command: ["true"]
         - name: pull-gemini
           image: repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli:latest
           imagePullPolicy: IfNotPresent

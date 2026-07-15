@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMigration000208ExpertMarketplaceUpDownPostgres(t *testing.T) {
+func TestMigration000211ExpertMarketplaceUpDownPostgres(t *testing.T) {
 	dsn, err := migrationPostgresDSN()
 	require.NoError(t, err)
 	if dsn == "" {
@@ -35,13 +35,13 @@ func TestMigration000208ExpertMarketplaceUpDownPostgres(t *testing.T) {
 	require.NoError(t, execSQL(ctx, conn, `SET search_path TO `+schema))
 	require.NoError(t, execMigrationSQL(ctx, conn, expertMarketplaceBaseDDL))
 
-	up, err := FS.ReadFile("000208_expert_marketplace.up.sql")
+	up, err := FS.ReadFile("000211_expert_marketplace.up.sql")
 	require.NoError(t, err)
 	require.NoError(t, execMigrationSQL(ctx, conn, string(up)))
 
 	requireMarketplaceConstraints(t, ctx, conn)
 
-	down, err := FS.ReadFile("000208_expert_marketplace.down.sql")
+	down, err := FS.ReadFile("000211_expert_marketplace.down.sql")
 	require.NoError(t, err)
 	require.NoError(t, execMigrationSQL(ctx, conn, string(down)))
 	require.False(t, postgresColumnExists(ctx, t, conn, "experts", "source_market_application_id"))
@@ -54,18 +54,23 @@ func requireMarketplaceConstraints(t *testing.T, ctx context.Context, conn *sql.
 	t.Helper()
 	require.NoError(t, execSQL(ctx, conn, `
 INSERT INTO expert_market_applications
-	(id, slug, publisher_organization_id, publisher_user_id)
-VALUES (10, 'video-production', 1, 1), (20, 'video-editing', 2, 2)
+	(id, slug, publisher_organization_id, source_expert_id, publisher_user_id)
+VALUES (10, 'video-production', 1, 9001, 1), (20, 'video-editing', 2, 9002, 2)
 `))
 	require.Error(t, execSQL(ctx, conn, `
 INSERT INTO expert_market_applications
-	(slug, publisher_organization_id, publisher_user_id)
-VALUES ('Bad_Slug', 1, 1)
+	(slug, publisher_organization_id, source_expert_id, publisher_user_id)
+VALUES ('Bad_Slug', 1, 9001, 1)
 `))
 	require.Error(t, execSQL(ctx, conn, `
 INSERT INTO expert_market_applications
-	(slug, publisher_organization_id, publisher_user_id)
-VALUES ('video-production', 2, 2)
+	(slug, publisher_organization_id, source_expert_id, publisher_user_id)
+VALUES ('video-production', 2, 9002, 2)
+`))
+	require.Error(t, execSQL(ctx, conn, `
+INSERT INTO expert_market_applications
+	(slug, publisher_organization_id, source_expert_id, publisher_user_id)
+VALUES ('same-source', 1, 9001, 1)
 `))
 
 	require.NoError(t, insertMarketRelease(ctx, conn, 100, 10, 1, "pending_review"))

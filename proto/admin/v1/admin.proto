@@ -677,6 +677,7 @@ message ExpertMarketRelease {
   optional string rejected_at = 24;
   optional string withdrawn_at = 25;
   string created_at = 26;
+  string application_slug = 27;
 }
 
 message ListExpertMarketReleasesRequest {

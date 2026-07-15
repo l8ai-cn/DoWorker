@@ -211,6 +211,18 @@ func (repository *marketplaceRepository) GetApplicationBySlug(
 	return nil, expertmarket.ErrNotFound
 }
 
+func (repository *marketplaceRepository) GetApplicationBySourceExpert(
+	_ context.Context, organizationID, sourceExpertID int64,
+) (*expertmarket.Application, error) {
+	for _, row := range repository.applications {
+		if row.PublisherOrganizationID == organizationID &&
+			row.SourceExpertID == sourceExpertID {
+			return row, nil
+		}
+	}
+	return nil, expertmarket.ErrNotFound
+}
+
 func (repository *marketplaceRepository) ListApplications(
 	context.Context, expertmarket.ApplicationListFilter,
 ) ([]expertmarket.Application, int64, error) {
@@ -270,6 +282,11 @@ type marketplaceSkills struct{}
 
 func (marketplaceSkills) ListByIDs(
 	context.Context, []int64,
+) ([]skilldom.Skill, error) {
+	return nil, nil
+}
+func (marketplaceSkills) ListActivePlatformBySlugs(
+	context.Context, []string,
 ) ([]skilldom.Skill, error) {
 	return nil, nil
 }

@@ -3,6 +3,7 @@ CREATE TABLE expert_market_applications (
   slug VARCHAR(100) NOT NULL,
   publisher_organization_id BIGINT NOT NULL
     REFERENCES organizations(id) ON DELETE CASCADE,
+  source_expert_id BIGINT NOT NULL,
   publisher_user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
   is_operator_owned BOOLEAN NOT NULL DEFAULT FALSE,
   latest_published_release_id BIGINT,
@@ -11,11 +12,34 @@ CREATE TABLE expert_market_applications (
   CONSTRAINT expert_market_applications_slug_unique UNIQUE (slug),
   CONSTRAINT expert_market_applications_id_publisher_unique
     UNIQUE (id, publisher_organization_id),
+  CONSTRAINT expert_market_applications_source_unique
+    UNIQUE (publisher_organization_id, source_expert_id),
   CONSTRAINT expert_market_applications_slug_check CHECK (
     slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'
     AND char_length(slug) BETWEEN 2 AND 100
   )
 );
+
+CREATE FUNCTION validate_expert_market_application_source()
+RETURNS TRIGGER AS $$
+BEGIN
+  PERFORM 1
+  FROM experts
+  WHERE id = NEW.source_expert_id
+    AND organization_id = NEW.publisher_organization_id
+  FOR KEY SHARE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'source expert must belong to the publisher organization'
+      USING ERRCODE = '23503',
+        CONSTRAINT = 'expert_market_applications_source_expert_publisher';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER expert_market_applications_validate_source
+BEFORE INSERT ON expert_market_applications
+FOR EACH ROW EXECUTE FUNCTION validate_expert_market_application_source();
 
 CREATE TABLE expert_market_releases (
   id BIGSERIAL PRIMARY KEY,

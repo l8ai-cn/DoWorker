@@ -9,7 +9,7 @@
 #   ./push-images.sh web        # rebuild Web and retain other current digests
 #   ./push-images.sh marketplace-web # rebuild public marketplace and retain other current digests
 #   ./push-images.sh infra      # postgres/redis/minio/mc/kubectl mirrors
-#   ./push-images.sh runners    # agent-runtime images (claude/codex/gemini/grok/openclaw/hermes/e2e-echo)
+#   ./push-images.sh runners    # agent-runtime images (claude/codex/video/gemini/grok/openclaw/hermes/e2e-echo)
 #
 # The build host must already be `docker login repo.aiedulab.cn:8443`.
 set -euo pipefail
@@ -188,6 +188,7 @@ push_infra() {
 push_runners() {
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh claude-code )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh codex-cli )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh video-studio )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh gemini-cli )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh grok-build )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh openclaw )
@@ -208,7 +209,7 @@ push_runners() {
       -t do-worker/runner-minimax-cli:latest \
       "${REPO_ROOT}/docker/agent-runtime/_context"
   fi
-  for rt in claude-code codex-cli gemini-cli grok-build openclaw hermes e2e-echo minimax-cli; do
+  for rt in claude-code codex-cli video-studio gemini-cli grok-build openclaw hermes e2e-echo minimax-cli; do
     docker tag "do-worker/runner-${rt}:latest" "${PROJ}/runner-${rt}:latest"
     docker push "${PROJ}/runner-${rt}:latest"
   done

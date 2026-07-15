@@ -1,4 +1,11 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockToastSuccess = vi.fn();
@@ -26,6 +33,7 @@ import ExpertMarketPage from "../page";
 const release = {
   id: 12,
   application_id: 22,
+  application_slug: "video-expert",
   source_expert_id: 32,
   publisher_organization_id: 42,
   publisher_user_id: 52,
@@ -160,6 +168,16 @@ describe("ExpertMarketPage", () => {
     expect(screen.getByText(/"runtime": "runner"/)).toBeInTheDocument();
     expect(screen.getByText("remotion")).toBeInTheDocument();
     expect(screen.getByText("版本 1")).toBeInTheDocument();
+    expect(screen.getByText("video-expert")).toBeInTheDocument();
+    expect(
+      within(screen.getByText("图标").parentElement!).getByText("video"),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("heading", { name: "标签" }).parentElement!)
+        .getByText("video"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("editing")).toBeInTheDocument();
+    expect(screen.getByText("Published video")).toBeInTheDocument();
   });
 
   it("keeps the last clicked release when detail responses finish out of order", async () => {

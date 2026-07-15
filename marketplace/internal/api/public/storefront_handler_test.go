@@ -63,6 +63,17 @@ func TestListListingsReturnsPublicContract(t *testing.T) {
 	}`, response.Body.String())
 }
 
+func TestMapListingDetailIncludesRuntimeAgent(t *testing.T) {
+	response := mapListingDetail(service.ListingDetail{
+		ListingSummary: service.ListingSummary{
+			ListingID: 1, ListingVersionID: 2, Slug: "delivery",
+		},
+		AgentSlug: "codex-cli",
+	})
+
+	require.Equal(t, "codex-cli", response.AgentSlug)
+}
+
 func TestListListingsFiltersTaxonomyAndReturnsTags(t *testing.T) {
 	storefront := service.NewStorefrontService(&repositoryStub{
 		market: service.MarketView{

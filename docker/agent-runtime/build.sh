@@ -25,16 +25,13 @@ BASE_IMAGE="${BASE_IMAGE:-do-worker/runner-base:latest}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 STAGING="${STAGING_DIR:-${SCRIPT_DIR}/_context}"
 BUILD_RETRIES="${BUILD_RETRIES:-3}"
-DEBIAN_MIRROR="${DEBIAN_MIRROR:-http://mirrors.aliyun.com/debian}"
-DEBIAN_SECURITY_MIRROR="${DEBIAN_SECURITY_MIRROR:-http://mirrors.aliyun.com/debian-security}"
-PROXY_BUILD_ARGS=(--build-arg "BUILDKIT_INLINE_CACHE=1")
-
-for proxy_name in HTTP_PROXY HTTPS_PROXY NO_PROXY; do
-  proxy_value="${!proxy_name:-}"
-  if [[ -n "$proxy_value" ]]; then
-    PROXY_BUILD_ARGS+=(--build-arg "${proxy_name}=${proxy_value}")
-  fi
-done
+PROXY_BUILD_ARGS=(
+  --build-arg "BUILDKIT_INLINE_CACHE=1"
+  --build-arg "HTTP_PROXY="
+  --build-arg "HTTPS_PROXY="
+  --build-arg "http_proxy="
+  --build-arg "https_proxy="
+)
 
 usage() {
   cat <<EOF
@@ -62,9 +59,6 @@ Agent runtimes:
   STAGING_DIR     二进制 staging 目录
   FORCE_REBUILD   设为 1 强制重建已有镜像
   BUILD_RETRIES   docker build 失败重试次数 (默认 3)
-  DEBIAN_MIRROR   Debian 软件源
-  DEBIAN_SECURITY_MIRROR
-                  Debian security 软件源
   HERMES_AGENT_VERSION
                   hermes-agent npm/PyPI bridge version (默认 0.18.2)
   REMOTION_VERSION
@@ -104,8 +98,6 @@ build_base() {
     --target base \
     -f "${SCRIPT_DIR}/Dockerfile" \
     "${PROXY_BUILD_ARGS[@]}" \
-    --build-arg "DEBIAN_MIRROR=${DEBIAN_MIRROR}" \
-    --build-arg "DEBIAN_SECURITY_MIRROR=${DEBIAN_SECURITY_MIRROR}" \
     -t "$BASE_IMAGE" \
     "$SCRIPT_DIR"
   echo "✓ ${BASE_IMAGE}"
@@ -128,10 +120,9 @@ build_one() {
     -f "${SCRIPT_DIR}/Dockerfile" \
     "${PROXY_BUILD_ARGS[@]}" \
     --build-arg "AGENT_RUNTIME=${rt}" \
-    --build-arg "DEBIAN_MIRROR=${DEBIAN_MIRROR}" \
-    --build-arg "DEBIAN_SECURITY_MIRROR=${DEBIAN_SECURITY_MIRROR}" \
     --build-arg "HERMES_AGENT_VERSION=${HERMES_AGENT_VERSION:-0.18.2}" \
     --build-arg "REMOTION_VERSION=${REMOTION_VERSION:-4.0.489}" \
+    --cache-from "$BASE_IMAGE" \
     -t "$tag" \
     "$STAGING"
   echo "✓ ${tag}"

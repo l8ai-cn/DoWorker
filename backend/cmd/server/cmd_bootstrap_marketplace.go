@@ -44,7 +44,10 @@ func runBootstrapMarketplace(arguments []string) error {
 	}
 	defer sqlDB.Close()
 
-	services := initializeServices(cfg, db, nil)
+	services, err := initializeServices(cfg, db, nil)
+	if err != nil {
+		return err
+	}
 	defer services.Close()
 	expertService, skillService := newExpertAndSkillServices(
 		cfg,

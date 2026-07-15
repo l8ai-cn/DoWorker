@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sort"
 	"strings"
 	"time"
 
@@ -106,12 +105,25 @@ func (s *Service) retryMarketSubmission(
 	req SubmitMarketApplicationRequest,
 	release *expertmarket.Release,
 ) (*MarketSubmission, error) {
-	application, err := s.market.GetApplicationBySlug(ctx, req.Slug)
+	application, err := s.market.GetApplicationBySourceExpert(
+		ctx,
+		req.OrganizationID,
+		req.SourceExpertID,
+	)
+	if errors.Is(err, expertmarket.ErrNotFound) {
+		application, err = s.market.GetApplicationBySlug(ctx, req.Slug)
+	}
 	if err != nil {
 		return nil, err
 	}
 	if application.PublisherOrganizationID != req.OrganizationID {
 		return nil, ErrMarketApplicationOwnership
+	}
+	if application.Slug.String() != req.Slug {
+		return nil, ErrMarketApplicationSlugMismatch
+	}
+	if application.SourceExpertID != req.SourceExpertID {
+		return nil, ErrMarketApplicationSlugMismatch
 	}
 	if err := s.market.CreateSubmission(ctx, application, release); err != nil {
 		return nil, err
@@ -123,24 +135,27 @@ func (s *Service) marketApplicationForSubmission(
 	req SubmitMarketApplicationRequest,
 	sourceExpertID int64,
 ) (*expertmarket.Application, error) {
-	existing, err := s.sourceMarketApplication(
+	existing, err := s.market.GetApplicationBySourceExpert(
 		ctx,
 		req.OrganizationID,
 		sourceExpertID,
 	)
-	if err != nil {
-		return nil, err
-	}
-	if existing != nil {
+	if err == nil {
 		if existing.Slug.String() != req.Slug {
 			return nil, ErrMarketApplicationSlugMismatch
 		}
 		return existing, nil
 	}
+	if !errors.Is(err, expertmarket.ErrNotFound) {
+		return nil, err
+	}
 	application, err := s.market.GetApplicationBySlug(ctx, req.Slug)
 	if err == nil {
 		if application.PublisherOrganizationID != req.OrganizationID {
 			return nil, ErrMarketApplicationOwnership
+		}
+		if application.SourceExpertID != sourceExpertID {
+			return nil, ErrMarketApplicationSlugMismatch
 		}
 		return application, nil
 	}
@@ -150,61 +165,8 @@ func (s *Service) marketApplicationForSubmission(
 	return &expertmarket.Application{
 		Slug:                    slugkit.Slug(req.Slug),
 		PublisherOrganizationID: req.OrganizationID,
+		SourceExpertID:          sourceExpertID,
 		PublisherUserID:         req.UserID,
 		IsOperatorOwned:         req.IsOperatorOwned,
 	}, nil
-}
-func (s *Service) sourceMarketApplication(
-	ctx context.Context,
-	organizationID, sourceExpertID int64,
-) (*expertmarket.Application, error) {
-	const pageSize = 100
-	for offset := 0; ; offset += pageSize {
-		releases, total, err := s.market.ListReleases(
-			ctx,
-			expertmarket.ReleaseListFilter{
-				PublisherOrganizationID: &organizationID,
-				Limit:                   pageSize,
-				Offset:                  offset,
-			},
-		)
-		if err != nil {
-			return nil, err
-		}
-		for index := range releases {
-			if releases[index].SourceExpertID != sourceExpertID {
-				continue
-			}
-			application, err := s.market.GetApplicationByID(
-				ctx,
-				releases[index].ApplicationID,
-			)
-			if err != nil {
-				return nil, err
-			}
-			if application.PublisherOrganizationID != organizationID {
-				return nil, ErrMarketApplicationOwnership
-			}
-			return application, nil
-		}
-		if int64(offset+len(releases)) >= total || len(releases) == 0 {
-			return nil, nil
-		}
-	}
-}
-
-func normalizeMarketStrings(values []string) []string {
-	unique := make(map[string]struct{}, len(values))
-	for _, value := range values {
-		value = strings.TrimSpace(value)
-		if value != "" {
-			unique[value] = struct{}{}
-		}
-	}
-	out := make([]string, 0, len(unique))
-	for value := range unique {
-		out = append(out, value)
-	}
-	sort.Strings(out)
-	return out
 }

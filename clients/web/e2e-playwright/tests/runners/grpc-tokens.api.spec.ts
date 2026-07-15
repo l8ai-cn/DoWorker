@@ -1,7 +1,6 @@
 // Migrated R5+: Connect-RPC only (no REST middle layer).
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
-import { getOnlineExecutionClusterId } from "../../helpers/execution-cluster";
 import { clearAuthRateLimit } from "../../helpers/redis";
 
 test.describe("gRPC Registration Tokens", () => {
@@ -17,7 +16,6 @@ test.describe("gRPC Registration Tokens", () => {
     const cc = await api.connect();
     const created = await cc.runner.createRunnerToken({
       orgSlug: TEST_ORG_SLUG,
-      clusterId: getOnlineExecutionClusterId(db, TEST_ORG_SLUG),
       name: "E2E gRPC test token",
     }) as { token?: string; id?: number };
     expect(created.token).toBeTruthy();
@@ -27,13 +25,9 @@ test.describe("gRPC Registration Tokens", () => {
     );
   });
 
-  test("delete gRPC token", async ({ api, db }) => {
+  test("delete gRPC token", async ({ api }) => {
     const cc = await api.connect();
-    await cc.runner.createRunnerToken({
-      orgSlug: TEST_ORG_SLUG,
-      clusterId: getOnlineExecutionClusterId(db, TEST_ORG_SLUG),
-      name: "E2E delete test token",
-    });
+    await cc.runner.createRunnerToken({ orgSlug: TEST_ORG_SLUG, name: "E2E delete test token" });
 
     const list = await cc.runner.listRunnerTokens({ orgSlug: TEST_ORG_SLUG }) as { items: Array<{ id: number; name?: string }> };
     const token = list.items.find((t) => t.name === "E2E delete test token");
@@ -46,14 +40,13 @@ test.describe("gRPC Registration Tokens", () => {
     ).rejects.toMatchObject({ status: 404 });
   });
 
-  test("gRPC tokens full CRUD flow", async ({ api, db }) => {
+  test("gRPC tokens full CRUD flow", async ({ api }) => {
     const cc = await api.connect();
     const first = await cc.runner.listRunnerTokens({ orgSlug: TEST_ORG_SLUG }) as { items: unknown[] };
     const initialCount = first.items.length;
-    const clusterId = getOnlineExecutionClusterId(db, TEST_ORG_SLUG);
 
-    await cc.runner.createRunnerToken({ orgSlug: TEST_ORG_SLUG, clusterId, name: "CRUD test token 1" });
-    await cc.runner.createRunnerToken({ orgSlug: TEST_ORG_SLUG, clusterId, name: "CRUD test token 2" });
+    await cc.runner.createRunnerToken({ orgSlug: TEST_ORG_SLUG, name: "CRUD test token 1" });
+    await cc.runner.createRunnerToken({ orgSlug: TEST_ORG_SLUG, name: "CRUD test token 2" });
 
     const second = await cc.runner.listRunnerTokens({ orgSlug: TEST_ORG_SLUG }) as { items: Array<{ id: number; name?: string }> };
     expect(second.items.length).toBe(initialCount + 2);
