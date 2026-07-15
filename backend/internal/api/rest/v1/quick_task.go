@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	agentsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
@@ -89,6 +90,7 @@ func (h *PodHandler) CreateQuickTask(c *gin.Context) {
 		Rows:               40,
 		QueueIfUnavailable: true,
 		QueueTTL:           time.Duration(ttlMinutes) * time.Minute,
+		SessionProvision:   &sessionDomain.ProvisionSpec{},
 	}
 
 	result, err := h.orchestrator.CreatePod(ctx, orchReq)

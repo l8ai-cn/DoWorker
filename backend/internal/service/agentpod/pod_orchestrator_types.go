@@ -1,9 +1,11 @@
 package agentpod
 
 import (
+	"context"
 	"time"
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
@@ -38,6 +40,8 @@ type OrchestrateCreatePodRequest struct {
 	ResumeExternalSessionID string
 	AgentSessionID          string
 	SessionMcpServers       map[string]interface{}
+	SessionProvision        *sessionDomain.ProvisionSpec
+	PrepareSession          func(context.Context, *sessionDomain.Session) error
 
 	// SessionConfigBundles are ephemeral config-kind documents consumed by
 	// USE_CONFIG_BUNDLE declarations.

@@ -214,6 +214,14 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		slog.ErrorContext(ctx, "failed to build pod command", "pod_key", pod.PodKey, "error", err)
 		return nil, errors.Join(ErrConfigBuildFailed, err)
 	}
+	receipt, err := o.prepareSessionBeforeDispatch(ctx, req, pod)
+	if err != nil {
+		return nil, err
+	}
 
-	return o.dispatchCreatedPod(ctx, req, pod, podCmd, sessionID, isResumeMode)
+	result, err := o.dispatchCreatedPod(ctx, req, pod, podCmd, sessionID, isResumeMode)
+	if err != nil {
+		return nil, o.rollbackSessionProvision(ctx, pod, receipt, err)
+	}
+	return result, nil
 }

@@ -1,6 +1,7 @@
 package sessionapi
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -74,8 +75,28 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 	}
 	layer := sessionAgentfileLayer(body.AgentID, ptyOnly, layerExtras...)
 	workspace := strings.TrimSpace(body.Workspace)
+	title := body.Title
+	if sessionTitleEmpty(title) {
+		if seeded := promptTextFromInitialItems(body.InitialItems); seeded != "" {
+			title = deriveSessionTitleFromPrompt(seeded)
+		}
+	}
 
 	orchReq := sessionCreatePodRequest(tenant.UserID, tenant.OrganizationID, body, layer, workspace)
+	orchReq.AgentSessionID = sessionID
+	orchReq.SessionProvision = &domain.ProvisionSpec{
+		ID: sessionID, Title: title, ParentSessionID: body.ParentSessionID,
+	}
+	startsAssistantTurn := layer != nil && strings.Contains(*layer, "PROMPT ")
+	orchReq.PrepareSession = func(ctx context.Context, row *domain.Session) error {
+		if err := d.persistInitialUserItems(ctx, row.ID, body.InitialItems); err != nil {
+			return err
+		}
+		if startsAssistantTurn {
+			d.beginAssistantTurn(row.ID)
+		}
+		return nil
+	}
 	// pty_only sessions must stay on PTY. Default automation (autonomous)
 	// appends MODE acp and would override the MODE pty layer above.
 	if ptyOnly {
@@ -90,14 +111,11 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 	}
 	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
 	if err != nil {
+		if startsAssistantTurn && d.Stream != nil && d.Stream.Hub != nil {
+			d.Stream.Hub.RemoveSession(sessionID)
+		}
 		writeOrchestratorError(c, err)
 		return
-	}
-	title := body.Title
-	if sessionTitleEmpty(title) {
-		if seeded := promptTextFromInitialItems(body.InitialItems); seeded != "" {
-			title = deriveSessionTitleFromPrompt(seeded)
-		}
 	}
 	row := &domain.Session{
 		ID:              sessionID,
@@ -108,14 +126,6 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 		Title:           title,
 		ParentSessionID: body.ParentSessionID,
 		Status:          "idle",
-	}
-	if err := d.Sessions.Create(c.Request.Context(), row); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to persist session"})
-		return
-	}
-	d.persistInitialUserItems(c.Request.Context(), row.ID, body.InitialItems)
-	if layer != nil && strings.Contains(*layer, "PROMPT ") {
-		d.beginAssistantTurn(row.ID)
 	}
 	if d.Stream != nil {
 		d.Stream.PublishPodStatus(c.Request.Context(), result.Pod.PodKey, result.Pod.Status, result.Pod.AgentStatus)

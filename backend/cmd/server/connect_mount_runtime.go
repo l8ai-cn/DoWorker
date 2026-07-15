@@ -88,6 +88,9 @@ func mountPodService(
 	if svc.workerDraftFiller != nil {
 		serverOpts = append(serverOpts, podconnect.WithWorkerDraftFiller(svc.workerDraftFiller))
 	}
+	if svc.conversationItems != nil {
+		serverOpts = append(serverOpts, podconnect.WithConversationItems(svc.conversationItems))
+	}
 	srv := podconnect.NewServer(svc.pod, svc.org, serverOpts...)
 	podconnect.Mount(mux, srv, opts...)
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
@@ -50,6 +51,7 @@ func (s *Server) CreatePod(
 		KnowledgeMounts:    knowledgeMountsFromProto(req.Msg.GetKnowledgeMounts()),
 		ModelResourceID:    optionalInt64(req.Msg.ModelResourceId),
 		TokenBudget:        optionalInt64(req.Msg.TokenBudget),
+		SessionProvision:   &sessionDomain.ProvisionSpec{},
 	}
 	if req.Msg.WorkerSpec != nil {
 		draft, err := workerDraftFromProto(req.Msg.WorkerSpec)
@@ -57,6 +59,9 @@ func (s *Server) CreatePod(
 			return nil, connect.NewError(connect.CodeInvalidArgument, err)
 		}
 		orchReq.WorkerSpecDraft = &draft
+		orchReq.PrepareSession = s.prepareWorkerInitialMessage(
+			draft.WorkerSpec.Workspace.InitialTask,
+		)
 	}
 	result, err := s.orchestrator.CreatePod(ctx, orchReq)
 	if err != nil {

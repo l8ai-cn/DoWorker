@@ -67,11 +67,23 @@ func (d *Deps) handleImportSession(c *gin.Context) {
 		return
 	}
 
+	title := body.Title
+	if sessionTitleEmpty(title) && converted.Title != "" {
+		t := converted.Title
+		title = &t
+	}
 	orchReq := &agentpod.OrchestrateCreatePodRequest{
 		OrganizationID: tenant.OrganizationID,
 		UserID:         tenant.UserID,
 		AgentSlug:      body.AgentID,
 		AgentfileLayer: acpAgentfileLayer(),
+		AgentSessionID: sessionID,
+		SessionProvision: &domain.ProvisionSpec{
+			ID: sessionID, Title: title,
+		},
+	}
+	orchReq.PrepareSession = func(ctx context.Context, row *domain.Session) error {
+		return d.importConversationItems(ctx, row.ID, converted.Items)
 	}
 	if body.HostID != "" {
 		runner, ok := d.runnerForHostID(c, body.HostID, tenant.OrganizationID)
@@ -86,11 +98,6 @@ func (d *Deps) handleImportSession(c *gin.Context) {
 		return
 	}
 
-	title := body.Title
-	if sessionTitleEmpty(title) && converted.Title != "" {
-		t := converted.Title
-		title = &t
-	}
 	row := &domain.Session{
 		ID:             sessionID,
 		OrganizationID: tenant.OrganizationID,
@@ -100,16 +107,6 @@ func (d *Deps) handleImportSession(c *gin.Context) {
 		Title:          title,
 		Status:         "idle",
 	}
-	if err := d.Sessions.Create(c.Request.Context(), row); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to persist session"})
-		return
-	}
-
-	if err := d.importConversationItems(c.Request.Context(), sessionID, converted.Items); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to import conversation items"})
-		return
-	}
-
 	if row.Title != nil && *row.Title != "" && d.Pod != nil {
 		if err := d.Pod.UpdatePodTitle(c.Request.Context(), result.Pod.PodKey, *row.Title); err != nil {
 			slog.WarnContext(c.Request.Context(), "import: set pod title failed", "pod_key", result.Pod.PodKey, "error", err)

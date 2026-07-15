@@ -45,6 +45,29 @@ func (p *SessionStreamPublisher) sessionForPod(ctx context.Context, podKey strin
 	return row.ID, true
 }
 
+func (p *SessionStreamPublisher) sessionForRunnerPod(
+	ctx context.Context,
+	runnerID int64,
+	podKey string,
+) (string, bool) {
+	if !p.runnerOwnsPod(ctx, runnerID, podKey) {
+		return "", false
+	}
+	return p.sessionForPod(ctx, podKey)
+}
+
+func (p *SessionStreamPublisher) runnerOwnsPod(
+	ctx context.Context,
+	runnerID int64,
+	podKey string,
+) bool {
+	if p == nil || p.Pods == nil {
+		return false
+	}
+	_, err := p.Pods.GetByKeyAndRunner(ctx, podKey, runnerID)
+	return err == nil
+}
+
 func (p *SessionStreamPublisher) ensureTurn(sessionID, turnID string) string {
 	if p == nil || p.Hub == nil {
 		return turnID

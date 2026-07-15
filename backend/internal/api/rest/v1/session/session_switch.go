@@ -85,18 +85,17 @@ func (d *Deps) rebuildSessionPod(c *gin.Context, row *domain.Session, pod *podDo
 		AgentfileLayer:          acpAgentfileLayer(),
 		ResumeExternalSessionID: resumeExternal,
 		SessionMcpServers:       domain.McpServersToInstalled(domain.ParseMcpServers(row.McpServers)),
+		SessionProvision: &domain.ProvisionSpec{
+			ID: row.ID, ExpectedPodKey: oldPodKey, UpdateExisting: true,
+		},
 	}
 	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
 	if err != nil {
 		return nil, err
 	}
-	if err := d.Sessions.UpdateAgentAndPod(c.Request.Context(), row.ID, agentSlug, result.Pod.PodKey); err != nil {
-		return nil, err
-	}
 	if d.Stream != nil {
 		d.Stream.PublishPodStatus(c.Request.Context(), result.Pod.PodKey, result.Pod.Status, result.Pod.AgentStatus)
 	}
-	_ = oldPodKey
 	return result.Pod, nil
 }
 

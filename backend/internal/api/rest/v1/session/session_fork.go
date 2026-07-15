@@ -1,6 +1,7 @@
 package sessionapi
 
 import (
+	"context"
 	"net/http"
 
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
@@ -48,6 +49,14 @@ func (d *Deps) handleForkSession(c *gin.Context) {
 		RunnerID:       runnerID,
 		AgentSlug:      agentSlug,
 		AgentfileLayer: acpAgentfileLayer(),
+		AgentSessionID: newID,
+	}
+	parent := source.ID
+	orchReq.SessionProvision = &domain.ProvisionSpec{
+		ID: newID, Title: body.Title, ParentSessionID: &parent,
+	}
+	orchReq.PrepareSession = func(ctx context.Context, row *domain.Session) error {
+		return d.copyConversationItems(ctx, source.ID, row.ID, body.UpToResponseID)
 	}
 	if sourcePod != nil && sourcePod.ExternalSessionID != nil {
 		orchReq.ResumeExternalSessionID = *sourcePod.ExternalSessionID
@@ -57,25 +66,20 @@ func (d *Deps) handleForkSession(c *gin.Context) {
 		writeOrchestratorError(c, err)
 		return
 	}
-	parent := source.ID
 	row := &domain.Session{
 		ID: newID, OrganizationID: source.OrganizationID, UserID: source.UserID,
 		PodKey: result.Pod.PodKey, AgentSlug: agentSlug, Title: body.Title,
 		ParentSessionID: &parent, Status: "idle",
 	}
-	if err := d.Sessions.Create(c.Request.Context(), row); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "persist failed"})
-		return
-	}
-	if err := d.copyConversationItems(c, source.ID, newID, body.UpToResponseID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "copy items failed"})
-		return
-	}
 	c.JSON(http.StatusOK, d.sessionWire(row, result.Pod, nil))
 }
 
-func (d *Deps) copyConversationItems(c *gin.Context, sourceID, destID string, upToResponseID *string) error {
-	page, err := d.Items.ListPage(c.Request.Context(), sourceID, 1000, "", false)
+func (d *Deps) copyConversationItems(
+	ctx context.Context,
+	sourceID, destID string,
+	upToResponseID *string,
+) error {
+	page, err := d.Items.ListPage(ctx, sourceID, 1000, "", false)
 	if err != nil {
 		return err
 	}
@@ -101,7 +105,7 @@ func (d *Deps) copyConversationItems(c *gin.Context, sourceID, destID string, up
 			ResponseID: src.ResponseID, Status: src.Status,
 			Position: src.Position, Payload: src.Payload, CreatedAt: src.CreatedAt,
 		}
-		if err := d.Items.Append(c.Request.Context(), row); err != nil {
+		if err := d.Items.Append(ctx, row); err != nil {
 			return err
 		}
 	}

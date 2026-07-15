@@ -7,6 +7,7 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	"github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
 	relayservice "github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
@@ -80,6 +81,8 @@ func mapServiceError(err error) error {
 		errors.Is(err, relayservice.ErrInvalidPreviewPort),
 		errors.Is(err, relayservice.ErrInvalidPreviewPath):
 		return connect.NewError(connect.CodeInvalidArgument, err)
+	case errors.Is(err, airesource.ErrDisabled):
+		return connect.NewError(connect.CodeInvalidArgument, errors.New("selected model resource is disabled"))
 
 	// Billing → ResourceExhausted / FailedPrecondition
 	case errors.Is(err, billing.ErrQuotaExceeded):
