@@ -27,7 +27,8 @@ export function staticHtmlDocument(html: string): string {
     if (
       name === "referrer" ||
       httpEquiv === "referrer" ||
-      httpEquiv === "content-security-policy"
+      httpEquiv === "content-security-policy" ||
+      httpEquiv === "refresh"
     ) {
       element.remove();
     }

@@ -20,6 +20,11 @@ import {
   type ArtifactKind,
 } from "./artifactPresentation";
 import { useAgentWorkspaceText } from "./AgentWorkspaceLocaleContext";
+import {
+  STATIC_HTML_REFERRER_POLICY,
+  STATIC_HTML_SANDBOX,
+  staticHtmlDocument,
+} from "./security/staticHtmlProfile";
 import { useArtifactBlobUrl } from "./useArtifactBlobUrl";
 
 export interface ArtifactCardProps {
@@ -75,8 +80,9 @@ export function ArtifactCard({
       {type.kind === "html" && (
         <iframe
           className="aspect-[16/10] min-h-80 w-full border-b border-border bg-white"
-          sandbox="allow-scripts"
-          srcDoc={state.text ?? ""}
+          referrerPolicy={STATIC_HTML_REFERRER_POLICY}
+          sandbox={STATIC_HTML_SANDBOX}
+          srcDoc={staticHtmlDocument(state.text ?? "")}
           title={text.previewArtifact(filename)}
         />
       )}

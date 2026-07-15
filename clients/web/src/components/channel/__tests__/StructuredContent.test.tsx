@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { StructuredContent } from "../StructuredContent";
 import type { MessageContent } from "@/lib/viewModels/channelMessage";
@@ -18,6 +18,10 @@ vi.mock("@/stores/pod", () => ({
 vi.mock("@/lib/pod-display-name", () => ({
   getPodDisplayName: (pod: { alias?: string; pod_key: string }) =>
     pod.alias || pod.pod_key,
+}));
+
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 describe("StructuredContent", () => {
@@ -86,6 +90,42 @@ describe("StructuredContent", () => {
     const link = screen.getByText("click here");
     expect(link.tagName).toBe("A");
     expect(link.getAttribute("href")).toBe("https://example.com");
+  });
+
+  it("keeps remote html as an explicit link instead of embedding it", () => {
+    const url = "https://cdn.example.test/report.html";
+    const content: MessageContent = {
+      kind: "text",
+      blocks: [{
+        type: "paragraph",
+        elements: [{ type: "link", url }],
+      }],
+    };
+
+    const { container } = render(<StructuredContent content={content} />);
+
+    expect(screen.getByRole("link", { name: url })).toHaveAttribute("href", url);
+    expect(container.querySelector("iframe")).toBeNull();
+  });
+
+  it.each([
+    ["image", "https://tracker.example.test/pixel.png"],
+    ["video", "https://cdn.example.test/demo.mp4"],
+  ])("keeps a remote %s paragraph as an explicit link", (_kind, url) => {
+    const content: MessageContent = {
+      kind: "text",
+      blocks: [{
+        type: "paragraph",
+        elements: [{ type: "link", text: "result", url }],
+      }],
+    };
+
+    const { container } = render(<StructuredContent content={content} />);
+
+    expect(screen.getByRole("link", { name: "result" })).toHaveAttribute("href", url);
+    expect(container.querySelector("img")).toBeNull();
+    expect(container.querySelector("video")).toBeNull();
+    expect(container.querySelector("iframe")).toBeNull();
   });
 
   it("renders a table with header, body, and a cell mention", () => {

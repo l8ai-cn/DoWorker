@@ -63,14 +63,40 @@ git commit -m "fix(agent-ui): isolate static html and markdown resources"
 **Files:**
 - Modify: `clients/web/src/components/media/HtmlPreviewCard.tsx`
 - Modify: `clients/web/src/components/media/__tests__/HtmlPreviewCard.test.tsx`
+- Modify: `packages/agent-ui/src/ArtifactCard.tsx`
+- Modify: `packages/agent-ui/src/ArtifactCard.test.tsx`
 - Modify: `packages/agent-ui/src/MarkdownMessage.tsx`
 - Create: `packages/agent-ui/src/MarkdownMessage.test.tsx`
 - Modify: `clients/web-user/src/shell/codeViewerHelpers.ts`
-- Modify: `clients/web-user/src/shell/codeViewerHelpers.test.ts`
+- Delete: `clients/web-user/src/shell/codeViewerHelpers.test.ts`
+- Modify: `clients/web-user/src/shell/HtmlCommentViewer.tsx`
+- Modify: `clients/web-user/src/shell/HtmlCommentViewer.test.tsx`
 - Modify: `clients/web-user/src/shell/CodeViewer.tsx`
 - Modify: `clients/web-user/src/shell/CodeViewer.test.tsx`
+- Create: `clients/web-user/src/shell/CodeViewer.preview.test.tsx`
+- Create: `clients/web-user/src/shell/MarkdownPreview.tsx`
+- Create: `clients/web-user/src/shell/StaticHtmlPreview.tsx`
+- Create: `clients/web-user/src/shell/FileImageViewer.tsx`
+- Create: `clients/web-user/src/shell/SourceCodeViewer.tsx`
+- Create: `clients/web-user/src/shell/SourceCodeLine.tsx`
+- Create: `clients/web-user/src/shell/SourceCodeSearchBar.tsx`
+- Create: `clients/web-user/src/shell/SourceSelectionActions.tsx`
+- Create: `clients/web-user/src/shell/useCodeViewerSourceState.ts`
+- Create: `clients/web-user/src/shell/useSourceCodeKeyboard.ts`
+- Create: `clients/web-user/src/shell/useSourceCodeSearch.ts`
+- Create: `clients/web-user/src/shell/useSourceSelectionActions.ts`
+- Create: `clients/web-user/src/shell/fileContentClassification.ts`
+- Create: `clients/web-user/src/shell/sourceSelectionOffsets.ts`
+- Create: `clients/web-user/src/shell/staticHtmlArtifactPopout.ts`
+- Create: `clients/web-user/src/shell/staticHtmlArtifactPopout.test.tsx`
+- Modify: `clients/web-user/src/shell/TipTapWorkspaceImage.ts`
+- Modify: `clients/web-user/src/shell/TipTapWorkspaceImage.test.ts`
+- Create: `clients/web-user/src/shell/WorkspaceImageNodeView.ts`
+- Create: `clients/web-user/src/shell/workspaceImagePaths.ts`
+- Delete: `clients/web-user/src/shell/htmlCommentBridge.ts`
+- Delete: `clients/web-user/src/shell/htmlCommentBridge.test.ts`
 
-- [ ] **Step 1: Add regression assertions**
+- [x] **Step 1: Add regression assertions**
 
 ```ts
 expect(window.open).not.toHaveBeenCalledWith(expect.stringMatching(/^blob:/), "_blank", expect.anything());
@@ -78,19 +104,19 @@ expect(frame).toHaveAttribute("sandbox", "");
 expect(screen.queryByRole("img", { name: "tracker" })).not.toBeInTheDocument();
 ```
 
-- [ ] **Step 2: Verify the current implementation fails**
+- [x] **Step 2: Verify the current implementation fails**
 
 Run: `pnpm run web:test -- HtmlPreviewCard && pnpm --dir clients/web-user test -- codeViewerHelpers CodeViewer`
 Expected: FAIL on top-level Blob, permissive sandbox, or remote image loading.
 
-- [ ] **Step 3: Use the shared policy**
+- [x] **Step 3: Use the shared policy**
 
-Replace both local HTML sandbox/open helpers with the shared exports. `HtmlPreviewCard` no longer accepts an arbitrary remote `src`; live URLs render only through the typed `pod-live` preview descriptor in Phase 0B. Both Markdown renderers map blocked remote images to visible text with an explicit user-initiated open action.
+Replace every static artifact iframe and local HTML sandbox/open helper with the shared exports. `HtmlPreviewCard` no longer accepts an arbitrary remote `src`; live URLs render only through the typed `pod-live` preview descriptor in Phase 0B. Read-only Markdown and the TipTap editor block initial remote image requests and expose an explicit user-initiated load/open action. Static HTML review does not inject an executable comment bridge; interactive review moves to the dedicated preview profile.
 
-- [ ] **Step 4: Run focused suites and commit**
+- [x] **Step 4: Run focused suites and commit**
 
-Run: `pnpm run web:test -- HtmlPreviewCard && pnpm --dir clients/web-user test -- codeViewerHelpers CodeViewer`
-Expected: PASS with no top-level untrusted document and no automatic remote fetch.
+Run: focused Web, shared package, and Web User suites plus target lint/typecheck.
+Expected: PASS with no top-level untrusted document, no automatic remote fetch, and no target-file type errors.
 
 ```bash
 git add clients/web/src/components/media packages/agent-ui/src/MarkdownMessage.tsx packages/agent-ui/src/MarkdownMessage.test.tsx clients/web-user/src/shell/codeViewerHelpers.ts clients/web-user/src/shell/codeViewerHelpers.test.ts clients/web-user/src/shell/CodeViewer.tsx clients/web-user/src/shell/CodeViewer.test.tsx

@@ -5,12 +5,12 @@ import ReactMarkdown, {
   defaultUrlTransform,
   type Components,
   type ExtraProps,
+  type UrlTransform,
 } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { markdownImageSource } from "@do-worker/agent-ui";
 import { cn } from "@/lib/utils";
-import { classifyMediaUrl, isSafeImageSrc } from "@/lib/media/url";
 import { LightboxImage } from "@/components/media/MediaLightbox";
-import { VideoEmbed } from "@/components/media/VideoEmbed";
 import { HtmlPreviewCard } from "@/components/media/HtmlPreviewCard";
 
 interface MarkdownProps {
@@ -18,17 +18,9 @@ interface MarkdownProps {
   className?: string;
   compact?: boolean;
   highlightMentions?: boolean;
-  /**
-   * Upgrades media content in the rendered markdown: images open in a
-   * lightbox (data:image/* allowed), single-link paragraphs pointing at
-   * media (video / YouTube / .html / …) become inline embeds, and fenced
-   * ```html code blocks get a sandboxed live preview.
-   */
   enableMedia?: boolean;
-  /** While true, html previews stay on the code tab (streaming output). */
   mediaStreaming?: boolean;
 }
-
 const remarkPlugins = [remarkGfm];
 
 function TextWithMentions({ children }: { children: string }) {
@@ -41,10 +33,7 @@ function TextWithMentions({ children }: { children: string }) {
         if (mentionRegex.test(part)) {
           mentionRegex.lastIndex = 0;
           return (
-            <span
-              key={i}
-              className="text-primary font-medium bg-primary/10 rounded px-0.5"
-            >
+            <span key={i} className="text-primary font-medium bg-primary/10 rounded px-0.5">
               {part}
             </span>
           );
@@ -55,21 +44,6 @@ function TextWithMentions({ children }: { children: string }) {
     </>
   );
 }
-
-const mentionComponents: Components = {
-  p({ children }) {
-    return <p>{processMentions(children)}</p>;
-  },
-  li({ children }) {
-    return <li>{processMentions(children)}</li>;
-  },
-  td({ children }) {
-    return <td>{processMentions(children)}</td>;
-  },
-  th({ children }) {
-    return <th>{processMentions(children)}</th>;
-  },
-};
 
 function processMentions(children: React.ReactNode): React.ReactNode {
   if (!children) return children;
@@ -87,37 +61,12 @@ function processMentions(children: React.ReactNode): React.ReactNode {
   return children;
 }
 
-// ---------- media helpers ----------
-
-// hast node types derived from react-markdown's props so we don't depend on
-// the (non-hoisted) @types/hast package directly.
 type HastElement = NonNullable<ExtraProps["node"]>;
 type ElementContent = HastElement["children"][number];
-
 function hastText(node: ElementContent | HastElement): string {
   if (node.type === "text") return node.value;
   if (node.type === "element") return node.children.map(hastText).join("");
   return "";
-}
-
-// Returns the href when the paragraph consists solely of one link (plus
-// optional whitespace), which is the signal to upgrade it to an embed.
-function singleLinkHref(node: HastElement | undefined): string | null {
-  if (!node?.children?.length) return null;
-  let href: string | null = null;
-  for (const child of node.children) {
-    if (child.type === "text") {
-      if (child.value.trim() !== "") return null;
-    } else if (child.type === "element" && child.tagName === "a") {
-      if (href) return null;
-      const h = child.properties?.href;
-      if (typeof h !== "string" || !h) return null;
-      href = h;
-    } else {
-      return null;
-    }
-  }
-  return href;
 }
 
 function codeLanguage(codeEl: HastElement): string | null {
@@ -127,52 +76,62 @@ function codeLanguage(codeEl: HastElement): string | null {
   return lang ? lang.slice("language-".length).toLowerCase() : null;
 }
 
-function mediaUrlTransform(url: string): string {
-  return isSafeImageSrc(url) ? url : defaultUrlTransform(url);
-}
+const mediaUrlTransform: UrlTransform = (url, key, node) =>
+  node.tagName === "img" && key === "src" ? url : defaultUrlTransform(url);
 
-function buildMediaComponents(withMentions: boolean, streaming: boolean): Components {
+function buildMarkdownComponents(
+  withMentions: boolean,
+  enableMedia: boolean,
+  streaming: boolean,
+): Components {
   return {
     img({ src, alt }) {
-      if (typeof src === "string" && isSafeImageSrc(src)) {
+      const source = typeof src === "string" ? src : undefined;
+      const inlineSource = markdownImageSource(source);
+      if (inlineSource) {
         return (
           <LightboxImage
-            src={src}
+            src={inlineSource}
             alt={typeof alt === "string" ? alt : undefined}
             className="my-1 max-w-md"
             imgClassName="max-h-80"
           />
         );
       }
-      return null;
-    },
-    p({ node, children }) {
-      const href = singleLinkHref(node);
-      if (href) {
-        const kind = classifyMediaUrl(href);
-        if (kind === "image") {
-          return (
-            <LightboxImage src={href} className="my-1 max-w-md" imgClassName="max-h-80" />
-          );
-        }
-        if (kind === "html") {
-          return <HtmlPreviewCard src={href} />;
-        }
-        if (kind !== "link") {
-          return <VideoEmbed url={href} kind={kind} className="my-2" />;
-        }
+      const label = typeof alt === "string" && alt.trim() ? alt : source;
+      if (source && /^https?:\/\//i.test(source)) {
+        return (
+          <a
+            href={source}
+            target="_blank"
+            rel="noopener noreferrer"
+            referrerPolicy="no-referrer"
+          >
+            {label}
+          </a>
+        );
       }
+      return <span>{label}</span>;
+    },
+    p({ children }) {
       return <p>{withMentions ? processMentions(children) : children}</p>;
     },
-    pre({ node, children }) {
-      const first = node?.children?.[0];
-      if (first && first.type === "element" && first.tagName === "code") {
-        if (codeLanguage(first) === "html") {
-          return <HtmlPreviewCard html={hastText(first)} streaming={streaming} />;
+    ...(enableMedia
+      ? {
+          pre({ node, children }) {
+            const first = node?.children?.[0];
+            if (
+              first &&
+              first.type === "element" &&
+              first.tagName === "code" &&
+              codeLanguage(first) === "html"
+            ) {
+              return <HtmlPreviewCard html={hastText(first)} streaming={streaming} />;
+            }
+            return <pre>{children}</pre>;
+          },
         }
-      }
-      return <pre>{children}</pre>;
-    },
+      : {}),
     ...(withMentions
       ? {
           li({ children }) {
@@ -197,11 +156,10 @@ export function Markdown({
   enableMedia = false,
   mediaStreaming = false,
 }: MarkdownProps) {
-  const components = useMemo<Components | undefined>(() => {
-    if (enableMedia) return buildMediaComponents(highlightMentions, mediaStreaming);
-    if (highlightMentions) return mentionComponents;
-    return undefined;
-  }, [enableMedia, highlightMentions, mediaStreaming]);
+  const components = useMemo(
+    () => buildMarkdownComponents(highlightMentions, enableMedia, mediaStreaming),
+    [enableMedia, highlightMentions, mediaStreaming],
+  );
 
   return (
     <div
@@ -215,7 +173,7 @@ export function Markdown({
       <ReactMarkdown
         remarkPlugins={remarkPlugins}
         components={components}
-        urlTransform={enableMedia ? mediaUrlTransform : undefined}
+        urlTransform={mediaUrlTransform}
       >
         {content}
       </ReactMarkdown>

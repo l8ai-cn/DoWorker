@@ -3,6 +3,11 @@ import { vi } from "vitest";
 
 import { ActivityTimeline } from "./ActivityTimeline";
 import { AgentWorkspace } from "./AgentWorkspace";
+import {
+  STATIC_HTML_CSP,
+  STATIC_HTML_REFERRER_POLICY,
+  STATIC_HTML_SANDBOX,
+} from "./security/staticHtmlProfile";
 import type {
   AgentArtifactItem,
   AgentSessionRuntime,
@@ -183,7 +188,7 @@ describe("ArtifactCard", () => {
     expect(screen.getByText("Code file")).toBeVisible();
   });
 
-  it("runs generated HTML inside an isolated sandbox preview", async () => {
+  it("renders generated HTML inside the static sandbox profile", async () => {
     const agentRuntime = runtime(async () =>
       new Blob(["<button>重新开始</button><script>window.ready=true</script>"], {
         type: "text/html",
@@ -210,7 +215,12 @@ describe("ArtifactCard", () => {
       expect.stringContaining("<button>重新开始</button>"),
     );
     expect(preview).not.toHaveAttribute("src");
-    expect(preview).toHaveAttribute("sandbox", "allow-scripts");
+    expect(preview).toHaveAttribute("sandbox", STATIC_HTML_SANDBOX);
+    expect(preview).toHaveAttribute(
+      "referrerpolicy",
+      STATIC_HTML_REFERRER_POLICY,
+    );
+    expect(preview.getAttribute("srcdoc")).toContain(STATIC_HTML_CSP);
     expect(
       screen.queryByRole("link", { name: "Open index.html" }),
     ).not.toBeInTheDocument();

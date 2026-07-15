@@ -16,7 +16,7 @@ describe("static HTML profile", () => {
 
   it("injects a deny-by-default CSP before artifact resources", () => {
     const html = staticHtmlDocument(
-      '<html><head><base href="https://tracker.test/"><meta name="referrer" content="unsafe-url"><meta http-equiv="REFERRER" content="unsafe-url"><meta http-equiv="content-security-policy" content="default-src *"><link rel="stylesheet" href="https://tracker.test/x.css"></head><body><img src="https://tracker.test/p.png"></body></html>',
+      '<html><head><base href="https://tracker.test/"><meta name="referrer" content="unsafe-url"><meta http-equiv="REFERRER" content="unsafe-url"><meta http-equiv="content-security-policy" content="default-src *"><meta http-equiv="ReFrEsH" content="0;url=https://tracker.test/escape"><link rel="stylesheet" href="https://tracker.test/x.css"></head><body><img src="https://tracker.test/p.png"></body></html>',
     );
     const parsed = new DOMParser().parseFromString(html, "text/html");
     const csp = [...parsed.head.querySelectorAll("meta")].filter(
@@ -28,6 +28,9 @@ describe("static HTML profile", () => {
         element.name.toLowerCase() === "referrer" ||
         element.httpEquiv.toLowerCase() === "referrer",
     );
+    const refresh = [...parsed.head.querySelectorAll("meta")].filter(
+      (element) => element.httpEquiv.toLowerCase() === "refresh",
+    );
 
     expect(csp).toHaveLength(1);
     expect(csp[0]?.getAttribute("content")).toBe(STATIC_HTML_CSP);
@@ -37,6 +40,7 @@ describe("static HTML profile", () => {
     expect(base[0]?.hasAttribute("href")).toBe(false);
     expect(referrer).toHaveLength(1);
     expect(referrer[0]?.getAttribute("content")).toBe("no-referrer");
+    expect(refresh).toHaveLength(0);
     expect(STATIC_HTML_CSP).toContain("default-src 'none'");
     expect(STATIC_HTML_CSP).toContain("connect-src 'none'");
     expect(STATIC_HTML_CSP).toContain("frame-src 'none'");

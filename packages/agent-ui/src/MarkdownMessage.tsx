@@ -1,5 +1,36 @@
-import ReactMarkdown from "react-markdown";
+import type { ComponentProps } from "react";
+import ReactMarkdown, {
+  defaultUrlTransform,
+  type UrlTransform,
+} from "react-markdown";
 import remarkGfm from "remark-gfm";
+
+import { markdownImageSource } from "./security/markdownResourcePolicy";
+
+const markdownUrlTransform: UrlTransform = (url, key) =>
+  key === "src" ? url : defaultUrlTransform(url);
+
+function MarkdownImage({ src, alt }: ComponentProps<"img">) {
+  const source = typeof src === "string" ? src : undefined;
+  const inlineSource = markdownImageSource(source);
+  if (inlineSource) {
+    return <img src={inlineSource} alt={alt} />;
+  }
+  if (source && /^https?:\/\//i.test(source)) {
+    return (
+      <a
+        className="font-medium text-primary underline underline-offset-4"
+        href={source}
+        referrerPolicy="no-referrer"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        {alt || source}
+      </a>
+    );
+  }
+  return <span>{alt || source}</span>;
+}
 
 export function MarkdownMessage({ text }: { text: string }) {
   return (
@@ -38,6 +69,7 @@ export function MarkdownMessage({ text }: { text: string }) {
           h3: ({ children }) => (
             <h3 className="mb-1.5 mt-4 text-base font-semibold first:mt-0">{children}</h3>
           ),
+          img: MarkdownImage,
           li: ({ children }) => <li className="ml-5 list-disc pl-1">{children}</li>,
           ol: ({ children }) => <ol className="my-3 space-y-1">{children}</ol>,
           p: ({ children }) => <p className="my-2 first:mt-0 last:mb-0">{children}</p>,
@@ -62,6 +94,7 @@ export function MarkdownMessage({ text }: { text: string }) {
           ul: ({ children }) => <ul className="my-3 space-y-1">{children}</ul>,
         }}
         remarkPlugins={[remarkGfm]}
+        urlTransform={markdownUrlTransform}
       >
         {text}
       </ReactMarkdown>
