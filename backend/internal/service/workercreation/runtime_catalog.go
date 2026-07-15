@@ -49,7 +49,7 @@ func (resolver *runtimeCatalogResolver) ResolveRuntime(
 		)
 	}
 	profile := resolver.catalog.Profile(selection.ResourceProfileID)
-	resourceProfile := specdomain.ResourceProfile{}
+	var resourceProfile specdomain.ResourceProfile
 	if selection.CustomResources != nil {
 		if selection.ResourceProfileID != 0 {
 			return runtimedomain.Resolved{}, invalidRuntimeSelection(

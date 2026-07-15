@@ -92,7 +92,7 @@ func (d *Deps) handleInspectEmbedContext(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"expires_at":     claims.ExpiresAt.Time.Unix(),
+		"expires_at":     claims.ExpiresAt.Unix(),
 		"parent_origins": claims.AllowedParentOrigins,
 	})
 }

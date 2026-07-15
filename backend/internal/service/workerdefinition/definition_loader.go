@@ -32,7 +32,7 @@ func loadDefinition(repoRoot string, entry catalogWorker) (Definition, error) {
 	}
 	hash := definitionBundleHash(raw, agentFile)
 	if entry.DefinitionHash != "sha256:"+hash {
-		return Definition{}, fmt.Errorf("Worker definition %q hash does not match catalog", entry.Slug)
+		return Definition{}, fmt.Errorf("worker definition %q hash does not match catalog", entry.Slug)
 	}
 	agentSchema, err := agentfileschema.FromSource(string(agentFile))
 	if err != nil {
@@ -98,27 +98,27 @@ func validateDefinition(slug string, document definitionFile) error {
 		len(document.ModelRequirement) == 0 ||
 		document.CredentialBindings == nil || document.ConfigDocuments == nil ||
 		len(document.Image) == 0 {
-		return fmt.Errorf("Worker definition %q is incomplete", slug)
+		return fmt.Errorf("worker definition %q is incomplete", slug)
 	}
 	if err := slugkit.Validate(document.AdapterID); err != nil {
-		return fmt.Errorf("Worker definition %q has invalid adapter_id: %w", slug, err)
+		return fmt.Errorf("worker definition %q has invalid adapter_id: %w", slug, err)
 	}
 	for _, mode := range document.InteractionModes {
 		if mode != "pty" && mode != "acp" {
-			return fmt.Errorf("Worker definition %q has invalid interaction mode %q", slug, mode)
+			return fmt.Errorf("worker definition %q has invalid interaction mode %q", slug, mode)
 		}
 	}
 	if err := validateCredentialBindings(document.CredentialBindings); err != nil {
-		return fmt.Errorf("Worker definition %q has invalid credential binding: %w", slug, err)
+		return fmt.Errorf("worker definition %q has invalid credential binding: %w", slug, err)
 	}
 	if _, err := decodeModelRequirement(document.ModelRequirement); err != nil {
-		return fmt.Errorf("Worker definition %q has invalid model requirement: %w", slug, err)
+		return fmt.Errorf("worker definition %q has invalid model requirement: %w", slug, err)
 	}
 	if _, err := decodeToolModelRequirements(document.ToolModelRequirements); err != nil {
-		return fmt.Errorf("Worker definition %q has invalid tool model requirement: %w", slug, err)
+		return fmt.Errorf("worker definition %q has invalid tool model requirement: %w", slug, err)
 	}
 	if err := validateConfigDocuments(document.ConfigDocuments); err != nil {
-		return fmt.Errorf("Worker definition %q has invalid config document: %w", slug, err)
+		return fmt.Errorf("worker definition %q has invalid config document: %w", slug, err)
 	}
 	return nil
 }
@@ -144,9 +144,7 @@ func decodeConfigDocuments(rawDocuments []json.RawMessage) ([]ConfigDocument, er
 		if document.ID == "" || document.Format == "" || document.TargetPath == "" {
 			return nil, fmt.Errorf("config document must declare id, format, and target_path")
 		}
-		documents = append(documents, ConfigDocument{
-			ID: document.ID, Format: document.Format, TargetPath: document.TargetPath,
-		})
+		documents = append(documents, ConfigDocument(document))
 	}
 	return documents, nil
 }

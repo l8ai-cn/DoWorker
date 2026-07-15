@@ -46,7 +46,7 @@ func (manifest Manifest) ValidateStored() error {
 }
 
 func (manifest Manifest) validateBase() error {
-	if err := manifest.TypeMeta.Validate(); err != nil {
+	if err := manifest.Validate(); err != nil {
 		return err
 	}
 	if err := manifest.Metadata.Validate(); err != nil {

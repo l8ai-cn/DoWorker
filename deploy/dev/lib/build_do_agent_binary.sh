@@ -6,6 +6,10 @@
 build_do_agent_binary() {
     local dev_dir
     dev_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    if [[ "${DEV_SKIP_DOAGENT:-0}" == "1" ]]; then
+        info "DEV_SKIP_DOAGENT=1，跳过 do-agent 构建"
+        return 0
+    fi
     if [[ -x "$dev_dir/do-agent-binary" ]]; then
         stage_runner_sidecar_binary \
             "$dev_dir/do-agent-binary" \

@@ -42,7 +42,7 @@ func (server *Server) ValidateResource(
 		CanonicalJson: append([]byte(nil), result.CanonicalManifest...),
 		Issues:        issues,
 	}
-	if result.Target.TypeMeta.APIVersion != "" {
+	if result.Target.APIVersion != "" {
 		response.Target = targetToProto(result.Target)
 	}
 	return connect.NewResponse(response), nil
@@ -80,7 +80,7 @@ func (server *Server) PlanResource(
 		CanonicalJson: append([]byte(nil), result.CanonicalManifest...),
 		Issues:        issues,
 	}
-	if result.Target.TypeMeta.APIVersion != "" {
+	if result.Target.APIVersion != "" {
 		response.Target = targetToProto(result.Target)
 	}
 	if result.Plan != nil && !hasBlockingIssue(result.Issues) {

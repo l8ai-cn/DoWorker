@@ -44,7 +44,6 @@ func (h *RunnerMessageHandler) OnSendPrompt(cmd *runnerv1.SendPromptCommand) err
 			h.releasePromptCommand(cmd),
 		)
 	}
-	err = nil
 	if pod.IsACPMode() {
 		sendAcpViaRelay(pod, "contentChunk", "", map[string]string{
 			"text": cmd.Prompt, "role": "user",

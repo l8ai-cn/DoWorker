@@ -99,15 +99,6 @@ func parseRuntimeCatalogLock(raw []byte) (runtimeCatalogLock, error) {
 	return lock, nil
 }
 
-func runtimeCatalogImages() []CatalogRuntimeImage {
-	lock := loadRuntimeCatalogLock()
-	images := make([]CatalogRuntimeImage, len(lock.Images))
-	for index, image := range lock.Images {
-		images[index] = cloneCatalogImage(image)
-	}
-	return images
-}
-
 func DefaultCatalogRevision() string {
 	return loadRuntimeCatalogLock().Revision
 }
@@ -128,7 +119,7 @@ func validImageDigest(digest string) bool {
 		return false
 	}
 	for _, character := range digest[len("sha256:"):] {
-		if !((character >= '0' && character <= '9') || (character >= 'a' && character <= 'f')) {
+		if (character < '0' || character > '9') && (character < 'a' || character > 'f') {
 			return false
 		}
 	}

@@ -35,10 +35,7 @@ func (ref Reference) ValidateDraft(defaultNamespace string) error {
 		return err
 	}
 
-	namespace := ref.Namespace.String()
-	if namespace == "" {
-		namespace = defaultNamespace
-	} else {
+	if namespace := ref.Namespace.String(); namespace != "" {
 		if err := slugkit.Validate(namespace); err != nil {
 			return fmt.Errorf("reference.namespace: %w", err)
 		}
