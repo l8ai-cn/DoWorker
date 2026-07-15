@@ -1,8 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { FormField, FormFieldGroup, FormRow } from "@/components/ui/form-field";
-import { Input } from "@/components/ui/input";
+import { FormField, FormFieldGroup } from "@/components/ui/form-field";
 import {
   Select,
   SelectContent,
@@ -16,6 +15,7 @@ import type {
 import { ResourceReferenceField } from "./ResourceReferenceField";
 import { WorkerTemplateResourceLimitsField } from "./WorkerTemplateResourceLimitsField";
 import type { WorkerTemplatePanelProps } from "./worker-template-panel-props";
+import { WorkerTemplateRuntimeChoices } from "./WorkerTemplateRuntimeChoices";
 
 export function WorkerTemplateRuntimePanel({
   draft,
@@ -39,41 +39,23 @@ export function WorkerTemplateRuntimePanel({
       title={t("sections.runtime")}
       className="border-t border-border pt-6"
     >
-      <FormRow>
-        <FormField
-          label={t("fields.runtimeImageId")}
-          htmlFor="runtime-image-id"
-          required
-          className="flex-1"
+      <WorkerTemplateRuntimeChoices draft={draft} onChange={onChange} />
+      <FormField
+        label={t("fields.deploymentMode")}
+        htmlFor="deployment-mode"
+        required
+      >
+        <Select
+          value={runtime.deploymentMode}
+          onValueChange={(deploymentMode) => setRuntime({ deploymentMode })}
         >
-          <Input
-            id="runtime-image-id"
-            type="number"
-            min={1}
-            value={runtime.runtimeImageId || ""}
-            onChange={(event) => setRuntime({
-              runtimeImageId: positiveInteger(event.target.value),
-            })}
-          />
-        </FormField>
-        <FormField
-          label={t("fields.deploymentMode")}
-          htmlFor="deployment-mode"
-          required
-          className="flex-1"
-        >
-          <Select
-            value={runtime.deploymentMode}
-            onValueChange={(deploymentMode) => setRuntime({ deploymentMode })}
-          >
-            <SelectTrigger id="deployment-mode"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pooled">{t("options.pooled")}</SelectItem>
-              <SelectItem value="dedicated">{t("options.dedicated")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </FormField>
-      </FormRow>
+          <SelectTrigger id="deployment-mode"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pooled">{t("options.pooled")}</SelectItem>
+            <SelectItem value="dedicated">{t("options.dedicated")}</SelectItem>
+          </SelectContent>
+        </Select>
+      </FormField>
       <FormField label={t("fields.placementPolicy")}>
         <Select
           value={runtime.placementPolicy}
@@ -107,56 +89,28 @@ export function WorkerTemplateRuntimePanel({
         catalog={catalog}
         onChange={setRuntime}
       />
-      <FormRow>
-        <FormField
-          label={t("fields.interactionMode")}
-          htmlFor="interaction-mode"
-          className="flex-1"
+      <FormField
+        label={t("fields.automationLevel")}
+        htmlFor="automation-level"
+      >
+        <Select
+          value={draft.spec.typeConfig.automationLevel}
+          onValueChange={(automationLevel) => setTypeConfig(
+            draft,
+            onChange,
+            { automationLevel },
+          )}
         >
-          <Select
-            value={draft.spec.typeConfig.interactionMode}
-            onValueChange={(interactionMode) => setTypeConfig(
-              draft,
-              onChange,
-              { interactionMode },
-            )}
-          >
-            <SelectTrigger id="interaction-mode"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pty">{t("options.pty")}</SelectItem>
-              <SelectItem value="acp">{t("options.acp")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </FormField>
-        <FormField
-          label={t("fields.automationLevel")}
-          htmlFor="automation-level"
-          className="flex-1"
-        >
-          <Select
-            value={draft.spec.typeConfig.automationLevel}
-            onValueChange={(automationLevel) => setTypeConfig(
-              draft,
-              onChange,
-              { automationLevel },
-            )}
-          >
-            <SelectTrigger id="automation-level"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="interactive">{t("options.interactive")}</SelectItem>
-              <SelectItem value="auto_edit">{t("options.autoEdit")}</SelectItem>
-              <SelectItem value="autonomous">{t("options.autonomous")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </FormField>
-      </FormRow>
+          <SelectTrigger id="automation-level"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="interactive">{t("options.interactive")}</SelectItem>
+            <SelectItem value="auto_edit">{t("options.autoEdit")}</SelectItem>
+            <SelectItem value="autonomous">{t("options.autonomous")}</SelectItem>
+          </SelectContent>
+        </Select>
+      </FormField>
     </FormFieldGroup>
   );
-}
-
-function positiveInteger(value: string): number {
-  const parsed = Number(value);
-  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : 0;
 }
 
 function setTypeConfig(

@@ -3,120 +3,112 @@
     "workforce": {
       "expertHome": {
         "hero": {
-          "eyebrow": "Un expert. Une capacité organisationnelle connectée.",
-          "title": "Transformer des capacités IA fragmentées en experts qui terminent le travail",
-          "description": "Formulez l’objectif une seule fois. Do Worker rassemble méthodes, connaissances, outils d’exécution et capacités IA derrière un Expert dédié qui agit en engineering, content, data et operations.",
-          "primaryAction": "Créer votre Expert",
-          "secondaryAction": "Voir le menu métier",
-          "proof": "Contexte partagé · Exécution inter-systèmes · Confirmation humaine · Résultat vérifiable"
+          "eyebrow": "Plateforme d'approvisionnement Agent d'entreprise",
+          "title": "Approvisionnement d'Agent + incubation d'organisations AI-native",
+          "description": "Créez des Agents comme unités de capacité déployables, validez-les sur des cas métier réels, publiez-les dans un marché gouverné et développez des organisations AI-native autour d'AI Partners.",
+          "primaryAction": "Explorer le marché des Agents",
+          "secondaryAction": "Explorer le système d'approvisionnement",
+          "proof": "Construire · Vérifier · Publier · Installer · Exécuter · Évoluer"
         },
         "console": {
-          "title": "Travail fonctionnel en cours",
-          "status": "Un Expert porte l’objectif avec confirmation humaine sur les décisions clés",
+          "title": "Approvisionnement Agent déclenché par le business",
+          "status": "Chaîne exécution preuve → demande en direct",
           "live": "En cours",
           "paused": "En pause",
           "complete": "Terminé",
-          "goalLabel": "Objectif actuel",
-          "goal": "Lancer une campagne multilingue vérifiée pour un nouveau marché",
-          "expertLabel": "Expert actif",
-          "expert": "Expert en croissance transfrontalière",
-          "formulaLabel": "Capacités derrière",
-          "formula": "Research · Knowledge · Content · Data · System action",
-          "workflowLabel": "Chaîne de livraison unifiée",
-          "steps": ["Comprendre", "Organiser", "Exécuter", "Confirmer", "Livrer"],
-          "checkpointLabel": "Point de contrôle humain",
-          "checkpoint": "Valider positionnement, langage de marque et limites de conformité avant publication.",
-          "deliverableLabel": "Résultat inspectable",
-          "deliverable": "Brief marché, assets localisés, preuves de processus et prochaines actions",
-          "controls": { "pause": "Pause", "resume": "Reprendre", "next": "Étape suivante", "replay": "Rejouer" }
+          "goalLabel": "Exigence métier",
+          "goal": "Résoudre et documenter une escalade client multilingue",
+          "expertLabel": "Agent correspondant",
+          "expert": "Agent des opérations client",
+          "formulaLabel": "Capacités appairées",
+          "formula": "Connaissance client · Contenu multilingue · Analyse de données · Action système · Politique",
+          "workflowLabel": "Chaîne de déclenchement métier",
+          "steps": ["Identification du besoin", "Appariement des capacités", "Confirmation des permissions", "Exécution collaborative", "Revue humaine", "Transmission des preuves"],
+          "checkpointLabel": "Revue humaine",
+          "checkpoint": "Vérifiez les réponses externes, les actions à privilèges et les limites de politique.",
+          "deliverableLabel": "Transmission des preuves",
+          "deliverable": "Actions terminées, résumé de résultats, journal des validations et preuves inspectables",
+          "controls": { "pause": "Pause", "resume": "Reprendre", "next": "Étape suivante", "replay": "Relancer" }
         },
         "solutions": {
-          "eyebrow": "Menu métiers de la page d’accueil",
-          "title": "Entrez par un objectif réel et suivez la livraison",
-          "description": "Choisissez le résultat attendu au lieu d’assembler une foule d’agents. Chaque entrée garde un Expert et un contexte unique tout en déclenchant les capacités interfonctionnelles nécessaires.",
-          "workflowLabel": "Parcours de livraison",
-          "deliverablesLabel": "Résultat inspectable",
+          "eyebrow": "Trois trajectoires de solution",
+          "title": "Approvisionner des Agents. Incuber des organisations AI-native.",
+          "description": "Commencez par l'approvisionnement d'Agents en entreprise, formez un OPC autour d'AI Partners ou concevez un pilote de travailleurs numériques pour l'enseignement supérieur à partir de capacités de plateforme composables.",
+          "workflowLabel": "Parcours opérationnel",
+          "deliverablesLabel": "Résultat métier",
           "items": [
-            { "id": "cross-border-commerce", "title": "Croissance transfrontalière", "description": "Connecte recherche marché, positionnement, contenu, localisation, préparation de lancement et revue de performance autour d’un objectif d’expansion.", "chain": "Research → Positioning → Content → Localization → Launch prep → Review", "outcome": "Plans marché, assets produit, contenus localisés et preuves de processus.", "action": "Créer un Expert pour cet objectif" },
-            { "id": "ai-education", "title": "Développement de cours", "description": "Partez de résultats d’apprentissage pour organiser recherche, curriculum, cours, labs, évaluations et revue instructeur.", "chain": "Outcomes → Curriculum → Lessons → Labs → Assessment → Review", "outcome": "Programmes, leçons, labs, quiz et preuve d’acceptation.", "action": "Créer un Expert pour cet objectif" },
-            { "id": "digital-employees", "title": "Partenaires IA", "description": "Collaborez avec un partenaire IA qui partage le contexte de votre équipe et combine recherche, documents, données, contenu et actions système entre les services.", "chain": "Définir l’objectif ensemble → Lire les connaissances internes → Agir via les outils → Partager l’avancement → Confirmation humaine → Livrer les preuves", "outcome": "Résultats collaboratifs, actions système, notes d’avancement et preuves vérifiables.", "action": "Créer votre partenaire IA" },
-            { "id": "marketplace", "title": "Place des Experts", "description": "Découvrez des Experts et Skills réutilisables par résultat, puis vérifiez capacités, permissions et livrables avant installation.", "chain": "Découvrir → Inspecter → Installer → Configurer → Exécuter → Gouverner", "outcome": "Experts réutilisables avec capacités visibles, permissions et attentes de livraison.", "action": "Ouvrir le marché des Experts" }
+            { "id": "enterprise-agent-supply", "title": "Enterprise Agent supply", "description": "Transformez les connaissances métier, méthodes, outils et politiques en Agents standardisés que les équipes peuvent vérifier, publier, installer, exploiter et améliorer.", "chain": "Construire → Vérifier → Publier → Installer → Exécuter → Évoluer", "outcome": "Agents versionnés, preuves de vérification, politiques d'installation, journaux opérationnels et plans d'évolution.", "action": "Démarrer l'approvisionnement Agent d'entreprise" },
+            { "id": "opc-incubation", "title": "OPC incubation", "description": "Incubez un OPC dans lequel un noyau humain travaille avec des AI Partners constitués d'un Agent ou d'une combinaison coordonnée d'Agents.", "chain": "Définir l'activité → Façonner les AI Partners → Établir la collaboration → Automatiser les tâches récurrentes → Gouverner l'exécution → Changer d'échelle", "outcome": "Une équipe pilotée par des humains, avec des rôles d'AI Partner clairement définis, des rythmes opérationnels, des limites de gouvernance et des résultats mesurables.", "action": "Incuber un OPC" },
+            { "id": "higher-education-digital-employees", "title": "Pilote de travailleurs numériques pour l'enseignement supérieur", "description": "Concevez des pilotes fondés sur les rôles pour l'enseignement, la recherche, les services aux étudiants et l'administration, en combinant les capacités composables de la plateforme avec les connaissances institutionnelles et la gouvernance.", "chain": "Identifier les rôles → Configurer les connaissances → Valider les tâches → Piloter avec une équipe → Gouverner le service → Améliorer en continu", "outcome": "Un modèle de pilote validé, aligné sur les rôles du campus, les connaissances institutionnelles, les limites d'approbation et les preuves de service.", "action": "Lancer un pilote pour l'enseignement supérieur" }
           ]
         },
         "capabilities": {
-          "eyebrow": "Capacités composables",
-          "title": "Un Expert peut appeler de nombreuses capacités professionnelles",
-          "description": "Une chaîne de livraison unique peut utiliser research, documents, données, code et médias. Les niveaux de maturité distinguent fonctions plateforme, capacités assemblables via Skills/outils et directions planifiées.",
-          "levels": { "implemented": "Fonction de plateforme", "composable": "Composable", "planned": "Planifié" },
+          "eyebrow": "Capacités cœur de plateforme",
+          "title": "Le système d'exploitation de l'approvisionnement Agent et des équipes AI-native",
+          "description": "Cinq capacités connectées font passer les Agents de la création à un usage organisationnel gouverné, tout en réunissant les équipes, les AI Partners, l'automatisation et les preuves dans un même environnement opérationnel.",
+          "levels": { "implemented": "Disponible", "composable": "Composable", "planned": "Prévu" },
           "items": [
-            { "id": "programming", "level": "implemented", "title": "Programmation et livraison", "description": "Modifier du code, exécuter des tests, relire et livrer un PR ou MR dans un espace de travail isolé." },
-            { "id": "research", "level": "composable", "title": "Research et jugement", "description": "Fusionner recherche et analyse en conclusions et briefings sourcés." },
-            { "id": "documents", "level": "composable", "title": "Documents professionnels", "description": "Lire, structurer, réviser et livrer des documents prêts pour usage continu." },
-            { "id": "office", "level": "composable", "title": "Production bureautique", "description": "Travailler avec feuilles de calcul, présentations, rapports et opérations répétables." },
-            { "id": "content", "level": "composable", "title": "Opérations de contenu", "description": "Connecter recherche, rédaction, édition, localisation, revue et préparation au lancement." },
-            { "id": "screenwriting", "level": "composable", "title": "Écriture et mise en scène", "description": "Structurer trame narrative, scripts, plans de tournage et transmission de production." },
-            { "id": "image", "level": "composable", "title": "Assets image", "description": "Générer, éditer, inspecter et empaqueter des visuels via outils connectés." },
-            { "id": "audio", "level": "composable", "title": "Assets audio", "description": "Planifier, générer, traiter et réviser voix ou musique via outils connectés." },
-            { "id": "video", "level": "composable", "title": "Production vidéo", "description": "Coordonner scripts, assets, génération, montage et revue qualité." },
-            { "id": "data", "level": "composable", "title": "Données et opérations système", "description": "Interroger, transformer, analyser et vérifier des données structurées avec des outils contrôlés." },
-            { "id": "education", "level": "composable", "title": "Cours et apprentissage", "description": "Relier conception de cours, leçons, labs, évaluation et preuves d’apprentissage." },
-            { "id": "industryMarket", "level": "planned", "title": "Marché des Experts sectoriels", "description": "Un catalogue d’experts sectoriels et de connecteurs business pour les organisations." }
+            { "id": "agent-factory", "level": "implemented", "title": "Agent factory", "description": "Créer, vérifier, versionner et publier des Agents à partir de méthodes, connaissances, outils, modèles et politiques réutilisables." },
+            { "id": "agent-market", "level": "implemented", "title": "Agent market", "description": "Découvrez des Agents approuvés, inspectez leurs capacités et permissions, puis installez la version adaptée à chaque équipe." },
+            { "id": "collaboration-workspace", "level": "implemented", "title": "Collaboration workspace", "description": "Partagez objectifs, contexte, conversations, artefacts, décisions et preuves de livraison entre les équipes et les AI Partners." },
+            { "id": "automation", "level": "implemented", "title": "Automation", "description": "Déclenchez des travaux récurrents, coordonnez des combinaisons d'Agents, suivez la progression et orientez les décisions vers les bonnes personnes." },
+            { "id": "governance", "level": "implemented", "title": "Governance", "description": "Contrôlez permissions, limites d'exécution, validations, budgets, versions, preuves et historique d'audit." }
           ]
         },
         "operating": {
-          "eyebrow": "Modèle opérationnel de l’Expert",
-          "title": "Un Expert en premier plan, capacités de l’organisation derrière lui.",
-          "description": "L’Expert conserve une identité, un objectif, un contexte et un état de tâche. La plateforme organise execution runtime, modèle, méthodes pro, connaissances, outils système et règles opérationnelles autour.",
-          "formulaTitle": "Six couches de capacité derrière un Expert",
+          "eyebrow": "Cycle de vie de l'approvisionnement Agent",
+          "title": "Une boucle fermée de la construction à l'évolution",
+          "description": "Chaque Agent est une unité de capacité déployable. La plateforme l'accompagne dans un cycle gouverné, puis réutilise les preuves opérationnelles pour améliorer la version suivante et l'organisation associée.",
+          "formulaTitle": "Six étapes du cycle",
           "parts": [
-            { "id": "worker", "title": "Runtime d’exécution", "description": "Sélectionnez la runtime Worker adaptée à l’affectation." },
-            { "id": "model", "title": "Raisonnement et génération", "description": "Choisir les modèles par tâche plutôt qu’avec le nom de modèle." },
-            { "id": "skills", "title": "Méthodes professionnelles", "description": "Capturer méthodes métiers et standards de livraison comme Skills réutilisables." },
-            { "id": "knowledge", "title": "Connaissance organisationnelle", "description": "Relier fichiers, standards, historique et contexte métier." },
-            { "id": "tools", "title": "Action système", "description": "Utiliser des connexions contrôlées pour agir dans navigateurs, bases de données et systèmes métiers." },
-            { "id": "workflow", "title": "Règles d’exploitation", "description": "Définir ordre, checkpoints, budgets, conditions d’arrêt et preuve exigée." }
+            { "id": "build", "title": "Build", "description": "Assembler un Agent ciblé à partir de méthodes métier, connaissances, outils, modèles et politiques." },
+            { "id": "verify", "title": "Verify", "description": "Tester des tâches réelles, les cas de panne, les permissions et les preuves d'acceptation avant publication." },
+            { "id": "release", "title": "Release", "description": "Publier un Agent approuvé et versionné dans le Agent market gouverné." },
+            { "id": "install", "title": "Install", "description": "Configurer la version approuvée pour une équipe, un rôle, un environnement et un périmètre d'accès." },
+            { "id": "run", "title": "Run", "description": "Exploiter l'Agent seul ou au sein d'un AI Partner, avec une progression visible et des points de contrôle humains." },
+            { "id": "evolve", "title": "Evolve", "description": "Utiliser résultats, retours, incidents et nouveau savoir pour valider la version suivante." }
           ],
-          "humanTitle": "Progrès continu avec contrôle explicite",
-          "humanDescription": "L’Expert peut continuer à travailler pendant que décisions clés, actions privilégiées et livraison finale restent visibles.",
+          "humanTitle": "Les AI Partners transforment l'approvisionnement d'Agents en organisation",
+          "humanDescription": "Un AI Partner peut être un Agent unique ou une combinaison coordonnée d'Agents. Un OPC maintient les humains au cœur du dispositif tandis que les AI Partners renforcent la capacité de livraison de l'équipe.",
           "humanItems": [
-            { "id": "checkpoint", "title": "Confirmation humaine", "description": "Suspendre les décisions à fort impact pour approbation, refus ou révision." },
-            { "id": "deliverable", "title": "Livraison complète", "description": "Rendre les livrables avec statut, preuves et risques non résolus." },
-            { "id": "repeatability", "title": "Pratique réutilisable", "description": "Transformer des méthodes validées en Skills, Experts et workflows versionnés." }
+            { "id": "supply-unit", "title": "Agent", "description": "La plus petite unité de capacité pouvant être créée, validée, publiée, installée, exécutée et évoluée." },
+            { "id": "ai-partner", "title": "AI Partner", "description": "Un Agent orienté métier ou une combinaison d'Agents avec un rôle, un contexte et une responsabilité de livraison clairement définis." },
+            { "id": "opc", "title": "OPC", "description": "Un noyau humain et des AI Partners opérant comme une seule équipe AI-native responsable." }
           ]
         },
         "market": {
-          "eyebrow": "Marché d’experts",
-          "title": "Réutilisez des Experts du catalogue sans reconstruire une équipe IA",
-          "description": "Le catalogue actuel commence par des Experts d’ingénierie logicielle alignés sur des capacités réelles de la plateforme. Commencez par résultats, permissions et attentes de livraison, puis vérifiez Worker, Skills et configuration runtime sous-jacente.",
+          "eyebrow": "Marché des Agents",
+          "title": "Publier une fois. Installer l'approvisionnement Agent là où il est nécessaire.",
+          "description": "Le marché des Agents distribue des capacités réutilisables ; il ne s'agit pas d'un domaine de solution. Les équipes consultent périmètre, preuves, permissions et versions avant installation.",
           "apps": [
-            { "slug": "software-delivery-expert", "title": "Expert de livraison logicielle", "description": "Du découpage des besoins au développement isolé jusqu’aux tests, revue et livraison PR ou MR." },
-            { "slug": "multi-worker-orchestrator", "title": "Expert d’orchestration de travail complexe", "description": "Divise les objectifs complexes en tâches parallèles et consolide un résultat accepté." },
-            { "slug": "dual-repo-sync-expert", "title": "Expert de synchronisation bi-référentiel", "description": "Synchronise GitLab et GitHub avec détection d’écarts et chemin de revue approprié." }
+            { "slug": "software-delivery-expert", "title": "Software delivery Agent", "description": "Porte les exigences de la mise en œuvre à la vérification, à la revue et à une livraison de code validée." },
+            { "slug": "multi-worker-orchestrator", "title": "Multi-Agent orchestration", "description": "Coordonne des Agents spécialisés autour d'un objectif, avec points de contrôle partagés et un résultat validé commun." },
+            { "slug": "dual-repo-sync-expert", "title": "Dual-repository sync Agent", "description": "Détecte les écarts, synchronise GitLab et GitHub et dirige les changements vers le bon parcours de revue." }
           ],
-          "status": "Répertorié",
-          "plannedTitle": "Extension progressive des Experts secteur",
-          "plannedDescription": "La croissance transfrontalière, le développement de cours et les partenaires IA ne seront ajoutés qu’après validation de leurs Skills, connecteurs et chaînes de livraison.",
-          "action": "Parcourir le marché d’experts"
+          "status": "Publié",
+          "plannedTitle": "La supply progresse grâce à la validation",
+          "plannedDescription": "Les nouveaux Agents n'entrent sur le marché qu'après vérification de leur rôle, permissions, chemins d'échec, livrables et preuves opérationnelles.",
+          "action": "Explorer le marché des Agents"
         },
         "trust": {
-          "eyebrow": "Droits et gouvernance",
-          "title": "Une interface ne signifie pas un accès illimité",
-          "description": "Un Expert peut travailler entre systèmes tout en gardant chaque exécution encadrée par infrastructure, espaces isolés, portée des credentials, confirmation humaine et exigences de preuve.",
+          "eyebrow": "Runtime et gouvernance",
+          "title": "Exécuter l'approvisionnement Agent dans les limites de l'entreprise",
+          "description": "Chaque exécution Agent reste limitée par l'infrastructure, des espaces de travail isolés, un périmètre de credentials, des politiques d'approbation, des budgets et des exigences de preuve.",
           "items": [
-            { "id": "selfHosting", "title": "Lieu d’exécution contrôlé", "description": "Exécuter les Workers dans les limites d’infrastructure et de réseau définies par l’organisation.", "status": "Contrôlé" },
-            { "id": "workspaces", "title": "Espaces isolés", "description": "Séparer chaque mission, ses fichiers et son contexte d’exécution.", "status": "Isolé" },
-            { "id": "credentials", "title": "Identifiants à portée contrôlée", "description": "Accorder uniquement les accès requis par l’Expert et la mission.", "status": "Ciblé" },
-            { "id": "audit", "title": "Preuve vérifiable", "description": "Conserver activité, décisions, livrables et statut d’exécution.", "status": "Enregistré" }
+            { "id": "selfHosting", "title": "Runner deployment control", "description": "Déployez des Runners dans les limites d'infrastructure et réseau définies par l'organisation.", "status": "Contrôlé" },
+            { "id": "workspaces", "title": "Isolated workspaces", "description": "Isolez chaque mission avec ses fichiers, dépendances et contexte d'exécution.", "status": "Isolé" },
+            { "id": "credentials", "title": "Scoped credentials", "description": "Attribuez à chaque Agent uniquement l'accès nécessaire à son rôle et à sa mission approuvés.", "status": "Restreint" },
+            { "id": "audit", "title": "Inspectable evidence", "description": "Conservez activités, décisions, approbations, artefacts, versions et statut de livraison pour contrôle.", "status": "Enregistré" }
           ],
-          "runtimesTitle": "Répertoire des runtimes Worker",
-          "runtimesDescription": "Le répertoire regroupe des runtimes Worker, dont Codex CLI, Claude Code, Gemini CLI, Aider et OpenCode. Le déploiement dépend de l’entrée du répertoire et de l’état de vérification de publication."
+          "runtimesTitle": "Runner runtime coverage",
+          "runtimesDescription": "Les Runners hébergent des environnements d'exécution Agent approuvés, notamment Codex CLI, Claude Code, Gemini CLI, Aider et OpenCode. Leur disponibilité suit le catalogue vérifié des environnements d'exécution."
         },
         "cta": {
-          "eyebrow": "Commencer avec un objectif réel",
-          "title": "Laissez votre premier Expert piloter une chaîne de livraison complète",
-          "description": "Commencez avec un Expert existant ou composez-en un avec les Workers, Skills, connaissances et outils déjà approuvés par votre organisation.",
-          "primary": "Créer votre premier Expert",
-          "secondary": "Parcourir le marché d’experts"
+          "eyebrow": "Commencer par une unité de supply",
+          "title": "Construisez votre premier Agent déployable",
+          "description": "Choisissez un rôle métier réel, validez son travail, publiez la version approuvée et évoluez d'un Agent vers un AI Partner ou un OPC.",
+          "primary": "Construire votre premier Agent",
+          "secondary": "Explorer le marché des Agents"
         }
       }
     }

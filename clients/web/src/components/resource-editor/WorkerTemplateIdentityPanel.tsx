@@ -56,34 +56,6 @@ export function WorkerTemplateIdentityPanel({
           />
         </FormField>
       </FormRow>
-      <FormRow>
-        <FormField
-          label={t("fields.workerType")}
-          htmlFor="worker-type"
-          required
-          className="flex-1"
-        >
-          <Input
-            id="worker-type"
-            value={draft.spec.workerType}
-            onChange={(event) => setSpec({ workerType: event.target.value })}
-          />
-        </FormField>
-        <FormField
-          label={t("fields.optionsRevision")}
-          htmlFor="options-revision"
-          required
-          className="flex-1"
-        >
-          <Input
-            id="options-revision"
-            value={draft.spec.optionsRevision}
-            onChange={(event) => setSpec({
-              optionsRevision: event.target.value,
-            })}
-          />
-        </FormField>
-      </FormRow>
       <ResourceReferenceField
         id="model-reference"
         label={t("fields.modelRef")}

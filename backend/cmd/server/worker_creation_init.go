@@ -29,6 +29,7 @@ func initializeWorkerServices(
 	agents *agent.AgentService,
 	models *airesourceservice.Service,
 	repositories *repository.Service,
+	runners workercreation.RunnerAvailabilityResolver,
 ) (workerServices, error) {
 	definitions, err := workerdefinition.Load(cfg.WorkerDefinitionsDir)
 	if err != nil {
@@ -45,6 +46,7 @@ func initializeWorkerServices(
 		models,
 		repositories,
 		catalog,
+		runners,
 	)
 	generator := workercreation.NewProviderDraftGenerator(
 		airesourceservice.NewSafeHTTPClient(
@@ -68,12 +70,14 @@ func initializeWorkerCreationService(
 	models *airesourceservice.Service,
 	repositories *repository.Service,
 	catalog workerruntime.Catalog,
+	runners workercreation.RunnerAvailabilityResolver,
 ) *workercreation.Service {
 	return workercreation.NewService(workercreation.Deps{
 		Catalog:      catalog,
 		Definitions:  definitions,
 		Agents:       agents,
 		Models:       models,
+		Runners:      runners,
 		Repositories: repositories,
 		Skills:       infra.NewSkillCatalogRepository(db),
 		Knowledge:    infra.NewKnowledgeBaseRepository(db),

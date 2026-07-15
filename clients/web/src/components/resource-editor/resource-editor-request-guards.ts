@@ -10,12 +10,13 @@ export function isCurrentYaml(
     state.source.text === source;
 }
 
-export function hasCurrentPlan(
+export function hasCurrentApply(
   state: ResourceDraftState,
   planId: string,
   version: number,
 ): boolean {
   return state.version === version &&
-    state.plan.status === "ready" &&
-    state.plan.response.plan?.planId === planId;
+    state.apply.status === "loading" &&
+    state.apply.planId === planId &&
+    state.apply.version === version;
 }

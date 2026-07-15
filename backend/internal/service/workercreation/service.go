@@ -18,6 +18,7 @@ type Service struct {
 	runtime       specservice.RuntimeResolver
 	models        specservice.ModelResolver
 	toolModels    specservice.ToolModelResolver
+	runners       RunnerAvailabilityResolver
 	workspaceDeps workspaceResolverDeps
 }
 
@@ -39,6 +40,7 @@ func NewService(deps Deps) *Service {
 		runtime:       newRuntimeCatalogResolver(deps.Catalog),
 		models:        models,
 		toolModels:    models,
+		runners:       deps.Runners,
 		workspaceDeps: workspaceDeps,
 	}
 }

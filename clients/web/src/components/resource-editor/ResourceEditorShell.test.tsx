@@ -12,6 +12,8 @@ import {
   ValidateResourceResponseSchema,
 } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import { fireEvent, render, screen, waitFor } from "@/test/test-utils";
+import type { WorkerCreateOptions } from "@/lib/api/facade/podConnect";
+import { createResourceDraft } from "./resource-draft-factory";
 
 const api = vi.hoisted(() => ({
   validateResource: vi.fn(),
@@ -27,6 +29,13 @@ const api = vi.hoisted(() => ({
 
 vi.mock("@/lib/api/facade/orchestrationResource", () => ({
   ...api,
+}));
+
+vi.mock("@/components/pod/hooks/useWorkerCreateOptions", () => ({
+  useWorkerCreateOptions: () => ({
+    status: "ready",
+    data: workerOptions(),
+  }),
 }));
 
 import { ResourceEditorShell } from "./ResourceEditorShell";
@@ -49,14 +58,17 @@ describe("ResourceEditorShell", () => {
     render(<ResourceEditorShell orgSlug="acme" />);
 
     await user.type(screen.getByLabelText(/Resource name/), "code-reviewer");
-    await user.type(screen.getByLabelText(/Worker type/), "codex");
+    await user.click(screen.getByRole("button", { name: "Worker type" }));
+    await user.click(screen.getByRole("option", { name: "Codex CLI" }));
     await user.click(screen.getByRole("tab", { name: "YAML" }));
 
     const editor = await screen.findByTestId("resource-yaml-editor");
     expect((editor as HTMLTextAreaElement).value).toContain(
       "name: code-reviewer",
     );
-    expect((editor as HTMLTextAreaElement).value).toContain("workerType: codex");
+    expect((editor as HTMLTextAreaElement).value).toContain(
+      "workerType: codex-cli",
+    );
   });
 
   it("keeps invalid YAML visible and blocks switching back to the form", async () => {
@@ -72,6 +84,69 @@ describe("ResourceEditorShell", () => {
     expect(screen.getByText(
       "Fix YAML before returning to the form or applying.",
     )).toBeInTheDocument();
+    expect(api.validateResource).not.toHaveBeenCalled();
+  });
+
+  it("returns valid YAML to the form using the canonical draft", async () => {
+    const user = userEvent.setup();
+    render(<ResourceEditorShell orgSlug="acme" />);
+
+    await user.click(screen.getByRole("tab", { name: "YAML" }));
+    const editor = await screen.findByTestId("resource-yaml-editor");
+    fireEvent.change(editor, {
+      target: {
+        value: (editor as HTMLTextAreaElement).value.replace(
+          'name: ""',
+          "name: yaml-name",
+        ),
+      },
+    });
+    await user.click(screen.getByRole("tab", { name: "Configuration" }));
+
+    expect(await screen.findByLabelText(/Resource name/))
+      .toHaveValue("code-reviewer");
+  });
+
+  it("does not plan GoalLoop YAML with invalid integer fields", async () => {
+    const user = userEvent.setup();
+    api.planResource.mockResolvedValue(readyPlan("invalid-goal-loop-plan"));
+    render(<ResourceEditorShell orgSlug="acme" kind="GoalLoop" />);
+
+    await user.click(screen.getByRole("tab", { name: "YAML" }));
+    const editor = await screen.findByTestId("resource-yaml-editor");
+    const invalidSource = (editor as HTMLTextAreaElement).value.replace(
+      "maxIterations: 10",
+      "maxIterations: 101",
+    );
+    fireEvent.change(editor, { target: { value: invalidSource } });
+    await user.click(screen.getByRole("button", { name: "Generate plan" }));
+
+    expect(await screen.findAllByText(
+      "GoalLoop YAML contains invalid integer fields.",
+    )).not.toHaveLength(0);
+    expect(api.planResource).not.toHaveBeenCalled();
+    expect(screen.getByTestId("resource-yaml-editor")).toHaveValue(invalidSource);
+  });
+
+  it("does not validate invalid GoalLoop integers when returning to the form", async () => {
+    const user = userEvent.setup();
+    render(<ResourceEditorShell orgSlug="acme" kind="GoalLoop" />);
+
+    await user.click(screen.getByRole("tab", { name: "YAML" }));
+    const editor = await screen.findByTestId("resource-yaml-editor");
+    fireEvent.change(editor, {
+      target: {
+        value: (editor as HTMLTextAreaElement).value.replace(
+          "maxIterations: 10",
+          "maxIterations: 1.5",
+        ),
+      },
+    });
+    await user.click(screen.getByRole("tab", { name: "Configuration" }));
+
+    expect(await screen.findAllByText(
+      "GoalLoop YAML contains invalid integer fields.",
+    )).not.toHaveLength(0);
     expect(api.validateResource).not.toHaveBeenCalled();
   });
 
@@ -270,10 +345,40 @@ function readyPlan(planId: string) {
 }
 
 function validManifestJson(): string {
+  const draft = createResourceDraft("WorkerTemplate", "acme");
   return JSON.stringify({
-    apiVersion: "agentsmesh.io/v1alpha1",
-    kind: "WorkerTemplate",
-    metadata: { name: "code-reviewer", namespace: "acme" },
-    spec: {},
+    ...draft,
+    metadata: { ...draft.metadata, name: "code-reviewer" },
   });
+}
+
+function workerOptions(): WorkerCreateOptions {
+  return {
+    revision: "catalog-current",
+    worker_types: [{
+      slug: "codex-cli",
+      name: "Codex CLI",
+      description: "",
+      schema_version: 1,
+      config_schema: {},
+      supported_interaction_modes: ["pty", "acp"],
+      requires_model_resource: false,
+      tool_model_requirements: [],
+      selectable: true,
+      blocking_reason: "",
+    }],
+    runtime_images: [{
+      id: 11,
+      slug: "codex",
+      name: "Codex stable",
+      reference: "",
+      digest: "",
+      worker_type_slugs: ["codex-cli"],
+      selectable: true,
+      blocking_reason: "",
+    }],
+    compute_targets: [],
+    deployment_modes: [],
+    resource_profiles: [],
+  };
 }

@@ -22,8 +22,10 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/components/i18n", () => ({
   LanguageSwitcher: () => <button type="button">Language</button>,
 }));
-vi.mock("@/components/common", () => ({
+vi.mock("@/components/common/LightAuthButtons", () => ({
   LightAuthButtons: () => <div>Auth</div>,
+}));
+vi.mock("@/components/common/Logo", () => ({
   Logo: () => <span>Logo</span>,
 }));
 

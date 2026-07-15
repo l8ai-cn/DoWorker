@@ -92,6 +92,9 @@ WHERE orchestration_resource_id IS NOT NULL;
 已经通过资源 Apply 创建的 Expert、Workflow、GoalLoop 或 Pod 可能依赖这些
 关联，因此生产回滚前必须先评估新数据，而不是直接执行全部 down。
 
+`000218_normalize_agent_capability_heading` 是不可逆的文本归一化，down 会
+fail closed。需要回退到 `000217` 或更早版本时，必须恢复执行迁移前的数据库备份。
+
 WorkerSpec 快照不由资源迁移删除。资源 revision 对快照使用 `ON DELETE RESTRICT`，
 避免回滚或误操作破坏仍被领域对象引用的运行事实。
 

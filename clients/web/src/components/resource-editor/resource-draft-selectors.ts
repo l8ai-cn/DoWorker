@@ -1,10 +1,14 @@
 import { IssueSeverity } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import { goalLoopHasIntegerErrors } from "./goal-loop-integer-draft";
 import type { ResourceDraftState } from "./resource-draft-reducer";
+import type { ResourceDraft } from "./resource-editor-types";
 
 export function resourceDraftCanSubmit(state: ResourceDraftState): boolean {
-  return state.draft.kind !== "GoalLoop" ||
-    !goalLoopHasIntegerErrors(state.draft);
+  return !state.source.error && resourceDraftCanSubmitDraft(state.draft);
+}
+
+export function resourceDraftCanSubmitDraft(draft: ResourceDraft): boolean {
+  return draft.kind !== "GoalLoop" || !goalLoopHasIntegerErrors(draft);
 }
 
 export function resourceDraftCanApply(state: ResourceDraftState): boolean {

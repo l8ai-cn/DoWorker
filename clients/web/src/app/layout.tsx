@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   description: "Build, govern, distribute, and operate reusable Agents for enterprise teams, OPC founders, and higher-education digital employee programs.",
   keywords: [
     "do-worker", "do worker", "l8ai",
-    "enterprise agent supply", "OPC incubation", "digital employees",
+    "enterprise agent supply", "OPC incubation", "higher-education digital employees",
     "AI partner platform", "internal agent marketplace",
     "AI agents", "AI coding", "Claude Code", "Codex CLI", "Gemini CLI", "Aider",
     "multi-agent orchestration", "AI skills", "terminal AI", "code automation",

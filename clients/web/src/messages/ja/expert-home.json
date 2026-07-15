@@ -3,120 +3,112 @@
     "workforce": {
       "expertHome": {
         "hero": {
-          "eyebrow": "1つのエキスパート。組織の能力を連結します。",
-          "title": "断片化されたAI能力を、業務を完了するエキスパートへ統合します",
-          "description": "目標は一度だけ宣言します。Do Worker はメソッド・組織知識・実行ツール・AI能力を1つのExpertにまとめ、エンジニアリング、コンテンツ、データ、オペレーションを横断して実行します。",
-          "primaryAction": "Expertを作成",
-          "secondaryAction": "業務メニューを見る",
-          "proof": "共通コンテキスト · システム横断実行 · 人的確認 · 証跡付きデリバリー"
+          "eyebrow": "エンタープライズ向け Agent 供給プラットフォーム",
+          "title": "Agent 供給 + AI-native 組織のインキュベーション",
+          "description": "Agent を実運用可能な能力単位として構築し、実際の業務で検証してガバナンスの効いたマーケットに公開し、AI Partner を中心とする AI-native 組織を育成します。",
+          "primaryAction": "Agent マーケットを探索",
+          "secondaryAction": "サプライシステムを探索",
+          "proof": "作成 · 検証 · リリース · インストール · 実行 · 進化"
         },
         "console": {
-          "title": "進行中のクロスファンクショナルワーク",
-          "status": "1つのExpertが目標を持ち、重要判断は人的確認で進めます",
+          "title": "ビジネス起点の Agent 供給",
+          "status": "要求→エビデンスの実行チェーン（ライブ）",
           "live": "実行中",
-          "paused": "一時停止",
+          "paused": "一時停止中",
           "complete": "完了",
-          "goalLabel": "現在の目標",
-          "goal": "新規市場向けに検証済みの多言語キャンペーンを立ち上げる",
-          "expertLabel": "アクティブなExpert",
-          "expert": "越境成長Expert",
-          "formulaLabel": "背後の能力",
-          "formula": "Research · Knowledge · Content · Data · System action",
-          "workflowLabel": "統一デリバリーチェーン",
-          "steps": ["理解", "構成", "実行", "確認", "納品"],
-          "checkpointLabel": "人的チェックポイント",
-          "checkpoint": "公開前に、ブランド言語・ポジショニング・コンプライアンス境界を承認します。",
-          "deliverableLabel": "検証可能な成果",
-          "deliverable": "市場ブリーフ、ローカライズ資産、プロセス証跡、次アクション",
-          "controls": { "pause": "一時停止", "resume": "再開", "next": "次ステップ", "replay": "再実行" }
+          "goalLabel": "ビジネス要件",
+          "goal": "多言語の顧客エスカレーションを解決し、記録する",
+          "expertLabel": "適合した Agent",
+          "expert": "カスタマーオペレーション Agent",
+          "formulaLabel": "適合する能力",
+          "formula": "顧客知見 · 多言語コンテンツ · データ分析 · システムアクション · ポリシー",
+          "workflowLabel": "業務起点の実行チェーン",
+          "steps": ["要件の特定", "能力マッチング", "権限確認", "協調実行", "人間のレビュー", "エビデンス引渡し"],
+          "checkpointLabel": "人間レビュー",
+          "checkpoint": "外部応答、特権操作、ポリシー境界を確認します。",
+          "deliverableLabel": "エビデンス引渡し",
+          "deliverable": "完了したアクション、結果サマリー、承認履歴、検査可能なエビデンス",
+          "controls": { "pause": "一時停止", "resume": "再開", "next": "次の段階", "replay": "再生" }
         },
         "solutions": {
-          "eyebrow": "ソリューションカテゴリ",
-          "title": "実在の目標から入り、納品完了まで追跡する",
-          "description": "多数のAgentsを組み上げる代わりに、必要な成果から開始します。各カテゴリは同一のExpertとコンテキストを保ちつつ、必要な越境能力を呼び出します。",
-          "workflowLabel": "デリバリー経路",
-          "deliverablesLabel": "検査可能な成果",
+          "eyebrow": "3 つのソリューション",
+          "title": "Agent を供給し、AI-native 組織をインキュベートする。",
+          "description": "エンタープライズ Agent 供給から始め、AI Partner を軸に OPC を形成するか、組み合わせ可能なプラットフォーム機能を活用して高等教育向けデジタルワーカーのパイロットを設計します。",
+          "workflowLabel": "運用パス",
+          "deliverablesLabel": "ビジネス成果",
           "items": [
-            { "id": "cross-border-commerce", "title": "越境成長", "description": "市場調査、ポジショニング、コンテンツ、ローカライズ、ローンチ準備、レビューを拡張目標の周りで接続します。", "chain": "Research → Positioning → Content → Localization → Launch prep → Review", "outcome": "市場計画、製品アセット、ローカライズ済みコンテンツ、実行証跡。", "action": "この目標でExpertを作成" },
-            { "id": "ai-education", "title": "コース開発", "description": "学習成果から始め、リサーチ、カリキュラム、授業、ラボ、評価、教員レビューを編成します。", "chain": "Outcomes → Curriculum → Lessons → Labs → Assessment → Review", "outcome": "シラバス、授業、ラボ、クイズ、受入証跡。", "action": "この目標でExpertを作成" },
-            { "id": "digital-employees", "title": "AIパートナー", "description": "チームと文脈を共有するAIパートナーが、調査、ドキュメント、データ、コンテンツ、システム操作を部門横断で組み合わせます。", "chain": "目標を一緒に設定 → 組織知識を読む → ツールを横断して実行 → 進捗を共有 → 人が確認 → 証拠付きで納品", "outcome": "共同成果、システム操作、進捗説明、確認可能な証拠。", "action": "AIパートナーを作成" },
-            { "id": "marketplace", "title": "Expertマーケットプレイス", "description": "再利用可能なExpert/Skillを成果に合わせて選び、能力・権限・受入成果をインストール前に確認します。", "chain": "発見 → 検証 → インストール → 設定 → 実行 → ガバナンス", "outcome": "使い回せるExpertと可視化された能力・納品期待値。", "action": "Expertマーケットプレイスを開く" }
+            { "id": "enterprise-agent-supply", "title": "Enterprise Agent supply", "description": "業務ノウハウ、手法、ツール、ポリシーを、チームが検証・公開・インストール・運用・改善できる標準化済み Agent に変換します。", "chain": "Build → Verify → Release → Install → Run → Evolve", "outcome": "バージョン管理された Agent、検証エビデンス、インストール方針、運用記録、進化計画。", "action": "エンタープライズ Agent 供給を開始" },
+            { "id": "opc-incubation", "title": "OPC incubation", "description": "1 つの Agent または連携する複数の Agents で構成される AI Partner と人間中心のコアチームを組み合わせ、OPC を育成します。", "chain": "事業を定義 → AI Partner を設計 → 協働体制を構築 → 反復業務を自動化 → 実行を統制 → 拡張", "outcome": "明確な AI Partner の役割、運用リズム、ガバナンス境界、測定可能な成果を備えた人間主導のチーム。", "action": "OPC を育成" },
+            { "id": "higher-education-digital-employees", "title": "高等教育向けデジタルワーカー・パイロット", "description": "教育、研究、学生支援、管理業務を対象に、組み合わせ可能なプラットフォーム機能と機関の知識、ガバナンスを結び付け、役割別のパイロットを設計します。", "chain": "役割を特定 → 知識を設定 → タスクを検証 → 1 チームで試行 → サービスを統制 → 継続的に改善", "outcome": "キャンパスの役割、機関の知識、承認境界、サービスエビデンスに整合した、検証済みのパイロット設計。", "action": "高等教育パイロットを開始" }
           ]
         },
         "capabilities": {
-          "eyebrow": "構成可能な能力",
-          "title": "1人のExpertが複数の専門能力を呼び出す",
-          "description": "1つのデリバリーチェーンで、調査・文書・データ・コード・メディアを活用します。成熟度ラベルはプラットフォーム機能、Skills/ツールで構成される能力、計画中機能を区別します。",
-          "levels": { "implemented": "プラットフォーム機能", "composable": "構成可能", "planned": "計画中" },
+          "eyebrow": "コアプラットフォーム機能",
+          "title": "Agent 供給と AI-native チームのためのオペレーティングシステム",
+          "description": "5 つの連携機能が Agent を作成段階からガバナンスされた組織利用へ移行させ、人、AI Partner、オートメーション、エビデンスを 1 つの運用環境で管理します。",
+          "levels": { "implemented": "利用可能", "composable": "Composable", "planned": "予定" },
           "items": [
-            { "id": "programming", "level": "implemented", "title": "プログラミングと納品", "description": "コードを変更し、テスト実行・レビューを経て、隔離ワークスペースでPRまたはMRを納品します。" },
-            { "id": "research", "level": "composable", "title": "リサーチと判断", "description": "情報収集と分析を、根拠付きの結論・ブリーフに統合します。" },
-            { "id": "documents", "level": "composable", "title": "専門ドキュメント", "description": "専門文書を読み取り、構造化、修正、継続利用可能な状態で納品します。" },
-            { "id": "office", "level": "composable", "title": "オフィス運用", "description": "スプレッドシート、資料、レポート、再現可能な業務操作を実行します。" },
-            { "id": "content", "level": "composable", "title": "コンテンツ運用", "description": "調査、原稿作成、編集、ローカライズ、公開準備を接続します。" },
-            { "id": "screenwriting", "level": "composable", "title": "脚本・演出", "description": "物語構造、脚本、ショット計画、制作引き継ぎを設計します。" },
-            { "id": "image", "level": "composable", "title": "画像アセット", "description": "接続したツールで画像資産を生成・編集・検査・パッケージ化します。" },
-            { "id": "audio", "level": "composable", "title": "音声アセット", "description": "接続したツールで音声・音楽アセットを計画、生成、処理、レビューします。" },
-            { "id": "video", "level": "composable", "title": "動画制作", "description": "スクリプト、アセット、生成、編集、品質レビューを連携します。" },
-            { "id": "data", "level": "composable", "title": "データとシステム操作", "description": "構造化データを制御されたツールで照会、変換、分析、検証します。" },
-            { "id": "education", "level": "composable", "title": "コースと学習", "description": "コース設計、授業制作、ラボ、評価、学習証跡を統合します。" },
-            { "id": "industryMarket", "level": "planned", "title": "業界Expertマーケット", "description": "各組織向けの業界Expertとビジネスコネクタの拡張カタログ。" }
+            { "id": "agent-factory", "level": "implemented", "title": "Agent factory", "description": "再利用可能な手法、知識、ツール、モデル、ポリシーから Agent を構築・検証・バージョン管理・公開します。" },
+            { "id": "agent-market", "level": "implemented", "title": "Agent market", "description": "承認済み Agent を見つけ、能力と権限を確認し、チームごとに適切なバージョンをインストールします。" },
+            { "id": "collaboration-workspace", "level": "implemented", "title": "Collaboration workspace", "description": "人と AI Partner が、共通の目標、コンテキスト、会話、成果物、意思決定、提供エビデンスを共有します。" },
+            { "id": "automation", "level": "implemented", "title": "Automation", "description": "定常業務を起動し、Agent 組み合わせを調整し、進捗を追跡して判断を適切な担当へ接続します。" },
+            { "id": "governance", "level": "implemented", "title": "Governance", "description": "権限、実行境界、承認、予算、バージョン、エビデンス、監査履歴を制御します。" }
           ]
         },
         "operating": {
-          "eyebrow": "Expert運用モデル",
-          "title": "1つのExpertを前面に、組織能力は背後で動作",
-          "description": "Expertは1つのアイデンティティ・1つの目標・1つのコンテキスト・タスク状態を維持し、実行ランタイム、モデル、専門手法、組織知識、システムツール、運用ルールをその周辺に配置します。",
-          "formulaTitle": "6層能力モデル",
+          "eyebrow": "Agent 供給ライフサイクル",
+          "title": "作成から進化までを閉ループ化",
+          "description": "各 Agent は供給可能な能力ユニットです。プラットフォームはガバナンス済みライフサイクルで移管し、運用エビデンスを使って次版と周辺組織を改善します。",
+          "formulaTitle": "6 つのライフステージ",
           "parts": [
-            { "id": "worker", "title": "実行ランタイム", "description": "タスクに適したWorkerランタイムを選択します。" },
-            { "id": "model", "title": "Reasoningと生成", "description": "目的に応じたモデルを選びます。" },
-            { "id": "skills", "title": "専門メソッド", "description": "領域固有の方法論と配信基準を再利用可能なSkillとして保存します。" },
-            { "id": "knowledge", "title": "組織知識", "description": "ファイル、標準、履歴、ビジネス文脈を接続します。" },
-            { "id": "tools", "title": "システムアクション", "description": "ブラウザ、DB、業務システムへ制御下で接続します。" },
-            { "id": "workflow", "title": "運用ルール", "description": "順序、チェックポイント、予算、停止条件、証跡要件を定義します。" }
+            { "id": "build", "title": "Build", "description": "業務方法、知識、ツール、モデル、ポリシーから焦点化した Agent を構成します。" },
+            { "id": "verify", "title": "Verify", "description": "リリース前に実タスク、障害シナリオ、権限、受入エビデンスをテストします。" },
+            { "id": "release", "title": "Release", "description": "承認済みでバージョン管理された Agent をガバナンスされた Agent market に公開します。" },
+            { "id": "install", "title": "Install", "description": "チーム・役割・環境・アクセス範囲に合わせて承認版を設定します。" },
+            { "id": "run", "title": "Run", "description": "Agent を単独で、または AI Partner の一部として、進捗を可視化し人間のチェックポイントを設けながら運用します。" },
+            { "id": "evolve", "title": "Evolve", "description": "結果、フィードバック、インシデント、最新知見を使って次版を検証します。" }
           ],
-          "humanTitle": "明示的制御による自律",
-          "humanDescription": "重要判断や最終納品は非表示にせず、Expertは継続して実行します。",
+          "humanTitle": "AI Partner が Agent 供給を組織へと発展させる",
+          "humanDescription": "AI Partner は 1 つの Agent、または複数の Agents を連携させた構成です。OPC は人を中核に据えながら、AI Partner によってチームの遂行能力を拡張します。",
           "humanItems": [
-            { "id": "checkpoint", "title": "人的確認", "description": "高インパクト判断を承認・拒否・修正のために停止できます。" },
-            { "id": "deliverable", "title": "完全な納品", "description": "成果物とステータス、証跡、未解決リスクを同時に返却します。" },
-            { "id": "repeatability", "title": "再利用可能な実践", "description": "実証済みの手法をバージョン化されたSkill・Expert・Workflowへ変換します。" }
+            { "id": "supply-unit", "title": "Agent", "description": "最小の能力ユニットで、構築・検証・公開・インストール・実行・進化が可能。" },
+            { "id": "ai-partner", "title": "AI Partner", "description": "明確な役割、コンテキスト、提供責任を持つ、ビジネス向けの Agent または Agents の組み合わせ。" },
+            { "id": "opc", "title": "OPC", "description": "人間中心のコアチームと AI Partners が、説明責任を持つ 1 つの AI-native チームとして運用される形態。" }
           ]
         },
         "market": {
-          "eyebrow": "Expertマーケットプレイス",
-          "title": "AIチームを再構築せず、カタログ掲載のExpertを再利用",
-          "description": "現在のカタログは既存のプラットフォーム能力に対応するソフトウェアエンジニアリングExpertから開始しています。先に成果・権限・納品期待値を確認し、その後Worker、Skill、ランタイム構成を検証します。",
+          "eyebrow": "Agent market",
+          "title": "1回公開して、必要箇所へガバナンス下で供給をインストールします。",
+          "description": "Agent market は再利用可能な能力を配布する仕組みであり、万能ソリューションではありません。チームはインストール前に範囲・証跡・権限・バージョンを確認できます。",
           "apps": [
-            { "slug": "software-delivery-expert", "title": "ソフトウェア納品Expert", "description": "要件分解と分離開発からテスト、レビュー、PR/MR納品までを実行します。" },
-            { "slug": "multi-worker-orchestrator", "title": "複雑作業オーケストレーションExpert", "description": "複雑な目標を並列タスクに分解し、1つの受入結果に統合します。" },
-            { "slug": "dual-repo-sync-expert", "title": "2リポジトリ同期Expert", "description": "GitLabとGitHubを差分検知付きで同期し、適切なレビュー経路を適用します。" }
+            { "slug": "software-delivery-expert", "title": "Software delivery Agent", "description": "要件を実装・検証・レビュー・受入済みコード配信へと遂行します。" },
+            { "slug": "multi-worker-orchestrator", "title": "Multi-Agent orchestration", "description": "1 つのゴール、共通チェックポイント、合意結果に対して専門 Agent を調整します。" },
+            { "slug": "dual-repo-sync-expert", "title": "Dual-repository sync Agent", "description": "差分を検知し、GitLab と GitHub を同期し、変更を適切なレビューパスへ送ります。" }
           ],
-          "status": "掲載中",
-          "plannedTitle": "業界向けExpertを拡張中",
-          "plannedDescription": "越境成長、コース開発、AIパートナーは、Skill・接続・デリバリーチェーンの検証完了時にのみ公開カテゴリへ展開します。",
-          "action": "Expertマーケットプレイスを開く"
+          "status": "公開済み",
+          "plannedTitle": "検証を通じて供給を拡張",
+          "plannedDescription": "新規 Agent は、役割・権限・障害経路・成果物・運用エビデンスが検証された後にのみ市場へ登録されます。",
+          "action": "Agent マーケットを探索"
         },
         "trust": {
-          "eyebrow": "権限とガバナンス",
-          "title": "1つのインターフェースが無制限な権限を意味しない",
-          "description": "Expertはシステム横断で動きますが、実行ごとにインフラ、隔離ワークスペース、Credentialスコープ、人的確認、証跡要件で制約されます。",
+          "eyebrow": "ランタイムとガバナンス",
+          "title": "エンタープライズ境界内で Agent 供給を運用",
+          "description": "各 Agent 実行は、インフラ、分離されたワークスペース、資格情報範囲、承認ポリシー、予算、エビデンス要件で制御されます。",
           "items": [
-            { "id": "selfHosting", "title": "実行場所の制御", "description": "組織のインフラ境界内でWorkerを実行します。", "status": "制御中" },
-            { "id": "workspaces", "title": "隔離ワークスペース", "description": "各タスクのファイルと実行コンテキストを分離します。", "status": "分離" },
-            { "id": "credentials", "title": "権限制御Credential", "description": "Expertとタスクに必要なアクセスのみ付与します。", "status": "最小" },
-            { "id": "audit", "title": "検証可能な証跡", "description": "活動、意思決定、成果物、納品ステータスを保全します。", "status": "記録済" }
+            { "id": "selfHosting", "title": "Runner deployment control", "description": "Runners を組織が定義したインフラとネットワーク境界内でデプロイします。", "status": "制御済み" },
+            { "id": "workspaces", "title": "Isolated workspaces", "description": "各割り当てのファイル、依存関係、実行コンテキストを分離します。", "status": "分離済み" },
+            { "id": "credentials", "title": "Scoped credentials", "description": "各 Agent には承認済みの役割とタスクに必要な範囲のアクセスのみ付与します。", "status": "制限付き" },
+            { "id": "audit", "title": "Inspectable evidence", "description": "活動、意思決定、承認、成果物、バージョン、配信ステータスを記録し監査可能にします。", "status": "記録済み" }
           ],
-          "runtimesTitle": "Workerランタイムディレクトリ",
-          "runtimesDescription": "ディレクトリにはCodex CLI、Claude Code、Gemini CLI、Aider、OpenCodeなどのWorkerランタイムがあります。デプロイ可否は各エントリと公開検証ステータスで決まります。"
+          "runtimesTitle": "Runner runtime coverage",
+          "runtimesDescription": "Runners は、Codex CLI、Claude Code、Gemini CLI、Aider、OpenCode など、承認済みの Agent ランタイムをホストします。利用可否は、検証済みランタイムカタログに基づきます。"
         },
         "cta": {
-          "eyebrow": "実務目標から開始",
-          "title": "最初のExpertに1本の納品チェーンを任せる",
-          "description": "既存のExpertを使うか、組織が信頼するWorker・Skill・知識・ツールでExpertを構成します。",
-          "primary": "最初のExpertを作成",
-          "secondary": "Expertマーケットプレイスを開く"
+          "eyebrow": "1 つの供給ユニットから始める",
+          "title": "最初の供給可能 Agent を作成",
+          "description": "実際の業務にある役割を 1 つ選び、その作業を検証して承認済みバージョンを公開し、1 つの Agent から AI Partner または OPC へと発展させます。",
+          "primary": "最初の Agent を作成",
+          "secondary": "Agent マーケットを探索"
         }
       }
     }

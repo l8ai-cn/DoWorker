@@ -4,6 +4,7 @@ import {
   SourceFormat,
 } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import { validateResource } from "@/lib/api/facade/orchestrationResource";
+import { resourceDraftCanSubmitDraft } from "./resource-draft-selectors";
 import type { ResourceEditorKind } from "./resource-editor-types";
 import type { ResourceDraftAction } from "./resource-draft-reducer";
 
@@ -18,7 +19,10 @@ export async function switchYamlToForm(
   const codec = await import("./resource-yaml-codec");
   if (!isCurrent()) return false;
   try {
-    codec.parseResourceYaml(source, expectedKind);
+    const draft = codec.parseResourceYaml(source, expectedKind);
+    if (!resourceDraftCanSubmitDraft(draft)) {
+      throw new Error("GoalLoop YAML contains invalid integer fields.");
+    }
   } catch (error) {
     if (isCurrent()) {
       dispatch({
@@ -39,15 +43,15 @@ export async function switchYamlToForm(
       content: source,
     });
     if (!isCurrent()) return false;
-    dispatch({
-      type: "validation_succeeded",
-      requestId,
-      version,
-      response,
-    });
     if (response.issues.some(
       (issue) => issue.severity === IssueSeverity.BLOCKING,
     )) {
+      dispatch({
+        type: "validation_succeeded",
+        requestId,
+        version,
+        response,
+      });
       dispatch({
         type: "source_invalid",
         error: "Resource document failed validation.",

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Logo } from "@/components/common";
+import { Logo } from "@/components/common/Logo";
 
 const socialLinks = [
   {

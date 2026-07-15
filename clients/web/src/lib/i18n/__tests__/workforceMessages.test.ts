@@ -45,6 +45,19 @@ function solutionTitle(messages: MessageTree, solutionId: string): string {
   return solution?.title as string;
 }
 
+function contentIds(
+  messages: MessageTree,
+  sectionName: "solutions" | "capabilities" | "operating",
+  itemName: "items" | "parts",
+): string[] {
+  const landing = messages.landing as MessageTree;
+  const workforce = landing.workforce as MessageTree;
+  const expertHome = workforce.expertHome as MessageTree;
+  const section = expertHome[sectionName] as MessageTree;
+  const items = section[itemName] as MessageTree[];
+  return items.map(({ id }) => id as string);
+}
+
 describe("workforce message namespaces", () => {
   const requiredKeys = [
     ...requiredWorkforceMessageKeys,
@@ -102,6 +115,32 @@ describe("workforce message namespaces", () => {
       for (const [solutionId, title] of Object.entries(titles)) {
         expect(solutionTitle(messages, solutionId), `${locale}:${solutionId}`).toBe(title);
       }
+    }
+  });
+
+  it("keeps every locale on the same supply-first content structure", () => {
+    for (const locale of locales) {
+      const messages = readWorkforce(locale);
+      expect(contentIds(messages, "solutions", "items"), locale).toEqual([
+        "enterprise-agent-supply",
+        "opc-incubation",
+        "higher-education-digital-employees",
+      ]);
+      expect(contentIds(messages, "capabilities", "items"), locale).toEqual([
+        "agent-factory",
+        "agent-market",
+        "collaboration-workspace",
+        "automation",
+        "governance",
+      ]);
+      expect(contentIds(messages, "operating", "parts"), locale).toEqual([
+        "build",
+        "verify",
+        "release",
+        "install",
+        "run",
+        "evolve",
+      ]);
     }
   });
 });

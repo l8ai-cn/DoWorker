@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { LanguageSwitcher } from "@/components/i18n";
-import { LightAuthButtons as AuthButtons, Logo } from "@/components/common";
+import { LightAuthButtons as AuthButtons } from "@/components/common/LightAuthButtons";
+import { Logo } from "@/components/common/Logo";
 import { useTranslations } from "next-intl";
 import { isMarketingRouteActive, marketingRoutes } from "./marketing-routes";
 

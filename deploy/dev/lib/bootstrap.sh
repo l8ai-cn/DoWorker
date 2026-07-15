@@ -134,6 +134,7 @@ sync_worker_definition_projections() {
         DB_PASSWORD="${POSTGRES_PASSWORD:-agentsmesh_dev}" \
         DB_NAME=agentsmesh \
         DB_SSLMODE=disable \
+        PREVIEW_PUBLIC_ORIGIN="$PREVIEW_PUBLIC_ORIGIN" \
         WORKER_DEFINITIONS_DIR=config/worker-types \
         go run ./backend/cmd/worker-definition-sync
     ) || {

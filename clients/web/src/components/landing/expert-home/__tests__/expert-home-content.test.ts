@@ -112,6 +112,23 @@ describe("expert homepage content contract", () => {
     }
   });
 
+  it("positions higher-education digital employees as a pilot direction", () => {
+    expect(localizedContent.en.solutions.items[2]).toMatchObject({
+      id: "higher-education-digital-employees",
+      action: "Start a higher-education pilot",
+    });
+    expect(localizedContent.zh.solutions.items[2]).toMatchObject({
+      id: "higher-education-digital-employees",
+      action: "启动高校数字员工试点",
+    });
+    expect(localizedContent.en.solutions.items[2].description).toContain(
+      "composable platform capabilities",
+    );
+    expect(localizedContent.zh.solutions.items[2].description).toContain(
+      "可组合的平台能力",
+    );
+  });
+
   it("keeps technical implementation terms out of customer-facing content", () => {
     for (const [locale, content] of Object.entries(localizedContent)) {
       const { trust: governance, ...nonGovernanceContent } = content;

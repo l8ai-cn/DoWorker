@@ -6,10 +6,11 @@ import type {
 
 export function useResourcePlanExpiry(
   plan: ResourceDraftState["plan"],
+  applyInProgress: boolean,
   dispatch: Dispatch<ResourceDraftAction>,
 ) {
   useEffect(() => {
-    if (plan.status !== "ready" || !plan.response.plan) return;
+    if (applyInProgress || plan.status !== "ready" || !plan.response.plan) return;
     const expiresAt = Date.parse(plan.response.plan.expiresAt);
     const delay = Number.isFinite(expiresAt)
       ? Math.max(0, expiresAt - Date.now())
@@ -18,5 +19,5 @@ export function useResourcePlanExpiry(
       dispatch({ type: "plan_expired" });
     }, Math.min(delay, 2_147_483_647));
     return () => window.clearTimeout(timer);
-  }, [dispatch, plan]);
+  }, [applyInProgress, dispatch, plan]);
 }

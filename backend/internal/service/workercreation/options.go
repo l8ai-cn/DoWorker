@@ -69,7 +69,7 @@ func (service *Service) ListOptions(
 	filter OptionsFilter,
 ) (CreateOptions, error) {
 	if service == nil || service.agents == nil || service.workerTypes == nil ||
-		service.revision == "" {
+		service.runners == nil || service.revision == "" {
 		return CreateOptions{}, specservice.ErrResolverUnavailable
 	}
 	if scope.OrgID <= 0 || scope.UserID <= 0 {
@@ -139,10 +139,26 @@ func (service *Service) listWorkerTypeOptions(
 			[]specdomain.ToolModelRequirement{},
 			resolved.ToolModelRequirements...,
 		)
-		option.Selectable = hasEnabledRuntimeImage(service.catalog, agent.Slug)
-		if !option.Selectable {
+		if !hasEnabledRuntimeImage(service.catalog, agent.Slug) {
 			option.BlockingReason = "No runtime image is available for this worker type"
+			options = append(options, option)
+			continue
 		}
+		available, err := service.runners.HasAvailableRunnerForAgent(
+			ctx, scope.OrgID, scope.UserID, agent.Slug,
+		)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"check Runner availability for worker type %q: %w",
+				agent.Slug, err,
+			)
+		}
+		if !available {
+			option.BlockingReason = "No online Runner currently supports this worker type"
+			options = append(options, option)
+			continue
+		}
+		option.Selectable = true
 		options = append(options, option)
 	}
 	return options, nil

@@ -115,7 +115,9 @@ export function resourceDraftReducer(
       if (!matchesRequest(state.plan, action.requestId)) return state;
       return { ...state, plan: { status: "error", error: action.error } };
     case "plan_expired":
-      if (state.plan.status !== "ready") return state;
+      if (state.apply.status === "loading" || state.plan.status !== "ready") {
+        return state;
+      }
       return { ...state, plan: { status: "expired" } };
     case "apply_loading":
       if (action.version !== state.version) return state;
@@ -184,4 +186,5 @@ function matchesApply(
 export {
   resourceDraftCanApply,
   resourceDraftCanSubmit,
+  resourceDraftCanSubmitDraft,
 } from "./resource-draft-selectors";

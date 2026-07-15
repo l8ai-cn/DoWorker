@@ -7,7 +7,7 @@ import {
   ResourceOperation,
   ValidateResourceResponseSchema,
 } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
-import { fireEvent, render, screen, waitFor } from "@/test/test-utils";
+import { act, fireEvent, render, screen, waitFor } from "@/test/test-utils";
 
 const api = vi.hoisted(() => ({
   validateResource: vi.fn(),
@@ -97,15 +97,49 @@ describe("ResourceEditorShell concurrency", () => {
     await waitFor(() => expect(objective).toHaveValue("new objective"));
     expect(onApplied).not.toHaveBeenCalled();
   });
+
+  it("accepts a successful apply response after the local plan expiry time", async () => {
+    const user = userEvent.setup();
+    const pending = deferred<ReturnType<typeof goalLoopResult>>();
+    const onApplied = vi.fn();
+    const expiresAt = new Date(Date.now() + 1_000).toISOString();
+    api.planResource.mockResolvedValue(readyPlan(
+      "expiring-goal-loop-plan",
+      expiresAt,
+    ));
+    api.createGoalLoopFromPlan.mockReturnValue(pending.promise);
+    render(
+      <ResourceEditorShell
+        orgSlug="acme"
+        kind="GoalLoop"
+        onApplied={onApplied}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Generate plan" }));
+    await act(async () => {});
+    expect(screen.getByText("Plan ready")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Apply resource" }));
+    await new Promise((resolve) => window.setTimeout(resolve, 1_050));
+    await act(async () => {
+      pending.resolve(goalLoopResult());
+      await Promise.resolve();
+    });
+
+    expect(onApplied).toHaveBeenCalledOnce();
+  });
 });
 
-function readyPlan(planId: string) {
+function readyPlan(
+  planId: string,
+  expiresAt = "2099-07-14T16:00:00Z",
+) {
   return create(PlanResourceResponseSchema, {
     operation: ResourceOperation.CREATE,
     plan: {
       planId,
       operation: ResourceOperation.CREATE,
-      expiresAt: "2099-07-14T16:00:00Z",
+      expiresAt,
     },
   });
 }

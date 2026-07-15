@@ -2,6 +2,7 @@ package workercreation
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
@@ -29,6 +30,9 @@ func TestServiceListOptionsReturnsSelectableRuntimeAndBlockingReasons(t *testing
 			"aider":     workerDefinition("aider", "aider", unsupportedSource, "pty"),
 		},
 		Agents: agents,
+		Runners: workerOptionsRunnerAvailability{
+			available: true,
+		},
 	})
 	targetID := int64(1)
 
@@ -73,6 +77,9 @@ func TestServiceListOptionsExposesModelRequirement(t *testing.T) {
 			"cursor-cli": definition,
 		},
 		Agents: agents,
+		Runners: workerOptionsRunnerAvailability{
+			available: true,
+		},
 	})
 
 	options, err := service.ListOptions(
@@ -86,8 +93,95 @@ func TestServiceListOptionsExposesModelRequirement(t *testing.T) {
 	assert.False(t, options.WorkerTypes[0].RequiresModelResource)
 }
 
+func TestServiceListOptionsRequiresRunnerAvailabilityResolver(t *testing.T) {
+	source := "AGENT codex\nEXECUTABLE codex\nMODE acp\n"
+	service := NewService(Deps{
+		Catalog: enabledCodexRuntimeCatalog(),
+		Definitions: staticWorkerDefinitions{
+			"codex-cli": workerDefinition("codex-cli", "codex", source, "pty", "acp"),
+		},
+		Agents: &workerOptionsAgentProvider{agents: []*agentdomain.Agent{
+			activeWorkerTypeAgentFor("codex-cli", "codex", source),
+		}},
+	})
+
+	_, err := service.ListOptions(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		OptionsFilter{},
+	)
+
+	assert.ErrorIs(t, err, specservice.ErrResolverUnavailable)
+}
+
+func TestServiceListOptionsBlocksEnabledImageWithoutOnlineRunner(t *testing.T) {
+	source := "AGENT codex\nEXECUTABLE codex\nMODE acp\n"
+	service := NewService(Deps{
+		Catalog: enabledCodexRuntimeCatalog(),
+		Definitions: staticWorkerDefinitions{
+			"codex-cli": workerDefinition("codex-cli", "codex", source, "pty", "acp"),
+		},
+		Agents: &workerOptionsAgentProvider{agents: []*agentdomain.Agent{
+			activeWorkerTypeAgentFor("codex-cli", "codex", source),
+		}},
+		Runners: workerOptionsRunnerAvailability{},
+	})
+
+	options, err := service.ListOptions(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		OptionsFilter{},
+	)
+
+	require.NoError(t, err)
+	require.Len(t, options.WorkerTypes, 1)
+	assert.False(t, options.WorkerTypes[0].Selectable)
+	assert.Equal(
+		t,
+		"No online Runner currently supports this worker type",
+		options.WorkerTypes[0].BlockingReason,
+	)
+}
+
+func TestServiceListOptionsReturnsRunnerAvailabilityErrors(t *testing.T) {
+	source := "AGENT codex\nEXECUTABLE codex\nMODE acp\n"
+	runnerFailure := errors.New("runner query failed")
+	service := NewService(Deps{
+		Catalog: enabledCodexRuntimeCatalog(),
+		Definitions: staticWorkerDefinitions{
+			"codex-cli": workerDefinition("codex-cli", "codex", source, "pty", "acp"),
+		},
+		Agents: &workerOptionsAgentProvider{agents: []*agentdomain.Agent{
+			activeWorkerTypeAgentFor("codex-cli", "codex", source),
+		}},
+		Runners: workerOptionsRunnerAvailability{err: runnerFailure},
+	})
+
+	_, err := service.ListOptions(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		OptionsFilter{},
+	)
+
+	assert.ErrorIs(t, err, runnerFailure)
+}
+
 type workerOptionsAgentProvider struct {
 	agents []*agentdomain.Agent
+}
+
+type workerOptionsRunnerAvailability struct {
+	available bool
+	err       error
+}
+
+func (resolver workerOptionsRunnerAvailability) HasAvailableRunnerForAgent(
+	context.Context,
+	int64,
+	int64,
+	string,
+) (bool, error) {
+	return resolver.available, resolver.err
 }
 
 func (provider *workerOptionsAgentProvider) GetAgent(

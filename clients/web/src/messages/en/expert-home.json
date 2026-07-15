@@ -33,13 +33,13 @@
         "solutions": {
           "eyebrow": "Three solution paths",
           "title": "Supply Agents. Incubate AI-native organizations.",
-          "description": "Start with enterprise Agent supply, form an OPC around AI partners, or deploy higher-education digital employees as an independent solution.",
+          "description": "Start with enterprise Agent supply, form an OPC around AI partners, or design a higher-education digital employee pilot from composable platform capabilities.",
           "workflowLabel": "Operating path",
           "deliverablesLabel": "Business outcome",
           "items": [
             { "id": "enterprise-agent-supply", "title": "Enterprise Agent supply", "description": "Turn business knowledge, methods, tools, and policies into standardized Agents that teams can verify, release, install, operate, and improve.", "chain": "Build → Verify → Release → Install → Run → Evolve", "outcome": "Versioned Agents, verification evidence, installation policies, operating records, and evolution plans.", "action": "Start enterprise Agent supply" },
             { "id": "opc-incubation", "title": "OPC incubation", "description": "Incubate an OPC where a human core works with AI partners formed by one Agent or a coordinated combination of Agents.", "chain": "Define the business → Shape AI partners → Establish collaboration → Automate recurring work → Govern execution → Scale", "outcome": "A human-led team with clear AI partner roles, operating rhythms, governance boundaries, and measurable delivery.", "action": "Incubate an OPC" },
-            { "id": "higher-education-digital-employees", "title": "Higher-education digital employees", "description": "Deploy role-based digital employees for teaching, research, student services, and administration as an independent higher-education solution.", "chain": "Identify roles → Configure knowledge → Validate tasks → Deploy by department → Govern service → Improve continuously", "outcome": "Digital employees aligned to campus roles, institutional knowledge, approval boundaries, and service evidence.", "action": "Explore the higher-education solution" }
+            { "id": "higher-education-digital-employees", "title": "Higher-education digital employees", "description": "Design role-based pilots for teaching, research, student services, and administration by combining composable platform capabilities with institutional knowledge and governance.", "chain": "Identify roles → Configure knowledge → Validate tasks → Pilot with one team → Govern service → Improve continuously", "outcome": "A validated pilot blueprint aligned to campus roles, institutional knowledge, approval boundaries, and service evidence.", "action": "Start a higher-education pilot" }
           ]
         },
         "capabilities": {

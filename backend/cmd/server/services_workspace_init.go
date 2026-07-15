@@ -68,7 +68,9 @@ func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config,
 	services.agentpodAIProvider = agentpod.NewAIProviderService(infra.NewAIProviderRepository(db), encryptor)
 	services.virtualKey = virtualkeysvc.NewService(infra.NewVirtualAPIKeyRepository(db), services.aiResource)
 	services.tokenQuota = tokenquotasvc.NewService(infra.NewTokenQuotaRepository(db), db)
-	workerServices, err := initializeWorkerServices(cfg, db, services.agentSvc, services.aiResource, services.repository)
+	workerServices, err := initializeWorkerServices(
+		cfg, db, services.agentSvc, services.aiResource, services.repository, services.runner,
+	)
 	if err != nil {
 		return err
 	}

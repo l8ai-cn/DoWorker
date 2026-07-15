@@ -33,13 +33,13 @@
         "solutions": {
           "eyebrow": "三条解决方案路径",
           "title": "供给 Agent，孵化 AI 原生组织",
-          "description": "从企业 Agent 供给起步，围绕 AI 伙伴孵化 OPC，或把高校数字员工作为独立解决方案部署。",
+          "description": "从企业 Agent 供给起步，围绕 AI 伙伴孵化 OPC，或基于可组合的平台能力设计高校数字员工试点。",
           "workflowLabel": "运行路径",
           "deliverablesLabel": "业务结果",
           "items": [
             { "id": "enterprise-agent-supply", "title": "企业 Agent 供给", "description": "把业务知识、方法、工具与策略沉淀为标准化 Agent，让团队能够验证、发布、安装、运行并持续改进。", "chain": "构建 → 验证 → 发布 → 安装 → 运行 → 进化", "outcome": "版本化 Agent、验证证据、安装策略、运行记录与进化计划。", "action": "启动企业 Agent 供给" },
             { "id": "opc-incubation", "title": "OPC 孵化", "description": "孵化由人类核心与 AI 伙伴共同工作的 OPC；AI 伙伴可以是一个 Agent，也可以是多个 Agent 的协同组合。", "chain": "定义业务 → 塑造 AI 伙伴 → 建立协作 → 自动化重复工作 → 治理执行 → 扩大规模", "outcome": "一支以人为核心、AI 伙伴角色清晰、运行节奏稳定、治理边界明确且交付可衡量的团队。", "action": "孵化 OPC" },
-            { "id": "higher-education-digital-employees", "title": "高校数字员工", "description": "面向教学、科研、学生服务与行政岗位部署角色化数字员工，作为独立的高校解决方案运行。", "chain": "识别岗位 → 配置知识 → 验证任务 → 按部门部署 → 治理服务 → 持续改进", "outcome": "与校园岗位、校本知识、审批边界和服务证据对齐的数字员工。", "action": "查看高校解决方案" }
+            { "id": "higher-education-digital-employees", "title": "高校数字员工", "description": "把当前可组合的平台能力与校本知识、治理机制结合，为教学、科研、学生服务与行政岗位设计角色化试点。", "chain": "识别岗位 → 配置知识 → 验证任务 → 单团队试点 → 治理服务 → 持续改进", "outcome": "一套经过验证、与校园岗位、校本知识、审批边界和服务证据对齐的试点蓝图。", "action": "启动高校数字员工试点" }
           ]
         },
         "capabilities": {

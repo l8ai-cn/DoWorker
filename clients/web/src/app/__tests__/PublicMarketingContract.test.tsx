@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import DownloadPage from "../download/page";
 import EnterprisePage from "../enterprise/page";
 import { FAQ_SECTIONS } from "../docs/faq/faq-sections";
+import { metadata as marketplaceMetadata } from "../marketplace/layout";
 import sitemap from "../sitemap";
 
 vi.mock("next-intl", () => ({
@@ -71,5 +72,17 @@ describe("public marketing contract", () => {
     const structuredData = JSON.parse(script?.textContent ?? "{}");
 
     expect(structuredData).not.toHaveProperty("offers");
+  });
+
+  it("keeps the Agent Market metadata aligned with its external destination", () => {
+    expect(marketplaceMetadata).toMatchObject({
+      title: "Agent Market",
+      alternates: { canonical: "https://market.l8ai.cn" },
+      openGraph: {
+        title: "Agent Market | Do Worker",
+        url: "https://market.l8ai.cn",
+      },
+    });
+    expect(marketplaceMetadata.description).not.toMatch(/Worker|Expert|专家/i);
   });
 });

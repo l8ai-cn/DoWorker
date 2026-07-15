@@ -49,7 +49,7 @@ export default function Home() {
     alternateName: ["AgentMesh", "Agents Mesh"],
     url: "https://agentsmesh.ai",
     keywords:
-      "enterprise Agent supply, OPC incubation, digital employees, internal Agent marketplace, AI partners, self-hosted AI agents",
+      "enterprise Agent supply, OPC incubation, higher-education digital employees, internal Agent marketplace, AI partners, self-hosted AI agents",
     publisher: {
       "@type": "Organization",
       name: "Do Worker",

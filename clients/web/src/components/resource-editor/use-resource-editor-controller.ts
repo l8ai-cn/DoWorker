@@ -12,19 +12,17 @@ import {
   createResourceDraftState,
   resourceDraftCanApply,
   resourceDraftCanSubmit,
+  resourceDraftCanSubmitDraft,
   resourceDraftReducer,
 } from "./resource-draft-reducer";
-import type {
-  ResourceDraft,
-  ResourceEditorKind,
-} from "./resource-editor-types";
+import type { ResourceDraft, ResourceEditorKind } from "./resource-editor-types";
 import {
   safeResourceError,
   switchYamlToForm,
 } from "./resource-editor-source-transition";
 import { createResourceDraft } from "./resource-draft-factory";
 import {
-  hasCurrentPlan,
+  hasCurrentApply,
   isCurrentYaml,
 } from "./resource-editor-request-guards";
 import { useResourcePlanExpiry } from "./use-resource-plan-expiry";
@@ -41,7 +39,7 @@ export function useResourceEditorController(
   const stateRef = useRef(state);
   stateRef.current = state;
 
-  useResourcePlanExpiry(state.plan, dispatch);
+  useResourcePlanExpiry(state.plan, state.apply.status === "loading", dispatch);
 
   const replaceDraft = useCallback((draft: ResourceDraft) => {
     dispatch({ type: "replace_draft", draft });
@@ -66,6 +64,9 @@ export function useResourceEditorController(
     }
     try {
       const draft = codec.parseResourceYaml(source, kind);
+      if (!resourceDraftCanSubmitDraft(draft)) {
+        throw new Error("GoalLoop YAML contains invalid integer fields.");
+      }
       dispatch({ type: "source_parsed", draft, version });
       return { format: SourceFormat.YAML, content: source };
     } catch (error) {
@@ -167,11 +168,11 @@ export function useResourceEditorController(
     dispatch({ type: "apply_loading", planId, version });
     try {
       const result = await applyResourcePlan(orgSlug, state.draft.kind, planId);
-      if (!hasCurrentPlan(stateRef.current, planId, version)) return null;
+      if (!hasCurrentApply(stateRef.current, planId, version)) return null;
       dispatch({ type: "apply_succeeded", planId, version, result });
       return result;
     } catch (error) {
-      if (!hasCurrentPlan(stateRef.current, planId, version)) return null;
+      if (!hasCurrentApply(stateRef.current, planId, version)) return null;
       dispatch({
         type: "apply_failed",
         planId,
