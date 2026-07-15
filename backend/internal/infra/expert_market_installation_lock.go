@@ -33,11 +33,11 @@ func (locker *ExpertMarketInstallationLocker) WithinMarketInstallationLock(
 	if locker == nil || locker.db == nil || apply == nil {
 		return expertmarket.ErrConflict
 	}
-	if locker.db.Dialector.Name() != "postgres" {
+	if locker.db.Name() != "postgres" {
 		return fmt.Errorf(
 			"%w: %s",
 			ErrExpertMarketLockRequiresPostgres,
-			locker.db.Dialector.Name(),
+			locker.db.Name(),
 		)
 	}
 	key := marketInstallationLockKey(organizationID, applicationID)
@@ -67,11 +67,11 @@ func (locker *ExpertMarketInstallationLocker) withinLock(
 	if locker == nil || locker.db == nil || apply == nil {
 		return expertmarket.ErrConflict
 	}
-	if locker.db.Dialector.Name() != "postgres" {
+	if locker.db.Name() != "postgres" {
 		return fmt.Errorf(
 			"%w: %s",
 			ErrExpertMarketLockRequiresPostgres,
-			locker.db.Dialector.Name(),
+			locker.db.Name(),
 		)
 	}
 	return locker.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {

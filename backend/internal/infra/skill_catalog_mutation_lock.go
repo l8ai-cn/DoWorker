@@ -104,7 +104,7 @@ func executeSkillMutationLock(
 	}
 	defer func() {
 		mutationPanic := recover()
-		releaseErr, releasePanic := callSkillMutationUnlock(release)
+		releasePanic, releaseErr := callSkillMutationUnlock(release)
 		unlockErr := skillMutationUnlockError(releaseErr, releasePanic)
 		if mutationPanic != nil {
 			if unlockErr != nil {
@@ -129,9 +129,9 @@ func executeSkillMutationLock(
 	return mutate()
 }
 
-func callSkillMutationUnlock(release func() error) (err error, panicValue any) {
+func callSkillMutationUnlock(release func() error) (panicValue any, err error) {
 	defer func() { panicValue = recover() }()
-	return release(), nil
+	return nil, release()
 }
 
 func skillMutationUnlockError(releaseErr error, releasePanic any) error {
