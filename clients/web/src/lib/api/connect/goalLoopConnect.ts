@@ -6,10 +6,12 @@ import {
   GoalLoopSchema,
   ListGoalLoopsRequestSchema,
   ListGoalLoopsResponseSchema,
+  ListWorkerSnapshotsRequestSchema,
+  ListWorkerSnapshotsResponseSchema,
   type GoalLoop,
 } from "@proto/goalloop/v1/goalloop_pb";
 import { getGoalLoopService, initWasmCore } from "@/lib/wasm-core";
-import type { CreateGoalLoopInput, GoalLoopData } from "@/lib/viewModels/goal-loop";
+import type { CreateGoalLoopInput, GoalLoopData, GoalLoopWorkerSnapshot } from "@/lib/viewModels/goal-loop";
 
 function toGoalLoopData(loop: GoalLoop): GoalLoopData {
   return {
@@ -53,6 +55,20 @@ export async function listGoalLoops(orgSlug: string): Promise<GoalLoopData[]> {
     new Uint8Array(await (await service()).listGoalLoopsConnect(toBinary(ListGoalLoopsRequestSchema, request))),
   );
   return response.items.map(toGoalLoopData);
+}
+
+export async function listGoalLoopWorkerSnapshots(orgSlug: string): Promise<GoalLoopWorkerSnapshot[]> {
+  const request = create(ListWorkerSnapshotsRequestSchema, { orgSlug });
+  const response = fromBinary(
+    ListWorkerSnapshotsResponseSchema,
+    new Uint8Array(await (await service()).listWorkerSnapshotsConnect(toBinary(ListWorkerSnapshotsRequestSchema, request))),
+  );
+  return response.items.map((snapshot) => ({
+    id: Number(snapshot.id),
+    alias: snapshot.alias,
+    worker_type: snapshot.workerType,
+    created_at: snapshot.createdAt,
+  }));
 }
 
 export async function getGoalLoop(orgSlug: string, loopSlug: string): Promise<GoalLoopData> {

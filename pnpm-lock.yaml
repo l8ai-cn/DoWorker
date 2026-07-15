@@ -152,6 +152,9 @@ importers:
       '@xyflow/react':
         specifier: ^12.10.2
         version: 12.10.2(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      blockly:
+        specifier: ^13.1.1
+        version: 13.1.1(jsdom@28.1.0)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -4170,6 +4173,12 @@ packages:
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
+
+  blockly@13.1.1:
+    resolution: {integrity: sha512-0h3YDzlGclLKaZi9VHxyPjRJ9OFV6vw2+TMcolLZO1ZlgfY1Q79qDlGpH2nUYnTNiEVuJu9K6u6NHxqiPeRYOA==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      jsdom: ^27.4.0
 
   brace-expansion@1.1.14:
     resolution: {integrity: sha512-MWPGfDxnyzKU7rNOW9SP/c50vi3xrmrua/+6hfPbCS2ABNWfx24vPidzvC7krjU/RTo235sV776ymlsMtGKj8g==}
@@ -10804,6 +10813,10 @@ snapshots:
       require-from-string: 2.0.2
 
   binary-extensions@2.3.0: {}
+
+  blockly@13.1.1(jsdom@28.1.0):
+    dependencies:
+      jsdom: 28.1.0
 
   brace-expansion@1.1.14:
     dependencies:

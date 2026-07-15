@@ -11,6 +11,8 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
 	workerspecdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	workerspecsvc "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
@@ -23,6 +25,54 @@ func TestCreateRejectsUnavailableWorkerSnapshot(t *testing.T) {
 
 	require.ErrorIs(t, err, ErrInvalidInput)
 	require.Empty(t, repo.loops)
+}
+
+func TestListWorkerSnapshotsUsesOrganizationScopedSnapshotStore(t *testing.T) {
+	service := NewService(newGoalLoopTestRepo())
+	service.SetWorkerSpecSnapshotLoader(goalLoopSnapshotLoader{
+		snapshots: []workerspecdomain.Snapshot{
+			{ID: 4, OrganizationID: 1},
+			{ID: 3, OrganizationID: 1},
+		},
+	})
+	service.SetWorkerTypeSnapshotValidator(&goalLoopWorkerTypeValidator{
+		errs: []error{workercreation.ErrWorkerTypeDefinitionChanged, nil},
+	})
+
+	snapshots, err := service.ListWorkerSnapshots(context.Background(), 1, 2)
+
+	require.NoError(t, err)
+	require.Len(t, snapshots, 1)
+	require.Equal(t, int64(3), snapshots[0].ID)
+}
+
+func TestListWorkerSnapshotsReturnsValidatorFailure(t *testing.T) {
+	service := NewService(newGoalLoopTestRepo())
+	service.SetWorkerSpecSnapshotLoader(goalLoopSnapshotLoader{
+		snapshots: []workerspecdomain.Snapshot{{ID: 3, OrganizationID: 1}},
+	})
+	expected := errors.New("worker type catalog unavailable")
+	service.SetWorkerTypeSnapshotValidator(&goalLoopWorkerTypeValidator{
+		errs: []error{expected},
+	})
+
+	_, err := service.ListWorkerSnapshots(context.Background(), 1, 2)
+
+	require.ErrorIs(t, err, expected)
+}
+
+func TestValidateWorkerSnapshotForExecutionRejectsDefinitionDrift(t *testing.T) {
+	service := NewService(newGoalLoopTestRepo())
+	service.SetWorkerSpecSnapshotLoader(goalLoopSnapshotLoader{
+		snapshot: workerspecdomain.Snapshot{ID: 3, OrganizationID: 1},
+	})
+	service.SetWorkerTypeSnapshotValidator(&goalLoopWorkerTypeValidator{
+		errs: []error{workercreation.ErrWorkerTypeDefinitionChanged},
+	})
+
+	err := service.ValidateWorkerSnapshotForExecution(context.Background(), 1, 2, 3)
+
+	require.ErrorIs(t, err, ErrInvalidInput)
 }
 
 func TestVerificationSuccessCompletesAndTerminatesPod(t *testing.T) {
@@ -117,6 +167,23 @@ type goalLoopTestRepo struct {
 	loops map[int64]*domain.GoalLoop
 }
 
+type goalLoopWorkerTypeValidator struct {
+	errs []error
+}
+
+func (v *goalLoopWorkerTypeValidator) ValidateWorkerTypeSnapshot(
+	_ context.Context,
+	_ workerspecsvc.Scope,
+	_ workerspecdomain.WorkerType,
+) error {
+	if len(v.errs) == 0 {
+		return nil
+	}
+	err := v.errs[0]
+	v.errs = v.errs[1:]
+	return err
+}
+
 func newGoalLoopTestRepo(loops ...*domain.GoalLoop) *goalLoopTestRepo {
 	repo := &goalLoopTestRepo{loops: map[int64]*domain.GoalLoop{}}
 	for _, loop := range loops {
@@ -195,11 +262,44 @@ func (r *goalLoopTestRepo) Update(_ context.Context, id int64, updates map[strin
 			loop.VerificationOutputTruncated = value.(bool)
 		case "verification_error":
 			loop.VerificationError = stringPointerValue(value)
+		case "verification_request_id":
+			loop.VerificationRequestID = stringPointerValue(value)
+		case "pod_key":
+			loop.PodKey = stringPointerValue(value)
+		case "autopilot_controller_key":
+			loop.AutopilotControllerKey = stringPointerValue(value)
+		case "started_at":
+			loop.StartedAt = timePointer(value)
 		}
 	}
 	return nil
 }
 
+func (r *goalLoopTestRepo) TransitionStatus(
+	ctx context.Context,
+	id int64,
+	from []string,
+	updates map[string]any,
+) (bool, error) {
+	loop := r.loops[id]
+	if loop == nil {
+		return false, domain.ErrNotFound
+	}
+	allowed := false
+	for _, status := range from {
+		if loop.Status == status {
+			allowed = true
+			break
+		}
+	}
+	if !allowed {
+		return false, nil
+	}
+	if err := r.Update(ctx, id, updates); err != nil {
+		return false, err
+	}
+	return true, nil
+}
 func timePointer(value any) *time.Time {
 	timeValue, ok := value.(time.Time)
 	if !ok {
@@ -225,12 +325,17 @@ func stringPointerValue(value any) *string {
 }
 
 type goalLoopSnapshotLoader struct {
-	snapshot workerspecdomain.Snapshot
-	err      error
+	snapshot  workerspecdomain.Snapshot
+	snapshots []workerspecdomain.Snapshot
+	err       error
 }
 
 func (l goalLoopSnapshotLoader) GetByID(_ context.Context, _ int64, _ int64) (workerspecdomain.Snapshot, error) {
 	return l.snapshot, l.err
+}
+
+func (l goalLoopSnapshotLoader) ListByOrganization(_ context.Context, _ int64) ([]workerspecdomain.Snapshot, error) {
+	return l.snapshots, l.err
 }
 
 type goalLoopPodStore struct {

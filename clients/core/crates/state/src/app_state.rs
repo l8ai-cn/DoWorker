@@ -10,6 +10,7 @@ use crate::autopilot_state::AutopilotState;
 use crate::channel_state::ChannelState;
 use crate::event_dispatch;
 use crate::expert_state::ExpertState;
+use crate::loop_builder_state::LoopBuilderState;
 use crate::workflow_state::WorkflowState;
 use crate::loopal_session::LoopalSessionManager;
 use crate::mesh_state::MeshState;
@@ -56,6 +57,7 @@ pub struct AppState {
     pub autopilot: AutopilotState,
     pub acp: AcpSessionManager,
     pub loopal: LoopalSessionManager,
+    pub loop_builder: LoopBuilderState,
     pub repo: RepoState,
     pub experts: ExpertState,
 
@@ -93,6 +95,7 @@ impl AppState {
             autopilot: AutopilotState::default(),
             acp: AcpSessionManager::new(),
             loopal: LoopalSessionManager::new(),
+            loop_builder: LoopBuilderState::new(),
             repo: RepoState::new(),
             experts: ExpertState::new(),
             pending_toasts: Vec::new(),
@@ -115,6 +118,7 @@ impl AppState {
             autopilot: AutopilotState::default(),
             acp: AcpSessionManager::new(),
             loopal: LoopalSessionManager::new(),
+            loop_builder: LoopBuilderState::new(),
             repo: RepoState::with_storage(backend),
             experts: ExpertState::new(),
             pending_toasts: Vec::new(),
@@ -170,6 +174,7 @@ impl AppState {
         self.mesh = MeshState::default();
         self.autopilot = AutopilotState::default();
         self.experts = ExpertState::new();
+        self.loop_builder.reset();
         self.pending_toasts.clear();
         self.pending_browser_notifications.clear();
         self.pending_refetch_ticket_slugs.clear();

@@ -35,6 +35,13 @@ export interface GoalLoopData {
   updated_at: string;
 }
 
+export interface GoalLoopWorkerSnapshot {
+  id: number;
+  alias: string;
+  worker_type: string;
+  created_at: string;
+}
+
 export interface CreateGoalLoopInput {
   name: string;
   description?: string;
