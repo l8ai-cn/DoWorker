@@ -1,6 +1,6 @@
 # Loop V1 Progress
 
-- Goal status: active
+- Goal status: complete
 - Branch: `codex/loop-blockly-mvp`
 - Started: 2026-07-14
 - Maximum implementation iterations: 12
