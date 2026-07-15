@@ -89,6 +89,7 @@ func mountConnectServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Se
 	), opts...)
 	apikeyconnect.Mount(mux, apikeyconnect.NewServer(svc.apikey, svc.org), opts...)
 	bindingconnect.Mount(mux, bindingconnect.NewServer(svc.binding, svc.org), opts...)
+	mountOrchestrationResourceService(mux, svc, opts)
 	if svc.blockstore != nil {
 		blockstoreconnect.Mount(mux, blockstoreconnect.NewServer(svc.blockstore, svc.org), opts...)
 	}

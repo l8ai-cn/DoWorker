@@ -125,5 +125,6 @@ func cloneWorkspace(workspace domain.Workspace) domain.Workspace {
 		[]domain.RuntimeEnvBundleID{},
 		workspace.EnvBundleIDs...,
 	)
+	cloned.ConfigBundleIDs = append([]int64{}, workspace.ConfigBundleIDs...)
 	return cloned
 }

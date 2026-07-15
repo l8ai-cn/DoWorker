@@ -75,5 +75,5 @@ func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config,
 		return err
 	}
 	services.workerServices = workerServices
-	return nil
+	return attachOrchestrationControl(services, db)
 }

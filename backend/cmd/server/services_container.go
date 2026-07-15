@@ -28,6 +28,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/license"
 	"github.com/anthropics/agentsmesh/backend/internal/service/mesh"
 	notifservice "github.com/anthropics/agentsmesh/backend/internal/service/notification"
+	orchestrationcontrol "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
 	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
 	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
 	"github.com/anthropics/agentsmesh/backend/internal/service/promocode"
@@ -95,6 +96,7 @@ type serviceContainer struct {
 	grant              *grantservice.Service
 	knowledgeBase      *knowledgebaseservice.Service
 	kbSyncWorker       *knowledgebaseservice.SyncWorker
+	orchestration      *orchestrationcontrol.Service
 	workerServices
 	imBridge *imbridgesvc.Bridge
 

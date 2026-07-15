@@ -19,6 +19,7 @@ type RuntimeSelection struct {
 	ComputeTargetID   int64
 	DeploymentMode    domain.DeploymentMode
 	ResourceProfileID int64
+	CustomResources   *domain.ResourceRequestsLimits
 }
 
 type Draft struct {
