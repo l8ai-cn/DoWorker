@@ -6,6 +6,7 @@ import type {
   RepositoryData,
 } from "@/lib/api";
 import type { EffectiveResource } from "@/lib/api/facade/aiResource";
+import type { ProviderDefinition } from "@/lib/api/facade/aiResource";
 import type {
   WorkerCreateOptions,
   WorkerPreflightResult,
@@ -23,6 +24,8 @@ export interface WorkerCreateController {
   state: WorkerCreateDraftState;
   options: AsyncState<WorkerCreateOptions>;
   modelResources: AsyncState<EffectiveResource[]>;
+  modelProviders: AsyncState<ProviderDefinition[]>;
+  generationModelResources: AsyncState<EffectiveResource[]>;
   runtimeBundles: AsyncState<EnvBundleSummary[]>;
   credentialBundles: AsyncState<EnvBundleSummary[]>;
   skills: AsyncState<InstalledSkill[]>;
@@ -32,6 +35,7 @@ export interface WorkerCreateController {
   changeWorkerType: (slug: string, schemaVersion: number) => void;
   setLifecycle: (policy: string, minutes: number) => void;
   setFillPrompt: (prompt: string) => void;
+  setGenerationModelResourceId: (resourceId: number) => void;
   fillWithAI: (prompt: string) => Promise<void>;
   goToStep: (step: WorkerCreateStepId) => Promise<void>;
   runPreflight: () => Promise<WorkerPreflightResult | null>;
@@ -44,6 +48,8 @@ interface ControllerInput {
   dispatch: Dispatch<WorkerCreateDraftAction>;
   options: AsyncState<WorkerCreateOptions>;
   modelResources: AsyncState<EffectiveResource[]>;
+  modelProviders: AsyncState<ProviderDefinition[]>;
+  generationModelResources: AsyncState<EffectiveResource[]>;
   runtimeBundles: AsyncState<EnvBundleSummary[]>;
   credentialBundles: AsyncState<EnvBundleSummary[]>;
   skills: AsyncState<InstalledSkill[]>;
@@ -64,6 +70,8 @@ export function assembleWorkerCreateController(
     state: input.state,
     options: input.options,
     modelResources: input.modelResources,
+    modelProviders: input.modelProviders,
+    generationModelResources: input.generationModelResources,
     runtimeBundles: input.runtimeBundles,
     credentialBundles: input.credentialBundles,
     skills: input.skills,
@@ -81,6 +89,10 @@ export function assembleWorkerCreateController(
       idleTimeoutMinutes: minutes,
     }),
     setFillPrompt: (prompt) => dispatch({ type: "set_fill_prompt", prompt }),
+    setGenerationModelResourceId: (resourceId) => dispatch({
+      type: "set_generation_model",
+      resourceId,
+    }),
     fillWithAI: input.fillWithAI,
     goToStep: input.goToStep,
     runPreflight: input.runPreflight,

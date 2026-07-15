@@ -13,10 +13,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AlertMessage } from "@/components/ui/alert-message";
 import { Spinner } from "@/components/ui/spinner";
-import type { EffectiveResource } from "@/lib/api/facade/aiResource";
-import { modelResourceLabel } from "./workerModelResources";
+import type {
+  EffectiveResource,
+  ProviderDefinition,
+} from "@/lib/api/facade/aiResource";
 import type { WorkerCreateOptions, WorkerSpecDraft } from "@/lib/api/facade/podConnect";
 import type { AsyncState } from "../hooks/workerCreateDraft";
+import { WorkerRuntimeModelFields } from "./WorkerRuntimeModelFields";
 import {
   WorkerRuntimeSelectField,
   type WorkerRuntimeSelectOption,
@@ -26,13 +29,22 @@ interface WorkerRuntimeStepProps {
   draft: WorkerSpecDraft;
   options: AsyncState<WorkerCreateOptions>;
   modelResources: AsyncState<EffectiveResource[]>;
+  modelProviders: AsyncState<ProviderDefinition[]>;
   onPatch: (patch: Partial<WorkerSpecDraft>) => void;
   onWorkerTypeChange: (slug: string, schemaVersion: number) => void;
   t: (key: string) => string;
 }
 
 export function WorkerRuntimeStep(props: WorkerRuntimeStepProps) {
-  const { draft, options, modelResources, onPatch, onWorkerTypeChange, t } = props;
+  const {
+    draft,
+    options,
+    modelResources,
+    modelProviders,
+    onPatch,
+    onWorkerTypeChange,
+    t,
+  } = props;
   const [pendingType, setPendingType] = useState<string | null>(null);
 
   if (options.status === "idle" || options.status === "loading") {
@@ -49,6 +61,9 @@ export function WorkerRuntimeStep(props: WorkerRuntimeStepProps) {
     option.blocking_reason,
   ));
   const selectedPending = data.worker_types.find((option) => option.slug === pendingType);
+  const selectedWorkerType = data.worker_types.find(
+    (option) => option.slug === draft.worker_type_slug,
+  );
 
   const changeWorkerType = (slug: string) => {
     if (slug === draft.worker_type_slug) return;
@@ -62,7 +77,16 @@ export function WorkerRuntimeStep(props: WorkerRuntimeStepProps) {
 
   return (
     <div className="space-y-5">
-      <ModelField state={modelResources} draft={draft} onPatch={onPatch} t={t} />
+      {selectedWorkerType && (
+        <WorkerRuntimeModelFields
+          draft={draft}
+          workerType={selectedWorkerType}
+          modelResources={modelResources}
+          modelProviders={modelProviders}
+          onPatch={onPatch}
+          t={t}
+        />
+      )}
       <WorkerRuntimeSelectField
         field="worker-type"
         label={t("workerCreate.runtime.workerType")}
@@ -134,45 +158,6 @@ export function WorkerRuntimeStep(props: WorkerRuntimeStepProps) {
   );
 }
 
-function ModelField(props: {
-  state: AsyncState<EffectiveResource[]>;
-  draft: WorkerSpecDraft;
-  onPatch: (patch: Partial<WorkerSpecDraft>) => void;
-  t: (key: string) => string;
-}) {
-  if (props.state.status === "idle" || props.state.status === "loading") {
-    return <div data-runtime-field="model"><Spinner className="my-4" /></div>;
-  }
-  if (props.state.status === "error") {
-    return (
-      <div data-runtime-field="model">
-        <AlertMessage type="error" message={props.state.error} />
-      </div>
-    );
-  }
-  if (props.state.data.length === 0) {
-    return (
-      <div data-runtime-field="model">
-        <AlertMessage type="error" message={props.t("ide.createPod.noModelResourcesAvailableHint")} />
-      </div>
-    );
-  }
-  return (
-    <WorkerRuntimeSelectField
-      field="model"
-      label={props.t("workerCreate.runtime.model")}
-      value={numberValue(props.draft.model_resource_id)}
-      options={props.state.data.map((item) => selectOption(
-        String(item.resource?.id ?? 0),
-        modelResourceLabel(item),
-        item.selectable,
-        item.blockingReason,
-      ))}
-      onChange={(value) => props.onPatch({ model_resource_id: Number(value) })}
-    />
-  );
-}
-
 function selectOption(
   value: string,
   label: string,
@@ -190,6 +175,7 @@ function hasTypeSpecificValues(draft: WorkerSpecDraft): boolean {
   return Boolean(
     draft.worker_type_slug ||
       draft.model_resource_id ||
+      Object.keys(draft.tool_model_resource_ids).length ||
       draft.runtime_image_id ||
       Object.keys(draft.type_config_values).length ||
       draft.secret_refs.length ||

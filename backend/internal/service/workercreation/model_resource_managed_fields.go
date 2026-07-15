@@ -1,35 +1,36 @@
 package workercreation
 
-import "sort"
+import (
+	"sort"
 
-var modelResourceManagedTypeFields = map[string]map[string]struct{}{
-	"codex-cli": {
-		"model":           {},
-		"OPENAI_API_KEY":  {},
-		"OPENAI_BASE_URL": {},
-		"OPENAI_MODEL":    {},
-	},
-	"claude-code": {
-		"model":                {},
-		"ANTHROPIC_API_KEY":    {},
-		"ANTHROPIC_AUTH_TOKEN": {},
-		"ANTHROPIC_BASE_URL":   {},
-	},
-	"gemini-cli": {
-		"model":          {},
-		"GEMINI_API_KEY": {},
-		"GOOGLE_API_KEY": {},
-	},
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
+)
+
+func modelResourceManagedFields(
+	definition workerdefinition.Definition,
+) map[string]struct{} {
+	fields := make(map[string]struct{}, len(definition.CredentialBindings)+1)
+	if definition.ModelRequirement.Required {
+		fields["model"] = struct{}{}
+	}
+	for _, binding := range definition.CredentialBindings {
+		if binding.Source.Kind == "model_resource" {
+			fields[binding.Target.Name] = struct{}{}
+		}
+	}
+	return fields
 }
 
-func isModelResourceManagedTypeField(workerType, field string) bool {
-	fields := modelResourceManagedTypeFields[workerType]
-	_, exists := fields[field]
+func isModelResourceManagedField(
+	definition workerdefinition.Definition,
+	field string,
+) bool {
+	_, exists := modelResourceManagedFields(definition)[field]
 	return exists
 }
 
 func modelResourceManagedRuntimeField(
-	workerType string,
+	definition workerdefinition.Definition,
 	values map[string]string,
 ) string {
 	fields := make([]string, 0, len(values))
@@ -38,7 +39,7 @@ func modelResourceManagedRuntimeField(
 	}
 	sort.Strings(fields)
 	for _, field := range fields {
-		if isModelResourceManagedTypeField(workerType, field) {
+		if isModelResourceManagedField(definition, field) {
 			return field
 		}
 	}

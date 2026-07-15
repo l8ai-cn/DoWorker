@@ -4,11 +4,17 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )
 
+type WorkerDefinitionProvider interface {
+	Get(string) (workerdefinition.Definition, bool)
+}
+
 type Deps struct {
 	Catalog      runtimedomain.Catalog
+	Definitions  WorkerDefinitionProvider
 	Agents       AgentProvider
 	Models       ModelResourceResolver
 	Repositories RepositoryLookup

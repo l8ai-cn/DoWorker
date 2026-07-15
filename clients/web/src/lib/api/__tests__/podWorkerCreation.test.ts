@@ -1,6 +1,7 @@
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  FillWorkerDraftRequestSchema,
   FillWorkerDraftResponseSchema,
   ListWorkerCreateOptionsRequestSchema,
   ListWorkerCreateOptionsResponseSchema,
@@ -56,6 +57,15 @@ describe("worker creation Connect boundary", () => {
             schemaVersion: 3,
             configSchemaJson: '{"version":3,"fields":[]}',
             selectable: true,
+            requiresModelResource: false,
+            modelProtocolAdapters: [],
+            toolModelRequirements: [{
+              role: "video-generator",
+              providerKeys: ["volcengine"],
+              protocolAdapters: ["openai-compatible"],
+              modality: "video",
+              capability: "video-generation",
+            }],
           }],
           runtimeImages: [{
             id: BigInt(12),
@@ -100,7 +110,19 @@ describe("worker creation Connect boundary", () => {
     });
     expect(options).toMatchObject({
       revision: "rev-7",
-      worker_types: [{ slug: "codex", config_schema: { version: 3, fields: [] } }],
+      worker_types: [{
+        slug: "codex",
+        config_schema: { version: 3, fields: [] },
+        requires_model_resource: false,
+        model_protocol_adapters: [],
+        tool_model_requirements: [{
+          role: "video-generator",
+          provider_keys: ["volcengine"],
+          protocol_adapters: ["openai-compatible"],
+          modality: "video",
+          capability: "video-generation",
+        }],
+      }],
       runtime_images: [{ id: 12, worker_type_slugs: ["codex"] }],
       compute_targets: [{ id: 21, supports_pooled: true }],
       resource_profiles: [{ id: 31, memory_limit_bytes: 1073741824 }],
@@ -154,6 +176,7 @@ describe("worker creation Connect boundary", () => {
       skillIds: [BigInt(51), BigInt(52)],
       envBundleIds: [BigInt(71)],
       sourceExpertId: BigInt(81),
+      toolModelResourceIds: { "video-generator": BigInt(91) },
       typeConfigValuesJson: '{"temperature":0.2,"nested":{"enabled":true}}',
     });
 
@@ -169,8 +192,13 @@ describe("worker creation Connect boundary", () => {
         }),
       ),
     );
-    const filled = await fillWorkerDraft("acme", "Create a coding worker", draft);
+    const filled = await fillWorkerDraft("acme", "Create a coding worker", 77, draft);
     expect(filled.draft).toEqual({ ...draft, alias: "AI filled" });
+    const fillRequest = fromBinary(
+      FillWorkerDraftRequestSchema,
+      service.fill_worker_draft_connect.mock.calls[0][0],
+    );
+    expect(fillRequest.generationModelResourceId).toBe(BigInt(77));
 
     service.create_pod_connect.mockResolvedValue(
       toBinary(
@@ -209,7 +237,7 @@ describe("worker creation Connect boundary", () => {
         create(FillWorkerDraftResponseSchema, {}),
       ),
     );
-    await expect(fillWorkerDraft("acme", "Create worker")).rejects.toThrow(
+    await expect(fillWorkerDraft("acme", "Create worker", 77)).rejects.toThrow(
       "worker draft response is missing draft",
     );
   });
@@ -241,5 +269,6 @@ function fullDraft(): WorkerSpecDraft {
     alias: "Coding worker",
     source_expert_id: 81,
     options_revision: "rev-7",
+    tool_model_resource_ids: { "video-generator": 91 },
   };
 }

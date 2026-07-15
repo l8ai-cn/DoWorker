@@ -73,7 +73,10 @@ func main() {
 	}
 
 	hub, eventBus, redisClient := initializeInfrastructure(cfg, appLogger)
-	services := initializeServices(cfg, db, redisClient)
+	services, err := initializeServices(cfg, db, redisClient)
+	if err != nil {
+		log.Fatalf("Failed to initialize services: %v", err)
+	}
 
 	setupEventBusHub(eventBus, hub)
 

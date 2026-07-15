@@ -82,6 +82,9 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 	if err := o.applyWorkerModel(ctx, req, agentDef); err != nil {
 		return nil, err
 	}
+	if err := o.applyWorkerToolModels(ctx, req); err != nil {
+		return nil, err
+	}
 
 	// Automation level → per-agent native permission/MODE. Injected as the
 	// highest-priority AgentFile layer lines (appended last ⇒ override the

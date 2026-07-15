@@ -45,6 +45,7 @@ func workerDraftToProto(draft workercreation.Draft) (*podv1.WorkerSpecDraft, err
 	}
 	return &podv1.WorkerSpecDraft{
 		ModelResourceId:      draft.WorkerSpec.ModelResourceID,
+		ToolModelResourceIds: cloneToolModelResourceIDs(draft.WorkerSpec.ToolModelResourceIDs),
 		WorkerTypeSlug:       draft.WorkerSpec.WorkerTypeSlug.String(),
 		RuntimeImageId:       draft.WorkerSpec.Runtime.RuntimeImageID,
 		PlacementPolicy:      string(draft.WorkerSpec.Runtime.PlacementPolicy),

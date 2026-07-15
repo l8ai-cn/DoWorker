@@ -1,0 +1,9 @@
+AGENT openclaw
+EXECUTABLE openclaw
+MODE pty
+ENV OPENCLAW_HOME = sandbox.root + "/openclaw-home"
+ENV OPENAI_API_KEY SECRET OPTIONAL
+
+if config_json {
+  file sandbox.root + "/openclaw-home/.openclaw/openclaw.json" json(config_json)
+}

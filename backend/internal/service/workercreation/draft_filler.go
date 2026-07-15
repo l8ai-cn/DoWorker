@@ -40,6 +40,7 @@ func (filler *DraftFiller) Fill(
 	ctx context.Context,
 	scope specservice.Scope,
 	prompt string,
+	generationModelResourceID int64,
 	current *Draft,
 ) (FillResult, error) {
 	if filler == nil || filler.service == nil || filler.resources == nil ||
@@ -67,7 +68,11 @@ func (filler *DraftFiller) Fill(
 	if err != nil {
 		return FillResult{}, err
 	}
-	resource, err := filler.resolveModelResource(ctx, scope, current)
+	resource, err := filler.resolveModelResource(
+		ctx,
+		scope,
+		generationModelResourceID,
+	)
 	if err != nil {
 		return FillResult{}, err
 	}
@@ -108,19 +113,15 @@ func (filler *DraftFiller) Fill(
 func (filler *DraftFiller) resolveModelResource(
 	ctx context.Context,
 	scope specservice.Scope,
-	current *Draft,
+	resourceID int64,
 ) (*resourceservice.ResolvedResource, error) {
-	resourceID := current.WorkerSpec.ModelResourceID
 	if resourceID <= 0 {
 		return nil, invalidFillField(
-			"worker_spec.model_resource_id",
+			"generation_model_resource_id",
 			"must be positive",
 		)
 	}
-	requirements, err := modelRequirements(current.WorkerSpec.WorkerTypeSlug)
-	if err != nil {
-		return nil, err
-	}
+	requirements := draftGenerationModelRequirements()
 	resolved, err := filler.resources.ResolveExact(
 		ctx,
 		resourceservice.Actor{UserID: scope.UserID},
@@ -144,11 +145,22 @@ func (filler *DraftFiller) resolveModelResource(
 	if resolved.Provider.Key != resolved.Connection.ProviderKey {
 		return nil, invalidResolvedModel("provider definition does not match connection")
 	}
-	if len(requirements.AllowedProtocolAdapters) != 1 ||
-		resolved.Provider.ProtocolAdapter != requirements.AllowedProtocolAdapters[0] {
+	if !containsString(
+		requirements.AllowedProtocolAdapters,
+		resolved.Provider.ProtocolAdapter,
+	) {
 		return nil, invalidResolvedModel("provider protocol was substituted")
 	}
 	return resolved, nil
+}
+
+func containsString(values []string, wanted string) bool {
+	for _, value := range values {
+		if value == wanted {
+			return true
+		}
+	}
+	return false
 }
 
 func invalidFillField(field, reason string) error {

@@ -50,8 +50,9 @@ func workerDraftFromProto(message *podv1.WorkerSpecDraft) (workercreation.Draft,
 	return workercreation.Draft{
 		OptionsRevision: message.GetOptionsRevision(),
 		WorkerSpec: specservice.Draft{
-			ModelResourceID: message.GetModelResourceId(),
-			WorkerTypeSlug:  workerType,
+			ModelResourceID:      message.GetModelResourceId(),
+			ToolModelResourceIDs: cloneToolModelResourceIDs(message.GetToolModelResourceIds()),
+			WorkerTypeSlug:       workerType,
 			Runtime: specservice.RuntimeSelection{
 				RuntimeImageID:    message.GetRuntimeImageId(),
 				PlacementPolicy:   specdomain.PlacementPolicy(message.GetPlacementPolicy()),
@@ -85,6 +86,17 @@ func workerDraftFromProto(message *podv1.WorkerSpecDraft) (workercreation.Draft,
 			},
 		},
 	}, nil
+}
+
+func cloneToolModelResourceIDs(values map[string]int64) map[string]int64 {
+	if values == nil {
+		return nil
+	}
+	cloned := make(map[string]int64, len(values))
+	for role, id := range values {
+		cloned[role] = id
+	}
+	return cloned
 }
 
 func decodeTypeConfigValues(raw string) (map[string]any, error) {

@@ -18,10 +18,10 @@ func ResolveConfigSchema(ctx context.Context, provider AgentConfigProvider, agen
 	if agentDef.AgentfileSource == nil || *agentDef.AgentfileSource == "" {
 		return &ConfigSchemaResponse{Fields: []ConfigFieldResponse{}}, nil
 	}
-	return configSchemaFromAgentfile(*agentDef.AgentfileSource)
+	return ConfigSchemaFromAgentfile(*agentDef.AgentfileSource)
 }
 
-func configSchemaFromAgentfile(source string) (*ConfigSchemaResponse, error) {
+func ConfigSchemaFromAgentfile(source string) (*ConfigSchemaResponse, error) {
 	agentSchema, err := schema.FromSource(source)
 	if err != nil {
 		return nil, err

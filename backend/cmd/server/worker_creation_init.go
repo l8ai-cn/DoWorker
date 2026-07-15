@@ -1,12 +1,16 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/anthropics/agentsmesh/backend/internal/config"
 	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"gorm.io/gorm"
 )
@@ -15,15 +19,23 @@ type workerServices struct {
 	workerCreation    *workercreation.Service
 	workerDraftFiller *workercreation.DraftFiller
 	workerSpecs       specservice.SnapshotRepository
+	workerDefinitions *workerdefinition.Catalog
 }
 
 func initializeWorkerServices(
+	cfg *config.Config,
 	db *gorm.DB,
 	agents *agent.AgentService,
 	models *airesourceservice.Service,
 	repositories *repository.Service,
-) workerServices {
-	creation := initializeWorkerCreationService(db, agents, models, repositories)
+) (workerServices, error) {
+	definitions, err := workerdefinition.Load(cfg.WorkerDefinitionsDir)
+	if err != nil {
+		return workerServices{}, fmt.Errorf("load Worker definition catalog: %w", err)
+	}
+	creation := initializeWorkerCreationService(
+		db, definitions, agents, models, repositories,
+	)
 	generator := workercreation.NewProviderDraftGenerator(
 		airesourceservice.NewSafeHTTPClient(
 			airesourceservice.NewEndpointPolicy(false, nil),
@@ -34,17 +46,20 @@ func initializeWorkerServices(
 		workerCreation:    creation,
 		workerDraftFiller: workercreation.NewDraftFiller(creation, models, generator),
 		workerSpecs:       infra.NewWorkerSpecSnapshotRepository(db),
-	}
+		workerDefinitions: definitions,
+	}, nil
 }
 
 func initializeWorkerCreationService(
 	db *gorm.DB,
+	definitions *workerdefinition.Catalog,
 	agents *agent.AgentService,
 	models *airesourceservice.Service,
 	repositories *repository.Service,
 ) *workercreation.Service {
 	return workercreation.NewService(workercreation.Deps{
 		Catalog:      workerruntime.DefaultCatalog(),
+		Definitions:  definitions,
 		Agents:       agents,
 		Models:       models,
 		Repositories: repositories,

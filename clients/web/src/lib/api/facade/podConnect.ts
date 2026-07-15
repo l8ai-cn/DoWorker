@@ -33,4 +33,6 @@ export {
   type WorkerPreflightIssue,
   type WorkerPreflightResult,
   type WorkerSpecDraft,
+  type WorkerToolModelRequirement,
+  type WorkerTypeOption,
 } from "../connect/podWorkerCreationConnect";

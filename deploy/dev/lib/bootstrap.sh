@@ -113,6 +113,25 @@ init_seed() {
     fi
 }
 
+sync_worker_definition_projections() {
+    local repo_root="$SCRIPT_DIR/../.."
+    info "同步 Worker Definition 数据库投影..."
+    (
+        cd "$repo_root"
+        DB_HOST=localhost \
+        DB_PORT="$POSTGRES_PORT" \
+        DB_USER=agentsmesh \
+        DB_PASSWORD="${POSTGRES_PASSWORD:-agentsmesh_dev}" \
+        DB_NAME=agentsmesh \
+        DB_SSLMODE=disable \
+        WORKER_DEFINITIONS_DIR=config/worker-types \
+        go run ./backend/cmd/worker-definition-sync
+    ) || {
+        error "Worker Definition 数据库投影同步失败"
+        return 1
+    }
+    success "Worker Definition 数据库投影同步完成"
+}
 # Gitea-side bootstrap: admin user + dev-org + 2 demo repos + register the
 # runner SSH public key as a deploy key. Delegated to gitea/init-gitea.sh
 # so the dev.sh main flow stays declarative.

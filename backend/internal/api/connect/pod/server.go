@@ -71,6 +71,7 @@ type WorkerDraftFiller interface {
 		context.Context,
 		specservice.Scope,
 		string,
+		int64,
 		*workercreation.Draft,
 	) (workercreation.FillResult, error)
 }

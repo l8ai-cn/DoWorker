@@ -139,6 +139,7 @@ main() {
     wait_for_postgres
     run_migrations
     init_seed "${COMPOSE_PROJECT_NAME}-postgres-1"
+    sync_worker_definition_projections
     init_gitea
     setup_gitea_ssh_config
 

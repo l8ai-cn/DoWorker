@@ -5,6 +5,7 @@ import (
 
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
 )
 
@@ -28,13 +29,20 @@ func workerCreateOptionsToProto(
 			return nil, err
 		}
 		response.WorkerTypes = append(response.WorkerTypes, &podv1.WorkerTypeOption{
-			Slug:             option.Slug,
-			Name:             option.Name,
-			Description:      option.Description,
-			SchemaVersion:    option.Schema.Version,
-			ConfigSchemaJson: schema,
-			Selectable:       option.Selectable,
-			BlockingReason:   option.BlockingReason,
+			Slug:                  option.Slug,
+			Name:                  option.Name,
+			Description:           option.Description,
+			SchemaVersion:         option.Schema.Version,
+			ConfigSchemaJson:      schema,
+			RequiresModelResource: option.RequiresModelResource,
+			ModelProtocolAdapters: workerSlugsToStrings(
+				option.ModelProtocolAdapters,
+			),
+			ToolModelRequirements: workerToolModelRequirementsToProto(
+				option.ToolModelRequirements,
+			),
+			Selectable:     option.Selectable,
+			BlockingReason: option.BlockingReason,
 		})
 	}
 	for _, option := range options.RuntimeImages {
@@ -86,6 +94,38 @@ func workerCreateOptionsToProto(
 		})
 	}
 	return response, nil
+}
+
+func workerSlugsToStrings(values []slugkit.Slug) []string {
+	items := make([]string, len(values))
+	for index, value := range values {
+		items[index] = value.String()
+	}
+	return items
+}
+
+func workerToolModelRequirementsToProto(
+	requirements []specdomain.ToolModelRequirement,
+) []*podv1.WorkerToolModelRequirement {
+	items := make([]*podv1.WorkerToolModelRequirement, 0, len(requirements))
+	for _, requirement := range requirements {
+		providers := make([]string, len(requirement.ProviderKeys))
+		for index, provider := range requirement.ProviderKeys {
+			providers[index] = provider.String()
+		}
+		adapters := make([]string, len(requirement.ProtocolAdapters))
+		for index, adapter := range requirement.ProtocolAdapters {
+			adapters[index] = adapter.String()
+		}
+		items = append(items, &podv1.WorkerToolModelRequirement{
+			Role:             requirement.Role.String(),
+			ProviderKeys:     providers,
+			ProtocolAdapters: adapters,
+			Modality:         string(requirement.Modality),
+			Capability:       string(requirement.Capability),
+		})
+	}
+	return items
 }
 
 func encodeWorkerTypeSchema(schema specdomain.TypeSchema) (string, error) {

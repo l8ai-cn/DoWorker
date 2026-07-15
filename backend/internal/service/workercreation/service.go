@@ -17,6 +17,7 @@ type Service struct {
 	workerTypes   specservice.WorkerTypeResolver
 	runtime       specservice.RuntimeResolver
 	models        specservice.ModelResolver
+	toolModels    specservice.ToolModelResolver
 	workspaceDeps workspaceResolverDeps
 }
 
@@ -26,15 +27,18 @@ func NewService(deps Deps) *Service {
 		Skills:       deps.Skills,
 		Knowledge:    deps.Knowledge,
 		EnvBundles:   deps.EnvBundles,
+		Definitions:  deps.Definitions,
 	}
-	workerTypes := newWorkerTypeResolver(deps.Agents)
+	workerTypes := newWorkerTypeResolver(deps.Agents, deps.Definitions)
+	models := newModelResolver(deps.Models)
 	return &Service{
 		revision:      deps.Catalog.Revision(),
 		catalog:       deps.Catalog,
 		agents:        deps.Agents,
 		workerTypes:   workerTypes,
 		runtime:       newRuntimeCatalogResolver(deps.Catalog),
-		models:        newModelResolver(deps.Models),
+		models:        models,
+		toolModels:    models,
 		workspaceDeps: workspaceDeps,
 	}
 }
@@ -63,6 +67,7 @@ func (service *Service) Prepare(
 		WorkerTypes: service.workerTypes,
 		Runtime:     service.runtime,
 		Models:      service.models,
+		ToolModels:  service.toolModels,
 		Secrets:     workspace,
 		Workspaces:  workspace,
 	})

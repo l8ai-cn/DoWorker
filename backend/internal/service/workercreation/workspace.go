@@ -9,6 +9,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
@@ -34,6 +35,7 @@ type workspaceResolverDeps struct {
 	Skills       SkillLookup
 	Knowledge    KnowledgeLookup
 	EnvBundles   EnvBundleLookup
+	Definitions  WorkerDefinitionProvider
 }
 
 type workspaceResolver struct {
@@ -153,10 +155,11 @@ func (resolver *workspaceResolver) resolveWorkspaceReferences(
 				nil,
 			)
 		}
-		if field := modelResourceManagedRuntimeField(
-			workerType.String(),
-			bundle.Data,
-		); field != "" {
+		definition, err := resolver.workerDefinition(workerType)
+		if err != nil {
+			return compilationReferences{}, err
+		}
+		if field := modelResourceManagedRuntimeField(definition, bundle.Data); field != "" {
 			return compilationReferences{}, invalidWorkspaceReference(
 				"runtime environment bundle",
 				bundle.ID,
@@ -169,6 +172,21 @@ func (resolver *workspaceResolver) resolveWorkspaceReferences(
 		}
 	}
 	return references, nil
+}
+
+func (resolver *workspaceResolver) workerDefinition(
+	workerType slugkit.Slug,
+) (workerdefinition.Definition, error) {
+	if resolver == nil || resolver.deps.Definitions == nil {
+		return workerdefinition.Definition{}, specservice.ErrResolverUnavailable
+	}
+	definition, exists := resolver.deps.Definitions.Get(workerType.String())
+	if !exists {
+		return workerdefinition.Definition{}, invalidWorkerType(
+			fmt.Sprintf("canonical definition for %q does not exist", workerType),
+		)
+	}
+	return definition, nil
 }
 
 func (resolver *workspaceResolver) resolvedRepository(id *int64) *gitprovider.Repository {

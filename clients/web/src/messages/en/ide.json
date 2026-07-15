@@ -329,7 +329,7 @@
     "stepContent": {
       "1": {
         "title": "Choose runtime",
-        "description": "Bind an exact model, Worker type, immutable image, compute target, deployment mode, and resource profile."
+        "description": "Bind the Worker type's required primary and tool models, immutable image, compute target, deployment mode, and resource profile."
       },
       "2": {
         "title": "Configure Worker type",
@@ -346,6 +346,8 @@
     },
     "runtime": {
       "model": "Model resource",
+      "toolModel": "Tool model resource",
+      "noCompatibleToolModel": "No compatible model resource is available for this tool role.",
       "workerType": "Worker type",
       "runtimeImage": "Runtime image",
       "computeTarget": "Compute target",
@@ -354,7 +356,7 @@
     },
     "typeChange": {
       "title": "Change Worker type?",
-      "description": "Type-specific model, image, configuration, Skill, and environment selections will be cleared.",
+      "description": "Type-specific primary and tool models, image, configuration, Skill, and environment selections will be cleared.",
       "cancel": "Keep current type",
       "confirm": "Change type"
     },

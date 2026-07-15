@@ -35,6 +35,9 @@ func Validate(spec Spec) error {
 	if err := validateModelBinding(spec.Runtime.ModelBinding); err != nil {
 		return err
 	}
+	if err := validateToolModelBindings(spec.Runtime.ToolModelBindings); err != nil {
+		return err
+	}
 	if err := validateWorkerType(spec.Runtime.WorkerType); err != nil {
 		return err
 	}
@@ -60,6 +63,9 @@ func Validate(spec Spec) error {
 }
 
 func validateModelBinding(binding ModelBinding) error {
+	if binding.IsEmpty() {
+		return nil
+	}
 	switch {
 	case binding.ResourceID <= 0:
 		return fmt.Errorf("runtime model binding resource id must be positive")
@@ -72,6 +78,9 @@ func validateModelBinding(binding ModelBinding) error {
 	}
 	if err := slugkit.Validate(binding.ProviderKey.String()); err != nil {
 		return fmt.Errorf("runtime model binding provider key: %w", err)
+	}
+	if err := slugkit.Validate(binding.ProtocolAdapter.String()); err != nil {
+		return fmt.Errorf("runtime model binding protocol adapter: %w", err)
 	}
 	if strings.TrimSpace(binding.ModelID) == "" {
 		return fmt.Errorf("runtime model binding model id is required")

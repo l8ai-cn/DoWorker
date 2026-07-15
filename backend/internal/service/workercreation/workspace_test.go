@@ -374,15 +374,6 @@ func newWorkspaceFixture() *workspaceFixture {
 	}
 }
 
-func (fixture *workspaceFixture) deps() workspaceResolverDeps {
-	return workspaceResolverDeps{
-		Repositories: fixture.repositories,
-		Skills:       fixture.skills,
-		Knowledge:    fixture.knowledge,
-		EnvBundles:   fixture.envBundles,
-	}
-}
-
 func validWorkspaceDraft() specdomain.Workspace {
 	repositoryID := int64(22)
 	return specdomain.Workspace{

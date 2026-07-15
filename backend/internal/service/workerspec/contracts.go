@@ -22,19 +22,22 @@ type RuntimeSelection struct {
 }
 
 type Draft struct {
-	ModelResourceID int64
-	WorkerTypeSlug  slugkit.Slug
-	Runtime         RuntimeSelection
-	TypeConfig      domain.TypeConfig
-	Workspace       domain.Workspace
-	Lifecycle       domain.Lifecycle
-	Metadata        domain.Metadata
+	ModelResourceID      int64
+	ToolModelResourceIDs map[string]int64
+	WorkerTypeSlug       slugkit.Slug
+	Runtime              RuntimeSelection
+	TypeConfig           domain.TypeConfig
+	Workspace            domain.Workspace
+	Lifecycle            domain.Lifecycle
+	Metadata             domain.Metadata
 }
 
 type WorkerTypeResolution struct {
 	WorkerType                domain.WorkerType
 	TypeSchema                domain.TypeSchema
 	SupportedInteractionModes []domain.InteractionMode
+	ModelRequirement          domain.ModelRequirement
+	ToolModelRequirements     []domain.ToolModelRequirement
 }
 
 type WorkerTypeResolver interface {
@@ -58,9 +61,18 @@ type ModelResolver interface {
 	ResolveModel(
 		ctx context.Context,
 		scope Scope,
-		workerType slugkit.Slug,
+		requirement domain.ModelRequirement,
 		resourceID int64,
 	) (domain.ModelBinding, error)
+}
+
+type ToolModelResolver interface {
+	ResolveToolModel(
+		ctx context.Context,
+		scope Scope,
+		requirement domain.ToolModelRequirement,
+		resourceID int64,
+	) (domain.ToolModelBinding, error)
 }
 
 type SecretReferenceResolver interface {
@@ -101,6 +113,7 @@ type ResolverDeps struct {
 	WorkerTypes WorkerTypeResolver
 	Runtime     RuntimeResolver
 	Models      ModelResolver
+	ToolModels  ToolModelResolver
 	Secrets     SecretReferenceResolver
 	Workspaces  WorkspaceResolver
 }

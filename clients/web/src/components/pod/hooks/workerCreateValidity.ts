@@ -12,8 +12,11 @@ export function workerCreateValidity(
   draft: WorkerSpecDraft,
   options: AsyncState<WorkerCreateOptions>,
   dependenciesReady: boolean,
+  modelDependenciesReady = true,
 ): WorkerCreateValidity {
-  const runtime = options.status === "ready" && runtimeSelectionsValid(draft, options.data);
+  const runtime = options.status === "ready" &&
+    modelDependenciesReady &&
+    runtimeSelectionsValid(draft, options.data);
   const typeConfig = runtime && draft.type_schema_version > 0;
   const workspace = typeConfig && dependenciesReady && workspaceValid(draft);
   return {
@@ -33,14 +36,29 @@ function runtimeSelectionsValid(
   draft: WorkerSpecDraft,
   options: WorkerCreateOptions,
 ): boolean {
+  const workerType = options.worker_types.find(
+    (item) => item.slug === draft.worker_type_slug && item.selectable,
+  );
+  if (!workerType) return false;
+  const primaryModelValid = !workerType.requires_model_resource ||
+    positiveInteger(draft.model_resource_id);
+  const toolModelsValid = workerType.tool_model_requirements.every(
+    (requirement) => positiveInteger(
+      draft.tool_model_resource_ids[requirement.role],
+    ),
+  );
   return Boolean(
-    draft.model_resource_id > 0 &&
-      selectable(options.worker_types, draft.worker_type_slug, (item) => item.slug) &&
+    primaryModelValid &&
+      toolModelsValid &&
       selectable(options.runtime_images, draft.runtime_image_id, (item) => item.id) &&
       selectable(options.compute_targets, draft.compute_target_id, (item) => item.id) &&
       selectable(options.deployment_modes, draft.deployment_mode, (item) => item.value) &&
       selectable(options.resource_profiles, draft.resource_profile_id, (item) => item.id),
   );
+}
+
+function positiveInteger(value: number | undefined): boolean {
+  return Number.isInteger(value) && Number(value) > 0;
 }
 
 function workspaceValid(draft: WorkerSpecDraft): boolean {

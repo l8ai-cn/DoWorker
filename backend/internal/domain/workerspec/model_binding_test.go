@@ -28,6 +28,9 @@ func TestWorkerSpecRejectsIncompleteModelBindingSnapshot(t *testing.T) {
 		{"provider key", func(binding *ModelBinding) {
 			binding.ProviderKey = ""
 		}, "provider key"},
+		{"protocol adapter", func(binding *ModelBinding) {
+			binding.ProtocolAdapter = ""
+		}, "protocol adapter"},
 		{"model id", func(binding *ModelBinding) {
 			binding.ModelID = ""
 		}, "model id"},
@@ -51,4 +54,14 @@ func TestWorkerSpecSummaryPreservesImmutableModelBinding(t *testing.T) {
 	summary, err := Summarize(spec)
 	require.NoError(t, err)
 	assert.Equal(t, spec.Runtime.ModelBinding, summary.ModelBinding)
+}
+
+func TestWorkerSpecAllowsWorkerWithoutMainModelBinding(t *testing.T) {
+	spec := validWorkerSpec()
+	spec.Runtime.ModelBinding = ModelBinding{}
+
+	normalized, err := NormalizeAndValidate(spec)
+
+	require.NoError(t, err)
+	assert.True(t, normalized.Runtime.ModelBinding.IsEmpty())
 }

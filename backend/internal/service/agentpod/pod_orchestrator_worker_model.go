@@ -21,7 +21,7 @@ type ModelResourceResolver interface {
 
 func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *OrchestrateCreatePodRequest, agentDef *agentDomain.Agent) error {
 	harness := workerModelHarness(req.AgentSlug, agentDef)
-	requirements, needsResource := modelResourceRequirements(req.AgentSlug, agentDef)
+	requirements, needsResource := modelRequirementsForRequest(req, agentDef)
 	if !needsResource {
 		return nil
 	}
@@ -85,6 +85,20 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 	return nil
 }
 
+func modelRequirementsForRequest(
+	req *OrchestrateCreatePodRequest,
+	agentDef *agentDomain.Agent,
+) (resourcesvc.ResolutionRequirements, bool) {
+	if req != nil && req.preparedWorkerSpec != nil {
+		binding := req.preparedWorkerSpec.Runtime.ModelBinding
+		if binding.IsEmpty() {
+			return resourcesvc.ResolutionRequirements{}, false
+		}
+		return chatRequirements(binding.ProtocolAdapter.String()), true
+	}
+	return modelResourceRequirements(req.AgentSlug, agentDef)
+}
+
 func validatePreparedModelBinding(
 	expected specdomain.ModelBinding,
 	resolved *resourcesvc.ResolvedResource,
@@ -95,6 +109,7 @@ func validatePreparedModelBinding(
 		resolved.Connection.ID != expected.ConnectionID ||
 		resolved.Connection.Revision != expected.ConnectionRevision ||
 		resolved.Connection.ProviderKey != expected.ProviderKey ||
+		resolved.Provider.ProtocolAdapter != expected.ProtocolAdapter.String() ||
 		strings.TrimSpace(resolved.Resource.ModelID) != expected.ModelID {
 		return ErrWorkerSpecModelChanged
 	}

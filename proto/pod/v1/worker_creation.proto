@@ -40,6 +40,15 @@ message WorkerSpecDraft {
   string alias = 22;
   optional int64 source_expert_id = 23;
   string options_revision = 24;
+  map<string, int64> tool_model_resource_ids = 25;
+}
+
+message WorkerToolModelRequirement {
+  string role = 1;
+  repeated string provider_keys = 2;
+  repeated string protocol_adapters = 3;
+  string modality = 4;
+  string capability = 5;
 }
 
 message WorkerTypeOption {
@@ -50,6 +59,9 @@ message WorkerTypeOption {
   string config_schema_json = 5;
   bool selectable = 6;
   string blocking_reason = 7;
+  bool requires_model_resource = 8;
+  repeated WorkerToolModelRequirement tool_model_requirements = 9;
+  repeated string model_protocol_adapters = 10;
 }
 
 message WorkerRuntimeImageOption {
@@ -133,6 +145,7 @@ message FillWorkerDraftRequest {
   string org_slug = 1;
   string prompt = 2;
   optional WorkerSpecDraft current_draft = 3;
+  int64 generation_model_resource_id = 4;
 }
 
 message FillWorkerDraftResponse {

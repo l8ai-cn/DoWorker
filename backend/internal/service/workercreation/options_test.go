@@ -21,7 +21,15 @@ func TestServiceListOptionsReturnsSelectableRuntimeAndBlockingReasons(t *testing
 	}}
 	service := NewService(Deps{
 		Catalog: runtimedomain.DefaultCatalog(),
-		Agents:  agents,
+		Definitions: staticWorkerDefinitions{
+			"codex-cli": workerDefinition(
+				"codex-cli", "codex", codexSource, "pty", "acp",
+			),
+			"aider": workerDefinition(
+				"aider", "aider", unsupportedSource, "pty", "acp",
+			),
+		},
+		Agents: agents,
 	})
 	targetID := int64(1)
 

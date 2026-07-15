@@ -9,8 +9,17 @@ export interface WorkerKnowledgeMount {
   mode: string;
 }
 
+export interface WorkerToolModelRequirement {
+  role: string;
+  provider_keys: string[];
+  protocol_adapters: string[];
+  modality: string;
+  capability: string;
+}
+
 export interface WorkerSpecDraft {
   model_resource_id: number;
+  tool_model_resource_ids: Record<string, number>;
   worker_type_slug: string;
   runtime_image_id: number;
   placement_policy: string;
@@ -44,6 +53,9 @@ export interface WorkerTypeOption {
   config_schema: Record<string, unknown>;
   selectable: boolean;
   blocking_reason: string;
+  requires_model_resource: boolean;
+  model_protocol_adapters: string[];
+  tool_model_requirements: WorkerToolModelRequirement[];
 }
 
 export interface WorkerRuntimeImageOption {

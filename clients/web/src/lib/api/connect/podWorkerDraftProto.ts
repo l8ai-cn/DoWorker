@@ -10,6 +10,12 @@ import type { WorkerSpecDraft } from "./podWorkerCreationTypes";
 export function workerDraftToProto(draft: WorkerSpecDraft): WorkerSpecDraftMessage {
   return create(WorkerSpecDraftSchema, {
     modelResourceId: workerBigInt(draft.model_resource_id, "model_resource_id"),
+    toolModelResourceIds: Object.fromEntries(
+      Object.entries(draft.tool_model_resource_ids).map(([role, id]) => [
+        role,
+        workerBigInt(id, `tool_model_resource_ids.${role}`),
+      ]),
+    ),
     workerTypeSlug: draft.worker_type_slug,
     runtimeImageId: workerBigInt(draft.runtime_image_id, "runtime_image_id"),
     placementPolicy: draft.placement_policy,
@@ -52,6 +58,12 @@ export function workerDraftToProto(draft: WorkerSpecDraft): WorkerSpecDraftMessa
 export function workerDraftFromProto(draft: WorkerSpecDraftMessage): WorkerSpecDraft {
   return {
     model_resource_id: workerNumber(draft.modelResourceId, "model_resource_id"),
+    tool_model_resource_ids: Object.fromEntries(
+      Object.entries(draft.toolModelResourceIds).map(([role, id]) => [
+        role,
+        workerNumber(id, `tool_model_resource_ids.${role}`),
+      ]),
+    ),
     worker_type_slug: draft.workerTypeSlug,
     runtime_image_id: workerNumber(draft.runtimeImageId, "runtime_image_id"),
     placement_policy: draft.placementPolicy,

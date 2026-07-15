@@ -34,13 +34,13 @@ func newModelResolver(resources ModelResourceResolver) *modelResolver {
 func (resolver *modelResolver) ResolveModel(
 	ctx context.Context,
 	scope specservice.Scope,
-	workerType slugkit.Slug,
+	requirement specdomain.ModelRequirement,
 	resourceID int64,
 ) (specdomain.ModelBinding, error) {
 	if resolver == nil || resolver.resources == nil {
 		return specdomain.ModelBinding{}, specservice.ErrResolverUnavailable
 	}
-	requirements, err := modelRequirements(workerType)
+	requirements, err := modelRequirements(requirement)
 	if err != nil {
 		return specdomain.ModelBinding{}, err
 	}
@@ -64,38 +64,47 @@ func (resolver *modelResolver) ResolveModel(
 	if err := validateResolvedModel(resolved, resourceID); err != nil {
 		return specdomain.ModelBinding{}, err
 	}
+	protocolAdapter, err := slugkit.NewFromTrusted(resolved.Provider.ProtocolAdapter)
+	if err != nil {
+		return specdomain.ModelBinding{}, invalidResolvedModel(
+			"provider protocol adapter is invalid",
+		)
+	}
 	return specdomain.ModelBinding{
 		ResourceID:         resolved.Resource.ID,
 		ResourceRevision:   resolved.Resource.Revision,
 		ConnectionID:       resolved.Connection.ID,
 		ConnectionRevision: resolved.Connection.Revision,
 		ProviderKey:        resolved.Connection.ProviderKey,
+		ProtocolAdapter:    protocolAdapter,
 		ModelID:            strings.TrimSpace(resolved.Resource.ModelID),
 	}, nil
 }
 
 func modelRequirements(
-	workerType slugkit.Slug,
+	requirement specdomain.ModelRequirement,
 ) (resourceservice.ResolutionRequirements, error) {
-	var adapter string
-	switch workerType.String() {
-	case "codex-cli":
-		adapter = "openai-compatible"
-	case "claude-code":
-		adapter = "anthropic"
-	case "gemini-cli":
-		adapter = "gemini"
-	default:
+	if !requirement.Required || len(requirement.ProtocolAdapters) == 0 {
 		return resourceservice.ResolutionRequirements{}, fmt.Errorf(
-			"%w: model resource: worker type %q has no supported model protocol",
+			"%w: model resource is not required by the selected worker type",
 			specservice.ErrInvalidDraft,
-			workerType,
 		)
+	}
+	adapters := make([]string, len(requirement.ProtocolAdapters))
+	for index, adapter := range requirement.ProtocolAdapters {
+		if err := slugkit.Validate(adapter.String()); err != nil {
+			return resourceservice.ResolutionRequirements{}, fmt.Errorf(
+				"%w: model resource: invalid protocol adapter: %v",
+				specservice.ErrInvalidDraft,
+				err,
+			)
+		}
+		adapters[index] = adapter.String()
 	}
 	return resourceservice.ResolutionRequirements{
 		Modality:                resourcedomain.ModalityChat,
 		Capability:              resourcedomain.CapabilityTextGeneration,
-		AllowedProtocolAdapters: []string{adapter},
+		AllowedProtocolAdapters: adapters,
 	}, nil
 }
 

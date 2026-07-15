@@ -329,7 +329,7 @@
     "stepContent": {
       "1": {
         "title": "选择运行资源",
-        "description": "绑定精确模型、Worker 类型、不可变镜像、算力目标、部署模式和资源规格。"
+        "description": "按 Worker 类型绑定必需的主模型与工具模型，并选择不可变镜像、算力目标、部署模式和资源规格。"
       },
       "2": {
         "title": "配置 Worker 类型",
@@ -346,6 +346,8 @@
     },
     "runtime": {
       "model": "模型资源",
+      "toolModel": "工具模型资源",
+      "noCompatibleToolModel": "此工具角色暂无兼容的模型资源。",
       "workerType": "Worker 类型",
       "runtimeImage": "运行时镜像",
       "computeTarget": "算力目标",
@@ -354,7 +356,7 @@
     },
     "typeChange": {
       "title": "切换 Worker 类型？",
-      "description": "当前类型专属的模型、镜像、配置、Skill 和环境选择将被清空。",
+      "description": "当前类型专属的主模型、工具模型、镜像、配置、Skill 和环境选择将被清空。",
       "cancel": "保留当前类型",
       "confirm": "切换类型"
     },

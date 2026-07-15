@@ -134,6 +134,31 @@ func TestApplyWorkerModelRejectsWorkerSpecModelDrift(t *testing.T) {
 	assert.Empty(t, req.ModelResourceEnv)
 }
 
+func TestApplyWorkerModelUsesSnapshotProtocolAdapter(t *testing.T) {
+	spec := podServiceWorkerSpec()
+	spec.Runtime.ModelBinding.ProtocolAdapter = slugkit.MustNewForTest("anthropic")
+	resource := resolvedOpenAIResource()
+	resource.Provider.ProtocolAdapter = "anthropic"
+	resource.Connection.ID = spec.Runtime.ModelBinding.ConnectionID
+	resource.Connection.Revision = spec.Runtime.ModelBinding.ConnectionRevision
+	resource.Resource.ID = spec.Runtime.ModelBinding.ResourceID
+	resource.Resource.ProviderConnectionID = resource.Connection.ID
+	resource.Resource.Revision = spec.Runtime.ModelBinding.ResourceRevision
+	resource.Resource.ModelID = spec.Runtime.ModelBinding.ModelID
+	resolver := &recordingModelResourceResolver{resource: resource}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := spec.Runtime.ModelBinding.ResourceID
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "codex-cli", UserID: 7, OrganizationID: 11,
+		ModelResourceID: &resourceID, preparedWorkerSpec: &spec,
+	}
+
+	err := orchestrator.applyWorkerModel(context.Background(), req, nil)
+
+	require.NoError(t, err)
+	assert.Equal(t, []string{"anthropic"}, resolver.requirements.AllowedProtocolAdapters)
+}
+
 func TestApplyWorkerModelUsesCustomAgentExecutable(t *testing.T) {
 	resolver := &recordingModelResourceResolver{resource: resolvedOpenAIResource()}
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})

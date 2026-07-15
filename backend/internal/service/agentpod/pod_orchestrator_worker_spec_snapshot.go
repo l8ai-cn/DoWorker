@@ -170,9 +170,7 @@ func projectWorkerSpec(
 	repository *gitprovider.Repository,
 ) {
 	req.AgentSlug = spec.Runtime.WorkerType.Slug.String()
-	req.ModelResourceID = workerSpecInt64Pointer(
-		spec.Runtime.ModelBinding.ResourceID,
-	)
+	req.ModelResourceID = workerSpecModelResourcePointer(spec.Runtime.ModelBinding)
 	req.RepositoryID = cloneWorkerSpecInt64Pointer(spec.Workspace.RepositoryID)
 	req.BranchName = workerSpecStringPointer(spec.Workspace.Branch)
 	req.Alias = workerSpecStringPointer(spec.Metadata.Alias)
@@ -183,6 +181,13 @@ func projectWorkerSpec(
 	if repository != nil {
 		req.preResolvedRepositorySlug = repository.Slug
 	}
+}
+
+func workerSpecModelResourcePointer(binding specdomain.ModelBinding) *int64 {
+	if binding.IsEmpty() {
+		return nil
+	}
+	return workerSpecInt64Pointer(binding.ResourceID)
 }
 
 func workerSpecStringValue(value *string) string {

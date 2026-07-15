@@ -75,6 +75,29 @@ push_manifests() {
   doops -session "${SESSION}" push --target "${TARGET}" --src "${DIR}"
 }
 
+backend_image() {
+  awk '$1 == "image:" && $2 ~ /agentsmesh\/backend@sha256:/ { print $2; exit }' \
+    "${DIR}/30-backend.yaml"
+}
+
+apply_backend_job() {
+  local manifest="$1"
+  local image="$2"
+  local digest="${image##*@}"
+  dexec "sed -E 's|repo.aiedulab.cn:8443/agentsmesh/backend@sha256:[a-f0-9]{64}|${image}|g; s|__BACKEND_IMAGE__|${image}|g; s|agentsmesh.ai/verified-image-digest: \"sha256:[a-f0-9]{64}\"|agentsmesh.ai/verified-image-digest: \"${digest}\"|g' ${manifest} | kubectl apply -f -"
+}
+
+sync_worker_definitions() {
+  local image
+  image="$(backend_image)"
+  [[ -n "${image}" ]] || {
+    echo "backend deployment must use an immutable agentsmesh/backend digest" >&2
+    return 1
+  }
+  apply_backend_job "23-worker-definition-sync-job.yaml" "${image}"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/worker-definition-sync --timeout=300s"
+}
+
 apply_all() {
   echo "==> namespace + secrets"
   dexec "kubectl apply -f 00-namespace.yaml"
@@ -83,19 +106,33 @@ apply_all() {
   for tls in l8ai-wildcard-tls l8an-wildcard-tls; do
     dexec "kubectl get secret ${tls} -n default -o yaml 2>/dev/null | sed -e '/namespace:/d' -e '/resourceVersion:/d' -e '/uid:/d' -e '/creationTimestamp:/d' | kubectl apply -n ${NS} -f -" || true
   done
+  echo "==> apply database infrastructure"
+  dexec "kubectl apply -f 02-configmap.yaml -f 10-postgres.yaml -f 11-redis.yaml -f 12-minio.yaml -f 30-backend-rbac.yaml"
+  dexec "kubectl -n ${NS} rollout status statefulset/postgres --timeout=300s"
+  dexec "kubectl -n ${NS} rollout status deployment/minio --timeout=300s"
+  echo "==> migrate, seed, and sync Worker definitions"
+  dexec "kubectl -n ${NS} delete job migrate seed minio-setup worker-definition-sync --ignore-not-found"
+  local image
+  image="$(backend_image)"
+  [[ -n "${image}" ]] || {
+    echo "backend deployment must use an immutable agentsmesh/backend digest" >&2
+    return 1
+  }
+  apply_backend_job "20-migrate-job.yaml" "${image}"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/migrate --timeout=300s"
+  dexec "kubectl apply -f 21-seed-configmap.yaml -f 22-seed-job.yaml"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/seed --timeout=300s"
+  sync_worker_definitions
+  dexec "kubectl apply -f 13-minio-setup-job.yaml"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/minio-setup --timeout=300s"
   echo "==> apply workloads (kustomize)"
   dexec "kubectl apply -k ."
-  echo "==> migrate (embedded), then seed + minio bucket"
-  dexec "kubectl -n ${NS} delete job migrate seed minio-setup --ignore-not-found"
-  dexec "kubectl apply -f 20-migrate-job.yaml"
-  dexec "kubectl -n ${NS} wait --for=condition=complete job/migrate --timeout=300s"
-  dexec "kubectl apply -f 21-seed-configmap.yaml -f 22-seed-job.yaml -f 13-minio-setup-job.yaml"
 }
 
 status() {
   echo "==> rollout status"
   for d in backend relay web web-admin mobile runner-e2e-echo; do
-    dexec "kubectl -n ${NS} rollout status deploy/${d} --timeout=240s" || true
+    dexec "kubectl -n ${NS} rollout status deploy/${d} --timeout=240s"
   done
   dexec "kubectl -n ${NS} get pods -o wide"
 }

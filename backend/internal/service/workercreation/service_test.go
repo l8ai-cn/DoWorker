@@ -2,6 +2,7 @@ package workercreation
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
@@ -91,6 +92,9 @@ func TestServicePreflightReturnsBlockingIssueForInvalidDraft(t *testing.T) {
 func TestServicePreflightRejectsUnsupportedInteractionMode(t *testing.T) {
 	fixture := newWorkerCreationServiceFixture()
 	fixture.agents.agent.SupportedModes = "pty"
+	definition := fixture.definitions["codex-cli"]
+	definition.Modes = []string{"pty"}
+	fixture.definitions["codex-cli"] = definition
 	service := NewService(fixture.deps())
 
 	result, err := service.Preflight(
@@ -133,6 +137,10 @@ func TestServiceValidateWorkerTypeSnapshotRejectsDefinitionDrift(t *testing.T) {
 	require.NoError(t, err)
 	source := *fixture.agents.agent.AgentfileSource + "MCP ON\n"
 	fixture.agents.agent.AgentfileSource = &source
+	definition := fixture.definitions["codex-cli"]
+	definition.AgentFile = source
+	definition.DefinitionHash = strings.Repeat("b", 64)
+	fixture.definitions["codex-cli"] = definition
 
 	err = service.ValidateWorkerTypeSnapshot(
 		context.Background(),
@@ -144,9 +152,10 @@ func TestServiceValidateWorkerTypeSnapshotRejectsDefinitionDrift(t *testing.T) {
 }
 
 type workerCreationServiceFixture struct {
-	agents    *workerTypeAgentProvider
-	resources *modelResourceService
-	workspace *workspaceFixture
+	agents      *workerTypeAgentProvider
+	definitions staticWorkerDefinitions
+	resources   *modelResourceService
+	workspace   *workspaceFixture
 }
 
 func newWorkerCreationServiceFixture() *workerCreationServiceFixture {
@@ -155,8 +164,14 @@ EXECUTABLE codex
 CONFIG approval_mode SELECT("untrusted", "on-request", "never") = "on-request"
 ENV SIGNING_KEY SECRET OPTIONAL
 `
+	agent := activeWorkerTypeAgent(source)
 	return &workerCreationServiceFixture{
-		agents:    &workerTypeAgentProvider{agent: activeWorkerTypeAgent(source)},
+		agents: &workerTypeAgentProvider{agent: agent},
+		definitions: staticWorkerDefinitions{
+			"codex-cli": workerDefinition(
+				"codex-cli", "codex", source, "pty", "acp",
+			),
+		},
 		resources: validModelResourceService(),
 		workspace: newWorkspaceFixture(),
 	}
@@ -165,6 +180,7 @@ ENV SIGNING_KEY SECRET OPTIONAL
 func (fixture *workerCreationServiceFixture) deps() Deps {
 	return Deps{
 		Catalog:      runtimedomain.DefaultCatalog(),
+		Definitions:  fixture.definitions,
 		Agents:       fixture.agents,
 		Models:       fixture.resources,
 		Repositories: fixture.workspace.repositories,

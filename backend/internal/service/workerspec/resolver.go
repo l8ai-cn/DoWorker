@@ -13,6 +13,7 @@ type Resolver struct {
 	workerTypes WorkerTypeResolver
 	runtime     RuntimeResolver
 	models      ModelResolver
+	toolModels  ToolModelResolver
 	secrets     SecretReferenceResolver
 	workspaces  WorkspaceResolver
 }
@@ -22,6 +23,7 @@ func NewResolver(deps ResolverDeps) *Resolver {
 		workerTypes: deps.WorkerTypes,
 		runtime:     deps.Runtime,
 		models:      deps.Models,
+		toolModels:  deps.ToolModels,
 		secrets:     deps.Secrets,
 		workspaces:  deps.Workspaces,
 	}
@@ -67,16 +69,22 @@ func (resolver *Resolver) Resolve(
 	if err := validateRuntimeResolution(draft.Runtime, runtime); err != nil {
 		return ResolvedSnapshot{}, err
 	}
-	modelBinding, err := resolver.models.ResolveModel(
+	modelBinding, err := resolver.resolveModelBinding(
 		ctx,
 		scope,
-		workerType.WorkerType.Slug,
+		workerType.ModelRequirement,
 		draft.ModelResourceID,
 	)
 	if err != nil {
-		return ResolvedSnapshot{}, fmt.Errorf("resolve worker model: %w", err)
+		return ResolvedSnapshot{}, err
 	}
-	if err := validateModelResolution(draft.ModelResourceID, modelBinding); err != nil {
+	toolModelBindings, err := resolver.resolveToolModelBindings(
+		ctx,
+		scope,
+		workerType.ToolModelRequirements,
+		draft.ToolModelResourceIDs,
+	)
+	if err != nil {
 		return ResolvedSnapshot{}, err
 	}
 	if err := domain.ValidateTypeConfigAgainstSchema(
@@ -108,9 +116,10 @@ func (resolver *Resolver) Resolve(
 	}
 	spec, err := domain.NormalizeAndValidate(domain.NewV1(
 		domain.Runtime{
-			ModelBinding: modelBinding,
-			WorkerType:   workerType.WorkerType,
-			Image:        runtime.RuntimeImage,
+			ModelBinding:      modelBinding,
+			ToolModelBindings: toolModelBindings,
+			WorkerType:        workerType.WorkerType,
+			Image:             runtime.RuntimeImage,
 		},
 		runtime.Placement,
 		draft.TypeConfig,
@@ -132,7 +141,6 @@ func (resolver *Resolver) validateDependencies() error {
 	if resolver == nil ||
 		resolver.workerTypes == nil ||
 		resolver.runtime == nil ||
-		resolver.models == nil ||
 		resolver.secrets == nil ||
 		resolver.workspaces == nil {
 		return ErrResolverUnavailable

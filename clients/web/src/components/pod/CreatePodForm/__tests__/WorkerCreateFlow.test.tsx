@@ -1,6 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { EffectiveResource } from "@/lib/api/facade/aiResource";
+import type {
+  EffectiveResource,
+  ProviderDefinition,
+} from "@/lib/api/facade/aiResource";
 import type {
   WorkerCreateOptions,
   WorkerSpecDraft,
@@ -9,6 +12,7 @@ import {
   createInitialWorkerDraftState,
   workerCreateDraftReducer,
 } from "../../hooks/workerCreateDraft";
+import { workerCreateValidity } from "../../hooks/workerCreateValidity";
 import { WorkerCreateStepper } from "../WorkerCreateStepper";
 import { WorkerRuntimeStep } from "../WorkerRuntimeStep";
 
@@ -49,6 +53,7 @@ describe("Worker create flow", () => {
       <WorkerRuntimeStep
         draft={completeDraft()}
         modelResources={{ status: "ready", data: [modelResource()] }}
+        modelProviders={{ status: "ready", data: [modelProvider()] }}
         options={{ status: "ready", data: createOptions() }}
         onPatch={vi.fn()}
         onWorkerTypeChange={vi.fn()}
@@ -78,6 +83,7 @@ describe("Worker create flow", () => {
       <WorkerRuntimeStep
         draft={completeDraft()}
         modelResources={{ status: "ready", data: [modelResource()] }}
+        modelProviders={{ status: "ready", data: [modelProvider()] }}
         options={{ status: "error", error: "catalog unavailable" }}
         onPatch={vi.fn()}
         onWorkerTypeChange={vi.fn()}
@@ -97,6 +103,7 @@ describe("Worker create flow", () => {
       secret_refs: [{ field: "SIGNING_KEY", kind: "env-bundle", id: 8 }],
       skill_ids: [13],
       env_bundle_ids: [8],
+      tool_model_resource_ids: { "video-generator": 84 },
     });
 
     const next = workerCreateDraftReducer(state, {
@@ -113,6 +120,7 @@ describe("Worker create flow", () => {
     expect(next.draft.secret_refs).toEqual([]);
     expect(next.draft.skill_ids).toEqual([]);
     expect(next.draft.env_bundle_ids).toEqual([]);
+    expect(next.draft.tool_model_resource_ids).toEqual({});
     expect(next.draft.initial_task).toBe(state.draft.initial_task);
 
     const onWorkerTypeChange = vi.fn();
@@ -120,6 +128,7 @@ describe("Worker create flow", () => {
       <WorkerRuntimeStep
         draft={state.draft}
         modelResources={{ status: "ready", data: [modelResource()] }}
+        modelProviders={{ status: "ready", data: [modelProvider()] }}
         options={{ status: "ready", data: createOptions() }}
         onPatch={vi.fn()}
         onWorkerTypeChange={onWorkerTypeChange}
@@ -152,6 +161,33 @@ describe("Worker create flow", () => {
     expect(manual.draft.idle_timeout_minutes).toBe(0);
   });
 
+  it("accepts a Worker without a primary model when every tool role is bound", () => {
+    const options = createOptions();
+    options.worker_types[0] = {
+      ...options.worker_types[0],
+      requires_model_resource: false,
+      model_protocol_adapters: [],
+      tool_model_requirements: [{
+        role: "video-generator",
+        provider_keys: ["volcengine"],
+        protocol_adapters: ["openai-compatible"],
+        modality: "video",
+        capability: "video-generation",
+      }],
+    };
+    const draft = {
+      ...completeDraft(),
+      model_resource_id: 0,
+      tool_model_resource_ids: { "video-generator": 84 },
+    };
+
+    expect(workerCreateValidity(
+      draft,
+      { status: "ready", data: options },
+      true,
+    ).runtime).toBe(true);
+  });
+
 });
 
 function step(
@@ -166,6 +202,7 @@ function step(
 function completeDraft(): WorkerSpecDraft {
   return {
     model_resource_id: 42,
+    tool_model_resource_ids: {},
     worker_type_slug: "codex-cli",
     runtime_image_id: 11,
     placement_policy: "automatic",
@@ -203,6 +240,9 @@ function createOptions(): WorkerCreateOptions {
         config_schema: { version: 1, fields: {} },
         selectable: true,
         blocking_reason: "",
+        requires_model_resource: true,
+        model_protocol_adapters: ["openai-compatible"],
+        tool_model_requirements: [],
       },
       {
         slug: "claude-code",
@@ -212,6 +252,9 @@ function createOptions(): WorkerCreateOptions {
         config_schema: { version: 2, fields: {} },
         selectable: true,
         blocking_reason: "",
+        requires_model_resource: true,
+        model_protocol_adapters: ["anthropic"],
+        tool_model_requirements: [],
       },
     ],
     runtime_images: [
@@ -309,5 +352,18 @@ function modelResource(): EffectiveResource {
       isEnabled: true,
       validationError: "",
     },
+  };
+}
+
+function modelProvider(): ProviderDefinition {
+  return {
+    key: "openai",
+    displayName: "OpenAI",
+    modalities: ["chat"],
+    credentialFields: [],
+    defaultBaseUrl: "https://api.openai.com/v1",
+    protocolAdapter: "openai-compatible",
+    supportsCustomEndpoint: true,
+    supportsModelDiscovery: true,
   };
 }

@@ -8,6 +8,7 @@ import (
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
@@ -43,6 +44,52 @@ func TestPodServicePersistsResolvedWorkerSpecWithPod(t *testing.T) {
 	var snapshotCount int64
 	require.NoError(t, db.Table("worker_spec_snapshots").Count(&snapshotCount).Error)
 	assert.Equal(t, int64(1), snapshotCount)
+}
+
+func TestPodServicePersistsWorkerSpecWithoutMainModelAsNull(t *testing.T) {
+	db := setupTestDB(t)
+	require.NoError(t, db.Exec(`CREATE TABLE worker_spec_snapshots (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		organization_id INTEGER NOT NULL,
+		version INTEGER NOT NULL,
+		spec_json BLOB NOT NULL,
+		summary_json BLOB NOT NULL,
+		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+	)`).Error)
+	service := NewPodService(infra.NewPodRepository(db))
+	spec := podServiceWorkerSpec()
+	spec.Runtime.ModelBinding = specdomain.ModelBinding{}
+	spec.Runtime.WorkerType.Slug = slugkit.MustNewForTest("cursor-cli")
+	resolved := resolvedWorkerSpecFromSpecForPodServiceTest(t, 1, spec)
+	orchestrate := &OrchestrateCreatePodRequest{}
+	projectPreparedWorkerSpec(orchestrate, workercreation.Prepared{
+		Snapshot: resolved, Spec: spec, AgentfileLayer: "MODE acp\n",
+	})
+
+	require.Nil(t, orchestrate.ModelResourceID)
+	pod, err := service.CreatePod(context.Background(), &CreatePodRequest{
+		OrganizationID: 1, RunnerID: 1, CreatedByID: 1,
+		AgentSlug: orchestrate.AgentSlug, ModelResourceID: orchestrate.ModelResourceID,
+		InteractionMode: string(spec.TypeConfig.InteractionMode),
+		AutomationLevel: string(spec.TypeConfig.AutomationLevel),
+		AgentfileLayer:  "MODE acp\n", ResolvedWorkerSpec: &resolved,
+	})
+
+	require.NoError(t, err)
+	assert.Nil(t, pod.ModelResourceID)
+	var persisted specdomainSnapshotPod
+	require.NoError(t, db.Table("pods AS p").
+		Select("p.model_resource_id, r.model_resource_id AS revision_model_resource_id").
+		Joins("JOIN pod_config_revisions r ON r.pod_id = p.id").
+		Where("p.id = ?", pod.ID).
+		Scan(&persisted).Error)
+	assert.Nil(t, persisted.ModelResourceID)
+	assert.Nil(t, persisted.RevisionModelResourceID)
+}
+
+type specdomainSnapshotPod struct {
+	ModelResourceID         *int64
+	RevisionModelResourceID *int64
 }
 
 func TestPodServiceResumeInheritsExistingWorkerSpecSnapshot(t *testing.T) {
@@ -101,6 +148,7 @@ func resolvedWorkerSpecFromSpecForPodServiceTest(
 		WorkerTypes: ports,
 		Runtime:     ports,
 		Models:      ports,
+		ToolModels:  ports,
 		Secrets:     ports,
 		Workspaces:  ports,
 	})
@@ -136,6 +184,14 @@ func (ports *podServiceWorkerSpecPorts) ResolveWorkerType(
 	specservice.Scope,
 	slugkit.Slug,
 ) (specservice.WorkerTypeResolution, error) {
+	modelRequirement := specdomain.ModelRequirement{
+		Required: !ports.spec.Runtime.ModelBinding.IsEmpty(),
+	}
+	if modelRequirement.Required {
+		modelRequirement.ProtocolAdapters = []slugkit.Slug{
+			ports.spec.Runtime.ModelBinding.ProtocolAdapter,
+		}
+	}
 	return specservice.WorkerTypeResolution{
 		WorkerType: ports.spec.Runtime.WorkerType,
 		SupportedInteractionModes: []specdomain.InteractionMode{
@@ -145,6 +201,7 @@ func (ports *podServiceWorkerSpecPorts) ResolveWorkerType(
 			Version: 1,
 			Fields:  map[string]specdomain.TypeFieldSchema{},
 		},
+		ModelRequirement: modelRequirement,
 	}, nil
 }
 
@@ -163,10 +220,25 @@ func (ports *podServiceWorkerSpecPorts) ResolveRuntime(
 func (ports *podServiceWorkerSpecPorts) ResolveModel(
 	context.Context,
 	specservice.Scope,
-	slugkit.Slug,
+	specdomain.ModelRequirement,
 	int64,
 ) (specdomain.ModelBinding, error) {
 	return ports.spec.Runtime.ModelBinding, nil
+}
+
+func (ports *podServiceWorkerSpecPorts) ResolveToolModel(
+	_ context.Context,
+	_ specservice.Scope,
+	requirement specdomain.ToolModelRequirement,
+	resourceID int64,
+) (specdomain.ToolModelBinding, error) {
+	for _, binding := range ports.spec.Runtime.ToolModelBindings {
+		if binding.Role == requirement.Role &&
+			binding.ModelBinding.ResourceID == resourceID {
+			return binding, nil
+		}
+	}
+	return specdomain.ToolModelBinding{}, specdomain.ErrNotFound
 }
 
 func (*podServiceWorkerSpecPorts) ResolveSecretReference(
@@ -197,6 +269,7 @@ func podServiceWorkerSpec() specdomain.Spec {
 				ConnectionID:       201,
 				ConnectionRevision: 9,
 				ProviderKey:        slugkit.MustNewForTest("openai"),
+				ProtocolAdapter:    slugkit.MustNewForTest("openai-compatible"),
 				ModelID:            "gpt-5",
 			},
 			WorkerType: specdomain.WorkerType{

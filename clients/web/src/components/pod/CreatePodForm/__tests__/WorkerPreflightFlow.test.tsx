@@ -6,7 +6,7 @@ import {
   workerCreateDraftReducer,
 } from "../../hooks/workerCreateDraft";
 import { WorkerPreflightStep } from "../WorkerPreflightStep";
-import { completeDraft } from "./test-utils";
+import { completeDraft, modelResource } from "./test-utils";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
@@ -107,7 +107,10 @@ describe("Worker preflight flow", () => {
     const { rerender } = render(
       <NlWorkerCreate
         filling={false}
+        generationModelResourceId={42}
+        generationModels={{ status: "ready", data: [modelResource()] }}
         onFill={onFill}
+        onGenerationModelChange={vi.fn()}
         onPromptChange={vi.fn()}
         prompt="Review authentication"
       />,
@@ -121,7 +124,10 @@ describe("Worker preflight flow", () => {
     rerender(
       <NlWorkerCreate
         filling={false}
+        generationModelResourceId={42}
+        generationModels={{ status: "ready", data: [modelResource()] }}
         onFill={onFill}
+        onGenerationModelChange={vi.fn()}
         onPromptChange={vi.fn()}
         prompt="Review authentication"
       />,

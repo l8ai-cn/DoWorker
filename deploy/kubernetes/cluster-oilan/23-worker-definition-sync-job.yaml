@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: worker-definition-sync
+  namespace: agentsmesh
+spec:
+  backoffLimit: 5
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        app: worker-definition-sync
+    spec:
+      restartPolicy: OnFailure
+      imagePullSecrets:
+        - name: agentsmesh-regcred
+      containers:
+        - name: worker-definition-sync
+          image: __BACKEND_IMAGE__
+          imagePullPolicy: Always
+          command: ["/app/worker-definition-sync"]
+          envFrom:
+            - configMapRef:
+                name: agentsmesh-config
+            - secretRef:
+                name: agentsmesh-secrets

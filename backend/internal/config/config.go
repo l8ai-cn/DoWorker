@@ -24,10 +24,11 @@ type Config struct {
 	KnowledgeBase KnowledgeBaseConfig
 	PendingQueue  PendingQueueConfig
 
-	PrimaryDomain   string // Primary domain (e.g., "localhost:10000" or "agentsmesh.ai")
-	PublicWebURL    string // Browser-visible Web origin used for desktop access links
-	MobilePublicURL string // Browser-visible mobile origin used for Worker access links
-	UseHTTPS        bool   // Use HTTPS/WSS protocols
+	PrimaryDomain        string // Primary domain (e.g., "localhost:10000" or "agentsmesh.ai")
+	PublicWebURL         string // Browser-visible Web origin used for desktop access links
+	MobilePublicURL      string // Browser-visible mobile origin used for Worker access links
+	WorkerDefinitionsDir string
+	UseHTTPS             bool // Use HTTPS/WSS protocols
 }
 
 type MarketplaceConfig struct {
@@ -41,7 +42,11 @@ func Load() (*Config, error) {
 		PrimaryDomain:   getEnv("PRIMARY_DOMAIN", "localhost:10000"),
 		PublicWebURL:    getEnv("PUBLIC_WEB_URL", ""),
 		MobilePublicURL: getEnv("MOBILE_PUBLIC_BASE_URL", ""),
-		UseHTTPS:        getEnvBool("USE_HTTPS", false),
+		WorkerDefinitionsDir: getEnv(
+			"WORKER_DEFINITIONS_DIR",
+			"config/worker-types",
+		),
+		UseHTTPS: getEnvBool("USE_HTTPS", false),
 
 		Server: ServerConfig{
 			Address:            getEnv("SERVER_ADDRESS", ":8080"),
