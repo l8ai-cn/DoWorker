@@ -17,8 +17,7 @@ func (s *Server) CompileLoopProgram(
 	ctx context.Context,
 	req *connect.Request[goalloopv1.CompileLoopProgramRequest],
 ) (*connect.Response[goalloopv1.CompileLoopProgramResponse], error) {
-	ctx, _, err := interceptors.ResolveOrgScope(ctx, req.Msg, s.orgSvc)
-	if err != nil {
+	if _, _, err := interceptors.ResolveOrgScope(ctx, req.Msg, s.orgSvc); err != nil {
 		return nil, err
 	}
 	program, canonical, diagnostics := compileLoopSource(req.Msg.GetSource())
