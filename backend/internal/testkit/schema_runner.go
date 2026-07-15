@@ -85,7 +85,7 @@ func podTableDDLs() []string {
 		`CREATE TABLE IF NOT EXISTS pods (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			organization_id INTEGER NOT NULL DEFAULT 0, pod_key TEXT NOT NULL UNIQUE,
-			runner_id INTEGER NOT NULL DEFAULT 0,
+			runner_id INTEGER NOT NULL DEFAULT 0, cluster_id INTEGER NOT NULL DEFAULT 0,
 			agent_slug TEXT, custom_agent_slug TEXT,
 			repository_id INTEGER, ticket_id INTEGER,
 			created_by_id INTEGER NOT NULL DEFAULT 0,

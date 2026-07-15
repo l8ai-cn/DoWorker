@@ -181,7 +181,7 @@ func repositoryCreateRequest(repoID *int64, layer *string) *OrchestrateCreatePod
 	return &OrchestrateCreatePodRequest{
 		OrganizationID:  7,
 		UserID:          11,
-		RunnerID:        1,
+		RunnerID:        23,
 		AgentSlug:       "claude-code",
 		ModelResourceID: testModelResourceID(),
 		RepositoryID:    repoID,

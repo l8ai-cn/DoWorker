@@ -63,6 +63,24 @@ func TestGeminiDefinitionUsesGeminiAPIKey(t *testing.T) {
 	assert.Contains(t, gemini.AgentFile, "ENV GEMINI_API_KEY SECRET OPTIONAL")
 }
 
+func TestSeedanceDefinitionRequiresDoubaoVideoModel(t *testing.T) {
+	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
+
+	require.NoError(t, err)
+	seedance, ok := catalog.Get("seedance-expert")
+	require.True(t, ok)
+	require.Len(t, seedance.ToolModelRequirements, 1)
+	requirement := seedance.ToolModelRequirements[0]
+	assert.Equal(t, "seedance-video", requirement.ID)
+	assert.Equal(t, []string{"doubao"}, requirement.ProviderKeys)
+	assert.Equal(t, []string{"openai-compatible"}, requirement.ProtocolAdapters)
+	assert.Equal(t, "video", requirement.Modality)
+	assert.Equal(t, "video-generation", requirement.Capability)
+	assert.Equal(t, "SEEDANCE_API_KEY", requirement.Environment.APIKey)
+	assert.Equal(t, "SEEDANCE_BASE_URL", requirement.Environment.BaseURL)
+	assert.Equal(t, "SEEDANCE_MODEL", requirement.Environment.ModelID)
+}
+
 func TestMiniMaxDefinitionUsesOneShotChatCommand(t *testing.T) {
 	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
 

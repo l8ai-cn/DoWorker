@@ -78,8 +78,9 @@ type Pod struct {
 	ID             int64 `gorm:"primaryKey" json:"id"`
 	OrganizationID int64 `gorm:"not null;index" json:"organization_id"`
 
-	PodKey   string `gorm:"size:100;not null;uniqueIndex" json:"pod_key"`
-	RunnerID int64  `gorm:"not null;index" json:"runner_id"`
+	PodKey    string `gorm:"size:100;not null;uniqueIndex" json:"pod_key"`
+	RunnerID  int64  `gorm:"not null;index" json:"runner_id"`
+	ClusterID int64  `gorm:"not null;index" json:"cluster_id"`
 
 	AgentSlug string `gorm:"size:100;column:agent_slug" json:"agent_slug,omitempty"`
 

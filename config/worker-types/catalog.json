@@ -60,6 +60,11 @@
       "slug": "opencode",
       "definition_path": "config/worker-types/opencode/definition.json",
       "definition_hash": "sha256:734be0fcd980d77c644cbcec4c3add77882c62f80b0c2efba4037ae7253406f6"
+    },
+    {
+      "slug": "seedance-expert",
+      "definition_path": "config/worker-types/seedance-expert/definition.json",
+      "definition_hash": "sha256:71097d3d9e94b5752e0417eb1dd41e1472b885f8be2b279eba8ce31f7cbe1fc9"
     }
   ]
 }
