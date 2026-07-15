@@ -132,6 +132,7 @@ func TestBuildPodCommand_GeminiUsesExactModelResource(t *testing.T) {
 		agentDef: &agentDomain.Agent{
 			Slug:              "gemini-cli",
 			LaunchCommand:     "gemini",
+			AdapterID:         "gemini-acp",
 			SupportedModes:    "pty",
 			AgentfileSource:   &agentfileSource,
 			UsesLegacyColumns: false,

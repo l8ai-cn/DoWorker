@@ -307,6 +307,9 @@ message CreatePodCommand {
 
   // Declared CAPABILITY axes from AgentFile (runtime calibration at handshake)
   map<string, string> declared_capabilities = 25;
+
+  // Canonical Worker adapter selected by Backend from the Worker definition.
+  string adapter_id = 26;
 }
 
 // PolicyRuleSnapshot is a frozen org policy row shipped with CreatePodCommand.

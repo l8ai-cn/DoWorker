@@ -21,6 +21,7 @@ import (
 var (
 	ErrMissingRunnerID                  = errors.New("runner_id is required")
 	ErrMissingAgentSlug                 = errors.New("agent_slug is required")
+	ErrMissingAgentAdapter              = errors.New("agent adapter_id is required")
 	ErrSourcePodNotFound                = errors.New("source pod not found")
 	ErrSourcePodAccessDenied            = errors.New("source pod belongs to different organization")
 	ErrSourcePodNotTerminated           = errors.New("source pod is not terminated")

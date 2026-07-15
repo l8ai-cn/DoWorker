@@ -3,8 +3,6 @@ package runner
 import (
 	"encoding/json"
 	"fmt"
-	"path/filepath"
-	"strings"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/anthropics/agentsmesh/runner/internal/acp"
@@ -58,7 +56,7 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 		WorkDir:                 pod.WorkDir,
 		Env:                     pod.LaunchEnv,
 		Logger:                  log.With("pod_key", podKey),
-		TransportType:           inferTransportType(pod.LaunchCommand),
+		TransportType:           cmd.AdapterId,
 		ResumeExternalSessionID: resumeExternalSessionFromEnv(pod.LaunchEnv),
 		Callbacks: acp.EventCallbacks{
 			OnContentChunk: func(sessionID string, chunk acp.ContentChunk) {
@@ -222,10 +220,4 @@ func (h *RunnerMessageHandler) handleACPExit(podKey string, exitCode int) {
 	}
 	logger.Pod().Info("ACP process exited", "pod_key", podKey, "exit_code", exitCode)
 	h.cleanupPodExit(podKey, exitCode, false)
-}
-
-// inferTransportType determines the transport type based on the launch command.
-func inferTransportType(command string) string {
-	base := strings.TrimSuffix(filepath.Base(command), filepath.Ext(command))
-	return acp.TransportTypeForCommand(base)
 }

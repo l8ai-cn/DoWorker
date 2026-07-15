@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -59,6 +60,9 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		if err != nil {
 			return nil, ErrMissingAgentSlug
 		}
+	}
+	if agentDef == nil || strings.TrimSpace(agentDef.AdapterID) == "" {
+		return nil, ErrMissingAgentAdapter
 	}
 	if !isResumeMode {
 		if err := o.validatePreparedWorkerType(ctx, req); err != nil {
@@ -194,7 +198,15 @@ func (o *PodOrchestrator) CreatePod(ctx context.Context, req *OrchestrateCreateP
 		return nil, err
 	}
 
-	podCmd, err := o.buildPodCommand(ctx, req, pod, sourcePod, isResumeMode, resolved)
+	podCmd, err := o.buildPodCommand(
+		ctx,
+		req,
+		pod,
+		sourcePod,
+		isResumeMode,
+		resolved,
+		agentDef.AdapterID,
+	)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to build pod command", "pod_key", pod.PodKey, "error", err)
 		return nil, errors.Join(ErrConfigBuildFailed, err)

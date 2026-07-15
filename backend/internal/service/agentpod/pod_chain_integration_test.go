@@ -44,7 +44,7 @@ func acpProvider(agentfileSrc string) *mockAgentConfigProvider {
 	return &mockAgentConfigProvider{
 		agentDef: &agentDomain.Agent{
 			Slug: "claude-code", Name: "Claude Code",
-			LaunchCommand: "claude", SupportedModes: "pty,acp",
+			LaunchCommand: "claude", AdapterID: "claude-stream-json", SupportedModes: "pty,acp",
 			AgentfileSource: &agentfileSrc, UsesLegacyColumns: true,
 		},
 		config: agentDomain.ConfigValues{}, creds: agentDomain.EncryptedCredentials{},
@@ -56,7 +56,7 @@ func acpProvider(agentfileSrc string) *mockAgentConfigProvider {
 func acpResolver(agentfileSrc string) *mockAgentResolver {
 	return &mockAgentResolver{
 		agentDef: &agentDomain.Agent{
-			Slug: "claude-code", SupportedModes: "pty,acp",
+			Slug: "claude-code", AdapterID: "claude-stream-json", SupportedModes: "pty,acp",
 			AgentfileSource: &agentfileSrc, UsesLegacyColumns: true,
 		},
 	}
@@ -178,7 +178,7 @@ func TestPodChain_CredentialFlow(t *testing.T) {
 	provider := &mockAgentConfigProvider{
 		agentDef: &agentDomain.Agent{
 			Slug: "claude-code", Name: "Claude Code",
-			LaunchCommand: "claude", SupportedModes: "pty,acp",
+			LaunchCommand: "claude", AdapterID: "claude-stream-json", SupportedModes: "pty,acp",
 			AgentfileSource: &agentfileSrc, UsesLegacyColumns: true,
 		},
 		config: agentDomain.ConfigValues{},
@@ -225,7 +225,7 @@ func TestPodChain_UnsupportedInteractionMode(t *testing.T) {
 	ptyOnlySrc := "AGENT claude\nEXECUTABLE claude\nMODE pty\nPROMPT_POSITION prepend\n"
 	ptyOnlyResolver := &mockAgentResolver{
 		agentDef: &agentDomain.Agent{
-			Slug: "claude-code", SupportedModes: "pty",
+			Slug: "claude-code", AdapterID: "claude-stream-json", SupportedModes: "pty",
 			AgentfileSource: &ptyOnlySrc, UsesLegacyColumns: true,
 		},
 	}
@@ -352,6 +352,7 @@ func TestResumeIntegration_CodexFullChain(t *testing.T) {
 			Slug:              "codex-cli",
 			Name:              "Codex CLI",
 			LaunchCommand:     "codex",
+			AdapterID:         "codex-app-server",
 			SupportedModes:    "pty",
 			AgentfileSource:   &codexAgentfile,
 			UsesLegacyColumns: false,

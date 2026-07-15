@@ -79,7 +79,7 @@ func TestCreatePod_AutoSelectRunner_Success(t *testing.T) {
 		runner: &runnerDomain.Runner{ID: 42, NodeID: "auto-runner"},
 	}
 	resolver := &mockAgentResolver{
-		agentDef: &agentDomain.Agent{Slug: "claude-code", SupportedModes: "pty", AgentfileSource: ptrStr("AGENT claude\nPROMPT_POSITION prepend")},
+		agentDef: &agentDomain.Agent{Slug: "claude-code", AdapterID: "claude-stream-json", SupportedModes: "pty", AgentfileSource: ptrStr("AGENT claude\nPROMPT_POSITION prepend")},
 	}
 
 	orch, _, _ := setupOrchestrator(t,
@@ -112,7 +112,7 @@ func TestCreatePod_AutoSelectRunner_NoAvailableRunner(t *testing.T) {
 		err: errors.New("no available runner supports the requested agent"),
 	}
 	resolver := &mockAgentResolver{
-		agentDef: &agentDomain.Agent{Slug: "claude-code", SupportedModes: "pty", AgentfileSource: ptrStr("AGENT claude\nPROMPT_POSITION prepend")},
+		agentDef: &agentDomain.Agent{Slug: "claude-code", AdapterID: "claude-stream-json", SupportedModes: "pty", AgentfileSource: ptrStr("AGENT claude\nPROMPT_POSITION prepend")},
 	}
 
 	orch, _, _ := setupOrchestrator(t,
@@ -256,6 +256,7 @@ func TestCreatePod_ConfigBuildFailure(t *testing.T) {
 	orch := NewPodOrchestrator(&PodOrchestratorDeps{
 		PodService:     podSvc,
 		ConfigBuilder:  configBuilder,
+		AgentResolver:  &mockAgentResolver{agentDef: newTestProvider().agentDef},
 		RunnerSelector: &mockRunnerSelector{resolveRunner: &runnerDomain.Runner{ID: 1}},
 		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
 	})
