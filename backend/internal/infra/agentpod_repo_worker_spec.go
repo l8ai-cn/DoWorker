@@ -36,10 +36,7 @@ func createPodWithConfig(
 	pod *agentpod.Pod,
 	revision *agentpod.PodConfigRevision,
 ) error {
-	if err := tx.Create(pod).Error; err != nil {
-		if isUniqueConstraintViolation(err, "idx_pods_source_pod_key_active_unique") {
-			return agentpod.ErrSandboxAlreadyResumed
-		}
+	if err := createPod(tx, pod); err != nil {
 		return err
 	}
 	revision.PodID = pod.ID

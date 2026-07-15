@@ -2,6 +2,7 @@ package agentpod
 
 import (
 	"context"
+	"strconv"
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
@@ -17,8 +18,16 @@ import (
 func setupTestDB(t *testing.T) *gorm.DB {
 	db := testkit.SetupTestDB(t)
 
-	// Seed default test data used by many pod tests
-	db.Exec("INSERT INTO runners (id, organization_id, node_id, status, current_pods) VALUES (1, 1, 'runner-001', 'online', 0)")
+	db.Exec(`
+INSERT INTO execution_clusters (id, organization_id, slug, name, kind, status)
+VALUES (1, 1, 'local', 'Local cluster', 'local', 'ready'),
+       (2, 2, 'local', 'Local cluster', 'local', 'ready'),
+       (3, 3, 'local', 'Local cluster', 'local', 'ready')
+`)
+	db.Exec(`
+INSERT INTO runners (id, organization_id, cluster_id, node_id, status, current_pods)
+VALUES (1, 1, 1, 'runner-001', 'online', 0)
+`)
 	db.Exec("INSERT INTO users (id, username, name, email) VALUES (1, 'testuser', 'Test User', 'test@example.com')")
 
 	return db
@@ -40,6 +49,28 @@ func containsStr(s, substr string) bool {
 		}
 	}
 	return false
+}
+
+func seedTestRunner(t *testing.T, db *gorm.DB, id, organizationID int64) {
+	t.Helper()
+	if err := db.Exec(`
+INSERT OR IGNORE INTO execution_clusters (organization_id, slug, name, kind, status)
+VALUES (?, 'local', 'Local cluster', 'local', 'ready')
+`, organizationID).Error; err != nil {
+		t.Fatalf("seed test execution cluster: %v", err)
+	}
+	var clusterID int64
+	if err := db.Raw(`
+SELECT id FROM execution_clusters WHERE organization_id = ? AND slug = 'local'
+`, organizationID).Scan(&clusterID).Error; err != nil {
+		t.Fatalf("find test execution cluster: %v", err)
+	}
+	if err := db.Exec(`
+INSERT INTO runners (id, organization_id, cluster_id, node_id, status, current_pods)
+VALUES (?, ?, ?, ?, 'online', 0)
+`, id, organizationID, clusterID, "runner-"+strconv.FormatInt(id, 10)).Error; err != nil {
+		t.Fatalf("seed test runner: %v", err)
+	}
 }
 
 // newTestPodService wraps *gorm.DB into PodRepository for testing.

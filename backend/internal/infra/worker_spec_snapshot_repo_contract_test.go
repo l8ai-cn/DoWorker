@@ -81,6 +81,10 @@ func TestWorkerSpecSnapshotRepositoryRejectsZeroAggregate(t *testing.T) {
 func workerSpecSnapshotDBForContract(t *testing.T) *gorm.DB {
 	t.Helper()
 	db := testkit.SetupTestDB(t)
+	require.NoError(t, db.Exec(`
+INSERT INTO runners (id, organization_id, cluster_id, node_id)
+VALUES (1, 77, 700, 'workerspec-runner')
+`).Error)
 	require.NoError(t, db.Exec(`CREATE TABLE worker_spec_snapshots (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		organization_id INTEGER NOT NULL,

@@ -281,11 +281,12 @@ func TestGetPodOrganizationAndCreator(t *testing.T) {
 	db := setupTestDB(t)
 	svc := newTestPodService(db)
 	ctx := context.Background()
+	seedTestRunner(t, db, 2, 42)
 
 	// Create a pod first
 	req := &CreatePodRequest{
 		OrganizationID: 42,
-		RunnerID:       1,
+		RunnerID:       2,
 		CreatedByID:    99,
 	}
 	pod, err := svc.CreatePod(ctx, req)

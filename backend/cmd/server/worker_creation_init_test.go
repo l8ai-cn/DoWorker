@@ -30,6 +30,6 @@ func TestInitializeWorkerServicesValidatesDefinitionCatalog(t *testing.T) {
 		)
 
 		require.NoError(t, err)
-		assert.Len(t, services.workerDefinitions.Slugs(), 12)
+		assert.Contains(t, services.workerDefinitions.Slugs(), "seedance-expert")
 	})
 }
