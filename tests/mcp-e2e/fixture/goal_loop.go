@@ -17,6 +17,7 @@ const goalLoopSpecJSON = `{
       "connection_id": 2001,
       "connection_revision": 1,
       "provider_key": "openai",
+      "protocol_adapter": "openai",
       "model_id": "gpt-5"
     },
     "worker_type": {
@@ -68,6 +69,7 @@ const goalLoopSummaryJSON = `{
     "connection_id": 2001,
     "connection_revision": 1,
     "provider_key": "openai",
+    "protocol_adapter": "openai",
     "model_id": "gpt-5"
   },
   "worker_type": {
