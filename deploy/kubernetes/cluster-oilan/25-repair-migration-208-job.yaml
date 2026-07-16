@@ -1,0 +1,92 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migration-208-repair-__RUN_ID__
+  namespace: agentsmesh
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: migration-208-repair
+        agentsmesh.ai/repair-run: "__RUN_ID__"
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: agentsmesh-regcred
+      initContainers:
+        - name: apply-schema-repair
+          image: repo.aiedulab.cn:8443/agentsmesh/pgvector@sha256:1d533553fefe4f12e5d80c7b80622ba0c382abb5758856f52983d8789179f0fb
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: agentsmesh-secrets
+                  key: DB_PASSWORD
+          command:
+            - sh
+            - -ec
+            - |
+              test "$(cat /repair-lock/run-id)" = "__RUN_ID__"
+              until pg_isready -h postgres -U agentsmesh; do sleep 2; done
+              psql \
+                -h postgres \
+                -U agentsmesh \
+                -d agentsmesh \
+                -v ON_ERROR_STOP=1 \
+                -f /repair/repair.sql
+          volumeMounts:
+            - name: repair
+              mountPath: /repair
+              readOnly: true
+            - name: repair-lock
+              mountPath: /repair-lock
+              readOnly: true
+      containers:
+        - name: finish-migrations
+          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:c160059c60e2b9d6b8d99b4919ca90ec6fae570d69787c49fce9a9aa498e7a42
+          imagePullPolicy: Always
+          command:
+            - sh
+            - -ec
+            - |
+              test "$(cat /repair-lock/run-id)" = "__RUN_ID__"
+              version=$(/app/server migrate version)
+              number=${version%% *}
+              case "$version" in
+                "208 (dirty=true)")
+                  /app/server migrate force 208
+                  ;;
+                "222 (dirty=false)")
+                  printf '%s\n' "$version"
+                  exit 0
+                  ;;
+                *)
+                  if [ "$number" -lt 208 ] || [ "$number" -gt 221 ] ||
+                    [ "$version" != "$number (dirty=false)" ]; then
+                    printf 'unexpected migration state: %s\n' "$version" >&2
+                    exit 1
+                  fi
+                  ;;
+              esac
+              /app/server migrate up
+              version=$(/app/server migrate version)
+              test "$version" = "222 (dirty=false)"
+              printf '%s\n' "$version"
+          envFrom:
+            - configMapRef:
+                name: agentsmesh-config
+            - secretRef:
+                name: agentsmesh-secrets
+          volumeMounts:
+            - name: repair-lock
+              mountPath: /repair-lock
+              readOnly: true
+      volumes:
+        - name: repair
+          configMap:
+            name: migration-208-repair-__RUN_ID__
+        - name: repair-lock
+          configMap:
+            name: migration-208-repair-lock

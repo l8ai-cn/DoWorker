@@ -46,6 +46,18 @@ Backend, Marketplace API, Marketplace Web, and Core Web while pinning the curren
 Relay/Web-Admin registry digests. `web` rebuilds only Core Web and retains all
 other digests.
 
+The July 2026 OILAN database repair for the historical dirty migration 208 is a
+one-time, fail-closed operation. Run it only when `schema_migrations` contains
+exactly `208 / dirty=true` and migration 207's `agents.adapter_id` is absent:
+
+```bash
+DOOPS_TARGET=gw-oilan-node ./repair-migration-208.sh
+```
+
+The repair asserts migrations 205-206, applies the repository-exact 207-208 SQL,
+uses the pinned Backend image to mark 208 clean and migrate through 222, then
+removes its Job and ConfigMap. It is intentionally excluded from kustomize.
+
 For the mobile Worker access path, do not run the full reconcile when unrelated
 workloads are newer in the cluster. Build the three affected images, pin their
 immutable digests in `30-backend.yaml`, `31-relay.yaml`, and `42-mobile.yaml`,
