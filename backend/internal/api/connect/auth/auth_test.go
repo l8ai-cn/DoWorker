@@ -2,16 +2,32 @@ package authconnect
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
 	"errors"
 	"net/http"
 	"testing"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	authservice "github.com/anthropics/agentsmesh/backend/internal/service/auth"
+	authpkg "github.com/anthropics/agentsmesh/backend/pkg/auth"
+
 	authv1 "github.com/anthropics/agentsmesh/proto/gen/go/auth/v1"
 )
+
+type previewSessionRevokerStub struct {
+	userID int64
+	err    error
+}
+
+func (s *previewSessionRevokerStub) RevokeUser(_ context.Context, userID int64) error {
+	s.userID = userID
+	return s.err
+}
 
 func connectCodeOf(t *testing.T, err error) connect.Code {
 	t.Helper()
@@ -155,6 +171,38 @@ func TestLogout_MalformedHeader_NoCrash(t *testing.T) {
 	resp, err := srv.Logout(context.Background(), req)
 	require.NoError(t, err)
 	assert.Equal(t, "Logged out successfully", resp.Msg.GetMessage())
+}
+
+func TestLogout_RevokesPreviewSessions(t *testing.T) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	require.NoError(t, err)
+	const audience = "agentsmesh-api"
+	tokenManager, err := authpkg.NewAccessTokenManager(authpkg.AccessTokenConfig{
+		PrivateKey: privateKey,
+		PublicKey:  &privateKey.PublicKey,
+		KeyID:      "logout-test-key",
+		Issuer:     "logout-test",
+		Audiences:  []string{audience},
+		Duration:   time.Hour,
+	})
+	require.NoError(t, err)
+	token, err := tokenManager.GenerateToken(42, "user@example.com", "user", 1, "user")
+	require.NoError(t, err)
+	revoker := &previewSessionRevokerStub{}
+	srv := NewSessionServer(
+		authservice.NewService(&authservice.Config{
+			AccessTokens:        tokenManager,
+			AccessTokenAudience: audience,
+		}, nil),
+		revoker,
+	)
+	req := connect.NewRequest(&authv1.LogoutRequest{})
+	req.Header().Set("Authorization", "Bearer "+token)
+
+	_, err = srv.Logout(context.Background(), req)
+
+	require.NoError(t, err)
+	assert.Equal(t, int64(42), revoker.userID)
 }
 
 // --- Procedure URL constants align with proto package + service name ---

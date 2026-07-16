@@ -68,7 +68,7 @@ func TestACPClient_NewSessionWithMCPServers(t *testing.T) {
 	client := startMockClient(t)
 	defer client.Stop()
 
-	mcpServers := BuildMCPServersConfig(9999)
+	mcpServers := BuildMCPServersConfig(9999, "pod-test")
 	if err := client.NewSession(mcpServers); err != nil {
 		t.Fatalf("NewSession with MCP: %v", err)
 	}

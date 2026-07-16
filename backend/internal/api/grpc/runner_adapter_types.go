@@ -20,6 +20,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/service/ticket"
 	workflowService "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
+	agentworkbenchv2 "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
@@ -29,6 +30,14 @@ type PodEventSink interface {
 	PublishPodStatus(ctx context.Context, podKey, podStatus, agentStatus string)
 	HandlePodUsage(ctx context.Context, evt *runnerv1.PodUsageEvent)
 	UpdateExternalSessionID(ctx context.Context, podKey, externalID string)
+}
+
+type WorkbenchEventSink interface {
+	HandleWorkbenchEvents(
+		ctx context.Context,
+		runnerID int64,
+		batch *agentworkbenchv2.RunnerWorkbenchEventBatch,
+	) error
 }
 
 const certRevocationCheckInterval = 5 * time.Minute
@@ -48,7 +57,8 @@ type GRPCRunnerAdapter struct {
 	connManager  *runner.RunnerConnectionManager
 	readyResults *runnerReadyResultTracker
 
-	podEvents PodEventSink
+	podEvents       PodEventSink
+	workbenchEvents WorkbenchEventSink
 
 	podService           *agentpod.PodService
 	mcpPodService        *agentpod.PodService

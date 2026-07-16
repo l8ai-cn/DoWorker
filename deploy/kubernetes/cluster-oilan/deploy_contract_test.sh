@@ -138,7 +138,8 @@ grep -F 'command: ["/app/server", "migrate", "up"]' "$ROOT/20-migrate-job.yaml" 
 ! grep -A12 -F 'initContainers:' "$ROOT/30-backend.yaml" | grep -F 'name: migrate' >/dev/null
 grep -F 'workspace-artifacts/' "$ROOT/13-minio-setup-job.yaml" >/dev/null
 grep -F -- '--expire-days 1' "$ROOT/13-minio-setup-job.yaml" >/dev/null
-grep -F 'PREVIEW_PUBLIC_ORIGIN: "https://preview.l8ai.cn"' "$ROOT/02-configmap.yaml" >/dev/null
-grep -F 'host: preview.l8ai.cn' "$ROOT/44-preview-ingress.yaml" >/dev/null
+grep -F 'PREVIEW_PUBLIC_ORIGIN: "https://preview.dowork.l8ai.cn"' "$ROOT/02-configmap.yaml" >/dev/null
+grep -F 'PREVIEW_COOKIE_MODE: "partitioned"' "$ROOT/02-configmap.yaml" >/dev/null
+grep -F 'host: "*.preview.dowork.l8ai.cn"' "$ROOT/44-preview-ingress.yaml" >/dev/null
 grep -F 'release_require_pushed_clean_tree' "$ROOT/deploy.sh" >/dev/null
 grep -F 'clean -session ses-contract' "$LOG" >/dev/null

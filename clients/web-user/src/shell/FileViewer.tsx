@@ -1399,7 +1399,7 @@ function FileViewerBody({
       )}
       aria-hidden={!open}
       data-collapsed={!open || undefined}
-      {...(open ? {} : { inert: "" })}
+      {...(open ? {} : { inert: true })}
     >
       {/* Resize handle — desktop only (mobile is full-screen overlay) */}
       {isDesktop && (

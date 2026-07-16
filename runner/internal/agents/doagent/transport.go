@@ -89,6 +89,10 @@ func (t *transport) SupportedPermissionModes() []string {
 	return t.permModes
 }
 
+func (t *transport) SupportedArtifactActions() []string {
+	return nil
+}
+
 func (t *transport) dispatchMessage(msg *acp.JSONRPCMessage) {
 	switch {
 	case msg.IsResponse():

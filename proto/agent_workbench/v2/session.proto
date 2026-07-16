@@ -1,0 +1,193 @@
+syntax = "proto3";
+
+package proto.agent_workbench.v2;
+
+import "agent_workbench/v2/artifact.proto";
+import "agent_workbench/v2/command.proto";
+import "agent_workbench/v2/configuration.proto";
+import "agent_workbench/v2/content.proto";
+import "agent_workbench/v2/session_state.proto";
+import "agent_workbench/v2/tool.proto";
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
+
+message SessionCursor { string session_id = 1; string stream_epoch = 2; uint64 revision = 3; uint64 sequence = 4; }
+
+message EventEnvelope {
+  string session_id = 1;
+  string stream_epoch = 2;
+  uint64 revision = 3;
+  uint64 sequence = 4;
+  optional string turn_id = 5;
+  string item_id = 6;
+  optional string parent_id = 7;
+  optional string causation_command_id = 8;
+  string created_at = 9;
+}
+
+message MessageTimelineItem { MessageRole role = 1; repeated ContentBlock content = 2; TimelineItemStatus status = 3; }
+message ReasoningTimelineItem { repeated ContentBlock content = 1; TimelineItemStatus status = 2; }
+message PlanStep { string step_id = 1; string title = 2; PlanStepStatus status = 3; optional string detail = 4; }
+message PlanTimelineItem { repeated PlanStep steps = 1; }
+message ArtifactReferenceTimelineItem { ArtifactReference artifact = 1; optional string label = 2; }
+message ApprovalTimelineItem { string permission_request_id = 1; }
+message StatusTimelineItem { SessionStatus status = 1; optional string detail = 2; }
+message ErrorTimelineItem { AgentError error = 1; }
+message SystemTimelineItem { repeated ContentBlock content = 1; }
+
+message TimelineItemContent {
+  oneof content {
+    MessageTimelineItem message = 10;
+    ReasoningTimelineItem reasoning = 11;
+    ToolExecution tool_execution = 12;
+    PlanTimelineItem plan = 13;
+    ArtifactReferenceTimelineItem artifact_reference = 14;
+    ApprovalTimelineItem approval = 15;
+    StatusTimelineItem status = 16;
+    ErrorTimelineItem error = 17;
+    SystemTimelineItem system = 18;
+    UnsupportedValue unsupported = 100;
+  }
+}
+
+message TimelineItem {
+  EventEnvelope envelope = 1;
+  TimelineItemContent content = 2;
+}
+
+message PermissionQuestionOption { string label = 1; optional string description = 2; optional StructuredPayload value = 3; }
+
+message PermissionQuestion {
+  string question_id = 1;
+  string prompt = 2;
+  optional string header = 3;
+  repeated PermissionQuestionOption options = 4;
+  bool multiple = 5;
+  bool allow_custom = 6;
+  bool secret = 7;
+}
+
+message PermissionApproval { string title = 1; optional string description = 2; }
+message PermissionQuestionnaire { string title = 1; repeated PermissionQuestion questions = 2; }
+
+message PermissionRequest {
+  string permission_request_id = 1;
+  PermissionRequestState state = 2;
+  optional string command_id = 3;
+  optional string artifact_id = 4;
+  optional string representation_id = 5;
+  optional uint64 artifact_revision = 6;
+  optional string action_type = 7;
+  repeated string required_grant_actions = 8;
+  optional string created_at = 9;
+  optional string expires_at = 10;
+  optional PermissionResolution resolution = 11;
+  oneof request {
+    PermissionApproval approval = 20;
+    PermissionQuestionnaire questionnaire = 21;
+    UnsupportedValue unsupported = 100;
+  }
+}
+
+message PermissionResolution { string permission_request_id = 1; PermissionDecision decision = 2; optional StructuredPayload response = 3; optional string resolved_at = 4; }
+
+message AuthorizationGrant {
+  string grant_id = 1; string issuer = 2; string subject = 3; string session_id = 4;
+  optional string resource_id = 5; repeated string actions = 6;
+  optional uint64 minimum_revision = 7; optional uint64 maximum_revision = 8;
+  string issued_at = 9; optional string expires_at = 10;
+}
+
+message CapabilityDescriptor { string namespace = 1; string semantic_key = 2; string schema_version = 3; repeated string actions = 4; }
+
+message SupportCapabilities {
+  string protocol_version = 1;
+  repeated CapabilityDescriptor command_schemas = 2;
+  repeated string models = 3;
+  repeated string permission_modes = 4;
+  repeated ContentIdentity attachment_types = 5;
+  bool history = 6;
+  repeated string terminal_operations = 7;
+  repeated string artifact_operations = 8;
+  repeated CapabilityDescriptor extensions = 9;
+}
+
+message TerminalLease { string lease_id = 1; string holder = 2; TerminalLeaseState state = 3; string expires_at = 4; uint64 fencing_epoch = 5; }
+message TerminalResource { bool writable = 1; TerminalControlMode control_mode = 2; optional TerminalLease lease = 3; }
+message FileResource { string path = 1; bool writable = 2; }
+message EnvironmentResource { optional string workspace_id = 1; optional string runner_id = 2; }
+message LivePreviewResource { string security_profile = 1; optional string session_url = 2; }
+
+message SessionResource {
+  string resource_id = 1;
+  string label = 2;
+  SessionResourceStatus status = 3;
+  optional StructuredPayload metadata = 4;
+  oneof resource {
+    TerminalResource terminal = 10;
+    FileResource file = 11;
+    EnvironmentResource environment = 12;
+    LivePreviewResource live_preview = 13;
+    UnsupportedValue unsupported = 100;
+  }
+}
+
+message SessionSnapshot {
+  string session_id = 1;
+  string stream_epoch = 2;
+  uint64 revision = 3;
+  uint64 latest_sequence = 4;
+  optional string active_turn_id = 5;
+  repeated TimelineItem history = 6;
+  repeated CommandReceipt command_receipts = 7;
+  repeated PermissionRequest permission_requests = 8;
+  repeated AuthorizationGrant grants = 9;
+  repeated SessionResource resources = 10;
+  repeated ArtifactDescriptor artifacts = 11;
+  optional SupportCapabilities capabilities = 12;
+  SessionStatus status = 13;
+  optional string digest = 14;
+  optional AgentError error = 15;
+  optional SessionConfiguration configuration = 16;
+}
+
+message TimelineItemAppended { TimelineItemContent content = 1; }
+message TimelineItemUpdated { TimelineItemContent content = 1; }
+message CommandReceiptChanged { CommandReceipt receipt = 1; }
+message PermissionRequested { PermissionRequest request = 1; }
+message PermissionResolved { PermissionResolution resolution = 1; }
+message ResourceChanged { SessionResource resource = 1; }
+message ArtifactChanged { ArtifactDescriptor artifact = 1; }
+message TerminalLeaseChanged { string resource_id = 1; TerminalLease lease = 2; }
+message CapabilitiesChanged { SupportCapabilities capabilities = 1; }
+message SessionStatusChanged { SessionStatus status = 1; optional AgentError error = 2; }
+message ConfigurationChanged { SessionConfiguration configuration = 1; }
+
+message AgentEvent {
+  EventEnvelope envelope = 1;
+  oneof event {
+    TimelineItemAppended timeline_item_appended = 10;
+    TimelineItemUpdated timeline_item_updated = 11;
+    CommandReceiptChanged command_receipt_changed = 12;
+    PermissionRequested permission_requested = 13;
+    PermissionResolved permission_resolved = 14;
+    ResourceChanged resource_changed = 15;
+    ArtifactChanged artifact_changed = 16;
+    TerminalLeaseChanged terminal_lease_changed = 17;
+    CapabilitiesChanged capabilities_changed = 18;
+    SessionStatusChanged session_status_changed = 19;
+    ConfigurationChanged configuration_changed = 20;
+    UnsupportedValue unsupported = 100;
+  }
+}
+
+message SessionDeltaBatch {
+  string session_id = 1;
+  string stream_epoch = 2;
+  uint64 base_revision = 3;
+  uint64 revision = 4;
+  uint64 first_sequence = 5;
+  uint64 last_sequence = 6;
+  repeated AgentEvent events = 7;
+  string digest = 8;
+}

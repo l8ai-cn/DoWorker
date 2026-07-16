@@ -6,11 +6,11 @@
 # One-click installation for on-premise deployment.
 #
 # Usage:
-#   ./install.sh --ip 192.168.1.100
-#   ./install.sh --ip 192.168.1.100 --http-port 8080 --grpc-port 9443
+#   ./install.sh --ip 192.168.1.100 --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal
 #
 # Options:
 #   --ip          Server IP address (required)
+#   --host        Application DNS hostname (required)
 #   --http-port   HTTP port (default: 80)
 #   --grpc-port   gRPC port (default: 9443)
 #   --skip-load   Skip loading images (use existing images)
@@ -25,6 +25,10 @@ DEPLOY_DIR="${SCRIPT_DIR}/.."
 
 # Default values
 SERVER_IP=""
+SERVER_HOST=""
+PREVIEW_PUBLIC_ORIGIN=""
+PREVIEW_HOST=""
+PREVIEW_HOST_REGEX=""
 HTTP_PORT=80
 GRPC_PORT=9443
 VERSION="v1.0.0"
@@ -36,6 +40,14 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --ip)
             SERVER_IP="$2"
+            shift 2
+            ;;
+        --host)
+            SERVER_HOST="$2"
+            shift 2
+            ;;
+        --preview-origin)
+            PREVIEW_PUBLIC_ORIGIN="$2"
             shift 2
             ;;
         --http-port)
@@ -59,10 +71,12 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -h|--help)
-            echo "Usage: $0 --ip <SERVER_IP> [OPTIONS]"
+            echo "Usage: $0 --ip <SERVER_IP> --host <DOMAIN> [OPTIONS]"
             echo ""
             echo "Options:"
             echo "  --ip          Server IP address (required)"
+            echo "  --host        Application DNS hostname (required)"
+            echo "  --preview-origin Dedicated preview origin (required)"
             echo "  --http-port   HTTP port (default: 80)"
             echo "  --grpc-port   gRPC port (default: 9443)"
             echo "  --version     Image version tag (default: v1.0.0)"
@@ -80,7 +94,12 @@ done
 # Validate required arguments
 if [ -z "${SERVER_IP}" ]; then
     echo "Error: --ip is required"
-    echo "Usage: $0 --ip <SERVER_IP>"
+    echo "Usage: $0 --ip <SERVER_IP> --host <DOMAIN>"
+    exit 1
+fi
+if [ -z "${SERVER_HOST}" ]; then
+    echo "Error: --host is required"
+    echo "Usage: $0 --ip <SERVER_IP> --host <DOMAIN>"
     exit 1
 fi
 
@@ -89,6 +108,35 @@ if ! [[ "${SERVER_IP}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     echo "Error: Invalid IP address format: ${SERVER_IP}"
     exit 1
 fi
+if [[ "${SERVER_HOST}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Error: --host must be a DNS hostname"
+    exit 1
+fi
+if [[ ! "${PREVIEW_PUBLIC_ORIGIN}" =~ ^http://([^/:]+)(:([0-9]+))?$ ]]; then
+    echo "Error: --preview-origin must be an HTTP origin because this bundle does not terminate HTTPS"
+    exit 1
+fi
+PREVIEW_HOST="${BASH_REMATCH[1]}"
+PREVIEW_PORT="${BASH_REMATCH[3]}"
+if [[ -n "${PREVIEW_PORT}" && "${PREVIEW_PORT}" != "${HTTP_PORT}" ]]; then
+    echo "Error: --preview-origin port must match --http-port"
+    exit 1
+fi
+if [[ -z "${PREVIEW_PORT}" && "${HTTP_PORT}" != "80" ]]; then
+    echo "Error: --preview-origin must include :${HTTP_PORT}"
+    exit 1
+fi
+if [[ "${PREVIEW_HOST}" == "${SERVER_HOST}" ]]; then
+    echo "Error: --preview-origin must use a dedicated preview hostname"
+    exit 1
+fi
+APP_SITE="${SERVER_HOST#*.}"
+PREVIEW_SITE="${PREVIEW_HOST#*.}"
+if [[ "${PREVIEW_HOST}" != *".${SERVER_HOST}" && "${APP_SITE}" != "${PREVIEW_SITE}" ]]; then
+    echo "Error: application and preview hostnames must share a site"
+    exit 1
+fi
+PREVIEW_HOST_REGEX="${PREVIEW_HOST//./\\.}"
 
 # Detect Docker socket path (macOS vs Linux)
 detect_docker_socket() {
@@ -108,6 +156,7 @@ echo "=============================================="
 echo ""
 echo "Configuration:"
 echo "  Server IP:     ${SERVER_IP}"
+echo "  Application:   ${SERVER_HOST}"
 echo "  HTTP Port:     ${HTTP_PORT}"
 echo "  gRPC Port:     ${GRPC_PORT}"
 echo "  Version:       ${VERSION}"
@@ -201,8 +250,13 @@ VERSION=${VERSION:-v1.0.0}
 
 # Server Configuration
 SERVER_IP=${SERVER_IP}
+SERVER_HOST=${SERVER_HOST}
 HTTP_PORT=${HTTP_PORT}
 GRPC_PORT=${GRPC_PORT}
+PREVIEW_PUBLIC_ORIGIN=${PREVIEW_PUBLIC_ORIGIN}
+PREVIEW_HOST=${PREVIEW_HOST}
+PREVIEW_HOST_REGEX=${PREVIEW_HOST_REGEX}
+PREVIEW_COOKIE_MODE=same-site
 
 # Docker Socket (auto-detected)
 DOCKER_SOCKET=${DOCKER_SOCKET}

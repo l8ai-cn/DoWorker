@@ -33,6 +33,7 @@ func TestLoadPreviewPublicOriginRejectsNonOriginURL(t *testing.T) {
 		"https://preview.example.com/path",
 		"https://user@preview.example.com",
 		"https://preview.example.com?mode=app",
+		"http://127.0.0.1:10000",
 		"https://.",
 	} {
 		t.Run(raw, func(t *testing.T) {

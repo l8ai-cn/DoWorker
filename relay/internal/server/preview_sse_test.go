@@ -36,7 +36,7 @@ func TestPreviewE2E_SSE(t *testing.T) {
 	defer upstream.Close()
 	target := strings.TrimPrefix(upstream.URL, "http://")
 
-	gw, registry, _ := newPreviewE2EGateway(t)
+	gw, registry, _, _ := newPreviewE2EGateway(t)
 	defer gw.Close()
 
 	tunnelToken, err := auth.GenerateTypedToken("s3cret", "iss", auth.TokenTypeTunnel, "", runnerID, 0, 3, time.Hour)
@@ -50,10 +50,7 @@ func TestPreviewE2E_SSE(t *testing.T) {
 
 	previewToken := mustPreviewToken(t, "pod1", runnerID, target)
 
-	resp, err := http.Get(gw.URL + "/preview/pod1/events?token=" + previewToken)
-	if err != nil {
-		t.Fatal(err)
-	}
+	resp := doPreviewGET(t, gw.URL+"/preview/pod1/events", "pod1", previewToken)
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("expected 200, got %d", resp.StatusCode)

@@ -8,35 +8,7 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/acp"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
 	"github.com/anthropics/agentsmesh/runner/internal/policy"
-	"github.com/anthropics/agentsmesh/runner/internal/relay"
 )
-
-// sendAcpViaRelay broadcasts an ACP event to all connected sinks (cloud + local
-// browsers). Drops silently when no listener is connected. Payload is flat JSON
-// {"type":..,"sessionId":..,...} with the data struct merged into the top level.
-func sendAcpViaRelay(pod *Pod, eventType, sessionID string, data any) {
-	if pod.Relay == nil {
-		return
-	}
-
-	dataBytes, err := json.Marshal(data)
-	if err != nil {
-		return
-	}
-	var flat map[string]any
-	if err := json.Unmarshal(dataBytes, &flat); err != nil || flat == nil {
-		flat = map[string]any{}
-	}
-	flat["type"] = eventType
-	flat["sessionId"] = sessionID
-
-	payload, err := json.Marshal(flat)
-	if err != nil {
-		return
-	}
-
-	pod.Relay.BroadcastEvent(pod.GetRelayClient(), relay.MsgTypeAcpEvent, payload)
-}
 
 // wireAndStartACPPod creates the ACPClient with Relay-forwarding callbacks,
 // wires it into the pod, and starts the subprocess.
@@ -45,6 +17,21 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 	podKey := cmd.PodKey
 	conn := h.conn
 	bridge := newAcpBackendBridge()
+	workbenchForwarder, err := newACPWorkbenchForwarder(
+		podKey,
+		cmd.AdapterId,
+		pod.WorkDir,
+		conn,
+	)
+	if err != nil {
+		h.abortACPPodStartup(cmd.PodKey, nil, pod.SandboxPath)
+		h.sendPodError(
+			cmd.PodKey,
+			fmt.Sprintf("failed to initialize workbench artifacts: %v", err),
+		)
+		return fmt.Errorf("initialize workbench artifacts: %w", err)
+	}
+	pod.workbenchForwarder = workbenchForwarder
 
 	// Pre-declare so callbacks can capture it (NewClient returns the same pointer).
 	var acpClient *acp.ACPClient
@@ -60,24 +47,29 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 		ResumeExternalSessionID: resumeExternalSessionFromEnv(pod.LaunchEnv),
 		Callbacks: acp.EventCallbacks{
 			OnContentChunk: func(sessionID string, chunk acp.ContentChunk) {
+				workbenchForwarder.content(sessionID, chunk)
 				sendAcpViaRelay(pod, "contentChunk", sessionID, chunk)
 				payload, _ := json.Marshal(chunk)
 				_ = conn.SendAcpSessionEvent(podKey, "contentChunk", string(payload))
 			},
 			OnToolCallUpdate: func(sessionID string, update acp.ToolCallUpdate) {
+				workbenchForwarder.toolUpdate(sessionID, update)
 				sendAcpViaRelay(pod, "toolCallUpdate", sessionID, update)
 				payload, _ := json.Marshal(update)
 				_ = conn.SendAcpSessionEvent(podKey, "toolCallUpdate", string(payload))
 			},
 			OnToolCallResult: func(sessionID string, result acp.ToolCallResult) {
+				workbenchForwarder.toolResult(sessionID, result)
 				sendAcpViaRelay(pod, "toolCallResult", sessionID, result)
 				payload, _ := json.Marshal(result)
 				_ = conn.SendAcpSessionEvent(podKey, "toolCallResult", string(payload))
 			},
 			OnPlanUpdate: func(sessionID string, update acp.PlanUpdate) {
+				workbenchForwarder.plan(sessionID, update)
 				sendAcpViaRelay(pod, "planUpdate", sessionID, update)
 			},
 			OnThinkingUpdate: func(sessionID string, update acp.ThinkingUpdate) {
+				workbenchForwarder.thinking(sessionID, update)
 				sendAcpViaRelay(pod, "thinkingUpdate", sessionID, update)
 				payload, _ := json.Marshal(update)
 				_ = conn.SendAcpSessionEvent(podKey, "thinkingUpdate", string(payload))
@@ -93,6 +85,7 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 					return
 				}
 				acpClient.AddPendingPermission(req)
+				workbenchForwarder.permission(req)
 				sendAcpViaRelay(pod, "permissionRequest", req.SessionID, req)
 				payload, _ := json.Marshal(req)
 				_ = conn.SendAcpSessionEvent(podKey, "permissionRequest", string(payload))
@@ -101,6 +94,7 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 				bridge.onUsage(podKey, usage)
 			},
 			OnStateChange: func(newState string) {
+				workbenchForwarder.state(newState)
 				backendStatus := mapACPState(newState)
 				_ = conn.SendAgentStatus(podKey, backendStatus)
 				payload, _ := json.Marshal(map[string]string{"state": newState})
@@ -115,12 +109,14 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 				}
 			},
 			OnLog: func(level, message string) {
+				workbenchForwarder.log(level, message)
 				entry := map[string]string{"level": level, "message": message}
 				sendAcpViaRelay(pod, "log", "", entry)
 				payload, _ := json.Marshal(entry)
 				_ = conn.SendAcpSessionEvent(podKey, "log", string(payload))
 			},
 			OnConfigChange: func(sessionID string, update acp.ConfigUpdate) {
+				workbenchForwarder.configurationChanged(update)
 				sendAcpViaRelay(pod, "configChanged", sessionID, update)
 			},
 			OnLoopalExt: func(sessionID, kind string, data json.RawMessage) {
@@ -128,6 +124,7 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 			},
 			OnSessionID: func(sessionID string) {
 				if sessionID != "" {
+					workbenchForwarder.sessionID(sessionID)
 					_ = conn.SendExternalSessionCaptured(podKey, sessionID)
 				}
 			},
@@ -158,6 +155,7 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 	if len(cmd.DeclaredCapabilities) > 0 {
 		acpClient.CalibrateDeclaredCapabilities(podKey, cmd.DeclaredCapabilities)
 	}
+	workbenchForwarder.sessionInitialized(acpClient.Configuration())
 
 	pod.SetStatus(PodStatusRunning)
 
@@ -172,7 +170,7 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 
 	// Create a new ACP session with MCP servers config
 	mcpPort := h.runner.GetConfig().GetMCPPort()
-	mcpServers := acp.BuildMCPServersConfig(mcpPort)
+	mcpServers := acp.BuildMCPServersConfig(mcpPort, podKey)
 	if err := acpClient.NewSession(mcpServers); err != nil {
 		h.abortACPPodStartup(cmd.PodKey, acpClient, pod.SandboxPath)
 		h.sendPodError(cmd.PodKey, fmt.Sprintf("failed to create ACP session: %v", err))
@@ -191,6 +189,7 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 		sendAcpViaRelay(pod, "contentChunk", "", map[string]string{
 			"text": cmd.Prompt, "role": "user",
 		})
+		workbenchForwarder.content("", acp.ContentChunk{Text: cmd.Prompt, Role: "user"})
 		if err := acpSendPromptWhenReady(pod, cmd.Prompt); err != nil {
 			log.Error("Failed to send prompt", "pod_key", podKey, "error", err)
 		}
@@ -199,26 +198,4 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 	h.sendPodCreated(cmd.PodKey, 0, pod.SandboxPath, pod.Branch, uint16(cols), uint16(rows))
 	log.Info("Pod created (ACP)", "pod_key", cmd.PodKey, "sandbox", pod.SandboxPath)
 	return nil
-}
-
-func (h *RunnerMessageHandler) abortACPPodStartup(podKey string, acpClient *acp.ACPClient, sandboxPath string) {
-	pod := h.podStore.Delete(podKey)
-	pod.closeWorkspace()
-	if acpClient != nil {
-		acpClient.Stop()
-	}
-	if sandboxPath != "" {
-		h.removePodSandbox(sandboxPath)
-	}
-}
-
-// handleACPExit handles ACP subprocess exit.
-func (h *RunnerMessageHandler) handleACPExit(podKey string, exitCode int) {
-	if pod, ok := h.podStore.Get(podKey); ok && pod != nil {
-		if acpIO, ok := pod.IO.(*ACPPodIO); ok {
-			acpIO.ForceIdleIfBusy()
-		}
-	}
-	logger.Pod().Info("ACP process exited", "pod_key", podKey, "exit_code", exitCode)
-	h.cleanupPodExit(podKey, exitCode, false)
 }

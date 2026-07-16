@@ -145,9 +145,21 @@ func (s *SessionServer) Logout(
 	header := req.Header().Get("Authorization")
 	parts := strings.SplitN(header, " ", 2)
 	if len(parts) == 2 && parts[0] == "Bearer" && parts[1] != "" {
-		// Errors from Redis are non-fatal — REST swallowed them too. The
-		// JWT still expires on its own.
-		_ = s.authSvc.RevokeToken(ctx, parts[1])
+		if s.authSvc == nil || s.previewSessions == nil {
+			return nil, connect.NewError(
+				connect.CodeUnavailable,
+				errors.New("logout service unavailable"),
+			)
+		}
+		claims, err := s.authSvc.ValidateTokenWithContext(ctx, parts[1])
+		if err == nil {
+			if err := s.previewSessions.RevokeUser(ctx, claims.UserID); err != nil {
+				return nil, connect.NewError(connect.CodeUnavailable, err)
+			}
+			if err := s.authSvc.RevokeToken(ctx, parts[1]); err != nil {
+				return nil, connect.NewError(connect.CodeUnavailable, err)
+			}
+		}
 	}
 	return connect.NewResponse(&authv1.LogoutResponse{
 		Message: "Logged out successfully",

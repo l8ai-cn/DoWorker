@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package proto.agent_workbench.v2;
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
+
+message SessionConfiguration {
+  optional string model = 1;
+  optional string permission_mode = 2;
+}

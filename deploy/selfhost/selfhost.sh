@@ -6,9 +6,9 @@
 # One-command setup for self-hosted AgentsMesh using Docker Hub images.
 #
 # Usage:
-#   ./selfhost.sh --host 192.168.1.100
-#   ./selfhost.sh --host agentsmesh.example.com --http-port 8080
-#   ./selfhost.sh --host 192.168.1.100 --version sha-abc1234
+#   ./selfhost.sh --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal
+#   ./selfhost.sh --host agentsmesh.example.com --preview-origin http://preview.example.com
+#   ./selfhost.sh --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal --version sha-abc1234
 #   ./selfhost.sh --clean
 #
 # =============================================================================
@@ -35,6 +35,9 @@ error()   { echo -e "${RED}[ERROR]${NC} $1"; }
 # Default values
 SERVER_HOST=""
 PRIMARY_DOMAIN=""
+PREVIEW_PUBLIC_ORIGIN=""
+PREVIEW_HOST=""
+PREVIEW_HOST_REGEX=""
 HTTP_PORT=80
 GRPC_PORT=9443
 VERSION="latest"
@@ -45,25 +48,27 @@ CLEAN=false
 # =============================================================================
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --host)       SERVER_HOST="$2"; shift 2 ;;
-        --http-port)  HTTP_PORT="$2";   shift 2 ;;
-        --grpc-port)  GRPC_PORT="$2";   shift 2 ;;
-        --version)    VERSION="$2";     shift 2 ;;
-        --clean)      CLEAN=true;       shift   ;;
+        --host)           SERVER_HOST="$2"; shift 2 ;;
+        --preview-origin) PREVIEW_PUBLIC_ORIGIN="$2"; shift 2 ;;
+        --http-port)      HTTP_PORT="$2";   shift 2 ;;
+        --grpc-port)      GRPC_PORT="$2";   shift 2 ;;
+        --version)        VERSION="$2";     shift 2 ;;
+        --clean)          CLEAN=true;       shift   ;;
         -h|--help)
-            echo "Usage: $0 --host <IP_OR_DOMAIN> [OPTIONS]"
+            echo "Usage: $0 --host <DOMAIN> [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --host        Server IP or domain name (required)"
+            echo "  --host        Application DNS hostname (required)"
+            echo "  --preview-origin Dedicated preview origin (required)"
             echo "  --http-port   HTTP port (default: 80)"
             echo "  --grpc-port   gRPC port for Runner connections (default: 9443)"
             echo "  --version     Docker image tag (default: latest)"
             echo "  --clean       Stop services and remove all data"
             echo ""
             echo "Examples:"
-            echo "  $0 --host 192.168.1.100"
-            echo "  $0 --host agentsmesh.example.com --http-port 8080"
-            echo "  $0 --host 10.0.0.5 --version sha-abc1234"
+            echo "  $0 --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal"
+            echo "  $0 --host agentsmesh.example.com --preview-origin http://preview.example.com"
+            echo "  $0 --host app.agentsmesh.internal --preview-origin http://preview.agentsmesh.internal --version sha-abc1234"
             exit 0
             ;;
         *) error "Unknown option: $1"; exit 1 ;;
@@ -86,10 +91,39 @@ fi
 # Validate
 if [ -z "${SERVER_HOST}" ]; then
     error "--host is required"
-    echo "Usage: $0 --host <IP_OR_DOMAIN>"
+    echo "Usage: $0 --host <DOMAIN>"
     echo "Run '$0 --help' for more options."
     exit 1
 fi
+if [[ "${SERVER_HOST}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    error "--host must be a DNS hostname; per-Pod preview isolation cannot use an IP application origin"
+    exit 1
+fi
+if [[ ! "${PREVIEW_PUBLIC_ORIGIN}" =~ ^http://([^/:]+)(:([0-9]+))?$ ]]; then
+    error "--preview-origin must be an HTTP origin because this bundle does not terminate HTTPS"
+    exit 1
+fi
+PREVIEW_HOST="${BASH_REMATCH[1]}"
+PREVIEW_PORT="${BASH_REMATCH[3]}"
+if [[ -n "${PREVIEW_PORT}" && "${PREVIEW_PORT}" != "${HTTP_PORT}" ]]; then
+    error "--preview-origin port must match --http-port"
+    exit 1
+fi
+if [[ -z "${PREVIEW_PORT}" && "${HTTP_PORT}" != "80" ]]; then
+    error "--preview-origin must include :${HTTP_PORT}"
+    exit 1
+fi
+if [[ "${PREVIEW_HOST}" == "${SERVER_HOST}" ]]; then
+    error "--preview-origin must use a dedicated preview hostname"
+    exit 1
+fi
+APP_SITE="${SERVER_HOST#*.}"
+PREVIEW_SITE="${PREVIEW_HOST#*.}"
+if [[ "${PREVIEW_HOST}" != *".${SERVER_HOST}" && "${APP_SITE}" != "${PREVIEW_SITE}" ]]; then
+    error "same-site preview requires application and preview hostnames to share a site"
+    exit 1
+fi
+PREVIEW_HOST_REGEX="${PREVIEW_HOST//./\\.}"
 
 echo ""
 echo "=============================================="
@@ -153,6 +187,10 @@ VERSION=${VERSION}
 SERVER_HOST=${SERVER_HOST}
 PRIMARY_DOMAIN=${SERVER_HOST}:${HTTP_PORT}
 PUBLIC_WEB_URL=http://${SERVER_HOST}:${HTTP_PORT}
+PREVIEW_PUBLIC_ORIGIN=${PREVIEW_PUBLIC_ORIGIN}
+PREVIEW_HOST=${PREVIEW_HOST}
+PREVIEW_HOST_REGEX=${PREVIEW_HOST_REGEX}
+PREVIEW_COOKIE_MODE=same-site
 HTTP_PORT=${HTTP_PORT}
 GRPC_PORT=${GRPC_PORT}
 

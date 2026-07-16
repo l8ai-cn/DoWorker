@@ -373,40 +373,12 @@ func TestTransport_RespondToMcpElicitationUsesActionAndContent(t *testing.T) {
 	}
 }
 
-func TestTransport_CancelSession(t *testing.T) {
-	stdoutPR, _ := io.Pipe()
-	stdinPR, stdinPW := io.Pipe()
-	defer stdoutPR.Close()
-	defer stdinPR.Close()
-
-	tr := newTransport(acp.EventCallbacks{}, discardLogger())
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	tr.Initialize(ctx, stdinPW, stdoutPR, nil)
-
-	received := make(chan json.RawMessage, 1)
-	go func() {
-		scanner := bufio.NewScanner(stdinPR)
-		scanner.Scan()
-		received <- json.RawMessage(scanner.Bytes())
-	}()
-
-	if err := tr.CancelSession("thread-1"); err != nil {
-		t.Fatalf("CancelSession: %v", err)
-	}
-
-	select {
-	case raw := <-received:
-		var msg struct {
-			Method string          `json:"method"`
-			Params json.RawMessage `json:"params"`
-		}
-		json.Unmarshal(raw, &msg)
-		if msg.Method != "turn/interrupt" {
-			t.Errorf("method = %q", msg.Method)
-		}
-	case <-time.After(2 * time.Second):
-		t.Fatal("timeout")
+func TestTransport_CancelSessionRequiresActiveTurn(t *testing.T) {
+	fixture := newFixture()
+	defer fixture.Close()
+	go respondToBackgroundTerminalRequests(t, fixture, nil)
+	if err := fixture.transport.CancelSession("thread-1"); err == nil {
+		t.Fatal("expected missing active turn error")
 	}
 }
 

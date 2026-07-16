@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./*": "./gen/ts/*"
+    "./*": "./gen/ts/*.ts"
   }
 }

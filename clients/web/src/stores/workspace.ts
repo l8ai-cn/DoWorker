@@ -1,11 +1,15 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { legacyPersistStorage } from "@/lib/zustand-legacy-persist";
-import type { WorkspacePane, SplitTreeLeaf, SplitTreeSplit, SplitTreeNode, WorkspaceState } from "./workspaceTypes";
+import type { WorkspacePane, SplitTreeLeaf, WorkspaceState } from "./workspaceTypes";
 import {
-  generatePaneId, generateNodeId,
-  findLeafByPaneId, findParentSplit,
-  replaceNode, removeLeaf, updateSizes, insertChildAt,
+  appendPaneLeaf,
+  findLeafByPaneId,
+  generateNodeId,
+  generatePaneId,
+  removeLeaf,
+  splitPaneLeaf,
+  updateSizes,
 } from "./workspaceSplitTree";
 
 export { relayPool } from "./relayConnection";
@@ -42,7 +46,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         if (!tree) {
           newTree = newLeaf;
         } else {
-          newTree = addPaneToTree(tree, newLeaf, get().activePane);
+          newTree = appendPaneLeaf(tree, newLeaf, get().activePane);
         }
 
         set((state) => ({
@@ -51,6 +55,24 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           mobileActiveIndex: state.panes.length,
           splitTree: newTree,
         }));
+        return id;
+      },
+
+      openDeepLinkedPane: (podKey) => {
+        const current = get().panes.find((pane) => pane.podKey === podKey);
+        const id = current?.id ?? generatePaneId();
+        const pane: WorkspacePane = { id, podKey };
+        const splitTree: SplitTreeLeaf = {
+          type: "leaf",
+          id: generateNodeId(),
+          paneId: id,
+        };
+        set({
+          panes: [pane],
+          activePane: id,
+          mobileActiveIndex: 0,
+          splitTree,
+        });
         return id;
       },
 
@@ -103,7 +125,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           const newPane: WorkspacePane = { id: newPaneId, podKey };
           const newLeaf: SplitTreeLeaf = { type: "leaf", id: generateNodeId(), paneId: newPaneId };
 
-          const newTree = splitLeafInTree(tree, leaf, newLeaf, direction);
+          const newTree = splitPaneLeaf(tree, leaf, newLeaf, direction);
           return { panes: [...state.panes, newPane], activePane: newPaneId, splitTree: newTree };
         });
       },
@@ -164,49 +186,3 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     }
   )
 );
-
-function addPaneToTree(
-  tree: SplitTreeNode,
-  newLeaf: SplitTreeLeaf,
-  activePaneId: string | null,
-): SplitTreeNode {
-  const activeLeaf = activePaneId ? findLeafByPaneId(tree, activePaneId) : null;
-  const parent = activeLeaf ? findParentSplit(tree, activeLeaf.id) : null;
-
-  if (parent && activeLeaf) {
-    const idx = parent.children.findIndex((c) => c.id === activeLeaf.id);
-    const evenSize = 100 / (parent.children.length + 1);
-    const evenSizes = Array.from({ length: parent.children.length + 1 }, () => evenSize);
-    return insertChildAt(tree, parent.id, newLeaf, idx, evenSizes);
-  }
-
-  const split: SplitTreeSplit = {
-    type: "split", id: generateNodeId(), direction: "horizontal",
-    children: [tree, newLeaf], sizes: [50, 50],
-  };
-  return split;
-}
-
-function splitLeafInTree(
-  tree: SplitTreeNode,
-  leaf: SplitTreeLeaf,
-  newLeaf: SplitTreeLeaf,
-  direction: "horizontal" | "vertical",
-): SplitTreeNode {
-  const parent = findParentSplit(tree, leaf.id);
-
-  if (parent && parent.direction === direction) {
-    const idx = parent.children.findIndex((c) => c.id === leaf.id);
-    const targetSize = parent.sizes[idx];
-    const newSizes = [...parent.sizes];
-    newSizes[idx] = targetSize / 2;
-    newSizes.splice(idx + 1, 0, targetSize / 2);
-    return insertChildAt(tree, parent.id, newLeaf, idx, newSizes);
-  }
-
-  const splitNode: SplitTreeSplit = {
-    type: "split", id: generateNodeId(), direction,
-    children: [{ ...leaf }, newLeaf], sizes: [50, 50],
-  };
-  return replaceNode(tree, leaf.id, splitNode);
-}

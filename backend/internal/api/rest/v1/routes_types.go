@@ -2,12 +2,15 @@ package v1
 
 import (
 	grpcserver "github.com/anthropics/agentsmesh/backend/internal/api/grpc"
+	agentworkbenchdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentworkbench"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/acme"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/email"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/websocket"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
+	agentworkbenchsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentworkbench"
 	airesourcesvc "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	apikeyservice "github.com/anthropics/agentsmesh/backend/internal/service/apikey"
 	"github.com/anthropics/agentsmesh/backend/internal/service/auth"
@@ -23,6 +26,7 @@ import (
 	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
 	"github.com/anthropics/agentsmesh/backend/internal/service/organization"
+	previewservice "github.com/anthropics/agentsmesh/backend/internal/service/preview"
 	"github.com/anthropics/agentsmesh/backend/internal/service/promocode"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
@@ -37,6 +41,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/user"
 	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
 	workflow "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
+	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -81,8 +86,14 @@ type Services struct {
 	// NOTE: GitProvider and SSHKey services have been removed (moved to user-level settings)
 
 	// gRPC/mTLS Runner registration handler (optional, only when PKI is enabled)
-	GRPCRunnerHandler *GRPCRunnerHandler
-	RunnerGRPCAdapter *grpcserver.GRPCRunnerAdapter
+	GRPCRunnerHandler      *GRPCRunnerHandler
+	RunnerGRPCAdapter      *grpcserver.GRPCRunnerAdapter
+	AgentWorkbenchRepo     agentworkbenchdomain.PersistenceRepository
+	AgentWorkbenchHub      *agentworkbenchsvc.DeltaHub
+	AgentWorkbenchIngress  *agentworkbenchsvc.Ingress
+	AgentWorkbenchCommands *agentworkbenchsvc.CommandDispatcher
+	AgentSessions          *sessionsvc.Service
+	EmbedTokens            *embedtoken.Service
 
 	// Sandbox query service
 	SandboxQueryService *runner.SandboxQueryService // Sandbox status query service
@@ -145,7 +156,8 @@ type Services struct {
 	TokenUsage *tokenusagesvc.Service
 
 	// Resource grant/sharing service
-	Grant *grantservice.Service
+	Grant           *grantservice.Service
+	PreviewSessions *previewservice.Service
 
 	// Redis is optional — when non-nil, route-level rate limiters can use it.
 	// Nil in tests or minimal deployments; middleware treats nil as no-op.

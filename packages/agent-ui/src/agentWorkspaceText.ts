@@ -27,6 +27,9 @@ import {
 export type AgentWorkspaceLocale = "en-US" | "zh-CN";
 export interface AgentWorkspaceText {
   conversation: string;
+  results: string;
+  artifacts: string;
+  workspaceViews: string;
   terminal: string;
   plan: string;
   agentPlan: string;
@@ -79,6 +82,9 @@ export function agentWorkspaceText(
 
 const enUS: AgentWorkspaceText = {
   conversation: "Conversation",
+  results: "Results",
+  artifacts: "Artifacts",
+  workspaceViews: "Workspace views",
   terminal: "Terminal",
   plan: "Plan",
   agentPlan: "Agent plan",
@@ -120,6 +126,9 @@ const enUS: AgentWorkspaceText = {
 
 const zhCN: AgentWorkspaceText = {
   conversation: "对话",
+  results: "成果",
+  artifacts: "成果列表",
+  workspaceViews: "工作区视图",
   terminal: "终端",
   plan: "执行计划",
   agentPlan: "智能体执行计划",

@@ -1,0 +1,152 @@
+syntax = "proto3";
+
+package proto.agent_workbench.v2;
+
+import "agent_workbench/v2/content.proto";
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
+
+message SendPromptCommand {
+  string text = 1;
+  repeated ContentBlock attachments = 2;
+}
+
+message InterruptCommand {
+  optional string turn_id = 1;
+  optional string reason = 2;
+}
+
+message ConfigurationValue {
+  string key = 1;
+  StructuredPayload value = 2;
+}
+
+message ChangeConfigurationCommand {
+  repeated ConfigurationValue values = 1;
+}
+
+enum PermissionDecision {
+  PERMISSION_DECISION_UNSPECIFIED = 0;
+  PERMISSION_DECISION_ACCEPT = 1;
+  PERMISSION_DECISION_DECLINE = 2;
+}
+
+message ResolvePermissionCommand {
+  string permission_request_id = 1;
+  PermissionDecision decision = 2;
+  optional StructuredPayload response = 3;
+}
+
+message ArtifactActionCommand {
+  string artifact_id = 1;
+  string representation_id = 2;
+  uint64 base_revision = 3;
+  string client_action_id = 4;
+  string action_type = 5;
+  StructuredPayload payload = 6;
+  string action_schema_version = 7;
+}
+
+message TerminalInput {
+  bytes data = 1;
+}
+
+message TerminalResize {
+  uint32 columns = 1;
+  uint32 rows = 2;
+}
+
+message TerminalSignal {
+  string signal = 1;
+}
+
+message TerminalAcquireControl {
+  string client_label = 1;
+}
+
+message TerminalRenewControl {}
+
+message TerminalReleaseControl {}
+
+message TerminalOperationCommand {
+  string resource_id = 1;
+  optional string lease_id = 2;
+  optional uint64 fencing_epoch = 3;
+  oneof operation {
+    TerminalInput input = 10;
+    TerminalResize resize = 11;
+    TerminalSignal signal = 12;
+    TerminalAcquireControl acquire_control = 13;
+    TerminalRenewControl renew_control = 14;
+    TerminalReleaseControl release_control = 15;
+  }
+}
+
+message ExtensionCommand {
+  string namespace = 1;
+  string semantic_type = 2;
+  string schema_version = 3;
+  StructuredPayload payload = 4;
+}
+
+message UnsupportedCommand {
+  string namespace = 1;
+  string semantic_type = 2;
+  string schema_version = 3;
+  StructuredPayload payload = 4;
+}
+
+message CommandEnvelope {
+  string session_id = 1;
+  string stream_epoch = 2;
+  string command_id = 3;
+  string payload_digest = 4;
+  optional uint64 expected_revision = 5;
+  string issued_at = 6;
+  oneof command {
+    SendPromptCommand send_prompt = 10;
+    InterruptCommand interrupt = 11;
+    ChangeConfigurationCommand change_configuration = 12;
+    ResolvePermissionCommand resolve_permission = 13;
+    ArtifactActionCommand artifact_action = 14;
+    TerminalOperationCommand terminal_operation = 15;
+    ExtensionCommand extension = 16;
+    UnsupportedCommand unsupported = 100;
+  }
+}
+
+enum CommandReceiptState {
+  COMMAND_RECEIPT_STATE_UNSPECIFIED = 0;
+  COMMAND_RECEIPT_STATE_RECEIVED = 1;
+  COMMAND_RECEIPT_STATE_ACCEPTED = 2;
+  COMMAND_RECEIPT_STATE_RUNNING = 3;
+  COMMAND_RECEIPT_STATE_SUCCEEDED = 4;
+  COMMAND_RECEIPT_STATE_FAILED = 5;
+  COMMAND_RECEIPT_STATE_REJECTED = 6;
+  COMMAND_RECEIPT_STATE_CANCELLED = 7;
+}
+
+message FieldViolation {
+  string field = 1;
+  string description = 2;
+}
+
+message AgentError {
+  string code = 1;
+  string message = 2;
+  bool retryable = 3;
+  optional StructuredPayload details = 4;
+  optional uint64 current_revision = 5;
+  repeated FieldViolation field_violations = 6;
+}
+
+message CommandReceipt {
+  string session_id = 1;
+  string command_id = 2;
+  CommandReceiptState state = 3;
+  string payload_digest = 4;
+  optional uint64 resulting_revision = 5;
+  optional AgentError error = 6;
+  optional string received_at = 7;
+  optional string updated_at = 8;
+}

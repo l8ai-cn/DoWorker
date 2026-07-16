@@ -1,0 +1,197 @@
+syntax = "proto3";
+
+package proto.agent_workbench.v2;
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
+
+message ContentIdentity {
+  string namespace = 1;
+  string semantic_key = 2;
+  string schema_version = 3;
+  optional string source_type = 4;
+}
+
+message StructuredPayload {
+  string media_type = 1;
+  bytes data = 2;
+}
+
+enum UnsupportedReason {
+  UNSUPPORTED_REASON_UNSPECIFIED = 0;
+  UNSUPPORTED_REASON_UNKNOWN = 1;
+  UNSUPPORTED_REASON_UNSUPPORTED = 2;
+  UNSUPPORTED_REASON_INVALID = 3;
+}
+
+message UnsupportedValue {
+  ContentIdentity identity = 1;
+  UnsupportedReason reason = 2;
+  StructuredPayload payload = 3;
+}
+
+message TextContent {
+  string text = 1;
+}
+
+message MarkdownContent {
+  string markdown = 1;
+}
+
+message CodeContent {
+  string code = 1;
+  optional string language = 2;
+  optional string filename = 3;
+}
+
+message JsonContent {
+  StructuredPayload value = 1;
+}
+
+message TableColumn {
+  string key = 1;
+  string label = 2;
+  optional string value_type = 3;
+}
+
+message TableRow {
+  repeated StructuredPayload cells = 1;
+}
+
+message TableContent {
+  repeated TableColumn columns = 1;
+  repeated TableRow rows = 2;
+}
+
+message DiffContent {
+  string patch = 1;
+  optional string path = 2;
+  optional string language = 3;
+  bool truncated = 4;
+}
+
+message CommandContent {
+  string command = 1;
+  optional string cwd = 2;
+  optional int32 exit_code = 3;
+}
+
+message LogContent {
+  string level = 1;
+  string message = 2;
+  optional string created_at = 3;
+  optional StructuredPayload fields = 4;
+}
+
+message ProgressContent {
+  string stage = 1;
+  optional string message = 2;
+  optional uint64 current = 3;
+  optional uint64 total = 4;
+  optional double fraction = 5;
+  optional string unit = 6;
+}
+
+message ErrorContent {
+  string code = 1;
+  string message = 2;
+  optional StructuredPayload details = 3;
+}
+
+message MediaContent {
+  string artifact_id = 1;
+  string representation_id = 2;
+  uint64 revision = 3;
+  string media_type = 4;
+  optional string role = 5;
+  optional string filename = 6;
+  optional string alt_text = 7;
+}
+
+message ImageComparisonContent {
+  MediaContent source = 1;
+  MediaContent result = 2;
+  optional string default_mode = 3;
+}
+
+message AnnotationContent {
+  MediaContent source = 1;
+  StructuredPayload annotations = 2;
+}
+
+message HtmlContent {
+  string security_profile = 1;
+  oneof payload {
+    string source = 2;
+    MediaContent artifact = 3;
+  }
+}
+
+message LivePreviewContent {
+  string resource_id = 1;
+  string security_profile = 2;
+  optional string session_url = 3;
+}
+
+message LinkContent {
+  string url = 1;
+  optional string label = 2;
+  optional string media_type = 3;
+}
+
+message CitationContent {
+  string citation_id = 1;
+  string label = 2;
+  optional string url = 3;
+  optional string excerpt = 4;
+}
+
+message ArtifactReferenceContent {
+  string artifact_id = 1;
+  optional string representation_id = 2;
+  optional uint64 revision = 3;
+  optional string role = 4;
+}
+
+message RestrictedIframeContent {
+  string renderer_id = 1;
+  string protocol_version = 2;
+  string url = 3;
+  string origin = 4;
+  repeated string sandbox_tokens = 5;
+  repeated string permissions = 6;
+  uint64 max_inbound_bytes = 7;
+  uint64 max_outbound_bytes = 8;
+}
+
+message ContentBlock {
+  string content_id = 1;
+  ContentIdentity identity = 2;
+  oneof content {
+    TextContent text = 10;
+    MarkdownContent markdown = 11;
+    CodeContent code = 12;
+    JsonContent json = 13;
+    TableContent table = 14;
+    DiffContent diff = 15;
+    CommandContent command = 16;
+    LogContent log = 17;
+    ProgressContent progress = 18;
+    ErrorContent error = 19;
+    MediaContent image = 20;
+    ImageComparisonContent image_comparison = 21;
+    AnnotationContent annotation = 22;
+    MediaContent video = 23;
+    MediaContent audio = 24;
+    HtmlContent html = 25;
+    LivePreviewContent live_preview = 26;
+    MediaContent pdf = 27;
+    MediaContent presentation = 28;
+    MediaContent spreadsheet = 29;
+    MediaContent file = 30;
+    LinkContent link = 31;
+    CitationContent citation = 32;
+    ArtifactReferenceContent artifact_ref = 33;
+    RestrictedIframeContent restricted_iframe = 34;
+    UnsupportedValue unsupported = 100;
+  }
+}

@@ -1,18 +1,16 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/anthropics/agentsmesh/relay/internal/auth"
+	relaybackend "github.com/anthropics/agentsmesh/relay/internal/backend"
 )
 
-// HandlePreviewSession exchanges a one-shot preview JWT (query param) for a
-// short-lived HttpOnly cookie scoped to this pod's preview path, then
-// redirects to the preview base URL. This keeps the raw token out of every
-// subsequent request URL/referrer once the iframe session is established.
-//
-// GET /preview/{podKey}/__session?token=<preview-jwt>
+const previewSessionTTL = 15 * time.Minute
+
 func (h *PreviewHandler) HandlePreviewSession(w http.ResponseWriter, r *http.Request) {
 	if !h.requirePublicHost(w, r) {
 		return
@@ -32,30 +30,56 @@ func (h *PreviewHandler) handlePreviewSession(w http.ResponseWriter, r *http.Req
 		writePreviewError(w, "token_required", http.StatusUnauthorized)
 		return
 	}
-	claims, err := h.validator.ValidateToken(tokenStr)
+	expectedOrigin, err := previewOriginForPod(h.cfg.PublicOrigin, podKey)
 	if err != nil {
 		writePreviewError(w, "invalid_token", http.StatusUnauthorized)
 		return
 	}
-	if claims.ResolvedType() != auth.TokenTypePreview || claims.PodKey != podKey {
+	claims, err := h.validator.ValidatePreviewToken(
+		tokenStr,
+		auth.TokenTypePreviewBootstrap,
+		expectedOrigin,
+	)
+	if err != nil {
 		writePreviewError(w, "invalid_token", http.StatusUnauthorized)
 		return
 	}
-
-	maxAge := int(time.Until(claims.ExpiresAt.Time).Seconds())
-	if maxAge <= 0 {
-		writePreviewError(w, "token_expired", http.StatusUnauthorized)
+	if claims.PodKey != podKey {
+		writePreviewError(w, "invalid_token", http.StatusUnauthorized)
+		return
+	}
+	if h.sessionIssuer == nil {
+		writePreviewError(w, "preview_session_unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	session, err := h.sessionIssuer.Issue(claims, previewSessionTTL)
+	if err != nil {
+		writePreviewError(w, "preview_session_unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	if h.sessionBackend == nil {
+		writePreviewError(w, "preview_bootstrap_unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	if err := h.sessionBackend.RedeemPreviewBootstrap(r.Context(), claims.ID, relaybackend.PreviewSessionRegistration{
+		ID: session.ID, PodKey: claims.PodKey, UserID: claims.UserID,
+		OrgID: claims.OrgID, ExpiresAt: session.ExpiresAt,
+	}); err != nil {
+		if errors.Is(err, relaybackend.ErrPreviewBootstrapConsumed) {
+			writePreviewError(w, "invalid_token", http.StatusUnauthorized)
+			return
+		}
+		writePreviewError(w, "preview_bootstrap_unavailable", http.StatusServiceUnavailable)
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     previewCookieName,
-		Value:    tokenStr,
-		Path:     "/preview/" + podKey,
-		HttpOnly: true,
-		Secure:   h.cfg.CookieSecure,
-		SameSite: http.SameSiteLaxMode,
-		MaxAge:   maxAge,
-	})
+	cookie, err := h.previewSessionCookie(podKey, session.Token)
+	if err != nil {
+		writePreviewError(w, "preview_session_unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	http.SetCookie(w, cookie)
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Referrer-Policy", "no-referrer")
 	http.Redirect(w, r, "/preview/"+podKey+"/", http.StatusFound)
 }

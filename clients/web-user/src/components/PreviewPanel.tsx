@@ -11,24 +11,30 @@ import { cn } from "@/lib/utils";
 import { buildPreviewSrc, PodPreviewError, usePodPreview } from "@/hooks/usePodPreview";
 
 export interface PreviewPanelProps {
-  /** The pod whose loopback HTTP/WS services this panel previews. */
   podKey: string;
   className?: string;
 }
 
-/**
- * Embeds a pod's HTTP preview (dev server, static site, etc.) via the
- * Gateway's `/preview/{podKey}/*` HTTP data plane. The iframe uses the
- * session URL so preview navigation can keep cookie-based auth separate from
- * query-string credentials.
- */
+export function buildPreviewWindowUrl(
+  info: { session_url: string },
+  appOrigin = window.location.origin,
+): string {
+  const shellUrl = new URL("/preview-window.html", appOrigin);
+  shellUrl.hash = encodeURIComponent(info.session_url);
+  return shellUrl.href;
+}
+
 export function PreviewPanel({ podKey, className }: PreviewPanelProps) {
   const query = usePodPreview(podKey);
   const [reloadNonce, setReloadNonce] = useState(0);
 
   const openInNewWindow = () => {
     if (!query.data) return;
-    window.open(buildPreviewSrc(query.data), "_blank", "noopener,noreferrer");
+    window.open(
+      buildPreviewWindowUrl(query.data),
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   const refresh = () => {
@@ -41,13 +47,13 @@ export function PreviewPanel({ podKey, className }: PreviewPanelProps) {
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col overflow-hidden bg-card", className)}>
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2">
-        <span className="text-xs font-medium text-muted-foreground">Preview</span>
+        <span className="text-xs font-medium text-muted-foreground">应用预览</span>
         <div className="flex items-center gap-1">
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label="Refresh preview"
+            aria-label="刷新预览"
             onClick={refresh}
             disabled={query.isFetching}
           >
@@ -57,7 +63,7 @@ export function PreviewPanel({ podKey, className }: PreviewPanelProps) {
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label="Open preview in new window"
+            aria-label="在新窗口打开预览"
             onClick={openInNewWindow}
             disabled={!query.data}
           >
@@ -69,7 +75,7 @@ export function PreviewPanel({ podKey, className }: PreviewPanelProps) {
         {showLoading ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
             <Loader2Icon className="size-5 animate-spin" />
-            <span>Loading preview…</span>
+            <span>正在加载预览</span>
           </div>
         ) : query.isError ? (
           <PreviewErrorState error={query.error} onRetry={refresh} />
@@ -78,7 +84,10 @@ export function PreviewPanel({ podKey, className }: PreviewPanelProps) {
             key={getPreviewFrameKey(query.data, reloadNonce)}
             title={`Pod ${podKey} preview`}
             src={buildPreviewSrc(query.data)}
-            sandbox="allow-scripts allow-same-origin allow-forms"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-downloads"
+            referrerPolicy="no-referrer"
+            allow="fullscreen 'self'"
+            allowFullScreen
             className="h-full w-full border-0"
           />
         ) : null}
@@ -103,7 +112,7 @@ function PreviewErrorState({ error, onRetry }: { error: Error | null; onRetry: (
       <span className="font-medium text-foreground">{title}</span>
       <span>{detail}</span>
       <Button type="button" variant="outline" size="sm" onClick={onRetry} className="mt-2">
-        Retry
+        重试
       </Button>
     </div>
   );
@@ -118,32 +127,32 @@ function describeError(status: number | undefined): {
     case 403:
       return {
         Icon: ShieldAlertIcon,
-        title: "Access denied",
-        detail: "You don't have permission to preview this pod.",
+        title: "无权访问",
+        detail: "你没有查看这个工作区预览的权限。",
       };
     case 404:
       return {
         Icon: CloudOffIcon,
-        title: "Preview unavailable",
-        detail: "Preview is not enabled for this pod.",
+        title: "预览不可用",
+        detail: "这个工作区尚未启用预览服务。",
       };
     case 409:
       return {
         Icon: CloudOffIcon,
-        title: "Pod not active",
-        detail: "Start the pod to preview it.",
+        title: "工作区未运行",
+        detail: "启动工作区后才能查看预览。",
       };
     case 503:
       return {
         Icon: CloudOffIcon,
-        title: "Preview offline",
-        detail: "The pod's tunnel isn't connected right now.",
+        title: "预览已离线",
+        detail: "工作区的预览通道当前未连接。",
       };
     default:
       return {
         Icon: CloudOffIcon,
-        title: "Couldn't load preview",
-        detail: "Something went wrong loading the preview.",
+        title: "无法加载预览",
+        detail: "加载预览时发生错误。",
       };
   }
 }

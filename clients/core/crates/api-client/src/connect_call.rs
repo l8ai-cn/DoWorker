@@ -27,6 +27,38 @@ where
     Req: Message,
     Res: Message + Default,
 {
+    let authorization = client
+        .auth_store
+        .get_token()
+        .and_then(|token| HeaderValue::from_str(&format!("Bearer {token}")).ok());
+    connect_call_with_authorization(client, procedure, body, authorization).await
+}
+
+pub(crate) async fn connect_call_with_bearer<Req, Res>(
+    client: &ApiClient,
+    procedure: &str,
+    body: &Req,
+    bearer_token: &str,
+) -> Result<Res, ApiError>
+where
+    Req: Message,
+    Res: Message + Default,
+{
+    let authorization = HeaderValue::from_str(&format!("Bearer {bearer_token}"))
+        .map_err(|error| ApiError::Decode(format!("invalid authorization header: {error}")))?;
+    connect_call_with_authorization(client, procedure, body, Some(authorization)).await
+}
+
+async fn connect_call_with_authorization<Req, Res>(
+    client: &ApiClient,
+    procedure: &str,
+    body: &Req,
+    authorization: Option<HeaderValue>,
+) -> Result<Res, ApiError>
+where
+    Req: Message,
+    Res: Message + Default,
+{
     let url = format!("{}{}", client.base_url, procedure);
     let payload = body.encode_to_vec();
     tracing::debug!(target: "api", procedure, bytes = payload.len(), "connect_call →");
@@ -44,15 +76,8 @@ where
         )
         .body(payload);
 
-    if let Some(token) = client.auth_store.get_token() {
-        let bearer = format!("Bearer {token}");
-        // The token is user-controlled (in tests) but reqwest validates
-        // header values; we fall back to silently omitting the header when
-        // it can't be encoded so the call still hits the 401 path instead
-        // of panicking. Production tokens are always ASCII JWTs.
-        if let Ok(v) = HeaderValue::from_str(&bearer) {
-            builder = builder.header(HeaderName::from_static("authorization"), v);
-        }
+    if let Some(value) = authorization {
+        builder = builder.header(HeaderName::from_static("authorization"), value);
     }
 
     let resp = builder.send().await?;

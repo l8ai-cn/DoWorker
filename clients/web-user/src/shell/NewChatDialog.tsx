@@ -1202,14 +1202,12 @@ function AgentHarnessPicker({
   bypassSandbox,
   pickedModel,
   pickedEffort,
-  pickedHarness,
   setPermissionMode,
   setApprovalMode,
   setCursorExecMode,
   setBypassSandbox,
   setPickedModel,
   setPickedEffort,
-  setPickedHarness,
   workerModelConfigId,
   setWorkerModelConfigId,
   workerTokenBudget,
@@ -1232,14 +1230,12 @@ function AgentHarnessPicker({
   bypassSandbox: boolean;
   pickedModel: string;
   pickedEffort: string;
-  pickedHarness: string | null;
   setPermissionMode: (mode: string) => void;
   setApprovalMode: (mode: string) => void;
   setCursorExecMode: (mode: string) => void;
   setBypassSandbox: (enabled: boolean) => void;
   setPickedModel: (model: string) => void;
   setPickedEffort: (effort: string) => void;
-  setPickedHarness: (harness: string | null) => void;
   workerModelConfigId: number | null;
   setWorkerModelConfigId: (id: number | null) => void;
   workerTokenBudget: number | null;
@@ -2938,14 +2934,12 @@ export function NewChatLandingScreen() {
                   bypassSandbox={bypassSandbox}
                   pickedModel={pickedModel}
                   pickedEffort={pickedEffort}
-                  pickedHarness={pickedHarness}
                   setPermissionMode={setPermissionMode}
                   setApprovalMode={setApprovalMode}
                   setCursorExecMode={setCursorExecMode}
                   setBypassSandbox={setBypassSandbox}
                   setPickedModel={setPickedModel}
                   setPickedEffort={setPickedEffort}
-                  setPickedHarness={setPickedHarness}
                   workerModelConfigId={modelConfigId}
                   setWorkerModelConfigId={setModelConfigId}
                   workerTokenBudget={workerTokenBudget}

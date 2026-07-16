@@ -94,3 +94,12 @@ func (c *SidecarServices) SetProviders(status mcp.PodStatusProvider, pod mcp.Loc
 	c.mcpServer.SetStatusProvider(status)
 	c.mcpServer.SetPodProvider(pod)
 }
+
+func (c *SidecarServices) SetWorkbenchArtifactPublisher(
+	publisher mcp.WorkbenchArtifactPublisher,
+) {
+	if c == nil || c.mcpServer == nil {
+		return
+	}
+	c.mcpServer.SetWorkbenchArtifactPublisher(publisher)
+}

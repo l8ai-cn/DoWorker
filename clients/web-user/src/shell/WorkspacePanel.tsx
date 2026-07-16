@@ -270,7 +270,7 @@ export function WorkspacePanel({
   return (
     <aside
       aria-label="Workspace"
-      {...(inert ? { inert: "" } : {})}
+      {...(inert ? { inert: true } : {})}
       // Floating card on desktop: detached from the chat + window edges by
       // margins (no left margin — the left edge hosts the resize handle and
       // butts against main), rounded, bordered, and lifted off the

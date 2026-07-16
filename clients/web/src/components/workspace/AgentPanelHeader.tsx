@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AgentStatusBadge } from "@/components/shared/AgentStatusBadge";
 import { usePod } from "@/stores/pod";
-import { useAcpSessionField } from "@/stores/acpSession";
 import { usePodTitle } from "@/hooks/usePodTitle";
 import { getShortPodKey } from "@/lib/pod-display-name";
 import { MobileAccessHeaderButton } from "@/components/mobile-worker/MobileAccessHeaderButton";
@@ -39,11 +38,11 @@ export function AgentPanelHeader({
   onClose,
 }: AgentPanelHeaderProps) {
   const title = usePodTitle(podKey);
-  const sessionState = useAcpSessionField(podKey, (s) => s.state);
+  const pod = usePod(podKey);
 
   const statusColor = (() => {
-    switch (sessionState) {
-      case "processing":
+    switch (pod?.agent_status) {
+      case "executing":
         return "text-info animate-pulse";
       case "waiting_permission":
         return "text-warning animate-pulse";

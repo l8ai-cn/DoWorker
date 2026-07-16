@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package proto.agent_workbench.v2;
+
+import "agent_workbench/v2/artifact.proto";
+import "agent_workbench/v2/command.proto";
+import "agent_workbench/v2/configuration.proto";
+import "agent_workbench/v2/content.proto";
+import "agent_workbench/v2/session.proto";
+import "agent_workbench/v2/session_state.proto";
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
+
+message RunnerSourceEvent {
+  string stable_event_id = 1;
+  uint64 source_sequence = 2;
+  string occurred_at = 3;
+  optional string causation_command_id = 4;
+  optional StructuredPayload source_payload = 5;
+}
+
+enum RunnerTimelineOperation {
+  RUNNER_TIMELINE_OPERATION_UNSPECIFIED = 0;
+  RUNNER_TIMELINE_OPERATION_APPEND = 1;
+  RUNNER_TIMELINE_OPERATION_UPDATE = 2;
+}
+
+message RunnerTimelineMutation {
+  RunnerTimelineOperation operation = 1;
+  string item_id = 2;
+  optional string parent_id = 3;
+  optional string turn_id = 4;
+  TimelineItemContent content = 5;
+}
+
+message RunnerPermissionResolutionMutation {
+  PermissionResolution resolution = 1;
+}
+
+message RunnerStatusMutation {
+  SessionStatus status = 1;
+  optional AgentError error = 2;
+}
+
+message RunnerUnsupportedMutation {
+  UnsupportedValue value = 1;
+}
+
+message RunnerWorkbenchMutation {
+  RunnerSourceEvent source = 1;
+  oneof mutation {
+    RunnerTimelineMutation timeline = 10;
+    ArtifactDescriptor artifact = 11;
+    PermissionRequest permission_request = 12;
+    RunnerPermissionResolutionMutation permission_resolution = 13;
+    SessionResource resource = 14;
+    SupportCapabilities capabilities = 15;
+    RunnerStatusMutation status = 16;
+    SessionConfiguration configuration = 17;
+    RunnerUnsupportedMutation unsupported = 100;
+  }
+}
+
+message RunnerWorkbenchEventBatch {
+  string pod_key = 1;
+  optional string external_session_id = 2;
+  string adapter_id = 3;
+  string source_protocol_version = 4;
+  string runner_session_epoch = 5;
+  repeated RunnerWorkbenchMutation mutations = 6;
+}
