@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: operator-catalog-bootstrap
+  namespace: agentsmesh
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: operator-catalog-bootstrap
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: agentsmesh-regcred
+      containers:
+        - name: bootstrap
+          image: __BACKEND_IMAGE__
+          imagePullPolicy: Always
+          command:
+            - /app/server
+            - bootstrap-marketplace
+            - --organization
+            - dev-org
+            - --publisher
+            - admin@agentsmesh.local
+            - --reviewer
+            - admin@agentsmesh.local
+            - --model-resource-id
+            - "1"
+            - --runtime-image-id
+            - "4"
+          envFrom:
+            - configMapRef:
+                name: agentsmesh-config
+            - secretRef:
+                name: agentsmesh-secrets

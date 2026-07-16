@@ -80,6 +80,11 @@ sync_worker_definitions() {
   dexec "kubectl -n ${NS} wait --for=condition=complete job/worker-definition-sync --timeout=300s"
 }
 
+bootstrap_operator_catalog() {
+  dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; sed \"s|__BACKEND_IMAGE__|\${image}|g\" 26-operator-catalog-bootstrap-job.yaml | kubectl apply -f -"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/operator-catalog-bootstrap --timeout=300s"
+}
+
 apply_all() {
   echo "==> namespace + secrets"
   dexec "kubectl apply -f 00-namespace.yaml"
@@ -93,11 +98,12 @@ apply_all() {
   dexec "kubectl -n ${NS} rollout status deploy/marketplace --timeout=300s"
   dexec "kubectl -n ${NS} rollout status deploy/marketplace-web --timeout=300s"
   echo "==> seed + minio bucket"
-  dexec "kubectl -n ${NS} delete job seed minio-setup worker-definition-sync --ignore-not-found"
+  dexec "kubectl -n ${NS} delete job seed minio-setup worker-definition-sync operator-catalog-bootstrap --ignore-not-found"
   dexec "kubectl apply -f 21-seed-configmap.yaml -f 22-seed-job.yaml -f 13-minio-setup-job.yaml"
   dexec "kubectl -n ${NS} wait --for=condition=complete job/seed --timeout=300s"
   dexec "kubectl -n ${NS} wait --for=condition=complete job/minio-setup --timeout=300s"
   sync_worker_definitions
+  bootstrap_operator_catalog
 }
 
 status() {

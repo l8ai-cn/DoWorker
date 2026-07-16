@@ -111,6 +111,9 @@ Each run is a **full reconcile**, not a DB-only reset:
 4. **Init migrations** — Backend and Marketplace run embedded migrations before
    their application containers start.
 5. **Seed job** — delete old `seed` job, run `21-seed-configmap.yaml` → `seed.sql`.
+6. **Operator catalog** — run the idempotent video Skill/Expert submission,
+   review, and publication bootstrap with model resource `1` and runtime image
+   `4`.
 
 The seed SQL is **idempotent** (`WHERE NOT EXISTS`): it ensures `dev-org`, the
 admin user, subscription, and pre-registered runner `node_id`s exist. It does **not**
