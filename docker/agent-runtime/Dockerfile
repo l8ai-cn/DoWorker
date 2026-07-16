@@ -45,9 +45,26 @@ ARG AGENT_RUNTIME=e2e-echo
 ARG HERMES_AGENT_VERSION=0.18.2
 ARG MINIMAX_CLI_VERSION=1.0.16
 ARG OPENCLAW_VERSION=2026.6.11
+ARG REMOTION_VERSION=4.0.489
 ENV AGENT_RUNTIME=${AGENT_RUNTIME}
 
-RUN install_python_pip() { \
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' \
+      /etc/apt/sources.list.d/debian.sources
+
+RUN install_apt() { \
+      ok=0; \
+      for attempt in 1 2 3 4 5 6 7 8; do \
+        if apt-get update \
+          && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"; then \
+          ok=1; \
+          break; \
+        fi; \
+        echo "apt install attempt ${attempt} failed, retrying..." >&2; \
+        sleep 20; \
+      done; \
+      test "$ok" = 1; \
+    }; \
+    install_python_pip() { \
       ok=0; \
       for attempt in 1 2 3 4 5 6 7 8; do \
         if apt-get update \
@@ -63,6 +80,18 @@ RUN install_python_pip() { \
     case "${AGENT_RUNTIME}" in \
       claude-code) npm install -g @anthropic-ai/claude-code ;; \
       codex-cli) npm install -g @openai/codex ;; \
+      video-studio) \
+        install_apt chromium ffmpeg fontconfig fonts-noto-cjk python3 python3-pip \
+        && npm install -g @openai/codex \
+        && mkdir -p /opt/video-studio \
+        && npm install --prefix /opt/video-studio --omit=dev \
+          "@remotion/cli@${REMOTION_VERSION}" \
+          "remotion@${REMOTION_VERSION}" \
+          react@19.2.4 \
+          react-dom@19.2.4 \
+        && ln -s "$(command -v codex)" /usr/local/bin/video-studio-codex \
+        && ln -s /opt/video-studio/node_modules/.bin/remotion /usr/local/bin/remotion \
+        && rm -rf /var/lib/apt/lists/* ;; \
       cursor-cli) \
         curl --fail --show-error --silent --location https://cursor.com/install -o /tmp/cursor-install.sh \
         && bash -c 'curl() { command curl --retry 5 --retry-delay 2 --retry-all-errors "$@"; }; export -f curl; bash /tmp/cursor-install.sh' \
@@ -85,7 +114,10 @@ RUN install_python_pip() { \
         install_python_pip \
         && pip3 install --break-system-packages aider-chat \
         && rm -rf /var/lib/apt/lists/* ;; \
-      e2e-echo|loopal|do-agent) true ;; \
+      do-agent) \
+        install_apt ffmpeg python3 python3-pip \
+        && rm -rf /var/lib/apt/lists/* ;; \
+      e2e-echo|loopal) true ;; \
       *) echo "unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2; exit 1 ;; \
     esac \
     && npm cache clean --force
@@ -96,7 +128,7 @@ RUN groupmod -n runner node \
     && mkdir -p /workspace /app /home/runner/.do-worker \
     && case "${AGENT_RUNTIME}" in \
          claude-code) mkdir -p /home/runner/.claude ;; \
-         codex-cli) mkdir -p /home/runner/.codex ;; \
+         codex-cli|video-studio) mkdir -p /home/runner/.codex ;; \
          cursor-cli) mkdir -p /home/runner/.cursor ;; \
          gemini-cli) mkdir -p /home/runner/.gemini ;; \
          loopal) mkdir -p /home/runner/.loopal ;; \
@@ -126,6 +158,9 @@ RUN case "${AGENT_RUNTIME}" in \
     esac \
     && rm -f /usr/local/bin/minimax-cli-wrapper.sh \
     && rm -rf /usr/local/lib/do-worker
+
+ENV CHROME_BIN=/usr/bin/chromium \
+    NODE_PATH=/opt/video-studio/node_modules
 
 USER runner
 WORKDIR /app

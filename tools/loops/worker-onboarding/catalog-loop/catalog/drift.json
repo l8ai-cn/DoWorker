@@ -156,6 +156,32 @@
         "evidence/runtime-builds/opencode.json",
         "evidence/runtime-lock-probes.json"
       ]
+    },
+    {
+      "slug": "seedance-expert",
+      "layer": "runtime-catalog",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "missing-immutable-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/seedance-expert.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "video-studio",
+      "layer": "runtime-catalog",
+      "observed": "The published immutable runtime digest could not be pulled from the configured registry.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "invalid-published-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/video-studio.json",
+        "evidence/runtime-lock-probes.json"
+      ]
     }
   ]
 }

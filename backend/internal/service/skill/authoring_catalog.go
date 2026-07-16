@@ -1,0 +1,55 @@
+package skill
+
+import (
+	"context"
+	"fmt"
+
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
+)
+
+func (s *Service) Delete(ctx context.Context, orgID, id int64) error {
+	row, err := s.store.GetByID(ctx, orgID, id)
+	if err != nil {
+		return err
+	}
+	if err := s.store.Delete(ctx, orgID, id); err != nil {
+		return err
+	}
+	if row.GitRepoPath != "" {
+		repoName := s.gitops.RepoNameFromPath(row.GitRepoPath)
+		if delErr := s.gitops.DeleteRepo(ctx, repoName); delErr != nil {
+			s.logger.Warn("skill: repo delete failed", "repo", repoName, "error", delErr)
+		}
+	}
+	return nil
+}
+
+func (s *Service) Get(ctx context.Context, orgID int64, slug string) (*skilldom.Skill, error) {
+	return s.store.GetBySlug(ctx, orgID, slug)
+}
+
+func (s *Service) List(ctx context.Context, orgID int64, limit, offset int) ([]skilldom.Skill, int64, error) {
+	return s.store.List(ctx, orgID, limit, offset)
+}
+
+func (s *Service) ListAll(ctx context.Context, orgID int64) ([]skilldom.Skill, error) {
+	return s.store.ListAll(ctx, orgID)
+}
+
+func (s *Service) prepareFromGit(
+	ctx context.Context,
+	repoPath, branch string,
+) (*extensionsvc.PreparedSkill, error) {
+	repoName := s.gitops.RepoNameFromPath(repoPath)
+	dir, cleanup, err := materializeRepo(ctx, s.gitops, repoName, branch)
+	if err != nil {
+		return nil, err
+	}
+	defer cleanup()
+	prepared, err := s.packager.PrepareCatalogFromDir(ctx, dir, repoPath)
+	if err != nil {
+		return nil, fmt.Errorf("skill: package: %w", err)
+	}
+	return prepared, nil
+}

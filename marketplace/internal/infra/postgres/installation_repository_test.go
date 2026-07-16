@@ -36,6 +36,7 @@ func TestInstallationRepositoryReservesAndSettlesOnce(t *testing.T) {
 		"000006_quota_foundation.up.sql",
 		"000007_entitlement_installation.up.sql",
 		"000008_quota_ledger_audit.up.sql",
+		"000015_single_active_installation.up.sql",
 	} {
 		applyMigration(t, sqlDB, migration)
 	}
@@ -72,6 +73,8 @@ func TestInstallationRepositoryReservesAndSettlesOnce(t *testing.T) {
 	require.Equal(t, service.ApplySucceeded, first.Status)
 	require.Equal(t, first, second)
 	require.Equal(t, 1, runtime.calls)
+	require.Equal(t, int64(101), runtime.lastRequest.PlatformResourceID)
+	require.Equal(t, int64(201), runtime.lastRequest.SourceReleaseID)
 	require.Equal(t, "expert-18", first.RuntimeRef)
 	assertQuotaBalances(t, sqlDB, "80.000000", "0.000000", "20.000000")
 	var entitlementCount, installationCount int
@@ -97,6 +100,28 @@ func TestInstallationRepositoryReservesAndSettlesOnce(t *testing.T) {
 		ActorUserID: 14,
 	}
 	firstExecution, existing, err := repository.BeginApply(ctx, retryCommand)
+	require.ErrorIs(t, err, service.ErrApplicationAlreadyInstalled)
+	require.False(t, existing)
+	require.Empty(t, firstExecution.InstallationID)
+	assertQuotaBalances(t, sqlDB, "80.000000", "0.000000", "20.000000")
+	_, err = sqlDB.Exec(`
+UPDATE marketplace.marketplace_installations
+SET status = 'uninstalled'
+WHERE id = $1::uuid
+`, first.InstallationID)
+	require.NoError(t, err)
+
+	retryPlan, err = orchestration.CreatePlan(ctx, service.CreateInstallationPlanCommand{
+		MarketSlug: "commerce-market", ListingSlug: "listing-optimizer",
+		ListingVersionID: 61, TargetOrganizationID: 9, ActorUserID: 14,
+	})
+	require.NoError(t, err)
+	retryCommand = service.ApplyInstallationCommand{
+		OperationID: retryPlan.OperationID, PlanID: retryPlan.PlanID,
+		PlanDigest: retryPlan.PlanDigest, IdempotencyKey: retryPlan.OperationID,
+		ActorUserID: 14,
+	}
+	firstExecution, existing, err = repository.BeginApply(ctx, retryCommand)
 	require.NoError(t, err)
 	require.False(t, existing)
 	secondExecution, existing, err := repository.BeginApply(ctx, retryCommand)
@@ -109,6 +134,7 @@ func TestInstallationRepositoryReservesAndSettlesOnce(t *testing.T) {
 		service.ErrRuntimeInstallationRejected,
 	)
 	require.NoError(t, err)
+	assertConcurrentSingleActiveInstallation(t, sqlDB, orchestration, repository)
 	assertConcurrentQuotaReservation(t, sqlDB, orchestration, repository)
 
 	_, err = sqlDB.Exec(`
@@ -257,17 +283,21 @@ WHERE id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' FOR UPDATE
 	require.NoError(t, err)
 }
 
-type installationRuntimeStub struct{ calls int }
+type installationRuntimeStub struct {
+	calls       int
+	lastRequest service.RuntimeInstallRequest
+}
 
 func (r *installationRuntimeStub) Authorize(context.Context, int64, int64) error {
 	return nil
 }
 
 func (r *installationRuntimeStub) Install(
-	context.Context,
-	service.RuntimeInstallRequest,
+	_ context.Context,
+	request service.RuntimeInstallRequest,
 ) (service.RuntimeInstallResult, error) {
 	r.calls++
+	r.lastRequest = request
 	return service.RuntimeInstallResult{
 		RuntimeRef: "expert-18",
 		Result:     json.RawMessage(`{"created":true}`),
@@ -325,7 +355,7 @@ INSERT INTO marketplace.marketplace_catalog_item_versions
   (id, catalog_item_id, version, source_revision, content_digest, manifest,
    validation_status, created_by_platform_user_id)
 VALUES (51, 41, '1.0.0', 'sha-1', '$CONTENT_DIGEST$',
-  '{"installation_credits":"20","runtime_snapshot":{"market_application_slug":"software-delivery-expert"}}',
+  '{"installation_credits":"20","source_release":{"application_id":101,"release_id":201,"version":1},"runtime_snapshot":{"market_application_slug":"software-delivery-expert"}}',
   'passed', 14);
 UPDATE marketplace.marketplace_catalog_items SET latest_version_id = 51 WHERE id = 41;
 INSERT INTO marketplace.marketplace_quota_plans

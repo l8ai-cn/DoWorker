@@ -78,7 +78,11 @@ func (resolver *workspaceResolver) ResolveWorkspace(
 	if _, err := resolver.resolveWorkspaceReferences(ctx, scope, workerType, workspace); err != nil {
 		return specdomain.Workspace{}, err
 	}
-	return cloneResolvedWorkspace(workspace), nil
+	resolved := cloneResolvedWorkspace(workspace)
+	if len(resolved.SkillPackages) == 0 {
+		resolved.SkillPackages = resolver.resolvedSkillPackages(resolved.SkillIDs)
+	}
+	return resolved, nil
 }
 
 func (resolver *workspaceResolver) resolveWorkspaceReferences(
@@ -96,22 +100,28 @@ func (resolver *workspaceResolver) resolveWorkspaceReferences(
 		}
 		references.RepositorySlug = repository.Slug
 	}
-	for _, id := range workspace.SkillIDs {
-		row, err := resolver.resolveSkill(ctx, scope, workerType, id)
-		if err != nil {
-			return compilationReferences{}, err
+	if len(workspace.SkillPackages) > 0 {
+		for _, pkg := range workspace.SkillPackages {
+			references.SkillSlugs = append(references.SkillSlugs, pkg.Slug)
 		}
-		if existingID, exists := skillSlugs[row.Slug]; exists {
-			return compilationReferences{}, fmt.Errorf(
-				"%w: skills %d and %d share slug %q",
-				specservice.ErrInvalidDraft,
-				existingID,
-				id,
-				row.Slug,
-			)
+	} else {
+		for _, id := range workspace.SkillIDs {
+			row, err := resolver.resolveSkill(ctx, scope, workerType, id)
+			if err != nil {
+				return compilationReferences{}, err
+			}
+			if existingID, exists := skillSlugs[row.Slug]; exists {
+				return compilationReferences{}, fmt.Errorf(
+					"%w: skills %d and %d share slug %q",
+					specservice.ErrInvalidDraft,
+					existingID,
+					id,
+					row.Slug,
+				)
+			}
+			skillSlugs[row.Slug] = id
+			references.SkillSlugs = append(references.SkillSlugs, row.Slug)
 		}
-		skillSlugs[row.Slug] = id
-		references.SkillSlugs = append(references.SkillSlugs, row.Slug)
 	}
 	for _, mount := range workspace.KnowledgeMounts {
 		row, err := resolver.resolveKnowledge(ctx, scope, mount.KnowledgeBaseID)

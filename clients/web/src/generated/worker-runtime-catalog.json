@@ -527,6 +527,48 @@
       ],
       "runtimeImage": null,
       "validationStatus": "runtime_image_unavailable"
+    },
+    {
+      "slug": "video-studio",
+      "name": "Video Studio",
+      "executable": "video-studio-codex",
+      "adapterId": "codex-app-server",
+      "interactionModes": [
+        "pty",
+        "acp"
+      ],
+      "modelRequirement": {
+        "required": true,
+        "protocol_adapters": [
+          "openai-compatible"
+        ]
+      },
+      "credentialBindings": [
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "openai-compatible",
+          "environmentVariable": "OPENAI_API_KEY"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "approval_mode",
+          "kind": "select",
+          "options": [
+            "untrusted",
+            "on-request",
+            "never"
+          ],
+          "defaultValue": "\"untrusted\""
+        }
+      ],
+      "configDocuments": [],
+      "runtimeImage": {
+        "name": "Video Studio",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
+        "availability": "locked_available"
+      },
+      "validationStatus": "runtime_ready_unverified"
     }
   ]
 }

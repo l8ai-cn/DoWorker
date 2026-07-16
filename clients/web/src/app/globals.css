@@ -5,6 +5,7 @@
 
 /* Light Theme (default) — neutral product palette + restrained teal action accent */
 :root {
+  --font-space-grotesk: "Space Grotesk Variable";
   --background: #FFFFFF;
   --foreground: #111827;
   --card: #FFFFFF;

@@ -64,6 +64,26 @@ describe("workerModelResources", () => {
     ]);
   });
 
+  it("allows OpenAI-compatible resources for video-studio", () => {
+    const openAIProvider: ProviderDefinition = {
+      ...geminiProvider,
+      key: "openai",
+      protocolAdapter: "openai-compatible",
+    };
+    const openAIResource: EffectiveResource = {
+      ...geminiResource,
+      connection: {
+        ...geminiResource.connection!,
+        providerKey: "openai",
+      },
+    };
+
+    expect(agentRequiresModelResource("video-studio")).toBe(true);
+    expect(
+      compatibleModelResources("video-studio", [openAIResource], [openAIProvider]),
+    ).toEqual([openAIResource]);
+  });
+
   it.each(["openclaw", "hermes"])("%s only accepts its declared OpenAI-compatible resource", (agentSlug) => {
     const providers: ProviderDefinition[] = [
       { ...geminiProvider, key: "openai", protocolAdapter: "openai-compatible" },
@@ -101,6 +121,20 @@ describe("workerModelResources", () => {
     expect(compatibleModelResources("minimax-cli", [minimaxResource], [minimaxProvider])).toEqual([
       minimaxResource,
     ]);
+  });
+
+  it("does not offer MiniMax chat resources to Seedance", () => {
+    const minimaxResource: EffectiveResource = {
+      ...geminiResource,
+      connection: {
+        ...geminiResource.connection!,
+        providerKey: "minimax",
+      },
+    };
+
+    expect(
+      compatibleModelResources("seedance-expert", [minimaxResource], [minimaxProvider]),
+    ).toEqual([]);
   });
 
   it("only allows the declared Doubao video-generation resource for Seedance", () => {

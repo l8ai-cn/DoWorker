@@ -39,11 +39,16 @@ func validateSchema(root string) error {
 }
 
 func validateCatalogEntries(entries []catalogWorker) error {
-	if len(entries) != len(formalWorkerSlugs) {
-		return fmt.Errorf("worker definition catalog has %d entries, want %d", len(entries), len(formalWorkerSlugs))
+	if len(entries) == 0 {
+		return fmt.Errorf("worker definition catalog is empty")
 	}
 	slugs := make([]string, 0, len(entries))
+	seen := make(map[string]struct{}, len(entries))
 	for _, entry := range entries {
+		if _, exists := seen[entry.Slug]; exists {
+			return fmt.Errorf("worker definition catalog has duplicate slug %q", entry.Slug)
+		}
+		seen[entry.Slug] = struct{}{}
 		expectedPath := filepath.ToSlash(filepath.Join("config", "worker-types", entry.Slug, "definition.json"))
 		if entry.DefinitionPath != expectedPath {
 			return fmt.Errorf("worker %q has invalid definition_path", entry.Slug)
@@ -53,9 +58,8 @@ func validateCatalogEntries(entries []catalogWorker) error {
 		}
 		slugs = append(slugs, entry.Slug)
 	}
-	sort.Strings(slugs)
-	if strings.Join(slugs, ",") != strings.Join(formalWorkerSlugs, ",") {
-		return fmt.Errorf("worker definition catalog does not match formal Worker slugs")
+	if !sort.StringsAreSorted(slugs) {
+		return fmt.Errorf("worker definition catalog slugs must be sorted")
 	}
 	return nil
 }

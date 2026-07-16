@@ -69,6 +69,8 @@ func (c *Client) Install(
 	body, err := json.Marshal(map[string]any{
 		"installation_id":                 request.InstallationID,
 		"platform_resource_type":          request.PlatformResourceType,
+		"platform_resource_id":            request.PlatformResourceID,
+		"source_release_id":               request.SourceReleaseID,
 		"runtime_snapshot":                request.RuntimeSnapshot,
 		"target_platform_organization_id": request.TargetOrganizationID,
 		"actor_platform_user_id":          request.ActorUserID,

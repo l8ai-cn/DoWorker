@@ -100,6 +100,8 @@ func TestApplyPlanIsIdempotent(t *testing.T) {
 		string(runtime.lastRequest.RuntimeSnapshot))
 	require.Equal(t, int64(9), runtime.lastRequest.TargetOrganizationID)
 	require.Equal(t, int64(14), runtime.lastRequest.ActorUserID)
+	require.Equal(t, int64(101), runtime.lastRequest.PlatformResourceID)
+	require.Equal(t, int64(201), runtime.lastRequest.SourceReleaseID)
 	require.Equal(t, int64(14), repository.resultActorUserID)
 	require.Equal(t, 1, runtime.authorizationCalls)
 }
@@ -260,6 +262,8 @@ func (r *installationRepositoryStub) BeginApply(
 		InstallationID: "installation-1", OperationID: command.OperationID,
 		ListingVersionID: 301, TargetOrganizationID: 9,
 		PlatformResourceType: "expert",
+		PlatformResourceID:   101,
+		SourceReleaseID:      201,
 		RuntimeSnapshot:      json.RawMessage(`{"market_application_slug":"software-delivery-expert"}`),
 		ActorUserID:          command.ActorUserID,
 		Configuration:        json.RawMessage(`{}`), ReservedCredits: 20_000_000,

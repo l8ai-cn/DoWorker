@@ -1,11 +1,15 @@
 package extension
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
+
+	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 )
 
 // SkillInfo holds parsed information about a discovered skill.
@@ -17,6 +21,7 @@ type SkillInfo struct {
 	Compatibility string
 	AllowedTools  string
 	Category      string
+	Tags          []string
 	DirPath       string // absolute path to the skill directory
 }
 
@@ -98,6 +103,10 @@ func parseSkillDir(dirPath string) (*SkillInfo, error) {
 	}
 
 	fm := parseFrontmatter(string(content))
+	tags, err := readSkillConfigTags(dirPath)
+	if err != nil {
+		return nil, err
+	}
 
 	slug := fm["name"]
 	if slug == "" {
@@ -112,8 +121,34 @@ func parseSkillDir(dirPath string) (*SkillInfo, error) {
 		Compatibility: fm["compatibility"],
 		AllowedTools:  fm["allowed-tools"],
 		Category:      fm["category"],
+		Tags:          tags,
 		DirPath:       dirPath,
 	}, nil
+}
+
+func readSkillConfigTags(dirPath string) ([]string, error) {
+	path := filepath.Join(dirPath, "skill.json")
+	info, err := os.Lstat(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to inspect skill.json: %w", err)
+	}
+	if !info.Mode().IsRegular() {
+		return nil, errors.New("skill.json must be a regular file")
+	}
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read skill.json: %w", err)
+	}
+	var config struct {
+		Tags []string `json:"tags"`
+	}
+	if err := json.Unmarshal(content, &config); err != nil {
+		return nil, fmt.Errorf("failed to parse skill.json: %w", err)
+	}
+	return []string(skilldom.NormalizeTags(config.Tags)), nil
 }
 
 func parseFrontmatter(content string) map[string]string {

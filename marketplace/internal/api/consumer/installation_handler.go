@@ -160,6 +160,9 @@ func writeInstallationError(c *gin.Context, err error) {
 	case errors.Is(err, service.ErrPlanMismatch):
 		status, code, message = http.StatusConflict,
 			"PLAN_MISMATCH", "安装计划已经变化，请重新检查"
+	case errors.Is(err, service.ErrApplicationAlreadyInstalled):
+		status, code, message = http.StatusConflict,
+			"APPLICATION_ALREADY_INSTALLED", "此应用已在目标组织中启用"
 	case errors.Is(err, service.ErrOperationNotFound):
 		status, code, message = http.StatusNotFound,
 			"INSTALLATION_OPERATION_NOT_FOUND", "找不到安装操作"

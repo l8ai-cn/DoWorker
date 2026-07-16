@@ -28,6 +28,15 @@
       "digest": "sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
       "worker_type_slugs": ["gemini-cli"],
       "enabled": false
+    },
+    {
+      "id": 4,
+      "slug": "video-studio-stable",
+      "name": "Video Studio",
+      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
+      "digest": "sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
+      "worker_type_slugs": ["video-studio"],
+      "enabled": true
     }
   ]
 }

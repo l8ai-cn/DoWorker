@@ -20,17 +20,16 @@
 //   - handlers_audit.go       — ListAuditLogs
 //   - handlers_users_query.go — ListUsers / GetUser / UpdateUser
 //   - handlers_users_actions.go — Disable / Enable / GrantAdmin / RevokeAdmin /
-//                                 VerifyUserEmail / UnverifyUserEmail
+//     VerifyUserEmail / UnverifyUserEmail
 //   - handlers_orgs.go        — ListOrganizations / GetOrganization /
-//                               GetOrganizationMembers / DeleteOrganization
+//     GetOrganizationMembers / DeleteOrganization
 //   - handlers_runners_query.go — ListRunners / GetRunner
 //   - handlers_runners_actions.go — DisableRunner / EnableRunner / DeleteRunner
 //   - handlers_relays.go      — ListRelays / GetRelay / GetRelayStats /
-//                               ForceUnregisterRelay (gated on WithRelayManager)
+//     ForceUnregisterRelay (gated on WithRelayManager)
 package adminconnect
 
 import (
-	"errors"
 	"net/http"
 
 	"connectrpc.com/connect"
@@ -38,44 +37,8 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
 	adminservice "github.com/anthropics/agentsmesh/backend/internal/service/admin"
 	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
+	expertsvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
-)
-
-const ServiceName = "proto.admin.v1.AdminService"
-
-const (
-	GetDashboardStatsProcedure = "/" + ServiceName + "/GetDashboardStats"
-
-	ListUsersProcedure         = "/" + ServiceName + "/ListUsers"
-	GetUserProcedure           = "/" + ServiceName + "/GetUser"
-	UpdateUserProcedure        = "/" + ServiceName + "/UpdateUser"
-	DisableUserProcedure       = "/" + ServiceName + "/DisableUser"
-	EnableUserProcedure        = "/" + ServiceName + "/EnableUser"
-	GrantAdminProcedure        = "/" + ServiceName + "/GrantAdmin"
-	RevokeAdminProcedure       = "/" + ServiceName + "/RevokeAdmin"
-	VerifyUserEmailProcedure   = "/" + ServiceName + "/VerifyUserEmail"
-	UnverifyUserEmailProcedure = "/" + ServiceName + "/UnverifyUserEmail"
-
-	ListOrganizationsProcedure      = "/" + ServiceName + "/ListOrganizations"
-	GetOrganizationProcedure        = "/" + ServiceName + "/GetOrganization"
-	GetOrganizationMembersProcedure = "/" + ServiceName + "/GetOrganizationMembers"
-	DeleteOrganizationProcedure     = "/" + ServiceName + "/DeleteOrganization"
-
-	ListAuditLogsProcedure = "/" + ServiceName + "/ListAuditLogs"
-
-	ListRunnersProcedure   = "/" + ServiceName + "/ListRunners"
-	GetRunnerProcedure     = "/" + ServiceName + "/GetRunner"
-	DisableRunnerProcedure = "/" + ServiceName + "/DisableRunner"
-	EnableRunnerProcedure  = "/" + ServiceName + "/EnableRunner"
-	DeleteRunnerProcedure  = "/" + ServiceName + "/DeleteRunner"
-
-	ListRelaysProcedure           = "/" + ServiceName + "/ListRelays"
-	GetRelayProcedure             = "/" + ServiceName + "/GetRelay"
-	GetRelayStatsProcedure        = "/" + ServiceName + "/GetRelayStats"
-	ForceUnregisterRelayProcedure = "/" + ServiceName + "/ForceUnregisterRelay"
-
-	ListDeadLettersProcedure  = "/" + ServiceName + "/ListDeadLetters"
-	ReplayDeadLetterProcedure = "/" + ServiceName + "/ReplayDeadLetter"
 )
 
 // Server implements proto.admin.v1.AdminService (dashboard + user +
@@ -92,6 +55,7 @@ type Server struct {
 	db       database.DB
 	relayMgr *relay.Manager
 	msgSvc   *agentservice.MessageService
+	expert   *expertsvc.Service
 }
 
 // Option configures optional dependencies on Server. Mirrors the option
@@ -112,6 +76,10 @@ func WithRelayManager(mgr *relay.Manager) Option {
 // return CodeUnavailable.
 func WithMessageService(msgSvc *agentservice.MessageService) Option {
 	return func(s *Server) { s.msgSvc = msgSvc }
+}
+
+func WithExpertService(expert *expertsvc.Service) Option {
+	return func(s *Server) { s.expert = expert }
 }
 
 func NewServer(svc *adminservice.Service, db database.DB, opts ...Option) *Server {
@@ -211,26 +179,6 @@ func Mount(mux *http.ServeMux, srv *Server, opts ...connect.HandlerOption) {
 	mux.Handle(ReplayDeadLetterProcedure, connect.NewUnaryHandler(
 		ReplayDeadLetterProcedure, srv.ReplayDeadLetter, opts...,
 	))
-}
 
-// mapServiceError translates admin-service sentinels to Connect codes,
-// mirroring apierr translation in REST handlers.
-func mapServiceError(err error) error {
-	switch {
-	case errors.Is(err, adminservice.ErrUserNotFound),
-		errors.Is(err, adminservice.ErrOrganizationNotFound),
-		errors.Is(err, adminservice.ErrRunnerNotFound):
-		return connect.NewError(connect.CodeNotFound, err)
-	case errors.Is(err, adminservice.ErrUsernameAlreadyExists),
-		errors.Is(err, adminservice.ErrEmailAlreadyExists),
-		errors.Is(err, adminservice.ErrOrganizationHasActiveRunner),
-		errors.Is(err, adminservice.ErrRunnerHasActivePods),
-		errors.Is(err, adminservice.ErrRunnerHasWorkflowRefs):
-		return connect.NewError(connect.CodeAlreadyExists, err)
-	case errors.Is(err, adminservice.ErrCannotRevokeOwnAdmin),
-		errors.Is(err, adminservice.ErrCannotDisableSelf):
-		return connect.NewError(connect.CodeInvalidArgument, err)
-	default:
-		return connect.NewError(connect.CodeInternal, err)
-	}
+	MountExpertMarketplace(mux, srv, opts...)
 }

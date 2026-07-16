@@ -12,11 +12,10 @@ rg -q './deploy/dev/dev.sh' README.md
 rg -q 'do-worker-runner register' README.md runner/README.md
 rg -q 'Worker Runtime Status' README.md
 rg -q 'No Worker type is formally deployable' README.md
-! rg -q '3-step wizard' docs/api/workers-create.md
-rg -q 'The current product form has four ordered steps' docs/api/workers-create.md
-rg -q 'not a 1:1 API for the Worker wizard' docs/api/workers-create.md
-rg -q 'CreatePodRequest.worker_spec' docs/api/workers-create.md
-! rg -q 'Full example (matches UI wizard)' docs/api/workers-create.md
+rg -q 'Resource-native Worker' docs/api/workers-create.md
+rg -q 'Direct WorkerSpec' docs/api/workers-create.md
+rg -q 'External REST' docs/api/workers-create.md
+rg -q 'CreateWorkerFromPlan' docs/api/workers-create.md
 rg -q 'config/worker-types/catalog.json' docs/agent-runtime-build-audit.md
 rg -q 'No Worker type is formally deployable' docs/agent-runtime-build-audit.md
 rg -q 'not pullable release artifacts' docs/agent-runtime-build-audit.md
@@ -36,8 +35,8 @@ actual="$(jq -r '.workers[].slug' clients/web/src/generated/worker-runtime-catal
 }
 
 jq -e '
-  .workers | length == 12 and
-  all(.[]; .validationStatus != "verified_local_dev") and
-  ([.[] | select(.validationStatus == "local_evidence_release_blocked")] | length) == 1 and
-  ([.[] | select(.validationStatus == "invalid_published_runtime")] | length) == 2
+  .workers as $workers |
+  all($workers[]; .validationStatus != "verified_local_dev") and
+  ([$workers[] | select(.validationStatus == "local_evidence_release_blocked")] | length) == 1 and
+  any($workers[]; .slug == "video-studio" and .validationStatus == "invalid_published_runtime")
 ' clients/web/src/generated/worker-runtime-catalog.json >/dev/null

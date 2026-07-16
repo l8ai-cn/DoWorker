@@ -30,9 +30,15 @@ func TestMarketplaceInstallationRouteClonesExpert(t *testing.T) {
 		strings.NewReader(`{
 		  "installation_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
 		  "platform_resource_type":"expert",
+		  "platform_resource_id":101,
+		  "source_release_id":201,
 		  "target_platform_organization_id":9,
 		  "actor_platform_user_id":14,
-		  "runtime_snapshot":{"market_application_slug":"software-delivery-expert"}
+		  "runtime_snapshot":{"market_application_slug":"software-delivery-expert"},
+		  "configuration":{
+		    "model_resource_id":301,
+		    "tool_model_resource_ids":{"seedance-video":302}
+		  }
 		}`),
 	)
 	request.Header.Set("Content-Type", "application/json")
@@ -45,6 +51,14 @@ func TestMarketplaceInstallationRouteClonesExpert(t *testing.T) {
 	  "result":{"expert_id":"201","already_installed":false}
 	}`, response.Body.String())
 	require.Equal(t, int64(9), installer.request.TargetOrganizationID)
+	require.Equal(t, int64(301), installer.request.ModelResourceID)
+	require.Equal(
+		t,
+		map[string]int64{"seedance-video": 302},
+		installer.request.ToolModelResourceIDs,
+	)
+	require.Equal(t, int64(101), installer.request.SourceMarketApplicationID)
+	require.Equal(t, int64(201), installer.request.SourceMarketReleaseID)
 	require.JSONEq(t, `{"market_application_slug":"software-delivery-expert"}`,
 		string(installer.request.RuntimeSnapshot))
 }

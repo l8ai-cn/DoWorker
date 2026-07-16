@@ -30,7 +30,16 @@ func TestWorkspaceResolverValidatesScopedReferencesAndReturnsCompilerNames(t *te
 		workspace,
 	)
 	require.NoError(t, err)
-	assert.Equal(t, workspace, resolved)
+	expected := workspace
+	expected.SkillPackages = []specdomain.SkillPackageBinding{{
+		SkillID:     3,
+		Slug:        "code-review",
+		Version:     2,
+		ContentSHA:  "sha-code-review",
+		StorageKey:  "skills/code-review.tar.gz",
+		PackageSize: 128,
+	}}
+	assert.Equal(t, expected, resolved)
 	assert.Equal(t, repositoryAccess{
 		ID:     22,
 		OrgID:  77,
@@ -359,11 +368,13 @@ func newWorkspaceFixture() *workspaceFixture {
 		skills: &workspaceSkillLookup{
 			rows: map[int64]*skill.Skill{
 				3: {
-					ID:         3,
-					Slug:       "code-review",
-					IsActive:   true,
-					ContentSha: "sha-code-review",
-					StorageKey: "skills/code-review.tar.gz",
+					ID:          3,
+					Slug:        "code-review",
+					IsActive:    true,
+					Version:     2,
+					ContentSha:  "sha-code-review",
+					StorageKey:  "skills/code-review.tar.gz",
+					PackageSize: 128,
 				},
 			},
 		},
@@ -417,20 +428,5 @@ func (fixture *workspaceFixture) deps() workspaceResolverDeps {
 				"pty",
 			),
 		},
-	}
-}
-
-func validWorkspaceDraft() specdomain.Workspace {
-	repositoryID := int64(22)
-	return specdomain.Workspace{
-		RepositoryID: &repositoryID,
-		Branch:       "main",
-		SkillIDs:     []int64{3},
-		KnowledgeMounts: []specdomain.KnowledgeMount{
-			{KnowledgeBaseID: 4, Mode: specdomain.KnowledgeMountReadWrite},
-		},
-		EnvBundleIDs: []specdomain.RuntimeEnvBundleID{5},
-		Instructions: "Review before editing.",
-		InitialTask:  "Fix the failing test.",
 	}
 }

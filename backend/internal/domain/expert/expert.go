@@ -12,7 +12,10 @@ import (
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
-var ErrNotFound = errors.New("expert not found")
+var (
+	ErrNotFound = errors.New("expert not found")
+	ErrConflict = errors.New("expert changed during update")
+)
 
 const (
 	InteractionModePTY = "pty"
@@ -69,6 +72,8 @@ type Expert struct {
 
 	SourcePodKey                  *string `gorm:"size:100" json:"source_pod_key,omitempty"`
 	WorkerSpecSnapshotID          *int64  `json:"worker_spec_snapshot_id,omitempty"`
+	SourceMarketApplicationID     *int64  `json:"source_market_application_id,omitempty"`
+	SourceMarketReleaseID         *int64  `json:"source_market_release_id,omitempty"`
 	OrchestrationResourceID       *int64  `json:"orchestration_resource_id,omitempty"`
 	OrchestrationResourceRevision *int64  `json:"orchestration_resource_revision,omitempty"`
 
@@ -82,6 +87,7 @@ type Expert struct {
 	CreatedByID int64      `gorm:"not null" json:"created_by_id"`
 	RunCount    int        `gorm:"not null;default:0" json:"run_count"`
 	LastRunAt   *time.Time `json:"last_run_at,omitempty"`
+	Revision    int64      `gorm:"not null;default:1" json:"revision"`
 
 	CreatedAt time.Time `gorm:"not null;default:now()" json:"created_at"`
 	UpdatedAt time.Time `gorm:"not null;default:now()" json:"updated_at"`
@@ -104,12 +110,40 @@ func ParseKnowledgeMounts(raw json.RawMessage) []KnowledgeMount {
 	return mounts
 }
 
+type MarketReleaseUpdate struct {
+	Name                  string
+	Description           *string
+	AgentSlug             string
+	Prompt                *string
+	InteractionMode       string
+	AutomationLevel       string
+	Perpetual             bool
+	UsedEnvBundles        pq.StringArray
+	SkillSlugs            pq.StringArray
+	KnowledgeMounts       json.RawMessage
+	ConfigOverrides       json.RawMessage
+	AgentfileLayer        *string
+	Metadata              json.RawMessage
+	WorkerSpecSnapshotID  int64
+	SourceMarketReleaseID int64
+	ExpectedRevision      int64
+}
+
 type Repository interface {
 	Create(ctx context.Context, expert *Expert) error
 	Update(ctx context.Context, expert *Expert) error
 	Delete(ctx context.Context, orgID, id int64) error
 	GetByID(ctx context.Context, orgID, id int64) (*Expert, error)
 	GetBySlug(ctx context.Context, orgID int64, slug string) (*Expert, error)
+	GetByMarketApplication(
+		ctx context.Context,
+		orgID, applicationID int64,
+	) (*Expert, error)
+	UpdateMarketRelease(
+		ctx context.Context,
+		orgID, expertID, applicationID int64,
+		update MarketReleaseUpdate,
+	) error
 	SlugExists(ctx context.Context, orgID int64, slug string, excludeID int64) (bool, error)
 	List(ctx context.Context, orgID int64, limit, offset int) ([]Expert, int64, error)
 	RecordRun(ctx context.Context, orgID, id int64, at time.Time) error

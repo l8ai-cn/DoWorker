@@ -9,7 +9,7 @@ func HarnessEnvVars(agentSlug, overrideModel string, m *AIModel, credentials map
 		return nil
 	}
 	switch agentSlug {
-	case "codex-cli", "openclaw", "hermes":
+	case "codex-cli", "video-studio", "openclaw", "hermes":
 		return openAIHarnessEnv(m, credentials, overrideModel)
 	case "claude-code":
 		return anthropicHarnessEnv(m, credentials)
@@ -24,7 +24,7 @@ func HarnessEnvVars(agentSlug, overrideModel string, m *AIModel, credentials map
 // when auto-selecting a default legacy pool model.
 func PreferredProvider(agentSlug string) string {
 	switch agentSlug {
-	case "codex-cli", "openclaw", "hermes":
+	case "codex-cli", "video-studio", "openclaw", "hermes":
 		return ProviderTypeOpenAI
 	case "claude-code":
 		return ProviderTypeAnthropic

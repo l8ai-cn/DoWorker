@@ -15,6 +15,9 @@ func (b *ConfigBuilder) buildSkillResources(
 	agentSlug string,
 	requestedSlugs []string,
 ) ([]*runnerv1.ResourceToDownload, error) {
+	if len(req.RequiredSkillPackages) > 0 {
+		return b.buildPinnedWorkerSkillResources(ctx, req, agentSlug)
+	}
 	if len(req.RequiredSkillIDs) > 0 {
 		return b.buildWorkerSpecSkillResources(ctx, req, agentSlug)
 	}
@@ -150,7 +153,7 @@ func filterSkillsBySlugSet(
 
 func skillTargetPath(agentSlug, skillSlug string) string {
 	switch agentSlug {
-	case "codex-cli", "codex":
+	case "codex-cli", "codex", "video-studio":
 		return "{{.sandbox.root_path}}/codex-home/skills/" + skillSlug
 	case "claude-code", "claude":
 		return "{{.sandbox.work_dir}}/.claude/skills/" + skillSlug

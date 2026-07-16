@@ -18,6 +18,7 @@ func installationPlanDigest(
 		ContentDigest        string          `json:"content_digest"`
 		PlatformResourceType string          `json:"platform_resource_type"`
 		PlatformResourceID   int64           `json:"platform_resource_id"`
+		SourceReleaseID      int64           `json:"source_release_id"`
 		RuntimeSnapshot      json.RawMessage `json:"runtime_snapshot"`
 		QuotaPlanID          int64           `json:"quota_plan_id"`
 		QuotaAccountID       string          `json:"quota_account_id"`
@@ -33,6 +34,7 @@ func installationPlanDigest(
 		ContentDigest:        source.ContentDigest,
 		PlatformResourceType: source.PlatformResourceType,
 		PlatformResourceID:   source.PlatformResourceID,
+		SourceReleaseID:      source.SourceReleaseID,
 		RuntimeSnapshot:      source.RuntimeSnapshot,
 		QuotaPlanID:          source.QuotaPlanID,
 		QuotaAccountID:       source.QuotaAccountID,

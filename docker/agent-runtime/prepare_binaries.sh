@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
-# Stage one runtime's linux/amd64 runner and required sidecar binaries.
+# Stage one runtime's Linux runner and required sidecar binaries.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 STAGING="${1:?staging directory required}"
 AGENT_RUNTIME="${2:?agent runtime required}"
 DEPLOY_DEV="${REPO_ROOT}/deploy/dev"
+TARGET_ARCH="${TARGET_ARCH:-amd64}"
+
+case "$TARGET_ARCH" in
+  amd64|arm64) ;;
+  *)
+    echo "unsupported TARGET_ARCH=${TARGET_ARCH}" >&2
+    exit 1
+    ;;
+esac
 
 rm -rf "$STAGING"
 mkdir -p "$STAGING/binaries"
@@ -19,12 +28,12 @@ go_cross() {
   local out="$1" pkg="$2"
   (
     cd "$REPO_ROOT"
-    GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o "${STAGING}/${out}" "${pkg}"
+    GOOS=linux GOARCH="$TARGET_ARCH" CGO_ENABLED=0 go build -o "${STAGING}/${out}" "${pkg}"
   )
   chmod +x "${STAGING}/${out}"
 }
 
-echo "▶ go build runner (linux/amd64)..."
+echo "▶ go build runner (linux/${TARGET_ARCH})..."
 go_cross "runner-binary" ./runner/cmd/runner
 
 stage_sidecar() {
@@ -52,7 +61,7 @@ stage_loopal() {
 
 case "$AGENT_RUNTIME" in
   e2e-echo)
-    echo "▶ go build e2e-mock-agent (linux/amd64)..."
+    echo "▶ go build e2e-mock-agent (linux/${TARGET_ARCH})..."
     go_cross "binaries/e2e-mock-agent-binary" ./runner/internal/agents/mockagent/cmd/e2e-mock-agent
     ;;
   loopal)

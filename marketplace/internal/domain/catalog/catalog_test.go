@@ -8,17 +8,40 @@ import (
 )
 
 func TestNewVersionRequiresSemverAndSHA256(t *testing.T) {
-	_, err := NewVersion(1, "release-one", "git-sha", strings.Repeat("a", 64), []byte(`{}`), 14)
+	_, err := NewVersion(
+		1, "release-one", "git-sha", strings.Repeat("a", 64),
+		[]byte(`{}`), []byte(`{}`), 14,
+	)
 	require.ErrorIs(t, err, ErrInvalidVersion)
 
-	_, err = NewVersion(1, "1.0.0", "git-sha", "not-a-digest", []byte(`{}`), 14)
+	_, err = NewVersion(
+		1, "1.0.0", "git-sha", "not-a-digest",
+		[]byte(`{}`), []byte(`{}`), 14,
+	)
 	require.ErrorIs(t, err, ErrInvalidDigest)
 
-	version, err := NewVersion(1, "1.0.0", "git-sha", strings.Repeat("a", 64), []byte(`{}`), 14)
+	version, err := NewVersion(
+		1, "1.0.0", "git-sha", strings.Repeat("a", 64),
+		[]byte(`{}`), []byte(`{}`), 14,
+	)
 	require.NoError(t, err)
 	require.Equal(t, ValidationPending, version.ValidationStatus())
 	version.MarkValidationPassed()
 	require.Equal(t, ValidationPassed, version.ValidationStatus())
+}
+
+func TestNewVersionRejectsInvalidCompatibleAgentIdentifier(t *testing.T) {
+	for _, compatibility := range []string{
+		`{"agents":["Bad.Agent"]}`,
+		`{"agents":["x"]}`,
+		`{"agents":"codex-cli"}`,
+	} {
+		_, err := NewVersion(
+			1, "1.0.0", "git-sha", strings.Repeat("a", 64),
+			[]byte(`{}`), []byte(compatibility), 14,
+		)
+		require.ErrorIs(t, err, ErrInvalidCompatibility)
+	}
 }
 
 func TestNewItemProtectsSlug(t *testing.T) {
@@ -38,6 +61,7 @@ func TestRestorePassedVersion(t *testing.T) {
 		SourceRevision:          "git-sha",
 		ContentDigest:           strings.Repeat("a", 64),
 		Manifest:                []byte(`{}`),
+		Compatibility:           []byte(`{}`),
 		ValidationStatus:        ValidationPassed,
 		CreatedByPlatformUserID: 14,
 	})
@@ -49,7 +73,10 @@ func TestCatalogItemActivatesOnlyItsPassedVersion(t *testing.T) {
 	item, err := NewItem(2, "listing-optimizer", "application", "应用", "开箱即用", "expert", 18, 14)
 	require.NoError(t, err)
 
-	version, err := NewVersion(1, "1.0.0", "git-sha", strings.Repeat("a", 64), []byte(`{}`), 14)
+	version, err := NewVersion(
+		1, "1.0.0", "git-sha", strings.Repeat("a", 64),
+		[]byte(`{}`), []byte(`{}`), 14,
+	)
 	require.NoError(t, err)
 	version.id = 3
 	require.ErrorIs(t, item.ActivateVersion(version), ErrVersionNotPassed)

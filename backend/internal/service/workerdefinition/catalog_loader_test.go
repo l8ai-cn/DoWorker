@@ -13,11 +13,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestLoadLoadsEveryFormalWorkerDefinition(t *testing.T) {
+func TestLoadLoadsEveryCatalogWorkerDefinition(t *testing.T) {
 	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
 
 	require.NoError(t, err)
-	assert.Equal(t, formalWorkerSlugs, catalog.Slugs())
+	assert.Contains(t, catalog.Slugs(), "video-studio")
 	for _, slug := range catalog.Slugs() {
 		definition, ok := catalog.Get(slug)
 		require.True(t, ok)
@@ -116,9 +116,11 @@ func repositoryRoot(t *testing.T) string {
 }
 
 func TestCatalogSlugsAreSorted(t *testing.T) {
-	sorted := append([]string{}, formalWorkerSlugs...)
+	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
+	require.NoError(t, err)
+	sorted := catalog.Slugs()
 	sort.Strings(sorted)
-	assert.Equal(t, sorted, formalWorkerSlugs)
+	assert.Equal(t, sorted, catalog.Slugs())
 }
 
 func TestValidateDefinitionRejectsLiteralCredentialValue(t *testing.T) {

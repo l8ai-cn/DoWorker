@@ -25,6 +25,8 @@ func buildInstallationPlan(
 		ListingVersionID     int64           `json:"listing_version_id"`
 		TargetOrganizationID int64           `json:"target_platform_organization_id"`
 		PlatformResourceType string          `json:"platform_resource_type"`
+		PlatformResourceID   int64           `json:"platform_resource_id"`
+		SourceReleaseID      int64           `json:"source_release_id"`
 		RuntimeSnapshot      json.RawMessage `json:"runtime_snapshot"`
 		RequiredPermissions  json.RawMessage `json:"required_permissions"`
 		Configuration        json.RawMessage `json:"requested_configuration"`
@@ -36,6 +38,8 @@ func buildInstallationPlan(
 		ListingVersionID:     source.ListingVersionID,
 		TargetOrganizationID: command.TargetOrganizationID,
 		PlatformResourceType: source.PlatformResourceType,
+		PlatformResourceID:   source.PlatformResourceID,
+		SourceReleaseID:      source.SourceReleaseID,
 		RuntimeSnapshot:      source.RuntimeSnapshot,
 		RequiredPermissions:  source.Permissions,
 		Configuration:        command.RequestedConfiguration,

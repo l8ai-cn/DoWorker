@@ -1,7 +1,7 @@
 # Agent Workbench V2 Design
 
-**Status:** proposed for implementation  
-**Date:** 2026-07-15  
+**Status:** proposed for implementation
+**Date:** 2026-07-15
 **Scope:** shared Agent protocol, React workbench, tool renderers, result viewers, Web/Web User adapters, page mounting, and iframe embedding.
 
 Normative appendices:

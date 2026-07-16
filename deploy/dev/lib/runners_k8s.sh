@@ -29,8 +29,9 @@ build_runner_compose_images() {
     info "构建 runner 镜像 (K8s 节点架构: ${platform})..."
     cd "$SCRIPT_DIR"
     local rt
-    for rt in e2e-echo claude-code codex-cli cursor-cli gemini-cli loopal minimax-cli openclaw hermes; do
+    for rt in e2e-echo claude-code codex-cli video-studio cursor-cli gemini-cli loopal minimax-cli openclaw hermes; do
         docker build --platform "$platform" \
+            --target runtime \
             -f ../../docker/agent-runtime/Dockerfile \
             --build-arg "AGENT_RUNTIME=${rt}" \
             --build-arg "HTTP_PROXY=" \

@@ -19,15 +19,24 @@ import (
 // additive to the external-import/marketplace skill flow (which is served over
 // Connect-RPC and is untouched).
 type SkillHandler struct {
-	service *skillSvc.Service
+	service skillHandlerService
 }
 
-func NewSkillHandler(service *skillSvc.Service) *SkillHandler {
+func NewSkillHandler(service skillHandlerService) *SkillHandler {
 	return &SkillHandler{service: service}
 }
 
 func (h *SkillHandler) ListSkills(c *gin.Context) {
 	tenant := middleware.GetTenant(c)
+	if c.Query("all") == "true" {
+		items, err := h.service.ListAll(c.Request.Context(), tenant.OrganizationID)
+		if err != nil {
+			apierr.InternalError(c, "Failed to list skills")
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"skills": items, "total": len(items)})
+		return
+	}
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 	items, total, err := h.service.List(c.Request.Context(), tenant.OrganizationID, limit, offset)
@@ -58,7 +67,7 @@ func (h *SkillHandler) CreateSkill(c *gin.Context) {
 	row, err := h.service.Create(c.Request.Context(), &skillSvc.CreateSkillRequest{
 		OrganizationID: tenant.OrganizationID, UserID: tenant.UserID,
 		Slug: req.Slug, Name: req.Name, Description: req.Description,
-		License: req.License, Instructions: req.Instructions,
+		License: req.License, Instructions: req.Instructions, Tags: req.Tags,
 	})
 	if err != nil {
 		h.validationOrInternal(c, err)
@@ -82,7 +91,7 @@ func (h *SkillHandler) UpdateSkill(c *gin.Context) {
 	updated, err := h.service.Update(c.Request.Context(), &skillSvc.UpdateSkillRequest{
 		OrganizationID: tenant.OrganizationID, SkillID: row.ID,
 		Name: req.Name, Description: req.Description,
-		License: req.License, Instructions: req.Instructions,
+		License: req.License, Instructions: req.Instructions, Tags: req.Tags,
 	})
 	if err != nil {
 		h.validationOrInternal(c, err)
@@ -154,7 +163,8 @@ func (h *SkillHandler) notFoundOrInternal(c *gin.Context, err error) {
 func (h *SkillHandler) validationOrInternal(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, skillSvc.ErrNameRequired),
-		errors.Is(err, skillSvc.ErrInstructionsRequired):
+		errors.Is(err, skillSvc.ErrInstructionsRequired),
+		errors.Is(err, skillSvc.ErrInvalidTags):
 		apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
 	case errors.Is(err, skilldom.ErrNotFound):
 		apierr.ResourceNotFound(c, "Skill not found")

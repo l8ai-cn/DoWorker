@@ -10,3 +10,5 @@ minimax-cli
 grok-build
 openclaw
 hermes
+seedance-expert
+video-studio

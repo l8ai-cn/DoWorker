@@ -115,10 +115,10 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts: ["admin.dowork.l8ai.cn"]
+    - hosts: ["admin.l8ai.cn"]
       secretName: l8ai-wildcard-tls
   rules:
-    - host: admin.dowork.l8ai.cn
+    - host: admin.l8ai.cn
       http:
         paths:
           - path: /

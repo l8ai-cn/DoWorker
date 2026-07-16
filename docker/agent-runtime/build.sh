@@ -8,6 +8,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 AGENT_RUNTIMES=(
   claude-code
   codex-cli
+  video-studio
   cursor-cli
   gemini-cli
   aider
@@ -34,6 +35,7 @@ usage() {
 Agent runtimes:
   claude-code   Claude Code CLI (@anthropic-ai/claude-code)
   codex-cli     OpenAI Codex CLI (@openai/codex)
+  video-studio  Codex + FFmpeg/libass + Chromium + Remotion + Python + CJK fonts
   cursor-cli    Cursor CLI (agent)
   gemini-cli    Google Gemini CLI (@google/gemini-cli)
   aider         Aider (pip)
@@ -60,6 +62,8 @@ Agent runtimes:
                   用既有 Runner 镜像构建 OpenClaw/Hermes（本地离线初始化）
   HERMES_AGENT_VERSION
                   Hermes Agent version (默认 0.18.2)
+  REMOTION_VERSION
+                  Remotion runtime version (默认 4.0.489)
   MINIMAX_CLI_VERSION
                   MiniMax CLI version (默认 1.0.16)
   OPENCLAW_VERSION
@@ -112,7 +116,7 @@ build_base() {
 build_one() {
   local rt="$1"
   local tag="${IMAGE_PREFIX}-${rt}:latest"
-  "${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING" "$rt"
+  TARGET_ARCH="${PLATFORM#linux/}" "${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING" "$rt"
   local -a build_cmd=(
     docker build --platform "$PLATFORM"
     -f "${SCRIPT_DIR}/Dockerfile"
@@ -141,6 +145,7 @@ build_one() {
     --build-arg "MINIMAX_CLI_VERSION=${MINIMAX_CLI_VERSION:-1.0.16}"
     --build-arg "OPENCLAW_VERSION=${OPENCLAW_VERSION:-2026.6.11}"
     --build-arg "OPENCLAW_NODE_VERSION=${OPENCLAW_NODE_VERSION:-24.18.0}"
+    --build-arg "REMOTION_VERSION=${REMOTION_VERSION:-4.0.489}"
     -t "$tag"
     "$STAGING"
   )

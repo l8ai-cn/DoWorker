@@ -12,7 +12,8 @@ import (
 // SkillCatalogRepository is the gorm-backed store for the unified skills
 // catalog (git-backed rows, namespace am-skills).
 type SkillCatalogRepository struct {
-	db *gorm.DB
+	db           *gorm.DB
+	sessionBound bool
 }
 
 func NewSkillCatalogRepository(db *gorm.DB) *SkillCatalogRepository {
@@ -25,6 +26,37 @@ func (r *SkillCatalogRepository) Create(ctx context.Context, s *skilldom.Skill) 
 
 func (r *SkillCatalogRepository) Update(ctx context.Context, s *skilldom.Skill) error {
 	return r.db.WithContext(ctx).Save(s).Error
+}
+
+func (r *SkillCatalogRepository) UpdateIfVersion(
+	ctx context.Context,
+	s *skilldom.Skill,
+	expectedVersion int,
+) (bool, error) {
+	result := r.db.WithContext(ctx).
+		Model(&skilldom.Skill{}).
+		Where("id = ? AND version = ?", s.ID, expectedVersion).
+		Select("*").
+		Updates(s)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return result.RowsAffected == 1, nil
+}
+
+func (r *SkillCatalogRepository) IsPackageReferenced(
+	ctx context.Context,
+	storageKey string,
+) (bool, error) {
+	var referenced bool
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT EXISTS (
+			SELECT 1 FROM skills WHERE storage_key = ?
+			UNION ALL
+			SELECT 1 FROM installed_skills WHERE storage_key = ?
+		)
+	`, storageKey, storageKey).Scan(&referenced).Error
+	return referenced, err
 }
 
 func (r *SkillCatalogRepository) Delete(ctx context.Context, orgID, id int64) error {
@@ -105,6 +137,15 @@ func (r *SkillCatalogRepository) List(ctx context.Context, orgID int64, limit, o
 	var rows []skilldom.Skill
 	err := q.Order("updated_at DESC").Limit(limit).Offset(offset).Find(&rows).Error
 	return rows, total, err
+}
+
+func (r *SkillCatalogRepository) ListAll(ctx context.Context, orgID int64) ([]skilldom.Skill, error) {
+	var rows []skilldom.Skill
+	err := r.db.WithContext(ctx).
+		Where("organization_id = ?", orgID).
+		Order("id ASC").
+		Find(&rows).Error
+	return rows, err
 }
 
 func (r *SkillCatalogRepository) ListCatalog(ctx context.Context, orgID int64, query, category string) ([]skilldom.Skill, error) {

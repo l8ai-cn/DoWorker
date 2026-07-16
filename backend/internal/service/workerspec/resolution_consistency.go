@@ -117,6 +117,10 @@ func cloneWorkspace(workspace domain.Workspace) domain.Workspace {
 		cloned.RepositoryID = &repositoryID
 	}
 	cloned.SkillIDs = append([]int64{}, workspace.SkillIDs...)
+	cloned.SkillPackages = append(
+		[]domain.SkillPackageBinding{},
+		workspace.SkillPackages...,
+	)
 	cloned.KnowledgeMounts = append(
 		[]domain.KnowledgeMount{},
 		workspace.KnowledgeMounts...,

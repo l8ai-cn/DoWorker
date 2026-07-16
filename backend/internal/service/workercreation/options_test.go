@@ -53,6 +53,10 @@ func TestServiceListOptionsReturnsSelectableRuntimeAndBlockingReasons(t *testing
 	assert.Contains(t, options.WorkerTypes[1].BlockingReason, "runtime image")
 	require.Len(t, options.RuntimeImages, 1)
 	assert.True(t, options.RuntimeImages[0].Selectable)
+	assert.Contains(t, options.RuntimeImages, RuntimeImageOption{
+		Image:      enabledCodexRuntimeCatalog().ImagesFor("codex-cli")[0],
+		Selectable: true,
+	})
 	require.Len(t, options.ComputeTargets, 2)
 	assert.True(t, options.ComputeTargets[0].Selectable)
 	assert.False(t, options.ComputeTargets[1].Selectable)

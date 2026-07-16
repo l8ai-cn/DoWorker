@@ -89,7 +89,9 @@ fn list_response_deserializes_backend_shape() {
             "agent_slug": "claude-code", "interaction_mode": "pty",
             "perpetual": false, "used_env_bundles": [], "skill_slugs": ["merge"],
             "knowledge_mounts": [{"slug": "kb", "mode": "ro"}],
-            "config_overrides": {}, "run_count": 3,
+            "config_overrides": {}, "worker_spec_snapshot_id": 41,
+            "source_market_application_id": 12, "source_market_release_id": 19,
+            "run_count": 3,
             "created_at": "2026-01-01T00:00:00Z", "updated_at": "2026-01-01T00:00:00Z"
         }],
         "total": 1
@@ -101,8 +103,12 @@ fn list_response_deserializes_backend_shape() {
     assert_eq!(e.slug, "reviewer");
     assert_eq!(e.skill_slugs, vec!["merge".to_string()]);
     assert_eq!(e.knowledge_mounts[0]["slug"], "kb");
+    assert_eq!(e.worker_spec_snapshot_id, Some(41));
+    assert_eq!(e.source_market_application_id, Some(12));
+    assert_eq!(e.source_market_release_id, Some(19));
     // Round-trip preserves the jsonb payload.
     let out = serde_json::to_value(e).unwrap();
     assert_eq!(out["knowledge_mounts"][0]["mode"], "ro");
+    assert_eq!(out["worker_spec_snapshot_id"], 41);
     assert_eq!(out["run_count"], 3);
 }

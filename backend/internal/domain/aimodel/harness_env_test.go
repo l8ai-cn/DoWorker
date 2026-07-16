@@ -8,10 +8,12 @@ import (
 
 func TestHarnessEnvVars_CodexOpenAI(t *testing.T) {
 	m := &AIModel{ProviderType: ProviderTypeOpenAI, Model: "gpt-5.5", BaseURL: "https://token.example.cn"}
-	env := HarnessEnvVars("codex-cli", "", m, map[string]string{"api_key": "sk-test"})
-	assert.Equal(t, "sk-test", env["OPENAI_API_KEY"])
-	assert.Equal(t, "https://token.example.cn", env["OPENAI_BASE_URL"])
-	assert.Equal(t, "gpt-5.5", env["OPENAI_MODEL"])
+	for _, agentSlug := range []string{"codex-cli", "video-studio"} {
+		env := HarnessEnvVars(agentSlug, "", m, map[string]string{"api_key": "sk-test"})
+		assert.Equal(t, "sk-test", env["OPENAI_API_KEY"])
+		assert.Equal(t, "https://token.example.cn", env["OPENAI_BASE_URL"])
+		assert.Equal(t, "gpt-5.5", env["OPENAI_MODEL"])
+	}
 }
 
 func TestHarnessEnvVars_CodexOverrideModel(t *testing.T) {
@@ -57,6 +59,7 @@ func TestHarnessEnvVars_OpenClawAndHermesUseFormalOpenAIContract(t *testing.T) {
 
 func TestPreferredProviders(t *testing.T) {
 	assert.Equal(t, []string{ProviderTypeOpenAI}, PreferredProviders("codex-cli"))
+	assert.Equal(t, []string{ProviderTypeOpenAI}, PreferredProviders("video-studio"))
 	assert.Equal(t, []string{ProviderTypeAnthropic}, PreferredProviders("claude-code"))
 	assert.Equal(t, []string{ProviderTypeGemini}, PreferredProviders("gemini-cli"))
 	assert.Equal(t, []string{ProviderTypeAnthropic, ProviderTypeMiniMax}, PreferredProviders("do-agent"))

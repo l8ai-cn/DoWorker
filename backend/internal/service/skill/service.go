@@ -1,9 +1,8 @@
 // Package skill is an independent, gitops-backed authoring source for skills
 // (namespace am-skills). It provisions one repo per skill (SKILL.md +
 // skill.json), commits edits, and bridges into the existing filesystem-based
-// extension packager (materialize repo tree -> temp dir -> PackageFromDir ->
-// object storage) so a platform-authored skill packages identically to an
-// externally-imported one.
+// extension packager. It prepares bytes before taking the package publication
+// lock, then stores them while the package and catalog mutation are serialized.
 //
 // This is ADDITIVE: it coexists with the external-import / marketplace install
 // flow (service/extension), which is untouched. The service consumes
@@ -23,15 +22,25 @@ import (
 
 // Domain errors surfaced to the REST layer.
 var (
-	ErrNameRequired         = errors.New("skill: name is required")
-	ErrInstructionsRequired = errors.New("skill: instructions (SKILL.md body) are required")
+	ErrNameRequired          = errors.New("skill: name is required")
+	ErrInstructionsRequired  = errors.New("skill: instructions (SKILL.md body) are required")
+	ErrInvalidTags           = errors.New("skill: invalid tags")
+	ErrPlatformSkillConflict = errors.New(
+		"skill: platform skill exists with different content",
+	)
 )
 
-// SkillPackagerBridge is the seam onto the existing extension packager. It is
-// satisfied by *extension.SkillPackager (via PackageFromDir), letting this
-// service reuse the package->object-storage pipeline without re-cloning.
+// SkillPackagerBridge separates local package preparation from publication.
 type SkillPackagerBridge interface {
-	PackageFromDir(ctx context.Context, dir string) (*extensionsvc.PackagedSkill, error)
+	PrepareCatalogFromDir(
+		ctx context.Context,
+		dir, repoIdentity string,
+	) (*extensionsvc.PreparedSkill, error)
+	StorePrepared(
+		ctx context.Context,
+		prepared *extensionsvc.PreparedSkill,
+	) (*extensionsvc.PackagedSkill, error)
+	DeletePackage(ctx context.Context, storageKey string) error
 }
 
 type Service struct {

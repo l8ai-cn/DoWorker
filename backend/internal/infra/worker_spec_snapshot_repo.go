@@ -111,6 +111,22 @@ func workerSpecSnapshotFromRecord(record workerSpecSnapshotRecord) (domain.Snaps
 	}, nil
 }
 
+func (r *workerSpecSnapshotRepo) Delete(
+	ctx context.Context,
+	organizationID, id int64,
+) error {
+	result := r.db.WithContext(ctx).
+		Where("organization_id = ? AND id = ?", organizationID, id).
+		Delete(&workerSpecSnapshotRecord{})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
+	}
+	return nil
+}
+
 func decodeResolvedSnapshot(
 	resolved workerspecservice.ResolvedSnapshot,
 ) (domain.Spec, domain.Summary, []byte, []byte, error) {

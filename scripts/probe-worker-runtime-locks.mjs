@@ -11,12 +11,30 @@ const evidenceRoot = path.join(
   root,
   "tools/loops/worker-onboarding/catalog-loop/evidence/runtime-lock-probes",
 );
-const probes = [];
+const selectedWorker = process.argv[2];
+const runtimePlatform = process.env.RUNTIME_PLATFORM ?? "linux/amd64";
+const aggregatePath = path.join(evidenceRoot, "..", "runtime-lock-probes.json");
+const probes = new Map(
+  selectedWorker && fs.existsSync(aggregatePath)
+    ? readJson(aggregatePath).probes.map((probe) => [probe.worker_slug, probe])
+    : [],
+);
 
 fs.mkdirSync(evidenceRoot, { recursive: true });
 
 for (const image of lock.images) {
-  const result = spawnSync("docker", ["pull", image.reference], {
+  if (
+    selectedWorker &&
+    !image.worker_type_slugs.includes(selectedWorker)
+  ) {
+    continue;
+  }
+  const result = spawnSync("docker", [
+    "pull",
+    "--platform",
+    runtimePlatform,
+    image.reference,
+  ], {
     encoding: "utf8",
   });
   const output = [result.stdout, result.stderr].filter(Boolean).join("").trim();
@@ -39,12 +57,13 @@ function writeEvidence(slug, image, status, exitCode, output) {
     runtime_catalog_revision: lock.revision,
     image_reference: image.reference,
     image_digest: image.digest,
+    platform: runtimePlatform,
     status,
     exit_code: exitCode,
     output,
     observed_at: new Date().toISOString(),
   };
-  probes.push(document);
+  probes.set(slug, document);
   fs.writeFileSync(
     path.join(evidenceRoot, `${slug}.json`),
     JSON.stringify(document, null, 2) + "\n",
@@ -53,12 +72,12 @@ function writeEvidence(slug, image, status, exitCode, output) {
 }
 
 fs.writeFileSync(
-  path.join(evidenceRoot, "..", "runtime-lock-probes.json"),
+  aggregatePath,
   JSON.stringify(
     {
       schema_version: 1,
       runtime_catalog_revision: lock.revision,
-      probes: probes.sort((left, right) =>
+      probes: [...probes.values()].sort((left, right) =>
         left.worker_slug.localeCompare(right.worker_slug),
       ),
     },

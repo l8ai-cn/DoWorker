@@ -80,7 +80,7 @@ spec:
             - name: COORDINATOR_RUNNER_RELAY_BASE_URL
               value: "ws://relay:8090"
             - name: COORDINATOR_RUNNER_IMAGES
-              value: "e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa"
+              value: "video-studio=repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22,e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa"
           volumeMounts:
             - name: pki-ca
               mountPath: /app/ssl

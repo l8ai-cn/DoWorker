@@ -34,6 +34,12 @@ pub struct Expert {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_pod_key: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub worker_spec_snapshot_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_market_application_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_market_release_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub organization_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_by_id: Option<i64>,

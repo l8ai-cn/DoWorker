@@ -7,12 +7,6 @@ import (
 	"path/filepath"
 )
 
-var formalWorkerSlugs = []string{
-	"aider", "claude-code", "codex-cli", "cursor-cli", "do-agent",
-	"gemini-cli", "grok-build", "hermes", "loopal", "minimax-cli",
-	"openclaw", "opencode", "seedance-expert",
-}
-
 type Catalog struct {
 	definitions map[string]Definition
 	slugs       []string
@@ -129,14 +123,16 @@ func Load(root string) (*Catalog, error) {
 	}
 	repoRoot := filepath.Dir(filepath.Dir(root))
 	definitions := make(map[string]Definition, len(document.WorkerTypes))
+	slugs := make([]string, 0, len(document.WorkerTypes))
 	for _, entry := range document.WorkerTypes {
 		definition, err := loadDefinition(repoRoot, entry)
 		if err != nil {
 			return nil, err
 		}
 		definitions[definition.Slug] = definition
+		slugs = append(slugs, definition.Slug)
 	}
-	return &Catalog{definitions: definitions, slugs: append([]string{}, formalWorkerSlugs...)}, nil
+	return &Catalog{definitions: definitions, slugs: slugs}, nil
 }
 
 func (catalog *Catalog) Get(slug string) (Definition, bool) {

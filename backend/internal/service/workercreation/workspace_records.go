@@ -96,7 +96,29 @@ func cloneResolvedWorkspace(workspace specdomain.Workspace) specdomain.Workspace
 		cloned.RepositoryID = &id
 	}
 	cloned.SkillIDs = append([]int64{}, workspace.SkillIDs...)
+	cloned.SkillPackages = append(
+		[]specdomain.SkillPackageBinding{},
+		workspace.SkillPackages...,
+	)
 	cloned.KnowledgeMounts = append([]specdomain.KnowledgeMount{}, workspace.KnowledgeMounts...)
 	cloned.EnvBundleIDs = append([]specdomain.RuntimeEnvBundleID{}, workspace.EnvBundleIDs...)
 	return cloned
+}
+
+func (resolver *workspaceResolver) resolvedSkillPackages(
+	ids []int64,
+) []specdomain.SkillPackageBinding {
+	packages := make([]specdomain.SkillPackageBinding, 0, len(ids))
+	for _, id := range ids {
+		row := resolver.skills[id]
+		packages = append(packages, specdomain.SkillPackageBinding{
+			SkillID:     row.ID,
+			Slug:        row.Slug,
+			Version:     row.Version,
+			ContentSHA:  row.ContentSha,
+			StorageKey:  row.StorageKey,
+			PackageSize: row.PackageSize,
+		})
+	}
+	return packages
 }
