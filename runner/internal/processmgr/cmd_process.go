@@ -95,8 +95,8 @@ func (p *cmdProcess) reapLoopBody(self Handle, onWait func()) {
 	if onWait != nil {
 		onWait()
 	}
-	p.setExit(info)
 	p.mgr.unregister(self)
+	p.setExit(info)
 }
 
 func buildExitInfo(cmd *exec.Cmd, waitErr error, startedAt time.Time) ExitInfo {

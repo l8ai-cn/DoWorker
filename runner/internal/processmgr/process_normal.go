@@ -21,7 +21,7 @@ type normalProcess struct {
 
 var _ Handle = (*normalProcess)(nil)
 
-func startNormal(ctx context.Context, mgr *manager, spec Spec) (Handle, error) {
+func startNormal(ctx context.Context, mgr *manager, spec Spec) (managedHandle, error) {
 	// CommandContext binds ctx cancellation to a SIGKILL on the child. This
 	// preserves the implicit cleanup callers got from
 	// exec.CommandContext(ctx, ...) before they migrated onto processmgr —
@@ -56,14 +56,17 @@ func startNormal(ctx context.Context, mgr *manager, spec Spec) (Handle, error) {
 		stdoutR: stdoutR,
 		stderrR: stderrR,
 	}
-	safego.Go("processmgr-reap-"+spec.Owner, func() { p.reapLoopBody(p, nil) })
 	return p, nil
 }
 
-func (p *normalProcess) PTY() *os.File                { return nil }
-func (p *normalProcess) StdinWriter() io.WriteCloser  { return p.stdinW }
-func (p *normalProcess) StdoutReader() io.ReadCloser  { return p.stdoutR }
-func (p *normalProcess) StderrReader() io.ReadCloser  { return p.stderrR }
+func (p *normalProcess) startLifecycle() {
+	safego.Go("processmgr-reap-"+p.Owner(), func() { p.reapLoopBody(p, nil) })
+}
+
+func (p *normalProcess) PTY() *os.File               { return nil }
+func (p *normalProcess) StdinWriter() io.WriteCloser { return p.stdinW }
+func (p *normalProcess) StdoutReader() io.ReadCloser { return p.stdoutR }
+func (p *normalProcess) StderrReader() io.ReadCloser { return p.stderrR }
 
 // attachPipes wires up the io.Pipe pairs requested by Spec.PipeStdin/Stdout/
 // Stderr. Returns the caller-side ends or nil for fields the caller did not

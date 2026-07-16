@@ -13,9 +13,6 @@ import (
 	"strings"
 	"syscall"
 	"time"
-
-	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/safego"
 )
 
 // startDaemon (Unix) spawns the runner's __processmgr_launcher__ subcommand
@@ -23,7 +20,7 @@ import (
 // launcherPIDFd, and exits. The launcher's exit reparents the daemon to
 // init(1), giving us a zombie-proof detachment. See RunLauncher in
 // launcher.go for the launcher half.
-func startDaemon(ctx context.Context, mgr *manager, spec Spec) (Handle, error) {
+func startDaemon(ctx context.Context, mgr *manager, spec Spec) (managedHandle, error) {
 	selfPath, err := os.Executable()
 	if err != nil {
 		return nil, fmt.Errorf("processmgr: os.Executable: %w", err)
@@ -67,14 +64,6 @@ func startDaemon(ctx context.Context, mgr *manager, spec Spec) (Handle, error) {
 		stopTimeout: mgr.opts.stopTimeoutFor(spec),
 		pollEvery:   mgr.opts.DaemonAlivePoll,
 	}
-
-	safego.Go("processmgr-launcher-wait-"+spec.Owner, func() {
-		if err := cmd.Wait(); err != nil {
-			logger.Runner().Warn("processmgr: launcher wait error",
-				"owner", spec.Owner, "launcher_pid", p.launcherPID, "err", err)
-		}
-	})
-	safego.Go("processmgr-daemon-monitor-"+spec.Owner, p.monitorLoop)
 	return p, nil
 }
 
