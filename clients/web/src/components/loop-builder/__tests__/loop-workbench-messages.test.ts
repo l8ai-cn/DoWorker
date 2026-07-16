@@ -1,0 +1,58 @@
+import { describe, expect, it } from "vitest";
+import enMessages from "@/messages/en/app.json";
+import zhMessages from "@/messages/zh/app.json";
+import {
+  createLoopWorkbenchMessages,
+  type LoopMessageTranslator,
+} from "../loop-workbench-messages";
+
+function translator(messages: Record<string, unknown>): LoopMessageTranslator {
+  return (key, values) => {
+    const value = key.split(".").reduce<unknown>(
+      (current, segment) => (current as Record<string, unknown>)[segment],
+      messages,
+    );
+    return Object.entries(values ?? {}).reduce(
+      (text, [name, replacement]) => text.replace(`{${name}}`, String(replacement)),
+      String(value),
+    );
+  };
+}
+
+describe("Loop workbench messages", () => {
+  it("preserves the current Chinese labels", () => {
+    const messages = createLoopWorkbenchMessages(
+      translator(zhMessages.loopWorkbench),
+    );
+
+    expect(messages.toolbar.title).toBe("循环工作台");
+    expect(messages.shell.canvasTitle).toBe("积木画布");
+    expect(messages.blockly.loop.message0).toBe("循环 %1");
+    expect(messages.quickInsert.title).toBe("插入积木");
+    expect(messages.status.parseStatus.valid).toBe("有效");
+    expect(messages.runtime.title).toBe("选择运行环境");
+    expect(messages.ai.generateMode).toBe("生成 / 修改");
+    expect(messages.ai.explainMode).toBe("解释当前循环");
+    expect(messages.ai.projection.limits).toBe("执行预算");
+    expect(messages.shell.editorMetadata(7, 4)).toBe("编辑版本 7 · 语义版本 4");
+  });
+
+  it("builds a complete English label set", () => {
+    const messages = createLoopWorkbenchMessages(
+      translator(enMessages.loopWorkbench),
+    );
+
+    expect(messages.toolbar.title).toBe("Loop workbench");
+    expect(messages.shell.canvasTitle).toBe("Block canvas");
+    expect(messages.blockly.loop.message0).toBe("Loop %1");
+    expect(messages.quickInsert.title).toBe("Insert block");
+    expect(messages.status.parseStatus.valid).toBe("Valid");
+    expect(messages.runtime.title).toBe("Select runtime");
+    expect(messages.ai.generateMode).toBe("Generate / modify");
+    expect(messages.ai.explainMode).toBe("Explain current loop");
+    expect(messages.ai.projection.limits).toBe("Execution budget");
+    expect(messages.runtime.snapshotLabel("Review", "codex", "42")).toBe(
+      "Review · codex · Snapshot 42",
+    );
+  });
+});

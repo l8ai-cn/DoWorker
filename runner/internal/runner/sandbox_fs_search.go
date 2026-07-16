@@ -1,7 +1,7 @@
 package runner
 
 import (
-	"os"
+	"io/fs"
 	"path/filepath"
 	"strings"
 
@@ -10,12 +10,15 @@ import (
 
 const maxSearchResults = 500
 
-func (h *RunnerMessageHandler) sandboxFsSearch(workspaceRoot, query, include, exclude string) (*runnerv1.SandboxFsResultEvent, error) {
+func (h *RunnerMessageHandler) sandboxFsSearchWorkspace(
+	workspace *sandboxWorkspace,
+	query, include, exclude string,
+) (*runnerv1.SandboxFsResultEvent, error) {
 	q := strings.ToLower(strings.TrimSpace(query))
 	includes := splitGlobs(include)
 	excludes := splitGlobs(exclude)
 	var entries []*runnerv1.SandboxFsEntry
-	_ = filepath.WalkDir(workspaceRoot, func(path string, d os.DirEntry, err error) error {
+	_ = fs.WalkDir(workspace.root.FS(), ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -28,11 +31,7 @@ func (h *RunnerMessageHandler) sandboxFsSearch(workspaceRoot, query, include, ex
 		if len(entries) >= maxSearchResults {
 			return filepath.SkipAll
 		}
-		rel, err := filepath.Rel(workspaceRoot, path)
-		if err != nil {
-			return nil
-		}
-		rel = filepath.ToSlash(rel)
+		rel := filepath.ToSlash(path)
 		if q != "" && !strings.Contains(strings.ToLower(rel), q) && !strings.Contains(strings.ToLower(d.Name()), q) {
 			return nil
 		}
@@ -43,10 +42,13 @@ func (h *RunnerMessageHandler) sandboxFsSearch(workspaceRoot, query, include, ex
 		if err != nil {
 			return nil
 		}
-		entries = append(entries, fsEntryFromInfo(rel, fi))
+		entries = append(entries, fsEntryFromInfo(filepath.Dir(rel), fi))
 		return nil
 	})
-	return &runnerv1.SandboxFsResultEvent{Entries: entries, WorkspaceRoot: workspaceRoot}, nil
+	return &runnerv1.SandboxFsResultEvent{
+		Entries:       entries,
+		WorkspaceRoot: workspace.displayPath(),
+	}, nil
 }
 
 func splitGlobs(raw string) []string {

@@ -55,6 +55,25 @@ impl LoopBuilderState {
         self.semantic_revision += 1;
     }
 
+    pub fn apply_ai_draft(&mut self, response: lp::CompileLoopProgramResponse) -> bool {
+        if response.revision != self.revision
+            || !response.diagnostics.is_empty()
+            || response.program.is_none()
+            || response.canonical_source.trim().is_empty()
+        {
+            return false;
+        }
+
+        self.source = response.canonical_source.clone();
+        self.canonical_source = response.canonical_source;
+        self.program = response.program;
+        self.diagnostics.clear();
+        self.parse_status = "valid".into();
+        self.revision += 1;
+        self.semantic_revision += 1;
+        true
+    }
+
     pub fn apply_run(&mut self, run: lp::GoalLoop) {
         self.run = Some(run);
     }

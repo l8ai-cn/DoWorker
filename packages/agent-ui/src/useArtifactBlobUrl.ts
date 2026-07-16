@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 
-import type {
-  AgentArtifactItem,
-  AgentSessionRuntime,
-} from "./contracts";
+import type { AgentArtifactItem, AgentSessionRuntime } from "./contracts";
 import { artifactPresentation } from "./artifactPresentation";
 
 export type ArtifactBlobState =
+  | { status: "idle" }
   | { status: "loading" }
   | {
       status: "ready";
@@ -14,22 +12,42 @@ export type ArtifactBlobState =
       mimeType: string | null;
       text: string | null;
     }
-  | { status: "error"; message: string };
+  | {
+      status: "error";
+      code: "generation_failed" | "loading_unavailable" | "load_failed";
+      retryable: boolean;
+    };
 
 export function useArtifactBlobUrl(
   item: AgentArtifactItem,
   runtime: AgentSessionRuntime,
   sessionId: string,
+  enabled = true,
+  attempt = 0,
 ): ArtifactBlobState {
-  const [state, setState] = useState<ArtifactBlobState>({ status: "loading" });
+  const [state, setState] = useState<ArtifactBlobState>(
+    enabled ? { status: "loading" } : { status: "idle" },
+  );
 
   useEffect(() => {
     if (item.status === "failed") {
-      setState({ status: "error", message: "Artifact generation failed" });
+      setState({
+        status: "error",
+        code: "generation_failed",
+        retryable: false,
+      });
+      return;
+    }
+    if (!enabled) {
+      setState({ status: "idle" });
       return;
     }
     if (!runtime.loadArtifact) {
-      setState({ status: "error", message: "Artifact loading is unavailable" });
+      setState({
+        status: "error",
+        code: "loading_unavailable",
+        retryable: false,
+      });
       return;
     }
 
@@ -57,9 +75,11 @@ export function useArtifactBlobUrl(
       })
       .catch((cause: unknown) => {
         if (!active) return;
+        console.error("Artifact loading failed", cause);
         setState({
           status: "error",
-          message: cause instanceof Error ? cause.message : String(cause),
+          code: "load_failed",
+          retryable: true,
         });
       });
 
@@ -67,7 +87,15 @@ export function useArtifactBlobUrl(
       active = false;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [item.artifactId, item.mimeType, item.status, runtime, sessionId]);
+  }, [
+    attempt,
+    enabled,
+    item.artifactId,
+    item.mimeType,
+    item.status,
+    runtime,
+    sessionId,
+  ]);
 
   return state;
 }

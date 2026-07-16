@@ -64,15 +64,10 @@ describe("podWorkspaceArtifactApi", () => {
 
   it("loads a binary Worker artifact without resolving a session", async () => {
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      new Response(
-        JSON.stringify({
-          content: "AAAA",
-          content_type: "video/mp4",
-          encoding: "base64",
-          truncated: false,
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      ),
+      new Response(new Uint8Array([0, 0, 0]), {
+        status: 200,
+        headers: { "Content-Type": "video/mp4" },
+      }),
     );
 
     const blob = await loadPodWorkspaceArtifact(
@@ -83,7 +78,7 @@ describe("podWorkspaceArtifactApi", () => {
     expect(blob.type).toBe("video/mp4");
     expect(blob.size).toBe(3);
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      "/api/v1/orgs/dev-org/pods/worker-1/resources/workspace/filesystem/output/demo%20clip.mp4",
+      "/api/v1/orgs/dev-org/pods/worker-1/resources/workspace/artifacts/output/demo%20clip.mp4",
       {
         cache: "no-store",
         headers: { Authorization: "Bearer test-token" },
@@ -91,21 +86,13 @@ describe("podWorkspaceArtifactApi", () => {
     );
   });
 
-  it("rejects truncated Worker artifact content", async () => {
+  it("reports a failed Worker artifact transfer", async () => {
     vi.mocked(globalThis.fetch).mockResolvedValueOnce(
-      new Response(
-        JSON.stringify({
-          content: "AAAA",
-          content_type: "video/mp4",
-          encoding: "base64",
-          truncated: true,
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      ),
+      new Response(null, { status: 502 }),
     );
 
     await expect(
       loadPodWorkspaceArtifact("worker-1", "output/demo.mp4"),
-    ).rejects.toThrow("exceeds the preview size limit");
+    ).rejects.toThrow("Workspace artifact request failed (502)");
   });
 });

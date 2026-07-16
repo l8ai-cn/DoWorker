@@ -1,5 +1,4 @@
 import {
-  AlertCircle,
   Download,
   ExternalLink,
   File,
@@ -7,24 +6,17 @@ import {
   FileImage,
   FileText,
   FileVideo,
-  Loader2,
   Presentation,
 } from "lucide-react";
+import { useState } from "react";
 
-import type {
-  AgentArtifactItem,
-  AgentSessionRuntime,
-} from "./contracts";
+import type { AgentArtifactItem, AgentSessionRuntime } from "./contracts";
 import {
   artifactPresentation,
   type ArtifactKind,
 } from "./artifactPresentation";
+import { ArtifactPreview } from "./ArtifactPreview";
 import { useAgentWorkspaceText } from "./AgentWorkspaceLocaleContext";
-import {
-  STATIC_HTML_REFERRER_POLICY,
-  STATIC_HTML_SANDBOX,
-  staticHtmlDocument,
-} from "./security/staticHtmlProfile";
 import { useArtifactBlobUrl } from "./useArtifactBlobUrl";
 
 export interface ArtifactCardProps {
@@ -33,67 +25,34 @@ export interface ArtifactCardProps {
   sessionId: string;
 }
 
-export function ArtifactCard({
-  item,
-  runtime,
-  sessionId,
-}: ArtifactCardProps) {
-  const state = useArtifactBlobUrl(item, runtime, sessionId);
+export function ArtifactCard({ item, runtime, sessionId }: ArtifactCardProps) {
   const text = useAgentWorkspaceText();
-  const filename = item.filename.trim() || text.generatedArtifact;
-
-  if (state.status === "loading") {
-    return (
-      <article
-        className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-3 text-sm text-muted-foreground"
-        role="status"
-      >
-        <Loader2 className="size-4 animate-spin" />
-        {text.loadingArtifact(filename)}
-      </article>
-    );
-  }
-  if (state.status === "error") {
-    return <ArtifactError filename={filename} message={state.message} />;
-  }
-
-  const type = artifactPresentation(state.mimeType, filename);
+  const filename = item.filename.trim() || text.artifact.generatedArtifact;
+  const declaredType = artifactPresentation(item.mimeType, filename);
+  const [requestedArtifactId, setRequestedArtifactId] = useState<string | null>(
+    null,
+  );
+  const [attempt, setAttempt] = useState(0);
+  const enabled =
+    declaredType.kind !== "video" || requestedArtifactId === item.artifactId;
+  const state = useArtifactBlobUrl(item, runtime, sessionId, enabled, attempt);
+  const type =
+    state.status === "ready"
+      ? artifactPresentation(state.mimeType, filename)
+      : declaredType;
+  const load = () => {
+    setRequestedArtifactId(item.artifactId);
+    setAttempt((value) => value + 1);
+  };
   return (
     <article className="overflow-hidden rounded-md border border-border bg-card">
-      {type.kind === "image" && (
-        <img
-          alt={filename}
-          className="max-h-96 w-full bg-muted object-contain"
-          src={state.url}
-        />
-      )}
-      {type.kind === "video" && (
-        <video
-          aria-label={text.videoPreview(filename)}
-          className="max-h-96 w-full bg-muted object-contain"
-          controls
-          playsInline
-          preload="metadata"
-          src={state.url}
-        />
-      )}
-      {type.kind === "html" && (
-        <iframe
-          className="aspect-[16/10] min-h-80 w-full border-b border-border bg-white"
-          referrerPolicy={STATIC_HTML_REFERRER_POLICY}
-          sandbox={STATIC_HTML_SANDBOX}
-          srcDoc={staticHtmlDocument(state.text ?? "")}
-          title={text.previewArtifact(filename)}
-        />
-      )}
-      {(type.kind === "code" || type.kind === "text") && state.text !== null && (
-        <pre
-          aria-label={text.previewArtifact(filename)}
-          className="max-h-80 overflow-auto border-b border-border bg-muted/40 p-4 text-xs leading-5"
-        >
-          <code>{state.text}</code>
-        </pre>
-      )}
+      <ArtifactPreview
+        filename={filename}
+        kind={type.kind}
+        onLoad={load}
+        onRetry={load}
+        state={state}
+      />
       <div className="flex min-w-0 items-center gap-3 px-3 py-2.5">
         <ArtifactTypeIcon kind={type.kind} />
         <div className="min-w-0 flex-1">
@@ -102,46 +61,29 @@ export function ArtifactCard({
             {text.artifactType(type.label, type.label)}
           </div>
         </div>
-        {type.kind !== "file" && type.kind !== "html" && (
+        {state.status === "ready" &&
+          type.kind !== "file" &&
+          type.kind !== "html" && (
+            <a
+              aria-label={text.artifact.open(filename)}
+              className="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              href={state.url}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <ExternalLink className="size-4" />
+            </a>
+          )}
+        {state.status === "ready" && (
           <a
-            aria-label={text.openArtifact(filename)}
+            aria-label={text.artifact.download(filename)}
             className="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            download={filename}
             href={state.url}
-            rel="noreferrer"
-            target="_blank"
           >
-            <ExternalLink className="size-4" />
+            <Download className="size-4" />
           </a>
         )}
-        <a
-          aria-label={text.downloadArtifact(filename)}
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          download={filename}
-          href={state.url}
-        >
-          <Download className="size-4" />
-        </a>
-      </div>
-    </article>
-  );
-}
-
-function ArtifactError({
-  filename,
-  message,
-}: {
-  filename: string;
-  message: string;
-}) {
-  return (
-    <article
-      className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-3 text-sm"
-      role="alert"
-    >
-      <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
-      <div className="min-w-0">
-        <div className="truncate font-medium">{filename}</div>
-        <div className="text-xs text-destructive">{message}</div>
       </div>
     </article>
   );
@@ -153,12 +95,12 @@ function ArtifactTypeIcon({ kind }: { kind: ArtifactKind }) {
       ? FileImage
       : kind === "video"
         ? FileVideo
-          : kind === "presentation"
+        : kind === "presentation"
           ? Presentation
           : kind === "code" || kind === "html"
             ? FileCode2
             : kind === "pdf" || kind === "text"
-            ? FileText
-            : File;
+              ? FileText
+              : File;
   return <Icon className="size-5 shrink-0 text-muted-foreground" />;
 }

@@ -1,7 +1,4 @@
-import type {
-  AgentConnectionStatus,
-  AgentSessionStatus,
-} from "./contracts";
+import type { AgentConnectionStatus, AgentSessionStatus } from "./contracts";
 import {
   localizeConfigurationLabel,
   localizeConfigurationOption,
@@ -22,6 +19,10 @@ import {
   englishToolActivityGroupSummary,
   type ToolActivityCount,
 } from "./toolActivityGroupText";
+import {
+  artifactWorkspaceText,
+  type ArtifactWorkspaceText,
+} from "./artifactWorkspaceText";
 
 export type AgentWorkspaceLocale = "en-US" | "zh-CN";
 export interface AgentWorkspaceText {
@@ -49,16 +50,11 @@ export interface AgentWorkspaceText {
   details: string;
   takeControl: string;
   releaseControl: string;
-  generatedArtifact: string;
+  artifact: ArtifactWorkspaceText;
   emptyHeading(agentLabel: string): string;
   composerPlaceholder(agentLabel: string): string;
   requiresArgument(commandLabel: string): string;
   customAnswerFor(prompt: string): string;
-  loadingArtifact(filename: string): string;
-  previewArtifact(filename: string): string;
-  videoPreview(filename: string): string;
-  openArtifact(filename: string): string;
-  downloadArtifact(filename: string): string;
   configurationOptions(label: string): string;
   configurationLabel(id: string, fallback: string): string;
   configurationOption(id: string, value: string, fallback: string): string;
@@ -66,7 +62,9 @@ export interface AgentWorkspaceText {
     status: AgentSessionStatus,
     connection: AgentConnectionStatus,
   ): string;
-  activityStatus(status: "pending" | "running" | "completed" | "failed"): string;
+  activityStatus(
+    status: "pending" | "running" | "completed" | "failed",
+  ): string;
   artifactType(kind: string, fallback: string): string;
   toolText(value: string): string;
   toolActivityGroupSummary(counts: ToolActivityCount[]): string;
@@ -104,17 +102,11 @@ const enUS: AgentWorkspaceText = {
   details: "Details",
   takeControl: "Take control",
   releaseControl: "Release control",
-  generatedArtifact: "Generated artifact",
+  artifact: artifactWorkspaceText("en-US"),
   emptyHeading: (agentLabel) => `${agentLabel}, what should we work on?`,
-  composerPlaceholder: (agentLabel) =>
-    `Ask ${agentLabel} to work on a task…`,
+  composerPlaceholder: (agentLabel) => `Ask ${agentLabel} to work on a task…`,
   requiresArgument: (commandLabel) => `${commandLabel} requires an argument`,
   customAnswerFor: (prompt) => `Custom answer for ${prompt}`,
-  loadingArtifact: (filename) => `Loading ${filename}`,
-  previewArtifact: (filename) => `Preview ${filename}`,
-  videoPreview: (filename) => `Video preview for ${filename}`,
-  openArtifact: (filename) => `Open ${filename}`,
-  downloadArtifact: (filename) => `Download ${filename}`,
   configurationOptions: (label) => `${label} options`,
   configurationLabel: (_id, fallback) => fallback,
   configurationOption: (_id, _value, fallback) => fallback,
@@ -151,16 +143,11 @@ const zhCN: AgentWorkspaceText = {
   details: "详细信息",
   takeControl: "接管终端",
   releaseControl: "释放控制",
-  generatedArtifact: "生成的成果",
+  artifact: artifactWorkspaceText("zh-CN"),
   emptyHeading: (agentLabel) => `${agentLabel}，我能为你做什么？`,
   composerPlaceholder: (agentLabel) => `让 ${agentLabel} 帮你完成任务…`,
   requiresArgument: (commandLabel) => `${commandLabel} 需要填写参数`,
   customAnswerFor: (prompt) => `${prompt}的自定义回答`,
-  loadingArtifact: (filename) => `正在加载 ${filename}`,
-  previewArtifact: (filename) => `预览 ${filename}`,
-  videoPreview: (filename) => `${filename} 的视频预览`,
-  openArtifact: (filename) => `打开 ${filename}`,
-  downloadArtifact: (filename) => `下载 ${filename}`,
   configurationOptions: (label) => `${label}选项`,
   configurationLabel: localizeConfigurationLabel,
   configurationOption: localizeConfigurationOption,

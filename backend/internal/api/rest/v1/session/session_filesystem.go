@@ -1,6 +1,7 @@
 package sessionapi
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -8,6 +9,8 @@ import (
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/gin-gonic/gin"
 )
+
+const maxSessionFilesystemWriteBodyBytes int64 = 1 << 20
 
 func (d *Deps) handleSessionEnvironment(c *gin.Context) {
 	_, pod, ok := d.authorizeSession(c, c.Param("id"))
@@ -53,15 +56,29 @@ func (d *Deps) handleSessionFilesystemList(c *gin.Context) {
 }
 
 func (d *Deps) handleSessionFilesystemWrite(c *gin.Context) {
-	_, pod, ok := d.authorizeSession(c, c.Param("id"))
-	if !ok {
+	row, pod, ok := d.authorizeSession(c, c.Param("id"))
+	if !ok || !d.requireSessionLevel(c, row, levelEdit) {
 		return
 	}
+	c.Request.Body = http.MaxBytesReader(
+		c.Writer,
+		c.Request.Body,
+		maxSessionFilesystemWriteBodyBytes,
+	)
 	var body struct {
 		Content  string `json:"content"`
 		Encoding string `json:"encoding"`
 	}
-	if err := c.ShouldBindJSON(&body); err != nil || body.Encoding != "" && body.Encoding != "utf-8" {
+	if err := c.ShouldBindJSON(&body); err != nil {
+		var maxBytesErr *http.MaxBytesError
+		if errors.As(err, &maxBytesErr) {
+			c.JSON(http.StatusRequestEntityTooLarge, gin.H{"error": "body too large"})
+			return
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"})
+		return
+	}
+	if body.Encoding != "" && body.Encoding != "utf-8" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"})
 		return
 	}

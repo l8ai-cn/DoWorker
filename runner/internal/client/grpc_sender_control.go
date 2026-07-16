@@ -107,7 +107,7 @@ func (c *GRPCConnection) SendSandboxFsResult(event *runnerv1.SandboxFsResultEven
 		},
 		Timestamp: time.Now().UnixMilli(),
 	}
-	return c.sendControl(msg)
+	return c.sendReadyResult(msg)
 }
 
 func (c *GRPCConnection) SendVerificationResult(event *runnerv1.VerificationResultEvent) error {
@@ -117,7 +117,7 @@ func (c *GRPCConnection) SendVerificationResult(event *runnerv1.VerificationResu
 		},
 		Timestamp: time.Now().UnixMilli(),
 	}
-	return c.sendControl(msg)
+	return c.sendReadyResult(msg)
 }
 
 // SendUpgradeStatus sends an upgrade status event to the server (control message).

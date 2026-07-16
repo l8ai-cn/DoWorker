@@ -4,8 +4,8 @@ metadata:
   name: backend
   namespace: agentsmesh
   annotations:
-    kubernetes.io/change-cause: "Release Mobile Worker Access from commit 1de2573c5"
-    agentsmesh.ai/verified-image-digest: "sha256:452a8b053be8d479d9ad1b2581fcef251864d2228e913a67c07a5b34bcea8b80"
+    kubernetes.io/change-cause: "AgentsMesh release __RELEASE_COMMIT__"
+    agentsmesh.ai/verified-image-digest: "__BACKEND_DIGEST__"
 spec:
   replicas: 1
   selector:
@@ -16,7 +16,7 @@ spec:
       labels:
         app: backend
       annotations:
-        agentsmesh.ai/verified-image-digest: "sha256:452a8b053be8d479d9ad1b2581fcef251864d2228e913a67c07a5b34bcea8b80"
+        agentsmesh.ai/verified-image-digest: "__BACKEND_DIGEST__"
     spec:
       serviceAccountName: agentsmesh-backend
       securityContext:
@@ -26,15 +26,6 @@ spec:
       imagePullSecrets:
         - name: agentsmesh-regcred
       initContainers:
-        - name: migrate
-          image: repo.aiedulab.cn:8443/agentsmesh/backend:latest
-          imagePullPolicy: Always
-          command: ["/app/server", "migrate", "up"]
-          envFrom:
-            - configMapRef:
-                name: agentsmesh-config
-            - secretRef:
-                name: agentsmesh-secrets
         - name: kubectl-install
           image: repo.aiedulab.cn:8443/agentsmesh/kubectl:1.28
           imagePullPolicy: Always
@@ -80,7 +71,7 @@ spec:
             - name: COORDINATOR_RUNNER_RELAY_BASE_URL
               value: "ws://relay:8090"
             - name: COORDINATOR_RUNNER_IMAGES
-              value: "video-studio=repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22,e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa"
+              value: "video-studio=repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22,e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa,do-agent=repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e,seedance-expert=repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e"
           volumeMounts:
             - name: pki-ca
               mountPath: /app/ssl

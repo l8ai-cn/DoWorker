@@ -28,7 +28,12 @@ go_cross() {
   local out="$1" pkg="$2"
   (
     cd "$REPO_ROOT"
-    GOOS=linux GOARCH="$TARGET_ARCH" CGO_ENABLED=0 go build -o "${STAGING}/${out}" "${pkg}"
+    GOOS=linux GOARCH="$TARGET_ARCH" CGO_ENABLED=0 go build \
+      -trimpath \
+      -buildvcs=false \
+      -ldflags="-s -w -buildid=" \
+      -o "${STAGING}/${out}" \
+      "${pkg}"
   )
   chmod +x "${STAGING}/${out}"
 }
@@ -68,11 +73,7 @@ case "$AGENT_RUNTIME" in
     stage_loopal
     ;;
   do-agent)
-    if [[ ! -x "${DEPLOY_DEV}/do-agent-binary" ]]; then
-      source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
-      build_do_agent_binary
-    fi
-    stage_sidecar "do-agent-binary" "${DEPLOY_DEV}/do-agent-binary"
+    "${REPO_ROOT}/docker/agent-runtime/stage_do_agent_binary.sh" "${STAGING}/binaries"
     ;;
 esac
 

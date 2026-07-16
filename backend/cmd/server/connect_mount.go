@@ -10,7 +10,6 @@ import (
 	autopilotconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/autopilot"
 	billingconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/billing"
 	fileconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/file"
-	goalloopconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/goalloop"
 	grantconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/grant"
 	invitationconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/invitation"
 	knowledgebaseconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/knowledgebase"
@@ -175,13 +174,6 @@ func mountWorkflowService(mux *http.ServeMux, svc *serviceContainer, rest *v1.Se
 	}
 	srv := workflowconnect.NewServer(svc.workflow, svc.workflowRun, rest.WorkflowOrchestrator, svc.org, podTerm)
 	workflowconnect.Mount(mux, srv, opts...)
-}
-
-func mountGoalLoopService(mux *http.ServeMux, svc *serviceContainer, opts []connect.HandlerOption) {
-	if svc.goalLoop == nil {
-		return
-	}
-	goalloopconnect.Mount(mux, goalloopconnect.NewServer(svc.goalLoop, svc.org), opts...)
 }
 
 // mountLicenseService wires both LicenseService (auth-required: Activate /

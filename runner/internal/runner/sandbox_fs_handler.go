@@ -28,13 +28,13 @@ func (h *RunnerMessageHandler) OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error
 			root := h.runner.GetConfig().WorkspaceRoot
 			result, err = h.sandboxFsMkdir(root, cmd.Path)
 		} else {
-			result, err = h.sandboxFsForPod(cmd.PodKey, func(root string) (*runnerv1.SandboxFsResultEvent, error) {
-				return h.sandboxFsMkdir(root, cmd.Path)
+			result, err = h.sandboxFsForPod(cmd.PodKey, func(workspace *sandboxWorkspace) (*runnerv1.SandboxFsResultEvent, error) {
+				return h.sandboxFsMkdirWorkspace(workspace, cmd.Path)
 			})
 		}
 	default:
-		result, err = h.sandboxFsForPod(cmd.PodKey, func(root string) (*runnerv1.SandboxFsResultEvent, error) {
-			return h.dispatchSandboxFsOp(root, cmd)
+		result, err = h.sandboxFsForPod(cmd.PodKey, func(workspace *sandboxWorkspace) (*runnerv1.SandboxFsResultEvent, error) {
+			return h.dispatchSandboxFsOpWorkspace(workspace, cmd)
 		})
 	}
 	if err != nil {
@@ -45,40 +45,69 @@ func (h *RunnerMessageHandler) OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error
 	return h.conn.SendSandboxFsResult(result)
 }
 
-func (h *RunnerMessageHandler) sandboxFsForPod(podKey string, fn func(string) (*runnerv1.SandboxFsResultEvent, error)) (*runnerv1.SandboxFsResultEvent, error) {
+func (h *RunnerMessageHandler) sandboxFsForPod(
+	podKey string,
+	fn sandboxWorkspaceOperation,
+) (*runnerv1.SandboxFsResultEvent, error) {
 	pod, ok := h.podStore.Get(podKey)
 	if !ok {
-		root, err := detachedPodWorkspaceRoot(h.runner.GetConfig(), podKey)
+		workspace, err := openDetachedPodWorkspace(h.runner.GetConfig(), podKey)
 		if err != nil {
 			return fsErrResult(err.Error()), nil
 		}
-		return fn(root)
+		defer workspace.Close()
+		return fn(workspace)
 	}
-	root, err := podWorkspaceRoot(pod)
+	return pod.withWorkspace(fn)
+}
+
+func (h *RunnerMessageHandler) dispatchSandboxFsOp(
+	workspaceRoot string,
+	cmd *runnerv1.SandboxFsCommand,
+) (*runnerv1.SandboxFsResultEvent, error) {
+	workspace, err := openSandboxWorkspace(workspaceRoot)
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
-	return fn(root)
+	defer workspace.Close()
+	return h.dispatchSandboxFsOpWorkspace(workspace, cmd)
 }
 
-func (h *RunnerMessageHandler) dispatchSandboxFsOp(root string, cmd *runnerv1.SandboxFsCommand) (*runnerv1.SandboxFsResultEvent, error) {
+func (h *RunnerMessageHandler) dispatchSandboxFsOpWorkspace(
+	workspace *sandboxWorkspace,
+	cmd *runnerv1.SandboxFsCommand,
+) (*runnerv1.SandboxFsResultEvent, error) {
 	switch cmd.Op {
 	case "list":
-		return h.sandboxFsList(root, cmd.Path)
+		return h.sandboxFsListWorkspace(workspace, cmd.Path)
+	case "stat":
+		return h.sandboxFsStatWorkspace(workspace, cmd.Path)
 	case "read":
-		return h.sandboxFsRead(root, cmd.Path)
+		return h.sandboxFsReadWorkspace(workspace, cmd.Path)
 	case "write":
-		return h.sandboxFsWrite(root, cmd.Path, cmd.Payload)
+		return h.sandboxFsWriteWorkspace(workspace, cmd.Path, cmd.Payload)
 	case "download":
-		return h.sandboxFsDownload(root, cmd.Path, cmd.Payload)
+		return h.sandboxFsDownloadWorkspace(
+			h.runner.GetRunContext(),
+			workspace,
+			cmd.Path,
+			cmd.Payload,
+		)
+	case "upload":
+		return h.sandboxFsUploadWorkspace(
+			h.runner.GetRunContext(),
+			workspace,
+			cmd.Path,
+			cmd.Payload,
+		)
 	case "changes":
-		return h.sandboxFsChanges(root)
+		return h.sandboxFsChangesWorkspace(workspace)
 	case "diff":
-		return h.sandboxFsDiff(root, cmd.Path)
+		return h.sandboxFsDiffWorkspace(workspace, cmd.Path)
 	case "search":
-		return h.sandboxFsSearch(root, cmd.Payload, cmd.IncludeGlob, cmd.ExcludeGlob)
+		return h.sandboxFsSearchWorkspace(workspace, cmd.Payload, cmd.IncludeGlob, cmd.ExcludeGlob)
 	case "skill_discover":
-		return h.sandboxFsWorkerSkillDiscover(root, cmd.Path)
+		return h.sandboxFsWorkerSkillDiscoverWorkspace(workspace, cmd.Path)
 	default:
 		return fsErrResult(fmt.Sprintf("unknown op %q", cmd.Op)), nil
 	}

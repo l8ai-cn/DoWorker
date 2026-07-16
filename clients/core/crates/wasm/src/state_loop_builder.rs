@@ -56,6 +56,11 @@ impl WasmLoopBuilderState {
         Ok(())
     }
 
+    pub fn apply_ai_draft_response(&self, response: &[u8]) -> Result<bool, JsValue> {
+        let response = lp::CompileLoopProgramResponse::decode(response).map_err(decode_err)?;
+        Ok(self.state.write().loop_builder.apply_ai_draft(response))
+    }
+
     pub fn apply_run_response(&self, response: &[u8]) -> Result<(), JsValue> {
         let run = lp::GoalLoop::decode(response).map_err(decode_err)?;
         self.state.write().loop_builder.apply_run(run);

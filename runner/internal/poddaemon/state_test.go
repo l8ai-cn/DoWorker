@@ -12,6 +12,8 @@ import (
 
 func TestStateSaveLoadRoundtrip(t *testing.T) {
 	dir := t.TempDir()
+	workspaceID, err := CaptureWorkspaceIdentity(dir)
+	require.NoError(t, err)
 
 	state := &PodDaemonState{
 		PodKey:         "test-pod-123",
@@ -20,7 +22,8 @@ func TestStateSaveLoadRoundtrip(t *testing.T) {
 		AuthToken:      "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
 		DaemonPID:      12345,
 		SandboxPath:    dir,
-		WorkDir:        "/tmp/work",
+		WorkDir:        dir,
+		WorkspaceID:    workspaceID,
 		RepositoryURL:  "https://github.com/test/repo",
 		Branch:         "main",
 		TicketSlug:     "TICK-42",

@@ -896,6 +896,214 @@
     "reload": "Reload",
     "home": "Home"
   },
+  "loopWorkbench": {
+    "shell": {
+      "canvasTitle": "Block canvas",
+      "canvasHint": "Double-click empty space to insert",
+      "editorTitle": "LoopScript",
+      "editorMetadata": "Draft {revision} · Semantic {semanticRevision}"
+    },
+    "toolbar": {
+      "back": "Back to loops",
+      "title": "Loop workbench",
+      "subtitle": "Blocks and LoopScript share the same backend-confirmed semantics",
+      "blocks": "Blocks",
+      "code": "Code",
+      "run": "Run loop"
+    },
+    "blockly": {
+      "loop": {
+        "message0": "Loop %1",
+        "message1": "Execution limits %1",
+        "message2": "Loop steps %1",
+        "message3": "On failure %1"
+      },
+      "limits": {
+        "message0": "At most %1 iterations · %2 tokens · %3 minutes",
+        "message1": "No progress %1 times · same error %2 times"
+      },
+      "repeat": {
+        "message0": "Repeat %1 · at most %2 times",
+        "message1": "Until %1 . %2",
+        "message2": "Run %1"
+      },
+      "agent": {
+        "message0": "Agent task %1",
+        "message1": "Task prompt %1",
+        "defaultPrompt": "Describe the task to complete"
+      },
+      "verifier": {
+        "message0": "Verification step %1",
+        "message1": "Command %1",
+        "message2": "Pass condition %1",
+        "defaultAccept": "Verification passes"
+      },
+      "failure": {
+        "message0": "On failure %1",
+        "pause": "Pause for human review",
+        "fail": "Mark as failed"
+      },
+      "toolbox": {
+        "loop": "Loop",
+        "control": "Control",
+        "agent": "Agent",
+        "verifier": "Verification",
+        "limits": "Limits",
+        "failure": "Failure"
+      }
+    },
+    "quickInsert": {
+      "close": "Close quick insert",
+      "title": "Insert block",
+      "options": {
+        "loop": "Loop",
+        "repeat": "Repeat",
+        "agent": "Agent task",
+        "verifier": "Verification step",
+        "limits": "Execution limits",
+        "failure": "Failure handling"
+      }
+    },
+    "status": {
+      "diagnosticsTitle": "Diagnostics",
+      "runTitle": "Run",
+      "valid": "Current source passed backend validation",
+      "noRun": "The loop has not started.",
+      "repairDiagnostic": "Repair this diagnostic",
+      "repairingDiagnostic": "Repairing diagnostic",
+      "nodeLabel": "Node: ",
+      "runStatusLabel": "Status: ",
+      "diagnosticLocation": "Line {line}, column {column}",
+      "runInstance": " · Runtime instance {podKey}",
+      "unknownStatus": "Unknown status",
+      "parseStatus": {
+        "empty": "Waiting for input",
+        "parsing": "Validating",
+        "valid": "Valid",
+        "syntax-error": "Has errors"
+      },
+      "runStatus": {
+        "draft": "Draft",
+        "active": "Running",
+        "paused": "Paused",
+        "verifying": "Verifying",
+        "completed": "Completed",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "diagnostics": {
+        "programNil": "Loop program is required",
+        "schemaVersionUnsupported": "LoopScript version is not supported",
+        "syntaxInvalidToken": "LoopScript contains an invalid character",
+        "syntaxInvalidNumber": "LoopScript contains an invalid number",
+        "syntaxUnexpectedToken": "LoopScript structure is invalid",
+        "syntaxUnknown": "LoopScript contains unknown syntax",
+        "nodeIdMissing": "A block node is missing its unique identifier",
+        "nodeIdDuplicate": "Block node identifiers must be unique",
+        "localIdDuplicate": "Step names must be unique",
+        "identifierInvalid": "Step name format is invalid",
+        "limitsCount": "Exactly one execution limits block is required",
+        "repeatCount": "Exactly one repeat block is required",
+        "agentCount": "The repeat block must contain exactly one agent task",
+        "verifierCount": "The repeat block must contain exactly one verification step",
+        "failureCount": "Exactly one failure policy is required",
+        "untilInvalid": "The stop condition must reference the verification pass result",
+        "repeatMaxExceedsLimit": "Repeat count cannot exceed the global iteration limit",
+        "failurePolicyInvalid": "Failure policy is invalid",
+        "valueOutOfRange": "A block parameter is outside the allowed range",
+        "textEmpty": "A block text parameter cannot be empty",
+        "secretLiteralForbidden": "LoopScript cannot contain literal secrets",
+        "unknown": "LoopScript validation failed"
+      }
+    },
+    "runtime": {
+      "title": "Select runtime",
+      "description": "The runtime is bound only for this launch and is not part of loop orchestration.",
+      "field": "Runtime",
+      "placeholder": "Select runtime",
+      "unnamed": "Unnamed runtime",
+      "loading": "Loading runtimes",
+      "retry": "Reload",
+      "empty": "This organization has no available runtime",
+      "cancel": "Cancel",
+      "start": "Start loop",
+      "snapshotLabel": "{name} · {workerType} · Snapshot {id}"
+    },
+    "ai": {
+      "toolbar": "AI assistant",
+      "generateMode": "Generate / modify",
+      "explainMode": "Explain current loop",
+      "generateTitle": "Generate or modify loop with AI",
+      "generateDescription": "AI proposes a generated or whole-loop modification. Existing verifier and budget protections are enforced, and changes apply only after confirmation.",
+      "explainTitle": "Explain current loop",
+      "explainDescription": "A deterministic view of the validated LoopProgram. It does not use a model or change the loop.",
+      "resource": "AI model",
+      "resourcePlaceholder": "Select an AI model",
+      "prompt": "Describe the loop goal or whole-loop change",
+      "promptPlaceholder": "For example: create a professional PPT, or change the loop to produce a PDF handout",
+      "loadingResources": "Loading AI models",
+      "resourceError": "Failed to load AI models",
+      "retry": "Reload",
+      "noResources": "No text-generation model is available",
+      "generate": "Generate draft",
+      "generating": "Generating",
+      "generationError": "Failed to generate the loop draft",
+      "unchanged": "AI did not produce any code changes",
+      "stale": "The loop changed during generation. Generate again.",
+      "current": "Current code",
+      "proposed": "AI proposal",
+      "cancel": "Cancel",
+      "close": "Close",
+      "back": "Back",
+      "confirm": "Apply proposal",
+      "projection": {
+        "title": "Structure",
+        "unavailable": "The current loop has not passed validation, so its structure cannot be shown.",
+        "overview": "Loop",
+        "schemaVersion": "Schema version",
+        "loopName": "Loop identifier",
+        "limits": "Execution budget",
+        "iterations": "Maximum iterations",
+        "tokens": "Token budget",
+        "timeout": "Timeout",
+        "noProgress": "No-progress limit",
+        "sameError": "Same-error limit",
+        "repeat": "Repeated execution",
+        "repeatName": "Step identifier",
+        "repeatMax": "Maximum repeats",
+        "until": "Stop condition",
+        "agent": "Agent task",
+        "agentName": "Task identifier",
+        "agentPrompt": "Task instruction",
+        "verifier": "Verifier",
+        "verifierName": "Verifier identifier",
+        "verifierCommand": "Verifier command",
+        "verifierAccept": "Acceptance condition",
+        "failure": "Failure handling",
+        "failurePolicy": "Policy",
+        "failurePause": "Pause for human intervention",
+        "failureFail": "Mark the loop as failed",
+        "empty": "Not set",
+        "iterationsValue": "{value} iterations",
+        "tokensValue": "{value} tokens",
+        "minutesValue": "{value} minutes",
+        "timesValue": "{value} times"
+      },
+      "repair": {
+        "title": "Repair diagnostic",
+        "description": "AI proposes a targeted integer change for this diagnostic. Review the resulting LoopScript before applying it.",
+        "diagnostic": "Diagnostic",
+        "field": "Target field",
+        "prompt": "Additional instruction",
+        "promptPlaceholder": "Optional constraint for this repair",
+        "repair": "Generate repair",
+        "repairing": "Generating repair",
+        "error": "Failed to generate a valid targeted repair",
+        "patch": "Targeted change",
+        "patchValue": "{oldValue} to {newValue}"
+      }
+    }
+  },
   "loopal": {
     "activity": { "heading": "Activity" },
     "status": {

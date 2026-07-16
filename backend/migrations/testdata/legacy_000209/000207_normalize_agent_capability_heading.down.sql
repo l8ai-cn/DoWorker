@@ -1,0 +1,1 @@
+-- Intentionally irreversible content normalization.

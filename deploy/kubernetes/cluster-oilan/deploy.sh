@@ -18,6 +18,7 @@ GEN="${DIR}/_gen"
 SEC="${GEN}/secrets"
 REG="repo.aiedulab.cn:8443"
 RELEASE_BUNDLE=""
+RELEASE_DEPLOY_COMMIT=""
 REMOTE_WORKSPACE_MAY_EXIST=false
 SECRET_MANIFESTS=(
   agentsmesh-secrets.yaml
@@ -25,6 +26,10 @@ SECRET_MANIFESTS=(
   agentsmesh-access-token.yaml
   agentsmesh-regcred.yaml
 )
+# shellcheck source=release_source_guard.sh
+source "${DIR}/release_source_guard.sh"
+# shellcheck source=deploy-write-quiescence.sh
+source "${DIR}/deploy-write-quiescence.sh"
 
 echo "==> DoOps session ${SESSION} -> ${TARGET} (workspace ${WS})"
 
@@ -34,6 +39,10 @@ cleanup_release_workspace() {
   local result=$?
   trap - EXIT
   [[ -z "${RELEASE_BUNDLE}" || ! -d "${RELEASE_BUNDLE}" ]] || rm -rf "${RELEASE_BUNDLE}"
+  rm -rf "${GEN}"
+  if [[ "${APP_WRITES_STOPPED}" == true ]]; then
+    echo "deployment failed; application writes remain stopped" >&2
+  fi
   if [[ "${REMOTE_WORKSPACE_MAY_EXIST}" == true ]] &&
       ! doops -session "${SESSION}" clean --target "${TARGET}" --workspace "${SESSION}"; then
     echo "failed to clean DoOps release workspace ${SESSION}" >&2
@@ -76,8 +85,53 @@ ensure_tls_secret() {
 }
 
 sync_worker_definitions() {
-  dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; sed \"s|__BACKEND_IMAGE__|\${image}|g\" 23-worker-definition-sync-job.yaml | kubectl apply -f -"
+  dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit } \$1 == \"-\" && \$2 == \"image:\" && \$3 ~ /agentsmesh\\/backend@sha256:/ { print \$3; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; sed \"s|__BACKEND_IMAGE__|\${image}|g\" 23-worker-definition-sync-job.yaml | kubectl apply -f -"
   dexec "kubectl -n ${NS} wait --for=condition=complete job/worker-definition-sync --timeout=300s"
+}
+
+render_release() {
+  dexec "kubectl kustomize . > /tmp/agentsmesh-release.yaml; image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit } \$1 == \"-\" && \$2 == \"image:\" && \$3 ~ /agentsmesh\\/backend@sha256:/ { print \$3; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; digest=\${image##*@}; sed -i -e \"s|__BACKEND_DIGEST__|\${digest}|g\" -e \"s|__RELEASE_COMMIT__|${RELEASE_DEPLOY_COMMIT}|g\" /tmp/agentsmesh-release.yaml; bash verify_release_images.sh /tmp/agentsmesh-release.yaml"
+}
+
+apply_pinned_manifest() {
+  local manifest="$1" image="$2"
+  dexec "digest=\$(awk -v name='${REG}/agentsmesh/${image}' '\$1 == \"-\" && \$2 == \"name:\" && \$3 == name { found=1; next } found && \$1 == \"digest:\" { print \$2; exit }' release/kustomization.yaml); test \"\${digest}\" != \"\"; sed -E \"s|image: ${REG}/agentsmesh/${image}:[^[:space:]]+|image: ${REG}/agentsmesh/${image}@\${digest}|g\" ${manifest} | kubectl apply -f -"
+}
+
+apply_backend_job() {
+  local manifest="$1"
+  dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit } \$1 == \"-\" && \$2 == \"image:\" && \$3 ~ /agentsmesh\\/backend@sha256:/ { print \$3; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; digest=\${image##*@}; sed -e \"s|__BACKEND_IMAGE__|\${image}|g\" -e \"s|__BACKEND_DIGEST__|\${digest}|g\" -e \"s|__RELEASE_COMMIT__|${RELEASE_DEPLOY_COMMIT}|g\" ${manifest} | kubectl apply -f -"
+}
+
+backup_database() {
+  echo "==> backup database before migrations"
+  dexec "set -eu; backup_dir=/root/backups/agentsmesh; timestamp=\$(date -u +%Y%m%dT%H%M%SZ); backup=\${backup_dir}/pre-migrate-${RELEASE_DEPLOY_COMMIT:0:12}-\${timestamp}.dump; umask 077; mkdir -p \"\${backup_dir}\"; kubectl -n ${NS} exec deploy/postgres -- sh -ceu 'PGPASSWORD=\"\$POSTGRES_PASSWORD\" exec pg_dump --format=custom --no-owner --no-privileges --username=\"\$POSTGRES_USER\" --dbname=\"\$POSTGRES_DB\"' > \"\${backup}.tmp\"; test -s \"\${backup}.tmp\"; mv \"\${backup}.tmp\" \"\${backup}\"; sha256sum \"\${backup}\" > \"\${backup}.sha256\"; echo \"database backup: \${backup}\""
+}
+
+require_clean_migration_state() {
+  local state
+  state="$(dexec "kubectl -n ${NS} exec deploy/postgres -- sh -ceu 'PGPASSWORD=\"\$POSTGRES_PASSWORD\" psql --username=\"\$POSTGRES_USER\" --dbname=\"\$POSTGRES_DB\" --tuples-only --no-align --command=\"SELECT version, dirty FROM schema_migrations\"'" |
+    tail -n 1 | tr -d '\r')"
+  [[ "${state}" =~ ^[0-9]+\|f$ ]] || {
+    echo "database migration state must be clean before deploy, got ${state}" >&2
+    return 1
+  }
+  echo "==> current migration state ${state}"
+}
+
+migrate_database() {
+  echo "==> apply migration prerequisites"
+  dexec "kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml"
+  require_clean_migration_state
+  stop_application_writes
+  backup_database
+  apply_pinned_manifest "10-postgres.yaml" pgvector
+  apply_pinned_manifest "11-redis.yaml" redis
+  apply_pinned_manifest "12-minio.yaml" minio
+  dexec "kubectl -n ${NS} rollout status deploy/postgres --timeout=300s"
+  dexec "kubectl -n ${NS} delete job migrate --ignore-not-found"
+  apply_backend_job "20-migrate-job.yaml"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/migrate --timeout=300s"
 }
 
 apply_all() {
@@ -86,15 +140,19 @@ apply_all() {
   dexec "chmod 600 generated-secrets/*.yaml; status=0; cleanup_status=0; kubectl apply -f generated-secrets || status=\$?; rm -f generated-secrets/*.yaml || cleanup_status=\$?; rmdir generated-secrets || cleanup_status=\$?; test \${status} -ne 0 || status=\${cleanup_status}; exit \${status}"
   echo "==> ensure wildcard TLS in ${NS}"
   ensure_tls_secret
-  echo "==> apply workloads (kustomize)"
-  dexec "kubectl kustomize . > /tmp/agentsmesh-release.yaml && bash verify_release_images.sh /tmp/agentsmesh-release.yaml && kubectl apply -f /tmp/agentsmesh-release.yaml"
-  echo "==> wait for embedded migrations"
+  render_release
+  migrate_database
+  echo "==> apply workloads after migrations"
+  dexec "kubectl apply -f /tmp/agentsmesh-release.yaml"
   dexec "kubectl -n ${NS} rollout status deploy/backend --timeout=300s"
   dexec "kubectl -n ${NS} rollout status deploy/marketplace --timeout=300s"
   dexec "kubectl -n ${NS} rollout status deploy/marketplace-web --timeout=300s"
+  mark_application_writes_restored
   echo "==> seed + minio bucket"
   dexec "kubectl -n ${NS} delete job seed minio-setup worker-definition-sync --ignore-not-found"
-  dexec "kubectl apply -f 21-seed-configmap.yaml -f 22-seed-job.yaml -f 13-minio-setup-job.yaml"
+  dexec "kubectl apply -f 21-seed-configmap.yaml"
+  apply_pinned_manifest "22-seed-job.yaml" pgvector
+  apply_pinned_manifest "13-minio-setup-job.yaml" mc
   dexec "kubectl -n ${NS} wait --for=condition=complete job/seed --timeout=300s"
   dexec "kubectl -n ${NS} wait --for=condition=complete job/minio-setup --timeout=300s"
   sync_worker_definitions
@@ -109,6 +167,12 @@ status() {
 }
 
 main() {
+  local repo_root
+  repo_root="$(cd "${DIR}/../../.." && pwd)"
+  release_require_pushed_clean_tree "${repo_root}"
+  release_verify_source_metadata "${repo_root}"
+  release_verify_platform_image_provenance "${repo_root}"
+  RELEASE_DEPLOY_COMMIT="$(git -C "${repo_root}" rev-parse HEAD)"
   generate_cluster_secrets
   push_manifests
   apply_all

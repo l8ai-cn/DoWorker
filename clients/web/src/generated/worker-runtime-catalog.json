@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "runtimeCatalogRevision": "runtime-catalog-2026-07-13-release-gated",
+  "runtimeCatalogRevision": "runtime-catalog-2026-07-16-seedance",
   "workers": [
     {
       "slug": "aider",
@@ -218,8 +218,12 @@
           "target_path": "DO_AGENT_SETTINGS"
         }
       ],
-      "runtimeImage": null,
-      "validationStatus": "runtime_image_unavailable"
+      "runtimeImage": {
+        "name": "Do Agent",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+        "availability": "locked_available"
+      },
+      "validationStatus": "runtime_ready_unverified"
     },
     {
       "slug": "gemini-cli",
@@ -525,8 +529,12 @@
           "target_path": "DO_AGENT_SETTINGS"
         }
       ],
-      "runtimeImage": null,
-      "validationStatus": "runtime_image_unavailable"
+      "runtimeImage": {
+        "name": "Do Agent",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+        "availability": "locked_available"
+      },
+      "validationStatus": "runtime_ready_unverified"
     },
     {
       "slug": "video-studio",

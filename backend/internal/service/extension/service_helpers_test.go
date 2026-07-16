@@ -191,10 +191,10 @@ var _ SkillCatalog = (*svcMockCatalog)(nil)
 // ---------------------------------------------------------------------------
 
 type svcMockStorage struct {
-	uploadFn func(ctx context.Context, key string, reader io.Reader, size int64, contentType string) (*storage.FileInfo, error)
-	deleteFn func(ctx context.Context, key string) error
-	getURLFn func(ctx context.Context, key string, expiry time.Duration) (string, error)
-	existsFn func(ctx context.Context, key string) (bool, error)
+	uploadFn   func(ctx context.Context, key string, reader io.Reader, size int64, contentType string) (*storage.FileInfo, error)
+	deleteFn   func(ctx context.Context, key string) error
+	getURLFn   func(ctx context.Context, key string, expiry time.Duration) (string, error)
+	existsFn   func(ctx context.Context, key string) (bool, error)
 	downloadFn func(ctx context.Context, key string) (io.ReadCloser, int64, error)
 }
 
@@ -242,7 +242,7 @@ func (m *svcMockStorage) PresignPutURL(_ context.Context, _ string, _ string, _ 
 	return "", nil
 }
 
-func (m *svcMockStorage) InternalPresignPutURL(_ context.Context, _ string, _ string, _ time.Duration) (string, error) {
+func (m *svcMockStorage) InternalPresignPutURL(_ context.Context, _ string, _ string, _ int64, _ time.Duration) (string, error) {
 	return "", nil
 }
 

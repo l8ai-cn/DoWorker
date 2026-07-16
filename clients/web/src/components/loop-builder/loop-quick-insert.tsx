@@ -1,27 +1,34 @@
 import { Plus } from "lucide-react";
 import { LOOP_BLOCK_TYPES } from "./loop-block-catalog";
-
-const options = [
-  ["循环", LOOP_BLOCK_TYPES.loop],
-  ["重复执行", LOOP_BLOCK_TYPES.repeat],
-  ["智能体任务", LOOP_BLOCK_TYPES.agent],
-  ["验证步骤", LOOP_BLOCK_TYPES.verifier],
-  ["执行边界", LOOP_BLOCK_TYPES.limits],
-  ["失败处理", LOOP_BLOCK_TYPES.failure],
-] as const;
+import type { LoopQuickInsertMessages } from "./loop-workbench-messages";
 
 interface LoopQuickInsertProps {
   x: number;
   y: number;
+  messages: LoopQuickInsertMessages;
   onInsert: (type: string) => void;
   onClose: () => void;
 }
 
-export function LoopQuickInsert({ x, y, onInsert, onClose }: LoopQuickInsertProps) {
+export function LoopQuickInsert({
+  x,
+  y,
+  messages,
+  onInsert,
+  onClose,
+}: LoopQuickInsertProps) {
+  const options = [
+    [messages.options.loop, LOOP_BLOCK_TYPES.loop],
+    [messages.options.repeat, LOOP_BLOCK_TYPES.repeat],
+    [messages.options.agent, LOOP_BLOCK_TYPES.agent],
+    [messages.options.verifier, LOOP_BLOCK_TYPES.verifier],
+    [messages.options.limits, LOOP_BLOCK_TYPES.limits],
+    [messages.options.failure, LOOP_BLOCK_TYPES.failure],
+  ] as const;
   return (
     <>
       <button
-        aria-label="关闭快速插入"
+        aria-label={messages.close}
         className="absolute inset-0 z-10 cursor-default"
         onClick={onClose}
         type="button"
@@ -34,7 +41,7 @@ export function LoopQuickInsert({ x, y, onInsert, onClose }: LoopQuickInsertProp
         }}
       >
         <div className="border-b border-border px-3 py-2 text-xs font-medium text-muted-foreground">
-          插入积木
+          {messages.title}
         </div>
         {options.map(([label, type]) => (
           <button

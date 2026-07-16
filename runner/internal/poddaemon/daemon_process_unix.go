@@ -18,24 +18,22 @@ type unixDaemonProcess struct {
 	ptyFile *os.File
 }
 
-// startDaemonProcess creates a new PTY process inside the daemon.
-//
-// NOTE: We intentionally do NOT set Setpgid here. The daemon process itself
-// is already a session leader (started with Setsid by startDaemon), so its
-// children inherit the session. Setting Setpgid inside a Setsid session
-// triggers "operation not permitted" in Docker containers with restricted
-// seccomp profiles. Kill() falls back to direct process kill + PTY close,
-// which sends SIGHUP to the child's process group.
-func startDaemonProcess(command string, args []string, workDir string, env []string, cols, rows int) (daemonProcess, error) {
+func startDaemonProcessInWorkspace(
+	command string,
+	args []string,
+	workDir string,
+	workspace *os.File,
+	env []string,
+	cols, rows int,
+) (daemonProcess, error) {
 	cmd := exec.Command(command, args...)
-	cmd.Dir = workDir
 	cmd.Env = env
 
 	winSize := &pty.Winsize{
 		Rows: uint16(rows),
 		Cols: uint16(cols),
 	}
-	ptmx, err := pty.StartWithSize(cmd, winSize)
+	ptmx, err := startDaemonPTY(cmd, workDir, workspace, winSize)
 	if err != nil {
 		return nil, fmt.Errorf("start pty: %w", err)
 	}

@@ -13,6 +13,7 @@ const evidenceRoot = path.join(
 );
 const selectedWorker = process.argv[2];
 const runtimePlatform = process.env.RUNTIME_PLATFORM ?? "linux/amd64";
+const observedAt = process.env.RUNTIME_OBSERVED_AT ?? new Date().toISOString();
 const aggregatePath = path.join(evidenceRoot, "..", "runtime-lock-probes.json");
 const probes = new Map(
   selectedWorker && fs.existsSync(aggregatePath)
@@ -61,7 +62,7 @@ function writeEvidence(slug, image, status, exitCode, output) {
     status,
     exit_code: exitCode,
     output,
-    observed_at: new Date().toISOString(),
+    observed_at: observedAt,
   };
   probes.set(slug, document);
   fs.writeFileSync(

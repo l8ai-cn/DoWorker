@@ -3,7 +3,15 @@ package loopscript
 import (
 	"fmt"
 	"strings"
+
+	"github.com/anthropics/agentsmesh/backend/pkg/secretguard"
 )
+
+type textRedactions struct {
+	agentPrompt     bool
+	verifierCommand bool
+	verifierAccept  bool
+}
 
 func appendRangeDiagnostics(diagnostics []Diagnostic, loop LoopNode, positions *programPositions) []Diagnostic {
 	values := []struct {
@@ -23,26 +31,52 @@ func appendRangeDiagnostics(diagnostics []Diagnostic, loop LoopNode, positions *
 	}
 	for _, value := range values {
 		if value.value < value.minimum || value.value > value.maximum {
-			diagnostics = append(diagnostics, diagnosticFor(
+			diagnostics = append(diagnostics, diagnosticForField(
 				"loop.value.out-of-range",
 				fmt.Sprintf("%s must be between %d and %d", value.name, value.minimum, value.maximum),
-				value.nodeID, value.position,
+				value.nodeID, value.name, value.position,
 			))
 		}
 	}
 	return diagnostics
 }
 
-func appendTextDiagnostics(diagnostics []Diagnostic, loop LoopNode, positions *programPositions) []Diagnostic {
+func appendTextDiagnostics(
+	diagnostics []Diagnostic,
+	loop LoopNode,
+	positions *programPositions,
+	redactions textRedactions,
+) []Diagnostic {
 	texts := []struct {
 		name, value, nodeID string
 		position            sourcePosition
+		redacted            bool
 	}{
-		{"agent prompt", loop.Repeat.Agent.Prompt, loop.Repeat.Agent.NodeID, agentPosition(positions)},
-		{"verifier command", loop.Repeat.Verifier.Command, loop.Repeat.Verifier.NodeID, verifierPosition(positions)},
-		{"verifier acceptance", loop.Repeat.Verifier.Accept, loop.Repeat.Verifier.NodeID, verifierPosition(positions)},
+		{
+			"agent prompt", loop.Repeat.Agent.Prompt, loop.Repeat.Agent.NodeID,
+			agentPosition(positions), redactions.agentPrompt,
+		},
+		{
+			"verifier command", loop.Repeat.Verifier.Command, loop.Repeat.Verifier.NodeID,
+			verifierPosition(positions), redactions.verifierCommand,
+		},
+		{
+			"verifier acceptance", loop.Repeat.Verifier.Accept, loop.Repeat.Verifier.NodeID,
+			verifierPosition(positions), redactions.verifierAccept,
+		},
 	}
 	for _, text := range texts {
+		if text.redacted {
+			continue
+		}
+		if secretguard.ContainsCredentialLiteral(text.value) {
+			diagnostics = append(diagnostics, diagnosticFor(
+				"loop.secret.literal-forbidden",
+				"secret literals are forbidden",
+				text.nodeID, text.position,
+			))
+			continue
+		}
 		if strings.TrimSpace(text.value) == "" {
 			diagnostics = append(diagnostics, diagnosticFor(
 				"loop.text.empty", text.name+" must not be empty", text.nodeID, text.position,

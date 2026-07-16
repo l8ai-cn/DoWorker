@@ -5,6 +5,7 @@ package poddaemon
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
 
 	"github.com/UserExistsError/conpty"
@@ -19,6 +20,19 @@ type windowsDaemonProcess struct {
 
 // startDaemonProcess creates a new ConPTY process inside the daemon.
 func startDaemonProcess(command string, args []string, workDir string, env []string, cols, rows int) (daemonProcess, error) {
+	return startDaemonProcessInWorkspace(
+		command, args, workDir, nil, env, cols, rows,
+	)
+}
+
+func startDaemonProcessInWorkspace(
+	command string,
+	args []string,
+	workDir string,
+	_ *os.File,
+	env []string,
+	cols, rows int,
+) (daemonProcess, error) {
 	path, err := exec.LookPath(command)
 	if err != nil {
 		return nil, fmt.Errorf("command not found: %w", err)

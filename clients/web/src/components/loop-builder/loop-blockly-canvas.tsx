@@ -3,13 +3,17 @@
 import * as Blockly from "blockly";
 import { useEffect, useRef, useState } from "react";
 import type { LoopProgram } from "@proto/goalloop/v1/goalloop_pb";
-import { loopToolbox, registerLoopBlocks } from "./loop-block-catalog";
+import { createLoopBlockCatalog, registerLoopBlocks } from "./loop-block-catalog";
 import {
   nodeIdForBlock,
   projectProgramToWorkspace,
   workspaceToLoopSource,
 } from "./loop-block-projection";
 import { LoopQuickInsert } from "./loop-quick-insert";
+import type {
+  LoopBlockCatalogMessages,
+  LoopQuickInsertMessages,
+} from "./loop-workbench-messages";
 
 interface InsertPoint {
   menuX: number;
@@ -22,6 +26,10 @@ interface LoopBlocklyCanvasProps {
   program?: LoopProgram;
   semanticRevision: number;
   readOnly: boolean;
+  messages: {
+    blockly: LoopBlockCatalogMessages;
+    quickInsert: LoopQuickInsertMessages;
+  };
   onSourceChange: (source: string) => void;
   onSelectNode: (nodeId?: string) => void;
 }
@@ -47,10 +55,12 @@ export function LoopBlocklyCanvas({
   readOnly,
   onSourceChange,
   onSelectNode,
+  messages,
 }: LoopBlocklyCanvasProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const workspaceRef = useRef<Blockly.WorkspaceSvg | undefined>(undefined);
   const programRef = useRef(program);
+  const readOnlyRef = useRef(readOnly);
   const callbackRef = useRef({ onSourceChange, onSelectNode });
   const [insertPoint, setInsertPoint] = useState<InsertPoint>();
 
@@ -63,11 +73,17 @@ export function LoopBlocklyCanvas({
   }, [program]);
 
   useEffect(() => {
+    readOnlyRef.current = readOnly;
+  }, [readOnly]);
+
+  useEffect(() => {
     if (!hostRef.current) return;
-    registerLoopBlocks();
+    registerLoopBlocks(messages.blockly);
+    const { toolbox } = createLoopBlockCatalog(messages.blockly);
     const compact = hostRef.current.clientWidth < 640;
     const workspace = Blockly.inject(hostRef.current, {
-      toolbox: loopToolbox,
+      media: "/blockly-media/",
+      toolbox,
       theme: loopTheme,
       renderer: "zelos",
       trashcan: true,
@@ -94,6 +110,11 @@ export function LoopBlocklyCanvas({
       }
     };
     workspace.addChangeListener(listener);
+    const currentProgram = programRef.current;
+    if (currentProgram) {
+      projectProgramToWorkspace(workspace, currentProgram);
+      setBlockAccess(workspace, readOnlyRef.current);
+    }
     const observer = new ResizeObserver(() => Blockly.svgResize(workspace));
     observer.observe(hostRef.current);
     return () => {
@@ -102,7 +123,7 @@ export function LoopBlocklyCanvas({
       workspace.dispose();
       workspaceRef.current = undefined;
     };
-  }, []);
+  }, [messages.blockly]);
 
   useEffect(() => {
     const workspace = workspaceRef.current;
@@ -115,11 +136,7 @@ export function LoopBlocklyCanvas({
   useEffect(() => {
     const workspace = workspaceRef.current;
     if (!workspace) return;
-    for (const block of workspace.getAllBlocks(false)) {
-      block.setEditable(!readOnly);
-      block.setMovable(!readOnly);
-      block.setDeletable(!readOnly);
-    }
+    setBlockAccess(workspace, readOnly);
   }, [readOnly, semanticRevision]);
 
   function insert(type: string) {
@@ -159,6 +176,7 @@ export function LoopBlocklyCanvas({
       {readOnly && <div className="absolute inset-0 z-[5] cursor-not-allowed bg-background/5" />}
       {insertPoint && (
         <LoopQuickInsert
+          messages={messages.quickInsert}
           x={insertPoint.menuX}
           y={insertPoint.menuY}
           onClose={() => setInsertPoint(undefined)}
@@ -167,4 +185,12 @@ export function LoopBlocklyCanvas({
       )}
     </div>
   );
+}
+
+function setBlockAccess(workspace: Blockly.WorkspaceSvg, readOnly: boolean) {
+  for (const block of workspace.getAllBlocks(false)) {
+    block.setEditable(!readOnly);
+    block.setMovable(!readOnly);
+    block.setDeletable(!readOnly);
+  }
 }

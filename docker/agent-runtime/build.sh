@@ -27,6 +27,8 @@ BASE_IMAGE="${BASE_IMAGE:-do-worker/runner-base:latest}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 STAGING="${STAGING_DIR:-${SCRIPT_DIR}/_context}"
 BUILD_RETRIES="${BUILD_RETRIES:-3}"
+SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git -C "${REPO_ROOT}" log -1 --format=%ct)}"
+RELEASE_SOURCE_COMMIT="${RELEASE_SOURCE_COMMIT:-$(git -C "${REPO_ROOT}" rev-parse HEAD)}"
 
 usage() {
   cat <<EOF
@@ -56,20 +58,14 @@ Agent runtimes:
   STAGING_DIR     二进制 staging 目录
   FORCE_REBUILD   设为 1 强制重建已有镜像
   BUILD_RETRIES   docker build 失败重试次数 (默认 3)
-  LOOPAL_BINARY
-                  Loopal 的真实 CLI 二进制；构建 loopal 时必填且不得是 E2E mock
+  LOOPAL_BINARY        Loopal 真实 CLI；构建 loopal 时必填且不得是 E2E mock
   RUNTIME_EXTENSION_BASE
-                  用既有 Runner 镜像构建 OpenClaw/Hermes（本地离线初始化）
-  HERMES_AGENT_VERSION
-                  Hermes Agent version (默认 0.18.2)
-  REMOTION_VERSION
-                  Remotion runtime version (默认 4.0.489)
-  MINIMAX_CLI_VERSION
-                  MiniMax CLI version (默认 1.0.16)
-  OPENCLAW_VERSION
-                  OpenClaw CLI version (默认 2026.6.11)
-  OPENCLAW_NODE_VERSION
-                  OpenClaw extension Node version (默认 24.18.0)
+                       用既有 Runner 镜像构建 OpenClaw/Hermes
+  HERMES_AGENT_VERSION Hermes Agent version (默认 0.18.2)
+  REMOTION_VERSION     Remotion runtime version (默认 4.0.489)
+  MINIMAX_CLI_VERSION  MiniMax CLI version (默认 1.0.16)
+  OPENCLAW_VERSION     OpenClaw CLI version (默认 2026.6.11)
+  OPENCLAW_NODE_VERSION OpenClaw extension Node version (默认 24.18.0)
 EOF
 }
 
@@ -102,12 +98,15 @@ build_base() {
   echo "  Building shared base: ${BASE_IMAGE}"
   echo "=========================================="
   docker_build_with_retry docker build --platform "$PLATFORM" \
+    --provenance=false \
+    --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT}" \
     --target base \
     -f "${SCRIPT_DIR}/Dockerfile" \
     --build-arg "HTTP_PROXY=" \
     --build-arg "HTTPS_PROXY=" \
     --build-arg "http_proxy=" \
     --build-arg "https_proxy=" \
+    --build-arg "SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}" \
     -t "$BASE_IMAGE" \
     "$SCRIPT_DIR"
   echo "✓ ${BASE_IMAGE}"
@@ -119,12 +118,18 @@ build_one() {
   TARGET_ARCH="${PLATFORM#linux/}" "${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING" "$rt"
   local -a build_cmd=(
     docker build --platform "$PLATFORM"
+    --provenance=false
+    --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT}"
     -f "${SCRIPT_DIR}/Dockerfile"
   )
   if [[ -n "${RUNTIME_EXTENSION_BASE:-}" ]]; then
     build_cmd+=(--target runtime-extension --build-arg "RUNTIME_EXTENSION_BASE=${RUNTIME_EXTENSION_BASE}")
   else
     build_cmd+=(--target runtime)
+  fi
+  if [[ "$rt" == "do-agent" ]]; then
+    build_cmd+=(--build-arg "DO_AGENT_SOURCE_COMMIT=${DO_AGENT_SOURCE_COMMIT:-}")
+    build_cmd+=(--build-arg "DO_AGENT_BINARY_SHA256=${DO_AGENT_BINARY_SHA256:-}")
   fi
   if [[ "${FORCE_REBUILD:-0}" != "1" ]] && docker image inspect "$tag" >/dev/null 2>&1; then
     echo "⏭ ${tag} 已存在 (FORCE_REBUILD=1 可强制重建)"
@@ -141,6 +146,7 @@ build_one() {
     --build-arg "HTTPS_PROXY="
     --build-arg "http_proxy="
     --build-arg "https_proxy="
+    --build-arg "SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}"
     --build-arg "HERMES_AGENT_VERSION=${HERMES_AGENT_VERSION:-0.18.2}"
     --build-arg "MINIMAX_CLI_VERSION=${MINIMAX_CLI_VERSION:-1.0.16}"
     --build-arg "OPENCLAW_VERSION=${OPENCLAW_VERSION:-2026.6.11}"

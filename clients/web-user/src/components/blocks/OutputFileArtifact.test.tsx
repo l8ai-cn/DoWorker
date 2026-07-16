@@ -1,9 +1,35 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { authenticatedFetch } from "@/lib/identity";
 import { FileViewerContext } from "@/shell/FileViewerContext";
 import { OutputFileArtifact } from "./OutputFileArtifact";
 
-afterEach(cleanup);
+vi.mock("@/lib/identity", () => ({ authenticatedFetch: vi.fn() }));
+
+const fetchMock = vi.mocked(authenticatedFetch);
+const createObjectUrl = vi.fn(() => "blob:session-file");
+const revokeObjectUrl = vi.fn();
+const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+
+beforeEach(() => {
+  fetchMock.mockResolvedValue(
+    new Response("file", {
+      status: 200,
+      headers: { "Content-Type": "application/pdf" },
+    }),
+  );
+  vi.stubGlobal("URL", {
+    ...URL,
+    createObjectURL: createObjectUrl,
+    revokeObjectURL: revokeObjectUrl,
+  });
+});
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+  vi.clearAllMocks();
+});
 
 const FILE_VIEWER_CONTEXT = {
   openFile: () => {},
@@ -13,69 +39,159 @@ const FILE_VIEWER_CONTEXT = {
   workspaceHome: null,
 };
 
-function renderArtifact(fileId: string, filename: string | null) {
+function renderArtifact(
+  fileId: string,
+  filename: string | null,
+  contentType: string | null = null,
+) {
   return render(
     <FileViewerContext.Provider value={FILE_VIEWER_CONTEXT}>
-      <OutputFileArtifact fileId={fileId} filename={filename} />
+      <OutputFileArtifact fileId={fileId} filename={filename} contentType={contentType} />
     </FileViewerContext.Provider>,
   );
 }
 
 describe("OutputFileArtifact", () => {
-  it("renders MP4 output with a same-origin session file URL", () => {
-    renderArtifact("file/1", "seedance.MP4");
+  it("does not download an artifact before the user requests it", () => {
+    renderArtifact("file/1", "seedance.mp4", "video/mp4");
 
-    const video = screen.getByLabelText("seedance.MP4");
-    expect(video.tagName).toBe("VIDEO");
-    expect(video).toHaveAttribute("controls");
-    expect(video).toHaveAttribute(
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "加载视频 seedance.mp4" })).toBeInTheDocument();
+  });
+
+  it("loads video through the unified authenticated request", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response("video", {
+        status: 200,
+        headers: { "Content-Type": "video/mp4" },
+      }),
+    );
+    renderArtifact("file/1", "seedance.mp4", "video/mp4");
+
+    fireEvent.click(screen.getByRole("button", { name: "加载视频 seedance.mp4" }));
+
+    expect(await screen.findByLabelText("seedance.mp4")).toHaveAttribute(
       "src",
+      "blob:session-file",
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
       "/v1/sessions/session%20a/resources/files/file%2F1/content",
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
   });
 
-  it("renders a generic file as a same-origin download link", () => {
-    renderArtifact("file 2", "storyboard.pdf");
+  it("uses the response MIME type when event metadata and filename are ambiguous", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      headers: new Headers({ "Content-Type": "video/mp4" }),
+      blob: async () => new Blob(["video"]),
+    } as Response);
+    renderArtifact("file_2", "seedance-output");
 
-    const link = screen.getByRole("link", { name: "Download storyboard.pdf" });
-    expect(link).toHaveAttribute(
-      "href",
-      "/v1/sessions/session%20a/resources/files/file%202/content",
+    fireEvent.click(screen.getByRole("button", { name: "下载 seedance-output" }));
+
+    expect(await screen.findByLabelText("seedance-output")).toHaveAttribute(
+      "src",
+      "blob:session-file",
     );
-    expect(link).toHaveAttribute("download", "storyboard.pdf");
+    expect(anchorClick).not.toHaveBeenCalled();
+  });
+
+  it("downloads a generic artifact only after the user requests it", async () => {
+    renderArtifact("file 3", "storyboard.pdf");
+
+    fireEvent.click(screen.getByRole("button", { name: "下载 storyboard.pdf" }));
+
+    await waitFor(() => expect(anchorClick).toHaveBeenCalledTimes(1));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries a failed generic artifact download", async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(null, { status: 503 }))
+      .mockResolvedValueOnce(
+        new Response("file", {
+          status: 200,
+          headers: { "Content-Type": "application/pdf" },
+        }),
+      );
+    renderArtifact("file_retry", "storyboard.pdf");
+
+    fireEvent.click(screen.getByRole("button", { name: "下载 storyboard.pdf" }));
+    fireEvent.click(await screen.findByRole("button", { name: "重试" }));
+
+    await waitFor(() => expect(anchorClick).toHaveBeenCalledTimes(1));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("uses a readable fallback when the filename is missing", () => {
-    renderArtifact("file_3", null);
+    renderArtifact("file_4", null);
 
-    expect(screen.getByText("Generated file")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Download Generated file" })).toHaveAttribute(
-      "download",
-      "generated-file",
-    );
+    expect(screen.getByText("生成文件")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "下载 生成文件" })).toBeInTheDocument();
   });
 
   it("shows an unavailable state when no session is loaded", () => {
-    render(<OutputFileArtifact fileId="file_4" filename="clip.mp4" />);
+    render(<OutputFileArtifact fileId="file_5" filename="clip.mp4" contentType="video/mp4" />);
 
-    expect(screen.getByRole("alert")).toHaveTextContent("File unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("文件不可用");
   });
 
-  it("shows a load failure when the MP4 cannot load", () => {
-    renderArtifact("file_5", "clip.mp4");
+  it("shows a request failure after an authenticated request fails", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 401 }));
+    renderArtifact("file_6", "clip.mp4", "video/mp4");
 
-    fireEvent.error(screen.getByLabelText("clip.mp4"));
+    fireEvent.click(screen.getByRole("button", { name: "加载视频 clip.mp4" }));
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Video could not be loaded");
+    expect(await screen.findByRole("alert")).toHaveTextContent("视频加载失败");
   });
 
-  it("shows a playback error when an already loaded MP4 fails", () => {
-    renderArtifact("file_6", "clip.mp4");
+  it("shows a playback failure after video metadata loaded", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response("video", {
+        status: 200,
+        headers: { "Content-Type": "video/mp4" },
+      }),
+    );
+    renderArtifact("file_7", "clip.mp4", "video/mp4");
+    fireEvent.click(screen.getByRole("button", { name: "加载视频 clip.mp4" }));
+    const video = await screen.findByLabelText("clip.mp4");
 
-    const video = screen.getByLabelText("clip.mp4");
     fireEvent.loadedData(video);
     fireEvent.error(video);
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Video playback failed");
+    expect(screen.getByRole("alert")).toHaveTextContent("视频播放失败");
+  });
+
+  it("aborts a pending request when the artifact unmounts", async () => {
+    let requestSignal: AbortSignal | undefined;
+    fetchMock.mockImplementationOnce((_path, init) => {
+      requestSignal = init?.signal ?? undefined;
+      return new Promise<Response>(() => {});
+    });
+    const view = renderArtifact("file_8", "clip.mp4", "video/mp4");
+    fireEvent.click(screen.getByRole("button", { name: "加载视频 clip.mp4" }));
+    await waitFor(() => expect(requestSignal).toBeDefined());
+
+    view.unmount();
+
+    expect(requestSignal?.aborted).toBe(true);
+  });
+
+  it("revokes the object URL on unmount", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response("video", {
+        status: 200,
+        headers: { "Content-Type": "video/mp4" },
+      }),
+    );
+    const view = renderArtifact("file_9", "clip.mp4", "video/mp4");
+    fireEvent.click(screen.getByRole("button", { name: "加载视频 clip.mp4" }));
+    await screen.findByLabelText("clip.mp4");
+
+    view.unmount();
+
+    expect(revokeObjectUrl).toHaveBeenCalledWith("blob:session-file");
   });
 });

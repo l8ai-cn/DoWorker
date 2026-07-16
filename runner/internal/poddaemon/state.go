@@ -13,24 +13,25 @@ const stateFileName = "pod_daemon.json"
 
 // PodDaemonState holds the persistent state of a pod daemon process.
 type PodDaemonState struct {
-	PodKey         string    `json:"pod_key"`
-	Agent          string    `json:"agent"`
-	IPCAddr        string    `json:"ipc_addr"`   // TCP loopback address (e.g. "127.0.0.1:12345")
-	AuthToken      string    `json:"auth_token"` // hex-encoded 32-byte random token for IPC authentication
-	DaemonPID      int       `json:"daemon_pid"`
-	SandboxPath    string    `json:"sandbox_path"`
-	WorkDir        string    `json:"work_dir"`
-	RepositoryURL  string    `json:"repository_url,omitempty"`
-	Branch         string    `json:"branch,omitempty"`
-	TicketSlug     string    `json:"ticket_slug,omitempty"`
-	Command        string    `json:"command"`
-	Args           []string  `json:"args"`
-	Env            []string  `json:"env,omitempty"`
-	Cols           int       `json:"cols"`
-	Rows           int       `json:"rows"`
-	StartedAt      time.Time `json:"started_at"`
-	VTHistoryLimit int       `json:"vt_history_limit"`
-	Perpetual      bool      `json:"perpetual,omitempty"`
+	PodKey         string             `json:"pod_key"`
+	Agent          string             `json:"agent"`
+	IPCAddr        string             `json:"ipc_addr"`   // TCP loopback address (e.g. "127.0.0.1:12345")
+	AuthToken      string             `json:"auth_token"` // hex-encoded 32-byte random token for IPC authentication
+	DaemonPID      int                `json:"daemon_pid"`
+	SandboxPath    string             `json:"sandbox_path"`
+	WorkDir        string             `json:"work_dir"`
+	WorkspaceID    *WorkspaceIdentity `json:"workspace_identity,omitempty"`
+	RepositoryURL  string             `json:"repository_url,omitempty"`
+	Branch         string             `json:"branch,omitempty"`
+	TicketSlug     string             `json:"ticket_slug,omitempty"`
+	Command        string             `json:"command"`
+	Args           []string           `json:"args"`
+	Env            []string           `json:"env,omitempty"`
+	Cols           int                `json:"cols"`
+	Rows           int                `json:"rows"`
+	StartedAt      time.Time          `json:"started_at"`
+	VTHistoryLimit int                `json:"vt_history_limit"`
+	Perpetual      bool               `json:"perpetual,omitempty"`
 }
 
 // SaveState atomically writes the daemon state to disk.

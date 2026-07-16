@@ -67,6 +67,7 @@ func (h *RunnerMessageHandler) OnCreatePod(cmd *runnerv1.CreatePodCommand) (err 
 
 	if _, ok := h.podStore.Get(cmd.PodKey); !ok {
 		log.InfoContext(ctx, "Pod was terminated during build, cleaning up", "pod_key", cmd.PodKey)
+		pod.closeWorkspace()
 		if pod.IO != nil {
 			pod.IO.Teardown()
 			pod.IO.Stop()
@@ -114,6 +115,7 @@ func (h *RunnerMessageHandler) wireAndStartPTYPod(
 
 	if err := pod.IO.Start(); err != nil {
 		h.podStore.Delete(cmd.PodKey)
+		pod.closeWorkspace()
 		if pod.IO != nil {
 			pod.IO.Teardown()
 		}

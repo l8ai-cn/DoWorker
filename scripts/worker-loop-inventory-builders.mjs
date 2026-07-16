@@ -163,6 +163,9 @@ function blockerCode(worker, runtimeEvidence, runtimeCatalogEvidence) {
   if (runtimeCatalogEvidence.status === "invalid_published_digest") {
     return "invalid-published-runtime-image";
   }
+  if (hasAvailableRuntime(runtimeCatalogEvidence)) {
+    return "product-path-unverified";
+  }
   return "missing-immutable-runtime-image";
 }
 

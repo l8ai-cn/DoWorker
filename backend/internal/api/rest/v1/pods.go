@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"sync"
+
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
@@ -10,14 +12,16 @@ import (
 // Pod creation is delegated to PodOrchestrator (service layer).
 // This handler remains responsible for CRUD and HTTP protocol adaptation.
 type PodHandler struct {
-	podService     PodServiceForHandler       // Pod CRUD operations (ListPods, GetPod, TerminatePod, etc.)
-	runnerService  *runner.Service            // Runner management
-	podCoordinator *runner.PodCoordinator     // Pod coordination (TerminatePod, terminal routing)
-	orchestrator   *agentpod.PodOrchestrator  // Unified Pod creation logic
-	commandSender  runner.RunnerCommandSender // Unified command sender (PTY + ACP)
-	grantService   *grantservice.Service      // Resource grant/sharing service
-	pendingQueue   pendingQueueReader
-	sandboxFs      podWorkspaceSandbox
+	podService         PodServiceForHandler       // Pod CRUD operations (ListPods, GetPod, TerminatePod, etc.)
+	runnerService      *runner.Service            // Runner management
+	podCoordinator     *runner.PodCoordinator     // Pod coordination (TerminatePod, terminal routing)
+	orchestrator       *agentpod.PodOrchestrator  // Unified Pod creation logic
+	commandSender      runner.RunnerCommandSender // Unified command sender (PTY + ACP)
+	grantService       *grantservice.Service      // Resource grant/sharing service
+	pendingQueue       pendingQueueReader
+	sandboxFs          podWorkspaceSandbox
+	workspaceArtifacts podWorkspaceArtifactTransfer
+	artifactTransfers  sync.Map
 
 	// Preview (Gateway HTTP data plane) dependencies.
 	relaySelector       previewRelaySelector
@@ -65,6 +69,12 @@ func WithPendingQueue(q pendingQueueReader) PodHandlerOption {
 func WithPodWorkspaceSandbox(sandbox podWorkspaceSandbox) PodHandlerOption {
 	return func(h *PodHandler) {
 		h.sandboxFs = sandbox
+	}
+}
+
+func WithPodWorkspaceArtifactTransfer(transfer podWorkspaceArtifactTransfer) PodHandlerOption {
+	return func(h *PodHandler) {
+		h.workspaceArtifacts = transfer
 	}
 }
 

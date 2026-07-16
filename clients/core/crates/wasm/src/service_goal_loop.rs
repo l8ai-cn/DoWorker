@@ -18,6 +18,16 @@ impl WasmGoalLoopService {
         self.0.compile_loop_program_connect(request).await
     }
 
+    #[wasm_bindgen(js_name = generateLoopProgramConnect)]
+    pub async fn generate_loop_program_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+        self.0.generate_loop_program_connect(request).await
+    }
+
+    #[wasm_bindgen(js_name = repairLoopProgramConnect)]
+    pub async fn repair_loop_program_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+        self.0.repair_loop_program_connect(request).await
+    }
+
     #[wasm_bindgen(js_name = runLoopProgramConnect)]
     pub async fn run_loop_program_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
         self.0.run_loop_program_connect(request).await

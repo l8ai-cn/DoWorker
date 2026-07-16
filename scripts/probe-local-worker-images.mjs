@@ -10,10 +10,13 @@ const evidenceRoot = path.join(
   "tools/loops/worker-onboarding/catalog-loop/evidence/local-image-probes",
 );
 const catalog = readJson(path.join(definitionsRoot, "catalog.json"));
+const selectedWorker = process.argv[2];
+const observedAt = process.env.RUNTIME_OBSERVED_AT ?? new Date().toISOString();
 
 fs.mkdirSync(evidenceRoot, { recursive: true });
 
 for (const entry of catalog.worker_types) {
+  if (selectedWorker && entry.slug !== selectedWorker) continue;
   probeWorker(entry);
 }
 
@@ -62,7 +65,7 @@ function writeEvidence(entry, result) {
     worker_slug: entry.slug,
     definition_hash: entry.definition_hash,
     platform: "linux/amd64",
-    observed_at: new Date().toISOString(),
+    observed_at: observedAt,
     ...result,
   };
   fs.writeFileSync(

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": "runtime-catalog-2026-07-13-release-gated",
+  "revision": "runtime-catalog-2026-07-16-seedance",
   "images": [
     {
       "id": 1,
@@ -36,6 +36,15 @@
       "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
       "digest": "sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
       "worker_type_slugs": ["video-studio"],
+      "enabled": true
+    },
+    {
+      "id": 5,
+      "slug": "do-agent-stable",
+      "name": "Do Agent",
+      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+      "digest": "sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+      "worker_type_slugs": ["do-agent", "seedance-expert"],
       "enabled": true
     }
   ]
