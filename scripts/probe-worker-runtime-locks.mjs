@@ -57,6 +57,7 @@ function writeEvidence(slug, image, status, exitCode, output) {
     runtime_catalog_revision: lock.revision,
     image_reference: image.reference,
     image_digest: image.digest,
+    platform: runtimePlatform,
     status,
     exit_code: exitCode,
     output,

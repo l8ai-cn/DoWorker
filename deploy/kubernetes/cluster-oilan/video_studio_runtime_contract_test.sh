@@ -77,8 +77,10 @@ push_video_runtime="$(
 )"
 grep -Fq 'RUNTIME_PLATFORM="${PLATFORM}" node scripts/probe-worker-runtime-locks.mjs video-studio' <<< "$push_video_runtime"
 grep -Fq 'pnpm run worker-docs:sync' <<< "$push_video_runtime"
-grep -Fq 'verify-runtime-lock-probes.sh' <<< "$push_video_runtime"
+grep -Fq 'verify-runtime-lock-probes.sh \' <<< "$push_video_runtime"
+grep -Fq 'video-studio' <<< "$push_video_runtime"
 grep -Fq '.status == "available"' <<< "$push_video_runtime"
+grep -Fq '.platform == $platform' <<< "$push_video_runtime"
 
 FIXTURE_ROOT="$(mktemp -d)"
 trap 'rm -rf "$FIXTURE_ROOT"' EXIT

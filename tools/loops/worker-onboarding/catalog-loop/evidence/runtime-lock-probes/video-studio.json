@@ -4,8 +4,9 @@
   "runtime_catalog_revision": "runtime-catalog-2026-07-13-release-gated",
   "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
   "image_digest": "sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
+  "platform": "linux/amd64",
   "status": "available",
   "exit_code": 0,
-  "output": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22: Pulling from agentsmesh/runner-video-studio\n4f4fb700ef54: Pulling fs layer\n60af54419783: Pulling fs layer\n03d750148315: Pulling fs layer\n06e8f3b0c89e: Pulling fs layer\n35a513e4012d: Pulling fs layer\n99bdc924d8ea: Pulling fs layer\n73f23db08581: Pulling fs layer\n437ae2e14fa4: Pulling fs layer\n3c7b6c182ffe: Pulling fs layer\n3fec28b1138a: Pulling fs layer\nDigest: sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22\nStatus: Image is up to date for repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22\nrepo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
-  "observed_at": "2026-07-16T11:05:59.018Z"
+  "output": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22: Pulling from agentsmesh/runner-video-studio\nDigest: sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22\nStatus: Image is up to date for repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22\nrepo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
+  "observed_at": "2026-07-16T11:18:09.258Z"
 }

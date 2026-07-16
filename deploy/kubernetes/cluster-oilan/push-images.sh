@@ -132,12 +132,14 @@ push_video_runtime() {
     cd "${REPO_ROOT}"
     RUNTIME_PLATFORM="${PLATFORM}" node scripts/probe-worker-runtime-locks.mjs video-studio
     pnpm run worker-docs:sync
-    bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-runtime-lock-probes.sh
+    RUNTIME_PLATFORM="${PLATFORM}" \
+      bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-runtime-lock-probes.sh \
+      video-studio
     pnpm run worker-docs:check
-    jq -e '
+    jq -e --arg platform "${PLATFORM}" '
       .probes[] |
       select(.worker_slug == "video-studio") |
-      .status == "available"
+      .status == "available" and .platform == $platform
     ' tools/loops/worker-onboarding/catalog-loop/evidence/runtime-lock-probes.json \
       >/dev/null
   )
