@@ -47,6 +47,22 @@ function makeImageQuery(contentType: string, truncated = false): ReturnType<type
   } as unknown as ReturnType<typeof useFileContent>;
 }
 
+function makeVideoQuery(contentType = "video/mp4"): ReturnType<typeof useFileContent> {
+  return {
+    data: {
+      content: "AAAA",
+      encoding: "base64",
+      content_type: contentType,
+      path: "output/clip.mp4",
+      bytes: 3,
+    },
+    isLoading: false,
+    isError: false,
+    isSuccess: true,
+    error: null,
+  } as unknown as ReturnType<typeof useFileContent>;
+}
+
 const noopRef = { current: null };
 
 function renderViewer(
@@ -473,5 +489,39 @@ describe("CodeViewer image rendering", () => {
     expect(await screen.findByRole("dialog")).toBeDefined();
     expect(screen.getByLabelText("Zoom in")).toBeDefined();
     expect(screen.getByLabelText("Zoom out")).toBeDefined();
+  });
+});
+
+describe("CodeViewer video rendering", () => {
+  beforeEach(() => {
+    vi.stubGlobal("URL", {
+      createObjectURL: vi.fn(() => "blob:workspace-video"),
+      revokeObjectURL: vi.fn(),
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("routes an MP4 filesystem response to the video viewer", async () => {
+    render(
+      <CodeViewer
+        conversationId="conv_1"
+        path="output/clip.mp4"
+        fileQuery={makeVideoQuery()}
+        comments={[]}
+        activeSelection={null}
+        onSetActiveSelection={() => {}}
+        panelOpen={true}
+        searchOpen={false}
+        setSearchOpen={() => {}}
+        searchInputRef={noopRef}
+        viewMode="source"
+      />,
+    );
+
+    expect(await screen.findByLabelText("clip.mp4")).toHaveAttribute("src", "blob:workspace-video");
+    expect(screen.queryByText(/binary file/i)).toBeNull();
   });
 });

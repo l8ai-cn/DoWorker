@@ -63,6 +63,7 @@ import { HtmlCommentViewer } from "./HtmlCommentViewer";
 import { TruncatedBanner } from "./TruncatedBanner";
 import { useLightbox } from "@/components/ImageLightbox";
 import { getEmbedRoot } from "@/lib/host";
+import { isWorkspaceVideoFile, WorkspaceVideoViewer } from "./WorkspaceVideoViewer";
 
 // Monaco is heavy (~MBs + worker); load it only when a non-markdown file is
 // actually viewed, so the initial bundle and markdown/preview paths don't pay
@@ -544,6 +545,9 @@ export function CodeViewer({
   }
   if (fileQuery.data && isImageFile(path, fileQuery.data.content_type)) {
     return <ImageViewer data={fileQuery.data} path={path} />;
+  }
+  if (fileQuery.data && isWorkspaceVideoFile(path, fileQuery.data.content_type)) {
+    return <WorkspaceVideoViewer data={fileQuery.data} path={path} />;
   }
   if (fileQuery.data?.encoding === "base64" || isBinaryPath(path)) {
     return (

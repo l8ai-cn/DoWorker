@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircleIcon, DownloadIcon, FileTextIcon, VideoIcon } from "lucide-react";
 import { useFileViewerConversationId } from "@/shell/FileViewerContext";
+import { useSessionFileObjectUrl } from "./useSessionFileObjectUrl";
 
 interface OutputFileArtifactProps {
   fileId: string;
@@ -10,35 +11,53 @@ interface OutputFileArtifactProps {
 
 type VideoState = "loading" | "ready" | "load-error" | "playback-error";
 
-export function OutputFileArtifact({
-  fileId,
-  filename,
-  contentType,
-}: OutputFileArtifactProps) {
+export function OutputFileArtifact({ fileId, filename, contentType }: OutputFileArtifactProps) {
   const sessionId = useFileViewerConversationId();
   const label = filename?.trim() || "Generated file";
   const path = sessionId ? sessionFileContentPath(sessionId, fileId) : null;
+  const video = isMp4Artifact(filename, contentType);
+  const [downloadRequested, setDownloadRequested] = useState(false);
+  const file = useSessionFileObjectUrl(path, video || downloadRequested);
+
+  useEffect(() => {
+    if (video || !downloadRequested || !file.url) return;
+    const anchor = document.createElement("a");
+    anchor.href = file.url;
+    anchor.download = filename || "generated-file";
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    setDownloadRequested(false);
+  }, [downloadRequested, file.url, filename, video]);
 
   if (!path) {
     return <ArtifactError title="File unavailable" detail="The session file cannot be loaded." />;
   }
+  if (file.error) {
+    const title = video ? "Video could not be loaded" : "File could not be loaded";
+    return <ArtifactError title={title} detail={label} />;
+  }
+  if (video && (file.loading || !file.url)) {
+    return <ArtifactLoading filename={label} />;
+  }
 
-  if (isMp4Artifact(filename, contentType)) {
-    return <VideoArtifact path={path} filename={label} />;
+  if (video && file.url) {
+    return <VideoArtifact path={file.url} filename={label} />;
   }
 
   return (
     <div className="flex min-w-0 items-center gap-3 rounded-md border border-border bg-muted/40 p-3">
       <FileTextIcon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
       <span className="min-w-0 flex-1 truncate text-sm font-medium">{label}</span>
-      <a
+      <button
         aria-label={`Download ${label}`}
         className="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        download={filename || "generated-file"}
-        href={path}
+        disabled={file.loading}
+        onClick={() => setDownloadRequested(true)}
+        type="button"
       >
         <DownloadIcon className="size-4" aria-hidden="true" />
-      </a>
+      </button>
     </div>
   );
 }
@@ -90,6 +109,19 @@ function VideoArtifact({ path, filename }: { path: string; filename: string }) {
   );
 }
 
+function ArtifactLoading({ filename }: { filename: string }) {
+  return (
+    <div
+      className="flex min-w-0 items-center gap-3 rounded-md border border-border bg-muted/40 p-3"
+      role="status"
+    >
+      <FileTextIcon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <span className="min-w-0 flex-1 truncate text-sm font-medium">{filename}</span>
+      <span className="shrink-0 text-xs text-muted-foreground">Loading file</span>
+    </div>
+  );
+}
+
 function ArtifactError({
   title,
   detail,
@@ -125,7 +157,7 @@ function ArtifactError({
 
 function isMp4Artifact(filename: string | null, contentType: string | null): boolean {
   const mimeType = contentType?.split(";", 1)[0]?.trim().toLowerCase();
-  return mimeType === "video/mp4" || !!filename && /\.mp4$/i.test(filename);
+  return mimeType === "video/mp4" || (!!filename && /\.mp4$/i.test(filename));
 }
 
 function sessionFileContentPath(sessionId: string, fileId: string): string {
