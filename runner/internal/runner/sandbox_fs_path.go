@@ -152,11 +152,3 @@ func resolveSandboxWorkspaceRelativePath(rel string) (string, string, error) {
 	}
 	return rel, rel, nil
 }
-
-func openSandboxWorkspaceRoot(workspaceRoot string) (*os.Root, error) {
-	abs, err := filepath.Abs(workspaceRoot)
-	if err != nil {
-		return nil, err
-	}
-	return os.OpenRoot(abs)
-}

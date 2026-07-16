@@ -10,15 +10,6 @@ import (
 
 const maxSearchResults = 500
 
-func (h *RunnerMessageHandler) sandboxFsSearch(workspaceRoot, query, include, exclude string) (*runnerv1.SandboxFsResultEvent, error) {
-	workspace, err := openSandboxWorkspace(workspaceRoot)
-	if err != nil {
-		return fsErrResult(err.Error()), nil
-	}
-	defer workspace.Close()
-	return h.sandboxFsSearchWorkspace(workspace, query, include, exclude)
-}
-
 func (h *RunnerMessageHandler) sandboxFsSearchWorkspace(
 	workspace *sandboxWorkspace,
 	query, include, exclude string,

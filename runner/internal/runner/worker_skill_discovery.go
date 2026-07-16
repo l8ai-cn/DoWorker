@@ -13,15 +13,6 @@ import (
 
 var workerSkillRoots = []string{"skills", ".agents/skills", ".codex/skills"}
 
-func (h *RunnerMessageHandler) sandboxFsWorkerSkillDiscover(workspaceRoot, path string) (*runnerv1.SandboxFsResultEvent, error) {
-	workspace, err := openSandboxWorkspace(workspaceRoot)
-	if err != nil {
-		return fsErrResult(err.Error()), nil
-	}
-	defer workspace.Close()
-	return h.sandboxFsWorkerSkillDiscoverWorkspace(workspace, path)
-}
-
 func (h *RunnerMessageHandler) sandboxFsWorkerSkillDiscoverWorkspace(
 	workspace *sandboxWorkspace,
 	path string,

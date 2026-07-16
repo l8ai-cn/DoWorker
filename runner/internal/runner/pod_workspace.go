@@ -27,14 +27,6 @@ func (pod *Pod) pinWorkspace() error {
 	return nil
 }
 
-func (pod *Pod) setWorkspace(workspace *sandboxWorkspace) {
-	pod.workspaceMu.Lock()
-	previous := pod.workspace
-	pod.workspace = workspace
-	pod.workspaceMu.Unlock()
-	previous.Close()
-}
-
 func (pod *Pod) withWorkspace(
 	operation sandboxWorkspaceOperation,
 ) (*runnerv1.SandboxFsResultEvent, error) {

@@ -11,15 +11,6 @@ import (
 
 const gitFsTimeout = 30 * time.Second
 
-func (h *RunnerMessageHandler) runGitIn(dir string, args ...string) (string, error) {
-	workspace, err := openSandboxWorkspace(dir)
-	if err != nil {
-		return "", err
-	}
-	defer workspace.Close()
-	return h.runGitInWorkspace(workspace, args...)
-}
-
 func (h *RunnerMessageHandler) runGitInWorkspace(
 	workspace *sandboxWorkspace,
 	args ...string,

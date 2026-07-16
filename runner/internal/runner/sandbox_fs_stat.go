@@ -8,18 +8,6 @@ import (
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
-func (h *RunnerMessageHandler) sandboxFsStat(
-	workspaceRoot string,
-	rel string,
-) (*runnerv1.SandboxFsResultEvent, error) {
-	workspace, err := openSandboxWorkspace(workspaceRoot)
-	if err != nil {
-		return fsErrResult(err.Error()), nil
-	}
-	defer workspace.Close()
-	return h.sandboxFsStatWorkspace(workspace, rel)
-}
-
 func (h *RunnerMessageHandler) sandboxFsStatWorkspace(
 	workspace *sandboxWorkspace,
 	rel string,
