@@ -47,9 +47,10 @@ DOOPS_TARGET=gw-oilan-node ./deploy.sh         # secrets + manifests + jobs via 
 
 Build and deploy scripts refuse a dirty tree, detached HEAD, a commit that is
 not the current remote branch HEAD, or missing release-specific CI checks.
-Pending deployment and migration jobs for the independent US West/CN
-environments do not block an Oilan release; every other check must still finish
-successfully, and the three Loop/Seedance release checks are always required.
+The status of explicitly named deployment and migration jobs for the
+independent US West/CN environments does not block an Oilan release; every
+other check must still finish successfully, and the three Loop/Seedance release
+checks are always required.
 `release/source.json` is mandatory release provenance. It records the release
 commit and each platform image's exact source revision, so incremental image
 releases can retain older immutable digests without weakening provenance.

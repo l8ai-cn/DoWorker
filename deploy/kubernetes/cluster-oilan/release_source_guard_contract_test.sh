@@ -91,13 +91,18 @@ git -C "${TMP}/repo" switch main >/dev/null
 cat > "${TMP}/bin/gh" <<'EOF'
 #!/usr/bin/env bash
 printf '%s\n' '[{
-  "total_count": 5,
+  "total_count": 10,
   "check_runs": [
     {"name":"Runtime release contracts","status":"completed","conclusion":"success"},
     {"name":"Loop and sandbox security regressions","status":"completed","conclusion":"success"},
     {"name":"Web-user artifact preview","status":"completed","conclusion":"success"},
     {"name":"Deploy US West","status":"queued","conclusion":null},
-    {"name":"Deploy CN","status":"queued","conclusion":null}
+    {"name":"Deploy US West Relay 01","status":"completed","conclusion":"failure"},
+    {"name":"Deploy US West Relay Beijing 02","status":"completed","conclusion":"cancelled"},
+    {"name":"Migrate US West","status":"completed","conclusion":"timed_out"},
+    {"name":"Deploy CN","status":"queued","conclusion":null},
+    {"name":"Deploy CN Relay 01","status":"completed","conclusion":"action_required"},
+    {"name":"Migrate CN","status":"completed","conclusion":"stale"}
   ]
 }]'
 EOF
@@ -112,7 +117,7 @@ printf '%s\n' '[{
     {"name":"Runtime release contracts","status":"completed","conclusion":"success"},
     {"name":"Loop and sandbox security regressions","status":"completed","conclusion":"success"},
     {"name":"Web-user artifact preview","status":"completed","conclusion":"success"},
-    {"name":"Unknown pending check","status":"queued","conclusion":null}
+    {"name":"Deploy CN staging","status":"queued","conclusion":null}
   ]
 }]'
 EOF
