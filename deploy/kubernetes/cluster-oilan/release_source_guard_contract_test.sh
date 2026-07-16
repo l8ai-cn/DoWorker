@@ -91,6 +91,40 @@ git -C "${TMP}/repo" switch main >/dev/null
 cat > "${TMP}/bin/gh" <<'EOF'
 #!/usr/bin/env bash
 printf '%s\n' '[{
+  "total_count": 5,
+  "check_runs": [
+    {"name":"Runtime release contracts","status":"completed","conclusion":"success"},
+    {"name":"Loop and sandbox security regressions","status":"completed","conclusion":"success"},
+    {"name":"Web-user artifact preview","status":"completed","conclusion":"success"},
+    {"name":"Deploy US West","status":"queued","conclusion":null},
+    {"name":"Deploy CN","status":"queued","conclusion":null}
+  ]
+}]'
+EOF
+chmod +x "${TMP}/bin/gh"
+release_require_pushed_clean_tree "${TMP}/repo"
+
+cat > "${TMP}/bin/gh" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' '[{
+  "total_count": 4,
+  "check_runs": [
+    {"name":"Runtime release contracts","status":"completed","conclusion":"success"},
+    {"name":"Loop and sandbox security regressions","status":"completed","conclusion":"success"},
+    {"name":"Web-user artifact preview","status":"completed","conclusion":"success"},
+    {"name":"Unknown pending check","status":"queued","conclusion":null}
+  ]
+}]'
+EOF
+chmod +x "${TMP}/bin/gh"
+if release_require_pushed_clean_tree "${TMP}/repo" 2>/dev/null; then
+  echo "release with an unknown pending check was accepted" >&2
+  exit 1
+fi
+
+cat > "${TMP}/bin/gh" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' '[{
   "total_count": 3,
   "check_runs": [
     {"name":"Runtime release contracts","status":"completed","conclusion":"success"},

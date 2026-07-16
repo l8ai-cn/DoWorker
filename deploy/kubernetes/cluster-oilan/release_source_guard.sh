@@ -59,6 +59,15 @@ release_require_ci_success() {
       "Loop and sandbox security regressions",
       "Web-user artifact preview"
     ] as $required
+    | [
+        "Deploy US West",
+        "Deploy US West Relay 01",
+        "Deploy US West Relay Beijing 02",
+        "Migrate US West",
+        "Deploy CN",
+        "Deploy CN Relay 01",
+        "Migrate CN"
+      ] as $externalDeployments
     | [.[] | .check_runs[]] as $checks
     | [
         $checks[]
@@ -72,12 +81,16 @@ release_require_ci_success() {
     and (($required - $successful | length) == 0)
     and all(
       $checks[];
-      .status == "completed"
-      and (
-        .conclusion == "success"
-        or .conclusion == "neutral"
-        or .conclusion == "skipped"
-      )
+      . as $check
+      | ($externalDeployments | index($check.name)) != null
+        or (
+          $check.status == "completed"
+          and (
+            $check.conclusion == "success"
+            or $check.conclusion == "neutral"
+            or $check.conclusion == "skipped"
+          )
+        )
     )
   ' <<< "${checks}" >/dev/null || {
     echo "release requires completed successful GitHub checks for ${head}" >&2
