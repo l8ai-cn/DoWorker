@@ -51,15 +51,16 @@ type daemonProcess struct {
 // by process exit if the runner restarts; otherwise it ends when either the
 // daemon dies or Stop closes doneCh.
 func (p *daemonProcess) monitorLoop() {
-	defer p.mgr.unregister(p)
 	t := time.NewTicker(p.pollEvery)
 	defer t.Stop()
 	for {
 		select {
 		case <-p.doneCh:
+			p.mgr.unregister(p)
 			return
 		case <-t.C:
 			if !daemonProcessAlive(p.PID()) {
+				p.mgr.unregister(p)
 				p.setExit(ExitInfo{Duration: time.Since(p.StartedAt())})
 				return
 			}

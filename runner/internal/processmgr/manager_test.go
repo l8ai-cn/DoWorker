@@ -93,6 +93,23 @@ func TestModeNormal_NaturalExit_NoZombie(t *testing.T) {
 	}
 }
 
+func TestRegister_DoesNotRetainExitedProcess(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	mgr := newManager(ctx, Options{}.withDefaults())
+	p := &normalProcess{cmdProcess: &cmdProcess{
+		baseProcess: newBaseProcess("test:already-exited", ModeNormal, 1),
+		mgr:         mgr,
+	}}
+	p.setExit(ExitInfo{})
+
+	mgr.register(p)
+
+	if list := mgr.List(); len(list) != 0 {
+		t.Fatalf("expected exited process to stay unregistered, got %d entries", len(list))
+	}
+}
+
 func TestModeNormal_Stop_KillsAndReaps(t *testing.T) {
 	mgr := newTestManager(t)
 	cmd, args := sleepCommand(t)

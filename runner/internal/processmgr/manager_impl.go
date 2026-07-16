@@ -69,15 +69,26 @@ func (m *manager) dispatch(ctx context.Context, spec Spec) (Handle, error) {
 
 func (m *manager) register(p Handle) {
 	m.mu.Lock()
-	defer m.mu.Unlock()
 	m.processes[p] = struct{}{}
+	m.mu.Unlock()
+
+	select {
+	case <-p.Done():
+		m.unregister(p)
+	default:
+	}
 }
 
 func (m *manager) unregister(p Handle) {
 	m.mu.Lock()
-	delete(m.processes, p)
+	_, registered := m.processes[p]
+	if registered {
+		delete(m.processes, p)
+	}
 	m.mu.Unlock()
-	observeExit(p)
+	if registered {
+		observeExit(p)
+	}
 }
 
 func (m *manager) List() []Handle {

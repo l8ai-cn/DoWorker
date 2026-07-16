@@ -41,6 +41,7 @@ func (p *daemonProcess) Stop(ctx context.Context) error {
 		if err != nil && !errors.Is(err, ErrAlreadyExited) {
 			p.stopErr.Store(&err)
 		}
+		p.mgr.unregister(p)
 		p.setExit(ExitInfo{Duration: time.Since(p.StartedAt())})
 	})
 	if e := p.stopErr.Load(); e != nil {
