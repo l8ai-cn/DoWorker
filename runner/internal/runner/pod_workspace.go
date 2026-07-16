@@ -19,6 +19,10 @@ func (pod *Pod) pinWorkspace() error {
 	if err != nil {
 		return err
 	}
+	if err := workspace.pinForPod(nil); err != nil {
+		workspace.Close()
+		return err
+	}
 	pod.workspaceMu.Lock()
 	previous := pod.workspace
 	pod.workspace = workspace
@@ -38,7 +42,14 @@ func (pod *Pod) withWorkspace(
 	if pod.workspace == nil {
 		return nil, fmt.Errorf("workspace not configured")
 	}
-	return operation(pod.workspace)
+	workspace, closeAfter, err := pod.workspace.workspaceForOperation()
+	if err != nil {
+		return nil, err
+	}
+	if closeAfter {
+		defer workspace.Close()
+	}
+	return operation(workspace)
 }
 
 func (pod *Pod) closeWorkspace() {

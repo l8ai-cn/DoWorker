@@ -33,5 +33,9 @@ func openRecoveredSandboxWorkspace(
 		workspace.Close()
 		return nil, fmt.Errorf("revalidate workspace path: %w", err)
 	}
+	if err := workspace.pinForPod(state.WorkspaceID); err != nil {
+		workspace.Close()
+		return nil, fmt.Errorf("pin recovered workspace: %w", err)
+	}
 	return workspace, nil
 }

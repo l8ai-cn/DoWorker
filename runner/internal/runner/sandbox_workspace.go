@@ -6,12 +6,6 @@ import (
 	"path/filepath"
 )
 
-type sandboxWorkspace struct {
-	path string
-	root *os.Root
-	dir  *os.File
-}
-
 func openSandboxWorkspace(path string) (*sandboxWorkspace, error) {
 	abs, err := filepath.Abs(path)
 	if err != nil {
@@ -46,9 +40,11 @@ func (workspace *sandboxWorkspace) Close() {
 	}
 	if workspace.root != nil {
 		_ = workspace.root.Close()
+		workspace.root = nil
 	}
 	if workspace.dir != nil {
 		_ = workspace.dir.Close()
+		workspace.dir = nil
 	}
 }
 

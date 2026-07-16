@@ -71,6 +71,13 @@ func (b *PodBuilder) Build(ctx context.Context) (*Pod, error) {
 		}
 		return nil, fmt.Errorf("open pod workspace: %w", err)
 	}
+	if err := workspace.pinForPod(nil); err != nil {
+		workspace.Close()
+		if sandboxRoot != "" {
+			_ = os.RemoveAll(sandboxRoot)
+		}
+		return nil, fmt.Errorf("pin pod workspace: %w", err)
+	}
 
 	interactionMode := b.cmd.InteractionMode
 	if interactionMode == "" {
