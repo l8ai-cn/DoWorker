@@ -202,7 +202,8 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 }
 
 func (h *RunnerMessageHandler) abortACPPodStartup(podKey string, acpClient *acp.ACPClient, sandboxPath string) {
-	h.podStore.Delete(podKey)
+	pod := h.podStore.Delete(podKey)
+	pod.closeWorkspace()
 	if acpClient != nil {
 		acpClient.Stop()
 	}

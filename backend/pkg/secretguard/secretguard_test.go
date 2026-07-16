@@ -19,8 +19,12 @@ func TestContainsCredentialLiteral(t *testing.T) {
 		{"Bearer", "Authorization: Bearer abcdefghijklmnopqrstuvwxyz012345"},
 		{"PEM", "-----BEGIN PRIVATE KEY-----\nZmFrZQ==\n-----END PRIVATE KEY-----"},
 		{"short password assignment", "password=hunter2"},
+		{"short pwd assignment", "pwd=hunter2"},
 		{"short API key assignment", "use api_key: plaintext-value"},
+		{"PostgreSQL URL", "postgres://loop_user:hunter2@db.internal/loops"},
+		{"Redis URL", "redis://cache-user:hunter2@redis.internal/0"},
 		{"whole base64", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef"},
+		{"embedded base64", "prefix ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef suffix"},
 		{"whole URL base64", "ABCDEFGHIJKLMNOPQRSTUVWXYZab-_12"},
 		{"whole hex", "0123456789abcdef0123456789abcdef"},
 	}
@@ -44,7 +48,6 @@ func TestContainsCredentialLiteralAllowsOrdinaryText(t *testing.T) {
 		{"URL", "https://api.anthropic.com/v1"},
 		{"short bearer example", "send a Bearer token header"},
 		{"token budget", "token budget=80000"},
-		{"embedded base64", "prefix ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef suffix"},
 		{"credential prefix inside word", "track task-ant-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa in docs"},
 		{"short hex", "0123456789abcdef"},
 	}

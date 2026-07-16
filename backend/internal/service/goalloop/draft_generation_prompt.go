@@ -46,6 +46,9 @@ Worker selection and runtime configuration are outside LoopScript. Never declare
 Never include credentials, API keys, tokens, or secret literal values.
 Do not execute or start the Loop. Only propose valid source code.
 `)
+	if input.CurrentSource == "" {
+		system += "\nFor a new Loop, set the verification command exactly to \"false\" so the draft cannot execute successfully before explicit user review."
+	}
 	user := fmt.Sprintf(
 		"Interface locale: %s\nUser request:\n%s\n\nCurrent LoopScript:\n%s",
 		input.Locale,

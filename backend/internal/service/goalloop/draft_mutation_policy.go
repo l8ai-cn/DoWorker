@@ -11,7 +11,10 @@ func enforceDraftMutationPolicy(
 	proposed *loopscript.Program,
 ) error {
 	if current == nil {
-		return nil
+		if proposed != nil && proposed.Loop.Repeat.Verifier.Command == "false" {
+			return nil
+		}
+		return fmt.Errorf("%w: new Loop verifier must be inert", ErrGeneratedDraftInvalid)
 	}
 	if proposed == nil || !sameDraftIdentity(current, proposed) ||
 		!sameDraftVerifier(current, proposed) ||

@@ -141,6 +141,45 @@ func TestHandleServerMessage_UpdatePodPerpetual(t *testing.T) {
 	handler.mu.Unlock()
 }
 
+func TestHandleServerMessage_SandboxFsDoesNotBlockReadLoop(t *testing.T) {
+	conn := newTestConnection()
+	started := make(chan struct{})
+	release := make(chan struct{})
+	handler := &mockHandler{sandboxFsStarted: started, sandboxFsRelease: release}
+	conn.handler = handler
+	returned := make(chan struct{})
+
+	go func() {
+		conn.handleServerMessage(context.Background(), &runnerv1.ServerMessage{
+			Payload: &runnerv1.ServerMessage_SandboxFs{
+				SandboxFs: &runnerv1.SandboxFsCommand{
+					RequestId: "fs-1",
+					PodKey:    "test-pod",
+					Op:        "upload",
+				},
+			},
+		})
+		close(returned)
+	}()
+
+	select {
+	case <-started:
+	case <-time.After(time.Second):
+		t.Fatal("sandbox filesystem handler did not start")
+	}
+	returnedBeforeRelease := false
+	select {
+	case <-returned:
+		returnedBeforeRelease = true
+	case <-time.After(100 * time.Millisecond):
+	}
+	close(release)
+	<-returned
+	conn.handlerWg.Wait()
+
+	assert.True(t, returnedBeforeRelease, "sandbox filesystem blocked the gRPC read loop")
+}
+
 func TestHandleServerMessage_NilHandler(t *testing.T) {
 	conn := newTestConnection()
 	// handler is nil

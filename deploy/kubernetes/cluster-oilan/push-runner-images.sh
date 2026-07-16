@@ -8,6 +8,10 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 TARGET="${1:-all}"
 source "${REPO_ROOT}/docker/agent-runtime/do_agent_release_manifest.sh"
 source "${SCRIPT_DIR}/harbor_immutable_release.sh"
+# shellcheck source=release_source_guard.sh
+source "${SCRIPT_DIR}/release_source_guard.sh"
+
+release_require_pushed_clean_tree "${REPO_ROOT}"
 
 require_do_agent_artifact() {
   local expected actual

@@ -20,8 +20,34 @@ jobs:
       - run: bash deploy/kubernetes/cluster-oilan/deploy_contract_test.sh
       - run: bash deploy/kubernetes/cluster-oilan/deploy-mobile-access-contract_test.sh
       - run: bash deploy/kubernetes/cluster-oilan/push_images_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/release_source_guard_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/verify_release_images_contract_test.sh
       - run: bash deploy/kubernetes/cluster-oilan/runtime_mapping_contract_test.sh
       - run: bash docker/agent-runtime/contract_test.sh
+
+  security-regressions:
+    name: Loop and sandbox security regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.work
+          cache-dependency-path: |
+            backend/go.sum
+            runner/go.sum
+      - name: Backend security regressions
+        working-directory: backend
+        run: >-
+          go test
+          ./pkg/secretguard
+          ./internal/service/goalloop
+          ./internal/api/rest/v1/session
+          -count=1
+      - name: Runner sandbox and control regressions
+        working-directory: runner
+        run: go test ./internal/runner ./internal/client -count=1
 
   web-user-artifacts:
     name: Web-user artifact preview

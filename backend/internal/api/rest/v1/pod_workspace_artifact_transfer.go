@@ -51,7 +51,10 @@ func (h *PodHandler) TransferWorkspaceArtifact(c *gin.Context) {
 		return
 	}
 	defer h.deleteWorkspaceArtifact(transfer)
-	uploadCtx, cancelUpload := context.WithTimeout(context.Background(), workspaceArtifactUploadTimeout)
+	uploadCtx, cancelUpload := context.WithTimeout(
+		c.Request.Context(),
+		workspaceArtifactUploadTimeout,
+	)
 	defer cancelUpload()
 	uploaded, ok := h.execPodWorkspaceContext(c, uploadCtx, pod, &runnerv1.SandboxFsCommand{
 		PodKey: pod.PodKey, Op: "upload", Path: path, Payload: transfer.PutURL,

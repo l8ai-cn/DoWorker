@@ -7,6 +7,10 @@ RUNNER_SCRIPT="push-runner-images.sh"
 
 grep -q 'bash "${SCRIPT_DIR}/push-runner-images.sh" all' "$SCRIPT"
 grep -q 'bash "${SCRIPT_DIR}/push-runner-images.sh" do-agent' "$SCRIPT"
+grep -q 'release_source_guard.sh' "$SCRIPT"
+grep -q 'release_require_pushed_clean_tree' "$SCRIPT"
+grep -q 'release_source_guard.sh' "$RUNNER_SCRIPT"
+grep -q 'release_require_pushed_clean_tree' "$RUNNER_SCRIPT"
 grep -q 'FORCE_REBUILD=1' "$RUNNER_SCRIPT"
 grep -q 'REQUIRE_DO_AGENT_BINARY=1' "$RUNNER_SCRIPT"
 grep -q 'DO_AGENT_BINARY_SHA256' "$RUNNER_SCRIPT"
@@ -28,3 +32,8 @@ immutable_line="$(grep -n 'harbor_ensure_immutable_tag' "$RUNNER_SCRIPT" | tail 
 latest_line="$(grep -n -- '--tag "${repository}:latest"' "$RUNNER_SCRIPT" | cut -d: -f1)"
 [[ "${candidate_line}" -lt "${immutable_line}" ]]
 [[ "${immutable_line}" -lt "${latest_line}" ]]
+
+all_case="$(grep -F 'all)' "$SCRIPT")"
+[[ "${all_case}" == *'push_infra'* ]]
+[[ "${all_case}" == *'push-runner-images.sh" all'* ]]
+[[ "${all_case}" == *'push_platform'* ]]

@@ -29,7 +29,15 @@ PLATFORM_DIGEST_MARKETPLACE_WEB=""
 PLATFORM_DIGEST_RELAY=""
 PLATFORM_DIGEST_WEB=""
 PLATFORM_DIGEST_WEB_ADMIN=""
+PLATFORM_DIGEST_MOBILE=""
+PLATFORM_DIGEST_PGVECTOR=""
+PLATFORM_DIGEST_REDIS=""
+PLATFORM_DIGEST_MINIO=""
+PLATFORM_DIGEST_MC=""
+PLATFORM_DIGEST_KUBECTL=""
 source "$(dirname "${BASH_SOURCE[0]}")/harbor-image-publishing.sh"
+# shellcheck source=release_source_guard.sh
+source "${SCRIPT_DIR}/release_source_guard.sh"
 
 push_platform() {
   docker_push backend/Dockerfile backend
@@ -47,8 +55,6 @@ push_marketplace_core() {
   docker_push marketplace/Dockerfile marketplace
   docker_push clients/marketplace-web/Dockerfile marketplace-web
   docker_push clients/web/Dockerfile web
-  PLATFORM_DIGEST_RELAY="$(registry_digest relay)"
-  PLATFORM_DIGEST_WEB_ADMIN="$(registry_digest web-admin)"
   write_platform_release
 }
 
@@ -58,7 +64,6 @@ push_video_expert() {
   docker_push clients/marketplace-web/Dockerfile marketplace-web
   docker_push clients/web/Dockerfile web
   docker_push clients/web-admin/Dockerfile web-admin
-  PLATFORM_DIGEST_RELAY="$(registry_digest relay)"
   write_platform_release
 }
 
@@ -70,21 +75,11 @@ push_mobile_access() {
 
 push_web() {
   docker_push clients/web/Dockerfile web
-  PLATFORM_DIGEST_BACKEND="$(registry_digest backend)"
-  PLATFORM_DIGEST_MARKETPLACE="$(registry_digest marketplace)"
-  PLATFORM_DIGEST_MARKETPLACE_WEB="$(registry_digest marketplace-web)"
-  PLATFORM_DIGEST_RELAY="$(registry_digest relay)"
-  PLATFORM_DIGEST_WEB_ADMIN="$(registry_digest web-admin)"
   write_platform_release
 }
 
 push_marketplace_web() {
   docker_push clients/marketplace-web/Dockerfile marketplace-web
-  PLATFORM_DIGEST_BACKEND="$(registry_digest backend)"
-  PLATFORM_DIGEST_MARKETPLACE="$(registry_digest marketplace)"
-  PLATFORM_DIGEST_RELAY="$(registry_digest relay)"
-  PLATFORM_DIGEST_WEB="$(registry_digest web)"
-  PLATFORM_DIGEST_WEB_ADMIN="$(registry_digest web-admin)"
   write_platform_release
 }
 
@@ -124,6 +119,7 @@ push_video_runtime() {
   )
 }
 main() {
+  release_require_pushed_clean_tree "${REPO_ROOT}"
   ensure_project
   case "${TARGET}" in
     platform) push_platform ;;
@@ -132,11 +128,11 @@ main() {
     mobile-access) push_mobile_access ;;
     web)      push_web ;;
     marketplace-web) push_marketplace_web ;;
-    infra)    push_infra ;;
+    infra)    push_infra; write_platform_release ;;
     runners)  bash "${SCRIPT_DIR}/push-runner-images.sh" all ;;
     do-agent) bash "${SCRIPT_DIR}/push-runner-images.sh" do-agent ;;
     video-runtime) push_video_runtime ;;
-    all)      push_platform; push_infra; bash "${SCRIPT_DIR}/push-runner-images.sh" all ;;
+    all)      push_infra; bash "${SCRIPT_DIR}/push-runner-images.sh" all; push_platform ;;
     *) echo "usage: $0 [all|platform|marketplace-core|video-expert|mobile-access|web|marketplace-web|infra|runners|do-agent|video-runtime]" >&2; exit 1 ;;
   esac
   echo "==> done: ${TARGET}"

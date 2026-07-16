@@ -1,6 +1,8 @@
 package runner
 
 import (
+	"encoding/base64"
+	"io"
 	"mime"
 	"os"
 	"path/filepath"
@@ -8,19 +10,18 @@ import (
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
-func (h *RunnerMessageHandler) sandboxFsStat(
-	workspaceRoot string,
-	rel string,
+func (h *RunnerMessageHandler) sandboxFsRead(
+	workspaceRoot, rel string,
 ) (*runnerv1.SandboxFsResultEvent, error) {
 	workspace, err := openSandboxWorkspace(workspaceRoot)
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
 	defer workspace.Close()
-	return h.sandboxFsStatWorkspace(workspace, rel)
+	return h.sandboxFsReadWorkspace(workspace, rel)
 }
 
-func (h *RunnerMessageHandler) sandboxFsStatWorkspace(
+func (h *RunnerMessageHandler) sandboxFsReadWorkspace(
 	workspace *sandboxWorkspace,
 	rel string,
 ) (*runnerv1.SandboxFsResultEvent, error) {
@@ -28,19 +29,34 @@ func (h *RunnerMessageHandler) sandboxFsStatWorkspace(
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
-	info, err := workspace.root.Stat(relative)
+	file, info, err := openSandboxRegularFile(workspace.root, relative)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return fsErrResult("not found"), nil
 		}
 		return fsErrResult(err.Error()), nil
 	}
-	if !info.Mode().IsRegular() {
-		return fsErrResult("not a regular file"), nil
+	defer file.Close()
+	data, err := io.ReadAll(io.LimitReader(file, maxSandboxFsReadBytes+1))
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	truncated := len(data) > maxSandboxFsReadBytes
+	if truncated {
+		data = data[:maxSandboxFsReadBytes]
+	}
+	encoding := "utf-8"
+	content := string(data)
+	if !isUTF8(data) {
+		encoding = "base64"
+		content = base64.StdEncoding.EncodeToString(data)
 	}
 	return &runnerv1.SandboxFsResultEvent{
+		Content:       content,
+		Encoding:      encoding,
 		ContentType:   mime.TypeByExtension(filepath.Ext(relative)),
 		FileBytes:     info.Size(),
+		Truncated:     truncated,
 		WorkspaceRoot: workspace.displayPath(),
 	}, nil
 }

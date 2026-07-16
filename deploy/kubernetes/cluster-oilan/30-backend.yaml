@@ -5,7 +5,7 @@ metadata:
   namespace: agentsmesh
   annotations:
     kubernetes.io/change-cause: "Release Mobile Worker Access from commit 1de2573c5"
-    agentsmesh.ai/verified-image-digest: "sha256:452a8b053be8d479d9ad1b2581fcef251864d2228e913a67c07a5b34bcea8b80"
+    agentsmesh.ai/verified-image-digest: "__BACKEND_DIGEST__"
 spec:
   replicas: 1
   selector:
@@ -16,7 +16,7 @@ spec:
       labels:
         app: backend
       annotations:
-        agentsmesh.ai/verified-image-digest: "sha256:452a8b053be8d479d9ad1b2581fcef251864d2228e913a67c07a5b34bcea8b80"
+        agentsmesh.ai/verified-image-digest: "__BACKEND_DIGEST__"
     spec:
       serviceAccountName: agentsmesh-backend
       securityContext:

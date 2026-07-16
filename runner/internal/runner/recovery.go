@@ -66,9 +66,14 @@ func (r *Runner) recoverDaemonSessions() {
 
 // recoverSingleSession re-attaches to a surviving daemon and rebuilds its Pod.
 func (r *Runner) recoverSingleSession(state *poddaemon.PodDaemonState) (*Pod, error) {
+	workspace, err := openSandboxWorkspace(state.WorkDir)
+	if err != nil {
+		return nil, fmt.Errorf("open recovered workspace: %w", err)
+	}
 	// Attach to daemon via IPC
 	dpty, err := r.podDaemonManager.AttachSession(state)
 	if err != nil {
+		workspace.Close()
 		return nil, fmt.Errorf("attach to daemon: %w", err)
 	}
 
@@ -88,6 +93,7 @@ func (r *Runner) recoverSingleSession(state *poddaemon.PodDaemonState) (*Pod, er
 		PTYFactory: ptyFactory,
 	})
 	if err != nil {
+		workspace.Close()
 		dpty.Close()
 		return nil, fmt.Errorf("create terminal: %w", err)
 	}
@@ -129,6 +135,7 @@ func (r *Runner) recoverSingleSession(state *poddaemon.PodDaemonState) (*Pod, er
 		StartedAt:       state.StartedAt,
 		Status:          PodStatusInitializing,
 		vtProvider:      func() *vt.VirtualTerminal { return virtualTerm },
+		workspace:       workspace,
 	}
 
 	comps := &PTYComponents{Terminal: term, VirtualTerminal: virtualTerm, Aggregator: agg, PTYLogger: ptyLogger}
@@ -154,6 +161,7 @@ func (r *Runner) recoverSingleSession(state *poddaemon.PodDaemonState) (*Pod, er
 
 	// Start Terminal I/O (readOutput + waitExit goroutines)
 	if err := pod.IO.Start(); err != nil {
+		pod.closeWorkspace()
 		if pod.IO != nil {
 			pod.IO.Teardown()
 		}

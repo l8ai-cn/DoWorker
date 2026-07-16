@@ -34,8 +34,13 @@ Because Harbor is node-local, runner + backend-launcher image pull policy is `Al
 docker login repo.aiedulab.cn:8443           # one-time
 ./push-images.sh all                          # build + push every image to Harbor
 git add release/kustomization.yaml && git commit
+git push
 DOOPS_TARGET=gw-oilan-node ./deploy.sh         # secrets + manifests + jobs via DoOps
 ```
+
+Build and deploy scripts refuse a dirty tree, detached HEAD, or a commit that is
+not the current remote branch HEAD. The release lock pins platform, mobile, and
+infrastructure images by digest.
 
 `deploy.sh` defaults to `gw-oilan-node`. `push-images.sh` subsets: `platform` |
 `marketplace-core` | `video-expert` | `video-runtime` | `web` | `infra` | `runners`.
@@ -84,14 +89,28 @@ Each run is a **full reconcile**, not a DB-only reset:
 
 1. **Secrets** — restore existing cluster secrets or generate first-deploy values.
 2. **Immutable release** — reject any platform image not pinned by registry digest.
-3. **Pinned migration Job** — use the exact Backend digest from the rendered
+3. **Pre-migration backup** — write a verified custom-format PostgreSQL dump to
+   `/root/backups/agentsmesh/pre-migrate-<UTC>.dump`; any backup failure stops
+   the release before migration.
+4. **Pinned migration Job** — use the exact Backend digest from the rendered
    release to run `/app/server migrate up`, and block until all pending
    migrations (currently through `000223`) complete.
-4. **`kubectl apply -f /tmp/agentsmesh-release.yaml`** — only after migration
+5. **`kubectl apply -f /tmp/agentsmesh-release.yaml`** — only after migration
    success, re-apply every Deployment/ConfigMap/Ingress from git.
    Live hotfixes (`kubectl set env …`) are **overwritten** on the next deploy.
-5. **Seed and storage jobs** — run the idempotent seed, ensure the MinIO bucket
+6. **Seed and storage jobs** — run the idempotent seed, ensure the MinIO bucket
    and its one-day `workspace-artifacts/` expiry rule, then sync Worker definitions.
+
+To restore the latest pre-migration backup after stopping application writes:
+
+```bash
+kubectl -n agentsmesh exec deploy/postgres -- \
+  sh -ceu 'PGPASSWORD="$POSTGRES_PASSWORD" dropdb --if-exists -U "$POSTGRES_USER" "$POSTGRES_DB";
+    PGPASSWORD="$POSTGRES_PASSWORD" createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'
+cat /root/backups/agentsmesh/latest.dump | kubectl -n agentsmesh exec -i deploy/postgres -- \
+  sh -ceu 'PGPASSWORD="$POSTGRES_PASSWORD" pg_restore --clean --if-exists --no-owner \
+    --no-privileges -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+```
 
 The seed SQL is **idempotent** (`WHERE NOT EXISTS`): it ensures `dev-org`, the
 admin user, subscription, and pre-registered runner `node_id`s exist. It does **not**

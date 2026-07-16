@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"mime"
@@ -27,42 +28,44 @@ func (h *RunnerMessageHandler) sandboxFsUpload(
 	rel string,
 	uploadURL string,
 ) (*runnerv1.SandboxFsResultEvent, error) {
+	workspace, err := openSandboxWorkspace(workspaceRoot)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	defer workspace.Close()
+	return h.sandboxFsUploadWorkspace(context.Background(), workspace, rel, uploadURL)
+}
+
+func (h *RunnerMessageHandler) sandboxFsUploadWorkspace(
+	ctx context.Context,
+	workspace *sandboxWorkspace,
+	rel string,
+	uploadURL string,
+) (*runnerv1.SandboxFsResultEvent, error) {
 	relative, _, err := resolveSandboxWorkspaceRelativePath(rel)
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
-	root, err := openSandboxWorkspaceRoot(workspaceRoot)
-	if err != nil {
-		return fsErrResult(err.Error()), nil
-	}
-	defer root.Close()
 	parsed, err := url.ParseRequestURI(uploadURL)
 	if err != nil || parsed.Host == "" || (parsed.Scheme != "http" && parsed.Scheme != "https") {
 		return fsErrResult("invalid upload URL"), nil
 	}
-	info, err := root.Stat(relative)
+	file, info, err := openSandboxRegularFile(workspace.root, relative)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return fsErrResult("not found"), nil
 		}
 		return fsErrResult(err.Error()), nil
 	}
-	if !info.Mode().IsRegular() {
-		return fsErrResult("not a regular file"), nil
-	}
+	defer file.Close()
 	if info.Size() > maxSandboxFsUploadBytes {
 		return fsErrResult("upload exceeds maximum file size"), nil
 	}
-	file, err := root.Open(relative)
-	if err != nil {
-		return fsErrResult(err.Error()), nil
-	}
-	defer file.Close()
 	contentType := mime.TypeByExtension(filepath.Ext(relative))
 	if contentType == "" {
 		contentType = "application/octet-stream"
 	}
-	request, err := http.NewRequest(http.MethodPut, parsed.String(), file)
+	request, err := http.NewRequestWithContext(ctx, http.MethodPut, parsed.String(), file)
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
@@ -80,6 +83,6 @@ func (h *RunnerMessageHandler) sandboxFsUpload(
 	return &runnerv1.SandboxFsResultEvent{
 		ContentType:   contentType,
 		FileBytes:     info.Size(),
-		WorkspaceRoot: workspaceRoot,
+		WorkspaceRoot: workspace.displayPath(),
 	}, nil
 }

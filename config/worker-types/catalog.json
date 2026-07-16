@@ -64,7 +64,7 @@
     {
       "slug": "seedance-expert",
       "definition_path": "config/worker-types/seedance-expert/definition.json",
-      "definition_hash": "sha256:71097d3d9e94b5752e0417eb1dd41e1472b885f8be2b279eba8ce31f7cbe1fc9"
+      "definition_hash": "sha256:7ee9fcb085831f1eeedfb9c682cdab9b8a62991b70f84906896bdddf187b2c2f"
     },
     {
       "slug": "video-studio",
