@@ -1,6 +1,7 @@
 package workerruntime
 
 import (
+	"os"
 	"regexp"
 	"strings"
 	"testing"
@@ -18,8 +19,11 @@ func TestDefaultCatalogExposesImmutableRuntimeSelections(t *testing.T) {
 	for _, image := range allImages {
 		assert.Regexp(t, regexp.MustCompile(`^sha256:[a-f0-9]{64}$`), image.Digest)
 		assert.True(t, strings.HasSuffix(image.Reference, "@"+image.Digest))
-		assert.True(t, image.Enabled)
 	}
+	assert.False(t, allImages[0].Enabled)
+	assert.False(t, allImages[1].Enabled)
+	assert.False(t, allImages[2].Enabled)
+	assert.True(t, allImages[3].Enabled)
 
 	images := catalog.ImagesFor("codex-cli")
 	require.NotEmpty(t, images)
@@ -27,6 +31,7 @@ func TestDefaultCatalogExposesImmutableRuntimeSelections(t *testing.T) {
 	require.Len(t, videoImages, 1)
 	assert.Equal(t, int64(4), videoImages[0].ID)
 	assert.Equal(t, "video-studio-stable", videoImages[0].Slug)
+	assert.True(t, videoImages[0].Enabled)
 
 	target := catalog.Target(1)
 	require.NotNil(t, target)
@@ -57,11 +62,67 @@ func TestDefaultCatalogExposesImmutableRuntimeSelections(t *testing.T) {
 	)
 }
 
+func TestLoadCatalogReadsExplicitDevelopmentLock(t *testing.T) {
+	path := t.TempDir() + "/runtime-catalog.json"
+	err := os.WriteFile(path, []byte(`{
+		"schema_version": 1,
+		"revision": "local-dev-codex",
+		"images": [{
+			"id": 1,
+			"slug": "codex-cli-local",
+			"name": "Codex CLI (local development)",
+			"reference": "docker-daemon://runner-codex@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			"digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			"worker_type_slugs": ["codex-cli"],
+			"enabled": true
+		}]
+	}`), 0o600)
+	require.NoError(t, err)
+
+	catalog, err := LoadCatalog(path)
+
+	require.NoError(t, err)
+	assert.Equal(t, "local-dev-codex", catalog.Revision())
+	images := catalog.ImagesFor("codex-cli")
+	require.Len(t, images, 1)
+	assert.True(t, images[0].Enabled)
+}
+
 func TestDefaultCatalogDoesNotInventUnavailableWorkerImages(t *testing.T) {
 	catalog := DefaultCatalog()
 
 	assert.Empty(t, catalog.ImagesFor("do-agent"))
 	assert.Empty(t, catalog.ImagesFor("unknown-worker"))
+}
+
+func TestDefaultCatalogDoesNotUseMutableEnvironmentImageReferences(t *testing.T) {
+	digest := "sha256:" + strings.Repeat("d", 64)
+	t.Setenv(
+		"WORKER_RUNTIME_IMAGE_REFERENCES",
+		"do-agent=agentsmesh-main-runner-do-agent@"+digest,
+	)
+
+	images := DefaultCatalog().ImagesFor("do-agent")
+
+	assert.Empty(t, images)
+}
+
+func TestParseRuntimeCatalogLockRejectsMutableReference(t *testing.T) {
+	_, err := parseRuntimeCatalogLock([]byte(`{
+		"schema_version": 1,
+		"revision": "test",
+		"images": [{
+			"id": 1,
+			"slug": "do-agent-stable",
+			"name": "Do Agent",
+			"reference": "registry.example/do-agent:latest",
+			"digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+			"worker_type_slugs": ["do-agent"],
+			"enabled": true
+		}]
+	}`))
+
+	require.Error(t, err)
 }
 
 func TestCatalogReturnsCopies(t *testing.T) {

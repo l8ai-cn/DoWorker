@@ -35,7 +35,7 @@ interface RunnerState {
   fetchRunner: (id: number) => Promise<void>;
   updateRunner: (id: number, data: { description?: string; max_concurrent_pods?: number; is_enabled?: boolean; tags?: string[] }) => Promise<Runner>;
   deleteRunner: (id: number) => Promise<void>;
-  createToken: (data?: { name?: string; labels?: string[]; max_uses?: number; expires_in_days?: number }) => Promise<string>;
+  createToken: (data: { cluster_id: number; name?: string; labels?: string[]; max_uses?: number; expires_in_days?: number }) => Promise<string>;
   setCurrentRunner: (runner: Runner | null) => void;
   clearError: () => void;
 }
@@ -149,7 +149,7 @@ export const useRunnerStore = create<RunnerState>((set, get) => ({
 
   createToken: async (data) => {
     try {
-      const resp = await createRunnerTokenConnect(orgSlug(), data ?? {});
+      const resp = await createRunnerTokenConnect(orgSlug(), data);
       return resp.token ?? "";
     } catch (e: unknown) { set({ error: getErrorMessage(e, "Failed to create token") }); throw e; }
   },

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "worker_slug": "hermes",
+  "definition_hash": "sha256:035450d5cbfc34fbe6671b00e5ee9cf76aaf0eee81988c4e7fc471bbedefb7ee",
+  "platform": "linux/amd64",
+  "observed_at": "2026-07-12T23:09:30.567Z",
+  "image_reference": "do-worker/runner-hermes:latest",
+  "probe_command": [
+    "hermes",
+    "--version"
+  ],
+  "status": "image_missing",
+  "exit_code": 1,
+  "output": "Error response from daemon: No such image: do-worker/runner-hermes:latest"
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "worker_slug": "loopal",
+  "definition_hash": "sha256:29c0b8aa03cda214e72282983db4de6938b54f7c28e943c038d8cfa94966039b",
+  "platform": "linux/amd64",
+  "observed_at": "2026-07-12T23:09:30.909Z",
+  "image_reference": "do-worker/runner-loopal:latest",
+  "image_id": "sha256:e93f4283a76a55981198b163b1ba5244f79897ff7694a9b861fde0dfdaa717a1",
+  "probe_command": [
+    "loopal",
+    "--version"
+  ],
+  "status": "probe_failed",
+  "exit_code": 2,
+  "output": "flag provided but not defined: -version\nUsage of loopal:\n  -dangerously-skip-permissions\n    \trun as autopilot control agent (claude-stream)\n  -mcp-config string\n    \tpath to .mcp.json (control-agent mode)\n  -mode string\n    \truntime mode: pty | acp (default \"pty\")\n  -scenario string\n    \tbehavior scenario name (default \"echo\")"
+}

@@ -14,8 +14,11 @@ type workerTypeSchemaJSON struct {
 }
 
 type workerTypeFieldSchemaJSON struct {
-	Kind    specdomain.TypeFieldKind `json:"kind"`
-	Options []string                 `json:"options,omitempty"`
+	Kind        specdomain.TypeFieldKind `json:"kind"`
+	Options     []string                 `json:"options,omitempty"`
+	Default     any                      `json:"default,omitempty"`
+	Required    bool                     `json:"required,omitempty"`
+	Description string                   `json:"description,omitempty"`
 }
 
 func workerCreateOptionsToProto(
@@ -33,8 +36,15 @@ func workerCreateOptionsToProto(
 			Description:      option.Description,
 			SchemaVersion:    option.Schema.Version,
 			ConfigSchemaJson: schema,
-			Selectable:       option.Selectable,
-			BlockingReason:   option.BlockingReason,
+			SupportedInteractionModes: interactionModesToProto(
+				option.SupportedInteractionModes,
+			),
+			RequiresModelResource: option.RequiresModelResource,
+			ToolModelRequirements: workerToolModelRequirementsToProto(
+				option.ToolModelRequirements,
+			),
+			Selectable:     option.Selectable,
+			BlockingReason: option.BlockingReason,
 		})
 	}
 	for _, option := range options.RuntimeImages {
@@ -72,28 +82,65 @@ func workerCreateOptionsToProto(
 	for _, option := range options.ResourceProfiles {
 		resources := option.Profile.Resources
 		response.ResourceProfiles = append(response.ResourceProfiles, &podv1.WorkerResourceProfileOption{
-			Id:                 option.Profile.ID,
-			Slug:               option.Profile.Slug,
-			Name:               option.Profile.Name,
-			CpuRequestMillicpu: resources.CPURequestMilliCPU,
-			CpuLimitMillicpu:   resources.CPULimitMilliCPU,
-			MemoryRequestBytes: resources.MemoryRequestBytes,
-			MemoryLimitBytes:   resources.MemoryLimitBytes,
-			GpuRequest:         cloneUint32Pointer(resources.GPURequest),
-			GpuLimit:           cloneUint32Pointer(resources.GPULimit),
-			Selectable:         option.Selectable,
-			BlockingReason:     option.BlockingReason,
+			Id:                  option.Profile.ID,
+			Slug:                option.Profile.Slug,
+			Name:                option.Profile.Name,
+			CpuRequestMillicpu:  resources.CPURequestMilliCPU,
+			CpuLimitMillicpu:    resources.CPULimitMilliCPU,
+			MemoryRequestBytes:  resources.MemoryRequestBytes,
+			MemoryLimitBytes:    resources.MemoryLimitBytes,
+			StorageRequestBytes: resources.StorageRequestBytes,
+			StorageLimitBytes:   resources.StorageLimitBytes,
+			GpuRequest:          cloneUint32Pointer(resources.GPURequest),
+			GpuLimit:            cloneUint32Pointer(resources.GPULimit),
+			Selectable:          option.Selectable,
+			BlockingReason:      option.BlockingReason,
 		})
 	}
 	return response, nil
+}
+
+func workerToolModelRequirementsToProto(
+	requirements []specdomain.ToolModelRequirement,
+) []*podv1.WorkerToolModelRequirement {
+	items := make([]*podv1.WorkerToolModelRequirement, 0, len(requirements))
+	for _, requirement := range requirements {
+		providers := make([]string, len(requirement.ProviderKeys))
+		for index, provider := range requirement.ProviderKeys {
+			providers[index] = provider.String()
+		}
+		adapters := make([]string, len(requirement.ProtocolAdapters))
+		for index, adapter := range requirement.ProtocolAdapters {
+			adapters[index] = adapter.String()
+		}
+		items = append(items, &podv1.WorkerToolModelRequirement{
+			Role: requirement.Role.String(), ProviderKeys: providers,
+			ProtocolAdapters: adapters, Modality: string(requirement.Modality),
+			Capability: string(requirement.Capability),
+		})
+	}
+	return items
+}
+
+func interactionModesToProto(
+	modes []specdomain.InteractionMode,
+) []string {
+	values := make([]string, len(modes))
+	for index, mode := range modes {
+		values[index] = string(mode)
+	}
+	return values
 }
 
 func encodeWorkerTypeSchema(schema specdomain.TypeSchema) (string, error) {
 	fields := make(map[string]workerTypeFieldSchemaJSON, len(schema.Fields))
 	for name, field := range schema.Fields {
 		fields[name] = workerTypeFieldSchemaJSON{
-			Kind:    field.Kind,
-			Options: append([]string{}, field.Options...),
+			Kind:        field.Kind,
+			Options:     append([]string{}, field.Options...),
+			Default:     field.Default,
+			Required:    field.Required,
+			Description: field.Description,
 		}
 	}
 	data, err := json.Marshal(workerTypeSchemaJSON{

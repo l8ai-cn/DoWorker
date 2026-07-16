@@ -19,7 +19,11 @@ impl UserApiService {
         let req = user_proto::GetMeRequest::decode(request_bytes)
             .map_err(|e| format!("decode get_me request: {e}"))?;
         tracing::debug!(target: "user", "get me");
-        let resp = self.client.get_me_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .get_me_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -27,7 +31,11 @@ impl UserApiService {
         let req = user_proto::UpdateMeRequest::decode(request_bytes)
             .map_err(|e| format!("decode update_me request: {e}"))?;
         tracing::info!(target: "user", "update me");
-        let resp = self.client.update_me_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .update_me_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -35,7 +43,11 @@ impl UserApiService {
         let req = user_proto::ChangePasswordRequest::decode(request_bytes)
             .map_err(|e| format!("decode change_password request: {e}"))?;
         tracing::info!(target: "user", "change password");
-        let resp = self.client.change_password_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .change_password_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -43,7 +55,11 @@ impl UserApiService {
         let req = user_proto::ListIdentitiesRequest::decode(request_bytes)
             .map_err(|e| format!("decode list_identities request: {e}"))?;
         tracing::debug!(target: "user", "list identities");
-        let resp = self.client.list_identities_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .list_identities_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -51,7 +67,11 @@ impl UserApiService {
         let req = user_proto::DeleteIdentityRequest::decode(request_bytes)
             .map_err(|e| format!("decode delete_identity request: {e}"))?;
         tracing::info!(target: "user", provider = %req.provider, "delete identity");
-        let resp = self.client.delete_identity_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .delete_identity_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -59,7 +79,11 @@ impl UserApiService {
         let req = user_proto::SearchUsersRequest::decode(request_bytes)
             .map_err(|e| format!("decode search_users request: {e}"))?;
         tracing::debug!(target: "user", "search users");
-        let resp = self.client.search_users_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .search_users_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 }

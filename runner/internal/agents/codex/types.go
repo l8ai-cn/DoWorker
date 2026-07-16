@@ -46,32 +46,45 @@ type planDelta struct {
 	Delta  string `json:"delta"`
 }
 
+type itemOutputDelta struct {
+	ItemID string `json:"itemId"`
+	Delta  string `json:"delta"`
+}
+
+type fileUpdateChange struct {
+	Path string          `json:"path"`
+	Kind json.RawMessage `json:"kind"`
+	Diff string          `json:"diff"`
+}
+
+type codexItem struct {
+	ID               string                    `json:"id"`
+	Type             string                    `json:"type"`
+	Status           string                    `json:"status,omitempty"`
+	Text             string                    `json:"text,omitempty"`
+	Content          []agentMessageContentPart `json:"content,omitempty"`
+	Message          string                    `json:"message,omitempty"`
+	Command          json.RawMessage           `json:"command,omitempty"`
+	CWD              string                    `json:"cwd,omitempty"`
+	ExitCode         *int                      `json:"exitCode,omitempty"`
+	AggregatedOutput string                    `json:"aggregatedOutput,omitempty"`
+	ToolName         string                    `json:"toolName,omitempty"`
+	Arguments        json.RawMessage           `json:"arguments,omitempty"`
+	FilePath         string                    `json:"filePath,omitempty"`
+	Changes          []fileUpdateChange        `json:"changes,omitempty"`
+}
+
 type itemStartedParams struct {
-	Item struct {
-		ID   string `json:"id"`
-		Type string `json:"type"`
-		// Command shape varies across Codex builds (string vs array); it is not
-		// consumed here, so keep it raw to avoid dropping the whole item/started
-		// on a type mismatch.
-		Command  json.RawMessage `json:"command,omitempty"`
-		ToolName string          `json:"toolName,omitempty"`
-		FilePath string          `json:"filePath,omitempty"`
-	} `json:"item"`
+	Item codexItem `json:"item"`
 }
 
 type itemCompletedParams struct {
-	Item struct {
-		ID               string                    `json:"id"`
-		Type             string                    `json:"type"`
-		Status           string                    `json:"status,omitempty"`
-		Text             string                    `json:"text,omitempty"`
-		Content          []agentMessageContentPart `json:"content,omitempty"`
-		Message          string                    `json:"message,omitempty"`
-		ExitCode         *int                      `json:"exitCode,omitempty"`
-		AggregatedOutput string                    `json:"aggregatedOutput,omitempty"`
-		ToolName         string                    `json:"toolName,omitempty"`
-		FilePath         string                    `json:"filePath,omitempty"`
-	} `json:"item"`
+	Item codexItem `json:"item"`
+}
+
+type fileChangePatchUpdatedParams struct {
+	ItemID  string             `json:"itemId"`
+	Changes []fileUpdateChange `json:"changes"`
 }
 
 type errorNotificationParams struct {

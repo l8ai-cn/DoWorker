@@ -46,6 +46,11 @@ ensure_tls_secret() {
   dexec "test \"\$(kubectl -n ${NS} get secret ${tls} -o jsonpath='{.type}')\" = kubernetes.io/tls"
 }
 
+sync_worker_definitions() {
+  dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; sed \"s|__BACKEND_IMAGE__|\${image}|g\" 23-worker-definition-sync-job.yaml | kubectl apply -f -"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/worker-definition-sync --timeout=300s"
+}
+
 apply_all() {
   echo "==> namespace + secrets"
   dexec "kubectl apply -f 00-namespace.yaml"
@@ -59,8 +64,11 @@ apply_all() {
   dexec "kubectl -n ${NS} rollout status deploy/marketplace --timeout=300s"
   dexec "kubectl -n ${NS} rollout status deploy/marketplace-web --timeout=300s"
   echo "==> seed + minio bucket"
-  dexec "kubectl -n ${NS} delete job seed minio-setup --ignore-not-found"
+  dexec "kubectl -n ${NS} delete job seed minio-setup worker-definition-sync --ignore-not-found"
   dexec "kubectl apply -f 21-seed-configmap.yaml -f 22-seed-job.yaml -f 13-minio-setup-job.yaml"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/seed --timeout=300s"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/minio-setup --timeout=300s"
+  sync_worker_definitions
 }
 
 status() {

@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useLightSession } from "@/hooks/useLightSession";
@@ -15,11 +14,11 @@ import {
   applyInstallationPlan,
   createInstallationPlan,
   fetchMarketplaceListing,
-  MarketplaceAcquireError,
   type InstallationPlan,
   type MarketplaceListingDetail,
 } from "@/lib/marketplace/acquire-api";
 import { MarketplaceAcquireSummary } from "./MarketplaceAcquireSummary";
+import { MarketplaceAcquireHeader } from "./MarketplaceAcquireHeader";
 import {
   AcquireShell,
   ErrorState,
@@ -29,8 +28,11 @@ import {
   SuccessState,
 } from "./MarketplaceAcquireStates";
 import { useMarketplaceRuntimeModels } from "./useMarketplaceRuntimeModels";
-
-type Step = "select" | "confirm" | "installing" | "success";
+import {
+  marketplaceAcquireErrorMessage,
+  numericToolModelIDs,
+  type MarketplaceAcquireStep,
+} from "./marketplaceAcquireValues";
 
 export function MarketplaceAcquireFlow({
   organizationSlug,
@@ -49,7 +51,7 @@ export function MarketplaceAcquireFlow({
   const [organizationID, setOrganizationID] = useState("");
   const [plan, setPlan] = useState<InstallationPlan | null>(null);
   const [installationID, setInstallationID] = useState("");
-  const [step, setStep] = useState<Step>("select");
+  const [step, setStep] = useState<MarketplaceAcquireStep>("select");
   const [error, setError] = useState("");
   const selectedOrganization = organizations.find(
     (organization) => String(organization.id) === organizationID,
@@ -58,7 +60,6 @@ export function MarketplaceAcquireFlow({
     selectedOrganization?.slug,
     listing?.agent_slug,
   );
-
   useEffect(() => {
     if (!marketSlug || !listingSlug) {
       setError("启用链接不完整，请返回市场重新选择应用。");
@@ -66,7 +67,7 @@ export function MarketplaceAcquireFlow({
     }
     fetchMarketplaceListing(marketSlug, listingSlug)
       .then(setListing)
-      .catch((cause) => setError(errorMessage(cause)));
+      .catch((cause) => setError(marketplaceAcquireErrorMessage(cause)));
   }, [marketSlug, listingSlug]);
 
   useEffect(() => {
@@ -106,7 +107,12 @@ export function MarketplaceAcquireFlow({
   }
 
   async function preparePlan() {
-    if (!selectedOrganization || !listing || !runtimeModels.modelResourceID) return;
+    if (
+      !selectedOrganization ||
+      !listing ||
+      !runtimeModels.modelResourceID ||
+      !runtimeModels.toolSelectionComplete
+    ) return;
     setError("");
     try {
       const result = await createInstallationPlan(
@@ -115,11 +121,12 @@ export function MarketplaceAcquireFlow({
         requestedVersion || listing.listing_version_id,
         selectedOrganization.id,
         Number(runtimeModels.modelResourceID),
+        numericToolModelIDs(runtimeModels.toolModelResourceIDs),
       );
       setPlan(result);
       setStep("confirm");
     } catch (cause) {
-      setError(errorMessage(cause));
+      setError(marketplaceAcquireErrorMessage(cause));
     }
   }
 
@@ -136,25 +143,16 @@ export function MarketplaceAcquireFlow({
       setStep("success");
     } catch (cause) {
       setStep("confirm");
-      setError(errorMessage(cause));
+      setError(marketplaceAcquireErrorMessage(cause));
     }
   }
 
   return (
     <AcquireShell>
-      <header className="border-b border-border pb-6">
-        <Link
-          href={organizationSlug ? `/${organizationSlug}/marketplace/${listingSlug}` : "/marketplace"}
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          返回应用市场
-        </Link>
-        <p className="mt-6 text-sm font-medium text-primary">专家应用启用向导</p>
-        <h1 className="mt-2 text-3xl font-semibold text-foreground">{listing.display_name}</h1>
-        <p className="mt-3 text-base leading-7 text-muted-foreground">{listing.tagline}</p>
-      </header>
-
+      <MarketplaceAcquireHeader
+        listing={listing}
+        organizationSlug={organizationSlug}
+      />
       {step === "select" ? (
         <OrganizationStep
           organizations={organizations}
@@ -166,6 +164,11 @@ export function MarketplaceAcquireFlow({
           modelResources={runtimeModels.modelResources}
           modelResourceID={runtimeModels.modelResourceID}
           onModelChange={runtimeModels.setModelResourceID}
+          toolModelGroups={runtimeModels.toolModelGroups}
+          toolModelResourceIDs={runtimeModels.toolModelResourceIDs}
+          onToolModelChange={runtimeModels.setToolModelResourceID}
+          toolSelectionComplete={runtimeModels.toolSelectionComplete}
+          missingCompatibleResource={runtimeModels.missingCompatibleResource}
           loadingModels={runtimeModels.loadingModels}
           modelError={runtimeModels.modelError}
           incompatibleListing={runtimeModels.incompatibleListing}
@@ -193,10 +196,4 @@ export function MarketplaceAcquireFlow({
       ) : null}
     </AcquireShell>
   );
-}
-
-function errorMessage(cause: unknown): string {
-  if (cause instanceof MarketplaceAcquireError) return cause.message;
-  if (cause instanceof Error) return cause.message;
-  return "启用失败，请稍后重试。";
 }

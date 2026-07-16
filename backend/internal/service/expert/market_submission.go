@@ -91,44 +91,7 @@ func (s *Service) SubmitMarketApplication(
 		SkillDependencies:       dependencies,
 		SubmittedAt:             &now,
 	}
-	newApplication := application.ID == 0
-	if err := s.market.CreateSubmission(ctx, application, &release); err != nil {
-		if errors.Is(err, expertmarket.ErrConflict) && newApplication {
-			return s.retryMarketSubmission(ctx, req, &release)
-		}
-		return nil, err
-	}
-	return &MarketSubmission{Application: *application, Release: release}, nil
-}
-func (s *Service) retryMarketSubmission(
-	ctx context.Context,
-	req SubmitMarketApplicationRequest,
-	release *expertmarket.Release,
-) (*MarketSubmission, error) {
-	application, err := s.market.GetApplicationBySourceExpert(
-		ctx,
-		req.OrganizationID,
-		req.SourceExpertID,
-	)
-	if errors.Is(err, expertmarket.ErrNotFound) {
-		application, err = s.market.GetApplicationBySlug(ctx, req.Slug)
-	}
-	if err != nil {
-		return nil, err
-	}
-	if application.PublisherOrganizationID != req.OrganizationID {
-		return nil, ErrMarketApplicationOwnership
-	}
-	if application.Slug.String() != req.Slug {
-		return nil, ErrMarketApplicationSlugMismatch
-	}
-	if application.SourceExpertID != req.SourceExpertID {
-		return nil, ErrMarketApplicationSlugMismatch
-	}
-	if err := s.market.CreateSubmission(ctx, application, release); err != nil {
-		return nil, err
-	}
-	return &MarketSubmission{Application: *application, Release: *release}, nil
+	return s.createMarketSubmission(ctx, req, application, &release)
 }
 func (s *Service) marketApplicationForSubmission(
 	ctx context.Context,

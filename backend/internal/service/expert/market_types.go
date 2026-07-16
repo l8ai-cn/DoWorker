@@ -93,10 +93,11 @@ type WithdrawMarketReleaseRequest struct {
 }
 
 type InstallMarketApplicationRequest struct {
-	OrganizationID  int64
-	UserID          int64
-	ModelResourceID int64
-	MarketSlug      string
+	OrganizationID       int64
+	UserID               int64
+	ModelResourceID      int64
+	ToolModelResourceIDs map[string]int64
+	MarketSlug           string
 }
 
 type UpgradeMarketApplicationRequest struct {

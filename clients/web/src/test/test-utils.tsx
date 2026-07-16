@@ -11,6 +11,7 @@ import repositoriesMessages from "@/messages/en/repositories.json";
 import runnersMessages from "@/messages/en/runners.json";
 import docsMessages from "@/messages/en/docs.json";
 import contentMessages from "@/messages/en/content.json";
+import resourceOrchestrationMessages from "@/messages/en/resource-orchestration.json";
 import changelogEntriesMessages from "@/messages/en/changelog-entries.json";
 
 const mockTranslations = {
@@ -24,6 +25,7 @@ const mockTranslations = {
   ...runnersMessages,
   ...docsMessages,
   ...contentMessages,
+  ...resourceOrchestrationMessages,
   ...changelogEntriesMessages,
 };
 

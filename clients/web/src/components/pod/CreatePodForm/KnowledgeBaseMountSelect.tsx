@@ -44,12 +44,13 @@ export function KnowledgeBaseMountSelect({
       .then((items) => {
         if (!cancelled) setLoaded({ key: requestKey, kbs: items, error: null });
       })
-      .catch((loadError: unknown) => {
+      .catch(() => {
         if (!cancelled) {
-          const message = loadError instanceof Error
-            ? loadError.message
-            : "Failed to load knowledge bases";
-          setLoaded({ key: requestKey, kbs: [], error: message });
+          setLoaded({
+            key: requestKey,
+            kbs: [],
+            error: t("ide.createPod.knowledgeBasesLoadFailed"),
+          });
         }
       });
     return () => {
@@ -121,7 +122,9 @@ export function KnowledgeBaseMountSelect({
                 onClick={() => setMode(m, m.mode === "rw" ? "ro" : "rw")}
                 title={t("ide.createPod.knowledgeModeToggle")}
               >
-                {m.mode}
+                {m.mode === "rw"
+                  ? t("ide.createPod.knowledgeModeReadWrite")
+                  : t("ide.createPod.knowledgeModeReadOnly")}
               </button>
               <button
                 type="button"
@@ -184,7 +187,6 @@ export function KnowledgeBaseMountSelect({
     </section>
   );
 }
-
 function mountSlug(mount: KnowledgeMountSelection, knowledgeBases: KnowledgeBase[]): string {
   return mount.slug
     || knowledgeBases.find((item) => item.id === mount.id)?.slug

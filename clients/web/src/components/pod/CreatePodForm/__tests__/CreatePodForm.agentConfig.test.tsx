@@ -25,6 +25,61 @@ vi.mock("../WorkerWorkspaceCapabilities", () => ({
 const t = (key: string) => key;
 
 describe("Worker type and workspace configuration", () => {
+  it("localizes declared Agent variable labels", () => {
+    const options = createOptions();
+    options.worker_types[0].config_schema = {
+      version: 1,
+      fields: {
+        approval_mode: { kind: "select", options: ["never", "ask"] },
+      },
+    };
+    const localized = (key: string) => (
+      key === "workerCreate.typeConfig.fields.approvalMode" ? "审批方式" : key
+    );
+
+    render(
+      <WorkerTypeConfigStep
+        draft={completeDraft()}
+        options={{ status: "ready", data: options }}
+        credentialBundles={{ status: "ready", data: [] }}
+        onPatch={mockPatchDraft}
+        t={localized}
+      />,
+    );
+
+    expect(screen.getByLabelText("审批方式")).toBeInTheDocument();
+  });
+
+  it("localizes select options and preserves the empty default option", () => {
+    const options = createOptions();
+    options.worker_types[0].config_schema = {
+      version: 1,
+      fields: {
+        approval_mode: { kind: "select", options: ["", "never"] },
+      },
+    };
+    const localized = (key: string) => ({
+      "workerCreate.typeConfig.fields.approvalMode": "审批方式",
+      "workerCreate.typeConfig.useDefault": "默认",
+      "workerCreate.typeConfig.options.approvalNever": "不审批（全自动）",
+      "workerCreate.typeConfig.options.empty": "默认",
+    }[key] ?? key);
+
+    render(
+      <WorkerTypeConfigStep
+        draft={completeDraft()}
+        options={{ status: "ready", data: options }}
+        credentialBundles={{ status: "ready", data: [] }}
+        onPatch={mockPatchDraft}
+        t={localized}
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText("审批方式"));
+    expect(screen.getByRole("option", { name: "默认" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "不审批（全自动）" })).toBeInTheDocument();
+  });
+
   it("writes typed values and secret references into WorkerSpecDraft", () => {
     const options = createOptions();
     options.worker_types[0].config_schema = {

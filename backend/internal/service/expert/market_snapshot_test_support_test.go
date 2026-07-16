@@ -9,13 +9,14 @@ import (
 )
 
 type fakeMarketSnapshots struct {
-	source         specdomain.Snapshot
-	created        []specdomain.Snapshot
-	preparedScopes []specservice.Scope
-	preparedModels []int64
-	err            error
-	deleteContexts []context.Context
-	deleteErrors   []error
+	source             specdomain.Snapshot
+	created            []specdomain.Snapshot
+	preparedScopes     []specservice.Scope
+	preparedModels     []int64
+	preparedToolModels []map[string]int64
+	err                error
+	deleteContexts     []context.Context
+	deleteErrors       []error
 }
 
 type fakeMarketInstallationLocker struct {
@@ -98,14 +99,34 @@ func (snapshots *fakeMarketSnapshots) PrepareMarketSnapshot(
 	scope specservice.Scope,
 	source specdomain.Spec,
 	modelResourceID int64,
+	toolModelResourceIDs map[string]int64,
 ) (specservice.ResolvedSnapshot, error) {
 	if snapshots.err != nil {
 		return specservice.ResolvedSnapshot{}, snapshots.err
 	}
 	source.Runtime.ModelBinding.ResourceID = modelResourceID
+	for index := range source.Runtime.ToolModelBindings {
+		role := source.Runtime.ToolModelBindings[index].Role.String()
+		source.Runtime.ToolModelBindings[index].ModelBinding.ResourceID =
+			toolModelResourceIDs[role]
+	}
 	snapshots.preparedScopes = append(snapshots.preparedScopes, scope)
 	snapshots.preparedModels = append(snapshots.preparedModels, modelResourceID)
+	snapshots.preparedToolModels = append(
+		snapshots.preparedToolModels,
+		cloneMarketToolModelResourceIDs(toolModelResourceIDs),
+	)
 	return specservice.NewResolvedSnapshot(scope.OrgID, source)
+}
+
+func cloneMarketToolModelResourceIDs(
+	source map[string]int64,
+) map[string]int64 {
+	cloned := make(map[string]int64, len(source))
+	for role, resourceID := range source {
+		cloned[role] = resourceID
+	}
+	return cloned
 }
 
 func (snapshots *fakeMarketSnapshots) Delete(

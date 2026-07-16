@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, Settings2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { LightOrganization } from "@/lib/light-auth";
 import type { MarketplaceModelResource } from "@/lib/marketplace-model-resources";
+import type { MarketplaceToolModelGroup } from "@/lib/marketplace-tool-model-resources";
+import { MarketplaceToolModelFields } from "../MarketplaceToolModelFields";
 import { MarketplaceModelResourceField } from "./MarketplaceModelResourceField";
 
 export function OrganizationStep({
@@ -16,6 +18,11 @@ export function OrganizationStep({
   modelResources,
   modelResourceID,
   onModelChange,
+  toolModelGroups = [],
+  toolModelResourceIDs = {},
+  onToolModelChange = () => {},
+  toolSelectionComplete = true,
+  missingCompatibleResource = false,
   loadingModels,
   modelError,
   incompatibleListing,
@@ -31,6 +38,11 @@ export function OrganizationStep({
   modelResources: MarketplaceModelResource[];
   modelResourceID: string;
   onModelChange: (value: string) => void;
+  toolModelGroups?: MarketplaceToolModelGroup[];
+  toolModelResourceIDs?: Record<string, string>;
+  onToolModelChange?: (role: string, value: string) => void;
+  toolSelectionComplete?: boolean;
+  missingCompatibleResource?: boolean;
   loadingModels: boolean;
   modelError: boolean;
   incompatibleListing: boolean;
@@ -73,21 +85,46 @@ export function OrganizationStep({
         </select>
       )}
       {value ? (
-        <MarketplaceModelResourceField
-          resources={modelResources}
-          value={modelResourceID}
-          onChange={onModelChange}
-          loading={loadingModels}
-          error={modelError}
-          incompatibleListing={incompatibleListing}
-          onReload={onReloadModels}
-          settingsHref={settingsHref}
-        />
+        <div className="space-y-4">
+          <MarketplaceModelResourceField
+            resources={modelResources}
+            value={modelResourceID}
+            onChange={onModelChange}
+            loading={loadingModels}
+            error={modelError}
+            incompatibleListing={incompatibleListing}
+            onReload={onReloadModels}
+            settingsHref={settingsHref}
+          />
+          {!loadingModels && !missingCompatibleResource ? (
+            <MarketplaceToolModelFields
+              groups={toolModelGroups}
+              values={toolModelResourceIDs}
+              onChange={onToolModelChange}
+            />
+          ) : null}
+          {!loadingModels &&
+          missingCompatibleResource &&
+          modelResources.length > 0 ? (
+            <Button asChild className="w-full gap-2" variant="outline">
+              <Link href={settingsHref}>
+                <Settings2 className="h-4 w-4" />
+                配置兼容工具模型
+              </Link>
+            </Button>
+          ) : null}
+        </div>
       ) : null}
       <Button
         className="w-full"
         size="lg"
-        disabled={!value || !modelResourceID || loadingModels}
+        disabled={
+          !value ||
+          !modelResourceID ||
+          !toolSelectionComplete ||
+          loadingModels ||
+          missingCompatibleResource
+        }
         onClick={onContinue}
       >
         检查启用条件

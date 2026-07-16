@@ -142,6 +142,25 @@ func (market *fakeExpertMarket) GetReleaseByID(
 	return &copy, nil
 }
 
+func (market *fakeExpertMarket) GetLatestReleaseByApplication(
+	_ context.Context,
+	applicationID int64,
+) (*expertmarket.Release, error) {
+	var latest *expertmarket.Release
+	for _, release := range market.releases {
+		if release.ApplicationID != applicationID ||
+			latest != nil && release.Version <= latest.Version {
+			continue
+		}
+		copy := cloneMarketRelease(release)
+		latest = &copy
+	}
+	if latest == nil {
+		return nil, expertmarket.ErrNotFound
+	}
+	return latest, nil
+}
+
 func (market *fakeExpertMarket) ListReleases(
 	_ context.Context,
 	filter expertmarket.ReleaseListFilter,

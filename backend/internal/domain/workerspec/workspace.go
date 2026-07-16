@@ -30,6 +30,7 @@ type Workspace struct {
 	SkillPackages   []SkillPackageBinding `json:"skill_packages"`
 	KnowledgeMounts []KnowledgeMount      `json:"knowledge_mounts"`
 	EnvBundleIDs    []RuntimeEnvBundleID  `json:"env_bundle_ids"`
+	ConfigBundleIDs []int64               `json:"config_bundle_ids"`
 	Instructions    string                `json:"instructions"`
 	InitialTask     string                `json:"initial_task"`
 }

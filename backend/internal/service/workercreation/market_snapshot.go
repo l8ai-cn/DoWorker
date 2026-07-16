@@ -15,6 +15,7 @@ func (service *Service) PrepareMarketSnapshot(
 	scope workerspec.Scope,
 	source workerspecdomain.Spec,
 	modelResourceID int64,
+	toolModelResourceIDs map[string]int64,
 ) (workerspec.ResolvedSnapshot, error) {
 	normalized, err := workerspecdomain.NormalizeAndValidate(source)
 	if err != nil {
@@ -36,19 +37,25 @@ func (service *Service) PrepareMarketSnapshot(
 			return workerspec.ResolvedSnapshot{}, err
 		}
 	}
+	runtimeSelection := workerspec.RuntimeSelection{
+		RuntimeImageID:    normalized.Runtime.Image.ID,
+		PlacementPolicy:   normalized.Placement.Policy,
+		ComputeTargetID:   normalized.Placement.ComputeTarget.ID,
+		DeploymentMode:    normalized.Placement.DeploymentMode,
+		ResourceProfileID: normalized.Placement.ResourceProfile.ID,
+	}
+	if normalized.Placement.ResourceProfile.Custom {
+		resources := normalized.Placement.ResourceProfile.Resources
+		runtimeSelection.CustomResources = &resources
+	}
 	prepared, err := service.Prepare(ctx, scope, Draft{
 		OptionsRevision: service.Revision(),
 		WorkerSpec: workerspec.Draft{
-			ModelResourceID: modelResourceID,
-			WorkerTypeSlug:  normalized.Runtime.WorkerType.Slug,
-			Runtime: workerspec.RuntimeSelection{
-				RuntimeImageID:    normalized.Runtime.Image.ID,
-				PlacementPolicy:   normalized.Placement.Policy,
-				ComputeTargetID:   normalized.Placement.ComputeTarget.ID,
-				DeploymentMode:    normalized.Placement.DeploymentMode,
-				ResourceProfileID: normalized.Placement.ResourceProfile.ID,
-			},
-			TypeConfig: normalized.TypeConfig,
+			ModelResourceID:      modelResourceID,
+			ToolModelResourceIDs: cloneToolModelResourceIDs(toolModelResourceIDs),
+			WorkerTypeSlug:       normalized.Runtime.WorkerType.Slug,
+			Runtime:              runtimeSelection,
+			TypeConfig:           normalized.TypeConfig,
 			Workspace: workerspecdomain.Workspace{
 				SkillIDs: skillIDs,
 				SkillPackages: append(
@@ -68,6 +75,17 @@ func (service *Service) PrepareMarketSnapshot(
 	return prepared.Snapshot, nil
 }
 
+func cloneToolModelResourceIDs(source map[string]int64) map[string]int64 {
+	if len(source) == 0 {
+		return nil
+	}
+	cloned := make(map[string]int64, len(source))
+	for role, resourceID := range source {
+		cloned[role] = resourceID
+	}
+	return cloned
+}
+
 func rejectPrivateMarketSnapshotReferences(spec workerspecdomain.Spec) error {
 	switch {
 	case spec.Workspace.RepositoryID != nil:
@@ -84,6 +102,11 @@ func rejectPrivateMarketSnapshotReferences(spec workerspecdomain.Spec) error {
 		return invalidMarketSnapshotDraft(
 			"workspace.env_bundle_ids",
 			"market snapshots cannot carry environment bundles",
+		)
+	case len(spec.Workspace.ConfigBundleIDs) > 0:
+		return invalidMarketSnapshotDraft(
+			"workspace.config_bundle_ids",
+			"market snapshots cannot carry configuration bundles",
 		)
 	case len(spec.TypeConfig.SecretRefs) > 0:
 		return invalidMarketSnapshotDraft(

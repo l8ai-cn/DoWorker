@@ -17,6 +17,7 @@ type RunnerMessageHandler struct {
 	podStore           PodStore
 	conn               client.Connection
 	relayClientFactory func(url, podKey, token string, logger *slog.Logger) relay.RelayClient
+	relaySubscriptions singleflight.Group
 	verificationRuns   singleflight.Group
 	promptDedup        map[string]*promptDedupRing
 	promptDedupMu      sync.Mutex

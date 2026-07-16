@@ -1,28 +1,22 @@
 "use client";
 
 import React, { useCallback, useMemo, useState } from "react";
+import { AgentWorkspace } from "@do-worker/agent-ui";
+import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useWorkspaceStore, type SplitDirection } from "@/stores/workspace";
-import { usePodStore } from "@/stores/pod";
-import { useAcpSessionField } from "@/stores/acpSession";
+import { usePod, usePodStore } from "@/stores/pod";
 import { usePodStatus } from "@/hooks";
-import { useAcpRelay } from "@/hooks/useAcpRelay";
 import { useMigratedSessionHydration } from "@/hooks/useMigratedSessionHydration";
-import { useTerminalStatus } from "@/hooks/useTerminalStatus";
 import { AgentPanelHeader } from "./AgentPanelHeader";
-import { RelayStatusOverlay } from "./RelayStatusOverlay";
 import {
   PaneLoadingState,
   PaneErrorState,
   PaneReconnectingState,
 } from "./PaneStateViews";
-import { AcpPlanTracker } from "./acp/AcpPlanTracker";
-import { AcpActivityStream } from "./acp/AcpActivityStream";
-import { AcpPermissionDialog } from "./acp/AcpPermissionDialog";
-import { AcpPromptInput } from "./acp/AcpPromptInput";
-import { AcpDebugPanel } from "./acp/AcpDebugPanel";
 import { PodSelectorModal } from "./PodSelectorModal";
 import { WorkerControlOverlay } from "@/components/mobile-worker/WorkerControlOverlay";
+import { WebAcpSessionRuntime } from "./agent-ui/WebAcpSessionRuntime";
 
 interface AgentPanelProps {
   paneId: string;
@@ -47,6 +41,7 @@ export function AgentPanel({
   controlClientLabel = "desktop",
   className,
 }: AgentPanelProps) {
+  const locale = useLocale();
   const [isMaximized, setIsMaximized] = useState(false);
   const [pendingSplitDirection, setPendingSplitDirection] =
     useState<SplitDirection | null>(null);
@@ -54,18 +49,24 @@ export function AgentPanel({
   const setActivePane = useWorkspaceStore((s) => s.setActivePane);
   const splitPane = useWorkspaceStore((s) => s.splitPane);
   const panes = useWorkspaceStore((s) => s.panes);
+  const pod = usePod(podKey);
   const initProgress = usePodStore((state) => state.initProgress[podKey]);
-  const pendingPermissions = useAcpSessionField(podKey, (s) => s.pendingPermissions);
 
   const openPodKeys = useMemo(() => panes.map((p) => p.podKey), [panes]);
   const { podStatus, isPodReady, podError } = usePodStatus(podKey);
 
   const shouldSubscribe = isPodReady || podStatus === "running";
-  useAcpRelay(podKey, paneId, shouldSubscribe);
   useMigratedSessionHydration(podKey, Boolean(podKey));
-
-  const relayStatus = useTerminalStatus(podKey);
-
+  const runtime = useMemo(
+    () =>
+      new WebAcpSessionRuntime({
+        agentLabel: pod?.agent?.name ?? "Agent",
+        paneId,
+        podKey,
+        title: pod?.title ?? pod?.alias ?? podKey,
+      }),
+    [paneId, pod?.agent?.name, pod?.alias, pod?.title, podKey],
+  );
   const handleFocus = useCallback(() => {
     setActivePane(paneId);
   }, [paneId, setActivePane]);
@@ -110,28 +111,13 @@ export function AgentPanel({
           />
         )
       ) : (
-        <div className="flex flex-col flex-1 min-h-0 relative">
-          {relayStatus.status !== "none" && (
-            <RelayStatusOverlay
-              connectionStatus={relayStatus.status}
-              isRunnerDisconnected={relayStatus.runnerDisconnected}
-            />
-          )}
-          <AcpPlanTracker podKey={podKey} />
-          <div className="flex-1 overflow-y-auto p-4">
-            <AcpActivityStream podKey={podKey} />
-          </div>
-          {pendingPermissions.length > 0 && (
-              <AcpPermissionDialog
-                podKey={podKey}
-                permissions={pendingPermissions}
-              />
-            )}
-          <AcpPromptInput podKey={podKey} />
-          {process.env.NODE_ENV === "development" && (
-            <AcpDebugPanel podKey={podKey} />
-          )}
-        </div>
+        <AgentWorkspace
+          className="flex-1"
+          clientLabel={controlClientLabel}
+          locale={locale === "zh" ? "zh-CN" : "en-US"}
+          runtime={runtime}
+          sessionId={runtime.sessionId}
+        />
       )}
       <WorkerControlOverlay
         podKey={podKey}

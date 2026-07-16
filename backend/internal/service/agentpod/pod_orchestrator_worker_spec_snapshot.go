@@ -170,13 +170,12 @@ func projectWorkerSpec(
 	repository *gitprovider.Repository,
 ) {
 	req.AgentSlug = spec.Runtime.WorkerType.Slug.String()
-	req.ModelResourceID = workerSpecInt64Pointer(
-		spec.Runtime.ModelBinding.ResourceID,
-	)
+	req.ModelResourceID = workerSpecModelResourcePointer(spec.Runtime.ModelBinding)
 	req.RepositoryID = cloneWorkerSpecInt64Pointer(spec.Workspace.RepositoryID)
 	req.BranchName = workerSpecStringPointer(spec.Workspace.Branch)
 	req.Alias = workerSpecStringPointer(spec.Metadata.Alias)
 	req.AutomationLevel = string(spec.TypeConfig.AutomationLevel)
+	req.Perpetual = spec.Lifecycle.TerminationPolicy == specdomain.TerminationPolicyManual
 	req.AgentfileLayer = workerSpecStringPointer(agentfileLayer)
 	req.preparedWorkerSpec = &spec
 	req.preResolvedRepository = repository

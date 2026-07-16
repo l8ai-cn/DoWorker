@@ -103,7 +103,7 @@ func (q *PendingCommandQueue) enqueue(
 		return time.Time{}, ErrRunnerNotConnected
 	}
 	if ttl <= 0 {
-		ttl = q.defaultTTL
+		ttl = q.SendPromptTTL()
 	}
 	if ttl < minQueueTTL {
 		ttl = minQueueTTL

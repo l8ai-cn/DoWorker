@@ -35,13 +35,13 @@ func TestMigration000211ExpertMarketplaceUpDownPostgres(t *testing.T) {
 	require.NoError(t, execSQL(ctx, conn, `SET search_path TO `+schema))
 	require.NoError(t, execMigrationSQL(ctx, conn, expertMarketplaceBaseDDL))
 
-	up, err := FS.ReadFile("000211_expert_marketplace.up.sql")
+	up, err := FS.ReadFile("000220_expert_marketplace.up.sql")
 	require.NoError(t, err)
 	require.NoError(t, execMigrationSQL(ctx, conn, string(up)))
 
 	requireMarketplaceConstraints(t, ctx, conn)
 
-	down, err := FS.ReadFile("000211_expert_marketplace.down.sql")
+	down, err := FS.ReadFile("000220_expert_marketplace.down.sql")
 	require.NoError(t, err)
 	require.NoError(t, execMigrationSQL(ctx, conn, string(down)))
 	require.False(t, postgresColumnExists(ctx, t, conn, "experts", "source_market_application_id"))

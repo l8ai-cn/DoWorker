@@ -2,6 +2,11 @@ package airesource
 
 import "github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 
+const (
+	MiniMaxChinaBaseURL  = "https://api.minimaxi.com/v1"
+	MiniMaxGlobalBaseURL = "https://api.minimax.io/v1"
+)
+
 type CredentialField struct {
 	Key      string `json:"key"`
 	Label    string `json:"label"`
@@ -32,7 +37,7 @@ var providerRegistry = mustProviderRegistry([]ProviderDefinition{
 		modalities(ModalityChat, ModalityImage, ModalityEmbedding, ModalityMultimodal), apiKey()),
 	provider("openrouter", "OpenRouter", "https://openrouter.ai/api/v1", "openai-compatible", false, true,
 		modalities(ModalityChat, ModalityMultimodal), apiKey()),
-	provider("minimax", "MiniMax", "https://api.minimax.io/v1", "minimax", false, false,
+	provider("minimax", "MiniMax", MiniMaxChinaBaseURL, "minimax", false, false,
 		modalities(ModalityChat, ModalityAudio, ModalityVideo, ModalityMultimodal), apiKey()),
 	provider("dashscope", "Alibaba DashScope", "https://dashscope.aliyuncs.com/compatible-mode/v1", "openai-compatible", false, false,
 		modalities(ModalityChat, ModalityImage, ModalityAudio, ModalityVideo, ModalityEmbedding, ModalityMultimodal), apiKey()),

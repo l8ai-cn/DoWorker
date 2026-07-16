@@ -1,6 +1,6 @@
 # Mobile Worker Dual-Mode Design
 
-**Status:** approved for implementation
+**Status:** implemented locally; production release blocked by an outdated Backend Worker contract
 **Date:** 2026-07-12
 **Scope:** make `clients/mobile-lovable` the supported mobile Worker entry point.
 
@@ -33,15 +33,15 @@ delivery.
 
 ## Current-state findings
 
-`clients/mobile-lovable` already renders Session API conversation data and has
-a terminal page. It is not deployed as a product service, is absent from the
-pnpm workspace and CI image matrix, and its terminal uses
-`/v1/sessions/:id/resources/terminals/:terminal_id/attach`.
+`clients/mobile-lovable` is the `@do-worker/mobile` workspace package. It has a
+dedicated image, OILAN Deployment, Service, ingress, CI validation, and local
+host-service support. It retains Session REST/SSE for session-centric work and
+adds direct Worker routes for mobile QR/canonical links.
 
-That attach endpoint translates old raw WebSocket traffic to Relay frames. It
-does not acquire, renew, or release the Relay control lease. Since Relay now
-requires a lease for input and resize, it cannot be the writable mobile
-terminal implementation.
+The writable PTY path and direct ACP path use `WasmRelayManager`. They request
+a short-lived browser connection through `GetPodConnection`, subscribe through
+Relay, and explicitly acquire/release the control lease. The legacy terminal
+attach endpoint is not on the new mobile terminal write path.
 
 The supported Web client already uses `WasmRelayManager`, `GetPodConnection`,
 and `useWorkerControlLease`. The mobile service must use the same primitives.
@@ -51,8 +51,9 @@ and `useWorkerControlLease`. The mobile service must use the same primitives.
 ```mermaid
 flowchart LR
   QR["Desktop QR / tokenless mobile URL"] --> Mobile["mobile-lovable"]
+  Mobile --> Descriptor["GetMobileAccessDescriptor"]
   Mobile --> Sessions["Session REST + SSE"]
-  Mobile --> Conn["GET session relay connection"]
+  Mobile --> Conn["GetPodConnection"]
   Conn --> Backend["Backend authorization and subscription"]
   Mobile --> Wasm["do-worker-wasm: WasmRelayManager"]
   Wasm --> Relay["Relay browser WebSocket"]
@@ -61,34 +62,37 @@ flowchart LR
   Runner --> ACP["ACP Pod"] & PTY["PTY Pod"]
 ```
 
-The Session API owns conversation persistence and command dispatch. The Relay
-owns browser data-plane bytes, ACP frames, reconnect behavior, snapshots, and
-the control lease. Backend never proxies terminal bytes.
+Session routes own durable conversation persistence and command dispatch. Direct
+Worker routes use Relay for ACP snapshots/events and PTY bytes, reconnect
+behavior, and the control lease. Backend authorizes and subscribes Pods but
+never proxies terminal bytes.
 
 ## API changes
 
-Add an authenticated organization-scoped endpoint:
+The mobile contract has two authenticated organization-scoped Connect RPCs:
 
 ```text
-GET /v1/sessions/:id/relay-connection
+GetMobileAccessDescriptor(org_slug, pod_key)
+GetPodConnection(org_slug, pod_key)
 ```
 
-It must:
+`GetMobileAccessDescriptor`:
 
-1. call `authorizeSession`;
-2. reject missing, inactive, or runnerless Pods;
-3. select a healthy Relay with the tenant organization affinity;
-4. issue the Runner subscription token;
-5. send `SubscribePod` before issuing the browser token;
-6. return `{ relay_url, token, pod_key }`.
+1. resolves organization scope and Pod read policy;
+2. returns a token-free canonical URL, fixed `interaction_mode`, and
+   console/preview/relay capabilities;
+3. never returns a JWT, Relay token, preview token, or runner credential.
 
-The response must never include a runner token. Missing Relay manager, token
-generator, command sender, unhealthy Relay, or subscription failure is a
-service error; there is no alternate WebSocket path.
+`GetPodConnection`:
 
-Session list and get responses add `interaction_mode` from the associated Pod.
-The field lets mobile route a session to its only executable surface without
-guessing from an agent name.
+1. resolves organization scope and Pod read policy;
+2. rejects inactive, runnerless, unsubscribable, or Relay-unavailable Pods;
+3. sends `SubscribePod` before minting the browser token;
+4. returns `{ relay_url, token, pod_key }` and never a runner token.
+
+The existing session relay endpoint remains for session-centric PTY pages.
+Session list/get responses also project `interaction_mode`; clients must route
+by this field, not by an agent name.
 
 ## Mobile product flow
 
@@ -100,7 +104,7 @@ stateDiagram-v2
   NewWorker --> PTY: choose Command line
   ACP --> Chat: create session with pty_only=false
   PTY --> Terminal: create session with pty_only=true
-  Chat --> Chat: Session REST/SSE
+  Chat --> Chat: Session REST/SSE or direct Worker ACP Relay
   Terminal --> Terminal: Wasm Relay + control lease
 ```
 
@@ -108,7 +112,10 @@ Routes:
 
 | Route | Responsibility |
 | --- | --- |
-| `/workers/:podKey` | resolve `GET /v1/sessions/by-pod/:podKey`, then open its executable mode |
+| `/workers/:podKey` | load `GetMobileAccessDescriptor`, then open its fixed executable mode |
+| `/workers/:podKey/chat` | ACP Relay chat with tool events, permissions, and control lease |
+| `/workers/:podKey/terminal` | PTY Relay terminal with xterm and control lease |
+| `/workers/:podKey/preview` | request a backend preview session and replace history with its session URL |
 | `/sessions/:sessionId` | ACP chat session |
 | `/sessions/:sessionId/terminal` | PTY terminal session |
 | `/new` | select agent, workspace, and interaction mode |
@@ -122,8 +129,8 @@ an executable state, not a cosmetic tab state.
 
 1. Formalize `clients/mobile-lovable` as `@do-worker/mobile` in the pnpm
    workspace and add `do-worker-wasm` as a workspace dependency.
-2. Add a mobile Relay adapter around `WasmRelayManager`. It accepts connection
-   information from the session endpoint, exposes terminal output/status, and
+2. Add a mobile Relay adapter around `WasmRelayManager`. It accepts direct Pod
+   connection information, exposes ACP events or terminal output/status, and
    owns subscribe/unsubscribe.
 3. Add a mobile control-lease hook. It acquires control on explicit user
    action, renews before expiry, releases on page hide and unmount, and renders
@@ -132,13 +139,15 @@ an executable state, not a cosmetic tab state.
    Remove the old terminal attach URL from the mobile write path.
 5. Add `interaction_mode` to mobile Session types and creation payloads. New
    task presents two 44px touch targets with concise mode-specific labels.
-6. Add `/workers/:podKey` and make QR/canonical links target that route after
-   the mobile public base URL is configured.
+6. Add `/workers/:podKey` and fixed-mode chat/terminal routes. QR/canonical
+   links target the descriptor route; preview is only shown when the descriptor
+   reports it available and always requests a backend-issued session URL.
 
 ## Deployment
 
-Add a dedicated mobile image, Kubernetes Deployment, Service, ingress route,
-and CI image build. The deployment supplies:
+The repository contains a dedicated mobile image, Kubernetes Deployment,
+Service, ingress route, CI build validation, and an OILAN limited-reconcile
+script. The deployment supplies:
 
 ```text
 MOBILE_PUBLIC_BASE_URL=https://mobile.l8ai.cn
@@ -149,7 +158,7 @@ Production uses HTTPS/WSS only. The QR URL contains the Worker identifier and
 no JWT, Relay token, preview token, or one-time credential. Mobile users
 authenticate normally before session data is returned.
 
-The OILAN release adds a dedicated `mobile` Deployment, Service, and
+The OILAN release uses a dedicated `mobile` Deployment, Service, and
 `mobile.l8ai.cn` ingress. Relay's exact Origin allowlist includes
 `https://dowork.l8ai.cn` and `https://mobile.l8ai.cn`. The canonical URL change
 is made only when the mobile Deployment, ingress, DNS, and HTTPS health checks
@@ -181,13 +190,16 @@ Excluded:
 
 ## Acceptance checks
 
-1. A mobile user creates a Codex ACP Worker and sends a message; the ACP
-   response and tool events render through Session SSE.
+1. A mobile user creates a Codex ACP Worker and sends a message. The Session
+   route renders response and tool events through SSE; a direct Worker route
+   waits for the Relay confirmation carrying the same prompt request ID before
+   treating the message as accepted.
 2. A mobile user creates a Codex PTY Worker, taps Take control, types a
-   command, resizes, backgrounds and returns; input only works while the
-   control lease is granted.
+   command, resizes, backgrounds and returns. Release smoke sends Resize and
+   Input frames and requires matching terminal output; input only works while
+   the control lease is granted.
 3. The browser never calls the legacy terminal attach endpoint for the new
-   terminal panel.
+   terminal panel. Direct ACP uses `GetPodConnection` and Relay ACP frames.
 4. Unauthorized users cannot obtain a session relay token or resolve a private
    Worker by Pod key.
 5. Go tests cover token ordering and failed-closed cases; Vitest covers mode
@@ -195,3 +207,19 @@ Excluded:
 6. Browser tests cover ACP and PTY creation/success/error/observer states on
    desktop and mobile viewport. Production verification checks HTTPS, WSS,
    deployed health, and the two user paths.
+
+## Verification status
+
+Local verification has passed the mobile lint/typecheck/Vitest suite, Vite
+production build, deployment-script contract, direct ACP Relay prompt
+confirmation/round-trip, and PTY Relay snapshot, control, Resize, Input, and
+matching output frame coverage.
+
+As of 2026-07-13, `https://mobile.l8ai.cn/` and `/login` return HTTP 200, but
+the production `codex-cli` Worker definition does not expose
+`supported_modes=["acp","pty"]` or `requires_model_resource=true`.
+The release smoke fails closed before Worker creation. The OILAN DoOps target
+`gw-oilan-node` is also offline, so the cluster image revision and rollout
+cannot be verified. Do not treat the public HTTP response as release
+acceptance until the Backend/worker-definition rollout completes and the
+interaction smoke passes.

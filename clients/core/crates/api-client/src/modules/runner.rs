@@ -1,6 +1,6 @@
-use crate::ApiClient;
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
+use crate::ApiClient;
 use agentsmesh_types::proto_runner_api_v1 as runner_proto;
 use agentsmesh_types::*;
 
@@ -214,6 +214,7 @@ impl ApiClient {
             org_slug: self.current_org_slug(),
             auth_key: data.auth_key.clone(),
             node_id: data.node_id.clone().unwrap_or_default(),
+            cluster_id: data.cluster_id,
         };
         let resp: runner_proto::AuthorizeRunnerResponse = connect_call(
             self,

@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services) {
+func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services, previewPublicOrigin string) {
 	var podOpts []PodHandlerOption
 	if svc.PodCoordinator != nil {
 		podOpts = append(podOpts, WithPodCoordinator(svc.PodCoordinator))
@@ -20,7 +20,10 @@ func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services) {
 		podOpts = append(podOpts, WithGrantServiceForPod(svc.Grant))
 	}
 	if svc.RelayManager != nil && svc.RelayTokenGenerator != nil {
-		podOpts = append(podOpts, WithRelayPreview(svc.RelayManager, svc.RelayTokenGenerator))
+		podOpts = append(podOpts, WithRelayPreview(svc.RelayManager, svc.RelayTokenGenerator, previewPublicOrigin))
+	}
+	if svc.SandboxFsService != nil {
+		podOpts = append(podOpts, WithPodWorkspaceSandbox(svc.SandboxFsService))
 	}
 	podHandler := NewPodHandler(svc.Pod, svc.Runner, svc.PodOrchestrator, podOpts...)
 
@@ -29,6 +32,8 @@ func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services) {
 	rg.GET("/pods/queued", podHandler.ListQueuedPods)
 	rg.DELETE("/pods/:key/queue", podHandler.CancelQueuedPod)
 	rg.GET("/pods/:key/preview", podHandler.GetPodPreview)
+	rg.GET("/pods/:key/resources/workspace/changes", podHandler.ListWorkspaceArtifacts)
+	rg.GET("/pods/:key/resources/workspace/filesystem/*filepath", podHandler.ReadWorkspaceArtifact)
 }
 
 var _ pendingQueueReader = (*runnersvc.PendingCommandQueue)(nil)

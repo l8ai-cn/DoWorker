@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "revision": "runtime-catalog-2026-07-13-release-gated",
+  "images": [
+    {
+      "id": 1,
+      "slug": "codex-cli-stable",
+      "name": "Codex CLI",
+      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
+      "digest": "sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
+      "worker_type_slugs": ["codex-cli"],
+      "enabled": false
+    },
+    {
+      "id": 2,
+      "slug": "claude-code-stable",
+      "name": "Claude Code",
+      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
+      "digest": "sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
+      "worker_type_slugs": ["claude-code"],
+      "enabled": false
+    },
+    {
+      "id": 3,
+      "slug": "gemini-cli-stable",
+      "name": "Gemini CLI",
+      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
+      "digest": "sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
+      "worker_type_slugs": ["gemini-cli"],
+      "enabled": false
+    },
+    {
+      "id": 4,
+      "slug": "video-studio-stable",
+      "name": "Video Studio",
+      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:21bc8f143d304f361b58862b9c33b4e7257307132f9507cf22d461fca1d61716",
+      "digest": "sha256:21bc8f143d304f361b58862b9c33b4e7257307132f9507cf22d461fca1d61716",
+      "worker_type_slugs": ["video-studio"],
+      "enabled": true
+    }
+  ]
+}

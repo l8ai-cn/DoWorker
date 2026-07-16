@@ -47,17 +47,30 @@ func workerDraftFromProto(message *podv1.WorkerSpecDraft) (workercreation.Draft,
 	for index, id := range message.GetEnvBundleIds() {
 		envBundleIDs[index] = specdomain.RuntimeEnvBundleID(id)
 	}
+	var customResources *specdomain.ResourceRequestsLimits
+	if resource := message.GetCustomResources(); resource != nil {
+		customResources = &specdomain.ResourceRequestsLimits{
+			CPURequestMilliCPU:  resource.GetCpuRequestMillicpu(),
+			CPULimitMilliCPU:    resource.GetCpuLimitMillicpu(),
+			MemoryRequestBytes:  resource.GetMemoryRequestBytes(),
+			MemoryLimitBytes:    resource.GetMemoryLimitBytes(),
+			StorageRequestBytes: resource.GetStorageRequestBytes(),
+			StorageLimitBytes:   resource.GetStorageLimitBytes(),
+		}
+	}
 	return workercreation.Draft{
 		OptionsRevision: message.GetOptionsRevision(),
 		WorkerSpec: specservice.Draft{
-			ModelResourceID: message.GetModelResourceId(),
-			WorkerTypeSlug:  workerType,
+			ModelResourceID:      message.GetModelResourceId(),
+			ToolModelResourceIDs: cloneToolModelResourceIDs(message.GetToolModelResourceIds()),
+			WorkerTypeSlug:       workerType,
 			Runtime: specservice.RuntimeSelection{
 				RuntimeImageID:    message.GetRuntimeImageId(),
 				PlacementPolicy:   specdomain.PlacementPolicy(message.GetPlacementPolicy()),
 				ComputeTargetID:   message.GetComputeTargetId(),
 				DeploymentMode:    workerDeploymentMode(message.GetDeploymentMode()),
 				ResourceProfileID: message.GetResourceProfileId(),
+				CustomResources:   customResources,
 			},
 			TypeConfig: specdomain.TypeConfig{
 				SchemaVersion:   message.GetTypeSchemaVersion(),
@@ -72,6 +85,7 @@ func workerDraftFromProto(message *podv1.WorkerSpecDraft) (workercreation.Draft,
 				SkillIDs:        append([]int64{}, message.GetSkillIds()...),
 				KnowledgeMounts: knowledge,
 				EnvBundleIDs:    envBundleIDs,
+				ConfigBundleIDs: append([]int64{}, message.GetConfigBundleIds()...),
 				Instructions:    message.GetInstructions(),
 				InitialTask:     message.GetInitialTask(),
 			},
@@ -85,6 +99,17 @@ func workerDraftFromProto(message *podv1.WorkerSpecDraft) (workercreation.Draft,
 			},
 		},
 	}, nil
+}
+
+func cloneToolModelResourceIDs(values map[string]int64) map[string]int64 {
+	if values == nil {
+		return nil
+	}
+	cloned := make(map[string]int64, len(values))
+	for role, id := range values {
+		cloned[role] = id
+	}
+	return cloned
 }
 
 func decodeTypeConfigValues(raw string) (map[string]any, error) {

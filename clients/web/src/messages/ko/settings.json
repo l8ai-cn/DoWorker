@@ -468,6 +468,7 @@
       "justNow": "Just now",
       "edit": "Edit",
       "generateToken": "Generate Token",
+      "selectCluster": "Select execution cluster",
       "delete": "Delete",
       "disabled": "Disabled",
       "upgradeAvailable": "업그레이드",

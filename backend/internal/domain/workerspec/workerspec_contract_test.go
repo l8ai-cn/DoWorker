@@ -115,6 +115,30 @@ func TestWorkerSpecRejectsInvalidRuntimePlacement(t *testing.T) {
 		{"partial gpu pair", func(spec *Spec) {
 			spec.Placement.ResourceProfile.Resources.GPULimit = nil
 		}, "gpu request and limit"},
+		{"custom resource storage is required", func(spec *Spec) {
+			spec.Placement.ResourceProfile = ResourceProfile{
+				Custom: true,
+				Resources: ResourceRequestsLimits{
+					CPURequestMilliCPU: 500,
+					CPULimitMilliCPU:   500,
+					MemoryRequestBytes: 1 << 30,
+					MemoryLimitBytes:   1 << 30,
+				},
+			}
+		}, "storage request must be positive"},
+		{"custom resource storage is oversized", func(spec *Spec) {
+			spec.Placement.ResourceProfile = ResourceProfile{
+				Custom: true,
+				Resources: ResourceRequestsLimits{
+					CPURequestMilliCPU:  500,
+					CPULimitMilliCPU:    500,
+					MemoryRequestBytes:  1 << 30,
+					MemoryLimitBytes:    1 << 30,
+					StorageRequestBytes: 2 << 40,
+					StorageLimitBytes:   2 << 40,
+				},
+			}
+		}, "storage request exceeds maximum"},
 	}
 
 	for _, test := range tests {
@@ -255,6 +279,7 @@ func validModelBinding() ModelBinding {
 		ConnectionID:       2001,
 		ConnectionRevision: 9,
 		ProviderKey:        slugkit.MustNewForTest("openai"),
+		ProtocolAdapter:    slugkit.MustNewForTest("openai-compatible"),
 		ModelID:            "gpt-5",
 	}
 }

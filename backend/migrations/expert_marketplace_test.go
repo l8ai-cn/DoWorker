@@ -8,7 +8,7 @@ import (
 )
 
 func TestMigration000211ExpertMarketplaceContract(t *testing.T) {
-	up, err := FS.ReadFile("000211_expert_marketplace.up.sql")
+	up, err := FS.ReadFile("000220_expert_marketplace.up.sql")
 	require.NoError(t, err)
 	upSQL := string(up)
 
@@ -58,7 +58,7 @@ func TestMigration000211ExpertMarketplaceContract(t *testing.T) {
 		strings.Index(upSQL, "CONSTRAINT expert_market_releases_application_publisher_fkey"),
 	)
 
-	down, err := FS.ReadFile("000211_expert_marketplace.down.sql")
+	down, err := FS.ReadFile("000220_expert_marketplace.down.sql")
 	require.NoError(t, err)
 	downSQL := string(down)
 	for _, fragment := range []string{

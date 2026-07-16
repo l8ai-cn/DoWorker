@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "worker_slug": "openclaw",
+  "documents": [
+    {
+      "id": "openclaw-json",
+      "format": "json",
+      "target_path": "openclaw-home/.openclaw/openclaw.json"
+    }
+  ]
+}

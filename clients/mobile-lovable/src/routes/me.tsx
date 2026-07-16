@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { MobileFrame } from "@/components/mobile-frame";
 import { useSessionsList } from "@/hooks/useSessionsList";
 import { APP_NAME, pageTitle } from "@/lib/app-brand";
-import { clearAuthSession, readAuthEmail, readAuthToken, readOrgSlug } from "@/lib/auth-store";
+import { logout, restoreAuthIdentity } from "@/lib/auth-store";
 import { resetNotificationsForLogout } from "@/lib/notifications";
 
 export const Route = createFileRoute("/me")({
@@ -33,14 +33,24 @@ export const Route = createFileRoute("/me")({
 function MePage() {
   const router = useRouter();
   const liveList = useSessionsList();
-  const authed = Boolean(readAuthToken());
-  const email = readAuthEmail() ?? "未登录";
-  const org = readOrgSlug();
+  const [identity, setIdentity] = useState({
+    authenticated: false,
+    email: null as string | null,
+    orgSlug: null as string | null,
+  });
+  useEffect(() => {
+    void restoreAuthIdentity().then(setIdentity);
+  }, []);
+  const authed = identity.authenticated;
+  const email = identity.email ?? "未登录";
+  const org = identity.orgSlug;
 
   const liveActive = liveList.items.filter(
     (s) => s.status === "running" || s.pendingApprovals > 0,
   ).length;
-  const liveDone = liveList.items.filter((s) => s.status === "idle" && s.pendingApprovals === 0).length;
+  const liveDone = liveList.items.filter(
+    (s) => s.status === "idle" && s.pendingApprovals === 0,
+  ).length;
 
   const done = authed ? liveDone : 0;
   const active = authed ? liveActive : 0;
@@ -50,10 +60,9 @@ function MePage() {
   const initial = displayName.charAt(0).toUpperCase() || "A";
 
   // theme toggle (client-only)
-  const [dark, setDark] = useState(false);
-  useEffect(() => {
-    setDark(document.documentElement.classList.contains("dark"));
-  }, []);
+  const [dark, setDark] = useState(
+    () => typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
+  );
   const toggleDark = () => {
     const next = !dark;
     setDark(next);
@@ -62,8 +71,8 @@ function MePage() {
 
   const [notify, setNotify] = useState(true);
 
-  const logout = () => {
-    clearAuthSession();
+  const handleLogout = async () => {
+    await logout();
     resetNotificationsForLogout();
     router.navigate({ to: "/login" });
   };
@@ -87,7 +96,10 @@ function MePage() {
         <div className="flex-1 space-y-5 px-5 pb-24 pt-4">
           {!authed && (
             <div className="rounded-2xl border border-border/60 bg-surface/40 px-4 py-3 text-center text-[12px] text-muted-foreground">
-              <Link to="/login" className="font-medium text-primary">登录 {APP_NAME}</Link> 以同步真实数据
+              <Link to="/login" className="font-medium text-primary">
+                登录 {APP_NAME}
+              </Link>{" "}
+              以同步真实数据
             </div>
           )}
 
@@ -147,7 +159,7 @@ function MePage() {
             <LinkRow icon={LifeBuoy} label="帮助与反馈" />
             <button
               type="button"
-              onClick={logout}
+              onClick={() => void handleLogout()}
               disabled={!authed}
               className="flex w-full items-center gap-3 px-4 py-3 text-left text-[13px] text-destructive hover:bg-destructive/5 disabled:opacity-40"
             >
@@ -178,7 +190,9 @@ function Stat({
     <div className="flex flex-col items-center gap-0.5 py-1">
       <p className="text-[15px] font-bold tabular-nums">
         {value}
-        {suffix && <span className="ml-0.5 text-[10px] font-normal text-muted-foreground">{suffix}</span>}
+        {suffix && (
+          <span className="ml-0.5 text-[10px] font-normal text-muted-foreground">{suffix}</span>
+        )}
       </p>
       <p className="text-[10px] text-muted-foreground">{label}</p>
     </div>
@@ -198,15 +212,7 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-function LinkRow({
-  icon: Icon,
-  label,
-  hint,
-}: {
-  icon: typeof Bell;
-  label: string;
-  hint?: string;
-}) {
+function LinkRow({ icon: Icon, label, hint }: { icon: typeof Bell; label: string; hint?: string }) {
   return (
     <button
       type="button"

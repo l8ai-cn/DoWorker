@@ -181,8 +181,9 @@ func (preparer *bootstrapWorkerPreparer) Prepare(
 				ResourceID:       draft.WorkerSpec.ModelResourceID,
 				ResourceRevision: 1,
 				ConnectionID:     1, ConnectionRevision: 1,
-				ProviderKey: slugkit.MustNewForTest("openai"),
-				ModelID:     "gpt-5",
+				ProviderKey:     slugkit.MustNewForTest("openai"),
+				ProtocolAdapter: slugkit.MustNewForTest("openai-compatible"),
+				ModelID:         "gpt-5",
 			},
 			WorkerType: specdomain.WorkerType{
 				Slug:           draft.WorkerSpec.WorkerTypeSlug,

@@ -156,6 +156,12 @@ func (ports *workerSpecResolutionPorts) ResolveWorkerType(
 				},
 			},
 		},
+		ModelRequirement: workerspec.ModelRequirement{
+			Required: true,
+			ProtocolAdapters: []slugkit.Slug{
+				ports.spec.Runtime.ModelBinding.ProtocolAdapter,
+			},
+		},
 	}, nil
 }
 
@@ -174,7 +180,7 @@ func (ports *workerSpecResolutionPorts) ResolveRuntime(
 func (ports *workerSpecResolutionPorts) ResolveModel(
 	context.Context,
 	workerspecservice.Scope,
-	slugkit.Slug,
+	workerspec.ModelRequirement,
 	int64,
 ) (workerspec.ModelBinding, error) {
 	return ports.spec.Runtime.ModelBinding, nil
@@ -208,6 +214,7 @@ func workerSpecForRepoContract() workerspec.Spec {
 				ConnectionID:       2001,
 				ConnectionRevision: 9,
 				ProviderKey:        slugkit.MustNewForTest("openai"),
+				ProtocolAdapter:    slugkit.MustNewForTest("openai-compatible"),
 				ModelID:            "gpt-5",
 			},
 			WorkerType: workerspec.WorkerType{

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -65,7 +66,7 @@ func (h *PodHandler) GetPodPreview(c *gin.Context) {
 		return
 	}
 
-	if h.relaySelector == nil || h.relayTokens == nil || h.commandSender == nil {
+	if h.relaySelector == nil || h.relayTokens == nil || h.commandSender == nil || h.previewPublicOrigin == "" {
 		apierr.ServiceUnavailable(c, "preview_unavailable", "Preview is not available")
 		return
 	}
@@ -100,7 +101,7 @@ func (h *PodHandler) GetPodPreview(c *gin.Context) {
 		return
 	}
 
-	base := previewBaseURL(relayInfo.URL, podKey)
+	base := previewBaseURL(h.previewPublicOrigin, podKey)
 	c.JSON(http.StatusOK, gin.H{
 		"preview_base_url": base,
 		"session_url":      base + "__session?token=" + url.QueryEscape(previewToken),
@@ -108,21 +109,8 @@ func (h *PodHandler) GetPodPreview(c *gin.Context) {
 	})
 }
 
-// previewBaseURL converts a relay WebSocket URL into the HTTP preview base URL
-// for a pod: wss://host/relay -> https://host/preview/{podKey}/.
-func previewBaseURL(relayURL, podKey string) string {
-	u, err := url.Parse(relayURL)
-	if err != nil || u.Host == "" {
-		return fmt.Sprintf("/preview/%s/", podKey)
-	}
-	scheme := "https"
-	switch u.Scheme {
-	case "ws", "http":
-		scheme = "http"
-	case "wss", "https":
-		scheme = "https"
-	}
-	return fmt.Sprintf("%s://%s/preview/%s/", scheme, u.Host, podKey)
+func previewBaseURL(publicOrigin, podKey string) string {
+	return fmt.Sprintf("%s/preview/%s/", strings.TrimRight(publicOrigin, "/"), url.PathEscape(podKey))
 }
 
 // tunnelURLFromRelay derives the runner tunnel WebSocket URL from a relay's

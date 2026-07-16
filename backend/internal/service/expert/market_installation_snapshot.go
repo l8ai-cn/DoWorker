@@ -4,12 +4,14 @@ import (
 	"context"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )
 
 func (s *Service) prepareMarketInstallation(
 	ctx context.Context,
 	organizationID, userID, modelResourceID int64,
+	toolModelResourceIDs map[string]int64,
 	release *expertmarket.Release,
 ) (marketExpertSnapshot, int64, error) {
 	if s.workerSpecWriter == nil || s.marketWorkerSpecs == nil {
@@ -30,6 +32,7 @@ func (s *Service) prepareMarketInstallation(
 		specservice.Scope{OrgID: organizationID, UserID: userID},
 		workerSnapshot.Spec,
 		modelResourceID,
+		toolModelResourceIDs,
 	)
 	if err != nil {
 		return marketExpertSnapshot{}, 0, err
@@ -42,6 +45,19 @@ func (s *Service) prepareMarketInstallation(
 		return marketExpertSnapshot{}, 0, ErrMarketSnapshotInvalid
 	}
 	return expertSnapshot, created.ID, nil
+}
+
+func marketToolModelResourceIDs(
+	bindings []specdomain.ToolModelBinding,
+) map[string]int64 {
+	if len(bindings) == 0 {
+		return nil
+	}
+	resourceIDs := make(map[string]int64, len(bindings))
+	for _, binding := range bindings {
+		resourceIDs[binding.Role.String()] = binding.ModelBinding.ResourceID
+	}
+	return resourceIDs
 }
 
 func (s *Service) removeUnusedMarketSnapshot(

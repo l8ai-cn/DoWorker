@@ -48,7 +48,11 @@ func (h *RunnerMessageHandler) OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error
 func (h *RunnerMessageHandler) sandboxFsForPod(podKey string, fn func(string) (*runnerv1.SandboxFsResultEvent, error)) (*runnerv1.SandboxFsResultEvent, error) {
 	pod, ok := h.podStore.Get(podKey)
 	if !ok {
-		return fsErrResult("pod not found"), nil
+		root, err := detachedPodWorkspaceRoot(h.runner.GetConfig(), podKey)
+		if err != nil {
+			return fsErrResult(err.Error()), nil
+		}
+		return fn(root)
 	}
 	root, err := podWorkspaceRoot(pod)
 	if err != nil {
@@ -65,12 +69,16 @@ func (h *RunnerMessageHandler) dispatchSandboxFsOp(root string, cmd *runnerv1.Sa
 		return h.sandboxFsRead(root, cmd.Path)
 	case "write":
 		return h.sandboxFsWrite(root, cmd.Path, cmd.Payload)
+	case "download":
+		return h.sandboxFsDownload(root, cmd.Path, cmd.Payload)
 	case "changes":
 		return h.sandboxFsChanges(root)
 	case "diff":
 		return h.sandboxFsDiff(root, cmd.Path)
 	case "search":
 		return h.sandboxFsSearch(root, cmd.Payload, cmd.IncludeGlob, cmd.ExcludeGlob)
+	case "skill_discover":
+		return h.sandboxFsWorkerSkillDiscover(root, cmd.Path)
 	default:
 		return fsErrResult(fmt.Sprintf("unknown op %q", cmd.Op)), nil
 	}

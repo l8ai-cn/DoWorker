@@ -11,7 +11,7 @@
 //
 //	func init() {
 //	    // Required for ACP agents with a custom protocol:
-//	    acp.RegisterAgent("command-name", transportType, factory)
+//	    acp.RegisterTransport("worker-adapter-id", factory)
 //
 //	    // Required — token usage collection from session files:
 //	    tokenusage.RegisterParser([]string{"slug1", "slug2"}, &myParser{})
@@ -45,9 +45,11 @@
 //
 // # Extension Points
 //
-//   - acp.RegisterAgent: Wire protocol (Transport interface) + command→transport mapping.
-//     Only needed for agents with non-standard ACP protocols. Standard ACP agents
-//     (JSON-RPC 2.0) need no transport registration — the default applies automatically.
+//   - acp.RegisterTransport: Wires a canonical Worker adapter ID to its protocol
+//     implementation. Every ACP Worker, including standard JSON-RPC agents, must
+//     register its exact adapter ID. The backend sends that ID in CreatePodCommand;
+//     the Runner never infers a transport from the executable command or defaults
+//     unknown adapters to ACP.
 //
 //   - tokenusage.RegisterParser: Parses agent session files for token usage data.
 //     Called on pod exit to collect cost metrics.

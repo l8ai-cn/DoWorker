@@ -7,12 +7,11 @@ import { Button } from "@/components/ui/button";
 import { GoalLoopCreateDialog } from "@/components/goal-loops/GoalLoopCreateDialog";
 import { GoalLoopList } from "@/components/goal-loops/GoalLoopList";
 import { GoalLoopOverview } from "@/components/goal-loops/GoalLoopOverview";
-import { cancelGoalLoop, listGoalLoops, listGoalLoopWorkerSnapshots, startGoalLoop, verifyGoalLoop } from "@/lib/api/facade/goalLoopConnect";
-import type { GoalLoopData, GoalLoopWorkerSnapshot } from "@/lib/viewModels/goal-loop";
+import { cancelGoalLoop, listGoalLoops, startGoalLoop, verifyGoalLoop } from "@/lib/api/facade/goalLoopConnect";
+import type { GoalLoopData } from "@/lib/viewModels/goal-loop";
 
 export function GoalLoopPage({ orgSlug }: { orgSlug: string }) {
   const [loops, setLoops] = useState<GoalLoopData[]>([]);
-  const [workerSnapshots, setWorkerSnapshots] = useState<GoalLoopWorkerSnapshot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busySlug, setBusySlug] = useState<string>();
@@ -25,14 +24,8 @@ export function GoalLoopPage({ orgSlug }: { orgSlug: string }) {
       setLoading(true);
       setError(null);
       try {
-        const [loopResult, snapshotResult] = await Promise.all([
-          listGoalLoops(orgSlug),
-          listGoalLoopWorkerSnapshots(orgSlug),
-        ]);
-        if (!cancelled) {
-          setLoops(loopResult);
-          setWorkerSnapshots(snapshotResult);
-        }
+        const loopResult = await listGoalLoops(orgSlug);
+        if (!cancelled) setLoops(loopResult);
       } catch (cause) {
         if (!cancelled) setError(cause instanceof Error ? cause.message : "加载 Loop 失败");
       } finally {
@@ -99,8 +92,7 @@ export function GoalLoopPage({ orgSlug }: { orgSlug: string }) {
         <GoalLoopCreateDialog
           open={createOpen}
           orgSlug={orgSlug}
-          workerSnapshots={workerSnapshots}
-          onCreated={replaceLoop}
+          onApplied={() => setReloadVersion((version) => version + 1)}
           onOpenChange={setCreateOpen}
         />
 

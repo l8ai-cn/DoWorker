@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Stage Linux runner + agent sidecar binaries for the requested image platform.
+# Stage one runtime's Linux runner and required sidecar binaries.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 STAGING="${1:?staging directory required}"
+AGENT_RUNTIME="${2:?agent runtime required}"
 DEPLOY_DEV="${REPO_ROOT}/deploy/dev"
 TARGET_ARCH="${TARGET_ARCH:-amd64}"
 
@@ -16,7 +17,8 @@ case "$TARGET_ARCH" in
 esac
 
 rm -rf "$STAGING"
-mkdir -p "$STAGING"
+mkdir -p "$STAGING/binaries"
+touch "$STAGING/binaries/.keep"
 
 if [[ ! -f "${REPO_ROOT}/proto/gen/go/runner/v1/runner.pb.go" ]]; then
   bash "${REPO_ROOT}/scripts/proto-gen-go.sh" --force
@@ -34,31 +36,50 @@ go_cross() {
 echo "▶ go build runner (linux/${TARGET_ARCH})..."
 go_cross "runner-binary" ./runner/cmd/runner
 
-echo "▶ go build e2e-mock-agent (linux/${TARGET_ARCH})..."
-go_cross "e2e-mock-agent-binary" ./runner/internal/agents/mockagent/cmd/e2e-mock-agent
+stage_sidecar() {
+  local name="$1" source="$2"
+  [[ -x "$source" ]] || {
+    echo "${AGENT_RUNTIME} requires executable ${source}" >&2
+    exit 1
+  }
+  cp "$source" "${STAGING}/binaries/${name}"
+  chmod +x "${STAGING}/binaries/${name}"
+}
 
-if [[ -f "${DEPLOY_DEV}/loopal-binary" ]]; then
-  cp "${DEPLOY_DEV}/loopal-binary" "${STAGING}/loopal-binary"
-else
-  cp "${STAGING}/e2e-mock-agent-binary" "${STAGING}/loopal-binary"
-fi
-chmod +x "${STAGING}/loopal-binary"
+stage_loopal() {
+  local source="${LOOPAL_BINARY:-}"
+  [[ -n "$source" ]] || {
+    echo "loopal requires LOOPAL_BINARY to point to a real Loopal CLI artifact" >&2
+    exit 1
+  }
+  if grep -aFq "runner/internal/agents/mockagent" "$source"; then
+    echo "loopal artifact is an E2E mock binary, not a real Loopal CLI: ${source}" >&2
+    exit 1
+  fi
+  stage_sidecar "loopal-binary" "$source"
+}
 
-if [[ -x "${DEPLOY_DEV}/do-agent-binary" ]]; then
-  cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
-elif [[ -n "${DOAGENT_DIR:-}" || -d "${HOME}/Documents/code/doagent" || -d "${HOME}/Documents/code/AgentForge/doagent" ]]; then
-  # shellcheck source=../../deploy/dev/lib/build_do_agent_binary.sh
-  source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
-  build_do_agent_binary
-  cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
-else
-  echo "do-agent source is unavailable; only the do-agent runtime build is disabled" >&2
-fi
-if [[ -f "${STAGING}/do-agent-binary" ]]; then
-  chmod +x "${STAGING}/do-agent-binary"
-fi
+case "$AGENT_RUNTIME" in
+  e2e-echo)
+    echo "▶ go build e2e-mock-agent (linux/${TARGET_ARCH})..."
+    go_cross "binaries/e2e-mock-agent-binary" ./runner/internal/agents/mockagent/cmd/e2e-mock-agent
+    ;;
+  loopal)
+    stage_loopal
+    ;;
+  do-agent)
+    if [[ ! -x "${DEPLOY_DEV}/do-agent-binary" ]]; then
+      source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
+      build_do_agent_binary
+    fi
+    stage_sidecar "do-agent-binary" "${DEPLOY_DEV}/do-agent-binary"
+    ;;
+esac
 
 cp "${DEPLOY_DEV}/runner-entrypoint.sh" "${STAGING}/runner-entrypoint.sh"
 chmod +x "${STAGING}/runner-entrypoint.sh"
+cp "${REPO_ROOT}/docker/agent-runtime/minimax-cli-wrapper.sh" \
+  "${STAGING}/minimax-cli-wrapper.sh"
+chmod +x "${STAGING}/minimax-cli-wrapper.sh"
 
-echo "✓ build context ready: ${STAGING}"
+echo "✓ build context ready for ${AGENT_RUNTIME}: ${STAGING}"

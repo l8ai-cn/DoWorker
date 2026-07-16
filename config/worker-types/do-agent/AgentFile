@@ -1,0 +1,47 @@
+# === Identity ===
+AGENT do-agent
+EXECUTABLE do-agent
+
+# === Mode ===
+MODE pty
+MODE acp "acp"
+
+# === Configuration ===
+CONFIG model STRING = ""
+
+# === Environment ===
+ENV DO_AGENT_HOME = sandbox.root + "/do-agent-home"
+ENV DO_AGENT_SETTINGS = sandbox.root + "/do-agent-home/settings.json"
+ENV DO_AGENT_LOG_DIR = sandbox.root + "/do-agent-home/logs"
+ENV OPENAI_API_KEY SECRET OPTIONAL
+ENV ANTHROPIC_API_KEY SECRET OPTIONAL
+
+# === Prompt ===
+PROMPT_POSITION prepend
+
+# === Capabilities ===
+MCP ON
+
+# === Build Logic ===
+arg "--model" config.model when config.model != ""
+mkdir sandbox.root + "/do-agent-home"
+
+if config_json {
+  file sandbox.root + "/do-agent-home/settings.json" json(config_json)
+}
+
+if mcp.enabled {
+  mkdir sandbox.work_dir + "/.agent"
+  file sandbox.work_dir + "/.agent/config.json" json({ mcpServers: mcp.servers })
+}
+
+
+# === Hive Capabilities ===
+CAPABILITY resume acp
+CAPABILITY permission notification
+CAPABILITY usage live
+CAPABILITY control set_model,set_execution_mode
+CAPABILITY interrupt true
+CAPABILITY streaming true
+CAPABILITY subagents false
+CAPABILITY model_family multi

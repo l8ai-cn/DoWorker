@@ -202,7 +202,7 @@ export default function McpAndSkillsTutorialPage() {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
-            href="/docs/tutorials/first-pod"
+            href="/docs/tutorials/first-worker"
             className="surface-card-interactive p-4 block"
           >
             <p className="text-sm text-muted-foreground">

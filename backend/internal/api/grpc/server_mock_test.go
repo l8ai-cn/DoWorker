@@ -31,14 +31,21 @@ type mockRunnerService struct {
 	refreshHeartbeatCalls int
 	lastHeartbeatPods     int
 	updateLastSeenCalls   int
+	tunnelResults         map[int64]mockTunnelConnectionResult
+}
+
+type mockTunnelConnectionResult struct {
+	connected bool
+	errorCode string
 }
 
 func newMockRunnerService() *mockRunnerService {
 	return &mockRunnerService{
-		runners:      make(map[string]RunnerInfo),
-		revokedCerts: make(map[string]bool),
-		connected:    make(map[int64]bool),
-		disconnected: make(map[int64]bool),
+		runners:       make(map[string]RunnerInfo),
+		revokedCerts:  make(map[string]bool),
+		connected:     make(map[int64]bool),
+		disconnected:  make(map[int64]bool),
+		tunnelResults: make(map[int64]mockTunnelConnectionResult),
 	}
 }
 
@@ -57,6 +64,23 @@ func (m *mockRunnerService) UpdateLastSeen(ctx context.Context, runnerID int64) 
 	defer m.mu.Unlock()
 	m.updateLastSeenCalls++
 	return m.err
+}
+
+func (m *mockRunnerService) UpdateTunnelConnection(ctx context.Context, runnerID int64, connected bool, errorCode string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.tunnelResults[runnerID] = mockTunnelConnectionResult{
+		connected: connected,
+		errorCode: errorCode,
+	}
+	return m.err
+}
+
+func (m *mockRunnerService) TunnelResult(runnerID int64) (mockTunnelConnectionResult, bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	result, ok := m.tunnelResults[runnerID]
+	return result, ok
 }
 
 func (m *mockRunnerService) MarkConnected(ctx context.Context, runnerID int64) error {

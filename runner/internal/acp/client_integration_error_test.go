@@ -37,10 +37,11 @@ func TestACPTransport_Initialize_WriteError(t *testing.T) {
 
 func TestACPClient_Initialize_ResponseError(t *testing.T) {
 	client := NewClient(ClientConfig{
-		Command: mockAgentCmd(),
-		Args:    mockAgentArgs(),
-		Env:     mockAgentEnvWithMode(mockModeErrorInit),
-		Logger:  slog.Default(),
+		Command:       mockAgentCmd(),
+		Args:          mockAgentArgs(),
+		Env:           mockAgentEnvWithMode(mockModeErrorInit),
+		Logger:        slog.Default(),
+		TransportType: TransportTypeACP,
 	})
 
 	err := client.Start()
@@ -57,10 +58,11 @@ func TestACPClient_NewSession_ResponseError(t *testing.T) {
 	client.Stop()
 
 	client2 := NewClient(ClientConfig{
-		Command: mockAgentCmd(),
-		Args:    mockAgentArgs(),
-		Env:     mockAgentEnvWithMode(mockModeBadJSONNew),
-		Logger:  slog.Default(),
+		Command:       mockAgentCmd(),
+		Args:          mockAgentArgs(),
+		Env:           mockAgentEnvWithMode(mockModeBadJSONNew),
+		Logger:        slog.Default(),
+		TransportType: TransportTypeACP,
 	})
 	if err := client2.Start(); err != nil {
 		t.Fatalf("Start: %v", err)
@@ -75,10 +77,11 @@ func TestACPClient_NewSession_ResponseError(t *testing.T) {
 
 func TestACPClient_ReadStderr_NilOnLog(t *testing.T) {
 	client := NewClient(ClientConfig{
-		Command: mockAgentCmd(),
-		Args:    mockAgentArgs(),
-		Env:     mockAgentEnv(),
-		Logger:  slog.Default(),
+		Command:       mockAgentCmd(),
+		Args:          mockAgentArgs(),
+		Env:           mockAgentEnv(),
+		Logger:        slog.Default(),
+		TransportType: TransportTypeACP,
 	})
 
 	if err := client.Start(); err != nil {
@@ -118,10 +121,11 @@ func TestACPClient_RespondToPermission_WrongState(t *testing.T) {
 //     leak across the test boundary.
 func TestACPClient_StopTimeout(t *testing.T) {
 	client := NewClient(ClientConfig{
-		Command: mockAgentCmd(),
-		Args:    mockAgentArgs(),
-		Env:     mockAgentEnvWithMode(mockModeSlowInit),
-		Logger:  slog.Default(),
+		Command:       mockAgentCmd(),
+		Args:          mockAgentArgs(),
+		Env:           mockAgentEnvWithMode(mockModeSlowInit),
+		Logger:        slog.Default(),
+		TransportType: TransportTypeACP,
 	})
 
 	startDone := make(chan error, 1)

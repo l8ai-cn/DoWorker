@@ -1,0 +1,36 @@
+# === Identity ===
+AGENT loopal
+EXECUTABLE loopal
+
+# === Mode ===
+MODE pty
+MODE acp "--acp"
+
+# === Configuration ===
+CONFIG permission_mode SELECT("supervised", "auto", "bypass") = "supervised"
+
+# === Environment ===
+ENV ANTHROPIC_API_KEY SECRET OPTIONAL
+ENV OPENAI_API_KEY SECRET OPTIONAL
+ENV GOOGLE_API_KEY SECRET OPTIONAL
+
+# === Prompt ===
+PROMPT_POSITION prepend
+
+# === Capabilities ===
+MCP ON
+
+# === Build Logic ===
+arg "--permission" config.permission_mode when config.permission_mode != "supervised"
+
+if mcp.enabled {
+  mkdir sandbox.work_dir + "/.loopal"
+  file sandbox.work_dir + "/.loopal/settings.json" json({ mcp_servers: mcp.servers })
+}
+
+CAPABILITY resume acp
+CAPABILITY permission acp
+CAPABILITY usage live
+CAPABILITY interrupt true
+CAPABILITY streaming true
+CAPABILITY model_family multi

@@ -1,4 +1,4 @@
-use crate::workflow_state::{WorkflowData, WorkflowRunData, WorkflowState, workflow_run_status};
+use crate::workflow_state::{workflow_run_status, WorkflowData, WorkflowRunData, WorkflowState};
 
 fn make_workflow(slug: &str, name: &str, enabled: bool) -> WorkflowData {
     WorkflowData {

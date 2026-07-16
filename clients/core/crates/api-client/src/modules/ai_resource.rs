@@ -1,4 +1,4 @@
-use crate::{ApiClient, ApiError, connect_call};
+use crate::{connect_call, ApiClient, ApiError};
 use agentsmesh_types::proto_ai_resource_v1 as ai;
 
 macro_rules! rpc {

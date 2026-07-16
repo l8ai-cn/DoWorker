@@ -23,6 +23,8 @@ func initializeCoordinatorRuntime(
 		logger,
 	)
 	if launcher, kind, err := coordinatorsvc.NewRunnerLauncherFromEnv(
+		services.workerRuntimeCatalog,
+		services.workerDefinitions.Slugs(),
 		logger,
 	); err != nil {
 		slog.Error("Coordinator runner launcher config invalid", "error", err)

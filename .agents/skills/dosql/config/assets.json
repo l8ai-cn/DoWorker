@@ -1,0 +1,40 @@
+{
+  "schema": "dosql.database-asset-inventory.v1",
+  "projectId": "agentsmesh",
+  "updatedAt": "2026-07-12",
+  "assets": [
+    {
+      "databaseAssetId": "db_agentsmesh_prod_postgres",
+      "projectId": "agentsmesh",
+      "environmentId": "prod",
+      "engine": "postgresql",
+      "logicalName": "postgres",
+      "displayName": "AgentsMesh Production PostgreSQL",
+      "aliases": [
+        "agentsmesh postgres",
+        "agentsmesh pg",
+        "dowork postgres",
+        "dowork pg",
+        "线上 pg",
+        "postgres",
+        "prod postgres"
+      ],
+      "namespace": "agentsmesh",
+      "serviceName": "postgres",
+      "host": "postgres.agentsmesh.svc.cluster.local",
+      "port": 5432,
+      "databaseName": "agentsmesh",
+      "versionText": "unverified-target-offline",
+      "connectionRef": "k8s://doops-oilan/oilan-node/agentsmesh/service/postgres:5432",
+      "version": {
+        "current": 0,
+        "label": "dosql_000000"
+      },
+      "source": {
+        "targetName": "gw-oilan-node",
+        "cluster": "doops-oilan",
+        "instance": "oilan-node"
+      }
+    }
+  ]
+}

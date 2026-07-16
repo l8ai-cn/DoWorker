@@ -25,7 +25,7 @@ type ClientConfig struct {
 	Env           []string
 	Logger        *slog.Logger
 	Callbacks     EventCallbacks
-	TransportType string // registered via acp.RegisterCommandMapping (default: "acp")
+	TransportType string // registered adapter id
 	// Vendor session id to pass to session/resume instead of session/new.
 	ResumeExternalSessionID string
 }
@@ -61,8 +61,8 @@ type ACPClient struct {
 	// Thinking history for snapshots (accumulator parallel to message history,
 	// so late subscribers see prior thinking blocks, not just future incremental
 	// events).
-	thinkings   []ThinkingUpdate
-	thinkingsMu sync.RWMutex
+	thinkings    []ThinkingUpdate
+	thinkingsMu  sync.RWMutex
 	maxThinkings int
 
 	// Log history for snapshots.
@@ -95,9 +95,6 @@ type ACPClient struct {
 func NewClient(cfg ClientConfig) *ACPClient {
 	if cfg.Logger == nil {
 		cfg.Logger = slog.Default()
-	}
-	if cfg.TransportType == "" {
-		cfg.TransportType = TransportTypeACP
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	return &ACPClient{
@@ -158,16 +155,23 @@ func (c *ACPClient) SessionID() string {
 func (c *ACPClient) Start() error {
 	c.setState(StateInitializing)
 
+	wrappedCallbacks := c.wrapCallbacks()
+	transport, err := NewTransport(c.cfg.TransportType, wrappedCallbacks, c.logger)
+	if err != nil {
+		return err
+	}
+	c.transport = transport
+
 	proc, err := processmgr.Global().Start(c.ctx, processmgr.Spec{
-		Owner:       "acp:" + c.cfg.Command,
-		Command:     c.cfg.Command,
-		Args:        c.cfg.Args,
-		Dir:         c.cfg.WorkDir,
-		Env:         c.cfg.Env,
-		Mode:        processmgr.ModeNormal,
-		PipeStdin:   true,
-		PipeStdout:  true,
-		PipeStderr:  true,
+		Owner:      "acp:" + c.cfg.Command,
+		Command:    c.cfg.Command,
+		Args:       c.cfg.Args,
+		Dir:        c.cfg.WorkDir,
+		Env:        c.cfg.Env,
+		Mode:       processmgr.ModeNormal,
+		PipeStdin:  true,
+		PipeStdout: true,
+		PipeStderr: true,
 		// 1 s preserves the prior client.Stop() escalation budget (5 s SIGTERM
 		// → 2 s SIGKILL wait fit within the 7 s overall timeout); the previous
 		// inline Stop used the same 5+2 split, but tests assume a 3 s budget,
@@ -181,12 +185,6 @@ func (c *ACPClient) Start() error {
 	stdin := proc.StdinWriter()
 	stdout := proc.StdoutReader()
 	stderr := proc.StderrReader()
-
-	// Build wrapped callbacks that keep internal state in sync.
-	wrappedCallbacks := c.wrapCallbacks()
-
-	// Create transport via registry (subpackages register themselves via init())
-	c.transport = NewTransport(c.cfg.TransportType, wrappedCallbacks, c.logger)
 
 	// Wire I/O before starting goroutines
 	if err := c.transport.Initialize(c.ctx, stdin, stdout, stderr); err != nil {

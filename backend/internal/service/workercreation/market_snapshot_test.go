@@ -2,10 +2,15 @@ package workercreation
 
 import (
 	"context"
+	"strings"
 	"testing"
 
+	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
@@ -28,6 +33,7 @@ func TestPrepareMarketSnapshotRebindsModelAndResolvesInTargetScope(t *testing.T)
 		targetScope,
 		source,
 		202,
+		nil,
 	)
 
 	require.NoError(t, err)
@@ -52,6 +58,80 @@ func TestPrepareMarketSnapshotRebindsModelAndResolvesInTargetScope(t *testing.T)
 	assert.Equal(t, int64(88), fixture.resources.orgID)
 	assert.Equal(t, int64(9), fixture.resources.actor.UserID)
 	assert.Equal(t, int64(202), fixture.resources.resourceID)
+}
+
+func TestPrepareMarketSnapshotRebindsRequiredToolModels(t *testing.T) {
+	fixture := seedanceMarketSnapshotFixture()
+	deps := fixture.deps()
+	deps.Catalog = runtimedomain.DefaultCatalog()
+	service := NewService(deps)
+	draft := validWorkerCreationDraft()
+	draft.WorkerSpec.WorkerTypeSlug = slugkit.MustNewForTest("video-studio")
+	draft.WorkerSpec.Runtime.RuntimeImageID = 4
+	draft.WorkerSpec.ToolModelResourceIDs = map[string]int64{
+		"seedance-video": 102,
+	}
+	draft.WorkerSpec.TypeConfig.Values = map[string]any{}
+	prepared, err := service.Prepare(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		draft,
+	)
+	require.NoError(t, err)
+	source := prepared.Spec
+	source.Workspace.RepositoryID = nil
+	source.Workspace.Branch = ""
+	source.Workspace.KnowledgeMounts = nil
+	source.Workspace.EnvBundleIDs = nil
+	source.TypeConfig.SecretRefs = map[string]specdomain.SecretReference{}
+
+	snapshot, err := service.PrepareMarketSnapshot(
+		context.Background(),
+		specservice.Scope{OrgID: 88, UserID: 9},
+		source,
+		202,
+		map[string]int64{"seedance-video": 302},
+	)
+
+	require.NoError(t, err)
+	decoded, err := specdomain.DecodeSpec(snapshot.SpecJSON())
+	require.NoError(t, err)
+	assert.Equal(t, int64(202), decoded.Runtime.ModelBinding.ResourceID)
+	require.Len(t, decoded.Runtime.ToolModelBindings, 1)
+	assert.Equal(t, "seedance-video", decoded.Runtime.ToolModelBindings[0].Role.String())
+	assert.Equal(
+		t,
+		int64(302),
+		decoded.Runtime.ToolModelBindings[0].ModelBinding.ResourceID,
+	)
+}
+
+func TestPrepareMarketSnapshotPreservesCustomResources(t *testing.T) {
+	fixture := newWorkerCreationServiceFixture()
+	service := NewService(fixture.deps())
+	source := portableMarketSource(t, service)
+	source.Placement.ResourceProfile.ID = 0
+	source.Placement.ResourceProfile.Custom = true
+	fixture.resources.resolved.Resource.ID = 202
+
+	snapshot, err := service.PrepareMarketSnapshot(
+		context.Background(),
+		specservice.Scope{OrgID: 88, UserID: 9},
+		source,
+		202,
+		nil,
+	)
+
+	require.NoError(t, err)
+	decoded, err := specdomain.DecodeSpec(snapshot.SpecJSON())
+	require.NoError(t, err)
+	assert.Zero(t, decoded.Placement.ResourceProfile.ID)
+	assert.True(t, decoded.Placement.ResourceProfile.Custom)
+	assert.Equal(
+		t,
+		source.Placement.ResourceProfile.Resources,
+		decoded.Placement.ResourceProfile.Resources,
+	)
 }
 
 func TestPrepareMarketSnapshotRejectsPrivateReferences(t *testing.T) {
@@ -86,6 +166,13 @@ func TestPrepareMarketSnapshotRejectsPrivateReferences(t *testing.T) {
 			match: "workspace.env_bundle_ids",
 		},
 		{
+			name: "config bundle",
+			mutate: func(source *specdomain.Spec) {
+				source.Workspace.ConfigBundleIDs = []int64{6}
+			},
+			match: "workspace.config_bundle_ids",
+		},
+		{
 			name: "secret ref",
 			mutate: func(source *specdomain.Spec) {
 				source.TypeConfig.SecretRefs = map[string]specdomain.SecretReference{
@@ -109,6 +196,7 @@ func TestPrepareMarketSnapshotRejectsPrivateReferences(t *testing.T) {
 				specservice.Scope{OrgID: 88, UserID: 9},
 				source,
 				202,
+				nil,
 			)
 
 			require.Error(t, err)
@@ -130,6 +218,7 @@ func TestPrepareMarketSnapshotRejectsInvalidModelResourceID(t *testing.T) {
 		specservice.Scope{OrgID: 88, UserID: 9},
 		source,
 		0,
+		nil,
 	)
 
 	require.Error(t, err)
@@ -165,6 +254,7 @@ func TestPrepareMarketSnapshotRejectsNonPlatformOrUnavailableSkill(t *testing.T)
 				specservice.Scope{OrgID: 88, UserID: 9},
 				source,
 				202,
+				nil,
 			)
 			require.Error(t, err)
 			assert.ErrorIs(t, err, specservice.ErrInvalidDraft)
@@ -192,4 +282,72 @@ func portableMarketSource(t *testing.T, service *Service) specdomain.Spec {
 
 func int64PointerForMarketSnapshotTest(value int64) *int64 {
 	return &value
+}
+
+func seedanceMarketSnapshotFixture() *workerCreationServiceFixture {
+	source := `AGENT video-studio
+EXECUTABLE video-studio-codex
+MODE pty
+MODE acp
+ENV SIGNING_KEY SECRET OPTIONAL
+`
+	definition := workerDefinition(
+		"video-studio",
+		"video-studio-codex",
+		source,
+		"pty",
+		"acp",
+	)
+	definition.DefinitionHash = strings.Repeat("b", 64)
+	definition.Image = workerdefinition.Image{
+		Runtime: "video-studio", VersionProbe: []string{"video-studio-codex", "--version"},
+	}
+	definition.ToolModelRequirements = []workerdefinition.ToolModelRequirement{
+		{
+			ID: "seedance-video", ProviderKeys: []string{"doubao"},
+			ProtocolAdapters: []string{"openai-compatible"},
+			Modality:         "video", Capability: "video-generation",
+			Environment: workerdefinition.ToolModelEnvironment{
+				APIKey: "SEEDANCE_API_KEY", BaseURL: "SEEDANCE_BASE_URL",
+				ModelID: "SEEDANCE_MODEL",
+			},
+		},
+	}
+	resources := validModelResourceService()
+	resources.resolvedByID = map[int64]*airesource.ResolvedResource{
+		101: marketResolvedResource(101, "openai", "gpt-5"),
+		102: marketResolvedResource(102, "doubao", "doubao-seedance-2-0-260128"),
+		202: marketResolvedResource(202, "openai", "gpt-5.5"),
+		302: marketResolvedResource(302, "doubao", "doubao-seedance-2-0-260128"),
+	}
+	return &workerCreationServiceFixture{
+		agents: &workerTypeAgentProvider{
+			agent: activeWorkerTypeAgentFor(
+				"video-studio",
+				"video-studio-codex",
+				source,
+			),
+		},
+		definitions: staticWorkerDefinitions{"video-studio": definition},
+		resources:   resources,
+		workspace:   newWorkspaceFixture(),
+	}
+}
+
+func marketResolvedResource(
+	id int64,
+	provider, modelID string,
+) *airesource.ResolvedResource {
+	providerSlug := slugkit.MustNewForTest(provider)
+	return &airesource.ResolvedResource{
+		Provider: resourcedomain.ProviderDefinition{
+			Key: providerSlug, ProtocolAdapter: "openai-compatible",
+		},
+		Connection: resourcedomain.Connection{
+			ID: id + 1000, ProviderKey: providerSlug, Revision: 1,
+		},
+		Resource: resourcedomain.ModelResource{
+			ID: id, ProviderConnectionID: id + 1000, ModelID: modelID, Revision: 1,
+		},
+	}
 }

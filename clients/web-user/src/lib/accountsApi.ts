@@ -1,13 +1,12 @@
 /**
  * Client for the ``accounts`` auth provider's HTTP API.
  *
- * Wraps ``POST /auth/login``, ``POST /auth/logout``, and
- * ``GET /auth/me`` in a small typed surface so the LoginPage,
+ * Wraps the shared Connect authentication procedures in a small typed surface so the LoginPage,
  * MembersPage, and any future profile-management UI share one
  * source of truth for the request/response shapes.
  *
  * Do Worker stores JWT in localStorage (`do-worker-auth`, legacy `agentsmesh-auth`) after
- * login; ``/auth/me`` and logout use Bearer auth.
+ * login; authenticated procedures use Bearer auth.
  *
  * Errors: every helper resolves with a typed error object on
  * non-2xx instead of throwing, so the UI can render specific
@@ -17,17 +16,23 @@
 
 import { clearDoWorkerSession, readDoWorkerJWT } from "@/lib/do-worker/auth-session";
 
-/** Body of POST /auth/login. */
+const LOGIN_PROCEDURE = "/proto.auth.v1.AuthService/Login";
+const LOGOUT_PROCEDURE = "/proto.auth.v1.AuthSessionService/Logout";
+const GET_ME_PROCEDURE = "/proto.user.v1.UserService/GetMe";
+const LIST_MY_ORGS_PROCEDURE = "/proto.org.v1.OrgService/ListMyOrgs";
+
+/** Body of AuthService.Login. */
 export interface LoginRequest {
   username: string;
   password: string;
 }
 
-/** Successful login response — token is also set as a cookie. */
+/** Successful AuthService.Login response. */
 export interface LoginSuccess {
   ok: true;
   user: { id: string; is_admin: boolean };
   token: string;
+  refresh_token?: string;
   expires_in: number;
   org_slug?: string;
 }
@@ -43,7 +48,35 @@ export interface LoginFailure {
 
 export type LoginResult = LoginSuccess | LoginFailure;
 
-/** Shape of GET /auth/me when authenticated. */
+export async function listMyOrgSlug(token: string): Promise<string | null> {
+  const res = await fetch(LIST_MY_ORGS_PROCEDURE, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+    },
+    body: "{}",
+  });
+  if (!res.ok) {
+    throw new Error(`Organization lookup failed with status ${res.status}`);
+  }
+  const data = (await res.json()) as unknown;
+  if (!data || typeof data !== "object" || !Array.isArray((data as { items?: unknown }).items)) {
+    throw new Error("Organization lookup returned an invalid response");
+  }
+  const first = (data as { items: unknown[] }).items[0];
+  if (first === undefined) return null;
+  if (
+    !first ||
+    typeof first !== "object" ||
+    typeof (first as { slug?: unknown }).slug !== "string"
+  ) {
+    throw new Error("Organization lookup returned an invalid organization");
+  }
+  return (first as { slug: string }).slug;
+}
+
+/** Shape of UserService.GetMe when authenticated. */
 export interface CurrentAccount {
   id: string;
   is_admin: boolean;
@@ -52,8 +85,8 @@ export interface CurrentAccount {
 }
 
 /**
- * POST /auth/login — verify username + password, set the session
- * cookie on success.
+ * AuthService.Login — verify username + password using the shared public
+ * authentication protocol.
  *
  * :param body: Login credentials.
  * :returns: Discriminated union — ``ok: true`` with the user info,
@@ -62,12 +95,10 @@ export interface CurrentAccount {
 export async function login(body: LoginRequest): Promise<LoginResult> {
   let res: Response;
   try {
-    res = await fetch("/auth/login", {
+    res = await fetch(LOGIN_PROCEDURE, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),
-      // Cookies are set by the response — credentials default
-      // ("same-origin") is correct for our co-located deploy.
     });
   } catch {
     return {
@@ -78,8 +109,22 @@ export async function login(body: LoginRequest): Promise<LoginResult> {
   }
 
   if (res.ok) {
-    const data = (await res.json()) as Omit<LoginSuccess, "ok">;
-    return { ok: true, ...data };
+    const data = (await res.json()) as {
+      token: string;
+      refreshToken?: string;
+      expiresIn: string | number;
+      user?: { id: string | number; isSystemAdmin?: boolean };
+    };
+    if (!data.token || !data.user || !Number.isFinite(Number(data.expiresIn))) {
+      return { ok: false, error: "Invalid login response.", status: 502 };
+    }
+    return {
+      ok: true,
+      token: data.token,
+      refresh_token: data.refreshToken,
+      expires_in: Number(data.expiresIn),
+      user: { id: String(data.user.id), is_admin: Boolean(data.user.isSystemAdmin) },
+    };
   }
 
   // The route returns 401 for both unknown-user and wrong-password.
@@ -101,18 +146,18 @@ export async function login(body: LoginRequest): Promise<LoginResult> {
 }
 
 /**
- * POST /auth/logout — clear the session cookie.
- *
- * Always succeeds from the caller's POV (204 even when no cookie
- * was set), so this returns ``void``. After it resolves, navigate
- * to ``/login`` to land the user on a clean form.
+ * AuthSessionService.Logout — revoke the current bearer token.
  */
 export async function logout(): Promise<void> {
   const headers: HeadersInit = {};
   const jwt = readDoWorkerJWT();
   if (jwt) headers.Authorization = `Bearer ${jwt}`;
   try {
-    await fetch("/auth/logout", { method: "POST", headers });
+    await fetch(LOGOUT_PROCEDURE, {
+      method: "POST",
+      headers: { ...headers, "content-type": "application/json" },
+      body: "{}",
+    });
   } catch {
     // Network error — clear local session anyway.
   }
@@ -120,12 +165,7 @@ export async function logout(): Promise<void> {
 }
 
 /**
- * GET /auth/me — fetch the current user.
- *
- * Note: there's also a generic ``GET /v1/me`` used by ``identity.ts``
- * for the initial identity probe. ``/auth/me`` is accounts-specific
- * and returns richer info (created_at, last_login_at) — use this one
- * when the consuming UI needs those fields.
+ * UserService.GetMe — fetch the current user.
  *
  * :returns: The current :class:`CurrentAccount`, or ``null`` if
  *     unauthenticated.
@@ -136,14 +176,37 @@ export async function getMe(): Promise<CurrentAccount | null> {
   if (jwt) headers.Authorization = `Bearer ${jwt}`;
   let res: Response;
   try {
-    res = await fetch("/auth/me", { cache: "no-store", headers });
+    res = await fetch(GET_ME_PROCEDURE, {
+      method: "POST",
+      headers: { ...headers, "content-type": "application/json" },
+      body: "{}",
+      cache: "no-store",
+    });
   } catch {
     return null;
   }
   if (res.ok) {
-    return (await res.json()) as CurrentAccount;
+    const data = (await res.json()) as {
+      id?: string | number;
+      isSystemAdmin?: boolean;
+      createdAt?: string;
+      lastLoginAt?: string;
+    };
+    if (data.id === undefined) return null;
+    return {
+      id: String(data.id),
+      is_admin: Boolean(data.isSystemAdmin),
+      created_at: toEpochSeconds(data.createdAt),
+      last_login_at: toEpochSeconds(data.lastLoginAt),
+    };
   }
   return null;
+}
+
+function toEpochSeconds(value: string | undefined): number | null {
+  if (!value) return null;
+  const epoch = Date.parse(value);
+  return Number.isNaN(epoch) ? null : Math.floor(epoch / 1000);
 }
 
 /** Body of POST /auth/register. */

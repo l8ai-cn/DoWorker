@@ -5,30 +5,15 @@ import { SessionDetailBody } from "@/components/session/session-detail-body";
 import { useLiveSession } from "@/hooks/useLiveSession";
 import { pageTitle } from "@/lib/app-brand";
 import { readAuthToken } from "@/lib/auth-store";
-import { getProject, getSession, type AgentSession, type Project } from "@/lib/mock-agents";
 import { SessionActionProvider } from "@/lib/session-action-context";
 
-interface SessionLoaderData {
-  session: AgentSession | null;
-  project: Project | undefined;
-}
-
 export const Route = createFileRoute("/sessions/$sessionId")({
-  loader: ({ params }): SessionLoaderData => {
-    const session = getSession(params.sessionId);
-    return {
-      session: session ?? null,
-      project: session ? getProject(session.projectId) : undefined,
-    };
-  },
-  head: ({ loaderData, params }) => ({
+  head: ({ params }) => ({
     meta: [
-      { title: pageTitle(loaderData?.session?.title ?? params.sessionId) },
+      { title: pageTitle(params.sessionId) },
       {
         name: "description",
-        content: loaderData?.session
-          ? `实时查看 ${loaderData.session.agent ?? "agent"} 在 ${loaderData.project?.repo ?? ""} 的执行过程。`
-          : "Agent 会话详情",
+        content: "Agent 会话详情",
       },
     ],
   }),
@@ -78,10 +63,8 @@ function SessionError({ reset }: { reset: () => void }) {
 function SessionDetail() {
   const { sessionId } = Route.useParams();
   const live = useLiveSession(sessionId);
-  const mockLoader = Route.useLoaderData();
   const authed = Boolean(readAuthToken());
-  const session = authed ? live.session : (mockLoader.session ?? undefined);
-  const project = authed ? undefined : mockLoader.project;
+  const session = live.session;
 
   if (authed && live.loading) {
     return (
@@ -126,9 +109,9 @@ function SessionDetail() {
 
   return (
     <SessionActionProvider
-      value={authed ? { onSend: live.send, onApprove: live.approve, onStop: live.stop } : {}}
+      value={{ onSend: live.send, onApprove: live.approve, onStop: live.stop }}
     >
-      <SessionDetailBody session={session} project={project} isLive={authed} />
+      <SessionDetailBody session={session} project={undefined} isLive />
     </SessionActionProvider>
   );
 }

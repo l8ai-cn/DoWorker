@@ -18,7 +18,10 @@ func (s *Service) SelectRunnerWithAffinity(
 		return s.SelectAvailableRunnerForAgent(ctx, orgID, userID, agentSlug)
 	}
 
-	cachedRunners := s.collectEligibleRunners(ctx, orgID, userID, agentSlug)
+	cachedRunners, err := s.collectEligibleRunners(ctx, orgID, userID, agentSlug)
+	if err != nil {
+		return nil, err
+	}
 
 	if len(cachedRunners) > 0 {
 		return s.selectWithScoring(cachedRunners, userID, hints, repoHistory)

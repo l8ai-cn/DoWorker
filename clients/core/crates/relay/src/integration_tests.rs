@@ -136,6 +136,71 @@ async fn acp_command_out_and_event_in() {
 }
 
 #[tokio::test]
+async fn named_acp_listener_replaces_and_removes_stale_callback() {
+    let mock = start_mock_relay().await;
+    let (pool, _rx) = RelayConnectionPool::new();
+    let (cb, _buf) = make_output_cb();
+    pool.subscribe("pod-1", "sub-1", &mock.url, "tok", cb).await;
+    assert!(wait_transport(&mock).await, "never connected");
+    mock.push(
+        MsgType::AcpSnapshot,
+        serde_json::json!({"session":{}}).to_string().as_bytes(),
+    );
+    assert!(wait_ready(&pool, "pod-1").await, "never ready");
+
+    let stale = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let active = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    {
+        let stale = stale.clone();
+        pool.set_acp_listener(
+            "pod-1",
+            "mobile-chat",
+            Arc::new(move |_mt, _payload| {
+                stale.fetch_add(1, SeqCst);
+            }),
+        )
+        .await;
+    }
+    {
+        let active = active.clone();
+        pool.set_acp_listener(
+            "pod-1",
+            "mobile-chat",
+            Arc::new(move |_mt, _payload| {
+                active.fetch_add(1, SeqCst);
+            }),
+        )
+        .await;
+    }
+
+    mock.push(
+        MsgType::AcpEvent,
+        serde_json::json!({"event":"first"}).to_string().as_bytes(),
+    );
+    assert!(
+        wait_until(|| active.load(SeqCst) == 1, Duration::from_secs(3)).await,
+        "active ACP listener did not receive event",
+    );
+    assert_eq!(
+        stale.load(SeqCst),
+        0,
+        "replaced ACP listener still received event"
+    );
+
+    pool.remove_acp_listener("pod-1", "mobile-chat");
+    mock.push(
+        MsgType::AcpEvent,
+        serde_json::json!({"event":"second"}).to_string().as_bytes(),
+    );
+    tokio::time::sleep(Duration::from_millis(100)).await;
+    assert_eq!(
+        active.load(SeqCst),
+        1,
+        "removed ACP listener still received event"
+    );
+}
+
+#[tokio::test]
 async fn reconnects_after_server_drop() {
     let mock = start_mock_relay().await;
     let (pool, _rx) = RelayConnectionPool::new();

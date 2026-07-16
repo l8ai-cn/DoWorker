@@ -23,7 +23,7 @@ type BuildResult struct {
 	// From PROMPT declaration
 	Prompt string // prompt content
 	// From PROMPT_POSITION declaration
-	PromptPosition string // "prepend", "append", "none"
+	PromptPosition string // "prepend", "append", "after_first", "none"
 
 	// From REPO/BRANCH/GIT_CREDENTIAL declarations
 	Sandbox SandboxResult

@@ -51,6 +51,7 @@ func (s *Service) prepareMarketplaceWorkerSnapshot(
 		},
 		source,
 		request.ModelResourceID,
+		request.ToolModelResourceIDs,
 	)
 	if err != nil {
 		return 0, err

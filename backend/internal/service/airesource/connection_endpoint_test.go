@@ -25,3 +25,19 @@ func TestCustomProviderRequiresExplicitValidatedBaseURL(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, input.BaseURL, created.BaseURL)
 }
+
+func TestMiniMaxAcceptsChinaOfficialBaseURL(t *testing.T) {
+	f := newFixture()
+	created, err := f.service.CreateConnection(context.Background(), actor(1), CreateConnectionInput{
+		OwnerScope:  domain.OwnerScopeUser,
+		OwnerID:     1,
+		Identifier:  "minimax-cn",
+		ProviderKey: "minimax",
+		Name:        "MiniMax CN",
+		BaseURL:     "https://api.minimaxi.com/v1",
+		Credentials: map[string]string{"api_key": "secret"},
+	})
+
+	require.NoError(t, err)
+	assert.Equal(t, "https://api.minimaxi.com/v1", created.BaseURL)
+}

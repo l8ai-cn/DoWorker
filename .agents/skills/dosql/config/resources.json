@@ -1,0 +1,80 @@
+{
+  "schema": "dosuite.skill-resources.v1",
+  "product": "DoSql",
+  "updatedAt": "2026-07-12",
+  "projectId": "agentsmesh",
+  "publicConsole": "https://dosql.l8ai.cn",
+  "credentialPolicy": "No plaintext database credentials are stored here. Resolve connections only through the selected doops target, Kubernetes secretRef, and DoSql approval policy before execution.",
+  "defaultDoopsTarget": {
+    "name": "gw-oilan-node",
+    "cluster": "doops-oilan",
+    "instance": "oilan-node"
+  },
+  "environmentMap": {
+    "prod": {
+      "alias": [
+        "production",
+        "online",
+        "线上"
+      ],
+      "doopsTarget": "gw-oilan-node",
+      "note": "AgentsMesh production Kubernetes cluster."
+    }
+  },
+  "resources": [
+    {
+      "id": "db_agentsmesh_prod_postgres",
+      "name": "agentsmesh-production-postgres",
+      "kind": "PostgreSQL",
+      "environmentId": "prod",
+      "logicalEndpoint": "postgresql://postgres.agentsmesh.svc.cluster.local/agentsmesh",
+      "host": "postgres.agentsmesh.svc.cluster.local",
+      "port": 5432,
+      "databaseName": "agentsmesh",
+      "doopsTarget": "gw-oilan-node",
+      "connectionRef": "k8s://doops-oilan/oilan-node/agentsmesh/service/postgres:5432#db=agentsmesh",
+      "secretRef": "secret://agentsmesh/agentsmesh-secrets#DB_PASSWORD",
+      "owner": "agentsmesh-platform",
+      "status": "registered-offline-target",
+      "risk": "production",
+      "tags": [
+        "agentsmesh",
+        "dowork",
+        "postgresql",
+        "postgres",
+        "production"
+      ],
+      "aliases": [
+        "agentsmesh postgres",
+        "agentsmesh pg",
+        "dowork postgres",
+        "dowork pg",
+        "线上 pg"
+      ],
+      "note": "Registered from the production K8S manifests. The doops target was offline when this asset was initialized; verify connectivity before read or mutation.",
+      "registeredAssetId": "db_agentsmesh_prod_postgres",
+      "displayName": "AgentsMesh Production PostgreSQL"
+    }
+  ],
+  "executionPolicy": {
+    "requiredPath": "dosql-agent",
+    "forbidDirectClients": [
+      "mysql",
+      "mysqlsh",
+      "psql",
+      "mongosh",
+      "mongo",
+      "kubectl exec ... mysql",
+      "kubectl exec ... mongosh",
+      "kubectl exec ... psql"
+    ],
+    "mutatingRequiresChangeDocument": true,
+    "productionRequiresApproval": true,
+    "journalDir": ".dosql/journals"
+  },
+  "quickPrompts": [
+    "用 DoSql 解析 AgentsMesh 线上 PG，并只读检查 PostgreSQL 版本。",
+    "为 AgentsMesh 线上 PG 生成用户可读变更计划，不要直接确认原始 SQL。",
+    "检查 AgentsMesh 线上 PG 当前结构与 DoSql 基线是否漂移。"
+  ]
+}

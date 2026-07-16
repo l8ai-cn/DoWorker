@@ -25,10 +25,13 @@ type Config struct {
 	KnowledgeBase KnowledgeBaseConfig
 	PendingQueue  PendingQueueConfig
 
-	PrimaryDomain   string // Primary domain (e.g., "localhost:10000" or "agentsmesh.ai")
-	PublicWebURL    string // Browser-visible Web origin used for desktop access links
-	MobilePublicURL string // Browser-visible mobile origin used for Worker access links
-	UseHTTPS        bool   // Use HTTPS/WSS protocols
+	PrimaryDomain            string // Primary domain (e.g., "localhost:10000" or "agentsmesh.ai")
+	PublicWebURL             string // Browser-visible Web origin used for desktop access links
+	MobilePublicURL          string // Browser-visible mobile origin used for Worker access links
+	PreviewPublicOrigin      string
+	WorkerDefinitionsDir     string
+	WorkerRuntimeCatalogFile string
+	UseHTTPS                 bool // Use HTTPS/WSS protocols
 }
 
 type MarketplaceConfig struct {
@@ -38,11 +41,26 @@ type MarketplaceConfig struct {
 }
 
 func Load() (*Config, error) {
+	primaryDomain := getEnv("PRIMARY_DOMAIN", "localhost:10000")
+	publicWebURL := getEnv("PUBLIC_WEB_URL", "")
+	mobilePublicURL := getEnv("MOBILE_PUBLIC_BASE_URL", "")
+	useHTTPS := getEnvBool("USE_HTTPS", false)
+	previewPublicOrigin, err := loadPreviewPublicOrigin(primaryDomain, publicWebURL, mobilePublicURL, useHTTPS)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Config{
-		PrimaryDomain:   getEnv("PRIMARY_DOMAIN", "localhost:10000"),
-		PublicWebURL:    getEnv("PUBLIC_WEB_URL", ""),
-		MobilePublicURL: getEnv("MOBILE_PUBLIC_BASE_URL", ""),
-		UseHTTPS:        getEnvBool("USE_HTTPS", false),
+		PrimaryDomain:       primaryDomain,
+		PublicWebURL:        publicWebURL,
+		MobilePublicURL:     mobilePublicURL,
+		PreviewPublicOrigin: previewPublicOrigin,
+		WorkerDefinitionsDir: getEnv(
+			"WORKER_DEFINITIONS_DIR",
+			"config/worker-types",
+		),
+		WorkerRuntimeCatalogFile: getEnv("WORKER_RUNTIME_CATALOG_FILE", ""),
+		UseHTTPS:                 useHTTPS,
 
 		Server: ServerConfig{
 			Address:            getEnv("SERVER_ADDRESS", ":8080"),

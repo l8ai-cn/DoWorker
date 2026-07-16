@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/anthropics/agentsmesh/agentfile/schema"
 )
@@ -10,7 +11,12 @@ import (
 // Both field sets are extracted from AgentFile declarations (CONFIG and
 // ENV SECRET/TEXT). Credential UX grouping (oneof auth methods, labels) stays
 // in the frontend override registry.
-func ResolveConfigSchema(ctx context.Context, provider AgentConfigProvider, agentSlug string) (*ConfigSchemaResponse, error) {
+func ResolveConfigSchema(
+	ctx context.Context,
+	provider AgentConfigProvider,
+	credentialSources CredentialFieldSourceProvider,
+	agentSlug string,
+) (*ConfigSchemaResponse, error) {
 	agentDef, err := provider.GetAgent(ctx, agentSlug)
 	if err != nil {
 		return nil, err
@@ -18,10 +24,22 @@ func ResolveConfigSchema(ctx context.Context, provider AgentConfigProvider, agen
 	if agentDef.AgentfileSource == nil || *agentDef.AgentfileSource == "" {
 		return &ConfigSchemaResponse{Fields: []ConfigFieldResponse{}}, nil
 	}
-	return configSchemaFromAgentfile(*agentDef.AgentfileSource)
+	schema, err := ConfigSchemaFromAgentfile(*agentDef.AgentfileSource)
+	if err != nil {
+		return nil, err
+	}
+	if credentialSources == nil {
+		return nil, fmt.Errorf("credential field source is required")
+	}
+	fields, isFormalWorker := credentialSources.CredentialBundleFields(agentSlug)
+	if !isFormalWorker {
+		return schema, nil
+	}
+	schema.CredentialFields = filterCredentialFields(schema.CredentialFields, fields)
+	return schema, nil
 }
 
-func configSchemaFromAgentfile(source string) (*ConfigSchemaResponse, error) {
+func ConfigSchemaFromAgentfile(source string) (*ConfigSchemaResponse, error) {
 	agentSchema, err := schema.FromSource(source)
 	if err != nil {
 		return nil, err
@@ -62,4 +80,21 @@ func configSchemaFromAgentfile(source string) (*ConfigSchemaResponse, error) {
 		})
 	}
 	return result, nil
+}
+
+func filterCredentialFields(
+	fields []CredentialFieldResponse,
+	allowed []string,
+) []CredentialFieldResponse {
+	allowedFields := make(map[string]struct{}, len(allowed))
+	for _, field := range allowed {
+		allowedFields[field] = struct{}{}
+	}
+	filtered := make([]CredentialFieldResponse, 0, len(allowed))
+	for _, field := range fields {
+		if _, ok := allowedFields[field.Name]; ok {
+			filtered = append(filtered, field)
+		}
+	}
+	return filtered
 }

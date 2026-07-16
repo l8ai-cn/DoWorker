@@ -12,7 +12,9 @@ export function useAvailableAgents() {
     staleTime: 60_000,
   });
 
-  const agents = (query.data ?? []).map((a) => agentPickerOption(a.id, a.name, a.harness));
+  const agents = (query.data ?? []).map((a) =>
+    agentPickerOption(a.id, a.name, a.supportedModes, a.requiresModelResource, a.harness),
+  );
 
   return {
     agents,

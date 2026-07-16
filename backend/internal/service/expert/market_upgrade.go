@@ -84,6 +84,9 @@ func (s *Service) upgradeMarketApplication(
 		req.OrganizationID,
 		req.UserID,
 		currentSnapshot.Spec.Runtime.ModelBinding.ResourceID,
+		marketToolModelResourceIDs(
+			currentSnapshot.Spec.Runtime.ToolModelBindings,
+		),
 		&published.Release,
 	)
 	if err != nil {

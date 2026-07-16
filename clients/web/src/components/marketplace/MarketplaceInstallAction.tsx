@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ArrowRight, Loader2, RefreshCw, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -11,13 +11,9 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { fetchFirstOrgSlug } from "@/lib/light-auth";
-import { updateLightSessionOrgSlug } from "@/lib/light-session";
 import { installMarketplaceApplication } from "@/lib/marketplace-install";
-import {
-  listMarketplaceModelResources,
-  type MarketplaceModelResource,
-} from "@/lib/marketplace-model-resources";
+import { MarketplaceToolModelFields } from "./MarketplaceToolModelFields";
+import { useMarketplaceInstallResources } from "./useMarketplaceInstallResources";
 
 interface MarketplaceInstallActionProps {
   applicationSlug: string;
@@ -30,59 +26,23 @@ interface MarketplaceInstallActionProps {
 
 export function MarketplaceInstallAction(props: MarketplaceInstallActionProps) {
   const [installing, setInstalling] = useState(false);
-  const [targetOrgSlug, setTargetOrgSlug] = useState(props.orgSlug);
-  const [resources, setResources] = useState<MarketplaceModelResource[]>([]);
-  const [selectedResourceID, setSelectedResourceID] = useState("");
-  const [loadingResources, setLoadingResources] = useState(true);
-  const [resourceError, setResourceError] = useState(false);
-  const [reloadKey, setReloadKey] = useState(0);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function loadResources() {
-      setLoadingResources(true);
-      setResourceError(false);
-      setSelectedResourceID("");
-      try {
-        const resolvedOrgSlug = props.orgSlug || (await fetchFirstOrgSlug());
-        if (cancelled) return;
-        setTargetOrgSlug(resolvedOrgSlug);
-        if (!resolvedOrgSlug) {
-          setResources([]);
-          return;
-        }
-        updateLightSessionOrgSlug(resolvedOrgSlug);
-        const items = await listMarketplaceModelResources(
-          resolvedOrgSlug,
-          props.agentSlug,
-        );
-        if (!cancelled) setResources(items);
-      } catch {
-        if (!cancelled) {
-          setResources([]);
-          setResourceError(true);
-        }
-      } finally {
-        if (!cancelled) setLoadingResources(false);
-      }
-    }
-    void loadResources();
-    return () => {
-      cancelled = true;
-    };
-  }, [props.agentSlug, props.orgSlug, reloadKey]);
+  const runtime = useMarketplaceInstallResources(
+    props.orgSlug,
+    props.agentSlug,
+  );
 
   async function install() {
-    if (!targetOrgSlug || !selectedResourceID) return;
+    if (!runtime.orgSlug || !runtime.selectionComplete) return;
     setInstalling(true);
     try {
       const result = await installMarketplaceApplication(
-        targetOrgSlug,
+        runtime.orgSlug,
         props.applicationSlug,
-        Number(selectedResourceID),
+        Number(runtime.modelID),
+        numericToolModelIDs(runtime.toolIDs),
       );
       props.onInstalled(
-        targetOrgSlug,
+        runtime.orgSlug,
         result.expert.slug,
         result.already_installed,
       );
@@ -93,7 +53,19 @@ export function MarketplaceInstallAction(props: MarketplaceInstallActionProps) {
     }
   }
 
-  if (!loadingResources && !targetOrgSlug) {
+  if (runtime.error) {
+    return (
+      <Button
+        className="w-full gap-2"
+        variant="outline"
+        onClick={runtime.reload}
+      >
+        <RefreshCw className="h-4 w-4" />
+        重新加载模型
+      </Button>
+    );
+  }
+  if (!runtime.loading && !runtime.orgSlug) {
     return (
       <Button className="w-full gap-2" onClick={props.onNeedsOrganization}>
         创建组织后启用
@@ -101,25 +73,13 @@ export function MarketplaceInstallAction(props: MarketplaceInstallActionProps) {
       </Button>
     );
   }
-  if (resourceError) {
-    return (
-      <Button
-        className="w-full gap-2"
-        variant="outline"
-        onClick={() => setReloadKey((value) => value + 1)}
-      >
-        <RefreshCw className="h-4 w-4" />
-        重新加载模型
-      </Button>
-    );
-  }
-  if (!loadingResources && resources.length === 0) {
+  if (!runtime.loading && runtime.missingCompatibleResource) {
     return (
       <Button
         className="w-full gap-2"
         variant="outline"
         onClick={() =>
-          targetOrgSlug && props.onConfigureResources(targetOrgSlug)
+          runtime.orgSlug && props.onConfigureResources(runtime.orgSlug)
         }
       >
         <Settings2 className="h-4 w-4" />
@@ -128,38 +88,52 @@ export function MarketplaceInstallAction(props: MarketplaceInstallActionProps) {
     );
   }
 
-  const selectedLabel = resources.find(
-    (resource) => String(resource.id) === selectedResourceID,
+  const selectedLabel = runtime.models.find(
+    (resource) => String(resource.id) === runtime.modelID,
   )?.label;
   return (
     <div className="space-y-2">
       <Select
-        value={selectedResourceID}
-        onValueChange={setSelectedResourceID}
-        disabled={loadingResources || installing}
+        value={runtime.modelID}
+        onValueChange={runtime.setModelID}
+        disabled={runtime.loading || installing}
       >
         <SelectTrigger aria-label="选择运行模型" className="h-10">
           <span className={selectedLabel ? "" : "text-muted-foreground"}>
-            {loadingResources ? "正在加载模型" : selectedLabel || "选择运行模型"}
+            {runtime.loading ? "正在加载模型" : selectedLabel || "选择运行模型"}
           </span>
         </SelectTrigger>
         <SelectContent>
-          {resources.map((resource) => (
+          {runtime.models.map((resource) => (
             <SelectItem key={resource.id} value={String(resource.id)}>
               {resource.label}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
+      <MarketplaceToolModelFields
+        groups={runtime.tools}
+        values={runtime.toolIDs}
+        onChange={runtime.setToolID}
+        disabled={runtime.loading || installing}
+      />
       <Button
         className="w-full gap-2"
         onClick={install}
-        disabled={installing || loadingResources || !selectedResourceID}
+        disabled={installing || runtime.loading || !runtime.selectionComplete}
       >
         {installing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
         {installing ? "正在启用" : "立即启用"}
         {!installing ? <ArrowRight className="h-4 w-4" /> : null}
       </Button>
     </div>
+  );
+}
+
+function numericToolModelIDs(
+  values: Record<string, string>,
+): Record<string, number> {
+  return Object.fromEntries(
+    Object.entries(values).map(([role, id]) => [role, Number(id)]),
   );
 }

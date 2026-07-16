@@ -8,10 +8,10 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/tokenusage"
 )
 
-const TransportType = "codex"
+const TransportType = "codex-app-server"
 
 func init() {
-	acp.RegisterAgent("codex", TransportType, func(cb acp.EventCallbacks, l *slog.Logger) acp.Transport {
+	acp.RegisterTransport(TransportType, func(cb acp.EventCallbacks, l *slog.Logger) acp.Transport {
 		return newTransport(cb, l)
 	})
 

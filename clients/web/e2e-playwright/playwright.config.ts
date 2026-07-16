@@ -63,5 +63,10 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
       testMatch: /tests\/blockstore\/.*\.spec\.ts/,
     },
+    {
+      name: "public",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: /tests\/docs\/.*\.spec\.ts/,
+    },
   ],
 });

@@ -6,8 +6,15 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CORE="$ROOT/clients/core"
 OUT="$ROOT/packages/do-worker-wasm"
+STAGE="$(mktemp -d "$ROOT/packages/.do-worker-wasm-build.XXXXXX")"
 
 export PATH="${HOME}/.local/bin:${HOME}/.cargo/bin:${PATH}"
+
+cleanup() {
+  rm -rf "$STAGE"
+}
+
+trap cleanup EXIT
 
 need() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -36,19 +43,18 @@ bash "$ROOT/scripts/seed-rust-proto-stubs.sh"
 
 cargo run -p do_worker_proto_gen --bin gen-proto
 
-mkdir -p "$OUT"
 cd "$CORE/crates/wasm"
 wasm-pack build \
   --target web \
   --out-name wasm_pkg \
-  --out-dir "$OUT" \
+  --out-dir "$STAGE" \
   --release
 
 # wasm-pack overwrites package.json; restore published package identity.
 python3 -c "
 import json
 from pathlib import Path
-out = Path(r'''$OUT''')
+out = Path(r'''$STAGE''')
 pkg = {
     'name': 'do-worker-wasm',
     'type': 'module',
@@ -64,10 +70,18 @@ print('ok: wrote', out)
 "
 
 # Restore gitignore after wasm-pack
-cat > "$OUT/.gitignore" <<'EOF'
+cat > "$STAGE/.gitignore" <<'EOF'
 /wasm_pkg.js
 /wasm_pkg.d.ts
 /wasm_pkg_bg.wasm
 /wasm_pkg_bg.wasm.d.ts
 /snippets/
 EOF
+
+mkdir -p "$OUT"
+mv "$STAGE/wasm_pkg_bg.wasm" "$OUT/wasm_pkg_bg.wasm"
+mv "$STAGE/wasm_pkg_bg.wasm.d.ts" "$OUT/wasm_pkg_bg.wasm.d.ts"
+mv "$STAGE/wasm_pkg.d.ts" "$OUT/wasm_pkg.d.ts"
+mv "$STAGE/package.json" "$OUT/package.json"
+mv "$STAGE/.gitignore" "$OUT/.gitignore"
+mv "$STAGE/wasm_pkg.js" "$OUT/wasm_pkg.js"

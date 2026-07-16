@@ -1,0 +1,116 @@
+{
+  "landing": {
+    "workforce": {
+      "expertHome": {
+        "hero": {
+          "eyebrow": "Enterprise Agent supply platform",
+          "title": "Agent supply + AI-native organization incubation",
+          "description": "Build Agents as supplyable capability units, validate them against real work, publish them to a governed market, and incubate AI-native organizations around AI partners.",
+          "primaryAction": "Explore the Agent market",
+          "secondaryAction": "Explore the supply system",
+          "proof": "Build · Verify · Release · Install · Run · Evolve"
+        },
+        "console": {
+          "title": "Agent supply invoked by the business",
+          "status": "A live request-to-evidence execution chain",
+          "live": "Running",
+          "paused": "Paused",
+          "complete": "Complete",
+          "goalLabel": "Business requirement",
+          "goal": "Resolve and document a multilingual customer escalation",
+          "expertLabel": "Matched Agent",
+          "expert": "Customer operations Agent",
+          "formulaLabel": "Matched capabilities",
+          "formula": "Customer knowledge · Multilingual content · Data analysis · System action · Policy",
+          "workflowLabel": "Business invocation chain",
+          "steps": ["Requirement identification", "Capability matching", "Permission confirmation", "Collaborative execution", "Human review", "Evidence delivery"],
+          "checkpointLabel": "Human review",
+          "checkpoint": "Review external responses, privileged actions, and policy boundaries.",
+          "deliverableLabel": "Evidence delivery",
+          "deliverable": "Completed actions, outcome summary, approval record, and inspectable evidence",
+          "controls": { "pause": "Pause", "resume": "Resume", "next": "Next stage", "replay": "Replay" }
+        },
+        "solutions": {
+          "eyebrow": "Three solution paths",
+          "title": "Supply Agents. Incubate AI-native organizations.",
+          "description": "Start with enterprise Agent supply, form an OPC around AI partners, or design a higher-education digital employee pilot from composable platform capabilities.",
+          "workflowLabel": "Operating path",
+          "deliverablesLabel": "Business outcome",
+          "items": [
+            { "id": "enterprise-agent-supply", "title": "Enterprise Agent supply", "description": "Turn business knowledge, methods, tools, and policies into standardized Agents that teams can verify, release, install, operate, and improve.", "chain": "Build → Verify → Release → Install → Run → Evolve", "outcome": "Versioned Agents, verification evidence, installation policies, operating records, and evolution plans.", "action": "Start enterprise Agent supply" },
+            { "id": "opc-incubation", "title": "OPC incubation", "description": "Incubate an OPC where a human core works with AI partners formed by one Agent or a coordinated combination of Agents.", "chain": "Define the business → Shape AI partners → Establish collaboration → Automate recurring work → Govern execution → Scale", "outcome": "A human-led team with clear AI partner roles, operating rhythms, governance boundaries, and measurable delivery.", "action": "Incubate an OPC" },
+            { "id": "higher-education-digital-employees", "title": "Higher-education digital employees", "description": "Design role-based pilots for teaching, research, student services, and administration by combining composable platform capabilities with institutional knowledge and governance.", "chain": "Identify roles → Configure knowledge → Validate tasks → Pilot with one team → Govern service → Improve continuously", "outcome": "A validated pilot blueprint aligned to campus roles, institutional knowledge, approval boundaries, and service evidence.", "action": "Start a higher-education pilot" }
+          ]
+        },
+        "capabilities": {
+          "eyebrow": "Core platform capabilities",
+          "title": "The operating system for Agent supply and AI-native teams",
+          "description": "Five connected capabilities move Agents from creation into governed organizational use while keeping people, AI partners, automation, and evidence in one operating environment.",
+          "levels": { "implemented": "Available", "composable": "Composable", "planned": "Planned" },
+          "items": [
+            { "id": "agent-factory", "level": "implemented", "title": "Agent factory", "description": "Build, verify, version, and release Agents from reusable methods, knowledge, tools, models, and policies." },
+            { "id": "agent-market", "level": "implemented", "title": "Agent market", "description": "Discover approved Agents, inspect their capabilities and permissions, and install the right version for each team." },
+            { "id": "collaboration-workspace", "level": "implemented", "title": "Collaboration workspace", "description": "Give people and AI partners shared goals, context, conversations, artifacts, decisions, and delivery evidence." },
+            { "id": "automation", "level": "implemented", "title": "Automation", "description": "Trigger recurring work, coordinate Agent combinations, track progress, and route decisions to the right people." },
+            { "id": "governance", "level": "implemented", "title": "Governance", "description": "Control permissions, execution boundaries, approvals, budgets, versions, evidence, and audit history." }
+          ]
+        },
+        "operating": {
+          "eyebrow": "Agent supply lifecycle",
+          "title": "A closed loop from build to evolution",
+          "description": "Each Agent is a supplyable capability unit. The platform carries it through a governed lifecycle, then uses operating evidence to improve the next version and the organization around it.",
+          "formulaTitle": "Six lifecycle stages",
+          "parts": [
+            { "id": "build", "title": "Build", "description": "Assemble a focused Agent from business methods, knowledge, tools, models, and policies." },
+            { "id": "verify", "title": "Verify", "description": "Test real tasks, failure paths, permissions, and acceptance evidence before release." },
+            { "id": "release", "title": "Release", "description": "Release an approved, versioned Agent to the governed Agent market." },
+            { "id": "install", "title": "Install", "description": "Configure the approved version for a team, role, environment, and access scope." },
+            { "id": "run", "title": "Run", "description": "Operate the Agent alone or as part of an AI partner with visible progress and human checkpoints." },
+            { "id": "evolve", "title": "Evolve", "description": "Use outcomes, feedback, incidents, and new knowledge to validate the next version." }
+          ],
+          "humanTitle": "AI partners turn Agent supply into organization",
+          "humanDescription": "An AI partner can be one Agent or a coordinated Agent combination. An OPC keeps humans at the core while AI partners expand the team's delivery capacity.",
+          "humanItems": [
+            { "id": "supply-unit", "title": "Agent", "description": "The smallest capability unit that can be built, validated, published, installed, run, and evolved." },
+            { "id": "ai-partner", "title": "AI partner", "description": "A business-facing Agent or Agent combination with a clear role, context, and delivery responsibility." },
+            { "id": "opc", "title": "OPC", "description": "A human core and AI partners operating as one accountable, AI-native team." }
+          ]
+        },
+        "market": {
+          "eyebrow": "Agent market",
+          "title": "Release once. Install governed Agent supply where it is needed.",
+          "description": "The Agent market distributes reusable capability; it is not a solution domain. Teams can inspect scope, evidence, permissions, and versions before installation.",
+          "apps": [
+            { "slug": "software-delivery-expert", "title": "Software delivery Agent", "description": "Carry requirements through implementation, verification, review, and accepted code delivery." },
+            { "slug": "multi-worker-orchestrator", "title": "Multi-Agent orchestration", "description": "Coordinate specialized Agents around one goal, shared checkpoints, and one accepted result." },
+            { "slug": "dual-repo-sync-expert", "title": "Dual-repository sync Agent", "description": "Detect divergence, synchronize GitLab and GitHub, and route changes through the correct review path." }
+          ],
+          "status": "Published",
+          "plannedTitle": "Supply expands through validation",
+          "plannedDescription": "New Agents enter the market only after their role, permissions, failure paths, deliverables, and operating evidence are verified.",
+          "action": "Explore the Agent market"
+        },
+        "trust": {
+          "eyebrow": "Runtime and governance",
+          "title": "Run Agent supply inside enterprise boundaries",
+          "description": "Every Agent run stays constrained by infrastructure, isolated workspaces, credential scope, approval policy, budgets, and evidence requirements.",
+          "items": [
+            { "id": "selfHosting", "title": "Runner deployment control", "description": "Deploy Runners inside infrastructure and network boundaries defined by the organization.", "status": "Controlled" },
+            { "id": "workspaces", "title": "Isolated workspaces", "description": "Separate each assignment, its files, dependencies, and execution context.", "status": "Isolated" },
+            { "id": "credentials", "title": "Scoped credentials", "description": "Grant each Agent only the access required for its approved role and task.", "status": "Scoped" },
+            { "id": "audit", "title": "Inspectable evidence", "description": "Retain activity, decisions, approvals, artifacts, versions, and delivery status.", "status": "Recorded" }
+          ],
+          "runtimesTitle": "Runner runtime coverage",
+          "runtimesDescription": "Runners host approved Agent runtimes including Codex CLI, Claude Code, Gemini CLI, Aider, and OpenCode. Availability follows the verified runtime catalog."
+        },
+        "cta": {
+          "eyebrow": "Start with one supply unit",
+          "title": "Build your first supplyable Agent",
+          "description": "Choose one real business role, verify its work, release the approved version, and expand from one Agent into an AI partner or OPC.",
+          "primary": "Build your first Agent",
+          "secondary": "Explore the Agent market"
+        }
+      }
+    }
+  }
+}

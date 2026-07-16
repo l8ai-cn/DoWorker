@@ -1,17 +1,19 @@
 {
   "landing": {
     "nav": {
+      "home": "Startseite",
       "scenarios": "Szenarien",
       "workflow": "Ablauf",
       "capabilities": "Funktionen",
-      "features": "Funktionen",
+      "features": "Governance",
       "marketplace": "Marketplace",
-      "pricing": "Preise",
       "docs": "Dokumentation",
       "signIn": "Anmelden",
       "getStarted": "Loslegen",
       "console": "Konsole",
+      "consoleUnavailable": "Die Konsole kann derzeit nicht geöffnet werden. Bitte versuche es erneut.",
       "language": "Sprache",
+      "toggleMenu": "Menü öffnen oder schließen",
       "download": "Download"
     },
     "hero": {
@@ -234,78 +236,6 @@
         }
       }
     },
-    "pricing": {
-      "title": "Skalieren Sie Ihr Team,",
-      "titleHighlight": "nicht Ihr Budget.",
-      "description": "Bringen Sie Ihre eigenen API-Keys mit. Zahlen Sie für die Plattform, nicht pro Token. Keine Nutzungslimits.",
-      "mostPopular": "Am beliebtesten",
-      "annualDiscount": "20 % sparen",
-      "perSeat": "/Platz",
-      "monthly": "Monatlich",
-      "yearly": "Jährlich",
-      "yearlyDiscount": "17 % sparen",
-      "month": "Monat",
-      "year": "Jahr",
-      "seatMonth": "Platz/Monat",
-      "seatYear": "Platz/Jahr",
-      "based": {
-        "name": "Based",
-        "badge": "30 Tage kostenlos testen",
-        "description": "Starten Sie solo. Sehen Sie, was ein Agent leisten kann.",
-        "features": {
-          "0": "1 Platz (Solo-Modus)",
-          "1": "5 gleichzeitige Agenten",
-          "2": "1 Runner",
-          "3": "5 Repositories",
-          "4": "Community-Support"
-        },
-        "cta": "Kostenlos testen"
-      },
-      "pro": {
-        "name": "Pro",
-        "description": "Ihr erstes Agenten-Team. Bis zu 5 Entwickler, 10 Agenten parallel.",
-        "features": {
-          "0": "Bis zu 5 Plätze",
-          "1": "10 gleichzeitige Agenten",
-          "2": "10 Runner",
-          "3": "10 Repositories",
-          "4": "Prioritäts-E-Mail-Support",
-          "5": "Multi-Git-Provider-Unterstützung"
-        },
-        "cta": "Upgrade auf Pro"
-      },
-      "enterprise": {
-        "name": "Team",
-        "description": "Abteilungsgröße. 50 Entwickler mit eigenen Agenten-Squads.",
-        "features": {
-          "0": "Bis zu 50 Plätze",
-          "1": "50 gleichzeitige Agenten",
-          "2": "100 Runner",
-          "3": "Unbegrenzte Repositories",
-          "4": "Prioritäts-Support"
-        },
-        "cta": "Upgrade auf Team"
-      },
-      "onpremise": {
-        "name": "OnPremise",
-        "price": "Individuell",
-        "period": "kontaktieren Sie uns",
-        "description": "Vollständiges privates Deployment. Ihre Infrastruktur, Ihre Regeln.",
-        "features": {
-          "0": "Unbegrenzte Plätze",
-          "1": "Unbegrenzte Agenten",
-          "2": "Unbegrenzte Runner",
-          "3": "Air-Gapped-Unterstützung",
-          "4": "Dedizierter Support",
-          "5": "Individuelles SLA",
-          "6": "Premium-Onboarding"
-        },
-        "cta": "Vertrieb kontaktieren"
-      },
-      "footer": "Alle Pläne beinhalten BYOK (Bring Your Own Key) — nutzen Sie Ihre eigenen KI-API-Keys ohne Nutzungslimits.",
-      "customPlan": "Enterprise-Deployment benötigt?",
-      "contactUs": "Kontaktieren Sie uns"
-    },
     "selfHosted": {
       "title": "Vollständiges",
       "titleHighlight": "Self-Hosted",
@@ -322,10 +252,7 @@
       "title2": "Lieferung zu sehen?",
       "description": "Wahlen Sie ein Szenario, beobachten Sie die Teamkoordination und bauen Sie Ihre KI-Workforce auf.",
       "watchDemo": "Demo ansehen",
-      "getStartedFree": "Kostenlos starten",
       "scheduleDemo": "Sprechen Sie mit uns",
-      "freeTier": "Kostenlose Stufe verfügbar",
-      "noCreditCard": "Keine Kreditkarte erforderlich",
       "selfHostedOption": "Self-Hosted-Option"
     },
     "heroDemo": {
@@ -403,16 +330,15 @@
       "highlight3": "Autonome Aufgabenausführung"
     },
     "footer": {
-      "tagline": "Wo Teams über die Teamgröße hinaus skalieren.",
+      "tagline": "Fragmentierte KI-Fähigkeiten zu Experts bündeln, die Arbeit abschließen.",
       "copyright": "Do Worker. Alle Rechte vorbehalten.",
-      "madeWith": "Für ambitionierte Teams gebaut",
+      "madeWith": "Für echte Arbeitsergebnisse entwickelt",
       "product": {
         "title": "Produkt",
-        "agentpod": "AgentPod",
-        "agentsmesh": "Do Worker",
+        "agentpod": "Worker",
+        "agentsmesh": "Zusammenarbeit",
         "tickets": "Tickets",
-        "runners": "Runners",
-        "pricing": "Preise",
+        "runners": "Runner-Flotte",
         "enterprise": "Enterprise"
       },
       "resources": {

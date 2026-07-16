@@ -61,18 +61,18 @@ Every part of Do Worker exists to answer one question: *how does a single person
 | Every agent needs a clean, isolated environment | **Workspace isolation** — each agent runs in its own pod with a dedicated Git worktree sandbox (`sandboxes/{pod}/workspace/`), private credentials, and its own branch. Concurrent agents never step on each other. |
 | You can't watch a hundred terminals | **One web console, every screen** — paginated pod sidebar, multi-pane workspace, and real-time terminal streaming let one person hold many agents in view. |
 | Long-running agents stall and need babysitting | **Autopilot** — a control agent watches a pod and sends the next instruction the moment it goes idle, with iteration caps, decision history, and human takeover/handback. Self-healing, unattended runs. |
-| Agents working alone don't compound | **Mesh & Channels** — bind pods together, let them talk over channels with `@mentions`, and watch the collaboration topology update in real time. |
+| Agents working alone don't compound | **Channels & Tickets** — organize Workers around shared work, communicate with `@mentions`, and track execution against a ticket. |
 
 The rest is plumbing built so that chain holds up under load: a **control-plane / data-plane split** — orchestration over gRPC with mTLS, terminal bytes over a stateless Relay cluster — so the backend never bottlenecks on PTY traffic, no matter how many agents are streaming at once.
 
 ## Core concepts
 
-- **AgentPod** — one agent's isolated execution environment: a PTY terminal, a Git worktree sandbox, and a real-time output stream.
-- **Runner** — a self-hosted daemon you install on your own machines. It connects to the backend over gRPC+mTLS and spawns pods. Register as many as you need; pods schedule across the fleet.
-- **Workspace** — the per-pod sandbox: an isolated Git worktree plus private credentials, so concurrent agents never collide and every run is recoverable.
-- **Autopilot** — autonomous, self-healing control of a pod by a *control agent*, with iteration limits, decision history, and human takeover at any point.
-- **Mesh & Channel** — the collaboration fabric: pods bound into a topology, communicating over channels with `@mentions`.
-- **Ticket** — a unit of work on a Kanban board, bindable to a pod with progress and MR/PR tracking.
+- **Worker** — one isolated execution environment: a PTY or ACP session, a Git worktree sandbox, typed configuration, and a real-time output stream. `Pod` is the internal lifecycle object and legacy API name.
+- **Runner** — a self-hosted daemon you install on your own machines. It connects to the backend over gRPC+mTLS and starts Workers. Register as many as you need; Workers schedule across the fleet.
+- **Workspace** — the per-Worker sandbox: an isolated Git worktree plus scoped credentials, so concurrent runs do not collide.
+- **Workflow** — an explicit task and acceptance loop that references an immutable Worker configuration.
+- **Channel** — a shared collaboration space where Workers and people communicate with `@mentions`.
+- **Ticket** — a unit of work on a Kanban board, bindable to a Worker with progress and MR/PR tracking.
 
 ## Architecture
 
@@ -115,35 +115,35 @@ curl -fsSL https://agentsmesh.ai/install.sh | sh
 ### 2. Login
 
 ```bash
-agentsmesh-runner login
+do-worker-runner register
 ```
 
 This opens your browser to authenticate. For headless environments (SSH, remote server):
 
 ```bash
-agentsmesh-runner login --headless
+do-worker-runner register --headless
 ```
 
 For self-hosted deployments, add `--server`:
 
 ```bash
-agentsmesh-runner login --server https://your-server.com
+do-worker-runner register --server https://your-server.com
 ```
 
 ### 3. Run
 
 ```bash
-agentsmesh-runner run
+do-worker-runner run
 ```
 
 Or install as a system service for always-on operation:
 
 ```bash
-agentsmesh-runner service install
-agentsmesh-runner service start
+do-worker-runner service install
+do-worker-runner service start
 ```
 
-Once the runner is online, create an **AgentPod** from the web console and start putting agents to work.
+Once the runner is online, create a **Worker** from the web console. The wizard preflights the selected Worker type, model resource, credentials, workspace, and Runner before creation.
 
 ## Quick Start
 
@@ -152,7 +152,7 @@ Run the whole stack locally with one command.
 ```bash
 git clone https://github.com/l8ai-cn/DoWorker.git
 cd DoWorker
-bazel run //deploy/dev:up
+./deploy/dev/dev.sh
 ```
 
 This starts the full stack: PostgreSQL, Redis, MinIO, Backend, Relay, Traefik, and the Next.js frontend with hot reload.
@@ -177,17 +177,17 @@ This starts the full stack: PostgreSQL, Redis, MinIO, Backend, Relay, Traefik, a
 <details>
 <summary><strong>Manual Setup</strong></summary>
 
-**Prerequisites:** Bazel (bazelisk), Go 1.25+, Node.js 20+, pnpm, Docker, ibazel
+**Prerequisites:** Go, Node.js, pnpm, Docker, and the agent CLIs required by the Workers you plan to run.
 
 ```bash
 # 1. Start infrastructure + host services
-bazel run //deploy/dev:up
+./deploy/dev/dev.sh
 
 # 2. Tail logs
 tail -f deploy/dev/runtime/backend/backend.log
 tail -f deploy/dev/web.log
 
-# Low-memory alternative (no ibazel):
+# Low-memory alternative:
 # cd deploy/dev && ./dev-lite.sh
 ```
 
@@ -216,18 +216,33 @@ See [deploy/selfhost/](deploy/selfhost/) for the self-hosted deployment guide.
 
 </details>
 
-## Supported Agents
+## Worker Runtime Status
 
-Any terminal-based agent works. The built-ins:
+Do Worker does not treat an arbitrary terminal command as an integrated Worker.
+Each formal type needs a Definition, explicit adapter, a published immutable
+runtime image that can be pulled by digest, credential or model-resource
+mapping, and product-path evidence before it is marked supported.
 
-| Agent | Provider | Description |
-|-------|----------|-------------|
-| [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview) | Anthropic | Autonomous AI coding agent |
-| [Codex CLI](https://github.com/openai/codex) | OpenAI | OpenAI's code generation CLI |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | Google | Google Gemini CLI |
-| [Aider](https://github.com/Aider-AI/aider) | Open Source | AI pair programming in the terminal |
-| [OpenCode](https://github.com/opencode-ai/opencode) | Open Source | Open source AI coding tool |
-| Custom | Any | Any terminal-based agent |
+| Worker type | Current status | Creation requirement |
+|-------------|----------------|----------------------|
+| Codex CLI | Not formally deployable | Local create, ACP prompt, and cleanup passed; configured release digest is not pullable |
+| Claude Code | Not formally deployable | Configured release digest is not pullable; compatible resource and full product path remain unverified |
+| Gemini CLI | Not formally deployable | Configured release digest is not pullable; compatible Google resource is absent |
+| Aider | Not formally deployable | No published immutable digest; upstream image build is blocked |
+| Cursor CLI | Not formally deployable | No published immutable digest |
+| Do Agent | Not formally deployable | No published immutable digest |
+| Grok Build | Not formally deployable | No published immutable digest |
+| Hermes | Not formally deployable | No published immutable digest; upstream image build is blocked |
+| Loopal | Not formally deployable | No published immutable digest or accepted real artifact |
+| MiniMax CLI | Not formally deployable | No published immutable digest |
+| OpenClaw | Not formally deployable | No published immutable digest |
+| OpenCode | Not formally deployable | No published immutable digest |
+
+No Worker type is formally deployable until all release gates pass. The
+machine-readable sources are `config/worker-types/`,
+`backend/internal/domain/workerruntime/runtime_catalog.lock.json`,
+`tools/loops/worker-onboarding/catalog-loop/evidence/runtime-lock-probes.json`,
+and `clients/web/src/generated/worker-runtime-catalog.json`.
 
 ## Tech Stack
 
@@ -259,7 +274,7 @@ DoWorker/
 ├── proto/            # Protocol Buffers definitions
 ├── packages/         # Shared TS packages (service-runtime, …)
 ├── deploy/
-│   ├── dev/          # Docker Compose + host-side Bazel services
+│   ├── dev/          # Docker Compose + host-side development services
 │   └── selfhost/     # Self-hosted deployment guide
 ├── tests/            # E2E / hive smoke suites
 └── docs/             # Architecture docs and RFCs

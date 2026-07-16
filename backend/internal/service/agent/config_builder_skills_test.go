@@ -8,6 +8,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
 	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
 	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
+	"github.com/stretchr/testify/assert"
 )
 
 type mockSkillExtensionProvider struct {
@@ -97,6 +98,17 @@ func TestBuildSkillResources_FiltersByAgentfileSlugs(t *testing.T) {
 	}
 	if resources[0].Sha != "sha1" {
 		t.Fatalf("sha = %q, want sha1", resources[0].Sha)
+	}
+}
+
+func TestSkillTargetPathMatchesAgentDiscoveryRoots(t *testing.T) {
+	for _, agentSlug := range []string{"do-agent", "seedance-expert"} {
+		assert.Equal(
+			t,
+			"{{.sandbox.work_dir}}/.agent/skills/seedance-expert",
+			skillTargetPath(agentSlug, "seedance-expert"),
+			agentSlug,
+		)
 	}
 }
 

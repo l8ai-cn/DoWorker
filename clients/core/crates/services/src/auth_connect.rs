@@ -34,7 +34,11 @@ impl AuthConnectService {
         let req = auth_proto::LoginRequest::decode(request_bytes)
             .map_err(|e| format!("decode login request: {e}"))?;
         tracing::info!(target: "auth", "login");
-        let resp = self.client.auth_login_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .auth_login_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -42,7 +46,11 @@ impl AuthConnectService {
         let req = auth_proto::RegisterRequest::decode(request_bytes)
             .map_err(|e| format!("decode register request: {e}"))?;
         tracing::info!(target: "auth", "register");
-        let resp = self.client.auth_register_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .auth_register_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -137,7 +145,11 @@ impl AuthConnectService {
         let req = auth_proto::LogoutRequest::decode(request_bytes)
             .map_err(|e| format!("decode logout request: {e}"))?;
         tracing::info!(target: "auth", "logout");
-        let resp = self.client.auth_logout_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .auth_logout_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 }

@@ -229,7 +229,7 @@ func TestHandler_TwoMessagesStreamedNoItemID_NoDuplicate(t *testing.T) {
 	if len(f.Chunks) != 2 {
 		t.Fatalf("expected 2 chunks (one per message), got %d: %+v", len(f.Chunks), f.Chunks)
 	}
-	if f.Chunks[0].Text != "第一句。" || f.Chunks[1].Text != "第二句。" {
+	if f.Chunks[0].Text != "第一句。" || f.Chunks[1].Text != "\n\n第二句。" {
 		t.Errorf("chunks = %+v", f.Chunks)
 	}
 }

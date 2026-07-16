@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import DashboardShell from "./DashboardShell";
 import { AuthBootstrap } from "@/components/auth/AuthBootstrap";
 import { RequireAuth } from "@/components/auth/RequireAuth";
-import { PostHogIdentify } from "@/providers/PostHogProvider";
+import { PostHogIdentify } from "@/providers/PostHogIdentify";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },

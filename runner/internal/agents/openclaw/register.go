@@ -11,5 +11,6 @@ func init() {
 	agentkit.RegisterAgentHome(agentkit.AgentHomeSpec{
 		EnvVar:      "OPENCLAW_HOME",
 		UserDirName: ".openclaw",
+		MergeConfig: MergeConfig,
 	})
 }

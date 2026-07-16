@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	resourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
@@ -15,6 +16,9 @@ import (
 func TestModelResolverBindsExactResourceAndConnectionRevisions(t *testing.T) {
 	resources := &modelResourceService{
 		resolved: &resourceservice.ResolvedResource{
+			Provider: resourcedomain.ProviderDefinition{
+				ProtocolAdapter: "openai-compatible",
+			},
 			Connection: resourcedomain.Connection{
 				ID:          201,
 				ProviderKey: slugkit.MustNewForTest("openai"),
@@ -34,7 +38,7 @@ func TestModelResolverBindsExactResourceAndConnectionRevisions(t *testing.T) {
 	binding, err := resolver.ResolveModel(
 		context.Background(),
 		specservice.Scope{OrgID: 77, UserID: 7},
-		slugkit.MustNewForTest("codex-cli"),
+		requiredModelRequirement("openai-compatible"),
 		101,
 	)
 
@@ -44,6 +48,7 @@ func TestModelResolverBindsExactResourceAndConnectionRevisions(t *testing.T) {
 	assert.Equal(t, int64(201), binding.ConnectionID)
 	assert.Equal(t, int64(9), binding.ConnectionRevision)
 	assert.Equal(t, slugkit.MustNewForTest("openai"), binding.ProviderKey)
+	assert.Equal(t, slugkit.MustNewForTest("openai-compatible"), binding.ProtocolAdapter)
 	assert.Equal(t, "gpt-5", binding.ModelID)
 	assert.Equal(t, resourceservice.Actor{UserID: 7}, resources.actor)
 	assert.Equal(t, int64(77), resources.orgID)
@@ -53,42 +58,41 @@ func TestModelResolverBindsExactResourceAndConnectionRevisions(t *testing.T) {
 	assert.Equal(t, []string{"openai-compatible"}, resources.requirements.AllowedProtocolAdapters)
 }
 
-func TestModelResolverUsesWorkerSpecificProtocolAdapters(t *testing.T) {
+func TestModelResolverUsesDefinitionProtocolAdapters(t *testing.T) {
 	tests := []struct {
-		workerType string
-		adapter    string
+		name     string
+		adapters []string
 	}{
-		{workerType: "codex-cli", adapter: "openai-compatible"},
-		{workerType: "video-studio", adapter: "openai-compatible"},
-		{workerType: "claude-code", adapter: "anthropic"},
-		{workerType: "gemini-cli", adapter: "gemini"},
+		{name: "openai", adapters: []string{"openai-compatible"}},
+		{name: "anthropic", adapters: []string{"anthropic"}},
+		{name: "multiple", adapters: []string{"openai-compatible", "anthropic", "minimax"}},
 	}
 
 	for _, test := range tests {
-		t.Run(test.workerType, func(t *testing.T) {
+		t.Run(test.name, func(t *testing.T) {
 			resources := validModelResourceService()
 
 			_, err := newModelResolver(resources).ResolveModel(
 				context.Background(),
 				specservice.Scope{OrgID: 77, UserID: 7},
-				slugkit.MustNewForTest(test.workerType),
+				requiredModelRequirement(test.adapters...),
 				101,
 			)
 
 			require.NoError(t, err)
-			assert.Equal(t, []string{test.adapter}, resources.requirements.AllowedProtocolAdapters)
+			assert.Equal(t, test.adapters, resources.requirements.AllowedProtocolAdapters)
 		})
 	}
 }
 
 func TestModelResolverRejectsUnsupportedOrInvalidSelections(t *testing.T) {
-	t.Run("unsupported worker type", func(t *testing.T) {
+	t.Run("missing model requirement", func(t *testing.T) {
 		resources := validModelResourceService()
 
 		_, err := newModelResolver(resources).ResolveModel(
 			context.Background(),
 			specservice.Scope{OrgID: 77, UserID: 7},
-			slugkit.MustNewForTest("do-agent"),
+			specdomain.ModelRequirement{},
 			101,
 		)
 
@@ -104,7 +108,7 @@ func TestModelResolverRejectsUnsupportedOrInvalidSelections(t *testing.T) {
 		_, err := newModelResolver(resources).ResolveModel(
 			context.Background(),
 			specservice.Scope{OrgID: 77, UserID: 7},
-			slugkit.MustNewForTest("codex-cli"),
+			requiredModelRequirement("openai-compatible"),
 			101,
 		)
 
@@ -120,7 +124,7 @@ func TestModelResolverRejectsUnsupportedOrInvalidSelections(t *testing.T) {
 		_, err := newModelResolver(resources).ResolveModel(
 			context.Background(),
 			specservice.Scope{OrgID: 77, UserID: 7},
-			slugkit.MustNewForTest("codex-cli"),
+			requiredModelRequirement("openai-compatible"),
 			101,
 		)
 
@@ -131,6 +135,7 @@ func TestModelResolverRejectsUnsupportedOrInvalidSelections(t *testing.T) {
 
 type modelResourceService struct {
 	resolved     *resourceservice.ResolvedResource
+	resolvedByID map[int64]*resourceservice.ResolvedResource
 	err          error
 	calls        int
 	actor        resourceservice.Actor
@@ -150,12 +155,18 @@ func (service *modelResourceService) ResolveExact(
 	service.orgID = orgID
 	service.resourceID = resourceID
 	service.requirements = requirements
+	if resolved := service.resolvedByID[resourceID]; resolved != nil {
+		return resolved, service.err
+	}
 	return service.resolved, service.err
 }
 
 func validModelResourceService() *modelResourceService {
 	return &modelResourceService{
 		resolved: &resourceservice.ResolvedResource{
+			Provider: resourcedomain.ProviderDefinition{
+				ProtocolAdapter: "openai-compatible",
+			},
 			Connection: resourcedomain.Connection{
 				ID:          201,
 				ProviderKey: slugkit.MustNewForTest("openai"),
@@ -169,4 +180,15 @@ func validModelResourceService() *modelResourceService {
 			},
 		},
 	}
+}
+
+func requiredModelRequirement(adapters ...string) specdomain.ModelRequirement {
+	requirement := specdomain.ModelRequirement{
+		Required:         true,
+		ProtocolAdapters: make([]slugkit.Slug, len(adapters)),
+	}
+	for index, adapter := range adapters {
+		requirement.ProtocolAdapters[index] = slugkit.MustNewForTest(adapter)
+	}
+	return requirement
 }

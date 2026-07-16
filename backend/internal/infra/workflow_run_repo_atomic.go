@@ -64,15 +64,18 @@ func (r *workflowRunRepo) TriggerRunAtomic(ctx context.Context, params *workflow
 		now := time.Now()
 
 		run := &workflow.WorkflowRun{
-			OrganizationID: l.OrganizationID,
-			WorkflowID:     l.ID,
-			RunNumber:      runNumber,
-			Status:         workflow.RunStatusPending,
-			TriggerType:    params.TriggerType,
-			TriggerSource:  &params.TriggerSource,
-			TriggerParams:  params.TriggerParams,
-			ResolvedPrompt: &resolvedPrompt,
-			StartedAt:      &now,
+			OrganizationID:                l.OrganizationID,
+			WorkflowID:                    l.ID,
+			RunNumber:                     runNumber,
+			Status:                        workflow.RunStatusPending,
+			TriggerType:                   params.TriggerType,
+			TriggerSource:                 &params.TriggerSource,
+			TriggerParams:                 params.TriggerParams,
+			ResolvedPrompt:                &resolvedPrompt,
+			StartedAt:                     &now,
+			OrchestrationResourceID:       l.OrchestrationResourceID,
+			OrchestrationResourceRevision: l.OrchestrationResourceRevision,
+			WorkerSpecSnapshotID:          l.WorkerSpecSnapshotID,
 		}
 
 		if err := tx.Create(run).Error; err != nil {
@@ -99,13 +102,16 @@ func (r *workflowRunRepo) handleConcurrencyPolicy(tx *gorm.DB, l *workflow.Workf
 
 	now := time.Now()
 	skippedRun := &workflow.WorkflowRun{
-		OrganizationID: l.OrganizationID,
-		WorkflowID:     l.ID,
-		RunNumber:      maxNumber + 1,
-		Status:         workflow.RunStatusSkipped,
-		TriggerType:    params.TriggerType,
-		TriggerSource:  &params.TriggerSource,
-		FinishedAt:     &now,
+		OrganizationID:                l.OrganizationID,
+		WorkflowID:                    l.ID,
+		RunNumber:                     maxNumber + 1,
+		Status:                        workflow.RunStatusSkipped,
+		TriggerType:                   params.TriggerType,
+		TriggerSource:                 &params.TriggerSource,
+		FinishedAt:                    &now,
+		OrchestrationResourceID:       l.OrchestrationResourceID,
+		OrchestrationResourceRevision: l.OrchestrationResourceRevision,
+		WorkerSpecSnapshotID:          l.WorkerSpecSnapshotID,
 	}
 	if err := tx.Create(skippedRun).Error; err != nil {
 		return err

@@ -1,6 +1,6 @@
-use crate::ApiClient;
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
+use crate::ApiClient;
 use agentsmesh_types::proto_auth_v1 as auth_proto;
 
 // Connect-RPC bindings for `proto.auth.v1` (conventions §2.5: binary wire,

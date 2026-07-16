@@ -7,16 +7,9 @@ import {
   workspaceUrlForPod,
 } from "../../helpers/mock-agent";
 
-// Multi-tab synchronization regression for the Phase D refactor
-// (AcpPermissionModeSelector → useAcpSessionField). Two browser tabs
-// (same context = same auth cookie + shared relay subscription topology)
-// open the same pod. A mode change in tab A must propagate to tab B's
-// selector via the configChanged broadcast — no manual refresh required.
-//
-// Before Phase D this would silently desync because each Selector kept
-// its own useState; Phase D made the value server-derived through the
-// wasm session cache, and Phase B added the broadcast that updates it.
-// See acp-ui-echo.spec.ts header — same r6 fix applies.
+// Multi-tab synchronization regression for the shared AgentWorkspace
+// configuration bar. A mode change in tab A must propagate to tab B without
+// a manual refresh.
 test.describe("ACP UI: multi-tab Selector synchronization", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
   test.afterEach(async () => { await terminateAllPods(); });
@@ -24,7 +17,7 @@ test.describe("ACP UI: multi-tab Selector synchronization", () => {
   test("mode change in tab A appears in tab B without refresh", async ({ context, api }) => {
     const pod = await createMockAgentPod(api, {
       mode: "acp",
-      scenario: "config_change_plan",
+      scenario: "permission_modes_loopal",
       prompt: "multi-tab probe",
     });
 
@@ -50,24 +43,14 @@ test.describe("ACP UI: multi-tab Selector synchronization", () => {
     ]);
     await takeWorkerControl(tabA);
 
-    // Drive the change from tab A. DropdownMenuTrigger carries the active
-    // mode's i18n description as `title` (see AcpPermissionModeSelector).
-    await tabA.locator('button[title*="Mode" i], button[title*="Approve" i], button[title*="Auto-approve" i]').first().click();
-    await tabA.getByText("Default", { exact: true }).first().click();
+    await tabA.getByRole("combobox", { name: "Permissions" }).click();
+    await tabA.getByRole("option", { name: "Full access" }).click();
 
-    // Tab B must observe the new label through the broadcast → wasm
-    // → useAcpSessionField path. Without Phase B's configChanged
-    // event or Phase D's server-derived read, this would time out.
-    await expect(
-      tabB.locator('button:has-text("Default")').first()
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(tabB.getByRole("combobox", { name: "Permissions" }))
+      .toHaveText("Full access", { timeout: 10_000 });
 
-    // Symmetry check: tab A also reflects the change locally (sanity
-    // — it was the originator, the local optimistic update used to
-    // come from useState and now comes from the same broadcast path).
-    await expect(
-      tabA.locator('button:has-text("Default")').first()
-    ).toBeVisible({ timeout: 5_000 });
+    await expect(tabA.getByRole("combobox", { name: "Permissions" }))
+      .toHaveText("Full access", { timeout: 5_000 });
 
     await tabA.close();
     await tabB.close();

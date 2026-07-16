@@ -13,18 +13,19 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://agentsmesh.ai"),
   title: {
-    default: "Do Worker - The AI Agent Workforce Platform",
+    default: "Do Worker - Enterprise Agent Supply and OPC Incubation",
     template: "%s | Do Worker",
   },
-  description: "Ship like a team of fifty. With a team of five. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
+  description: "Build, govern, distribute, and operate reusable Agents for enterprise teams, OPC founders, and higher-education digital employee programs.",
   keywords: [
     "do-worker", "do worker", "l8ai",
-    "AI agent workforce platform", "agent team management", "AI agent team",
+    "enterprise agent supply", "OPC incubation", "higher-education digital employees",
+    "AI partner platform", "internal agent marketplace",
     "AI agents", "AI coding", "Claude Code", "Codex CLI", "Gemini CLI", "Aider",
-    "multi-agent collaboration", "agent coordination", "terminal AI", "code automation",
+    "multi-agent orchestration", "AI skills", "terminal AI", "code automation",
     "developer tools", "enterprise development", "self-hosted", "agent fleet",
-    "AI developer tools", "coding agents", "agent management",
-    "multi-agent orchestration", "team productivity",
+    "AI developer tools", "coding agents", "agent workflows",
+    "organizational knowledge", "human checkpoints",
   ],
   manifest: "/manifest.json",
   appleWebApp: {
@@ -38,14 +39,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Do Worker",
-    title: "Do Worker - The AI Agent Workforce Platform",
-    description: "Ship like a team of fifty. With a team of five. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
+    title: "Do Worker - Enterprise Agent Supply and OPC Incubation",
+    description: "Build, govern, distribute, and operate reusable Agents across organizations.",
     url: "https://agentsmesh.ai",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Do Worker - The AI Agent Workforce Platform",
-    description: "Ship like a team of fifty. With a team of five. Give every team member an AI agent squad — assign tasks, track progress, and let them collaborate autonomously.",
+    title: "Do Worker - Enterprise Agent Supply and OPC Incubation",
+    description: "Build, govern, distribute, and operate reusable Agents across organizations.",
   },
   alternates: {
     canonical: "https://agentsmesh.ai",

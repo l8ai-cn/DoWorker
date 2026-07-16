@@ -102,22 +102,15 @@ push_runners() {
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh grok-build )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh openclaw )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh hermes )
-  docker build --platform linux/amd64 --target runtime \
+  TARGET_ARCH="${PLATFORM#linux/}" \
+    "${REPO_ROOT}/docker/agent-runtime/prepare_binaries.sh" \
+    "${REPO_ROOT}/docker/agent-runtime/_context" e2e-echo
+  docker build --platform "$PLATFORM" --target runtime \
     -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
     --build-arg AGENT_RUNTIME=e2e-echo \
     -t do-worker/runner-e2e-echo:latest \
     "${REPO_ROOT}/docker/agent-runtime/_context"
-  if docker image inspect "do-worker/runner-minimax-cli:latest" >/dev/null 2>&1; then
-    :
-  elif docker image inspect "l8ai/runner-minimax-cli:latest" >/dev/null 2>&1; then
-    docker tag "l8ai/runner-minimax-cli:latest" "do-worker/runner-minimax-cli:latest"
-  else
-    docker build --platform linux/amd64 --target runtime \
-      -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
-      --build-arg AGENT_RUNTIME=minimax-cli \
-      -t do-worker/runner-minimax-cli:latest \
-      "${REPO_ROOT}/docker/agent-runtime/_context"
-  fi
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh minimax-cli )
   for rt in claude-code codex-cli video-studio gemini-cli grok-build openclaw hermes e2e-echo minimax-cli; do
     docker tag "do-worker/runner-${rt}:latest" "${PROJ}/runner-${rt}:latest"
     docker push "${PROJ}/runner-${rt}:latest"
@@ -125,11 +118,29 @@ push_runners() {
 }
 
 push_video_runtime() {
-  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh video-studio )
+  (
+    cd "${REPO_ROOT}"
+    FORCE_REBUILD=1 PLATFORM="${PLATFORM}" bash docker/agent-runtime/build.sh video-studio
+  )
   docker tag "do-worker/runner-video-studio:latest" "${PROJ}/runner-video-studio:latest"
   docker push "${PROJ}/runner-video-studio:latest"
-  manifest_digest "${PROJ}/runner-video-studio:latest"
-  echo
+  local digest
+  digest="$(manifest_digest "${PROJ}/runner-video-studio:latest")"
+  node "${REPO_ROOT}/deploy/kubernetes/cluster-oilan/update-video-runtime-digest.mjs" \
+    "${digest}" "${REPO_ROOT}"
+  (
+    cd "${REPO_ROOT}"
+    node scripts/probe-worker-runtime-locks.mjs video-studio
+    pnpm run worker-docs:sync
+    bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-runtime-lock-probes.sh
+    pnpm run worker-docs:check
+    jq -e '
+      .probes[] |
+      select(.worker_slug == "video-studio") |
+      .status == "available"
+    ' tools/loops/worker-onboarding/catalog-loop/evidence/runtime-lock-probes.json \
+      >/dev/null
+  )
 }
 
 main() {

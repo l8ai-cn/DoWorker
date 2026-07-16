@@ -7,7 +7,7 @@ import (
 )
 
 func TestMigration000210SkillTagsContract(t *testing.T) {
-	up, err := FS.ReadFile("000210_skill_tags.up.sql")
+	up, err := FS.ReadFile("000219_skill_tags.up.sql")
 	require.NoError(t, err)
 	upSQL := string(up)
 
@@ -18,7 +18,7 @@ func TestMigration000210SkillTagsContract(t *testing.T) {
 		require.Contains(t, upSQL, fragment)
 	}
 
-	down, err := FS.ReadFile("000210_skill_tags.down.sql")
+	down, err := FS.ReadFile("000219_skill_tags.down.sql")
 	require.NoError(t, err)
 	downSQL := string(down)
 

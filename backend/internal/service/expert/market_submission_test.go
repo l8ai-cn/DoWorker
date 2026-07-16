@@ -268,6 +268,9 @@ func TestMarketSubmissionRejectsOrganizationScopedWorkerSpecReferences(t *testin
 		"environment": func(_ *expertdom.Expert, snapshots *fakeMarketSnapshots) {
 			snapshots.source.Spec.Workspace.EnvBundleIDs = []specdomain.RuntimeEnvBundleID{92}
 		},
+		"configuration": func(_ *expertdom.Expert, snapshots *fakeMarketSnapshots) {
+			snapshots.source.Spec.Workspace.ConfigBundleIDs = []int64{94}
+		},
 		"secret": func(_ *expertdom.Expert, snapshots *fakeMarketSnapshots) {
 			snapshots.source.Spec.TypeConfig.SecretRefs = map[string]specdomain.SecretReference{
 				"TOKEN": {
@@ -287,6 +290,9 @@ func TestMarketSubmissionRejectsOrganizationScopedWorkerSpecReferences(t *testin
 				fixture.submissionRequest(),
 			)
 			require.ErrorIs(t, err, ErrMarketSnapshotInvalid)
+			if name == "configuration" {
+				require.ErrorContains(t, err, "workspace.config_bundle_ids")
+			}
 		})
 	}
 }

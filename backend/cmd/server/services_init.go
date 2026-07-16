@@ -17,7 +17,9 @@ func initializeServices(
 	if err != nil {
 		return nil, err
 	}
-	initializeWorkspaceServices(services, cfg, db, encryptor)
+	if err := initializeWorkspaceServices(services, cfg, db, encryptor); err != nil {
+		return nil, err
+	}
 	initializePlatformServices(services, cfg, db, redisClient)
 	return services, nil
 }

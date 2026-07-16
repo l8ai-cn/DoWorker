@@ -34,18 +34,27 @@ func TestHarnessEnvVars_ClaudeAnthropic(t *testing.T) {
 	assert.Equal(t, "https://api.anthropic.com", env["ANTHROPIC_BASE_URL"])
 }
 
-func TestHarnessEnvVars_MultiProviderWorkers(t *testing.T) {
+func TestHarnessEnvVars_GeminiUsesGeminiAPIKey(t *testing.T) {
+	m := &AIModel{ProviderType: ProviderTypeGemini, Model: "gemini-pro"}
+	env := HarnessEnvVars("gemini-cli", "", m, map[string]string{"api_key": "gemini-test"})
+
+	assert.Equal(t, map[string]string{"GEMINI_API_KEY": "gemini-test"}, env)
+}
+
+func TestHarnessEnvVars_OpenClawAndHermesUseFormalOpenAIContract(t *testing.T) {
 	openAI := &AIModel{ProviderType: ProviderTypeOpenAI, Model: "gpt-5.5"}
-	assert.Equal(t, "gpt-5.5", HarnessEnvVars("openclaw", "", openAI, map[string]string{"api_key": "sk-test"})["OPENAI_MODEL"])
+	for _, slug := range []string{"openclaw", "hermes"} {
+		assert.Equal(t, map[string]string{
+			"OPENAI_API_KEY": "sk-test",
+			"OPENAI_MODEL":   "gpt-5.5",
+		}, HarnessEnvVars(slug, "", openAI, map[string]string{"api_key": "sk-test"}))
 
-	anthropic := &AIModel{ProviderType: ProviderTypeAnthropic}
-	assert.Equal(t, "sk-ant-test", HarnessEnvVars("hermes", "", anthropic, map[string]string{"api_key": "sk-ant-test"})["ANTHROPIC_API_KEY"])
+		anthropic := &AIModel{ProviderType: ProviderTypeAnthropic}
+		assert.Nil(t, HarnessEnvVars(slug, "", anthropic, map[string]string{"api_key": "sk-ant-test"}))
 
-	gemini := &AIModel{ProviderType: ProviderTypeGemini, Model: "gemini-pro"}
-	geminiEnv := HarnessEnvVars("openclaw", "", gemini, map[string]string{"api_key": "gemini-test"})
-	assert.Equal(t, "gemini-test", geminiEnv["GOOGLE_API_KEY"])
-	assert.Equal(t, "gemini-test", geminiEnv["GEMINI_API_KEY"])
-	assert.Equal(t, "gemini-pro", geminiEnv["GEMINI_MODEL"])
+		gemini := &AIModel{ProviderType: ProviderTypeGemini, Model: "gemini-pro"}
+		assert.Nil(t, HarnessEnvVars(slug, "", gemini, map[string]string{"api_key": "gemini-test"}))
+	}
 }
 
 func TestPreferredProviders(t *testing.T) {
@@ -54,8 +63,8 @@ func TestPreferredProviders(t *testing.T) {
 	assert.Equal(t, []string{ProviderTypeAnthropic}, PreferredProviders("claude-code"))
 	assert.Equal(t, []string{ProviderTypeGemini}, PreferredProviders("gemini-cli"))
 	assert.Equal(t, []string{ProviderTypeAnthropic, ProviderTypeMiniMax}, PreferredProviders("do-agent"))
-	assert.Equal(t, []string{ProviderTypeOpenAI, ProviderTypeAnthropic, ProviderTypeGemini}, PreferredProviders("openclaw"))
-	assert.Equal(t, []string{ProviderTypeOpenAI, ProviderTypeAnthropic, ProviderTypeGemini}, PreferredProviders("hermes"))
+	assert.Equal(t, []string{ProviderTypeOpenAI}, PreferredProviders("openclaw"))
+	assert.Equal(t, []string{ProviderTypeOpenAI}, PreferredProviders("hermes"))
 	assert.Nil(t, PreferredProviders("e2e-echo"))
 }
 

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "worker_slug": "do-agent",
+  "documents": [
+    {
+      "id": "settings",
+      "format": "json",
+      "target_path": "DO_AGENT_SETTINGS"
+    }
+  ]
+}

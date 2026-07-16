@@ -1,13 +1,14 @@
 "use client";
 
 import { AlertMessage } from "@/components/ui/alert-message";
-import type { InstalledSkill } from "@/lib/api";
 import type { WorkerSpecDraft } from "@/lib/api/facade/podConnect";
 import type { KnowledgeMountSelection } from "@/lib/api/facade/knowledgeBaseApi";
 import type { WorkerCreateController } from "../hooks/workerCreateController";
 import { EnvBundleMultiSelect } from "./EnvBundleMultiSelect";
 import { KnowledgeBaseMountSelect } from "./KnowledgeBaseMountSelect";
 import { SkillMultiSelect } from "./SkillMultiSelect";
+import { WorkerConfigFileSelect } from "./WorkerConfigFileSelect";
+import type { WorkerSkillOption } from "./workerSkillOption";
 
 interface WorkerWorkspaceCapabilitiesProps {
   controller: WorkerCreateController;
@@ -23,6 +24,10 @@ export function WorkerWorkspaceCapabilities({
   const bundles =
     controller.runtimeBundles.status === "ready"
       ? controller.runtimeBundles.data
+      : [];
+  const configBundles =
+    controller.configBundles.status === "ready"
+      ? controller.configBundles.data
       : [];
   const selectedSkillSlugs = draft.skill_ids.flatMap((id) => {
     const slug = skills.find((item) => item.id === id)?.slug;
@@ -66,7 +71,6 @@ export function WorkerWorkspaceCapabilities({
             controller.skills.status === "idle" ||
             controller.skills.status === "loading"
           }
-          repositorySelected={Boolean(draft.repository_id)}
           onChange={(slugs) =>
             controller.patchDraft({
               skill_ids: slugs.map((slug) => requiredSkillID(slug, skills)),
@@ -94,6 +98,13 @@ export function WorkerWorkspaceCapabilities({
         }
         t={t}
       />
+      <WorkerConfigFileSelect
+        agentSlug={draft.worker_type_slug}
+        bundles={configBundles}
+        selectedIds={draft.config_bundle_ids}
+        onChange={(config_bundle_ids) => controller.patchDraft({ config_bundle_ids })}
+        t={t}
+      />
     </div>
   );
 }
@@ -109,7 +120,7 @@ function workerKnowledgeMounts(
 
 function requiredSkillID(
   slug: string,
-  skills: InstalledSkill[],
+  skills: WorkerSkillOption[],
 ): number {
   const skill = skills.find((item) => item.slug === slug);
   if (!skill) throw new Error(`Selected skill "${slug}" is unavailable`);

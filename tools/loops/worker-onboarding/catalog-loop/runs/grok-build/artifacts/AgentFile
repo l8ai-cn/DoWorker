@@ -1,0 +1,22 @@
+AGENT grok
+EXECUTABLE grok
+MODE pty
+MODE pty "--no-auto-update"
+MODE acp "--no-auto-update" "agent" "stdio"
+CONFIG model STRING = ""
+CONFIG effort SELECT("", "low", "medium", "high") = ""
+ENV XAI_API_KEY SECRET
+ENV GROK_HOME = sandbox.root + "/grok-home"
+PROMPT_POSITION prepend
+MCP ON
+SKILLS am-delegate, am-channel
+CAPABILITY resume none
+CAPABILITY permission none
+CAPABILITY usage none
+CAPABILITY interrupt true
+CAPABILITY streaming true
+CAPABILITY subagents true
+CAPABILITY model_family multi
+arg "--model" config.model when config.model != ""
+arg "--effort" config.effort when config.effort != ""
+mkdir sandbox.root + "/grok-home"

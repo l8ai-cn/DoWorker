@@ -6,18 +6,16 @@ use agentsmesh_state::app_state::AppRuntime;
 use agentsmesh_transport::runtime::PlatformRuntime;
 use wasm_bindgen::prelude::*;
 
-mod service_factories;
-
 #[wasm_bindgen]
 pub struct WasmApiClient {
-    client: Arc<ApiClient>,
+    pub(crate) client: Arc<ApiClient>,
     base_url: String,
     /// Singleton AppRuntime for this client. Created once at construction
     /// time and shared by all services + the events manager. The events
     /// manager's dispatch hook is wired into `AppRuntime.state.dispatch`
     /// at this point, so any event delivered through the connection_workflow
     /// updates the same `AppState` that services + selectors read from.
-    runtime: Arc<AppRuntime>,
+    pub(crate) runtime: Arc<AppRuntime>,
 }
 
 #[wasm_bindgen]

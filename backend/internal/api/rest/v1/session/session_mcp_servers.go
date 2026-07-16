@@ -35,7 +35,7 @@ func (d *Deps) handleCreateMcpServer(c *gin.Context) {
 	}
 	row.McpServers, _ = marshalJSON(servers)
 	if _, err := d.rebuildSessionPod(c, row, pod, row.AgentSlug); err != nil {
-		writeSwitchAgentError(c, err)
+		writeSessionPodError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, mcpServerWire(body))
@@ -75,7 +75,7 @@ func (d *Deps) handleUpdateMcpServer(c *gin.Context) {
 	}
 	row.McpServers, _ = marshalJSON(servers)
 	if _, err := d.rebuildSessionPod(c, row, pod, row.AgentSlug); err != nil {
-		writeSwitchAgentError(c, err)
+		writeSessionPodError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, mcpServerWire(body))
@@ -110,7 +110,7 @@ func (d *Deps) handleDeleteMcpServer(c *gin.Context) {
 	}
 	row.McpServers, _ = marshalJSON(next)
 	if _, err := d.rebuildSessionPod(c, row, pod, row.AgentSlug); err != nil {
-		writeSwitchAgentError(c, err)
+		writeSessionPodError(c, err)
 		return
 	}
 	c.Status(http.StatusNoContent)

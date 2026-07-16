@@ -3,9 +3,9 @@
 // (conventions §12, §2.5). The legacy REST surface was retired; Connect
 // handlers in backend/internal/api/connect/blockstore/ now own the data plane.
 
-use crate::ApiClient;
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
+use crate::ApiClient;
 use agentsmesh_types::proto_blockstore_v1 as blockstore_proto;
 
 impl ApiClient {

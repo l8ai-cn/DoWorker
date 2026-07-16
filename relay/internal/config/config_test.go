@@ -14,14 +14,21 @@ func clearEnv() {
 		"RELAY_SERVER_HOST", "RELAY_SERVER_PORT", "RELAY_JWT_SECRET", "RELAY_JWT_ISSUER",
 		"RELAY_BACKEND_URL", "RELAY_INTERNAL_API_SECRET",
 		"PRIMARY_DOMAIN", "USE_HTTPS", "TLS_ENABLED", "RELAY_NAME", "RELAY_AUTO_IP",
+		"PREVIEW_PUBLIC_ORIGIN", "RELAY_PREVIEW_PUBLIC_ORIGIN",
 	} {
 		_ = os.Unsetenv(env)
 	}
 }
 
+func setPreviewOrigin(t *testing.T) {
+	t.Helper()
+	t.Setenv("PREVIEW_PUBLIC_ORIGIN", "http://preview.example.test")
+}
+
 func TestLoad_TunnelAndOriginDefaults(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	t.Setenv("JWT_SECRET", "x")
 	t.Setenv("INTERNAL_API_SECRET", "y")
 	cfg, err := Load()
@@ -40,7 +47,11 @@ func TestLoad_TunnelAndOriginDefaults(t *testing.T) {
 }
 
 func TestServerConfig_Address(t *testing.T) {
-	tests := []struct{ host string; port int; expected string }{
+	tests := []struct {
+		host     string
+		port     int
+		expected string
+	}{
 		{"0.0.0.0", 8090, "0.0.0.0:8090"}, {"127.0.0.1", 8080, "127.0.0.1:8080"},
 		{"localhost", 3000, "localhost:3000"}, {"", 80, ":80"},
 	}
@@ -55,11 +66,13 @@ func TestServerConfig_Address(t *testing.T) {
 func TestLoad_MissingSecrets(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("INTERNAL_API_SECRET", "test")
 	if _, err := Load(); err == nil {
 		t.Error("expected error for missing JWT_SECRET")
 	}
 	clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test")
 	if _, err := Load(); err == nil {
 		t.Error("expected error for missing INTERNAL_API_SECRET")
@@ -69,6 +82,7 @@ func TestLoad_MissingSecrets(t *testing.T) {
 func TestLoad_WithRequiredEnvVars(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
 	cfg, err := Load()
@@ -99,6 +113,7 @@ func TestLoad_WithRequiredEnvVars(t *testing.T) {
 func TestLoad_EnvironmentOverrides(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
 	_ = os.Setenv("SERVER_HOST", "192.168.1.1")
@@ -128,6 +143,7 @@ func TestLoad_EnvironmentOverrides(t *testing.T) {
 func TestLoad_RelayIDDefault(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
 	cfg, _ := Load()
@@ -139,6 +155,7 @@ func TestLoad_RelayIDDefault(t *testing.T) {
 func TestLoad_RelayURLDefault(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
 	cfg, _ := Load()
@@ -150,6 +167,7 @@ func TestLoad_RelayURLDefault(t *testing.T) {
 func TestLoad_WithRelayPrefix(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
 	_ = os.Setenv("RELAY_SERVER_HOST", "10.0.0.1")
@@ -163,6 +181,7 @@ func TestLoad_WithRelayPrefix(t *testing.T) {
 func TestLoad_PrimaryDomain_WS(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
 	_ = os.Setenv("PRIMARY_DOMAIN", "example.com:10000")
@@ -180,6 +199,7 @@ func TestLoad_PrimaryDomain_WS(t *testing.T) {
 func TestLoad_PrimaryDomain_WSS(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
 	_ = os.Setenv("PRIMARY_DOMAIN", "agentsmesh.ai")
@@ -197,6 +217,7 @@ func TestLoad_PrimaryDomain_WSS(t *testing.T) {
 func TestLoad_TLSEnabled_FallbackURL(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
 	_ = os.Setenv("TLS_ENABLED", "true")
@@ -217,6 +238,7 @@ func TestLoad_TLSEnabled_FallbackURL(t *testing.T) {
 func TestLoad_SessionConfigDefaults(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
 	cfg, _ := Load()
@@ -234,6 +256,7 @@ func TestLoad_SessionConfigDefaults(t *testing.T) {
 func TestLoad_TLSConfig(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
 	_ = os.Setenv("TLS_ENABLED", "true")
@@ -257,6 +280,7 @@ func TestLoad_TLSConfig(t *testing.T) {
 func TestLoad_RelayNameAndAutoIP(t *testing.T) {
 	clearEnv()
 	defer clearEnv()
+	setPreviewOrigin(t)
 	_ = os.Setenv("JWT_SECRET", "test-jwt")
 	_ = os.Setenv("INTERNAL_API_SECRET", "test-internal")
 	_ = os.Setenv("RELAY_NAME", "us-east-1")

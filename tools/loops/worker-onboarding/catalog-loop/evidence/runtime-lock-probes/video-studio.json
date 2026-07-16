@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "worker_slug": "video-studio",
+  "runtime_catalog_revision": "runtime-catalog-2026-07-13-release-gated",
+  "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:21bc8f143d304f361b58862b9c33b4e7257307132f9507cf22d461fca1d61716",
+  "image_digest": "sha256:21bc8f143d304f361b58862b9c33b4e7257307132f9507cf22d461fca1d61716",
+  "status": "not_found",
+  "exit_code": 1,
+  "output": "Error response from daemon: failed to resolve reference \"repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:21bc8f143d304f361b58862b9c33b4e7257307132f9507cf22d461fca1d61716\": repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:21bc8f143d304f361b58862b9c33b4e7257307132f9507cf22d461fca1d61716: not found",
+  "observed_at": "2026-07-16T05:38:28.762Z"
+}

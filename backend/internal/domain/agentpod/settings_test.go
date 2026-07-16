@@ -234,8 +234,8 @@ func TestProviderEnvVarMappingOpenAI(t *testing.T) {
 func TestProviderEnvVarMappingGemini(t *testing.T) {
 	mapping := ProviderEnvVarMapping[AIProviderTypeGemini]
 
-	if mapping["api_key"] != "GOOGLE_API_KEY" {
-		t.Errorf("expected 'GOOGLE_API_KEY', got %s", mapping["api_key"])
+	if mapping["api_key"] != "GEMINI_API_KEY" {
+		t.Errorf("expected 'GEMINI_API_KEY', got %s", mapping["api_key"])
 	}
 }
 

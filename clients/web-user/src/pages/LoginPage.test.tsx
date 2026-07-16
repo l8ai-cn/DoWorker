@@ -11,6 +11,7 @@ import * as accountsApi from "@/lib/accountsApi";
 vi.mock("@/lib/accountsApi", () => ({
   getMe: vi.fn(),
   login: vi.fn(),
+  listMyOrgSlug: vi.fn(),
 }));
 
 const ORIGIN = "https://app.example.com";
@@ -50,6 +51,7 @@ beforeEach(() => {
     created_at: null,
     last_login_at: null,
   });
+  vi.mocked(accountsApi.listMyOrgSlug).mockResolvedValue("dev-org");
 });
 
 afterEach(() => {

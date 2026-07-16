@@ -146,11 +146,32 @@
       "loadSchemaFailed": "Failed to load configuration schema",
       "noConfigFields": "No configuration options available for this agent",
       "invalidJson": "Invalid JSON format",
-      "credentials": {
-        "title": "API Credentials",
-        "description": "Provider credentials are managed in AI Resources. Runtime env bundles must not contain model API secrets."
-      },
-      "runtime": {
+    "credentials": {
+      "title": "API Credentials",
+      "description": "Provider credentials are managed in AI Resources. Runtime env bundles must not contain model API secrets."
+    },
+    "credentialBundles": {
+      "title": "Lots d’identifiants",
+      "description": "Stockez les identifiants de connexion de ce Worker dans des lots chiffrés. Choisissez un lot par défaut lors de la création d’un Worker.",
+      "empty": "Aucun lot d’identifiants pour le moment. Ajoutez-en un pour le réutiliser à la création de Workers.",
+      "noKeys": "Aucun champ d’identifiant configuré",
+      "add": "Ajouter",
+      "addTitle": "Ajouter un lot d’identifiants",
+      "editTitle": "Modifier le lot d’identifiants",
+      "name": "Nom",
+      "namePlaceholder": "ex. personal-cursor / team-openai",
+      "descriptionLabel": "Description",
+      "clearDefault": "Retirer la valeur par défaut",
+      "confirmDelete": "Supprimer ce lot d’identifiants ? Les Workers qui le référencent ne recevront plus ces identifiants.",
+      "created": "Lot d’identifiants créé",
+      "updated": "Lot d’identifiants mis à jour",
+      "deleted": "Lot d’identifiants supprimé",
+      "defaultSet": "Lot d’identifiants par défaut mis à jour",
+      "saveFailed": "Échec de l’enregistrement du lot d’identifiants",
+      "failedToSetDefault": "Échec de la définition du lot par défaut",
+      "failedToDelete": "Échec de la suppression du lot d’identifiants"
+    },
+    "runtime": {
         "title": "Runtime Configuration",
         "description": "Set default runtime parameters for this agent. These settings will be used when creating new pods."
       },
@@ -468,6 +489,7 @@
       "justNow": "Just now",
       "edit": "Edit",
       "generateToken": "Generate Token",
+      "selectCluster": "Select execution cluster",
       "delete": "Delete",
       "disabled": "Disabled",
       "upgradeAvailable": "Mise à jour",

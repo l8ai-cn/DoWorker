@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@/test/test-utils";
+import { render, screen, fireEvent, waitFor } from "@/test/test-utils";
 import { AcpPromptInput } from "@/components/workspace/acp/AcpPromptInput";
 import {
   __seedAcpSessionForTests,
@@ -10,7 +10,7 @@ import { relayPool } from "@/stores/relayConnection";
 
 vi.mock("@/stores/relayConnection", () => ({
   relayPool: {
-    sendAcpCommand: vi.fn(),
+    sendAcpCommand: vi.fn().mockResolvedValue(undefined),
     isConnected: vi.fn().mockReturnValue(true),
   },
 }));
@@ -27,17 +27,19 @@ describe("AcpPromptInput", () => {
     expect(screen.getByPlaceholderText("Send instruction...")).toBeInTheDocument();
   });
 
-  it("sends prompt on Enter", () => {
+  it("sends prompt on Enter", async () => {
     render(<AcpPromptInput podKey="pod-1" />);
     const textarea = screen.getByPlaceholderText("Send instruction...");
 
     fireEvent.change(textarea, { target: { value: "create hello world" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 
-    expect(relayPool.sendAcpCommand).toHaveBeenCalledWith("pod-1", {
-      type: "prompt",
-      prompt: "create hello world",
-    });
+    await waitFor(() =>
+      expect(relayPool.sendAcpCommand).toHaveBeenCalledWith("pod-1", {
+        type: "prompt",
+        prompt: "create hello world",
+      }),
+    );
   });
 
   it("does not send on Shift+Enter", () => {
@@ -50,14 +52,14 @@ describe("AcpPromptInput", () => {
     expect(relayPool.sendAcpCommand).not.toHaveBeenCalled();
   });
 
-  it("clears input after sending", () => {
+  it("clears input after sending", async () => {
     render(<AcpPromptInput podKey="pod-1" />);
     const textarea = screen.getByPlaceholderText("Send instruction...") as HTMLTextAreaElement;
 
     fireEvent.change(textarea, { target: { value: "test" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 
-    expect(textarea.value).toBe("");
+    await waitFor(() => expect(textarea.value).toBe(""));
   });
 
   it("does not send empty prompt", () => {
@@ -79,6 +81,19 @@ describe("AcpPromptInput", () => {
 
     expect(screen.getByText("Not connected")).toBeInTheDocument();
     expect(relayPool.sendAcpCommand).not.toHaveBeenCalled();
+  });
+
+  it("keeps the prompt when the relay rejects a send", async () => {
+    vi.mocked(relayPool.sendAcpCommand).mockRejectedValueOnce(new Error("relay disconnected"));
+
+    render(<AcpPromptInput podKey="pod-1" />);
+    const textarea = screen.getByPlaceholderText("Send instruction...") as HTMLTextAreaElement;
+
+    fireEvent.change(textarea, { target: { value: "keep this instruction" } });
+    fireEvent.keyDown(textarea, { key: "Enter" });
+
+    await waitFor(() => expect(screen.getByText("Not connected")).toBeInTheDocument());
+    expect(textarea.value).toBe("keep this instruction");
   });
 
   it("sends interrupt command when cancel button is clicked during processing", () => {

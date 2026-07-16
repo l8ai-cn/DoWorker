@@ -1,48 +1,24 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, FileInput } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
-import { CreatePodForm } from "@/components/pod/CreatePodForm";
 import { ImportCodexDialog } from "@/components/workers/ImportCodexDialog";
+import { ResourceDependencyEditor } from "@/components/resource-editor/ResourceDependencyEditor";
+import { ResourceEditorShell } from "@/components/resource-editor/ResourceEditorShell";
 import { Button } from "@/components/ui/button";
-import type { PodData } from "@/lib/api";
-import { getShortPodKey } from "@/lib/pod-display-name";
-import { usePodStore } from "@/stores/pod";
+import { PillTabs } from "@/components/ui/pill-tabs";
 
 export function CreateWorkerPageContent() {
   const t = useTranslations();
   const router = useRouter();
   const params = useParams();
-  const searchParams = useSearchParams();
   const orgSlug = params.org as string;
 
-  const initialAgentSlug = searchParams.get("image") ?? undefined;
-  const initialPrompt = searchParams.get("prompt") ?? undefined;
-  const initialExpertSlug = searchParams.get("expert") ?? undefined;
   const [importOpen, setImportOpen] = useState(false);
-
-  const formConfig = useMemo(
-    () => ({
-      scenario: "workspace" as const,
-      initialAgentSlug,
-      initialPrompt,
-      initialExpertSlug,
-      onSuccess: (pod: PodData) => {
-        if (!pod?.pod_key) return;
-        usePodStore.getState().upsertPod(pod);
-        toast.info(t("workspace.podCreated"), {
-          description: getShortPodKey(pod.pod_key),
-        });
-        router.push(`/${orgSlug}/workspace?pod=${encodeURIComponent(pod.pod_key)}`);
-      },
-      onCancel: () => router.push(`/${orgSlug}/workspace`),
-    }),
-    [initialAgentSlug, initialPrompt, initialExpertSlug, orgSlug, router, t],
-  );
+  const [mode, setMode] = useState<"run" | "template" | "resources">("run");
 
   return (
     <div className="min-h-full bg-background">
@@ -64,28 +40,58 @@ export function CreateWorkerPageContent() {
               {t("workers.create.subtitle")}
             </p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="shrink-0"
-            data-testid="open-import-codex"
-            onClick={() => setImportOpen(true)}
-          >
-            <FileInput className="mr-2 h-4 w-4" />
-            {t("workers.create.import.button")}
-          </Button>
+          {mode === "run" && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              data-testid="open-import-codex"
+              onClick={() => setImportOpen(true)}
+            >
+              <FileInput className="mr-2 h-4 w-4" />
+              {t("workers.create.import.button")}
+            </Button>
+          )}
         </header>
 
-        <ImportCodexDialog
-          open={importOpen}
-          onOpenChange={setImportOpen}
-          onImported={(podKey) => {
-            router.push(`/${orgSlug}/workspace?pod=${encodeURIComponent(podKey)}`);
-          }}
+        <PillTabs
+          active={mode}
+          onChange={(value) => setMode(
+            value as "run" | "template" | "resources",
+          )}
+          tabs={[
+            { id: "run", label: t("resourceEditor.mode.run") },
+            { id: "template", label: t("resourceEditor.mode.template") },
+            { id: "resources", label: t("resourceEditor.mode.resources") },
+          ]}
+          className="mb-6"
         />
 
-        <CreatePodForm config={formConfig} className="pb-8" />
+        {mode === "run" ? (
+          <>
+            <ImportCodexDialog
+              open={importOpen}
+              onOpenChange={setImportOpen}
+              onImported={(podKey) => {
+                router.push(`/${orgSlug}/workspace?pod=${encodeURIComponent(podKey)}`);
+              }}
+            />
+            <ResourceEditorShell
+              orgSlug={orgSlug}
+              kind="Worker"
+              onWorkerCreated={(podKey) => {
+                router.push(
+                  `/${orgSlug}/workspace?pod=${encodeURIComponent(podKey)}`,
+                );
+              }}
+            />
+          </>
+        ) : mode === "template" ? (
+          <ResourceEditorShell orgSlug={orgSlug} />
+        ) : (
+          <ResourceDependencyEditor orgSlug={orgSlug} />
+        )}
       </div>
     </div>
   );

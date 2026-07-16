@@ -16,6 +16,10 @@ type AgentConfigProvider interface {
 	GetAgent(ctx context.Context, slug string) (*agent.Agent, error)
 }
 
+type CredentialFieldSourceProvider interface {
+	CredentialBundleFields(agentSlug string) ([]string, bool)
+}
+
 // ConfigBuildRequest contains all the information needed to build a pod config
 type ConfigBuildRequest struct {
 	AgentSlug      string

@@ -61,9 +61,9 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-4">4. Subscription and Payments</h2>
 
-            <h3 className="text-xl font-medium mb-3 mt-6">4.1 Plans and Pricing</h3>
+            <h3 className="text-xl font-medium mb-3 mt-6">4.1 Commercial Terms</h3>
             <p className="text-muted-foreground leading-relaxed">
-              The Service is offered under various subscription plans, including free and paid tiers. Current pricing and plan features are available on our website. We reserve the right to modify pricing with 30 days&apos; notice.
+              Any paid service, usage commitment, or support package is governed by the applicable order form or written agreement between you and Do Worker.
             </p>
 
             <h3 className="text-xl font-medium mb-3 mt-6">4.2 Payment Terms</h3>

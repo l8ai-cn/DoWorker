@@ -9,7 +9,7 @@ import (
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
-	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	skilldomain "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
@@ -50,6 +50,7 @@ type MarketWorkerSpecPreparer interface {
 		specservice.Scope,
 		specdomain.Spec,
 		int64,
+		map[string]int64,
 	) (specservice.ResolvedSnapshot, error)
 }
 
@@ -71,11 +72,15 @@ type MarketSkillLoader interface {
 	ListByIDs(
 		context.Context,
 		[]int64,
-	) ([]skilldom.Skill, error)
+	) ([]skilldomain.Skill, error)
 	ListActivePlatformBySlugs(
 		context.Context,
 		[]string,
-	) ([]skilldom.Skill, error)
+	) ([]skilldomain.Skill, error)
+}
+
+type SkillLoader interface {
+	GetAnyByID(context.Context, int64) (*skilldomain.Skill, error)
 }
 
 type Service struct {
@@ -89,6 +94,7 @@ type Service struct {
 	marketInstallLock MarketInstallationLocker
 	market            expertmarket.Repository
 	marketSkills      MarketSkillLoader
+	skills            SkillLoader
 	gitops            gitops.Service
 	logger            *slog.Logger
 }
@@ -104,6 +110,7 @@ type Deps struct {
 	MarketInstallLock MarketInstallationLocker
 	Market            expertmarket.Repository
 	MarketSkills      MarketSkillLoader
+	Skills            SkillLoader
 	// Gitops is the git-backing choke point (namespace am-experts). It may be
 	// nil, in which case the service runs in DB-only mode (identical to the
 	// pre-git-backing behavior).
@@ -127,6 +134,7 @@ func NewService(deps Deps) *Service {
 		marketInstallLock: deps.MarketInstallLock,
 		market:            deps.Market,
 		marketSkills:      deps.MarketSkills,
+		skills:            deps.Skills,
 		gitops:            deps.Gitops,
 		logger:            logger.With("component", "expert"),
 	}

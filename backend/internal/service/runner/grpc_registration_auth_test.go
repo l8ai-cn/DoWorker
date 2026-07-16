@@ -172,6 +172,7 @@ func TestAuthorizeRunner(t *testing.T) {
 	t.Run("authorizes pending auth", func(t *testing.T) {
 		// Create org
 		org := createTestOrg(t, db, "test-org-auth-1")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create pending auth
 		authKey := generateTestAuthKey()
@@ -184,7 +185,7 @@ func TestAuthorizeRunner(t *testing.T) {
 		require.NoError(t, db.Create(pendingAuth).Error)
 
 		// Authorize (using function signature: authKey string, orgID int64, nodeID string)
-		resp, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, "my-runner")
+		resp, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, clusterID, "my-runner")
 		require.NoError(t, err)
 		assert.NotZero(t, resp.ID)
 		assert.Equal(t, "my-runner", resp.NodeID)
@@ -199,13 +200,15 @@ func TestAuthorizeRunner(t *testing.T) {
 
 	t.Run("returns error for non-existent auth key", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-auth-2")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
-		_, err := service.AuthorizeRunner(ctx, "non-existent", org.ID, 1, "")
+		_, err := service.AuthorizeRunner(ctx, "non-existent", org.ID, 1, clusterID, "")
 		assert.Error(t, err)
 	})
 
 	t.Run("returns error for expired auth", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-auth-3")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create expired pending auth
 		authKey := generateTestAuthKey()
@@ -217,13 +220,14 @@ func TestAuthorizeRunner(t *testing.T) {
 		}
 		require.NoError(t, db.Create(pendingAuth).Error)
 
-		_, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, "")
+		_, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, clusterID, "")
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "expired")
 	})
 
 	t.Run("returns error for already authorized", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-auth-4")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create already authorized pending auth
 		authKey := generateTestAuthKey()
@@ -235,13 +239,14 @@ func TestAuthorizeRunner(t *testing.T) {
 		}
 		require.NoError(t, db.Create(pendingAuth).Error)
 
-		_, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, "")
+		_, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, clusterID, "")
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "already authorized")
 	})
 
 	t.Run("uses nodeID from pending auth when not provided", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-auth-5")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create pending auth with nodeID pre-filled
 		authKey := generateTestAuthKey()
@@ -256,13 +261,14 @@ func TestAuthorizeRunner(t *testing.T) {
 		require.NoError(t, db.Create(pendingAuth).Error)
 
 		// Authorize with empty nodeID - should use the one from pendingAuth
-		r, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, "")
+		r, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, clusterID, "")
 		require.NoError(t, err)
 		assert.Equal(t, "pre-filled-node-id", r.NodeID)
 	})
 
 	t.Run("generates node ID when none provided", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-auth-6")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create pending auth without nodeID
 		authKey := generateTestAuthKey()
@@ -276,17 +282,19 @@ func TestAuthorizeRunner(t *testing.T) {
 		require.NoError(t, db.Create(pendingAuth).Error)
 
 		// Authorize with empty nodeID - should generate random one
-		r, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, "")
+		r, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, clusterID, "")
 		require.NoError(t, err)
 		assert.Contains(t, r.NodeID, "runner-")
 	})
 
 	t.Run("returns error for duplicate runner", func(t *testing.T) {
 		org := createTestOrg(t, db, "test-org-auth-7")
+		clusterID := createTestExecutionCluster(t, db, org.ID, "local")
 
 		// Create existing runner
 		existing := &runner.Runner{
 			OrganizationID: org.ID,
+			ClusterID:      clusterID,
 			NodeID:         "duplicate-node",
 			Status:         runner.RunnerStatusOffline,
 		}
@@ -303,7 +311,7 @@ func TestAuthorizeRunner(t *testing.T) {
 		require.NoError(t, db.Create(pendingAuth).Error)
 
 		// Try to authorize with same nodeID - should fail
-		_, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, "duplicate-node")
+		_, err := service.AuthorizeRunner(ctx, authKey, org.ID, 1, clusterID, "duplicate-node")
 		assert.Error(t, err)
 	})
 }

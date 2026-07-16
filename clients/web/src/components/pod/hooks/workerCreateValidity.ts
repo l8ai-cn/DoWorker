@@ -33,14 +33,31 @@ function runtimeSelectionsValid(
   draft: WorkerSpecDraft,
   options: WorkerCreateOptions,
 ): boolean {
+  const workerType = options.worker_types.find(
+    (option) => option.slug === draft.worker_type_slug,
+  );
   return Boolean(
-    draft.model_resource_id > 0 &&
-      selectable(options.worker_types, draft.worker_type_slug, (item) => item.slug) &&
+    workerType?.selectable &&
+      (!workerType.requires_model_resource || draft.model_resource_id > 0) &&
+      workerType.tool_model_requirements.every(
+        (requirement) => (draft.tool_model_resource_ids[requirement.role] ?? 0) > 0,
+      ) &&
       selectable(options.runtime_images, draft.runtime_image_id, (item) => item.id) &&
       selectable(options.compute_targets, draft.compute_target_id, (item) => item.id) &&
       selectable(options.deployment_modes, draft.deployment_mode, (item) => item.value) &&
-      selectable(options.resource_profiles, draft.resource_profile_id, (item) => item.id),
+      (draft.custom_resources
+        ? customResourcesValid(draft.custom_resources)
+        : selectable(options.resource_profiles, draft.resource_profile_id, (item) => item.id)),
   );
+}
+
+function customResourcesValid(resources: NonNullable<WorkerSpecDraft["custom_resources"]>): boolean {
+  return resources.cpu_request_millicpu > 0 &&
+    resources.cpu_limit_millicpu >= resources.cpu_request_millicpu &&
+    resources.memory_request_bytes > 0 &&
+    resources.memory_limit_bytes >= resources.memory_request_bytes &&
+    resources.storage_request_bytes > 0 &&
+    resources.storage_limit_bytes >= resources.storage_request_bytes;
 }
 
 function workspaceValid(draft: WorkerSpecDraft): boolean {

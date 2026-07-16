@@ -80,6 +80,10 @@ type Repository interface {
 		release *Release,
 	) error
 	GetReleaseByID(ctx context.Context, id int64) (*Release, error)
+	GetLatestReleaseByApplication(
+		ctx context.Context,
+		applicationID int64,
+	) (*Release, error)
 	ListReleases(ctx context.Context, filter ReleaseListFilter) ([]Release, int64, error)
 	UpdateReleaseLifecycle(ctx context.Context, releaseID int64, update LifecycleUpdate) error
 	UpdateReleaseLifecycleAndLatest(

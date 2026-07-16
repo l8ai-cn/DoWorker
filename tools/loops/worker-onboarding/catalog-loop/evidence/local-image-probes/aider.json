@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "worker_slug": "aider",
+  "definition_hash": "sha256:7723ccf2c9eb5c4d3566158d11a54468604ab7204c3eb5da8ccca4ac8faa57d5",
+  "platform": "linux/amd64",
+  "observed_at": "2026-07-12T23:09:22.839Z",
+  "image_reference": "do-worker/runner-aider:latest",
+  "probe_command": [
+    "aider",
+    "--version"
+  ],
+  "status": "image_missing",
+  "exit_code": 1,
+  "output": "Error response from daemon: No such image: do-worker/runner-aider:latest"
+}

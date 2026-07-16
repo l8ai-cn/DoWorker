@@ -202,10 +202,17 @@ mod tests {
 
     #[tokio::test]
     async fn handles_partial_chunks_across_boundary() {
-        let msg = Event { r#type: "ticket:updated".into(), ..Default::default() };
+        let msg = Event {
+            r#type: "ticket:updated".into(),
+            ..Default::default()
+        };
         let full = frame(0, &msg.encode_to_vec());
         let mid = full.len() / 2;
-        let chunks = vec![full.slice(..mid), full.slice(mid..), frame(FLAG_FINAL, b"{}")];
+        let chunks = vec![
+            full.slice(..mid),
+            full.slice(mid..),
+            frame(FLAG_FINAL, b"{}"),
+        ];
         let stream = parse_connect_frames::<_, Event>(ok_stream(chunks));
         futures::pin_mut!(stream);
         let got = stream.next().await.unwrap().unwrap();

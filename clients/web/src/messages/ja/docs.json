@@ -10,6 +10,7 @@
       "introduction": "はじめに",
       "quickStart": "クイックスタート",
       "coreConcepts": "コアコンセプト",
+      "loopAndWorkflow": "Loop と Workflow",
       "concepts": "コンセプト",
       "features": "機能",
       "agentpod": "AgentPod",
@@ -255,7 +256,7 @@
         "codexCliHint": "APIキーの取得先",
         "geminiCli": "Gemini CLI",
         "geminiCliInstall": "npm install -g @google/gemini-cli",
-        "geminiCliEnv": "export GOOGLE_API_KEY=...",
+        "geminiCliEnv": "export GEMINI_API_KEY=...",
         "geminiCliHint": "APIキーの取得先",
         "tip": "インストール後、Runnerを再起動するか次のハートビートを待ちます。新しいエージェントが「新規Pod」ダイアログに表示されます。",
         "seeSetup": "MCP ツールとスキルの設定について詳しくは {link} をご覧ください。"
@@ -1596,8 +1597,7 @@
         "runner": "Runner Issues",
         "pod": "Pod Issues",
         "apiKey": "API Key Configuration",
-        "git": "Git Integration",
-        "billing": "Billing & Plans"
+        "git": "Git Integration"
       },
       "items": {
         "runnerConnection": {
@@ -1631,14 +1631,6 @@
         "gitWorktreeConflict": {
           "question": "Can multiple Pods work on the same repository simultaneously?",
           "answer": "Yes! Each Pod gets its own Git worktree, so multiple Pods can work on the same repository without conflicts. Each worktree operates on its own branch, and changes are isolated."
-        },
-        "billingBYOK": {
-          "question": "How does the BYOK (Bring Your Own Key) billing model work?",
-          "answer": "You provide your own API keys for AI providers (Anthropic, OpenAI, Google, etc.). You pay the AI providers directly based on your usage. Do Worker charges only for platform usage (runners, storage, etc.)."
-        },
-        "billingFree": {
-          "question": "Is there a free tier?",
-          "answer": "Yes, Do Worker offers a free tier with limited concurrent Pods and storage. Check the Pricing page for current plan details and limits."
         }
       }
     },
@@ -1703,7 +1695,7 @@
           "description": "Runner マシンで使用したい AI コーディングエージェントをインストールします：",
           "item1": "Claude Code — npm install -g @anthropic-ai/claude-code（ANTHROPIC_API_KEY を設定）",
           "item2": "Codex CLI — npm install -g @openai/codex（OPENAI_API_KEY を設定）",
-          "item3": "Gemini CLI — npm install -g @google/gemini-cli（GOOGLE_API_KEY を設定）",
+          "item3": "Gemini CLI — npm install -g @google/gemini-cli（GEMINI_API_KEY を設定）",
           "tip": "インストール後、Runner を再起動するか、次のハートビートまで待ちます。新しく利用可能なエージェントは「新規 Pod」ダイアログに表示されます。"
         },
         "step5": {

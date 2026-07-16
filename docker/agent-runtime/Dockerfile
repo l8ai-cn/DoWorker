@@ -6,6 +6,11 @@
 # Shared `base` stage is built once as do-worker/runner-base:latest so apt/npm
 # layers are not re-run for every agent variant.
 
+ARG RUNTIME_EXTENSION_BASE=do-worker/runner-base:latest
+ARG RUNTIME_BASE=base
+ARG OPENCLAW_VERSION=2026.6.11
+ARG OPENCLAW_NODE_VERSION=24.18.0
+
 FROM node:24-bookworm-slim AS base
 
 ARG HTTP_PROXY=
@@ -21,7 +26,7 @@ ENV HTTP_PROXY=${HTTP_PROXY} \
 RUN printf 'Acquire::http::Proxy "false";\nAcquire::https::Proxy "false";\n' \
       > /etc/apt/apt.conf.d/99noproxy \
     && set -ux; \
-    packages="git openssh-client sudo ca-certificates wget openssl"; \
+    packages="git openssh-client sudo ca-certificates curl wget openssl"; \
     ok=0; \
     for attempt in 1 2 3 4 5 6 7 8; do \
       if apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $packages; then \
@@ -34,26 +39,40 @@ RUN printf 'Acquire::http::Proxy "false";\nAcquire::https::Proxy "false";\n' \
     done; \
     test "$ok" = 1
 
-FROM base AS runtime
+FROM ${RUNTIME_BASE} AS runtime
 
 ARG AGENT_RUNTIME=e2e-echo
 ARG HERMES_AGENT_VERSION=0.18.2
+ARG MINIMAX_CLI_VERSION=1.0.16
+ARG OPENCLAW_VERSION=2026.6.11
 ARG REMOTION_VERSION=4.0.489
 ENV AGENT_RUNTIME=${AGENT_RUNTIME}
 
 RUN install_apt() { \
-      attempt=1; \
-      while [ "$attempt" -le 3 ]; do \
+      ok=0; \
+      for attempt in 1 2 3 4 5 6 7 8; do \
         if apt-get update \
-          && DEBIAN_FRONTEND=noninteractive apt-get install \
-            -y --no-install-recommends --fix-missing "$@"; then \
-          return 0; \
+          && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"; then \
+          ok=1; \
+          break; \
         fi; \
-        echo "runtime apt install attempt ${attempt}/3 failed" >&2; \
-        attempt=$((attempt + 1)); \
-        sleep 10; \
+        echo "apt install attempt ${attempt} failed, retrying..." >&2; \
+        sleep 20; \
       done; \
-      return 1; \
+      test "$ok" = 1; \
+    }; \
+    install_python_pip() { \
+      ok=0; \
+      for attempt in 1 2 3 4 5 6 7 8; do \
+        if apt-get update \
+          && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip; then \
+          ok=1; \
+          break; \
+        fi; \
+        echo "python3-pip install attempt ${attempt} failed, retrying..." >&2; \
+        sleep 20; \
+      done; \
+      test "$ok" = 1; \
     }; \
     case "${AGENT_RUNTIME}" in \
       claude-code) npm install -g @anthropic-ai/claude-code ;; \
@@ -70,19 +89,32 @@ RUN install_apt() { \
         && ln -s "$(command -v codex)" /usr/local/bin/video-studio-codex \
         && ln -s /opt/video-studio/node_modules/.bin/remotion /usr/local/bin/remotion \
         && rm -rf /var/lib/apt/lists/* ;; \
+      cursor-cli) \
+        curl --fail --show-error --silent --location https://cursor.com/install -o /tmp/cursor-install.sh \
+        && bash -c 'curl() { command curl --retry 5 --retry-delay 2 --retry-all-errors "$@"; }; export -f curl; bash /tmp/cursor-install.sh' \
+        && install -d -m 0755 /opt/cursor-agent \
+        && cp -a /root/.local/share/cursor-agent/. /opt/cursor-agent/ \
+        && cursor_agent="$(find /opt/cursor-agent/versions -mindepth 2 -maxdepth 2 -type f -name cursor-agent -print -quit)" \
+        && test -n "${cursor_agent}" \
+        && ln -sf "${cursor_agent}" /usr/local/bin/agent \
+        && rm -rf /root/.local /tmp/cursor-install.sh ;; \
       gemini-cli) npm install -g @google/gemini-cli ;; \
       opencode) npm install -g opencode-ai ;; \
       grok-build) npm install -g @xai-official/grok ;; \
-      openclaw) npm install -g openclaw ;; \
+      minimax-cli) npm install -g "mmx-cli@${MINIMAX_CLI_VERSION}" ;; \
+      openclaw) npm install -g "openclaw@${OPENCLAW_VERSION}" ;; \
       hermes) \
-        install_apt python3-pip \
+        install_python_pip \
         && PIP_BREAK_SYSTEM_PACKAGES=1 npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" \
         && rm -rf /var/lib/apt/lists/* ;; \
       aider) \
-        install_apt python3-pip \
+        install_python_pip \
         && pip3 install --break-system-packages aider-chat \
         && rm -rf /var/lib/apt/lists/* ;; \
-      e2e-echo|loopal|do-agent) true ;; \
+      do-agent) \
+        install_apt ffmpeg python3 python3-pip \
+        && rm -rf /var/lib/apt/lists/* ;; \
+      e2e-echo|loopal) true ;; \
       *) echo "unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2; exit 1 ;; \
     esac \
     && npm cache clean --force
@@ -94,6 +126,7 @@ RUN groupmod -n runner node \
     && case "${AGENT_RUNTIME}" in \
          claude-code) mkdir -p /home/runner/.claude ;; \
          codex-cli|video-studio) mkdir -p /home/runner/.codex ;; \
+         cursor-cli) mkdir -p /home/runner/.cursor ;; \
          gemini-cli) mkdir -p /home/runner/.gemini ;; \
          loopal) mkdir -p /home/runner/.loopal ;; \
          do-agent) mkdir -p /home/runner/.agent ;; \
@@ -105,22 +138,23 @@ RUN groupmod -n runner node \
     && chown -R runner:runner /workspace /app /home/runner \
     && echo 'runner ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/runner
 
-COPY --chmod=0755 . /tmp/agent-runtime-context/
+COPY --chmod=0755 runner-binary /usr/local/bin/do-worker-runner
+RUN ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner
+COPY --chmod=0755 binaries/ /usr/local/lib/do-worker/
+COPY --chmod=0755 runner-entrypoint.sh /usr/local/bin/runner-entrypoint.sh
+COPY --chmod=0755 minimax-cli-wrapper.sh /usr/local/bin/minimax-cli-wrapper.sh
 
-# ARG from a prior stage is not inherited; without this redeclare
-# AGENT_RUNTIME is empty and the *) branch deletes e2e-mock-agent.
 ARG AGENT_RUNTIME=e2e-echo
 
-RUN install -m 0755 /tmp/agent-runtime-context/runner-binary /usr/local/bin/do-worker-runner \
-    && ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner \
-    && install -m 0755 /tmp/agent-runtime-context/runner-entrypoint.sh /usr/local/bin/runner-entrypoint.sh \
-    && case "${AGENT_RUNTIME}" in \
-         e2e-echo) install -m 0755 /tmp/agent-runtime-context/e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent ;; \
-         loopal) install -m 0755 /tmp/agent-runtime-context/loopal-binary /usr/local/bin/loopal ;; \
-         do-agent) install -m 0755 /tmp/agent-runtime-context/do-agent-binary /usr/local/bin/do-agent ;; \
-         *) true ;; \
-       esac \
-    && rm -rf /tmp/agent-runtime-context
+RUN case "${AGENT_RUNTIME}" in \
+      e2e-echo) install -m 0755 /usr/local/lib/do-worker/e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent ;; \
+      loopal) install -m 0755 /usr/local/lib/do-worker/loopal-binary /usr/local/bin/loopal ;; \
+      do-agent) install -m 0755 /usr/local/lib/do-worker/do-agent-binary /usr/local/bin/do-agent ;; \
+      minimax-cli) rm -f /usr/local/bin/mmx && install -m 0755 /usr/local/bin/minimax-cli-wrapper.sh /usr/local/bin/mmx ;; \
+      *) true ;; \
+    esac \
+    && rm -f /usr/local/bin/minimax-cli-wrapper.sh \
+    && rm -rf /usr/local/lib/do-worker
 
 ENV CHROME_BIN=/usr/bin/chromium \
     NODE_PATH=/opt/video-studio/node_modules
@@ -128,3 +162,40 @@ ENV CHROME_BIN=/usr/bin/chromium \
 USER runner
 WORKDIR /app
 ENTRYPOINT ["/usr/local/bin/runner-entrypoint.sh"]
+
+FROM ${RUNTIME_EXTENSION_BASE} AS runtime-extension
+
+USER root
+
+ARG AGENT_RUNTIME
+ARG HERMES_AGENT_VERSION=0.18.2
+ARG OPENCLAW_VERSION=2026.6.11
+ARG OPENCLAW_NODE_VERSION=24.18.0
+ENV AGENT_RUNTIME=${AGENT_RUNTIME}
+
+RUN case "${AGENT_RUNTIME}" in \
+      openclaw) \
+        npm install -g --omit=dev --force "node@${OPENCLAW_NODE_VERSION}" \
+        && npm install -g --omit=dev "openclaw@${OPENCLAW_VERSION}" \
+        && ln -sf /usr/local/lib/node_modules/node/lib/node_modules/openclaw/openclaw.mjs /usr/local/bin/openclaw ;; \
+      hermes) \
+        ok=0; \
+        for attempt in 1 2 3 4 5 6 7 8; do \
+          if apt-get update \
+            && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip; then \
+            ok=1; \
+            break; \
+          fi; \
+          sleep 20; \
+        done; \
+        test "$ok" = 1 \
+        && PIP_BREAK_SYSTEM_PACKAGES=1 npm install -g --omit=dev "hermes-agent@${HERMES_AGENT_VERSION}" \
+        && rm -rf /var/lib/apt/lists/* ;; \
+      *) echo "runtime-extension only supports AGENT_RUNTIME=openclaw|hermes" >&2; exit 1 ;; \
+    esac \
+    && npm cache clean --force \
+    && mkdir -p "/home/runner/.${AGENT_RUNTIME}" \
+    && chown -R runner:runner "/home/runner/.${AGENT_RUNTIME}"
+
+USER runner
+WORKDIR /app

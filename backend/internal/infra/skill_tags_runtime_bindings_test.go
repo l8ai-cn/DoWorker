@@ -173,6 +173,8 @@ func createRuntimeBindingExpertsTable(t *testing.T, db *gorm.DB) {
 		worker_spec_snapshot_id INTEGER,
 		source_market_application_id INTEGER,
 		source_market_release_id INTEGER,
+		orchestration_resource_id INTEGER,
+		orchestration_resource_revision INTEGER,
 		git_repo_path TEXT,
 		default_branch TEXT NOT NULL DEFAULT 'main',
 		http_clone_url TEXT,

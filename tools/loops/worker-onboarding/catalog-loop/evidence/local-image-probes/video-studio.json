@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "worker_slug": "video-studio",
+  "definition_hash": "sha256:7cb606a0254e66972c348bc192aeab995eb36c4741ec07b667552aad9ebe141e",
+  "platform": "linux/amd64",
+  "observed_at": "2026-07-16T05:38:28.762Z",
+  "image_reference": "do-worker/runner-video-studio:latest",
+  "probe_command": [
+    "video-studio-codex",
+    "--version"
+  ],
+  "status": "image_missing",
+  "exit_code": 1,
+  "output": "Error response from daemon: No such image: do-worker/runner-video-studio:latest"
+}

@@ -14,7 +14,7 @@ func modelResourceEnvironment(agentSlug string, resource *resourcesvc.ResolvedRe
 	modelID := strings.TrimSpace(resource.Resource.ModelID)
 	baseURL := strings.TrimSpace(resource.Connection.BaseURL)
 	switch agentSlug {
-	case "codex-cli":
+	case "codex-cli", "openclaw", "hermes":
 		return compactEnv(map[string]string{
 			"OPENAI_API_KEY":  apiKey,
 			"OPENAI_BASE_URL": baseURL,
@@ -29,13 +29,12 @@ func modelResourceEnvironment(agentSlug string, resource *resourcesvc.ResolvedRe
 		if modelID == "" {
 			return nil, ErrMissingModelResource
 		}
-		return map[string]string{"GOOGLE_API_KEY": apiKey}, nil
-	case "openclaw", "hermes":
-		env := multiProviderModelResourceEnvironment(resource, apiKey, baseURL, modelID)
-		if len(env) == 0 {
+		return map[string]string{"GEMINI_API_KEY": apiKey}, nil
+	case "minimax-cli":
+		if modelID == "" {
 			return nil, ErrMissingModelResource
 		}
-		return env, nil
+		return map[string]string{"MINIMAX_API_KEY": apiKey}, nil
 	default:
 		return nil, ErrMissingModelResource
 	}
@@ -82,38 +81,6 @@ func doAgentModelSettings(resource *resourcesvc.ResolvedResource) (map[string]in
 	}, nil
 }
 
-func multiProviderModelResourceEnvironment(
-	resource *resourcesvc.ResolvedResource,
-	apiKey, baseURL, modelID string,
-) map[string]string {
-	switch resource.Provider.ProtocolAdapter {
-	case "openai-compatible":
-		env := map[string]string{
-			"OPENAI_API_KEY":  apiKey,
-			"OPENAI_BASE_URL": baseURL,
-			"OPENAI_MODEL":    modelID,
-		}
-		if resource.Provider.Key.String() == "xai" {
-			env["XAI_API_KEY"] = apiKey
-		}
-		return compactEnv(env)
-	case "anthropic":
-		return compactEnv(map[string]string{
-			"ANTHROPIC_API_KEY":  apiKey,
-			"ANTHROPIC_BASE_URL": baseURL,
-			"ANTHROPIC_MODEL":    modelID,
-		})
-	case "gemini":
-		return compactEnv(map[string]string{
-			"GOOGLE_API_KEY": apiKey,
-			"GEMINI_API_KEY": apiKey,
-			"GEMINI_MODEL":   modelID,
-		})
-	default:
-		return nil
-	}
-}
-
 func compactEnv(values map[string]string) map[string]string {
 	out := map[string]string{}
 	for key, value := range values {
@@ -140,11 +107,11 @@ func applyModelResourceArgs(existing, modelArgs []string) ([]string, error) {
 	if len(modelArgs) == 0 {
 		return existing, nil
 	}
-	if len(modelArgs) != 2 || modelArgs[0] != "--model" || strings.TrimSpace(modelArgs[1]) == "" {
+	if len(modelArgs) != 2 || !supportedModelResourceArg(modelArgs[0]) || strings.TrimSpace(modelArgs[1]) == "" {
 		return nil, ErrModelResourceCommandConflict
 	}
 	for i, arg := range existing {
-		if arg != "--model" && arg != "-m" {
+		if !sameModelResourceArg(arg, modelArgs[0]) {
 			continue
 		}
 		if i+1 >= len(existing) || existing[i+1] != modelArgs[1] {
@@ -154,4 +121,12 @@ func applyModelResourceArgs(existing, modelArgs []string) ([]string, error) {
 	}
 	out := append([]string(nil), existing...)
 	return append(out, modelArgs...), nil
+}
+
+func supportedModelResourceArg(arg string) bool {
+	return arg == "--model" || arg == "--base-url"
+}
+
+func sameModelResourceArg(existing, requested string) bool {
+	return existing == requested || (requested == "--model" && existing == "-m")
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	acp.RegisterAgent("do-agent", TransportType, func(cb acp.EventCallbacks, l *slog.Logger) acp.Transport {
+	acp.RegisterTransport(TransportType, func(cb acp.EventCallbacks, l *slog.Logger) acp.Transport {
 		return newTransport(cb, l)
 	})
 

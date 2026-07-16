@@ -96,11 +96,12 @@ func (h *ExpertHandler) publishError(c *gin.Context, err error) {
 			apierr.EXPERT_WORKER_SPEC_REQUIRED,
 			"Pod must have a valid WorkerSpec snapshot before publishing",
 		)
-	case errors.Is(err, expertSvc.ErrWorkerSpecSnapshotUnavailable):
+	case errors.Is(err, expertSvc.ErrWorkerSpecSnapshotUnavailable),
+		errors.Is(err, expertSvc.ErrWorkerSpecSkillUnavailable):
 		apierr.ServiceUnavailable(
 			c,
 			apierr.SERVICE_UNAVAILABLE,
-			"WorkerSpec snapshot service is unavailable",
+			"WorkerSpec publishing dependencies are unavailable",
 		)
 	default:
 		h.validationOrInternal(c, err)
@@ -117,10 +118,11 @@ func (h *ExpertHandler) InstallMarketApplication(c *gin.Context) {
 	row, alreadyInstalled, err := h.service.InstallPublishedMarketApplication(
 		c.Request.Context(),
 		expertSvc.InstallMarketApplicationRequest{
-			OrganizationID:  tenant.OrganizationID,
-			UserID:          tenant.UserID,
-			ModelResourceID: request.ModelResourceID,
-			MarketSlug:      c.Param("marketSlug"),
+			OrganizationID:       tenant.OrganizationID,
+			UserID:               tenant.UserID,
+			ModelResourceID:      request.ModelResourceID,
+			ToolModelResourceIDs: request.ToolModelResourceIDs,
+			MarketSlug:           c.Param("marketSlug"),
 		},
 	)
 	if err != nil {

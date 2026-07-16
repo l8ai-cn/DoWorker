@@ -35,7 +35,7 @@ func setupIntegrationOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDep
 	provider := &mockAgentConfigProvider{
 		agentDef: &agentDomain.Agent{
 			Slug: "claude-code", Name: "Claude Code",
-			LaunchCommand: "claude", SupportedModes: "pty",
+			LaunchCommand: "claude", AdapterID: "claude-stream-json", SupportedModes: "pty",
 			AgentfileSource: &agentfileSrc, UsesLegacyColumns: true,
 		},
 		config:   agentDomain.ConfigValues{},
@@ -183,7 +183,7 @@ func TestPodLifecycle_RunnerAutoSelect(t *testing.T) {
 	selector := &mockRunnerSelector{}
 	resolver := &mockAgentResolver{
 		agentDef: &agentDomain.Agent{
-			Slug: "claude-code", SupportedModes: "pty",
+			Slug: "claude-code", AdapterID: "claude-stream-json", SupportedModes: "pty",
 			AgentfileSource: &agentfileSrc, UsesLegacyColumns: true,
 		},
 	}
@@ -242,7 +242,7 @@ func TestPodLifecycle_AgentfileLayerMerge(t *testing.T) {
 	baseAgentfile := "AGENT claude\nEXECUTABLE claude\nMODE pty\nMCP ON\nPROMPT_POSITION prepend\n"
 	resolver := &mockAgentResolver{
 		agentDef: &agentDomain.Agent{
-			Slug: "claude-code", SupportedModes: "pty,acp",
+			Slug: "claude-code", AdapterID: "claude-stream-json", SupportedModes: "pty,acp",
 			AgentfileSource: &baseAgentfile, UsesLegacyColumns: true,
 		},
 	}

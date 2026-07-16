@@ -22,9 +22,7 @@ use futures::stream::Stream;
 use prost::Message as _;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::{spawn_local, JsFuture};
-use web_sys::{
-    AbortController, Headers, ReadableStreamDefaultReader, RequestInit, Response,
-};
+use web_sys::{AbortController, Headers, ReadableStreamDefaultReader, RequestInit, Response};
 
 use agentsmesh_types::proto_events_v1::{Event, SubscribeRequest};
 
@@ -84,10 +82,7 @@ impl ApiClient {
         body_bytes.push(0u8); // flags: not compressed, not end-of-stream
         body_bytes.extend_from_slice(&len.to_be_bytes());
         body_bytes.extend_from_slice(&payload);
-        let url = format!(
-            "{}/proto.events.v1.EventsService/Subscribe",
-            self.base_url
-        );
+        let url = format!("{}/proto.events.v1.EventsService/Subscribe", self.base_url);
 
         let headers = Headers::new().map_err(js_err("Headers::new"))?;
         headers
@@ -118,8 +113,8 @@ impl ApiClient {
         body_u8.copy_from(&body_bytes);
         opts.set_body(&body_u8.into());
 
-        let window = web_sys::window()
-            .ok_or_else(|| ApiError::Decode("wasm fetch: no window".into()))?;
+        let window =
+            web_sys::window().ok_or_else(|| ApiError::Decode("wasm fetch: no window".into()))?;
         let resp_val = JsFuture::from(window.fetch_with_str_and_init(&url, &opts))
             .await
             .map_err(js_err("fetch"))?;
@@ -146,10 +141,9 @@ impl ApiClient {
         let body = response
             .body()
             .ok_or_else(|| ApiError::Decode("wasm fetch: response has no body".into()))?;
-        let reader: ReadableStreamDefaultReader = body
-            .get_reader()
-            .dyn_into()
-            .map_err(|_| ApiError::Decode("wasm fetch: get_reader did not return a default reader".into()))?;
+        let reader: ReadableStreamDefaultReader = body.get_reader().dyn_into().map_err(|_| {
+            ApiError::Decode("wasm fetch: get_reader did not return a default reader".into())
+        })?;
 
         let (tx, rx) = mpsc::unbounded::<Result<Bytes, ApiError>>();
         let reader = Rc::new(RefCell::new(reader));

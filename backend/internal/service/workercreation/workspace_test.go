@@ -212,15 +212,14 @@ func TestWorkspaceResolverRejectsDuplicateSkillSlugs(t *testing.T) {
 }
 
 func TestWorkspaceResolverRejectsInvalidSecretReferences(t *testing.T) {
-	fixture := newWorkspaceFixture()
-	resolver := newWorkspaceResolver(fixture.deps())
 	scope := specservice.Scope{OrgID: 77, UserID: 7}
 	workerType := slugkit.MustNewForTest("codex-cli")
 
 	tests := []struct {
 		name      string
+		field     string
 		reference specdomain.SecretReference
-		mutate    func()
+		mutate    func(*workspaceFixture)
 		match     string
 	}{
 		{
@@ -237,23 +236,45 @@ func TestWorkspaceResolverRejectsInvalidSecretReferences(t *testing.T) {
 				Kind: slugkit.MustNewForTest("env-bundle"),
 				ID:   6,
 			},
-			mutate: func() {
+			mutate: func(fixture *workspaceFixture) {
 				fixture.envBundles.rows[6].Kind = envbundle.KindRuntime
 			},
 			match: "credential",
+		},
+		{
+			name: "credential bundle omits the declared field",
+			reference: specdomain.SecretReference{
+				Kind: slugkit.MustNewForTest("env-bundle"),
+				ID:   6,
+			},
+			mutate: func(fixture *workspaceFixture) {
+				fixture.envBundles.rows[6].Data = envbundle.BundleData{}
+			},
+			match: "does not configure",
+		},
+		{
+			name:  "credential field is not declared",
+			field: "UNDECLARED_KEY",
+			reference: specdomain.SecretReference{
+				Kind: slugkit.MustNewForTest("env-bundle"),
+				ID:   6,
+			},
+			match: "not declared",
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			fixture := newWorkspaceFixture()
+			resolver := newWorkspaceResolver(fixture.deps())
 			if test.mutate != nil {
-				test.mutate()
+				test.mutate(fixture)
 			}
 			err := resolver.ResolveSecretReference(
 				context.Background(),
 				scope,
 				workerType,
-				"SIGNING_KEY",
+				secretField(test.field),
 				test.reference,
 			)
 			require.Error(t, err)
@@ -378,11 +399,19 @@ func newWorkspaceFixture() *workspaceFixture {
 					OwnerID:    userID,
 					Name:       "signing-secrets",
 					Kind:       envbundle.KindCredential,
+					Data:       envbundle.BundleData{"SIGNING_KEY": "encrypted-value"},
 					IsActive:   true,
 				},
 			},
 		},
 	}
+}
+
+func secretField(value string) string {
+	if value == "" {
+		return "SIGNING_KEY"
+	}
+	return value
 }
 
 func (fixture *workspaceFixture) deps() workspaceResolverDeps {
@@ -391,5 +420,13 @@ func (fixture *workspaceFixture) deps() workspaceResolverDeps {
 		Skills:       fixture.skills,
 		Knowledge:    fixture.knowledge,
 		EnvBundles:   fixture.envBundles,
+		Definitions: staticWorkerDefinitions{
+			"codex-cli": workerDefinition(
+				"codex-cli",
+				"codex",
+				"AGENT codex\nEXECUTABLE codex\n",
+				"pty",
+			),
+		},
 	}
 }

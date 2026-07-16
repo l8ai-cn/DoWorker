@@ -75,6 +75,7 @@ func validCompiledWorkerSpec() specdomain.Spec {
 				ConnectionID:       201,
 				ConnectionRevision: 9,
 				ProviderKey:        slugkit.MustNewForTest("openai"),
+				ProtocolAdapter:    slugkit.MustNewForTest("openai-compatible"),
 				ModelID:            "gpt-5",
 			},
 			WorkerType: specdomain.WorkerType{

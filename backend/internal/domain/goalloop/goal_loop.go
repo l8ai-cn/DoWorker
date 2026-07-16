@@ -62,6 +62,9 @@ type GoalLoop struct {
 	CompletedAt                 *time.Time      `json:"completed_at,omitempty"`
 	CreatedAt                   time.Time       `gorm:"not null;default:now()" json:"created_at"`
 	UpdatedAt                   time.Time       `gorm:"not null;default:now()" json:"updated_at"`
+
+	OrchestrationResourceID       *int64 `json:"orchestration_resource_id,omitempty"`
+	OrchestrationResourceRevision *int64 `json:"orchestration_resource_revision,omitempty"`
 }
 
 func (GoalLoop) TableName() string {

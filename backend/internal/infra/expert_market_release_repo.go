@@ -34,6 +34,24 @@ func (repo *expertMarketRepo) GetReleaseByID(
 	return &release, nil
 }
 
+func (repo *expertMarketRepo) GetLatestReleaseByApplication(
+	ctx context.Context,
+	applicationID int64,
+) (*expertmarket.Release, error) {
+	var release expertmarket.Release
+	err := repo.db.WithContext(ctx).
+		Where("application_id = ?", applicationID).
+		Order("version DESC, id DESC").
+		First(&release).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, expertmarket.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &release, nil
+}
+
 func (repo *expertMarketRepo) ListReleases(
 	ctx context.Context,
 	filter expertmarket.ReleaseListFilter,

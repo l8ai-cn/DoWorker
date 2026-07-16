@@ -48,15 +48,9 @@ func (r *runnerRepository) GetPendingAuthByKey(ctx context.Context, authKey stri
 	return &pa, nil
 }
 
-func (r *runnerRepository) ClaimPendingAuth(ctx context.Context, id int64, orgID int64) (int64, int64, error) {
-	var clusterID int64
+func (r *runnerRepository) AuthorizePendingAuthAtomic(ctx context.Context, id, orgID, clusterID int64, rn *runner.Runner) (int64, error) {
 	var rowsAffected int64
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var err error
-		clusterID, err = localExecutionClusterID(tx, orgID)
-		if err != nil {
-			return err
-		}
 		result := tx.Model(&runner.PendingAuth{}).
 			Where("id = ? AND authorized = false AND expires_at > ?", id, time.Now()).
 			Updates(map[string]interface{}{
@@ -64,16 +58,24 @@ func (r *runnerRepository) ClaimPendingAuth(ctx context.Context, id int64, orgID
 				"organization_id": orgID,
 				"cluster_id":      clusterID,
 			})
+		if result.Error != nil {
+			return result.Error
+		}
 		rowsAffected = result.RowsAffected
-		return result.Error
+		if rowsAffected == 0 {
+			return nil
+		}
+		if err := tx.Create(rn).Error; err != nil {
+			return err
+		}
+		return tx.Model(&runner.PendingAuth{}).
+			Where("id = ?", id).
+			Update("runner_id", rn.ID).Error
 	})
-	return rowsAffected, clusterID, err
-}
-
-func (r *runnerRepository) UpdatePendingAuthRunnerID(ctx context.Context, id int64, runnerID int64) error {
-	return r.db.WithContext(ctx).Model(&runner.PendingAuth{}).
-		Where("id = ?", id).
-		Update("runner_id", runnerID).Error
+	if err != nil {
+		return 0, err
+	}
+	return rowsAffected, nil
 }
 
 func (r *runnerRepository) DeleteClaimedPendingAuth(ctx context.Context, id int64) (int64, error) {
@@ -90,12 +92,7 @@ func (r *runnerRepository) CleanupExpiredPendingAuths(ctx context.Context) error
 }
 
 func (r *runnerRepository) CreateRegistrationToken(ctx context.Context, token *runner.GRPCRegistrationToken) error {
-	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := assignLocalClusterToToken(tx, token); err != nil {
-			return err
-		}
-		return tx.Create(token).Error
-	})
+	return r.db.WithContext(ctx).Create(token).Error
 }
 
 func (r *runnerRepository) GetRegistrationTokenByHash(ctx context.Context, hash string) (*runner.GRPCRegistrationToken, error) {
@@ -144,9 +141,6 @@ func (r *runnerRepository) RegisterWithTokenAtomic(ctx context.Context, tokenID 
 			return err
 		}
 
-		if err := validateRunnerCluster(tx, rn); err != nil {
-			return err
-		}
 		if err := tx.Create(rn).Error; err != nil {
 			return err
 		}

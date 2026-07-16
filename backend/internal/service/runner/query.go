@@ -66,7 +66,10 @@ func (s *Service) ListAvailableRunners(ctx context.Context, orgID int64, userID 
 }
 
 func (s *Service) SelectAvailableRunner(ctx context.Context, orgID int64, userID int64) (*runner.Runner, error) {
-	cachedRunners := s.collectEligibleRunners(ctx, orgID, userID, "")
+	cachedRunners, err := s.collectEligibleRunners(ctx, orgID, userID, "")
+	if err != nil {
+		return nil, err
+	}
 
 	if len(cachedRunners) > 0 {
 		sort.Slice(cachedRunners, func(i, j int) bool {
@@ -88,7 +91,10 @@ func (s *Service) SelectAvailableRunner(ctx context.Context, orgID int64, userID
 }
 
 func (s *Service) SelectAvailableRunnerForAgent(ctx context.Context, orgID int64, userID int64, agentSlug string) (*runner.Runner, error) {
-	cachedRunners := s.collectEligibleRunners(ctx, orgID, userID, agentSlug)
+	cachedRunners, err := s.collectEligibleRunners(ctx, orgID, userID, agentSlug)
+	if err != nil {
+		return nil, err
+	}
 
 	if len(cachedRunners) > 0 {
 		sort.Slice(cachedRunners, func(i, j int) bool {

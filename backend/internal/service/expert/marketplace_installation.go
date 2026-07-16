@@ -18,6 +18,7 @@ type MarketplaceInstallationRequest struct {
 	TargetOrganizationID      int64
 	ActorUserID               int64
 	ModelResourceID           int64
+	ToolModelResourceIDs      map[string]int64
 	SourceMarketApplicationID int64
 	SourceMarketReleaseID     int64
 	RuntimeSnapshot           json.RawMessage

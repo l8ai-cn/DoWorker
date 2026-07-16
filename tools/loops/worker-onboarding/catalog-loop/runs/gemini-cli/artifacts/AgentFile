@@ -1,0 +1,34 @@
+# === Identity ===
+AGENT gemini
+EXECUTABLE gemini
+
+# === Mode ===
+MODE pty
+MODE acp "--experimental-acp"
+
+# === Configuration ===
+CONFIG sandbox_mode BOOL = false
+
+# === Environment ===
+ENV GEMINI_API_KEY SECRET OPTIONAL
+
+# === Prompt ===
+PROMPT_POSITION append
+
+# === Capabilities ===
+MCP ON FORMAT gemini
+
+# === Build Logic ===
+arg "--sandbox" when config.sandbox_mode
+
+if mcp.enabled {
+  mkdir sandbox.work_dir + "/.gemini"
+  file sandbox.work_dir + "/.gemini/settings.json" json({ mcpServers: mcp.servers })
+}
+
+CAPABILITY resume acp
+CAPABILITY permission acp
+CAPABILITY usage exit
+CAPABILITY interrupt true
+CAPABILITY streaming true
+CAPABILITY model_family gemini

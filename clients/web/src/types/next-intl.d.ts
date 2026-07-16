@@ -16,6 +16,7 @@ import blockstore from "@/messages/en/blockstore.json";
 import infra from "@/messages/en/infra.json";
 import automation from "@/messages/en/automation.json";
 import experts from "@/messages/en/experts.json";
+import resourceOrchestration from "@/messages/en/resource-orchestration.json";
 import changelogEntries from "@/messages/en/changelog-entries.json";
 
 type Messages = typeof common &
@@ -36,6 +37,7 @@ type Messages = typeof common &
   typeof infra &
   typeof automation &
   typeof experts &
+  typeof resourceOrchestration &
   typeof changelogEntries;
 
 declare global {

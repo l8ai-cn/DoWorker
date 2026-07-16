@@ -95,6 +95,10 @@ func TestHTTPProberBuildsRegistryOwnedAuthentication(t *testing.T) {
 			assert.Equal(t, "Bearer replicate-secret", r.Header.Get("Authorization"))
 			assert.Equal(t, "/v1/models", r.URL.Path)
 		}},
+		{"doubao", map[string]string{"api_key": "ark-secret"}, func(t *testing.T, r *http.Request) {
+			assert.Equal(t, "Bearer ark-secret", r.Header.Get("Authorization"))
+			assert.Equal(t, "/api/v3/contents/generations/tasks", r.URL.Path)
+		}},
 	}
 	for _, test := range tests {
 		t.Run(test.provider, func(t *testing.T) {
@@ -115,7 +119,7 @@ func TestHTTPProberBuildsRegistryOwnedAuthentication(t *testing.T) {
 }
 
 func TestHTTPProberDoesNotCallNetworkForUnsupportedProviders(t *testing.T) {
-	keys := []string{"fal", "kling", "hailuo", "dashscope", "doubao", "azure-speech", "custom-anthropic-compatible"}
+	keys := []string{"fal", "kling", "hailuo", "dashscope", "azure-speech", "custom-anthropic-compatible"}
 	for _, key := range keys {
 		t.Run(key, func(t *testing.T) {
 			definition, ok := domain.Provider(key)

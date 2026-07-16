@@ -84,7 +84,8 @@ func RegisterMarketplaceInstallationRoutes(
 	router.POST("/apply", func(c *gin.Context) {
 		var request marketplaceInstallRequest
 		var configuration struct {
-			ModelResourceID int64 `json:"model_resource_id"`
+			ModelResourceID      int64            `json:"model_resource_id"`
+			ToolModelResourceIDs map[string]int64 `json:"tool_model_resource_ids"`
 		}
 		if c.ShouldBindJSON(&request) != nil ||
 			request.PlatformResourceType != "expert" ||
@@ -102,6 +103,7 @@ func RegisterMarketplaceInstallationRoutes(
 				TargetOrganizationID:      request.TargetOrganizationID,
 				ActorUserID:               request.ActorUserID,
 				ModelResourceID:           configuration.ModelResourceID,
+				ToolModelResourceIDs:      configuration.ToolModelResourceIDs,
 				SourceMarketApplicationID: request.PlatformResourceID,
 				SourceMarketReleaseID:     request.SourceReleaseID,
 				RuntimeSnapshot:           request.RuntimeSnapshot,

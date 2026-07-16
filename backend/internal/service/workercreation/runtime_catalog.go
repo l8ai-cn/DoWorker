@@ -49,17 +49,35 @@ func (resolver *runtimeCatalogResolver) ResolveRuntime(
 		)
 	}
 	profile := resolver.catalog.Profile(selection.ResourceProfileID)
-	if profile == nil {
-		return runtimedomain.Resolved{}, invalidRuntimeSelection(
-			"resource profile",
-			"selection does not exist",
-		)
-	}
-	if !profile.Enabled {
-		return runtimedomain.Resolved{}, invalidRuntimeSelection(
-			"resource profile",
-			"selection is disabled",
-		)
+	var resourceProfile specdomain.ResourceProfile
+	if selection.CustomResources != nil {
+		if selection.ResourceProfileID != 0 {
+			return runtimedomain.Resolved{}, invalidRuntimeSelection(
+				"resource profile",
+				"custom resources cannot use a preset profile",
+			)
+		}
+		resourceProfile = specdomain.ResourceProfile{
+			Custom:    true,
+			Resources: *selection.CustomResources,
+		}
+	} else {
+		if profile == nil {
+			return runtimedomain.Resolved{}, invalidRuntimeSelection(
+				"resource profile",
+				"selection does not exist",
+			)
+		}
+		if !profile.Enabled {
+			return runtimedomain.Resolved{}, invalidRuntimeSelection(
+				"resource profile",
+				"selection is disabled",
+			)
+		}
+		resourceProfile = specdomain.ResourceProfile{
+			ID:        profile.ID,
+			Resources: profile.Resources,
+		}
 	}
 	runtimeImage, placement, err := specdomain.NormalizeAndValidateRuntimePlacement(
 		specdomain.RuntimeImage{ID: image.ID, Digest: image.Digest},
@@ -69,11 +87,8 @@ func (resolver *runtimeCatalogResolver) ResolveRuntime(
 				ID:   target.ID,
 				Kind: target.Kind,
 			},
-			DeploymentMode: selection.DeploymentMode,
-			ResourceProfile: specdomain.ResourceProfile{
-				ID:        profile.ID,
-				Resources: profile.Resources,
-			},
+			DeploymentMode:  selection.DeploymentMode,
+			ResourceProfile: resourceProfile,
 		},
 	)
 	if err != nil {

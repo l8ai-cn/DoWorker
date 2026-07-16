@@ -49,7 +49,7 @@ describe("AI resource management actions", () => {
     }));
 
     fireEvent.click(screen.getByRole("button", { name: "settings.aiResources.connection.rotate: OpenAI" }));
-    fireEvent.change(screen.getByLabelText("API Key"), { target: { value: "sk-new" } });
+    fireEvent.change(screen.getByLabelText("settings.aiResources.connection.credentials.apiKey"), { target: { value: "sk-new" } });
     fireEvent.click(screen.getByRole("button", { name: "settings.aiResources.connection.rotate" }));
     await waitFor(() => expect(api.rotateConnectionCredentials).toHaveBeenCalledWith(7, { api_key: "sk-new" }));
 

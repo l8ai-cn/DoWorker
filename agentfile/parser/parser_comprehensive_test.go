@@ -112,9 +112,9 @@ arg "--flag" when not config.disabled
 	assert.Equal(t, "not", unary.Op)
 }
 
-// P0: PROMPT_POSITION append/none
+// P0: PROMPT_POSITION modes
 func TestParse_PromptModes(t *testing.T) {
-	for _, mode := range []string{"prepend", "append", "none"} {
+	for _, mode := range []string{"prepend", "append", "after_first", "none"} {
 		prog, errs := Parse("AGENT test\nPROMPT_POSITION " + mode + "\n")
 		require.Empty(t, errs, "mode=%s", mode)
 		ps := prog.Declarations[1].(*PromptPositionDecl)

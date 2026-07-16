@@ -4,48 +4,20 @@ use agentsmesh_events::types::RealtimeEvent;
 use agentsmesh_persistence::StorageBackend;
 
 use crate::acp_session::AcpSessionManager;
+pub use crate::app_runtime::{AppRuntime, AppStateDispatchHook};
 use crate::autopilot_state::AutopilotState;
 use crate::channel_state::ChannelState;
 use crate::event_dispatch;
 use crate::expert_state::ExpertState;
 use crate::loop_builder_state::LoopBuilderState;
-use crate::workflow_state::WorkflowState;
 use crate::loopal_session::LoopalSessionManager;
 use crate::mesh_state::MeshState;
+pub use crate::notification_specs::{NotificationSpec, ToastSpec};
 use crate::pod_state::PodState;
 use crate::repo_state::RepoState;
 use crate::runner_state::RunnerState;
 use crate::ticket_state::TicketState;
-
-pub use crate::app_runtime::{AppRuntime, AppStateDispatchHook};
-
-/// Specification of a transient toast notification that the Rust-SSOT
-/// dispatch wants the platform layer to display. Rust never ships locale
-/// data; `title_key` + `title_params` are passed through and translated
-/// on the host side via the platform's i18n facility.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct ToastSpec {
-    pub kind: String,
-    pub title_key: String,
-    #[serde(default)]
-    pub title_params: serde_json::Value,
-    #[serde(default)]
-    pub description: String,
-    #[serde(default)]
-    pub duration_ms: u32,
-}
-
-/// Specification of a browser/OS-native notification. The platform layer
-/// decides whether to show via `Notification` API or an in-app banner.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct NotificationSpec {
-    pub title: String,
-    pub body: String,
-    #[serde(default)]
-    pub icon: Option<String>,
-    #[serde(default)]
-    pub link: Option<String>,
-}
+use crate::workflow_state::WorkflowState;
 
 pub struct AppState {
     pub pods: PodState,

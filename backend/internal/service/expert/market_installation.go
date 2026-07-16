@@ -72,6 +72,7 @@ func (s *Service) installPublishedMarketRelease(
 		req.OrganizationID,
 		req.UserID,
 		req.ModelResourceID,
+		req.ToolModelResourceIDs,
 		&published.Release,
 	)
 	if err != nil {
@@ -102,8 +103,10 @@ func (s *Service) installPublishedMarketRelease(
 	if err == nil {
 		return row, false, nil
 	}
+	cleanupCtx, cancelCleanup := marketCleanupContext(ctx)
+	defer cancelCleanup()
 	if cleanupErr := s.removeUnusedMarketSnapshot(
-		ctx,
+		cleanupCtx,
 		req.OrganizationID,
 		workerSnapshotID,
 	); cleanupErr != nil {

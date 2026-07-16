@@ -18,6 +18,7 @@ describe("installMarketplaceApplication", () => {
       "acme",
       "video-production-expert",
       42,
+      { "seedance-video": 77 },
     );
 
     expect(lightFetch).toHaveBeenCalledWith(
@@ -25,7 +26,10 @@ describe("installMarketplaceApplication", () => {
       {
         method: "POST",
         authenticated: true,
-        body: { model_resource_id: 42 },
+        body: {
+          model_resource_id: 42,
+          tool_model_resource_ids: { "seedance-video": 77 },
+        },
       },
     );
   });

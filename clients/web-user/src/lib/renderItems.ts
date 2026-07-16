@@ -78,6 +78,13 @@ export type RenderItem =
       stdout: string | null;
       stderr: string | null;
     }
+  | {
+      kind: "file";
+      itemId: string | null;
+      fileId: string;
+      filename: string | null;
+      contentType: string | null;
+    }
   | { kind: "policy_denied"; itemId: string | null; reason: string; phase: string }
   | { kind: "error"; itemId: string | null; message: string; source: string; code: string }
   | {
@@ -533,9 +540,7 @@ function isAssistantSideBlock(b: AnyBlock): boolean {
     // routing_decision is a standalone top-level chip, not an assistant item.
     b.type !== "routing_decision" &&
     b.type !== "response_start" &&
-    b.type !== "response_end" &&
-    // FileBlock is currently deferred from rendering; skip silently.
-    b.type !== "file"
+    b.type !== "response_end"
   );
 }
 
@@ -670,6 +675,18 @@ function buildAssistantItems(
         input: b.input,
         stdout: b.stdout,
         stderr: b.stderr,
+      });
+      i += 1;
+      continue;
+    }
+
+    if (b.type === "file") {
+      items.push({
+        kind: "file",
+        itemId: b.ctx.itemId,
+        fileId: b.fileId,
+        filename: b.filename,
+        contentType: b.contentType,
       });
       i += 1;
       continue;

@@ -87,4 +87,26 @@ describe("runnerToProtoRunner", () => {
     const proto = runnerToProtoRunner(fixture);
     expect(proto.organizationId).toBe(BigInt(0));
   });
+
+  it("preserves the runner tunnel evidence used by the detail view", () => {
+    const runner = {
+      ...fixture,
+      cluster_id: 19,
+      tunnel_state: "connected",
+      tunnel_last_seen_at: "2026-07-13T05:54:14Z",
+      tunnel_last_error: undefined,
+    };
+    const proto = runnerToProtoRunner(runner);
+    const tunnelProto = proto as unknown as {
+      clusterId?: bigint;
+      tunnelState?: string;
+      tunnelLastSeenAt?: string;
+      tunnelLastError?: string;
+    };
+
+    expect(tunnelProto.clusterId).toBe(BigInt(19));
+    expect(tunnelProto.tunnelState).toBe("connected");
+    expect(tunnelProto.tunnelLastSeenAt).toBe("2026-07-13T05:54:14Z");
+    expect(tunnelProto.tunnelLastError).toBeUndefined();
+  });
 });

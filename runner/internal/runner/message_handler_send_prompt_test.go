@@ -12,13 +12,14 @@ import (
 // tests can assert ordering and the post-text submission gap).
 type sendPromptMockIO struct {
 	stubPodIOZero
-	mu        sync.Mutex
-	mode      string
-	inputs    []timedCall
-	keys      []timedCall
-	inputErr  error
-	keysErr   error
-	hasTermAx bool
+	mu          sync.Mutex
+	mode        string
+	inputs      []timedCall
+	keys        []timedCall
+	inputErr    error
+	keysErr     error
+	agentStatus string
+	subscribers map[string]func(string)
 }
 
 type timedCall struct {
@@ -27,6 +28,43 @@ type timedCall struct {
 }
 
 func (m *sendPromptMockIO) Mode() string { return m.mode }
+
+func (m *sendPromptMockIO) GetAgentStatus() string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.agentStatus == "" {
+		return "waiting"
+	}
+	return m.agentStatus
+}
+
+func (m *sendPromptMockIO) SubscribeStateChange(id string, cb func(string)) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.subscribers == nil {
+		m.subscribers = make(map[string]func(string))
+	}
+	m.subscribers[id] = cb
+}
+
+func (m *sendPromptMockIO) UnsubscribeStateChange(id string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	delete(m.subscribers, id)
+}
+
+func (m *sendPromptMockIO) setAgentStatus(status string) {
+	m.mu.Lock()
+	m.agentStatus = status
+	callbacks := make([]func(string), 0, len(m.subscribers))
+	for _, cb := range m.subscribers {
+		callbacks = append(callbacks, cb)
+	}
+	m.mu.Unlock()
+	for _, cb := range callbacks {
+		cb(status)
+	}
+}
 
 func (m *sendPromptMockIO) SendInput(text string) error {
 	m.mu.Lock()
@@ -51,11 +89,11 @@ func (p *ptyTerminalMock) SendKeys(keys []string) error {
 	return p.keysErr
 }
 
-func (p *ptyTerminalMock) Resize(int, int) (bool, error)             { return true, nil }
-func (p *ptyTerminalMock) CursorPosition() (int, int)                { return 0, 0 }
-func (p *ptyTerminalMock) GetScreenSnapshot() string                 { return "" }
-func (p *ptyTerminalMock) Redraw() error                             { return nil }
-func (p *ptyTerminalMock) WriteOutput([]byte)                        {}
+func (p *ptyTerminalMock) Resize(int, int) (bool, error) { return true, nil }
+func (p *ptyTerminalMock) CursorPosition() (int, int)    { return 0, 0 }
+func (p *ptyTerminalMock) GetScreenSnapshot() string     { return "" }
+func (p *ptyTerminalMock) Redraw() error                 { return nil }
+func (p *ptyTerminalMock) WriteOutput([]byte)            {}
 
 // stubPodIOZero satisfies PodIO with no-ops so each test mock only overrides
 // the methods it cares about.
@@ -121,6 +159,54 @@ func TestOnSendPrompt_PTY_GapBetweenBodyAndEnter(t *testing.T) {
 	const minGap = 50 * time.Millisecond
 	if gap < minGap {
 		t.Fatalf("gap between body and Enter = %v, want >= %v (TUI read-loop separation)", gap, minGap)
+	}
+}
+
+func TestOnSendPrompt_PTY_WaitsUntilAgentAcceptsInput(t *testing.T) {
+	base := &sendPromptMockIO{
+		mode:        InteractionModePTY,
+		agentStatus: "executing",
+	}
+	io := &ptyTerminalMock{sendPromptMockIO: base}
+	pod := &Pod{PodKey: "pty-pod", InteractionMode: InteractionModePTY, IO: io}
+
+	store := NewInMemoryPodStore()
+	store.Put(pod.PodKey, pod)
+	h := &RunnerMessageHandler{podStore: store}
+
+	done := make(chan error, 1)
+	go func() {
+		done <- h.OnSendPrompt(&runnerv1.SendPromptCommand{
+			PodKey: pod.PodKey,
+			Prompt: "hello",
+		})
+	}()
+
+	time.Sleep(20 * time.Millisecond)
+	base.mu.Lock()
+	inputCount := len(base.inputs)
+	base.mu.Unlock()
+	if inputCount != 0 {
+		t.Fatalf("prompt was written before the PTY became ready")
+	}
+
+	base.setAgentStatus("waiting")
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatalf("OnSendPrompt error: %v", err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("OnSendPrompt did not resume after the PTY became ready")
+	}
+
+	base.mu.Lock()
+	defer base.mu.Unlock()
+	if len(base.inputs) != 1 || base.inputs[0].payload != "hello" {
+		t.Fatalf("prompt input = %v, want one hello input", base.inputs)
+	}
+	if len(base.keys) != 1 || base.keys[0].payload != "enter" {
+		t.Fatalf("submit keys = %v, want one enter key", base.keys)
 	}
 }
 

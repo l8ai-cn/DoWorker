@@ -1,41 +1,40 @@
 "use client";
 
 import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
-import { GoalLoopCreateForm } from "./GoalLoopCreateForm";
-import type { GoalLoopData, GoalLoopWorkerSnapshot } from "@/lib/viewModels/goal-loop";
+import { ResourceEditorShell } from "@/components/resource-editor/ResourceEditorShell";
 
 interface GoalLoopCreateDialogProps {
   open: boolean;
   orgSlug: string;
-  workerSnapshots: GoalLoopWorkerSnapshot[];
-  onCreated: (loop: GoalLoopData) => void;
+  onApplied: () => void;
   onOpenChange: (open: boolean) => void;
 }
 
 export function GoalLoopCreateDialog({
   open,
   orgSlug,
-  workerSnapshots,
-  onCreated,
+  onApplied,
   onOpenChange,
 }: GoalLoopCreateDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="relative max-w-3xl"
+        className="relative max-w-5xl"
         title="创建目标 Loop"
-        description="Loop 只执行一次，完成必须由验证命令退出码为 0 判定。"
+        description="应用后创建草稿；启动仍由 Loop 列表中的显式操作触发。"
       >
         <DialogClose onClose={() => onOpenChange(false)} />
         {open && (
-          <GoalLoopCreateForm
-            orgSlug={orgSlug}
-            workerSnapshots={workerSnapshots}
-            onCreated={(loop) => {
-              onCreated(loop);
-              onOpenChange(false);
-            }}
-          />
+          <div className="px-6 pb-6">
+            <ResourceEditorShell
+              orgSlug={orgSlug}
+              kind="GoalLoop"
+              onApplied={() => {
+                onOpenChange(false);
+                onApplied();
+              }}
+            />
+          </div>
         )}
       </DialogContent>
     </Dialog>

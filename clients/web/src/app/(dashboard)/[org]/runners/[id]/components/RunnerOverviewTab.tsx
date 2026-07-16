@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { ConfirmDialog, useConfirmDialog } from "@/components/ui/confirm-dialog";
 import { RelayConnectionsCard } from "./RelayConnectionsCard";
 import { RunnerLogsCard } from "./RunnerLogsCard";
+import { RunnerTunnelStatus } from "./RunnerTunnelStatus";
 
 interface RunnerOverviewTabProps {
   runner: RunnerData;
@@ -118,6 +119,7 @@ export function RunnerOverviewTab({ runner, relayConnections, latestRunnerVersio
                 : "-"}
             </dd>
           </div>
+          <RunnerTunnelStatus runner={runner} />
           <div>
             <dt className="text-sm text-muted-foreground">
               {t("runners.detail.createdAt")}

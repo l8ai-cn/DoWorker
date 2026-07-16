@@ -6,7 +6,8 @@
     "close": "Close",
     "expand": "Expand",
     "collapse": "Collapse",
-    "htmlDocument": "HTML document"
+    "htmlDocument": "HTML document",
+    "popupBlocked": "El navegador bloqueó la ventana de vista previa."
   },
   "common": {
     "loading": "Cargando...",

@@ -13,16 +13,19 @@ import (
 var errCrossScopeForTest = errors.New("cross-scope resolution")
 
 type resolverPortsForTest struct {
-	calls             []string
-	scopes            []Scope
-	failAt            string
-	failure           error
-	workerType        WorkerTypeResolution
-	runtime           workerruntime.Resolved
-	modelBinding      domain.ModelBinding
-	runtimeSelection  RuntimeSelection
-	runtimeWorkerType slugkit.Slug
-	modelResourceID   int64
+	calls               []string
+	scopes              []Scope
+	failAt              string
+	failure             error
+	workerType          WorkerTypeResolution
+	runtime             workerruntime.Resolved
+	modelBinding        domain.ModelBinding
+	toolModelBinding    domain.ToolModelBinding
+	runtimeSelection    RuntimeSelection
+	runtimeWorkerType   slugkit.Slug
+	modelResourceID     int64
+	toolModelResourceID int64
+	modelRequirement    domain.ModelRequirement
 }
 
 func newResolverPortsForTest() *resolverPortsForTest {
@@ -34,6 +37,12 @@ func newResolverPortsForTest() *resolverPortsForTest {
 			},
 			SupportedInteractionModes: []domain.InteractionMode{
 				domain.InteractionModePTY,
+			},
+			ModelRequirement: domain.ModelRequirement{
+				Required: true,
+				ProtocolAdapters: []slugkit.Slug{
+					mustSlugForTest("openai-compatible"),
+				},
 			},
 			TypeSchema: domain.TypeSchema{
 				Version: 7,
@@ -51,6 +60,7 @@ func newResolverPortsForTest() *resolverPortsForTest {
 			ConnectionID:       2001,
 			ConnectionRevision: 9,
 			ProviderKey:        mustSlugForTest("openai"),
+			ProtocolAdapter:    mustSlugForTest("openai-compatible"),
 			ModelID:            "gpt-5",
 		},
 		failure: errors.New("resolution failed"),
@@ -62,9 +72,23 @@ func (ports *resolverPortsForTest) deps() ResolverDeps {
 		WorkerTypes: ports,
 		Runtime:     ports,
 		Models:      ports,
+		ToolModels:  ports,
 		Secrets:     ports,
 		Workspaces:  ports,
 	}
+}
+
+func (ports *resolverPortsForTest) ResolveToolModel(
+	_ context.Context,
+	scope Scope,
+	requirement domain.ToolModelRequirement,
+	resourceID int64,
+) (domain.ToolModelBinding, error) {
+	ports.toolModelResourceID = resourceID
+	if err := ports.record("tool-model:"+requirement.Role.String(), scope); err != nil {
+		return domain.ToolModelBinding{}, err
+	}
+	return ports.toolModelBinding, nil
 }
 
 func (ports *resolverPortsForTest) ResolveWorkerType(
@@ -95,10 +119,11 @@ func (ports *resolverPortsForTest) ResolveRuntime(
 func (ports *resolverPortsForTest) ResolveModel(
 	_ context.Context,
 	scope Scope,
-	_ slugkit.Slug,
+	requirement domain.ModelRequirement,
 	resourceID int64,
 ) (domain.ModelBinding, error) {
 	ports.modelResourceID = resourceID
+	ports.modelRequirement = requirement
 	if err := ports.record("model", scope); err != nil {
 		return domain.ModelBinding{}, err
 	}

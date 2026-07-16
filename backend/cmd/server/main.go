@@ -138,6 +138,14 @@ func main() {
 	configurePodNotificationRouting(podRouter, notifDispatcher)
 
 	podOrchestrator := createPodOrchestrator(services, podCoordinator)
+	if err := attachOrchestrationWorkerApply(
+		services,
+		podOrchestrator,
+		pendingQueueWiring.queue,
+	); err != nil {
+		log.Fatalf("Failed to initialize orchestration Worker apply: %v", err)
+	}
+	services.mesh.SetPodCreator(podOrchestrator)
 
 	services.channel.AddPostSendHook(channelService.NewPodPromptHook(podRouter, channelRepo, runner.NewChannelPromptQueuer(services.pod, pendingQueueWiring.queue)))
 	slog.Info("PodPromptHook registered with PodRouter")

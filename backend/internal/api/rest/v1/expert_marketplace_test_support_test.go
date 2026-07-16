@@ -239,6 +239,24 @@ func (repository *marketplaceRepository) GetReleaseByID(
 	return row, nil
 }
 
+func (repository *marketplaceRepository) GetLatestReleaseByApplication(
+	_ context.Context,
+	applicationID int64,
+) (*expertmarket.Release, error) {
+	var latest *expertmarket.Release
+	for _, row := range repository.releases {
+		if row.ApplicationID != applicationID ||
+			latest != nil && row.Version <= latest.Version {
+			continue
+		}
+		latest = row
+	}
+	if latest == nil {
+		return nil, expertmarket.ErrNotFound
+	}
+	return latest, nil
+}
+
 func (repository *marketplaceRepository) ListReleases(
 	_ context.Context, filter expertmarket.ReleaseListFilter,
 ) ([]expertmarket.Release, int64, error) {

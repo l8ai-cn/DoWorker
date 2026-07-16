@@ -104,6 +104,8 @@ func validatePortableMarketSpec(spec specdomain.Spec) error {
 		return fmt.Errorf("knowledge references are not portable")
 	case len(spec.Workspace.EnvBundleIDs) > 0:
 		return fmt.Errorf("environment references are not portable")
+	case len(spec.Workspace.ConfigBundleIDs) > 0:
+		return fmt.Errorf("workspace.config_bundle_ids are not portable")
 	case len(spec.TypeConfig.SecretRefs) > 0:
 		return fmt.Errorf("secret references are not portable")
 	default:

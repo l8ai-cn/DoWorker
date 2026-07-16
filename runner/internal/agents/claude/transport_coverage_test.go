@@ -176,17 +176,15 @@ func TestResolveOutgoingControlResponse_UnknownRequestID(t *testing.T) {
 }
 
 func TestTransport_RegisterFactory(t *testing.T) {
-	tr := acp.NewTransport(TransportType, acp.EventCallbacks{}, discardLogger())
+	tr, err := acp.NewTransport(TransportType, acp.EventCallbacks{}, discardLogger())
+	if err != nil {
+		t.Fatalf("NewTransport: %v", err)
+	}
 	if tr == nil {
-		t.Fatal("NewTransport returned nil for claude-stream")
+		t.Fatal("NewTransport returned nil for claude-stream-json")
 	}
 	_, ok := tr.(*transport)
 	if !ok {
 		t.Errorf("expected *claude.Transport, got %T", tr)
 	}
-}
-
-func TestTransport_CommandMapping(t *testing.T) {
-	tt := acp.TransportTypeForCommand("claude")
-	assert.Equal(t, TransportType, tt)
 }

@@ -16,7 +16,12 @@ interface ListMyOrgsResponse {
   items?: Array<{ slug: string }>;
 }
 
-export async function fetchFirstOrgSlug(): Promise<string | null> {
+export type FirstOrgDiscovery =
+  | { status: "found"; slug: string }
+  | { status: "empty" }
+  | { status: "unavailable" };
+
+export async function discoverFirstOrgSlug(): Promise<FirstOrgDiscovery> {
   try {
     const resp = await lightConnect<Record<string, never>, ListMyOrgsResponse>(
       "proto.org.v1.OrgService",
@@ -25,10 +30,17 @@ export async function fetchFirstOrgSlug(): Promise<string | null> {
       { authenticated: true },
     );
     const orgs = resp?.items ?? [];
-    return orgs.length > 0 ? orgs[0].slug : null;
+    return orgs.length > 0
+      ? { status: "found", slug: orgs[0].slug }
+      : { status: "empty" };
   } catch {
-    return null;
+    return { status: "unavailable" };
   }
+}
+
+export async function fetchFirstOrgSlug(): Promise<string | null> {
+  const result = await discoverFirstOrgSlug();
+  return result.status === "found" ? result.slug : null;
 }
 
 export async function resolvePostLoginUrlLight(opts: {

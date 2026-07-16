@@ -234,6 +234,7 @@ func (ft *fakeRunnerTunnel) Close() {
 // endpoints only, no backend registration) for end-to-end tests.
 func newPreviewE2EGateway(t *testing.T) (gw *httptest.Server, registry *tunnel.Registry, validator *auth.TokenValidator) {
 	t.Helper()
+	gw = httptest.NewUnstartedServer(nil)
 	validator = auth.NewTokenValidator("s3cret", "iss")
 	registry = tunnel.NewRegistry()
 	tunnelHandler := NewTunnelHandler(validator, registry, auth.NewOriginChecker(nil), 1<<20)
@@ -242,11 +243,13 @@ func newPreviewE2EGateway(t *testing.T) (gw *httptest.Server, registry *tunnel.R
 		ReconnectGrace:    2 * time.Second,
 		StreamTimeout:     10 * time.Second,
 		StreamWindowBytes: 1 << 20,
+		PublicHost:        gw.Listener.Addr().String(),
 	})
 	mux := http.NewServeMux()
 	mux.HandleFunc("/runner/tunnel", tunnelHandler.HandleTunnelWS)
 	mux.HandleFunc("/preview/", previewHandler.route)
-	gw = httptest.NewServer(mux)
+	gw.Config.Handler = mux
+	gw.Start()
 	return gw, registry, validator
 }
 

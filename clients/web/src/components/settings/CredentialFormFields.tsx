@@ -4,10 +4,7 @@ import { useMemo } from "react";
 import type {
   CredentialFormSpec,
   CredentialFieldSpec,
-  CustomEnvEntry,
 } from "./envBundleCredentialForms/types";
-import { getEnvKeysFromSpec } from "./envBundleCredentialForms";
-import { CustomEnvSection } from "./CustomEnvSection";
 import { SimpleFieldInput, OneOfFieldInput } from "./credentialFieldInputs";
 
 interface CredentialFormFieldsProps {
@@ -16,8 +13,6 @@ interface CredentialFormFieldsProps {
   onValueChange: (envKey: string, value: string) => void;
   selectedOneOf: Record<string, string>;
   onOneOfChange: (group: string, envKey: string) => void;
-  customEnv: CustomEnvEntry[];
-  onCustomEnvChange: (entries: CustomEnvEntry[]) => void;
   // Editing-only: configuredKeys gates the per-secret remove button (only a
   // stored secret can be deleted) and the remove/restore callbacks toggle
   // removedKeys. Optional so the create path and unit tests need not thread them.
@@ -66,28 +61,15 @@ function renderField(
 }
 
 export function CredentialFormFields(props: CredentialFormFieldsProps) {
-  const { spec, customEnv, onCustomEnvChange, configuredKeys = [], removedKeys = [], isEditing, t } =
-    props;
-  const declaredKeys = useMemo(() => getEnvKeysFromSpec(spec), [spec]);
+  const { spec, configuredKeys = [], removedKeys = [], isEditing, t } = props;
   const configured = useMemo(() => new Set(configuredKeys), [configuredKeys]);
   const removed = useMemo(() => new Set(removedKeys), [removedKeys]);
 
-  if (spec.fields.length === 0 && !spec.allowCustomEnv) return null;
+  if (spec.fields.length === 0) return null;
 
   return (
     <>
       {spec.fields.map((field) => renderField(field, props, configured, removed))}
-      {spec.allowCustomEnv && (
-        <CustomEnvSection
-          title={t("settings.credentialForm.customEnv.title")}
-          hint={spec.customEnvHint ? t(spec.customEnvHint) : undefined}
-          entries={customEnv}
-          declaredKeys={declaredKeys}
-          onChange={onCustomEnvChange}
-          isEditing={isEditing}
-          t={t}
-        />
-      )}
     </>
   );
 }

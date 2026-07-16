@@ -54,6 +54,7 @@ func newExpertAndSkillServices(
 		MarketWorkerSpecs: services.workerCreation,
 		MarketInstallLock: infra.NewExpertMarketInstallationLocker(db),
 		Market:            infra.NewExpertMarketRepository(db),
+		Skills:            skillCatalog,
 		MarketSkills:      skillCatalog,
 		Gitops:            expertGitops,
 		Logger:            logger,

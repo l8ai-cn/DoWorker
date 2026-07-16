@@ -3,6 +3,7 @@ package sessionapi
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -47,4 +48,23 @@ func TestSessionHub_PublishIdleOnDelete(t *testing.T) {
 	msg := <-ch
 	require.True(t, strings.Contains(msg, "session.status"))
 	require.True(t, strings.Contains(msg, `"status":"idle"`))
+}
+
+func TestSessionStreamSubscriptionReceivesInitialStatus(t *testing.T) {
+	hub := NewSessionHub()
+	deps := Deps{
+		Hub:    hub,
+		Stream: NewSessionStreamPublisher(hub, nil, nil, nil),
+	}
+
+	ch := deps.subscribeSessionStream("conv_initial_status", "running")
+	defer hub.Unsubscribe("conv_initial_status", ch)
+
+	select {
+	case frame := <-ch:
+		require.Contains(t, frame, "session.status")
+		require.Contains(t, frame, `"status":"running"`)
+	case <-time.After(time.Second):
+		t.Fatal("initial session status was not delivered")
+	}
 }

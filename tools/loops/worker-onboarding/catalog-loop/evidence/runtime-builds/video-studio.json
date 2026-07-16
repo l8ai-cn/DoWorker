@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "worker_slug": "video-studio",
+  "validated_at": "2026-07-16T05:38:28.762Z",
+  "image": "do-worker/runner-video-studio:latest",
+  "platform": "linux/amd64",
+  "checks": {
+    "local_image_inspect": "image_missing",
+    "version_probe": [
+      "video-studio-codex",
+      "--version"
+    ]
+  },
+  "verdict": "image_missing",
+  "observed_failure": "Docker reported that do-worker/runner-video-studio:latest does not exist locally.",
+  "limits": [
+    "The local video-studio runtime contract and version probe were not executed because the image is absent.",
+    "No Runner registration, backend creation request, model credential materialization, or browser flow was executed."
+  ]
+}

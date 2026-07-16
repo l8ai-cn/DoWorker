@@ -41,5 +41,9 @@ export function runnerToProtoRunner(r: RunnerData): ProtoRunner {
     updatedAt: r.updated_at,
     organizationId: BigInt(0),
     agentVersions: [],
+    clusterId: asBigInt(r.cluster_id) ?? BigInt(0),
+    tunnelState: r.tunnel_state ?? "",
+    tunnelLastSeenAt: r.tunnel_last_seen_at,
+    tunnelLastError: r.tunnel_last_error,
   });
 }
