@@ -63,7 +63,7 @@ func (m *packagerMockStorage) PresignPutURL(_ context.Context, _ string, _ strin
 	return "", nil
 }
 
-func (m *packagerMockStorage) InternalPresignPutURL(_ context.Context, _ string, _ string, _ time.Duration) (string, error) {
+func (m *packagerMockStorage) InternalPresignPutURL(_ context.Context, _ string, _ string, _ int64, _ time.Duration) (string, error) {
 	return "", nil
 }
 

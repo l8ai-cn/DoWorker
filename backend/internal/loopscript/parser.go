@@ -1,13 +1,23 @@
 package loopscript
 
 type parser struct {
-	tokens     []token
-	pos        int
-	diagnostic *Diagnostic
-	positions  programPositions
+	tokens              []token
+	pos                 int
+	diagnostic          *Diagnostic
+	semanticDiagnostics []Diagnostic
+	positions           programPositions
+	redactions          textRedactions
 }
 
 func Parse(source string) (*Program, []Diagnostic) {
+	program, diagnostics := Analyze(source)
+	if len(diagnostics) != 0 {
+		return nil, diagnostics
+	}
+	return program, nil
+}
+
+func Analyze(source string) (*Program, []Diagnostic) {
 	tokens := lex(source)
 	for _, item := range tokens {
 		if item.kind == tokenIllegal {
@@ -22,11 +32,9 @@ func Parse(source string) (*Program, []Diagnostic) {
 	if p.diagnostic != nil {
 		return nil, []Diagnostic{*p.diagnostic}
 	}
-	diagnostics := validateProgram(program, &p.positions)
-	if len(diagnostics) != 0 {
-		return nil, diagnostics
-	}
-	return program, nil
+	diagnostics := append([]Diagnostic(nil), p.semanticDiagnostics...)
+	diagnostics = append(diagnostics, validateProgram(program, &p.positions, p.redactions)...)
+	return program, diagnostics
 }
 
 func (p *parser) parseProgram() *Program {

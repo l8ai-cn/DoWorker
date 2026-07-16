@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { LoopRuntimeSnapshot } from "@/lib/viewModels/loop-program";
+import type { LoopRuntimeMessages } from "./loop-workbench-messages";
 
 interface LoopRuntimeDialogProps {
   error?: string;
@@ -24,14 +25,21 @@ interface LoopRuntimeDialogProps {
   open: boolean;
   running: boolean;
   snapshots: LoopRuntimeSnapshot[];
+  messages: LoopRuntimeMessages;
   onOpenChange: (open: boolean) => void;
   onRetry: () => void;
   onRun: (snapshotId: string) => void;
 }
 
-function runtimeLabel(snapshot: LoopRuntimeSnapshot): string {
-  const name = snapshot.alias || "未命名环境";
-  return `${name} · ${snapshot.workerType} · 快照 ${snapshot.id}`;
+function runtimeLabel(
+  snapshot: LoopRuntimeSnapshot,
+  messages: LoopRuntimeMessages,
+): string {
+  return messages.snapshotLabel(
+    snapshot.alias || messages.unnamed,
+    snapshot.workerType,
+    snapshot.id,
+  );
 }
 
 export function LoopRuntimeDialog({
@@ -40,6 +48,7 @@ export function LoopRuntimeDialog({
   open,
   running,
   snapshots,
+  messages,
   onOpenChange,
   onRetry,
   onRun,
@@ -56,45 +65,49 @@ export function LoopRuntimeDialog({
     <Dialog open={open} onOpenChange={changeOpen} overlayClassName="z-[100001]">
       <DialogContent
         className="max-w-md"
-        title="选择运行环境"
-        description="运行环境只在本次启动时绑定，不属于循环编排。"
+        title={messages.title}
+        description={messages.description}
       >
         <DialogBody className="space-y-3">
-          <Label>运行环境</Label>
+          <Label>{messages.field}</Label>
           <Select
             disabled={loading || snapshots.length === 0 || running}
             value={selectedId}
             onValueChange={setSelectedId}
           >
             <SelectTrigger>
-              {selected ? runtimeLabel(selected) : <SelectValue placeholder="选择运行环境" />}
+              {selected ? (
+                runtimeLabel(selected, messages)
+              ) : (
+                <SelectValue placeholder={messages.placeholder} />
+              )}
             </SelectTrigger>
             <SelectContent>
               {snapshots.map((snapshot) => (
                 <SelectItem key={snapshot.id} value={snapshot.id}>
-                  {runtimeLabel(snapshot)}
+                  {runtimeLabel(snapshot, messages)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           {loading && (
-            <p className="text-sm text-muted-foreground">正在加载运行环境</p>
+            <p className="text-sm text-muted-foreground">{messages.loading}</p>
           )}
           {!loading && error && (
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm text-destructive">{error}</p>
               <Button onClick={onRetry} variant="outline">
-                重新加载
+                {messages.retry}
               </Button>
             </div>
           )}
           {!loading && !error && snapshots.length === 0 && (
-            <p className="text-sm text-destructive">当前组织没有可用的运行环境</p>
+            <p className="text-sm text-destructive">{messages.empty}</p>
           )}
         </DialogBody>
         <DialogFooter>
           <Button disabled={running} onClick={() => changeOpen(false)} variant="outline">
-            取消
+            {messages.cancel}
           </Button>
           <Button
             disabled={loading || !selected || running}
@@ -105,7 +118,7 @@ export function LoopRuntimeDialog({
               onRun(selected.id);
             }}
           >
-            启动循环
+            {messages.start}
           </Button>
         </DialogFooter>
       </DialogContent>

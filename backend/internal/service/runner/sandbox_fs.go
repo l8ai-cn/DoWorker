@@ -5,11 +5,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"github.com/google/uuid"
 )
 
-const SandboxFsTimeout = 30 * time.Second
+const (
+	SandboxFsTimeout       = 30 * time.Second
+	SandboxFsUploadTimeout = 150 * time.Second
+)
 
 type SandboxFsSender interface {
 	SendSandboxFs(runnerID int64, cmd *runnerv1.SandboxFsCommand) error
@@ -54,21 +57,31 @@ func (s *SandboxFsService) Exec(ctx context.Context, runnerID int64, cmd *runner
 		cmd.RequestId = uuid.New().String()
 	}
 	ch := make(chan *runnerv1.SandboxFsResultEvent, 1)
-	s.pending.Store(cmd.RequestId, &pendingFsQuery{resultCh: ch, timeout: time.Now().Add(SandboxFsTimeout)})
+	timeout := sandboxFsCommandTimeout(cmd.GetOp())
+	s.pending.Store(cmd.RequestId, &pendingFsQuery{resultCh: ch, timeout: time.Now().Add(timeout)})
 	if err := s.sender.SendSandboxFs(runnerID, cmd); err != nil {
 		s.pending.Delete(cmd.RequestId)
 		return nil, err
 	}
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
 	select {
 	case res := <-ch:
 		return res, nil
 	case <-ctx.Done():
 		s.pending.Delete(cmd.RequestId)
 		return nil, ctx.Err()
-	case <-time.After(SandboxFsTimeout):
+	case <-timer.C:
 		s.pending.Delete(cmd.RequestId)
 		return &runnerv1.SandboxFsResultEvent{RequestId: cmd.RequestId, Error: "query timeout"}, nil
 	}
+}
+
+func sandboxFsCommandTimeout(op string) time.Duration {
+	if op == "upload" {
+		return SandboxFsUploadTimeout
+	}
+	return SandboxFsTimeout
 }
 
 func (s *SandboxFsService) complete(event *runnerv1.SandboxFsResultEvent) {

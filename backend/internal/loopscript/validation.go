@@ -12,7 +12,11 @@ type nodeDescriptor struct {
 	position sourcePosition
 }
 
-func validateProgram(program *Program, positions *programPositions) []Diagnostic {
+func validateProgram(
+	program *Program,
+	positions *programPositions,
+	redactions textRedactions,
+) []Diagnostic {
 	if program == nil {
 		return []Diagnostic{newDiagnostic("loop.program.nil", "program is required", "", sourcePosition{})}
 	}
@@ -60,10 +64,10 @@ func validateProgram(program *Program, positions *programPositions) []Diagnostic
 		))
 	}
 	if loop.Repeat.Max > loop.Limits.Iterations {
-		diagnostics = append(diagnostics, diagnosticFor(
+		diagnostics = append(diagnostics, diagnosticForField(
 			"loop.repeat.max-exceeds-limit",
 			"repeat max must not exceed limits.iterations",
-			loop.Repeat.NodeID, repeatPosition(positions),
+			loop.Repeat.NodeID, "repeat.max", repeatPosition(positions),
 		))
 	}
 	if loop.FailurePolicy != FailurePause && loop.FailurePolicy != FailureFail {
@@ -71,7 +75,7 @@ func validateProgram(program *Program, positions *programPositions) []Diagnostic
 			"loop.failure-policy.invalid", "failure policy must be pause or fail", loop.NodeID, failurePosition(positions),
 		))
 	}
-	diagnostics = appendTextDiagnostics(diagnostics, loop, positions)
+	diagnostics = appendTextDiagnostics(diagnostics, loop, positions, redactions)
 	return diagnostics
 }
 
@@ -98,4 +102,13 @@ func appendInvalidIdentifier(diagnostics []Diagnostic, value, nodeID string, pos
 
 func diagnosticFor(code, message, nodeID string, position sourcePosition) Diagnostic {
 	return newDiagnostic(code, message, nodeID, position)
+}
+
+func diagnosticForField(
+	code, message, nodeID, fieldPath string,
+	position sourcePosition,
+) Diagnostic {
+	diagnostic := diagnosticFor(code, message, nodeID, position)
+	diagnostic.FieldPath = fieldPath
+	return diagnostic
 }

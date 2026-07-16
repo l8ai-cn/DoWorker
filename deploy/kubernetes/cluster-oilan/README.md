@@ -84,11 +84,14 @@ Each run is a **full reconcile**, not a DB-only reset:
 
 1. **Secrets** — restore existing cluster secrets or generate first-deploy values.
 2. **Immutable release** — reject any platform image not pinned by registry digest.
-3. **`kubectl apply -k .`** — re-apply every Deployment/ConfigMap/Ingress from git.
+3. **Pinned migration Job** — use the exact Backend digest from the rendered
+   release to run `/app/server migrate up`, and block until all pending
+   migrations (currently through `000223`) complete.
+4. **`kubectl apply -f /tmp/agentsmesh-release.yaml`** — only after migration
+   success, re-apply every Deployment/ConfigMap/Ingress from git.
    Live hotfixes (`kubectl set env …`) are **overwritten** on the next deploy.
-4. **Init migrations** — Backend and Marketplace run embedded migrations before
-   their application containers start.
-5. **Seed job** — delete old `seed` job, run `21-seed-configmap.yaml` → `seed.sql`.
+5. **Seed and storage jobs** — run the idempotent seed, ensure the MinIO bucket
+   and its one-day `workspace-artifacts/` expiry rule, then sync Worker definitions.
 
 The seed SQL is **idempotent** (`WHERE NOT EXISTS`): it ensures `dev-org`, the
 admin user, subscription, and pre-registered runner `node_id`s exist. It does **not**
@@ -102,6 +105,7 @@ on this cluster). Re-running seed alone does not change relay/web env — only s
 ## Endpoints
 
 - App: https://dowork.l8ai.cn (`/api`, `/proto.`, `/relay`, `/health`)
+- Isolated Pod preview: https://preview.l8ai.cn (`/preview` only)
 - Mobile Worker entry: https://mobile.l8ai.cn
 - Marketplace Storefront: https://market.l8ai.cn
 - Marketplace API: https://market.l8ai.cn/api/marketplace/v1
@@ -133,7 +137,8 @@ validate the existing `agentsmesh` Secret.
 | File | Purpose |
 |------|---------|
 | `00-namespace` `02-configmap` | namespace + shared non-secret env |
-| `10/11/12-*` `13-minio-setup-job` | Postgres / Redis / MinIO + bucket |
+| `10/11/12-*` `13-minio-setup-job` | Postgres / Redis / MinIO + bucket and temporary artifact TTL |
+| `20-migrate-job` | Digest-pinned embedded Backend migrations before workload rollout |
 | `21/22-seed*` | idempotent org/user/runner seed |
 | `30-backend*` | backend Deployment/Service + SA/RBAC (kubectl via init container) |
 | `31/32/33/42-*` | relay / web / web-admin / mobile |

@@ -94,6 +94,56 @@ fn stale_compile_does_not_replace_current_source_state() {
 }
 
 #[test]
+fn ai_draft_applies_atomically_at_matching_revision() {
+    let mut state = LoopBuilderState::new();
+    state.set_source("current".into(), "blocks".into());
+
+    let applied = state.apply_ai_draft(lp::CompileLoopProgramResponse {
+        canonical_source: "generated canonical".into(),
+        program: Some(valid_program()),
+        diagnostics: vec![],
+        revision: 1,
+    });
+
+    let snapshot = state.snapshot();
+    assert!(applied);
+    assert_eq!(snapshot.source, "generated canonical");
+    assert_eq!(snapshot.canonical_source, "generated canonical");
+    assert_eq!(snapshot.active_editor, "blocks");
+    assert_eq!(snapshot.parse_status, "valid");
+    assert_eq!(snapshot.revision, 2);
+    assert_eq!(snapshot.semantic_revision, 1);
+}
+
+#[test]
+fn stale_or_invalid_ai_draft_does_not_mutate_state() {
+    let mut state = LoopBuilderState::new();
+    state.set_source("current".into(), "code".into());
+
+    assert!(!state.apply_ai_draft(lp::CompileLoopProgramResponse {
+        canonical_source: "stale".into(),
+        program: Some(valid_program()),
+        diagnostics: vec![],
+        revision: 0,
+    }));
+    assert!(!state.apply_ai_draft(lp::CompileLoopProgramResponse {
+        canonical_source: String::new(),
+        program: None,
+        diagnostics: vec![lp::LoopDiagnostic {
+            code: "loop.invalid".into(),
+            ..Default::default()
+        }],
+        revision: 1,
+    }));
+
+    let snapshot = state.snapshot();
+    assert_eq!(snapshot.source, "current");
+    assert_eq!(snapshot.revision, 1);
+    assert_eq!(snapshot.semantic_revision, 0);
+    assert!(snapshot.program.is_none());
+}
+
+#[test]
 fn run_projection_and_org_reset_clear_state() {
     let mut app = AppState::new();
     app.loop_builder.set_source("valid".into(), "blocks".into());

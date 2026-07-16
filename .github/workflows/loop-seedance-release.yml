@@ -1,0 +1,45 @@
+name: Loop Seedance Release
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: loop-seedance-release-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  contracts:
+    name: Runtime release contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - run: bash deploy/kubernetes/cluster-oilan/deploy_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/deploy-mobile-access-contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/push_images_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/runtime_mapping_contract_test.sh
+      - run: bash docker/agent-runtime/contract_test.sh
+
+  web-user-artifacts:
+    name: Web-user artifact preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "9"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Artifact component tests
+        working-directory: clients/web-user
+        run: >-
+          pnpm exec vitest run
+          src/components/blocks/OutputFileArtifact.test.tsx
+          src/components/blocks/BlockRenderer.file.test.tsx

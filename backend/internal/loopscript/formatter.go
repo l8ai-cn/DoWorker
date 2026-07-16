@@ -7,7 +7,7 @@ import (
 )
 
 func Format(program *Program) (string, []Diagnostic) {
-	if diagnostics := validateProgram(program, nil); len(diagnostics) != 0 {
+	if diagnostics := validateProgram(program, nil, textRedactions{}); len(diagnostics) != 0 {
 		return "", diagnostics
 	}
 

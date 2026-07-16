@@ -135,6 +135,11 @@ export function useLoopWorkbench(orgSlug: string) {
     setRuntimeLoadAttempt((attempt) => attempt + 1);
   }, []);
 
+  const applySnapshot = useCallback((next: LoopWorkbenchSnapshot) => {
+    activeEditorRef.current = next.activeEditor;
+    setSnapshot(next);
+  }, []);
+
   const run = useCallback(async (workerSnapshotId: string) => {
     setRunning(true);
     setError(undefined);
@@ -156,6 +161,7 @@ export function useLoopWorkbench(orgSlug: string) {
     runtimeLoading,
     runtimeError,
     retryRuntimeLoad,
+    applySnapshot,
     setEditor,
     updateBlocks,
     updateCode,

@@ -1,39 +1,50 @@
 {
   "schema_version": 1,
-  "runtime_catalog_revision": "runtime-catalog-2026-07-13-release-gated",
+  "runtime_catalog_revision": "runtime-catalog-2026-07-16-seedance",
   "probes": [
     {
       "schema_version": 1,
       "worker_slug": "claude-code",
-      "runtime_catalog_revision": "runtime-catalog-2026-07-13-release-gated",
+      "runtime_catalog_revision": "runtime-catalog-2026-07-16-seedance",
       "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
       "image_digest": "sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
       "status": "not_found",
       "exit_code": 1,
       "output": "Error response from daemon: failed to resolve reference \"repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f\": repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f: not found",
-      "observed_at": "2026-07-13T00:28:42.106Z"
+      "observed_at": "2026-07-16T07:29:54.456Z"
     },
     {
       "schema_version": 1,
       "worker_slug": "codex-cli",
-      "runtime_catalog_revision": "runtime-catalog-2026-07-13-release-gated",
+      "runtime_catalog_revision": "runtime-catalog-2026-07-16-seedance",
       "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
       "image_digest": "sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
       "status": "not_found",
       "exit_code": 1,
       "output": "Error response from daemon: failed to resolve reference \"repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1\": repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1: not found",
-      "observed_at": "2026-07-13T00:28:40.057Z"
+      "observed_at": "2026-07-16T07:29:52.356Z"
+    },
+    {
+      "schema_version": 1,
+      "worker_slug": "do-agent",
+      "runtime_catalog_revision": "runtime-catalog-2026-07-16-seedance",
+      "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+      "image_digest": "sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+      "status": "available",
+      "exit_code": 0,
+      "output": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e: Pulling from agentsmesh/runner-do-agent\ne1d877a3a1e8: Pulling fs layer\n4f4fb700ef54: Pulling fs layer\n05b660a00064: Pulling fs layer\nabbc9b1adbc0: Pulling fs layer\n682f3a64d718: Pulling fs layer\nf58d588cee76: Pulling fs layer\n085c59fd2037: Pulling fs layer\nDigest: sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e\nStatus: Image is up to date for repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e\nrepo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+      "observed_at": "2026-07-16T07:29:59.575Z"
     },
     {
       "schema_version": 1,
       "worker_slug": "gemini-cli",
-      "runtime_catalog_revision": "runtime-catalog-2026-07-13-release-gated",
+      "runtime_catalog_revision": "runtime-catalog-2026-07-16-seedance",
       "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
       "image_digest": "sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
       "status": "not_found",
       "exit_code": 1,
       "output": "Error response from daemon: failed to resolve reference \"repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4\": repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4: not found",
-      "observed_at": "2026-07-13T00:28:44.218Z"
+      "observed_at": "2026-07-16T07:29:57.399Z"
     },
     {
       "schema_version": 1,
@@ -46,6 +57,17 @@
       "exit_code": 0,
       "output": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22: Pulling from agentsmesh/runner-video-studio\nDigest: sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22\nStatus: Image is up to date for repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22\nrepo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
       "observed_at": "2026-07-16T11:18:09.258Z"
+    },
+    {
+      "schema_version": 1,
+      "worker_slug": "seedance-expert",
+      "runtime_catalog_revision": "runtime-catalog-2026-07-16-seedance",
+      "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+      "image_digest": "sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+      "status": "available",
+      "exit_code": 0,
+      "output": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e: Pulling from agentsmesh/runner-do-agent\ne1d877a3a1e8: Pulling fs layer\n4f4fb700ef54: Pulling fs layer\n05b660a00064: Pulling fs layer\nabbc9b1adbc0: Pulling fs layer\n682f3a64d718: Pulling fs layer\nf58d588cee76: Pulling fs layer\n085c59fd2037: Pulling fs layer\nDigest: sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e\nStatus: Image is up to date for repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e\nrepo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+      "observed_at": "2026-07-16T07:29:59.576Z"
     }
   ]
 }

@@ -42,7 +42,7 @@ func (m *mockStorage) PresignPutURL(_ context.Context, _, _ string, _ time.Durat
 	return "https://mock-s3.example.com/presigned-put", nil
 }
 
-func (m *mockStorage) InternalPresignPutURL(_ context.Context, _, _ string, _ time.Duration) (string, error) {
+func (m *mockStorage) InternalPresignPutURL(_ context.Context, _, _ string, _ int64, _ time.Duration) (string, error) {
 	return "https://mock-s3-internal.example.com/presigned-put", nil
 }
 

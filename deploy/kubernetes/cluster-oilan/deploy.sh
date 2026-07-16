@@ -80,15 +80,34 @@ sync_worker_definitions() {
   dexec "kubectl -n ${NS} wait --for=condition=complete job/worker-definition-sync --timeout=300s"
 }
 
+render_release() {
+  dexec "kubectl kustomize . > /tmp/agentsmesh-release.yaml && bash verify_release_images.sh /tmp/agentsmesh-release.yaml"
+}
+
+apply_backend_job() {
+  local manifest="$1"
+  dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; digest=\${image##*@}; sed -e \"s|__BACKEND_IMAGE__|\${image}|g\" -e \"s|__BACKEND_DIGEST__|\${digest}|g\" ${manifest} | kubectl apply -f -"
+}
+
+migrate_database() {
+  echo "==> apply migration prerequisites"
+  dexec "kubectl apply -f 02-configmap.yaml -f 10-postgres.yaml -f 11-redis.yaml -f 12-minio.yaml -f 30-backend-rbac.yaml"
+  dexec "kubectl -n ${NS} rollout status deploy/postgres --timeout=300s"
+  dexec "kubectl -n ${NS} delete job migrate --ignore-not-found"
+  apply_backend_job "20-migrate-job.yaml"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/migrate --timeout=300s"
+}
+
 apply_all() {
   echo "==> namespace + secrets"
   dexec "kubectl apply -f 00-namespace.yaml"
   dexec "chmod 600 generated-secrets/*.yaml; status=0; cleanup_status=0; kubectl apply -f generated-secrets || status=\$?; rm -f generated-secrets/*.yaml || cleanup_status=\$?; rmdir generated-secrets || cleanup_status=\$?; test \${status} -ne 0 || status=\${cleanup_status}; exit \${status}"
   echo "==> ensure wildcard TLS in ${NS}"
   ensure_tls_secret
-  echo "==> apply workloads (kustomize)"
-  dexec "kubectl kustomize . > /tmp/agentsmesh-release.yaml && bash verify_release_images.sh /tmp/agentsmesh-release.yaml && kubectl apply -f /tmp/agentsmesh-release.yaml"
-  echo "==> wait for embedded migrations"
+  render_release
+  migrate_database
+  echo "==> apply workloads after migrations"
+  dexec "kubectl apply -f /tmp/agentsmesh-release.yaml"
   dexec "kubectl -n ${NS} rollout status deploy/backend --timeout=300s"
   dexec "kubectl -n ${NS} rollout status deploy/marketplace --timeout=300s"
   dexec "kubectl -n ${NS} rollout status deploy/marketplace-web --timeout=300s"

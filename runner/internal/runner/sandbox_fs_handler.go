@@ -65,12 +65,16 @@ func (h *RunnerMessageHandler) dispatchSandboxFsOp(root string, cmd *runnerv1.Sa
 	switch cmd.Op {
 	case "list":
 		return h.sandboxFsList(root, cmd.Path)
+	case "stat":
+		return h.sandboxFsStat(root, cmd.Path)
 	case "read":
 		return h.sandboxFsRead(root, cmd.Path)
 	case "write":
 		return h.sandboxFsWrite(root, cmd.Path, cmd.Payload)
 	case "download":
 		return h.sandboxFsDownload(root, cmd.Path, cmd.Payload)
+	case "upload":
+		return h.sandboxFsUpload(root, cmd.Path, cmd.Payload)
 	case "changes":
 		return h.sandboxFsChanges(root)
 	case "diff":

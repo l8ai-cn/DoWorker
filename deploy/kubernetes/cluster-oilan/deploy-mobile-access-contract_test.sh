@@ -52,17 +52,18 @@ line_number() {
 require_command 'kubectl apply -f 02-configmap.yaml'
 require_command 'kubectl -n agentsmesh delete job migrate --ignore-not-found'
 require_command '20-migrate-job.yaml | kubectl apply -f -'
-require_command 'agentsmesh.ai/verified-image-digest'
+require_command '__BACKEND_DIGEST__'
 require_command 'kubectl -n agentsmesh wait --for=condition=complete job/migrate --timeout=300s'
-require_command 'kubectl apply -f 30-backend.yaml'
+require_command '30-backend.yaml | kubectl apply -f -'
 require_command 'kubectl -n agentsmesh rollout status deploy/backend --timeout=240s'
-require_command 'kubectl -n agentsmesh exec deploy/backend -- /app/worker-definition-sync'
+require_command '23-worker-definition-sync-job.yaml | kubectl apply -f -'
+require_command 'kubectl -n agentsmesh wait --for=condition=complete job/worker-definition-sync --timeout=300s'
 require_command 'kubectl apply -f 31-relay.yaml -f 42-mobile.yaml -f 43-mobile-ingress.yaml'
 
 config_line="$(line_number 'kubectl apply -f 02-configmap.yaml')"
 migrate_line="$(line_number '20-migrate-job.yaml | kubectl apply -f -')"
-backend_line="$(line_number 'kubectl apply -f 30-backend.yaml')"
-sync_line="$(line_number 'kubectl -n agentsmesh exec deploy/backend -- /app/worker-definition-sync')"
+backend_line="$(line_number '30-backend.yaml | kubectl apply -f -')"
+sync_line="$(line_number '23-worker-definition-sync-job.yaml | kubectl apply -f -')"
 workload_line="$(line_number 'kubectl apply -f 31-relay.yaml -f 42-mobile.yaml -f 43-mobile-ingress.yaml')"
 
 (( config_line < migrate_line && migrate_line < backend_line && backend_line < sync_line && sync_line < workload_line )) || {

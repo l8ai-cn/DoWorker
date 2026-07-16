@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/anthropics/agentsmesh/backend/pkg/secretguard"
 )
 
 func (p *parser) failMissingStructure(limits, repeat, failure bool) {
@@ -41,6 +43,39 @@ func (p *parser) takeInteger(kind tokenKind) int64 {
 		return 0
 	}
 	return value
+}
+
+func (p *parser) takeGuardedText(
+	nodeID, expected string,
+	allowed ...tokenKind,
+) (string, bool) {
+	item := p.current()
+	if item.kind == tokenSecret {
+		p.advance()
+		p.addSecretDiagnostic(nodeID, positionOf(item))
+		return "", true
+	}
+	for _, kind := range allowed {
+		if item.kind == kind {
+			p.advance()
+			if secretguard.ContainsCredentialLiteral(item.literal) {
+				p.addSecretDiagnostic(nodeID, positionOf(item))
+				return "", true
+			}
+			return item.literal, false
+		}
+	}
+	p.failCurrent("loop.syntax.unexpected-token", "expected "+expected, nodeID)
+	return "", false
+}
+
+func (p *parser) addSecretDiagnostic(nodeID string, position sourcePosition) {
+	p.semanticDiagnostics = append(p.semanticDiagnostics, newDiagnostic(
+		"loop.secret.literal-forbidden",
+		"secret literals are forbidden",
+		nodeID,
+		position,
+	))
 }
 
 func (p *parser) expect(kind tokenKind) {

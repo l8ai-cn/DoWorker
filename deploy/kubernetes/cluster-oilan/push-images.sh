@@ -11,6 +11,7 @@
 #   ./push-images.sh marketplace-web # rebuild public marketplace and retain other current digests
 #   ./push-images.sh infra      # postgres/redis/minio/mc/kubectl mirrors
 #   ./push-images.sh runners    # agent-runtime images (claude/codex/video/gemini/grok/openclaw/hermes/e2e-echo)
+#   ./push-images.sh do-agent   # trusted do-agent artifact and immutable image only
 #   ./push-images.sh video-runtime # build and push only runner-video-studio
 #
 # The build host must already be `docker login repo.aiedulab.cn:8443`.
@@ -18,7 +19,8 @@ set -euo pipefail
 
 REG="repo.aiedulab.cn:8443"
 PROJ="${REG}/agentsmesh"
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 TARGET="${1:-all}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 PLATFORM_DIGEST_BACKEND=""
@@ -94,29 +96,6 @@ push_infra() {
   mirror alpine/k8s:1.28.4      kubectl:1.28
 }
 
-push_runners() {
-  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh claude-code )
-  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh codex-cli )
-  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh video-studio )
-  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh gemini-cli )
-  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh grok-build )
-  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh openclaw )
-  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh hermes )
-  TARGET_ARCH="${PLATFORM#linux/}" \
-    "${REPO_ROOT}/docker/agent-runtime/prepare_binaries.sh" \
-    "${REPO_ROOT}/docker/agent-runtime/_context" e2e-echo
-  docker build --platform "$PLATFORM" --target runtime \
-    -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
-    --build-arg AGENT_RUNTIME=e2e-echo \
-    -t do-worker/runner-e2e-echo:latest \
-    "${REPO_ROOT}/docker/agent-runtime/_context"
-  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh minimax-cli )
-  for rt in claude-code codex-cli video-studio gemini-cli grok-build openclaw hermes e2e-echo minimax-cli; do
-    docker tag "do-worker/runner-${rt}:latest" "${PROJ}/runner-${rt}:latest"
-    docker push "${PROJ}/runner-${rt}:latest"
-  done
-}
-
 push_video_runtime() {
   (
     cd "${REPO_ROOT}"
@@ -144,7 +123,6 @@ push_video_runtime() {
       >/dev/null
   )
 }
-
 main() {
   ensure_project
   case "${TARGET}" in
@@ -155,10 +133,11 @@ main() {
     web)      push_web ;;
     marketplace-web) push_marketplace_web ;;
     infra)    push_infra ;;
-    runners)  push_runners ;;
+    runners)  bash "${SCRIPT_DIR}/push-runner-images.sh" all ;;
+    do-agent) bash "${SCRIPT_DIR}/push-runner-images.sh" do-agent ;;
     video-runtime) push_video_runtime ;;
-    all)      push_platform; push_infra; push_runners ;;
-    *) echo "usage: $0 [all|platform|marketplace-core|video-expert|mobile-access|web|marketplace-web|infra|runners|video-runtime]" >&2; exit 1 ;;
+    all)      push_platform; push_infra; bash "${SCRIPT_DIR}/push-runner-images.sh" all ;;
+    *) echo "usage: $0 [all|platform|marketplace-core|video-expert|mobile-access|web|marketplace-web|infra|runners|do-agent|video-runtime]" >&2; exit 1 ;;
   esac
   echo "==> done: ${TARGET}"
 }

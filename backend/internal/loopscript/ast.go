@@ -56,11 +56,12 @@ const (
 )
 
 type Diagnostic struct {
-	Code    string
-	Message string
-	NodeID  string
-	Line    int
-	Column  int
+	Code      string
+	Message   string
+	NodeID    string
+	FieldPath string
+	Line      int
+	Column    int
 }
 
 type GoalLoopLaunchSpec struct {

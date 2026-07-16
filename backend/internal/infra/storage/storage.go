@@ -7,10 +7,10 @@ import (
 )
 
 type FileInfo struct {
-	Key         string
-	Size        int64     // File size in bytes
-	ContentType string
-	ETag        string
+	Key          string
+	Size         int64 // File size in bytes
+	ContentType  string
+	ETag         string
 	LastModified time.Time
 }
 
@@ -29,7 +29,7 @@ type Storage interface {
 
 	PresignPutURL(ctx context.Context, key string, contentType string, expiry time.Duration) (string, error)
 
-	InternalPresignPutURL(ctx context.Context, key string, contentType string, expiry time.Duration) (string, error)
+	InternalPresignPutURL(ctx context.Context, key string, contentType string, size int64, expiry time.Duration) (string, error)
 
 	Exists(ctx context.Context, key string) (bool, error)
 }

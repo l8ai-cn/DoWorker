@@ -297,12 +297,13 @@
         }
       ],
       "runtime_catalog": {
-        "status": "blocked_no_published_digest"
+        "status": "locked_available",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e"
       },
-      "runtime_evidence": "runtime_smoke_verified",
+      "runtime_evidence": "published_runtime_smoke_verified",
       "runner": "adapter_unit_verified",
       "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "browser": "unverified",
       "support_status": "not_supported"
     },
     {
@@ -748,9 +749,10 @@
         }
       ],
       "runtime_catalog": {
-        "status": "blocked_no_published_digest"
+        "status": "locked_available",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e"
       },
-      "runtime_evidence": "shared_do_agent_runtime_verified",
+      "runtime_evidence": "shared_published_do_agent_runtime_verified",
       "runner": "adapter_unit_verified",
       "product_path": "unverified",
       "browser": "unverified",
@@ -801,9 +803,8 @@
       ],
       "config_documents": [],
       "runtime_catalog": {
-        "status": "invalid_published_digest",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:21bc8f143d304f361b58862b9c33b4e7257307132f9507cf22d461fca1d61716",
-        "probe_status": "not_found"
+        "status": "locked_available",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22"
       },
       "runtime_evidence": "image_missing",
       "runner": "unverified",

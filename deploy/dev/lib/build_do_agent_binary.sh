@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# Cross-compile do-agent (linux/amd64) into deploy/dev/do-agent-binary.
-# Uses a one-shot rust container so macOS hosts
-# don't need a working openssl cross toolchain.
 
 doagent_build_log() {
     local level="$1"
@@ -29,13 +26,18 @@ stage_doagent_binary() {
 }
 
 build_do_agent_binary() {
-    local dev_dir
+    local dev_dir repo_root
     dev_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    repo_root="$(cd "${dev_dir}/../.." && pwd)"
+    source "${repo_root}/docker/agent-runtime/do_agent_release_manifest.sh"
     if [[ "${DEV_SKIP_DOAGENT:-0}" == "1" ]]; then
         doagent_build_log info "DEV_SKIP_DOAGENT=1，跳过 do-agent 构建"
         return 0
     fi
-    if [[ -x "$dev_dir/do-agent-binary" ]]; then
+    local expected_hash
+    expected_hash="$(do_agent_release_value artifact.binary_sha256)"
+    if [[ -x "$dev_dir/do-agent-binary" ]] \
+        && [[ "$(do_agent_sha256 "$dev_dir/do-agent-binary")" == "$expected_hash" ]]; then
         stage_doagent_binary \
             "$dev_dir/do-agent-binary" \
             "$dev_dir/binaries/do-agent-binary" || return 1
@@ -43,44 +45,65 @@ build_do_agent_binary() {
         return 0
     fi
 
-    local doagent_dir="${DOAGENT_DIR:-}"
-    if [[ -z "$doagent_dir" ]]; then
-        for candidate in \
-            "$dev_dir/../../doagent" \
-            "$HOME/Documents/code/doagent" \
-            "$HOME/Documents/code/AgentForge/doagent"; do
-            if [[ -d "$candidate" ]]; then
-                doagent_dir="$candidate"
-                break
-            fi
-        done
-    fi
-    if [[ ! -d "$doagent_dir" ]]; then
-        doagent_build_log error "doagent 源码未找到 — 设置 DOAGENT_DIR 或 clone AgentForge/doagent"
+    local checkout="${DOAGENT_DIR:-}"
+    if [[ ! -d "$checkout/.git" ]]; then
+        doagent_build_log error "DOAGENT_DIR 必须指向明确的 do-agent Git checkout"
         return 1
     fi
 
-    doagent_build_log info "Docker build do-agent (linux/amd64) from ${doagent_dir}..."
+    local source_commit source_subdirectory cargo_lock_hash cargo_toml_hash
+    local builder_image rust_toolchain source_dir source_date_epoch
+    source_commit="$(do_agent_release_value source.commit)"
+    source_subdirectory="$(do_agent_release_value source.subdirectory)"
+    cargo_lock_hash="$(do_agent_release_value source.cargo_lock_sha256)"
+    cargo_toml_hash="$(do_agent_release_value source.cargo_toml_sha256)"
+    builder_image="$(do_agent_release_value build.builder_image)"
+    rust_toolchain="$(do_agent_release_value build.rust_toolchain)"
+    source_dir="${checkout}/${source_subdirectory}"
+    [[ "$(git -C "$checkout" rev-parse HEAD)" == "$source_commit" ]] || {
+        doagent_build_log error "do-agent checkout 必须位于发布提交 ${source_commit}"
+        return 1
+    }
+    [[ -z "$(git -C "$checkout" status --porcelain)" ]] || {
+        doagent_build_log error "do-agent checkout 必须保持干净"
+        return 1
+    }
+    [[ "$(do_agent_sha256 "${source_dir}/Cargo.lock")" == "$cargo_lock_hash" ]] || {
+        doagent_build_log error "do-agent Cargo.lock 与发布清单不一致"
+        return 1
+    }
+    [[ "$(do_agent_sha256 "${source_dir}/Cargo.toml")" == "$cargo_toml_hash" ]] || {
+        doagent_build_log error "do-agent Cargo.toml 与发布清单不一致"
+        return 1
+    }
+    source_date_epoch="$(git -C "$checkout" show -s --format=%ct "$source_commit")"
+
+    rm -f "$dev_dir/do-agent-binary"
+    mkdir -p /tmp/doagent-linux-cargo-registry /tmp/doagent-linux-target
+    doagent_build_log info "Docker build do-agent (linux/amd64) from ${source_commit}..."
     docker run --rm --platform linux/amd64 \
         -e HTTP_PROXY= -e HTTPS_PROXY= -e http_proxy= -e https_proxy= -e NO_PROXY='*' \
-        -v "${doagent_dir}:/src:ro" \
+        -e CARGO_INCREMENTAL=0 -e CARGO_BUILD_JOBS=1 \
+        -e SOURCE_DATE_EPOCH="${source_date_epoch}" \
+        -v "${source_dir}:/src:ro" \
         -v "${dev_dir}:/out" \
-        rust:1.85-bookworm \
-        bash -c 'set -e
-            rustup update stable
-            rustup default stable
-            apt-get update -qq \
-                && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq pkg-config libssl-dev file >/dev/null \
-                || true
+        -v /tmp/doagent-linux-cargo-registry:/usr/local/cargo/registry \
+        -v /tmp/doagent-linux-target:/build/target \
+        "${builder_image}" \
+        bash -c "set -euo pipefail
+            rustup toolchain install '${rust_toolchain}' --profile minimal
             mkdir -p /build
-            tar -C /src -cf - --exclude=target --exclude=.git . | tar -C /build -xf -
+            tar -C /src -cf - --exclude=target . | tar -C /build -xf -
             cd /build
-            cargo build --release
-            cp target/release/do-agent /out/do-agent-binary
-            chmod +x /out/do-agent-binary
+            cargo +'${rust_toolchain}' build --locked --release --jobs 1
+            install -m 0755 target/release/do-agent /out/do-agent-binary
             file /out/do-agent-binary
-            /out/do-agent-binary --version' || {
+            /out/do-agent-binary --version" || {
         doagent_build_log error "do-agent 编译失败"
+        return 1
+    }
+    [[ "$(do_agent_sha256 "$dev_dir/do-agent-binary")" == "$expected_hash" ]] || {
+        doagent_build_log error "do-agent 构建产物与发布清单哈希不一致"
         return 1
     }
     stage_doagent_binary \

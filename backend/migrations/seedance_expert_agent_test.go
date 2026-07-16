@@ -51,6 +51,32 @@ func TestMigration000210SeedanceExpertAgent(t *testing.T) {
 	}
 }
 
+func TestMigration000223AlignsSeedanceDoAgentHome(t *testing.T) {
+	up, err := FS.ReadFile("000223_align_seedance_do_agent_home.up.sql")
+	if err != nil {
+		t.Fatalf("read up migration: %v", err)
+	}
+	upSQL := string(up)
+	for _, expected := range []string{
+		"WHERE slug = 'seedance-expert'",
+		"'/seedance-expert-home'",
+		"'/do-agent-home'",
+	} {
+		if !strings.Contains(upSQL, expected) {
+			t.Errorf("up migration must contain %q", expected)
+		}
+	}
+
+	down, err := FS.ReadFile("000223_align_seedance_do_agent_home.down.sql")
+	if err != nil {
+		t.Fatalf("read down migration: %v", err)
+	}
+	if !strings.Contains(string(down), "'/do-agent-home'") ||
+		!strings.Contains(string(down), "'/seedance-expert-home'") {
+		t.Error("down migration must restore the prior Seedance home")
+	}
+}
+
 func extractSeedanceAgentFile(t *testing.T, migration string) string {
 	t.Helper()
 	start := strings.Index(migration, "E'")

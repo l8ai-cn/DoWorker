@@ -100,19 +100,11 @@ func (p *parser) parseAgent(nodeID string) AgentNode {
 	localID := p.takeIdentifier()
 	p.expect(tokenLBrace)
 	p.expect(tokenPromptKey)
-	if p.current().kind == tokenSecret {
-		p.failCurrent("loop.secret.literal-forbidden", "secret literals are forbidden", nodeID)
-		return AgentNode{NodeID: nodeID, LocalID: localID}
-	}
-	prompt := p.current()
-	if prompt.kind != tokenPrompt && prompt.kind != tokenString {
-		p.failCurrent("loop.syntax.unexpected-token", "expected prompt string", nodeID)
-		return AgentNode{NodeID: nodeID, LocalID: localID}
-	}
-	p.advance()
+	prompt, redacted := p.takeGuardedText(nodeID, "prompt string", tokenPrompt, tokenString)
+	p.redactions.agentPrompt = p.redactions.agentPrompt || redacted
 	p.expect(tokenRBrace)
 	return AgentNode{
-		NodeID: nodeID, LocalID: localID, Prompt: prompt.literal,
+		NodeID: nodeID, LocalID: localID, Prompt: prompt,
 	}
 }
 
@@ -121,15 +113,15 @@ func (p *parser) parseVerifier(nodeID string) VerifierNode {
 	localID := p.takeIdentifier()
 	p.expect(tokenLBrace)
 	p.expect(tokenCommand)
-	command := p.current()
-	p.expect(tokenString)
+	command, commandRedacted := p.takeGuardedText(nodeID, "string", tokenString)
+	p.redactions.verifierCommand = p.redactions.verifierCommand || commandRedacted
 	p.expect(tokenAccept)
-	accept := p.current()
-	p.expect(tokenString)
+	accept, acceptRedacted := p.takeGuardedText(nodeID, "string", tokenString)
+	p.redactions.verifierAccept = p.redactions.verifierAccept || acceptRedacted
 	p.expect(tokenRBrace)
 	return VerifierNode{
 		NodeID: nodeID, LocalID: localID,
-		Command: command.literal, Accept: accept.literal,
+		Command: command, Accept: accept,
 	}
 }
 
