@@ -57,7 +57,20 @@ RUN case "${AGENT_RUNTIME}" in \
         && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip \
         && pip3 install --break-system-packages aider-chat \
         && rm -rf /var/lib/apt/lists/* ;; \
-      e2e-echo|loopal|do-agent) true ;; \
+      do-agent) \
+        apt-get -o Acquire::Retries=8 update \
+        && ok=0; \
+        for attempt in 1 2 3 4 5 6 7 8; do \
+          if DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=8 install -y --fix-missing --no-install-recommends python3 ffmpeg; then \
+            ok=1; \
+            break; \
+          fi; \
+          echo "do-agent media dependency install attempt ${attempt} failed, retrying..." >&2; \
+          sleep 10; \
+        done; \
+        test "$ok" = 1; \
+        rm -rf /var/lib/apt/lists/* ;; \
+      e2e-echo|loopal) true ;; \
       *) echo "unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2; exit 1 ;; \
     esac \
     && npm cache clean --force

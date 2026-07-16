@@ -23,6 +23,7 @@ func TestMigration000210SeedanceExpertAgent(t *testing.T) {
 		"ENV SEEDANCE_API_KEY SECRET",
 		"ENV SEEDANCE_BASE_URL",
 		"ENV SEEDANCE_MODEL",
+		`ENV DO_AGENT_HOME = sandbox.root + "/do-agent-home"`,
 	} {
 		if !strings.Contains(upSQL, expected) {
 			t.Errorf("up migration must contain %q", expected)
@@ -30,6 +31,9 @@ func TestMigration000210SeedanceExpertAgent(t *testing.T) {
 	}
 	if strings.Contains(upSQL, "AGENT seedance-expert") {
 		t.Error("AgentFile AGENT must identify the do-agent binary")
+	}
+	if strings.Contains(upSQL, "seedance-expert-home") {
+		t.Error("Seedance AgentFile must use the DoAgent home layout consumed by token usage collection")
 	}
 	if _, errors := parser.Parse(extractSeedanceAgentFile(t, upSQL)); len(errors) > 0 {
 		t.Fatalf("Seedance Expert AgentFile must parse: %v", errors)

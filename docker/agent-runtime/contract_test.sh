@@ -35,6 +35,27 @@ grep -q "hermes-agent" "$DOCKERFILE"
 grep -q "HERMES_AGENT_VERSION" "$DOCKERFILE"
 grep -q "do-agent-binary" "$DOCKERFILE"
 grep -q "runner-entrypoint.sh" "$DOCKERFILE"
+awk '
+  /do-agent\)/ { in_do_agent=1 }
+  in_do_agent && /python3/ { has_python=1 }
+  in_do_agent && /ffmpeg/ { has_ffmpeg=1 }
+  in_do_agent && /Acquire::Retries/ { has_retries=1 }
+  in_do_agent && /for attempt/ { has_install_loop=1 }
+  in_do_agent && /;;/ { exit !(has_python && has_ffmpeg && has_retries && has_install_loop) }
+  END {
+    if (!in_do_agent || !has_python || !has_ffmpeg || !has_retries || !has_install_loop) exit 1
+  }
+' "$DOCKERFILE" || {
+  echo "do-agent runtime must install python3 and ffmpeg with a retry loop" >&2
+  exit 1
+}
+grep -q 'REQUIRE_DO_AGENT_BINARY' "${ROOT}/docker/agent-runtime/prepare_binaries.sh"
+grep -q 'do-agent stub: source not built' "${ROOT}/docker/agent-runtime/prepare_binaries.sh"
+grep -q 'do-agent stub: source not built' "${ROOT}/deploy/dev/lib/build_do_agent_binary.sh"
+grep -q 'REQUIRE_DO_AGENT_BINARY=1 FORCE_REBUILD=1' \
+  "${ROOT}/deploy/kubernetes/cluster-oilan/push-images.sh"
+grep -q 'seedance-expert=repo.aiedulab.cn:8443/agentsmesh/runner-do-agent:latest' \
+  "${ROOT}/deploy/kubernetes/cluster-oilan/30-backend.yaml"
 
 grep -q "AGENT_RUNTIME: claude-code" "$COMPOSE"
 grep -q "AGENT_RUNTIME: codex-cli" "$COMPOSE"

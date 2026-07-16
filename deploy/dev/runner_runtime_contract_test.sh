@@ -36,6 +36,8 @@ grep -q "runner-claude-code" docker-compose.runners.yml
 grep -q "runner-codex-cli" docker-compose.runners.yml
 grep -q "docker/agent-runtime/Dockerfile" docker-compose.runners.yml
 grep -q "COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES" lib/host_services.sh
+grep -q "seedance-expert=runner-do-agent" lib/coordinator_runners.sh
+grep -q "seedance-expert=runner-do-agent" lib/host_services_lite.sh
 grep -q "case \"\${AGENT_RUNTIME}\"" runner-entrypoint.sh
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
 grep -q "'e2e-mock-agent'," seed/e2e_echo.sql

@@ -35,13 +35,20 @@ else
 fi
 chmod +x "${STAGING}/loopal-binary"
 
-if [[ -f "${DEPLOY_DEV}/do-agent-binary" ]]; then
+is_real_do_agent_binary() {
+  [[ -x "$1" ]] && ! grep -aq "do-agent stub: source not built" "$1"
+}
+
+if is_real_do_agent_binary "${DEPLOY_DEV}/do-agent-binary"; then
   cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
 else
   # shellcheck source=../../deploy/dev/lib/build_do_agent_binary.sh
   source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
-  if build_do_agent_binary && [[ -f "${DEPLOY_DEV}/do-agent-binary" ]]; then
+  if build_do_agent_binary && is_real_do_agent_binary "${DEPLOY_DEV}/do-agent-binary"; then
     cp "${DEPLOY_DEV}/do-agent-binary" "${STAGING}/do-agent-binary"
+  elif [[ "${REQUIRE_DO_AGENT_BINARY:-0}" == "1" ]]; then
+    echo "do-agent binary is required but could not be built" >&2
+    exit 1
   else
     echo "⚠ do-agent 不可用，使用 e2e-mock-agent 占位" >&2
     cp "${STAGING}/e2e-mock-agent-binary" "${STAGING}/do-agent-binary"

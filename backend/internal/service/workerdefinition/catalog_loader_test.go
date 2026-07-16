@@ -79,6 +79,8 @@ func TestSeedanceDefinitionRequiresDoubaoVideoModel(t *testing.T) {
 	assert.Equal(t, "SEEDANCE_API_KEY", requirement.Environment.APIKey)
 	assert.Equal(t, "SEEDANCE_BASE_URL", requirement.Environment.BaseURL)
 	assert.Equal(t, "SEEDANCE_MODEL", requirement.Environment.ModelID)
+	assert.Contains(t, seedance.AgentFile, `ENV DO_AGENT_HOME = sandbox.root + "/do-agent-home"`)
+	assert.NotContains(t, seedance.AgentFile, "seedance-expert-home")
 }
 
 func TestMiniMaxDefinitionUsesOneShotChatCommand(t *testing.T) {

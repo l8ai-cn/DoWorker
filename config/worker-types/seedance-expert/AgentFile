@@ -6,9 +6,9 @@ MODE acp "acp"
 
 CONFIG model STRING = ""
 
-ENV DO_AGENT_HOME = sandbox.root + "/seedance-expert-home"
-ENV DO_AGENT_SETTINGS = sandbox.root + "/seedance-expert-home/settings.json"
-ENV DO_AGENT_LOG_DIR = sandbox.root + "/seedance-expert-home/logs"
+ENV DO_AGENT_HOME = sandbox.root + "/do-agent-home"
+ENV DO_AGENT_SETTINGS = sandbox.root + "/do-agent-home/settings.json"
+ENV DO_AGENT_LOG_DIR = sandbox.root + "/do-agent-home/logs"
 ENV OPENAI_API_KEY SECRET OPTIONAL
 ENV ANTHROPIC_API_KEY SECRET OPTIONAL
 ENV SEEDANCE_API_KEY SECRET OPTIONAL
@@ -19,10 +19,10 @@ PROMPT_POSITION prepend
 MCP ON
 
 arg "--model" config.model when config.model != ""
-mkdir sandbox.root + "/seedance-expert-home"
+mkdir sandbox.root + "/do-agent-home"
 
 if config_json {
-  file sandbox.root + "/seedance-expert-home/settings.json" json(config_json)
+  file sandbox.root + "/do-agent-home/settings.json" json(config_json)
 }
 
 if mcp.enabled {
