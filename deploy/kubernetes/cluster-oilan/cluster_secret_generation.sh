@@ -1,5 +1,7 @@
 # shellcheck shell=bash
 
+umask 077
+
 cluster_secret_data() {
   local secret_name="$1" secret_key="$2" escaped_key
   escaped_key="${secret_key//./\\.}"
@@ -21,6 +23,44 @@ restore_secret_file() {
 
 decode_secret_value() {
   printf '%s' "$1" | base64 -d
+}
+
+encode_secret_value() {
+  printf '%s' "$1" | base64 | tr -d '\r\n'
+}
+
+encode_secret_file() {
+  base64 < "$1" | tr -d '\r\n'
+}
+
+write_encoded_secret_manifest() {
+  local destination="$1" name="$2" type="$3" key encoded
+  shift 3
+  {
+    printf 'apiVersion: v1\nkind: Secret\nmetadata:\n'
+    printf '  name: %s\n  namespace: %s\ntype: %s\ndata:\n' "${name}" "${NS}" "${type}"
+    while (( $# > 0 )); do
+      key="$1"
+      encoded="$2"
+      shift 2
+      printf '  %s: %s\n' "${key}" "${encoded}"
+    done
+  } > "${destination}"
+  chmod 600 "${destination}"
+}
+
+docker_config_json() {
+  jq -c --arg registry "$1" '
+    . as $credential |
+    (($credential.Username + ":" + $credential.Secret) | @base64) as $auth |
+    {auths: {
+      ($registry): {
+        username: $credential.Username,
+        password: $credential.Secret,
+        auth: $auth
+      }
+    }}
+  '
 }
 
 restore_app_secret_env() {
@@ -105,32 +145,32 @@ generate_cluster_secrets() {
   MARKETPLACE_DATABASE_URL="postgres://agentsmesh:${DB_PASSWORD}@postgres:5432/agentsmesh?sslmode=disable"
   MARKETPLACE_MIGRATION_DATABASE_URL="${MARKETPLACE_DATABASE_URL}&x-migrations-table=marketplace_schema_migrations"
 
-  kubectl create secret generic agentsmesh-secrets -n "${NS}" \
-    --from-literal=DB_PASSWORD="${DB_PASSWORD}" \
-    --from-literal=JWT_SECRET="${JWT_SECRET}" \
-    --from-literal=ACCESS_TOKEN_KEY_ID="${ACCESS_TOKEN_KEY_ID}" \
-    --from-literal=MARKETPLACE_DATABASE_URL="${MARKETPLACE_DATABASE_URL}" \
-    --from-literal=MARKETPLACE_MIGRATION_DATABASE_URL="${MARKETPLACE_MIGRATION_DATABASE_URL}" \
-    --from-literal=INTERNAL_API_SECRET="${INTERNAL_API_SECRET}" \
-    --from-literal=MINIO_ROOT_PASSWORD="${MINIO_ROOT_PASSWORD}" \
-    --from-literal=STORAGE_SECRET_KEY="${MINIO_ROOT_PASSWORD}" \
-    --dry-run=client -o yaml > "${SEC}/agentsmesh-secrets.yaml"
+  write_encoded_secret_manifest "${SEC}/agentsmesh-secrets.yaml" agentsmesh-secrets Opaque \
+    DB_PASSWORD "$(encode_secret_value "${DB_PASSWORD}")" \
+    JWT_SECRET "$(encode_secret_value "${JWT_SECRET}")" \
+    ACCESS_TOKEN_KEY_ID "$(encode_secret_value "${ACCESS_TOKEN_KEY_ID}")" \
+    MARKETPLACE_DATABASE_URL "$(encode_secret_value "${MARKETPLACE_DATABASE_URL}")" \
+    MARKETPLACE_MIGRATION_DATABASE_URL "$(encode_secret_value "${MARKETPLACE_MIGRATION_DATABASE_URL}")" \
+    INTERNAL_API_SECRET "$(encode_secret_value "${INTERNAL_API_SECRET}")" \
+    MINIO_ROOT_PASSWORD "$(encode_secret_value "${MINIO_ROOT_PASSWORD}")" \
+    STORAGE_SECRET_KEY "$(encode_secret_value "${MINIO_ROOT_PASSWORD}")"
 
-  kubectl create secret generic agentsmesh-pki-ca -n "${NS}" \
-    --from-file=ca.crt="${GEN}/ca.crt" --from-file=ca.key="${GEN}/ca.key" \
-    --dry-run=client -o yaml > "${SEC}/agentsmesh-pki-ca.yaml"
+  write_encoded_secret_manifest "${SEC}/agentsmesh-pki-ca.yaml" agentsmesh-pki-ca Opaque \
+    ca.crt "$(encode_secret_file "${GEN}/ca.crt")" \
+    ca.key "$(encode_secret_file "${GEN}/ca.key")"
 
-  kubectl create secret generic agentsmesh-access-token -n "${NS}" \
-    --from-file=private.pem="${GEN}/access-token-private.pem" \
-    --from-file=public.pem="${GEN}/access-token-public.pem" \
-    --dry-run=client -o yaml > "${SEC}/agentsmesh-access-token.yaml"
+  write_encoded_secret_manifest "${SEC}/agentsmesh-access-token.yaml" agentsmesh-access-token Opaque \
+    private.pem "$(encode_secret_file "${GEN}/access-token-private.pem")" \
+    public.pem "$(encode_secret_file "${GEN}/access-token-public.pem")"
 
-  local store cred u p
-  store="$(python3 -c "import json,os;print(json.load(open(os.path.expanduser('~/.docker/config.json'))).get('credsStore',''))")"
+  local store cred docker_config
+  store="$(jq -r '.credsStore // empty' "${HOME}/.docker/config.json")"
+  [[ -n "${store}" ]] || {
+    echo "docker credential store is not configured" >&2
+    return 1
+  }
   cred="$(echo "${REG}" | "docker-credential-${store}" get)"
-  u="$(echo "${cred}" | python3 -c "import sys,json;print(json.load(sys.stdin)['Username'])")"
-  p="$(echo "${cred}" | python3 -c "import sys,json;print(json.load(sys.stdin)['Secret'])")"
-  kubectl create secret docker-registry agentsmesh-regcred -n "${NS}" \
-    --docker-server="${REG}" --docker-username="${u}" --docker-password="${p}" \
-    --dry-run=client -o yaml > "${SEC}/agentsmesh-regcred.yaml"
+  docker_config="$(printf '%s' "${cred}" | docker_config_json "${REG}")"
+  write_encoded_secret_manifest "${SEC}/agentsmesh-regcred.yaml" agentsmesh-regcred \
+    kubernetes.io/dockerconfigjson .dockerconfigjson "$(encode_secret_value "${docker_config}")"
 }

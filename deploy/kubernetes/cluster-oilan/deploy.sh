@@ -17,23 +17,50 @@ NS=agentsmesh
 GEN="${DIR}/_gen"
 SEC="${GEN}/secrets"
 REG="repo.aiedulab.cn:8443"
+RELEASE_BUNDLE=""
+REMOTE_WORKSPACE_MAY_EXIST=false
+SECRET_MANIFESTS=(
+  agentsmesh-secrets.yaml
+  agentsmesh-pki-ca.yaml
+  agentsmesh-access-token.yaml
+  agentsmesh-regcred.yaml
+)
 
 echo "==> DoOps session ${SESSION} -> ${TARGET} (workspace ${WS})"
 
 dexec()  { doops -session "${SESSION}" exec  --target "${TARGET}" --cmd "cd ${WS} && $1"; }
-# `doops write` refuses paths outside the git snapshot, so secrets (generated,
-# never committed) are streamed in base64 through exec and decoded on the node.
-apply_secret() {
-  local b64; b64="$(base64 < "$1" | tr -d '\n')"
-  dexec "echo ${b64} | base64 -d | kubectl apply -f -"
+
+cleanup_release_workspace() {
+  local result=$?
+  trap - EXIT
+  [[ -z "${RELEASE_BUNDLE}" || ! -d "${RELEASE_BUNDLE}" ]] || rm -rf "${RELEASE_BUNDLE}"
+  if [[ "${REMOTE_WORKSPACE_MAY_EXIST}" == true ]] &&
+      ! doops -session "${SESSION}" clean --target "${TARGET}" --workspace "${SESSION}"; then
+    echo "failed to clean DoOps release workspace ${SESSION}" >&2
+    (( result != 0 )) || result=1
+  fi
+  exit "${result}"
 }
+trap cleanup_release_workspace EXIT
 
 # shellcheck source=cluster_secret_generation.sh
 source "${DIR}/cluster_secret_generation.sh"
 
 push_manifests() {
   echo "==> pushing manifests to ${TARGET}:${WS}"
-  doops -session "${SESSION}" push --target "${TARGET}" --src "${DIR}"
+  RELEASE_BUNDLE="$(mktemp -d)"
+  find "${DIR}" -mindepth 1 -maxdepth 1 ! -name _gen \
+    -exec cp -R {} "${RELEASE_BUNDLE}/" \;
+  mkdir -m 700 "${RELEASE_BUNDLE}/generated-secrets"
+  for name in "${SECRET_MANIFESTS[@]}"; do
+    test -f "${SEC}/${name}"
+    cp "${SEC}/${name}" "${RELEASE_BUNDLE}/generated-secrets/"
+  done
+  chmod 600 "${RELEASE_BUNDLE}"/generated-secrets/*.yaml
+  REMOTE_WORKSPACE_MAY_EXIST=true
+  doops -session "${SESSION}" push --target "${TARGET}" --src "${RELEASE_BUNDLE}"
+  rm -rf "${RELEASE_BUNDLE}"
+  RELEASE_BUNDLE=""
 }
 
 ensure_tls_secret() {
@@ -56,7 +83,7 @@ sync_worker_definitions() {
 apply_all() {
   echo "==> namespace + secrets"
   dexec "kubectl apply -f 00-namespace.yaml"
-  for f in "${SEC}"/*.yaml; do apply_secret "${f}"; done
+  dexec "chmod 600 generated-secrets/*.yaml; status=0; cleanup_status=0; kubectl apply -f generated-secrets || status=\$?; rm -f generated-secrets/*.yaml || cleanup_status=\$?; rmdir generated-secrets || cleanup_status=\$?; test \${status} -ne 0 || status=\${cleanup_status}; exit \${status}"
   echo "==> ensure wildcard TLS in ${NS}"
   ensure_tls_secret
   echo "==> apply workloads (kustomize)"

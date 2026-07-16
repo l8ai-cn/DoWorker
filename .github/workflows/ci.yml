@@ -35,6 +35,8 @@ jobs:
         run: bash deploy/kubernetes/cluster-oilan/deploy-mobile-access-contract_test.sh
       - name: Preview origin deployment contract
         run: bash deploy/kubernetes/cluster-oilan/preview_origin_deployment_contract_test.sh
+      - name: Secret manifest generation contract
+        run: bash deploy/kubernetes/cluster-oilan/secret_manifest_generation_contract_test.sh
 
   go:
     name: Go (tests)
