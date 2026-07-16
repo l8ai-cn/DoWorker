@@ -37,6 +37,12 @@ jobs:
         with:
           go-version-file: go.mod
           cache-dependency-path: go.sum
+      - name: Install codegen tools
+        run: |
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          bash scripts/ci-install-codegen-tools.sh
+      - name: Generate Go protos + amesh
+        run: bash scripts/ensure-go-codegen.sh
       - name: Backend security regressions
         working-directory: backend
         run: >-
@@ -60,17 +66,17 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
-        with:
-          version: "9"
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+          cache: npm
+          cache-dependency-path: clients/web-user/package-lock.json
+      - name: Install Web-user dependencies
+        working-directory: clients/web-user
+        run: npm ci
       - name: Artifact component tests
         working-directory: clients/web-user
         run: >-
-          pnpm exec vitest run
+          npm exec -- vitest run
           src/components/blocks/OutputFileArtifact.test.tsx
           src/components/blocks/BlockRenderer.file.test.tsx

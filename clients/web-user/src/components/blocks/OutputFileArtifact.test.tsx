@@ -13,7 +13,10 @@ const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplement
 
 beforeEach(() => {
   fetchMock.mockResolvedValue(
-    new Response(new Blob(["file"], { type: "application/pdf" }), { status: 200 }),
+    new Response("file", {
+      status: 200,
+      headers: { "Content-Type": "application/pdf" },
+    }),
   );
   vi.stubGlobal("URL", {
     ...URL,
@@ -108,7 +111,10 @@ describe("OutputFileArtifact", () => {
     fetchMock
       .mockResolvedValueOnce(new Response(null, { status: 503 }))
       .mockResolvedValueOnce(
-        new Response(new Blob(["file"], { type: "application/pdf" }), { status: 200 }),
+        new Response("file", {
+          status: 200,
+          headers: { "Content-Type": "application/pdf" },
+        }),
       );
     renderArtifact("file_retry", "storyboard.pdf");
 
@@ -143,7 +149,10 @@ describe("OutputFileArtifact", () => {
 
   it("shows a playback failure after video metadata loaded", async () => {
     fetchMock.mockResolvedValueOnce(
-      new Response(new Blob(["video"], { type: "video/mp4" }), { status: 200 }),
+      new Response("video", {
+        status: 200,
+        headers: { "Content-Type": "video/mp4" },
+      }),
     );
     renderArtifact("file_7", "clip.mp4", "video/mp4");
     fireEvent.click(screen.getByRole("button", { name: "加载视频 clip.mp4" }));
@@ -172,7 +181,10 @@ describe("OutputFileArtifact", () => {
 
   it("revokes the object URL on unmount", async () => {
     fetchMock.mockResolvedValueOnce(
-      new Response(new Blob(["video"], { type: "video/mp4" }), { status: 200 }),
+      new Response("video", {
+        status: 200,
+        headers: { "Content-Type": "video/mp4" },
+      }),
     );
     const view = renderArtifact("file_9", "clip.mp4", "video/mp4");
     fireEvent.click(screen.getByRole("button", { name: "加载视频 clip.mp4" }));

@@ -8,7 +8,10 @@ vi.mock("@/lib/identity", () => ({ authenticatedFetch: vi.fn() }));
 
 beforeEach(() => {
   vi.mocked(authenticatedFetch).mockResolvedValue(
-    new Response(new Blob(["video"], { type: "video/mp4" }), { status: 200 }),
+    new Response("video", {
+      status: 200,
+      headers: { "Content-Type": "video/mp4" },
+    }),
   );
   vi.stubGlobal("URL", {
     ...URL,
