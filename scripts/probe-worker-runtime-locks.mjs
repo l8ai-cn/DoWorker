@@ -12,6 +12,7 @@ const evidenceRoot = path.join(
   "tools/loops/worker-onboarding/catalog-loop/evidence/runtime-lock-probes",
 );
 const selectedWorker = process.argv[2];
+const runtimePlatform = process.env.RUNTIME_PLATFORM ?? "linux/amd64";
 const aggregatePath = path.join(evidenceRoot, "..", "runtime-lock-probes.json");
 const probes = new Map(
   selectedWorker && fs.existsSync(aggregatePath)
@@ -28,7 +29,12 @@ for (const image of lock.images) {
   ) {
     continue;
   }
-  const result = spawnSync("docker", ["pull", image.reference], {
+  const result = spawnSync("docker", [
+    "pull",
+    "--platform",
+    runtimePlatform,
+    image.reference,
+  ], {
     encoding: "utf8",
   });
   const output = [result.stdout, result.stderr].filter(Boolean).join("").trim();

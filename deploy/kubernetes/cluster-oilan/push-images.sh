@@ -130,7 +130,7 @@ push_video_runtime() {
     "${digest}" "${REPO_ROOT}"
   (
     cd "${REPO_ROOT}"
-    node scripts/probe-worker-runtime-locks.mjs video-studio
+    RUNTIME_PLATFORM="${PLATFORM}" node scripts/probe-worker-runtime-locks.mjs video-studio
     pnpm run worker-docs:sync
     bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-runtime-lock-probes.sh
     pnpm run worker-docs:check

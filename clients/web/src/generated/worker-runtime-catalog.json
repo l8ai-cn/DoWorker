@@ -565,10 +565,10 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Video Studio",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:21bc8f143d304f361b58862b9c33b4e7257307132f9507cf22d461fca1d61716",
-        "availability": "invalid_published_digest"
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
+        "availability": "locked_available"
       },
-      "validationStatus": "invalid_published_runtime"
+      "validationStatus": "runtime_ready_unverified"
     }
   ]
 }

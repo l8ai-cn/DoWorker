@@ -48,6 +48,9 @@ ARG OPENCLAW_VERSION=2026.6.11
 ARG REMOTION_VERSION=4.0.489
 ENV AGENT_RUNTIME=${AGENT_RUNTIME}
 
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' \
+      /etc/apt/sources.list.d/debian.sources
+
 RUN install_apt() { \
       ok=0; \
       for attempt in 1 2 3 4 5 6 7 8; do \

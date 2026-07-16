@@ -75,7 +75,7 @@ push_video_runtime="$(
     capture && /^}/ { exit }
   ' "$PUSH_IMAGES"
 )"
-grep -Fq 'node scripts/probe-worker-runtime-locks.mjs video-studio' <<< "$push_video_runtime"
+grep -Fq 'RUNTIME_PLATFORM="${PLATFORM}" node scripts/probe-worker-runtime-locks.mjs video-studio' <<< "$push_video_runtime"
 grep -Fq 'pnpm run worker-docs:sync' <<< "$push_video_runtime"
 grep -Fq 'verify-runtime-lock-probes.sh' <<< "$push_video_runtime"
 grep -Fq '.status == "available"' <<< "$push_video_runtime"
