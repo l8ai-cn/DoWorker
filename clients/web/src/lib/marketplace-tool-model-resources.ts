@@ -100,14 +100,15 @@ function matchesModelFamily(
   requirement: ToolModelRequirement,
   modelID: string | undefined,
 ): boolean {
-  if (isSeedanceVideoProvider(providerKey) && requirement.capability === "video-generation") {
-    return modelID?.trim().startsWith("doubao-seedance-") ?? false;
+  if (requirement.capability !== "video-generation") return true;
+  const normalizedModelID = modelID?.trim();
+  if (providerKey === "doubao") {
+    return normalizedModelID?.startsWith("doubao-seedance-") ?? false;
+  }
+  if (providerKey === "sub2api-seedance") {
+    return normalizedModelID === "creative-video";
   }
   return true;
-}
-
-function isSeedanceVideoProvider(providerKey: string): boolean {
-  return providerKey === "doubao" || providerKey === "sub2api-seedance";
 }
 
 function marketplaceToolResource(

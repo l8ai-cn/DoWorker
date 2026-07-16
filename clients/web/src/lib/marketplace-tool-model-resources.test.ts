@@ -57,6 +57,22 @@ describe("listMarketplaceToolModelResources", () => {
           resource: {
             id: "79",
             displayName: "Seedance 2.0",
+            modelId: "creative-video",
+            isEnabled: true,
+            modalities: ["video"],
+            capabilities: ["video-generation"],
+          },
+        },
+        {
+          selectable: true,
+          connection: {
+            providerKey: "sub2api-seedance",
+            name: "Sub2API Seedance",
+            isEnabled: true,
+          },
+          resource: {
+            id: "80",
+            displayName: "Wrong Sub2API model",
             modelId: "doubao-seedance-2-0-260128",
             isEnabled: true,
             modalities: ["video"],

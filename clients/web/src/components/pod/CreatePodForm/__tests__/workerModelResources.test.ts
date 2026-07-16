@@ -172,6 +172,15 @@ describe("workerModelResources", () => {
         ...video.resource!,
         id: 79,
         providerConnectionId: 2,
+        modelId: "creative-video",
+      },
+    };
+    const sub2apiOfficialModelID = {
+      ...sub2apiVideo,
+      resource: {
+        ...sub2apiVideo.resource!,
+        id: 80,
+        modelId: "doubao-seedance-2-0-260128",
       },
     };
 
@@ -181,7 +190,13 @@ describe("workerModelResources", () => {
       protocol_adapters: ["openai-compatible", "ark-seedance"],
       modality: "video",
       capability: "video-generation",
-    }, [geminiResource, languageModelMarkedAsVideo, video, sub2apiVideo])).toEqual([
+    }, [
+      geminiResource,
+      languageModelMarkedAsVideo,
+      video,
+      sub2apiVideo,
+      sub2apiOfficialModelID,
+    ])).toEqual([
       video,
       sub2apiVideo,
     ]);

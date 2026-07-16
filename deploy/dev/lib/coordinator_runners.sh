@@ -6,6 +6,31 @@ coordinator_runners_enabled() {
     [[ "${RUNNERS_LAUNCHER:-docker}" == "coordinator" ]]
 }
 
+resolve_requested_runners_launcher() {
+    local requested="$1"
+    shift
+    for arg in "$@"; do
+        case "$arg" in
+            --coordinator-runners) requested=coordinator ;;
+            --runners-k8s) requested=k8s ;;
+        esac
+    done
+    printf '%s\n' "$requested"
+}
+
+resolve_effective_runners_launcher() {
+    local requested="$1"
+    local persisted="$2"
+    local lite_enabled="$3"
+    if [[ -n "$requested" ]]; then
+        printf '%s\n' "$requested"
+    elif [[ "$lite_enabled" == "true" ]]; then
+        printf '%s\n' coordinator
+    else
+        printf '%s\n' "$persisted"
+    fi
+}
+
 export_coordinator_runner_env() {
     # shellcheck disable=SC1090
     source "$ENV_FILE"

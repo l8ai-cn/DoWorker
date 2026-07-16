@@ -38,7 +38,7 @@ func TestModelResolverBindsSub2APISeedanceVideoResource(t *testing.T) {
 	resources.resolved.Provider.Key = slugkit.MustNewForTest("sub2api-seedance")
 	resources.resolved.Provider.ProtocolAdapter = "ark-seedance"
 	resources.resolved.Connection.ProviderKey = slugkit.MustNewForTest("sub2api-seedance")
-	resources.resolved.Resource.ModelID = "doubao-seedance-2-0-260128"
+	resources.resolved.Resource.ModelID = "creative-video"
 
 	binding, err := newModelResolver(resources).ResolveToolModel(
 		context.Background(),
@@ -50,6 +50,23 @@ func TestModelResolverBindsSub2APISeedanceVideoResource(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, slugkit.MustNewForTest("sub2api-seedance"), binding.ModelBinding.ProviderKey)
 	assert.Equal(t, slugkit.MustNewForTest("ark-seedance"), binding.ModelBinding.ProtocolAdapter)
+}
+
+func TestModelResolverRejectsOfficialSeedanceIDForSub2API(t *testing.T) {
+	resources := validModelResourceService()
+	resources.resolved.Provider.Key = slugkit.MustNewForTest("sub2api-seedance")
+	resources.resolved.Connection.ProviderKey = slugkit.MustNewForTest("sub2api-seedance")
+	resources.resolved.Resource.ModelID = "doubao-seedance-2-0-260128"
+
+	_, err := newModelResolver(resources).ResolveToolModel(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		seedanceToolRequirement(),
+		101,
+	)
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "creative-video")
 }
 
 func TestModelResolverRejectsToolProviderSubstitution(t *testing.T) {
@@ -87,7 +104,7 @@ func TestModelResolverRejectsDoubaoSeedLanguageModelForSeedanceRole(t *testing.T
 
 func seedanceToolRequirement() specdomain.ToolModelRequirement {
 	return specdomain.ToolModelRequirement{
-		Role:             slugkit.MustNewForTest("seedance-video"),
+		Role: slugkit.MustNewForTest("seedance-video"),
 		ProviderKeys: []slugkit.Slug{
 			slugkit.MustNewForTest("doubao"),
 			slugkit.MustNewForTest("sub2api-seedance"),
@@ -96,8 +113,8 @@ func seedanceToolRequirement() specdomain.ToolModelRequirement {
 			slugkit.MustNewForTest("openai-compatible"),
 			slugkit.MustNewForTest("ark-seedance"),
 		},
-		Modality:         resourcedomain.ModalityVideo,
-		Capability:       resourcedomain.CapabilityVideoGeneration,
+		Modality:   resourcedomain.ModalityVideo,
+		Capability: resourcedomain.CapabilityVideoGeneration,
 		Environment: specdomain.ToolModelEnvironment{
 			APIKey: "SEEDANCE_API_KEY", BaseURL: "SEEDANCE_BASE_URL",
 			ModelID: "SEEDANCE_MODEL",

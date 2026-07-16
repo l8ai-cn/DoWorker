@@ -46,7 +46,7 @@ build_do_agent_binary() {
     fi
 
     local checkout="${DOAGENT_DIR:-}"
-    if [[ ! -d "$checkout/.git" ]]; then
+    if ! is_do_agent_checkout "$checkout"; then
         doagent_build_log error "DOAGENT_DIR 必须指向明确的 do-agent Git checkout"
         return 1
     fi
@@ -110,4 +110,10 @@ build_do_agent_binary() {
         "$dev_dir/do-agent-binary" \
         "$dev_dir/binaries/do-agent-binary" || return 1
     doagent_build_log success "do-agent binary 已复制到 deploy/dev/do-agent-binary"
+}
+
+is_do_agent_checkout() {
+    local checkout="${1:-}"
+    [[ -n "$checkout" ]] \
+        && git -C "$checkout" rev-parse --is-inside-work-tree >/dev/null 2>&1
 }
