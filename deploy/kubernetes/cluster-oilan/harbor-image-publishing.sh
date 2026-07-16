@@ -51,6 +51,7 @@ docker_build_with_retry() {
 docker_build_with_heartbeat() {
   local file="$1" tag="$2" build_pid status
   docker build --platform "${PLATFORM}" \
+    --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT:?release source commit is required}" \
     -f "${REPO_ROOT}/${file}" \
     -t "${tag}" \
     "${REPO_ROOT}" &
@@ -65,11 +66,22 @@ docker_build_with_heartbeat() {
   return "${status}"
 }
 
+verify_local_image_revision() {
+  local image="$1" revision
+  revision="$(docker image inspect "${image}" \
+    --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')"
+  [[ "${revision}" == "${RELEASE_SOURCE_COMMIT}" ]] || {
+    echo "image source revision mismatch for ${image}: ${revision}" >&2
+    return 1
+  }
+}
+
 docker_push() {
   local file="$1" dest="$2"
   local tag="${PROJ}/${dest}:latest"
   echo "==> docker build ${file} -> ${tag} (${PLATFORM})"
   docker_build_with_retry "${file}" "${tag}"
+  verify_local_image_revision "${tag}"
   docker push "${tag}"
   local digest
   digest="$(manifest_digest "${tag}")"
@@ -151,6 +163,7 @@ images:
     digest: ${PLATFORM_DIGEST_KUBECTL}
 EOF
   mv "${temporary}" "${output}"
+  release_write_source_metadata "${REPO_ROOT}"
   echo "==> wrote immutable platform digests to ${output}"
 }
 

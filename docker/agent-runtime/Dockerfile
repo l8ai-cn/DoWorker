@@ -49,7 +49,7 @@ ARG MINIMAX_CLI_VERSION=1.0.16
 ARG OPENCLAW_VERSION=2026.6.11
 ARG REMOTION_VERSION=4.0.489
 ENV AGENT_RUNTIME=${AGENT_RUNTIME}
-LABEL org.opencontainers.image.revision="${DO_AGENT_SOURCE_COMMIT}" \
+LABEL ai.agentsmesh.do-agent.source-revision="${DO_AGENT_SOURCE_COMMIT}" \
       ai.agentsmesh.do-agent.binary-sha256="${DO_AGENT_BINARY_SHA256}"
 
 RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' \

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT="${ROOT}/repair-migration-222.sh"
+JOB="${ROOT}/24-migration-222-repair-job.yaml"
+
+grep -Fq 'MIGRATION_REPAIR_ACK' "${SCRIPT}"
+grep -Fq 'release_require_pushed_clean_tree' "${SCRIPT}"
+grep -Fq 'release_verify_source_metadata' "${SCRIPT}"
+grep -Fq 'release_verify_platform_image_provenance "${REPO_ROOT}" backend' "${SCRIPT}"
+grep -Fq 'expected migration state 222|t' "${SCRIPT}"
+grep -Fq "grep -c '^video-studio\\$'" "${SCRIPT}"
+grep -Fq 'agents WHERE adapter_id IS NULL' "${SCRIPT}"
+grep -Fq 'scale deploy/backend deploy/marketplace --replicas=0' "${SCRIPT}"
+grep -Fq 'pre-repair-222-' "${SCRIPT}"
+grep -Fq 'sha256sum -c' "${SCRIPT}"
+! grep -Fq 'latest.dump' "${SCRIPT}"
+grep -Fq 'set -eu; kubectl -n ${NS} scale deploy/backend --replicas=' "${SCRIPT}"
+grep -Fq 'rollout status deploy/backend --timeout=300s' "${SCRIPT}"
+grep -Fq 'rollout status deploy/marketplace --timeout=300s' "${SCRIPT}"
+grep -Fq 'migrate force 221' "${JOB}"
+grep -Fq 'migrate up' "${JOB}"
+grep -Fq '__EXPECTED_VERSION__ (dirty=false)' "${JOB}"
+grep -Fq 'backoffLimit: 0' "${JOB}"

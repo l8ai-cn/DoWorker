@@ -4,7 +4,7 @@ metadata:
   name: backend
   namespace: agentsmesh
   annotations:
-    kubernetes.io/change-cause: "Release Mobile Worker Access from commit 1de2573c5"
+    kubernetes.io/change-cause: "AgentsMesh release __RELEASE_COMMIT__"
     agentsmesh.ai/verified-image-digest: "__BACKEND_DIGEST__"
 spec:
   replicas: 1

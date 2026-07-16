@@ -33,14 +33,24 @@ Because Harbor is node-local, runner + backend-launcher image pull policy is `Al
 ```bash
 docker login repo.aiedulab.cn:8443           # one-time
 ./push-images.sh all                          # build + push every image to Harbor
-git add release/kustomization.yaml && git commit
+git status --short                            # review generated locks/evidence
+git add deploy/kubernetes/cluster-oilan/release \
+  deploy/kubernetes/cluster-oilan/30-backend.yaml \
+  deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml \
+  docker/agent-runtime/do-agent-release.json \
+  backend/internal/domain/workerruntime/runtime_catalog.lock.json \
+  config/worker-types tools/loops/worker-onboarding/catalog-loop
+git commit
 git push
 DOOPS_TARGET=gw-oilan-node ./deploy.sh         # secrets + manifests + jobs via DoOps
 ```
 
-Build and deploy scripts refuse a dirty tree, detached HEAD, or a commit that is
-not the current remote branch HEAD. The release lock pins platform, mobile, and
-infrastructure images by digest.
+Build and deploy scripts refuse a dirty tree, detached HEAD, a commit that is
+not the current remote branch HEAD, or missing release-specific CI checks.
+`release/source.json` is mandatory release provenance. It records the release
+commit and each platform image's exact source revision, so incremental image
+releases can retain older immutable digests without weakening provenance.
+Commit it with the generated digest locks and runtime evidence.
 
 `deploy.sh` defaults to `gw-oilan-node`. `push-images.sh` subsets: `platform` |
 `marketplace-core` | `video-expert` | `video-runtime` | `web` | `infra` | `runners`.
@@ -91,26 +101,34 @@ Each run is a **full reconcile**, not a DB-only reset:
 2. **Immutable release** — reject any platform image not pinned by registry digest.
 3. **Pre-migration backup** — write a verified custom-format PostgreSQL dump to
    `/root/backups/agentsmesh/pre-migrate-<UTC>.dump`; any backup failure stops
-   the release before migration.
+   the release before changing the PostgreSQL image or running migrations.
 4. **Pinned migration Job** — use the exact Backend digest from the rendered
    release to run `/app/server migrate up`, and block until all pending
-   migrations (currently through `000223`) complete.
+   migrations complete. A dirty migration state is rejected; it is never
+   force-cleared by the normal deployment path.
 5. **`kubectl apply -f /tmp/agentsmesh-release.yaml`** — only after migration
    success, re-apply every Deployment/ConfigMap/Ingress from git.
    Live hotfixes (`kubectl set env …`) are **overwritten** on the next deploy.
 6. **Seed and storage jobs** — run the idempotent seed, ensure the MinIO bucket
    and its one-day `workspace-artifacts/` expiry rule, then sync Worker definitions.
 
-To restore the latest pre-migration backup after stopping application writes:
+Production migration state `222 dirty=true` caused by the historical
+`video-studio` insert must be repaired only after the corrected Backend image is
+published and committed:
 
 ```bash
-kubectl -n agentsmesh exec deploy/postgres -- \
-  sh -ceu 'PGPASSWORD="$POSTGRES_PASSWORD" dropdb --if-exists -U "$POSTGRES_USER" "$POSTGRES_DB";
-    PGPASSWORD="$POSTGRES_PASSWORD" createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'
-cat /root/backups/agentsmesh/latest.dump | kubectl -n agentsmesh exec -i deploy/postgres -- \
-  sh -ceu 'PGPASSWORD="$POSTGRES_PASSWORD" pg_restore --clean --if-exists --no-owner \
-    --no-privileges -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+MIGRATION_REPAIR_ACK=repair-dirty-222-video-studio \
+DOOPS_SESSION=<release-session> \
+bash deploy/kubernetes/cluster-oilan/repair-migration-222.sh
 ```
+
+The repair requires a clean, pushed `main` commit with successful GitHub
+checks, verifies the exact dirty state and schema preconditions, stops
+application writes, creates a checksummed backup, and reruns migration `000222`
+from version `221`. Any failed precondition leaves the database untouched.
+
+The executable database and GitOps rollback procedure is in
+[`ROLLBACK.md`](ROLLBACK.md).
 
 The seed SQL is **idempotent** (`WHERE NOT EXISTS`): it ensures `dev-org`, the
 admin user, subscription, and pre-registered runner `node_id`s exist. It does **not**
@@ -170,5 +188,6 @@ validate the existing `agentsmesh` Secret.
 | `60-prepull-daemonset` | warm agent-runtime image cache |
 
 Secrets (`agentsmesh-secrets`, `agentsmesh-pki-ca`, `agentsmesh-regcred`) and
-one-shot seed jobs are applied by `deploy.sh`, not kustomize. Generated secret
-material lives in `_gen/` (git-ignored).
+one-shot seed jobs are applied by `deploy.sh`, not kustomize. Existing values
+are read from the cluster for each release; generated `_gen/` material is
+removed locally on every exit.

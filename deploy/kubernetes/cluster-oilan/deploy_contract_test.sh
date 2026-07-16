@@ -23,6 +23,15 @@ case " $* " in
     for ((index = 0; index < ${#args[@]}; index++)); do
       [[ "${args[index]}" == "--cmd" ]] || continue
       printf '%s\n' "${args[index + 1]}" >> "$DOOPS_LOG"
+      if [[ "${args[index + 1]}" == *"SELECT version, dirty FROM schema_migrations"* ]]; then
+        printf '222|f\n'
+      fi
+      if [[ "${args[index + 1]}" == *"get deploy backend -o jsonpath"* ]]; then
+        printf '1\n'
+      fi
+      if [[ "${args[index + 1]}" == *"get deploy marketplace -o jsonpath"* ]]; then
+        printf '1\n'
+      fi
       exit 0
     done
     exit 1
@@ -40,6 +49,8 @@ bash -c '
   set -euo pipefail
   source "$1/deploy.sh"
   release_require_pushed_clean_tree() { :; }
+  release_verify_source_metadata() { :; }
+  release_verify_platform_image_provenance() { :; }
   generate_cluster_secrets() {
     mkdir -p "${SEC}"
     for name in "${SECRET_MANIFESTS[@]}"; do
@@ -48,6 +59,19 @@ bash -c '
   }
   main
 ' bash "$ROOT"
+
+ROOT="$ROOT" bash -c '
+  set -euo pipefail
+  source "${ROOT}/deploy-write-quiescence.sh"
+  NS=agentsmesh
+  deployment_replicas() { printf "1\n"; }
+  dexec() { [[ "$1" == *" scale "* ]]; }
+  if stop_application_writes; then
+    echo "pod deletion timeout was accepted" >&2
+    exit 1
+  fi
+  [[ "${APP_WRITES_STOPPED}" == "true" ]]
+'
 
 require_command() {
   grep -F "$1" "$LOG" >/dev/null || {
@@ -64,12 +88,16 @@ require_command 'kubectl kustomize . > /tmp/agentsmesh-release.yaml'
 require_command 'kubectl apply -f generated-secrets'
 require_command 'rm -f generated-secrets/*.yaml'
 require_command 'kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml'
+require_command 'scale deploy/backend deploy/marketplace --replicas=0'
+require_command 'wait --for=delete pod -l app=backend'
+require_command 'wait --for=delete pod -l app=marketplace'
 require_command '10-postgres.yaml | kubectl apply -f -'
 require_command '11-redis.yaml | kubectl apply -f -'
 require_command '12-minio.yaml | kubectl apply -f -'
 require_command 'kubectl -n agentsmesh rollout status deploy/postgres --timeout=300s'
 require_command 'pg_dump --format=custom'
 require_command '/root/backups/agentsmesh'
+require_command 'pre-migrate-'
 require_command '20-migrate-job.yaml | kubectl apply -f -'
 require_command '__BACKEND_IMAGE__'
 require_command '__BACKEND_DIGEST__'
@@ -83,7 +111,9 @@ require_command '23-worker-definition-sync-job.yaml | kubectl apply -f -'
 
 render_line="$(line_number 'kubectl kustomize . > /tmp/agentsmesh-release.yaml')"
 prereq_line="$(line_number 'kubectl apply -f 02-configmap.yaml -f 30-backend-rbac.yaml')"
+stop_line="$(line_number 'scale deploy/backend deploy/marketplace --replicas=0')"
 backup_line="$(line_number 'pg_dump --format=custom')"
+postgres_line="$(line_number '10-postgres.yaml | kubectl apply -f -')"
 migrate_line="$(line_number '20-migrate-job.yaml | kubectl apply -f -')"
 migrate_wait_line="$(line_number 'wait --for=condition=complete job/migrate')"
 workload_line="$(line_number 'kubectl apply -f /tmp/agentsmesh-release.yaml')"
@@ -91,8 +121,10 @@ backend_line="$(line_number 'rollout status deploy/backend')"
 sync_line="$(line_number '23-worker-definition-sync-job.yaml | kubectl apply -f -')"
 
 (( render_line < prereq_line &&
-  prereq_line < migrate_line &&
-  prereq_line < backup_line &&
+  prereq_line < stop_line &&
+  stop_line < backup_line &&
+  backup_line < postgres_line &&
+  postgres_line < migrate_line &&
   backup_line < migrate_line &&
   migrate_line < migrate_wait_line &&
   migrate_wait_line < workload_line &&

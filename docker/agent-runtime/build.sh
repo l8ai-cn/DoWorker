@@ -28,6 +28,7 @@ PLATFORM="${PLATFORM:-linux/amd64}"
 STAGING="${STAGING_DIR:-${SCRIPT_DIR}/_context}"
 BUILD_RETRIES="${BUILD_RETRIES:-3}"
 SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git -C "${REPO_ROOT}" log -1 --format=%ct)}"
+RELEASE_SOURCE_COMMIT="${RELEASE_SOURCE_COMMIT:-$(git -C "${REPO_ROOT}" rev-parse HEAD)}"
 
 usage() {
   cat <<EOF
@@ -57,20 +58,14 @@ Agent runtimes:
   STAGING_DIR     二进制 staging 目录
   FORCE_REBUILD   设为 1 强制重建已有镜像
   BUILD_RETRIES   docker build 失败重试次数 (默认 3)
-  LOOPAL_BINARY
-                  Loopal 的真实 CLI 二进制；构建 loopal 时必填且不得是 E2E mock
+  LOOPAL_BINARY        Loopal 真实 CLI；构建 loopal 时必填且不得是 E2E mock
   RUNTIME_EXTENSION_BASE
-                  用既有 Runner 镜像构建 OpenClaw/Hermes（本地离线初始化）
-  HERMES_AGENT_VERSION
-                  Hermes Agent version (默认 0.18.2)
-  REMOTION_VERSION
-                  Remotion runtime version (默认 4.0.489)
-  MINIMAX_CLI_VERSION
-                  MiniMax CLI version (默认 1.0.16)
-  OPENCLAW_VERSION
-                  OpenClaw CLI version (默认 2026.6.11)
-  OPENCLAW_NODE_VERSION
-                  OpenClaw extension Node version (默认 24.18.0)
+                       用既有 Runner 镜像构建 OpenClaw/Hermes
+  HERMES_AGENT_VERSION Hermes Agent version (默认 0.18.2)
+  REMOTION_VERSION     Remotion runtime version (默认 4.0.489)
+  MINIMAX_CLI_VERSION  MiniMax CLI version (默认 1.0.16)
+  OPENCLAW_VERSION     OpenClaw CLI version (默认 2026.6.11)
+  OPENCLAW_NODE_VERSION OpenClaw extension Node version (默认 24.18.0)
 EOF
 }
 
@@ -104,6 +99,7 @@ build_base() {
   echo "=========================================="
   docker_build_with_retry docker build --platform "$PLATFORM" \
     --provenance=false \
+    --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT}" \
     --target base \
     -f "${SCRIPT_DIR}/Dockerfile" \
     --build-arg "HTTP_PROXY=" \
@@ -123,6 +119,7 @@ build_one() {
   local -a build_cmd=(
     docker build --platform "$PLATFORM"
     --provenance=false
+    --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT}"
     -f "${SCRIPT_DIR}/Dockerfile"
   )
   if [[ -n "${RUNTIME_EXTENSION_BASE:-}" ]]; then

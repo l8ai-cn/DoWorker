@@ -6,6 +6,8 @@ COORDINATOR_RUNNERS="${ROOT}/deploy/dev/lib/coordinator_runners.sh"
 BACKEND_MANIFEST="${ROOT}/deploy/kubernetes/cluster-oilan/30-backend.yaml"
 PREPULL_MANIFEST="${ROOT}/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
 PUSH_IMAGES="${ROOT}/deploy/kubernetes/cluster-oilan/push-images.sh"
+PUSH_RUNNERS="${ROOT}/deploy/kubernetes/cluster-oilan/push-runner-images.sh"
+PUSH_VIDEO="${ROOT}/deploy/kubernetes/cluster-oilan/push-runner-video-studio.sh"
 PUBLISHING="${ROOT}/deploy/kubernetes/cluster-oilan/harbor-image-publishing.sh"
 UPDATE_DIGEST="${ROOT}/deploy/kubernetes/cluster-oilan/update-video-runtime-digest.mjs"
 RUNTIME_LOCK="${ROOT}/backend/internal/domain/workerruntime/runtime_catalog.lock.json"
@@ -36,15 +38,9 @@ fi
 grep -Fq "video-studio=${IMAGE}@${DIGEST}" "$BACKEND_MANIFEST"
 grep -Fq "image: ${IMAGE}@${DIGEST}" "$PREPULL_MANIFEST"
 
-push_runners="$(
-  awk '
-    /^push_runners\(\)/ { capture=1 }
-    capture { print }
-    capture && /^}/ { exit }
-  ' "$PUSH_IMAGES"
-)"
-grep -Fq 'bash docker/agent-runtime/build.sh video-studio' <<< "$push_runners"
-grep -Eq 'for rt in .*codex-cli video-studio .*; do' <<< "$push_runners"
+push_runners="$(cat "$PUSH_RUNNERS")"
+grep -Fq 'FORCE_REBUILD=1 bash docker/agent-runtime/build.sh "${runtime}"' <<< "$push_runners"
+grep -Eq 'for runtime in .*codex-cli video-studio .*; do' <<< "$push_runners"
 
 push_video_expert="$(
   awk '
@@ -64,18 +60,19 @@ grep -Fq 'docker build failed; retry' "$PUBLISHING"
 grep -Fq 'docker_build_with_heartbeat' "$PUBLISHING"
 grep -Fq 'docker build still running' "$PUBLISHING"
 grep -Fq 'push_video_runtime' "$PUSH_IMAGES"
-grep -Fq 'runner-video-studio:latest' "$PUSH_IMAGES"
-grep -Fq 'FORCE_REBUILD=1 PLATFORM="${PLATFORM}"' "$PUSH_IMAGES"
-grep -Fq 'digest="$(manifest_digest "${PROJ}/runner-video-studio:latest")"' "$PUSH_IMAGES"
-grep -Fq 'update-video-runtime-digest.mjs' "$PUSH_IMAGES"
+grep -Fq 'runner-video-studio:latest' "$PUSH_VIDEO"
+grep -Fq 'FORCE_REBUILD=1 PLATFORM="${PLATFORM:-linux/amd64}"' "$PUSH_VIDEO"
+grep -Fq 'digest="$(manifest_digest "${PROJ}/runner-video-studio:latest")"' "$PUSH_VIDEO"
+grep -Fq 'update-video-runtime-digest.mjs' "$PUSH_VIDEO"
 push_video_runtime="$(
   awk '
-    /^push_video_runtime\(\)/ { capture=1 }
+    /^publish_video_runtime_metadata\(\)/ { capture=1 }
     capture { print }
     capture && /^}/ { exit }
-  ' "$PUSH_IMAGES"
+  ' "$PUSH_VIDEO"
 )"
-grep -Fq 'RUNTIME_PLATFORM="${PLATFORM}" node scripts/probe-worker-runtime-locks.mjs video-studio' <<< "$push_video_runtime"
+grep -Fq 'RUNTIME_PLATFORM="${PLATFORM:-linux/amd64}" \' <<< "$push_video_runtime"
+grep -Fq 'node scripts/probe-worker-runtime-locks.mjs video-studio' <<< "$push_video_runtime"
 grep -Fq 'pnpm run worker-docs:sync' <<< "$push_video_runtime"
 grep -Fq 'verify-runtime-lock-probes.sh \' <<< "$push_video_runtime"
 grep -Fq 'video-studio' <<< "$push_video_runtime"
@@ -146,7 +143,10 @@ JSON
 sed -i.bak "s/$NEXT_DIGEST/$DIGEST/" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
 rm "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml.bak"
+mkdir "$LOCK_PATH"
+printf '999999\n' > "$LOCK_PATH/owner"
 node "$UPDATE_DIGEST" "$DIGEST" "$FIXTURE_ROOT"
+[[ ! -e "$LOCK_PATH" ]]
 [[ ! -e "$TRANSACTION_PATH" ]]
 grep -Fq "\"digest\": \"$DIGEST\"" \
   "$FIXTURE_ROOT/backend/internal/domain/workerruntime/runtime_catalog.lock.json"

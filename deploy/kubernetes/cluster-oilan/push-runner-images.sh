@@ -10,6 +10,8 @@ source "${REPO_ROOT}/docker/agent-runtime/do_agent_release_manifest.sh"
 source "${SCRIPT_DIR}/harbor_immutable_release.sh"
 # shellcheck source=release_source_guard.sh
 source "${SCRIPT_DIR}/release_source_guard.sh"
+# shellcheck source=push-runner-video-studio.sh
+source "${SCRIPT_DIR}/push-runner-video-studio.sh"
 
 release_require_pushed_clean_tree "${REPO_ROOT}"
 
@@ -51,8 +53,34 @@ build_do_agent() {
 
 push_runtime() {
   local runtime="$1"
+  verify_runtime_source_revision "${runtime}"
   docker tag "do-worker/runner-${runtime}:latest" "${PROJ}/runner-${runtime}:latest"
   docker push "${PROJ}/runner-${runtime}:latest"
+}
+
+verify_runtime_source_revision() {
+  local runtime="$1"
+  local revision
+  revision="$(docker image inspect "do-worker/runner-${runtime}:latest" \
+    --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')"
+  [[ "${revision}" == "${RELEASE_SOURCE_COMMIT}" ]] || {
+    echo "runner-${runtime} source revision mismatch: ${revision}" >&2
+    return 1
+  }
+}
+
+verify_do_agent_labels() {
+  local source_commit expected_hash actual_source actual_hash
+  source_commit="$(do_agent_release_value source.commit)"
+  expected_hash="$(do_agent_release_value artifact.binary_sha256)"
+  actual_source="$(docker image inspect do-worker/runner-do-agent:latest \
+    --format '{{ index .Config.Labels "ai.agentsmesh.do-agent.source-revision" }}')"
+  actual_hash="$(docker image inspect do-worker/runner-do-agent:latest \
+    --format '{{ index .Config.Labels "ai.agentsmesh.do-agent.binary-sha256" }}')"
+  [[ "${actual_source}" == "${source_commit}" && "${actual_hash}" == "${expected_hash}" ]] || {
+    echo "do-agent image labels do not match the trusted artifact manifest" >&2
+    return 1
+  }
 }
 
 manifest_digest() {
@@ -70,24 +98,22 @@ manifest_digest() {
 }
 
 publish_do_agent() {
-  local repository release_tag candidate_tag expected_digest candidate_digest release_digest latest_digest
+  local repository release_tag candidate_tag candidate_digest release_digest latest_digest
+  local source_commit observed_at
   repository="$(do_agent_release_value image.repository)"
-  release_tag="$(do_agent_release_value image.tag)"
-  candidate_tag="candidate-${release_tag}"
-  expected_digest="$(do_agent_release_value image.digest)"
+  source_commit="$(do_agent_release_value source.commit)"
+  release_tag="${source_commit:0:12}-runner-${RELEASE_SOURCE_COMMIT:0:12}"
+  candidate_tag="candidate-${RELEASE_SOURCE_COMMIT:0:12}"
   [[ "${repository}" == "${PROJ}/runner-do-agent" ]] || {
     echo "do-agent release repository must be ${PROJ}/runner-do-agent" >&2
     return 1
   }
-  do_agent_require_digest "image.digest" "${expected_digest}"
 
+  verify_runtime_source_revision do-agent
+  verify_do_agent_labels
   docker tag "do-worker/runner-do-agent:latest" "${repository}:${candidate_tag}"
   docker push "${repository}:${candidate_tag}"
   candidate_digest="$(manifest_digest "${repository}:${candidate_tag}")"
-  [[ "${candidate_digest}" == "${expected_digest}" ]] || {
-    echo "candidate digest mismatch: expected ${expected_digest}, got ${candidate_digest}" >&2
-    return 1
-  }
 
   harbor_ensure_immutable_tag "${REG}" agentsmesh runner-do-agent "${release_tag}"
   if release_digest="$(docker buildx imagetools inspect "${repository}:${release_tag}" \
@@ -108,6 +134,23 @@ publish_do_agent() {
     }
   fi
 
+  observed_at="$(git -C "${REPO_ROOT}" show -s --format=%cI "${RELEASE_SOURCE_COMMIT}")"
+  RUNTIME_OBSERVED_AT="${observed_at}" \
+    node "${SCRIPT_DIR}/update-do-agent-runtime-digest.mjs" \
+      "${candidate_digest}" "${RELEASE_SOURCE_COMMIT}" "${release_tag}" "${REPO_ROOT}"
+  (
+    cd "${REPO_ROOT}"
+    RUNTIME_OBSERVED_AT="${observed_at}" \
+      RUNTIME_PLATFORM="${PLATFORM:-linux/amd64}" \
+      node scripts/probe-worker-runtime-locks.mjs do-agent
+    RUNTIME_OBSERVED_AT="${observed_at}" node scripts/probe-local-worker-images.mjs do-agent
+    RUNTIME_OBSERVED_AT="${observed_at}" node scripts/probe-local-worker-images.mjs seedance-expert
+    pnpm run worker-docs:sync
+    node scripts/generate-worker-loop-inventory.mjs
+    EXPECTED_REMOTE_DIGEST="${candidate_digest}" \
+      bash deploy/kubernetes/cluster-oilan/runtime_mapping_contract_test.sh
+  )
+
   docker buildx imagetools create \
     --prefer-index=false \
     --tag "${repository}:latest" \
@@ -117,46 +160,37 @@ publish_do_agent() {
     echo "latest promotion digest mismatch: ${latest_digest}" >&2
     return 1
   }
-  EXPECTED_REMOTE_DIGEST="${latest_digest}" \
-    bash "${SCRIPT_DIR}/runtime_mapping_contract_test.sh"
   echo "${repository}@${latest_digest}"
 }
 
 push_do_agent() {
   build_do_agent
   publish_do_agent
+  release_write_source_metadata "${REPO_ROOT}"
 }
 
 push_all() {
   local runtime
-  for runtime in claude-code codex-cli gemini-cli grok-build openclaw hermes; do
-    (cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh "${runtime}")
+  for runtime in claude-code codex-cli video-studio gemini-cli grok-build minimax-cli openclaw hermes; do
+    (cd "${REPO_ROOT}" && FORCE_REBUILD=1 bash docker/agent-runtime/build.sh "${runtime}")
   done
   build_do_agent
   docker build --platform linux/amd64 --target runtime \
+    --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT}" \
     -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
     --build-arg AGENT_RUNTIME=e2e-echo \
     -t do-worker/runner-e2e-echo:latest \
     "${REPO_ROOT}/docker/agent-runtime/_context"
-  if docker image inspect "do-worker/runner-minimax-cli:latest" >/dev/null 2>&1; then
-    :
-  elif docker image inspect "l8ai/runner-minimax-cli:latest" >/dev/null 2>&1; then
-    docker tag "l8ai/runner-minimax-cli:latest" "do-worker/runner-minimax-cli:latest"
-  else
-    docker build --platform linux/amd64 --target runtime \
-      -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
-      --build-arg AGENT_RUNTIME=minimax-cli \
-      -t do-worker/runner-minimax-cli:latest \
-      "${REPO_ROOT}/docker/agent-runtime/_context"
-  fi
-  for runtime in claude-code codex-cli gemini-cli grok-build openclaw hermes e2e-echo minimax-cli; do
+  for runtime in claude-code codex-cli video-studio gemini-cli grok-build minimax-cli openclaw hermes e2e-echo; do
     push_runtime "${runtime}"
   done
   publish_do_agent
+  publish_video_runtime_metadata
 }
 
 case "${TARGET}" in
   all) push_all ;;
   do-agent) push_do_agent ;;
-  *) echo "usage: $0 [all|do-agent]" >&2; exit 1 ;;
+  video-studio) push_video_studio ;;
+  *) echo "usage: $0 [all|do-agent|video-studio]" >&2; exit 1 ;;
 esac

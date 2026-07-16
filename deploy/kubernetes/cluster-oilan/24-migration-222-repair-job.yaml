@@ -1,29 +1,38 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: migrate
+  name: migration-222-repair
   namespace: agentsmesh
   annotations:
     kubernetes.io/change-cause: "AgentsMesh release __RELEASE_COMMIT__"
     agentsmesh.ai/verified-image-digest: "__BACKEND_DIGEST__"
 spec:
-  backoffLimit: 3
-  ttlSecondsAfterFinished: 300
+  backoffLimit: 0
   template:
     metadata:
       labels:
-        app: migrate
+        app: migration-222-repair
       annotations:
         agentsmesh.ai/verified-image-digest: "__BACKEND_DIGEST__"
     spec:
-      restartPolicy: OnFailure
+      restartPolicy: Never
       imagePullSecrets:
         - name: agentsmesh-regcred
       containers:
-        - name: migrate
+        - name: repair
           image: __BACKEND_IMAGE__
           imagePullPolicy: Always
-          command: ["/app/server", "migrate", "up"]
+          command:
+            - /bin/sh
+            - -ceu
+            - |
+              state=$(/app/server migrate version)
+              test "$state" = "222 (dirty=true)"
+              /app/server migrate force 221
+              /app/server migrate up
+              state=$(/app/server migrate version)
+              test "$state" = "__EXPECTED_VERSION__ (dirty=false)"
+              printf '%s\n' "$state"
           envFrom:
             - configMapRef:
                 name: agentsmesh-config

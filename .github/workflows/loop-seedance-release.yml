@@ -23,6 +23,8 @@ jobs:
       - run: bash deploy/kubernetes/cluster-oilan/release_source_guard_contract_test.sh
       - run: bash deploy/kubernetes/cluster-oilan/verify_release_images_contract_test.sh
       - run: bash deploy/kubernetes/cluster-oilan/runtime_mapping_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/do_agent_runtime_digest_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/migration_222_repair_contract_test.sh
       - run: bash docker/agent-runtime/contract_test.sh
 
   security-regressions:
@@ -47,7 +49,12 @@ jobs:
           -count=1
       - name: Runner sandbox and control regressions
         working-directory: runner
-        run: go test ./internal/runner ./internal/client -count=1
+        run: >-
+          go test
+          ./internal/runner
+          ./internal/client
+          ./internal/poddaemon
+          -count=1
 
   web-user-artifacts:
     name: Web-user artifact preview

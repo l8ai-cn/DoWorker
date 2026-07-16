@@ -79,10 +79,15 @@ func TestMigration000223AlignsSeedanceDoAgentHome(t *testing.T) {
 
 func extractSeedanceAgentFile(t *testing.T, migration string) string {
 	t.Helper()
-	start := strings.Index(migration, "E'")
-	end := strings.LastIndex(migration, "'\n);")
+	seedance := strings.Index(migration, "'seedance-expert'")
+	if seedance < 0 {
+		t.Fatal("migration does not contain the Seedance agent")
+	}
+	agentMigration := migration[seedance:]
+	start := strings.Index(agentMigration, "E'")
+	end := strings.LastIndex(agentMigration, "'\n);")
 	if start < 0 || end <= start+2 {
 		t.Fatal("migration does not contain the AgentFile literal")
 	}
-	return strings.ReplaceAll(migration[start+2:end], `\n`, "\n")
+	return strings.ReplaceAll(agentMigration[start+2:end], `\n`, "\n")
 }

@@ -92,31 +92,7 @@ push_infra() {
 }
 
 push_video_runtime() {
-  (
-    cd "${REPO_ROOT}"
-    FORCE_REBUILD=1 PLATFORM="${PLATFORM}" bash docker/agent-runtime/build.sh video-studio
-  )
-  docker tag "do-worker/runner-video-studio:latest" "${PROJ}/runner-video-studio:latest"
-  docker push "${PROJ}/runner-video-studio:latest"
-  local digest
-  digest="$(manifest_digest "${PROJ}/runner-video-studio:latest")"
-  node "${REPO_ROOT}/deploy/kubernetes/cluster-oilan/update-video-runtime-digest.mjs" \
-    "${digest}" "${REPO_ROOT}"
-  (
-    cd "${REPO_ROOT}"
-    RUNTIME_PLATFORM="${PLATFORM}" node scripts/probe-worker-runtime-locks.mjs video-studio
-    pnpm run worker-docs:sync
-    RUNTIME_PLATFORM="${PLATFORM}" \
-      bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-runtime-lock-probes.sh \
-      video-studio
-    pnpm run worker-docs:check
-    jq -e --arg platform "${PLATFORM}" '
-      .probes[] |
-      select(.worker_slug == "video-studio") |
-      .status == "available" and .platform == $platform
-    ' tools/loops/worker-onboarding/catalog-loop/evidence/runtime-lock-probes.json \
-      >/dev/null
-  )
+  PLATFORM="${PLATFORM}" bash "${SCRIPT_DIR}/push-runner-images.sh" video-studio
 }
 main() {
   release_require_pushed_clean_tree "${REPO_ROOT}"

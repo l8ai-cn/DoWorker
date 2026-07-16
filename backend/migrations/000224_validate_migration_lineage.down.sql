@@ -1,0 +1,1 @@
+-- Validation-only migration. No schema state is introduced by 000224.

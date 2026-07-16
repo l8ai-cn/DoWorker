@@ -13,18 +13,17 @@ import {
 } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 
-const TRANSACTION_DIR = "deploy/kubernetes/cluster-oilan/.video-runtime-digest-transaction";
-const LOCK_FILE = "deploy/kubernetes/cluster-oilan/.video-runtime-digest-update.lock";
+const DEFAULT_NAMESPACE = "video-runtime";
 
-export function withinDigestUpdateLock(root, apply) {
-  const lockPath = join(root, LOCK_FILE);
+export function withinDigestUpdateLock(root, apply, namespace = DEFAULT_NAMESPACE) {
+  const lockPath = join(root, lockFile(namespace));
   let locked = false;
   try {
-    mkdirSync(lockPath);
+    acquireDigestUpdateLock(lockPath);
     locked = true;
     writeFileSync(join(lockPath, "owner"), `${process.pid}\n`);
     syncFile(join(lockPath, "owner"));
-    recoverInterruptedUpdate(root);
+    recoverInterruptedUpdate(root, namespace);
     return apply();
   } finally {
     if (locked) {
@@ -33,8 +32,37 @@ export function withinDigestUpdateLock(root, apply) {
   }
 }
 
-export function writeRecoverably(root, updates) {
-  const transactionPath = join(root, TRANSACTION_DIR);
+function acquireDigestUpdateLock(lockPath) {
+  try {
+    mkdirSync(lockPath);
+    return;
+  } catch (error) {
+    if (error.code !== "EEXIST" || !lockOwnerExited(lockPath)) {
+      throw error;
+    }
+  }
+  rmSync(lockPath, { recursive: true });
+  mkdirSync(lockPath);
+}
+
+function lockOwnerExited(lockPath) {
+  let owner;
+  try {
+    owner = Number.parseInt(readFileSync(join(lockPath, "owner"), "utf8"), 10);
+  } catch {
+    return false;
+  }
+  if (!Number.isSafeInteger(owner) || owner <= 0) return false;
+  try {
+    process.kill(owner, 0);
+    return false;
+  } catch (error) {
+    return error.code === "ESRCH";
+  }
+}
+
+export function writeRecoverably(root, updates, namespace = DEFAULT_NAMESPACE) {
+  const transactionPath = join(root, transactionDir(namespace));
   mkdirSync(transactionPath);
   const records = updates.map((update, index) => ({
     target: repoRelativePath(root, update.path),
@@ -55,7 +83,7 @@ export function writeRecoverably(root, updates) {
     syncFile(join(transactionPath, "manifest.json"));
 
     for (const [index, update] of updates.entries()) {
-      const stagedPath = join(dirname(update.path), `.video-runtime-${process.pid}-${index}.tmp`);
+      const stagedPath = join(dirname(update.path), `.${namespace}-${process.pid}-${index}.tmp`);
       const fd = openSync(stagedPath, "wx", statSync(update.path).mode);
       writeFileSync(fd, update.content);
       fsyncSync(fd);
@@ -76,8 +104,8 @@ export function writeRecoverably(root, updates) {
   }
 }
 
-function recoverInterruptedUpdate(root) {
-  const transactionPath = join(root, TRANSACTION_DIR);
+function recoverInterruptedUpdate(root, namespace) {
+  const transactionPath = join(root, transactionDir(namespace));
   if (!existsSync(transactionPath)) return;
   const manifestPath = join(transactionPath, "manifest.json");
   if (!existsSync(manifestPath)) {
@@ -85,6 +113,22 @@ function recoverInterruptedUpdate(root) {
     return;
   }
   restoreTransaction(root, transactionPath);
+}
+
+function transactionDir(namespace) {
+  requireNamespace(namespace);
+  return `deploy/kubernetes/cluster-oilan/.${namespace}-digest-transaction`;
+}
+
+function lockFile(namespace) {
+  requireNamespace(namespace);
+  return `deploy/kubernetes/cluster-oilan/.${namespace}-digest-update.lock`;
+}
+
+function requireNamespace(namespace) {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(namespace)) {
+    throw new Error(`invalid digest update namespace: ${namespace}`);
+  }
 }
 
 function restoreTransaction(root, transactionPath) {
@@ -95,7 +139,7 @@ function restoreTransaction(root, transactionPath) {
   }
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
   if (manifest.version !== 1 || !Array.isArray(manifest.records)) {
-    throw new Error("invalid video runtime digest transaction manifest");
+    throw new Error("invalid runtime digest transaction manifest");
   }
   for (const record of manifest.records) {
     if (!/^\d+\.backup$/.test(record.backup)) {
