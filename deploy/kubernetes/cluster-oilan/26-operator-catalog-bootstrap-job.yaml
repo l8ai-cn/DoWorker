@@ -35,3 +35,21 @@ spec:
                 name: agentsmesh-config
             - secretRef:
                 name: agentsmesh-secrets
+          volumeMounts:
+            - name: pki-ca
+              mountPath: /app/ssl
+              readOnly: true
+            - name: access-token
+              mountPath: /app/access-token
+              readOnly: true
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: pki-ca
+          secret:
+            secretName: agentsmesh-pki-ca
+        - name: access-token
+          secret:
+            secretName: agentsmesh-access-token
+        - name: data
+          emptyDir: {}
