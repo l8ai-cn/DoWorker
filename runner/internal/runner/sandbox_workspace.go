@@ -9,6 +9,7 @@ import (
 type sandboxWorkspace struct {
 	path string
 	root *os.Root
+	dir  *os.File
 }
 
 func openSandboxWorkspace(path string) (*sandboxWorkspace, error) {
@@ -36,8 +37,7 @@ func bindSandboxWorkspace(root *os.Root) (*sandboxWorkspace, error) {
 		_ = dir.Close()
 		return nil, fmt.Errorf("workspace changed while opening")
 	}
-	_ = dir.Close()
-	return &sandboxWorkspace{path: root.Name(), root: root}, nil
+	return &sandboxWorkspace{path: root.Name(), root: root, dir: dir}, nil
 }
 
 func (workspace *sandboxWorkspace) Close() {
@@ -47,6 +47,9 @@ func (workspace *sandboxWorkspace) Close() {
 	if workspace.root != nil {
 		_ = workspace.root.Close()
 	}
+	if workspace.dir != nil {
+		_ = workspace.dir.Close()
+	}
 }
 
 func (workspace *sandboxWorkspace) displayPath() string {
@@ -54,18 +57,4 @@ func (workspace *sandboxWorkspace) displayPath() string {
 		return ""
 	}
 	return workspace.path
-}
-
-func (workspace *sandboxWorkspace) validateCurrentPath() error {
-	current, err := os.OpenRoot(workspace.path)
-	if err != nil {
-		return fmt.Errorf("workspace path changed: %w", err)
-	}
-	defer current.Close()
-	pinnedInfo, pinnedErr := workspace.root.Stat(".")
-	currentInfo, currentErr := current.Stat(".")
-	if pinnedErr != nil || currentErr != nil || !os.SameFile(pinnedInfo, currentInfo) {
-		return fmt.Errorf("workspace path changed")
-	}
-	return nil
 }

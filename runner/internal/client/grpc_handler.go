@@ -66,19 +66,20 @@ func (c *GRPCConnection) handleServerMessage(ctx context.Context, msg *runnerv1.
 	// Same pod's commands execute sequentially (create_pod before create_autopilot).
 	// Different pods execute concurrently. Tracked by handlerWg for clean shutdown.
 	case *runnerv1.ServerMessage_CreatePod:
-		c.handlerWg.Add(1)
-		c.podQueue.Enqueue(payload.CreatePod.PodKey, func() {
-			defer c.handlerWg.Done()
-			c.handleCreatePod(payload.CreatePod)
-		})
+		c.enqueuePodCommand(
+			payload.CreatePod.PodKey,
+			"create_pod",
+			func() { c.handleCreatePod(payload.CreatePod) },
+			c.podQueueFailureReporter(payload.CreatePod.PodKey),
+		)
 
 	case *runnerv1.ServerMessage_TerminatePod:
-		c.handlerWg.Add(1)
-		c.podQueue.Enqueue(payload.TerminatePod.PodKey, func() {
-			defer c.handlerWg.Done()
-			c.handleTerminatePod(payload.TerminatePod)
-			c.podQueue.Remove(payload.TerminatePod.PodKey)
-		})
+		c.enqueuePodCommand(
+			payload.TerminatePod.PodKey,
+			"terminate_pod",
+			func() { c.handleTerminatePod(payload.TerminatePod) },
+			c.podQueueFailureReporter(payload.TerminatePod.PodKey),
+		)
 
 	case *runnerv1.ServerMessage_SubscribePod:
 		c.handlerWg.Add(1)
@@ -88,29 +89,33 @@ func (c *GRPCConnection) handleServerMessage(ctx context.Context, msg *runnerv1.
 		}()
 
 	case *runnerv1.ServerMessage_CreateAutopilot:
-		c.handlerWg.Add(1)
-		c.podQueue.Enqueue(payload.CreateAutopilot.PodKey, func() {
-			defer c.handlerWg.Done()
-			c.handleCreateAutopilot(payload.CreateAutopilot)
-		})
+		podKey := createAutopilotPodKey(payload.CreateAutopilot)
+		c.enqueuePodCommand(
+			podKey,
+			"create_autopilot",
+			func() { c.handleCreateAutopilot(payload.CreateAutopilot) },
+			c.podQueueFailureReporter(podKey),
+		)
 
 	case *runnerv1.ServerMessage_RunVerification:
-		c.handlerWg.Add(1)
-		c.podQueue.Enqueue(payload.RunVerification.PodKey, func() {
-			defer c.handlerWg.Done()
-			c.handleRunVerification(payload.RunVerification)
-		})
+		c.enqueuePodCommand(
+			payload.RunVerification.PodKey,
+			"run_verification",
+			func() { c.handleRunVerification(payload.RunVerification) },
+			c.verificationQueueFailureReporter(payload.RunVerification),
+		)
 
 	// Lightweight operations - synchronous to preserve ordering
 	case *runnerv1.ServerMessage_PodInput:
 		c.handlePodInput(payload.PodInput)
 
 	case *runnerv1.ServerMessage_SendPrompt:
-		c.handlerWg.Add(1)
-		c.podQueue.Enqueue(payload.SendPrompt.PodKey, func() {
-			defer c.handlerWg.Done()
-			c.handleSendPrompt(payload.SendPrompt)
-		})
+		c.enqueuePodCommand(
+			payload.SendPrompt.PodKey,
+			"send_prompt",
+			func() { c.handleSendPrompt(payload.SendPrompt) },
+			c.podQueueFailureReporter(payload.SendPrompt.PodKey),
+		)
 
 	case *runnerv1.ServerMessage_UnsubscribePod:
 		c.handleUnsubscribePod(payload.UnsubscribePod)
@@ -157,11 +162,12 @@ func (c *GRPCConnection) handleServerMessage(ctx context.Context, msg *runnerv1.
 		c.handleAcpRelay(payload.AcpRelay)
 
 	case *runnerv1.ServerMessage_SandboxFs:
-		c.handlerWg.Add(1)
-		c.podQueue.Enqueue(payload.SandboxFs.PodKey, func() {
-			defer c.handlerWg.Done()
-			c.handleSandboxFs(payload.SandboxFs)
-		})
+		c.enqueuePodCommand(
+			payload.SandboxFs.PodKey,
+			"sandbox_fs",
+			func() { c.handleSandboxFs(payload.SandboxFs) },
+			c.sandboxFsQueueFailureReporter(payload.SandboxFs),
+		)
 
 	case *runnerv1.ServerMessage_ConnectTunnel:
 		c.handleConnectTunnel(payload.ConnectTunnel)

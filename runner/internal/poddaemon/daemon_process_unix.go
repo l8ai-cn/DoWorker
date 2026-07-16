@@ -27,15 +27,27 @@ type unixDaemonProcess struct {
 // seccomp profiles. Kill() falls back to direct process kill + PTY close,
 // which sends SIGHUP to the child's process group.
 func startDaemonProcess(command string, args []string, workDir string, env []string, cols, rows int) (daemonProcess, error) {
+	return startDaemonProcessInWorkspace(
+		command, args, workDir, nil, env, cols, rows,
+	)
+}
+
+func startDaemonProcessInWorkspace(
+	command string,
+	args []string,
+	workDir string,
+	workspace *os.File,
+	env []string,
+	cols, rows int,
+) (daemonProcess, error) {
 	cmd := exec.Command(command, args...)
-	cmd.Dir = workDir
 	cmd.Env = env
 
 	winSize := &pty.Winsize{
 		Rows: uint16(rows),
 		Cols: uint16(cols),
 	}
-	ptmx, err := pty.StartWithSize(cmd, winSize)
+	ptmx, err := startDaemonPTY(cmd, workDir, workspace, winSize)
 	if err != nil {
 		return nil, fmt.Errorf("start pty: %w", err)
 	}

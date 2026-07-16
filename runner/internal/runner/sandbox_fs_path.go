@@ -160,20 +160,3 @@ func openSandboxWorkspaceRoot(workspaceRoot string) (*os.Root, error) {
 	}
 	return os.OpenRoot(abs)
 }
-
-func readSandboxWorkspaceFile(workspaceRoot, rel string) ([]byte, error) {
-	workspace, err := openSandboxWorkspace(workspaceRoot)
-	if err != nil {
-		return nil, err
-	}
-	defer workspace.Close()
-	return readSandboxWorkspaceFileIn(workspace, rel)
-}
-
-func readSandboxWorkspaceFileIn(workspace *sandboxWorkspace, rel string) ([]byte, error) {
-	relative, _, err := resolveSandboxWorkspaceRelativePath(rel)
-	if err != nil {
-		return nil, err
-	}
-	return workspace.root.ReadFile(relative)
-}

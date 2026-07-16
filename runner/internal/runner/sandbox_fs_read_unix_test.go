@@ -39,7 +39,7 @@ func TestSandboxFsReadRejectsFIFOWithoutBlocking(t *testing.T) {
 	}
 }
 
-func TestSandboxFsGitRejectsWorkspacePathReplacement(t *testing.T) {
+func TestSandboxFsGitUsesPinnedWorkspaceAfterPathReplacement(t *testing.T) {
 	workspacePath := filepath.Join(t.TempDir(), "workspace")
 	require.NoError(t, os.Mkdir(workspacePath, 0o755))
 	require.NoError(t, exec.Command("git", "init", "-q", workspacePath).Run())
@@ -66,6 +66,7 @@ func TestSandboxFsGitRejectsWorkspacePathReplacement(t *testing.T) {
 	result, err := (&RunnerMessageHandler{}).sandboxFsChangesWorkspace(workspace)
 
 	require.NoError(t, err)
-	assert.Contains(t, result.GetError(), "workspace path changed")
-	assert.Empty(t, result.GetChanges())
+	require.Empty(t, result.GetError())
+	require.Len(t, result.GetChanges(), 1)
+	assert.Equal(t, "original.txt", result.GetChanges()[0].GetPath())
 }

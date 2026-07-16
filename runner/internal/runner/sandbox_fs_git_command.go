@@ -26,37 +26,32 @@ func (h *RunnerMessageHandler) runGitInWorkspace(
 ) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), gitFsTimeout)
 	defer cancel()
-	command, err := workspace.commandContext(ctx, "git", args...)
-	if err != nil {
-		return "", err
-	}
-	out, err := command.Output()
-	if err != nil {
-		return "", err
-	}
-	return string(out), nil
+	return runSandboxCommand(ctx, workspace, "git", args...)
 }
 
 func (h *RunnerMessageHandler) gitPathStatus(
 	workspace *sandboxWorkspace,
 	rel string,
-) string {
+) (string, error) {
 	out, err := h.runGitInWorkspace(workspace, "status", "--porcelain", "--", rel)
-	if err != nil || strings.TrimSpace(out) == "" {
-		return "modified"
+	if err != nil {
+		return "", err
+	}
+	if strings.TrimSpace(out) == "" {
+		return "modified", nil
 	}
 	line := strings.TrimSpace(strings.Split(out, "\n")[0])
 	if len(line) < 3 {
-		return "modified"
+		return "modified", nil
 	}
 	code := strings.TrimSpace(line[:2])
 	switch {
-	case strings.Contains(code, "?"):
-		return "created"
+	case strings.ContainsAny(code, "?ARC"):
+		return "created", nil
 	case strings.Contains(code, "D"):
-		return "deleted"
+		return "deleted", nil
 	default:
-		return "modified"
+		return "modified", nil
 	}
 }
 
@@ -74,7 +69,7 @@ func parseGitPorcelain(
 		path := strings.TrimSpace(line[3:])
 		status := "modified"
 		switch {
-		case strings.Contains(code, "?"):
+		case strings.ContainsAny(code, "?A"):
 			status = "created"
 		case strings.Contains(code, "D"):
 			status = "deleted"

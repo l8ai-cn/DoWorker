@@ -114,6 +114,27 @@ func TestReadyResultDoesNotShareSaturatedControlBuffer(t *testing.T) {
 	assert.Equal(t, "subscribe-1", result.GetCommandId())
 }
 
+func TestCorrelatedResultsDoNotShareSaturatedControlBuffer(t *testing.T) {
+	conn := NewGRPCConnection("localhost:9443", "node", "org", "", "", "")
+	setMockStream(conn)
+	for i := 0; i < cap(conn.controlCh); i++ {
+		conn.controlCh <- &runnerv1.RunnerMessage{}
+	}
+
+	require.NoError(t, conn.SendSandboxFsResult(
+		&runnerv1.SandboxFsResultEvent{RequestId: "fs-1"},
+	))
+	require.Equal(t, "fs-1", (<-conn.readyCh).GetSandboxFsResult().GetRequestId())
+	require.NoError(t, conn.SendVerificationResult(
+		&runnerv1.VerificationResultEvent{RequestId: "verify-1"},
+	))
+	require.Equal(
+		t,
+		"verify-1",
+		(<-conn.readyCh).GetVerificationResult().GetRequestId(),
+	)
+}
+
 func TestReadyCommandsHaveTracingTypes(t *testing.T) {
 	assert.Equal(t, "SubscribePod", extractServerMessageType(&runnerv1.ServerMessage{
 		Payload: &runnerv1.ServerMessage_SubscribePod{},

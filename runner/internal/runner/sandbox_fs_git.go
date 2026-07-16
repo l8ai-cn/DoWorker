@@ -95,26 +95,39 @@ func (h *RunnerMessageHandler) sandboxFsDiffWorkspace(
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
-	status := h.gitPathStatus(workspace, display)
+	status, err := h.gitPathStatus(workspace, display)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
 	var before, after *string
 	switch status {
 	case "deleted":
-		head, _ := h.runGitInWorkspace(workspace, "show", "HEAD:"+display)
+		head, showErr := h.runGitInWorkspace(workspace, "show", "HEAD:"+display)
+		if showErr != nil {
+			return fsErrResult(showErr.Error()), nil
+		}
 		b := head
 		before = &b
 	case "created":
-		if data, readErr := readSandboxWorkspaceFileIn(workspace, rel); readErr == nil {
-			s := string(data)
-			after = &s
+		data, readErr := readSandboxWorkspaceFileIn(workspace, rel)
+		if readErr != nil {
+			return fsErrResult(readErr.Error()), nil
 		}
+		s := string(data)
+		after = &s
 	default:
-		head, _ := h.runGitInWorkspace(workspace, "show", "HEAD:"+display)
+		head, showErr := h.runGitInWorkspace(workspace, "show", "HEAD:"+display)
+		if showErr != nil {
+			return fsErrResult(showErr.Error()), nil
+		}
 		b := head
 		before = &b
-		if data, readErr := readSandboxWorkspaceFileIn(workspace, rel); readErr == nil {
-			s := string(data)
-			after = &s
+		data, readErr := readSandboxWorkspaceFileIn(workspace, rel)
+		if readErr != nil {
+			return fsErrResult(readErr.Error()), nil
 		}
+		s := string(data)
+		after = &s
 	}
 	res := &runnerv1.SandboxFsResultEvent{WorkspaceRoot: workspace.displayPath()}
 	if before != nil {

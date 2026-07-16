@@ -1,10 +1,14 @@
 package runner
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/anthropics/agentsmesh/runner/internal/config"
+	"github.com/anthropics/agentsmesh/runner/internal/poddaemon"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // --- recoverDaemonSessions guard tests ---
@@ -19,6 +23,57 @@ func TestRecoverDaemonSessions_NilManager(t *testing.T) {
 	r.recoverDaemonSessions()
 
 	assert.Equal(t, 0, r.podStore.Count(), "no pods should be added when manager is nil")
+}
+
+func TestRecoverDaemonSessionsRejectsMissingWorkspaceIdentity(t *testing.T) {
+	runnerRoot := t.TempDir()
+	sandbox := filepath.Join(runnerRoot, "sandbox")
+	require.NoError(t, os.Mkdir(sandbox, 0o700))
+	require.NoError(t, poddaemon.SaveState(&poddaemon.PodDaemonState{
+		PodKey: "missing-id", SandboxPath: sandbox,
+		WorkDir: t.TempDir(), Perpetual: true,
+	}))
+	manager, err := poddaemon.NewPodDaemonManager(runnerRoot)
+	require.NoError(t, err)
+	r := &Runner{
+		cfg:              &config.Config{WorkspaceRoot: runnerRoot},
+		podDaemonManager: manager,
+		podStore:         NewInMemoryPodStore(),
+	}
+
+	r.recoverDaemonSessions()
+
+	assert.Equal(t, 0, r.podStore.Count())
+	_, err = os.Stat(poddaemon.StatePath(sandbox))
+	assert.True(t, os.IsNotExist(err))
+}
+
+func TestRecoverDaemonSessionsRejectsWorkspaceReplacement(t *testing.T) {
+	runnerRoot := t.TempDir()
+	sandbox := filepath.Join(runnerRoot, "sandbox")
+	workspace := filepath.Join(sandbox, "workspace")
+	require.NoError(t, os.MkdirAll(workspace, 0o700))
+	identity, err := poddaemon.CaptureWorkspaceIdentity(workspace)
+	require.NoError(t, err)
+	require.NoError(t, poddaemon.SaveState(&poddaemon.PodDaemonState{
+		PodKey: "replaced", SandboxPath: sandbox,
+		WorkDir: workspace, WorkspaceID: identity, Perpetual: true,
+	}))
+	require.NoError(t, os.Rename(workspace, workspace+"-moved"))
+	require.NoError(t, os.Mkdir(workspace, 0o700))
+	manager, err := poddaemon.NewPodDaemonManager(runnerRoot)
+	require.NoError(t, err)
+	r := &Runner{
+		cfg:              &config.Config{WorkspaceRoot: runnerRoot},
+		podDaemonManager: manager,
+		podStore:         NewInMemoryPodStore(),
+	}
+
+	r.recoverDaemonSessions()
+
+	assert.Equal(t, 0, r.podStore.Count())
+	_, err = os.Stat(poddaemon.StatePath(sandbox))
+	assert.True(t, os.IsNotExist(err))
 }
 
 // --- IsDraining / SetDraining with nil upgradeCoord ---

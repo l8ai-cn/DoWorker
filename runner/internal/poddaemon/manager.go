@@ -6,11 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"path/filepath"
-	"strings"
 	"time"
-
-	"github.com/anthropics/agentsmesh/runner/internal/process"
 )
 
 // PodDaemonManager manages the lifecycle of pod daemon sessions.
@@ -31,6 +27,7 @@ type CreateOpts struct {
 	Rows    int
 
 	SandboxPath    string
+	WorkspaceID    *WorkspaceIdentity
 	RepositoryURL  string
 	Branch         string
 	TicketSlug     string
@@ -71,6 +68,13 @@ func (m *PodDaemonManager) CreateSession(opts CreateOpts) (*daemonPTY, *PodDaemo
 	if opts.SandboxPath == "" {
 		return nil, nil, fmt.Errorf("sandbox path is required")
 	}
+	workspaceID, err := workspaceIdentityForSession(
+		opts.WorkDir,
+		opts.WorkspaceID,
+	)
+	if err != nil {
+		return nil, nil, fmt.Errorf("capture workspace identity: %w", err)
+	}
 
 	authToken, err := generateAuthToken()
 	if err != nil {
@@ -83,6 +87,7 @@ func (m *PodDaemonManager) CreateSession(opts CreateOpts) (*daemonPTY, *PodDaemo
 		AuthToken:      authToken,
 		SandboxPath:    opts.SandboxPath,
 		WorkDir:        opts.WorkDir,
+		WorkspaceID:    workspaceID,
 		RepositoryURL:  opts.RepositoryURL,
 		Branch:         opts.Branch,
 		TicketSlug:     opts.TicketSlug,
@@ -123,112 +128,4 @@ func (m *PodDaemonManager) CreateSession(opts CreateOpts) (*daemonPTY, *PodDaemo
 	}
 
 	return dpty, updatedState, nil
-}
-
-// waitForDaemon polls the state file until the daemon writes its IPC address,
-// then connects. It also checks if the daemon process is still alive to fail fast.
-func (m *PodDaemonManager) waitForDaemon(sandboxPath, authToken string, pid int) (*daemonPTY, *PodDaemonState, error) {
-	const maxAttempts = 50
-	const retryDelay = 100 * time.Millisecond
-
-	var lastErr error
-	for i := 0; i < maxAttempts; i++ {
-		// Read state file to check if daemon has written its address
-		state, err := LoadState(sandboxPath)
-		if err == nil && state.IPCAddr != "" {
-			// Defensive check: verify the auth token hasn't been tampered with
-			if state.AuthToken != authToken {
-				return nil, nil, fmt.Errorf("auth token mismatch in state file (possible tampering)")
-			}
-			dpty, err := connectDaemon(connectOpts{Addr: state.IPCAddr, AuthToken: authToken})
-			if err == nil {
-				return dpty, state, nil
-			}
-			lastErr = err
-		} else if err != nil {
-			lastErr = err
-		} else {
-			lastErr = fmt.Errorf("daemon has not written IPC address yet")
-		}
-
-		// Fail fast if daemon process is no longer alive
-		if pid > 0 && process.IsAlive(pid) != nil {
-			return nil, nil, fmt.Errorf("daemon process (pid %d) exited before IPC ready: %w", pid, lastErr)
-		}
-
-		time.Sleep(retryDelay)
-	}
-	return nil, nil, fmt.Errorf("daemon did not become ready within %v: %w", time.Duration(maxAttempts)*retryDelay, lastErr)
-}
-
-// AttachSession connects to an existing daemon via IPC.
-func (m *PodDaemonManager) AttachSession(state *PodDaemonState) (*daemonPTY, error) {
-	return connectDaemon(connectOpts{Addr: state.IPCAddr, AuthToken: state.AuthToken})
-}
-
-// RecoverSessions scans the sandboxes directory for existing daemon state files.
-func (m *PodDaemonManager) RecoverSessions() ([]*PodDaemonState, error) {
-	entries, err := os.ReadDir(m.sandboxesDir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("read sandboxes dir: %w", err)
-	}
-
-	var sessions []*PodDaemonState
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
-		}
-		sandboxPath := filepath.Join(m.sandboxesDir, entry.Name())
-		state, err := LoadState(sandboxPath)
-		if err != nil {
-			continue // No state file or corrupt
-		}
-		sessions = append(sessions, state)
-	}
-	return sessions, nil
-}
-
-// CleanupSession removes the state file for a session.
-// TCP loopback connections have no file artifacts to clean up.
-func (m *PodDaemonManager) CleanupSession(sandboxPath string) error {
-	return DeleteState(sandboxPath)
-}
-
-const daemonLogFile = "pod_daemon.log"
-
-// captureDaemonLog reads the daemon log and outputs to runner log for diagnostics.
-// Called when daemon fails to become ready, before sandbox cleanup destroys the log.
-func captureDaemonLog(log *slog.Logger, sandboxPath, podKey string) {
-	logPath := filepath.Join(sandboxPath, daemonLogFile)
-	data, err := os.ReadFile(logPath)
-	if err != nil {
-		log.Error("pod daemon log unavailable",
-			"pod_key", podKey, "path", logPath, "error", err)
-		return
-	}
-	if len(data) == 0 {
-		log.Error("pod daemon log is empty (daemon likely crashed before any Go code executed)",
-			"pod_key", podKey, "path", logPath)
-		return
-	}
-	const maxLen = 2048
-	if len(data) > maxLen {
-		data = data[len(data)-maxLen:]
-	}
-	log.Error("pod daemon log (process exited before IPC ready)",
-		"pod_key", podKey, "log", strings.TrimSpace(string(data)))
-}
-
-// daemonProcessStatus returns a human-readable status of the daemon process.
-func daemonProcessStatus(pid int) string {
-	if pid <= 0 {
-		return "unknown"
-	}
-	if process.IsAlive(pid) == nil {
-		return "alive"
-	}
-	return "dead"
 }
