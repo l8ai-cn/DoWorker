@@ -82,6 +82,7 @@ export function LoopBlocklyCanvas({
     const { toolbox } = createLoopBlockCatalog(messages.blockly);
     const compact = hostRef.current.clientWidth < 640;
     const workspace = Blockly.inject(hostRef.current, {
+      media: "/blockly-media/",
       toolbox,
       theme: loopTheme,
       renderer: "zelos",
