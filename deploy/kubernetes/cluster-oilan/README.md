@@ -107,11 +107,12 @@ on this cluster). Re-running seed alone does not change relay/web env — only s
 - Marketplace API: https://market.l8ai.cn/api/marketplace/v1
 - Organization marketplace: https://dowork.l8ai.cn/dev-org/marketplace
 - Admin console: https://admin.l8ai.cn (separate host — no `/admin` basePath)
+- Pod preview gateway: https://preview.l8ai.cn/preview
 - Object storage (presigned URLs): https://minio.dowork.l8ai.cn
 - Test account: `admin@agentsmesh.local / Ab123456`
 
 DNS for `dowork.l8ai.cn` / `market.l8ai.cn` / `mobile.l8ai.cn` /
-`admin.l8ai.cn` / `minio.dowork.l8ai.cn` must point at the oilan node. All
+`admin.l8ai.cn` / `preview.l8ai.cn` / `minio.dowork.l8ai.cn` must point at the oilan node. All
 public URLs share one domain family so relay/WebSocket URLs from
 `GetPodConnection` match the page origin (mixed `l8an.cn` / `l8ai.cn` hosts caused
 403 on terminal attach). Ingress-nginx may expose **NodePort 10007** (HTTP) so
@@ -141,6 +142,7 @@ validate the existing `agentsmesh` Secret.
 | `39-marketplace-web` | independent public Marketplace Storefront |
 | `release/kustomization` | immutable platform image digests |
 | `40-ingress` | ingress-nginx routes (app / admin host / relay rewrite / minio host) |
+| `44-preview-ingress` | isolated HTTPS pod preview gateway |
 | `60-prepull-daemonset` | warm agent-runtime image cache |
 
 Secrets (`agentsmesh-secrets`, `agentsmesh-pki-ca`, `agentsmesh-regcred`) and

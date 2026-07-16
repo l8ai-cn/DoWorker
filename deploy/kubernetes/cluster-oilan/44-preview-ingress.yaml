@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: agentsmesh-preview
+  namespace: agentsmesh
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: ["preview.l8ai.cn"]
+      secretName: l8ai-wildcard-tls
+  rules:
+    - host: preview.l8ai.cn
+      http:
+        paths:
+          - path: /preview
+            pathType: Prefix
+            backend:
+              service:
+                name: relay
+                port:
+                  number: 8090
