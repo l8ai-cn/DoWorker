@@ -44,24 +44,6 @@ func TestGitCloneWithAuth_SSHKey(t *testing.T) {
 	assert.Contains(t, err.Error(), "git clone with SSH key failed")
 }
 
-func TestGitCloneWithAuth_StandardSSHURL(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-
-	err := gitCloneWithAuth(
-		ctx,
-		"ssh://git@example.com:2222/owner/repo.git",
-		"",
-		t.TempDir(),
-		AuthTypeSSHKey,
-		"fake-ssh-key",
-	)
-
-	require.Error(t, err)
-	assert.NotContains(t, err.Error(), "requires git@ URL")
-	assert.Contains(t, err.Error(), "git clone with SSH key failed")
-}
-
 func TestGitCloneWithAuth_UnknownType(t *testing.T) {
 	ctx := context.Background()
 	targetDir := t.TempDir()

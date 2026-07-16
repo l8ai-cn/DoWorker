@@ -71,10 +71,10 @@ func injectGitLabPATIntoURL(repoURL, token string) (string, error) {
 }
 
 func gitCloneWithSSHKey(ctx context.Context, repoURL, branch, targetDir, sshKey string) error {
-	isGitSSH := strings.HasPrefix(repoURL, "git@") || strings.HasPrefix(repoURL, "ssh://")
+	isGitSSH := strings.HasPrefix(repoURL, "git@")
 	isLocalPath := strings.HasPrefix(repoURL, "/") || strings.HasPrefix(repoURL, ".")
 	if !isGitSSH && !isLocalPath {
-		return fmt.Errorf("SSH key auth requires git@ or ssh:// URL, got: %s", repoURL)
+		return fmt.Errorf("SSH key auth requires git@ URL, got: %s", repoURL)
 	}
 
 	tmpKeyFile, err := os.CreateTemp("", "skill-ssh-key-*")
