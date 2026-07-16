@@ -20,6 +20,7 @@ resources:
   - 32-web.yaml
   - 33-web-admin.yaml
   - 34-runner-e2e-echo.yaml
+  - 35-runner-video-studio.yaml
   - 38-marketplace.yaml
   - 39-marketplace-web.yaml
   - 42-mobile.yaml

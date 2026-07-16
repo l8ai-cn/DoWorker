@@ -191,10 +191,10 @@ var _ SkillCatalog = (*svcMockCatalog)(nil)
 // ---------------------------------------------------------------------------
 
 type svcMockStorage struct {
-	uploadFn func(ctx context.Context, key string, reader io.Reader, size int64, contentType string) (*storage.FileInfo, error)
-	deleteFn func(ctx context.Context, key string) error
-	getURLFn func(ctx context.Context, key string, expiry time.Duration) (string, error)
-	existsFn func(ctx context.Context, key string) (bool, error)
+	uploadFn   func(ctx context.Context, key string, reader io.Reader, size int64, contentType string) (*storage.FileInfo, error)
+	deleteFn   func(ctx context.Context, key string) error
+	getURLFn   func(ctx context.Context, key string, expiry time.Duration) (string, error)
+	existsFn   func(ctx context.Context, key string) (bool, error)
 	downloadFn func(ctx context.Context, key string) (io.ReadCloser, int64, error)
 }
 
@@ -264,6 +264,11 @@ func int64Ptr(v int64) *int64 { return &v }
 // fake git clone function. The fake clone creates a minimal skill directory with
 // a SKILL.md whose slug is derived from the repository URL's last path segment.
 func newTestServiceWithPackager(repo *svcMockRepo, stor *svcMockStorage, enc *crypto.Encryptor) *Service {
+	if stor.existsFn == nil {
+		stor.existsFn = func(context.Context, string) (bool, error) {
+			return false, nil
+		}
+	}
 	svc := NewService(repo, stor, enc)
 	pkg := NewSkillPackager(repo, stor)
 	pkg.gitCloneFn = func(_ context.Context, url, branch, targetDir string) error {

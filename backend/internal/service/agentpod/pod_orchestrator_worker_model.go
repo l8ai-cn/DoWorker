@@ -149,7 +149,7 @@ func workerModelHarness(agentSlug string, agentDef *agentDomain.Agent) string {
 		value = agentDef.Executable
 	}
 	switch strings.TrimSpace(value) {
-	case "codex", "codex-cli":
+	case "codex", "codex-cli", "video-studio-codex":
 		return "codex-cli"
 	case "claude", "claude-code":
 		return "claude-code"

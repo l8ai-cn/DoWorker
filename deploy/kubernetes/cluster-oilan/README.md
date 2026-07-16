@@ -11,7 +11,7 @@ with all images served from the in-cluster Harbor
 The backend runs on K8s. AI Workers are PTY processes hosted inside **Runner
 pods**:
 
-- **Standing runners** (`34-runner-e2e-echo.yaml`, `35-runner-claude.yaml`) are
+- **Standing runners** (`34-runner-e2e-echo.yaml`, `35-runner-video-studio.yaml`) are
   pre-registered in the DB seed and connect on boot — the reliable default. Creating
   a Worker from the UI spawns a PTY inside a standing runner.
 - **On-demand runners**: the backend `K8sLauncher` (`COORDINATOR_RUNNER_LAUNCHER=k8s`)
@@ -162,7 +162,7 @@ validate the existing `agentsmesh` Secret.
 | `21/22-seed*` | idempotent org/user/runner seed |
 | `30-backend*` | backend Deployment/Service + SA/RBAC (kubectl via init container) |
 | `31/32/33/42-*` | relay / web / web-admin / mobile |
-| `34/35-runner-*` | standing runner pods |
+| `34/35-runner-*` | standing e2e and video-studio runner pods |
 | `38-marketplace` | Marketplace API Deployment/Service + init migration |
 | `39-marketplace-web` | independent public Marketplace Storefront |
 | `release/kustomization` | immutable platform image digests |

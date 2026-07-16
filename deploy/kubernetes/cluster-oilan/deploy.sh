@@ -108,9 +108,10 @@ apply_all() {
 
 status() {
   echo "==> rollout status"
-  for d in backend marketplace marketplace-web relay web web-admin mobile runner-e2e-echo; do
+  for d in backend marketplace marketplace-web relay web web-admin mobile runner-e2e-echo runner-video-studio; do
     dexec "kubectl -n ${NS} rollout status deploy/${d} --timeout=240s"
   done
+  dexec "bash verify-video-runner-registration.sh"
   dexec "kubectl -n ${NS} get pods -o wide"
 }
 

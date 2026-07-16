@@ -9,6 +9,7 @@ JOB="${DIR}/25-repair-migration-208-job.yaml"
 DEPLOY="${DIR}/repair-migration-208.sh"
 HOTFIX_BUILD="${DIR}/build-backend-migration-hotfix.sh"
 HOTFIX_DOCKERFILE="${DIR}/backend-migration-hotfix.Dockerfile"
+BACKEND_MANIFEST="${DIR}/30-backend.yaml"
 
 extract_migration() {
   local version="$1"
@@ -49,10 +50,11 @@ fi
 grep -Eq 'pgvector@sha256:[a-f0-9]{64}' "${JOB}"
 grep -Eq 'backend@sha256:[a-f0-9]{64}' "${JOB}"
 grep -Fq 'EXPECTED_GO_VERSION="go1.26.2"' "${HOTFIX_BUILD}"
-grep -Fq 'EXPECTED_SERVER_SHA="3119a109efff9b7d7eab31976e7f5fa47261bd631780d417de7653b77457e472"' \
+grep -Fq 'EXPECTED_SERVER_SHA="ef31fb47fb3daf27ebd5ee0cc855600f6bdc5de73c6211cb9d4fdc6ffca23c78"' \
   "${HOTFIX_BUILD}"
-grep -Fq 'EXPECTED_IMAGE_DIGEST="sha256:22c384c72ee54fa6a2877b9b2f6eb464ad5ba16be7efa3d1474838a55e18bde7"' \
+grep -Fq 'EXPECTED_IMAGE_DIGEST="sha256:9123f3b7385bef80b379690efd642bc00d26b9dc8b082cb05ca132fdaa3dfc7b"' \
   "${HOTFIX_BUILD}"
+[[ "$(grep -Fc 'agentsmesh.ai/verified-image-digest: "sha256:9123f3b7385bef80b379690efd642bc00d26b9dc8b082cb05ca132fdaa3dfc7b"' "${BACKEND_MANIFEST}")" == "2" ]]
 grep -Fq 'docker buildx build --no-cache --provenance=false --platform linux/amd64' \
   "${HOTFIX_BUILD}"
 grep -Fq -- '--build-arg SERVER_SHA="${EXPECTED_SERVER_SHA}"' "${HOTFIX_BUILD}"

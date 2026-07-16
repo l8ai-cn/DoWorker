@@ -94,6 +94,28 @@ push_infra() {
   mirror alpine/k8s:1.28.4      kubectl:1.28
 }
 
+sync_video_runtime_release() {
+  local digest
+  digest="$(manifest_digest "${PROJ}/runner-video-studio:latest")"
+  node "${REPO_ROOT}/deploy/kubernetes/cluster-oilan/update-video-runtime-digest.mjs" \
+    "${digest}" "${REPO_ROOT}"
+  (
+    cd "${REPO_ROOT}"
+    RUNTIME_PLATFORM="${PLATFORM}" node scripts/probe-worker-runtime-locks.mjs video-studio
+    pnpm run worker-docs:sync
+    RUNTIME_PLATFORM="${PLATFORM}" \
+      bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-runtime-lock-probes.sh \
+      video-studio
+    pnpm run worker-docs:check
+    jq -e --arg platform "${PLATFORM}" '
+      .probes[] |
+      select(.worker_slug == "video-studio") |
+      .status == "available" and .platform == $platform
+    ' tools/loops/worker-onboarding/catalog-loop/evidence/runtime-lock-probes.json \
+      >/dev/null
+  )
+}
+
 push_runners() {
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh claude-code )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh codex-cli )
@@ -115,6 +137,7 @@ push_runners() {
     docker tag "do-worker/runner-${rt}:latest" "${PROJ}/runner-${rt}:latest"
     docker push "${PROJ}/runner-${rt}:latest"
   done
+  sync_video_runtime_release
 }
 
 push_video_runtime() {
@@ -124,25 +147,7 @@ push_video_runtime() {
   )
   docker tag "do-worker/runner-video-studio:latest" "${PROJ}/runner-video-studio:latest"
   docker push "${PROJ}/runner-video-studio:latest"
-  local digest
-  digest="$(manifest_digest "${PROJ}/runner-video-studio:latest")"
-  node "${REPO_ROOT}/deploy/kubernetes/cluster-oilan/update-video-runtime-digest.mjs" \
-    "${digest}" "${REPO_ROOT}"
-  (
-    cd "${REPO_ROOT}"
-    RUNTIME_PLATFORM="${PLATFORM}" node scripts/probe-worker-runtime-locks.mjs video-studio
-    pnpm run worker-docs:sync
-    RUNTIME_PLATFORM="${PLATFORM}" \
-      bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-runtime-lock-probes.sh \
-      video-studio
-    pnpm run worker-docs:check
-    jq -e --arg platform "${PLATFORM}" '
-      .probes[] |
-      select(.worker_slug == "video-studio") |
-      .status == "available" and .platform == $platform
-    ' tools/loops/worker-onboarding/catalog-loop/evidence/runtime-lock-probes.json \
-      >/dev/null
-  )
+  sync_video_runtime_release
 }
 
 main() {

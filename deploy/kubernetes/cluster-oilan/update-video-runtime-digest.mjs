@@ -30,6 +30,7 @@ function loadUpdates(root, digest) {
   const paths = {
     lock: join(root, "backend/internal/domain/workerruntime/runtime_catalog.lock.json"),
     backend: join(root, "deploy/kubernetes/cluster-oilan/30-backend.yaml"),
+    runner: join(root, "deploy/kubernetes/cluster-oilan/35-runner-video-studio.yaml"),
     prepull: join(root, "deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"),
   };
   const contents = Object.fromEntries(
@@ -62,9 +63,15 @@ function loadUpdates(root, digest) {
     new RegExp(`image: ${IMAGE}@(${DIGEST_PATTERN})`, "g"),
     "60-prepull-daemonset.yaml",
   );
+  const runnerMatch = requireSingleMatch(
+    contents.runner,
+    new RegExp(`image: ${IMAGE}@(${DIGEST_PATTERN})`, "g"),
+    "35-runner-video-studio.yaml",
+  );
   const currentDigests = new Set([
     entry.digest,
     backendMatch[1],
+    runnerMatch[1],
     prepullMatch[1],
   ]);
   if (currentDigests.size !== 1) {
@@ -82,6 +89,10 @@ function loadUpdates(root, digest) {
     {
       path: paths.backend,
       content: contents.backend.replace(backendMatch[0], `video-studio=${IMAGE}@${digest}`),
+    },
+    {
+      path: paths.runner,
+      content: contents.runner.replace(runnerMatch[0], `image: ${IMAGE}@${digest}`),
     },
     {
       path: paths.prepull,
