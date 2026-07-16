@@ -65,6 +65,8 @@ func mapServiceError(err error) error {
 	switch {
 	case errors.Is(err, service.ErrProbeUnsupported):
 		code, message = connect.CodeUnimplemented, "AI resource provider validation unsupported"
+	case errors.Is(err, service.ErrProviderEndpointUnavailable):
+		code, message = connect.CodeFailedPrecondition, "AI resource provider endpoint unavailable"
 	case errors.Is(err, service.ErrNotFound):
 		code, message = connect.CodeNotFound, "AI resource not found"
 	case errors.Is(err, service.ErrForbidden):

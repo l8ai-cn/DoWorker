@@ -100,10 +100,14 @@ function matchesModelFamily(
   requirement: ToolModelRequirement,
   modelID: string | undefined,
 ): boolean {
-  if (providerKey === "doubao" && requirement.capability === "video-generation") {
+  if (isSeedanceVideoProvider(providerKey) && requirement.capability === "video-generation") {
     return modelID?.trim().startsWith("doubao-seedance-") ?? false;
   }
   return true;
+}
+
+function isSeedanceVideoProvider(providerKey: string): boolean {
+  return providerKey === "doubao" || providerKey === "sub2api-seedance";
 }
 
 function marketplaceToolResource(

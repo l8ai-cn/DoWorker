@@ -43,6 +43,8 @@ var providerRegistry = mustProviderRegistry([]ProviderDefinition{
 		modalities(ModalityChat, ModalityImage, ModalityAudio, ModalityVideo, ModalityEmbedding, ModalityMultimodal), apiKey()),
 	provider("doubao", "Volcengine Doubao", "https://ark.cn-beijing.volces.com/api/v3", "openai-compatible", false, false,
 		modalities(ModalityChat, ModalityImage, ModalityAudio, ModalityVideo, ModalityEmbedding, ModalityMultimodal), apiKey()),
+	provider("sub2api-seedance", "Sub2API Seedance", "https://token.aiedulab.cn/api/v3", "ark-seedance", false, false,
+		modalities(ModalityVideo), apiKey()),
 	provider("deepseek", "DeepSeek", "https://api.deepseek.com", "openai-compatible", false, true,
 		modalities(ModalityChat), apiKey()),
 	provider("zhipu", "Zhipu AI", "https://open.bigmodel.cn/api/paas/v4", "openai-compatible", false, false,

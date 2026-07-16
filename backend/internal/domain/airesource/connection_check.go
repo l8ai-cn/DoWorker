@@ -33,6 +33,8 @@ func connectionCheck(providerKey string) ConnectionCheck {
 		return bearerCheck("/models", "api_key")
 	case "doubao":
 		return bearerCheck("/contents/generations/tasks", "api_key")
+	case "sub2api-seedance":
+		return bearerCheck("/contents/generations/tasks", "api_key")
 	case "anthropic":
 		return headerCheck("/v1/models", "api_key", "x-api-key", StaticHeader{Name: "anthropic-version", Value: "2023-06-01"})
 	case "gemini":
