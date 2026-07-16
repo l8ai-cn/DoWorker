@@ -8,6 +8,7 @@ PRECONDITIONS="${DIR}/24-repair-migration-208-preconditions.sql"
 JOB="${DIR}/25-repair-migration-208-job.yaml"
 DEPLOY="${DIR}/repair-migration-208.sh"
 HOTFIX_BUILD="${DIR}/build-backend-migration-hotfix.sh"
+HOTFIX_DOCKERFILE="${DIR}/backend-migration-hotfix.Dockerfile"
 
 extract_migration() {
   local version="$1"
@@ -48,10 +49,22 @@ fi
 grep -Eq 'pgvector@sha256:[a-f0-9]{64}' "${JOB}"
 grep -Eq 'backend@sha256:[a-f0-9]{64}' "${JOB}"
 grep -Fq 'EXPECTED_GO_VERSION="go1.26.2"' "${HOTFIX_BUILD}"
-grep -Fq 'EXPECTED_SERVER_SHA="ad4f5c8df61f08b98fee8a59732b3e10b73011f1f768acec047b46ca94f76d91"' \
+grep -Fq 'EXPECTED_SERVER_SHA="3119a109efff9b7d7eab31976e7f5fa47261bd631780d417de7653b77457e472"' \
   "${HOTFIX_BUILD}"
-grep -Fq 'EXPECTED_IMAGE_DIGEST="sha256:fa58ff8756f5052ee48026f6fd20500e49ac0b464e655c24d34fc23fdba972e6"' \
+grep -Fq 'EXPECTED_IMAGE_DIGEST="sha256:22c384c72ee54fa6a2877b9b2f6eb464ad5ba16be7efa3d1474838a55e18bde7"' \
   "${HOTFIX_BUILD}"
+grep -Fq 'docker buildx build --no-cache --provenance=false --platform linux/amd64' \
+  "${HOTFIX_BUILD}"
+grep -Fq -- '--build-arg SERVER_SHA="${EXPECTED_SERVER_SHA}"' "${HOTFIX_BUILD}"
+grep -Fq 'SOURCE_DATE_EPOCH="1784193000"' "${HOTFIX_BUILD}"
+grep -Fq -- '--build-arg SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}"' \
+  "${HOTFIX_BUILD}"
+grep -Fq 'COPY --chown=1000:1000 server-${SERVER_SHA} /app/server' \
+  "${HOTFIX_DOCKERFILE}"
+grep -Fq 'rewrite-timestamp=true' "${HOTFIX_BUILD}"
+grep -Fq 'type=oci,dest=${OCI_ARCHIVE}' "${HOTFIX_BUILD}"
+grep -Fq 'docker load -i "${OCI_ARCHIVE}"' "${HOTFIX_BUILD}"
+grep -Fq 'docker cp "${container_id}:/app/server"' "${HOTFIX_BUILD}"
 grep -Fq 'migration-208-${RUN_ID}' "${DEPLOY}"
 grep -Fq "kubectl create -f -" "${DEPLOY}"
 grep -Fq "create configmap migration-208-repair-lock" "${DEPLOY}"

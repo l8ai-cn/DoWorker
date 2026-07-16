@@ -47,7 +47,8 @@ data:
   STORAGE_REGION: "us-east-1"
   STORAGE_BUCKET: "agentsmesh"
   STORAGE_ACCESS_KEY: "minioadmin"
-  STORAGE_USE_SSL: "true"
+  STORAGE_USE_SSL: "false"
+  STORAGE_PUBLIC_USE_SSL: "true"
   STORAGE_USE_PATH_STYLE: "true"
   STORAGE_MAX_FILE_SIZE: "10"
 

@@ -203,6 +203,32 @@ func TestNewS3Storage_HTTPEndpoint(t *testing.T) {
 	}
 }
 
+func TestNewS3StorageUsesHTTPSForPublicEndpointOnly(t *testing.T) {
+	cfg := S3Config{
+		Endpoint:       "minio:9000",
+		PublicEndpoint: "minio.example.com",
+		Region:         "us-east-1",
+		Bucket:         "agentsmesh",
+		AccessKey:      "key",
+		SecretKey:      "secret",
+		UseSSL:         false,
+		PublicUseSSL:   true,
+		UsePathStyle:   true,
+	}
+
+	storage, err := NewS3Storage(cfg)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if storage.endpoint != "http://minio:9000" {
+		t.Fatalf("unexpected internal endpoint: %s", storage.endpoint)
+	}
+	if storage.publicEndpoint != "https://minio.example.com" {
+		t.Fatalf("unexpected public endpoint: %s", storage.publicEndpoint)
+	}
+}
+
 func TestNewS3Storage_RunnerEndpointFallsBackWhenEmpty(t *testing.T) {
 	cfg := S3Config{
 		Endpoint:     "localhost:9000",

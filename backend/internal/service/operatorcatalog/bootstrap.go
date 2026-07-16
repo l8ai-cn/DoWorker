@@ -173,13 +173,12 @@ func platformSkillRequest(
 	definition SkillDefinition,
 ) *skillsvc.EnsurePlatformSkillRequest {
 	return &skillsvc.EnsurePlatformSkillRequest{
-		RepositoryOwnerOrganizationID: request.OrganizationID,
-		UserID:                        request.PublisherUserID,
-		Slug:                          definition.Slug,
-		Name:                          definition.Name,
-		Description:                   definition.Description,
-		License:                       definition.License,
-		Instructions:                  definition.Instructions,
-		Tags:                          definition.Tags,
+		UserID:       request.PublisherUserID,
+		Slug:         definition.Slug,
+		Name:         definition.Name,
+		Description:  definition.Description,
+		License:      definition.License,
+		Instructions: definition.Instructions,
+		Tags:         definition.Tags,
 	}
 }

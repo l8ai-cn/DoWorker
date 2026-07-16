@@ -4,6 +4,7 @@ set -euo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 JOB="${DIR}/26-operator-catalog-bootstrap-job.yaml"
 DEPLOY="${DIR}/deploy.sh"
+CONFIG="${DIR}/02-configmap.yaml"
 
 grep -Fq "name: operator-catalog-bootstrap" "${JOB}"
 grep -Fq "image: __BACKEND_IMAGE__" "${JOB}"
@@ -19,6 +20,8 @@ grep -Fq "secretName: agentsmesh-pki-ca" "${JOB}"
 grep -Fq "mountPath: /data" "${JOB}"
 grep -Fq "bootstrap_operator_catalog" "${DEPLOY}"
 grep -Fq "job/operator-catalog-bootstrap" "${DEPLOY}"
+grep -Fq 'STORAGE_USE_SSL: "false"' "${CONFIG}"
+grep -Fq 'STORAGE_PUBLIC_USE_SSL: "true"' "${CONFIG}"
 
 if grep -Fq "26-operator-catalog-bootstrap-job.yaml" \
   "${DIR}/kustomization.yaml"; then

@@ -112,7 +112,7 @@ func TestBootstrapVideoExpertsRejectsChangedRuntimeBindings(t *testing.T) {
 
 func TestBootstrapVideoExpertsRejectsTypedNilDependency(t *testing.T) {
 	bootstrapper := NewBootstrapper(
-		(*skillsvc.Service)(nil),
+		(*skillsvc.PlatformCatalogService)(nil),
 		newBootstrapExpertStore(),
 		&bootstrapWorkerPreparer{},
 		&bootstrapSnapshotStore{},

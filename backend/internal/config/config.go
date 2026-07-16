@@ -45,6 +45,7 @@ func Load() (*Config, error) {
 	publicWebURL := getEnv("PUBLIC_WEB_URL", "")
 	mobilePublicURL := getEnv("MOBILE_PUBLIC_BASE_URL", "")
 	useHTTPS := getEnvBool("USE_HTTPS", false)
+	storageUseSSL := getEnvBool("STORAGE_USE_SSL", true)
 	previewPublicOrigin, err := loadPreviewPublicOrigin(primaryDomain, publicWebURL, mobilePublicURL, useHTTPS)
 	if err != nil {
 		return nil, err
@@ -150,7 +151,8 @@ func Load() (*Config, error) {
 			Bucket:         getEnv("STORAGE_BUCKET", "agentsmesh"),
 			AccessKey:      getEnv("STORAGE_ACCESS_KEY", ""),
 			SecretKey:      getEnv("STORAGE_SECRET_KEY", ""),
-			UseSSL:         getEnvBool("STORAGE_USE_SSL", true),
+			UseSSL:         storageUseSSL,
+			PublicUseSSL:   getEnvBool("STORAGE_PUBLIC_USE_SSL", storageUseSSL),
 			UsePathStyle:   getEnvBool("STORAGE_USE_PATH_STYLE", false),
 			MaxFileSize:    int64(getEnvInt("STORAGE_MAX_FILE_SIZE", 10)),
 			AllowedTypes:   getEnvList("STORAGE_ALLOWED_TYPES", []string{"image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"}),

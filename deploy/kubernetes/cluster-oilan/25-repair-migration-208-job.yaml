@@ -45,7 +45,7 @@ spec:
               readOnly: true
       containers:
         - name: finish-migrations
-          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:fa58ff8756f5052ee48026f6fd20500e49ac0b464e655c24d34fc23fdba972e6
+          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:22c384c72ee54fa6a2877b9b2f6eb464ad5ba16be7efa3d1474838a55e18bde7
           imagePullPolicy: Always
           command:
             - sh

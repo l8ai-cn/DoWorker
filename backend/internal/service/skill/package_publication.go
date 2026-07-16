@@ -27,8 +27,26 @@ func (s *Service) publishPreparedPackage(
 	persist packagePersist,
 	compensate packageCompensate,
 ) (conflict bool, err error) {
+	return publishPreparedPackage(
+		ctx,
+		store,
+		s.packager,
+		prepared,
+		persist,
+		compensate,
+	)
+}
+
+func publishPreparedPackage(
+	ctx context.Context,
+	store skilldom.Repository,
+	packager SkillPackagerBridge,
+	prepared *extensionsvc.PreparedSkill,
+	persist packagePersist,
+	compensate packageCompensate,
+) (conflict bool, err error) {
 	err = store.WithPackageLock(ctx, prepared.StorageKey, func(locked skilldom.Repository) error {
-		pkg, storeErr := s.packager.StorePrepared(ctx, prepared)
+		pkg, storeErr := packager.StorePrepared(ctx, prepared)
 		if storeErr != nil {
 			return fmt.Errorf("skill: store package: %w", storeErr)
 		}
@@ -51,6 +69,16 @@ func (s *Service) cleanupCreatedPackage(
 	pkg *extensionsvc.PackagedSkill,
 	cause error,
 ) error {
+	return cleanupCreatedPackage(ctx, store, s.packager, pkg, cause)
+}
+
+func cleanupCreatedPackage(
+	ctx context.Context,
+	store skilldom.Repository,
+	packager SkillPackagerBridge,
+	pkg *extensionsvc.PackagedSkill,
+	cause error,
+) error {
 	if pkg == nil || pkg.StorageKey == "" || !pkg.Created {
 		return cause
 	}
@@ -62,7 +90,7 @@ func (s *Service) cleanupCreatedPackage(
 	if referenced {
 		return cause
 	}
-	if err := s.packager.DeletePackage(cleanupCtx, pkg.StorageKey); err != nil {
+	if err := packager.DeletePackage(cleanupCtx, pkg.StorageKey); err != nil {
 		return errors.Join(
 			cause,
 			fmt.Errorf("skill: delete unreferenced package: %w", err),
