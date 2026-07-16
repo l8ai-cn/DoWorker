@@ -4,6 +4,9 @@ import (
 	"os"
 	"os/exec"
 	"time"
+
+	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/anthropics/agentsmesh/runner/internal/safego"
 )
 
 // LauncherSubcommand is the first argument the runner inspects in main(). When
@@ -38,6 +41,18 @@ type daemonProcess struct {
 	launcherPID int       // 0 on Windows
 	stopTimeout time.Duration
 	pollEvery   time.Duration
+}
+
+func (p *daemonProcess) startLifecycle() {
+	if p.launcherCmd != nil {
+		safego.Go("processmgr-launcher-wait-"+p.Owner(), func() {
+			if err := p.launcherCmd.Wait(); err != nil {
+				logger.Runner().Warn("processmgr: launcher wait error",
+					"owner", p.Owner(), "launcher_pid", p.launcherPID, "err", err)
+			}
+		})
+	}
+	safego.Go("processmgr-daemon-monitor-"+p.Owner(), p.monitorLoop)
 }
 
 // monitorLoop is what makes Done() semantics consistent across modes. Without
