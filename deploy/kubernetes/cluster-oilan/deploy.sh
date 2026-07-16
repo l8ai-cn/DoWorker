@@ -44,6 +44,8 @@ ensure_tls_secret() {
     dexec "kubectl get secret ${tls} -n default -o yaml | sed -e '/namespace:/d' -e '/resourceVersion:/d' -e '/uid:/d' -e '/creationTimestamp:/d' | kubectl apply -n ${NS} -f -"
   fi
   dexec "test \"\$(kubectl -n ${NS} get secret ${tls} -o jsonpath='{.type}')\" = kubernetes.io/tls"
+  dexec "kubectl -n ${NS} get secret ${tls} -o jsonpath='{.data.tls\\.crt}' | base64 -d | openssl x509 -checkhost preview.l8ai.cn -noout"
+  dexec "getent ahostsv4 preview.l8ai.cn >/dev/null"
 }
 
 sync_worker_definitions() {
@@ -84,7 +86,7 @@ main() {
   push_manifests
   apply_all
   status
-  echo "==> deployed. https://dowork.l8ai.cn · https://market.l8ai.cn · https://mobile.l8ai.cn (admin@agentsmesh.local / Ab123456)"
+  echo "==> deployed. https://dowork.l8ai.cn · https://market.l8ai.cn · https://mobile.l8ai.cn · https://preview.l8ai.cn (admin@agentsmesh.local / Ab123456)"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
