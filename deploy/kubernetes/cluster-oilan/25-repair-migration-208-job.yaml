@@ -45,7 +45,7 @@ spec:
               readOnly: true
       containers:
         - name: finish-migrations
-          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:c160059c60e2b9d6b8d99b4919ca90ec6fae570d69787c49fce9a9aa498e7a42
+          image: repo.aiedulab.cn:8443/agentsmesh/backend@sha256:fa58ff8756f5052ee48026f6fd20500e49ac0b464e655c24d34fc23fdba972e6
           imagePullPolicy: Always
           command:
             - sh
@@ -57,6 +57,9 @@ spec:
               case "$version" in
                 "208 (dirty=true)")
                   /app/server migrate force 208
+                  ;;
+                "222 (dirty=true)")
+                  /app/server migrate force 221
                   ;;
                 "222 (dirty=false)")
                   printf '%s\n' "$version"

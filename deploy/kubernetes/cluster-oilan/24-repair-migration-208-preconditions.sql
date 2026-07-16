@@ -17,7 +17,7 @@ BEGIN
       AND table_name = 'agents'
       AND column_name = 'adapter_id'
   ) INTO adapter_column_exists;
-  IF migration_dirty AND migration_version <> 208 THEN
+  IF migration_dirty AND migration_version NOT IN (208, 222) THEN
     RAISE EXCEPTION 'refusing unrelated dirty migration %', migration_version;
   END IF;
   IF NOT migration_dirty
@@ -26,6 +26,13 @@ BEGIN
   END IF;
   IF NOT migration_dirty AND NOT adapter_column_exists THEN
     RAISE EXCEPTION 'clean migration state is missing agents.adapter_id';
+  END IF;
+  IF migration_dirty AND migration_version = 222
+    AND (
+      NOT adapter_column_exists
+      OR EXISTS (SELECT 1 FROM agents WHERE slug = 'video-studio')
+    ) THEN
+    RAISE EXCEPTION 'dirty migration 222 is not in the expected rolled-back state';
   END IF;
 
   SELECT md5(pg_get_constraintdef(constraint_record.oid))

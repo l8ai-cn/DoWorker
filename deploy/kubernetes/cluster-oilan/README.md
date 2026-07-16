@@ -58,6 +58,16 @@ The repair asserts migrations 205-206, applies the repository-exact 207-208 SQL,
 uses the pinned Backend image to mark 208 clean and migrate through 222, then
 removes its Job and ConfigMap. It is intentionally excluded from kustomize.
 
+The migration 222 Backend hotfix is reproducibly built from the prior immutable
+runtime image when Docker Hub is unavailable:
+
+```bash
+./build-backend-migration-hotfix.sh
+```
+
+The script locks the Go version, linux/amd64 target, Server checksum, base image,
+and resulting image digest before updating the Harbor `latest` tag.
+
 For the mobile Worker access path, do not run the full reconcile when unrelated
 workloads are newer in the cluster. Build the three affected images, pin their
 immutable digests in `30-backend.yaml`, `31-relay.yaml`, and `42-mobile.yaml`,

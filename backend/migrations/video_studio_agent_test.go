@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestMigration000213VideoStudioAgent(t *testing.T) {
+func TestMigration000222VideoStudioAgent(t *testing.T) {
 	up, err := FS.ReadFile("000222_add_video_studio_agent.up.sql")
 	if err != nil {
 		t.Fatalf("read up migration: %v", err)
@@ -15,6 +15,8 @@ func TestMigration000213VideoStudioAgent(t *testing.T) {
 		"'video-studio'",
 		"'Video Studio'",
 		"'video-studio-codex'",
+		"    adapter_id,\n    is_builtin,",
+		"    'video-studio-codex',\n    adapter_id,",
 		"FROM agents",
 		"WHERE slug = 'codex-cli'",
 		"RAISE EXCEPTION",
