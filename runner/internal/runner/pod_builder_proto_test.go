@@ -36,6 +36,15 @@ func TestBuild_PromptAppend(t *testing.T) {
 	assert.Equal(t, "Review code", last, "prompt should be last arg")
 }
 
+func TestBuild_PromptAfterFirst(t *testing.T) {
+	cmd := protoCmd("hermes", []string{"--oneshot", "--provider", "openai"})
+	cmd.Prompt = "Reply with READY."
+	cmd.PromptPosition = "after_first"
+
+	pod := buildAndCleanup(t, cmd)
+	assert.Equal(t, []string{"--oneshot", "Reply with READY.", "--provider", "openai"}, pod.LaunchArgs)
+}
+
 func TestBuild_PromptNone(t *testing.T) {
 	cmd := protoCmd("echo", []string{"--flag"})
 	cmd.Prompt = "Should not appear"

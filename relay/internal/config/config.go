@@ -31,8 +31,9 @@ type Config struct {
 	// Unified Domain Configuration - Single source of truth for public URLs
 	// If PRIMARY_DOMAIN is set, RELAY_URL is derived as ws(s)://{PRIMARY_DOMAIN}/relay
 	// =============================================================================
-	PrimaryDomain string `mapstructure:"primary_domain"` // e.g., "localhost:10000" or "agentsmesh.ai"
-	UseHTTPS      bool   `mapstructure:"use_https"`      // Use wss:// instead of ws://
+	PrimaryDomain       string `mapstructure:"primary_domain"` // e.g., "localhost:10000" or "agentsmesh.ai"
+	UseHTTPS            bool   `mapstructure:"use_https"`      // Use wss:// instead of ws://
+	PreviewPublicOrigin string `mapstructure:"preview_public_origin"`
 
 	// Tunnel/proxy (HTTP data plane) configuration.
 	Tunnel TunnelConfig `mapstructure:"tunnel"`
@@ -94,8 +95,8 @@ type SessionConfig struct {
 // RelayConfig holds relay identity configuration
 type RelayConfig struct {
 	ID       string `mapstructure:"id"`
-	Name     string `mapstructure:"name"`    // Relay name for DNS auto-registration (e.g., "us-east-1")
-	URL      string `mapstructure:"url"`     // Public URL for browsers and runners (auto-generated from PRIMARY_DOMAIN)
+	Name     string `mapstructure:"name"` // Relay name for DNS auto-registration (e.g., "us-east-1")
+	URL      string `mapstructure:"url"`  // Public URL for browsers and runners (auto-generated from PRIMARY_DOMAIN)
 	Region   string `mapstructure:"region"`
 	Capacity int    `mapstructure:"capacity"`
 	AutoIP   bool   `mapstructure:"auto_ip"` // Auto-detect public IP for DNS registration
@@ -143,12 +144,13 @@ func Load() (*Config, error) {
 	// Map specific environment variables
 	envMappings := map[string]string{
 		// Unified domain configuration
-		"PRIMARY_DOMAIN": "primary_domain",
-		"USE_HTTPS":      "use_https",
+		"PRIMARY_DOMAIN":        "primary_domain",
+		"USE_HTTPS":             "use_https",
+		"PREVIEW_PUBLIC_ORIGIN": "preview_public_origin",
 		// Server
-		"SERVER_HOST":  "server.host",
-		"SERVER_PORT":  "server.port",
-		"TLS_ENABLED":  "server.tls.enabled",
+		"SERVER_HOST":   "server.host",
+		"SERVER_PORT":   "server.port",
+		"TLS_ENABLED":   "server.tls.enabled",
 		"TLS_CERT_FILE": "server.tls.cert_file",
 		"TLS_KEY_FILE":  "server.tls.key_file",
 		// JWT
@@ -167,12 +169,12 @@ func Load() (*Config, error) {
 		"OUTPUT_BUFFER_SIZE":         "session.output_buffer_size",
 		"OUTPUT_BUFFER_COUNT":        "session.output_buffer_count",
 		// Relay identity
-		"RELAY_ID":           "relay.id",
-		"RELAY_NAME":         "relay.name",
-		"RELAY_URL":          "relay.url",
-		"RELAY_REGION":       "relay.region",
-		"RELAY_CAPACITY":     "relay.capacity",
-		"RELAY_AUTO_IP":      "relay.auto_ip",
+		"RELAY_ID":       "relay.id",
+		"RELAY_NAME":     "relay.name",
+		"RELAY_URL":      "relay.url",
+		"RELAY_REGION":   "relay.region",
+		"RELAY_CAPACITY": "relay.capacity",
+		"RELAY_AUTO_IP":  "relay.auto_ip",
 		// Tunnel / origin
 		"ALLOWED_ORIGINS":            "allowed_origins",
 		"TUNNEL_ENABLED":             "tunnel.enabled",
@@ -222,6 +224,12 @@ func Load() (*Config, error) {
 	if cfg.Backend.InternalAPISecret == "" {
 		return nil, fmt.Errorf("INTERNAL_API_SECRET is required")
 	}
+
+	previewPublicOrigin, err := normalizePreviewPublicOrigin(cfg.PreviewPublicOrigin, cfg.PrimaryDomain, cfg.UseHTTPS)
+	if err != nil {
+		return nil, err
+	}
+	cfg.PreviewPublicOrigin = previewPublicOrigin
 
 	if cfg.Relay.ID == "" {
 		// Generate a default ID based on hostname

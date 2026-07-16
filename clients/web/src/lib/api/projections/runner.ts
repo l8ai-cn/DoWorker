@@ -23,5 +23,14 @@ export function runnerToCache(r: ProtoRunner): RunnerData {
     tags: r.tags?.length ? r.tags : undefined,
     created_at: r.createdAt,
     updated_at: r.updatedAt,
+    cluster_id: r.clusterId > BigInt(0) ? Number(r.clusterId) : undefined,
+    tunnel_state:
+      r.tunnelState === ""
+        ? undefined
+        : r.tunnelState === "connected" || r.tunnelState === "disconnected"
+          ? r.tunnelState
+          : "unknown",
+    tunnel_last_seen_at: r.tunnelLastSeenAt,
+    tunnel_last_error: r.tunnelLastError,
   };
 }

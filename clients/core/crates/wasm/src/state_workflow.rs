@@ -4,8 +4,8 @@ use agentsmesh_state::app_state::AppState;
 use agentsmesh_state::workflow_state::WorkflowRunData;
 use agentsmesh_types::proto_workflow_state_v1::{
     ClearCurrentWorkflowRequest, ClearWorkflowRunsRequest, InsertWorkflowRunRequest,
-    PatchWorkflowFromActionRequest, PatchWorkflowRunStatusRequest, ReplaceCachedWorkflowsRequest,
-    ReplaceCachedWorkflowRunsRequest, SetCurrentWorkflowRequest,
+    PatchWorkflowFromActionRequest, PatchWorkflowRunStatusRequest,
+    ReplaceCachedWorkflowRunsRequest, ReplaceCachedWorkflowsRequest, SetCurrentWorkflowRequest,
 };
 use agentsmesh_types::proto_workflow_v1::{
     ListWorkflowRunsResponse, ListWorkflowsResponse, Workflow as ProtoWorkflow,
@@ -14,7 +14,9 @@ use parking_lot::RwLock;
 use prost::Message;
 use wasm_bindgen::prelude::*;
 
-use crate::state_workflow_proto::{workflow_from_proto, workflow_to_proto, run_from_proto, run_to_proto};
+use crate::state_workflow_proto::{
+    run_from_proto, run_to_proto, workflow_from_proto, workflow_to_proto,
+};
 
 #[wasm_bindgen]
 pub struct WasmWorkflowState {
@@ -92,7 +94,10 @@ impl WasmWorkflowState {
 
     pub fn current_workflow_bytes(&self) -> Vec<u8> {
         match self.state.read().workflows.get_current_workflow() {
-            Some(l) => SetCurrentWorkflowRequest { workflow: Some(workflow_to_proto(l)) }.encode_to_vec(),
+            Some(l) => SetCurrentWorkflowRequest {
+                workflow: Some(workflow_to_proto(l)),
+            }
+            .encode_to_vec(),
             None => Vec::new(),
         }
     }
@@ -123,7 +128,10 @@ impl WasmWorkflowState {
     pub fn set_current_workflow(&self, req_bytes: &[u8]) -> Result<(), JsValue> {
         let req = SetCurrentWorkflowRequest::decode(req_bytes).map_err(decode_err)?;
         let workflow_data = req.workflow.map(workflow_from_proto);
-        self.state.write().workflows.set_current_workflow(workflow_data);
+        self.state
+            .write()
+            .workflows
+            .set_current_workflow(workflow_data);
         Ok(())
     }
 

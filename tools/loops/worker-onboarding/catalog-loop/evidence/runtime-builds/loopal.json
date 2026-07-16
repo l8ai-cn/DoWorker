@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "worker_slug": "loopal",
+  "validated_at": "2026-07-12T19:01:34Z",
+  "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh loopal",
+  "verdict": "blocked_missing_real_artifact",
+  "observed_failure": "The ignored deploy/dev/loopal-binary contains runner/internal/agents/mockagent symbols and does not implement the formal loopal --version probe.",
+  "required_input": "Set LOOPAL_BINARY to a versioned real Loopal CLI artifact that does not contain mockagent symbols.",
+  "limits": [
+    "The previously built loopal image is invalid evidence and must not be used.",
+    "No Runner, credential, provider, or browser path was accepted."
+  ]
+}

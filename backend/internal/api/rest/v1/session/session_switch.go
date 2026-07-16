@@ -38,7 +38,7 @@ func (d *Deps) handleSwitchAgent(c *gin.Context) {
 	}
 	newPod, err := d.rebuildSessionPod(c, row, pod, body.AgentID)
 	if err != nil {
-		writeSwitchAgentError(c, err)
+		writeSessionPodError(c, err)
 		return
 	}
 	row.AgentSlug = body.AgentID
@@ -102,7 +102,7 @@ func (d *Deps) rebuildSessionPod(c *gin.Context, row *domain.Session, pod *podDo
 
 var errSwitchUnavailable = errors.New("switch unavailable")
 
-func writeSwitchAgentError(c *gin.Context, err error) {
+func writeSessionPodError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, agentpod.ErrNoAvailableRunner):
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "runner unavailable", "code": "runner_unavailable"})

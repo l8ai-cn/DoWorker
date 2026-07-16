@@ -76,7 +76,7 @@ const connections = [{
       defaultModalities: [],
       status: "invalid",
       isEnabled: false,
-      validationError: "Invalid API key",
+      validationError: "credentials rejected",
     },
   ],
 }];
@@ -101,12 +101,12 @@ describe("AIResourcesSettings", () => {
     expect(screen.getByRole("dialog", { name: "settings.aiResources.connection.createTitle" })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "settings.aiResources.connection.provider" }));
     fireEvent.click(screen.getByRole("option", { name: "OpenAI" }));
-    expect(screen.getByLabelText("API Key")).toHaveAttribute("type", "password");
+    expect(screen.getByLabelText("settings.aiResources.connection.credentials.apiKey")).toHaveAttribute("type", "password");
     const create = screen.getByRole("button", { name: "settings.aiResources.connection.create" });
     expect(create).toBeDisabled();
     fireEvent.change(screen.getByLabelText("settings.aiResources.connection.name"), { target: { value: "OpenAI" } });
     fireEvent.change(screen.getByLabelText("settings.aiResources.connection.identifier"), { target: { value: "openai" } });
-    fireEvent.change(screen.getByLabelText("API Key"), { target: { value: "sk-test" } });
+    fireEvent.change(screen.getByLabelText("settings.aiResources.connection.credentials.apiKey"), { target: { value: "sk-test" } });
     expect(create).toBeEnabled();
   });
 
@@ -201,14 +201,14 @@ describe("AIResourcesSettings", () => {
     fireEvent.click(screen.getByRole("option", { name: "OpenAI" }));
     fireEvent.change(screen.getByLabelText("settings.aiResources.connection.name"), { target: { value: "OpenAI" } });
     fireEvent.change(screen.getByLabelText("settings.aiResources.connection.identifier"), { target: { value: "openai" } });
-    fireEvent.change(screen.getByLabelText("API Key"), { target: { value: "sk-test" } });
+    fireEvent.change(screen.getByLabelText("settings.aiResources.connection.credentials.apiKey"), { target: { value: "sk-test" } });
     fireEvent.click(screen.getByRole("button", { name: "common.cancel" }));
 
     fireEvent.click(screen.getByRole("button", { name: "settings.aiResources.addConnection" }));
     fireEvent.click(screen.getByRole("button", { name: "settings.aiResources.connection.provider" }));
     fireEvent.click(screen.getByRole("option", { name: "OpenAI" }));
     expect(screen.getByLabelText("settings.aiResources.connection.name")).toHaveValue("");
-    expect(screen.getByLabelText("API Key")).toHaveValue("");
+    expect(screen.getByLabelText("settings.aiResources.connection.credentials.apiKey")).toHaveValue("");
   });
 
   it("clears model resource fields when the dialog closes", async () => {
@@ -301,6 +301,7 @@ describe("AIResourcesSettings", () => {
     expect(screen.getByText("GPT Image")).toBeVisible();
     expect(screen.getByText("settings.aiResources.status.invalid")).toBeVisible();
     expect(screen.getByText("settings.aiResources.status.disabled")).toBeVisible();
+    expect(screen.getByText("settings.aiResources.validation.credentialsRejected")).toBeVisible();
 
     fireEvent.click(screen.getByRole("tab", { name: "settings.aiResources.modality.chat" }));
     expect(screen.getByText("GPT-4.1")).toBeVisible();
@@ -370,7 +371,7 @@ describe("AIResourcesSettings", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: "settings.aiResources.validate" }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("settings.aiResources.operationError");
+    expect(await screen.findByText("settings.aiResources.operationError")).toBeVisible();
     expect(screen.getByText("OpenAI production")).toBeVisible();
   });
 });

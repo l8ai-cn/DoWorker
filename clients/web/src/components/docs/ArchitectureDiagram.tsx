@@ -117,15 +117,14 @@ export default function ArchitectureDiagram() {
         <Arrow label="PTY + Sandbox + Git Worktree" />
 
         <LayerBox
-          label={t("agentLayer")}
+          label={t("workerLayer")}
           color="rose"
           items={[
-            { icon: "🤖", text: "Claude Code" },
-            { icon: "🤖", text: "Codex CLI" },
-            { icon: "🤖", text: "Gemini CLI" },
-            { icon: "🤖", text: "Aider" },
+            { icon: "📜", text: t("workerDefinition") },
+            { icon: "🔒", text: t("runtimeCatalog") },
+            { icon: "✓", text: t("evidenceMatrix") },
           ]}
-          subtitle={t("agentSubtitle")}
+          subtitle={t("workerSubtitle")}
         />
 
         <div className="mt-4 w-full border border-warning/30 rounded-lg bg-warning/5 px-4 py-3">

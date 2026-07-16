@@ -4,7 +4,6 @@ import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCurrentUser, useCurrentOrg } from "@/stores/auth";
 
 function resolveEnv(val: string | undefined): string {
   if (!val || val.startsWith("__")) return "";
@@ -38,40 +37,6 @@ function PostHogPageView() {
       ph.capture("$pageview", { $current_url: url });
     }
   }, [pathname, searchParams, ph]);
-
-  return null;
-}
-
-// User/org identification — uses wasm hooks, so MUST be mounted only inside
-// (dashboard) / (auth) where wasm is loaded. Marketing pages must not import.
-export function PostHogIdentify() {
-  const ph = usePostHog();
-  const user = useCurrentUser();
-  const currentOrg = useCurrentOrg();
-
-  useEffect(() => {
-    if (!ph) return;
-
-    if (user) {
-      ph.identify(String(user.id), {
-        email: user.email,
-        username: user.username,
-        name: user.name,
-      });
-    } else {
-      ph.reset();
-    }
-  }, [ph, user]);
-
-  useEffect(() => {
-    if (!ph || !currentOrg) return;
-
-    ph.group("organization", String(currentOrg.id), {
-      name: currentOrg.name,
-      slug: currentOrg.slug,
-      subscription_plan: currentOrg.subscription_plan,
-    });
-  }, [ph, currentOrg]);
 
   return null;
 }

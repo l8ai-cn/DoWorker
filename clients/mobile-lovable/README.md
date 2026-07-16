@@ -1,23 +1,33 @@
-# Agent Console (mobile-lovable)
+# Do Worker Mobile
 
-Mobile web UI for AgentsMesh — ACP chat + CLI terminal attach.
+Mobile Worker entry point for ACP visual conversations and PTY command lines.
 
 ## Prerequisites
 
-- AgentsMesh dev stack: `bazel run //deploy/dev:up` (API on `http://localhost:10000`)
-- Node.js 20+
+- Node.js 20+ and the root pnpm workspace dependencies.
+- Backend and Relay running through `./deploy/dev/dev.sh` or the equivalent host services.
 
 ## Dev server
 
 ```bash
-cd clients/mobile-lovable
-npm install
-npm run dev -- --port 10021 --host
+pnpm run mobile:dev
 ```
 
-Open http://localhost:10021/login
+The command reads `deploy/dev/.env` when present, uses its
+`MOBILE_LOVABLE_PORT` (default `10021`), and proxies the API to
+`BACKEND_HTTP_PORT` (default `10015`).
 
-Vite proxies `/auth`, `/v1`, `/api` → `http://localhost:10000`.
+Open `http://127.0.0.1:10021/login`.
+
+To inspect the UI from a device on the same LAN, bind Vite explicitly:
+
+```bash
+MOBILE_DEV_HOST=0.0.0.0 pnpm run mobile:dev
+```
+
+The local Relay URL must also be reachable by that device. For end-to-end
+mobile testing, use the HTTPS deployment rather than a phone-local `localhost`
+Relay URL.
 
 ## Test account
 
@@ -29,13 +39,13 @@ Vite proxies `/auth`, `/v1`, `/api` → `http://localhost:10000`.
 | Mode | API | UI |
 |------|-----|-----|
 | ACP Chat | `POST /v1/sessions`, SSE `/stream` | Session detail |
-| CLI Terminal | WS `.../terminals/:id/attach` | `/sessions/:id/terminal` |
+| CLI Terminal | `GET /v1/sessions/:id/relay-connection`, Relay WebSocket + control lease | `/sessions/:id/terminal` |
 | Org experts | `GET/POST /api/v1/orgs/:org/experts` | Experts + `/new` |
 
 ## Env overrides (optional)
 
 ```bash
-VITE_AGENTSMESH_API_URL=http://localhost:10000
+DO_WORKER_API_URL=http://127.0.0.1:10015
 VITE_AGENTSMESH_JWT=...
 VITE_AGENTSMESH_ORG_SLUG=dev-org
 ```
@@ -43,5 +53,5 @@ VITE_AGENTSMESH_ORG_SLUG=dev-org
 ## Build
 
 ```bash
-npm run build
+pnpm run mobile:build
 ```

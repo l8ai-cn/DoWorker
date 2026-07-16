@@ -25,10 +25,7 @@ impl ApiClient {
         // refresh data plane (see backend/internal/api/connect/auth).
         let req = auth_proto::RefreshTokenRequest { refresh_token };
         debug!(target: "auth", "refreshing access token");
-        let url = format!(
-            "{}/proto.auth.v1.AuthService/RefreshToken",
-            self.base_url
-        );
+        let url = format!("{}/proto.auth.v1.AuthService/RefreshToken", self.base_url);
         let result = self
             .http
             .post(&url)

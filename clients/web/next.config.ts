@@ -57,6 +57,7 @@ const nextConfig: NextConfig = {
   // run SWC over them during `next build` instead of treating them as
   // pre-compiled JS.
   transpilePackages: [
+    "@do-worker/agent-ui",
     "@do-worker/service-runtime",
     "@do-worker/service-interface",
     "@do-worker/proto",

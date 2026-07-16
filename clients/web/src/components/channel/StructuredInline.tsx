@@ -14,9 +14,10 @@ export function RenderInline({ element }: { element: InlineElement }) {
     case "link": {
       const safe = element.url?.startsWith("http://") || element.url?.startsWith("https://") || element.url?.startsWith("mailto:");
       if (!safe) return <span>{element.text}</span>;
+      const label = element.text?.trim() || element.url;
       return (
         <a href={element.url} target="_blank" rel="noopener noreferrer" className="text-primary underline">
-          {element.text}
+          {label}
         </a>
       );
     }

@@ -93,38 +93,43 @@ func (s *PodService) CreatePod(ctx context.Context, req *CreatePodRequest) (*age
 	}
 
 	pod := &agentpod.Pod{
-		OrganizationID:       req.OrganizationID,
-		PodKey:               podKey,
-		RunnerID:             req.RunnerID,
-		AgentSlug:            req.AgentSlug,
-		RepositoryID:         req.RepositoryID,
-		TicketID:             req.TicketID,
-		CreatedByID:          req.CreatedByID,
-		Status:               initialStatus,
-		AgentStatus:          agentpod.AgentStatusIdle,
-		Prompt:               req.Prompt,
-		Alias:                req.Alias,
-		BranchName:           req.BranchName,
-		Model:                modelPtr,
-		PermissionMode:       permissionModePtr,
-		SessionID:            sessionID,
-		SourcePodKey:         sourcePodKey,
-		InteractionMode:      interactionMode,
-		AutomationLevel:      agentpod.NormalizeAutomationLevel(req.AutomationLevel),
-		Perpetual:            req.Perpetual,
-		ResolvedConfig:       req.ResolvedConfig,
-		VirtualAPIKeyID:      req.VirtualAPIKeyID,
-		ModelResourceID:      req.ModelResourceID,
-		WorkerSpecSnapshotID: req.WorkerSpecSnapshotID,
-		PreviewPort:          req.PreviewPort,
-		PreviewPath:          previewPath,
+		OrganizationID:  req.OrganizationID,
+		PodKey:          podKey,
+		RunnerID:        req.RunnerID,
+		ClusterID:       req.ClusterID,
+		AgentSlug:       req.AgentSlug,
+		RepositoryID:    req.RepositoryID,
+		TicketID:        req.TicketID,
+		CreatedByID:     req.CreatedByID,
+		Status:          initialStatus,
+		AgentStatus:     agentpod.AgentStatusIdle,
+		Prompt:          req.Prompt,
+		Alias:           req.Alias,
+		BranchName:      req.BranchName,
+		Model:           modelPtr,
+		PermissionMode:  permissionModePtr,
+		SessionID:       sessionID,
+		SourcePodKey:    sourcePodKey,
+		InteractionMode: interactionMode,
+		AutomationLevel: agentpod.NormalizeAutomationLevel(req.AutomationLevel),
+		Perpetual:       req.Perpetual,
+		ResolvedConfig:  req.ResolvedConfig,
+		PodResourceBindings: agentpod.PodResourceBindings{
+			VirtualAPIKeyID:             req.VirtualAPIKeyID,
+			ModelResourceID:             req.ModelResourceID,
+			WorkerSpecSnapshotID:        req.WorkerSpecSnapshotID,
+			OrchestrationWorkerLaunchID: req.OrchestrationWorkerLaunchID,
+		},
+		PreviewPort: req.PreviewPort,
+		PreviewPath: previewPath,
 	}
 
 	revision, err := newInitialPodConfigRevision(req, previewPath)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.persistPodWithWorkerSpec(ctx, req, pod, revision); err != nil {
+	pod, err = s.persistOrReuseWorkerLaunchPod(ctx, req, pod, revision)
+	if err != nil {
 		return nil, err
 	}
 

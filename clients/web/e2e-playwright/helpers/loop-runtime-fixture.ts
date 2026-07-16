@@ -1,9 +1,7 @@
-import { createHash } from "node:crypto";
 import type { DbFixture } from "../fixtures/db.fixture";
 import { TEST_ORG_SLUG } from "./env";
 
 export interface LoopRuntimeFixture {
-  agentSlug: string;
   alias: string;
   snapshotId: string;
 }
@@ -13,27 +11,21 @@ export function createLoopRuntimeFixture(db: DbFixture): LoopRuntimeFixture {
     { length: 12 },
     () => String.fromCharCode(97 + Math.floor(Math.random() * 26)),
   ).join("");
-  const agentSlug = `loop-e2e-${suffix}`;
   const alias = `循环测试环境 ${suffix}`;
-  const agentfile = `AGENT ${agentSlug}\nEXECUTABLE ${agentSlug}\nMODE pty\n`;
-  const definitionHash = createHash("sha256")
-    .update(JSON.stringify({
-      slug: agentSlug,
-      executable: agentSlug,
-      supported_modes: "pty",
-      agentfile,
-      schema: { Version: 1, Fields: {} },
-    }))
-    .digest("hex");
   const modelBinding = {
     resource_id: 1,
     resource_revision: 1,
     connection_id: 1,
     connection_revision: 1,
     provider_key: "openai",
+    protocol_adapter: "openai-compatible",
     model_id: "loop-e2e",
   };
-  const workerType = { slug: agentSlug, definition_hash: definitionHash };
+  const workerType = {
+    slug: "loopal",
+    definition_hash:
+      "29c0b8aa03cda214e72282983db4de6938b54f7c28e943c038d8cfa94966039b",
+  };
   const runtimeImage = {
     id: 1,
     digest: `sha256:${"a".repeat(64)}`,
@@ -96,15 +88,6 @@ export function createLoopRuntimeFixture(db: DbFixture): LoopRuntimeFixture {
     lifecycle,
   };
 
-  db.setup(`
-    INSERT INTO agents (
-      slug, name, launch_command, executable, is_builtin, is_active,
-      is_internal, supported_modes, agentfile_source
-    ) VALUES (
-      '${agentSlug}', '${alias}', '${agentSlug}', '${agentSlug}', true, true,
-      false, 'pty', '${agentfile}'
-    );
-  `);
   const snapshotResult = db.queryValue(`
     INSERT INTO worker_spec_snapshots (
       organization_id, version, spec_json, summary_json
@@ -118,7 +101,7 @@ export function createLoopRuntimeFixture(db: DbFixture): LoopRuntimeFixture {
   `);
   const snapshotId = snapshotResult?.split(/\s+/)[0];
   if (!snapshotId) throw new Error("failed to create Loop runtime snapshot");
-  return { agentSlug, alias, snapshotId };
+  return { alias, snapshotId };
 }
 
 export function cleanupLoopRuntimeFixture(
@@ -128,6 +111,5 @@ export function cleanupLoopRuntimeFixture(
   db.cleanup(`
     DELETE FROM goal_loops WHERE worker_spec_snapshot_id = ${fixture.snapshotId};
     DELETE FROM worker_spec_snapshots WHERE id = ${fixture.snapshotId};
-    DELETE FROM agents WHERE slug = '${fixture.agentSlug}';
   `);
 }

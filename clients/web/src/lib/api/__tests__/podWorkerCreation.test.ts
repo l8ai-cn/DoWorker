@@ -55,6 +55,14 @@ describe("worker creation Connect boundary", () => {
             description: "Coding worker",
             schemaVersion: 3,
             configSchemaJson: '{"version":3,"fields":[]}',
+            requiresModelResource: true,
+            toolModelRequirements: [{
+              role: "seedance-video",
+              providerKeys: ["doubao"],
+              protocolAdapters: ["openai-compatible"],
+              modality: "video",
+              capability: "video-generation",
+            }],
             selectable: true,
           }],
           runtimeImages: [{
@@ -100,7 +108,15 @@ describe("worker creation Connect boundary", () => {
     });
     expect(options).toMatchObject({
       revision: "rev-7",
-      worker_types: [{ slug: "codex", config_schema: { version: 3, fields: [] } }],
+      worker_types: [{
+        slug: "codex",
+        config_schema: { version: 3, fields: [] },
+        requires_model_resource: true,
+        tool_model_requirements: [{
+          role: "seedance-video",
+          provider_keys: ["doubao"],
+        }],
+      }],
       runtime_images: [{ id: 12, worker_type_slugs: ["codex"] }],
       compute_targets: [{ id: 21, supports_pooled: true }],
       resource_profiles: [{ id: 31, memory_limit_bytes: 1073741824 }],
@@ -149,6 +165,7 @@ describe("worker creation Connect boundary", () => {
     );
     expect(preflightRequest.draft).toMatchObject({
       modelResourceId: BigInt(9),
+      toolModelResourceIds: { "seedance-video": BigInt(10) },
       runtimeImageId: BigInt(12),
       repositoryId: BigInt(44),
       skillIds: [BigInt(51), BigInt(52)],
@@ -218,6 +235,7 @@ describe("worker creation Connect boundary", () => {
 function fullDraft(): WorkerSpecDraft {
   return {
     model_resource_id: 9,
+    tool_model_resource_ids: { "seedance-video": 10 },
     worker_type_slug: "codex",
     runtime_image_id: 12,
     placement_policy: "preferred",
@@ -234,6 +252,7 @@ function fullDraft(): WorkerSpecDraft {
     skill_ids: [51, 52],
     knowledge_mounts: [{ knowledge_base_id: 61, mode: "read_only" }],
     env_bundle_ids: [71],
+    config_bundle_ids: [],
     instructions: "Follow the repository rules.",
     initial_task: "Implement the requested change.",
     termination_policy: "idle",

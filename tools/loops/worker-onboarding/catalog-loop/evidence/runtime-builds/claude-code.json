@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "worker_slug": "claude-code",
+  "validated_at": "2026-07-12T18:55:35Z",
+  "image": "do-worker/runner-claude-code:latest",
+  "image_id": "sha256:b3e11df47367488ff0cb815c3ed292c99c6497a741793d777bda319562fe533f",
+  "platform": "linux/amd64",
+  "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh claude-code",
+  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint sh do-worker/runner-claude-code:latest -lc '<checks>'",
+  "checks": {
+    "cli_version": "claude 2.1.207",
+    "config_directory": "/home/runner/.claude",
+    "runner_version_command": "passed",
+    "adapter_unit_test": "go test ./runner/internal/agents/claude -count=1"
+  },
+  "verdict": "runtime_smoke_verified",
+  "limits": [
+    "No provider-authenticated request, Runner create request, or browser flow was executed."
+  ]
+}

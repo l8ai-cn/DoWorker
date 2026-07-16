@@ -6,6 +6,7 @@ import (
 )
 
 func TestLoadAccessTokenConfig(t *testing.T) {
+	t.Setenv("PREVIEW_PUBLIC_ORIGIN", "http://preview.example.test")
 	t.Setenv("ACCESS_TOKEN_PRIVATE_KEY_FILE", "/run/secrets/access-token-private.pem")
 	t.Setenv("ACCESS_TOKEN_PUBLIC_KEY_FILE", "/run/config/access-token-public.pem")
 	t.Setenv("ACCESS_TOKEN_KEY_ID", "core-2026-07")

@@ -38,7 +38,7 @@ Get a registration token from your Do Worker dashboard, then:
 
 ```bash
 # Global: https://agentsmesh.ai (or your own server address)
-agentsmesh-runner register --server <SERVER_URL> --token YOUR_TOKEN
+do-worker-runner register --server <SERVER_URL> --token YOUR_TOKEN
 ```
 
 ### 2. Start the runner
@@ -46,20 +46,20 @@ agentsmesh-runner register --server <SERVER_URL> --token YOUR_TOKEN
 **CLI mode (foreground):**
 
 ```bash
-agentsmesh-runner run
+do-worker-runner run
 ```
 
 **System service:**
 
 ```bash
 # Install as service
-sudo agentsmesh-runner service install
+sudo do-worker-runner service install
 
 # Start service
-sudo agentsmesh-runner service start
+sudo do-worker-runner service start
 
 # Check status
-agentsmesh-runner service status
+do-worker-runner service status
 ```
 
 ## Usage
@@ -68,7 +68,7 @@ agentsmesh-runner service status
 Do Worker Runner
 
 Usage:
-  agentsmesh-runner <command> [options]
+  do-worker-runner <command> [options]
 
 Commands:
   register    Register this runner with the Do Worker server
@@ -78,7 +78,7 @@ Commands:
   version     Show version information
   help        Show this help message
 
-Use "agentsmesh-runner <command> --help" for more information about a command.
+Use "do-worker-runner <command> --help" for more information about a command.
 ```
 
 ## Configuration
@@ -111,19 +111,14 @@ Features:
 ## Building from Source
 
 ```bash
-# Clone the repository
-git clone https://github.com/anthropics/agentsmesh.git
-cd agentsmesh
+# From the repository root
+cd runner
+go build -o ../bin/do-worker-runner ./cmd/runner
+go test ./...
 
-# Build native binary (Bazel handles toolchain + caching)
-bazel build //runner/cmd/runner:runner
-# Result: bazel-bin/runner/cmd/runner/runner_/runner
-
-# Run tests
-bazel test //runner/...
-
-# Build OCI image (distroless)
-bazel build //runner/cmd/runner:image
+# Back at the repository root, build the Runner image
+cd ..
+docker build -f runner/Dockerfile .
 ```
 
 Cross-platform binaries are produced by the release pipeline; see

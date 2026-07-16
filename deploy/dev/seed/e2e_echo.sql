@@ -19,7 +19,7 @@
 
 INSERT INTO agents (
     slug, name, description,
-    launch_command, executable,
+    launch_command, executable, adapter_id,
     is_builtin, is_active, is_internal,
     supported_modes, agentfile_source
 ) VALUES (
@@ -28,6 +28,7 @@ INSERT INTO agents (
     'Internal stub agent for end-to-end tests. Programmable PTY + ACP behavior via the e2e-mock-agent binary. Do not surface in production.',
     'e2e-mock-agent',
     'e2e-mock-agent',
+    'acp',
     true,
     true,
     true,
@@ -39,6 +40,7 @@ ON CONFLICT (slug) DO UPDATE SET
     description      = EXCLUDED.description,
     launch_command   = EXCLUDED.launch_command,
     executable       = EXCLUDED.executable,
+    adapter_id       = EXCLUDED.adapter_id,
     is_builtin       = EXCLUDED.is_builtin,
     is_active        = EXCLUDED.is_active,
     is_internal      = EXCLUDED.is_internal,

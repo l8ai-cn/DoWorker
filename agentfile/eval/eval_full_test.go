@@ -1,12 +1,40 @@
 package eval
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/anthropics/agentsmesh/agentfile/parser"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestEval_OpenClawWritesSelectedConfigBundle(t *testing.T) {
+	agentFilePath := filepath.Join("..", "..", "config", "worker-types", "openclaw", "AgentFile")
+	agentFile, err := os.ReadFile(agentFilePath)
+	require.NoError(t, err)
+
+	source := "USE_CONFIG_BUNDLE \"uploaded\"\n" + string(agentFile)
+	prog, errs := parser.Parse(source)
+	require.Empty(t, errs)
+
+	ctx := NewContext(map[string]interface{}{
+		"sandbox": map[string]interface{}{"root": "/tmp/sandbox"},
+	})
+	ctx.ConfigBundles = map[string]interface{}{
+		"uploaded": map[string]interface{}{"gateway": map[string]interface{}{"enabled": true}},
+	}
+	require.NoError(t, Eval(prog, ctx))
+
+	require.Len(t, ctx.Result.FilesToCreate, 1)
+	assert.Equal(
+		t,
+		"/tmp/sandbox/openclaw-home/.openclaw/openclaw.json",
+		ctx.Result.FilesToCreate[0].Path,
+	)
+	assert.Contains(t, ctx.Result.FilesToCreate[0].Content, `"enabled":true`)
+}
 
 func TestEval_BuiltinJSON(t *testing.T) {
 	prog, errs := parser.Parse(`

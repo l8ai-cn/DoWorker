@@ -40,5 +40,7 @@ func TestMapControlToRPC_Unsupported(t *testing.T) {
 }
 
 func TestDoAgentTransportRegistered(t *testing.T) {
-	assert.Equal(t, TransportType, acp.TransportTypeForCommand("do-agent"))
+	transport, err := acp.NewTransport(TransportType, acp.EventCallbacks{}, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, transport)
 }

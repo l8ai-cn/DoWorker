@@ -8,9 +8,9 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/channel"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/mesh"
+	podService "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	bindingService "github.com/anthropics/agentsmesh/backend/internal/service/binding"
 	channelService "github.com/anthropics/agentsmesh/backend/internal/service/channel"
-	podService "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 )
 
 var (
@@ -21,6 +21,7 @@ var (
 type Service struct {
 	repo           mesh.MeshRepository
 	podService     *podService.PodService
+	podCreator     PodCreator
 	channelService *channelService.Service
 	bindingService *bindingService.Service
 }
@@ -174,29 +175,6 @@ func (s *Service) getChannelMessageCount(ctx context.Context, channelID int64) i
 		return 0
 	}
 	return int(count)
-}
-
-// CreatePodForTicket is the legacy ticket-pod entry — predates AgentFile SSOT,
-// Claude-only by historical convention. New code uses PodOrchestrator.
-func (s *Service) CreatePodForTicket(ctx context.Context, req *mesh.CreatePodForTicketRequest) (*agentpod.Pod, error) {
-	model := req.Model
-	if model == "" {
-		model = mesh.LegacyTicketPodModel
-	}
-	permissionMode := req.PermissionMode
-	if permissionMode == "" {
-		permissionMode = mesh.LegacyTicketPodPermissionMode
-	}
-	return s.podService.CreatePodForTicket(ctx, &podService.CreatePodRequest{
-		OrganizationID: req.OrganizationID,
-		RunnerID:       req.RunnerID,
-		AgentSlug:      mesh.LegacyTicketPodAgentSlug,
-		TicketID:       &req.TicketID,
-		CreatedByID:    req.CreatedByID,
-		Prompt:         req.Prompt,
-		Model:          model,
-		PermissionMode: permissionMode,
-	})
 }
 
 func (s *Service) GetPodsForTicket(ctx context.Context, ticketID int64) ([]mesh.MeshNode, error) {

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "slug": "opencode",
+  "status": "planned",
+  "definition_hash": "sha256:734be0fcd980d77c644cbcec4c3add77882c62f80b0c2efba4037ae7253406f6",
+  "source_refs": [
+    "config/worker-types/catalog.json"
+  ]
+}

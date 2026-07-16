@@ -147,6 +147,7 @@ func TestCreatePod_ResumeMode_NotTerminated(t *testing.T) {
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
 		OrganizationID:  1,
 		RunnerID:        1,
+		ClusterID:       19,
 		AgentSlug:       agentSlug,
 		ModelResourceID: testModelResourceID(),
 		CreatedByID:     1,
@@ -236,6 +237,7 @@ func TestCreatePod_ResumeMode_InheritRunnerID(t *testing.T) {
 	sourcePod, err := podSvc.CreatePod(context.Background(), &CreatePodRequest{
 		OrganizationID:  1,
 		RunnerID:        1,
+		ClusterID:       19,
 		AgentSlug:       agentSlug,
 		ModelResourceID: testModelResourceID(),
 		CreatedByID:     1,
@@ -254,6 +256,7 @@ func TestCreatePod_ResumeMode_InheritRunnerID(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), result.Pod.RunnerID)
+	assert.Equal(t, int64(19), result.Pod.ClusterID)
 }
 
 func TestCreatePod_ResumeMode_InheritConfig(t *testing.T) {

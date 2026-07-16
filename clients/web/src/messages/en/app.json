@@ -352,6 +352,237 @@
       }
     }
   },
+  "resourceEditor": {
+    "mode": {
+      "run": "Run Worker",
+      "template": "Worker template",
+      "resources": "Referenced resources"
+    },
+    "title": "Worker template",
+    "subtitle": "Create a versioned Worker configuration, review its plan, and apply an immutable runtime snapshot.",
+    "worker": {
+      "title": "Run Worker",
+      "subtitle": "Create one Worker from a pinned template and optional prompt, then review the exact launch plan."
+    },
+    "prompt": {
+      "title": "Prompt",
+      "subtitle": "Version prompt content and variables, then review the exact revision before applying it."
+    },
+    "expert": {
+      "title": "Expert",
+      "subtitle": "Declare an Expert from pinned WorkerTemplate and Prompt resources."
+    },
+    "workflow": {
+      "title": "Workflow",
+      "subtitle": "Declare scheduled or direct execution from pinned WorkerTemplate and Prompt resources."
+    },
+    "goalLoop": {
+      "title": "Goal loop",
+      "subtitle": "Define bounded autonomous work with explicit completion evidence."
+    },
+    "binding": {
+      "title": "{kind} binding",
+      "subtitle": "Expose an existing platform resource through a versioned orchestration identity. Credentials remain in the referenced platform resource."
+    },
+    "tabs": {
+      "form": "Configuration",
+      "yaml": "YAML",
+      "plan": "Plan & diff"
+    },
+    "status": {
+      "draft": "Draft",
+      "planReady": "Plan ready",
+      "applied": "Applied"
+    },
+    "sections": {
+      "identity": "Identity",
+      "invocation": "Invocation",
+      "bindings": "Bindings",
+      "binding": "Platform resource binding",
+      "definition": "Definition",
+      "prompt": "Prompt content",
+      "execution": "Execution",
+      "runtime": "Runtime",
+      "typeConfig": "Worker configuration",
+      "workspace": "Workspace",
+      "lifecycle": "Lifecycle"
+    },
+    "fields": {
+      "name": "Resource name",
+      "resourceKind": "Resource kind",
+      "displayName": "Display name",
+      "workerType": "Worker type",
+      "workerTemplateRef": "Worker template",
+      "promptRef": "Prompt",
+      "inputs": "Inputs",
+      "inputKey": "Input name",
+      "inputValue": "Input value",
+      "promptContent": "Prompt content",
+      "variables": "Variables",
+      "variableName": "Variable name",
+      "required": "Required",
+      "hasDefault": "Has default",
+      "defaultValue": "Default value",
+      "description": "Description",
+      "category": "Category",
+      "releaseNotes": "Release notes",
+      "objective": "Objective",
+      "acceptanceCriteria": "Acceptance criteria",
+      "verificationCommand": "Verification command",
+      "maxIterations": "Maximum iterations",
+      "tokenBudget": "Token budget",
+      "noProgressLimit": "No-progress limit",
+      "sameErrorLimit": "Same-error limit",
+      "escalationPolicy": "Escalation policy",
+      "modelResourceId": "Model API resource ID",
+      "repositoryId": "Repository ID",
+      "skillId": "Skill ID",
+      "knowledgeBaseId": "Knowledge base ID",
+      "environmentBundleId": "Environment bundle ID",
+      "computeTargetId": "Compute target ID",
+      "resourceProfileId": "Resource profile ID",
+      "executionMode": "Execution mode",
+      "sandboxStrategy": "Sandbox strategy",
+      "sessionPersistence": "Persist session",
+      "concurrencyPolicy": "Concurrency policy",
+      "maxConcurrentRuns": "Maximum concurrent runs",
+      "maxRetainedRuns": "Maximum retained runs",
+      "timeoutMinutes": "Run timeout (minutes)",
+      "idleTimeoutSeconds": "Idle timeout (seconds)",
+      "cronExpression": "Cron expression",
+      "callbackUrl": "Callback URL",
+      "optionsRevision": "Options revision",
+      "modelRef": "Model binding",
+      "resourceReference": "Resource reference",
+      "revision": "Revision",
+      "alias": "Worker alias",
+      "toolRefs": "Tool bindings",
+      "toolRole": "Tool role",
+      "runtimeImageId": "Runtime image ID",
+      "placementPolicy": "Placement policy",
+      "computeTargetRef": "Compute target",
+      "deploymentMode": "Deployment mode",
+      "resourceProfileRef": "Resource profile",
+      "resourceMode": "Resource allocation",
+      "cpuRequest": "CPU request (millicpu)",
+      "cpuLimit": "CPU limit (millicpu)",
+      "memoryRequest": "Memory request (bytes)",
+      "memoryLimit": "Memory limit (bytes)",
+      "storageRequest": "Storage request (bytes)",
+      "storageLimit": "Storage limit (bytes)",
+      "gpuRequest": "GPU request",
+      "gpuLimit": "GPU limit",
+      "interactionMode": "Interaction mode",
+      "automationLevel": "Automation level",
+      "schemaVersion": "Configuration schema version",
+      "configValues": "Configuration values",
+      "configKey": "Configuration key",
+      "configValue": "Value",
+      "valueType": "Type",
+      "secretRefs": "Secret references",
+      "repositoryRef": "Repository",
+      "branch": "Branch",
+      "skillRefs": "Skills",
+      "knowledgeMounts": "Knowledge mounts",
+      "knowledgeBase": "Knowledge base",
+      "mountMode": "Mount mode",
+      "environmentBundleRefs": "Environment bundles",
+      "configBundleRefs": "Configuration bundles",
+      "instructions": "Instructions",
+      "terminationPolicy": "Termination policy",
+      "idleTimeoutMinutes": "Idle timeout (minutes)"
+    },
+    "options": {
+      "automatic": "Automatic",
+      "explicit": "Explicit",
+      "pooled": "Pooled",
+      "dedicated": "Dedicated",
+      "profile": "Resource profile",
+      "custom": "Custom limits",
+      "manual": "Manual",
+      "idle": "On idle",
+      "completed": "On completion",
+      "pty": "PTY",
+      "acp": "ACP",
+      "interactive": "Interactive",
+      "autonomous": "Autonomous",
+      "autoEdit": "Auto edit",
+      "supervised": "Supervised",
+      "readOnly": "Read only",
+      "readWrite": "Read and write",
+      "direct": "Direct",
+      "autopilot": "Autopilot",
+      "fresh": "Fresh sandbox",
+      "persistent": "Persistent sandbox",
+      "pause": "Pause for intervention",
+      "fail": "Fail the loop"
+    },
+    "references": {
+      "loading": "Loading available resources…",
+      "empty": "No {kind} resources are available yet.",
+      "available": "{count} resources available."
+    },
+    "collections": {
+      "add": "Add",
+      "remove": "Remove",
+      "none": "None configured.",
+      "acceptanceCriterion": "Acceptance criterion {index}",
+      "addAcceptanceCriteria": "Add acceptance criteria",
+      "removeAcceptanceCriterion": "Remove acceptance criterion {index}"
+    },
+    "secrets": {
+      "referenceOnly": "Only references to EnvironmentBundle resources are stored. Secret values are never entered or displayed here."
+    },
+    "valueTypes": {
+      "string": "String",
+      "number": "Number",
+      "boolean": "Boolean",
+      "json": "JSON",
+      "true": "True",
+      "false": "False",
+      "yamlOnly": "Nested JSON values are read-only in the form. Edit them in YAML."
+    },
+    "yaml": {
+      "label": "{kind} YAML",
+      "invalid": "Fix YAML before returning to the form or applying.",
+      "manual": "YAML reference"
+    },
+    "plan": {
+      "empty": "Generate a plan to review semantic changes and pinned references.",
+      "operation": "Operation",
+      "expires": "Expires",
+      "changes": "Semantic changes",
+      "references": "Pinned references",
+      "issues": "Issues",
+      "noChanges": "No semantic changes.",
+      "noReferences": "No referenced resources.",
+      "expired": "This plan has expired. Generate a new plan before applying."
+    },
+    "validation": {
+      "valid": "The resource is valid."
+    },
+    "numberErrors": {
+      "required": "Enter a whole number.",
+      "integer": "Use a whole number without decimals.",
+      "safeInteger": "Use an integer within the safe numeric range.",
+      "minimum": "Use a whole number of at least {min}.",
+      "range": "Use a whole number from {min} to {max}."
+    },
+    "actions": {
+      "validate": "Validate",
+      "validating": "Validating",
+      "plan": "Generate plan",
+      "planning": "Planning",
+      "apply": "Apply template",
+      "applyResource": "Apply resource",
+      "createWorker": "Create Worker",
+      "applying": "Applying"
+    },
+    "result": {
+      "revision": "Revision {revision}",
+      "snapshot": "WorkerSpec snapshot {snapshot}"
+    }
+  },
   "workspace": {
     "title": "Workspace",
     "searchPlaceholder": "Search pods...",

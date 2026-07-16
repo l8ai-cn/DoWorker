@@ -258,3 +258,29 @@ func TestPrepareAgentHome_CodexAppliesEnvBundleProvider(t *testing.T) {
 	assert.Contains(t, body, "gpt-5.5")
 	assert.Contains(t, body, "model_provider")
 }
+
+func TestPrepareAgentHome_OpenClawBootstrapsProviderConfig(t *testing.T) {
+	sandboxRoot := t.TempDir()
+	workDir := filepath.Join(sandboxRoot, "workspace")
+	require.NoError(t, os.MkdirAll(workDir, 0755))
+	agentHome := filepath.Join(sandboxRoot, "openclaw-home")
+
+	builder := &PodBuilder{
+		cmd: &runnerv1.CreatePodCommand{
+			PodKey: "test-pod",
+			EnvVars: map[string]string{
+				"OPENCLAW_HOME":   agentHome,
+				"OPENAI_API_KEY":  "test-secret",
+				"OPENAI_BASE_URL": "https://proxy.example.test/v1",
+				"OPENAI_MODEL":    "gpt-5.6-terra",
+			},
+		},
+	}
+
+	require.NoError(t, builder.prepareAgentHome(sandboxRoot, workDir))
+	configPath := filepath.Join(agentHome, ".openclaw", "openclaw.json")
+	data, err := os.ReadFile(configPath)
+	require.NoError(t, err)
+	assert.Contains(t, string(data), `"openai/gpt-5.6-terra"`)
+	assert.NotContains(t, string(data), "test-secret")
+}

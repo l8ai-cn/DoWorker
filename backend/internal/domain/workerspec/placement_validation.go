@@ -8,6 +8,12 @@ import (
 
 var runtimeImageDigestPattern = regexp.MustCompile(`^sha256:[a-f0-9]{64}$`)
 
+const (
+	maxCPURequestMilliCPU = 64_000
+	maxMemoryBytes        = 256 << 30
+	maxStorageBytes       = 1 << 40
+)
+
 func NormalizeRuntimePlacement(
 	image RuntimeImage,
 	placement Placement,
@@ -67,7 +73,11 @@ func validatePlacement(placement Placement) error {
 }
 
 func validateResourceProfile(profile ResourceProfile) error {
-	if profile.ID <= 0 {
+	if profile.Custom {
+		if profile.ID != 0 {
+			return fmt.Errorf("custom resource profile id must be zero")
+		}
+	} else if profile.ID <= 0 {
 		return fmt.Errorf("resource profile id must be positive")
 	}
 	resources := profile.Resources
@@ -80,6 +90,10 @@ func validateResourceProfile(profile ResourceProfile) error {
 	if resources.CPURequestMilliCPU > resources.CPULimitMilliCPU {
 		return fmt.Errorf("cpu request must not exceed cpu limit")
 	}
+	if resources.CPURequestMilliCPU > maxCPURequestMilliCPU ||
+		resources.CPULimitMilliCPU > maxCPURequestMilliCPU {
+		return fmt.Errorf("cpu request exceeds maximum of %dm", maxCPURequestMilliCPU)
+	}
 	if resources.MemoryRequestBytes == 0 {
 		return fmt.Errorf("memory request must be positive")
 	}
@@ -88,6 +102,29 @@ func validateResourceProfile(profile ResourceProfile) error {
 	}
 	if resources.MemoryRequestBytes > resources.MemoryLimitBytes {
 		return fmt.Errorf("memory request must not exceed memory limit")
+	}
+	if resources.MemoryRequestBytes > maxMemoryBytes ||
+		resources.MemoryLimitBytes > maxMemoryBytes {
+		return fmt.Errorf("memory request exceeds maximum")
+	}
+	if resources.StorageRequestBytes == 0 && resources.StorageLimitBytes == 0 {
+		if profile.Custom {
+			return fmt.Errorf("storage request must be positive")
+		}
+	} else {
+		if resources.StorageRequestBytes == 0 {
+			return fmt.Errorf("storage request must be positive")
+		}
+		if resources.StorageLimitBytes == 0 {
+			return fmt.Errorf("storage limit must be positive")
+		}
+		if resources.StorageRequestBytes > resources.StorageLimitBytes {
+			return fmt.Errorf("storage request must not exceed storage limit")
+		}
+		if resources.StorageRequestBytes > maxStorageBytes ||
+			resources.StorageLimitBytes > maxStorageBytes {
+			return fmt.Errorf("storage request exceeds maximum")
+		}
 	}
 	if (resources.GPURequest == nil) != (resources.GPULimit == nil) {
 		return fmt.Errorf("gpu request and limit must be set together")

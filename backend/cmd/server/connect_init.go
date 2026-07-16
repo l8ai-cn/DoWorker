@@ -18,6 +18,7 @@ import (
 	channelconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/channel"
 	envbundleconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/env_bundle"
 	eventsconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/events"
+	executionclusterconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/executioncluster"
 	extensionconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/extension"
 	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
 	meshconnect "github.com/anthropics/agentsmesh/backend/internal/api/connect/mesh"
@@ -91,6 +92,7 @@ func mountConnectServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Se
 	), opts...)
 	apikeyconnect.Mount(mux, apikeyconnect.NewServer(svc.apikey, svc.org), opts...)
 	bindingconnect.Mount(mux, bindingconnect.NewServer(svc.binding, svc.org), opts...)
+	mountOrchestrationResourceService(mux, svc, opts)
 	if svc.blockstore != nil {
 		blockstoreconnect.Mount(mux, blockstoreconnect.NewServer(svc.blockstore, svc.org), opts...)
 	}
@@ -105,6 +107,9 @@ func mountConnectServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Se
 	if rest != nil && rest.Hub != nil {
 		eventsconnect.Mount(mux, eventsconnect.NewServer(rest.Hub, svc.org), opts...)
 	}
+	if svc.executionCluster != nil {
+		executionclusterconnect.Mount(mux, executionclusterconnect.NewServer(svc.executionCluster, svc.org), opts...)
+	}
 	mountRunnerService(mux, svc, rest, cfg, opts)
 	mountPodService(mux, svc, rest, cfg, opts)
 	mountAgentPodSettingsService(mux, svc, opts)
@@ -112,7 +117,7 @@ func mountConnectServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Se
 	usercredentialconnect.Mount(mux, usercredentialconnect.NewServer(svc.user), opts...)
 	userconnect.Mount(mux, userconnect.NewServer(svc.user, svc.org), opts...)
 	agentconnect.Mount(mux, agentconnect.NewServer(
-		svc.agentSvc, svc.envBundle, svc.userConfig, svc.org,
+		svc.agentSvc, svc.envBundle, svc.userConfig, svc.org, svc.workerDefinitions,
 	), opts...)
 	if svc.envBundle != nil {
 		envbundleconnect.Mount(mux, envbundleconnect.NewServer(svc.envBundle), opts...)

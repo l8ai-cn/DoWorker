@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { ConnectionInput } from "@/lib/api";
+import { getAIResourceCredentialLabel } from "./aiResourceCredentialLabel";
 import type { ProviderConnection, ProviderDefinition } from "./types";
 
 interface ProviderConnectionDialogProps {
@@ -84,7 +85,7 @@ export function ProviderConnectionDialog({ open, catalog, connection, onOpenChan
             {!editing && <Field label={t("settings.aiResources.connection.identifier")} value={identifier} onChange={setIdentifier} />}
             <Field label={t("settings.aiResources.connection.baseUrl")} value={baseUrl} onChange={setBaseUrl} />
             {!editing && provider?.credentialFields.map((field) => (
-              <Field key={field.key} label={field.label} value={credentials[field.key] ?? ""} type={field.secret ? "password" : "text"} onChange={(value) => setCredentials((current) => ({ ...current, [field.key]: value }))} />
+              <Field key={field.key} label={getAIResourceCredentialLabel(field, t)} value={credentials[field.key] ?? ""} type={field.secret ? "password" : "text"} onChange={(value) => setCredentials((current) => ({ ...current, [field.key]: value }))} />
             ))}
           </DialogBody>
           <DialogFooter>

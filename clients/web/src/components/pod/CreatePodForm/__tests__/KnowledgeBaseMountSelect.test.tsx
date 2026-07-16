@@ -70,6 +70,22 @@ describe("KnowledgeBaseMountSelect", () => {
 
     expect(onChange).toHaveBeenCalledWith([]);
   });
+
+  it("uses selection language and a localized loading error", async () => {
+    mockListKnowledgeBases.mockRejectedValueOnce(new Error("backend detail"));
+    render(
+      <KnowledgeBaseMountSelect
+        selectedMounts={[{ id: 1, slug: "", mode: "ro" }]}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "ide.createPod.knowledgeBasesLoadFailed",
+    );
+    expect(screen.getByText("ide.createPod.manageKnowledgeBases")).toBeInTheDocument();
+    expect(screen.getByText("ide.createPod.knowledgeModeReadOnly")).toBeInTheDocument();
+  });
 });
 
 function knowledgeBase(id: number, slug: string): KnowledgeBase {

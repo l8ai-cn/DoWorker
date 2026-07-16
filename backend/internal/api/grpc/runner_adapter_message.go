@@ -160,16 +160,23 @@ func (a *GRPCRunnerAdapter) handleProtoMessage(ctx context.Context, runnerID int
 		)
 
 	case *runnerv1.RunnerMessage_TunnelConnectionResult:
+		result := runnerReadyResult{
+			success:   payload.TunnelConnectionResult.GetSuccess(),
+			errorCode: payload.TunnelConnectionResult.GetErrorCode(),
+			message:   payload.TunnelConnectionResult.GetMessage(),
+		}
+		if err := a.persistTunnelConnection(ctx, runnerID, payload.TunnelConnectionResult); err != nil {
+			result = runnerReadyResult{
+				errorCode: "tunnel_state_persistence_failed",
+				message:   "failed to persist tunnel connection state",
+			}
+		}
 		a.readyResults.complete(
 			runnerID,
 			conn.Generation,
 			payload.TunnelConnectionResult.GetCommandId(),
 			tunnelConnectionReady,
-			runnerReadyResult{
-				success:   payload.TunnelConnectionResult.GetSuccess(),
-				errorCode: payload.TunnelConnectionResult.GetErrorCode(),
-				message:   payload.TunnelConnectionResult.GetMessage(),
-			},
+			result,
 		)
 
 	default:

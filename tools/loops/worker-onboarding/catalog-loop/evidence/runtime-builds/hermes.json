@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "worker_slug": "hermes",
+  "validated_at": "2026-07-12T19:14:49Z",
+  "image": "do-worker/runner-hermes:latest",
+  "platform": "linux/amd64",
+  "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh hermes",
+  "verdict": "blocked_external_apt_repository",
+  "observed_failure": "Debian apt returned HTTP 502 responses across all eight bounded python3-pip installation attempts.",
+  "limits": [
+    "No Hermes image or binary smoke result exists.",
+    "No substitute image, cached mock, or fallback binary was accepted."
+  ]
+}

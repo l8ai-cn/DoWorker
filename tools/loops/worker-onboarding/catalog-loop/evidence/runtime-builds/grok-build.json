@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "worker_slug": "grok-build",
+  "validated_at": "2026-07-12T18:55:35Z",
+  "image": "do-worker/runner-grok-build:latest",
+  "image_id": "sha256:384d696460514bbe1b8a226884d8b26a3de1460fe9bde9c090badebead2dcf13",
+  "platform": "linux/amd64",
+  "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh grok-build",
+  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint sh do-worker/runner-grok-build:latest -lc '<checks>'",
+  "checks": {
+    "cli_version": "grok 0.2.93 (f00f96316d)",
+    "config_directory": "/home/runner/.grok",
+    "runner_version_command": "passed",
+    "adapter_unit_test": "go test ./runner/internal/agents/grok -count=1"
+  },
+  "verdict": "runtime_smoke_verified",
+  "limits": [
+    "No XAI_API_KEY authentication, Runner create request, or browser flow was executed."
+  ]
+}

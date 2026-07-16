@@ -3,6 +3,7 @@ import type { EffectiveResource, ProviderDefinition } from "@/lib/api/facade/aiR
 import {
   agentRequiresModelResource,
   compatibleModelResources,
+  compatibleToolModelResources,
 } from "../workerModelResources";
 
 const geminiProvider: ProviderDefinition = {
@@ -48,6 +49,13 @@ const geminiResource: EffectiveResource = {
   },
 };
 
+const minimaxProvider: ProviderDefinition = {
+  ...geminiProvider,
+  key: "minimax",
+  displayName: "MiniMax",
+  protocolAdapter: "minimax",
+};
+
 describe("workerModelResources", () => {
   it("allows selectable Gemini resources when exact model injection is supported", () => {
     expect(agentRequiresModelResource("gemini-cli")).toBe(true);
@@ -56,7 +64,7 @@ describe("workerModelResources", () => {
     ]);
   });
 
-  it.each(["openclaw", "hermes"])("%s accepts multi-provider chat resources", (agentSlug) => {
+  it.each(["openclaw", "hermes"])("%s only accepts its declared OpenAI-compatible resource", (agentSlug) => {
     const providers: ProviderDefinition[] = [
       { ...geminiProvider, key: "openai", protocolAdapter: "openai-compatible" },
       { ...geminiProvider, key: "anthropic", protocolAdapter: "anthropic" },
@@ -77,6 +85,54 @@ describe("workerModelResources", () => {
     }));
 
     expect(agentRequiresModelResource(agentSlug)).toBe(true);
-    expect(compatibleModelResources(agentSlug, resources, providers)).toEqual(resources);
+    expect(compatibleModelResources(agentSlug, resources, providers)).toEqual([resources[0]]);
+  });
+
+  it("allows selectable MiniMax resources for MiniMax CLI", () => {
+    const minimaxResource: EffectiveResource = {
+      ...geminiResource,
+      connection: {
+        ...geminiResource.connection!,
+        providerKey: "minimax",
+      },
+    };
+
+    expect(agentRequiresModelResource("minimax-cli")).toBe(true);
+    expect(compatibleModelResources("minimax-cli", [minimaxResource], [minimaxProvider])).toEqual([
+      minimaxResource,
+    ]);
+  });
+
+  it("only allows the declared Doubao video-generation resource for Seedance", () => {
+    const video = {
+      ...geminiResource,
+      connection: {
+        ...geminiResource.connection!,
+        providerKey: "doubao",
+      },
+      resource: {
+        ...geminiResource.resource!,
+        id: 77,
+        modelId: "doubao-seedance-2-0-260128",
+        modalities: ["video"],
+        capabilities: ["video-generation"],
+      },
+    };
+    const languageModelMarkedAsVideo = {
+      ...video,
+      resource: {
+        ...video.resource!,
+        id: 78,
+        modelId: "doubao-seed-1-8-251228",
+      },
+    };
+
+    expect(compatibleToolModelResources({
+      role: "seedance-video",
+      provider_keys: ["doubao"],
+      protocol_adapters: ["openai-compatible"],
+      modality: "video",
+      capability: "video-generation",
+    }, [geminiResource, languageModelMarkedAsVideo, video])).toEqual([video]);
   });
 });

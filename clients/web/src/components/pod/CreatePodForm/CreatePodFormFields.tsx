@@ -98,6 +98,7 @@ export function CreatePodFormFields({
               draft={state.draft}
               options={controller.options}
               modelResources={controller.modelResources}
+              toolModelResources={controller.toolModelResources}
               onPatch={controller.patchDraft}
               onWorkerTypeChange={controller.changeWorkerType}
               t={t}

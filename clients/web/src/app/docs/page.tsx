@@ -4,19 +4,11 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import ArchitectureDiagram from "@/components/docs/ArchitectureDiagram";
 
-const AGENTS = [
-  "Claude Code (Anthropic)",
-  "Codex CLI (OpenAI)",
-  "Gemini CLI (Google)",
-  "Aider",
-  "OpenCode",
-];
-
 const CAPABILITIES = ["orchestrate", "remoteWorkstation", "taskDriven", "selfHosted"] as const;
 
 const QUICK_LINKS = [
   { href: "/docs/getting-started", titleKey: "quickStart", descKey: "quickStartDesc" },
-  { href: "/docs/features/agentpod", titleKey: "agentpod", descKey: "agentpodDesc" },
+  { href: "/docs/concepts/workers", titleKey: "agentpod", descKey: "agentpodDesc" },
   { href: "/docs/features/channels", titleKey: "agentsmesh", descKey: "agentsmeshDesc" },
   { href: "/docs/runners/mcp-tools", titleKey: "mcpTools", descKey: "mcpToolsDesc" },
 ] as const;
@@ -38,26 +30,6 @@ export default function DocsPage() {
           {t("docs.intro.description")}
         </p>
       </div>
-
-      <section className="mb-12 sm:mb-16">
-        <div className="surface-card rounded-2xl p-5 sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
-            {t("docs.intro.supportedAgents")}
-          </p>
-          <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-            {AGENTS.map((agent) => (
-              <li key={agent} className="flex items-center gap-2 text-sm text-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-success" />
-                {agent}
-              </li>
-            ))}
-            <li className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-success" />
-              {t("docs.intro.customAgents")}
-            </li>
-          </ul>
-        </div>
-      </section>
 
       <section className="mb-12 sm:mb-16">
         <div className="mb-5 sm:mb-6">

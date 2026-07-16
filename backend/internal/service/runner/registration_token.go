@@ -14,6 +14,10 @@ import (
 )
 
 func (s *Service) GenerateGRPCRegistrationToken(ctx context.Context, orgID, userID int64, req *GenerateGRPCRegistrationTokenRequest, serverURL string) (*GenerateGRPCRegistrationTokenResponse, error) {
+	if err := s.requireExecutionCluster(ctx, req.ClusterID, orgID); err != nil {
+		return nil, err
+	}
+
 	tokenBytes := make([]byte, 32)
 	if _, err := rand.Read(tokenBytes); err != nil {
 		return nil, fmt.Errorf("failed to generate token: %w", err)
@@ -37,6 +41,7 @@ func (s *Service) GenerateGRPCRegistrationToken(ctx context.Context, orgID, user
 	regToken := &runner.GRPCRegistrationToken{
 		TokenHash:      tokenHash,
 		OrganizationID: orgID,
+		ClusterID:      req.ClusterID,
 		SingleUse:      req.SingleUse,
 		MaxUses:        maxUses,
 		ExpiresAt:      expiresAt,
@@ -84,6 +89,9 @@ func (s *Service) RegisterWithToken(ctx context.Context, req *RegisterWithTokenR
 		slog.WarnContext(ctx, "expired registration token presented", "token_id", regToken.ID)
 		return nil, ErrTokenExpired
 	}
+	if err := s.requireExecutionCluster(ctx, regToken.ClusterID, regToken.OrganizationID); err != nil {
+		return nil, err
+	}
 
 	orgSlug, err := s.repo.GetOrgSlug(ctx, regToken.OrganizationID)
 	if err != nil {
@@ -126,6 +134,7 @@ func (s *Service) RegisterWithToken(ctx context.Context, req *RegisterWithTokenR
 		MaxConcurrentPods:  5,
 		Visibility:         runner.VisibilityOrganization,
 		RegisteredByUserID: regToken.CreatedBy,
+		Tags:               registrationLabelsToTags(regToken.Labels),
 	}
 
 	// PKI issuance lives inside the atomic claim — exhausted tokens never reach the CA.

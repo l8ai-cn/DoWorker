@@ -4,17 +4,21 @@ import (
 	"context"
 	"testing"
 
+	poddomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/anthropics/agentsmesh/backend/internal/infra"
+	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )
 
 func TestPrepareSnapshotWorkerCreateProjectsImmutableSnapshot(t *testing.T) {
 	snapshotID := int64(91)
-	spec := podServiceWorkerSpec()
+	spec := normalizedSnapshotWorkerSpec(t)
 	preparer := &snapshotWorkerCreationPreparer{
 		prepared: workercreation.PreparedSnapshot{
 			Spec:           spec,
@@ -145,10 +149,81 @@ func TestPrepareSnapshotWorkerCreateRejectsLegacyRuntimeOverrides(t *testing.T) 
 	assert.Zero(t, preparer.snapshotCalls)
 }
 
+func TestCreatePodReplaysWorkerLaunchWithSamePodAndCommand(t *testing.T) {
+	db := setupOrchestratorTestDB(t)
+	spec := normalizedSnapshotWorkerSpec(t)
+	snapshotID := int64(91)
+	launchID := int64(71)
+	preparer := &snapshotWorkerCreationPreparer{
+		prepared: workercreation.PreparedSnapshot{
+			Spec:           spec,
+			AgentfileLayer: "MODE acp\nPROMPT \"Run checks.\"\n",
+		},
+	}
+	resource := resolvedOpenAIResource()
+	resource.Connection.ID = spec.Runtime.ModelBinding.ConnectionID
+	resource.Connection.Revision = spec.Runtime.ModelBinding.ConnectionRevision
+	resource.Connection.ProviderKey = spec.Runtime.ModelBinding.ProviderKey
+	resource.Resource.ID = spec.Runtime.ModelBinding.ResourceID
+	resource.Resource.ProviderConnectionID = resource.Connection.ID
+	resource.Resource.Revision = spec.Runtime.ModelBinding.ResourceRevision
+	resource.Resource.ModelID = spec.Runtime.ModelBinding.ModelID
+	provider := newCodexTestProvider()
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{
+		PodService:     NewPodService(infra.NewPodRepository(db)),
+		ConfigBuilder:  agent.NewConfigBuilder(provider, noopBundleLoader{}),
+		AgentResolver:  &mockAgentResolver{agentDef: provider.agentDef},
+		WorkerCreation: preparer,
+		WorkerSpecs: &workerSpecSnapshotLoader{snapshot: specdomain.Snapshot{
+			ID: snapshotID, OrganizationID: 1, Spec: spec,
+		}},
+		ModelResources: &recordingModelResourceResolver{resource: resource},
+		RunnerSelector: &mockRunnerSelector{
+			runner: &runnerDomain.Runner{ID: 1},
+		},
+	})
+	create := func() (*OrchestrateCreatePodResult, error) {
+		return orchestrator.CreatePod(
+			context.Background(),
+			&OrchestrateCreatePodRequest{
+				OrganizationID:              1,
+				UserID:                      1,
+				WorkerSpecSnapshotID:        &snapshotID,
+				OrchestrationWorkerLaunchID: &launchID,
+				DeferRunnerDispatch:         true,
+				QueueIfUnavailable:          true,
+			},
+		)
+	}
+
+	first, err := create()
+	require.NoError(t, err)
+	second, err := create()
+	require.NoError(t, err)
+
+	assert.Equal(t, first.Pod.ID, second.Pod.ID)
+	assert.Equal(t, first.Pod.PodKey, second.Pod.PodKey)
+	assert.Equal(
+		t,
+		first.DeferredCreateCommand.PodKey,
+		second.DeferredCreateCommand.PodKey,
+	)
+	var count int64
+	require.NoError(t, db.Model(&poddomain.Pod{}).Count(&count).Error)
+	assert.Equal(t, int64(1), count)
+}
+
 type snapshotWorkerCreationPreparer struct {
 	prepared      workercreation.PreparedSnapshot
 	err           error
 	snapshotCalls int
+}
+
+func normalizedSnapshotWorkerSpec(t *testing.T) specdomain.Spec {
+	t.Helper()
+	spec, err := specdomain.NormalizeAndValidate(podServiceWorkerSpec())
+	require.NoError(t, err)
+	return spec
 }
 
 func (*snapshotWorkerCreationPreparer) Prepare(

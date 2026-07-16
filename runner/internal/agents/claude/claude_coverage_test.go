@@ -20,7 +20,8 @@ func TestClose_CallsControlTrackerClose(t *testing.T) {
 }
 
 func TestRegisterInit_ClaudeTransportFactory(t *testing.T) {
-	tr := acp.NewTransport(TransportType, acp.EventCallbacks{}, slog.Default())
+	tr, err := acp.NewTransport(TransportType, acp.EventCallbacks{}, slog.Default())
+	assert.NoError(t, err)
 	assert.NotNil(t, tr)
 }
 

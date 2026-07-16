@@ -1,17 +1,19 @@
 {
   "landing": {
     "nav": {
-      "scenarios": "Scenarios",
+      "home": "Accueil",
+      "scenarios": "Scénarios",
       "workflow": "Fonctionnement",
-      "capabilities": "Capacites",
-      "features": "Fonctionnalites",
+      "capabilities": "Capacités",
+      "features": "Gouvernance",
       "marketplace": "Marketplace",
-      "pricing": "Tarifs",
       "docs": "Documentation",
       "signIn": "Connexion",
       "getStarted": "Commencer",
       "console": "Console",
+      "consoleUnavailable": "Impossible d’ouvrir la console pour le moment. Réessayez.",
       "language": "Langue",
+      "toggleMenu": "Ouvrir ou fermer le menu",
       "download": "Télécharger"
     },
     "hero": {
@@ -234,78 +236,6 @@
         }
       }
     },
-    "pricing": {
-      "title": "Renforcez votre équipe,",
-      "titleHighlight": "pas votre budget.",
-      "description": "Apportez vos propres clés API. Payez la plateforme, pas le token. Aucune limite d'utilisation.",
-      "mostPopular": "Le Plus Populaire",
-      "annualDiscount": "Économisez 20%",
-      "perSeat": "/siège",
-      "monthly": "Mensuel",
-      "yearly": "Annuel",
-      "yearlyDiscount": "Économisez 17%",
-      "month": "mois",
-      "year": "an",
-      "seatMonth": "siège/mois",
-      "seatYear": "siège/an",
-      "based": {
-        "name": "Based",
-        "badge": "Essai Gratuit de 30 Jours",
-        "description": "Commencez en solo. Voyez ce qu'un seul agent peut accomplir.",
-        "features": {
-          "0": "1 siège (mode solo)",
-          "1": "5 agents simultanés",
-          "2": "1 Runner",
-          "3": "5 dépôts",
-          "4": "Support communautaire"
-        },
-        "cta": "Démarrer l'Essai Gratuit"
-      },
-      "pro": {
-        "name": "Pro",
-        "description": "Votre première équipe d'agents. Jusqu'à 5 sièges, 10 agents en parallèle.",
-        "features": {
-          "0": "Jusqu'à 5 sièges",
-          "1": "10 agents simultanés",
-          "2": "10 Runners",
-          "3": "10 dépôts",
-          "4": "Support email prioritaire",
-          "5": "Support multi-fournisseur Git"
-        },
-        "cta": "Passer au Pro"
-      },
-      "enterprise": {
-        "name": "Team",
-        "description": "Échelle départementale. 50 sièges avec leurs propres escouades d'agents.",
-        "features": {
-          "0": "Jusqu'à 50 sièges",
-          "1": "50 agents simultanés",
-          "2": "100 Runners",
-          "3": "Dépôts illimités",
-          "4": "Support prioritaire"
-        },
-        "cta": "Passer au Team"
-      },
-      "onpremise": {
-        "name": "OnPremise",
-        "price": "Sur mesure",
-        "period": "contactez-nous",
-        "description": "Déploiement entièrement privé. Votre infrastructure, vos règles.",
-        "features": {
-          "0": "Sièges illimités",
-          "1": "Agents illimités",
-          "2": "Runners illimités",
-          "3": "Support air-gapped",
-          "4": "Support dédié",
-          "5": "SLA personnalisé",
-          "6": "Accompagnement premium"
-        },
-        "cta": "Contacter les Ventes"
-      },
-      "footer": "Tous les plans incluent BYOK (Bring Your Own Key) — utilisez vos propres clés API IA sans limites d'utilisation.",
-      "customPlan": "Besoin d'un déploiement entreprise ?",
-      "contactUs": "Contactez-nous"
-    },
     "selfHosted": {
       "title": "Besoin d'un Déploiement",
       "titleHighlight": "Self-Hosted",
@@ -322,10 +252,7 @@
       "title2": "votre prochaine livraison ?",
       "description": "Choisissez un scenario, observez la coordination de l'equipe, puis construisez votre workforce IA.",
       "watchDemo": "Voir la demo",
-      "getStartedFree": "Commencer gratuitement",
       "scheduleDemo": "Parlons-en",
-      "freeTier": "Offre gratuite disponible",
-      "noCreditCard": "Aucune carte de crédit requise",
       "selfHostedOption": "Option auto-hébergée"
     },
     "heroDemo": {
@@ -403,16 +330,15 @@
       "highlight3": "Exécution autonome des tâches"
     },
     "footer": {
-      "tagline": "Là où les équipes dépassent les limites de l'effectif.",
+      "tagline": "Transformez des capacités d’IA fragmentées en Experts qui vont jusqu’au résultat.",
       "copyright": "Do Worker. Tous droits réservés.",
-      "madeWith": "Conçu pour les équipes ambitieuses",
+      "madeWith": "Conçu pour des résultats de travail concrets",
       "product": {
         "title": "Produit",
-        "agentpod": "AgentPod",
-        "agentsmesh": "Do Worker",
+        "agentpod": "Worker",
+        "agentsmesh": "Collaboration",
         "tickets": "Tickets",
-        "runners": "Runners",
-        "pricing": "Tarifs",
+        "runners": "Parc de Runners",
         "enterprise": "Entreprise"
       },
       "resources": {

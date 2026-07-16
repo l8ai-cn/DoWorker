@@ -13,20 +13,8 @@ import { SideBar } from "./SideBar";
 import { BottomPanel } from "./BottomPanel";
 import { CommandPalette } from "./CommandPalette";
 import { CreatePodModal } from "./CreatePodModal";
-import { WorkspaceSidebarContent } from "./sidebar/WorkspaceSidebarContent";
-import { TicketsSidebarContent } from "./sidebar/TicketsSidebarContent";
-import { RepositoriesSidebarContent } from "./sidebar/RepositoriesSidebarContent";
-import { RunnersSidebarContent } from "./sidebar/RunnersSidebarContent";
-import { InfraSidebarContent } from "./sidebar/InfraSidebarContent";
-import { MeshSidebarContent } from "./sidebar/MeshSidebarContent";
-import { ChannelsSidebarContent } from "./sidebar/ChannelsSidebarContent";
-import { WorkflowsSidebarContent } from "./sidebar/WorkflowsSidebarContent";
-import { ExpertsSidebarContent } from "@/components/experts/ExpertsSidebarContent";
-import { SettingsSidebarContent } from "./sidebar/SettingsSidebarContent";
-import { SkillsSidebarContent } from "./sidebar/SkillsSidebarContent";
-import { MarketplaceSidebarContent } from "./sidebar/MarketplaceSidebarContent";
-import { BlocksSidebar } from "@/components/blocks/BlocksSidebar";
-import { useIDEStore, type ActivityType } from "@/stores/ide";
+import { getSidebarContent, type SidebarCallbacks } from "./ideSidebarContent";
+import { useIDEStore } from "@/stores/ide";
 import { useWorkspaceStore } from "@/stores/workspace";
 import { usePodStore } from "@/stores/pod";
 import { toast } from "sonner";
@@ -35,58 +23,12 @@ import { getPodDisplayName } from "@/lib/pod-display-name";
 import { AddRunnerModal } from "./modals/AddRunnerModal";
 import { ImportRepositoryModal } from "./modals/ImportRepositoryModal";
 import { useCurrentOrg } from "@/stores/auth";
+import { useIDEStoreHydration } from "@/hooks/useIDEStoreHydration";
 
 interface IDEShellProps {
   children: React.ReactNode;
   sidebarContent?: React.ReactNode;
   className?: string;
-}
-
-interface SidebarCallbacks {
-  onCreatePod?: () => void;
-  onAddRunner?: () => void;
-  onImportRepo?: () => void;
-}
-
-function getSidebarContent(
-  activity: ActivityType,
-  callbacks: SidebarCallbacks
-): React.ReactNode {
-  switch (activity) {
-    case "workspace":
-      return <WorkspaceSidebarContent onCreatePod={callbacks.onCreatePod} />;
-    case "tickets":
-      return <TicketsSidebarContent />;
-    case "channels":
-      return <ChannelsSidebarContent />;
-    case "mesh":
-      return <MeshSidebarContent />;
-    case "workflows":
-      return <WorkflowsSidebarContent />;
-    case "experts":
-      return <ExpertsSidebarContent />;
-    case "blocks":
-      return <BlocksSidebar />;
-    case "infra":
-      return (
-        <InfraSidebarContent
-          onImportRepo={callbacks.onImportRepo}
-          onAddRunner={callbacks.onAddRunner}
-        />
-      );
-    case "repositories":
-      return <RepositoriesSidebarContent onImportRepo={callbacks.onImportRepo} />;
-    case "runners":
-      return <RunnersSidebarContent onAddRunner={callbacks.onAddRunner} />;
-    case "skills":
-      return <SkillsSidebarContent />;
-    case "marketplace":
-      return <MarketplaceSidebarContent />;
-    case "settings":
-      return <SettingsSidebarContent />;
-    default:
-      return null;
-  }
 }
 
 export function IDEShell({
@@ -101,7 +43,7 @@ export function IDEShell({
   const activeActivity = useIDEStore((state) => state.activeActivity);
   const routeActivity = resolveActivityFromPathname(pathname);
   const sidebarActivity = routeActivity ?? activeActivity;
-  const _hasHydrated = useIDEStore((state) => state._hasHydrated);
+  const _hasHydrated = useIDEStoreHydration();
   const addPane = useWorkspaceStore((state) => state.addPane);
   const fetchPods = usePodStore((state) => state.fetchPods);
   const t = useTranslations();

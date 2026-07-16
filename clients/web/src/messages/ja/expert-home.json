@@ -1,0 +1,116 @@
+{
+  "landing": {
+    "workforce": {
+      "expertHome": {
+        "hero": {
+          "eyebrow": "エンタープライズ向け Agent 供給プラットフォーム",
+          "title": "Agent 供給 + AI-native 組織のインキュベーション",
+          "description": "Agent を実運用可能な能力単位として構築し、実際の業務で検証してガバナンスの効いたマーケットに公開し、AI Partner を中心とする AI-native 組織を育成します。",
+          "primaryAction": "Agent マーケットを探索",
+          "secondaryAction": "サプライシステムを探索",
+          "proof": "作成 · 検証 · リリース · インストール · 実行 · 進化"
+        },
+        "console": {
+          "title": "ビジネス起点の Agent 供給",
+          "status": "要求→エビデンスの実行チェーン（ライブ）",
+          "live": "実行中",
+          "paused": "一時停止中",
+          "complete": "完了",
+          "goalLabel": "ビジネス要件",
+          "goal": "多言語の顧客エスカレーションを解決し、記録する",
+          "expertLabel": "適合した Agent",
+          "expert": "カスタマーオペレーション Agent",
+          "formulaLabel": "適合する能力",
+          "formula": "顧客知見 · 多言語コンテンツ · データ分析 · システムアクション · ポリシー",
+          "workflowLabel": "業務起点の実行チェーン",
+          "steps": ["要件の特定", "能力マッチング", "権限確認", "協調実行", "人間のレビュー", "エビデンス引渡し"],
+          "checkpointLabel": "人間レビュー",
+          "checkpoint": "外部応答、特権操作、ポリシー境界を確認します。",
+          "deliverableLabel": "エビデンス引渡し",
+          "deliverable": "完了したアクション、結果サマリー、承認履歴、検査可能なエビデンス",
+          "controls": { "pause": "一時停止", "resume": "再開", "next": "次の段階", "replay": "再生" }
+        },
+        "solutions": {
+          "eyebrow": "3 つのソリューション",
+          "title": "Agent を供給し、AI-native 組織をインキュベートする。",
+          "description": "エンタープライズ Agent 供給から始め、AI Partner を軸に OPC を形成するか、組み合わせ可能なプラットフォーム機能を活用して高等教育向けデジタルワーカーのパイロットを設計します。",
+          "workflowLabel": "運用パス",
+          "deliverablesLabel": "ビジネス成果",
+          "items": [
+            { "id": "enterprise-agent-supply", "title": "Enterprise Agent supply", "description": "業務ノウハウ、手法、ツール、ポリシーを、チームが検証・公開・インストール・運用・改善できる標準化済み Agent に変換します。", "chain": "Build → Verify → Release → Install → Run → Evolve", "outcome": "バージョン管理された Agent、検証エビデンス、インストール方針、運用記録、進化計画。", "action": "エンタープライズ Agent 供給を開始" },
+            { "id": "opc-incubation", "title": "OPC incubation", "description": "1 つの Agent または連携する複数の Agents で構成される AI Partner と人間中心のコアチームを組み合わせ、OPC を育成します。", "chain": "事業を定義 → AI Partner を設計 → 協働体制を構築 → 反復業務を自動化 → 実行を統制 → 拡張", "outcome": "明確な AI Partner の役割、運用リズム、ガバナンス境界、測定可能な成果を備えた人間主導のチーム。", "action": "OPC を育成" },
+            { "id": "higher-education-digital-employees", "title": "高等教育向けデジタルワーカー・パイロット", "description": "教育、研究、学生支援、管理業務を対象に、組み合わせ可能なプラットフォーム機能と機関の知識、ガバナンスを結び付け、役割別のパイロットを設計します。", "chain": "役割を特定 → 知識を設定 → タスクを検証 → 1 チームで試行 → サービスを統制 → 継続的に改善", "outcome": "キャンパスの役割、機関の知識、承認境界、サービスエビデンスに整合した、検証済みのパイロット設計。", "action": "高等教育パイロットを開始" }
+          ]
+        },
+        "capabilities": {
+          "eyebrow": "コアプラットフォーム機能",
+          "title": "Agent 供給と AI-native チームのためのオペレーティングシステム",
+          "description": "5 つの連携機能が Agent を作成段階からガバナンスされた組織利用へ移行させ、人、AI Partner、オートメーション、エビデンスを 1 つの運用環境で管理します。",
+          "levels": { "implemented": "利用可能", "composable": "Composable", "planned": "予定" },
+          "items": [
+            { "id": "agent-factory", "level": "implemented", "title": "Agent factory", "description": "再利用可能な手法、知識、ツール、モデル、ポリシーから Agent を構築・検証・バージョン管理・公開します。" },
+            { "id": "agent-market", "level": "implemented", "title": "Agent market", "description": "承認済み Agent を見つけ、能力と権限を確認し、チームごとに適切なバージョンをインストールします。" },
+            { "id": "collaboration-workspace", "level": "implemented", "title": "Collaboration workspace", "description": "人と AI Partner が、共通の目標、コンテキスト、会話、成果物、意思決定、提供エビデンスを共有します。" },
+            { "id": "automation", "level": "implemented", "title": "Automation", "description": "定常業務を起動し、Agent 組み合わせを調整し、進捗を追跡して判断を適切な担当へ接続します。" },
+            { "id": "governance", "level": "implemented", "title": "Governance", "description": "権限、実行境界、承認、予算、バージョン、エビデンス、監査履歴を制御します。" }
+          ]
+        },
+        "operating": {
+          "eyebrow": "Agent 供給ライフサイクル",
+          "title": "作成から進化までを閉ループ化",
+          "description": "各 Agent は供給可能な能力ユニットです。プラットフォームはガバナンス済みライフサイクルで移管し、運用エビデンスを使って次版と周辺組織を改善します。",
+          "formulaTitle": "6 つのライフステージ",
+          "parts": [
+            { "id": "build", "title": "Build", "description": "業務方法、知識、ツール、モデル、ポリシーから焦点化した Agent を構成します。" },
+            { "id": "verify", "title": "Verify", "description": "リリース前に実タスク、障害シナリオ、権限、受入エビデンスをテストします。" },
+            { "id": "release", "title": "Release", "description": "承認済みでバージョン管理された Agent をガバナンスされた Agent market に公開します。" },
+            { "id": "install", "title": "Install", "description": "チーム・役割・環境・アクセス範囲に合わせて承認版を設定します。" },
+            { "id": "run", "title": "Run", "description": "Agent を単独で、または AI Partner の一部として、進捗を可視化し人間のチェックポイントを設けながら運用します。" },
+            { "id": "evolve", "title": "Evolve", "description": "結果、フィードバック、インシデント、最新知見を使って次版を検証します。" }
+          ],
+          "humanTitle": "AI Partner が Agent 供給を組織へと発展させる",
+          "humanDescription": "AI Partner は 1 つの Agent、または複数の Agents を連携させた構成です。OPC は人を中核に据えながら、AI Partner によってチームの遂行能力を拡張します。",
+          "humanItems": [
+            { "id": "supply-unit", "title": "Agent", "description": "最小の能力ユニットで、構築・検証・公開・インストール・実行・進化が可能。" },
+            { "id": "ai-partner", "title": "AI Partner", "description": "明確な役割、コンテキスト、提供責任を持つ、ビジネス向けの Agent または Agents の組み合わせ。" },
+            { "id": "opc", "title": "OPC", "description": "人間中心のコアチームと AI Partners が、説明責任を持つ 1 つの AI-native チームとして運用される形態。" }
+          ]
+        },
+        "market": {
+          "eyebrow": "Agent market",
+          "title": "1回公開して、必要箇所へガバナンス下で供給をインストールします。",
+          "description": "Agent market は再利用可能な能力を配布する仕組みであり、万能ソリューションではありません。チームはインストール前に範囲・証跡・権限・バージョンを確認できます。",
+          "apps": [
+            { "slug": "software-delivery-expert", "title": "Software delivery Agent", "description": "要件を実装・検証・レビュー・受入済みコード配信へと遂行します。" },
+            { "slug": "multi-worker-orchestrator", "title": "Multi-Agent orchestration", "description": "1 つのゴール、共通チェックポイント、合意結果に対して専門 Agent を調整します。" },
+            { "slug": "dual-repo-sync-expert", "title": "Dual-repository sync Agent", "description": "差分を検知し、GitLab と GitHub を同期し、変更を適切なレビューパスへ送ります。" }
+          ],
+          "status": "公開済み",
+          "plannedTitle": "検証を通じて供給を拡張",
+          "plannedDescription": "新規 Agent は、役割・権限・障害経路・成果物・運用エビデンスが検証された後にのみ市場へ登録されます。",
+          "action": "Agent マーケットを探索"
+        },
+        "trust": {
+          "eyebrow": "ランタイムとガバナンス",
+          "title": "エンタープライズ境界内で Agent 供給を運用",
+          "description": "各 Agent 実行は、インフラ、分離されたワークスペース、資格情報範囲、承認ポリシー、予算、エビデンス要件で制御されます。",
+          "items": [
+            { "id": "selfHosting", "title": "Runner deployment control", "description": "Runners を組織が定義したインフラとネットワーク境界内でデプロイします。", "status": "制御済み" },
+            { "id": "workspaces", "title": "Isolated workspaces", "description": "各割り当てのファイル、依存関係、実行コンテキストを分離します。", "status": "分離済み" },
+            { "id": "credentials", "title": "Scoped credentials", "description": "各 Agent には承認済みの役割とタスクに必要な範囲のアクセスのみ付与します。", "status": "制限付き" },
+            { "id": "audit", "title": "Inspectable evidence", "description": "活動、意思決定、承認、成果物、バージョン、配信ステータスを記録し監査可能にします。", "status": "記録済み" }
+          ],
+          "runtimesTitle": "Runner runtime coverage",
+          "runtimesDescription": "Runners は、Codex CLI、Claude Code、Gemini CLI、Aider、OpenCode など、承認済みの Agent ランタイムをホストします。利用可否は、検証済みランタイムカタログに基づきます。"
+        },
+        "cta": {
+          "eyebrow": "1 つの供給ユニットから始める",
+          "title": "最初の供給可能 Agent を作成",
+          "description": "実際の業務にある役割を 1 つ選び、その作業を検証して承認済みバージョンを公開し、1 つの Agent から AI Partner または OPC へと発展させます。",
+          "primary": "最初の Agent を作成",
+          "secondary": "Agent マーケットを探索"
+        }
+      }
+    }
+  }
+}

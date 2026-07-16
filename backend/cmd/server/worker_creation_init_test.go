@@ -1,16 +1,35 @@
 package main
 
 import (
+	"path/filepath"
 	"testing"
 
-	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
+	"github.com/anthropics/agentsmesh/backend/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestInitializeWorkerCreationServiceUsesDefaultCatalog(t *testing.T) {
-	service := initializeWorkerCreationService(nil, nil, nil, nil)
+func TestInitializeWorkerServicesValidatesDefinitionCatalog(t *testing.T) {
+	t.Run("rejects an incomplete catalog", func(t *testing.T) {
+		_, err := initializeWorkerServices(
+			&config.Config{WorkerDefinitionsDir: t.TempDir()},
+			nil, nil, nil, nil, nil,
+		)
 
-	require.NotNil(t, service)
-	assert.Equal(t, workerruntime.DefaultCatalogRevision, service.Revision())
+		require.Error(t, err)
+		assert.ErrorContains(t, err, "read worker definition schema")
+	})
+
+	t.Run("loads the formal catalog", func(t *testing.T) {
+		root, err := filepath.Abs(filepath.Join("..", "..", "..", "config", "worker-types"))
+		require.NoError(t, err)
+
+		services, err := initializeWorkerServices(
+			&config.Config{WorkerDefinitionsDir: root},
+			nil, nil, nil, nil, nil,
+		)
+
+		require.NoError(t, err)
+		assert.Len(t, services.workerDefinitions.Slugs(), 13)
+	})
 }

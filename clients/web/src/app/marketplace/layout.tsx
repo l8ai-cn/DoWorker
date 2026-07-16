@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "专家应用市场",
-  description: "浏览并启用已经装配好 Worker、提示词和 Skills 的 AI 专家应用。",
+  title: "Agent Market",
+  description:
+    "Discover approved, versioned Agents with visible capabilities, permissions, and delivery expectations.",
   alternates: {
-    canonical: "https://dowork.l8ai.cn/marketplace",
+    canonical: "https://market.l8ai.cn",
   },
   openGraph: {
-    title: "专家应用市场 | Do Worker",
-    description: "选择可直接进入工作的 AI 专家应用。",
-    url: "https://dowork.l8ai.cn/marketplace",
+    title: "Agent Market | Do Worker",
+    description:
+      "Discover approved Agents and inspect their capabilities, permissions, and versions before installation.",
+    url: "https://market.l8ai.cn",
   },
 };
 

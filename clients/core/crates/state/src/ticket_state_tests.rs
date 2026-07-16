@@ -1,4 +1,4 @@
-use crate::ticket_state::{TicketState, ViewMode, ticket_priority, ticket_status};
+use crate::ticket_state::{ticket_priority, ticket_status, TicketState, ViewMode};
 use agentsmesh_types::proto_ticket_v1::{BoardColumn, Label, Ticket};
 
 fn tk(slug: &str, title: &str) -> Ticket {

@@ -11,7 +11,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/host_services_lite.sh"
 
 # Contract marker for deploy/dev/runner_runtime_contract_test.sh — keep in sync
 # with host_services_lite.sh / coordinator_runners.sh.
-# COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES=claude-code=runner-claude-code,codex-cli=runner-codex-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,grok-build=runner-grok-build,openclaw=runner-openclaw,hermes=runner-hermes,aider=runner-aider,opencode=runner-opencode
+# COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES=claude-code=runner-claude-code,codex-cli=runner-codex-cli,cursor-cli=runner-cursor-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,grok-build=runner-grok-build,minimax-cli=runner-minimax-cli,openclaw=runner-openclaw,hermes=runner-hermes,aider=runner-aider,opencode=runner-opencode
 
 _wait_http() {
     local url="$1" name="$2" max="${3:-40}"

@@ -27,11 +27,4 @@ export const FAQ_SECTIONS = [
       ["docs.faq.items.gitWorktreeConflict.question", "docs.faq.items.gitWorktreeConflict.answer"],
     ],
   },
-  {
-    categoryKey: "docs.faq.categories.billing",
-    items: [
-      ["docs.faq.items.billingBYOK.question", "docs.faq.items.billingBYOK.answer"],
-      ["docs.faq.items.billingFree.question", "docs.faq.items.billingFree.answer"],
-    ],
-  },
 ] as const;

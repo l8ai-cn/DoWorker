@@ -8,6 +8,7 @@ cmd = "go build -o ./deploy/dev/runtime/relay/air/main ./relay/cmd/relay"
 bin = "./deploy/dev/runtime/relay/air/main"
 full_bin = "./deploy/dev/runtime/relay/air/main"
 include_ext = ["go"]
+include_dir = ["relay"]
 exclude_dir = [
   "assets", "tmp", "vendor", "testdata", "node_modules",
   "bazel-bin", "bazel-out", "bazel-testlogs", "bazel-agentsmesh",

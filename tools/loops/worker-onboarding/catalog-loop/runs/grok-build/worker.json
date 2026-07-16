@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "slug": "grok-build",
+  "status": "planned",
+  "definition_hash": "sha256:0f76d4f5531ddb50791f5b887993feb750d637838f02b266a14e484c6610b2c2",
+  "source_refs": [
+    "config/worker-types/catalog.json"
+  ]
+}

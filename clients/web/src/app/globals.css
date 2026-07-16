@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./expert-home.css";
 @plugin "@tailwindcss/typography";
 @source not "./favicon.ico";
 

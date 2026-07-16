@@ -12,15 +12,20 @@ import "strings"
 // the session API `pty_only` path) asking for CLI/PTY is silently downgraded to
 // ACP under the default autonomous level.
 func agentfileLayerHasModeDecl(layer *string) bool {
+	return agentfileLayerMode(layer) != ""
+}
+
+func agentfileLayerMode(layer *string) string {
 	if layer == nil {
-		return false
+		return ""
 	}
+	mode := ""
 	for _, line := range strings.Split(*layer, "\n") {
 		fields := strings.Fields(line)
 		if len(fields) == 2 && fields[0] == "MODE" &&
 			(fields[1] == "pty" || fields[1] == "acp") {
-			return true
+			mode = fields[1]
 		}
 	}
-	return false
+	return mode
 }

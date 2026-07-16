@@ -2,7 +2,6 @@ package runner
 
 import (
 	"context"
-	"log/slog"
 	"strconv"
 	"time"
 
@@ -46,8 +45,15 @@ func (s *Service) ResolveRunnerForCreate(
 	return candidate, nil
 }
 
-func (s *Service) collectEligibleRunners(ctx context.Context, orgID, userID int64, agentSlug string) []*ActiveRunner {
-	grantedIDs := s.fetchGrantedRunnerIDs(ctx, orgID, userID)
+func (s *Service) collectEligibleRunners(
+	ctx context.Context,
+	orgID, userID int64,
+	agentSlug string,
+) ([]*ActiveRunner, error) {
+	grantedIDs, err := s.fetchGrantedRunnerIDs(ctx, orgID, userID)
+	if err != nil {
+		return nil, err
+	}
 
 	var result []*ActiveRunner
 	s.activeRunners.Range(func(key, value interface{}) bool {
@@ -62,7 +68,7 @@ func (s *Service) collectEligibleRunners(ctx context.Context, orgID, userID int6
 		result = append(result, ar)
 		return true
 	})
-	return result
+	return result, nil
 }
 
 func isRunnerAvailableForAgent(ar *ActiveRunner, orgID int64, agentSlug string) bool {
@@ -90,17 +96,16 @@ func isVisibleToUser(r *runnerDomain.Runner, userID int64, grantedIDs map[int64]
 	return grantedIDs[r.ID]
 }
 
-func (s *Service) fetchGrantedRunnerIDs(ctx context.Context, orgID, userID int64) map[int64]bool {
+func (s *Service) fetchGrantedRunnerIDs(ctx context.Context, orgID, userID int64) (map[int64]bool, error) {
 	if s.grantQuerier == nil {
-		return nil
+		return nil, nil
 	}
 	ids, err := s.grantQuerier.GetGrantedResourceIDs(ctx, grant.TypeRunner, userID, orgID)
 	if err != nil {
-		slog.Warn("failed to fetch runner grants for cache filter", "user_id", userID, "error", err)
-		return nil
+		return nil, err
 	}
 	if len(ids) == 0 {
-		return nil
+		return nil, nil
 	}
 	m := make(map[int64]bool, len(ids))
 	for _, idStr := range ids {
@@ -108,5 +113,5 @@ func (s *Service) fetchGrantedRunnerIDs(ctx context.Context, orgID, userID int64
 			m[id] = true
 		}
 	}
-	return m
+	return m, nil
 }

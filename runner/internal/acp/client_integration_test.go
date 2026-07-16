@@ -19,10 +19,11 @@ func TestACPClient_StartStop(t *testing.T) {
 	cmd.Wait()
 
 	client := NewClient(ClientConfig{
-		Command: mockAgentCmd(),
-		Args:    mockAgentArgs(),
-		Env:     mockAgentEnv(),
-		Logger:  slog.Default(),
+		Command:       mockAgentCmd(),
+		Args:          mockAgentArgs(),
+		Env:           mockAgentEnv(),
+		Logger:        slog.Default(),
+		TransportType: TransportTypeACP,
 	})
 
 	if err := client.Start(); err != nil {
@@ -61,10 +62,11 @@ func TestACPClient_SendPrompt(t *testing.T) {
 	var stateChanges []string
 
 	client := NewClient(ClientConfig{
-		Command: mockAgentCmd(),
-		Args:    mockAgentArgs(),
-		Env:     mockAgentEnv(),
-		Logger:  slog.Default(),
+		Command:       mockAgentCmd(),
+		Args:          mockAgentArgs(),
+		Env:           mockAgentEnv(),
+		Logger:        slog.Default(),
+		TransportType: TransportTypeACP,
 		Callbacks: EventCallbacks{
 			OnContentChunk: func(sessionID string, chunk ContentChunk) {
 				mu.Lock()

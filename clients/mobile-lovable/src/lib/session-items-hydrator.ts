@@ -38,8 +38,7 @@ function toolKindFor(name: string): LiveAgentEvent["toolKind"] {
 export function itemsToLiveEvents(items: ItemWire[]): LiveAgentEvent[] {
   const out: LiveAgentEvent[] = [];
   let seq = 0;
-  const ts = () =>
-    new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+  const ts = () => new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
   const id = (p: string) => {
     seq += 1;
     return `${p}-${seq}`;
@@ -60,8 +59,7 @@ export function itemsToLiveEvents(items: ItemWire[]): LiveAgentEvent[] {
         }
       } else if (item.role === "assistant") {
         const text =
-          textFromContent(item.content, "output_text") ||
-          textFromContent(item.content, "text");
+          textFromContent(item.content, "output_text") || textFromContent(item.content, "text");
         if (text) {
           out.push({
             id: item.id ?? id("msg"),

@@ -29,10 +29,14 @@ impl MeshService {
             org_slug: self.client.current_org_slug(),
         };
         tracing::debug!(target: "mesh", org_slug = %req.org_slug, "fetch topology");
-        let topo = self.client
+        let topo = self
+            .client
             .get_mesh_topology_connect(&req)
-            .await.map_err(crate::wire)?;
-        let replace = ReplaceTopologyRequest { topology: Some(topo) };
+            .await
+            .map_err(crate::wire)?;
+        let replace = ReplaceTopologyRequest {
+            topology: Some(topo),
+        };
         Ok(replace.encode_to_vec())
     }
 }

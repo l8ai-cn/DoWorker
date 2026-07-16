@@ -103,6 +103,7 @@ export function WorkerStepRuntimePanel({
             <AutomationLevelSelect
               value={form.automationLevel}
               onChange={form.setAutomationLevel}
+              supportedModes={form.supportedModes}
               t={t}
             />
             {!form.rawLayerMode && form.automationLevel !== "autonomous" && (

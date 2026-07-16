@@ -14,6 +14,27 @@ type ResolvedSnapshot struct {
 	summaryJSON    []byte
 }
 
+func NewResolvedSnapshot(
+	organizationID int64,
+	spec domain.Spec,
+) (ResolvedSnapshot, error) {
+	if organizationID <= 0 {
+		return ResolvedSnapshot{}, fmt.Errorf(
+			"%w: organization id must be positive",
+			ErrInvalidResolvedSnapshot,
+		)
+	}
+	normalized, err := domain.NormalizeAndValidate(spec)
+	if err != nil {
+		return ResolvedSnapshot{}, fmt.Errorf(
+			"%w: invalid spec: %v",
+			ErrInvalidResolvedSnapshot,
+			err,
+		)
+	}
+	return resolveSnapshot(organizationID, normalized)
+}
+
 func (snapshot ResolvedSnapshot) OrganizationID() int64 {
 	return snapshot.organizationID
 }

@@ -15,6 +15,15 @@ message WorkerKnowledgeMount {
   string mode = 2;
 }
 
+message WorkerResourceRequest {
+  uint32 cpu_request_millicpu = 1;
+  uint32 cpu_limit_millicpu = 2;
+  uint64 memory_request_bytes = 3;
+  uint64 memory_limit_bytes = 4;
+  uint64 storage_request_bytes = 5;
+  uint64 storage_limit_bytes = 6;
+}
+
 message WorkerSpecDraft {
   int64 model_resource_id = 1;
   string worker_type_slug = 2;
@@ -40,6 +49,17 @@ message WorkerSpecDraft {
   string alias = 22;
   optional int64 source_expert_id = 23;
   string options_revision = 24;
+  map<string, int64> tool_model_resource_ids = 25;
+  optional WorkerResourceRequest custom_resources = 26;
+  repeated int64 config_bundle_ids = 27;
+}
+
+message WorkerToolModelRequirement {
+  string role = 1;
+  repeated string provider_keys = 2;
+  repeated string protocol_adapters = 3;
+  string modality = 4;
+  string capability = 5;
 }
 
 message WorkerTypeOption {
@@ -50,6 +70,9 @@ message WorkerTypeOption {
   string config_schema_json = 5;
   bool selectable = 6;
   string blocking_reason = 7;
+  bool requires_model_resource = 8;
+  repeated WorkerToolModelRequirement tool_model_requirements = 9;
+  repeated string supported_interaction_modes = 10;
 }
 
 message WorkerRuntimeImageOption {
@@ -93,6 +116,8 @@ message WorkerResourceProfileOption {
   optional uint32 gpu_limit = 9;
   bool selectable = 10;
   string blocking_reason = 11;
+  uint64 storage_request_bytes = 12;
+  uint64 storage_limit_bytes = 13;
 }
 
 message ListWorkerCreateOptionsRequest {

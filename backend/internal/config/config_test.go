@@ -8,6 +8,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func setRequiredPreviewOrigin(t *testing.T) {
+	t.Helper()
+	t.Setenv("PREVIEW_PUBLIC_ORIGIN", "http://preview.example.test")
+}
+
 func TestDatabaseConfig_DSN(t *testing.T) {
 	t.Run("should generate correct DSN", func(t *testing.T) {
 		cfg := DatabaseConfig{
@@ -105,6 +110,16 @@ func TestGetEnv(t *testing.T) {
 		result := getEnv("TEST_ENV_VAR_EMPTY", "default-value")
 		assert.Equal(t, "default-value", result)
 	})
+}
+
+func TestLoadWorkerDefinitionsDir(t *testing.T) {
+	setRequiredPreviewOrigin(t)
+	t.Setenv("WORKER_DEFINITIONS_DIR", "/tmp/worker-definitions")
+
+	cfg, err := Load()
+
+	require.NoError(t, err)
+	assert.Equal(t, "/tmp/worker-definitions", cfg.WorkerDefinitionsDir)
 }
 
 func TestGetEnvInt(t *testing.T) {
@@ -250,6 +265,7 @@ func TestSplitAndTrim(t *testing.T) {
 
 func TestLoad(t *testing.T) {
 	t.Run("should load config with defaults", func(t *testing.T) {
+		setRequiredPreviewOrigin(t)
 		// Clear relevant env vars to test defaults
 		os.Unsetenv("SERVER_ADDRESS")
 		os.Unsetenv("DEBUG")
@@ -269,6 +285,7 @@ func TestLoad(t *testing.T) {
 	})
 
 	t.Run("should load config from environment", func(t *testing.T) {
+		setRequiredPreviewOrigin(t)
 		os.Setenv("SERVER_ADDRESS", ":9090")
 		os.Setenv("DEBUG", "true")
 		os.Setenv("DB_HOST", "db.example.com")
@@ -292,6 +309,7 @@ func TestLoad(t *testing.T) {
 
 func TestLoad_StorageRunnerEndpoint(t *testing.T) {
 	t.Run("should default to empty (falls back to Endpoint)", func(t *testing.T) {
+		setRequiredPreviewOrigin(t)
 		os.Unsetenv("STORAGE_RUNNER_ENDPOINT")
 
 		cfg, err := Load()
@@ -300,6 +318,7 @@ func TestLoad_StorageRunnerEndpoint(t *testing.T) {
 	})
 
 	t.Run("should read host.docker.internal override for runner pods", func(t *testing.T) {
+		setRequiredPreviewOrigin(t)
 		os.Setenv("STORAGE_ENDPOINT", "localhost:10004")
 		os.Setenv("STORAGE_RUNNER_ENDPOINT", "host.docker.internal:10004")
 		defer func() {

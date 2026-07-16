@@ -129,9 +129,9 @@ type PromptDecl struct {
 	Position Position
 }
 
-// PromptPositionDecl: PROMPT_POSITION prepend | append | none
+// PromptPositionDecl: PROMPT_POSITION prepend | append | after_first | none
 type PromptPositionDecl struct {
-	Mode     string // "prepend", "append", "none"
+	Mode     string // "prepend", "append", "after_first", "none"
 	Position Position
 }
 

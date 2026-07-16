@@ -76,10 +76,10 @@ func TestCreatePod_NormalMode_MissingRunnerID(t *testing.T) {
 func TestCreatePod_AutoSelectRunner_Success(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	selector := &mockRunnerSelector{
-		runner: &runnerDomain.Runner{ID: 42, NodeID: "auto-runner"},
+		runner: &runnerDomain.Runner{ID: 42, ClusterID: 17, NodeID: "auto-runner"},
 	}
 	resolver := &mockAgentResolver{
-		agentDef: &agentDomain.Agent{Slug: "claude-code", SupportedModes: "pty", AgentfileSource: ptrStr("AGENT claude\nPROMPT_POSITION prepend")},
+		agentDef: &agentDomain.Agent{Slug: "claude-code", AdapterID: "claude-stream-json", SupportedModes: "pty", AgentfileSource: ptrStr("AGENT claude\nPROMPT_POSITION prepend")},
 	}
 
 	orch, _, _ := setupOrchestrator(t,
@@ -101,6 +101,7 @@ func TestCreatePod_AutoSelectRunner_Success(t *testing.T) {
 	require.NotNil(t, result)
 	assert.NotNil(t, result.Pod)
 	assert.Equal(t, int64(42), result.Pod.RunnerID) // auto-selected runner
+	assert.Equal(t, int64(17), result.Pod.ClusterID)
 	assert.True(t, selector.selectCalled)
 	assert.Nil(t, selector.resolveCall)
 	assert.True(t, coord.createPodCalled)
@@ -112,7 +113,7 @@ func TestCreatePod_AutoSelectRunner_NoAvailableRunner(t *testing.T) {
 		err: errors.New("no available runner supports the requested agent"),
 	}
 	resolver := &mockAgentResolver{
-		agentDef: &agentDomain.Agent{Slug: "claude-code", SupportedModes: "pty", AgentfileSource: ptrStr("AGENT claude\nPROMPT_POSITION prepend")},
+		agentDef: &agentDomain.Agent{Slug: "claude-code", AdapterID: "claude-stream-json", SupportedModes: "pty", AgentfileSource: ptrStr("AGENT claude\nPROMPT_POSITION prepend")},
 	}
 
 	orch, _, _ := setupOrchestrator(t,
@@ -254,8 +255,11 @@ func TestCreatePod_ConfigBuildFailure(t *testing.T) {
 	configBuilder := agent.NewConfigBuilder(provider, noopBundleLoader{})
 
 	orch := NewPodOrchestrator(&PodOrchestratorDeps{
-		PodService:     podSvc,
-		ConfigBuilder:  configBuilder,
+		PodService:    podSvc,
+		ConfigBuilder: configBuilder,
+		AgentResolver: &mockAgentResolver{agentDef: &agentDomain.Agent{
+			Slug: "claude-code", AdapterID: "claude-stream-json", SupportedModes: "pty",
+		}},
 		RunnerSelector: &mockRunnerSelector{resolveRunner: &runnerDomain.Runner{ID: 1}},
 		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
 	})

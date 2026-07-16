@@ -64,10 +64,7 @@ where
             tracing::warn!(target: "api", procedure, "connect_call ← 401 auth expired");
             return Err(ApiError::AuthExpired);
         }
-        let status_text = status
-            .canonical_reason()
-            .unwrap_or("Unknown")
-            .to_string();
+        let status_text = status.canonical_reason().unwrap_or("Unknown").to_string();
         let body_bytes = resp.bytes().await.ok();
         let body_text = body_bytes
             .as_ref()
@@ -121,8 +118,9 @@ mod tests {
 
     #[test]
     fn connect_envelope_yields_code_and_message() {
-        let (code, msg) =
-            parse_connect_error(Some(r#"{"code":"already_exists","message":"source pod already resumed"}"#));
+        let (code, msg) = parse_connect_error(Some(
+            r#"{"code":"already_exists","message":"source pod already resumed"}"#,
+        ));
         assert_eq!(code.as_deref(), Some("already_exists"));
         assert_eq!(msg.as_deref(), Some("source pod already resumed"));
     }

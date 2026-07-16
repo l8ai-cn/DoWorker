@@ -30,12 +30,40 @@ func (d *Deps) handleGetSessionRelayConnection(c *gin.Context) {
 	c.JSON(http.StatusOK, connection)
 }
 
+func (d *Deps) handleGetSessionACPRelayConnection(c *gin.Context) {
+	_, pod, ok := d.authorizeSession(c, c.Param("id"))
+	if !ok {
+		return
+	}
+	connection, status, message := d.relayConnectionForMode(
+		c,
+		pod,
+		podDomain.InteractionModeACP,
+	)
+	if status != 0 {
+		c.JSON(status, gin.H{"error": message})
+		return
+	}
+	c.JSON(http.StatusOK, connection)
+}
+
 func (d *Deps) sessionRelayConnection(
 	c *gin.Context,
 	pod *podDomain.Pod,
 ) (*sessionRelayConnection, int, string) {
+	return d.relayConnectionForMode(c, pod, podDomain.InteractionModePTY)
+}
+
+func (d *Deps) relayConnectionForMode(
+	c *gin.Context,
+	pod *podDomain.Pod,
+	interactionMode string,
+) (*sessionRelayConnection, int, string) {
 	if pod == nil || !pod.IsActive() || pod.RunnerID <= 0 {
 		return nil, http.StatusNotFound, "session not found"
+	}
+	if pod.InteractionMode != interactionMode {
+		return nil, http.StatusBadRequest, "relay connection is unavailable for this session mode"
 	}
 	if d.RelayManager == nil || d.RelayTokens == nil || d.CommandSender == nil {
 		return nil, http.StatusServiceUnavailable, "relay unavailable"
@@ -49,6 +77,10 @@ func (d *Deps) sessionRelayConnection(
 	if !policy.PodPolicy.AllowRead(subject, resource) {
 		return nil, http.StatusForbidden, "forbidden"
 	}
+	tokenLifetime, ok := sessionRelayTokenLifetime(c)
+	if !ok {
+		return nil, http.StatusUnauthorized, "embed session expired"
+	}
 	relayInfo := d.RelayManager.SelectRelayForPodGeo(relay.GeoSelectOptions{
 		OrgSlug: tenant.OrganizationSlug,
 	})
@@ -56,7 +88,7 @@ func (d *Deps) sessionRelayConnection(
 		return nil, http.StatusServiceUnavailable, "no relay"
 	}
 	runnerToken, err := d.RelayTokens.GenerateToken(
-		pod.PodKey, pod.RunnerID, 0, tenant.OrganizationID, time.Hour,
+		pod.PodKey, pod.RunnerID, 0, tenant.OrganizationID, tokenLifetime,
 	)
 	if err != nil {
 		return nil, http.StatusInternalServerError, "token failed"
@@ -67,7 +99,7 @@ func (d *Deps) sessionRelayConnection(
 		return nil, http.StatusServiceUnavailable, "relay subscription failed"
 	}
 	browserToken, err := d.RelayTokens.GenerateToken(
-		pod.PodKey, pod.RunnerID, tenant.UserID, tenant.OrganizationID, time.Hour,
+		pod.PodKey, pod.RunnerID, tenant.UserID, tenant.OrganizationID, tokenLifetime,
 	)
 	if err != nil {
 		return nil, http.StatusInternalServerError, "token failed"
@@ -80,4 +112,22 @@ func (d *Deps) sessionRelayConnection(
 		Token:    browserToken,
 		PodKey:   pod.PodKey,
 	}, 0, ""
+}
+
+func sessionRelayTokenLifetime(c *gin.Context) (time.Duration, bool) {
+	claims := embedClaims(c)
+	if claims == nil {
+		return time.Hour, true
+	}
+	if claims.ExpiresAt == nil {
+		return 0, false
+	}
+	remaining := time.Until(claims.ExpiresAt.Time)
+	if remaining <= 0 {
+		return 0, false
+	}
+	if remaining < time.Hour {
+		return remaining, true
+	}
+	return time.Hour, true
 }

@@ -18,6 +18,8 @@ import (
 
 var ErrNotFound = errors.New("session file not found")
 
+const runnerDownloadURLExpiry = 5 * time.Minute
+
 type Service struct {
 	db    *gorm.DB
 	files *fileservice.Service
@@ -86,6 +88,13 @@ func (s *Service) Open(ctx context.Context, row *domain.File) (io.ReadCloser, in
 		return nil, 0, fmt.Errorf("session file service unavailable")
 	}
 	return s.files.OpenObject(ctx, row.MinioKey)
+}
+
+func (s *Service) RunnerDownloadURL(ctx context.Context, row *domain.File) (string, error) {
+	if s == nil || s.files == nil || row == nil || row.MinioKey == "" {
+		return "", fmt.Errorf("session file service unavailable")
+	}
+	return s.files.GetInternalURL(ctx, row.MinioKey, runnerDownloadURLExpiry)
 }
 
 func sessionObjectKey(sessionID, fileID, filename string) string {

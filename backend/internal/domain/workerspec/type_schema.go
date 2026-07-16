@@ -17,8 +17,11 @@ const (
 )
 
 type TypeFieldSchema struct {
-	Kind    TypeFieldKind
-	Options []string
+	Kind        TypeFieldKind
+	Options     []string
+	Default     any
+	Required    bool
+	Description string
 }
 
 type TypeSchema struct {

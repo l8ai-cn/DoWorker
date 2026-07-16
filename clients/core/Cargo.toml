@@ -16,6 +16,7 @@ members = [
     "crates/proto-gen",
     "crates/proto/agent",
     "crates/proto/ai_resource",
+    "crates/proto/execution_cluster",
     "crates/proto/apikey",
     "crates/proto/app_state",
     "crates/proto/auth",
@@ -41,6 +42,7 @@ members = [
     "crates/proto/mesh",
     "crates/proto/mesh_state",
     "crates/proto/notification",
+    "crates/proto/orchestration_resource",
     "crates/proto/org",
     "crates/proto/pod",
     "crates/proto/pod_state",
@@ -81,6 +83,7 @@ agentsmesh_relay = { path = "crates/relay" }
 agentsmesh_wasm = { path = "crates/wasm" }
 agent_proto = { path = "crates/proto/agent" }
 ai_resource_proto = { path = "crates/proto/ai_resource" }
+execution_cluster_proto = { path = "crates/proto/execution_cluster" }
 apikey_proto = { path = "crates/proto/apikey" }
 app_state_proto = { path = "crates/proto/app_state" }
 auth_proto = { path = "crates/proto/auth" }
@@ -106,6 +109,7 @@ workflow_state_proto = { path = "crates/proto/workflow_state" }
 mesh_proto = { path = "crates/proto/mesh" }
 mesh_state_proto = { path = "crates/proto/mesh_state" }
 notification_proto = { path = "crates/proto/notification" }
+orchestration_resource_proto = { path = "crates/proto/orchestration_resource" }
 org_proto = { path = "crates/proto/org" }
 pod_proto = { path = "crates/proto/pod" }
 pod_state_proto = { path = "crates/proto/pod_state" }

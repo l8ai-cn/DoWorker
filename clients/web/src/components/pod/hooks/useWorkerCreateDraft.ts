@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useReducer } from "react";
 import type { PodData, RepositoryData } from "@/lib/api";
 import { podApi } from "@/lib/api";
+import { readCurrentOrg } from "@/stores/auth";
 import {
   createInitialWorkerDraftState,
   type WorkerCreateStepId,
@@ -17,6 +18,11 @@ import { defaultModelPatch, defaultWorkerDraftPatch } from "./workerCreateDefaul
 import { useWorkerCreateOptions } from "./useWorkerCreateOptions";
 import { useWorkerCreateSubmission } from "./useWorkerCreateSubmission";
 import { workerCreateValidity } from "./workerCreateValidity";
+import {
+  clearWorkerCreateDraft,
+  loadWorkerCreateDraft,
+  persistWorkerCreateDraft,
+} from "./workerCreateDraftPersistence";
 
 export type { WorkerCreateController } from "./workerCreateController";
 interface UseWorkerCreateDraftParams {
@@ -33,10 +39,20 @@ interface UseWorkerCreateDraftParams {
 export function useWorkerCreateDraft(
   params: UseWorkerCreateDraftParams,
 ): WorkerCreateController {
+  const orgSlug = readCurrentOrg()?.slug ?? "";
   const [state, dispatch] = useReducer(
     workerCreateDraftReducer,
     undefined,
-    () => createInitialWorkerDraftState(workerCreateInitialDraft(params)),
+    () => {
+      const initial = workerCreateInitialDraft(params);
+      const persisted = loadWorkerCreateDraft(orgSlug);
+      if (!persisted) return createInitialWorkerDraftState(initial);
+      return {
+        ...createInitialWorkerDraftState({ ...persisted.draft, ...initial }),
+        step: persisted.step,
+        fillPrompt: persisted.fillPrompt,
+      };
+    },
   );
   const options = useWorkerCreateOptions(params.enabled, {
     workerTypeSlug: state.draft.worker_type_slug,
@@ -51,10 +67,23 @@ export function useWorkerCreateDraft(
     state.draft,
     options,
     dependencies.modelResources.status === "ready" &&
+      dependencies.toolModelResources.status === "ready" &&
       dependencies.runtimeBundles.status === "ready" &&
       dependencies.credentialBundles.status === "ready" &&
       dependencies.skills.status === "ready",
   );
+
+  useEffect(() => {
+    if (state.create.status === "ready") {
+      clearWorkerCreateDraft(orgSlug);
+      return;
+    }
+    persistWorkerCreateDraft(orgSlug, {
+      step: state.step,
+      fillPrompt: state.fillPrompt,
+      draft: state.draft,
+    });
+  }, [orgSlug, state.create.status, state.draft, state.fillPrompt, state.step]);
 
   useEffect(() => {
     if (options.status !== "ready") return;
@@ -144,8 +173,10 @@ export function useWorkerCreateDraft(
     state,
     options,
     modelResources: dependencies.modelResources,
+    toolModelResources: dependencies.toolModelResources,
     runtimeBundles: dependencies.runtimeBundles,
     credentialBundles: dependencies.credentialBundles,
+    configBundles: dependencies.configBundles,
     skills: dependencies.skills,
     repositories: params.repositories,
     validity,

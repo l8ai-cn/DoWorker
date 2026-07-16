@@ -65,6 +65,7 @@ func (t *transport) handleApprovalRequest(method string, rpcID int64, params jso
 	description := approvalDescription(method, req)
 	toolName := approvalToolName(method, req)
 	argsJSON := string(params)
+	t.rememberPermissionMethod(fmt.Sprintf("%d", rpcID), method)
 
 	if t.callbacks.OnPermissionRequest != nil {
 		t.callbacks.OnPermissionRequest(acp.PermissionRequest{

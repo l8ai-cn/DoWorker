@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "slug": "codex-cli",
+  "status": "planned",
+  "definition_hash": "sha256:60cfdaef2e79d55d66daeb348f52feae205474ccd5af79ad8c18f41200676a4d",
+  "source_refs": [
+    "config/worker-types/catalog.json"
+  ]
+}

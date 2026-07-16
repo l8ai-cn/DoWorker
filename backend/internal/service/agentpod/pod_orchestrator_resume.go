@@ -36,6 +36,7 @@ func (o *PodOrchestrator) handleResumeMode(ctx context.Context, req *Orchestrate
 	} else if sourcePod.RunnerID != req.RunnerID {
 		return nil, "", ErrResumeRunnerMismatch
 	}
+	req.clusterID = sourcePod.ClusterID
 
 	if req.AgentSlug != "" && req.AgentSlug != sourcePod.AgentSlug {
 		return nil, "", ErrResumeAgentMismatch
@@ -56,6 +57,9 @@ func (o *PodOrchestrator) handleResumeMode(ctx context.Context, req *Orchestrate
 		req.ModelResourceID = sourcePod.ModelResourceID
 	}
 	if err := o.inheritWorkerSpecSnapshot(ctx, req, sourcePod); err != nil {
+		return nil, "", err
+	}
+	if err := o.inheritResumeState(ctx, req, sourcePod); err != nil {
 		return nil, "", err
 	}
 	req.Perpetual = sourcePod.Perpetual

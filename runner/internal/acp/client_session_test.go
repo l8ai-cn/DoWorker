@@ -152,7 +152,7 @@ func TestACPClient_GetSessionSnapshot_IsolatedCopy(t *testing.T) {
 }
 
 func TestACPClient_SendPrompt_RequiresSessionForCodex(t *testing.T) {
-	c := NewClient(ClientConfig{TransportType: "codex"})
+	c := NewClient(ClientConfig{TransportType: "codex-app-server"})
 	c.setState(StateIdle)
 	if err := c.SendPrompt("hi"); err != ErrPromptNotReady {
 		t.Fatalf("SendPrompt without session = %v, want ErrPromptNotReady", err)
@@ -160,8 +160,8 @@ func TestACPClient_SendPrompt_RequiresSessionForCodex(t *testing.T) {
 }
 
 func TestACPClient_SendPrompt_AllowsEmptySessionForClaude(t *testing.T) {
-	c := NewClient(ClientConfig{TransportType: "claude-stream"})
+	c := NewClient(ClientConfig{TransportType: "claude-stream-json"})
 	if c.sessionRequiredForPrompt() {
-		t.Fatal("claude-stream should not require session before prompt")
+		t.Fatal("claude-stream-json should not require session before prompt")
 	}
 }

@@ -30,9 +30,9 @@ func TestSetup_LocalPath_UsesSandboxRootOverride(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "resume-pod-key",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"test"},
+		PodKey:          "resume-pod-key",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"test"},
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		SandboxConfig: &runnerv1.SandboxConfig{
 			LocalPath: sourceSandbox,
@@ -49,11 +49,12 @@ func TestSetup_LocalPath_UsesSandboxRootOverride(t *testing.T) {
 	assert.Equal(t, sourceWorkspace, workingDir,
 		"workingDir should point to workspace inside source sandbox")
 
-	// The new sandbox directory (for resume-pod-key) should have been cleaned up
 	newSandbox := filepath.Join(workspaceRoot, "sandboxes", "resume-pod-key")
-	_, err = os.Stat(newSandbox)
-	assert.True(t, os.IsNotExist(err),
-		"newly created sandbox should be cleaned up after override")
+	require.DirExists(t, newSandbox)
+
+	detachedRoot, err := detachedPodWorkspaceRoot(runner.cfg, cmd.PodKey)
+	require.NoError(t, err)
+	assert.Equal(t, sourceWorkspace, detachedRoot)
 }
 
 // TestCreateFiles_ResumeMode_McpJsonInWorkDir verifies that .mcp.json is
@@ -76,9 +77,9 @@ func TestCreateFiles_ResumeMode_McpJsonInWorkDir(t *testing.T) {
 
 	mcpContent := `{"mcpServers": {"test": {}}}`
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "resume-mcp-pod",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"test"},
+		PodKey:          "resume-mcp-pod",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"test"},
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		SandboxConfig: &runnerv1.SandboxConfig{
 			LocalPath: sourceSandbox,
@@ -122,9 +123,9 @@ func TestCreateFiles_ResumeMode_RootPathTemplate(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "resume-root-tpl-pod",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"test"},
+		PodKey:          "resume-root-tpl-pod",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"test"},
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		SandboxConfig: &runnerv1.SandboxConfig{
 			LocalPath: sourceSandbox,
@@ -170,9 +171,9 @@ func TestSetup_LocalPath_ErrorDoesNotDeleteSourceSandbox(t *testing.T) {
 	}
 
 	cmd := &runnerv1.CreatePodCommand{
-		PodKey:        "resume-error-pod",
-		LaunchCommand: "echo",
-		LaunchArgs:    []string{"test"},
+		PodKey:          "resume-error-pod",
+		LaunchCommand:   "echo",
+		LaunchArgs:      []string{"test"},
 		AgentfileSource: "AGENT echo\nPROMPT_POSITION prepend\n",
 		SandboxConfig: &runnerv1.SandboxConfig{
 			LocalPath: sourceSandbox,

@@ -6,63 +6,95 @@ pub struct Domain {
     pub deps: &'static [&'static str],
 }
 
+macro_rules! domain {
+    ($name:literal, [$($source:literal),*], [$($dependency:literal),*]) => {
+        Domain {
+            name: $name,
+            srcs: &[$($source),*],
+            deps: &[$($dependency),*],
+        }
+    };
+}
+
 pub const DOMAINS: &[Domain] = &[
-    Domain { name: "agent", srcs: &["agent.proto"], deps: &[] },
-    Domain { name: "ai_resource", srcs: &["ai_resource.proto", "types.proto"], deps: &[] },
-    Domain { name: "apikey", srcs: &["api_key.proto"], deps: &[] },
-    Domain { name: "app_state", srcs: &["app_state.proto"], deps: &[] },
-    Domain { name: "auth", srcs: &["auth.proto"], deps: &[] },
-    Domain { name: "org", srcs: &["org.proto"], deps: &[] },
-    Domain { name: "auth_state", srcs: &["auth_state.proto"], deps: &["auth", "org"] },
-    Domain { name: "autopilot", srcs: &["autopilot.proto"], deps: &[] },
-    Domain { name: "billing", srcs: &["billing.proto", "billing_admin.proto"], deps: &[] },
-    Domain { name: "binding", srcs: &["binding.proto"], deps: &[] },
-    Domain { name: "blockstore", srcs: &["blockstore.proto"], deps: &[] },
-    Domain { name: "blockstore_state", srcs: &["blockstore_state.proto"], deps: &["blockstore"] },
-    Domain { name: "channel", srcs: &["channel.proto"], deps: &[] },
-    Domain {
-        name: "pod",
-        srcs: &[
+    domain!("agent", ["agent.proto"], []),
+    domain!("ai_resource", ["ai_resource.proto", "types.proto"], []),
+    domain!("execution_cluster", ["execution_cluster.proto"], []),
+    domain!("apikey", ["api_key.proto"], []),
+    domain!("app_state", ["app_state.proto"], []),
+    domain!("auth", ["auth.proto"], []),
+    domain!("org", ["org.proto"], []),
+    domain!("auth_state", ["auth_state.proto"], ["auth", "org"]),
+    domain!("autopilot", ["autopilot.proto"], []),
+    domain!("billing", ["billing.proto", "billing_admin.proto"], []),
+    domain!("binding", ["binding.proto"], []),
+    domain!("blockstore", ["blockstore.proto"], []),
+    domain!(
+        "blockstore_state",
+        ["blockstore_state.proto"],
+        ["blockstore"]
+    ),
+    domain!("channel", ["channel.proto"], []),
+    domain!(
+        "pod",
+        [
             "agentpod_settings.proto",
             "worker_creation.proto",
             "worker_skill_publish.proto",
-            "pod.proto",
+            "pod.proto"
         ],
-        deps: &[],
-    },
-    Domain { name: "channel_state", srcs: &["channel_state.proto", "mutations.proto"], deps: &["pod"] },
-    Domain { name: "env_bundle", srcs: &["env_bundle.proto"], deps: &[] },
-    Domain {
-        name: "extension",
-        srcs: &["market.proto", "repo_mcp.proto", "repo_skill.proto"],
-        deps: &[],
-    },
-    Domain { name: "events", srcs: &["event_data.proto", "events.proto"], deps: &[] },
-    Domain { name: "file", srcs: &["file.proto"], deps: &[] },
-    Domain { name: "grant", srcs: &["grant.proto"], deps: &[] },
-    Domain { name: "invitation", srcs: &["invitation.proto"], deps: &[] },
-    Domain { name: "knowledgebase", srcs: &["knowledgebase.proto"], deps: &[] },
-    Domain { name: "license", srcs: &["license.proto"], deps: &[] },
-    Domain { name: "goalloop", srcs: &["goalloop.proto"], deps: &[] },
-    Domain { name: "workflow", srcs: &["workflow.proto"], deps: &[] },
-    Domain { name: "workflow_state", srcs: &["workflow_state.proto"], deps: &["workflow"] },
-    Domain { name: "mesh", srcs: &["mesh.proto"], deps: &[] },
-    Domain { name: "mesh_state", srcs: &["mesh_state.proto"], deps: &["mesh"] },
-    Domain { name: "notification", srcs: &["notification.proto"], deps: &[] },
-    Domain { name: "pod_state", srcs: &["pod_state.proto"], deps: &["pod"] },
-    Domain { name: "promocode", srcs: &["promocode.proto", "promocode_admin.proto"], deps: &[] },
-    Domain { name: "repository", srcs: &["repository.proto"], deps: &[] },
-    Domain { name: "repo_state", srcs: &["repo_state.proto"], deps: &["repository"] },
-    Domain { name: "runner_api", srcs: &["runner.proto"], deps: &[] },
-    Domain { name: "runner_state", srcs: &["runner_state.proto"], deps: &["runner_api"] },
-    Domain { name: "autopilot_state", srcs: &["autopilot_state.proto"], deps: &[] },
-    Domain { name: "acp_state", srcs: &["acp_state.proto"], deps: &[] },
-    Domain { name: "sso", srcs: &["sso.proto", "sso_admin.proto"], deps: &[] },
-    Domain { name: "support_ticket", srcs: &["support_ticket.proto", "support_ticket_admin.proto"], deps: &[] },
-    Domain { name: "ticket", srcs: &["ticket.proto"], deps: &[] },
-    Domain { name: "ticket_state", srcs: &["ticket_state.proto"], deps: &["ticket"] },
-    Domain { name: "ticket_relations", srcs: &["ticket_relations.proto"], deps: &[] },
-    Domain { name: "token_usage", srcs: &["token_usage.proto"], deps: &[] },
-    Domain { name: "user", srcs: &["user.proto"], deps: &[] },
-    Domain { name: "user_credential", srcs: &["user_credential.proto"], deps: &[] },
+        []
+    ),
+    domain!(
+        "channel_state",
+        ["channel_state.proto", "mutations.proto"],
+        ["pod"]
+    ),
+    domain!("env_bundle", ["env_bundle.proto"], []),
+    domain!(
+        "extension",
+        ["market.proto", "repo_mcp.proto", "repo_skill.proto"],
+        []
+    ),
+    domain!("events", ["event_data.proto", "events.proto"], []),
+    domain!("file", ["file.proto"], []),
+    domain!("grant", ["grant.proto"], []),
+    domain!("invitation", ["invitation.proto"], []),
+    domain!("knowledgebase", ["knowledgebase.proto"], []),
+    domain!("license", ["license.proto"], []),
+    domain!("goalloop", ["goalloop.proto"], []),
+    domain!("workflow", ["workflow.proto"], []),
+    domain!("workflow_state", ["workflow_state.proto"], ["workflow"]),
+    domain!("mesh", ["mesh.proto"], []),
+    domain!("mesh_state", ["mesh_state.proto"], ["mesh"]),
+    domain!("notification", ["notification.proto"], []),
+    domain!(
+        "orchestration_resource",
+        ["orchestration_resource.proto"],
+        []
+    ),
+    domain!("pod_state", ["pod_state.proto"], ["pod"]),
+    domain!(
+        "promocode",
+        ["promocode.proto", "promocode_admin.proto"],
+        []
+    ),
+    domain!("repository", ["repository.proto"], []),
+    domain!("repo_state", ["repo_state.proto"], ["repository"]),
+    domain!("runner_api", ["runner.proto"], []),
+    domain!("runner_state", ["runner_state.proto"], ["runner_api"]),
+    domain!("autopilot_state", ["autopilot_state.proto"], []),
+    domain!("acp_state", ["acp_state.proto"], []),
+    domain!("sso", ["sso.proto", "sso_admin.proto"], []),
+    domain!(
+        "support_ticket",
+        ["support_ticket.proto", "support_ticket_admin.proto"],
+        []
+    ),
+    domain!("ticket", ["ticket.proto"], []),
+    domain!("ticket_state", ["ticket_state.proto"], ["ticket"]),
+    domain!("ticket_relations", ["ticket_relations.proto"], []),
+    domain!("token_usage", ["token_usage.proto"], []),
+    domain!("user", ["user.proto"], []),
+    domain!("user_credential", ["user_credential.proto"], []),
 ];

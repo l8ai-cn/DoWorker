@@ -1,0 +1,25 @@
+# === Identity ===
+AGENT opencode
+EXECUTABLE opencode
+
+# === Mode ===
+MODE pty
+MODE acp "acp"
+
+# === Prompt ===
+PROMPT_POSITION prepend
+
+# === Capabilities ===
+MCP ON FORMAT opencode
+
+# === Build Logic ===
+if mcp.enabled {
+  file sandbox.work_dir + "/opencode.json" json({ mcp: mcp.servers })
+}
+
+CAPABILITY resume acp
+CAPABILITY permission acp
+CAPABILITY usage live
+CAPABILITY interrupt true
+CAPABILITY streaming true
+CAPABILITY model_family multi

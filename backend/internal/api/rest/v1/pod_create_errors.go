@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	"github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
 	"github.com/gin-gonic/gin"
 )
@@ -29,6 +30,8 @@ func mapOrchestratorErrorToHTTP(c *gin.Context, err error) {
 		errors.Is(err, agentpod.ErrModelResourceEnvConflict),
 		errors.Is(err, agentpod.ErrModelResourceCommandConflict):
 		apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
+	case errors.Is(err, airesource.ErrDisabled):
+		apierr.BadRequest(c, apierr.VALIDATION_FAILED, "Selected model resource is disabled")
 
 	case errors.Is(err, ErrQuotaExceeded):
 		apierr.PaymentRequired(c, apierr.CONCURRENT_POD_QUOTA_EXCEEDED, "Concurrent pod quota exceeded. Please upgrade your plan or terminate existing pods.")

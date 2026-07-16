@@ -65,8 +65,8 @@ func TestFormatEnvVars_Gemini(t *testing.T) {
 
 	envVars := service.formatEnvVars(agentpod.AIProviderTypeGemini, creds)
 
-	if envVars["GOOGLE_API_KEY"] != "gemini-test-key" {
-		t.Errorf("expected GOOGLE_API_KEY 'gemini-test-key', got '%s'", envVars["GOOGLE_API_KEY"])
+	if envVars["GEMINI_API_KEY"] != "gemini-test-key" {
+		t.Errorf("expected GEMINI_API_KEY 'gemini-test-key', got '%s'", envVars["GEMINI_API_KEY"])
 	}
 }
 

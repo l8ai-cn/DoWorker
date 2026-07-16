@@ -31,6 +31,8 @@ jobs:
         run: bash deploy/dev/runner_runtime_contract_test.sh
       - name: Agent-runtime contract
         run: bash docker/agent-runtime/contract_test.sh
+      - name: Mobile release deployment contract
+        run: bash deploy/kubernetes/cluster-oilan/deploy-mobile-access-contract_test.sh
 
   go:
     name: Go (tests)
@@ -182,6 +184,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      - name: Seed Rust proto stubs
+        run: bash scripts/seed-rust-proto-stubs.sh
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: clients/core
@@ -213,6 +217,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      - name: Seed Rust proto stubs
+        run: bash scripts/seed-rust-proto-stubs.sh
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: clients/core
@@ -263,6 +269,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      - name: Seed Rust proto stubs
+        run: bash scripts/seed-rust-proto-stubs.sh
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: clients/core
@@ -272,6 +280,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y protobuf-compiler
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build:wasm
+      - run: pnpm run mobile:lint
       - run: pnpm run mobile:typecheck
       - run: pnpm run mobile:test
       - run: pnpm run mobile:build
@@ -499,6 +508,7 @@ jobs:
       - name: Bring up dev backend stack
         env:
           DEV_SKIP_DOAGENT: "1"
+          DEV_E2E_RUNNERS_ONLY: "1"
         run: |
           ./deploy/dev/dev.sh --backend-only
           sleep 15
@@ -544,6 +554,7 @@ jobs:
       - name: Bring up dev backend stack
         env:
           DEV_SKIP_DOAGENT: "1"
+          DEV_E2E_RUNNERS_ONLY: "1"
         run: |
           ./deploy/dev/dev.sh --backend-only
           sleep 20

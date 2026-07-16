@@ -11,6 +11,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
 	"github.com/anthropics/agentsmesh/backend/internal/service/binding"
 	"github.com/anthropics/agentsmesh/backend/internal/service/channel"
+	executionclusterservice "github.com/anthropics/agentsmesh/backend/internal/service/executioncluster"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
 	imbridgesvc "github.com/anthropics/agentsmesh/backend/internal/service/imbridge"
 	"github.com/anthropics/agentsmesh/backend/internal/service/invitation"
@@ -26,7 +27,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config, db *gorm.DB, encryptor *crypto.Encryptor) {
+func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config, db *gorm.DB, encryptor *crypto.Encryptor) error {
 	gitRepoRepo := infra.NewGitProviderRepository(db)
 	services.repository = repository.NewService(gitRepoRepo)
 	services.webhook = repository.NewWebhookService(gitRepoRepo, cfg, services.user, slog.Default())
@@ -37,6 +38,9 @@ func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config,
 	services.aiResource = initializeAIResourceService(db, services.org, encryptor)
 	services.runnerRepo = infra.NewRunnerRepository(db)
 	services.runner = runner.NewService(services.runnerRepo, services.billing)
+	clusterRepo := infra.NewExecutionClusterRepository(db)
+	services.runner.SetExecutionClusterRepository(clusterRepo)
+	services.executionCluster = executionclusterservice.NewService(clusterRepo, services.runnerRepo, services.runner, cfg.BaseURL())
 	grantRepo := infra.NewGrantRepository(db)
 	services.grant = grantservice.NewService(grantRepo)
 	services.runner.SetGrantQuerier(grantRepo)
@@ -64,5 +68,12 @@ func initializeWorkspaceServices(services *serviceContainer, cfg *config.Config,
 	services.agentpodAIProvider = agentpod.NewAIProviderService(infra.NewAIProviderRepository(db), encryptor)
 	services.virtualKey = virtualkeysvc.NewService(infra.NewVirtualAPIKeyRepository(db), services.aiResource)
 	services.tokenQuota = tokenquotasvc.NewService(infra.NewTokenQuotaRepository(db), db)
-	services.workerServices = initializeWorkerServices(db, services.agentSvc, services.aiResource, services.repository)
+	workerServices, err := initializeWorkerServices(
+		cfg, db, services.agentSvc, services.aiResource, services.repository, services.runner,
+	)
+	if err != nil {
+		return err
+	}
+	services.workerServices = workerServices
+	return attachOrchestrationControl(services, db)
 }

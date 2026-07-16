@@ -124,7 +124,7 @@ Excluded:
 - [x] Check console/network errors and take desktop/mobile screenshots.
 - [x] Run focused Go, Cargo, Vitest, typecheck, lint and E2E suites.
 - [x] Request final spec and code-quality review; fix every blocking finding.
-- [ ] Commit, push, fetch the remote branch and verify the full commit SHA is visible.
+- [x] Commit, push, fetch the remote branch and verify the full commit SHA is visible.
 
 ## Completion Gate
 

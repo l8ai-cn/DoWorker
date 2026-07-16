@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "mismatches": [
+    {
+      "slug": "aider",
+      "layer": "runtime-catalog",
+      "observed": "Debian apt repositories returned repeated HTTP 502 responses while installing python3-pip after eight bounded retries.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "upstream-apt-repository",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/aider.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "claude-code",
+      "layer": "runtime-catalog",
+      "observed": "The published immutable runtime digest could not be pulled from the configured registry.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "invalid-published-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/claude-code.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "codex-cli",
+      "layer": "runtime-catalog",
+      "observed": "The published immutable runtime digest could not be pulled from the configured registry.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "invalid-published-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/codex-cli.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "cursor-cli",
+      "layer": "runtime-catalog",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "missing-immutable-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/cursor-cli.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "do-agent",
+      "layer": "runtime-catalog",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "missing-immutable-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/do-agent.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "gemini-cli",
+      "layer": "runtime-catalog",
+      "observed": "The published immutable runtime digest could not be pulled from the configured registry.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "invalid-published-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/gemini-cli.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "grok-build",
+      "layer": "runtime-catalog",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "missing-immutable-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/grok-build.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "hermes",
+      "layer": "runtime-catalog",
+      "observed": "Debian apt returned HTTP 502 responses across all eight bounded python3-pip installation attempts.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "upstream-apt-repository",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/hermes.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "loopal",
+      "layer": "runtime-catalog",
+      "observed": "The ignored deploy/dev/loopal-binary contains runner/internal/agents/mockagent symbols and does not implement the formal loopal --version probe.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "missing-real-artifact",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/loopal.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "minimax-cli",
+      "layer": "runtime-catalog",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "missing-immutable-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/minimax-cli.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "openclaw",
+      "layer": "runtime-catalog",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "missing-immutable-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/openclaw.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
+      "slug": "opencode",
+      "layer": "runtime-catalog",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "missing-immutable-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/opencode.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    }
+  ]
+}

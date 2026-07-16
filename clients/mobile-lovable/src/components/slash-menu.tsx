@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 
 export interface SlashCommand {
-  cmd: string;         // e.g. "/plan"
-  label: string;       // 中文简介
-  hint?: string;       // usage hint
+  cmd: string; // e.g. "/plan"
+  label: string; // 中文简介
+  hint?: string; // usage hint
   emoji: string;
 }
 
@@ -28,7 +28,10 @@ export const SLASH_COMMANDS: SlashCommand[] = [
  * Given input value + caret pos, return the current slash token (starting at "/")
  * or null if not in one. Only triggers when "/" is at start or after whitespace.
  */
-export function detectSlashToken(value: string, caret: number): { start: number; token: string } | null {
+export function detectSlashToken(
+  value: string,
+  caret: number,
+): { start: number; token: string } | null {
   if (caret <= 0) return null;
   // walk back from caret to find "/" or whitespace
   let i = caret - 1;
@@ -49,19 +52,22 @@ interface SlashMenuProps {
   token: string;
   onPick: (cmd: SlashCommand) => void;
   className?: string;
+  commands?: SlashCommand[];
 }
 
-export function SlashMenu({ token, onPick, className }: SlashMenuProps) {
+export function SlashMenu({ token, onPick, className, commands = SLASH_COMMANDS }: SlashMenuProps) {
   const q = token.slice(1).toLowerCase();
-  const items = SLASH_COMMANDS.filter(
-    (c) => !q || c.cmd.slice(1).startsWith(q) || c.label.toLowerCase().includes(q),
-  ).slice(0, 7);
+  const items = commands
+    .filter((c) => !q || c.cmd.slice(1).startsWith(q) || c.label.toLowerCase().includes(q))
+    .slice(0, 7);
   if (items.length === 0) return null;
   return (
-    <div className={cn(
-      "z-30 max-h-[240px] overflow-y-auto rounded-xl border border-border/60 bg-card p-1 shadow-lg ring-1 ring-black/5 stream-in",
-      className,
-    )}>
+    <div
+      className={cn(
+        "z-30 max-h-[240px] overflow-y-auto rounded-xl border border-border/60 bg-card p-1 shadow-lg ring-1 ring-black/5 stream-in",
+        className,
+      )}
+    >
       <p className="px-2 pb-1 pt-1 text-[9.5px] font-semibold uppercase tracking-wider text-muted-foreground">
         斜杠命令 · {items.length}
       </p>
@@ -69,7 +75,10 @@ export function SlashMenu({ token, onPick, className }: SlashMenuProps) {
         <button
           key={c.cmd}
           type="button"
-          onMouseDown={(e) => { e.preventDefault(); onPick(c); }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onPick(c);
+          }}
           className="flex w-full items-start gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-surface"
         >
           <span className="text-base leading-none">{c.emoji}</span>

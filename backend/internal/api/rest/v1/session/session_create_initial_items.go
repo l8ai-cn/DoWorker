@@ -9,6 +9,19 @@ import (
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 )
 
+func initialItemsContainAttachments(items []json.RawMessage) bool {
+	for _, raw := range items {
+		var evt struct {
+			Type string          `json:"type"`
+			Data json.RawMessage `json:"data"`
+		}
+		if json.Unmarshal(raw, &evt) == nil && evt.Type == "message" && len(messageAttachments(evt.Data)) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
 func (d *Deps) persistInitialUserItems(ctx context.Context, sessionID string, items []json.RawMessage) {
 	if d.Items == nil || len(items) == 0 {
 		return

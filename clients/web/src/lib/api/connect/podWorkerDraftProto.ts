@@ -10,12 +10,40 @@ import type { WorkerSpecDraft } from "./podWorkerCreationTypes";
 export function workerDraftToProto(draft: WorkerSpecDraft): WorkerSpecDraftMessage {
   return create(WorkerSpecDraftSchema, {
     modelResourceId: workerBigInt(draft.model_resource_id, "model_resource_id"),
+    toolModelResourceIds: Object.fromEntries(
+      Object.entries(draft.tool_model_resource_ids).map(([role, id]) => [
+        role,
+        workerBigInt(id, `tool_model_resource_ids.${role}`),
+      ]),
+    ),
     workerTypeSlug: draft.worker_type_slug,
     runtimeImageId: workerBigInt(draft.runtime_image_id, "runtime_image_id"),
     placementPolicy: draft.placement_policy,
     computeTargetId: workerBigInt(draft.compute_target_id, "compute_target_id"),
     deploymentMode: draft.deployment_mode,
     resourceProfileId: workerBigInt(draft.resource_profile_id, "resource_profile_id"),
+    customResources: draft.custom_resources
+      ? {
+          cpuRequestMillicpu: draft.custom_resources.cpu_request_millicpu,
+          cpuLimitMillicpu: draft.custom_resources.cpu_limit_millicpu,
+          memoryRequestBytes: workerBigInt(
+            draft.custom_resources.memory_request_bytes,
+            "custom_resources.memory_request_bytes",
+          ),
+          memoryLimitBytes: workerBigInt(
+            draft.custom_resources.memory_limit_bytes,
+            "custom_resources.memory_limit_bytes",
+          ),
+          storageRequestBytes: workerBigInt(
+            draft.custom_resources.storage_request_bytes,
+            "custom_resources.storage_request_bytes",
+          ),
+          storageLimitBytes: workerBigInt(
+            draft.custom_resources.storage_limit_bytes,
+            "custom_resources.storage_limit_bytes",
+          ),
+        }
+      : undefined,
     typeSchemaVersion: draft.type_schema_version,
     typeConfigValuesJson: JSON.stringify(draft.type_config_values),
     secretRefs: draft.secret_refs.map((reference) => ({
@@ -36,6 +64,7 @@ export function workerDraftToProto(draft: WorkerSpecDraft): WorkerSpecDraftMessa
       mode: mount.mode,
     })),
     envBundleIds: draft.env_bundle_ids.map((id) => workerBigInt(id, "env_bundle_ids")),
+    configBundleIds: draft.config_bundle_ids.map((id) => workerBigInt(id, "config_bundle_ids")),
     instructions: draft.instructions,
     initialTask: draft.initial_task,
     terminationPolicy: draft.termination_policy,
@@ -52,12 +81,40 @@ export function workerDraftToProto(draft: WorkerSpecDraft): WorkerSpecDraftMessa
 export function workerDraftFromProto(draft: WorkerSpecDraftMessage): WorkerSpecDraft {
   return {
     model_resource_id: workerNumber(draft.modelResourceId, "model_resource_id"),
+    tool_model_resource_ids: Object.fromEntries(
+      Object.entries(draft.toolModelResourceIds).map(([role, id]) => [
+        role,
+        workerNumber(id, `tool_model_resource_ids.${role}`),
+      ]),
+    ),
     worker_type_slug: draft.workerTypeSlug,
     runtime_image_id: workerNumber(draft.runtimeImageId, "runtime_image_id"),
     placement_policy: draft.placementPolicy,
     compute_target_id: workerNumber(draft.computeTargetId, "compute_target_id"),
     deployment_mode: draft.deploymentMode,
     resource_profile_id: workerNumber(draft.resourceProfileId, "resource_profile_id"),
+    custom_resources: draft.customResources
+      ? {
+          cpu_request_millicpu: draft.customResources.cpuRequestMillicpu,
+          cpu_limit_millicpu: draft.customResources.cpuLimitMillicpu,
+          memory_request_bytes: workerNumber(
+            draft.customResources.memoryRequestBytes,
+            "custom_resources.memory_request_bytes",
+          ),
+          memory_limit_bytes: workerNumber(
+            draft.customResources.memoryLimitBytes,
+            "custom_resources.memory_limit_bytes",
+          ),
+          storage_request_bytes: workerNumber(
+            draft.customResources.storageRequestBytes,
+            "custom_resources.storage_request_bytes",
+          ),
+          storage_limit_bytes: workerNumber(
+            draft.customResources.storageLimitBytes,
+            "custom_resources.storage_limit_bytes",
+          ),
+        }
+      : undefined,
     type_schema_version: draft.typeSchemaVersion,
     type_config_values: parseTypeConfig(draft.typeConfigValuesJson),
     secret_refs: draft.secretRefs.map((reference) => ({
@@ -81,6 +138,7 @@ export function workerDraftFromProto(draft: WorkerSpecDraftMessage): WorkerSpecD
       mode: mount.mode,
     })),
     env_bundle_ids: draft.envBundleIds.map((id) => workerNumber(id, "env_bundle_ids")),
+    config_bundle_ids: draft.configBundleIds.map((id) => workerNumber(id, "config_bundle_ids")),
     instructions: draft.instructions,
     initial_task: draft.initialTask,
     termination_policy: draft.terminationPolicy,

@@ -33,8 +33,12 @@ func (s *Server) AuthorizeRunner(
 		return nil, connect.NewError(connect.CodeInvalidArgument,
 			errors.New("auth_key is required"))
 	}
+	if req.Msg.GetClusterId() <= 0 {
+		return nil, connect.NewError(connect.CodeInvalidArgument,
+			errors.New("cluster_id is required"))
+	}
 	r, err := s.runnerSvc.AuthorizeRunner(
-		ctx, req.Msg.GetAuthKey(), tenant.OrganizationID, tenant.UserID, req.Msg.GetNodeId(),
+		ctx, req.Msg.GetAuthKey(), tenant.OrganizationID, tenant.UserID, req.Msg.GetClusterId(), req.Msg.GetNodeId(),
 	)
 	if err != nil {
 		return nil, mapAuthorizeError(err)
@@ -112,6 +116,8 @@ func mapAuthorizeError(err error) error {
 	case errors.Is(err, runner.ErrRunnerQuotaExceeded):
 		return connect.NewError(connect.CodeResourceExhausted, err)
 	case errors.Is(err, runner.ErrAuthRequestNotFound):
+		return connect.NewError(connect.CodeNotFound, err)
+	case errors.Is(err, runner.ErrExecutionClusterNotFound):
 		return connect.NewError(connect.CodeNotFound, err)
 	case errors.Is(err, runner.ErrAuthRequestExpired):
 		return connect.NewError(connect.CodeInvalidArgument, err)

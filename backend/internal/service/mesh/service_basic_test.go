@@ -6,9 +6,6 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	meshDomain "github.com/anthropics/agentsmesh/backend/internal/domain/mesh"
-	"github.com/anthropics/agentsmesh/backend/internal/infra"
-	podService "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	"github.com/anthropics/agentsmesh/backend/internal/testkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -119,50 +116,46 @@ func TestServiceFields(t *testing.T) {
 }
 
 func TestCreatePodForTicket_DefaultsLegacyClaudeFields(t *testing.T) {
-	repo, db := setupTestRepo(t)
-	ps := podService.NewPodService(infra.NewPodRepository(db))
-	service := NewService(repo, ps, nil, nil)
-
-	ticketID := testkit.CreateTicket(t, db, 1, 1, "default-fields-test")
+	repo, _ := setupTestRepo(t)
+	creator := &recordingPodCreator{}
+	service := NewService(repo, nil, nil, nil)
+	service.SetPodCreator(creator)
 
 	// Caller (handler) does not provide Model/PermissionMode.
 	pod, err := service.CreatePodForTicket(context.Background(), &meshDomain.CreatePodForTicketRequest{
 		OrganizationID: 1,
 		RunnerID:       1,
-		TicketID:       ticketID,
+		TicketID:       2,
 		CreatedByID:    1,
 		Prompt:         "do something",
 	})
 	require.NoError(t, err)
 	require.NotNil(t, pod)
 
-	// Mesh service must compensate for PodService no longer auto-defaulting.
-	require.NotNil(t, pod.Model)
-	assert.Equal(t, "opus", *pod.Model)
-	require.NotNil(t, pod.PermissionMode)
-	assert.Equal(t, agentpod.PermissionModeBypass, *pod.PermissionMode)
-	assert.Equal(t, "claude-code", pod.AgentSlug)
+	require.NotNil(t, creator.request)
+	assert.Contains(t, *creator.request.AgentfileLayer, `CONFIG model = "opus"`)
+	assert.Contains(t, *creator.request.AgentfileLayer, `CONFIG permission_mode = "bypassPermissions"`)
+	assert.Contains(t, *creator.request.AgentfileLayer, `PROMPT "do something"`)
 }
 
 func TestCreatePodForTicket_PreservesExplicitFields(t *testing.T) {
-	repo, db := setupTestRepo(t)
-	ps := podService.NewPodService(infra.NewPodRepository(db))
-	service := NewService(repo, ps, nil, nil)
-
-	ticketID := testkit.CreateTicket(t, db, 1, 1, "explicit-fields-test")
+	repo, _ := setupTestRepo(t)
+	creator := &recordingPodCreator{}
+	service := NewService(repo, nil, nil, nil)
+	service.SetPodCreator(creator)
 
 	pod, err := service.CreatePodForTicket(context.Background(), &meshDomain.CreatePodForTicketRequest{
 		OrganizationID: 1,
 		RunnerID:       1,
-		TicketID:       ticketID,
+		TicketID:       2,
 		CreatedByID:    1,
 		Prompt:         "task",
 		Model:          "sonnet",
 		PermissionMode: "plan",
 	})
 	require.NoError(t, err)
-	require.NotNil(t, pod.Model)
-	assert.Equal(t, "sonnet", *pod.Model)
-	require.NotNil(t, pod.PermissionMode)
-	assert.Equal(t, "plan", *pod.PermissionMode)
+	require.NotNil(t, pod)
+	require.NotNil(t, creator.request)
+	assert.Contains(t, *creator.request.AgentfileLayer, `CONFIG model = "sonnet"`)
+	assert.Contains(t, *creator.request.AgentfileLayer, `CONFIG permission_mode = "plan"`)
 }

@@ -18,7 +18,9 @@
 export { lightFetch, type LightFetchOptions } from "./api-fetch";
 export { type AuthLoginResponse } from "./persist";
 export {
+  discoverFirstOrgSlug,
   fetchFirstOrgSlug,
+  type FirstOrgDiscovery,
   resolvePostLoginUrlLight,
 } from "./post-login-redirect";
 export { lightLogin, type LightLoginInput } from "./login";
@@ -54,4 +56,8 @@ export {
   lightAuthorizeRunner,
   type LightAuthorizeRunnerInput,
 } from "./runners";
+export {
+  lightListExecutionClusters,
+  type LightExecutionCluster,
+} from "./execution-clusters";
 export { lightFetchMe, type LightUser } from "./me";

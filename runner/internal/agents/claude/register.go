@@ -8,10 +8,10 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/tokenusage"
 )
 
-const TransportType = "claude-stream"
+const TransportType = "claude-stream-json"
 
 func init() {
-	acp.RegisterAgent("claude", TransportType, func(cb acp.EventCallbacks, l *slog.Logger) acp.Transport {
+	acp.RegisterTransport(TransportType, func(cb acp.EventCallbacks, l *slog.Logger) acp.Transport {
 		return newTransport(cb, l)
 	})
 	tokenusage.RegisterParser([]string{"claude", "claude-code"}, &claudeParser{})

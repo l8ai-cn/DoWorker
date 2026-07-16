@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import { useEffect, useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark";
+const themeChangeEvent = "do-worker-mobile-theme-change";
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "dark";
@@ -16,24 +17,27 @@ function applyTheme(theme: Theme) {
   root.style.colorScheme = theme;
 }
 
+function subscribeTheme(listener: () => void): () => void {
+  window.addEventListener(themeChangeEvent, listener);
+  return () => window.removeEventListener(themeChangeEvent, listener);
+}
+
 export function ThemeToggle({ className = "" }: { className?: string }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const theme = useSyncExternalStore(subscribeTheme, getInitialTheme, (): Theme => "dark");
 
   useEffect(() => {
-    const t = getInitialTheme();
-    setTheme(t);
-    applyTheme(t);
-  }, []);
+    applyTheme(theme);
+  }, [theme]);
 
   const toggle = () => {
     const next: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(next);
     applyTheme(next);
     try {
       window.localStorage.setItem("theme", next);
     } catch {
-      /* ignore */
+      // The active theme still applies when storage is unavailable.
     }
+    window.dispatchEvent(new Event(themeChangeEvent));
   };
 
   return (

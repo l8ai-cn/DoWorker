@@ -18,8 +18,10 @@ export function requiresModelResource(agentSlug: string | null | undefined): boo
 export function useWorkerModelResources(
   agentSlug: string | null | undefined,
   initialModelResourceId: number | null = null,
+  includeToolModels = false,
 ) {
   const [resources, setResources] = useState<EffectiveResource[]>([]);
+  const [toolResources, setToolResources] = useState<EffectiveResource[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadedAgentSlug, setLoadedAgentSlug] = useState("");
@@ -30,6 +32,7 @@ export function useWorkerModelResources(
     setSelectedModelResourceId(initialModelResourceId);
     if (!requiresModelResource(agentSlug)) {
       setResources([]);
+      setToolResources([]);
       setError(null);
       setLoading(false);
       setLoadedAgentSlug(requestAgentSlug);
@@ -45,14 +48,22 @@ export function useWorkerModelResources(
         const [catalog, effective] = await Promise.all([
           getCatalog(),
           orgSlug
-            ? listOrganizationEffectiveResources(orgSlug, ["chat"])
-            : listPersonalEffectiveResources(["chat"]),
+            ? listOrganizationEffectiveResources(
+              orgSlug,
+              includeToolModels ? ["chat", "video"] : ["chat"],
+            )
+            : listPersonalEffectiveResources(
+              includeToolModels ? ["chat", "video"] : ["chat"],
+            ),
         ]);
         if (cancelled) return;
-        setResources(compatibleModelResources(agentSlug ?? null, dedupeResources(effective), catalog));
+        const deduped = dedupeResources(effective);
+        setResources(compatibleModelResources(agentSlug ?? null, deduped, catalog));
+        setToolResources(includeToolModels ? deduped : []);
       } catch (err) {
         if (cancelled) return;
         setResources([]);
+        setToolResources([]);
         setError(err instanceof Error ? err.message : "Failed to load model resources");
       } finally {
         if (!cancelled) {
@@ -66,7 +77,7 @@ export function useWorkerModelResources(
     return () => {
       cancelled = true;
     };
-  }, [agentSlug, initialModelResourceId, requestAgentSlug]);
+  }, [agentSlug, includeToolModels, initialModelResourceId, requestAgentSlug]);
 
   const current = loadedAgentSlug === requestAgentSlug;
   const visibleResources = current ? resources : [];
@@ -76,6 +87,7 @@ export function useWorkerModelResources(
 
   return {
     modelResources: visibleResources,
+    toolModelResources: current ? toolResources : [],
     loadingModelResources:
       requiresModelResource(agentSlug) && (!current || loading),
     modelResourceError: current ? error : null,

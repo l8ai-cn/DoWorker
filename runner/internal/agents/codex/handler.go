@@ -18,6 +18,7 @@ func (t *transport) handleNotification(method string, params json.RawMessage) {
 	switch method {
 	case "turn/started":
 		t.cancelIdleFallback()
+		t.resetAgentMessageBoundary()
 
 	case "thread/status/changed":
 		t.handleThreadStatusChanged(params)
@@ -34,7 +35,10 @@ func (t *transport) handleNotification(method string, params json.RawMessage) {
 		t.cancelIdleFallback()
 		t.markAgentMessageStreamed(d.ItemID)
 		if t.callbacks.OnContentChunk != nil {
-			t.callbacks.OnContentChunk(sid, acp.ContentChunk{Text: d.Delta, Role: "assistant"})
+			t.callbacks.OnContentChunk(sid, acp.ContentChunk{
+				Text: t.applyAgentMessageBoundary(d.Delta),
+				Role: "assistant",
+			})
 		}
 
 	case "item/reasoning/summaryTextDelta", "item/reasoning/textDelta":
@@ -56,6 +60,29 @@ func (t *transport) handleNotification(method string, params json.RawMessage) {
 		}
 		if t.callbacks.OnContentChunk != nil {
 			t.callbacks.OnContentChunk(sid, acp.ContentChunk{Text: d.Delta, Role: "plan"})
+		}
+
+	case "item/commandExecution/outputDelta", "item/fileChange/outputDelta":
+		var d itemOutputDelta
+		if err := json.Unmarshal(params, &d); err != nil {
+			t.logger.Warn("failed to parse tool output delta", "error", err)
+			return
+		}
+		t.appendToolOutput(d.ItemID, d.Delta)
+
+	case "item/fileChange/patchUpdated":
+		var update fileChangePatchUpdatedParams
+		if err := json.Unmarshal(params, &update); err != nil {
+			t.logger.Warn("failed to parse file change patch", "error", err)
+			return
+		}
+		if t.callbacks.OnToolCallUpdate != nil {
+			t.callbacks.OnToolCallUpdate(sid, acp.ToolCallUpdate{
+				ToolCallID:    update.ItemID,
+				ToolName:      "fileChange",
+				Status:        "running",
+				ArgumentsJSON: fileChangeArgumentsJSON(update.Changes),
+			})
 		}
 
 	case "item/started":
@@ -90,18 +117,21 @@ func (t *transport) handleItemStarted(sid string, params json.RawMessage) {
 		if t.callbacks.OnToolCallUpdate != nil {
 			t.callbacks.OnToolCallUpdate(sid, acp.ToolCallUpdate{
 				ToolCallID: is.Item.ID, ToolName: is.Item.ToolName, Status: "running",
+				ArgumentsJSON: rawArgumentsJSON(is.Item.Arguments),
 			})
 		}
 	case "commandExecution":
 		if t.callbacks.OnToolCallUpdate != nil {
 			t.callbacks.OnToolCallUpdate(sid, acp.ToolCallUpdate{
 				ToolCallID: is.Item.ID, ToolName: "shell", Status: "running",
+				ArgumentsJSON: commandArgumentsJSON(is.Item),
 			})
 		}
 	case "fileChange":
 		if t.callbacks.OnToolCallUpdate != nil {
 			t.callbacks.OnToolCallUpdate(sid, acp.ToolCallUpdate{
 				ToolCallID: is.Item.ID, ToolName: "fileChange", Status: "running",
+				ArgumentsJSON: fileChangeArgumentsJSON(is.Item.Changes),
 			})
 		}
 	}

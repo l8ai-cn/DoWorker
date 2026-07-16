@@ -1,0 +1,104 @@
+.expert-home {
+  --expert-bg: #0B0F14;
+  --expert-bg-soft: #10161D;
+  --expert-panel: #151C24;
+  --expert-text: #CBD5E1;
+  --expert-muted: #8E9AAA;
+  --expert-action: #4FD1C5;
+  --expert-action-hover: #7DE1D6;
+  --expert-action-soft: rgba(79, 209, 197, 0.1);
+  --expert-status: #79DED4;
+  --expert-status-soft: rgba(121, 222, 212, 0.1);
+  --expert-warning: #F0B85A;
+  --expert-warning-soft: rgba(240, 184, 90, 0.1);
+  --expert-info: #D3E0E5;
+  --expert-planned: #9CA9B5;
+  --expert-ink: #07130F;
+  --expert-paper: #F6F7F4;
+  --expert-paper-ink: #14181D;
+  --expert-paper-muted: #5F6974;
+  --expert-paper-accent: #0F766E;
+  --expert-shadow: 0 28px 70px rgba(0, 0, 0, 0.32);
+  --primary: var(--expert-action);
+  --primary-hover: var(--expert-action-hover);
+  --primary-foreground: var(--expert-ink);
+  --ring: var(--expert-action);
+  background: var(--expert-bg);
+}
+
+.expert-eyebrow {
+  color: var(--expert-action);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.expert-eyebrow-dark {
+  color: var(--expert-paper-accent);
+}
+
+.expert-primary-button,
+.expert-secondary-button {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 6px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.expert-primary-button {
+  background: var(--expert-action);
+  color: var(--expert-ink);
+}
+
+.expert-primary-button:hover {
+  background: var(--expert-action-hover);
+}
+
+.expert-secondary-button {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: white;
+}
+
+.expert-secondary-button:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.expert-icon-button {
+  display: inline-flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: var(--expert-text);
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.expert-icon-button:hover {
+  border-color: var(--expert-action);
+  background: var(--expert-action-soft);
+  color: var(--expert-action);
+}
+
+.expert-icon-button:disabled {
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: var(--expert-muted);
+  opacity: 0.45;
+}
+
+.expert-icon-button svg {
+  height: 1rem;
+  width: 1rem;
+}

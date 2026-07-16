@@ -1,0 +1,89 @@
+{
+  "resourceOrchestration": {
+    "navTitle": "리소스 오케스트레이션",
+    "title": "리소스 네이티브 오케스트레이션",
+    "description": "Worker, Expert, Workflow, Prompt, 모델, 도구, 지식, 컴퓨트를 버전 관리 리소스로 선언합니다. 컨트롤 플레인은 참조를 검증하고 의미 기반 Plan을 표시한 뒤 불변 revision 또는 실행 스냅샷을 적용합니다.",
+    "openGuide": "리소스 오케스트레이션 가이드 열기",
+    "lifecycleTitle": "Validate → Plan → Apply",
+    "lifecycleDescription": "작성, 검토, 실행을 분리합니다. Plan은 예정된 변경의 증거이며 리소스가 이미 생성되었다는 증거가 아닙니다.",
+    "lifecycle": {
+      "validate": {
+        "title": "Validate",
+        "description": "리소스 envelope, schema, identifier, 필드 의미, 권한, 참조 리소스를 검사합니다."
+      },
+      "plan": {
+        "title": "Plan",
+        "description": "canonical manifest, 의미 기반 Diff, 차단 문제, 경고, 고정 참조 digest를 생성합니다."
+      },
+      "apply": {
+        "title": "Apply",
+        "description": "사용자를 다시 인가하고 오래된 Plan을 거부하며 한 번만 소비해 typed revision 또는 도메인 객체를 생성합니다."
+      }
+    },
+    "kindsTitle": "리소스 Kind와 Apply 동작",
+    "kindsColumns": {
+      "kind": "Kind",
+      "apply": "Typed Apply",
+      "purpose": "용도"
+    },
+    "kinds": {
+      "bindings": {
+        "name": "바인딩 리소스",
+        "apply": "지원",
+        "purpose": "모델, 도구, 저장소, Skill, 지식, Secret, 컴퓨트 대상, 리소스 프로필 참조를 버전 관리합니다."
+      },
+      "prompt": {
+        "name": "Prompt",
+        "apply": "지원",
+        "purpose": "재사용 가능한 Prompt 내용과 선언 변수를 불변 revision으로 저장합니다."
+      },
+      "workerTemplate": {
+        "name": "WorkerTemplate",
+        "apply": "지원",
+        "purpose": "재사용 가능한 런타임, 모델, 워크스페이스, 수명주기 설정을 WorkerSpec 스냅샷으로 컴파일합니다."
+      },
+      "worker": {
+        "name": "Worker",
+        "apply": "생성 전용",
+        "purpose": "고정된 리소스로 Worker를 한 번 시작합니다. 같은 Worker 리소스는 업데이트할 수 없습니다."
+      },
+      "expertWorkflow": {
+        "name": "Expert / Workflow",
+        "apply": "지원",
+        "purpose": "고정 WorkerTemplate, Prompt, WorkerSpec 스냅샷을 가진 재사용 가능한 정의를 생성합니다."
+      },
+      "goalLoop": {
+        "name": "GoalLoop",
+        "apply": "지원, 초안 생성",
+        "purpose": "고정된 WorkerSpec 스냅샷으로 GoalLoop 초안을 생성합니다. 시작은 명시적 작업으로 남습니다."
+      }
+    },
+    "referencesTitle": "불변 ResourceRef 해석",
+    "referencesDescription": "kind, name, namespace, 선택 revision으로 참조합니다. revision 생략은 Plan 시 active revision을 해석한다는 뜻이지 최신 버전을 계속 추적한다는 뜻이 아닙니다.",
+    "referencesPinned": "Plan은 apiVersion, kind, namespace, name, UID, revision, digest를 고정합니다. Apply와 이후 실행은 이 결과를 사용합니다.",
+    "editorTitle": "하나의 Draft, 두 개의 보기",
+    "editorDescription": "도메인 폼과 YAML 편집기는 하나의 typed draft를 사용합니다. 잘못된 YAML은 유지되며 폼 전환, Plan, Apply를 차단합니다.",
+    "editor": {
+      "steps": {
+        "form": "일반 필드와 리소스 선택에는 폼을 사용합니다.",
+        "yaml": "검토, 버전 관리, 정밀한 고급 편집에는 YAML을 사용합니다.",
+        "validate": "schema, 권한, identifier, 참조 오류를 해결합니다.",
+        "plan": "CREATE 또는 UPDATE, 의미 기반 Diff, 경고, revision, digest를 검토합니다.",
+        "apply": "현재 Plan만 Apply하고 반환된 revision, 스냅샷, 정의, Worker를 확인합니다."
+      }
+    },
+    "yamlTitle": "YAML 예제",
+    "securityTitle": "Secret 및 권한 경계",
+    "securityDescription": "YAML은 평문 자격 증명이 아니라 참조를 기술합니다. namespace는 식별자이며 인가를 대체하지 않습니다.",
+    "security": {
+      "items": {
+        "credentials": "ModelBinding은 모델 리소스 ID만 저장하며 공급자 자격 증명은 AI 리소스 연결에 암호화됩니다.",
+        "authorization": "Validate, Plan, Apply는 조직 외부 또는 읽을 수 없는 참조와 Plan 이후 취소된 권한을 거부합니다.",
+        "stale": "Draft, head, 런타임 카탈로그 변경과 만료되거나 소비된 Plan은 새 Plan을 요구합니다."
+      }
+    },
+    "boundaryTitle": "현재 경계",
+    "goalLoopBoundary": "GoalLoop Apply는 고정 revision의 초안을 만들지만 시작하거나 Pod를 생성하지 않습니다. 시작, 검증, 취소는 명시적 Loop 작업입니다.",
+    "reconciliationBoundary": "선언형 모델이지만 Kubernetes식 지속 reconciliation은 실행하지 않습니다. Worker나 Pod를 삭제해도 자동 재생성되지 않습니다."
+  }
+}

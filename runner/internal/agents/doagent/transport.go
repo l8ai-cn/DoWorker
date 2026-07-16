@@ -10,7 +10,7 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/acp"
 )
 
-const TransportType = "do-agent"
+const TransportType = "do-agent-acp"
 
 type transport struct {
 	tracker   *acp.RequestTracker

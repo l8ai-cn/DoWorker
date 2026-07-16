@@ -135,7 +135,7 @@ describe("acpEventDispatcher", () => {
       expect(s.messages[0].complete).toBe(true);
     });
 
-    it("handles log events and stores error/warn in session", () => {
+    it("stores every relay log level in the ACP session", () => {
       dispatchAcpRelayEvent(POD, MsgType.AcpEvent, {
         type: "log",
         sessionId: "s1",
@@ -149,6 +149,31 @@ describe("acpEventDispatcher", () => {
       expect(session!.logs).toHaveLength(1);
       expect(session!.logs[0].level).toBe("error");
       expect(session!.logs[0].message).toBe("Something went wrong");
+
+      dispatchAcpRelayEvent(POD, MsgType.AcpEvent, {
+        type: "log",
+        sessionId: "s1",
+        level: "info",
+        message: "Worker started",
+      });
+
+      expect(readAcpSession(POD)!.logs).toMatchObject([
+        { level: "error", message: "Something went wrong" },
+        { level: "info", message: "Worker started" },
+      ]);
+    });
+
+    it("surfaces a correlated command failure in the workspace timeline", () => {
+      dispatchAcpRelayEvent(POD, MsgType.AcpEvent, {
+        type: "commandFailed",
+        requestId: "command-1",
+        message: "Worker did not accept the prompt",
+      });
+
+      expect(getSession().logs[0]).toMatchObject({
+        level: "error",
+        message: "Worker did not accept the prompt",
+      });
     });
 
     it("handles unknown event types gracefully", () => {

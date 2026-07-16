@@ -25,8 +25,10 @@ vi.mock("../../hooks/useWorkerCreateOptions", () => ({
 vi.mock("../../hooks/useWorkerCreateDependencies", () => ({
   useWorkerCreateDependencies: () => ({
     modelResources: { status: "ready", data: [modelResource()] },
+    toolModelResources: { status: "ready", data: [] },
     runtimeBundles: { status: "ready", data: [] },
     credentialBundles: { status: "ready", data: [] },
+    configBundles: { status: "ready", data: [] },
     skills: { status: "ready", data: [] },
   }),
 }));

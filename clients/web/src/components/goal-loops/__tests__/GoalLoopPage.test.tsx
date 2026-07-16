@@ -6,13 +6,11 @@ import type { GoalLoopData } from "@/lib/viewModels/goal-loop";
 const {
   mockCancelGoalLoop,
   mockListGoalLoops,
-  mockListWorkerSnapshots,
   mockStartGoalLoop,
   mockVerifyGoalLoop,
 } = vi.hoisted(() => ({
   mockCancelGoalLoop: vi.fn(),
   mockListGoalLoops: vi.fn(),
-  mockListWorkerSnapshots: vi.fn(),
   mockStartGoalLoop: vi.fn(),
   mockVerifyGoalLoop: vi.fn(),
 }));
@@ -20,9 +18,29 @@ const {
 vi.mock("@/lib/api/facade/goalLoopConnect", () => ({
   cancelGoalLoop: mockCancelGoalLoop,
   listGoalLoops: mockListGoalLoops,
-  listGoalLoopWorkerSnapshots: mockListWorkerSnapshots,
   startGoalLoop: mockStartGoalLoop,
   verifyGoalLoop: mockVerifyGoalLoop,
+}));
+
+vi.mock("@/components/resource-editor/ResourceEditorShell", () => ({
+  ResourceEditorShell: ({
+    kind,
+    orgSlug,
+    onApplied,
+  }: {
+    kind: string;
+    orgSlug: string;
+    onApplied: () => void;
+  }) => (
+    <button
+      type="button"
+      data-kind={kind}
+      data-org={orgSlug}
+      onClick={onApplied}
+    >
+      Apply GoalLoop
+    </button>
+  ),
 }));
 
 function goalLoop(name: string, status: GoalLoopData["status"]): GoalLoopData {
@@ -53,7 +71,6 @@ describe("GoalLoopPage", () => {
       goalLoop("Draft migration", "draft"),
       goalLoop("Active release check", "active"),
     ]);
-    mockListWorkerSnapshots.mockResolvedValue([]);
   });
 
   it("keeps creation on demand and prioritizes executing loops", async () => {
@@ -72,6 +89,17 @@ describe("GoalLoopPage", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("dialog", { name: "创建目标 Loop" })).toBeInTheDocument();
+    });
+    const apply = screen.getByRole("button", { name: "Apply GoalLoop" });
+    expect(apply).toHaveAttribute("data-kind", "GoalLoop");
+    expect(apply).toHaveAttribute("data-org", "dev-org");
+
+    fireEvent.click(apply);
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "创建目标 Loop" }))
+        .not.toBeInTheDocument();
+      expect(mockListGoalLoops).toHaveBeenCalledTimes(2);
     });
   });
 });

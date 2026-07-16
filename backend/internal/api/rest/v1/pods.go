@@ -10,17 +10,19 @@ import (
 // Pod creation is delegated to PodOrchestrator (service layer).
 // This handler remains responsible for CRUD and HTTP protocol adaptation.
 type PodHandler struct {
-	podService     PodServiceForHandler            // Pod CRUD operations (ListPods, GetPod, TerminatePod, etc.)
-	runnerService  *runner.Service                 // Runner management
-	podCoordinator *runner.PodCoordinator          // Pod coordination (TerminatePod, terminal routing)
-	orchestrator   *agentpod.PodOrchestrator       // Unified Pod creation logic
-	commandSender  runner.RunnerCommandSender      // Unified command sender (PTY + ACP)
-	grantService   *grantservice.Service           // Resource grant/sharing service
+	podService     PodServiceForHandler       // Pod CRUD operations (ListPods, GetPod, TerminatePod, etc.)
+	runnerService  *runner.Service            // Runner management
+	podCoordinator *runner.PodCoordinator     // Pod coordination (TerminatePod, terminal routing)
+	orchestrator   *agentpod.PodOrchestrator  // Unified Pod creation logic
+	commandSender  runner.RunnerCommandSender // Unified command sender (PTY + ACP)
+	grantService   *grantservice.Service      // Resource grant/sharing service
 	pendingQueue   pendingQueueReader
+	sandboxFs      podWorkspaceSandbox
 
 	// Preview (Gateway HTTP data plane) dependencies.
-	relaySelector previewRelaySelector  // relay geo-selection for the preview edge
-	relayTokens   previewTokenGenerator // typed token minting (tunnel + preview)
+	relaySelector       previewRelaySelector
+	relayTokens         previewTokenGenerator
+	previewPublicOrigin string
 }
 
 // PodHandlerOption is a functional option for configuring PodHandler
@@ -60,11 +62,18 @@ func WithPendingQueue(q pendingQueueReader) PodHandlerOption {
 	}
 }
 
+func WithPodWorkspaceSandbox(sandbox podWorkspaceSandbox) PodHandlerOption {
+	return func(h *PodHandler) {
+		h.sandboxFs = sandbox
+	}
+}
+
 // WithRelayPreview wires the dependencies needed by the pod preview endpoint.
-func WithRelayPreview(sel previewRelaySelector, tokens previewTokenGenerator) PodHandlerOption {
+func WithRelayPreview(sel previewRelaySelector, tokens previewTokenGenerator, publicOrigin string) PodHandlerOption {
 	return func(h *PodHandler) {
 		h.relaySelector = sel
 		h.relayTokens = tokens
+		h.previewPublicOrigin = publicOrigin
 	}
 }
 

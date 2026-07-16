@@ -5,10 +5,12 @@ import type { SessionInteractionMode } from "@/lib/sessions-api";
 
 export function InteractionModeSelector({
   mode,
+  supportedModes,
   disabled,
   onChange,
 }: {
   mode: SessionInteractionMode;
+  supportedModes: SessionInteractionMode[];
   disabled?: boolean;
   onChange: (mode: SessionInteractionMode) => void;
 }) {
@@ -23,7 +25,7 @@ export function InteractionModeSelector({
       <div className="grid grid-cols-2 gap-2">
         <ModeButton
           active={mode === "acp"}
-          disabled={disabled}
+          disabled={disabled || !supportedModes.includes("acp")}
           icon={<MessageSquare className="h-4 w-4" />}
           label="可视化对话"
           detail="计划、工具和授权"
@@ -31,7 +33,7 @@ export function InteractionModeSelector({
         />
         <ModeButton
           active={mode === "pty"}
-          disabled={disabled}
+          disabled={disabled || !supportedModes.includes("pty")}
           icon={<Terminal className="h-4 w-4" />}
           label="命令行"
           detail="原生 CLI 终端"

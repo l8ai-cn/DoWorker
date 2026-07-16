@@ -1,0 +1,89 @@
+{
+  "resourceOrchestration": {
+    "navTitle": "Orquestração de recursos",
+    "title": "Orquestração nativa de recursos",
+    "description": "Declare Workers, Experts, Workflows, prompts, modelos, ferramentas, conhecimento e computação como recursos versionados. O plano de controle valida referências, mostra um Plan semântico e aplica uma revisão ou snapshot de execução imutável.",
+    "openGuide": "Abrir o guia de orquestração de recursos",
+    "lifecycleTitle": "Validate → Plan → Apply",
+    "lifecycleDescription": "O fluxo separa autoria, revisão e execução. Um Plan comprova a mudança pretendida, não que o recurso já exista.",
+    "lifecycle": {
+      "validate": {
+        "title": "Validate",
+        "description": "Verifica envelope, schema, identifiers, semântica dos campos, permissões e recursos referenciados."
+      },
+      "plan": {
+        "title": "Plan",
+        "description": "Produz canonical manifest, Diff semântico, bloqueios, avisos e digests das referências fixadas."
+      },
+      "apply": {
+        "title": "Apply",
+        "description": "Reautoriza o ator, rejeita Plans obsoletos, consome o Plan uma vez e cria a revisão ou objeto tipado."
+      }
+    },
+    "kindsTitle": "Kinds de recursos e comportamento de Apply",
+    "kindsColumns": {
+      "kind": "Kind",
+      "apply": "Typed Apply",
+      "purpose": "Finalidade"
+    },
+    "kinds": {
+      "bindings": {
+        "name": "Recursos de binding",
+        "apply": "Sim",
+        "purpose": "Versionam referências a modelos, ferramentas, repositórios, Skills, conhecimento, Secrets, destinos de computação e perfis."
+      },
+      "prompt": {
+        "name": "Prompt",
+        "apply": "Sim",
+        "purpose": "Armazena conteúdo reutilizável e variáveis declaradas como revisão imutável."
+      },
+      "workerTemplate": {
+        "name": "WorkerTemplate",
+        "apply": "Sim",
+        "purpose": "Compila configurações reutilizáveis de runtime, modelo, workspace e ciclo de vida em um snapshot WorkerSpec."
+      },
+      "worker": {
+        "name": "Worker",
+        "apply": "Somente criar",
+        "purpose": "Inicia um Worker com recursos fixados. O mesmo recurso Worker não pode ser atualizado."
+      },
+      "expertWorkflow": {
+        "name": "Expert / Workflow",
+        "apply": "Sim",
+        "purpose": "Cria definições reutilizáveis com WorkerTemplate, Prompt e WorkerSpec fixados."
+      },
+      "goalLoop": {
+        "name": "GoalLoop",
+        "apply": "Sim, como rascunho",
+        "purpose": "Cria um rascunho de GoalLoop com snapshot de WorkerSpec fixado. Iniciar continua sendo uma ação explícita."
+      }
+    },
+    "referencesTitle": "Resolução imutável de ResourceRef",
+    "referencesDescription": "Referências usam kind, name, namespace e revision opcional. Omiti-la resolve a revisão ativa durante o Plan, sem seguir a mais recente para sempre.",
+    "referencesPinned": "O Plan fixa apiVersion, kind, namespace, name, UID, revision e digest. Apply e a execução posterior usam esse resultado.",
+    "editorTitle": "Um Draft, duas visualizações",
+    "editorDescription": "O formulário e o editor YAML usam o mesmo typed draft. YAML inválido permanece visível e bloqueia troca de visualização, Plan e Apply.",
+    "editor": {
+      "steps": {
+        "form": "Use o formulário para campos comuns e seletores de recursos.",
+        "yaml": "Use YAML para revisão, controle de versão ou edição avançada precisa.",
+        "validate": "Resolva erros de schema, permissão, identifier e referência.",
+        "plan": "Revise CREATE ou UPDATE, Diff semântico, avisos, revision e digest.",
+        "apply": "Aplique somente o Plan atual e verifique revisão, snapshot, definição ou Worker retornado."
+      }
+    },
+    "yamlTitle": "Exemplo YAML",
+    "securityTitle": "Limites de Secret e permissão",
+    "securityDescription": "O YAML descreve referências, não credenciais em texto puro. namespace identifica e não substitui autorização.",
+    "security": {
+      "items": {
+        "credentials": "ModelBinding armazena apenas o ID do recurso de modelo; credenciais continuam criptografadas na conexão de IA.",
+        "authorization": "Validate, Plan e Apply rejeitam referências entre organizações, ilegíveis ou revogadas após o Plan.",
+        "stale": "Mudanças em Draft, head ou catálogo e Plans expirados ou consumidos exigem um novo Plan."
+      }
+    },
+    "boundaryTitle": "Limite atual",
+    "goalLoopBoundary": "GoalLoop Apply cria um rascunho com revisões fixadas, mas não o inicia nem cria um Pod. Iniciar, verificar e cancelar continuam sendo ações explícitas.",
+    "reconciliationBoundary": "O modelo é declarativo, mas não executa reconciliação contínua como Kubernetes. Excluir um Worker ou Pod não o recria."
+  }
+}

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { aiResourceValidationMessage } from "./aiResourceValidationMessage";
 import type { ModelResource } from "./types";
 
 interface ModelResourceRowProps {
@@ -30,12 +31,18 @@ export function ModelResourceRow({
   const defaultModality = activeModality === "all"
     ? resource.modalities.length === 1 ? resource.modalities[0] : selectedDefaultModality
     : resource.modalities.includes(activeModality) ? activeModality : "";
+  const validationMessage = resource.validationError
+    ? aiResourceValidationMessage(resource.validationError, t)
+    : "";
 
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border/60 py-3 first:border-t-0">
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-foreground">{resource.displayName}</p>
         <p className="truncate text-xs text-muted-foreground">{resource.modelId}</p>
+        {validationMessage && (
+          <p role="alert" className="text-xs text-destructive">{validationMessage}</p>
+        )}
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         {resource.modalities.map((modality) => <Badge key={modality} variant="outline">{modality}</Badge>)}

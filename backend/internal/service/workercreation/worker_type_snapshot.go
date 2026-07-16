@@ -2,6 +2,7 @@ package workercreation
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
@@ -22,6 +23,9 @@ func (service *Service) ValidateWorkerTypeSnapshot(
 		expected.Slug,
 	)
 	if err != nil {
+		if errors.Is(err, specservice.ErrInvalidDraft) {
+			return fmt.Errorf("%w: %q: %v", ErrWorkerTypeDefinitionChanged, expected.Slug, err)
+		}
 		return err
 	}
 	if current.WorkerType != expected {

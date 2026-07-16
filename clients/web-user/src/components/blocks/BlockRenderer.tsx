@@ -32,6 +32,7 @@ import {
 } from "@/shell/FileViewerContext";
 import { toWorkspaceRelativePath, useWorkspaceFileExists } from "@/hooks/useWorkspaceChangedFiles";
 import { ElicitationCard } from "./ApprovalCard";
+import { OutputFileArtifact } from "./OutputFileArtifact";
 import { ReasoningView } from "./ReasoningView";
 import { SlashCommandCard } from "./SlashCommandCard";
 import { SmartRoutingCard } from "./SmartRoutingCard";
@@ -572,6 +573,8 @@ function renderItem(
           stderr={item.stderr}
         />
       );
+    case "file":
+      return <OutputFileArtifact key={key} fileId={item.fileId} filename={item.filename} />;
     case "error":
       return <ErrorBanner key={key} message={item.message} source={item.source} code={item.code} />;
     case "policy_denied":

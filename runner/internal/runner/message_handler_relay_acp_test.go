@@ -11,17 +11,18 @@ import (
 // mockPodIO records calls to SendInput, RespondToPermission, CancelSession, and new control methods.
 // Implements both PodIO and SessionAccess for ACP relay command tests.
 type mockPodIO struct {
-	mu            sync.Mutex
-	inputs        []string
-	permResps     []permResp
-	cancelled     bool
-	interrupted   bool
-	permMode      string
-	model         string
-	controlReqs   []controlReq
-	cancelErr     error
-	sendErr       error
-	permErr       error
+	mu          sync.Mutex
+	inputs      []string
+	permResps   []permResp
+	cancelled   bool
+	interrupted bool
+	sendErrors  []error
+	permMode    string
+	model       string
+	controlReqs []controlReq
+	cancelErr   error
+	sendErr     error
+	permErr     error
 }
 
 type permResp struct {
@@ -52,6 +53,11 @@ func (m *mockPodIO) SendInput(text string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.inputs = append(m.inputs, text)
+	if len(m.sendErrors) > 0 {
+		err := m.sendErrors[0]
+		m.sendErrors = m.sendErrors[1:]
+		return err
+	}
 	return m.sendErr
 }
 

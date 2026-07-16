@@ -13,15 +13,23 @@ mod api_core_tests {
     }
     impl MockTokenStore {
         fn with_org(slug: &str) -> Arc<Self> {
-            Arc::new(Self { org_slug: Mutex::new(Some(slug.into())) })
+            Arc::new(Self {
+                org_slug: Mutex::new(Some(slug.into())),
+            })
         }
         fn no_org() -> Arc<Self> {
-            Arc::new(Self { org_slug: Mutex::new(None) })
+            Arc::new(Self {
+                org_slug: Mutex::new(None),
+            })
         }
     }
     impl AuthTokenStore for MockTokenStore {
-        fn get_token(&self) -> Option<String> { Some("tok".into()) }
-        fn get_refresh_token(&self) -> Option<String> { None }
+        fn get_token(&self) -> Option<String> {
+            Some("tok".into())
+        }
+        fn get_refresh_token(&self) -> Option<String> {
+            None
+        }
         fn set_tokens(&self, _t: String, _r: String, _e: Option<i64>) {}
         fn clear_tokens(&self) {}
         fn get_current_org_slug(&self) -> Option<String> {
@@ -70,7 +78,6 @@ mod api_core_tests {
 
     // ── file ────────────────────────────────────────────────────────────
     // REST `files/presign` removed; covered by file_connect.rs.
-
 
     // ── invitation ──────────────────────────────────────────────────────
     // REST surface dropped; covered by invitation_connect.rs.

@@ -89,6 +89,10 @@ type Workflow struct {
 	SandboxPath *string `gorm:"size:500" json:"sandbox_path,omitempty"`
 	LastPodKey  *string `gorm:"size:100" json:"last_pod_key,omitempty"`
 
+	OrchestrationResourceID       *int64 `json:"orchestration_resource_id,omitempty"`
+	OrchestrationResourceRevision *int64 `json:"orchestration_resource_revision,omitempty"`
+	WorkerSpecSnapshotID          *int64 `json:"worker_spec_snapshot_id,omitempty"`
+
 	CreatedByID int64 `gorm:"not null" json:"created_by_id"`
 
 	TotalRuns      int `gorm:"not null;default:0" json:"total_runs"`
@@ -163,6 +167,12 @@ func (l *Workflow) IsAutopilot() bool {
 // When persistent, both sandbox files and agent session (conversation history) are preserved.
 func (l *Workflow) IsPersistent() bool {
 	return l.SandboxStrategy == SandboxStrategyPersistent
+}
+
+func (l *Workflow) IsResourceManaged() bool {
+	return l.OrchestrationResourceID != nil ||
+		l.OrchestrationResourceRevision != nil ||
+		l.WorkerSpecSnapshotID != nil
 }
 
 // SuccessRate returns the success rate as a percentage (0-100)

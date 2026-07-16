@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 const NEXT_LINKS = [
-  { href: "/docs/features/agentpod", titleKey: "agentpod", descKey: "agentpodDesc" },
-  { href: "/docs/features/mesh", titleKey: "mesh", descKey: "meshDesc" },
+  { href: "/docs/concepts/workers", titleKey: "agentpod", descKey: "agentpodDesc" },
   { href: "/docs/features/tickets", titleKey: "tickets", descKey: "ticketsDesc" },
   { href: "/docs/guides/multi-agent-workflows", titleKey: "multiAgent", descKey: "multiAgentDesc" },
 ] as const;

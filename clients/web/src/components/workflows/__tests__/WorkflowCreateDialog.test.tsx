@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import { WorkflowCreateDialog } from "../WorkflowCreateDialog";
 import type { EffectiveResource, ProviderDefinition } from "@/lib/api/facade/aiResource";
 import type { WorkflowData } from "@/lib/viewModels/workflow";
@@ -12,6 +12,30 @@ vi.mock("@/stores/workflow", () => ({
 }));
 vi.mock("@/stores/auth", () => ({
   readCurrentOrg: () => ({ slug: "acme" }),
+}));
+vi.mock("next/navigation", () => ({
+  useParams: () => ({ org: "acme" }),
+}));
+vi.mock("@/components/resource-editor/ResourceEditorShell", () => ({
+  ResourceEditorShell: ({
+    kind,
+    orgSlug,
+    onApplied,
+  }: {
+    kind: string;
+    orgSlug: string;
+    onApplied: () => void;
+  }) => (
+    <button
+      type="button"
+      data-testid="resource-editor"
+      data-kind={kind}
+      data-org={orgSlug}
+      onClick={onApplied}
+    >
+      apply resource
+    </button>
+  ),
 }));
 
 const mockAvailableAgents = [
@@ -140,24 +164,10 @@ const claudeResource: EffectiveResource = {
   },
 };
 
-function fillRequiredFields() {
-  fireEvent.change(screen.getByPlaceholderText("daily-code-review"), { target: { value: "Nightly CI" } });
-  fireEvent.change(screen.getByPlaceholderText("workflows.promptPlaceholder"), { target: { value: "run tests" } });
-}
-
 async function waitForAsyncEffects() {
   await act(async () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
-}
-
-function pickCustomSelect(trigger: HTMLElement, optionValue: string) {
-  fireEvent.click(trigger);
-  const option = screen
-    .getAllByRole("option")
-    .find((el) => el.getAttribute("data-option-value") === optionValue);
-  if (!option) throw new Error(`Select option not found: "${optionValue}"`);
-  fireEvent.click(option);
 }
 
 function mockResources(resources: EffectiveResource[] = [claudeResource]) {
@@ -184,48 +194,24 @@ describe("WorkflowCreateDialog — model resources and runtime bundles", () => {
     mockUpdateWorkflow.mockResolvedValue({ slug: "nightly-ci" });
   });
 
-  it("renders exact model resource selection and no credential selector", async () => {
-    const { container } = render(<WorkflowCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />);
+  it("uses the resource-native Workflow editor for create mode", () => {
+    const onOpenChange = vi.fn();
+    const onCreated = vi.fn();
+    render(
+      <WorkflowCreateDialog
+        open
+        onOpenChange={onOpenChange}
+        onCreated={onCreated}
+      />,
+    );
 
-    pickCustomSelect(container.querySelector("#worker-image-select") as HTMLElement, "claude-code");
-    await waitForAsyncEffects();
+    const editor = screen.getByTestId("resource-editor");
+    expect(editor).toHaveAttribute("data-kind", "Workflow");
+    expect(editor).toHaveAttribute("data-org", "acme");
+    editor.click();
 
-    expect(screen.getByLabelText("ide.createPod.selectModelResource")).toBeInTheDocument();
-    expect(screen.queryByLabelText("ide.createPod.selectCredential")).not.toBeInTheDocument();
-    expect(screen.getByText("ide.createPod.selectRuntimeBundles")).toBeInTheDocument();
-    expect(screen.getByText("dev-preferences")).toBeInTheDocument();
-  });
-
-  it("submits model_resource_id and keeps used_env_bundles runtime-only", async () => {
-    const { container } = render(<WorkflowCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />);
-
-    pickCustomSelect(container.querySelector("#worker-image-select") as HTMLElement, "claude-code");
-    await waitForAsyncEffects();
-    fillRequiredFields();
-    pickCustomSelect(screen.getByLabelText("ide.createPod.selectModelResource"), "42");
-    fireEvent.click(screen.getByRole("checkbox", { name: /dev-preferences/i }));
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "workflows.createWorkflow" }));
-    });
-
-    await waitFor(() => expect(mockCreateWorkflow).toHaveBeenCalledTimes(1));
-    expect(mockCreateWorkflow.mock.calls[0][0]).toMatchObject({
-      model_resource_id: 42,
-      used_env_bundles: ["dev-preferences"],
-    });
-  });
-
-  it("blocks saving when a model agent has no compatible model resource", async () => {
-    mockResources([]);
-    const { container } = render(<WorkflowCreateDialog open onOpenChange={() => {}} onCreated={() => {}} />);
-
-    pickCustomSelect(container.querySelector("#worker-image-select") as HTMLElement, "claude-code");
-    await waitForAsyncEffects();
-    fillRequiredFields();
-
-    expect(screen.getByText("ide.createPod.noModelResourcesAvailableHint")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "workflows.createWorkflow" })).toBeDisabled();
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(onCreated).toHaveBeenCalledTimes(1);
   });
 
   it("edit mode preserves saved model_resource_id and runtime bundles", async () => {
