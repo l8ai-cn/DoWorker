@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	ErrDraftRepairUnsupported = errors.New("Loop diagnostic repair is unsupported")
-	ErrDraftRepairTargetStale = errors.New("Loop diagnostic repair target is stale")
+	ErrDraftRepairUnsupported = errors.New("loop diagnostic repair is unsupported")
+	ErrDraftRepairTargetStale = errors.New("loop diagnostic repair target is stale")
 )
 
 type DraftRepairInput struct {

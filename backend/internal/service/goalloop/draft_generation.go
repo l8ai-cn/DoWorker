@@ -18,12 +18,12 @@ const (
 )
 
 var (
-	ErrDraftGenerationUnavailable  = errors.New("Loop draft generation is unavailable")
+	ErrDraftGenerationUnavailable  = errors.New("loop draft generation is unavailable")
 	ErrInvalidDraftGenerationInput = errors.New("invalid Loop draft generation input")
-	ErrDraftContainsSecret         = errors.New("Loop AI input contains secret-like data")
+	ErrDraftContainsSecret         = errors.New("loop AI input contains secret-like data")
 	ErrDraftSourceInvalid          = errors.New("current Loop source is invalid")
 	ErrGeneratedDraftInvalid       = errors.New("generated Loop draft is invalid")
-	ErrDraftProviderUnavailable    = errors.New("Loop draft provider is unavailable")
+	ErrDraftProviderUnavailable    = errors.New("loop draft provider is unavailable")
 )
 
 var supportedDraftAdapters = []string{
