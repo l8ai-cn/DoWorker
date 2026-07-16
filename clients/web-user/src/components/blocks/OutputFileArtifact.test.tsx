@@ -72,6 +72,20 @@ describe("OutputFileArtifact", () => {
     );
   });
 
+  it("retries a failed generic file download", async () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    authenticatedFetch
+      .mockResolvedValueOnce({ ok: false, status: 503 })
+      .mockResolvedValueOnce({ ok: true, blob: async () => new Blob(["artifact"]) });
+    renderArtifact("file-retry", "storyboard.pdf");
+
+    fireEvent.click(screen.getByRole("button", { name: "Download storyboard.pdf" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Retry download storyboard.pdf" }));
+
+    await waitFor(() => expect(click).toHaveBeenCalledOnce());
+    expect(authenticatedFetch).toHaveBeenCalledTimes(2);
+  });
+
   it("renders an MP4 MIME response as video without relying on its filename", async () => {
     renderArtifact("file-video", "provider-output", "video/mp4");
 

@@ -1,9 +1,28 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FileViewerContext } from "@/shell/FileViewerContext";
 import { BlockRenderer } from "./BlockRenderer";
 
-afterEach(cleanup);
+const authenticatedFetch = vi.fn();
+
+vi.mock("@/lib/identity", () => ({
+  authenticatedFetch: (...args: unknown[]) => authenticatedFetch(...args),
+}));
+
+beforeEach(() => {
+  authenticatedFetch.mockResolvedValue({
+    ok: true,
+    blob: async () => new Blob(["video"]),
+  });
+  vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:seedance-video");
+  vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+  authenticatedFetch.mockReset();
+});
 
 const FILE_VIEWER_CONTEXT = {
   openFile: () => {},
@@ -14,7 +33,7 @@ const FILE_VIEWER_CONTEXT = {
 };
 
 describe("BlockRenderer file dispatch", () => {
-  it("renders a file item through OutputFileArtifact", () => {
+  it("renders a file item through OutputFileArtifact", async () => {
     render(
       <FileViewerContext.Provider value={FILE_VIEWER_CONTEXT}>
         <BlockRenderer
@@ -32,9 +51,13 @@ describe("BlockRenderer file dispatch", () => {
       </FileViewerContext.Provider>,
     );
 
-    expect(screen.getByLabelText("seedance.mp4")).toHaveAttribute(
+    expect(await screen.findByLabelText("seedance.mp4")).toHaveAttribute(
       "src",
+      "blob:seedance-video",
+    );
+    expect(authenticatedFetch).toHaveBeenCalledWith(
       "/v1/sessions/session_1/resources/files/file_1/content",
+      { signal: expect.any(AbortSignal) },
     );
   });
 });

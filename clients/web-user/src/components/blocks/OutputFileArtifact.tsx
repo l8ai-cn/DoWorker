@@ -16,26 +16,25 @@ export function OutputFileArtifact({ fileId, filename, contentType }: OutputFile
   const label = filename?.trim() || "Generated file";
   const path = sessionId ? sessionFileContentPath(sessionId, fileId) : null;
   const video = isMp4Artifact(filename, contentType);
-  const [downloadRequested, setDownloadRequested] = useState(false);
-  const file = useSessionFileObjectUrl(path, video || downloadRequested);
+  const [downloadAttempt, setDownloadAttempt] = useState(0);
+  const file = useSessionFileObjectUrl(path, video || downloadAttempt > 0, downloadAttempt);
 
   useEffect(() => {
-    if (video || !downloadRequested || !file.url) return;
+    if (video || downloadAttempt === 0 || !file.url) return;
     const anchor = document.createElement("a");
     anchor.href = file.url;
     anchor.download = filename || "generated-file";
     document.body.append(anchor);
     anchor.click();
     anchor.remove();
-    setDownloadRequested(false);
-  }, [downloadRequested, file.url, filename, video]);
+    setDownloadAttempt(0);
+  }, [downloadAttempt, file.url, filename, video]);
 
   if (!path) {
     return <ArtifactError title="File unavailable" detail="The session file cannot be loaded." />;
   }
-  if (file.error) {
-    const title = video ? "Video could not be loaded" : "File could not be loaded";
-    return <ArtifactError title={title} detail={label} />;
+  if (video && file.error) {
+    return <ArtifactError title="Video could not be loaded" detail={label} />;
   }
   if (video && (file.loading || !file.url)) {
     return <ArtifactLoading filename={label} />;
@@ -46,14 +45,25 @@ export function OutputFileArtifact({ fileId, filename, contentType }: OutputFile
   }
 
   return (
-    <div className="flex min-w-0 items-center gap-3 rounded-md border border-border bg-muted/40 p-3">
-      <FileTextIcon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
-      <span className="min-w-0 flex-1 truncate text-sm font-medium">{label}</span>
+    <div
+      className={`flex min-w-0 items-center gap-3 rounded-md border p-3 ${
+        file.error ? "border-destructive/30 bg-destructive/5" : "border-border bg-muted/40"
+      }`}
+    >
+      {file.error ? (
+        <AlertCircleIcon className="size-5 shrink-0 text-destructive" aria-hidden="true" />
+      ) : (
+        <FileTextIcon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium">{label}</p>
+        {file.error && <p className="text-xs text-destructive">Download failed</p>}
+      </div>
       <button
-        aria-label={`Download ${label}`}
+        aria-label={`${file.error ? "Retry download" : "Download"} ${label}`}
         className="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         disabled={file.loading}
-        onClick={() => setDownloadRequested(true)}
+        onClick={() => setDownloadAttempt((attempt) => attempt + 1)}
         type="button"
       >
         <DownloadIcon className="size-4" aria-hidden="true" />

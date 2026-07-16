@@ -7,7 +7,11 @@ interface SessionFileObjectUrl {
   error: boolean;
 }
 
-export function useSessionFileObjectUrl(path: string | null, enabled = true): SessionFileObjectUrl {
+export function useSessionFileObjectUrl(
+  path: string | null,
+  enabled = true,
+  requestKey = 0,
+): SessionFileObjectUrl {
   const [state, setState] = useState<SessionFileObjectUrl>({
     url: null,
     loading: Boolean(path && enabled),
@@ -48,7 +52,7 @@ export function useSessionFileObjectUrl(path: string | null, enabled = true): Se
       controller.abort();
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [enabled, path]);
+  }, [enabled, path, requestKey]);
 
   return state;
 }
