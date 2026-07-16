@@ -21,11 +21,11 @@ func openSandboxWorkspace(path string) (*sandboxWorkspace, error) {
 	if err != nil {
 		return nil, err
 	}
-	return bindSandboxWorkspace(root)
+	return bindSandboxWorkspace(root, abs)
 }
 
-func bindSandboxWorkspace(root *os.Root) (*sandboxWorkspace, error) {
-	dir, err := os.Open(root.Name())
+func bindSandboxWorkspace(root *os.Root, path string) (*sandboxWorkspace, error) {
+	dir, err := root.Open(".")
 	if err != nil {
 		_ = root.Close()
 		return nil, err
@@ -37,7 +37,7 @@ func bindSandboxWorkspace(root *os.Root) (*sandboxWorkspace, error) {
 		_ = dir.Close()
 		return nil, fmt.Errorf("workspace changed while opening")
 	}
-	return &sandboxWorkspace{path: root.Name(), root: root, dir: dir}, nil
+	return &sandboxWorkspace{path: filepath.Clean(path), root: root, dir: dir}, nil
 }
 
 func (workspace *sandboxWorkspace) Close() {

@@ -52,7 +52,11 @@ func openDetachedPodWorkspace(
 	if err := slugkit.Validate(podKey); err != nil {
 		return nil, fmt.Errorf("invalid pod key: %w", err)
 	}
-	runnerRoot, err := os.OpenRoot(cfg.WorkspaceRoot)
+	runnerRootPath, err := filepath.Abs(cfg.WorkspaceRoot)
+	if err != nil {
+		return nil, err
+	}
+	runnerRoot, err := os.OpenRoot(runnerRootPath)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +64,7 @@ func openDetachedPodWorkspace(
 	workspacePath := filepath.Join("sandboxes", podKey, "workspace")
 	workspace, directErr := runnerRoot.OpenRoot(workspacePath)
 	if directErr == nil {
-		return bindSandboxWorkspace(workspace)
+		return bindSandboxWorkspace(workspace, filepath.Join(runnerRootPath, workspacePath))
 	}
 	aliasPath, found, err := readWorkspaceAlias(runnerRoot, podKey)
 	if err != nil {
@@ -71,7 +75,7 @@ func openDetachedPodWorkspace(
 		if err != nil {
 			return nil, fmt.Errorf("pod workspace not found: %w", err)
 		}
-		return bindSandboxWorkspace(workspace)
+		return bindSandboxWorkspace(workspace, filepath.Join(runnerRootPath, aliasPath))
 	}
 	aliasPath, found, err = resumedPodWorkspacePath(runnerRoot, podKey)
 	if err != nil {
@@ -84,7 +88,7 @@ func openDetachedPodWorkspace(
 	if err != nil {
 		return nil, fmt.Errorf("pod workspace not found: %w", err)
 	}
-	return bindSandboxWorkspace(workspace)
+	return bindSandboxWorkspace(workspace, filepath.Join(runnerRootPath, aliasPath))
 }
 
 func resumedPodWorkspacePath(runnerRoot *os.Root, podKey string) (string, bool, error) {
