@@ -38,7 +38,10 @@ DOOPS_TARGET=gw-oilan-node ./deploy.sh         # secrets + manifests + jobs via 
 ```
 
 `deploy.sh` defaults to `gw-oilan-node`. `push-images.sh` subsets: `platform` |
-`marketplace-core` | `web` | `infra` | `runners`. `marketplace-core` rebuilds
+`marketplace-core` | `video-expert` | `video-runtime` | `web` | `infra` | `runners`.
+`video-expert` rebuilds Backend, Marketplace API, Marketplace Web, Core Web,
+and Web Admin while retaining the current Relay digest. `video-runtime` builds
+and pushes only the Video Studio runner image. `marketplace-core` rebuilds
 Backend, Marketplace API, Marketplace Web, and Core Web while pinning the current
 Relay/Web-Admin registry digests. `web` rebuilds only Core Web and retains all
 other digests.
@@ -84,12 +87,12 @@ on this cluster). Re-running seed alone does not change relay/web env — only s
 - Marketplace Storefront: https://market.l8ai.cn
 - Marketplace API: https://market.l8ai.cn/api/marketplace/v1
 - Organization marketplace: https://dowork.l8ai.cn/dev-org/marketplace
-- Admin console: https://admin.dowork.l8ai.cn (separate host — no `/admin` basePath)
+- Admin console: https://admin.l8ai.cn (separate host — no `/admin` basePath)
 - Object storage (presigned URLs): https://minio.dowork.l8ai.cn
 - Test account: `admin@agentsmesh.local / Ab123456`
 
 DNS for `dowork.l8ai.cn` / `market.l8ai.cn` / `mobile.l8ai.cn` /
-`admin.dowork.l8ai.cn` / `minio.dowork.l8ai.cn` must point at the oilan node. All
+`admin.l8ai.cn` / `minio.dowork.l8ai.cn` must point at the oilan node. All
 public URLs share one domain family so relay/WebSocket URLs from
 `GetPodConnection` match the page origin (mixed `l8an.cn` / `l8ai.cn` hosts caused
 403 on terminal attach). Ingress-nginx may expose **NodePort 10007** (HTTP) so

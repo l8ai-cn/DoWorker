@@ -38,6 +38,10 @@ const enableStandalone =
   process.env.STANDALONE === "1";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    cpus: Number.parseInt(process.env.NEXT_BUILD_CPUS || "0", 10) || undefined,
+  },
+
   ...(enableStandalone
     ? {
         output: "standalone" as const,
