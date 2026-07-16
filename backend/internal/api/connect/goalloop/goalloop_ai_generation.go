@@ -44,7 +44,7 @@ func (s *Server) GenerateLoopProgram(
 	if proposal.Program == nil || proposal.CanonicalSource == "" {
 		return nil, connect.NewError(
 			connect.CodeInternal,
-			errors.New("Loop draft generator returned an empty proposal"),
+			errors.New("loop draft generator returned an empty proposal"),
 		)
 	}
 	return connect.NewResponse(&goalloopv1.CompileLoopProgramResponse{
@@ -88,7 +88,7 @@ func (s *Server) RepairLoopProgram(
 	if proposal.Program == nil || proposal.CanonicalSource == "" {
 		return nil, connect.NewError(
 			connect.CodeInternal,
-			errors.New("Loop AI repair proposal is empty"),
+			errors.New("loop AI repair proposal is empty"),
 		)
 	}
 	return connect.NewResponse(&goalloopv1.RepairLoopProgramResponse{
@@ -139,6 +139,6 @@ func mapDraftGenerationError(err error) error {
 func unavailableDraftGeneration() error {
 	return connect.NewError(
 		connect.CodeUnavailable,
-		errors.New("Loop AI generation is not configured"),
+		errors.New("loop AI generation is not configured"),
 	)
 }
