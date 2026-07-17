@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"testing"
+	"time"
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	workerplanner "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationworker"
+	runnerservice "github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	"github.com/anthropics/agentsmesh/backend/pkg/crypto"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -26,7 +30,17 @@ func TestOrchestrationWorkerPodLauncherMaterializesDeferredSnapshotPod(
 			},
 		},
 	}
-	launcher := newOrchestrationWorkerPodLauncher(orchestrator)
+	const encryptionKey = "orchestration-launcher-test-key"
+	queue := runnerservice.NewPendingCommandQueue(
+		nil,
+		nil,
+		1,
+		time.Minute,
+		true,
+		crypto.NewEncryptor(encryptionKey),
+		nil,
+	)
+	launcher := newOrchestrationWorkerPodLauncher(orchestrator, queue)
 	prompt := "Review authorization"
 
 	launch, err := launcher.MaterializeWorkerPod(
@@ -53,8 +67,17 @@ func TestOrchestrationWorkerPodLauncherMaterializesDeferredSnapshotPod(
 	assert.Equal(t, int64(73), launch.PodID)
 	assert.Equal(t, int64(11), launch.RunnerID)
 
+	require.True(t, bytes.HasPrefix(
+		launch.CommandPayload,
+		[]byte(podDomain.PendingPayloadPrefix),
+	))
+	assert.NotContains(t, string(launch.CommandPayload), launch.PodKey)
+	plaintext, err := crypto.NewEncryptor(encryptionKey).Decrypt(
+		string(launch.CommandPayload[len(podDomain.PendingPayloadPrefix):]),
+	)
+	require.NoError(t, err)
 	var message runnerv1.ServerMessage
-	require.NoError(t, proto.Unmarshal(launch.CommandPayload, &message))
+	require.NoError(t, proto.Unmarshal([]byte(plaintext), &message))
 	require.NotNil(t, message.GetCreatePod())
 	assert.Equal(t, launch.PodKey, message.GetCreatePod().GetPodKey())
 }
@@ -88,4 +111,8 @@ type workerDispatchQueueStub struct {
 
 func (stub *workerDispatchQueueStub) TriggerDrain(runnerID int64) {
 	stub.runnerID = runnerID
+}
+
+func (stub *workerDispatchQueueStub) SealPayload(payload []byte) ([]byte, error) {
+	return append([]byte(podDomain.PendingPayloadPrefix), payload...), nil
 }

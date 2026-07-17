@@ -242,7 +242,6 @@ func TestService_NamingAndCloneHelpers(t *testing.T) {
 	assert.Equal(t, "am-experts/org5-analyst", svc.RepoPath(5, "analyst"))
 	assert.Equal(t, "org5-analyst", svc.RepoNameFromPath("am-experts/org5-analyst"))
 	assert.Contains(t, svc.CloneURL("org5-analyst"), "/am-experts/org5-analyst.git")
-	assert.Equal(t, "t", svc.CloneToken())
 }
 
 func TestGiteaHTTPError_FormatCompatibleAndTypeInspectable(t *testing.T) {

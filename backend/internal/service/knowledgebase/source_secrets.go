@@ -13,8 +13,15 @@ import (
 // user_git_credentials' encrypted fields) and only decrypted in-process
 // right before a connector call.
 var secretConfigKeys = map[string]bool{
-	"app_secret":   true,
-	"access_token": true,
+	"app_secret":             true,
+	"access_token":           true,
+	readOnlyDeployKeyConfig:  true,
+	readWriteDeployKeyConfig: true,
+}
+
+var internalSecretConfigKeys = map[string]bool{
+	readOnlyDeployKeyConfig:  true,
+	readWriteDeployKeyConfig: true,
 }
 
 const encPrefix = "enc:v1:"
@@ -39,6 +46,11 @@ func redactSourceSecrets(raw json.RawMessage) (json.RawMessage, error) {
 	}
 	changed := false
 	for key, val := range cfg {
+		if internalSecretConfigKeys[key] {
+			delete(cfg, key)
+			changed = true
+			continue
+		}
 		str, ok := val.(string)
 		if !ok || !secretConfigKeys[key] || str == "" {
 			continue

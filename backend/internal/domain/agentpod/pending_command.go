@@ -1,20 +1,25 @@
 package agentpod
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const (
 	CommandTypeCreatePod  = "create_pod"
 	CommandTypeSendPrompt = "send_prompt"
+	PendingPayloadPrefix  = "enc:v1:"
 
 	ErrCodeQueueExpired = "QUEUE_EXPIRED"
 )
 
 var (
-	ErrQueueFull          = errors.New("pending command queue full")
-	ErrDuplicateCommand   = errors.New("duplicate pending command")
+	ErrQueueFull        = errors.New("pending command queue full")
+	ErrDuplicateCommand = errors.New("duplicate pending command")
 )
 
 type PendingCommand struct {
@@ -31,4 +36,11 @@ type PendingCommand struct {
 
 func (PendingCommand) TableName() string {
 	return "pending_runner_commands"
+}
+
+func (command *PendingCommand) BeforeCreate(*gorm.DB) error {
+	if !bytes.HasPrefix(command.Payload, []byte(PendingPayloadPrefix)) {
+		return fmt.Errorf("pending command payload must use %s envelope", PendingPayloadPrefix)
+	}
+	return nil
 }

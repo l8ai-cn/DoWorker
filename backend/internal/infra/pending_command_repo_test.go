@@ -39,7 +39,7 @@ func newPendingCmd(runnerID int64, podKey, commandID string) *agentpod.PendingCo
 		PodKey:         podKey,
 		CommandType:    agentpod.CommandTypeCreatePod,
 		CommandID:      commandID,
-		Payload:        []byte{0x1},
+		Payload:        append([]byte(agentpod.PendingPayloadPrefix), 0x1),
 		ExpiresAt:      time.Now().Add(time.Hour),
 	}
 }
@@ -58,6 +58,17 @@ func TestPendingCommandRepo_Enqueue_DuplicateReturnsSentinel(t *testing.T) {
 
 	err = repo.Enqueue(ctx, newPendingCmd(1, "pd-1", "cmd-1"))
 	assert.ErrorIs(t, err, agentpod.ErrDuplicateCommand)
+}
+
+func TestPendingCommandRepo_Enqueue_RejectsPlaintextPayload(t *testing.T) {
+	repo := NewPendingCommandRepository(setupPendingCommandDB(t))
+	command := newPendingCmd(1, "pd-1", "cmd-1")
+	command.Payload = []byte("private-key")
+
+	err := repo.Enqueue(context.Background(), command)
+
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), agentpod.PendingPayloadPrefix)
 }
 
 func TestPendingCommandRepo_FIFOAndPosition(t *testing.T) {

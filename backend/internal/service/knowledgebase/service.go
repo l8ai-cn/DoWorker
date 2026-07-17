@@ -27,9 +27,6 @@ type Service struct {
 	secrets *crypto.Encryptor
 }
 
-// NewService returns nil when git is nil — KB requires the internal Gitea;
-// callers treat a nil service as "feature disabled" (same pattern as the
-// file service without S3 credentials).
 func NewService(repo knowledgebase.Repository, git *gitea.Client, log *slog.Logger) *Service {
 	if git == nil {
 		return nil
@@ -74,14 +71,29 @@ func (s *Service) Create(ctx context.Context, p *CreateParams) (*knowledgebase.K
 	if err != nil {
 		return nil, err
 	}
+	if s.secrets == nil {
+		return nil, s.failCreateAndCleanupRepo(
+			ctx,
+			repoName,
+			fmt.Errorf("%w: deploy key encryption is not configured", ErrNotConfigured),
+		)
+	}
+	mountKeys, err := s.provisionMountDeployKeys(ctx, repoName)
+	if err != nil {
+		return nil, s.failCreateAndCleanupRepo(ctx, repoName, err)
+	}
 
 	sourceConfig := p.SourceConfig
 	if len(sourceConfig) == 0 {
 		sourceConfig = json.RawMessage("{}")
 	}
+	sourceConfig, err = addMountDeployKeys(sourceConfig, mountKeys)
+	if err != nil {
+		return nil, s.failCreateAndCleanupRepo(ctx, repoName, err)
+	}
 	sourceConfig, err = s.encryptSourceSecrets(sourceConfig)
 	if err != nil {
-		return nil, err
+		return nil, s.failCreateAndCleanupRepo(ctx, repoName, err)
 	}
 	kb := &knowledgebase.KnowledgeBase{
 		OrganizationID:  p.OrganizationID,
@@ -100,16 +112,11 @@ func (s *Service) Create(ctx context.Context, p *CreateParams) (*knowledgebase.K
 		kb.DefaultBranch = branch
 	}
 	if err := s.repo.Create(ctx, kb); err != nil {
-		_ = s.git.DeleteRepo(ctx, repoName)
-		return nil, err
+		return nil, s.failCreateAndCleanupRepo(ctx, repoName, err)
 	}
 	s.log.Info("knowledge base created", "org_id", p.OrganizationID, "slug", slug, "repo", kb.GitRepoPath)
 	return kb, nil
 }
-
-// CloneToken is the credential pods embed in KB clone URLs. Gitea accepts
-// an access token as the basic-auth password with any username.
-func (s *Service) CloneToken() string { return s.git.CloneToken() }
 
 func (s *Service) Get(ctx context.Context, orgID, id int64) (*knowledgebase.KnowledgeBase, error) {
 	return s.repo.Get(ctx, orgID, id)
@@ -126,7 +133,7 @@ func (s *Service) List(ctx context.Context, orgID int64, sourceType string) ([]*
 type UpdateParams struct {
 	Name         *string
 	Description  *string
-	SourceConfig json.RawMessage // partial or full; secrets blank/"***" preserve existing
+	SourceConfig json.RawMessage
 }
 
 func (s *Service) Update(ctx context.Context, orgID, id int64, p *UpdateParams) (*knowledgebase.KnowledgeBase, error) {
@@ -164,29 +171,4 @@ func (s *Service) Update(ctx context.Context, orgID, id int64, p *UpdateParams) 
 		}
 	}
 	return s.repo.Get(ctx, orgID, id)
-}
-
-func (s *Service) Delete(ctx context.Context, orgID, id int64) error {
-	kb, err := s.repo.Get(ctx, orgID, id)
-	if err != nil {
-		return err
-	}
-	if err := s.repo.Delete(ctx, orgID, id); err != nil {
-		return err
-	}
-	// Repo removal is best-effort: the DB row is authoritative, an orphan
-	// Gitea repo is only garbage, not a correctness problem.
-	if repoName := repoNameFromPath(kb.GitRepoPath); repoName != "" {
-		if err := s.git.DeleteRepo(ctx, repoName); err != nil {
-			s.log.Warn("knowledge base repo delete failed", "repo", kb.GitRepoPath, "error", err)
-		}
-	}
-	return nil
-}
-
-func repoNameFromPath(path string) string {
-	if i := strings.LastIndex(path, "/"); i >= 0 {
-		return path[i+1:]
-	}
-	return path
 }

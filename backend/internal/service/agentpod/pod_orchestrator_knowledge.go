@@ -41,16 +41,17 @@ func (o *PodOrchestrator) resolveKnowledgeMounts(
 		return nil, nil
 	}
 
-	token := o.knowledgeBases.CloneToken()
 	out := make([]*runnerv1.KnowledgeMount, 0, len(mounts))
 	for _, m := range mounts {
 		out = append(out, &runnerv1.KnowledgeMount{
-			Slug:         m.KB.Slug,
-			HttpCloneUrl: m.KB.HTTPCloneURL,
-			Branch:       m.KB.DefaultBranch,
-			MountPath:    "kb/" + m.KB.Slug,
-			Mode:         m.Mode,
-			GitToken:     token,
+			Slug:          m.KB.Slug,
+			HttpCloneUrl:  m.KB.HTTPCloneURL,
+			SshCloneUrl:   m.SSHCloneURL,
+			Branch:        m.KB.DefaultBranch,
+			MountPath:     "kb/" + m.KB.Slug,
+			Mode:          m.Mode,
+			GitKnownHosts: m.GitKnownHosts,
+			GitPrivateKey: m.GitPrivateKey,
 		})
 	}
 	slog.InfoContext(ctx, "knowledge mounts resolved", "org_id", req.OrganizationID, "agent_slug", req.AgentSlug, "count", len(out))

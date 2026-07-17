@@ -92,9 +92,6 @@ type Service interface {
 
 	// CloneURL returns the runner-facing HTTPS clone URL (no credentials).
 	CloneURL(repoName string) string
-	// CloneToken returns the credential runners embed as the basic-auth
-	// password in a clone URL.
-	CloneToken() string
 }
 
 // defaultAuthor is used for seed/edit commits when the caller passes a zero

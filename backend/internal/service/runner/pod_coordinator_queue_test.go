@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
 func TestCreatePodOrQueue_OnlineDispatchesDirectly(t *testing.T) {
@@ -23,7 +23,7 @@ func TestCreatePodOrQueue_OnlineDispatchesDirectly(t *testing.T) {
 	mockSender := &MockCommandSender{}
 	pc.SetCommandSender(mockSender)
 	repo := &memPendingRepo{}
-	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, 0, true, logger))
+	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, 0, true, testPendingEncryptor(), logger))
 
 	cmd := &runnerv1.CreatePodCommand{PodKey: "pd-online"}
 	err := pc.CreatePodOrQueue(context.Background(), r.ID, cmd, agentpod.CreatePodQueueOpts{Queue: true, OrgID: 1})
@@ -52,7 +52,7 @@ func TestCreatePodOrQueue_OfflineQueueTrue_ReturnsErrPodQueued(t *testing.T) {
 	pc := NewPodCoordinator(podStore, runnerRepo, cm, tr, hb, logger)
 	pc.SetConnectionChecker(cm)
 	repo := &memPendingRepo{}
-	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, 0, true, logger))
+	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, 0, true, testPendingEncryptor(), logger))
 
 	cmd := &runnerv1.CreatePodCommand{PodKey: "pd-q"}
 	err := pc.CreatePodOrQueue(context.Background(), r.ID, cmd, agentpod.CreatePodQueueOpts{Queue: true, OrgID: 1})
@@ -72,7 +72,7 @@ func TestCreatePodOrQueue_BusyQueueTrue_Enqueues(t *testing.T) {
 	pc.SetConnectionChecker(cm)
 	pc.SetCommandSender(&MockCommandSender{})
 	repo := &memPendingRepo{}
-	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, 0, true, logger))
+	pc.SetPendingQueue(NewPendingCommandQueue(repo, nil, 5, 0, true, testPendingEncryptor(), logger))
 
 	cmd := &runnerv1.CreatePodCommand{PodKey: "pd-busy"}
 	err := pc.CreatePodOrQueue(context.Background(), r.ID, cmd, agentpod.CreatePodQueueOpts{Queue: true, OrgID: 1})

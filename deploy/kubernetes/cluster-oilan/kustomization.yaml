@@ -14,6 +14,7 @@ resources:
   - 10-postgres.yaml
   - 11-redis.yaml
   - 12-minio.yaml
+  - 14-gitea.yaml
   - 30-backend-rbac.yaml
   - 30-backend.yaml
   - 31-relay.yaml

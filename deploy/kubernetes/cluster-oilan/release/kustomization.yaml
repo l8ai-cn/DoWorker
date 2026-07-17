@@ -27,3 +27,5 @@ images:
     digest: sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
   - name: repo.aiedulab.cn:8443/agentsmesh/kubectl
     digest: sha256:38887b75951c9839c276508c6ba4d55793e4724668c6ba9bd8d09a212073d914
+  - name: repo.aiedulab.cn:8443/library/gitea
+    digest: sha256:422bb3c87796b89fe5360d046ca42cfbc3d8eaaa259278c5ca3f0b6843f7e4fd

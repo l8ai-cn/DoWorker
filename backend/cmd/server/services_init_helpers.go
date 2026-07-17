@@ -51,14 +51,16 @@ func initializeFileService(cfg *config.Config) *fileservice.Service {
 
 func initializeKnowledgeBaseService(cfg *config.Config, db *gorm.DB) *knowledgebaseservice.Service {
 	if !cfg.KnowledgeBase.Enabled() {
-		slog.Warn("Internal Gitea not configured (KB_GITEA_URL / KB_GITEA_TOKEN), knowledge bases disabled")
+		slog.Warn("Internal Gitea control plane or SSH clone URL not configured, knowledge bases disabled")
 		return nil
 	}
 	giteaClient := gitea.NewClient(gitea.Config{
-		BaseURL:      cfg.KnowledgeBase.GiteaURL,
-		AdminToken:   cfg.KnowledgeBase.GiteaToken,
-		Namespace:    cfg.KnowledgeBase.GiteaOrg,
-		CloneBaseURL: cfg.KnowledgeBase.CloneBaseURL,
+		BaseURL:         cfg.KnowledgeBase.GiteaURL,
+		AdminToken:      cfg.KnowledgeBase.GiteaToken,
+		Namespace:       cfg.KnowledgeBase.GiteaOrg,
+		CloneBaseURL:    cfg.KnowledgeBase.CloneBaseURL,
+		SSHCloneBaseURL: cfg.KnowledgeBase.SSHCloneBaseURL,
+		SSHKnownHosts:   cfg.KnowledgeBase.SSHKnownHosts,
 	})
 	kbRepo := infra.NewKnowledgeBaseRepository(db)
 	slog.Info("Knowledge base service initialized",
@@ -68,18 +70,17 @@ func initializeKnowledgeBaseService(cfg *config.Config, db *gorm.DB) *knowledgeb
 	return svc
 }
 
-// newGiteaClientForNamespace builds a per-namespace gitea client reusing the KB
-// Gitea connection config. Returns nil when the internal Gitea is not
-// configured, so downstream gitops.NewService returns nil (DB-only mode).
 func newGiteaClientForNamespace(cfg *config.Config, namespace string) *gitea.Client {
-	if !cfg.KnowledgeBase.Enabled() {
+	if !cfg.KnowledgeBase.GitopsEnabled() {
 		return nil
 	}
 	return gitea.NewClient(gitea.Config{
-		BaseURL:      cfg.KnowledgeBase.GiteaURL,
-		AdminToken:   cfg.KnowledgeBase.GiteaToken,
-		Namespace:    namespace,
-		CloneBaseURL: cfg.KnowledgeBase.CloneBaseURL,
+		BaseURL:         cfg.KnowledgeBase.GiteaURL,
+		AdminToken:      cfg.KnowledgeBase.GiteaToken,
+		Namespace:       namespace,
+		CloneBaseURL:    cfg.KnowledgeBase.CloneBaseURL,
+		SSHCloneBaseURL: cfg.KnowledgeBase.SSHCloneBaseURL,
+		SSHKnownHosts:   cfg.KnowledgeBase.SSHKnownHosts,
 	})
 }
 
@@ -194,6 +195,5 @@ func initializeLogUploadStorage(cfg *config.Config) storage.Storage {
 	if err := s3Storage.EnsureBucket(context.Background()); err != nil {
 		slog.Warn("Failed to ensure bucket for runner logs", "error", err)
 	}
-
 	return s3Storage
 }

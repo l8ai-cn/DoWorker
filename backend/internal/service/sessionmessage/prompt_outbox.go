@@ -53,6 +53,7 @@ func (s *PromptOutbox) PersistAndQueue(ctx context.Context, in PromptInput) erro
 			tx,
 			in,
 			payload,
+			s.queue,
 			s.queue.MaxPerRunner(),
 			time.Now().Add(s.queue.SendPromptTTL()),
 		)

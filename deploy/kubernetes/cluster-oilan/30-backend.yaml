@@ -47,6 +47,8 @@ spec:
                 name: agentsmesh-config
             - secretRef:
                 name: agentsmesh-secrets
+            - secretRef:
+                name: agentsmesh-gitea
           env:
             - name: COORDINATOR_RUNNER_LAUNCHER
               value: "k8s"
