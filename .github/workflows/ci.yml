@@ -235,6 +235,7 @@ jobs:
       - run: pnpm run web:lint
       - run: pnpm run web:typecheck
       - run: pnpm run web:test
+      - run: pnpm --filter @do-worker/agent-ui test
       - run: pnpm run web-admin:typecheck
       - run: pnpm run marketplace-web:check
 
