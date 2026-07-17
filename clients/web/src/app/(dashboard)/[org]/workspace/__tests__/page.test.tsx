@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { render, waitFor } from "@/test/test-utils";
 import WorkspacePage from "../page";
 
-const mockAddPane = vi.fn();
+const mockOpenDeepLinkedPane = vi.fn();
 const mockReplace = vi.fn();
 let mockSearch = "pod=2-standalone-02467fd1";
 
@@ -24,11 +24,13 @@ vi.mock("@/stores/auth", () => ({
 vi.mock("@/stores/workspace", () => ({
   useWorkspaceStore: (selector: (state: {
     panes: never[];
-    addPane: typeof mockAddPane;
+    addPane: ReturnType<typeof vi.fn>;
+    openDeepLinkedPane: typeof mockOpenDeepLinkedPane;
     _hasHydrated: boolean;
   }) => unknown) => selector({
     panes: [],
-    addPane: mockAddPane,
+    addPane: vi.fn(),
+    openDeepLinkedPane: mockOpenDeepLinkedPane,
     _hasHydrated: true,
   }),
 }));
@@ -52,7 +54,7 @@ vi.mock("@/components/ide/CreatePodModal", () => ({
 describe("WorkspacePage", () => {
   beforeEach(() => {
     mockSearch = "pod=2-standalone-02467fd1";
-    mockAddPane.mockReset();
+    mockOpenDeepLinkedPane.mockReset();
     mockReplace.mockReset();
   });
 
@@ -60,7 +62,7 @@ describe("WorkspacePage", () => {
     render(<WorkspacePage />);
 
     await waitFor(() => {
-      expect(mockAddPane).toHaveBeenCalledWith("2-standalone-02467fd1");
+      expect(mockOpenDeepLinkedPane).toHaveBeenCalledWith("2-standalone-02467fd1");
     });
 
     expect(mockReplace).not.toHaveBeenCalled();

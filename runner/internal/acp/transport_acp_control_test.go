@@ -7,36 +7,53 @@ import (
 )
 
 func TestParseAgentsmeshExtensions(t *testing.T) {
-	t.Run("loopal advertises controlRequest + permissionModes", func(t *testing.T) {
-		raw := json.RawMessage(`{"agentsmeshExtensions":{"controlRequest":true,"permissionModes":["bypass","ask_dangerous","ask_any_write"]}}`)
-		ctrl, modes := parseAgentsmeshExtensions(raw)
-		if !ctrl {
+	t.Run("agent advertises exact control capabilities", func(t *testing.T) {
+		raw := json.RawMessage(`{"agentsmeshExtensions":{"controlRequest":true,"permissionModes":["bypass","ask_dangerous"],"artifactActions":["image.edit","presentation.export"]}}`)
+		extensions, err := parseAgentsmeshExtensions(raw)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !extensions.ControlRequest {
 			t.Error("controlRequest = false, want true")
 		}
-		want := []string{"bypass", "ask_dangerous", "ask_any_write"}
-		if !slices.Equal(modes, want) {
-			t.Errorf("permissionModes = %v, want %v", modes, want)
+		if !slices.Equal(extensions.PermissionModes, []string{"bypass", "ask_dangerous"}) {
+			t.Errorf("permissionModes = %v", extensions.PermissionModes)
+		}
+		if !slices.Equal(extensions.ArtifactActions, []string{"image.edit", "presentation.export"}) {
+			t.Errorf("artifactActions = %v", extensions.ArtifactActions)
 		}
 	})
 
 	t.Run("no extension block leaves both zero", func(t *testing.T) {
-		ctrl, modes := parseAgentsmeshExtensions(json.RawMessage(`{"protocolVersion":1}`))
-		if ctrl || modes != nil {
-			t.Errorf("got (%v, %v), want (false, nil)", ctrl, modes)
+		extensions, err := parseAgentsmeshExtensions(json.RawMessage(`{"protocolVersion":1}`))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if extensions.ControlRequest ||
+			extensions.PermissionModes != nil ||
+			extensions.ArtifactActions != nil {
+			t.Errorf("got %+v, want zero extensions", extensions)
 		}
 	})
 
-	t.Run("controlRequest only leaves modes nil", func(t *testing.T) {
-		ctrl, modes := parseAgentsmeshExtensions(json.RawMessage(`{"agentsmeshExtensions":{"controlRequest":true}}`))
-		if !ctrl || modes != nil {
-			t.Errorf("got (%v, %v), want (true, nil)", ctrl, modes)
+	t.Run("artifact actions require control request support", func(t *testing.T) {
+		_, err := parseAgentsmeshExtensions(json.RawMessage(
+			`{"agentsmeshExtensions":{"artifactActions":["image.edit"]}}`,
+		))
+		if err == nil {
+			t.Fatal("expected validation error")
 		}
 	})
 
-	t.Run("invalid json leaves both zero", func(t *testing.T) {
-		ctrl, modes := parseAgentsmeshExtensions(json.RawMessage(`not json`))
-		if ctrl || modes != nil {
-			t.Errorf("got (%v, %v), want (false, nil)", ctrl, modes)
+	t.Run("invalid actions fail the handshake", func(t *testing.T) {
+		for _, raw := range []json.RawMessage{
+			json.RawMessage(`{"agentsmeshExtensions":{"controlRequest":true,"artifactActions":["image.edit","image.edit"]}}`),
+			json.RawMessage(`{"agentsmeshExtensions":{"controlRequest":true,"artifactActions":["Image Edit"]}}`),
+			json.RawMessage(`not json`),
+		} {
+			if _, err := parseAgentsmeshExtensions(raw); err == nil {
+				t.Fatalf("expected validation error for %s", raw)
+			}
 		}
 	})
 }

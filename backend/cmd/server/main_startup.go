@@ -16,6 +16,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/service/geo"
 	knowledgebaseservice "github.com/anthropics/agentsmesh/backend/internal/service/knowledgebase"
+	previewservice "github.com/anthropics/agentsmesh/backend/internal/service/preview"
 	"github.com/anthropics/agentsmesh/backend/internal/service/relay"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	runnerlogservice "github.com/anthropics/agentsmesh/backend/internal/service/runnerlog"
@@ -235,9 +236,16 @@ func buildServicesContainer(
 		SupportTicket:        services.supportTicket,
 		TokenUsage:           services.tokenUsage,
 		Grant:                services.grant,
-		Message:              services.message,
-		IMBridge:             services.imBridge,
-		Redis:                redisClient,
+		PreviewSessions: previewservice.NewService(
+			previewservice.NewSessionStore(redisClient),
+			services.user,
+			services.org,
+			services.pod,
+			services.grant,
+		),
+		Message:  services.message,
+		IMBridge: services.imBridge,
+		Redis:    redisClient,
 	}
 	if pendingQueueWiring != nil {
 		svc.PendingQueue = pendingQueueWiring.queue

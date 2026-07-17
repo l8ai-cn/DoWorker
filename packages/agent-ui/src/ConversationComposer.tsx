@@ -29,7 +29,15 @@ export function ConversationComposer({
   const [value, setValue] = useState("");
   const [sending, setSending] = useState(false);
   const text = useAgentWorkspaceText();
-  const isRunning = snapshot.status === "running" || snapshot.status === "waiting";
+  const hasActiveTool = snapshot.items.some(
+    (item) =>
+      item.kind === "tool" &&
+      (item.status === "pending" || item.status === "running"),
+  );
+  const isRunning =
+    snapshot.status === "running" ||
+    snapshot.status === "waiting" ||
+    hasActiveTool;
   const hasDraft = value.trim().length > 0;
   const showInterrupt = isRunning && snapshot.capabilities.interrupt;
 

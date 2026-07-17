@@ -1,45 +1,18 @@
-import type {
-  AgentArtifactItem,
-  AgentPermissionResolution,
-  TerminalResource,
-} from "@do-worker/agent-ui";
-import type { EmbedSessionAccess } from "./embed-context";
+import type { TerminalResource } from "@do-worker/agent-ui";
+import type { EmbeddedAgentWorkbenchAccess } from "./embed-session/embeddedAgentWorkbenchAccess";
 import {
-  parseEmbeddedItems,
   parseEmbeddedRelayConnection,
   parseEmbeddedSession,
   parseEmbeddedTerminals,
   readEmbeddedJson,
 } from "./embed-session-response-parsers";
-import type { ConversationItem } from "@/lib/conversationItems";
-import { hostFetch } from "@/lib/host";
-import type { SessionStatus } from "@/lib/types";
-import {
-  listEmbeddedWorkspaceArtifacts,
-  loadEmbeddedWorkspaceArtifact,
-} from "./embed-workspace-artifact-api";
+import { loadEmbeddedWorkspaceArtifact } from "./embed-workspace-artifact-api";
 
 export interface EmbeddedSession {
   agentLabel: string;
-  id: string;
   interactionMode: "acp" | "pty";
-  podKey: string | null;
-  runnerId?: string | null;
-  title: string | null;
-  totalCostUsd?: number | null;
-  status: SessionStatus;
+  title: string;
 }
-
-export interface EmbeddedItemsPage {
-  items: ConversationItem[];
-  hasMore: boolean;
-}
-
-interface PostEventWire {
-  item_id?: unknown;
-}
-
-type EmbedFetch = (path: string, init?: RequestInit) => Promise<Response>;
 
 export interface EmbedRelayConnection {
   relayUrl: string;
@@ -49,123 +22,76 @@ export interface EmbedRelayConnection {
 
 export interface EmbedSessionClient {
   getSession(): Promise<EmbeddedSession>;
-  getItems(beforeItemId?: string): Promise<EmbeddedItemsPage>;
-  openStream(signal: AbortSignal): Promise<Response>;
-  loadArtifact?: (fileId: string) => Promise<Blob>;
-  listWorkspaceArtifacts?: () => Promise<AgentArtifactItem[]>;
-  sendMessage?: (text: string) => Promise<{ itemId: string | null }>;
-  interrupt?: () => Promise<void>;
-  resolvePermission?: (
-    permissionId: string,
-    result: AgentPermissionResolution,
-  ) => Promise<void>;
-  getTerminals?: () => Promise<TerminalResource[]>;
-  getRelayConnection?: () => Promise<EmbedRelayConnection>;
-  getAcpRelayConnection?: () => Promise<EmbedRelayConnection>;
+  loadDownload(downloadUrl: string): Promise<Blob>;
+  loadResource(resourceId: string): Promise<Blob>;
+  getTerminals(): Promise<TerminalResource[]>;
+  getRelayConnection(): Promise<EmbedRelayConnection>;
 }
 
 export function createEmbedSessionClient(
-  access: EmbedSessionAccess,
-  fetcher: EmbedFetch = hostFetch,
+  access: EmbeddedAgentWorkbenchAccess,
+  fetcher: typeof globalThis.fetch = globalThis.fetch,
 ): EmbedSessionClient {
+  const baseUrl = requiredBaseUrl(access.baseUrl);
+  const baseOrigin = new URL(baseUrl).origin;
   const sessionPath = `/v1/embed/sessions/${encodeURIComponent(access.sessionId)}`;
-  const request = (path: string, init?: RequestInit) =>
-    fetcher(path, {
+  const request = async (path: string, init?: RequestInit) => {
+    const token = (await access.getAccessToken()).trim();
+    if (!token) throw new Error("agent_workbench_access_token_missing");
+    return fetcher(new URL(path, baseUrl), {
       ...init,
-      headers: { ...init?.headers, Authorization: `Bearer ${access.accessToken}` },
+      headers: { ...init?.headers, Authorization: `Bearer ${token}` },
       cache: "no-store",
     });
+  };
   const client: EmbedSessionClient = {
     async getSession() {
       const response = await request(sessionPath);
       return parseEmbeddedSession(await readEmbeddedJson(response));
     },
-    async getItems(beforeItemId) {
-      const query = new URLSearchParams({ limit: "100", order: "desc" });
-      if (beforeItemId) query.set("after", beforeItemId);
-      const response = await request(`${sessionPath}/items?${query}`);
-      return parseEmbeddedItems(await readEmbeddedJson(response));
-    },
-    openStream(signal) {
-      return request(`${sessionPath}/stream`, {
-        headers: { Accept: "text/event-stream" },
-        signal,
-      });
-    },
-    async loadArtifact(fileId) {
-      if (fileId.startsWith("workspace:")) {
+    async loadResource(resourceId) {
+      if (resourceId.startsWith("workspace:")) {
         return loadEmbeddedWorkspaceArtifact(
           request,
           sessionPath,
-          fileId.slice("workspace:".length),
+          resourceId.slice("workspace:".length),
         );
       }
       const response = await request(
-        `${sessionPath}/resources/files/${encodeURIComponent(fileId)}/content`,
+        `${sessionPath}/resources/files/${encodeURIComponent(resourceId)}/content`,
       );
-      if (!response.ok) {
-        throw new Error(`Embedded session request failed (${response.status})`);
-      }
+      await requireOk(response);
       return response.blob();
     },
-    listWorkspaceArtifacts() {
-      return listEmbeddedWorkspaceArtifacts(request, sessionPath);
+    async loadDownload(downloadUrl) {
+      const target = new URL(downloadUrl, baseUrl);
+      if (target.origin !== baseOrigin) {
+        throw new Error("agent_workbench_download_origin_mismatch");
+      }
+      const response = await request(target.toString());
+      await requireOk(response);
+      return response.blob();
     },
-  };
-  if (access.capabilities.includes("write")) {
-    client.sendMessage = async (text) => {
-      const response = await request(`${sessionPath}/events`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "message",
-          data: { role: "user", content: [{ type: "input_text", text }] },
-        }),
-      });
-      const body = (await readEmbeddedJson(response)) as PostEventWire;
-      return { itemId: typeof body.item_id === "string" ? body.item_id : null };
-    };
-  }
-  if (access.capabilities.includes("control")) {
-    client.interrupt = async () => {
-      await readEmbeddedJson(
-        await request(`${sessionPath}/events`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: "interrupt", data: {} }),
-        }),
-      );
-    };
-    client.getAcpRelayConnection = async () => {
-      const response = await request(`${sessionPath}/acp-relay-connection`);
-      return parseEmbeddedRelayConnection(await readEmbeddedJson(response));
-    };
-  }
-  if (access.capabilities.includes("approve")) {
-    client.resolvePermission = async (permissionId, result) => {
-      await readEmbeddedJson(
-        await request(`${sessionPath}/elicitations/${encodeURIComponent(permissionId)}/resolve`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(result),
-        }),
-      );
-    };
-  }
-  if (access.capabilities.includes("terminal")) {
-    client.getTerminals = async () => {
+    async getTerminals() {
       const response = await request(`${sessionPath}/resources/terminals`);
-      return parseEmbeddedTerminals(
-        await readEmbeddedJson(response),
-        access.capabilities.includes("control"),
-      );
-    };
-  }
-  if (access.capabilities.includes("terminal") && access.capabilities.includes("control")) {
-    client.getRelayConnection = async () => {
+      return parseEmbeddedTerminals(await readEmbeddedJson(response), true);
+    },
+    async getRelayConnection() {
       const response = await request(`${sessionPath}/relay-connection`);
       return parseEmbeddedRelayConnection(await readEmbeddedJson(response));
-    };
-  }
+    },
+  };
   return client;
+}
+
+function requiredBaseUrl(value: string): string {
+  const normalized = value.trim();
+  if (!normalized) throw new Error("agent_workbench_base_url_missing");
+  return `${normalized.replace(/\/+$/, "")}/`;
+}
+
+async function requireOk(response: Response): Promise<void> {
+  if (!response.ok) {
+    throw new Error(`Embedded session request failed (${response.status})`);
+  }
 }

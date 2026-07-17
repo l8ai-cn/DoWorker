@@ -2,7 +2,10 @@ package server
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
+
+	"github.com/anthropics/agentsmesh/relay/internal/auth"
 )
 
 func (h *PreviewHandler) route(w http.ResponseWriter, r *http.Request) {
@@ -22,11 +25,36 @@ func (h *PreviewHandler) route(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PreviewHandler) requirePublicHost(w http.ResponseWriter, r *http.Request) bool {
-	if h.cfg.PublicHost == "" || !strings.EqualFold(r.Host, h.cfg.PublicHost) {
+	podKey, _, ok := parsePreviewPath(r.URL.Path)
+	if !ok {
+		http.NotFound(w, r)
+		return false
+	}
+	expectedHost, err := previewHostForPod(h.cfg.PublicHost, podKey)
+	if err != nil || !strings.EqualFold(r.Host, expectedHost) {
 		writePreviewError(w, "misdirected_request", http.StatusMisdirectedRequest)
 		return false
 	}
 	return true
+}
+
+func previewOriginForPod(baseOrigin, podKey string) (string, error) {
+	u, err := url.Parse(baseOrigin)
+	if err != nil || u.Scheme == "" || u.Hostname() == "" {
+		return "", auth.ErrInvalidToken
+	}
+	host, err := previewHostForPod(u.Host, podKey)
+	if err != nil {
+		return "", err
+	}
+	return u.Scheme + "://" + host, nil
+}
+
+func previewHostForPod(baseHost, podKey string) (string, error) {
+	if baseHost == "" || podKey == "" {
+		return "", auth.ErrInvalidToken
+	}
+	return podKey + "." + baseHost, nil
 }
 
 func parsePreviewPath(p string) (podKey, rest string, ok bool) {

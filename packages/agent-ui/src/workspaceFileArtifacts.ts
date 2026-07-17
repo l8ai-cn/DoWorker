@@ -17,11 +17,19 @@ export function workspaceFileArtifacts(
       return [];
     }
     return [{
+      actions: [],
       id: `${sourceId}:artifact:${index}`,
       kind: "artifact",
       artifactId: `workspace:${path}`,
       filename: path.split("/").pop() || path,
+      grants: [],
+      manifest: null,
       mimeType,
+      representations: [],
+      revision: BigInt(0),
+      role: "preview",
+      schemaVersion: "1",
+      selectedRepresentationId: null,
       status: "completed",
     }];
   });

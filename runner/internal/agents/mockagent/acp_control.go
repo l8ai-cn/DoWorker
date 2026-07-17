@@ -3,6 +3,7 @@ package mockagent
 import (
 	"encoding/json"
 	"log/slog"
+	"slices"
 	"strings"
 
 	"github.com/anthropics/agentsmesh/runner/internal/acp"
@@ -15,21 +16,27 @@ import (
 // callers so any ACPClient.SetXxx / GetXxx / Interrupt round-trip can land
 // on the mock without changes):
 //
-//   set_permission_mode  state.mode ← params.mode
-//   set_model            state.model ← params.model
-//   set_thinking_level   reserved — accepts + records params.level so
-//                        future UI can drive a thinking-level Selector
-//   interrupt            best-effort cancel: not enforced on running
-//                        scenario goroutines (mock has no thread to
-//                        cancel), but acknowledged so the call returns
-//                        cleanly
-//   get_context_usage    synthetic { input_tokens, output_tokens,
-//                        total_tokens } so callers can render usage
-//                        without depending on real model output
+//	set_permission_mode  state.mode ← params.mode
+//	set_model            state.model ← params.model
+//	set_thinking_level   reserved — accepts + records params.level so
+//	                     future UI can drive a thinking-level Selector
+//	interrupt            best-effort cancel: not enforced on running
+//	                     scenario goroutines (mock has no thread to
+//	                     cancel), but acknowledged so the call returns
+//	                     cleanly
+//	get_context_usage    synthetic { input_tokens, output_tokens,
+//	                     total_tokens } so callers can render usage
+//	                     without depending on real model output
 //
 // New subtypes go here. Unknown subtypes return method_not_found so the
 // caller's ErrControlNotSupported fall-through still works.
-func handleControlRequest(state *runtimeState, id int64, raw json.RawMessage, logger *slog.Logger) error {
+func handleControlRequest(
+	state *runtimeState,
+	id int64,
+	raw json.RawMessage,
+	artifactActions []string,
+	logger *slog.Logger,
+) error {
 	var req struct {
 		SessionID string         `json:"sessionId"`
 		Subtype   string         `json:"subtype"`
@@ -57,6 +64,14 @@ func handleControlRequest(state *runtimeState, id int64, raw json.RawMessage, lo
 		logger.Info("mock interrupt acknowledged")
 	case "get_context_usage":
 		return state.writer.WriteResponse(id, mockContextUsage(), nil)
+	case "artifact_action":
+		action, _ := req.Params["actionType"].(string)
+		if !slices.Contains(artifactActions, action) {
+			return state.writer.WriteResponse(id, nil, &acp.JSONRPCError{
+				Code: acp.ErrCodeMethodNotFound, Message: "unsupported artifact action: " + action,
+			})
+		}
+		logger.Info("mock artifact action", "action", action)
 	default:
 		if strings.HasPrefix(req.Subtype, "loopal.") {
 			logger.Info("mock loopal control", "subtype", req.Subtype)

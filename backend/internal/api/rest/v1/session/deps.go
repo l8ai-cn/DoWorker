@@ -23,10 +23,24 @@ import (
 	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
 	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
 	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
 type sessionPromptOutbox interface {
 	PersistAndQueue(context.Context, sessionmessagesvc.PromptInput) error
+}
+
+type previewSessionRevoker interface {
+	RevokeUser(context.Context, int64) error
+}
+
+type sandboxFilesystem interface {
+	IsConnected(runnerID int64) bool
+	Exec(
+		context.Context,
+		int64,
+		*runnerv1.SandboxFsCommand,
+	) (*runnerv1.SandboxFsResultEvent, error)
 }
 
 type sessionPodOrchestrator interface {
@@ -57,7 +71,7 @@ type Deps struct {
 	SessionUsage       *sessionusagesvc.Service
 	Policies           *permissionpolicysvc.Service
 	ReadState          *ReadStateStore
-	SandboxFs          *runnerservice.SandboxFsService
+	SandboxFs          sandboxFilesystem
 	SessionFiles       *sessionfilesvc.Service
 	MessageOutbox      sessionPromptOutbox
 	SessionComments    *commentsvc.Service
@@ -68,5 +82,6 @@ type Deps struct {
 	VirtualKeys        *virtualkeysvc.Service
 	TokenQuotas        *tokenquotasvc.Service
 	EmbedTokens        *embedtoken.Service
+	PreviewSessions    previewSessionRevoker
 	Version            string
 }

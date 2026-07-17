@@ -325,6 +325,7 @@ export function AppShell() {
   const sessionLabels = { ...activeConv?.labels, ...activeSession?.labels };
   const terminalFirst = sessionLabels["do-worker.ui"] === "terminal";
   const isClaudeNative = sessionLabels["do-worker.wrapper"] === "claude-code-native-ui";
+  const podKey = activeSession?.podKey ?? null;
   // Native-CLI wrapper of either family. Keys harness behavior gates
   // (composer slash commands, `/model`); terminal-first SDK sessions
   // (embedded Omnigent REPL terminal) have NO wrapper label and must
@@ -473,6 +474,7 @@ export function AppShell() {
         // empty and ``agentSupportsShells`` starts false while the agent
         // loads, so native sessions don't flash the tab.
         terminals: !hideTerminalsTab && (railTerminals.length > 0 || agentSupportsShells),
+        preview: !!podKey,
         todos: isClaudeNative && todos.length > 0,
       }) as const,
     [
@@ -480,6 +482,7 @@ export function AppShell() {
       hideTerminalsTab,
       railTerminals.length,
       agentSupportsShells,
+      podKey,
       isClaudeNative,
       todos.length,
     ],
@@ -497,7 +500,7 @@ export function AppShell() {
   // convergent even when several tabs vanish at once.
   useEffect(() => {
     if (railTabsAvailable[rightRailTab]) return;
-    const next = (["files", "subagents", "terminals", "todos"] as const).find(
+    const next = (["files", "subagents", "terminals", "preview", "todos"] as const).find(
       (t) => railTabsAvailable[t],
     );
     if (next) setRightRailTab(next);
@@ -1194,6 +1197,7 @@ export function AppShell() {
                       changedCount={changedCount}
                       showShellsTab={railTabsAvailable.terminals}
                       terminalsLength={railTerminals.length}
+                      podKey={podKey}
                       subagentsWorking={subagentsWorking}
                       agentCount={agentCount}
                       isClaudeNative={isClaudeNative}

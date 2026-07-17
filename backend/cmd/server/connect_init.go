@@ -76,12 +76,14 @@ func wrapWithConnect(cfg *config.Config, svc *serviceContainer, rest *v1.Service
 
 	mountConnectServices(connectMux, svc, rest, cfg, opts)
 
-	return routeConnectOrREST(withConnectTracing(connectMux), restHandler)
+	combined := routeConnectOrREST(withConnectTracing(connectMux), restHandler)
+	return withBrowserCORS(cfg.Server.CORSAllowedOrigins, combined)
 }
 
 // mountConnectServices is the seam each per-service migration PR adds
 // to. Specialist PRs insert one line per service.
 func mountConnectServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Services, cfg *config.Config, opts []connect.HandlerOption) {
+	mountAgentWorkbenchService(mux, svc, rest)
 	extensionSrv := extensionconnect.NewServer(svc.extension, svc.org)
 	extensionconnect.MountMarket(mux, extensionconnect.NewMarketServer(extensionSrv), opts...)
 	extensionconnect.MountRepoSkill(mux, extensionconnect.NewRepoSkillServer(extensionSrv), opts...)
@@ -127,7 +129,7 @@ func mountConnectServices(mux *http.ServeMux, svc *serviceContainer, rest *v1.Se
 	promocodeconnect.Mount(mux, promocodeconnect.NewServer(svc.promoCode, svc.org), opts...)
 	supportticketconnect.Mount(mux, supportticketconnect.NewServer(svc.supportTicket), opts...)
 	mountSSOService(mux, svc)
-	mountAuthService(mux, svc, cfg, opts)
+	mountAuthService(mux, svc, rest, cfg, opts)
 	mountGrantService(mux, svc, opts)
 	mountFileService(mux, svc, opts)
 	mountTokenUsageService(mux, svc, opts)

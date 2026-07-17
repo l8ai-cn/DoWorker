@@ -2,6 +2,11 @@ import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-q
 import { useEffect, useRef } from "react";
 import { authenticatedFetch } from "@/lib/identity";
 import { readDoWorkerOrgSlug } from "@/lib/do-worker";
+import {
+  parsePreviewBaseUrl,
+  parsePreviewSessionUrl,
+  requirePreviewPublicOrigin,
+} from "@/lib/previewSessionUrl";
 
 export interface PodPreviewInfo {
   preview_base_url: string;
@@ -22,7 +27,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object";
 }
 
-function toPodPreviewInfo(payload: unknown): PodPreviewInfo {
+export function parsePodPreviewInfo(
+  payload: unknown,
+  podKey: string,
+  publicOrigin: string,
+): PodPreviewInfo {
   if (!isRecord(payload)) {
     throw new Error("Invalid preview response");
   }
@@ -34,6 +43,12 @@ function toPodPreviewInfo(payload: unknown): PodPreviewInfo {
     typeof session_url !== "string" ||
     typeof expires_at !== "string"
   ) {
+    throw new Error("Invalid preview response");
+  }
+
+  parsePreviewBaseUrl(preview_base_url, podKey, publicOrigin);
+  parsePreviewSessionUrl(session_url, podKey, publicOrigin);
+  if (Number.isNaN(Date.parse(expires_at))) {
     throw new Error("Invalid preview response");
   }
 
@@ -67,7 +82,11 @@ async function fetchPodPreview(podKey: string, orgSlug: string): Promise<PodPrev
   if (!res.ok) {
     throw new PodPreviewError(res.status, `${res.status} ${res.statusText}`.trim());
   }
-  return toPodPreviewInfo(await res.json());
+  return parsePodPreviewInfo(
+    await res.json(),
+    podKey,
+    requirePreviewPublicOrigin(),
+  );
 }
 
 export function usePodPreview(

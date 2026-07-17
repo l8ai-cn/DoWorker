@@ -12,12 +12,9 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@/hooks/useWorkerControlLease", () => ({
-  useWorkerControlLease: () => ({
-    ...mocks.lease,
-    acquire: mocks.acquire,
-  }),
-}));
+function lease() {
+  return { ...mocks.lease, acquire: mocks.acquire };
+}
 
 describe("WorkerControlOverlay", () => {
   beforeEach(() => {
@@ -31,7 +28,7 @@ describe("WorkerControlOverlay", () => {
   });
 
   it("requests control from observer mode", () => {
-    render(<WorkerControlOverlay podKey="pod-1" clientLabel="mobile" />);
+    render(<WorkerControlOverlay lease={lease()} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Take control" }));
 
@@ -41,7 +38,7 @@ describe("WorkerControlOverlay", () => {
   it("disables control while the relay is disconnected", () => {
     mocks.lease.connected = false;
 
-    render(<WorkerControlOverlay podKey="pod-1" clientLabel="mobile" />);
+    render(<WorkerControlOverlay lease={lease()} />);
 
     expect(screen.getByRole("button", { name: "Take control" })).toBeDisabled();
     expect(screen.getByText("Waiting for the Worker connection.")).toBeInTheDocument();
@@ -50,7 +47,7 @@ describe("WorkerControlOverlay", () => {
   it("shows the current controller conflict", () => {
     mocks.lease.status = "busy";
 
-    render(<WorkerControlOverlay podKey="pod-1" clientLabel="mobile" />);
+    render(<WorkerControlOverlay lease={lease()} />);
 
     expect(screen.getByText("Another device has control")).toBeInTheDocument();
   });
@@ -59,7 +56,7 @@ describe("WorkerControlOverlay", () => {
     mocks.lease.status = "granted";
 
     const { container } = render(
-      <WorkerControlOverlay podKey="pod-1" clientLabel="mobile" />,
+      <WorkerControlOverlay lease={lease()} />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -68,13 +65,21 @@ describe("WorkerControlOverlay", () => {
   it("keeps the panel header interactive in observer mode", () => {
     const { container } = render(
       <WorkerControlOverlay
-        podKey="pod-1"
-        clientLabel="desktop"
+        lease={lease()}
         preserveHeader
       />,
     );
 
     expect(container.firstChild).toHaveClass("top-8");
     expect(container.firstChild).not.toHaveClass("top-0");
+  });
+
+  it("keeps the workbench browsable in compact observer mode", () => {
+    const { container } = render(
+      <WorkerControlOverlay blocking={false} lease={lease()} />,
+    );
+
+    expect(container.firstChild).toHaveClass("pointer-events-none");
+    expect(container.querySelector(".pointer-events-auto")).toBeInTheDocument();
   });
 });

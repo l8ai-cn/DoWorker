@@ -1,48 +1,46 @@
 package server
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"path"
 	"strings"
-	"time"
 
 	"github.com/anthropics/agentsmesh/relay/internal/auth"
 	"github.com/anthropics/agentsmesh/relay/internal/proxy"
 	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
 )
 
-// previewCookieName is the session cookie set by HandlePreviewSession after a
-// one-shot token exchange, scoped to /preview/{podKey}.
-const previewCookieName = "gw_preview"
-
-// PreviewConfig bounds the preview HTTP entrypoint's runtime behaviour.
-type PreviewConfig struct {
-	ReconnectGrace    time.Duration // WaitForTunnel grace window
-	StreamTimeout     time.Duration // single-stream timeout (never closes the whole tunnel)
-	StreamWindowBytes int           // credit window per stream
-	CookieSecure      bool          // Secure flag on the gw_preview cookie
-	PublicHost        string
-}
-
 // PreviewHandler routes authenticated preview requests through the runner
 // tunnel using only the target and canonical path bound into the JWT.
 type PreviewHandler struct {
-	validator *auth.TokenValidator
-	registry  *tunnel.Registry
-	limiter   *tunnel.PodLimiter
-	cfg       PreviewConfig
-	logger    *slog.Logger
+	validator      *auth.TokenValidator
+	sessionIssuer  previewSessionIssuer
+	sessionBackend previewSessionBackend
+	registry       *tunnel.Registry
+	limiter        *tunnel.PodLimiter
+	cfg            PreviewConfig
+	logger         *slog.Logger
 }
 
 // NewPreviewHandler constructs a PreviewHandler.
-func NewPreviewHandler(v *auth.TokenValidator, registry *tunnel.Registry, limiter *tunnel.PodLimiter, cfg PreviewConfig) *PreviewHandler {
+func NewPreviewHandler(
+	v *auth.TokenValidator,
+	issuer previewSessionIssuer,
+	backend previewSessionBackend,
+	registry *tunnel.Registry,
+	limiter *tunnel.PodLimiter,
+	cfg PreviewConfig,
+) *PreviewHandler {
 	return &PreviewHandler{
-		validator: v,
-		registry:  registry,
-		limiter:   limiter,
-		cfg:       cfg,
-		logger:    slog.With("component", "preview_handler"),
+		validator:      v,
+		sessionIssuer:  issuer,
+		sessionBackend: backend,
+		registry:       registry,
+		limiter:        limiter,
+		cfg:            cfg,
+		logger:         slog.With("component", "preview_handler"),
 	}
 }
 
@@ -50,7 +48,7 @@ func (h *PreviewHandler) extractToken(r *http.Request) string {
 	if c, err := r.Cookie(previewCookieName); err == nil && c.Value != "" {
 		return c.Value
 	}
-	return r.URL.Query().Get("token")
+	return ""
 }
 
 func (h *PreviewHandler) HandlePreview(w http.ResponseWriter, r *http.Request) {
@@ -81,6 +79,11 @@ func (h *PreviewHandler) handlePreview(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	rawQuery, err := previewRawQuery(r.URL.RawQuery)
+	if err != nil {
+		writePreviewError(w, "invalid_query", http.StatusBadRequest)
+		return
+	}
 	upstreamPath, err := joinPreviewUpstreamPath(claims.PreviewPath, escapedRest)
 	if err != nil {
 		writePreviewError(w, "invalid_path", http.StatusBadRequest)
@@ -106,11 +109,21 @@ func (h *PreviewHandler) handlePreview(w http.ResponseWriter, r *http.Request) {
 	defer release()
 
 	params := proxy.ProxyParams{
-		PodKey:      podKey,
-		Target:      claims.PreviewTarget,
-		Path:        upstreamPath,
-		WindowBytes: h.cfg.StreamWindowBytes,
-		Timeout:     h.cfg.StreamTimeout,
+		PodKey:           podKey,
+		Target:           claims.PreviewTarget,
+		Path:             upstreamPath,
+		RawQuery:         rawQuery,
+		HiddenCookieName: previewCookieName,
+		ExpectedOrigin:   claims.PreviewOrigin,
+		Reauthorize: func(ctx context.Context) error {
+			return h.sessionBackend.AuthorizePreviewSession(
+				ctx,
+				previewSessionIdentity(claims),
+			)
+		},
+		ReauthorizeEvery: h.cfg.ReauthorizeEvery,
+		WindowBytes:      h.cfg.StreamWindowBytes,
+		Timeout:          h.cfg.StreamTimeout,
 	}
 
 	if isWebSocketUpgrade(r) {
@@ -143,27 +156,6 @@ func joinPreviewUpstreamPath(base, rest string) (string, error) {
 		joined += "/"
 	}
 	return joined, nil
-}
-
-// authenticate validates the preview token (cookie or query param), enforcing
-// token_type=preview and that the claim's pod_key matches the requested path.
-func (h *PreviewHandler) authenticate(w http.ResponseWriter, r *http.Request, podKey string) (*auth.RelayClaims, bool) {
-	tokenStr := h.extractToken(r)
-	if tokenStr == "" {
-		writePreviewError(w, "token_required", http.StatusUnauthorized)
-		return nil, false
-	}
-	claims, err := h.validator.ValidateToken(tokenStr)
-	if err != nil {
-		writePreviewError(w, "invalid_token", http.StatusUnauthorized)
-		return nil, false
-	}
-	if claims.ResolvedType() != auth.TokenTypePreview || claims.PodKey != podKey {
-		// Deliberately vague to avoid leaking whether the pod exists.
-		writePreviewError(w, "invalid_token", http.StatusUnauthorized)
-		return nil, false
-	}
-	return claims, true
 }
 
 func isWebSocketUpgrade(r *http.Request) bool {

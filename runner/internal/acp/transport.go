@@ -48,6 +48,7 @@ type Transport interface {
 	// advertised via agentsmeshExtensions.permissionModes, or nil if it advertised
 	// none (caller falls back to the Claude default set).
 	SupportedPermissionModes() []string
+	SupportedArtifactActions() []string
 
 	// ReadLoop continuously reads messages from stdout and dispatches via callbacks.
 	// Blocks until EOF or ctx cancellation.

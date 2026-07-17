@@ -61,7 +61,13 @@ export function agentWorkspaceSnapshot(): AgentSessionSnapshot {
       },
       {
         id: "tool-1",
+        identity: {
+          namespace: "agentsmesh.acp",
+          schemaVersion: "1",
+          semanticKey: "shell",
+        },
         kind: "tool",
+        results: [],
         title: "shell",
         input: "pnpm test",
         output: "12 tests passed",
@@ -108,6 +114,9 @@ export function agentWorkspaceRuntime(snapshot: AgentSessionSnapshot) {
     interrupt: vi.fn(async () => undefined),
     resolvePermission: vi.fn(async () => undefined),
     updateConfiguration: vi.fn(async () => undefined),
+    loadArtifact: vi.fn(
+      async () => new Blob(["artifact"], { type: "image/png" }),
+    ),
     loadOlder: vi.fn(async () => undefined),
   };
   const terminalRuntime: TerminalRuntime = {

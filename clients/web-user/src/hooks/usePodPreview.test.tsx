@@ -12,7 +12,11 @@ vi.mock("@/lib/do-worker", () => ({
 
 import { authenticatedFetch } from "@/lib/identity";
 import { readDoWorkerOrgSlug } from "@/lib/do-worker";
-import { buildPreviewSrc, usePodPreview } from "./usePodPreview";
+import {
+  buildPreviewSrc,
+  parsePodPreviewInfo,
+  usePodPreview,
+} from "./usePodPreview";
 
 const fetchMock = vi.mocked(authenticatedFetch);
 const orgSlugMock = vi.mocked(readDoWorkerOrgSlug);
@@ -34,6 +38,7 @@ function Wrap({ children }: { children: ReactNode }) {
 }
 
 beforeEach(() => {
+  vi.stubEnv("VITE_PREVIEW_PUBLIC_ORIGIN", "https://preview.example.test");
   fetchMock.mockReset();
   orgSlugMock.mockReset();
   orgSlugMock.mockReturnValue("acme");
@@ -41,16 +46,19 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllEnvs();
 });
 
 describe("buildPreviewSrc", () => {
   it("uses the session url as iframe source", () => {
     const src = buildPreviewSrc({
       preview_base_url: "https://d/preview/pod1/",
-      session_url: "https://d/preview/pod1/__session?token=JWT",
+      session_url: "https://pod1.preview.example.test/preview/pod1/__session?token=JWT",
       expires_at: "",
     });
-    expect(src).toBe("https://d/preview/pod1/__session?token=JWT");
+    expect(src).toBe(
+      "https://pod1.preview.example.test/preview/pod1/__session?token=JWT",
+    );
   });
 });
 
@@ -58,8 +66,9 @@ describe("usePodPreview", () => {
   it("fetches the org-scoped preview endpoint and returns only the preview contract", async () => {
     fetchMock.mockResolvedValueOnce(
       jsonResponse(200, {
-        preview_base_url: "https://d/preview/pod1/",
-        session_url: "https://d/preview/pod1/__session?token=JWT",
+        preview_base_url: "https://pod1.preview.example.test/preview/pod1/",
+        session_url:
+          "https://pod1.preview.example.test/preview/pod1/__session?token=JWT",
         expires_at: new Date(Date.now() + 30 * 60_000).toISOString(),
       }),
     );
@@ -81,8 +90,9 @@ describe("usePodPreview", () => {
     const expiresAt = new Date(Date.now() + 30 * 60_000).toISOString();
     fetchMock.mockResolvedValueOnce(
       jsonResponse(200, {
-        preview_base_url: "https://d/preview/pod1/",
-        session_url: "https://d/preview/pod1/__session?token=legacy",
+        preview_base_url: "https://pod1.preview.example.test/preview/pod1/",
+        session_url:
+          "https://pod1.preview.example.test/preview/pod1/__session?token=legacy",
         expires_at: expiresAt,
         token: "legacy",
         debug: "should be dropped",
@@ -93,8 +103,9 @@ describe("usePodPreview", () => {
 
     await waitFor(() => expect(result.current.data).toBeDefined());
     expect(result.current.data).toEqual({
-      preview_base_url: "https://d/preview/pod1/",
-      session_url: "https://d/preview/pod1/__session?token=legacy",
+      preview_base_url: "https://pod1.preview.example.test/preview/pod1/",
+      session_url:
+        "https://pod1.preview.example.test/preview/pod1/__session?token=legacy",
       expires_at: expiresAt,
     });
     expect(Object.prototype.hasOwnProperty.call(result.current.data, "token")).toBe(false);
@@ -121,8 +132,9 @@ describe("usePodPreview", () => {
       const now = Date.now();
       fetchMock.mockResolvedValue(
         jsonResponse(200, {
-          preview_base_url: "https://d/preview/pod1/",
-          session_url: "https://d/preview/pod1/__session?token=JWT",
+          preview_base_url: "https://pod1.preview.example.test/preview/pod1/",
+          session_url:
+            "https://pod1.preview.example.test/preview/pod1/__session?token=JWT",
           expires_at: new Date(now + 5 * 60_000).toISOString(),
         }),
       );
@@ -137,5 +149,52 @@ describe("usePodPreview", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("parsePodPreviewInfo", () => {
+  it("rejects a session URL from another Pod origin", () => {
+    expect(() =>
+      parsePodPreviewInfo(
+        {
+          preview_base_url: "https://pod1.preview.example.test/preview/pod1/",
+          session_url:
+            "https://pod2.preview.example.test/preview/pod1/__session?token=JWT",
+          expires_at: "2026-07-16T03:00:00Z",
+        },
+        "pod1",
+        "https://preview.example.test",
+      ),
+    ).toThrow("Invalid preview response");
+  });
+
+  it("rejects extra bootstrap query parameters", () => {
+    expect(() =>
+      parsePodPreviewInfo(
+        {
+          preview_base_url: "https://pod1.preview.example.test/preview/pod1/",
+          session_url:
+            "https://pod1.preview.example.test/preview/pod1/__session?token=JWT&next=https://evil.test",
+          expires_at: "2026-07-16T03:00:00Z",
+        },
+        "pod1",
+        "https://preview.example.test",
+      ),
+    ).toThrow("Invalid preview response");
+  });
+
+  it("rejects a preview base URL outside the Pod-scoped path", () => {
+    expect(() =>
+      parsePodPreviewInfo(
+        {
+          preview_base_url: "https://pod1.preview.example.test/preview/pod2/",
+          session_url:
+            "https://pod1.preview.example.test/preview/pod1/__session?token=JWT",
+          expires_at: "2026-07-16T03:00:00Z",
+        },
+        "pod1",
+        "https://preview.example.test",
+      ),
+    ).toThrow("Invalid preview response");
   });
 });

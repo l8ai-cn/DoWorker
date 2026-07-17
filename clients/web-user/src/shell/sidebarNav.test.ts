@@ -16,8 +16,6 @@ import {
   workProjectStorageKey,
   normalizePinnedConversationIds,
   orderByPinnedSequence,
-  projectGroupKey,
-  projectGroupLabel,
   newSessionLandingPath,
   resolveWorkerGroupAgentId,
   resolveSidebarDrop,
@@ -50,12 +48,12 @@ function conversation(
     labels: options.labels ?? {},
     permission_level: null,
     archived: options.archived,
-    workspace: options.workspace,
-    host_id: options.host_id,
-    agent_name: options.agent_name,
-    runner_online: options.runner_online,
-    git_branch: options.git_branch,
-    agent_id: options.agent_id,
+    workspace: options.workspace ?? undefined,
+    host_id: options.host_id ?? undefined,
+    agent_name: options.agent_name ?? undefined,
+    runner_online: options.runner_online ?? undefined,
+    git_branch: options.git_branch ?? undefined,
+    agent_id: options.agent_id ?? undefined,
   };
 }
 

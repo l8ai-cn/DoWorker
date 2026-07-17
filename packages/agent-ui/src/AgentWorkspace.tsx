@@ -1,20 +1,25 @@
-import { History, Loader2, MessageSquare, Terminal } from "lucide-react";
-import { useState } from "react";
+import { MessageSquare, Terminal } from "lucide-react";
+import { useId, useMemo, useState } from "react";
 
-import { ActivityTimeline } from "./ActivityTimeline";
+import { AgentConversationSurface } from "./AgentConversationSurface";
 import { AgentWorkspaceLocaleProvider } from "./AgentWorkspaceLocaleContext";
-import { ApprovalDock } from "./ApprovalDock";
-import { ConversationComposer } from "./ConversationComposer";
-import { ConversationEmptyState } from "./ConversationEmptyState";
 import { PlanStrip } from "./PlanStrip";
 import { TerminalSurface } from "./TerminalSurface";
 import type { AgentSessionRuntime, TerminalRuntime } from "./contracts";
+import type { AgentToolRendererRegistration } from "./react/rendererTypes";
+import type { AgentContentRendererRegistration } from "./react/contentRendererTypes";
+import type { ContentRendererRegistry } from "./registry/ContentRendererRegistry";
+import type { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
+import { ResultWorkbench } from "./react/ResultWorkbench";
+import { useWorkbenchContainerMode } from "./react/useWorkbenchContainerMode";
 import { useAgentSessionSnapshot } from "./useAgentSessionSnapshot";
 import { WorkspaceHeader } from "./WorkspaceHeader";
+import { ReadOnlyAgentSessionRuntime } from "./runtime/ReadOnlyAgentSessionRuntime";
 import {
   agentWorkspaceText,
   type AgentWorkspaceLocale,
 } from "./agentWorkspaceText";
+import { focusAdjacentTab } from "./react/tabKeyboardNavigation";
 
 export interface AgentWorkspaceProps {
   runtime: AgentSessionRuntime;
@@ -22,7 +27,10 @@ export interface AgentWorkspaceProps {
   sessionId: string;
   clientLabel?: string;
   className?: string;
+  contentRenderers?: ContentRendererRegistry<AgentContentRendererRegistration>;
   locale?: AgentWorkspaceLocale;
+  readOnly?: boolean;
+  toolRenderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
 }
 
 export function AgentWorkspace({
@@ -31,14 +39,30 @@ export function AgentWorkspace({
   sessionId,
   clientLabel = "agent-workspace",
   className = "",
+  contentRenderers,
   locale = "en-US",
+  readOnly = false,
+  toolRenderers,
 }: AgentWorkspaceProps) {
-  const snapshot = useAgentSessionSnapshot(runtime, sessionId);
+  const activeRuntime = useMemo(
+    () => (readOnly ? new ReadOnlyAgentSessionRuntime(runtime) : runtime),
+    [readOnly, runtime],
+  );
+  const snapshot = useAgentSessionSnapshot(activeRuntime, sessionId);
   const text = agentWorkspaceText(locale);
   const [view, setView] = useState<"conversation" | "terminal">("conversation");
-  const [loadingOlder, setLoadingOlder] = useState(false);
+  const tabId = useId();
+  const conversationTabId = `${tabId}-conversation-tab`;
+  const conversationPanelId = `${tabId}-conversation-panel`;
+  const terminalTabId = `${tabId}-terminal-tab`;
+  const terminalPanelId = `${tabId}-terminal-panel`;
   const [surfaceError, setSurfaceError] = useState<string | null>(null);
+  const { containerRef, mode } = useWorkbenchContainerMode();
   const terminal = snapshot.terminals[0];
+  const artifacts = snapshot.items.filter((item) => item.kind === "artifact");
+  const conversationItems = snapshot.items.filter(
+    (item) => item.kind !== "artifact",
+  );
   const terminalEnabled =
     snapshot.capabilities.terminal && terminalRuntime !== undefined && terminal !== undefined;
 
@@ -47,21 +71,30 @@ export function AgentWorkspace({
       <div
         className={`flex h-full min-h-0 flex-col overflow-hidden bg-background text-foreground ${className}`}
         data-agent-workspace={sessionId}
+        ref={containerRef}
       >
       <WorkspaceHeader snapshot={snapshot} />
-      <nav className="flex h-10 items-center gap-1 border-b border-border px-2" role="tablist">
+      <nav
+        className="flex h-12 items-center gap-1 border-b border-border px-2"
+        onKeyDown={focusAdjacentTab}
+        role="tablist"
+      >
         <ViewTab
           active={view === "conversation"}
           icon={<MessageSquare className="size-3.5" />}
+          id={conversationTabId}
           label={text.conversation}
           onClick={() => setView("conversation")}
+          panelId={conversationPanelId}
         />
         {terminalEnabled && (
           <ViewTab
             active={view === "terminal"}
             icon={<Terminal className="size-3.5" />}
+            id={terminalTabId}
             label={text.terminal}
             onClick={() => setView("terminal")}
+            panelId={terminalPanelId}
           />
         )}
       </nav>
@@ -71,89 +104,50 @@ export function AgentWorkspace({
         </div>
       )}
       {view === "terminal" && terminalEnabled ? (
-        <TerminalSurface
-          clientLabel={clientLabel}
-          resource={terminal}
-          runtime={terminalRuntime}
-        />
+        <section
+          aria-labelledby={terminalTabId}
+          className="flex min-h-0 flex-1"
+          id={terminalPanelId}
+          role="tabpanel"
+        >
+          <TerminalSurface
+            clientLabel={clientLabel}
+            resource={terminal}
+            runtime={terminalRuntime}
+          />
+        </section>
       ) : (
-        <>
+        <section
+          aria-labelledby={conversationTabId}
+          className="flex min-h-0 flex-1 flex-col"
+          id={conversationPanelId}
+          role="tabpanel"
+        >
           <PlanStrip steps={snapshot.plan} />
-          {snapshot.items.length === 0 &&
-          snapshot.permissions.length === 0 ? (
-            <main className="flex min-h-0 flex-1 flex-col justify-center gap-5 overflow-y-auto py-6">
-              <ConversationEmptyState agentLabel={snapshot.agentLabel} />
-              <ConversationComposer
+          <ResultWorkbench
+            artifacts={artifacts}
+            contentRenderers={contentRenderers}
+            conversation={
+              <AgentConversationSurface
+                contentRenderers={contentRenderers}
+                items={conversationItems}
                 onError={(cause) =>
                   setSurfaceError(
                     cause instanceof Error ? cause.message : String(cause),
                   )
                 }
-                runtime={runtime}
+                runtime={activeRuntime}
                 snapshot={snapshot}
+                toolRenderers={toolRenderers}
               />
-            </main>
-          ) : (
-            <>
-              <main className="min-h-0 flex-1 overflow-y-auto">
-                {snapshot.hasOlderItems && (
-                  <div className="flex justify-center px-3 pt-3">
-                    <button
-                      className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-muted-foreground"
-                      disabled={loadingOlder}
-                      onClick={() => {
-                        setLoadingOlder(true);
-                        setSurfaceError(null);
-                        void runtime
-                          .loadOlder(sessionId)
-                          .catch((cause) =>
-                            setSurfaceError(
-                              cause instanceof Error
-                                ? cause.message
-                                : String(cause),
-                            ),
-                          )
-                          .finally(() => setLoadingOlder(false));
-                      }}
-                      type="button"
-                    >
-                      {loadingOlder ? (
-                        <Loader2 className="size-3.5 animate-spin" />
-                      ) : (
-                        <History className="size-3.5" />
-                      )}
-                      {text.loadEarlierActivity}
-                    </button>
-                  </div>
-                )}
-                <ActivityTimeline
-                  items={snapshot.items}
-                  runtime={runtime}
-                  sessionId={sessionId}
-                />
-              </main>
-              <ApprovalDock
-                onError={(cause) =>
-                  setSurfaceError(
-                    cause instanceof Error ? cause.message : String(cause),
-                  )
-                }
-                permissions={snapshot.permissions}
-                runtime={runtime}
-                sessionId={sessionId}
-              />
-              <ConversationComposer
-                onError={(cause) =>
-                  setSurfaceError(
-                    cause instanceof Error ? cause.message : String(cause),
-                  )
-                }
-                runtime={runtime}
-                snapshot={snapshot}
-              />
-            </>
-          )}
-        </>
+            }
+            mode={mode}
+            runtime={activeRuntime}
+            sessionId={sessionId}
+            toolRenderers={toolRenderers}
+            tools={conversationItems.filter((item) => item.kind === "tool")}
+          />
+        </section>
       )}
       </div>
     </AgentWorkspaceLocaleProvider>
@@ -163,22 +157,29 @@ export function AgentWorkspace({
 function ViewTab({
   active,
   icon,
+  id,
   label,
   onClick,
+  panelId,
 }: {
   active: boolean;
   icon: React.ReactNode;
+  id: string;
   label: string;
   onClick: () => void;
+  panelId: string;
 }) {
   return (
     <button
+      aria-controls={panelId}
       aria-selected={active}
-      className={`flex h-8 items-center gap-1.5 rounded-md px-2 text-xs ${
+      className={`flex h-11 items-center gap-1.5 rounded-md px-3 text-xs ${
         active ? "bg-muted font-medium" : "text-muted-foreground hover:bg-muted/60"
       }`}
+      id={id}
       onClick={onClick}
       role="tab"
+      tabIndex={active ? 0 : -1}
       type="button"
     >
       {icon}

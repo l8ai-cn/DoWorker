@@ -30,17 +30,19 @@ func NewRelayHandler(relayManager *relay.Manager, dnsService *relay.DNSService, 
 }
 
 type RelayRouterDeps struct {
-	RelayManager   *relay.Manager
-	DNSService     *relay.DNSService
-	ACMEManager    *acme.Manager
-	GeoResolver    geo.Resolver
-	InternalSecret string
+	RelayManager    *relay.Manager
+	DNSService      *relay.DNSService
+	ACMEManager     *acme.Manager
+	GeoResolver     geo.Resolver
+	InternalSecret  string
+	PreviewSessions previewSessionService
 }
 
 func RegisterRelayRoutes(router *gin.RouterGroup, deps *RelayRouterDeps) {
 	handler := NewRelayHandler(deps.RelayManager, deps.DNSService, deps.ACMEManager, deps.GeoResolver)
 
 	router.Use(InternalAPIAuth(deps.InternalSecret))
+	RegisterPreviewSessionRoutes(router, deps.PreviewSessions)
 
 	router.POST("/register", handler.Register)
 	router.POST("/heartbeat", handler.Heartbeat)

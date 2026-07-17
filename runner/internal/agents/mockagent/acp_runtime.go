@@ -71,7 +71,13 @@ func dispatchACPRequest(msg *acp.JSONRPCMessage, state *runtimeState, scn scenar
 		state.resumeSessionID = extractResumeSessionID(msg.Params)
 		return state.writer.WriteResponse(id, sessionResumeResult(state.resumeSessionID), nil)
 	case "session/control_request":
-		return handleControlRequest(state, id, msg.Params, logger)
+		return handleControlRequest(
+			state,
+			id,
+			msg.Params,
+			scn.artifactActions,
+			logger,
+		)
 	case "session/prompt":
 		// Scenarios run in a goroutine so they can block on
 		// awaitResponse without starving the stdin reader loop. The
@@ -100,6 +106,9 @@ func initializeResult(scn scenario) map[string]any {
 	ext := map[string]any{"controlRequest": true}
 	if len(scn.permissionModes) > 0 {
 		ext["permissionModes"] = scn.permissionModes
+	}
+	if len(scn.artifactActions) > 0 {
+		ext["artifactActions"] = scn.artifactActions
 	}
 	return map[string]any{
 		"protocol_version":     "2025-01-01",

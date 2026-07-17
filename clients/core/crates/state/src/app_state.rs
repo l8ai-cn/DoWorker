@@ -4,6 +4,7 @@ use agentsmesh_events::types::RealtimeEvent;
 use agentsmesh_persistence::StorageBackend;
 
 use crate::acp_session::AcpSessionManager;
+use crate::agent_workbench_state::AgentWorkbenchState;
 pub use crate::app_runtime::{AppRuntime, AppStateDispatchHook};
 use crate::autopilot_state::AutopilotState;
 use crate::channel_state::ChannelState;
@@ -27,6 +28,7 @@ pub struct AppState {
     pub workflows: WorkflowState,
     pub mesh: MeshState,
     pub autopilot: AutopilotState,
+    pub workbench: AgentWorkbenchState,
     pub acp: AcpSessionManager,
     pub loopal: LoopalSessionManager,
     pub loop_builder: LoopBuilderState,
@@ -65,6 +67,7 @@ impl AppState {
             workflows: WorkflowState::new(),
             mesh: MeshState::default(),
             autopilot: AutopilotState::default(),
+            workbench: AgentWorkbenchState::new(),
             acp: AcpSessionManager::new(),
             loopal: LoopalSessionManager::new(),
             loop_builder: LoopBuilderState::new(),
@@ -88,6 +91,7 @@ impl AppState {
             workflows: WorkflowState::with_storage(backend.clone()),
             mesh: MeshState::default(),
             autopilot: AutopilotState::default(),
+            workbench: AgentWorkbenchState::new(),
             acp: AcpSessionManager::new(),
             loopal: LoopalSessionManager::new(),
             loop_builder: LoopBuilderState::new(),
@@ -145,6 +149,7 @@ impl AppState {
         self.workflows = WorkflowState::new();
         self.mesh = MeshState::default();
         self.autopilot = AutopilotState::default();
+        self.workbench = AgentWorkbenchState::new();
         self.experts = ExpertState::new();
         self.loop_builder.reset();
         self.pending_toasts.clear();

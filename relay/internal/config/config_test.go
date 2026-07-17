@@ -15,6 +15,7 @@ func clearEnv() {
 		"RELAY_BACKEND_URL", "RELAY_INTERNAL_API_SECRET",
 		"PRIMARY_DOMAIN", "USE_HTTPS", "TLS_ENABLED", "RELAY_NAME", "RELAY_AUTO_IP",
 		"PREVIEW_PUBLIC_ORIGIN", "RELAY_PREVIEW_PUBLIC_ORIGIN",
+		"PREVIEW_COOKIE_MODE", "RELAY_PREVIEW_COOKIE_MODE",
 	} {
 		_ = os.Unsetenv(env)
 	}
@@ -23,6 +24,7 @@ func clearEnv() {
 func setPreviewOrigin(t *testing.T) {
 	t.Helper()
 	t.Setenv("PREVIEW_PUBLIC_ORIGIN", "http://preview.example.test")
+	t.Setenv("PREVIEW_COOKIE_MODE", "same-site")
 }
 
 func TestLoad_TunnelAndOriginDefaults(t *testing.T) {

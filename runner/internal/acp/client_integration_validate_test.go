@@ -27,7 +27,7 @@ func TestACPClient_ValidateMode(t *testing.T) {
 	}
 
 	// NewSession with MCP servers → cwd + mcpServers validated.
-	mcpServers := BuildMCPServersConfig(9999)
+	mcpServers := BuildMCPServersConfig(9999, "pod-test")
 	if err := client.NewSession(mcpServers); err != nil {
 		t.Fatalf("NewSession (validate): %v", err)
 	}

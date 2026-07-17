@@ -6,13 +6,17 @@ import {
 
 import { useAgentWorkspaceText } from "./AgentWorkspaceLocaleContext";
 import { ToolActivityCard } from "./ToolActivityCard";
+import type { AgentToolRendererRegistration } from "./react/rendererTypes";
+import type { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
 import type { AgentToolActivityItem } from "./toolActivityGrouping";
 import type { ToolActivityCount } from "./toolActivityGroupText";
 import { toolPresentation } from "./toolPresentation";
 
 export function ToolActivityGroup({
+  renderers,
   tools,
 }: {
+  renderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
   tools: AgentToolActivityItem[];
 }) {
   const text = useAgentWorkspaceText();
@@ -31,7 +35,11 @@ export function ToolActivityGroup({
       </summary>
       <div className="ml-2 mt-1 space-y-2 border-l border-border pl-3">
         {tools.map((tool) => (
-          <ToolActivityCard item={tool} key={tool.id} />
+          <ToolActivityCard
+            item={tool}
+            key={tool.id}
+            renderers={renderers}
+          />
         ))}
       </div>
     </details>

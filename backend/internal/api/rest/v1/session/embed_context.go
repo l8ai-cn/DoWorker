@@ -134,6 +134,7 @@ func (d *Deps) handleRedeemEmbedContext(c *gin.Context) {
 		"access_token":   accessToken,
 		"expires_at":     expiresAt.Unix(),
 		"session_id":     claims.SessionID,
+		"org_slug":       claims.OrganizationSlug,
 		"capabilities":   claims.Capabilities,
 		"parent_origins": claims.AllowedParentOrigins,
 	})

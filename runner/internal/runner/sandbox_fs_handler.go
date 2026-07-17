@@ -84,6 +84,13 @@ func (h *RunnerMessageHandler) dispatchSandboxFsOpWorkspace(
 		return h.sandboxFsStatWorkspace(workspace, cmd.Path)
 	case "read":
 		return h.sandboxFsReadWorkspace(workspace, cmd.Path)
+	case "read_bytes":
+		return h.sandboxFsReadBytesWorkspace(
+			workspace,
+			cmd.Path,
+			cmd.Offset,
+			cmd.Length,
+		)
 	case "write":
 		return h.sandboxFsWriteWorkspace(workspace, cmd.Path, cmd.Payload)
 	case "download":

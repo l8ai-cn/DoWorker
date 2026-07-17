@@ -298,9 +298,9 @@ func TestHandler_ThreadStatusDrivesIdle_NoPrematureDebounce(t *testing.T) {
 	// Wait well past the (short, test-only) debounce window; no idle must fire.
 	time.Sleep(80 * time.Millisecond)
 	f.mu.Lock()
-	if len(f.StateChanges) != 0 {
+	if len(f.StateChanges) != 1 || f.StateChanges[0] != acp.StateProcessing {
 		f.mu.Unlock()
-		t.Fatalf("debounce fired despite thread lifecycle signal: %v", f.StateChanges)
+		t.Fatalf("expected active thread to remain processing, got %v", f.StateChanges)
 	}
 	f.mu.Unlock()
 	writeNotification(f.PW, "thread/status/changed", map[string]any{
@@ -309,8 +309,32 @@ func TestHandler_ThreadStatusDrivesIdle_NoPrematureDebounce(t *testing.T) {
 	f.Drain()
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	if len(f.StateChanges) != 1 || f.StateChanges[0] != acp.StateIdle {
-		t.Fatalf("expected exactly 1 idle from thread/status, got %v", f.StateChanges)
+	if len(f.StateChanges) != 2 ||
+		f.StateChanges[0] != acp.StateProcessing ||
+		f.StateChanges[1] != acp.StateIdle {
+		t.Fatalf("expected processing then idle from thread/status, got %v", f.StateChanges)
+	}
+}
+
+func TestHandler_TurnStartedDisablesMessageIdleFallback(t *testing.T) {
+	f := newFixture()
+	defer f.Close()
+	writeNotification(f.PW, "turn/started", map[string]any{
+		"turn": map[string]any{"id": "turn-1"},
+	})
+	writeNotification(f.PW, "item/completed", map[string]any{
+		"item": map[string]any{
+			"id":   "preamble",
+			"type": "agentMessage",
+			"text": "正在执行长时间任务。",
+		},
+	})
+
+	time.Sleep(80 * time.Millisecond)
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if len(f.StateChanges) != 1 || f.StateChanges[0] != acp.StateProcessing {
+		t.Fatalf("expected authoritative turn to remain processing, got %v", f.StateChanges)
 	}
 }
 

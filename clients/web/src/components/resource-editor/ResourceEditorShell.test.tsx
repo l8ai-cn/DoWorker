@@ -43,7 +43,24 @@ import { ResourceEditorShell } from "./ResourceEditorShell";
 describe("ResourceEditorShell", () => {
   beforeEach(() => {
     Object.values(api).forEach((method) => method.mockReset());
-    api.listResources.mockResolvedValue({ items: [] });
+    api.listResources.mockImplementation((
+      _orgSlug: string,
+      request: { kind: string },
+    ) => Promise.resolve({
+      items: request.kind === "WorkerTemplate"
+        ? [{
+            displayName: "Code reviewer",
+            revision: 1n,
+            identity: { target: { name: "code-reviewer" } },
+          }]
+        : request.kind === "Prompt"
+          ? [{
+              displayName: "Review prompt",
+              revision: 1n,
+              identity: { target: { name: "review-prompt" } },
+            }]
+          : [],
+    }));
     api.validateResource.mockResolvedValue(create(
       ValidateResourceResponseSchema,
       {
@@ -211,10 +228,7 @@ describe("ResourceEditorShell", () => {
     render(<ResourceEditorShell orgSlug="acme" kind="Worker" />);
 
     await user.type(screen.getByLabelText(/Resource name/), "review-run");
-    await user.type(
-      screen.getByRole("combobox", { name: /Worker template/ }),
-      "code-reviewer",
-    );
+    await selectReference(user, /Worker template/, "Code reviewer code-reviewer");
     await user.click(screen.getByRole("button", { name: "Generate plan" }));
     await screen.findByText("Plan ready");
     await user.click(screen.getByRole("button", { name: "Create Worker" }));
@@ -244,10 +258,7 @@ describe("ResourceEditorShell", () => {
     render(<ResourceEditorShell orgSlug="acme" kind="Expert" />);
 
     await user.type(screen.getByLabelText(/Resource name/), "reviewer");
-    await user.type(
-      screen.getByRole("combobox", { name: /Worker template/ }),
-      "code-reviewer",
-    );
+    await selectReference(user, /Worker template/, "Code reviewer code-reviewer");
     await user.click(screen.getByRole("button", { name: "Generate plan" }));
     await screen.findByText("Plan ready");
     await user.click(screen.getByRole("button", { name: "Apply resource" }));
@@ -273,14 +284,8 @@ describe("ResourceEditorShell", () => {
     render(<ResourceEditorShell orgSlug="acme" kind="Workflow" />);
 
     await user.type(screen.getByLabelText(/Resource name/), "nightly-review");
-    await user.type(
-      screen.getByRole("combobox", { name: /Worker template/ }),
-      "code-reviewer",
-    );
-    await user.type(
-      screen.getByRole("combobox", { name: /^Prompt/ }),
-      "review-prompt",
-    );
+    await selectReference(user, /Worker template/, "Code reviewer code-reviewer");
+    await selectReference(user, /^Prompt/, "Review prompt review-prompt");
     await user.click(screen.getByRole("button", { name: "Generate plan" }));
     await screen.findByText("Plan ready");
     await user.click(screen.getByRole("button", { name: "Apply resource" }));
@@ -342,6 +347,17 @@ function readyPlan(planId: string) {
       expiresAt: "2099-07-14T16:00:00Z",
     },
   });
+}
+
+async function selectReference(
+  user: ReturnType<typeof userEvent.setup>,
+  label: RegExp,
+  optionName: string,
+) {
+  const select = screen.getByRole("combobox", { name: label });
+  await waitFor(() => expect(select).toBeEnabled());
+  await user.click(select);
+  await user.click(screen.getByRole("option", { name: optionName }));
 }
 
 function validManifestJson(): string {

@@ -96,7 +96,7 @@ func (s *HTTPServer) handleMCP(w http.ResponseWriter, r *http.Request) {
 	case "tools/list":
 		s.handleToolsList(w, &req)
 	case "tools/call":
-		s.handleToolsCall(w, &req, pod)
+		s.handleToolsCall(w, r, &req, pod)
 	default:
 		log.Warn("MCP unknown method", "method", req.Method, "pod_key", podKey)
 		s.sendError(w, req.ID, -32601, "Method not found", nil)

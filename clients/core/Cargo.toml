@@ -14,6 +14,7 @@ members = [
     "crates/relay",
     "crates/wasm",
     "crates/proto-gen",
+    "crates/proto/agent_workbench",
     "crates/proto/agent",
     "crates/proto/ai_resource",
     "crates/proto/execution_cluster",
@@ -81,6 +82,7 @@ agentsmesh_state = { path = "crates/state" }
 agentsmesh_services = { path = "crates/services" }
 agentsmesh_relay = { path = "crates/relay" }
 agentsmesh_wasm = { path = "crates/wasm" }
+agent_workbench_proto = { path = "crates/proto/agent_workbench" }
 agent_proto = { path = "crates/proto/agent" }
 ai_resource_proto = { path = "crates/proto/ai_resource" }
 execution_cluster_proto = { path = "crates/proto/execution_cluster" }

@@ -1,14 +1,68 @@
 import { render, screen, within } from "@testing-library/react";
 
+import type { AgentToolRendererRegistration } from "./react/rendererTypes";
+import { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
 import { ToolActivityCard } from "./ToolActivityCard";
 
 describe("ToolActivityCard", () => {
+  it("uses a renderer only for the exact tool identity", () => {
+    const registry =
+      new ToolRendererRegistry<AgentToolRendererRegistration>();
+    registry.register(
+      {
+        namespace: "agentsmesh.acp",
+        semanticKey: "generate_image",
+        schemaVersion: "1",
+      },
+      {
+        summary: ({ item }) => (
+          <div>图片任务：{String(item.inputValue)}</div>
+        ),
+      },
+      "builtin.image",
+    );
+
+    const { rerender } = render(
+      <ToolActivityCard
+        item={tool({
+          identity: {
+            namespace: "agentsmesh.acp",
+            semanticKey: "generate_image",
+            schemaVersion: "1",
+          },
+          inputValue: "生成产品主图",
+          title: "generate_image",
+        })}
+        renderers={registry}
+      />,
+    );
+
+    expect(screen.getByText("图片任务：生成产品主图")).toBeVisible();
+
+    rerender(
+      <ToolActivityCard
+        item={tool({
+          identity: {
+            namespace: "agentsmesh.acp",
+            semanticKey: "generate_image",
+            schemaVersion: "2",
+          },
+          input: "raw input",
+          title: "generate_image",
+        })}
+        renderers={registry}
+      />,
+    );
+
+    expect(screen.queryByText("图片任务：生成产品主图")).not.toBeInTheDocument();
+    expect(screen.getAllByText("raw input")[0]).toBeVisible();
+  });
+
   it("summarizes completed file changes and keeps raw evidence collapsed", () => {
     render(
       <ToolActivityCard
-        item={{
+        item={tool({
           id: "file-1",
-          kind: "tool",
           title: "fileChange",
           input: JSON.stringify({
             changes: [
@@ -21,7 +75,7 @@ describe("ToolActivityCard", () => {
           }),
           output: "Add /workspace/project/boundary.txt",
           status: "completed",
-        }}
+        })}
       />,
     );
 
@@ -37,9 +91,8 @@ describe("ToolActivityCard", () => {
   it("shows command and output summaries without expanding raw JSON", () => {
     render(
       <ToolActivityCard
-        item={{
+        item={tool({
           id: "shell-1",
-          kind: "tool",
           title: "shell",
           input: JSON.stringify({
             command: "/bin/bash -lc 'cat boundary.txt'",
@@ -47,7 +100,7 @@ describe("ToolActivityCard", () => {
           }),
           output: "BOUNDARY_OK\n",
           status: "completed",
-        }}
+        })}
       />,
     );
 
@@ -61,17 +114,34 @@ describe("ToolActivityCard", () => {
   it("opens failed tool evidence so the error is immediately inspectable", () => {
     render(
       <ToolActivityCard
-        item={{
+        item={tool({
           id: "shell-2",
-          kind: "tool",
           title: "shell",
           input: "pnpm test",
           output: "exit status 1",
           status: "failed",
-        }}
+        })}
       />,
     );
 
     expect(screen.getByText("Details").closest("details")).toHaveAttribute("open");
   });
 });
+
+function tool(
+  patch: Partial<Parameters<typeof ToolActivityCard>[0]["item"]> = {},
+): Parameters<typeof ToolActivityCard>[0]["item"] {
+  return {
+    id: "tool-1",
+    identity: {
+      namespace: "agentsmesh.acp",
+      semanticKey: "shell",
+      schemaVersion: "1",
+    },
+    kind: "tool",
+    results: [],
+    status: "completed",
+    title: "shell",
+    ...patch,
+  };
+}

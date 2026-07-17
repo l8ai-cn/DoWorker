@@ -82,6 +82,7 @@ func RegisterRoutes(r *gin.Engine, d Deps) {
 		orgScoped.GET("/sessions/:id/resources/environments/:env/filesystem", d.handleSessionFilesystemList)
 		orgScoped.PUT("/sessions/:id/resources/environments/:env/filesystem/*filepath", d.handleSessionFilesystemWrite)
 		orgScoped.GET("/sessions/:id/resources/environments/:env/filesystem/*filepath", d.handleSessionFilesystemList)
+		orgScoped.GET("/sessions/:id/resources/environments/:env/artifacts/content/*filepath", d.handleSessionArtifactContent)
 		orgScoped.GET("/model-resources", d.handleListModelResources)
 		orgScoped.GET("/virtual-keys", d.handleListVirtualKeys)
 		orgScoped.POST("/virtual-keys", d.handleCreateVirtualKey)
@@ -116,6 +117,10 @@ func registerEmbedRoutes(v1 *gin.RouterGroup, d Deps) {
 	embedded.GET(
 		"/sessions/:id/resources/environments/:env/filesystem/*filepath",
 		d.handleSessionFilesystemList,
+	)
+	embedded.GET(
+		"/sessions/:id/resources/environments/:env/artifacts/content/*filepath",
+		d.handleSessionArtifactContent,
 	)
 	embedded.GET(
 		"/sessions/:id/resources/environments/:env/changes",

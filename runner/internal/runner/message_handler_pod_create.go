@@ -34,11 +34,15 @@ func (h *RunnerMessageHandler) OnCreatePod(cmd *runnerv1.CreatePodCommand) (err 
 		PodKey: cmd.PodKey,
 		Status: PodStatusInitializing,
 	})
+	var registeredMCP MCPServer
 	defer func() {
 		if recovered := recover(); recovered != nil {
 			h.podStore.Delete(cmd.PodKey)
 			err = fmt.Errorf("pod build panic: %v", recovered)
 			h.sendPodError(cmd.PodKey, err.Error())
+		}
+		if err != nil && registeredMCP != nil {
+			registeredMCP.UnregisterPod(cmd.PodKey)
 		}
 	}()
 
@@ -79,6 +83,16 @@ func (h *RunnerMessageHandler) OnCreatePod(cmd *runnerv1.CreatePodCommand) (err 
 	}
 
 	h.podStore.Put(cmd.PodKey, pod)
+	registeredMCP = h.runner.GetMCPServer()
+	if registeredMCP != nil {
+		registeredMCP.RegisterPod(
+			cmd.PodKey,
+			h.conn.GetOrgSlug(),
+			nil,
+			nil,
+			cmd.LaunchCommand,
+		)
+	}
 	if pod.IsACPMode() {
 		if err := h.wireAndStartACPPod(pod, cmd, cols, rows); err != nil {
 			return err
@@ -87,9 +101,6 @@ func (h *RunnerMessageHandler) OnCreatePod(cmd *runnerv1.CreatePodCommand) (err 
 		return err
 	}
 
-	if mcpSrv := h.runner.GetMCPServer(); mcpSrv != nil {
-		mcpSrv.RegisterPod(cmd.PodKey, h.conn.GetOrgSlug(), nil, nil, cmd.LaunchCommand)
-	}
 	return nil
 }
 

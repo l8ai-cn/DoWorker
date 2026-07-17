@@ -31,9 +31,10 @@ type Config struct {
 	// Unified Domain Configuration - Single source of truth for public URLs
 	// If PRIMARY_DOMAIN is set, RELAY_URL is derived as ws(s)://{PRIMARY_DOMAIN}/relay
 	// =============================================================================
-	PrimaryDomain       string `mapstructure:"primary_domain"` // e.g., "localhost:10000" or "agentsmesh.ai"
-	UseHTTPS            bool   `mapstructure:"use_https"`      // Use wss:// instead of ws://
-	PreviewPublicOrigin string `mapstructure:"preview_public_origin"`
+	PrimaryDomain       string            `mapstructure:"primary_domain"` // e.g., "localhost:10000" or "agentsmesh.ai"
+	UseHTTPS            bool              `mapstructure:"use_https"`      // Use wss:// instead of ws://
+	PreviewPublicOrigin string            `mapstructure:"preview_public_origin"`
+	PreviewCookieMode   PreviewCookieMode `mapstructure:"preview_cookie_mode"`
 
 	// Tunnel/proxy (HTTP data plane) configuration.
 	Tunnel TunnelConfig `mapstructure:"tunnel"`
@@ -147,6 +148,7 @@ func Load() (*Config, error) {
 		"PRIMARY_DOMAIN":        "primary_domain",
 		"USE_HTTPS":             "use_https",
 		"PREVIEW_PUBLIC_ORIGIN": "preview_public_origin",
+		"PREVIEW_COOKIE_MODE":   "preview_cookie_mode",
 		// Server
 		"SERVER_HOST":   "server.host",
 		"SERVER_PORT":   "server.port",
@@ -230,6 +232,14 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 	cfg.PreviewPublicOrigin = previewPublicOrigin
+	previewCookieMode, err := normalizePreviewCookieMode(
+		string(cfg.PreviewCookieMode),
+		cfg.PreviewUsesHTTPS(),
+	)
+	if err != nil {
+		return nil, err
+	}
+	cfg.PreviewCookieMode = previewCookieMode
 
 	if cfg.Relay.ID == "" {
 		// Generate a default ID based on hostname

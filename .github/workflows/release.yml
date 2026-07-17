@@ -20,7 +20,7 @@ jobs:
       version: ${{ steps.compute.outputs.version }}
       minor: ${{ steps.compute.outputs.minor }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - id: compute
         run: |
           set -euo pipefail
@@ -36,7 +36,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v5

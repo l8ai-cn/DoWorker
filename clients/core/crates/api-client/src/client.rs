@@ -33,6 +33,15 @@ impl ApiClient {
         }
     }
 
+    pub fn clone_with_base_url(&self, base_url: String) -> Self {
+        Self {
+            http: self.http.clone(),
+            base_url,
+            auth_store: self.auth_store.clone(),
+            refresh_lock: Mutex::new(()),
+        }
+    }
+
     /// Current org slug for Connect-RPC request bodies. Services use this to
     /// populate `org_slug` (proto field 1) before invoking `*_connect`.
     pub fn current_org_slug(&self) -> String {

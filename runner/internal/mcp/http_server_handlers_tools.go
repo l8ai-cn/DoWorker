@@ -1,8 +1,8 @@
 package mcp
 
 import (
-	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -11,7 +11,12 @@ import (
 )
 
 // handleToolsCall handles the tools/call request.
-func (s *HTTPServer) handleToolsCall(w http.ResponseWriter, req *MCPRequest, pod *PodInfo) {
+func (s *HTTPServer) handleToolsCall(
+	w http.ResponseWriter,
+	r *http.Request,
+	req *MCPRequest,
+	pod *PodInfo,
+) {
 	log := logger.MCP()
 
 	var params struct {
@@ -44,9 +49,18 @@ func (s *HTTPServer) handleToolsCall(w http.ResponseWriter, req *MCPRequest, pod
 	}
 
 	// Execute tool
-	ctx := context.Background()
+	ctx := r.Context()
 	start := time.Now()
-	result, err := tool.Handler(ctx, pod.Client, params.Arguments)
+	var result interface{}
+	var err error
+	switch {
+	case tool.PodHandler != nil:
+		result, err = tool.PodHandler(ctx, pod, params.Arguments)
+	case tool.Handler != nil:
+		result, err = tool.Handler(ctx, pod.Client, params.Arguments)
+	default:
+		err = fmt.Errorf("tool %q has no handler", tool.Name)
+	}
 	elapsed := time.Since(start)
 
 	if err != nil {

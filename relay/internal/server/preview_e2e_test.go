@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/websocket"
 
 	"github.com/anthropics/agentsmesh/relay/internal/auth"
+	"github.com/anthropics/agentsmesh/relay/internal/config"
 	"github.com/anthropics/agentsmesh/relay/internal/protocol/tunnelframe"
 	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
 )
@@ -232,25 +233,43 @@ func (ft *fakeRunnerTunnel) Close() {
 
 // newPreviewE2EGateway wires a bare Gateway HTTP mux (tunnel + preview
 // endpoints only, no backend registration) for end-to-end tests.
-func newPreviewE2EGateway(t *testing.T) (gw *httptest.Server, registry *tunnel.Registry, validator *auth.TokenValidator) {
+func newPreviewE2EGateway(
+	t *testing.T,
+) (
+	gw *httptest.Server,
+	registry *tunnel.Registry,
+	validator *auth.TokenValidator,
+	backend *previewSessionBackendStub,
+) {
 	t.Helper()
 	gw = httptest.NewUnstartedServer(nil)
 	validator = auth.NewTokenValidator("s3cret", "iss")
 	registry = tunnel.NewRegistry()
+	backend = &previewSessionBackendStub{}
 	tunnelHandler := NewTunnelHandler(validator, registry, auth.NewOriginChecker(nil), 1<<20)
 	limiter := tunnel.NewPodLimiter(32, 16, 5*time.Second)
-	previewHandler := NewPreviewHandler(validator, registry, limiter, PreviewConfig{
-		ReconnectGrace:    2 * time.Second,
-		StreamTimeout:     10 * time.Second,
-		StreamWindowBytes: 1 << 20,
-		PublicHost:        gw.Listener.Addr().String(),
-	})
+	previewHandler := NewPreviewHandler(
+		validator,
+		auth.NewPreviewSessionIssuer("s3cret", "iss"),
+		backend,
+		registry,
+		limiter,
+		PreviewConfig{
+			ReconnectGrace:    2 * time.Second,
+			StreamTimeout:     10 * time.Second,
+			StreamWindowBytes: 1 << 20,
+			CookieMode:        config.PreviewCookieSameSite,
+			PublicOrigin:      "https://preview.example.com",
+			PublicHost:        "preview.example.com",
+			ReauthorizeEvery:  25 * time.Millisecond,
+		},
+	)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/runner/tunnel", tunnelHandler.HandleTunnelWS)
 	mux.HandleFunc("/preview/", previewHandler.route)
 	gw.Config.Handler = mux
 	gw.Start()
-	return gw, registry, validator
+	return gw, registry, validator, backend
 }
 
 func waitForRunnerRegistered(t *testing.T, registry *tunnel.Registry, runnerID int64) {
@@ -291,7 +310,7 @@ func TestPreviewE2E_HTMLAndImage(t *testing.T) {
 	defer upstream.Close()
 	target := strings.TrimPrefix(upstream.URL, "http://")
 
-	gw, registry, _ := newPreviewE2EGateway(t)
+	gw, registry, _, _ := newPreviewE2EGateway(t)
 	defer gw.Close()
 
 	tunnelToken, err := auth.GenerateTypedToken("s3cret", "iss", auth.TokenTypeTunnel, "", runnerID, 0, 3, time.Hour)
@@ -305,10 +324,7 @@ func TestPreviewE2E_HTMLAndImage(t *testing.T) {
 
 	previewToken := mustPreviewTokenWithPath(t, "pod1", runnerID, target, "/app")
 
-	htmlResp, err := http.Get(gw.URL + "/preview/pod1/?token=" + previewToken)
-	if err != nil {
-		t.Fatal(err)
-	}
+	htmlResp := doPreviewGET(t, gw.URL+"/preview/pod1/", "pod1", previewToken)
 	defer htmlResp.Body.Close()
 	htmlBody, _ := io.ReadAll(htmlResp.Body)
 	if htmlResp.StatusCode != http.StatusOK {
@@ -321,10 +337,7 @@ func TestPreviewE2E_HTMLAndImage(t *testing.T) {
 		t.Fatalf("unexpected content-type: %s", ct)
 	}
 
-	imgResp, err := http.Get(gw.URL + "/preview/pod1/logo.png?token=" + previewToken)
-	if err != nil {
-		t.Fatal(err)
-	}
+	imgResp := doPreviewGET(t, gw.URL+"/preview/pod1/logo.png", "pod1", previewToken)
 	defer imgResp.Body.Close()
 	imgBody, _ := io.ReadAll(imgResp.Body)
 	if imgResp.StatusCode != http.StatusOK {
@@ -337,10 +350,7 @@ func TestPreviewE2E_HTMLAndImage(t *testing.T) {
 		t.Fatalf("image body mismatch: got %d bytes, want %d bytes", len(imgBody), len(imageBytes))
 	}
 
-	encodedResp, err := http.Get(gw.URL + "/preview/pod1/%252e%252e?token=" + previewToken)
-	if err != nil {
-		t.Fatal(err)
-	}
+	encodedResp := doPreviewGET(t, gw.URL+"/preview/pod1/%252e%252e", "pod1", previewToken)
 	defer encodedResp.Body.Close()
 	encodedBody, _ := io.ReadAll(encodedResp.Body)
 	if encodedResp.StatusCode != http.StatusOK || string(encodedBody) != "literal-double-encoding" {

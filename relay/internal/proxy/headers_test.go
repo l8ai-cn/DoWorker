@@ -12,8 +12,9 @@ func TestSanitizeRequestHeaders(t *testing.T) {
 		"Proxy-Connection": {"x"},
 		"X-Forwarded-For":  {"1.2.3.4"},
 		"Content-Type":     {"text/html"},
+		"Referer":          {"https://preview.example.com/preview/pod1/__session?token=secret"},
 	}
-	out := SanitizeRequestHeaders(in, "9.9.9.9", "https", "host")
+	out := SanitizeRequestHeaders(in, "9.9.9.9", "https", "host", "gw_preview")
 	if _, ok := out["Connection"]; ok {
 		t.Fatal("hop-by-hop must be stripped")
 	}
@@ -29,6 +30,9 @@ func TestSanitizeRequestHeaders(t *testing.T) {
 	if out.Get("X-Forwarded-Host") != "host" {
 		t.Fatal("X-Forwarded-Host not set")
 	}
+	if out.Get("Referer") != "" {
+		t.Fatal("preview referrer must not be forwarded")
+	}
 }
 
 func TestSanitizeRequestHeaders_ConnectionListedHeaderStripped(t *testing.T) {
@@ -37,7 +41,7 @@ func TestSanitizeRequestHeaders_ConnectionListedHeaderStripped(t *testing.T) {
 		"X-Custom-Hop":   {"secret"},
 		"Content-Length": {"5"},
 	}
-	out := SanitizeRequestHeaders(in, "1.1.1.1", "http", "h")
+	out := SanitizeRequestHeaders(in, "1.1.1.1", "http", "h", "gw_preview")
 	if _, ok := out["X-Custom-Hop"]; ok {
 		t.Fatal("header listed in Connection must be stripped")
 	}
@@ -45,13 +49,13 @@ func TestSanitizeRequestHeaders_ConnectionListedHeaderStripped(t *testing.T) {
 
 func TestSanitizeResponseHeaders(t *testing.T) {
 	in := http.Header{
-		"Connection":     {"keep-alive"},
+		"Connection":        {"keep-alive"},
 		"Transfer-Encoding": {"chunked"},
-		"Content-Type":   {"image/png"},
-		"Content-Range":  {"bytes 0-1/2"},
-		"Accept-Ranges":  {"bytes"},
+		"Content-Type":      {"image/png"},
+		"Content-Range":     {"bytes 0-1/2"},
+		"Accept-Ranges":     {"bytes"},
 	}
-	out := SanitizeResponseHeaders(in)
+	out := SanitizeResponseHeaders(in, "gw_preview")
 	if _, ok := out["Connection"]; ok {
 		t.Fatal("hop-by-hop must be stripped from response")
 	}
@@ -60,5 +64,26 @@ func TestSanitizeResponseHeaders(t *testing.T) {
 	}
 	if out.Get("Content-Type") != "image/png" || out.Get("Content-Range") != "bytes 0-1/2" || out.Get("Accept-Ranges") != "bytes" {
 		t.Fatal("content headers must be preserved")
+	}
+}
+
+func TestSanitizeHeadersHideGatewayCookie(t *testing.T) {
+	request := http.Header{
+		"Cookie": {"theme=dark; gw_preview=session-secret; locale=zh"},
+	}
+	requestOut := SanitizeRequestHeaders(request, "1.1.1.1", "https", "preview.example.com", "gw_preview")
+	if got := requestOut.Get("Cookie"); got != "theme=dark; locale=zh" {
+		t.Fatalf("Cookie = %q", got)
+	}
+
+	response := http.Header{
+		"Set-Cookie": {
+			"theme=dark; Path=/",
+			"gw_preview=attacker; Path=/; HttpOnly",
+		},
+	}
+	responseOut := SanitizeResponseHeaders(response, "gw_preview")
+	if got := responseOut.Values("Set-Cookie"); len(got) != 1 || got[0] != "theme=dark; Path=/" {
+		t.Fatalf("Set-Cookie = %#v", got)
 	}
 }

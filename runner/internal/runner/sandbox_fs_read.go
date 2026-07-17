@@ -3,9 +3,7 @@ package runner
 import (
 	"encoding/base64"
 	"io"
-	"mime"
 	"os"
-	"path/filepath"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
@@ -54,7 +52,7 @@ func (h *RunnerMessageHandler) sandboxFsReadWorkspace(
 	return &runnerv1.SandboxFsResultEvent{
 		Content:       content,
 		Encoding:      encoding,
-		ContentType:   mime.TypeByExtension(filepath.Ext(relative)),
+		ContentType:   sandboxFsContentType(relative),
 		FileBytes:     info.Size(),
 		Truncated:     truncated,
 		WorkspaceRoot: workspace.displayPath(),

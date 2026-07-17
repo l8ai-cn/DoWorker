@@ -66,6 +66,7 @@ type GRPCConnection struct {
 	// Control messages (heartbeat, pod events, OSC) have higher priority than agent status
 	readyCh     chan *runnerv1.RunnerMessage // Highest priority: correlated command readiness results
 	controlCh   chan *runnerv1.RunnerMessage // High priority: heartbeat, pod_created, pod_terminated, OSC, etc.
+	workbenchCh chan *runnerv1.RunnerMessage // Reliable Agent Workbench event stream
 	terminalCh  chan *runnerv1.RunnerMessage // Low priority: agent_status (terminal output via Relay)
 	stopCh      chan struct{}
 	stopOnce    sync.Once
@@ -132,7 +133,8 @@ func NewGRPCConnection(endpoint, nodeID, orgSlug, certFile, keyFile, caFile stri
 		initTimeout:              30 * time.Second,
 		reconnectStrategy:        NewReconnectStrategy(5*time.Second, 5*time.Minute),
 		readyCh:                  make(chan *runnerv1.RunnerMessage, 32),
-		controlCh:                make(chan *runnerv1.RunnerMessage, 100),  // Small buffer for control messages
+		controlCh:                make(chan *runnerv1.RunnerMessage, 100), // Small buffer for control messages
+		workbenchCh:              make(chan *runnerv1.RunnerMessage, 2048),
 		terminalCh:               make(chan *runnerv1.RunnerMessage, 1000), // Large buffer for terminal output
 		stopCh:                   make(chan struct{}),
 		reconnectCh:              make(chan struct{}, 1),

@@ -77,6 +77,14 @@ impl WasmApiClient {
         crate::state_autopilot::WasmAutopilotState::from_runtime(self.runtime.state.clone())
     }
 
+    pub fn get_agent_workbench_state(
+        &self,
+    ) -> crate::state_agent_workbench::WasmAgentWorkbenchState {
+        crate::state_agent_workbench::WasmAgentWorkbenchState::from_runtime(
+            self.runtime.state.clone(),
+        )
+    }
+
     pub fn get_repo_state(&self) -> crate::state_repo::WasmRepoState {
         crate::state_repo::WasmRepoState::from_runtime(self.runtime.state.clone())
     }

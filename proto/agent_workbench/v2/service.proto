@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package proto.agent_workbench.v2;
+
+import "agent_workbench/v2/command.proto";
+import "agent_workbench/v2/session.proto";
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/agent_workbench/v2;agentworkbenchv2";
+
+service AgentWorkbenchService {
+  rpc GetSessionSnapshot(GetSessionSnapshotRequest) returns (SessionSnapshot);
+  rpc StreamSessionDeltas(StreamSessionDeltasRequest) returns (stream SessionDeltaBatch);
+  rpc ExecuteCommand(ExecuteCommandRequest) returns (CommandReceipt);
+}
+
+message GetSessionSnapshotRequest {
+  string org_slug = 1;
+  string session_id = 2;
+}
+
+message StreamSessionDeltasRequest {
+  string org_slug = 1;
+  SessionCursor cursor = 2;
+  uint32 replay_limit = 3;
+}
+
+message ExecuteCommandRequest {
+  string org_slug = 1;
+  CommandEnvelope command = 2;
+}

@@ -73,8 +73,7 @@ func (c *ACPClient) CancelSession() error {
 
 // Interrupt sends an interrupt control_request to stop the current processing.
 func (c *ACPClient) Interrupt() error {
-	_, err := c.transport.SendControlRequest(c.SessionID(), "interrupt", nil)
-	return err
+	return c.transport.CancelSession(c.SessionID())
 }
 
 // SetPermissionMode dynamically changes the permission mode at runtime.

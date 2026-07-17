@@ -39,6 +39,7 @@ type ACPTransport struct {
 	// set_permission_mode. Empty means the agent didn't advertise (frontend falls
 	// back to the Claude default set).
 	supportedPermissionModes []string
+	supportedArtifactActions []string
 
 	initResult    json.RawMessage
 	handshakeHook HandshakeHook
@@ -91,7 +92,13 @@ func (t *ACPTransport) Handshake(_ context.Context) (string, error) {
 			resp.Error.Code, resp.Error.Message)
 	}
 
-	t.supportsControlRequest, t.supportedPermissionModes = parseAgentsmeshExtensions(resp.Result)
+	extensions, err := parseAgentsmeshExtensions(resp.Result)
+	if err != nil {
+		return "", fmt.Errorf("initialize extensions: %w", err)
+	}
+	t.supportsControlRequest = extensions.ControlRequest
+	t.supportedPermissionModes = extensions.PermissionModes
+	t.supportedArtifactActions = extensions.ArtifactActions
 	t.initResult = resp.Result
 	if t.handshakeHook != nil {
 		if err := t.handshakeHook(handshakeRequester{transport: t}, resp.Result); err != nil {
@@ -100,7 +107,8 @@ func (t *ACPTransport) Handshake(_ context.Context) (string, error) {
 	}
 	t.logger.Info("ACP initialize succeeded",
 		"supports_control_request", t.supportsControlRequest,
-		"permission_modes", t.supportedPermissionModes)
+		"permission_modes", t.supportedPermissionModes,
+		"artifact_actions", t.supportedArtifactActions)
 	return "", nil // ACP doesn't auto-discover session IDs
 }
 
@@ -137,6 +145,10 @@ func (t *ACPTransport) Close() {}
 // the initialize response (nil if none).
 func (t *ACPTransport) SupportedPermissionModes() []string {
 	return t.supportedPermissionModes
+}
+
+func (t *ACPTransport) SupportedArtifactActions() []string {
+	return t.supportedArtifactActions
 }
 
 func (t *ACPTransport) dispatchMessage(msg *JSONRPCMessage) {

@@ -6,6 +6,7 @@ import (
 	"context"
 	"log/slog"
 	"net"
+	"time"
 
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
@@ -16,6 +17,13 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/interfaces"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
 )
+
+const grpcGracefulStopTimeout = 5 * time.Second
+
+type grpcServerStopper interface {
+	GracefulStop()
+	Stop()
+}
 
 type Server struct {
 	grpcServer    *grpc.Server
@@ -72,7 +80,28 @@ type OrganizationInfo struct {
 
 func (s *Server) Stop() {
 	s.logger.Info("stopping gRPC server")
-	s.grpcServer.GracefulStop()
+	if !stopGRPCServer(s.grpcServer, grpcGracefulStopTimeout) {
+		s.logger.Warn("forced gRPC server shutdown after graceful timeout")
+	}
+}
+
+func stopGRPCServer(server grpcServerStopper, timeout time.Duration) bool {
+	done := make(chan struct{})
+	go func() {
+		server.GracefulStop()
+		close(done)
+	}()
+
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
+	select {
+	case <-done:
+		return true
+	case <-timer.C:
+		server.Stop()
+		<-done
+		return false
+	}
 }
 
 func (s *Server) GRPCServer() *grpc.Server {

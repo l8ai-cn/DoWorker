@@ -9,14 +9,21 @@ export async function loadSessionWorkspaceArtifact(
 ): Promise<Blob> {
   const session = await fetchSessionByPodKey(podKey);
   if (!session) throw new Error("No session is linked to this Worker");
+  return loadSessionWorkspaceArtifactById(session.id, path);
+}
+
+export async function loadSessionWorkspaceArtifactById(
+  sessionId: string,
+  path: string,
+): Promise<Blob> {
   const token = getAuthManager().get_token();
   const org = readCurrentOrg()?.slug;
   if (!token || !org) throw new Error("Not authenticated");
   const encodedPath = path.split("/").map(encodeURIComponent).join("/");
   const base = getApiBaseUrl().replace(/\/$/, "");
   const response = await fetch(
-    `${base}/v1/sessions/${encodeURIComponent(session.id)}` +
-      `/resources/environments/workspace/filesystem/${encodedPath}`,
+    `${base}/v1/sessions/${encodeURIComponent(sessionId)}` +
+      `/resources/environments/workspace/artifacts/content/${encodedPath}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -27,27 +34,5 @@ export async function loadSessionWorkspaceArtifact(
   if (!response.ok) {
     throw new Error(`Workspace artifact request failed (${response.status})`);
   }
-  const body = (await response.json()) as {
-    content?: unknown;
-    content_type?: unknown;
-    encoding?: unknown;
-    truncated?: unknown;
-  };
-  if (body.truncated === true) {
-    throw new Error("Workspace artifact exceeds the preview size limit");
-  }
-  if (typeof body.content !== "string") {
-    throw new Error("Workspace artifact response is invalid");
-  }
-  const mimeType =
-    typeof body.content_type === "string" ? body.content_type : "";
-  if (body.encoding === "base64") {
-    const decoded = atob(body.content);
-    const bytes = Uint8Array.from(decoded, (char) => char.charCodeAt(0));
-    return new Blob([bytes], { type: mimeType });
-  }
-  if (body.encoding !== undefined && body.encoding !== "utf-8") {
-    throw new Error("Workspace artifact encoding is unsupported");
-  }
-  return new Blob([body.content], { type: mimeType });
+  return response.blob();
 }

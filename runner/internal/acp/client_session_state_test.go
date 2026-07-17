@@ -176,6 +176,10 @@ func (permissionResponseTransport) SupportedPermissionModes() []string {
 	return nil
 }
 
+func (permissionResponseTransport) SupportedArtifactActions() []string {
+	return nil
+}
+
 func (permissionResponseTransport) ReadLoop(context.Context) {}
 
 func (permissionResponseTransport) Close() {}

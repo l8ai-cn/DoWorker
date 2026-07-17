@@ -429,7 +429,7 @@ export function Sidebar({ open, onClose, dragProgress = null }: SidebarProps) {
       data-collapsed={!effectiveOpen || undefined}
       // Match the keyboard-focus story: when closed, the sidebar's
       // children shouldn't receive tabs.
-      {...(effectiveOpen ? {} : { inert: "" })}
+      {...(effectiveOpen ? {} : { inert: true })}
     >
       {/* Right-edge resize handle (desktop only), mirroring the right rail's
           left-edge handle. Hidden on mobile, where the sidebar is a
@@ -1213,13 +1213,17 @@ function ConversationList({
   // session hotkey. Titles must match the <ConversationSection> props below.
   const orderedConversationIds = useMemo(() => {
     const visible = (title: string, list: readonly Conversation[]) =>
-      effectiveCollapsedSections.includes(title) ? [] : list;
+      effectiveCollapsedSections.includes(title)
+        ? []
+        : list.map((conversation) => conversation.id);
     // A project's chats are navigable only when the "Projects" group is
     // expanded AND that individual project folder is expanded (folders are
     // collapsed unless explicitly opened — inverse of the fixed sections).
     const projectsCollapsed = effectiveCollapsedSections.includes("Projects");
     const projectVisible = (name: string, list: readonly Conversation[]) =>
-      !projectsCollapsed && expandedProjects.includes(name) ? list : [];
+      !projectsCollapsed && expandedProjects.includes(name)
+        ? list.map((conversation) => conversation.id)
+        : [];
     const chatsCollapsed = effectiveCollapsedSections.includes("Chats");
     return [
       ...visible("Pinned", sections.pinned),

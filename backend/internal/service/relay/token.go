@@ -15,6 +15,7 @@ type TokenClaims struct {
 	TokenType     string `json:"token_type,omitempty"`
 	PreviewTarget string `json:"preview_target,omitempty"` // e.g. 127.0.0.1:3000
 	PreviewPath   string `json:"preview_path,omitempty"`
+	PreviewOrigin string `json:"preview_origin,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -66,8 +67,8 @@ func (g *TokenGenerator) GenerateToken(podKey string, runnerID, userID, orgID in
 // GenerateTypedToken generates non-preview tokens with an explicit token_type.
 // PodKey may be empty for tunnel tokens, which are not bound to a single pod.
 func (g *TokenGenerator) GenerateTypedToken(podKey string, runnerID, userID, orgID int64, tokenType, previewTarget string, expiry time.Duration) (string, error) {
-	if tokenType == "preview" {
-		return "", fmt.Errorf("preview tokens require GeneratePreviewToken")
+	if tokenType == "preview" || tokenType == "preview_bootstrap" || tokenType == "preview_session" {
+		return "", fmt.Errorf("preview tokens require the dedicated preview token generator")
 	}
 	if expiry <= 0 {
 		return "", fmt.Errorf("expiry must be positive, got %v", expiry)
@@ -80,40 +81,6 @@ func (g *TokenGenerator) GenerateTypedToken(podKey string, runnerID, userID, org
 		OrgID:         orgID,
 		TokenType:     tokenType,
 		PreviewTarget: previewTarget,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(now.Add(expiry)),
-			IssuedAt:  jwt.NewNumericDate(now),
-			NotBefore: jwt.NewNumericDate(now),
-			Issuer:    g.issuer,
-			Subject:   podKey,
-		},
-	}
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(g.secretKey)
-}
-
-func (g *TokenGenerator) GeneratePreviewToken(podKey string, runnerID, userID, orgID int64, previewTarget, previewPath string, expiry time.Duration) (string, error) {
-	if podKey == "" {
-		return "", fmt.Errorf("preview token requires pod key")
-	}
-	if previewTarget == "" {
-		return "", fmt.Errorf("preview token requires target")
-	}
-	normalizedPath, err := NormalizePreviewPath(previewPath)
-	if err != nil {
-		return "", err
-	}
-	if expiry <= 0 {
-		return "", fmt.Errorf("expiry must be positive, got %v", expiry)
-	}
-	now := time.Now()
-	claims := &TokenClaims{
-		PodKey:        podKey,
-		RunnerID:      runnerID,
-		UserID:        userID,
-		OrgID:         orgID,
-		TokenType:     "preview",
-		PreviewTarget: previewTarget,
-		PreviewPath:   normalizedPath,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(now.Add(expiry)),
 			IssuedAt:  jwt.NewNumericDate(now),
