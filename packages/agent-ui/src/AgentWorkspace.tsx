@@ -48,7 +48,7 @@ export function AgentWorkspace({
     () => (readOnly ? new ReadOnlyAgentSessionRuntime(runtime) : runtime),
     [readOnly, runtime],
   );
-  const snapshot = useAgentSessionSnapshot(activeRuntime, sessionId);
+  const snapshot = useAgentSessionSnapshot(activeRuntime, sessionId, runtime);
   const text = agentWorkspaceText(locale);
   const [view, setView] = useState<"conversation" | "terminal">("conversation");
   const tabId = useId();

@@ -210,6 +210,55 @@ describe("AgentWorkspace configuration", () => {
     expect(agentRuntime.updateConfiguration).not.toHaveBeenCalled();
   });
 
+  it("keeps one session connection while observer mode changes", async () => {
+    const snapshot = agentWorkspaceSnapshot();
+    snapshot.status = "idle";
+    snapshot.items = [];
+    snapshot.plan = [];
+    snapshot.permissions = [];
+    const { agentRuntime } = agentWorkspaceRuntime(snapshot);
+    const workspace = render(
+      <AgentWorkspace
+        readOnly
+        runtime={agentRuntime}
+        sessionId={snapshot.sessionId}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(agentRuntime.open).toHaveBeenCalledTimes(1);
+    });
+    expect(
+      await screen.findByRole("combobox", { name: "Permissions" }),
+    ).toBeDisabled();
+
+    workspace.rerender(
+      <AgentWorkspace
+        runtime={agentRuntime}
+        sessionId={snapshot.sessionId}
+      />,
+    );
+    expect(
+      await screen.findByRole("combobox", { name: "Permissions" }),
+    ).toBeEnabled();
+
+    workspace.rerender(
+      <AgentWorkspace
+        readOnly
+        runtime={agentRuntime}
+        sessionId={snapshot.sessionId}
+      />,
+    );
+    expect(
+      await screen.findByRole("combobox", { name: "Permissions" }),
+    ).toBeDisabled();
+    expect(agentRuntime.open).toHaveBeenCalledTimes(1);
+    expect(agentRuntime.close).not.toHaveBeenCalled();
+
+    workspace.unmount();
+    expect(agentRuntime.close).toHaveBeenCalledTimes(1);
+  });
+
   it("closes the picker when keyboard focus leaves it", async () => {
     const user = userEvent.setup();
     const snapshot = agentWorkspaceSnapshot();

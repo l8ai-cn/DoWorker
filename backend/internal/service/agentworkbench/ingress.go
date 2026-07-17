@@ -13,6 +13,8 @@ import (
 
 var ErrIngressConfiguration = errors.New("invalid agent workbench ingress configuration")
 
+const ingressAppendAttempts = 8
+
 type SessionResolver interface {
 	GetByPodKey(context.Context, string) (*sessiondomain.Session, error)
 }
@@ -66,30 +68,36 @@ func (ingress *Ingress) Ingest(
 	if session == nil || session.ID == "" || session.PodKey != batch.PodKey {
 		return ErrInvalidBatch
 	}
-	stored, err := ingress.repository.GetSnapshot(ctx, session.ID)
-	if err != nil {
-		return fmt.Errorf("load agent workbench snapshot: %w", err)
+	for attempt := 0; attempt < ingressAppendAttempts; attempt++ {
+		stored, err := ingress.repository.GetSnapshot(ctx, session.ID)
+		if err != nil {
+			return fmt.Errorf("load agent workbench snapshot: %w", err)
+		}
+		current, streamEpoch, err := ingress.decodeSnapshot(session.ID, stored)
+		if err != nil {
+			return err
+		}
+		projected, err := ProjectRunnerBatch(current, session.ID, streamEpoch, batch)
+		if err != nil {
+			return err
+		}
+		request, err := appendRequest(session.ID, stored, batch, projected)
+		if err != nil {
+			return err
+		}
+		result, err := ingress.repository.Append(ctx, request)
+		if errors.Is(err, domainworkbench.ErrRevisionConflict) {
+			continue
+		}
+		if err != nil {
+			return fmt.Errorf("append agent workbench batch: %w", err)
+		}
+		if result.Applied {
+			ingress.publisher.Publish(session.ID, projected.Delta)
+		}
+		return nil
 	}
-	current, streamEpoch, err := ingress.decodeSnapshot(session.ID, stored)
-	if err != nil {
-		return err
-	}
-	projected, err := ProjectRunnerBatch(current, session.ID, streamEpoch, batch)
-	if err != nil {
-		return err
-	}
-	request, err := appendRequest(session.ID, stored, batch, projected)
-	if err != nil {
-		return err
-	}
-	result, err := ingress.repository.Append(ctx, request)
-	if err != nil {
-		return fmt.Errorf("append agent workbench batch: %w", err)
-	}
-	if result.Applied {
-		ingress.publisher.Publish(session.ID, projected.Delta)
-	}
-	return nil
+	return domainworkbench.ErrRevisionConflict
 }
 
 func (ingress *Ingress) decodeSnapshot(
