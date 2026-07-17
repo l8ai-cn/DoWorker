@@ -45,6 +45,10 @@ git push
 DOOPS_TARGET=gw-oilan-node ./deploy.sh         # secrets + manifests + jobs via DoOps
 ```
 
+Runner runtime builds resolve their Node base only through the locked
+`runner-node-base@sha256:...` Harbor reference and fail before building if its
+digest differs or either `linux/amd64` or `linux/arm64` is absent.
+
 Build and deploy scripts refuse a dirty tree, detached HEAD, a commit that is
 not the current remote branch HEAD, or missing release-specific CI checks.
 The status of explicitly named deployment and migration jobs for the

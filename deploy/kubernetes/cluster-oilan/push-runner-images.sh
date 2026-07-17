@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 REG="repo.aiedulab.cn:8443"
 PROJ="${REG}/agentsmesh"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -8,6 +7,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 TARGET="${1:-all}"
 source "${REPO_ROOT}/docker/agent-runtime/do_agent_release_manifest.sh"
 source "${SCRIPT_DIR}/harbor_immutable_release.sh"
+source "${SCRIPT_DIR}/runner-build-base.sh"
 # shellcheck source=release_source_guard.sh
 source "${SCRIPT_DIR}/release_source_guard.sh"
 # shellcheck source=push-runner-video-studio.sh
@@ -179,6 +179,7 @@ push_all() {
     --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT}" \
     -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
     --build-arg AGENT_RUNTIME=e2e-echo \
+    --build-arg "RUNTIME_BUILD_BASE=${RUNTIME_BUILD_BASE}" \
     -t do-worker/runner-e2e-echo:latest \
     "${REPO_ROOT}/docker/agent-runtime/_context"
   for runtime in claude-code codex-cli video-studio gemini-cli grok-build minimax-cli openclaw hermes e2e-echo; do
@@ -188,6 +189,8 @@ push_all() {
   publish_video_runtime_metadata
 }
 
+verify_runner_build_base
+export RUNTIME_BUILD_BASE="${RUNNER_BUILD_BASE}"
 case "${TARGET}" in
   all) push_all ;;
   do-agent) push_do_agent ;;
