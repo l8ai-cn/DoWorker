@@ -30,14 +30,15 @@ func (pc *PodCoordinator) handlePodCreated(runnerID int64, data *runnerv1.PodCre
 		updates["branch_name"] = data.BranchName
 	}
 
+	pc.podRouter.RegisterPod(data.PodKey, runnerID)
 	if _, err := pc.podStore.UpdateByKey(ctx, data.PodKey, updates); err != nil {
+		pc.podRouter.UnregisterPod(data.PodKey)
 		pc.logger.Error("failed to update pod on creation",
 			"pod_key", data.PodKey,
 			"error", err)
 		return
 	}
 
-	pc.podRouter.RegisterPod(data.PodKey, runnerID)
 	otelinit.PodActiveCount.Add(ctx, 1)
 
 	pc.logger.Info("pod created",
