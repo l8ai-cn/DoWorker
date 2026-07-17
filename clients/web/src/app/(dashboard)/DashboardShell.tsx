@@ -54,8 +54,13 @@ export default function DashboardShell({
   useEffect(() => {
     if (!currentOrg) return;
     const controller = new AbortController();
+    const abort = () => controller.abort();
+    window.addEventListener("pagehide", abort, { once: true });
     void useChannelMessageStore.getState().fetchUnreadCounts(controller.signal);
-    return () => controller.abort();
+    return () => {
+      window.removeEventListener("pagehide", abort);
+      controller.abort();
+    };
   }, [currentOrg]);
 
   const handleEvent = useCallback(
