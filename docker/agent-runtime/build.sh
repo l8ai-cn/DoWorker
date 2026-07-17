@@ -4,7 +4,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-
 AGENT_RUNTIMES=(
   claude-code
   codex-cli
@@ -20,7 +19,6 @@ AGENT_RUNTIMES=(
   openclaw
   hermes
 )
-
 RUNTIME="${1:-all}"
 IMAGE_PREFIX="${IMAGE_PREFIX:-do-worker/runner}"
 BASE_IMAGE="${BASE_IMAGE:-do-worker/runner-base:latest}"
@@ -102,6 +100,7 @@ build_base() {
     --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT}" \
     --target base \
     -f "${SCRIPT_DIR}/Dockerfile" \
+    --build-arg RUNTIME_BUILD_BASE \
     --build-arg "HTTP_PROXY=" \
     --build-arg "HTTPS_PROXY=" \
     --build-arg "http_proxy=" \
@@ -142,6 +141,7 @@ build_one() {
   echo "=========================================="
   build_cmd+=(
     --build-arg "AGENT_RUNTIME=${rt}"
+    --build-arg RUNTIME_BUILD_BASE
     --build-arg "HTTP_PROXY="
     --build-arg "HTTPS_PROXY="
     --build-arg "http_proxy="
