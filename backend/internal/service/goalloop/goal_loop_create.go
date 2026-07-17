@@ -64,6 +64,9 @@ func (s *Service) validateWorkerSpecSnapshot(
 	if snapshot.OrganizationID != organizationID {
 		return ErrInvalidInput
 	}
+	if !workerspecdomain.HasResolvedProtocolAdapters(snapshot.Spec) {
+		return ErrInvalidInput
+	}
 	return nil
 }
 

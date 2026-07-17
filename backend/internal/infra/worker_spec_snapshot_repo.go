@@ -87,15 +87,15 @@ func workerSpecSnapshotFromRecord(record workerSpecSnapshotRecord) (domain.Snaps
 	if record.Version != domain.VersionV1 {
 		return domain.Snapshot{}, fmt.Errorf("%w: %d", domain.ErrUnsupportedVersion, record.Version)
 	}
-	spec, err := domain.DecodeSpec(record.SpecJSON)
+	spec, err := domain.DecodePersistedSpec(record.SpecJSON)
 	if err != nil {
 		return domain.Snapshot{}, err
 	}
-	summary, err := domain.DecodeSummary(record.SummaryJSON)
+	summary, err := domain.DecodePersistedSummary(record.SummaryJSON)
 	if err != nil {
 		return domain.Snapshot{}, err
 	}
-	expected, err := domain.Summarize(spec)
+	expected, err := domain.SummarizePersisted(spec)
 	if err != nil {
 		return domain.Snapshot{}, err
 	}

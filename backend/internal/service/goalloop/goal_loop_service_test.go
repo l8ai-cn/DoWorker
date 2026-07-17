@@ -26,6 +26,27 @@ func TestCreateRejectsUnavailableWorkerSnapshot(t *testing.T) {
 	require.Empty(t, repo.loops)
 }
 
+func TestCreateRejectsLegacyProtocolAdapterSnapshot(t *testing.T) {
+	repo := newGoalLoopTestRepo()
+	service := NewService(repo)
+	service.SetWorkerSpecSnapshotLoader(goalLoopSnapshotLoader{
+		snapshot: workerspecdomain.Snapshot{
+			ID:             3,
+			OrganizationID: 1,
+			Spec: workerspecdomain.Spec{
+				Runtime: workerspecdomain.Runtime{
+					ModelBinding: workerspecdomain.ModelBinding{ResourceID: 1},
+				},
+			},
+		},
+	})
+
+	_, err := service.Create(context.Background(), validCreateRequest())
+
+	require.ErrorIs(t, err, ErrInvalidInput)
+	require.Empty(t, repo.loops)
+}
+
 func TestListWorkerSnapshotsUsesOrganizationScopedSnapshotStore(t *testing.T) {
 	service := NewService(newGoalLoopTestRepo())
 	service.SetWorkerSpecSnapshotLoader(goalLoopSnapshotLoader{
@@ -60,6 +81,28 @@ func TestListWorkerSnapshotsReturnsValidatorFailure(t *testing.T) {
 	require.ErrorIs(t, err, expected)
 }
 
+func TestListWorkerSnapshotsExcludesLegacyProtocolAdapterSnapshot(t *testing.T) {
+	service := NewService(newGoalLoopTestRepo())
+	legacy := workerspecdomain.Snapshot{
+		ID: 4,
+		Spec: workerspecdomain.Spec{
+			Runtime: workerspecdomain.Runtime{
+				ModelBinding: workerspecdomain.ModelBinding{ResourceID: 1},
+			},
+		},
+	}
+	available := workerspecdomain.Snapshot{ID: 3}
+	service.SetWorkerSpecSnapshotLoader(goalLoopSnapshotLoader{
+		snapshots: []workerspecdomain.Snapshot{legacy, available},
+	})
+	service.SetWorkerTypeSnapshotValidator(&goalLoopWorkerTypeValidator{})
+
+	snapshots, err := service.ListWorkerSnapshots(context.Background(), 1, 2)
+
+	require.NoError(t, err)
+	require.Equal(t, []workerspecdomain.Snapshot{available}, snapshots)
+}
+
 func TestValidateWorkerSnapshotForExecutionRejectsDefinitionDrift(t *testing.T) {
 	service := NewService(newGoalLoopTestRepo())
 	service.SetWorkerSpecSnapshotLoader(goalLoopSnapshotLoader{
@@ -68,6 +111,26 @@ func TestValidateWorkerSnapshotForExecutionRejectsDefinitionDrift(t *testing.T) 
 	service.SetWorkerTypeSnapshotValidator(&goalLoopWorkerTypeValidator{
 		errs: []error{workercreation.ErrWorkerTypeDefinitionChanged},
 	})
+
+	err := service.ValidateWorkerSnapshotForExecution(context.Background(), 1, 2, 3)
+
+	require.ErrorIs(t, err, ErrInvalidInput)
+}
+
+func TestValidateWorkerSnapshotForExecutionRejectsLegacyProtocolAdapter(t *testing.T) {
+	service := NewService(newGoalLoopTestRepo())
+	service.SetWorkerSpecSnapshotLoader(goalLoopSnapshotLoader{
+		snapshot: workerspecdomain.Snapshot{
+			ID:             3,
+			OrganizationID: 1,
+			Spec: workerspecdomain.Spec{
+				Runtime: workerspecdomain.Runtime{
+					ModelBinding: workerspecdomain.ModelBinding{ResourceID: 1},
+				},
+			},
+		},
+	})
+	service.SetWorkerTypeSnapshotValidator(&goalLoopWorkerTypeValidator{})
 
 	err := service.ValidateWorkerSnapshotForExecution(context.Background(), 1, 2, 3)
 

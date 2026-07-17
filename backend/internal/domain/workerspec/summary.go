@@ -26,6 +26,18 @@ func Summarize(spec Spec) (Summary, error) {
 	if err != nil {
 		return Summary{}, err
 	}
+	return summarizeNormalized(normalized), nil
+}
+
+func SummarizePersisted(spec Spec) (Summary, error) {
+	normalized, err := NormalizeAndValidatePersisted(spec)
+	if err != nil {
+		return Summary{}, err
+	}
+	return summarizeNormalized(normalized), nil
+}
+
+func summarizeNormalized(normalized Spec) Summary {
 	return Summary{
 		Version:             normalized.Version,
 		ModelBinding:        normalized.Runtime.ModelBinding,
@@ -40,14 +52,25 @@ func Summarize(spec Spec) (Summary, error) {
 		KnowledgeMountCount: uint32(len(normalized.Workspace.KnowledgeMounts)),
 		EnvBundleCount:      uint32(len(normalized.Workspace.EnvBundleIDs)),
 		Lifecycle:           normalized.Lifecycle,
-	}, nil
+	}
 }
 
 func ValidateSummary(summary Summary) error {
+	return validateSummary(summary, validateModelBinding)
+}
+
+func ValidatePersistedSummary(summary Summary) error {
+	return validateSummary(summary, validatePersistedModelBinding)
+}
+
+func validateSummary(
+	summary Summary,
+	validateMainModelBinding func(ModelBinding) error,
+) error {
 	if summary.Version != VersionV1 {
 		return fmt.Errorf("workerspec summary version %d is unsupported", summary.Version)
 	}
-	if err := validateModelBinding(summary.ModelBinding); err != nil {
+	if err := validateMainModelBinding(summary.ModelBinding); err != nil {
 		return fmt.Errorf("workerspec summary: %w", err)
 	}
 	if err := validateToolModelBindings(summary.ToolModelBindings); err != nil {
