@@ -4,7 +4,7 @@ import "fmt"
 
 type GoalLoopResourceSpec struct {
 	WorkerTemplateRef   Reference `json:"workerTemplateRef" yaml:"workerTemplateRef"`
-	Description         string    `json:"description,omitempty" yaml:"description,omitempty"`
+	Description         string    `json:"description" yaml:"description"`
 	Objective           string    `json:"objective" yaml:"objective"`
 	AcceptanceCriteria  []string  `json:"acceptanceCriteria" yaml:"acceptanceCriteria"`
 	VerificationCommand string    `json:"verificationCommand" yaml:"verificationCommand"`
@@ -41,7 +41,7 @@ func validateGoalLoopResource(
 		"description",
 		spec.Description,
 		4_000,
-		false,
+		true,
 	); err != nil {
 		return err
 	}

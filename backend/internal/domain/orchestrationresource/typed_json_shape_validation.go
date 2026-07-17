@@ -8,13 +8,20 @@ import (
 )
 
 var jsonUnmarshalerType = reflect.TypeOf((*json.Unmarshaler)(nil)).Elem()
+var jsonRawMessageType = reflect.TypeOf(json.RawMessage{})
 
 func validateJSONValueShape(value any, targetType reflect.Type, path string, depth int) error {
-	if value == nil {
-		return nil
-	}
 	if depth > maxJSONDepth+1 {
 		return fmt.Errorf("%s exceeds maximum depth %d", path, maxJSONDepth)
+	}
+	if value == nil {
+		if targetType.Kind() == reflect.Interface || targetType == jsonRawMessageType {
+			return nil
+		}
+		return boundedTypedJSONError(
+			ErrTypedJSONType,
+			fmt.Sprintf("typed JSON type error: null is not allowed at path %s", path),
+		)
 	}
 	for targetType.Kind() == reflect.Pointer {
 		if targetType.Implements(jsonUnmarshalerType) {
