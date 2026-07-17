@@ -104,7 +104,7 @@ main() {
     generate_env
     source "$ENV_FILE"
     local lite_runner_mode=false
-    if dev_lite_enabled; then
+    if [[ "${DEV_LITE:-}" == "1" ]]; then
         lite_runner_mode=true
     fi
     local effective_runner_launcher

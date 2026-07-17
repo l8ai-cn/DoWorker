@@ -13,3 +13,4 @@ source "$ROOT/deploy/dev/lib/coordinator_runners.sh"
 [[ "$(resolve_effective_runners_launcher "" docker true)" == "coordinator" ]]
 
 grep -q 'persist_runners_launcher_mode "$effective_runner_launcher"' "$ROOT/deploy/dev/dev.sh"
+grep -q 'if \[\[ "${DEV_LITE:-}" == "1" \]\]' "$ROOT/deploy/dev/dev.sh"
