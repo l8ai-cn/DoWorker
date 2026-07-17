@@ -74,7 +74,7 @@ ROOT="$ROOT" bash -c '
 '
 
 require_command() {
-  grep -F "$1" "$LOG" >/dev/null || {
+  grep -F -- "$1" "$LOG" >/dev/null || {
     printf 'missing remote command: %s\n' "$1" >&2
     exit 1
   }
@@ -104,6 +104,13 @@ require_command '__BACKEND_DIGEST__'
 require_command 'kubectl -n agentsmesh wait --for=condition=complete job/migrate --timeout=300s'
 require_command 'kubectl apply -f /tmp/agentsmesh-release.yaml'
 require_command 'kubectl -n agentsmesh rollout status deploy/backend --timeout=300s'
+require_command "https://health-preview.l8ai.cn/"
+require_command "--write-out '%{remote_ip}'"
+require_command 'test -n "${reference_ip}"'
+require_command 'test "${reference_ip}" = "${hostname_ip}"'
+require_command 'https://release-preview-probe.l8ai.cn/preview/release-preview-probe/'
+require_command 'test "${status}" = 401'
+require_command 'grep -Fxq token_required "$body"'
 require_command 'kubectl apply -f 21-seed-configmap.yaml'
 require_command '22-seed-job.yaml | kubectl apply -f -'
 require_command '13-minio-setup-job.yaml | kubectl apply -f -'
@@ -138,8 +145,14 @@ grep -F 'command: ["/app/server", "migrate", "up"]' "$ROOT/20-migrate-job.yaml" 
 ! grep -A12 -F 'initContainers:' "$ROOT/30-backend.yaml" | grep -F 'name: migrate' >/dev/null
 grep -F 'workspace-artifacts/' "$ROOT/13-minio-setup-job.yaml" >/dev/null
 grep -F -- '--expire-days 1' "$ROOT/13-minio-setup-job.yaml" >/dev/null
-grep -F 'PREVIEW_PUBLIC_ORIGIN: "https://preview.dowork.l8ai.cn"' "$ROOT/02-configmap.yaml" >/dev/null
+grep -F 'PREVIEW_PUBLIC_ORIGIN: "https://l8ai.cn"' "$ROOT/02-configmap.yaml" >/dev/null
 grep -F 'PREVIEW_COOKIE_MODE: "partitioned"' "$ROOT/02-configmap.yaml" >/dev/null
-grep -F 'host: "*.preview.dowork.l8ai.cn"' "$ROOT/44-preview-ingress.yaml" >/dev/null
+grep -F 'host: "*.l8ai.cn"' "$ROOT/44-preview-ingress.yaml" >/dev/null
+grep -F 'secretName: l8ai-wildcard-tls' "$ROOT/44-preview-ingress.yaml" >/dev/null
+grep -F 'ensure_tls_secret "l8ai-wildcard-tls" "dowork.l8ai.cn" "health-preview.l8ai.cn"' "$ROOT/deploy.sh" >/dev/null
+! grep -F 'dowork-preview-wildcard-tls' \
+  "$ROOT/02-configmap.yaml" "$ROOT/44-preview-ingress.yaml" "$ROOT/deploy.sh" "$ROOT/README.md" >/dev/null
+probe_command="$(grep -F 'https://release-preview-probe.l8ai.cn/preview/release-preview-probe/' "$LOG")"
+! grep -Fq -- '--insecure' <<<"$probe_command"
 grep -F 'release_require_pushed_clean_tree' "$ROOT/deploy.sh" >/dev/null
 grep -F 'clean -session ses-contract' "$LOG" >/dev/null

@@ -6,7 +6,7 @@ metadata:
 data:
   PRIMARY_DOMAIN: "dowork.l8ai.cn"
   PUBLIC_WEB_URL: "https://dowork.l8ai.cn"
-  PREVIEW_PUBLIC_ORIGIN: "https://preview.dowork.l8ai.cn"
+  PREVIEW_PUBLIC_ORIGIN: "https://l8ai.cn"
   PREVIEW_COOKIE_MODE: "partitioned"
   MOBILE_PUBLIC_BASE_URL: "https://mobile.l8ai.cn"
   RELAY_ALLOWED_ORIGINS: "https://dowork.l8ai.cn,https://mobile.l8ai.cn"
