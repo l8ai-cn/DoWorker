@@ -29,7 +29,7 @@ export function AcpPromptInput({ podKey }: AcpPromptInputProps) {
   );
 
   const submitPrompt = useCallback(
-    (raw: string) => {
+    async (raw: string) => {
       const resolved = slash.resolveSubmit(raw);
       if (!resolved) return;
       if (!relayPool.isConnected(podKey)) {
@@ -39,9 +39,11 @@ export function AcpPromptInput({ podKey }: AcpPromptInputProps) {
       setSending(true);
       setError(null);
       try {
-        relayPool.sendAcpCommand(podKey, { type: "prompt", prompt: resolved.prompt });
+        await relayPool.sendAcpCommand(podKey, { type: "prompt", prompt: resolved.prompt });
         setPrompt("");
         slash.setVisible(false);
+      } catch {
+        setError(tPrompt("notConnected"));
       } finally {
         setSending(false);
       }
@@ -51,7 +53,7 @@ export function AcpPromptInput({ podKey }: AcpPromptInputProps) {
 
   const handleSend = useCallback(() => {
     if (!prompt.trim() || sending || isProcessing) return;
-    submitPrompt(prompt);
+    void submitPrompt(prompt);
   }, [prompt, sending, isProcessing, submitPrompt]);
 
   const handleCancel = useCallback(() => {
@@ -60,7 +62,9 @@ export function AcpPromptInput({ podKey }: AcpPromptInputProps) {
       return;
     }
     setError(null);
-    relayPool.sendAcpCommand(podKey, { type: "interrupt" });
+    void Promise.resolve(relayPool.sendAcpCommand(podKey, { type: "interrupt" })).catch(() => {
+      setError(tPrompt("notConnected"));
+    });
   }, [podKey, tPrompt]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

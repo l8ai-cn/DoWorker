@@ -1,22 +1,28 @@
 package extension
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-// PackageFromDir packages an already-materialized skill directory (must contain
-// a SKILL.md at its root) via the existing filesystem-based pipeline
-// (parseSkillDir + computeDirSHA + packageSkillDir) and uploads the artifact to
-// object storage. This is the bridge the git-backed skill service uses after
-// materializing an am-skills repo tree into a temp dir — the packager stays
-// filesystem-based and unaware of gitops.
-//
-// It is a thin, exported wrapper over the private packageDir used by
-// PackageFromGitHub / PackageFromUpload; those flows are unchanged.
+// PackageFromDir is the combined compatibility path for callers that do not
+// coordinate package publication with a catalog transaction.
 func (p *SkillPackager) PackageFromDir(ctx context.Context, dir string) (*PackagedSkill, error) {
+	prepared, err := p.PrepareFromDir(ctx, dir)
+	if err != nil {
+		return nil, err
+	}
+	return p.StorePrepared(ctx, prepared)
+}
+
+func (p *SkillPackager) PrepareFromDir(_ context.Context, dir string) (*PreparedSkill, error) {
 	if !fileExists(filepath.Join(dir, "SKILL.md")) {
 		return nil, fmt.Errorf("SKILL.md not found in %s", dir)
 	}
@@ -26,5 +32,79 @@ func (p *SkillPackager) PackageFromDir(ctx context.Context, dir string) (*Packag
 	if _, err := os.Stat(dir); err != nil {
 		return nil, fmt.Errorf("skill dir: %w", err)
 	}
-	return p.packageDir(ctx, dir)
+	return p.prepareDir(dir)
+}
+
+func (p *SkillPackager) PrepareCatalogFromDir(
+	ctx context.Context,
+	dir, repoIdentity string,
+) (*PreparedSkill, error) {
+	if strings.TrimSpace(repoIdentity) == "" {
+		return nil, fmt.Errorf("catalog repository identity is required")
+	}
+	prepared, err := p.PrepareFromDir(ctx, dir)
+	if err != nil {
+		return nil, err
+	}
+	identityHash := sha256.Sum256([]byte(repoIdentity))
+	prepared.StorageKey = fmt.Sprintf(
+		"skills/catalog/%s/%s.tar.gz",
+		hex.EncodeToString(identityHash[:]),
+		prepared.ContentSha,
+	)
+	return prepared, nil
+}
+
+func (p *SkillPackager) StorePrepared(
+	ctx context.Context,
+	prepared *PreparedSkill,
+) (*PackagedSkill, error) {
+	exists, err := p.storage.Exists(ctx, prepared.StorageKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check existing package: %w", err)
+	}
+	created := !exists
+	if created {
+		_, err = p.storage.Upload(
+			ctx,
+			prepared.StorageKey,
+			bytes.NewReader(prepared.Data),
+			prepared.PackageSize,
+			"application/gzip",
+		)
+		if err != nil {
+			slog.ErrorContext(
+				ctx,
+				"failed to upload skill package",
+				"slug", prepared.Slug,
+				"storage_key", prepared.StorageKey,
+				"error", err,
+			)
+			return nil, fmt.Errorf("failed to upload: %w", err)
+		}
+	}
+	slog.InfoContext(
+		ctx,
+		"skill package ready",
+		"slug", prepared.Slug,
+		"content_sha", prepared.ContentSha,
+		"package_size", prepared.PackageSize,
+		"created", created,
+	)
+	return &PackagedSkill{
+		Slug:        prepared.Slug,
+		DisplayName: prepared.DisplayName,
+		Description: prepared.Description,
+		ContentSha:  prepared.ContentSha,
+		StorageKey:  prepared.StorageKey,
+		PackageSize: prepared.PackageSize,
+		Created:     created,
+	}, nil
+}
+
+func (p *SkillPackager) DeletePackage(ctx context.Context, storageKey string) error {
+	if err := p.storage.Delete(ctx, storageKey); err != nil {
+		return fmt.Errorf("delete skill package %q: %w", storageKey, err)
+	}
+	return nil
 }

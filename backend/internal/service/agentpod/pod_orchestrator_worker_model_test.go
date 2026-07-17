@@ -134,6 +134,50 @@ func TestApplyWorkerModelRejectsWorkerSpecModelDrift(t *testing.T) {
 	assert.Empty(t, req.ModelResourceEnv)
 }
 
+func TestApplyWorkerModelUsesPreparedWorkerSpecProtocolAdapter(t *testing.T) {
+	spec := podServiceWorkerSpec()
+	spec.Runtime.WorkerType.Slug = slugkit.MustNewForTest("openclaw")
+	resource := resolvedOpenAIResource()
+	resource.Connection.ID = spec.Runtime.ModelBinding.ConnectionID
+	resource.Connection.Revision = spec.Runtime.ModelBinding.ConnectionRevision
+	resource.Connection.ProviderKey = spec.Runtime.ModelBinding.ProviderKey
+	resource.Resource.ID = spec.Runtime.ModelBinding.ResourceID
+	resource.Resource.ProviderConnectionID = resource.Connection.ID
+	resource.Resource.Revision = spec.Runtime.ModelBinding.ResourceRevision
+	resource.Resource.ModelID = spec.Runtime.ModelBinding.ModelID
+	resolver := &recordingModelResourceResolver{resource: resource}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := spec.Runtime.ModelBinding.ResourceID
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug:          "openclaw",
+		UserID:             7,
+		OrganizationID:     11,
+		ModelResourceID:    &resourceID,
+		preparedWorkerSpec: &spec,
+	}
+
+	require.NoError(t, orchestrator.applyWorkerModel(context.Background(), req, nil))
+
+	assert.Equal(t, []string{"openai-compatible"}, resolver.requirements.AllowedProtocolAdapters)
+}
+
+func TestValidatePreparedModelBindingRejectsProtocolAdapterDrift(t *testing.T) {
+	spec := podServiceWorkerSpec()
+	spec.Runtime.ModelBinding.ProtocolAdapter = slugkit.MustNewForTest("anthropic")
+	resource := resolvedOpenAIResource()
+	resource.Connection.ID = spec.Runtime.ModelBinding.ConnectionID
+	resource.Connection.Revision = spec.Runtime.ModelBinding.ConnectionRevision
+	resource.Connection.ProviderKey = spec.Runtime.ModelBinding.ProviderKey
+	resource.Resource.ID = spec.Runtime.ModelBinding.ResourceID
+	resource.Resource.ProviderConnectionID = resource.Connection.ID
+	resource.Resource.Revision = spec.Runtime.ModelBinding.ResourceRevision
+	resource.Resource.ModelID = spec.Runtime.ModelBinding.ModelID
+
+	err := validatePreparedModelBinding(spec.Runtime.ModelBinding, resource)
+
+	require.ErrorIs(t, err, ErrWorkerSpecModelChanged)
+}
+
 func TestApplyWorkerModelUsesCustomAgentExecutable(t *testing.T) {
 	resolver := &recordingModelResourceResolver{resource: resolvedOpenAIResource()}
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
@@ -194,12 +238,13 @@ func TestApplyWorkerModelConfiguresGeminiModelExactly(t *testing.T) {
 
 	require.NoError(t, orchestrator.applyWorkerModel(context.Background(), req, nil))
 
-	assert.Equal(t, "sk-test", req.ModelResourceEnv["GOOGLE_API_KEY"])
+	assert.Equal(t, "sk-test", req.ModelResourceEnv["GEMINI_API_KEY"])
+	assert.NotContains(t, req.ModelResourceEnv, "GOOGLE_API_KEY")
 	assert.Equal(t, []string{"--model", "gemini-pro"}, req.ModelResourceArgs)
 	assert.Nil(t, req.AgentfileLayer)
 }
 
-func TestApplyWorkerModelConfiguresOpenClawModelExactly(t *testing.T) {
+func TestApplyWorkerModelConfiguresOpenClawWithFormalOpenAIContract(t *testing.T) {
 	resolver := &recordingModelResourceResolver{resource: resolvedResource("xai", "https://api.x.ai/v1", `grok "fast"`)}
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
 	resourceID := int64(9)
@@ -209,17 +254,17 @@ func TestApplyWorkerModelConfiguresOpenClawModelExactly(t *testing.T) {
 
 	require.NoError(t, orchestrator.applyWorkerModel(context.Background(), req, nil))
 
-	assert.Equal(t, []string{"openai-compatible", "anthropic", "gemini"}, resolver.requirements.AllowedProtocolAdapters)
-	assert.Equal(t, "sk-test", req.ModelResourceEnv["XAI_API_KEY"])
-	assert.Equal(t, "sk-test", req.ModelResourceEnv["OPENAI_API_KEY"])
-	assert.Equal(t, "https://api.x.ai/v1", req.ModelResourceEnv["OPENAI_BASE_URL"])
-	assert.Equal(t, `grok "fast"`, req.ModelResourceEnv["OPENAI_MODEL"])
-	require.NotNil(t, req.AgentfileLayer)
-	assert.Contains(t, *req.AgentfileLayer, `CONFIG model = "grok \"fast\""`)
+	assert.Equal(t, []string{"openai-compatible"}, resolver.requirements.AllowedProtocolAdapters)
+	assert.Equal(t, map[string]string{
+		"OPENAI_API_KEY":  "sk-test",
+		"OPENAI_BASE_URL": "https://api.x.ai/v1",
+		"OPENAI_MODEL":    `grok "fast"`,
+	}, req.ModelResourceEnv)
+	assert.Nil(t, req.AgentfileLayer)
 }
 
-func TestApplyWorkerModelConfiguresHermesGeminiResource(t *testing.T) {
-	resolver := &recordingModelResourceResolver{resource: resolvedResource("gemini", "", "gemini-pro")}
+func TestApplyWorkerModelConfiguresHermesWithFormalOpenAIContract(t *testing.T) {
+	resolver := &recordingModelResourceResolver{resource: resolvedOpenAIResource()}
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
 	resourceID := int64(9)
 	req := &OrchestrateCreatePodRequest{
@@ -228,10 +273,12 @@ func TestApplyWorkerModelConfiguresHermesGeminiResource(t *testing.T) {
 
 	require.NoError(t, orchestrator.applyWorkerModel(context.Background(), req, nil))
 
-	assert.Equal(t, []string{"openai-compatible", "anthropic", "gemini"}, resolver.requirements.AllowedProtocolAdapters)
-	assert.Equal(t, "sk-test", req.ModelResourceEnv["GOOGLE_API_KEY"])
-	assert.Equal(t, "sk-test", req.ModelResourceEnv["GEMINI_API_KEY"])
-	assert.Equal(t, "gemini-pro", req.ModelResourceEnv["GEMINI_MODEL"])
+	assert.Equal(t, []string{"openai-compatible"}, resolver.requirements.AllowedProtocolAdapters)
+	assert.Equal(t, map[string]string{
+		"OPENAI_API_KEY":  "sk-test",
+		"OPENAI_BASE_URL": "https://api.openai.com/v1",
+		"OPENAI_MODEL":    "gpt-5.1",
+	}, req.ModelResourceEnv)
 	assert.Nil(t, req.AgentfileLayer)
 }
 
@@ -243,10 +290,38 @@ func TestApplyModelResourceArgsRejectsConflictingModel(t *testing.T) {
 	require.ErrorIs(t, err, ErrModelResourceCommandConflict)
 }
 
-func TestModelResourceRequirementsDoNotInventMiniMaxCli(t *testing.T) {
-	_, needsResource := modelResourceRequirements("unsupported-cli", nil)
+func TestApplyModelResourceArgsAddsBaseURL(t *testing.T) {
+	args, err := applyModelResourceArgs(
+		[]string{"text", "repl"},
+		[]string{"--base-url", "https://api.minimaxi.com/v1"},
+	)
 
-	assert.False(t, needsResource)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"text", "repl", "--base-url", "https://api.minimaxi.com/v1"}, args)
+}
+
+func TestApplyWorkerModelConfiguresMiniMaxCLIModel(t *testing.T) {
+	resolver := &recordingModelResourceResolver{
+		resource: resolvedResource("minimax", "https://api.minimax.io/v1", "MiniMax-M2.5"),
+	}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{ModelResources: resolver})
+	resourceID := int64(9)
+	req := &OrchestrateCreatePodRequest{
+		AgentSlug: "minimax-cli", UserID: 7, OrganizationID: 11, ModelResourceID: &resourceID,
+	}
+
+	require.NoError(t, orchestrator.applyWorkerModel(
+		context.Background(),
+		req,
+		&agentDomain.Agent{Executable: "mmx"},
+	))
+
+	assert.Equal(t, []string{"minimax"}, resolver.requirements.AllowedProtocolAdapters)
+	assert.Equal(t, map[string]string{"MINIMAX_API_KEY": "sk-test"}, req.ModelResourceEnv)
+	require.NotNil(t, req.AgentfileLayer)
+	assert.Contains(t, *req.AgentfileLayer, `CONFIG model = "MiniMax-M2.5"`)
+	assert.Equal(t, []string{"--base-url", "https://api.minimax.io"}, req.ModelResourceArgs)
+	assert.Contains(t, *req.AgentfileLayer, `CONFIG base_url = "https://api.minimax.io"`)
 }
 
 func TestApplyWorkerModelDoAgentUsesConfigBundle(t *testing.T) {

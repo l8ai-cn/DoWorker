@@ -146,11 +146,32 @@
       "loadSchemaFailed": "Failed to load configuration schema",
       "noConfigFields": "No configuration options available for this agent",
       "invalidJson": "Invalid JSON format",
-      "credentials": {
-        "title": "API Credentials",
-        "description": "Provider credentials are managed in AI Resources. Runtime env bundles must not contain model API secrets."
-      },
-      "runtime": {
+    "credentials": {
+      "title": "API Credentials",
+      "description": "Provider credentials are managed in AI Resources. Runtime env bundles must not contain model API secrets."
+    },
+    "credentialBundles": {
+      "title": "Paquetes de credenciales",
+      "description": "Guarda las credenciales de conexión de este Worker como paquetes cifrados. Elige un paquete predeterminado al crear un Worker.",
+      "empty": "Aún no hay paquetes de credenciales. Añade uno para reutilizarlo al crear Workers.",
+      "noKeys": "No hay campos de credenciales configurados",
+      "add": "Añadir",
+      "addTitle": "Añadir paquete de credenciales",
+      "editTitle": "Editar paquete de credenciales",
+      "name": "Nombre",
+      "namePlaceholder": "p. ej. personal-cursor / team-openai",
+      "descriptionLabel": "Descripción",
+      "clearDefault": "Quitar predeterminado",
+      "confirmDelete": "¿Eliminar este paquete de credenciales? Los Workers que lo usan dejarán de recibir estas credenciales.",
+      "created": "Paquete de credenciales creado",
+      "updated": "Paquete de credenciales actualizado",
+      "deleted": "Paquete de credenciales eliminado",
+      "defaultSet": "Paquete de credenciales predeterminado actualizado",
+      "saveFailed": "No se pudo guardar el paquete de credenciales",
+      "failedToSetDefault": "No se pudo establecer el paquete predeterminado",
+      "failedToDelete": "No se pudo eliminar el paquete de credenciales"
+    },
+    "runtime": {
         "title": "Runtime Configuration",
         "description": "Set default runtime parameters for this agent. These settings will be used when creating new pods."
       },
@@ -468,6 +489,7 @@
       "justNow": "Just now",
       "edit": "Edit",
       "generateToken": "Generate Token",
+      "selectCluster": "Select execution cluster",
       "delete": "Delete",
       "disabled": "Disabled",
       "upgradeAvailable": "Actualizar",

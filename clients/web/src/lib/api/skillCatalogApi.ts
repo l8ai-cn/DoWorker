@@ -16,6 +16,7 @@ export interface UpdateCatalogSkillInput {
   description?: string;
   license?: string;
   instructions?: string;
+  tags?: string[];
 }
 
 export interface ImportSkillsResult {
@@ -34,6 +35,14 @@ export const skillCatalogApi = {
     const r = await lightFetch<{ skills: CatalogSkill[]; total: number }>(base(), {
       authenticated: true,
       query: { limit, offset },
+    });
+    return { skills: r?.skills ?? [], total: r?.total ?? 0 };
+  },
+
+  listAll: async (): Promise<{ skills: CatalogSkill[]; total: number }> => {
+    const r = await lightFetch<{ skills: CatalogSkill[]; total: number }>(base(), {
+      authenticated: true,
+      query: { all: true },
     });
     return { skills: r?.skills ?? [], total: r?.total ?? 0 };
   },

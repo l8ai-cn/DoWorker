@@ -5,14 +5,127 @@
       "previous": "Previous",
       "next": "Next"
     },
+    "workerRuntime": {
+      "title": "Worker Types & Runtime",
+      "description": "A Worker is the user-facing unit that runs and manages an AI tool. The control plane still uses PodService and pod_key internally, but the product, form, and documentation use Worker. A formal Definition alone never makes a type supported: its published runtime digest must be pullable and its full product path must be verified.",
+      "catalog": {
+        "title": "Current Catalog State",
+        "defined": "Formal definitions",
+        "deployable": "Formally deployable",
+        "localEvidence": "Local flow verified, release blocked",
+        "releaseBlocked": "Release blocked",
+        "note": "The counts are independent release signals. This state is generated from Worker Definitions, the runtime lock pull probe, and the evidence matrix. A digest written in the lock file is not a usable runtime until the configured registry can serve it.",
+        "workersTitle": "Actual Contract for Each Worker"
+      },
+      "createFlow": {
+        "title": "Four-Step Creation Flow",
+        "description": "The wizard collects inputs in dependency order. A later step is available only after the preceding step is valid.",
+        "step": "Step {number}",
+        "runtime": {
+          "title": "Runtime",
+          "description": "Select a compatible model resource when required, then choose the Worker type, runtime image, compute target, deployment mode, and resource profile."
+        },
+        "typeConfig": {
+          "title": "Type Configuration",
+          "description": "Fill only the CONFIG fields declared by the Worker Definition. Credentials enter through declared credential bundles or model-resource references; the form never accepts plaintext keys."
+        },
+        "workspace": {
+          "title": "Workspace",
+          "description": "Optionally select a repository and branch, then add skills, knowledge, environment bundles, instructions, an initial task, an alias, and a termination policy."
+        },
+        "preflight": {
+          "title": "Preflight & Create",
+          "description": "The server validates the option revision, Definition-derived type contract, model resource, runtime image, placement, references, and configuration before it creates the Worker."
+        }
+      },
+      "truth": {
+        "title": "Three Sources of Truth",
+        "definition": "The Worker Definition declares the executable, explicit adapter, PTY/ACP modes, model protocols, credential injection, type configuration, and configuration documents.",
+        "runtime": "The Runtime Catalog requires a sha256 digest and a successful pull probe of that exact reference. A configured but unpullable digest is release-blocked, not an available runtime.",
+        "evidence": "The Evidence Matrix records real image, Runner, API, Rust Core, and browser results. Local product evidence never overrides a failed published-runtime probe."
+      },
+      "labels": {
+        "executable": "Executable",
+        "adapter": "Explicit adapter",
+        "modes": "Interaction modes",
+        "modelResource": "Model resource",
+        "runtimeImage": "Runtime image",
+        "credentials": "Credential bindings",
+        "configFields": "Type form fields",
+        "configDocuments": "Configuration documents"
+      },
+      "model": {
+        "required": "Compatible protocol required: {protocols}",
+        "notRequired": "No platform model resource required"
+      },
+      "runtime": {
+        "locked_available": "published digest verified",
+        "invalid_published_digest": "configured digest cannot be pulled",
+        "blocked_no_published_digest": "no published immutable runtime digest"
+      },
+      "binding": {
+        "model_resource": "model resource",
+        "credential_bundle": "credential bundle"
+      },
+      "none": "None",
+      "noConfigFields": "No Worker-specific form fields.",
+      "noConfigDocuments": "No additional configuration documents.",
+      "status": {
+        "verified_local_dev": "Verified in local development",
+        "local_evidence_release_blocked": "Local product flow verified; release image blocked",
+        "requires_model_resource": "Runtime ready; model resource missing",
+        "runtime_ready_unverified": "Runtime ready; validation incomplete",
+        "invalid_published_runtime": "Configured release digest cannot be pulled",
+        "runtime_image_unavailable": "Runtime image unavailable"
+      },
+      "runnerLink": "Continue to Runner setup and runtime requirements"
+    },
+    "workerTutorial": {
+      "title": "Create Your First Worker",
+      "description": "This tutorial follows the current four-step create wizard. It does not ask you to discover arbitrary CLIs on a Runner host or enter API keys as plaintext form values.",
+      "beforeYouStart": {
+        "title": "Before You Start",
+        "runner": "At least one Runner is online and the organization has a selectable compute target.",
+        "runtime": "The selected Worker type has an immutable runtime image. The catalog page shows types that are missing one.",
+        "resource": "For a type that requires one, create and enable a protocol-compatible model resource in Settings → AI Resources."
+      },
+      "steps": {
+        "runtime": {
+          "title": "Choose a Runtime",
+          "description": "Choose a Worker type without a blocker, then select its runtime image, compute target, deployment mode, resource profile, and interaction mode.",
+          "details": "For types that require a model resource, the picker shows only enabled chat/text-generation resources with a compatible protocol."
+        },
+        "configuration": {
+          "title": "Fill Type Configuration",
+          "description": "Fill only fields declared by the Worker Definition, such as Codex CLI approval_mode or Gemini CLI sandbox_mode.",
+          "details": "Credential bundles expose only fields declared by the type. Model resources inject their values into target environment variables; plaintext keys never enter WorkerSpec."
+        },
+        "workspace": {
+          "title": "Configure the Workspace",
+          "description": "Optionally select a repository and branch, add skills, knowledge, and environment bundles, then set instructions, an initial task, an alias, and a termination policy.",
+          "details": "Without a repository, the Worker can still start in an isolated work directory to validate a runtime and model resource first."
+        },
+        "preflight": {
+          "title": "Pass Preflight and Create",
+          "description": "Resolve every blocking preflight issue. Create Worker is available only after the server returns a resolved WorkerSpec.",
+          "details": "After creation, acquire control and send a non-destructive prompt. Terminate a disposable validation Worker and confirm that it is no longer active."
+        }
+      },
+      "result": {
+        "title": "Completion Criteria",
+        "description": "The Worker connects to Web and Relay, control is acquired, a prompt executes and returns the expected result. A disposable validation Worker ends in completed or terminated state.",
+        "catalogLink": "Inspect the configuration and verification state for every Worker"
+      }
+    },
     "nav": {
       "gettingStarted": "Getting Started",
       "introduction": "Introduction",
       "quickStart": "Quick Start",
       "coreConcepts": "Core Concepts",
+      "loopAndWorkflow": "Loops and Workflows",
       "concepts": "Concepts",
       "features": "Features",
-      "agentpod": "AgentPod",
+      "agentpod": "Workers",
       "workspace": "Workspace",
       "channels": "Channels",
       "meshTopology": "Mesh Topology",
@@ -32,7 +145,7 @@
       "api": "API",
       "apiOverview": "Overview",
       "apiAuthentication": "Authentication",
-      "apiPods": "Pods API",
+      "apiPods": "Workers API",
       "apiTickets": "Tickets API",
       "apiChannels": "Channels API",
       "apiWorkflows": "Workflows API",
@@ -42,7 +155,7 @@
       "tutorialRunnerSetup": "Runner Setup",
       "tutorialGitSetup": "Connect Git Repos",
       "tutorialMcpSkills": "MCP & Skills",
-      "tutorialFirstPod": "Your First Pod",
+      "tutorialFirstPod": "Your First Worker",
       "tutorialTicketWorkflow": "Task Management",
       "tutorialMultiAgent": "Multi-Agent Collaboration",
       "tutorialWorkflows": "Automated Workflows",
@@ -52,13 +165,13 @@
     },
     "intro": {
       "title": "Introduction",
-      "description": "Do Worker is The AI Agent Workforce Platform that enables teams to orchestrate AI coding agents like Claude Code, Codex CLI, Gemini CLI, and Aider at scale. Manage remote AI workstations (AgentPod), coordinate multi-agent collaboration (Mesh), and track progress with integrated task management — all from a single platform.",
+      "description": "Do Worker runs AI tools through verifiable Worker contracts: formal Definitions declare adapters, configuration, and credential references; the runtime catalog selects immutable images; Runners execute isolated workspaces. The create wizard shows real availability and blockers instead of treating every defined tool as supported.",
       "supportedAgents": "Supported AI Agents:",
       "customAgents": "Custom agents via MCP protocol"
     },
     "architecture": {
       "title": "How It Works",
-      "description": "Do Worker lets you control AI agents running anywhere — on your laptop, a server, or a cloud VM — from your browser. Commands are sent securely over encrypted connections, while terminal output streams in real time. Your code never leaves your infrastructure.",
+      "description": "Do Worker lets you control Workers running on a laptop, server, or cloud VM from your browser. Commands travel over encrypted connections while terminal output streams in real time; code remains in your infrastructure.",
       "clientLayer": "Client Layer",
       "clientSubtitle": "Access from anywhere — browser, phone, or tablet",
       "cloudLayer": "Cloud",
@@ -70,7 +183,7 @@
         "security": "Security"
       },
       "controlPlane": "Control Plane",
-      "controlPlaneDesc": "Pod lifecycle, agent commands, status sync",
+      "controlPlaneDesc": "Worker lifecycle, task commands, status sync",
       "dataPlane": "Data Plane",
       "dataPlaneDesc": "Terminal I/O, real-time streaming",
       "cluster": "Cluster",
@@ -80,25 +193,28 @@
       "runnerMac": "macOS",
       "runnerLinux": "Linux",
       "runnerCloud": "Cloud VM",
-      "agentLayer": "Agent Layer",
-      "agentSubtitle": "AI coding agents running in isolated Pods",
+      "workerLayer": "Worker Contract Layer",
+      "workerSubtitle": "Definitions, immutable runtime images, and validation evidence determine availability",
+      "workerDefinition": "Worker Definition",
+      "runtimeCatalog": "Runtime Catalog",
+      "evidenceMatrix": "Evidence Matrix",
       "securityTitle": "Security Architecture — Dual-Path Design",
-      "securityDesc": "Control signals (pod creation, agent commands, status updates) travel through gRPC secured with mutual TLS (mTLS) — each Runner holds a unique X.509 certificate issued by the platform PKI. Terminal data streams (keystrokes, output) flow through the Relay cluster, keeping latency-sensitive I/O on a separate, optimized path. This dual-path design ensures you can securely operate AI agents on any machine, from any device, anywhere in the world."
+      "securityDesc": "Control signals (Worker creation, task commands, status updates) travel through gRPC secured with mutual TLS (mTLS) — each Runner holds a unique X.509 certificate issued by the platform PKI. Terminal data streams (keystrokes, output) flow through the Relay cluster, keeping latency-sensitive I/O on a separate, optimized path."
     },
     "whatYouCanDo": {
       "title": "What You Can Do",
       "description": "Do Worker gives your team superpowers for AI-driven development.",
       "orchestrate": {
-        "title": "Orchestrate Multiple AI Agents",
-        "description": "Coordinate Claude Code, Codex CLI, Gemini CLI, Aider and more working together through channels and pod bindings."
+        "title": "Coordinate Multiple Workers",
+        "description": "Coordinate different Workers through channels and tickets. The Worker catalog is the source of truth for creatable types, credentials, and runtimes."
       },
       "remoteWorkstation": {
-        "title": "Remote AI Workstations",
-        "description": "Launch AgentPods — cloud-based development environments with real-time terminal access, Git worktree isolation, and full AI agent capabilities."
+        "title": "Isolated Worker Runtimes",
+        "description": "Each Worker runs in an isolated Pod on a Runner with terminal access, optional Git worktrees, and controlled model-resource injection."
       },
       "taskDriven": {
         "title": "Task-Driven Development",
-        "description": "Create tickets, bind them to AgentPods, and track progress on a Kanban board. From requirements to execution to delivery."
+        "description": "Link tickets to Workers, track progress on a Kanban board, and pass context through instructions and initial tasks."
       },
       "selfHosted": {
         "title": "Self-Hosted & Secure",
@@ -109,10 +225,10 @@
       "title": "Quick Links",
       "quickStart": "Quick Start",
       "quickStartDesc": "Get up and running in 5 minutes",
-      "agentpod": "AgentPod",
-      "agentpodDesc": "Remote AI development workstations",
-      "agentsmesh": "Do Worker",
-      "agentsmeshDesc": "Multi-agent collaboration network",
+      "agentpod": "Worker Types & Runtime",
+      "agentpodDesc": "Adapters, credentials, configuration, and real validation state for every tool",
+      "agentsmesh": "Channel Collaboration",
+      "agentsmeshDesc": "Share messages, documents, and task context between Workers",
       "mcpTools": "MCP Tools",
       "mcpToolsDesc": "24 tools for AI agents"
     },
@@ -121,17 +237,17 @@
       "description": "Understand the foundational concepts behind Do Worker to make the most of the platform.",
       "architecture": {
         "title": "Architecture Overview",
-        "description": "Do Worker follows a layered architecture where Organizations manage teams, Runners provide compute, and Pods execute AI agents.",
+        "description": "Do Worker follows a layered architecture: Organizations manage members and resources, Runners provide compute, and Workers execute in Pods.",
         "orgTitle": "Organization",
         "orgDesc": "The top-level entity. Each organization has its own members, settings, runners, and billing. Teams can invite members with different roles.",
         "runnerTitle": "Runner",
-        "runnerDesc": "A self-hosted daemon that connects to the Do Worker backend via gRPC with mTLS. Runners provide the compute environment where Pods execute. You can run multiple Runners across different machines.",
-        "podTitle": "Pod (AgentPod)",
-        "podDesc": "An isolated execution environment where an AI coding agent runs. Each Pod has its own PTY terminal, sandbox, and optional Git worktree. Pods are created on Runners and managed through the web interface.",
+        "runnerDesc": "A self-hosted daemon that connects to the Do Worker backend via gRPC with mTLS. Runners provide the compute environment where Workers and Pods execute.",
+        "podTitle": "Workers and Pods",
+        "podDesc": "A Worker is the user-created execution unit; a Runner resolves it into an isolated Pod. Each Pod has its own PTY, sandbox, and optional Git worktree.",
         "channelTitle": "Channel",
-        "channelDesc": "A communication hub where multiple Pods can exchange messages, share documents, and coordinate work. Channels can be associated with projects and tickets.",
+        "channelDesc": "A communication hub where multiple Workers can exchange messages, share documents, and coordinate work. Channels can be associated with projects and tickets.",
         "ticketTitle": "Ticket",
-        "ticketDesc": "A task management unit with Kanban board support. Tickets can be linked to Pods for automatic context injection and progress tracking."
+        "ticketDesc": "A task management unit with Kanban board support. Tickets can be linked to Workers for automatic context injection and progress tracking."
       },
       "byok": {
         "title": "BYOK (Bring Your Own Key)",
@@ -143,7 +259,7 @@
       },
       "sandbox": {
         "title": "Sandbox & Git Worktree Isolation",
-        "description": "Each Pod runs in an isolated sandbox environment. When a repository is linked, the Runner creates a dedicated Git worktree so multiple Pods can work on the same repository simultaneously without conflicts. Worktrees are automatically cleaned up when Pods terminate."
+        "description": "Each Worker's Pod runs in an isolated sandbox. When a repository is linked, the Runner creates a dedicated Git worktree so multiple Workers can work on the same repository without conflicts. Worktrees are cleaned up when Pods terminate."
       },
       "mcp": {
         "title": "MCP (Model Context Protocol)",
@@ -342,14 +458,14 @@
       },
       "step2": {
         "title": "Setup a Runner",
-        "description": "A Runner is a lightweight daemon that runs on your machine and executes AI agents in isolated workspaces called Pods. Install the Do Worker Runner on your development machine or server.",
+        "description": "A Runner is a lightweight daemon on your machine or server. It receives a resolved WorkerSpec and executes the Worker in an isolated Pod.",
         "methodToken": "Register with a token",
         "methodLogin": "Register with browser login",
         "seeSetup": "See {link} for Docker, Linux packages, and Kubernetes deployment options."
       },
       "step3": {
-        "title": "Install AI Agent CLIs",
-        "description": "Install the CLI tools you want to use on your Runner machine and set the required API key environment variables. The Runner auto-detects installed CLIs via PATH and reports available agents to the platform.",
+        "title": "Configure Model Resources and Credentials",
+        "description": "Create or enable a model resource with the protocol required by the Worker Definition. Workers that need a credential bundle expose only their declared fields. The platform injects references into target environment variables during creation; plaintext keys never enter WorkerSpec.",
         "claudeCode": "Claude Code",
         "claudeCodeInstall": "npm install -g @anthropic-ai/claude-code",
         "claudeCodeEnv": "export ANTHROPIC_API_KEY=sk-ant-...",
@@ -360,14 +476,14 @@
         "codexCliHint": "Get your API key from",
         "geminiCli": "Gemini CLI",
         "geminiCliInstall": "npm install -g @google/gemini-cli",
-        "geminiCliEnv": "export GOOGLE_API_KEY=...",
+        "geminiCliEnv": "export GEMINI_API_KEY=...",
         "geminiCliHint": "Get your API key from",
-        "tip": "After installing, restart the Runner or wait for the next heartbeat. The newly available agents will appear in the New Pod dialog.",
+        "tip": "Runtime selectability comes from the immutable image catalog. Model resources and credential bundles come from the Worker Definition. The create flow shows an explicit blocker when a prerequisite is missing.",
         "seeSetup": "See {link} for more details on MCP tools and skill configuration."
       },
       "step4": {
         "title": "Connect a Git Provider",
-        "description": "Connecting a Git provider lets your Pods clone repositories and work in isolated Git worktrees. Go to Settings → Personal → Git Settings to add a provider.",
+        "description": "Connecting a Git provider lets Workers clone repositories and work in isolated Git worktrees. Go to Settings → Personal → Git Settings to add a provider.",
         "github": "GitHub",
         "githubDesc": "Add a Personal Access Token with the repo scope.",
         "githubTokenUrl": "github.com/settings/tokens",
@@ -376,55 +492,55 @@
         "seeGuide": "See {link} for full setup instructions including SSH keys and Gitee."
       },
       "step5": {
-        "title": "Start a Pod",
-        "description": "A Pod (AgentPod) is a virtual workstation where an AI agent runs with its own terminal and isolated code workspace. Create your first one now!",
-        "item1": "Navigate to Workspace in the sidebar",
-        "item2": "Click New Pod",
-        "item3": "Select an AI agent (Claude Code, Codex CLI, etc.)",
-        "item4": "Choose a Runner",
-        "item5": "Optionally select a repository and branch — the agent will work in an isolated copy (Git worktree) so your main branch stays safe",
-        "item6": "Optionally link to a ticket for context",
-        "item7": "Add an initial prompt describing the task (e.g., \"Add input validation to the login form\" or \"Fix the failing test in auth.test.ts\")",
-        "item8": "Click Create",
+        "title": "Create a Worker",
+        "description": "A Worker is the configurable execution unit. The create flow resolves it into an isolated Pod on a Runner and starts it only after preflight succeeds.",
+        "item1": "Click New Worker from the workspace",
+        "item2": "Choose a Worker type and runtime image without a blocker",
+        "item3": "Choose a protocol-compatible model resource and fill declared credential-bundle and type fields",
+        "item4": "Choose a Runner, compute target, deployment mode, and interaction mode",
+        "item5": "Optionally choose a repository and branch; the Worker runs in an isolated Git worktree",
+        "item6": "Optionally link tickets, skills, knowledge, or environment bundles",
+        "item7": "Set instructions, an initial task, an alias, and a termination policy",
+        "item8": "Resolve every preflight blocker, then click Create Worker",
         "seeSetup": "See {link} for a detailed walkthrough with troubleshooting."
       },
       "step6": {
         "title": "Interact with Your Agent",
-        "description": "After creation the terminal view opens with a live session. Your AI agent begins executing the initial prompt or waits for input if none was provided.",
+        "description": "After creation the terminal view opens with a live session. The Worker executes its initial task or waits for input when none was provided.",
         "item1": "Type follow-up prompts or commands directly in the terminal",
-        "item2": "Watch the agent status indicator — Idle (ready for input), Executing (working on your task), or Waiting (needs your approval)",
-        "item3": "The agent works inside the repository worktree if one was linked",
+        "item2": "Watch the Worker status indicator — Idle, Executing, or Waiting for approval",
+        "item3": "The Worker operates in the repository worktree if one was linked",
         "item4": "Terminate the Pod from the toolbar when your task is complete"
       },
       "tryIt": {
-        "title": "Try It: Your First Pod in 60 Seconds",
+        "title": "Try It: Create a Disposable Worker",
         "description": "Want to see it work right away? Here's the fastest path — no repository needed:",
-        "item1": "Click Workspace → New Pod",
-        "item2": "Select Claude Code (or any installed agent) and your Runner",
-        "item3": "Skip the repository and ticket fields",
-        "item4": "Set the initial prompt to: \"Say hello, then list the files in the current directory and explain what you see.\"",
-        "item5": "Click Create and watch the agent respond in the terminal",
-        "tip": "This creates a Pod without a repository — the agent runs in a temporary directory. It's perfect for testing your setup before working with real code."
+        "item1": "Click Workspace → New Worker",
+        "item2": "Choose a Worker type shown as creatable in the catalog and a connected Runner",
+        "item3": "Choose the required model resource or credential bundle and skip the repository",
+        "item4": "Set the initial task to: \"List the files in the current directory and explain what you see.\"",
+        "item5": "Pass preflight, click Create Worker, and confirm the terminal response",
+        "tip": "This creates a disposable Worker without a repository. Terminate it after verification so it does not retain compute resources."
       },
       "nextSteps": {
         "title": "Next Steps",
-        "agentpod": "Learn about AgentPod →",
-        "agentpodDesc": "Remote AI development workstations",
+        "agentpod": "Inspect Worker Types & Runtime →",
+        "agentpodDesc": "Adapters, credentials, type configuration, and real validation state",
         "mesh": "Explore Mesh →",
         "meshDesc": "Multi-agent collaboration features",
         "tickets": "Tickets & Kanban →",
-        "ticketsDesc": "Task management linked to Pods",
+        "ticketsDesc": "Task management linked to Workers",
         "multiAgent": "Multi-Agent Workflows →",
         "multiAgentDesc": "Coordinate multiple AI agents"
       }
     },
     "features": {
       "agentpod": {
-        "title": "AgentPod",
-        "description": "AgentPod provides remote AI development workstations with integrated terminal access. Each Pod runs on a Runner and provides a full development environment with AI assistance.",
+        "title": "Worker",
+        "description": "A Worker is a configurable AI execution unit that resolves to an isolated Pod on a Runner with terminal access, workspace, and resource bindings.",
         "overview": {
           "title": "Overview",
-          "description": "An AgentPod is an isolated development environment where an AI coding agent (like Claude Code) runs with full terminal access. Each Pod includes:",
+          "description": "A Worker uses a formal Definition for its adapter, configuration, and credential references; a Runner resolves it into an isolated Pod with full terminal access. Each Pod includes:",
           "terminal": "Web Terminal — Real-time terminal access via WebSocket",
           "worktree": "Git Worktree — Isolated workspace per Pod",
           "agent": "AI Agent — Your chosen coding assistant",
@@ -497,7 +613,7 @@
       },
       "workspace": {
         "title": "Workspace",
-        "description": "The Workspace is your central hub for managing and interacting with all active AgentPods.",
+        "description": "The Workspace is your central hub for managing and interacting with all active Workers.",
         "overview": {
           "title": "Overview",
           "description": "The Workspace provides a multi-panel view where you can monitor and interact with multiple Pods simultaneously. It's designed for developers who run several AI agents in parallel."
@@ -671,7 +787,7 @@
       },
       "tickets": {
         "title": "Tickets",
-        "description": "Integrated task management with Kanban board view. Create tickets, assign them to AgentPods, and track progress through your workflow.",
+        "description": "Integrated task management with Kanban board view. Create tickets, link them to Workers, and track progress through your workflow.",
         "overview": {
           "title": "Overview",
           "description": "Do Worker Tickets provide a lightweight issue tracking system designed for AI-driven development. Key features include:",
@@ -706,8 +822,8 @@
           "noneDesc": "Priority not yet assigned"
         },
         "podIntegration": {
-          "title": "Pod Integration",
-          "description": "Link tickets to AgentPods to:",
+          "title": "Worker Integration",
+          "description": "Link tickets to Workers to:",
           "context": "Provide context — The AI agent receives ticket details as initial context",
           "progress": "Track progress — See which Pods are working on which tickets",
           "autoUpdate": "Auto-update — Pod completion can update ticket status",
@@ -893,7 +1009,7 @@
           "description": "After starting the runner, verify it's connected:",
           "step1": "Go to Settings → Runners in the web interface",
           "step2": "Find your runner in the list — it should show ● Online",
-          "step3": "Try creating an AgentPod using this runner"
+          "step3": "Try creating a Worker using this runner"
         },
         "troubleshooting": {
           "title": "Troubleshooting",
@@ -910,7 +1026,7 @@
         "description": "The Runner provides 26 MCP (Model Context Protocol) tools for AI agents to collaborate with other agents. Tools are organized into 7 categories: Discovery, Terminal, Binding, Channel, Ticket, Pod, and Workflow.",
         "overview": {
           "title": "Overview",
-          "description": "MCP tools are automatically available to AI agents running in AgentPod. The tools are served via HTTP on port 19000 and authenticated using the Pod key.",
+          "description": "MCP tools are automatically available to AI tools running inside a Worker. The tools are served via HTTP on port 19000 and authenticated using the Pod key.",
           "autoConfig": "Automatic Configuration: When using Claude Code, the runner automatically generates the MCP configuration file with the correct URL and headers."
         },
         "discovery": {
@@ -1013,7 +1129,7 @@
           "descriptionHeader": "Description",
           "paramsHeader": "Parameters",
           "createPod": "create_pod",
-          "createPodDesc": "Create a new AgentPod",
+          "createPodDesc": "Create a new Worker (backed by a Pod)",
           "createPodParams": "agent_slug (required), runner_id?, ticket_slug?, prompt?, model?, automation_level?",
           "description": "Tools for creating, observing, and controlling Pods. Observation and input tools require an active binding with appropriate scopes.",
           "getPodSnapshot": "get_pod_snapshot",
@@ -1197,7 +1313,7 @@
         "overview": {
           "title": "Overview",
           "description": "Do Worker provides organization-level API Keys for third-party integrations, CI/CD pipelines, and automation workflows. With API Keys you can:",
-          "item1": "Manage AgentPods programmatically (create, list, terminate)",
+          "item1": "Manage Workers programmatically (create, list, terminate)",
           "item2": "Automate ticket creation and status updates",
           "item3": "Query channels and send messages",
           "item4": "Monitor runners and repository status"
@@ -1271,8 +1387,8 @@
         }
       },
       "pods": {
-        "title": "Pods API",
-        "description": "Manage AgentPods programmatically. Create, list, and terminate Pods through the REST API.",
+        "title": "Worker API (PodService)",
+        "description": "Create, list, and terminate Workers programmatically through the underlying PodService REST API.",
         "endpoints": {
           "title": "Endpoints",
           "list": "List all pods",
@@ -1305,7 +1421,7 @@
           },
           "createPod": {
             "title": "POST /pods",
-            "description": "Create a new AgentPod on a specified runner. The pod will be initialized with the given configuration and start executing.",
+            "description": "Create a new Worker on a specified runner. The service initializes the underlying Pod with the supplied configuration and starts execution.",
             "fields": {
               "runner_id": "ID of the runner to create the pod on",
               "agent_slug": "Agent identifier (e.g., claude-code, aider)",
@@ -1703,8 +1819,7 @@
         "runner": "Runner Issues",
         "pod": "Pod Issues",
         "apiKey": "API Key Configuration",
-        "git": "Git Integration",
-        "billing": "Billing & Plans"
+        "git": "Git Integration"
       },
       "items": {
         "runnerConnection": {
@@ -1738,14 +1853,6 @@
         "gitWorktreeConflict": {
           "question": "Can multiple Pods work on the same repository simultaneously?",
           "answer": "Yes! Each Pod gets its own Git worktree, so multiple Pods can work on the same repository without conflicts. Each worktree operates on its own branch, and changes are isolated."
-        },
-        "billingBYOK": {
-          "question": "How does the BYOK (Bring Your Own Key) billing model work?",
-          "answer": "You provide your own API keys for AI providers (Anthropic, OpenAI, Google, etc.). You pay the AI providers directly based on your usage. Do Worker charges only for platform usage (runners, storage, etc.)."
-        },
-        "billingFree": {
-          "question": "Is there a free tier?",
-          "answer": "Yes, Do Worker offers a free tier with limited concurrent Pods and storage. Check the Pricing page for current plan details and limits."
         }
       }
     },
@@ -1810,7 +1917,7 @@
           "description": "Install the AI coding agents you want to use on the Runner machine:",
           "item1": "Claude Code — npm install -g @anthropic-ai/claude-code (set ANTHROPIC_API_KEY)",
           "item2": "Codex CLI — npm install -g @openai/codex (set OPENAI_API_KEY)",
-          "item3": "Gemini CLI — npm install -g @google/gemini-cli (set GOOGLE_API_KEY)",
+          "item3": "Gemini CLI — npm install -g @google/gemini-cli (set GEMINI_API_KEY)",
           "tip": "After installing, restart the Runner or wait for the next heartbeat. Newly available agents appear in the New Pod dialog."
         },
         "step5": {
@@ -2017,7 +2124,7 @@
       "firstPod": {
         "title": "Tutorial: Your First Pod",
         "difficulty": "Beginner — 5 minutes",
-        "description": "Learn how to create and interact with your first AgentPod step by step. By the end of this tutorial, you will have launched an AI coding agent, connected it to a repository, and completed a task.",
+        "description": "Learn how to create and interact with your first Worker step by step. By the end of this tutorial, you will have launched an AI tool, connected it to a repository, and completed a task.",
         "prerequisites": {
           "title": "Prerequisites",
           "description": "Before starting, make sure you have:",
@@ -2087,7 +2194,7 @@
       "ticketWorkflow": {
         "title": "Tutorial: Managing Tasks with Tickets",
         "difficulty": "Beginner — 10 minutes",
-        "description": "Learn how to use Do Worker's ticket system to organize work, track progress on a Kanban board, and connect tickets to AgentPods for automatic context injection.",
+        "description": "Learn how to use Do Worker's ticket system to organize work, track progress on a Kanban board, and connect tickets to Workers for automatic context injection.",
         "step1": {
           "title": "Navigate to the Ticket Board",
           "description": "Click Tickets in the left sidebar. You will see a Kanban board with columns for each status: Backlog, To Do, In Progress, In Review, and Done."
@@ -2103,9 +2210,9 @@
           "field5": "Assignee — Optionally assign the ticket to a team member"
         },
         "step3": {
-          "title": "Bind a Ticket to a Pod",
-          "description": "The real power of tickets is their integration with AgentPods. When you create a new Pod:",
-          "item1": "In the New Pod dialog, select your ticket from the Ticket dropdown",
+          "title": "Bind a Ticket to a Worker",
+          "description": "The real power of tickets is their integration with Workers. When you create a new Worker:",
+          "item1": "In the New Worker wizard, select your ticket from the Ticket dropdown",
           "item2": "The ticket's title and description are automatically injected as context for the AI agent",
           "item3": "The ticket status automatically moves to In Progress when the Pod starts",
           "tip": "You can also bind a ticket to an existing Pod from the Pod's detail panel."
@@ -2212,7 +2319,7 @@
         "description": "Learn how to set up automated workflows that create Pods on a schedule. Workflows are perfect for recurring tasks like code reviews, dependency updates, test runs, and monitoring.",
         "whatAreWorkflows": {
           "title": "What Are Workflows?",
-          "description": "A Workflow is a scheduled automation that periodically creates an AgentPod with a predefined configuration. Think of it as a cron job for AI agents — it runs your prompt on a schedule, creating a fresh Pod each time.",
+          "description": "A Workflow is a scheduled or event-driven automation that periodically creates a Worker with a predefined configuration. Think of it as a cron job for AI tools: it runs a task on a schedule and creates a fresh underlying Pod each time.",
           "item1": "Recurring code reviews — Check for code quality issues every morning",
           "item2": "Dependency updates — Scan and update outdated packages weekly",
           "item3": "Test monitoring — Run test suites and report failures daily",

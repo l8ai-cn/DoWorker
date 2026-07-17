@@ -42,3 +42,9 @@ func TestValidateAgentfileLayerSecretsRejectsPlaintextCredentials(t *testing.T) 
 		})
 	}
 }
+
+func TestValidateAgentfileLayerSecretsAllowsSecretReferences(t *testing.T) {
+	layer := `ENV ANTHROPIC_API_KEY SECRET OPTIONAL`
+
+	require.NoError(t, validateAgentfileLayerSecrets(layer))
+}

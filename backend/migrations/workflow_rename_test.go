@@ -16,6 +16,8 @@ func TestMigration000200RenamesScheduledLoopStorageToWorkflow(t *testing.T) {
 		"ALTER TABLE workflow_runs RENAME COLUMN loop_id TO workflow_id",
 		"ALTER SEQUENCE loops_id_seq RENAME TO workflows_id_seq",
 		"ALTER SEQUENCE loop_runs_id_seq RENAME TO workflow_runs_id_seq",
+		"IF EXISTS",
+		"to_regclass('public.idx_loops_model_resource_id')",
 		"ALTER INDEX idx_loops_org_slug RENAME TO idx_workflows_org_slug",
 		"ALTER INDEX idx_loop_runs_loop_id RENAME TO idx_workflow_runs_workflow_id",
 	} {

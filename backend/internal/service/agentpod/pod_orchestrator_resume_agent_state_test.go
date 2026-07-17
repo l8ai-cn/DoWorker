@@ -124,7 +124,8 @@ func TestCreatePod_ResumeMode_CodexPreservesSourceApprovalMode(t *testing.T) {
 	assert.Nil(t, result.Pod.Model)
 	assert.Nil(t, result.Pod.PermissionMode)
 	assert.Equal(t, "never", result.Pod.ResolvedConfig["approval_mode"])
-	assert.Equal(t, []string{"resume", "--last", "--ask-for-approval", "never"}, coord.lastCmd.LaunchArgs)
+	assert.Equal(t, podDomain.InteractionModeACP, result.Pod.InteractionMode)
+	assert.Equal(t, []string{"app-server"}, coord.lastCmd.LaunchArgs)
 }
 
 func TestCreatePod_ResumeMode_ClaudePreservesSourcePermissionMode(t *testing.T) {

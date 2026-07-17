@@ -1,0 +1,14 @@
+claude-code
+codex-cli
+gemini-cli
+aider
+opencode
+loopal
+cursor-cli
+do-agent
+minimax-cli
+grok-build
+openclaw
+hermes
+seedance-expert
+video-studio

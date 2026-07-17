@@ -113,8 +113,8 @@ describe("relayConnection adapter", () => {
       expect(mgr.force_resize).toHaveBeenCalledExactlyOnceWith("pod-1", 100, 40);
     });
 
-    it("sendAcpCommand JSON-encodes the command for the string-typed manager", () => {
-      pool.sendAcpCommand("pod-1", { type: "prompt", prompt: "hi" });
+    it("sendAcpCommand JSON-encodes the command for the string-typed manager", async () => {
+      await pool.sendAcpCommand("pod-1", { type: "prompt", prompt: "hi" });
       expect(mgr.send_acp_command).toHaveBeenCalledWith(
         "pod-1", JSON.stringify({ type: "prompt", prompt: "hi" }),
       );

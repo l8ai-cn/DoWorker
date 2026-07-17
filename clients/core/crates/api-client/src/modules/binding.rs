@@ -3,9 +3,9 @@
 // §12). The legacy REST surface was retired; Connect handlers in
 // backend/internal/api/connect/binding/ now own the data plane.
 
-use crate::ApiClient;
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
+use crate::ApiClient;
 use agentsmesh_types::proto_binding_v1 as bp;
 
 impl ApiClient {

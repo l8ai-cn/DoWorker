@@ -22,6 +22,7 @@ type PreviewConfig struct {
 	StreamTimeout     time.Duration // single-stream timeout (never closes the whole tunnel)
 	StreamWindowBytes int           // credit window per stream
 	CookieSecure      bool          // Secure flag on the gw_preview cookie
+	PublicHost        string
 }
 
 // PreviewHandler routes authenticated preview requests through the runner
@@ -45,30 +46,6 @@ func NewPreviewHandler(v *auth.TokenValidator, registry *tunnel.Registry, limite
 	}
 }
 
-func (h *PreviewHandler) route(w http.ResponseWriter, r *http.Request) {
-	_, rest, ok := parsePreviewPath(r.URL.Path)
-	if !ok {
-		http.NotFound(w, r)
-		return
-	}
-	if rest == "__session" {
-		h.HandlePreviewSession(w, r)
-		return
-	}
-	h.HandlePreview(w, r)
-}
-
-func parsePreviewPath(p string) (podKey, rest string, ok bool) {
-	trimmed := strings.TrimPrefix(p, "/preview/")
-	if trimmed == "" || trimmed == p {
-		return "", "", false
-	}
-	if idx := strings.Index(trimmed, "/"); idx >= 0 {
-		return trimmed[:idx], trimmed[idx+1:], true
-	}
-	return trimmed, "", true
-}
-
 func (h *PreviewHandler) extractToken(r *http.Request) string {
 	if c, err := r.Cookie(previewCookieName); err == nil && c.Value != "" {
 		return c.Value
@@ -77,6 +54,13 @@ func (h *PreviewHandler) extractToken(r *http.Request) string {
 }
 
 func (h *PreviewHandler) HandlePreview(w http.ResponseWriter, r *http.Request) {
+	if !h.requirePublicHost(w, r) {
+		return
+	}
+	h.handlePreview(w, r)
+}
+
+func (h *PreviewHandler) handlePreview(w http.ResponseWriter, r *http.Request) {
 	podKey, _, ok := parsePreviewPath(r.URL.Path)
 	if !ok {
 		http.NotFound(w, r)

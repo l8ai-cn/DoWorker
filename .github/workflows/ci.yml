@@ -31,6 +31,12 @@ jobs:
         run: bash deploy/dev/runner_runtime_contract_test.sh
       - name: Agent-runtime contract
         run: bash docker/agent-runtime/contract_test.sh
+      - name: Mobile release deployment contract
+        run: bash deploy/kubernetes/cluster-oilan/deploy-mobile-access-contract_test.sh
+      - name: Preview origin deployment contract
+        run: bash deploy/kubernetes/cluster-oilan/preview_origin_deployment_contract_test.sh
+      - name: Secret manifest generation contract
+        run: bash deploy/kubernetes/cluster-oilan/secret_manifest_generation_contract_test.sh
 
   go:
     name: Go (tests)
@@ -182,6 +188,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      - name: Seed Rust proto stubs
+        run: bash scripts/seed-rust-proto-stubs.sh
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: clients/core
@@ -213,6 +221,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      - name: Seed Rust proto stubs
+        run: bash scripts/seed-rust-proto-stubs.sh
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: clients/core
@@ -263,6 +273,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      - name: Seed Rust proto stubs
+        run: bash scripts/seed-rust-proto-stubs.sh
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: clients/core
@@ -272,6 +284,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y protobuf-compiler
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build:wasm
+      - run: pnpm run mobile:lint
       - run: pnpm run mobile:typecheck
       - run: pnpm run mobile:test
       - run: pnpm run mobile:build
@@ -469,8 +482,8 @@ jobs:
           docker compose -f docker-compose.yml -f docker-compose.runners.yml \
             logs --tail=200 runner-e2e-echo runner-e2e-echo-2 || true
 
-  hive-e2e:
-    name: E2E (Hive — compat API + browser)
+  session-compat-e2e:
+    name: E2E (Session Compatibility API + Browser)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: smoke
@@ -499,6 +512,7 @@ jobs:
       - name: Bring up dev backend stack
         env:
           DEV_SKIP_DOAGENT: "1"
+          DEV_E2E_RUNNERS_ONLY: "1"
         run: |
           ./deploy/dev/dev.sh --backend-only
           sleep 15
@@ -507,10 +521,10 @@ jobs:
         run: |
           source deploy/dev/.env
           echo "BACKEND_HTTP_PORT=$BACKEND_HTTP_PORT" >> $GITHUB_OUTPUT
-      - name: Run hive smoke
+      - name: Run session compatibility smoke
         env:
-          HIVE_API_URL: http://localhost:${{ steps.ports.outputs.BACKEND_HTTP_PORT }}
-        run: bash deploy/dev/hive_smoke.sh
+          SESSION_COMPAT_API_URL: http://localhost:${{ steps.ports.outputs.BACKEND_HTTP_PORT }}
+        run: bash deploy/dev/session_compat_smoke.sh
       - name: Dump logs on failure
         if: failure()
         working-directory: deploy/dev
@@ -544,6 +558,7 @@ jobs:
       - name: Bring up dev backend stack
         env:
           DEV_SKIP_DOAGENT: "1"
+          DEV_E2E_RUNNERS_ONLY: "1"
         run: |
           ./deploy/dev/dev.sh --backend-only
           sleep 20

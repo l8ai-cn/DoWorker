@@ -64,7 +64,7 @@ function buildOneOfFields(
 }
 
 // Merges API-derived credential_fields (AgentFile SSOT) with per-agent UX
-// overrides (oneof groups, i18n labels, custom-env policy).
+// overrides for field ordering and i18n labels.
 export function buildCredentialFormSpec(
   agentSlug: string,
   credentialFields: CredentialField[]
@@ -91,12 +91,8 @@ export function buildCredentialFormSpec(
     simpleFields.push(toSimpleField(src, override));
   }
 
-  const allowCustomEnv = override?.allowCustomEnv ?? credentialFields.length === 0;
-
   return {
     agentSlug,
     fields: [...simpleFields, ...oneOfResult.fields],
-    allowCustomEnv,
-    customEnvHint: override?.customEnvHint,
   };
 }

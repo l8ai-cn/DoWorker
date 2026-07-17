@@ -2,6 +2,7 @@ package runner
 
 import (
 	"encoding/json"
+	"sync"
 
 	"github.com/anthropics/agentsmesh/runner/internal/acp"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
@@ -13,6 +14,7 @@ type ACPPodRelay struct {
 	podKey    string
 	acpClient *acp.ACPClient
 	onCommand func([]byte) // closure bound to pod ref at creation
+	sendMu    sync.Mutex
 }
 
 // NewACPPodRelay creates a PodRelay for ACP mode.
@@ -32,6 +34,8 @@ func (r *ACPPodRelay) SetupHandlers(rc relay.RelayClient) {
 }
 
 func (r *ACPPodRelay) SendSnapshot(rc relay.RelayClient) {
+	r.sendMu.Lock()
+	defer r.sendMu.Unlock()
 	if data := r.materializeSnapshot(); data != nil {
 		if err := rc.Send(relay.MsgTypeAcpSnapshot, data); err != nil {
 			logger.Pod().Warn("Failed to send ACP snapshot via relay", "pod_key", r.podKey, "error", err)
@@ -68,6 +72,8 @@ func (r *ACPPodRelay) OnRelayDisconnected() {
 // BroadcastEvent sends an ACP event via the cloud relay client. Best-effort:
 // drops when the relay is absent or disconnected.
 func (r *ACPPodRelay) BroadcastEvent(rc relay.RelayClient, msgType byte, payload []byte) {
+	r.sendMu.Lock()
+	defer r.sendMu.Unlock()
 	if rc != nil && rc.IsConnected() {
 		_ = rc.Send(msgType, payload)
 	}

@@ -8,18 +8,22 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/tokenusage"
 )
 
-const TransportType = "codex"
+const TransportType = "codex-app-server"
 
 func init() {
-	acp.RegisterAgent("codex", TransportType, func(cb acp.EventCallbacks, l *slog.Logger) acp.Transport {
+	acp.RegisterTransport(TransportType, func(cb acp.EventCallbacks, l *slog.Logger) acp.Transport {
 		return newTransport(cb, l)
 	})
 
-	tokenusage.RegisterParser([]string{"codex", "codex-cli"}, &codexParser{})
+	tokenusage.RegisterParser(
+		[]string{"codex", "codex-cli", "video-studio"},
+		&codexParser{},
+	)
 
 	adapter := &codexInputAdapter{}
 	agentkit.RegisterInputAdapter("codex", adapter)
 	agentkit.RegisterInputAdapter("codex-cli", adapter)
+	agentkit.RegisterInputAdapter("video-studio", adapter)
 
 	agentkit.RegisterAgentHome(agentkit.AgentHomeSpec{
 		EnvVar:      "CODEX_HOME",

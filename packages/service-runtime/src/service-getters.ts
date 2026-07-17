@@ -11,10 +11,11 @@ import type {
   WasmAgentService, WasmTicketRelationsService, WasmFileService,
   WasmSupportTicketService, WasmAuthConnectService, WasmBlockstoreService,
   WasmKnowledgeBaseService,
-  WasmAIResourceService,
+  WasmAIResourceService, WasmOrchestrationResourceService,
+  WasmExecutionClusterService,
   WasmRunnerState, WasmMeshState, WasmTicketState, WasmChannelState,
   WasmWorkflowState, WasmAcpSessionManager, WasmLoopalManager, WasmRepoState,
-  WasmExpertState, WasmAutopilotState, WasmRelayManager,
+  WasmExpertState, WasmAutopilotState, WasmLoopBuilderState, WasmRelayManager,
 } from "do-worker-wasm";
 
 // SSR / hydration fallback. Returns "[]" for `*_json` reads so SSR-rendered
@@ -71,6 +72,8 @@ export interface ServiceRegistry {
   blockstoreService: WasmBlockstoreService;
   knowledgeBaseService: WasmKnowledgeBaseService;
   aiResourceService: WasmAIResourceService;
+  orchestrationResourceService: WasmOrchestrationResourceService;
+  executionClusterService: WasmExecutionClusterService;
   runnerState: WasmRunnerState;
   meshState: WasmMeshState;
   ticketState: WasmTicketState;
@@ -80,6 +83,7 @@ export interface ServiceRegistry {
   // Loopal control-panel state. Optional — only the web build registers it;
   // missing services fall back to NOOP_PROXY (Loopal console shows empty panels).
   loopalManager?: WasmLoopalManager;
+  loopBuilderState: WasmLoopBuilderState;
   repoState: WasmRepoState;
   expertState: WasmExpertState;
   autopilotState: WasmAutopilotState;
@@ -183,6 +187,7 @@ export const getLoopalManager = (): WasmLoopalManager => {
   const reg = registry();
   return (reg.ready ? reg.instances.loopalManager ?? NOOP_PROXY : NOOP_PROXY) as WasmLoopalManager;
 };
+export const getLoopBuilderState = () => g("loopBuilderState");
 export const getRepoState = () => g("repoState");
 export const getExpertState = () => g("expertState");
 export const getAutopilotState = () => g("autopilotState");
@@ -190,3 +195,5 @@ export const getRelayManager = () => g("relayManager");
 export const getBlockstoreService = () => g("blockstoreService");
 export const getKnowledgeBaseService = () => g("knowledgeBaseService");
 export const getAIResourceService = () => g("aiResourceService");
+export const getOrchestrationResourceService = () => g("orchestrationResourceService");
+export const getExecutionClusterService = () => g("executionClusterService");

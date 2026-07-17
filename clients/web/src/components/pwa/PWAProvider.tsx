@@ -1,8 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useSyncExternalStore } from "react";
 import { ServiceWorkerRegistration } from "./ServiceWorkerRegistration";
-import { PushNotificationManager } from "./PushNotificationManager";
+
+const PushNotificationManager = dynamic(
+  () =>
+    import("./PushNotificationManager").then(
+      ({ PushNotificationManager: Manager }) => Manager,
+    ),
+  { ssr: false },
+);
 
 interface PWAProviderProps {
   children: React.ReactNode;

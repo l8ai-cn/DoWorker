@@ -13,24 +13,91 @@ impl GoalLoopService {
         Self { client }
     }
 
+    pub async fn compile_loop_program_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+        let req = lp::CompileLoopProgramRequest::decode(request)
+            .map_err(|e| format!("decode compile_loop_program request: {e}"))?;
+        let response = self
+            .client
+            .compile_loop_program_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(response.encode_to_vec())
+    }
+
+    pub async fn generate_loop_program_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+        let req = lp::GenerateLoopProgramRequest::decode(request)
+            .map_err(|e| format!("decode generate_loop_program request: {e}"))?;
+        let response = self
+            .client
+            .generate_loop_program_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(response.encode_to_vec())
+    }
+
+    pub async fn repair_loop_program_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+        let req = lp::RepairLoopProgramRequest::decode(request)
+            .map_err(|e| format!("decode repair_loop_program request: {e}"))?;
+        let response = self
+            .client
+            .repair_loop_program_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(response.encode_to_vec())
+    }
+
+    pub async fn run_loop_program_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+        let req = lp::RunLoopProgramRequest::decode(request)
+            .map_err(|e| format!("decode run_loop_program request: {e}"))?;
+        let response = self
+            .client
+            .run_loop_program_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(response.encode_to_vec())
+    }
+
+    pub async fn list_worker_snapshots_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
+        let req = lp::ListWorkerSnapshotsRequest::decode(request)
+            .map_err(|e| format!("decode list_worker_snapshots request: {e}"))?;
+        let response = self
+            .client
+            .list_worker_snapshots_connect(&req)
+            .await
+            .map_err(crate::wire)?;
+        Ok(response.encode_to_vec())
+    }
+
     pub async fn list_goal_loops_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
         let req = lp::ListGoalLoopsRequest::decode(request)
             .map_err(|e| format!("decode list_goal_loops request: {e}"))?;
-        let response = self.client.list_goal_loops_connect(&req).await.map_err(crate::wire)?;
+        let response = self
+            .client
+            .list_goal_loops_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(response.encode_to_vec())
     }
 
     pub async fn get_goal_loop_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
         let req = lp::GetGoalLoopRequest::decode(request)
             .map_err(|e| format!("decode get_goal_loop request: {e}"))?;
-        let response = self.client.get_goal_loop_connect(&req).await.map_err(crate::wire)?;
+        let response = self
+            .client
+            .get_goal_loop_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(response.encode_to_vec())
     }
 
     pub async fn create_goal_loop_connect(&self, request: &[u8]) -> Result<Vec<u8>, String> {
         let req = lp::CreateGoalLoopRequest::decode(request)
             .map_err(|e| format!("decode create_goal_loop request: {e}"))?;
-        let response = self.client.create_goal_loop_connect(&req).await.map_err(crate::wire)?;
+        let response = self
+            .client
+            .create_goal_loop_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(response.encode_to_vec())
     }
 

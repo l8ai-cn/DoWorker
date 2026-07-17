@@ -18,17 +18,21 @@ import (
 // Lock strategy: relayMu is held ONLY for the pointer check/swap to avoid
 // blocking on network I/O or cross-module locks (vt.mu via GetSnapshot).
 func (h *RunnerMessageHandler) OnSubscribePod(req client.SubscribePodRequest) error {
-	log := logger.Pod()
-
-	// Rewrite relay URL origin if RELAY_BASE_URL is configured (Docker dev environment)
 	relayURL := h.runner.GetConfig().RewriteRelayURL(req.RelayURL)
-	if relayURL != req.RelayURL {
-		log.Info("Relay URL rewritten",
-			"pod_key", req.PodKey,
-			"original", req.RelayURL,
-			"rewritten", relayURL)
-		req.RelayURL = relayURL
+	req.RelayURL = relayURL
+
+	_, err, _ := h.relaySubscriptions.Do(req.PodKey+"\x00"+relayURL, func() (any, error) {
+		return nil, h.subscribePod(req)
+	})
+	if err != nil {
+		return err
 	}
+	return h.refreshRelayToken(req.PodKey, relayURL, req.RunnerToken)
+}
+
+func (h *RunnerMessageHandler) subscribePod(req client.SubscribePodRequest) error {
+	log := logger.Pod()
+	relayURL := req.RelayURL
 
 	log.Info("Subscribing to pod via Relay",
 		"pod_key", req.PodKey,
@@ -56,10 +60,9 @@ func (h *RunnerMessageHandler) OnSubscribePod(req client.SubscribePodRequest) er
 	existingClient := pod.RelayClient
 	if existingClient != nil {
 		if existingClient.IsConnected() && existingClient.GetRelayURL() == relayURL {
-			log.Info("Already connected to same relay, updating token",
+			log.Info("Already connected to same relay",
 				"pod_key", req.PodKey,
 				"relay_url", relayURL)
-			existingClient.UpdateToken(req.RunnerToken)
 			pod.UnlockRelay()
 			return nil
 		}
@@ -106,7 +109,6 @@ func (h *RunnerMessageHandler) OnSubscribePod(req client.SubscribePodRequest) er
 		pod.UnlockRelay()
 		relayClient.Stop()
 		if winner.IsConnected() && winner.GetRelayURL() == relayURL {
-			winner.UpdateToken(req.RunnerToken)
 			return nil
 		}
 		return fmt.Errorf("relay subscription superseded by another connection")

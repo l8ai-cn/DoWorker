@@ -21,7 +21,7 @@ type ModelResourceResolver interface {
 
 func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *OrchestrateCreatePodRequest, agentDef *agentDomain.Agent) error {
 	harness := workerModelHarness(req.AgentSlug, agentDef)
-	requirements, needsResource := modelResourceRequirements(req.AgentSlug, agentDef)
+	requirements, needsResource := modelRequirementsForRequest(req, agentDef)
 	if !needsResource {
 		return nil
 	}
@@ -69,8 +69,16 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 		if harness == "claude-code" && modelID != "" {
 			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
 		}
-		if harness == "openclaw" && modelID != "" {
-			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
+		if harness == "minimax-cli" {
+			if modelID == "" {
+				return ErrMissingModelResource
+			}
+			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(modelID))
+			if baseURL := strings.TrimSpace(resource.Connection.BaseURL); baseURL != "" {
+				cliBaseURL := minimaxCLIBaseURL(baseURL)
+				appendAgentfileLayer(&req.AgentfileLayer, `CONFIG base_url = `+agentfile.FormatStringLiteral(cliBaseURL))
+				req.ModelResourceArgs = []string{"--base-url", cliBaseURL}
+			}
 		}
 		if harness == "gemini-cli" {
 			if modelID == "" {
@@ -95,10 +103,25 @@ func validatePreparedModelBinding(
 		resolved.Connection.ID != expected.ConnectionID ||
 		resolved.Connection.Revision != expected.ConnectionRevision ||
 		resolved.Connection.ProviderKey != expected.ProviderKey ||
+		resolved.Provider.ProtocolAdapter != expected.ProtocolAdapter.String() ||
 		strings.TrimSpace(resolved.Resource.ModelID) != expected.ModelID {
 		return ErrWorkerSpecModelChanged
 	}
 	return nil
+}
+
+func modelRequirementsForRequest(
+	req *OrchestrateCreatePodRequest,
+	agentDef *agentDomain.Agent,
+) (resourcesvc.ResolutionRequirements, bool) {
+	if req != nil && req.preparedWorkerSpec != nil {
+		binding := req.preparedWorkerSpec.Runtime.ModelBinding
+		if binding.IsEmpty() {
+			return resourcesvc.ResolutionRequirements{}, false
+		}
+		return chatRequirements(binding.ProtocolAdapter.String()), true
+	}
+	return modelResourceRequirements(req.AgentSlug, agentDef)
 }
 
 func modelResourceRequirements(agentSlug string, agentDef *agentDomain.Agent) (resourcesvc.ResolutionRequirements, bool) {
@@ -111,8 +134,10 @@ func modelResourceRequirements(agentSlug string, agentDef *agentDomain.Agent) (r
 		return chatRequirements("anthropic"), true
 	case "gemini-cli":
 		return chatRequirements("gemini"), true
+	case "minimax-cli":
+		return chatRequirements("minimax"), true
 	case "openclaw", "hermes":
-		return chatRequirements("openai-compatible", "anthropic", "gemini"), true
+		return chatRequirements("openai-compatible"), true
 	default:
 		return resourcesvc.ResolutionRequirements{}, false
 	}
@@ -130,6 +155,8 @@ func workerModelHarness(agentSlug string, agentDef *agentDomain.Agent) string {
 		return "claude-code"
 	case "gemini", "gemini-cli":
 		return "gemini-cli"
+	case "mmx", "minimax-cli":
+		return "minimax-cli"
 	case "do-agent":
 		return "do-agent"
 	case "openclaw":

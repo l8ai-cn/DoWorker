@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "worker_slug": "openclaw",
+  "definition_hash": "sha256:7b639374c7b430ed67dd59ff59f9a7da2aa2dfca2f2132abb66f1573dd642765",
+  "observed_at": "2026-07-13T01:20:49Z",
+  "image_reference": "do-worker/runner-openclaw:latest",
+  "image_id": "sha256:a9b067dc3ecc13402b96143922d6cf638e285e845f85a3cefc33ab83e5bcb809",
+  "command": [
+    "openclaw"
+  ],
+  "exit_code": 1,
+  "output": "Onboarding needs an interactive TTY. Use `openclaw onboard --non-interactive --accept-risk ...` for automation.",
+  "verdict": "blocked_formal_launch_contract",
+  "required_evidence": [
+    "A declared non-interactive launch command that accepts the Worker prompt.",
+    "An explicit provider, model, credential, and persistent-state contract.",
+    "Runner create, terminal interaction, cleanup, and immutable-image evidence."
+  ]
+}

@@ -180,7 +180,7 @@ fn on_new_message_skips_unread_for_current_channel() {
     s.set_channels(vec![ch(1, "gen")]);
     s.set_current_user_id(Some(10));
     s.set_current_channel(Some(1)); // viewing channel 1
-    // Message from another user in the channel I'm viewing
+                                    // Message from another user in the channel I'm viewing
     s.on_new_message(msg_with_sender(1, 1, "hi", 20, "bob"));
     assert_eq!(s.get_unread_count(1), 0);
 }
@@ -191,7 +191,7 @@ fn on_new_message_increments_unread_for_other_channel() {
     s.set_channels(vec![ch(1, "gen"), ch(2, "dev")]);
     s.set_current_user_id(Some(10));
     s.set_current_channel(Some(1)); // viewing channel 1
-    // Message in channel 2 (not current, from another user) → auto-increment.
+                                    // Message in channel 2 (not current, from another user) → auto-increment.
     s.on_new_message(msg_with_sender(1, 2, "hi", 20, "bob"));
     assert_eq!(s.get_unread_count(2), 1);
 }

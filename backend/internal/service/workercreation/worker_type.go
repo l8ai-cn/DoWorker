@@ -2,16 +2,15 @@ package workercreation
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
 
 	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
@@ -24,11 +23,15 @@ type AgentProvider interface {
 }
 
 type workerTypeResolver struct {
-	agents AgentProvider
+	agents      AgentProvider
+	definitions WorkerDefinitionProvider
 }
 
-func newWorkerTypeResolver(agents AgentProvider) *workerTypeResolver {
-	return &workerTypeResolver{agents: agents}
+func newWorkerTypeResolver(
+	agents AgentProvider,
+	definitions WorkerDefinitionProvider,
+) *workerTypeResolver {
+	return &workerTypeResolver{agents: agents, definitions: definitions}
 }
 
 func (resolver *workerTypeResolver) ResolveWorkerType(
@@ -36,8 +39,12 @@ func (resolver *workerTypeResolver) ResolveWorkerType(
 	_ specservice.Scope,
 	slug slugkit.Slug,
 ) (specservice.WorkerTypeResolution, error) {
-	if resolver == nil || resolver.agents == nil {
+	if resolver == nil || resolver.agents == nil || resolver.definitions == nil {
 		return specservice.WorkerTypeResolution{}, specservice.ErrResolverUnavailable
+	}
+	definition, ok := resolver.definitions.Get(slug.String())
+	if !ok {
+		return specservice.WorkerTypeResolution{}, invalidWorkerType("missing canonical definition")
 	}
 	agent, err := resolver.agents.GetAgent(ctx, slug.String())
 	if err != nil {
@@ -46,55 +53,118 @@ func (resolver *workerTypeResolver) ResolveWorkerType(
 		}
 		return specservice.WorkerTypeResolution{}, err
 	}
-	if agent == nil {
-		return specservice.WorkerTypeResolution{}, invalidWorkerType("worker type does not exist")
+	if err := validateWorkerTypeProjection(agent, slug, definition); err != nil {
+		return specservice.WorkerTypeResolution{}, err
 	}
-	if agent.Slug != slug.String() {
-		return specservice.WorkerTypeResolution{}, invalidWorkerType(
-			fmt.Sprintf("resolved slug %q does not match %q", agent.Slug, slug),
-		)
-	}
-	if !agent.IsActive {
-		return specservice.WorkerTypeResolution{}, invalidWorkerType("worker type is disabled")
-	}
-	if agent.IsInternal {
-		return specservice.WorkerTypeResolution{}, invalidWorkerType("internal worker type is not selectable")
-	}
-	if agent.AgentfileSource == nil || *agent.AgentfileSource == "" {
-		return specservice.WorkerTypeResolution{}, invalidWorkerType("worker type has no AgentFile definition")
-	}
-	schema, err := agentservice.ResolveConfigSchema(ctx, resolver.agents, slug.String())
-	if err != nil {
-		return specservice.WorkerTypeResolution{}, invalidWorkerType(
-			fmt.Sprintf("invalid AgentFile schema: %v", err),
-		)
-	}
-	typeSchema, err := convertTypeSchema(agent.Slug, schema)
+	typeSchema, err := typeSchemaFromDefinition(definition)
 	if err != nil {
 		return specservice.WorkerTypeResolution{}, err
 	}
-	supportedModes, err := parseSupportedInteractionModes(agent.SupportedModes)
+	modes, err := parseSupportedInteractionModes(definition.Modes)
 	if err != nil {
 		return specservice.WorkerTypeResolution{}, err
 	}
-	hash, err := definitionHash(agent, typeSchema)
+	modelRequirement, err := modelRequirementFromDefinition(definition)
+	if err != nil {
+		return specservice.WorkerTypeResolution{}, err
+	}
+	toolModelRequirements, err := toolModelRequirementsFromDefinition(definition)
 	if err != nil {
 		return specservice.WorkerTypeResolution{}, err
 	}
 	return specservice.WorkerTypeResolution{
 		WorkerType: specdomain.WorkerType{
 			Slug:           slug,
-			DefinitionHash: hash,
+			DefinitionHash: definition.DefinitionHash,
 		},
 		TypeSchema:                typeSchema,
-		SupportedInteractionModes: supportedModes,
+		SupportedInteractionModes: modes,
+		ModelRequirement:          modelRequirement,
+		ToolModelRequirements:     toolModelRequirements,
 	}, nil
 }
 
-func parseSupportedInteractionModes(value string) ([]specdomain.InteractionMode, error) {
-	modes := make([]specdomain.InteractionMode, 0, 2)
+func modelRequirementFromDefinition(
+	definition workerdefinition.Definition,
+) (specdomain.ModelRequirement, error) {
+	adapters := make(
+		[]slugkit.Slug,
+		len(definition.ModelRequirement.ProtocolAdapters),
+	)
+	for index, rawAdapter := range definition.ModelRequirement.ProtocolAdapters {
+		adapter, err := slugkit.NewFromTrusted(rawAdapter)
+		if err != nil {
+			return specdomain.ModelRequirement{}, invalidWorkerType(
+				fmt.Sprintf("invalid model protocol adapter %q", rawAdapter),
+			)
+		}
+		adapters[index] = adapter
+	}
+	requirement := specdomain.ModelRequirement{
+		Required:         definition.ModelRequirement.Required,
+		ProtocolAdapters: adapters,
+	}
+	if err := specservice.ValidateModelRequirement(requirement); err != nil {
+		return specdomain.ModelRequirement{}, invalidWorkerType(err.Error())
+	}
+	return requirement, nil
+}
+
+func toolModelRequirementsFromDefinition(
+	definition workerdefinition.Definition,
+) ([]specdomain.ToolModelRequirement, error) {
+	requirements := make(
+		[]specdomain.ToolModelRequirement,
+		0,
+		len(definition.ToolModelRequirements),
+	)
+	for _, item := range definition.ToolModelRequirements {
+		role, err := slugkit.NewFromTrusted(item.ID)
+		if err != nil {
+			return nil, invalidWorkerType("invalid tool model role")
+		}
+		providers, err := trustedSlugs(item.ProviderKeys)
+		if err != nil {
+			return nil, invalidWorkerType("invalid tool model provider")
+		}
+		adapters, err := trustedSlugs(item.ProtocolAdapters)
+		if err != nil {
+			return nil, invalidWorkerType("invalid tool model protocol adapter")
+		}
+		requirements = append(requirements, specdomain.ToolModelRequirement{
+			Role:             role,
+			ProviderKeys:     providers,
+			ProtocolAdapters: adapters,
+			Modality:         resourcedomain.Modality(item.Modality),
+			Capability:       resourcedomain.Capability(item.Capability),
+			Environment: specdomain.ToolModelEnvironment{
+				APIKey: item.Environment.APIKey, BaseURL: item.Environment.BaseURL,
+				ModelID: item.Environment.ModelID,
+			},
+		})
+	}
+	if err := specservice.ValidateToolModelRequirements(requirements); err != nil {
+		return nil, invalidWorkerType(err.Error())
+	}
+	return requirements, nil
+}
+
+func trustedSlugs(values []string) ([]slugkit.Slug, error) {
+	slugs := make([]slugkit.Slug, len(values))
+	for index, value := range values {
+		slug, err := slugkit.NewFromTrusted(value)
+		if err != nil {
+			return nil, err
+		}
+		slugs[index] = slug
+	}
+	return slugs, nil
+}
+
+func parseSupportedInteractionModes(value []string) ([]specdomain.InteractionMode, error) {
+	modes := make([]specdomain.InteractionMode, 0, len(value))
 	seen := map[specdomain.InteractionMode]struct{}{}
-	for _, rawMode := range strings.Split(value, ",") {
+	for _, rawMode := range value {
 		mode := specdomain.InteractionMode(strings.TrimSpace(rawMode))
 		switch mode {
 		case specdomain.InteractionModePTY, specdomain.InteractionModeACP:
@@ -104,7 +174,9 @@ func parseSupportedInteractionModes(value string) ([]specdomain.InteractionMode,
 			)
 		}
 		if _, exists := seen[mode]; exists {
-			continue
+			return nil, invalidWorkerType(
+				fmt.Sprintf("duplicate interaction mode %q in definition", mode),
+			)
 		}
 		seen[mode] = struct{}{}
 		modes = append(modes, mode)
@@ -113,79 +185,6 @@ func parseSupportedInteractionModes(value string) ([]specdomain.InteractionMode,
 		return nil, invalidWorkerType("definition has no supported interaction modes")
 	}
 	return modes, nil
-}
-
-func convertTypeSchema(
-	workerType string,
-	schema *agentservice.ConfigSchemaResponse,
-) (specdomain.TypeSchema, error) {
-	if schema == nil {
-		return specdomain.TypeSchema{}, invalidWorkerType("worker type schema is missing")
-	}
-	fields := make(map[string]specdomain.TypeFieldSchema, len(schema.Fields)+len(schema.CredentialFields))
-	for _, field := range schema.Fields {
-		if isModelResourceManagedTypeField(workerType, field.Name) {
-			continue
-		}
-		kind, err := typeFieldKind(field.Type)
-		if err != nil {
-			return specdomain.TypeSchema{}, invalidWorkerType(err.Error())
-		}
-		options := make([]string, len(field.Options))
-		for index, option := range field.Options {
-			options[index] = option.Value
-		}
-		fields[field.Name] = specdomain.TypeFieldSchema{Kind: kind, Options: options}
-	}
-	for _, field := range schema.CredentialFields {
-		if isModelResourceManagedTypeField(workerType, field.Name) {
-			continue
-		}
-		if _, exists := fields[field.Name]; exists {
-			return specdomain.TypeSchema{}, invalidWorkerType(
-				fmt.Sprintf("duplicate config field %q", field.Name),
-			)
-		}
-		fields[field.Name] = specdomain.TypeFieldSchema{Kind: specdomain.TypeFieldSecret}
-	}
-	return specdomain.TypeSchema{Version: workerTypeSchemaVersion, Fields: fields}, nil
-}
-
-func typeFieldKind(value string) (specdomain.TypeFieldKind, error) {
-	switch value {
-	case "boolean":
-		return specdomain.TypeFieldBoolean, nil
-	case "string":
-		return specdomain.TypeFieldString, nil
-	case "number":
-		return specdomain.TypeFieldNumber, nil
-	case "select":
-		return specdomain.TypeFieldSelect, nil
-	default:
-		return "", fmt.Errorf("unsupported config field type %q", value)
-	}
-}
-
-func definitionHash(agent *agentdomain.Agent, schema specdomain.TypeSchema) (string, error) {
-	document := struct {
-		Slug           string                `json:"slug"`
-		Executable     string                `json:"executable"`
-		SupportedModes string                `json:"supported_modes"`
-		Agentfile      string                `json:"agentfile"`
-		Schema         specdomain.TypeSchema `json:"schema"`
-	}{
-		Slug:           agent.Slug,
-		Executable:     agent.Executable,
-		SupportedModes: agent.SupportedModes,
-		Agentfile:      *agent.AgentfileSource,
-		Schema:         schema,
-	}
-	data, err := json.Marshal(document)
-	if err != nil {
-		return "", fmt.Errorf("encode worker type definition: %w", err)
-	}
-	sum := sha256.Sum256(data)
-	return hex.EncodeToString(sum[:]), nil
 }
 
 func invalidWorkerType(reason string) error {

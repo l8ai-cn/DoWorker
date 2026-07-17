@@ -1,6 +1,7 @@
 // Migrated R5+: Connect-RPC only (no REST middle layer).
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { getTestExecutionClusterId } from "../../helpers/execution-cluster-fixture";
 import { clearAuthRateLimit } from "../../helpers/redis";
 
 test.describe("Runner Diagnostics API", () => {
@@ -38,11 +39,12 @@ test.describe("Runner Diagnostics API", () => {
     expect(Array.isArray(res.items)).toBe(true);
   });
 
-  test("create and delete runner token", async ({ api }) => {
+  test("create and delete runner token", async ({ api, db }) => {
     const cc = await api.connect();
     const created = await cc.runner.createRunnerToken({
       orgSlug: TEST_ORG_SLUG,
       name: "E2E test token",
+      clusterId: getTestExecutionClusterId(db),
     }) as { id?: number; token?: string };
     expect(created.token).toBeTruthy();
     if (created.id != null) {

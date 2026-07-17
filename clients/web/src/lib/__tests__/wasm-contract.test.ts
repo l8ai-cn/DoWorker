@@ -37,6 +37,7 @@ import type {
   WasmAppState,
   WasmBlockstoreService,
   WasmAuthManager,
+  WasmOrchestrationResourceService,
 } from "do-worker-wasm";
 
 // Plain identity helper — `_Sig<F>` accepts any function type. We use it
@@ -265,6 +266,19 @@ type _RunnerSvc_authorize_runner      = _Sig<WasmRunnerService["authorize_runner
 type _RunnerSvc_proto_get_auth_status = _RequiresU8<WasmRunnerService["get_auth_status"]>;
 type _RunnerSvc_proto_authorize_runner = _RequiresU8<WasmRunnerService["authorize_runner"]>;
 
+type _OrchestrationResource_validate = _RequiresU8<WasmOrchestrationResourceService["validateResourceConnect"]>;
+type _OrchestrationResource_plan = _RequiresU8<WasmOrchestrationResourceService["planResourceConnect"]>;
+type _OrchestrationResource_get = _RequiresU8<WasmOrchestrationResourceService["getResourceConnect"]>;
+type _OrchestrationResource_list = _RequiresU8<WasmOrchestrationResourceService["listResourcesConnect"]>;
+type _OrchestrationResource_export = _RequiresU8<WasmOrchestrationResourceService["exportResourceConnect"]>;
+type _OrchestrationResource_get_plan = _RequiresU8<WasmOrchestrationResourceService["getResourcePlanConnect"]>;
+type _OrchestrationResource_apply_binding = _RequiresU8<WasmOrchestrationResourceService["applyBindingResourcePlanConnect"]>;
+type _OrchestrationResource_apply_worker = _RequiresU8<WasmOrchestrationResourceService["applyWorkerTemplatePlanConnect"]>;
+type _OrchestrationResource_create_worker = _RequiresU8<WasmOrchestrationResourceService["createWorkerFromPlanConnect"]>;
+type _OrchestrationResource_create_goal_loop = _RequiresU8<WasmOrchestrationResourceService["createGoalLoopFromPlanConnect"]>;
+type _OrchestrationResource_apply_prompt = _RequiresU8<WasmOrchestrationResourceService["applyPromptPlanConnect"]>;
+type _OrchestrationResource_apply_expert = _RequiresU8<WasmOrchestrationResourceService["applyExpertPlanConnect"]>;
+type _OrchestrationResource_apply_workflow = _RequiresU8<WasmOrchestrationResourceService["applyWorkflowPlanConnect"]>;
 
 // Vitest discovery requires the file to contain *something* runnable, but
 // the body is intentionally empty — tsc + the type assertions above are

@@ -182,6 +182,7 @@ func repositoryAgentDefinition(repoSlug string) *agentDomain.Agent {
 		Slug:            "claude-code",
 		Name:            "Claude Code",
 		LaunchCommand:   "claude",
+		AdapterID:       "claude-stream-json",
 		SupportedModes:  "pty",
 		AgentfileSource: &source,
 	}

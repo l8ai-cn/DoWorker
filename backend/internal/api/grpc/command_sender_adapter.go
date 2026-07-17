@@ -17,7 +17,12 @@ func NewGRPCCommandSender(adapter *GRPCRunnerAdapter) *GRPCCommandSender {
 }
 
 func (s *GRPCCommandSender) SendCreatePod(ctx context.Context, runnerID int64, cmd *runnerv1.CreatePodCommand) error {
-	slog.InfoContext(ctx, "sending create_pod command", "runner_id", runnerID, "pod_key", cmd.GetPodKey())
+	slog.InfoContext(ctx, "sending create_pod command",
+		"runner_id", runnerID,
+		"pod_key", cmd.GetPodKey(),
+		"prompt_set", cmd.GetPrompt() != "",
+		"prompt_position", cmd.GetPromptPosition(),
+	)
 	if err := s.adapter.SendCreatePod(runnerID, cmd); err != nil {
 		slog.ErrorContext(ctx, "failed to send create_pod command", "runner_id", runnerID, "pod_key", cmd.GetPodKey(), "error", err)
 		return err

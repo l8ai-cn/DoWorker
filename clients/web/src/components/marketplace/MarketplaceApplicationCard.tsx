@@ -1,8 +1,11 @@
 import {
   CheckCircle2,
+  Clapperboard,
+  Film,
   GitCompareArrows,
   Network,
   Rocket,
+  Scissors,
   type LucideIcon,
 } from "lucide-react";
 
@@ -14,6 +17,9 @@ const icons: Record<PublicMarketApplication["icon"], LucideIcon> = {
   rocket: Rocket,
   network: Network,
   "git-compare": GitCompareArrows,
+  clapperboard: Clapperboard,
+  scissors: Scissors,
+  film: Film,
 };
 
 export function MarketplaceApplicationCard({
@@ -73,7 +79,10 @@ export function MarketplaceApplicationCard({
       </div>
 
       <div className="mt-auto pt-6">
-        <MarketplaceInstallButton applicationSlug={application.slug} />
+        <MarketplaceInstallButton
+          applicationSlug={application.slug}
+          agentSlug={application.agent_slug}
+        />
       </div>
     </article>
   );

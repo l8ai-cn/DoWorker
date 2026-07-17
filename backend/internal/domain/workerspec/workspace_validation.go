@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
 const maxBranchRunes = 255
@@ -24,6 +26,9 @@ func validateWorkspace(workspace Workspace) error {
 	if err := validateUniqueIDs("workspace skill_ids", workspace.SkillIDs); err != nil {
 		return err
 	}
+	if err := validateSkillPackages(workspace.SkillIDs, workspace.SkillPackages); err != nil {
+		return err
+	}
 	if err := validateKnowledgeMounts(workspace.KnowledgeMounts); err != nil {
 		return err
 	}
@@ -32,6 +37,34 @@ func validateWorkspace(workspace Workspace) error {
 		ids[index] = int64(id)
 	}
 	return validateUniqueIDs("workspace env_bundle_ids", ids)
+}
+
+func validateSkillPackages(
+	skillIDs []int64,
+	packages []SkillPackageBinding,
+) error {
+	if len(packages) == 0 {
+		return nil
+	}
+	if len(packages) != len(skillIDs) {
+		return fmt.Errorf("workspace skill packages must match skill_ids")
+	}
+	for index, pkg := range packages {
+		if pkg.SkillID != skillIDs[index] {
+			return fmt.Errorf("workspace skill package ids must match skill_ids")
+		}
+		if err := slugkit.Validate(pkg.Slug); err != nil {
+			return fmt.Errorf("workspace skill package slug: %w", err)
+		}
+		if pkg.Version <= 0 || pkg.ContentSHA == "" ||
+			pkg.StorageKey == "" || pkg.PackageSize < 0 {
+			return fmt.Errorf(
+				"workspace skill package %d is incomplete",
+				pkg.SkillID,
+			)
+		}
+	}
+	return nil
 }
 
 func validateKnowledgeMounts(mounts []KnowledgeMount) error {

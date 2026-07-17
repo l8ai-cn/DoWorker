@@ -19,7 +19,7 @@ func TestCreateInstallationPlanIsStableAndDirect(t *testing.T) {
 			Permissions:          json.RawMessage(`["repository.write"]`),
 			Manifest:             json.RawMessage(`{"single_instance":true}`),
 			PlatformResourceType: "expert",
-			RuntimeSnapshot:      json.RawMessage(`{"name":"商品优化应用"}`),
+			RuntimeSnapshot:      json.RawMessage(`{"market_application_slug":"software-delivery-expert"}`),
 			QuotaPlanID:          71,
 			QuotaAccountID:       "quota-1", EstimatedCredits: 20_000_000,
 		},
@@ -96,10 +96,12 @@ func TestApplyPlanIsIdempotent(t *testing.T) {
 	require.Equal(t, first, second)
 	require.Equal(t, 1, runtime.calls)
 	require.Equal(t, 1, repository.completed)
-	require.JSONEq(t, `{"name":"商品优化应用"}`,
+	require.JSONEq(t, `{"market_application_slug":"software-delivery-expert"}`,
 		string(runtime.lastRequest.RuntimeSnapshot))
 	require.Equal(t, int64(9), runtime.lastRequest.TargetOrganizationID)
 	require.Equal(t, int64(14), runtime.lastRequest.ActorUserID)
+	require.Equal(t, int64(101), runtime.lastRequest.PlatformResourceID)
+	require.Equal(t, int64(201), runtime.lastRequest.SourceReleaseID)
 	require.Equal(t, int64(14), repository.resultActorUserID)
 	require.Equal(t, 1, runtime.authorizationCalls)
 }
@@ -260,7 +262,9 @@ func (r *installationRepositoryStub) BeginApply(
 		InstallationID: "installation-1", OperationID: command.OperationID,
 		ListingVersionID: 301, TargetOrganizationID: 9,
 		PlatformResourceType: "expert",
-		RuntimeSnapshot:      json.RawMessage(`{"name":"商品优化应用"}`),
+		PlatformResourceID:   101,
+		SourceReleaseID:      201,
+		RuntimeSnapshot:      json.RawMessage(`{"market_application_slug":"software-delivery-expert"}`),
 		ActorUserID:          command.ActorUserID,
 		Configuration:        json.RawMessage(`{}`), ReservedCredits: 20_000_000,
 	}, false, nil

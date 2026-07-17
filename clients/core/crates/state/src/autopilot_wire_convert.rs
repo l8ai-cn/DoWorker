@@ -19,7 +19,11 @@ use agentsmesh_types::proto_autopilot_v1::{
 use crate::autopilot_state::{AutopilotController, AutopilotIteration, AutopilotState};
 
 fn opt(s: String) -> Option<String> {
-    if s.is_empty() { None } else { Some(s) }
+    if s.is_empty() {
+        None
+    } else {
+        Some(s)
+    }
 }
 
 pub fn wire_controller_to_state(w: WireController) -> AutopilotController {

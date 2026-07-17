@@ -1,6 +1,6 @@
 import { ShieldAlert, Square } from "lucide-react";
 import type { AgentEvent } from "@/lib/session-types";
-import { useSessionActions } from "@/lib/session-action-context";
+import { useSessionActions } from "@/lib/session-action-state";
 import { setApprovalDecision } from "@/lib/session-approval-decisions";
 import { SessionComposer } from "@/components/session/session-composer";
 import { TOOL_KIND_META } from "@/components/session/session-tool-card";
@@ -29,10 +29,17 @@ function ApprovalBar({ event }: { event: AgentEvent }) {
       <div className="flex items-center gap-2">
         <ShieldAlert className="h-4 w-4 shrink-0 text-warning" />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[12px] font-semibold text-warning leading-tight">需要你的批准</p>
+          <p className="truncate text-[12px] font-semibold text-warning leading-tight">
+            需要你的批准
+          </p>
           <p className="truncate text-[11px] text-muted-foreground leading-tight">
             <span className="font-mono">{label}</span>
-            {event.filePath && <> · <span className="font-mono">{event.filePath}</span></>}
+            {event.filePath && (
+              <>
+                {" "}
+                · <span className="font-mono">{event.filePath}</span>
+              </>
+            )}
           </p>
         </div>
         <button
@@ -52,7 +59,8 @@ function ApprovalBar({ event }: { event: AgentEvent }) {
         onClick={() => decide(true)}
         className="mt-1 flex w-full items-center justify-center gap-1 text-[10.5px] text-muted-foreground hover:text-foreground"
       >
-        <Square className="h-2.5 w-2.5" /> 本会话内始终允许 <span className="font-mono">{label}</span>
+        <Square className="h-2.5 w-2.5" /> 本会话内始终允许{" "}
+        <span className="font-mono">{label}</span>
       </button>
     </div>
   );

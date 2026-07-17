@@ -146,11 +146,32 @@
       "loadSchemaFailed": "Failed to load configuration schema",
       "noConfigFields": "No configuration options available for this agent",
       "invalidJson": "Invalid JSON format",
-      "credentials": {
-        "title": "API Credentials",
-        "description": "Provider credentials are managed in AI Resources. Runtime env bundles must not contain model API secrets."
-      },
-      "runtime": {
+    "credentials": {
+      "title": "API Credentials",
+      "description": "Provider credentials are managed in AI Resources. Runtime env bundles must not contain model API secrets."
+    },
+    "credentialBundles": {
+      "title": "認証情報バンドル",
+      "description": "この Worker の接続認証情報を暗号化バンドルとして保存します。Worker 作成時に既定のバンドルを選択できます。",
+      "empty": "認証情報バンドルはまだありません。Worker 作成時に再利用するため追加してください。",
+      "noKeys": "認証情報フィールドが設定されていません",
+      "add": "追加",
+      "addTitle": "認証情報バンドルを追加",
+      "editTitle": "認証情報バンドルを編集",
+      "name": "名前",
+      "namePlaceholder": "例: personal-cursor / team-openai",
+      "descriptionLabel": "説明",
+      "clearDefault": "既定を解除",
+      "confirmDelete": "この認証情報バンドルを削除しますか？参照する Worker にはこの認証情報が渡されなくなります。",
+      "created": "認証情報バンドルを作成しました",
+      "updated": "認証情報バンドルを更新しました",
+      "deleted": "認証情報バンドルを削除しました",
+      "defaultSet": "既定の認証情報バンドルを更新しました",
+      "saveFailed": "認証情報バンドルを保存できませんでした",
+      "failedToSetDefault": "既定の認証情報バンドルを設定できませんでした",
+      "failedToDelete": "認証情報バンドルを削除できませんでした"
+    },
+    "runtime": {
         "title": "Runtime Configuration",
         "description": "Set default runtime parameters for this agent. These settings will be used when creating new pods."
       },
@@ -468,6 +489,7 @@
       "justNow": "Just now",
       "edit": "Edit",
       "generateToken": "Generate Token",
+      "selectCluster": "Select execution cluster",
       "delete": "Delete",
       "disabled": "Disabled",
       "upgradeAvailable": "更新",

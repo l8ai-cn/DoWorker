@@ -26,7 +26,7 @@ func TestServicePreflightResolvesAndCompilesCompleteWorkerSpec(t *testing.T) {
 	require.Empty(t, result.BlockingErrors)
 	require.Empty(t, result.Warnings)
 	require.NotNil(t, result.Resolved)
-	assert.Equal(t, runtimedomain.DefaultCatalogRevision, result.OptionsRevision)
+	assert.Equal(t, runtimedomain.DefaultCatalogRevision(), result.OptionsRevision)
 	assert.Equal(t, int64(101), result.Resolved.Spec.Runtime.ModelBinding.ResourceID)
 	assert.Equal(t, int64(7), result.Resolved.Spec.Runtime.ModelBinding.ResourceRevision)
 	assert.Equal(t, int64(201), result.Resolved.Spec.Runtime.ModelBinding.ConnectionID)
@@ -35,6 +35,14 @@ func TestServicePreflightResolvesAndCompilesCompleteWorkerSpec(t *testing.T) {
 	assert.Equal(t, int64(1), result.Resolved.Spec.Placement.ComputeTarget.ID)
 	assert.Equal(t, int64(1), result.Resolved.Spec.Placement.ResourceProfile.ID)
 	assert.Equal(t, []int64{3}, result.Resolved.Spec.Workspace.SkillIDs)
+	assert.Equal(t, []specdomain.SkillPackageBinding{{
+		SkillID:     3,
+		Slug:        "code-review",
+		Version:     2,
+		ContentSHA:  "sha-code-review",
+		StorageKey:  "skills/code-review.tar.gz",
+		PackageSize: 128,
+	}}, result.Resolved.Spec.Workspace.SkillPackages)
 	assert.Equal(t, "worker", result.Resolved.Spec.Metadata.Alias)
 	assert.Contains(t, result.Resolved.AgentfileLayer, `CONFIG approval_mode = "never"`)
 	assert.Contains(t, result.Resolved.AgentfileLayer, `USE_ENV_BUNDLE "signing-secrets"`)
@@ -91,6 +99,9 @@ func TestServicePreflightReturnsBlockingIssueForInvalidDraft(t *testing.T) {
 func TestServicePreflightRejectsUnsupportedInteractionMode(t *testing.T) {
 	fixture := newWorkerCreationServiceFixture()
 	fixture.agents.agent.SupportedModes = "pty"
+	definition := fixture.definitions["codex-cli"]
+	definition.Modes = []string{"pty"}
+	fixture.definitions["codex-cli"] = definition
 	service := NewService(fixture.deps())
 
 	result, err := service.Preflight(
@@ -144,9 +155,10 @@ func TestServiceValidateWorkerTypeSnapshotRejectsDefinitionDrift(t *testing.T) {
 }
 
 type workerCreationServiceFixture struct {
-	agents    *workerTypeAgentProvider
-	resources *modelResourceService
-	workspace *workspaceFixture
+	agents      *workerTypeAgentProvider
+	definitions staticWorkerDefinitions
+	resources   *modelResourceService
+	workspace   *workspaceFixture
 }
 
 func newWorkerCreationServiceFixture() *workerCreationServiceFixture {
@@ -156,7 +168,10 @@ CONFIG approval_mode SELECT("untrusted", "on-request", "never") = "on-request"
 ENV SIGNING_KEY SECRET OPTIONAL
 `
 	return &workerCreationServiceFixture{
-		agents:    &workerTypeAgentProvider{agent: activeWorkerTypeAgent(source)},
+		agents: &workerTypeAgentProvider{agent: activeWorkerTypeAgent(source)},
+		definitions: staticWorkerDefinitions{
+			"codex-cli": workerDefinition("codex-cli", "codex", source, "pty", "acp"),
+		},
 		resources: validModelResourceService(),
 		workspace: newWorkspaceFixture(),
 	}
@@ -164,7 +179,8 @@ ENV SIGNING_KEY SECRET OPTIONAL
 
 func (fixture *workerCreationServiceFixture) deps() Deps {
 	return Deps{
-		Catalog:      runtimedomain.DefaultCatalog(),
+		Catalog:      enabledCodexRuntimeCatalog(),
+		Definitions:  fixture.definitions,
 		Agents:       fixture.agents,
 		Models:       fixture.resources,
 		Repositories: fixture.workspace.repositories,
@@ -176,7 +192,7 @@ func (fixture *workerCreationServiceFixture) deps() Deps {
 
 func validWorkerCreationDraft() Draft {
 	return Draft{
-		OptionsRevision: runtimedomain.DefaultCatalogRevision,
+		OptionsRevision: runtimedomain.DefaultCatalogRevision(),
 		WorkerSpec: specservice.Draft{
 			ModelResourceID: 101,
 			WorkerTypeSlug:  slugkit.MustNewForTest("codex-cli"),

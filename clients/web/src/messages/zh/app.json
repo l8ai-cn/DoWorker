@@ -377,6 +377,237 @@
       }
     }
   },
+  "resourceEditor": {
+    "mode": {
+      "run": "立即运行",
+      "template": "Worker 模板",
+      "resources": "引用资源"
+    },
+    "title": "Worker 模板",
+    "subtitle": "创建可版本化的 Worker 配置，审查变更计划，并应用为不可变运行快照。",
+    "worker": {
+      "title": "运行 Worker",
+      "subtitle": "基于固定版本的模板和可选 Prompt 创建一个 Worker，并审查准确的启动计划。"
+    },
+    "prompt": {
+      "title": "Prompt",
+      "subtitle": "版本化管理 Prompt 内容和变量，并在应用前审查准确版本。"
+    },
+    "expert": {
+      "title": "专家",
+      "subtitle": "通过固定版本的 WorkerTemplate 与 Prompt 资源声明专家。"
+    },
+    "workflow": {
+      "title": "Workflow",
+      "subtitle": "通过固定版本的 WorkerTemplate 与 Prompt 资源声明定时或直接执行流程。"
+    },
+    "goalLoop": {
+      "title": "目标循环",
+      "subtitle": "通过明确的完成证据定义有边界的自主工作。"
+    },
+    "binding": {
+      "title": "{kind} 绑定",
+      "subtitle": "把已有平台资源暴露为可版本管理的编排资源；凭证仍保存在被引用的平台资源中。"
+    },
+    "tabs": {
+      "form": "配置",
+      "yaml": "YAML",
+      "plan": "计划与差异"
+    },
+    "status": {
+      "draft": "草稿",
+      "planReady": "计划就绪",
+      "applied": "已应用"
+    },
+    "sections": {
+      "identity": "身份",
+      "invocation": "运行参数",
+      "bindings": "资源绑定",
+      "binding": "平台资源绑定",
+      "definition": "资源定义",
+      "prompt": "Prompt 内容",
+      "execution": "执行策略",
+      "runtime": "运行环境",
+      "typeConfig": "Worker 配置",
+      "workspace": "工作区",
+      "lifecycle": "生命周期"
+    },
+    "fields": {
+      "name": "资源名称",
+      "resourceKind": "资源 Kind",
+      "displayName": "显示名称",
+      "workerType": "Worker 类型",
+      "workerTemplateRef": "Worker 模板",
+      "promptRef": "Prompt",
+      "inputs": "输入参数",
+      "inputKey": "参数名",
+      "inputValue": "参数值",
+      "promptContent": "Prompt 内容",
+      "variables": "变量",
+      "variableName": "变量名",
+      "required": "必填",
+      "hasDefault": "有默认值",
+      "defaultValue": "默认值",
+      "description": "说明",
+      "category": "分类",
+      "releaseNotes": "发布说明",
+      "objective": "目标",
+      "acceptanceCriteria": "验收标准",
+      "verificationCommand": "验证命令",
+      "maxIterations": "最大迭代次数",
+      "tokenBudget": "Token 预算",
+      "noProgressLimit": "无进展上限",
+      "sameErrorLimit": "相同错误上限",
+      "escalationPolicy": "升级策略",
+      "modelResourceId": "模型 API 资源 ID",
+      "repositoryId": "代码仓库 ID",
+      "skillId": "Skill ID",
+      "knowledgeBaseId": "知识库 ID",
+      "environmentBundleId": "环境变量包 ID",
+      "computeTargetId": "计算目标 ID",
+      "resourceProfileId": "资源规格 ID",
+      "executionMode": "执行模式",
+      "sandboxStrategy": "沙箱策略",
+      "sessionPersistence": "保留会话",
+      "concurrencyPolicy": "并发策略",
+      "maxConcurrentRuns": "最大并发运行数",
+      "maxRetainedRuns": "最大保留运行数",
+      "timeoutMinutes": "运行超时（分钟）",
+      "idleTimeoutSeconds": "空闲超时（秒）",
+      "cronExpression": "Cron 表达式",
+      "callbackUrl": "回调 URL",
+      "optionsRevision": "选项版本",
+      "modelRef": "模型绑定",
+      "resourceReference": "资源引用",
+      "revision": "版本",
+      "alias": "Worker 别名",
+      "toolRefs": "工具绑定",
+      "toolRole": "工具角色",
+      "runtimeImageId": "运行镜像 ID",
+      "placementPolicy": "放置策略",
+      "computeTargetRef": "计算目标",
+      "deploymentMode": "部署模式",
+      "resourceProfileRef": "资源规格",
+      "resourceMode": "资源分配",
+      "cpuRequest": "CPU 请求（millicpu）",
+      "cpuLimit": "CPU 上限（millicpu）",
+      "memoryRequest": "内存请求（字节）",
+      "memoryLimit": "内存上限（字节）",
+      "storageRequest": "存储请求（字节）",
+      "storageLimit": "存储上限（字节）",
+      "gpuRequest": "GPU 请求",
+      "gpuLimit": "GPU 上限",
+      "interactionMode": "交互模式",
+      "automationLevel": "自动化级别",
+      "schemaVersion": "配置 Schema 版本",
+      "configValues": "配置值",
+      "configKey": "配置键",
+      "configValue": "值",
+      "valueType": "类型",
+      "secretRefs": "Secret 引用",
+      "repositoryRef": "代码仓库",
+      "branch": "分支",
+      "skillRefs": "Skills",
+      "knowledgeMounts": "知识库挂载",
+      "knowledgeBase": "知识库",
+      "mountMode": "挂载模式",
+      "environmentBundleRefs": "环境变量包",
+      "configBundleRefs": "配置包",
+      "instructions": "工作指令",
+      "terminationPolicy": "终止策略",
+      "idleTimeoutMinutes": "空闲超时（分钟）"
+    },
+    "options": {
+      "automatic": "自动",
+      "explicit": "指定",
+      "pooled": "共享池",
+      "dedicated": "独占",
+      "profile": "资源规格",
+      "custom": "自定义限制",
+      "manual": "手动",
+      "idle": "空闲时",
+      "completed": "完成时",
+      "pty": "PTY",
+      "acp": "ACP",
+      "interactive": "交互式",
+      "autonomous": "自主",
+      "autoEdit": "自动编辑",
+      "supervised": "监督",
+      "readOnly": "只读",
+      "readWrite": "读写",
+      "direct": "直接执行",
+      "autopilot": "Autopilot",
+      "fresh": "全新沙箱",
+      "persistent": "持久沙箱",
+      "pause": "暂停等待处理",
+      "fail": "标记循环失败"
+    },
+    "references": {
+      "loading": "正在加载可引用资源…",
+      "empty": "当前还没有可用的 {kind} 资源。",
+      "available": "可引用 {count} 个资源。"
+    },
+    "collections": {
+      "add": "添加",
+      "remove": "移除",
+      "none": "尚未配置。",
+      "acceptanceCriterion": "验收标准 {index}",
+      "addAcceptanceCriteria": "添加验收标准",
+      "removeAcceptanceCriterion": "移除验收标准 {index}"
+    },
+    "secrets": {
+      "referenceOnly": "这里只保存 EnvironmentBundle 资源引用，不录入也不显示任何 Secret 明文。"
+    },
+    "valueTypes": {
+      "string": "字符串",
+      "number": "数字",
+      "boolean": "布尔值",
+      "json": "JSON",
+      "true": "是",
+      "false": "否",
+      "yamlOnly": "嵌套 JSON 值在表单中只读，请在 YAML 中编辑。"
+    },
+    "yaml": {
+      "label": "{kind} YAML",
+      "invalid": "请先修复 YAML，才能返回表单或应用。",
+      "manual": "YAML 手册"
+    },
+    "plan": {
+      "empty": "生成计划后，可审查语义差异和被固定的资源版本。",
+      "operation": "操作",
+      "expires": "过期时间",
+      "changes": "语义变更",
+      "references": "固定引用",
+      "issues": "问题",
+      "noChanges": "没有语义变更。",
+      "noReferences": "没有引用其他资源。",
+      "expired": "该计划已过期，请重新生成计划后再应用。"
+    },
+    "validation": {
+      "valid": "资源校验通过。"
+    },
+    "numberErrors": {
+      "required": "请输入整数。",
+      "integer": "请输入不含小数的整数。",
+      "safeInteger": "请输入 JavaScript 可安全表示范围内的整数。",
+      "minimum": "请输入不小于 {min} 的整数。",
+      "range": "请输入 {min} 到 {max} 之间的整数。"
+    },
+    "actions": {
+      "validate": "校验",
+      "validating": "校验中",
+      "plan": "生成计划",
+      "planning": "计划生成中",
+      "apply": "应用模板",
+      "applyResource": "应用资源",
+      "createWorker": "创建 Worker",
+      "applying": "应用中"
+    },
+    "result": {
+      "revision": "版本 {revision}",
+      "snapshot": "WorkerSpec 快照 {snapshot}"
+    }
+  },
   "workspace": {
     "title": "工作区",
     "searchPlaceholder": "搜索 Worker…",
@@ -689,6 +920,214 @@
     "goBack": "返回",
     "reload": "刷新",
     "home": "回到首页"
+  },
+  "loopWorkbench": {
+    "shell": {
+      "canvasTitle": "积木画布",
+      "canvasHint": "双击空白处快速插入",
+      "editorTitle": "循环脚本",
+      "editorMetadata": "编辑版本 {revision} · 语义版本 {semanticRevision}"
+    },
+    "toolbar": {
+      "back": "返回循环列表",
+      "title": "循环工作台",
+      "subtitle": "积木与循环脚本共享同一份后端确认语义",
+      "blocks": "积木",
+      "code": "代码",
+      "run": "运行循环"
+    },
+    "blockly": {
+      "loop": {
+        "message0": "循环 %1",
+        "message1": "执行边界 %1",
+        "message2": "循环步骤 %1",
+        "message3": "失败处理 %1"
+      },
+      "limits": {
+        "message0": "最多 %1 轮 · %2 令牌 · %3 分钟",
+        "message1": "无进展 %1 次 · 同错 %2 次"
+      },
+      "repeat": {
+        "message0": "重复执行 %1 · 最多 %2 次",
+        "message1": "直到 %1 . %2",
+        "message2": "执行 %1"
+      },
+      "agent": {
+        "message0": "智能体任务 %1",
+        "message1": "任务说明 %1",
+        "defaultPrompt": "描述要完成的任务"
+      },
+      "verifier": {
+        "message0": "验证步骤 %1",
+        "message1": "命令 %1",
+        "message2": "通过条件 %1",
+        "defaultAccept": "验证通过"
+      },
+      "failure": {
+        "message0": "失败后 %1",
+        "pause": "暂停并等待人工",
+        "fail": "标记失败"
+      },
+      "toolbox": {
+        "loop": "循环",
+        "control": "控制",
+        "agent": "智能体",
+        "verifier": "验证",
+        "limits": "边界",
+        "failure": "失败"
+      }
+    },
+    "quickInsert": {
+      "close": "关闭快速插入",
+      "title": "插入积木",
+      "options": {
+        "loop": "循环",
+        "repeat": "重复执行",
+        "agent": "智能体任务",
+        "verifier": "验证步骤",
+        "limits": "执行边界",
+        "failure": "失败处理"
+      }
+    },
+    "status": {
+      "diagnosticsTitle": "诊断",
+      "runTitle": "运行",
+      "valid": "当前源码通过后端校验",
+      "noRun": "尚未启动循环。",
+      "repairDiagnostic": "修复此诊断",
+      "repairingDiagnostic": "正在修复诊断",
+      "nodeLabel": "节点：",
+      "runStatusLabel": "状态：",
+      "diagnosticLocation": "第 {line} 行，第 {column} 列",
+      "runInstance": " · 运行实例 {podKey}",
+      "unknownStatus": "未知状态",
+      "parseStatus": {
+        "empty": "等待输入",
+        "parsing": "校验中",
+        "valid": "有效",
+        "syntax-error": "存在错误"
+      },
+      "runStatus": {
+        "draft": "草稿",
+        "active": "运行中",
+        "paused": "已暂停",
+        "verifying": "验证中",
+        "completed": "已完成",
+        "failed": "失败",
+        "cancelled": "已取消"
+      },
+      "diagnostics": {
+        "programNil": "循环程序不能为空",
+        "schemaVersionUnsupported": "循环脚本版本不受支持",
+        "syntaxInvalidToken": "循环脚本包含无效字符",
+        "syntaxInvalidNumber": "循环脚本包含无效数字",
+        "syntaxUnexpectedToken": "循环脚本结构不符合语法",
+        "syntaxUnknown": "循环脚本包含未知语法",
+        "nodeIdMissing": "积木节点缺少唯一标识",
+        "nodeIdDuplicate": "积木节点标识重复",
+        "localIdDuplicate": "步骤名称重复",
+        "identifierInvalid": "步骤名称格式无效",
+        "limitsCount": "必须且只能设置一个执行边界",
+        "repeatCount": "必须且只能设置一个重复执行步骤",
+        "agentCount": "重复执行中必须且只能包含一个智能体任务",
+        "verifierCount": "重复执行中必须且只能包含一个验证步骤",
+        "failureCount": "必须且只能设置一个失败处理策略",
+        "untilInvalid": "循环停止条件必须引用验证步骤的通过结果",
+        "repeatMaxExceedsLimit": "重复次数不能超过全局最大轮数",
+        "failurePolicyInvalid": "失败处理策略无效",
+        "valueOutOfRange": "积木参数超出允许范围",
+        "textEmpty": "积木文本参数不能为空",
+        "secretLiteralForbidden": "循环脚本不能直接写入密钥",
+        "unknown": "循环脚本校验失败"
+      }
+    },
+    "runtime": {
+      "title": "选择运行环境",
+      "description": "运行环境只在本次启动时绑定，不属于循环编排。",
+      "field": "运行环境",
+      "placeholder": "选择运行环境",
+      "unnamed": "未命名环境",
+      "loading": "正在加载运行环境",
+      "retry": "重新加载",
+      "empty": "当前组织没有可用的运行环境",
+      "cancel": "取消",
+      "start": "启动循环",
+      "snapshotLabel": "{name} · {workerType} · 快照 {id}"
+    },
+    "ai": {
+      "toolbar": "AI 助手",
+      "generateMode": "生成 / 修改",
+      "explainMode": "解释当前循环",
+      "generateTitle": "用 AI 生成或修改循环",
+      "generateDescription": "AI 只生成新草稿或按自然语言整体修改循环；现有验证器和预算保护由后端强制执行，确认后才会应用。",
+      "explainTitle": "解释当前循环",
+      "explainDescription": "直接从已校验的 LoopProgram 确定性展示结构，不调用模型，也不会修改循环。",
+      "resource": "AI 模型",
+      "resourcePlaceholder": "选择 AI 模型",
+      "prompt": "描述循环目标或整体修改要求",
+      "promptPlaceholder": "例如：制作专业 PPT，或将当前循环整体改为输出 PDF 讲义",
+      "loadingResources": "正在加载 AI 模型",
+      "resourceError": "AI 模型加载失败",
+      "retry": "重新加载",
+      "noResources": "没有可用的文本生成模型",
+      "generate": "生成草稿",
+      "generating": "正在生成",
+      "generationError": "循环草稿生成失败",
+      "unchanged": "AI 未生成任何代码变化",
+      "stale": "生成期间循环已被修改，请重新生成",
+      "current": "当前代码",
+      "proposed": "AI 提案",
+      "cancel": "取消",
+      "close": "关闭",
+      "back": "返回",
+      "confirm": "确认应用",
+      "projection": {
+        "title": "结构说明",
+        "unavailable": "当前循环尚未通过校验，无法生成结构说明。",
+        "overview": "循环",
+        "schemaVersion": "Schema 版本",
+        "loopName": "循环标识",
+        "limits": "执行预算",
+        "iterations": "最大轮数",
+        "tokens": "令牌预算",
+        "timeout": "超时",
+        "noProgress": "无进展上限",
+        "sameError": "同错上限",
+        "repeat": "重复执行",
+        "repeatName": "步骤标识",
+        "repeatMax": "最多重复",
+        "until": "停止条件",
+        "agent": "智能体任务",
+        "agentName": "任务标识",
+        "agentPrompt": "任务说明",
+        "verifier": "验证器",
+        "verifierName": "验证标识",
+        "verifierCommand": "验证命令",
+        "verifierAccept": "通过条件",
+        "failure": "失败策略",
+        "failurePolicy": "处理方式",
+        "failurePause": "暂停并等待人工",
+        "failureFail": "标记循环失败",
+        "empty": "未设置",
+        "iterationsValue": "{value} 轮",
+        "tokensValue": "{value} 令牌",
+        "minutesValue": "{value} 分钟",
+        "timesValue": "{value} 次"
+      },
+      "repair": {
+        "title": "修复诊断",
+        "description": "AI 仅为当前诊断提出定向整数修改。应用前请检查生成后的 LoopScript。",
+        "diagnostic": "诊断",
+        "field": "目标字段",
+        "prompt": "补充要求",
+        "promptPlaceholder": "可选：为本次修复增加约束",
+        "repair": "生成修复",
+        "repairing": "正在生成修复",
+        "error": "未能生成有效的定向修复",
+        "patch": "定向修改",
+        "patchValue": "{oldValue} 调整为 {newValue}"
+      }
+    }
   },
   "loopal": {
     "activity": {

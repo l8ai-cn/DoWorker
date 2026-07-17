@@ -30,6 +30,11 @@ spec:
               value: "dowork.l8ai.cn"
             - name: USE_HTTPS
               value: "true"
+            - name: PREVIEW_PUBLIC_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: agentsmesh-config
+                  key: PREVIEW_PUBLIC_ORIGIN
             - name: ALLOWED_ORIGINS
               valueFrom:
                 configMapKeyRef:

@@ -40,6 +40,13 @@ type GoalLoop struct {
 	PodKey                      *string         `gorm:"size:100" json:"pod_key,omitempty"`
 	AutopilotControllerKey      *string         `gorm:"size:255" json:"autopilot_controller_key,omitempty"`
 	MaxIterations               int             `gorm:"not null;default:10" json:"max_iterations"`
+	CurrentIteration            int             `gorm:"not null;default:0" json:"current_iteration"`
+	NoProgressCount             int             `gorm:"not null;default:0" json:"no_progress_count"`
+	SameErrorCount              int             `gorm:"not null;default:0" json:"same_error_count"`
+	LastProgressFingerprint     *string         `gorm:"size:64" json:"-"`
+	LastErrorFingerprint        *string         `gorm:"size:64" json:"-"`
+	RetryPromptCommandID        *string         `gorm:"size:64" json:"-"`
+	RetryPromptCreatedAt        *time.Time      `json:"-"`
 	TokenBudget                 *int64          `json:"token_budget,omitempty"`
 	TimeoutMinutes              int             `gorm:"not null;default:60" json:"timeout_minutes"`
 	NoProgressLimit             int             `gorm:"not null;default:3" json:"no_progress_limit"`
@@ -55,6 +62,9 @@ type GoalLoop struct {
 	CompletedAt                 *time.Time      `json:"completed_at,omitempty"`
 	CreatedAt                   time.Time       `gorm:"not null;default:now()" json:"created_at"`
 	UpdatedAt                   time.Time       `gorm:"not null;default:now()" json:"updated_at"`
+
+	OrchestrationResourceID       *int64 `json:"orchestration_resource_id,omitempty"`
+	OrchestrationResourceRevision *int64 `json:"orchestration_resource_revision,omitempty"`
 }
 
 func (GoalLoop) TableName() string {

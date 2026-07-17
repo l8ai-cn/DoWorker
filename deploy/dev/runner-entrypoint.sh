@@ -24,7 +24,7 @@ CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 
 case "${AGENT_RUNTIME}" in
-    claude-code|codex-cli|gemini-cli|e2e-echo|loopal|do-agent|aider|opencode|grok-build|openclaw|hermes) ;;
+    claude-code|codex-cli|video-studio|cursor-cli|gemini-cli|minimax-cli|e2e-echo|loopal|do-agent|aider|opencode|grok-build|openclaw|hermes) ;;
     *)
         echo "✗ Unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2
         exit 1
@@ -166,13 +166,13 @@ EOF
 init_ai_cli_configs() {
     case "${AGENT_RUNTIME}" in
         claude-code) init_claude_config ;;
-        codex-cli) init_codex_config ;;
+        codex-cli|video-studio) init_codex_config ;;
         gemini-cli) init_gemini_config ;;
         do-agent) init_do_agent_config ;;
         grok-build) init_grok_config ;;
         openclaw) init_openclaw_config ;;
         hermes) init_hermes_config ;;
-        e2e-echo|loopal|aider|opencode) ;;
+        cursor-cli|minimax-cli|e2e-echo|loopal|aider|opencode) ;;
     esac
 }
 

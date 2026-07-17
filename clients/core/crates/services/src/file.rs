@@ -14,7 +14,10 @@ impl FileService {
     }
 
     pub async fn upload_file(
-        &self, file_data: Vec<u8>, filename: &str, content_type: &str,
+        &self,
+        file_data: Vec<u8>,
+        filename: &str,
+        content_type: &str,
     ) -> Result<String, String> {
         // Connect-RPC presign → S3 PUT → return public get_url. Web
         // still hand multipart bytes to this entrypoint because the browser
@@ -26,10 +29,16 @@ impl FileService {
             size: file_data.len() as i64,
         };
         tracing::info!(target: "file", org_slug = %req.org_slug, content_type = %req.content_type, size = req.size, "upload file");
-        let resp = self.client.presign_upload_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .presign_upload_connect(&req)
+            .await
+            .map_err(crate::wire)?;
 
-        self.client.put_raw_bytes(&resp.put_url, content_type, file_data)
-            .await.map_err(crate::wire)?;
+        self.client
+            .put_raw_bytes(&resp.put_url, content_type, file_data)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.get_url)
     }
 
@@ -37,7 +46,11 @@ impl FileService {
         let req = fp::PresignUploadRequest::decode(request_bytes)
             .map_err(|e| format!("decode presign_upload request: {e}"))?;
         tracing::info!(target: "file", org_slug = %req.org_slug, content_type = %req.content_type, size = req.size, "presign upload");
-        let resp = self.client.presign_upload_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .presign_upload_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 }

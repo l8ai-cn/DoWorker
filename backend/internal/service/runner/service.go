@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/anthropics/agentsmesh/backend/internal/domain/executioncluster"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/service/billing"
 )
@@ -16,6 +17,7 @@ type GrantQuerier interface {
 type Service struct {
 	repo           runner.RunnerRepository
 	billingService *billing.Service
+	clusterRepo    executioncluster.Repository
 	grantQuerier   GrantQuerier
 	activeMu       sync.Mutex
 	activeRunners  sync.Map
@@ -40,4 +42,8 @@ func NewService(repo runner.RunnerRepository, billingService ...*billing.Service
 
 func (s *Service) SetGrantQuerier(gq GrantQuerier) {
 	s.grantQuerier = gq
+}
+
+func (s *Service) SetExecutionClusterRepository(repo executioncluster.Repository) {
+	s.clusterRepo = repo
 }

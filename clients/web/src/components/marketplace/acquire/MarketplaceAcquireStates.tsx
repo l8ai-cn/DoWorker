@@ -1,21 +1,53 @@
 import Link from "next/link";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, Settings2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { LightOrganization } from "@/lib/light-auth";
+import type { MarketplaceModelResource } from "@/lib/marketplace-model-resources";
+import type { MarketplaceToolModelGroup } from "@/lib/marketplace-tool-model-resources";
+import { MarketplaceToolModelFields } from "../MarketplaceToolModelFields";
+import { MarketplaceModelResourceField } from "./MarketplaceModelResourceField";
 
 export function OrganizationStep({
   organizations,
+  loadingOrganizations,
   value,
   onChange,
   onContinue,
   fixedOrganization,
+  modelResources,
+  modelResourceID,
+  onModelChange,
+  toolModelGroups = [],
+  toolModelResourceIDs = {},
+  onToolModelChange = () => {},
+  toolSelectionComplete = true,
+  missingCompatibleResource = false,
+  loadingModels,
+  modelError,
+  incompatibleListing,
+  onReloadModels,
+  settingsHref,
 }: {
   organizations: LightOrganization[];
+  loadingOrganizations: boolean;
   value: string;
   onChange: (value: string) => void;
   onContinue: () => void;
   fixedOrganization?: LightOrganization;
+  modelResources: MarketplaceModelResource[];
+  modelResourceID: string;
+  onModelChange: (value: string) => void;
+  toolModelGroups?: MarketplaceToolModelGroup[];
+  toolModelResourceIDs?: Record<string, string>;
+  onToolModelChange?: (role: string, value: string) => void;
+  toolSelectionComplete?: boolean;
+  missingCompatibleResource?: boolean;
+  loadingModels: boolean;
+  modelError: boolean;
+  incompatibleListing: boolean;
+  onReloadModels: () => void;
+  settingsHref: string;
 }) {
   return (
     <section className="space-y-6">
@@ -29,7 +61,9 @@ export function OrganizationStep({
             : "应用会安装到你选择的组织，创建后不能直接移动。"}
         </p>
       </div>
-      {fixedOrganization ? (
+      {loadingOrganizations ? (
+        <LoadingState label="正在加载组织" />
+      ) : fixedOrganization ? (
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm text-foreground">
           启用目标：{fixedOrganization.name}
         </div>
@@ -50,7 +84,49 @@ export function OrganizationStep({
           ))}
         </select>
       )}
-      <Button className="w-full" size="lg" disabled={!value} onClick={onContinue}>
+      {value ? (
+        <div className="space-y-4">
+          <MarketplaceModelResourceField
+            resources={modelResources}
+            value={modelResourceID}
+            onChange={onModelChange}
+            loading={loadingModels}
+            error={modelError}
+            incompatibleListing={incompatibleListing}
+            onReload={onReloadModels}
+            settingsHref={settingsHref}
+          />
+          {!loadingModels && !missingCompatibleResource ? (
+            <MarketplaceToolModelFields
+              groups={toolModelGroups}
+              values={toolModelResourceIDs}
+              onChange={onToolModelChange}
+            />
+          ) : null}
+          {!loadingModels &&
+          missingCompatibleResource &&
+          modelResources.length > 0 ? (
+            <Button asChild className="w-full gap-2" variant="outline">
+              <Link href={settingsHref}>
+                <Settings2 className="h-4 w-4" />
+                配置兼容工具模型
+              </Link>
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
+      <Button
+        className="w-full"
+        size="lg"
+        disabled={
+          !value ||
+          !modelResourceID ||
+          !toolSelectionComplete ||
+          loadingModels ||
+          missingCompatibleResource
+        }
+        onClick={onContinue}
+      >
         检查启用条件
       </Button>
     </section>
@@ -98,8 +174,10 @@ export function InlineError({ message }: { message: string }) {
 
 export function SuccessState({
   organization,
+  installationID,
 }: {
   organization: LightOrganization;
+  installationID: string;
 }) {
   return (
     <section className="py-4 text-center">
@@ -109,7 +187,7 @@ export function SuccessState({
         已在「{organization.name}」创建可用实例。
       </p>
       <Button asChild className="mt-6">
-        <Link href={`/${organization.slug}/applications`}>去应用中心开始第一个任务</Link>
+        <Link href={`/${organization.slug}/applications/${installationID}`}>去应用中心开始第一个任务</Link>
       </Button>
     </section>
   );

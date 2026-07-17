@@ -6,7 +6,8 @@
     "close": "Close",
     "expand": "Expand",
     "collapse": "Collapse",
-    "htmlDocument": "HTML document"
+    "htmlDocument": "HTML document",
+    "popupBlocked": "브라우저가 미리보기 창을 차단했습니다."
   },
   "common": {
     "loading": "로딩 중...",

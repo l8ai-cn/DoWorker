@@ -12,10 +12,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRuntimeCatalogResolverReturnsExactImmutableSelection(t *testing.T) {
+func TestRuntimeCatalogResolverRejectsUnreleasedSelection(t *testing.T) {
 	resolver := newRuntimeCatalogResolver(runtimedomain.DefaultCatalog())
 
-	resolved, err := resolver.ResolveRuntime(
+	_, err := resolver.ResolveRuntime(
 		context.Background(),
 		specservice.Scope{OrgID: 77, UserID: 7},
 		slugkit.MustNewForTest("codex-cli"),
@@ -28,22 +28,13 @@ func TestRuntimeCatalogResolverReturnsExactImmutableSelection(t *testing.T) {
 		},
 	)
 
-	require.NoError(t, err)
-	assert.Equal(t, int64(1), resolved.RuntimeImage.ID)
-	assert.Equal(
-		t,
-		"sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
-		resolved.RuntimeImage.Digest,
-	)
-	assert.Equal(t, specdomain.ComputeTargetKindRunnerPool, resolved.Placement.ComputeTarget.Kind)
-	assert.Equal(t, specdomain.DeploymentModePooled, resolved.Placement.DeploymentMode)
-	assert.Equal(t, int64(1), resolved.Placement.ResourceProfile.ID)
-	assert.Positive(t, resolved.Placement.ResourceProfile.Resources.CPURequestMilliCPU)
-	assert.Positive(t, resolved.Placement.ResourceProfile.Resources.MemoryRequestBytes)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, specservice.ErrInvalidDraft)
+	assert.ErrorContains(t, err, "selection is disabled")
 }
 
 func TestRuntimeCatalogResolverRejectsInvalidOrUnavailableSelections(t *testing.T) {
-	resolver := newRuntimeCatalogResolver(runtimedomain.DefaultCatalog())
+	resolver := newRuntimeCatalogResolver(enabledCodexRuntimeCatalog())
 	valid := specservice.RuntimeSelection{
 		RuntimeImageID:    1,
 		PlacementPolicy:   specdomain.PlacementPolicyExplicit,

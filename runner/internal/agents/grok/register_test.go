@@ -15,5 +15,7 @@ func TestGrokBuildRegistered(t *testing.T) {
 	assert.True(t, tokenusage.IsParserOptOut("grok"))
 	assert.True(t, tokenusage.IsParserOptOut("grok-build"))
 	assert.True(t, agentkit.IsAgentProcess("grok"))
-	assert.Equal(t, TransportType, acp.TransportTypeForCommand("grok"))
+	transport, err := acp.NewTransport(TransportType, acp.EventCallbacks{}, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, transport)
 }

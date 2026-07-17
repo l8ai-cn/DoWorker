@@ -88,3 +88,27 @@ func TestOrchestrate_DispatchFailure_MarksPodError(t *testing.T) {
 	require.NotNil(t, pod.ErrorCode)
 	assert.Equal(t, "RUNNER_UNREACHABLE", *pod.ErrorCode)
 }
+
+func TestInitialPodStatusQueuesDeferredWorkerLaunchWhenRunnerReady(t *testing.T) {
+	launchID := int64(71)
+	orchestrator := &PodOrchestrator{
+		podCoordinator: &readyPodCoordinator{},
+	}
+
+	status := orchestrator.initialPodStatus(&OrchestrateCreatePodRequest{
+		RunnerID:                    9,
+		QueueIfUnavailable:          true,
+		DeferRunnerDispatch:         true,
+		OrchestrationWorkerLaunchID: &launchID,
+	})
+
+	assert.Equal(t, podDomain.StatusQueued, status)
+}
+
+type readyPodCoordinator struct {
+	mockPodCoordinator
+}
+
+func (*readyPodCoordinator) ShouldDispatchNow(context.Context, int64) bool {
+	return true
+}

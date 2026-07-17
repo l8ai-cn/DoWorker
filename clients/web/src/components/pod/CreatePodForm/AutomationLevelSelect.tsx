@@ -8,14 +8,18 @@ export type AutomationLevel = (typeof AUTOMATION_LEVELS)[number];
 interface AutomationLevelSelectProps {
   value: string;
   onChange: (level: AutomationLevel) => void;
+  supportedModes?: string[];
   t: (key: string) => string;
 }
 
 // Unified cross-agent permission/automation tier. The backend adapter maps the
-// selected level onto each agent's native permission mechanism at create time;
-// `autonomous` (default) additionally forces ACP so the Worker runs
-// non-interactively.
-export function AutomationLevelSelect({ value, onChange, t }: AutomationLevelSelectProps) {
+// selected level onto each agent's native permission mechanism at create time.
+export function AutomationLevelSelect({
+  value,
+  onChange,
+  supportedModes,
+  t,
+}: AutomationLevelSelectProps) {
   const active = AUTOMATION_LEVELS.includes(value as AutomationLevel)
     ? (value as AutomationLevel)
     : "autonomous";
@@ -44,7 +48,13 @@ export function AutomationLevelSelect({ value, onChange, t }: AutomationLevelSel
         ))}
       </div>
       <p className="mt-1.5 text-xs text-muted-foreground">
-        {t(`ide.createPod.automationLevel.${active}Hint`)}
+        {t(
+          active === "autonomous" &&
+            supportedModes !== undefined &&
+            !supportedModes.includes("acp")
+            ? "ide.createPod.automationLevel.autonomousPtyHint"
+            : `ide.createPod.automationLevel.${active}Hint`,
+        )}
       </p>
     </div>
   );

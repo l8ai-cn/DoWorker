@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "worker_slug": "do-agent",
+  "definition_hash": "sha256:f4348e3bb9baf3973078c475b5ac724fab016d06c10673d927d21dd80a267bb8",
+  "platform": "linux/amd64",
+  "observed_at": "2026-07-16T07:30:00Z",
+  "image_reference": "do-worker/runner-do-agent:latest",
+  "image_id": "sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+  "probe_command": [
+    "do-agent",
+    "--version"
+  ],
+  "status": "passed",
+  "exit_code": 0,
+  "output": "do-agent 0.2.0"
+}

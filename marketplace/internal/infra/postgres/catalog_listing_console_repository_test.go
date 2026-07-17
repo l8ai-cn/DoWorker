@@ -58,7 +58,8 @@ VALUES (31, 'commerce-lab', 'platform', 'Commerce Lab', 'verified')`)
 	version, err := registration.RegisterVersion(ctx, service.RegisterCatalogVersionCommand{
 		CatalogItemID: item.CatalogItemID, Version: "1.0.0", SourceRevision: "git-sha",
 		ContentDigest: strings.Repeat("a", 64), Manifest: []byte(`{"schema_version":"1"}`),
-		ActorUserID: 14,
+		Compatibility: []byte(`{"agents":["codex-cli"]}`),
+		ActorUserID:   14,
 	})
 	require.NoError(t, err)
 	_, err = registration.MarkVersionPassed(ctx, version.CatalogItemVersionID)

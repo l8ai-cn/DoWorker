@@ -96,9 +96,39 @@ impl WasmRelayManager {
         self.pool.on_status_change(&pod_key, cb).await;
     }
 
+    pub async fn set_status_listener(
+        &self,
+        pod_key: String,
+        listener_id: String,
+        callback: js_sys::Function,
+    ) {
+        let cb = make_status_callback(callback);
+        self.pool
+            .set_status_listener(&pod_key, &listener_id, cb)
+            .await;
+    }
+
+    pub fn remove_status_listener(&self, pod_key: String, listener_id: String) {
+        self.pool.remove_status_listener(&pod_key, &listener_id);
+    }
+
     pub async fn on_acp_message(&self, pod_key: String, callback: js_sys::Function) {
         let cb = make_acp_callback(callback);
         self.pool.on_acp_message(&pod_key, cb).await;
+    }
+
+    pub async fn set_acp_listener(
+        &self,
+        pod_key: String,
+        listener_id: String,
+        callback: js_sys::Function,
+    ) {
+        let cb = make_acp_callback(callback);
+        self.pool.set_acp_listener(&pod_key, &listener_id, cb).await;
+    }
+
+    pub fn remove_acp_listener(&self, pod_key: String, listener_id: String) {
+        self.pool.remove_acp_listener(&pod_key, &listener_id);
     }
 
     /// Register the single pod-disconnected sink — `(podKey: string) => void`.

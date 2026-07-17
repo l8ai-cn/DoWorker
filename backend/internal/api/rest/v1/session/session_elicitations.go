@@ -30,7 +30,7 @@ func (d *Deps) handleGetElicitation(c *gin.Context) {
 
 func (d *Deps) handleResolveElicitation(c *gin.Context) {
 	row, pod, ok := d.authorizeSession(c, c.Param("id"))
-	if !ok || d.Elicitations == nil || d.CommandSender == nil {
+	if !ok || !d.requireSessionLevel(c, row, levelEdit) || d.Elicitations == nil || d.CommandSender == nil {
 		return
 	}
 	elicitID := c.Param("elicitation_id")

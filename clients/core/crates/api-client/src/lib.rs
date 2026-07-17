@@ -1,3 +1,11 @@
+#[cfg(test)]
+mod ai_resource_tests;
+#[cfg(test)]
+mod api_agent_billing_tests;
+#[cfg(test)]
+mod api_core_tests;
+#[cfg(test)]
+mod api_pod_runner_tests;
 mod client;
 mod connect_call;
 mod connect_stream;
@@ -7,17 +15,11 @@ mod connect_stream_native;
 #[cfg(target_arch = "wasm32")]
 mod connect_stream_wasm;
 mod error;
+#[cfg(test)]
+mod execution_cluster_tests;
 mod modules;
 mod refresh;
 mod token_store;
-#[cfg(test)]
-mod api_core_tests;
-#[cfg(test)]
-mod api_agent_billing_tests;
-#[cfg(test)]
-mod api_pod_runner_tests;
-#[cfg(test)]
-mod ai_resource_tests;
 
 pub use client::ApiClient;
 pub use connect_call::connect_call;

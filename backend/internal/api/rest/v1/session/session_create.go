@@ -52,6 +52,13 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "agent_id is required", "code": "validation_failed"})
 		return
 	}
+	if initialItemsContainAttachments(body.InitialItems) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "attachments must be sent after the session is created",
+			"code":  "validation_failed",
+		})
+		return
+	}
 	sessionID, err := sessionsvc.NewID()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "id generation failed"})

@@ -1,15 +1,24 @@
-import { Paperclip, Send, Square, X } from "lucide-react";
+import { Loader2, Paperclip, Send, Square, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { SlashMenu, detectSlashToken, type SlashCommand } from "@/components/slash-menu";
-import { useSessionActions } from "@/lib/session-action-context";
+import type { SessionMessageAttachment } from "@/lib/session-message-upload";
+import { useSessionActions } from "@/lib/session-action-state";
+
+type ComposerAttachment = SessionMessageAttachment & {
+  id: string;
+  name: string;
+  size: number;
+  kind: "image" | "file";
+  url?: string;
+};
 
 export function SessionComposer() {
   const actions = useSessionActions();
   const [value, setValue] = useState("");
   const [token, setToken] = useState<{ start: number; token: string } | null>(null);
-  const [attachments, setAttachments] = useState<
-    { id: string; name: string; size: number; kind: "image" | "file"; url?: string }[]
-  >([]);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<ComposerAttachment[]>([]);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -20,6 +29,11 @@ export function SessionComposer() {
 
   const applySlash = (cmd: SlashCommand) => {
     if (!token) return;
+    if (cmd.cmd === "/attach") {
+      setToken(null);
+      fileRef.current?.click();
+      return;
+    }
     const before = value.slice(0, token.start);
     const after = value.slice(token.start + token.token.length);
     const next = before + cmd.cmd + " " + after;
@@ -36,13 +50,15 @@ export function SessionComposer() {
 
   const onPickFiles = (files: FileList | null) => {
     if (!files) return;
-    const next = Array.from(files).map((f) => ({
-      id: `${f.name}-${f.size}-${Math.random().toString(36).slice(2, 7)}`,
-      name: f.name,
-      size: f.size,
-      kind: f.type.startsWith("image/") ? ("image" as const) : ("file" as const),
-      url: f.type.startsWith("image/") ? URL.createObjectURL(f) : undefined,
+    const next = Array.from(files).map((file) => ({
+      id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 7)}`,
+      file,
+      name: file.name,
+      size: file.size,
+      kind: file.type.startsWith("image/") ? ("image" as const) : ("file" as const),
+      url: file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined,
     }));
+    setSendError(null);
     setAttachments((prev) => [...prev, ...next]);
   };
 
@@ -54,10 +70,21 @@ export function SessionComposer() {
     });
   };
 
-  const send = () => {
+  const send = async () => {
     const text = value.trim();
-    if (!text || !actions.onSend) return;
-    void actions.onSend(text).then(() => setValue(""));
+    if (sending || (!text && attachments.length === 0) || !actions.onSend) return;
+    setSending(true);
+    setSendError(null);
+    try {
+      await actions.onSend(text, attachments);
+      attachments.forEach((attachment) => attachment.url && URL.revokeObjectURL(attachment.url));
+      setAttachments([]);
+      setValue("");
+    } catch (error) {
+      setSendError(error instanceof Error ? error.message : "发送失败，请重试");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -100,6 +127,7 @@ export function SessionComposer() {
         type="file"
         multiple
         className="hidden"
+        disabled={sending}
         onChange={(e) => {
           onPickFiles(e.target.files);
           e.target.value = "";
@@ -109,6 +137,7 @@ export function SessionComposer() {
       <div className="flex items-end gap-2 rounded-2xl bg-surface px-2 py-2 ring-1 ring-border/50">
         <button
           onClick={() => fileRef.current?.click()}
+          disabled={sending}
           className="mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-2 hover:text-primary"
           aria-label="上传文件"
         >
@@ -118,7 +147,10 @@ export function SessionComposer() {
           ref={inputRef}
           rows={1}
           value={value}
-          onChange={(e) => onChange(e.target.value, e.target.selectionStart ?? e.target.value.length)}
+          disabled={sending}
+          onChange={(e) =>
+            onChange(e.target.value, e.target.selectionStart ?? e.target.value.length)
+          }
           onKeyUp={(e) => {
             const el = e.currentTarget;
             setToken(detectSlashToken(el.value, el.selectionStart ?? el.value.length));
@@ -126,7 +158,7 @@ export function SessionComposer() {
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
-              send();
+              void send();
             }
           }}
           onBlur={() => setTimeout(() => setToken(null), 150)}
@@ -136,6 +168,7 @@ export function SessionComposer() {
         {actions.onStop && (
           <button
             onClick={() => void actions.onStop?.()}
+            disabled={sending}
             className="mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
             aria-label="停止 agent"
           >
@@ -143,14 +176,19 @@ export function SessionComposer() {
           </button>
         )}
         <button
-          onClick={send}
-          disabled={!value.trim()}
+          onClick={() => void send()}
+          disabled={sending || (!value.trim() && attachments.length === 0)}
           className="mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-40"
           aria-label="发送"
         >
-          <Send className="h-3.5 w-3.5" />
+          {sending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Send className="h-3.5 w-3.5" />
+          )}
         </button>
       </div>
+      {sendError && <p className="mt-2 px-1 text-xs text-destructive">{sendError}</p>}
     </div>
   );
 }

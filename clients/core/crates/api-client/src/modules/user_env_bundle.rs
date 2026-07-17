@@ -2,9 +2,9 @@
 // alongside the backend REST handlers; everything routes through prost +
 // connect_call now.
 
-use crate::ApiClient;
 use crate::connect_call::connect_call;
 use crate::error::ApiError;
+use crate::ApiClient;
 use agentsmesh_types::proto_env_bundle_v1 as eb_proto;
 
 impl ApiClient {

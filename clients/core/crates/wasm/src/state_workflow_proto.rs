@@ -1,5 +1,7 @@
 use agentsmesh_state::workflow_state::{WorkflowData, WorkflowRunData};
-use agentsmesh_types::proto_workflow_v1::{Workflow as ProtoWorkflow, WorkflowRun as ProtoWorkflowRun};
+use agentsmesh_types::proto_workflow_v1::{
+    Workflow as ProtoWorkflow, WorkflowRun as ProtoWorkflowRun,
+};
 
 pub(crate) fn workflow_from_proto(p: ProtoWorkflow) -> WorkflowData {
     WorkflowData {

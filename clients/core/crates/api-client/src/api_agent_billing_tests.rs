@@ -13,15 +13,23 @@ mod api_agent_billing_tests {
     }
     impl MockTokenStore {
         fn with_org(slug: &str) -> std::sync::Arc<Self> {
-            std::sync::Arc::new(Self { org_slug: Mutex::new(Some(slug.into())) })
+            std::sync::Arc::new(Self {
+                org_slug: Mutex::new(Some(slug.into())),
+            })
         }
         fn no_org() -> std::sync::Arc<Self> {
-            std::sync::Arc::new(Self { org_slug: Mutex::new(None) })
+            std::sync::Arc::new(Self {
+                org_slug: Mutex::new(None),
+            })
         }
     }
     impl AuthTokenStore for MockTokenStore {
-        fn get_token(&self) -> Option<String> { Some("tok".into()) }
-        fn get_refresh_token(&self) -> Option<String> { None }
+        fn get_token(&self) -> Option<String> {
+            Some("tok".into())
+        }
+        fn get_refresh_token(&self) -> Option<String> {
+            None
+        }
         fn set_tokens(&self, _t: String, _r: String, _e: Option<i64>) {}
         fn clear_tokens(&self) {}
         fn get_current_org_slug(&self) -> Option<String> {

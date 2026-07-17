@@ -15,7 +15,9 @@ import (
 func TestDoAgentRegistered(t *testing.T) {
 	assert.NotNil(t, tokenusage.GetParser("do-agent"))
 	assert.True(t, agentkit.IsAgentProcess("do-agent"))
-	assert.Equal(t, TransportType, acp.TransportTypeForCommand("do-agent"))
+	transport, err := acp.NewTransport(TransportType, acp.EventCallbacks{}, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, transport)
 }
 
 func TestDoAgentParser_Fixture(t *testing.T) {

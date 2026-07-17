@@ -173,12 +173,13 @@ func startMockClientWithMode(t *testing.T, mode string, callbacks EventCallbacks
 		env = mockAgentEnvWithMode(mode)
 	}
 	client := NewClient(ClientConfig{
-		Command:   mockAgentCmd(),
-		Args:      mockAgentArgs(),
-		Env:       env,
-		WorkDir:   t.TempDir(),
-		Logger:    slog.Default(),
-		Callbacks: callbacks,
+		Command:       mockAgentCmd(),
+		Args:          mockAgentArgs(),
+		Env:           env,
+		WorkDir:       t.TempDir(),
+		Logger:        slog.Default(),
+		Callbacks:     callbacks,
+		TransportType: TransportTypeACP,
 	})
 	if err := client.Start(); err != nil {
 		t.Fatalf("Start: %v", err)

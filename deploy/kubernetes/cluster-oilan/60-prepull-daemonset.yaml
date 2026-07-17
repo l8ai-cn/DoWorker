@@ -1,7 +1,4 @@
-# Warms the containerd image cache on every node so coordinator-launched
-# runner/worker pods start instantly (no first-pull latency). Each initContainer
-# forces a pull of one agent-runtime image; the main container keeps the e2e-echo
-# image resident.
+# Keeps the internally tested e2e-echo runner image resident on every node.
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -19,33 +16,13 @@ spec:
       imagePullSecrets:
         - name: agentsmesh-regcred
       initContainers:
-        - name: pull-claude
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-claude-code:latest
-          imagePullPolicy: IfNotPresent
-          command: ["true"]
-        - name: pull-codex
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli:latest
-          imagePullPolicy: IfNotPresent
-          command: ["true"]
-        - name: pull-gemini
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli:latest
-          imagePullPolicy: IfNotPresent
-          command: ["true"]
-        - name: pull-grok
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-grok-build:latest
-          imagePullPolicy: IfNotPresent
-          command: ["true"]
-        - name: pull-openclaw
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-openclaw:latest
-          imagePullPolicy: IfNotPresent
-          command: ["true"]
-        - name: pull-hermes
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-hermes:latest
+        - name: pull-video-studio
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22
           imagePullPolicy: IfNotPresent
           command: ["true"]
       containers:
         - name: hold
-          image: repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo:latest
+          image: repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa
           imagePullPolicy: IfNotPresent
           command: ["sleep", "infinity"]
           resources:

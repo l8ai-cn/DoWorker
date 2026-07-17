@@ -131,7 +131,8 @@ func (h *ExpertHandler) notFoundOrInternal(c *gin.Context, err error) {
 func (h *ExpertHandler) validationOrInternal(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, expertSvc.ErrExpertNameRequired),
-		errors.Is(err, expertSvc.ErrExpertAgentRequired):
+		errors.Is(err, expertSvc.ErrExpertAgentRequired),
+		errors.Is(err, expertSvc.ErrExpertSnapshotUpdateUnsupported):
 		apierr.BadRequest(c, apierr.VALIDATION_FAILED, err.Error())
 	default:
 		apierr.InternalError(c, "Expert request failed")

@@ -255,7 +255,7 @@
         "codexCliHint": "API-Schlüssel erhalten von",
         "geminiCli": "Gemini CLI",
         "geminiCliInstall": "npm install -g @google/gemini-cli",
-        "geminiCliEnv": "export GOOGLE_API_KEY=...",
+        "geminiCliEnv": "export GEMINI_API_KEY=...",
         "geminiCliHint": "API-Schlüssel erhalten von",
         "tip": "Starten Sie nach der Installation den Runner neu oder warten Sie auf den nächsten Heartbeat. Die neu verfügbaren Agenten erscheinen im Neues-Pod-Dialog.",
         "seeSetup": "Siehe {link} für weitere Details zu MCP-Tools und Skill-Konfiguration."
@@ -1596,8 +1596,7 @@
         "runner": "Runner Issues",
         "pod": "Pod Issues",
         "apiKey": "API Key Configuration",
-        "git": "Git Integration",
-        "billing": "Billing & Plans"
+        "git": "Git Integration"
       },
       "items": {
         "runnerConnection": {
@@ -1631,14 +1630,6 @@
         "gitWorktreeConflict": {
           "question": "Can multiple Pods work on the same repository simultaneously?",
           "answer": "Yes! Each Pod gets its own Git worktree, so multiple Pods can work on the same repository without conflicts. Each worktree operates on its own branch, and changes are isolated."
-        },
-        "billingBYOK": {
-          "question": "How does the BYOK (Bring Your Own Key) billing model work?",
-          "answer": "You provide your own API keys for AI providers (Anthropic, OpenAI, Google, etc.). You pay the AI providers directly based on your usage. Do Worker charges only for platform usage (runners, storage, etc.)."
-        },
-        "billingFree": {
-          "question": "Is there a free tier?",
-          "answer": "Yes, Do Worker offers a free tier with limited concurrent Pods and storage. Check the Pricing page for current plan details and limits."
         }
       }
     },
@@ -1703,7 +1694,7 @@
           "description": "Installiere die KI-Coding-Agenten, die du auf dem Runner-Rechner verwenden möchtest:",
           "item1": "Claude Code — npm install -g @anthropic-ai/claude-code (setze ANTHROPIC_API_KEY)",
           "item2": "Codex CLI — npm install -g @openai/codex (setze OPENAI_API_KEY)",
-          "item3": "Gemini CLI — npm install -g @google/gemini-cli (setze GOOGLE_API_KEY)",
+          "item3": "Gemini CLI — npm install -g @google/gemini-cli (setze GEMINI_API_KEY)",
           "tip": "Nach der Installation starte den Runner neu oder warte auf den nächsten Heartbeat. Neu verfügbare Agenten erscheinen im Neuer-Pod-Dialog."
         },
         "step5": {

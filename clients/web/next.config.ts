@@ -38,6 +38,10 @@ const enableStandalone =
   process.env.STANDALONE === "1";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    cpus: Number.parseInt(process.env.NEXT_BUILD_CPUS || "0", 10) || undefined,
+  },
+
   ...(enableStandalone
     ? {
         output: "standalone" as const,
@@ -57,6 +61,7 @@ const nextConfig: NextConfig = {
   // run SWC over them during `next build` instead of treating them as
   // pre-compiled JS.
   transpilePackages: [
+    "@do-worker/agent-ui",
     "@do-worker/service-runtime",
     "@do-worker/service-interface",
     "@do-worker/proto",
@@ -136,6 +141,10 @@ const nextConfig: NextConfig = {
         {
           source: "/v1/:path*",
           destination: `${proxyTarget}/v1/:path*`,
+        },
+        {
+          source: "/proto.:service/:method",
+          destination: `${proxyTarget}/proto.:service/:method`,
         },
         // Connect-RPC procedures use the path `/proto.<svc>.v1.Service/Method`.
         // Next.js path-to-regexp doesn't tolerate escaped dots in `source`,

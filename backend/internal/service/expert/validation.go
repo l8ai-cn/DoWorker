@@ -6,8 +6,14 @@ import (
 )
 
 var (
-	ErrExpertNameRequired  = errors.New("expert name is required")
-	ErrExpertAgentRequired = errors.New("agent_slug is required")
+	ErrExpertNameRequired              = errors.New("expert name is required")
+	ErrExpertAgentRequired             = errors.New("agent_slug is required")
+	ErrExpertSnapshotUpdateUnsupported = errors.New(
+		"expert runtime fields must be republished from a workerspec-backed pod",
+	)
+	ErrExpertSnapshotUnavailable = errors.New(
+		"expert workerspec snapshot service is unavailable",
+	)
 )
 
 func validateExpertBasics(agentSlug, name string) error {

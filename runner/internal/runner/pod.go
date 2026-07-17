@@ -47,6 +47,9 @@ type Pod struct {
 	RelayClient relay.RelayClient
 	relayMu     sync.RWMutex
 
+	workspace   *sandboxWorkspace
+	workspaceMu sync.RWMutex
+
 	StartedAt  time.Time
 	Status     string       // Pod status - use statusMu for thread-safe access
 	statusMu   sync.RWMutex // Protects Status field

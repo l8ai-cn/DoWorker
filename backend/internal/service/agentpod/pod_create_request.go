@@ -10,6 +10,7 @@ import (
 type CreatePodRequest struct {
 	OrganizationID    int64
 	RunnerID          int64
+	ClusterID         int64
 	AgentSlug         string
 	RepositoryID      *int64
 	TicketID          *int64
@@ -47,6 +48,7 @@ type CreatePodRequest struct {
 	PreviewPort     int
 	PreviewPath     string
 
-	ResolvedWorkerSpec   *specservice.ResolvedSnapshot
-	WorkerSpecSnapshotID *int64
+	ResolvedWorkerSpec          *specservice.ResolvedSnapshot
+	WorkerSpecSnapshotID        *int64
+	OrchestrationWorkerLaunchID *int64
 }

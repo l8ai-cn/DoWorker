@@ -2,16 +2,14 @@ package workerruntime
 
 import "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 
-const DefaultCatalogRevision = "runtime-catalog-2026-07-10"
-
 type CatalogRuntimeImage struct {
-	ID              int64
-	Slug            string
-	Name            string
-	Reference       string
-	Digest          string
-	WorkerTypeSlugs []string
-	Enabled         bool
+	ID              int64    `json:"id"`
+	Slug            string   `json:"slug"`
+	Name            string   `json:"name"`
+	Reference       string   `json:"reference"`
+	Digest          string   `json:"digest"`
+	WorkerTypeSlugs []string `json:"worker_type_slugs"`
+	Enabled         bool     `json:"enabled"`
 }
 
 type CatalogComputeTarget struct {
@@ -41,37 +39,17 @@ type Catalog struct {
 }
 
 func DefaultCatalog() Catalog {
+	return catalogFromLock(loadRuntimeCatalogLock())
+}
+
+func catalogFromLock(lock runtimeCatalogLock) Catalog {
+	images := make([]CatalogRuntimeImage, len(lock.Images))
+	for index, image := range lock.Images {
+		images[index] = cloneCatalogImage(image)
+	}
 	return Catalog{
-		revision: DefaultCatalogRevision,
-		images: []CatalogRuntimeImage{
-			{
-				ID:              1,
-				Slug:            "codex-cli-stable",
-				Name:            "Codex CLI",
-				Reference:       "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
-				Digest:          "sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
-				WorkerTypeSlugs: []string{"codex-cli"},
-				Enabled:         true,
-			},
-			{
-				ID:              2,
-				Slug:            "claude-code-stable",
-				Name:            "Claude Code",
-				Reference:       "repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
-				Digest:          "sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
-				WorkerTypeSlugs: []string{"claude-code"},
-				Enabled:         true,
-			},
-			{
-				ID:              3,
-				Slug:            "gemini-cli-stable",
-				Name:            "Gemini CLI",
-				Reference:       "repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
-				Digest:          "sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
-				WorkerTypeSlugs: []string{"gemini-cli"},
-				Enabled:         true,
-			},
-		},
+		revision: lock.Revision,
+		images:   images,
 		targets: []CatalogComputeTarget{
 			{
 				ID:             1,
@@ -96,10 +74,12 @@ func DefaultCatalog() Catalog {
 				Slug: "standard",
 				Name: "Standard",
 				Resources: workerspec.ResourceRequestsLimits{
-					CPURequestMilliCPU: 200,
-					CPULimitMilliCPU:   1000,
-					MemoryRequestBytes: 256 << 20,
-					MemoryLimitBytes:   1 << 30,
+					CPURequestMilliCPU:  200,
+					CPULimitMilliCPU:    1000,
+					MemoryRequestBytes:  256 << 20,
+					MemoryLimitBytes:    1 << 30,
+					StorageRequestBytes: 10 << 30,
+					StorageLimitBytes:   10 << 30,
 				},
 				Enabled: true,
 			},
@@ -108,10 +88,12 @@ func DefaultCatalog() Catalog {
 				Slug: "large",
 				Name: "Large",
 				Resources: workerspec.ResourceRequestsLimits{
-					CPURequestMilliCPU: 1000,
-					CPULimitMilliCPU:   2000,
-					MemoryRequestBytes: 1 << 30,
-					MemoryLimitBytes:   4 << 30,
+					CPURequestMilliCPU:  1000,
+					CPULimitMilliCPU:    2000,
+					MemoryRequestBytes:  1 << 30,
+					MemoryLimitBytes:    4 << 30,
+					StorageRequestBytes: 50 << 30,
+					StorageLimitBytes:   50 << 30,
 				},
 				Enabled: true,
 			},

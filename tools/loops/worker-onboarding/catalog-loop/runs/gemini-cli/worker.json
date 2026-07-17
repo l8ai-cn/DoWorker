@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "slug": "gemini-cli",
+  "status": "planned",
+  "definition_hash": "sha256:deed6b7513abcc40aca9e7cc5f09ca90dd3bab5a54233efdd3422bee09f582e8",
+  "source_refs": [
+    "config/worker-types/catalog.json"
+  ]
+}

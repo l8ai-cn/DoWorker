@@ -1,4 +1,4 @@
--- Session ↔ Pod mapping for web-user Omnigent compat (Hive Workstream F1).
+-- Session ↔ Pod mapping for web-user Omnigent compatibility.
 CREATE TABLE agent_sessions (
     id VARCHAR(100) PRIMARY KEY
         CHECK (id ~ '^conv_[a-z0-9]+$' AND char_length(id) BETWEEN 8 AND 100),

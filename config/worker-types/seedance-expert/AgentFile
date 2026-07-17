@@ -1,0 +1,40 @@
+AGENT do-agent
+EXECUTABLE do-agent
+
+MODE pty
+MODE acp "acp"
+
+CONFIG model STRING = ""
+
+ENV DO_AGENT_HOME = sandbox.root + "/do-agent-home"
+ENV DO_AGENT_SETTINGS = sandbox.root + "/do-agent-home/settings.json"
+ENV DO_AGENT_LOG_DIR = sandbox.root + "/do-agent-home/logs"
+ENV OPENAI_API_KEY SECRET OPTIONAL
+ENV ANTHROPIC_API_KEY SECRET OPTIONAL
+ENV SEEDANCE_API_KEY SECRET OPTIONAL
+ENV SEEDANCE_BASE_URL TEXT OPTIONAL
+ENV SEEDANCE_MODEL TEXT OPTIONAL
+
+PROMPT_POSITION prepend
+MCP ON
+
+arg "--model" config.model when config.model != ""
+mkdir sandbox.root + "/do-agent-home"
+
+if config_json {
+  file sandbox.root + "/do-agent-home/settings.json" json(config_json)
+}
+
+if mcp.enabled {
+  mkdir sandbox.work_dir + "/.agent"
+  file sandbox.work_dir + "/.agent/config.json" json({ mcpServers: mcp.servers })
+}
+
+CAPABILITY resume acp
+CAPABILITY permission notification
+CAPABILITY usage live
+CAPABILITY control set_model,set_execution_mode
+CAPABILITY interrupt true
+CAPABILITY streaming true
+CAPABILITY subagents false
+CAPABILITY model_family multi

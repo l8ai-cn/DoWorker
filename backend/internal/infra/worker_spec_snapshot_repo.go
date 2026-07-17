@@ -58,18 +58,44 @@ func (r *workerSpecSnapshotRepo) GetByID(
 	if err != nil {
 		return domain.Snapshot{}, err
 	}
+	return workerSpecSnapshotFromRecord(record)
+}
+
+func (r *workerSpecSnapshotRepo) ListByOrganization(
+	ctx context.Context,
+	organizationID int64,
+) ([]domain.Snapshot, error) {
+	var records []workerSpecSnapshotRecord
+	if err := r.db.WithContext(ctx).
+		Where("organization_id = ?", organizationID).
+		Order("created_at DESC, id DESC").
+		Find(&records).Error; err != nil {
+		return nil, err
+	}
+	snapshots := make([]domain.Snapshot, 0, len(records))
+	for _, record := range records {
+		snapshot, err := workerSpecSnapshotFromRecord(record)
+		if err != nil {
+			return nil, err
+		}
+		snapshots = append(snapshots, snapshot)
+	}
+	return snapshots, nil
+}
+
+func workerSpecSnapshotFromRecord(record workerSpecSnapshotRecord) (domain.Snapshot, error) {
 	if record.Version != domain.VersionV1 {
 		return domain.Snapshot{}, fmt.Errorf("%w: %d", domain.ErrUnsupportedVersion, record.Version)
 	}
-	spec, err := domain.DecodeSpec(record.SpecJSON)
+	spec, err := domain.DecodePersistedSpec(record.SpecJSON)
 	if err != nil {
 		return domain.Snapshot{}, err
 	}
-	summary, err := domain.DecodeSummary(record.SummaryJSON)
+	summary, err := domain.DecodePersistedSummary(record.SummaryJSON)
 	if err != nil {
 		return domain.Snapshot{}, err
 	}
-	expected, err := domain.Summarize(spec)
+	expected, err := domain.SummarizePersisted(spec)
 	if err != nil {
 		return domain.Snapshot{}, err
 	}
@@ -83,6 +109,22 @@ func (r *workerSpecSnapshotRepo) GetByID(
 		Summary:        summary,
 		CreatedAt:      record.CreatedAt,
 	}, nil
+}
+
+func (r *workerSpecSnapshotRepo) Delete(
+	ctx context.Context,
+	organizationID, id int64,
+) error {
+	result := r.db.WithContext(ctx).
+		Where("organization_id = ? AND id = ?", organizationID, id).
+		Delete(&workerSpecSnapshotRecord{})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
+	}
+	return nil
 }
 
 func decodeResolvedSnapshot(

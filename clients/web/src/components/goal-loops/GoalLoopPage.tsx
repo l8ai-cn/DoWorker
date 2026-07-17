@@ -2,22 +2,21 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, RefreshCw, Target } from "lucide-react";
+import { AlertCircle, Blocks, Plus, RefreshCw, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GoalLoopCreateForm } from "@/components/goal-loops/GoalLoopCreateForm";
+import { GoalLoopCreateDialog } from "@/components/goal-loops/GoalLoopCreateDialog";
 import { GoalLoopList } from "@/components/goal-loops/GoalLoopList";
+import { GoalLoopOverview } from "@/components/goal-loops/GoalLoopOverview";
 import { cancelGoalLoop, listGoalLoops, startGoalLoop, verifyGoalLoop } from "@/lib/api/facade/goalLoopConnect";
 import type { GoalLoopData } from "@/lib/viewModels/goal-loop";
-import { usePods, usePodStore } from "@/stores/pod";
 
 export function GoalLoopPage({ orgSlug }: { orgSlug: string }) {
-  const loopsWorkers = usePods();
-  const fetchPods = usePodStore((state) => state.fetchPods);
   const [loops, setLoops] = useState<GoalLoopData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busySlug, setBusySlug] = useState<string>();
   const [reloadVersion, setReloadVersion] = useState(0);
+  const [createOpen, setCreateOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -25,8 +24,8 @@ export function GoalLoopPage({ orgSlug }: { orgSlug: string }) {
       setLoading(true);
       setError(null);
       try {
-        const result = await listGoalLoops(orgSlug);
-        if (!cancelled) setLoops(result);
+        const loopResult = await listGoalLoops(orgSlug);
+        if (!cancelled) setLoops(loopResult);
       } catch (cause) {
         if (!cancelled) setError(cause instanceof Error ? cause.message : "加载 Loop 失败");
       } finally {
@@ -34,9 +33,8 @@ export function GoalLoopPage({ orgSlug }: { orgSlug: string }) {
       }
     }
     void load();
-    void fetchPods();
     return () => { cancelled = true; };
-  }, [fetchPods, orgSlug, reloadVersion]);
+  }, [orgSlug, reloadVersion]);
 
   function replaceLoop(loop: GoalLoopData) {
     setLoops((current) => {
@@ -77,15 +75,31 @@ export function GoalLoopPage({ orgSlug }: { orgSlug: string }) {
           </div>
           <p className="max-w-sm text-xs text-muted-foreground sm:text-right">
             需要定时、事件或 API 重复触发时，请使用 Workflow。{" "}
-            <Link className="text-primary underline-offset-4 hover:underline" href="/docs/concepts/loop-and-workflow">查看字段差异</Link>
+            <Link className="whitespace-nowrap text-primary underline-offset-4 hover:underline" href="/docs/concepts/loop-and-workflow">查看字段差异</Link>
           </p>
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link href={`/${orgSlug}/loops/workbench`}>
+                <Blocks className="mr-1.5 h-4 w-4" />Loop 工作台
+              </Link>
+            </Button>
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="mr-1.5 h-4 w-4" />新建 Loop
+            </Button>
+          </div>
         </header>
 
-        <GoalLoopCreateForm orgSlug={orgSlug} workers={loopsWorkers} onCreated={replaceLoop} />
+        <GoalLoopCreateDialog
+          open={createOpen}
+          orgSlug={orgSlug}
+          onApplied={() => setReloadVersion((version) => version + 1)}
+          onOpenChange={setCreateOpen}
+        />
 
-        <section className="mt-8">
+        {!loading && <GoalLoopOverview loops={loops} />}
+        <section>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">已有 Loop</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">全部 Loop</h2>
             <Button size="sm" variant="ghost" disabled={loading} onClick={() => setReloadVersion((version) => version + 1)}>
               <RefreshCw className="mr-1.5 h-3.5 w-3.5" />刷新
             </Button>

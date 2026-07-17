@@ -10,6 +10,7 @@ import (
 
 	poddomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
+	skilldomain "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
@@ -24,15 +25,17 @@ func TestPublishFromPodBindsWorkerSpecSnapshot(t *testing.T) {
 	service := NewService(Deps{
 		Store: store,
 		Pods: &expertPodLoader{pod: &poddomain.Pod{
-			OrganizationID:       7,
-			PodKey:               "pod-source",
-			AgentSlug:            "legacy-agent",
-			RunnerID:             99,
-			RepositoryID:         &repositoryID,
-			BranchName:           &branch,
-			Prompt:               prompt,
-			InteractionMode:      expertdom.InteractionModePTY,
-			WorkerSpecSnapshotID: &snapshotID,
+			OrganizationID:  7,
+			PodKey:          "pod-source",
+			AgentSlug:       "legacy-agent",
+			RunnerID:        99,
+			RepositoryID:    &repositoryID,
+			BranchName:      &branch,
+			Prompt:          prompt,
+			InteractionMode: expertdom.InteractionModePTY,
+			PodResourceBindings: poddomain.PodResourceBindings{
+				WorkerSpecSnapshotID: &snapshotID,
+			},
 		}},
 		WorkerSpecs: snapshots,
 	})
@@ -86,6 +89,40 @@ func TestPublishFromPodRejectsMissingWorkerSpecSnapshot(t *testing.T) {
 	assert.Empty(t, store.rows)
 }
 
+func TestPublishFromPodCachesSnapshotSkillSlugs(t *testing.T) {
+	snapshotID := int64(42)
+	snapshot := expertWorkerSpecSnapshot(snapshotID, 7)
+	snapshot.Spec.Workspace.SkillIDs = []int64{11}
+	service := NewService(Deps{
+		Store: newFakeStore(),
+		Pods: &expertPodLoader{pod: &poddomain.Pod{
+			OrganizationID: 7,
+			PodKey:         "pod-source",
+			PodResourceBindings: poddomain.PodResourceBindings{
+				WorkerSpecSnapshotID: &snapshotID,
+			},
+		}},
+		WorkerSpecs: &expertSnapshotLoader{snapshot: snapshot},
+		Skills: &expertSkillLoader{skills: map[int64]*skilldomain.Skill{
+			11: {
+				ID:             11,
+				OrganizationID: workerSpecTestInt64Pointer(7),
+				Slug:           "seedance-expert",
+			},
+		}},
+	})
+
+	row, err := service.PublishFromPod(context.Background(), &PublishFromPodRequest{
+		OrganizationID: 7,
+		UserID:         5,
+		PodKey:         "pod-source",
+		Name:           "Seedance Expert",
+	})
+
+	require.NoError(t, err)
+	assert.Equal(t, []string{"seedance-expert"}, []string(row.SkillSlugs))
+}
+
 func TestPublishFromPodRejectsInvalidWorkerSpecSnapshotID(t *testing.T) {
 	snapshotID := int64(0)
 	store := newFakeStore()
@@ -95,9 +132,11 @@ func TestPublishFromPodRejectsInvalidWorkerSpecSnapshotID(t *testing.T) {
 	service := NewService(Deps{
 		Store: store,
 		Pods: &expertPodLoader{pod: &poddomain.Pod{
-			OrganizationID:       7,
-			PodKey:               "pod-invalid",
-			WorkerSpecSnapshotID: &snapshotID,
+			OrganizationID: 7,
+			PodKey:         "pod-invalid",
+			PodResourceBindings: poddomain.PodResourceBindings{
+				WorkerSpecSnapshotID: &snapshotID,
+			},
 		}},
 		WorkerSpecs: snapshots,
 	})
@@ -120,9 +159,11 @@ func TestPublishFromPodRejectsCrossOrganizationSnapshot(t *testing.T) {
 	service := NewService(Deps{
 		Store: store,
 		Pods: &expertPodLoader{pod: &poddomain.Pod{
-			OrganizationID:       7,
-			PodKey:               "pod-source",
-			WorkerSpecSnapshotID: &snapshotID,
+			OrganizationID: 7,
+			PodKey:         "pod-source",
+			PodResourceBindings: poddomain.PodResourceBindings{
+				WorkerSpecSnapshotID: &snapshotID,
+			},
 		}},
 		WorkerSpecs: &expertSnapshotLoader{
 			snapshot: expertWorkerSpecSnapshot(snapshotID, 8),
@@ -214,6 +255,21 @@ type expertSnapshotLoader struct {
 	snapshotID     int64
 }
 
+type expertSkillLoader struct {
+	skills map[int64]*skilldomain.Skill
+}
+
+func (loader *expertSkillLoader) GetAnyByID(
+	_ context.Context,
+	id int64,
+) (*skilldomain.Skill, error) {
+	row, ok := loader.skills[id]
+	if !ok {
+		return nil, skilldomain.ErrNotFound
+	}
+	return row, nil
+}
+
 func (loader *expertSnapshotLoader) GetByID(
 	_ context.Context,
 	organizationID, snapshotID int64,
@@ -232,6 +288,7 @@ func expertWorkerSpecSnapshot(id, organizationID int64) specdomain.Snapshot {
 				ConnectionID:       201,
 				ConnectionRevision: 9,
 				ProviderKey:        slugkit.MustNewForTest("openai"),
+				ProtocolAdapter:    slugkit.MustNewForTest("openai-compatible"),
 				ModelID:            "gpt-5",
 			},
 			WorkerType: specdomain.WorkerType{

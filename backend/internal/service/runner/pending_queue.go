@@ -8,8 +8,8 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
-	"google.golang.org/protobuf/proto"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 const (
@@ -61,51 +61,26 @@ func (q *PendingCommandQueue) Enabled() bool {
 	return q.enabled
 }
 
-func (q *PendingCommandQueue) EnqueueCreatePod(
-	ctx context.Context,
-	orgID, runnerID int64,
-	podKey string,
-	cmd *runnerv1.CreatePodCommand,
-	ttl time.Duration,
-) (time.Time, error) {
-	payload, err := marshalServerMessage(&runnerv1.ServerMessage{
-		Payload: &runnerv1.ServerMessage_CreatePod{CreatePod: cmd},
-	})
-	if err != nil {
-		return time.Time{}, err
+func (q *PendingCommandQueue) SendPromptTTL() time.Duration {
+	ttl := q.defaultTTL
+	if ttl <= 0 {
+		ttl = minQueueTTL
 	}
-	expiresAt, err := q.enqueue(ctx, orgID, runnerID, podKey, agentpod.CommandTypeCreatePod, podKey, payload, ttl)
-	if err != nil {
-		return time.Time{}, err
+	if ttl < minQueueTTL {
+		return minQueueTTL
 	}
-	q.maybeDrain(runnerID)
-	return expiresAt, nil
+	if ttl > maxQueueTTL {
+		return maxQueueTTL
+	}
+	return ttl
 }
 
-func (q *PendingCommandQueue) EnqueueSendPrompt(
-	ctx context.Context,
-	orgID, runnerID int64,
-	podKey, commandID, prompt string,
-	ttl time.Duration,
-) error {
-	payload, err := marshalServerMessage(&runnerv1.ServerMessage{
-		Payload: &runnerv1.ServerMessage_SendPrompt{
-			SendPrompt: &runnerv1.SendPromptCommand{
-				PodKey:    podKey,
-				Prompt:    prompt,
-				CommandId: commandID,
-			},
-		},
-	})
-	if err != nil {
-		return err
-	}
-	_, err = q.enqueue(ctx, orgID, runnerID, podKey, agentpod.CommandTypeSendPrompt, commandID, payload, ttl)
-	if err != nil {
-		return err
-	}
+func (q *PendingCommandQueue) MaxPerRunner() int {
+	return q.maxPerRunner
+}
+
+func (q *PendingCommandQueue) TriggerDrain(runnerID int64) {
 	q.maybeDrain(runnerID)
-	return nil
 }
 
 func (q *PendingCommandQueue) CancelByPodKey(ctx context.Context, podKey string) error {
@@ -128,13 +103,20 @@ func (q *PendingCommandQueue) enqueue(
 		return time.Time{}, ErrRunnerNotConnected
 	}
 	if ttl <= 0 {
-		ttl = q.defaultTTL
+		ttl = q.SendPromptTTL()
 	}
 	if ttl < minQueueTTL {
 		ttl = minQueueTTL
 	}
 	if ttl > maxQueueTTL {
 		ttl = maxQueueTTL
+	}
+	exists, err := q.repo.ExistsCommandID(ctx, commandID)
+	if err != nil {
+		return time.Time{}, err
+	}
+	if exists {
+		return time.Time{}, agentpod.ErrDuplicateCommand
 	}
 	count, err := q.repo.CountByRunner(ctx, runnerID)
 	if err != nil {
@@ -158,10 +140,10 @@ func (q *PendingCommandQueue) enqueue(
 	}
 	pos, _ := q.repo.PositionByPodKey(ctx, runnerID, podKey)
 	publishQueueEvent(q.eventBus, q.logger, eventbus.EventPodQueued, orgID, podKey, map[string]interface{}{
-		"pod_key":         podKey,
-		"runner_id":       runnerID,
-		"queue_position":  pos,
-		"expires_at":      expiresAt.UTC().Format(time.RFC3339),
+		"pod_key":        podKey,
+		"runner_id":      runnerID,
+		"queue_position": pos,
+		"expires_at":     expiresAt.UTC().Format(time.RFC3339),
 	})
 	return expiresAt, nil
 }

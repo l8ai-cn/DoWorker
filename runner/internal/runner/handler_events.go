@@ -69,7 +69,13 @@ func (h *RunnerMessageHandler) cleanupPodExit(podKey string, exitCode int, stopI
 		h.restartPerpetualPod(pod, exitCode)
 		return
 	}
+	pod.closeWorkspace()
 
+	if h.receipts != nil {
+		if err := h.receipts.DeletePod(podKey); err != nil {
+			log.Warn("failed to delete command receipts", "pod_key", podKey, "error", err)
+		}
+	}
 	h.promptDedupMu.Lock()
 	delete(h.promptDedup, podKey)
 	h.promptDedupMu.Unlock()

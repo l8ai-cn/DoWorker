@@ -65,10 +65,7 @@ function dispatchEvent(
       }
       break;
     case "log":
-      if (data.level === "error" || data.level === "warn") {
-        console.warn(`[ACP:${podKey}] ${data.level}: ${data.message}`);
-        store.addLog(podKey, data.level as string, data.message as string);
-      }
+      store.addLog(podKey, data.level as string, data.message as string);
       break;
     case "configChanged":
       store.updateConfiguration(podKey, {
@@ -81,6 +78,13 @@ function dispatchEvent(
       // No retry / rollback — the wasm session still holds the old value,
       // so the Selector simply stays on the previous label after error.
       store.addLog(podKey, "warn", `Config change failed (${data.field}=${data.value}): ${data.message}`);
+      break;
+    case "commandFailed":
+      store.addLog(
+        podKey,
+        "error",
+        typeof data.message === "string" ? data.message : "Worker did not accept the command",
+      );
       break;
     default:
       console.warn("[ACP] Unknown event type:", eventType);

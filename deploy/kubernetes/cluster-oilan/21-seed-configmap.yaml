@@ -69,14 +69,7 @@ data:
         INSERT INTO runners (organization_id, cluster_id, node_id, description, status, max_concurrent_pods)
         SELECT v_org_id, v_online_cluster_id, r.node_id, r.description, 'offline', 10
         FROM (VALUES
-            ('dev-runner', 'K8s Runner (e2e-echo)'),
-            ('dev-runner-claude', 'K8s Runner (Claude Code)'),
-            ('dev-runner-codex', 'K8s Runner (Codex CLI)'),
-            ('dev-runner-gemini', 'K8s Runner (Gemini CLI)'),
-            ('dev-runner-minimax', 'K8s Runner (MiniMax CLI)'),
-            ('dev-runner-grok', 'K8s Runner (Grok Build)'),
-            ('dev-runner-openclaw', 'K8s Runner (OpenClaw)'),
-            ('dev-runner-hermes', 'K8s Runner (Hermes)')
+            ('dev-runner', 'K8s Runner (e2e-echo)')
         ) AS r(node_id, description)
         WHERE NOT EXISTS (SELECT 1 FROM runners WHERE organization_id = v_org_id AND node_id = r.node_id);
 
@@ -87,7 +80,11 @@ data:
         SELECT v_org_id, v_online_cluster_id,
                'coord-runner-amesh-runner-' || v_org_id || '-' || a.agent,
                'Coordinator dynamic runner (' || a.agent || ')', 'offline', 10
-        FROM (VALUES ('claude-code'), ('codex-cli'), ('gemini-cli'), ('e2e-echo'), ('minimax-cli'), ('grok-build'), ('openclaw'), ('hermes')) AS a(agent)
+        FROM (VALUES
+            ('e2e-echo'),
+            ('do-agent'),
+            ('seedance-expert')
+        ) AS a(agent)
         WHERE NOT EXISTS (
             SELECT 1 FROM runners
             WHERE organization_id = v_org_id

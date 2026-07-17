@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -19,38 +20,65 @@ import (
 // --- in-memory expert repository ---
 
 type fakeStore struct {
-	rows      map[int64]*expertdom.Expert
-	nextID    int64
-	createErr error
-	updateErr error
+	mutex                sync.Mutex
+	rows                 map[int64]*expertdom.Expert
+	nextID               int64
+	createErr            error
+	updateErr            error
+	marketLookupMisses   int
+	beforeMarketUpdate   func()
+	marketUpdateStarted  chan struct{}
+	marketUpdateContinue chan struct{}
 }
 
 func newFakeStore() *fakeStore { return &fakeStore{rows: map[int64]*expertdom.Expert{}} }
 
 func (f *fakeStore) Create(_ context.Context, e *expertdom.Expert) error {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
 	if f.createErr != nil {
 		return f.createErr
 	}
+	for _, existing := range f.rows {
+		if e.SourceMarketApplicationID != nil &&
+			existing.OrganizationID == e.OrganizationID &&
+			existing.SourceMarketApplicationID != nil &&
+			*existing.SourceMarketApplicationID == *e.SourceMarketApplicationID {
+			return errors.New("duplicate market installation")
+		}
+	}
 	f.nextID++
 	e.ID = f.nextID
+	if e.Revision == 0 {
+		e.Revision = 1
+	}
 	cp := *e
 	f.rows[e.ID] = &cp
 	return nil
 }
 
 func (f *fakeStore) Update(_ context.Context, e *expertdom.Expert) error {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
 	if f.updateErr != nil {
 		return f.updateErr
 	}
-	if _, ok := f.rows[e.ID]; !ok {
+	current, ok := f.rows[e.ID]
+	if !ok {
 		return expertdom.ErrNotFound
 	}
+	if current.Revision != e.Revision {
+		return expertdom.ErrConflict
+	}
+	e.Revision++
 	cp := *e
 	f.rows[e.ID] = &cp
 	return nil
 }
 
 func (f *fakeStore) Delete(_ context.Context, orgID, id int64) error {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
 	e, ok := f.rows[id]
 	if !ok || e.OrganizationID != orgID {
 		return expertdom.ErrNotFound
@@ -60,6 +88,8 @@ func (f *fakeStore) Delete(_ context.Context, orgID, id int64) error {
 }
 
 func (f *fakeStore) GetByID(_ context.Context, orgID, id int64) (*expertdom.Expert, error) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
 	e, ok := f.rows[id]
 	if !ok || e.OrganizationID != orgID {
 		return nil, expertdom.ErrNotFound
@@ -69,6 +99,8 @@ func (f *fakeStore) GetByID(_ context.Context, orgID, id int64) (*expertdom.Expe
 }
 
 func (f *fakeStore) GetBySlug(_ context.Context, orgID int64, slug string) (*expertdom.Expert, error) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
 	for _, e := range f.rows {
 		if e.OrganizationID == orgID && e.Slug == slug {
 			cp := *e
@@ -78,7 +110,61 @@ func (f *fakeStore) GetBySlug(_ context.Context, orgID int64, slug string) (*exp
 	return nil, expertdom.ErrNotFound
 }
 
+func (f *fakeStore) GetByMarketApplication(
+	_ context.Context,
+	orgID, applicationID int64,
+) (*expertdom.Expert, error) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+	if f.marketLookupMisses > 0 {
+		f.marketLookupMisses--
+		return nil, expertdom.ErrNotFound
+	}
+	for _, expert := range f.rows {
+		if expert.OrganizationID == orgID &&
+			expert.SourceMarketApplicationID != nil &&
+			*expert.SourceMarketApplicationID == applicationID {
+			copy := *expert
+			return &copy, nil
+		}
+	}
+	return nil, expertdom.ErrNotFound
+}
+
+func (f *fakeStore) UpdateMarketRelease(
+	_ context.Context,
+	orgID, expertID, applicationID int64,
+	update expertdom.MarketReleaseUpdate,
+) error {
+	if f.marketUpdateStarted != nil {
+		close(f.marketUpdateStarted)
+		<-f.marketUpdateContinue
+	}
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+	if f.beforeMarketUpdate != nil {
+		f.beforeMarketUpdate()
+	}
+	if f.updateErr != nil {
+		return f.updateErr
+	}
+	expert, ok := f.rows[expertID]
+	if !ok || expert.OrganizationID != orgID ||
+		expert.SourceMarketApplicationID == nil ||
+		*expert.SourceMarketApplicationID != applicationID {
+		return expertdom.ErrNotFound
+	}
+	if expert.Revision != update.ExpectedRevision {
+		return expertdom.ErrConflict
+	}
+	applyMarketReleaseUpdate(expert, update)
+	expert.Revision++
+	return nil
+}
+
 func (f *fakeStore) SlugExists(_ context.Context, orgID int64, slug string, excludeID int64) (bool, error) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
 	for _, e := range f.rows {
 		if e.OrganizationID == orgID && e.Slug == slug && e.ID != excludeID {
 			return true, nil
@@ -88,6 +174,8 @@ func (f *fakeStore) SlugExists(_ context.Context, orgID int64, slug string, excl
 }
 
 func (f *fakeStore) List(_ context.Context, orgID int64, limit, offset int) ([]expertdom.Expert, int64, error) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
 	var out []expertdom.Expert
 	for _, e := range f.rows {
 		if e.OrganizationID == orgID {
@@ -98,6 +186,8 @@ func (f *fakeStore) List(_ context.Context, orgID int64, limit, offset int) ([]e
 }
 
 func (f *fakeStore) RecordRun(_ context.Context, orgID, id int64, at time.Time) error {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
 	e, ok := f.rows[id]
 	if !ok || e.OrganizationID != orgID {
 		return expertdom.ErrNotFound

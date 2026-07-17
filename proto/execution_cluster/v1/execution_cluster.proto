@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package proto.execution_cluster.v1;
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/execution_cluster/v1;executionclusterv1";
+
+service ExecutionClusterService {
+  rpc ListExecutionClusters(ListExecutionClustersRequest) returns (ListExecutionClustersResponse);
+  rpc CreateRegistrationCommand(CreateRegistrationCommandRequest) returns (CreateRegistrationCommandResponse);
+}
+
+message ExecutionCluster {
+  int64 id = 1;
+  string slug = 2;
+  string name = 3;
+  string kind = 4;
+  string status = 5;
+  int32 runner_count = 6;
+  int32 online_runner_count = 7;
+  int32 available_runner_count = 8;
+  string tunnel_status = 9;
+  optional string tunnel_last_seen_at = 10;
+  optional string tunnel_last_error = 11;
+}
+
+message ListExecutionClustersRequest {
+  string org_slug = 1;
+}
+
+message ListExecutionClustersResponse {
+  repeated ExecutionCluster items = 1;
+}
+
+message CreateRegistrationCommandRequest {
+  string org_slug = 1;
+  int64 cluster_id = 2;
+  string node_name = 3;
+}
+
+message CreateRegistrationCommandResponse {
+  string command = 1;
+  string expires_at = 2;
+}

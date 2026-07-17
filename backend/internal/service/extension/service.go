@@ -67,8 +67,8 @@ func (s *Service) SetSkillCatalog(c SkillCatalog) {
 }
 
 // SkillPackager exposes the configured packager so peer services (e.g. the
-// git-backed skill service) can reuse the same package→object-storage
-// pipeline via PackageFromDir. Returns nil when no packager is configured.
+// git-backed skill service) can reuse package preparation and storage.
+// Returns nil when no packager is configured.
 func (s *Service) SkillPackager() *SkillPackager {
 	return s.packager
 }

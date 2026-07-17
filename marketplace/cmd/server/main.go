@@ -62,6 +62,13 @@ func main() {
 		log.Fatalf("configure marketplace runtime bridge: %v", err)
 	}
 	installationRepository := marketplacepostgres.NewInstallationRepository(db)
+	expertCatalogSyncer := marketplacepostgres.NewExpertCatalogSynchronizer(db)
+	if _, err := expertCatalogSyncer.Sync(context.Background()); err != nil {
+		log.Fatalf("sync published expert catalog: %v", err)
+	}
+	syncContext, stopSync := context.WithCancel(context.Background())
+	defer stopSync()
+	go runExpertCatalogSync(syncContext, expertCatalogSyncer)
 
 	server := &http.Server{
 		Addr: cfg.HTTPAddress,

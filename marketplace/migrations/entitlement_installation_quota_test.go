@@ -58,7 +58,8 @@ func TestEntitlementInstallationQuotaMigrationCreatesMinimumTables(t *testing.T)
 
 func TestEntitlementInstallationQuotaMigrationEnforcesIdempotencyAndBalances(t *testing.T) {
 	sql := readMigration(t, "000007_entitlement_installation.up.sql") +
-		readMigration(t, "000008_quota_ledger_audit.up.sql")
+		readMigration(t, "000008_quota_ledger_audit.up.sql") +
+		readMigration(t, "000015_single_active_installation.up.sql")
 
 	for _, fragment := range []string{
 		"idx_marketplace_entitlements_active_direct",
@@ -70,6 +71,10 @@ func TestEntitlementInstallationQuotaMigrationEnforcesIdempotencyAndBalances(t *
 		"available_balance < 0 OR reserved_balance < 0",
 		"RAISE EXCEPTION 'quota balance cannot be negative'",
 		"CREATE TRIGGER marketplace_quota_balance_guard",
+		"idx_marketplace_installations_single_active",
+		"single active installation conflict:",
+		"array_agg(id::text ORDER BY created_at, id)",
+		"WHERE status IN ('installing', 'verifying', 'active', 'suspended')",
 	} {
 		require.Contains(t, sql, fragment)
 	}
@@ -109,6 +114,8 @@ func TestEntitlementInstallationQuotaMigrationsRespectFileLimit(t *testing.T) {
 		"000007_entitlement_installation.down.sql",
 		"000008_quota_ledger_audit.up.sql",
 		"000008_quota_ledger_audit.down.sql",
+		"000015_single_active_installation.up.sql",
+		"000015_single_active_installation.down.sql",
 	} {
 		sql := readMigration(t, name)
 		require.LessOrEqual(t, strings.Count(sql, "\n")+1, 200, name)

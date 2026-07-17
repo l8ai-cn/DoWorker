@@ -3,11 +3,13 @@ package workercreation
 import (
 	"context"
 	"regexp"
+	"strings"
 	"testing"
 
 	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +24,11 @@ CONFIG sandbox_mode BOOL = false
 ENV SIGNING_KEY SECRET OPTIONAL
 `
 	provider := &workerTypeAgentProvider{agent: activeWorkerTypeAgent(source)}
-	resolver := newWorkerTypeResolver(provider)
+	definition := workerDefinition("codex-cli", "codex", source, "pty", "acp")
+	resolver := newWorkerTypeResolver(
+		provider,
+		staticWorkerDefinitions{"codex-cli": definition},
+	)
 
 	resolved, err := resolver.ResolveWorkerType(
 		context.Background(),
@@ -33,10 +39,13 @@ ENV SIGNING_KEY SECRET OPTIONAL
 	require.NoError(t, err)
 	assert.Equal(t, slugkit.MustNewForTest("codex-cli"), resolved.WorkerType.Slug)
 	assert.Regexp(t, regexp.MustCompile(`^[a-f0-9]{64}$`), resolved.WorkerType.DefinitionHash)
+	assert.Equal(t, definition.DefinitionHash, resolved.WorkerType.DefinitionHash)
 	assert.Equal(t, uint32(1), resolved.TypeSchema.Version)
 	assert.Equal(t, specdomain.TypeFieldSchema{
-		Kind:    specdomain.TypeFieldSelect,
-		Options: []string{"untrusted", "on-request", "never"},
+		Kind:        specdomain.TypeFieldSelect,
+		Options:     []string{"untrusted", "on-request", "never"},
+		Default:     "on-request",
+		Description: "用于调整此 Agent 的运行行为。",
 	}, resolved.TypeSchema.Fields["approval_mode"])
 	assert.Equal(t, specdomain.TypeFieldBoolean, resolved.TypeSchema.Fields["sandbox_mode"].Kind)
 	assert.Equal(t, specdomain.TypeFieldSecret, resolved.TypeSchema.Fields["SIGNING_KEY"].Kind)
@@ -57,77 +66,60 @@ ENV SIGNING_KEY SECRET OPTIONAL
 	require.NoError(t, err)
 	assert.Equal(t, resolved.WorkerType.DefinitionHash, again.WorkerType.DefinitionHash)
 
-	changed := activeWorkerTypeAgent(source + "MCP ON\n")
-	provider.agent = changed
-	updated, err := resolver.ResolveWorkerType(
-		context.Background(),
-		specservice.Scope{OrgID: 77, UserID: 7},
-		slugkit.MustNewForTest("codex-cli"),
-	)
-	require.NoError(t, err)
-	assert.NotEqual(t, resolved.WorkerType.DefinitionHash, updated.WorkerType.DefinitionHash)
 }
 
 func TestWorkerTypeResolverExcludesModelResourceManagedFields(t *testing.T) {
-	tests := []struct {
-		slug       string
-		executable string
-		source     string
-		excluded   []string
-	}{
+	source := "AGENT worker\nEXECUTABLE cursor\n" +
+		"CONFIG model STRING = \"\"\n" +
+		"ENV OPENAI_API_KEY SECRET OPTIONAL\n" +
+		"ENV CURSOR_API_KEY SECRET OPTIONAL\n"
+	definition := workerDefinition("cursor-cli", "cursor", source, "pty", "acp")
+	definition.ModelRequirement = workerdefinition.ModelRequirement{
+		Required:         true,
+		ProtocolAdapters: []string{"openai-compatible"},
+	}
+	definition.CredentialBindings = []workerdefinition.CredentialBinding{
 		{
-			slug:       "codex-cli",
-			executable: "codex",
-			source: "CONFIG model STRING = \"\"\n" +
-				"ENV OPENAI_API_KEY SECRET OPTIONAL\n" +
-				"ENV OPENAI_BASE_URL TEXT OPTIONAL\n" +
-				"ENV OPENAI_MODEL TEXT OPTIONAL\n",
-			excluded: []string{"model", "OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENAI_MODEL"},
+			ID: "openai",
+			Source: workerdefinition.CredentialSource{
+				Kind: "model_resource",
+				Ref:  "openai-compatible",
+			},
+			Target: workerdefinition.CredentialTarget{
+				Kind: "env",
+				Name: "OPENAI_API_KEY",
+			},
 		},
 		{
-			slug:       "claude-code",
-			executable: "claude",
-			source: "CONFIG model STRING = \"\"\n" +
-				"ENV ANTHROPIC_API_KEY SECRET OPTIONAL\n" +
-				"ENV ANTHROPIC_AUTH_TOKEN SECRET OPTIONAL\n" +
-				"ENV ANTHROPIC_BASE_URL TEXT OPTIONAL\n",
-			excluded: []string{"model", "ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL"},
-		},
-		{
-			slug:       "gemini-cli",
-			executable: "gemini",
-			source: "CONFIG model STRING = \"\"\n" +
-				"ENV GEMINI_API_KEY SECRET OPTIONAL\n" +
-				"ENV GOOGLE_API_KEY SECRET OPTIONAL\n",
-			excluded: []string{"model", "GEMINI_API_KEY", "GOOGLE_API_KEY"},
+			ID: "cursor",
+			Source: workerdefinition.CredentialSource{
+				Kind: "credential_bundle",
+				Ref:  "cursor",
+			},
+			Target: workerdefinition.CredentialTarget{
+				Kind: "env",
+				Name: "CURSOR_API_KEY",
+			},
 		},
 	}
+	resolver := newWorkerTypeResolver(&workerTypeAgentProvider{
+		agent: activeWorkerTypeAgentFor("cursor-cli", "cursor", source),
+	}, staticWorkerDefinitions{"cursor-cli": definition})
 
-	for _, test := range tests {
-		t.Run(test.slug, func(t *testing.T) {
-			source := "AGENT worker\nEXECUTABLE " + test.executable + "\n" +
-				test.source + "ENV SIGNING_KEY SECRET OPTIONAL\n"
-			resolver := newWorkerTypeResolver(&workerTypeAgentProvider{
-				agent: activeWorkerTypeAgentFor(test.slug, test.executable, source),
-			})
+	resolved, err := resolver.ResolveWorkerType(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		slugkit.MustNewForTest("cursor-cli"),
+	)
 
-			resolved, err := resolver.ResolveWorkerType(
-				context.Background(),
-				specservice.Scope{OrgID: 77, UserID: 7},
-				slugkit.MustNewForTest(test.slug),
-			)
-
-			require.NoError(t, err)
-			for _, field := range test.excluded {
-				assert.NotContains(t, resolved.TypeSchema.Fields, field)
-			}
-			assert.Equal(
-				t,
-				specdomain.TypeFieldSecret,
-				resolved.TypeSchema.Fields["SIGNING_KEY"].Kind,
-			)
-		})
-	}
+	require.NoError(t, err)
+	assert.NotContains(t, resolved.TypeSchema.Fields, "model")
+	assert.NotContains(t, resolved.TypeSchema.Fields, "OPENAI_API_KEY")
+	assert.Equal(
+		t,
+		specdomain.TypeFieldSecret,
+		resolved.TypeSchema.Fields["CURSOR_API_KEY"].Kind,
+	)
 }
 
 func TestWorkerTypeResolverRejectsUnavailableDefinitions(t *testing.T) {
@@ -178,6 +170,8 @@ func TestWorkerTypeResolverRejectsUnavailableDefinitions(t *testing.T) {
 			resolver := newWorkerTypeResolver(&workerTypeAgentProvider{
 				agent: test.agent,
 				err:   test.err,
+			}, staticWorkerDefinitions{
+				test.slug: workerDefinition(test.slug, "codex", source, "pty", "acp"),
 			})
 
 			_, err := resolver.ResolveWorkerType(
@@ -226,8 +220,52 @@ func activeWorkerTypeAgentFor(slug, executable, source string) *agentdomain.Agen
 		Slug:            slug,
 		Name:            slug,
 		Executable:      executable,
+		AdapterID:       "test-adapter",
 		AgentfileSource: &source,
 		IsActive:        true,
 		SupportedModes:  "pty,acp",
+	}
+}
+
+func workerDefinition(
+	slug, executable, source string,
+	modes ...string,
+) workerdefinition.Definition {
+	return workerdefinition.Definition{
+		Slug:           slug,
+		Version:        "1",
+		Executable:     executable,
+		AdapterID:      "test-adapter",
+		DefinitionHash: strings.Repeat("a", 64),
+		AgentFile:      source,
+		Modes:          modes,
+		ModelRequirement: workerdefinition.ModelRequirement{
+			Required:         true,
+			ProtocolAdapters: []string{"openai-compatible"},
+		},
+		CredentialBindings: []workerdefinition.CredentialBinding{
+			{
+				ID: "openai",
+				Source: workerdefinition.CredentialSource{
+					Kind: "model_resource",
+					Ref:  "openai-compatible",
+				},
+				Target: workerdefinition.CredentialTarget{
+					Kind: "env",
+					Name: "OPENAI_API_KEY",
+				},
+			},
+			{
+				ID: "signing",
+				Source: workerdefinition.CredentialSource{
+					Kind: "credential_bundle",
+					Ref:  slug,
+				},
+				Target: workerdefinition.CredentialTarget{
+					Kind: "env",
+					Name: "SIGNING_KEY",
+				},
+			},
+		},
 	}
 }

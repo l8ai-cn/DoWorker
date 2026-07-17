@@ -7,31 +7,27 @@ import (
 	"strings"
 
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/google/uuid"
 )
 
 var ErrMarketplaceInstallationInvalid = errors.New("invalid marketplace installation")
 
 type MarketplaceInstallationRequest struct {
-	InstallationID       string
-	TargetOrganizationID int64
-	ActorUserID          int64
-	RuntimeSnapshot      json.RawMessage
+	InstallationID            string
+	TargetOrganizationID      int64
+	ActorUserID               int64
+	ModelResourceID           int64
+	ToolModelResourceIDs      map[string]int64
+	SourceMarketApplicationID int64
+	SourceMarketReleaseID     int64
+	RuntimeSnapshot           json.RawMessage
 }
 
-type marketplaceExpertSnapshot struct {
-	Name            string                     `json:"name"`
-	Description     *string                    `json:"description"`
-	AgentSlug       string                     `json:"agent_slug"`
-	Prompt          *string                    `json:"prompt"`
-	InteractionMode string                     `json:"interaction_mode"`
-	AutomationLevel string                     `json:"automation_level"`
-	Perpetual       bool                       `json:"perpetual"`
-	UsedEnvBundles  []string                   `json:"used_env_bundles"`
-	SkillSlugs      []string                   `json:"skill_slugs"`
-	KnowledgeMounts []expertdom.KnowledgeMount `json:"knowledge_mounts"`
-	ConfigOverrides map[string]interface{}     `json:"config_overrides"`
-	AgentfileLayer  *string                    `json:"agentfile_layer"`
+type marketplaceRuntimeSnapshot struct {
+	Version    int                  `json:"version"`
+	Expert     marketExpertSnapshot `json:"expert"`
+	WorkerSpec specdomain.Spec      `json:"worker_spec"`
 }
 
 func (s *Service) InstallMarketplaceExpert(
@@ -42,6 +38,19 @@ func (s *Service) InstallMarketplaceExpert(
 	if err != nil {
 		return nil, false, err
 	}
+	if request.SourceMarketApplicationID > 0 {
+		existing, lookupErr := s.store.GetByMarketApplication(
+			ctx,
+			request.TargetOrganizationID,
+			request.SourceMarketApplicationID,
+		)
+		if lookupErr == nil {
+			return existing, true, nil
+		}
+		if !errors.Is(lookupErr, expertdom.ErrNotFound) {
+			return nil, false, lookupErr
+		}
+	}
 	existing, err := s.store.GetBySlug(ctx, request.TargetOrganizationID, slug)
 	if err == nil {
 		return existing, true, nil
@@ -49,38 +58,77 @@ func (s *Service) InstallMarketplaceExpert(
 	if !errors.Is(err, expertdom.ErrNotFound) {
 		return nil, false, err
 	}
-	var snapshot marketplaceExpertSnapshot
-	if json.Unmarshal(request.RuntimeSnapshot, &snapshot) != nil {
+	var snapshot marketplaceRuntimeSnapshot
+	if decodeStrictJSON(request.RuntimeSnapshot, &snapshot) != nil ||
+		snapshot.Version != 1 ||
+		snapshot.Expert.Version != 1 ||
+		validateMarketExpertSnapshot(snapshot.Expert) != nil {
 		return nil, false, ErrMarketplaceInstallationInvalid
 	}
-	row, err := s.Create(ctx, &CreateExpertRequest{
-		OrganizationID:  request.TargetOrganizationID,
-		UserID:          request.ActorUserID,
-		Name:            snapshot.Name,
-		Slug:            slug,
-		Description:     snapshot.Description,
-		AgentSlug:       snapshot.AgentSlug,
-		Prompt:          snapshot.Prompt,
-		InteractionMode: snapshot.InteractionMode,
-		AutomationLevel: snapshot.AutomationLevel,
-		Perpetual:       snapshot.Perpetual,
-		UsedEnvBundles:  append([]string(nil), snapshot.UsedEnvBundles...),
-		SkillSlugs:      append([]string(nil), snapshot.SkillSlugs...),
-		KnowledgeMounts: append([]expertdom.KnowledgeMount(nil), snapshot.KnowledgeMounts...),
-		ConfigOverrides: snapshot.ConfigOverrides,
-		AgentfileLayer:  snapshot.AgentfileLayer,
-	})
+	workerSnapshotID, err := s.prepareMarketplaceWorkerSnapshot(
+		ctx,
+		request,
+		snapshot,
+	)
 	if err != nil {
-		existing, lookupErr := s.store.GetBySlug(
+		return nil, false, err
+	}
+	expertSnapshot := snapshot.Expert
+	var sourceApplicationID, sourceReleaseID *int64
+	if request.SourceMarketApplicationID > 0 {
+		sourceApplicationID = &request.SourceMarketApplicationID
+		sourceReleaseID = &request.SourceMarketReleaseID
+	}
+	row, err := s.Create(ctx, &CreateExpertRequest{
+		OrganizationID:            request.TargetOrganizationID,
+		UserID:                    request.ActorUserID,
+		Name:                      expertSnapshot.Name,
+		Slug:                      slug,
+		Description:               expertSnapshot.Description,
+		AgentSlug:                 expertSnapshot.AgentSlug,
+		Prompt:                    expertSnapshot.Prompt,
+		InteractionMode:           expertSnapshot.InteractionMode,
+		AutomationLevel:           expertSnapshot.AutomationLevel,
+		Perpetual:                 expertSnapshot.Perpetual,
+		UsedEnvBundles:            expertSnapshot.UsedEnvBundles,
+		SkillSlugs:                expertSnapshot.SkillSlugs,
+		KnowledgeMounts:           expertSnapshot.KnowledgeMounts,
+		ConfigOverrides:           expertSnapshot.ConfigOverrides,
+		WorkerSpecSnapshotID:      &workerSnapshotID,
+		SourceMarketApplicationID: sourceApplicationID,
+		SourceMarketReleaseID:     sourceReleaseID,
+		Metadata:                  expertSnapshot.Metadata,
+	})
+	if err == nil {
+		return row, false, nil
+	}
+	cleanupCtx, cancelCleanup := marketCleanupContext(ctx)
+	defer cancelCleanup()
+	if cleanupErr := s.removeUnusedMarketSnapshot(
+		cleanupCtx,
+		request.TargetOrganizationID,
+		workerSnapshotID,
+	); cleanupErr != nil {
+		return nil, false, errors.Join(err, cleanupErr)
+	}
+	var lookupErr error
+	if request.SourceMarketApplicationID > 0 {
+		existing, lookupErr = s.store.GetByMarketApplication(
+			ctx,
+			request.TargetOrganizationID,
+			request.SourceMarketApplicationID,
+		)
+	} else {
+		existing, lookupErr = s.store.GetBySlug(
 			ctx,
 			request.TargetOrganizationID,
 			slug,
 		)
-		if lookupErr == nil {
-			return existing, true, nil
-		}
 	}
-	return row, false, err
+	if lookupErr == nil {
+		return existing, true, nil
+	}
+	return nil, false, err
 }
 
 func marketplaceInstallationSlug(
@@ -89,6 +137,11 @@ func marketplaceInstallationSlug(
 	if uuid.Validate(request.InstallationID) != nil ||
 		request.TargetOrganizationID <= 0 ||
 		request.ActorUserID <= 0 ||
+		request.ModelResourceID <= 0 ||
+		(request.SourceMarketApplicationID == 0) !=
+			(request.SourceMarketReleaseID == 0) ||
+		request.SourceMarketApplicationID < 0 ||
+		request.SourceMarketReleaseID < 0 ||
 		!json.Valid(request.RuntimeSnapshot) {
 		return "", ErrMarketplaceInstallationInvalid
 	}

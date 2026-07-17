@@ -61,7 +61,14 @@ describe("marketplace acquisition API", () => {
       }),
     );
 
-    await createInstallationPlan("do-worker-market", "delivery", "31", 9);
+    await createInstallationPlan(
+      "do-worker-market",
+      "delivery",
+      "31",
+      9,
+      301,
+      { "seedance-video": 302 },
+    );
 
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining("/markets/do-worker-market/listings/delivery/plans"),
@@ -73,7 +80,10 @@ describe("marketplace acquisition API", () => {
         body: JSON.stringify({
           listing_version_id: "31",
           target_platform_organization_id: "9",
-          requested_configuration: {},
+          requested_configuration: {
+            model_resource_id: 301,
+            tool_model_resource_ids: { "seedance-video": 302 },
+          },
         }),
       }),
     );
@@ -90,7 +100,7 @@ describe("marketplace acquisition API", () => {
     );
 
     await expect(
-      createInstallationPlan("do-worker-market", "delivery", "31", 9),
+      createInstallationPlan("do-worker-market", "delivery", "31", 9, 301, {}),
     ).rejects.toEqual(
       expect.objectContaining<Partial<MarketplaceAcquireError>>({
         code: "QUOTA_INSUFFICIENT",

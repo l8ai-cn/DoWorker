@@ -9,13 +9,16 @@ import type {
   AgentConfigActions,
   RuntimeBundleFormData,
   RuntimeBundleViewModel,
+  CredentialBundleFormData,
   ConfigFileFormData,
   ConfigFileBundleViewModel,
 } from "./types";
 import { useAgentConfigMessages } from "./useAgentConfigMessages";
 import { useRuntimeBundles } from "./useRuntimeBundles";
+import { useCredentialBundles } from "./useCredentialBundles";
 import { useConfigFileBundles } from "./useConfigFileBundles";
 import { useAgentRuntimeConfig } from "./useAgentRuntimeConfig";
+import type { CredentialProfileViewModel } from "../_shared/credentialViewModel";
 
 export function useAgentConfig(
   agentSlug: string,
@@ -27,6 +30,7 @@ export function useAgentConfig(
 
   const msgs = useAgentConfigMessages();
   const runtime = useRuntimeBundles(msgs, t);
+  const credentials = useCredentialBundles(msgs, t);
   const configFiles = useConfigFileBundles(msgs, t);
   const cfg = useAgentRuntimeConfig(msgs, t);
 
@@ -53,6 +57,7 @@ export function useAgentConfig(
       }
       setAgent(found);
       await Promise.all([
+        credentials.loadCredentialBundles(found),
         runtime.loadRuntimeBundles(found),
         configFiles.loadConfigFileBundles(found),
         cfg.loadRuntimeConfig(found),
@@ -62,7 +67,7 @@ export function useAgentConfig(
     } finally {
       setLoading(false);
     }
-  }, [agentSlug, t, runtime, configFiles, cfg, msgs, currentOrg]);
+  }, [agentSlug, t, credentials, runtime, configFiles, cfg, msgs, currentOrg]);
 
   useEffect(() => {
     loadData();
@@ -75,6 +80,14 @@ export function useAgentConfig(
       return runtime.handleSaveRuntimeBundle(data, editingBundle, agent);
     },
     [agent, runtime]
+  );
+
+  const handleSaveCredentialBundle = useCallback(
+    (data: CredentialBundleFormData, editing: CredentialProfileViewModel | null) => {
+      if (!agent) return Promise.resolve();
+      return credentials.handleSaveCredentialBundle(data, editing, agent);
+    },
+    [agent, credentials]
   );
 
   const handleSaveConfigFileBundle = useCallback(
@@ -96,6 +109,8 @@ export function useAgentConfig(
     agent,
     configFields: cfg.configFields,
     configValues: cfg.configValues,
+    credentialFields: credentials.credentialFields,
+    credentialBundles: credentials.credentialBundles,
     runtimeBundles: runtime.runtimeBundles,
     configFileSpecs: configFiles.configFileSpecs,
     configFileBundles: configFiles.configFileBundles,
@@ -111,6 +126,10 @@ export function useAgentConfig(
     handleSaveConfigFileBundle,
     handleConfigChange: cfg.handleConfigChange,
     handleSaveConfig,
+    handleSetCredentialPrimary: credentials.handleSetCredentialPrimary,
+    handleClearCredentialPrimary: credentials.handleClearCredentialPrimary,
+    handleDeleteCredentialBundle: credentials.handleDeleteCredentialBundle,
+    handleSaveCredentialBundle,
     setError: msgs.setError,
     setSuccess: msgs.setSuccess,
     loadData,

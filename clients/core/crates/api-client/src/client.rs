@@ -44,9 +44,13 @@ impl ApiClient {
     /// blob bodies, so renderer code calls this after first asking the
     /// backend for a presigned URL via a Connect RPC.
     pub async fn put_raw_bytes(
-        &self, url: &str, content_type: &str, body: Vec<u8>,
+        &self,
+        url: &str,
+        content_type: &str,
+        body: Vec<u8>,
     ) -> Result<(), ApiError> {
-        let resp = self.http
+        let resp = self
+            .http
             .put(url)
             .header("Content-Type", content_type)
             .body(body)
@@ -55,8 +59,14 @@ impl ApiClient {
         if !resp.status().is_success() {
             return Err(ApiError::Http {
                 status: resp.status().as_u16(),
-                status_text: resp.status().canonical_reason().unwrap_or("Unknown").to_string(),
-                code: None, server_message: None, data: None,
+                status_text: resp
+                    .status()
+                    .canonical_reason()
+                    .unwrap_or("Unknown")
+                    .to_string(),
+                code: None,
+                server_message: None,
+                data: None,
                 url: Some(url.to_string()),
             });
         }

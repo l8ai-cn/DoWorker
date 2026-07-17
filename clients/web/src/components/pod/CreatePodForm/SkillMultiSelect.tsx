@@ -3,10 +3,10 @@
 import { useCallback } from "react";
 import { Sparkles, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
-import type { InstalledSkill } from "@/lib/viewModels/extension";
+import type { WorkerSkillOption } from "./workerSkillOption";
 
 interface Props {
-  skills: InstalledSkill[];
+  skills: WorkerSkillOption[];
   selectedSlugs: string[];
   onChange: (slugs: string[]) => void;
   loading?: boolean;

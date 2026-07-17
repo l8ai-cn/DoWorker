@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "worker_slug": "codex-cli",
+  "definition_hash": "sha256:60cfdaef2e79d55d66daeb348f52feae205474ccd5af79ad8c18f41200676a4d",
+  "platform": "linux/amd64",
+  "observed_at": "2026-07-12T23:09:24.352Z",
+  "image_reference": "do-worker/runner-codex-cli:latest",
+  "image_id": "sha256:23b08ff7729c5c4673e42a1f6b42d3fc29f8aafe615dea61b7b7e1a4e9a841ad",
+  "probe_command": [
+    "codex",
+    "--version"
+  ],
+  "status": "passed",
+  "exit_code": 0,
+  "output": "codex-cli 0.144.1"
+}

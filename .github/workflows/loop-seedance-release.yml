@@ -1,0 +1,82 @@
+name: Loop Seedance Release
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: loop-seedance-release-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  contracts:
+    name: Runtime release contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - run: bash deploy/kubernetes/cluster-oilan/deploy_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/deploy-mobile-access-contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/push_images_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/release_source_guard_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/verify_release_images_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/runtime_mapping_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/do_agent_runtime_digest_contract_test.sh
+      - run: bash deploy/kubernetes/cluster-oilan/migration_222_repair_contract_test.sh
+      - run: bash docker/agent-runtime/contract_test.sh
+
+  security-regressions:
+    name: Loop and sandbox security regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      - name: Install codegen tools
+        run: |
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          bash scripts/ci-install-codegen-tools.sh
+      - name: Generate Go protos + amesh
+        run: bash scripts/ensure-go-codegen.sh
+      - name: Backend security regressions
+        working-directory: backend
+        run: >-
+          go test
+          ./pkg/secretguard
+          ./internal/service/goalloop
+          ./internal/api/rest/v1/session
+          -count=1
+      - name: Runner sandbox and control regressions
+        working-directory: runner
+        run: >-
+          go test
+          ./internal/runner
+          ./internal/client
+          ./internal/poddaemon
+          -count=1
+
+  web-user-artifacts:
+    name: Web-user artifact preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: clients/web-user/package-lock.json
+      - name: Install Web-user dependencies
+        working-directory: clients/web-user
+        run: npm ci
+      - name: Artifact component tests
+        working-directory: clients/web-user
+        run: >-
+          npm exec -- vitest run
+          src/components/blocks/OutputFileArtifact.test.tsx
+          src/components/blocks/BlockRenderer.file.test.tsx

@@ -32,6 +32,16 @@ const statusLabel: Record<GoalLoopData["status"], string> = {
   cancelled: "已取消",
 };
 
+const statusPriority: Record<GoalLoopData["status"], number> = {
+  active: 0,
+  verifying: 1,
+  paused: 2,
+  draft: 3,
+  failed: 4,
+  completed: 5,
+  cancelled: 6,
+};
+
 function statusIcon(status: GoalLoopData["status"]) {
   if (status === "completed") return CircleCheck;
   if (status === "failed") return CircleX;
@@ -45,9 +55,13 @@ export function GoalLoopList({ loops, busySlug, onStart, onVerify, onCancel }: G
     return <div className="rounded-xl border border-dashed border-border/70 p-8 text-center text-sm text-muted-foreground">尚未创建目标 Loop。</div>;
   }
 
+  const orderedLoops = [...loops].sort(
+    (left, right) => statusPriority[left.status] - statusPriority[right.status],
+  );
+
   return (
     <div className="space-y-3">
-      {loops.map((loop) => {
+      {orderedLoops.map((loop) => {
         const Icon = statusIcon(loop.status);
         const busy = busySlug === loop.slug;
         return (

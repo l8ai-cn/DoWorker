@@ -139,6 +139,9 @@ type Runner struct {
 	// mTLS certificate fields (added for gRPC migration)
 	CertSerialNumber *string    `gorm:"size:64" json:"cert_serial_number,omitempty"`
 	CertExpiresAt    *time.Time `json:"cert_expires_at,omitempty"`
+	TunnelState      string     `gorm:"size:32;not null;default:'disconnected'" json:"tunnel_state"`
+	TunnelLastSeenAt *time.Time `json:"tunnel_last_seen_at,omitempty"`
+	TunnelLastError  *string    `gorm:"size:255" json:"tunnel_last_error,omitempty"`
 
 	CreatedAt time.Time `gorm:"not null;default:now()" json:"created_at"`
 	UpdatedAt time.Time `gorm:"not null;default:now()" json:"updated_at"`

@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-07-12T20:54:35Z",
+  "environment": {
+    "url": "http://localhost:10007/dev-org/workers/new",
+    "browser": "Codex in-app browser",
+    "account": "local development user"
+  },
+  "scenarios": [
+    {
+      "slug": "codex-cli",
+      "result": "created_acp_prompt_and_cleanup_verified",
+      "evidence": [
+        "model resource field rendered with Local Codex endpoint",
+        "runtime image rendered as Codex CLI",
+        "server preflight reported Worker configuration ready",
+        "create request opened 7-standalone-1ee3bdcc in the workspace",
+        "Web and Relay connected",
+        "control lease was acquired",
+        "the ACP prompt Reply with exactly READY. Do not modify files. returned READY",
+        "terminate completed and the Worker no longer had an active status"
+      ]
+    },
+    {
+      "slug": "claude-code",
+      "result": "missing_model_resource_guard_verified",
+      "evidence": [
+        "model resource field rendered as an explicit error",
+        "next button was disabled"
+      ]
+    },
+    {
+      "slug": "gemini-cli",
+      "result": "missing_model_resource_guard_verified",
+      "evidence": [
+        "model resource field rendered as an explicit error",
+        "next button was disabled"
+      ]
+    },
+    {
+      "slugs": [
+        "aider",
+        "cursor-cli",
+        "do-agent",
+        "grok-build",
+        "hermes",
+        "loopal",
+        "minimax-cli",
+        "openclaw",
+        "opencode"
+      ],
+      "result": "missing_runtime_image_guard_verified",
+      "evidence": [
+        "each option displayed No runtime image is available for this worker type",
+        "options were rendered disabled"
+      ]
+    }
+  ],
+  "wasm_publish": {
+    "command": "pnpm run build:wasm",
+    "result": "passed",
+    "reload_during_build": "wizard rendered without a module-not-found overlay",
+    "reload_after_build": "Codex model resource and Gemini credential guard both rendered"
+  },
+  "repeatable_e2e": [
+    {
+      "command": "clients/web/e2e-playwright: playwright test tests/pod/formal-worker-wizard-codex.spec.ts --project=chromium --no-deps",
+      "result": "passed",
+      "coverage": [
+        "real login",
+        "Codex runtime model-resource guard",
+        "four-step preflight and create",
+        "control lease",
+        "ACP READY response",
+        "afterEach termination"
+      ]
+    },
+    {
+      "command": "clients/web/e2e-playwright: playwright test tests/pod/formal-worker-wizard-guards.spec.ts --project=chromium --no-deps",
+      "result": "passed",
+      "coverage": [
+        "Gemini missing-model-resource error",
+        "Gemini next-step disabled",
+        "all nine missing-runtime-image labels"
+      ]
+    }
+  ],
+  "limitations": [
+    "The existing local model resource was used without inspecting its secret.",
+    "The execution was a local development run, not a published-image deployment.",
+    "The flow remains a recorded browser run until the formal Playwright spec is rewritten."
+  ]
+}

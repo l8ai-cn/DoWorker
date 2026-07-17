@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
@@ -134,72 +133,4 @@ func (s *Service) GetAuthStatus(ctx context.Context, authKey string, pkiService 
 		CACertificate: string(pkiService.CACertPEM()),
 		OrgSlug:       orgSlug,
 	}, nil
-}
-
-func (s *Service) AuthorizeRunner(ctx context.Context, authKey string, orgID int64, userID int64, nodeID string) (*runner.Runner, error) {
-	pendingAuth, err := s.repo.GetPendingAuthByKey(ctx, authKey)
-	if err != nil {
-		return nil, err
-	}
-	if pendingAuth == nil {
-		return nil, ErrAuthRequestNotFound
-	}
-
-	if pendingAuth.IsExpired() {
-		return nil, ErrAuthRequestExpired
-	}
-
-	rowsAffected, clusterID, err := s.repo.ClaimPendingAuth(ctx, pendingAuth.ID, orgID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to claim auth request: %w", err)
-	}
-	if rowsAffected == 0 {
-		return nil, ErrAuthRequestAlreadyAuthorized
-	}
-
-	finalNodeID := nodeID
-	if finalNodeID == "" && pendingAuth.NodeID != nil {
-		finalNodeID = *pendingAuth.NodeID
-	}
-	if finalNodeID == "" {
-		nodeIDBytes := make([]byte, 8)
-		if _, err := rand.Read(nodeIDBytes); err != nil {
-			return nil, fmt.Errorf("failed to generate node ID: %w", err)
-		}
-		finalNodeID = fmt.Sprintf("runner-%s", hex.EncodeToString(nodeIDBytes))
-	}
-
-	if s.billingService != nil {
-		if err := s.billingService.CheckQuota(ctx, orgID, "runners", 1); err != nil {
-			return nil, ErrRunnerQuotaExceeded
-		}
-	}
-
-	exists, err := s.repo.ExistsByNodeIDAndOrg(ctx, orgID, finalNodeID)
-	if err != nil {
-		return nil, err
-	}
-	if exists {
-		return nil, ErrRunnerAlreadyExists
-	}
-
-	r := &runner.Runner{
-		OrganizationID:     orgID,
-		ClusterID:          clusterID,
-		NodeID:             finalNodeID,
-		Status:             runner.RunnerStatusOffline,
-		MaxConcurrentPods:  5,
-		Visibility:         runner.VisibilityOrganization,
-		RegisteredByUserID: &userID,
-	}
-
-	if err := s.repo.Create(ctx, r); err != nil {
-		return nil, fmt.Errorf("failed to create runner: %w", err)
-	}
-
-	if err := s.repo.UpdatePendingAuthRunnerID(ctx, pendingAuth.ID, r.ID); err != nil {
-		slog.WarnContext(ctx, "Failed to update pending auth runner ID", "error", err)
-	}
-
-	return r, nil
 }

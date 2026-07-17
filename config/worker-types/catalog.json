@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "worker_types": [
+    {
+      "slug": "aider",
+      "definition_path": "config/worker-types/aider/definition.json",
+      "definition_hash": "sha256:7723ccf2c9eb5c4d3566158d11a54468604ab7204c3eb5da8ccca4ac8faa57d5"
+    },
+    {
+      "slug": "claude-code",
+      "definition_path": "config/worker-types/claude-code/definition.json",
+      "definition_hash": "sha256:f7dd1bfec7f293ded406006f514e6d7e25aaefcd29d78272bbe2e875ce9d205c"
+    },
+    {
+      "slug": "codex-cli",
+      "definition_path": "config/worker-types/codex-cli/definition.json",
+      "definition_hash": "sha256:60cfdaef2e79d55d66daeb348f52feae205474ccd5af79ad8c18f41200676a4d"
+    },
+    {
+      "slug": "cursor-cli",
+      "definition_path": "config/worker-types/cursor-cli/definition.json",
+      "definition_hash": "sha256:338b2fef7a6fefbb9034268f14ecdf529ed99438a3885a93598e607ae4144c5a"
+    },
+    {
+      "slug": "do-agent",
+      "definition_path": "config/worker-types/do-agent/definition.json",
+      "definition_hash": "sha256:f4348e3bb9baf3973078c475b5ac724fab016d06c10673d927d21dd80a267bb8"
+    },
+    {
+      "slug": "gemini-cli",
+      "definition_path": "config/worker-types/gemini-cli/definition.json",
+      "definition_hash": "sha256:deed6b7513abcc40aca9e7cc5f09ca90dd3bab5a54233efdd3422bee09f582e8"
+    },
+    {
+      "slug": "grok-build",
+      "definition_path": "config/worker-types/grok-build/definition.json",
+      "definition_hash": "sha256:0f76d4f5531ddb50791f5b887993feb750d637838f02b266a14e484c6610b2c2"
+    },
+    {
+      "slug": "hermes",
+      "definition_path": "config/worker-types/hermes/definition.json",
+      "definition_hash": "sha256:035450d5cbfc34fbe6671b00e5ee9cf76aaf0eee81988c4e7fc471bbedefb7ee"
+    },
+    {
+      "slug": "loopal",
+      "definition_path": "config/worker-types/loopal/definition.json",
+      "definition_hash": "sha256:29c0b8aa03cda214e72282983db4de6938b54f7c28e943c038d8cfa94966039b"
+    },
+    {
+      "slug": "minimax-cli",
+      "definition_path": "config/worker-types/minimax-cli/definition.json",
+      "definition_hash": "sha256:d7c0fe3c67243528c4bf4b8fe7cffb0fee29406188d0a833c92603cea01cf2be"
+    },
+    {
+      "slug": "openclaw",
+      "definition_path": "config/worker-types/openclaw/definition.json",
+      "definition_hash": "sha256:6dd46e7bf44d30cd5ececc7e7d87f317559d3892415dec9ab86aabe3b5a57518"
+    },
+    {
+      "slug": "opencode",
+      "definition_path": "config/worker-types/opencode/definition.json",
+      "definition_hash": "sha256:734be0fcd980d77c644cbcec4c3add77882c62f80b0c2efba4037ae7253406f6"
+    },
+    {
+      "slug": "seedance-expert",
+      "definition_path": "config/worker-types/seedance-expert/definition.json",
+      "definition_hash": "sha256:255c22f71b957d50e656393afa3ca3cd671caa711da32d5ad5a701c2e1903be8"
+    },
+    {
+      "slug": "video-studio",
+      "definition_path": "config/worker-types/video-studio/definition.json",
+      "definition_hash": "sha256:da0739415f4a7de3009d3c17d8402eb8b032e05ed744178cd9ef25d54e3e10ec"
+    }
+  ]
+}

@@ -352,6 +352,237 @@
       }
     }
   },
+  "resourceEditor": {
+    "mode": {
+      "run": "Run Worker",
+      "template": "Worker template",
+      "resources": "Referenced resources"
+    },
+    "title": "Worker template",
+    "subtitle": "Create a versioned Worker configuration, review its plan, and apply an immutable runtime snapshot.",
+    "worker": {
+      "title": "Run Worker",
+      "subtitle": "Create one Worker from a pinned template and optional prompt, then review the exact launch plan."
+    },
+    "prompt": {
+      "title": "Prompt",
+      "subtitle": "Version prompt content and variables, then review the exact revision before applying it."
+    },
+    "expert": {
+      "title": "Expert",
+      "subtitle": "Declare an Expert from pinned WorkerTemplate and Prompt resources."
+    },
+    "workflow": {
+      "title": "Workflow",
+      "subtitle": "Declare scheduled or direct execution from pinned WorkerTemplate and Prompt resources."
+    },
+    "goalLoop": {
+      "title": "Goal loop",
+      "subtitle": "Define bounded autonomous work with explicit completion evidence."
+    },
+    "binding": {
+      "title": "{kind} binding",
+      "subtitle": "Expose an existing platform resource through a versioned orchestration identity. Credentials remain in the referenced platform resource."
+    },
+    "tabs": {
+      "form": "Configuration",
+      "yaml": "YAML",
+      "plan": "Plan & diff"
+    },
+    "status": {
+      "draft": "Draft",
+      "planReady": "Plan ready",
+      "applied": "Applied"
+    },
+    "sections": {
+      "identity": "Identity",
+      "invocation": "Invocation",
+      "bindings": "Bindings",
+      "binding": "Platform resource binding",
+      "definition": "Definition",
+      "prompt": "Prompt content",
+      "execution": "Execution",
+      "runtime": "Runtime",
+      "typeConfig": "Worker configuration",
+      "workspace": "Workspace",
+      "lifecycle": "Lifecycle"
+    },
+    "fields": {
+      "name": "Resource name",
+      "resourceKind": "Resource kind",
+      "displayName": "Display name",
+      "workerType": "Worker type",
+      "workerTemplateRef": "Worker template",
+      "promptRef": "Prompt",
+      "inputs": "Inputs",
+      "inputKey": "Input name",
+      "inputValue": "Input value",
+      "promptContent": "Prompt content",
+      "variables": "Variables",
+      "variableName": "Variable name",
+      "required": "Required",
+      "hasDefault": "Has default",
+      "defaultValue": "Default value",
+      "description": "Description",
+      "category": "Category",
+      "releaseNotes": "Release notes",
+      "objective": "Objective",
+      "acceptanceCriteria": "Acceptance criteria",
+      "verificationCommand": "Verification command",
+      "maxIterations": "Maximum iterations",
+      "tokenBudget": "Token budget",
+      "noProgressLimit": "No-progress limit",
+      "sameErrorLimit": "Same-error limit",
+      "escalationPolicy": "Escalation policy",
+      "modelResourceId": "Model API resource ID",
+      "repositoryId": "Repository ID",
+      "skillId": "Skill ID",
+      "knowledgeBaseId": "Knowledge base ID",
+      "environmentBundleId": "Environment bundle ID",
+      "computeTargetId": "Compute target ID",
+      "resourceProfileId": "Resource profile ID",
+      "executionMode": "Execution mode",
+      "sandboxStrategy": "Sandbox strategy",
+      "sessionPersistence": "Persist session",
+      "concurrencyPolicy": "Concurrency policy",
+      "maxConcurrentRuns": "Maximum concurrent runs",
+      "maxRetainedRuns": "Maximum retained runs",
+      "timeoutMinutes": "Run timeout (minutes)",
+      "idleTimeoutSeconds": "Idle timeout (seconds)",
+      "cronExpression": "Cron expression",
+      "callbackUrl": "Callback URL",
+      "optionsRevision": "Options revision",
+      "modelRef": "Model binding",
+      "resourceReference": "Resource reference",
+      "revision": "Revision",
+      "alias": "Worker alias",
+      "toolRefs": "Tool bindings",
+      "toolRole": "Tool role",
+      "runtimeImageId": "Runtime image ID",
+      "placementPolicy": "Placement policy",
+      "computeTargetRef": "Compute target",
+      "deploymentMode": "Deployment mode",
+      "resourceProfileRef": "Resource profile",
+      "resourceMode": "Resource allocation",
+      "cpuRequest": "CPU request (millicpu)",
+      "cpuLimit": "CPU limit (millicpu)",
+      "memoryRequest": "Memory request (bytes)",
+      "memoryLimit": "Memory limit (bytes)",
+      "storageRequest": "Storage request (bytes)",
+      "storageLimit": "Storage limit (bytes)",
+      "gpuRequest": "GPU request",
+      "gpuLimit": "GPU limit",
+      "interactionMode": "Interaction mode",
+      "automationLevel": "Automation level",
+      "schemaVersion": "Configuration schema version",
+      "configValues": "Configuration values",
+      "configKey": "Configuration key",
+      "configValue": "Value",
+      "valueType": "Type",
+      "secretRefs": "Secret references",
+      "repositoryRef": "Repository",
+      "branch": "Branch",
+      "skillRefs": "Skills",
+      "knowledgeMounts": "Knowledge mounts",
+      "knowledgeBase": "Knowledge base",
+      "mountMode": "Mount mode",
+      "environmentBundleRefs": "Environment bundles",
+      "configBundleRefs": "Configuration bundles",
+      "instructions": "Instructions",
+      "terminationPolicy": "Termination policy",
+      "idleTimeoutMinutes": "Idle timeout (minutes)"
+    },
+    "options": {
+      "automatic": "Automatic",
+      "explicit": "Explicit",
+      "pooled": "Pooled",
+      "dedicated": "Dedicated",
+      "profile": "Resource profile",
+      "custom": "Custom limits",
+      "manual": "Manual",
+      "idle": "On idle",
+      "completed": "On completion",
+      "pty": "PTY",
+      "acp": "ACP",
+      "interactive": "Interactive",
+      "autonomous": "Autonomous",
+      "autoEdit": "Auto edit",
+      "supervised": "Supervised",
+      "readOnly": "Read only",
+      "readWrite": "Read and write",
+      "direct": "Direct",
+      "autopilot": "Autopilot",
+      "fresh": "Fresh sandbox",
+      "persistent": "Persistent sandbox",
+      "pause": "Pause for intervention",
+      "fail": "Fail the loop"
+    },
+    "references": {
+      "loading": "Loading available resources…",
+      "empty": "No {kind} resources are available yet.",
+      "available": "{count} resources available."
+    },
+    "collections": {
+      "add": "Add",
+      "remove": "Remove",
+      "none": "None configured.",
+      "acceptanceCriterion": "Acceptance criterion {index}",
+      "addAcceptanceCriteria": "Add acceptance criteria",
+      "removeAcceptanceCriterion": "Remove acceptance criterion {index}"
+    },
+    "secrets": {
+      "referenceOnly": "Only references to EnvironmentBundle resources are stored. Secret values are never entered or displayed here."
+    },
+    "valueTypes": {
+      "string": "String",
+      "number": "Number",
+      "boolean": "Boolean",
+      "json": "JSON",
+      "true": "True",
+      "false": "False",
+      "yamlOnly": "Nested JSON values are read-only in the form. Edit them in YAML."
+    },
+    "yaml": {
+      "label": "{kind} YAML",
+      "invalid": "Fix YAML before returning to the form or applying.",
+      "manual": "YAML reference"
+    },
+    "plan": {
+      "empty": "Generate a plan to review semantic changes and pinned references.",
+      "operation": "Operation",
+      "expires": "Expires",
+      "changes": "Semantic changes",
+      "references": "Pinned references",
+      "issues": "Issues",
+      "noChanges": "No semantic changes.",
+      "noReferences": "No referenced resources.",
+      "expired": "This plan has expired. Generate a new plan before applying."
+    },
+    "validation": {
+      "valid": "The resource is valid."
+    },
+    "numberErrors": {
+      "required": "Enter a whole number.",
+      "integer": "Use a whole number without decimals.",
+      "safeInteger": "Use an integer within the safe numeric range.",
+      "minimum": "Use a whole number of at least {min}.",
+      "range": "Use a whole number from {min} to {max}."
+    },
+    "actions": {
+      "validate": "Validate",
+      "validating": "Validating",
+      "plan": "Generate plan",
+      "planning": "Planning",
+      "apply": "Apply template",
+      "applyResource": "Apply resource",
+      "createWorker": "Create Worker",
+      "applying": "Applying"
+    },
+    "result": {
+      "revision": "Revision {revision}",
+      "snapshot": "WorkerSpec snapshot {snapshot}"
+    }
+  },
   "workspace": {
     "title": "Workspace",
     "searchPlaceholder": "Search pods...",
@@ -664,6 +895,214 @@
     "goBack": "Go back",
     "reload": "Reload",
     "home": "Home"
+  },
+  "loopWorkbench": {
+    "shell": {
+      "canvasTitle": "Block canvas",
+      "canvasHint": "Double-click empty space to insert",
+      "editorTitle": "LoopScript",
+      "editorMetadata": "Draft {revision} · Semantic {semanticRevision}"
+    },
+    "toolbar": {
+      "back": "Back to loops",
+      "title": "Loop workbench",
+      "subtitle": "Blocks and LoopScript share the same backend-confirmed semantics",
+      "blocks": "Blocks",
+      "code": "Code",
+      "run": "Run loop"
+    },
+    "blockly": {
+      "loop": {
+        "message0": "Loop %1",
+        "message1": "Execution limits %1",
+        "message2": "Loop steps %1",
+        "message3": "On failure %1"
+      },
+      "limits": {
+        "message0": "At most %1 iterations · %2 tokens · %3 minutes",
+        "message1": "No progress %1 times · same error %2 times"
+      },
+      "repeat": {
+        "message0": "Repeat %1 · at most %2 times",
+        "message1": "Until %1 . %2",
+        "message2": "Run %1"
+      },
+      "agent": {
+        "message0": "Agent task %1",
+        "message1": "Task prompt %1",
+        "defaultPrompt": "Describe the task to complete"
+      },
+      "verifier": {
+        "message0": "Verification step %1",
+        "message1": "Command %1",
+        "message2": "Pass condition %1",
+        "defaultAccept": "Verification passes"
+      },
+      "failure": {
+        "message0": "On failure %1",
+        "pause": "Pause for human review",
+        "fail": "Mark as failed"
+      },
+      "toolbox": {
+        "loop": "Loop",
+        "control": "Control",
+        "agent": "Agent",
+        "verifier": "Verification",
+        "limits": "Limits",
+        "failure": "Failure"
+      }
+    },
+    "quickInsert": {
+      "close": "Close quick insert",
+      "title": "Insert block",
+      "options": {
+        "loop": "Loop",
+        "repeat": "Repeat",
+        "agent": "Agent task",
+        "verifier": "Verification step",
+        "limits": "Execution limits",
+        "failure": "Failure handling"
+      }
+    },
+    "status": {
+      "diagnosticsTitle": "Diagnostics",
+      "runTitle": "Run",
+      "valid": "Current source passed backend validation",
+      "noRun": "The loop has not started.",
+      "repairDiagnostic": "Repair this diagnostic",
+      "repairingDiagnostic": "Repairing diagnostic",
+      "nodeLabel": "Node: ",
+      "runStatusLabel": "Status: ",
+      "diagnosticLocation": "Line {line}, column {column}",
+      "runInstance": " · Runtime instance {podKey}",
+      "unknownStatus": "Unknown status",
+      "parseStatus": {
+        "empty": "Waiting for input",
+        "parsing": "Validating",
+        "valid": "Valid",
+        "syntax-error": "Has errors"
+      },
+      "runStatus": {
+        "draft": "Draft",
+        "active": "Running",
+        "paused": "Paused",
+        "verifying": "Verifying",
+        "completed": "Completed",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "diagnostics": {
+        "programNil": "Loop program is required",
+        "schemaVersionUnsupported": "LoopScript version is not supported",
+        "syntaxInvalidToken": "LoopScript contains an invalid character",
+        "syntaxInvalidNumber": "LoopScript contains an invalid number",
+        "syntaxUnexpectedToken": "LoopScript structure is invalid",
+        "syntaxUnknown": "LoopScript contains unknown syntax",
+        "nodeIdMissing": "A block node is missing its unique identifier",
+        "nodeIdDuplicate": "Block node identifiers must be unique",
+        "localIdDuplicate": "Step names must be unique",
+        "identifierInvalid": "Step name format is invalid",
+        "limitsCount": "Exactly one execution limits block is required",
+        "repeatCount": "Exactly one repeat block is required",
+        "agentCount": "The repeat block must contain exactly one agent task",
+        "verifierCount": "The repeat block must contain exactly one verification step",
+        "failureCount": "Exactly one failure policy is required",
+        "untilInvalid": "The stop condition must reference the verification pass result",
+        "repeatMaxExceedsLimit": "Repeat count cannot exceed the global iteration limit",
+        "failurePolicyInvalid": "Failure policy is invalid",
+        "valueOutOfRange": "A block parameter is outside the allowed range",
+        "textEmpty": "A block text parameter cannot be empty",
+        "secretLiteralForbidden": "LoopScript cannot contain literal secrets",
+        "unknown": "LoopScript validation failed"
+      }
+    },
+    "runtime": {
+      "title": "Select runtime",
+      "description": "The runtime is bound only for this launch and is not part of loop orchestration.",
+      "field": "Runtime",
+      "placeholder": "Select runtime",
+      "unnamed": "Unnamed runtime",
+      "loading": "Loading runtimes",
+      "retry": "Reload",
+      "empty": "This organization has no available runtime",
+      "cancel": "Cancel",
+      "start": "Start loop",
+      "snapshotLabel": "{name} · {workerType} · Snapshot {id}"
+    },
+    "ai": {
+      "toolbar": "AI assistant",
+      "generateMode": "Generate / modify",
+      "explainMode": "Explain current loop",
+      "generateTitle": "Generate or modify loop with AI",
+      "generateDescription": "AI proposes a generated or whole-loop modification. Existing verifier and budget protections are enforced, and changes apply only after confirmation.",
+      "explainTitle": "Explain current loop",
+      "explainDescription": "A deterministic view of the validated LoopProgram. It does not use a model or change the loop.",
+      "resource": "AI model",
+      "resourcePlaceholder": "Select an AI model",
+      "prompt": "Describe the loop goal or whole-loop change",
+      "promptPlaceholder": "For example: create a professional PPT, or change the loop to produce a PDF handout",
+      "loadingResources": "Loading AI models",
+      "resourceError": "Failed to load AI models",
+      "retry": "Reload",
+      "noResources": "No text-generation model is available",
+      "generate": "Generate draft",
+      "generating": "Generating",
+      "generationError": "Failed to generate the loop draft",
+      "unchanged": "AI did not produce any code changes",
+      "stale": "The loop changed during generation. Generate again.",
+      "current": "Current code",
+      "proposed": "AI proposal",
+      "cancel": "Cancel",
+      "close": "Close",
+      "back": "Back",
+      "confirm": "Apply proposal",
+      "projection": {
+        "title": "Structure",
+        "unavailable": "The current loop has not passed validation, so its structure cannot be shown.",
+        "overview": "Loop",
+        "schemaVersion": "Schema version",
+        "loopName": "Loop identifier",
+        "limits": "Execution budget",
+        "iterations": "Maximum iterations",
+        "tokens": "Token budget",
+        "timeout": "Timeout",
+        "noProgress": "No-progress limit",
+        "sameError": "Same-error limit",
+        "repeat": "Repeated execution",
+        "repeatName": "Step identifier",
+        "repeatMax": "Maximum repeats",
+        "until": "Stop condition",
+        "agent": "Agent task",
+        "agentName": "Task identifier",
+        "agentPrompt": "Task instruction",
+        "verifier": "Verifier",
+        "verifierName": "Verifier identifier",
+        "verifierCommand": "Verifier command",
+        "verifierAccept": "Acceptance condition",
+        "failure": "Failure handling",
+        "failurePolicy": "Policy",
+        "failurePause": "Pause for human intervention",
+        "failureFail": "Mark the loop as failed",
+        "empty": "Not set",
+        "iterationsValue": "{value} iterations",
+        "tokensValue": "{value} tokens",
+        "minutesValue": "{value} minutes",
+        "timesValue": "{value} times"
+      },
+      "repair": {
+        "title": "Repair diagnostic",
+        "description": "AI proposes a targeted integer change for this diagnostic. Review the resulting LoopScript before applying it.",
+        "diagnostic": "Diagnostic",
+        "field": "Target field",
+        "prompt": "Additional instruction",
+        "promptPlaceholder": "Optional constraint for this repair",
+        "repair": "Generate repair",
+        "repairing": "Generating repair",
+        "error": "Failed to generate a valid targeted repair",
+        "patch": "Targeted change",
+        "patchValue": "{oldValue} to {newValue}"
+      }
+    }
   },
   "loopal": {
     "activity": { "heading": "Activity" },

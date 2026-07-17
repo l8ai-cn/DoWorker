@@ -19,12 +19,12 @@ import (
 // --- Mock Storage ---
 
 type mockStorage struct {
-	uploadErr  error
-	deleteErr  error
-	getURLErr  error
-	getURLVal  string
-	uploaded   []string // track uploaded keys
-	deleted    []string // track deleted keys
+	uploadErr error
+	deleteErr error
+	getURLErr error
+	getURLVal string
+	uploaded  []string // track uploaded keys
+	deleted   []string // track deleted keys
 }
 
 func (m *mockStorage) Upload(_ context.Context, key string, _ io.Reader, _ int64, _ string) (*storage.FileInfo, error) {
@@ -63,7 +63,7 @@ func (m *mockStorage) PresignPutURL(_ context.Context, _ string, _ string, _ tim
 	return "", nil
 }
 
-func (m *mockStorage) InternalPresignPutURL(_ context.Context, _ string, _ string, _ time.Duration) (string, error) {
+func (m *mockStorage) InternalPresignPutURL(_ context.Context, _ string, _ string, _ int64, _ time.Duration) (string, error) {
 	return "", nil
 }
 

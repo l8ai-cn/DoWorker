@@ -162,6 +162,13 @@ func workerSpecInt64Pointer(value int64) *int64 {
 	return &value
 }
 
+func workerSpecModelResourcePointer(binding specdomain.ModelBinding) *int64 {
+	if binding.IsEmpty() {
+		return nil
+	}
+	return workerSpecInt64Pointer(binding.ResourceID)
+}
+
 func workerSpecStringPointer(value string) *string {
 	if value == "" {
 		return nil

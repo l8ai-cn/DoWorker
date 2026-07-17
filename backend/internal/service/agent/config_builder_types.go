@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agent"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
@@ -13,6 +14,10 @@ import (
 // servers are exposed to AgentFile eval.
 type AgentConfigProvider interface {
 	GetAgent(ctx context.Context, slug string) (*agent.Agent, error)
+}
+
+type CredentialFieldSourceProvider interface {
+	CredentialBundleFields(agentSlug string) ([]string, bool)
 }
 
 // ConfigBuildRequest contains all the information needed to build a pod config
@@ -82,8 +87,9 @@ type ConfigBuildRequest struct {
 	// defaults + Agentfile KNOWLEDGE + request selections and issues tokens).
 	KnowledgeMounts []*runnerv1.KnowledgeMount
 
-	RequiredEnvBundleIDs []int64
-	RequiredSkillIDs     []int64
+	RequiredEnvBundleIDs  []int64
+	RequiredSkillIDs      []int64
+	RequiredSkillPackages []specdomain.SkillPackageBinding
 }
 
 // ConfigSchemaResponse is the config schema returned to frontend.

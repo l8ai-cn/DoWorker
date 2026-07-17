@@ -24,7 +24,11 @@ impl AutopilotService {
         let req = ap::ListAutopilotControllersRequest::decode(request_bytes)
             .map_err(|e| format!("decode list_autopilots request: {e}"))?;
         tracing::debug!(target: "autopilot", org_slug = %req.org_slug, "list autopilots");
-        let resp = self.client.list_autopilots_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .list_autopilots_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -34,7 +38,11 @@ impl AutopilotService {
         let req = ap::GetAutopilotControllerRequest::decode(request_bytes)
             .map_err(|e| format!("decode get_autopilot request: {e}"))?;
         tracing::debug!(target: "autopilot", org_slug = %req.org_slug, key = %req.key, "get autopilot");
-        let resp = self.client.get_autopilot_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .get_autopilot_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -44,12 +52,18 @@ impl AutopilotService {
         let req = ap::CreateAutopilotControllerRequest::decode(request_bytes)
             .map_err(|e| format!("decode create_autopilot request: {e}"))?;
         tracing::info!(target: "autopilot", org_slug = %req.org_slug, pod_key = %req.pod_key, "create autopilot");
-        let resp = self.client.create_autopilot_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .create_autopilot_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
     pub async fn action_autopilot_connect(
-        &self, procedure: &str, request_bytes: &[u8],
+        &self,
+        procedure: &str,
+        request_bytes: &[u8],
     ) -> Result<Vec<u8>, String> {
         use agentsmesh_types::proto_autopilot_v1 as ap;
         use prost::Message;
@@ -63,7 +77,8 @@ impl AutopilotService {
             "takeover" => self.client.takeover_autopilot_connect(&req).await,
             "handback" => self.client.handback_autopilot_connect(&req).await,
             other => return Err(format!("unknown autopilot action: {other}")),
-        }.map_err(crate::wire)?;
+        }
+        .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -73,7 +88,11 @@ impl AutopilotService {
         let req = ap::ApproveRequest::decode(request_bytes)
             .map_err(|e| format!("decode approve_autopilot request: {e}"))?;
         tracing::info!(target: "autopilot", org_slug = %req.org_slug, key = %req.key, "approve autopilot");
-        let resp = self.client.approve_autopilot_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .approve_autopilot_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 
@@ -83,7 +102,11 @@ impl AutopilotService {
         let req = ap::GetIterationsRequest::decode(request_bytes)
             .map_err(|e| format!("decode get_iterations request: {e}"))?;
         tracing::debug!(target: "autopilot", org_slug = %req.org_slug, key = %req.key, "get iterations");
-        let resp = self.client.get_autopilot_iterations_connect(&req).await.map_err(crate::wire)?;
+        let resp = self
+            .client
+            .get_autopilot_iterations_connect(&req)
+            .await
+            .map_err(crate::wire)?;
         Ok(resp.encode_to_vec())
     }
 }

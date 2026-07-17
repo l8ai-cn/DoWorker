@@ -13,6 +13,7 @@ import {
   WasmBlockstoreService,
   WasmKnowledgeBaseService,
   WasmAIResourceService,
+  WasmExecutionClusterService,
   WasmRelayManager,
 } from "do-worker-wasm";
 import { registerServiceProvider } from "@do-worker/service-runtime";
@@ -64,6 +65,8 @@ export function registerAll(client: WasmApiClient, authManager: WasmAuthManager)
     blockstoreService: client.create_blockstore_service(),
     knowledgeBaseService: client.create_knowledgebase_service(),
     aiResourceService: client.create_ai_resource_service(),
+    orchestrationResourceService: client.create_orchestration_resource_service(),
+    executionClusterService: client.create_execution_cluster_service(),
     runnerState: client.get_runner_state(),
     meshState: client.get_mesh_state(),
     ticketState: client.get_ticket_state(),
@@ -71,6 +74,7 @@ export function registerAll(client: WasmApiClient, authManager: WasmAuthManager)
     workflowState: client.get_workflow_state(),
     acpManager: client.get_acp_manager(),
     loopalManager: client.get_loopal_manager(),
+    loopBuilderState: client.get_loop_builder_state(),
     repoState: client.get_repo_state(),
     expertState: client.get_expert_state(),
     autopilotState: client.get_autopilot_state(),
@@ -94,8 +98,11 @@ export {
   getTicketRelationsService, getFileService, getSupportTicketService,
   getAuthConnectService, getRunnerState, getMeshState, getTicketState,
   getChannelState, getWorkflowState, getAcpManager, getLoopalManager,
+  getLoopBuilderState,
   getRepoState, getExpertState,
   getAutopilotState, getRelayManager, getBlockstoreService,
   getKnowledgeBaseService,
   getAIResourceService,
+  getOrchestrationResourceService,
+  getExecutionClusterService,
 } from "@do-worker/service-runtime";

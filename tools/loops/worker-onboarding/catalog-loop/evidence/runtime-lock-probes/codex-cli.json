@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "worker_slug": "codex-cli",
+  "runtime_catalog_revision": "runtime-catalog-2026-07-16-seedance",
+  "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
+  "image_digest": "sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
+  "status": "not_found",
+  "exit_code": 1,
+  "output": "Error response from daemon: failed to resolve reference \"repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1\": repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1: not found",
+  "observed_at": "2026-07-16T07:29:52.356Z"
+}

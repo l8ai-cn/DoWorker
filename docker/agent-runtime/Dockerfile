@@ -6,7 +6,11 @@
 # Shared `base` stage is built once as do-worker/runner-base:latest so apt/npm
 # layers are not re-run for every agent variant.
 
-FROM node:24-bookworm-slim AS base
+ARG RUNTIME_EXTENSION_BASE=do-worker/runner-base:latest
+ARG RUNTIME_BASE=base
+ARG RUNTIME_BUILD_BASE=node:24-bookworm-slim@sha256:cb4e8f7c443347358b7875e717c29e27bf9befc8f5a26cf18af3c3dec80e58c5
+
+FROM ${RUNTIME_BUILD_BASE} AS base
 
 ARG HTTP_PROXY=
 ARG HTTPS_PROXY=
@@ -21,7 +25,7 @@ ENV HTTP_PROXY=${HTTP_PROXY} \
 RUN printf 'Acquire::http::Proxy "false";\nAcquire::https::Proxy "false";\n' \
       > /etc/apt/apt.conf.d/99noproxy \
     && set -ux; \
-    packages="git openssh-client sudo ca-certificates wget openssl"; \
+    packages="git=1:2.39.5-0+deb12u3 openssh-client=1:9.2p1-2+deb12u10 sudo=1.9.13p3-1+deb12u4 ca-certificates=20230311+deb12u1 curl=7.88.1-10+deb12u15 wget=1.21.3-1+deb12u1 openssl=3.0.20-1~deb12u2"; \
     ok=0; \
     for attempt in 1 2 3 4 5 6 7 8; do \
       if apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $packages; then \
@@ -34,30 +38,105 @@ RUN printf 'Acquire::http::Proxy "false";\nAcquire::https::Proxy "false";\n' \
     done; \
     test "$ok" = 1
 
-FROM base AS runtime
+FROM ${RUNTIME_BASE} AS runtime
 
 ARG AGENT_RUNTIME=e2e-echo
+ARG DO_AGENT_SOURCE_COMMIT=""
+ARG DO_AGENT_BINARY_SHA256=""
 ARG HERMES_AGENT_VERSION=0.18.2
+ARG MINIMAX_CLI_VERSION=1.0.16
+ARG OPENCLAW_VERSION=2026.6.11
+ARG REMOTION_VERSION=4.0.489
 ENV AGENT_RUNTIME=${AGENT_RUNTIME}
+LABEL ai.agentsmesh.do-agent.source-revision="${DO_AGENT_SOURCE_COMMIT}" \
+      ai.agentsmesh.do-agent.binary-sha256="${DO_AGENT_BINARY_SHA256}"
 
-RUN case "${AGENT_RUNTIME}" in \
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' \
+      /etc/apt/sources.list.d/debian.sources
+
+RUN install_apt() { \
+      ok=0; \
+      for attempt in 1 2 3 4 5 6 7 8; do \
+        if apt-get update \
+          && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"; then \
+          ok=1; \
+          break; \
+        fi; \
+        echo "apt install attempt ${attempt} failed, retrying..." >&2; \
+        sleep 20; \
+      done; \
+      test "$ok" = 1; \
+    }; \
+    install_python_pip() { \
+      ok=0; \
+      for attempt in 1 2 3 4 5 6 7 8; do \
+        if apt-get update \
+          && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip; then \
+          ok=1; \
+          break; \
+        fi; \
+        echo "python3-pip install attempt ${attempt} failed, retrying..." >&2; \
+        sleep 20; \
+      done; \
+      test "$ok" = 1; \
+    }; \
+    case "${AGENT_RUNTIME}" in \
       claude-code) npm install -g @anthropic-ai/claude-code ;; \
       codex-cli) npm install -g @openai/codex ;; \
+      video-studio) \
+        install_apt chromium ffmpeg fontconfig fonts-noto-cjk python3 python3-pip \
+        && npm install -g @openai/codex \
+        && mkdir -p /opt/video-studio \
+        && npm install --prefix /opt/video-studio --omit=dev \
+          "@remotion/cli@${REMOTION_VERSION}" \
+          "remotion@${REMOTION_VERSION}" \
+          react@19.2.4 \
+          react-dom@19.2.4 \
+        && ln -s "$(command -v codex)" /usr/local/bin/video-studio-codex \
+        && ln -s /opt/video-studio/node_modules/.bin/remotion /usr/local/bin/remotion \
+        && rm -rf /var/lib/apt/lists/* ;; \
+      cursor-cli) \
+        curl --fail --show-error --silent --location https://cursor.com/install -o /tmp/cursor-install.sh \
+        && bash -c 'curl() { command curl --retry 5 --retry-delay 2 --retry-all-errors "$@"; }; export -f curl; bash /tmp/cursor-install.sh' \
+        && install -d -m 0755 /opt/cursor-agent \
+        && cp -a /root/.local/share/cursor-agent/. /opt/cursor-agent/ \
+        && cursor_agent="$(find /opt/cursor-agent/versions -mindepth 2 -maxdepth 2 -type f -name cursor-agent -print -quit)" \
+        && test -n "${cursor_agent}" \
+        && ln -sf "${cursor_agent}" /usr/local/bin/agent \
+        && rm -rf /root/.local /tmp/cursor-install.sh ;; \
       gemini-cli) npm install -g @google/gemini-cli ;; \
       opencode) npm install -g opencode-ai ;; \
       grok-build) npm install -g @xai-official/grok ;; \
-      openclaw) npm install -g openclaw ;; \
+      minimax-cli) npm install -g "mmx-cli@${MINIMAX_CLI_VERSION}" ;; \
+      openclaw) npm install -g "openclaw@${OPENCLAW_VERSION}" ;; \
       hermes) \
-        apt-get update \
-        && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip \
+        install_python_pip \
         && PIP_BREAK_SYSTEM_PACKAGES=1 npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" \
         && rm -rf /var/lib/apt/lists/* ;; \
       aider) \
-        apt-get update \
-        && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip \
+        install_python_pip \
         && pip3 install --break-system-packages aider-chat \
         && rm -rf /var/lib/apt/lists/* ;; \
-      e2e-echo|loopal|do-agent) true ;; \
+      do-agent) \
+        apt-get -o Acquire::Retries=8 update \
+        && ok=0; \
+        for attempt in 1 2 3 4 5 6 7 8; do \
+          if DEBIAN_FRONTEND=noninteractive apt-get \
+            -o Acquire::Retries=8 \
+            install -y --fix-missing --no-install-recommends \
+            python3=3.11.2-1+b1 ffmpeg=7:5.1.9-0+deb12u1; then \
+            ok=1; \
+            break; \
+          fi; \
+          echo "do-agent media dependency install attempt ${attempt} failed, retrying..." >&2; \
+          sleep 10; \
+        done; \
+        test "$ok" = 1 \
+        && command -v python3 >/dev/null \
+        && command -v ffmpeg >/dev/null \
+        && command -v ffprobe >/dev/null \
+        && rm -rf /var/lib/apt/lists/* ;; \
+      e2e-echo|loopal) true ;; \
       *) echo "unsupported AGENT_RUNTIME=${AGENT_RUNTIME}" >&2; exit 1 ;; \
     esac \
     && npm cache clean --force
@@ -68,7 +147,8 @@ RUN groupmod -n runner node \
     && mkdir -p /workspace /app /home/runner/.do-worker \
     && case "${AGENT_RUNTIME}" in \
          claude-code) mkdir -p /home/runner/.claude ;; \
-         codex-cli) mkdir -p /home/runner/.codex ;; \
+         codex-cli|video-studio) mkdir -p /home/runner/.codex ;; \
+         cursor-cli) mkdir -p /home/runner/.cursor ;; \
          gemini-cli) mkdir -p /home/runner/.gemini ;; \
          loopal) mkdir -p /home/runner/.loopal ;; \
          do-agent) mkdir -p /home/runner/.agent ;; \
@@ -82,23 +162,61 @@ RUN groupmod -n runner node \
 
 COPY --chmod=0755 runner-binary /usr/local/bin/do-worker-runner
 RUN ln -sf do-worker-runner /usr/local/bin/agentsmesh-runner
-COPY --chmod=0755 e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent
-COPY --chmod=0755 loopal-binary /usr/local/bin/loopal
-COPY --chmod=0755 do-agent-binary /usr/local/bin/do-agent
+COPY --chmod=0755 binaries/ /usr/local/bin/
 COPY --chmod=0755 runner-entrypoint.sh /usr/local/bin/runner-entrypoint.sh
+COPY --chmod=0755 minimax-cli-wrapper.sh /usr/local/bin/minimax-cli-wrapper.sh
 
-# ARG from a prior stage is not inherited; without this redeclare
-# AGENT_RUNTIME is empty and the *) branch deletes e2e-mock-agent.
 ARG AGENT_RUNTIME=e2e-echo
 
 RUN case "${AGENT_RUNTIME}" in \
-      e2e-echo) rm -f /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
-      loopal) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/do-agent ;; \
-      do-agent) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal ;; \
-      grok-build|openclaw|hermes) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
-      *) rm -f /usr/local/bin/e2e-mock-agent /usr/local/bin/loopal /usr/local/bin/do-agent ;; \
-    esac
+      e2e-echo) ln -sf e2e-mock-agent-binary /usr/local/bin/e2e-mock-agent ;; \
+      loopal) ln -sf loopal-binary /usr/local/bin/loopal ;; \
+      do-agent) ln -sf do-agent-binary /usr/local/bin/do-agent ;; \
+      minimax-cli) rm -f /usr/local/bin/mmx && install -m 0755 /usr/local/bin/minimax-cli-wrapper.sh /usr/local/bin/mmx ;; \
+      *) true ;; \
+    esac \
+    && rm -f /usr/local/bin/minimax-cli-wrapper.sh
+
+ENV CHROME_BIN=/usr/bin/chromium \
+    NODE_PATH=/opt/video-studio/node_modules
 
 USER runner
 WORKDIR /app
 ENTRYPOINT ["/usr/local/bin/runner-entrypoint.sh"]
+
+FROM ${RUNTIME_EXTENSION_BASE} AS runtime-extension
+
+USER root
+
+ARG AGENT_RUNTIME
+ARG HERMES_AGENT_VERSION=0.18.2
+ARG OPENCLAW_VERSION=2026.6.11
+ARG OPENCLAW_NODE_VERSION=24.18.0
+ENV AGENT_RUNTIME=${AGENT_RUNTIME}
+
+RUN case "${AGENT_RUNTIME}" in \
+      openclaw) \
+        npm install -g --omit=dev --force "node@${OPENCLAW_NODE_VERSION}" \
+        && npm install -g --omit=dev "openclaw@${OPENCLAW_VERSION}" \
+        && ln -sf /usr/local/lib/node_modules/node/lib/node_modules/openclaw/openclaw.mjs /usr/local/bin/openclaw ;; \
+      hermes) \
+        ok=0; \
+        for attempt in 1 2 3 4 5 6 7 8; do \
+          if apt-get update \
+            && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip; then \
+            ok=1; \
+            break; \
+          fi; \
+          sleep 20; \
+        done; \
+        test "$ok" = 1 \
+        && PIP_BREAK_SYSTEM_PACKAGES=1 npm install -g --omit=dev "hermes-agent@${HERMES_AGENT_VERSION}" \
+        && rm -rf /var/lib/apt/lists/* ;; \
+      *) echo "runtime-extension only supports AGENT_RUNTIME=openclaw|hermes" >&2; exit 1 ;; \
+    esac \
+    && npm cache clean --force \
+    && mkdir -p "/home/runner/.${AGENT_RUNTIME}" \
+    && chown -R runner:runner "/home/runner/.${AGENT_RUNTIME}"
+
+USER runner
+WORKDIR /app

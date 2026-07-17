@@ -13,6 +13,17 @@ func Normalize(spec Spec) (Spec, error) {
 	normalized.Runtime.ModelBinding.ModelID = strings.TrimSpace(
 		spec.Runtime.ModelBinding.ModelID,
 	)
+	normalized.Runtime.ToolModelBindings = cloneToolModelBindings(
+		spec.Runtime.ToolModelBindings,
+	)
+	for index := range normalized.Runtime.ToolModelBindings {
+		binding := &normalized.Runtime.ToolModelBindings[index]
+		binding.ModelBinding.ModelID = strings.TrimSpace(binding.ModelBinding.ModelID)
+	}
+	sort.Slice(normalized.Runtime.ToolModelBindings, func(i, j int) bool {
+		return normalized.Runtime.ToolModelBindings[i].Role <
+			normalized.Runtime.ToolModelBindings[j].Role
+	})
 	normalized.Runtime.WorkerType.DefinitionHash = strings.TrimSpace(
 		spec.Runtime.WorkerType.DefinitionHash,
 	)
@@ -34,6 +45,20 @@ func Normalize(spec Spec) (Spec, error) {
 	sort.Slice(normalized.Workspace.SkillIDs, func(i, j int) bool {
 		return normalized.Workspace.SkillIDs[i] < normalized.Workspace.SkillIDs[j]
 	})
+	normalized.Workspace.SkillPackages = append(
+		[]SkillPackageBinding{},
+		spec.Workspace.SkillPackages...,
+	)
+	for index := range normalized.Workspace.SkillPackages {
+		pkg := &normalized.Workspace.SkillPackages[index]
+		pkg.Slug = strings.TrimSpace(pkg.Slug)
+		pkg.ContentSHA = strings.TrimSpace(pkg.ContentSHA)
+		pkg.StorageKey = strings.TrimSpace(pkg.StorageKey)
+	}
+	sort.Slice(normalized.Workspace.SkillPackages, func(i, j int) bool {
+		return normalized.Workspace.SkillPackages[i].SkillID <
+			normalized.Workspace.SkillPackages[j].SkillID
+	})
 	normalized.Workspace.KnowledgeMounts = append(
 		[]KnowledgeMount{},
 		spec.Workspace.KnowledgeMounts...,
@@ -46,6 +71,13 @@ func Normalize(spec Spec) (Spec, error) {
 		[]RuntimeEnvBundleID{},
 		spec.Workspace.EnvBundleIDs...,
 	)
+	normalized.Workspace.ConfigBundleIDs = append(
+		[]int64{},
+		spec.Workspace.ConfigBundleIDs...,
+	)
+	sort.Slice(normalized.Workspace.ConfigBundleIDs, func(i, j int) bool {
+		return normalized.Workspace.ConfigBundleIDs[i] < normalized.Workspace.ConfigBundleIDs[j]
+	})
 	normalized.Workspace.Instructions = strings.TrimSpace(spec.Workspace.Instructions)
 	normalized.Workspace.InitialTask = strings.TrimSpace(spec.Workspace.InitialTask)
 

@@ -8,9 +8,9 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
 type memPendingRepo struct {
@@ -32,6 +32,17 @@ func (m *memPendingRepo) Enqueue(_ context.Context, cmd *agentpod.PendingCommand
 	copy.ID = m.next
 	m.rows = append(m.rows, &copy)
 	return nil
+}
+
+func (m *memPendingRepo) ExistsCommandID(_ context.Context, commandID string) (bool, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, row := range m.rows {
+		if row.CommandID == commandID {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func (m *memPendingRepo) CountByRunner(_ context.Context, runnerID int64) (int, error) {
@@ -175,6 +186,20 @@ func TestEnqueue_DuplicateCommandID(t *testing.T) {
 	require.NoError(t, err)
 	_, err = q.EnqueueCreatePod(context.Background(), 1, 1, "same", cmd, time.Minute)
 	assert.ErrorIs(t, err, agentpod.ErrDuplicateCommand)
+}
+
+func TestEnqueue_DuplicateCommandWinsOverQueueFull(t *testing.T) {
+	repo := &memPendingRepo{}
+	q := NewPendingCommandQueue(repo, nil, 1, time.Minute, true, newTestLogger())
+	require.NoError(t, q.EnqueueSendPrompt(
+		context.Background(), 1, 1, "pod-1", "cmd-1", "first", time.Minute,
+	))
+
+	err := q.EnqueueSendPrompt(
+		context.Background(), 1, 1, "pod-1", "cmd-1", "duplicate", time.Minute,
+	)
+
+	require.ErrorIs(t, err, agentpod.ErrDuplicateCommand)
 }
 
 func TestCancelByPodKey_Idempotent(t *testing.T) {

@@ -40,6 +40,18 @@ func TestValidateConnectionPersistsSafeInvalidState(t *testing.T) {
 	assert.NotContains(t, stored.ValidationError, "secret")
 }
 
+func TestValidateConnectionPersistsProviderEndpointUnavailable(t *testing.T) {
+	f := newFixture()
+	connection := createValidConnection(t, f, domain.OwnerScopeUser, 1, "openai-main", "secret")
+	f.prober.err = ErrProviderEndpointUnavailable
+
+	err := f.service.ValidateConnection(context.Background(), actor(1), connection.ID)
+
+	assert.ErrorIs(t, err, ErrProviderEndpointUnavailable)
+	assert.Equal(t, domain.ConnectionStatusInvalid, f.repo.connections[connection.ID].Status)
+	assert.Equal(t, "provider endpoint unavailable", f.repo.connections[connection.ID].ValidationError)
+}
+
 func TestValidateConnectionPersistenceFailureWins(t *testing.T) {
 	f := newFixture()
 	connection := createValidConnection(t, f, domain.OwnerScopeUser, 1, "openai-main", "secret")

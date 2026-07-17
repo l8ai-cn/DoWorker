@@ -9,6 +9,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/knowledgebase"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
@@ -34,6 +35,7 @@ type workspaceResolverDeps struct {
 	Skills       SkillLookup
 	Knowledge    KnowledgeLookup
 	EnvBundles   EnvBundleLookup
+	Definitions  WorkerDefinitionProvider
 }
 
 type workspaceResolver struct {
@@ -50,10 +52,11 @@ type knowledgeReference struct {
 }
 
 type compilationReferences struct {
-	RepositorySlug string
-	SkillSlugs     []string
-	Knowledge      []knowledgeReference
-	EnvBundleNames []string
+	RepositorySlug    string
+	SkillSlugs        []string
+	Knowledge         []knowledgeReference
+	EnvBundleNames    []string
+	ConfigBundleNames []string
 }
 
 func newWorkspaceResolver(deps workspaceResolverDeps) *workspaceResolver {
@@ -75,27 +78,11 @@ func (resolver *workspaceResolver) ResolveWorkspace(
 	if _, err := resolver.resolveWorkspaceReferences(ctx, scope, workerType, workspace); err != nil {
 		return specdomain.Workspace{}, err
 	}
-	return cloneResolvedWorkspace(workspace), nil
-}
-
-func (resolver *workspaceResolver) ResolveSecretReference(
-	ctx context.Context,
-	scope specservice.Scope,
-	workerType slugkit.Slug,
-	field string,
-	reference specdomain.SecretReference,
-) error {
-	if reference.Kind.String() != "env-bundle" {
-		return invalidWorkspaceReference(field, reference.ID, "unsupported secret reference kind", nil)
+	resolved := cloneResolvedWorkspace(workspace)
+	if len(resolved.SkillPackages) == 0 {
+		resolved.SkillPackages = resolver.resolvedSkillPackages(resolved.SkillIDs)
 	}
-	bundle, err := resolver.resolveEnvBundle(ctx, scope, workerType, reference.ID)
-	if err != nil {
-		return err
-	}
-	if bundle.Kind != envbundle.KindCredential {
-		return invalidWorkspaceReference(field, reference.ID, "secret reference requires a credential bundle", nil)
-	}
-	return nil
+	return resolved, nil
 }
 
 func (resolver *workspaceResolver) resolveWorkspaceReferences(
@@ -113,22 +100,28 @@ func (resolver *workspaceResolver) resolveWorkspaceReferences(
 		}
 		references.RepositorySlug = repository.Slug
 	}
-	for _, id := range workspace.SkillIDs {
-		row, err := resolver.resolveSkill(ctx, scope, workerType, id)
-		if err != nil {
-			return compilationReferences{}, err
+	if len(workspace.SkillPackages) > 0 {
+		for _, pkg := range workspace.SkillPackages {
+			references.SkillSlugs = append(references.SkillSlugs, pkg.Slug)
 		}
-		if existingID, exists := skillSlugs[row.Slug]; exists {
-			return compilationReferences{}, fmt.Errorf(
-				"%w: skills %d and %d share slug %q",
-				specservice.ErrInvalidDraft,
-				existingID,
-				id,
-				row.Slug,
-			)
+	} else {
+		for _, id := range workspace.SkillIDs {
+			row, err := resolver.resolveSkill(ctx, scope, workerType, id)
+			if err != nil {
+				return compilationReferences{}, err
+			}
+			if existingID, exists := skillSlugs[row.Slug]; exists {
+				return compilationReferences{}, fmt.Errorf(
+					"%w: skills %d and %d share slug %q",
+					specservice.ErrInvalidDraft,
+					existingID,
+					id,
+					row.Slug,
+				)
+			}
+			skillSlugs[row.Slug] = id
+			references.SkillSlugs = append(references.SkillSlugs, row.Slug)
 		}
-		skillSlugs[row.Slug] = id
-		references.SkillSlugs = append(references.SkillSlugs, row.Slug)
 	}
 	for _, mount := range workspace.KnowledgeMounts {
 		row, err := resolver.resolveKnowledge(ctx, scope, mount.KnowledgeBaseID)
@@ -153,10 +146,11 @@ func (resolver *workspaceResolver) resolveWorkspaceReferences(
 				nil,
 			)
 		}
-		if field := modelResourceManagedRuntimeField(
-			workerType.String(),
-			bundle.Data,
-		); field != "" {
+		definition, err := resolver.workerDefinition(workerType)
+		if err != nil {
+			return compilationReferences{}, err
+		}
+		if field := modelResourceManagedRuntimeField(definition, bundle.Data); field != "" {
 			return compilationReferences{}, invalidWorkspaceReference(
 				"runtime environment bundle",
 				bundle.ID,
@@ -168,7 +162,37 @@ func (resolver *workspaceResolver) resolveWorkspaceReferences(
 			return compilationReferences{}, err
 		}
 	}
+	for _, id := range workspace.ConfigBundleIDs {
+		bundle, err := resolver.resolveEnvBundle(ctx, scope, workerType, id)
+		if err != nil {
+			return compilationReferences{}, err
+		}
+		if bundle.Kind != envbundle.KindConfig {
+			return compilationReferences{}, invalidWorkspaceReference(
+				"Worker 配置文件",
+				bundle.ID,
+				"bundle kind is not config",
+				nil,
+			)
+		}
+		references.ConfigBundleNames = append(references.ConfigBundleNames, bundle.Name)
+	}
 	return references, nil
+}
+
+func (resolver *workspaceResolver) workerDefinition(
+	workerType slugkit.Slug,
+) (workerdefinition.Definition, error) {
+	if resolver == nil || resolver.deps.Definitions == nil {
+		return workerdefinition.Definition{}, specservice.ErrResolverUnavailable
+	}
+	definition, exists := resolver.deps.Definitions.Get(workerType.String())
+	if !exists {
+		return workerdefinition.Definition{}, invalidWorkerType(
+			fmt.Sprintf("canonical definition for %q does not exist", workerType),
+		)
+	}
+	return definition, nil
 }
 
 func (resolver *workspaceResolver) resolvedRepository(id *int64) *gitprovider.Repository {

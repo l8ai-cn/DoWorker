@@ -3,7 +3,6 @@ package suites
 import (
 	"context"
 	"fmt"
-	"strings"
 	"testing"
 	"time"
 
@@ -46,7 +45,7 @@ func TestGoalLoop_ListShowsCreatedLoop(t *testing.T) {
 	t.Fatalf("created goal loop %q was absent from filtered list: %+v", loop.Slug, page.Items)
 }
 
-func TestGoalLoop_StartFailureIsPersisted(t *testing.T) {
+func TestGoalLoop_StaleSnapshotDoesNotStart(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
 	snapshotID := fixture.NewGoalLoopSnapshot(t, env)
@@ -57,15 +56,15 @@ func TestGoalLoop_StartFailureIsPersisted(t *testing.T) {
 	loop, err := rest.CreateGoalLoop(ctx, env.DevOrgSlug, client.CreateGoalLoopRequest{
 		Name:                 fmt.Sprintf("e2e-goal-loop-start-%d", time.Now().UnixMilli()),
 		WorkerSpecSnapshotID: snapshotID,
-		Objective:            "Verify failed launch is retained.",
-		AcceptanceCriteria:   []string{"A failed launch is observable."},
+		Objective:            "Reject a stale runtime before launch.",
+		AcceptanceCriteria:   []string{"The loop remains a draft."},
 		VerificationCommand:  "true",
 	})
 	if err != nil {
 		t.Fatalf("create goal loop: %v", err)
 	}
 	if _, err := rest.StartGoalLoop(ctx, env.DevOrgSlug, loop.Slug); err == nil {
-		t.Fatal("start goal loop unexpectedly succeeded without a configured model resource")
+		t.Fatal("start goal loop unexpectedly accepted a stale worker snapshot")
 	}
 
 	db, err := client.OpenDB(env.PostgresDSN)
@@ -80,10 +79,10 @@ func TestGoalLoop_StartFailureIsPersisted(t *testing.T) {
 	).Scan(&status, &launchError); err != nil {
 		t.Fatalf("load failed goal loop: %v", err)
 	}
-	if status != "failed" {
-		t.Fatalf("goal loop status = %q, want failed", status)
+	if status != "draft" {
+		t.Fatalf("goal loop status = %q, want draft", status)
 	}
-	if strings.TrimSpace(launchError) == "" {
-		t.Fatal("failed goal loop did not retain its launch error")
+	if launchError != "" {
+		t.Fatalf("stale snapshot validation recorded a launch error: %q", launchError)
 	}
 }

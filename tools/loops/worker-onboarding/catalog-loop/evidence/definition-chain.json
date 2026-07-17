@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "status": "verified",
+  "verified_at": "2026-07-12T19:47:45Z",
+  "definition_bundle": "definition.json + NUL + AgentFile",
+  "backend_consumer": "workercreation.workerTypeResolver",
+  "checks": [
+    "go test ./backend/internal/service/workerdefinition -count=1",
+    "go test ./backend/internal/service/workercreation -count=1",
+    "go test ./backend/cmd/worker-definition-sync -count=1",
+    "go test ./backend/internal/domain/workerruntime ./backend/internal/service/workercreation -count=1",
+    "bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-dev-database-projection.sh",
+    "authenticated ListWorkerCreateOptions against http://localhost:10000"
+  ],
+  "projection_verified_slugs": [
+    "aider",
+    "claude-code",
+    "codex-cli",
+    "cursor-cli",
+    "do-agent",
+    "gemini-cli",
+    "grok-build",
+    "hermes",
+    "loopal",
+    "minimax-cli",
+    "openclaw",
+    "opencode"
+  ],
+  "blocked_registration_slugs": [],
+  "runtime_catalog_lock": "backend/internal/domain/workerruntime/runtime_catalog.lock.json"
+}

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ModelResourceRow } from "./ModelResourceRow";
+import { aiResourceValidationMessage } from "./aiResourceValidationMessage";
 import type { ModelResource, ProviderConnection } from "./types";
 
 interface ProviderConnectionCardProps {
@@ -41,20 +42,26 @@ export function ProviderConnectionCard({
   const t = useTranslations();
   const manageable = canManage && connection.canManage;
   const resources = filterResources(connection.resources, modality);
+  const validationMessage = connection.validationError
+    ? aiResourceValidationMessage(connection.validationError, t)
+    : "";
 
   return (
     <section className="rounded-xl border border-border/70 bg-card" aria-label={connection.name}>
       <div className="flex flex-wrap items-start gap-3 border-b border-border/60 px-4 py-4 sm:px-6">
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 basis-full sm:flex-1 sm:basis-auto">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="truncate text-base font-semibold text-foreground">{connection.name}</h2>
             {connection.status === "invalid" && <Badge variant="destructive">{t("settings.aiResources.status.invalid")}</Badge>}
             {!connection.isEnabled && <Badge variant="warning">{t("settings.aiResources.status.disabled")}</Badge>}
           </div>
           <p className="mt-1 truncate text-sm text-muted-foreground">{connection.providerKey} · {connection.baseUrl}</p>
+          {validationMessage && (
+            <p role="alert" className="mt-1 text-xs text-destructive">{validationMessage}</p>
+          )}
         </div>
         {manageable && (
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
             <Button variant="outline" size="sm" onClick={() => void onValidate(connection.id)}>
               {t("settings.aiResources.validate")}
             </Button>

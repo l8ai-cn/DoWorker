@@ -1,0 +1,89 @@
+{
+  "resourceOrchestration": {
+    "navTitle": "Orchestration des ressources",
+    "title": "Orchestration native des ressources",
+    "description": "Déclarez Workers, Experts, Workflows, prompts, modèles, outils, connaissances et calcul comme ressources versionnées. Le plan de contrôle valide les références, affiche un Plan sémantique et applique une révision ou un instantané d'exécution immuable.",
+    "openGuide": "Ouvrir le guide d'orchestration des ressources",
+    "lifecycleTitle": "Validate → Plan → Apply",
+    "lifecycleDescription": "Le flux sépare création, revue et exécution. Un Plan prouve le changement prévu, pas l'existence de la ressource.",
+    "lifecycle": {
+      "validate": {
+        "title": "Validate",
+        "description": "Vérifie l'enveloppe, le schema, les identifiers, la sémantique, les permissions et les ressources référencées."
+      },
+      "plan": {
+        "title": "Plan",
+        "description": "Produit canonical manifest, Diff sémantique, blocages, avertissements et digests des références figées."
+      },
+      "apply": {
+        "title": "Apply",
+        "description": "Réautorise l'acteur, rejette les Plans obsolètes, consomme le Plan une fois et crée la révision ou l'objet typé."
+      }
+    },
+    "kindsTitle": "Kinds de ressources et comportement Apply",
+    "kindsColumns": {
+      "kind": "Kind",
+      "apply": "Typed Apply",
+      "purpose": "Rôle"
+    },
+    "kinds": {
+      "bindings": {
+        "name": "Ressources de binding",
+        "apply": "Oui",
+        "purpose": "Versionnent les références aux modèles, outils, dépôts, Skills, connaissances, Secrets, cibles de calcul et profils."
+      },
+      "prompt": {
+        "name": "Prompt",
+        "apply": "Oui",
+        "purpose": "Stocke le contenu réutilisable et les variables déclarées dans une révision immuable."
+      },
+      "workerTemplate": {
+        "name": "WorkerTemplate",
+        "apply": "Oui",
+        "purpose": "Compile runtime, modèle, workspace et cycle de vie réutilisables dans un instantané WorkerSpec."
+      },
+      "worker": {
+        "name": "Worker",
+        "apply": "Création seule",
+        "purpose": "Lance un Worker depuis des ressources figées. La même ressource Worker ne peut pas être mise à jour."
+      },
+      "expertWorkflow": {
+        "name": "Expert / Workflow",
+        "apply": "Oui",
+        "purpose": "Crée des définitions réutilisables avec WorkerTemplate, Prompt et WorkerSpec figés."
+      },
+      "goalLoop": {
+        "name": "GoalLoop",
+        "apply": "Oui, comme brouillon",
+        "purpose": "Crée un brouillon GoalLoop avec un snapshot WorkerSpec figé. Le démarrage reste une action explicite."
+      }
+    },
+    "referencesTitle": "Résolution immuable des ResourceRef",
+    "referencesDescription": "Les références utilisent kind, name, namespace et une revision facultative. L'omettre résout la revision active lors du Plan sans suivre la dernière version indéfiniment.",
+    "referencesPinned": "Le Plan fige apiVersion, kind, namespace, name, UID, revision et digest. Apply et l'exécution utilisent ce résultat.",
+    "editorTitle": "Un Draft, deux vues",
+    "editorDescription": "Le formulaire et l'éditeur YAML partagent un typed draft. Un YAML invalide reste visible et bloque le changement de vue, Plan et Apply.",
+    "editor": {
+      "steps": {
+        "form": "Utilisez le formulaire pour les champs courants et les sélecteurs de ressources.",
+        "yaml": "Utilisez YAML pour la revue, le versionnement ou l'édition avancée précise.",
+        "validate": "Corrigez les erreurs de schema, permissions, identifier et références.",
+        "plan": "Examinez CREATE ou UPDATE, Diff sémantique, avertissements, revision et digest.",
+        "apply": "Appliquez uniquement le Plan courant et vérifiez la révision, l'instantané, la définition ou le Worker retourné."
+      }
+    },
+    "yamlTitle": "Exemple YAML",
+    "securityTitle": "Limites des Secrets et permissions",
+    "securityDescription": "Le YAML décrit des références, jamais des identifiants en clair. namespace identifie la ressource et ne remplace pas l'autorisation.",
+    "security": {
+      "items": {
+        "credentials": "ModelBinding stocke seulement l'ID du modèle ; les identifiants fournisseur restent chiffrés dans la connexion IA.",
+        "authorization": "Validate, Plan et Apply rejettent les références inter-organisations, illisibles ou révoquées après le Plan.",
+        "stale": "Les changements de Draft, head ou catalogue et les Plans expirés ou consommés exigent un nouveau Plan."
+      }
+    },
+    "boundaryTitle": "Limite actuelle",
+    "goalLoopBoundary": "GoalLoop Apply crée un brouillon avec des révisions figées, sans le démarrer ni créer de Pod. Démarrer, vérifier et annuler restent des actions explicites.",
+    "reconciliationBoundary": "Le modèle est déclaratif sans réconciliation continue de type Kubernetes. Supprimer un Worker ou Pod ne le recrée pas."
+  }
+}

@@ -338,6 +338,7 @@ export interface FileBlock {
   ctx: BlockContext;
   fileId: string;
   filename: string | null;
+  contentType: string | null;
 }
 
 /** A policy denied the user's input or the LLM call. */

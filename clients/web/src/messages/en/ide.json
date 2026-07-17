@@ -88,10 +88,18 @@
       "selectModelResourcePlaceholder": "Choose a model resource…",
       "loadingModelResources": "Loading model resources…",
       "modelResourceHint": "Credentials are resolved from the selected AI resource at launch time.",
-      "noModelResourcesAvailableHint": "No compatible model resources are available. Add one in Settings → AI Resources.",
+      "manageModelResources": "Configure models and API keys",
+      "noModelResourcesAvailableHint": "This Agent needs a compatible model and API key. Go to Settings → AI Resources to select an existing configuration or add a new one.",
       "selectRuntimeBundles": "Runtime Env Bundles",
       "noRuntimeBundlesAvailableHint": "This image has no runtime env bundles yet. Add one in Settings → Images.",
       "noRuntimeBundleSelectedHint": "No runtime bundle selected; the Worker runs without any extra runtime preferences.",
+      "selectConfigFile": "Select Agent configuration",
+      "selectConfigFileHint": "Select an existing JSON configuration or upload a new JSON file.",
+      "uploadConfigFile": "Upload JSON config",
+      "configFileTooLarge": "Configuration files must be 1 MiB or smaller.",
+      "configFileMustBeObject": "The configuration file must contain a JSON object.",
+      "configFileUploaded": "Configuration uploaded from Worker creation",
+      "configFileUploadFailed": "Configuration upload failed. Check the file and try again.",
       "selectRepository": "Select Repository",
       "selectRepositoryPlaceholder": "Choose a repository...",
       "noRepositoryOption": "No repository",
@@ -132,7 +140,8 @@
         "autonomous": "Autonomous",
         "interactiveHint": "Approve every step. You stay in the loop for each action.",
         "auto_editHint": "Auto-approve reads and edits; only risky actions ask for confirmation.",
-        "autonomousHint": "Fully autonomous, non-interactive execution. Runs in ACP mode."
+        "autonomousHint": "Fully autonomous execution. The Agent handles the task automatically.",
+        "autonomousPtyHint": "Fully autonomous terminal execution. The Agent handles the task automatically."
       },
       "noBundleLabel": "No runtime env variables",
       "noBundleHint": "No runtime environment variable bundle is selected.",
@@ -145,7 +154,7 @@
         "runtime": "Runtime"
       },
       "selectSkills": "Skills",
-      "noSkillsAvailableHint": "No skills installed for this repository. Install from Settings → Extensions or the Skills sidebar.",
+      "noSkillsAvailableHint": "No selectable skills are available. Create or enable one in the Skills marketplace.",
       "noSkillsSelectedHint": "No skills selected; all installed skills compatible with this agent will be loaded.",
       "skillsSelectedHint": "Selected skills are attached to the Pod via the SKILLS AgentFile directive.",
       "skillsRequireRepositoryHint": "Select a repository to load skills installed on that repo.",
@@ -214,12 +223,15 @@
       "durationLongTitle": "Long-term workspace",
       "durationLongDescription": "Auto-restarts when the process exits — good for ongoing development and session work.",
       "moreOptions": "More options",
-      "knowledgeBases": "Knowledge bases",
-      "manageKnowledgeBases": "Manage knowledge bases",
+      "knowledgeBases": "Select knowledge bases",
+      "manageKnowledgeBases": "Create knowledge base",
       "loadingKnowledgeBases": "Loading knowledge bases…",
+      "knowledgeBasesLoadFailed": "Knowledge bases could not be loaded. Try again.",
       "noKnowledgeBasesHint": "No knowledge bases yet. Create one, then mount it when starting a Worker.",
-      "knowledgeBasesHint": "Knowledge bases are cloned into the Worker sandbox under kb/; rw mounts allow the agent to commit and push changes.",
+      "knowledgeBasesHint": "Knowledge bases are cloned into the Worker sandbox under kb/; writable mounts allow the agent to commit and push changes.",
       "knowledgeModeToggle": "Toggle read-only / read-write",
+      "knowledgeModeReadOnly": "Read-only",
+      "knowledgeModeReadWrite": "Writable",
       "removeKnowledgeBase": "Remove knowledge base",
       "lifecycleTitle": "Lifecycle policy",
       "lifecycleDescription": "Fine-grained control over when the Worker is destroyed (overrides the duration preset above).",
@@ -322,19 +334,19 @@
   },
   "workerCreate": {
     "steps": {
-      "runtime": "Runtime",
-      "typeConfig": "Worker type",
+      "runtime": "Run mode",
+      "typeConfig": "Agent configuration",
       "workspace": "Workspace",
       "preflight": "Review"
     },
     "stepContent": {
       "1": {
-        "title": "Choose runtime",
-        "description": "Bind an exact model, Worker type, immutable image, compute target, deployment mode, and resource profile."
+        "title": "Choose how it runs",
+        "description": "Choose the Agent, model, runtime environment, and resource size."
       },
       "2": {
-        "title": "Configure Worker type",
-        "description": "Set only fields declared by the selected Worker type. Secrets remain references to credential bundles."
+        "title": "Configure Agent variables",
+        "description": "Fill the variables required by this Agent. Secrets remain references to configured credentials."
       },
       "3": {
         "title": "Configure workspace",
@@ -346,12 +358,46 @@
       }
     },
     "runtime": {
-      "model": "Model resource",
-      "workerType": "Worker type",
-      "runtimeImage": "Runtime image",
-      "computeTarget": "Compute target",
-      "deploymentMode": "Deployment mode",
-      "resourceProfile": "Resource profile"
+      "model": "Model and API",
+      "workerType": "Agent type",
+      "runtimeImage": "Runtime environment",
+      "computeTarget": "Where to run",
+      "computeTargetHint": "Local development uses an online Runner in your organization.",
+      "deploymentMode": "Resource usage",
+      "deploymentModeHint": "Use shared resources for development; dedicated resources require another node.",
+      "resourceProfile": "Resource size",
+      "resourceProfileHint": "Choose a preset or enter CPU, memory, and storage yourself.",
+      "options": {
+        "codex": "OpenAI Codex",
+        "claude": "Claude Code",
+        "gemini": "Gemini CLI",
+        "minimax": "MiniMax CLI",
+        "openclaw": "OpenClaw",
+        "doAgent": "DoAgent",
+        "seedance": "Seedance expert",
+        "aider": "Aider",
+        "openCode": "OpenCode",
+        "cursor": "Cursor",
+        "organizationRunnerPool": "Shared organization Runner",
+        "managedKubernetes": "Managed Kubernetes node",
+        "pooled": "Shared resources",
+        "dedicated": "Dedicated resources",
+        "standard": "Standard size",
+        "large": "Large size",
+        "noRuntimeImage": "No runtime environment is available",
+        "dedicatedUnavailable": "Dedicated resources require an additional node",
+        "computeTargetDisabled": "This run location is unavailable",
+        "noTargetForMode": "No run location supports this resource mode",
+        "selectedTargetUnavailable": "The selected run location is unavailable",
+        "targetDoesNotSupportMode": "The selected run location does not support this resource mode",
+        "resourceDisabled": "This resource size is unavailable"
+      },
+      "resources": {
+        "custom": "Custom resources",
+        "cpu": "CPU",
+        "memory": "Memory",
+        "storage": "Storage"
+      }
     },
     "typeChange": {
       "title": "Change Worker type?",
@@ -360,13 +406,46 @@
       "confirm": "Change type"
     },
     "typeConfig": {
+      "title": "Agent configuration variables",
+      "description": "These variables adjust the selected Agent. Secret fields reference credentials and never store plaintext here.",
+      "defaultPrefix": "Default: ",
       "optionsRequired": "Worker creation options must load before type configuration.",
       "typeRequired": "Select a Worker type first.",
       "versionMismatch": "Worker type schema version does not match the selected option.",
       "empty": "This Worker type has no additional configuration fields.",
       "invalid": "Worker type configuration schema is invalid.",
       "useDefault": "Use Worker default",
-      "secretHint": "Secrets are referenced from a credential bundle and are never stored in the Worker draft."
+      "secretHint": "Secrets are referenced from a credential bundle and are never stored in the Worker draft.",
+      "manageCredentials": "Configure this Agent's credentials",
+      "fields": {
+        "approvalMode": "Approval mode",
+        "editFormat": "Edit format",
+        "effort": "Effort",
+        "mcpEnabled": "Enable tools",
+        "model": "Model",
+        "permissionMode": "Permission mode",
+        "sandboxMode": "Sandbox mode"
+      },
+      "options": {
+        "empty": "Default",
+        "approvalUntrusted": "Approve untrusted operations only",
+        "approvalOnRequest": "Approve when requested",
+        "approvalNever": "Never ask (fully autonomous)",
+        "whole": "Whole file",
+        "diff": "Diff patch",
+        "udiff": "Unified diff patch",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "permissionDefault": "Default permissions",
+        "permissionPlan": "Plan mode",
+        "permissionAcceptEdits": "Auto-accept edits",
+        "permissionDontAsk": "Do not ask",
+        "permissionBypassPermissions": "Bypass permission checks",
+        "permissionSupervised": "Supervised mode",
+        "permissionAuto": "Automatic mode",
+        "permissionBypass": "Bypass mode"
+      }
     },
     "workspace": {
       "repositoryTitle": "Repository",

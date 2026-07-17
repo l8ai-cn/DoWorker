@@ -6,21 +6,23 @@ import { readAuthToken } from "@/lib/auth-store";
 
 type NavItem = { to: "/" | "/experts" | "/approvals" | "/me"; label: string; icon: typeof Home };
 const items: NavItem[] = [
-  { to: "/",          label: "首页",   icon: Home },
-  { to: "/experts",   label: "专家库", icon: Users },
-  { to: "/approvals", label: "审批",   icon: ShieldCheck },
-  { to: "/me",        label: "我的",   icon: User },
+  { to: "/", label: "首页", icon: Home },
+  { to: "/experts", label: "专家库", icon: Users },
+  { to: "/approvals", label: "审批", icon: ShieldCheck },
+  { to: "/me", label: "我的", icon: User },
 ];
 
 export function BottomNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  return <BottomNavContent key={path} path={path} />;
+}
+
+function BottomNavContent({ path }: { path: string }) {
   const liveList = useSessionsList();
   const authed = Boolean(readAuthToken());
   const pending = authed ? liveList.pendingCount : 0;
   const [open, setOpen] = useState(false);
 
-  // close on route change / esc
-  useEffect(() => { setOpen(false); }, [path]);
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -40,7 +42,10 @@ export function BottomNav() {
           <div className="absolute bottom-[calc(100%+8px)] left-1/2 z-50 w-60 -translate-x-1/2 overflow-hidden rounded-2xl border border-border/60 bg-card shadow-2xl stream-in">
             <div className="flex items-center justify-between px-3 py-2 text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">
               新建
-              <button onClick={() => setOpen(false)} className="rounded-full p-0.5 hover:bg-surface">
+              <button
+                onClick={() => setOpen(false)}
+                className="rounded-full p-0.5 hover:bg-surface"
+              >
                 <X className="h-3 w-3" />
               </button>
             </div>
@@ -75,7 +80,12 @@ export function BottomNav() {
       )}
       <ul className="relative z-50 flex items-end justify-between">
         {items.slice(0, 2).map((it) => (
-          <NavCell key={it.to} item={it} active={it.to === "/" ? path === "/" : path.startsWith(it.to)} pending={0} />
+          <NavCell
+            key={it.to}
+            item={it}
+            active={it.to === "/" ? path === "/" : path.startsWith(it.to)}
+            pending={0}
+          />
         ))}
         <li className="flex-1">
           <button

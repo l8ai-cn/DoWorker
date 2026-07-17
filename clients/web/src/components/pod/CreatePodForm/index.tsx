@@ -30,7 +30,7 @@ export function CreatePodForm({
     enabled,
     repositories,
     initialWorkerTypeSlug: mergedConfig.initialAgentSlug,
-    initialTask,
+    initialTask: initialTask || undefined,
     initialRepositoryId: mergedConfig.context?.ticket?.repositoryId ?? null,
     ticketSlug: mergedConfig.context?.ticket?.slug,
     onSuccess: mergedConfig.onSuccess,

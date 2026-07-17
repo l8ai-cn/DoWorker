@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
 type ValidationStatus string
@@ -16,9 +17,10 @@ const (
 )
 
 var (
-	ErrInvalidVersion  = errors.New("invalid catalog version")
-	ErrInvalidDigest   = errors.New("invalid content digest")
-	ErrInvalidManifest = errors.New("invalid catalog manifest")
+	ErrInvalidVersion       = errors.New("invalid catalog version")
+	ErrInvalidDigest        = errors.New("invalid content digest")
+	ErrInvalidManifest      = errors.New("invalid catalog manifest")
+	ErrInvalidCompatibility = errors.New("invalid catalog compatibility")
 )
 
 type Version struct {
@@ -28,6 +30,7 @@ type Version struct {
 	sourceRevision          string
 	contentDigest           string
 	manifest                json.RawMessage
+	compatibility           json.RawMessage
 	validationStatus        ValidationStatus
 	createdByPlatformUserID int64
 }
@@ -39,6 +42,7 @@ type VersionState struct {
 	SourceRevision          string
 	ContentDigest           string
 	Manifest                json.RawMessage
+	Compatibility           json.RawMessage
 	ValidationStatus        ValidationStatus
 	CreatedByPlatformUserID int64
 }
@@ -49,6 +53,7 @@ func NewVersion(
 	sourceRevision string,
 	contentDigest string,
 	manifest json.RawMessage,
+	compatibility json.RawMessage,
 	actorUserID int64,
 ) (*Version, error) {
 	if itemID <= 0 || actorUserID <= 0 || sourceRevision == "" {
@@ -64,15 +69,34 @@ func NewVersion(
 	if !json.Valid(manifest) {
 		return nil, ErrInvalidManifest
 	}
+	if err := validateCompatibility(compatibility); err != nil {
+		return nil, err
+	}
 	return &Version{
 		catalogItemID:           itemID,
 		version:                 version,
 		sourceRevision:          sourceRevision,
 		contentDigest:           contentDigest,
 		manifest:                append(json.RawMessage(nil), manifest...),
+		compatibility:           append(json.RawMessage(nil), compatibility...),
 		validationStatus:        ValidationPending,
 		createdByPlatformUserID: actorUserID,
 	}, nil
+}
+
+func validateCompatibility(raw json.RawMessage) error {
+	var compatibility struct {
+		Agents []string `json:"agents"`
+	}
+	if err := json.Unmarshal(raw, &compatibility); err != nil {
+		return ErrInvalidCompatibility
+	}
+	for _, agent := range compatibility.Agents {
+		if slugkit.Validate(agent) != nil {
+			return ErrInvalidCompatibility
+		}
+	}
+	return nil
 }
 
 func RestoreVersion(state VersionState) (*Version, error) {
@@ -82,6 +106,7 @@ func RestoreVersion(state VersionState) (*Version, error) {
 		state.SourceRevision,
 		state.ContentDigest,
 		state.Manifest,
+		state.Compatibility,
 		state.CreatedByPlatformUserID,
 	)
 	if err != nil {
@@ -109,4 +134,7 @@ func (v Version) ValidationStatus() ValidationStatus { return v.validationStatus
 func (v Version) CreatedByPlatformUserID() int64     { return v.createdByPlatformUserID }
 func (v Version) Manifest() json.RawMessage {
 	return append(json.RawMessage(nil), v.manifest...)
+}
+func (v Version) Compatibility() json.RawMessage {
+	return append(json.RawMessage(nil), v.compatibility...)
 }

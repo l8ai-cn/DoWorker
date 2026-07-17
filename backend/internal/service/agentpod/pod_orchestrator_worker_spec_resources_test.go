@@ -19,13 +19,18 @@ func TestWorkerSpecResourceRequirementsUseExactIDs(t *testing.T) {
 			},
 		},
 		Workspace: specdomain.Workspace{
-			SkillIDs:     []int64{3, 9},
+			SkillIDs: []int64{3, 9},
+			SkillPackages: []specdomain.SkillPackageBinding{
+				{SkillID: 3, Slug: "alpha", Version: 1, ContentSHA: "sha-a", StorageKey: "skills/a"},
+				{SkillID: 9, Slug: "beta", Version: 2, ContentSHA: "sha-b", StorageKey: "skills/b"},
+			},
 			EnvBundleIDs: []specdomain.RuntimeEnvBundleID{4, 6},
 		},
 	}
 
-	envBundleIDs, skillIDs := workerSpecResourceRequirements(spec)
+	envBundleIDs, skillIDs, skillPackages := workerSpecResourceRequirements(spec)
 
 	assert.Equal(t, []int64{4, 6}, envBundleIDs)
 	assert.Equal(t, []int64{3, 9}, skillIDs)
+	assert.Equal(t, spec.Workspace.SkillPackages, skillPackages)
 }

@@ -3,6 +3,8 @@ package auth
 import (
 	"testing"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestNewService(t *testing.T) {
@@ -152,6 +154,32 @@ func TestValidateToken(t *testing.T) {
 		}
 		if err != ErrTokenExpired {
 			t.Errorf("Expected ErrTokenExpired, got %v", err)
+		}
+	})
+
+	t.Run("embed token use", func(t *testing.T) {
+		token := jwt.NewWithClaims(jwt.SigningMethodRS256, Claims{
+			UserID:   mockUser.ID,
+			Email:    mockUser.Email,
+			Username: mockUser.Username,
+			TokenUse: "agent_embed_session",
+			RegisteredClaims: jwt.RegisteredClaims{
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute)),
+				IssuedAt:  jwt.NewNumericDate(time.Now()),
+				NotBefore: jwt.NewNumericDate(time.Now()),
+				Issuer:    "test-issuer",
+				Audience:  jwt.ClaimStrings{testAccessTokenAudience},
+			},
+		})
+		token.Header["kid"] = "test-access-token-key"
+		signed, err := token.SignedString(fixture.privateKey)
+		if err != nil {
+			t.Fatalf("sign token: %v", err)
+		}
+
+		_, err = svc.ValidateToken(signed)
+		if err != ErrInvalidToken {
+			t.Errorf("Expected ErrInvalidToken, got %v", err)
 		}
 	})
 }

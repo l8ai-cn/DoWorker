@@ -38,6 +38,8 @@ source "$SCRIPT_DIR/lib/worktree.sh"
 source "$SCRIPT_DIR/lib/doctor.sh"
 # shellcheck source=lib/config_gen.sh
 source "$SCRIPT_DIR/lib/config_gen.sh"
+# shellcheck source=lib/worker_runtime_catalog.sh
+source "$SCRIPT_DIR/lib/worker_runtime_catalog.sh"
 # shellcheck source=lib/coordinator_runners.sh
 source "$SCRIPT_DIR/lib/coordinator_runners.sh"
 # shellcheck source=lib/host_services.sh
@@ -82,13 +84,14 @@ main() {
     esac
 
     local backend_only=false
+    local requested_runner_launcher
+    requested_runner_launcher="$(resolve_requested_runners_launcher "${RUNNERS_LAUNCHER:-}" "$@")"
     for arg in "$@"; do
         case "$arg" in
             --backend-only) backend_only=true ;;
             --lite) export DEV_LITE=1; export DEV_NO_BAZEL=1; export WEB_USER_SKIP=1 ;;
             --frontends|-f) ;;
-            --coordinator-runners) export RUNNERS_LAUNCHER=coordinator ;;
-            --runners-k8s) export RUNNERS_LAUNCHER=k8s ;;
+            --coordinator-runners|--runners-k8s) ;;
         esac
     done
 
@@ -100,16 +103,26 @@ main() {
     generate_ai_cli_configs
     generate_env
     source "$ENV_FILE"
+    local lite_runner_mode=false
+    if [[ "${DEV_LITE:-}" == "1" ]]; then
+        lite_runner_mode=true
+    fi
+    local effective_runner_launcher
+    effective_runner_launcher="$(
+        resolve_effective_runners_launcher \
+            "$requested_runner_launcher" "${RUNNERS_LAUNCHER:-}" "$lite_runner_mode"
+    )"
     check_ibazel_doctor
     generate_traefik_config
     generate_web_env
     generate_web_admin_env
     generate_runner_ssh_key
     warn_loopback_port_conflict
+    prepare_local_worker_runtime_catalog
 
-    if [[ -n "${RUNNERS_LAUNCHER:-}" ]]; then
-        persist_runners_launcher_mode "$RUNNERS_LAUNCHER"
-        case "$RUNNERS_LAUNCHER" in
+    if [[ -n "$effective_runner_launcher" ]]; then
+        persist_runners_launcher_mode "$effective_runner_launcher"
+        case "$effective_runner_launcher" in
             coordinator)
                 info "Runner 模式: Coordinator 平台托管 (不预起 runner 容器)"
                 stop_compose_runners
@@ -118,11 +131,6 @@ main() {
                 info "Runner 模式: Kubernetes 集群 (跳过 docker-compose.runners.yml)"
                 ;;
         esac
-        source "$ENV_FILE"
-    elif dev_lite_enabled; then
-        info "dev-lite: 启用 Coordinator 按需 runner"
-        persist_runners_launcher_mode coordinator
-        stop_compose_runners
         source "$ENV_FILE"
     fi
 
@@ -141,6 +149,7 @@ main() {
     run_migrations
     run_marketplace_migrations
     init_seed "${COMPOSE_PROJECT_NAME}-postgres-1"
+    sync_worker_definition_projections
     init_gitea
     setup_gitea_ssh_config
 

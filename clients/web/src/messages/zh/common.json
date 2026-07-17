@@ -6,7 +6,8 @@
     "close": "关闭",
     "expand": "展开",
     "collapse": "收起",
-    "htmlDocument": "HTML 文档"
+    "htmlDocument": "HTML 文档",
+    "popupBlocked": "浏览器阻止了预览窗口。"
   },
   "common": {
     "loading": "加载中...",

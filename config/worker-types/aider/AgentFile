@@ -1,0 +1,19 @@
+MODE pty
+
+AGENT aider
+EXECUTABLE aider
+
+CONFIG model STRING = ""
+CONFIG edit_format SELECT("", "whole", "diff", "udiff") = ""
+
+ENV OPENAI_API_KEY SECRET OPTIONAL
+ENV ANTHROPIC_API_KEY SECRET OPTIONAL
+
+MCP OFF
+
+# --- build logic ---
+
+arg "--model" config.model when config.model != ""
+arg "--edit-format" config.edit_format when config.edit_format != ""
+
+PROMPT_POSITION none

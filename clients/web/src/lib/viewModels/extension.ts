@@ -24,6 +24,7 @@ export interface CatalogSkill {
   display_name: string;
   description: string;
   license: string;
+  tags: string[];
   category?: string;
   compatibility?: string;
   allowed_tools?: string;

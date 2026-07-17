@@ -40,6 +40,28 @@ func (t *transport) agentMessageAlreadyEmitted(itemID string) bool {
 	return streamed
 }
 
+func (t *transport) applyAgentMessageBoundary(text string) string {
+	t.streamMu.Lock()
+	defer t.streamMu.Unlock()
+	if !t.messageBoundaryDue {
+		return text
+	}
+	t.messageBoundaryDue = false
+	return "\n\n" + text
+}
+
+func (t *transport) markAgentMessageCompleted() {
+	t.streamMu.Lock()
+	t.messageBoundaryDue = true
+	t.streamMu.Unlock()
+}
+
+func (t *transport) resetAgentMessageBoundary() {
+	t.streamMu.Lock()
+	t.messageBoundaryDue = false
+	t.streamMu.Unlock()
+}
+
 func (t *transport) notifyTurnIdle() {
 	if t.callbacks.OnStateChange != nil {
 		t.callbacks.OnStateChange(acp.StateIdle)

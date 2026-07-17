@@ -1,0 +1,62 @@
+# === Identity ===
+AGENT claude
+EXECUTABLE claude
+
+# === Mode ===
+MODE pty
+MODE acp "-p" "--verbose" "--input-format" "stream-json" "--output-format" "stream-json"
+
+# === Configuration ===
+CONFIG model SELECT("", "sonnet", "opus") = ""
+CONFIG permission_mode SELECT("default", "plan", "acceptEdits", "dontAsk", "bypassPermissions") = "bypassPermissions"
+
+# === Environment ===
+ENV ANTHROPIC_API_KEY SECRET OPTIONAL
+ENV ANTHROPIC_BASE_URL TEXT OPTIONAL
+ENV CLAUDE_CONFIG_DIR = sandbox.root + "/claude-home"
+
+# === Prompt ===
+PROMPT_POSITION prepend
+
+# === Capabilities ===
+MCP ON
+SKILLS am-delegate, am-channel
+
+# === Build Logic ===
+arg "--model" config.model when config.model != ""
+arg "--session-id" config.session_id when config.session_id != "" and not config.resume_enabled
+arg "--resume" config.resume_session when config.resume_enabled
+
+if config.permission_mode == "plan" and mode == "acp" {
+  arg "--permission-mode" "default"
+}
+if config.permission_mode == "plan" and mode != "acp" {
+  arg "--permission-mode" "plan"
+}
+if config.permission_mode != "default" and config.permission_mode != "plan" and config.permission_mode != "" {
+  arg "--permission-mode" config.permission_mode
+}
+
+if mcp.enabled {
+  plugin_dir = sandbox.root + "/agentsmesh-plugin"
+
+  mkdir plugin_dir
+  mkdir plugin_dir + "/.claude-plugin"
+
+  file plugin_dir + "/.claude-plugin/plugin.json" json({
+    name: "agentsmesh",
+    description: "AgentsMesh collaboration plugin for Claude Code",
+    version: "1.0.0"
+  })
+
+  file plugin_dir + "/.mcp.json" json({ mcpServers: mcp.servers })
+
+  arg "--plugin-dir" plugin_dir
+}
+
+CAPABILITY resume cli
+CAPABILITY permission acp
+CAPABILITY usage live
+CAPABILITY interrupt true
+CAPABILITY streaming true
+CAPABILITY model_family claude

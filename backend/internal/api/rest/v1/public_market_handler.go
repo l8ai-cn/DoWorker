@@ -33,7 +33,11 @@ func (h *PublicMarketHandler) ListApplications(c *gin.Context) {
 		apierr.InternalError(c, "Expert application market is unavailable")
 		return
 	}
-	items := h.expert.ListMarketApplications()
+	items, err := h.expert.ListMarketApplications(c.Request.Context())
+	if err != nil {
+		apierr.InternalError(c, "Failed to load expert application market")
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"items": items, "total": len(items)})
 }
 

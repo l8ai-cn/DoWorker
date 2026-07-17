@@ -8,7 +8,8 @@ import { CenteredSpinner } from "@/components/ui/spinner";
 import { AlertCircle, RefreshCw, Repeat } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { WorkflowCreateContent } from "@/components/workflows/WorkflowCreateContent";
+import { ResourceEditorShell } from "@/components/resource-editor/ResourceEditorShell";
+import { appliedResource } from "@/components/resource-editor/resource-apply-result";
 
 export default function WorkflowsIndexPage() {
   const t = useTranslations();
@@ -64,10 +65,13 @@ export default function WorkflowsIndexPage() {
               {t("workflows.emptyDescription")}
             </p>
           </header>
-          <WorkflowCreateContent
-            onCreated={(workflow) => {
+          <ResourceEditorShell
+            orgSlug={orgSlug}
+            kind="Workflow"
+            onApplied={(result) => {
+              const name = appliedResource(result)?.identity?.target?.name;
               void fetchWorkflows();
-              if (workflow?.slug) setCreatedSlug(workflow.slug);
+              if (name) setCreatedSlug(name);
             }}
           />
         </div>

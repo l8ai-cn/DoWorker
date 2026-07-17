@@ -1,7 +1,7 @@
 import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
-import { setupAcpScenarioPage } from "../../helpers/acp-spec-setup";
+import { setupAcpScenarioPage, takeWorkerControl } from "../../helpers/acp-spec-setup";
 
 // Defensive-path coverage: every scenario here exercises an unhappy
 // runner/agent boundary that should NOT crash the web UI or wedge the
@@ -17,7 +17,10 @@ test.describe("ACP UI: error and degradation paths", () => {
     });
 
     await expect(page.getByText("Trying to edit: edit me")).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText("Edit", { exact: true }).first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText("Changed 1 file", { exact: true })).toBeVisible({ timeout: 15_000 });
+    await takeWorkerControl(page);
+    await page.locator("summary").filter({ hasText: "Changed 1 file" }).click();
+    await expect(page.getByTestId("tool-summary").getByText("file not found", { exact: true })).toBeVisible({ timeout: 15_000 });
     ctx.assertWasmHealthy();
   });
 

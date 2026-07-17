@@ -14,6 +14,10 @@ import {
 import { useTranslations } from "next-intl";
 import { getBreadcrumbs } from "@/lib/docs-navigation";
 import { LightAuthButtons, Logo } from "@/components/common";
+import {
+  isMarketingRouteActive,
+  marketingRoutes,
+} from "@/components/landing/marketing-routes";
 import { DocsArticle } from "./DocsArticle";
 import { DocsBreadcrumbJsonLd } from "./DocsBreadcrumbJsonLd";
 import { DocsSidebarNav } from "./DocsSidebarNav";
@@ -34,7 +38,7 @@ export default function DocsShell({
       <DocsBreadcrumbJsonLd breadcrumbs={breadcrumbs} labels={breadcrumbLabels} />
 
       <header className="azure-light-glass sticky top-0 z-10">
-        <div className="px-4 md:px-5 py-3 sm:py-4 flex items-center justify-between gap-2">
+        <div className="flex w-full items-center justify-between gap-2 px-4 py-3 md:px-5 sm:py-4">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
@@ -59,10 +63,30 @@ export default function DocsShell({
                   </svg>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 p-4 pt-6 azure-light">
+              <SheetContent side="left" className="w-72 overflow-y-auto p-4 pt-6 azure-light">
                 <SheetHeader className="mb-4">
                   <SheetTitle>{t("docs.title")}</SheetTitle>
                 </SheetHeader>
+                <nav aria-label="Do Worker" className="mb-5 grid border-b pb-5">
+                  {marketingRoutes.map((route) => {
+                    const active = isMarketingRouteActive(pathname, route.href);
+                    return (
+                      <Link
+                        key={route.id}
+                        href={route.href}
+                        aria-current={active ? "page" : undefined}
+                        onClick={() => setMobileOpen(false)}
+                        className={`py-2 text-sm font-medium ${
+                          active
+                            ? "text-[var(--azure-light-cyan-ink)]"
+                            : "text-[var(--azure-light-ink-muted)]"
+                        }`}
+                      >
+                        {t(route.labelKey)}
+                      </Link>
+                    );
+                  })}
+                </nav>
                 <DocsSidebarNav onNavigate={() => setMobileOpen(false)} />
               </SheetContent>
             </Sheet>
@@ -79,13 +103,26 @@ export default function DocsShell({
               Docs
             </span>
           </div>
+          <nav aria-label="Do Worker" className="hidden items-center gap-4 lg:flex">
+            {marketingRoutes.map((route) => {
+              const active = isMarketingRouteActive(pathname, route.href);
+              return (
+                <Link
+                  key={route.id}
+                  href={route.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`border-b py-1 text-xs font-semibold transition-colors ${
+                    active
+                      ? "border-[var(--azure-light-cyan-ink)] text-[var(--azure-light-ink)]"
+                      : "border-transparent text-[var(--azure-light-ink-muted)] hover:text-[var(--azure-light-ink)]"
+                  }`}
+                >
+                  {t(route.labelKey)}
+                </Link>
+              );
+            })}
+          </nav>
           <div className="flex items-center gap-3 sm:gap-5 flex-shrink-0">
-            <Link
-              href="/docs"
-              className="hidden sm:block text-sm font-medium text-[var(--azure-light-ink-muted)] hover:text-[var(--azure-light-ink)] transition-colors"
-            >
-              {t("landing.nav.docs")}
-            </Link>
             <LightAuthButtons consoleVariant="outline" />
           </div>
         </div>

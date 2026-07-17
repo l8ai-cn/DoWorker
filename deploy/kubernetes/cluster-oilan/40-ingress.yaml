@@ -5,6 +5,8 @@ metadata:
   namespace: agentsmesh
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx
@@ -115,10 +117,10 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts: ["admin.dowork.l8ai.cn"]
+    - hosts: ["admin.l8ai.cn"]
       secretName: l8ai-wildcard-tls
   rules:
-    - host: admin.dowork.l8ai.cn
+    - host: admin.l8ai.cn
       http:
         paths:
           - path: /
@@ -183,35 +185,3 @@ spec:
                 name: relay
                 port:
                   number: 8090
-          - path: /preview
-            pathType: Prefix
-            backend:
-              service:
-                name: relay
-                port:
-                  number: 8090
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: agentsmesh-minio
-  namespace: agentsmesh
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "0"
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-spec:
-  ingressClassName: nginx
-  tls:
-    - hosts: ["minio.dowork.l8ai.cn"]
-      secretName: l8ai-wildcard-tls
-  rules:
-    - host: minio.dowork.l8ai.cn
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: minio
-                port:
-                  number: 9000

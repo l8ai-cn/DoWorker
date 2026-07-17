@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "worker_slug": "cursor-cli",
+  "validated_at": "2026-07-12T18:55:35Z",
+  "image": "do-worker/runner-cursor-cli:latest",
+  "platform": "linux/amd64",
+  "build_command": "FORCE_REBUILD=1 BUILD_RETRIES=1 bash docker/agent-runtime/build.sh cursor-cli",
+  "smoke_command": "docker run --rm --platform linux/amd64 --entrypoint agent do-worker/runner-cursor-cli:latest --version",
+  "checks": {
+    "cli_path": "/usr/local/bin/agent",
+    "cli_version": "2026.07.09-a3815c0",
+    "cursor_runtime_tree": "/opt/cursor-agent",
+    "adapter_unit_test": "go test ./runner/internal/agents/cursor -run '^TestCursorRegistered$' -count=1"
+  },
+  "verdict": "runtime_smoke_verified",
+  "limits": [
+    "No CURSOR_API_KEY authentication, Runner create request, or browser flow was executed."
+  ]
+}

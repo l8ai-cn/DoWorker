@@ -20,7 +20,7 @@ export function Step5PodSection() {
         <p className="text-sm text-muted-foreground mt-4">
           <LinkInText
             raw={t.raw("docs.gettingStarted.step5.seeSetup")}
-            linkHref="/docs/tutorials/first-pod"
+            linkHref="/docs/tutorials/first-worker"
             linkLabel={t("docs.nav.tutorialFirstPod")}
           />
         </p>

@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Menu, X } from "lucide-react";
 import { LanguageSwitcher } from "@/components/i18n";
-import { LightAuthButtons as AuthButtons, Logo } from "@/components/common";
+import { LightAuthButtons as AuthButtons } from "@/components/common/LightAuthButtons";
+import { Logo } from "@/components/common/Logo";
 import { useTranslations } from "next-intl";
+import { isMarketingRouteActive, marketingRoutes } from "./marketing-routes";
 
 const GITHUB_URL = "https://github.com/l8ai-cn/DoWorker";
 
@@ -17,18 +21,15 @@ function GithubIcon() {
 }
 
 export function Navbar() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const t = useTranslations();
 
-  const navLinks = [
-    { href: "/#scenarios", label: t("landing.nav.scenarios") },
-    { href: "/#lifecycle", label: t("landing.nav.workflow") },
-    { href: "/#features", label: t("landing.nav.capabilities") },
-    { href: "/marketplace", label: t("landing.nav.marketplace") },
-    { href: "/#pricing", label: t("landing.nav.pricing") },
-    { href: "/docs", label: t("landing.nav.docs") },
-  ];
+  const navLinks = marketingRoutes.map(({ href, labelKey }) => ({
+    href,
+    label: t(labelKey),
+  }));
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -36,46 +37,52 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const collapsedRadius = isMobileMenuOpen ? "rounded-3xl" : "rounded-full";
-  const containerStyle = isMobileMenuOpen
-    ? "bg-[var(--azure-bg-high)]/95 backdrop-blur-xl shadow-[var(--shadow-panel)]"
+  const surfaceStyle = isMobileMenuOpen
+    ? "bg-[var(--expert-bg)]"
     : isScrolled
-      ? "azure-glass azure-glow-cyan-lg"
-      : "bg-transparent";
+      ? "bg-[var(--expert-bg)]/95 backdrop-blur-xl"
+      : "bg-[var(--expert-bg)]/85 backdrop-blur-md";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-4 pt-4 sm:pt-6">
-      <div
-        className={`mx-auto max-w-6xl ${collapsedRadius} px-5 sm:px-7 py-3 transition-all duration-300 ${containerStyle}`}
-      >
+    <nav className={`fixed left-0 right-0 top-0 z-50 border-b transition-colors ${surfaceStyle} ${isScrolled || isMobileMenuOpen ? "border-white/10" : "border-transparent"}`}>
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg overflow-hidden">
               <Logo />
             </div>
-            <span className="font-headline text-lg font-bold tracking-tighter text-[var(--azure-cyan)]">
+            <span className="text-lg font-semibold text-white">
               Do Worker
             </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="font-headline text-xs uppercase tracking-[0.18em] text-[var(--azure-text-muted)] hover:text-[var(--azure-cyan)] transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="hidden items-center gap-5 xl:flex">
+            {navLinks.map((link) => {
+              const active = isMarketingRouteActive(pathname, link.href);
+              const className = `border-b py-1 text-xs font-semibold transition-colors ${
+                active
+                  ? "border-[var(--expert-action)] text-white"
+                  : "border-transparent text-[var(--expert-muted)] hover:border-[var(--expert-action)] hover:text-white"
+              }`;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  className={className}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden items-center gap-4 xl:flex">
             <a
               href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[var(--azure-text-muted)] hover:text-[var(--azure-cyan)] transition-colors"
+              className="text-[var(--expert-muted)] transition-colors hover:text-white"
               aria-label="GitHub"
             >
               <GithubIcon />
@@ -85,48 +92,53 @@ export function Navbar() {
           </div>
 
           <button
-            className="md:hidden p-2 text-[var(--azure-text-muted)]"
+            className="flex h-11 w-11 items-center justify-center text-[var(--expert-muted)] xl:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label={t("landing.nav.toggleMenu")}
+            aria-expanded={isMobileMenuOpen}
           >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              {isMobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
 
         {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 pt-4 border-t border-white/5 flex flex-col gap-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="font-headline text-xs uppercase tracking-[0.18em] text-[var(--azure-text-muted)] hover:text-[var(--azure-cyan)] transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="flex flex-col gap-3 pt-3 border-t border-white/5">
+          <div className="mt-4 flex max-h-[calc(100dvh-5rem)] flex-col gap-1 overflow-y-auto border-t border-white/10 pt-3 xl:hidden">
+            {navLinks.map((link) => {
+              const active = isMarketingRouteActive(pathname, link.href);
+              const className = `border-b border-white/8 py-3 text-sm font-semibold transition-colors ${
+                active
+                  ? "text-[var(--expert-action)]"
+                  : "text-[var(--expert-muted)] hover:text-white"
+              }`;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  className={className}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+            <div className="mt-2 flex flex-col gap-3 pt-3">
               <a
                 href={GITHUB_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-[var(--azure-text-muted)] hover:text-[var(--azure-cyan)] transition-colors"
+                className="flex items-center gap-2 text-sm text-[var(--expert-muted)] transition-colors hover:text-white"
               >
                 <GithubIcon />
                 GitHub
               </a>
               <div className="flex items-center justify-between py-1">
-                <span className="text-sm text-[var(--azure-text-muted)]">{t("landing.nav.language")}</span>
+                <span className="text-sm text-[var(--expert-muted)]">{t("landing.nav.language")}</span>
                 <LanguageSwitcher variant="full" />
               </div>
               <AuthButtons
                 size="sm"
+                showRegister
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="flex flex-col gap-2 [&_button]:w-full"
               />

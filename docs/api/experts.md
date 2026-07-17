@@ -1,42 +1,91 @@
 # Experts API
 
-Experts are reusable worker configuration templates. Each expert stores agent, runner, repository, prompt, skills, knowledge mounts, and env bundles. Running an expert creates a new worker (pod) with that configuration.
+Expert 有两个明确合同：
 
-## Scopes
+| 路径 | 用途 | 资源关联 |
+| --- | --- | --- |
+| Resource Connect API | 产品 UI 与 typed 客户端 | 固定 Expert revision、WorkerTemplate、Prompt 和 WorkerSpec 快照 |
+| External REST API | 现有 API-key 集成 | 直接操作历史 Expert 领域合同 |
+
+两条路径不是字段兼容层。Resource Apply 失败时不会改走 External REST。
+
+## Resource-native Expert
+
+声明：
+
+```yaml
+apiVersion: agentsmesh.io/v1alpha1
+kind: Expert
+metadata:
+  name: code-review-expert
+  namespace: acme
+  displayName: Code Review Expert
+spec:
+  workerTemplateRef:
+    kind: WorkerTemplate
+    name: codex-reviewer
+  promptRef:
+    kind: Prompt
+    name: code-review
+  description: Reviews changes and returns findings with evidence.
+  category: engineering
+  releaseNotes: Initial resource-native revision.
+```
+
+调用顺序：
+
+```text
+ValidateResource
+PlanResource
+ApplyExpertPlan
+```
+
+`ApplyExpertPlan` 返回 resource、`expert_id`、`worker_spec_snapshot_id` 和
+`resource_revision`。Plan 固定 WorkerTemplate 与 Prompt 的 uid、revision 和
+digest；Apply 后 Expert 投影使用固定 WorkerSpec 快照。
+
+完整协议见[资源编排 API](orchestration-resources.md)。
+
+## External REST
+
+Base path：
+
+```text
+/api/v1/ext/orgs/{org_slug}/experts
+```
+
+### Scopes
 
 | Scope | Access |
-|-------|--------|
+| --- | --- |
 | `experts:read` | List and get experts |
 | `experts:write` | Create, update, delete, run experts |
-| `pods:read` / `pods:write` | Accepted as fallback for read/write |
+| `pods:read` / `pods:write` | Existing compatibility scopes accepted by this API |
 
-## Endpoints
+### List
 
-Base path: `/api/v1/ext/orgs/{org_slug}/experts`
-
-### List experts
-
-```
+```http
 GET /experts?limit=50&offset=0
 ```
 
-### Get expert
+### Get
 
-```
+```http
 GET /experts/{slug}
 ```
 
-### Create expert
+### Create
 
-```
+```http
 POST /experts
+Content-Type: application/json
 ```
 
 ```json
 {
   "name": "Code review assistant",
   "slug": "code-review-assistant",
-  "agent_slug": "codex",
+  "agent_slug": "codex-cli",
   "runner_id": 1,
   "repository_id": 42,
   "branch_name": "main",
@@ -50,24 +99,27 @@ POST /experts
 }
 ```
 
-### Update expert
+该请求不创建 `orchestration_resources` revision，也不经过 Resource Plan。
 
-```
+### Update
+
+```http
 PATCH /experts/{slug}
 ```
 
-Partial update — only include fields to change.
+只提交需要修改的字段。
 
-### Delete expert
+### Delete
 
-```
+```http
 DELETE /experts/{slug}
 ```
 
-### Run expert
+### Run
 
-```
+```http
 POST /experts/{slug}/run
+Content-Type: application/json
 ```
 
 ```json
@@ -80,21 +132,15 @@ POST /experts/{slug}/run
 }
 ```
 
-Response `201`:
+成功响应为 `201`，并返回正在初始化的 Pod。
 
-```json
-{
-  "pod": { "pod_key": "...", "status": "initializing" }
-}
-```
+## Publish from Worker
 
-## Publish from worker (session auth only)
+Session-authenticated Worker 可以发布历史 Expert：
 
-```
+```http
 POST /api/v1/orgs/{org_slug}/pods/{pod_key}/publish-expert
 ```
-
-Copies runtime fields from the worker record. Pass skills, knowledge mounts, and env bundles in the body when they are not persisted on the pod.
 
 ```json
 {
@@ -104,3 +150,55 @@ Copies runtime fields from the worker record. Pass skills, knowledge mounts, and
   "knowledge_mounts": [{ "slug": "team-docs" }]
 }
 ```
+
+该接口复制 Worker 运行字段，不等同于 `ApplyExpertPlan`。需要 resource-native
+Expert 时，应先声明并 Apply WorkerTemplate、Prompt 和 Expert。
+
+## Expert marketplace
+
+Marketplace releases snapshot the expert WorkerSpec and every referenced Skill
+package. Installing or upgrading never resolves mutable source rows.
+
+Session-authenticated organization endpoints:
+
+```text
+POST /api/v1/orgs/{org_slug}/experts/{expert_slug}/market-submissions
+GET  /api/v1/orgs/{org_slug}/marketplace/submissions
+POST /api/v1/orgs/{org_slug}/marketplace/releases/{release_id}/withdraw
+GET  /api/v1/orgs/{org_slug}/experts/{expert_slug}/market-upgrade
+POST /api/v1/orgs/{org_slug}/experts/{expert_slug}/market-upgrade
+POST /api/v1/orgs/{org_slug}/marketplace/experts/{application_slug}/install
+```
+
+Submission metadata includes `slug`, `summary`, `description`, `category`,
+`icon`, `tags`, and `outcomes`. Only organization members may submit their
+organization's experts. A release remains unavailable to installers until a
+system administrator approves it in the Admin Console.
+
+Installed experts retain their source application and release IDs. Upgrades are
+explicit and atomically replace the installed expert with the latest published
+release snapshot.
+
+## Operator video catalog
+
+The backend command below idempotently creates six platform-owned video Skills
+and four software-delivery Skills, creates the three video source experts,
+submits their releases, and approves them:
+
+```bash
+backend bootstrap-marketplace \
+  --organization <publisher-org-slug> \
+  --publisher <publisher-email> \
+  --reviewer <system-admin-email> \
+  --model-resource-id <model-resource-id> \
+  --runtime-image-id <video-studio-runtime-image-id>
+```
+
+The publisher must be an active member of the organization. The reviewer must
+be an active system administrator. Existing catalog content must match the
+embedded operator catalog exactly; drift stops the command with a conflict
+instead of overwriting marketplace data.
+
+Run this provisioning command before enabling platform-owned Marketplace
+experts. Their immutable runtime snapshots reference these active platform
+Skills and installation rejects missing or drifted dependencies.

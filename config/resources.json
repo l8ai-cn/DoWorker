@@ -1,0 +1,53 @@
+{
+  "schema": "dosuite.skill-resources.v1",
+  "product": "DoSql",
+  "projectId": "agentsmesh",
+  "defaultDoopsTarget": {
+    "name": "local-docker",
+    "cluster": "local",
+    "instance": "agentsmesh-main"
+  },
+  "environmentMap": {
+    "dev": {
+      "alias": [
+        "local",
+        "docker",
+        "agentsmesh-main"
+      ],
+      "doopsTarget": "local-docker",
+      "note": "Local Docker development environment only."
+    }
+  },
+  "resources": [
+    {
+      "id": "db_agentsmesh_dev_postgres",
+      "name": "agentsmesh-dev-postgres",
+      "kind": "PostgreSQL",
+      "environmentId": "dev",
+      "logicalEndpoint": "postgresql://postgres/agentsmesh",
+      "host": "postgres",
+      "port": 5432,
+      "databaseName": "agentsmesh",
+      "doopsTarget": "local-docker",
+      "connectionRef": "docker-compose://deploy/dev/postgres#db=agentsmesh",
+      "secretRef": "container-env://postgres#POSTGRES_PASSWORD",
+      "owner": "agentsmesh",
+      "status": "registered",
+      "risk": "development",
+      "tags": [
+        "agentsmesh",
+        "dev",
+        "docker",
+        "postgres"
+      ],
+      "aliases": [
+        "agentsmesh postgres",
+        "agentsmesh dev db",
+        "local agentsmesh"
+      ],
+      "note": "Local PostgreSQL for AgentsMesh development. Mutations require a DoSQL journal and post-change verification.",
+      "registeredAssetId": "db_agentsmesh_dev_postgres",
+      "displayName": "AgentsMesh Dev PostgreSQL"
+    }
+  ]
+}

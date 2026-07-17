@@ -7,6 +7,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/runner/internal/agentkit"
 	"github.com/anthropics/agentsmesh/runner/internal/agents/codex"
+	"github.com/anthropics/agentsmesh/runner/internal/agents/openclaw"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
 )
 
@@ -29,30 +30,30 @@ func (b *PodBuilder) prepareAgentHome(sandboxRoot, workDir string) error {
 	log.Info("Preparing agent home", "pod_key", b.cmd.PodKey, "env_var", spec.EnvVar, "path", agentHome)
 
 	home := userHomeDir()
+	targetDir := agentHome
+	if spec.EnvVar == "OPENCLAW_HOME" {
+		targetDir = filepath.Join(agentHome, ".openclaw")
+	}
 	if home != "" {
 		userDir := filepath.Join(home, spec.UserDirName)
 		if dirExists(userDir) {
-			if err := copyDirSelective(userDir, agentHome); err != nil {
+			if err := copyDirSelective(userDir, targetDir); err != nil {
 				log.Warn("Failed to copy user agent dir, creating empty",
-					"source", userDir, "dest", agentHome, "error", err)
-				_ = os.RemoveAll(agentHome)
-				if mkErr := os.MkdirAll(agentHome, 0755); mkErr != nil {
+					"source", userDir, "dest", targetDir, "error", err)
+				_ = os.RemoveAll(targetDir)
+				if mkErr := os.MkdirAll(targetDir, 0755); mkErr != nil {
 					return fmt.Errorf("failed to create agent home: %w", mkErr)
 				}
 			}
 		} else {
-			if err := os.MkdirAll(agentHome, 0755); err != nil {
+			if err := os.MkdirAll(targetDir, 0755); err != nil {
 				return fmt.Errorf("failed to create agent home: %w", err)
 			}
 		}
 	} else {
-		if err := os.MkdirAll(agentHome, 0755); err != nil {
+		if err := os.MkdirAll(targetDir, 0755); err != nil {
 			return fmt.Errorf("failed to create agent home: %w", err)
 		}
-	}
-
-	if spec.MergeConfig == nil {
-		return nil
 	}
 
 	// Find matching config file in FilesToCreate and merge
@@ -60,7 +61,7 @@ func (b *PodBuilder) prepareAgentHome(sandboxRoot, workDir string) error {
 	for i, f := range b.cmd.FilesToCreate {
 		resolvedPath := b.resolvePath(f.Path, sandboxRoot, workDir)
 		parentDir := filepath.Dir(resolvedPath)
-		if parentDir == agentHome && !f.IsDirectory {
+		if parentDir == targetDir && !f.IsDirectory && spec.MergeConfig != nil {
 			mergeIdx = i
 			break
 		}
@@ -78,7 +79,7 @@ func (b *PodBuilder) prepareAgentHome(sandboxRoot, workDir string) error {
 	}
 
 	if spec.EnvVar == "CODEX_HOME" {
-		configPath := filepath.Join(agentHome, "config.toml")
+		configPath := filepath.Join(targetDir, "config.toml")
 		baseURL := ""
 		model := ""
 		if b.cmd.EnvVars != nil {
@@ -93,6 +94,18 @@ func (b *PodBuilder) prepareAgentHome(sandboxRoot, workDir string) error {
 		}
 		if err := codex.AppendCodexProjectTrust(configPath, workDir); err != nil {
 			log.Warn("Failed to trust codex workspace paths", "path", configPath, "error", err)
+		}
+	}
+
+	if spec.EnvVar == "OPENCLAW_HOME" {
+		configPath := filepath.Join(targetDir, "openclaw.json")
+		if err := openclaw.ApplyOpenAIProviderFromEnv(
+			configPath,
+			workDir,
+			b.cmd.EnvVars["OPENAI_BASE_URL"],
+			b.cmd.EnvVars["OPENAI_MODEL"],
+		); err != nil {
+			return fmt.Errorf("prepare openclaw provider config: %w", err)
 		}
 	}
 

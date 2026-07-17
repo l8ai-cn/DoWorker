@@ -1,0 +1,13 @@
+AGENT mmx
+EXECUTABLE mmx
+MODE pty
+CONFIG model STRING = ""
+CONFIG base_url STRING = ""
+ENV MINIMAX_API_KEY SECRET OPTIONAL
+PROMPT_POSITION append
+arg "text"
+arg "chat"
+arg "--model" config.model when config.model != ""
+arg "--base-url" config.base_url when config.base_url != ""
+arg "--non-interactive"
+arg "--message"

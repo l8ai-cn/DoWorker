@@ -43,6 +43,7 @@ type RegisterCatalogVersionCommand struct {
 	SourceRevision string
 	ContentDigest  string
 	Manifest       json.RawMessage
+	Compatibility  json.RawMessage
 	ActorUserID    int64
 }
 
@@ -104,6 +105,7 @@ func (s *CatalogRegistrationService) RegisterVersion(
 		command.SourceRevision,
 		command.ContentDigest,
 		command.Manifest,
+		command.Compatibility,
 		command.ActorUserID,
 	)
 	if err != nil {

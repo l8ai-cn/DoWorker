@@ -5,12 +5,154 @@ package proto.goalloop.v1;
 option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/goalloop/v1;goalloopv1";
 
 service GoalLoopService {
+  rpc ListWorkerSnapshots(ListWorkerSnapshotsRequest) returns (ListWorkerSnapshotsResponse);
+  rpc CompileLoopProgram(CompileLoopProgramRequest) returns (CompileLoopProgramResponse);
+  rpc GenerateLoopProgram(GenerateLoopProgramRequest) returns (CompileLoopProgramResponse);
+  rpc RepairLoopProgram(RepairLoopProgramRequest) returns (RepairLoopProgramResponse);
+  rpc RunLoopProgram(RunLoopProgramRequest) returns (GoalLoop);
   rpc ListGoalLoops(ListGoalLoopsRequest) returns (ListGoalLoopsResponse);
   rpc GetGoalLoop(GetGoalLoopRequest) returns (GoalLoop);
   rpc CreateGoalLoop(CreateGoalLoopRequest) returns (GoalLoop);
   rpc StartGoalLoop(GoalLoopActionRequest) returns (GoalLoop);
   rpc VerifyGoalLoop(GoalLoopActionRequest) returns (GoalLoop);
   rpc CancelGoalLoop(GoalLoopActionRequest) returns (GoalLoop);
+}
+
+message WorkerSnapshot {
+  int64 id = 1;
+  string alias = 2;
+  string worker_type = 3;
+  string created_at = 4;
+}
+
+message ListWorkerSnapshotsRequest {
+  string org_slug = 1;
+}
+
+message ListWorkerSnapshotsResponse {
+  repeated WorkerSnapshot items = 1;
+}
+
+message LoopNodeIdentity {
+  string node_id = 1;
+  string local_id = 2;
+}
+
+message LoopLimits {
+  int64 iterations = 1;
+  int64 tokens = 2;
+  int64 timeout_minutes = 3;
+  int64 no_progress = 4;
+  int64 same_error = 5;
+}
+
+message LoopReference {
+  string local_id = 1;
+  string field = 2;
+}
+
+message LoopAgentNode {
+  LoopNodeIdentity identity = 1;
+  reserved 2;
+  reserved "worker_ref";
+  string prompt = 3;
+}
+
+message LoopVerifierNode {
+  LoopNodeIdentity identity = 1;
+  string command = 2;
+  string accept = 3;
+}
+
+message LoopRepeatNode {
+  LoopNodeIdentity identity = 1;
+  int64 max = 2;
+  LoopReference until = 3;
+  LoopAgentNode agent = 4;
+  LoopVerifierNode verifier = 5;
+}
+
+message LoopProgram {
+  int32 schema_version = 1;
+  LoopNodeIdentity loop = 2;
+  reserved 3;
+  reserved "worker";
+  LoopLimits limits = 4;
+  LoopRepeatNode repeat = 5;
+  string failure_policy = 6;
+}
+
+message LoopDiagnostic {
+  string code = 1;
+  string message = 2;
+  string node_id = 3;
+  int32 line = 4;
+  int32 column = 5;
+  string field_path = 6;
+}
+
+message CompileLoopProgramRequest {
+  string org_slug = 1;
+  string source = 2;
+  uint64 revision = 3;
+}
+
+message CompileLoopProgramResponse {
+  string canonical_source = 1;
+  LoopProgram program = 2;
+  repeated LoopDiagnostic diagnostics = 3;
+  uint64 revision = 4;
+}
+
+message GenerateLoopProgramRequest {
+  string org_slug = 1;
+  string prompt = 2;
+  string current_source = 3;
+  int64 model_resource_id = 4;
+  string locale = 5;
+  uint64 revision = 6;
+}
+
+message RepairLoopProgramRequest {
+  string org_slug = 1;
+  string source = 2;
+  int64 model_resource_id = 3;
+  string locale = 4;
+  uint64 revision = 5;
+  string diagnostic_code = 6;
+  string node_id = 7;
+  string field_path = 8;
+  string prompt = 9;
+}
+
+message LoopIntegerPatch {
+  string node_id = 1;
+  string field_path = 2;
+  int64 old_value = 3;
+  int64 new_value = 4;
+}
+
+message RepairLoopProgramResponse {
+  CompileLoopProgramResponse proposal = 1;
+  LoopIntegerPatch patch = 2;
+}
+
+message RunLoopProgramRequest {
+  string org_slug = 1;
+  string source = 2;
+  int64 worker_spec_snapshot_id = 3;
+}
+
+message LoopDraftSnapshot {
+  string source = 1;
+  string canonical_source = 2;
+  LoopProgram program = 3;
+  repeated LoopDiagnostic diagnostics = 4;
+  string parse_status = 5;
+  string active_editor = 6;
+  uint64 revision = 7;
+  uint64 semantic_revision = 8;
+  GoalLoop run = 9;
 }
 
 message GoalLoop {

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { marketingRoutes } from "@/components/landing/marketing-routes";
 import { getAllPosts } from "@/lib/blog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -81,6 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const docPages = [
     "", "/getting-started", "/concepts", "/faq",
+    "/concepts/resource-orchestration",
     "/features/agentpod", "/features/channels", "/features/workflows",
     "/features/mesh", "/features/repositories", "/features/tickets",
     "/features/workspace",
@@ -96,6 +98,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const marketingPages: MetadataRoute.Sitemap = marketingRoutes
+    .filter(({ href }) => href !== "/" && href !== "/docs")
+    .map(({ href }) => ({
+      url: `${baseUrl}${href}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    }));
+
   const blogPosts = await getAllPosts("en");
   const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
@@ -104,5 +115,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticPages, ...docPages, ...blogPages];
+  return [...staticPages, ...marketingPages, ...docPages, ...blogPages];
 }

@@ -93,6 +93,64 @@ func TestModeNormal_NaturalExit_NoZombie(t *testing.T) {
 	}
 }
 
+type immediateLifecycleHandle struct {
+	Handle
+	start func()
+}
+
+func (p *immediateLifecycleHandle) startLifecycle() {
+	p.start()
+}
+
+func TestStartTracking_RegistersBeforeLifecycle(t *testing.T) {
+	resetMetricsForTest()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	mgr := newManager(ctx, Options{}.withDefaults())
+	process := &normalProcess{cmdProcess: &cmdProcess{
+		baseProcess: newBaseProcess("test:immediate-exit", ModeNormal, 1),
+		mgr:         mgr,
+	}}
+	p := &immediateLifecycleHandle{Handle: process}
+	p.start = func() {
+		if list := mgr.List(); len(list) != 1 || list[0] != p {
+			t.Fatalf("expected process registered before lifecycle start, got %#v", list)
+		}
+		mgr.unregister(p)
+		process.setExit(ExitInfo{})
+	}
+
+	mgr.startTracking(p)
+
+	if list := mgr.List(); len(list) != 0 {
+		t.Fatalf("expected registry empty after immediate exit, got %d entries", len(list))
+	}
+	metrics := currentMetrics(0)
+	if metrics.StartedTotal[ModeNormal.String()] != 1 {
+		t.Fatalf("expected one start observation, got %#v", metrics.StartedTotal)
+	}
+	if metrics.ExitedTotal[ModeNormal.String()] != 1 {
+		t.Fatalf("expected one exit observation, got %#v", metrics.ExitedTotal)
+	}
+}
+
+func TestRegister_DoesNotRetainExitedProcess(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	mgr := newManager(ctx, Options{}.withDefaults())
+	p := &normalProcess{cmdProcess: &cmdProcess{
+		baseProcess: newBaseProcess("test:already-exited", ModeNormal, 1),
+		mgr:         mgr,
+	}}
+	p.setExit(ExitInfo{})
+
+	mgr.register(p)
+
+	if list := mgr.List(); len(list) != 0 {
+		t.Fatalf("expected exited process to stay unregistered, got %d entries", len(list))
+	}
+}
+
 func TestModeNormal_Stop_KillsAndReaps(t *testing.T) {
 	mgr := newTestManager(t)
 	cmd, args := sleepCommand(t)

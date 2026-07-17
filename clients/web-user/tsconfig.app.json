@@ -23,6 +23,7 @@
 
     /* Path aliases */
     "paths": {
+      "@do-worker/agent-ui": ["../../packages/agent-ui/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },

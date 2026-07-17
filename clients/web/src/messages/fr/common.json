@@ -6,7 +6,8 @@
     "close": "Close",
     "expand": "Expand",
     "collapse": "Collapse",
-    "htmlDocument": "HTML document"
+    "htmlDocument": "HTML document",
+    "popupBlocked": "Le navigateur a bloqué la fenêtre d’aperçu."
   },
   "common": {
     "loading": "Chargement...",

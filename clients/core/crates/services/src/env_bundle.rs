@@ -79,7 +79,10 @@ impl EnvBundleService {
         Ok(resp.encode_to_vec())
     }
 
-    pub async fn set_primary_env_bundle_connect(&self, request_bytes: &[u8]) -> Result<Vec<u8>, String> {
+    pub async fn set_primary_env_bundle_connect(
+        &self,
+        request_bytes: &[u8],
+    ) -> Result<Vec<u8>, String> {
         let req = eb_proto::SetPrimaryEnvBundleRequest::decode(request_bytes)
             .map_err(|e| format!("decode set_primary_env_bundle request: {e}"))?;
         tracing::info!(target: "env_bundle", env_bundle_id = req.id, "set primary env bundle");

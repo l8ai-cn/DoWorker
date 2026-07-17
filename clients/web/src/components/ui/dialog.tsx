@@ -10,6 +10,7 @@ interface DialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
+  overlayClassName?: string;
 }
 
 interface DialogContentProps {
@@ -19,7 +20,7 @@ interface DialogContentProps {
   description?: string;
 }
 
-export function Dialog({ open, onOpenChange, children }: DialogProps) {
+export function Dialog({ open, onOpenChange, children, overlayClassName }: DialogProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   useDialogFocus(open, overlayRef);
 
@@ -59,7 +60,10 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
     <div
       ref={overlayRef}
       data-dialog-overlay
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-overlay-in"
+      className={cn(
+        "fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-overlay-in",
+        overlayClassName
+      )}
       onClick={handleOverlayClick}
     >
       {children}

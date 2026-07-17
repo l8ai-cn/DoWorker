@@ -17,6 +17,7 @@ func TestDefaultDSNPrefersDatabaseURL(t *testing.T) {
 }
 
 func TestDefaultDSNBuildsFromDatabaseEnvironment(t *testing.T) {
+	t.Setenv("PREVIEW_PUBLIC_ORIGIN", "http://preview.example.test")
 	t.Setenv("DATABASE_URL", "")
 	t.Setenv("DB_HOST", "postgres")
 	t.Setenv("DB_PORT", "5433")

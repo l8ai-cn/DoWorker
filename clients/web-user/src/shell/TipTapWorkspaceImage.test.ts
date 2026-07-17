@@ -14,7 +14,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Editor } from "@tiptap/core";
 import { Markdown } from "@tiptap/markdown";
-import StarterKit from "@tiptap/starter-kit";
+import { StarterKit } from "@tiptap/starter-kit";
 import {
   createWorkspaceImageExtension,
   ImageAwareLink,
@@ -259,11 +259,15 @@ describe("node view", () => {
     },
   );
 
-  it("renders external URLs directly without hitting the filesystem API", () => {
+  it("loads external URLs only after explicit user activation", () => {
     editor = makeEditor("![badge](https://img.shields.io/badge/l.svg)");
-    const img = editor.view.dom.querySelector("img");
-    expect(img!.getAttribute("src")).toBe("https://img.shields.io/badge/l.svg");
+    const img = editor.view.dom.querySelector("img")!;
+    expect(img.getAttribute("src")).toBeNull();
     expect(fetchFileContent).not.toHaveBeenCalled();
+    const action = editor.view.dom.querySelector<HTMLElement>("[data-remote-image-action]");
+    expect(action?.textContent).toContain("badge");
+    action?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(img.getAttribute("src")).toBe("https://img.shields.io/badge/l.svg");
   });
 
   it("leaves src unset when the workspace fetch fails (alt-text fallback)", async () => {

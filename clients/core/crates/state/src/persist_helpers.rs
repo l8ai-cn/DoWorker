@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use agentsmesh_persistence::StorageBackend;
-use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 
 pub(crate) struct JsonStore {
     backend: Arc<dyn StorageBackend>,

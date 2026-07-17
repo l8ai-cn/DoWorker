@@ -8,6 +8,7 @@ import (
 
 	skilldom "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	extensionsvc "github.com/anthropics/agentsmesh/backend/internal/service/extension"
+	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 )
 
 // jsonMarshal indirection keeps importing.go free of encoding/json noise.
@@ -27,6 +28,9 @@ func (s *Service) SyncFromUpstream(ctx context.Context, orgID int64, slug string
 	if row.UpstreamURL == "" {
 		return nil, ErrNotImported
 	}
+	if _, err := ValidateTags(row.Tags); err != nil {
+		return nil, err
+	}
 
 	src, err := extensionsvc.CloneSkillSource(ctx, row.UpstreamURL, "", nil)
 	if err != nil {
@@ -45,4 +49,58 @@ func (s *Service) SyncFromUpstream(ctx context.Context, orgID int64, slug string
 		return nil, err
 	}
 	return s.refreshImportedSkill(ctx, row, src, info, files)
+}
+
+func prepareImportedSkillFiles(
+	slug string,
+	tags []string,
+	files []gitops.FileChange,
+) ([]gitops.FileChange, error) {
+	normalized, err := ValidateTags(tags)
+	if err != nil {
+		return nil, err
+	}
+	synced, err := preserveCuratorTags(files, slug, normalized)
+	if err != nil {
+		return nil, err
+	}
+	for _, file := range synced {
+		if file.Path == "skill.json" {
+			return synced, nil
+		}
+	}
+	return nil, errors.New("skill: synchronized skill.json is missing")
+}
+
+func preserveCuratorTags(files []gitops.FileChange, slug string, tags []string) ([]gitops.FileChange, error) {
+	normalized := []string(skilldom.NormalizeTags(tags))
+	synced := append([]gitops.FileChange(nil), files...)
+	for i := range synced {
+		if synced[i].Path != "skill.json" {
+			continue
+		}
+		content, err := replaceSkillConfigFields(synced[i].Content, map[string]any{
+			"schema": skillConfigSchema,
+			"slug":   slug,
+			"tags":   normalized,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("skill: synchronize skill.json: %w", err)
+		}
+		synced[i].Content = content
+		return synced, nil
+	}
+
+	content, err := json.MarshalIndent(skillConfig{
+		Schema: skillConfigSchema,
+		Slug:   slug,
+		Tags:   normalized,
+	}, "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("skill: render synchronized skill.json: %w", err)
+	}
+	return append(synced, gitops.FileChange{
+		Path:    "skill.json",
+		Content: append(content, '\n'),
+	}), nil
 }

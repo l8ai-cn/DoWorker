@@ -12,10 +12,11 @@ func TestACPClient_ReadStderr(t *testing.T) {
 	var logMessages []string
 
 	client := NewClient(ClientConfig{
-		Command: mockAgentCmd(),
-		Args:    mockAgentArgs(),
-		Env:     mockAgentEnv(),
-		Logger:  slog.Default(),
+		Command:       mockAgentCmd(),
+		Args:          mockAgentArgs(),
+		Env:           mockAgentEnv(),
+		Logger:        slog.Default(),
+		TransportType: TransportTypeACP,
 		Callbacks: EventCallbacks{
 			OnLog: func(level, message string) {
 				logMessages = append(logMessages, message)
@@ -34,10 +35,11 @@ func TestACPClient_ReadStderr(t *testing.T) {
 
 func TestACPClient_HandleAgentRequest(t *testing.T) {
 	client := NewClient(ClientConfig{
-		Command: mockAgentCmd(),
-		Args:    mockAgentArgs(),
-		Env:     mockAgentEnvWithMode(mockModeSendReq),
-		Logger:  slog.Default(),
+		Command:       mockAgentCmd(),
+		Args:          mockAgentArgs(),
+		Env:           mockAgentEnvWithMode(mockModeSendReq),
+		Logger:        slog.Default(),
+		TransportType: TransportTypeACP,
 	})
 	if err := client.Start(); err != nil {
 		t.Fatalf("Start: %v", err)

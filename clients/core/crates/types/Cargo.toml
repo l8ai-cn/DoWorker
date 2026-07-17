@@ -10,6 +10,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 agent_proto = { workspace = true }
 ai_resource_proto = { workspace = true }
+execution_cluster_proto = { workspace = true }
 apikey_proto = { workspace = true }
 app_state_proto = { workspace = true }
 auth_proto = { workspace = true }

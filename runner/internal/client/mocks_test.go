@@ -24,6 +24,9 @@ type mockHandler struct {
 	lastInputReq      PodInputRequest
 	lastSendPromptCmd *runnerv1.SendPromptCommand
 
+	sandboxFsStarted chan struct{}
+	sandboxFsRelease <-chan struct{}
+
 	pods []PodInfo
 }
 
@@ -117,8 +120,16 @@ func (h *mockHandler) OnUpdatePodPolicyRules(cmd *runnerv1.UpdatePodPolicyRulesC
 	return nil
 }
 
-func (h *mockHandler) OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error   { return nil }
-func (h *mockHandler) OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error { return nil }
+func (h *mockHandler) OnAcpRelay(cmd *runnerv1.AcpRelayCommand) error { return nil }
+func (h *mockHandler) OnSandboxFs(cmd *runnerv1.SandboxFsCommand) error {
+	if h.sandboxFsStarted != nil {
+		close(h.sandboxFsStarted)
+	}
+	if h.sandboxFsRelease != nil {
+		<-h.sandboxFsRelease
+	}
+	return nil
+}
 func (h *mockHandler) OnRunVerification(cmd *runnerv1.RunVerificationCommand) error {
 	return nil
 }

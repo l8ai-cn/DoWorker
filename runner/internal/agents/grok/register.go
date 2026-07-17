@@ -8,10 +8,10 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/tokenusage"
 )
 
-const TransportType = "grok-build"
+const TransportType = "grok-build-acp"
 
 func init() {
-	acp.RegisterAgent("grok", TransportType, func(cb acp.EventCallbacks, l *slog.Logger) acp.Transport {
+	acp.RegisterTransport(TransportType, func(cb acp.EventCallbacks, l *slog.Logger) acp.Transport {
 		return acp.NewACPTransportWithHandshakeHook(cb, l, authenticate)
 	})
 

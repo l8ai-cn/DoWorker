@@ -20,7 +20,6 @@ export default async function DownloadPage() {
     operatingSystem: "macOS, Windows, Linux",
     softwareVersion: release?.version,
     downloadUrl: release?.htmlUrl,
-    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
   };
 
   return (

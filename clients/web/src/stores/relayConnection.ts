@@ -125,8 +125,8 @@ class RelayConnectionPool {
     };
   }
 
-  sendAcpCommand(podKey: string, command: Record<string, unknown>): void {
-    void this.mgr().send_acp_command(podKey, JSON.stringify(command));
+  sendAcpCommand(podKey: string, command: Record<string, unknown>): Promise<void> {
+    return this.mgr().send_acp_command(podKey, JSON.stringify(command));
   }
 
   getStatus(podKey: string): ConnectionStatus | "none" {

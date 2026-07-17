@@ -11,6 +11,9 @@ import (
 )
 
 func toProto(loop *domain.GoalLoop) (*goalloopv1.GoalLoop, error) {
+	if loop == nil {
+		return nil, fmt.Errorf("goal loop is nil")
+	}
 	var criteria []string
 	if err := json.Unmarshal(loop.AcceptanceCriteria, &criteria); err != nil {
 		return nil, fmt.Errorf("decode acceptance criteria: %w", err)

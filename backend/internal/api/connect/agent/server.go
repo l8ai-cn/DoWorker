@@ -6,21 +6,21 @@
 //
 // Two services share the package because they live in the same proto file
 // (see proto/agent/v1/agent.proto):
-//   * AgentService           — org-scoped agent catalog + custom CRUD
-//   * UserAgentConfigService — user-scoped personal config per agent
+//   - AgentService           — org-scoped agent catalog + custom CRUD
+//   - UserAgentConfigService — user-scoped personal config per agent
 //
 // Handler shape follows runbook §3:
-//   * AgentService RPCs use interceptors.ResolveOrgScope (org_slug = 1).
-//   * UserAgentConfigService RPCs use requireUserID (conventions §3.5).
-//   * Single-entity get/create/update return the entity directly.
-//   * List response = §8 envelope EXCEPT AgentListResponse (§9 multi-field
+//   - AgentService RPCs use interceptors.ResolveOrgScope (org_slug = 1).
+//   - UserAgentConfigService RPCs use requireUserID (conventions §3.5).
+//   - Single-entity get/create/update return the entity directly.
+//   - List response = §8 envelope EXCEPT AgentListResponse (§9 multi-field
 //     exception) and UserAgentConfigListResponse (§9 sub-resource).
-//   * Errors map to Connect codes (conventions §10).
+//   - Errors map to Connect codes (conventions §10).
 package agentconnect
 
 import (
-	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
 )
 
 // AgentServiceName mirrors proto.agent.v1.AgentService exactly — Connect
@@ -51,10 +51,11 @@ const (
 // keeps the dep wiring simple. The REST handler does the same
 // (backend/internal/api/rest/v1/agents.go: AgentHandler).
 type Server struct {
-	agentSvc      *agentservice.AgentService
-	userConfigSvc *agentservice.UserConfigService
-	configBuilder *agentservice.ConfigBuilder
-	orgSvc        middleware.OrganizationService
+	agentSvc         *agentservice.AgentService
+	userConfigSvc    *agentservice.UserConfigService
+	configBuilder    *agentservice.ConfigBuilder
+	credentialFields agentservice.CredentialFieldSourceProvider
+	orgSvc           middleware.OrganizationService
 }
 
 // NewServer constructs a Server. The ConfigBuilder is built from agentSvc
@@ -64,11 +65,13 @@ func NewServer(
 	envBundleSvc agentservice.EnvBundleLoader,
 	userConfigSvc *agentservice.UserConfigService,
 	orgSvc middleware.OrganizationService,
+	credentialFields agentservice.CredentialFieldSourceProvider,
 ) *Server {
 	return &Server{
-		agentSvc:      agentSvc,
-		userConfigSvc: userConfigSvc,
-		configBuilder: agentservice.NewConfigBuilder(agentSvc, envBundleSvc),
-		orgSvc:        orgSvc,
+		agentSvc:         agentSvc,
+		userConfigSvc:    userConfigSvc,
+		configBuilder:    agentservice.NewConfigBuilder(agentSvc, envBundleSvc),
+		credentialFields: credentialFields,
+		orgSvc:           orgSvc,
 	}
 }

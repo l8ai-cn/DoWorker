@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "task_id": "establish-shared-contract",
+  "recorded_at": "2026-07-12T10:03:41Z",
+  "catalog": {
+    "definition_count": 12,
+    "catalog_sha256": "56ba311d9a99ff0990392866d5ab2128262f45a741a6fda1f0dc86079c22861e",
+    "schema_sha256": "3b3f118b3647873b2fd9b0b1fe8afa796ef6a7fda107a1ec83cf96e8779c2c9a"
+  },
+  "credential_contract": {
+    "permitted_sources": [
+      "model_resource",
+      "credential_bundle"
+    ],
+    "target_kind": "env",
+    "literal_values_rejected": true
+  },
+  "verification": [
+    {
+      "command": "go test ./backend/internal/config ./backend/internal/service/workerdefinition ./backend/cmd/server -count=1",
+      "exit_code": 0
+    },
+    {
+      "command": "bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-catalog-contract.sh",
+      "exit_code": 0
+    },
+    {
+      "command": "go build -o /tmp/do-worker-backend-verify ./backend/cmd/server",
+      "exit_code": 0
+    },
+    {
+      "command": "curl -fsS http://localhost:10015/health",
+      "exit_code": 0,
+      "result": "{\"service\":\"do-worker-api\",\"status\":\"ok\"}"
+    },
+    {
+      "command": "docker build -f backend/Dockerfile -t do-worker-backend-config-verify:local .",
+      "exit_code": 0
+    },
+    {
+      "command": "curl -fsS http://localhost:10018/health",
+      "exit_code": 0,
+      "result": "{\"service\":\"do-worker-api\",\"status\":\"ok\"}"
+    }
+  ]
+}

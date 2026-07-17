@@ -41,7 +41,7 @@ print_usage() {
   改动 backend / relay 源码: air 自动重编译
   仅重启前端:               ./dev.sh --frontends
   改动 runner 源码:         ./dev.sh --rebuild-runner
-  Hive 验收 (dev 栈已起):   bash deploy/dev/hive_smoke.sh
+  会话兼容验收 (dev 栈已起): bash deploy/dev/session_compat_smoke.sh
 
 前端日志: tail -f deploy/dev/web.log
 web-user 日志: tail -f deploy/dev/web-user.log
@@ -71,6 +71,10 @@ docker_compose_up() {
         && ! coordinator_runners_enabled \
         && ! runners_k8s_enabled; then
         up_services=(runner-e2e-echo runner-e2e-echo-2 runner-admin-workspace)
+    elif [[ -n "${DEV_LOCAL_WORKER_RUNTIME_SERVICES:-}" ]] \
+        && ! coordinator_runners_enabled \
+        && ! runners_k8s_enabled; then
+        read -r -a up_services <<<"$DEV_LOCAL_WORKER_RUNTIME_SERVICES"
     fi
     while [ $up_attempt -lt $up_max ]; do
         up_attempt=$((up_attempt + 1))
@@ -112,7 +116,7 @@ wait_for_postgres() {
 }
 
 runner_compose_services() {
-    echo runner-e2e-echo runner-e2e-echo-2 runner-claude-code runner-codex-cli runner-codex-cli-2 runner-gemini-cli runner-loopal runner-do-agent runner-grok-build runner-openclaw runner-hermes runner-aider runner-opencode runner-admin-workspace runner-admin-workspace-do-agent
+    echo runner-e2e-echo runner-e2e-echo-2 runner-claude-code runner-codex-cli runner-codex-cli-2 runner-cursor-cli runner-gemini-cli runner-loopal runner-do-agent runner-grok-build runner-minimax-cli runner-openclaw runner-hermes runner-aider runner-opencode runner-admin-workspace runner-admin-workspace-do-agent
 }
 
 # Kill stale runner CLI processes (in case anyone installed agentsmesh-runner

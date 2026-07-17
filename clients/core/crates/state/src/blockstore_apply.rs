@@ -1,4 +1,4 @@
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 
 use crate::blockstore_state::BlockstoreState;
 use crate::blockstore_types::{Block, BlockOp, BlockRef, OpKind};

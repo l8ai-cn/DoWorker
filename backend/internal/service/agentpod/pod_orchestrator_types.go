@@ -8,6 +8,7 @@ import (
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
 // OrchestrateCreatePodRequest is the unified Pod creation request (protocol-agnostic).
@@ -16,16 +17,18 @@ type OrchestrateCreatePodRequest struct {
 	OrganizationID int64
 	UserID         int64
 
-	RunnerID                 int64
-	AgentSlug                string
-	RepositoryID             *int64 // Platform-level ID (from AgentFile REPO slug resolution or resume inheritance)
-	TicketID                 *int64
-	TicketSlug               *string
-	Alias                    *string
-	AgentfileLayer           *string // SSOT for all CONFIG, MODE, PROMPT, REPO, BRANCH, USE_ENV_BUNDLE
-	WorkerSpecDraft          *workercreation.Draft
-	WorkerSpecSnapshotID     *int64
-	WorkerSpecPromptOverride *string
+	RunnerID                    int64
+	clusterID                   int64
+	AgentSlug                   string
+	RepositoryID                *int64 // Platform-level ID (from AgentFile REPO slug resolution or resume inheritance)
+	TicketID                    *int64
+	TicketSlug                  *string
+	Alias                       *string
+	AgentfileLayer              *string // SSOT for all CONFIG, MODE, PROMPT, REPO, BRANCH, USE_ENV_BUNDLE
+	WorkerSpecDraft             *workercreation.Draft
+	WorkerSpecSnapshotID        *int64
+	WorkerSpecPromptOverride    *string
+	OrchestrationWorkerLaunchID *int64
 	// AutomationLevel is the unified permission/automation tier requested at
 	// creation (interactive/auto_edit/autonomous). Empty ⇒ autonomous default.
 	// The orchestrator translates it into agent-native CONFIG/MODE layer lines.
@@ -74,7 +77,8 @@ type KnowledgeMountRequest struct {
 }
 
 type OrchestrateCreatePodResult struct {
-	Pod     *podDomain.Pod
-	Warning string
-	Queued  bool
+	Pod                   *podDomain.Pod
+	DeferredCreateCommand *runnerv1.CreatePodCommand
+	Warning               string
+	Queued                bool
 }

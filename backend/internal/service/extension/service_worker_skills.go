@@ -6,8 +6,46 @@ import (
 	"fmt"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/skill"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
+
+func (s *Service) GetWorkerSkillsByPackages(
+	ctx context.Context,
+	packages []specdomain.SkillPackageBinding,
+	_ string,
+) ([]*ResolvedSkill, error) {
+	if s == nil || s.storage == nil {
+		return nil, fmt.Errorf("%w: worker skill resolver is unavailable", ErrInvalidInput)
+	}
+	resolved := make([]*ResolvedSkill, 0, len(packages))
+	for _, pkg := range packages {
+		if pkg.SkillID <= 0 || pkg.Version <= 0 || pkg.PackageSize < 0 ||
+			pkg.ContentSHA == "" || pkg.StorageKey == "" {
+			return nil, fmt.Errorf("%w: pinned skill package is incomplete", ErrInvalidInput)
+		}
+		if err := slugkit.Validate(pkg.Slug); err != nil {
+			return nil, fmt.Errorf("%w: pinned skill slug: %v", ErrInvalidInput, err)
+		}
+		downloadURL, err := s.storage.GetInternalURL(
+			ctx,
+			pkg.StorageKey,
+			presignedURLExpiry,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("sign pinned worker skill %d: %w", pkg.SkillID, err)
+		}
+		resolved = append(resolved, &ResolvedSkill{
+			CatalogSkillID: pkg.SkillID,
+			Slug:           pkg.Slug,
+			ContentSha:     pkg.ContentSHA,
+			DownloadURL:    downloadURL,
+			PackageSize:    pkg.PackageSize,
+			TargetDir:      fmt.Sprintf("skills/%s", pkg.Slug),
+		})
+	}
+	return resolved, nil
+}
 
 func (s *Service) GetWorkerSkillsByIDs(
 	ctx context.Context,

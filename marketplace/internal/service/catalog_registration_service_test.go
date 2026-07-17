@@ -32,6 +32,7 @@ func TestCatalogRegistrationActivatesOnlyValidatedVersion(t *testing.T) {
 		SourceRevision: "git-sha",
 		ContentDigest:  strings.Repeat("a", 64),
 		Manifest:       []byte(`{"schema_version":"1"}`),
+		Compatibility:  []byte(`{"agents":["codex-cli"]}`),
 		ActorUserID:    14,
 	})
 	require.NoError(t, err)
@@ -79,6 +80,7 @@ func (r *catalogRepositoryStub) CreateCatalogVersion(
 		SourceRevision:          version.SourceRevision(),
 		ContentDigest:           version.ContentDigest(),
 		Manifest:                version.Manifest(),
+		Compatibility:           version.Compatibility(),
 		ValidationStatus:        catalog.ValidationPending,
 		CreatedByPlatformUserID: version.CreatedByPlatformUserID(),
 	}

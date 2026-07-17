@@ -210,7 +210,7 @@ export default function RunnerSetupTutorialPage() {
             </p>
           </Link>
           <Link
-            href="/docs/tutorials/first-pod"
+            href="/docs/tutorials/first-worker"
             className="surface-card-interactive p-4 block"
           >
             <p className="text-sm text-muted-foreground">

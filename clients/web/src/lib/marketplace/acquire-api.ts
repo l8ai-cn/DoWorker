@@ -38,6 +38,8 @@ export async function createInstallationPlan(
   listingSlug: string,
   listingVersionID: string,
   organizationID: number,
+  modelResourceID: number,
+  toolModelResourceIDs: Record<string, number>,
 ): Promise<InstallationPlan> {
   return marketplaceRequest(
     `/markets/${encodeURIComponent(marketSlug)}/listings/${encodeURIComponent(listingSlug)}/plans`,
@@ -46,7 +48,10 @@ export async function createInstallationPlan(
       body: JSON.stringify({
         listing_version_id: listingVersionID,
         target_platform_organization_id: String(organizationID),
-        requested_configuration: {},
+        requested_configuration: {
+          model_resource_id: modelResourceID,
+          tool_model_resource_ids: toolModelResourceIDs,
+        },
       }),
     },
   );

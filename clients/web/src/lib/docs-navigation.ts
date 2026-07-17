@@ -38,7 +38,7 @@ export const docsNavSections: DocNavSection[] = [
       },
       {
         titleKey: "docs.nav.tutorialFirstPod",
-        href: "/docs/tutorials/first-pod",
+        href: "/docs/tutorials/first-worker",
       },
       {
         titleKey: "docs.nav.tutorialTicketWorkflow",
@@ -58,10 +58,17 @@ export const docsNavSections: DocNavSection[] = [
     titleKey: "docs.nav.concepts",
     items: [
       { titleKey: "docs.nav.coreConcepts", href: "/docs/concepts" },
-      { titleKey: "docs.nav.agentpod", href: "/docs/features/agentpod" },
+      {
+        titleKey: "docs.nav.loopAndWorkflow",
+        href: "/docs/concepts/loop-and-workflow",
+      },
+      {
+        titleKey: "resourceOrchestration.navTitle",
+        href: "/docs/concepts/resource-orchestration",
+      },
+      { titleKey: "docs.nav.agentpod", href: "/docs/concepts/workers" },
       { titleKey: "docs.nav.workspace", href: "/docs/features/workspace" },
       { titleKey: "docs.nav.channels", href: "/docs/features/channels" },
-      { titleKey: "docs.nav.meshTopology", href: "/docs/features/mesh" },
       { titleKey: "docs.nav.tickets", href: "/docs/features/tickets" },
       { titleKey: "docs.nav.workflows", href: "/docs/features/workflows" },
       { titleKey: "docs.nav.repositories", href: "/docs/features/repositories" },

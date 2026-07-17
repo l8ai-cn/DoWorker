@@ -17,6 +17,7 @@ export interface WorkerRuntimeSelectOption {
 interface WorkerRuntimeSelectFieldProps {
   field: string;
   label: string;
+  description?: string;
   value: string;
   options: WorkerRuntimeSelectOption[];
   onChange: (value: string) => void;
@@ -25,6 +26,7 @@ interface WorkerRuntimeSelectFieldProps {
 export function WorkerRuntimeSelectField({
   field,
   label,
+  description,
   value,
   options,
   onChange,
@@ -61,6 +63,9 @@ export function WorkerRuntimeSelectField({
           ))}
         </SelectContent>
       </Select>
+      {description && (
+        <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+      )}
     </div>
   );
 }

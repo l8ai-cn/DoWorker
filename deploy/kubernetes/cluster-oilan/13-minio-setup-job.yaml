@@ -33,4 +33,11 @@ spec:
                 echo "waiting for minio..."; sleep 3
               done
               mc mb --ignore-existing am/agentsmesh
+              if ! mc ilm rule ls --json am/agentsmesh |
+                grep -q '"Expiration":{"Days":1}.*"Prefix":"workspace-artifacts/"'; then
+                mc ilm rule add \
+                  --prefix "workspace-artifacts/" \
+                  --expire-days 1 \
+                  am/agentsmesh
+              fi
               echo "bucket ready"

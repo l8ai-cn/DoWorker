@@ -17,6 +17,8 @@ import (
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
+const maxRunnerGRPCMessageBytes = 16 * 1024 * 1024
+
 // Connect establishes a gRPC connection with mTLS using advancedtls for certificate hot-reloading.
 func (c *GRPCConnection) Connect() error {
 	// Close existing connection and certificate providers (important for reconnection)
@@ -68,6 +70,10 @@ func (c *GRPCConnection) Connect() error {
 	// gRPC dial options
 	dialOpts := []grpc.DialOption{
 		grpc.WithTransportCredentials(creds),
+		grpc.WithDefaultCallOptions(
+			grpc.MaxCallRecvMsgSize(maxRunnerGRPCMessageBytes),
+			grpc.MaxCallSendMsgSize(maxRunnerGRPCMessageBytes),
+		),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
 			Time:                30 * time.Second,
 			Timeout:             10 * time.Second,

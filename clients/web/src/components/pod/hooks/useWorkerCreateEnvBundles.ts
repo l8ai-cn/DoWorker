@@ -6,6 +6,7 @@ import type { AsyncState } from "./workerCreateDraft";
 interface WorkerEnvBundles {
   runtime: AsyncState<EnvBundleSummary[]>;
   credential: AsyncState<EnvBundleSummary[]>;
+  config: AsyncState<EnvBundleSummary[]>;
 }
 
 interface LoadedWorkerEnvBundles extends WorkerEnvBundles {
@@ -19,6 +20,7 @@ export function useWorkerCreateEnvBundles(
     workerTypeSlug: "",
     runtime: { status: "idle" },
     credential: { status: "idle" },
+    config: { status: "idle" },
   });
 
   useEffect(() => {
@@ -28,8 +30,9 @@ export function useWorkerCreateEnvBundles(
     void Promise.all([
       loadBundles("runtime", workerTypeSlug),
       loadBundles("credential", workerTypeSlug),
-    ]).then(([runtime, credential]) => {
-      if (!cancelled) setLoaded({ workerTypeSlug, runtime, credential });
+      loadBundles("config", workerTypeSlug),
+    ]).then(([runtime, credential, config]) => {
+      if (!cancelled) setLoaded({ workerTypeSlug, runtime, credential, config });
     });
     return () => {
       cancelled = true;
@@ -40,12 +43,14 @@ export function useWorkerCreateEnvBundles(
     return {
       runtime: { status: "ready", data: [] },
       credential: { status: "ready", data: [] },
+      config: { status: "ready", data: [] },
     };
   }
   if (loaded.workerTypeSlug !== workerTypeSlug) {
     return {
       runtime: { status: "loading" },
       credential: { status: "loading" },
+      config: { status: "loading" },
     };
   }
   return loaded;

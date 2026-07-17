@@ -23,7 +23,13 @@ export interface PublicMarketApplication {
   summary: string;
   description: string;
   category: string;
-  icon: "rocket" | "network" | "git-compare";
+  icon:
+    | "rocket"
+    | "network"
+    | "git-compare"
+    | "clapperboard"
+    | "scissors"
+    | "film";
   agent_slug: string;
   skill_slugs: string[];
   tags: string[];

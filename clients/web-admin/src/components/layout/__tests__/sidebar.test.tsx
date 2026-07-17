@@ -96,6 +96,7 @@ describe("SidebarContent", () => {
       "中继",
       "优惠码",
       "支持工单",
+      "专家市场审核",
       "审计日志",
     ];
     expectedItems.forEach((item) => {

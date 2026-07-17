@@ -4,6 +4,9 @@ import (
 	"os"
 	"os/exec"
 	"time"
+
+	"github.com/anthropics/agentsmesh/runner/internal/logger"
+	"github.com/anthropics/agentsmesh/runner/internal/safego"
 )
 
 // LauncherSubcommand is the first argument the runner inspects in main(). When
@@ -40,6 +43,18 @@ type daemonProcess struct {
 	pollEvery   time.Duration
 }
 
+func (p *daemonProcess) startLifecycle() {
+	if p.launcherCmd != nil {
+		safego.Go("processmgr-launcher-wait-"+p.Owner(), func() {
+			if err := p.launcherCmd.Wait(); err != nil {
+				logger.Runner().Warn("processmgr: launcher wait error",
+					"owner", p.Owner(), "launcher_pid", p.launcherPID, "err", err)
+			}
+		})
+	}
+	safego.Go("processmgr-daemon-monitor-"+p.Owner(), p.monitorLoop)
+}
+
 // monitorLoop is what makes Done() semantics consistent across modes. Without
 // it, a daemon dying of its own accord would never close doneCh — the runner
 // would have to poll Alive() manually. Polling kill(pid, 0) here gives us at
@@ -51,15 +66,16 @@ type daemonProcess struct {
 // by process exit if the runner restarts; otherwise it ends when either the
 // daemon dies or Stop closes doneCh.
 func (p *daemonProcess) monitorLoop() {
-	defer p.mgr.unregister(p)
 	t := time.NewTicker(p.pollEvery)
 	defer t.Stop()
 	for {
 		select {
 		case <-p.doneCh:
+			p.mgr.unregister(p)
 			return
 		case <-t.C:
 			if !daemonProcessAlive(p.PID()) {
+				p.mgr.unregister(p)
 				p.setExit(ExitInfo{Duration: time.Since(p.StartedAt())})
 				return
 			}

@@ -65,9 +65,9 @@ BEGIN
          permissions, compatibility, dependency_lock, validation_status,
          created_by_platform_user_id)
     VALUES
-        (catalog_id, '1.0.0', 'inline-expert-v1',
-         'b8d0d5d9c77698ff343a2663009261f64f98b9452aeca9c13a143ed57bf8382f',
-         '{"installation_credits":"20","runtime_snapshot":{"name":"软件交付专家","description":"适用于功能开发、缺陷修复和版本交付。","agent_slug":"codex-cli","prompt":"负责把明确需求转化为经过测试、评审并可合并的代码交付。先理解现有代码与约束，再在隔离工作区完成最小修改、关键验证和交付。","interaction_mode":"pty","automation_level":"autonomous","perpetual":false,"used_env_bundles":[],"skill_slugs":["worktree","e2e","gh-merge","merge"],"knowledge_mounts":[],"config_overrides":{}}}',
+        (catalog_id, '1.0.0', 'backend-expert-template-v1',
+         '59b22b8e258e1055aa6eb8e61b734f1bcd3e59953458f5acd2aaa22e85cd8595',
+         '{"installation_credits":"20","runtime_snapshot":{"market_application_slug":"software-delivery-expert"}}',
          '["workspace.execute","repository.write","pull_request.create"]',
          '{"agents":["codex-cli"],"locale":"zh-CN"}',
          '{"skills":["worktree","e2e","gh-merge","merge"]}',

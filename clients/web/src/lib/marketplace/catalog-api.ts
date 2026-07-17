@@ -32,6 +32,7 @@ export interface MarketplaceListingSummary {
 }
 
 export interface MarketplaceListingDetail extends MarketplaceListingSummary {
+  agent_slug: string;
   description: string;
   outcomes: string[];
   use_cases: string[];

@@ -16,10 +16,10 @@ func (h *RunnerMessageHandler) handleAcpRelayCommand(pod *Pod, payload []byte) {
 		ReqID        string         `json:"requestId"`    // permission_response
 		Approved     bool           `json:"approved"`     // permission_response
 		UpdatedInput map[string]any `json:"updatedInput"` // permission_response (AskUserQuestion answers)
-		Mode         string         `json:"mode"`          // set_permission_mode
-		Model        string         `json:"model"`         // set_model
-		Subtype      string         `json:"subtype"`       // control_request (generic)
-		Payload      map[string]any `json:"payload"`       // control_request (generic)
+		Mode         string         `json:"mode"`         // set_permission_mode
+		Model        string         `json:"model"`        // set_model
+		Subtype      string         `json:"subtype"`      // control_request (generic)
+		Payload      map[string]any `json:"payload"`      // control_request (generic)
 	}
 	if err := json.Unmarshal(payload, &cmd); err != nil {
 		log.Warn("Failed to parse ACP relay command", "pod_key", pod.PodKey, "error", err)
@@ -35,13 +35,17 @@ func (h *RunnerMessageHandler) handleAcpRelayCommand(pod *Pod, payload []byte) {
 
 	switch cmd.Type {
 	case "prompt":
-		// Echo user message back to all relay subscribers so it appears in chat.
-		sendAcpViaRelay(pod, "contentChunk", "", map[string]string{
-			"text": cmd.Prompt, "role": "user",
-		})
-		if err := pod.IO.SendInput(cmd.Prompt); err != nil {
+		if err := acpSendPromptWhenReady(pod, cmd.Prompt); err != nil {
 			log.Error("Failed to send ACP prompt via relay", "pod_key", pod.PodKey, "error", err)
+			sendAcpViaRelay(pod, "commandFailed", "", map[string]string{
+				"requestId": cmd.ReqID,
+				"message":   "Worker 未能接收消息，请重试",
+			})
+			return
 		}
+		sendAcpViaRelay(pod, "contentChunk", "", map[string]string{
+			"text": cmd.Prompt, "role": "user", "requestId": cmd.ReqID,
+		})
 
 	case "permission_response":
 		if !ok {

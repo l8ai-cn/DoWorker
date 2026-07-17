@@ -3,12 +3,14 @@ package storage
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
 func (s *S3Storage) Upload(ctx context.Context, key string, reader io.Reader, size int64, contentType string) (*FileInfo, error) {
@@ -107,8 +109,21 @@ func (s *S3Storage) PresignPutURL(ctx context.Context, key string, contentType s
 	return s.presignPutURL(ctx, presigner, key, contentType, expiry)
 }
 
-func (s *S3Storage) InternalPresignPutURL(ctx context.Context, key string, contentType string, expiry time.Duration) (string, error) {
-	return s.presignPutURL(ctx, s.presign, key, contentType, expiry)
+func (s *S3Storage) InternalPresignPutURL(ctx context.Context, key string, contentType string, size int64, expiry time.Duration) (string, error) {
+	presigner := s.presign
+	if s.runnerPresign != nil {
+		presigner = s.runnerPresign
+	}
+	request, err := presigner.PresignPutObject(ctx, &s3.PutObjectInput{
+		Bucket:        aws.String(s.bucket),
+		Key:           aws.String(key),
+		ContentType:   aws.String(contentType),
+		ContentLength: aws.Int64(size),
+	}, s3.WithPresignExpires(expiry))
+	if err != nil {
+		return "", fmt.Errorf("failed to generate internal presigned PUT URL: %w", err)
+	}
+	return request.URL, nil
 }
 
 func (s *S3Storage) presignPutURL(ctx context.Context, presigner *s3.PresignClient, key string, contentType string, expiry time.Duration) (string, error) {
@@ -128,10 +143,14 @@ func (s *S3Storage) Exists(ctx context.Context, key string) (bool, error) {
 		Bucket: aws.String(s.bucket),
 		Key:    aws.String(key),
 	})
-	if err != nil {
+	if err == nil {
+		return true, nil
+	}
+	var responseErr *smithyhttp.ResponseError
+	if errors.As(err, &responseErr) && responseErr.HTTPStatusCode() == 404 {
 		return false, nil
 	}
-	return true, nil
+	return false, fmt.Errorf("failed to check object %s: %w", key, err)
 }
 
 func (s *S3Storage) EnsureBucket(ctx context.Context) error {

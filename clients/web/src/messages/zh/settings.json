@@ -288,11 +288,32 @@
       "loadSchemaFailed": "加载配置架构失败",
       "noConfigFields": "该镜像暂无可配置选项",
       "invalidJson": "无效的 JSON 格式",
-      "credentials": {
-        "title": "API 凭据",
-        "description": "服务商凭据在 AI 资源中管理。运行时环境变量 Bundle 不承载模型 API 密钥。"
-      },
-      "runtime": {
+    "credentials": {
+      "title": "API 凭据",
+      "description": "服务商凭据在 AI 资源中管理。运行时环境变量 Bundle 不承载模型 API 密钥。"
+    },
+    "credentialBundles": {
+      "title": "凭据 Bundle",
+      "description": "将此 Worker 的连接凭据加密保存为 Bundle。创建 Worker 时可选择默认 Bundle。",
+      "empty": "暂无凭据 Bundle。添加一组以便创建 Worker 时复用。",
+      "noKeys": "未配置凭据字段",
+      "add": "添加",
+      "addTitle": "添加凭据 Bundle",
+      "editTitle": "编辑凭据 Bundle",
+      "name": "名称",
+      "namePlaceholder": "如：personal-cursor / team-openai",
+      "descriptionLabel": "描述",
+      "clearDefault": "取消默认",
+      "confirmDelete": "确定要删除这组凭据 Bundle 吗？引用它的 Worker 将不再获得这些凭据。",
+      "created": "凭据 Bundle 已创建",
+      "updated": "凭据 Bundle 已更新",
+      "deleted": "凭据 Bundle 已删除",
+      "defaultSet": "默认凭据 Bundle 已更新",
+      "saveFailed": "保存凭据 Bundle 失败",
+      "failedToSetDefault": "设置默认凭据 Bundle 失败",
+      "failedToDelete": "删除凭据 Bundle 失败"
+    },
+    "runtime": {
         "title": "运行时配置",
         "description": "设置此镜像的默认运行参数。这些配置将在创建新 Worker 时使用。"
       },
@@ -488,8 +509,8 @@
       },
       "cursor": {
         "apiKey": "Cursor API Key",
-        "apiKeyHint": "可选。留空则使用 `cursor-agent login`（OAuth）；填写用于无头 / 密钥认证。",
-        "customEnvHint": "添加 cursor-agent 运行所需的任意环境变量"
+        "apiKeyHint": "可选。留空则使用 `agent login`（OAuth）；填写用于无头 / 密钥认证。",
+        "customEnvHint": "添加 Cursor CLI 运行所需的任意环境变量"
       },
       "doAgent": {
         "customEnvHint": "其他 Provider 密钥或覆盖项，如 DEEPSEEK_API_KEY、DO_AGENT_PROFILE、OPENAI_BASE_URL"
@@ -692,6 +713,7 @@
       "justNow": "刚刚",
       "edit": "编辑",
       "generateToken": "生成令牌",
+      "selectCluster": "选择执行集群",
       "delete": "删除",
       "disabled": "已禁用",
       "upgradeAvailable": "可升级",
@@ -999,6 +1021,9 @@
       "usageAvailable": "已接入",
       "loadError": "加载 AI 资源失败。",
       "operationError": "AI 资源操作失败。",
+      "validation": {
+        "credentialsRejected": "凭证被服务商拒绝，请替换 API 密钥后重新验证。"
+      },
       "retry": "重试",
       "loading": "正在加载 AI 资源…",
       "summary": {
@@ -1039,6 +1064,14 @@
         "name": "连接名称",
         "identifier": "标识符",
         "baseUrl": "基础 URL",
+        "credentials": {
+          "apiKey": "API 密钥",
+          "apiToken": "API 令牌",
+          "accessKey": "访问密钥",
+          "secretKey": "私密密钥",
+          "subscriptionKey": "订阅密钥",
+          "region": "区域"
+        },
         "create": "创建连接",
         "save": "保存更改",
         "edit": "编辑连接",

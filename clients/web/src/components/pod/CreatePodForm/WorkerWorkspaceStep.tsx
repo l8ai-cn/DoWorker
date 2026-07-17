@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { POD_MODE_ACP, POD_MODE_PTY } from "@/lib/pod-modes";
+import { POD_MODE_PTY } from "@/lib/pod-modes";
 import type { WorkerCreateController } from "../hooks/workerCreateController";
 import { AutomationLevelSelect } from "./AutomationLevelSelect";
 import { InteractionModeToggle } from "./InteractionModeToggle";
@@ -24,6 +25,23 @@ export function WorkerWorkspaceStep({
   t,
 }: WorkerWorkspaceStepProps) {
   const { draft } = controller.state;
+  const selectedWorkerType = controller.options.status === "ready"
+    ? controller.options.data.worker_types.find(
+      (option) => option.slug === draft.worker_type_slug,
+    )
+    : undefined;
+  const supportedModes = selectedWorkerType?.supported_interaction_modes?.length
+    ? selectedWorkerType.supported_interaction_modes
+    : [POD_MODE_PTY];
+  const interactionMode = supportedModes.includes(draft.interaction_mode)
+    ? draft.interaction_mode
+    : supportedModes[0];
+
+  useEffect(() => {
+    if (draft.interaction_mode !== interactionMode) {
+      controller.patchDraft({ interaction_mode: interactionMode });
+    }
+  }, [controller, draft.interaction_mode, interactionMode]);
 
   return (
     <div className="space-y-6">
@@ -59,11 +77,12 @@ export function WorkerWorkspaceStep({
         <AutomationLevelSelect
           value={draft.automation_level}
           onChange={(automation_level) => controller.patchDraft({ automation_level })}
+          supportedModes={supportedModes}
           t={t}
         />
         <InteractionModeToggle
-          supportedModes={[POD_MODE_PTY, POD_MODE_ACP]}
-          interactionMode={draft.interaction_mode}
+          supportedModes={supportedModes}
+          interactionMode={interactionMode}
           onModeChange={(interaction_mode) => controller.patchDraft({ interaction_mode })}
         />
       </section>

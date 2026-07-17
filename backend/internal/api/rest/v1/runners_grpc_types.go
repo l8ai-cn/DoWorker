@@ -13,6 +13,7 @@ type AuthorizeRunnerRequest struct {
 
 type GenerateGRPCTokenRequest struct {
 	Name      string            `json:"name"`
+	ClusterID int64             `json:"cluster_id" binding:"required,gt=0"`
 	Labels    map[string]string `json:"labels"`
 	SingleUse bool              `json:"single_use"`
 	MaxUses   int               `json:"max_uses"`

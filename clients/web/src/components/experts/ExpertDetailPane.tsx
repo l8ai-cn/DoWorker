@@ -12,6 +12,7 @@ import { CenteredSpinner } from "@/components/ui/spinner";
 import { useExpertStore, useCurrentExpert } from "@/stores/expert";
 import { ExpertEditDrawer } from "./ExpertEditDrawer";
 import { ExpertConfigList } from "./ExpertConfigList";
+import { ExpertMarketOperations } from "./ExpertMarketOperations";
 import { usePodStore } from "@/stores/pod";
 import { getShortPodKey } from "@/lib/pod-display-name";
 import { formatTimeAgo } from "@/lib/utils/time";
@@ -80,9 +81,9 @@ export function ExpertDetailPane({ slug, orgSlug }: ExpertDetailPaneProps) {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="border-b border-border bg-gradient-to-b from-muted/30 to-transparent px-8 pt-6 pb-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-4 min-w-0">
+      <div className="border-b border-border bg-gradient-to-b from-muted/30 to-transparent px-4 pt-6 pb-5 sm:px-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex min-w-0 items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/15">
               <Bot className="h-6 w-6 text-primary" />
             </div>
@@ -114,22 +115,31 @@ export function ExpertDetailPane({ slug, orgSlug }: ExpertDetailPaneProps) {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button size="sm" onClick={handleRun} disabled={running} className="gap-1.5">
+          <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:shrink-0">
+            <Button size="sm" onClick={handleRun} disabled={running} className="flex-1 gap-1.5 sm:flex-none">
               <Play className="h-3.5 w-3.5" />
               {running ? t("running") : t("runExpert")}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setEditOpen(true)} className="gap-1.5">
+            <Button size="sm" variant="outline" onClick={() => setEditOpen(true)} className="flex-1 gap-1.5 sm:flex-none">
               <Pencil className="h-3.5 w-3.5" />
               {t("edit.editExpert")}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setDeleteOpen(true)} className="gap-1.5">
+            <Button size="sm" variant="outline" onClick={() => setDeleteOpen(true)} className="flex-1 gap-1.5 sm:flex-none">
               <Trash2 className="h-3.5 w-3.5" />
               {t("deleteExpert")}
             </Button>
           </div>
         </div>
       </div>
+
+      <ExpertMarketOperations
+        key={slug}
+        expertID={expert.id}
+        expertSlug={slug}
+        installedFromMarket={expert.source_market_application_id != null}
+        submissionReady={Boolean(expert.worker_spec_snapshot_id)}
+        onUpgraded={() => fetchExpert(slug)}
+      />
 
       <ExpertConfigList expert={expert} />
 

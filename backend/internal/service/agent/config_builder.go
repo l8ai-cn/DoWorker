@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/extension"
+	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	envbundleservice "github.com/anthropics/agentsmesh/backend/internal/service/envbundle"
 	extensionservice "github.com/anthropics/agentsmesh/backend/internal/service/extension"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
@@ -22,6 +23,11 @@ type WorkerSkillProvider interface {
 		orgID int64,
 		ids []int64,
 		agentSlug string,
+	) ([]*extensionservice.ResolvedSkill, error)
+	GetWorkerSkillsByPackages(
+		context.Context,
+		[]specdomain.SkillPackageBinding,
+		string,
 	) ([]*extensionservice.ResolvedSkill, error)
 }
 

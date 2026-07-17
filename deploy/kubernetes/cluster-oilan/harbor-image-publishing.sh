@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+
+harbor_creds() {
+  local store
+  store="$(python3 -c "import json,os;print(json.load(open(os.path.expanduser('~/.docker/config.json'))).get('credsStore',''))")"
+  echo "${REG}" | "docker-credential-${store}" get
+}
+
+ensure_project() {
+  local cred u p status
+  cred="$(harbor_creds)"
+  u="$(echo "${cred}" | python3 -c "import sys,json;print(json.load(sys.stdin)['Username'])")"
+  p="$(echo "${cred}" | python3 -c "import sys,json;print(json.load(sys.stdin)['Secret'])")"
+  echo "==> ensuring Harbor project agentsmesh"
+  status="$(curl -sk -u "${u}:${p}" -o /dev/null -w "%{http_code}" \
+    -X POST "https://${REG}/api/v2.0/projects" \
+    -H "Content-Type: application/json" \
+    -d '{"project_name":"agentsmesh","public":true}')"
+  [[ "${status}" == "201" || "${status}" == "409" ]] || {
+    echo "create Harbor project failed: HTTP ${status}" >&2
+    return 1
+  }
+  echo "  create project -> HTTP ${status}"
+}
+
+manifest_digest() {
+  local image="$1" digest="" attempt=1
+  until digest="$(docker buildx imagetools inspect "${image}" --format '{{.Manifest.Digest}}')" &&
+    [[ "${digest}" =~ ^sha256:[a-f0-9]{64}$ ]]; do
+    [[ "${attempt}" -ge 4 ]] && {
+      echo "invalid registry digest for ${image}: ${digest}" >&2
+      return 1
+    }
+    echo "  registry manifest query failed; retry ${attempt}/4..." >&2
+    sleep 3
+    attempt=$((attempt + 1))
+  done
+  printf '%s' "${digest}"
+}
+
+docker_build_with_retry() {
+  local file="$1" tag="$2" attempt=1
+  until docker_build_with_heartbeat "${file}" "${tag}"; do
+    [[ "${attempt}" -ge 4 ]] && return 1
+    echo "  docker build failed; retry ${attempt}/4 in 5s..." >&2
+    sleep 5
+    attempt=$((attempt + 1))
+  done
+}
+
+docker_build_with_heartbeat() {
+  local file="$1" tag="$2" build_pid status
+  docker build --platform "${PLATFORM}" \
+    --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT:?release source commit is required}" \
+    -f "${REPO_ROOT}/${file}" \
+    -t "${tag}" \
+    "${REPO_ROOT}" &
+  build_pid=$!
+  trap 'kill -TERM "${build_pid}" 2>/dev/null || true' INT TERM
+  while kill -0 "${build_pid}" 2>/dev/null; do
+    sleep 20
+    kill -0 "${build_pid}" 2>/dev/null && echo "  docker build still running..."
+  done
+  wait "${build_pid}" && status=0 || status=$?
+  trap - INT TERM
+  return "${status}"
+}
+
+verify_local_image_revision() {
+  local image="$1" revision
+  revision="$(docker image inspect "${image}" \
+    --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')"
+  [[ "${revision}" == "${RELEASE_SOURCE_COMMIT}" ]] || {
+    echo "image source revision mismatch for ${image}: ${revision}" >&2
+    return 1
+  }
+}
+
+docker_push() {
+  local file="$1" dest="$2"
+  local tag="${PROJ}/${dest}:latest"
+  echo "==> docker build ${file} -> ${tag} (${PLATFORM})"
+  docker_build_with_retry "${file}" "${tag}"
+  verify_local_image_revision "${tag}"
+  docker push "${tag}"
+  local digest
+  digest="$(manifest_digest "${tag}")"
+  case "${dest}" in
+    backend) PLATFORM_DIGEST_BACKEND="${digest}" ;;
+    marketplace) PLATFORM_DIGEST_MARKETPLACE="${digest}" ;;
+    marketplace-web) PLATFORM_DIGEST_MARKETPLACE_WEB="${digest}" ;;
+    relay) PLATFORM_DIGEST_RELAY="${digest}" ;;
+    web) PLATFORM_DIGEST_WEB="${digest}" ;;
+    web-admin) PLATFORM_DIGEST_WEB_ADMIN="${digest}" ;;
+    mobile) PLATFORM_DIGEST_MOBILE="${digest}" ;;
+  esac
+}
+
+ensure_release_digest() {
+  local variable_name="$1" image="$2" current release_file locked
+  current="${!variable_name}"
+  [[ -z "${current}" ]] || return 0
+
+  release_file="${REPO_ROOT}/deploy/kubernetes/cluster-oilan/release/kustomization.yaml"
+  locked="$(awk -v name="${PROJ}/${image}" \
+    '$1 == "-" && $2 == "name:" && $3 == name { found=1; next }
+     found && $1 == "digest:" { print $2; exit }' "${release_file}")"
+  [[ "${locked}" =~ ^sha256:[a-f0-9]{64}$ ]] || {
+    echo "missing immutable release digest for unchanged image: ${image}" >&2
+    return 1
+  }
+  printf -v "${variable_name}" '%s' "${locked}"
+}
+
+write_platform_release() {
+  local release_dir="${REPO_ROOT}/deploy/kubernetes/cluster-oilan/release"
+  local output="${release_dir}/kustomization.yaml"
+  local temporary="${output}.tmp"
+
+  ensure_release_digest PLATFORM_DIGEST_BACKEND backend
+  ensure_release_digest PLATFORM_DIGEST_MARKETPLACE marketplace
+  ensure_release_digest PLATFORM_DIGEST_MARKETPLACE_WEB marketplace-web
+  ensure_release_digest PLATFORM_DIGEST_RELAY relay
+  ensure_release_digest PLATFORM_DIGEST_WEB web
+  ensure_release_digest PLATFORM_DIGEST_WEB_ADMIN web-admin
+  ensure_release_digest PLATFORM_DIGEST_MOBILE mobile
+  ensure_release_digest PLATFORM_DIGEST_PGVECTOR pgvector
+  ensure_release_digest PLATFORM_DIGEST_REDIS redis
+  ensure_release_digest PLATFORM_DIGEST_MINIO minio
+  ensure_release_digest PLATFORM_DIGEST_MC mc
+  ensure_release_digest PLATFORM_DIGEST_KUBECTL kubectl
+
+  mkdir -p "${release_dir}"
+  cat > "${temporary}" <<EOF
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+# Generated by push-images.sh. deploy.sh rejects mutable release images.
+images:
+  - name: ${PROJ}/backend
+    digest: ${PLATFORM_DIGEST_BACKEND}
+  - name: ${PROJ}/marketplace
+    digest: ${PLATFORM_DIGEST_MARKETPLACE}
+  - name: ${PROJ}/marketplace-web
+    digest: ${PLATFORM_DIGEST_MARKETPLACE_WEB}
+  - name: ${PROJ}/relay
+    digest: ${PLATFORM_DIGEST_RELAY}
+  - name: ${PROJ}/web
+    digest: ${PLATFORM_DIGEST_WEB}
+  - name: ${PROJ}/web-admin
+    digest: ${PLATFORM_DIGEST_WEB_ADMIN}
+  - name: ${PROJ}/mobile
+    digest: ${PLATFORM_DIGEST_MOBILE}
+  - name: ${PROJ}/pgvector
+    digest: ${PLATFORM_DIGEST_PGVECTOR}
+  - name: ${PROJ}/redis
+    digest: ${PLATFORM_DIGEST_REDIS}
+  - name: ${PROJ}/minio
+    digest: ${PLATFORM_DIGEST_MINIO}
+  - name: ${PROJ}/mc
+    digest: ${PLATFORM_DIGEST_MC}
+  - name: ${PROJ}/kubectl
+    digest: ${PLATFORM_DIGEST_KUBECTL}
+EOF
+  mv "${temporary}" "${output}"
+  release_write_source_metadata "${REPO_ROOT}"
+  echo "==> wrote immutable platform digests to ${output}"
+}
+
+registry_digest() {
+  local image="$1" digest
+  digest="$(manifest_digest "${PROJ}/${image}:latest")"
+  printf '%s' "${digest}"
+}

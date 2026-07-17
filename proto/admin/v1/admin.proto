@@ -107,6 +107,12 @@ service AdminService {
   // ops surface, no tenant filtering). Connect drops the slug entirely.
   rpc ListDeadLetters(ListDeadLettersRequest) returns (ListDeadLettersResponse);
   rpc ReplayDeadLetter(ReplayDeadLetterRequest) returns (ReplayDeadLetterResponse);
+
+  // Expert Marketplace review queue for system administrators.
+  rpc ListExpertMarketReleases(ListExpertMarketReleasesRequest) returns (ListExpertMarketReleasesResponse);
+  rpc GetExpertMarketRelease(GetExpertMarketReleaseRequest) returns (ExpertMarketRelease);
+  rpc ApproveExpertMarketRelease(ApproveExpertMarketReleaseRequest) returns (ExpertMarketRelease);
+  rpc RejectExpertMarketRelease(RejectExpertMarketReleaseRequest) returns (ExpertMarketRelease);
 }
 
 // AdminAuthService — admin-console login flow. Public (no auth interceptor)
@@ -641,6 +647,65 @@ message AdminLoginResponse {
 }
 
 message GetMeRequest {}
+
+// --- Expert marketplace review ---
+
+message ExpertMarketRelease {
+  int64 id = 1;
+  int64 application_id = 2;
+  int64 source_expert_id = 3;
+  int64 publisher_organization_id = 4;
+  int64 publisher_user_id = 5;
+  int32 version = 6;
+  string status = 7;
+  string name = 8;
+  string summary = 9;
+  string description = 10;
+  string category = 11;
+  string icon = 12;
+  repeated string tags = 13;
+  repeated string outcomes = 14;
+  bool featured = 15;
+  string expert_snapshot_json = 16;
+  string worker_spec_snapshot_json = 17;
+  string skill_dependencies_json = 18;
+  optional int64 reviewer_user_id = 19;
+  optional string rejection_reason = 20;
+  optional string submitted_at = 21;
+  optional string reviewed_at = 22;
+  optional string published_at = 23;
+  optional string rejected_at = 24;
+  optional string withdrawn_at = 25;
+  string created_at = 26;
+  string application_slug = 27;
+}
+
+message ListExpertMarketReleasesRequest {
+  // Empty = pending. Supported values: pending, published, rejected, withdrawn.
+  optional string status = 1;
+  optional int32 limit = 2;
+  optional int32 offset = 3;
+}
+
+message ListExpertMarketReleasesResponse {
+  repeated ExpertMarketRelease items = 1;
+  int64 total = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message GetExpertMarketReleaseRequest {
+  int64 release_id = 1;
+}
+
+message ApproveExpertMarketReleaseRequest {
+  int64 release_id = 1;
+}
+
+message RejectExpertMarketReleaseRequest {
+  int64 release_id = 1;
+  string reason = 2;
+}
 
 // ----------------------------------------------------------------------------
 // Dead-letter queue (ops surface)

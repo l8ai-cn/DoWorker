@@ -13,16 +13,18 @@ type RuntimeImage struct {
 }
 
 type ModelBinding struct {
-	ResourceID         int64        `json:"resource_id"`
-	ResourceRevision   int64        `json:"resource_revision"`
-	ConnectionID       int64        `json:"connection_id"`
-	ConnectionRevision int64        `json:"connection_revision"`
-	ProviderKey        slugkit.Slug `json:"provider_key"`
-	ModelID            string       `json:"model_id"`
+	ResourceID         int64        `json:"resource_id,omitempty"`
+	ResourceRevision   int64        `json:"resource_revision,omitempty"`
+	ConnectionID       int64        `json:"connection_id,omitempty"`
+	ConnectionRevision int64        `json:"connection_revision,omitempty"`
+	ProviderKey        slugkit.Slug `json:"provider_key,omitempty"`
+	ProtocolAdapter    slugkit.Slug `json:"protocol_adapter,omitempty"`
+	ModelID            string       `json:"model_id,omitempty"`
 }
 
 type Runtime struct {
-	ModelBinding ModelBinding `json:"model_binding"`
-	WorkerType   WorkerType   `json:"worker_type"`
-	Image        RuntimeImage `json:"image"`
+	ModelBinding      ModelBinding       `json:"model_binding"`
+	ToolModelBindings []ToolModelBinding `json:"tool_model_bindings,omitempty"`
+	WorkerType        WorkerType         `json:"worker_type"`
+	Image             RuntimeImage       `json:"image"`
 }

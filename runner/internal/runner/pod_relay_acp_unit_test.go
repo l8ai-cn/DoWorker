@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"testing"
+	"time"
 
 	"github.com/anthropics/agentsmesh/runner/internal/acp"
 	"github.com/anthropics/agentsmesh/runner/internal/relay"
@@ -69,6 +70,59 @@ func TestACPPodRelay_OnRelayDisconnected_NoPanic(t *testing.T) {
 	r := NewACPPodRelay("pod-1", nil, nil)
 	// No-op — should not panic.
 	r.OnRelayDisconnected()
+}
+
+func TestACPPodRelaySerializesSnapshotBeforeConcurrentEvent(t *testing.T) {
+	client := &blockingSnapshotRelayClient{
+		MockClient:      relay.NewMockClient("wss://relay.example.com"),
+		snapshotStarted: make(chan struct{}),
+		releaseSnapshot: make(chan struct{}),
+	}
+	client.SetConnected(true)
+	r := NewACPPodRelay("pod-ordered", acp.NewClient(acp.ClientConfig{}), nil)
+	snapshotDone := make(chan struct{})
+	go func() {
+		r.SendSnapshot(client)
+		close(snapshotDone)
+	}()
+	<-client.snapshotStarted
+
+	eventDone := make(chan struct{})
+	go func() {
+		r.BroadcastEvent(client, relay.MsgTypeAcpEvent, []byte(`{"type":"contentChunk"}`))
+		close(eventDone)
+	}()
+	select {
+	case <-eventDone:
+		t.Fatal("event overtook snapshot while snapshot send was in progress")
+	case <-time.After(20 * time.Millisecond):
+	}
+
+	close(client.releaseSnapshot)
+	<-snapshotDone
+	<-eventDone
+	if len(client.SentMessages) != 2 {
+		t.Fatalf("sent %d messages, want 2", len(client.SentMessages))
+	}
+	if client.SentMessages[0].Type != relay.MsgTypeAcpSnapshot ||
+		client.SentMessages[1].Type != relay.MsgTypeAcpEvent {
+		t.Fatalf("message order = [%d, %d], want snapshot then event",
+			client.SentMessages[0].Type, client.SentMessages[1].Type)
+	}
+}
+
+type blockingSnapshotRelayClient struct {
+	*relay.MockClient
+	snapshotStarted chan struct{}
+	releaseSnapshot chan struct{}
+}
+
+func (c *blockingSnapshotRelayClient) Send(msgType byte, payload []byte) error {
+	if msgType == relay.MsgTypeAcpSnapshot {
+		close(c.snapshotStarted)
+		<-c.releaseSnapshot
+	}
+	return c.MockClient.Send(msgType, payload)
 }
 
 // --- sendAcpViaRelay ---

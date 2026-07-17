@@ -15,12 +15,22 @@ func createPod(tx *gorm.DB, pod *agentpod.Pod) error {
 		if isUniqueConstraintViolation(err, "idx_pods_source_pod_key_active_unique") {
 			return agentpod.ErrSandboxAlreadyResumed
 		}
+		if isUniqueConstraintViolation(err, "idx_pods_orchestration_worker_launch") ||
+			isUniqueConstraintViolation(
+				err,
+				"pods.organization_id, pods.orchestration_worker_launch_id",
+			) {
+			return agentpod.ErrWorkerLaunchPodAlreadyExists
+		}
 		return err
 	}
 	return nil
 }
 
 func assignPodRunnerCluster(tx *gorm.DB, pod *agentpod.Pod) error {
+	if pod.ClusterID > 0 {
+		return nil
+	}
 	var row struct {
 		ClusterID int64
 	}

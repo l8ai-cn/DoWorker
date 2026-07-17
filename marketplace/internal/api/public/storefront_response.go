@@ -35,6 +35,7 @@ type listingSummaryResponse struct {
 
 type listingDetailResponse struct {
 	listingSummaryResponse
+	AgentSlug      string          `json:"agent_slug"`
 	Description    string          `json:"description"`
 	Outcomes       json.RawMessage `json:"outcomes"`
 	UseCases       json.RawMessage `json:"use_cases"`
@@ -88,6 +89,7 @@ func nonNilTags(tags []service.TaxonomyTagView) []service.TaxonomyTagView {
 func mapListingDetail(item service.ListingDetail) listingDetailResponse {
 	return listingDetailResponse{
 		listingSummaryResponse: mapListingSummary(item.ListingSummary),
+		AgentSlug:              item.AgentSlug,
 		Description:            item.Description,
 		Outcomes:               item.Outcomes,
 		UseCases:               item.UseCases,

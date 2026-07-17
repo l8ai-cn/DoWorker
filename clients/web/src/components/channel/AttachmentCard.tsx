@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { File, Download, Globe, ChevronDown, ChevronRight } from "lucide-react";
+import { Download, ExternalLink, File } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { classifyMediaUrl } from "@/lib/media/url";
 import { LightboxImage } from "@/components/media/MediaLightbox";
 import { VideoEmbed } from "@/components/media/VideoEmbed";
-import { HtmlPreviewCard } from "@/components/media/HtmlPreviewCard";
 
 interface AttachmentCardProps {
   url: string;
@@ -29,7 +28,6 @@ export function AttachmentCard({ url, className }: AttachmentCardProps) {
   const t = useTranslations("channels.attachment");
   const kind = classifyMediaUrl(url);
   const [errored, setErrored] = useState(false);
-  const [htmlExpanded, setHtmlExpanded] = useState(false);
 
   if (kind === "image" && !errored) {
     return (
@@ -52,35 +50,33 @@ export function AttachmentCard({ url, className }: AttachmentCardProps) {
     );
   }
 
+  const name = fileNameOf(url);
   if (kind === "html") {
-    const name = fileNameOf(url);
     return (
-      <div data-testid="message-attachment" className={cn("mt-1.5", className)}>
-        <button
-          type="button"
-          onClick={() => setHtmlExpanded((v) => !v)}
-          aria-expanded={htmlExpanded}
-          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-1 text-xs text-foreground hover:bg-muted"
-        >
-          {htmlExpanded ? (
-            <ChevronDown className="h-3 w-3 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="h-3 w-3 text-muted-foreground" />
-          )}
-          <Globe className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="max-w-[220px] truncate">{name}</span>
-        </button>
-        {htmlExpanded && <HtmlPreviewCard src={url} className="mt-1.5 max-w-xl" />}
-      </div>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        referrerPolicy="no-referrer"
+        data-testid="message-attachment"
+        className={cn(
+          "mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-1 text-xs text-foreground hover:bg-muted",
+          className,
+        )}
+        aria-label={t("preview")}
+      >
+        <File className="h-3.5 w-3.5 text-muted-foreground" />
+        <span className="max-w-[220px] truncate">{name}</span>
+        <ExternalLink className="h-3 w-3 text-muted-foreground" />
+      </a>
     );
   }
 
-  const name = fileNameOf(url);
   return (
     <a
       href={url}
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer"
       download
       data-testid="message-attachment"
       className={cn(

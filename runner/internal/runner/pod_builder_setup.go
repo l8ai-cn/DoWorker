@@ -2,6 +2,7 @@ package runner
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -19,9 +20,9 @@ import (
 // Returns (sandboxRoot, workingDir, branchName, error).
 // Uses Strategy Pattern to select the appropriate setup strategy based on SandboxConfig.
 func (b *PodBuilder) setup(ctx context.Context) (string, string, string, error) {
-	// 1. Create sandbox root directory
 	b.sendProgress("preparing", 10, "Creating sandbox directory...")
-	sandboxRoot := filepath.Join(b.deps.Config.WorkspaceRoot, "sandboxes", b.cmd.PodKey)
+	podSandboxRoot := filepath.Join(b.deps.Config.WorkspaceRoot, "sandboxes", b.cmd.PodKey)
+	sandboxRoot := podSandboxRoot
 	if err := os.MkdirAll(sandboxRoot, 0755); err != nil {
 		return "", "", "", &client.PodError{
 			Code:    client.ErrCodeSandboxCreate,
@@ -32,7 +33,6 @@ func (b *PodBuilder) setup(ctx context.Context) (string, string, string, error) 
 
 	cfg := b.cmd.SandboxConfig
 
-	// 2. Select and execute setup strategy
 	b.sendProgress("preparing", 20, "Setting up working directory...")
 
 	strategy := b.selectSetupStrategy(cfg)
@@ -47,22 +47,15 @@ func (b *PodBuilder) setup(ctx context.Context) (string, string, string, error) 
 		return "", "", "", err
 	}
 
-	// LocalPathStrategy reuses the source pod's sandbox as sandboxRoot,
-	// so path templates (e.g., {{.sandbox.root_path}}/.mcp.json) resolve
-	// within the correct directory instead of escaping into a new empty sandbox.
-	//
-	// sandboxOwned tracks whether we created the sandbox and are responsible for
-	// cleaning it up on error. When overridden, the source sandbox must NOT be
-	// deleted — it belongs to the source pod.
 	sandboxOwned := true
+	reusesWorkspace := false
 	if result.SandboxRoot != "" && result.SandboxRoot != sandboxRoot {
-		_ = fsutil.RemoveAll(sandboxRoot) // Clean up unused new sandbox
+		_ = fsutil.RemoveAll(sandboxRoot)
 		sandboxRoot = result.SandboxRoot
 		sandboxOwned = false
+		reusesWorkspace = true
 	}
 
-	// 2.4. Clone knowledge base mounts into the (final) sandbox root. Must run
-	// after the LocalPathStrategy override so resume pods reuse existing clones.
 	if err := b.setupKnowledgeMounts(ctx, sandboxRoot); err != nil {
 		if sandboxOwned {
 			if rmErr := fsutil.RemoveAll(sandboxRoot); rmErr != nil {
@@ -72,8 +65,6 @@ func (b *PodBuilder) setup(ctx context.Context) (string, string, string, error) 
 		return "", "", "", err
 	}
 
-	// 2.5. Prepare agent-specific home directories (registered via agentkit.RegisterAgentHome).
-	// Must run before createFiles so that copied user config can be merged with platform config.
 	if err := b.prepareAgentHome(sandboxRoot, result.WorkingDir); err != nil {
 		if sandboxOwned {
 			if rmErr := fsutil.RemoveAll(sandboxRoot); rmErr != nil {
@@ -83,7 +74,6 @@ func (b *PodBuilder) setup(ctx context.Context) (string, string, string, error) 
 		return "", "", "", err
 	}
 
-	// 3. Create files from FilesToCreate
 	if len(b.cmd.FilesToCreate) > 0 {
 		b.sendProgress("preparing", 70, "Creating files...")
 	}
@@ -104,6 +94,17 @@ func (b *PodBuilder) setup(ctx context.Context) (string, string, string, error) 
 			}
 		}
 		return "", "", "", fmt.Errorf("failed to download resources: %w", err)
+	}
+	if reusesWorkspace {
+		if err := persistWorkspaceAlias(b.deps.Config.WorkspaceRoot, podSandboxRoot, result.WorkingDir); err != nil {
+			if errors.Is(err, errWorkspaceAliasOutsideRunnerRoot) {
+				logger.Pod().InfoContext(ctx, "Detached workspace alias unavailable for unmanaged local path",
+					"pod_key", b.cmd.PodKey, "working_dir", result.WorkingDir)
+			} else {
+				_ = fsutil.RemoveAll(podSandboxRoot)
+				return "", "", "", fmt.Errorf("persist workspace alias: %w", err)
+			}
+		}
 	}
 
 	logger.Pod().InfoContext(ctx, "Sandbox setup completed",

@@ -105,13 +105,14 @@ func (p *Parser) parsePromptDecl(pos Position) *PromptDecl {
 	return &PromptDecl{Content: content, Position: pos}
 }
 
-// parsePromptPositionDecl: PROMPT_POSITION prepend | append | none
+// parsePromptPositionDecl: PROMPT_POSITION prepend | append | after_first | none
 func (p *Parser) parsePromptPositionDecl(pos Position) *PromptPositionDecl {
 	p.advance()
 	tok := p.current()
 	mode := tok.Literal
-	if tok.Type != lexer.KW_PREPEND && tok.Type != lexer.KW_APPEND && tok.Type != lexer.KW_NONE {
-		p.errorf("PROMPT_POSITION: expected prepend/append/none, got %s", tok.Literal)
+	if tok.Type != lexer.KW_PREPEND && tok.Type != lexer.KW_APPEND && tok.Type != lexer.KW_NONE &&
+		(tok.Type != lexer.IDENT || mode != "after_first") {
+		p.errorf("PROMPT_POSITION: expected prepend/append/after_first/none, got %s", tok.Literal)
 	}
 	p.advance()
 	p.expectNewline()
