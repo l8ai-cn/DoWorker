@@ -10,6 +10,7 @@ grep -q 'bash "${SCRIPT_DIR}/push-runner-images.sh" do-agent' "$SCRIPT"
 grep -q 'release_source_guard.sh' "$SCRIPT"
 grep -q 'release_require_pushed_clean_tree' "$SCRIPT"
 grep -q 'release_write_source_metadata' "harbor-image-publishing.sh"
+grep -q 'harbor-infra-mirror.sh' "$SCRIPT"
 grep -q 'release_collect_platform_image_revisions' "release_source_guard.sh"
 grep -q 'release_source_guard.sh' "$RUNNER_SCRIPT"
 grep -q 'release_require_pushed_clean_tree' "$RUNNER_SCRIPT"
@@ -41,3 +42,5 @@ all_case="$(grep -F 'all)' "$SCRIPT")"
 [[ "${all_case}" == *'push_infra'* ]]
 [[ "${all_case}" == *'push-runner-images.sh" all'* ]]
 [[ "${all_case}" == *'push_platform'* ]]
+
+bash harbor_infra_mirror_contract_test.sh

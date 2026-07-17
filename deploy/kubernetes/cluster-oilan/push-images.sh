@@ -36,6 +36,7 @@ PLATFORM_DIGEST_MINIO=""
 PLATFORM_DIGEST_MC=""
 PLATFORM_DIGEST_KUBECTL=""
 source "$(dirname "${BASH_SOURCE[0]}")/harbor-image-publishing.sh"
+source "${SCRIPT_DIR}/harbor-infra-mirror.sh"
 # shellcheck source=release_source_guard.sh
 source "${SCRIPT_DIR}/release_source_guard.sh"
 
