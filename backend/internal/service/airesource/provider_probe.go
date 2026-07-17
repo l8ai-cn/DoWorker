@@ -48,6 +48,9 @@ func (prober *HTTPConnectionProber) Probe(ctx context.Context, input ProbeInput)
 	if response.StatusCode == http.StatusUnauthorized || response.StatusCode == http.StatusForbidden {
 		return ErrInvalidCredentials
 	}
+	if response.StatusCode == http.StatusNotFound {
+		return ErrProviderEndpointUnavailable
+	}
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return fmt.Errorf("%w: provider status %d", ErrValidation, response.StatusCode)
 	}

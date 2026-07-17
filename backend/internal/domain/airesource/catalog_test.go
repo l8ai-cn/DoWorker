@@ -16,6 +16,7 @@ func TestCatalogContainsRequiredProviders(t *testing.T) {
 		"xai", "mistral", "stability-ai", "black-forest-labs", "replicate",
 		"fal", "ideogram", "elevenlabs", "azure-speech", "runway", "kling",
 		"hailuo", "luma", "custom-openai-compatible", "custom-anthropic-compatible",
+		"sub2api-seedance",
 	}
 
 	for _, key := range required {
@@ -80,6 +81,7 @@ func TestProviderConnectionChecksAreCodeOwned(t *testing.T) {
 		{key: "luma", strategy: ConnectionAuthBearer, path: "/generations"},
 		{key: "ideogram", strategy: ConnectionAuthHeader, path: "/models"},
 		{key: "kling", strategy: ConnectionAuthUnsupported, path: ""},
+		{key: "sub2api-seedance", strategy: ConnectionAuthBearer, path: "/contents/generations/tasks"},
 	}
 	for _, test := range tests {
 		definition, ok := Provider(test.key)

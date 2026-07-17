@@ -70,8 +70,12 @@ function matchesToolModelFamily(
   providerKey: string,
   modelId: string,
 ): boolean {
-  if (providerKey === "doubao" && requirement.capability === "video-generation") {
+  if (requirement.capability !== "video-generation") return true;
+  if (providerKey === "doubao") {
     return modelId.trim().startsWith("doubao-seedance-");
+  }
+  if (providerKey === "sub2api-seedance") {
+    return modelId.trim() === "creative-video";
   }
   return true;
 }
