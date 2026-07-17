@@ -20,7 +20,7 @@
   },
   "image": {
     "repository": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent",
-    "tag": "4e17ae3f40f1-artifact-streaming-v2",
-    "digest": "sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e"
+    "tag": "4e17ae3f40f1-runner-79b433d43025",
+    "digest": "sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b"
   }
 }

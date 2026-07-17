@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "worker_slug": "seedance-expert",
-  "definition_hash": "sha256:7ee9fcb085831f1eeedfb9c682cdab9b8a62991b70f84906896bdddf187b2c2f",
+  "definition_hash": "sha256:255c22f71b957d50e656393afa3ca3cd671caa711da32d5ad5a701c2e1903be8",
   "platform": "linux/amd64",
-  "observed_at": "2026-07-16T07:30:00Z",
+  "observed_at": "2026-07-17T19:05:45+08:00",
   "image_reference": "do-worker/runner-do-agent:latest",
-  "image_id": "sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+  "image_id": "sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b",
   "probe_command": [
     "do-agent",
     "--version"

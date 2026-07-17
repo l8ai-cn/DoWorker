@@ -29,7 +29,7 @@ images:
 EOF
 }
 
-manifest_digest() {
+infra_manifest_digest() {
   [[ "${MANIFEST_QUERY_ERROR}" -eq 0 ]] || return 1
   printf '%s' "${REMOTE_DIGEST}"
 }

@@ -120,7 +120,7 @@ verified_locked_infra_digest() {
       ;;
   esac
 
-  if ! remote="$(manifest_digest "${PROJ}/${dest}")"; then
+  if ! remote="$(infra_manifest_digest "${PROJ}/${dest}")"; then
     return "${INFRA_VERIFICATION_ERROR}"
   fi
   [[ "${remote}" == "${locked}" ]] || {
@@ -173,7 +173,7 @@ mirror() {
     sleep 8
     n=$((n + 1))
   done
-  digest="$(manifest_digest "${PROJ}/${dest}")" || return 1
+  digest="$(infra_manifest_digest "${PROJ}/${dest}")" || return 1
   verify_infra_mirror_platforms "${PROJ}/${image}@${digest}" "${dest}" || return 1
   set_infra_digest "${image}" "${digest}"
 }

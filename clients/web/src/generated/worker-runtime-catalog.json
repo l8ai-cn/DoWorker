@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "runtimeCatalogRevision": "runtime-catalog-2026-07-16-seedance",
+  "runtimeCatalogRevision": "runtime-catalog-2026-07-16-79b433d43025",
   "workers": [
     {
       "slug": "aider",
@@ -220,7 +220,7 @@
       ],
       "runtimeImage": {
         "name": "Do Agent",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b",
         "availability": "locked_available"
       },
       "validationStatus": "runtime_ready_unverified"
@@ -533,7 +533,7 @@
       ],
       "runtimeImage": {
         "name": "Do Agent",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b",
         "availability": "locked_available"
       },
       "validationStatus": "runtime_ready_unverified"
@@ -575,7 +575,7 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Video Studio",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:06f4da6e2431639d6a4f626df7531244d08a60f83415a2737a8dd3f9fd7f23c1",
         "availability": "locked_available"
       },
       "validationStatus": "runtime_ready_unverified"

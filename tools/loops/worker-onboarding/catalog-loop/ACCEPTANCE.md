@@ -6,8 +6,8 @@ Only mark an item after its verifier and every required runtime artifact pass.
 An invalidated acceptance remains visible through the revocation record.
 
 - [x] `accept-runtime-evidence-baseline`
-  - Criteria: exactly 12 target slugs have a non-supported initial state; every
-    observed database/image/fixture mismatch is recorded.
+  - Criteria: exactly 14 target slugs have durable baseline rows; every
+    observed database/image/fixture mismatch is recorded without inferred support.
   - Verifier: `bash scripts/verify-rebuild-state.sh`
   - Evidence: `catalog/worker-evidence-matrix.json`,
     `evidence/revocations/2026-07-12-invalid-shared-contract.md`

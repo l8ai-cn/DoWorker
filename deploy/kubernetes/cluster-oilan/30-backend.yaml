@@ -71,7 +71,7 @@ spec:
             - name: COORDINATOR_RUNNER_RELAY_BASE_URL
               value: "ws://relay:8090"
             - name: COORDINATOR_RUNNER_IMAGES
-              value: "video-studio=repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22,e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa,do-agent=repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e,seedance-expert=repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e"
+              value: "video-studio=repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:06f4da6e2431639d6a4f626df7531244d08a60f83415a2737a8dd3f9fd7f23c1,e2e-echo=repo.aiedulab.cn:8443/agentsmesh/runner-e2e-echo@sha256:077eb4511113ddb80dd8e09d7b46ffe3668d6b69d1840c1cbe849e97595087fa,do-agent=repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b,seedance-expert=repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b"
           volumeMounts:
             - name: pki-ca
               mountPath: /app/ssl

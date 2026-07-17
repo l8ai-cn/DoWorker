@@ -50,7 +50,7 @@ bash -c '
   source "$1/deploy.sh"
   release_require_pushed_clean_tree() { :; }
   release_verify_source_metadata() { :; }
-  release_verify_platform_image_provenance() { :; }
+  release_verify_image_provenance() { :; }
   generate_cluster_secrets() {
     mkdir -p "${SEC}"
     for name in "${SECRET_MANIFESTS[@]}"; do

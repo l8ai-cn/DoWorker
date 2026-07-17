@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/harbor-manifest-digest.sh"
+
 harbor_creds() {
   local store
   store="$(python3 -c "import json,os;print(json.load(open(os.path.expanduser('~/.docker/config.json'))).get('credsStore',''))")"
@@ -23,21 +25,6 @@ ensure_project() {
   echo "  create project -> HTTP ${status}"
 }
 
-manifest_digest() {
-  local image="$1" digest="" attempt=1
-  until digest="$(docker buildx imagetools inspect "${image}" --format '{{.Manifest.Digest}}')" &&
-    [[ "${digest}" =~ ^sha256:[a-f0-9]{64}$ ]]; do
-    [[ "${attempt}" -ge 4 ]] && {
-      echo "invalid registry digest for ${image}: ${digest}" >&2
-      return 1
-    }
-    echo "  registry manifest query failed; retry ${attempt}/4..." >&2
-    sleep 3
-    attempt=$((attempt + 1))
-  done
-  printf '%s' "${digest}"
-}
-
 docker_build_with_retry() {
   local file="$1" tag="$2" attempt=1
   until docker_build_with_heartbeat "${file}" "${tag}"; do
@@ -51,6 +38,7 @@ docker_build_with_retry() {
 docker_build_with_heartbeat() {
   local file="$1" tag="$2" build_pid status
   docker build --platform "${PLATFORM}" \
+    --provenance=false \
     --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT:?release source commit is required}" \
     -f "${REPO_ROOT}/${file}" \
     -t "${tag}" \
@@ -83,8 +71,14 @@ docker_push() {
   docker_build_with_retry "${file}" "${tag}"
   verify_local_image_revision "${tag}"
   docker push "${tag}"
-  local digest
-  digest="$(manifest_digest "${tag}")"
+  local digest promoted_digest
+  digest="$(platform_manifest_digest "${tag}")"
+  promote_platform_manifest "${tag}" "${PROJ}/${dest}@${digest}"
+  promoted_digest="$(platform_manifest_digest "${tag}")"
+  [[ "${promoted_digest}" == "${digest}" ]] || {
+    echo "platform release promotion digest mismatch for ${dest}: ${promoted_digest}" >&2
+    return 1
+  }
   case "${dest}" in
     backend) PLATFORM_DIGEST_BACKEND="${digest}" ;;
     marketplace) PLATFORM_DIGEST_MARKETPLACE="${digest}" ;;
@@ -169,6 +163,6 @@ EOF
 
 registry_digest() {
   local image="$1" digest
-  digest="$(manifest_digest "${PROJ}/${image}:latest")"
+  digest="$(platform_manifest_digest "${PROJ}/${image}:latest")"
   printf '%s' "${digest}"
 }

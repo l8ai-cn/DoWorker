@@ -62,7 +62,7 @@ main() {
   }
   release_require_pushed_clean_tree "${REPO_ROOT}"
   release_verify_source_metadata "${REPO_ROOT}"
-  release_verify_platform_image_provenance "${REPO_ROOT}" backend
+  release_verify_image_provenance "${REPO_ROOT}" backend
   state="$(migration_state)"
   [[ "${state}" == "222|t" ]] || {
     echo "expected migration state 222|t, got ${state}" >&2

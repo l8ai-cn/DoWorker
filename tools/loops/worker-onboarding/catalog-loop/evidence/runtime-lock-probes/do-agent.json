@@ -1,11 +1,12 @@
 {
   "schema_version": 1,
   "worker_slug": "do-agent",
-  "runtime_catalog_revision": "runtime-catalog-2026-07-16-seedance",
-  "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
-  "image_digest": "sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
+  "runtime_catalog_revision": "runtime-catalog-2026-07-16-79b433d43025",
+  "image_reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b",
+  "image_digest": "sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b",
+  "platform": "linux/amd64",
   "status": "available",
   "exit_code": 0,
-  "output": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e: Pulling from agentsmesh/runner-do-agent\ne1d877a3a1e8: Pulling fs layer\n4f4fb700ef54: Pulling fs layer\n05b660a00064: Pulling fs layer\nabbc9b1adbc0: Pulling fs layer\n682f3a64d718: Pulling fs layer\nf58d588cee76: Pulling fs layer\n085c59fd2037: Pulling fs layer\nDigest: sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e\nStatus: Image is up to date for repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e\nrepo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
-  "observed_at": "2026-07-16T07:29:59.575Z"
+  "output": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b: Pulling from agentsmesh/runner-do-agent\nDigest: sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b\nStatus: Image is up to date for repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b\nrepo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b",
+  "observed_at": "2026-07-17T19:05:45+08:00"
 }

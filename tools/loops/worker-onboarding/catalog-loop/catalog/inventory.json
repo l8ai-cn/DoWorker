@@ -298,7 +298,7 @@
       ],
       "runtime_catalog": {
         "status": "locked_available",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e"
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b"
       },
       "runtime_evidence": "published_runtime_smoke_verified",
       "runner": "adapter_unit_verified",
@@ -703,7 +703,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:7ee9fcb085831f1eeedfb9c682cdab9b8a62991b70f84906896bdddf187b2c2f",
+      "definition_hash": "sha256:255c22f71b957d50e656393afa3ca3cd671caa711da32d5ad5a701c2e1903be8",
       "executable": "do-agent",
       "adapter_id": "do-agent-acp",
       "interaction_modes": [
@@ -750,7 +750,7 @@
       ],
       "runtime_catalog": {
         "status": "locked_available",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e"
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b"
       },
       "runtime_evidence": "shared_published_do_agent_runtime_verified",
       "runner": "adapter_unit_verified",
@@ -804,9 +804,9 @@
       "config_documents": [],
       "runtime_catalog": {
         "status": "locked_available",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22"
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:06f4da6e2431639d6a4f626df7531244d08a60f83415a2737a8dd3f9fd7f23c1"
       },
-      "runtime_evidence": "image_missing",
+      "runtime_evidence": "published_runtime_smoke_verified",
       "runner": "unverified",
       "product_path": "unverified",
       "browser": "unverified",
