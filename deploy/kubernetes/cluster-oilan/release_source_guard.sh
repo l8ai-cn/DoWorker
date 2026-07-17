@@ -101,18 +101,29 @@ release_require_ci_success() {
 release_write_source_metadata() {
   local repo_root="${1:?repository root is required}"
   local output="${repo_root}/deploy/kubernetes/cluster-oilan/release/source.json"
-  local temporary="${output}.tmp"
+  local temporary
   local source_commit="${RELEASE_SOURCE_COMMIT:?release source commit is required}"
   local image_revisions
 
-  image_revisions="$(release_collect_platform_image_revisions "${repo_root}")"
-  mkdir -p "$(dirname "${output}")"
+  image_revisions="$(release_collect_platform_image_revisions "${repo_root}")" || return 1
+  mkdir -p "$(dirname "${output}")" || return 1
+  temporary="$(mktemp "${output}.tmp.XXXXXX")" || return 1
   jq -n \
     --arg branch "${RELEASE_BRANCH:-main}" \
     --arg commit "${source_commit}" \
     --argjson images "${image_revisions}" \
-    '{branch: $branch, commit: $commit, images: $images}' > "${temporary}"
-  mv "${temporary}" "${output}"
+    '{branch: $branch, commit: $commit, images: $images}' > "${temporary}" || {
+      rm -f "${temporary}"
+      return 1
+    }
+  [[ -s "${temporary}" ]] || {
+    rm -f "${temporary}"
+    return 1
+  }
+  mv "${temporary}" "${output}" || {
+    rm -f "${temporary}"
+    return 1
+  }
 }
 
 release_verify_source_metadata() {

@@ -4,15 +4,14 @@ REG="repo.aiedulab.cn:8443"
 PROJ="${REG}/agentsmesh"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
-TARGET="${1:-all}"
+TARGET="${1:-all}"; RUNNER_SOURCE_METADATA_MODE="${2:-write}"
 source "${REPO_ROOT}/docker/agent-runtime/do_agent_release_manifest.sh"
 source "${SCRIPT_DIR}/harbor_immutable_release.sh"
 source "${SCRIPT_DIR}/runner-build-base.sh"
-# shellcheck source=release_source_guard.sh
 source "${SCRIPT_DIR}/release_source_guard.sh"
-# shellcheck source=push-runner-video-studio.sh
 source "${SCRIPT_DIR}/push-runner-video-studio.sh"
 release_require_pushed_clean_tree "${REPO_ROOT}"
+[[ "${RUNNER_SOURCE_METADATA_MODE}" == "write" || ( "${TARGET}" == "all" && "${RUNNER_SOURCE_METADATA_MODE}" == "defer-platform-source-metadata" ) ]] || { echo "invalid Runner source metadata mode" >&2; exit 1; }
 
 require_do_agent_artifact() {
   local expected actual
@@ -165,7 +164,7 @@ publish_do_agent() {
 push_do_agent() {
   build_do_agent
   publish_do_agent
-  release_write_source_metadata "${REPO_ROOT}"
+  [[ "${RUNNER_SOURCE_METADATA_MODE}" == "defer-platform-source-metadata" ]] || release_write_source_metadata "${REPO_ROOT}"
 }
 
 push_all() {

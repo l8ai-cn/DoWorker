@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "${TMP}"' EXIT
+export REAL_JQ
+REAL_JQ="$(command -v jq)"
 
 git init --bare "${TMP}/origin.git" >/dev/null
 git init -b main "${TMP}/repo" >/dev/null
@@ -26,7 +28,8 @@ chmod +x "${TMP}/bin/gh"
 cat > "${TMP}/bin/docker" <<'EOF'
 #!/usr/bin/env bash
 if [[ "${1:-}" == "pull" ]]; then
-  exit 0
+  [[ "${FAIL_PULL:-0}" != "1" ]]
+  exit
 fi
 if [[ "${1:-} ${2:-}" == "image inspect" ]]; then
   printf '%s\n' "${EXPECTED_REVISION:-${RELEASE_SOURCE_COMMIT}}"
@@ -35,6 +38,17 @@ fi
 exit 1
 EOF
 chmod +x "${TMP}/bin/docker"
+cat > "${TMP}/bin/jq" <<'EOF'
+#!/usr/bin/env bash
+if [[ "${FAIL_JQ_MODE:-}" == "aggregate" && "${1:-}" == "-c" ]]; then
+  exit 1
+fi
+if [[ "${FAIL_JQ_MODE:-}" == "serialize" && "${1:-}" == "-n" ]]; then
+  exit 1
+fi
+exec "${REAL_JQ}" "$@"
+EOF
+chmod +x "${TMP}/bin/jq"
 export PATH="${TMP}/bin:${PATH}"
 printf 'release\n' > "${TMP}/repo/release.txt"
 git -C "${TMP}/repo" add release.txt
@@ -56,6 +70,21 @@ mkdir -p "${TMP}/repo/deploy/kubernetes/cluster-oilan/release"
 } > "${TMP}/repo/deploy/kubernetes/cluster-oilan/release/kustomization.yaml"
 release_write_source_metadata "${TMP}/repo"
 release_verify_source_metadata "${TMP}/repo"
+source_digest="$(sha256sum "${TMP}/repo/deploy/kubernetes/cluster-oilan/release/source.json" | cut -d' ' -f1)"
+export FAIL_PULL=1
+if release_write_source_metadata "${TMP}/repo" 2>/dev/null; then
+  echo "failed platform image pull was accepted" >&2
+  exit 1
+fi
+unset FAIL_PULL
+[[ "${source_digest}" == "$(sha256sum "${TMP}/repo/deploy/kubernetes/cluster-oilan/release/source.json" | cut -d' ' -f1)" ]]
+for failure_mode in aggregate serialize; do
+  if FAIL_JQ_MODE="${failure_mode}" release_write_source_metadata "${TMP}/repo" 2>/dev/null; then
+    echo "failed ${failure_mode} metadata write was accepted" >&2
+    exit 1
+  fi
+  [[ "${source_digest}" == "$(sha256sum "${TMP}/repo/deploy/kubernetes/cluster-oilan/release/source.json" | cut -d' ' -f1)" ]]
+done
 git -C "${TMP}/repo" add deploy/kubernetes/cluster-oilan/release
 git -C "${TMP}/repo" commit -m "release metadata" >/dev/null
 git -C "${TMP}/repo" push >/dev/null

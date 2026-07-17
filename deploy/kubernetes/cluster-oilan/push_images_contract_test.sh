@@ -16,6 +16,10 @@ grep -q 'release_collect_platform_image_revisions' "release_source_guard.sh"
 grep -q 'release_source_guard.sh' "$RUNNER_SCRIPT"
 grep -q 'release_require_pushed_clean_tree' "$RUNNER_SCRIPT"
 grep -q 'harbor_require_upload_token_expiration "${REG}" 120' "$RUNNER_SCRIPT"
+grep -Fq 'RUNNER_SOURCE_METADATA_MODE="${2:-write}"' "$RUNNER_SCRIPT"
+grep -q 'defer-platform-source-metadata' "$RUNNER_SCRIPT"
+grep -q 'RUNNER_SOURCE_METADATA_MODE' "push-runner-video-studio.sh"
+! grep -Rq 'DEFER_PLATFORM_SOURCE_METADATA' "$SCRIPT" "$RUNNER_SCRIPT" "push-runner-video-studio.sh"
 grep -q 'verify_runner_build_base' "$RUNNER_SCRIPT"
 grep -Fq 'export RUNTIME_BUILD_BASE="${RUNNER_BUILD_BASE}"' "$RUNNER_SCRIPT"
 grep -Fq -- '--build-arg "RUNTIME_BUILD_BASE=${RUNTIME_BUILD_BASE}"' "$RUNNER_SCRIPT"
@@ -46,6 +50,7 @@ latest_line="$(grep -n -- '--tag "${repository}:latest"' "$RUNNER_SCRIPT" | cut 
 all_case="$(grep -F 'all)' "$SCRIPT")"
 [[ "${all_case}" == *'push_infra'* ]]
 [[ "${all_case}" == *'push-runner-images.sh" all'* ]]
+[[ "${all_case}" == *'all defer-platform-source-metadata'* ]]
 [[ "${all_case}" == *'push_platform'* ]]
 
 bash harbor_infra_mirror_contract_test.sh
