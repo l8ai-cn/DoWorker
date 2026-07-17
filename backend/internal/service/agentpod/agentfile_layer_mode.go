@@ -1,6 +1,6 @@
 package agentpod
 
-import "strings"
+import "github.com/anthropics/agentsmesh/agentfile/parser"
 
 // agentfileLayerHasModeDecl reports whether the user-supplied AgentFile layer
 // already selects an interaction mode via a bare `MODE pty` / `MODE acp`
@@ -19,12 +19,11 @@ func agentfileLayerMode(layer *string) string {
 	if layer == nil {
 		return ""
 	}
+	program, _ := parser.Parse(*layer)
 	mode := ""
-	for _, line := range strings.Split(*layer, "\n") {
-		fields := strings.Fields(line)
-		if len(fields) == 2 && fields[0] == "MODE" &&
-			(fields[1] == "pty" || fields[1] == "acp") {
-			mode = fields[1]
+	for _, declaration := range program.Declarations {
+		if modeDeclaration, ok := declaration.(*parser.ModeDecl); ok {
+			mode = modeDeclaration.Mode
 		}
 	}
 	return mode
