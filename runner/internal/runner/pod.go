@@ -36,6 +36,8 @@ type Pod struct {
 	WorkDir       string
 	LaunchEnv     []string // Full environment slice for subprocess
 
+	workbenchForwarder *acpWorkbenchForwarder
+
 	// Perpetual mode: auto-restart on clean exit
 	Perpetual    bool
 	RestartCount int

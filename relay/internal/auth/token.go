@@ -2,9 +2,6 @@ package auth
 
 import (
 	"errors"
-	"net/url"
-	"path"
-	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -19,10 +16,11 @@ var (
 type TokenType string
 
 const (
-	TokenTypeRunner  TokenType = "runner"
-	TokenTypeBrowser TokenType = "browser"
-	TokenTypeTunnel  TokenType = "tunnel"
-	TokenTypePreview TokenType = "preview"
+	TokenTypeRunner           TokenType = "runner"
+	TokenTypeBrowser          TokenType = "browser"
+	TokenTypeTunnel           TokenType = "tunnel"
+	TokenTypePreviewBootstrap TokenType = "preview_bootstrap"
+	TokenTypePreviewSession   TokenType = "preview_session"
 )
 
 // RelayClaims represents JWT claims for relay token
@@ -35,6 +33,7 @@ type RelayClaims struct {
 	TokenType     TokenType `json:"token_type,omitempty"`
 	PreviewTarget string    `json:"preview_target,omitempty"` // e.g. 127.0.0.1:3000
 	PreviewPath   string    `json:"preview_path,omitempty"`
+	PreviewOrigin string    `json:"preview_origin,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -100,9 +99,17 @@ func (v *TokenValidator) ValidateToken(tokenString string) (*RelayClaims, error)
 	if v.issuer != "" && claims.Issuer != v.issuer {
 		return nil, ErrInvalidToken
 	}
-	if claims.ResolvedType() == TokenTypePreview {
+	if claims.ResolvedType() == TokenTypePreviewBootstrap || claims.ResolvedType() == TokenTypePreviewSession {
 		normalized, err := NormalizePreviewPath(claims.PreviewPath)
-		if err != nil || normalized != claims.PreviewPath || claims.PreviewTarget == "" {
+		audience, audienceErr := claims.GetAudience()
+		if err != nil ||
+			normalized != claims.PreviewPath ||
+			claims.PreviewTarget == "" ||
+			claims.PreviewOrigin == "" ||
+			claims.ID == "" ||
+			audienceErr != nil ||
+			len(audience) != 1 ||
+			audience[0] != claims.PreviewOrigin {
 			return nil, ErrInvalidToken
 		}
 	}
@@ -110,26 +117,18 @@ func (v *TokenValidator) ValidateToken(tokenString string) (*RelayClaims, error)
 	return claims, nil
 }
 
-// NormalizePreviewPath keeps one canonical escaped representation across JWT
-// validation and proxy forwarding.
-func NormalizePreviewPath(raw string) (string, error) {
-	if raw == "" {
-		return "", ErrInvalidToken
+func (v *TokenValidator) ValidatePreviewToken(tokenString string, tokenType TokenType, previewOrigin string) (*RelayClaims, error) {
+	if tokenType != TokenTypePreviewBootstrap && tokenType != TokenTypePreviewSession {
+		return nil, ErrInvalidToken
 	}
-	if strings.ContainsAny(raw, "?#") {
-		return "", ErrInvalidToken
+	claims, err := v.ValidateToken(tokenString)
+	if err != nil {
+		return nil, err
 	}
-	decoded, err := url.PathUnescape(raw)
-	if err != nil || !strings.HasPrefix(decoded, "/") {
-		return "", ErrInvalidToken
+	if claims.TokenType != tokenType || claims.PreviewOrigin != previewOrigin {
+		return nil, ErrInvalidToken
 	}
-	for _, segment := range strings.Split(decoded, "/") {
-		if segment == ".." {
-			return "", ErrInvalidToken
-		}
-	}
-	cleaned := path.Clean(decoded)
-	return (&url.URL{Path: cleaned}).EscapedPath(), nil
+	return claims, nil
 }
 
 // GenerateToken generates a relay token (used by Backend)
@@ -160,6 +159,9 @@ func GenerateToken(secret, issuer, podKey string, runnerID, userID, orgID int64,
 // (and optional preview target). Used by backend and tests; the original
 // GenerateToken remains unchanged for legacy callers.
 func GenerateTypedToken(secret, issuer string, tokenType TokenType, previewTarget string, runnerID, userID, orgID int64, expiry time.Duration) (string, error) {
+	if tokenType == TokenTypePreviewBootstrap || tokenType == TokenTypePreviewSession || tokenType == TokenType("preview") {
+		return "", ErrInvalidToken
+	}
 	now := time.Now()
 	claims := &RelayClaims{
 		RunnerID:      runnerID,

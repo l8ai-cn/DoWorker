@@ -102,13 +102,23 @@ func New(cfg *config.Config) *Server {
 			cfg.Tunnel.StreamWindowBytes,
 		)
 		limiter := tunnel.NewPodLimiter(cfg.Tunnel.MaxStreamsPerPod, cfg.Tunnel.QueuePerPod, cfg.Tunnel.QueueTimeout)
-		s.previewHandler = NewPreviewHandler(tokenValidator, s.tunnelRegistry, limiter, PreviewConfig{
-			ReconnectGrace:    cfg.Tunnel.ReconnectGrace,
-			StreamTimeout:     cfg.Tunnel.StreamTimeout,
-			StreamWindowBytes: cfg.Tunnel.StreamWindowBytes,
-			CookieSecure:      cfg.PreviewUsesHTTPS(),
-			PublicHost:        cfg.PreviewPublicHost(),
-		})
+		s.previewHandler = NewPreviewHandler(
+			tokenValidator,
+			auth.NewPreviewSessionIssuer(cfg.JWT.Secret, cfg.JWT.Issuer),
+			backendClient,
+			s.tunnelRegistry,
+			limiter,
+			PreviewConfig{
+				ReconnectGrace:    cfg.Tunnel.ReconnectGrace,
+				StreamTimeout:     cfg.Tunnel.StreamTimeout,
+				StreamWindowBytes: cfg.Tunnel.StreamWindowBytes,
+				ReauthorizeEvery:  30 * time.Second,
+				CookieSecure:      cfg.PreviewUsesHTTPS(),
+				CookieMode:        cfg.PreviewCookieMode,
+				PublicOrigin:      cfg.PreviewPublicOrigin,
+				PublicHost:        cfg.PreviewPublicHost(),
+			},
+		)
 		registry := s.tunnelRegistry
 		backendClient.SetTunnelStatsProvider(func() (int, int) {
 			stats := registry.Stats()

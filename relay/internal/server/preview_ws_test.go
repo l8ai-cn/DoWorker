@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"github.com/gorilla/websocket"
 
 	"github.com/anthropics/agentsmesh/relay/internal/auth"
+	relaybackend "github.com/anthropics/agentsmesh/relay/internal/backend"
 )
 
 // TestPreviewE2E_WebSocket verifies WebSocket upgrades pass through the tunnel:
@@ -39,7 +41,7 @@ func TestPreviewE2E_WebSocket(t *testing.T) {
 	defer upstream.Close()
 	target := strings.TrimPrefix(upstream.URL, "http://")
 
-	gw, registry, _ := newPreviewE2EGateway(t)
+	gw, registry, _, _ := newPreviewE2EGateway(t)
 	defer gw.Close()
 
 	tunnelToken, err := auth.GenerateTypedToken("s3cret", "iss", auth.TokenTypeTunnel, "", runnerID, 0, 3, time.Hour)
@@ -53,8 +55,13 @@ func TestPreviewE2E_WebSocket(t *testing.T) {
 
 	previewToken := mustPreviewToken(t, "pod1", runnerID, target)
 
-	previewWSURL := "ws" + strings.TrimPrefix(gw.URL, "http") + "/preview/pod1/echo?token=" + previewToken
-	conn, resp, err := websocket.DefaultDialer.Dial(previewWSURL, nil)
+	conn, resp, err := dialPreviewWebSocket(
+		t,
+		gw,
+		"pod1",
+		"/preview/pod1/echo",
+		previewToken,
+	)
 	if err != nil {
 		status := 0
 		if resp != nil {
@@ -86,7 +93,7 @@ func TestPreviewE2E_WebSocketUpstreamOfflineReturnsHTTPError(t *testing.T) {
 	// No upstream listening on this address at all.
 	target := "127.0.0.1:1"
 
-	gw, registry, _ := newPreviewE2EGateway(t)
+	gw, registry, _, _ := newPreviewE2EGateway(t)
 	defer gw.Close()
 
 	tunnelToken, err := auth.GenerateTypedToken("s3cret", "iss", auth.TokenTypeTunnel, "", runnerID, 0, 3, time.Hour)
@@ -99,8 +106,13 @@ func TestPreviewE2E_WebSocketUpstreamOfflineReturnsHTTPError(t *testing.T) {
 	waitForRunnerRegistered(t, registry, runnerID)
 
 	previewToken := mustPreviewToken(t, "pod1", runnerID, target)
-	previewWSURL := "ws" + strings.TrimPrefix(gw.URL, "http") + "/preview/pod1/echo?token=" + previewToken
-	_, resp, err := websocket.DefaultDialer.Dial(previewWSURL, nil)
+	_, resp, err := dialPreviewWebSocket(
+		t,
+		gw,
+		"pod1",
+		"/preview/pod1/echo",
+		previewToken,
+	)
 	if err == nil {
 		t.Fatal("expected dial to fail when upstream is offline")
 	}
@@ -110,5 +122,74 @@ func TestPreviewE2E_WebSocketUpstreamOfflineReturnsHTTPError(t *testing.T) {
 			got = resp.StatusCode
 		}
 		t.Fatalf("expected 502, got %d", got)
+	}
+}
+
+func TestPreviewE2E_WebSocketClosesWhenSessionIsRevoked(t *testing.T) {
+	const runnerID = int64(23)
+
+	upgrader := websocket.Upgrader{CheckOrigin: func(*http.Request) bool { return true }}
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+		for {
+			if _, _, err := conn.ReadMessage(); err != nil {
+				return
+			}
+		}
+	}))
+	defer upstream.Close()
+	target := strings.TrimPrefix(upstream.URL, "http://")
+
+	gw, registry, _, backend := newPreviewE2EGateway(t)
+	defer gw.Close()
+	tunnelToken, err := auth.GenerateTypedToken(
+		"s3cret",
+		"iss",
+		auth.TokenTypeTunnel,
+		"",
+		runnerID,
+		0,
+		3,
+		time.Hour,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wsURL := "ws" + strings.TrimPrefix(gw.URL, "http") + "/runner/tunnel?token=" + tunnelToken
+	fr := newFakeRunnerTunnel(t, wsURL, tunnelToken, target)
+	defer fr.Close()
+	waitForRunnerRegistered(t, registry, runnerID)
+
+	previewToken := mustPreviewToken(t, "pod1", runnerID, target)
+	conn, _, err := dialPreviewWebSocket(
+		t,
+		gw,
+		"pod1",
+		"/preview/pod1/echo",
+		previewToken,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	backend.setAuthorizeError(relaybackend.ErrPreviewSessionUnauthorized)
+	if err := conn.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	_, _, err = conn.ReadMessage()
+	var closeErr *websocket.CloseError
+	if !errors.As(err, &closeErr) {
+		t.Fatalf("read error = %v, want websocket close", err)
+	}
+	if closeErr.Code != websocket.ClosePolicyViolation {
+		t.Fatalf("close code = %d, want %d", closeErr.Code, websocket.ClosePolicyViolation)
+	}
+	if backend.authorizationCalls() < 2 {
+		t.Fatalf("authorization calls = %d, want periodic reauthorization", backend.authorizationCalls())
 	}
 }

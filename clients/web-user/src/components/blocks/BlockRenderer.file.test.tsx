@@ -55,7 +55,9 @@ describe("BlockRenderer file dispatch", () => {
 
     expect(authenticatedFetch).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "加载视频 seedance-output" }));
-    expect(await screen.findByLabelText("seedance-output")).toHaveAttribute(
+    expect(
+      await screen.findByLabelText("视频预览：seedance-output"),
+    ).toHaveAttribute(
       "src",
       "blob:block-file",
     );

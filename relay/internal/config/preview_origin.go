@@ -45,6 +45,9 @@ func canonicalHTTPOrigin(raw string) (string, error) {
 	if hostname == "" || !isASCII(hostname) {
 		return "", fmt.Errorf("host must use ASCII")
 	}
+	if net.ParseIP(hostname) != nil {
+		return "", fmt.Errorf("host must use DNS so each pod can have an isolated origin")
+	}
 	port := u.Port()
 	if (scheme == "http" && port == "80") || (scheme == "https" && port == "443") {
 		port = ""

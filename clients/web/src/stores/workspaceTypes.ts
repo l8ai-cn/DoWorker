@@ -56,6 +56,7 @@ export interface WorkspaceState {
   terminalFontSize: number;
 
   addPane: (podKey: string) => string;
+  openDeepLinkedPane: (podKey: string) => string;
   removePane: (paneId: string) => void;
   setActivePane: (paneId: string | null) => void;
   splitPane: (paneId: string, direction: SplitDirection, podKey: string) => void;

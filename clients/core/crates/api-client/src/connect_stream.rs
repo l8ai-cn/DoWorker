@@ -1,13 +1,32 @@
-//! Cross-platform Connect-RPC server-stream API.
-//!
-//! Two transports under the hood:
-//!   * native (`connect_stream_native.rs`) — reqwest::Response::bytes_stream
-//!   * wasm (`connect_stream_wasm.rs`) — web_sys::ReadableStream via fetch
-//!
-//! Both feed the shared parser in `connect_stream_frames.rs`.
+use agentsmesh_types::proto_events_v1::{Event, SubscribeRequest};
+use futures::stream::Stream;
 
-#[cfg(not(target_arch = "wasm32"))]
-pub use crate::connect_stream_native::*;
+use crate::{ApiClient, ApiError};
 
-#[cfg(target_arch = "wasm32")]
-pub use crate::connect_stream_wasm::*;
+const EVENTS_SUBSCRIBE: &str = "/proto.events.v1.EventsService/Subscribe";
+
+impl ApiClient {
+    #[cfg(not(target_arch = "wasm32"))]
+    pub async fn subscribe_events_connect_native(
+        &self,
+        request: &SubscribeRequest,
+    ) -> Result<impl Stream<Item = Result<Event, ApiError>>, ApiError> {
+        self.connect_server_stream_native(EVENTS_SUBSCRIBE, request)
+            .await
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    pub async fn subscribe_events_connect_wasm(
+        &self,
+        request: &SubscribeRequest,
+    ) -> Result<
+        (
+            impl Stream<Item = Result<Event, ApiError>>,
+            crate::WasmAbortHandle,
+        ),
+        ApiError,
+    > {
+        self.connect_server_stream_wasm(EVENTS_SUBSCRIBE, request)
+            .await
+    }
+}

@@ -4,11 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"mime"
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"time"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
@@ -61,10 +59,7 @@ func (h *RunnerMessageHandler) sandboxFsUploadWorkspace(
 	if info.Size() > maxSandboxFsUploadBytes {
 		return fsErrResult("upload exceeds maximum file size"), nil
 	}
-	contentType := mime.TypeByExtension(filepath.Ext(relative))
-	if contentType == "" {
-		contentType = "application/octet-stream"
-	}
+	contentType := sandboxFsContentType(relative)
 	request, err := http.NewRequestWithContext(ctx, http.MethodPut, parsed.String(), file)
 	if err != nil {
 		return fsErrResult(err.Error()), nil

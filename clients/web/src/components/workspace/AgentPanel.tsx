@@ -1,14 +1,20 @@
 "use client";
 
 import React, { useCallback, useMemo, useState } from "react";
-import { AgentWorkspace } from "@do-worker/agent-ui";
+import {
+  AgentWorkspace,
+  createBuiltinContentRenderers,
+} from "@do-worker/agent-ui";
 import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useWorkspaceStore, type SplitDirection } from "@/stores/workspace";
 import { usePod, usePodStore } from "@/stores/pod";
 import { usePodStatus } from "@/hooks";
-import { useMigratedSessionHydration } from "@/hooks/useMigratedSessionHydration";
+import { useAcpRelay } from "@/hooks/useAcpRelay";
+import { useAgentSessionLink } from "@/hooks/useAgentSessionLink";
+import { getAgentWorkbenchState } from "@/lib/wasm-core";
 import { AgentPanelHeader } from "./AgentPanelHeader";
+import { AgentSessionLinkState } from "./AgentSessionLinkState";
 import {
   PaneLoadingState,
   PaneErrorState,
@@ -16,7 +22,13 @@ import {
 } from "./PaneStateViews";
 import { PodSelectorModal } from "./PodSelectorModal";
 import { WorkerControlOverlay } from "@/components/mobile-worker/WorkerControlOverlay";
-import { WebAcpSessionRuntime } from "./agent-ui/WebAcpSessionRuntime";
+import { useWorkerControlLease } from "@/hooks/useWorkerControlLease";
+import { WebAgentWorkbenchRuntime } from "./agent-ui/WebAgentWorkbenchRuntime";
+import {
+  createWebAgentWorkbenchArtifactLoader,
+} from "./agent-ui/webAgentWorkbenchArtifactLoader";
+
+const AGENT_CONTENT_RENDERERS = createBuiltinContentRenderers();
 
 interface AgentPanelProps {
   paneId: string;
@@ -54,18 +66,35 @@ export function AgentPanel({
 
   const openPodKeys = useMemo(() => panes.map((p) => p.podKey), [panes]);
   const { podStatus, isPodReady, podError } = usePodStatus(podKey);
+  const controlLease = useWorkerControlLease(podKey, controlClientLabel);
 
   const shouldSubscribe = isPodReady || podStatus === "running";
-  useMigratedSessionHydration(podKey, Boolean(podKey));
+  useAcpRelay(podKey, paneId, shouldSubscribe);
+  const {
+    error: sessionLinkError,
+    loading: sessionLinkLoading,
+    sessionId,
+  } = useAgentSessionLink(podKey, shouldSubscribe);
   const runtime = useMemo(
-    () =>
-      new WebAcpSessionRuntime({
+    () => {
+      if (!sessionId) return null;
+      const workbenchState = getAgentWorkbenchState();
+      return new WebAgentWorkbenchRuntime({
         agentLabel: pod?.agent?.name ?? "Agent",
-        paneId,
-        podKey,
+        interactionMode: pod?.interaction_mode ?? "acp",
+        loadArtifact: createWebAgentWorkbenchArtifactLoader(workbenchState),
+        sessionId,
         title: pod?.title ?? pod?.alias ?? podKey,
-      }),
-    [paneId, pod?.agent?.name, pod?.alias, pod?.title, podKey],
+      });
+    },
+    [
+      pod?.agent?.name,
+      pod?.alias,
+      pod?.interaction_mode,
+      pod?.title,
+      podKey,
+      sessionId,
+    ],
   );
   const handleFocus = useCallback(() => {
     setActivePane(paneId);
@@ -110,18 +139,40 @@ export function AgentPanel({
             onClose={onClose}
           />
         )
+      ) : sessionLinkLoading ? (
+        <AgentSessionLinkState locale={locale} />
+      ) : sessionLinkError ? (
+        <PaneErrorState
+          error={
+            locale === "zh"
+              ? `Agent 会话连接失败：${sessionLinkError}`
+              : `Failed to connect to the Agent session: ${sessionLinkError}`
+          }
+          onClose={onClose}
+        />
+      ) : !runtime || !sessionId ? (
+        <PaneErrorState
+          error={
+            locale === "zh"
+              ? "该 Worker 尚未绑定真实 Agent 会话"
+              : "This Worker is not linked to an Agent session"
+          }
+          onClose={onClose}
+        />
       ) : (
         <AgentWorkspace
           className="flex-1"
           clientLabel={controlClientLabel}
+          contentRenderers={AGENT_CONTENT_RENDERERS}
           locale={locale === "zh" ? "zh-CN" : "en-US"}
+          readOnly={controlLease.status !== "granted"}
           runtime={runtime}
-          sessionId={runtime.sessionId}
+          sessionId={sessionId}
         />
       )}
       <WorkerControlOverlay
-        podKey={podKey}
-        clientLabel={controlClientLabel}
+        blocking={false}
+        lease={controlLease}
         preserveHeader={showHeader}
       />
 

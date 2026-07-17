@@ -67,6 +67,19 @@ if (!("IntersectionObserver" in globalThis)) {
   });
 }
 
+if (!("ResizeObserver" in globalThis)) {
+  class MockResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  Object.defineProperty(globalThis, "ResizeObserver", {
+    writable: true,
+    configurable: true,
+    value: MockResizeObserver,
+  });
+}
+
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: (query: string) => ({

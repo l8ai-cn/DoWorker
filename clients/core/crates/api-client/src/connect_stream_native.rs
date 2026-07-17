@@ -1,15 +1,5 @@
-//! Native Connect-RPC server-stream client (tokio / reqwest path).
-//!
-//! `subscribe_events_connect_native` wraps `reqwest::Response::bytes_stream`
-//! with the frame parser. The wasm equivalent (`connect_stream_wasm.rs`)
-//! constructs an `impl Stream<Item = Result<Bytes, ApiError>>` from
-//! `web_sys::ReadableStream` + the same parser.
-//!
-//! Both expose the cross-platform `subscribe_events` API in `connect_stream.rs`.
-
 #![cfg(not(target_arch = "wasm32"))]
 
-use agentsmesh_types::proto_events_v1::{Event, SubscribeRequest};
 use bytes::Bytes;
 use futures::stream::Stream;
 use futures::TryStreamExt;
@@ -18,34 +8,57 @@ use reqwest::header::{HeaderName, HeaderValue};
 
 use crate::client::ApiClient;
 use crate::connect_stream_frames::parse_connect_frames;
+use crate::connect_stream_request::frame_connect_stream_request;
 use crate::error::ApiError;
 
-const PROCEDURE: &str = "/proto.events.v1.EventsService/Subscribe";
-
 impl ApiClient {
-    /// Open a Connect-RPC server stream for real-time events. The returned
-    /// stream yields one decoded `Event` per server frame; the inner future
-    /// completes (cleanly or with an error) when the server sends the final
-    /// frame or the connection drops.
-    pub async fn subscribe_events_connect_native(
+    pub async fn connect_server_stream_native<Req, Res>(
         &self,
-        req: &SubscribeRequest,
-    ) -> Result<impl Stream<Item = Result<Event, ApiError>>, ApiError> {
-        let url = format!("{}{}", self.base_url, PROCEDURE);
-        // Connect server-stream wire requires a 5-byte envelope on every
-        // message (request and response): [flags: u8, len: u32 BE, payload].
-        // The wasm client (connect_stream_wasm.rs) and the Node e2e helper
-        // both frame the request; native was the missing third path. Without
-        // this, backend parses payload[0] as `flags` and payload[1..5] as
-        // `len`, then errors "promised N bytes in enveloped message, got 4
-        // bytes" via the EndStream trailer — observable as a Connected →
-        // Reconnecting oscillation in connection_loop.
-        let raw = req.encode_to_vec();
-        let mut payload = Vec::with_capacity(5 + raw.len());
-        payload.push(0u8); // flags = 0 (no compression, not final)
-        payload.extend_from_slice(&(raw.len() as u32).to_be_bytes());
-        payload.extend_from_slice(&raw);
+        procedure: &str,
+        request: &Req,
+    ) -> Result<impl Stream<Item = Result<Res, ApiError>>, ApiError>
+    where
+        Req: Message,
+        Res: Message + Default + 'static,
+    {
+        let bearer_token = self.auth_store.get_token();
+        self.connect_server_stream_native_with_optional_bearer(
+            procedure,
+            request,
+            bearer_token.as_deref(),
+        )
+        .await
+    }
 
+    pub(crate) async fn connect_server_stream_native_with_bearer<Req, Res>(
+        &self,
+        procedure: &str,
+        request: &Req,
+        bearer_token: &str,
+    ) -> Result<impl Stream<Item = Result<Res, ApiError>>, ApiError>
+    where
+        Req: Message,
+        Res: Message + Default + 'static,
+    {
+        self.connect_server_stream_native_with_optional_bearer(
+            procedure,
+            request,
+            Some(bearer_token),
+        )
+        .await
+    }
+
+    async fn connect_server_stream_native_with_optional_bearer<Req, Res>(
+        &self,
+        procedure: &str,
+        request: &Req,
+        bearer_token: Option<&str>,
+    ) -> Result<impl Stream<Item = Result<Res, ApiError>>, ApiError>
+    where
+        Req: Message,
+        Res: Message + Default + 'static,
+    {
+        let url = format!("{}{}", self.base_url, procedure);
         let mut builder = self
             .http
             .post(&url)
@@ -57,27 +70,28 @@ impl ApiClient {
                 HeaderName::from_static("connect-protocol-version"),
                 HeaderValue::from_static("1"),
             )
-            .body(payload);
+            .body(frame_connect_stream_request(request)?);
 
-        if let Some(token) = self.auth_store.get_token() {
-            if let Ok(v) = HeaderValue::from_str(&format!("Bearer {token}")) {
-                builder = builder.header(HeaderName::from_static("authorization"), v);
-            }
+        if let Some(token) = bearer_token {
+            let value = HeaderValue::from_str(&format!("Bearer {token}")).map_err(|error| {
+                ApiError::Decode(format!("invalid authorization header: {error}"))
+            })?;
+            builder = builder.header(HeaderName::from_static("authorization"), value);
         }
 
-        let resp = builder.send().await?;
-        let status = resp.status();
+        let response = builder.send().await?;
+        let status = response.status();
         if !status.is_success() {
-            let status_code = status.as_u16();
-            if status_code == 401 {
+            if status.as_u16() == 401 {
                 return Err(ApiError::AuthExpired);
             }
+            let status_code = status.as_u16();
             let status_text = status.canonical_reason().unwrap_or("Unknown").to_string();
-            let body = resp.bytes().await.ok();
+            let body = response.bytes().await.ok();
             let server_message = body
                 .as_ref()
-                .and_then(|b| std::str::from_utf8(b).ok())
-                .filter(|s| !s.is_empty())
+                .and_then(|value| std::str::from_utf8(value).ok())
+                .filter(|value| !value.is_empty())
                 .map(String::from);
             return Err(ApiError::Http {
                 status: status_code,
@@ -89,19 +103,17 @@ impl ApiClient {
             });
         }
 
-        // `bytes_stream()` requires the `stream` feature on reqwest, which is
-        // already enabled in MODULE.bazel.
-        let byte_stream = resp
+        let chunks = response
             .bytes_stream()
-            .map_err(|e| ApiError::Http {
+            .map_err(|error| ApiError::Http {
                 status: 0,
-                status_text: format!("transport: {e}"),
+                status_text: format!("transport: {error}"),
                 code: None,
                 server_message: None,
                 data: None,
                 url: None,
             })
             .map_ok(Bytes::from);
-        Ok(parse_connect_frames::<_, Event>(Box::pin(byte_stream)))
+        Ok(parse_connect_frames::<_, Res>(Box::pin(chunks)))
     }
 }

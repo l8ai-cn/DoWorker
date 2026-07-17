@@ -39,9 +39,13 @@ func (t *transport) handleThreadStatusChanged(params json.RawMessage) {
 	case "idle":
 		t.cancelIdleFallback()
 		t.clearToolOutputs()
+		t.clearActiveTurn("")
 		t.notifyTurnIdle()
 	case "active":
 		t.cancelIdleFallback()
+		if t.callbacks.OnStateChange != nil {
+			t.callbacks.OnStateChange(acp.StateProcessing)
+		}
 	}
 }
 
@@ -51,11 +55,13 @@ func (t *transport) handleTurnCompleted(params json.RawMessage) {
 	defer t.clearToolOutputs()
 	var tc turnCompletedParams
 	if err := json.Unmarshal(params, &tc); err != nil {
+		t.clearActiveTurn("")
 		if t.callbacks.OnStateChange != nil {
 			t.callbacks.OnStateChange(acp.StateIdle)
 		}
 		return
 	}
+	t.clearActiveTurn(tc.Turn.ID)
 	if tc.Turn.Status == "failed" && t.callbacks.OnLog != nil {
 		msg := "turn failed"
 		if tc.Turn.Error != nil {

@@ -139,7 +139,10 @@ func (t *transport) RespondToPermission(requestID string, approved bool, updated
 	return nil
 }
 
-func (t *transport) CancelSession(_ string) error { return nil }
+func (t *transport) CancelSession(_ string) error {
+	_, err := t.SendControlRequest("", "interrupt", nil)
+	return err
+}
 
 func (t *transport) SendControlRequest(_ string, subtype string, payload map[string]any) (map[string]any, error) {
 	t.logger.Info("Sending control_request", "subtype", subtype)
@@ -147,5 +150,6 @@ func (t *transport) SendControlRequest(_ string, subtype string, payload map[str
 }
 
 func (t *transport) SupportedPermissionModes() []string { return nil }
+func (t *transport) SupportedArtifactActions() []string { return nil }
 
 func (t *transport) Close() {}

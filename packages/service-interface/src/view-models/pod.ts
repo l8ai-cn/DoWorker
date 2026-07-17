@@ -37,4 +37,5 @@ export interface PodData {
   preview_port?: number;
   preview_path?: string;
   worker_spec_snapshot_id?: number;
+  session_id?: string;
 }

@@ -15,6 +15,7 @@
 package authconnect
 
 import (
+	"context"
 	"net/http"
 
 	"connectrpc.com/connect"
@@ -73,11 +74,22 @@ func NewServer(
 // so the mount path can apply the auth interceptor only to it without
 // dragging the public RPCs through the bearer check.
 type SessionServer struct {
-	authSvc *authservice.Service
+	authSvc         *authservice.Service
+	previewSessions previewSessionRevoker
 }
 
-func NewSessionServer(authSvc *authservice.Service) *SessionServer {
-	return &SessionServer{authSvc: authSvc}
+type previewSessionRevoker interface {
+	RevokeUser(context.Context, int64) error
+}
+
+func NewSessionServer(
+	authSvc *authservice.Service,
+	previewSessions previewSessionRevoker,
+) *SessionServer {
+	return &SessionServer{
+		authSvc:         authSvc,
+		previewSessions: previewSessions,
+	}
 }
 
 // MountPublic registers AuthService procedures WITHOUT the auth interceptor.

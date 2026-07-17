@@ -2,6 +2,21 @@ package codex
 
 import "encoding/json"
 
+type initializeParams struct {
+	ClientInfo   initializeClientInfo   `json:"clientInfo"`
+	Capabilities initializeCapabilities `json:"capabilities"`
+}
+
+type initializeClientInfo struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
+
+type initializeCapabilities struct {
+	ExperimentalAPI    bool `json:"experimentalApi"`
+	RequestAttestation bool `json:"requestAttestation"`
+}
+
 type threadStartResult struct {
 	Thread struct {
 		ID string `json:"id"`
@@ -20,7 +35,32 @@ type turnInput struct {
 
 type turnInterruptParams struct {
 	ThreadID string `json:"threadId"`
-	TurnID   string `json:"turnId,omitempty"`
+	TurnID   string `json:"turnId"`
+}
+
+type backgroundTerminalListParams struct {
+	ThreadID string `json:"threadId"`
+}
+
+type backgroundTerminalListResponse struct {
+	Data []struct {
+		ProcessID string `json:"processId"`
+	} `json:"data"`
+}
+
+type backgroundTerminalTerminateParams struct {
+	ThreadID  string `json:"threadId"`
+	ProcessID string `json:"processId"`
+}
+
+type backgroundTerminalTerminateResponse struct {
+	Terminated bool `json:"terminated"`
+}
+
+type turnStartedParams struct {
+	Turn struct {
+		ID string `json:"id"`
+	} `json:"turn"`
 }
 
 type approvalRequestParams struct {
@@ -102,6 +142,7 @@ type threadStatusChangedParams struct {
 
 type turnCompletedParams struct {
 	Turn struct {
+		ID     string `json:"id"`
 		Status string `json:"status"`
 		Error  *struct {
 			Message string `json:"message"`

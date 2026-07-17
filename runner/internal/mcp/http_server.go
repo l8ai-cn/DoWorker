@@ -7,66 +7,12 @@ import (
 	"net/http"
 	"net/http/pprof"
 	"os"
-	"sync"
 	"time"
 
 	"github.com/anthropics/agentsmesh/runner/internal/client"
 	"github.com/anthropics/agentsmesh/runner/internal/logger"
-	"github.com/anthropics/agentsmesh/runner/internal/mcp/tools"
 	"github.com/anthropics/agentsmesh/runner/internal/safego"
 )
-
-// PodStatusProvider provides Pod status information.
-// This interface allows HTTPServer to query Pod status from the Runner.
-type PodStatusProvider interface {
-	// GetPodStatus returns the agent status (executing/waiting/idle) for a given pod.
-	GetPodStatus(podKey string) (agentStatus string, podStatus string, shellPid int, found bool)
-}
-
-// LocalPodProvider provides direct access to local pod operations.
-// This is used by AutopilotController control process to interact with local Pods
-// without going through the Backend API.
-type LocalPodProvider interface {
-	// GetPodSnapshot returns the terminal output for a local pod.
-	GetPodSnapshot(podKey string, lines int) (string, error)
-	// SendPodInput sends text and/or special keys to a local pod.
-	SendPodInput(podKey string, text string, keys []string) error
-}
-
-// HTTPServer provides an MCP server over HTTP for agent collaboration.
-// This server exposes collaboration tools to Claude Code via the MCP protocol.
-type HTTPServer struct {
-	rpcClient      *client.RPCClient
-	port           int
-	pods           map[string]*PodInfo
-	mu             sync.RWMutex
-	httpServer     *http.Server
-	tools          []*MCPTool
-	statusProvider PodStatusProvider
-	podProvider    LocalPodProvider
-}
-
-// PodInfo holds information about a registered pod.
-type PodInfo struct {
-	PodKey       string
-	OrgSlug      string
-	TicketID     *int
-	ProjectID    *int
-	Agent        string
-	RegisteredAt time.Time
-	Client       tools.CollaborationClient
-}
-
-// MCPTool represents a tool exposed via MCP.
-type MCPTool struct {
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	InputSchema map[string]interface{} `json:"inputSchema"`
-	Handler     MCPToolHandler
-}
-
-// MCPToolHandler is a function that handles tool invocations.
-type MCPToolHandler func(ctx context.Context, client tools.CollaborationClient, args map[string]interface{}) (interface{}, error)
 
 // NewHTTPServer creates a new MCP HTTP server.
 // rpcClient is used for MCP tool calls over the gRPC bidirectional stream.

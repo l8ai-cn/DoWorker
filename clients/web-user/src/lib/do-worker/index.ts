@@ -1,4 +1,4 @@
-export { resolveApiBaseUrl, resolveDevProxyTarget } from "./env";
+export { resolveApiBaseUrl } from "./env";
 export {
   clearDoWorkerSession,
   patchDoWorkerOrgSlug,

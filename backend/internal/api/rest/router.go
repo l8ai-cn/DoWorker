@@ -3,7 +3,6 @@ package rest
 import (
 	"context"
 	"log/slog"
-	"strings"
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/internal"
@@ -22,7 +21,6 @@ import (
 	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
 	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
@@ -47,46 +45,6 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		c.AbortWithStatusJSON(500, apierr.ErrorResponse{Error: "Internal server error", Code: apierr.INTERNAL_ERROR})
 	}))
 
-	// CORS configuration
-	// gin-contrib/cors does an exact-string match against AllowOrigins, so
-	// the literal "null" origin (sent by Electron renderer when loading
-	// out/renderer/index.html via file://) never matches the configured
-	// host:port allowlist. Use AllowOriginFunc to accept "null" / file://
-	// in addition to the configured allowlist; preserves the prod
-	// allowlist semantics while letting desktop renderers connect.
-	allowed := cfg.Server.CORSAllowedOrigins
-	if len(allowed) == 0 {
-		allowed = []string{"*"}
-	}
-	allowedSet := make(map[string]struct{}, len(allowed))
-	wildcardAll := false
-	for _, o := range allowed {
-		if o == "*" {
-			wildcardAll = true
-		}
-		allowedSet[o] = struct{}{}
-	}
-	corsConfig := cors.Config{
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Organization-Slug", "X-API-Key"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			if wildcardAll {
-				return true
-			}
-			if _, ok := allowedSet[origin]; ok {
-				return true
-			}
-			// Electron file:// loader sends Origin: null; some browsers
-			// also send file:// directly. Accept both for desktop.
-			if origin == "null" || strings.HasPrefix(origin, "file://") {
-				return true
-			}
-			return false
-		},
-	}
-	r.Use(cors.New(corsConfig))
 	registerJWKSRoute(r, svc.Auth.AccessTokenManager())
 
 	// Health check — session API deps wired below.
@@ -206,11 +164,12 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 	// Internal API routes (Relay communication)
 	if svc.RelayManager != nil {
 		internal.RegisterRelayRoutes(r.Group("/api/internal/relays"), &internal.RelayRouterDeps{
-			RelayManager:   svc.RelayManager,
-			DNSService:     svc.RelayDNSService,
-			ACMEManager:    svc.RelayACMEManager,
-			GeoResolver:    svc.GeoResolver,
-			InternalSecret: cfg.Server.InternalAPISecret,
+			RelayManager:    svc.RelayManager,
+			DNSService:      svc.RelayDNSService,
+			ACMEManager:     svc.RelayACMEManager,
+			GeoResolver:     svc.GeoResolver,
+			InternalSecret:  cfg.Server.InternalAPISecret,
+			PreviewSessions: svc.PreviewSessions,
 		})
 	}
 	if svc.Expert != nil && svc.Org != nil {
@@ -251,6 +210,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		VirtualKeys:        svc.VirtualKey,
 		TokenQuotas:        svc.TokenQuota,
 		EmbedTokens:        embedtoken.NewService(cfg.JWT.Secret, redisClient),
+		PreviewSessions:    svc.PreviewSessions,
 		Version:            "do-worker-dev",
 	}
 	sessionDeps.Stream = sessionapi.NewSessionStreamPublisher(
@@ -260,6 +220,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 	sessionDeps.Stream.Pods = svc.Pod
 	sessionDeps.Updates = sessionapi.NewSessionUpdatesHub(&sessionDeps)
 	sessionDeps.Stream.Updates = sessionDeps.Updates
+	svc.EmbedTokens = sessionDeps.EmbedTokens
 	if svc.PodCoordinator != nil {
 		sessionDeps.PodCoordinator = svc.PodCoordinator
 		sessionDeps.CommandSender = svc.PodCoordinator.GetCommandSender()
@@ -270,6 +231,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 	}
 	sessionapi.RegisterHealthRoute(r, sessionDeps)
 	sessionapi.RegisterRoutes(r, sessionDeps)
+	wireAgentWorkbench(svc, db, sessionDeps.Sessions)
 	if svc.RunnerGRPCAdapter != nil {
 		svc.RunnerGRPCAdapter.SetPodEventSink(sessionDeps.Stream)
 	}

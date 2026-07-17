@@ -150,18 +150,20 @@ on this cluster). Re-running seed alone does not change relay/web env — only s
 ## Endpoints
 
 - App: https://dowork.l8ai.cn (`/api`, `/proto.`, `/relay`, `/health`)
-- Isolated Pod preview: https://preview.l8ai.cn (`/preview` only)
+- Isolated Pod preview: `https://<pod-key>.preview.dowork.l8ai.cn` (`/preview` only)
 - Mobile Worker entry: https://mobile.l8ai.cn
 - Marketplace Storefront: https://market.l8ai.cn
 - Marketplace API: https://market.l8ai.cn/api/marketplace/v1
 - Organization marketplace: https://dowork.l8ai.cn/dev-org/marketplace
 - Admin console: https://admin.l8ai.cn (separate host — no `/admin` basePath)
-- Pod preview gateway: https://preview.l8ai.cn/preview
+- Pod preview gateway: `https://<pod-key>.preview.dowork.l8ai.cn/preview`
 - Object storage (presigned URLs): https://minio.dowork.l8ai.cn
 - Test account: `admin@agentsmesh.local / Ab123456`
 
 DNS for `dowork.l8ai.cn` / `market.l8ai.cn` / `mobile.l8ai.cn` /
-`admin.l8ai.cn` / `preview.l8ai.cn` / `minio.dowork.l8ai.cn` must point at the oilan node. All
+`admin.l8ai.cn` / `*.preview.dowork.l8ai.cn` / `minio.dowork.l8ai.cn` must point at the oilan node.
+The `agentsmesh` namespace must contain `dowork-preview-wildcard-tls` covering
+`*.preview.dowork.l8ai.cn`. All
 public URLs share one domain family so relay/WebSocket URLs from
 `GetPodConnection` match the page origin (mixed `l8an.cn` / `l8ai.cn` hosts caused
 403 on terminal attach). Ingress-nginx may expose **NodePort 10007** (HTTP) so

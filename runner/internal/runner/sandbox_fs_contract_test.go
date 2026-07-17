@@ -70,6 +70,90 @@ func TestSandboxFsReadRejectsSymlinkOutsideWorkspace(t *testing.T) {
 	assert.Empty(t, result.GetContent())
 }
 
+func TestSandboxFsReadBytesReturnsExactRange(t *testing.T) {
+	root := t.TempDir()
+	require.NoError(t, os.WriteFile(
+		filepath.Join(root, "demo.mp4"),
+		[]byte("0123456789"),
+		0o644,
+	))
+
+	result, err := (&RunnerMessageHandler{}).sandboxFsReadBytes(
+		root,
+		"demo.mp4",
+		2,
+		4,
+	)
+
+	require.NoError(t, err)
+	require.Empty(t, result.GetError())
+	assert.Equal(t, []byte("2345"), result.GetContentBytes())
+	assert.Equal(t, int64(2), result.GetContentOffset())
+	assert.Equal(t, int64(10), result.GetFileBytes())
+	assert.False(t, result.GetEof())
+	assert.Equal(t, "video/mp4", result.GetContentType())
+}
+
+func TestSandboxFsReadBytesClampsAtEndOfFile(t *testing.T) {
+	root := t.TempDir()
+	require.NoError(t, os.WriteFile(
+		filepath.Join(root, "result.bin"),
+		[]byte("0123456789"),
+		0o644,
+	))
+
+	result, err := (&RunnerMessageHandler{}).sandboxFsReadBytes(
+		root,
+		"result.bin",
+		8,
+		4,
+	)
+
+	require.NoError(t, err)
+	require.Empty(t, result.GetError())
+	assert.Equal(t, []byte("89"), result.GetContentBytes())
+	assert.True(t, result.GetEof())
+}
+
+func TestSandboxFsReadBytesRejectsInvalidLength(t *testing.T) {
+	root := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(root, "result.bin"), []byte("x"), 0o644))
+
+	zero, err := (&RunnerMessageHandler{}).sandboxFsReadBytes(root, "result.bin", 0, 0)
+	require.NoError(t, err)
+	assert.NotEmpty(t, zero.GetError())
+
+	large, err := (&RunnerMessageHandler{}).sandboxFsReadBytes(
+		root,
+		"result.bin",
+		0,
+		maxSandboxFsReadChunkBytes+1,
+	)
+	require.NoError(t, err)
+	assert.NotEmpty(t, large.GetError())
+}
+
+func TestSandboxFsStatReturnsArtifactMetadataWithoutContent(t *testing.T) {
+	root := t.TempDir()
+	require.NoError(t, os.WriteFile(
+		filepath.Join(root, "slides.pptx"),
+		[]byte("deck"),
+		0o644,
+	))
+
+	result, err := (&RunnerMessageHandler{}).sandboxFsStat(root, "slides.pptx")
+
+	require.NoError(t, err)
+	require.Empty(t, result.GetError())
+	assert.Equal(t, int64(4), result.GetFileBytes())
+	assert.Equal(
+		t,
+		"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+		result.GetContentType(),
+	)
+	assert.Empty(t, result.GetContentBytes())
+}
+
 func TestSandboxFsWriteRejectsSymlinkDirectoryOutsideWorkspace(t *testing.T) {
 	root := t.TempDir()
 	outside := t.TempDir()

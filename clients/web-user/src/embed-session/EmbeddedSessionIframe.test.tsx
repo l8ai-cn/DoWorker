@@ -4,13 +4,17 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { EmbeddedSessionIframe } from "./EmbeddedSessionIframe";
 
+const renderedAccess = vi.hoisted(() => [] as unknown[]);
+
 vi.mock("./EmbeddedAgentWorkspace", () => ({
-  EmbeddedAgentWorkspace: ({ sessionId }: { sessionId: string }) => (
-    <div>Workspace {sessionId}</div>
-  ),
+  EmbeddedAgentWorkspace: ({ access }: { access: unknown }) => {
+    renderedAccess.push(access);
+    return <div>Workspace</div>;
+  },
 }));
 
 afterEach(() => {
+  renderedAccess.length = 0;
   vi.unstubAllGlobals();
 });
 
@@ -21,9 +25,7 @@ describe("EmbeddedSessionIframe", () => {
     render(<EmbeddedSessionIframe />);
 
     expect(screen.getByText("无法打开嵌入会话")).toBeInTheDocument();
-    expect(
-      screen.getByText("此嵌入工作区需要有效的会话上下文。"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("此嵌入工作区需要有效的会话上下文。")).toBeInTheDocument();
   });
 
   it("keeps a stable hook order while redeeming and opening the workspace", async () => {
@@ -45,6 +47,7 @@ describe("EmbeddedSessionIframe", () => {
           access_token: "session-token",
           expires_at: 2_000_000_000,
           session_id: "conv-live",
+          org_slug: "acme",
           capabilities: ["read", "write"],
           parent_origins: ["http://portal.example"],
         }),
@@ -82,7 +85,16 @@ describe("EmbeddedSessionIframe", () => {
       );
     });
 
-    expect(await screen.findByText("Workspace conv-live")).toBeInTheDocument();
+    expect(await screen.findByText("Workspace")).toBeInTheDocument();
+    const access = renderedAccess.at(-1);
+    expect(access).toMatchObject({
+      baseUrl: window.location.origin,
+      orgSlug: "acme",
+      sessionId: "conv-live",
+    });
+    expect(await (access as { getAccessToken(): Promise<string> | string }).getAccessToken()).toBe(
+      "session-token",
+    );
     expect(fetcher).toHaveBeenCalledTimes(2);
     expect(fetcher).toHaveBeenLastCalledWith("/v1/embed-contexts/redeem", {
       method: "POST",

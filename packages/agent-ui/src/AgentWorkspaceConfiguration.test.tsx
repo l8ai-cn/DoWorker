@@ -137,6 +137,79 @@ describe("AgentWorkspace configuration", () => {
     });
   });
 
+  it("renders generated permission controls with protocol keys and English labels", async () => {
+    const snapshot = agentWorkspaceSnapshot();
+    snapshot.status = "idle";
+    snapshot.items = [];
+    snapshot.plan = [];
+    snapshot.permissions = [];
+    snapshot.configuration = [
+      {
+        id: "permission_mode",
+        label: "Permissions",
+        value: "",
+        options: [
+          { value: "bypass", label: "bypass" },
+          { value: "ask_dangerous", label: "ask_dangerous" },
+          { value: "ask_any_write", label: "ask_any_write" },
+        ],
+      },
+    ];
+    const { agentRuntime } = agentWorkspaceRuntime(snapshot);
+
+    render(<AgentWorkspace runtime={agentRuntime} sessionId={snapshot.sessionId} />);
+
+    fireEvent.click(
+      await screen.findByRole("combobox", { name: "Permissions" }),
+    );
+    fireEvent.click(screen.getByRole("option", { name: "Full access" }));
+
+    await waitFor(() => {
+      expect(agentRuntime.updateConfiguration).toHaveBeenCalledWith(
+        "session-1",
+        expect.any(String),
+        { permission_mode: "bypass" },
+      );
+    });
+  });
+
+  it("shows synchronized configuration without allowing read-only observers to edit it", async () => {
+    const snapshot = agentWorkspaceSnapshot();
+    snapshot.status = "idle";
+    snapshot.items = [];
+    snapshot.plan = [];
+    snapshot.permissions = [];
+    snapshot.configuration = [
+      {
+        id: "permission_mode",
+        label: "Permissions",
+        value: "bypass",
+        options: [
+          { value: "bypass", label: "bypass" },
+          { value: "ask_dangerous", label: "ask_dangerous" },
+        ],
+      },
+    ];
+    const { agentRuntime } = agentWorkspaceRuntime(snapshot);
+
+    render(
+      <AgentWorkspace
+        readOnly
+        runtime={agentRuntime}
+        sessionId={snapshot.sessionId}
+      />,
+    );
+
+    const picker = await screen.findByRole("combobox", {
+      name: "Permissions",
+    });
+    expect(picker).toHaveTextContent("Full access");
+    expect(picker).toBeDisabled();
+    expect(picker).not.toHaveAttribute("aria-busy");
+    expect(picker.querySelector(".animate-spin")).toBeNull();
+    expect(agentRuntime.updateConfiguration).not.toHaveBeenCalled();
+  });
+
   it("closes the picker when keyboard focus leaves it", async () => {
     const user = userEvent.setup();
     const snapshot = agentWorkspaceSnapshot();

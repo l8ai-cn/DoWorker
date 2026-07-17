@@ -43,6 +43,24 @@ export function getApiBaseUrl(): string {
   return "http://localhost:10000";
 }
 
+export function getAgentWorkbenchStreamBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_AGENT_WORKBENCH_STREAM_URL) {
+    return process.env.NEXT_PUBLIC_AGENT_WORKBENCH_STREAM_URL;
+  }
+
+  const apiUrl = getApiBaseUrl();
+  if (apiUrl) return apiUrl;
+
+  const derived = deriveHttpUrl();
+  if (derived) return derived;
+
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+
+  throw new Error("agent_workbench_stream_base_url_missing");
+}
+
 export function getOAuthBaseUrl(): string {
   if (process.env.NEXT_PUBLIC_OAUTH_URL) {
     return process.env.NEXT_PUBLIC_OAUTH_URL;

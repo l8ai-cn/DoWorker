@@ -18,6 +18,8 @@ func extractMessageType(msg *runnerv1.RunnerMessage) string {
 		return "PodTerminated"
 	case *runnerv1.RunnerMessage_AgentStatus:
 		return "AgentStatus"
+	case *runnerv1.RunnerMessage_WorkbenchEvents:
+		return "WorkbenchEvents"
 	case *runnerv1.RunnerMessage_PodInitProgress:
 		return "PodInitProgress"
 	case *runnerv1.RunnerMessage_Error:

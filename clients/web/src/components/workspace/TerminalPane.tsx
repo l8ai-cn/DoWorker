@@ -16,6 +16,7 @@ import { AutopilotOverlay } from "./AutopilotOverlay";
 import { AutopilotStartButton } from "./AutopilotStartButton";
 import { PodSelectorModal } from "./PodSelectorModal";
 import { WorkerControlOverlay } from "@/components/mobile-worker/WorkerControlOverlay";
+import { useWorkerControlLease } from "@/hooks/useWorkerControlLease";
 
 interface TerminalPaneProps {
   paneId: string;
@@ -57,6 +58,7 @@ export function TerminalPane({
   const hasAutopilot = !!useAutopilotControllerByPodKey(podKey);
   const openPodKeys = useMemo(() => panes.map((p) => p.podKey), [panes]);
   const { podStatus, isPodReady, podError } = usePodStatus(podKey);
+  const controlLease = useWorkerControlLease(podKey, controlClientLabel);
   const [showTerminal, setShowTerminal] = useState(false);
   if (isPodReady && !showTerminal) {
     setShowTerminal(true);
@@ -183,8 +185,7 @@ export function TerminalPane({
 
       <AutopilotStartButton podKey={podKey} triggerRef={triggerAutopilotRef} />
       <WorkerControlOverlay
-        podKey={podKey}
-        clientLabel={controlClientLabel}
+        lease={controlLease}
         preserveHeader={showHeader}
       />
 

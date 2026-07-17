@@ -44,6 +44,9 @@ func (c *GRPCConnection) SendMessage(msg *runnerv1.RunnerMessage) error {
 	if msg.Timestamp == 0 {
 		msg.Timestamp = time.Now().UnixMilli()
 	}
+	if _, ok := msg.Payload.(*runnerv1.RunnerMessage_WorkbenchEvents); ok {
+		return c.sendWorkbench(msg)
+	}
 	return c.sendControl(msg)
 }
 

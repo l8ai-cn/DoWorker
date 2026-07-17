@@ -44,14 +44,14 @@ describe("podWorkspaceArtifactApi", () => {
     );
 
     await expect(listPodWorkspaceArtifacts("worker-1")).resolves.toEqual([
-      {
+      expect.objectContaining({
         id: "workspace-discovery:artifact:0",
         kind: "artifact",
         artifactId: "workspace:output/demo.mp4",
         filename: "demo.mp4",
         mimeType: "video/mp4",
         status: "completed",
-      },
+      }),
     ]);
     expect(globalThis.fetch).toHaveBeenCalledWith(
       "/api/v1/orgs/dev-org/pods/worker-1/resources/workspace/changes",

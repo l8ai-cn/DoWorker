@@ -38,6 +38,8 @@ import type {
   WasmBlockstoreService,
   WasmAuthManager,
   WasmOrchestrationResourceService,
+  WasmAgentWorkbenchService,
+  WasmAgentWorkbenchState,
 } from "do-worker-wasm";
 
 // Plain identity helper — `_Sig<F>` accepts any function type. We use it
@@ -256,6 +258,13 @@ type _AuthMgr_set_current_org        = _Sig<WasmAuthManager["set_current_org"]>;
 type _AuthMgr_proto_apply_session    = _RequiresU8<WasmAuthManager["apply_session"]>;
 type _AuthMgr_proto_set_organizations = _RequiresU8<WasmAuthManager["set_organizations"]>;
 type _AuthMgr_proto_set_current_org   = _RequiresU8<WasmAuthManager["set_current_org"]>;
+
+type _AgentWorkbench_snapshot = _Sig<WasmAgentWorkbenchService["getSessionSnapshotConnect"]>;
+type _AgentWorkbench_stream = _Sig<WasmAgentWorkbenchService["streamSessionDeltasConnect"]>;
+type _AgentWorkbench_execute = _Sig<WasmAgentWorkbenchService["executeCommandConnect"]>;
+type _AgentWorkbench_state_snapshot = _Sig<WasmAgentWorkbenchState["snapshotBytes"]>;
+type _AgentWorkbench_state_status = _Sig<WasmAgentWorkbenchState["projectionStatus"]>;
+type _AgentWorkbench_state_resync = _Sig<WasmAgentWorkbenchState["resyncReason"]>;
 
 // ── RunnerService auth bootstrap proto-bytes mutators ──
 // production callers: lib/api/facade/runner.ts runnerAuthApi. The wasm

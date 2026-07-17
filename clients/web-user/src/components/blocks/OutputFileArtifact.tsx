@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+import {
+  VideoArtifactViewer,
+  artifactPresentation,
+} from "@do-worker/agent-ui";
 import { AlertCircleIcon, DownloadIcon, FileTextIcon, PlayIcon, VideoIcon } from "lucide-react";
 import { useFileViewerConversationId } from "@/shell/FileViewerContext";
 import { useSessionFileObjectUrl } from "./useSessionFileObjectUrl";
@@ -43,7 +47,13 @@ export function OutputFileArtifact({ fileId, filename, contentType }: OutputFile
     );
   }
   if (file.status === "ready" && resolvedVideo) {
-    return <VideoArtifact path={file.url} filename={label} />;
+    return (
+      <VideoArtifact
+        contentType={file.mimeType || contentType || "video/mp4"}
+        path={file.url}
+        filename={label}
+      />
+    );
   }
 
   const loading = file.status === "loading";
@@ -82,7 +92,15 @@ export function OutputFileArtifact({ fileId, filename, contentType }: OutputFile
   );
 }
 
-function VideoArtifact({ path, filename }: { path: string; filename: string }) {
+function VideoArtifact({
+  contentType,
+  path,
+  filename,
+}: {
+  contentType: string;
+  path: string;
+  filename: string;
+}) {
   const [state, setState] = useState<VideoState>("loading");
   if (state === "load-error" || state === "playback-error") {
     return (
@@ -94,37 +112,20 @@ function VideoArtifact({ path, filename }: { path: string; filename: string }) {
     );
   }
   return (
-    <figure className="min-w-0 overflow-hidden rounded-md border border-border bg-muted/40">
-      <video
-        aria-label={filename}
-        className="aspect-video w-full bg-black object-contain"
-        controls
-        onError={() =>
-          setState((current) => (current === "ready" ? "playback-error" : "load-error"))
-        }
-        onLoadedData={() => setState("ready")}
-        playsInline
-        preload="metadata"
+    <div
+      onErrorCapture={() =>
+        setState((current) => (current === "ready" ? "playback-error" : "load-error"))
+      }
+      onLoadedDataCapture={() => setState("ready")}
+    >
+      <VideoArtifactViewer
+        filename={filename}
+        mimeType={contentType}
+        onDownload={() => downloadObjectUrl(path, filename)}
         src={path}
+        status="ready"
       />
-      <figcaption className="flex min-w-0 items-center gap-2 px-3 py-2">
-        <VideoIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-        <span className="min-w-0 flex-1 truncate text-sm font-medium">{filename}</span>
-        {state === "loading" && (
-          <span className="shrink-0 text-xs text-muted-foreground" role="status">
-            正在准备预览
-          </span>
-        )}
-        <a
-          aria-label={`下载 ${filename}`}
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          download={filename}
-          href={path}
-        >
-          <DownloadIcon className="size-4" aria-hidden="true" />
-        </a>
-      </figcaption>
-    </figure>
+    </div>
   );
 }
 
@@ -164,8 +165,7 @@ function ArtifactError({
 }
 
 function isVideoArtifact(filename: string | null, contentType: string | null): boolean {
-  const mimeType = contentType?.split(";", 1)[0]?.trim().toLowerCase();
-  return mimeType?.startsWith("video/") === true || (!!filename && /\.mp4$/i.test(filename));
+  return artifactPresentation(contentType, filename || "").kind === "video";
 }
 
 function downloadObjectUrl(url: string, filename: string): void {

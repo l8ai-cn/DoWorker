@@ -16,3 +16,23 @@ for variable in HTTP_PROXY HTTPS_PROXY http_proxy https_proxy; do
 done
 grep -q 'NO_PROXY: "\*"' <<<"$traefik_block"
 grep -q 'no_proxy: "\*"' <<<"$traefik_block"
+
+temp_dir="$(mktemp -d)"
+trap 'rm -rf "$temp_dir"' EXIT
+
+success() { :; }
+SCRIPT_DIR="$temp_dir"
+WORKTREE_NAME="traefik-contract"
+BACKEND_HTTP_PORT=11015
+BACKEND_GRPC_PORT=11016
+RELAY_HTTP_PORT=11017
+MARKETPLACE_HTTP_PORT=11022
+source lib/config_gen.sh
+generate_traefik_config
+
+node - "$temp_dir/traefik/dynamic/http.yml" <<'NODE'
+const fs = require("node:fs");
+const YAML = require("yaml");
+const config = YAML.parse(fs.readFileSync(process.argv[2], "utf8"));
+if (!config?.http?.routers?.["backend-api"]?.rule) process.exit(1);
+NODE

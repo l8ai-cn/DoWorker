@@ -6,6 +6,7 @@ export interface ToolRendererKey {
 
 export interface ContentRendererKey {
   blockKind: string;
+  manifestType?: string;
   mediaType?: string;
   role?: string;
   schemaVersion: string;
@@ -22,6 +23,7 @@ export function toolRendererKeyId(key: ToolRendererKey): string {
 export function contentRendererKeyId(key: ContentRendererKey): string {
   return JSON.stringify([
     requiredKeyField("blockKind", key.blockKind),
+    optionalKeyField("manifestType", key.manifestType),
     optionalKeyField("mediaType", key.mediaType),
     optionalKeyField("role", key.role),
     requiredKeyField("schemaVersion", key.schemaVersion),

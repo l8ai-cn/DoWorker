@@ -2,7 +2,11 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PodPreviewInfo } from "@/hooks/usePodPreview";
 
-import { getPreviewFrameKey, PreviewPanel } from "./PreviewPanel";
+import {
+  buildPreviewWindowUrl,
+  getPreviewFrameKey,
+  PreviewPanel,
+} from "./PreviewPanel";
 
 const usePodPreviewMock = vi.fn();
 
@@ -21,8 +25,8 @@ vi.mock("@/hooks/usePodPreview", () => ({
 function previewState(overrides: Partial<PodPreviewInfo>) {
   return {
     data: {
-      preview_base_url: "https://d/preview/pod1/",
-      session_url: "https://d/preview/pod1/__session?token=old",
+      preview_base_url: "https://pod1.preview.test/preview/pod1/",
+      session_url: "https://pod1.preview.test/preview/pod1/__session?token=old",
       expires_at: "2026-07-12T00:00:00Z",
       ...overrides,
     },
@@ -65,10 +69,21 @@ describe("PreviewPanel iframe key behavior", () => {
     usePodPreviewMock.mockReturnValueOnce(previewState({}));
     const { rerender } = render(<PreviewPanel podKey="pod1" />);
     const first = screen.getByTitle("Pod pod1 preview");
-    expect(first).toHaveAttribute("src", "https://d/preview/pod1/__session?token=old");
+    expect(first).toHaveAttribute(
+      "src",
+      "https://pod1.preview.test/preview/pod1/__session?token=old",
+    );
+    expect(first).toHaveAttribute(
+      "sandbox",
+      "allow-scripts allow-same-origin allow-forms allow-downloads",
+    );
+    expect(first).toHaveAttribute("referrerpolicy", "no-referrer");
+    expect(first.getAttribute("allow")).not.toContain("camera");
 
     usePodPreviewMock.mockReturnValueOnce(
-      previewState({ session_url: "https://d/preview/pod1/__session?token=new" }),
+      previewState({
+        session_url: "https://pod1.preview.test/preview/pod1/__session?token=new",
+      }),
     );
     rerender(<PreviewPanel podKey="pod1" />);
     const second = screen.getByTitle("Pod pod1 preview");
@@ -92,9 +107,28 @@ describe("PreviewPanel iframe key behavior", () => {
     render(<PreviewPanel podKey="pod1" />);
     const first = screen.getByTitle("Pod pod1 preview");
 
-    fireEvent.click(screen.getByRole("button", { name: "Refresh preview" }));
+    fireEvent.click(screen.getByRole("button", { name: "刷新预览" }));
 
     expect(screen.getByTitle("Pod pod1 preview")).not.toBe(first);
     expect(state.refetch).toHaveBeenCalledOnce();
+  });
+});
+
+describe("preview window", () => {
+  it("opens the trusted local shell instead of the preview session directly", () => {
+    const state = previewState({});
+    usePodPreviewMock.mockReturnValue(state);
+    const open = vi.spyOn(window, "open").mockImplementation(() => null);
+    render(<PreviewPanel podKey="pod1" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "在新窗口打开预览" }));
+
+    expect(open).toHaveBeenCalledWith(
+      buildPreviewWindowUrl(state.data),
+      "_blank",
+      "noopener,noreferrer",
+    );
+    expect(open.mock.calls[0]?.[0]).not.toBe(state.data.session_url);
+    open.mockRestore();
   });
 });

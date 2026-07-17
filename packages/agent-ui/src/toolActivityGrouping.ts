@@ -1,6 +1,7 @@
-import type { AgentActivityItem, AgentTimelineItem } from "./contracts";
+import type { AgentToolActivityItem } from "./agentToolContracts";
+import type { AgentTimelineItem } from "./contracts";
 
-export type AgentToolActivityItem = AgentActivityItem & { kind: "tool" };
+export type { AgentToolActivityItem } from "./agentToolContracts";
 
 export interface ToolActivityRun {
   id: string;
