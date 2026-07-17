@@ -46,6 +46,7 @@ describe("AgentWorkspace configuration", () => {
   });
 
   it("renders Chinese chrome with custom configuration pickers", async () => {
+    const user = userEvent.setup();
     const snapshot = agentWorkspaceSnapshot();
     snapshot.status = "idle";
     snapshot.items = [];
@@ -76,9 +77,9 @@ describe("AgentWorkspace configuration", () => {
     expect(container.querySelector("select")).toBeNull();
 
     const permissionPicker = screen.getByRole("combobox", { name: "权限" });
-    fireEvent.click(permissionPicker);
+    await user.click(permissionPicker);
     expect(screen.getByRole("listbox", { name: "权限选项" })).toBeVisible();
-    fireEvent.click(screen.getByRole("option", { name: "自动接受编辑" }));
+    await user.click(screen.getByRole("option", { name: "自动接受编辑" }));
 
     await waitFor(() => {
       expect(agentRuntime.updateConfiguration).toHaveBeenCalledWith(
@@ -86,6 +87,8 @@ describe("AgentWorkspace configuration", () => {
         expect.any(String),
         { permissionMode: "acceptEdits" },
       );
+    });
+    await waitFor(() => {
       expect(permissionPicker).toHaveFocus();
     });
   });
