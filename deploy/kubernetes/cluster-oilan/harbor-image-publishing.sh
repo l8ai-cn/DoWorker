@@ -172,27 +172,3 @@ registry_digest() {
   digest="$(manifest_digest "${PROJ}/${image}:latest")"
   printf '%s' "${digest}"
 }
-
-mirror() {
-  local src="$1" dest="$2"
-  echo "==> mirror ${src} -> ${PROJ}/${dest} (multi-arch index)"
-  local n=1
-  until docker buildx imagetools create --tag "${PROJ}/${dest}" "${src}"; do
-    [[ "${n}" -ge 4 ]] && {
-      echo "  imagetools failed after 4 tries: ${src}" >&2
-      return 1
-    }
-    echo "  retry ${n}/4 in 8s..." >&2
-    sleep 8
-    n=$((n + 1))
-  done
-  local image="${dest%%:*}" digest
-  digest="$(manifest_digest "${PROJ}/${dest}")"
-  case "${image}" in
-    pgvector) PLATFORM_DIGEST_PGVECTOR="${digest}" ;;
-    redis) PLATFORM_DIGEST_REDIS="${digest}" ;;
-    minio) PLATFORM_DIGEST_MINIO="${digest}" ;;
-    mc) PLATFORM_DIGEST_MC="${digest}" ;;
-    kubectl) PLATFORM_DIGEST_KUBECTL="${digest}" ;;
-  esac
-}
