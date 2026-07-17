@@ -1,6 +1,10 @@
 use std::sync::Arc;
 use wasm_bindgen::prelude::*;
 
+#[cfg(any(target_arch = "wasm32", test))]
+mod agent_workbench_stream_status;
+#[cfg(target_arch = "wasm32")]
+mod agent_workbench_stream_wasm;
 mod api;
 mod api_services;
 mod auth;
@@ -10,6 +14,7 @@ mod js_bridge;
 mod protocol;
 mod relay_manager;
 mod service_agent;
+mod service_agent_workbench;
 mod service_ai_resource;
 mod service_apikey;
 mod service_auth_connect;
@@ -48,6 +53,7 @@ mod service_user;
 mod service_user_credential;
 mod service_workflow;
 mod state_acp;
+mod state_agent_workbench;
 mod state_app;
 mod state_autopilot;
 mod state_channel;
@@ -64,16 +70,23 @@ mod state_workflow_proto;
 mod ws_transport;
 
 #[cfg(test)]
+mod agent_workbench_stream_status_tests;
+#[cfg(test)]
 mod service_orchestration_resource_tests;
 #[cfg(test)]
 mod service_pod_worker_creation_tests;
+#[cfg(test)]
+mod state_agent_workbench_tests;
 
+#[cfg(target_arch = "wasm32")]
+pub use agent_workbench_stream_wasm::*;
 pub use api::*;
 pub use auth::*;
 pub use events_manager::*;
 pub use protocol::*;
 pub use relay_manager::*;
 pub use service_agent::*;
+pub use service_agent_workbench::*;
 pub use service_ai_resource::*;
 pub use service_apikey::*;
 pub use service_auth_connect::*;
@@ -107,6 +120,7 @@ pub use service_user::*;
 pub use service_user_credential::*;
 pub use service_workflow::*;
 pub use state_acp::*;
+pub use state_agent_workbench::*;
 pub use state_app::*;
 pub use state_autopilot::*;
 pub use state_channel::*;

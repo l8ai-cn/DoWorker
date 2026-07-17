@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 
-import type { AgentArtifactItem, AgentSessionRuntime } from "./contracts";
+import type {
+  AgentArtifactItem,
+  AgentSessionRuntime,
+} from "./contracts";
 import { artifactPresentation } from "./artifactPresentation";
 
 export type ArtifactBlobState =
@@ -16,6 +19,7 @@ export type ArtifactBlobState =
       status: "error";
       code: "generation_failed" | "loading_unavailable" | "load_failed";
       retryable: boolean;
+      message: string;
     };
 
 export function useArtifactBlobUrl(
@@ -35,6 +39,7 @@ export function useArtifactBlobUrl(
         status: "error",
         code: "generation_failed",
         retryable: false,
+        message: "Artifact generation failed",
       });
       return;
     }
@@ -42,11 +47,16 @@ export function useArtifactBlobUrl(
       setState({ status: "idle" });
       return;
     }
+    if (item.status !== "completed") {
+      setState({ status: "loading" });
+      return;
+    }
     if (!runtime.loadArtifact) {
       setState({
         status: "error",
         code: "loading_unavailable",
         retryable: false,
+        message: "Artifact loading is unavailable",
       });
       return;
     }
@@ -54,8 +64,14 @@ export function useArtifactBlobUrl(
     let active = true;
     let objectUrl: string | null = null;
     setState({ status: "loading" });
-    void runtime
-      .loadArtifact(sessionId, item.artifactId)
+    const pending = item.selectedRepresentationId
+      ? runtime.loadArtifact(
+          sessionId,
+          item.artifactId,
+          item.selectedRepresentationId,
+        )
+      : runtime.loadArtifact(sessionId, item.artifactId);
+    void pending
       .then(async (blob) => {
         if (!active) return;
         objectUrl = URL.createObjectURL(blob);
@@ -80,6 +96,7 @@ export function useArtifactBlobUrl(
           status: "error",
           code: "load_failed",
           retryable: true,
+          message: cause instanceof Error ? cause.message : String(cause),
         });
       });
 
@@ -91,7 +108,9 @@ export function useArtifactBlobUrl(
     attempt,
     enabled,
     item.artifactId,
+    item.filename,
     item.mimeType,
+    item.selectedRepresentationId,
     item.status,
     runtime,
     sessionId,

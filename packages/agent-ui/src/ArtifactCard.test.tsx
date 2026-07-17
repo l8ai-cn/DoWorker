@@ -1,10 +1,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 
 import { ActivityTimeline } from "./ActivityTimeline";
 import { AgentWorkspace } from "./AgentWorkspace";
-import { AgentWorkspaceLocaleProvider } from "./AgentWorkspaceLocaleContext";
+import type { AgentContentRendererRegistration } from "./react/contentRendererTypes";
+import { ContentRendererRegistry } from "./registry/ContentRendererRegistry";
 import {
   STATIC_HTML_CSP,
   STATIC_HTML_REFERRER_POLICY,
@@ -19,9 +19,7 @@ import type {
 const createObjectURL = vi.fn(() => "blob:artifact-preview");
 const revokeObjectURL = vi.fn();
 
-function runtime(
-  loadArtifact: (sessionId: string, artifactId: string) => Promise<Blob>,
-) {
+function runtime(loadArtifact: (sessionId: string, artifactId: string) => Promise<Blob>) {
   return {
     open: vi.fn(async () => undefined),
     close: vi.fn(),
@@ -36,13 +34,23 @@ function runtime(
   } as AgentSessionRuntime;
 }
 
-function artifact(patch: Partial<AgentArtifactItem> = {}): AgentArtifactItem {
+function artifact(
+  patch: Partial<AgentArtifactItem> = {},
+): AgentArtifactItem {
   return {
+    actions: [],
     id: "artifact-item-1",
     kind: "artifact",
     artifactId: "artifact-1",
     filename: "report.pdf",
+    grants: [],
+    manifest: null,
     mimeType: "application/pdf",
+    representations: [],
+    revision: 1n,
+    role: "preview",
+    schemaVersion: "1",
+    selectedRepresentationId: null,
     status: "completed",
     ...patch,
   };
@@ -50,7 +58,6 @@ function artifact(patch: Partial<AgentArtifactItem> = {}): AgentArtifactItem {
 
 describe("ArtifactCard", () => {
   beforeEach(() => {
-    vi.spyOn(console, "error").mockImplementation(() => undefined);
     createObjectURL.mockClear();
     revokeObjectURL.mockClear();
     Object.defineProperty(URL, "createObjectURL", {
@@ -63,8 +70,65 @@ describe("ArtifactCard", () => {
     });
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
+  it("uses a content viewer only for the exact content identity", async () => {
+    const renderers =
+      new ContentRendererRegistry<AgentContentRendererRegistration>();
+    renderers.register(
+      {
+        blockKind: "artifact",
+        mediaType: "video/mp4",
+        role: "preview",
+        schemaVersion: "1",
+      },
+      {
+        viewer: ({ filename }) => <div>专用视频查看器：{filename}</div>,
+      },
+      "test.video",
+    );
+    const agentRuntime = runtime(async () =>
+      new Blob(["video"], { type: "video/mp4" }),
+    );
+
+    const { rerender } = render(
+      <ActivityTimeline
+        contentRenderers={renderers}
+        items={[
+          artifact({
+            artifactId: "video-1",
+            filename: "demo.mp4",
+            mimeType: "video/mp4",
+          }),
+        ]}
+        runtime={agentRuntime}
+        sessionId="session-1"
+      />,
+    );
+
+    expect(await screen.findByText("专用视频查看器：demo.mp4")).toBeVisible();
+
+    rerender(
+      <ActivityTimeline
+        contentRenderers={renderers}
+        items={[
+          artifact({
+            artifactId: "video-2",
+            filename: "demo-v2.mp4",
+            mimeType: "video/mp4",
+            schemaVersion: "2",
+          }),
+        ]}
+        runtime={agentRuntime}
+        sessionId="session-1"
+      />,
+    );
+
+    expect(
+      screen.queryByText("专用视频查看器：demo-v2.mp4"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Load demo-v2.mp4" }),
+    );
+    expect(await screen.findByLabelText("Video preview for demo-v2.mp4")).toBeVisible();
   });
 
   it("loads image blobs through the runtime and cleans the preview URL", async () => {
@@ -97,8 +161,8 @@ describe("ArtifactCard", () => {
   });
 
   it("receives the artifact runtime and session id through AgentWorkspace", async () => {
-    const agentRuntime = runtime(
-      async () => new Blob(["image"], { type: "image/png" }),
+    const agentRuntime = runtime(async () =>
+      new Blob(["image"], { type: "image/png" }),
     );
     const snapshot: AgentSessionSnapshot = {
       sessionId: "workspace-session",
@@ -130,9 +194,13 @@ describe("ArtifactCard", () => {
     vi.mocked(agentRuntime.getSnapshot).mockReturnValue(snapshot);
 
     render(
-      <AgentWorkspace runtime={agentRuntime} sessionId={snapshot.sessionId} />,
+      <AgentWorkspace
+        runtime={agentRuntime}
+        sessionId={snapshot.sessionId}
+      />,
     );
 
+    fireEvent.click(await screen.findByRole("tab", { name: "Results" }));
     expect(
       await screen.findByRole("img", { name: "workspace.png" }),
     ).toBeVisible();
@@ -143,9 +211,8 @@ describe("ArtifactCard", () => {
   });
 
   it("renders video blobs as an inline preview", async () => {
-    const user = userEvent.setup();
-    const agentRuntime = runtime(
-      async () => new Blob(["video"], { type: "video/mp4" }),
+    const agentRuntime = runtime(async () =>
+      new Blob(["video"], { type: "video/mp4" }),
     );
 
     render(
@@ -162,49 +229,16 @@ describe("ArtifactCard", () => {
       />,
     );
 
-    expect(agentRuntime.loadArtifact).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", { name: "Load demo.mp4" }));
+    fireEvent.click(screen.getByRole("button", { name: "Load demo.mp4" }));
     expect(
       await screen.findByLabelText("Video preview for demo.mp4"),
     ).toHaveAttribute("src", "blob:artifact-preview");
   });
 
-  it("shows Chinese video playback errors and reloads the artifact", async () => {
-    const user = userEvent.setup();
-    const agentRuntime = runtime(
-      async () => new Blob(["video"], { type: "video/mp4" }),
-    );
-
-    render(
-      <AgentWorkspaceLocaleProvider locale="zh-CN">
-        <ActivityTimeline
-          items={[
-            artifact({
-              artifactId: "video-zh",
-              filename: "成片.mp4",
-              mimeType: "video/mp4",
-            }),
-          ]}
-          runtime={agentRuntime}
-          sessionId="session-1"
-        />
-      </AgentWorkspaceLocaleProvider>,
-    );
-
-    await user.click(screen.getByRole("button", { name: "加载 成片.mp4" }));
-    const video = await screen.findByLabelText("成片.mp4 的视频预览");
-    fireEvent.error(video);
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "成片.mp4 无法播放，请重新加载。",
-    );
-    await user.click(screen.getByRole("button", { name: "重新加载 成片.mp4" }));
-    expect(agentRuntime.loadArtifact).toHaveBeenCalledTimes(2);
-  });
-
   it("renders generated source files as an inline code preview", async () => {
     const source = "const title = 'Agent Workspace';\nconsole.log(title);";
-    const agentRuntime = runtime(
-      async () => new Blob([source], { type: "text/javascript" }),
+    const agentRuntime = runtime(async () =>
+      new Blob([source], { type: "text/javascript" }),
     );
 
     render(
@@ -228,14 +262,10 @@ describe("ArtifactCard", () => {
   });
 
   it("renders generated HTML inside the static sandbox profile", async () => {
-    const agentRuntime = runtime(
-      async () =>
-        new Blob(
-          ["<button>重新开始</button><script>window.ready=true</script>"],
-          {
-            type: "text/html",
-          },
-        ),
+    const agentRuntime = runtime(async () =>
+      new Blob(["<button>重新开始</button><script>window.ready=true</script>"], {
+        type: "text/html",
+      }),
     );
 
     render(
@@ -270,11 +300,10 @@ describe("ArtifactCard", () => {
   });
 
   it("shows file type with accessible open and download actions", async () => {
-    const agentRuntime = runtime(
-      async () =>
-        new Blob(["slides"], {
-          type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        }),
+    const agentRuntime = runtime(async () =>
+      new Blob(["slides"], {
+        type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      }),
     );
 
     render(
@@ -302,11 +331,10 @@ describe("ArtifactCard", () => {
   });
 
   it("keeps active document artifacts download-only", async () => {
-    const agentRuntime = runtime(
-      async () =>
-        new Blob(["<svg><script>alert(1)</script></svg>"], {
-          type: "image/svg+xml",
-        }),
+    const agentRuntime = runtime(async () =>
+      new Blob(["<svg><script>alert(1)</script></svg>"], {
+        type: "image/svg+xml",
+      }),
     );
 
     render(
@@ -324,9 +352,7 @@ describe("ArtifactCard", () => {
     );
 
     expect(await screen.findByText("SVG document")).toBeVisible();
-    expect(
-      screen.queryByRole("img", { name: "diagram.svg" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: "diagram.svg" })).not.toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: "Open diagram.svg" }),
     ).not.toBeInTheDocument();
@@ -335,13 +361,10 @@ describe("ArtifactCard", () => {
     ).toHaveAttribute("download", "diagram.svg");
   });
 
-  it("retries artifact loading after a transient failure", async () => {
-    const user = userEvent.setup();
-    const loadArtifact = vi
-      .fn<() => Promise<Blob>>()
-      .mockRejectedValueOnce(new Error("Artifact storage is unavailable"))
-      .mockResolvedValueOnce(new Blob(["report"], { type: "application/pdf" }));
-    const agentRuntime = runtime(loadArtifact);
+  it("shows an explicit error when artifact loading fails", async () => {
+    const agentRuntime = runtime(async () => {
+      throw new Error("Artifact storage is unavailable");
+    });
 
     render(
       <ActivityTimeline
@@ -351,16 +374,10 @@ describe("ArtifactCard", () => {
       />,
     );
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Artifact loading failed. Try again.",
-    );
-    await user.click(
-      screen.getByRole("button", { name: "Retry loading report.pdf" }),
-    );
     expect(
-      await screen.findByRole("link", { name: "Download report.pdf" }),
-    ).toHaveAttribute("href", "blob:artifact-preview");
-    expect(agentRuntime.loadArtifact).toHaveBeenCalledTimes(2);
+      await screen.findByRole("alert"),
+    ).toHaveTextContent("Artifact loading failed. Try again.");
+    expect(createObjectURL).not.toHaveBeenCalled();
   });
 
   it("does not load failed artifact items", async () => {

@@ -4,6 +4,16 @@ import { PodSchema } from "@proto/pod/v1/pod_pb";
 import { podToCache } from "./pod";
 
 describe("podToCache", () => {
+  it("preserves the canonical agent session id", () => {
+    const pod = create(PodSchema, {
+      podKey: "agent-pod",
+      sessionId: "session-123",
+      status: "running",
+    });
+
+    expect(podToCache(pod).session_id).toBe("session-123");
+  });
+
   it("preserves preview metadata for mobile access", () => {
     const pod = create(PodSchema, {
       podKey: "mobile-preview-pod",

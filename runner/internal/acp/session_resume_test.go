@@ -10,13 +10,15 @@ import (
 )
 
 type stubResumer struct {
-	cwd, resumeID string
-	called        bool
+	cwd, resumeID   string
+	called          bool
+	cancelled       bool
+	cancelSessionID string
 }
 
 func (s *stubResumer) Initialize(context.Context, io.Writer, io.Reader, io.Reader) error { return nil }
 func (s *stubResumer) Handshake(context.Context) (string, error)                         { return "", nil }
-func (s *stubResumer) NewSession(string, map[string]any) (string, error)                   { return "new-id", nil }
+func (s *stubResumer) NewSession(string, map[string]any) (string, error)                 { return "new-id", nil }
 func (s *stubResumer) ResumeSession(cwd string, _ map[string]any, externalSessionID string) (string, error) {
 	s.called = true
 	s.cwd = cwd
@@ -25,11 +27,16 @@ func (s *stubResumer) ResumeSession(cwd string, _ map[string]any, externalSessio
 }
 func (s *stubResumer) SendPrompt(string, string) error                        { return nil }
 func (s *stubResumer) RespondToPermission(string, bool, map[string]any) error { return nil }
-func (s *stubResumer) CancelSession(string) error                               { return nil }
+func (s *stubResumer) CancelSession(sessionID string) error {
+	s.cancelled = true
+	s.cancelSessionID = sessionID
+	return nil
+}
 func (s *stubResumer) SendControlRequest(string, string, map[string]any) (map[string]any, error) {
 	return nil, ErrControlNotSupported
 }
 func (s *stubResumer) SupportedPermissionModes() []string { return nil }
+func (s *stubResumer) SupportedArtifactActions() []string { return nil }
 func (s *stubResumer) ReadLoop(context.Context)           {}
 func (s *stubResumer) Close()                             {}
 
@@ -48,4 +55,15 @@ func TestResumeOrNewSession_FallsBackToNew(t *testing.T) {
 	require.NoError(t, err)
 	assert.False(t, s.called)
 	assert.Equal(t, "new-id", id)
+}
+
+func TestACPClientInterruptUsesTransportCancellation(t *testing.T) {
+	transport := &stubResumer{}
+	client := NewClient(ClientConfig{})
+	client.transport = transport
+	client.sessionID = "session-42"
+
+	require.NoError(t, client.Interrupt())
+	assert.True(t, transport.cancelled)
+	assert.Equal(t, "session-42", transport.cancelSessionID)
 }

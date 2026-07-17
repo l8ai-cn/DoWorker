@@ -70,7 +70,9 @@ describe("OutputFileArtifact", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "加载视频 seedance.mp4" }));
 
-    expect(await screen.findByLabelText("seedance.mp4")).toHaveAttribute(
+    expect(
+      await screen.findByLabelText("视频预览：seedance.mp4"),
+    ).toHaveAttribute(
       "src",
       "blob:session-file",
     );
@@ -91,7 +93,9 @@ describe("OutputFileArtifact", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "下载 seedance-output" }));
 
-    expect(await screen.findByLabelText("seedance-output")).toHaveAttribute(
+    expect(
+      await screen.findByLabelText("视频预览：seedance-output"),
+    ).toHaveAttribute(
       "src",
       "blob:session-file",
     );
@@ -156,7 +160,7 @@ describe("OutputFileArtifact", () => {
     );
     renderArtifact("file_7", "clip.mp4", "video/mp4");
     fireEvent.click(screen.getByRole("button", { name: "加载视频 clip.mp4" }));
-    const video = await screen.findByLabelText("clip.mp4");
+    const video = await screen.findByLabelText("视频预览：clip.mp4");
 
     fireEvent.loadedData(video);
     fireEvent.error(video);
@@ -188,7 +192,7 @@ describe("OutputFileArtifact", () => {
     );
     const view = renderArtifact("file_9", "clip.mp4", "video/mp4");
     fireEvent.click(screen.getByRole("button", { name: "加载视频 clip.mp4" }));
-    await screen.findByLabelText("clip.mp4");
+    await screen.findByLabelText("视频预览：clip.mp4");
 
     view.unmount();
 

@@ -178,13 +178,6 @@ func TestTransport_NewSession_ReturnsCachedID(t *testing.T) {
 	}
 }
 
-func TestTransport_CancelSession(t *testing.T) {
-	tr := newTransport(acp.EventCallbacks{}, slog.Default())
-	if err := tr.CancelSession("x"); err != nil {
-		t.Errorf("got %v", err)
-	}
-}
-
 func TestTransport_Handshake(t *testing.T) {
 	stdoutPR, stdoutPW := io.Pipe()
 	defer stdoutPR.Close()

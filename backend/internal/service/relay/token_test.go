@@ -7,9 +7,18 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func TestGeneratePreviewToken(t *testing.T) {
+func TestGeneratePreviewBootstrapToken(t *testing.T) {
 	g := NewTokenGenerator("secret", "iss")
-	tok, err := g.GeneratePreviewToken("pod1", 7, 42, 3, "127.0.0.1:3000", "/files/%25", time.Hour)
+	tok, err := g.GeneratePreviewBootstrapToken(
+		"pod1",
+		7,
+		42,
+		3,
+		"127.0.0.1:3000",
+		"/files/%25",
+		"https://preview.example.com",
+		5*time.Minute,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -27,12 +36,27 @@ func TestGeneratePreviewToken(t *testing.T) {
 	if claims.PreviewTarget != "127.0.0.1:3000" || claims.PreviewPath != "/files/%25" {
 		t.Fatalf("unexpected preview claims: %+v", claims)
 	}
+	if claims.TokenType != "preview_bootstrap" {
+		t.Fatalf("token type = %q, want preview_bootstrap", claims.TokenType)
+	}
+	if claims.PreviewOrigin != "https://preview.example.com" {
+		t.Fatalf("preview origin = %q", claims.PreviewOrigin)
+	}
+	if claims.ID == "" {
+		t.Fatal("bootstrap token requires JTI")
+	}
+	if len(claims.Audience) != 1 || claims.Audience[0] != "https://preview.example.com" {
+		t.Fatalf("audience = %#v", claims.Audience)
+	}
 
-	if _, err := g.GeneratePreviewToken("pod1", 7, 42, 3, "", "/app", time.Hour); err == nil {
+	if _, err := g.GeneratePreviewBootstrapToken("pod1", 7, 42, 3, "", "/app", "https://preview.example.com", time.Hour); err == nil {
 		t.Fatal("preview token without target must error")
 	}
-	if _, err := g.GeneratePreviewToken("pod1", 7, 42, 3, "127.0.0.1:3000", "/app/../admin", time.Hour); err == nil {
+	if _, err := g.GeneratePreviewBootstrapToken("pod1", 7, 42, 3, "127.0.0.1:3000", "/app/../admin", "https://preview.example.com", time.Hour); err == nil {
 		t.Fatal("preview token with invalid path must error")
+	}
+	if _, err := g.GeneratePreviewBootstrapToken("pod1", 7, 42, 3, "127.0.0.1:3000", "/app", "", time.Hour); err == nil {
+		t.Fatal("preview token without origin must error")
 	}
 }
 

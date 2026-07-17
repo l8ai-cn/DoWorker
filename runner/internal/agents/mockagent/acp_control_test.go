@@ -40,6 +40,26 @@ func TestControlRequest_GetContextUsage_ReturnsSyntheticUsage(t *testing.T) {
 	}
 }
 
+func TestControlRequest_ArtifactActionRequiresAdvertisedAction(t *testing.T) {
+	request := `{"jsonrpc":"2.0","id":3,"method":"session/control_request","params":{"sessionId":"mock-session-001","subtype":"artifact_action","params":{"actionType":"image.edit"}}}` + "\n"
+	allowed := driveACP(t, "loopal_panels",
+		`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}`+"\n"+
+			`{"jsonrpc":"2.0","id":2,"method":"session/new","params":{}}`+"\n"+
+			request,
+	)
+	if !strings.Contains(allowed, `"id":3,"result":{"ok":true}`) {
+		t.Errorf("expected advertised artifact action to succeed, got: %s", allowed)
+	}
+	denied := driveACP(t, "echo",
+		`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}`+"\n"+
+			`{"jsonrpc":"2.0","id":2,"method":"session/new","params":{}}`+"\n"+
+			request,
+	)
+	if !strings.Contains(denied, `"code":-32601`) {
+		t.Errorf("expected unadvertised artifact action to fail, got: %s", denied)
+	}
+}
+
 func TestControlRequest_UnknownSubtype_ReturnsMethodNotFound(t *testing.T) {
 	out := driveACP(t, "config_change_plan",
 		`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}`+"\n"+

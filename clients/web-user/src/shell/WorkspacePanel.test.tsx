@@ -69,6 +69,7 @@ function renderWorkspace(
       onShowScopeView={vi.fn()}
       onCommentsOpenChange={vi.fn()}
       openTerminalsPanel={vi.fn()}
+      podKey={null}
       permissionLevel={null}
       filesPanelSort={"recent" as ChangedSort}
       onSortChange={vi.fn()}

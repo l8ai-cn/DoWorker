@@ -16,8 +16,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/pkg/policy"
 )
 
-// previewTokenTTL bounds how long a minted preview session token is valid.
-const previewTokenTTL = 30 * time.Minute
+const previewBootstrapTTL = 5 * time.Minute
 
 // previewRelaySelector selects the relay/gateway edge for a pod. *relay.Manager
 // satisfies it; tests inject a fake.
@@ -29,7 +28,7 @@ type previewRelaySelector interface {
 // satisfies it; tests inject a fake.
 type previewTokenGenerator interface {
 	GenerateTypedToken(podKey string, runnerID, userID, orgID int64, tokenType, previewTarget string, expiry time.Duration) (string, error)
-	GeneratePreviewToken(podKey string, runnerID, userID, orgID int64, previewTarget, previewPath string, expiry time.Duration) (string, error)
+	GeneratePreviewBootstrapToken(podKey string, runnerID, userID, orgID int64, previewTarget, previewPath, previewOrigin string, expiry time.Duration) (string, error)
 }
 
 // GetPodPreview issues a short-lived Gateway session URL only after the Runner
@@ -87,30 +86,48 @@ func (h *PodHandler) GetPodPreview(c *gin.Context) {
 		return
 	}
 
-	previewToken, err := h.relayTokens.GeneratePreviewToken(
+	previewOrigin, err := previewOriginForPod(h.previewPublicOrigin, podKey)
+	if err != nil {
+		apierr.ServiceUnavailable(c, "preview_unavailable", "Preview is not available")
+		return
+	}
+	previewToken, err := h.relayTokens.GeneratePreviewBootstrapToken(
 		podKey,
 		pod.RunnerID,
 		tenant.UserID,
 		tenant.OrganizationID,
 		route.Target,
 		route.Path,
-		previewTokenTTL,
+		previewOrigin,
+		previewBootstrapTTL,
 	)
 	if err != nil {
 		apierr.InternalError(c, "failed to mint preview token")
 		return
 	}
 
-	base := previewBaseURL(h.previewPublicOrigin, podKey)
+	base := previewBaseURL(previewOrigin, podKey)
 	c.JSON(http.StatusOK, gin.H{
 		"preview_base_url": base,
 		"session_url":      base + "__session?token=" + url.QueryEscape(previewToken),
-		"expires_at":       time.Now().Add(previewTokenTTL).UTC().Format(time.RFC3339),
+		"expires_at":       time.Now().Add(previewBootstrapTTL).UTC().Format(time.RFC3339),
 	})
 }
 
 func previewBaseURL(publicOrigin, podKey string) string {
 	return fmt.Sprintf("%s/preview/%s/", strings.TrimRight(publicOrigin, "/"), url.PathEscape(podKey))
+}
+
+func previewOriginForPod(baseOrigin, podKey string) (string, error) {
+	u, err := url.Parse(baseOrigin)
+	if err != nil || u.Scheme == "" || u.Hostname() == "" || podKey == "" {
+		return "", fmt.Errorf("invalid preview origin")
+	}
+	host := podKey + "." + u.Hostname()
+	if port := u.Port(); port != "" {
+		host += ":" + port
+	}
+	return u.Scheme + "://" + host, nil
 }
 
 // tunnelURLFromRelay derives the runner tunnel WebSocket URL from a relay's

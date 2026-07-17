@@ -8,6 +8,7 @@ publish.workspace = true
 prost = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+agent_workbench_proto = { workspace = true }
 agent_proto = { workspace = true }
 ai_resource_proto = { workspace = true }
 execution_cluster_proto = { workspace = true }

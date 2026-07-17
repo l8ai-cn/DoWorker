@@ -92,6 +92,7 @@ func New(deps RunnerDeps) (*Runner, error) {
 	// Initialize sidecar services (MCP, Monitor)
 	r.sidecars = NewSidecarServices(deps.Config, deps.Connection)
 	r.sidecars.SetProviders(r, r)
+	r.sidecars.SetWorkbenchArtifactPublisher(r)
 
 	log.Info("Runner instance created successfully")
 	return r, nil

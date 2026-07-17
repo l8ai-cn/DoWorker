@@ -11,6 +11,7 @@ func (s *HTTPServer) registerTools() {
 		s.createGetPodSnapshotTool(),
 		s.createSendPodInputTool(),
 		s.createGetPodStatusTool(),
+		s.createWorkbenchPublishArtifactTool(),
 
 		// Discovery tools
 		s.createListAvailablePodsTool(),

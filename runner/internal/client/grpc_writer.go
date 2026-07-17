@@ -10,7 +10,8 @@ import (
 )
 
 // writeLoop sends messages to the gRPC stream with priority scheduling.
-// Readiness results have highest priority, followed by control messages and terminal output.
+// Readiness results have highest priority, followed by control messages, reliable
+// Workbench events, and terminal output.
 // This is the ONLY goroutine that calls stream.Send() to ensure thread-safety.
 // Includes stuck detection: triggers reconnect if no successful send for 30 seconds.
 func (c *GRPCConnection) writeLoop(ctx context.Context, done <-chan struct{}) {
@@ -60,6 +61,8 @@ func (c *GRPCConnection) writeLoop(ctx context.Context, done <-chan struct{}) {
 			case msg := <-c.readyCh:
 				c.sendAndRecord(msg)
 			case msg := <-c.controlCh:
+				c.sendAndRecord(msg)
+			case msg := <-c.workbenchCh:
 				c.sendAndRecord(msg)
 			case msg := <-c.terminalCh:
 				// Process terminal messages when no control messages pending
@@ -138,92 +141,5 @@ func (c *GRPCConnection) sendAndRecord(msg *runnerv1.RunnerMessage) {
 
 		// Trigger reconnect to recover from degraded connection
 		c.triggerReconnect()
-	}
-}
-
-// heartbeatLoop sends periodic heartbeats.
-func (c *GRPCConnection) heartbeatLoop(ctx context.Context, done <-chan struct{}) {
-	ticker := time.NewTicker(c.heartbeatInterval)
-	defer ticker.Stop()
-
-	// Send initial heartbeat
-	c.sendHeartbeat()
-	if c.heartbeatMonitor != nil {
-		c.heartbeatMonitor.OnSent()
-	}
-
-	for {
-		select {
-		case <-c.stopCh:
-			return
-		case <-done:
-			return
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-			c.sendHeartbeat()
-			if c.heartbeatMonitor != nil {
-				c.heartbeatMonitor.OnSent()
-			}
-		}
-	}
-}
-
-// sendHeartbeat sends a heartbeat message (control message - never blocked by terminal output).
-func (c *GRPCConnection) sendHeartbeat() {
-	var pods []*runnerv1.PodInfo
-	var relayConnections []*runnerv1.RelayConnectionInfo
-
-	if c.handler != nil {
-		// Convert from internal PodInfo to proto PodInfo
-		internalPods := c.handler.OnListPods()
-		for _, p := range internalPods {
-			pods = append(pods, &runnerv1.PodInfo{
-				PodKey:      p.PodKey,
-				Status:      p.Status,
-				AgentStatus: p.AgentStatus,
-			})
-		}
-
-		// Convert from internal RelayConnectionInfo to proto RelayConnectionInfo
-		internalRelayConns := c.handler.OnListRelayConnections()
-		for _, rc := range internalRelayConns {
-			relayConnections = append(relayConnections, &runnerv1.RelayConnectionInfo{
-				PodKey:      rc.PodKey,
-				RelayUrl:    rc.RelayURL,
-				Connected:   rc.Connected,
-				ConnectedAt: rc.ConnectedAt,
-			})
-		}
-	}
-
-	// Probe for agent version changes (only includes changed entries)
-	var agentVersions []*runnerv1.AgentVersionInfo
-	if c.agentProbe != nil {
-		agentVersions = c.agentProbe.ProbeAndDiff()
-		if len(agentVersions) > 0 {
-			// Also update cached available agents list
-			c.mu.Lock()
-			c.availableAgents = c.agentProbe.GetAvailableAgents()
-			c.mu.Unlock()
-		}
-	}
-
-	msg := &runnerv1.RunnerMessage{
-		Payload: &runnerv1.RunnerMessage_Heartbeat{
-			Heartbeat: &runnerv1.HeartbeatData{
-				NodeId:           c.nodeID,
-				Pods:             pods,
-				RelayConnections: relayConnections,
-				AgentVersions:    agentVersions,
-			},
-		},
-		Timestamp: time.Now().UnixMilli(),
-	}
-
-	logger.GRPC().Debug("Sending heartbeat", "pods", len(pods), "relay_connections", len(relayConnections), "version_changes", len(agentVersions))
-
-	if err := c.sendControl(msg); err != nil {
-		logger.GRPC().Error("Failed to send heartbeat", "error", err)
 	}
 }

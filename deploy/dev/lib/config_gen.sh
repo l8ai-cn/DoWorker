@@ -200,7 +200,7 @@ http:
     backend-api:
       entryPoints:
         - web
-      rule: "!Host(\`preview.localhost\`) && (PathPrefix(\`/api\`) || PathPrefix(\`/health\`) || PathPrefix(\`/v1\`) || PathPrefix(\`/auth\`) || PathPrefix(\`/proto.\`) || PathPrefix(\`/.well-known\`))"
+      rule: '!Host(\`preview.localhost\`) && !HostRegexp(\`^[a-z0-9-]+\\.preview\\.localhost$\`) && (PathPrefix(\`/api\`) || PathPrefix(\`/health\`) || PathPrefix(\`/v1\`) || PathPrefix(\`/auth\`) || PathPrefix(\`/proto.\`) || PathPrefix(\`/.well-known\`))'
       service: backend-api
       priority: 100
 
@@ -394,6 +394,11 @@ generate_env() {
             export PREVIEW_PUBLIC_ORIGIN="http://preview.localhost:$HTTP_PORT"
             info "补充 PREVIEW_PUBLIC_ORIGIN=$PREVIEW_PUBLIC_ORIGIN 到 .env"
         fi
+        if ! grep -q "PREVIEW_COOKIE_MODE" "$ENV_FILE"; then
+            echo "PREVIEW_COOKIE_MODE=same-site" >> "$ENV_FILE"
+            export PREVIEW_COOKIE_MODE="same-site"
+            info "补充 PREVIEW_COOKIE_MODE=$PREVIEW_COOKIE_MODE 到 .env"
+        fi
         success "保留现有端口配置 (worktree: $worktree_name, PRIMARY_DOMAIN: localhost:$HTTP_PORT)"
         return 0
     fi
@@ -422,6 +427,7 @@ PRIMARY_DOMAIN=localhost:$http_port
 PUBLIC_WEB_URL=http://localhost:$((10007 + offset * 50))
 MOBILE_PUBLIC_BASE_URL=http://localhost:$((10021 + offset * 50))
 PREVIEW_PUBLIC_ORIGIN=http://preview.localhost:$http_port
+PREVIEW_COOKIE_MODE=same-site
 USE_HTTPS=false
 
 # =============================================================================

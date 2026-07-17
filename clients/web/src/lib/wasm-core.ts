@@ -61,4 +61,6 @@ export {
   getAIResourceService,
   getOrchestrationResourceService,
   getExecutionClusterService,
+  getAgentWorkbenchService,
+  getAgentWorkbenchState,
 } from "@do-worker/service-runtime";

@@ -9,6 +9,29 @@
 
 http:
   routers:
+    preview:
+      rule: "HostRegexp(`^[a-z0-9-]+\\.{{ env \"PREVIEW_HOST_REGEX\" }}$`) && PathPrefix(`/preview`)"
+      entryPoints:
+        - web
+      service: relay
+      priority: 120
+
+    preview-isolation:
+      rule: "HostRegexp(`^[a-z0-9-]+\\.{{ env \"PREVIEW_HOST_REGEX\" }}$`)"
+      entryPoints:
+        - web
+      service: relay
+      middlewares:
+        - preview-deny-path
+      priority: 110
+
+    tunnel:
+      rule: "PathPrefix(`/runner/tunnel`)"
+      entryPoints:
+        - web
+      service: relay
+      priority: 100
+
     # =========================================================================
     # Backend API
     # =========================================================================
@@ -64,6 +87,10 @@ http:
   # Middlewares
   # ===========================================================================
   middlewares:
+    preview-deny-path:
+      replacePath:
+        path: "/__preview_not_found__"
+
     relay-strip:
       stripPrefix:
         prefixes:

@@ -17,11 +17,9 @@ import type {
   WasmWorkflowState, WasmAcpSessionManager, WasmLoopalManager, WasmRepoState,
   WasmExpertState, WasmAutopilotState, WasmLoopBuilderState, WasmRelayManager,
 } from "do-worker-wasm";
+import type { AgentWorkbenchServiceRegistry } from "./agent-workbench-service-registry";
 
-// SSR / hydration fallback. Returns "[]" for `*_json` reads so SSR-rendered
-// components don't crash before the wasm bridge is registered; all other
-// accesses no-op. Cast to `any` is necessary — this is intentionally
-// untyped because it stands in for any service shape.
+// Keeps SSR reads inert until the browser registers the WASM bridge.
 export const NOOP_PROXY = new Proxy({} as any, {
   get: (_target, prop) => {
     if (prop === "then") return undefined;
@@ -37,7 +35,7 @@ export const NOOP_PROXY = new Proxy({} as any, {
 // (1) add the WasmXxx import above, (2) add a slot here, (3) add a getter
 // below. The Bazel build hard-fails if registerServiceProvider() is called
 // with a key not in this interface.
-export interface ServiceRegistry {
+export interface ServiceRegistry extends AgentWorkbenchServiceRegistry {
   apiClient: WasmApiClient;
   authManager: WasmAuthManager;
   podState: WasmPodState;
@@ -197,3 +195,5 @@ export const getKnowledgeBaseService = () => g("knowledgeBaseService");
 export const getAIResourceService = () => g("aiResourceService");
 export const getOrchestrationResourceService = () => g("orchestrationResourceService");
 export const getExecutionClusterService = () => g("executionClusterService");
+export const getAgentWorkbenchService = () => g("agentWorkbenchService");
+export const getAgentWorkbenchState = () => g("agentWorkbenchState");

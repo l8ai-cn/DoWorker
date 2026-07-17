@@ -92,6 +92,7 @@ type Configuration struct {
 	// initialize), not live state. The set_*/configChanged delta path must never
 	// carry it — core merge treats an empty slice as "unchanged" to protect it.
 	SupportedPermissionModes []string `json:"supportedPermissionModes,omitempty"`
+	SupportedArtifactActions []string `json:"supportedArtifactActions,omitempty"`
 }
 
 // ConfigUpdate carries a delta of configuration fields. Empty fields mean

@@ -28,13 +28,18 @@ spec:
               value: "http://backend:8080"
             - name: PRIMARY_DOMAIN
               value: "dowork.l8ai.cn"
-            - name: USE_HTTPS
-              value: "true"
             - name: PREVIEW_PUBLIC_ORIGIN
               valueFrom:
                 configMapKeyRef:
                   name: agentsmesh-config
                   key: PREVIEW_PUBLIC_ORIGIN
+            - name: PREVIEW_COOKIE_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: agentsmesh-config
+                  key: PREVIEW_COOKIE_MODE
+            - name: USE_HTTPS
+              value: "true"
             - name: ALLOWED_ORIGINS
               valueFrom:
                 configMapKeyRef:

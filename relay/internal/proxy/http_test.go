@@ -107,3 +107,47 @@ func TestProxyHTTP_UpstreamError(t *testing.T) {
 		t.Fatalf("expected 502, got %d", rec.Code)
 	}
 }
+
+func TestProxyHTTP_HidesGatewayCookie(t *testing.T) {
+	ft := newFakeTunnel()
+	requests := make(chan tunnelframe.ReqStartPayload, 1)
+	ft.onReqStart = func(st *tunnel.Stream, request tunnelframe.ReqStartPayload) {
+		requests <- request
+		ft.inject(st.ID, tunnelframe.TypeRespStart, mustJSON(tunnelframe.RespStartPayload{
+			Status: http.StatusOK,
+			Header: http.Header{
+				"Set-Cookie": {
+					"theme=dark; Path=/",
+					"gw_preview=attacker; Path=/; HttpOnly",
+				},
+			},
+		}))
+		ft.inject(st.ID, tunnelframe.TypeRespEnd, nil)
+	}
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodGet, "/preview/pod1/x?token=bootstrap&page=1", nil)
+	request.Header.Set("Cookie", "theme=dark; gw_preview=session-secret")
+
+	err := ProxyHTTP(context.Background(), ft, recorder, request, ProxyParams{
+		PodKey:           "pod1",
+		Target:           "127.0.0.1:3000",
+		Path:             "/x",
+		RawQuery:         "page=1",
+		HiddenCookieName: "gw_preview",
+		WindowBytes:      1 << 20,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	forwarded := <-requests
+	if forwarded.Header.Get("Cookie") != "theme=dark" {
+		t.Fatalf("forwarded Cookie = %q", forwarded.Header.Get("Cookie"))
+	}
+	if forwarded.RawQuery != "page=1" {
+		t.Fatalf("forwarded RawQuery = %q", forwarded.RawQuery)
+	}
+	if got := recorder.Header().Values("Set-Cookie"); len(got) != 1 || got[0] != "theme=dark; Path=/" {
+		t.Fatalf("response Set-Cookie = %#v", got)
+	}
+}

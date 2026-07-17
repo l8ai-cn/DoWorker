@@ -15,7 +15,7 @@ func TestTransport_SendControlRequest_Interrupt(t *testing.T) {
 	defer f.Close()
 
 	writeLine(f.PW, map[string]any{
-		"type": "control_response",
+		"type":     "control_response",
 		"response": map[string]any{"subtype": "success", "request_id": "init_1"},
 	})
 	f.Drain()
@@ -49,12 +49,49 @@ func TestTransport_SendControlRequest_Interrupt(t *testing.T) {
 	assert.Equal(t, true, resp["interrupted"])
 }
 
+func TestTransport_CancelSessionSendsInterrupt(t *testing.T) {
+	f := newFixtureWithStdin()
+	defer f.Close()
+
+	writeLine(f.PW, map[string]any{
+		"type":     "control_response",
+		"response": map[string]any{"subtype": "success", "request_id": "init_1"},
+	})
+	f.Drain()
+
+	go respondToControlSubtype(f, "interrupt")
+
+	require.NoError(t, f.transport.CancelSession("session-1"))
+}
+
+func respondToControlSubtype(f *testFixture, subtype string) {
+	scanner := bufio.NewScanner(f.StdinPR)
+	for scanner.Scan() {
+		var message map[string]any
+		if json.Unmarshal(scanner.Bytes(), &message) != nil {
+			continue
+		}
+		request, ok := message["request"].(map[string]any)
+		if !ok || request["subtype"] != subtype {
+			continue
+		}
+		writeLine(f.PW, map[string]any{
+			"type": "control_response",
+			"response": map[string]any{
+				"subtype":    "success",
+				"request_id": message["request_id"],
+			},
+		})
+		return
+	}
+}
+
 func TestTransport_SendControlRequest_SetPermissionMode(t *testing.T) {
 	f := newFixtureWithStdin()
 	defer f.Close()
 
 	writeLine(f.PW, map[string]any{
-		"type": "control_response",
+		"type":     "control_response",
 		"response": map[string]any{"subtype": "success", "request_id": "init_1"},
 	})
 	f.Drain()
@@ -93,7 +130,7 @@ func TestTransport_SendControlRequest_ErrorResponse(t *testing.T) {
 	defer f.Close()
 
 	writeLine(f.PW, map[string]any{
-		"type": "control_response",
+		"type":     "control_response",
 		"response": map[string]any{"subtype": "success", "request_id": "init_1"},
 	})
 	f.Drain()
@@ -129,7 +166,7 @@ func TestTransport_SendControlRequest_ConcurrentWithPermission(t *testing.T) {
 	defer f.Close()
 
 	writeLine(f.PW, map[string]any{
-		"type": "control_response",
+		"type":     "control_response",
 		"response": map[string]any{"subtype": "success", "request_id": "init_1"},
 	})
 	f.Drain()

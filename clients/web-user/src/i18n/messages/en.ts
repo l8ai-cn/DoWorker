@@ -1,4 +1,4 @@
-export const en = {
+const englishMessages = {
   brand: "Do Worker",
   shell: {
     newSession: "New session",
@@ -40,4 +40,9 @@ export const en = {
   },
 } as const;
 
-export type MessageTree = typeof en;
+type StringCatalog<T> = {
+  [K in keyof T]: T[K] extends string ? string : StringCatalog<T[K]>;
+};
+
+export type MessageTree = StringCatalog<typeof englishMessages>;
+export const en: MessageTree = englishMessages;

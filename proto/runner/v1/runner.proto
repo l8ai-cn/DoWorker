@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package runner.v1;
 
+import "agent_workbench/v2/runner_ingress.proto";
+
 option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1;runnerv1";
 
 // RunnerService 定义 Runner 与 Backend 的双向通信服务
@@ -63,6 +65,7 @@ message RunnerMessage {
     VerificationResultEvent verification_result = 35;
     RelaySubscriptionResultEvent relay_subscription_result = 36;
     TunnelConnectionResultEvent tunnel_connection_result = 37;
+    proto.agent_workbench.v2.RunnerWorkbenchEventBatch workbench_events = 38;
   }
   reserved 28, 29, 30;
   int64 timestamp = 15;
@@ -546,6 +549,8 @@ message SandboxFsCommand {
   string payload = 5;
   string include_glob = 6;
   string exclude_glob = 7;
+  int64 offset = 8;
+  int64 length = 9;
 }
 
 message SandboxFsEntry {
@@ -579,6 +584,9 @@ message SandboxFsResultEvent {
   repeated SandboxFsChange changes = 12;
   string workspace_root = 13;
   string workspace_home = 14;
+  bytes content_bytes = 15;
+  int64 content_offset = 16;
+  bool eof = 17;
 }
 
 // ==================== OSC 终端通知相关 ====================

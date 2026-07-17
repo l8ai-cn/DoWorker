@@ -189,13 +189,13 @@ func TestRelayClaims_TokenType(t *testing.T) {
 	}
 }
 
-func TestValidateToken_PreviewRequiresNormalizedPath(t *testing.T) {
+func TestValidatePreviewTokenRequiresBoundClaims(t *testing.T) {
 	v := NewTokenValidator(testSecret, testIssuer)
 	for _, previewPath := range []string{"", "/app/", "/app/../admin", "/app%2F..%2Fadmin", "/files/%"} {
 		previewPath := previewPath
 		t.Run(previewPath, func(t *testing.T) {
-			token := signPreviewClaims(t, previewPath)
-			if _, err := v.ValidateToken(token); err != ErrInvalidToken {
+			token := signPreviewClaims(t, TokenTypePreviewBootstrap, previewPath, "https://preview.example.com")
+			if _, err := v.ValidatePreviewToken(token, TokenTypePreviewBootstrap, "https://preview.example.com"); err != ErrInvalidToken {
 				t.Fatalf("ValidateToken path %q error = %v, want ErrInvalidToken", previewPath, err)
 			}
 		})
@@ -208,13 +208,28 @@ func TestValidateToken_PreviewRequiresNormalizedPath(t *testing.T) {
 		"/route/%3F",
 		"/app/%252e%252e",
 	} {
-		claims, err := v.ValidateToken(signPreviewClaims(t, previewPath))
+		claims, err := v.ValidatePreviewToken(
+			signPreviewClaims(t, TokenTypePreviewBootstrap, previewPath, "https://preview.example.com"),
+			TokenTypePreviewBootstrap,
+			"https://preview.example.com",
+		)
 		if err != nil {
 			t.Fatalf("normalized preview path %q rejected: %v", previewPath, err)
 		}
 		if claims.PreviewPath != previewPath {
 			t.Fatalf("PreviewPath = %q, want %q", claims.PreviewPath, previewPath)
 		}
+	}
+}
+
+func TestValidatePreviewTokenRejectsWrongOriginAndType(t *testing.T) {
+	v := NewTokenValidator(testSecret, testIssuer)
+	token := signPreviewClaims(t, TokenTypePreviewBootstrap, "/app", "https://preview.example.com")
+	if _, err := v.ValidatePreviewToken(token, TokenTypePreviewBootstrap, "https://other.example.com"); err != ErrInvalidToken {
+		t.Fatalf("wrong origin error = %v", err)
+	}
+	if _, err := v.ValidatePreviewToken(token, TokenTypePreviewSession, "https://preview.example.com"); err != ErrInvalidToken {
+		t.Fatalf("wrong type error = %v", err)
 	}
 }
 
@@ -237,7 +252,7 @@ func TestNormalizePreviewPath_Idempotent(t *testing.T) {
 	}
 }
 
-func signPreviewClaims(t *testing.T, previewPath string) string {
+func signPreviewClaims(t *testing.T, tokenType TokenType, previewPath, previewOrigin string) string {
 	t.Helper()
 	now := time.Now()
 	claims := &RelayClaims{
@@ -245,15 +260,18 @@ func signPreviewClaims(t *testing.T, previewPath string) string {
 		RunnerID:      7,
 		UserID:        42,
 		OrgID:         3,
-		TokenType:     TokenTypePreview,
+		TokenType:     tokenType,
 		PreviewTarget: "127.0.0.1:3000",
 		PreviewPath:   previewPath,
+		PreviewOrigin: previewOrigin,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(now),
 			NotBefore: jwt.NewNumericDate(now),
 			Issuer:    testIssuer,
 			Subject:   "pod1",
+			ID:        "jti-1",
+			Audience:  jwt.ClaimStrings{previewOrigin},
 		},
 	}
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(testSecret))

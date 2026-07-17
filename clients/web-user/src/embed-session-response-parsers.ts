@@ -1,17 +1,10 @@
-import type { ConversationItem } from "@/lib/conversationItems";
-import type { SessionStatus } from "@/lib/types";
 import type { TerminalResource } from "@do-worker/agent-ui";
-import type { EmbeddedItemsPage, EmbeddedSession, EmbedRelayConnection } from "./embed-session-api";
+import type { EmbeddedSession, EmbedRelayConnection } from "./embed-session-api";
 
 interface SessionWire {
   agent_name?: unknown;
-  id?: unknown;
   interaction_mode?: unknown;
-  pod_key?: unknown;
-  runner_id?: unknown;
   title?: unknown;
-  total_cost_usd?: unknown;
-  status?: unknown;
 }
 
 export async function readEmbeddedJson(response: Response): Promise<unknown> {
@@ -24,43 +17,18 @@ export async function readEmbeddedJson(response: Response): Promise<unknown> {
 export function parseEmbeddedSession(value: unknown): EmbeddedSession {
   const body = value as SessionWire;
   if (
-    typeof body.id !== "string" ||
     (body.agent_name !== undefined && typeof body.agent_name !== "string") ||
     (body.interaction_mode !== undefined &&
       body.interaction_mode !== "acp" &&
       body.interaction_mode !== "pty") ||
-    (body.pod_key !== undefined && body.pod_key !== null && typeof body.pod_key !== "string") ||
-    (body.runner_id !== undefined &&
-      body.runner_id !== null &&
-      typeof body.runner_id !== "string") ||
-    (typeof body.title !== "string" && body.title !== null && body.title !== undefined) ||
-    (body.total_cost_usd !== undefined &&
-      body.total_cost_usd !== null &&
-      typeof body.total_cost_usd !== "number") ||
-    !isSessionStatus(body.status)
+    (typeof body.title !== "string" && body.title !== null && body.title !== undefined)
   ) {
     throw new Error("Embedded session response is invalid");
   }
   return {
     agentLabel: body.agent_name ?? "Agent",
-    id: body.id,
     interactionMode: body.interaction_mode ?? "acp",
-    podKey: body.pod_key ?? null,
-    runnerId: body.runner_id ?? null,
-    title: body.title ?? null,
-    totalCostUsd: body.total_cost_usd ?? null,
-    status: body.status,
-  };
-}
-
-export function parseEmbeddedItems(value: unknown): EmbeddedItemsPage {
-  const body = value as { data?: unknown; has_more?: unknown };
-  if (!Array.isArray(body.data) || typeof body.has_more !== "boolean") {
-    throw new Error("Embedded session items response is invalid");
-  }
-  return {
-    items: [...body.data].reverse() as ConversationItem[],
-    hasMore: body.has_more,
+    title: body.title ?? "",
   };
 }
 
@@ -105,14 +73,4 @@ export function parseEmbeddedRelayConnection(value: unknown): EmbedRelayConnecti
     token: body.token,
     podKey: body.pod_key,
   };
-}
-
-function isSessionStatus(value: unknown): value is SessionStatus {
-  return (
-    value === "idle" ||
-    value === "launching" ||
-    value === "running" ||
-    value === "waiting" ||
-    value === "failed"
-  );
 }

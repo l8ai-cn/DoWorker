@@ -1,9 +1,7 @@
 package runner
 
 import (
-	"mime"
 	"os"
-	"path/filepath"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
@@ -27,7 +25,7 @@ func (h *RunnerMessageHandler) sandboxFsStatWorkspace(
 		return fsErrResult("not a regular file"), nil
 	}
 	return &runnerv1.SandboxFsResultEvent{
-		ContentType:   mime.TypeByExtension(filepath.Ext(relative)),
+		ContentType:   sandboxFsContentType(relative),
 		FileBytes:     info.Size(),
 		WorkspaceRoot: workspace.displayPath(),
 	}, nil
