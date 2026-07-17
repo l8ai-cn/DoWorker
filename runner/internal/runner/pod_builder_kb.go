@@ -77,11 +77,6 @@ func (b *PodBuilder) cloneKnowledgeMount(ctx context.Context, sandboxRoot string
 		if err != nil {
 			return &client.PodError{Code: client.ErrCodeFileCreate, Message: err.Error()}
 		}
-		defer func() {
-			if temporaryKey != "" {
-				removeKnowledgeMountCredential(temporaryKey)
-			}
-		}()
 	}
 
 	args := []string{"clone", "--single-branch"}
@@ -95,25 +90,25 @@ func (b *PodBuilder) cloneKnowledgeMount(ctx context.Context, sandboxRoot string
 	}
 	if output, err := cloneCmd.CombinedOutput(); err != nil {
 		cleanupKnowledgeMount(ctx, dest)
-		return &client.PodError{Code: client.ErrCodeGitClone,
+		cloneErr := &client.PodError{Code: client.ErrCodeGitClone,
 			Message: knowledgeMountCommandError("clone", m.GetSlug(), err, output, privateKey),
 			Details: map[string]string{"kb_slug": m.GetSlug(), "mode": m.GetMode()}}
+		return joinKnowledgeMountCredentialCleanup(temporaryKey, cloneErr)
 	}
 	if temporaryKey != "" {
 		if m.GetMode() == "rw" {
 			if err := persistKnowledgeMountKey(ctx, sandboxRoot, dest, temporaryKey, privateKey); err != nil {
 				cleanupKnowledgeMount(ctx, dest)
-				return &client.PodError{Code: client.ErrCodeGitClone, Message: err.Error(),
+				persistErr := &client.PodError{Code: client.ErrCodeGitClone, Message: err.Error(),
 					Details: map[string]string{"kb_slug": m.GetSlug(), "mode": m.GetMode()}}
+				return joinKnowledgeMountCredentialCleanup(temporaryKey, persistErr)
 			}
-			temporaryKey = ""
 		} else {
 			if err := removeKnowledgeMountCredential(temporaryKey); err != nil {
 				cleanupKnowledgeMount(ctx, dest)
 				return &client.PodError{Code: client.ErrCodeGitClone, Message: fmt.Sprintf(
 					"failed to remove temporary SSH credentials for knowledge base %q: %v", m.GetSlug(), err)}
 			}
-			temporaryKey = ""
 		}
 	}
 	remoteURL := m.GetHttpCloneUrl()

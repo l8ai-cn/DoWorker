@@ -2,6 +2,7 @@ package runner
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -90,7 +91,6 @@ func reconcileExistingKnowledgeMount(
 	if err != nil {
 		return err
 	}
-	defer removeKnowledgeMountCredential(temporaryKey)
 	if err := persistKnowledgeMountKey(
 		ctx,
 		sandboxRoot,
@@ -98,8 +98,12 @@ func reconcileExistingKnowledgeMount(
 		temporaryKey,
 		m.GetGitPrivateKey(),
 	); err != nil {
-		_ = clearKnowledgeRepoCredential(ctx, dest)
-		return err
+		clearErr := clearKnowledgeRepoCredential(ctx, dest)
+		return errors.Join(
+			err,
+			clearErr,
+			joinKnowledgeMountCredentialCleanup(temporaryKey, nil),
+		)
 	}
 	return nil
 }

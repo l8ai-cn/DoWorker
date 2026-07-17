@@ -367,7 +367,7 @@ for candidate in "$KB_SANDBOX"/.agentsmesh-kb-key-*; do
 	break
 done
 [ -n "$key" ] || { printf 'temporary key missing\n' >&2; exit 31; }
-mode=$(stat -f '%Lp' "$key" 2>/dev/null || stat -c '%a' "$key")
+mode=$(stat -c '%a' "$key" 2>/dev/null || stat -f '%Lp' "$key")
 printf 'key=%s\nmode=%s\n' "$key" "$mode" >> "$KB_GIT_LOG"
 
 if [ "${KB_GIT_FAIL:-}" = "1" ]; then

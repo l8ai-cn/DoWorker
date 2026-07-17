@@ -2,6 +2,7 @@ package runner
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -22,12 +23,16 @@ func writeKnowledgeMountKey(sandboxRoot, privateKey, knownHosts string) (string,
 		err = closeErr
 	}
 	if err != nil {
-		removeKnowledgeMountCredential(path)
-		return "", fmt.Errorf("failed to write temporary SSH key: %w", err)
+		return "", joinKnowledgeMountCredentialCleanup(
+			path,
+			fmt.Errorf("failed to write temporary SSH key: %w", err),
+		)
 	}
 	if err := os.WriteFile(path+temporaryKnownHostsFileSuffix, []byte(knownHosts+"\n"), 0600); err != nil {
-		removeKnowledgeMountCredential(path)
-		return "", fmt.Errorf("failed to create temporary SSH known_hosts: %w", err)
+		return "", joinKnowledgeMountCredentialCleanup(
+			path,
+			fmt.Errorf("failed to create temporary SSH known_hosts: %w", err),
+		)
 	}
 	return path, nil
 }
@@ -71,6 +76,20 @@ func removeKnowledgeMountCredential(keyPath string) error {
 		return keyErr
 	}
 	return knownHostsErr
+}
+
+func joinKnowledgeMountCredentialCleanup(keyPath string, primary error) error {
+	if keyPath == "" {
+		return primary
+	}
+	cleanupErr := removeKnowledgeMountCredential(keyPath)
+	if cleanupErr == nil {
+		return primary
+	}
+	return errors.Join(
+		primary,
+		fmt.Errorf("remove temporary knowledge mount credential: %w", cleanupErr),
+	)
 }
 
 func knowledgeMountSSHEnv(keyPath, knownHostsPath string) []string {
