@@ -37,6 +37,7 @@ PLATFORM_DIGEST_MC=""
 PLATFORM_DIGEST_KUBECTL=""
 source "$(dirname "${BASH_SOURCE[0]}")/harbor-image-publishing.sh"
 source "${SCRIPT_DIR}/harbor-infra-mirror.sh"
+source "${SCRIPT_DIR}/harbor_immutable_release.sh"
 # shellcheck source=release_source_guard.sh
 source "${SCRIPT_DIR}/release_source_guard.sh"
 
@@ -98,6 +99,7 @@ push_video_runtime() {
 main() {
   release_require_pushed_clean_tree "${REPO_ROOT}"
   ensure_project
+  harbor_require_upload_token_expiration "${REG}" 120
   case "${TARGET}" in
     platform) push_platform ;;
     marketplace-core) push_marketplace_core ;;

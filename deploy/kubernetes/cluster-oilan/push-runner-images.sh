@@ -12,7 +12,6 @@ source "${SCRIPT_DIR}/runner-build-base.sh"
 source "${SCRIPT_DIR}/release_source_guard.sh"
 # shellcheck source=push-runner-video-studio.sh
 source "${SCRIPT_DIR}/push-runner-video-studio.sh"
-
 release_require_pushed_clean_tree "${REPO_ROOT}"
 
 require_do_agent_artifact() {
@@ -190,6 +189,7 @@ push_all() {
 }
 
 verify_runner_build_base
+harbor_require_upload_token_expiration "${REG}" 120
 export RUNTIME_BUILD_BASE="${RUNNER_BUILD_BASE}"
 case "${TARGET}" in
   all) push_all ;;

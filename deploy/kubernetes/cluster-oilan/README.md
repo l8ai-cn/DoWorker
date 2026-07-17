@@ -32,6 +32,7 @@ Because Harbor is node-local, runner + backend-launcher image pull policy is `Al
 
 ```bash
 docker login repo.aiedulab.cn:8443           # one-time
+DOOPS_SESSION=<release-session> ./configure-harbor-upload-token.sh
 ./push-images.sh all                          # build + push every image to Harbor
 git status --short                            # review generated locks/evidence
 git add deploy/kubernetes/cluster-oilan/release \
@@ -48,6 +49,12 @@ DOOPS_TARGET=gw-oilan-node ./deploy.sh         # secrets + manifests + jobs via 
 Runner runtime builds resolve their Node base only through the locked
 `runner-node-base@sha256:...` Harbor reference and fail before building if its
 digest differs or either `linux/amd64` or `linux/arm64` is absent.
+`configure-harbor-upload-token.sh` applies the 120-minute Harbor system setting
+with the cluster-held administrator Secret. Image publishing uses only the
+Docker push credential to verify the issued token lifetime before any build
+starts. Large runtime layers can exceed Harbor's 30-minute default; an expired
+token makes Harbor reject the final blob commit after receiving the entire
+layer.
 
 Build and deploy scripts refuse a dirty tree, detached HEAD, a commit that is
 not the current remote branch HEAD, or missing release-specific CI checks.
