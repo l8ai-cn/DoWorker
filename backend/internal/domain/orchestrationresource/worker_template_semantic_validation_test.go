@@ -50,14 +50,14 @@ func TestWorkerTemplateRejectsInvalidStaticWorkerSpecSemantics(t *testing.T) {
 		},
 		{
 			name:  "nil values",
-			field: "values must be an object",
+			field: "null is not allowed at path spec.typeConfig.values",
 			mutate: func(spec *WorkerTemplateSpec) {
 				spec.TypeConfig.Values = nil
 			},
 		},
 		{
 			name:  "nil secret refs",
-			field: "secret refs must be an object",
+			field: "null is not allowed at path spec.typeConfig.secretRefs",
 			mutate: func(spec *WorkerTemplateSpec) {
 				spec.TypeConfig.SecretRefs = nil
 			},

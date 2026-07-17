@@ -56,6 +56,19 @@ func TestGoalLoopResourceSchemaRejectsValuesOutsideDatabaseBounds(t *testing.T) 
 	}
 }
 
+func TestGoalLoopResourceSchemaRequiresCanonicalDescription(t *testing.T) {
+	registry := NewRegistry()
+	require.NoError(t, RegisterDefinitionSchemas(registry))
+	spec := goalLoopBoundsSpec(1, 1, 1, 1)
+	spec.Description = ""
+
+	_, err := registry.DecodeAndValidate(goalLoopBoundsManifest(t, spec))
+	require.ErrorContains(t, err, "description is required")
+	canonical, err := json.Marshal(spec)
+	require.NoError(t, err)
+	require.Contains(t, string(canonical), `"description":""`)
+}
+
 func goalLoopBoundsSpec(
 	maxIterations, timeoutMinutes, noProgressLimit, sameErrorLimit int,
 ) GoalLoopResourceSpec {
@@ -64,6 +77,7 @@ func goalLoopBoundsSpec(
 			Kind: KindWorkerTemplate,
 			Name: "reviewer",
 		},
+		Description:         "Repair checkout deterministically",
 		Objective:           "Fix checkout",
 		AcceptanceCriteria:  []string{"Tests pass"},
 		VerificationCommand: "go test ./...",

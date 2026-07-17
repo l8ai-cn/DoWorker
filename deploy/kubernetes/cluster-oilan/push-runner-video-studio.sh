@@ -23,7 +23,7 @@ publish_video_runtime_metadata() {
     ' tools/loops/worker-onboarding/catalog-loop/evidence/runtime-lock-probes.json \
       >/dev/null
   )
-  release_write_source_metadata "${REPO_ROOT}"
+  [[ "${RUNNER_SOURCE_METADATA_MODE}" == "defer-platform-source-metadata" ]] || release_write_source_metadata "${REPO_ROOT}"
 }
 
 push_video_studio() {

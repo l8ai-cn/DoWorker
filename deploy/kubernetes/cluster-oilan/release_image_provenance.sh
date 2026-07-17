@@ -34,11 +34,11 @@ release_remote_image_revision() {
   }
   digest="$(release_platform_digest "${repo_root}" "${image}")"
   reference="repo.aiedulab.cn:8443/agentsmesh/${image}@${digest}"
-  docker pull --platform linux/amd64 "${reference}" >/dev/null
+  docker pull --platform linux/amd64 "${reference}" >/dev/null || return 1
   revision="$(
     docker image inspect "${reference}" \
       --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}'
-  )"
+  )" || return 1
   [[ "${revision}" =~ ^[a-f0-9]{40}$ ]] || {
     echo "release image revision missing for ${image}" >&2
     return 1
@@ -52,11 +52,11 @@ release_collect_platform_image_revisions() {
 
   revisions='{}'
   for image in $(release_platform_images); do
-    revision="$(release_remote_image_revision "${repo_root}" "${image}")"
+    revision="$(release_remote_image_revision "${repo_root}" "${image}")" || return 1
     revisions="$(
       jq -c --arg image "${image}" --arg revision "${revision}" \
         '. + {($image): $revision}' <<< "${revisions}"
-    )"
+    )" || return 1
   done
   printf '%s' "${revisions}"
 }

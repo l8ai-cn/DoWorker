@@ -111,7 +111,7 @@ main() {
     runners)  bash "${SCRIPT_DIR}/push-runner-images.sh" all ;;
     do-agent) bash "${SCRIPT_DIR}/push-runner-images.sh" do-agent ;;
     video-runtime) push_video_runtime ;;
-    all)      push_infra; bash "${SCRIPT_DIR}/push-runner-images.sh" all; push_platform ;;
+    all)      push_infra; bash "${SCRIPT_DIR}/push-runner-images.sh" all defer-platform-source-metadata; push_platform ;;
     *) echo "usage: $0 [all|platform|marketplace-core|video-expert|mobile-access|web|marketplace-web|infra|runners|do-agent|video-runtime]" >&2; exit 1 ;;
   esac
   echo "==> done: ${TARGET}"
