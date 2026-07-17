@@ -17,6 +17,17 @@ func EncodeSpec(spec Spec) ([]byte, error) {
 }
 
 func DecodeSpec(data []byte) (Spec, error) {
+	return decodeSpec(data, NormalizeAndValidate)
+}
+
+func DecodePersistedSpec(data []byte) (Spec, error) {
+	return decodeSpec(data, NormalizeAndValidatePersisted)
+}
+
+func decodeSpec(
+	data []byte,
+	normalizeAndValidate func(Spec) (Spec, error),
+) (Spec, error) {
 	if err := requireV1(data); err != nil {
 		return Spec{}, err
 	}
@@ -24,7 +35,7 @@ func DecodeSpec(data []byte) (Spec, error) {
 	if err := decodeStrict(data, &spec); err != nil {
 		return Spec{}, fmt.Errorf("decode workerspec: %w", err)
 	}
-	return NormalizeAndValidate(spec)
+	return normalizeAndValidate(spec)
 }
 
 func EncodeSummary(summary Summary) ([]byte, error) {
@@ -35,6 +46,17 @@ func EncodeSummary(summary Summary) ([]byte, error) {
 }
 
 func DecodeSummary(data []byte) (Summary, error) {
+	return decodeSummary(data, ValidateSummary)
+}
+
+func DecodePersistedSummary(data []byte) (Summary, error) {
+	return decodeSummary(data, ValidatePersistedSummary)
+}
+
+func decodeSummary(
+	data []byte,
+	validate func(Summary) error,
+) (Summary, error) {
 	if err := requireV1(data); err != nil {
 		return Summary{}, err
 	}
@@ -42,7 +64,7 @@ func DecodeSummary(data []byte) (Summary, error) {
 	if err := decodeStrict(data, &summary); err != nil {
 		return Summary{}, fmt.Errorf("decode workerspec summary: %w", err)
 	}
-	if err := ValidateSummary(summary); err != nil {
+	if err := validate(summary); err != nil {
 		return Summary{}, err
 	}
 	return summary, nil
