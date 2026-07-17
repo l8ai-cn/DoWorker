@@ -11,9 +11,11 @@ grep -q 'release_source_guard.sh' "$SCRIPT"
 grep -q 'release_require_pushed_clean_tree' "$SCRIPT"
 grep -q 'release_write_source_metadata' "harbor-image-publishing.sh"
 grep -q 'harbor-infra-mirror.sh' "$SCRIPT"
+grep -q 'harbor_require_upload_token_expiration "${REG}" 120' "$SCRIPT"
 grep -q 'release_collect_platform_image_revisions' "release_source_guard.sh"
 grep -q 'release_source_guard.sh' "$RUNNER_SCRIPT"
 grep -q 'release_require_pushed_clean_tree' "$RUNNER_SCRIPT"
+grep -q 'harbor_require_upload_token_expiration "${REG}" 120' "$RUNNER_SCRIPT"
 grep -q 'verify_runner_build_base' "$RUNNER_SCRIPT"
 grep -Fq 'export RUNTIME_BUILD_BASE="${RUNNER_BUILD_BASE}"' "$RUNNER_SCRIPT"
 grep -Fq -- '--build-arg "RUNTIME_BUILD_BASE=${RUNTIME_BUILD_BASE}"' "$RUNNER_SCRIPT"
@@ -47,5 +49,7 @@ all_case="$(grep -F 'all)' "$SCRIPT")"
 [[ "${all_case}" == *'push_platform'* ]]
 
 bash harbor_infra_mirror_contract_test.sh
+bash harbor_upload_token_contract_test.sh
+bash configure_harbor_upload_token_contract_test.sh
 bash runner_build_base_contract_test.sh
 bash runner_build_base_passthrough_contract_test.sh
