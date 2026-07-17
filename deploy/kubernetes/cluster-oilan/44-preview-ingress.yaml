@@ -11,10 +11,10 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts: ["*.preview.dowork.l8ai.cn"]
-      secretName: dowork-preview-wildcard-tls
+    - hosts: ["*.l8ai.cn"]
+      secretName: l8ai-wildcard-tls
   rules:
-    - host: "*.preview.dowork.l8ai.cn"
+    - host: "*.l8ai.cn"
       http:
         paths:
           - path: /preview

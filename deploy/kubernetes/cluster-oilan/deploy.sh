@@ -73,15 +73,22 @@ push_manifests() {
 }
 
 ensure_tls_secret() {
-  local tls="$1" hostname="$2"
+  local tls="$1"
+  shift
+  local reference_hostname="$1"
   if dexec "kubectl -n ${NS} get secret ${tls} -o name >/dev/null"; then
     echo "==> using existing ${NS}/${tls}"
   else
     dexec "kubectl get secret ${tls} -n default -o yaml | sed -e '/namespace:/d' -e '/resourceVersion:/d' -e '/uid:/d' -e '/creationTimestamp:/d' | kubectl apply -n ${NS} -f -"
   fi
   dexec "test \"\$(kubectl -n ${NS} get secret ${tls} -o jsonpath='{.type}')\" = kubernetes.io/tls"
-  dexec "kubectl -n ${NS} get secret ${tls} -o jsonpath='{.data.tls\\.crt}' | base64 -d | openssl x509 -checkhost ${hostname} -noout"
-  dexec "getent ahostsv4 ${hostname} >/dev/null"
+  for hostname in "$@"; do
+    dexec "kubectl -n ${NS} get secret ${tls} -o jsonpath='{.data.tls\\.crt}' | base64 -d | openssl x509 -checkhost ${hostname} -noout"
+    dexec "getent ahostsv4 ${hostname} >/dev/null"
+  done
+  for hostname in "$@"; do
+    dexec "set -eu; reference_ip=\$(curl --insecure --silent --show-error --output /dev/null --write-out '%{remote_ip}' --connect-timeout 10 --max-time 20 https://${reference_hostname}/); hostname_ip=\$(curl --insecure --silent --show-error --output /dev/null --write-out '%{remote_ip}' --connect-timeout 10 --max-time 20 https://${hostname}/); test -n \"\${reference_ip}\"; test \"\${reference_ip}\" = \"\${hostname_ip}\""
+  done
 }
 
 sync_worker_definitions() {
@@ -139,8 +146,7 @@ apply_all() {
   dexec "kubectl apply -f 00-namespace.yaml"
   dexec "chmod 600 generated-secrets/*.yaml; status=0; cleanup_status=0; kubectl apply -f generated-secrets || status=\$?; rm -f generated-secrets/*.yaml || cleanup_status=\$?; rmdir generated-secrets || cleanup_status=\$?; test \${status} -ne 0 || status=\${cleanup_status}; exit \${status}"
   echo "==> ensure wildcard TLS in ${NS}"
-  ensure_tls_secret "l8ai-wildcard-tls" "dowork.l8ai.cn"
-  ensure_tls_secret "dowork-preview-wildcard-tls" "health.preview.dowork.l8ai.cn"
+  ensure_tls_secret "l8ai-wildcard-tls" "dowork.l8ai.cn" "health-preview.l8ai.cn"
   render_release
   migrate_database
   echo "==> apply workloads after migrations"
@@ -164,6 +170,8 @@ status() {
   for d in backend marketplace marketplace-web relay web web-admin mobile runner-e2e-echo; do
     dexec "kubectl -n ${NS} rollout status deploy/${d} --timeout=240s"
   done
+  local preview_probe=release-preview-probe
+  dexec "set -eu; body=\$(mktemp); trap 'rm -f \"\$body\"' EXIT; status=\$(curl --silent --show-error --output \"\$body\" --write-out '%{http_code}' --connect-timeout 10 --max-time 20 https://${preview_probe}.l8ai.cn/preview/${preview_probe}/); test \"\${status}\" = 401; grep -Fxq token_required \"\$body\""
   dexec "kubectl -n ${NS} get pods -o wide"
 }
 
@@ -178,7 +186,7 @@ main() {
   push_manifests
   apply_all
   status
-  echo "==> deployed. https://dowork.l8ai.cn · https://market.l8ai.cn · https://mobile.l8ai.cn · https://<pod-key>.preview.dowork.l8ai.cn (admin@agentsmesh.local / Ab123456)"
+  echo "==> deployed. https://dowork.l8ai.cn · https://market.l8ai.cn · https://mobile.l8ai.cn · https://<pod-key>.l8ai.cn (admin@agentsmesh.local / Ab123456)"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
