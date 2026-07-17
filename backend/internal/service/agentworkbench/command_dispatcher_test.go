@@ -2,6 +2,7 @@ package agentworkbench
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -95,12 +96,73 @@ type commandACPSender struct {
 }
 
 func (sender *commandACPSender) SendAcpRelay(
-	context.Context,
-	int64,
-	string,
-	string,
+	_ context.Context,
+	_ int64,
+	_ string,
+	payload string,
 ) error {
+	sender.payload = payload
 	return nil
+}
+
+func TestDeliverConfigurationMapsRunnerWireFields(t *testing.T) {
+	tests := []struct {
+		name        string
+		key         string
+		value       string
+		wantPayload string
+	}{
+		{
+			name:  "model",
+			key:   "model",
+			value: "gpt-5.5",
+			wantPayload: `{
+				"type":"set_model",
+				"model":"gpt-5.5",
+				"requestId":"command-config"
+			}`,
+		},
+		{
+			name:  "permission mode",
+			key:   "permission_mode",
+			value: "bypass",
+			wantPayload: `{
+				"type":"set_permission_mode",
+				"mode":"bypass",
+				"requestId":"command-config"
+			}`,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			sender := &commandACPSender{}
+			dispatcher := &CommandDispatcher{acp: sender}
+			command := &agentworkbenchv2.CommandEnvelope{CommandId: "command-config"}
+			data, err := json.Marshal(test.value)
+			require.NoError(t, err)
+			value := &agentworkbenchv2.ChangeConfigurationCommand{
+				Values: []*agentworkbenchv2.ConfigurationValue{{
+					Key: test.key,
+					Value: &agentworkbenchv2.StructuredPayload{
+						MediaType: "application/json",
+						Data:      data,
+					},
+				}},
+			}
+
+			err = dispatcher.deliverConfiguration(
+				context.Background(),
+				17,
+				"pod-1",
+				command,
+				value,
+			)
+
+			require.NoError(t, err)
+			require.JSONEq(t, test.wantPayload, sender.payload)
+		})
+	}
 }
 
 func TestCommandDispatcherQueuesPromptAndAppendsAcceptedReceipt(t *testing.T) {

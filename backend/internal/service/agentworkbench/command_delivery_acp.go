@@ -49,16 +49,19 @@ func (dispatcher *CommandDispatcher) deliverConfiguration(
 		return ErrInvalidCommand
 	}
 	commandType := ""
+	payloadField := ""
 	switch value.Values[0].Key {
 	case "model":
 		commandType = "set_model"
+		payloadField = "model"
 	case "permission_mode":
 		commandType = "set_permission_mode"
+		payloadField = "mode"
 	default:
 		return ErrCommandUnavailable
 	}
 	return dispatcher.sendACP(ctx, runnerID, podKey, map[string]any{
-		"type": commandType, value.Values[0].Key: selected,
+		"type": commandType, payloadField: selected,
 		"requestId": command.CommandId,
 	})
 }

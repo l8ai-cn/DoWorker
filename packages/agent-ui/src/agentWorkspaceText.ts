@@ -1,5 +1,7 @@
 import type { AgentConnectionStatus, AgentSessionStatus } from "./contracts";
 import {
+  englishConfigurationLabel,
+  englishConfigurationOption,
   localizeConfigurationLabel,
   localizeConfigurationOption,
 } from "./configurationLocalization";
@@ -114,8 +116,8 @@ const enUS: AgentWorkspaceText = {
   requiresArgument: (commandLabel) => `${commandLabel} requires an argument`,
   customAnswerFor: (prompt) => `Custom answer for ${prompt}`,
   configurationOptions: (label) => `${label} options`,
-  configurationLabel: (_id, fallback) => fallback,
-  configurationOption: (_id, _value, fallback) => fallback,
+  configurationLabel: englishConfigurationLabel,
+  configurationOption: englishConfigurationOption,
   sessionStatus: englishSessionStatus,
   activityStatus: englishActivityStatus,
   artifactType: (_kind, fallback) => fallback,

@@ -7,20 +7,20 @@ export function projectConfiguration(
 ): AgentConfigurationControl[] | undefined {
   const configuration = snapshot.configuration;
   const capabilities = snapshot.capabilities;
-  if (!configuration || !capabilities) return undefined;
+  if (!capabilities) return undefined;
   const controls: AgentConfigurationControl[] = [];
   appendControl(
     controls,
     "model",
     "Model",
-    configuration.model,
+    configuration?.model,
     capabilities.models,
   );
   appendControl(
     controls,
     "permission_mode",
-    "Permission mode",
-    configuration.permissionMode,
+    "Permissions",
+    configuration?.permissionMode,
     capabilities.permissionModes,
   );
   return controls.length > 0 ? controls : undefined;
@@ -33,11 +33,11 @@ function appendControl(
   value: string | undefined,
   options: readonly string[],
 ): void {
-  if (!value || !options.includes(value)) return;
+  if (options.length === 0) return;
   controls.push({
     id,
     label,
-    value,
+    value: value && options.includes(value) ? value : "",
     options: options.map((option) => ({ value: option, label: option })),
   });
 }

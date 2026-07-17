@@ -50,7 +50,7 @@ describe("generated session configuration projection", () => {
       },
       {
         id: "permission_mode",
-        label: "Permission mode",
+        label: "Permissions",
         value: "ask_dangerous",
         options: [
           { value: "ask_dangerous", label: "ask_dangerous" },
@@ -78,7 +78,14 @@ describe("generated session configuration projection", () => {
       hasOlderItems: false,
     });
 
-    expect(projected.configuration).toBeUndefined();
+    expect(projected.configuration).toEqual([
+      {
+        id: "model",
+        label: "Model",
+        value: "",
+        options: [{ value: "gpt-5.4", label: "gpt-5.4" }],
+      },
+    ]);
   });
 
   it("applies configuration changed events to the canonical snapshot", () => {
