@@ -23,10 +23,13 @@ func (resolver ingressSessionResolver) GetByPodKey(
 }
 
 type ingressRepository struct {
-	state   *domainworkbench.SessionState
-	request domainworkbench.AppendRequest
-	result  domainworkbench.AppendResult
-	err     error
+	state              *domainworkbench.SessionState
+	stateAfterConflict *domainworkbench.SessionState
+	request            domainworkbench.AppendRequest
+	requests           []domainworkbench.AppendRequest
+	result             domainworkbench.AppendResult
+	err                error
+	appendErrors       []error
 }
 
 func (repo *ingressRepository) Append(
@@ -34,6 +37,16 @@ func (repo *ingressRepository) Append(
 	request domainworkbench.AppendRequest,
 ) (domainworkbench.AppendResult, error) {
 	repo.request = request
+	repo.requests = append(repo.requests, request)
+	if len(repo.appendErrors) > 0 {
+		err := repo.appendErrors[0]
+		repo.appendErrors = repo.appendErrors[1:]
+		if err == domainworkbench.ErrRevisionConflict &&
+			repo.stateAfterConflict != nil {
+			repo.state = repo.stateAfterConflict
+		}
+		return domainworkbench.AppendResult{}, err
+	}
 	return repo.result, repo.err
 }
 
@@ -72,6 +85,7 @@ func (*ingressRepository) GetCommandReceipt(
 type ingressPublisher struct {
 	sessionID string
 	delta     *agentworkbenchv2.SessionDeltaBatch
+	count     int
 }
 
 func (publisher *ingressPublisher) Publish(
@@ -80,6 +94,7 @@ func (publisher *ingressPublisher) Publish(
 ) {
 	publisher.sessionID = sessionID
 	publisher.delta = delta
+	publisher.count++
 }
 
 func TestIngressPersistsAndPublishesRichArtifactBatch(t *testing.T) {
@@ -133,4 +148,85 @@ func TestIngressDoesNotRepublishDuplicateSourceBatch(t *testing.T) {
 	))
 	require.NoError(t, err)
 	require.Nil(t, publisher.delta)
+}
+
+func TestIngressRetriesRevisionConflictBeforePublishing(t *testing.T) {
+	concurrent, err := ProjectRunnerBatch(
+		initialSnapshot("conv_1", "stream-1"),
+		"conv_1",
+		"stream-1",
+		runnerBatch(
+			statusMutation("source:1", 1, agentworkbenchv2.SessionStatus_SESSION_STATUS_RUNNING),
+		),
+	)
+	require.NoError(t, err)
+	repo := &ingressRepository{
+		state:              storedInitialSnapshot(t),
+		stateAfterConflict: storedProjectedSnapshot(t, concurrent),
+		result:             domainworkbench.AppendResult{Applied: true},
+		appendErrors:       []error{domainworkbench.ErrRevisionConflict},
+	}
+	publisher := &ingressPublisher{}
+	service, err := NewIngress(
+		ingressSessionResolver{session: &sessiondomain.Session{
+			ID: "conv_1", PodKey: "pod-1",
+		}},
+		repo,
+		publisher,
+		func() string { return "stream-1" },
+	)
+	require.NoError(t, err)
+
+	err = service.Ingest(context.Background(), 17, runnerBatch(
+		statusMutation("source:2", 2, agentworkbenchv2.SessionStatus_SESSION_STATUS_IDLE),
+	))
+	require.NoError(t, err)
+	require.Len(t, repo.requests, 2)
+	require.Equal(t, uint64(0), repo.requests[0].ExpectedRevision)
+	require.Equal(t, uint64(1), repo.requests[1].ExpectedRevision)
+	require.Equal(t, uint64(2), repo.requests[1].Projection.Revision)
+	require.Equal(t, "conv_1", publisher.sessionID)
+	require.Equal(t, uint64(2), publisher.delta.Revision)
+	require.Equal(t, 1, publisher.count)
+}
+
+func TestIngressStopsAfterRevisionConflictLimit(t *testing.T) {
+	repo := &ingressRepository{
+		state: storedInitialSnapshot(t),
+		err:   domainworkbench.ErrRevisionConflict,
+	}
+	publisher := &ingressPublisher{}
+	service, err := NewIngress(
+		ingressSessionResolver{session: &sessiondomain.Session{
+			ID: "conv_1", PodKey: "pod-1",
+		}},
+		repo,
+		publisher,
+		func() string { return "stream-1" },
+	)
+	require.NoError(t, err)
+
+	err = service.Ingest(context.Background(), 17, runnerBatch(
+		statusMutation("source:1", 1, agentworkbenchv2.SessionStatus_SESSION_STATUS_RUNNING),
+	))
+	require.ErrorIs(t, err, domainworkbench.ErrRevisionConflict)
+	require.Len(t, repo.requests, ingressAppendAttempts)
+	require.Zero(t, publisher.count)
+}
+
+func storedProjectedSnapshot(
+	t *testing.T,
+	projected *ProjectedBatch,
+) *domainworkbench.SessionState {
+	t.Helper()
+	encoded, err := marshalDeterministic(projected.Snapshot)
+	require.NoError(t, err)
+	return &domainworkbench.SessionState{
+		SessionID:      projected.Snapshot.SessionId,
+		StreamEpoch:    projected.Snapshot.StreamEpoch,
+		Revision:       projected.Snapshot.Revision,
+		LatestSequence: projected.Snapshot.LatestSequence,
+		Projection:     encoded,
+		Digest:         projected.Snapshot.GetDigest(),
+	}
 }

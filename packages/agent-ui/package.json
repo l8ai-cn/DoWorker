@@ -10,6 +10,9 @@
     "./protocol": "./src/protocol/index.ts",
     "./runtime": "./src/runtime/index.ts"
   },
+  "scripts": {
+    "test": "vitest run --config vitest.config.ts --reporter=default --no-color"
+  },
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.0",
     "@connectrpc/connect": "2.1.2",
