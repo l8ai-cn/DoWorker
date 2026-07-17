@@ -20,9 +20,7 @@ rm -rf "$STAGING"
 mkdir -p "$STAGING/binaries"
 touch "$STAGING/binaries/.keep"
 
-if [[ ! -f "${REPO_ROOT}/proto/gen/go/runner/v1/runner.pb.go" ]]; then
-  bash "${REPO_ROOT}/scripts/proto-gen-go.sh" --force
-fi
+bash "${REPO_ROOT}/scripts/proto-gen-go.sh"
 
 go_cross() {
   local out="$1" pkg="$2"
