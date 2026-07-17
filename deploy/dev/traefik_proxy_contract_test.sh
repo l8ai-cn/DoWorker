@@ -26,6 +26,7 @@ WORKTREE_NAME="traefik-contract"
 BACKEND_HTTP_PORT=11015
 BACKEND_GRPC_PORT=11016
 RELAY_HTTP_PORT=11017
+MARKETPLACE_HTTP_PORT=11022
 source lib/config_gen.sh
 generate_traefik_config
 

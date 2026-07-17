@@ -200,7 +200,7 @@ http:
     backend-api:
       entryPoints:
         - web
-      rule: "!Host(\`preview.localhost\`) && !HostRegexp(\`^[a-z0-9-]+\\.preview\\.localhost$\`) && (PathPrefix(\`/api\`) || PathPrefix(\`/health\`) || PathPrefix(\`/v1\`) || PathPrefix(\`/auth\`) || PathPrefix(\`/proto.\`) || PathPrefix(\`/.well-known\`))"
+      rule: '!Host(\`preview.localhost\`) && !HostRegexp(\`^[a-z0-9-]+\\.preview\\.localhost$\`) && (PathPrefix(\`/api\`) || PathPrefix(\`/health\`) || PathPrefix(\`/v1\`) || PathPrefix(\`/auth\`) || PathPrefix(\`/proto.\`) || PathPrefix(\`/.well-known\`))'
       service: backend-api
       priority: 100
 

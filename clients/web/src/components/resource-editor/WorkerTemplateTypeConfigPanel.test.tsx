@@ -41,9 +41,7 @@ describe("WorkerTemplateTypeConfigPanel", () => {
     })).toHaveValue("api-token");
     expect(screen.getByRole("combobox", {
       name: /Resource reference/,
-    })).toHaveValue(
-      "production-secrets",
-    );
+    })).toHaveTextContent("Production secrets · production-secrets");
     expect(screen.getByLabelText("Resource reference Revision")).toHaveValue(3);
     expect(screen.queryByLabelText(/^Value$/)).not.toBeInTheDocument();
     expect(screen.queryByDisplayValue(/secret-value/i)).not.toBeInTheDocument();
