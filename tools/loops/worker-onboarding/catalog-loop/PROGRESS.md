@@ -153,8 +153,8 @@ The former inventory and shared-contract acceptance were invalidated on
   fake provider endpoint or credential bundle was created.
 - Public Next.js documentation now uses a generated Worker runtime catalog
   compiled from the formal Definitions, immutable runtime lock, and actual
-  pull evidence. It presents 12 formal definitions, 0 formally deployable
-  Workers, 1 local-development proof blocked from release, and 12 release
+  pull evidence. It presents 14 formal definitions, 0 formally deployable
+  Workers, 1 local-development proof blocked from release, and 14 release
   blockers rather than a static supported-tool list.
 - Docs navigation now exposes Worker Types & Runtime and removes the obsolete
   AgentPod and Mesh entries. Legacy paths redirect to the current Worker

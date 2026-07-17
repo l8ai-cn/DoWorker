@@ -4,6 +4,15 @@ release_platform_images() {
   printf '%s\n' backend marketplace marketplace-web relay web web-admin mobile
 }
 
+release_runtime_images() {
+  printf '%s\n' runner-do-agent runner-video-studio
+}
+
+release_images() {
+  release_platform_images
+  release_runtime_images
+}
+
 release_platform_digest() {
   local repo_root="${1:?repository root is required}"
   local image="${2:?image is required}"
@@ -23,18 +32,76 @@ release_platform_digest() {
   printf '%s' "${digest}"
 }
 
+release_runtime_digest() {
+  local repo_root="${1:?repository root is required}"
+  local image="${2:?image is required}"
+  local digest
+
+  case "${image}" in
+    runner-do-agent)
+      digest="$(
+        jq -er '
+          select(.image.repository == "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent")
+          | .image.digest
+        ' "${repo_root}/docker/agent-runtime/do-agent-release.json"
+      )"
+      ;;
+    runner-video-studio)
+      digest="$(
+        jq -er '
+          .images[]
+          | select(.slug == "video-studio-stable" and .enabled == true)
+          | .digest as $digest
+          | select(.reference == ("repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@" + $digest))
+          | $digest
+        ' "${repo_root}/backend/internal/domain/workerruntime/runtime_catalog.lock.json"
+      )"
+      ;;
+    *)
+      echo "unknown release runtime image: ${image}" >&2
+      return 1
+      ;;
+  esac
+  [[ "${digest}" =~ ^sha256:[a-f0-9]{64}$ ]] || {
+    echo "release digest missing for ${image}" >&2
+    return 1
+  }
+  printf '%s' "${digest}"
+}
+
+release_image_digest() {
+  local repo_root="${1:?repository root is required}"
+  local image="${2:?image is required}"
+
+  case "${image}" in
+    runner-do-agent|runner-video-studio)
+      release_runtime_digest "${repo_root}" "${image}"
+      ;;
+    *)
+      release_platform_digest "${repo_root}" "${image}"
+      ;;
+  esac
+}
+
 release_remote_image_revision() {
   local repo_root="${1:?repository root is required}"
   local image="${2:?image is required}"
-  local digest reference revision
+  local digest reference revision platform
 
   command -v docker >/dev/null || {
     echo "release requires docker for image provenance verification" >&2
     return 1
   }
-  digest="$(release_platform_digest "${repo_root}" "${image}")"
+  digest="$(release_image_digest "${repo_root}" "${image}")"
   reference="repo.aiedulab.cn:8443/agentsmesh/${image}@${digest}"
-  docker pull --platform linux/amd64 "${reference}" >/dev/null || return 1
+  docker pull "${reference}" >/dev/null || return 1
+  platform="$(
+    docker image inspect "${reference}" --format '{{.Os}}/{{.Architecture}}'
+  )" || return 1
+  [[ "${platform}" == "linux/amd64" ]] || {
+    echo "release image platform mismatch for ${image}: ${platform}" >&2
+    return 1
+  }
   revision="$(
     docker image inspect "${reference}" \
       --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}'
@@ -46,12 +113,12 @@ release_remote_image_revision() {
   printf '%s' "${revision}"
 }
 
-release_collect_platform_image_revisions() {
+release_collect_image_revisions() {
   local repo_root="${1:?repository root is required}"
   local image revision revisions
 
   revisions='{}'
-  for image in $(release_platform_images); do
+  for image in $(release_images); do
     revision="$(release_remote_image_revision "${repo_root}" "${image}")" || return 1
     revisions="$(
       jq -c --arg image "${image}" --arg revision "${revision}" \
@@ -61,14 +128,14 @@ release_collect_platform_image_revisions() {
   printf '%s' "${revisions}"
 }
 
-release_verify_platform_image_provenance() {
+release_verify_image_provenance() {
   local repo_root="${1:?repository root is required}"
   shift
   local metadata image expected actual
 
   metadata="${repo_root}/deploy/kubernetes/cluster-oilan/release/source.json"
   if [[ "$#" -eq 0 ]]; then
-    set -- $(release_platform_images)
+    set -- $(release_images)
   fi
   for image in "$@"; do
     expected="$(jq -er --arg image "${image}" '.images[$image]' "${metadata}")"

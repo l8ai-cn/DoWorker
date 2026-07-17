@@ -11,7 +11,10 @@ PUSH_VIDEO="${ROOT}/deploy/kubernetes/cluster-oilan/push-runner-video-studio.sh"
 PUBLISHING="${ROOT}/deploy/kubernetes/cluster-oilan/harbor-image-publishing.sh"
 UPDATE_DIGEST="${ROOT}/deploy/kubernetes/cluster-oilan/update-video-runtime-digest.mjs"
 RUNTIME_LOCK="${ROOT}/backend/internal/domain/workerruntime/runtime_catalog.lock.json"
+RUNTIME_BUILD="${ROOT}/tools/loops/worker-onboarding/catalog-loop/evidence/runtime-builds/video-studio.json"
+EVIDENCE_MATRIX="${ROOT}/tools/loops/worker-onboarding/catalog-loop/catalog/worker-evidence-matrix.json"
 IMAGE="repo.aiedulab.cn:8443/agentsmesh/runner-video-studio"
+OBSERVED_AT="2026-07-17T19:05:45+08:00"
 DIGEST="$(
   node -e '
     const catalog = require(process.argv[1]);
@@ -62,7 +65,9 @@ grep -Fq 'docker build still running' "$PUBLISHING"
 grep -Fq 'push_video_runtime' "$PUSH_IMAGES"
 grep -Fq 'runner-video-studio:latest' "$PUSH_VIDEO"
 grep -Fq 'FORCE_REBUILD=1 PLATFORM="${PLATFORM:-linux/amd64}"' "$PUSH_VIDEO"
-grep -Fq 'digest="$(manifest_digest "${PROJ}/runner-video-studio:latest")"' "$PUSH_VIDEO"
+grep -Fq 'digest="$(platform_manifest_digest "${PROJ}/runner-video-studio:latest")"' "$PUSH_VIDEO"
+grep -Fq 'docker/agent-runtime/video_contract_test.sh' "$PUSH_VIDEO"
+grep -Fq 'RUNTIME_OBSERVED_AT="${observed_at}" \' "$PUSH_VIDEO"
 grep -Fq 'update-video-runtime-digest.mjs' "$PUSH_VIDEO"
 push_video_runtime="$(
   awk '
@@ -74,6 +79,8 @@ push_video_runtime="$(
 grep -Fq 'RUNTIME_PLATFORM="${PLATFORM:-linux/amd64}" \' <<< "$push_video_runtime"
 grep -Fq 'node scripts/probe-worker-runtime-locks.mjs video-studio' <<< "$push_video_runtime"
 grep -Fq 'pnpm run worker-docs:sync' <<< "$push_video_runtime"
+grep -Fq 'node scripts/generate-worker-loop-inventory.mjs' <<< "$push_video_runtime"
+grep -Fq 'node scripts/generate-worker-loop-inventory.mjs --check' <<< "$push_video_runtime"
 grep -Fq 'verify-runtime-lock-probes.sh \' <<< "$push_video_runtime"
 grep -Fq 'video-studio' <<< "$push_video_runtime"
 grep -Fq '.status == "available"' <<< "$push_video_runtime"
@@ -83,12 +90,18 @@ FIXTURE_ROOT="$(mktemp -d)"
 trap 'rm -rf "$FIXTURE_ROOT"' EXIT
 mkdir -p \
   "$FIXTURE_ROOT/backend/internal/domain/workerruntime" \
-  "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan"
+  "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan" \
+  "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/evidence/runtime-builds" \
+  "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/catalog"
 cp "$RUNTIME_LOCK" "$FIXTURE_ROOT/backend/internal/domain/workerruntime/runtime_catalog.lock.json"
 cp "$BACKEND_MANIFEST" "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/30-backend.yaml"
 cp "$PREPULL_MANIFEST" "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
+cp "$RUNTIME_BUILD" \
+  "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/evidence/runtime-builds/video-studio.json"
+cp "$EVIDENCE_MATRIX" \
+  "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/catalog/worker-evidence-matrix.json"
 
-node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT"
+RUNTIME_OBSERVED_AT="$OBSERVED_AT" node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT"
 grep -Fq "\"digest\": \"$NEXT_DIGEST\"" \
   "$FIXTURE_ROOT/backend/internal/domain/workerruntime/runtime_catalog.lock.json"
 grep -Fq "\"reference\": \"$IMAGE@$NEXT_DIGEST\"" \
@@ -97,16 +110,31 @@ grep -Fq "video-studio=$IMAGE@$NEXT_DIGEST" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/30-backend.yaml"
 grep -Fq "image: $IMAGE@$NEXT_DIGEST" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
+jq -e --arg digest "$NEXT_DIGEST" --arg observed_at "$OBSERVED_AT" '
+  .validated_at == $observed_at and
+  .image == "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@\($digest)" and
+  .image_id == $digest and
+  .checks.video_runtime_contract == "passed" and
+  .verdict == "published_runtime_smoke_verified"
+' "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/evidence/runtime-builds/video-studio.json" >/dev/null
+jq -e '
+  .workers[] | select(.slug == "video-studio") |
+  .runtime_catalog == "locked_available" and
+  .live_create_option == "published_runtime_available" and
+  .image_target == "published_runtime_smoke_verified" and
+  .support_status == "not_supported"
+' "$FIXTURE_ROOT/tools/loops/worker-onboarding/catalog-loop/catalog/worker-evidence-matrix.json" >/dev/null
 
 FIXTURE_HASHES="$(find "$FIXTURE_ROOT" -type f -print0 | sort -z | xargs -0 shasum -a 256)"
-node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT"
+RUNTIME_OBSERVED_AT="$OBSERVED_AT" node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT"
 [[ "$FIXTURE_HASHES" == "$(find "$FIXTURE_ROOT" -type f -print0 | sort -z | xargs -0 shasum -a 256)" ]]
 
 LOCK_PATH="$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/.video-runtime-digest-update.lock"
 mkdir "$LOCK_PATH"
 printf '%s\n' "$$" > "$LOCK_PATH/owner"
 FIXTURE_HASHES="$(find "$FIXTURE_ROOT" -type f ! -path "$LOCK_PATH/*" -print0 | sort -z | xargs -0 shasum -a 256)"
-if node "$UPDATE_DIGEST" "$DIGEST" "$FIXTURE_ROOT" >/dev/null 2>&1; then
+if RUNTIME_OBSERVED_AT="$OBSERVED_AT" \
+  node "$UPDATE_DIGEST" "$DIGEST" "$FIXTURE_ROOT" >/dev/null 2>&1; then
   echo "concurrent digest update unexpectedly succeeded" >&2
   exit 1
 fi
@@ -145,7 +173,7 @@ sed -i.bak "s/$NEXT_DIGEST/$DIGEST/" \
 rm "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml.bak"
 mkdir "$LOCK_PATH"
 printf '999999\n' > "$LOCK_PATH/owner"
-node "$UPDATE_DIGEST" "$DIGEST" "$FIXTURE_ROOT"
+RUNTIME_OBSERVED_AT="$OBSERVED_AT" node "$UPDATE_DIGEST" "$DIGEST" "$FIXTURE_ROOT"
 [[ ! -e "$LOCK_PATH" ]]
 [[ ! -e "$TRANSACTION_PATH" ]]
 grep -Fq "\"digest\": \"$DIGEST\"" \
@@ -156,7 +184,8 @@ grep -Fq "image: $IMAGE@$DIGEST" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
 
 FIXTURE_HASHES="$(find "$FIXTURE_ROOT" -type f -print0 | sort -z | xargs -0 shasum -a 256)"
-if node "$UPDATE_DIGEST" invalid-digest "$FIXTURE_ROOT" >/dev/null 2>&1; then
+if RUNTIME_OBSERVED_AT="$OBSERVED_AT" \
+  node "$UPDATE_DIGEST" invalid-digest "$FIXTURE_ROOT" >/dev/null 2>&1; then
   echo "invalid digest update unexpectedly succeeded" >&2
   exit 1
 fi
@@ -166,7 +195,8 @@ sed -i.bak "s/$DIGEST/$NEXT_DIGEST/" \
   "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml"
 rm "$FIXTURE_ROOT/deploy/kubernetes/cluster-oilan/60-prepull-daemonset.yaml.bak"
 FIXTURE_HASHES="$(find "$FIXTURE_ROOT" -type f -print0 | sort -z | xargs -0 shasum -a 256)"
-if node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT" >/dev/null 2>&1; then
+if RUNTIME_OBSERVED_AT="$OBSERVED_AT" \
+  node "$UPDATE_DIGEST" "$NEXT_DIGEST" "$FIXTURE_ROOT" >/dev/null 2>&1; then
   echo "inconsistent digest update unexpectedly succeeded" >&2
   exit 1
 fi

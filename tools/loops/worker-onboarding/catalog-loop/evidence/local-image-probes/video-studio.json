@@ -1,15 +1,16 @@
 {
   "schema_version": 1,
   "worker_slug": "video-studio",
-  "definition_hash": "sha256:7cb606a0254e66972c348bc192aeab995eb36c4741ec07b667552aad9ebe141e",
+  "definition_hash": "sha256:da0739415f4a7de3009d3c17d8402eb8b032e05ed744178cd9ef25d54e3e10ec",
   "platform": "linux/amd64",
-  "observed_at": "2026-07-16T05:38:28.762Z",
+  "observed_at": "2026-07-17T15:52:00Z",
   "image_reference": "do-worker/runner-video-studio:latest",
+  "image_id": "sha256:06f4da6e2431639d6a4f626df7531244d08a60f83415a2737a8dd3f9fd7f23c1",
   "probe_command": [
     "video-studio-codex",
     "--version"
   ],
-  "status": "image_missing",
-  "exit_code": 1,
-  "output": "Error response from daemon: No such image: do-worker/runner-video-studio:latest"
+  "status": "passed",
+  "exit_code": 0,
+  "output": "codex-cli 0.144.5"
 }

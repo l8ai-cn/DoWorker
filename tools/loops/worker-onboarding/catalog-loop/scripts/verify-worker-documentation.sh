@@ -38,5 +38,5 @@ jq -e '
   .workers as $workers |
   all($workers[]; .validationStatus != "verified_local_dev") and
   ([$workers[] | select(.validationStatus == "local_evidence_release_blocked")] | length) == 1 and
-  any($workers[]; .slug == "video-studio" and .validationStatus == "invalid_published_runtime")
+  any($workers[]; .slug == "video-studio" and .validationStatus == "runtime_ready_unverified")
 ' clients/web/src/generated/worker-runtime-catalog.json >/dev/null

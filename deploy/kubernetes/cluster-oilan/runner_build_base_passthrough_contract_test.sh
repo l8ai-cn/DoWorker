@@ -10,6 +10,7 @@ mkdir -p "${SCRIPT_DIR}" "${REPO}/docker/agent-runtime"
 
 cp "$(dirname "$0")/push-runner-images.sh" "${SCRIPT_DIR}/"
 cp "$(dirname "$0")/push-runner-video-studio.sh" "${SCRIPT_DIR}/"
+cp "$(dirname "$0")/harbor-manifest-digest.sh" "${SCRIPT_DIR}/"
 cp "$(dirname "$0")/runner-build-base.sh" "${SCRIPT_DIR}/"
 VERIFY_LINE="$(grep -n '^verify_runner_build_base$' "${SCRIPT_DIR}/push-runner-images.sh" | cut -d: -f1)"
 EXPORT_LINE="$(grep -n '^export RUNTIME_BUILD_BASE=' "${SCRIPT_DIR}/push-runner-images.sh" | cut -d: -f1)"

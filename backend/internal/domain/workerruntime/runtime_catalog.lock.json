@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": "runtime-catalog-2026-07-16-seedance",
+  "revision": "runtime-catalog-2026-07-16-79b433d43025",
   "images": [
     {
       "id": 1,
@@ -8,7 +8,9 @@
       "name": "Codex CLI",
       "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
       "digest": "sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
-      "worker_type_slugs": ["codex-cli"],
+      "worker_type_slugs": [
+        "codex-cli"
+      ],
       "enabled": false
     },
     {
@@ -17,7 +19,9 @@
       "name": "Claude Code",
       "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-claude-code@sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
       "digest": "sha256:a9a02976dec14907be8eb6a7f68cd1adc5158099645244be733546b0f3e7041f",
-      "worker_type_slugs": ["claude-code"],
+      "worker_type_slugs": [
+        "claude-code"
+      ],
       "enabled": false
     },
     {
@@ -26,25 +30,32 @@
       "name": "Gemini CLI",
       "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-gemini-cli@sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
       "digest": "sha256:852dba55bcc3213c72a7ee94e9c2da29a44e2ba0d5a9c0a8c15fea5adb8c6cd4",
-      "worker_type_slugs": ["gemini-cli"],
+      "worker_type_slugs": [
+        "gemini-cli"
+      ],
       "enabled": false
     },
     {
       "id": 4,
       "slug": "video-studio-stable",
       "name": "Video Studio",
-      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
-      "digest": "sha256:760c2b9684fcbc7c5ae0d237d6f15464d052090048ee9daffc085fde59d2cb22",
-      "worker_type_slugs": ["video-studio"],
+      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:06f4da6e2431639d6a4f626df7531244d08a60f83415a2737a8dd3f9fd7f23c1",
+      "digest": "sha256:06f4da6e2431639d6a4f626df7531244d08a60f83415a2737a8dd3f9fd7f23c1",
+      "worker_type_slugs": [
+        "video-studio"
+      ],
       "enabled": true
     },
     {
       "id": 5,
       "slug": "do-agent-stable",
       "name": "Do Agent",
-      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
-      "digest": "sha256:20366b08e55a61d12cd253509b2a30a69bc2d59e41d62252e24a11d52fe1402e",
-      "worker_type_slugs": ["do-agent", "seedance-expert"],
+      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b",
+      "digest": "sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b",
+      "worker_type_slugs": [
+        "do-agent",
+        "seedance-expert"
+      ],
       "enabled": true
     }
   ]

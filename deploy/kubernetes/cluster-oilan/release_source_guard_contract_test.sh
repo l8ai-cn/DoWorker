@@ -13,8 +13,11 @@ git -C "${TMP}/repo" config user.name "Release Contract"
 git -C "${TMP}/repo" config user.email "release-contract@example.test"
 git -C "${TMP}/repo" remote add origin "${TMP}/origin.git"
 mkdir -p "${TMP}/bin"
-cat > "${TMP}/bin/gh" <<'EOF'
-#!/usr/bin/env bash
+export GH_RESPONSE_FILE="${TMP}/gh-response.json"
+gh() {
+  source "${GH_RESPONSE_FILE:?}"
+}
+cat > "${GH_RESPONSE_FILE}" <<'JSON'
 printf '%s\n' '[{
   "total_count": 3,
   "check_runs": [
@@ -23,8 +26,7 @@ printf '%s\n' '[{
     {"name":"Web-user artifact preview","status":"completed","conclusion":"success"}
   ]
 }]'
-EOF
-chmod +x "${TMP}/bin/gh"
+JSON
 cat > "${TMP}/bin/docker" <<'EOF'
 #!/usr/bin/env bash
 if [[ "${1:-}" == "pull" ]]; then
@@ -32,7 +34,11 @@ if [[ "${1:-}" == "pull" ]]; then
   exit
 fi
 if [[ "${1:-} ${2:-}" == "image inspect" ]]; then
-  printf '%s\n' "${EXPECTED_REVISION:-${RELEASE_SOURCE_COMMIT}}"
+  if [[ "$*" == *"{{.Os}}/{{.Architecture}}"* ]]; then
+    printf '%s\n' "${EXPECTED_PLATFORM:-linux/amd64}"
+  else
+    printf '%s\n' "${EXPECTED_REVISION:-${RELEASE_SOURCE_COMMIT}}"
+  fi
   exit 0
 fi
 exit 1
@@ -68,6 +74,29 @@ mkdir -p "${TMP}/repo/deploy/kubernetes/cluster-oilan/release"
       '    digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
   done
 } > "${TMP}/repo/deploy/kubernetes/cluster-oilan/release/kustomization.yaml"
+mkdir -p \
+  "${TMP}/repo/docker/agent-runtime" \
+  "${TMP}/repo/backend/internal/domain/workerruntime"
+cat > "${TMP}/repo/docker/agent-runtime/do-agent-release.json" <<'JSON'
+{
+  "image": {
+    "repository": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent",
+    "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}
+JSON
+cat > "${TMP}/repo/backend/internal/domain/workerruntime/runtime_catalog.lock.json" <<'JSON'
+{
+  "images": [
+    {
+      "slug": "video-studio-stable",
+      "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "enabled": true
+    }
+  ]
+}
+JSON
 release_write_source_metadata "${TMP}/repo"
 release_verify_source_metadata "${TMP}/repo"
 source_digest="$(sha256sum "${TMP}/repo/deploy/kubernetes/cluster-oilan/release/source.json" | cut -d' ' -f1)"
@@ -85,7 +114,10 @@ for failure_mode in aggregate serialize; do
   fi
   [[ "${source_digest}" == "$(sha256sum "${TMP}/repo/deploy/kubernetes/cluster-oilan/release/source.json" | cut -d' ' -f1)" ]]
 done
-git -C "${TMP}/repo" add deploy/kubernetes/cluster-oilan/release
+git -C "${TMP}/repo" add \
+  deploy/kubernetes/cluster-oilan/release \
+  docker/agent-runtime/do-agent-release.json \
+  backend/internal/domain/workerruntime/runtime_catalog.lock.json
 git -C "${TMP}/repo" commit -m "release metadata" >/dev/null
 git -C "${TMP}/repo" push >/dev/null
 release_require_pushed_clean_tree "${TMP}/repo"
@@ -117,8 +149,7 @@ if release_require_pushed_clean_tree "${TMP}/repo" 2>/dev/null; then
 fi
 
 git -C "${TMP}/repo" switch main >/dev/null
-cat > "${TMP}/bin/gh" <<'EOF'
-#!/usr/bin/env bash
+cat > "${GH_RESPONSE_FILE}" <<'JSON'
 printf '%s\n' '[{
   "total_count": 10,
   "check_runs": [
@@ -134,12 +165,10 @@ printf '%s\n' '[{
     {"name":"Migrate CN","status":"completed","conclusion":"stale"}
   ]
 }]'
-EOF
-chmod +x "${TMP}/bin/gh"
+JSON
 release_require_pushed_clean_tree "${TMP}/repo"
 
-cat > "${TMP}/bin/gh" <<'EOF'
-#!/usr/bin/env bash
+cat > "${GH_RESPONSE_FILE}" <<'JSON'
 printf '%s\n' '[{
   "total_count": 4,
   "check_runs": [
@@ -149,15 +178,13 @@ printf '%s\n' '[{
     {"name":"Deploy CN staging","status":"queued","conclusion":null}
   ]
 }]'
-EOF
-chmod +x "${TMP}/bin/gh"
+JSON
 if release_require_pushed_clean_tree "${TMP}/repo" 2>/dev/null; then
   echo "release with an unknown pending check was accepted" >&2
   exit 1
 fi
 
-cat > "${TMP}/bin/gh" <<'EOF'
-#!/usr/bin/env bash
+cat > "${GH_RESPONSE_FILE}" <<'JSON'
 printf '%s\n' '[{
   "total_count": 3,
   "check_runs": [
@@ -166,15 +193,13 @@ printf '%s\n' '[{
     {"name":"Web-user artifact preview","status":"completed","conclusion":"success"}
   ]
 }]'
-EOF
-chmod +x "${TMP}/bin/gh"
+JSON
 if release_require_pushed_clean_tree "${TMP}/repo" 2>/dev/null; then
   echo "failed CI release was accepted" >&2
   exit 1
 fi
 
-cat > "${TMP}/bin/gh" <<'EOF'
-#!/usr/bin/env bash
+cat > "${GH_RESPONSE_FILE}" <<'JSON'
 printf '%s\n' '[{
   "total_count": 2,
   "check_runs": [
@@ -182,15 +207,13 @@ printf '%s\n' '[{
     {"name":"Web-user artifact preview","status":"completed","conclusion":"success"}
   ]
 }]'
-EOF
-chmod +x "${TMP}/bin/gh"
+JSON
 if release_require_pushed_clean_tree "${TMP}/repo" 2>/dev/null; then
   echo "release with a missing required check was accepted" >&2
   exit 1
 fi
 
-cat > "${TMP}/bin/gh" <<'EOF'
-#!/usr/bin/env bash
+cat > "${GH_RESPONSE_FILE}" <<'JSON'
 printf '%s\n' '[{
   "total_count": 3,
   "check_runs": [
@@ -199,15 +222,13 @@ printf '%s\n' '[{
     {"name":"Web-user artifact preview","status":"completed","conclusion":"success"}
   ]
 }]'
-EOF
-chmod +x "${TMP}/bin/gh"
+JSON
 if release_require_pushed_clean_tree "${TMP}/repo" 2>/dev/null; then
   echo "release with a skipped required check was accepted" >&2
   exit 1
 fi
 
-cat > "${TMP}/bin/gh" <<'EOF'
-#!/usr/bin/env bash
+cat > "${GH_RESPONSE_FILE}" <<'JSON'
 printf '%s\n' '[{
   "total_count": 4,
   "check_runs": [
@@ -216,8 +237,7 @@ printf '%s\n' '[{
     {"name":"Web-user artifact preview","status":"completed","conclusion":"success"}
   ]
 }]'
-EOF
-chmod +x "${TMP}/bin/gh"
+JSON
 if release_require_pushed_clean_tree "${TMP}/repo" 2>/dev/null; then
   echo "incomplete check pagination was accepted" >&2
   exit 1
@@ -225,6 +245,10 @@ fi
 
 old_revision="$(git -C "${TMP}/repo" rev-parse HEAD^)"
 current_revision="$(git -C "${TMP}/repo" rev-parse HEAD)"
+runtime_revision="$(
+  jq -r '.images["runner-do-agent"]' \
+    "${TMP}/repo/deploy/kubernetes/cluster-oilan/release/source.json"
+)"
 jq \
   --arg commit "${current_revision}" \
   --arg backend "${old_revision}" \
@@ -235,12 +259,19 @@ jq \
 mv \
   "${TMP}/repo/deploy/kubernetes/cluster-oilan/release/source.json.tmp" \
   "${TMP}/repo/deploy/kubernetes/cluster-oilan/release/source.json"
-EXPECTED_REVISION="${old_revision}" release_verify_platform_image_provenance \
+EXPECTED_REVISION="${old_revision}" release_verify_image_provenance \
   "${TMP}/repo" backend
-EXPECTED_REVISION="${current_revision}" release_verify_platform_image_provenance \
+EXPECTED_REVISION="${current_revision}" release_verify_image_provenance \
   "${TMP}/repo" web
+EXPECTED_REVISION="${runtime_revision}" release_verify_image_provenance \
+  "${TMP}/repo" runner-do-agent runner-video-studio
+if EXPECTED_PLATFORM="linux/arm64" \
+  release_verify_image_provenance "${TMP}/repo" runner-do-agent 2>/dev/null; then
+  echo "wrong-platform release image was accepted" >&2
+  exit 1
+fi
 if EXPECTED_REVISION="${current_revision}" \
-  release_verify_platform_image_provenance "${TMP}/repo" backend 2>/dev/null; then
+  release_verify_image_provenance "${TMP}/repo" backend 2>/dev/null; then
   echo "mismatched remote image provenance was accepted" >&2
   exit 1
 fi

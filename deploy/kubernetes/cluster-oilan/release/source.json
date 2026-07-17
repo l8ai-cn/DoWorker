@@ -1,0 +1,15 @@
+{
+  "branch": "main",
+  "commit": "79b433d43025385f31a34e7cffb2f243b892e3ac",
+  "images": {
+    "backend": "79b433d43025385f31a34e7cffb2f243b892e3ac",
+    "marketplace": "79b433d43025385f31a34e7cffb2f243b892e3ac",
+    "marketplace-web": "79b433d43025385f31a34e7cffb2f243b892e3ac",
+    "relay": "79b433d43025385f31a34e7cffb2f243b892e3ac",
+    "web": "79b433d43025385f31a34e7cffb2f243b892e3ac",
+    "web-admin": "79b433d43025385f31a34e7cffb2f243b892e3ac",
+    "mobile": "79b433d43025385f31a34e7cffb2f243b892e3ac",
+    "runner-do-agent": "79b433d43025385f31a34e7cffb2f243b892e3ac",
+    "runner-video-studio": "79b433d43025385f31a34e7cffb2f243b892e3ac"
+  }
+}

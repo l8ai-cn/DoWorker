@@ -5,7 +5,10 @@ PROJ="${REG}/agentsmesh"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 TARGET="${1:-all}"; RUNNER_SOURCE_METADATA_MODE="${2:-write}"
+PLATFORM="${PLATFORM:-linux/amd64}"
+export PLATFORM
 source "${REPO_ROOT}/docker/agent-runtime/do_agent_release_manifest.sh"
+source "${SCRIPT_DIR}/harbor-manifest-digest.sh"
 source "${SCRIPT_DIR}/harbor_immutable_release.sh"
 source "${SCRIPT_DIR}/runner-build-base.sh"
 source "${SCRIPT_DIR}/release_source_guard.sh"
@@ -81,20 +84,6 @@ verify_do_agent_labels() {
   }
 }
 
-manifest_digest() {
-  local image="$1" digest="" attempt=1
-  until digest="$(docker buildx imagetools inspect "${image}" --format '{{.Manifest.Digest}}')" &&
-    [[ "${digest}" =~ ^sha256:[a-f0-9]{64}$ ]]; do
-    [[ "${attempt}" -ge 4 ]] && {
-      echo "invalid registry digest for ${image}: ${digest}" >&2
-      return 1
-    }
-    sleep 3
-    attempt=$((attempt + 1))
-  done
-  printf '%s' "${digest}"
-}
-
 publish_do_agent() {
   local repository release_tag candidate_tag candidate_digest release_digest latest_digest
   local source_commit observed_at
@@ -111,7 +100,7 @@ publish_do_agent() {
   verify_do_agent_labels
   docker tag "do-worker/runner-do-agent:latest" "${repository}:${candidate_tag}"
   docker push "${repository}:${candidate_tag}"
-  candidate_digest="$(manifest_digest "${repository}:${candidate_tag}")"
+  candidate_digest="$(platform_manifest_digest "${repository}:${candidate_tag}")"
 
   harbor_ensure_immutable_tag "${REG}" agentsmesh runner-do-agent "${release_tag}"
   if release_digest="$(docker buildx imagetools inspect "${repository}:${release_tag}" \
@@ -125,7 +114,7 @@ publish_do_agent() {
       --prefer-index=false \
       --tag "${repository}:${release_tag}" \
       "${repository}@${candidate_digest}"
-    release_digest="$(manifest_digest "${repository}:${release_tag}")"
+    release_digest="$(platform_manifest_digest "${repository}:${release_tag}")"
     [[ "${release_digest}" == "${candidate_digest}" ]] || {
       echo "release promotion digest mismatch: ${release_digest}" >&2
       return 1
@@ -153,7 +142,7 @@ publish_do_agent() {
     --prefer-index=false \
     --tag "${repository}:latest" \
     "${repository}@${candidate_digest}"
-  latest_digest="$(manifest_digest "${repository}:latest")"
+  latest_digest="$(platform_manifest_digest "${repository}:latest")"
   [[ "${latest_digest}" == "${candidate_digest}" ]] || {
     echo "latest promotion digest mismatch: ${latest_digest}" >&2
     return 1

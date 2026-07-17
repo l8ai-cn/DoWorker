@@ -105,7 +105,7 @@ release_write_source_metadata() {
   local source_commit="${RELEASE_SOURCE_COMMIT:?release source commit is required}"
   local image_revisions
 
-  image_revisions="$(release_collect_platform_image_revisions "${repo_root}")" || return 1
+  image_revisions="$(release_collect_image_revisions "${repo_root}")" || return 1
   mkdir -p "$(dirname "${output}")" || return 1
   temporary="$(mktemp "${output}.tmp.XXXXXX")" || return 1
   jq -n \
@@ -145,7 +145,7 @@ release_verify_source_metadata() {
     echo "release image source ${commit} is not an ancestor of HEAD" >&2
     return 1
   }
-  for image in $(release_platform_images); do
+  for image in $(release_images); do
     revision="$(jq -er --arg image "${image}" '.images[$image]' "${metadata}")"
     [[ "${revision}" =~ ^[a-f0-9]{40}$ ]] || {
       echo "release metadata revision missing for ${image}" >&2

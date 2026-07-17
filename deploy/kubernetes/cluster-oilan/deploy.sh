@@ -172,7 +172,7 @@ main() {
   repo_root="$(cd "${DIR}/../../.." && pwd)"
   release_require_pushed_clean_tree "${repo_root}"
   release_verify_source_metadata "${repo_root}"
-  release_verify_platform_image_provenance "${repo_root}"
+  release_verify_image_provenance "${repo_root}"
   RELEASE_DEPLOY_COMMIT="$(git -C "${repo_root}" rev-parse HEAD)"
   generate_cluster_secrets
   push_manifests

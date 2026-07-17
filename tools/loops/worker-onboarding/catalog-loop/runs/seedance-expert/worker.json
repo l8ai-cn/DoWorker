@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "slug": "seedance-expert",
+  "status": "planned",
+  "definition_hash": "sha256:255c22f71b957d50e656393afa3ca3cd671caa711da32d5ad5a701c2e1903be8",
+  "source_refs": [
+    "config/worker-types/catalog.json"
+  ]
+}

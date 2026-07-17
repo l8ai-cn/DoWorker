@@ -63,8 +63,8 @@ independent US West/CN environments does not block an Oilan release; every
 other check must still finish successfully, and the three Loop/Seedance release
 checks are always required.
 `release/source.json` is mandatory release provenance. It records the release
-commit and each platform image's exact source revision, so incremental image
-releases can retain older immutable digests without weakening provenance.
+commit and every platform and managed Runner image's exact source revision, so
+incremental image releases can retain older immutable digests without weakening provenance.
 Commit it with the generated digest locks and runtime evidence.
 
 `deploy.sh` defaults to `gw-oilan-node`. `push-images.sh` subsets: `platform` |
