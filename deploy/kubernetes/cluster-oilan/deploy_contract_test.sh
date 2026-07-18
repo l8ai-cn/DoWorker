@@ -218,6 +218,8 @@ grep -F 'PREVIEW_COOKIE_MODE: "partitioned"' "$ROOT/02-configmap.yaml" >/dev/nul
 grep -F 'KB_GITEA_URL: "http://gitea:3000"' "$ROOT/02-configmap.yaml" >/dev/null
 grep -F 'KB_GITEA_SSH_URL: "ssh://git@gitea.agentsmesh.svc.cluster.local:22"' "$ROOT/02-configmap.yaml" >/dev/null
 grep -F 'name: agentsmesh-gitea' "$ROOT/30-backend.yaml" >/dev/null
+grep -A1 -F 'name: GITEA__indexer__ISSUE_INDEXER_TYPE' "$ROOT/14-gitea.yaml" |
+  grep -F 'value: db' >/dev/null
 grep -F 'readOnly: true' "$ROOT/15-gitea-backup-pod.yaml" >/dev/null
 grep -F 'tail -f /dev/null' "$ROOT/15-gitea-backup-pod.yaml" >/dev/null
 grep -F 'host: "*.l8ai.cn"' "$ROOT/44-preview-ingress.yaml" >/dev/null
