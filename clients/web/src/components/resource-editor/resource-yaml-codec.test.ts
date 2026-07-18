@@ -180,16 +180,16 @@ describe("resource YAML codec", () => {
     )).toThrow("spec.workspace.knowledgeMounts[0] must be object");
   });
 
-  it("accepts GoalLoop canonical drafts without a description", () => {
+  it("rejects GoalLoop canonical drafts without a description", () => {
     const draft = createGoalLoopDraft("acme");
     draft.metadata.name = "release-loop";
     const spec: Record<string, unknown> = { ...draft.spec };
     delete spec.description;
 
-    expect(parseCanonicalResourceJson(
+    expect(() => parseCanonicalResourceJson(
       encodeJson({ ...draft, spec }),
       "GoalLoop",
-    ).spec).not.toHaveProperty("description");
+    )).toThrow("spec.description must be string");
   });
 
   it("uses the WorkerTemplate canonical CPU field names", () => {

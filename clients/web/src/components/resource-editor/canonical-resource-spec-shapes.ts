@@ -146,7 +146,7 @@ export const canonicalResourceSpecShapes = {
     noProgressLimit: "integer",
     sameErrorLimit: "integer",
     escalationPolicy: "string",
-  }, ["description", "tokenBudget"]),
+  }, ["tokenBudget"]),
   ModelBinding: object({ resourceId: "integer" }),
   Repository: object({ repositoryId: "integer" }),
   Skill: object({ skillId: "integer" }),

@@ -178,12 +178,12 @@ Audit date: 2026-07-18.
   values for every Kind and uses exact Backend CPU wire names.
 - Final review found and verified closure of a custom `json.Unmarshaler` null
   bypass across runtime resources and nested references; no P0/P1/P2 remain.
-- Web passes 324 files and 2343 tests; lint, typecheck, Rust workspace, WASM,
+- Web passes 328 files and 2351 tests; lint, typecheck, Rust workspace, WASM,
   production Web build, Worker docs/runtime checks, and full Go packages pass.
 - Production Playwright passes 16 resource-editor and WASM route scenarios.
   Desktop/mobile visual QA found no overflow, framework overlay, console error,
   failed response, or inaccessible action state.
-- A serial production-browser regression passes 121 tests covering Autopilot
+- A serial production-browser regression passes 131 tests covering Autopilot
   realtime control, Runner capacity scheduling, Workflow reference protection,
   GoalLoop Apply gating, Mesh, and Channel paths.
 - Runner MCP passes its complete live suite in 33 seconds, including automatic
