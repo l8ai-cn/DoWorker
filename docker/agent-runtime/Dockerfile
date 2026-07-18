@@ -125,7 +125,8 @@ RUN install_apt() { \
       minimax-cli) npm install -g "mmx-cli@${MINIMAX_CLI_VERSION}" ;; \
       openclaw) npm install -g "openclaw@${OPENCLAW_VERSION}" ;; \
       hermes) \
-        npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" ;; \
+        install_apt python3 python3-pip \
+        && npm install -g "hermes-agent@${HERMES_AGENT_VERSION}" ;; \
       aider) \
         pip3 install --no-cache-dir aider-chat ;; \
       do-agent) \

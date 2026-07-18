@@ -19,7 +19,7 @@ grep -Fq '.platform.architecture == $architecture' "$MANIFEST_SCRIPT"
 grep -Fq 'infra_manifest_digest' "$MANIFEST_SCRIPT"
 grep -Fq -- '--prefer-index=false' "$MANIFEST_SCRIPT"
 grep -Fq 'infra_manifest_digest "${PROJ}/${dest}"' "harbor-infra-mirror.sh"
-! rg -n '(^|[^[:alnum:]_])manifest_digest\(' \
+! grep -En '(^|[^[:alnum:]_])manifest_digest\(' \
   "$MANIFEST_SCRIPT" "harbor-image-publishing.sh" "harbor-infra-mirror.sh" "$RUNNER_SCRIPT"
 grep -Fq 'platform release promotion digest mismatch' "harbor-image-publishing.sh"
 grep -Fq 'platform manifest promotion failed; retry' "$MANIFEST_SCRIPT"
