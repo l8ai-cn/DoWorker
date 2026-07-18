@@ -484,6 +484,231 @@
       "createFailed": "Impossible de créer le ticket. Veuillez réessayer."
     }
   },
+  "loopWorkbench": {
+    "shell": {
+      "canvasTitle": "Canevas de blocs",
+      "canvasHint": "Double-cliquez dans un espace vide pour insérer",
+      "editorTitle": "LoopScript",
+      "editorMetadata": "Brouillon {revision} · Sémantique {semanticRevision}"
+    },
+    "toolbar": {
+      "back": "Retour aux loops",
+      "title": "Atelier Loop",
+      "subtitle": "Les blocs et LoopScript partagent la même sémantique confirmée par le backend",
+      "blocks": "Blocs",
+      "code": "Code",
+      "run": "Lancer le loop"
+    },
+    "blockly": {
+      "loop": {
+        "message0": "Loop %1",
+        "message1": "Limites d’exécution %1",
+        "message2": "Étapes du loop %1",
+        "message3": "En cas d’échec %1"
+      },
+      "limits": {
+        "message0": "Au plus %1 itérations · %2 jetons · %3 minutes",
+        "message1": "Sans progrès %1 fois · même erreur %2 fois"
+      },
+      "repeat": {
+        "message0": "Répéter %1 · au plus %2 fois",
+        "message1": "Jusqu’à %1 . %2",
+        "message2": "Exécuter %1"
+      },
+      "agent": {
+        "message0": "Tâche agent %1",
+        "message1": "Prompt de tâche %1",
+        "defaultPrompt": "Décrivez la tâche à accomplir"
+      },
+      "verifier": {
+        "message0": "Étape de vérification %1",
+        "message1": "Commande %1",
+        "message2": "Condition de réussite %1",
+        "defaultAccept": "La vérification réussit"
+      },
+      "failure": {
+        "message0": "En cas d’échec %1",
+        "pause": "Mettre en pause pour revue humaine",
+        "fail": "Marquer comme échoué"
+      },
+      "toolbox": {
+        "loop": "Loop",
+        "control": "Contrôle",
+        "agent": "Agent",
+        "verifier": "Vérification",
+        "limits": "Limites",
+        "failure": "Échec",
+        "custom": "Mes blocs"
+      }
+    },
+    "quickInsert": {
+      "close": "Fermer l’insertion rapide",
+      "title": "Insérer un bloc",
+      "customTitle": "Mes blocs",
+      "customEmpty": "Aucun bloc personnalisé",
+      "createCustom": "Créer un bloc personnalisé",
+      "options": {
+        "loop": "Loop",
+        "repeat": "Répéter",
+        "agent": "Tâche agent",
+        "verifier": "Étape de vérification",
+        "limits": "Limites d’exécution",
+        "failure": "Gestion des échecs"
+      }
+    },
+    "status": {
+      "diagnosticsTitle": "Diagnostics",
+      "runTitle": "Exécution",
+      "valid": "La source actuelle a passé la validation backend",
+      "noRun": "Le loop n’a pas encore démarré.",
+      "repairDiagnostic": "Corriger ce diagnostic",
+      "repairingDiagnostic": "Correction du diagnostic",
+      "nodeLabel": "Nœud : ",
+      "runStatusLabel": "Statut : ",
+      "diagnosticLocation": "Ligne {line}, colonne {column}",
+      "runInstance": " · Instance d’exécution {podKey}",
+      "unknownStatus": "Statut inconnu",
+      "parseStatus": {
+        "empty": "En attente de saisie",
+        "parsing": "Validation",
+        "valid": "Valide",
+        "syntax-error": "Contient des erreurs"
+      },
+      "runStatus": {
+        "draft": "Brouillon",
+        "active": "En cours",
+        "paused": "En pause",
+        "verifying": "Vérification",
+        "completed": "Terminé",
+        "failed": "Échoué",
+        "cancelled": "Annulé"
+      },
+      "diagnostics": {
+        "programNil": "Le programme Loop est requis",
+        "schemaVersionUnsupported": "La version LoopScript n’est pas prise en charge",
+        "syntaxInvalidToken": "LoopScript contient un caractère invalide",
+        "syntaxInvalidNumber": "LoopScript contient un nombre invalide",
+        "syntaxUnexpectedToken": "La structure LoopScript est invalide",
+        "syntaxUnknown": "LoopScript contient une syntaxe inconnue",
+        "nodeIdMissing": "Un nœud de bloc n’a pas d’identifiant unique",
+        "nodeIdDuplicate": "Les identifiants de nœuds doivent être uniques",
+        "localIdDuplicate": "Les noms d’étapes doivent être uniques",
+        "identifierInvalid": "Le format du nom d’étape est invalide",
+        "limitsCount": "Un seul bloc de limites d’exécution est requis",
+        "repeatCount": "Une seule étape de répétition est requise",
+        "agentCount": "La répétition doit contenir exactement une tâche agent",
+        "verifierCount": "La répétition doit contenir exactement une étape de vérification",
+        "failureCount": "Une seule stratégie d’échec est requise",
+        "untilInvalid": "La condition d’arrêt doit référencer le résultat de vérification",
+        "repeatMaxExceedsLimit": "Le nombre de répétitions ne peut pas dépasser la limite globale",
+        "failurePolicyInvalid": "La stratégie d’échec est invalide",
+        "valueOutOfRange": "Un paramètre de bloc est hors limites",
+        "textEmpty": "Un paramètre texte ne peut pas être vide",
+        "secretLiteralForbidden": "LoopScript ne peut pas contenir de secrets en clair",
+        "unknown": "La validation LoopScript a échoué"
+      }
+    },
+    "runtime": {
+      "title": "Sélectionner un environnement",
+      "description": "L’environnement est lié uniquement pour ce lancement et ne fait pas partie de l’orchestration du loop.",
+      "field": "Environnement",
+      "placeholder": "Sélectionner un environnement",
+      "unnamed": "Environnement sans nom",
+      "loading": "Chargement des environnements",
+      "retry": "Recharger",
+      "empty": "Cette organisation n’a aucun environnement disponible",
+      "cancel": "Annuler",
+      "start": "Démarrer le loop",
+      "snapshotLabel": "{name} · {workerType} · Instantané {id}"
+    },
+    "customBlock": {
+      "title": "Créer un bloc personnalisé",
+      "description": "Crée une macro brouillon versionnée qui s’étend en tâche et vérification du loop actuel.",
+      "label": "Libellé du bloc",
+      "slug": "Slug du bloc",
+      "promptTemplate": "Modèle de prompt de tâche",
+      "commandTemplate": "Modèle de commande de vérification",
+      "acceptTemplate": "Modèle de condition de réussite",
+      "cancel": "Annuler",
+      "create": "Créer le bloc",
+      "required": "Ce champ est requis",
+      "identifier": "Utilisez 2 à 100 lettres minuscules, chiffres ou tirets"
+    },
+    "ai": {
+      "toolbar": "Assistant IA",
+      "generateMode": "Générer / modifier",
+      "explainMode": "Expliquer le loop actuel",
+      "generateTitle": "Générer ou modifier le loop avec l’IA",
+      "generateDescription": "L’IA propose une génération ou une modification complète. Les protections de vérification et de budget restent appliquées, et rien ne change avant confirmation.",
+      "explainTitle": "Expliquer le loop actuel",
+      "explainDescription": "Vue déterministe du LoopProgram validé. Aucun modèle n’est appelé et le loop n’est pas modifié.",
+      "resource": "Modèle IA",
+      "resourcePlaceholder": "Sélectionner un modèle IA",
+      "prompt": "Décrivez l’objectif du loop ou la modification globale",
+      "promptPlaceholder": "Exemple : créer un PPT professionnel, ou produire un document PDF",
+      "loadingResources": "Chargement des modèles IA",
+      "resourceError": "Échec du chargement des modèles IA",
+      "retry": "Recharger",
+      "noResources": "Aucun modèle de génération de texte disponible",
+      "generate": "Générer le brouillon",
+      "generating": "Génération",
+      "generationError": "Échec de génération du brouillon",
+      "unchanged": "L’IA n’a produit aucun changement",
+      "stale": "Le loop a changé pendant la génération. Relancez la génération.",
+      "current": "Code actuel",
+      "proposed": "Proposition IA",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "back": "Retour",
+      "confirm": "Appliquer la proposition",
+      "projection": {
+        "title": "Structure",
+        "unavailable": "Le loop actuel n’a pas passé la validation ; sa structure ne peut pas être affichée.",
+        "overview": "Loop",
+        "schemaVersion": "Version du schéma",
+        "loopName": "Identifiant du loop",
+        "limits": "Budget d’exécution",
+        "iterations": "Itérations maximales",
+        "iterationsValue": "{value} itérations",
+        "tokens": "Budget de jetons",
+        "tokensValue": "{value} jetons",
+        "timeout": "Délai",
+        "minutesValue": "{value} minutes",
+        "noProgress": "Limite sans progrès",
+        "sameError": "Limite même erreur",
+        "repeat": "Exécution répétée",
+        "repeatName": "Identifiant d’étape",
+        "repeatMax": "Répétitions maximales",
+        "timesValue": "{value} fois",
+        "until": "Condition d’arrêt",
+        "agent": "Tâche agent",
+        "agentName": "Identifiant de tâche",
+        "agentPrompt": "Instruction de tâche",
+        "verifier": "Vérificateur",
+        "verifierName": "Identifiant du vérificateur",
+        "verifierCommand": "Commande de vérification",
+        "verifierAccept": "Condition de réussite",
+        "failure": "Gestion des échecs",
+        "failurePolicy": "Stratégie d’échec",
+        "failurePause": "Pause pour revue humaine",
+        "failureFail": "Marquer comme échoué",
+        "empty": "Aucun programme validé à afficher."
+      },
+      "repair": {
+        "title": "Corriger le diagnostic",
+        "description": "L’IA propose un changement ciblé pour ce diagnostic. Le brouillon change uniquement après confirmation.",
+        "diagnostic": "Diagnostic",
+        "field": "Champ",
+        "prompt": "Consigne de réparation optionnelle",
+        "promptPlaceholder": "Décrivez les contraintes à respecter pour cette correction",
+        "repair": "Réparer",
+        "repairing": "Réparation",
+        "error": "Échec de réparation du diagnostic",
+        "patch": "Changement proposé",
+        "patchValue": "{oldValue} → {newValue}"
+      }
+    }
+  },
   "loopal": {
     "activity": { "heading": "Activité" },
     "status": {

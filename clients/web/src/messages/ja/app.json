@@ -484,6 +484,231 @@
       "createFailed": "チケットの作成に失敗し��した。もう一度お試しください。"
     }
   },
+  "loopWorkbench": {
+    "shell": {
+      "canvasTitle": "ブロックキャンバス",
+      "canvasHint": "空白をダブルクリックして挿入",
+      "editorTitle": "LoopScript",
+      "editorMetadata": "下書き {revision} · セマンティック {semanticRevision}"
+    },
+    "toolbar": {
+      "back": "Loop一覧に戻る",
+      "title": "Loopワークベンチ",
+      "subtitle": "ブロックとLoopScriptはバックエンド確認済みの同じ意味を共有します",
+      "blocks": "ブロック",
+      "code": "コード",
+      "run": "Loopを実行"
+    },
+    "blockly": {
+      "loop": {
+        "message0": "Loop %1",
+        "message1": "実行制限 %1",
+        "message2": "Loopステップ %1",
+        "message3": "失敗時 %1"
+      },
+      "limits": {
+        "message0": "最大 %1 回 · %2 トークン · %3 分",
+        "message1": "進捗なし %1 回 · 同じエラー %2 回"
+      },
+      "repeat": {
+        "message0": "繰り返し %1 · 最大 %2 回",
+        "message1": "%1 . %2 まで",
+        "message2": "実行 %1"
+      },
+      "agent": {
+        "message0": "エージェントタスク %1",
+        "message1": "タスクプロンプト %1",
+        "defaultPrompt": "完了するタスクを説明してください"
+      },
+      "verifier": {
+        "message0": "検証ステップ %1",
+        "message1": "コマンド %1",
+        "message2": "合格条件 %1",
+        "defaultAccept": "検証が成功"
+      },
+      "failure": {
+        "message0": "失敗時 %1",
+        "pause": "人の確認まで一時停止",
+        "fail": "失敗としてマーク"
+      },
+      "toolbox": {
+        "loop": "Loop",
+        "control": "制御",
+        "agent": "エージェント",
+        "verifier": "検証",
+        "limits": "制限",
+        "failure": "失敗",
+        "custom": "自分のブロック"
+      }
+    },
+    "quickInsert": {
+      "close": "クイック挿入を閉じる",
+      "title": "ブロックを挿入",
+      "customTitle": "自分のブロック",
+      "customEmpty": "カスタムブロックはまだありません",
+      "createCustom": "カスタムブロックを作成",
+      "options": {
+        "loop": "Loop",
+        "repeat": "繰り返し",
+        "agent": "エージェントタスク",
+        "verifier": "検証ステップ",
+        "limits": "実行制限",
+        "failure": "失敗処理"
+      }
+    },
+    "status": {
+      "diagnosticsTitle": "診断",
+      "runTitle": "実行",
+      "valid": "現在のソースはバックエンド検証に合格しました",
+      "noRun": "Loopはまだ開始されていません。",
+      "repairDiagnostic": "この診断を修正",
+      "repairingDiagnostic": "診断を修正中",
+      "nodeLabel": "ノード: ",
+      "runStatusLabel": "状態: ",
+      "diagnosticLocation": "{line}行目、{column}列",
+      "runInstance": " · 実行インスタンス {podKey}",
+      "unknownStatus": "不明な状態",
+      "parseStatus": {
+        "empty": "入力待ち",
+        "parsing": "検証中",
+        "valid": "有効",
+        "syntax-error": "エラーあり"
+      },
+      "runStatus": {
+        "draft": "下書き",
+        "active": "実行中",
+        "paused": "一時停止",
+        "verifying": "検証中",
+        "completed": "完了",
+        "failed": "失敗",
+        "cancelled": "キャンセル済み"
+      },
+      "diagnostics": {
+        "programNil": "Loopプログラムが必要です",
+        "schemaVersionUnsupported": "LoopScriptのバージョンはサポートされていません",
+        "syntaxInvalidToken": "LoopScriptに無効な文字があります",
+        "syntaxInvalidNumber": "LoopScriptに無効な数値があります",
+        "syntaxUnexpectedToken": "LoopScriptの構造が無効です",
+        "syntaxUnknown": "LoopScriptに不明な構文があります",
+        "nodeIdMissing": "ブロックノードに一意の識別子がありません",
+        "nodeIdDuplicate": "ブロックノード識別子は一意である必要があります",
+        "localIdDuplicate": "ステップ名は一意である必要があります",
+        "identifierInvalid": "ステップ名の形式が無効です",
+        "limitsCount": "実行制限ブロックは1つだけ必要です",
+        "repeatCount": "繰り返しステップは1つだけ必要です",
+        "agentCount": "繰り返しにはエージェントタスクが1つだけ必要です",
+        "verifierCount": "繰り返しには検証ステップが1つだけ必要です",
+        "failureCount": "失敗ポリシーは1つだけ必要です",
+        "untilInvalid": "停止条件は検証の合格結果を参照する必要があります",
+        "repeatMaxExceedsLimit": "繰り返し回数は全体の反復制限を超えられません",
+        "failurePolicyInvalid": "失敗ポリシーが無効です",
+        "valueOutOfRange": "ブロックパラメータが許容範囲外です",
+        "textEmpty": "ブロックのテキストパラメータは空にできません",
+        "secretLiteralForbidden": "LoopScriptにシークレットを直接含めることはできません",
+        "unknown": "LoopScript検証に失敗しました"
+      }
+    },
+    "runtime": {
+      "title": "実行環境を選択",
+      "description": "実行環境はこの起動だけに紐づき、Loop編成には含まれません。",
+      "field": "実行環境",
+      "placeholder": "実行環境を選択",
+      "unnamed": "名前なしの実行環境",
+      "loading": "実行環境を読み込み中",
+      "retry": "再読み込み",
+      "empty": "この組織には利用可能な実行環境がありません",
+      "cancel": "キャンセル",
+      "start": "Loopを開始",
+      "snapshotLabel": "{name} · {workerType} · スナップショット {id}"
+    },
+    "customBlock": {
+      "title": "カスタムブロックを作成",
+      "description": "現在のLoopのタスクと検証へ展開されるバージョン付き下書きマクロを作成します。",
+      "label": "ブロックラベル",
+      "slug": "ブロックスラッグ",
+      "promptTemplate": "タスクプロンプトテンプレート",
+      "commandTemplate": "検証コマンドテンプレート",
+      "acceptTemplate": "合格条件テンプレート",
+      "cancel": "キャンセル",
+      "create": "ブロックを作成",
+      "required": "この項目は必須です",
+      "identifier": "2〜100文字の小文字、数字、ハイフンを使用してください"
+    },
+    "ai": {
+      "toolbar": "AIアシスタント",
+      "generateMode": "生成 / 修正",
+      "explainMode": "現在のLoopを説明",
+      "generateTitle": "AIでLoopを生成または修正",
+      "generateDescription": "AIは生成案またはLoop全体の修正案を提示します。検証器と予算保護は維持され、確認するまで変更は適用されません。",
+      "explainTitle": "現在のLoopを説明",
+      "explainDescription": "検証済みLoopProgramの決定的な表示です。モデルは呼び出さず、Loopも変更しません。",
+      "resource": "AIモデル",
+      "resourcePlaceholder": "AIモデルを選択",
+      "prompt": "Loopの目的または全体変更を説明",
+      "promptPlaceholder": "例: プロ向けPPTを作る、PDF資料を出力するLoopへ変更する",
+      "loadingResources": "AIモデルを読み込み中",
+      "resourceError": "AIモデルの読み込みに失敗しました",
+      "retry": "再読み込み",
+      "noResources": "利用可能なテキスト生成モデルがありません",
+      "generate": "下書きを生成",
+      "generating": "生成中",
+      "generationError": "Loop下書きの生成に失敗しました",
+      "unchanged": "AIはコード変更を生成しませんでした",
+      "stale": "生成中にLoopが変更されました。再生成してください。",
+      "current": "現在のコード",
+      "proposed": "AI提案",
+      "cancel": "キャンセル",
+      "close": "閉じる",
+      "back": "戻る",
+      "confirm": "提案を適用",
+      "projection": {
+        "title": "構造",
+        "unavailable": "現在のLoopは検証に合格していないため、構造を表示できません。",
+        "overview": "Loop",
+        "schemaVersion": "スキーマバージョン",
+        "loopName": "Loop識別子",
+        "limits": "実行予算",
+        "iterations": "最大反復回数",
+        "iterationsValue": "{value} 回",
+        "tokens": "トークン予算",
+        "tokensValue": "{value} トークン",
+        "timeout": "タイムアウト",
+        "minutesValue": "{value} 分",
+        "noProgress": "進捗なし制限",
+        "sameError": "同一エラー制限",
+        "repeat": "繰り返し実行",
+        "repeatName": "ステップ識別子",
+        "repeatMax": "最大繰り返し",
+        "timesValue": "{value} 回",
+        "until": "停止条件",
+        "agent": "エージェントタスク",
+        "agentName": "タスク識別子",
+        "agentPrompt": "タスク指示",
+        "verifier": "検証器",
+        "verifierName": "検証器識別子",
+        "verifierCommand": "検証コマンド",
+        "verifierAccept": "合格条件",
+        "failure": "失敗処理",
+        "failurePolicy": "失敗ポリシー",
+        "failurePause": "人の確認まで一時停止",
+        "failureFail": "失敗としてマーク",
+        "empty": "表示できる検証済みプログラムがありません。"
+      },
+      "repair": {
+        "title": "診断を修正",
+        "description": "AIはこの診断に対する対象変更を提案します。確認するまで下書きは変更されません。",
+        "diagnostic": "診断",
+        "field": "フィールド",
+        "prompt": "任意の修正指示",
+        "promptPlaceholder": "この修正で守るべき制約を説明してください",
+        "repair": "修正",
+        "repairing": "修正中",
+        "error": "診断の修正に失敗しました",
+        "patch": "提案された変更",
+        "patchValue": "{oldValue} → {newValue}"
+      }
+    }
+  },
   "loopal": {
     "activity": { "heading": "アクティビティ" },
     "status": {

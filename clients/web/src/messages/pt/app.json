@@ -478,6 +478,231 @@
       "createFailed": "Falha ao criar o ticket. Por favor, tente novamente."
     }
   },
+  "loopWorkbench": {
+    "shell": {
+      "canvasTitle": "Canvas de blocos",
+      "canvasHint": "Clique duas vezes no espaço vazio para inserir",
+      "editorTitle": "LoopScript",
+      "editorMetadata": "Rascunho {revision} · Semântica {semanticRevision}"
+    },
+    "toolbar": {
+      "back": "Voltar aos loops",
+      "title": "Bancada de Loop",
+      "subtitle": "Blocos e LoopScript compartilham a mesma semântica confirmada pelo backend",
+      "blocks": "Blocos",
+      "code": "Código",
+      "run": "Executar loop"
+    },
+    "blockly": {
+      "loop": {
+        "message0": "Loop %1",
+        "message1": "Limites de execução %1",
+        "message2": "Etapas do loop %1",
+        "message3": "Ao falhar %1"
+      },
+      "limits": {
+        "message0": "No máximo %1 iterações · %2 tokens · %3 minutos",
+        "message1": "Sem progresso %1 vezes · mesmo erro %2 vezes"
+      },
+      "repeat": {
+        "message0": "Repetir %1 · no máximo %2 vezes",
+        "message1": "Até %1 . %2",
+        "message2": "Executar %1"
+      },
+      "agent": {
+        "message0": "Tarefa de agente %1",
+        "message1": "Prompt da tarefa %1",
+        "defaultPrompt": "Descreva a tarefa a concluir"
+      },
+      "verifier": {
+        "message0": "Etapa de verificação %1",
+        "message1": "Comando %1",
+        "message2": "Condição de aprovação %1",
+        "defaultAccept": "Verificação aprovada"
+      },
+      "failure": {
+        "message0": "Ao falhar %1",
+        "pause": "Pausar para revisão humana",
+        "fail": "Marcar como falha"
+      },
+      "toolbox": {
+        "loop": "Loop",
+        "control": "Controle",
+        "agent": "Agente",
+        "verifier": "Verificação",
+        "limits": "Limites",
+        "failure": "Falha",
+        "custom": "Meus blocos"
+      }
+    },
+    "quickInsert": {
+      "close": "Fechar inserção rápida",
+      "title": "Inserir bloco",
+      "customTitle": "Meus blocos",
+      "customEmpty": "Ainda não há blocos personalizados",
+      "createCustom": "Criar bloco personalizado",
+      "options": {
+        "loop": "Loop",
+        "repeat": "Repetir",
+        "agent": "Tarefa de agente",
+        "verifier": "Etapa de verificação",
+        "limits": "Limites de execução",
+        "failure": "Tratamento de falhas"
+      }
+    },
+    "status": {
+      "diagnosticsTitle": "Diagnósticos",
+      "runTitle": "Execução",
+      "valid": "A fonte atual passou na validação do backend",
+      "noRun": "O loop ainda não foi iniciado.",
+      "repairDiagnostic": "Corrigir este diagnóstico",
+      "repairingDiagnostic": "Corrigindo diagnóstico",
+      "nodeLabel": "Nó: ",
+      "runStatusLabel": "Status: ",
+      "diagnosticLocation": "Linha {line}, coluna {column}",
+      "runInstance": " · Instância de execução {podKey}",
+      "unknownStatus": "Status desconhecido",
+      "parseStatus": {
+        "empty": "Aguardando entrada",
+        "parsing": "Validando",
+        "valid": "Válido",
+        "syntax-error": "Com erros"
+      },
+      "runStatus": {
+        "draft": "Rascunho",
+        "active": "Em execução",
+        "paused": "Pausado",
+        "verifying": "Verificando",
+        "completed": "Concluído",
+        "failed": "Falhou",
+        "cancelled": "Cancelado"
+      },
+      "diagnostics": {
+        "programNil": "O programa Loop é obrigatório",
+        "schemaVersionUnsupported": "A versão do LoopScript não é suportada",
+        "syntaxInvalidToken": "LoopScript contém um caractere inválido",
+        "syntaxInvalidNumber": "LoopScript contém um número inválido",
+        "syntaxUnexpectedToken": "A estrutura do LoopScript é inválida",
+        "syntaxUnknown": "LoopScript contém sintaxe desconhecida",
+        "nodeIdMissing": "Um nó de bloco não tem identificador único",
+        "nodeIdDuplicate": "Identificadores de nós devem ser únicos",
+        "localIdDuplicate": "Nomes de etapas devem ser únicos",
+        "identifierInvalid": "O formato do nome da etapa é inválido",
+        "limitsCount": "Exatamente um bloco de limites de execução é obrigatório",
+        "repeatCount": "Exatamente uma etapa de repetição é obrigatória",
+        "agentCount": "A repetição deve conter exatamente uma tarefa de agente",
+        "verifierCount": "A repetição deve conter exatamente uma etapa de verificação",
+        "failureCount": "Exatamente uma política de falha é obrigatória",
+        "untilInvalid": "A condição de parada deve referenciar o resultado de aprovação da verificação",
+        "repeatMaxExceedsLimit": "A repetição não pode exceder o limite global de iterações",
+        "failurePolicyInvalid": "A política de falha é inválida",
+        "valueOutOfRange": "Um parâmetro de bloco está fora do intervalo permitido",
+        "textEmpty": "Um parâmetro de texto do bloco não pode ficar vazio",
+        "secretLiteralForbidden": "LoopScript não pode conter segredos literais",
+        "unknown": "A validação do LoopScript falhou"
+      }
+    },
+    "runtime": {
+      "title": "Selecionar ambiente",
+      "description": "O ambiente é vinculado apenas para esta execução e não faz parte da orquestração do loop.",
+      "field": "Ambiente",
+      "placeholder": "Selecionar ambiente",
+      "unnamed": "Ambiente sem nome",
+      "loading": "Carregando ambientes",
+      "retry": "Recarregar",
+      "empty": "Esta organização não tem ambiente disponível",
+      "cancel": "Cancelar",
+      "start": "Iniciar loop",
+      "snapshotLabel": "{name} · {workerType} · Snapshot {id}"
+    },
+    "customBlock": {
+      "title": "Criar bloco personalizado",
+      "description": "Cria uma macro de rascunho versionada que se expande na tarefa e na verificação do loop atual.",
+      "label": "Rótulo do bloco",
+      "slug": "Slug do bloco",
+      "promptTemplate": "Modelo do prompt da tarefa",
+      "commandTemplate": "Modelo do comando de verificação",
+      "acceptTemplate": "Modelo da condição de aprovação",
+      "cancel": "Cancelar",
+      "create": "Criar bloco",
+      "required": "Este campo é obrigatório",
+      "identifier": "Use 2-100 letras minúsculas, dígitos ou hifens"
+    },
+    "ai": {
+      "toolbar": "Assistente de IA",
+      "generateMode": "Gerar / modificar",
+      "explainMode": "Explicar loop atual",
+      "generateTitle": "Gerar ou modificar loop com IA",
+      "generateDescription": "A IA propõe uma geração ou modificação completa do loop. As proteções de verificação e orçamento continuam aplicadas, e nada muda antes da confirmação.",
+      "explainTitle": "Explicar loop atual",
+      "explainDescription": "Uma visão determinística do LoopProgram validado. Não usa modelo nem altera o loop.",
+      "resource": "Modelo de IA",
+      "resourcePlaceholder": "Selecionar modelo de IA",
+      "prompt": "Descreva o objetivo do loop ou a alteração global",
+      "promptPlaceholder": "Exemplo: criar um PPT profissional ou produzir um PDF",
+      "loadingResources": "Carregando modelos de IA",
+      "resourceError": "Falha ao carregar modelos de IA",
+      "retry": "Recarregar",
+      "noResources": "Nenhum modelo de geração de texto disponível",
+      "generate": "Gerar rascunho",
+      "generating": "Gerando",
+      "generationError": "Falha ao gerar o rascunho do loop",
+      "unchanged": "A IA não produziu alterações de código",
+      "stale": "O loop mudou durante a geração. Gere novamente.",
+      "current": "Código atual",
+      "proposed": "Proposta da IA",
+      "cancel": "Cancelar",
+      "close": "Fechar",
+      "back": "Voltar",
+      "confirm": "Aplicar proposta",
+      "projection": {
+        "title": "Estrutura",
+        "unavailable": "O loop atual não passou na validação, portanto sua estrutura não pode ser exibida.",
+        "overview": "Loop",
+        "schemaVersion": "Versão do esquema",
+        "loopName": "Identificador do loop",
+        "limits": "Orçamento de execução",
+        "iterations": "Máximo de iterações",
+        "iterationsValue": "{value} iterações",
+        "tokens": "Orçamento de tokens",
+        "tokensValue": "{value} tokens",
+        "timeout": "Tempo limite",
+        "minutesValue": "{value} minutos",
+        "noProgress": "Limite sem progresso",
+        "sameError": "Limite de mesmo erro",
+        "repeat": "Execução repetida",
+        "repeatName": "Identificador da etapa",
+        "repeatMax": "Máximo de repetições",
+        "timesValue": "{value} vezes",
+        "until": "Condição de parada",
+        "agent": "Tarefa de agente",
+        "agentName": "Identificador da tarefa",
+        "agentPrompt": "Instrução da tarefa",
+        "verifier": "Verificador",
+        "verifierName": "Identificador do verificador",
+        "verifierCommand": "Comando de verificação",
+        "verifierAccept": "Condição de aprovação",
+        "failure": "Tratamento de falhas",
+        "failurePolicy": "Política de falha",
+        "failurePause": "Pausar para revisão humana",
+        "failureFail": "Marcar como falha",
+        "empty": "Nenhum programa validado para exibir."
+      },
+      "repair": {
+        "title": "Corrigir diagnóstico",
+        "description": "A IA propõe uma alteração direcionada para este diagnóstico. O rascunho só muda após confirmação.",
+        "diagnostic": "Diagnóstico",
+        "field": "Campo",
+        "prompt": "Instrução opcional de correção",
+        "promptPlaceholder": "Descreva as restrições para esta correção",
+        "repair": "Corrigir",
+        "repairing": "Corrigindo",
+        "error": "Falha ao corrigir o diagnóstico",
+        "patch": "Alteração proposta",
+        "patchValue": "{oldValue} → {newValue}"
+      }
+    }
+  },
   "loopal": {
     "activity": { "heading": "Atividade" },
     "status": {

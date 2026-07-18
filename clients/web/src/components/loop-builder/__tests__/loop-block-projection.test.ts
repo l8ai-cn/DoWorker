@@ -8,6 +8,10 @@ import {
 import deMessages from "@/messages/de/app.json";
 import enMessages from "@/messages/en/app.json";
 import esMessages from "@/messages/es/app.json";
+import frMessages from "@/messages/fr/app.json";
+import jaMessages from "@/messages/ja/app.json";
+import koMessages from "@/messages/ko/app.json";
+import ptMessages from "@/messages/pt/app.json";
 import zhMessages from "@/messages/zh/app.json";
 import {
   createLoopBlockCatalog,
@@ -101,6 +105,17 @@ function sourceFor(messages: typeof enMessages.loopWorkbench.blockly): string {
   return workspaceToLoopSource(workspace).source;
 }
 
+const LOCALE_BLOCK_MESSAGES = [
+  ["English", enMessages.loopWorkbench.blockly],
+  ["Chinese", zhMessages.loopWorkbench.blockly],
+  ["German", deMessages.loopWorkbench.blockly],
+  ["Spanish", esMessages.loopWorkbench.blockly],
+  ["French", frMessages.loopWorkbench.blockly],
+  ["Japanese", jaMessages.loopWorkbench.blockly],
+  ["Korean", koMessages.loopWorkbench.blockly],
+  ["Portuguese", ptMessages.loopWorkbench.blockly],
+] as const;
+
 describe("Loop Blockly projection", () => {
   it("round-trips a typed AST to canonical LoopScript", () => {
     registerLoopBlocks(zhMessages.loopWorkbench.blockly);
@@ -151,12 +166,7 @@ loop checkout-fix {
     expect(english.nodeIds).toEqual(chinese.nodeIds);
   });
 
-  it.each([
-    ["English", enMessages.loopWorkbench.blockly],
-    ["Chinese", zhMessages.loopWorkbench.blockly],
-    ["German", deMessages.loopWorkbench.blockly],
-    ["Spanish", esMessages.loopWorkbench.blockly],
-  ])("does not expose Worker in the %s toolbox", (_, messages) => {
+  it.each(LOCALE_BLOCK_MESSAGES)("does not expose Worker in the %s toolbox", (_, messages) => {
     const { toolbox } = createLoopBlockCatalog(messages);
     const serialized = JSON.stringify(toolbox).toLowerCase();
 
@@ -164,12 +174,7 @@ loop checkout-fix {
     expect(serialized).not.toContain("loop_worker");
   });
 
-  it.each([
-    ["English", enMessages.loopWorkbench.blockly],
-    ["Chinese", zhMessages.loopWorkbench.blockly],
-    ["German", deMessages.loopWorkbench.blockly],
-    ["Spanish", esMessages.loopWorkbench.blockly],
-  ])("keeps %s projection semantically identical", (_, messages) => {
+  it.each(LOCALE_BLOCK_MESSAGES)("keeps %s projection semantically identical", (_, messages) => {
     const expected = sourceFor(zhMessages.loopWorkbench.blockly);
     registerLoopBlocks(messages);
     const workspace = new Blockly.Workspace();
@@ -190,6 +195,10 @@ loop checkout-fix {
     ["Chinese", zhMessages.loopWorkbench.blockly, "描述要完成的任务", "验证通过"],
     ["German", deMessages.loopWorkbench.blockly, "Beschreiben Sie die zu erledigende Aufgabe", "Verifizierung erfolgreich"],
     ["Spanish", esMessages.loopWorkbench.blockly, "Describe la tarea a completar", "La verificación pasa"],
+    ["French", frMessages.loopWorkbench.blockly, "Décrivez la tâche à accomplir", "La vérification réussit"],
+    ["Japanese", jaMessages.loopWorkbench.blockly, "完了するタスクを説明してください", "検証が成功"],
+    ["Korean", koMessages.loopWorkbench.blockly, "완료할 작업을 설명하세요", "검증 통과"],
+    ["Portuguese", ptMessages.loopWorkbench.blockly, "Descreva a tarefa a concluir", "Verificação aprovada"],
   ])("uses %s starter text for newly inserted semantic blocks", (_, messages, prompt, accept) => {
     registerLoopBlocks(messages);
     const workspace = new Blockly.Workspace();

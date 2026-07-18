@@ -1,3 +1,4 @@
+import type { BrowserContext, Page, Request } from "@playwright/test";
 import { expect, test } from "../../fixtures/index";
 import { getWebBaseUrl, TEST_ORG_SLUG } from "../../helpers/env";
 import {
@@ -18,6 +19,97 @@ loop checkout-fix {
   }
   on_failure pause
 }`;
+
+const LOCALE_CASES = [
+  {
+    locale: "zh",
+    title: "循环工作台",
+    blocks: "积木",
+    code: "代码",
+    run: "运行循环",
+    valid: "有效",
+    custom: "创建自定义积木",
+    failure: "失败处理",
+    ai: "AI 助手",
+  },
+  {
+    locale: "en",
+    title: "Loop workbench",
+    blocks: "Blocks",
+    code: "Code",
+    run: "Run loop",
+    valid: "Valid",
+    custom: "Create custom block",
+    failure: "Failure handling",
+    ai: "AI assistant",
+  },
+  {
+    locale: "de",
+    title: "Loop-Workbench",
+    blocks: "Blöcke",
+    code: "Code",
+    run: "Loop starten",
+    valid: "Gültig",
+    custom: "Benutzerdefinierten Block erstellen",
+    failure: "Fehlerbehandlung",
+    ai: "AI-Assistent",
+  },
+  {
+    locale: "es",
+    title: "Área de trabajo de Loop",
+    blocks: "Bloques",
+    code: "Código",
+    run: "Ejecutar loop",
+    valid: "Válido",
+    custom: "Crear bloque personalizado",
+    failure: "Gestión de fallos",
+    ai: "Asistente AI",
+  },
+  {
+    locale: "fr",
+    title: "Atelier Loop",
+    blocks: "Blocs",
+    code: "Code",
+    run: "Lancer le loop",
+    valid: "Valide",
+    custom: "Créer un bloc personnalisé",
+    failure: "Gestion des échecs",
+    ai: "Assistant IA",
+  },
+  {
+    locale: "ja",
+    title: "Loopワークベンチ",
+    blocks: "ブロック",
+    code: "コード",
+    run: "Loopを実行",
+    valid: "有効",
+    custom: "カスタムブロックを作成",
+    failure: "失敗処理",
+    ai: "AIアシスタント",
+  },
+  {
+    locale: "ko",
+    title: "Loop 워크벤치",
+    blocks: "블록",
+    code: "코드",
+    run: "Loop 실행",
+    valid: "유효",
+    custom: "사용자 블록 만들기",
+    failure: "실패 처리",
+    ai: "AI 어시스턴트",
+  },
+  {
+    locale: "pt",
+    title: "Bancada de Loop",
+    blocks: "Blocos",
+    code: "Código",
+    run: "Executar loop",
+    valid: "Válido",
+    custom: "Criar bloco personalizado",
+    failure: "Tratamento de falhas",
+    ai: "Assistente de IA",
+  },
+] as const;
 
 test.describe("Loop workbench", () => {
   test.beforeEach(async ({ context }) => {
@@ -123,60 +215,58 @@ test.describe("Loop workbench", () => {
     expect(source).toContain("verify ppt-step-check");
   });
 
-  test("keeps custom block projection equivalent in long zh, de, and es labels", async ({
+  test("keeps Loop projection equivalent across eight localized workbenches", async ({
     page,
     context,
   }) => {
-    const labels = [
-      {
-        locale: "zh",
-        title: "循环工作台",
-        blocks: "积木",
-        code: "代码",
-        run: "运行循环",
-        valid: "有效",
-        custom: "创建自定义积木",
-      },
-      {
-        locale: "de",
-        title: "Loop-Workbench",
-        blocks: "Blöcke",
-        code: "Code",
-        run: "Loop starten",
-        valid: "Gültig",
-        custom: "Benutzerdefinierten Block erstellen",
-      },
-      {
-        locale: "es",
-        title: "Área de trabajo de Loop",
-        blocks: "Bloques",
-        code: "Código",
-        run: "Ejecutar loop",
-        valid: "Válido",
-        custom: "Crear bloque personalizado",
-      },
-    ];
+    const failedRequests = collectFailedRequests(page);
     const sources: string[] = [];
 
-    for (const { locale, title, blocks, code, run, valid, custom } of labels) {
-      await context.addCookies([
-        {
-          name: LOCALE_COOKIE,
-          value: locale,
-          url: getWebBaseUrl(),
-        },
-      ]);
-      await page.goto(`/${TEST_ORG_SLUG}/loops/workbench`);
+    for (const localeCase of LOCALE_CASES) {
+      const { title, blocks, code, run, valid, custom, failure, ai } = localeCase;
+      await openLocalizedLoopWorkbench(page, context, localeCase);
+      await expect(page.getByRole("heading", { name: title })).toBeVisible();
+      await resetLoopSource(page, { blocks, code, run, valid });
+      const codeEditor = page.locator(".cm-content");
+      sources.push(await codeEditor.innerText());
+
+      await page.getByRole("button", { name: ai }).click();
+      await expect(page.getByRole("dialog")).toBeVisible();
+      expect(await codeEditor.innerText()).toBe(sources.at(-1));
+      await page.keyboard.press("Escape");
+
+      await doubleClickBlocklyBackground(page);
+      await expect(page.getByRole("button", { name: custom })).toBeVisible();
+      expect(await overflowingText(page, [custom, failure])).toEqual([]);
+      await page.getByRole("button", { name: failure }).click();
+      await expect(codeEditor).toContainText("invalid-block-structure");
+      expect((await codeEditor.innerText()).toLowerCase()).not.toContain("worker");
+    }
+
+    expect(new Set(sources).size).toBe(1);
+    expect(failedRequests()).toEqual([]);
+  });
+
+  test("keeps eight localized Loop workbenches usable on mobile", async ({
+    page,
+    context,
+  }) => {
+    const failedRequests = collectFailedRequests(page);
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    for (const localeCase of LOCALE_CASES) {
+      const { title, blocks, code, run, valid, custom } = localeCase;
+      await openLocalizedLoopWorkbench(page, context, localeCase);
       await expect(page.getByRole("heading", { name: title })).toBeVisible();
       await resetLoopSource(page, { blocks, code, run, valid });
       await doubleClickBlocklyBackground(page);
       await expect(page.getByRole("button", { name: custom })).toBeVisible();
-      expect(await overflowingButtons(page, [custom])).toEqual([]);
-      await expect(page.locator("body")).not.toContainText("Worker");
-      sources.push(await page.locator(".cm-content").innerText());
+      expect(await overflowingText(page, [title, blocks, code, run, custom]))
+        .toEqual([]);
+      expect((await page.locator(".cm-content").innerText()).toLowerCase())
+        .not.toContain("worker");
     }
-
-    expect(new Set(sources).size).toBe(1);
+    expect(failedRequests()).toEqual([]);
   });
 
   test("requires resource apply before starting a GoalLoop", async ({
@@ -220,8 +310,40 @@ test.describe("Loop workbench", () => {
   });
 });
 
+async function openLocalizedLoopWorkbench(
+  page: Page,
+  context: BrowserContext,
+  localeCase: (typeof LOCALE_CASES)[number],
+) {
+  await context.addCookies([
+    {
+      name: LOCALE_COOKIE,
+      value: localeCase.locale,
+      url: getWebBaseUrl(),
+    },
+  ]);
+  await page.goto(`/${TEST_ORG_SLUG}/loops/workbench`);
+}
+
+function collectFailedRequests(page: Page) {
+  const failed: string[] = [];
+  page.on("requestfailed", (request) => {
+    if (isExpectedNavigationAbort(request)) return;
+    failed.push(`${request.method()} ${request.url()} ${request.failure()?.errorText}`);
+  });
+  return () => failed;
+}
+
+function isExpectedNavigationAbort(request: Request) {
+  const error = request.failure()?.errorText;
+  if (error !== "net::ERR_ABORTED") return false;
+  return /EventsService\/Subscribe|GoalLoopService\/CompileLoopProgram/.test(
+    request.url(),
+  );
+}
+
 async function resetLoopSource(
-  page: import("@playwright/test").Page,
+  page: Page,
   labels: { blocks: string; code: string; run: string; valid: string },
 ) {
   await page.getByRole("tab", { name: labels.code }).click();
@@ -234,9 +356,7 @@ async function resetLoopSource(
   await expect(page.locator(".blocklyMainBackground")).toBeVisible();
 }
 
-async function doubleClickBlocklyBackground(
-  page: import("@playwright/test").Page,
-) {
+async function doubleClickBlocklyBackground(page: Page) {
   await page.locator(".blocklyMainBackground").first().waitFor();
   const point = await page.evaluate(() => {
     const background = document.querySelector(".blocklyMainBackground");
@@ -257,20 +377,22 @@ async function doubleClickBlocklyBackground(
   await page.mouse.dblclick(point.x, point.y);
 }
 
-async function overflowingButtons(
-  page: import("@playwright/test").Page,
+async function overflowingText(
+  page: Page,
   labels: string[],
 ) {
   return page.evaluate((expectedLabels) => {
-    return Array.from(document.querySelectorAll("button"))
-      .filter((button) => {
-        const text = button.textContent?.trim() ?? "";
+    return Array.from(
+      document.querySelectorAll("button,[role='tab'],h1,h2,h3"),
+    )
+      .filter((element) => {
+        const text = element.textContent?.trim() ?? "";
         return expectedLabels.some((label) => text.includes(label));
       })
-      .map((button) => ({
-        text: button.textContent?.trim() ?? "",
+      .map((element) => ({
+        text: element.textContent?.trim() ?? "",
         overflows:
-          button.scrollWidth > Math.ceil(button.getBoundingClientRect().width),
+          element.scrollWidth > Math.ceil(element.getBoundingClientRect().width),
       }))
       .filter(({ overflows }) => overflows);
   }, labels);
