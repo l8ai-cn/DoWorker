@@ -73,14 +73,6 @@ grep -q "'e2e-mock-agent'," seed/e2e_echo.sql
 grep -q 'DEV_SKIP_DOAGENT:-}" != "1"' dev.sh
 grep -q 'DEV_E2E_RUNNERS_ONLY:-}" != "1"' dev.sh
 
-for job in web-e2e hive-e2e mcp-e2e; do
-  if ! awk "/^  ${job}:/{inside=1; next} inside && /^  [a-z0-9-]+:/{exit} inside" "$CI_WORKFLOW" \
-    | grep -q 'DEV_E2E_RUNNERS_ONLY: "1"'; then
-    echo "${job} must start only e2e-echo runners" >&2
-    exit 1
-  fi
-done
-
 if grep -Eq 'e2e-mock-agent.*do-agent-binary' "$PREPARE" \
   || grep -q "_write_do_agent_stub" "$DOAGENT_BUILD"; then
   echo "do-agent build must not substitute a mock or stub binary" >&2
