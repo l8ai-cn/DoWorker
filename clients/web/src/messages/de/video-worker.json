@@ -1,0 +1,19 @@
+{
+  "videoWorker": {
+    "tab": "Worker",
+    "notFound": "Worker nicht gefunden",
+    "skills": "Skills",
+    "noSkills": "Keine Skills",
+    "taskTitle": "Aufgabe",
+    "taskPlaceholder": "Gib eine Aufgabe für diesen Worker ein...",
+    "sendTask": "Aufgabe senden",
+    "sendingTask": "Aufgabe wird gesendet...",
+    "taskSent": "Aufgabe gesendet",
+    "taskFailed": "Senden der Aufgabe fehlgeschlagen",
+    "previewEnabled": "Videovorschau auf Port {port} aktiviert",
+    "previewLoading": "Videovorschau wird verbunden...",
+    "previewUnavailable": "Videovorschau ist noch nicht bereit",
+    "videoPreview": "Online-Videovorschau",
+    "openPreview": "In neuem Fenster öffnen"
+  }
+}

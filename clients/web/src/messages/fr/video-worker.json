@@ -1,0 +1,19 @@
+{
+  "videoWorker": {
+    "tab": "Worker",
+    "notFound": "Worker introuvable",
+    "skills": "Competences",
+    "noSkills": "Aucune competence",
+    "taskTitle": "Tache",
+    "taskPlaceholder": "Decris la tache pour ce worker...",
+    "sendTask": "Envoyer la tache",
+    "sendingTask": "Envoi de la tache...",
+    "taskSent": "Tache envoyee",
+    "taskFailed": "Echec de l'envoi de la tache",
+    "previewEnabled": "Apercu video active sur le port {port}",
+    "previewLoading": "Connexion a l'apercu video...",
+    "previewUnavailable": "L'apercu video n'est pas encore pret",
+    "videoPreview": "Apercu video en ligne",
+    "openPreview": "Ouvrir dans une nouvelle fenetre"
+  }
+}

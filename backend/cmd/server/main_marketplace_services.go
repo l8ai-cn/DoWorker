@@ -30,6 +30,7 @@ func wireExpertAndSkillServices(
 	)
 	apiServices.Expert = expertService
 	apiServices.Skill = skillService
+	apiServices.WorkerSpecs = services.workerSpecs
 }
 
 func newExpertAndSkillServices(

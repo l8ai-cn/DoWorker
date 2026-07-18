@@ -25,6 +25,9 @@ func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services, previewPublicOri
 	if svc.SandboxFsService != nil {
 		podOpts = append(podOpts, WithPodWorkspaceSandbox(svc.SandboxFsService))
 	}
+	if svc.WorkerSpecs != nil {
+		podOpts = append(podOpts, WithPodWorkerContext(svc.WorkerSpecs, svc.Expert))
+	}
 	podHandler := NewPodHandler(svc.Pod, svc.Runner, svc.PodOrchestrator, podOpts...)
 
 	rg.POST("/quick-tasks", podHandler.CreateQuickTask)
@@ -32,6 +35,7 @@ func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services, previewPublicOri
 	rg.GET("/pods/queued", podHandler.ListQueuedPods)
 	rg.DELETE("/pods/:key/queue", podHandler.CancelQueuedPod)
 	rg.GET("/pods/:key/preview", podHandler.GetPodPreview)
+	rg.GET("/pods/:key/worker-context", podHandler.GetPodWorkerContext)
 	rg.GET("/pods/:key/resources/workspace/changes", podHandler.ListWorkspaceArtifacts)
 	rg.GET("/pods/:key/resources/workspace/filesystem/*filepath", podHandler.ReadWorkspaceArtifact)
 }

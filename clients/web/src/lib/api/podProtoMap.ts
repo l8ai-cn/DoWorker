@@ -74,6 +74,7 @@ export function podToProtoPod(p: PodData): ProtoPod {
     errorMessage: p.error_message,
     previewPort: p.preview_port,
     previewPath: p.preview_path,
+    workerSpecSnapshotId: asBigInt(p.worker_spec_snapshot_id),
   });
 }
 

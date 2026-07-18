@@ -1,0 +1,19 @@
+{
+  "videoWorker": {
+    "tab": "Worker",
+    "notFound": "未找到 Worker",
+    "skills": "技能",
+    "noSkills": "暂无技能",
+    "taskTitle": "任务",
+    "taskPlaceholder": "输入该 Worker 的任务...",
+    "sendTask": "发送任务",
+    "sendingTask": "正在发送任务...",
+    "taskSent": "任务已发送",
+    "taskFailed": "任务发送失败",
+    "previewEnabled": "视频预览端口 {port} 已启用",
+    "previewLoading": "正在连接视频预览...",
+    "previewUnavailable": "视频预览尚未就绪",
+    "videoPreview": "视频在线预览",
+    "openPreview": "在新窗口打开"
+  }
+}
