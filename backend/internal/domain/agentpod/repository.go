@@ -30,6 +30,7 @@ type PodRepository interface {
 	GetTicketByID(ctx context.Context, ticketID int64) (slug, title string, err error)
 	ListByOrg(ctx context.Context, orgID int64, q PodListQuery) ([]*Pod, int64, error)
 	ListByTicket(ctx context.Context, ticketID int64) ([]*Pod, error)
+	ListByOrganizationAndTicket(ctx context.Context, organizationID, ticketID int64) ([]*Pod, error)
 	ListByRunner(ctx context.Context, runnerID int64, status string) ([]*Pod, error)
 	ListByRunnerPaginated(ctx context.Context, runnerID int64, q PodListQuery) ([]*Pod, int64, error)
 	ListActive(ctx context.Context, runnerID int64) ([]*Pod, error)

@@ -11,7 +11,7 @@ import (
 func TestVideoExpertManifestIsCompleteAndInternallyConsistent(t *testing.T) {
 	skills, err := Skills()
 	require.NoError(t, err)
-	require.Len(t, skills, 6)
+	require.Len(t, skills, 7)
 	require.Len(t, Experts(), 3)
 
 	skillSlugs := make(map[string]struct{}, len(skills))

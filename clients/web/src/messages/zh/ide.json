@@ -60,6 +60,7 @@
         "notFound": "环境信息不可用",
         "podKey": "环境 Key",
         "agent": "镜像",
+        "skills": "关联 Skill",
         "agentStatus": "运行状态",
         "runner": "集群",
         "repository": "仓库",

@@ -27,6 +27,38 @@ describe("VideoArtifactViewer", () => {
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 
+  it("支持从结果卡片进入和退出全屏预览", async () => {
+    const user = userEvent.setup();
+    render(<VideoArtifactViewer {...readyProps} />);
+
+    const enter = screen.getByRole("button", { name: "View video fullscreen" });
+    await user.click(enter);
+    const exit = screen.getByRole("button", { name: "Exit fullscreen" });
+    expect(exit.parentElement).toHaveStyle({
+      inset: "0",
+      position: "fixed",
+      zIndex: "100",
+    });
+    await user.click(exit);
+    expect(
+      screen.getByRole("button", { name: "View video fullscreen" }),
+    ).toBeVisible();
+  });
+
+  it("支持 Escape 退出全屏预览", async () => {
+    const user = userEvent.setup();
+    render(<VideoArtifactViewer {...readyProps} />);
+
+    await user.click(
+      screen.getByRole("button", { name: "View video fullscreen" }),
+    );
+    await user.keyboard("{Escape}");
+
+    expect(
+      screen.getByRole("button", { name: "View video fullscreen" }),
+    ).toBeVisible();
+  });
+
   it.each([
     ["queued", "视频已排队，等待生成"],
     ["rendering", "正在渲染视频"],
@@ -163,6 +195,10 @@ describe("VideoArtifactViewer", () => {
       name: "下载视频：产品演示.mp4",
     });
     expect(download).toBeEnabled();
+    await user.tab();
+    expect(
+      screen.getByRole("button", { name: "View video fullscreen" }),
+    ).toHaveFocus();
     await user.tab();
     expect(download).toHaveFocus();
     await user.keyboard("{Enter}");

@@ -61,6 +61,24 @@ func (r *workerSpecSnapshotRepo) GetByID(
 	return workerSpecSnapshotFromRecord(record)
 }
 
+func (r *workerSpecSnapshotRepo) GetByIDs(
+	ctx context.Context,
+	organizationID int64,
+	ids []int64,
+) ([]domain.Snapshot, error) {
+	if len(ids) == 0 {
+		return []domain.Snapshot{}, nil
+	}
+	var records []workerSpecSnapshotRecord
+	if err := r.db.WithContext(ctx).
+		Where("organization_id = ? AND id IN ?", organizationID, ids).
+		Order("created_at DESC, id DESC").
+		Find(&records).Error; err != nil {
+		return nil, err
+	}
+	return workerSpecSnapshotsFromRecords(records)
+}
+
 func (r *workerSpecSnapshotRepo) ListByOrganization(
 	ctx context.Context,
 	organizationID int64,
@@ -72,6 +90,10 @@ func (r *workerSpecSnapshotRepo) ListByOrganization(
 		Find(&records).Error; err != nil {
 		return nil, err
 	}
+	return workerSpecSnapshotsFromRecords(records)
+}
+
+func workerSpecSnapshotsFromRecords(records []workerSpecSnapshotRecord) ([]domain.Snapshot, error) {
 	snapshots := make([]domain.Snapshot, 0, len(records))
 	for _, record := range records {
 		snapshot, err := workerSpecSnapshotFromRecord(record)

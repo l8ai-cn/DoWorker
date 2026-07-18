@@ -8,6 +8,11 @@ func skillDefinitions() []SkillDefinition {
 	}
 	return []SkillDefinition{
 		{
+			Slug: "seedance-expert", Name: "Seedance 视频生成",
+			Description: "使用已绑定的 Seedance 视频模型生成 MP4，并输出为平台可预览的 Worker 成果。",
+			License:     "Apache-2.0", Tags: []string{"video", "seedance", "generation"},
+		},
+		{
 			Slug: "short-video-directing", Name: "短视频编导",
 			Description: "从传播目标产出脚本、镜头表、连续性说明和剪辑简报。",
 			License:     "Apache-2.0", Tags: []string{"video", "short-video", "directing"},

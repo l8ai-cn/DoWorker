@@ -92,7 +92,7 @@ func (s *Server) GetTicketPods(
 func (s *Server) BatchGetTicketPods(
 	ctx context.Context, req *connect.Request[meshv1.BatchGetTicketPodsRequest],
 ) (*connect.Response[meshv1.BatchGetTicketPodsResponse], error) {
-	ctx, _, err := interceptors.ResolveOrgScope(ctx, req.Msg, s.orgSvc)
+	ctx, org, err := interceptors.ResolveOrgScope(ctx, req.Msg, s.orgSvc)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (s *Server) BatchGetTicketPods(
 		)
 	}
 
-	result, err := s.meshSvc.BatchGetTicketPods(ctx, ids)
+	result, err := s.meshSvc.BatchGetTicketPods(ctx, org.GetID(), ids)
 	if err != nil {
 		return nil, mapServiceError(err)
 	}

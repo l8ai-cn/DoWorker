@@ -172,7 +172,13 @@ func TestMesh_ListPodsByTicketIDs(t *testing.T) {
 	podKey := testkit.CreatePod(t, db, orgID, runnerID, userID)
 	db.Exec(`UPDATE pods SET ticket_id = ? WHERE pod_key = ?`, ticketID, podKey)
 
-	pods, err := repo.ListPodsByTicketIDs(ctx, []int64{ticketID})
+	otherUserID := testkit.CreateUser(t, db, "other-ticket@test.io", "otherticketuser")
+	otherOrgID := testkit.CreateOrg(t, db, "other-ticket-org", otherUserID)
+	otherRunnerID := testkit.CreateRunner(t, db, otherOrgID, "other-r-tkt")
+	otherPodKey := testkit.CreatePod(t, db, otherOrgID, otherRunnerID, otherUserID)
+	db.Exec(`UPDATE pods SET ticket_id = ? WHERE pod_key = ?`, ticketID, otherPodKey)
+
+	pods, err := repo.ListPodsByTicketIDs(ctx, orgID, []int64{ticketID})
 	require.NoError(t, err)
 	require.Len(t, pods, 1)
 	assert.Equal(t, podKey, pods[0].PodKey)

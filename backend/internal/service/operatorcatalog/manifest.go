@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-const Revision = "video-experts-2026-07-15"
+const Revision = "video-experts-2026-07-18-seedance"
 
 //go:embed assets/skills/*.md
 var skillAssets embed.FS

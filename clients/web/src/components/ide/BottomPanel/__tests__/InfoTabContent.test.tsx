@@ -113,6 +113,21 @@ describe("InfoTabContent", () => {
         screen.getByText("ide.bottomPanel.infoTab.createdAt:")
       ).toBeInTheDocument();
     });
+
+    it("should display associated worker skills", () => {
+      const pod = createMockPod({
+        worker_skill_slugs: ["seedance-expert", "video-delivery-qa"],
+      });
+      render(
+        <InfoTabContent
+          selectedPodKey={pod.pod_key}
+          pod={pod}
+          orgSlug="test-org"
+          t={mockT}
+        />
+      );
+      expect(screen.getByText("seedance-expert, video-delivery-qa")).toBeInTheDocument();
+    });
   });
 
   describe("error display", () => {

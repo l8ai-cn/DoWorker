@@ -60,6 +60,9 @@ func (s *Server) ListPods(
 
 	items := toProtoPods(pods)
 	s.applyResumedBy(ctx, items)
+	if err := s.applyWorkerSkills(ctx, tenant.OrganizationID, items); err != nil {
+		return nil, mapServiceError(err)
+	}
 
 	return connect.NewResponse(&podv1.ListPodsResponse{
 		Items:  items,
@@ -116,7 +119,11 @@ func (s *Server) GetPod(
 		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("forbidden"))
 	}
 
-	return connect.NewResponse(ToProtoPod(pod)), nil
+	item := ToProtoPod(pod)
+	if err := s.applyWorkerSkills(ctx, tenant.OrganizationID, []*podv1.Pod{item}); err != nil {
+		return nil, mapServiceError(err)
+	}
+	return connect.NewResponse(item), nil
 }
 
 // ListPodsByTicket — REST analogue: GET /api/v1/organizations/:slug/tickets/:id/pods.
@@ -131,7 +138,11 @@ func (s *Server) ListPodsByTicket(
 	tenant := middleware.GetTenant(ctx)
 	ticketID := req.Msg.GetTicketId()
 
-	pods, err := s.podSvc.GetPodsByTicket(ctx, ticketID)
+	pods, err := s.podSvc.GetPodsByOrganizationAndTicket(
+		ctx,
+		tenant.OrganizationID,
+		ticketID,
+	)
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
@@ -157,8 +168,12 @@ func (s *Server) ListPodsByTicket(
 		pods = filtered
 	}
 
+	items := toProtoPods(pods)
+	if err := s.applyWorkerSkills(ctx, tenant.OrganizationID, items); err != nil {
+		return nil, mapServiceError(err)
+	}
 	return connect.NewResponse(&podv1.ListPodsByTicketResponse{
-		Items: toProtoPods(pods),
+		Items: items,
 		Total: int64(len(pods)),
 	}), nil
 }

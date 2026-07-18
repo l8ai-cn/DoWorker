@@ -62,6 +62,13 @@ func (s *PodService) GetPodsByTicket(ctx context.Context, ticketID int64) ([]*ag
 	return s.repo.ListByTicket(ctx, ticketID)
 }
 
+func (s *PodService) GetPodsByOrganizationAndTicket(
+	ctx context.Context,
+	organizationID, ticketID int64,
+) ([]*agentpod.Pod, error) {
+	return s.repo.ListByOrganizationAndTicket(ctx, organizationID, ticketID)
+}
+
 func (s *PodService) ListPods(ctx context.Context, orgID int64, q agentpod.PodListQuery) ([]*agentpod.Pod, int64, error) {
 	pods, total, err := s.repo.ListByOrg(ctx, orgID, q)
 	if err != nil {

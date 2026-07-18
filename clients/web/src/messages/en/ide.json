@@ -60,6 +60,7 @@
         "notFound": "Pod information not available",
         "podKey": "Pod Key",
         "agent": "Agent",
+        "skills": "Skills",
         "agentStatus": "Agent Status",
         "runner": "Runner",
         "repository": "Repository",

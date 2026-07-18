@@ -27,4 +27,14 @@ describe("podToCache", () => {
       preview_path: "/app",
     });
   });
+
+  it("preserves worker skill slugs", () => {
+    const pod = create(PodSchema, {
+      podKey: "seedance-worker",
+      status: "running",
+      workerSkillSlugs: ["seedance-expert"],
+    });
+
+    expect(podToCache(pod).worker_skill_slugs).toEqual(["seedance-expert"]);
+  });
 });

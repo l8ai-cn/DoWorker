@@ -20,7 +20,7 @@ func TestBatchGetTicketPods(t *testing.T) {
 	db.Create(&agentpod.Pod{PodKey: "pod-2", OrganizationID: 1, TicketID: &ticketID1, Status: "terminated", CreatedByID: 1})
 	db.Create(&agentpod.Pod{PodKey: "pod-3", OrganizationID: 1, TicketID: &ticketID2, Status: "running", CreatedByID: 1})
 
-	result, err := service.BatchGetTicketPods(ctx, []int64{100, 200, 300})
+	result, err := service.BatchGetTicketPods(ctx, 1, []int64{100, 200, 300})
 	if err != nil {
 		t.Fatalf("BatchGetTicketPods() error = %v", err)
 	}
@@ -41,7 +41,7 @@ func TestBatchGetTicketPods_Empty(t *testing.T) {
 	service := NewService(repo, nil, nil, nil)
 	ctx := context.Background()
 
-	result, err := service.BatchGetTicketPods(ctx, []int64{})
+	result, err := service.BatchGetTicketPods(ctx, 1, []int64{})
 	if err != nil {
 		t.Fatalf("BatchGetTicketPods() error = %v", err)
 	}
@@ -55,7 +55,7 @@ func TestBatchGetTicketPods_NoPods(t *testing.T) {
 	service := NewService(repo, nil, nil, nil)
 	ctx := context.Background()
 
-	result, err := service.BatchGetTicketPods(ctx, []int64{1, 2, 3})
+	result, err := service.BatchGetTicketPods(ctx, 1, []int64{1, 2, 3})
 	if err != nil {
 		t.Fatalf("BatchGetTicketPods() error = %v", err)
 	}
@@ -78,7 +78,7 @@ func TestBatchGetTicketPods_PodWithNilTicket(t *testing.T) {
 	// Create pod with nil ticket_id
 	db.Create(&agentpod.Pod{PodKey: "no-ticket", OrganizationID: 1, Status: "running", CreatedByID: 1})
 
-	result, err := service.BatchGetTicketPods(ctx, []int64{100})
+	result, err := service.BatchGetTicketPods(ctx, 1, []int64{100})
 	if err != nil {
 		t.Fatalf("BatchGetTicketPods() error = %v", err)
 	}
