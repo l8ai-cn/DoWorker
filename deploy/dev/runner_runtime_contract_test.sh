@@ -57,14 +57,19 @@ grep -q "claude-code|codex-cli|video-studio|cursor-cli|" runner-entrypoint.sh
 grep -q 'HTTP_PROXY: ${RUNNER_HTTP_PROXY:-}' docker-compose.runners.yml
 grep -q 'HTTPS_PROXY: ${RUNNER_HTTPS_PROXY:-}' docker-compose.runners.yml
 grep -q 'NO_PROXY: ${RUNNER_NO_PROXY:-traefik,host.lan,host.docker.internal,localhost,127.0.0.1,::1,postgres,redis,otel-collector}' docker-compose.runners.yml
+grep -q 'user: "0:0"' docker-compose.runners.yml
 grep -q 'HTTP_PROXY: "${RUNNER_HTTP_PROXY:-}"' "$K8S_RUNNER_MANIFEST"
 grep -q 'HTTPS_PROXY: "${RUNNER_HTTPS_PROXY:-}"' "$K8S_RUNNER_MANIFEST"
 grep -q 'NO_PROXY: "${RUNNER_NO_PROXY:-host.docker.internal,localhost,127.0.0.1,::1,otel-collector,.svc,.cluster.local}"' "$K8S_RUNNER_MANIFEST"
 grep -q "default_agent: \"\${DEFAULT_AGENT}\"" runner-entrypoint.sh
 grep -q "bootstrap_runner_ssh" runner-entrypoint.sh
+grep -q "run_privileged_bootstrap_then_drop" runner-entrypoint.sh
+grep -q "RUNNER_PRIVILEGED_BOOTSTRAP_DONE=1" "$SSH_BOOTSTRAP"
+grep -q 'sudo -E -u "$RUNNER_USER"' "$SSH_BOOTSTRAP"
 grep -q 'runner-ssh:/run/runner-ssh-source:ro' docker-compose.runners.yml
 grep -q "runner-ssh-bootstrap.sh" "$DOCKERFILE"
 grep -q "runner-ssh-bootstrap.sh" "$PREPARE"
+grep -q "runner SSH private key exists but is not readable" "$SSH_BOOTSTRAP"
 if grep -q './runner-ssh:/home/runner/.ssh' docker-compose.runners.yml; then
   echo "runner SSH source must not be mounted over the runner home directory" >&2
   exit 1
@@ -110,6 +115,8 @@ trap 'rm -rf "$ssh_fixture"' EXIT
 mkdir -p "$ssh_fixture/source" "$ssh_fixture/home"
 printf 'Host test\n' > "$ssh_fixture/source/config"
 printf 'private-key\n' > "$ssh_fixture/source/id_ed25519"
+printf 'public-key\n' > "$ssh_fixture/source/id_ed25519.pub"
+printf 'known-host\n' > "$ssh_fixture/source/known_hosts"
 HOME="$ssh_fixture/home" RUNNER_SSH_SOURCE_DIR="$ssh_fixture/source" \
   bash -c 'source "$1"; bootstrap_runner_ssh' _ "$SSH_BOOTSTRAP"
 
@@ -121,3 +128,13 @@ test -d "$ssh_fixture/home/.ssh"
 test "$(file_mode "$ssh_fixture/home/.ssh")" = "700"
 test "$(file_mode "$ssh_fixture/home/.ssh/config")" = "600"
 test "$(file_mode "$ssh_fixture/home/.ssh/id_ed25519")" = "600"
+test "$(file_mode "$ssh_fixture/home/.ssh/id_ed25519.pub")" = "644"
+test "$(file_mode "$ssh_fixture/home/.ssh/known_hosts")" = "644"
+
+chmod 000 "$ssh_fixture/source/id_ed25519"
+if HOME="$ssh_fixture/home" RUNNER_SSH_SOURCE_DIR="$ssh_fixture/source" \
+  bash -c 'source "$1"; bootstrap_runner_ssh' _ "$SSH_BOOTSTRAP" 2>"$ssh_fixture/error.log"; then
+  echo "runner SSH bootstrap must fail when the private key is not readable" >&2
+  exit 1
+fi
+grep -q "runner SSH private key exists but is not readable" "$ssh_fixture/error.log"

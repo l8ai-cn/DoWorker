@@ -46,7 +46,7 @@ x-runner-common: &runner-common
   depends_on:
     traefik:
       condition: service_started
-  user: "1000:1000"
+  user: "0:0"
   extra_hosts:
     - "host.lan:host-gateway"
   entrypoint: ["/usr/local/bin/runner-entrypoint.sh"]

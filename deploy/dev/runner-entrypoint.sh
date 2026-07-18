@@ -13,6 +13,9 @@ SSL_DIR="${SSL_DIR:-/app/ssl}"
 AGENT_RUNTIME="${AGENT_RUNTIME:-e2e-echo}"
 DEFAULT_AGENT="${DEFAULT_AGENT:-${AGENT_RUNTIME}}"
 RUNNER_SSH_SOURCE_DIR="${RUNNER_SSH_SOURCE_DIR:-/run/runner-ssh-source}"
+RUNNER_USER="${RUNNER_USER:-runner}"
+RUNNER_GROUP="${RUNNER_GROUP:-runner}"
+RUNNER_PRIVILEGED_BOOTSTRAP_DONE="${RUNNER_PRIVILEGED_BOOTSTRAP_DONE:-0}"
 
 CONFIG_DIR="${HOME}/.do-worker"
 if [[ -d "${HOME}/.agentsmesh" && -w "${HOME}/.agentsmesh" ]]; then
@@ -24,6 +27,7 @@ CERTS_DIR="${CONFIG_DIR}/certs"
 CONFIG_FILE="${CONFIG_DIR}/config.yaml"
 
 source /usr/local/lib/runner-ssh-bootstrap.sh
+run_privileged_bootstrap_then_drop "$@"
 
 case "${AGENT_RUNTIME}" in
     claude-code|codex-cli|video-studio|cursor-cli|gemini-cli|minimax-cli|e2e-echo|loopal|do-agent|aider|opencode|grok-build|openclaw|hermes) ;;
@@ -61,152 +65,6 @@ wait_for_backend() {
     exit 1
 }
 
-generate_runner_cert() {
-    echo "▶ generate_runner_cert: CERTS_DIR=$CERTS_DIR SSL_DIR=$SSL_DIR"
-    mkdir -p "$CERTS_DIR"
-    ls -la "$CERTS_DIR" >&2 || true
-    if [[ ! -f "$SSL_DIR/ca.crt" || ! -f "$SSL_DIR/ca.key" ]]; then
-        echo "✗ CA 证书未找到: $SSL_DIR" >&2
-        ls -la "$SSL_DIR" >&2 || true
-        exit 1
-    fi
-    if [[ -s "$CERTS_DIR/runner.crt" && -s "$CERTS_DIR/runner.key" ]] \
-        && openssl verify -CAfile "$SSL_DIR/ca.crt" "$CERTS_DIR/runner.crt" >/dev/null 2>&1; then
-        cp "$SSL_DIR/ca.crt" "$CERTS_DIR/ca.crt"
-        echo "✓ Runner 证书已存在"
-        return 0
-    fi
-    rm -f "$CERTS_DIR/runner.crt" "$CERTS_DIR/runner.key" "$CERTS_DIR/ca.crt" \
-          "$CERTS_DIR/ca.srl" "$CERTS_DIR/runner.csr" "$CERTS_DIR/runner_ext.cnf"
-    echo "生成 Runner 客户端证书..."
-    openssl genrsa -out "$CERTS_DIR/runner.key" 2048
-    openssl req -new -key "$CERTS_DIR/runner.key" \
-        -out "$CERTS_DIR/runner.csr" \
-        -subj "/CN=${RUNNER_NODE_ID}/O=${RUNNER_ORG_SLUG}/OU=Runner"
-    cat > "$CERTS_DIR/runner_ext.cnf" << 'EOF'
-authorityKeyIdentifier=keyid,issuer
-basicConstraints=CA:FALSE
-keyUsage = digitalSignature, keyEncipherment
-extendedKeyUsage = clientAuth
-EOF
-    openssl x509 -req -days 365 \
-        -in "$CERTS_DIR/runner.csr" \
-        -CA "$SSL_DIR/ca.crt" -CAkey "$SSL_DIR/ca.key" \
-        -CAserial "$CERTS_DIR/ca.srl" -CAcreateserial \
-        -out "$CERTS_DIR/runner.crt" \
-        -extfile "$CERTS_DIR/runner_ext.cnf"
-    cp "$SSL_DIR/ca.crt" "$CERTS_DIR/ca.crt"
-    rm -f "$CERTS_DIR/runner.csr" "$CERTS_DIR/runner_ext.cnf"
-    chmod 600 "$CERTS_DIR/runner.key"
-    chmod 644 "$CERTS_DIR/runner.crt" "$CERTS_DIR/ca.crt"
-    echo "✓ Runner 证书生成完成"
-}
-
-init_claude_config() {
-    local claude_dir="${HOME}/.claude"
-    local claude_actual="${claude_dir}/claude.json"
-    local claude_link="${HOME}/.claude.json"
-    mkdir -p "$claude_dir"
-    if [[ ! -f "$claude_actual" ]]; then
-        cat > "$claude_actual" << 'EOF'
-{
-  "hasCompletedOnboarding": true,
-  "theme": "dark",
-  "autoUpdaterStatus": "disabled",
-  "shiftEnterKeyBindingInstalled": true
-}
-EOF
-    fi
-    if [[ ! -L "$claude_link" ]]; then
-        rm -f "$claude_link"
-        ln -s "$claude_actual" "$claude_link"
-    fi
-    if [[ ! -f "$claude_dir/settings.json" ]]; then
-        cat > "$claude_dir/settings.json" << 'EOF'
-{
-  "permissions": {
-    "allow": ["Bash(*)", "Read(*)", "Write(*)", "Edit(*)", "Glob(*)", "Grep(*)", "WebFetch(*)", "WebSearch(*)"],
-    "deny": []
-  },
-  "autoUpdaterStatus": "disabled",
-  "spinnerTipsEnabled": false
-}
-EOF
-    fi
-}
-
-init_codex_config() {
-    mkdir -p "${HOME}/.codex"
-    if [[ ! -f "${HOME}/.codex/config.toml" ]]; then
-        cat > "${HOME}/.codex/config.toml" << 'EOF'
-model = "gpt-4.1"
-approval_policy = "never"
-sandbox_mode = "danger-full-access"
-
-[shell_environment_policy]
-inherit = "all"
-EOF
-    fi
-}
-
-init_gemini_config() {
-    mkdir -p "${HOME}/.gemini"
-    if [[ ! -f "${HOME}/.gemini/settings.json" ]]; then
-        cat > "${HOME}/.gemini/settings.json" << 'EOF'
-{
-  "coreTools": ["read_file", "edit_file", "write_file", "run_shell_command", "search_files", "list_directory", "web_search"],
-  "excludeTools": [],
-  "theme": "Default (Dark)",
-  "checkForUpdates": false,
-  "sandbox": false,
-  "yolo": false
-}
-EOF
-    fi
-}
-
-init_ai_cli_configs() {
-    case "${AGENT_RUNTIME}" in
-        claude-code) init_claude_config ;;
-        codex-cli|video-studio) init_codex_config ;;
-        gemini-cli) init_gemini_config ;;
-        minimax-cli) init_minimax_config ;;
-        do-agent) init_do_agent_config ;;
-        grok-build) init_grok_config ;;
-        openclaw) init_openclaw_config ;;
-        hermes) init_hermes_config ;;
-        minimax-cli|e2e-echo|loopal|aider|opencode) ;;
-    esac
-}
-
-init_grok_config() {
-    mkdir -p "${HOME}/.grok"
-}
-
-init_openclaw_config() {
-    mkdir -p "${HOME}/.openclaw"
-}
-
-init_hermes_config() {
-    mkdir -p "${HOME}/.hermes"
-}
-
-init_minimax_config() {
-    mkdir -p "${HOME}/.minimax"
-}
-
-init_do_agent_config() {
-    local settings="${HOME}/.agent/settings.json"
-    mkdir -p "${HOME}/.agent"
-    if [[ ! -f "$settings" ]]; then
-        cat > "$settings" << 'EOF'
-{
-  "model": "minimax/MiniMax-M3"
-}
-EOF
-    fi
-}
-
 create_config() {
     mkdir -p "$CONFIG_DIR"
     cat > "$CONFIG_FILE" << EOF
@@ -231,7 +89,9 @@ EOF
 }
 main() {
     wait_for_backend
-    bootstrap_runner_ssh
+    if [[ "$RUNNER_PRIVILEGED_BOOTSTRAP_DONE" != "1" ]]; then
+        bootstrap_runner_ssh
+    fi
     generate_runner_cert
     init_ai_cli_configs
     create_config
