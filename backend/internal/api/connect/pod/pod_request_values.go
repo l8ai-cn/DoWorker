@@ -5,9 +5,6 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-
-	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
-	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
 )
 
 func normalizeAlias(value *string) *string {
@@ -50,18 +47,4 @@ func optionalBool(value *bool) *bool {
 	}
 	cloned := *value
 	return &cloned
-}
-
-func knowledgeMountsFromProto(mounts []*podv1.PodKnowledgeMount) []agentpod.KnowledgeMountRequest {
-	if len(mounts) == 0 {
-		return nil
-	}
-	requests := make([]agentpod.KnowledgeMountRequest, 0, len(mounts))
-	for _, mount := range mounts {
-		requests = append(requests, agentpod.KnowledgeMountRequest{
-			Slug: mount.GetSlug(),
-			Mode: mount.GetMode(),
-		})
-	}
-	return requests
 }

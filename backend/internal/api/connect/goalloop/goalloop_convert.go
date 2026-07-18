@@ -3,7 +3,6 @@ package goalloopconnect
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/goalloop"
@@ -46,21 +45,6 @@ func toProto(loop *domain.GoalLoop) (*goalloopv1.GoalLoop, error) {
 		CreatedAt:                   loop.CreatedAt.UTC().Format(time.RFC3339),
 		UpdatedAt:                   loop.UpdatedAt.UTC().Format(time.RFC3339),
 	}, nil
-}
-
-func optionalString(value string) *string {
-	value = strings.TrimSpace(value)
-	if value == "" {
-		return nil
-	}
-	return &value
-}
-
-func optionalInt(value *int32) int {
-	if value == nil {
-		return 0
-	}
-	return int(*value)
 }
 
 func formatTime(value *time.Time) *string {

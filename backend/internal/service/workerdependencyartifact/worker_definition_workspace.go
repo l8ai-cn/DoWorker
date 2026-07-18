@@ -51,7 +51,7 @@ func validateDefinitionSecrets(
 		binding, exists := bindings[reference.Field]
 		if !exists || reference.BundleKey != binding.Target.Name {
 			return fmt.Errorf(
-				"Secret reference field %q does not match worker definition",
+					"secret reference field %q does not match worker definition",
 				reference.Field,
 			)
 		}
@@ -65,7 +65,7 @@ func validateDefinitionSecrets(
 				return fmt.Errorf("user Secret owner does not match Plan actor")
 			}
 		default:
-			return fmt.Errorf("Secret owner scope %q is invalid", reference.OwnerScope)
+			return fmt.Errorf("secret owner scope %q is invalid", reference.OwnerScope)
 		}
 	}
 	return nil

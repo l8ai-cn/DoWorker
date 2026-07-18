@@ -15,7 +15,7 @@ import (
 func (s *Server) CreateGoalLoop(
 	ctx context.Context, req *connect.Request[goalloopv1.CreateGoalLoopRequest],
 ) (*connect.Response[goalloopv1.GoalLoop], error) {
-	ctx, _, err := interceptors.ResolveOrgScope(ctx, req.Msg, s.orgSvc)
+	_, _, err := interceptors.ResolveOrgScope(ctx, req.Msg, s.orgSvc)
 	if err != nil {
 		return nil, err
 	}

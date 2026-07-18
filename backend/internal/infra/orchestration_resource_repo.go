@@ -72,7 +72,7 @@ func (repo *orchestrationResourceRepo) listEnvironmentBundleResources(
 		page, err = listOrchestrationResources(tx, scope, filter)
 		return err
 	}
-	switch repo.db.Dialector.Name() {
+	switch repo.db.Name() {
 	case "postgres":
 		err := repo.db.WithContext(ctx).Transaction(run, &sql.TxOptions{
 			Isolation: sql.LevelRepeatableRead,
