@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "worker_slug": "seedance-expert",
-  "validated_at": "2026-07-17T19:05:45+08:00",
-  "image": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b",
-  "image_id": "sha256:d06f32cc7a11ef78406ca5957bc8a1f185c6da07f19f5286976df8431ba6b67b",
+  "validated_at": "2026-07-18T08:28:08+08:00",
+  "image": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+  "image_id": "sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
   "platform": "linux/amd64",
   "checks": {
     "shared_executable": "/usr/local/bin/do-agent",

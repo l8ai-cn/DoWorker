@@ -1,15 +1,15 @@
 {
   "branch": "main",
-  "commit": "79b433d43025385f31a34e7cffb2f243b892e3ac",
+  "commit": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
   "images": {
-    "backend": "79b433d43025385f31a34e7cffb2f243b892e3ac",
-    "marketplace": "79b433d43025385f31a34e7cffb2f243b892e3ac",
-    "marketplace-web": "79b433d43025385f31a34e7cffb2f243b892e3ac",
-    "relay": "79b433d43025385f31a34e7cffb2f243b892e3ac",
-    "web": "79b433d43025385f31a34e7cffb2f243b892e3ac",
-    "web-admin": "79b433d43025385f31a34e7cffb2f243b892e3ac",
-    "mobile": "79b433d43025385f31a34e7cffb2f243b892e3ac",
-    "runner-do-agent": "79b433d43025385f31a34e7cffb2f243b892e3ac",
-    "runner-video-studio": "79b433d43025385f31a34e7cffb2f243b892e3ac"
+    "backend": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
+    "marketplace": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
+    "marketplace-web": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
+    "relay": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
+    "web": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
+    "web-admin": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
+    "mobile": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
+    "runner-do-agent": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d",
+    "runner-video-studio": "61b505bd1dcd4fb02c1d4c8bff603b59bcd36a6d"
   }
 }

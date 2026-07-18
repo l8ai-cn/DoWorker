@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "worker_slug": "video-studio",
-  "validated_at": "2026-07-17T19:05:45+08:00",
-  "image": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:06f4da6e2431639d6a4f626df7531244d08a60f83415a2737a8dd3f9fd7f23c1",
+  "validated_at": "2026-07-18T08:28:08+08:00",
+  "image": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d",
   "platform": "linux/amd64",
   "checks": {
     "local_image_inspect": "passed",
@@ -16,5 +16,5 @@
   "limits": [
     "No Runner registration, backend creation request, model credential materialization, or browser flow was executed."
   ],
-  "image_id": "sha256:06f4da6e2431639d6a4f626df7531244d08a60f83415a2737a8dd3f9fd7f23c1"
+  "image_id": "sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d"
 }
