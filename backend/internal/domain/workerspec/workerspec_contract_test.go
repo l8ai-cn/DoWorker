@@ -21,6 +21,7 @@ func TestWorkerSpecV1CanonicalContract(t *testing.T) {
 		{KnowledgeBaseID: 10, Mode: KnowledgeMountReadOnly},
 		{KnowledgeBaseID: 4, Mode: KnowledgeMountReadWrite},
 	}
+	spec.Workspace.ConfigBundleIDs = []int64{12, 5}
 	spec.Workspace.Instructions = "  Keep the review strict.  "
 	spec.Workspace.InitialTask = "\nRun the focused tests.\n"
 	spec.Metadata.Alias = "  Codex worker  "
@@ -39,6 +40,7 @@ func TestWorkerSpecV1CanonicalContract(t *testing.T) {
 		{KnowledgeBaseID: 4, Mode: KnowledgeMountReadWrite},
 		{KnowledgeBaseID: 10, Mode: KnowledgeMountReadOnly},
 	}, normalized.Workspace.KnowledgeMounts)
+	assert.Equal(t, []int64{5, 12}, normalized.Workspace.ConfigBundleIDs)
 	assert.Equal(t, "Keep the review strict.", normalized.Workspace.Instructions)
 	assert.Equal(t, "Run the focused tests.", normalized.Workspace.InitialTask)
 	assert.Equal(t, "Codex worker", normalized.Metadata.Alias)

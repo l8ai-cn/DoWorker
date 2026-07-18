@@ -1,7 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import type {
+  EffectiveResource,
+  ProviderDefinition,
+} from "@/lib/api/facade/aiResource";
 import { WorkerRuntimeStep } from "../WorkerRuntimeStep";
-import { completeDraft, createOptions } from "./test-utils";
+import {
+  completeDraft,
+  createOptions,
+  modelProvider,
+  modelResource,
+} from "./test-utils";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,

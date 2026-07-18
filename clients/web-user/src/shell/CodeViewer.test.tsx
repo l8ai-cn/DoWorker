@@ -172,3 +172,37 @@ describe("CodeViewer source search state", () => {
     expect(screen.getByPlaceholderText("Find…")).toHaveValue("needle");
   });
 });
+
+describe("CodeViewer video rendering", () => {
+  beforeEach(() => {
+    vi.stubGlobal("URL", {
+      createObjectURL: vi.fn(() => "blob:workspace-video"),
+      revokeObjectURL: vi.fn(),
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("routes an MP4 filesystem response to the video viewer", async () => {
+    render(
+      <CodeViewer
+        conversationId="conv_1"
+        path="output/clip.mp4"
+        fileQuery={makeVideoQuery()}
+        comments={[]}
+        activeSelection={null}
+        onSetActiveSelection={() => {}}
+        panelOpen={true}
+        searchOpen={false}
+        setSearchOpen={() => {}}
+        searchInputRef={noopRef}
+        viewMode="source"
+      />,
+    );
+
+    expect(await screen.findByLabelText("clip.mp4")).toHaveAttribute("src", "blob:workspace-video");
+    expect(screen.queryByText(/binary file/i)).toBeNull();
+  });
+});

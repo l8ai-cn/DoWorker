@@ -25,7 +25,16 @@ export const podApi = {
   preflightWorker: async (draft: WorkerSpecDraft) => {
     return preflightWorker(orgSlug(), draft);
   },
-  fillWorkerDraft: async (prompt: string, currentDraft?: WorkerSpecDraft) => {
-    return fillWorkerDraft(orgSlug(), prompt, currentDraft);
+  fillWorkerDraft: async (
+    prompt: string,
+    generationModelResourceId: number,
+    currentDraft?: WorkerSpecDraft,
+  ) => {
+    return fillWorkerDraft(
+      orgSlug(),
+      prompt,
+      generationModelResourceId,
+      currentDraft,
+    );
   },
 };

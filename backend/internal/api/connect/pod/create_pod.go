@@ -9,6 +9,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/api/connect/interceptors"
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	eventsv1 "github.com/anthropics/agentsmesh/proto/gen/go/events/v1"

@@ -1,6 +1,7 @@
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  FillWorkerDraftRequestSchema,
   FillWorkerDraftResponseSchema,
   ListWorkerCreateOptionsRequestSchema,
   ListWorkerCreateOptionsResponseSchema,
@@ -78,6 +79,15 @@ describe("worker creation Connect boundary", () => {
               required: true,
             }],
             selectable: true,
+            requiresModelResource: false,
+            modelProtocolAdapters: [],
+            toolModelRequirements: [{
+              role: "video-generator",
+              providerKeys: ["volcengine"],
+              protocolAdapters: ["openai-compatible"],
+              modality: "video",
+              capability: "video-generation",
+            }],
           }],
           runtimeImages: [{
             id: BigInt(12),
@@ -203,6 +213,7 @@ describe("worker creation Connect boundary", () => {
         configBundleId: BigInt(72),
       }],
       sourceExpertId: BigInt(81),
+      toolModelResourceIds: { "video-generator": BigInt(91) },
       typeConfigValuesJson: '{"temperature":0.2,"nested":{"enabled":true}}',
     });
 
@@ -218,8 +229,13 @@ describe("worker creation Connect boundary", () => {
         }),
       ),
     );
-    const filled = await fillWorkerDraft("acme", "Create a coding worker", draft);
+    const filled = await fillWorkerDraft("acme", "Create a coding worker", 77, draft);
     expect(filled.draft).toEqual({ ...draft, alias: "AI filled" });
+    const fillRequest = fromBinary(
+      FillWorkerDraftRequestSchema,
+      service.fill_worker_draft_connect.mock.calls[0][0],
+    );
+    expect(fillRequest.generationModelResourceId).toBe(BigInt(77));
 
     service.create_pod_connect.mockResolvedValue(
       toBinary(
@@ -258,7 +274,7 @@ describe("worker creation Connect boundary", () => {
         create(FillWorkerDraftResponseSchema, {}),
       ),
     );
-    await expect(fillWorkerDraft("acme", "Create worker")).rejects.toThrow(
+    await expect(fillWorkerDraft("acme", "Create worker", 77)).rejects.toThrow(
       "worker draft response is missing draft",
     );
   });
@@ -295,5 +311,6 @@ function fullDraft(): WorkerSpecDraft {
     alias: "Coding worker",
     source_expert_id: 81,
     options_revision: "rev-7",
+    tool_model_resource_ids: { "video-generator": 91 },
   };
 }

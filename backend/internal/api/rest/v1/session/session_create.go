@@ -1,6 +1,7 @@
 package sessionapi
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -78,6 +79,12 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 	}
 	layer := sessionAgentfileLayer(body.AgentID, ptyOnly, layerExtras...)
 	workspace := strings.TrimSpace(body.Workspace)
+	title := body.Title
+	if sessionTitleEmpty(title) {
+		if seeded := promptTextFromInitialItems(body.InitialItems); seeded != "" {
+			title = deriveSessionTitleFromPrompt(seeded)
+		}
+	}
 
 	orchReq := sessionCreatePodRequest(tenant.UserID, tenant.OrganizationID, body, layer, workspace)
 	orchReq.DeferRunnerDispatch = true
@@ -95,6 +102,9 @@ func (d *Deps) handleCreateSession(c *gin.Context) {
 	}
 	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
 	if err != nil {
+		if startsAssistantTurn && d.Stream != nil && d.Stream.Hub != nil {
+			d.Stream.Hub.RemoveSession(sessionID)
+		}
 		writeOrchestratorError(c, err)
 		return
 	}

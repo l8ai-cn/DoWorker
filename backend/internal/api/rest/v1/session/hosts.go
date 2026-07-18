@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	domainrunner "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
@@ -112,13 +113,16 @@ func (d *Deps) handleBindHostRunner(c *gin.Context) {
 		AgentSlug:      row.AgentSlug,
 		AgentfileLayer: layer,
 		LocalPath:      strings.TrimSpace(body.Workspace),
+		AgentSessionID: row.ID,
+		SessionProvision: &sessionDomain.ProvisionSpec{
+			ID: row.ID, ExpectedPodKey: row.PodKey, UpdateExisting: true,
+		},
 	}
-	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
+	_, err = d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
 	if err != nil {
 		writeOrchestratorError(c, err)
 		return
 	}
 	_ = d.Sessions.UpdateRunner(c.Request.Context(), row.ID, r.NodeID)
-	_ = d.Sessions.UpdatePodKey(c.Request.Context(), row.ID, result.Pod.PodKey)
 	c.JSON(http.StatusOK, gin.H{"runner_id": r.NodeID})
 }

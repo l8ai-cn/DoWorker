@@ -31,6 +31,9 @@ func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services, previewPublicOri
 	if svc.SandboxFsService != nil {
 		podOpts = append(podOpts, WithPodWorkspaceSandbox(svc.SandboxFsService))
 	}
+	if svc.SandboxFsService != nil {
+		podOpts = append(podOpts, WithPodWorkspaceSandbox(svc.SandboxFsService))
+	}
 	podHandler := NewPodHandler(svc.Pod, svc.Runner, svc.PodOrchestrator, podOpts...)
 
 	rg.POST("/quick-tasks", podHandler.CreateQuickTask)

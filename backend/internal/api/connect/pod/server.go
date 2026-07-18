@@ -19,6 +19,7 @@ import (
 	"context"
 	"time"
 
+	conversationitemdomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/grant"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/eventbus"
@@ -72,6 +73,7 @@ type WorkerDraftFiller interface {
 		context.Context,
 		specservice.Scope,
 		string,
+		int64,
 		*workercreation.Draft,
 	) (workercreation.FillResult, error)
 }

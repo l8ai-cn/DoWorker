@@ -18,6 +18,7 @@ build_do_agent_binary() {
         info "do-agent binary 已存在，跳过 Docker 编译"
         return 0
     fi
+    rm -f "$SCRIPT_DIR/do-agent-binary"
 
     local doagent_dir="${DOAGENT_DIR:-}"
     if [[ -z "$doagent_dir" ]]; then

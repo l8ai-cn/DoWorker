@@ -96,6 +96,20 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 	return nil
 }
 
+func modelRequirementsForRequest(
+	req *OrchestrateCreatePodRequest,
+	agentDef *agentDomain.Agent,
+) (resourcesvc.ResolutionRequirements, bool) {
+	if req != nil && req.preparedWorkerSpec != nil {
+		binding := req.preparedWorkerSpec.Runtime.ModelBinding
+		if binding.IsEmpty() {
+			return resourcesvc.ResolutionRequirements{}, false
+		}
+		return chatRequirements(binding.ProtocolAdapter.String()), true
+	}
+	return modelResourceRequirements(req.AgentSlug, agentDef)
+}
+
 func validatePreparedModelBinding(
 	expected specdomain.ModelBinding,
 	resolved *resourcesvc.ResolvedResource,

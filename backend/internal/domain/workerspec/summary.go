@@ -71,6 +71,9 @@ func validateSummary(
 	if err := validateToolModelBindings(summary.ToolModelBindings); err != nil {
 		return fmt.Errorf("workerspec summary: %w", err)
 	}
+	if err := validateToolModelBindings(summary.ToolModelBindings); err != nil {
+		return fmt.Errorf("workerspec summary: %w", err)
+	}
 	if err := validateWorkerType(summary.WorkerType); err != nil {
 		return err
 	}

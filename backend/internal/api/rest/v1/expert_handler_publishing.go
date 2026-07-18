@@ -9,6 +9,7 @@ import (
 	expertdom "github.com/anthropics/agentsmesh/backend/internal/domain/expert"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/expertmarket"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
+	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	expertSvc "github.com/anthropics/agentsmesh/backend/internal/service/expert"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
@@ -35,15 +36,7 @@ func (h *ExpertHandler) RunExpert(c *gin.Context) {
 		},
 	)
 	if err != nil {
-		if errors.Is(err, expertSvc.ErrExpertRepublishRequired) {
-			apierr.Conflict(
-				c,
-				apierr.EXPERT_REPUBLISH_REQUIRED,
-				"Expert must be republished from a WorkerSpec-backed Pod",
-			)
-			return
-		}
-		mapOrchestratorErrorToHTTP(c, err)
+		h.runError(c, err)
 		return
 	}
 	if result.Warning != "" {
@@ -54,6 +47,28 @@ func (h *ExpertHandler) RunExpert(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"pod": result.Pod})
+}
+
+func (h *ExpertHandler) runError(c *gin.Context, err error) {
+	switch {
+	case errors.Is(err, expertSvc.ErrExpertRepublishRequired),
+		errors.Is(err, expertSvc.ErrWorkerSpecSnapshotMismatch),
+		errors.Is(err, agentpodSvc.ErrWorkerSpecSnapshotMismatch):
+		apierr.Conflict(
+			c,
+			apierr.EXPERT_REPUBLISH_REQUIRED,
+			"Expert must be republished from a valid WorkerSpec-backed Pod",
+		)
+	case errors.Is(err, expertSvc.ErrWorkerSpecSnapshotUnavailable),
+		errors.Is(err, agentpodSvc.ErrWorkerSpecSnapshotUnavailable):
+		apierr.ServiceUnavailable(
+			c,
+			apierr.SERVICE_UNAVAILABLE,
+			"WorkerSpec snapshot service is unavailable",
+		)
+	default:
+		mapOrchestratorErrorToHTTP(c, err)
+	}
 }
 
 func (h *ExpertHandler) PublishFromPod(c *gin.Context) {

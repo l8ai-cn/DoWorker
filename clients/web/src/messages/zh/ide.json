@@ -402,7 +402,7 @@
     },
     "typeChange": {
       "title": "切换 Worker 类型？",
-      "description": "当前类型专属的模型、镜像、配置、Skill 和环境选择将被清空。",
+      "description": "当前类型专属的主模型、工具模型、镜像、配置、Skill 和环境选择将被清空。",
       "cancel": "保留当前类型",
       "confirm": "切换类型"
     },

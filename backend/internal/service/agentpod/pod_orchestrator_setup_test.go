@@ -227,6 +227,7 @@ VALUES (?, ?, 1, ?, 'online', 0)
 		slug TEXT,
 		name TEXT,
 		launch_command TEXT,
+		adapter_id TEXT NOT NULL DEFAULT '',
 		description TEXT,
 		config_schema TEXT DEFAULT '{}',
 		agentfile_source TEXT,

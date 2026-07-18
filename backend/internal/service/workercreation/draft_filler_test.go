@@ -9,6 +9,7 @@ import (
 	resourcedomain "github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	resourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -32,6 +33,7 @@ func TestDraftFillerAppliesAllowedPatchAndPreflights(t *testing.T) {
 		context.Background(),
 		specservice.Scope{OrgID: 77, UserID: 7},
 		"Create a cautious review worker",
+		101,
 		&current,
 	)
 
@@ -77,6 +79,7 @@ func TestDraftFillerRejectsUntrustedOutputShape(t *testing.T) {
 				context.Background(),
 				specservice.Scope{OrgID: 77, UserID: 7},
 				"Fill the worker",
+				101,
 				&current,
 			)
 
@@ -94,6 +97,7 @@ func TestDraftFillerReturnsPreflightIssuesForInvalidPatch(t *testing.T) {
 		context.Background(),
 		specservice.Scope{OrgID: 77, UserID: 7},
 		"Stop when idle",
+		101,
 		&current,
 	)
 
@@ -104,6 +108,35 @@ func TestDraftFillerReturnsPreflightIssuesForInvalidPatch(t *testing.T) {
 	assert.Zero(t, result.Draft.WorkerSpec.Lifecycle.IdleTimeoutMinutes)
 }
 
+func TestDraftFillerUsesSeparateGenerationModelForWorkerWithoutMainModel(t *testing.T) {
+	fixture := newWorkerCreationServiceFixture()
+	definition := fixture.definitions["codex-cli"]
+	definition.ModelRequirement = workerdefinition.ModelRequirement{}
+	definition.CredentialBindings = nil
+	fixture.definitions["codex-cli"] = definition
+	generator := &recordingDraftJSONGenerator{output: []byte(`{"alias":"cursor-worker"}`)}
+	filler := NewDraftFiller(NewService(fixture.deps()), fixture.resources, generator)
+	current := validWorkerCreationDraft()
+	current.WorkerSpec.ModelResourceID = 0
+	current.WorkerSpec.TypeConfig.Values = map[string]any{}
+	current.WorkerSpec.TypeConfig.SecretRefs = map[string]specdomain.SecretReference{}
+	current.WorkerSpec.TypeConfig.InteractionMode = specdomain.InteractionModeACP
+
+	result, err := filler.Fill(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		"Configure Cursor",
+		101,
+		&current,
+	)
+
+	require.NoError(t, err)
+	assert.Zero(t, result.Draft.WorkerSpec.ModelResourceID)
+	assert.Equal(t, "cursor-worker", result.Draft.WorkerSpec.Metadata.Alias)
+	require.NotNil(t, generator.resource)
+	assert.Equal(t, int64(101), generator.resource.Resource.ID)
+}
+
 func TestDraftFillerRequiresCurrentDraftAndPropagatesGeneratorFailure(t *testing.T) {
 	_, _, filler := newDraftFillerFixture(`{}`)
 
@@ -111,6 +144,7 @@ func TestDraftFillerRequiresCurrentDraftAndPropagatesGeneratorFailure(t *testing
 		context.Background(),
 		specservice.Scope{OrgID: 77, UserID: 7},
 		"Fill the worker",
+		101,
 		nil,
 	)
 	require.Error(t, err)
@@ -123,6 +157,7 @@ func TestDraftFillerRequiresCurrentDraftAndPropagatesGeneratorFailure(t *testing
 		context.Background(),
 		specservice.Scope{OrgID: 77, UserID: 7},
 		"Fill the worker",
+		101,
 		&current,
 	)
 	assert.ErrorContains(t, err, "provider unavailable")

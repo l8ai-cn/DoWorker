@@ -126,6 +126,7 @@ func (s *Server) FillWorkerDraft(
 		ctx,
 		specservice.Scope{OrgID: tenant.OrganizationID, UserID: tenant.UserID},
 		prompt,
+		req.Msg.GetGenerationModelResourceId(),
 		current,
 	)
 	if err != nil {

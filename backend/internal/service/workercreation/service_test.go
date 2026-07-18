@@ -2,6 +2,7 @@ package workercreation
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
@@ -144,6 +145,10 @@ func TestServiceValidateWorkerTypeSnapshotRejectsDefinitionDrift(t *testing.T) {
 	require.NoError(t, err)
 	source := *fixture.agents.agent.AgentfileSource + "MCP ON\n"
 	fixture.agents.agent.AgentfileSource = &source
+	definition := fixture.definitions["codex-cli"]
+	definition.AgentFile = source
+	definition.DefinitionHash = strings.Repeat("b", 64)
+	fixture.definitions["codex-cli"] = definition
 
 	err = service.ValidateWorkerTypeSnapshot(
 		context.Background(),
@@ -167,6 +172,7 @@ EXECUTABLE codex
 CONFIG approval_mode SELECT("untrusted", "on-request", "never") = "on-request"
 ENV SIGNING_KEY SECRET OPTIONAL
 `
+	agent := activeWorkerTypeAgent(source)
 	return &workerCreationServiceFixture{
 		agents: &workerTypeAgentProvider{agent: activeWorkerTypeAgent(source)},
 		definitions: staticWorkerDefinitions{

@@ -65,11 +65,15 @@ func (p *SessionStreamPublisher) PublishElicitationResolved(sessionID, elicitID 
 	}))
 }
 
-func (p *SessionStreamPublisher) HandleAcpSession(ctx context.Context, podKey, eventType, payloadJSON string) {
+func (p *SessionStreamPublisher) HandleAcpSession(
+	ctx context.Context,
+	runnerID int64,
+	podKey, eventType, payloadJSON string,
+) {
 	if p == nil || p.Hub == nil {
 		return
 	}
-	sessionID, ok := p.sessionForPod(ctx, podKey)
+	sessionID, ok := p.sessionForRunnerPod(ctx, runnerID, podKey)
 	if !ok {
 		slog.Debug("session stream: drop acp event, no session for pod", "pod_key", podKey, "event", eventType)
 		return
@@ -133,8 +137,15 @@ func (p *SessionStreamPublisher) PublishPodStatus(ctx context.Context, podKey, p
 	}
 }
 
-func (p *SessionStreamPublisher) HandlePodUsage(ctx context.Context, evt *runnerv1.PodUsageEvent) {
+func (p *SessionStreamPublisher) HandlePodUsage(
+	ctx context.Context,
+	runnerID int64,
+	evt *runnerv1.PodUsageEvent,
+) {
 	if p == nil || evt == nil || evt.GetPodKey() == "" || p.Usage == nil {
+		return
+	}
+	if !p.runnerOwnsPod(ctx, runnerID, evt.GetPodKey()) {
 		return
 	}
 	_ = p.Usage.Upsert(ctx, evt.GetPodKey(), evt.GetModel(),
@@ -161,8 +172,15 @@ func (p *SessionStreamPublisher) HandlePodUsage(ctx context.Context, evt *runner
 	p.Hub.Publish(sessionID, formatSSE(sseSessionUsage, payload))
 }
 
-func (p *SessionStreamPublisher) UpdateExternalSessionID(ctx context.Context, podKey, externalID string) {
+func (p *SessionStreamPublisher) UpdateExternalSessionID(
+	ctx context.Context,
+	runnerID int64,
+	podKey, externalID string,
+) {
 	if p == nil || p.Pods == nil || podKey == "" || externalID == "" {
+		return
+	}
+	if !p.runnerOwnsPod(ctx, runnerID, podKey) {
 		return
 	}
 	_ = p.Pods.UpdateExternalSessionID(ctx, podKey, externalID)

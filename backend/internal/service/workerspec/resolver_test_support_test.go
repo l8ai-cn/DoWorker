@@ -52,6 +52,10 @@ func newResolverPortsForTest() *resolverPortsForTest {
 					"signing-key": {Kind: domain.TypeFieldSecret},
 				},
 			},
+			ModelRequirement: domain.ModelRequirement{
+				Required:         true,
+				ProtocolAdapters: []slugkit.Slug{mustSlugForTest("openai-compatible")},
+			},
 		},
 		runtime: validResolvedRuntimeForTest(),
 		modelBinding: domain.ModelBinding{
@@ -100,6 +104,19 @@ func (ports *resolverPortsForTest) ResolveWorkerType(
 		return WorkerTypeResolution{}, err
 	}
 	return ports.workerType, nil
+}
+
+func (ports *resolverPortsForTest) ResolveToolModel(
+	_ context.Context,
+	scope Scope,
+	_ domain.ToolModelRequirement,
+	resourceID int64,
+) (domain.ToolModelBinding, error) {
+	ports.toolModelResourceID = resourceID
+	if err := ports.record("tool-model", scope); err != nil {
+		return domain.ToolModelBinding{}, err
+	}
+	return ports.toolModelBinding, nil
 }
 
 func (ports *resolverPortsForTest) ResolveRuntime(

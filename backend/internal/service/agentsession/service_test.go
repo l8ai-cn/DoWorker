@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	domain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
+	itemDomain "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
 	svc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -17,6 +18,7 @@ func testDB(t *testing.T) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&domain.Session{}))
+	require.NoError(t, db.AutoMigrate(&itemDomain.Item{}))
 	return db
 }
 

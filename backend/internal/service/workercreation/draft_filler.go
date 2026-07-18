@@ -41,6 +41,7 @@ func (filler *DraftFiller) Fill(
 	ctx context.Context,
 	scope specservice.Scope,
 	prompt string,
+	generationModelResourceID int64,
 	current *Draft,
 ) (FillResult, error) {
 	if filler == nil || filler.service == nil || filler.resources == nil ||
@@ -126,7 +127,7 @@ func (filler *DraftFiller) resolveModelResource(
 	resourceID := current.WorkerSpec.ModelResourceID
 	if resourceID <= 0 {
 		return nil, invalidFillField(
-			"worker_spec.model_resource_id",
+			"generation_model_resource_id",
 			"must be positive",
 		)
 	}
@@ -157,11 +158,22 @@ func (filler *DraftFiller) resolveModelResource(
 	if resolved.Provider.Key != resolved.Connection.ProviderKey {
 		return nil, invalidResolvedModel("provider definition does not match connection")
 	}
-	if len(requirements.AllowedProtocolAdapters) != 1 ||
-		resolved.Provider.ProtocolAdapter != requirements.AllowedProtocolAdapters[0] {
+	if !containsString(
+		requirements.AllowedProtocolAdapters,
+		resolved.Provider.ProtocolAdapter,
+	) {
 		return nil, invalidResolvedModel("provider protocol was substituted")
 	}
 	return resolved, nil
+}
+
+func containsString(values []string, wanted string) bool {
+	for _, value := range values {
+		if value == wanted {
+			return true
+		}
+	}
+	return false
 }
 
 func invalidFillField(field, reason string) error {

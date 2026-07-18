@@ -1,7 +1,12 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useWorkerCreateDraft } from "../../hooks/useWorkerCreateDraft";
-import { createOptions, mockRepository, modelResource } from "./test-utils";
+import {
+  createOptions,
+  mockRepository,
+  modelProvider,
+  modelResource,
+} from "./test-utils";
 
 const mockPreflight = vi.fn();
 const mockCreate = vi.fn();

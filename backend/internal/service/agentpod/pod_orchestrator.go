@@ -7,6 +7,7 @@ import (
 	"github.com/anthropics/agentsmesh/agentfile"
 	agentDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
@@ -32,6 +33,10 @@ var (
 	ErrConfigBuildFailed                = errors.New("failed to build pod configuration")
 	ErrInvalidAgentfileLayer            = errors.New("invalid agentfile layer")
 	ErrRunnerDispatchFailed             = errors.New("failed to dispatch pod to runner")
+	ErrSessionProvisionerUnavailable    = errors.New("agent session provisioner is not configured")
+	ErrSessionProvisionFailed           = errors.New("failed to provision agent session")
+	ErrSessionPreparationFailed         = errors.New("failed to prepare agent session")
+	ErrSessionRollbackFailed            = errors.New("failed to roll back agent session")
 	ErrUnsupportedInteractionMode       = errors.New("agent type does not support the requested interaction mode")
 	ErrMissingModelResource             = errors.New("model_resource_id is required for this agent")
 	ErrModelResourceResolverUnavailable = errors.New("model resource resolver is not configured")
@@ -43,6 +48,7 @@ var (
 const (
 	errCodeRunnerUnreachable = "RUNNER_UNREACHABLE"
 	errCodeQueueFull         = "QUEUE_FULL"
+	errCodeSessionProvision  = "SESSION_PROVISION_FAILED"
 )
 
 type PodCoordinatorForOrchestrator interface {
@@ -82,6 +88,15 @@ type AgentResolverForOrchestrator interface {
 	GetAgent(ctx context.Context, slug string) (*agentDomain.Agent, error)
 }
 
+type AgentSessionProvisioner interface {
+	PrepareForPod(
+		ctx context.Context,
+		pod *podDomain.Pod,
+		spec sessionDomain.ProvisionSpec,
+	) (*sessionDomain.ProvisionReceipt, error)
+	RollbackProvision(ctx context.Context, receipt *sessionDomain.ProvisionReceipt) error
+}
+
 type UserConfigQueryForOrchestrator interface {
 	GetUserConfigPrefs(ctx context.Context, userID int64, agentSlug string) map[string]interface{}
 }
@@ -93,44 +108,46 @@ type KnowledgeBaseResolverForOrchestrator interface {
 }
 
 type PodOrchestratorDeps struct {
-	PodService       *PodService
-	ConfigBuilder    *agent.ConfigBuilder
-	PodCoordinator   PodCoordinatorForOrchestrator
-	BillingService   BillingServiceForOrchestrator
-	UserService      UserServiceForOrchestrator
-	RepoService      RepositoryServiceForOrchestrator
-	TicketService    TicketServiceForOrchestrator
-	RunnerSelector   RunnerSelectorForOrchestrator
-	AgentResolver    AgentResolverForOrchestrator
-	RunnerQuery      RunnerQueryForOrchestrator
-	UserConfigQuery  UserConfigQueryForOrchestrator
-	PodRepo          podDomain.PodRepository
-	PermissionPolicy *permissionpolicysvc.Service
-	KnowledgeBases   KnowledgeBaseResolverForOrchestrator
-	ModelResources   ModelResourceResolver
-	WorkerCreation   WorkerCreationPreparer
-	WorkerSpecs      WorkerSpecSnapshotLoader
+	PodService         *PodService
+	ConfigBuilder      *agent.ConfigBuilder
+	PodCoordinator     PodCoordinatorForOrchestrator
+	BillingService     BillingServiceForOrchestrator
+	UserService        UserServiceForOrchestrator
+	RepoService        RepositoryServiceForOrchestrator
+	TicketService      TicketServiceForOrchestrator
+	RunnerSelector     RunnerSelectorForOrchestrator
+	AgentResolver      AgentResolverForOrchestrator
+	RunnerQuery        RunnerQueryForOrchestrator
+	UserConfigQuery    UserConfigQueryForOrchestrator
+	PodRepo            podDomain.PodRepository
+	PermissionPolicy   *permissionpolicysvc.Service
+	KnowledgeBases     KnowledgeBaseResolverForOrchestrator
+	ModelResources     ModelResourceResolver
+	WorkerCreation     WorkerCreationPreparer
+	WorkerSpecs        WorkerSpecSnapshotLoader
+	SessionProvisioner AgentSessionProvisioner
 }
 
 type PodOrchestrator struct {
-	podService       *PodService
-	configBuilder    *agent.ConfigBuilder
-	podCoordinator   PodCoordinatorForOrchestrator
-	billingService   BillingServiceForOrchestrator
-	userService      UserServiceForOrchestrator
-	repoService      RepositoryServiceForOrchestrator
-	ticketService    TicketServiceForOrchestrator
-	runnerSelector   RunnerSelectorForOrchestrator
-	agentResolver    AgentResolverForOrchestrator
-	runnerQuery      RunnerQueryForOrchestrator
-	userConfigQuery  UserConfigQueryForOrchestrator
-	podRepo          podDomain.PodRepository
-	permissionPolicy *permissionpolicysvc.Service
-	knowledgeBases   KnowledgeBaseResolverForOrchestrator
-	modelResources   ModelResourceResolver
-	workerCreation   WorkerCreationPreparer
-	workerSnapshots  WorkerSnapshotPreparer
-	workerSpecs      WorkerSpecSnapshotLoader
+	podService         *PodService
+	configBuilder      *agent.ConfigBuilder
+	podCoordinator     PodCoordinatorForOrchestrator
+	billingService     BillingServiceForOrchestrator
+	userService        UserServiceForOrchestrator
+	repoService        RepositoryServiceForOrchestrator
+	ticketService      TicketServiceForOrchestrator
+	runnerSelector     RunnerSelectorForOrchestrator
+	agentResolver      AgentResolverForOrchestrator
+	runnerQuery        RunnerQueryForOrchestrator
+	userConfigQuery    UserConfigQueryForOrchestrator
+	podRepo            podDomain.PodRepository
+	permissionPolicy   *permissionpolicysvc.Service
+	knowledgeBases     KnowledgeBaseResolverForOrchestrator
+	modelResources     ModelResourceResolver
+	workerCreation     WorkerCreationPreparer
+	workerSnapshots    WorkerSnapshotPreparer
+	workerSpecs        WorkerSpecSnapshotLoader
+	sessionProvisioner AgentSessionProvisioner
 }
 
 type agentfileResolved struct {
@@ -147,23 +164,24 @@ type agentfileResolved struct {
 func NewPodOrchestrator(deps *PodOrchestratorDeps) *PodOrchestrator {
 	workerSnapshots, _ := deps.WorkerCreation.(WorkerSnapshotPreparer)
 	return &PodOrchestrator{
-		podService:       deps.PodService,
-		configBuilder:    deps.ConfigBuilder,
-		podCoordinator:   deps.PodCoordinator,
-		billingService:   deps.BillingService,
-		userService:      deps.UserService,
-		repoService:      deps.RepoService,
-		ticketService:    deps.TicketService,
-		runnerSelector:   deps.RunnerSelector,
-		agentResolver:    deps.AgentResolver,
-		runnerQuery:      deps.RunnerQuery,
-		userConfigQuery:  deps.UserConfigQuery,
-		podRepo:          deps.PodRepo,
-		permissionPolicy: deps.PermissionPolicy,
-		knowledgeBases:   deps.KnowledgeBases,
-		modelResources:   deps.ModelResources,
-		workerCreation:   deps.WorkerCreation,
-		workerSnapshots:  workerSnapshots,
-		workerSpecs:      deps.WorkerSpecs,
+		podService:         deps.PodService,
+		configBuilder:      deps.ConfigBuilder,
+		podCoordinator:     deps.PodCoordinator,
+		billingService:     deps.BillingService,
+		userService:        deps.UserService,
+		repoService:        deps.RepoService,
+		ticketService:      deps.TicketService,
+		runnerSelector:     deps.RunnerSelector,
+		agentResolver:      deps.AgentResolver,
+		runnerQuery:        deps.RunnerQuery,
+		userConfigQuery:    deps.UserConfigQuery,
+		podRepo:            deps.PodRepo,
+		permissionPolicy:   deps.PermissionPolicy,
+		knowledgeBases:     deps.KnowledgeBases,
+		modelResources:     deps.ModelResources,
+		workerCreation:     deps.WorkerCreation,
+		workerSnapshots:    workerSnapshots,
+		workerSpecs:        deps.WorkerSpecs,
+		sessionProvisioner: deps.SessionProvisioner,
 	}
 }

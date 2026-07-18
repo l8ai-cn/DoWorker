@@ -14,10 +14,10 @@ type PodUpdater interface {
 
 // PodEventSink receives runner-originated events for agent session streaming.
 type PodEventSink interface {
-	HandleAcpSession(ctx context.Context, podKey, eventType, payloadJSON string)
+	HandleAcpSession(ctx context.Context, runnerID int64, podKey, eventType, payloadJSON string)
 	PublishPodStatus(ctx context.Context, podKey, podStatus, agentStatus string)
-	HandlePodUsage(ctx context.Context, evt *runnerv1.PodUsageEvent)
-	UpdateExternalSessionID(ctx context.Context, podKey, externalID string)
+	HandlePodUsage(ctx context.Context, runnerID int64, evt *runnerv1.PodUsageEvent)
+	UpdateExternalSessionID(ctx context.Context, runnerID int64, podKey, externalID string)
 }
 
 var _ PodEventSink = (*SessionStreamPublisher)(nil)

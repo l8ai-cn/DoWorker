@@ -14,6 +14,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	agentpodservice "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	billingservice "github.com/anthropics/agentsmesh/backend/internal/service/billing"
 	runner "github.com/anthropics/agentsmesh/backend/internal/service/runner"
 	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
@@ -143,6 +144,7 @@ func TestMapServiceError(t *testing.T) {
 		{"missing_model_resource", agentpodservice.ErrMissingModelResource, connect.CodeInvalidArgument},
 		{"model_resource_env_conflict", agentpodservice.ErrModelResourceEnvConflict, connect.CodeInvalidArgument},
 		{"model_resource_command_conflict", agentpodservice.ErrModelResourceCommandConflict, connect.CodeInvalidArgument},
+		{"model_resource_disabled", airesourceservice.ErrDisabled, connect.CodeInvalidArgument},
 		{"model_resource_resolver_unavailable", agentpodservice.ErrModelResourceResolverUnavailable, connect.CodeInternal},
 		{"create_resource_unavailable", agentpodservice.ErrCreateResourceUnavailable, connect.CodeInvalidArgument},
 		{"quota_exceeded", billingservice.ErrQuotaExceeded, connect.CodeResourceExhausted},

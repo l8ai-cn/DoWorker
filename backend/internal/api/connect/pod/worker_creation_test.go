@@ -233,9 +233,10 @@ func TestFillWorkerDraftUsesInjectedFiller(t *testing.T) {
 	response, err := server.FillWorkerDraft(
 		ctxAsUser(42),
 		connect.NewRequest(&podv1.FillWorkerDraftRequest{
-			OrgSlug:      "acme",
-			Prompt:       "Build a review worker",
-			CurrentDraft: completeWorkerDraftProto(),
+			OrgSlug:                   "acme",
+			Prompt:                    "Build a review worker",
+			CurrentDraft:              completeWorkerDraftProto(),
+			GenerationModelResourceId: 101,
 		}),
 	)
 
@@ -245,6 +246,7 @@ func TestFillWorkerDraftUsesInjectedFiller(t *testing.T) {
 	require.Len(t, response.Msg.Issues, 1)
 	assert.Equal(t, "warning", response.Msg.Issues[0].Severity)
 	assert.Equal(t, "Build a review worker", filler.prompt)
+	assert.Equal(t, int64(101), filler.generationModelResourceID)
 	assert.Equal(t, specservice.Scope{OrgID: 7, UserID: 42}, filler.scope)
 	require.NotNil(t, filler.current)
 }
@@ -319,21 +321,24 @@ func (service *fakeWorkerCreationAPI) Preflight(
 }
 
 type fakeWorkerDraftFiller struct {
-	result  workercreation.FillResult
-	err     error
-	scope   specservice.Scope
-	prompt  string
-	current *workercreation.Draft
+	result                    workercreation.FillResult
+	err                       error
+	scope                     specservice.Scope
+	prompt                    string
+	generationModelResourceID int64
+	current                   *workercreation.Draft
 }
 
 func (filler *fakeWorkerDraftFiller) Fill(
 	_ context.Context,
 	scope specservice.Scope,
 	prompt string,
+	generationModelResourceID int64,
 	current *workercreation.Draft,
 ) (workercreation.FillResult, error) {
 	filler.scope = scope
 	filler.prompt = prompt
+	filler.generationModelResourceID = generationModelResourceID
 	filler.current = current
 	return filler.result, filler.err
 }

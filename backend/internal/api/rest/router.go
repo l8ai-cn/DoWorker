@@ -11,7 +11,6 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/v1/webhooks"
 	"github.com/anthropics/agentsmesh/backend/internal/config"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
-	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
 	commentsvc "github.com/anthropics/agentsmesh/backend/internal/service/sessioncomment"

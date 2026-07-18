@@ -2,6 +2,7 @@ package sessionapi
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
@@ -42,7 +43,161 @@ func TestMapSessionStatusDelegates(t *testing.T) {
 func TestHandleAcpSessionIdleFinalizesBuffer(t *testing.T) {
 	hub := NewSessionHub()
 	p := &SessionStreamPublisher{Hub: hub, Sessions: nil}
-	p.HandleAcpSession(context.Background(), "missing-pod", "sessionState", `{"state":"idle"}`)
+	p.HandleAcpSession(context.Background(), 9, "missing-pod", "sessionState", `{"state":"idle"}`)
+}
+
+type runnerOwnedPodLookup struct {
+	pod             *podDomain.Pod
+	err             error
+	updatedExternal string
+	updatedPodKey   string
+}
+
+func (f *runnerOwnedPodLookup) GetByKeyAndRunner(
+	_ context.Context,
+	podKey string,
+	runnerID int64,
+) (*podDomain.Pod, error) {
+	if f.err != nil {
+		return nil, f.err
+	}
+	if f.pod == nil || f.pod.PodKey != podKey || f.pod.RunnerID != runnerID {
+		return nil, errors.New("pod not owned by runner")
+	}
+	return f.pod, nil
+}
+
+func (f *runnerOwnedPodLookup) UpdateExternalSessionID(
+	_ context.Context,
+	podKey, externalID string,
+) error {
+	f.updatedPodKey = podKey
+	f.updatedExternal = externalID
+	return nil
+}
+
+func TestHandleAcpSessionPersistsForOwningRunner(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(t.TempDir()+"/worker-session.db"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&sessionDomain.Session{}, &itemDomain.Item{}))
+	session := &sessionDomain.Session{
+		ID: "conv_seedance", OrganizationID: 3, UserID: 7,
+		PodKey: "7-standalone-caa70224", AgentSlug: "seedance-expert", Status: "idle",
+	}
+	publisher := NewSessionStreamPublisher(
+		NewSessionHub(),
+		itemsvc.NewService(db),
+		sessionsvc.NewService(db),
+		nil,
+	)
+	publisher.Pods = &runnerOwnedPodLookup{pod: &podDomain.Pod{
+		PodKey:   session.PodKey,
+		RunnerID: 35,
+	}}
+	require.NoError(t, publisher.Sessions.Create(context.Background(), session))
+
+	publisher.HandleAcpSession(
+		context.Background(),
+		35,
+		session.PodKey,
+		"contentChunk",
+		`{"role":"assistant","text":"credentials verified"}`,
+	)
+	publisher.HandleAcpSession(
+		context.Background(),
+		35,
+		session.PodKey,
+		"sessionState",
+		`{"state":"idle"}`,
+	)
+
+	persisted, err := publisher.Sessions.GetByPodKey(context.Background(), session.PodKey)
+	require.NoError(t, err)
+	require.Equal(t, session.ID, persisted.ID)
+	page, err := publisher.Items.ListPage(context.Background(), session.ID, 20, "", false)
+	require.NoError(t, err)
+	require.Len(t, page.Items, 1)
+	require.Contains(t, string(page.Items[0].Payload), "credentials verified")
+}
+
+func TestHandleAcpSessionRejectsEventFromWrongRunner(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(t.TempDir()+"/worker-session.db"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&sessionDomain.Session{}, &itemDomain.Item{}))
+	session := &sessionDomain.Session{
+		ID: "conv_seedance", OrganizationID: 3, UserID: 7,
+		PodKey: "7-standalone-caa70224", AgentSlug: "seedance-expert", Status: "idle",
+	}
+	publisher := NewSessionStreamPublisher(
+		NewSessionHub(),
+		itemsvc.NewService(db),
+		sessionsvc.NewService(db),
+		nil,
+	)
+	publisher.Pods = &runnerOwnedPodLookup{pod: &podDomain.Pod{
+		PodKey:   session.PodKey,
+		RunnerID: 35,
+	}}
+	require.NoError(t, publisher.Sessions.Create(context.Background(), session))
+
+	publisher.HandleAcpSession(
+		context.Background(),
+		99,
+		session.PodKey,
+		"contentChunk",
+		`{"role":"assistant","text":"must not persist"}`,
+	)
+	publisher.HandleAcpSession(
+		context.Background(),
+		99,
+		session.PodKey,
+		"sessionState",
+		`{"state":"idle"}`,
+	)
+
+	page, err := publisher.Items.ListPage(context.Background(), session.ID, 20, "", false)
+	require.NoError(t, err)
+	require.Empty(t, page.Items)
+}
+
+func TestHandlePodUsageRejectsEventFromWrongRunner(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(t.TempDir()+"/worker-usage.db"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&sessionusagesvc.Row{}))
+	lookup := &runnerOwnedPodLookup{pod: &podDomain.Pod{
+		PodKey: "7-standalone-caa70224", RunnerID: 35,
+	}}
+	publisher := &SessionStreamPublisher{
+		Usage: sessionusagesvc.NewService(db),
+		Pods:  lookup,
+	}
+
+	publisher.HandlePodUsage(context.Background(), 99, &runnerv1.PodUsageEvent{
+		PodKey: "7-standalone-caa70224", Model: "doubao-seed-1-8-251228",
+		InputTokens: 100, OutputTokens: 20,
+	})
+
+	var count int64
+	require.NoError(t, db.Model(&sessionusagesvc.Row{}).Count(&count).Error)
+	require.Zero(t, count)
+}
+
+func TestUpdateExternalSessionIDRejectsEventFromWrongRunner(t *testing.T) {
+	lookup := &runnerOwnedPodLookup{pod: &podDomain.Pod{
+		PodKey: "7-standalone-caa70224", RunnerID: 35,
+	}}
+	publisher := &SessionStreamPublisher{Pods: lookup}
+
+	publisher.UpdateExternalSessionID(
+		context.Background(), 99, "7-standalone-caa70224", "forged-session",
+	)
+	require.Empty(t, lookup.updatedExternal)
+
+	publisher.UpdateExternalSessionID(
+		context.Background(), 35, "7-standalone-caa70224", "ark-session",
+	)
+	require.Equal(t, "7-standalone-caa70224", lookup.updatedPodKey)
+	require.Equal(t, "ark-session", lookup.updatedExternal)
 }
 
 func TestHandleAcpSessionCreatesMissingSessionBeforePersistingResult(t *testing.T) {

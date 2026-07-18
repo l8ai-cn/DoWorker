@@ -43,6 +43,15 @@ func TestDatabaseConfig_DSN(t *testing.T) {
 	})
 }
 
+func TestLoadWorkerDefinitionsDir(t *testing.T) {
+	t.Setenv("WORKER_DEFINITIONS_DIR", "/tmp/worker-definitions")
+
+	cfg, err := Load()
+
+	require.NoError(t, err)
+	assert.Equal(t, "/tmp/worker-definitions", cfg.WorkerDefinitionsDir)
+}
+
 func TestDatabaseConfig_HasReplicas(t *testing.T) {
 	t.Run("should return true when replicas configured", func(t *testing.T) {
 		cfg := DatabaseConfig{

@@ -379,6 +379,43 @@ export const WorkerToolModelRequirementSchema: GenMessage<WorkerToolModelRequire
   messageDesc(file_pod_v1_worker_creation, 7);
 
 /**
+ * @generated from message proto.pod.v1.WorkerToolModelRequirement
+ */
+export type WorkerToolModelRequirement = Message<"proto.pod.v1.WorkerToolModelRequirement"> & {
+  /**
+   * @generated from field: string role = 1;
+   */
+  role: string;
+
+  /**
+   * @generated from field: repeated string provider_keys = 2;
+   */
+  providerKeys: string[];
+
+  /**
+   * @generated from field: repeated string protocol_adapters = 3;
+   */
+  protocolAdapters: string[];
+
+  /**
+   * @generated from field: string modality = 4;
+   */
+  modality: string;
+
+  /**
+   * @generated from field: string capability = 5;
+   */
+  capability: string;
+};
+
+/**
+ * Describes the message proto.pod.v1.WorkerToolModelRequirement.
+ * Use `create(WorkerToolModelRequirementSchema)` to create a new message.
+ */
+export const WorkerToolModelRequirementSchema: GenMessage<WorkerToolModelRequirement> = /*@__PURE__*/
+  messageDesc(file_pod_v1_worker_creation, 3);
+
+/**
  * @generated from message proto.pod.v1.WorkerTypeOption
  */
 export type WorkerTypeOption = Message<"proto.pod.v1.WorkerTypeOption"> & {
@@ -841,6 +878,11 @@ export type FillWorkerDraftRequest = Message<"proto.pod.v1.FillWorkerDraftReques
    * @generated from field: optional proto.pod.v1.WorkerSpecDraft current_draft = 3;
    */
   currentDraft?: WorkerSpecDraft | undefined;
+
+  /**
+   * @generated from field: int64 generation_model_resource_id = 4;
+   */
+  generationModelResourceId: bigint;
 };
 
 /**

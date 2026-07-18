@@ -12,6 +12,7 @@ import type { GoalLoopData } from "@/lib/viewModels/goal-loop";
 
 export function GoalLoopPage({ orgSlug }: { orgSlug: string }) {
   const [loops, setLoops] = useState<GoalLoopData[]>([]);
+  const [workerSnapshots, setWorkerSnapshots] = useState<GoalLoopWorkerSnapshot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busySlug, setBusySlug] = useState<string>();

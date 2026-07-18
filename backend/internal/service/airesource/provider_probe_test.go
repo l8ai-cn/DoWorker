@@ -46,6 +46,10 @@ func TestHTTPProberBuildsRegistryOwnedAuthentication(t *testing.T) {
 			assert.Equal(t, "Bearer deepseek-secret", r.Header.Get("Authorization"))
 			assert.Equal(t, "/models", r.URL.Path)
 		}},
+		{"doubao", map[string]string{"api_key": "doubao-secret"}, func(t *testing.T, r *http.Request) {
+			assert.Equal(t, "Bearer doubao-secret", r.Header.Get("Authorization"))
+			assert.Equal(t, "/api/v3/models", r.URL.Path)
+		}},
 		{"xai", map[string]string{"api_key": "xai-secret"}, func(t *testing.T, r *http.Request) {
 			assert.Equal(t, "Bearer xai-secret", r.Header.Get("Authorization"))
 			assert.Equal(t, "/v1/models", r.URL.Path)

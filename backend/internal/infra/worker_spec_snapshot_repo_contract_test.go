@@ -141,6 +141,7 @@ func workerSpecSnapshotForContract(
 		WorkerTypes: ports,
 		Runtime:     ports,
 		Models:      ports,
+		ToolModels:  ports,
 		Secrets:     ports,
 		Workspaces:  ports,
 	})
@@ -149,7 +150,10 @@ func workerSpecSnapshotForContract(
 		workerspecservice.Scope{OrgID: organizationID, UserID: 7},
 		workerspecservice.Draft{
 			ModelResourceID: spec.Runtime.ModelBinding.ResourceID,
-			WorkerTypeSlug:  spec.Runtime.WorkerType.Slug,
+			ToolModelResourceIDs: map[string]int64{
+				"video-generator": 3001,
+			},
+			WorkerTypeSlug: spec.Runtime.WorkerType.Slug,
 			Runtime: workerspecservice.RuntimeSelection{
 				RuntimeImageID:    spec.Runtime.Image.ID,
 				PlacementPolicy:   spec.Placement.Policy,
@@ -220,6 +224,21 @@ func (ports *workerSpecResolutionPorts) ResolveModel(
 	return ports.spec.Runtime.ModelBinding, nil
 }
 
+func (ports *workerSpecResolutionPorts) ResolveToolModel(
+	_ context.Context,
+	_ workerspecservice.Scope,
+	requirement workerspec.ToolModelRequirement,
+	resourceID int64,
+) (workerspec.ToolModelBinding, error) {
+	for _, binding := range ports.spec.Runtime.ToolModelBindings {
+		if binding.Role == requirement.Role &&
+			binding.ModelBinding.ResourceID == resourceID {
+			return binding, nil
+		}
+	}
+	return workerspec.ToolModelBinding{}, workerspec.ErrNotFound
+}
+
 func (*workerSpecResolutionPorts) ResolveSecretReference(
 	context.Context,
 	workerspecservice.Scope,
@@ -251,6 +270,20 @@ func workerSpecForRepoContract() workerspec.Spec {
 				ProtocolAdapter:    slugkit.MustNewForTest("openai-compatible"),
 				ModelID:            "gpt-5",
 			},
+			ToolModelBindings: []workerspec.ToolModelBinding{{
+				Role: slugkit.MustNewForTest("video-generator"),
+				ModelBinding: workerspec.ModelBinding{
+					ResourceID: 3001, ResourceRevision: 4,
+					ConnectionID: 4001, ConnectionRevision: 5,
+					ProviderKey:     slugkit.MustNewForTest("volcengine"),
+					ProtocolAdapter: slugkit.MustNewForTest("openai-compatible"),
+					ModelID:         "video-1",
+				},
+				Modality: "video", Capability: "video-generation",
+				Environment: workerspec.ToolModelEnvironment{
+					APIKey: "VIDEO_API_KEY", BaseURL: "VIDEO_BASE_URL", ModelID: "VIDEO_MODEL_ID",
+				},
+			}},
 			WorkerType: workerspec.WorkerType{
 				Slug:           slugkit.MustNewForTest("codex-cli"),
 				DefinitionHash: strings.Repeat("a", 64),

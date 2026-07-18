@@ -142,6 +142,10 @@ const nextConfig: NextConfig = {
           source: "/v1/:path*",
           destination: `${proxyTarget}/v1/:path*`,
         },
+        {
+          source: "/proto.:service/:method",
+          destination: `${proxyTarget}/proto.:service/:method`,
+        },
         // Connect-RPC procedures use the path `/proto.<svc>.v1.Service/Method`.
         // Next.js path-to-regexp doesn't tolerate escaped dots in `source`,
         // so match by the `connect-protocol-version` header that every

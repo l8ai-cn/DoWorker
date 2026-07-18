@@ -12,6 +12,7 @@ import (
 	skilldomain "github.com/anthropics/agentsmesh/backend/internal/domain/skill"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	agentpodSvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	itemservice "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 	"github.com/anthropics/agentsmesh/backend/internal/service/gitops"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )

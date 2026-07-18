@@ -48,6 +48,9 @@ func validateSpec(
 	if err := validateToolModelBindings(spec.Runtime.ToolModelBindings); err != nil {
 		return err
 	}
+	if err := validateToolModelBindings(spec.Runtime.ToolModelBindings); err != nil {
+		return err
+	}
 	if err := validateWorkerType(spec.Runtime.WorkerType); err != nil {
 		return err
 	}

@@ -120,6 +120,29 @@ sync_worker_definitions() {
   dexec "kubectl -n ${NS} wait --for=condition=complete job/worker-definition-sync --timeout=300s"
 }
 
+backend_image() {
+  awk '$1 == "image:" && $2 ~ /agentsmesh\/backend@sha256:/ { print $2; exit }' \
+    "${DIR}/30-backend.yaml"
+}
+
+apply_backend_job() {
+  local manifest="$1"
+  local image="$2"
+  local digest="${image##*@}"
+  dexec "sed -E 's|repo.aiedulab.cn:8443/agentsmesh/backend@sha256:[a-f0-9]{64}|${image}|g; s|__BACKEND_IMAGE__|${image}|g; s|agentsmesh.ai/verified-image-digest: \"sha256:[a-f0-9]{64}\"|agentsmesh.ai/verified-image-digest: \"${digest}\"|g' ${manifest} | kubectl apply -f -"
+}
+
+sync_worker_definitions() {
+  local image
+  image="$(backend_image)"
+  [[ -n "${image}" ]] || {
+    echo "backend deployment must use an immutable agentsmesh/backend digest" >&2
+    return 1
+  }
+  apply_backend_job "23-worker-definition-sync-job.yaml" "${image}"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/worker-definition-sync --timeout=300s"
+}
+
 apply_all() {
   echo "==> namespace + secrets"
   dexec "kubectl apply -f 00-namespace.yaml"

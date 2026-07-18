@@ -402,7 +402,7 @@
     },
     "typeChange": {
       "title": "Change Worker type?",
-      "description": "Type-specific model, image, configuration, Skill, and environment selections will be cleared.",
+      "description": "Type-specific primary and tool models, image, configuration, Skill, and environment selections will be cleared.",
       "cancel": "Keep current type",
       "confirm": "Change type"
     },

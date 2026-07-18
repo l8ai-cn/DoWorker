@@ -56,7 +56,7 @@ func (a *GRPCRunnerAdapter) handleProtoMessage(ctx context.Context, runnerID int
 
 	case *runnerv1.RunnerMessage_AcpSession:
 		if a.podEvents != nil {
-			a.podEvents.HandleAcpSession(ctx, payload.AcpSession.GetPodKey(),
+			a.podEvents.HandleAcpSession(ctx, runnerID, payload.AcpSession.GetPodKey(),
 				payload.AcpSession.GetEventType(), payload.AcpSession.GetJsonPayload())
 		}
 
@@ -81,12 +81,12 @@ func (a *GRPCRunnerAdapter) handleProtoMessage(ctx context.Context, runnerID int
 
 	case *runnerv1.RunnerMessage_PodUsage:
 		if a.podEvents != nil {
-			a.podEvents.HandlePodUsage(ctx, payload.PodUsage)
+			a.podEvents.HandlePodUsage(ctx, runnerID, payload.PodUsage)
 		}
 
 	case *runnerv1.RunnerMessage_ExternalSessionCaptured:
 		if a.podEvents != nil {
-			a.podEvents.UpdateExternalSessionID(ctx,
+			a.podEvents.UpdateExternalSessionID(ctx, runnerID,
 				payload.ExternalSessionCaptured.GetPodKey(),
 				payload.ExternalSessionCaptured.GetExternalSessionId())
 		}

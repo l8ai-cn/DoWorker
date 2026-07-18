@@ -113,6 +113,9 @@ export function CodeViewer({
   if (fileQuery.data && isImageFile(path, fileQuery.data.content_type)) {
     return <FileImageViewer data={fileQuery.data} path={path} />;
   }
+  if (fileQuery.data && isWorkspaceVideoFile(path, fileQuery.data.content_type)) {
+    return <WorkspaceVideoViewer data={fileQuery.data} path={path} />;
+  }
   if (fileQuery.data?.encoding === "base64" || isBinaryPath(path)) {
     return (
       <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">

@@ -29,10 +29,10 @@ import (
 
 // PodEventSink forwards runner pod events into agent session streaming.
 type PodEventSink interface {
-	HandleAcpSession(ctx context.Context, podKey, eventType, payloadJSON string)
+	HandleAcpSession(ctx context.Context, runnerID int64, podKey, eventType, payloadJSON string)
 	PublishPodStatus(ctx context.Context, podKey, podStatus, agentStatus string)
-	HandlePodUsage(ctx context.Context, evt *runnerv1.PodUsageEvent)
-	UpdateExternalSessionID(ctx context.Context, podKey, externalID string)
+	HandlePodUsage(ctx context.Context, runnerID int64, evt *runnerv1.PodUsageEvent)
+	UpdateExternalSessionID(ctx context.Context, runnerID int64, podKey, externalID string)
 }
 
 type WorkerPlanAuthorizer interface {

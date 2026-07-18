@@ -70,6 +70,15 @@ export async function listWorkerCreateOptions(
       ),
       selectable: option.selectable,
       blocking_reason: option.blockingReason,
+      requires_model_resource: option.requiresModelResource,
+      model_protocol_adapters: option.modelProtocolAdapters,
+      tool_model_requirements: option.toolModelRequirements.map((requirement) => ({
+        role: requirement.role,
+        provider_keys: requirement.providerKeys,
+        protocol_adapters: requirement.protocolAdapters,
+        modality: requirement.modality,
+        capability: requirement.capability,
+      })),
     })),
     runtime_images: response.runtimeImages.map((option) => ({
       id: workerNumber(option.id, "runtime_images.id"),
@@ -152,11 +161,16 @@ export async function preflightWorker(
 export async function fillWorkerDraft(
   orgSlug: string,
   prompt: string,
+  generationModelResourceId: number,
   currentDraft?: WorkerSpecDraft,
 ): Promise<WorkerDraftFillResult> {
   const request = create(FillWorkerDraftRequestSchema, {
     orgSlug,
     prompt,
+    generationModelResourceId: workerBigInt(
+      generationModelResourceId,
+      "generation_model_resource_id",
+    ),
     currentDraft: currentDraft ? workerDraftToProto(currentDraft) : undefined,
   });
   const responseBytes = await getPodService().fill_worker_draft_connect(

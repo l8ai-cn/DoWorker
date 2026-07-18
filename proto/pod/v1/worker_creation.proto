@@ -182,6 +182,7 @@ message FillWorkerDraftRequest {
   string org_slug = 1;
   string prompt = 2;
   optional WorkerSpecDraft current_draft = 3;
+  int64 generation_model_resource_id = 4;
 }
 
 message FillWorkerDraftResponse {

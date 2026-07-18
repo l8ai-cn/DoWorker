@@ -100,6 +100,7 @@ push_runners() {
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh grok-build )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh openclaw )
   ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh hermes )
+  ( cd "${REPO_ROOT}" && REQUIRE_DO_AGENT_BINARY=1 FORCE_REBUILD=1 bash docker/agent-runtime/build.sh do-agent )
   docker build --platform linux/amd64 --target runtime \
     -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
     --build-arg AGENT_RUNTIME=e2e-echo \
@@ -120,7 +121,7 @@ push_runners() {
       -t do-worker/runner-minimax-cli:latest \
       "${REPO_ROOT}/docker/agent-runtime/_context"
   fi
-  for rt in claude-code codex-cli gemini-cli grok-build openclaw hermes e2e-echo minimax-cli; do
+  for rt in claude-code codex-cli gemini-cli do-agent grok-build openclaw hermes e2e-echo minimax-cli; do
     docker tag "do-worker/runner-${rt}:latest" "${PROJ}/runner-${rt}:latest"
     docker push "${PROJ}/runner-${rt}:latest"
   done

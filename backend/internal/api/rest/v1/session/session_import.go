@@ -55,6 +55,11 @@ func (d *Deps) handleImportSession(c *gin.Context) {
 		return
 	}
 
+	title := body.Title
+	if sessionTitleEmpty(title) && converted.Title != "" {
+		t := converted.Title
+		title = &t
+	}
 	orchReq := &agentpod.OrchestrateCreatePodRequest{
 		OrganizationID:      tenant.OrganizationID,
 		UserID:              tenant.UserID,
@@ -85,11 +90,6 @@ func (d *Deps) handleImportSession(c *gin.Context) {
 		return
 	}
 
-	title := body.Title
-	if sessionTitleEmpty(title) && converted.Title != "" {
-		t := converted.Title
-		title = &t
-	}
 	row := &domain.Session{
 		ID:             sessionID,
 		OrganizationID: tenant.OrganizationID,
