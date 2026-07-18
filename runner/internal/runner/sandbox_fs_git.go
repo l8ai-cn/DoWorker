@@ -9,7 +9,12 @@ import (
 )
 
 func (h *RunnerMessageHandler) sandboxFsChanges(workspaceRoot string) (*runnerv1.SandboxFsResultEvent, error) {
-	workspace, err := openSandboxWorkspace(workspaceRoot)
+	if _, err := os.Lstat(filepath.Join(workspaceRoot, ".git")); os.IsNotExist(err) {
+		return sandboxFsStandaloneChanges(workspaceRoot)
+	} else if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	out, err := h.runGitIn(workspaceRoot, "status", "--porcelain")
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
@@ -78,6 +83,47 @@ func sandboxFsStandaloneChanges(
 	}, nil
 }
 
+func sandboxFsStandaloneChanges(workspaceRoot string) (*runnerv1.SandboxFsResultEvent, error) {
+	changes := make([]*runnerv1.SandboxFsChange, 0)
+	err := filepath.WalkDir(workspaceRoot, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if path == workspaceRoot {
+			return nil
+		}
+		if entry.IsDir() {
+			if entry.Name() == ".git" {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if entry.Type()&os.ModeSymlink != 0 {
+			return nil
+		}
+		info, err := entry.Info()
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(workspaceRoot, path)
+		if err != nil {
+			return err
+		}
+		changes = append(changes, &runnerv1.SandboxFsChange{
+			Path:       filepath.ToSlash(rel),
+			Name:       entry.Name(),
+			Status:     "created",
+			Bytes:      info.Size(),
+			ModifiedAt: info.ModTime().Unix(),
+		})
+		return nil
+	})
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	return &runnerv1.SandboxFsResultEvent{Changes: changes, WorkspaceRoot: workspaceRoot}, nil
+}
+
 func (h *RunnerMessageHandler) sandboxFsDiff(workspaceRoot, rel string) (*runnerv1.SandboxFsResultEvent, error) {
 	workspace, err := openSandboxWorkspace(workspaceRoot)
 	if err != nil {
@@ -109,9 +155,9 @@ func (h *RunnerMessageHandler) sandboxFsDiffWorkspace(
 		b := head
 		before = &b
 	case "created":
-		data, readErr := readSandboxWorkspaceFileIn(workspace, rel)
-		if readErr != nil {
-			return fsErrResult(readErr.Error()), nil
+		if data, readErr := readSandboxWorkspaceFile(workspaceRoot, rel); readErr == nil {
+			s := string(data)
+			after = &s
 		}
 		s := string(data)
 		after = &s
@@ -122,9 +168,9 @@ func (h *RunnerMessageHandler) sandboxFsDiffWorkspace(
 		}
 		b := head
 		before = &b
-		data, readErr := readSandboxWorkspaceFileIn(workspace, rel)
-		if readErr != nil {
-			return fsErrResult(readErr.Error()), nil
+		if data, readErr := readSandboxWorkspaceFile(workspaceRoot, rel); readErr == nil {
+			s := string(data)
+			after = &s
 		}
 		s := string(data)
 		after = &s

@@ -37,8 +37,8 @@
           "workflowLabel": "Parcours opérationnel",
           "deliverablesLabel": "Résultat métier",
           "items": [
-            { "id": "enterprise-agent-supply", "title": "Enterprise Agent supply", "description": "Transformez les connaissances métier, méthodes, outils et politiques en Agents standardisés que les équipes peuvent vérifier, publier, installer, exploiter et améliorer.", "chain": "Construire → Vérifier → Publier → Installer → Exécuter → Évoluer", "outcome": "Agents versionnés, preuves de vérification, politiques d'installation, journaux opérationnels et plans d'évolution.", "action": "Démarrer l'approvisionnement Agent d'entreprise" },
-            { "id": "opc-incubation", "title": "OPC incubation", "description": "Incubez un OPC dans lequel un noyau humain travaille avec des AI Partners constitués d'un Agent ou d'une combinaison coordonnée d'Agents.", "chain": "Définir l'activité → Façonner les AI Partners → Établir la collaboration → Automatiser les tâches récurrentes → Gouverner l'exécution → Changer d'échelle", "outcome": "Une équipe pilotée par des humains, avec des rôles d'AI Partner clairement définis, des rythmes opérationnels, des limites de gouvernance et des résultats mesurables.", "action": "Incuber un OPC" },
+            { "id": "enterprise-agent-supply", "title": "Approvisionnement d'Agents en entreprise", "description": "Transformez les connaissances métier, méthodes, outils et politiques en Agents standardisés que les équipes peuvent vérifier, publier, installer, exploiter et améliorer.", "chain": "Construire → Vérifier → Publier → Installer → Exécuter → Évoluer", "outcome": "Agents versionnés, preuves de vérification, politiques d'installation, journaux opérationnels et plans d'évolution.", "action": "Démarrer l'approvisionnement d'Agents en entreprise" },
+            { "id": "opc-incubation", "title": "Incubation d'un OPC", "description": "Incubez un OPC dans lequel un noyau humain travaille avec des AI Partners constitués d'un Agent ou d'une combinaison coordonnée d'Agents.", "chain": "Définir l'activité → Façonner les AI Partners → Établir la collaboration → Automatiser les tâches récurrentes → Gouverner l'exécution → Changer d'échelle", "outcome": "Une équipe pilotée par des humains, avec des rôles d'AI Partner clairement définis, des rythmes opérationnels, des limites de gouvernance et des résultats mesurables.", "action": "Incuber un OPC" },
             { "id": "higher-education-digital-employees", "title": "Pilote de travailleurs numériques pour l'enseignement supérieur", "description": "Concevez des pilotes fondés sur les rôles pour l'enseignement, la recherche, les services aux étudiants et l'administration, en combinant les capacités composables de la plateforme avec les connaissances institutionnelles et la gouvernance.", "chain": "Identifier les rôles → Configurer les connaissances → Valider les tâches → Piloter avec une équipe → Gouverner le service → Améliorer en continu", "outcome": "Un modèle de pilote validé, aligné sur les rôles du campus, les connaissances institutionnelles, les limites d'approbation et les preuves de service.", "action": "Lancer un pilote pour l'enseignement supérieur" }
           ]
         },
@@ -48,11 +48,11 @@
           "description": "Cinq capacités connectées font passer les Agents de la création à un usage organisationnel gouverné, tout en réunissant les équipes, les AI Partners, l'automatisation et les preuves dans un même environnement opérationnel.",
           "levels": { "implemented": "Disponible", "composable": "Composable", "planned": "Prévu" },
           "items": [
-            { "id": "agent-factory", "level": "implemented", "title": "Agent factory", "description": "Créer, vérifier, versionner et publier des Agents à partir de méthodes, connaissances, outils, modèles et politiques réutilisables." },
-            { "id": "agent-market", "level": "implemented", "title": "Agent market", "description": "Découvrez des Agents approuvés, inspectez leurs capacités et permissions, puis installez la version adaptée à chaque équipe." },
-            { "id": "collaboration-workspace", "level": "implemented", "title": "Collaboration workspace", "description": "Partagez objectifs, contexte, conversations, artefacts, décisions et preuves de livraison entre les équipes et les AI Partners." },
-            { "id": "automation", "level": "implemented", "title": "Automation", "description": "Déclenchez des travaux récurrents, coordonnez des combinaisons d'Agents, suivez la progression et orientez les décisions vers les bonnes personnes." },
-            { "id": "governance", "level": "implemented", "title": "Governance", "description": "Contrôlez permissions, limites d'exécution, validations, budgets, versions, preuves et historique d'audit." }
+            { "id": "agent-factory", "level": "implemented", "title": "Fabrique d'Agents", "description": "Créer, vérifier, versionner et publier des Agents à partir de méthodes, connaissances, outils, modèles et politiques réutilisables." },
+            { "id": "agent-market", "level": "implemented", "title": "Marché des Agents", "description": "Découvrez des Agents approuvés, inspectez leurs capacités et permissions, puis installez la version adaptée à chaque équipe." },
+            { "id": "collaboration-workspace", "level": "implemented", "title": "Espace de collaboration", "description": "Partagez objectifs, contexte, conversations, artefacts, décisions et preuves de livraison entre les équipes et les AI Partners." },
+            { "id": "automation", "level": "implemented", "title": "Automatisation", "description": "Déclenchez des travaux récurrents, coordonnez des combinaisons d'Agents, suivez la progression et orientez les décisions vers les bonnes personnes." },
+            { "id": "governance", "level": "implemented", "title": "Gouvernance", "description": "Contrôlez permissions, limites d'exécution, validations, budgets, versions, preuves et historique d'audit." }
           ]
         },
         "operating": {
@@ -61,12 +61,12 @@
           "description": "Chaque Agent est une unité de capacité déployable. La plateforme l'accompagne dans un cycle gouverné, puis réutilise les preuves opérationnelles pour améliorer la version suivante et l'organisation associée.",
           "formulaTitle": "Six étapes du cycle",
           "parts": [
-            { "id": "build", "title": "Build", "description": "Assembler un Agent ciblé à partir de méthodes métier, connaissances, outils, modèles et politiques." },
-            { "id": "verify", "title": "Verify", "description": "Tester des tâches réelles, les cas de panne, les permissions et les preuves d'acceptation avant publication." },
-            { "id": "release", "title": "Release", "description": "Publier un Agent approuvé et versionné dans le Agent market gouverné." },
-            { "id": "install", "title": "Install", "description": "Configurer la version approuvée pour une équipe, un rôle, un environnement et un périmètre d'accès." },
-            { "id": "run", "title": "Run", "description": "Exploiter l'Agent seul ou au sein d'un AI Partner, avec une progression visible et des points de contrôle humains." },
-            { "id": "evolve", "title": "Evolve", "description": "Utiliser résultats, retours, incidents et nouveau savoir pour valider la version suivante." }
+            { "id": "build", "title": "Construire", "description": "Assembler un Agent ciblé à partir de méthodes métier, connaissances, outils, modèles et politiques." },
+            { "id": "verify", "title": "Vérifier", "description": "Tester des tâches réelles, les cas de panne, les permissions et les preuves d'acceptation avant publication." },
+            { "id": "release", "title": "Publier", "description": "Publier un Agent approuvé et versionné sur le marché des Agents gouverné." },
+            { "id": "install", "title": "Installer", "description": "Configurer la version approuvée pour une équipe, un rôle, un environnement et un périmètre d'accès." },
+            { "id": "run", "title": "Exécuter", "description": "Exploiter l'Agent seul ou au sein d'un AI Partner, avec une progression visible et des points de contrôle humains." },
+            { "id": "evolve", "title": "Faire évoluer", "description": "Utiliser résultats, retours, incidents et nouveau savoir pour valider la version suivante." }
           ],
           "humanTitle": "Les AI Partners transforment l'approvisionnement d'Agents en organisation",
           "humanDescription": "Un AI Partner peut être un Agent unique ou une combinaison coordonnée d'Agents. Un OPC maintient les humains au cœur du dispositif tandis que les AI Partners renforcent la capacité de livraison de l'équipe.",
@@ -81,9 +81,9 @@
           "title": "Publier une fois. Installer l'approvisionnement Agent là où il est nécessaire.",
           "description": "Le marché des Agents distribue des capacités réutilisables ; il ne s'agit pas d'un domaine de solution. Les équipes consultent périmètre, preuves, permissions et versions avant installation.",
           "apps": [
-            { "slug": "software-delivery-expert", "title": "Software delivery Agent", "description": "Porte les exigences de la mise en œuvre à la vérification, à la revue et à une livraison de code validée." },
-            { "slug": "multi-worker-orchestrator", "title": "Multi-Agent orchestration", "description": "Coordonne des Agents spécialisés autour d'un objectif, avec points de contrôle partagés et un résultat validé commun." },
-            { "slug": "dual-repo-sync-expert", "title": "Dual-repository sync Agent", "description": "Détecte les écarts, synchronise GitLab et GitHub et dirige les changements vers le bon parcours de revue." }
+            { "slug": "software-delivery-expert", "title": "Agent de livraison logicielle", "description": "Porte les exigences de la mise en œuvre à la vérification, à la revue et à une livraison de code validée." },
+            { "slug": "multi-worker-orchestrator", "title": "Orchestration Multi-Agent", "description": "Coordonne des Agents spécialisés autour d'un objectif, avec points de contrôle partagés et un résultat validé commun." },
+            { "slug": "dual-repo-sync-expert", "title": "Agent de synchronisation entre dépôts", "description": "Détecte les écarts, synchronise GitLab et GitHub et dirige les changements vers le bon parcours de revue." }
           ],
           "status": "Publié",
           "plannedTitle": "La supply progresse grâce à la validation",
@@ -95,12 +95,12 @@
           "title": "Exécuter l'approvisionnement Agent dans les limites de l'entreprise",
           "description": "Chaque exécution Agent reste limitée par l'infrastructure, des espaces de travail isolés, un périmètre de credentials, des politiques d'approbation, des budgets et des exigences de preuve.",
           "items": [
-            { "id": "selfHosting", "title": "Runner deployment control", "description": "Déployez des Runners dans les limites d'infrastructure et réseau définies par l'organisation.", "status": "Contrôlé" },
-            { "id": "workspaces", "title": "Isolated workspaces", "description": "Isolez chaque mission avec ses fichiers, dépendances et contexte d'exécution.", "status": "Isolé" },
-            { "id": "credentials", "title": "Scoped credentials", "description": "Attribuez à chaque Agent uniquement l'accès nécessaire à son rôle et à sa mission approuvés.", "status": "Restreint" },
-            { "id": "audit", "title": "Inspectable evidence", "description": "Conservez activités, décisions, approbations, artefacts, versions et statut de livraison pour contrôle.", "status": "Enregistré" }
+            { "id": "selfHosting", "title": "Contrôle du déploiement des Runners", "description": "Déployez des Runners dans les limites d'infrastructure et réseau définies par l'organisation.", "status": "Contrôlé" },
+            { "id": "workspaces", "title": "Espaces de travail isolés", "description": "Isolez chaque mission avec ses fichiers, dépendances et contexte d'exécution.", "status": "Isolé" },
+            { "id": "credentials", "title": "Identifiants à portée limitée", "description": "Attribuez à chaque Agent uniquement l'accès nécessaire à son rôle et à sa mission approuvés.", "status": "Restreint" },
+            { "id": "audit", "title": "Preuves inspectables", "description": "Conservez activités, décisions, approbations, artefacts, versions et statut de livraison pour contrôle.", "status": "Enregistré" }
           ],
-          "runtimesTitle": "Runner runtime coverage",
+          "runtimesTitle": "Couverture des environnements d'exécution Runner",
           "runtimesDescription": "Les Runners hébergent des environnements d'exécution Agent approuvés, notamment Codex CLI, Claude Code, Gemini CLI, Aider et OpenCode. Leur disponibilité suit le catalogue vérifié des environnements d'exécution."
         },
         "cta": {

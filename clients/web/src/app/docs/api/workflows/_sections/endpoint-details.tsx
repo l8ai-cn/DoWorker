@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { createWorkflowFields } from "./endpoints-data";
 import { FieldTable } from "../../_components/field-table";
 
 export function EndpointDetails() {
@@ -22,39 +21,9 @@ export function EndpointDetails() {
 
       <div className="mb-8 surface-card p-6">
         <h3 className="text-lg font-semibold mb-2 font-mono">
-          {t("docs.api.workflows.details.createWorkflow.title")}
-        </h3>
-        <p className="text-muted-foreground mb-4">
-          {t("docs.api.workflows.details.createWorkflow.description")}
-        </p>
-        <h4 className="font-medium mb-2">{t("docs.api.common.requestBody")}</h4>
-        <FieldTable
-          rows={createWorkflowFields.map((field) => ({
-            field,
-            descKey: `docs.api.workflows.details.createWorkflow.fields.${field}`,
-          }))}
-        />
-      </div>
-
-      <div className="mb-8 surface-card p-6">
-        <h3 className="text-lg font-semibold mb-2 font-mono">
           {t("docs.api.workflows.details.getWorkflow.title")}
         </h3>
         <p className="text-muted-foreground">{t("docs.api.workflows.details.getWorkflow.description")}</p>
-      </div>
-
-      <div className="mb-8 surface-card p-6">
-        <h3 className="text-lg font-semibold mb-2 font-mono">
-          {t("docs.api.workflows.details.updateWorkflow.title")}
-        </h3>
-        <p className="text-muted-foreground">{t("docs.api.workflows.details.updateWorkflow.description")}</p>
-      </div>
-
-      <div className="mb-8 surface-card p-6">
-        <h3 className="text-lg font-semibold mb-2 font-mono">
-          {t("docs.api.workflows.details.deleteWorkflow.title")}
-        </h3>
-        <p className="text-muted-foreground">{t("docs.api.workflows.details.deleteWorkflow.description")}</p>
       </div>
 
       <div className="mb-8 surface-card p-6">

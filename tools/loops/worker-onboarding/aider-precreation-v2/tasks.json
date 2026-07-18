@@ -1,0 +1,138 @@
+[
+  {
+    "id": "verify-contract",
+    "goal": "Verify Aider Definition, AgentFile, optional model policy, and reference-only credential targets.",
+    "assigned_agent": "orchestrator",
+    "dependencies": [],
+    "input_refs": [
+      "worker.json",
+      "config/worker-types/aider/definition.json",
+      "config/worker-types/aider/AgentFile"
+    ],
+    "output_artifacts": [
+      "evidence/aider-precreation-2026-07-16.json"
+    ],
+    "tools": [
+      "shell"
+    ],
+    "acceptance_criteria": [
+      "Aider uses aider-pty and PTY.",
+      "Primary model binding is optional."
+    ],
+    "verification_refs": [
+      "aider-precreation"
+    ],
+    "max_attempts": 1,
+    "estimated_token_budget": 8000
+  },
+  {
+    "id": "verify-runtime",
+    "goal": "Verify the current immutable image and connected Runner without launching a Pod.",
+    "assigned_agent": "orchestrator",
+    "dependencies": [
+      "verify-contract"
+    ],
+    "input_refs": [
+      "worker.json",
+      "deploy/dev/runtime/worker-runtime-catalog.local.json"
+    ],
+    "output_artifacts": [
+      "evidence/aider-precreation-2026-07-16.json"
+    ],
+    "tools": [
+      "shell"
+    ],
+    "acceptance_criteria": [
+      "Runtime catalog and Docker image share one Aider digest.",
+      "Runner reports aider version 0.86.2 and a connected tunnel."
+    ],
+    "verification_refs": [
+      "aider-precreation"
+    ],
+    "max_attempts": 1,
+    "estimated_token_budget": 8000
+  },
+  {
+    "id": "verify-precreation",
+    "goal": "Verify browser validation, plan, and template apply while proving no Aider launch or Pod was created.",
+    "assigned_agent": "reviewer",
+    "dependencies": [
+      "verify-runtime"
+    ],
+    "input_refs": [
+      "evidence/aider-precreation-2026-07-16.json",
+      "state.json"
+    ],
+    "output_artifacts": [
+      "evidence/aider-precreation-2026-07-16.json"
+    ],
+    "tools": [
+      "browser",
+      "shell"
+    ],
+    "acceptance_criteria": [
+      "WorkerTemplate validation, plan, and apply evidence exist.",
+      "Matching Worker launches and Pods remain zero."
+    ],
+    "verification_refs": [
+      "aider-precreation"
+    ],
+    "max_attempts": 1,
+    "estimated_token_budget": 12000
+  },
+  {
+    "id": "review-precreation",
+    "goal": "Independently confirm that the current record remains precreation-only and not supported.",
+    "assigned_agent": "reviewer",
+    "dependencies": [
+      "verify-precreation"
+    ],
+    "input_refs": [
+      "ACCEPTANCE.md",
+      "evidence/aider-precreation-2026-07-16.json"
+    ],
+    "output_artifacts": [
+      "evidence/aider-precreation-review-2026-07-16.json"
+    ],
+    "tools": [
+      "shell"
+    ],
+    "acceptance_criteria": [
+      "Review rejects a supported claim without live evidence.",
+      "Review confirms no plaintext credential or provider response is stored."
+    ],
+    "verification_refs": [
+      "aider-precreation"
+    ],
+    "max_attempts": 1,
+    "estimated_token_budget": 6000
+  },
+  {
+    "id": "verify-live-launch",
+    "goal": "After named approval only, verify credential reference injection, disposable Pod creation, PTY use, provider smoke, and cleanup.",
+    "assigned_agent": "orchestrator",
+    "dependencies": [
+      "review-precreation"
+    ],
+    "input_refs": [
+      "DECISIONS.md",
+      "evidence/aider-precreation-2026-07-16.json"
+    ],
+    "output_artifacts": [
+      "evidence/aider-live-launch-approval-and-result.json"
+    ],
+    "tools": [
+      "browser",
+      "shell"
+    ],
+    "acceptance_criteria": [
+      "Named non-production approval and resource scope are recorded.",
+      "Live launch, terminal, provider result, and cleanup pass the live verifier."
+    ],
+    "verification_refs": [
+      "aider-live-launch"
+    ],
+    "max_attempts": 1,
+    "estimated_token_budget": 24000
+  }
+]

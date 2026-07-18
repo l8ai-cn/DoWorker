@@ -7,10 +7,11 @@ import (
 
 func TestPodCreateRequest(t *testing.T) {
 	req := PodCreateRequest{
-		Resource: json.RawMessage(`{"kind":"Worker"}`),
+		PlanID: "11111111-1111-4111-8111-111111111111",
 	}
-	if string(req.Resource) != `{"kind":"Worker"}` {
-		t.Fatalf("Resource = %s", req.Resource)
+
+	if req.PlanID != "11111111-1111-4111-8111-111111111111" {
+		t.Errorf("PlanID: got %v", req.PlanID)
 	}
 }
 

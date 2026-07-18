@@ -3,6 +3,6 @@
 # SSOT for local K8s dev runners:
 #   deploy/kubernetes/local/runners-workloads.yaml
 #   deploy/dev/lib/generate_runners_k8s_manifest.sh
-#   bazel run //deploy/dev:up_k8s_runners
+#   ./deploy/dev/dev.sh --runners-k8s
 #
 # See deploy/kubernetes/local/README.md

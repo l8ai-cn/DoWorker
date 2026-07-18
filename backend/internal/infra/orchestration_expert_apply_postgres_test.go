@@ -64,7 +64,20 @@ func applyOrchestrationDomainLinkFixtures(t *testing.T, db *gorm.DB) {
 	require.NoError(t, db.Exec(`
 INSERT INTO worker_spec_snapshots
 	(id, organization_id, version, spec_json, summary_json)
-VALUES (100, 42, 1, '{}', '{}');
+VALUES (
+	100,
+	42,
+	1,
+	'{"runtime":{"worker_type":{"slug":"codex-cli"}},"type_config":{"interaction_mode":"acp","automation_level":"autonomous"},"workspace":{"skill_ids":[301,302]}}',
+	'{}'
+);
+CREATE TABLE skills (
+	id BIGINT PRIMARY KEY,
+	organization_id BIGINT,
+	slug VARCHAR(100) NOT NULL
+);
+INSERT INTO skills (id, organization_id, slug)
+VALUES (301, 42, 'pattern-generate'), (302, 42, 'pattern-video');
 CREATE TABLE experts (
 	id BIGSERIAL PRIMARY KEY,
 	organization_id BIGINT NOT NULL,
@@ -75,6 +88,7 @@ CREATE TABLE experts (
 	prompt TEXT,
 	interaction_mode VARCHAR(20) NOT NULL DEFAULT 'acp',
 	automation_level VARCHAR(20) NOT NULL DEFAULT 'autonomous',
+	skill_slugs TEXT[] NOT NULL DEFAULT '{}',
 	worker_spec_snapshot_id BIGINT,
 	metadata JSONB NOT NULL DEFAULT '{}',
 	created_by_id BIGINT NOT NULL,

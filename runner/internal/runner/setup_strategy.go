@@ -79,7 +79,7 @@ func (s *GitWorktreeStrategy) Setup(ctx context.Context, sandboxRoot string, cfg
 // LocalPathStrategy - handles resume mode with existing local path
 // =============================================================================
 
-// LocalPathStrategy handles pods resuming from an existing local sandbox path.
+// LocalPathStrategy handles existing runner sandboxes and direct host paths.
 type LocalPathStrategy struct{}
 
 // NewLocalPathStrategy creates a new local path setup strategy.
@@ -105,19 +105,19 @@ func (s *LocalPathStrategy) Setup(ctx context.Context, sandboxRoot string, cfg *
 		}
 	}
 
-	// For resume mode, the working directory is the workspace inside the existing sandbox
 	workingDir := filepath.Join(cfg.LocalPath, "workspace")
-	if _, err := os.Stat(workingDir); os.IsNotExist(err) {
-		// Fallback to local path itself if workspace subdirectory doesn't exist
-		workingDir = cfg.LocalPath
-		logger.Pod().DebugContext(ctx, "Workspace subdirectory not found, using local path directly",
-			"local_path", cfg.LocalPath)
+	if info, err := os.Stat(workingDir); err == nil && info.IsDir() {
+		return &SetupResult{
+			WorkingDir:  workingDir,
+			BranchName:  "",
+			SandboxRoot: cfg.LocalPath,
+		}, nil
 	}
 
+	logger.Pod().DebugContext(ctx, "Using direct host path with isolated runner sandbox",
+		"local_path", cfg.LocalPath)
 	return &SetupResult{
-		WorkingDir:  workingDir,
-		BranchName:  "",
-		SandboxRoot: cfg.LocalPath, // Reuse source pod's sandbox to prevent path template escapes
+		WorkingDir: cfg.LocalPath,
 	}, nil
 }
 

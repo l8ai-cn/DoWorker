@@ -133,6 +133,20 @@ func TestService_Create_InvalidScopeAndKind(t *testing.T) {
 	assert.ErrorIs(t, err, ErrInvalidKind)
 }
 
+func TestService_Create_ConfigBundleRequiresJSONObject(t *testing.T) {
+	svc, _ := newTestService(t)
+
+	_, err := svc.Create(context.Background(), &CreateParams{
+		OwnerScope: envbundle.OwnerScopeUser,
+		OwnerID:    1,
+		Name:       "invalid-config",
+		Kind:       envbundle.KindConfig,
+		Data:       map[string]string{envbundle.ConfigJSONDataKey: "{"},
+	})
+
+	assert.ErrorContains(t, err, "config bundle data")
+}
+
 // ---------- Update (Data tri-state) ----------
 
 func TestService_Update_NilData_LeavesUnchanged(t *testing.T) {
@@ -174,6 +188,29 @@ func TestService_Update_EmptyData_ClearsKeys(t *testing.T) {
 
 	got, _ := svc.Get(ctx, envbundle.OwnerScopeUser, 1, b.ID)
 	assert.Empty(t, got.Data, "&empty map clears the stored values")
+}
+
+func TestService_Update_ConfigBundleRequiresJSONObject(t *testing.T) {
+	svc, _ := newTestService(t)
+	bundle, err := svc.Create(context.Background(), &CreateParams{
+		OwnerScope: envbundle.OwnerScopeUser,
+		OwnerID:    1,
+		Name:       "valid-config",
+		Kind:       envbundle.KindConfig,
+		Data:       map[string]string{envbundle.ConfigJSONDataKey: `{"enabled":true}`},
+	})
+	require.NoError(t, err)
+	invalid := map[string]string{envbundle.ConfigJSONDataKey: "{"}
+
+	_, err = svc.Update(
+		context.Background(),
+		envbundle.OwnerScopeUser,
+		1,
+		bundle.ID,
+		&UpdateParams{Data: &invalid},
+	)
+
+	assert.ErrorContains(t, err, "config bundle data")
 }
 
 func TestService_Update_NonEmptyData_Replaces(t *testing.T) {

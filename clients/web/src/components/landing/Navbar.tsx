@@ -56,7 +56,7 @@ export function Navbar() {
             </span>
           </Link>
 
-          <div className="hidden items-center gap-5 xl:flex">
+          <div className="hidden items-center gap-5 lg:flex">
             {navLinks.map((link) => {
               const active = isMarketingRouteActive(pathname, link.href);
               const className = `border-b py-1 text-xs font-semibold transition-colors ${
@@ -77,7 +77,7 @@ export function Navbar() {
             })}
           </div>
 
-          <div className="hidden items-center gap-4 xl:flex">
+          <div className="hidden items-center gap-4 lg:flex">
             <a
               href={GITHUB_URL}
               target="_blank"
@@ -92,7 +92,7 @@ export function Navbar() {
           </div>
 
           <button
-            className="flex h-11 w-11 items-center justify-center text-[var(--expert-muted)] xl:hidden"
+            className="flex h-11 w-11 items-center justify-center text-[var(--expert-muted)] lg:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={t("landing.nav.toggleMenu")}
             aria-expanded={isMobileMenuOpen}
@@ -102,7 +102,7 @@ export function Navbar() {
         </div>
 
         {isMobileMenuOpen && (
-          <div className="mt-4 flex max-h-[calc(100dvh-5rem)] flex-col gap-1 overflow-y-auto border-t border-white/10 pt-3 xl:hidden">
+          <div className="mt-4 flex max-h-[calc(100dvh-5rem)] flex-col gap-1 overflow-y-auto border-t border-white/10 pt-3 lg:hidden">
             {navLinks.map((link) => {
               const active = isMarketingRouteActive(pathname, link.href);
               const className = `border-b border-white/8 py-3 text-sm font-semibold transition-colors ${

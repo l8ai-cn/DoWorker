@@ -3,19 +3,12 @@
 import { useTranslations } from "next-intl";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import type { ResourceReference } from "./resource-editor-types";
 import {
   isResourceReferenceCatalogReadOnly,
   type ResourceReferenceCatalog,
 } from "./resource-reference-options";
-
-const EMPTY_REFERENCE = "__none__";
 
 interface ResourceReferenceFieldProps {
   id: string;
@@ -40,9 +33,10 @@ export function ResourceReferenceField({
 }: ResourceReferenceFieldProps) {
   const t = useTranslations("resourceEditor");
   const key = catalogKey ?? kind;
-  const options = (catalog.byKind[key] ?? []).filter((option) => option.name);
+  const options = catalog.byKind[key] ?? [];
   const error = catalog.errorsByKind[key] ?? catalog.error;
-  const selected = options.find((option) => option.name === value?.name);
+  const resolved = !value?.name ||
+    options.some((option) => option.name === value.name);
   const readOnly = isResourceReferenceCatalogReadOnly(
     catalog,
     key,
@@ -64,57 +58,45 @@ export function ResourceReferenceField({
       error={error ?? undefined}
     >
       <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_7rem]">
-        <Select
-          value={value?.name ?? ""}
+        <select
+          id={id}
+          required={required}
+          aria-required={required}
+          aria-readonly={readOnly}
           disabled={readOnly}
-          onValueChange={(name) => {
-            if (name === EMPTY_REFERENCE) {
+          className={cn(
+            "h-9 w-full rounded-md bg-surface-raised px-3 text-sm",
+            "ring-1 ring-border/35 focus-visible:outline-none",
+            "focus-visible:ring-2 focus-visible:ring-ring/35",
+            readOnly && "cursor-not-allowed bg-muted/40 text-muted-foreground",
+          )}
+          value={value?.name ?? ""}
+          onChange={(event) => {
+            if (readOnly) return;
+            const name = event.target.value;
+            if (!name) {
               onChange(undefined);
               return;
             }
-            onChange({
-              kind,
-              name,
-              revision: value?.name === name ? value.revision : undefined,
-            });
+            const identityChanged = value?.kind !== kind || value.name !== name;
+            onChange(identityChanged
+              ? { ...value, kind, name, revision: undefined }
+              : { ...value, kind, name });
           }}
         >
-          <SelectTrigger
-            id={id}
-            role="combobox"
-            aria-label={label}
-            aria-required={required}
-          >
-            <span className={value?.name ? "truncate" : "truncate text-muted-foreground"}>
-              {selected
-                ? `${selected.displayName || selected.name} · ${selected.name}`
-                : value?.name || label}
-            </span>
-          </SelectTrigger>
-          <SelectContent>
-            {!required && (
-              <SelectItem value={EMPTY_REFERENCE}>
-                {t("collections.none")}
-              </SelectItem>
-            )}
-            {options.map((option) => (
-              <SelectItem
-                key={option.name}
-                value={option.name}
-                aria-label={`${option.displayName || option.name} ${option.name}`}
-              >
-                <span className="flex min-w-0 flex-col">
-                  <span className="truncate">
-                    {option.displayName || option.name}
-                  </span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {option.name}
-                  </span>
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <option value="">{label}</option>
+          {!resolved && value?.name && (
+            <option value={value.name}>{value.name}</option>
+          )}
+          {options.filter((option) => option.name).map((option) => (
+            <option
+              key={option.name}
+              value={option.name}
+            >
+              {option.displayName || option.name} (r{option.revision})
+            </option>
+          ))}
+        </select>
         <Input
           id={`${id}-revision`}
           type="number"

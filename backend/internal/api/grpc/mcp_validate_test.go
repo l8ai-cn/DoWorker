@@ -12,32 +12,52 @@ import (
 // and nil dependencies; if validation regresses (caller-trust mode), the
 // test panics on nil podOrchestrator/channelService/ticketService.
 
-func TestMcpCreatePod_RequiresResourceApplyService(t *testing.T) {
+func TestMcpCreatePodRejectsInvalidPlanID(t *testing.T) {
 	a := &GRPCRunnerAdapter{}
 	tc := &middleware.TenantContext{
-		OrganizationID: 1, OrganizationSlug: "test-org", UserID: 1,
+		OrganizationID: 1, OrganizationSlug: "team-alpha", UserID: 1,
+	}
+	payload := []byte(`{"plan_id":"not-a-uuid"}`)
+
+	_, mcpErr := a.mcpCreatePod(context.Background(), tc, payload)
+	if mcpErr == nil || mcpErr.code != 400 {
+		t.Fatalf("expected 400 for invalid plan_id, got %v", mcpErr)
 	}
 
-	_, mcpErr := a.mcpCreatePod(context.Background(), tc, []byte(`{}`))
-	if mcpErr == nil || mcpErr.code != 503 {
-		t.Fatalf("expected unavailable resource apply service, got %v", mcpErr)
+func TestMcpCreatePodRejectsLegacyRuntimeFields(t *testing.T) {
+	a := &GRPCRunnerAdapter{}
+	tc := &middleware.TenantContext{
+		OrganizationID: 1, OrganizationSlug: "team-alpha", UserID: 1,
+	}
+	payload := []byte(
+		`{"plan_id":"11111111-1111-4111-8111-111111111111","agent_slug":"codex-cli"}`,
+	)
+
+	_, mcpErr := a.mcpCreatePod(context.Background(), tc, payload)
+	if mcpErr == nil || mcpErr.code != 400 {
+		t.Fatalf("expected 400 for legacy runtime fields, got %v", mcpErr)
 	}
 }
 
-func TestMcpCreateWorkflow_RequiresResourceApplyService(t *testing.T) {
+func TestMcpCreateWorkflowRequiresResourceApplyBeforeNameValidation(t *testing.T) {
 	a := &GRPCRunnerAdapter{}
-	tc := &middleware.TenantContext{
-		OrganizationID: 1, OrganizationSlug: "test-org", UserID: 1,
-	}
+	tc := &middleware.TenantContext{OrganizationID: 1, UserID: 1}
+	payload := []byte(`{"name":"  ","prompt_template":"do work"}`)
 
-	_, mcpErr := a.mcpCreateWorkflow(
-		context.Background(),
-		tc,
-		"1-standalone-abcd0004",
-		[]byte(`{}`),
-	)
-	if mcpErr == nil || mcpErr.code != 503 {
-		t.Fatalf("expected unavailable resource apply service, got %v", mcpErr)
+	_, mcpErr := a.mcpCreateWorkflow(context.Background(), tc, "1-standalone-abcd0003", payload)
+	if mcpErr == nil || mcpErr.code != 409 {
+		t.Fatalf("expected 409 resource apply gate, got %v", mcpErr)
+	}
+}
+
+func TestMcpCreateWorkflowRequiresResourceApplyBeforePromptValidation(t *testing.T) {
+	a := &GRPCRunnerAdapter{}
+	tc := &middleware.TenantContext{OrganizationID: 1, UserID: 1}
+	payload := []byte(`{"name":"daily-review","prompt_template":""}`)
+
+	_, mcpErr := a.mcpCreateWorkflow(context.Background(), tc, "1-standalone-abcd0004", payload)
+	if mcpErr == nil || mcpErr.code != 409 {
+		t.Fatalf("expected 409 resource apply gate, got %v", mcpErr)
 	}
 }
 

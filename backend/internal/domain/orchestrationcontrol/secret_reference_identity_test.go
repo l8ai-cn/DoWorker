@@ -42,36 +42,3 @@ func TestSecretGuardRejectsValueObjectUnderSensitiveField(t *testing.T) {
 
 	require.Error(t, err)
 }
-
-func TestSecretGuardAllowsToolModelEnvironmentTargets(t *testing.T) {
-	require.NoError(t, rejectRawSecretJSON(json.RawMessage(`{
-		"environment": {
-			"api_key": "SEEDANCE_API_KEY",
-			"base_url": "SEEDANCE_BASE_URL",
-			"model_id": "SEEDANCE_MODEL"
-		}
-	}`)))
-}
-
-func TestSecretGuardRejectsInvalidToolModelEnvironmentTargets(t *testing.T) {
-	tests := []json.RawMessage{
-		json.RawMessage(`{
-			"environment": {
-				"api_key": "AKIAIOSFODNN7EXAMPLE",
-				"base_url": "SEEDANCE_BASE_URL",
-				"model_id": "SEEDANCE_MODEL"
-			}
-		}`),
-		json.RawMessage(`{
-			"environment": {
-				"api_key": "SEEDANCE_API_KEY",
-				"base_url": "SEEDANCE_BASE_URL",
-				"model_id": "SEEDANCE_MODEL",
-				"token": "plaintext-value"
-			}
-		}`),
-	}
-	for _, document := range tests {
-		require.Error(t, rejectRawSecretJSON(document))
-	}
-}

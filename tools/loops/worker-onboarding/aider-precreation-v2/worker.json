@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "worker_slug": "aider",
+  "definition": {
+    "adapter_id": "aider-pty",
+    "interaction_modes": ["pty"],
+    "model_required": false,
+    "config_documents": []
+  },
+  "credential_contract": {
+    "bundle_source": "aider",
+    "reference_targets": ["OPENAI_API_KEY", "ANTHROPIC_API_KEY"],
+    "plaintext_handling": "forbidden"
+  },
+  "source_refs": [
+    "config/worker-types/aider/definition.json",
+    "config/worker-types/aider/AgentFile",
+    "backend/internal/service/workerspec/resolver.go"
+  ],
+  "live_gate": "Named non-production authorization is required before credential reference injection or Pod creation."
+}

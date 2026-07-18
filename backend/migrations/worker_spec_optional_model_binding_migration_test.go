@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMigration000228AllowsEmptyOptionalWorkerModelBinding(
+func TestMigration000221AllowsEmptyOptionalWorkerModelBinding(
 	t *testing.T,
 ) {
 	dsn := os.Getenv("MIGRATIONS_POSTGRES_TEST_DSN")
@@ -48,7 +48,7 @@ INSERT INTO organizations (id) VALUES (1);
 		"000194_worker_spec_snapshots.up.sql",
 		"000197_worker_spec_model_binding.up.sql",
 		"000209_worker_spec_protocol_adapter.up.sql",
-		"000228_worker_spec_optional_model_binding.up.sql",
+		"000221_worker_spec_optional_model_binding.up.sql",
 	} {
 		migration, err := FS.ReadFile(name)
 		require.NoError(t, err)
@@ -65,16 +65,16 @@ INSERT INTO organizations (id) VALUES (1);
 	)
 }
 
-func TestMigration000228ProtectsOptionalModelBindingRollback(t *testing.T) {
+func TestMigration000221ProtectsOptionalModelBindingRollback(t *testing.T) {
 	up := readMigrationForTest(
 		t,
-		"000228_worker_spec_optional_model_binding.up.sql",
+		"000221_worker_spec_optional_model_binding.up.sql",
 	)
 	require.Contains(t, up, "binding = '{}'::JSONB THEN TRUE")
 
 	down := readMigrationForTest(
 		t,
-		"000228_worker_spec_optional_model_binding.down.sql",
+		"000221_worker_spec_optional_model_binding.down.sql",
 	)
 	require.Contains(
 		t,

@@ -1,0 +1,16 @@
+{
+  "recorded_at": "2026-07-16T11:25:00+08:00",
+  "worker_type": "cursor-cli",
+  "root_cause": "The Compose service and runtime Dockerfile supported cursor-cli, but deploy/dev/runner-entrypoint.sh rejected AGENT_RUNTIME=cursor-cli before Runner startup.",
+  "red_test": {
+    "command": "bash deploy/dev/runner_runtime_contract_test.sh",
+    "exit_code": 1
+  },
+  "repair": "Added cursor-cli to the entrypoint runtime allowlist and a regression assertion to the Runner runtime contract test.",
+  "green_verification": [
+    "bash deploy/dev/runner_runtime_contract_test.sh",
+    "bash docker/agent-runtime/contract_test.sh",
+    "docker compose --env-file deploy/dev/.env -f deploy/dev/docker-compose.yml -f deploy/dev/docker-compose.runners.yml config --quiet"
+  ],
+  "support_claim": "This is a startup-contract repair only. The Cursor image and provider-backed lifecycle were not run in this workspace."
+}

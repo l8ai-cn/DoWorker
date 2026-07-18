@@ -15,6 +15,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
   -o /out/migrate-ai-resources ./backend/cmd/migrate-ai-resources
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
+  -o /out/migrate-worker-config-documents ./backend/cmd/migrate-worker-config-documents
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
   -o /out/worker-definition-sync ./backend/cmd/worker-definition-sync
 
 FROM alpine:3.19
@@ -25,6 +27,7 @@ RUN apk add --no-cache ca-certificates wget \
 WORKDIR /app
 COPY --from=build --chown=1000:1000 /out/server /app/server
 COPY --from=build --chown=1000:1000 /out/migrate-ai-resources /app/migrate-ai-resources
+COPY --from=build --chown=1000:1000 /out/migrate-worker-config-documents /app/migrate-worker-config-documents
 COPY --from=build --chown=1000:1000 /out/worker-definition-sync /app/worker-definition-sync
 COPY --from=build --chown=1000:1000 /src/config/worker-types /app/config/worker-types
 USER 1000

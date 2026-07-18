@@ -19,17 +19,31 @@ func validateDefinitionConfigDocuments(
 			actual[bundle.ConfigDocument.ID] = *bundle.ConfigDocument
 		}
 	}
-	if len(expected) != len(actual) {
-		return fmt.Errorf("worker definition config documents do not match artifact")
-	}
 	for _, document := range expected {
 		snapshot, exists := actual[document.ID]
-		if !exists ||
-			snapshot.Format != document.Format ||
-			snapshot.TargetPath != document.TargetPath {
+		if !exists && document.Required {
+			return fmt.Errorf(
+				"worker definition config document %q is missing from artifact",
+				document.ID,
+			)
+		}
+		if exists && (snapshot.Format != document.Format ||
+			snapshot.TargetPath != document.TargetPath) {
 			return fmt.Errorf(
 				"worker definition config document %q does not match artifact",
 				document.ID,
+			)
+		}
+	}
+	declared := make(map[string]struct{}, len(expected))
+	for _, document := range expected {
+		declared[document.ID] = struct{}{}
+	}
+	for documentID := range actual {
+		if _, exists := declared[documentID]; !exists {
+			return fmt.Errorf(
+				"worker definition config document %q is not declared",
+				documentID,
 			)
 		}
 	}
@@ -51,7 +65,7 @@ func validateDefinitionSecrets(
 		binding, exists := bindings[reference.Field]
 		if !exists || reference.BundleKey != binding.Target.Name {
 			return fmt.Errorf(
-					"secret reference field %q does not match worker definition",
+				"Secret reference field %q does not match worker definition",
 				reference.Field,
 			)
 		}
@@ -65,7 +79,7 @@ func validateDefinitionSecrets(
 				return fmt.Errorf("user Secret owner does not match Plan actor")
 			}
 		default:
-			return fmt.Errorf("secret owner scope %q is invalid", reference.OwnerScope)
+			return fmt.Errorf("Secret owner scope %q is invalid", reference.OwnerScope)
 		}
 	}
 	return nil

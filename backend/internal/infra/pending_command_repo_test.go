@@ -60,15 +60,27 @@ func TestPendingCommandRepo_Enqueue_DuplicateReturnsSentinel(t *testing.T) {
 	assert.ErrorIs(t, err, agentpod.ErrDuplicateCommand)
 }
 
-func TestPendingCommandRepo_Enqueue_RejectsPlaintextPayload(t *testing.T) {
+func TestPendingCommandRepo_EnqueueWithinCapacity(t *testing.T) {
 	repo := NewPendingCommandRepository(setupPendingCommandDB(t))
-	command := newPendingCmd(1, "pd-1", "cmd-1")
-	command.Payload = []byte("private-key")
+	ctx := context.Background()
 
-	err := repo.Enqueue(context.Background(), command)
-
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), agentpod.PendingPayloadPrefix)
+	require.NoError(t, repo.EnqueueWithinCapacity(
+		ctx,
+		newPendingCmd(1, "pd-1", "cmd-1"),
+		1,
+	))
+	err := repo.EnqueueWithinCapacity(
+		ctx,
+		newPendingCmd(1, "pd-2", "cmd-2"),
+		1,
+	)
+	assert.ErrorIs(t, err, agentpod.ErrQueueFull)
+	err = repo.EnqueueWithinCapacity(
+		ctx,
+		newPendingCmd(1, "pd-1", "cmd-1"),
+		1,
+	)
+	assert.ErrorIs(t, err, agentpod.ErrDuplicateCommand)
 }
 
 func TestPendingCommandRepo_FIFOAndPosition(t *testing.T) {

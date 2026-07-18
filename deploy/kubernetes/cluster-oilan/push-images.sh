@@ -93,8 +93,37 @@ push_infra() {
   mirror alpine/k8s:1.28.4      kubectl:1.28
 }
 
-push_video_runtime() {
-  PLATFORM="${PLATFORM}" bash "${SCRIPT_DIR}/push-runner-images.sh" video-studio
+push_runners() {
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh claude-code )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh codex-cli )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh gemini-cli )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh grok-build )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh openclaw )
+  ( cd "${REPO_ROOT}" && bash docker/agent-runtime/build.sh hermes )
+  docker build --platform linux/amd64 --target runtime \
+    -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
+    --build-arg AGENT_RUNTIME=e2e-echo \
+    --build-arg "NODE_BASE_IMAGE=${NODE_BASE_IMAGE:-node:24-bookworm-slim}" \
+    --build-arg "PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}" \
+    -t do-worker/runner-e2e-echo:latest \
+    "${REPO_ROOT}/docker/agent-runtime/_context"
+  if docker image inspect "do-worker/runner-minimax-cli:latest" >/dev/null 2>&1; then
+    :
+  elif docker image inspect "l8ai/runner-minimax-cli:latest" >/dev/null 2>&1; then
+    docker tag "l8ai/runner-minimax-cli:latest" "do-worker/runner-minimax-cli:latest"
+  else
+    docker build --platform linux/amd64 --target runtime \
+      -f "${REPO_ROOT}/docker/agent-runtime/Dockerfile" \
+      --build-arg AGENT_RUNTIME=minimax-cli \
+      --build-arg "NODE_BASE_IMAGE=${NODE_BASE_IMAGE:-node:24-bookworm-slim}" \
+      --build-arg "PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}" \
+      -t do-worker/runner-minimax-cli:latest \
+      "${REPO_ROOT}/docker/agent-runtime/_context"
+  fi
+  for rt in claude-code codex-cli gemini-cli grok-build openclaw hermes e2e-echo minimax-cli; do
+    docker tag "do-worker/runner-${rt}:latest" "${PROJ}/runner-${rt}:latest"
+    docker push "${PROJ}/runner-${rt}:latest"
+  done
 }
 main() {
   release_require_pushed_clean_tree "${REPO_ROOT}"

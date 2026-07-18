@@ -172,3 +172,80 @@ fn take_one_frame(buf: &mut BytesMut) -> Option<ParsedFrame> {
     let payload = buf.split_to(len).freeze();
     Some(ParsedFrame { flags, payload })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use agentsmesh_types::proto_events_v1::Event;
+    use futures::stream;
+
+    fn frame(flags: u8, payload: &[u8]) -> Bytes {
+        let mut v = Vec::with_capacity(HEADER_LEN + payload.len());
+        v.push(flags);
+        v.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+        v.extend_from_slice(payload);
+        Bytes::from(v)
+    }
+
+    fn ok_stream(items: Vec<Bytes>) -> impl Stream<Item = Result<Bytes, ApiError>> + Unpin {
+        Box::pin(stream::iter(items.into_iter().map(Ok)))
+    }
+
+    #[tokio::test]
+    async fn single_message_then_clean_end() {
+        let msg = Event {
+            r#type: "pod:status_changed".into(),
+            ..Default::default()
+        };
+        let chunks = vec![frame(0, &msg.encode_to_vec()), frame(FLAG_FINAL, b"{}")];
+        let stream = parse_connect_frames::<_, Event>(ok_stream(chunks));
+        futures::pin_mut!(stream);
+        let got = stream.next().await.unwrap().unwrap();
+        assert_eq!(got.r#type, "pod:status_changed");
+        assert!(stream.next().await.is_none());
+    }
+
+    #[tokio::test]
+    async fn handles_partial_chunks_across_boundary() {
+        let msg = Event {
+            r#type: "ticket:updated".into(),
+            ..Default::default()
+        };
+        let full = frame(0, &msg.encode_to_vec());
+        let mid = full.len() / 2;
+        let chunks = vec![
+            full.slice(..mid),
+            full.slice(mid..),
+            frame(FLAG_FINAL, b"{}"),
+        ];
+        let stream = parse_connect_frames::<_, Event>(ok_stream(chunks));
+        futures::pin_mut!(stream);
+        let got = stream.next().await.unwrap().unwrap();
+        assert_eq!(got.r#type, "ticket:updated");
+    }
+
+    #[tokio::test]
+    async fn surfaces_end_stream_error() {
+        let err_payload = br#"{"error":{"code":"unauthenticated","message":"token expired"}}"#;
+        let chunks = vec![frame(FLAG_FINAL, err_payload)];
+        let stream = parse_connect_frames::<_, Event>(ok_stream(chunks));
+        futures::pin_mut!(stream);
+        let err = stream.next().await.unwrap().unwrap_err();
+        match err {
+            ApiError::Http { code, .. } => assert_eq!(code.as_deref(), Some("unauthenticated")),
+            other => panic!("wrong error variant: {other:?}"),
+        }
+    }
+
+    #[tokio::test]
+    async fn rejects_compressed_frames() {
+        let chunks = vec![frame(FLAG_COMPRESSED, b"\x01\x02\x03")];
+        let stream = parse_connect_frames::<_, Event>(ok_stream(chunks));
+        futures::pin_mut!(stream);
+        let err = stream.next().await.unwrap().unwrap_err();
+        match err {
+            ApiError::Decode(_) => {}
+            other => panic!("expected Decode err, got {other:?}"),
+        }
+    }
+}

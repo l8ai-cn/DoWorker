@@ -24,7 +24,7 @@ func (t *transport) handleConfigWarning(params json.RawMessage) {
 		msg = "codex config warning"
 	}
 	if t.callbacks.OnLog != nil {
-		t.callbacks.OnLog("error", msg)
+		t.callbacks.OnLog("info", msg)
 	}
 }
 

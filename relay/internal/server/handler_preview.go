@@ -12,6 +12,19 @@ import (
 	"github.com/anthropics/agentsmesh/relay/internal/tunnel"
 )
 
+// previewCookieName is the session cookie set by HandlePreviewSession after a
+// one-shot token exchange, scoped to /preview/{podKey}.
+const previewCookieName = "gw_preview"
+
+// PreviewConfig bounds the preview HTTP entrypoint's runtime behaviour.
+type PreviewConfig struct {
+	ReconnectGrace    time.Duration // WaitForTunnel grace window
+	StreamTimeout     time.Duration // single-stream timeout (never closes the whole tunnel)
+	StreamWindowBytes int           // credit window per stream
+	CookieSecure      bool          // Secure flag on the gw_preview cookie
+	PublicHost        string
+}
+
 // PreviewHandler routes authenticated preview requests through the runner
 // tunnel using only the target and canonical path bound into the JWT.
 type PreviewHandler struct {

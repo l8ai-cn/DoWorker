@@ -14,17 +14,6 @@ import {
 } from "./AgentWorkspace.test-fixture";
 
 describe("AgentWorkspace", () => {
-  beforeEach(() => {
-    Object.defineProperty(URL, "createObjectURL", {
-      configurable: true,
-      value: vi.fn(() => "blob:artifact"),
-    });
-    Object.defineProperty(URL, "revokeObjectURL", {
-      configurable: true,
-      value: vi.fn(),
-    });
-  });
-
   it("renders an intent-first empty workspace with real session capabilities", async () => {
     const snapshot = sessionSnapshot();
     snapshot.status = "idle";
@@ -95,50 +84,9 @@ describe("AgentWorkspace", () => {
     expect(screen.getByRole("tab", { name: "Terminal" })).toBeEnabled();
   });
 
-  it("moves artifacts into a persistent results surface", async () => {
-    const snapshot = sessionSnapshot();
-    snapshot.status = "idle";
-    snapshot.plan = [];
-    snapshot.permissions = [];
-    snapshot.items.push({
-      actions: [],
-      artifactId: "artifact-1",
-      filename: "result.png",
-      grants: [],
-      id: "artifact-item-1",
-      kind: "artifact",
-      manifest: null,
-      mimeType: "image/png",
-      representations: [],
-      revision: 1n,
-      role: "preview",
-      schemaVersion: "1",
-      selectedRepresentationId: null,
-      status: "completed",
-    });
-    const { agentRuntime } = runtime(snapshot);
-
-    render(
-      <AgentWorkspace runtime={agentRuntime} sessionId={snapshot.sessionId} />,
-    );
-
-    expect(await screen.findByRole("tab", { name: "Results" })).toBeVisible();
-    expect(
-      screen.queryByRole("img", { name: "result.png" }),
-    ).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("tab", { name: "Results" }));
-
-    expect(await screen.findByRole("img", { name: "result.png" })).toBeVisible();
-    expect(
-      screen.getByText("Ran 1 command").closest("section"),
-    ).toHaveAttribute("aria-hidden", "true");
-  });
-
   it("sends messages and resolves approvals through the runtime", async () => {
     const snapshot = sessionSnapshot();
     snapshot.status = "idle";
-    snapshot.items = [];
     snapshot.hasOlderItems = true;
     const { agentRuntime, terminalRuntime } = runtime(snapshot);
 
@@ -186,13 +134,7 @@ describe("AgentWorkspace", () => {
       },
       {
         id: "tool-1",
-        identity: {
-          namespace: "agentsmesh.acp",
-          schemaVersion: "1",
-          semanticKey: "shell",
-        },
         kind: "tool",
-        results: [],
         title: "shell",
         input: "{}",
         output: "12 tests passed",
@@ -224,13 +166,7 @@ describe("AgentWorkspace", () => {
     snapshot.items = [
       {
         id: "tool-zh",
-        identity: {
-          namespace: "agentsmesh.acp",
-          schemaVersion: "1",
-          semanticKey: "shell",
-        },
         kind: "tool",
-        results: [],
         title: "shell",
         input: JSON.stringify({ command: "pnpm test" }),
         output: "12 tests passed",
@@ -265,7 +201,6 @@ describe("AgentWorkspace", () => {
   it("shows command failures inside the workspace", async () => {
     const snapshot = sessionSnapshot();
     snapshot.status = "idle";
-    snapshot.items = [];
     const { agentRuntime, terminalRuntime } = runtime(snapshot);
     vi.mocked(agentRuntime.sendMessage).mockRejectedValueOnce(
       new Error("Worker rejected the prompt"),
@@ -337,48 +272,6 @@ describe("AgentWorkspace", () => {
     fireEvent.keyDown(input, { key: "Enter" });
     expect(agentRuntime.sendMessage).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Stop agent" }));
-    await waitFor(() =>
-      expect(agentRuntime.interrupt).toHaveBeenCalledWith(
-        "session-1",
-        expect.any(String),
-      ),
-    );
-  });
-
-  it("keeps background tools interrupt-only after the session becomes idle", async () => {
-    const snapshot = sessionSnapshot();
-    snapshot.status = "idle";
-    snapshot.items = [
-      {
-        id: "tool-background",
-        identity: {
-          namespace: "agentsmesh.acp",
-          schemaVersion: "1",
-          semanticKey: "shell",
-        },
-        kind: "tool",
-        results: [],
-        title: "shell",
-        input: "long-running command",
-        status: "running",
-      },
-    ];
-    const { agentRuntime, terminalRuntime } = runtime(snapshot);
-
-    render(
-      <AgentWorkspace
-        runtime={agentRuntime}
-        terminalRuntime={terminalRuntime}
-        sessionId={snapshot.sessionId}
-      />,
-    );
-
-    const input = await screen.findByLabelText("Message the agent");
-    fireEvent.change(input, { target: { value: "Do not queue this prompt" } });
-    fireEvent.keyDown(input, { key: "Enter" });
-
-    expect(agentRuntime.sendMessage).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Stop agent" }));
     await waitFor(() =>
       expect(agentRuntime.interrupt).toHaveBeenCalledWith(

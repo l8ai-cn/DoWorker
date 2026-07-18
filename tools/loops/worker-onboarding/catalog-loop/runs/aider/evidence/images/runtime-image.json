@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "worker_slug": "aider",
+  "adapter_id": "aider-pty",
+  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-aider:latest",
+  "image_digest": "sha256:dc67337a330902f3b7896d6bd53cb41cfda23d0f15fcf0e73d316a24e4fa3d79",
+  "upstream_version": "0.86.2",
+  "probe_command": "aider --version",
+  "probe_evidence": "evidence/tests/runner-runtime.txt",
+  "adapter_source_path": "runner/internal/runner/pod_builder.go"
+}

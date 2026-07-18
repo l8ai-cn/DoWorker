@@ -18,7 +18,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:9eb65b2ea0e82ebb214d564f42a296525dea8cfa89d23f3c84c078000893d352",
+      "definition_hash": "sha256:7723ccf2c9eb5c4d3566158d11a54468604ab7204c3eb5da8ccca4ac8faa57d5",
       "executable": "aider",
       "adapter_id": "aider-pty",
       "interaction_modes": [
@@ -56,10 +56,10 @@
       "runtime_catalog": {
         "status": "blocked_no_published_digest"
       },
-      "runtime_evidence": "blocked_external_apt_repository",
-      "runner": "unverified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runtime_evidence": "runtime_smoke_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -123,9 +123,9 @@
         "probe_status": "not_found"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "blocked_missing_model_resource_verified",
-      "browser": "missing_model_resource_guard_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -173,15 +173,15 @@
       ],
       "config_documents": [],
       "runtime_catalog": {
-        "status": "locked_available",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
-        "probe_status": "available"
+        "status": "invalid_published_digest",
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
+        "probe_status": "not_found"
       },
-      "runtime_evidence": "published_runtime_smoke_verified",
-      "runner": "create_and_acp_prompt_verified",
-      "product_path": "created_acp_prompt_and_cleanup_verified",
-      "browser": "created_acp_prompt_and_cleanup_verified",
-      "support_status": "verified_local_dev"
+      "runtime_evidence": "runtime_smoke_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_passed_not_created",
+      "browser": "blocked_browser_runtime",
+      "support_status": "not_supported"
     },
     {
       "slug": "cursor-cli",
@@ -200,7 +200,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:8e8284ba68d3a15ed74906926b7491dc8f1ef86e00bd14ac43950188cfe06d2e",
+      "definition_hash": "sha256:338b2fef7a6fefbb9034268f14ecdf529ed99438a3885a93598e607ae4144c5a",
       "executable": "agent",
       "adapter_id": "cursor-acp",
       "interaction_modes": [
@@ -229,9 +229,9 @@
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -251,7 +251,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:e79be1769fe5b2d4de307d3748b9edcfa8a31eafec0a5a51a4b2dfb36b0a8337",
+      "definition_hash": "sha256:f4348e3bb9baf3973078c475b5ac724fab016d06c10673d927d21dd80a267bb8",
       "executable": "do-agent",
       "adapter_id": "do-agent-acp",
       "interaction_modes": [
@@ -293,18 +293,16 @@
         {
           "id": "settings",
           "format": "json",
-          "target_path": "DO_AGENT_SETTINGS",
-          "required": true
+          "target_path": "DO_AGENT_SETTINGS"
         }
       ],
       "runtime_catalog": {
-        "status": "locked_available",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653"
+        "status": "blocked_no_published_digest"
       },
-      "runtime_evidence": "published_runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "unverified",
-      "browser": "unverified",
+      "runtime_evidence": "runtime_smoke_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_passed_not_created",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -357,9 +355,9 @@
         "probe_status": "not_found"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "blocked_missing_model_resource_verified",
-      "browser": "missing_model_resource_guard_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_blocked_missing_compatible_model",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -408,9 +406,9 @@
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -459,10 +457,10 @@
       "runtime_catalog": {
         "status": "blocked_no_published_digest"
       },
-      "runtime_evidence": "blocked_external_apt_repository",
-      "runner": "unverified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runtime_evidence": "runtime_smoke_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -533,9 +531,9 @@
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "blocked_missing_real_artifact",
-      "runner": "unverified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -585,9 +583,9 @@
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "unverified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_passed_not_created",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -607,7 +605,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:d0b3265258c995968bb5e738b1bd535f839075c73faecbad6a8412b0b9d4ab0b",
+      "definition_hash": "sha256:6dd46e7bf44d30cd5ececc7e7d87f317559d3892415dec9ab86aabe3b5a57518",
       "executable": "openclaw",
       "adapter_id": "openclaw-pty",
       "interaction_modes": [
@@ -636,17 +634,16 @@
         {
           "id": "openclaw-json",
           "format": "json",
-          "target_path": "openclaw-home/.openclaw/openclaw.json",
-          "required": false
+          "target_path": "openclaw-home/.openclaw/openclaw.json"
         }
       ],
       "runtime_catalog": {
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "unverified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_passed_not_created",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -666,7 +663,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:6681ce02048799d625df1b48fb1834233365eb8d586a28cbe948158eaa26c6f4",
+      "definition_hash": "sha256:734be0fcd980d77c644cbcec4c3add77882c62f80b0c2efba4037ae7253406f6",
       "executable": "opencode",
       "adapter_id": "opencode-acp",
       "interaction_modes": [
@@ -674,32 +671,18 @@
         "acp"
       ],
       "model_requirement": {
-        "required": true,
-        "protocol_adapters": [
-          "openai-compatible"
-        ]
+        "required": false,
+        "protocol_adapters": []
       },
-      "credential_bindings": [
-        {
-          "id": "openai",
-          "source": {
-            "kind": "model_resource",
-            "ref": "openai-compatible"
-          },
-          "target": {
-            "kind": "env",
-            "name": "OPENAI_API_KEY"
-          }
-        }
-      ],
+      "credential_bindings": [],
       "config_documents": [],
       "runtime_catalog": {
         "status": "blocked_no_published_digest"
       },
       "runtime_evidence": "runtime_smoke_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "unverified",
-      "browser": "missing_runtime_image_guard_verified",
+      "runner": "unverified_current",
+      "product_path": "not_revalidated_current_loop",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     },
     {
@@ -719,7 +702,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:6aee4088b36dca0e499bda8a301a2039f53aaa3a5e9db12ec61d0ce02e9e2348",
+      "definition_hash": "sha256:71097d3d9e94b5752e0417eb1dd41e1472b885f8be2b279eba8ce31f7cbe1fc9",
       "executable": "do-agent",
       "adapter_id": "do-agent-acp",
       "interaction_modes": [
@@ -761,72 +744,16 @@
         {
           "id": "settings",
           "format": "json",
-          "target_path": "DO_AGENT_SETTINGS",
-          "required": true
+          "target_path": "DO_AGENT_SETTINGS"
         }
       ],
       "runtime_catalog": {
-        "status": "locked_available",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653"
+        "status": "blocked_no_published_digest"
       },
-      "runtime_evidence": "shared_published_do_agent_runtime_verified",
-      "runner": "adapter_unit_verified",
-      "product_path": "unverified",
-      "browser": "unverified",
-      "support_status": "not_supported"
-    },
-    {
-      "slug": "video-studio",
-      "source_refs": [
-        "config/worker-types/video-studio/definition.json",
-        "config/worker-types/video-studio/AgentFile",
-        "backend/internal/domain/workerruntime/runtime_catalog.lock.json",
-        "tools/loops/worker-onboarding/catalog-loop/catalog/worker-evidence-matrix.json",
-        "tools/loops/worker-onboarding/catalog-loop/evidence/runtime-builds/video-studio.json",
-        "tools/loops/worker-onboarding/catalog-loop/evidence/runtime-lock-probes.json"
-      ],
-      "layers": [
-        "definition",
-        "runtime-catalog",
-        "runtime-evidence",
-        "runner-evidence",
-        "product-evidence"
-      ],
-      "definition_hash": "sha256:da0739415f4a7de3009d3c17d8402eb8b032e05ed744178cd9ef25d54e3e10ec",
-      "executable": "video-studio-codex",
-      "adapter_id": "codex-app-server",
-      "interaction_modes": [
-        "pty",
-        "acp"
-      ],
-      "model_requirement": {
-        "required": true,
-        "protocol_adapters": [
-          "openai-compatible"
-        ]
-      },
-      "credential_bindings": [
-        {
-          "id": "openai",
-          "source": {
-            "kind": "model_resource",
-            "ref": "openai-compatible"
-          },
-          "target": {
-            "kind": "env",
-            "name": "OPENAI_API_KEY"
-          }
-        }
-      ],
-      "config_documents": [],
-      "runtime_catalog": {
-        "status": "locked_available",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d"
-      },
-      "runtime_evidence": "published_runtime_smoke_verified",
-      "runner": "unverified",
-      "product_path": "unverified",
-      "browser": "unverified",
+      "runtime_evidence": "shared_do_agent_runtime_verified",
+      "runner": "slug_presence_verified_adapter_unattested_current",
+      "product_path": "preflight_blocked_disabled_tool_model",
+      "browser": "blocked_browser_runtime",
       "support_status": "not_supported"
     }
   ]

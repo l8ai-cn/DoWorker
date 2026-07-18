@@ -1,16 +1,12 @@
 {
   "schema_version": 1,
   "status": "verified",
-  "verified_at": "2026-07-12T19:47:45Z",
+  "verified_at": "2026-07-15T18:25:39Z",
   "definition_bundle": "definition.json + NUL + AgentFile",
   "backend_consumer": "workercreation.workerTypeResolver",
   "checks": [
-    "go test ./backend/internal/service/workerdefinition -count=1",
-    "go test ./backend/internal/service/workercreation -count=1",
-    "go test ./backend/cmd/worker-definition-sync -count=1",
-    "go test ./backend/internal/domain/workerruntime ./backend/internal/service/workercreation -count=1",
-    "bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-dev-database-projection.sh",
-    "authenticated ListWorkerCreateOptions against http://localhost:10000"
+    "DB_HOST=localhost DB_PORT=10002 DB_USER=agentsmesh DB_PASSWORD=agentsmesh_dev DB_NAME=agentsmesh DB_SSLMODE=disable PREVIEW_PUBLIC_ORIGIN=http://localhost:10007 WORKER_DEFINITIONS_DIR=config/worker-types go run ./backend/cmd/worker-definition-sync",
+    "bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-dev-database-projection.sh"
   ],
   "projection_verified_slugs": [
     "aider",
@@ -24,7 +20,8 @@
     "loopal",
     "minimax-cli",
     "openclaw",
-    "opencode"
+    "opencode",
+    "seedance-expert"
   ],
   "blocked_registration_slugs": [],
   "runtime_catalog_lock": "backend/internal/domain/workerruntime/runtime_catalog.lock.json"

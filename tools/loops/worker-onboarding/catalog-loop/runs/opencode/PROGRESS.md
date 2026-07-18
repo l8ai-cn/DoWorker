@@ -4,41 +4,36 @@ Loop: Worker Onboarding Loop Template
 
 ## Current Status
 
-- Status: planned
-- Active loop node: not started
-- Active atomic task: not assigned
-- Last verifier result: not run
-- Last no-progress fingerprint: not recorded
-- Current token estimate: 0
+- Status: blocked on a valid named non-production OpenAI credential.
+- Active loop node: `worker-goal`
+- Active atomic task: `verify-worker-flow`
+- Last verifier result: provider authentication rejected after a real browser prompt.
+- Last no-progress fingerprint: `opencode|provider-auth-rejected|model-resource-1|definition-v4`
 
-## Assumptions
+## Verified
 
-- No assumptions recorded yet.
+- Definition v4 requires an `openai-compatible` model resource and injects
+  `OPENAI_API_KEY` only through the model-resource binding.
+- The browser created `opencode-openai-model-live-e2e-v2`
+  (`1-standalone-a70efd0b`) from WorkerSpec snapshot `13`.
+- Runner started `opencode acp`, created the sandbox `opencode.json` with
+  `model: "openai/gpt-5"`, completed ACP initialization, and subscribed to
+  Relay.
+- ACP reports streaming unsupported for this runtime, so the AgentFile now
+  declares `CAPABILITY streaming false`.
+- The browser prompt reached OpenAI and returned an explicit invalid-API-key
+  error. No credential value was read or recorded.
 
-## Decisions
+## Blocker
 
-- Initial recursive loop contract generated from `loop.json`.
-
-## Acceptance Trace
-
-- Checklist path: `ACCEPTANCE.md`
-- Checked items: none
-- Reopened items: none
-
-## Blocked Decision Trace
-
-- Decision file: `DECISIONS.md`
-- Decision log: `journal.jsonl`
-- Delegation confirmed: pending
-- Last proxy decision: none
-- Last supervisor review: none
+`QA Primary Model` is marked valid in stored metadata but its current OpenAI
+credential is rejected by the provider. This is a credential lifecycle issue,
+not an OpenCode launch, configuration, model-selection, or ACP adapter issue.
 
 ## Next Cycle
 
-1. Re-read `loop.json`, `state.json`, `tasks.json`, `agents.json`, `ACCEPTANCE.md`, `DECISIONS.md`, and this file.
-2. Evaluate `clarification_policy` before acting.
-3. If blocked, apply `decision_policy`: confirm delegation, use proxy decisions only within low-risk authority, and escalate otherwise.
-4. Run supervisor drift checks on the configured cadence before continuing.
-5. Execute one eligible loop node or atomic task.
-6. Record evidence, then check exactly the matching acceptance item only if its criteria and verifier refs pass.
-7. Stop on success, failure, budget, no-progress, or human-gate conditions.
+1. Update the named non-production provider connection through the encrypted
+   resource-management flow with a valid API key.
+2. Re-send `Reply with exactly: READY` to this Worker.
+3. Keep OpenCode unsupported until the browser displays the agent reply and
+   Runner logs confirm the completed prompt.

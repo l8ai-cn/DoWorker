@@ -1,10 +1,10 @@
 import { create, toBinary } from "@bufbuild/protobuf";
-import { PlanResourceResponseSchema } from "../../../../../proto/gen/ts/orchestration_resource/v1/orchestration_resource_queries_pb";
 import {
   IssueSeverity,
   PlanStatus,
+  PlanResourceResponseSchema,
   ResourceOperation,
-} from "../../../../../proto/gen/ts/orchestration_resource/v1/orchestration_resource_types_pb";
+} from "../../../../../proto/gen/ts/orchestration_resource/v1/orchestration_resource_pb";
 import { expect, test } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 

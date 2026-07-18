@@ -14,18 +14,17 @@ import (
 // Pod creation is delegated to PodOrchestrator (service layer).
 // This handler remains responsible for CRUD and HTTP protocol adaptation.
 type PodHandler struct {
-	podService         PodServiceForHandler       // Pod CRUD operations (ListPods, GetPod, TerminatePod, etc.)
-	runnerService      *runner.Service            // Runner management
-	podCoordinator     *runner.PodCoordinator     // Pod coordination (TerminatePod, terminal routing)
-	orchestrator       *agentpod.PodOrchestrator  // Unified Pod creation logic
-	commandSender      runner.RunnerCommandSender // Unified command sender (PTY + ACP)
-	grantService       *grantservice.Service      // Resource grant/sharing service
-	pendingQueue       pendingQueueReader
-	sandboxFs          podWorkspaceSandbox
-	workspaceArtifacts podWorkspaceArtifactTransfer
-	artifactTransfers  sync.Map
-	workerSpecs        workerspecservice.SnapshotRepository
-	experts            *expertservice.Service
+	podService              PodServiceForHandler       // Pod CRUD operations (ListPods, GetPod, TerminatePod, etc.)
+	runnerService           *runner.Service            // Runner management
+	podCoordinator          *runner.PodCoordinator     // Pod coordination (TerminatePod, terminal routing)
+	orchestrator            PodCreatorForHandler       // Unified Pod creation logic
+	commandSender           runner.RunnerCommandSender // Unified command sender (PTY + ACP)
+	grantService            *grantservice.Service      // Resource grant/sharing service
+	pendingQueue            pendingQueueReader
+	sandboxFs               podWorkspaceSandbox
+	quickTaskPlanAuthorizer QuickTaskPlanAuthorizer
+	quickTaskPlanApplier    QuickTaskPlanApplier
+	quickTaskPodReader      quickTaskPodReader
 
 	// Preview (Gateway HTTP data plane) dependencies.
 	relaySelector       previewRelaySelector
@@ -70,25 +69,21 @@ func WithPendingQueue(q pendingQueueReader) PodHandlerOption {
 	}
 }
 
+func WithQuickTaskPlanApplier(applier QuickTaskPlanApplier) PodHandlerOption {
+	return func(h *PodHandler) {
+		h.quickTaskPlanApplier = applier
+	}
+}
+
+func WithQuickTaskPlanAuthorizer(authorizer QuickTaskPlanAuthorizer) PodHandlerOption {
+	return func(h *PodHandler) {
+		h.quickTaskPlanAuthorizer = authorizer
+	}
+}
+
 func WithPodWorkspaceSandbox(sandbox podWorkspaceSandbox) PodHandlerOption {
 	return func(h *PodHandler) {
 		h.sandboxFs = sandbox
-	}
-}
-
-func WithPodWorkerContext(
-	workerSpecs workerspecservice.SnapshotRepository,
-	experts *expertservice.Service,
-) PodHandlerOption {
-	return func(h *PodHandler) {
-		h.workerSpecs = workerSpecs
-		h.experts = experts
-	}
-}
-
-func WithPodWorkspaceArtifactTransfer(transfer podWorkspaceArtifactTransfer) PodHandlerOption {
-	return func(h *PodHandler) {
-		h.workspaceArtifacts = transfer
 	}
 }
 
@@ -109,9 +104,10 @@ func NewPodHandler(
 	opts ...PodHandlerOption,
 ) *PodHandler {
 	h := &PodHandler{
-		podService:    podService,
-		runnerService: runnerService,
-		orchestrator:  orchestrator,
+		podService:         podService,
+		runnerService:      runnerService,
+		orchestrator:       orchestrator,
+		quickTaskPodReader: podService,
 	}
 	for _, opt := range opts {
 		opt(h)

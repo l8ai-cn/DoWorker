@@ -4,41 +4,38 @@ Loop: Worker Onboarding Loop Template
 
 ## Current Status
 
-- Status: planned
-- Active loop node: not started
-- Active atomic task: not assigned
-- Last verifier result: not run
-- Last no-progress fingerprint: not recorded
-- Current token estimate: 0
+- Status: blocked on a valid non-production Gemini ModelBinding.
+- Active loop node: `worker-goal`
+- Active atomic task: `verify-worker-flow`
+- Last verifier result: Gemini ACP initialization succeeded; session creation rejected the missing API key.
+- Last no-progress fingerprint: `gemini-cli|missing-gemini-model-binding|gemini-0.50.0`
 
-## Assumptions
+## Verified
 
-- No assumptions recorded yet.
+- The dedicated `gemini-cli` Runner is online, and its image runs
+  `gemini --version` as `0.50.0`.
+- The canonical contract uses executable `gemini`, adapter `gemini-acp`, and
+  ACP mode `gemini --experimental-acp`.
+- The real CLI accepts ACP `initialize` without a credential and advertises
+  Gemini API key, OAuth, Vertex AI, and gateway authentication methods.
+- A real ACP `session/new` call without `GEMINI_API_KEY` returns
+  `Gemini API key is missing or not configured.`
+- `GEMINI_API_KEY SECRET OPTIONAL` is model-resource managed; the definition
+  still requires a Gemini protocol ModelBinding and injects the key at runtime.
+- The only available `ModelBinding` resolves to enabled `openai / gpt-5`.
+  Browser plan generation rejects it at `/spec/modelResourceId` with the
+  safe incompatibility message. No orchestration resource or Pod was created.
 
-## Decisions
+## Blocker
 
-- Initial recursive loop contract generated from `loop.json`.
-
-## Acceptance Trace
-
-- Checklist path: `ACCEPTANCE.md`
-- Checked items: none
-- Reopened items: none
-
-## Blocked Decision Trace
-
-- Decision file: `DECISIONS.md`
-- Decision log: `journal.jsonl`
-- Delegation confirmed: pending
-- Last proxy decision: none
-- Last supervisor review: none
+The development organization has no Gemini-protocol ModelBinding. A valid
+encrypted non-production Gemini credential must be created through resource
+management; no raw credential was read, logged, or changed.
 
 ## Next Cycle
 
-1. Re-read `loop.json`, `state.json`, `tasks.json`, `agents.json`, `ACCEPTANCE.md`, `DECISIONS.md`, and this file.
-2. Evaluate `clarification_policy` before acting.
-3. If blocked, apply `decision_policy`: confirm delegation, use proxy decisions only within low-risk authority, and escalate otherwise.
-4. Run supervisor drift checks on the configured cadence before continuing.
-5. Execute one eligible loop node or atomic task.
-6. Record evidence, then check exactly the matching acceptance item only if its criteria and verifier refs pass.
-7. Stop on success, failure, budget, no-progress, or human-gate conditions.
+1. Create or select a validated Gemini model resource and immutable
+   ModelBinding through the resource-management flow.
+2. Generate and apply the Gemini Worker template using that binding.
+3. Create the Worker, send a browser prompt, and require a completed ACP
+   session plus an agent reply.

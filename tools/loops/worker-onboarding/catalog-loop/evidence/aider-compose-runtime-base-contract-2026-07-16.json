@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T10:35:32+08:00",
+  "worker_slug": "aider",
+  "scope": "development Compose image build declaration",
+  "root_cause": "runner-aider omitted RUNTIME_BASE=python-runtime-base while its Dockerfile branch runs pip3 install aider-chat.",
+  "red_verifier": {
+    "command": "bash docker/agent-runtime/contract_test.sh",
+    "exit_code": 1,
+    "message": "runner-aider must select python-runtime-base for pip-based installation"
+  },
+  "remediation": [
+    "deploy/dev/docker-compose.runners.yml now passes RUNTIME_BASE: python-runtime-base for runner-aider.",
+    "docker/agent-runtime/contract_test.sh now rejects a future omission."
+  ],
+  "green_verifiers": [
+    {
+      "command": "bash docker/agent-runtime/contract_test.sh",
+      "exit_code": 0
+    },
+    {
+      "command": "docker compose --env-file deploy/dev/.env -f deploy/dev/docker-compose.yml -f deploy/dev/docker-compose.runners.yml -p agentsmesh-codex-loop-blockly-mvp config --quiet",
+      "exit_code": 0
+    },
+    {
+      "command": "bash deploy/dev/runner_runtime_contract_test.sh",
+      "exit_code": 0
+    }
+  ],
+  "runtime_status": "not_built_after_remediation",
+  "support_conclusion": "The static build root cause is fixed, but no image, Runner, API, browser, or lifecycle support claim follows from this evidence.",
+  "external_blocker": "An unrelated Buildx build remains active in another worktree; the prior local Aider build request never reached a Dockerfile layer."
+}

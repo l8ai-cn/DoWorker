@@ -1,0 +1,15 @@
+2026-07-17T13:38:01Z
+build contract:
+- deploy/dev/lib/build_do_agent_binary.sh cross-compiles the local doagent source in a linux/amd64 Rust container.
+- docker/agent-runtime/Dockerfile installs the built sidecar as /usr/local/bin/do-agent.
+- deploy/dev/docker-compose.runners.yml runs runner-do-agent with AGENT_RUNTIME=do-agent and DEFAULT_AGENT=do-agent.
+
+runtime contract:
+- config/worker-types/do-agent/definition.json declares do-agent-acp with PTY and ACP interaction modes.
+- runner/internal/agents/doagent/transport.go sends ACP initialize and rejects unsupported requests.
+- runner/internal/agents/doagent/transport_session.go creates or resumes ACP sessions and sends session/prompt.
+- backend/internal/domain/aimodel/settings.go generates provider settings from the selected model resource without storing plaintext in the form.
+
+license boundary:
+- The installed binary help and this repository's integration files do not provide a publishable license assertion.
+- This Worker remains ineligible for release/support promotion until its upstream source license is separately verified.

@@ -1,0 +1,61 @@
+[
+  {
+    "id": "orchestrator",
+    "role": "orchestrator",
+    "model_class": "strong_reasoning",
+    "context_scope": "shared",
+    "responsibilities": [
+      "maintain state",
+      "run deterministic checks"
+    ],
+    "may_modify": [
+      "state.json",
+      "PROGRESS.md",
+      "journal.jsonl",
+      "evidence/"
+    ]
+  },
+  {
+    "id": "reviewer",
+    "role": "reviewer",
+    "model_class": "strong_reasoning",
+    "context_scope": "review_private",
+    "responsibilities": [
+      "review browser and database evidence",
+      "reject unsupported claims"
+    ],
+    "may_modify": [
+      "ACCEPTANCE.md",
+      "evidence/"
+    ]
+  },
+  {
+    "id": "decision-proxy",
+    "role": "decision_proxy",
+    "model_class": "strong_reasoning",
+    "context_scope": "shared",
+    "responsibilities": [
+      "record low-risk decisions",
+      "request approval"
+    ],
+    "may_modify": [
+      "DECISIONS.md",
+      "PROGRESS.md",
+      "state.json"
+    ]
+  },
+  {
+    "id": "loop-supervisor",
+    "role": "supervisor",
+    "model_class": "strong_reasoning",
+    "context_scope": "shared",
+    "responsibilities": [
+      "detect drift",
+      "enforce gates"
+    ],
+    "may_modify": [
+      "monitoring-plan.json",
+      "PROGRESS.md"
+    ]
+  }
+]

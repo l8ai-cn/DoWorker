@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-17T10:15:12+08:00",
+  "status": "partial",
+  "scope": "Local development browser and Runner lifecycle verification. Credentials and provider responses are not stored in this evidence.",
+  "worker_runs": [
+    {
+      "worker_type": "do-agent",
+      "template_name": "do-agent-e2e-template",
+      "worker_name": "do-agent-e2e-run",
+      "worker_spec_snapshot_id": 7,
+      "pod_key": "1-standalone-cff3159e",
+      "runner_node_id": "dev-runner-do-agent",
+      "preflight": "passed",
+      "pod_lifecycle": "passed",
+      "transport": "passed",
+      "browser": "passed",
+      "model_execution": "failed",
+      "cleanup": "passed",
+      "workspace_retention": "intentional_delete_branch_false",
+      "failure": {
+        "code": "provider_network_unreachable",
+        "summary": "The configured OpenAI endpoint timed out from both the host and the Runner container. DNS resolved, while the endpoint connection did not complete."
+      }
+    },
+    {
+      "worker_type": "opencode",
+      "template_name": "opencode-e2e-template",
+      "worker_name": "opencode-e2e-run",
+      "worker_spec_snapshot_id": 8,
+      "pod_key": "1-standalone-d1d72cdc",
+      "runner_node_id": "dev-runner-opencode",
+      "platform_model_binding": "omitted_by_definition",
+      "preflight": "passed",
+      "pod_lifecycle": "passed",
+      "transport": "passed",
+      "browser": "passed",
+      "model_execution": "passed",
+      "prompt": "Reply with exactly: READY",
+      "response": "READY",
+      "cleanup": "passed",
+      "workspace_retention": "intentional_delete_branch_false"
+    },
+    {
+      "worker_type": "cursor-cli",
+      "template_name": "cursor-e2e-template",
+      "worker_name": "cursor-e2e-run",
+      "worker_spec_snapshot_id": 9,
+      "pod_key": "1-standalone-0580fff5",
+      "runner_node_id": "dev-runner-cursor",
+      "platform_model_binding": "omitted_by_definition",
+      "credential_bundle_binding": "omitted_optional_cursor_api_key",
+      "preflight": "passed",
+      "pod_lifecycle": "failed",
+      "transport": "failed",
+      "acp_initialize": "passed",
+      "acp_session": "failed",
+      "browser": "passed",
+      "model_execution": "not_attempted",
+      "cleanup": "passed",
+      "workspace_retention": "removed_after_startup_failure",
+      "failure": {
+        "code": "cursor_authentication_required",
+        "summary": "Cursor ACP initialize succeeded, then session/new returned Authentication required because no CURSOR_API_KEY EnvironmentBundle was bound."
+      }
+    }
+  ],
+  "endpoint_reachability": {
+    "openai": "unreachable",
+    "gemini": "unreachable",
+    "xai": "unreachable",
+    "anthropic": "reachable_requires_credential",
+    "dashscope": "reachable_requires_credential",
+    "minimax": "reachable_requires_credential"
+  },
+  "remaining_worker_types": [
+    "aider",
+    "claude-code",
+    "codex-cli",
+    "gemini-cli",
+    "grok-build",
+    "hermes",
+    "loopal",
+    "minimax-cli",
+    "openclaw",
+    "seedance-expert"
+  ],
+  "release_blockers": [
+    "The remaining 10 Worker types still need individual lifecycle proof and, where required, a reachable provider credential.",
+    "Loopal remains unavailable as a selectable runtime.",
+    "No verified Alibaba Cloud ACR or Tencent Cloud TCR base-image reference is configured."
+  ]
+}

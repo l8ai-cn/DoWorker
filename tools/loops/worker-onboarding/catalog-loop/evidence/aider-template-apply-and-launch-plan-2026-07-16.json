@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T18:36:53+08:00",
+  "scope": "local development; browser precreation only",
+  "worker_slug": "aider",
+  "evidence_ref": "tools/loops/worker-onboarding/aider-precreation-v2/evidence/aider-precreation-2026-07-16.json",
+  "current_runtime": {
+    "image_digest": "sha256:c886a5d43f246cdf5aecd159106081e400d4f1c741acbe26788e4d5b4503b5a6",
+    "version": "0.86.2",
+    "runner": "dev-runner-aider"
+  },
+  "verified": [
+    "Aider WorkerTemplate validation passed.",
+    "Aider WorkerTemplate plan passed.",
+    "Aider WorkerTemplate apply created revision 1 and WorkerSpec snapshot 4.",
+    "Aider immediate-launch validation and plan passed without apply.",
+    "Aider encrypted credential bundle form exposes OpenAI and Anthropic fields.",
+    "No matching launch or Pod exists."
+  ],
+  "corrected_defect": {
+    "root_cause": "worker_spec_snapshots rejected the intentional empty model_binding object for Workers without a required primary model.",
+    "fix": "migration 221 permits an empty model binding while preserving populated-binding validation",
+    "verification": ["focused migration test passed", "full migration suite passed", "orchestrationworker tests passed"]
+  },
+  "not_verified": [
+    "credential reference injection",
+    "Pod creation",
+    "PTY terminal data plane",
+    "provider request",
+    "cleanup"
+  ],
+  "support_status": "not_supported"
+}

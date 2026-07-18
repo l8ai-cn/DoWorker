@@ -8,7 +8,7 @@ import (
 
 func workerSpecResourceRequirements(
 	spec *specdomain.Spec,
-) ([]int64, []int64, []specdomain.SkillPackageBinding) {
+) ([]int64, []int64, []specdomain.ConfigDocumentBinding) {
 	if spec == nil {
 		return nil, nil, nil
 	}
@@ -33,9 +33,9 @@ func workerSpecResourceRequirements(
 	sort.Slice(skillIDs, func(left, right int) bool {
 		return skillIDs[left] < skillIDs[right]
 	})
-	skillPackages := append(
-		[]specdomain.SkillPackageBinding{},
-		spec.Workspace.SkillPackages...,
+	configBindings := append(
+		[]specdomain.ConfigDocumentBinding{},
+		spec.Workspace.ConfigDocumentBindings...,
 	)
-	return envBundleIDs, skillIDs, skillPackages
+	return envBundleIDs, skillIDs, configBindings
 }

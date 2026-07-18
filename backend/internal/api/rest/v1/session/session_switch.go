@@ -1,6 +1,7 @@
 package sessionapi
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -67,43 +68,77 @@ func (d *Deps) rebuildSessionPod(c *gin.Context, row *domain.Session, pod *podDo
 	if d.PodOrchestrator == nil || d.Sessions == nil || d.PodCoordinator == nil {
 		return nil, errSwitchUnavailable
 	}
-	oldPodKey := row.PodKey
-	if pod != nil && pod.PodKey != "" {
-		_ = d.PodCoordinator.TerminatePod(c.Request.Context(), pod.PodKey)
-	}
 	runnerID := int64(0)
-	resumeExternal := ""
 	if pod != nil {
 		runnerID = pod.RunnerID
-		if pod.ExternalSessionID != nil {
-			resumeExternal = *pod.ExternalSessionID
-		}
 	}
 	orchReq := &agentpod.OrchestrateCreatePodRequest{
 		OrganizationID: row.OrganizationID, UserID: row.UserID,
 		RunnerID: runnerID, AgentSlug: agentSlug, AgentSessionID: row.ID,
-		AgentfileLayer:          acpAgentfileLayer(),
-		ResumeExternalSessionID: resumeExternal,
-		SessionMcpServers:       domain.McpServersToInstalled(domain.ParseMcpServers(row.McpServers)),
+		AgentfileLayer:      acpAgentfileLayer(),
+		SessionMcpServers:   domain.McpServersToInstalled(domain.ParseMcpServers(row.McpServers)),
+		DeferRunnerDispatch: true,
 	}
 	result, err := d.PodOrchestrator.CreatePod(c.Request.Context(), orchReq)
 	if err != nil {
 		return nil, err
 	}
 	if err := d.Sessions.UpdateAgentAndPod(c.Request.Context(), row.ID, agentSlug, result.Pod.PodKey); err != nil {
-		return nil, err
+		cleanupErr := d.terminateCreatedSessionPod(c.Request.Context(), result.Pod.PodKey)
+		return nil, joinSessionCompensationFailure(err, cleanupErr)
+	}
+	materialized := result
+	result, err = d.PodOrchestrator.DispatchDeferredPod(c.Request.Context(), orchReq, materialized)
+	if err != nil {
+		return nil, d.restorePreviousSessionPod(c.Request.Context(), row, materialized.Pod.PodKey, err)
+	}
+	if pod != nil && pod.PodKey != "" {
+		if err := d.terminateCreatedSessionPod(c.Request.Context(), pod.PodKey); err != nil {
+			if d.Updates != nil {
+				d.Updates.NotifyChanged(row.ID)
+			}
+			return nil, joinSessionCompensationFailure(
+				errors.New("old session pod termination failed"),
+				err,
+			)
+		}
 	}
 	if d.Stream != nil {
 		d.Stream.PublishPodStatus(c.Request.Context(), result.Pod.PodKey, result.Pod.Status, result.Pod.AgentStatus)
 	}
-	_ = oldPodKey
 	return result.Pod, nil
+}
+
+func (d *Deps) restorePreviousSessionPod(
+	ctx context.Context,
+	row *domain.Session,
+	newPodKey string,
+	cause error,
+) error {
+	cleanupCtx, cancel := sessionCompensationContext(ctx)
+	defer cancel()
+	restoreErr := d.Sessions.UpdateAgentAndPod(
+		cleanupCtx,
+		row.ID,
+		row.AgentSlug,
+		row.PodKey,
+	)
+	newPodErr := d.terminateSessionPod(cleanupCtx, newPodKey)
+	if d.Updates != nil {
+		d.Updates.NotifyChanged(row.ID)
+	}
+	return joinSessionCompensationFailure(cause, errors.Join(restoreErr, newPodErr))
 }
 
 var errSwitchUnavailable = errors.New("switch unavailable")
 
 func writeSessionPodError(c *gin.Context, err error) {
 	switch {
+	case errors.Is(err, errSessionCompensationFailed):
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "session cleanup failed",
+			"code":  "session_compensation_failed",
+		})
 	case errors.Is(err, agentpod.ErrNoAvailableRunner):
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "runner unavailable", "code": "runner_unavailable"})
 	case errors.Is(err, agentpod.ErrRunnerDispatchFailed):

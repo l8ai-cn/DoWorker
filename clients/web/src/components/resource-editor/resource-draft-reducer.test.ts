@@ -1,12 +1,10 @@
 import { create } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 import {
-  PlanResourceResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
-import {
   PlanStatus,
+  PlanResourceResponseSchema,
   ResourceOperation,
-} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import {
   createResourceDraftState,
   resourceDraftCanApply,

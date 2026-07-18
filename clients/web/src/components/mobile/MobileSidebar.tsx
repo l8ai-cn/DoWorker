@@ -85,7 +85,7 @@ export function MobileSidebar({ className }: MobileSidebarProps) {
     const orgSlug = currentOrg?.slug;
     if (orgSlug) {
       setMobileSidebarOpen(false);
-      router.push(`/${orgSlug}/workers/new`);
+      router.push(`/${orgSlug}/workers/new?mode=template`);
       return;
     }
     setCreatePodModalOpen(true);

@@ -12,10 +12,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRuntimeCatalogResolverResolvesPublishedCodexSelection(t *testing.T) {
+func TestRuntimeCatalogResolverRejectsUnreleasedSelection(t *testing.T) {
 	resolver := newRuntimeCatalogResolver(runtimedomain.DefaultCatalog())
 
-	resolved, err := resolver.ResolveRuntime(
+	_, err := resolver.ResolveRuntime(
 		context.Background(),
 		specservice.Scope{OrgID: 77, UserID: 7},
 		slugkit.MustNewForTest("codex-cli"),
@@ -28,13 +28,9 @@ func TestRuntimeCatalogResolverResolvesPublishedCodexSelection(t *testing.T) {
 		},
 	)
 
-	require.NoError(t, err)
-	assert.Equal(t, int64(1), resolved.RuntimeImage.ID)
-	assert.Equal(
-		t,
-		"sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
-		resolved.RuntimeImage.Digest,
-	)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, specservice.ErrInvalidDraft)
+	assert.ErrorContains(t, err, "selection is disabled")
 }
 
 func TestRuntimeCatalogResolverRejectsInvalidOrUnavailableSelections(t *testing.T) {

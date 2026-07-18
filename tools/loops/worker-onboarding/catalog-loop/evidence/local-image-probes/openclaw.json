@@ -3,13 +3,14 @@
   "worker_slug": "openclaw",
   "definition_hash": "sha256:6dd46e7bf44d30cd5ececc7e7d87f317559d3892415dec9ab86aabe3b5a57518",
   "platform": "linux/amd64",
-  "observed_at": "2026-07-17T15:52:00Z",
-  "image_reference": "do-worker/runner-openclaw:latest",
-  "image_id": "sha256:5f8c66baa4d753779138a4e0d09f1441b8e64119042b2a2e0e759938f0244994",
+  "observed_at": "2026-07-16T16:32:49.772Z",
+  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-openclaw:latest",
+  "image_id": "sha256:a1bb29c33f5820f1f36b38527b4e7f89316407c46fc9ea6817962a58971f1de4",
   "probe_command": [
     "openclaw",
     "--version"
   ],
+  "network": "none",
   "status": "passed",
   "exit_code": 0,
   "output": "OpenClaw 2026.6.11 (e085fa1)"

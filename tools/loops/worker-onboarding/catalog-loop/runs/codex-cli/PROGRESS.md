@@ -4,41 +4,38 @@ Loop: Worker Onboarding Loop Template
 
 ## Current Status
 
-- Status: planned
-- Active loop node: not started
-- Active atomic task: not assigned
-- Last verifier result: not run
-- Last no-progress fingerprint: not recorded
-- Current token estimate: 0
+- Status: blocked by the configured OpenAI provider location.
+- Active loop node: `worker-goal`
+- Active atomic task: `verify-worker-flow`
+- Last verifier result: real Codex ACP prompt reached the OpenAI provider and received HTTP 403.
+- Last no-progress fingerprint: `codex-cli|openai-provider-region-forbidden|0.144.5`
 
-## Assumptions
+## Verified
 
-- No assumptions recorded yet.
+- The dedicated `codex-cli` Runner image contains `codex-cli 0.144.5`.
+- The canonical contract uses executable `codex`, adapter `codex-app-server`,
+  ACP mode `codex app-server`, and an `OPENAI_API_KEY` model-resource binding.
+- Browser plan/apply created WorkerTemplate `codex-real-worker-e2e` and
+  immutable WorkerSpec snapshot `14`.
+- Browser Worker creation produced Pod `1-standalone-fd17dc70` on
+  `dev-runner-codex`; the Pod is running with its pinned WorkerSpec snapshot.
+- Runner evidence confirms the exact `codex app-server` command, ACP
+  initialization, session creation, and Relay connection.
+- The ACP popup originally rendered a terminal for `app-server`. It now renders
+  the ACP `AgentPanel`, obtains a control lease, and exposes the real prompt UI.
+- The browser sent `Reply with exactly: READY`; the provider rejected it with
+  HTTP 403 due to the Runner location, after the request left the adapter.
 
-## Decisions
+## Blocker
 
-- Initial recursive loop contract generated from `loop.json`.
-
-## Acceptance Trace
-
-- Checklist path: `ACCEPTANCE.md`
-- Checked items: none
-- Reopened items: none
-
-## Blocked Decision Trace
-
-- Decision file: `DECISIONS.md`
-- Decision log: `journal.jsonl`
-- Delegation confirmed: pending
-- Last proxy decision: none
-- Last supervisor review: none
+The selected OpenAI provider endpoint rejects requests from this Runner
+location. The next verification requires a non-production OpenAI-compatible
+provider reachable from the Runner, or a Runner deployed in a supported region.
+No raw credential was read, printed, or changed.
 
 ## Next Cycle
 
-1. Re-read `loop.json`, `state.json`, `tasks.json`, `agents.json`, `ACCEPTANCE.md`, `DECISIONS.md`, and this file.
-2. Evaluate `clarification_policy` before acting.
-3. If blocked, apply `decision_policy`: confirm delegation, use proxy decisions only within low-risk authority, and escalate otherwise.
-4. Run supervisor drift checks on the configured cadence before continuing.
-5. Execute one eligible loop node or atomic task.
-6. Record evidence, then check exactly the matching acceptance item only if its criteria and verifier refs pass.
-7. Stop on success, failure, budget, no-progress, or human-gate conditions.
+1. Bind a reachable non-production OpenAI-compatible model resource.
+2. Create a new immutable Codex WorkerTemplate and Worker using that binding.
+3. Send a browser prompt and require the exact completed reply before marking
+   Codex as supported.

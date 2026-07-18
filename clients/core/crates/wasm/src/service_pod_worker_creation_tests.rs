@@ -31,19 +31,25 @@ async fn worker_creation_wasm_methods_forward_binary_errors() {
         Arc::new(TokenStore),
     )));
 
-    assert!(service
-        .list_worker_create_options_connect(&[0xff])
-        .await
-        .unwrap_err()
-        .starts_with("decode list_worker_create_options request:"));
-    assert!(service
-        .preflight_worker_connect(&[0xff])
-        .await
-        .unwrap_err()
-        .starts_with("decode preflight_worker request:"));
-    assert!(service
-        .fill_worker_draft_connect(&[0xff])
-        .await
-        .unwrap_err()
-        .starts_with("decode fill_worker_draft request:"));
+    assert!(
+        service
+            .list_worker_create_options_connect(&[0xff])
+            .await
+            .unwrap_err()
+            .starts_with("decode list_worker_create_options request:")
+    );
+    assert!(
+        service
+            .preflight_worker_connect(&[0xff])
+            .await
+            .unwrap_err()
+            .starts_with("decode preflight_worker request:")
+    );
+    assert!(
+        service
+            .fill_worker_draft_connect(&[0xff])
+            .await
+            .unwrap_err()
+            .starts_with("decode fill_worker_draft request:")
+    );
 }

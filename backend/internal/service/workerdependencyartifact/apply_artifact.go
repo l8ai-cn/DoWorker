@@ -22,11 +22,11 @@ func DecodeApplyPlan(plan control.Plan) (ApplyArtifact, error) {
 	}
 	if plan.Target.Kind != resource.KindWorkerTemplate ||
 		plan.ArtifactKind != PlanArtifactKind {
-		return ApplyArtifact{}, fmt.Errorf("plan does not contain a WorkerTemplate build")
+		return ApplyArtifact{}, fmt.Errorf("Plan does not contain a WorkerTemplate build")
 	}
 	digest, err := control.DigestCanonicalJSON(plan.ArtifactJSON)
 	if err != nil || digest != plan.ArtifactDigest {
-		return ApplyArtifact{}, fmt.Errorf("plan artifact digest is invalid")
+		return ApplyArtifact{}, fmt.Errorf("Plan artifact digest is invalid")
 	}
 	decoded, err := DecodePlanArtifact(plan.ArtifactJSON)
 	if err != nil {
@@ -34,7 +34,7 @@ func DecodeApplyPlan(plan control.Plan) (ApplyArtifact, error) {
 	}
 	if decoded.ResolvedDependencies.OrganizationID != plan.Scope.OrganizationID ||
 		decoded.ResolvedDependencies.Namespace != plan.Scope.OrganizationSlug {
-		return ApplyArtifact{}, fmt.Errorf("plan scope does not match Worker dependencies")
+		return ApplyArtifact{}, fmt.Errorf("Plan scope does not match Worker dependencies")
 	}
 	if err := validateDirectReferenceClosure(
 		plan.Scope,

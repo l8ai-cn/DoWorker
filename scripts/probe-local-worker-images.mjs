@@ -10,20 +10,30 @@ const evidenceRoot = path.join(
   "tools/loops/worker-onboarding/catalog-loop/evidence/local-image-probes",
 );
 const catalog = readJson(path.join(definitionsRoot, "catalog.json"));
-const selectedWorker = process.argv[2];
-const observedAt = process.env.RUNTIME_OBSERVED_AT ?? new Date().toISOString();
 
-fs.mkdirSync(evidenceRoot, { recursive: true });
-
-for (const entry of catalog.worker_types) {
-  if (selectedWorker && entry.slug !== selectedWorker) continue;
-  probeWorker(entry);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
 }
 
-function probeWorker(entry) {
+export function localWorkerImageReference(composeProjectName, runtime) {
+  return `${composeProjectName}-runner-${runtime}:latest`;
+}
+
+function main() {
+  const composeProjectName = readDevComposeProjectName();
+  fs.mkdirSync(evidenceRoot, { recursive: true });
+  for (const entry of catalog.worker_types) {
+    probeWorker(entry, composeProjectName);
+  }
+}
+
+function probeWorker(entry, composeProjectName) {
   const sourceDir = path.join(root, path.dirname(entry.definition_path));
   const definition = readJson(path.join(sourceDir, "definition.json"));
-  const imageReference = `do-worker/runner-${definition.image.runtime}:latest`;
+  const imageReference = localWorkerImageReference(
+    composeProjectName,
+    definition.image.runtime,
+  );
   const probe = definition.image.version_probe;
   const image = docker(["image", "inspect", "-f", "{{.Id}}", imageReference]);
 
@@ -31,6 +41,7 @@ function probeWorker(entry) {
     writeEvidence(entry, {
       image_reference: imageReference,
       probe_command: probe,
+      network: "none",
       status: "image_missing",
       exit_code: image.status,
       output: outputOf(image),
@@ -44,6 +55,8 @@ function probeWorker(entry) {
     "--pull=never",
     "--platform",
     "linux/amd64",
+    "--network",
+    "none",
     "--entrypoint",
     definition.executable,
     imageReference,
@@ -53,6 +66,7 @@ function probeWorker(entry) {
     image_reference: imageReference,
     image_id: image.stdout.trim(),
     probe_command: probe,
+    network: "none",
     status: run.status === 0 ? "passed" : "probe_failed",
     exit_code: run.status,
     output: outputOf(run),
@@ -65,7 +79,7 @@ function writeEvidence(entry, result) {
     worker_slug: entry.slug,
     definition_hash: entry.definition_hash,
     platform: "linux/amd64",
-    observed_at: observedAt,
+    observed_at: new Date().toISOString(),
     ...result,
   };
   fs.writeFileSync(
@@ -85,4 +99,13 @@ function outputOf(result) {
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
+function readDevComposeProjectName() {
+  const environment = fs.readFileSync(path.join(root, "deploy/dev/.env"), "utf8");
+  const match = environment.match(/^COMPOSE_PROJECT_NAME=([a-z0-9][a-z0-9_-]*)$/m);
+  if (!match) {
+    throw new Error("deploy/dev/.env must define COMPOSE_PROJECT_NAME");
+  }
+  return match[1];
 }

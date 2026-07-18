@@ -83,13 +83,11 @@ func (ChannelAccess) TableName() string {
 }
 
 type CreatePodForTicketRequest struct {
-	OrganizationID int64  `json:"organization_id"`
-	TicketID       int64  `json:"ticket_id"`
-	RunnerID       int64  `json:"runner_id"`
-	CreatedByID    int64  `json:"created_by_id"`
-	Prompt         string `json:"prompt,omitempty"`
-	Model          string `json:"model,omitempty"`
-	PermissionMode string `json:"permission_mode,omitempty"`
+	OrganizationID       int64  `json:"organization_id"`
+	TicketID             int64  `json:"ticket_id"`
+	CreatedByID          int64  `json:"created_by_id"`
+	WorkerSpecSnapshotID int64  `json:"worker_spec_snapshot_id"`
+	Prompt               string `json:"prompt,omitempty"`
 }
 
 type TicketPodInfo struct {

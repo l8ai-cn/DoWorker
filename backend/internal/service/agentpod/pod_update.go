@@ -37,6 +37,22 @@ func (s *PodService) UpdatePodStatus(ctx context.Context, podKey, status string)
 	return nil
 }
 
+func (s *PodService) transitionPodStatus(ctx context.Context, podKey, from, to string) error {
+	rowsAffected, err := s.repo.UpdateByKeyAndStatusCounted(
+		ctx,
+		podKey,
+		from,
+		map[string]interface{}{"status": to},
+	)
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return ErrPodStatusConflict
+	}
+	return nil
+}
+
 func (s *PodService) UpdatePodPTY(ctx context.Context, podKey string, ptyPID int) error {
 	return s.repo.UpdateField(ctx, podKey, "pty_pid", ptyPID)
 }

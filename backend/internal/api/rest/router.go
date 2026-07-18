@@ -21,6 +21,7 @@ import (
 	sessionusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/sessionusage"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
 	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
@@ -194,6 +195,8 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		Elicitations:       sessionapi.NewElicitationStore(),
 		PodOrchestrator:    svc.PodOrchestrator,
 		Pod:                svc.Pod,
+		DeferredCommitter:  sessionsvc.NewDeferredCommitter(db),
+		DispatchQueue:      svc.PendingQueue,
 		RelayManager:       svc.RelayManager,
 		RelayTokens:        svc.RelayTokenGenerator,
 		SessionUsage:       sessionusagesvc.NewService(db),
@@ -210,7 +213,6 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		VirtualKeys:        svc.VirtualKey,
 		TokenQuotas:        svc.TokenQuota,
 		EmbedTokens:        embedtoken.NewService(cfg.JWT.Secret, redisClient),
-		PreviewSessions:    svc.PreviewSessions,
 		Version:            "do-worker-dev",
 	}
 	sessionDeps.Stream = sessionapi.NewSessionStreamPublisher(

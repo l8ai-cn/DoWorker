@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T19:07:52+08:00",
+  "worker_slug": "codex-cli",
+  "verified_claims": [
+    "Definition, image, Runner, ModelBinding, browser plans, and snapshot agree on Codex ACP.",
+    "No Worker launch or Pod was created.",
+    "The runtime-preference dialog explicitly forbids storing keys."
+  ],
+  "rejected_claims": [
+    "Codex is supported.",
+    "The provider connection has been validated.",
+    "Model-resource credential use works.",
+    "Codex ACP terminal works."
+  ],
+  "plaintext_credential_present": false,
+  "provider_response_present": false,
+  "verdict": "precreation_verified_not_supported",
+  "required_next_evidence": "Named non-production approval plus model-resource credential use, disposable Pod, ACP terminal, provider smoke, and cleanup."
+}

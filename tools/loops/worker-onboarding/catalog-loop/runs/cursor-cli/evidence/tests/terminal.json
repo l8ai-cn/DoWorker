@@ -1,0 +1,9 @@
+{
+  "worker_slug": "cursor-cli",
+  "adapter_id": "cursor-acp",
+  "command": ["agent", "acp"],
+  "acp_initialize": "passed",
+  "acp_session_new": "failed",
+  "failure": "Authentication required",
+  "conclusion": "A valid CURSOR_API_KEY credential reference is a terminal verification prerequisite."
+}

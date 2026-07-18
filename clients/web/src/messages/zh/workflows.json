@@ -2,6 +2,8 @@
   "workflows": {
     "searchPlaceholder": "搜索 Workflow...",
     "createWorkflow": "创建 Workflow",
+    "newRevision": "新建修订",
+    "revisionLoadFailed": "无法加载当前 Workflow 声明。",
     "editWorkflow": "编辑 Workflow",
     "noMatch": "没有匹配的 Workflow",
     "emptyState": "暂无 Workflow",

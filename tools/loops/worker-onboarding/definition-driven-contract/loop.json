@@ -1,0 +1,885 @@
+{
+  "acceptance_checklist": {
+    "items": [
+      {
+        "acceptance_criteria": [
+          "baseline verifier exits 0",
+          "no Worker support claim changes"
+        ],
+        "description": "Record the authoritative current Worker create boundary and evidence state.",
+        "evidence_refs": [
+          "evidence/current-contract-baseline.json"
+        ],
+        "id": "accept-current-contract-baseline",
+        "owner_agent": "reviewer",
+        "task_id": "current-contract-baseline",
+        "verification_refs": [
+          "contract-baseline"
+        ]
+      },
+      {
+        "acceptance_criteria": [
+          "human decision is recorded",
+          "approval verifier exits 0"
+        ],
+        "description": "Obtain the public-contract decision for named configuration documents.",
+        "evidence_refs": [
+          "evidence/named-binding-approval.json"
+        ],
+        "id": "accept-named-binding-approval",
+        "owner_agent": "orchestrator",
+        "task_id": "named-binding-approval",
+        "verification_refs": [
+          "approval-gate"
+        ]
+      },
+      {
+        "acceptance_criteria": [
+          "focused contract tests exit 0",
+          "unknown, duplicate, wrong-kind, and malformed bindings fail"
+        ],
+        "description": "Replace positional configuration bundle references with named Definition bindings.",
+        "evidence_refs": [
+          "evidence/named-binding-implementation.json"
+        ],
+        "id": "accept-named-binding-implementation",
+        "owner_agent": "worker",
+        "task_id": "named-binding-implementation",
+        "verification_refs": [
+          "focused-contract-tests"
+        ]
+      },
+      {
+        "acceptance_criteria": [
+          "focused contract tests exit 0",
+          "projection contains no secret values"
+        ],
+        "description": "Return only Definition-compatible model and credential references to the form.",
+        "evidence_refs": [
+          "evidence/resource-projection.json"
+        ],
+        "id": "accept-resource-projection",
+        "owner_agent": "worker",
+        "task_id": "resource-projection",
+        "verification_refs": [
+          "focused-contract-tests"
+        ]
+      },
+      {
+        "acceptance_criteria": [
+          "focused contract tests exit 0",
+          "stale draft references reset on Worker type change"
+        ],
+        "description": "Render named documents and server-filtered resources without static Worker mappings.",
+        "evidence_refs": [
+          "evidence/definition-driven-web.json"
+        ],
+        "id": "accept-definition-driven-web",
+        "owner_agent": "worker",
+        "task_id": "definition-driven-web",
+        "verification_refs": [
+          "focused-contract-tests"
+        ]
+      },
+      {
+        "acceptance_criteria": [
+          "focused contract tests exit 0",
+          "Runner writes only resolved Definition targets"
+        ],
+        "description": "Migrate snapshots and materialize Definition-owned document targets at Runner.",
+        "evidence_refs": [
+          "evidence/runner-materialization.json"
+        ],
+        "id": "accept-runner-materialization",
+        "owner_agent": "worker",
+        "task_id": "runner-materialization",
+        "verification_refs": [
+          "focused-contract-tests"
+        ]
+      },
+      {
+        "acceptance_criteria": [
+          "real lifecycle evidence is recorded",
+          "every promoted Worker has cleanup evidence"
+        ],
+        "description": "Record authorized lifecycle, cleanup, and browser evidence for each eligible Worker.",
+        "evidence_refs": [
+          "evidence/real-worker-release.json"
+        ],
+        "id": "accept-real-worker-release",
+        "owner_agent": "reviewer",
+        "task_id": "real-worker-release",
+        "verification_refs": []
+      }
+    ],
+    "path": "ACCEPTANCE.md",
+    "update_policy": "Mark an item only after its verifier and durable evidence pass; a rejected or blocked gate remains unchecked."
+  },
+  "agents": [
+    {
+      "context_scope": "shared",
+      "id": "orchestrator",
+      "may_modify": [
+        "PROGRESS.md",
+        "state.json",
+        "tasks.json",
+        "evidence/"
+      ],
+      "model_class": "strong_reasoning",
+      "responsibilities": [
+        "maintain state",
+        "enforce gates",
+        "integrate verified changes"
+      ],
+      "role": "orchestrator"
+    },
+    {
+      "context_scope": "task_private",
+      "id": "worker",
+      "may_modify": [
+        "source files",
+        "tests",
+        "evidence/"
+      ],
+      "model_class": "fast_worker",
+      "responsibilities": [
+        "implement one isolated contract slice",
+        "run focused checks"
+      ],
+      "role": "worker"
+    },
+    {
+      "context_scope": "review_private",
+      "id": "reviewer",
+      "may_modify": [
+        "ACCEPTANCE.md",
+        "evidence/"
+      ],
+      "model_class": "strong_reasoning",
+      "responsibilities": [
+        "reject incomplete evidence",
+        "review migration and API boundaries"
+      ],
+      "role": "reviewer"
+    },
+    {
+      "context_scope": "shared",
+      "id": "decision-proxy",
+      "may_modify": [
+        "DECISIONS.md",
+        "PROGRESS.md",
+        "state.json"
+      ],
+      "model_class": "strong_reasoning",
+      "responsibilities": [
+        "choose low-risk evidence sequencing",
+        "record blocked states"
+      ],
+      "role": "decision_proxy"
+    },
+    {
+      "context_scope": "shared",
+      "id": "loop-supervisor",
+      "may_modify": [
+        "monitoring-plan.json",
+        "PROGRESS.md"
+      ],
+      "model_class": "strong_reasoning",
+      "responsibilities": [
+        "monitor drift",
+        "enforce no-progress exits",
+        "escalate gates"
+      ],
+      "role": "supervisor"
+    }
+  ],
+  "atomic_tasks": [
+    {
+      "acceptance_criteria": [
+        "baseline verifier exits 0",
+        "no Worker support claim changes"
+      ],
+      "assigned_agent": "reviewer",
+      "dependencies": [],
+      "estimated_token_budget": 25000,
+      "goal": "Record the current typed and untyped Worker creation boundaries from source and real local evidence.",
+      "id": "current-contract-baseline",
+      "input_refs": [
+        "config/worker-types/",
+        "backend/internal/service/workercreation/",
+        "clients/web/src/",
+        "runner/internal/"
+      ],
+      "max_attempts": 2,
+      "output_artifacts": [
+        "evidence/current-contract-baseline.json"
+      ],
+      "tools": [
+        "shell",
+        "apply_patch"
+      ],
+      "verification_refs": [
+        "contract-baseline"
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "human decision is recorded",
+        "approval verifier exits 0"
+      ],
+      "assigned_agent": "orchestrator",
+      "dependencies": [
+        "current-contract-baseline"
+      ],
+      "estimated_token_budget": 10000,
+      "goal": "Obtain an explicit decision to replace positional configuration bundle IDs with named Definition bindings.",
+      "id": "named-binding-approval",
+      "input_refs": [
+        "evidence/current-contract-baseline.json",
+        "docs/superpowers/plans/2026-07-16-worker-definition-driven-create-contract.md"
+      ],
+      "max_attempts": 1,
+      "output_artifacts": [
+        "evidence/named-binding-approval.json"
+      ],
+      "tools": [
+        "shell"
+      ],
+      "verification_refs": [
+        "approval-gate"
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "focused contract tests exit 0",
+        "unknown, duplicate, wrong-kind, and malformed bindings fail"
+      ],
+      "assigned_agent": "worker",
+      "dependencies": [
+        "named-binding-approval"
+      ],
+      "estimated_token_budget": 65000,
+      "goal": "Implement named configuration-document bindings throughout the canonical Worker create contract.",
+      "id": "named-binding-implementation",
+      "input_refs": [
+        "approved named binding decision",
+        "proto/pod/v1/worker_creation.proto",
+        "backend/internal/service/workercreation/"
+      ],
+      "max_attempts": 3,
+      "output_artifacts": [
+        "evidence/named-binding-implementation.json"
+      ],
+      "tools": [
+        "shell",
+        "apply_patch"
+      ],
+      "verification_refs": [
+        "focused-contract-tests"
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "focused contract tests exit 0",
+        "projection contains no secret values"
+      ],
+      "assigned_agent": "worker",
+      "dependencies": [
+        "named-binding-implementation"
+      ],
+      "estimated_token_budget": 50000,
+      "goal": "Project compatible model resources and typed credential references from the selected Definition.",
+      "id": "resource-projection",
+      "input_refs": [
+        "backend/internal/service/workercreation/",
+        "clients/core/",
+        "clients/web/src/lib/api/"
+      ],
+      "max_attempts": 3,
+      "output_artifacts": [
+        "evidence/resource-projection.json"
+      ],
+      "tools": [
+        "shell",
+        "apply_patch"
+      ],
+      "verification_refs": [
+        "focused-contract-tests"
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "focused contract tests exit 0",
+        "stale draft references reset on Worker type change"
+      ],
+      "assigned_agent": "worker",
+      "dependencies": [
+        "resource-projection"
+      ],
+      "estimated_token_budget": 50000,
+      "goal": "Render Definition-declared documents and backend-filtered resources without static Worker compatibility maps.",
+      "id": "definition-driven-web",
+      "input_refs": [
+        "clients/web/src/components/pod/",
+        "clients/web/src/lib/api/",
+        "clients/core/"
+      ],
+      "max_attempts": 3,
+      "output_artifacts": [
+        "evidence/definition-driven-web.json"
+      ],
+      "tools": [
+        "shell",
+        "apply_patch",
+        "browser"
+      ],
+      "verification_refs": [
+        "focused-contract-tests"
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "focused contract tests exit 0",
+        "Runner writes only resolved Definition targets"
+      ],
+      "assigned_agent": "worker",
+      "dependencies": [
+        "definition-driven-web"
+      ],
+      "estimated_token_budget": 60000,
+      "goal": "Migrate Worker snapshots and preserve resolved Definition document targets into Runner materialization.",
+      "id": "runner-materialization",
+      "input_refs": [
+        "backend/migrations/",
+        "backend/internal/service/agentpod/",
+        "runner/internal/runner/"
+      ],
+      "max_attempts": 3,
+      "output_artifacts": [
+        "evidence/runner-materialization.json"
+      ],
+      "tools": [
+        "shell",
+        "apply_patch"
+      ],
+      "verification_refs": [
+        "focused-contract-tests"
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "real lifecycle evidence is recorded",
+        "every promoted Worker has cleanup evidence"
+      ],
+      "assigned_agent": "reviewer",
+      "dependencies": [
+        "runner-materialization"
+      ],
+      "estimated_token_budget": 50000,
+      "goal": "Verify authorized Worker preflight, lifecycle, cleanup, and browser paths with real non-production resources.",
+      "id": "real-worker-release",
+      "input_refs": [
+        "evidence/runner-materialization.json",
+        "config/worker-types/",
+        "deploy/dev/"
+      ],
+      "max_attempts": 2,
+      "output_artifacts": [
+        "evidence/real-worker-release.json"
+      ],
+      "tools": [
+        "shell",
+        "browser"
+      ],
+      "verification_refs": []
+    }
+  ],
+  "clarification_policy": {
+    "ambiguity_triggers": [
+      "public protobuf or migration contract lacks approval",
+      "provider credential authorization is absent",
+      "browser capability is unavailable"
+    ],
+    "assumption_policy": {
+      "allowed": "Only evidence ordering, test isolation, and read-only source analysis may be assumed.",
+      "record_path": "PROGRESS.md"
+    },
+    "block_if": [
+      "a public API contract or database migration has no approval",
+      "a provider request would require a real credential"
+    ],
+    "default_action": "ask_user",
+    "secondary_user_query": {
+      "max_questions": 1,
+      "prompt": "Approve named Definition configuration-document bindings as the replacement for positional config bundle IDs?",
+      "required_when": [
+        "the contract gate is reached",
+        "a real credential or provider action is required"
+      ]
+    }
+  },
+  "collaboration_policy": {
+    "handoff_contract": {
+      "required_fields": [
+        "task_id",
+        "context_pack",
+        "expected_output",
+        "verification_refs"
+      ],
+      "return_fields": [
+        "status",
+        "artifacts",
+        "evidence",
+        "open_questions"
+      ]
+    },
+    "patterns": [
+      "orchestrator_workers",
+      "evaluator_optimizer",
+      "independent_reviewer"
+    ],
+    "subagent_activation": {
+      "allowed_when": [
+        "read-only audits are independent",
+        "review needs fresh context",
+        "write paths do not overlap"
+      ],
+      "disallowed_when": [
+        "a public contract decision is pending",
+        "two agents would edit the same API or migration"
+      ],
+      "token_budget_policy": "Subagents return commands, exit codes, changed paths, evidence paths, and unresolved questions under 2000 tokens."
+    }
+  },
+  "context_policy": {
+    "compaction": {
+      "summary_contract": "Preserve approved contract decisions, task state, verifier results, blockers, and lifecycle evidence.",
+      "trigger_ratio": 0.8
+    },
+    "durable_memory": {
+      "journal_path": "journal.jsonl",
+      "progress_path": "PROGRESS.md",
+      "state_path": "state.json"
+    },
+    "excluded_context": [
+      "plaintext credentials",
+      "access tokens",
+      "raw provider responses",
+      "unrelated logs"
+    ],
+    "max_context_tokens": 60000,
+    "required_context_pack": [
+      "loop.json",
+      "state.json",
+      "PROGRESS.md",
+      "ACCEPTANCE.md",
+      "DECISIONS.md"
+    ],
+    "retrieval_strategy": "just_in_time",
+    "tool_output_trimming": "Keep commands, exit codes, assertions, changed paths, and evidence references; exclude secret values and raw provider output."
+  },
+  "cost_policy": {
+    "optimization_goal": "Maximize verified product evidence while stopping at public-contract and credential gates.",
+    "stop_when_marginal_value_low": true,
+    "token_budget_by_agent": {
+      "decision-proxy": 20000,
+      "loop-supervisor": 20000,
+      "orchestrator": 120000,
+      "reviewer": 60000,
+      "worker": 140000
+    }
+  },
+  "decision_policy": {
+    "blocked_handling": {
+      "allowed_resolution_actions": [
+        "record durable evidence",
+        "ask the secondary user query",
+        "process an independent read-only audit"
+      ],
+      "blocked_signals": [
+        "approval missing",
+        "credential authorization missing",
+        "same verifier fails twice",
+        "browser capability unavailable"
+      ],
+      "escalation_required_when": [
+        "public API decision",
+        "database migration decision",
+        "provider action",
+        "protected verifier conflict"
+      ],
+      "max_blocked_cycles": 1
+    },
+    "blocked_state_path": "DECISIONS.md",
+    "decision_log_path": "journal.jsonl",
+    "proxy_decision_agent": {
+      "agent_id": "decision-proxy",
+      "allowed_decisions": [
+        "choose evidence order",
+        "split a read-only audit",
+        "retry one deterministic verifier"
+      ],
+      "decision_authority": "delegated_low_risk",
+      "decision_record_fields": [
+        "blocked_reason",
+        "options",
+        "selected_option",
+        "rationale",
+        "evidence_ref"
+      ],
+      "default_when_uncertain": "ask_user",
+      "forbidden_decisions": [
+        "irreversible action",
+        "public contract approval",
+        "credential use",
+        "production deploy"
+      ]
+    },
+    "supervisor_agent": {
+      "agent_id": "loop-supervisor",
+      "drift_checks": [
+        "active task maps to the objective",
+        "public contract changes have approval",
+        "verifiers remain protected"
+      ],
+      "intervention_actions": [
+        "pause invalid progress",
+        "record no-progress exit",
+        "escalate to user"
+      ],
+      "report_path": "monitoring-plan.json",
+      "review_cadence_iterations": 2
+    },
+    "user_confirmation": {
+      "confirmation_record_path": "PROGRESS.md",
+      "prompt": "May the decision-proxy choose only low-risk evidence order and one read-only verifier retry?",
+      "required_before_delegation": true
+    }
+  },
+  "decomposition_policy": {
+    "dependency_policy": "No implementation task may pass the approval gate or weaken an existing verifier.",
+    "max_depth": 4,
+    "minimum_task_granularity": "one contract slice, one verifier, or one Worker lifecycle",
+    "split_until": [
+      "each task has one owner",
+      "each task has deterministic evidence",
+      "each Worker lifecycle has its own evidence record"
+    ],
+    "strategy": "definition_contract_then_per_worker_release_evidence"
+  },
+  "escalation": {
+    "channel": "Codex thread",
+    "condition": "approval, credential, browser, budget, or no-progress gate is reached",
+    "message_template": "Definition-driven Worker loop stopped: {reason}. Evidence: {evidence_ref}.",
+    "owner": "Do Worker maintainer"
+  },
+  "execution_adapters": [
+    {
+      "approval_model": "sandbox_and_policy",
+      "context_reload_model": "session_instruction_discovery",
+      "deterministic_hooks": "not_assumed",
+      "generated_files": [
+        "AGENTS.md"
+      ],
+      "instruction_files": [
+        "AGENTS.md"
+      ],
+      "subagent_activation": "explicit_request",
+      "supports_subagents": true,
+      "target": "codex",
+      "unsupported_capability_behavior": "block_and_report"
+    },
+    {
+      "approval_model": "permissions_and_hooks",
+      "context_reload_model": "CLAUDE.md_and_memory",
+      "deterministic_hooks": "supported",
+      "generated_files": [
+        "CLAUDE.md",
+        ".claude/settings.json"
+      ],
+      "instruction_files": [
+        "CLAUDE.md"
+      ],
+      "subagent_activation": "description_or_explicit_agent",
+      "supports_subagents": true,
+      "target": "claude_code",
+      "unsupported_capability_behavior": "block_and_report"
+    },
+    {
+      "approval_model": "cursor_agent_security",
+      "context_reload_model": "rules_skills_mentions",
+      "deterministic_hooks": "supported_when_configured",
+      "generated_files": [
+        ".cursor/rules/looper-creator.mdc"
+      ],
+      "instruction_files": [
+        ".cursor/rules/looper-creator.mdc"
+      ],
+      "subagent_activation": "cursor_subagents_or_cloud_agents",
+      "supports_subagents": true,
+      "target": "cursor",
+      "unsupported_capability_behavior": "block_and_report"
+    }
+  ],
+  "failure_modes": [
+    {
+      "id": "approval-bypass",
+      "mitigation": "Block source changes that alter the public contract until a human decision is recorded."
+    },
+    {
+      "id": "evidence-overclaim",
+      "mitigation": "Require image, Runner, browser, lifecycle, and cleanup evidence before support promotion."
+    },
+    {
+      "id": "context-drift",
+      "mitigation": "Reload durable state and compact evidence summaries each cycle."
+    }
+  ],
+  "human_gates": {
+    "approval_record_path": "PROGRESS.md",
+    "irreversible_actions": [
+      "approve public contract change",
+      "run database migration",
+      "use provider credentials",
+      "create non-test Worker",
+      "push, merge, publish, or deploy"
+    ]
+  },
+  "kind": "RecursiveLoopOrchestration",
+  "loop_nodes": [
+    {
+      "agent_assignments": [
+        "orchestrator",
+        "loop-supervisor"
+      ],
+      "children": [
+        {
+          "agent_assignments": [
+            "worker",
+            "reviewer"
+          ],
+          "context_pack": [
+            "approved decision",
+            "selected Definition",
+            "affected API and form files",
+            "verifier output"
+          ],
+          "entry_conditions": [
+            "named binding approval is accepted",
+            "one implementation task is eligible"
+          ],
+          "exit_conditions": [
+            "task accepted",
+            "focused verifier fails twice",
+            "human gate reached"
+          ],
+          "id": "contract-cycle",
+          "purpose": "Implement one approved contract slice and verify it before another slice begins.",
+          "steps": [
+            "write failing test",
+            "implement minimum change",
+            "run focused verifier",
+            "review evidence"
+          ],
+          "type": "evaluator_optimizer_loop",
+          "verification_refs": [
+            "focused-contract-tests"
+          ]
+        },
+        {
+          "agent_assignments": [
+            "orchestrator",
+            "reviewer"
+          ],
+          "context_pack": [
+            "release evidence",
+            "cleanup evidence",
+            "browser evidence"
+          ],
+          "entry_conditions": [
+            "contract implementation is accepted",
+            "eligible non-production resource is named"
+          ],
+          "exit_conditions": [
+            "authorization recorded",
+            "authorization denied",
+            "resource unavailable"
+          ],
+          "id": "release-review",
+          "purpose": "Require explicit authorization before provider-backed lifecycle and browser evidence.",
+          "steps": [
+            "confirm named resource",
+            "run disposable lifecycle",
+            "verify cleanup",
+            "record browser evidence"
+          ],
+          "type": "human_review_gate",
+          "verification_refs": []
+        }
+      ],
+      "context_pack": [
+        "loop.json",
+        "state.json",
+        "PROGRESS.md",
+        "ACCEPTANCE.md",
+        "DECISIONS.md"
+      ],
+      "entry_conditions": [
+        "state is planned or running",
+        "durable state is loaded"
+      ],
+      "exit_conditions": [
+        "all acceptance items pass",
+        "human gate required",
+        "budget or no-progress exit"
+      ],
+      "id": "root",
+      "purpose": "Run the goal-based contract loop and stop at irreversible or unverified boundaries.",
+      "steps": [
+        "reload state",
+        "select eligible task",
+        "run verifier",
+        "record evidence",
+        "supervisor review"
+      ],
+      "type": "agent_loop",
+      "verification_refs": [
+        "contract-baseline"
+      ]
+    }
+  ],
+  "metadata": {
+    "description": "Implement and verify the Definition-owned Worker creation contract without fallback paths.",
+    "id": "definition-driven-worker-create-contract",
+    "locale": "en",
+    "name": "Definition Driven Worker Create Contract"
+  },
+  "objective": {
+    "business_value": "Prevent Worker forms and runtime materialization from drifting away from the formal Definition.",
+    "done_definition": "Named configuration bindings, compatible resource projection, Runner materialization, browser evidence, and authorized lifecycle evidence pass without inferred support claims.",
+    "non_goals": [
+      "Do not use provider credentials without named non-production authorization.",
+      "Do not preserve positional config bundle reads as a compatibility path.",
+      "Do not publish, push, merge, or deploy automatically."
+    ],
+    "user_goal": "Create many Worker types through Definition-specific adapters, credentials, model resources, and configuration documents, then verify the real product path."
+  },
+  "observability": {
+    "evidence_dir": "evidence",
+    "trace_fields": [
+      "loop_node_id",
+      "task_id",
+      "verifier_id",
+      "verifier_exit_code",
+      "blocker_code",
+      "changed_paths"
+    ]
+  },
+  "portability_policy": {
+    "adapter_outputs_are_generated": true,
+    "canonical_manifest": "loop.json",
+    "do_not_weaken_verification_for_platform_limits": true,
+    "platform_selection_query": "Which supported runtime should execute this contract loop?",
+    "unsupported_capability_behavior": "block_and_report"
+  },
+  "risk_policy": {
+    "forbidden_behaviors": [
+      "silent fallback",
+      "weakening validation",
+      "storing plaintext secrets",
+      "inferred Worker support"
+    ],
+    "high_risk_requires_human": [
+      "security",
+      "public API",
+      "database migration",
+      "provider credential",
+      "deployment"
+    ],
+    "risk_levels": [
+      "low",
+      "medium",
+      "high",
+      "critical"
+    ]
+  },
+  "schema_version": "2.0",
+  "state": {
+    "journal_path": "journal.jsonl",
+    "path": "state.json",
+    "progress_path": "PROGRESS.md"
+  },
+  "templates": [
+    "feature-development",
+    "testing-debugging",
+    "website-browser-testing"
+  ],
+  "termination_policy": {
+    "budget_exits": {
+      "max_iterations": 20,
+      "max_tokens": 360000,
+      "wall_clock_minutes": 360
+    },
+    "failure": [
+      "a protected verifier would need weakening",
+      "the named binding contract is rejected",
+      "a required upstream artifact cannot be obtained"
+    ],
+    "human_gate": [
+      "before protobuf or database migration changes",
+      "before provider credential use",
+      "before browser mutation, push, merge, publish, or deploy"
+    ],
+    "no_progress": {
+      "fingerprint_fields": [
+        "active_task_id",
+        "changed_paths",
+        "verifier_id",
+        "verifier_exit_code",
+        "blocker_code"
+      ],
+      "max_stale_iterations": 2
+    },
+    "success": [
+      "all acceptance items are checked",
+      "independent review evidence exists"
+    ]
+  },
+  "verification_policy": {
+    "anti_gaming_rules": [
+      "do not delete tests",
+      "do not weaken verifier commands",
+      "do not add continue-on-error",
+      "do not change support state without evidence"
+    ],
+    "protected_paths": [
+      "loop.json",
+      "scripts/verify.sh",
+      "scripts/verify-contract-baseline.sh",
+      "scripts/verify-contract-approval.sh",
+      "scripts/verify-focused-contract-tests.sh",
+      "tests",
+      ".github/workflows"
+    ],
+    "verifiers": [
+      {
+        "command": "bash scripts/verify-contract-baseline.sh",
+        "expected_result": "exit code 0",
+        "id": "contract-baseline",
+        "scope": "per_task"
+      },
+      {
+        "command": "bash scripts/verify-contract-approval.sh",
+        "expected_result": "exit code 0 only after the human decision is recorded",
+        "id": "approval-gate",
+        "scope": "per_task"
+      },
+      {
+        "command": "bash scripts/verify-focused-contract-tests.sh",
+        "expected_result": "exit code 0",
+        "id": "focused-contract-tests",
+        "scope": "per_task"
+      }
+    ]
+  }
+}

@@ -129,6 +129,18 @@ func (t *transport) SendPrompt(sessionID, prompt string) error {
 	return nil
 }
 
+func (t *transport) CancelSession(sessionID string) error {
+	params := turnInterruptParams{ThreadID: sessionID}
+	pr, err := t.tracker.SendRequest("turn/interrupt", params)
+	if err != nil {
+		return fmt.Errorf("write turn/interrupt: %w", err)
+	}
+	go func() {
+		t.tracker.WaitResponse(pr, 10*time.Second)
+	}()
+	return nil
+}
+
 func (t *transport) SendControlRequest(_ string, _ string, _ map[string]any) (map[string]any, error) {
 	return nil, acp.ErrControlNotSupported
 }

@@ -62,6 +62,9 @@ node_id: test-node
 grpc_endpoint: localhost:9443
 max_concurrent_pods: 10
 workspace_root: /tmp/test
+resource_host_aliases:
+  - host: host.lan
+    dial_host: 127.0.0.1
 `
 	if err := os.WriteFile(configFile, []byte(content), 0644); err != nil {
 		t.Fatalf("failed to write config file: %v", err)
@@ -86,6 +89,12 @@ workspace_root: /tmp/test
 
 	if cfg.MaxConcurrentPods != 10 {
 		t.Errorf("MaxConcurrentPods: got %v, want 10", cfg.MaxConcurrentPods)
+	}
+
+	if len(cfg.ResourceHostAliases) != 1 ||
+		cfg.ResourceHostAliases[0].Host != "host.lan" ||
+		cfg.ResourceHostAliases[0].DialHost != "127.0.0.1" {
+		t.Errorf("ResourceHostAliases: got %#v", cfg.ResourceHostAliases)
 	}
 }
 

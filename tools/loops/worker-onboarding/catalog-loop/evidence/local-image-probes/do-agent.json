@@ -3,14 +3,15 @@
   "worker_slug": "do-agent",
   "definition_hash": "sha256:f4348e3bb9baf3973078c475b5ac724fab016d06c10673d927d21dd80a267bb8",
   "platform": "linux/amd64",
-  "observed_at": "2026-07-18T08:28:08+08:00",
-  "image_reference": "do-worker/runner-do-agent:latest",
-  "image_id": "sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+  "observed_at": "2026-07-16T16:32:41.021Z",
+  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-do-agent:latest",
+  "image_id": "sha256:b652fdfcb27a7cb08c9c030b5e433d513ad903d2a13019905e4e50633f43778b",
   "probe_command": [
     "do-agent",
     "--version"
   ],
+  "network": "none",
   "status": "passed",
   "exit_code": 0,
-  "output": "do-agent 0.2.0"
+  "output": "do-agent 0.2.7"
 }

@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/anthropics/agentsmesh/agentfile"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
@@ -69,14 +68,7 @@ func (o *PodOrchestrator) prepareSnapshotWorkerCreate(
 	if aliasOverride != nil {
 		req.Alias = aliasOverride
 	}
-	if override := strings.TrimSpace(workerSpecStringValue(
-		req.WorkerSpecPromptOverride,
-	)); override != "" {
-		appendAgentfileLayer(
-			&req.AgentfileLayer,
-			"PROMPT "+agentfile.FormatStringLiteral(override),
-		)
-	}
+	appendWorkerSpecPromptOverride(req)
 	req.workerSpecSnapshotID = workerSpecInt64Pointer(snapshotID)
 	return nil
 }
@@ -86,8 +78,6 @@ func hasConflictingSnapshotWorkerInput(req *OrchestrateCreatePodRequest) bool {
 		req.RunnerID != 0 ||
 		req.AgentSlug != "" ||
 		req.RepositoryID != nil ||
-		req.TicketID != nil ||
-		req.TicketSlug != nil ||
 		req.AgentfileLayer != nil ||
 		req.AutomationLevel != "" ||
 		req.BranchName != nil ||

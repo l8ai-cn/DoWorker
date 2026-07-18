@@ -211,35 +211,6 @@ describe("WorkerTemplateConfigurationPanel", () => {
       );
     });
   });
-
-  it("does not block the Plan when an optional configuration document is unbound", async () => {
-    mocks.workerOptions = resolvedWorkerOptions(
-      "openclaw",
-      {},
-      [{
-        document_id: "openclaw-json",
-        format: "json",
-        target_path: "OPENCLAW_CONFIG",
-        required: false,
-      }],
-    );
-    const onPlanBlockChange = vi.fn();
-    const draft = createWorkerTemplateDraft("acme");
-    draft.spec.workerType = "openclaw";
-
-    render(
-      <WorkerTemplateConfigurationPanel
-        orgSlug="acme"
-        draft={draft}
-        onChange={vi.fn()}
-        onPlanBlockChange={onPlanBlockChange}
-      />,
-    );
-
-    await waitFor(() => {
-      expect(onPlanBlockChange).toHaveBeenLastCalledWith(null);
-    });
-  });
 });
 
 function unresolvedWorkerOptions(): AsyncState<WorkerCreateOptions> {

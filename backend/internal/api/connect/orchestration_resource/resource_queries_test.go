@@ -172,6 +172,85 @@ func TestListResourcesRejectsEnvironmentBundleFilterForAnotherKind(t *testing.T)
 	assert.Nil(t, stub.listFilter.EnvironmentBundle)
 }
 
+func TestListResourcesConvertsModelBindingReferenceFilter(t *testing.T) {
+	kind := "ModelBinding"
+	stub := &serviceStub{}
+	server := newTestServer(stub, testOrganizations())
+
+	response, err := server.ListResources(
+		authenticatedContext(42),
+		connect.NewRequest(&resourcev1.ListResourcesRequest{
+			OrgSlug: "acme",
+			Kind:    &kind,
+			ModelBindingFilter: &resourcev1.ModelBindingReferenceFilter{
+				WorkerType: "minimax-cli",
+			},
+		}),
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, service.ResourceListFilter{
+		Kind: "ModelBinding", Limit: 50,
+		ModelBinding: &service.ModelBindingReferenceFilter{
+			WorkerType: slugkit.Slug("minimax-cli"),
+		},
+	}, stub.listFilter)
+	assert.Equal(t, "minimax-cli", response.Msg.AppliedModelBindingFilter.WorkerType)
+	assert.Empty(t, response.Msg.AppliedModelBindingFilter.ProtocolAdapters)
+}
+
+func TestListResourcesReturnsResolvedModelBindingFilter(t *testing.T) {
+	kind := "ModelBinding"
+	stub := &serviceStub{listResult: service.ResourceListPage{
+		AppliedFilter: service.ResourceListFilter{
+			Kind: kind, Limit: 50,
+			ModelBinding: &service.ModelBindingReferenceFilter{
+				WorkerType:       slugkit.Slug("minimax-cli"),
+				ProtocolAdapters: []string{"minimax"},
+			},
+		},
+	}}
+	server := newTestServer(stub, testOrganizations())
+
+	response, err := server.ListResources(
+		authenticatedContext(42),
+		connect.NewRequest(&resourcev1.ListResourcesRequest{
+			OrgSlug: "acme",
+			Kind:    &kind,
+			ModelBindingFilter: &resourcev1.ModelBindingReferenceFilter{
+				WorkerType: "minimax-cli",
+			},
+		}),
+	)
+
+	require.NoError(t, err)
+	assert.Equal(
+		t,
+		[]string{"minimax"},
+		response.Msg.AppliedModelBindingFilter.ProtocolAdapters,
+	)
+}
+
+func TestListResourcesRejectsClientModelBindingProtocols(t *testing.T) {
+	kind := "ModelBinding"
+	server := newTestServer(&serviceStub{}, testOrganizations())
+
+	_, err := server.ListResources(
+		authenticatedContext(42),
+		connect.NewRequest(&resourcev1.ListResourcesRequest{
+			OrgSlug: "acme",
+			Kind:    &kind,
+			ModelBindingFilter: &resourcev1.ModelBindingReferenceFilter{
+				WorkerType:       "minimax-cli",
+				ProtocolAdapters: []string{"openai-compatible"},
+			},
+		}),
+	)
+
+	require.Error(t, err)
+	assert.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
+}
+
 func requestEnvironmentBundleFilter(
 	purpose resourcev1.EnvironmentBundlePurpose,
 	workerType string,

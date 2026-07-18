@@ -103,10 +103,10 @@ func TestEncodeRejectsIncompleteOrUnsafeDependencies(t *testing.T) {
 		{"Secret bundle also materialized", func(document *Document) {
 			document.RuntimeBundles[0].Pin.DomainID =
 				document.SecretReferences[0].Pin.DomainID
-		}, "secret EnvironmentBundle cannot be materialized"},
+		}, "Secret EnvironmentBundle cannot be materialized"},
 		{"Secret org mismatch", func(document *Document) {
 			document.SecretReferences[0].OwnerID = 99
-		}, "secret owner does not match"},
+		}, "Secret owner does not match"},
 		{"cross namespace pin", func(document *Document) {
 			document.Repository.Pin.Reference.Namespace =
 				slugkit.MustNewForTest("other-team")
@@ -166,7 +166,7 @@ func TestEncodeRejectsDuplicateResourceEntries(t *testing.T) {
 				705,
 			)
 			document.SecretReferences = append(document.SecretReferences, copy)
-		}, "duplicate secret target field"},
+		}, "duplicate Secret target field"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

@@ -27,20 +27,9 @@ describe("assertWorkerTemplatePlanReady", () => {
       'Configuration document "settings" requires an EnvironmentBundle reference.',
     );
   });
-
-  it("allows an unbound optional configuration document before planning", async () => {
-    mocks.options = workerOptions(false);
-    const draft = createWorkerTemplateDraft("acme");
-    draft.spec.workerType = "do-agent";
-    draft.spec.optionsRevision = "catalog-current";
-    draft.spec.runtime.runtimeImageId = 1;
-
-    await expect(assertWorkerTemplatePlanReady("acme", draft)).resolves
-      .toBeUndefined();
-  });
 });
 
-function workerOptions(required = true): WorkerCreateOptions {
+function workerOptions(): WorkerCreateOptions {
   return {
     revision: "catalog-current",
     worker_types: [{
@@ -58,7 +47,7 @@ function workerOptions(required = true): WorkerCreateOptions {
         document_id: "settings",
         format: "json",
         target_path: "DO_AGENT_SETTINGS",
-        required,
+        required: true,
       }],
       selectable: true,
       blocking_reason: "",

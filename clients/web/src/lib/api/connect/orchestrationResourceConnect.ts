@@ -14,14 +14,12 @@ import {
   ListResourcesResponseSchema,
   PlanResourceRequestSchema,
   PlanResourceResponseSchema,
-  ValidateResourceRequestSchema,
-  ValidateResourceResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
-import {
   ResourcePlanSchema,
   ResourceSchema,
   SourceFormat,
-} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+  ValidateResourceRequestSchema,
+  ValidateResourceResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import { getOrchestrationResourceService } from "@/lib/wasm-core";
 import { callOrchestrationResource as call } from "./orchestrationResourceBinaryCall";
 
@@ -55,6 +53,9 @@ export interface ResourceListInput {
     purpose: EnvironmentBundlePurpose;
     workerType: string;
     targetName?: string;
+  };
+  modelBindingFilter?: {
+    workerType: string;
   };
 }
 

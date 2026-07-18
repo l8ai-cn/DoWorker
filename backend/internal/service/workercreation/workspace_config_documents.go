@@ -11,7 +11,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 )
 
-func (resolver *workspaceResolver) resolveConfigBundleNames(
+func (resolver *workspaceResolver) resolveConfigDocumentIDs(
 	ctx context.Context,
 	scope specservice.Scope,
 	workerType slugkit.Slug,
@@ -33,7 +33,13 @@ func (resolver *workspaceResolver) resolveConfigBundleNames(
 		}
 		return []string{}, nil
 	}
-	bundleNames := make([]string, 0, len(bindings))
+	if len(bindings) > len(declared) {
+		return nil, fmt.Errorf(
+			"%w: Worker 配置文件 has more bindings than declared documents",
+			specservice.ErrInvalidDraft,
+		)
+	}
+	documentIDs := make([]string, 0, len(bindings))
 	seenDocuments := make(map[string]struct{}, len(bindings))
 	seenBundles := make(map[int64]struct{}, len(bindings))
 	for _, binding := range bindings {
@@ -78,13 +84,13 @@ func (resolver *workspaceResolver) resolveConfigBundleNames(
 		}
 		seenDocuments[documentID] = struct{}{}
 		seenBundles[binding.ConfigBundleID] = struct{}{}
-		bundleNames = append(bundleNames, bundle.Name)
+		documentIDs = append(documentIDs, documentID)
 	}
 	for documentID, document := range declared {
-		if !document.Required {
-			continue
-		}
-		if _, exists := seenDocuments[documentID]; !exists {
+		if document.Required {
+			if _, exists := seenDocuments[documentID]; exists {
+				continue
+			}
 			return nil, fmt.Errorf(
 				"%w: Worker 配置文件 is missing document %q",
 				specservice.ErrInvalidDraft,
@@ -92,7 +98,7 @@ func (resolver *workspaceResolver) resolveConfigBundleNames(
 			)
 		}
 	}
-	return bundleNames, nil
+	return documentIDs, nil
 }
 
 func configDocumentsByID(

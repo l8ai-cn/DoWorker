@@ -12,7 +12,7 @@ import { CenteredSpinner } from "@/components/ui/spinner";
 import { useExpertStore, useCurrentExpert } from "@/stores/expert";
 import { ExpertEditDrawer } from "./ExpertEditDrawer";
 import { ExpertConfigList } from "./ExpertConfigList";
-import { ExpertMarketOperations } from "./ExpertMarketOperations";
+import { ExpertRevisionDialog } from "./ExpertRevisionDialog";
 import { usePodStore } from "@/stores/pod";
 import { getShortPodKey } from "@/lib/pod-display-name";
 import { formatTimeAgo } from "@/lib/utils/time";
@@ -52,6 +52,11 @@ export function ExpertDetailPane({ slug, orgSlug }: ExpertDetailPaneProps) {
   }
 
   if (!expert) return null;
+
+  const resourceManaged =
+    expert.orchestration_resource_id != null ||
+    expert.orchestration_resource_revision != null ||
+    expert.worker_spec_snapshot_id != null;
 
   const handleRun = async () => {
     setRunning(true);
@@ -124,10 +129,12 @@ export function ExpertDetailPane({ slug, orgSlug }: ExpertDetailPaneProps) {
               <Pencil className="h-3.5 w-3.5" />
               {t("edit.editExpert")}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setDeleteOpen(true)} className="flex-1 gap-1.5 sm:flex-none">
-              <Trash2 className="h-3.5 w-3.5" />
-              {t("deleteExpert")}
-            </Button>
+            {!resourceManaged && (
+              <Button size="sm" variant="outline" onClick={() => setDeleteOpen(true)} className="gap-1.5">
+                <Trash2 className="h-3.5 w-3.5" />
+                {t("deleteExpert")}
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -143,22 +150,37 @@ export function ExpertDetailPane({ slug, orgSlug }: ExpertDetailPaneProps) {
 
       <ExpertConfigList expert={expert} />
 
-      <ExpertEditDrawer
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        expert={expert}
-        onSaved={() => fetchExpert(slug)}
-      />
+      {resourceManaged ? (
+        <ExpertRevisionDialog
+          open={editOpen}
+          orgSlug={orgSlug}
+          expertSlug={slug}
+          onOpenChange={setEditOpen}
+          onApplied={() => {
+            setEditOpen(false);
+            void fetchExpert(slug);
+          }}
+        />
+      ) : (
+        <ExpertEditDrawer
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          expert={expert}
+          onSaved={() => fetchExpert(slug)}
+        />
+      )}
 
-      <ConfirmDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        title={t("deleteConfirmTitle")}
-        description={t("deleteConfirmDescription")}
-        confirmText={t("deleteExpert")}
-        variant="destructive"
-        onConfirm={handleDelete}
-      />
+      {!resourceManaged && (
+        <ConfirmDialog
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          title={t("deleteConfirmTitle")}
+          description={t("deleteConfirmDescription")}
+          confirmText={t("deleteExpert")}
+          variant="destructive"
+          onConfirm={handleDelete}
+        />
+      )}
     </div>
   );
 }

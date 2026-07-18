@@ -29,7 +29,7 @@ All Do Worker integration lives under `src/lib/do-worker/`:
 
 ## Dev
 
-Started **in parallel** with web / web-admin when you run `bazel run //deploy/dev:up`.
+Started **in parallel** with web / web-admin when you run `./deploy/dev/dev.sh`.
 Port is worktree-scoped via `WEB_USER_PORT` in `deploy/dev/.env` (default **10020**).
 Vite proxies `/v1`, `/auth`, `/api` → traefik (`HTTP_PORT` via `localhost`, not `127.0.0.1`).
 

@@ -115,47 +115,35 @@ func TestServiceFields(t *testing.T) {
 	}
 }
 
-func TestCreatePodForTicket_DefaultsLegacyClaudeFields(t *testing.T) {
+func TestCreatePodForTicket_RequiresWorkerSpecSnapshot(t *testing.T) {
 	repo, _ := setupTestRepo(t)
 	creator := &recordingPodCreator{}
 	service := NewService(repo, nil, nil, nil)
 	service.SetPodCreator(creator)
 
-	// Caller (handler) does not provide Model/PermissionMode.
-	pod, err := service.CreatePodForTicket(context.Background(), &meshDomain.CreatePodForTicketRequest{
+	_, err := service.CreatePodForTicket(context.Background(), &meshDomain.CreatePodForTicketRequest{
 		OrganizationID: 1,
-		RunnerID:       1,
 		TicketID:       2,
 		CreatedByID:    1,
-		Prompt:         "do something",
 	})
-	require.NoError(t, err)
-	require.NotNil(t, pod)
-
-	require.NotNil(t, creator.request)
-	assert.Contains(t, *creator.request.AgentfileLayer, `CONFIG model = "opus"`)
-	assert.Contains(t, *creator.request.AgentfileLayer, `CONFIG permission_mode = "bypassPermissions"`)
-	assert.Contains(t, *creator.request.AgentfileLayer, `PROMPT "do something"`)
+	require.ErrorIs(t, err, ErrWorkerSpecSnapshotRequired)
+	assert.Nil(t, creator.request)
 }
 
-func TestCreatePodForTicket_PreservesExplicitFields(t *testing.T) {
+func TestCreatePodForTicket_OmitsEmptyPromptOverride(t *testing.T) {
 	repo, _ := setupTestRepo(t)
 	creator := &recordingPodCreator{}
 	service := NewService(repo, nil, nil, nil)
 	service.SetPodCreator(creator)
 
 	pod, err := service.CreatePodForTicket(context.Background(), &meshDomain.CreatePodForTicketRequest{
-		OrganizationID: 1,
-		RunnerID:       1,
-		TicketID:       2,
-		CreatedByID:    1,
-		Prompt:         "task",
-		Model:          "sonnet",
-		PermissionMode: "plan",
+		OrganizationID:       1,
+		TicketID:             2,
+		CreatedByID:          1,
+		WorkerSpecSnapshotID: 91,
 	})
 	require.NoError(t, err)
 	require.NotNil(t, pod)
 	require.NotNil(t, creator.request)
-	assert.Contains(t, *creator.request.AgentfileLayer, `CONFIG model = "sonnet"`)
-	assert.Contains(t, *creator.request.AgentfileLayer, `CONFIG permission_mode = "plan"`)
+	assert.Nil(t, creator.request.WorkerSpecPromptOverride)
 }

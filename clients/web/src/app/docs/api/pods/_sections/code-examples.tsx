@@ -31,9 +31,10 @@ export function CodeExamples() {
   -H "X-API-Key: amk_your_api_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "agent_slug": "claude-code",
-    "automation_level": "autonomous",
-    "agentfile_layer": "PROMPT \\"Fix the login bug\\""
+    "source_pod_key": "pod-abc123",
+    "resume_agent_session": true,
+    "cols": 120,
+    "rows": 36
   }'`}</pre>
           </div>
         </div>

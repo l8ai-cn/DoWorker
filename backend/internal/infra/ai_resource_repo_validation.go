@@ -2,16 +2,19 @@ package infra
 
 import (
 	"context"
+	"crypto/subtle"
 	"fmt"
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/airesource"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func (repo *aiResourceRepo) SetValidationState(
 	ctx context.Context,
 	connectionID, expectedRevision int64,
+	expectedCredentialsEncrypted string,
 	status airesource.ConnectionStatus,
 	at time.Time,
 	validationError string,
@@ -19,14 +22,24 @@ func (repo *aiResourceRepo) SetValidationState(
 	if status != airesource.ConnectionStatusValid && status != airesource.ConnectionStatusInvalid && status != airesource.ConnectionStatusUnchecked {
 		return 0, fmt.Errorf("invalid persisted AI resource validation status %q", status)
 	}
-	newRevision := expectedRevision + 1
 	err := repo.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var stored providerConnectionRow
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Select("id", "revision", "credentials_encrypted").
+			First(&stored, connectionID).Error; err != nil {
+			return err
+		}
+		if stored.Revision != expectedRevision ||
+			subtle.ConstantTimeCompare([]byte(stored.CredentialsEncrypted), []byte(expectedCredentialsEncrypted)) != 1 {
+			return airesource.ErrConflict
+		}
 		updates := map[string]any{
 			"status": status, "last_validated_at": at,
-			"validation_error": validationError, "revision": gorm.Expr("revision + 1"),
-			"updated_at": time.Now().UTC(),
+			"validation_error": validationError, "updated_at": time.Now().UTC(),
 		}
-		result := tx.Model(&providerConnectionRow{}).Where("id = ? AND revision = ?", connectionID, expectedRevision).Updates(updates)
+		result := tx.Model(&providerConnectionRow{}).
+			Where("id = ? AND revision = ?", connectionID, expectedRevision).
+			Updates(updates)
 		if result.Error != nil {
 			return result.Error
 		}
@@ -45,5 +58,5 @@ func (repo *aiResourceRepo) SetValidationState(
 	if err != nil {
 		return 0, err
 	}
-	return newRevision, nil
+	return expectedRevision, nil
 }

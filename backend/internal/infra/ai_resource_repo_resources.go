@@ -56,7 +56,13 @@ func (repo *aiResourceRepo) SaveResource(ctx context.Context, resource *airesour
 	err := repo.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		row := resourceRow(&candidate)
 		result := tx.Model(&modelResourceRow{}).
-			Where("id = ? AND revision = ? AND provider_connection_id = ?", resource.ID, resource.Revision, resource.ProviderConnectionID).
+			Where(
+				"id = ? AND revision = ? AND updated_at = ? AND provider_connection_id = ?",
+				resource.ID,
+				resource.Revision,
+				resource.UpdatedAt,
+				resource.ProviderConnectionID,
+			).
 			Updates(map[string]any{
 				"identifier": row.Identifier, "model_id": row.ModelID, "display_name": row.DisplayName,
 				"modalities": row.Modalities, "capabilities": row.Capabilities, "status": row.Status,
@@ -99,7 +105,7 @@ func (repo *aiResourceRepo) SaveResource(ctx context.Context, resource *airesour
 	return nil
 }
 
-func (repo *aiResourceRepo) DeleteResource(ctx context.Context, id, expectedRevision int64) error {
+func (repo *aiResourceRepo) DeleteResource(ctx context.Context, id, expectedRevision int64, expectedUpdatedAt time.Time) error {
 	return repo.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("model_resource_id = ?", id).Delete(&modelResourceDefaultRow{}).Error; err != nil {
 			return err
@@ -108,7 +114,12 @@ func (repo *aiResourceRepo) DeleteResource(ctx context.Context, id, expectedRevi
 			Where("model_resource_id = ?", id).Update("model_resource_id", nil).Error; err != nil {
 			return err
 		}
-		result := tx.Where("id = ? AND revision = ?", id, expectedRevision).Delete(&modelResourceRow{})
+		result := tx.Where(
+			"id = ? AND revision = ? AND updated_at = ?",
+			id,
+			expectedRevision,
+			expectedUpdatedAt,
+		).Delete(&modelResourceRow{})
 		if result.Error != nil {
 			return result.Error
 		}

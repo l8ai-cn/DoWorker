@@ -64,26 +64,6 @@ describe("workerModelResources", () => {
     ]);
   });
 
-  it("allows OpenAI-compatible resources for video-studio", () => {
-    const openAIProvider: ProviderDefinition = {
-      ...geminiProvider,
-      key: "openai",
-      protocolAdapter: "openai-compatible",
-    };
-    const openAIResource: EffectiveResource = {
-      ...geminiResource,
-      connection: {
-        ...geminiResource.connection!,
-        providerKey: "openai",
-      },
-    };
-
-    expect(agentRequiresModelResource("video-studio")).toBe(true);
-    expect(
-      compatibleModelResources("video-studio", [openAIResource], [openAIProvider]),
-    ).toEqual([openAIResource]);
-  });
-
   it("uses Definition protocol adapters when they are provided", () => {
     const providers: ProviderDefinition[] = [
       { ...geminiProvider, key: "openai", protocolAdapter: "openai-compatible" },
@@ -102,8 +82,15 @@ describe("workerModelResources", () => {
         providerConnectionId: index + 1,
       },
     }));
+    const compatibleForDefinition = compatibleModelResources as unknown as (
+      agentSlug: string,
+      values: EffectiveResource[],
+      definitions: ProviderDefinition[],
+      requirement: { required: boolean; protocolAdapters: string[] },
+    ) => EffectiveResource[];
+
     expect(
-      compatibleModelResources(
+      compatibleForDefinition(
         "new-definition-worker",
         resources,
         providers,
@@ -158,15 +145,10 @@ describe("workerModelResources", () => {
         },
       }));
 
-      expect(compatibleModelResources(
-        agentSlug,
-        resources,
-        providers,
-        {
-          required: true,
-          protocolAdapters: ["openai-compatible", "anthropic"],
-        },
-      )).toEqual([resources[0], resources[1]]);
+      expect(compatibleModelResources(agentSlug, resources, providers)).toEqual([
+        resources[0],
+        resources[1],
+      ]);
     },
   );
 
@@ -185,21 +167,7 @@ describe("workerModelResources", () => {
     ]);
   });
 
-  it("does not offer MiniMax chat resources to Seedance", () => {
-    const minimaxResource: EffectiveResource = {
-      ...geminiResource,
-      connection: {
-        ...geminiResource.connection!,
-        providerKey: "minimax",
-      },
-    };
-
-    expect(
-      compatibleModelResources("seedance-expert", [minimaxResource], [minimaxProvider]),
-    ).toEqual([]);
-  });
-
-  it("allows declared Doubao and Sub2API Seedance video resources", () => {
+  it("only allows the declared Doubao video-generation resource for Seedance", () => {
     const video = {
       ...geminiResource,
       connection: {
@@ -222,45 +190,13 @@ describe("workerModelResources", () => {
         modelId: "doubao-seed-1-8-251228",
       },
     };
-    const sub2apiVideo = {
-      ...video,
-      connection: {
-        ...video.connection!,
-        id: 2,
-        providerKey: "sub2api-seedance",
-        name: "Sub2API Seedance",
-      },
-      resource: {
-        ...video.resource!,
-        id: 79,
-        providerConnectionId: 2,
-        modelId: "doubao-seedance-2-0-260128",
-      },
-    };
-    const sub2apiInvalidModelID = {
-      ...sub2apiVideo,
-      resource: {
-        ...sub2apiVideo.resource!,
-        id: 80,
-        modelId: "doubao-seedance-2-0-260128-preview",
-      },
-    };
 
     expect(compatibleToolModelResources({
       role: "seedance-video",
-      provider_keys: ["doubao", "sub2api-seedance"],
-      protocol_adapters: ["openai-compatible", "ark-seedance"],
+      provider_keys: ["doubao"],
+      protocol_adapters: ["openai-compatible"],
       modality: "video",
       capability: "video-generation",
-    }, [
-      geminiResource,
-      languageModelMarkedAsVideo,
-      video,
-      sub2apiVideo,
-      sub2apiInvalidModelID,
-    ])).toEqual([
-      video,
-      sub2apiVideo,
-    ]);
+    }, [geminiResource, languageModelMarkedAsVideo, video])).toEqual([video]);
   });
 });

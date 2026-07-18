@@ -13,7 +13,7 @@ func TestParseSnapshotRejectsNonJSONConfigDocument(t *testing.T) {
 			`"interaction_modes":["pty"],` +
 			`"model_requirement":{"required":false,"protocol_adapters":[]},` +
 			`"credential_bindings":[],"config_documents":[` +
-			`{"id":"settings","format":"yaml","target_path":"settings.yaml"}],` +
+			`{"id":"settings","format":"yaml","target_path":"settings.yaml","required":false}],` +
 			`"image":{"runtime":"codex-cli","version_probe":["codex","--version"]}}`,
 	)
 

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16",
+  "status": "verified",
+  "projection": {
+    "worker_create_options": [
+      "model_protocol_adapters",
+      "tool_model_requirements",
+      "credential_requirements",
+      "config_document_requirements"
+    ],
+    "secret_values_in_response": false,
+    "document_requirements": "Definition-owned identifiers, format, and target path only"
+  },
+  "verification": {
+    "connect_mapping_tests": "passed",
+    "web_proto_mapping_tests": "passed",
+    "rust_proto_wire_tests": "passed"
+  }
+}

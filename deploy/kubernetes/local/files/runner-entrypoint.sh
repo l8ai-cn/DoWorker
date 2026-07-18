@@ -192,7 +192,7 @@ main() {
     generate_runner_cert
     init_ai_cli_configs
     create_config
-    echo "启动 Runner (bazel-built binary)..."
+    echo "启动 Runner..."
     exec /usr/local/bin/agentsmesh-runner run
 }
 main "$@"

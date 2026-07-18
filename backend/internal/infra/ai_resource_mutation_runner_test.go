@@ -50,7 +50,7 @@ func TestAIResourceMutationRunnerRollsBackNestedValidationWhenAuditFails(t *test
 	require.NoError(t, db.Exec(`CREATE TRIGGER reject_ai_resource_audit BEFORE INSERT ON audit_logs BEGIN SELECT RAISE(FAIL, 'injected'); END`).Error)
 	runner := NewAIResourceMutationRunner(db)
 	err := runner.Run(context.Background(), func(txRepo domain.Repository, recorder service.AuditRecorder) error {
-		if _, stateErr := txRepo.SetValidationState(context.Background(), connection.ID, connection.Revision, domain.ConnectionStatusInvalid, time.Now(), "credentials rejected"); stateErr != nil {
+		if _, stateErr := txRepo.SetValidationState(context.Background(), connection.ID, connection.Revision, connection.CredentialsEncrypted, domain.ConnectionStatusInvalid, time.Now(), "credentials rejected"); stateErr != nil {
 			return stateErr
 		}
 		return recorder.Record(context.Background(), audit.Entry(audit.ActionProviderConnectionValidated).Organization(10).Actor(audit.ActorTypeUser, nil).Resource(audit.ResourceProviderConnection, &connection.ID).Build())

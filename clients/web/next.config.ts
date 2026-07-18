@@ -23,19 +23,10 @@ function getDevProxyTarget(): string {
   return "http://localhost:10000";
 }
 
-// `output: 'standalone'` packages the server + its transitive
-// node_modules into `.next/standalone/` for a slim Docker image. The
-// Bazel OCI pipeline can't track the self-referential
-// `.next/standalone/node_modules/next` symlink that Next.js plants
-// during that flow (it points back into the pnpm virtual store,
-// outside the execroot). Gate standalone on `BAZEL_BUILD=standalone`
-// so the legacy docker/build-push-action path keeps the slim layout
-// and Bazel falls through to the default `.next/` output which the
-// image entrypoint (build_defs/web/next.bzl) launches via
-// `next start`.
-const enableStandalone =
-  process.env.BAZEL_BUILD === "standalone" ||
-  process.env.STANDALONE === "1";
+// `output: 'standalone'` packages the server + transitive node_modules
+// into `.next/standalone/` for slim Docker images (see clients/web/Dockerfile).
+// Dev (`next dev`) keeps the default output; production scripts set STANDALONE=1.
+const enableStandalone = process.env.STANDALONE === "1";
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -56,10 +47,7 @@ const nextConfig: NextConfig = {
   // top-level `tsc --noEmit` already accepts.
   typescript: { ignoreBuildErrors: true },
 
-  // Workspace packages ship their raw .ts sources (see
-  // packages/service-runtime/BUILD.bazel for why). Tell Next.js to
-  // run SWC over them during `next build` instead of treating them as
-  // pre-compiled JS.
+  // Workspace packages ship raw .ts sources; SWC must transpile them.
   transpilePackages: [
     "@do-worker/agent-ui",
     "@do-worker/service-runtime",
@@ -118,6 +106,18 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_E2E: process.env.NEXT_PUBLIC_E2E === "true" ? "true" : "",
   },
 
+  async headers() {
+    return [
+      {
+        source: "/:path*.wasm",
+        headers: [
+          { key: "Content-Type", value: "application/wasm" },
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+    ];
+  },
+
   async rewrites() {
     if (process.env.NODE_ENV === "development") {
       const proxyTarget = getDevProxyTarget();
@@ -141,10 +141,6 @@ const nextConfig: NextConfig = {
         {
           source: "/v1/:path*",
           destination: `${proxyTarget}/v1/:path*`,
-        },
-        {
-          source: "/proto.:service/:method",
-          destination: `${proxyTarget}/proto.:service/:method`,
         },
         // Connect-RPC procedures use the path `/proto.<svc>.v1.Service/Method`.
         // Next.js path-to-regexp doesn't tolerate escaped dots in `source`,

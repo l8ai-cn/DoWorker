@@ -9,9 +9,6 @@ describe("workspaceFileArtifacts", () => {
         { path: "deliverables/deck.pptx" },
         { path: "deliverables/generate-assets.mjs" },
         { path: "deliverables/README.md" },
-        { path: "deliverables/phone-stand.stl" },
-        { path: "deliverables/phone-stand.3mf" },
-        { path: "deliverables/phone-stand.step" },
         { path: "src/main.ts" },
       ]),
     ).toEqual([
@@ -35,18 +32,6 @@ describe("workspaceFileArtifacts", () => {
         artifactId: "workspace:deliverables/README.md",
         filename: "README.md",
         mimeType: "text/markdown",
-      }),
-      expect.objectContaining({
-        artifactId: "workspace:deliverables/phone-stand.stl",
-        mimeType: "model/stl",
-      }),
-      expect.objectContaining({
-        artifactId: "workspace:deliverables/phone-stand.3mf",
-        mimeType: "model/3mf",
-      }),
-      expect.objectContaining({
-        artifactId: "workspace:deliverables/phone-stand.step",
-        mimeType: "model/step",
       }),
     ]);
   });

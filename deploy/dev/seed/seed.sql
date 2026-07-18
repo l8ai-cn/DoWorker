@@ -161,7 +161,8 @@ BEGIN
     -- =========================================================================
     -- 3.1 创建 Pro 订阅 (plan_id = 2)
     -- =========================================================================
-    -- Pro 计划：10 concurrent pods, 10 runners, 10 users
+    -- The static development fixture pre-registers every Runner type, so it
+    -- needs an explicit Runner override beyond the production Pro plan.
 
     INSERT INTO subscriptions (
         organization_id, plan_id, status, billing_cycle,
@@ -175,6 +176,11 @@ BEGIN
         SELECT 1 FROM subscriptions WHERE organization_id = v_org_id
     );
 
+    UPDATE subscriptions
+    SET custom_quotas = COALESCE(custom_quotas, '{}'::jsonb)
+        || jsonb_build_object('runners', 1000)
+    WHERE organization_id = v_org_id;
+
     -- =========================================================================
     -- 4. 创建 Runner 注册令牌 (gRPC/mTLS)
     -- =========================================================================
@@ -183,20 +189,30 @@ BEGIN
     -- echo -n 'dev-runner-token' | shasum -a 256
 
     INSERT INTO runner_grpc_registration_tokens (
-        organization_id, cluster_id, token_hash, description, created_by_id, is_active, max_uses
+        organization_id, cluster_id, token_hash, name, labels, single_use,
+        max_uses, used_count, expires_at, created_by
     )
-    SELECT v_org_id,
-           v_local_cluster_id,
-           'cee9d12fb9fefdfafe98d97f5c8a247e071a0e6778089dee7cf2be571ee606d2',
-           'Development Runner Token',
-           v_user_id,
-           TRUE,
-           NULL  -- Unlimited uses
-    WHERE NOT EXISTS (
-        SELECT 1 FROM runner_grpc_registration_tokens
-        WHERE organization_id = v_org_id
-        AND description = 'Development Runner Token'
+    VALUES (
+        v_org_id,
+        v_local_cluster_id,
+        'cee9d12fb9fefdfafe98d97f5c8a247e071a0e6778089dee7cf2be571ee606d2',
+        'Development Runner Token',
+        '{}'::jsonb,
+        FALSE,
+        1000,
+        0,
+        NOW() + INTERVAL '10 years',
+        v_user_id
     )
+    ON CONFLICT (token_hash) DO UPDATE
+    SET cluster_id = EXCLUDED.cluster_id,
+        name = EXCLUDED.name,
+        labels = EXCLUDED.labels,
+        single_use = EXCLUDED.single_use,
+        max_uses = EXCLUDED.max_uses,
+        used_count = EXCLUDED.used_count,
+        expires_at = EXCLUDED.expires_at,
+        created_by = EXCLUDED.created_by
     RETURNING id INTO v_token_id;
 
     -- =========================================================================
@@ -267,6 +283,7 @@ BEGIN
         ('dev-runner-loopal', 'Development Docker Runner (Loopal)'),
         ('dev-runner-do-agent', 'Development Docker Runner (DoAgent)'),
         ('dev-runner-grok', 'Development Docker Runner (Grok Build)'),
+        ('dev-runner-minimax', 'Development Docker Runner (MiniMax CLI)'),
         ('dev-runner-openclaw', 'Development Docker Runner (OpenClaw)'),
         ('dev-runner-hermes', 'Development Docker Runner (Hermes)'),
         ('dev-runner-aider', 'Development Docker Runner (Aider)'),

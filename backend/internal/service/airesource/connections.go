@@ -60,12 +60,17 @@ func (s *Service) UpdateConnection(ctx context.Context, actor Actor, connectionI
 		connection.Name = strings.TrimSpace(input.Name)
 	}
 	resetValidation := false
-	if strings.TrimSpace(input.BaseURL) != "" && input.BaseURL != connection.BaseURL {
-		connection.BaseURL, err = s.validatedBaseURL(ctx, provider, input.BaseURL)
-		if err != nil {
-			return ConnectionView{}, err
+	runtimeChanged := false
+	if strings.TrimSpace(input.BaseURL) != "" {
+		baseURL, validationErr := s.validatedBaseURL(ctx, provider, input.BaseURL)
+		if validationErr != nil {
+			return ConnectionView{}, validationErr
 		}
-		resetValidation = true
+		if baseURL != connection.BaseURL {
+			connection.BaseURL = baseURL
+			runtimeChanged = true
+			resetValidation = true
+		}
 	}
 	if input.Credentials != nil {
 		connection.CredentialsEncrypted, connection.ConfiguredFields, err = s.encryptCredentials(provider, input.Credentials)
@@ -78,7 +83,11 @@ func (s *Service) UpdateConnection(ctx context.Context, actor Actor, connectionI
 		markConnectionUnchecked(connection)
 	}
 	err = s.mutations.Run(ctx, func(repo domain.Repository, recorder AuditRecorder) error {
-		if saveErr := repo.SaveConnection(ctx, connection); saveErr != nil {
+		save := repo.SaveConnectionMetadata
+		if runtimeChanged {
+			save = repo.SaveConnection
+		}
+		if saveErr := save(ctx, connection); saveErr != nil {
 			return saveErr
 		}
 		return recordAudit(ctx, recorder, actor, audit.ActionProviderConnectionUpdated, audit.ResourceProviderConnection, connection.ID, connection, "success", nil)
@@ -105,7 +114,7 @@ func (s *Service) RotateConnectionCredentials(ctx context.Context, actor Actor, 
 	}
 	markConnectionUnchecked(connection)
 	return s.mutations.Run(ctx, func(repo domain.Repository, recorder AuditRecorder) error {
-		if saveErr := repo.SaveConnection(ctx, connection); saveErr != nil {
+		if saveErr := repo.SaveConnectionMetadata(ctx, connection); saveErr != nil {
 			return saveErr
 		}
 		return recordAudit(ctx, recorder, actor, audit.ActionProviderConnectionCredentialsRotated, audit.ResourceProviderConnection, connection.ID, connection, "success", nil)
@@ -123,7 +132,7 @@ func (s *Service) SetConnectionEnabled(ctx context.Context, actor Actor, connect
 		action = audit.ActionProviderConnectionEnabled
 	}
 	return s.mutations.Run(ctx, func(repo domain.Repository, recorder AuditRecorder) error {
-		if saveErr := repo.SaveConnection(ctx, connection); saveErr != nil {
+		if saveErr := repo.SaveConnectionMetadata(ctx, connection); saveErr != nil {
 			return saveErr
 		}
 		return recordAudit(ctx, recorder, actor, action, audit.ResourceProviderConnection, connection.ID, connection, "success", nil)
@@ -136,7 +145,7 @@ func (s *Service) DeleteConnection(ctx context.Context, actor Actor, connectionI
 		return err
 	}
 	return s.mutations.Run(ctx, func(repo domain.Repository, recorder AuditRecorder) error {
-		if deleteErr := repo.DeleteConnection(ctx, connectionID, connection.Revision); deleteErr != nil {
+		if deleteErr := repo.DeleteConnection(ctx, connectionID, connection.Revision, connection.UpdatedAt); deleteErr != nil {
 			return deleteErr
 		}
 		return recordAudit(ctx, recorder, actor, audit.ActionProviderConnectionDeleted, audit.ResourceProviderConnection, connection.ID, connection, "success", nil)

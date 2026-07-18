@@ -2,7 +2,7 @@ import type { Dispatch } from "react";
 import {
   IssueSeverity,
   SourceFormat,
-} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import { validateResource } from "@/lib/api/facade/orchestrationResource";
 import { safeServiceErrorMessage } from "@/lib/errors/safeServiceErrorMessage";
 import { resourceDraftCanSubmitDraft } from "./resource-draft-selectors";

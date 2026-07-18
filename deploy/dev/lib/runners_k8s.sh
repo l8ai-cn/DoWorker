@@ -25,15 +25,19 @@ build_runner_compose_images() {
     local node_arch platform
     node_arch="$(kubectl get nodes -o jsonpath='{.items[0].status.nodeInfo.architecture}')"
     platform="linux/${node_arch:-amd64}"
+    local node_base_image="${NODE_BASE_IMAGE:-node:24-bookworm-slim}"
+    local python_base_image="${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}"
 
     info "构建 runner 镜像 (K8s 节点架构: ${platform})..."
     cd "$SCRIPT_DIR"
     local rt
-    for rt in e2e-echo claude-code codex-cli video-studio cursor-cli gemini-cli loopal minimax-cli openclaw hermes; do
+    for rt in e2e-echo claude-code codex-cli cursor-cli gemini-cli loopal minimax-cli openclaw hermes; do
         docker build --platform "$platform" \
             --target runtime \
             -f ../../docker/agent-runtime/Dockerfile \
             --build-arg "AGENT_RUNTIME=${rt}" \
+            --build-arg "NODE_BASE_IMAGE=${node_base_image}" \
+            --build-arg "PYTHON_BASE_IMAGE=${python_base_image}" \
             --build-arg "HTTP_PROXY=" \
             --build-arg "HTTPS_PROXY=" \
             -t "do-worker/runner-${rt}:latest" \

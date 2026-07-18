@@ -11,8 +11,6 @@ import {
   CreateGoalLoopFromPlanResponseSchema,
   CreateWorkerFromPlanRequestSchema,
   CreateWorkerFromPlanResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_apply_pb";
-import {
   EnvironmentBundlePurpose,
   ExportResourceResponseSchema,
   GetResourceCapabilitiesRequestSchema,
@@ -21,15 +19,13 @@ import {
   ListResourcesRequestSchema,
   ListResourcesResponseSchema,
   PlanResourceResponseSchema,
-  ValidateResourceRequestSchema,
-  ValidateResourceResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
-import {
   ResourceOperation,
   ResourcePlanSchema,
   ResourceSchema,
   SourceFormat,
-} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+  ValidateResourceRequestSchema,
+  ValidateResourceResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 
 const methods = {
   validateResourceConnect: vi.fn(),

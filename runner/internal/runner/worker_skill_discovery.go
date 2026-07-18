@@ -13,15 +13,12 @@ import (
 
 var workerSkillRoots = []string{"skills", ".agents/skills", ".codex/skills"}
 
-func (h *RunnerMessageHandler) sandboxFsWorkerSkillDiscoverWorkspace(
-	workspace *sandboxWorkspace,
-	path string,
-) (*runnerv1.SandboxFsResultEvent, error) {
-	relative, display, err := resolveWorkerSkillRelativePath(path)
+func (h *RunnerMessageHandler) sandboxFsWorkerSkillDiscover(workspaceRoot, path string) (*runnerv1.SandboxFsResultEvent, error) {
+	skillDir, display, err := resolveWorkerSkillDirectory(workspaceRoot, path)
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
-	info, err := workspace.root.Stat(relative)
+	info, err := os.Stat(skillDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return fsErrResult("worker skill not found"), nil
@@ -31,14 +28,7 @@ func (h *RunnerMessageHandler) sandboxFsWorkerSkillDiscoverWorkspace(
 	if !info.IsDir() {
 		return fsErrResult("worker skill path is not a directory"), nil
 	}
-	content, err := workspace.root.ReadFile(filepath.Join(relative, "SKILL.md"))
-	if os.IsNotExist(err) {
-		return fsErrResult("worker skill SKILL.md not found"), nil
-	}
-	if err != nil {
-		return fsErrResult(err.Error()), nil
-	}
-	if err := validateWorkerSkillFrontmatter(content); err != nil {
+	if err := validateWorkerSkillFrontmatter(filepath.Join(skillDir, "SKILL.md")); err != nil {
 		return fsErrResult(err.Error()), nil
 	}
 	return &runnerv1.SandboxFsResultEvent{
@@ -47,7 +37,7 @@ func (h *RunnerMessageHandler) sandboxFsWorkerSkillDiscoverWorkspace(
 			Name: filepath.Base(display),
 			Type: "directory",
 		}},
-		WorkspaceRoot: workspace.displayPath(),
+		WorkspaceRoot: workspaceRoot,
 	}, nil
 }
 
@@ -55,7 +45,14 @@ type workerSkillFrontmatter struct {
 	Name string `yaml:"name"`
 }
 
-func validateWorkerSkillFrontmatter(content []byte) error {
+func validateWorkerSkillFrontmatter(path string) error {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("worker skill SKILL.md not found")
+		}
+		return err
+	}
 	sections := strings.SplitN(string(content), "\n---\n", 2)
 	if len(sections) != 2 || strings.TrimSpace(sections[0]) == "" || !strings.HasPrefix(sections[0], "---\n") {
 		return fmt.Errorf("worker skill frontmatter is invalid")
@@ -70,7 +67,7 @@ func validateWorkerSkillFrontmatter(content []byte) error {
 	return nil
 }
 
-func resolveWorkerSkillRelativePath(requested string) (string, string, error) {
+func resolveWorkerSkillDirectory(workspaceRoot, requested string) (string, string, error) {
 	raw := strings.TrimSpace(requested)
 	if filepath.IsAbs(raw) {
 		return "", "", fmt.Errorf("worker skill path must be relative")
@@ -83,7 +80,26 @@ func resolveWorkerSkillRelativePath(requested string) (string, string, error) {
 	if !isWorkerSkillPathAllowed(display) {
 		return "", "", fmt.Errorf("worker skill path is outside allowed roots")
 	}
-	return filepath.FromSlash(display), display, nil
+	workspace, err := filepath.Abs(workspaceRoot)
+	if err != nil {
+		return "", "", err
+	}
+	candidate := filepath.Join(workspace, filepath.FromSlash(display))
+	resolvedWorkspace, err := filepath.EvalSymlinks(workspace)
+	if err != nil {
+		return "", "", err
+	}
+	resolvedCandidate, err := filepath.EvalSymlinks(candidate)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return candidate, display, nil
+		}
+		return "", "", err
+	}
+	if !pathIsWithin(resolvedWorkspace, resolvedCandidate) {
+		return "", "", fmt.Errorf("worker skill path escapes workspace")
+	}
+	return resolvedCandidate, display, nil
 }
 
 func isWorkerSkillPathAllowed(path string) bool {
@@ -93,4 +109,8 @@ func isWorkerSkillPathAllowed(path string) bool {
 		}
 	}
 	return false
+}
+
+func pathIsWithin(root, path string) bool {
+	return path == root || strings.HasPrefix(path, root+string(filepath.Separator))
 }

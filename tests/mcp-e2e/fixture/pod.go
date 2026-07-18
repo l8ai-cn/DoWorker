@@ -35,23 +35,32 @@ func newEchoPod(
 	interactionMode string,
 ) *EchoPod {
 	t.Helper()
+	// interactive + MODE pty: default autonomous forces MODE acp, which
+	// breaks send_pod_input → "got: …" PTY round-trip assertions.
+	ptyLayer := "MODE pty"
+	return newEchoPod(t, env, rest, runnerID, &ptyLayer)
+}
+
+func NewACPEchoPod(t *testing.T, env *Env, rest *client.REST, runnerID int64) *EchoPod {
+	t.Helper()
+	acpLayer := "MODE acp"
+	return newEchoPod(t, env, rest, runnerID, &acpLayer)
+}
+
+func newEchoPod(t *testing.T, env *Env, rest *client.REST, runnerID int64, agentfileLayer *string) *EchoPod {
+	t.Helper()
 	alias := uniqueAlias("e2e-echo")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	workerSpec, err := rest.BuildEchoWorkerSpec(
-		ctx,
-		env.DevOrgSlug,
-		interactionMode,
-		alias,
-	)
-	if err != nil {
-		t.Fatalf("build echo worker spec: %v", err)
-	}
 	pod, err := rest.CreatePod(ctx, env.DevOrgSlug, client.CreatePodRequest{
-		WorkerSpec: workerSpec,
-		Cols:       80,
-		Rows:       24,
+		AgentSlug:       "e2e-echo",
+		RunnerID:        runnerID,
+		Alias:           &alias,
+		AgentfileLayer:  agentfileLayer,
+		AutomationLevel: "interactive",
+		Cols:            80,
+		Rows:            24,
 	})
 	if err != nil {
 		t.Fatalf("create echo pod: %v", err)

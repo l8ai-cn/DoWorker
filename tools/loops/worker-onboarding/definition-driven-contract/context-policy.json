@@ -1,0 +1,27 @@
+{
+  "compaction": {
+    "summary_contract": "Preserve approved contract decisions, task state, verifier results, blockers, and lifecycle evidence.",
+    "trigger_ratio": 0.8
+  },
+  "durable_memory": {
+    "journal_path": "journal.jsonl",
+    "progress_path": "PROGRESS.md",
+    "state_path": "state.json"
+  },
+  "excluded_context": [
+    "plaintext credentials",
+    "access tokens",
+    "raw provider responses",
+    "unrelated logs"
+  ],
+  "max_context_tokens": 60000,
+  "required_context_pack": [
+    "loop.json",
+    "state.json",
+    "PROGRESS.md",
+    "ACCEPTANCE.md",
+    "DECISIONS.md"
+  ],
+  "retrieval_strategy": "just_in_time",
+  "tool_output_trimming": "Keep commands, exit codes, assertions, changed paths, and evidence references; exclude secret values and raw provider output."
+}

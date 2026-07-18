@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "runtimeCatalogRevision": "runtime-catalog-2026-07-18-854952254d5f",
+  "runtimeCatalogRevision": "runtime-catalog-2026-07-13-release-gated",
   "workers": [
     {
       "slug": "aider",
@@ -145,10 +145,10 @@
       "configDocuments": [],
       "runtimeImage": {
         "name": "Codex CLI",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:854952254d5f7ce25db3258034bc71a07169a5730dfe0670243fc10ea437bacd",
-        "availability": "locked_available"
+        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-codex-cli@sha256:963c99fb047c0a4fed518eb9949e805fd31329a8395526fbb1fe34d8254ebea1",
+        "availability": "invalid_published_digest"
       },
-      "validationStatus": "runtime_ready_unverified"
+      "validationStatus": "invalid_published_runtime"
     },
     {
       "slug": "cursor-cli",
@@ -219,12 +219,8 @@
           "required": true
         }
       ],
-      "runtimeImage": {
-        "name": "Do Agent",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
-        "availability": "locked_available"
-      },
-      "validationStatus": "runtime_ready_unverified"
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
     },
     {
       "slug": "gemini-cli",
@@ -505,12 +501,10 @@
         {
           "id": "seedance-video",
           "provider_keys": [
-            "doubao",
-            "sub2api-seedance"
+            "doubao"
           ],
           "protocol_adapters": [
-            "openai-compatible",
-            "ark-seedance"
+            "openai-compatible"
           ],
           "modality": "video",
           "capability": "video-generation",
@@ -549,54 +543,8 @@
           "required": true
         }
       ],
-      "runtimeImage": {
-        "name": "Do Agent",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-do-agent@sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
-        "availability": "locked_available"
-      },
-      "validationStatus": "runtime_ready_unverified"
-    },
-    {
-      "slug": "video-studio",
-      "name": "Video Studio",
-      "executable": "video-studio-codex",
-      "adapterId": "codex-app-server",
-      "interactionModes": [
-        "pty",
-        "acp"
-      ],
-      "modelRequirement": {
-        "required": true,
-        "protocol_adapters": [
-          "openai-compatible"
-        ]
-      },
-      "credentialBindings": [
-        {
-          "sourceKind": "model_resource",
-          "sourceRef": "openai-compatible",
-          "environmentVariable": "OPENAI_API_KEY"
-        }
-      ],
-      "configFields": [
-        {
-          "name": "approval_mode",
-          "kind": "select",
-          "options": [
-            "untrusted",
-            "on-request",
-            "never"
-          ],
-          "defaultValue": "\"untrusted\""
-        }
-      ],
-      "configDocuments": [],
-      "runtimeImage": {
-        "name": "Video Studio",
-        "reference": "repo.aiedulab.cn:8443/agentsmesh/runner-video-studio@sha256:f3463bc567f1ed8516486e95e17d50f48834275aae7931221b1a3eeb3c526a5d",
-        "availability": "locked_available"
-      },
-      "validationStatus": "runtime_ready_unverified"
+      "runtimeImage": null,
+      "validationStatus": "runtime_image_unavailable"
     }
   ]
 }

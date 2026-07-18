@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Build one or all Do Worker agent-runtime Docker images (runner + pre-installed CLI).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -7,7 +6,6 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 AGENT_RUNTIMES=(
   claude-code
   codex-cli
-  video-studio
   cursor-cli
   gemini-cli
   aider
@@ -22,12 +20,11 @@ AGENT_RUNTIMES=(
 RUNTIME="${1:-all}"
 IMAGE_PREFIX="${IMAGE_PREFIX:-do-worker/runner}"
 BASE_IMAGE="${BASE_IMAGE:-do-worker/runner-base:latest}"
+NODE_BASE_IMAGE="${NODE_BASE_IMAGE:-node:24-bookworm-slim}"
+PYTHON_BASE_IMAGE="${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 STAGING="${STAGING_DIR:-${SCRIPT_DIR}/_context}"
 BUILD_RETRIES="${BUILD_RETRIES:-3}"
-SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git -C "${REPO_ROOT}" log -1 --format=%ct)}"
-RELEASE_SOURCE_COMMIT="${RELEASE_SOURCE_COMMIT:-$(git -C "${REPO_ROOT}" rev-parse HEAD)}"
-
 usage() {
   cat <<EOF
 用法: build.sh [all|<agent-runtime>]
@@ -35,7 +32,6 @@ usage() {
 Agent runtimes:
   claude-code   Claude Code CLI (@anthropic-ai/claude-code)
   codex-cli     OpenAI Codex CLI (@openai/codex)
-  video-studio  Codex + FFmpeg/libass + Chromium + Remotion + Python + CJK fonts
   cursor-cli    Cursor CLI (agent)
   gemini-cli    Google Gemini CLI (@google/gemini-cli)
   aider         Aider (pip)
@@ -52,18 +48,24 @@ Agent runtimes:
 环境变量:
   IMAGE_PREFIX    镜像名前缀 (默认 do-worker/runner)
   BASE_IMAGE      共享 base 镜像 (默认 do-worker/runner-base:latest)
+  NODE_BASE_IMAGE Node 基础镜像；可设 Alibaba/Tencent 的完整仓库地址
+  PYTHON_BASE_IMAGE Python 基础镜像；可设 Alibaba/Tencent 的完整仓库地址
   PLATFORM        docker build --platform (默认 linux/amd64)
   STAGING_DIR     二进制 staging 目录
   FORCE_REBUILD   设为 1 强制重建已有镜像
   BUILD_RETRIES   docker build 失败重试次数 (默认 3)
-  LOOPAL_BINARY        Loopal 真实 CLI；构建 loopal 时必填且不得是 E2E mock
+  LOOPAL_BINARY
+                  Loopal 的真实 CLI 二进制；构建 loopal 时必填且不得是 E2E mock
   RUNTIME_EXTENSION_BASE
-                       用既有 Runner 镜像构建 OpenClaw/Hermes
-  HERMES_AGENT_VERSION Hermes Agent version (默认 0.18.2)
-  REMOTION_VERSION     Remotion runtime version (默认 4.0.489)
-  MINIMAX_CLI_VERSION  MiniMax CLI version (默认 1.0.16)
-  OPENCLAW_VERSION     OpenClaw CLI version (默认 2026.6.11)
-  OPENCLAW_NODE_VERSION OpenClaw extension Node version (默认 24.18.0)
+                  用既有 Runner 镜像构建 OpenClaw/Hermes（本地离线初始化）
+  HERMES_AGENT_VERSION
+                  Hermes Agent version (默认 0.18.2)
+  MINIMAX_CLI_VERSION
+                  MiniMax CLI version (默认 1.0.16)
+  OPENCLAW_VERSION
+                  OpenClaw CLI version (默认 2026.6.11)
+  OPENCLAW_NODE_VERSION
+                  OpenClaw extension Node version (默认 24.18.0)
 EOF
 }
 
@@ -100,7 +102,7 @@ build_base() {
     --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT}" \
     --target base \
     -f "${SCRIPT_DIR}/Dockerfile" \
-    --build-arg RUNTIME_BUILD_BASE \
+    --build-arg "NODE_BASE_IMAGE=${NODE_BASE_IMAGE}" \
     --build-arg "HTTP_PROXY=" \
     --build-arg "HTTPS_PROXY=" \
     --build-arg "http_proxy=" \
@@ -114,21 +116,22 @@ build_base() {
 build_one() {
   local rt="$1"
   local tag="${IMAGE_PREFIX}-${rt}:latest"
-  TARGET_ARCH="${PLATFORM#linux/}" "${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING" "$rt"
+  "${SCRIPT_DIR}/prepare_binaries.sh" "$STAGING" "$rt"
   local -a build_cmd=(
     docker build --platform "$PLATFORM"
-    --provenance=false
-    --label "org.opencontainers.image.revision=${RELEASE_SOURCE_COMMIT}"
     -f "${SCRIPT_DIR}/Dockerfile"
   )
   if [[ -n "${RUNTIME_EXTENSION_BASE:-}" ]]; then
     build_cmd+=(--target runtime-extension --build-arg "RUNTIME_EXTENSION_BASE=${RUNTIME_EXTENSION_BASE}")
+    if [[ "$rt" == "hermes" ]]; then
+      build_cmd+=(--build-arg "RUNTIME_EXTENSION_RUNTIME_BASE=runtime-extension-python")
+    fi
   else
     build_cmd+=(--target runtime)
-  fi
-  if [[ "$rt" == "do-agent" ]]; then
-    build_cmd+=(--build-arg "DO_AGENT_SOURCE_COMMIT=${DO_AGENT_SOURCE_COMMIT:-}")
-    build_cmd+=(--build-arg "DO_AGENT_BINARY_SHA256=${DO_AGENT_BINARY_SHA256:-}")
+    build_cmd+=(--build-arg "RUNTIME_SHARED_BASE=${BASE_IMAGE}")
+    if [[ "$rt" == "aider" || "$rt" == "hermes" ]]; then
+      build_cmd+=(--build-arg "RUNTIME_BASE=python-runtime-base")
+    fi
   fi
   if [[ "${FORCE_REBUILD:-0}" != "1" ]] && docker image inspect "$tag" >/dev/null 2>&1; then
     echo "⏭ ${tag} 已存在 (FORCE_REBUILD=1 可强制重建)"
@@ -141,17 +144,16 @@ build_one() {
   echo "=========================================="
   build_cmd+=(
     --build-arg "AGENT_RUNTIME=${rt}"
-    --build-arg RUNTIME_BUILD_BASE
+    --build-arg "NODE_BASE_IMAGE=${NODE_BASE_IMAGE}"
+    --build-arg "PYTHON_BASE_IMAGE=${PYTHON_BASE_IMAGE}"
     --build-arg "HTTP_PROXY="
     --build-arg "HTTPS_PROXY="
     --build-arg "http_proxy="
     --build-arg "https_proxy="
-    --build-arg "SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}"
     --build-arg "HERMES_AGENT_VERSION=${HERMES_AGENT_VERSION:-0.18.2}"
     --build-arg "MINIMAX_CLI_VERSION=${MINIMAX_CLI_VERSION:-1.0.16}"
     --build-arg "OPENCLAW_VERSION=${OPENCLAW_VERSION:-2026.6.11}"
     --build-arg "OPENCLAW_NODE_VERSION=${OPENCLAW_NODE_VERSION:-24.18.0}"
-    --build-arg "REMOTION_VERSION=${REMOTION_VERSION:-4.0.489}"
     -t "$tag"
     "$STAGING"
   )

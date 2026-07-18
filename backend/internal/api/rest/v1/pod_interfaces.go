@@ -25,3 +25,10 @@ type PodServiceForHandler interface {
 	UpdatePerpetual(ctx context.Context, podKey string, perpetual bool) error
 	GetActivePodBySourcePodKey(ctx context.Context, sourcePodKey string) (*agentpod.Pod, error)
 }
+
+type PodCreatorForHandler interface {
+	CreatePod(
+		ctx context.Context,
+		req *agentpodService.OrchestrateCreatePodRequest,
+	) (*agentpodService.OrchestrateCreatePodResult, error)
+}

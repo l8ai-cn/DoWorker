@@ -10,32 +10,40 @@ import (
 func (s *HTTPServer) createCreatePodTool() *MCPTool {
 	return &MCPTool{
 		Name:        "create_pod",
-		Description: "Validate, plan, and apply an agentsmesh.io/v1alpha1 Worker resource. The new pod is bound to the creator with pod:read and pod:write permissions.",
+		Description: "Consume a previously validated Worker plan to create a pod. Runtime, model, prompt, tool, knowledge, permission, repository, and placement settings come from the immutable plan. The new pod is automatically bound to the creator for pod interaction.",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
-				"resource": map[string]interface{}{
-					"type":        "object",
-					"description": "Complete Worker resource manifest with apiVersion, kind, metadata, and spec.",
+				"plan_id": map[string]interface{}{
+					"type":        "string",
+					"description": "Canonical UUID returned by the Worker plan operation.",
 				},
 			},
-			"required":             []string{"resource"},
+			"required":             []string{"plan_id"},
 			"additionalProperties": false,
 		},
-		Handler: func(
-			ctx context.Context,
-			client tools.CollaborationClient,
-			args map[string]interface{},
-		) (interface{}, error) {
-			resource, err := resourceManifestArgument(args)
+		Handler: func(ctx context.Context, client tools.CollaborationClient, args map[string]interface{}) (interface{}, error) {
+			rawPlanID, ok := args["plan_id"]
+			if !ok {
+				return nil, fmt.Errorf("plan_id is required")
+			}
+			if len(args) != 1 {
+				return nil, fmt.Errorf("create_pod accepts only plan_id")
+			}
+			planID, ok := rawPlanID.(string)
+			if !ok || planID == "" {
+				return nil, fmt.Errorf("plan_id is required")
+			}
+
+			resp, err := client.CreatePod(ctx, &tools.PodCreateRequest{PlanID: planID})
 			if err != nil {
 				return nil, err
 			}
-			resp, err := client.CreatePod(ctx, &tools.PodCreateRequest{
-				Resource: resource,
-			})
+
+			scopes := []tools.BindingScope{tools.ScopePodRead, tools.ScopePodWrite}
+			binding, err := client.RequestBinding(ctx, resp.PodKey, scopes)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("pod %s was created but automatic binding failed", resp.PodKey)
 			}
 			binding, err := client.RequestBinding(
 				ctx,

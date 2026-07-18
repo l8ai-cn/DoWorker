@@ -19,8 +19,6 @@ export {
   getAIResourceService,
   getOrchestrationResourceService,
   getExecutionClusterService,
-  getAgentWorkbenchService,
-  getAgentWorkbenchState,
 } from "./service-getters";
 
 export { setPlatformInit, ensurePlatformReady } from "./platform-init";

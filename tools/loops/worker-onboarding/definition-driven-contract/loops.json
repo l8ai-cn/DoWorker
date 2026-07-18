@@ -1,0 +1,102 @@
+[
+  {
+    "agent_assignments": [
+      "orchestrator",
+      "loop-supervisor"
+    ],
+    "children": [
+      {
+        "agent_assignments": [
+          "worker",
+          "reviewer"
+        ],
+        "context_pack": [
+          "approved decision",
+          "selected Definition",
+          "affected API and form files",
+          "verifier output"
+        ],
+        "entry_conditions": [
+          "named binding approval is accepted",
+          "one implementation task is eligible"
+        ],
+        "exit_conditions": [
+          "task accepted",
+          "focused verifier fails twice",
+          "human gate reached"
+        ],
+        "id": "contract-cycle",
+        "purpose": "Implement one approved contract slice and verify it before another slice begins.",
+        "steps": [
+          "write failing test",
+          "implement minimum change",
+          "run focused verifier",
+          "review evidence"
+        ],
+        "type": "evaluator_optimizer_loop",
+        "verification_refs": [
+          "focused-contract-tests"
+        ]
+      },
+      {
+        "agent_assignments": [
+          "orchestrator",
+          "reviewer"
+        ],
+        "context_pack": [
+          "release evidence",
+          "cleanup evidence",
+          "browser evidence"
+        ],
+        "entry_conditions": [
+          "contract implementation is accepted",
+          "eligible non-production resource is named"
+        ],
+        "exit_conditions": [
+          "authorization recorded",
+          "authorization denied",
+          "resource unavailable"
+        ],
+        "id": "release-review",
+        "purpose": "Require explicit authorization before provider-backed lifecycle and browser evidence.",
+        "steps": [
+          "confirm named resource",
+          "run disposable lifecycle",
+          "verify cleanup",
+          "record browser evidence"
+        ],
+        "type": "human_review_gate",
+        "verification_refs": []
+      }
+    ],
+    "context_pack": [
+      "loop.json",
+      "state.json",
+      "PROGRESS.md",
+      "ACCEPTANCE.md",
+      "DECISIONS.md"
+    ],
+    "entry_conditions": [
+      "state is planned or running",
+      "durable state is loaded"
+    ],
+    "exit_conditions": [
+      "all acceptance items pass",
+      "human gate required",
+      "budget or no-progress exit"
+    ],
+    "id": "root",
+    "purpose": "Run the goal-based contract loop and stop at irreversible or unverified boundaries.",
+    "steps": [
+      "reload state",
+      "select eligible task",
+      "run verifier",
+      "record evidence",
+      "supervisor review"
+    ],
+    "type": "agent_loop",
+    "verification_refs": [
+      "contract-baseline"
+    ]
+  }
+]

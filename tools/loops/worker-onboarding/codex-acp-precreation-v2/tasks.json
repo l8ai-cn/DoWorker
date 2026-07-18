@@ -1,0 +1,138 @@
+[
+  {
+    "id": "verify-contract",
+    "goal": "Verify Codex CLI Definition, AgentFile, required model protocol, and credential source boundary.",
+    "assigned_agent": "orchestrator",
+    "dependencies": [],
+    "input_refs": [
+      "worker.json",
+      "config/worker-types/codex-cli/definition.json",
+      "config/worker-types/codex-cli/AgentFile"
+    ],
+    "output_artifacts": [
+      "evidence/codex-acp-precreation-2026-07-16.json"
+    ],
+    "tools": [
+      "shell"
+    ],
+    "acceptance_criteria": [
+      "Codex uses codex-app-server with ACP.",
+      "Codex requires an openai-compatible model binding."
+    ],
+    "verification_refs": [
+      "codex-precreation"
+    ],
+    "max_attempts": 1,
+    "estimated_token_budget": 8000
+  },
+  {
+    "id": "verify-runtime",
+    "goal": "Verify current Codex image, version, and connected Runner without launching a Pod.",
+    "assigned_agent": "orchestrator",
+    "dependencies": [
+      "verify-contract"
+    ],
+    "input_refs": [
+      "worker.json",
+      "deploy/dev/runtime/worker-runtime-catalog.local.json"
+    ],
+    "output_artifacts": [
+      "evidence/codex-acp-precreation-2026-07-16.json"
+    ],
+    "tools": [
+      "shell"
+    ],
+    "acceptance_criteria": [
+      "Catalog and Docker image share the current Codex digest.",
+      "Runner reports codex-cli 0.144.5 and a connected tunnel."
+    ],
+    "verification_refs": [
+      "codex-precreation"
+    ],
+    "max_attempts": 1,
+    "estimated_token_budget": 8000
+  },
+  {
+    "id": "verify-precreation",
+    "goal": "Verify browser validation, plan, and template apply with a resolved required model binding.",
+    "assigned_agent": "reviewer",
+    "dependencies": [
+      "verify-runtime"
+    ],
+    "input_refs": [
+      "evidence/codex-acp-precreation-2026-07-16.json",
+      "state.json"
+    ],
+    "output_artifacts": [
+      "evidence/codex-acp-precreation-2026-07-16.json"
+    ],
+    "tools": [
+      "browser",
+      "shell"
+    ],
+    "acceptance_criteria": [
+      "Template and launch validation and plans pass.",
+      "Snapshot pins qa-primary-model and no Worker launch or Pod exists."
+    ],
+    "verification_refs": [
+      "codex-precreation"
+    ],
+    "max_attempts": 1,
+    "estimated_token_budget": 12000
+  },
+  {
+    "id": "review-precreation",
+    "goal": "Independently confirm that the Codex record is precreation-only and that runtime preferences are not credentials.",
+    "assigned_agent": "reviewer",
+    "dependencies": [
+      "verify-precreation"
+    ],
+    "input_refs": [
+      "ACCEPTANCE.md",
+      "evidence/codex-acp-precreation-2026-07-16.json"
+    ],
+    "output_artifacts": [
+      "evidence/codex-acp-precreation-review-2026-07-16.json"
+    ],
+    "tools": [
+      "shell"
+    ],
+    "acceptance_criteria": [
+      "Review rejects a supported claim without live evidence.",
+      "Review confirms plaintext runtime preferences are not accepted as credential evidence."
+    ],
+    "verification_refs": [
+      "codex-precreation"
+    ],
+    "max_attempts": 1,
+    "estimated_token_budget": 6000
+  },
+  {
+    "id": "verify-live-launch",
+    "goal": "After named approval only, verify model-resource credential use, disposable Pod, ACP terminal, provider smoke, and cleanup.",
+    "assigned_agent": "orchestrator",
+    "dependencies": [
+      "review-precreation"
+    ],
+    "input_refs": [
+      "DECISIONS.md",
+      "evidence/codex-acp-precreation-2026-07-16.json"
+    ],
+    "output_artifacts": [
+      "evidence/codex-live-launch-approval-and-result.json"
+    ],
+    "tools": [
+      "browser",
+      "shell"
+    ],
+    "acceptance_criteria": [
+      "Named organization model-resource approval is recorded.",
+      "Live launch, ACP terminal, provider result, and cleanup pass the live verifier."
+    ],
+    "verification_refs": [
+      "codex-live-launch"
+    ],
+    "max_attempts": 1,
+    "estimated_token_budget": 24000
+  }
+]

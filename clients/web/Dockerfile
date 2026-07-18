@@ -39,7 +39,7 @@ COPY clients/web/ clients/web/
 COPY --from=wasm /src/packages/do-worker-wasm packages/do-worker-wasm
 RUN pnpm config set registry https://registry.npmmirror.com \
   && pnpm install --frozen-lockfile
-ENV BAZEL_BUILD=standalone
+ENV STANDALONE=1
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_BUILD_CPUS=1
 ENV NODE_OPTIONS=--max-old-space-size=2048

@@ -244,7 +244,12 @@ func (stub *serviceStub) ListResources(
 ) (service.ResourceListPage, error) {
 	stub.listScope = scope
 	stub.listFilter = filter
-	return stub.listResult, stub.listErr
+	result := stub.listResult
+	if result.AppliedFilter.ModelBinding == nil &&
+		result.AppliedFilter.EnvironmentBundle == nil {
+		result.AppliedFilter = filter
+	}
+	return result, stub.listErr
 }
 
 func (stub *serviceStub) ExportResource(

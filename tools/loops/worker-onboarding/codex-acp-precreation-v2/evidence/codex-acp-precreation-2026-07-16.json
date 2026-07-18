@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T19:07:52+08:00",
+  "scope": "local development; browser precreation and read-only runtime verification",
+  "worker_slug": "codex-cli",
+  "safety_boundary": {
+    "provider_request": false,
+    "provider_credential_read": false,
+    "model_resource_credential_use": false,
+    "pod_create_rpc": false,
+    "terminal_data_plane": false
+  },
+  "definition": {
+    "adapter_id": "codex-app-server",
+    "interaction_mode": "acp",
+    "model_required": true,
+    "protocol_adapters": ["openai-compatible"],
+    "credential_target": "OPENAI_API_KEY"
+  },
+  "runtime": {
+    "catalog_image_id": 1,
+    "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-codex-cli:latest",
+    "image_digest": "sha256:3e1a97a92f722bd362795aa7538a4c74844972821f8964b63c14cb6c0032871b",
+    "version_probe": "docker run --rm --entrypoint codex <image> --version",
+    "version": "0.144.5"
+  },
+  "runner": {
+    "node_id": "dev-runner-codex",
+    "status": "online",
+    "tunnel_state": "connected",
+    "available_agents": ["codex-cli"],
+    "agent_version": "0.144.5"
+  },
+  "model_binding": {
+    "name": "qa-primary-model",
+    "revision": 1,
+    "resource_id": 1,
+    "connection_id": 1,
+    "provider_key": "openai",
+    "model_id": "gpt-5",
+    "protocol_adapter": "openai-compatible"
+  },
+  "browser": {
+    "route": "/dev-org/workers/new",
+    "template": {
+      "name": "codex-acp-precreation-template",
+      "worker_type": "codex-cli",
+      "runtime_image": "Codex CLI (local development)",
+      "interaction_mode": "acp",
+      "model_binding": "qa-primary-model",
+      "placement": "local-runner-pool with standard-profile"
+    },
+    "template_validation": {"status": "passed"},
+    "template_plan": {"status": "passed", "id": "15ebada3-3a0a-409b-8248-4a416c2b4e3c"},
+    "template_apply": {"status": "applied", "resource_version": 1, "worker_spec_snapshot_id": 5},
+    "launch": {
+      "name": "codex-acp-precreation-launch",
+      "validation_status": "passed",
+      "plan_status": "passed",
+      "plan_id": "e1dd34c4-fd27-49cf-a655-259123242f77",
+      "applied": false,
+      "reason": "live launch requires named non-production authorization"
+    },
+    "personal_runtime_preferences": {
+      "storage": "plaintext",
+      "credential_use": "forbidden by UI",
+      "separate_credential_surface": "organization AI Resources"
+    },
+    "console_errors": [],
+    "console_warnings": [],
+    "console_issues": []
+  },
+  "database": {
+    "worker_template": {"resource_id": 12, "name": "codex-acp-precreation-template", "revision": 1, "worker_spec_snapshot_id": 5},
+    "worker_spec_snapshot": {"id": 5, "runtime_image_id": 1, "model_binding": "qa-primary-model"},
+    "worker_launch_count": 0,
+    "matching_pod_count": 0
+  },
+  "conclusion": "Codex ACP precreation is verified. Codex remains not_supported until the live-launch verifier passes."
+}

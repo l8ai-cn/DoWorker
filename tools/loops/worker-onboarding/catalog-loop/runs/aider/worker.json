@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "slug": "aider",
-  "status": "planned",
-  "definition_hash": "sha256:7723ccf2c9eb5c4d3566158d11a54468604ab7204c3eb5da8ccca4ac8faa57d5",
+  "status": "blocked",
+  "definition_hash": "sha256:9eb65b2ea0e82ebb214d564f42a296525dea8cfa89d23f3c84c078000893d352",
   "source_refs": [
     "config/worker-types/catalog.json"
   ]

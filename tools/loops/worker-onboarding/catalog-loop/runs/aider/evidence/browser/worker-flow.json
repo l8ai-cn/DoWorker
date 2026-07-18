@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "status": "blocked",
+  "at": "2026-07-17T12:43:03Z",
+  "worker_slug": "aider",
+  "form": {
+    "worker_type": "aider",
+    "runtime_image": "Aider (local development)",
+    "interaction_mode": "pty",
+    "compute_target": "Local Runner Pool (r1)",
+    "resource_profile": "Standard Profile (r1)",
+    "credential_references": []
+  },
+  "critical_failure_path": {
+    "warning": "请至少为以下一项选择凭据包：OPENAI_API_KEY, ANTHROPIC_API_KEY。",
+    "generate_plan_disabled": true,
+    "click_result": "the disabled control did not complete a click within the browser action timeout",
+    "console_warnings_or_errors": 0,
+    "screenshot_path": "evidence/images/aider-no-credential-form.jpg"
+  },
+  "server_bypass_check": {
+    "procedure": "proto.orchestration_resource.v1.OrchestrationResourceService/PlanResource",
+    "http_status": 200,
+    "blocking_issue_count": 1,
+    "plan_returned": false,
+    "safe_issue_code": "invalid-draft"
+  },
+  "side_effect_check": {
+    "resource_name": "aider-no-credential-live",
+    "resources_created": 0,
+    "plans_created": 0
+  },
+  "next_requirement": "Bind an EnvironmentBundle with either OPENAI_API_KEY or ANTHROPIC_API_KEY."
+}

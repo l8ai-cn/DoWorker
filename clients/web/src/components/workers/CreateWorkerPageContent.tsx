@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { ArrowLeft, FileInput } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ImportCodexDialog } from "@/components/workers/ImportCodexDialog";
@@ -15,10 +20,19 @@ export function CreateWorkerPageContent() {
   const t = useTranslations();
   const router = useRouter();
   const params = useParams();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const orgSlug = params.org as string;
+  const requestedMode = searchParams.get("mode");
 
   const [importOpen, setImportOpen] = useState(false);
-  const [mode, setMode] = useState<"run" | "template" | "resources">("run");
+  const [mode, setMode] = useState<"run" | "template" | "resources">(
+    () => pageMode(requestedMode),
+  );
+
+  useEffect(() => {
+    setMode(pageMode(requestedMode));
+  }, [requestedMode]);
 
   return (
     <div className="min-h-full bg-background">
@@ -57,9 +71,24 @@ export function CreateWorkerPageContent() {
 
         <PillTabs
           active={mode}
-          onChange={(value) => setMode(
-            value as "run" | "template" | "resources",
-          )}
+          onChange={(value) => {
+            const nextMode = pageMode(value);
+            const nextSearchParams = new URLSearchParams(
+              searchParams.toString(),
+            );
+            setMode(nextMode);
+            if (nextMode === "run") {
+              nextSearchParams.delete("mode");
+            } else {
+              nextSearchParams.set("mode", nextMode);
+            }
+            const query = nextSearchParams.toString();
+            window.history.replaceState(
+              window.history.state,
+              "",
+              query ? `${pathname}?${query}` : pathname,
+            );
+          }}
           tabs={[
             { id: "run", label: t("resourceEditor.mode.run") },
             { id: "template", label: t("resourceEditor.mode.template") },
@@ -88,11 +117,18 @@ export function CreateWorkerPageContent() {
             />
           </>
         ) : mode === "template" ? (
-          <ResourceEditorShell orgSlug={orgSlug} />
+          <ResourceEditorShell
+            orgSlug={orgSlug}
+            sessionKey={`worker-template:${orgSlug}`}
+          />
         ) : (
           <ResourceDependencyEditor orgSlug={orgSlug} />
         )}
       </div>
     </div>
   );
+}
+
+function pageMode(mode: string | null): "run" | "template" | "resources" {
+  return mode === "template" || mode === "resources" ? mode : "run";
 }

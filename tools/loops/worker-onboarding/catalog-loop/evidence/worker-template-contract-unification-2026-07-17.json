@@ -1,0 +1,84 @@
+{
+  "captured_at": "2026-07-17T23:55:13+0800",
+  "scope": {
+    "operation": "WorkerTemplate configuration contract unification",
+    "api_origin": "http://localhost:12400",
+    "web_origin": "http://localhost:12407",
+    "provider_credentials_read": false,
+    "provider_request_made": false,
+    "pod_created": false
+  },
+  "contract": {
+    "config_documents": {
+      "definition_schema_requires_explicit_required": true,
+      "do_agent_settings": {
+        "document_id": "settings",
+        "required": true
+      },
+      "openclaw_json": {
+        "document_id": "openclaw-json",
+        "required": false
+      },
+      "seedance_expert_settings": {
+        "document_id": "settings",
+        "required": true
+      }
+    },
+    "model_binding": {
+      "client_request": "worker_type only",
+      "server_policy": "derive protocol adapters from Worker Definition",
+      "response": "return the resolved applied filter"
+    },
+    "wire": {
+      "request_field": "ListResourcesRequest.model_binding_filter = 6",
+      "response_field": "ListResourcesResponse.applied_model_binding_filter = 6"
+    }
+  },
+  "root_cause": {
+    "wasm": "The Web protobuf descriptors had field 6 while the loaded WASM package had been built before the proto update. Prost discarded the unknown request and response fields.",
+    "response": "After the WASM rebuild, the service filtered ModelBinding rows correctly but the Connect handler returned the pre-policy filter, whose protocol adapter list was empty."
+  },
+  "repairs": [
+    "Rebuilt do-worker-wasm after Rust proto generation.",
+    "Added ResourceListPage.AppliedFilter and populated it after server-side Worker Definition policy resolution.",
+    "Returned the resolved filter from ListResources and covered the response contract in Connect tests.",
+    "Required every config document definition to declare required explicitly."
+  ],
+  "browser_verification": [
+    {
+      "worker_type": "codex-cli",
+      "result": "QA Primary Model (r1) remained selectable through the openai-compatible policy."
+    },
+    {
+      "worker_type": "minimax-cli",
+      "result": "The ModelBinding selector was disabled with no available resources; QA Primary Model (r1) was absent and no protocol-filter error was rendered."
+    },
+    {
+      "worker_type": "openclaw",
+      "result": "openclaw-json rendered without a required marker and no missing-config warning."
+    },
+    {
+      "worker_type": "do-agent",
+      "result": "settings rendered with a required marker; validation reported that settings requires a configuration bundle and disabled Generate Plan."
+    }
+  ],
+  "verifiers": [
+    {
+      "command": "pnpm run build:wasm",
+      "exit_code": 0
+    },
+    {
+      "command": "go test ./backend/internal/api/connect/orchestration_resource ./backend/internal/service/orchestrationcontrol ./backend/internal/infra ./backend/internal/service/workercreation ./backend/internal/service/workerdefinition ./backend/internal/service/workerdependencyartifact",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm run web:typecheck",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm run worker-runtime:check",
+      "exit_code": 0
+    }
+  ],
+  "support_claim": "This is a configuration and reference-selection contract verification only. It does not promote any Worker to externally provider-verified support."
+}

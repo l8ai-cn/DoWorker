@@ -39,7 +39,6 @@ func (t *transport) handleThreadStatusChanged(params json.RawMessage) {
 	case "idle":
 		t.cancelIdleFallback()
 		t.clearToolOutputs()
-		t.clearActiveTurn("")
 		t.notifyTurnIdle()
 	case "active":
 		t.cancelIdleFallback()

@@ -28,28 +28,42 @@ func TestResolveExactReturnsOnlySubmittedResourceAndCredentials(t *testing.T) {
 
 func TestResolveMetadataDoesNotDecryptCredentials(t *testing.T) {
 	f := newFixture()
-	connection := createValidConnection(
-		t,
-		f,
-		domain.OwnerScopeUser,
-		1,
-		"connection-a",
-		"secret-a",
-	)
+	connection := createValidConnection(t, f, domain.OwnerScopeUser, 1, "connection-a", "secret-a")
 	resource := createResource(t, f, connection.ID, "model-a")
 	service, err := NewService(Dependencies{
 		Repository: f.repo,
 		Cipher: failingCipher{
 			decryptErr: errors.New("metadata resolution must not decrypt credentials"),
 		},
-		Members:   f.members,
-		Prober:    f.prober,
-		Mutations: f.mutations,
+		Members: f.members, Prober: f.prober, Mutations: f.mutations,
 		Endpoints: allowingEndpoints{},
 	})
 	require.NoError(t, err)
 
 	resolved, err := service.ResolveMetadata(
+		context.Background(), actor(1), 0, resource.ID, chatRequirements(),
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, resource.ID, resolved.Resource.ID)
+	assert.Empty(t, resolved.Credentials)
+}
+
+func TestResolveExactPreservesRuntimeRevisionAcrossCredentialRotation(t *testing.T) {
+	f := newFixture()
+	connection := createValidConnection(t, f, domain.OwnerScopeUser, 1, "connection-a", "old-secret")
+	resource := createResource(t, f, connection.ID, "model-a")
+	connectionRevision := f.repo.connections[connection.ID].Revision
+	resourceRevision := f.repo.resources[resource.ID].Revision
+
+	require.NoError(t, f.service.RotateConnectionCredentials(
+		context.Background(),
+		actor(1),
+		connection.ID,
+		map[string]string{"api_key": "new-secret"},
+	))
+	require.NoError(t, f.service.ValidateConnection(context.Background(), actor(1), connection.ID))
+	resolved, err := f.service.ResolveExact(
 		context.Background(),
 		actor(1),
 		0,
@@ -58,8 +72,27 @@ func TestResolveMetadataDoesNotDecryptCredentials(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	assert.Equal(t, resource.ID, resolved.Resource.ID)
-	assert.Empty(t, resolved.Credentials)
+	assert.Equal(t, connectionRevision, resolved.Connection.Revision)
+	assert.Equal(t, resourceRevision, resolved.Resource.Revision)
+	assert.Equal(t, "new-secret", resolved.Credentials["api_key"])
+}
+
+func TestResolveExactTreatsEnableStateAsOperationalMetadata(t *testing.T) {
+	f := newFixture()
+	connection := createValidConnection(t, f, domain.OwnerScopeUser, 1, "connection-a", "secret")
+	resource := createResource(t, f, connection.ID, "model-a")
+	connectionRevision := f.repo.connections[connection.ID].Revision
+	resourceRevision := f.repo.resources[resource.ID].Revision
+
+	require.NoError(t, f.service.SetConnectionEnabled(context.Background(), actor(1), connection.ID, false))
+	_, err := f.service.ResolveExact(context.Background(), actor(1), 0, resource.ID, chatRequirements())
+	assert.ErrorIs(t, err, ErrDisabled)
+	require.NoError(t, f.service.SetConnectionEnabled(context.Background(), actor(1), connection.ID, true))
+	_, err = f.service.ResolveExact(context.Background(), actor(1), 0, resource.ID, chatRequirements())
+
+	require.NoError(t, err)
+	assert.Equal(t, connectionRevision, f.repo.connections[connection.ID].Revision)
+	assert.Equal(t, resourceRevision, f.repo.resources[resource.ID].Revision)
 }
 
 func TestResolveExactRejectsVisibilityAndInvalidStates(t *testing.T) {

@@ -108,6 +108,7 @@ async fn orchestration_resource_methods_use_expected_connect_procedures() {
         offset: Some(0),
         limit: Some(10),
         environment_bundle_filter: Some(environment_bundle_filter()),
+        model_binding_filter: None,
     };
     let list_response = resource::ListResourcesResponse {
         items: vec![sample_resource()],
@@ -115,6 +116,7 @@ async fn orchestration_resource_methods_use_expected_connect_procedures() {
         limit: 10,
         offset: 0,
         applied_environment_bundle_filter: Some(environment_bundle_filter()),
+        applied_model_binding_filter: None,
     };
     mount(
         &server,

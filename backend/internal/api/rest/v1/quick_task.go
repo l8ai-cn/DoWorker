@@ -4,14 +4,17 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	agentsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
 	"github.com/anthropics/agentsmesh/backend/pkg/apierr"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type pendingQueueReader interface {
@@ -26,105 +29,89 @@ func (h *PodHandler) CreateQuickTask(c *gin.Context) {
 		apierr.ValidationError(c, err.Error())
 		return
 	}
-	prompt := strings.TrimSpace(req.Prompt)
-	if prompt == "" || len(prompt) > quickTaskPromptMaxLen {
-		apierr.BadRequest(c, apierr.VALIDATION_FAILED, "prompt must be 1..10000 characters")
+	planID, err := canonicalQuickTaskPlanID(req.PlanID)
+	if err != nil {
+		apierr.BadRequest(c, apierr.WORKER_PLAN_INVALID, "plan_id must be a canonical UUID")
 		return
 	}
-	ttlMinutes := req.QueueTTLMinutes
-	if ttlMinutes == 0 {
-		ttlMinutes = 30
-	}
-	if ttlMinutes < 1 || ttlMinutes > 1440 {
-		apierr.BadRequest(c, apierr.VALIDATION_FAILED, "queue_ttl_minutes must be between 1 and 1440")
+	if h.quickTaskPlanAuthorizer == nil ||
+		h.quickTaskPlanApplier == nil ||
+		h.quickTaskPodReader == nil {
+		apierr.ServiceUnavailable(c, apierr.WORKER_APPLY_UNAVAILABLE, "Worker apply service is unavailable")
 		return
 	}
 	tenant := middleware.GetTenant(c)
+	if tenant == nil {
+		apierr.InternalError(c, "Organization scope is unavailable")
+		return
+	}
 	ctx := c.Request.Context()
-
-	agentSlug := strings.TrimSpace(req.AgentSlug)
-	if agentSlug == "" {
-		slug, err := h.runnerService.FirstAvailableAgentSlug(ctx, tenant.OrganizationID, tenant.UserID)
-		if err != nil {
-			apierr.Respond(c, http.StatusUnprocessableEntity, "NO_RUNNER_FOR_AGENT", "No runner available for any agent in this organization")
-			return
-		}
-		agentSlug = slug
+	scope := control.Scope{
+		OrganizationID:   tenant.OrganizationID,
+		OrganizationSlug: slugkit.Slug(tenant.OrganizationSlug),
+		ActorID:          tenant.UserID,
 	}
-
-	runnerID := req.RunnerID
-	if runnerID == 0 {
-		selected, err := h.runnerService.SelectRunnerWithAffinity(ctx, tenant.OrganizationID, tenant.UserID, agentSlug, nil, nil)
-		if err != nil {
-			fallback, fbErr := h.runnerService.MostRecentRunnerForAgent(ctx, tenant.OrganizationID, tenant.UserID, agentSlug)
-			if fbErr != nil {
-				apierr.Respond(c, http.StatusUnprocessableEntity, "NO_RUNNER_FOR_AGENT", "No runner available for this agent")
-				return
-			}
-			runnerID = fallback.ID
-		} else {
-			runnerID = selected.ID
-		}
+	if err := scope.Validate(); err != nil {
+		apierr.InternalError(c, "Organization scope is unavailable")
+		return
 	}
-
-	layer := buildQuickTaskAgentfileLayer(prompt)
-	var alias *string
-	if trimmed := strings.TrimSpace(req.Alias); trimmed != "" {
-		if len(trimmed) > quickTaskAliasMaxLen {
-			apierr.BadRequest(c, apierr.VALIDATION_FAILED, "alias must be at most 100 characters")
-			return
-		}
-		alias = &trimmed
+	if err := h.quickTaskPlanAuthorizer.AuthorizeApply(ctx, scope, planID); err != nil {
+		mapQuickTaskError(c, err)
+		return
 	}
-
-	orchReq := &agentsvc.OrchestrateCreatePodRequest{
-		OrganizationID:     tenant.OrganizationID,
-		UserID:             tenant.UserID,
-		RunnerID:           runnerID,
-		AgentSlug:          agentSlug,
-		RepositoryID:       req.RepositoryID,
-		Alias:              alias,
-		AgentfileLayer:     &layer,
-		Cols:               120,
-		Rows:               40,
-		QueueIfUnavailable: true,
-		QueueTTL:           time.Duration(ttlMinutes) * time.Minute,
-	}
-
-	result, err := h.orchestrator.CreatePod(ctx, orchReq)
+	result, err := h.quickTaskPlanApplier.Apply(ctx, scope, planID)
 	if err != nil {
 		mapQuickTaskError(c, err)
 		return
 	}
-
-	resp := QuickTaskResponse{PodKey: result.Pod.PodKey}
-	if result.Queued {
-		resp.Status = agentpod.StatusQueued
-		if h.pendingQueue != nil {
-			if pos, posErr := h.pendingQueue.QueuePosition(ctx, runnerID, result.Pod.PodKey); posErr == nil {
-				resp.QueuePosition = pos
-			}
-			if exp, expErr := h.pendingQueue.GetCreatePodExpiry(ctx, result.Pod.PodKey); expErr == nil {
-				resp.ExpiresAt = exp.UTC().Format(time.RFC3339)
-			}
+	pod, err := h.quickTaskPodReader.GetPod(ctx, result.PodKey)
+	if err != nil || pod == nil || pod.PodKey != result.PodKey {
+		apierr.InternalError(c, "Failed to load applied Worker Pod")
+		return
+	}
+	resp := QuickTaskResponse{
+		PodKey: result.PodKey,
+		Status: pod.Status,
+	}
+	if pod.Status == agentpod.StatusQueued && h.pendingQueue != nil {
+		if pos, posErr := h.pendingQueue.QueuePosition(ctx, result.RunnerID, result.PodKey); posErr == nil {
+			resp.QueuePosition = pos
 		}
-	} else {
-		resp.Status = agentpod.StatusInitializing
+		if exp, expErr := h.pendingQueue.GetCreatePodExpiry(ctx, result.PodKey); expErr == nil {
+			resp.ExpiresAt = exp.UTC().Format(time.RFC3339)
+		}
 	}
 	c.JSON(http.StatusAccepted, resp)
 }
 
+func canonicalQuickTaskPlanID(value string) (string, error) {
+	parsed, err := uuid.Parse(value)
+	if err != nil || parsed == uuid.Nil || parsed.String() != value {
+		return "", control.ErrInvalid
+	}
+	return value, nil
+}
+
 func mapQuickTaskError(c *gin.Context, err error) {
 	switch {
-	case errors.Is(err, agentsvc.ErrConfigBuildFailed):
-		apierr.Respond(c, http.StatusInternalServerError, "CONFIG_BUILD_FAILED", "Failed to build pod configuration")
-	case errors.Is(err, agentsvc.ErrMissingAgentSlug):
-		apierr.NotFound(c, "AGENT_NOT_FOUND", "Agent not found")
+	case errors.Is(err, control.ErrInvalid):
+		apierr.BadRequest(c, apierr.WORKER_PLAN_INVALID, "Worker plan is invalid")
+	case errors.Is(err, control.ErrNotFound):
+		apierr.NotFound(c, apierr.WORKER_PLAN_NOT_FOUND, "Worker plan was not found")
+	case errors.Is(err, control.ErrConflict),
+		errors.Is(err, control.ErrStale),
+		errors.Is(err, control.ErrExpired),
+		errors.Is(err, control.ErrConsumed):
+		apierr.Conflict(c, apierr.WORKER_PLAN_STATE_CHANGED, "Worker plan state changed; create a new plan")
+	case errors.Is(err, controlservice.ErrForbidden):
+		apierr.Forbidden(c, apierr.ACCESS_DENIED, "Worker plan access is forbidden")
+	case errors.Is(err, controlservice.ErrUnavailable):
+		apierr.ServiceUnavailable(c, apierr.WORKER_APPLY_UNAVAILABLE, "Worker apply service is unavailable")
 	case errors.Is(err, agentsvc.ErrNoAvailableRunner):
 		apierr.Respond(c, http.StatusUnprocessableEntity, "NO_RUNNER_FOR_AGENT", "No runner available for this agent")
 	case errors.Is(err, agentpod.ErrQueueFull):
 		apierr.Respond(c, http.StatusTooManyRequests, "QUEUE_FULL", "Runner pending queue is full")
 	default:
-		mapOrchestratorErrorToHTTP(c, err)
+		apierr.InternalError(c, "Failed to apply Worker plan")
 	}
 }

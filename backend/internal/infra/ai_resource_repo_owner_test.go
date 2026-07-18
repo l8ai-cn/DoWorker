@@ -55,7 +55,7 @@ func TestAIResourceRepositoryRejectsStaleRevisions(t *testing.T) {
 	require.NoError(t, repo.SaveConnection(ctx, first))
 	stale.IsEnabled = false
 	assert.ErrorIs(t, repo.SaveConnection(ctx, stale), airesource.ErrConflict)
-	_, err = repo.SetValidationState(ctx, connection.ID, stale.Revision, airesource.ConnectionStatusValid, time.Now(), "")
+	_, err = repo.SetValidationState(ctx, connection.ID, stale.Revision, stale.CredentialsEncrypted, airesource.ConnectionStatusValid, time.Now(), "")
 	assert.ErrorIs(t, err, airesource.ErrConflict)
 
 	resource := createAIResource(t, repo, connection.ID, "chat-model", true, airesource.ModalityChat)

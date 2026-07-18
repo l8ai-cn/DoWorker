@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMigration000226EnforcesRevisionSnapshotConsistency(t *testing.T) {
+func TestMigration000219EnforcesRevisionSnapshotConsistency(t *testing.T) {
 	up := readMigrationForTest(
 		t,
-		"000226_enforce_orchestration_domain_snapshot_consistency.up.sql",
+		"000219_enforce_orchestration_domain_snapshot_consistency.up.sql",
 	)
 	for _, fragment := range []string{
 		"BEGIN;",
@@ -40,10 +40,10 @@ func TestMigration000226EnforcesRevisionSnapshotConsistency(t *testing.T) {
 	), 5)
 }
 
-func TestMigration000226RestoresRevisionOnlyForeignKeysOnRollback(t *testing.T) {
+func TestMigration000219RestoresRevisionOnlyForeignKeysOnRollback(t *testing.T) {
 	down := readMigrationForTest(
 		t,
-		"000226_enforce_orchestration_domain_snapshot_consistency.down.sql",
+		"000219_enforce_orchestration_domain_snapshot_consistency.down.sql",
 	)
 	for _, fragment := range []string{
 		"experts_orchestration_revision_fkey",

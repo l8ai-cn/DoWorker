@@ -40,7 +40,10 @@ func (b *ConfigBuilder) buildFromAgentfile(
 	if err != nil {
 		return nil, err
 	}
-	configBundles := b.buildConfigBundleContext(ctx, req, agentDef.Slug)
+	configBundles, err := b.buildConfigBundleContext(ctx, req, agentDef.Slug)
+	if err != nil {
+		return nil, err
+	}
 
 	// Parse and eval AgentFile with placeholder context
 	prog, errs := parser.Parse(mergedSource)

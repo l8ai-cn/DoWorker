@@ -1,6 +1,8 @@
 package runner
 
 import (
+	"encoding/base64"
+	"mime"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,23 +35,16 @@ func fsEntryFromInfo(relDisplay string, info os.FileInfo) *runnerv1.SandboxFsEnt
 }
 
 func (h *RunnerMessageHandler) sandboxFsList(workspaceRoot, rel string) (*runnerv1.SandboxFsResultEvent, error) {
-	workspace, err := openSandboxWorkspace(workspaceRoot)
-	if err != nil {
-		return fsErrResult(err.Error()), nil
-	}
-	defer workspace.Close()
-	return h.sandboxFsListWorkspace(workspace, rel)
-}
-
-func (h *RunnerMessageHandler) sandboxFsListWorkspace(
-	workspace *sandboxWorkspace,
-	rel string,
-) (*runnerv1.SandboxFsResultEvent, error) {
 	relative, display, err := resolveSandboxWorkspaceRelativePath(rel)
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
-	info, err := workspace.root.Stat(relative)
+	root, err := openSandboxWorkspaceRoot(workspaceRoot)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	defer root.Close()
+	info, err := root.Stat(relative)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return fsErrResult("not found"), nil
@@ -59,7 +54,7 @@ func (h *RunnerMessageHandler) sandboxFsListWorkspace(
 	if !info.IsDir() {
 		return h.sandboxFsReadWorkspace(workspace, rel)
 	}
-	dir, err := workspace.root.Open(relative)
+	dir, err := root.Open(relative)
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
@@ -79,6 +74,45 @@ func (h *RunnerMessageHandler) sandboxFsListWorkspace(
 		}
 		out = append(out, fsEntryFromInfo(display, fi))
 	}
+	return &runnerv1.SandboxFsResultEvent{Entries: out, WorkspaceRoot: workspaceRoot}, nil
+}
+
+func (h *RunnerMessageHandler) sandboxFsRead(workspaceRoot, rel string) (*runnerv1.SandboxFsResultEvent, error) {
+	relative, _, err := resolveSandboxWorkspaceRelativePath(rel)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	root, err := openSandboxWorkspaceRoot(workspaceRoot)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	defer root.Close()
+	info, err := root.Stat(relative)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fsErrResult("not found"), nil
+		}
+		return fsErrResult(err.Error()), nil
+	}
+	if info.IsDir() {
+		return fsErrResult("is a directory"), nil
+	}
+	data, err := root.ReadFile(relative)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	truncated := false
+	if len(data) > maxSandboxFsReadBytes {
+		data = data[:maxSandboxFsReadBytes]
+		truncated = true
+	}
+	encoding := "utf-8"
+	content := string(data)
+	if !isUTF8(data) {
+		encoding = "base64"
+		content = base64.StdEncoding.EncodeToString(data)
+	}
+	ct := mime.TypeByExtension(filepath.Ext(relative))
 	return &runnerv1.SandboxFsResultEvent{
 		Entries:       out,
 		WorkspaceRoot: workspace.displayPath(),
@@ -86,23 +120,19 @@ func (h *RunnerMessageHandler) sandboxFsListWorkspace(
 }
 
 func (h *RunnerMessageHandler) sandboxFsWrite(workspaceRoot, rel, content string) (*runnerv1.SandboxFsResultEvent, error) {
-	workspace, err := openSandboxWorkspace(workspaceRoot)
-	if err != nil {
-		return fsErrResult(err.Error()), nil
-	}
-	defer workspace.Close()
-	return h.sandboxFsWriteWorkspace(workspace, rel, content)
-}
-
-func (h *RunnerMessageHandler) sandboxFsWriteWorkspace(
-	workspace *sandboxWorkspace,
-	rel, content string,
-) (*runnerv1.SandboxFsResultEvent, error) {
 	relative, _, err := resolveSandboxWorkspaceRelativePath(rel)
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
-	if err := workspace.root.MkdirAll(filepath.Dir(relative), 0o755); err != nil {
+	root, err := openSandboxWorkspaceRoot(workspaceRoot)
+	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	defer root.Close()
+	if err := root.MkdirAll(filepath.Dir(relative), 0o755); err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	if err := root.WriteFile(relative, []byte(content), 0o644); err != nil {
 		return fsErrResult(err.Error()), nil
 	}
 	if err := workspace.root.WriteFile(relative, []byte(content), 0o644); err != nil {
@@ -112,20 +142,16 @@ func (h *RunnerMessageHandler) sandboxFsWriteWorkspace(
 }
 
 func (h *RunnerMessageHandler) sandboxFsMkdir(workspaceRoot, rel string) (*runnerv1.SandboxFsResultEvent, error) {
-	workspace, err := openSandboxWorkspace(workspaceRoot)
+	relative, _, err := resolveSandboxWorkspaceRelativePath(rel)
 	if err != nil {
 		return fsErrResult(err.Error()), nil
 	}
-	defer workspace.Close()
-	return h.sandboxFsMkdirWorkspace(workspace, rel)
-}
-
-func (h *RunnerMessageHandler) sandboxFsMkdirWorkspace(
-	workspace *sandboxWorkspace,
-	rel string,
-) (*runnerv1.SandboxFsResultEvent, error) {
-	relative, _, err := resolveSandboxWorkspaceRelativePath(rel)
+	root, err := openSandboxWorkspaceRoot(workspaceRoot)
 	if err != nil {
+		return fsErrResult(err.Error()), nil
+	}
+	defer root.Close()
+	if err := root.MkdirAll(relative, 0o755); err != nil {
 		return fsErrResult(err.Error()), nil
 	}
 	if err := workspace.root.MkdirAll(relative, 0o755); err != nil {

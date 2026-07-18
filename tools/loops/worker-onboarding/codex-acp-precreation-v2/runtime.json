@@ -1,0 +1,6 @@
+{
+  "target": "codex",
+  "instruction_files": ["AGENTS.md"],
+  "generated_adapter_files": ["AGENTS.md"],
+  "unsupported_capability_behavior": "block_and_report"
+}

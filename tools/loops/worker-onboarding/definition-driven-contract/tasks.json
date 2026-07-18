@@ -1,0 +1,201 @@
+[
+  {
+    "acceptance_criteria": [
+      "baseline verifier exits 0",
+      "no Worker support claim changes"
+    ],
+    "assigned_agent": "reviewer",
+    "dependencies": [],
+    "estimated_token_budget": 25000,
+    "goal": "Record the current typed and untyped Worker creation boundaries from source and real local evidence.",
+    "id": "current-contract-baseline",
+    "input_refs": [
+      "config/worker-types/",
+      "backend/internal/service/workercreation/",
+      "clients/web/src/",
+      "runner/internal/"
+    ],
+    "max_attempts": 2,
+    "output_artifacts": [
+      "evidence/current-contract-baseline.json"
+    ],
+    "tools": [
+      "shell",
+      "apply_patch"
+    ],
+    "verification_refs": [
+      "contract-baseline"
+    ]
+  },
+  {
+    "acceptance_criteria": [
+      "human decision is recorded",
+      "approval verifier exits 0"
+    ],
+    "assigned_agent": "orchestrator",
+    "dependencies": [
+      "current-contract-baseline"
+    ],
+    "estimated_token_budget": 10000,
+    "goal": "Obtain an explicit decision to replace positional configuration bundle IDs with named Definition bindings.",
+    "id": "named-binding-approval",
+    "input_refs": [
+      "evidence/current-contract-baseline.json",
+      "docs/superpowers/plans/2026-07-16-worker-definition-driven-create-contract.md"
+    ],
+    "max_attempts": 1,
+    "output_artifacts": [
+      "evidence/named-binding-approval.json"
+    ],
+    "tools": [
+      "shell"
+    ],
+    "verification_refs": [
+      "approval-gate"
+    ]
+  },
+  {
+    "acceptance_criteria": [
+      "focused contract tests exit 0",
+      "unknown, duplicate, wrong-kind, and malformed bindings fail"
+    ],
+    "assigned_agent": "worker",
+    "dependencies": [
+      "named-binding-approval"
+    ],
+    "estimated_token_budget": 65000,
+    "goal": "Implement named configuration-document bindings throughout the canonical Worker create contract.",
+    "id": "named-binding-implementation",
+    "input_refs": [
+      "approved named binding decision",
+      "proto/pod/v1/worker_creation.proto",
+      "backend/internal/service/workercreation/"
+    ],
+    "max_attempts": 3,
+    "output_artifacts": [
+      "evidence/named-binding-implementation.json"
+    ],
+    "tools": [
+      "shell",
+      "apply_patch"
+    ],
+    "verification_refs": [
+      "focused-contract-tests"
+    ]
+  },
+  {
+    "acceptance_criteria": [
+      "focused contract tests exit 0",
+      "projection contains no secret values"
+    ],
+    "assigned_agent": "worker",
+    "dependencies": [
+      "named-binding-implementation"
+    ],
+    "estimated_token_budget": 50000,
+    "goal": "Project compatible model resources and typed credential references from the selected Definition.",
+    "id": "resource-projection",
+    "input_refs": [
+      "backend/internal/service/workercreation/",
+      "clients/core/",
+      "clients/web/src/lib/api/"
+    ],
+    "max_attempts": 3,
+    "output_artifacts": [
+      "evidence/resource-projection.json"
+    ],
+    "tools": [
+      "shell",
+      "apply_patch"
+    ],
+    "verification_refs": [
+      "focused-contract-tests"
+    ]
+  },
+  {
+    "acceptance_criteria": [
+      "focused contract tests exit 0",
+      "stale draft references reset on Worker type change"
+    ],
+    "assigned_agent": "worker",
+    "dependencies": [
+      "resource-projection"
+    ],
+    "estimated_token_budget": 50000,
+    "goal": "Render Definition-declared documents and backend-filtered resources without static Worker compatibility maps.",
+    "id": "definition-driven-web",
+    "input_refs": [
+      "clients/web/src/components/pod/",
+      "clients/web/src/lib/api/",
+      "clients/core/"
+    ],
+    "max_attempts": 3,
+    "output_artifacts": [
+      "evidence/definition-driven-web.json"
+    ],
+    "tools": [
+      "shell",
+      "apply_patch",
+      "browser"
+    ],
+    "verification_refs": [
+      "focused-contract-tests"
+    ]
+  },
+  {
+    "acceptance_criteria": [
+      "focused contract tests exit 0",
+      "Runner writes only resolved Definition targets"
+    ],
+    "assigned_agent": "worker",
+    "dependencies": [
+      "definition-driven-web"
+    ],
+    "estimated_token_budget": 60000,
+    "goal": "Migrate Worker snapshots and preserve resolved Definition document targets into Runner materialization.",
+    "id": "runner-materialization",
+    "input_refs": [
+      "backend/migrations/",
+      "backend/internal/service/agentpod/",
+      "runner/internal/runner/"
+    ],
+    "max_attempts": 3,
+    "output_artifacts": [
+      "evidence/runner-materialization.json"
+    ],
+    "tools": [
+      "shell",
+      "apply_patch"
+    ],
+    "verification_refs": [
+      "focused-contract-tests"
+    ]
+  },
+  {
+    "acceptance_criteria": [
+      "real lifecycle evidence is recorded",
+      "every promoted Worker has cleanup evidence"
+    ],
+    "assigned_agent": "reviewer",
+    "dependencies": [
+      "runner-materialization"
+    ],
+    "estimated_token_budget": 50000,
+    "goal": "Verify authorized Worker preflight, lifecycle, cleanup, and browser paths with real non-production resources.",
+    "id": "real-worker-release",
+    "input_refs": [
+      "evidence/runner-materialization.json",
+      "config/worker-types/",
+      "deploy/dev/"
+    ],
+    "max_attempts": 2,
+    "output_artifacts": [
+      "evidence/real-worker-release.json"
+    ],
+    "tools": [
+      "shell",
+      "browser"
+    ],
+    "verification_refs": []
+  }
+]

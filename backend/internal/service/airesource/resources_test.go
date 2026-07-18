@@ -23,6 +23,28 @@ func TestResourceCRUDRequiresManagementPermission(t *testing.T) {
 	assert.ErrorIs(t, f.service.DeleteResource(context.Background(), actor(3), resource.ID), ErrForbidden)
 }
 
+func TestResourceRevisionOnlyChangesForRuntimeConfiguration(t *testing.T) {
+	f := newFixture()
+	connection := createValidConnection(t, f, domain.OwnerScopeUser, 1, "openai-main", "secret")
+	resource := createResource(t, f, connection.ID, "chat-model")
+	revision := f.repo.resources[resource.ID].Revision
+	_, err := f.service.UpdateResource(context.Background(), actor(1), resource.ID, UpdateResourceInput{
+		ModelID: resource.ModelID, DisplayName: "Renamed",
+		Modalities: resource.Modalities, Capabilities: resource.Capabilities,
+	})
+	require.NoError(t, err)
+	assert.Equal(t, revision, f.repo.resources[resource.ID].Revision)
+	require.NoError(t, f.service.SetResourceEnabled(context.Background(), actor(1), resource.ID, false))
+	assert.Equal(t, revision, f.repo.resources[resource.ID].Revision)
+
+	_, err = f.service.UpdateResource(context.Background(), actor(1), resource.ID, UpdateResourceInput{
+		ModelID: "provider/new-model", DisplayName: "Renamed",
+		Modalities: resource.Modalities, Capabilities: resource.Capabilities,
+	})
+	require.NoError(t, err)
+	assert.Equal(t, revision+1, f.repo.resources[resource.ID].Revision)
+}
+
 func TestSetDefaultChecksPermissionAndModality(t *testing.T) {
 	f := newFixture()
 	connection := createValidConnection(t, f, domain.OwnerScopeOrg, 10, "org-main", "secret")

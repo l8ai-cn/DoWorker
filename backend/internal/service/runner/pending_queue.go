@@ -83,6 +83,15 @@ func (q *PendingCommandQueue) MaxPerRunner() int {
 	return q.maxPerRunner
 }
 
+func (q *PendingCommandQueue) AllowsDurableCommand(runnerID int64) bool {
+	if q.enabled {
+		return true
+	}
+	// Connected dispatches still need a transactional outbox row so owner
+	// persistence and Runner delivery cannot be separated by a process crash.
+	return q.connChecker != nil && q.connChecker.IsConnected(runnerID)
+}
+
 func (q *PendingCommandQueue) TriggerDrain(runnerID int64) {
 	q.maybeDrain(runnerID)
 }
@@ -115,24 +124,6 @@ func (q *PendingCommandQueue) enqueue(
 	if ttl > maxQueueTTL {
 		ttl = maxQueueTTL
 	}
-	exists, err := q.repo.ExistsCommandID(ctx, commandID)
-	if err != nil {
-		return time.Time{}, err
-	}
-	if exists {
-		return time.Time{}, agentpod.ErrDuplicateCommand
-	}
-	count, err := q.repo.CountByRunner(ctx, runnerID)
-	if err != nil {
-		return time.Time{}, err
-	}
-	if count >= q.maxPerRunner {
-		return time.Time{}, agentpod.ErrQueueFull
-	}
-	encryptedPayload, err := q.payloadCipher.encrypt(payload)
-	if err != nil {
-		return time.Time{}, err
-	}
 	expiresAt := time.Now().Add(ttl)
 	cmd := &agentpod.PendingCommand{
 		OrganizationID: orgID,
@@ -143,7 +134,7 @@ func (q *PendingCommandQueue) enqueue(
 		Payload:        encryptedPayload,
 		ExpiresAt:      expiresAt,
 	}
-	if err := q.repo.Enqueue(ctx, cmd); err != nil {
+	if err := q.repo.EnqueueWithinCapacity(ctx, cmd, q.maxPerRunner); err != nil {
 		return time.Time{}, err
 	}
 	pos, _ := q.repo.PositionByPodKey(ctx, runnerID, podKey)

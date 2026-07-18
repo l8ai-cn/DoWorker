@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Move every live Pod to its own origin and make preview bootstrap credentials single-use with revocable sessions.
+**Goal:** Move live Pod content to a dedicated origin and make preview bootstrap credentials single-use.
 
-**Architecture:** Backend derives `https://{podKey}.<preview-base-host>` and issues a five-minute bootstrap JWT. Relay signs a distinct session, atomically redeems the bootstrap while registering the session in Redis, and sets a 15-minute HttpOnly host-only cookie. Every request revalidates the session and current Pod authorization through Backend; WebSocket handshakes require the exact Pod origin.
+**Architecture:** Backend issues a five-minute bootstrap JWT. Relay validates its exact origin and atomically consumes its JTI through a Redis-backed backend endpoint before setting a separate 15-minute HttpOnly session cookie.
 
 **Tech Stack:** Go, Gin, Relay HTTP proxy, Redis, JWT, React, Vitest, Playwright.
 
@@ -42,7 +42,7 @@ Expected: FAIL because `PREVIEW_PUBLIC_ORIGIN` and Host enforcement do not exist
 
 - [x] **Step 3: Implement explicit origin wiring**
 
-Add required `PREVIEW_PUBLIC_ORIGIN` as the preview base origin; production startup fails for an IP host or when it equals an authenticated application origin. `PodHandler` derives one origin per Pod. Relay requires the exact Pod-scoped host. Dev generates `http://preview.localhost:${HTTP_PORT}` and Traefik exposes only `/preview/*` on `*.preview.localhost`.
+Add required `PREVIEW_PUBLIC_ORIGIN`; production startup fails when it equals an authenticated application origin. `PodHandler` receives the parsed origin and constructs preview URLs only from it. Relay requires the exact configured host. Dev generates `http://preview.localhost:${HTTP_PORT}` and Traefik exposes only `/preview/*` on that host.
 
 - [x] **Step 4: Run tests and commit**
 
@@ -54,7 +54,7 @@ git add backend/internal/config backend/internal/api/rest/v1/pods.go backend/int
 git commit -m "feat(preview): isolate the public preview origin"
 ```
 
-### Task 2: Single-Use Bootstrap And Revocable Session
+### Task 2: Single-Use Preview Bootstrap
 
 **Files:**
 - Create: `backend/internal/service/relay/preview_bootstrap_store.go`
@@ -89,7 +89,7 @@ Expected: FAIL because bootstrap JTI, token use, and atomic consumption are abse
 
 - [ ] **Step 3: Implement redemption**
 
-Mint `preview_bootstrap` with audience, JTI, exact Pod origin, pod, user, org, target, and path. Relay signs a candidate `preview_session`, then atomically redeems the bootstrap and registers the session through one authenticated Backend operation. `HandlePreview` accepts only an active `preview_session`, rechecks current Pod access, and periodically revalidates long-lived WebSockets. Logout revokes all active preview sessions for the user.
+Mint `preview_bootstrap` with audience, JTI, exact origin, pod, user, org, target, and path. Relay consumes JTI through the authenticated backend endpoint backed by Redis `SET NX`, then signs `preview_session` for the HttpOnly host-only cookie. `HandlePreview` accepts only `preview_session`.
 
 - [ ] **Step 4: Run suites and commit**
 

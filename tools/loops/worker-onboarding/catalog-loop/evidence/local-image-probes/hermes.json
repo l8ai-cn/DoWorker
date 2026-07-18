@@ -3,13 +3,15 @@
   "worker_slug": "hermes",
   "definition_hash": "sha256:035450d5cbfc34fbe6671b00e5ee9cf76aaf0eee81988c4e7fc471bbedefb7ee",
   "platform": "linux/amd64",
-  "observed_at": "2026-07-12T23:09:30.567Z",
-  "image_reference": "do-worker/runner-hermes:latest",
+  "observed_at": "2026-07-16T16:32:47.710Z",
+  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-hermes:latest",
+  "image_id": "sha256:f30bdc54e622e92e3d34cab69ecc868cbb1a38413986a633868ec39146426525",
   "probe_command": [
     "hermes",
     "--version"
   ],
-  "status": "image_missing",
-  "exit_code": 1,
-  "output": "Error response from daemon: No such image: do-worker/runner-hermes:latest"
+  "network": "none",
+  "status": "passed",
+  "exit_code": 0,
+  "output": "Hermes Agent v0.18.2 (2026.7.7.2)\nProject: /usr/local/lib/python3.11/site-packages\nPython: 3.11.15\nOpenAI SDK: 2.24.0"
 }

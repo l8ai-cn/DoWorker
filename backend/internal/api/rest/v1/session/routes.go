@@ -119,10 +119,6 @@ func registerEmbedRoutes(v1 *gin.RouterGroup, d Deps) {
 		d.handleSessionFilesystemList,
 	)
 	embedded.GET(
-		"/sessions/:id/resources/environments/:env/artifacts/content/*filepath",
-		d.handleSessionArtifactContent,
-	)
-	embedded.GET(
 		"/sessions/:id/resources/environments/:env/changes",
 		d.handleSessionFilesystemChanges,
 	)

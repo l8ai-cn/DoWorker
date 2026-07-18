@@ -53,10 +53,11 @@ type GRPCConnection struct {
 	heartbeatInterval time.Duration
 
 	// Initialization
-	initTimeout     time.Duration
-	initialized     bool
-	availableAgents []string
-	initResultCh    chan *runnerv1.InitializeResult
+	initTimeout            time.Duration
+	initialized            bool
+	availableAgents        []string
+	initResultCh           chan *runnerv1.InitializeResult
+	pendingPodTerminations map[string]*runnerv1.RunnerMessage
 
 	// Runner info
 	runnerVersion string
@@ -139,6 +140,7 @@ func NewGRPCConnection(endpoint, nodeID, orgSlug, certFile, keyFile, caFile stri
 		stopCh:                   make(chan struct{}),
 		reconnectCh:              make(chan struct{}, 1),
 		initResultCh:             make(chan *runnerv1.InitializeResult, 1),
+		pendingPodTerminations:   make(map[string]*runnerv1.RunnerMessage),
 		runnerVersion:            "dev",
 		mcpPort:                  19000,
 		certRenewalCheckInterval: 24 * time.Hour,

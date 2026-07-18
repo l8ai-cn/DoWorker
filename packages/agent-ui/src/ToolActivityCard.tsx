@@ -6,19 +6,11 @@ import {
 } from "lucide-react";
 
 import { useAgentWorkspaceText } from "./AgentWorkspaceLocaleContext";
-import type { AgentToolActivityItem } from "./agentToolContracts";
-import type { AgentToolRendererRegistration } from "./react/rendererTypes";
-import type { ToolRendererRegistry } from "./registry/ToolRendererRegistry";
+import type { AgentActivityItem } from "./contracts";
 import { summarizeToolActivity } from "./toolActivitySummary";
 import { toolPresentation } from "./toolPresentation";
 
-export function ToolActivityCard({
-  item,
-  renderers,
-}: {
-  item: AgentToolActivityItem;
-  renderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
-}) {
+export function ToolActivityCard({ item }: { item: AgentActivityItem }) {
   const text = useAgentWorkspaceText();
   const input = cleanEvidence(item.input);
   const output = cleanEvidence(item.output);
@@ -33,7 +25,6 @@ export function ToolActivityCard({
     text.fileChangeVerb,
   );
   const Icon = presentation.icon;
-  const RegisteredSummary = renderers?.lookup(item.identity)?.summary;
 
   return (
     <article className="overflow-hidden rounded-md border border-border bg-card">
@@ -47,14 +38,7 @@ export function ToolActivityCard({
           status={item.status}
         />
       </div>
-      {RegisteredSummary ? (
-        <div
-          className="border-t border-border bg-muted/15 px-3 py-2"
-          data-testid="registered-tool-summary"
-        >
-          <RegisteredSummary item={item} />
-        </div>
-      ) : (summary.primary || summary.result) ? (
+      {(summary.primary || summary.result) && (
         <div
           className="space-y-1 border-t border-border bg-muted/15 px-3 py-2"
           data-testid="tool-summary"
@@ -70,7 +54,7 @@ export function ToolActivityCard({
             </pre>
           )}
         </div>
-      ) : null}
+      )}
       {hasEvidence && (
         <details
           className="group border-t border-border"
@@ -108,7 +92,7 @@ function ActivityStatus({
   status,
 }: {
   label: string;
-  status: AgentToolActivityItem["status"];
+  status: AgentActivityItem["status"];
 }) {
   const Icon =
     status === "running"

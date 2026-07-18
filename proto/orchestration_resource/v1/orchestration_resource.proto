@@ -2,10 +2,6 @@ syntax = "proto3";
 
 package proto.orchestration_resource.v1;
 
-import "orchestration_resource/v1/orchestration_resource_apply.proto";
-import "orchestration_resource/v1/orchestration_resource_queries.proto";
-import "orchestration_resource/v1/orchestration_resource_types.proto";
-
 option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1;orchestrationresourcev1";
 
 service OrchestrationResourceService {
@@ -23,4 +19,293 @@ service OrchestrationResourceService {
   rpc ApplyPromptPlan(ApplyPromptPlanRequest) returns (Resource);
   rpc ApplyExpertPlan(ApplyExpertPlanRequest) returns (ApplyExpertPlanResponse);
   rpc ApplyWorkflowPlan(ApplyWorkflowPlanRequest) returns (ApplyWorkflowPlanResponse);
+}
+
+enum SourceFormat {
+  SOURCE_FORMAT_UNSPECIFIED = 0;
+  SOURCE_FORMAT_JSON = 1;
+  SOURCE_FORMAT_YAML = 2;
+}
+
+enum ResourceOperation {
+  RESOURCE_OPERATION_UNSPECIFIED = 0;
+  RESOURCE_OPERATION_CREATE = 1;
+  RESOURCE_OPERATION_UPDATE = 2;
+}
+
+enum IssueSeverity {
+  ISSUE_SEVERITY_UNSPECIFIED = 0;
+  ISSUE_SEVERITY_BLOCKING = 1;
+  ISSUE_SEVERITY_WARNING = 2;
+}
+
+enum SemanticChangeOperation {
+  SEMANTIC_CHANGE_OPERATION_UNSPECIFIED = 0;
+  SEMANTIC_CHANGE_OPERATION_ADD = 1;
+  SEMANTIC_CHANGE_OPERATION_REMOVE = 2;
+  SEMANTIC_CHANGE_OPERATION_REPLACE = 3;
+}
+
+enum PlanStatus {
+  PLAN_STATUS_UNSPECIFIED = 0;
+  PLAN_STATUS_PENDING = 1;
+  PLAN_STATUS_APPLIED = 2;
+  PLAN_STATUS_CANCELLED = 3;
+  PLAN_STATUS_EXPIRED = 4;
+}
+
+enum EnvironmentBundlePurpose {
+  ENVIRONMENT_BUNDLE_PURPOSE_UNSPECIFIED = 0;
+  ENVIRONMENT_BUNDLE_PURPOSE_RUNTIME = 1;
+  ENVIRONMENT_BUNDLE_PURPOSE_CONFIG = 2;
+  ENVIRONMENT_BUNDLE_PURPOSE_CREDENTIAL = 3;
+}
+
+message ResourceSource {
+  SourceFormat format = 1;
+  bytes content = 2;
+}
+
+message TypeMeta {
+  string api_version = 1;
+  string kind = 2;
+}
+
+message ResourceTarget {
+  TypeMeta type_meta = 1;
+  string namespace = 2;
+  string name = 3;
+}
+
+message ResourceIdentity {
+  ResourceTarget target = 1;
+  string uid = 2;
+}
+
+message Resource {
+  int64 id = 1;
+  ResourceIdentity identity = 2;
+  string display_name = 3;
+  map<string, string> labels = 4;
+  bytes status_json = 5;
+  int64 revision = 6;
+  int64 generation = 7;
+  int64 resource_version = 8;
+  int64 created_by_id = 9;
+  int64 updated_by_id = 10;
+  string created_at = 11;
+  string updated_at = 12;
+}
+
+message ResolvedReference {
+  TypeMeta type_meta = 1;
+  string namespace = 2;
+  string name = 3;
+  string uid = 4;
+  int64 revision = 5;
+  string digest = 6;
+}
+
+message PlanIssue {
+  IssueSeverity severity = 1;
+  string path = 2;
+  string code = 3;
+  string message = 4;
+}
+
+message ChangeValue {
+  oneof value {
+    string digest = 1;
+    bytes redacted_json = 2;
+  }
+}
+
+message SemanticChange {
+  SemanticChangeOperation operation = 1;
+  string path = 2;
+  optional ChangeValue before = 3;
+  optional ChangeValue after = 4;
+}
+
+message ResourcePlan {
+  string plan_id = 1;
+  ResourceOperation operation = 2;
+  ResourceTarget target = 3;
+  optional ResourceIdentity base = 4;
+  int64 base_resource_version = 5;
+  string draft_hash = 6;
+  string plan_hash = 7;
+  string artifact_digest = 8;
+  repeated ResolvedReference resolved_references = 9;
+  repeated SemanticChange semantic_diff = 10;
+  repeated PlanIssue issues = 11;
+  string artifact_kind = 12;
+  string options_revision = 13;
+  string created_at = 14;
+  string expires_at = 15;
+  PlanStatus status = 16;
+}
+
+message ValidateResourceRequest {
+  string org_slug = 1;
+  ResourceSource source = 2;
+}
+
+message ValidateResourceResponse {
+  ResourceTarget target = 1;
+  ResourceOperation operation = 2;
+  bytes canonical_json = 3;
+  repeated PlanIssue issues = 4;
+}
+
+message PlanResourceRequest {
+  string org_slug = 1;
+  ResourceSource source = 2;
+}
+
+message PlanResourceResponse {
+  ResourceTarget target = 1;
+  ResourceOperation operation = 2;
+  bytes canonical_json = 3;
+  repeated PlanIssue issues = 4;
+  optional ResourcePlan plan = 5;
+}
+
+message GetResourceRequest {
+  string org_slug = 1;
+  ResourceTarget target = 2;
+}
+
+message ResourceCapabilities {
+  bool exists = 1;
+  bool can_view_source = 2;
+  bool can_reference = 3;
+  bool can_plan = 4;
+}
+
+message GetResourceCapabilitiesRequest {
+  string org_slug = 1;
+  ResourceTarget target = 2;
+}
+
+message GetResourceCapabilitiesResponse {
+  ResourceTarget target = 1;
+  ResourceCapabilities capabilities = 2;
+}
+
+message EnvironmentBundleReferenceFilter {
+  EnvironmentBundlePurpose purpose = 1;
+  string worker_type = 2;
+  string target_name = 3;
+}
+
+message ModelBindingReferenceFilter {
+  string worker_type = 1;
+  repeated string protocol_adapters = 2;
+}
+
+message ListResourcesRequest {
+  string org_slug = 1;
+  optional string kind = 2;
+  optional int32 offset = 3;
+  optional int32 limit = 4;
+  optional EnvironmentBundleReferenceFilter environment_bundle_filter = 5;
+  optional ModelBindingReferenceFilter model_binding_filter = 6;
+}
+
+message ListResourcesResponse {
+  repeated Resource items = 1;
+  int64 total = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+  optional EnvironmentBundleReferenceFilter applied_environment_bundle_filter = 5;
+  optional ModelBindingReferenceFilter applied_model_binding_filter = 6;
+}
+
+message ExportResourceRequest {
+  string org_slug = 1;
+  ResourceTarget target = 2;
+  // Absent or zero exports the active revision.
+  optional int64 revision = 3;
+  SourceFormat format = 4;
+}
+
+message ExportResourceResponse {
+  bytes content = 1;
+}
+
+message GetResourcePlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message ApplyBindingResourcePlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message ApplyWorkerTemplatePlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message ApplyWorkerTemplatePlanResponse {
+  Resource resource = 1;
+  int64 worker_spec_snapshot_id = 2;
+}
+
+message CreateWorkerFromPlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message CreateWorkerFromPlanResponse {
+  Resource resource = 1;
+  int64 launch_id = 2;
+  int64 pod_id = 3;
+  string pod_key = 4;
+  int64 worker_spec_snapshot_id = 5;
+  int64 resource_revision = 6;
+  int64 runner_id = 7;
+}
+
+message CreateGoalLoopFromPlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message CreateGoalLoopFromPlanResponse {
+  Resource resource = 1;
+  int64 goal_loop_id = 2;
+  int64 worker_spec_snapshot_id = 3;
+  int64 resource_revision = 4;
+}
+
+message ApplyPromptPlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message ApplyExpertPlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message ApplyExpertPlanResponse {
+  Resource resource = 1;
+  int64 expert_id = 2;
+  int64 worker_spec_snapshot_id = 3;
+  int64 resource_revision = 4;
+}
+
+message ApplyWorkflowPlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message ApplyWorkflowPlanResponse {
+  Resource resource = 1;
+  int64 workflow_id = 2;
+  int64 worker_spec_snapshot_id = 3;
+  int64 resource_revision = 4;
 }

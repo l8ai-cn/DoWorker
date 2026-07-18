@@ -1,11 +1,43 @@
 package main
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/anthropics/agentsmesh/backend/internal/config"
 	"github.com/stretchr/testify/assert"
 )
+
+type grpcServerStub struct {
+	err     error
+	started bool
+}
+
+func (s *grpcServerStub) Start() error {
+	s.started = true
+	return s.err
+}
+
+func TestStartGRPCServer(t *testing.T) {
+	t.Run("returns startup error", func(t *testing.T) {
+		want := errors.New("address already in use")
+		server := &grpcServerStub{err: want}
+
+		err := startGRPCServer(&config.Config{}, server)
+
+		assert.ErrorIs(t, err, want)
+		assert.True(t, server.started)
+	})
+
+	t.Run("starts successfully", func(t *testing.T) {
+		server := &grpcServerStub{}
+
+		err := startGRPCServer(&config.Config{}, server)
+
+		assert.NoError(t, err)
+		assert.True(t, server.started)
+	})
+}
 
 func TestDeriveServerCertSANs(t *testing.T) {
 	tests := []struct {

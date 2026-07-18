@@ -2,20 +2,1319 @@
 // @generated from file orchestration_resource/v1/orchestration_resource.proto (package proto.orchestration_resource.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
-import type { ApplyBindingResourcePlanRequestSchema, ApplyExpertPlanRequestSchema, ApplyExpertPlanResponseSchema, ApplyPromptPlanRequestSchema, ApplyWorkerTemplatePlanRequestSchema, ApplyWorkerTemplatePlanResponseSchema, ApplyWorkflowPlanRequestSchema, ApplyWorkflowPlanResponseSchema, CreateGoalLoopFromPlanRequestSchema, CreateGoalLoopFromPlanResponseSchema, CreateWorkerFromPlanRequestSchema, CreateWorkerFromPlanResponseSchema } from "./orchestration_resource_apply_pb.ts";
-import { file_orchestration_resource_v1_orchestration_resource_apply } from "./orchestration_resource_apply_pb.ts";
-import type { ExportResourceRequestSchema, ExportResourceResponseSchema, GetResourceCapabilitiesRequestSchema, GetResourceCapabilitiesResponseSchema, GetResourcePlanRequestSchema, GetResourceRequestSchema, ListResourcesRequestSchema, ListResourcesResponseSchema, PlanResourceRequestSchema, PlanResourceResponseSchema, ValidateResourceRequestSchema, ValidateResourceResponseSchema } from "./orchestration_resource_queries_pb.ts";
-import { file_orchestration_resource_v1_orchestration_resource_queries } from "./orchestration_resource_queries_pb.ts";
-import type { ResourcePlanSchema, ResourceSchema } from "./orchestration_resource_types_pb.ts";
-import { file_orchestration_resource_v1_orchestration_resource_types } from "./orchestration_resource_types_pb.ts";
+import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file orchestration_resource/v1/orchestration_resource.proto.
  */
 export const file_orchestration_resource_v1_orchestration_resource: GenFile = /*@__PURE__*/
-  fileDesc("CjZvcmNoZXN0cmF0aW9uX3Jlc291cmNlL3YxL29yY2hlc3RyYXRpb25fcmVzb3VyY2UucHJvdG8SH3Byb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEymA8KHE9yY2hlc3RyYXRpb25SZXNvdXJjZVNlcnZpY2UShwEKEFZhbGlkYXRlUmVzb3VyY2USOC5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlZhbGlkYXRlUmVzb3VyY2VSZXF1ZXN0GjkucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5WYWxpZGF0ZVJlc291cmNlUmVzcG9uc2USewoMUGxhblJlc291cmNlEjQucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5QbGFuUmVzb3VyY2VSZXF1ZXN0GjUucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5QbGFuUmVzb3VyY2VSZXNwb25zZRJtCgtHZXRSZXNvdXJjZRIzLnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuR2V0UmVzb3VyY2VSZXF1ZXN0GikucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZRKcAQoXR2V0UmVzb3VyY2VDYXBhYmlsaXRpZXMSPy5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkdldFJlc291cmNlQ2FwYWJpbGl0aWVzUmVxdWVzdBpALnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuR2V0UmVzb3VyY2VDYXBhYmlsaXRpZXNSZXNwb25zZRJ+Cg1MaXN0UmVzb3VyY2VzEjUucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5MaXN0UmVzb3VyY2VzUmVxdWVzdBo2LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuTGlzdFJlc291cmNlc1Jlc3BvbnNlEoEBCg5FeHBvcnRSZXNvdXJjZRI2LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuRXhwb3J0UmVzb3VyY2VSZXF1ZXN0GjcucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5FeHBvcnRSZXNvdXJjZVJlc3BvbnNlEnkKD0dldFJlc291cmNlUGxhbhI3LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuR2V0UmVzb3VyY2VQbGFuUmVxdWVzdBotLnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuUmVzb3VyY2VQbGFuEocBChhBcHBseUJpbmRpbmdSZXNvdXJjZVBsYW4SQC5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkFwcGx5QmluZGluZ1Jlc291cmNlUGxhblJlcXVlc3QaKS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlEpwBChdBcHBseVdvcmtlclRlbXBsYXRlUGxhbhI/LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuQXBwbHlXb3JrZXJUZW1wbGF0ZVBsYW5SZXF1ZXN0GkAucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5BcHBseVdvcmtlclRlbXBsYXRlUGxhblJlc3BvbnNlEpMBChRDcmVhdGVXb3JrZXJGcm9tUGxhbhI8LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuQ3JlYXRlV29ya2VyRnJvbVBsYW5SZXF1ZXN0Gj0ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5DcmVhdGVXb3JrZXJGcm9tUGxhblJlc3BvbnNlEpkBChZDcmVhdGVHb2FsTG9vcEZyb21QbGFuEj4ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5DcmVhdGVHb2FsTG9vcEZyb21QbGFuUmVxdWVzdBo/LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuQ3JlYXRlR29hbExvb3BGcm9tUGxhblJlc3BvbnNlEnUKD0FwcGx5UHJvbXB0UGxhbhI3LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuQXBwbHlQcm9tcHRQbGFuUmVxdWVzdBopLnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuUmVzb3VyY2UShAEKD0FwcGx5RXhwZXJ0UGxhbhI3LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuQXBwbHlFeHBlcnRQbGFuUmVxdWVzdBo4LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuQXBwbHlFeHBlcnRQbGFuUmVzcG9uc2USigEKEUFwcGx5V29ya2Zsb3dQbGFuEjkucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5BcHBseVdvcmtmbG93UGxhblJlcXVlc3QaOi5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkFwcGx5V29ya2Zsb3dQbGFuUmVzcG9uc2VCYVpfZ2l0aHViLmNvbS9hbnRocm9waWNzL2FnZW50c21lc2gvcHJvdG8vZ2VuL2dvL29yY2hlc3RyYXRpb25fcmVzb3VyY2UvdjE7b3JjaGVzdHJhdGlvbnJlc291cmNldjFiBnByb3RvMw", [file_orchestration_resource_v1_orchestration_resource_apply, file_orchestration_resource_v1_orchestration_resource_queries, file_orchestration_resource_v1_orchestration_resource_types]);
+  fileDesc("CjZvcmNoZXN0cmF0aW9uX3Jlc291cmNlL3YxL29yY2hlc3RyYXRpb25fcmVzb3VyY2UucHJvdG8SH3Byb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEiYAoOUmVzb3VyY2VTb3VyY2USPQoGZm9ybWF0GAEgASgOMi0ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5Tb3VyY2VGb3JtYXQSDwoHY29udGVudBgCIAEoDCItCghUeXBlTWV0YRITCgthcGlfdmVyc2lvbhgBIAEoCRIMCgRraW5kGAIgASgJIm8KDlJlc291cmNlVGFyZ2V0EjwKCXR5cGVfbWV0YRgBIAEoCzIpLnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuVHlwZU1ldGESEQoJbmFtZXNwYWNlGAIgASgJEgwKBG5hbWUYAyABKAkiYAoQUmVzb3VyY2VJZGVudGl0eRI/CgZ0YXJnZXQYASABKAsyLy5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlVGFyZ2V0EgsKA3VpZBgCIAEoCSKSAwoIUmVzb3VyY2USCgoCaWQYASABKAMSQwoIaWRlbnRpdHkYAiABKAsyMS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlSWRlbnRpdHkSFAoMZGlzcGxheV9uYW1lGAMgASgJEkUKBmxhYmVscxgEIAMoCzI1LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuUmVzb3VyY2UuTGFiZWxzRW50cnkSEwoLc3RhdHVzX2pzb24YBSABKAwSEAoIcmV2aXNpb24YBiABKAMSEgoKZ2VuZXJhdGlvbhgHIAEoAxIYChByZXNvdXJjZV92ZXJzaW9uGAggASgDEhUKDWNyZWF0ZWRfYnlfaWQYCSABKAMSFQoNdXBkYXRlZF9ieV9pZBgKIAEoAxISCgpjcmVhdGVkX2F0GAsgASgJEhIKCnVwZGF0ZWRfYXQYDCABKAkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASKhAQoRUmVzb2x2ZWRSZWZlcmVuY2USPAoJdHlwZV9tZXRhGAEgASgLMikucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5UeXBlTWV0YRIRCgluYW1lc3BhY2UYAiABKAkSDAoEbmFtZRgDIAEoCRILCgN1aWQYBCABKAkSEAoIcmV2aXNpb24YBSABKAMSDgoGZGlnZXN0GAYgASgJInoKCVBsYW5Jc3N1ZRJACghzZXZlcml0eRgBIAEoDjIuLnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuSXNzdWVTZXZlcml0eRIMCgRwYXRoGAIgASgJEgwKBGNvZGUYAyABKAkSDwoHbWVzc2FnZRgEIAEoCSJBCgtDaGFuZ2VWYWx1ZRIQCgZkaWdlc3QYASABKAlIABIXCg1yZWRhY3RlZF9qc29uGAIgASgMSABCBwoFdmFsdWUihQIKDlNlbWFudGljQ2hhbmdlEksKCW9wZXJhdGlvbhgBIAEoDjI4LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuU2VtYW50aWNDaGFuZ2VPcGVyYXRpb24SDAoEcGF0aBgCIAEoCRJBCgZiZWZvcmUYAyABKAsyLC5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkNoYW5nZVZhbHVlSACIAQESQAoFYWZ0ZXIYBCABKAsyLC5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkNoYW5nZVZhbHVlSAGIAQFCCQoHX2JlZm9yZUIICgZfYWZ0ZXIiwAUKDFJlc291cmNlUGxhbhIPCgdwbGFuX2lkGAEgASgJEkUKCW9wZXJhdGlvbhgCIAEoDjIyLnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuUmVzb3VyY2VPcGVyYXRpb24SPwoGdGFyZ2V0GAMgASgLMi8ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZVRhcmdldBJECgRiYXNlGAQgASgLMjEucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZUlkZW50aXR5SACIAQESHQoVYmFzZV9yZXNvdXJjZV92ZXJzaW9uGAUgASgDEhIKCmRyYWZ0X2hhc2gYBiABKAkSEQoJcGxhbl9oYXNoGAcgASgJEhcKD2FydGlmYWN0X2RpZ2VzdBgIIAEoCRJPChNyZXNvbHZlZF9yZWZlcmVuY2VzGAkgAygLMjIucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvbHZlZFJlZmVyZW5jZRJGCg1zZW1hbnRpY19kaWZmGAogAygLMi8ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5TZW1hbnRpY0NoYW5nZRI6CgZpc3N1ZXMYCyADKAsyKi5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlBsYW5Jc3N1ZRIVCg1hcnRpZmFjdF9raW5kGAwgASgJEhgKEG9wdGlvbnNfcmV2aXNpb24YDSABKAkSEgoKY3JlYXRlZF9hdBgOIAEoCRISCgpleHBpcmVzX2F0GA8gASgJEjsKBnN0YXR1cxgQIAEoDjIrLnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuUGxhblN0YXR1c0IHCgVfYmFzZSJsChdWYWxpZGF0ZVJlc291cmNlUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRI/CgZzb3VyY2UYAiABKAsyLy5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlU291cmNlIvYBChhWYWxpZGF0ZVJlc291cmNlUmVzcG9uc2USPwoGdGFyZ2V0GAEgASgLMi8ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZVRhcmdldBJFCglvcGVyYXRpb24YAiABKA4yMi5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlT3BlcmF0aW9uEhYKDmNhbm9uaWNhbF9qc29uGAMgASgMEjoKBmlzc3VlcxgEIAMoCzIqLnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuUGxhbklzc3VlImgKE1BsYW5SZXNvdXJjZVJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSPwoGc291cmNlGAIgASgLMi8ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZVNvdXJjZSK9AgoUUGxhblJlc291cmNlUmVzcG9uc2USPwoGdGFyZ2V0GAEgASgLMi8ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZVRhcmdldBJFCglvcGVyYXRpb24YAiABKA4yMi5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlT3BlcmF0aW9uEhYKDmNhbm9uaWNhbF9qc29uGAMgASgMEjoKBmlzc3VlcxgEIAMoCzIqLnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuUGxhbklzc3VlEkAKBHBsYW4YBSABKAsyLS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlUGxhbkgAiAEBQgcKBV9wbGFuImcKEkdldFJlc291cmNlUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRI/CgZ0YXJnZXQYAiABKAsyLy5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlVGFyZ2V0ImgKFFJlc291cmNlQ2FwYWJpbGl0aWVzEg4KBmV4aXN0cxgBIAEoCBIXCg9jYW5fdmlld19zb3VyY2UYAiABKAgSFQoNY2FuX3JlZmVyZW5jZRgDIAEoCBIQCghjYW5fcGxhbhgEIAEoCCJzCh5HZXRSZXNvdXJjZUNhcGFiaWxpdGllc1JlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSPwoGdGFyZ2V0GAIgASgLMi8ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZVRhcmdldCKvAQofR2V0UmVzb3VyY2VDYXBhYmlsaXRpZXNSZXNwb25zZRI/CgZ0YXJnZXQYASABKAsyLy5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlVGFyZ2V0EksKDGNhcGFiaWxpdGllcxgCIAEoCzI1LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuUmVzb3VyY2VDYXBhYmlsaXRpZXMimAEKIEVudmlyb25tZW50QnVuZGxlUmVmZXJlbmNlRmlsdGVyEkoKB3B1cnBvc2UYASABKA4yOS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkVudmlyb25tZW50QnVuZGxlUHVycG9zZRITCgt3b3JrZXJfdHlwZRgCIAEoCRITCgt0YXJnZXRfbmFtZRgDIAEoCSJNChtNb2RlbEJpbmRpbmdSZWZlcmVuY2VGaWx0ZXISEwoLd29ya2VyX3R5cGUYASABKAkSGQoRcHJvdG9jb2xfYWRhcHRlcnMYAiADKAkihQMKFExpc3RSZXNvdXJjZXNSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEhEKBGtpbmQYAiABKAlIAIgBARITCgZvZmZzZXQYAyABKAVIAYgBARISCgVsaW1pdBgEIAEoBUgCiAEBEmkKGWVudmlyb25tZW50X2J1bmRsZV9maWx0ZXIYBSABKAsyQS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkVudmlyb25tZW50QnVuZGxlUmVmZXJlbmNlRmlsdGVySAOIAQESXwoUbW9kZWxfYmluZGluZ19maWx0ZXIYBiABKAsyPC5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLk1vZGVsQmluZGluZ1JlZmVyZW5jZUZpbHRlckgEiAEBQgcKBV9raW5kQgkKB19vZmZzZXRCCAoGX2xpbWl0QhwKGl9lbnZpcm9ubWVudF9idW5kbGVfZmlsdGVyQhcKFV9tb2RlbF9iaW5kaW5nX2ZpbHRlciKiAwoVTGlzdFJlc291cmNlc1Jlc3BvbnNlEjgKBWl0ZW1zGAEgAygLMikucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZRINCgV0b3RhbBgCIAEoAxINCgVsaW1pdBgDIAEoBRIOCgZvZmZzZXQYBCABKAUScQohYXBwbGllZF9lbnZpcm9ubWVudF9idW5kbGVfZmlsdGVyGAUgASgLMkEucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5FbnZpcm9ubWVudEJ1bmRsZVJlZmVyZW5jZUZpbHRlckgAiAEBEmcKHGFwcGxpZWRfbW9kZWxfYmluZGluZ19maWx0ZXIYBiABKAsyPC5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLk1vZGVsQmluZGluZ1JlZmVyZW5jZUZpbHRlckgBiAEBQiQKIl9hcHBsaWVkX2Vudmlyb25tZW50X2J1bmRsZV9maWx0ZXJCHwodX2FwcGxpZWRfbW9kZWxfYmluZGluZ19maWx0ZXIizQEKFUV4cG9ydFJlc291cmNlUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRI/CgZ0YXJnZXQYAiABKAsyLy5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlVGFyZ2V0EhUKCHJldmlzaW9uGAMgASgDSACIAQESPQoGZm9ybWF0GAQgASgOMi0ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5Tb3VyY2VGb3JtYXRCCwoJX3JldmlzaW9uIikKFkV4cG9ydFJlc291cmNlUmVzcG9uc2USDwoHY29udGVudBgBIAEoDCI7ChZHZXRSZXNvdXJjZVBsYW5SZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEg8KB3BsYW5faWQYAiABKAkiRAofQXBwbHlCaW5kaW5nUmVzb3VyY2VQbGFuUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIPCgdwbGFuX2lkGAIgASgJIkMKHkFwcGx5V29ya2VyVGVtcGxhdGVQbGFuUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIPCgdwbGFuX2lkGAIgASgJIn8KH0FwcGx5V29ya2VyVGVtcGxhdGVQbGFuUmVzcG9uc2USOwoIcmVzb3VyY2UYASABKAsyKS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlEh8KF3dvcmtlcl9zcGVjX3NuYXBzaG90X2lkGAIgASgDIkAKG0NyZWF0ZVdvcmtlckZyb21QbGFuUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIPCgdwbGFuX2lkGAIgASgJIt4BChxDcmVhdGVXb3JrZXJGcm9tUGxhblJlc3BvbnNlEjsKCHJlc291cmNlGAEgASgLMikucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZRIRCglsYXVuY2hfaWQYAiABKAMSDgoGcG9kX2lkGAMgASgDEg8KB3BvZF9rZXkYBCABKAkSHwoXd29ya2VyX3NwZWNfc25hcHNob3RfaWQYBSABKAMSGQoRcmVzb3VyY2VfcmV2aXNpb24YBiABKAMSEQoJcnVubmVyX2lkGAcgASgDIkIKHUNyZWF0ZUdvYWxMb29wRnJvbVBsYW5SZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEg8KB3BsYW5faWQYAiABKAkirwEKHkNyZWF0ZUdvYWxMb29wRnJvbVBsYW5SZXNwb25zZRI7CghyZXNvdXJjZRgBIAEoCzIpLnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuUmVzb3VyY2USFAoMZ29hbF9sb29wX2lkGAIgASgDEh8KF3dvcmtlcl9zcGVjX3NuYXBzaG90X2lkGAMgASgDEhkKEXJlc291cmNlX3JldmlzaW9uGAQgASgDIjsKFkFwcGx5UHJvbXB0UGxhblJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDwoHcGxhbl9pZBgCIAEoCSI7ChZBcHBseUV4cGVydFBsYW5SZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEg8KB3BsYW5faWQYAiABKAkipQEKF0FwcGx5RXhwZXJ0UGxhblJlc3BvbnNlEjsKCHJlc291cmNlGAEgASgLMikucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZRIRCglleHBlcnRfaWQYAiABKAMSHwoXd29ya2VyX3NwZWNfc25hcHNob3RfaWQYAyABKAMSGQoRcmVzb3VyY2VfcmV2aXNpb24YBCABKAMiPQoYQXBwbHlXb3JrZmxvd1BsYW5SZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEg8KB3BsYW5faWQYAiABKAkiqQEKGUFwcGx5V29ya2Zsb3dQbGFuUmVzcG9uc2USOwoIcmVzb3VyY2UYASABKAsyKS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlEhMKC3dvcmtmbG93X2lkGAIgASgDEh8KF3dvcmtlcl9zcGVjX3NuYXBzaG90X2lkGAMgASgDEhkKEXJlc291cmNlX3JldmlzaW9uGAQgASgDKl0KDFNvdXJjZUZvcm1hdBIdChlTT1VSQ0VfRk9STUFUX1VOU1BFQ0lGSUVEEAASFgoSU09VUkNFX0ZPUk1BVF9KU09OEAESFgoSU09VUkNFX0ZPUk1BVF9ZQU1MEAIqdQoRUmVzb3VyY2VPcGVyYXRpb24SIgoeUkVTT1VSQ0VfT1BFUkFUSU9OX1VOU1BFQ0lGSUVEEAASHQoZUkVTT1VSQ0VfT1BFUkFUSU9OX0NSRUFURRABEh0KGVJFU09VUkNFX09QRVJBVElPTl9VUERBVEUQAipoCg1Jc3N1ZVNldmVyaXR5Eh4KGklTU1VFX1NFVkVSSVRZX1VOU1BFQ0lGSUVEEAASGwoXSVNTVUVfU0VWRVJJVFlfQkxPQ0tJTkcQARIaChZJU1NVRV9TRVZFUklUWV9XQVJOSU5HEAIqtAEKF1NlbWFudGljQ2hhbmdlT3BlcmF0aW9uEikKJVNFTUFOVElDX0NIQU5HRV9PUEVSQVRJT05fVU5TUEVDSUZJRUQQABIhCh1TRU1BTlRJQ19DSEFOR0VfT1BFUkFUSU9OX0FERBABEiQKIFNFTUFOVElDX0NIQU5HRV9PUEVSQVRJT05fUkVNT1ZFEAISJQohU0VNQU5USUNfQ0hBTkdFX09QRVJBVElPTl9SRVBMQUNFEAMqjwEKClBsYW5TdGF0dXMSGwoXUExBTl9TVEFUVVNfVU5TUEVDSUZJRUQQABIXChNQTEFOX1NUQVRVU19QRU5ESU5HEAESFwoTUExBTl9TVEFUVVNfQVBQTElFRBACEhkKFVBMQU5fU1RBVFVTX0NBTkNFTExFRBADEhcKE1BMQU5fU1RBVFVTX0VYUElSRUQQBCrAAQoYRW52aXJvbm1lbnRCdW5kbGVQdXJwb3NlEioKJkVOVklST05NRU5UX0JVTkRMRV9QVVJQT1NFX1VOU1BFQ0lGSUVEEAASJgoiRU5WSVJPTk1FTlRfQlVORExFX1BVUlBPU0VfUlVOVElNRRABEiUKIUVOVklST05NRU5UX0JVTkRMRV9QVVJQT1NFX0NPTkZJRxACEikKJUVOVklST05NRU5UX0JVTkRMRV9QVVJQT1NFX0NSRURFTlRJQUwQAzKYDwocT3JjaGVzdHJhdGlvblJlc291cmNlU2VydmljZRKHAQoQVmFsaWRhdGVSZXNvdXJjZRI4LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuVmFsaWRhdGVSZXNvdXJjZVJlcXVlc3QaOS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlZhbGlkYXRlUmVzb3VyY2VSZXNwb25zZRJ7CgxQbGFuUmVzb3VyY2USNC5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlBsYW5SZXNvdXJjZVJlcXVlc3QaNS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlBsYW5SZXNvdXJjZVJlc3BvbnNlEm0KC0dldFJlc291cmNlEjMucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5HZXRSZXNvdXJjZVJlcXVlc3QaKS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLlJlc291cmNlEpwBChdHZXRSZXNvdXJjZUNhcGFiaWxpdGllcxI/LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuR2V0UmVzb3VyY2VDYXBhYmlsaXRpZXNSZXF1ZXN0GkAucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5HZXRSZXNvdXJjZUNhcGFiaWxpdGllc1Jlc3BvbnNlEn4KDUxpc3RSZXNvdXJjZXMSNS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkxpc3RSZXNvdXJjZXNSZXF1ZXN0GjYucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5MaXN0UmVzb3VyY2VzUmVzcG9uc2USgQEKDkV4cG9ydFJlc291cmNlEjYucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5FeHBvcnRSZXNvdXJjZVJlcXVlc3QaNy5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkV4cG9ydFJlc291cmNlUmVzcG9uc2USeQoPR2V0UmVzb3VyY2VQbGFuEjcucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5HZXRSZXNvdXJjZVBsYW5SZXF1ZXN0Gi0ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZVBsYW4ShwEKGEFwcGx5QmluZGluZ1Jlc291cmNlUGxhbhJALnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuQXBwbHlCaW5kaW5nUmVzb3VyY2VQbGFuUmVxdWVzdBopLnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuUmVzb3VyY2USnAEKF0FwcGx5V29ya2VyVGVtcGxhdGVQbGFuEj8ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5BcHBseVdvcmtlclRlbXBsYXRlUGxhblJlcXVlc3QaQC5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkFwcGx5V29ya2VyVGVtcGxhdGVQbGFuUmVzcG9uc2USkwEKFENyZWF0ZVdvcmtlckZyb21QbGFuEjwucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5DcmVhdGVXb3JrZXJGcm9tUGxhblJlcXVlc3QaPS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkNyZWF0ZVdvcmtlckZyb21QbGFuUmVzcG9uc2USmQEKFkNyZWF0ZUdvYWxMb29wRnJvbVBsYW4SPi5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkNyZWF0ZUdvYWxMb29wRnJvbVBsYW5SZXF1ZXN0Gj8ucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5DcmVhdGVHb2FsTG9vcEZyb21QbGFuUmVzcG9uc2USdQoPQXBwbHlQcm9tcHRQbGFuEjcucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5BcHBseVByb21wdFBsYW5SZXF1ZXN0GikucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5SZXNvdXJjZRKEAQoPQXBwbHlFeHBlcnRQbGFuEjcucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5BcHBseUV4cGVydFBsYW5SZXF1ZXN0GjgucHJvdG8ub3JjaGVzdHJhdGlvbl9yZXNvdXJjZS52MS5BcHBseUV4cGVydFBsYW5SZXNwb25zZRKKAQoRQXBwbHlXb3JrZmxvd1BsYW4SOS5wcm90by5vcmNoZXN0cmF0aW9uX3Jlc291cmNlLnYxLkFwcGx5V29ya2Zsb3dQbGFuUmVxdWVzdBo6LnByb3RvLm9yY2hlc3RyYXRpb25fcmVzb3VyY2UudjEuQXBwbHlXb3JrZmxvd1BsYW5SZXNwb25zZUJhWl9naXRodWIuY29tL2FudGhyb3BpY3MvYWdlbnRzbWVzaC9wcm90by9nZW4vZ28vb3JjaGVzdHJhdGlvbl9yZXNvdXJjZS92MTtvcmNoZXN0cmF0aW9ucmVzb3VyY2V2MWIGcHJvdG8z");
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ResourceSource
+ */
+export type ResourceSource = Message<"proto.orchestration_resource.v1.ResourceSource"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.SourceFormat format = 1;
+   */
+  format: SourceFormat;
+
+  /**
+   * @generated from field: bytes content = 2;
+   */
+  content: Uint8Array;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ResourceSource.
+ * Use `create(ResourceSourceSchema)` to create a new message.
+ */
+export const ResourceSourceSchema: GenMessage<ResourceSource> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 0);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.TypeMeta
+ */
+export type TypeMeta = Message<"proto.orchestration_resource.v1.TypeMeta"> & {
+  /**
+   * @generated from field: string api_version = 1;
+   */
+  apiVersion: string;
+
+  /**
+   * @generated from field: string kind = 2;
+   */
+  kind: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.TypeMeta.
+ * Use `create(TypeMetaSchema)` to create a new message.
+ */
+export const TypeMetaSchema: GenMessage<TypeMeta> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 1);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ResourceTarget
+ */
+export type ResourceTarget = Message<"proto.orchestration_resource.v1.ResourceTarget"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.TypeMeta type_meta = 1;
+   */
+  typeMeta?: TypeMeta | undefined;
+
+  /**
+   * @generated from field: string namespace = 2;
+   */
+  namespace: string;
+
+  /**
+   * @generated from field: string name = 3;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ResourceTarget.
+ * Use `create(ResourceTargetSchema)` to create a new message.
+ */
+export const ResourceTargetSchema: GenMessage<ResourceTarget> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 2);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ResourceIdentity
+ */
+export type ResourceIdentity = Message<"proto.orchestration_resource.v1.ResourceIdentity"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceTarget target = 1;
+   */
+  target?: ResourceTarget | undefined;
+
+  /**
+   * @generated from field: string uid = 2;
+   */
+  uid: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ResourceIdentity.
+ * Use `create(ResourceIdentitySchema)` to create a new message.
+ */
+export const ResourceIdentitySchema: GenMessage<ResourceIdentity> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 3);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.Resource
+ */
+export type Resource = Message<"proto.orchestration_resource.v1.Resource"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceIdentity identity = 2;
+   */
+  identity?: ResourceIdentity | undefined;
+
+  /**
+   * @generated from field: string display_name = 3;
+   */
+  displayName: string;
+
+  /**
+   * @generated from field: map<string, string> labels = 4;
+   */
+  labels: { [key: string]: string };
+
+  /**
+   * @generated from field: bytes status_json = 5;
+   */
+  statusJson: Uint8Array;
+
+  /**
+   * @generated from field: int64 revision = 6;
+   */
+  revision: bigint;
+
+  /**
+   * @generated from field: int64 generation = 7;
+   */
+  generation: bigint;
+
+  /**
+   * @generated from field: int64 resource_version = 8;
+   */
+  resourceVersion: bigint;
+
+  /**
+   * @generated from field: int64 created_by_id = 9;
+   */
+  createdById: bigint;
+
+  /**
+   * @generated from field: int64 updated_by_id = 10;
+   */
+  updatedById: bigint;
+
+  /**
+   * @generated from field: string created_at = 11;
+   */
+  createdAt: string;
+
+  /**
+   * @generated from field: string updated_at = 12;
+   */
+  updatedAt: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.Resource.
+ * Use `create(ResourceSchema)` to create a new message.
+ */
+export const ResourceSchema: GenMessage<Resource> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 4);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ResolvedReference
+ */
+export type ResolvedReference = Message<"proto.orchestration_resource.v1.ResolvedReference"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.TypeMeta type_meta = 1;
+   */
+  typeMeta?: TypeMeta | undefined;
+
+  /**
+   * @generated from field: string namespace = 2;
+   */
+  namespace: string;
+
+  /**
+   * @generated from field: string name = 3;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string uid = 4;
+   */
+  uid: string;
+
+  /**
+   * @generated from field: int64 revision = 5;
+   */
+  revision: bigint;
+
+  /**
+   * @generated from field: string digest = 6;
+   */
+  digest: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ResolvedReference.
+ * Use `create(ResolvedReferenceSchema)` to create a new message.
+ */
+export const ResolvedReferenceSchema: GenMessage<ResolvedReference> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 5);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.PlanIssue
+ */
+export type PlanIssue = Message<"proto.orchestration_resource.v1.PlanIssue"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.IssueSeverity severity = 1;
+   */
+  severity: IssueSeverity;
+
+  /**
+   * @generated from field: string path = 2;
+   */
+  path: string;
+
+  /**
+   * @generated from field: string code = 3;
+   */
+  code: string;
+
+  /**
+   * @generated from field: string message = 4;
+   */
+  message: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.PlanIssue.
+ * Use `create(PlanIssueSchema)` to create a new message.
+ */
+export const PlanIssueSchema: GenMessage<PlanIssue> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 6);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ChangeValue
+ */
+export type ChangeValue = Message<"proto.orchestration_resource.v1.ChangeValue"> & {
+  /**
+   * @generated from oneof proto.orchestration_resource.v1.ChangeValue.value
+   */
+  value: {
+    /**
+     * @generated from field: string digest = 1;
+     */
+    value: string;
+    case: "digest";
+  } | {
+    /**
+     * @generated from field: bytes redacted_json = 2;
+     */
+    value: Uint8Array;
+    case: "redactedJson";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ChangeValue.
+ * Use `create(ChangeValueSchema)` to create a new message.
+ */
+export const ChangeValueSchema: GenMessage<ChangeValue> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 7);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.SemanticChange
+ */
+export type SemanticChange = Message<"proto.orchestration_resource.v1.SemanticChange"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.SemanticChangeOperation operation = 1;
+   */
+  operation: SemanticChangeOperation;
+
+  /**
+   * @generated from field: string path = 2;
+   */
+  path: string;
+
+  /**
+   * @generated from field: optional proto.orchestration_resource.v1.ChangeValue before = 3;
+   */
+  before?: ChangeValue | undefined;
+
+  /**
+   * @generated from field: optional proto.orchestration_resource.v1.ChangeValue after = 4;
+   */
+  after?: ChangeValue | undefined;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.SemanticChange.
+ * Use `create(SemanticChangeSchema)` to create a new message.
+ */
+export const SemanticChangeSchema: GenMessage<SemanticChange> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 8);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ResourcePlan
+ */
+export type ResourcePlan = Message<"proto.orchestration_resource.v1.ResourcePlan"> & {
+  /**
+   * @generated from field: string plan_id = 1;
+   */
+  planId: string;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceOperation operation = 2;
+   */
+  operation: ResourceOperation;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceTarget target = 3;
+   */
+  target?: ResourceTarget | undefined;
+
+  /**
+   * @generated from field: optional proto.orchestration_resource.v1.ResourceIdentity base = 4;
+   */
+  base?: ResourceIdentity | undefined;
+
+  /**
+   * @generated from field: int64 base_resource_version = 5;
+   */
+  baseResourceVersion: bigint;
+
+  /**
+   * @generated from field: string draft_hash = 6;
+   */
+  draftHash: string;
+
+  /**
+   * @generated from field: string plan_hash = 7;
+   */
+  planHash: string;
+
+  /**
+   * @generated from field: string artifact_digest = 8;
+   */
+  artifactDigest: string;
+
+  /**
+   * @generated from field: repeated proto.orchestration_resource.v1.ResolvedReference resolved_references = 9;
+   */
+  resolvedReferences: ResolvedReference[];
+
+  /**
+   * @generated from field: repeated proto.orchestration_resource.v1.SemanticChange semantic_diff = 10;
+   */
+  semanticDiff: SemanticChange[];
+
+  /**
+   * @generated from field: repeated proto.orchestration_resource.v1.PlanIssue issues = 11;
+   */
+  issues: PlanIssue[];
+
+  /**
+   * @generated from field: string artifact_kind = 12;
+   */
+  artifactKind: string;
+
+  /**
+   * @generated from field: string options_revision = 13;
+   */
+  optionsRevision: string;
+
+  /**
+   * @generated from field: string created_at = 14;
+   */
+  createdAt: string;
+
+  /**
+   * @generated from field: string expires_at = 15;
+   */
+  expiresAt: string;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.PlanStatus status = 16;
+   */
+  status: PlanStatus;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ResourcePlan.
+ * Use `create(ResourcePlanSchema)` to create a new message.
+ */
+export const ResourcePlanSchema: GenMessage<ResourcePlan> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 9);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ValidateResourceRequest
+ */
+export type ValidateResourceRequest = Message<"proto.orchestration_resource.v1.ValidateResourceRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceSource source = 2;
+   */
+  source?: ResourceSource | undefined;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ValidateResourceRequest.
+ * Use `create(ValidateResourceRequestSchema)` to create a new message.
+ */
+export const ValidateResourceRequestSchema: GenMessage<ValidateResourceRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 10);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ValidateResourceResponse
+ */
+export type ValidateResourceResponse = Message<"proto.orchestration_resource.v1.ValidateResourceResponse"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceTarget target = 1;
+   */
+  target?: ResourceTarget | undefined;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceOperation operation = 2;
+   */
+  operation: ResourceOperation;
+
+  /**
+   * @generated from field: bytes canonical_json = 3;
+   */
+  canonicalJson: Uint8Array;
+
+  /**
+   * @generated from field: repeated proto.orchestration_resource.v1.PlanIssue issues = 4;
+   */
+  issues: PlanIssue[];
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ValidateResourceResponse.
+ * Use `create(ValidateResourceResponseSchema)` to create a new message.
+ */
+export const ValidateResourceResponseSchema: GenMessage<ValidateResourceResponse> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 11);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.PlanResourceRequest
+ */
+export type PlanResourceRequest = Message<"proto.orchestration_resource.v1.PlanResourceRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceSource source = 2;
+   */
+  source?: ResourceSource | undefined;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.PlanResourceRequest.
+ * Use `create(PlanResourceRequestSchema)` to create a new message.
+ */
+export const PlanResourceRequestSchema: GenMessage<PlanResourceRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 12);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.PlanResourceResponse
+ */
+export type PlanResourceResponse = Message<"proto.orchestration_resource.v1.PlanResourceResponse"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceTarget target = 1;
+   */
+  target?: ResourceTarget | undefined;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceOperation operation = 2;
+   */
+  operation: ResourceOperation;
+
+  /**
+   * @generated from field: bytes canonical_json = 3;
+   */
+  canonicalJson: Uint8Array;
+
+  /**
+   * @generated from field: repeated proto.orchestration_resource.v1.PlanIssue issues = 4;
+   */
+  issues: PlanIssue[];
+
+  /**
+   * @generated from field: optional proto.orchestration_resource.v1.ResourcePlan plan = 5;
+   */
+  plan?: ResourcePlan | undefined;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.PlanResourceResponse.
+ * Use `create(PlanResourceResponseSchema)` to create a new message.
+ */
+export const PlanResourceResponseSchema: GenMessage<PlanResourceResponse> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 13);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.GetResourceRequest
+ */
+export type GetResourceRequest = Message<"proto.orchestration_resource.v1.GetResourceRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceTarget target = 2;
+   */
+  target?: ResourceTarget | undefined;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.GetResourceRequest.
+ * Use `create(GetResourceRequestSchema)` to create a new message.
+ */
+export const GetResourceRequestSchema: GenMessage<GetResourceRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 14);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ResourceCapabilities
+ */
+export type ResourceCapabilities = Message<"proto.orchestration_resource.v1.ResourceCapabilities"> & {
+  /**
+   * @generated from field: bool exists = 1;
+   */
+  exists: boolean;
+
+  /**
+   * @generated from field: bool can_view_source = 2;
+   */
+  canViewSource: boolean;
+
+  /**
+   * @generated from field: bool can_reference = 3;
+   */
+  canReference: boolean;
+
+  /**
+   * @generated from field: bool can_plan = 4;
+   */
+  canPlan: boolean;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ResourceCapabilities.
+ * Use `create(ResourceCapabilitiesSchema)` to create a new message.
+ */
+export const ResourceCapabilitiesSchema: GenMessage<ResourceCapabilities> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 15);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.GetResourceCapabilitiesRequest
+ */
+export type GetResourceCapabilitiesRequest = Message<"proto.orchestration_resource.v1.GetResourceCapabilitiesRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceTarget target = 2;
+   */
+  target?: ResourceTarget | undefined;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.GetResourceCapabilitiesRequest.
+ * Use `create(GetResourceCapabilitiesRequestSchema)` to create a new message.
+ */
+export const GetResourceCapabilitiesRequestSchema: GenMessage<GetResourceCapabilitiesRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 16);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.GetResourceCapabilitiesResponse
+ */
+export type GetResourceCapabilitiesResponse = Message<"proto.orchestration_resource.v1.GetResourceCapabilitiesResponse"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceTarget target = 1;
+   */
+  target?: ResourceTarget | undefined;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceCapabilities capabilities = 2;
+   */
+  capabilities?: ResourceCapabilities | undefined;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.GetResourceCapabilitiesResponse.
+ * Use `create(GetResourceCapabilitiesResponseSchema)` to create a new message.
+ */
+export const GetResourceCapabilitiesResponseSchema: GenMessage<GetResourceCapabilitiesResponse> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 17);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.EnvironmentBundleReferenceFilter
+ */
+export type EnvironmentBundleReferenceFilter = Message<"proto.orchestration_resource.v1.EnvironmentBundleReferenceFilter"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.EnvironmentBundlePurpose purpose = 1;
+   */
+  purpose: EnvironmentBundlePurpose;
+
+  /**
+   * @generated from field: string worker_type = 2;
+   */
+  workerType: string;
+
+  /**
+   * @generated from field: string target_name = 3;
+   */
+  targetName: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.EnvironmentBundleReferenceFilter.
+ * Use `create(EnvironmentBundleReferenceFilterSchema)` to create a new message.
+ */
+export const EnvironmentBundleReferenceFilterSchema: GenMessage<EnvironmentBundleReferenceFilter> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 18);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ModelBindingReferenceFilter
+ */
+export type ModelBindingReferenceFilter = Message<"proto.orchestration_resource.v1.ModelBindingReferenceFilter"> & {
+  /**
+   * @generated from field: string worker_type = 1;
+   */
+  workerType: string;
+
+  /**
+   * @generated from field: repeated string protocol_adapters = 2;
+   */
+  protocolAdapters: string[];
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ModelBindingReferenceFilter.
+ * Use `create(ModelBindingReferenceFilterSchema)` to create a new message.
+ */
+export const ModelBindingReferenceFilterSchema: GenMessage<ModelBindingReferenceFilter> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 19);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ListResourcesRequest
+ */
+export type ListResourcesRequest = Message<"proto.orchestration_resource.v1.ListResourcesRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: optional string kind = 2;
+   */
+  kind?: string | undefined;
+
+  /**
+   * @generated from field: optional int32 offset = 3;
+   */
+  offset?: number | undefined;
+
+  /**
+   * @generated from field: optional int32 limit = 4;
+   */
+  limit?: number | undefined;
+
+  /**
+   * @generated from field: optional proto.orchestration_resource.v1.EnvironmentBundleReferenceFilter environment_bundle_filter = 5;
+   */
+  environmentBundleFilter?: EnvironmentBundleReferenceFilter | undefined;
+
+  /**
+   * @generated from field: optional proto.orchestration_resource.v1.ModelBindingReferenceFilter model_binding_filter = 6;
+   */
+  modelBindingFilter?: ModelBindingReferenceFilter | undefined;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ListResourcesRequest.
+ * Use `create(ListResourcesRequestSchema)` to create a new message.
+ */
+export const ListResourcesRequestSchema: GenMessage<ListResourcesRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 20);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ListResourcesResponse
+ */
+export type ListResourcesResponse = Message<"proto.orchestration_resource.v1.ListResourcesResponse"> & {
+  /**
+   * @generated from field: repeated proto.orchestration_resource.v1.Resource items = 1;
+   */
+  items: Resource[];
+
+  /**
+   * @generated from field: int64 total = 2;
+   */
+  total: bigint;
+
+  /**
+   * @generated from field: int32 limit = 3;
+   */
+  limit: number;
+
+  /**
+   * @generated from field: int32 offset = 4;
+   */
+  offset: number;
+
+  /**
+   * @generated from field: optional proto.orchestration_resource.v1.EnvironmentBundleReferenceFilter applied_environment_bundle_filter = 5;
+   */
+  appliedEnvironmentBundleFilter?: EnvironmentBundleReferenceFilter | undefined;
+
+  /**
+   * @generated from field: optional proto.orchestration_resource.v1.ModelBindingReferenceFilter applied_model_binding_filter = 6;
+   */
+  appliedModelBindingFilter?: ModelBindingReferenceFilter | undefined;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ListResourcesResponse.
+ * Use `create(ListResourcesResponseSchema)` to create a new message.
+ */
+export const ListResourcesResponseSchema: GenMessage<ListResourcesResponse> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 21);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ExportResourceRequest
+ */
+export type ExportResourceRequest = Message<"proto.orchestration_resource.v1.ExportResourceRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.ResourceTarget target = 2;
+   */
+  target?: ResourceTarget | undefined;
+
+  /**
+   * Absent or zero exports the active revision.
+   *
+   * @generated from field: optional int64 revision = 3;
+   */
+  revision?: bigint | undefined;
+
+  /**
+   * @generated from field: proto.orchestration_resource.v1.SourceFormat format = 4;
+   */
+  format: SourceFormat;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ExportResourceRequest.
+ * Use `create(ExportResourceRequestSchema)` to create a new message.
+ */
+export const ExportResourceRequestSchema: GenMessage<ExportResourceRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 22);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ExportResourceResponse
+ */
+export type ExportResourceResponse = Message<"proto.orchestration_resource.v1.ExportResourceResponse"> & {
+  /**
+   * @generated from field: bytes content = 1;
+   */
+  content: Uint8Array;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ExportResourceResponse.
+ * Use `create(ExportResourceResponseSchema)` to create a new message.
+ */
+export const ExportResourceResponseSchema: GenMessage<ExportResourceResponse> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 23);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.GetResourcePlanRequest
+ */
+export type GetResourcePlanRequest = Message<"proto.orchestration_resource.v1.GetResourcePlanRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: string plan_id = 2;
+   */
+  planId: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.GetResourcePlanRequest.
+ * Use `create(GetResourcePlanRequestSchema)` to create a new message.
+ */
+export const GetResourcePlanRequestSchema: GenMessage<GetResourcePlanRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 24);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ApplyBindingResourcePlanRequest
+ */
+export type ApplyBindingResourcePlanRequest = Message<"proto.orchestration_resource.v1.ApplyBindingResourcePlanRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: string plan_id = 2;
+   */
+  planId: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ApplyBindingResourcePlanRequest.
+ * Use `create(ApplyBindingResourcePlanRequestSchema)` to create a new message.
+ */
+export const ApplyBindingResourcePlanRequestSchema: GenMessage<ApplyBindingResourcePlanRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 25);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ApplyWorkerTemplatePlanRequest
+ */
+export type ApplyWorkerTemplatePlanRequest = Message<"proto.orchestration_resource.v1.ApplyWorkerTemplatePlanRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: string plan_id = 2;
+   */
+  planId: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ApplyWorkerTemplatePlanRequest.
+ * Use `create(ApplyWorkerTemplatePlanRequestSchema)` to create a new message.
+ */
+export const ApplyWorkerTemplatePlanRequestSchema: GenMessage<ApplyWorkerTemplatePlanRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 26);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ApplyWorkerTemplatePlanResponse
+ */
+export type ApplyWorkerTemplatePlanResponse = Message<"proto.orchestration_resource.v1.ApplyWorkerTemplatePlanResponse"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.Resource resource = 1;
+   */
+  resource?: Resource | undefined;
+
+  /**
+   * @generated from field: int64 worker_spec_snapshot_id = 2;
+   */
+  workerSpecSnapshotId: bigint;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ApplyWorkerTemplatePlanResponse.
+ * Use `create(ApplyWorkerTemplatePlanResponseSchema)` to create a new message.
+ */
+export const ApplyWorkerTemplatePlanResponseSchema: GenMessage<ApplyWorkerTemplatePlanResponse> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 27);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.CreateWorkerFromPlanRequest
+ */
+export type CreateWorkerFromPlanRequest = Message<"proto.orchestration_resource.v1.CreateWorkerFromPlanRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: string plan_id = 2;
+   */
+  planId: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.CreateWorkerFromPlanRequest.
+ * Use `create(CreateWorkerFromPlanRequestSchema)` to create a new message.
+ */
+export const CreateWorkerFromPlanRequestSchema: GenMessage<CreateWorkerFromPlanRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 28);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.CreateWorkerFromPlanResponse
+ */
+export type CreateWorkerFromPlanResponse = Message<"proto.orchestration_resource.v1.CreateWorkerFromPlanResponse"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.Resource resource = 1;
+   */
+  resource?: Resource | undefined;
+
+  /**
+   * @generated from field: int64 launch_id = 2;
+   */
+  launchId: bigint;
+
+  /**
+   * @generated from field: int64 pod_id = 3;
+   */
+  podId: bigint;
+
+  /**
+   * @generated from field: string pod_key = 4;
+   */
+  podKey: string;
+
+  /**
+   * @generated from field: int64 worker_spec_snapshot_id = 5;
+   */
+  workerSpecSnapshotId: bigint;
+
+  /**
+   * @generated from field: int64 resource_revision = 6;
+   */
+  resourceRevision: bigint;
+
+  /**
+   * @generated from field: int64 runner_id = 7;
+   */
+  runnerId: bigint;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.CreateWorkerFromPlanResponse.
+ * Use `create(CreateWorkerFromPlanResponseSchema)` to create a new message.
+ */
+export const CreateWorkerFromPlanResponseSchema: GenMessage<CreateWorkerFromPlanResponse> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 29);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.CreateGoalLoopFromPlanRequest
+ */
+export type CreateGoalLoopFromPlanRequest = Message<"proto.orchestration_resource.v1.CreateGoalLoopFromPlanRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: string plan_id = 2;
+   */
+  planId: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.CreateGoalLoopFromPlanRequest.
+ * Use `create(CreateGoalLoopFromPlanRequestSchema)` to create a new message.
+ */
+export const CreateGoalLoopFromPlanRequestSchema: GenMessage<CreateGoalLoopFromPlanRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 30);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.CreateGoalLoopFromPlanResponse
+ */
+export type CreateGoalLoopFromPlanResponse = Message<"proto.orchestration_resource.v1.CreateGoalLoopFromPlanResponse"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.Resource resource = 1;
+   */
+  resource?: Resource | undefined;
+
+  /**
+   * @generated from field: int64 goal_loop_id = 2;
+   */
+  goalLoopId: bigint;
+
+  /**
+   * @generated from field: int64 worker_spec_snapshot_id = 3;
+   */
+  workerSpecSnapshotId: bigint;
+
+  /**
+   * @generated from field: int64 resource_revision = 4;
+   */
+  resourceRevision: bigint;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.CreateGoalLoopFromPlanResponse.
+ * Use `create(CreateGoalLoopFromPlanResponseSchema)` to create a new message.
+ */
+export const CreateGoalLoopFromPlanResponseSchema: GenMessage<CreateGoalLoopFromPlanResponse> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 31);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ApplyPromptPlanRequest
+ */
+export type ApplyPromptPlanRequest = Message<"proto.orchestration_resource.v1.ApplyPromptPlanRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: string plan_id = 2;
+   */
+  planId: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ApplyPromptPlanRequest.
+ * Use `create(ApplyPromptPlanRequestSchema)` to create a new message.
+ */
+export const ApplyPromptPlanRequestSchema: GenMessage<ApplyPromptPlanRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 32);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ApplyExpertPlanRequest
+ */
+export type ApplyExpertPlanRequest = Message<"proto.orchestration_resource.v1.ApplyExpertPlanRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: string plan_id = 2;
+   */
+  planId: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ApplyExpertPlanRequest.
+ * Use `create(ApplyExpertPlanRequestSchema)` to create a new message.
+ */
+export const ApplyExpertPlanRequestSchema: GenMessage<ApplyExpertPlanRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 33);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ApplyExpertPlanResponse
+ */
+export type ApplyExpertPlanResponse = Message<"proto.orchestration_resource.v1.ApplyExpertPlanResponse"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.Resource resource = 1;
+   */
+  resource?: Resource | undefined;
+
+  /**
+   * @generated from field: int64 expert_id = 2;
+   */
+  expertId: bigint;
+
+  /**
+   * @generated from field: int64 worker_spec_snapshot_id = 3;
+   */
+  workerSpecSnapshotId: bigint;
+
+  /**
+   * @generated from field: int64 resource_revision = 4;
+   */
+  resourceRevision: bigint;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ApplyExpertPlanResponse.
+ * Use `create(ApplyExpertPlanResponseSchema)` to create a new message.
+ */
+export const ApplyExpertPlanResponseSchema: GenMessage<ApplyExpertPlanResponse> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 34);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ApplyWorkflowPlanRequest
+ */
+export type ApplyWorkflowPlanRequest = Message<"proto.orchestration_resource.v1.ApplyWorkflowPlanRequest"> & {
+  /**
+   * @generated from field: string org_slug = 1;
+   */
+  orgSlug: string;
+
+  /**
+   * @generated from field: string plan_id = 2;
+   */
+  planId: string;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ApplyWorkflowPlanRequest.
+ * Use `create(ApplyWorkflowPlanRequestSchema)` to create a new message.
+ */
+export const ApplyWorkflowPlanRequestSchema: GenMessage<ApplyWorkflowPlanRequest> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 35);
+
+/**
+ * @generated from message proto.orchestration_resource.v1.ApplyWorkflowPlanResponse
+ */
+export type ApplyWorkflowPlanResponse = Message<"proto.orchestration_resource.v1.ApplyWorkflowPlanResponse"> & {
+  /**
+   * @generated from field: proto.orchestration_resource.v1.Resource resource = 1;
+   */
+  resource?: Resource | undefined;
+
+  /**
+   * @generated from field: int64 workflow_id = 2;
+   */
+  workflowId: bigint;
+
+  /**
+   * @generated from field: int64 worker_spec_snapshot_id = 3;
+   */
+  workerSpecSnapshotId: bigint;
+
+  /**
+   * @generated from field: int64 resource_revision = 4;
+   */
+  resourceRevision: bigint;
+};
+
+/**
+ * Describes the message proto.orchestration_resource.v1.ApplyWorkflowPlanResponse.
+ * Use `create(ApplyWorkflowPlanResponseSchema)` to create a new message.
+ */
+export const ApplyWorkflowPlanResponseSchema: GenMessage<ApplyWorkflowPlanResponse> = /*@__PURE__*/
+  messageDesc(file_orchestration_resource_v1_orchestration_resource, 36);
+
+/**
+ * @generated from enum proto.orchestration_resource.v1.SourceFormat
+ */
+export enum SourceFormat {
+  /**
+   * @generated from enum value: SOURCE_FORMAT_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: SOURCE_FORMAT_JSON = 1;
+   */
+  JSON = 1,
+
+  /**
+   * @generated from enum value: SOURCE_FORMAT_YAML = 2;
+   */
+  YAML = 2,
+}
+
+/**
+ * Describes the enum proto.orchestration_resource.v1.SourceFormat.
+ */
+export const SourceFormatSchema: GenEnum<SourceFormat> = /*@__PURE__*/
+  enumDesc(file_orchestration_resource_v1_orchestration_resource, 0);
+
+/**
+ * @generated from enum proto.orchestration_resource.v1.ResourceOperation
+ */
+export enum ResourceOperation {
+  /**
+   * @generated from enum value: RESOURCE_OPERATION_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: RESOURCE_OPERATION_CREATE = 1;
+   */
+  CREATE = 1,
+
+  /**
+   * @generated from enum value: RESOURCE_OPERATION_UPDATE = 2;
+   */
+  UPDATE = 2,
+}
+
+/**
+ * Describes the enum proto.orchestration_resource.v1.ResourceOperation.
+ */
+export const ResourceOperationSchema: GenEnum<ResourceOperation> = /*@__PURE__*/
+  enumDesc(file_orchestration_resource_v1_orchestration_resource, 1);
+
+/**
+ * @generated from enum proto.orchestration_resource.v1.IssueSeverity
+ */
+export enum IssueSeverity {
+  /**
+   * @generated from enum value: ISSUE_SEVERITY_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: ISSUE_SEVERITY_BLOCKING = 1;
+   */
+  BLOCKING = 1,
+
+  /**
+   * @generated from enum value: ISSUE_SEVERITY_WARNING = 2;
+   */
+  WARNING = 2,
+}
+
+/**
+ * Describes the enum proto.orchestration_resource.v1.IssueSeverity.
+ */
+export const IssueSeveritySchema: GenEnum<IssueSeverity> = /*@__PURE__*/
+  enumDesc(file_orchestration_resource_v1_orchestration_resource, 2);
+
+/**
+ * @generated from enum proto.orchestration_resource.v1.SemanticChangeOperation
+ */
+export enum SemanticChangeOperation {
+  /**
+   * @generated from enum value: SEMANTIC_CHANGE_OPERATION_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: SEMANTIC_CHANGE_OPERATION_ADD = 1;
+   */
+  ADD = 1,
+
+  /**
+   * @generated from enum value: SEMANTIC_CHANGE_OPERATION_REMOVE = 2;
+   */
+  REMOVE = 2,
+
+  /**
+   * @generated from enum value: SEMANTIC_CHANGE_OPERATION_REPLACE = 3;
+   */
+  REPLACE = 3,
+}
+
+/**
+ * Describes the enum proto.orchestration_resource.v1.SemanticChangeOperation.
+ */
+export const SemanticChangeOperationSchema: GenEnum<SemanticChangeOperation> = /*@__PURE__*/
+  enumDesc(file_orchestration_resource_v1_orchestration_resource, 3);
+
+/**
+ * @generated from enum proto.orchestration_resource.v1.PlanStatus
+ */
+export enum PlanStatus {
+  /**
+   * @generated from enum value: PLAN_STATUS_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: PLAN_STATUS_PENDING = 1;
+   */
+  PENDING = 1,
+
+  /**
+   * @generated from enum value: PLAN_STATUS_APPLIED = 2;
+   */
+  APPLIED = 2,
+
+  /**
+   * @generated from enum value: PLAN_STATUS_CANCELLED = 3;
+   */
+  CANCELLED = 3,
+
+  /**
+   * @generated from enum value: PLAN_STATUS_EXPIRED = 4;
+   */
+  EXPIRED = 4,
+}
+
+/**
+ * Describes the enum proto.orchestration_resource.v1.PlanStatus.
+ */
+export const PlanStatusSchema: GenEnum<PlanStatus> = /*@__PURE__*/
+  enumDesc(file_orchestration_resource_v1_orchestration_resource, 4);
+
+/**
+ * @generated from enum proto.orchestration_resource.v1.EnvironmentBundlePurpose
+ */
+export enum EnvironmentBundlePurpose {
+  /**
+   * @generated from enum value: ENVIRONMENT_BUNDLE_PURPOSE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: ENVIRONMENT_BUNDLE_PURPOSE_RUNTIME = 1;
+   */
+  RUNTIME = 1,
+
+  /**
+   * @generated from enum value: ENVIRONMENT_BUNDLE_PURPOSE_CONFIG = 2;
+   */
+  CONFIG = 2,
+
+  /**
+   * @generated from enum value: ENVIRONMENT_BUNDLE_PURPOSE_CREDENTIAL = 3;
+   */
+  CREDENTIAL = 3,
+}
+
+/**
+ * Describes the enum proto.orchestration_resource.v1.EnvironmentBundlePurpose.
+ */
+export const EnvironmentBundlePurposeSchema: GenEnum<EnvironmentBundlePurpose> = /*@__PURE__*/
+  enumDesc(file_orchestration_resource_v1_orchestration_resource, 5);
 
 /**
  * @generated from service proto.orchestration_resource.v1.OrchestrationResourceService

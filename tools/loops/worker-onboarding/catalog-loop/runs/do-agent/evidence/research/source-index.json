@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "do-agent-cli",
+      "kind": "captured_command",
+      "command": "docker exec agentsmesh-codex-loop-blockly-mvp-runner-do-agent-1 do-agent --version && do-agent --help && do-agent acp --help && do-agent config --help && do-agent memory --help && do-agent resume --help",
+      "checked_at": "2026-07-17T13:38:01Z",
+      "evidence_hash": "sha256:bcef1f4995b404f4ceedb66762b33f6b42b7302950361f1df02b1dbd7790a715"
+    },
+    {
+      "id": "runner-contract",
+      "kind": "captured_command",
+      "command": "sed -n deploy/dev/lib/build_do_agent_binary.sh docker/agent-runtime/Dockerfile deploy/dev/docker-compose.runners.yml runner/internal/agents/doagent/transport.go runner/internal/agents/doagent/transport_session.go backend/internal/domain/aimodel/settings.go",
+      "checked_at": "2026-07-17T13:38:01Z",
+      "evidence_hash": "sha256:660295cd691ab19fa52dc61536cd102a2a89564be99b97c22072fd166ec81320"
+    }
+  ]
+}

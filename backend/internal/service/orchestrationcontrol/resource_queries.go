@@ -60,8 +60,9 @@ func (service *Service) ListResources(
 		return ResourceListPage{}, control.ErrCorrupt
 	}
 	result := ResourceListPage{
-		Items: append([]control.ResourceHead{}, page.Items...),
-		Total: page.Total,
+		Items:         append([]control.ResourceHead{}, page.Items...),
+		Total:         page.Total,
+		AppliedFilter: filter,
 	}
 	for _, head := range result.Items {
 		if err := head.Validate(scope); err != nil ||

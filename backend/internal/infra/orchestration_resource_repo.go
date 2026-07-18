@@ -51,17 +51,17 @@ func (repo *orchestrationResourceRepo) ListResources(
 	if err := validateResourceList(scope, filter); err != nil {
 		return orchestrationservice.ResourceListPage{}, err
 	}
-	if filter.EnvironmentBundle == nil {
+	if filter.EnvironmentBundle == nil && filter.ModelBinding == nil {
 		return listOrchestrationResources(
 			repo.db.WithContext(ctx),
 			scope,
 			filter,
 		)
 	}
-	return repo.listEnvironmentBundleResources(ctx, scope, filter)
+	return repo.listFilteredResources(ctx, scope, filter)
 }
 
-func (repo *orchestrationResourceRepo) listEnvironmentBundleResources(
+func (repo *orchestrationResourceRepo) listFilteredResources(
 	ctx context.Context,
 	scope orchestrationcontrol.Scope,
 	filter orchestrationservice.ResourceListFilter,
@@ -72,7 +72,7 @@ func (repo *orchestrationResourceRepo) listEnvironmentBundleResources(
 		page, err = listOrchestrationResources(tx, scope, filter)
 		return err
 	}
-	switch repo.db.Name() {
+	switch repo.db.Dialector.Name() {
 	case "postgres":
 		err := repo.db.WithContext(ctx).Transaction(run, &sql.TxOptions{
 			Isolation: sql.LevelRepeatableRead,
@@ -99,6 +99,10 @@ func listOrchestrationResources(
 		query = query.Where("orchestration_resources.kind = ?", filter.Kind)
 	}
 	query, err := filterEnvironmentBundleReferences(query, scope, filter)
+	if err != nil {
+		return orchestrationservice.ResourceListPage{}, err
+	}
+	query, err = filterModelBindingReferences(query, scope, filter)
 	if err != nil {
 		return orchestrationservice.ResourceListPage{}, err
 	}

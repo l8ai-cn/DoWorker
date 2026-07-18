@@ -27,11 +27,6 @@
       "definition_hash": "sha256:e79be1769fe5b2d4de307d3748b9edcfa8a31eafec0a5a51a4b2dfb36b0a8337"
     },
     {
-      "slug": "e2e-echo",
-      "definition_path": "config/worker-types/e2e-echo/definition.json",
-      "definition_hash": "sha256:5f7bcc931f925692e0a5b60a99002bd148070b37112d653dee851ce90587e945"
-    },
-    {
       "slug": "gemini-cli",
       "definition_path": "config/worker-types/gemini-cli/definition.json",
       "definition_hash": "sha256:deed6b7513abcc40aca9e7cc5f09ca90dd3bab5a54233efdd3422bee09f582e8"
@@ -69,12 +64,7 @@
     {
       "slug": "seedance-expert",
       "definition_path": "config/worker-types/seedance-expert/definition.json",
-      "definition_hash": "sha256:6aee4088b36dca0e499bda8a301a2039f53aaa3a5e9db12ec61d0ce02e9e2348"
-    },
-    {
-      "slug": "video-studio",
-      "definition_path": "config/worker-types/video-studio/definition.json",
-      "definition_hash": "sha256:da0739415f4a7de3009d3c17d8402eb8b032e05ed744178cd9ef25d54e3e10ec"
+      "definition_hash": "sha256:2ba96bfee7b58f1c681cfe4c23965503c9df7cd97a5e2fa299686a0e9cb14825"
     }
   ]
 }

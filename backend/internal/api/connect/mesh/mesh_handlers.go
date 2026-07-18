@@ -147,10 +147,10 @@ func (s *Server) CreatePodForTicket(
 			errors.New("ticket_slug is required"),
 		)
 	}
-	if req.Msg.GetRunnerId() == 0 {
+	if req.Msg.GetWorkerSpecSnapshotId() <= 0 {
 		return nil, connect.NewError(
 			connect.CodeInvalidArgument,
-			errors.New("runner_id is required"),
+			errors.New("worker_spec_snapshot_id is required"),
 		)
 	}
 
@@ -163,13 +163,11 @@ func (s *Server) CreatePodForTicket(
 	}
 
 	pod, err := s.meshSvc.CreatePodForTicket(ctx, &domainmesh.CreatePodForTicketRequest{
-		OrganizationID: org.GetID(),
-		TicketID:       t.ID,
-		RunnerID:       req.Msg.GetRunnerId(),
-		CreatedByID:    tenant.UserID,
-		Prompt:         req.Msg.GetPrompt(),
-		Model:          req.Msg.GetModel(),
-		PermissionMode: req.Msg.GetPermissionMode(),
+		OrganizationID:       org.GetID(),
+		TicketID:             t.ID,
+		CreatedByID:          tenant.UserID,
+		WorkerSpecSnapshotID: req.Msg.GetWorkerSpecSnapshotId(),
+		Prompt:               req.Msg.GetPrompt(),
 	})
 	if err != nil {
 		return nil, mapServiceError(err)

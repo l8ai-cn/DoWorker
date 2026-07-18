@@ -1,7 +1,7 @@
 import {
   PlanStatus,
   type ResourcePlan,
-} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 
 export type ResourcePlanStatusKey =
   | "pending"

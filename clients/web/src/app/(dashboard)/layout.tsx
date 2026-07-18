@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import DashboardShell from "./DashboardShell";
 import { AuthBootstrap } from "@/components/auth/AuthBootstrap";
 import { RequireAuth } from "@/components/auth/RequireAuth";
+import { ResourceEditorSessionProvider } from "@/components/resource-editor/ResourceEditorSessionProvider";
 import { PostHogIdentify } from "@/providers/PostHogIdentify";
 
 export const metadata: Metadata = {
@@ -18,11 +19,13 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthBootstrap>
-      <PostHogIdentify />
-      <RequireAuth>
-        <DashboardShell>{children}</DashboardShell>
-      </RequireAuth>
-    </AuthBootstrap>
+    <ResourceEditorSessionProvider>
+      <AuthBootstrap>
+        <PostHogIdentify />
+        <RequireAuth>
+          <DashboardShell>{children}</DashboardShell>
+        </RequireAuth>
+      </AuthBootstrap>
+    </ResourceEditorSessionProvider>
   );
 }

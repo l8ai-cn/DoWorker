@@ -9,26 +9,23 @@ local_worker_runner_services() {
         case "$worker_type" in
             codex-cli) service="runner-codex-cli" ;;
             gemini-cli) service="runner-gemini-cli" ;;
-            minimax-cli) service="runner-minimax-cli" ;;
-            openclaw) service="runner-openclaw" ;;
-            do-agent|seedance-expert) service="runner-do-agent" ;;
-            e2e-echo) service="runner-e2e-echo" ;;
-            *) continue ;;
+        minimax-cli) service="runner-minimax-cli" ;;
+        openclaw) service="runner-openclaw" ;;
+        do-agent|seedance-expert) service="runner-do-agent" ;;
+        aider) service="runner-aider" ;;
+        claude-code) service="runner-claude-code" ;;
+        cursor-cli) service="runner-cursor-cli" ;;
+        grok-build) service="runner-grok-build" ;;
+        hermes) service="runner-hermes" ;;
+        loopal) service="runner-loopal" ;;
+        opencode) service="runner-opencode" ;;
+        *) continue ;;
         esac
         if [[ " ${services[*]-} " != *" $service "* ]]; then
             services+=("$service")
         fi
     done < <(jq -r '.images[].worker_type_slugs[]' "$catalog")
     printf '%s' "${services[*]}"
-}
-
-local_worker_bootstrap_services() {
-    local services
-    services="$(local_worker_runner_services "$1")"
-    if [[ " $services " != *" runner-e2e-echo "* ]]; then
-        services="${services:+$services }runner-e2e-echo"
-    fi
-    printf '%s' "$services"
 }
 
 prepare_local_worker_runtime_catalog() {
@@ -43,14 +40,18 @@ prepare_local_worker_runtime_catalog() {
         --runtime "minimax-cli=${COMPOSE_PROJECT_NAME}-runner-minimax-cli:latest" \
         --runtime "openclaw=${COMPOSE_PROJECT_NAME}-runner-openclaw:latest" \
         --runtime "do-agent=${COMPOSE_PROJECT_NAME}-runner-do-agent:latest" \
-        --runtime "e2e-echo=${COMPOSE_PROJECT_NAME}-runner-e2e-echo:latest" || status=$?
+        --runtime "aider=${COMPOSE_PROJECT_NAME}-runner-aider:latest" \
+        --runtime "claude-code=${COMPOSE_PROJECT_NAME}-runner-claude-code:latest" \
+        --runtime "cursor-cli=${COMPOSE_PROJECT_NAME}-runner-cursor-cli:latest" \
+        --runtime "grok-build=${COMPOSE_PROJECT_NAME}-runner-grok-build:latest" \
+        --runtime "hermes=${COMPOSE_PROJECT_NAME}-runner-hermes:latest" \
+        --runtime "loopal=${COMPOSE_PROJECT_NAME}-runner-loopal:latest" \
+        --runtime "opencode=${COMPOSE_PROJECT_NAME}-runner-opencode:latest" || status=$?
 
     if [[ "$status" -eq 0 ]]; then
         export WORKER_RUNTIME_CATALOG_FILE="$output"
         export DEV_LOCAL_WORKER_RUNTIME_SERVICES
-        DEV_LOCAL_WORKER_RUNTIME_SERVICES="$(
-            local_worker_bootstrap_services "$output"
-        )"
+        DEV_LOCAL_WORKER_RUNTIME_SERVICES="$(local_worker_runner_services "$output")"
         return 0
     fi
     if [[ "$status" -eq 2 ]]; then

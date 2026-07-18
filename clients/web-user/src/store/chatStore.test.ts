@@ -5427,6 +5427,7 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
       blocks: [],
       activeResponse: null,
       status: "idle",
+      sessionStatus: "running",
     });
     const sink = pushableStream();
     const controller = new AbortController();
@@ -5478,6 +5479,7 @@ describe("chatStore — pumpStreamEvents frame batching", () => {
     // the response_end branch ran after the buffer was flushed.
     expect(useChatStore.getState().activeResponse?.state).toBe("completed");
     expect(useChatStore.getState().status).toBe("idle");
+    expect(useChatStore.getState().sessionStatus).toBe("idle");
 
     controller.abort();
   });

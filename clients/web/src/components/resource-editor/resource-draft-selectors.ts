@@ -1,4 +1,4 @@
-import { IssueSeverity } from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+import { IssueSeverity } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import { goalLoopHasIntegerErrors } from "./goal-loop-integer-draft";
 import type { ResourceDraftState } from "./resource-draft-reducer";
 import type { ResourceDraft } from "./resource-editor-types";

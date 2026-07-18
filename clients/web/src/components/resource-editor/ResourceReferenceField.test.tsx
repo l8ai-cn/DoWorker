@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import userEvent from "@testing-library/user-event";
-import { render, screen } from "@/test/test-utils";
+import { fireEvent, render, screen } from "@/test/test-utils";
 import { ResourceReferenceField } from "./ResourceReferenceField";
 
 describe("ResourceReferenceField", () => {
@@ -50,9 +49,8 @@ describe("ResourceReferenceField", () => {
       .toHaveAttribute("aria-required", "true");
   });
 
-  it("uses a purpose-specific catalog without changing the stored resource kind", async () => {
-    const user = userEvent.setup();
-    render(
+  it("uses a purpose-specific catalog without changing the stored resource kind", () => {
+    const { container } = render(
       <ResourceReferenceField
         id="config-reference"
         label="Config"
@@ -79,17 +77,15 @@ describe("ResourceReferenceField", () => {
       />,
     );
 
-    await user.click(screen.getByRole("combobox", { name: "Config" }));
-    expect(screen.getByRole("option", {
-      name: /Do Agent settings do-agent-settings/,
-    })).toBeInTheDocument();
-    expect(screen.queryByRole("option", {
-      name: /Cursor secrets cursor-secrets/,
-    })).not.toBeInTheDocument();
+    expect(container.querySelector(
+      'option[value="do-agent-settings"]',
+    )).toBeInTheDocument();
+    expect(container.querySelector(
+      'option[value="cursor-secrets"]',
+    )).not.toBeInTheDocument();
   });
 
-  it("clears a pinned revision when the referenced identity changes", async () => {
-    const user = userEvent.setup();
+  it("clears a pinned revision when the referenced identity changes", () => {
     const onChange = vi.fn();
     render(
       <ResourceReferenceField
@@ -116,12 +112,9 @@ describe("ResourceReferenceField", () => {
       />,
     );
 
-    await user.click(screen.getByRole("combobox", {
+    fireEvent.change(screen.getByRole("combobox", {
       name: "Model binding",
-    }));
-    await user.click(screen.getByRole("option", {
-      name: /Claude Sonnet claude-sonnet/,
-    }));
+    }), { target: { value: "claude-sonnet" } });
 
     expect(onChange).toHaveBeenCalledWith({
       kind: "Model",

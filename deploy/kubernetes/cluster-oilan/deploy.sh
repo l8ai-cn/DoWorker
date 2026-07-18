@@ -115,6 +115,11 @@ apply_backend_job() {
   dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit } \$1 == \"-\" && \$2 == \"image:\" && \$3 ~ /agentsmesh\\/backend@sha256:/ { print \$3; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; digest=\${image##*@}; sed -e \"s|__BACKEND_IMAGE__|\${image}|g\" -e \"s|__BACKEND_DIGEST__|\${digest}|g\" -e \"s|__RELEASE_COMMIT__|${RELEASE_DEPLOY_COMMIT}|g\" ${manifest} | kubectl apply -f -"
 }
 
+sync_worker_definitions() {
+  dexec "image=\$(awk '\$1 == \"image:\" && \$2 ~ /agentsmesh\\/backend@sha256:/ { print \$2; exit }' /tmp/agentsmesh-release.yaml); test -n \"\${image}\"; sed \"s|__BACKEND_IMAGE__|\${image}|g\" 23-worker-definition-sync-job.yaml | kubectl apply -f -"
+  dexec "kubectl -n ${NS} wait --for=condition=complete job/worker-definition-sync --timeout=300s"
+}
+
 apply_all() {
   echo "==> namespace + secrets"
   dexec "kubectl apply -f 00-namespace.yaml"
@@ -134,9 +139,7 @@ apply_all() {
   mark_application_writes_restored
   echo "==> seed + minio bucket"
   dexec "kubectl -n ${NS} delete job seed minio-setup worker-definition-sync --ignore-not-found"
-  dexec "kubectl apply -f 21-seed-configmap.yaml"
-  apply_pinned_manifest "22-seed-job.yaml" pgvector
-  apply_pinned_manifest "13-minio-setup-job.yaml" mc
+  dexec "kubectl apply -f 21-seed-configmap.yaml -f 22-seed-job.yaml -f 13-minio-setup-job.yaml"
   dexec "kubectl -n ${NS} wait --for=condition=complete job/seed --timeout=300s"
   dexec "kubectl -n ${NS} wait --for=condition=complete job/minio-setup --timeout=300s"
   sync_worker_definitions

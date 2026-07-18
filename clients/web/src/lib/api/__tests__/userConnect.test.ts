@@ -4,10 +4,7 @@
 // UserPicker and the auth callback pages consume.
 //
 // Note: this test file imports @proto/user/v1/user_pb which resolves via
-// vitest.config.ts. Under `bazel test //clients/web:unit` the
-// `proto/gen` tree is in .bazelignore so the import fails — runs under
-// `pnpm test:run` (or once ts_proto_library lands; see runbook
-// "TS proto codegen toolchain").
+// vitest.config.ts / pnpm workspace.
 
 import { describe, it, expect } from "vitest";
 import { create } from "@bufbuild/protobuf";

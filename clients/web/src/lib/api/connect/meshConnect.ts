@@ -123,18 +123,14 @@ export async function batchGetTicketPodsConnect(
 export async function createPodForTicketConnect(
   orgSlug: string,
   ticketSlug: string,
-  runnerId: bigint,
+  workerSpecSnapshotId: bigint,
   prompt?: string,
-  model?: string,
-  permissionMode?: string,
 ): Promise<MeshNode> {
   const req = create(CreatePodForTicketRequestSchema, {
     orgSlug,
     ticketSlug,
-    runnerId,
+    workerSpecSnapshotId,
     prompt,
-    model,
-    permissionMode,
   });
   const bytes = toBinary(CreatePodForTicketRequestSchema, req);
   const respBytes = await getMeshService().createPodForTicketConnect(bytes);

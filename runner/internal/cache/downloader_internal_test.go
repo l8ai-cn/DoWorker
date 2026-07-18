@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
@@ -91,6 +92,33 @@ func TestNewDownloader(t *testing.T) {
 	assert.NotNil(t, dl)
 	assert.NotNil(t, dl.client)
 	assert.Equal(t, mgr, dl.cache)
+}
+
+func TestDownloaderUsesConfiguredHostAliasWithoutChangingHostHeader(t *testing.T) {
+	cacheDir := t.TempDir()
+	mgr, err := NewSkillCacheManager(cacheDir)
+	require.NoError(t, err)
+
+	tarGzData := createTestTarGz(t, map[string]string{"skill.txt": "content"})
+	var srv *httptest.Server
+	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "host.lan"+mustURLPort(t, srv.URL), r.Host)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(tarGzData)
+	}))
+	defer srv.Close()
+
+	port := mustURLPort(t, srv.URL)
+	dl := NewDownloaderWithHostAliases(mgr, map[string]string{"host.lan": "127.0.0.1"})
+	_, err = dl.download(context.Background(), "5555666677778888999900001111222233334444aaaabbbbccccddddeeeeffff", "http://host.lan"+port+"/skill.tar.gz")
+	require.NoError(t, err)
+}
+
+func mustURLPort(t *testing.T, rawURL string) string {
+	t.Helper()
+	parsed, err := url.Parse(rawURL)
+	require.NoError(t, err)
+	return ":" + parsed.Port()
 }
 
 func TestDownloader_DownloadAndExtract_ExtractError(t *testing.T) {

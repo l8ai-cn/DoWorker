@@ -37,7 +37,7 @@ export_coordinator_runner_env() {
     export COORDINATOR_RUNNER_LAUNCHER=docker
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_DIR="$SCRIPT_DIR"
     export COORDINATOR_RUNNER_DOCKER_COMPOSE_FILES=docker-compose.yml,docker-compose.runners.yml
-    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,video-studio=runner-video-studio,cursor-cli=runner-cursor-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,seedance-expert=runner-do-agent,grok-build=runner-grok-build,minimax-cli=runner-minimax-cli,openclaw=runner-openclaw,hermes=runner-hermes,aider=runner-aider,opencode=runner-opencode"
+    export COORDINATOR_RUNNER_DOCKER_COMPOSE_SERVICES="claude-code=runner-claude-code,codex-cli=runner-codex-cli,cursor-cli=runner-cursor-cli,gemini-cli=runner-gemini-cli,e2e-echo=runner-e2e-echo,loopal=runner-loopal,do-agent=runner-do-agent,seedance-expert=runner-do-agent,grok-build=runner-grok-build,minimax-cli=runner-minimax-cli,openclaw=runner-openclaw,hermes=runner-hermes,aider=runner-aider,opencode=runner-opencode"
     export COORDINATOR_RUNNER_BACKEND_URL=http://traefik:80
     export COORDINATOR_RUNNER_GRPC_ENDPOINT="host.lan:${BACKEND_GRPC_PORT}"
     export COORDINATOR_RUNNER_RELAY_BASE_URL=ws://traefik:80/relay
@@ -82,7 +82,7 @@ stop_compose_runners() {
     export COMPOSE_FILE=docker-compose.yml:docker-compose.runners.yml
     docker compose stop \
         runner-e2e-echo runner-e2e-echo-2 runner-claude-code \
-        runner-codex-cli runner-video-studio runner-cursor-cli runner-gemini-cli runner-loopal \
+        runner-codex-cli runner-cursor-cli runner-gemini-cli runner-loopal \
         runner-do-agent runner-grok-build runner-minimax-cli runner-openclaw runner-hermes \
         runner-aider runner-opencode \
         runner-admin-workspace runner-admin-workspace-do-agent 2>/dev/null || true

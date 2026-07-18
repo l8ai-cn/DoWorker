@@ -1,14 +1,8 @@
 import { createRoot } from "react-dom/client";
-import type {
-  AgentContentRendererRegistration,
-  AgentToolRendererRegistration,
-  AgentWorkspaceLocale,
-  ContentRendererRegistry,
-  ToolRendererRegistry,
-} from "@do-worker/agent-ui";
+import type { AgentWorkspaceLocale } from "@do-worker/agent-ui";
 
+import type { EmbedSessionClient } from "./embed-session-api";
 import { EmbeddedAgentWorkspace } from "./embed-session/EmbeddedAgentWorkspace";
-import type { EmbeddedAgentWorkbenchAccess } from "./embed-session/embeddedAgentWorkbenchAccess";
 
 export interface EmbeddedAgentWorkspaceMount {
   unmount(): void;
@@ -17,29 +11,18 @@ export interface EmbeddedAgentWorkspaceMount {
 export function mountEmbeddedAgentWorkspace(
   element: Element,
   input: {
-    access: EmbeddedAgentWorkbenchAccess;
-    contentRenderers?: ContentRendererRegistry<AgentContentRendererRegistration>;
-    fetch?: typeof globalThis.fetch;
+    client: EmbedSessionClient;
     locale?: AgentWorkspaceLocale;
-    toolRenderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
+    sessionId: string;
   },
 ): EmbeddedAgentWorkspaceMount {
-  const hadScopeClass = element.classList.contains("do-worker-app");
-  element.classList.add("do-worker-app");
   const root = createRoot(element);
   root.render(
     <EmbeddedAgentWorkspace
-      access={input.access}
-      contentRenderers={input.contentRenderers}
-      fetch={input.fetch}
+      client={input.client}
       locale={input.locale}
-      toolRenderers={input.toolRenderers}
+      sessionId={input.sessionId}
     />,
   );
-  return {
-    unmount: () => {
-      root.unmount();
-      if (!hadScopeClass) element.classList.remove("do-worker-app");
-    },
-  };
+  return { unmount: () => root.unmount() };
 }

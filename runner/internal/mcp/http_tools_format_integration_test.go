@@ -108,7 +108,7 @@ func TestFormatIntegration_GetPodSnapshot(t *testing.T) {
 
 func TestFormatIntegration_CreatePod(t *testing.T) {
 	server := setupServerWithMockClient(t)
-	text := callTool(t, server, "create_pod", `{"resource":{"apiVersion":"agentsmesh.io/v1alpha1","kind":"Worker","metadata":{"name":"nested-worker","namespace":"test-org"},"spec":{"workerTemplateRef":{"kind":"WorkerTemplate","name":"nested-template"},"inputs":{},"alias":"Nested Worker"}}}`)
+	text := callTool(t, server, "create_pod", `{"plan_id":"11111111-1111-4111-8111-111111111111"}`)
 
 	assertContains(t, text, "Pod: new-pod")
 	assertContains(t, text, "Status: initializing")

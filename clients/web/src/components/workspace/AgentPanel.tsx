@@ -1,34 +1,21 @@
 "use client";
 
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  AgentWorkspace,
-  createBuiltinContentRenderers,
-} from "@do-worker/agent-ui";
+import { AgentWorkspace } from "@do-worker/agent-ui";
 import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useWorkspaceStore, type SplitDirection } from "@/stores/workspace";
 import { usePod, usePodStore } from "@/stores/pod";
 import { usePodStatus } from "@/hooks";
-import { useAcpRelay } from "@/hooks/useAcpRelay";
-import { useAgentSessionLink } from "@/hooks/useAgentSessionLink";
-import { getAgentWorkbenchState } from "@/lib/wasm-core";
+import { useMigratedSessionHydration } from "@/hooks/useMigratedSessionHydration";
 import { AgentPanelHeader } from "./AgentPanelHeader";
-import { AgentSessionLinkState } from "./AgentSessionLinkState";
 import {
   PaneLoadingState,
   PaneErrorState,
-  PaneReconnectingState,
 } from "./PaneStateViews";
 import { PodSelectorModal } from "./PodSelectorModal";
 import { WorkerControlOverlay } from "@/components/mobile-worker/WorkerControlOverlay";
-import { useWorkerControlLease } from "@/hooks/useWorkerControlLease";
-import { WebAgentWorkbenchRuntime } from "./agent-ui/WebAgentWorkbenchRuntime";
-import {
-  createWebAgentWorkbenchArtifactLoader,
-} from "./agent-ui/webAgentWorkbenchArtifactLoader";
-
-const AGENT_CONTENT_RENDERERS = createBuiltinContentRenderers();
+import { WebAcpSessionRuntime } from "./agent-ui/WebAcpSessionRuntime";
 
 interface AgentPanelProps {
   paneId: string;
@@ -38,6 +25,7 @@ interface AgentPanelProps {
   onMaximize?: () => void;
   onPopout?: () => void;
   showHeader?: boolean;
+  allowSplit?: boolean;
   controlClientLabel?: string;
   className?: string;
 }
@@ -50,6 +38,7 @@ export function AgentPanel({
   onMaximize,
   onPopout,
   showHeader = true,
+  allowSplit = true,
   controlClientLabel = "desktop",
   className,
 }: AgentPanelProps) {
@@ -69,32 +58,19 @@ export function AgentPanel({
   const controlLease = useWorkerControlLease(podKey, controlClientLabel);
 
   const shouldSubscribe = isPodReady || podStatus === "running";
-  useAcpRelay(podKey, paneId, shouldSubscribe);
-  const {
-    error: sessionLinkError,
-    loading: sessionLinkLoading,
-    sessionId,
-  } = useAgentSessionLink(podKey, shouldSubscribe);
+  const shouldShowWorkspace =
+    shouldSubscribe || podStatus === "completed" || podStatus === "orphaned";
+  useMigratedSessionHydration(podKey, Boolean(podKey));
   const runtime = useMemo(
-    () => {
-      if (!sessionId) return null;
-      const workbenchState = getAgentWorkbenchState();
-      return new WebAgentWorkbenchRuntime({
+    () =>
+      new WebAcpSessionRuntime({
         agentLabel: pod?.agent?.name ?? "Agent",
-        interactionMode: pod?.interaction_mode ?? "acp",
-        loadArtifact: createWebAgentWorkbenchArtifactLoader(workbenchState),
-        sessionId,
+        live: shouldSubscribe,
+        paneId,
+        podKey,
         title: pod?.title ?? pod?.alias ?? podKey,
-      });
-    },
-    [
-      pod?.agent?.name,
-      pod?.alias,
-      pod?.interaction_mode,
-      pod?.title,
-      podKey,
-      sessionId,
-    ],
+      }),
+    [paneId, pod?.agent?.name, pod?.alias, pod?.title, podKey, shouldSubscribe],
   );
   const handleFocus = useCallback(() => {
     setActivePane(paneId);
@@ -120,18 +96,16 @@ export function AgentPanel({
           podKey={podKey}
           isMaximized={isMaximized}
           onPopout={onPopout}
-          onSplitRight={() => setPendingSplitDirection("horizontal")}
-          onSplitDown={() => setPendingSplitDirection("vertical")}
+          onSplitRight={allowSplit ? () => setPendingSplitDirection("horizontal") : undefined}
+          onSplitDown={allowSplit ? () => setPendingSplitDirection("vertical") : undefined}
           onMaximize={handleMaximize}
           onClose={onClose}
         />
       )}
 
-      {!shouldSubscribe ? (
+      {!shouldShowWorkspace ? (
         podError ? (
           <PaneErrorState error={podError} onClose={onClose} />
-        ) : podStatus === "orphaned" ? (
-          <PaneReconnectingState onClose={onClose} />
         ) : (
           <PaneLoadingState
             podStatus={podStatus}
@@ -163,18 +137,18 @@ export function AgentPanel({
         <AgentWorkspace
           className="flex-1"
           clientLabel={controlClientLabel}
-          contentRenderers={AGENT_CONTENT_RENDERERS}
           locale={locale === "zh" ? "zh-CN" : "en-US"}
-          readOnly={controlLease.status !== "granted"}
           runtime={runtime}
-          sessionId={sessionId}
+          sessionId={runtime.sessionId}
         />
       )}
-      <WorkerControlOverlay
-        blocking={false}
-        lease={controlLease}
-        preserveHeader={showHeader}
-      />
+      {shouldSubscribe && (
+        <WorkerControlOverlay
+          podKey={podKey}
+          clientLabel={controlClientLabel}
+          preserveHeader={showHeader}
+        />
+      )}
 
       {pendingSplitDirection && (
         <PodSelectorModal

@@ -3,7 +3,6 @@ import {
   hasAvailableRuntime,
   mapRuntimeCatalogEvidence,
 } from "./worker-runtime-catalog-evidence.mjs";
-import { loadPublicWorkerDefinitions } from "./public-worker-definitions.mjs";
 import { assertSameSlugs, mapBySlug } from "./worker-loop-json.mjs";
 
 export function buildInventory(context) {
@@ -18,17 +17,12 @@ export function buildInventory(context) {
     loopRelativeRoot,
   } = context;
   const evidenceBySlug = mapBySlug(evidenceMatrix.workers, "evidence matrix");
-  const publicDefinitions = loadPublicWorkerDefinitions({
-    definitionCatalog,
-    readJson,
-    root,
-  });
-  const publicEntries = publicDefinitions.map(({ entry }) => entry);
-  assertSameSlugs(publicEntries, evidenceMatrix.workers);
+  assertSameSlugs(definitionCatalog.worker_types, evidenceMatrix.workers);
 
   return {
     schema_version: 1,
-    workers: publicDefinitions.map(({ entry, definition }) => {
+    workers: definitionCatalog.worker_types.map((entry) => {
+      const definition = readJson(path.join(root, entry.definition_path));
       const evidence = evidenceBySlug.get(entry.slug);
       const runtimeEvidencePath = runtimeEvidenceRelativePath(entry.slug);
       const runtimeEvidence = readJson(path.join(loopRoot, runtimeEvidencePath));
@@ -73,15 +67,10 @@ export function buildInventory(context) {
 }
 
 export function buildDrift(context) {
-  const { definitionCatalog, runtimeCatalog, evidenceMatrix, lockProbes } = context;
-  const { readJson, root, loopRoot } = context;
-  const publicDefinitions = loadPublicWorkerDefinitions({
-    definitionCatalog,
-    readJson,
-    root,
-  });
+  const { definitionCatalog, runtimeCatalog, evidenceMatrix, lockProbes, readJson, loopRoot } =
+    context;
   const runtimeEvidenceBySlug = new Map(
-    publicDefinitions.map(({ entry }) => [
+    definitionCatalog.worker_types.map((entry) => [
       entry.slug,
       readJson(path.join(loopRoot, runtimeEvidenceRelativePath(entry.slug))),
     ]),
@@ -173,9 +162,6 @@ function blockerCode(worker, runtimeEvidence, runtimeCatalogEvidence) {
   }
   if (runtimeCatalogEvidence.status === "invalid_published_digest") {
     return "invalid-published-runtime-image";
-  }
-  if (hasAvailableRuntime(runtimeCatalogEvidence)) {
-    return "product-path-unverified";
   }
   return "missing-immutable-runtime-image";
 }

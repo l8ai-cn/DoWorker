@@ -21,7 +21,7 @@ func attachOrchestrationWorkerApply(
 		runtime.registry,
 		runtime.repository,
 		runtime.resolver,
-		newOrchestrationWorkerPodLauncher(orchestrator, queue),
+		newOrchestrationWorkerPodLauncher(orchestrator),
 		newOrchestrationWorkerDispatchNotifier(queue),
 	)
 	if err != nil {

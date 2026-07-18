@@ -2,12 +2,7 @@ import { lightFetch } from "@/lib/light-auth/api-fetch";
 import { readCurrentOrg } from "@/stores/auth";
 
 export interface QuickTaskInput {
-  prompt: string;
-  agent_slug?: string;
-  runner_id?: number;
-  repository_id?: number;
-  alias?: string;
-  queue_ttl_minutes?: number;
+  plan_id: string;
 }
 
 export interface QuickTaskResult {

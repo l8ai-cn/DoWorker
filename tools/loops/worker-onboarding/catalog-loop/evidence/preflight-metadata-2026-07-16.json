@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T03:21:53+08:00",
+  "endpoint": "http://[::1]:10000",
+  "options_revision": "local-dev-codex-cli-local-gemini-cli-local-minimax-cli-local-openclaw-local-do-agent-local",
+  "safety_boundary": {
+    "provider_request": false,
+    "pod_create_rpc": false,
+    "credential_decryption": "not used by Worker preflight after ResolveMetadata separation"
+  },
+  "common_draft": {
+    "placement_policy": "explicit",
+    "compute_target_id": 1,
+    "deployment_mode": "pooled",
+    "resource_profile_id": 1,
+    "interaction_mode": "pty",
+    "automation_level": "autonomous",
+    "termination_policy": "manual"
+  },
+  "results": [
+    {"worker_type":"codex-cli","runtime_image_id":1,"model_resource_id":1,"result":"resolved","issues":[]},
+    {"worker_type":"do-agent","runtime_image_id":3,"model_resource_id":1,"result":"resolved","issues":[]},
+    {"worker_type":"minimax-cli","runtime_image_id":4,"model_resource_id":3,"result":"resolved","issues":[]},
+    {"worker_type":"openclaw","runtime_image_id":5,"model_resource_id":1,"result":"resolved","issues":[]},
+    {"worker_type":"gemini-cli","runtime_image_id":2,"model_resource_id":1,"result":"blocked","issues":[{"code":"invalid-draft","field":"draft","reason":"incompatible AI resource protocol adapter"}]},
+    {"worker_type":"seedance-expert","runtime_image_id":3,"model_resource_id":1,"tool_model_resource_ids":{"seedance-video":2},"result":"blocked","issues":[{"code":"invalid-draft","field":"draft","reason":"seedance-video AI resource is disabled"}]}
+  ],
+  "residual_active_pods": [
+    {"id":114,"worker_type":"do-agent","runner_id":35,"status":"orphaned","created_at":"2026-07-14T16:36:30Z"},
+    {"id":115,"worker_type":"seedance-expert","runner_id":35,"status":"orphaned","created_at":"2026-07-14T17:22:41Z"},
+    {"id":116,"worker_type":"codex-cli","runner_id":17,"status":"orphaned","created_at":"2026-07-15T01:42:11Z"},
+    {"id":118,"worker_type":"minimax-cli","runner_id":42,"status":"orphaned","created_at":"2026-07-15T02:18:34Z"},
+    {"id":127,"worker_type":"seedance-expert","runner_id":35,"status":"orphaned","created_at":"2026-07-15T07:31:39Z"}
+  ],
+  "notes": [
+    "All residual active pods predate this preflight run and were not modified.",
+    "The backend log showed no CreatePod request or pods insert for worker-loop-preflight."
+  ]
+}

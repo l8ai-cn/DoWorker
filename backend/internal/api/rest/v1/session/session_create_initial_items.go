@@ -3,11 +3,19 @@ package sessionapi
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"time"
 
 	domainitem "github.com/anthropics/agentsmesh/backend/internal/domain/conversationitem"
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 )
+
+var errSessionItemsUnavailable = errors.New("session item service unavailable")
+
+type persistedSessionInput struct {
+	id      string
+	content []map[string]any
+}
 
 func initialItemsContainAttachments(items []json.RawMessage) bool {
 	for _, raw := range items {
@@ -22,10 +30,19 @@ func initialItemsContainAttachments(items []json.RawMessage) bool {
 	return false
 }
 
-func (d *Deps) persistInitialUserItems(ctx context.Context, sessionID string, items []json.RawMessage) {
-	if d.Items == nil || len(items) == 0 {
-		return
+func persistInitialUserItems(
+	ctx context.Context,
+	store *itemsvc.Service,
+	sessionID string,
+	items []json.RawMessage,
+) ([]persistedSessionInput, error) {
+	if len(items) == 0 {
+		return nil, nil
 	}
+	if store == nil {
+		return nil, errSessionItemsUnavailable
+	}
+	persisted := make([]persistedSessionInput, 0, len(items))
 	for _, raw := range items {
 		var evt struct {
 			Type string          `json:"type"`
@@ -46,26 +63,30 @@ func (d *Deps) persistInitialUserItems(ctx context.Context, sessionID string, it
 		}
 		itemID, err := itemsvc.NewItemID()
 		if err != nil {
-			continue
+			return nil, err
 		}
 		respID, err := itemsvc.NewResponseID()
 		if err != nil {
-			continue
+			return nil, err
 		}
-		pos, err := d.Items.NextPosition(ctx, sessionID)
+		pos, err := store.NextPosition(ctx, sessionID)
 		if err != nil {
-			continue
+			return nil, err
 		}
-		payload, _ := json.Marshal(map[string]any{
+		payload, err := json.Marshal(map[string]any{
 			"id": itemID, "type": "message", "response_id": respID, "status": "completed",
 			"role": "user", "content": content,
 		})
-		_ = d.Items.Append(ctx, &domainitem.Item{
+		if err != nil {
+			return nil, err
+		}
+		if err := store.Append(ctx, &domainitem.Item{
 			ID: itemID, SessionID: sessionID, ItemType: "message", ResponseID: respID,
 			Status: "completed", Position: pos, Payload: payload, CreatedAt: time.Now(),
-		})
-		if d.Stream != nil {
-			d.Stream.PublishInputConsumed(sessionID, itemID, "", content)
+		}); err != nil {
+			return nil, err
 		}
+		persisted = append(persisted, persistedSessionInput{id: itemID, content: content})
 	}
+	return persisted, nil
 }

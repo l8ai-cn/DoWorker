@@ -195,5 +195,3 @@ export const getKnowledgeBaseService = () => g("knowledgeBaseService");
 export const getAIResourceService = () => g("aiResourceService");
 export const getOrchestrationResourceService = () => g("orchestrationResourceService");
 export const getExecutionClusterService = () => g("executionClusterService");
-export const getAgentWorkbenchService = () => g("agentWorkbenchService");
-export const getAgentWorkbenchState = () => g("agentWorkbenchState");

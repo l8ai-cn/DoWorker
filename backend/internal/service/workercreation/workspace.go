@@ -56,7 +56,7 @@ type compilationReferences struct {
 	SkillSlugs        []string
 	Knowledge         []knowledgeReference
 	EnvBundleNames    []string
-	ConfigBundleNames []string
+	ConfigDocumentIDs []string
 }
 
 func newWorkspaceResolver(deps workspaceResolverDeps) *workspaceResolver {
@@ -78,11 +78,7 @@ func (resolver *workspaceResolver) ResolveWorkspace(
 	if _, err := resolver.resolveWorkspaceReferences(ctx, scope, workerType, workspace); err != nil {
 		return specdomain.Workspace{}, err
 	}
-	resolved := cloneResolvedWorkspace(workspace)
-	if len(resolved.SkillPackages) == 0 {
-		resolved.SkillPackages = resolver.resolvedSkillPackages(resolved.SkillIDs)
-	}
-	return resolved, nil
+	return cloneResolvedWorkspace(workspace), nil
 }
 
 func (resolver *workspaceResolver) resolveWorkspaceReferences(
@@ -162,7 +158,7 @@ func (resolver *workspaceResolver) resolveWorkspaceReferences(
 			return compilationReferences{}, err
 		}
 	}
-	configBundleNames, err := resolver.resolveConfigBundleNames(
+	configDocumentIDs, err := resolver.resolveConfigDocumentIDs(
 		ctx,
 		scope,
 		workerType,
@@ -171,7 +167,7 @@ func (resolver *workspaceResolver) resolveWorkspaceReferences(
 	if err != nil {
 		return compilationReferences{}, err
 	}
-	references.ConfigBundleNames = configBundleNames
+	references.ConfigDocumentIDs = configDocumentIDs
 	return references, nil
 }
 

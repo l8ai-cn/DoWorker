@@ -26,18 +26,6 @@ func Summarize(spec Spec) (Summary, error) {
 	if err != nil {
 		return Summary{}, err
 	}
-	return summarizeNormalized(normalized), nil
-}
-
-func SummarizePersisted(spec Spec) (Summary, error) {
-	normalized, err := NormalizeAndValidatePersisted(spec)
-	if err != nil {
-		return Summary{}, err
-	}
-	return summarizeNormalized(normalized), nil
-}
-
-func summarizeNormalized(normalized Spec) Summary {
 	var toolBindings []ToolModelBinding
 	if len(normalized.Runtime.ToolModelBindings) > 0 {
 		toolBindings = cloneToolModelBindings(normalized.Runtime.ToolModelBindings)
@@ -75,6 +63,9 @@ func validateSummary(
 		return fmt.Errorf("workerspec summary version %d is unsupported", summary.Version)
 	}
 	if err := validateMainModelBinding(summary.ModelBinding); err != nil {
+		return fmt.Errorf("workerspec summary: %w", err)
+	}
+	if err := validateToolModelBindings(summary.ToolModelBindings); err != nil {
 		return fmt.Errorf("workerspec summary: %w", err)
 	}
 	if err := validateToolModelBindings(summary.ToolModelBindings); err != nil {

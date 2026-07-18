@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "status": "blocked",
+  "at": "2026-07-17T13:38:01Z",
+  "worker_slug": "do-agent",
+  "form": {
+    "worker_type": "do-agent",
+    "runtime_image": "DoAgent (local development)",
+    "interaction_mode": "acp",
+    "compute_target": "Local Runner Pool (r1)",
+    "resource_profile": "Standard Profile (r1)"
+  },
+  "configuration_document_failure_path": {
+    "document_id": "settings",
+    "warning": "请为配置文档 settings 选择配置包。",
+    "generate_plan_disabled": true,
+    "screenshot_path": "evidence/images/do-agent-config-document-required.jpg",
+    "console_warnings_or_errors": 0
+  },
+  "successful_creation_path": {
+    "template": "Do Agent real worker E2E (r1)",
+    "settings_bundle": "do-agent-e2e-config",
+    "worker_pod_key": "1-standalone-ccf70573",
+    "browser_control_lease": "acquired",
+    "relay_connection": "connected"
+  },
+  "provider_failure_path": {
+    "visible_message": "Agent error: error sending request for url (https://api.openai.com/v1/chat/completions)",
+    "classification": "model_endpoint_unreachable"
+  }
+}

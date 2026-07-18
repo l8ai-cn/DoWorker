@@ -15,7 +15,41 @@ export function synchronizeConfigDocumentBindings(
     const binding = current.find(
       (item) => item.documentId === requirement.document_id,
     );
-    return binding?.configBundleRef.name.trim() ? [binding] : [];
+    if (binding) return [binding];
+    if (!requirement.required) return [];
+    return [{
+      documentId: requirement.document_id,
+      configBundleRef: { kind: "EnvironmentBundle", name: "" },
+    }];
+  });
+}
+
+export function updateConfigDocumentBinding(
+  requirements: WorkerConfigDocumentRequirement[],
+  current: WorkerTemplateConfigDocumentBinding[],
+  documentID: string,
+  configBundleRef: ResourceReference | undefined,
+): WorkerTemplateConfigDocumentBinding[] {
+  return requirements.flatMap((requirement) => {
+    const currentBinding = current.find(
+      (binding) => binding.documentId === requirement.document_id,
+    );
+    if (requirement.document_id !== documentID) {
+      if (currentBinding) return [currentBinding];
+      if (!requirement.required) return [];
+      return [{
+        documentId: requirement.document_id,
+        configBundleRef: { kind: "EnvironmentBundle", name: "" },
+      }];
+    }
+    if (!configBundleRef?.name && !requirement.required) return [];
+    return [{
+      documentId: requirement.document_id,
+      configBundleRef: configBundleRef ?? {
+        kind: "EnvironmentBundle",
+        name: "",
+      },
+    }];
   });
 }
 

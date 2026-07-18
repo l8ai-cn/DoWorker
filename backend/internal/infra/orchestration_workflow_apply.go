@@ -6,7 +6,6 @@ import (
 
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
 	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
 	"gorm.io/gorm"
 )
@@ -70,8 +69,6 @@ func validateWorkflowProjection(
 ) error {
 	if mutation.Head.Identity.Kind != resource.KindWorkflow ||
 		mutation.Projection.Name == "" ||
-		(mutation.Projection.Status != workflowDomain.StatusEnabled &&
-			mutation.Projection.Status != workflowDomain.StatusDisabled) ||
 		mutation.Projection.WorkerSpecSnapshotID <= 0 ||
 		mutation.Revision.WorkerSpecSnapshotID !=
 			mutation.Projection.WorkerSpecSnapshotID {

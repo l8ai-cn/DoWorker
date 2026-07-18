@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-07-16T17:04:12.442Z",
+  "endpoint": "POST /proto.pod.v1.PodService/ListWorkerCreateOptions",
+  "scope": "dev-org",
+  "safety_boundary": {
+    "pod_create_rpc": false,
+    "provider_request": false,
+    "credential_read_or_decrypt": false
+  },
+  "revision": "local-dev-66260899840b6599aa044534381534a4f3ee01ba743eb3b730781eb178181adf",
+  "worker_types": [
+    {
+      "slug": "aider",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty"
+      ],
+      "model_protocol_adapters": [],
+      "config_schema": {
+        "version": 1,
+        "fields": {
+          "ANTHROPIC_API_KEY": {
+            "kind": "secret",
+            "description": "引用已有凭据，不在这里填写明文密钥。"
+          },
+          "OPENAI_API_KEY": {
+            "kind": "secret",
+            "description": "引用已有凭据，不在这里填写明文密钥。"
+          },
+          "edit_format": {
+            "kind": "select",
+            "options": [
+              "",
+              "whole",
+              "diff",
+              "udiff"
+            ],
+            "default": "",
+            "description": "用于调整此 Agent 的运行行为。"
+          },
+          "model": {
+            "kind": "string",
+            "default": "",
+            "description": "用于调整此 Agent 的运行行为。"
+          }
+        }
+      }
+    },
+    {
+      "slug": "claude-code",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty",
+        "acp"
+      ],
+      "model_protocol_adapters": [
+        "anthropic"
+      ],
+      "config_schema": {
+        "version": 1,
+        "fields": {
+          "permission_mode": {
+            "kind": "select",
+            "options": [
+              "default",
+              "plan",
+              "acceptEdits",
+              "dontAsk",
+              "bypassPermissions"
+            ],
+            "default": "bypassPermissions",
+            "description": "用于调整此 Agent 的运行行为。"
+          }
+        }
+      }
+    },
+    {
+      "slug": "codex-cli",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty",
+        "acp"
+      ],
+      "model_protocol_adapters": [
+        "openai-compatible"
+      ],
+      "config_schema": {
+        "version": 1,
+        "fields": {
+          "approval_mode": {
+            "kind": "select",
+            "options": [
+              "untrusted",
+              "on-request",
+              "never"
+            ],
+            "default": "untrusted",
+            "description": "用于调整此 Agent 的运行行为。"
+          }
+        }
+      }
+    },
+    {
+      "slug": "cursor-cli",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty",
+        "acp"
+      ],
+      "model_protocol_adapters": [],
+      "config_schema": {
+        "version": 1,
+        "fields": {
+          "CURSOR_API_KEY": {
+            "kind": "secret",
+            "description": "引用已有凭据，不在这里填写明文密钥。"
+          }
+        }
+      }
+    },
+    {
+      "slug": "do-agent",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty",
+        "acp"
+      ],
+      "model_protocol_adapters": [
+        "openai-compatible",
+        "anthropic"
+      ],
+      "config_schema": {
+        "version": 1,
+        "fields": {}
+      }
+    },
+    {
+      "slug": "gemini-cli",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty",
+        "acp"
+      ],
+      "model_protocol_adapters": [
+        "gemini"
+      ],
+      "config_schema": {
+        "version": 1,
+        "fields": {
+          "sandbox_mode": {
+            "kind": "boolean",
+            "default": false,
+            "description": "用于调整此 Agent 的运行行为。"
+          }
+        }
+      }
+    },
+    {
+      "slug": "grok-build",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty",
+        "acp"
+      ],
+      "model_protocol_adapters": [],
+      "config_schema": {
+        "version": 1,
+        "fields": {
+          "XAI_API_KEY": {
+            "kind": "secret",
+            "required": true,
+            "description": "引用已有凭据，不在这里填写明文密钥。"
+          },
+          "effort": {
+            "kind": "select",
+            "options": [
+              "",
+              "low",
+              "medium",
+              "high"
+            ],
+            "default": "",
+            "description": "用于调整此 Agent 的运行行为。"
+          },
+          "model": {
+            "kind": "string",
+            "default": "",
+            "description": "用于调整此 Agent 的运行行为。"
+          }
+        }
+      }
+    },
+    {
+      "slug": "hermes",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty"
+      ],
+      "model_protocol_adapters": [
+        "openai-compatible"
+      ],
+      "config_schema": {
+        "version": 1,
+        "fields": {}
+      }
+    },
+    {
+      "slug": "loopal",
+      "selectable": false,
+      "blocking_reason": "No runtime image is available for this worker type",
+      "supported_interaction_modes": [
+        "pty",
+        "acp"
+      ],
+      "model_protocol_adapters": [],
+      "config_schema": {
+        "version": 1,
+        "fields": {
+          "ANTHROPIC_API_KEY": {
+            "kind": "secret",
+            "description": "引用已有凭据，不在这里填写明文密钥。"
+          },
+          "GOOGLE_API_KEY": {
+            "kind": "secret",
+            "description": "引用已有凭据，不在这里填写明文密钥。"
+          },
+          "OPENAI_API_KEY": {
+            "kind": "secret",
+            "description": "引用已有凭据，不在这里填写明文密钥。"
+          },
+          "permission_mode": {
+            "kind": "select",
+            "options": [
+              "supervised",
+              "auto",
+              "bypass"
+            ],
+            "default": "supervised",
+            "description": "用于调整此 Agent 的运行行为。"
+          }
+        }
+      }
+    },
+    {
+      "slug": "minimax-cli",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty"
+      ],
+      "model_protocol_adapters": [
+        "minimax"
+      ],
+      "config_schema": {
+        "version": 1,
+        "fields": {
+          "base_url": {
+            "kind": "string",
+            "default": "",
+            "description": "用于调整此 Agent 的运行行为。"
+          }
+        }
+      }
+    },
+    {
+      "slug": "openclaw",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty"
+      ],
+      "model_protocol_adapters": [
+        "openai-compatible"
+      ],
+      "config_schema": {
+        "version": 1,
+        "fields": {}
+      }
+    },
+    {
+      "slug": "opencode",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty",
+        "acp"
+      ],
+      "model_protocol_adapters": [],
+      "config_schema": {
+        "version": 1,
+        "fields": {}
+      }
+    },
+    {
+      "slug": "seedance-expert",
+      "selectable": true,
+      "blocking_reason": "",
+      "supported_interaction_modes": [
+        "pty",
+        "acp"
+      ],
+      "model_protocol_adapters": [
+        "openai-compatible",
+        "anthropic"
+      ],
+      "config_schema": {
+        "version": 1,
+        "fields": {
+          "SEEDANCE_API_KEY": {
+            "kind": "secret",
+            "description": "引用已有凭据，不在这里填写明文密钥。"
+          },
+          "SEEDANCE_BASE_URL": {
+            "kind": "secret",
+            "description": "引用已有凭据，不在这里填写明文密钥。"
+          },
+          "SEEDANCE_MODEL": {
+            "kind": "secret",
+            "description": "引用已有凭据，不在这里填写明文密钥。"
+          }
+        }
+      }
+    }
+  ],
+  "runtime_images": [
+    {
+      "slug": "aider-local",
+      "selectable": true,
+      "blocking_reason": "",
+      "worker_type_slugs": [
+        "aider"
+      ]
+    },
+    {
+      "slug": "claude-code-local",
+      "selectable": true,
+      "blocking_reason": "",
+      "worker_type_slugs": [
+        "claude-code"
+      ]
+    },
+    {
+      "slug": "codex-cli-local",
+      "selectable": true,
+      "blocking_reason": "",
+      "worker_type_slugs": [
+        "codex-cli"
+      ]
+    },
+    {
+      "slug": "cursor-cli-local",
+      "selectable": true,
+      "blocking_reason": "",
+      "worker_type_slugs": [
+        "cursor-cli"
+      ]
+    },
+    {
+      "slug": "do-agent-local",
+      "selectable": true,
+      "blocking_reason": "",
+      "worker_type_slugs": [
+        "do-agent",
+        "seedance-expert"
+      ]
+    },
+    {
+      "slug": "gemini-cli-local",
+      "selectable": true,
+      "blocking_reason": "",
+      "worker_type_slugs": [
+        "gemini-cli"
+      ]
+    },
+    {
+      "slug": "grok-build-local",
+      "selectable": true,
+      "blocking_reason": "",
+      "worker_type_slugs": [
+        "grok-build"
+      ]
+    },
+    {
+      "slug": "hermes-local",
+      "selectable": true,
+      "blocking_reason": "",
+      "worker_type_slugs": [
+        "hermes"
+      ]
+    },
+    {
+      "slug": "minimax-cli-local",
+      "selectable": true,
+      "blocking_reason": "",
+      "worker_type_slugs": [
+        "minimax-cli"
+      ]
+    },
+    {
+      "slug": "openclaw-local",
+      "selectable": true,
+      "blocking_reason": "",
+      "worker_type_slugs": [
+        "openclaw"
+      ]
+    },
+    {
+      "slug": "opencode-local",
+      "selectable": true,
+      "blocking_reason": "",
+      "worker_type_slugs": [
+        "opencode"
+      ]
+    }
+  ]
+}

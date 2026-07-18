@@ -3132,6 +3132,7 @@ export async function pumpStreamEvents(
         // this is usually a no-op.
         set((s) => ({
           status: "idle",
+          sessionStatus: block.status === "failed" ? "failed" : "idle",
           blocks: s.blocks.some(isLiveProvisionalBlock)
             ? s.blocks.filter((b) => !isLiveProvisionalBlock(b))
             : s.blocks,

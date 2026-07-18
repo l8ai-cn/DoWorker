@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "worker_slug": "codex-cli",
+  "definition": {
+    "adapter_id": "codex-app-server",
+    "interaction_modes": ["pty", "acp"],
+    "primary_model_required": true,
+    "protocol_adapters": ["openai-compatible"],
+    "config_documents": []
+  },
+  "credential_contract": {
+    "source": "organization AI model resource through ModelBinding",
+    "target": "OPENAI_API_KEY at Pod construction",
+    "runtime_preferences": "plaintext and forbidden for credentials"
+  },
+  "source_refs": [
+    "config/worker-types/codex-cli/definition.json",
+    "config/worker-types/codex-cli/AgentFile",
+    "backend/internal/service/agentpod/pod_orchestrator_worker_model.go"
+  ]
+}

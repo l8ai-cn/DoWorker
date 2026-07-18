@@ -7,7 +7,6 @@ import type {
 import { artifactPresentation } from "./artifactPresentation";
 
 export type ArtifactBlobState =
-  | { status: "idle" }
   | { status: "loading" }
   | {
       status: "ready";
@@ -15,63 +14,30 @@ export type ArtifactBlobState =
       mimeType: string | null;
       text: string | null;
     }
-  | {
-      status: "error";
-      code: "generation_failed" | "loading_unavailable" | "load_failed";
-      retryable: boolean;
-      message: string;
-    };
+  | { status: "error"; message: string };
 
 export function useArtifactBlobUrl(
   item: AgentArtifactItem,
   runtime: AgentSessionRuntime,
   sessionId: string,
-  enabled = true,
-  attempt = 0,
 ): ArtifactBlobState {
-  const [state, setState] = useState<ArtifactBlobState>(
-    enabled ? { status: "loading" } : { status: "idle" },
-  );
+  const [state, setState] = useState<ArtifactBlobState>({ status: "loading" });
 
   useEffect(() => {
     if (item.status === "failed") {
-      setState({
-        status: "error",
-        code: "generation_failed",
-        retryable: false,
-        message: "Artifact generation failed",
-      });
-      return;
-    }
-    if (!enabled) {
-      setState({ status: "idle" });
-      return;
-    }
-    if (item.status !== "completed") {
-      setState({ status: "loading" });
+      setState({ status: "error", message: "Artifact generation failed" });
       return;
     }
     if (!runtime.loadArtifact) {
-      setState({
-        status: "error",
-        code: "loading_unavailable",
-        retryable: false,
-        message: "Artifact loading is unavailable",
-      });
+      setState({ status: "error", message: "Artifact loading is unavailable" });
       return;
     }
 
     let active = true;
     let objectUrl: string | null = null;
     setState({ status: "loading" });
-    const pending = item.selectedRepresentationId
-      ? runtime.loadArtifact(
-          sessionId,
-          item.artifactId,
-          item.selectedRepresentationId,
-        )
-      : runtime.loadArtifact(sessionId, item.artifactId);
-    void pending
+    void runtime
+      .loadArtifact(sessionId, item.artifactId)
       .then(async (blob) => {
         if (!active) return;
         objectUrl = URL.createObjectURL(blob);
@@ -91,11 +57,8 @@ export function useArtifactBlobUrl(
       })
       .catch((cause: unknown) => {
         if (!active) return;
-        console.error("Artifact loading failed", cause);
         setState({
           status: "error",
-          code: "load_failed",
-          retryable: true,
           message: cause instanceof Error ? cause.message : String(cause),
         });
       });
@@ -104,17 +67,7 @@ export function useArtifactBlobUrl(
       active = false;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [
-    attempt,
-    enabled,
-    item.artifactId,
-    item.filename,
-    item.mimeType,
-    item.selectedRepresentationId,
-    item.status,
-    runtime,
-    sessionId,
-  ]);
+  }, [item.artifactId, item.mimeType, item.status, runtime, sessionId]);
 
   return state;
 }

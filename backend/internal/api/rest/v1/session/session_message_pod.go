@@ -25,7 +25,6 @@ func (d *Deps) ensureMessagePod(
 	result, err := d.PodOrchestrator.CreatePod(ctx, &agentpod.OrchestrateCreatePodRequest{
 		OrganizationID:    row.OrganizationID,
 		UserID:            row.UserID,
-		AgentSlug:         row.AgentSlug,
 		SourcePodKey:      pod.PodKey,
 		AgentSessionID:    row.ID,
 		SessionMcpServers: sessionDomain.McpServersToInstalled(sessionDomain.ParseMcpServers(row.McpServers)),

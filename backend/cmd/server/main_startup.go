@@ -68,9 +68,8 @@ func initPKIAndGRPCWiring(
 		GoalLoopService:      services.goalLoop,
 		BlockstoreService:    services.blockstore,
 		KnowledgebaseService: services.knowledgeBase,
-		ResourceControl:      services.orchestration,
-		WorkerPlanApply:      services.workerApply,
-		WorkflowPlanApply:    services.workflowApply,
+		WorkerPlanAuthorizer: services.orchestration,
+		WorkerPlanApplier:    services.workerApply,
 	}
 	grpcServer, grpcRunnerHandler := initializePKIAndGRPC(cfg, services.runner, services.org, services.agentSvc, runnerConnMgr, appLogger, mcpDeps)
 
@@ -129,6 +128,8 @@ func buildServicesContainer(
 		PodCoordinator:       podCoordinator,
 		Pod:                  services.pod,
 		PodOrchestrator:      podOrchestrator,
+		WorkerPlanAuthorizer: services.orchestration,
+		WorkerApply:          services.workerApply,
 		Autopilot:            services.autopilot,
 		Channel:              services.channel,
 		Ticket:               services.ticket,

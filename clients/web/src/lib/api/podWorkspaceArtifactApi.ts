@@ -25,9 +25,31 @@ export async function loadPodWorkspaceArtifact(
   const encodedPath = path.split("/").map(encodeURIComponent).join("/");
   const response = await podWorkspaceFetch(
     podKey,
-    `/resources/workspace/artifacts/${encodedPath}`,
+    `/resources/workspace/filesystem/${encodedPath}`,
   );
-  return response.blob();
+  const body = (await response.json()) as {
+    content?: unknown;
+    content_type?: unknown;
+    encoding?: unknown;
+    truncated?: unknown;
+  };
+  if (body.truncated === true) {
+    throw new Error("Workspace artifact exceeds the preview size limit");
+  }
+  if (typeof body.content !== "string") {
+    throw new Error("Workspace artifact response is invalid");
+  }
+  const mimeType =
+    typeof body.content_type === "string" ? body.content_type : "";
+  if (body.encoding === "base64") {
+    const decoded = atob(body.content);
+    const bytes = Uint8Array.from(decoded, (char) => char.charCodeAt(0));
+    return new Blob([bytes], { type: mimeType });
+  }
+  if (body.encoding !== undefined && body.encoding !== "utf-8") {
+    throw new Error("Workspace artifact encoding is unsupported");
+  }
+  return new Blob([body.content], { type: mimeType });
 }
 
 async function podWorkspaceFetch(

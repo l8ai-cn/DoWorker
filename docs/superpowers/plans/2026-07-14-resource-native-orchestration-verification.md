@@ -3,7 +3,7 @@
 This file stores durable verification evidence for the
 [resource-native orchestration goal](./2026-07-14-resource-native-orchestration-goal.md).
 
-Audit date: 2026-07-18.
+Audit date: 2026-07-17.
 
 ## Verification Snapshot
 
@@ -15,11 +15,10 @@ Audit date: 2026-07-18.
 - Quick Task consumes only a Worker Plan, reuses the durable Worker launch, and
   reports the applied Pod's current status; it no longer selects agent, Runner,
   repository, prompt, alias, AgentFile, or queue TTL at runtime.
-- Runner MCP `create_pod` accepts only a Worker `resource` manifest. The Backend
-  executes Validate, Plan, caller authorization, and typed Worker Apply, then
-  returns the applied resource revision and WorkerSpec snapshot. The Runner
-  keeps automatic Pod read/write binding after creation and reports validation,
-  apply, or binding failures as redacted tool errors.
+- Runner MCP `create_pod` exposes only `plan_id`, reauthorizes the caller before
+  Worker Apply, rejects extra fields in the Runner handler and Backend decoder,
+  keeps automatic Pod read/write binding after creation, and reports binding
+  failure as a redacted tool error.
 - Runner MCP full package and build-tag integration suites pass. An independent
   two-pass review found and then verified closure of one P1 and three P2
   contract/documentation issues; no P0/P1/P2 remain in that cutover.
@@ -91,9 +90,8 @@ Audit date: 2026-07-18.
 - An independent read-only review found no P0/P1/P2 in the Definition policy,
   permission boundary, Secret handling, SQL predicates, stale-request guards,
   old-server acknowledgement rejection, or cross-language protocol wiring.
-  The final delivery reran the migration suites against real PostgreSQL,
-  started the control plane from an empty worktree database, and exercised the
-  browser paths. Mixed-version production rollout remains release-owner work.
+  Real PostgreSQL/SQLite, browser, mixed-version deployment, migration, and
+  service-start verification remain frozen.
 - Full Web lint passes with zero errors and 180 existing warnings.
   `ResourceEditorSessionProvider.test.tsx` and the files changed by the
   EnvironmentBundle slice pass their focused checks.
@@ -114,11 +112,10 @@ Audit date: 2026-07-18.
   only, while fresh runs use their pinned snapshot; the current run prompt is
   appended as invocation metadata without changing the inherited snapshot.
   AgentPod and Workflow full package suites pass with 16 inventory entries.
-- Formal release mainline is confirmed through
-  `000225_agent_workbench_stream`. This delivery uses the coordinated sequence
-  `000226_enforce_orchestration_domain_snapshot_consistency`,
-  `000227_workflow_run_execution_manifest`, and
-  `000228_worker_spec_optional_model_binding`.
+- Formal release mainline is confirmed through `000224`: `000221` expert
+  revision, `000222` video studio, `000223` Seedance home, and `000224` lineage
+  validation. Local `000221_worker_spec_optional_model_binding` conflicts with
+  the formal `000221` and confers no later ownership.
 - AI resource configuration revisions now distinguish runtime facts from
   operational metadata. Validation state, display names, enable state, and
   credential rotation preserve resource/connection revisions; BaseURL, Model
@@ -178,22 +175,23 @@ Audit date: 2026-07-18.
   values for every Kind and uses exact Backend CPU wire names.
 - Final review found and verified closure of a custom `json.Unmarshaler` null
   bypass across runtime resources and nested references; no P0/P1/P2 remain.
-- Web passes 328 files and 2351 tests; lint, typecheck, Rust workspace, WASM,
-  production Web build, Worker docs/runtime checks, and full Go packages pass.
-- Production Playwright passes 16 resource-editor and WASM route scenarios.
-  Desktop/mobile visual QA found no overflow, framework overlay, console error,
-  failed response, or inaccessible action state.
-- A serial production-browser regression passes 131 tests covering Autopilot
-  realtime control, Runner capacity scheduling, Workflow reference protection,
-  GoalLoop Apply gating, Mesh, and Channel paths.
-- Runner MCP passes its complete live suite in 33 seconds, including automatic
-  Pod placement, immutable applied identity, cross-Runner routing, Workflow
-  resource Apply, authorization isolation, and redacted errors. Binding failure
-  returns a tool error, and Runner capacity uses an atomic database claim.
-- CI-equivalent `postgres:16` passes migration lineage, dirty-version rejection,
-  `000226` revision/snapshot consistency, `000227` execution manifests, and
-  `000228` optional model binding, including fail-closed and rollback cases.
-- Production chunk scanning confirms marketing and auth chunks contain no WASM
-  symbols while authenticated dashboard routes load the WASM runtime.
-- Production deployment remains governed by the release owner and GitOps
-  rollout policy; no manual production mutation is claimed here.
+- Web passes `307` files/`2280` tests; ESLint has zero errors and 178 existing
+  warnings. Typecheck, Worker docs/runtime checks, Rust workspace, WASM,
+  production Web build, focused Go, and scoped diff checks pass.
+- Production browser Plan `8c892373-3cc7-4bbb-be7d-dc7e433bd49d` produced root
+  `ADD` and immutable r1 refs to `qa-primary-pool`, `qa-primary-model`, and
+  `standard-profile`. Canonical adoption preserved `Browser Direct YAML Edited`
+  in the form, with no new console warning/error.
+- Production Playwright passes six resource-editor scenarios plus setup with
+  trace (`7 passed`). The route-network guard proves eight anonymous auth routes
+  load no WASM while the dashboard does (`10 passed`, including setup).
+- The earlier development-only reset was Next/Turbopack HMR and does not
+  reproduce in production, so no Draft storage fallback was added.
+- GoalLoop `description` is Web-required but optional in the frozen Backend.
+  Integer fields also need one policy for JavaScript-safe range versus `int64`;
+  neither mismatch is hidden by fallback during the GoalLoop release freeze.
+- Candidate `000225` remains unreserved. A corrected Infra fixture is
+  compile-verified but not rerun while database execution is frozen.
+- Backend, proxy, and production Web health return 200; browser and E2E paths
+  are unblocked, while server-side authorization remains authoritative.
+- Migration execution and deployment remain frozen pending release-owner coordination.

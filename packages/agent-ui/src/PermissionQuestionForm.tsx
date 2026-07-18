@@ -73,18 +73,16 @@ export function PermissionQuestionForm({
           if (allAnswered) onSubmit(answers);
         }}
       >
-        <fieldset className="contents" disabled={disabled}>
-          {permission.questions.map((question) => (
-            <QuestionField
-              custom={custom[question.id] ?? ""}
-              key={question.id}
-              onCustomChange={(value) => updateCustom(question, value)}
-              onOptionChange={(label) => selectOption(question, label)}
-              question={question}
-              selected={selected[question.id] ?? []}
-            />
-          ))}
-        </fieldset>
+        {permission.questions.map((question) => (
+          <QuestionField
+            custom={custom[question.id] ?? ""}
+            key={question.id}
+            onCustomChange={(value) => updateCustom(question, value)}
+            onOptionChange={(label) => selectOption(question, label)}
+            question={question}
+            selected={selected[question.id] ?? []}
+          />
+        ))}
         <div className="flex justify-end gap-2">
           <button
             className="inline-flex h-11 items-center gap-1.5 rounded-md border border-border px-3 text-xs font-medium"

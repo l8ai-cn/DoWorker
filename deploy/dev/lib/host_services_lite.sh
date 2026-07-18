@@ -1,10 +1,9 @@
 # shellcheck shell=bash
-# host_services_lite.sh — Go services via air + go build (no ibazel / no Bazel daemon).
-#
-# Enabled when DEV_NO_BAZEL=1 or DEV_LITE=1 (see dev-lite.sh).
+# host_services_lite.sh — lite-mode helpers (Coordinator runners + web-only).
+# Enabled when DEV_LITE=1 (see dev-lite.sh / dev.sh --lite).
 
 dev_lite_enabled() {
-    [[ "${DEV_NO_BAZEL:-}" == "1" || "${DEV_LITE:-}" == "1" ]]
+    [[ "${DEV_LITE:-}" == "1" ]]
 }
 
 ensure_go_codegen() {
@@ -125,10 +124,8 @@ start_backend_host_lite() {
     mkdir -p "$(_runtime_dir)/backend"
     prepare_local_worker_runtime_catalog || return 1
 
-    # Re-use the same env exports as start_backend_host (call parent setup via
-    # extracting shared block would be ideal; for now duplicate is avoided by
-    # calling start_backend_host's export section — we invoke the ibazel path's
-    # env by sourcing ENV and duplicating only launch logic).
+    # Re-use the same env exports as start_backend_host by sourcing ENV and
+    # duplicating only the launch logic for lite mode.
     export DB_HOST=localhost
     export DB_PORT="$POSTGRES_PORT"
     export DB_USER=agentsmesh
@@ -154,13 +151,13 @@ start_backend_host_lite() {
     export PUBLIC_WEB_URL="${PUBLIC_WEB_URL}"
     export MOBILE_PUBLIC_BASE_URL="${MOBILE_PUBLIC_BASE_URL}"
     export PREVIEW_PUBLIC_ORIGIN="${PREVIEW_PUBLIC_ORIGIN}"
-    export PREVIEW_COOKIE_MODE="${PREVIEW_COOKIE_MODE}"
     export USE_HTTPS="${USE_HTTPS:-false}"
     export BLOCKSTORE_WEBHOOK_ALLOW_HOSTS="host.docker.internal,host.lan,localhost"
     export CORS_ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020},http://localhost:${MOBILE_LOVABLE_PORT:-10021},http://127.0.0.1:${MOBILE_LOVABLE_PORT:-10021},${PUBLIC_WEB_URL}"
     export LOG_LEVEL=debug
     export LOG_FORMAT=text
-    export LOG_FILE="$repo_root/backend/logs/agentsmesh.log"
+    export LOG_FILE="$(_runtime_dir)/backend/agentsmesh.log"
+    export MCP_REGISTRY_ENABLED="${MCP_REGISTRY_ENABLED:-false}"
     export EMAIL_PROVIDER=console
     export STORAGE_ENDPOINT="localhost:${MINIO_API_PORT}"
     export STORAGE_PUBLIC_ENDPOINT="localhost:${MINIO_API_PORT}"
@@ -230,6 +227,7 @@ start_marketplace_host_lite() {
     export MARKETPLACE_IDENTITY_AUDIENCE="marketplace-api"
     export MARKETPLACE_IDENTITY_JWKS_URL="http://${PRIMARY_DOMAIN}/.well-known/jwks.json"
     export MARKETPLACE_RUNTIME_BRIDGE_URL="http://localhost:${BACKEND_HTTP_PORT}/api/internal/marketplace/installations"
+    export INTERNAL_API_SECRET="${INTERNAL_API_SECRET:-dev-internal-secret}"
 
     info "预编译 Marketplace..."
     (cd "$repo_root" && go build -o "$(_runtime_dir)/marketplace/air/main" ./marketplace/cmd/server) || {
@@ -264,7 +262,6 @@ start_relay_host_lite() {
     export RELAY_CAPACITY=1000
     export PRIMARY_DOMAIN="${PRIMARY_DOMAIN}"
     export PREVIEW_PUBLIC_ORIGIN="${PREVIEW_PUBLIC_ORIGIN}"
-    export PREVIEW_COOKIE_MODE="${PREVIEW_COOKIE_MODE}"
     export USE_HTTPS="${USE_HTTPS:-false}"
     export ALLOWED_ORIGINS="http://localhost:${HTTP_PORT},http://127.0.0.1:${HTTP_PORT},http://localhost:${WEB_PORT},http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_ADMIN_PORT},http://127.0.0.1:${WEB_ADMIN_PORT},http://localhost:${WEB_USER_PORT:-10020},http://127.0.0.1:${WEB_USER_PORT:-10020},http://localhost:${MOBILE_LOVABLE_PORT:-10021},http://127.0.0.1:${MOBILE_LOVABLE_PORT:-10021},${PUBLIC_WEB_URL}"
     export SESSION_KEEP_ALIVE_DURATION=30s

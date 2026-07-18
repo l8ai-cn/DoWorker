@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Stage one runtime's Linux runner and required sidecar binaries.
+# Stage one runtime's linux/amd64 runner and required sidecar binaries.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -64,14 +64,18 @@ stage_loopal() {
 
 case "$AGENT_RUNTIME" in
   e2e-echo)
-    echo "▶ go build e2e-mock-agent (linux/${TARGET_ARCH})..."
+    echo "▶ go build e2e-mock-agent (linux/amd64)..."
     go_cross "binaries/e2e-mock-agent-binary" ./runner/internal/agents/mockagent/cmd/e2e-mock-agent
     ;;
   loopal)
     stage_loopal
     ;;
   do-agent)
-    "${REPO_ROOT}/docker/agent-runtime/stage_do_agent_binary.sh" "${STAGING}/binaries"
+    if [[ ! -x "${DEPLOY_DEV}/do-agent-binary" ]]; then
+      source "${DEPLOY_DEV}/lib/build_do_agent_binary.sh"
+      build_do_agent_binary
+    fi
+    stage_sidecar "do-agent-binary" "${DEPLOY_DEV}/do-agent-binary"
     ;;
 esac
 

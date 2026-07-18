@@ -7,6 +7,12 @@ import (
 	"path/filepath"
 )
 
+var formalWorkerSlugs = []string{
+	"aider", "claude-code", "codex-cli", "cursor-cli", "do-agent",
+	"gemini-cli", "grok-build", "hermes", "loopal", "minimax-cli",
+	"openclaw", "opencode", "seedance-expert",
+}
+
 type Catalog struct {
 	definitions map[string]Definition
 	slugs       []string
@@ -17,7 +23,6 @@ type Definition struct {
 	Version                     string
 	Executable                  string
 	AdapterID                   string
-	Internal                    bool
 	DefinitionHash              string
 	DefinitionSource            []byte
 	AgentFile                   string
@@ -96,7 +101,6 @@ type definitionFile struct {
 	Executable                  string            `json:"executable"`
 	AdapterID                   string            `json:"adapter_id"`
 	InteractionModes            []string          `json:"interaction_modes"`
-	Internal                    bool              `json:"internal"`
 	ModelRequirement            json.RawMessage   `json:"model_requirement"`
 	ToolModelRequirements       []json.RawMessage `json:"tool_model_requirements"`
 	CredentialBindings          []json.RawMessage `json:"credential_bindings"`
@@ -129,16 +133,14 @@ func Load(root string) (*Catalog, error) {
 	}
 	repoRoot := filepath.Dir(filepath.Dir(root))
 	definitions := make(map[string]Definition, len(document.WorkerTypes))
-	slugs := make([]string, 0, len(document.WorkerTypes))
 	for _, entry := range document.WorkerTypes {
 		definition, err := loadDefinition(repoRoot, entry)
 		if err != nil {
 			return nil, err
 		}
 		definitions[definition.Slug] = definition
-		slugs = append(slugs, definition.Slug)
 	}
-	return &Catalog{definitions: definitions, slugs: slugs}, nil
+	return &Catalog{definitions: definitions, slugs: append([]string{}, formalWorkerSlugs...)}, nil
 }
 
 func (catalog *Catalog) Get(slug string) (Definition, bool) {

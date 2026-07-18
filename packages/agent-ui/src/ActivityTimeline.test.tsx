@@ -10,7 +10,6 @@ describe("ActivityTimeline", () => {
       <ActivityTimeline
         items={[
           {
-            ...toolContract("shell"),
             id: "tool-1",
             kind: "tool",
             title: "shell",
@@ -19,7 +18,6 @@ describe("ActivityTimeline", () => {
             status: "completed",
           },
           {
-            ...toolContract("shell"),
             id: "tool-2",
             kind: "tool",
             title: "shell",
@@ -54,7 +52,6 @@ describe("ActivityTimeline", () => {
       <ActivityTimeline
         items={[
           {
-            ...toolContract("shell"),
             id: "tool-failed",
             kind: "tool",
             title: "shell",
@@ -81,14 +78,12 @@ describe("ActivityTimeline", () => {
       <ActivityTimeline
         items={[
           {
-            ...toolContract("shell"),
             id: "tool-failed",
             kind: "tool",
             title: "shell",
             status: "failed",
           },
           {
-            ...toolContract("shell"),
             id: "tool-running",
             kind: "tool",
             title: "shell",
@@ -112,7 +107,6 @@ describe("ActivityTimeline", () => {
       <ActivityTimeline
         items={[
           {
-            ...toolContract("shell"),
             id: "tool-pending",
             kind: "tool",
             title: "shell",
@@ -135,7 +129,6 @@ describe("ActivityTimeline", () => {
       <ActivityTimeline
         items={[
           {
-            ...toolContract("fileChange"),
             id: "file-change",
             kind: "tool",
             title: "fileChange",
@@ -180,14 +173,3 @@ describe("ActivityTimeline", () => {
     expect(screen.getByText(text)).toHaveClass("break-words");
   });
 });
-
-function toolContract(semanticKey: string) {
-  return {
-    identity: {
-      namespace: "agentsmesh.acp",
-      schemaVersion: "1",
-      semanticKey,
-    },
-    results: [],
-  } as const;
-}

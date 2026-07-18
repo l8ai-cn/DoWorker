@@ -6,11 +6,11 @@ Only mark an item after its verifier and every required runtime artifact pass.
 An invalidated acceptance remains visible through the revocation record.
 
 - [x] `accept-runtime-evidence-baseline`
-  - Criteria: exactly 14 target slugs have durable baseline rows; every
-    observed database/image/fixture mismatch is recorded without inferred support.
+  - Criteria: exactly 13 target slugs have a documented evidence state; every
+    observed database/image/fixture mismatch is recorded.
   - Verifier: `bash scripts/verify-rebuild-state.sh`
   - Evidence: `catalog/worker-evidence-matrix.json`,
-    `evidence/revocations/2026-07-12-invalid-shared-contract.md`
+    `evidence/preflight-metadata-2026-07-16.json`
 
 - [x] `accept-canonical-definition-chain`
   - Criteria: Worker creation consumes the embedded definition; the database
@@ -18,7 +18,7 @@ An invalidated acceptance remains visible through the revocation record.
   - Verifier: `bash scripts/verify-definition-chain.sh`
   - Evidence: focused Backend tests and per-slug definition evidence.
 
-- [x] `accept-audit-worker-contracts`
+- [ ] `accept-audit-worker-contracts`
   - Criteria: real command evidence corrects selected credential, launch, and
     adapter mappings without promoting an unsupported Worker.
   - Verifier: focused Backend, Web, Definition, and projection checks.

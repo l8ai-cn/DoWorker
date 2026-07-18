@@ -102,7 +102,7 @@ func TestBatchGetTicketPods_OverLimit_InvalidArgument(t *testing.T) {
 	assert.Equal(t, connect.CodeInvalidArgument, connectCodeOf(t, err))
 }
 
-func TestCreatePodForTicket_MissingRunnerID_InvalidArgument(t *testing.T) {
+func TestCreatePodForTicket_MissingWorkerSpecSnapshotID_InvalidArgument(t *testing.T) {
 	srv := NewServer(nil, nil, &fakeOrgService{})
 	_, err := srv.CreatePodForTicket(ctxAsUser(1), connect.NewRequest(&meshv1.CreatePodForTicketRequest{
 		OrgSlug:    "acme",
@@ -122,6 +122,7 @@ func TestMapServiceError(t *testing.T) {
 	}{
 		{"ticket_not_found", meshservice.ErrTicketNotFound, connect.CodeNotFound},
 		{"runner_not_found", meshservice.ErrRunnerNotFound, connect.CodeNotFound},
+		{"snapshot_required", meshservice.ErrWorkerSpecSnapshotRequired, connect.CodeInvalidArgument},
 		{"generic_error", errors.New("oops"), connect.CodeInternal},
 		{"wrapped_unrelated_not_found", errors.New("not found: foo"), connect.CodeInternal},
 	}

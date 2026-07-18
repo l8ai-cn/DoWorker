@@ -94,6 +94,7 @@ func TestPostMessageEventResumesCompletedPodBeforeQueueingPrompt(t *testing.T) {
 	assert.Equal(t, http.StatusAccepted, response.Code)
 	require.NotNil(t, orchestrator.request)
 	assert.Equal(t, "completed-pod", orchestrator.request.SourcePodKey)
+	assert.Empty(t, orchestrator.request.AgentSlug)
 	assert.Equal(t, "conv-1", orchestrator.request.AgentSessionID)
 	assert.Equal(t, "resumed-pod", outbox.input.PodKey)
 	stored, err := sessions.Get(context.Background(), "conv-1")
@@ -117,6 +118,14 @@ func (s *podOrchestratorStub) CreatePod(
 ) (*agentpod.OrchestrateCreatePodResult, error) {
 	s.request = request
 	return s.result, s.err
+}
+
+func (s *podOrchestratorStub) DispatchDeferredPod(
+	_ context.Context,
+	_ *agentpod.OrchestrateCreatePodRequest,
+	result *agentpod.OrchestrateCreatePodResult,
+) (*agentpod.OrchestrateCreatePodResult, error) {
+	return result, s.err
 }
 
 type promptOutboxStub struct {

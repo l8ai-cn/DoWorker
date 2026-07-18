@@ -93,6 +93,7 @@ type ReferenceResolver interface {
 
 type WorkerDefinitionPolicyResolver interface {
 	EnvironmentBundlePolicy(string) (workerdefinition.EnvironmentBundlePolicy, bool)
+	ModelBindingProtocolAdapters(string) ([]string, bool)
 }
 
 type ServiceDeps struct {

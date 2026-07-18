@@ -70,8 +70,6 @@ mod state_workflow_proto;
 mod ws_transport;
 
 #[cfg(test)]
-mod agent_workbench_stream_status_tests;
-#[cfg(test)]
 mod service_orchestration_resource_tests;
 #[cfg(test)]
 mod service_pod_worker_creation_tests;

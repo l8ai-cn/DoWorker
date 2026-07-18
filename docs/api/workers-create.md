@@ -1,17 +1,18 @@
 # Worker Creation Contracts
 
 `Worker` 是产品中的一次性 AI 执行单元。`Pod` 仍是后端和 Runner 的运行生命周期
-对象。当前存在三条不同合同，不能做字段级互译或失败降级。
+对象。新建与恢复使用不同合同，不能做字段级互译或失败降级。
 
 ## 创建路径
 
 | 路径 | 调用方 | 合同 | 结果 |
 | --- | --- | --- | --- |
 | Resource-native Worker | 产品 UI、typed Connect 客户端 | YAML/表单 -> Validate -> Plan -> `CreateWorkerFromPlan` | Resource revision、launch、WorkerSpec snapshot、Pod |
-| Direct WorkerSpec | 内部产品客户端 | `ListWorkerCreateOptions`、`PreflightWorker`、`CreatePod` | WorkerSpec snapshot、Pod |
-| External REST | 现有 API-key 集成 | legacy `agent_slug` 与 `agentfile_layer` | Legacy Pod |
+| Direct WorkerSpec | 内部 typed 客户端 | `ListWorkerCreateOptions`、`PreflightWorker`、`CreatePod` | WorkerSpec snapshot、Pod |
+| External REST resume | API-key 集成 | `source_pod_key` lineage | 从不可变来源恢复的 Pod |
 
-Resource Apply 失败时不会调用 Direct WorkerSpec 或 External REST。
+Resource Apply 失败时不会调用 Direct WorkerSpec 或 External REST。External REST
+不提供 fresh Worker creation。
 
 ## Resource-native Worker
 
@@ -77,17 +78,12 @@ WorkerTemplate 保存可复用执行配置：
 - ModelBinding 与 ToolBinding
 - ComputeTarget 和 ResourceProfile 或 custom resources
 - Worker 类型 schema、配置值和 EnvironmentBundle Secret 引用
-- Repository、Skill、KnowledgeBase、运行时环境包和配置文档绑定
+- Repository、Skill、KnowledgeBase 和配置包
 - 交互模式、自动化级别和生命周期
 
 `optionsRevision` 必须来自当前 Worker 创建选项。Plan 会重新执行正式 preflight，
 生成 canonical WorkerSpec artifact；Apply 把它保存为不可变
 `worker_spec_snapshots` 记录。
-
-Worker 创建选项中的 `config_document_requirements` 声明 `document_id`、格式、
-目标路径和 `required`。WorkerTemplate 通过
-`workspace.configDocumentBindings` 把文档 ID 绑定到 config 类型的
-EnvironmentBundle。必需文档必须绑定；可选文档未配置时应省略，不发送空引用。
 
 ## Direct WorkerSpec
 
@@ -114,7 +110,6 @@ type_config_values
 secret_refs
 repository_id / branch
 skill_ids / knowledge_mounts / env_bundle_ids
-config_document_bindings
 automation_level / interaction_mode
 instructions / initial_task / alias
 termination_policy / idle_timeout_minutes
@@ -123,9 +118,6 @@ options_revision
 
 `PreflightWorker` 只有在没有 blocking issue 时才返回 resolved spec。`CreatePod`
 会重新解析同一 draft，不接受客户端伪造或复用其他 revision 的 resolved spec。
-`config_document_bindings` 的 `document_id` 必须由当前 Worker Definition 声明，
-`config_bundle_id` 必须指向当前 actor 可读取、与 Worker 类型兼容的 config
-EnvironmentBundle。
 
 Wire definitions：
 
@@ -133,6 +125,22 @@ Wire definitions：
 proto/pod/v1/worker_creation.proto
 proto/pod/v1/pod.proto
 ```
+
+## Runner MCP
+
+Runner 暴露的 `create_pod` 工具只消费控制面已经生成的 Worker Plan：
+
+```json
+{
+  "plan_id": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+工具 schema 不接受其他属性。Backend 会按发起 Pod 的组织和创建者身份重新检查
+Plan 及其全部 ResourceRef 权限，再调用 Worker Apply。Runner 不能提交 snapshot
+ID、Resource revision、Worker 类型、模型、Prompt、Ticket、仓库、权限、Secret、
+AgentFile 或 placement 覆盖。创建成功后，Runner 仍会为发起 Pod 请求新 Pod 的
+`pod:read` 和 `pod:write` 绑定。
 
 ## Secret
 
@@ -145,33 +153,38 @@ Worker 表单和 YAML 不传 API key：
 
 ## External REST
 
-现有 API-key 集成继续使用：
+API-key 集成只能从已有 Pod 的不可变来源恢复：
 
 ```http
 POST /api/v1/ext/orgs/{org_slug}/workers
-Authorization: Bearer amk_...
+X-API-Key: amk_...
 Content-Type: application/json
 ```
 
 ```json
 {
-  "agent_slug": "codex-cli",
-  "repository_id": 7,
-  "model_resource_id": 42,
-  "automation_level": "autonomous",
-  "agentfile_layer": "PROMPT \"Implement JWT refresh and add tests\""
+  "source_pod_key": "pod-abc123",
+  "resume_agent_session": true,
+  "cols": 120,
+  "rows": 36
 }
 ```
 
-该请求不提交 Resource Draft，不生成 Resource Plan，也不能表达完整
-WorkerTemplate 引用、不可变 revision 和 typed Apply 结果。`/pods` 是该历史
-handler 的兼容别名。
+`source_pod_key` 必填。可选字段为 `resume_agent_session`、`ticket_slug`、
+`cols`、`rows`、`queue_if_offline` 和 `queue_ttl_minutes`。Runner、Worker 类型、
+模型、仓库、AgentFile、自动化级别、知识库或其他运行时覆盖会返回
+`409 WORKER_RESUME_LINEAGE_ONLY`。
+
+不带 `source_pod_key` 的请求会返回
+`409 WORKER_RESOURCE_APPLY_REQUIRED`。fresh Worker 必须通过 typed Connect
+执行 Validate、Plan 和 `CreateWorkerFromPlan`。`/pods` 与 `/workers` 共享相同
+resume handler。
 
 | Action | Method | Endpoint |
 | --- | --- | --- |
 | List | `GET` | `/workers` |
 | Get | `GET` | `/workers/{pod_key}` |
-| Create | `POST` | `/workers` |
+| Resume | `POST` | `/workers` |
 | Send prompt | `POST` | `/workers/{pod_key}/prompt` |
 | Terminate | `POST` | `/workers/{pod_key}/terminate` |
 
@@ -179,7 +192,7 @@ handler 的兼容别名。
 
 - 产品 UI 和新 typed 客户端使用 Resource-native Worker。
 - 需要构造完整 WorkerSpec 的内部服务使用 Direct WorkerSpec。
-- 只有既有 API-key 集成继续使用 External REST。
+- API-key 集成只使用 External REST 恢复已有 Worker lineage。
 
-不要把 External REST 描述为 Resource-native Worker，也不要在 typed Apply
-失败后静默改用 legacy 路径。
+不要把 External REST resume 描述为 fresh Worker creation，也不要在 typed
+Apply 失败后静默改用其他路径。

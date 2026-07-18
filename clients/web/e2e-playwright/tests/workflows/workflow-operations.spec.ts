@@ -1,42 +1,50 @@
-// Migrated R5+: Connect-RPC only (no REST middle layer).
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { createResourceWorkflow } from "../../helpers/resource-workflow";
+import {
+  ensureResourceWorkflowFixture,
+  resetResourceWorkflowFixture,
+} from "../../helpers/resource-workflow-fixture";
+
 test.describe("Workflow Operations", () => {
-  test.beforeEach(async () => { clearAuthRateLimit(); });
-
-  test("workflows: open create dialog", async ({ page }) => {
-    await page.goto(`/${TEST_ORG_SLUG}/workflows`);
-    await page.waitForLoadState("load");
-
-    const createBtn = page.getByRole("button", { name: /新建|Create|New/i }).first();
-    if (await createBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await createBtn.click();
-      await page.waitForTimeout(500);
-    }
+  test.beforeEach(async ({ db }) => {
+    clearAuthRateLimit();
+    ensureResourceWorkflowFixture(db);
+    resetResourceWorkflowFixture(db);
   });
 
-  test("workflows: list → detail navigation", async ({ page, api }) => {
-    const cc = await api.connect();
-    const created = await createResourceWorkflow(cc, {
-      name: `E2E Workflow Nav ${Date.now()}`,
-      slug: `e2e-workflow-nav-${Date.now()}`,
-      cronExpression: "0 * * * *",
-      prompt: "echo nav test",
-    });
-    const slug = created.slug;
-    expect(slug).toBeTruthy();
-    await page.goto(`/${TEST_ORG_SLUG}/workflows`);
-    await page.waitForLoadState("load");
+  test("workflows: opens a new immutable revision editor", async ({
+    page,
+    db,
+  }) => {
+    const fixture = ensureResourceWorkflowFixture(db);
+    await page.goto(`/${TEST_ORG_SLUG}/workflows/${fixture.slug}`);
+    await page.getByRole("button", {
+      name: /New revision|新建修订/i,
+    }).click();
 
-    const link = page.locator(`a[href*="workflows/${slug}"]`).first();
-    if (await link.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await link.click();
-      await page.waitForLoadState("load");
-    }
-    if (slug) {
-      await cc.workflow.deleteWorkflow({ orgSlug: TEST_ORG_SLUG, workflowSlug: slug }).catch(() => null);
-    }
+    await expect(page.getByTestId("resource-editor")).toBeVisible();
+    await expect(page.getByLabel(/Resource name|资源名称/i))
+      .toHaveValue(fixture.slug);
+  });
+
+  test("workflows: sidebar opens a resource-managed detail", async ({
+    page,
+    db,
+  }) => {
+    const fixture = ensureResourceWorkflowFixture(db);
+    await page.goto(`/${TEST_ORG_SLUG}/workflows`);
+
+    await page.locator(
+      `[data-testid="workflow-row"][data-workflow-slug="${fixture.slug}"]`,
+    ).click();
+
+    await expect(page).toHaveURL(
+      new RegExp(`/${TEST_ORG_SLUG}/workflows/${fixture.slug}$`),
+    );
+    await expect(page.getByRole("heading", {
+      level: 1,
+      name: fixture.name,
+    })).toBeVisible();
   });
 });

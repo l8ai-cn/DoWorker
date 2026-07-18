@@ -18,7 +18,6 @@ import (
 type workerServices struct {
 	workerCreation       *workercreation.Service
 	workerDraftFiller    *workercreation.DraftFiller
-	workerDraftGenerator workercreation.DraftJSONGenerator
 	workerSpecs          specservice.SnapshotRepository
 	workerDefinitions    *workerdefinition.Catalog
 	workerRuntimeCatalog workerruntime.Catalog
@@ -58,7 +57,6 @@ func initializeWorkerServices(
 	return workerServices{
 		workerCreation:       creation,
 		workerDraftFiller:    workercreation.NewDraftFiller(creation, models, generator),
-		workerDraftGenerator: generator,
 		workerSpecs:          infra.NewWorkerSpecSnapshotRepository(db),
 		workerDefinitions:    definitions,
 		workerRuntimeCatalog: catalog,

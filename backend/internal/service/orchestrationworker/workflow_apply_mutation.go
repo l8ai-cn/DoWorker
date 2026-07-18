@@ -7,7 +7,6 @@ import (
 
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
 	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
 	"github.com/robfig/cron/v3"
 )
@@ -21,7 +20,6 @@ func buildWorkflowApplyMutation(
 	registry *resource.Registry,
 	resolver DefinitionResolver,
 	state controlservice.LockedApplyState,
-	status string,
 ) (WorkflowApplyMutation, error) {
 	if state.Plan.Target.Kind != resource.KindWorkflow ||
 		state.Plan.ArtifactKind != resource.KindWorkflow+"Apply" {
@@ -51,9 +49,6 @@ func buildWorkflowApplyMutation(
 	if err != nil {
 		return WorkflowApplyMutation{}, control.ErrCorrupt
 	}
-	if status == workflowDomain.StatusDisabled {
-		nextRunAt = nil
-	}
 	mutation, err := buildApplyMutation(
 		registry,
 		state,
@@ -70,7 +65,6 @@ func buildWorkflowApplyMutation(
 		ApplyMutation: mutation,
 		Projection: WorkflowApplyProjection{
 			Name: name, Prompt: prompt,
-			Status:               status,
 			ExecutionMode:        spec.ExecutionMode,
 			CronExpression:       spec.CronExpression,
 			SandboxStrategy:      spec.SandboxStrategy,

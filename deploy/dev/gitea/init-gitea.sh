@@ -168,43 +168,41 @@ add_deploy_key() {
     keys_json=$(curl -s -u "${ADMIN_USER}:${ADMIN_PASS}" \
         "${GITEA_API}/repos/${ORG_NAME}/${repo_name}/keys")
 
-    # Check if current key is already registered (compare fingerprints)
+    local keys_file
+    keys_file=$(mktemp)
+    printf '%s' "$keys_json" > "$keys_file"
+
+    # Gitea returns the server-calculated fingerprint with each deploy key.
     local registered_fp
-    registered_fp=$(echo "$keys_json" | python3 -c "
-import sys, json, subprocess, tempfile, os
+    registered_fp=$(python3 -c "
+import json, sys
 try:
-    keys = json.load(sys.stdin)
-    for k in keys:
-        if k.get('title') == '${key_title}':
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.pub', delete=False) as f:
-                f.write(k['key'] + '\n')
-                tmpf = f.name
-            r = subprocess.run(['ssh-keygen', '-lf', tmpf], capture_output=True, text=True)
-            os.unlink(tmpf)
-            if r.returncode == 0:
-                print(r.stdout.split()[1])
+    for key in json.load(open(sys.argv[1])).copy():
+        if key.get('title') == sys.argv[2]:
+            print(key.get('fingerprint', ''))
             break
 except Exception:
     pass
-" 2>/dev/null || true)
+" "$keys_file" "$key_title" 2>/dev/null || true)
 
     if [[ -n "$registered_fp" && "$registered_fp" == "$current_fp" ]]; then
+        rm -f "$keys_file"
         info "Deploy key already up-to-date for '${repo_name}'"
         return 0
     fi
 
     # Delete all stale keys with our title
     local stale_ids
-    stale_ids=$(echo "$keys_json" | python3 -c "
-import sys, json
+    stale_ids=$(python3 -c "
+import json, sys
 try:
-    keys = json.load(sys.stdin)
-    for k in keys:
-        if k.get('title') == '${key_title}':
-            print(k['id'])
+    for key in json.load(open(sys.argv[1])).copy():
+        if key.get('title') == sys.argv[2]:
+            print(key['id'])
 except Exception:
     pass
-" 2>/dev/null || true)
+" "$keys_file" "$key_title" 2>/dev/null || true)
+    rm -f "$keys_file"
 
     for key_id in $stale_ids; do
         info "Removing stale deploy key (id: ${key_id}) from '${repo_name}'..."

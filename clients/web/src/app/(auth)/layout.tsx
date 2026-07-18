@@ -2,7 +2,7 @@
 // OAuth callbacks, verify-email, forgot/reset password, invite acceptance,
 // onboarding, and runner authorization all go through @/lib/light-auth and
 // read session state via useLightSession/useRedirectIfAuthenticated/
-// useRequireLightAuth. The 40MB wasm bundle is deferred until the user
+// useRequireLightAuth. The multi-MB wasm bundle is deferred until the user
 // crosses into (dashboard), so the time-to-login form stays sub-second
 // even on slow connections.
 // MUST NOT wrap this group in AuthBootstrap/WasmProvider — that would

@@ -168,16 +168,54 @@ func main() {
 		)
 	defer stopGoalMonitor()
 
-	coordinatorSvc, coordinatorScheduler := initializeCoordinatorRuntime(
-		services, db, podOrchestrator, eventBus, appLogger.Logger,
-	)
+	services.autopilot.SetCommandSender(podCoordinator)
+
+	runnerOrgQuerier := infra.NewRunnerOrgQuerier(db)
+	orgAwareness := instance.NewOrgAwarenessService(runnerOrgQuerier, runnerConnMgr, redisClient, cfg.Server.Address, appLogger.Logger)
+	orgAwareness.Start()
+	setupOrgAwarenessRefresh(eventBus, orgAwareness)
+	slog.Info("OrgAwarenessService started")
+
+	workflowOrchestrator := workflow.NewWorkflowOrchestrator(services.workflow, services.workflowRun, eventBus, appLogger.Logger)
+	workflowOrchestrator.SetPodDependencies(podOrchestrator, services.autopilot, podCoordinator, services.ticket, services.repository)
+	workflowScheduler := workflow.NewWorkflowScheduler(services.workflow, workflowOrchestrator, orgAwareness, appLogger.Logger)
+	workflowScheduler.Start()
+	setupWorkflowEventSubscriptions(eventBus, workflowOrchestrator)
+	slog.Info("Workflow orchestrator and scheduler created")
+
+	goalLoopTimeoutMonitor := configureGoalLoopService(services, podOrchestrator, podCoordinator, pendingQueueWiring.queue, eventBus, appLogger.Logger)
+	defer goalLoopTimeoutMonitor.Stop()
+
+	coordinatorEnsurer := coordinatorsvc.NewRunnerEnsurer(services.runner, nil, appLogger.Logger)
+	if launcher, kind, err := coordinatorsvc.NewRunnerLauncherFromEnv(
+		services.workerRuntimeCatalog,
+		services.workerDefinitions.Slugs(),
+		appLogger.Logger,
+	); err != nil {
+		slog.Error("Coordinator runner launcher config invalid", "error", err)
+	} else if launcher != nil {
+		coordinatorEnsurer = coordinatorsvc.NewRunnerEnsurer(services.runner, launcher, appLogger.Logger)
+		slog.Info("Coordinator runner auto-provision enabled", "launcher", kind)
+	}
+	coordinatorSvc := coordinatorsvc.NewService(coordinatorsvc.Deps{
+		Store:         infra.NewCoordinatorRepository(db),
+		Tickets:       services.ticket,
+		Dispatch:      podOrchestrator,
+		PodTerminator: podCoordinator,
+		Platform:      coordinatorsvc.NewPlatformFactory(services.repository, services.user),
+		RunnerEnsurer: coordinatorEnsurer,
+		Logger:        appLogger.Logger,
+	})
+	coordinatorScheduler := coordinatorsvc.NewScheduler(coordinatorSvc, appLogger.Logger)
+	coordinatorScheduler.Start()
 	defer coordinatorScheduler.Stop()
 
 	grpcResult := initPKIAndGRPCWiring(cfg, services, runnerConnMgr, podCoordinator, podRouter, sandboxQuerySvc, sandboxFsSvc, podOrchestrator, workflowOrchestrator, services.workflowRun, appLogger, relayTokenGenerator, db)
 
-	if grpcResult.server != nil {
-		wirePendingQueueSender(pendingQueueWiring, grpcserver.NewGRPCCommandSender(grpcResult.server.RunnerAdapter()))
+	if grpcResult.server == nil {
+		log.Fatal("gRPC server initialization failed")
 	}
+	wirePendingQueueSender(pendingQueueWiring, grpcserver.NewGRPCCommandSender(grpcResult.server.RunnerAdapter()))
 
 	versionChecker := runner.NewVersionChecker(redisClient)
 	if versionChecker != nil {
@@ -190,12 +228,42 @@ func main() {
 		grpcResult, sandboxQuerySvc, sandboxFsSvc, logUploadSvc, relayManager, relayTokenGenerator, relayDNSService,
 		relayACMEManager, geoResolver, versionChecker, workflowOrchestrator, workflowScheduler, redisClient, pendingQueueWiring)
 	svc.Coordinator = coordinatorSvc
-	wireExpertAndSkillServices(
-		cfg, db, services, svc, podOrchestrator, appLogger.Logger,
-	)
+	expertGitops := gitops.NewService(newGiteaClientForNamespace(cfg, "am-experts"), appLogger.Logger)
+	skillStore := infra.NewSkillCatalogRepository(db)
+	svc.Expert = expertSvc.NewService(expertSvc.Deps{
+		Store:       infra.NewExpertRepository(db),
+		Pods:        services.pod,
+		Dispatch:    podOrchestrator,
+		Repos:       services.repository,
+		WorkerSpecs: services.workerSpecs,
+		Skills:      skillStore,
+		Gitops:      expertGitops,
+		Logger:      appLogger.Logger,
+	})
+
+	// Unified skill service (namespace am-skills): one internal git repo per
+	// skill, for both in-platform authoring and external imports. It reuses
+	// the extension packager for the package->object-storage pipeline.
+	// NewService returns nil (routes no-op) when gitea or the packager is not
+	// configured.
+	skillGitops := gitops.NewService(newGiteaClientForNamespace(cfg, "am-skills"), appLogger.Logger)
+	var skillPackager skillSvc.SkillPackagerBridge
+	if services.extension != nil {
+		if pkg := services.extension.SkillPackager(); pkg != nil {
+			skillPackager = pkg
+		}
+	}
+	svc.Skill = skillSvc.NewService(skillSvc.Deps{
+		Store:    skillStore,
+		Gitops:   skillGitops,
+		Packager: skillPackager,
+		Logger:   appLogger.Logger,
+	})
 
 	router := rest.NewRouter(cfg, svc, db, appLogger.Logger, redisClient)
-	grpcResult.server = startGRPCServer(cfg, grpcResult.server)
+	if err := startGRPCServer(cfg, grpcResult.server); err != nil {
+		log.Fatalf("Failed to start gRPC server: %v", err)
+	}
 
 	cleanupMkt := startMarketplaceWorker(services)
 	defer cleanupMkt()

@@ -43,38 +43,10 @@ func TestWorkflowApplyServiceBuildsPinnedDomainProjection(t *testing.T) {
 	assert.Equal(t, int64(901), applied.WorkerSpecSnapshotID)
 	assert.Equal(t, int64(1), applied.ResourceRevision)
 	assert.Equal(t, "Review authorization carefully", repository.mutation.Projection.Prompt)
-	assert.Equal(t, "enabled", repository.mutation.Projection.Status)
 	assert.Equal(t, "direct", repository.mutation.Projection.ExecutionMode)
 	assert.Equal(t, "0 2 * * *", repository.mutation.Projection.CronExpression)
 	assert.Equal(t, int64(901), repository.mutation.Revision.WorkerSpecSnapshotID)
 	assert.Equal(t, 1, repository.calls)
-}
-
-func TestWorkflowApplyServiceBuildsDisabledProjectionAtomically(t *testing.T) {
-	state := workflowApplyCreateState(t)
-	repository := &workflowApplyRepositoryStub{state: state, workflowID: 802}
-	service, err := NewWorkflowApplyService(
-		workerApplyRegistry(t),
-		repository,
-		&definitionResolverStub{prompt: resource.PromptSpec{
-			Content: "Review {{scope}}",
-			Variables: map[string]resource.PromptVariableSpec{
-				"scope": {Required: true},
-			},
-		}},
-	)
-	require.NoError(t, err)
-
-	_, err = service.ApplyWithStatus(
-		context.Background(),
-		state.Plan.Scope,
-		"11111111-1111-4111-8111-111111111111",
-		"disabled",
-	)
-
-	require.NoError(t, err)
-	assert.Equal(t, "disabled", repository.mutation.Projection.Status)
-	assert.Nil(t, repository.mutation.Projection.NextRunAt)
 }
 
 func TestWorkflowApplyServiceRejectsMissingDependencies(t *testing.T) {

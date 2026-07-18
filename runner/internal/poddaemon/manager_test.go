@@ -22,6 +22,28 @@ func TestRecoverSessionsEmpty(t *testing.T) {
 	assert.Empty(t, sessions)
 }
 
+func TestRecoverSessionsIgnoresInternalDirectories(t *testing.T) {
+	dir := t.TempDir()
+	require.NoError(t, os.MkdirAll(filepath.Join(dir, ".command-receipts"), 0o755))
+	mgr, err := NewPodDaemonManager(dir)
+	require.NoError(t, err)
+
+	sessions, err := mgr.RecoverSessions()
+	require.NoError(t, err)
+	assert.Empty(t, sessions)
+}
+
+func TestRecoverSessionsIgnoresSandboxWithoutState(t *testing.T) {
+	dir := t.TempDir()
+	require.NoError(t, os.MkdirAll(filepath.Join(dir, "acp-pod"), 0o755))
+	mgr, err := NewPodDaemonManager(dir)
+	require.NoError(t, err)
+
+	sessions, err := mgr.RecoverSessions()
+	require.NoError(t, err)
+	assert.Empty(t, sessions)
+}
+
 func TestRecoverSessionsFindsState(t *testing.T) {
 	dir := t.TempDir()
 

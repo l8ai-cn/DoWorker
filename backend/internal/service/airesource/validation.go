@@ -60,7 +60,15 @@ func (s *Service) ValidateConnection(ctx context.Context, actor Actor, connectio
 
 func (s *Service) persistValidationState(ctx context.Context, actor Actor, connection *domain.Connection, action, result string) error {
 	return s.mutations.Run(ctx, func(repo domain.Repository, recorder AuditRecorder) error {
-		revision, err := repo.SetValidationState(ctx, connection.ID, connection.Revision, connection.Status, *connection.LastValidatedAt, connection.ValidationError)
+		revision, err := repo.SetValidationState(
+			ctx,
+			connection.ID,
+			connection.Revision,
+			connection.CredentialsEncrypted,
+			connection.Status,
+			*connection.LastValidatedAt,
+			connection.ValidationError,
+		)
 		if err != nil {
 			return err
 		}

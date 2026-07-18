@@ -4,10 +4,10 @@
     {
       "slug": "aider",
       "layer": "runtime-catalog",
-      "observed": "Debian apt repositories returned repeated HTTP 502 responses while installing python3-pip after eight bounded retries.",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
       "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
       "status": "blocked",
-      "blocker_code": "upstream-apt-repository",
+      "blocker_code": "missing-immutable-runtime-image",
       "evidence_refs": [
         "catalog/worker-evidence-matrix.json",
         "evidence/runtime-builds/aider.json",
@@ -28,6 +28,19 @@
       ]
     },
     {
+      "slug": "codex-cli",
+      "layer": "runtime-catalog",
+      "observed": "The published immutable runtime digest could not be pulled from the configured registry.",
+      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
+      "status": "blocked",
+      "blocker_code": "invalid-published-runtime-image",
+      "evidence_refs": [
+        "catalog/worker-evidence-matrix.json",
+        "evidence/runtime-builds/codex-cli.json",
+        "evidence/runtime-lock-probes.json"
+      ]
+    },
+    {
       "slug": "cursor-cli",
       "layer": "runtime-catalog",
       "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
@@ -42,11 +55,11 @@
     },
     {
       "slug": "do-agent",
-      "layer": "product-path",
-      "observed": "The immutable image is locked, but Runner, product-path, or browser evidence remains incomplete.",
+      "layer": "runtime-catalog",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
       "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
       "status": "blocked",
-      "blocker_code": "product-path-unverified",
+      "blocker_code": "missing-immutable-runtime-image",
       "evidence_refs": [
         "catalog/worker-evidence-matrix.json",
         "evidence/runtime-builds/do-agent.json",
@@ -82,10 +95,10 @@
     {
       "slug": "hermes",
       "layer": "runtime-catalog",
-      "observed": "Debian apt returned HTTP 502 responses across all eight bounded python3-pip installation attempts.",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
       "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
       "status": "blocked",
-      "blocker_code": "upstream-apt-repository",
+      "blocker_code": "missing-immutable-runtime-image",
       "evidence_refs": [
         "catalog/worker-evidence-matrix.json",
         "evidence/runtime-builds/hermes.json",
@@ -146,27 +159,14 @@
     },
     {
       "slug": "seedance-expert",
-      "layer": "product-path",
-      "observed": "The immutable image is locked, but Runner, product-path, or browser evidence remains incomplete.",
+      "layer": "runtime-catalog",
+      "observed": "A local runtime smoke result exists, but no published immutable runtime image digest is locked.",
       "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
       "status": "blocked",
-      "blocker_code": "product-path-unverified",
+      "blocker_code": "missing-immutable-runtime-image",
       "evidence_refs": [
         "catalog/worker-evidence-matrix.json",
         "evidence/runtime-builds/seedance-expert.json",
-        "evidence/runtime-lock-probes.json"
-      ]
-    },
-    {
-      "slug": "video-studio",
-      "layer": "product-path",
-      "observed": "The immutable image is locked, but Runner, product-path, or browser evidence remains incomplete.",
-      "target": "Definition, immutable runtime, Runner, product-path, and browser evidence must all pass before support.",
-      "status": "blocked",
-      "blocker_code": "product-path-unverified",
-      "evidence_refs": [
-        "catalog/worker-evidence-matrix.json",
-        "evidence/runtime-builds/video-studio.json",
         "evidence/runtime-lock-probes.json"
       ]
     }

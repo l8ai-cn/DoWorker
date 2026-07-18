@@ -1,7 +1,7 @@
 import type {
   PlanResourceResponse,
   ValidateResourceResponse,
-} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import type { ResourceApplyResult } from "./resource-apply-result";
 import type { ResourceDraft } from "./resource-editor-types";
 

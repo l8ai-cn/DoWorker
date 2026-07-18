@@ -1,0 +1,19 @@
+{
+  "worker_slug": "codex-cli",
+  "adapter_id": "codex-app-server",
+  "image": "agentsmesh-codex-loop-blockly-mvp-runner-codex-cli@sha256:4b02f25fda853690da0d2844ef1da0606e9730e45de3cfca8bf3f2fd8448f113",
+  "version_probe": "codex-cli 0.144.5",
+  "pod_key": "1-standalone-fd17dc70",
+  "runner": "dev-runner-codex",
+  "worker_spec_snapshot_id": 14,
+  "acp_initialize": "passed",
+  "acp_session_created": "passed",
+  "relay_connection": "passed",
+  "prompt_delivery": "passed",
+  "provider_completion": "blocked",
+  "failure": {
+    "category": "external_provider_region",
+    "http_status": 403,
+    "message": "Country, region, or territory not supported."
+  }
+}

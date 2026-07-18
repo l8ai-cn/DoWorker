@@ -35,41 +35,41 @@ func validateSecretReferences(
 			return err
 		}
 		if _, exists := materialized[reference.Pin.DomainID]; exists {
-			return fmt.Errorf("secret EnvironmentBundle cannot be materialized")
+			return fmt.Errorf("Secret EnvironmentBundle cannot be materialized")
 		}
 		if err := workerspec.ValidateConfigField(reference.Field); err != nil {
-			return fmt.Errorf("secret target field: %w", err)
+			return fmt.Errorf("Secret target field: %w", err)
 		}
 		if _, exists := modelFields[reference.Field]; exists {
 			return fmt.Errorf(
-				"secret target field %q is managed by a model resource",
+				"Secret target field %q is managed by a model resource",
 				reference.Field,
 			)
 		}
 		if _, exists := credentialFields[reference.Field]; !exists {
 			return fmt.Errorf(
-				"secret target field %q is not owned by a credential bundle",
+				"Secret target field %q is not owned by a credential bundle",
 				reference.Field,
 			)
 		}
 		if err := workerspec.ValidateConfigField(reference.BundleKey); err != nil {
-			return fmt.Errorf("secret bundle key: %w", err)
+			return fmt.Errorf("Secret bundle key: %w", err)
 		}
 		if _, exists := fields[reference.Field]; exists {
-			return fmt.Errorf("duplicate secret target field %q", reference.Field)
+			return fmt.Errorf("duplicate Secret target field %q", reference.Field)
 		}
 		fields[reference.Field] = struct{}{}
 		if reference.OwnerID <= 0 {
-			return fmt.Errorf("secret owner id must be positive")
+			return fmt.Errorf("Secret owner id must be positive")
 		}
 		switch reference.OwnerScope {
 		case envbundle.OwnerScopeUser:
 		case envbundle.OwnerScopeOrg:
 			if reference.OwnerID != document.OrganizationID {
-				return fmt.Errorf("organization secret owner does not match artifact")
+				return fmt.Errorf("organization Secret owner does not match artifact")
 			}
 		default:
-			return fmt.Errorf("secret owner scope %q is invalid", reference.OwnerScope)
+			return fmt.Errorf("Secret owner scope %q is invalid", reference.OwnerScope)
 		}
 	}
 	return nil

@@ -1,18 +1,13 @@
 # shellcheck shell=bash
-# lifecycle.sh — start / stop / status / banner.
-#
-# Frontend launch (web + admin) uses plain `next dev` + pnpm workspace
-# packages (`@do-worker/*` / `do-worker-wasm`). Wasm is built via
-# `pnpm run build:wasm` when packages/do-worker-wasm is stale/missing.
-#
-# `clean` tears down everything dev.sh created (host pids, frontend ports,
-# docker volumes, .env). `reset_runners` is the targeted "rebuild + restart
-# the runner container" path used after a runner-only code change.
+# Lifecycle helpers for deploy/dev.
+# Start / stop / wait / health-check for host services + docker infra.
 
 # shellcheck source=runners_k8s.sh
 source "$(dirname "${BASH_SOURCE[0]}")/runners_k8s.sh"
 # shellcheck source=coordinator_runners.sh
 source "$(dirname "${BASH_SOURCE[0]}")/coordinator_runners.sh"
+# shellcheck source=lifecycle_wasm.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lifecycle_wasm.sh"
 
 # Banner / usage / docker-compose-up are factored out of the original main()
 # so the entry point is just orchestration.
@@ -129,7 +124,7 @@ reset_runners() {
 
     echo ""
     echo "=========================================="
-    echo "  Reset Runner (rebuild bazel binary + restart)"
+    echo "  Reset Runner (rebuild binary + restart)"
     echo "=========================================="
     echo ""
 
@@ -155,12 +150,12 @@ reset_runners() {
     # docker cp hot-swap instead of `up -d --build`: the image rebuild path
     # re-runs apt in runner.Dockerfile, which hangs behind Docker Desktop's
     # broken proxy on some hosts. Containers that were never created are
-    # skipped — `bazel run //deploy/dev:up` owns first-time creation.
+    # skipped — first-time creation is owned by ./dev.sh.
     local svc container updated=0
     for svc in $(runner_compose_services); do
         container="$(docker compose ps -aq "$svc" 2>/dev/null | head -1)"
         if [[ -z "$container" ]]; then
-            info "跳过 ${svc} (容器不存在 — 由 //deploy/dev:up 创建)"
+            info "跳过 ${svc} (容器不存在 — 先运行 ./dev.sh 创建)"
             continue
         fi
         docker cp "$SCRIPT_DIR/runner-binary" "${container}:/usr/local/bin/do-worker-runner"
@@ -175,10 +170,10 @@ reset_runners() {
         info "已热更新 $svc"
     done
     if [[ "$updated" -eq 0 ]]; then
-        error "没有可更新的 runner 容器 — 先跑 bazel run //deploy/dev:up"
+        error "没有可更新的 runner 容器 — 先运行 ./dev.sh"
         return 1
     fi
-    success "Runner 容器已重启 (bazel binary via docker cp，跳过 apt rebuild)"
+    success "Runner 容器已重启 (binary via docker cp，跳过 apt rebuild)"
 
     echo ""
 }
@@ -193,7 +188,7 @@ clean() {
     local web_admin_port="${WEB_ADMIN_PORT:-3001}"
     local web_user_port="${WEB_USER_PORT:-10020}"
 
-    info "停止 host-side 服务 (ibazel / air)..."
+    info "停止 host-side 服务 (air)..."
     stop_host_services
     success "host-side 服务已停止"
 
@@ -248,7 +243,7 @@ show_result() {
     echo "  Relay:      ws://localhost:$HTTP_PORT/relay  (→ host relay :$RELAY_HTTP_PORT)"
     echo "  gRPC mTLS:  grpcs://localhost:$GRPC_PORT      (→ host backend :$BACKEND_GRPC_PORT)"
     echo ""
-    echo "  Host services (ibazel hot-reload):"
+    echo "  Host services (air hot-reload):"
     echo "    backend  日志: tail -f deploy/dev/runtime/backend/backend.log"
     echo "    market   日志: tail -f deploy/dev/runtime/marketplace/marketplace.log"
     echo "    relay    日志: tail -f deploy/dev/runtime/relay/relay.log"
@@ -365,33 +360,6 @@ _prepare_next_port() {
     return 0
 }
 
-
-# Ensure packages/do-worker-wasm has a built wasm artifact. Rebuild via
-# `pnpm run build:wasm` when the JS glue is missing or older than the
-# Cargo.toml / crate sources (best-effort freshness).
-_ensure_do_worker_wasm() {
-    local root_dir="$SCRIPT_DIR/../.."
-    local out_js="$root_dir/packages/do-worker-wasm/wasm_pkg.js"
-    local crate="$root_dir/clients/core/crates/wasm"
-    local need_build=false
-
-    if [[ ! -f "$out_js" ]]; then
-        need_build=true
-    elif [[ -f "$crate/Cargo.toml" && "$crate/Cargo.toml" -nt "$out_js" ]]; then
-        need_build=true
-    fi
-
-    if [[ "$need_build" != true ]]; then
-        return 0
-    fi
-
-    info "构建 do-worker-wasm (pnpm run build:wasm)..."
-    if ! (cd "$root_dir" && pnpm run build:wasm); then
-        error "do-worker-wasm 构建失败 — 纯 Next 无法解析 wasm"
-        return 1
-    fi
-    success "do-worker-wasm 已就绪"
-}
 
 # Launch the Next.js web frontend via plain `next dev` (pnpm workspace).
 start_frontend() {

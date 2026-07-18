@@ -83,7 +83,7 @@ section "5. Mobile dev (:${MOBILE_PORT})"
 if curl -sf --max-time 3 -o /dev/null "http://localhost:${MOBILE_PORT}/" 2>/dev/null; then
   pass "mobile-lovable :${MOBILE_PORT}"
 else
-  warn "mobile-lovable :${MOBILE_PORT} not running (bazel run //clients/mobile-lovable:dev 或 dev:up)"
+  warn "mobile-lovable :${MOBILE_PORT} not running (pnpm run mobile:dev 或 ./deploy/dev/dev.sh)"
 fi
 
 section "6. Mobile API 对齐 (经 Traefik ${BASE})"

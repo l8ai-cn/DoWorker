@@ -3,13 +3,20 @@ set -euo pipefail
 
 LOOP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_ROOT="$(cd "${LOOP_ROOT}/../../../.." && pwd)"
-POSTGRES_CONTAINER="${WORKER_DEFINITION_POSTGRES_CONTAINER:-agentsmesh-main-postgres-1}"
-SLUGS=(
-  aider claude-code codex-cli cursor-cli do-agent gemini-cli grok-build
-  hermes loopal minimax-cli openclaw opencode
-)
+POSTGRES_CONTAINER="${WORKER_DEFINITION_POSTGRES_CONTAINER:-}"
+WORKER_CATALOG="${REPO_ROOT}/config/worker-types/catalog.json"
 
-for slug in "${SLUGS[@]}"; do
+if [[ -z "$POSTGRES_CONTAINER" ]]; then
+  project_name="$(awk -F= '/^COMPOSE_PROJECT_NAME=/{print $2; exit}' \
+    "${REPO_ROOT}/deploy/dev/.env")"
+  [[ -n "$project_name" ]] || {
+    echo "COMPOSE_PROJECT_NAME is required in deploy/dev/.env" >&2
+    exit 1
+  }
+  POSTGRES_CONTAINER="${project_name}-postgres-1"
+fi
+
+while IFS= read -r slug; do
   definition_dir="${REPO_ROOT}/config/worker-types/${slug}"
   count="$(docker exec "$POSTGRES_CONTAINER" psql -U agentsmesh -d agentsmesh -Atc \
     "SELECT count(*) FROM agents WHERE slug = '${slug}'")"
@@ -48,4 +55,4 @@ for slug in "${SLUGS[@]}"; do
       "SELECT agentfile_source FROM agents WHERE slug = '${slug}'" |
       perl -0pe 's/\n\z//') \
     "${definition_dir}/AgentFile"
-done
+done < <(jq -r '.worker_types[].slug' "$WORKER_CATALOG")

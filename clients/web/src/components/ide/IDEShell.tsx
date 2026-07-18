@@ -57,7 +57,7 @@ export function IDEShell({
   const handleCreatePod = useCallback(() => {
     const orgSlug = currentOrg?.slug;
     if (orgSlug) {
-      router.push(`/${orgSlug}/workers/new`);
+      router.push(`/${orgSlug}/workers/new?mode=template`);
       return;
     }
     setCreatePodModalOpen(true);

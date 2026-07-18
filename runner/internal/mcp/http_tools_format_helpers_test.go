@@ -107,6 +107,10 @@ func (m *mockFormatClient) UpdateTicket(_ context.Context, _ string, _, _ *strin
 	}, nil
 }
 
+func (m *mockFormatClient) DeleteTicket(_ context.Context, _ string) error {
+	panic("unexpected DeleteTicket call")
+}
+
 func (m *mockFormatClient) RequestBinding(_ context.Context, _ string, _ []tools.BindingScope) (*tools.Binding, error) {
 	return &tools.Binding{
 		ID: 10, InitiatorPod: "test-pod", TargetPod: "other-pod",
@@ -190,6 +194,74 @@ func (m *mockFormatClient) ListWorkflows(_ context.Context, _, _ string, _, _ in
 
 func (m *mockFormatClient) TriggerWorkflow(_ context.Context, _ string, _ map[string]interface{}) (*tools.WorkflowTriggerResult, error) {
 	return nil, nil
+}
+
+func (m *mockFormatClient) CreateWorkflow(_ context.Context, _ *tools.WorkflowCreateRequest) (*tools.WorkflowCreateResult, error) {
+	panic("unexpected CreateWorkflow call")
+}
+
+func (m *mockFormatClient) BlockCreate(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected BlockCreate call")
+}
+
+func (m *mockFormatClient) BlockUpdate(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected BlockUpdate call")
+}
+
+func (m *mockFormatClient) BlockDelete(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected BlockDelete call")
+}
+
+func (m *mockFormatClient) BlockAddRef(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected BlockAddRef call")
+}
+
+func (m *mockFormatClient) BlockRemoveRef(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected BlockRemoveRef call")
+}
+
+func (m *mockFormatClient) BlockUpdateRef(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected BlockUpdateRef call")
+}
+
+func (m *mockFormatClient) IndicatorDefine(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected IndicatorDefine call")
+}
+
+func (m *mockFormatClient) TriggerDefine(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected TriggerDefine call")
+}
+
+func (m *mockFormatClient) MemoryRetrieve(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected MemoryRetrieve call")
+}
+
+func (m *mockFormatClient) BlockListTypes(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected BlockListTypes call")
+}
+
+func (m *mockFormatClient) BlockListWorkspaces(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected BlockListWorkspaces call")
+}
+
+func (m *mockFormatClient) BlockGetDefaultWorkspace(_ context.Context, _ map[string]interface{}) (map[string]interface{}, error) {
+	panic("unexpected BlockGetDefaultWorkspace call")
+}
+
+func (m *mockFormatClient) KbList(_ context.Context) (map[string]interface{}, error) {
+	panic("unexpected KbList call")
+}
+
+func (m *mockFormatClient) KbSearch(_ context.Context, _ string, _ []string, _ int) (map[string]interface{}, error) {
+	panic("unexpected KbSearch call")
+}
+
+func (m *mockFormatClient) KbRead(_ context.Context, _, _ string) (map[string]interface{}, error) {
+	panic("unexpected KbRead call")
+}
+
+func (m *mockFormatClient) KbWrite(_ context.Context, _, _, _, _ string) (map[string]interface{}, error) {
+	panic("unexpected KbWrite call")
 }
 
 // --- Mock status provider ---

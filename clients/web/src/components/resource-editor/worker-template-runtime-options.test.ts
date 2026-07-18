@@ -14,6 +14,7 @@ describe("worker template runtime options", () => {
 
     expect(next?.spec.workspace.configDocumentBindings).toEqual([
       binding("shared", "shared-bundle", 3),
+      binding("minimax", ""),
     ]);
   });
 

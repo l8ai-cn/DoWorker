@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16",
+  "status": "blocked",
+  "approved_provider_classes": [
+    "Alibaba Cloud",
+    "Tencent Cloud"
+  ],
+  "build_contract": {
+    "node_base_image": "NODE_BASE_IMAGE",
+    "python_base_image": "PYTHON_BASE_IMAGE",
+    "configured_in": [
+      "docker/agent-runtime/build.sh",
+      "deploy/dev/docker-compose.runners.yml",
+      "deploy/dev/lib/runners_k8s.sh",
+      "deploy/kubernetes/cluster-oilan/push-images.sh"
+    ]
+  },
+  "verification": {
+    "compose_render": "passed",
+    "runtime_contract_tests": "passed",
+    "provider_manifest": "not_verified"
+  },
+  "blocker": "No authenticated Alibaba Cloud ACR or Tencent Cloud TCR namespace and no verified full Node/Python image references are available in this environment."
+}

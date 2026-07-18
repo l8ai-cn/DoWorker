@@ -82,3 +82,17 @@ func TestResourceListFilterRejectsInvalidEnvironmentBundleContext(
 		)
 	}
 }
+
+func TestResourceListFilterRejectsModelBindingFilterOutsideModelBindingKind(
+	t *testing.T,
+) {
+	filter := ResourceListFilter{
+		Kind:  resource.KindPrompt,
+		Limit: 100,
+		ModelBinding: &ModelBindingReferenceFilter{
+			WorkerType: slugkit.MustNewForTest("minimax-cli"),
+		},
+	}
+
+	assert.ErrorIs(t, filter.Validate(orchestrationServiceScope()), control.ErrInvalid)
+}

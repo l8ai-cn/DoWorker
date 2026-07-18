@@ -16,10 +16,10 @@ export const metadata: Metadata = {
     default: "Do Worker - Enterprise Agent Supply and OPC Incubation",
     template: "%s | Do Worker",
   },
-  description: "Build, govern, distribute, and operate reusable Agents for enterprise teams, OPC founders, and higher-education digital employee programs.",
+  description: "Build, govern, distribute, and operate reusable Agents for enterprise teams, OPC founders, and higher-education digital employee pilots.",
   keywords: [
     "do-worker", "do worker", "l8ai",
-    "enterprise agent supply", "OPC incubation", "higher-education digital employees",
+    "enterprise agent supply", "OPC incubation", "higher-education digital employee pilots",
     "AI partner platform", "internal agent marketplace",
     "AI agents", "AI coding", "Claude Code", "Codex CLI", "Gemini CLI", "Aider",
     "multi-agent orchestration", "AI skills", "terminal AI", "code automation",
@@ -60,8 +60,6 @@ export const viewport: Viewport = {
   ],
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default async function RootLayout({

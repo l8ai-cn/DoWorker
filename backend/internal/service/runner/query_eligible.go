@@ -98,7 +98,7 @@ func (s *Service) collectEligibleRunners(
 		result = append(result, active)
 		return true
 	})
-	return result, collectErr
+	return result, nil
 }
 
 func isRunnerAvailableForAgent(ar *ActiveRunner, orgID int64, agentSlug string) bool {

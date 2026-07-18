@@ -2,7 +2,10 @@ package sessionapi
 
 import (
 	"context"
+	"time"
 
+	podDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
+	sessionDomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentsession"
 	agentservice "github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	sessionsvc "github.com/anthropics/agentsmesh/backend/internal/service/agentsession"
@@ -23,24 +26,10 @@ import (
 	userservice "github.com/anthropics/agentsmesh/backend/internal/service/user"
 	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
 	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
-	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
 
 type sessionPromptOutbox interface {
 	PersistAndQueue(context.Context, sessionmessagesvc.PromptInput) error
-}
-
-type previewSessionRevoker interface {
-	RevokeUser(context.Context, int64) error
-}
-
-type sandboxFilesystem interface {
-	IsConnected(runnerID int64) bool
-	Exec(
-		context.Context,
-		int64,
-		*runnerv1.SandboxFsCommand,
-	) (*runnerv1.SandboxFsResultEvent, error)
 }
 
 type sessionPodOrchestrator interface {
@@ -48,6 +37,33 @@ type sessionPodOrchestrator interface {
 		context.Context,
 		*agentpod.OrchestrateCreatePodRequest,
 	) (*agentpod.OrchestrateCreatePodResult, error)
+	DispatchDeferredPod(
+		context.Context,
+		*agentpod.OrchestrateCreatePodRequest,
+		*agentpod.OrchestrateCreatePodResult,
+	) (*agentpod.OrchestrateCreatePodResult, error)
+}
+
+type sessionPodLifecycle interface {
+	TerminatePod(context.Context, string) error
+	TerminatePodDeleteBranch(context.Context, string) error
+}
+
+type sessionDeferredCommitter interface {
+	CommitCreate(
+		context.Context,
+		*sessionDomain.Session,
+		*podDomain.PendingCommand,
+		int,
+		func(*itemsvc.Service) error,
+	) error
+}
+
+type sessionDispatchQueue interface {
+	AllowsDurableCommand(int64) bool
+	MaxPerRunner() int
+	SendPromptTTL() time.Duration
+	TriggerDrain(int64)
 }
 
 type Deps struct {
@@ -64,7 +80,9 @@ type Deps struct {
 	Stream             *SessionStreamPublisher
 	PodOrchestrator    sessionPodOrchestrator
 	Pod                *agentpod.PodService
-	PodCoordinator     *runnerservice.PodCoordinator
+	DeferredCommitter  sessionDeferredCommitter
+	DispatchQueue      sessionDispatchQueue
+	PodCoordinator     sessionPodLifecycle
 	CommandSender      runnerservice.RunnerCommandSender
 	RelayManager       *relayservice.Manager
 	RelayTokens        *relayservice.TokenGenerator
@@ -82,6 +100,5 @@ type Deps struct {
 	VirtualKeys        *virtualkeysvc.Service
 	TokenQuotas        *tokenquotasvc.Service
 	EmbedTokens        *embedtoken.Service
-	PreviewSessions    previewSessionRevoker
 	Version            string
 }

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useMemo } from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { PodData } from "@/lib/api/facade/pod";
-import { useTranslations } from "next-intl";
-import { useFocusTrap } from "@/components/pod/hooks";
-import { CreatePodForm, CreatePodFormConfig, TicketContext } from "@/components/pod/CreatePodForm";
+import type { TicketContext } from "@/components/pod/CreatePodForm";
+import { useCurrentOrg } from "@/stores/auth";
 
 interface CreatePodModalProps {
   open: boolean;
@@ -16,48 +16,19 @@ interface CreatePodModalProps {
 }
 
 export function CreatePodModal({
-  open, onClose, onCreated, ticketContext, initialAgentSlug, initialPrompt,
+  open,
+  onClose,
 }: CreatePodModalProps) {
-  const t = useTranslations();
+  const router = useRouter();
+  const currentOrg = useCurrentOrg();
 
-  const modalRef = useFocusTrap<HTMLDivElement>(open, onClose);
+  useEffect(() => {
+    if (!open || !currentOrg?.slug) return;
+    onClose();
+    router.push(`/${currentOrg.slug}/workers/new?mode=template`);
+  }, [currentOrg?.slug, onClose, open, router]);
 
-  const formConfig: CreatePodFormConfig = useMemo(() => ({
-    scenario: ticketContext ? "ticket" : "workspace",
-    context: ticketContext ? { ticket: ticketContext } : undefined,
-    initialAgentSlug,
-    initialPrompt,
-    onSuccess: (pod) => {
-      onCreated(pod);
-      onClose();
-    },
-    onCancel: onClose,
-  }), [ticketContext, initialAgentSlug, initialPrompt, onCreated, onClose]);
-
-  if (!open) return null;
-
-  return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="create-pod-title"
-    >
-      <div
-        ref={modalRef}
-        className="bg-background border border-border rounded-lg w-full max-w-3xl p-4 md:p-6 max-h-[90vh] overflow-y-auto"
-      >
-        <h2 id="create-pod-title" className="text-lg md:text-xl font-semibold mb-4">
-          {t("ide.createPod.title")}
-        </h2>
-
-        <CreatePodForm
-          config={formConfig}
-          enabled={open}
-        />
-      </div>
-    </div>
-  );
+  return null;
 }
 
 export default CreatePodModal;

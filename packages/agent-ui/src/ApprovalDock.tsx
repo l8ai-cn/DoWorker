@@ -10,13 +10,11 @@ import type {
 import { PermissionQuestionForm } from "./PermissionQuestionForm";
 
 export function ApprovalDock({
-  disabled = false,
   onError,
   permissions,
   runtime,
   sessionId,
 }: {
-  disabled?: boolean;
   onError: (error: unknown) => void;
   permissions: AgentPermissionRequest[];
   runtime: AgentSessionRuntime;
@@ -27,7 +25,7 @@ export function ApprovalDock({
   const [resolvingId, setResolvingId] = useState<string | null>(null);
   if (permissions.length === 0) return null;
   const permission = permissions[0];
-  const isResolving = disabled || resolvingId === permission.id;
+  const isResolving = resolvingId === permission.id;
   const resolve = (result: AgentPermissionResolution) => {
     if (resolvingRef.current === permission.id) return;
     resolvingRef.current = permission.id;

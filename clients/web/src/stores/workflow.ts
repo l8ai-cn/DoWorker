@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { useMemo } from "react";
 import { create as protoCreate, toBinary, fromBinary } from "@bufbuild/protobuf";
-import type { WorkflowData, WorkflowRunData, RunStatus, CreateWorkflowRequest, UpdateWorkflowRequest } from "@/lib/viewModels/workflow";
+import type { WorkflowData, WorkflowRunData, RunStatus } from "@/lib/viewModels/workflow";
 import { getWorkflowState } from "@/lib/wasm-core";
 import { readCurrentOrg } from "@/stores/auth";
 import { reconnectRegistry } from "@/lib/realtime";
@@ -9,9 +9,6 @@ import { getErrorMessage } from "@/lib/utils";
 import {
   listWorkflowsRaw as listWorkflowsRawConnect,
   getWorkflowRaw as getWorkflowRawConnect,
-  createWorkflow as createWorkflowConnect,
-  updateWorkflow as updateWorkflowConnect,
-  deleteWorkflow as deleteWorkflowConnect,
   enableWorkflow as enableWorkflowConnect,
   disableWorkflow as disableWorkflowConnect,
   triggerWorkflow as triggerWorkflowConnect,
@@ -25,7 +22,7 @@ import {
   ReplaceCachedWorkflowRunsRequestSchema, ReplaceCachedWorkflowsRequestSchema,
   SetCurrentWorkflowRequestSchema,
 } from "@proto/workflow_state/v1/workflow_state_pb";
-import { ListWorkflowRunsResponseSchema, ListWorkflowsResponseSchema } from "@proto/workflow/v1/workflow_pb";
+import { ListWorkflowRunsResponseSchema } from "@proto/workflow/v1/workflow_pb";
 import { workflowToProtoWorkflow, workflowRunToProtoWorkflowRun } from "@/lib/api/workflowProtoMap";
 import { workflowToCache, workflowRunToCache } from "@/lib/api/projections";
 
@@ -108,9 +105,6 @@ interface WorkflowStoreState {
   error: string | null; totalCount: number; runsTotalCount: number;
   fetchWorkflows: (filters?: { query?: string; status?: string }) => Promise<void>;
   fetchWorkflow: (slug: string) => Promise<void>;
-  createWorkflow: (data: CreateWorkflowRequest) => Promise<{ workflow: WorkflowData }>;
-  updateWorkflow: (slug: string, data: UpdateWorkflowRequest) => Promise<WorkflowData>;
-  deleteWorkflow: (slug: string) => Promise<void>;
   enableWorkflow: (slug: string) => Promise<void>;
   disableWorkflow: (slug: string) => Promise<void>;
   triggerWorkflow: (slug: string) => Promise<{ run?: WorkflowRunData; skipped?: boolean; reason?: string }>;
@@ -151,26 +145,6 @@ export const useWorkflowStore = create<WorkflowStoreState>((set, get) => ({
       svc().apply_fetched_current_workflow(respBytes);
       set({ workflowLoading: false, _tick: get()._tick + 1 });
     } catch (err) { set({ error: getErrorMessage(err, "An error occurred"), workflowLoading: false }); }
-  },
-
-  createWorkflow: async (data) => {
-    const workflow = await createWorkflowConnect(orgSlug(), data);
-    get().fetchWorkflows();
-    return { workflow };
-  },
-
-  updateWorkflow: async (slug, data) => {
-    const workflow = await updateWorkflowConnect(orgSlug(), slug, data);
-    bump();
-    get().fetchWorkflows();
-    return workflow;
-  },
-
-  deleteWorkflow: async (slug) => {
-    await deleteWorkflowConnect(orgSlug(), slug);
-    clearCurrentWorkflow();
-    bump();
-    get().fetchWorkflows();
   },
 
   enableWorkflow: async (slug) => {

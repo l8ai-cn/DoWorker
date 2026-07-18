@@ -11,7 +11,6 @@ import (
 
 type modelResourceService struct {
 	resolved      *resourceservice.ResolvedResource
-	resolvedByID  map[int64]*resourceservice.ResolvedResource
 	err           error
 	calls         int
 	exactCalls    int
@@ -52,9 +51,6 @@ func (service *modelResourceService) resolve(
 	service.orgID = orgID
 	service.resourceID = resourceID
 	service.requirements = requirements
-	if resolved := service.resolvedByID[resourceID]; resolved != nil {
-		return resolved, service.err
-	}
 	return service.resolved, service.err
 }
 

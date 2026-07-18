@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T15:16:45+08:00",
+  "scope": "local development, pre-creation only",
+  "worker_slug": "do-agent",
+  "safety_boundary": {
+    "provider_request": false,
+    "provider_credential_read": false,
+    "pod_create_rpc": false,
+    "terminal_data_plane": false
+  },
+  "image": {
+    "reference": "agentsmesh-codex-loop-blockly-mvp-runner-do-agent:latest",
+    "digest": "sha256:55976d9ff21970af62034d932eb7be4d797472fe13a30d8b9adfa8458b87a32f",
+    "probe": {
+      "command": "docker run --rm --user 1000:1000 --entrypoint do-agent <image> --version",
+      "exit_code": 0,
+      "version": "0.2.7"
+    }
+  },
+  "runtime_catalog": {
+    "revision": "local-dev-codex-cli-local-gemini-cli-local-do-agent-local-aider-local-claude-code-local-cursor-cli-local",
+    "image_slug": "do-agent-local",
+    "image_id": 3,
+    "worker_type_slugs": [
+      "do-agent",
+      "seedance-expert"
+    ]
+  },
+  "runner": {
+    "node_id": "dev-runner-do-agent",
+    "status": "online",
+    "tunnel_state": "connected",
+    "available_agents": [
+      "do-agent",
+      "seedance-expert"
+    ],
+    "agent_version": "0.2.7",
+    "last_heartbeat_at": "2026-07-16T07:15:21.785749Z"
+  },
+  "model_binding": {
+    "binding": "qa-primary-model",
+    "resource_id": 1,
+    "provider_protocol_adapter": "openai-compatible",
+    "provider_connection_status": "valid",
+    "model_resource_status": "valid",
+    "credential_fields_configured": [
+      "api_key"
+    ],
+    "credential_plaintext_read": false
+  },
+  "worker_template": {
+    "name": "do-agent-smoke-template",
+    "revision": 1,
+    "worker_spec_snapshot_id": 2,
+    "validation": "passed",
+    "plan_id": "0a189953-6027-456d-9931-123c49902228",
+    "apply_result": "revision 1 and WorkerSpec snapshot 2",
+    "pinned_references": [
+      "ComputeTarget/local-runner-pool@r1",
+      "ModelBinding/qa-primary-model@r1",
+      "ResourceProfile/standard-profile@r1"
+    ]
+  },
+  "worker_launch_plan": {
+    "name": "do-agent-runtime-preflight",
+    "validation": "passed",
+    "plan_id": "30b9129b-90cd-46ad-bde5-2ccda464b947",
+    "pinned_references": [
+      "WorkerTemplate/do-agent-smoke-template@r1"
+    ],
+    "applied": false,
+    "reason_not_applied": "Creating the Worker would dispatch to Runner and may use the configured provider credential. No named non-production provider invocation authorization was supplied."
+  },
+  "browser": {
+    "route": "/dev-org/workers/new",
+    "template_selected_worker_type": "DoAgent",
+    "template_selected_runtime_image": "DoAgent (local development)",
+    "template_selected_interaction_mode": "ACP",
+    "template_model_binding_required": true,
+    "template_validation": "passed",
+    "template_plan": "passed",
+    "template_apply": "passed",
+    "launch_validation": "passed",
+    "launch_plan": "passed",
+    "console_errors": [],
+    "failed_xhr_or_fetch_requests": []
+  },
+  "database_postconditions": {
+    "worker_template_resource_count": 1,
+    "worker_invocation_resource_count": 0,
+    "worker_launch_count": 0,
+    "do_agent_pods_created_after_2026_07_16T07_00_00Z": 0
+  },
+  "conclusion": "DoAgent has current immutable image, runtime catalog, connected Runner, model-binding metadata, WorkerTemplate apply, and browser Worker launch-plan evidence. It is not formally supported: no Worker was created, no credential plaintext was read, no provider request was sent, and no terminal data-plane session was opened."
+}

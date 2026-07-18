@@ -16,10 +16,8 @@ describe("ResourceOrchestrationPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Validate → Plan → Apply")).toBeInTheDocument();
     expect(screen.getByText("One draft, two views")).toBeInTheDocument();
-    expect(screen.getByText(/limited to 256 KiB per document/))
+    expect(screen.getByText(/256 KiB per document and 64 KiB per physical line/))
       .toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "One draft, two views" })
-      .closest("section")).toHaveAttribute("id", "yaml");
     expect(screen.getByText(/GoalLoop Apply creates a draft/)).toBeInTheDocument();
   });
 });

@@ -1,15 +1,6 @@
-# Docker Compose for AgentsMesh Development
-#
-# Backend / relay run on the developer host via `dev.sh` using
-# `ibazel run //path:target` (hot reload for the services developers
-# touch most). Runner stays in docker — the AI agent processes it spawns
-# need a sandbox boundary, so we trade hot reload for isolation. The
-# runner binary is still produced by Bazel (`//runner/cmd/runner:runner`,
-# linux/amd64 cross-compiled by dev.sh) and COPYed into the dev image
-# at `docker compose build` time.
-#
-# Traefik proxies the host-side backend / relay via `host.docker.internal`
-# (extra_hosts on Linux maps to host-gateway).
+# Local development stack — infrastructure only.
+# Application services (backend / relay / runner / web / web-admin) run on the
+# host via air + next (see deploy/dev/lib/host_services.sh).
 
 services:
   # PostgreSQL database

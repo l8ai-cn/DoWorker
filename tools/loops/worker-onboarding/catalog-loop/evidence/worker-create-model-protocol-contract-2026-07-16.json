@@ -1,0 +1,44 @@
+{
+  "captured_at": "2026-07-16T05:04:00+08:00",
+  "scope": {
+    "operation": "ListWorkerCreateOptions",
+    "worker_type_slug": "do-agent",
+    "authentication": "development user session",
+    "provider_credentials": "not read",
+    "provider_request": "not made",
+    "pod_created": false
+  },
+  "expected_definition_contract": {
+    "source": "config/worker-types/do-agent/definition.json",
+    "requires_model_resource": true,
+    "model_protocol_adapters": [
+      "openai-compatible",
+      "anthropic"
+    ]
+  },
+  "observed_live_connect_response": {
+    "endpoint": "/proto.pod.v1.PodService/ListWorkerCreateOptions",
+    "revision": "local-dev-codex-cli-local-gemini-cli-local-minimax-cli-local-openclaw-local-do-agent-local",
+    "worker_type": {
+      "slug": "do-agent",
+      "selectable": true,
+      "requires_model_resource": true,
+      "model_protocol_adapters": [
+        "openai-compatible",
+        "anthropic"
+      ]
+    }
+  },
+  "deterministic_verifiers": {
+    "backend_mapper_test": "go test ./backend/internal/api/connect/pod -run TestListWorkerCreateOptionsMapsServiceResult -count=1",
+    "service_projection_test": "go test ./backend/internal/service/workercreation -run TestServiceListOptionsReturnsSelectableRuntimeAndBlockingReasons -count=1",
+    "web_regressions": "13 focused Vitest tests passed",
+    "web_typecheck": "pnpm run web:typecheck",
+    "diff_check": "git diff --check"
+  },
+  "known_limits": {
+    "browser": "Chrome DevTools transport closed; no rendered-page evidence",
+    "full_go_package": "linker blocked by local disk exhaustion",
+    "wasm_build": "not attempted with less than 1 GiB free disk space"
+  }
+}

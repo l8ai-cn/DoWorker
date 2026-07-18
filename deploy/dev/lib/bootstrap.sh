@@ -93,23 +93,23 @@ init_seed() {
         "SELECT COUNT(*) FROM users WHERE email = 'dev@agentsmesh.local'" 2>/dev/null | tr -d ' ')
 
     if [[ "$user_exists" -gt 0 ]]; then
-        info "Seed 数据已存在，跳过基础 seed"
+        info "重放幂等基础 seed，修复开发运行时配置..."
     else
-        info "初始化 seed 数据..."
-        if ! docker exec -i "$pg_container" psql -v ON_ERROR_STOP=1 -U agentsmesh -d agentsmesh < "$SEED_FILE"; then
-            error "基础 seed 失败（常见原因：seed.sql 引用了已删除的表）"
+        info "初始化基础 seed..."
+    fi
+    if ! docker exec -i "$pg_container" psql -v ON_ERROR_STOP=1 -U agentsmesh -d agentsmesh < "$SEED_FILE"; then
+        error "基础 seed 失败（常见原因：seed.sql 引用了已删除的表）"
+        return 1
+    fi
+
+    if [[ -f "$LEMONSQUEEZY_SEED_FILE" ]]; then
+        info "配置 LemonSqueezy Variant IDs..."
+        if ! docker exec -i "$pg_container" psql -v ON_ERROR_STOP=1 -U agentsmesh -d agentsmesh < "$LEMONSQUEEZY_SEED_FILE"; then
+            error "LemonSqueezy seed 失败"
             return 1
         fi
-
-        if [[ -f "$LEMONSQUEEZY_SEED_FILE" ]]; then
-            info "配置 LemonSqueezy Variant IDs..."
-            if ! docker exec -i "$pg_container" psql -v ON_ERROR_STOP=1 -U agentsmesh -d agentsmesh < "$LEMONSQUEEZY_SEED_FILE"; then
-                error "LemonSqueezy seed 失败"
-                return 1
-            fi
-        fi
-        success "基础 seed 数据初始化完成"
     fi
+    success "基础 seed 数据初始化完成"
 
     # e2e-echo mock agent — always apply (idempotent via ON CONFLICT DO
     # UPDATE) so that test agentfile / scenario tweaks land on existing
@@ -134,11 +134,7 @@ sync_worker_definition_projections() {
         DB_PASSWORD="${POSTGRES_PASSWORD:-agentsmesh_dev}" \
         DB_NAME=agentsmesh \
         DB_SSLMODE=disable \
-        PRIMARY_DOMAIN="$PRIMARY_DOMAIN" \
-        PUBLIC_WEB_URL="$PUBLIC_WEB_URL" \
-        MOBILE_PUBLIC_BASE_URL="$MOBILE_PUBLIC_BASE_URL" \
         PREVIEW_PUBLIC_ORIGIN="$PREVIEW_PUBLIC_ORIGIN" \
-        USE_HTTPS="${USE_HTTPS:-false}" \
         WORKER_DEFINITIONS_DIR=config/worker-types \
         go run ./backend/cmd/worker-definition-sync
     ) || {

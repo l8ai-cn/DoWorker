@@ -1,28 +1,39 @@
 package envbundle
 
 import (
-	"encoding/json"
+	"fmt"
 
 	envbundledomain "github.com/anthropics/agentsmesh/backend/internal/domain/envbundle"
 )
 
 // ParseConfigDocuments converts config-kind bundles into parsed JSON values
 // keyed by bundle name for AgentFile USE_CONFIG_BUNDLE eval.
-func ParseConfigDocuments(bundles []*EffectiveBundle) map[string]interface{} {
+func ParseConfigDocuments(
+	bundles []*EffectiveBundle,
+) (map[string]interface{}, error) {
 	out := make(map[string]interface{})
 	for _, b := range bundles {
+		if b == nil {
+			return nil, fmt.Errorf("config bundle resolution returned nil")
+		}
 		if b.Kind != envbundledomain.KindConfig {
 			continue
 		}
-		raw, ok := b.Data[envbundledomain.ConfigJSONDataKey]
-		if !ok || raw == "" {
-			continue
-		}
-		var doc interface{}
-		if err := json.Unmarshal([]byte(raw), &doc); err != nil {
-			continue
+		doc, err := ParseConfigDocument(b)
+		if err != nil {
+			return nil, fmt.Errorf("config bundle %q: %w", b.Name, err)
 		}
 		out[b.Name] = doc
 	}
-	return out
+	return out, nil
+}
+
+func ParseConfigDocument(bundle *EffectiveBundle) (interface{}, error) {
+	if bundle == nil {
+		return nil, fmt.Errorf("config bundle resolution returned nil")
+	}
+	if bundle.Kind != envbundledomain.KindConfig {
+		return nil, fmt.Errorf("bundle kind %q is not config", bundle.Kind)
+	}
+	return decodeConfigDocument(bundle.Data)
 }

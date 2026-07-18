@@ -14,7 +14,7 @@ import (
 var (
 	ErrWorkerCreationUnavailable    = errors.New("worker creation service is not configured")
 	ErrConflictingWorkerCreateInput = errors.New(
-		"structured workerspec cannot be combined with legacy worker fields",
+		"worker execution source cannot be combined with another source or legacy worker fields",
 	)
 	ErrInvalidPreparedWorkerSpec = errors.New(
 		"worker creation service returned an inconsistent prepared workerspec",

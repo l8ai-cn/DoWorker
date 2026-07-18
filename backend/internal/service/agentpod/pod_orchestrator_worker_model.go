@@ -69,6 +69,9 @@ func (o *PodOrchestrator) applyWorkerModel(ctx context.Context, req *Orchestrate
 		if harness == "claude-code" && modelID != "" {
 			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(resource.Resource.ModelID))
 		}
+		if harness == "opencode" {
+			appendAgentfileLayer(&req.AgentfileLayer, `CONFIG model = `+agentfile.FormatStringLiteral(opencodeModelSelector(resource)))
+		}
 		if harness == "minimax-cli" {
 			if modelID == "" {
 				return ErrMissingModelResource
@@ -136,7 +139,7 @@ func modelResourceRequirements(agentSlug string, agentDef *agentDomain.Agent) (r
 		return chatRequirements("gemini"), true
 	case "minimax-cli":
 		return chatRequirements("minimax"), true
-	case "openclaw", "hermes":
+	case "openclaw", "hermes", "opencode":
 		return chatRequirements("openai-compatible"), true
 	default:
 		return resourcesvc.ResolutionRequirements{}, false
@@ -163,6 +166,8 @@ func workerModelHarness(agentSlug string, agentDef *agentDomain.Agent) string {
 		return "openclaw"
 	case "hermes":
 		return "hermes"
+	case "opencode":
+		return "opencode"
 	default:
 		return ""
 	}

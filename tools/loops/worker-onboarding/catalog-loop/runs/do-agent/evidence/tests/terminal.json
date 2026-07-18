@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "status": "blocked",
+  "terminal_verifier": "do-agent-real-worker-e2e",
+  "verified_at": "2026-07-17T13:38:01Z",
+  "worker_slug": "do-agent",
+  "adapter_id": "do-agent-acp",
+  "runner": "dev-runner-do-agent",
+  "image": "agentsmesh-codex-loop-blockly-mvp-runner-do-agent@sha256:b652fdfcb27a7cb08c9c030b5e433d513ad903d2a13019905e4e50633f43778b",
+  "version_probe": "do-agent 0.2.7",
+  "interaction_mode": "acp",
+  "pod": {
+    "pod_key": "1-standalone-ccf70573",
+    "runner_id": 9,
+    "worker_spec_snapshot_id": 15,
+    "status": "running",
+    "agent_status": "idle"
+  },
+  "acp": {
+    "initialize": "succeeded",
+    "session_created": true,
+    "initial_prompt_sent": true
+  },
+  "model_request": {
+    "model": "gpt-4o-mini",
+    "input_tokens": 22,
+    "output_tokens": 2,
+    "result": "request_started_then_failed_before_http_response"
+  },
+  "network_probe": {
+    "endpoint": "https://api.openai.com/v1/models",
+    "http_status": 0,
+    "error": "OpenSSL SSL_connect: SSL_ERROR_SYSCALL",
+    "resolved_ip": "198.18.1.2"
+  },
+  "provider_completion": "blocked",
+  "blocker": "The only configured ModelBinding targets an OpenAI endpoint that is unreachable from this Runner container."
+}

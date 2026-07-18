@@ -16,6 +16,12 @@ func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services, previewPublicOri
 	if svc.PendingQueue != nil {
 		podOpts = append(podOpts, WithPendingQueue(svc.PendingQueue))
 	}
+	if svc.WorkerApply != nil {
+		podOpts = append(podOpts, WithQuickTaskPlanApplier(svc.WorkerApply))
+	}
+	if svc.WorkerPlanAuthorizer != nil {
+		podOpts = append(podOpts, WithQuickTaskPlanAuthorizer(svc.WorkerPlanAuthorizer))
+	}
 	if svc.Grant != nil {
 		podOpts = append(podOpts, WithGrantServiceForPod(svc.Grant))
 	}
@@ -25,12 +31,6 @@ func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services, previewPublicOri
 	if svc.SandboxFsService != nil {
 		podOpts = append(podOpts, WithPodWorkspaceSandbox(svc.SandboxFsService))
 	}
-	if svc.WorkerSpecs != nil {
-		podOpts = append(podOpts, WithPodWorkerContext(svc.WorkerSpecs, svc.Expert))
-	}
-	if svc.File != nil {
-		podOpts = append(podOpts, WithPodWorkspaceArtifactTransfer(svc.File))
-	}
 	podHandler := NewPodHandler(svc.Pod, svc.Runner, svc.PodOrchestrator, podOpts...)
 
 	rg.POST("/quick-tasks", podHandler.CreateQuickTask)
@@ -38,10 +38,8 @@ func registerPodQueueRoutes(rg *gin.RouterGroup, svc *Services, previewPublicOri
 	rg.GET("/pods/queued", podHandler.ListQueuedPods)
 	rg.DELETE("/pods/:key/queue", podHandler.CancelQueuedPod)
 	rg.GET("/pods/:key/preview", podHandler.GetPodPreview)
-	rg.GET("/pods/:key/worker-context", podHandler.GetPodWorkerContext)
 	rg.GET("/pods/:key/resources/workspace/changes", podHandler.ListWorkspaceArtifacts)
 	rg.GET("/pods/:key/resources/workspace/filesystem/*filepath", podHandler.ReadWorkspaceArtifact)
-	rg.GET("/pods/:key/resources/workspace/artifacts/*filepath", podHandler.TransferWorkspaceArtifact)
 }
 
 var _ pendingQueueReader = (*runnersvc.PendingCommandQueue)(nil)

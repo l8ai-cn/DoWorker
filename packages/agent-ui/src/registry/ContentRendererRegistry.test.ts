@@ -18,24 +18,6 @@ describe("ContentRendererRegistry", () => {
     expect(registry.lookup({ ...key, schemaVersion: "2" })).toBeUndefined();
   });
 
-  it("keeps manifest renderer identities exact", () => {
-    const registry = new ContentRendererRegistry<string>();
-    const manifestKey = {
-      blockKind: "artifact",
-      manifestType: "image_edit",
-      schemaVersion: "1",
-    };
-    registry.register(manifestKey, "image editor", "builtin.image-edit");
-
-    expect(registry.lookup(manifestKey)).toBe("image editor");
-    expect(
-      registry.lookup({ ...manifestKey, manifestType: "presentation" }),
-    ).toBeUndefined();
-    expect(
-      registry.lookup({ ...manifestKey, schemaVersion: "2" }),
-    ).toBeUndefined();
-  });
-
   it("rejects invalid optional key fields from serialized host input", () => {
     const registry = new ContentRendererRegistry<string>();
     const genericKey = {

@@ -15,7 +15,7 @@ interface WorkflowDetailRunsPanelProps {
   onOpenRun: (run: WorkflowRunData) => void;
   onCancelRun: (runId: number) => void;
   onLoadMore: () => void;
-  onEdit: () => void;
+  onRevise: () => void;
 }
 
 export function WorkflowDetailRunsPanel({
@@ -27,7 +27,7 @@ export function WorkflowDetailRunsPanel({
   onOpenRun,
   onCancelRun,
   onLoadMore,
-  onEdit,
+  onRevise,
 }: WorkflowDetailRunsPanelProps) {
   const visibleRuns = runs.slice(0, 6);
   const hasMoreToShow = runs.length > 6 || runs.length < runsTotalCount;
@@ -71,7 +71,11 @@ export function WorkflowDetailRunsPanel({
 
       <aside className="flex flex-col gap-4">
         <WorkflowStatsOverview workflow={workflow} t={t} />
-        <WorkflowPromptPreview workflow={workflow} t={t} onEdit={onEdit} />
+        <WorkflowPromptPreview
+          workflow={workflow}
+          t={t}
+          onRevise={onRevise}
+        />
       </aside>
     </div>
   );

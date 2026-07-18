@@ -13,7 +13,7 @@ import (
 	"github.com/anthropics/agentsmesh/runner/internal/config"
 )
 
-const maxSandboxFsReadBytes = 1 << 20
+const maxSandboxFsReadBytes = 8 << 20
 
 func podWorkspaceRoot(pod *Pod) (string, error) {
 	if pod == nil {
@@ -34,61 +34,48 @@ func podWorkspaceRoot(pod *Pod) (string, error) {
 }
 
 func detachedPodWorkspaceRoot(cfg *config.Config, podKey string) (string, error) {
-	workspace, err := openDetachedPodWorkspace(cfg, podKey)
-	if err != nil {
-		return "", err
-	}
-	defer workspace.Close()
-	return workspace.displayPath(), nil
-}
-
-func openDetachedPodWorkspace(
-	cfg *config.Config,
-	podKey string,
-) (*sandboxWorkspace, error) {
 	if cfg == nil || strings.TrimSpace(cfg.WorkspaceRoot) == "" {
-		return nil, fmt.Errorf("workspace not configured")
+		return "", fmt.Errorf("workspace not configured")
 	}
 	if err := slugkit.Validate(podKey); err != nil {
-		return nil, fmt.Errorf("invalid pod key: %w", err)
+		return "", fmt.Errorf("invalid pod key: %w", err)
 	}
-	runnerRootPath, err := filepath.Abs(cfg.WorkspaceRoot)
+	runnerRoot, err := os.OpenRoot(cfg.WorkspaceRoot)
 	if err != nil {
-		return nil, err
-	}
-	runnerRoot, err := os.OpenRoot(runnerRootPath)
-	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer runnerRoot.Close()
 	workspacePath := filepath.Join("sandboxes", podKey, "workspace")
 	workspace, directErr := runnerRoot.OpenRoot(workspacePath)
 	if directErr == nil {
-		return bindSandboxWorkspace(workspace, filepath.Join(runnerRootPath, workspacePath))
+		defer workspace.Close()
+		return workspace.Name(), nil
 	}
 	aliasPath, found, err := readWorkspaceAlias(runnerRoot, podKey)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if found {
 		workspace, err = runnerRoot.OpenRoot(aliasPath)
 		if err != nil {
-			return nil, fmt.Errorf("pod workspace not found: %w", err)
+			return "", fmt.Errorf("pod workspace not found: %w", err)
 		}
-		return bindSandboxWorkspace(workspace, filepath.Join(runnerRootPath, aliasPath))
+		defer workspace.Close()
+		return workspace.Name(), nil
 	}
 	aliasPath, found, err = resumedPodWorkspacePath(runnerRoot, podKey)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if !found {
-		return nil, fmt.Errorf("pod workspace not found: %w", directErr)
+		return "", fmt.Errorf("pod workspace not found: %w", directErr)
 	}
 	workspace, err = runnerRoot.OpenRoot(aliasPath)
 	if err != nil {
-		return nil, fmt.Errorf("pod workspace not found: %w", err)
+		return "", fmt.Errorf("pod workspace not found: %w", err)
 	}
-	return bindSandboxWorkspace(workspace, filepath.Join(runnerRootPath, aliasPath))
+	defer workspace.Close()
+	return workspace.Name(), nil
 }
 
 func resumedPodWorkspacePath(runnerRoot *os.Root, podKey string) (string, bool, error) {
@@ -155,4 +142,25 @@ func resolveSandboxWorkspaceRelativePath(rel string) (string, string, error) {
 		return "", "", fmt.Errorf("path escapes workspace")
 	}
 	return rel, rel, nil
+}
+
+func openSandboxWorkspaceRoot(workspaceRoot string) (*os.Root, error) {
+	abs, err := filepath.Abs(workspaceRoot)
+	if err != nil {
+		return nil, err
+	}
+	return os.OpenRoot(abs)
+}
+
+func readSandboxWorkspaceFile(workspaceRoot, rel string) ([]byte, error) {
+	relative, _, err := resolveSandboxWorkspaceRelativePath(rel)
+	if err != nil {
+		return nil, err
+	}
+	root, err := openSandboxWorkspaceRoot(workspaceRoot)
+	if err != nil {
+		return nil, err
+	}
+	defer root.Close()
+	return root.ReadFile(relative)
 }

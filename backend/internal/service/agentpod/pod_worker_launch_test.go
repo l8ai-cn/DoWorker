@@ -72,6 +72,101 @@ func TestDispatchCreatedPodReturnsDeferredCreateCommand(t *testing.T) {
 	assert.Same(t, pod, result.Pod)
 }
 
+func TestDispatchDeferredPodSendsPreparedCommand(t *testing.T) {
+	coord := &mockPodCoordinator{}
+	orchestrator, _, _ := setupOrchestrator(t, withCoordinator(coord))
+	request := queueTestRequest()
+	request.DeferRunnerDispatch = true
+	prepared, err := orchestrator.CreatePod(context.Background(), request)
+	require.NoError(t, err)
+	require.NotNil(t, prepared.DeferredCreateCommand)
+	assert.False(t, coord.createPodCalled)
+	assert.Equal(t, podDomain.StatusQueued, prepared.Pod.Status)
+
+	result, err := orchestrator.DispatchDeferredPod(
+		context.Background(),
+		request,
+		prepared,
+	)
+
+	require.NoError(t, err)
+	assert.True(t, coord.createPodCalled)
+	assert.Equal(t, prepared.Pod.PodKey, coord.lastCmd.PodKey)
+	assert.Same(t, prepared.Pod, result.Pod)
+	assert.Equal(t, podDomain.StatusInitializing, result.Pod.Status)
+}
+
+func TestDispatchDeferredPodDoesNotSendWhenStatusTransitionFails(t *testing.T) {
+	coord := &mockPodCoordinator{}
+	orchestrator, _, db := setupOrchestrator(t, withCoordinator(coord))
+	request := queueTestRequest()
+	request.DeferRunnerDispatch = true
+	prepared, err := orchestrator.CreatePod(context.Background(), request)
+	require.NoError(t, err)
+	require.NoError(t, db.Exec(`
+		CREATE TRIGGER fail_deferred_status_update
+		BEFORE UPDATE ON pods
+		BEGIN
+			SELECT RAISE(FAIL, 'status update blocked');
+		END
+	`).Error)
+
+	_, err = orchestrator.DispatchDeferredPod(
+		context.Background(),
+		request,
+		prepared,
+	)
+
+	assert.ErrorIs(t, err, ErrDeferredPodStatusTransition)
+	assert.False(t, coord.createPodCalled)
+}
+
+func TestDispatchDeferredPodRejectsPodNoLongerQueued(t *testing.T) {
+	coord := &mockPodCoordinator{}
+	orchestrator, podService, _ := setupOrchestrator(t, withCoordinator(coord))
+	request := queueTestRequest()
+	request.DeferRunnerDispatch = true
+	prepared, err := orchestrator.CreatePod(context.Background(), request)
+	require.NoError(t, err)
+	require.NoError(t, podService.UpdatePodStatus(
+		context.Background(),
+		prepared.Pod.PodKey,
+		podDomain.StatusCompleted,
+	))
+
+	_, err = orchestrator.DispatchDeferredPod(
+		context.Background(),
+		request,
+		prepared,
+	)
+
+	assert.ErrorIs(t, err, ErrDeferredPodStatusTransition)
+	assert.False(t, coord.createPodCalled)
+}
+
+func TestDispatchDeferredPodRejectsMismatchedCommand(t *testing.T) {
+	_, err := (&PodOrchestrator{}).DispatchDeferredPod(
+		context.Background(),
+		&OrchestrateCreatePodRequest{
+			OrganizationID:      42,
+			RunnerID:            12,
+			DeferRunnerDispatch: true,
+		},
+		&OrchestrateCreatePodResult{
+			Pod: &podDomain.Pod{
+				OrganizationID: 42,
+				RunnerID:       12,
+				PodKey:         "expected-pod",
+			},
+			DeferredCreateCommand: &runnerv1.CreatePodCommand{
+				PodKey: "other-pod",
+			},
+		},
+	)
+
+	assert.ErrorIs(t, err, ErrDeferredPodDispatchInvalid)
+}
+
 func TestCreatePodRejectsWorkerLaunchWithoutDeferredDispatch(t *testing.T) {
 	launchID := int64(71)
 

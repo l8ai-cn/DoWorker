@@ -18,6 +18,37 @@
   </head>
   <body>
     <iframe id="agent-session" title="智能体会话"></iframe>
-    <script type="module" src="/src/e2e/embedHost.ts"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const context = params.get("embed_context");
+      const proof = params.get("redemption_proof");
+      if (!context) throw new Error("embed_context is required");
+      if (!proof) throw new Error("redemption_proof is required");
+
+      const frame = document.getElementById("agent-session");
+      const width = Number(params.get("width"));
+      const height = Number(params.get("height"));
+      if (width > 0) frame.style.width = `${width}px`;
+      if (height > 0) frame.style.height = `${height}px`;
+      window.addEventListener("message", (event) => {
+        if (
+          event.source === frame.contentWindow &&
+          event.origin === window.location.origin &&
+          event.data?.type === "agentsmesh.embed.ready" &&
+          event.data?.version === 1
+        ) {
+          frame.contentWindow.postMessage(
+            {
+              type: "agentsmesh.embed.open",
+              version: 1,
+              redemptionProof: proof,
+            },
+            window.location.origin,
+          );
+        }
+      });
+      frame.src = `/iframe.html?embed_context=${encodeURIComponent(context)}`;
+      window.history.replaceState(null, "", window.location.pathname);
+    </script>
   </body>
 </html>

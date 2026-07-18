@@ -1,0 +1,30 @@
+2026-07-17T13:38:01Z
+container: agentsmesh-codex-loop-blockly-mvp-runner-do-agent-1
+command: do-agent --version
+result: do-agent 0.2.7
+
+command: do-agent --help
+result:
+- describes Do Agent as a lightweight AI coding agent
+- supports repl, query, exec, resume, config, mcp, memory, goal, plugin, skills, and services commands
+- exposes acp as an Agent Client Protocol JSON-RPC 2.0 server over stdio
+- accepts a project path and model selection
+
+command: do-agent acp --help
+result:
+- starts ACP over stdio
+- accepts a session working directory
+
+command: do-agent config --help
+result:
+- supports show, get, dump, set, and reset
+- dump redacts secrets by default
+
+command: do-agent memory --help
+result:
+- supports memory status, clear, export, import, and consolidation
+
+command: do-agent resume --help
+result:
+- resumes session IDs stored under .agent/sessions/<SESSION_ID>
+- exposes non-interactive execution, JSON output, tool controls, timeout, and artifact expectations

@@ -172,7 +172,11 @@ func (b *PodBuilder) downloadResources(ctx context.Context, sandboxRoot, workDir
 		return fmt.Errorf("failed to create skill cache manager: %w", err)
 	}
 
-	downloader := cache.NewDownloader(cacheManager)
+	hostAliases := make(map[string]string, len(b.deps.Config.ResourceHostAliases))
+	for _, alias := range b.deps.Config.ResourceHostAliases {
+		hostAliases[alias.Host] = alias.DialHost
+	}
+	downloader := cache.NewDownloaderWithHostAliases(cacheManager, hostAliases)
 	for _, res := range b.cmd.ResourcesToDownload {
 		result, err := downloader.DownloadAndExtract(ctx, res, sandboxRoot, workDir)
 		if err != nil {

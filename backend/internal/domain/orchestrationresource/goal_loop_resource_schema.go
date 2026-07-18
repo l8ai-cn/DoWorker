@@ -4,7 +4,7 @@ import "fmt"
 
 type GoalLoopResourceSpec struct {
 	WorkerTemplateRef   Reference `json:"workerTemplateRef" yaml:"workerTemplateRef"`
-	Description         string    `json:"description" yaml:"description"`
+	Description         string    `json:"description,omitempty" yaml:"description,omitempty"`
 	Objective           string    `json:"objective" yaml:"objective"`
 	AcceptanceCriteria  []string  `json:"acceptanceCriteria" yaml:"acceptanceCriteria"`
 	VerificationCommand string    `json:"verificationCommand" yaml:"verificationCommand"`

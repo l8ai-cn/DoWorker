@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"strings"
 
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 )
@@ -48,16 +47,24 @@ func hostEntrySize(info os.FileInfo) int64 {
 }
 
 func listHostWorkspaceEntries(workspaceRoot, path string) ([]*runnerv1.SandboxFsEntry, error) {
-	abs := workspaceRoot
-	if path != "" {
-		abs = filepath.Join(workspaceRoot, strings.TrimPrefix(path, "/"))
-	}
-	abs, err := filepath.Abs(abs)
+	root, err := resolvePathThroughExistingSymlinks(workspaceRoot)
 	if err != nil {
 		return nil, err
 	}
-	if abs != workspaceRoot &&
-		!strings.HasPrefix(abs, workspaceRoot+string(filepath.Separator)) {
+	abs := root
+	if path != "" {
+		candidate := filepath.Clean(path)
+		if filepath.IsAbs(candidate) {
+			abs = candidate
+		} else {
+			abs = filepath.Join(root, candidate)
+		}
+	}
+	abs, err = resolvePathThroughExistingSymlinks(abs)
+	if err != nil {
+		return nil, err
+	}
+	if !pathWithinRoot(abs, root) {
 		return nil, fmt.Errorf("path escapes workspace root")
 	}
 	info, err := os.Stat(abs)

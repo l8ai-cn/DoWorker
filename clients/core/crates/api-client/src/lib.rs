@@ -1,6 +1,4 @@
 #[cfg(test)]
-mod agent_workbench_tests;
-#[cfg(test)]
 mod ai_resource_tests;
 #[cfg(test)]
 mod api_agent_billing_tests;

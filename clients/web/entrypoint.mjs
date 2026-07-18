@@ -2,8 +2,8 @@
 // Runtime env-var injection for the standalone Next.js bundle.
 // Replaces the legacy `docker-entrypoint.sh` (sh + sed + find), which
 // can't run on the distroless base. Walks `$APP_DIR/.next` and
-// substitutes `__PLACEHOLDER__` tokens that `next.config.bazel.mjs` baked
-// into the bundle, then execs server.js.
+// substitutes `__PLACEHOLDER__` tokens baked into the bundle by next.config,
+// then execs server.js.
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 import path from "node:path";

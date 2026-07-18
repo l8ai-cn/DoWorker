@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "worker_slug": "loopal",
+  "observed_at": "2026-07-16T17:05:00Z",
+  "safety_boundary": {
+    "pod_create": false,
+    "credential_read_or_decrypt": false,
+    "provider_request": false
+  },
+  "runtime_image": {
+    "reference": "agentsmesh-codex-loop-blockly-mvp-runner-loopal:latest",
+    "local_image_present": false,
+    "compose_service_declared": true,
+    "compose_runtime": "loopal",
+    "service_running": false
+  },
+  "candidate_binary": {
+    "path": "deploy/dev/loopal-binary",
+    "tracked_by_git": false,
+    "ignored_by_git": true,
+    "sha256": "d60c4997d52ee508f99e995af54d265f2fff17a6473d4cc92e04b11283ee4974",
+    "platform": "linux/amd64",
+    "identity": "e2e_mock",
+    "identity_evidence": "contains runner/internal/agents/mockagent"
+  },
+  "build_guards": {
+    "missing_loopal_binary_exit_code": 1,
+    "missing_loopal_binary_message": "loopal requires LOOPAL_BINARY to point to a real Loopal CLI artifact",
+    "mock_loopal_binary_exit_code": 1,
+    "mock_loopal_binary_message": "loopal artifact is an E2E mock binary, not a real Loopal CLI"
+  },
+  "passed_verifiers": [
+    "docker/agent-runtime/no_mock_binary_contract_test.sh",
+    "docker/agent-runtime/contract_test.sh",
+    "deploy/dev/runner_runtime_contract_test.sh",
+    "deploy/dev/worker_runtime_catalog_contract_test.sh",
+    "scripts/generate-local-worker-runtime-catalog.test.mjs",
+    "scripts/probe-local-worker-images.test.mjs"
+  ],
+  "result": "blocked_real_loopal_cli_artifact_required",
+  "formal_support_status": "not_verified"
+}

@@ -1,0 +1,17 @@
+{
+  "worker_slug": "claude-code",
+  "adapter_id": "claude-stream-json",
+  "command": [
+    "claude",
+    "-p",
+    "--verbose",
+    "--input-format",
+    "stream-json",
+    "--output-format",
+    "stream-json"
+  ],
+  "version": "2.1.211",
+  "stream_json_init": "passed",
+  "authentication": "blocked",
+  "failure": "Not logged in; no Anthropic API key or login session was configured."
+}

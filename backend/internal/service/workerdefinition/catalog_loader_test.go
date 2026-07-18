@@ -13,11 +13,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestLoadLoadsEveryCatalogWorkerDefinition(t *testing.T) {
+func TestLoadLoadsEveryFormalWorkerDefinition(t *testing.T) {
 	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
 
 	require.NoError(t, err)
-	assert.Contains(t, catalog.Slugs(), "video-studio")
+	assert.Equal(t, formalWorkerSlugs, catalog.Slugs())
 	for _, slug := range catalog.Slugs() {
 		definition, ok := catalog.Get(slug)
 		require.True(t, ok)
@@ -50,18 +50,6 @@ func TestCursorDefinitionDoesNotRequirePlatformModelResource(t *testing.T) {
 	require.True(t, ok)
 	assert.False(t, cursor.ModelRequirement.Required)
 	assert.Empty(t, cursor.ModelRequirement.ProtocolAdapters)
-}
-
-func TestE2EEchoDefinitionIsInternalAndCredentialFree(t *testing.T) {
-	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
-
-	require.NoError(t, err)
-	echo, ok := catalog.Get("e2e-echo")
-	require.True(t, ok)
-	assert.True(t, echo.Internal)
-	assert.False(t, echo.ModelRequirement.Required)
-	assert.Empty(t, echo.CredentialBindings)
-	assert.Equal(t, "e2e-mock-agent", echo.Executable)
 }
 
 func TestGeminiDefinitionUsesGeminiAPIKey(t *testing.T) {
@@ -111,8 +99,7 @@ func TestSeedanceExpertRequiresExactVideoModelContract(t *testing.T) {
 	require.Len(t, seedance.ToolModelRequirements, 1)
 	requirement := seedance.ToolModelRequirements[0]
 	assert.Equal(t, "seedance-video", requirement.ID)
-	assert.Equal(t, []string{"doubao", "sub2api-seedance"}, requirement.ProviderKeys)
-	assert.Equal(t, []string{"openai-compatible", "ark-seedance"}, requirement.ProtocolAdapters)
+	assert.Equal(t, []string{"doubao"}, requirement.ProviderKeys)
 	assert.Equal(t, "video", requirement.Modality)
 	assert.Equal(t, "video-generation", requirement.Capability)
 	assert.Equal(t, "SEEDANCE_API_KEY", requirement.Environment.APIKey)
@@ -141,11 +128,9 @@ func repositoryRoot(t *testing.T) string {
 }
 
 func TestCatalogSlugsAreSorted(t *testing.T) {
-	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
-	require.NoError(t, err)
-	sorted := catalog.Slugs()
+	sorted := append([]string{}, formalWorkerSlugs...)
 	sort.Strings(sorted)
-	assert.Equal(t, sorted, catalog.Slugs())
+	assert.Equal(t, sorted, formalWorkerSlugs)
 }
 
 func TestValidateDefinitionRejectsLiteralCredentialValue(t *testing.T) {

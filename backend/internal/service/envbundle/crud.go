@@ -44,6 +44,9 @@ func (s *Service) Create(ctx context.Context, params *CreateParams) (*envbundle.
 	if params.Kind == "" {
 		return nil, ErrInvalidKind
 	}
+	if err := validateBundleData(params.Kind, params.Data); err != nil {
+		return nil, err
+	}
 
 	exists, err := s.repo.NameExists(ctx, params.OwnerScope, params.OwnerID, params.Name, nil)
 	if err != nil {
@@ -92,6 +95,20 @@ func (s *Service) Update(ctx context.Context, ownerScope string, ownerID, id int
 		return nil, ErrNotFound
 	}
 
+	effectiveKind := bundle.Kind
+	if params.Kind != nil {
+		effectiveKind = *params.Kind
+	}
+	if params.Data != nil {
+		if err := validateBundleData(effectiveKind, *params.Data); err != nil {
+			return nil, err
+		}
+	} else if effectiveKind != bundle.Kind {
+		if err := validateBundleData(effectiveKind, bundle.Data); err != nil {
+			return nil, err
+		}
+	}
+
 	updates := map[string]interface{}{}
 	if params.Name != nil && *params.Name != bundle.Name {
 		exists, err := s.repo.NameExists(ctx, bundle.OwnerScope, bundle.OwnerID, *params.Name, &bundle.ID)
@@ -117,10 +134,6 @@ func (s *Service) Update(ctx context.Context, ownerScope string, ownerID, id int
 		// clears all keys. A non-empty credential update preserves untouched
 		// secrets rather than wiping them — see
 		// buildCredentialDataPreservingSecrets.
-		effectiveKind := bundle.Kind
-		if params.Kind != nil {
-			effectiveKind = *params.Kind
-		}
 		var data envbundle.BundleData
 		var err error
 		// Preserving untouched secrets reuses bundle.Data's stored ciphertext,

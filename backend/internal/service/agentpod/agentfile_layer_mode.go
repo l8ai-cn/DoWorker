@@ -19,11 +19,12 @@ func agentfileLayerMode(layer *string) string {
 	if layer == nil {
 		return ""
 	}
-	program, _ := parser.Parse(*layer)
 	mode := ""
-	for _, declaration := range program.Declarations {
-		if modeDeclaration, ok := declaration.(*parser.ModeDecl); ok {
-			mode = modeDeclaration.Mode
+	for _, line := range strings.Split(*layer, "\n") {
+		fields := strings.Fields(line)
+		if len(fields) == 2 && fields[0] == "MODE" &&
+			(fields[1] == "pty" || fields[1] == "acp") {
+			mode = fields[1]
 		}
 	}
 	return mode

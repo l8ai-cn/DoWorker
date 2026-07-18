@@ -24,6 +24,11 @@ type EnvironmentBundleReferenceFilter struct {
 	ModelManagedFields []string
 }
 
+type ModelBindingReferenceFilter struct {
+	WorkerType       slugkit.Slug
+	ProtocolAdapters []string
+}
+
 func (filter ResourceListFilter) Validate(scope control.Scope) error {
 	if err := scope.Validate(); err != nil {
 		return err
@@ -39,9 +44,20 @@ func (filter ResourceListFilter) Validate(scope control.Scope) error {
 			return fmt.Errorf("%w: invalid resource list kind", control.ErrInvalid)
 		}
 	}
-	if filter.EnvironmentBundle == nil {
-		return nil
+	if filter.EnvironmentBundle != nil {
+		if err := filter.validateEnvironmentBundle(); err != nil {
+			return err
+		}
 	}
+	if filter.ModelBinding != nil {
+		if err := filter.validateModelBinding(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (filter ResourceListFilter) validateEnvironmentBundle() error {
 	if filter.Kind != resource.KindEnvironmentBundle {
 		return fmt.Errorf(
 			"%w: environment bundle filter requires EnvironmentBundle kind",
@@ -87,6 +103,29 @@ func (filter ResourceListFilter) Validate(scope control.Scope) error {
 			"%w: invalid environment bundle worker type",
 			control.ErrInvalid,
 		)
+	}
+	return nil
+}
+
+func (filter ResourceListFilter) validateModelBinding() error {
+	if filter.Kind != resource.KindModelBinding {
+		return fmt.Errorf(
+			"%w: model binding filter requires ModelBinding kind",
+			control.ErrInvalid,
+		)
+	}
+	if err := slugkit.Validate(filter.ModelBinding.WorkerType.String()); err != nil {
+		return fmt.Errorf("%w: invalid model binding worker type", control.ErrInvalid)
+	}
+	seenAdapters := make(map[string]struct{}, len(filter.ModelBinding.ProtocolAdapters))
+	for _, adapter := range filter.ModelBinding.ProtocolAdapters {
+		if err := slugkit.Validate(adapter); err != nil {
+			return fmt.Errorf("%w: invalid model protocol adapter", control.ErrInvalid)
+		}
+		if _, exists := seenAdapters[adapter]; exists {
+			return fmt.Errorf("%w: duplicate model protocol adapter", control.ErrInvalid)
+		}
+		seenAdapters[adapter] = struct{}{}
 	}
 	return nil
 }

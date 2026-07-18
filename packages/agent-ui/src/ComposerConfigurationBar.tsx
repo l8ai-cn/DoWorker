@@ -18,6 +18,7 @@ export function ComposerConfigurationBar({
 }) {
   const [pending, setPending] = useState<string | null>(null);
   const text = useAgentWorkspaceText();
+  if (!snapshot.capabilities.updateConfiguration) return null;
 
   return (snapshot.configuration ?? []).map((control) => {
     const label = text.configurationLabel(control.id, control.label);
@@ -27,12 +28,9 @@ export function ComposerConfigurationBar({
     }));
     return (
       <ConfigurationSelect
-        disabled={
-          !snapshot.capabilities.updateConfiguration
-        }
+        disabled={pending === control.id}
         key={control.id}
         label={label}
-        loading={pending === control.id}
         onChange={(value) => {
           setPending(control.id);
           void runtime

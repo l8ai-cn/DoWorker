@@ -3,8 +3,13 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-if ! grep -Fq 'FROM ${RUNTIME_EXTENSION_BASE} AS runtime-extension' Dockerfile; then
+if ! grep -Fq 'FROM ${RUNTIME_EXTENSION_BASE} AS runtime-extension-base' Dockerfile; then
     echo "Dockerfile must define the prebuilt runtime extension stage" >&2
+    exit 1
+fi
+
+if ! grep -Fq 'FROM ${RUNTIME_EXTENSION_RUNTIME_BASE} AS runtime-extension' Dockerfile; then
+    echo "Dockerfile must select an explicit extension runtime base" >&2
     exit 1
 fi
 
@@ -15,6 +20,11 @@ fi
 
 if ! grep -Fq 'runtime-extension' build.sh; then
     echo "build script must select the extension stage when requested" >&2
+    exit 1
+fi
+
+if ! grep -Fq 'RUNTIME_EXTENSION_RUNTIME_BASE=runtime-extension-python' build.sh; then
+    echo "Hermes extension must select the Python runtime base" >&2
     exit 1
 fi
 
@@ -58,29 +68,17 @@ if ! grep -Fq 'OPENCLAW_VERSION=${OPENCLAW_VERSION:-2026.6.11}' build.sh; then
     exit 1
 fi
 
-if ! awk '
-  /FROM \$\{RUNTIME_EXTENSION_BASE\} AS runtime-extension/ { extension=1 }
-  extension && /for attempt in 1 2 3 4 5 6 7 8/ { found=1 }
-  END { exit found ? 0 : 1 }
-' Dockerfile; then
-    echo "Hermes extension install must use bounded Python dependency retries" >&2
+if ! grep -Fq 'FROM runtime-extension-base AS runtime-extension-python' Dockerfile; then
+    echo "Hermes extension must define a dedicated Python runtime base" >&2
     exit 1
 fi
 
-if ! awk '
-  /FROM \$\{RUNTIME_EXTENSION_BASE\} AS runtime-extension/ { extension=1 }
-  extension && /python3-pip/ { found=1 }
-  END { exit found ? 0 : 1 }
-' Dockerfile; then
-    echo "Hermes extension must install Python for hermes-agent postinstall" >&2
+if ! grep -Fq 'COPY --from=python-runtime /usr/local /usr/local' Dockerfile; then
+    echo "Hermes extension must provide Python for hermes-agent postinstall" >&2
     exit 1
 fi
 
-if ! awk '
-  /FROM \$\{RUNTIME_EXTENSION_BASE\} AS runtime-extension/ { extension=1 }
-  extension && /PIP_BREAK_SYSTEM_PACKAGES=1 npm install/ { found=1 }
-  END { exit found ? 0 : 1 }
-' Dockerfile; then
-    echo "Hermes extension must allow its postinstall to install the Python bridge" >&2
+if ! grep -Fq 'libsqlite3.so.0.8.6' Dockerfile; then
+    echo "Hermes extension must provide Python sqlite runtime dependencies" >&2
     exit 1
 fi

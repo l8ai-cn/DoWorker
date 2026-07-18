@@ -49,24 +49,21 @@ grep -q 'npm install -g "openclaw@${OPENCLAW_VERSION}"' "$DOCKERFILE"
 grep -q "hermes-agent" "$DOCKERFILE"
 grep -q "HERMES_AGENT_VERSION" "$DOCKERFILE"
 grep -q "COPY --chmod=0755 binaries/" "$DOCKERFILE"
-grep -q "ARG RUNTIME_BASE=base" "$DOCKERFILE"
-grep -Fq 'ARG RUNTIME_BUILD_BASE=node:24-bookworm-slim@sha256:' "$DOCKERFILE"
-grep -Fq 'FROM ${RUNTIME_BUILD_BASE} AS base' "$DOCKERFILE"
-[[ "$(grep -Fc -- '--build-arg RUNTIME_BUILD_BASE' "${ROOT}/docker/agent-runtime/build.sh")" -eq 2 ]]
-grep -q -- "--provenance=false" "${ROOT}/docker/agent-runtime/build.sh"
-grep -q "SOURCE_DATE_EPOCH" "${ROOT}/docker/agent-runtime/build.sh"
-grep -q -- "-buildvcs=false" "${ROOT}/docker/agent-runtime/prepare_binaries.sh"
-grep -q -- "-buildid=" "${ROOT}/docker/agent-runtime/prepare_binaries.sh"
-grep -q 'scripts/proto-gen-go.sh' "${ROOT}/docker/agent-runtime/prepare_binaries.sh"
-grep -q "DO_AGENT_SOURCE_COMMIT" "$DOCKERFILE"
-grep -q "ai.agentsmesh.do-agent.source-revision" "$DOCKERFILE"
-grep -q "ai.agentsmesh.do-agent.binary-sha256" "$DOCKERFILE"
-grep -q "install_python_pip()" "$DOCKERFILE"
-grep -q "ln -sf do-agent-binary /usr/local/bin/do-agent" "$DOCKERFILE"
-if grep -q "install -m 0755 /usr/local/lib/do-worker/do-agent-binary" "$DOCKERFILE"; then
-  echo "do-agent binary must not be copied into two image layers" >&2
-  exit 1
-fi
+grep -q "ARG NODE_BASE_IMAGE=node:24-bookworm-slim" "$DOCKERFILE"
+grep -q "ARG PYTHON_BASE_IMAGE=python:3.11-slim-bookworm" "$DOCKERFILE"
+grep -q "FROM \${NODE_BASE_IMAGE} AS base" "$DOCKERFILE"
+grep -q "FROM \${PYTHON_BASE_IMAGE} AS python-runtime" "$DOCKERFILE"
+grep -q "ARG RUNTIME_SHARED_BASE=base" "$DOCKERFILE"
+grep -q "ARG RUNTIME_BASE=runtime-shared-base" "$DOCKERFILE"
+grep -q "FROM \${RUNTIME_SHARED_BASE} AS runtime-shared-base" "$DOCKERFILE"
+grep -q "FROM runtime-shared-base AS python-runtime-base" "$DOCKERFILE"
+grep -q "COPY --from=python-runtime /usr/local /usr/local" "$DOCKERFILE"
+grep -q "libsqlite3.so.0.8.6" "$DOCKERFILE"
+grep -q 'NODE_BASE_IMAGE="${NODE_BASE_IMAGE:-node:24-bookworm-slim}"' "${ROOT}/docker/agent-runtime/build.sh"
+grep -q 'PYTHON_BASE_IMAGE="${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}"' "${ROOT}/docker/agent-runtime/build.sh"
+grep -q 'RUNTIME_SHARED_BASE=${BASE_IMAGE}' "${ROOT}/docker/agent-runtime/build.sh"
+grep -q 'RUNTIME_BASE=python-runtime-base' "${ROOT}/docker/agent-runtime/build.sh"
+grep -q "install -m 0755 /usr/local/lib/do-worker/do-agent-binary" "$DOCKERFILE"
 grep -q "runner-entrypoint.sh" "$DOCKERFILE"
 grep -q "stage_do_agent_binary.sh" "${ROOT}/docker/agent-runtime/prepare_binaries.sh"
 bash "${ROOT}/docker/agent-runtime/stage_do_agent_binary_contract_test.sh"
@@ -101,7 +98,6 @@ grep -q "AGENT_RUNTIME: aider" "$COMPOSE"
 grep -q "AGENT_RUNTIME: opencode" "$COMPOSE"
 grep -q "runner-claude-code" "$COMPOSE"
 grep -q "runner-codex-cli" "$COMPOSE"
-grep -q "runner-video-studio" "$COMPOSE"
 grep -q "runner-cursor-cli" "$COMPOSE"
 grep -q "runner-grok-build" "$COMPOSE"
 grep -q "runner-minimax-cli" "$COMPOSE"
@@ -109,6 +105,20 @@ grep -q "runner-openclaw" "$COMPOSE"
 grep -q "runner-hermes" "$COMPOSE"
 grep -q "docker/agent-runtime/Dockerfile" "$COMPOSE"
 grep -q "target: runtime" "$COMPOSE"
+grep -q "NODE_BASE_IMAGE: \${NODE_BASE_IMAGE:-node:24-bookworm-slim}" "$COMPOSE"
+grep -q "PYTHON_BASE_IMAGE: \${PYTHON_BASE_IMAGE:-python:3.11-slim-bookworm}" "$COMPOSE"
+
+if ! awk '/runner-aider:/{inside=1; next} /runner-opencode:/{inside=0} inside' "$COMPOSE" \
+  | grep -q "RUNTIME_BASE: python-runtime-base"; then
+  echo "runner-aider must select python-runtime-base for pip-based installation" >&2
+  exit 1
+fi
+
+if ! awk '/runner-hermes:/{inside=1; next} /runner-aider:/{inside=0} inside' "$COMPOSE" \
+  | grep -q "RUNTIME_BASE: python-runtime-base"; then
+  echo "runner-hermes must select python-runtime-base for hermes-agent postinstall" >&2
+  exit 1
+fi
 
 grep -q "case \"\${AGENT_RUNTIME}\"" "${ROOT}/deploy/dev/runner-entrypoint.sh"
 

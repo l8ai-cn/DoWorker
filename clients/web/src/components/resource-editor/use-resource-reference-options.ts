@@ -7,12 +7,16 @@ import { loadResourceReferenceCatalog } from "./resource-reference-catalog-loade
 export function useResourceReferenceOptions(
   orgSlug: string,
   workerType: string = "",
+  modelProtocolAdapters: readonly string[] = [],
   credentialTargetNames: readonly string[] = [],
 ): ResourceReferenceCatalog {
+  const modelAdaptersJSON = JSON.stringify(
+    [...new Set(modelProtocolAdapters)].sort(),
+  );
   const credentialTargetsJSON = JSON.stringify(
     [...new Set(credentialTargetNames)].sort(),
   );
-  const identity = `${orgSlug}:${workerType}:${credentialTargetsJSON}`;
+  const identity = `${orgSlug}:${workerType}:${modelAdaptersJSON}:${credentialTargetsJSON}`;
   const [state, setState] = useState<{
     identity: string;
     catalog: ResourceReferenceCatalog;
@@ -23,10 +27,12 @@ export function useResourceReferenceOptions(
 
   useEffect(() => {
     let active = true;
+    const modelAdapters = JSON.parse(modelAdaptersJSON) as string[];
     const credentialTargets = JSON.parse(credentialTargetsJSON) as string[];
     void loadResourceReferenceCatalog(
       orgSlug,
       workerType,
+      modelAdapters,
       credentialTargets,
     ).then((catalog) => {
       if (active) setState({ identity, catalog });
@@ -34,7 +40,13 @@ export function useResourceReferenceOptions(
     return () => {
       active = false;
     };
-  }, [credentialTargetsJSON, identity, orgSlug, workerType]);
+  }, [
+    credentialTargetsJSON,
+    identity,
+    modelAdaptersJSON,
+    orgSlug,
+    workerType,
+  ]);
 
   return state.identity === identity ? state.catalog : emptyLoadingCatalog();
 }

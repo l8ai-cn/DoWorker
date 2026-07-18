@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build clients/core wasm via Cargo + wasm-pack (no Bazel).
+# Build clients/core wasm via Cargo + wasm-pack.
 # Output: packages/do-worker-wasm/
 set -euo pipefail
 
@@ -49,6 +49,15 @@ wasm-pack build \
   --out-name wasm_pkg \
   --out-dir "$STAGE" \
   --release
+
+# Optional binaryen pass. Safe no-op when wasm-opt is absent.
+if command -v wasm-opt >/dev/null 2>&1; then
+  echo "wasm-opt: optimizing $STAGE/wasm_pkg_bg.wasm"
+  wasm-opt -Oz --enable-bulk-memory --enable-mutable-globals \
+    -o "$STAGE/wasm_pkg_bg.wasm" "$STAGE/wasm_pkg_bg.wasm"
+else
+  echo "wasm-opt: not found (optional). Install binaryen for extra size wins."
+fi
 
 # wasm-pack overwrites package.json; restore published package identity.
 python3 -c "

@@ -2,6 +2,8 @@
   "workflows": {
     "searchPlaceholder": "Search workflows...",
     "createWorkflow": "Create Workflow",
+    "newRevision": "Neue Revision",
+    "revisionLoadFailed": "Die aktive Workflow-Deklaration konnte nicht geladen werden.",
     "editWorkflow": "Edit Workflow",
     "noMatch": "No workflows match your search",
     "emptyState": "No workflows yet",

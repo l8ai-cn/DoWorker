@@ -2,13 +2,11 @@ import { create } from "@bufbuild/protobuf";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  PlanResourceResponseSchema,
-  ValidateResourceResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
-import {
   PlanStatus,
+  PlanResourceResponseSchema,
   ResourceOperation,
-} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+  ValidateResourceResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import { fireEvent, render, screen } from "@/test/test-utils";
 import type { AsyncState } from "@/components/pod/hooks/workerCreateDraft";
 import type { WorkerCreateOptions } from "@/lib/api/facade/podConnect";
@@ -48,24 +46,7 @@ import { ResourceEditorShell } from "./ResourceEditorShell";
 describe("ResourceEditorShell", () => {
   beforeEach(() => {
     Object.values(api).forEach((method) => method.mockReset());
-    api.listResources.mockImplementation((
-      _orgSlug: string,
-      request: { kind: string },
-    ) => Promise.resolve({
-      items: request.kind === "WorkerTemplate"
-        ? [{
-            displayName: "Code reviewer",
-            revision: 1n,
-            identity: { target: { name: "code-reviewer" } },
-          }]
-        : request.kind === "Prompt"
-          ? [{
-              displayName: "Review prompt",
-              revision: 1n,
-              identity: { target: { name: "review-prompt" } },
-            }]
-          : [],
-    }));
+    api.listResources.mockResolvedValue({ items: [] });
     options.state = { status: "ready", data: workerOptions() };
     api.validateResource.mockResolvedValue(create(
       ValidateResourceResponseSchema,
@@ -302,7 +283,6 @@ describe("ResourceEditorShell", () => {
     )).not.toHaveLength(0);
     expect(api.validateResource).not.toHaveBeenCalled();
   });
-
 });
 
 function readyPlan(planId: string) {

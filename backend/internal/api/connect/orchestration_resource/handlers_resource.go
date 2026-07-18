@@ -48,16 +48,21 @@ func (server *Server) ListResources(
 	for index := range page.Items {
 		items[index] = resourceToProto(page.Items[index])
 	}
-	appliedFilter, err := environmentBundleFilterToProto(filter.EnvironmentBundle)
+	appliedEnvironmentFilter, err := environmentBundleFilterToProto(
+		page.AppliedFilter.EnvironmentBundle,
+	)
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
 	return connect.NewResponse(&resourcev1.ListResourcesResponse{
 		Items:                          items,
 		Total:                          page.Total,
-		Limit:                          int32(filter.Limit),
-		Offset:                         int32(filter.Offset),
-		AppliedEnvironmentBundleFilter: appliedFilter,
+		Limit:                          int32(page.AppliedFilter.Limit),
+		Offset:                         int32(page.AppliedFilter.Offset),
+		AppliedEnvironmentBundleFilter: appliedEnvironmentFilter,
+		AppliedModelBindingFilter: modelBindingFilterToProto(
+			page.AppliedFilter.ModelBinding,
+		),
 	}), nil
 }
 

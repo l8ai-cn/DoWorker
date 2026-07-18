@@ -1,16 +1,17 @@
 {
   "schema_version": 1,
   "worker_slug": "seedance-expert",
-  "definition_hash": "sha256:255c22f71b957d50e656393afa3ca3cd671caa711da32d5ad5a701c2e1903be8",
+  "definition_hash": "sha256:71097d3d9e94b5752e0417eb1dd41e1472b885f8be2b279eba8ce31f7cbe1fc9",
   "platform": "linux/amd64",
-  "observed_at": "2026-07-18T08:28:08+08:00",
-  "image_reference": "do-worker/runner-do-agent:latest",
-  "image_id": "sha256:1792eaeb4f4da7fd103a54950893817077dd8986931422ad2a83e09bf4bac653",
+  "observed_at": "2026-07-16T16:32:52.684Z",
+  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-do-agent:latest",
+  "image_id": "sha256:b652fdfcb27a7cb08c9c030b5e433d513ad903d2a13019905e4e50633f43778b",
   "probe_command": [
     "do-agent",
     "--version"
   ],
+  "network": "none",
   "status": "passed",
   "exit_code": 0,
-  "output": "do-agent 0.2.0"
+  "output": "do-agent 0.2.7"
 }

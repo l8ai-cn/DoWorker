@@ -17,44 +17,50 @@ func (failingGrantQuerier) GetGrantedResourceIDs(context.Context, string, int64,
 }
 
 func TestListAvailableAgentSlugsUsesActiveEligibleRunners(t *testing.T) {
-	db := setupTestDB(t)
-	service := newTestService(db)
+	service := newTestService(setupTestDB(t))
 	now := time.Now()
 
-	runners := []struct {
-		runner   *runnerDomain.Runner
-		lastPing time.Time
-		podCount int
-	}{
-		{runner: &runnerDomain.Runner{
-			ID: 1, OrganizationID: 7, NodeID: "agent-list-1", Status: runnerDomain.RunnerStatusOnline,
+	service.activeRunners.Store(int64(1), &ActiveRunner{
+		Runner: &runnerDomain.Runner{
+			ID: 1, OrganizationID: 7, Status: runnerDomain.RunnerStatusOnline,
 			IsEnabled: true, MaxConcurrentPods: 2, Visibility: runnerDomain.VisibilityOrganization,
 			AvailableAgents: runnerDomain.StringSlice{"codex-cli", "claude-code"},
-		}, lastPing: now},
-		{runner: &runnerDomain.Runner{
-			ID: 2, OrganizationID: 7, NodeID: "agent-list-2", Status: runnerDomain.RunnerStatusOnline,
+		},
+		LastPing: now,
+	})
+	service.activeRunners.Store(int64(2), &ActiveRunner{
+		Runner: &runnerDomain.Runner{
+			ID: 2, OrganizationID: 7, Status: runnerDomain.RunnerStatusOnline,
 			IsEnabled: true, MaxConcurrentPods: 1, Visibility: runnerDomain.VisibilityOrganization,
 			AvailableAgents: runnerDomain.StringSlice{"codex-cli"},
-		}, lastPing: now},
-		{runner: &runnerDomain.Runner{
-			ID: 3, OrganizationID: 7, NodeID: "agent-list-3", Status: runnerDomain.RunnerStatusOnline,
+		},
+		LastPing: now,
+	})
+	service.activeRunners.Store(int64(3), &ActiveRunner{
+		Runner: &runnerDomain.Runner{
+			ID: 3, OrganizationID: 7, Status: runnerDomain.RunnerStatusOnline,
 			IsEnabled: true, MaxConcurrentPods: 1, Visibility: runnerDomain.VisibilityOrganization,
 			AvailableAgents: runnerDomain.StringSlice{"aider"},
-		}, lastPing: now, podCount: 1},
-		{runner: &runnerDomain.Runner{
-			ID: 4, OrganizationID: 7, NodeID: "agent-list-4", Status: runnerDomain.RunnerStatusOnline,
+		},
+		LastPing: now,
+		PodCount: 1,
+	})
+	service.activeRunners.Store(int64(4), &ActiveRunner{
+		Runner: &runnerDomain.Runner{
+			ID: 4, OrganizationID: 7, Status: runnerDomain.RunnerStatusOnline,
 			IsEnabled: true, MaxConcurrentPods: 1, Visibility: runnerDomain.VisibilityOrganization,
 			AvailableAgents: runnerDomain.StringSlice{"gemini-cli"},
-		}, lastPing: now.Add(-2 * time.Minute)},
-		{runner: &runnerDomain.Runner{
-			ID: 5, OrganizationID: 8, NodeID: "agent-list-5", Status: runnerDomain.RunnerStatusOnline,
+		},
+		LastPing: now.Add(-2 * time.Minute),
+	})
+	service.activeRunners.Store(int64(5), &ActiveRunner{
+		Runner: &runnerDomain.Runner{
+			ID: 5, OrganizationID: 8, Status: runnerDomain.RunnerStatusOnline,
 			IsEnabled: true, MaxConcurrentPods: 1, Visibility: runnerDomain.VisibilityOrganization,
 			AvailableAgents: runnerDomain.StringSlice{"aider"},
-		}, lastPing: now},
-	}
-	for _, candidate := range runners {
-		storeActiveRunner(t, db, service, candidate.runner, candidate.lastPing, candidate.podCount)
-	}
+		},
+		LastPing: now,
+	})
 
 	got, err := service.ListAvailableAgentSlugs(context.Background(), 7, 11)
 

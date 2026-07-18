@@ -4,8 +4,8 @@ import type {
   ApplyWorkflowPlanResponse,
   CreateGoalLoopFromPlanResponse,
   CreateWorkerFromPlanResponse,
-} from "@proto/orchestration_resource/v1/orchestration_resource_apply_pb";
-import type { Resource } from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+  Resource,
+} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 
 export type ResourceApplyResult =
   | Resource

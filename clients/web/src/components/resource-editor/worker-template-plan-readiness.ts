@@ -75,6 +75,9 @@ export async function assertWorkerTemplatePlanReady(
   const catalog = await loadResourceReferenceCatalog(
     orgSlug,
     draft.spec.workerType,
+    selectedType.requires_model_resource
+      ? selectedType.model_protocol_adapters
+      : [],
     credentialBundleTargetNames(selectedType.credential_requirements),
   );
   const catalogError = workerTemplateReferenceCatalogError(draft, catalog);

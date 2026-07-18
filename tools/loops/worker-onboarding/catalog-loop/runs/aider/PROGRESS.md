@@ -4,41 +4,43 @@ Loop: Worker Onboarding Loop Template
 
 ## Current Status
 
-- Status: planned
-- Active loop node: not started
-- Active atomic task: not assigned
-- Last verifier result: not run
-- Last no-progress fingerprint: not recorded
-- Current token estimate: 0
+- Status: blocked on an Aider provider credential bundle.
+- Active loop node: `worker-goal`
+- Active atomic task: `verify-worker-flow`
+- Last verifier result: real Aider starts but waits for interactive provider login
+  when no key is injected.
+- Last no-progress fingerprint: `aider|missing-provider-credential|0.86.2`
 
-## Assumptions
+## Verified
 
-- No assumptions recorded yet.
+- Aider Definition version `2` declares the exact `aider-pty` PTY contract.
+- `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` are credential-bundle references,
+  and the new `provider-api-key` group requires one of them before planning.
+- Definition schema, backend projection, Connect options JSON, and the Web form
+  propagate the credential group. Targeted Go tests, the configured Web test
+  suite, and `pnpm run web:typecheck` passed.
+- The new Definition was synchronized to the local database, then the backend
+  was restarted and passed its health check on port `12415`.
+- Browser creation selected Aider, Local Runner Pool, and Standard Profile.
+  With both credential fields empty, the form displayed the credential warning
+  and kept `生成计划` disabled; browser console had no warnings or errors.
+- A real authenticated `PlanResource` request using the browser-generated YAML
+  returned one blocking issue and no plan. The database confirms zero resources
+  and zero plans named `aider-no-credential-live`.
+- The dedicated Runner image is running Aider `0.86.2`. A no-credential CLI
+  invocation timed out after 15 seconds while waiting for provider login; it
+  did not produce a synthetic model reply.
 
-## Decisions
+## Blocker
 
-- Initial recursive loop contract generated from `loop.json`.
-
-## Acceptance Trace
-
-- Checklist path: `ACCEPTANCE.md`
-- Checked items: none
-- Reopened items: none
-
-## Blocked Decision Trace
-
-- Decision file: `DECISIONS.md`
-- Decision log: `journal.jsonl`
-- Delegation confirmed: pending
-- Last proxy decision: none
-- Last supervisor review: none
+`dev-org` has no compatible credential EnvironmentBundle for Aider. The next
+real prompt requires one non-production bundle that injects either
+`OPENAI_API_KEY` or `ANTHROPIC_API_KEY`. No raw secret was read, logged, or
+changed.
 
 ## Next Cycle
 
-1. Re-read `loop.json`, `state.json`, `tasks.json`, `agents.json`, `ACCEPTANCE.md`, `DECISIONS.md`, and this file.
-2. Evaluate `clarification_policy` before acting.
-3. If blocked, apply `decision_policy`: confirm delegation, use proxy decisions only within low-risk authority, and escalate otherwise.
-4. Run supervisor drift checks on the configured cadence before continuing.
-5. Execute one eligible loop node or atomic task.
-6. Record evidence, then check exactly the matching acceptance item only if its criteria and verifier refs pass.
-7. Stop on success, failure, budget, no-progress, or human-gate conditions.
+1. Create or select an encrypted Aider credential EnvironmentBundle.
+2. Bind it to one of the two Aider credential fields.
+3. Generate and apply a new immutable WorkerTemplate.
+4. Create the Worker, send a browser prompt, and require a completed reply.

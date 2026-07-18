@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "selection": "named_definition_document_bindings",
+  "approved_by": "Do Worker maintainer",
+  "approved_at": "2026-07-16T18:32:09Z",
+  "legacy_positional_read": false,
+  "approved_scope": {
+    "replacement": "config_document_bindings[{document_id, config_bundle_id}]",
+    "legacy_positional_read": false,
+    "legacy_direct_create_pod_flow": "remove_or_route_to_worker_template",
+    "migration_policy": "fail_closed_on_ambiguous_historical_snapshots"
+  },
+  "image_supply_policy": {
+    "approved_sources": [
+      "Alibaba Cloud",
+      "Tencent Cloud"
+    ],
+    "automatic_fallback": false,
+    "current_verified_source": null,
+    "current_blocker": "No concrete Alibaba Cloud or Tencent Cloud repository for node:24-bookworm-slim has yet passed manifest verification."
+  }
+}

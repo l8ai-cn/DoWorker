@@ -69,11 +69,11 @@ WorkerTemplate 是可复用运行配置。`optionsRevision` 来自 Worker 创建
 apiVersion: agentsmesh.io/v1alpha1
 kind: WorkerTemplate
 metadata:
-  name: codex-reviewer
+  name: do-agent-reviewer
   namespace: acme
 spec:
   optionsRevision: runtime-catalog-2026-07-13-release-gated
-  workerType: codex-cli
+  workerType: do-agent
   modelRef:
     kind: ModelBinding
     name: coding-primary
@@ -86,8 +86,8 @@ spec:
       name: primary-pool
     deploymentMode: pooled
     customResources:
-    cpuRequestMilliCPU: 500
-    cpuLimitMilliCPU: 1000
+      cpuRequestMilliCPU: 500
+      cpuLimitMilliCPU: 1000
       memoryRequestBytes: 536870912
       memoryLimitBytes: 1073741824
       storageRequestBytes: 1073741824
@@ -107,7 +107,7 @@ spec:
       - documentId: settings
         configBundleRef:
           kind: EnvironmentBundle
-          name: codex-settings
+          name: do-agent-settings
     instructions: Review before editing.
   lifecycle:
     terminationPolicy: manual
@@ -118,9 +118,12 @@ spec:
 
 `runtime.resourceProfileRef` 与 `customResources` 互斥。仓库、Skill、知识库和
 环境包分别通过 `repositoryRef`、`skillRefs`、`knowledgeMounts` 和
-`environmentBundleRefs` 引用。
-
-Worker Definition 是配置文档契约的唯一来源。每个
-`configDocumentBindings[].documentId` 必须由当前 Worker 类型声明，绑定值必须
-是 `EnvironmentBundle` 的 config 资源。`required: true` 的配置文档必须绑定；
-`required: false` 的配置文档可以完全省略，不能用空 ResourceRef 占位。
+`environmentBundleRefs` 引用。Worker 类型要求的配置文档通过
+`configDocumentBindings[].documentId` 对应声明，并由 `configBundleRef`
+引用一个 `EnvironmentBundle`；表单会按 Worker 类型目录保留同名绑定并移除
+不再适用的文档声明。EnvironmentBundle 候选按 Worker 类型和用途查询：
+runtime 字段接受 `runtime/shared`，配置文档只接受 `config`，Secret 引用只
+接受 `credential`。runtime 候选会排除包含模型资源托管字段的包，每个 Secret
+字段只显示包含该 Worker Definition `target_name` 的包；不可访问、inactive
+或 `agentSlug` 不兼容的资源也不会进入对应候选目录。YAML 可以手工声明其他
+名称，但 Validate/Plan 仍会按当前事实阻止不兼容引用。

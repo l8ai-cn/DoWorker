@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"hash/fnv"
-	"strconv"
 	"time"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
@@ -48,15 +47,26 @@ func (s *PromptOutbox) PersistAndQueue(ctx context.Context, in PromptInput) erro
 		if err := acquirePromptLocks(tx, in.RunnerID, in.Item.SessionID); err != nil {
 			return err
 		}
-		return persistPromptCommand(
-			ctx,
-			tx,
-			in,
-			payload,
-			s.queue,
-			s.queue.MaxPerRunner(),
-			time.Now().Add(s.queue.SendPromptTTL()),
-		)
+		if err := ensureQueueCapacity(ctx, tx, in.RunnerID, s.queue.MaxPerRunner()); err != nil {
+			return err
+		}
+		position, err := nextItemPosition(ctx, tx, in.Item.SessionID)
+		if err != nil {
+			return err
+		}
+		in.Item.Position = position
+		if err := tx.Create(in.Item).Error; err != nil {
+			return err
+		}
+		return tx.Create(&agentpod.PendingCommand{
+			OrganizationID: in.OrganizationID,
+			RunnerID:       in.RunnerID,
+			PodKey:         in.PodKey,
+			CommandType:    agentpod.CommandTypeSendPrompt,
+			CommandID:      in.Item.ID,
+			Payload:        payload,
+			ExpiresAt:      time.Now().Add(s.queue.SendPromptTTL()),
+		}).Error
 	}); err != nil {
 		return err
 	}
@@ -68,13 +78,15 @@ func acquirePromptLocks(tx *gorm.DB, runnerID int64, sessionID string) error {
 	if tx.Name() != "postgres" {
 		return nil
 	}
-	for _, key := range []int64{
-		promptLockKey("runner", strconv.FormatInt(runnerID, 10)),
-		promptLockKey("session", sessionID),
-	} {
-		if err := tx.Exec("SELECT pg_advisory_xact_lock(?)", key).Error; err != nil {
-			return fmt.Errorf("acquire prompt outbox lock: %w", err)
-		}
+	if err := tx.Exec(
+		"SELECT pg_advisory_xact_lock(hashtextextended(?, 0))",
+		agentpod.PendingCommandRunnerLockName(runnerID),
+	).Error; err != nil {
+		return fmt.Errorf("acquire prompt outbox runner lock: %w", err)
+	}
+	key := promptLockKey("session", sessionID)
+	if err := tx.Exec("SELECT pg_advisory_xact_lock(?)", key).Error; err != nil {
+		return fmt.Errorf("acquire prompt outbox session lock: %w", err)
 	}
 	return nil
 }

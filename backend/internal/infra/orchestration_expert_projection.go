@@ -8,6 +8,7 @@ import (
 
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -21,6 +22,7 @@ type orchestrationExpertRecord struct {
 	Prompt                        *string         `gorm:"column:prompt"`
 	InteractionMode               string          `gorm:"column:interaction_mode"`
 	AutomationLevel               string          `gorm:"column:automation_level"`
+	SkillSlugs                    pq.StringArray  `gorm:"column:skill_slugs;type:text[]"`
 	WorkerSpecSnapshotID          int64           `gorm:"column:worker_spec_snapshot_id"`
 	Metadata                      json.RawMessage `gorm:"column:metadata;type:jsonb"`
 	CreatedByID                   int64           `gorm:"column:created_by_id"`
@@ -39,7 +41,7 @@ func writeExpertProjection(
 	state controlservice.LockedApplyState,
 	mutation controlservice.ExpertApplyMutation,
 ) (int64, error) {
-	record, err := expertProjectionRecord(state, mutation)
+	record, err := expertProjectionRecord(tx, state, mutation)
 	if err != nil {
 		return 0, err
 	}
@@ -72,6 +74,8 @@ func writeExpertProjection(
 	).Updates(map[string]any{
 		"name": record.Name, "description": record.Description,
 		"prompt": record.Prompt, "metadata": record.Metadata,
+		"agent_slug": record.AgentSlug, "interaction_mode": record.InteractionMode,
+		"automation_level": record.AutomationLevel, "skill_slugs": record.SkillSlugs,
 		"worker_spec_snapshot_id":         record.WorkerSpecSnapshotID,
 		"orchestration_resource_revision": record.OrchestrationResourceRevision,
 		"updated_at":                      record.UpdatedAt,
@@ -86,9 +90,18 @@ func writeExpertProjection(
 }
 
 func expertProjectionRecord(
+	tx *gorm.DB,
 	state controlservice.LockedApplyState,
 	mutation controlservice.ExpertApplyMutation,
 ) (orchestrationExpertRecord, error) {
+	runtime, err := loadExpertProjectionRuntime(
+		tx,
+		state.Plan.Scope.OrganizationID,
+		mutation.Projection.WorkerSpecSnapshotID,
+	)
+	if err != nil {
+		return orchestrationExpertRecord{}, err
+	}
 	metadata, err := control.CanonicalJSONObject(map[string]string{
 		"category":     mutation.Projection.Category,
 		"releaseNotes": mutation.Projection.ReleaseNotes,
@@ -97,13 +110,15 @@ func expertProjectionRecord(
 		return orchestrationExpertRecord{}, control.ErrCorrupt
 	}
 	return orchestrationExpertRecord{
-		OrganizationID:  state.Plan.Scope.OrganizationID,
-		Slug:            state.Plan.Target.Name.String(),
-		Name:            mutation.Projection.Name,
-		Description:     optionalProjectionText(mutation.Projection.Description),
-		AgentSlug:       "resource-native",
-		Prompt:          optionalProjectionText(mutation.Projection.Prompt),
-		InteractionMode: "acp", AutomationLevel: "autonomous",
+		OrganizationID:                state.Plan.Scope.OrganizationID,
+		Slug:                          state.Plan.Target.Name.String(),
+		Name:                          mutation.Projection.Name,
+		Description:                   optionalProjectionText(mutation.Projection.Description),
+		AgentSlug:                     runtime.AgentSlug,
+		Prompt:                        optionalProjectionText(mutation.Projection.Prompt),
+		InteractionMode:               runtime.InteractionMode,
+		AutomationLevel:               runtime.AutomationLevel,
+		SkillSlugs:                    runtime.SkillSlugs,
 		WorkerSpecSnapshotID:          mutation.Projection.WorkerSpecSnapshotID,
 		Metadata:                      metadata,
 		CreatedByID:                   state.Plan.ActorID,

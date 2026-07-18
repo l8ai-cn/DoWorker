@@ -19,7 +19,6 @@ func (t *transport) handleNotification(method string, params json.RawMessage) {
 	case "turn/started":
 		t.cancelIdleFallback()
 		t.resetAgentMessageBoundary()
-		t.handleTurnStarted(params)
 
 	case "thread/status/changed":
 		t.handleThreadStatusChanged(params)

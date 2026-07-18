@@ -1,0 +1,39 @@
+{
+  "captured_at": "2026-07-16T10:00:00+08:00",
+  "workspace": "/Users/wwyz/Documents/code/AgentsMesh",
+  "api_origin": "http://[::1]:12400",
+  "authentication": "local development user token; no provider credential read",
+  "formal_worker_count": 13,
+  "runtime_catalog": {
+    "path": "deploy/dev/runtime/worker-runtime-catalog.local.json",
+    "revision": "local-dev-codex-cli-local",
+    "enabled_worker_types": ["codex-cli"]
+  },
+  "create_options": {
+    "selectable_worker_types": ["codex-cli"],
+    "blocked_worker_types": {
+      "aider": "No runtime image is available for this worker type",
+      "claude-code": "No runtime image is available for this worker type",
+      "cursor-cli": "No runtime image is available for this worker type",
+      "do-agent": "No runtime image is available for this worker type",
+      "gemini-cli": "No runtime image is available for this worker type",
+      "grok-build": "No runtime image is available for this worker type",
+      "hermes": "No runtime image is available for this worker type",
+      "loopal": "No runtime image is available for this worker type",
+      "minimax-cli": "No runtime image is available for this worker type",
+      "openclaw": "No runtime image is available for this worker type",
+      "opencode": "No runtime image is available for this worker type",
+      "seedance-expert": "No runtime image is available for this worker type"
+    }
+  },
+  "online_runners": [
+    {"id": "1", "node_id": "dev-runner", "available_agents": ["e2e-echo"]},
+    {"id": "4", "node_id": "dev-runner-codex", "available_agents": ["codex-cli"]}
+  ],
+  "offline_runner_count": 12,
+  "invalidated_evidence": {
+    "api_origin": "http://[::1]:10000",
+    "reason": "That origin belongs to a different worktree stack and cannot verify this workspace."
+  },
+  "conclusion": "No Worker receives a support or launch-verification claim from this baseline."
+}

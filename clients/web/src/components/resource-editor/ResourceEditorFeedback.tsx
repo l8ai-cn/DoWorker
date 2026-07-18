@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { IssueSeverity } from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+import { IssueSeverity } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import { AlertMessage } from "@/components/ui/alert-message";
 import type { ResourceDraftState } from "./resource-draft-reducer";
 

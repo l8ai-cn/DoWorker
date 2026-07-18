@@ -3,14 +3,15 @@
   "worker_slug": "claude-code",
   "definition_hash": "sha256:f7dd1bfec7f293ded406006f514e6d7e25aaefcd29d78272bbe2e875ce9d205c",
   "platform": "linux/amd64",
-  "observed_at": "2026-07-12T23:09:23.536Z",
-  "image_reference": "do-worker/runner-claude-code:latest",
-  "image_id": "sha256:b3e11df47367488ff0cb815c3ed292c99c6497a741793d777bda319562fe533f",
+  "observed_at": "2026-07-16T16:32:34.082Z",
+  "image_reference": "agentsmesh-codex-loop-blockly-mvp-runner-claude-code:latest",
+  "image_id": "sha256:b9a46dc3f2bd3629482633fe64c75585606bb3479440dcfea9315c6ab2bc3175",
   "probe_command": [
     "claude",
     "--version"
   ],
+  "network": "none",
   "status": "passed",
   "exit_code": 0,
-  "output": "2.1.207 (Claude Code)"
+  "output": "2.1.211 (Claude Code)"
 }

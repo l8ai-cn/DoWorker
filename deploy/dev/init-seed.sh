@@ -110,7 +110,7 @@ apply_seed() {
         echo ""
         echo "Runner 信息："
         echo "  Node IDs:   dev-runner, dev-runner-2, dev-runner-claude, dev-runner-codex, dev-runner-cursor, dev-runner-gemini, dev-runner-loopal, dev-runner-do-agent, dev-runner-grok, dev-runner-openclaw, dev-runner-hermes, dev-runner-aider, dev-runner-opencode, admin-workspace-do-agent"
-        echo "  Auth Token: dev-runner-auth-token"
+        echo "  Auth Token: dev-runner-token"
     else
         error "Seed 数据应用失败"
         exit 1

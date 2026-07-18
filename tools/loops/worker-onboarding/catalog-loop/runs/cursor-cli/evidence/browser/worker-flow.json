@@ -1,0 +1,14 @@
+{
+  "at": "2026-07-17T07:06:53Z",
+  "route": "/dev-org/workers/new?mode=template",
+  "worker_type": "cursor-cli",
+  "observed": {
+    "required_field": "CURSOR_API_KEY",
+    "missing_reference_message": "请为 CURSOR_API_KEY 选择凭据包。",
+    "plan_button_enabled": false
+  },
+  "side_effect_check": {
+    "orchestration_resources_named_cursor-missing-credential-e2e": 0,
+    "pods_aliased_cursor-missing-credential-e2e": 0
+  }
+}

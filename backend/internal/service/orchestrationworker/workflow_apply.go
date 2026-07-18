@@ -6,7 +6,6 @@ import (
 
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
-	workflowDomain "github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
 	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
 )
 
@@ -41,27 +40,9 @@ func (service *WorkflowApplyService) Apply(
 	scope control.Scope,
 	planID string,
 ) (AppliedWorkflow, error) {
-	return service.ApplyWithStatus(
-		ctx,
-		scope,
-		planID,
-		workflowDomain.StatusEnabled,
-	)
-}
-
-func (service *WorkflowApplyService) ApplyWithStatus(
-	ctx context.Context,
-	scope control.Scope,
-	planID string,
-	status string,
-) (AppliedWorkflow, error) {
 	if service == nil || service.registry == nil ||
 		service.repository == nil || service.resolver == nil {
 		return AppliedWorkflow{}, controlservice.ErrUnavailable
-	}
-	if status != workflowDomain.StatusEnabled &&
-		status != workflowDomain.StatusDisabled {
-		return AppliedWorkflow{}, control.ErrInvalid
 	}
 	return service.repository.RunWorkflowApplyTransaction(
 		ctx,
@@ -76,7 +57,6 @@ func (service *WorkflowApplyService) ApplyWithStatus(
 				service.registry,
 				service.resolver,
 				state,
-				status,
 			)
 		},
 	)

@@ -99,8 +99,20 @@ func listFilterFromProto(
 		}
 		filter.EnvironmentBundle = converted
 	}
+	if request.ModelBindingFilter != nil {
+		converted, err := modelBindingFilterFromProto(
+			request.GetModelBindingFilter(),
+		)
+		if err != nil {
+			return service.ResourceListFilter{}, err
+		}
+		filter.ModelBinding = converted
+	}
 	if filter.EnvironmentBundle != nil &&
 		filter.Kind != resource.KindEnvironmentBundle {
+		return service.ResourceListFilter{}, invalidRequest()
+	}
+	if filter.ModelBinding != nil && filter.Kind != resource.KindModelBinding {
 		return service.ResourceListFilter{}, invalidRequest()
 	}
 	return filter, nil

@@ -4,7 +4,6 @@ export interface EmbedSessionAccess {
   accessToken: string;
   expiresAt: number;
   sessionId: string;
-  orgSlug: string;
   capabilities: string[];
   parentOrigins: string[];
 }
@@ -21,7 +20,6 @@ type EmbedContextResponse = {
   access_token?: unknown;
   expires_at?: unknown;
   session_id?: unknown;
-  org_slug?: unknown;
   capabilities?: unknown;
   parent_origins?: unknown;
 };
@@ -127,8 +125,6 @@ function parseEmbedSessionAccess(body: EmbedContextResponse): EmbedSessionAccess
     typeof body.access_token !== "string" ||
     typeof body.expires_at !== "number" ||
     typeof body.session_id !== "string" ||
-    typeof body.org_slug !== "string" ||
-    body.org_slug === "" ||
     !Array.isArray(body.capabilities) ||
     !body.capabilities.every(
       (capability) => typeof capability === "string" && EMBED_CAPABILITIES.has(capability),
@@ -142,7 +138,6 @@ function parseEmbedSessionAccess(body: EmbedContextResponse): EmbedSessionAccess
     accessToken: body.access_token,
     expiresAt: body.expires_at,
     sessionId: body.session_id,
-    orgSlug: body.org_slug,
     capabilities: body.capabilities,
     parentOrigins: body.parent_origins,
   };

@@ -430,3 +430,15 @@ func (fixture *workspaceFixture) deps() workspaceResolverDeps {
 		},
 	}
 }
+
+func validWorkspaceDraft() specdomain.Workspace {
+	repositoryID := int64(22)
+	return specdomain.Workspace{
+		RepositoryID: &repositoryID,
+		Branch:       "main",
+		SkillIDs:     []int64{3},
+		KnowledgeMounts: []specdomain.KnowledgeMount{
+			{KnowledgeBaseID: 4, Mode: specdomain.KnowledgeMountReadWrite},
+		},
+	}
+}

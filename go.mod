@@ -15,6 +15,8 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/creativeprojects/go-selfupdate v1.5.2
 	github.com/crewjam/saml v0.5.1
+	github.com/distribution/reference v0.6.0
+	github.com/gin-contrib/cors v1.7.7
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-acme/lego/v4 v4.33.0
 	github.com/go-ldap/ldap/v3 v3.4.12
@@ -70,10 +72,6 @@ require (
 
 require (
 	connectrpc.com/connect v1.19.1
-	github.com/aws/smithy-go v1.25.1
-	github.com/distribution/reference v0.6.0
-	github.com/jackc/pgx/v5 v5.6.0
-	golang.org/x/sys v0.44.0
 	google.golang.org/protobuf v1.36.11
 )
 

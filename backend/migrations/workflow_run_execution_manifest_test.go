@@ -6,12 +6,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMigration000227RequiresExecutionManifestForActiveResourceRuns(
+func TestMigration000220RequiresExecutionManifestForActiveResourceRuns(
 	t *testing.T,
 ) {
 	up := readMigrationForTest(
 		t,
-		"000227_workflow_run_execution_manifest.up.sql",
+		"000220_workflow_run_execution_manifest.up.sql",
 	)
 	for _, fragment := range []string{
 		"ADD COLUMN execution_manifest JSONB",
@@ -39,10 +39,10 @@ func TestMigration000227RequiresExecutionManifestForActiveResourceRuns(
 	require.NotContains(t, up, "UPDATE workflow_runs")
 }
 
-func TestMigration000227DropsExecutionManifestOnRollback(t *testing.T) {
+func TestMigration000220DropsExecutionManifestOnRollback(t *testing.T) {
 	down := readMigrationForTest(
 		t,
-		"000227_workflow_run_execution_manifest.down.sql",
+		"000220_workflow_run_execution_manifest.down.sql",
 	)
 	require.Contains(
 		t,

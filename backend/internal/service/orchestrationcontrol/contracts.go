@@ -12,11 +12,13 @@ type ResourceListFilter struct {
 	Limit             int
 	Offset            int
 	EnvironmentBundle *EnvironmentBundleReferenceFilter
+	ModelBinding      *ModelBindingReferenceFilter
 }
 
 type ResourceListPage struct {
-	Items []orchestrationcontrol.ResourceHead
-	Total int64
+	Items         []orchestrationcontrol.ResourceHead
+	Total         int64
+	AppliedFilter ResourceListFilter
 }
 
 type LockedApplyState struct {

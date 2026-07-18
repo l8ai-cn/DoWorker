@@ -1,0 +1,33 @@
+{
+  "captured_at": "2026-07-16T05:14:00+08:00",
+  "scope": {
+    "operation": "CreateEnvBundle",
+    "worker_type_slug": "do-agent",
+    "provider_credentials": "not read",
+    "provider_request": "not made",
+    "pod_created": false,
+    "bundle_created": false
+  },
+  "former_failure_mode": {
+    "parser": "ParseConfigDocuments ignored missing or malformed __json values",
+    "agentfile": "USE_CONFIG_BUNDLE silently did nothing when its parsed document was absent"
+  },
+  "live_connect_result": {
+    "endpoint": "/proto.env_bundle.v1.EnvBundleService/CreateEnvBundle",
+    "request_shape": {
+      "kind": "config",
+      "data": {
+        "__json": "{"
+      }
+    },
+    "status": 400,
+    "code": "invalid_argument",
+    "message": "invalid config bundle data: unexpected end of JSON input"
+  },
+  "deterministic_verifiers": {
+    "create_and_update_validation": "go test ./backend/internal/service/envbundle -run TestService_(Create|Update)_ConfigBundleRequiresJSONObject -count=1",
+    "command_build_validation": "go test ./backend/internal/service/agent -run TestBuildPodCommandRejectsMalformedConfigBundle -count=1",
+    "connect_package": "go test ./backend/internal/api/connect/env_bundle -count=1"
+  },
+  "remaining_contract_gap": "Definition config_documents still do not bind document IDs, formats, or target paths to worker config bundle selections."
+}

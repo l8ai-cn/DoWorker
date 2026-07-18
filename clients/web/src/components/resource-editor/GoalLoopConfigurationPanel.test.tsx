@@ -109,12 +109,10 @@ describe("GoalLoopConfigurationPanel", () => {
     const user = userEvent.setup();
     render(<GoalLoopPanelHarness />);
 
-    await user.click(screen.getByRole("combobox", {
-      name: /^Worker template/,
-    }));
-    await user.click(screen.getByRole("option", {
-      name: "Code reviewer code-reviewer",
-    }));
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: /^Worker template/ }),
+      "code-reviewer",
+    );
 
     expect(currentDraft().spec.workerTemplateRef).toEqual({
       kind: "WorkerTemplate",

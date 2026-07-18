@@ -910,8 +910,8 @@
           "descriptionHeader": "Description",
           "paramsHeader": "Parameters",
           "createPod": "create_pod",
-          "createPodDesc": "Validar, planificar y aplicar un recurso Worker",
-          "createPodParams": "resource (Worker, required)",
+          "createPodDesc": "Crear un Worker desde un plan validado",
+          "createPodParams": "plan_id (obligatorio)",
           "description": "Herramientas para crear, observar y controlar Pods. Las herramientas de observación y entrada requieren un binding activo con los ámbitos apropiados.",
           "getPodSnapshot": "get_pod_snapshot",
           "getPodSnapshotDesc": "Obtener una instantánea de la salida del terminal de otro Pod (requiere pod:read)",
@@ -1169,18 +1169,18 @@
       },
       "pods": {
         "title": "Pods API",
-        "description": "Gestione AgentPods programáticamente. Cree, liste y termine Pods a través de la API REST.",
+        "description": "Liste, reanude desde el linaje de origen y termine Pods mediante la API REST. Los Workers nuevos usan Validate, Plan y Apply nativos de recursos.",
         "endpoints": {
           "title": "Endpoints",
           "list": "Listar todos los Pods",
           "get": "Obtener detalles del Pod por clave",
-          "create": "Crear un nuevo Pod",
+          "create": "Reanudar Pod desde el linaje de origen",
           "terminate": "Terminar un Pod"
         },
         "examples": {
           "title": "Ejemplos de código",
           "listPods": "Listar todos los Pods en ejecución",
-          "createPod": "Crear un nuevo Pod"
+          "createPod": "Reanudar un Pod"
         },
         "details": {
           "title": "Detalles de endpoints",
@@ -1202,25 +1202,15 @@
           },
           "createPod": {
             "title": "POST /pods",
-            "description": "Crear un nuevo AgentPod en un runner especificado. El Pod se inicializará con la configuración dada y comenzará a ejecutarse.",
+            "description": "Reanudar un Worker desde el linaje de origen inmutable de un Pod existente. Se rechazan Workers nuevos y sobrescrituras de ejecución.",
             "fields": {
-              "runner_id": "ID del runner donde crear el Pod",
-              "agent_slug": "Identificador del agente (ej. claude-code, aider)",
-              "prompt": "Prompt o tarea inicial para el agente",
-              "repository_id": "Repositorio a asociar con el Pod",
-              "branch": "Rama de Git en la que trabajar",
-              "ticket_slug": "Identificador del ticket a vincular (ej. AM-123)",
-              "channel_id": "Canal a asociar con el Pod",
-              "sandbox_type": "Tipo de sandbox: worktree o tempdir",
-              "environment_variables": "Pares clave-valor de variables de entorno",
-              "custom_agent_command": "Comando personalizado para iniciar el agente",
-              "custom_agent_args": "Argumentos para el comando de agente personalizado",
-              "custom_mcp_config": "Configuración personalizada del servidor MCP (JSON)",
-              "auto_close": "Si el Pod debe cerrarse automáticamente después de completar la tarea",
-              "auto_close_delay_seconds": "Retraso en segundos antes del cierre automático",
-              "pod_timeout_minutes": "Tiempo de vida máximo del Pod en minutos",
-              "max_turns": "Número máximo de turnos del agente",
-              "automation_level": "Nivel de automatización unificado: interactive, auto_edit o autonomous (predeterminado). Se mapea en el servidor a la configuración nativa de permisos de cada agente."
+              "source_pod_key": "Clave obligatoria del Pod de origen que posee el linaje de ejecución",
+              "resume_agent_session": "Reanudar la sesión del agente de origen cuando sea compatible",
+              "cols": "Número de columnas del terminal",
+              "rows": "Número de filas del terminal",
+              "queue_if_offline": "Encolar la reanudación cuando no haya un runner disponible",
+              "queue_ttl_minutes": "Duración máxima en cola en minutos; valor predeterminado 30",
+              "ticket_slug": "Identificador opcional del ticket para el Pod reanudado"
             }
           },
           "terminatePod": {
@@ -1482,14 +1472,11 @@
       },
       "workflows": {
         "title": "Workflows API",
-        "description": "Gestiona tareas Workflow automatizadas y sus ejecuciones. Crea Workflows, configura triggers y monitorea la ejecución a través de la API REST.",
+        "description": "Consulta y opera Workflows administrados como recursos mediante REST. Crea o revisa declaraciones con el editor de recursos o la API de orquestación validate-plan-apply.",
         "endpoints": {
           "title": "Endpoints",
           "list": "List all workflows",
-          "create": "Create a new workflow",
           "get": "Get workflow by slug",
-          "update": "Update a workflow",
-          "delete": "Delete a workflow",
           "enable": "Enable a workflow",
           "disable": "Disable a workflow",
           "trigger": "Manually trigger a run",
@@ -1499,7 +1486,6 @@
         },
         "examples": {
           "title": "Code Examples",
-          "createWorkflow": "Create a scheduled workflow",
           "triggerRun": "Trigger a run with variables"
         },
         "details": {
@@ -1508,49 +1494,11 @@
             "title": "GET /workflows",
             "description": "Retrieve all workflows in the organization. Returns workflows sorted by creation date."
           },
-          "createWorkflow": {
-            "title": "POST /workflows",
-            "description": "Create a new workflow with the specified configuration.",
-            "fields": {
-              "name": "Workflow name (required, 1-255 characters)",
-              "description": "Optional description",
-              "agent_slug": "Built-in agent slug to use",
-              "custom_agent_slug": "Custom agent slug (alternative to agent_slug)",
-              "prompt_template": "Task prompt with {{variable}} placeholders (required)",
-              "prompt_variables": "Default values for prompt variables (JSON object)",
-              "repository_id": "Repository to clone into the sandbox",
-              "runner_id": "Preferred runner for execution",
-              "branch_name": "Git branch to check out",
-              "execution_mode": "autopilot or direct (default: autopilot)",
-              "cron_expression": "Cron schedule (e.g., '0 9 * * *'). If set, workflow triggers on schedule",
-              "sandbox_strategy": "persistent or fresh (default: persistent)",
-              "session_persistence": "Keep agent session across runs (default: true)",
-              "concurrency_policy": "skip, queue, or replace (default: skip)",
-              "max_concurrent_runs": "Maximum concurrent runs (default: 1)",
-              "timeout_minutes": "Run timeout in minutes (default: 60)",
-              "callback_url": "Webhook URL for run completion notifications",
-              "autopilot_config": "Autopilot parameters (max_iterations, iteration_timeout_sec)"
-            }
-          },
           "getWorkflow": {
             "title": "GET /workflows/:slug",
             "description": "Retrieve detailed information about a specific workflow by its slug.",
             "params": {
               "slug": "Workflow slug (auto-generated from name)"
-            }
-          },
-          "updateWorkflow": {
-            "title": "PUT /workflows/:slug",
-            "description": "Update an existing workflow. All fields are optional — only provided fields will be updated.",
-            "params": {
-              "slug": "Workflow slug"
-            }
-          },
-          "deleteWorkflow": {
-            "title": "DELETE /workflows/:slug",
-            "description": "Permanently delete a workflow and all its run history. This action cannot be undone.",
-            "params": {
-              "slug": "Workflow slug"
             }
           },
           "enableWorkflow": {
@@ -2097,7 +2045,7 @@
       "workflows": {
         "title": "Tutorial: Automatización con Workflows",
         "difficulty": "Intermedio — 10 minutos",
-        "description": "Aprende a configurar workflows automatizados que crean Pods según un horario. Los Workflows son perfectos para tareas recurrentes como revisiones de código, actualizaciones de dependencias, ejecuciones de pruebas y monitoreo.",
+        "description": "Aprende a declarar, revisar y aplicar Workflows automatizados que se ejecutan desde un snapshot inmutable de WorkerSpec.",
         "whatAreWorkflows": {
           "title": "¿Qué Son los Workflows?",
           "description": "Un Workflow es una automatización programada que crea periódicamente un AgentPod con una configuración predefinida. Piensa en ello como un cron job para agentes IA — ejecuta tu prompt según un horario, creando un Pod nuevo cada vez.",
@@ -2112,15 +2060,15 @@
         },
         "step2": {
           "title": "Crea un Nuevo Workflow",
-          "description": "Haz clic en Nuevo Workflow y configura la automatización:",
-          "fields": "Completa la configuración del workflow:",
-          "field1": "Nombre — Un nombre descriptivo, por ejemplo, \"Revisión de Código Diaria\"",
-          "field2": "Agente — El agente IA a usar (por ejemplo, Claude Code)",
-          "field3": "Runner — Qué Runner debe ejecutar el workflow",
-          "field4": "Repositorio — El repositorio en el que el agente trabajará",
-          "field5": "Rama — La rama a verificar (por defecto main)",
-          "field6": "Prompt — La tarea para el agente, por ejemplo, \"Revisa los commits recientes para problemas de calidad de código. Verifica vulnerabilidades de seguridad, problemas de rendimiento e inconsistencias de estilo. Publica un resumen en el canal.\"",
-          "field7": "Horario — Configura el horario cron (por ejemplo, todos los días a las 9 AM, todos los lunes)"
+          "description": "Haz clic en Nuevo Workflow para abrir el editor de recursos:",
+          "fields": "Completa la definición del recurso Workflow:",
+          "field1": "Nombre del recurso — Un identificador estable, por ejemplo, \"daily-code-review\"",
+          "field2": "WorkerTemplate — La configuración versionada del Worker",
+          "field3": "Prompt — La plantilla de tarea versionada para cada ejecución",
+          "field4": "Entradas — Valores opcionales para variables del Prompt",
+          "field5": "Ejecución — Modo, estrategia de sandbox y persistencia de sesión",
+          "field6": "Horario — Configura el horario cron",
+          "field7": "Revisión — Valida, revisa el Plan semántico y aplica la revisión"
         },
         "step3": {
           "title": "Configura el Horario",
@@ -2142,11 +2090,11 @@
         "step5": {
           "title": "Gestiona Tus Workflows",
           "description": "Puedes gestionar workflows desde el panel de Workflows:",
-          "item1": "Pausar — Detén temporalmente un workflow para que no cree nuevos Pods sin eliminarlo",
-          "item2": "Reanudar — Reinicia un workflow pausado",
-          "item3": "Editar — Actualiza el prompt, horario o configuración",
+          "item1": "Deshabilitar — Detén nuevas ejecuciones programadas sin cambiar la definición",
+          "item2": "Habilitar — Reanuda los triggers de un Workflow deshabilitado",
+          "item3": "Nueva revisión — Edita el recurso, valida, planifica y aplica",
           "item4": "Ejecutar Ahora — Activa una ejecución inmediata sin esperar al próximo horario",
-          "item5": "Eliminar — Elimina permanentemente un workflow"
+          "item5": "Historial — Revisa la revisión, snapshot, Prompt, Pod y resultado fijados"
         },
         "commonPatterns": {
           "title": "Patrones Comunes de Workflows",

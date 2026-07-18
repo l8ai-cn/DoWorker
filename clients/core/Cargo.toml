@@ -170,3 +170,11 @@ web-time = "1"
 prost = { version = "0.13", default-features = false, features = ["prost-derive", "std"] }
 prost-types = "0.13"
 prost-build = "0.13"
+
+[profile.release]
+# Keep host tests fast; wasm-pack release builds benefit from size-oriented flags.
+lto = true
+codegen-units = 1
+opt-level = "z"
+strip = true
+panic = "abort"

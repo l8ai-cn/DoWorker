@@ -3,15 +3,11 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   CreateGoalLoopFromPlanResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_apply_pb";
-import {
-  PlanResourceResponseSchema,
-  ValidateResourceResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
-import {
   PlanStatus,
+  PlanResourceResponseSchema,
   ResourceOperation,
-} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+  ValidateResourceResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
 import { act, fireEvent, render, screen, waitFor } from "@/test/test-utils";
 import { createResourceDraft } from "./resource-draft-factory";
 

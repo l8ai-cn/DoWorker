@@ -46,7 +46,6 @@ type AppliedExpert struct {
 type WorkflowApplyProjection struct {
 	Name                 string
 	Prompt               string
-	Status               string
 	ExecutionMode        string
 	CronExpression       string
 	SandboxStrategy      string

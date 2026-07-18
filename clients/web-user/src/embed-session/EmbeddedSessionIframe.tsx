@@ -1,5 +1,8 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
+import { ImageLightboxProvider } from "@/components/ImageLightbox";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import {
   clearEmbedContextFromLocation,
   inspectEmbedContextOnce,
@@ -8,9 +11,13 @@ import {
   type EmbedContextBootstrap,
   type EmbedSessionAccess,
 } from "@/embed-context";
+import { createEmbedSessionClient } from "@/embed-session-api";
 import { EmbeddedAgentWorkspace } from "./EmbeddedAgentWorkspace";
-import type { EmbeddedAgentWorkbenchAccess } from "./embeddedAgentWorkbenchAccess";
 import { EMBED_READY_MESSAGE, readAllowedEmbedOpenProof } from "./embedParentHandshake";
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
+});
 
 export function EmbeddedSessionIframe() {
   const [access, setAccess] = useState<EmbedSessionAccess | null>(null);
@@ -71,35 +78,34 @@ export function EmbeddedSessionIframe() {
     return () => window.removeEventListener("message", onMessage);
   }, [pendingContext]);
 
-  const workbenchAccess = useMemo<EmbeddedAgentWorkbenchAccess | null>(
-    () =>
-      access
-        ? {
-            baseUrl: window.location.origin,
-            getAccessToken: () => access.accessToken,
-            orgSlug: access.orgSlug,
-            sessionId: access.sessionId,
-          }
-        : null,
-    [access],
-  );
+  const client = useMemo(() => (access ? createEmbedSessionClient(access) : null), [access]);
 
   if (error) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-2 px-6 text-center">
         <h1 className="font-medium">无法打开嵌入会话</h1>
         <p className="text-sm text-muted-foreground">
-          {error === "embed_context is required" ? "此嵌入工作区需要有效的会话上下文。" : error}
+          {error === "embed_context is required"
+            ? "此嵌入工作区需要有效的会话上下文。"
+            : error}
         </p>
       </div>
     );
   }
-  if (!workbenchAccess) {
+  if (!client) {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
         正在等待嵌入页面建立连接…
       </div>
     );
   }
-  return <EmbeddedAgentWorkspace access={workbenchAccess} />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <ImageLightboxProvider>
+          <EmbeddedAgentWorkspace client={client} sessionId={access!.sessionId} />
+        </ImageLightboxProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
 }

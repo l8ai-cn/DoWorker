@@ -1,4 +1,3 @@
-// Typed Connect-RPC client for the e2e suite.
 // The legacy ApiFixture used REST-shaped `api.get(path)` calls that the R5
 // refactor turned into Connect RPCs behind the scenes (via a transparent
 // path-mapping adapter). That layer keeps old specs running but encodes
@@ -169,6 +168,7 @@ export function makeConnectClient(token: string | null) {
     binding: makeServiceClient(BindingService, token),
     goalLoop: makeServiceClient(GoalLoopService, token),
     workflow: makeServiceClient(WorkflowService, token),
+    orchestrationResource: makeServiceClient(OrchestrationResourceService, token),
     billing: makeServiceClient(BillingService, token),
     envBundle: makeServiceClient(EnvBundleService, token),
     apikey: makeServiceClient(ApiKeyService, token),

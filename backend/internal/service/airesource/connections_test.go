@@ -84,8 +84,10 @@ func TestConnectionCredentialValidation(t *testing.T) {
 func TestRotateCredentialsRequiresRevalidation(t *testing.T) {
 	f := newFixture()
 	connection := createValidConnection(t, f, domain.OwnerScopeUser, 1, "openai-main", "old-secret")
+	revision := f.repo.connections[connection.ID].Revision
 	require.NoError(t, f.service.RotateConnectionCredentials(context.Background(), actor(1), connection.ID, map[string]string{"api_key": "new-secret"}))
 	stored := f.repo.connections[connection.ID]
+	assert.Equal(t, revision, stored.Revision)
 	assert.Equal(t, domain.ConnectionStatusUnchecked, stored.Status)
 	assert.Nil(t, stored.LastValidatedAt)
 	assert.Empty(t, stored.ValidationError)
@@ -132,8 +134,10 @@ func TestActorAndOwnerIDsMustBePositive(t *testing.T) {
 func TestUpdateConnectionCredentialsAreWriteOnlyAndResetStatus(t *testing.T) {
 	f := newFixture()
 	connection := createValidConnection(t, f, domain.OwnerScopeUser, 1, "openai-main", "old-secret")
+	revision := f.repo.connections[connection.ID].Revision
 	view, err := f.service.UpdateConnection(context.Background(), actor(1), connection.ID, UpdateConnectionInput{Name: "Renamed", Credentials: map[string]string{"api_key": "replacement"}})
 	require.NoError(t, err)
+	assert.Equal(t, revision, f.repo.connections[connection.ID].Revision)
 	assert.Equal(t, "Renamed", view.Name)
 	assert.Equal(t, domain.ConnectionStatusUnchecked, view.Status)
 	encoded, _ := json.Marshal(view)
@@ -141,6 +145,28 @@ func TestUpdateConnectionCredentialsAreWriteOnlyAndResetStatus(t *testing.T) {
 	plaintext, err := f.cipher.Decrypt(f.repo.connections[connection.ID].CredentialsEncrypted)
 	require.NoError(t, err)
 	assert.Contains(t, plaintext, "replacement")
+}
+
+func TestConnectionRevisionOnlyChangesForRuntimeConfiguration(t *testing.T) {
+	f := newFixture()
+	connection, err := f.service.CreateConnection(context.Background(), actor(1), CreateConnectionInput{
+		OwnerScope: domain.OwnerScopeUser, OwnerID: 1, Identifier: "custom-main",
+		ProviderKey: "custom-openai-compatible", Name: "Custom",
+		BaseURL: "https://first.example.com/v1", Credentials: map[string]string{"api_key": "secret"},
+	})
+	require.NoError(t, err)
+	revision := f.repo.connections[connection.ID].Revision
+	require.NoError(t, f.service.SetConnectionEnabled(context.Background(), actor(1), connection.ID, false))
+	assert.Equal(t, revision, f.repo.connections[connection.ID].Revision)
+
+	_, err = f.service.UpdateConnection(
+		context.Background(),
+		actor(1),
+		connection.ID,
+		UpdateConnectionInput{BaseURL: "https://second.example.com/v1"},
+	)
+	require.NoError(t, err)
+	assert.Equal(t, revision+1, f.repo.connections[connection.ID].Revision)
 }
 
 func TestConnectionDatabaseAndAuditErrorsAreNotSwallowed(t *testing.T) {

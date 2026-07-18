@@ -121,15 +121,28 @@ func (h *ExpertHandler) DeleteExpert(c *gin.Context) {
 }
 
 func (h *ExpertHandler) notFoundOrInternal(c *gin.Context, err error) {
-	if errors.Is(err, expertdom.ErrNotFound) {
+	switch {
+	case errors.Is(err, expertdom.ErrNotFound):
 		apierr.ResourceNotFound(c, "Expert not found")
-		return
+	case errors.Is(err, expertSvc.ErrExpertManagedByResourceApply):
+		apierr.Conflict(
+			c,
+			apierr.EXPERT_MANAGED_BY_RESOURCE_APPLY,
+			"Expert definition changes must go through resource validate-plan-apply",
+		)
+	default:
+		apierr.InternalError(c, "Expert request failed")
 	}
-	apierr.InternalError(c, "Expert request failed")
 }
 
 func (h *ExpertHandler) validationOrInternal(c *gin.Context, err error) {
 	switch {
+	case errors.Is(err, expertSvc.ErrExpertManagedByResourceApply):
+		apierr.Conflict(
+			c,
+			apierr.EXPERT_MANAGED_BY_RESOURCE_APPLY,
+			"Expert definition changes must go through resource validate-plan-apply",
+		)
 	case errors.Is(err, expertSvc.ErrExpertNameRequired),
 		errors.Is(err, expertSvc.ErrExpertAgentRequired),
 		errors.Is(err, expertSvc.ErrExpertSnapshotUpdateUnsupported):

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-16T23:29:00+0800",
+  "scope": "Read-only source, local runtime, and deterministic contract audit. No Worker, Pod, provider request, or credential decryption occurred.",
+  "formal_worker_count": 13,
+  "online_worker_slug_count": 12,
+  "formal_support_state": "none",
+  "runtime_catalog_revision": "local-dev-062e8636f10ae06b6d648702da2db23c10512fbfc7497c544b3fab7d1bd83eab",
+  "current_runtime_evidence": {
+    "backend_health": "http://127.0.0.1:12415/health returned status=ok",
+    "runtime_image_count": 11,
+    "online_worker_slug_count": 12,
+    "runner_container_count": 11
+  },
+  "config_document_contract": {
+    "current_wire_field": "config_bundle_ids",
+    "named_bindings_present": false,
+    "current_definition_document_maximum": 1,
+    "agentfile_selection": "last_selected_bundle_wins",
+    "required_target_state": "Definition document ID selects one config bundle; format and target path remain Definition-owned through materialization."
+  },
+  "create_contract_gaps": [
+    "WorkerSpec and protobuf carry positional configuration bundle IDs rather than Definition document IDs.",
+    "The compiler emits anonymous USE_CONFIG_BUNDLE declarations.",
+    "Worker create options expose protocol adapters but not backend-filtered compatible resource candidates.",
+    "The Resource-native Web path consumes returned adapters, while a legacy static Worker protocol map remains."
+  ],
+  "runner_boundary": {
+    "available_attestation": ["slug", "binary version", "path"],
+    "missing_attestation": ["adapter ID", "interaction modes", "runtime image digest"]
+  },
+  "verified_commands": [
+    "bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-definition-chain.sh",
+    "bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-worker-documentation.sh",
+    "bash tools/loops/worker-onboarding/catalog-loop/scripts/verify-rebuild-state.sh",
+    "go test selected Backend, Runner, Web, Rust Core, and protobuf Worker contract checks"
+  ],
+  "blocker": {
+    "code": "public_contract_approval_required",
+    "required_decision": "Approve named Definition configuration-document bindings as the replacement for positional config_bundle_ids.",
+    "rejected_behavior": "Do not add a dual-read or positional fallback path."
+  }
+}

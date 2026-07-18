@@ -21,6 +21,9 @@ Prompt, WorkerTemplate, Worker, Expert, Workflow, and GoalLoop.
 
 See [Resource Orchestration API](orchestration-resources.md). GoalLoop Apply
 creates a pinned draft and does not start the loop or create a Pod.
+See [Quick Task API](quick-tasks.md) for the Plan-only Worker launch shortcut.
+See [Worker Creation Contracts](workers-create.md) for typed Worker creation,
+lineage-only REST resume, and the Plan-only Runner MCP contract.
 
 ## Base URL
 
@@ -245,11 +248,17 @@ Organization-scoped endpoints require the organization slug in the URL path:
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/pods` | List pods |
-| POST | `/pods` | Create pod |
+| POST | `/pods` | Resume pod from source lineage |
 | GET | `/pods/{key}` | Get pod |
 | POST | `/pods/{key}/terminate` | Terminate pod |
 | GET | `/pods/{key}/connect` | Get connection info |
 | GET | `/pods/{key}/terminal/connect` | Get Relay connection info |
+
+### Quick Tasks (`/api/v1/orgs/{slug}/quick-tasks`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/quick-tasks` | Consume a Worker Plan and return its current Pod state |
 
 ### Channels (`/api/v1/orgs/{slug}/channels`)
 
@@ -425,7 +434,7 @@ Organization-scoped endpoints require the organization slug in the URL path:
 
 External API uses API key authentication and is designed for third-party integrations.
 
-> **Workers vs Pods:** In the product UI a Worker is an AI agent runtime. The External API exposes the same resources at **`/workers`** (recommended) and **`/pods`** (legacy alias). See [Create Worker — Fields & API](./workers-create.md) for the full field map and examples.
+> **Workers vs Pods:** In the product UI a Worker is an AI agent runtime. The External API exposes the same resources at **`/workers`** (recommended) and **`/pods`** (route alias). `POST` only resumes immutable source lineage; fresh creation uses resource-native Validate, Plan, and Apply. See [Worker Creation Contracts](./workers-create.md).
 
 ### Workers / Pods
 
@@ -433,11 +442,11 @@ External API uses API key authentication and is designed for third-party integra
 |--------|----------|-------|-------------|
 | GET | `/workers` | `pods:read` | List workers |
 | GET | `/workers/{key}` | `pods:read` | Get worker |
-| POST | `/workers` | `pods:write` | **Create worker** |
+| POST | `/workers` | `pods:write` | **Resume worker from source lineage** |
 | POST | `/workers/{key}/prompt` | `pods:write` | Send prompt |
 | POST | `/workers/{key}/terminate` | `pods:write` | Terminate worker |
 
-Same routes under `/pods` for backward compatibility.
+The same routes are mounted under `/pods`.
 
 ### Experts
 
@@ -452,22 +461,20 @@ Reusable worker configuration templates. Full reference: [experts.md](./experts.
 | DELETE | `/experts/{slug}` | `experts:write` | Delete expert |
 | POST | `/experts/{slug}/run` | `experts:write` | Run expert (creates worker) |
 
-**Create worker** request body (minimal):
+**Resume worker** request body:
 
 ```json
 {
-  "agent_slug": "codex-cli",
-  "runner_id": 1,
-  "repository_id": 7,
-  "alias": "my-task",
-  "perpetual": false,
-  "automation_level": "autonomous",
-  "agentfile_layer": "PROMPT \"Fix the bug\"\nREPO \"org/repo\"\nBRANCH \"main\"",
-  "knowledge_mounts": [{ "slug": "docs", "mode": "ro" }]
+  "source_pod_key": "pod-abc123",
+  "resume_agent_session": true,
+  "cols": 120,
+  "rows": 36
 }
 ```
 
-Only `agent_slug` is required. Full reference: [workers-create.md](./workers-create.md).
+`source_pod_key` is required. Runtime overrides are rejected. A request without
+source lineage returns `409 WORKER_RESOURCE_APPLY_REQUIRED`. Full reference:
+[workers-create.md](./workers-create.md).
 
 ### Pods (legacy alias)
 
@@ -475,7 +482,7 @@ Only `agent_slug` is required. Full reference: [workers-create.md](./workers-cre
 |--------|----------|-------------|
 | GET | `/pods` | List pods |
 | GET | `/pods/{key}` | Get pod |
-| POST | `/pods` | Create pod |
+| POST | `/pods` | Resume pod from source lineage |
 | POST | `/pods/{key}/terminate` | Terminate pod |
 
 ### Tickets

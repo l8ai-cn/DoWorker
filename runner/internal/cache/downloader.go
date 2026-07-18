@@ -28,10 +28,15 @@ type Downloader struct {
 
 // NewDownloader creates a new Downloader with the given cache manager.
 func NewDownloader(cache *SkillCacheManager) *Downloader {
+	return NewDownloaderWithHostAliases(cache, nil)
+}
+
+func NewDownloaderWithHostAliases(cache *SkillCacheManager, hostAliases map[string]string) *Downloader {
 	return &Downloader{
 		cache: cache,
 		client: &http.Client{
-			Timeout: 5 * time.Minute,
+			Timeout:   5 * time.Minute,
+			Transport: newResourceHostTransport(hostAliases),
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				if len(via) >= maxRedirects {
 					return fmt.Errorf("too many redirects (max %d)", maxRedirects)

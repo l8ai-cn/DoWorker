@@ -5,10 +5,14 @@ import type { WorkflowData } from "@/stores/workflow";
 interface WorkflowPromptPreviewProps {
   workflow: WorkflowData;
   t: (key: string) => string;
-  onEdit?: () => void;
+  onRevise?: () => void;
 }
 
-export function WorkflowPromptPreview({ workflow, t, onEdit }: WorkflowPromptPreviewProps) {
+export function WorkflowPromptPreview({
+  workflow,
+  t,
+  onRevise,
+}: WorkflowPromptPreviewProps) {
   const template = (workflow.prompt_template || "").trim();
   const lines = template ? template.split("\n") : [];
 
@@ -16,13 +20,13 @@ export function WorkflowPromptPreview({ workflow, t, onEdit }: WorkflowPromptPre
     <div className="surface-card p-4">
       <div className="mb-2.5 flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-foreground">{t("workflows.promptTemplate")}</h3>
-        {onEdit && (
+        {onRevise && (
           <button
             type="button"
-            onClick={onEdit}
+            onClick={onRevise}
             className="text-xs font-medium text-primary hover:underline"
           >
-            {t("common.edit")} →
+            {t("workflows.newRevision")} →
           </button>
         )}
       </div>

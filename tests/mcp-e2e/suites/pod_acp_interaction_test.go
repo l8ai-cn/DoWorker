@@ -12,7 +12,8 @@ import (
 func TestPodACPInteraction_RoundTrip(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	pod := fixture.NewACPEchoPod(t, env, rest)
+	runner := fixture.DiscoverRunner(t, env, rest)
+	pod := fixture.NewACPEchoPod(t, env, rest, runner.ID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
