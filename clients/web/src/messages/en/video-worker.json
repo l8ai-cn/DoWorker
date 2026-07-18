@@ -1,0 +1,19 @@
+{
+  "videoWorker": {
+    "tab": "Worker",
+    "notFound": "Worker not found",
+    "skills": "Skills",
+    "noSkills": "No skills",
+    "taskTitle": "Task",
+    "taskPlaceholder": "Type a task for this worker...",
+    "sendTask": "Send task",
+    "sendingTask": "Sending task...",
+    "taskSent": "Task sent",
+    "taskFailed": "Failed to send task",
+    "previewEnabled": "Video preview enabled on port {port}",
+    "previewLoading": "Connecting to video preview...",
+    "previewUnavailable": "Video preview is not ready",
+    "videoPreview": "Online video preview",
+    "openPreview": "Open in new window"
+  }
+}

@@ -64,6 +64,7 @@ func (p *SkillPackager) StorePrepared(
 		return nil, fmt.Errorf("failed to check existing package: %w", err)
 	}
 	created := !exists
+	packageSize := prepared.PackageSize
 	if created {
 		_, err = p.storage.Upload(
 			ctx,
@@ -82,13 +83,25 @@ func (p *SkillPackager) StorePrepared(
 			)
 			return nil, fmt.Errorf("failed to upload: %w", err)
 		}
+	} else {
+		reader, storedSize, downloadErr := p.storage.Download(ctx, prepared.StorageKey)
+		if downloadErr != nil {
+			return nil, fmt.Errorf("failed to inspect existing package: %w", downloadErr)
+		}
+		if closeErr := reader.Close(); closeErr != nil {
+			return nil, fmt.Errorf("failed to close existing package: %w", closeErr)
+		}
+		if storedSize <= 0 {
+			return nil, fmt.Errorf("existing package is empty")
+		}
+		packageSize = storedSize
 	}
 	slog.InfoContext(
 		ctx,
 		"skill package ready",
 		"slug", prepared.Slug,
 		"content_sha", prepared.ContentSha,
-		"package_size", prepared.PackageSize,
+		"package_size", packageSize,
 		"created", created,
 	)
 	return &PackagedSkill{
@@ -97,7 +110,7 @@ func (p *SkillPackager) StorePrepared(
 		Description: prepared.Description,
 		ContentSha:  prepared.ContentSha,
 		StorageKey:  prepared.StorageKey,
-		PackageSize: prepared.PackageSize,
+		PackageSize: packageSize,
 		Created:     created,
 	}, nil
 }

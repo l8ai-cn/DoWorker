@@ -1,0 +1,19 @@
+{
+  "videoWorker": {
+    "tab": "Worker",
+    "notFound": "Worker が見つかりません",
+    "skills": "スキル",
+    "noSkills": "スキルがありません",
+    "taskTitle": "タスク",
+    "taskPlaceholder": "この Worker のタスクを入力してください...",
+    "sendTask": "タスクを送信",
+    "sendingTask": "タスクを送信中...",
+    "taskSent": "タスクを送信しました",
+    "taskFailed": "タスクの送信に失敗しました",
+    "previewEnabled": "ポート {port} で動画プレビューが有効です",
+    "previewLoading": "動画プレビューに接続しています...",
+    "previewUnavailable": "動画プレビューはまだ準備できていません",
+    "videoPreview": "オンライン動画プレビュー",
+    "openPreview": "新しいウィンドウで開く"
+  }
+}

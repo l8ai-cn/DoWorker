@@ -3,6 +3,7 @@ export { ActivityTabContent } from "./ActivityTabContent";
 export { ChannelDetailView } from "./ChannelDetailView";
 export { DeliveryTabContent } from "./DeliveryTabContent";
 export { InfoTabContent } from "./InfoTabContent";
+export { WorkerTabContent } from "./WorkerTabContent";
 export type {
   TabContentProps,
   ChannelsTabContentProps,

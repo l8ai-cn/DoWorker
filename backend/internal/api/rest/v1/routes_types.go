@@ -40,6 +40,7 @@ import (
 	tokenusagesvc "github.com/anthropics/agentsmesh/backend/internal/service/tokenusage"
 	"github.com/anthropics/agentsmesh/backend/internal/service/user"
 	virtualkeysvc "github.com/anthropics/agentsmesh/backend/internal/service/virtualkey"
+	workerspecsvc "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	workflow "github.com/anthropics/agentsmesh/backend/internal/service/workflow"
 	"github.com/anthropics/agentsmesh/backend/pkg/embedtoken"
 	"github.com/redis/go-redis/v9"
@@ -135,7 +136,8 @@ type Services struct {
 	// → tickets → dispatches do-agent pods).
 	Coordinator *coordinatorservice.Service
 
-	Expert *expertSvc.Service
+	Expert      *expertSvc.Service
+	WorkerSpecs workerspecsvc.SnapshotRepository
 
 	// Skill is the git-backed author-in-platform skill service (namespace
 	// am-skills). Nil when git-backing / packager is not configured; routes

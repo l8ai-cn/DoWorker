@@ -6,20 +6,21 @@ import { useIDEStore, type BottomPanelTab } from "@/stores/ide";
 import { useChannelStore } from "@/stores/channel";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, X, MessageSquare, Activity, Bot, GitPullRequest, Info } from "lucide-react";
+import { ChevronDown, ChevronUp, X, MessageSquare, Activity, Bot, GitPullRequest, Info, BriefcaseBusiness } from "lucide-react";
 import { AutopilotPanelContent } from "@/components/autopilot";
-import { useCurrentOrg, useAuthStore } from "@/stores/auth";
+import { useCurrentOrg } from "@/stores/auth";
 import { useBottomPanelData } from "./useBottomPanelData";
-import { ChannelsTabContent, ActivityTabContent, DeliveryTabContent, InfoTabContent } from "./BottomPanel/index";
+import { ChannelsTabContent, ActivityTabContent, DeliveryTabContent, InfoTabContent, WorkerTabContent } from "./BottomPanel/index";
 
 const TAB_ICONS: Record<BottomPanelTab, React.ReactNode> = {
   channels: <MessageSquare className="w-3.5 h-3.5" />,
   activity: <Activity className="w-3.5 h-3.5" />,
   autopilot: <Bot className="w-3.5 h-3.5" />,
+  worker: <BriefcaseBusiness className="w-3.5 h-3.5" />,
   delivery: <GitPullRequest className="w-3.5 h-3.5" />,
   info: <Info className="w-3.5 h-3.5" />,
 };
-const TAB_IDS: BottomPanelTab[] = ["channels", "activity", "autopilot", "delivery", "info"];
+const TAB_IDS: BottomPanelTab[] = ["channels", "activity", "autopilot", "worker", "delivery", "info"];
 
 export function BottomPanel({ className }: { className?: string }) {
   const t = useTranslations();
@@ -73,7 +74,7 @@ export function BottomPanel({ className }: { className?: string }) {
           tabId === "autopilot" && activeAutopilot && bottomPanelTab !== tabId && "text-success"
         )} onClick={() => handleTabClick(tabId, collapsed)}>
           {TAB_ICONS[tabId]}
-          <span>{t(`ide.bottomPanel.${tabId}`)}</span>
+          <span>{tabId === "worker" ? t("videoWorker.tab") : t(`ide.bottomPanel.${tabId}`)}</span>
           {tabId === "autopilot" && activeAutopilot && (
             <span className="relative flex h-2 w-2 ml-1">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
@@ -110,6 +111,7 @@ export function BottomPanel({ className }: { className?: string }) {
         {bottomPanelTab === "channels" && <ChannelsTabContent selectedPodKey={selectedPodKey} podChannels={podChannels} selectedChannelId={selectedChannelId} onChannelClick={handleChannelClick} onBackToList={handleBackToChannelList} onPodsChanged={handlePodsChanged} t={t} />}
         {bottomPanelTab === "activity" && <ActivityTabContent selectedPodKey={selectedPodKey} incomingBindings={incomingBindings} outgoingBindings={outgoingBindings} getPodInfo={getPodInfo} t={t} />}
         {bottomPanelTab === "autopilot" && <AutopilotPanelContent podKey={selectedPodKey} />}
+        {bottomPanelTab === "worker" && <WorkerTabContent key={selectedPodKey} selectedPodKey={selectedPodKey} pod={currentPod} orgSlug={orgSlug} t={t} />}
         {bottomPanelTab === "delivery" && <DeliveryTabContent selectedPodKey={selectedPodKey} pod={currentPod} t={t} />}
         {bottomPanelTab === "info" && <InfoTabContent selectedPodKey={selectedPodKey} pod={currentPod} orgSlug={orgSlug} t={t} />}
       </div>

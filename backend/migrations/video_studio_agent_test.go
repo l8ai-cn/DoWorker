@@ -15,6 +15,8 @@ func TestMigration000222VideoStudioAgent(t *testing.T) {
 		"'video-studio'",
 		"'Video Studio'",
 		"'video-studio-codex'",
+		"    adapter_id,\n    is_builtin,",
+		"    'video-studio-codex',\n    adapter_id,",
 		"FROM agents",
 		"WHERE slug = 'codex-cli'",
 		"RAISE EXCEPTION",

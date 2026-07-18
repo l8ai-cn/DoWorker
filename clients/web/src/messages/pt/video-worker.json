@@ -1,0 +1,19 @@
+{
+  "videoWorker": {
+    "tab": "Worker",
+    "notFound": "Worker nao encontrado",
+    "skills": "Skills",
+    "noSkills": "Nenhuma habilidade",
+    "taskTitle": "Tarefa",
+    "taskPlaceholder": "Digite a tarefa para este worker...",
+    "sendTask": "Enviar tarefa",
+    "sendingTask": "Enviando tarefa...",
+    "taskSent": "Tarefa enviada",
+    "taskFailed": "Falha ao enviar tarefa",
+    "previewEnabled": "Previa de video ativada na porta {port}",
+    "previewLoading": "Conectando a previa de video...",
+    "previewUnavailable": "A previa de video ainda nao esta pronta",
+    "videoPreview": "Previa de video online",
+    "openPreview": "Abrir em nova janela"
+  }
+}

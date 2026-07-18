@@ -264,6 +264,11 @@ func int64Ptr(v int64) *int64 { return &v }
 // fake git clone function. The fake clone creates a minimal skill directory with
 // a SKILL.md whose slug is derived from the repository URL's last path segment.
 func newTestServiceWithPackager(repo *svcMockRepo, stor *svcMockStorage, enc *crypto.Encryptor) *Service {
+	if stor.existsFn == nil {
+		stor.existsFn = func(context.Context, string) (bool, error) {
+			return false, nil
+		}
+	}
 	svc := NewService(repo, stor, enc)
 	pkg := NewSkillPackager(repo, stor)
 	pkg.gitCloneFn = func(_ context.Context, url, branch, targetDir string) error {

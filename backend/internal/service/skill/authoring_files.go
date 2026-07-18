@@ -23,14 +23,13 @@ type CreateSkillRequest struct {
 }
 
 type EnsurePlatformSkillRequest struct {
-	RepositoryOwnerOrganizationID int64
-	UserID                        int64
-	Slug                          string
-	Name                          string
-	Description                   string
-	License                       string
-	Instructions                  string
-	Tags                          []string
+	UserID       int64
+	Slug         string
+	Name         string
+	Description  string
+	License      string
+	Instructions string
+	Tags         []string
 }
 
 type UpdateSkillRequest struct {

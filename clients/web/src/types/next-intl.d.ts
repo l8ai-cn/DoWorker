@@ -18,6 +18,7 @@ import automation from "@/messages/en/automation.json";
 import experts from "@/messages/en/experts.json";
 import resourceOrchestration from "@/messages/en/resource-orchestration.json";
 import changelogEntries from "@/messages/en/changelog-entries.json";
+import videoWorker from "@/messages/en/video-worker.json";
 
 type Messages = typeof common &
   typeof auth &
@@ -38,7 +39,8 @@ type Messages = typeof common &
   typeof automation &
   typeof experts &
   typeof resourceOrchestration &
-  typeof changelogEntries;
+  typeof changelogEntries &
+  typeof videoWorker;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type

@@ -10,11 +10,15 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"time"
 )
+
+var archiveEpoch = time.Unix(0, 0).UTC()
 
 func packageSkillDir(dirPath string) ([]byte, error) {
 	var buf bytes.Buffer
 	gw := gzip.NewWriter(&buf)
+	gw.ModTime = archiveEpoch
 	tw := tar.NewWriter(gw)
 
 	baseDir := dirPath
@@ -45,6 +49,18 @@ func packageSkillDir(dirPath string) ([]byte, error) {
 			return err
 		}
 		header.Name = relPath
+		header.ModTime = archiveEpoch
+		header.AccessTime = time.Time{}
+		header.ChangeTime = time.Time{}
+		header.Uid = 0
+		header.Gid = 0
+		header.Uname = ""
+		header.Gname = ""
+		if info.IsDir() {
+			header.Mode = 0755
+		} else {
+			header.Mode = 0644
+		}
 
 		if err := tw.WriteHeader(header); err != nil {
 			return err

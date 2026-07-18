@@ -25,17 +25,7 @@ func initializeFileService(cfg *config.Config) *fileservice.Service {
 		return nil
 	}
 
-	s3Storage, err := storage.NewS3Storage(storage.S3Config{
-		Endpoint:       cfg.Storage.Endpoint,
-		PublicEndpoint: cfg.Storage.PublicEndpoint,
-		RunnerEndpoint: cfg.Storage.RunnerEndpoint,
-		Region:         cfg.Storage.Region,
-		Bucket:         cfg.Storage.Bucket,
-		AccessKey:      cfg.Storage.AccessKey,
-		SecretKey:      cfg.Storage.SecretKey,
-		UseSSL:         cfg.Storage.UseSSL,
-		UsePathStyle:   cfg.Storage.UsePathStyle,
-	})
+	s3Storage, err := storage.NewS3Storage(storageS3Config(cfg))
 	if err != nil {
 		slog.Error("Failed to initialize storage", "error", err)
 		return nil
@@ -106,17 +96,7 @@ func initializeExtensionServices(cfg *config.Config, db *gorm.DB) (*extensionser
 		return nil, nil, nil
 	}
 
-	s3Storage, err := storage.NewS3Storage(storage.S3Config{
-		Endpoint:       cfg.Storage.Endpoint,
-		PublicEndpoint: cfg.Storage.PublicEndpoint,
-		RunnerEndpoint: cfg.Storage.RunnerEndpoint,
-		Region:         cfg.Storage.Region,
-		Bucket:         cfg.Storage.Bucket,
-		AccessKey:      cfg.Storage.AccessKey,
-		SecretKey:      cfg.Storage.SecretKey,
-		UseSSL:         cfg.Storage.UseSSL,
-		UsePathStyle:   cfg.Storage.UsePathStyle,
-	})
+	s3Storage, err := storage.NewS3Storage(storageS3Config(cfg))
 	if err != nil {
 		slog.Error("Failed to initialize storage for extensions", "error", err)
 		return nil, nil, nil
@@ -155,17 +135,7 @@ func initializeSupportTicketService(cfg *config.Config, db *gorm.DB) *supporttic
 		return supportticketservice.NewService(supportTicketRepo, nil, cfg.Storage)
 	}
 
-	s3Storage, err := storage.NewS3Storage(storage.S3Config{
-		Endpoint:       cfg.Storage.Endpoint,
-		PublicEndpoint: cfg.Storage.PublicEndpoint,
-		RunnerEndpoint: cfg.Storage.RunnerEndpoint,
-		Region:         cfg.Storage.Region,
-		Bucket:         cfg.Storage.Bucket,
-		AccessKey:      cfg.Storage.AccessKey,
-		SecretKey:      cfg.Storage.SecretKey,
-		UseSSL:         cfg.Storage.UseSSL,
-		UsePathStyle:   cfg.Storage.UsePathStyle,
-	})
+	s3Storage, err := storage.NewS3Storage(storageS3Config(cfg))
 	if err != nil {
 		slog.Error("Failed to initialize storage for support tickets", "error", err)
 		return supportticketservice.NewService(supportTicketRepo, nil, cfg.Storage)
@@ -176,17 +146,7 @@ func initializeSupportTicketService(cfg *config.Config, db *gorm.DB) *supporttic
 }
 
 func initializeLogUploadStorage(cfg *config.Config) storage.Storage {
-	s3Storage, err := storage.NewS3Storage(storage.S3Config{
-		Endpoint:       cfg.Storage.Endpoint,
-		PublicEndpoint: cfg.Storage.PublicEndpoint,
-		RunnerEndpoint: cfg.Storage.RunnerEndpoint,
-		Region:         cfg.Storage.Region,
-		Bucket:         cfg.Storage.Bucket,
-		AccessKey:      cfg.Storage.AccessKey,
-		SecretKey:      cfg.Storage.SecretKey,
-		UseSSL:         cfg.Storage.UseSSL,
-		UsePathStyle:   cfg.Storage.UsePathStyle,
-	})
+	s3Storage, err := storage.NewS3Storage(storageS3Config(cfg))
 	if err != nil {
 		slog.Error("Failed to initialize storage for runner logs", "error", err)
 		return nil

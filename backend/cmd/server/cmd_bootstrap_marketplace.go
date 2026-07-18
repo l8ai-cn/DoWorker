@@ -12,8 +12,10 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/config"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/organization"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
+	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	"github.com/anthropics/agentsmesh/backend/internal/infra/database"
 	"github.com/anthropics/agentsmesh/backend/internal/service/operatorcatalog"
+	skillsvc "github.com/anthropics/agentsmesh/backend/internal/service/skill"
 	"gorm.io/gorm"
 )
 
@@ -49,12 +51,20 @@ func runBootstrapMarketplace(arguments []string) error {
 		return err
 	}
 	defer services.Close()
-	expertService, skillService := newExpertAndSkillServices(
+	expertService, _ := newExpertAndSkillServices(
 		cfg,
 		db,
 		services,
 		nil,
 		slog.Default(),
+	)
+	var packager skillsvc.SkillPackagerBridge
+	if services.extension != nil {
+		packager = services.extension.SkillPackager()
+	}
+	platformSkills := skillsvc.NewPlatformCatalogService(
+		infra.NewSkillCatalogRepository(db),
+		packager,
 	)
 	identity, err := resolveMarketplaceBootstrapIdentity(
 		context.Background(),
@@ -65,7 +75,7 @@ func runBootstrapMarketplace(arguments []string) error {
 		return err
 	}
 	result, err := operatorcatalog.NewBootstrapper(
-		skillService,
+		platformSkills,
 		expertService,
 		services.workerCreation,
 		services.workerSpecs,

@@ -1,8 +1,4 @@
 // Package skill holds the domain model for the unified skill catalog.
-// Every skill — platform-authored or imported from an external git repo —
-// is backed by its own internal git repo (namespace am-skills); Git is the
-// source of truth for content, the Skill row is the catalog index carrying
-// the packaged-artifact pointers plus upstream provenance for imports.
 package skill
 
 import (
@@ -21,11 +17,12 @@ var ErrNotFound = errors.New("skill not found")
 
 // install_source values for catalog rows.
 const (
-	SourceGitops = "gitops" // authored in-platform
-	SourceImport = "import" // imported from an external git repo
+	SourceGitops   = "gitops"
+	SourceImport   = "import"
+	SourceOperator = "operator"
 )
 
-// Skill is a unified catalog row for a git-backed skill.
+// Skill is a unified catalog row for a packaged skill.
 type Skill struct {
 	ID             int64          `gorm:"primaryKey" json:"id"`
 	OrganizationID *int64         `gorm:"column:organization_id" json:"organization_id"` // NULL = platform-level
@@ -42,7 +39,7 @@ type Skill struct {
 	AgentFilter json.RawMessage `gorm:"type:jsonb;default:'[]'" json:"agent_filter,omitempty"`
 	IsActive    bool            `gorm:"not null;default:true" json:"is_active"`
 
-	// GitRepoPath is "am-skills/org<ID>-<slug>"; the repo is authoritative.
+	// GitRepoPath is empty for immutable operator-owned catalog entries.
 	GitRepoPath   string  `gorm:"size:255;not null;column:git_repo_path" json:"git_repo_path"`
 	DefaultBranch string  `gorm:"size:255;not null;default:main;column:default_branch" json:"default_branch"`
 	HTTPCloneURL  *string `gorm:"size:1000;column:http_clone_url" json:"http_clone_url,omitempty"`

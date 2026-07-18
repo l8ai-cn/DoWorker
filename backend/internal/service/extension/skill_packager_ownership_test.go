@@ -88,6 +88,9 @@ func TestStorePreparedReusesExistingObject(t *testing.T) {
 		existsFn: func(context.Context, string) (bool, error) {
 			return true, nil
 		},
+		downloadFn: func(context.Context, string) (io.ReadCloser, int64, error) {
+			return io.NopCloser(strings.NewReader("stored package")), 731, nil
+		},
 		uploadFn: func(context.Context, string, io.Reader, int64, string) (*storage.FileInfo, error) {
 			uploads++
 			return nil, errors.New("must not upload existing object")
@@ -101,7 +104,26 @@ func TestStorePreparedReusesExistingObject(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.False(t, pkg.Created)
+	assert.Equal(t, int64(731), pkg.PackageSize)
 	assert.Zero(t, uploads)
+}
+
+func TestStorePreparedRejectsEmptyExistingObject(t *testing.T) {
+	store := &svcMockStorage{
+		existsFn: func(context.Context, string) (bool, error) {
+			return true, nil
+		},
+		downloadFn: func(context.Context, string) (io.ReadCloser, int64, error) {
+			return io.NopCloser(strings.NewReader("")), 0, nil
+		},
+	}
+	packager := NewSkillPackager(nil, store)
+	prepared, err := packager.PrepareFromDir(context.Background(), ownershipTestSkillDir(t))
+	require.NoError(t, err)
+
+	_, err = packager.StorePrepared(context.Background(), prepared)
+
+	require.EqualError(t, err, "existing package is empty")
 }
 
 func TestStorePreparedMarksNewUploadCreated(t *testing.T) {

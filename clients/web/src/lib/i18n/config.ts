@@ -23,7 +23,7 @@ export const MESSAGE_NAMESPACES = [
   "common", "auth", "landing", "workforce", "expert-home", "app", "settings", "ide",
   "repositories", "runners", "docs", "content", "extensions",
   "workflows", "channels", "blockstore", "infra", "automation",
-  "experts",
+  "experts", "video-worker",
   "resource-orchestration",
   "changelog-entries",
 ] as const;

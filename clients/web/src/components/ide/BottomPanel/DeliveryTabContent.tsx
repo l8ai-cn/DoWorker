@@ -16,6 +16,7 @@ import type { PodData } from "@/lib/api";
 import { GitPullRequest, RefreshCw, Loader2, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MergeRequestCard, MergeRequestInfo } from "./MergeRequestCard";
+import { VideoPreviewDelivery } from "./VideoPreviewDelivery";
 
 interface DeliveryTabContentProps {
   selectedPodKey: string | null;
@@ -97,6 +98,20 @@ export function DeliveryTabContent({ selectedPodKey, pod, t }: DeliveryTabConten
         <Terminal className="w-8 h-8 mb-2 opacity-50" />
         <span className="text-xs">{t("ide.bottomPanel.selectPodFirst")}</span>
       </div>
+    );
+  }
+
+  if (
+    pod?.preview_port === 4173 &&
+    pod.preview_path === "/oilan-video/index.html" &&
+    currentOrg
+  ) {
+    return (
+      <VideoPreviewDelivery
+        orgSlug={currentOrg.slug}
+        podKey={selectedPodKey}
+        t={t}
+      />
     );
   }
 

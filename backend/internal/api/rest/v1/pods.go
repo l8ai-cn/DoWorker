@@ -4,8 +4,10 @@ import (
 	"sync"
 
 	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
+	expertservice "github.com/anthropics/agentsmesh/backend/internal/service/expert"
 	grantservice "github.com/anthropics/agentsmesh/backend/internal/service/grant"
 	"github.com/anthropics/agentsmesh/backend/internal/service/runner"
+	workerspecservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )
 
 // PodHandler handles pod-related requests.
@@ -22,6 +24,8 @@ type PodHandler struct {
 	sandboxFs          podWorkspaceSandbox
 	workspaceArtifacts podWorkspaceArtifactTransfer
 	artifactTransfers  sync.Map
+	workerSpecs        workerspecservice.SnapshotRepository
+	experts            *expertservice.Service
 
 	// Preview (Gateway HTTP data plane) dependencies.
 	relaySelector       previewRelaySelector
@@ -69,6 +73,16 @@ func WithPendingQueue(q pendingQueueReader) PodHandlerOption {
 func WithPodWorkspaceSandbox(sandbox podWorkspaceSandbox) PodHandlerOption {
 	return func(h *PodHandler) {
 		h.sandboxFs = sandbox
+	}
+}
+
+func WithPodWorkerContext(
+	workerSpecs workerspecservice.SnapshotRepository,
+	experts *expertservice.Service,
+) PodHandlerOption {
+	return func(h *PodHandler) {
+		h.workerSpecs = workerSpecs
+		h.experts = experts
 	}
 }
 
