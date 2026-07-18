@@ -51,11 +51,12 @@ func (h *RunnerMessageHandler) sandboxFsForPod(
 ) (*runnerv1.SandboxFsResultEvent, error) {
 	pod, ok := h.podStore.Get(podKey)
 	if !ok {
-		root, err := detachedPodWorkspaceRoot(h.runner.GetConfig(), podKey)
+		workspace, err := openDetachedPodWorkspace(h.runner.GetConfig(), podKey)
 		if err != nil {
 			return fsErrResult(err.Error()), nil
 		}
-		return fn(root)
+		defer workspace.Close()
+		return fn(workspace)
 	}
 	return pod.withWorkspace(fn)
 }
@@ -103,17 +104,29 @@ func (h *RunnerMessageHandler) dispatchSandboxFsOpWorkspace(
 			request,
 		)
 	case "write":
-		return h.sandboxFsWrite(root, cmd.Path, cmd.Payload)
+		return h.sandboxFsWriteWorkspace(workspace, cmd.Path, cmd.Payload)
 	case "download":
-		return h.sandboxFsDownload(root, cmd.Path, cmd.Payload)
+		return h.sandboxFsDownloadWorkspace(
+			h.runner.GetRunContext(),
+			workspace,
+			cmd.Path,
+			cmd.Payload,
+		)
+	case "upload":
+		return h.sandboxFsUploadWorkspace(
+			h.runner.GetRunContext(),
+			workspace,
+			cmd.Path,
+			cmd.Payload,
+		)
 	case "changes":
 		return h.sandboxFsChangesWorkspace(workspace)
 	case "diff":
 		return h.sandboxFsDiffWorkspace(workspace, cmd.Path)
 	case "search":
-		return h.sandboxFsSearch(root, cmd.Payload, cmd.IncludeGlob, cmd.ExcludeGlob)
+		return h.sandboxFsSearchWorkspace(workspace, cmd.Payload, cmd.IncludeGlob, cmd.ExcludeGlob)
 	case "skill_discover":
-		return h.sandboxFsWorkerSkillDiscover(root, cmd.Path)
+		return h.sandboxFsWorkerSkillDiscoverWorkspace(workspace, cmd.Path)
 	default:
 		return fsErrResult(fmt.Sprintf("unknown op %q", cmd.Op)), nil
 	}

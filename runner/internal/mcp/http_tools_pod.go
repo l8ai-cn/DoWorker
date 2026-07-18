@@ -45,17 +45,6 @@ func (s *HTTPServer) createCreatePodTool() *MCPTool {
 			if err != nil {
 				return nil, fmt.Errorf("pod %s was created but automatic binding failed", resp.PodKey)
 			}
-			binding, err := client.RequestBinding(
-				ctx,
-				resp.PodKey,
-				[]tools.BindingScope{
-					tools.ScopePodRead,
-					tools.ScopePodWrite,
-				},
-			)
-			if err != nil {
-				return nil, fmt.Errorf("bind created pod %s: %w", resp.PodKey, err)
-			}
 			return fmt.Sprintf(
 				"Pod: %s | Status: %s | Binding: #%d (%s)%s",
 				resp.PodKey,

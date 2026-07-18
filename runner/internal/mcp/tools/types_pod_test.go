@@ -1,9 +1,6 @@
 package tools
 
-import (
-	"encoding/json"
-	"testing"
-)
+import "testing"
 
 func TestPodCreateRequest(t *testing.T) {
 	req := PodCreateRequest{

@@ -23,6 +23,9 @@ type transport struct {
 	workDir   string
 	turnID    string
 	turnMu    sync.RWMutex
+	model     string
+	models    []string
+	modelMu   sync.RWMutex
 
 	streamMu            sync.Mutex
 	streamedAgentMsgIDs map[string]struct{}
@@ -94,8 +97,11 @@ func (t *transport) Handshake(_ context.Context) (string, error) {
 	if err := t.tracker.Writer.WriteNotification("initialized", nil); err != nil {
 		return "", fmt.Errorf("write initialized: %w", err)
 	}
+	if err := t.loadModels(); err != nil {
+		return "", err
+	}
 
-	t.logger.Info("Codex initialize succeeded")
+	t.logger.Info("Codex initialize succeeded", "models", len(t.SupportedModels()))
 	return "", nil
 }
 
@@ -126,18 +132,6 @@ func (t *transport) SendPrompt(sessionID, prompt string) error {
 		}
 	}()
 
-	return nil
-}
-
-func (t *transport) CancelSession(sessionID string) error {
-	params := turnInterruptParams{ThreadID: sessionID}
-	pr, err := t.tracker.SendRequest("turn/interrupt", params)
-	if err != nil {
-		return fmt.Errorf("write turn/interrupt: %w", err)
-	}
-	go func() {
-		t.tracker.WaitResponse(pr, 10*time.Second)
-	}()
 	return nil
 }
 

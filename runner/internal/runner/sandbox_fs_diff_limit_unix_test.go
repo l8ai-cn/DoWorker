@@ -4,6 +4,7 @@ package runner
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -31,7 +32,10 @@ func TestSandboxFsDiffRejectsOversizedWorkspaceFile(t *testing.T) {
 	assert.Contains(
 		t,
 		result.GetError(),
-		"sandbox filesystem content exceeds 1048576 byte limit",
+		fmt.Sprintf(
+			"sandbox filesystem content exceeds %d byte limit",
+			maxSandboxFsReadBytes,
+		),
 	)
 }
 
@@ -53,7 +57,10 @@ func TestSandboxFsDiffRejectsOversizedGitShow(t *testing.T) {
 	assert.Contains(
 		t,
 		result.GetError(),
-		"git output exceeds 1048576 byte limit",
+		fmt.Sprintf(
+			"git output exceeds %d byte limit",
+			maxSandboxFsReadBytes,
+		),
 	)
 }
 

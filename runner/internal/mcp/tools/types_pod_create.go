@@ -1,10 +1,8 @@
 package tools
 
-import "encoding/json"
-
 // PodCreateRequest represents a request to create a new pod.
 type PodCreateRequest struct {
-	Resource json.RawMessage `json:"resource"`
+	PlanID string `json:"plan_id"`
 }
 
 // PodCreateResponse represents the response from creating a pod.
