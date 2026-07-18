@@ -30,6 +30,10 @@ func (m *mockStorage) Download(_ context.Context, _ string) (io.ReadCloser, int6
 	return io.NopCloser(strings.NewReader("")), 0, nil
 }
 
+func (m *mockStorage) DownloadRange(_ context.Context, _ string, _, _ int64) (io.ReadCloser, int64, error) {
+	return nil, 0, assert.AnError
+}
+
 func (m *mockStorage) GetURL(_ context.Context, _ string, _ time.Duration) (string, error) {
 	return "https://mock-s3.example.com/download", nil
 }

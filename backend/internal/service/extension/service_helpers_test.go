@@ -212,6 +212,10 @@ func (m *svcMockStorage) Download(ctx context.Context, key string) (io.ReadClose
 	return io.NopCloser(bytes.NewReader(nil)), 0, nil
 }
 
+func (m *svcMockStorage) DownloadRange(_ context.Context, _ string, _, _ int64) (io.ReadCloser, int64, error) {
+	return nil, 0, fmt.Errorf("download range unsupported in test storage")
+}
+
 func (m *svcMockStorage) Delete(ctx context.Context, key string) error {
 	if m.deleteFn != nil {
 		return m.deleteFn(ctx, key)

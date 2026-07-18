@@ -46,6 +46,10 @@ func (m *packagerMockStorage) Download(_ context.Context, key string) (io.ReadCl
 	return io.NopCloser(bytes.NewReader(data)), int64(len(data)), nil
 }
 
+func (m *packagerMockStorage) DownloadRange(_ context.Context, _ string, _, _ int64) (io.ReadCloser, int64, error) {
+	return nil, 0, errors.New("download range unsupported in test storage")
+}
+
 func (m *packagerMockStorage) GetURL(_ context.Context, key string, _ time.Duration) (string, error) {
 	return "https://mock/" + key, nil
 }
