@@ -117,7 +117,7 @@ func ArtifactMediaType(path string) string {
 func artifactDeliverableRoot(path string) bool {
 	root, _, _ := strings.Cut(filepath.ToSlash(path), "/")
 	switch root {
-	case "artifacts", "deliverables", "output":
+	case "artifacts", "deliverables", "output", "outputs":
 		return true
 	default:
 		return false
@@ -144,7 +144,8 @@ var artifactMediaTypes = map[string]string{
 }
 
 var artifactTextMediaTypes = map[string]string{
-	"cjs": "text/javascript", "css": "text/css", "go": "text/x-go",
+	"cjs": "text/javascript", "css": "text/css", "csv": "text/csv",
+	"go": "text/x-go",
 	"js": "text/javascript", "jsx": "text/javascript", "json": "application/json",
 	"md": "text/markdown", "mjs": "text/javascript", "py": "text/x-python",
 	"rs": "text/x-rust", "scad": "text/plain", "scss": "text/x-scss",

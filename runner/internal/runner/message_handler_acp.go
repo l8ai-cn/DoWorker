@@ -199,24 +199,3 @@ func (h *RunnerMessageHandler) wireAndStartACPPod(pod *Pod, cmd *runnerv1.Create
 	log.Info("Pod created (ACP)", "pod_key", cmd.PodKey, "sandbox", pod.SandboxPath)
 	return nil
 }
-
-func (h *RunnerMessageHandler) abortACPPodStartup(podKey string, acpClient *acp.ACPClient, sandboxPath string) {
-	h.podStore.Delete(podKey)
-	if acpClient != nil {
-		acpClient.Stop()
-	}
-	if sandboxPath != "" {
-		h.removePodSandbox(sandboxPath)
-	}
-}
-
-// handleACPExit handles ACP subprocess exit.
-func (h *RunnerMessageHandler) handleACPExit(podKey string, exitCode int) {
-	if pod, ok := h.podStore.Get(podKey); ok && pod != nil {
-		if acpIO, ok := pod.IO.(*ACPPodIO); ok {
-			acpIO.ForceIdleIfBusy()
-		}
-	}
-	logger.Pod().Info("ACP process exited", "pod_key", podKey, "exit_code", exitCode)
-	h.cleanupPodExit(podKey, exitCode, false)
-}
