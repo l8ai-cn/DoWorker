@@ -9,6 +9,7 @@ import (
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
 	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -166,7 +167,7 @@ func workerApplyCreateState(t *testing.T) controlservice.LockedApplyState {
 			},
 			CanonicalManifest:  canonicalManifest,
 			ResolvedReferences: []control.ResolvedReference{},
-			ArtifactKind:       "WorkerSpec",
+			ArtifactKind:       workerdependencyartifact.PlanArtifactKind,
 			ArtifactJSON:       artifact,
 			ArtifactDigest:     digestApplyJSON(t, artifact),
 		},

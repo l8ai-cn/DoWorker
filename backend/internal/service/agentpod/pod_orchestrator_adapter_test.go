@@ -12,7 +12,7 @@ func TestCreatePodSendsExplicitAgentAdapterID(t *testing.T) {
 	coordinator := &mockPodCoordinator{}
 	orchestrator, _, _ := setupOrchestrator(t, withCoordinator(coordinator))
 
-	_, err := orchestrator.CreatePod(context.Background(), adapterTestCreateRequest())
+	_, err := createPodWithPlanSourceForTest(t, orchestrator, context.Background(), adapterTestCreateRequest())
 
 	require.NoError(t, err)
 	require.NotNil(t, coordinator.lastCmd)
@@ -28,7 +28,7 @@ func TestCreatePodRejectsMissingAgentAdapterID(t *testing.T) {
 		withAgentConfigProvider(provider),
 	)
 
-	_, err := orchestrator.CreatePod(context.Background(), adapterTestCreateRequest())
+	_, err := createPodWithPlanSourceForTest(t, orchestrator, context.Background(), adapterTestCreateRequest())
 
 	require.ErrorIs(t, err, ErrMissingAgentAdapter)
 	assert.False(t, coordinator.createPodCalled)

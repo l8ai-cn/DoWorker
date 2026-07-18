@@ -77,7 +77,7 @@ func TestDispatchDeferredPodSendsPreparedCommand(t *testing.T) {
 	orchestrator, _, _ := setupOrchestrator(t, withCoordinator(coord))
 	request := queueTestRequest()
 	request.DeferRunnerDispatch = true
-	prepared, err := orchestrator.CreatePod(context.Background(), request)
+	prepared, err := createPodWithPlanSourceForTest(t, orchestrator, context.Background(), request)
 	require.NoError(t, err)
 	require.NotNil(t, prepared.DeferredCreateCommand)
 	assert.False(t, coord.createPodCalled)
@@ -101,7 +101,7 @@ func TestDispatchDeferredPodDoesNotSendWhenStatusTransitionFails(t *testing.T) {
 	orchestrator, _, db := setupOrchestrator(t, withCoordinator(coord))
 	request := queueTestRequest()
 	request.DeferRunnerDispatch = true
-	prepared, err := orchestrator.CreatePod(context.Background(), request)
+	prepared, err := createPodWithPlanSourceForTest(t, orchestrator, context.Background(), request)
 	require.NoError(t, err)
 	require.NoError(t, db.Exec(`
 		CREATE TRIGGER fail_deferred_status_update
@@ -126,7 +126,7 @@ func TestDispatchDeferredPodRejectsPodNoLongerQueued(t *testing.T) {
 	orchestrator, podService, _ := setupOrchestrator(t, withCoordinator(coord))
 	request := queueTestRequest()
 	request.DeferRunnerDispatch = true
-	prepared, err := orchestrator.CreatePod(context.Background(), request)
+	prepared, err := createPodWithPlanSourceForTest(t, orchestrator, context.Background(), request)
 	require.NoError(t, err)
 	require.NoError(t, podService.UpdatePodStatus(
 		context.Background(),

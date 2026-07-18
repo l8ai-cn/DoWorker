@@ -82,15 +82,18 @@ func TestPodChain_AgentfileLayerToCommand(t *testing.T) {
 	)
 
 	layer := "MODE acp\nBRANCH \"feature-x\"\nPROMPT \"do something\"\nCONFIG permission_mode = \"bypassPermissions\"\n"
-	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        ctxRunnerID(ctx),
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-		AgentfileLayer:  &layer,
-		Cols:            120, Rows: 40,
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"claude-code",
+		layer,
+		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = ctxRunnerID(ctx)
+	req.Cols = 120
+	req.Rows = 40
+	result, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 	require.NoError(t, err)
 
 	// Verify DB record reflects merged values
@@ -144,14 +147,16 @@ func TestPodChain_RepoSlugResolution(t *testing.T) {
 	)
 
 	layer := "REPO \"org/repo-slug\"\n"
-	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        ctxRunnerID(ctx),
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-		AgentfileLayer:  &layer,
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"claude-code",
+		layer,
+		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = ctxRunnerID(ctx)
+	result, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 	require.NoError(t, err)
 
 	// Pod should have RepositoryID set from slug resolution
@@ -199,14 +204,16 @@ func TestPodChain_CredentialFlow(t *testing.T) {
 	)
 
 	layer := "USE_ENV_BUNDLE \"runtime\"\n"
-	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        ctxRunnerID(ctx),
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-		AgentfileLayer:  &layer,
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"claude-code",
+		layer,
+		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = ctxRunnerID(ctx)
+	result, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 	require.NoError(t, err)
 	require.NotNil(t, result.Pod)
 
@@ -239,14 +246,16 @@ func TestPodChain_UnsupportedInteractionMode(t *testing.T) {
 
 	// AgentFile layer requests MODE acp, but agent only supports pty
 	layer := "MODE acp\n"
-	_, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        ctxRunnerID(ctx),
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-		AgentfileLayer:  &layer,
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"claude-code",
+		layer,
+		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = ctxRunnerID(ctx)
+	_, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 	require.Error(t, err)
 	assert.ErrorIs(t, err, ErrUnsupportedInteractionMode)
 	assert.False(t, coord.createPodCalled, "coordinator should not be called on mode mismatch")
@@ -275,13 +284,16 @@ func TestPodChain_ConfigBuilderFailure(t *testing.T) {
 		withConfigBuilder(agent.NewConfigBuilder(failProvider, noopBundleLoader{})),
 	)
 
-	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        ctxRunnerID(ctx),
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"claude-code",
+		"",
+		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = ctxRunnerID(ctx)
+	result, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 	require.Error(t, err)
 	assert.ErrorIs(t, err, ErrConfigBuildFailed)
 	assert.Nil(t, result)
@@ -308,14 +320,16 @@ func TestPodChain_DispatchFailureMarksError(t *testing.T) {
 	)
 
 	layer := "PROMPT \"deploy fix\"\n"
-	_, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        ctxRunnerID(ctx),
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-		AgentfileLayer:  &layer,
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"claude-code",
+		layer,
+		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = ctxRunnerID(ctx)
+	_, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 	require.Error(t, err)
 	assert.ErrorIs(t, err, ErrRunnerDispatchFailed)
 
@@ -367,17 +381,20 @@ func TestResumeIntegration_CodexFullChain(t *testing.T) {
 		withCoordinator(coord),
 		withAgentResolver(codexResolver),
 		withConfigBuilder(agent.NewConfigBuilder(codexProvider, noopBundleLoader{})),
+		withModelResources(&recordingModelResourceResolver{resource: resolvedOpenAIResource()}),
 	)
 
 	sourceLayer := `CONFIG approval_mode = "never"`
-	source, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        ctxRunnerID(ctx),
-		AgentSlug:       "codex-cli",
-		ModelResourceID: testModelResourceID(),
-		AgentfileLayer:  &sourceLayer,
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"codex-cli",
+		sourceLayer,
+		resolvedOpenAIResource(),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = ctxRunnerID(ctx)
+	source, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 	require.NoError(t, err)
 	require.NotNil(t, source.Pod)
 
@@ -395,7 +412,7 @@ func TestResumeIntegration_CodexFullChain(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	resumed, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
+	resumed, err := createPodWithPlanSourceForTest(t, orch, ctx, &OrchestrateCreatePodRequest{
 		OrganizationID: ctxOrgID(ctx),
 		UserID:         ctxUserID(ctx),
 		SourcePodKey:   source.Pod.PodKey,

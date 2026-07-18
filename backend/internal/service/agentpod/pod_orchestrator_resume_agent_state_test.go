@@ -27,7 +27,7 @@ func TestCreatePod_ResumeMode_SessionReused(t *testing.T) {
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -64,7 +64,7 @@ func TestCreatePod_ResumeMode_CodexUsesCodexResumeLast(t *testing.T) {
 		"status":       podDomain.StatusTerminated,
 	})
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -92,7 +92,7 @@ func TestCreatePod_ResumeMode_CodexPreservesSourceApprovalMode(t *testing.T) {
 	)
 
 	sourceLayer := `CONFIG approval_mode = "never"`
-	source, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	source, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -114,7 +114,7 @@ func TestCreatePod_ResumeMode_CodexPreservesSourceApprovalMode(t *testing.T) {
 		"status":       podDomain.StatusTerminated,
 	})
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   source.Pod.PodKey,
@@ -139,7 +139,7 @@ func TestCreatePod_ResumeMode_ClaudePreservesSourcePermissionMode(t *testing.T) 
 	// prove resume replays the source's resolved permission verbatim instead of
 	// re-applying the autonomous default (bypassPermissions). auto_edit maps to
 	// claude's acceptEdits.
-	source, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	source, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -155,7 +155,7 @@ func TestCreatePod_ResumeMode_ClaudePreservesSourcePermissionMode(t *testing.T) 
 
 	db.Model(&podDomain.Pod{}).Where("pod_key = ?", source.Pod.PodKey).Update("status", podDomain.StatusTerminated)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   source.Pod.PodKey,
@@ -188,7 +188,7 @@ func TestCreatePod_ResumeMode_ClaudePreservesLegacyPermissionColumn(t *testing.T
 	require.NoError(t, err)
 	db.Model(&podDomain.Pod{}).Where("pod_key = ?", sourcePod.PodKey).Update("status", podDomain.StatusTerminated)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -217,7 +217,7 @@ func TestCreatePod_ResumeMode_NoSessionID_GeneratesNew(t *testing.T) {
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -245,7 +245,7 @@ func TestCreatePod_ResumeMode_DisableResumeAgentSession(t *testing.T) {
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
 	resumeOff := false
-	_, err = orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err = createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:     1,
 		UserID:             1,
 		SourcePodKey:       sourcePod.PodKey,
@@ -275,7 +275,7 @@ func TestCreatePod_ResumeMode_CompletedPod(t *testing.T) {
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusCompleted, sourcePod.PodKey)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -301,7 +301,7 @@ func TestCreatePod_ResumeMode_OrphanedPod(t *testing.T) {
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusOrphaned, sourcePod.PodKey)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -333,7 +333,7 @@ func TestCreatePod_ResumeMode_SandboxPath(t *testing.T) {
 		"status":       podDomain.StatusTerminated,
 	})
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,

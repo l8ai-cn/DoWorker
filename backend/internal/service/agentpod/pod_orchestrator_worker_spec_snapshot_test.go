@@ -6,6 +6,7 @@ import (
 
 	poddomain "github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -32,6 +33,7 @@ func TestPrepareSnapshotWorkerCreateProjectsImmutableSnapshot(t *testing.T) {
 			OrganizationID: 7,
 			Spec:           spec,
 		}},
+		WorkerDependencies: snapshotDependencyLoader(t, 7, spec),
 	})
 	alias := "override-alias"
 	prompt := "Override task."
@@ -79,6 +81,7 @@ func TestPrepareSnapshotWorkerCreateRejectsSnapshotScopeMismatch(t *testing.T) {
 			OrganizationID: 8,
 			Spec:           podServiceWorkerSpec(),
 		}},
+		WorkerDependencies: snapshotDependencyLoader(t, 7, podServiceWorkerSpec()),
 	})
 
 	err := orchestrator.prepareSnapshotWorkerCreate(
@@ -105,8 +108,9 @@ func TestPrepareSnapshotWorkerCreateRejectsInvalidSnapshotID(t *testing.T) {
 		},
 	}
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{
-		WorkerCreation: preparer,
-		WorkerSpecs:    loader,
+		WorkerCreation:     preparer,
+		WorkerSpecs:        loader,
+		WorkerDependencies: snapshotDependencyLoader(t, 7, podServiceWorkerSpec()),
 	})
 
 	err := orchestrator.prepareSnapshotWorkerCreate(
@@ -133,6 +137,7 @@ func TestPrepareSnapshotWorkerCreateRejectsLegacyRuntimeOverrides(t *testing.T) 
 			OrganizationID: 7,
 			Spec:           podServiceWorkerSpec(),
 		}},
+		WorkerDependencies: snapshotDependencyLoader(t, 7, podServiceWorkerSpec()),
 	})
 
 	err := orchestrator.prepareSnapshotWorkerCreate(
@@ -167,6 +172,7 @@ func TestPrepareSnapshotWorkerCreateAllowsTicketAssociation(t *testing.T) {
 			OrganizationID: 7,
 			Spec:           spec,
 		}},
+		WorkerDependencies: snapshotDependencyLoader(t, 7, spec),
 	})
 	req := &OrchestrateCreatePodRequest{
 		OrganizationID:       7,
@@ -212,7 +218,8 @@ func TestCreatePodReplaysWorkerLaunchWithSamePodAndCommand(t *testing.T) {
 		WorkerSpecs: &workerSpecSnapshotLoader{snapshot: specdomain.Snapshot{
 			ID: snapshotID, OrganizationID: 1, Spec: spec,
 		}},
-		ModelResources: &recordingModelResourceResolver{resource: resource},
+		WorkerDependencies: snapshotDependencyLoader(t, 1, spec),
+		ModelResources:     &recordingModelResourceResolver{resource: resource},
 		RunnerSelector: &mockRunnerSelector{
 			runner: &runnerDomain.Runner{ID: 1},
 		},
@@ -248,6 +255,28 @@ func TestCreatePodReplaysWorkerLaunchWithSamePodAndCommand(t *testing.T) {
 	assert.Equal(t, int64(1), count)
 }
 
+func TestPrepareSnapshotWorkerCreateRejectsMissingDependencyArtifact(t *testing.T) {
+	snapshotID := int64(91)
+	spec := normalizedSnapshotWorkerSpec(t)
+	preparer := &snapshotWorkerCreationPreparer{}
+	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{
+		WorkerCreation: preparer,
+		WorkerSpecs: &workerSpecSnapshotLoader{snapshot: specdomain.Snapshot{
+			ID: snapshotID, OrganizationID: 7, Spec: spec,
+		}},
+	})
+
+	err := orchestrator.prepareSnapshotWorkerCreate(
+		context.Background(),
+		&OrchestrateCreatePodRequest{
+			OrganizationID: 7, UserID: 5, WorkerSpecSnapshotID: &snapshotID,
+		},
+	)
+
+	require.ErrorIs(t, err, ErrWorkerSpecDependencyUnavailable)
+	assert.Zero(t, preparer.snapshotCalls)
+}
+
 type snapshotWorkerCreationPreparer struct {
 	prepared      workercreation.PreparedSnapshot
 	err           error
@@ -259,6 +288,31 @@ func normalizedSnapshotWorkerSpec(t *testing.T) specdomain.Spec {
 	spec, err := specdomain.NormalizeAndValidate(podServiceWorkerSpec())
 	require.NoError(t, err)
 	return spec
+}
+
+func snapshotDependencyLoader(
+	t *testing.T,
+	organizationID int64,
+	spec specdomain.Spec,
+) *workerSpecDependencyLoader {
+	t.Helper()
+	digest, err := workerSpecDigest(spec)
+	require.NoError(t, err)
+	return snapshotDependencyLoaderWithDigest(organizationID, digest)
+}
+
+func snapshotDependencyLoaderWithDigest(
+	organizationID int64,
+	digest string,
+) *workerSpecDependencyLoader {
+	return &workerSpecDependencyLoader{
+		document: workerdependency.Document{
+			OrganizationID: organizationID,
+			Worker: workerdependency.Worker{
+				SpecDigest: digest,
+			},
+		},
+	}
 }
 
 func (*snapshotWorkerCreationPreparer) Prepare(
@@ -284,4 +338,17 @@ func (preparer *snapshotWorkerCreationPreparer) PrepareSnapshot(
 ) (workercreation.PreparedSnapshot, error) {
 	preparer.snapshotCalls++
 	return preparer.prepared, preparer.err
+}
+
+type workerSpecDependencyLoader struct {
+	document workerdependency.Document
+	err      error
+}
+
+func (loader *workerSpecDependencyLoader) GetBySnapshotID(
+	context.Context,
+	int64,
+	int64,
+) (workerdependency.Document, error) {
+	return loader.document, loader.err
 }

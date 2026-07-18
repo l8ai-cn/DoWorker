@@ -36,7 +36,7 @@ func TestBuildPodCommand_WithRepository(t *testing.T) {
 
 	agentSlug := "claude-code"
 	repoID := int64(10)
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -67,7 +67,7 @@ func TestBuildPodCommand_BranchOverride(t *testing.T) {
 	agentSlug := "claude-code"
 	repoID := int64(10)
 	branch := "feature/my-branch"
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -94,7 +94,7 @@ func TestBuildPodCommand_WithTicket(t *testing.T) {
 
 	agentSlug := "claude-code"
 	ticketID := int64(1)
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -114,7 +114,7 @@ func TestBuildPodCommand_WithTicketSlug(t *testing.T) {
 
 	agentSlug := "claude-code"
 	ticketSlug := "AM-99"
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -151,7 +151,7 @@ func TestBuildPodCommand_GeminiUsesExactModelResource(t *testing.T) {
 		},
 	)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -190,7 +190,7 @@ func TestBuildPodCommand_MiniMaxPlacesModelBeforeMessage(t *testing.T) {
 		},
 	)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -245,16 +245,9 @@ func TestBuildPodCommand_PreservesUserPromptForHermes(t *testing.T) {
 			deps.WorkerCreation = preparer
 		},
 	)
-	require.NoError(t, db.Exec(`CREATE TABLE worker_spec_snapshots (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		organization_id INTEGER NOT NULL,
-		version INTEGER NOT NULL,
-		spec_json BLOB NOT NULL,
-		summary_json BLOB NOT NULL,
-		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-	)`).Error)
+	ensureWorkerSpecSnapshotTable(t, db)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -288,7 +281,7 @@ func TestBuildPodCommand_WithOAuthCredential(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord), withUserSvc(userSvc), withRepoSvc(repoSvc))
 
 	agentSlug := "claude-code"
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -324,7 +317,7 @@ func TestBuildPodCommand_WithSSHCredential(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord), withUserSvc(userSvc), withRepoSvc(repoSvc))
 
 	agentSlug := "claude-code"
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -356,7 +349,7 @@ func TestBuildPodCommand_RunnerLocalCredential_NoCredsSent(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord), withUserSvc(userSvc), withRepoSvc(repoSvc))
 
 	agentSlug := "claude-code"
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -482,7 +475,7 @@ func TestCreatePod_RepoServiceError_Propagates(t *testing.T) {
 
 	agentSlug := "claude-code"
 	repoID := int64(999)
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -503,7 +496,7 @@ func TestBuildPodCommand_TicketServiceError_IgnoresTicket(t *testing.T) {
 
 	agentSlug := "claude-code"
 	ticketID := int64(999)
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,

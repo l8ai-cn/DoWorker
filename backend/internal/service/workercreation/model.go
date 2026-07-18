@@ -32,21 +32,26 @@ type ModelResourceResolver interface {
 
 type modelResolver struct {
 	resources ModelResourceResolver
+	resolved  map[int64]*resourceservice.ResolvedResource
 }
 
 var workerModelProtocolAdapters = map[string][]string{
-	"do-agent":    {"openai-compatible", "anthropic", "minimax"},
-	"codex-cli":   {"openai-compatible"},
-	"claude-code": {"anthropic"},
-	"gemini-cli":  {"gemini"},
-	"grok-build":  {"openai-compatible"},
-	"minimax-cli": {"minimax"},
-	"openclaw":    {"openai-compatible", "anthropic", "gemini"},
-	"hermes":      {"openai-compatible", "anthropic", "gemini"},
+	"do-agent":         {"openai-compatible", "anthropic", "minimax"},
+	"codex-cli":        {"openai-compatible"},
+	"pattern-designer": {"openai-compatible"},
+	"claude-code":      {"anthropic"},
+	"gemini-cli":       {"gemini"},
+	"grok-build":       {"openai-compatible"},
+	"minimax-cli":      {"minimax"},
+	"openclaw":         {"openai-compatible", "anthropic", "gemini"},
+	"hermes":           {"openai-compatible", "anthropic", "gemini"},
 }
 
 func newModelResolver(resources ModelResourceResolver) *modelResolver {
-	return &modelResolver{resources: resources}
+	return &modelResolver{
+		resources: resources,
+		resolved:  make(map[int64]*resourceservice.ResolvedResource),
+	}
 }
 
 func (resolver *modelResolver) ResolveModel(
@@ -82,6 +87,7 @@ func (resolver *modelResolver) ResolveModel(
 	if err := validateResolvedModel(resolved, resourceID); err != nil {
 		return specdomain.ModelBinding{}, err
 	}
+	resolver.resolved[resourceID] = resolved
 	protocolAdapter, err := slugkit.NewFromTrusted(
 		resolved.Provider.ProtocolAdapter,
 	)

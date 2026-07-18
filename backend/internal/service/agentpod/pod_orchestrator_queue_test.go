@@ -27,7 +27,7 @@ func TestOrchestrate_QueueIfUnavailable_PodCreatedAsQueued(t *testing.T) {
 
 	req := queueTestRequest()
 	req.QueueIfUnavailable = true
-	result, err := orch.CreatePod(context.Background(), req)
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), req)
 	require.NoError(t, err)
 	require.True(t, result.Queued)
 
@@ -42,7 +42,7 @@ func TestOrchestrate_Default_BehaviorUnchanged(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, podSvc, _ := setupOrchestrator(t, withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), queueTestRequest())
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), queueTestRequest())
 	require.NoError(t, err)
 	assert.False(t, result.Queued)
 	assert.True(t, coord.createPodCalled)
@@ -59,7 +59,7 @@ func TestOrchestrate_QueueFull_MarksPodError(t *testing.T) {
 
 	req := queueTestRequest()
 	req.QueueIfUnavailable = true
-	_, err := orch.CreatePod(context.Background(), req)
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), req)
 	require.ErrorIs(t, err, podDomain.ErrQueueFull)
 
 	var podKey string
@@ -77,7 +77,7 @@ func TestOrchestrate_DispatchFailure_MarksPodError(t *testing.T) {
 
 	req := queueTestRequest()
 	req.QueueIfUnavailable = true
-	_, err := orch.CreatePod(context.Background(), req)
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), req)
 	require.ErrorIs(t, err, ErrRunnerDispatchFailed)
 
 	var podKey string

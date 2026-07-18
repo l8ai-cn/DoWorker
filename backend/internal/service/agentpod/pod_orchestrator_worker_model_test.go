@@ -44,9 +44,9 @@ func resolvedOpenAIResource() *resourcesvc.ResolvedResource {
 	return &resourcesvc.ResolvedResource{
 		Provider: provider,
 		Connection: resourceDomain.Connection{
-			ID: 1, ProviderKey: slugkit.Slug("openai"), BaseURL: "https://api.openai.com/v1",
+			ID: 1, ProviderKey: slugkit.Slug("openai"), BaseURL: "https://api.openai.com/v1", Revision: 1,
 		},
-		Resource:    resourceDomain.ModelResource{ID: 9, ModelID: "gpt-5.1"},
+		Resource:    resourceDomain.ModelResource{ID: 9, ProviderConnectionID: 1, ModelID: "gpt-5.1", Revision: 1},
 		Credentials: map[string]string{"api_key": "sk-test"},
 	}
 }
@@ -56,9 +56,9 @@ func resolvedResource(providerKey, baseURL, modelID string) *resourcesvc.Resolve
 	return &resourcesvc.ResolvedResource{
 		Provider: provider,
 		Connection: resourceDomain.Connection{
-			ID: 1, ProviderKey: slugkit.Slug(providerKey), BaseURL: baseURL,
+			ID: 1, ProviderKey: slugkit.Slug(providerKey), BaseURL: baseURL, Revision: 1,
 		},
-		Resource:    resourceDomain.ModelResource{ID: 9, ModelID: modelID},
+		Resource:    resourceDomain.ModelResource{ID: 9, ProviderConnectionID: 1, ModelID: modelID, Revision: 1},
 		Credentials: map[string]string{"api_key": "sk-test"},
 	}
 }

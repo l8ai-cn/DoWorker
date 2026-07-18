@@ -10,6 +10,7 @@ import (
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
 	"github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
 	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -56,7 +57,7 @@ func TestWorkerTemplatePlannerCompilesResourceRefsIntoWorkerDraft(t *testing.T) 
 
 	require.NoError(t, err)
 	require.Empty(t, output.Issues)
-	assert.Equal(t, "WorkerSpec", output.ArtifactKind)
+	assert.Equal(t, workerdependencyartifact.PlanArtifactKind, output.ArtifactKind)
 	assert.JSONEq(t, string(compiler.artifact), string(output.ArtifactJSON))
 	assert.Equal(t, compiler.revision, output.OptionsRevision)
 	require.Equal(t, 1, compiler.calls)

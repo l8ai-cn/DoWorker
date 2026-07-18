@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
@@ -29,6 +30,10 @@ func TestPrepareSnapshotWorkerCreateRejectsPersistedLegacyProtocolAdapter(t *tes
 	summary.ModelBinding.ProtocolAdapter = ""
 	specJSON, err := json.Marshal(spec)
 	require.NoError(t, err)
+	canonicalSpec, err := control.CanonicalJSONObject(specJSON)
+	require.NoError(t, err)
+	specDigest, err := control.DigestCanonicalJSON(canonicalSpec)
+	require.NoError(t, err)
 	summaryJSON, err := json.Marshal(summary)
 	require.NoError(t, err)
 	require.NoError(t, db.Exec(`
@@ -45,8 +50,9 @@ VALUES (?, ?, ?, ?, ?)`,
 		},
 	}
 	orchestrator := NewPodOrchestrator(&PodOrchestratorDeps{
-		WorkerCreation: preparer,
-		WorkerSpecs:    infra.NewWorkerSpecSnapshotRepository(db),
+		WorkerCreation:     preparer,
+		WorkerSpecs:        infra.NewWorkerSpecSnapshotRepository(db),
+		WorkerDependencies: snapshotDependencyLoaderWithDigest(7, specDigest),
 	})
 
 	err = orchestrator.prepareSnapshotWorkerCreate(
@@ -59,5 +65,5 @@ VALUES (?, ?, ?, ?, ?)`,
 	)
 
 	require.ErrorIs(t, err, ErrWorkerSpecSnapshotMismatch)
-	assert.Equal(t, 1, preparer.snapshotCalls)
+	assert.Zero(t, preparer.snapshotCalls)
 }

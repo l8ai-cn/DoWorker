@@ -203,7 +203,7 @@ func TestResumeRejectsChangedWorkerSpecModelRevision(t *testing.T) {
 		},
 	})
 
-	_, err = orchestrator.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err = createPodWithPlanSourceForTest(t, orchestrator, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   source.PodKey,
@@ -231,7 +231,7 @@ func TestCreatePodRejectsChangedWorkerTypeBeforePersistence(t *testing.T) {
 		WorkerCreation: preparer,
 	})
 
-	_, err := orchestrator.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orchestrator, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		WorkerSpecDraft: &workercreation.Draft{},
@@ -282,7 +282,7 @@ func TestCreatePodPersistsWorkerSpecBeforeRunnerDispatch(t *testing.T) {
 		WorkerCreation: preparer,
 	})
 
-	result, err := orchestrator.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orchestrator, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,

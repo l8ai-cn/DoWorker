@@ -15,11 +15,17 @@ type BindingResolver interface {
 		control.Scope,
 		control.ResolvedReference,
 	) (int64, error)
-	ResolveToolModelResourceID(
+	ResolveToolModel(
 		context.Context,
 		control.Scope,
 		control.ResolvedReference,
-	) (int64, error)
+	) (ToolModelBindingResolution, error)
+}
+
+type ToolModelBindingResolution struct {
+	Binding         control.ResolvedReference
+	ModelBinding    control.ResolvedReference
+	ModelResourceID int64
 }
 
 type DefinitionResolver interface {

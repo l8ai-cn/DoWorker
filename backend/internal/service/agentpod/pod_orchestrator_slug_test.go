@@ -25,7 +25,7 @@ func TestSlugResolution_ResolvesTicketIDFromSlug(t *testing.T) {
 
 	agentSlug := "claude-code"
 	ticketSlug := "AM-42"
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -55,7 +55,7 @@ func TestSlugResolution_FailureDoesNotBlockPodCreation(t *testing.T) {
 
 	agentSlug := "claude-code"
 	ticketSlug := "NONEXIST-999"
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -82,7 +82,7 @@ func TestSlugResolution_ExplicitTicketIDTakesPriority(t *testing.T) {
 	agentSlug := "claude-code"
 	ticketID := int64(7) // Explicitly provided TicketID
 	ticketSlug := "AM-99"
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,

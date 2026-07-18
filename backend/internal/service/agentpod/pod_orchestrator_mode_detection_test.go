@@ -15,7 +15,7 @@ func TestCreatePodSetupHeredocModeTextKeepsAutonomousCodexACP(t *testing.T) {
 		withAgentConfigProvider(newCodexTestProvider()),
 	)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,

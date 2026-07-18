@@ -7,6 +7,7 @@ import (
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
 	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
 )
 
 type WorkerTemplatePlanner struct {
@@ -80,7 +81,7 @@ func (planner *WorkerTemplatePlanner) Plan(
 		return controlservice.TargetPlanOutput{}, err
 	}
 	return controlservice.TargetPlanOutput{
-		ArtifactKind:    "WorkerSpec",
+		ArtifactKind:    workerdependencyartifact.PlanArtifactKind,
 		ArtifactJSON:    compilation.ArtifactJSON,
 		OptionsRevision: planner.compiler.Revision(),
 		Issues:          compilation.Issues,

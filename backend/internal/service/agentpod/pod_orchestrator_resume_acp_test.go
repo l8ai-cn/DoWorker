@@ -17,7 +17,7 @@ func TestCreatePod_ResumeMode_PreservesACPInteractionMode(t *testing.T) {
 		withAgentConfigProvider(newCodexTestProvider()),
 	)
 
-	source, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	source, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -35,7 +35,7 @@ func TestCreatePod_ResumeMode_PreservesACPInteractionMode(t *testing.T) {
 			"status":              podDomain.StatusCompleted,
 		}).Error)
 
-	resumed, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	resumed, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   source.Pod.PodKey,
@@ -88,7 +88,7 @@ func TestCreatePod_ResumeMode_InheritsAncestorExternalSessionID(t *testing.T) {
 		Where("pod_key = ?", intermediate.PodKey).
 		Update("status", podDomain.StatusOrphaned).Error)
 
-	_, err = orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err = createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   intermediate.PodKey,

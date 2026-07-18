@@ -57,7 +57,7 @@ func TestCreatePod_RepositoryOverride_EmptyLayerSuppressesBase(t *testing.T) {
 	)
 	req := repositoryOverrideRequest(ptrStr(`REPO ""`), nil)
 
-	result, err := orch.CreatePod(context.Background(), req)
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), req)
 
 	require.NoError(t, err)
 	assert.Empty(t, repoSvc.findCalls)
@@ -98,7 +98,7 @@ func TestCreatePod_RepositoryOverride_EmptyLayerFallsBackToDirectID(t *testing.T
 	)
 	req := repositoryOverrideRequest(ptrStr(`REPO ""`), &directID)
 
-	result, err := orch.CreatePod(context.Background(), req)
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), req)
 
 	require.NoError(t, err)
 	assert.Empty(t, repoSvc.findCalls)
@@ -136,7 +136,7 @@ func TestCreatePod_RepositoryOverride_UsesSingleAgentDefinition(t *testing.T) {
 		withCoordinator(coord),
 	)
 
-	result, err := orch.CreatePod(context.Background(), repositoryOverrideRequest(nil, nil))
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), repositoryOverrideRequest(nil, nil))
 
 	require.NoError(t, err)
 	assert.Equal(t, 1, resolver.calls)
@@ -166,7 +166,7 @@ func TestCreatePod_RepositoryOverride_RejectsMalformedLayerBeforePlacement(t *te
 	)
 	req := repositoryOverrideRequest(ptrStr(`INVALID @@@ not valid syntax`), nil)
 
-	result, err := orch.CreatePod(context.Background(), req)
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), req)
 
 	require.ErrorIs(t, err, ErrInvalidAgentfileLayer)
 	assert.Nil(t, result)

@@ -68,8 +68,19 @@ func buildWorkerTemplateDraft(
 	if err != nil {
 		return workercreation.Draft{}, err
 	}
+	artifactRefs, err := buildWorkerTemplateArtifactReferences(
+		ctx,
+		scope,
+		spec,
+		pins,
+		bindings,
+	)
+	if err != nil {
+		return workercreation.Draft{}, err
+	}
 	return workercreation.Draft{
 		OptionsRevision: spec.OptionsRevision,
+		ArtifactRefs:    artifactRefs,
 		WorkerSpec: specservice.Draft{
 			ModelResourceID: modelID, ToolModelResourceIDs: toolModels,
 			WorkerTypeSlug: spec.WorkerType, Runtime: runtime,

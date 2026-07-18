@@ -12,6 +12,9 @@ import (
 
 type runtimeCatalogResolver struct {
 	catalog runtimedomain.Catalog
+	image   *runtimedomain.CatalogRuntimeImage
+	target  *runtimedomain.CatalogComputeTarget
+	profile *runtimedomain.CatalogResourceProfile
 }
 
 func newRuntimeCatalogResolver(catalog runtimedomain.Catalog) *runtimeCatalogResolver {
@@ -94,10 +97,31 @@ func (resolver *runtimeCatalogResolver) ResolveRuntime(
 	if err != nil {
 		return runtimedomain.Resolved{}, invalidRuntimeSelection("runtime", err.Error())
 	}
+	resolver.image = &image
+	resolver.target = target
+	resolver.profile = profile
 	return runtimedomain.Resolved{
 		RuntimeImage: runtimeImage,
 		Placement:    placement,
 	}, nil
+}
+
+func (resolver *runtimeCatalogResolver) resolvedRuntime() (
+	runtimedomain.CatalogRuntimeImage,
+	runtimedomain.CatalogComputeTarget,
+	*runtimedomain.CatalogResourceProfile,
+	bool,
+) {
+	if resolver == nil || resolver.image == nil || resolver.target == nil {
+		return runtimedomain.CatalogRuntimeImage{},
+			runtimedomain.CatalogComputeTarget{}, nil, false
+	}
+	var profile *runtimedomain.CatalogResourceProfile
+	if resolver.profile != nil {
+		value := *resolver.profile
+		profile = &value
+	}
+	return *resolver.image, *resolver.target, profile, true
 }
 
 func (resolver *runtimeCatalogResolver) resolveImage(

@@ -1,7 +1,6 @@
 package infra
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 
@@ -9,6 +8,7 @@ import (
 	resource "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	controlservice "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
 	workerspecservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 	"gorm.io/gorm"
 )
@@ -34,7 +34,7 @@ func (repo *orchestrationResourceRepo) RunWorkerTemplateApplyTransaction(
 			tx *gorm.DB,
 			state controlservice.LockedApplyState,
 		) (controlservice.ApplyMutation, error) {
-			snapshot, err := persistPlannedWorkerSpec(tx, state)
+			snapshot, err := persistPlannedWorkerBuild(tx, state)
 			if err != nil {
 				return controlservice.ApplyMutation{}, err
 			}
@@ -50,35 +50,28 @@ func (repo *orchestrationResourceRepo) RunWorkerTemplateApplyTransaction(
 	}, nil
 }
 
-func persistPlannedWorkerSpec(
+func persistPlannedWorkerBuild(
 	tx *gorm.DB,
 	state controlservice.LockedApplyState,
 ) (workerspec.Snapshot, error) {
 	if state.Plan.Target.Kind != resource.KindWorkerTemplate ||
-		state.Plan.ArtifactKind != "WorkerSpec" {
+		state.Plan.ArtifactKind != workerdependencyartifact.PlanArtifactKind {
 		return workerspec.Snapshot{}, control.ErrInvalid
 	}
-	spec, err := workerspec.DecodeSpec(state.Plan.ArtifactJSON)
+	artifact, err := workerdependencyartifact.DecodeApplyPlan(state.Plan)
+	if err != nil {
+		return workerspec.Snapshot{}, fmt.Errorf(
+			"%w: invalid WorkerTemplate build artifact: %v",
+			control.ErrCorrupt,
+			err,
+		)
+	}
+	spec, err := workerspec.DecodeSpec(artifact.WorkerSpecJSON())
 	if err != nil {
 		return workerspec.Snapshot{}, fmt.Errorf(
 			"%w: invalid planned workerspec: %v",
 			control.ErrCorrupt,
 			err,
-		)
-	}
-	canonical, err := workerspec.EncodeSpec(spec)
-	if err != nil {
-		return workerspec.Snapshot{}, fmt.Errorf(
-			"%w: encode planned workerspec: %v",
-			control.ErrCorrupt,
-			err,
-		)
-	}
-	canonical, err = control.CanonicalJSONObject(canonical)
-	if err != nil || !bytes.Equal(canonical, state.Plan.ArtifactJSON) {
-		return workerspec.Snapshot{}, fmt.Errorf(
-			"%w: planned workerspec must be canonical",
-			control.ErrCorrupt,
 		)
 	}
 	resolved, err := workerspecservice.NewResolvedSnapshot(
@@ -92,5 +85,19 @@ func persistPlannedWorkerSpec(
 			err,
 		)
 	}
-	return createWorkerSpecSnapshot(tx, resolved)
+	snapshot, err := createWorkerSpecSnapshot(tx, resolved)
+	if err != nil {
+		return workerspec.Snapshot{}, err
+	}
+	err = createWorkerSpecDependencyArtifact(
+		tx,
+		state.Plan.Scope.OrganizationID,
+		snapshot.ID,
+		artifact.DependenciesJSON(),
+		artifact.DependenciesDigest(),
+	)
+	if err != nil {
+		return workerspec.Snapshot{}, err
+	}
+	return snapshot, nil
 }

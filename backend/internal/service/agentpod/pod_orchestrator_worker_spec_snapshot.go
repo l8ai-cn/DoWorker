@@ -3,10 +3,9 @@ package agentpod
 import (
 	"context"
 	"errors"
-	"reflect"
-	"strings"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
+	"github.com/anthropics/agentsmesh/backend/internal/domain/workerdependency"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
@@ -18,6 +17,14 @@ type WorkerSnapshotPreparer interface {
 		specservice.Scope,
 		specdomain.Snapshot,
 	) (workercreation.PreparedSnapshot, error)
+}
+
+type WorkerSpecDependencyArtifactLoader interface {
+	GetBySnapshotID(
+		context.Context,
+		int64,
+		int64,
+	) (workerdependency.Document, error)
 }
 
 func (o *PodOrchestrator) prepareSnapshotWorkerCreate(
@@ -36,6 +43,9 @@ func (o *PodOrchestrator) prepareSnapshotWorkerCreate(
 	if o.workerSnapshots == nil {
 		return ErrWorkerCreationUnavailable
 	}
+	if o.workerDependencies == nil {
+		return ErrWorkerSpecDependencyUnavailable
+	}
 	snapshotID := *req.WorkerSpecSnapshotID
 	if snapshotID <= 0 {
 		return ErrWorkerSpecSnapshotMismatch
@@ -51,6 +61,9 @@ func (o *PodOrchestrator) prepareSnapshotWorkerCreate(
 	if snapshot.ID != snapshotID ||
 		snapshot.OrganizationID != req.OrganizationID {
 		return ErrWorkerSpecSnapshotMismatch
+	}
+	if err := o.validateSnapshotDependencyArtifact(ctx, req.OrganizationID, snapshot); err != nil {
+		return err
 	}
 	prepared, err := o.workerSnapshots.PrepareSnapshot(
 		ctx,
@@ -87,45 +100,6 @@ func hasConflictingSnapshotWorkerInput(req *OrchestrateCreatePodRequest) bool {
 		len(req.KnowledgeMounts) > 0 ||
 		len(req.ModelResourceEnv) > 0 ||
 		len(req.ModelResourceArgs) > 0
-}
-
-func validatePreparedWorkerSnapshot(
-	snapshot specdomain.Snapshot,
-	prepared workercreation.PreparedSnapshot,
-) error {
-	spec, err := specdomain.NormalizeAndValidate(snapshot.Spec)
-	if err != nil {
-		return errors.Join(ErrWorkerSpecSnapshotMismatch, err)
-	}
-	if strings.TrimSpace(prepared.AgentfileLayer) == "" ||
-		!reflect.DeepEqual(spec, prepared.Spec) {
-		return ErrInvalidPreparedWorkerSpec
-	}
-	return validatePreparedWorkerRepository(
-		snapshot.OrganizationID,
-		prepared.Spec.Workspace.RepositoryID,
-		prepared.Repository,
-	)
-}
-
-func validatePreparedWorkerRepository(
-	organizationID int64,
-	repositoryID *int64,
-	repository *gitprovider.Repository,
-) error {
-	if repositoryID == nil {
-		if repository != nil {
-			return ErrInvalidPreparedWorkerSpec
-		}
-		return nil
-	}
-	if repository == nil ||
-		repository.ID != *repositoryID ||
-		repository.OrganizationID != organizationID ||
-		!repository.IsActive {
-		return ErrInvalidPreparedWorkerSpec
-	}
-	return nil
 }
 
 func projectPreparedWorkerSpec(

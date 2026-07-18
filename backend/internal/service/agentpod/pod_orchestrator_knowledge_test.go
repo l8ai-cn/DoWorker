@@ -57,7 +57,7 @@ func TestCreatePod_KnowledgeMountsFromLayerAndRequest(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord), withKnowledgeResolver(resolver))
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -72,7 +72,7 @@ func TestCreatePod_KnowledgeMountsFromLayerAndRequest(t *testing.T) {
 
 	require.Equal(t, []kbservice.MountRequest{
 		{KBSlug: "team-docs", Mode: "rw"},
-		{KBSlug: "product-wiki", Mode: ""},
+		{KBSlug: "product-wiki", Mode: "ro"},
 	}, resolver.lastRequested, "Agentfile declarations first, request selections last")
 
 	require.NotNil(t, coord.lastCmd)
@@ -104,7 +104,7 @@ func TestCreatePod_KnowledgeDeclaredButFeatureDisabled(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -121,7 +121,7 @@ func TestCreatePod_NoKnowledgeMounts(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord), withKnowledgeResolver(resolver))
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,

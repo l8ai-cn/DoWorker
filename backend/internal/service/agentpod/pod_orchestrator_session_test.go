@@ -78,7 +78,7 @@ func TestCreatePodProvisionsSessionBeforeRunnerDispatch(t *testing.T) {
 		func(deps *PodOrchestratorDeps) { deps.SessionProvisioner = provisioner },
 	)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -112,7 +112,7 @@ func TestCreatePodDoesNotDispatchWhenSessionProvisionFails(t *testing.T) {
 		func(deps *PodOrchestratorDeps) { deps.SessionProvisioner = provisioner },
 	)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -136,7 +136,7 @@ func TestCreatePodRollsBackSessionWhenPreparationFails(t *testing.T) {
 		func(deps *PodOrchestratorDeps) { deps.SessionProvisioner = provisioner },
 	)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -166,7 +166,7 @@ func TestCreatePodRollsBackSessionAfterRequestCancellation(t *testing.T) {
 	)
 	ctx, cancel := context.WithCancel(context.Background())
 
-	_, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, ctx, &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -199,7 +199,7 @@ func TestCreatePodRollsBackSessionWhenRunnerDispatchFails(t *testing.T) {
 		func(deps *PodOrchestratorDeps) { deps.SessionProvisioner = provisioner },
 	)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -218,7 +218,7 @@ func TestCreatePodRollsBackSessionWhenRunnerDispatchFails(t *testing.T) {
 func TestCreatePodRejectsSessionProvisionWithoutProvisioner(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,

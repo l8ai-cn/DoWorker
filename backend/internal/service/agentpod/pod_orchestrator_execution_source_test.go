@@ -86,6 +86,14 @@ func TestResolveExecutionSourceRejectsMultipleSources(t *testing.T) {
 	}
 }
 
+func TestResolveExecutionSourceRejectsMissingSource(t *testing.T) {
+	_, err := resolveExecutionSource(&OrchestrateCreatePodRequest{
+		AgentSlug: "codex-cli",
+	})
+
+	require.ErrorIs(t, err, ErrConflictingWorkerCreateInput)
+}
+
 func TestResumeAppendsInvocationPromptToPinnedWorkerSpec(t *testing.T) {
 	db := setupOrchestratorTestDB(t)
 	podService := NewPodService(infra.NewPodRepository(db))

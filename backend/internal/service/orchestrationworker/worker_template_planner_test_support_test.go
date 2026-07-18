@@ -46,17 +46,22 @@ func (stub *bindingResolverStub) ResolveEntityID(
 	return id, nil
 }
 
-func (stub *bindingResolverStub) ResolveToolModelResourceID(
+func (stub *bindingResolverStub) ResolveToolModel(
 	_ context.Context,
 	_ control.Scope,
 	reference control.ResolvedReference,
-) (int64, error) {
+) (ToolModelBindingResolution, error) {
 	stub.calls++
 	id := stub.ids[reference.Kind+"/"+reference.Name.String()]
 	if id <= 0 {
-		return 0, fmt.Errorf("tool binding not found")
+		return ToolModelBindingResolution{}, fmt.Errorf("tool binding not found")
 	}
-	return id, nil
+	model := reference
+	model.Kind = resource.KindModelBinding
+	model.Name = "coding-primary"
+	return ToolModelBindingResolution{
+		Binding: reference, ModelBinding: model, ModelResourceID: id,
+	}, nil
 }
 
 type workerCompilerStub struct {

@@ -11,15 +11,16 @@ import (
 )
 
 type Service struct {
-	revision      string
-	catalog       runtimedomain.Catalog
-	agents        AgentProvider
-	workerTypes   specservice.WorkerTypeResolver
-	runtime       specservice.RuntimeResolver
-	models        specservice.ModelResolver
-	toolModels    specservice.ToolModelResolver
-	runners       RunnerAvailabilityResolver
-	workspaceDeps workspaceResolverDeps
+	revision       string
+	catalog        runtimedomain.Catalog
+	modelResources ModelResourceResolver
+	agents         AgentProvider
+	workerTypes    specservice.WorkerTypeResolver
+	runtime        specservice.RuntimeResolver
+	models         specservice.ModelResolver
+	toolModels     specservice.ToolModelResolver
+	runners        RunnerAvailabilityResolver
+	workspaceDeps  workspaceResolverDeps
 }
 
 func NewService(deps Deps) *Service {
@@ -33,15 +34,16 @@ func NewService(deps Deps) *Service {
 	workerTypes := newWorkerTypeResolver(deps.Agents, deps.Definitions)
 	models := newModelResolver(deps.Models)
 	return &Service{
-		revision:      deps.Catalog.Revision(),
-		catalog:       deps.Catalog,
-		agents:        deps.Agents,
-		workerTypes:   workerTypes,
-		runtime:       newRuntimeCatalogResolver(deps.Catalog),
-		models:        models,
-		toolModels:    models,
-		runners:       deps.Runners,
-		workspaceDeps: workspaceDeps,
+		revision:       deps.Catalog.Revision(),
+		catalog:        deps.Catalog,
+		modelResources: deps.Models,
+		agents:         deps.Agents,
+		workerTypes:    workerTypes,
+		runtime:        newRuntimeCatalogResolver(deps.Catalog),
+		models:         models,
+		toolModels:     models,
+		runners:        deps.Runners,
+		workspaceDeps:  workspaceDeps,
 	}
 }
 
@@ -58,18 +60,20 @@ func (service *Service) Prepare(
 	draft Draft,
 ) (Prepared, error) {
 	if service == nil || service.workerTypes == nil || service.runtime == nil ||
-		service.models == nil || service.revision == "" {
+		service.modelResources == nil || service.revision == "" {
 		return Prepared{}, specservice.ErrResolverUnavailable
 	}
 	if draft.OptionsRevision != service.revision {
 		return Prepared{}, ErrStaleOptions
 	}
 	workspace := newWorkspaceResolver(service.workspaceDeps)
+	runtime := newRuntimeCatalogResolver(service.catalog)
+	models := newModelResolver(service.modelResources)
 	resolver := specservice.NewResolver(specservice.ResolverDeps{
 		WorkerTypes: service.workerTypes,
-		Runtime:     service.runtime,
-		Models:      service.models,
-		ToolModels:  service.toolModels,
+		Runtime:     runtime,
+		Models:      models,
+		ToolModels:  models,
 		Secrets:     workspace,
 		Workspaces:  workspace,
 	})
@@ -85,11 +89,24 @@ func (service *Service) Prepare(
 	if err != nil {
 		return Prepared{}, err
 	}
+	artifact, err := service.buildArtifact(
+		scope,
+		draft.ArtifactRefs,
+		spec,
+		layer,
+		models,
+		runtime,
+		workspace,
+	)
+	if err != nil {
+		return Prepared{}, err
+	}
 	return Prepared{
 		Snapshot:       resolved,
 		Spec:           spec,
 		AgentfileLayer: layer,
 		Repository:     workspace.resolvedRepository(spec.Workspace.RepositoryID),
+		Artifact:       artifact,
 	}, nil
 }
 

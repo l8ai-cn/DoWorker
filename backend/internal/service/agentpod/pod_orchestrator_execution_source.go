@@ -34,6 +34,9 @@ func resolveExecutionSource(
 	if count > 1 {
 		return "", ErrConflictingWorkerCreateInput
 	}
+	if count == 0 {
+		return "", ErrConflictingWorkerCreateInput
+	}
 	return source, nil
 }
 

@@ -27,7 +27,7 @@ func TestCreatePod_ResumeMode_AgentSlugMismatch_Rejected(t *testing.T) {
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		AgentSlug:      "codex-cli", // Different agent than source pod
@@ -56,7 +56,7 @@ func TestCreatePod_ResumeMode_AgentSlugMatch_Accepted(t *testing.T) {
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
 	// Explicit AgentSlug matching source — should be accepted (not rejected).
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		AgentSlug:       "claude-code",
@@ -88,7 +88,7 @@ func TestCreatePod_ResumeMode_Success(t *testing.T) {
 	// Terminate the source pod (use raw SQL to avoid GREATEST() SQLite incompatibility)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -106,7 +106,7 @@ func TestCreatePod_ResumeMode_Success(t *testing.T) {
 func TestCreatePod_ResumeMode_SourcePodNotFound(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   "non-existent-pod",
@@ -130,7 +130,7 @@ func TestCreatePod_ResumeMode_AccessDenied(t *testing.T) {
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
-	_, err = orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err = createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1, // Different org from source pod
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -155,7 +155,7 @@ func TestCreatePod_ResumeMode_NotTerminated(t *testing.T) {
 	require.NoError(t, err)
 	// Pod is still "initializing" (default status)
 
-	_, err = orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err = createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -182,7 +182,7 @@ func TestCreatePod_ResumeMode_AlreadyResumed(t *testing.T) {
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
 	// First resume should succeed
-	_, err = orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err = createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -190,7 +190,7 @@ func TestCreatePod_ResumeMode_AlreadyResumed(t *testing.T) {
 	require.NoError(t, err)
 
 	// Second resume from same source should fail
-	_, err = orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err = createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,
@@ -218,7 +218,7 @@ func TestCreatePod_ResumeMode_RunnerMismatch(t *testing.T) {
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
-	_, err = orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err = createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		RunnerID:       2, // Different runner
@@ -247,7 +247,7 @@ func TestCreatePod_ResumeMode_InheritRunnerID(t *testing.T) {
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
 	// RunnerID=0 -> should inherit from source pod
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		RunnerID:       0,
@@ -282,7 +282,7 @@ func TestCreatePod_ResumeMode_InheritConfig(t *testing.T) {
 	require.NoError(t, err)
 	db.Exec("UPDATE pods SET status = ? WHERE pod_key = ?", podDomain.StatusTerminated, sourcePod.PodKey)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		SourcePodKey:   sourcePod.PodKey,

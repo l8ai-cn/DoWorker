@@ -7,6 +7,7 @@ import (
 	workerruntime "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
+	"github.com/anthropics/agentsmesh/backend/internal/service/agentpod"
 	airesourceservice "github.com/anthropics/agentsmesh/backend/internal/service/airesource"
 	"github.com/anthropics/agentsmesh/backend/internal/service/repository"
 	workercreation "github.com/anthropics/agentsmesh/backend/internal/service/workercreation"
@@ -20,6 +21,7 @@ type workerServices struct {
 	workerDraftFiller    *workercreation.DraftFiller
 	workerDraftGenerator *workercreation.ProviderDraftGenerator
 	workerSpecs          specservice.SnapshotRepository
+	workerDependencies   agentpod.WorkerSpecDependencyArtifactLoader
 	workerDefinitions    *workerdefinition.Catalog
 	workerRuntimeCatalog workerruntime.Catalog
 }
@@ -60,6 +62,7 @@ func initializeWorkerServices(
 		workerDraftFiller:    workercreation.NewDraftFiller(creation, models, generator),
 		workerDraftGenerator: generator,
 		workerSpecs:          infra.NewWorkerSpecSnapshotRepository(db),
+		workerDependencies:   infra.NewWorkerSpecDependencyArtifactRepository(db),
 		workerDefinitions:    definitions,
 		workerRuntimeCatalog: catalog,
 	}, nil

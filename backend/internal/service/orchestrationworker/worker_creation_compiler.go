@@ -40,7 +40,10 @@ func newWorkerCreationCompiler(
 ) *WorkerCreationCompiler {
 	if artifact == nil {
 		artifact = func(prepared *workercreation.Prepared) []byte {
-			return prepared.Snapshot.SpecJSON()
+			if prepared.Artifact == nil {
+				return nil
+			}
+			return prepared.Artifact.PlanJSON()
 		}
 	}
 	return &WorkerCreationCompiler{service: service, artifact: artifact}
@@ -77,7 +80,14 @@ func (compiler *WorkerCreationCompiler) Compile(
 	if result.Resolved == nil {
 		return WorkerCompilation{}, control.ErrCorrupt
 	}
-	artifact, err := control.CanonicalJSONObject(compiler.artifact(result.Resolved))
+	raw := compiler.artifact(result.Resolved)
+	if len(raw) == 0 {
+		return WorkerCompilation{}, fmt.Errorf(
+			"%w: WorkerTemplate build artifact is missing",
+			control.ErrCorrupt,
+		)
+	}
+	artifact, err := control.CanonicalJSONObject(raw)
 	if err != nil {
 		return WorkerCompilation{}, fmt.Errorf(
 			"%w: invalid prepared WorkerSpec artifact",

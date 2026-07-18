@@ -23,7 +23,7 @@ func TestCreatePod_ExplicitRunner_UsesEligibilityResolver(t *testing.T) {
 		withRunnerSelector(selector),
 	)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:     17,
 		UserID:             23,
 		RunnerID:           5,
@@ -55,7 +55,7 @@ func TestCreatePod_ExplicitRunner_ResolverRejectsBeforePersistenceOrDispatch(t *
 		withRunnerSelector(selector),
 	)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  17,
 		UserID:          23,
 		RunnerID:        5,
@@ -88,7 +88,7 @@ func TestCreatePod_ExplicitRunner_RejectsBeforeAgentOrRepositoryResolution(t *te
 		withRepoSvc(repoSvc),
 	)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  17,
 		UserID:          23,
 		RunnerID:        5,
@@ -112,7 +112,7 @@ func TestCreatePod_ExplicitRunner_MissingResolverRejectsBeforePersistenceOrDispa
 		withRunnerSelector(nil),
 	)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  17,
 		UserID:          23,
 		RunnerID:        5,

@@ -15,7 +15,7 @@ func TestCreatePodProjectsSelectedRunnerClusterID(t *testing.T) {
 	}
 	orchestrator, _, _ := setupOrchestrator(t, withRunnerSelector(selector))
 
-	result, err := orchestrator.CreatePod(context.Background(), adapterTestCreateRequest())
+	result, err := createPodWithPlanSourceForTest(t, orchestrator, context.Background(), adapterTestCreateRequest())
 
 	require.NoError(t, err)
 	assert.Equal(t, int64(37), result.Pod.ClusterID)

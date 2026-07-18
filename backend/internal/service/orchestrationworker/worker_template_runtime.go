@@ -99,11 +99,11 @@ func resolveToolModels(
 		if err != nil {
 			return nil, err
 		}
-		id, err := bindings.ResolveToolModelResourceID(ctx, scope, pinned)
+		resolved, err := bindings.ResolveToolModel(ctx, scope, pinned)
 		if err != nil {
 			return nil, err
 		}
-		models[role] = id
+		models[role] = resolved.ModelResourceID
 	}
 	return models, nil
 }

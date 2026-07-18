@@ -16,7 +16,7 @@ func TestCreatePod_AgentFilePrompt_ExtractedToDB(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, podSvc, _ := setupOrchestrator(t, withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -36,7 +36,7 @@ func TestCreatePod_AgentFileBranch_OverridesReqBranch(t *testing.T) {
 	orch, podSvc, _ := setupOrchestrator(t, withCoordinator(coord))
 
 	reqBranch := "req-branch"
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -57,7 +57,7 @@ func TestCreatePod_AgentFilePermissionMode_ExtractedToDB(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, podSvc, _ := setupOrchestrator(t, withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -80,7 +80,7 @@ func TestCreatePod_CodexUsesConfigOverridesNotClaudeLegacyFields(t *testing.T) {
 		withAgentConfigProvider(newCodexTestProvider()),
 	)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -108,7 +108,7 @@ func TestCreatePod_ExplicitPTYMode_SurvivesAutonomous_Claude(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, podSvc, _ := setupOrchestrator(t, withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -133,7 +133,7 @@ func TestCreatePod_ExplicitPTYMode_SurvivesAutonomous_Codex(t *testing.T) {
 		withAgentConfigProvider(newCodexTestProvider()),
 	)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -156,7 +156,7 @@ func TestCreatePod_NoLayer_BranchInheritedFromResume(t *testing.T) {
 	orch, podSvc, _ := setupOrchestrator(t, withCoordinator(coord))
 
 	reqBranch := "my-branch"
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,

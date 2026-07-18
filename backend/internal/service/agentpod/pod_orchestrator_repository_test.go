@@ -21,7 +21,7 @@ func TestCreatePod_RejectsUnavailableDirectRepository(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, db := setupOrchestrator(t, withRepoSvc(repoSvc), withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), repositoryCreateRequest(&repoID, nil))
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), repositoryCreateRequest(&repoID, nil))
 
 	require.ErrorIs(t, err, ErrCreateResourceUnavailable)
 	require.Equal(t, ErrCreateResourceUnavailable, err)
@@ -34,7 +34,7 @@ func TestCreatePod_RejectsUnavailableAgentFileRepository(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, db := setupOrchestrator(t, withRepoSvc(repoSvc), withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), repositoryCreateRequest(nil, ptrStr(`REPO "org/private"`)))
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), repositoryCreateRequest(nil, ptrStr(`REPO "org/private"`)))
 
 	require.ErrorIs(t, err, ErrCreateResourceUnavailable)
 	require.Equal(t, ErrCreateResourceUnavailable, err)
@@ -47,7 +47,7 @@ func TestCreatePod_RejectsAmbiguousAgentFileRepository(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, db := setupOrchestrator(t, withRepoSvc(repoSvc), withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), repositoryCreateRequest(nil, ptrStr(`REPO "org/shared"`)))
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), repositoryCreateRequest(nil, ptrStr(`REPO "org/shared"`)))
 
 	require.ErrorIs(t, err, ErrCreateResourceUnavailable)
 	require.Equal(t, ErrCreateResourceUnavailable, err)
@@ -60,7 +60,7 @@ func TestCreatePod_RejectsRepositoryWithoutResolver(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, db := setupOrchestrator(t, withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), repositoryCreateRequest(&repoID, nil))
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), repositoryCreateRequest(&repoID, nil))
 
 	require.ErrorIs(t, err, ErrCreateResourceUnavailable)
 	require.Equal(t, ErrCreateResourceUnavailable, err)
@@ -82,7 +82,7 @@ func TestCreatePod_UsesScopedAgentFileRepositoryOnce(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, _ := setupOrchestrator(t, withRepoSvc(repoSvc), withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), repositoryCreateRequest(nil, ptrStr(`REPO "org/project"`)))
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), repositoryCreateRequest(nil, ptrStr(`REPO "org/project"`)))
 
 	require.NoError(t, err)
 	require.NotNil(t, result.Pod.RepositoryID)
@@ -119,7 +119,7 @@ func TestCreatePod_UsesAutoSelectedAgentFileRepositoryOnce(t *testing.T) {
 	req := repositoryCreateRequest(nil, ptrStr(`REPO "org/auto-project"`))
 	req.RunnerID = 0
 
-	result, err := orch.CreatePod(context.Background(), req)
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), req)
 
 	require.NoError(t, err)
 	require.NotNil(t, selector.selectHints)
@@ -154,7 +154,7 @@ func TestCreatePod_RejectsRepositoryLookupInfrastructureErrorsUnchanged(t *testi
 			coord := &mockPodCoordinator{}
 			orch, _, db := setupOrchestrator(t, withRepoSvc(repoSvc), withCoordinator(coord))
 
-			result, err := orch.CreatePod(context.Background(), repositoryCreateRequest(&repoID, nil))
+			result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), repositoryCreateRequest(&repoID, nil))
 
 			require.ErrorIs(t, err, tc.err)
 			require.Equal(t, tc.err, err)
@@ -169,7 +169,7 @@ func TestCreatePod_UsesNoRepositoryWithoutResolver(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), repositoryCreateRequest(nil, nil))
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), repositoryCreateRequest(nil, nil))
 
 	require.NoError(t, err)
 	require.NotNil(t, result.Pod)

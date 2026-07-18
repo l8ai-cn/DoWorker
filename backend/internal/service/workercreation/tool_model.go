@@ -46,6 +46,7 @@ func (resolver *modelResolver) ResolveToolModel(
 	if err := validateResolvedModel(resolved, resourceID); err != nil {
 		return specdomain.ToolModelBinding{}, err
 	}
+	resolver.resolved[resourceID] = resolved
 	if resolved.Provider.Key != resolved.Connection.ProviderKey ||
 		!containsSlug(requirement.ProviderKeys, resolved.Connection.ProviderKey) {
 		return specdomain.ToolModelBinding{}, invalidResolvedModel("provider was substituted")

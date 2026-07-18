@@ -34,7 +34,7 @@ func TestCreatePod_NormalMode_Success(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -59,7 +59,7 @@ func TestCreatePod_NormalMode_Success(t *testing.T) {
 func TestCreatePod_NormalMode_MissingRunnerID(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t, withRunnerSelector(nil))
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        0, // missing
@@ -89,7 +89,7 @@ func TestCreatePod_AutoSelectRunner_Success(t *testing.T) {
 		withAgentResolver(resolver),
 	)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        0, // auto-select
@@ -122,7 +122,7 @@ func TestCreatePod_AutoSelectRunner_NoAvailableRunner(t *testing.T) {
 		withAgentResolver(resolver),
 	)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        0,
@@ -148,7 +148,7 @@ func TestCreatePod_AutoSelectRunner_AgentResolveError(t *testing.T) {
 		withAgentResolver(resolver),
 	)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        0,
@@ -164,7 +164,7 @@ func TestCreatePod_AutoSelectRunner_AgentResolveError(t *testing.T) {
 func TestCreatePod_NormalMode_MissingAgentSlug(t *testing.T) {
 	orch, _, _ := setupOrchestrator(t)
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID: 1,
 		UserID:         1,
 		RunnerID:       1,
@@ -172,7 +172,7 @@ func TestCreatePod_NormalMode_MissingAgentSlug(t *testing.T) {
 	})
 
 	require.Error(t, err)
-	assert.True(t, errors.Is(err, ErrMissingAgentSlug))
+	assert.True(t, errors.Is(err, ErrConflictingWorkerCreateInput))
 }
 
 func TestCreatePod_QuotaExceeded(t *testing.T) {
@@ -180,7 +180,7 @@ func TestCreatePod_QuotaExceeded(t *testing.T) {
 	billing := &mockBillingService{err: errQuota}
 	orch, _, _ := setupOrchestrator(t, withBilling(billing))
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -197,7 +197,7 @@ func TestCreatePod_NilBilling_SkipsQuotaCheck(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -214,7 +214,7 @@ func TestCreatePod_NilCoordinator(t *testing.T) {
 	// No coordinator -> pod is created in DB but no command sent
 	orch, _, _ := setupOrchestrator(t)
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -232,7 +232,7 @@ func TestCreatePod_CoordinatorSendFailure_ReturnsError(t *testing.T) {
 	coord := &mockPodCoordinator{err: errors.New("runner not connected")}
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -248,6 +248,7 @@ func TestCreatePod_CoordinatorSendFailure_ReturnsError(t *testing.T) {
 func TestCreatePod_ConfigBuildFailure(t *testing.T) {
 	// Create an orchestrator with a provider that fails on GetAgent
 	db := setupTestDB(t)
+	ensureWorkerSpecSnapshotTable(t, db)
 	podSvc := newTestPodService(db)
 
 	provider := &mockAgentConfigProvider{
@@ -265,7 +266,7 @@ func TestCreatePod_ConfigBuildFailure(t *testing.T) {
 		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
 	})
 
-	_, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	_, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,
@@ -282,7 +283,7 @@ func TestCreatePod_SessionID_SetForNormalMode(t *testing.T) {
 	coord := &mockPodCoordinator{}
 	orch, _, _ := setupOrchestrator(t, withCoordinator(coord))
 
-	result, err := orch.CreatePod(context.Background(), &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, context.Background(), &OrchestrateCreatePodRequest{
 		OrganizationID:  1,
 		UserID:          1,
 		RunnerID:        1,

@@ -22,6 +22,7 @@ import (
 func setupIntegrationOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDeps)) (*PodOrchestrator, *PodService, context.Context) {
 	t.Helper()
 	db := testkit.SetupTestDB(t)
+	ensureWorkerSpecSnapshotTable(t, db)
 	ctx := context.Background()
 
 	userID := testkit.CreateUser(t, db, "test@example.com", "testuser")
@@ -50,6 +51,7 @@ func setupIntegrationOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDep
 		AgentResolver:  &mockAgentResolver{agentDef: provider.agentDef},
 		RunnerSelector: &mockRunnerSelector{resolveRunner: &runnerDomain.Runner{ID: runnerID}},
 		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
+		WorkerSpecs:    infra.NewWorkerSpecSnapshotRepository(db),
 	}
 	for _, opt := range opts {
 		opt(deps)
@@ -83,14 +85,18 @@ func TestPodLifecycle_CreateToTerminated(t *testing.T) {
 	orch, podSvc, ctx := setupIntegrationOrchestrator(t, withCoordinator(coord))
 
 	// Step 1: Create pod via orchestrator
-	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        ctxRunnerID(ctx),
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-		Cols:            120, Rows: 40,
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"claude-code",
+		"",
+		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = ctxRunnerID(ctx)
+	req.Cols = 120
+	req.Rows = 40
+	result, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 	require.NoError(t, err)
 	podKey := result.Pod.PodKey
 	assert.Equal(t, podDomain.StatusInitializing, result.Pod.Status)
@@ -140,7 +146,7 @@ func TestPodLifecycle_ResumeMode(t *testing.T) {
 	require.NoError(t, err)
 
 	// Resume from terminated pod
-	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
+	result, err := createPodWithPlanSourceForTest(t, orch, ctx, &OrchestrateCreatePodRequest{
 		OrganizationID: orgID, UserID: userID,
 		SourcePodKey: source.PodKey,
 	})
@@ -162,13 +168,16 @@ func TestPodLifecycle_BillingQuotaReject(t *testing.T) {
 	billing := &mockBillingService{err: quotaErr}
 	orch, _, ctx := setupIntegrationOrchestrator(t, withBilling(billing))
 
-	_, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        ctxRunnerID(ctx),
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"claude-code",
+		"",
+		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = ctxRunnerID(ctx)
+	_, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 
 	require.Error(t, err)
 	assert.Equal(t, quotaErr, err, "billing error propagated directly")
@@ -195,13 +204,16 @@ func TestPodLifecycle_RunnerAutoSelect(t *testing.T) {
 	)
 	selector.runner = &runnerDomain.Runner{ID: ctxRunnerID(ctx), NodeID: "auto-runner"}
 
-	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        0, // trigger auto-select
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"claude-code",
+		"",
+		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = 0
+	result, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 
 	require.NoError(t, err)
 	assert.Equal(t, ctxRunnerID(ctx), result.Pod.RunnerID, "auto-selected runner used")
@@ -214,13 +226,16 @@ func TestPodLifecycle_DispatchFailure(t *testing.T) {
 	coord := &mockPodCoordinator{err: errors.New("connection refused")}
 	orch, podSvc, ctx := setupIntegrationOrchestrator(t, withCoordinator(coord))
 
-	_, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        ctxRunnerID(ctx),
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"claude-code",
+		"",
+		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = ctxRunnerID(ctx)
+	_, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 
 	require.Error(t, err)
 	assert.ErrorIs(t, err, ErrRunnerDispatchFailed)
@@ -256,15 +271,18 @@ func TestPodLifecycle_AgentfileLayerMerge(t *testing.T) {
 CONFIG permission_mode = "bypassPermissions"
 PROMPT "Do the thing"
 `
-	result, err := orch.CreatePod(ctx, &OrchestrateCreatePodRequest{
-		OrganizationID:  ctxOrgID(ctx),
-		UserID:          ctxUserID(ctx),
-		RunnerID:        ctxRunnerID(ctx),
-		AgentSlug:       "claude-code",
-		ModelResourceID: testModelResourceID(),
-		AgentfileLayer:  &layer,
-		Cols:            120, Rows: 40,
-	})
+	req, preparer := workerSpecPlanRequestForTest(
+		t,
+		ctx,
+		"claude-code",
+		layer,
+		resolvedResource("anthropic", "https://api.anthropic.com", "claude-test"),
+	)
+	orch.workerCreation = preparer
+	req.RunnerID = ctxRunnerID(ctx)
+	req.Cols = 120
+	req.Rows = 40
+	result, err := createPodWithPlanSourceForTest(t, orch, ctx, req)
 
 	require.NoError(t, err)
 	pod := result.Pod

@@ -65,34 +65,52 @@ func (resolver *ResourceBindingResolver) ResolveEntityID(
 	return id, nil
 }
 
-func (resolver *ResourceBindingResolver) ResolveToolModelResourceID(
+func (resolver *ResourceBindingResolver) ResolveToolModel(
 	ctx context.Context,
 	scope control.Scope,
 	reference control.ResolvedReference,
-) (int64, error) {
+) (ToolModelBindingResolution, error) {
 	if reference.Kind != resource.KindToolBinding {
-		return 0, control.ErrCorrupt
+		return ToolModelBindingResolution{}, control.ErrCorrupt
 	}
 	binding, err := resolver.loadBindingRevision(ctx, scope, reference)
 	if err != nil {
-		return 0, err
+		return ToolModelBindingResolution{}, err
 	}
 	spec, ok := binding.spec.(*resource.ToolBindingSpec)
 	if !ok || spec == nil || len(binding.revision.ResolvedReferences) != 1 {
-		return 0, control.ErrCorrupt
+		return ToolModelBindingResolution{}, control.ErrCorrupt
 	}
 	pins, err := newPinnedReferenceIndex(
 		scope,
 		binding.revision.ResolvedReferences,
 	)
 	if err != nil {
-		return 0, control.ErrCorrupt
+		return ToolModelBindingResolution{}, control.ErrCorrupt
 	}
 	model, err := pins.resolve(spec.ModelRef)
 	if err != nil || model.Kind != resource.KindModelBinding {
-		return 0, control.ErrCorrupt
+		return ToolModelBindingResolution{}, control.ErrCorrupt
 	}
-	return resolver.ResolveEntityID(ctx, scope, model)
+	id, err := resolver.ResolveEntityID(ctx, scope, model)
+	if err != nil {
+		return ToolModelBindingResolution{}, err
+	}
+	return ToolModelBindingResolution{
+		Binding: reference, ModelBinding: model, ModelResourceID: id,
+	}, nil
+}
+
+func (resolver *ResourceBindingResolver) ResolveToolModelResourceID(
+	ctx context.Context,
+	scope control.Scope,
+	reference control.ResolvedReference,
+) (int64, error) {
+	resolved, err := resolver.ResolveToolModel(ctx, scope, reference)
+	if err != nil {
+		return 0, err
+	}
+	return resolved.ModelResourceID, nil
 }
 
 func entityBindingID(spec any) (int64, bool) {

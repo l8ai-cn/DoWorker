@@ -109,6 +109,18 @@ func (index pinnedReferenceIndex) resolve(
 	return resolved, nil
 }
 
+func (index pinnedReferenceIndex) all() []control.ResolvedReference {
+	references := make([]control.ResolvedReference, 0, len(index.references))
+	for _, reference := range index.references {
+		references = append(references, reference)
+	}
+	sort.Slice(references, func(left, right int) bool {
+		return resolvedReferenceRevisionIdentity(references[left]) <
+			resolvedReferenceRevisionIdentity(references[right])
+	})
+	return references
+}
+
 func normalizedDraftReference(
 	scope control.Scope,
 	reference resource.Reference,

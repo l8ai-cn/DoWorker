@@ -44,6 +44,7 @@ var (
 	ErrModelResourceCommandConflict     = errors.New("model resource conflicts with an existing model launch argument")
 	ErrModelResourceProviderUnsupported = errors.New("model resource provider is not supported by this agent")
 	ErrWorkerSpecModelChanged           = errors.New("model resource changed after workerspec resolution")
+	ErrWorkerSpecDependencyUnavailable  = errors.New("worker dependency artifact is unavailable")
 )
 
 const (
@@ -126,6 +127,7 @@ type PodOrchestratorDeps struct {
 	ModelResources     ModelResourceResolver
 	WorkerCreation     WorkerCreationPreparer
 	WorkerSpecs        WorkerSpecSnapshotLoader
+	WorkerDependencies WorkerSpecDependencyArtifactLoader
 	SessionProvisioner AgentSessionProvisioner
 }
 
@@ -148,6 +150,7 @@ type PodOrchestrator struct {
 	workerCreation     WorkerCreationPreparer
 	workerSnapshots    WorkerSnapshotPreparer
 	workerSpecs        WorkerSpecSnapshotLoader
+	workerDependencies WorkerSpecDependencyArtifactLoader
 	sessionProvisioner AgentSessionProvisioner
 }
 
@@ -183,6 +186,7 @@ func NewPodOrchestrator(deps *PodOrchestratorDeps) *PodOrchestrator {
 		workerCreation:     deps.WorkerCreation,
 		workerSnapshots:    workerSnapshots,
 		workerSpecs:        deps.WorkerSpecs,
+		workerDependencies: deps.WorkerDependencies,
 		sessionProvisioner: deps.SessionProvisioner,
 	}
 }

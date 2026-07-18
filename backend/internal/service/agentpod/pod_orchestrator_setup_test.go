@@ -10,6 +10,7 @@ import (
 	runnerDomain "github.com/anthropics/agentsmesh/backend/internal/domain/runner"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/ticket"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/user"
+	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	"github.com/anthropics/agentsmesh/backend/internal/service/agent"
 	userService "github.com/anthropics/agentsmesh/backend/internal/service/user"
 	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
@@ -349,6 +350,7 @@ PROMPT_POSITION prepend
 func setupOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDeps)) (*PodOrchestrator, *PodService, *gorm.DB) {
 	t.Helper()
 	db := setupOrchestratorTestDB(t)
+	ensureWorkerSpecSnapshotTable(t, db)
 	podSvc := newTestPodService(db)
 
 	provider := newTestProvider()
@@ -362,6 +364,7 @@ func setupOrchestrator(t *testing.T, opts ...func(*PodOrchestratorDeps)) (*PodOr
 			resolveRunner: &runnerDomain.Runner{ID: 1, ClusterID: 51},
 		},
 		ModelResources: &recordingModelResourceResolver{resource: resolvedResource("anthropic", "https://api.anthropic.com", "claude-test")},
+		WorkerSpecs:    infra.NewWorkerSpecSnapshotRepository(db),
 	}
 
 	for _, opt := range opts {
@@ -397,6 +400,10 @@ func withRunnerSelector(rs RunnerSelectorForOrchestrator) func(*PodOrchestratorD
 
 func withAgentResolver(ar AgentResolverForOrchestrator) func(*PodOrchestratorDeps) {
 	return func(d *PodOrchestratorDeps) { d.AgentResolver = ar }
+}
+
+func withModelResources(m ModelResourceResolver) func(*PodOrchestratorDeps) {
+	return func(d *PodOrchestratorDeps) { d.ModelResources = m }
 }
 
 func withAgentConfigProvider(provider *mockAgentConfigProvider) func(*PodOrchestratorDeps) {

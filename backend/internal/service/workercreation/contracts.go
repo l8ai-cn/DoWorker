@@ -4,9 +4,11 @@ import (
 	"context"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/gitprovider"
+	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	runtimedomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerruntime"
 	specdomain "github.com/anthropics/agentsmesh/backend/internal/domain/workerspec"
 	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdependencyartifact"
 	specservice "github.com/anthropics/agentsmesh/backend/internal/service/workerspec"
 )
 
@@ -33,6 +35,22 @@ type Deps struct {
 type Draft struct {
 	OptionsRevision string
 	WorkerSpec      specservice.Draft
+	ArtifactRefs    ArtifactReferences
+}
+
+type ArtifactReferences struct {
+	PrimaryModel      *control.ResolvedReference
+	ToolBindings      map[string]control.ResolvedReference
+	ToolModels        map[string]control.ResolvedReference
+	Repository        *control.ResolvedReference
+	Skills            map[int64]control.ResolvedReference
+	KnowledgeBases    map[int64]control.ResolvedReference
+	RuntimeBundles    map[int64]control.ResolvedReference
+	SecretBundles     map[string]control.ResolvedReference
+	ConfigBundles     map[int64]control.ResolvedReference
+	ComputeTarget     *control.ResolvedReference
+	ResourceProfile   *control.ResolvedReference
+	AllPlanReferences []control.ResolvedReference
 }
 
 type Issue struct {
@@ -47,6 +65,7 @@ type Prepared struct {
 	Spec           specdomain.Spec
 	AgentfileLayer string
 	Repository     *gitprovider.Repository `json:"-"`
+	Artifact       *workerdependencyartifact.Artifact
 }
 
 type PreparedSnapshot struct {
