@@ -8,8 +8,8 @@ permissions:
   contents: read
 
 env:
-  REGISTRY: repo.aiedulab.cn:8443
-  IMAGE_PREFIX: repo.aiedulab.cn:8443/agentsmesh
+  REGISTRY: docker.io
+  IMAGE_PREFIX: docker.io/l8ai/doworker-oilan
 
 jobs:
   verify-source:
@@ -57,12 +57,12 @@ jobs:
             /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
           df -h /
       - uses: docker/setup-buildx-action@v3
-      - name: Log in to Harbor
+      - name: Log in to Docker Hub
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -71,16 +71,14 @@ jobs:
           platforms: linux/amd64
           provenance: false
           push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
-            ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:sha-${{ github.sha }}
+          tags: ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:sha-${{ github.sha }}
           labels: org.opencontainers.image.revision=${{ github.sha }}
           cache-from: type=gha,scope=oilan-${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=oilan-${{ matrix.service }}
-      - name: Resolve immutable platform digest
+      - name: Resolve staging platform digest
         id: digest
         env:
-          IMAGE: ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
+          IMAGE: ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:sha-${{ github.sha }}
         run: |
           set -euo pipefail
           manifest="$(docker buildx imagetools inspect "$IMAGE" --format '{{json .Manifest}}')"
@@ -96,11 +94,6 @@ jobs:
             ' <<<"$manifest"
           )"
           test "${digest#sha256:}" != "$digest"
-          docker buildx imagetools create \
-            --prefer-index=false \
-            --tag "$IMAGE" \
-            "$IMAGE@$digest"
-          test "$(docker buildx imagetools inspect "$IMAGE" --format '{{json .Manifest}}' | jq -er '.digest')" = "$digest"
           mkdir -p digests
           printf '%s\n' "$digest" > "digests/${{ matrix.service }}.txt"
       - uses: actions/upload-artifact@v6
