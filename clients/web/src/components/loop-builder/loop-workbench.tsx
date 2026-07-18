@@ -7,9 +7,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { LoopBlocklyCanvas } from "./loop-blockly-canvas";
 import { LoopAIAssistantDialog } from "./loop-ai-assistant-dialog";
 import { LoopCodeEditor } from "./loop-code-editor";
+import { LoopCustomBlockDialog } from "./loop-custom-block-dialog";
 import { LoopRuntimeDialog } from "./loop-runtime-dialog";
 import { LoopStatusPanel } from "./loop-status-panel";
 import { LoopWorkbenchToolbar } from "./loop-workbench-toolbar";
+import type { LoopCustomBlockDefinition } from "./loop-custom-block-types";
 import { useLoopWorkbenchMessages } from "./loop-workbench-messages";
 import { useLoopAIAssistant } from "./use-loop-ai-assistant";
 import { useLoopWorkbench } from "./use-loop-workbench";
@@ -26,6 +28,8 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
     onApplied: model.applySnapshot,
   });
   const [selectedNodeId, setSelectedNodeId] = useState<string>();
+  const [customDefinitions, setCustomDefinitions] = useState<LoopCustomBlockDefinition[]>([]);
+  const [customDialogOpen, setCustomDialogOpen] = useState(false);
   const [runtimeDialogOpen, setRuntimeDialogOpen] = useState(false);
   const blocksWritable =
     model.snapshot.activeEditor === "blocks" &&
@@ -39,7 +43,9 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
       <BlockProgrammingWorkbench
         canvas={(
           <LoopBlocklyCanvas
+            customDefinitions={customDefinitions}
             messages={{ blockly: messages.blockly, quickInsert: messages.quickInsert }}
+            onCreateCustom={() => setCustomDialogOpen(true)}
             onSelectNode={setSelectedNodeId}
             onSourceChange={model.updateBlocks}
             program={model.snapshot.program}
@@ -107,6 +113,17 @@ export function LoopWorkbench({ orgSlug }: { orgSlug: string }) {
           setRuntimeDialogOpen(false);
           void model.run(snapshotId);
         }}
+      />
+      <LoopCustomBlockDialog
+        messages={messages.customBlock}
+        open={customDialogOpen}
+        onCreate={(definition) => {
+          setCustomDefinitions((current) => [
+            ...current.filter((item) => item.slug !== definition.slug),
+            definition,
+          ]);
+        }}
+        onOpenChange={setCustomDialogOpen}
       />
       <LoopAIAssistantDialog
         busy={ai.busy}

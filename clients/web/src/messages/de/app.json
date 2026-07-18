@@ -531,12 +531,16 @@
         "agent": "Agent",
         "verifier": "Verifizierung",
         "limits": "Limits",
-        "failure": "Fehlerbehandlung"
+        "failure": "Fehlerbehandlung",
+        "custom": "Meine Blöcke"
       }
     },
     "quickInsert": {
       "close": "Schnelleinfügung schließen",
       "title": "Block einfügen",
+      "customTitle": "Meine Blöcke",
+      "customEmpty": "Noch keine benutzerdefinierten Blöcke",
+      "createCustom": "Benutzerdefinierten Block erstellen",
       "options": {
         "loop": "Loop",
         "repeat": "Wiederholen",
@@ -610,6 +614,19 @@
       "cancel": "Abbrechen",
       "start": "Loop starten",
       "snapshotLabel": "{name} · {workerType} · Snapshot {id}"
+    },
+    "customBlock": {
+      "title": "Benutzerdefinierten Block erstellen",
+      "description": "Erstellt ein versioniertes Entwurfs-Makro, das in die aktuelle Loop-Aufgabe und Verifizierung expandiert.",
+      "label": "Blockname",
+      "slug": "Block-Slug",
+      "promptTemplate": "Vorlage für Task-Prompt",
+      "commandTemplate": "Vorlage für Verifizierungsbefehl",
+      "acceptTemplate": "Vorlage für Bestehensbedingung",
+      "cancel": "Abbrechen",
+      "create": "Block erstellen",
+      "required": "Dieses Feld ist erforderlich",
+      "identifier": "Verwenden Sie 2-100 Kleinbuchstaben, Ziffern oder Bindestriche"
     },
     "ai": {
       "toolbar": "AI-Assistent",

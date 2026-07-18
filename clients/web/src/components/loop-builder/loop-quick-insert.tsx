@@ -1,12 +1,15 @@
 import { Plus } from "lucide-react";
 import { LOOP_BLOCK_TYPES } from "./loop-block-catalog";
+import { customBlockType, type LoopCustomBlockDefinition } from "./loop-custom-block-types";
 import type { LoopQuickInsertMessages } from "./loop-workbench-messages";
 
 interface LoopQuickInsertProps {
   x: number;
   y: number;
   messages: LoopQuickInsertMessages;
+  customDefinitions: readonly LoopCustomBlockDefinition[];
   onInsert: (type: string) => void;
+  onCreateCustom: () => void;
   onClose: () => void;
 }
 
@@ -14,7 +17,9 @@ export function LoopQuickInsert({
   x,
   y,
   messages,
+  customDefinitions,
   onInsert,
+  onCreateCustom,
   onClose,
 }: LoopQuickInsertProps) {
   const options = [
@@ -54,6 +59,33 @@ export function LoopQuickInsert({
             {label}
           </button>
         ))}
+        <div className="border-t border-border px-3 py-2 text-xs font-medium text-muted-foreground">
+          {messages.customTitle}
+        </div>
+        {customDefinitions.length === 0 && (
+          <div className="px-3 py-2 text-xs text-muted-foreground">
+            {messages.customEmpty}
+          </div>
+        )}
+        {customDefinitions.map((definition) => (
+          <button
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
+            key={`${definition.slug}@${definition.version}`}
+            onClick={() => onInsert(customBlockType(definition))}
+            type="button"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {definition.label}
+          </button>
+        ))}
+        <button
+          className="flex w-full items-center gap-2 border-t border-border px-3 py-2 text-left text-sm hover:bg-accent"
+          onClick={onCreateCustom}
+          type="button"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          {messages.createCustom}
+        </button>
       </div>
     </>
   );

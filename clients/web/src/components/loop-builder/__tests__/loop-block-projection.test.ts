@@ -5,13 +5,16 @@ import {
   LoopProgramSchema,
   type LoopProgram,
 } from "@proto/goalloop/v1/goalloop_pb";
+import deMessages from "@/messages/de/app.json";
 import enMessages from "@/messages/en/app.json";
+import esMessages from "@/messages/es/app.json";
 import zhMessages from "@/messages/zh/app.json";
 import {
   createLoopBlockCatalog,
   LOOP_BLOCK_TYPES,
   registerLoopBlocks,
 } from "../loop-block-catalog";
+import { customBlockType, type LoopCustomBlockDefinition } from "../loop-custom-block-types";
 import {
   findBlockByNodeId,
   projectProgramToWorkspace,
@@ -45,6 +48,55 @@ function program(): LoopProgram {
     },
     failurePolicy: "pause",
   });
+}
+
+function pptCustomBlock(): LoopCustomBlockDefinition {
+  return {
+    slug: "ppt-step",
+    version: 1,
+    label: "制作 PPT",
+    parameters: ["topic", "file"],
+    expansion: {
+      agentLocalId: "ppt-step-task",
+      verifierLocalId: "ppt-step-check",
+      promptTemplate: "制作 {{topic}} 的专业 PPT",
+      commandTemplate: "test -f {{file}}",
+      acceptTemplate: "{{file}} 存在且可打开",
+    },
+  };
+}
+
+function customProgram(): LoopProgram {
+  return create(LoopProgramSchema, {
+    ...program(),
+    repeat: {
+      identity: { nodeId: "n-build-cycle", localId: "build-cycle" },
+      max: 5n,
+      until: { localId: "ppt-step-check", field: "passed" },
+      agent: {
+        identity: {
+          nodeId: "n-ppt-step-ppt-step-task",
+          localId: "ppt-step-task",
+        },
+        prompt: "制作 季度复盘 的专业 PPT",
+      },
+      verifier: {
+        identity: {
+          nodeId: "n-ppt-step-ppt-step-check",
+          localId: "ppt-step-check",
+        },
+        command: "test -f output.pptx",
+        accept: "output.pptx 存在且可打开",
+      },
+    },
+  });
+}
+
+function sourceFor(messages: typeof enMessages.loopWorkbench.blockly): string {
+  registerLoopBlocks(messages);
+  const workspace = new Blockly.Workspace();
+  projectProgramToWorkspace(workspace, program());
+  return workspaceToLoopSource(workspace).source;
 }
 
 describe("Loop Blockly projection", () => {
@@ -100,6 +152,8 @@ loop checkout-fix {
   it.each([
     ["English", enMessages.loopWorkbench.blockly],
     ["Chinese", zhMessages.loopWorkbench.blockly],
+    ["German", deMessages.loopWorkbench.blockly],
+    ["Spanish", esMessages.loopWorkbench.blockly],
   ])("does not expose Worker in the %s toolbox", (_, messages) => {
     const { toolbox } = createLoopBlockCatalog(messages);
     const serialized = JSON.stringify(toolbox).toLowerCase();
@@ -108,14 +162,40 @@ loop checkout-fix {
     expect(serialized).not.toContain("loop_worker");
   });
 
-  it("uses localized starter text for newly inserted semantic blocks", () => {
-    registerLoopBlocks(enMessages.loopWorkbench.blockly);
+  it.each([
+    ["English", enMessages.loopWorkbench.blockly],
+    ["Chinese", zhMessages.loopWorkbench.blockly],
+    ["German", deMessages.loopWorkbench.blockly],
+    ["Spanish", esMessages.loopWorkbench.blockly],
+  ])("keeps %s projection semantically identical", (_, messages) => {
+    const expected = sourceFor(zhMessages.loopWorkbench.blockly);
+    registerLoopBlocks(messages);
+    const workspace = new Blockly.Workspace();
+    projectProgramToWorkspace(workspace, program());
+    const result = workspaceToLoopSource(workspace);
+
+    expect(result.source).toBe(expected);
+    expect([...result.nodeIndex.keys()].sort()).toEqual([
+      "n-checkout-fix",
+      "n-fix-cycle",
+      "n-fix-tax",
+      "n-tests",
+    ]);
+  });
+
+  it.each([
+    ["English", enMessages.loopWorkbench.blockly, "Describe the task to complete", "Verification passes"],
+    ["Chinese", zhMessages.loopWorkbench.blockly, "描述要完成的任务", "验证通过"],
+    ["German", deMessages.loopWorkbench.blockly, "Beschreiben Sie die zu erledigende Aufgabe", "Verifizierung erfolgreich"],
+    ["Spanish", esMessages.loopWorkbench.blockly, "Describe la tarea a completar", "La verificación pasa"],
+  ])("uses %s starter text for newly inserted semantic blocks", (_, messages, prompt, accept) => {
+    registerLoopBlocks(messages);
     const workspace = new Blockly.Workspace();
     const agent = workspace.newBlock(LOOP_BLOCK_TYPES.agent);
     const verifier = workspace.newBlock(LOOP_BLOCK_TYPES.verifier);
 
-    expect(agent.getFieldValue("PROMPT")).toBe("Describe the task to complete");
-    expect(verifier.getFieldValue("ACCEPT")).toBe("Verification passes");
+    expect(agent.getFieldValue("PROMPT")).toBe(prompt);
+    expect(verifier.getFieldValue("ACCEPT")).toBe(accept);
   });
 
   it("preserves semantic node ids after block edits", () => {
@@ -129,6 +209,27 @@ loop checkout-fix {
     const result = workspaceToLoopSource(workspace);
     expect(result.source).toContain('prompt """只修复税额舍入"""');
     expect(result.nodeIndex.get("n-fix-tax")).toBe(agent?.id);
+  });
+
+  it("round-trips a versioned custom block through standard agent and verifier source", () => {
+    const definition = pptCustomBlock();
+    registerLoopBlocks(zhMessages.loopWorkbench.blockly, [definition]);
+    const workspace = new Blockly.Workspace();
+
+    projectProgramToWorkspace(workspace, customProgram(), [definition]);
+    const custom = workspace.getBlocksByType(customBlockType(definition), false)[0];
+    const result = workspaceToLoopSource(workspace, [definition]);
+
+    expect(custom).toBeDefined();
+    expect(workspace.getBlocksByType(LOOP_BLOCK_TYPES.agent, false)).toHaveLength(0);
+    expect(result.complete).toBe(true);
+    expect(result.nodeIndex.get("n-ppt-step-ppt-step-task")).toBe(custom.id);
+    expect(result.source).toContain(
+      'agent ppt-step-task { prompt """制作 季度复盘 的专业 PPT""" }',
+    );
+    expect(result.source).toContain(
+      'verify ppt-step-check { command "test -f output.pptx" accept "output.pptx 存在且可打开" }',
+    );
   });
 
   it("does not silently accept an incomplete block tree", () => {

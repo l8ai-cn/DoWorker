@@ -998,12 +998,16 @@
         "agent": "智能体",
         "verifier": "验证",
         "limits": "边界",
-        "failure": "失败"
+        "failure": "失败",
+        "custom": "我的积木"
       }
     },
     "quickInsert": {
       "close": "关闭快速插入",
       "title": "插入积木",
+      "customTitle": "我的积木",
+      "customEmpty": "暂无自定义积木",
+      "createCustom": "创建自定义积木",
       "options": {
         "loop": "循环",
         "repeat": "重复执行",
@@ -1077,6 +1081,19 @@
       "cancel": "取消",
       "start": "启动循环",
       "snapshotLabel": "{name} · {workerType} · 快照 {id}"
+    },
+    "customBlock": {
+      "title": "创建自定义积木",
+      "description": "创建一个版本化草稿宏，展开为当前循环的任务和验证步骤。",
+      "label": "积木名称",
+      "slug": "积木标识",
+      "promptTemplate": "任务模板",
+      "commandTemplate": "验证命令模板",
+      "acceptTemplate": "验收说明模板",
+      "cancel": "取消",
+      "create": "创建积木",
+      "required": "此字段必填",
+      "identifier": "使用 2-100 位小写字母、数字或连字符"
     },
     "ai": {
       "toolbar": "AI 助手",

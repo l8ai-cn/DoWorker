@@ -1,0 +1,80 @@
+import { fireEvent, render, screen } from "@/test/test-utils";
+import { describe, expect, it, vi } from "vitest";
+import zhMessages from "@/messages/zh/app.json";
+import { LoopCustomBlockDialog } from "../loop-custom-block-dialog";
+import {
+  createLoopWorkbenchMessages,
+  type LoopMessageTranslator,
+} from "../loop-workbench-messages";
+
+function translator(messages: Record<string, unknown>): LoopMessageTranslator {
+  return (key) => String(key.split(".").reduce<unknown>(
+    (current, segment) => (current as Record<string, unknown>)[segment],
+    messages,
+  ));
+}
+
+const messages = createLoopWorkbenchMessages(
+  translator(zhMessages.loopWorkbench),
+).customBlock;
+
+describe("LoopCustomBlockDialog", () => {
+  it("creates a versioned custom block definition from editable templates", () => {
+    const onCreate = vi.fn();
+    render(
+      <LoopCustomBlockDialog
+        messages={messages}
+        open
+        onCreate={onCreate}
+        onOpenChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("积木名称"), {
+      target: { value: "专业 PPT" },
+    });
+    fireEvent.change(screen.getByLabelText("积木标识"), {
+      target: { value: "ppt-step" },
+    });
+    fireEvent.change(screen.getByLabelText("任务模板"), {
+      target: { value: "制作 {{topic}} 的专业 PPT" },
+    });
+    fireEvent.change(screen.getByLabelText("验证命令模板"), {
+      target: { value: "test -f {{file}}" },
+    });
+    fireEvent.change(screen.getByLabelText("验收说明模板"), {
+      target: { value: "{{file}} 存在且可打开" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "创建积木" }));
+
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({
+      label: "专业 PPT",
+      parameters: ["topic", "file"],
+      slug: "ppt-step",
+      version: 1,
+    }));
+  });
+
+  it("rejects invalid identifiers before creating the block", () => {
+    const onCreate = vi.fn();
+    render(
+      <LoopCustomBlockDialog
+        messages={messages}
+        open
+        onCreate={onCreate}
+        onOpenChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("积木名称"), {
+      target: { value: "专业 PPT" },
+    });
+    fireEvent.change(screen.getByLabelText("积木标识"), {
+      target: { value: "PPT_step" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "创建积木" }));
+
+    expect(screen.getByText("使用 2-100 位小写字母、数字或连字符")).toBeInTheDocument();
+    expect(onCreate).not.toHaveBeenCalled();
+  });
+});

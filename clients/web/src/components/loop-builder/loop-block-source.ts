@@ -1,5 +1,13 @@
 import type * as Blockly from "blockly";
 import { LOOP_BLOCK_TYPES } from "./loop-block-catalog";
+import {
+  expandCustomBlock,
+  valuesForCustomBlock,
+} from "./loop-custom-block-expansion";
+import {
+  customBlockType,
+  type LoopCustomBlockDefinition,
+} from "./loop-custom-block-types";
 import { ensureBlockNodeId, getBlockNodeId } from "./loop-node-identity";
 
 export interface LoopBlockSourceResult {
@@ -34,9 +42,14 @@ function indexNode(block: Blockly.Block | null, index: Map<string, string>): str
 
 export function workspaceToLoopSource(
   workspace: Blockly.Workspace,
+  customDefinitions: readonly LoopCustomBlockDefinition[] = [],
 ): LoopBlockSourceResult {
   const issues: string[] = [];
   const nodeIndex = new Map<string, string>();
+  const customByType = new Map(customDefinitions.map((definition) => [
+    customBlockType(definition),
+    definition,
+  ]));
   const roots = workspace.getBlocksByType(LOOP_BLOCK_TYPES.loop, false);
   const root = roots[0] ?? null;
   if (!root) return { source: "", complete: false, issues: ["缺少循环根积木"], nodeIndex };
@@ -51,7 +64,8 @@ export function workspaceToLoopSource(
   const hasExactBody = bodyBlocks.length === 2 &&
     bodyBlocks[0].type === LOOP_BLOCK_TYPES.agent &&
     bodyBlocks[1].type === LOOP_BLOCK_TYPES.verifier;
-  if (bodyBlocks.length > 0 && !hasExactBody) {
+  const customBody = bodyBlocks.length === 1 ? customByType.get(bodyBlocks[0].type) : undefined;
+  if (bodyBlocks.length > 0 && !hasExactBody && !customBody) {
     issues.push("重复执行必须且只能按顺序包含一个智能体任务和一个验证步骤");
   }
   const agent = hasExactBody ? bodyBlocks[0] : null;
@@ -59,7 +73,9 @@ export function workspaceToLoopSource(
 
   for (const [block, label] of [
     [limits, "执行边界"], [repeat, "重复执行"],
-    [agent, "智能体任务"], [verifier, "验证步骤"], [failure, "失败策略"],
+    [customBody ? bodyBlocks[0] : agent, "智能体任务"],
+    [customBody ? bodyBlocks[0] : verifier, "验证步骤"],
+    [failure, "失败策略"],
   ] as const) {
     if (!block) issues.push(`缺少 ${label} 积木`);
   }
@@ -92,6 +108,25 @@ export function workspaceToLoopSource(
       lines.push(
         `    verify ${text(verifier, "LOCAL_ID")} { command ${JSON.stringify(text(verifier, "COMMAND"))} ` +
         `accept ${JSON.stringify(text(verifier, "ACCEPT"))} }`,
+      );
+    }
+    if (customBody) {
+      const customBlock = bodyBlocks[0];
+      const customNodeId = indexNode(customBlock, nodeIndex);
+      const expanded = expandCustomBlock(customBody, valuesForCustomBlock(customBlock));
+      issues.push(...expanded.issues);
+      const agentNodeId = `${customNodeId}-${expanded.agentLocalId}`;
+      const verifierNodeId = `${customNodeId}-${expanded.verifierLocalId}`;
+      nodeIndex.set(agentNodeId, customBlock.id);
+      nodeIndex.set(verifierNodeId, customBlock.id);
+      lines.push(`    @id(${agentNodeId})`);
+      lines.push(
+        `    agent ${expanded.agentLocalId} { prompt ${prompt(expanded.prompt)} }`,
+      );
+      lines.push(`    @id(${verifierNodeId})`);
+      lines.push(
+        `    verify ${expanded.verifierLocalId} { command ${JSON.stringify(expanded.command)} ` +
+        `accept ${JSON.stringify(expanded.accept)} }`,
       );
     }
     lines.push("  }");

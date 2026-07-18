@@ -537,12 +537,16 @@
         "agent": "Agente",
         "verifier": "Verificación",
         "limits": "Límites",
-        "failure": "Manejo de fallos"
+        "failure": "Manejo de fallos",
+        "custom": "Mis bloques"
       }
     },
     "quickInsert": {
       "close": "Cerrar inserción rápida",
       "title": "Insertar bloque",
+      "customTitle": "Mis bloques",
+      "customEmpty": "Aún no hay bloques personalizados",
+      "createCustom": "Crear bloque personalizado",
       "options": {
         "loop": "Loop",
         "repeat": "Repetir",
@@ -616,6 +620,19 @@
       "cancel": "Cancelar",
       "start": "Iniciar loop",
       "snapshotLabel": "{name} · {workerType} · Snapshot {id}"
+    },
+    "customBlock": {
+      "title": "Crear bloque personalizado",
+      "description": "Crea una macro de borrador versionada que se expande en la tarea y la verificación del loop actual.",
+      "label": "Nombre del bloque",
+      "slug": "Slug del bloque",
+      "promptTemplate": "Plantilla del prompt de tarea",
+      "commandTemplate": "Plantilla del comando de verificación",
+      "acceptTemplate": "Plantilla de la condición de aprobación",
+      "cancel": "Cancelar",
+      "create": "Crear bloque",
+      "required": "Este campo es obligatorio",
+      "identifier": "Usa 2-100 letras minúsculas, dígitos o guiones"
     },
     "ai": {
       "toolbar": "Asistente AI",

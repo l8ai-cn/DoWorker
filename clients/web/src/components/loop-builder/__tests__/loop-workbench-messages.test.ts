@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import deMessages from "@/messages/de/app.json";
 import enMessages from "@/messages/en/app.json";
+import esMessages from "@/messages/es/app.json";
 import zhMessages from "@/messages/zh/app.json";
 import {
   createLoopWorkbenchMessages,
@@ -19,7 +21,23 @@ function translator(messages: Record<string, unknown>): LoopMessageTranslator {
   };
 }
 
+function paths(value: unknown, prefix = ""): string[] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return [prefix];
+  }
+  return Object.entries(value).flatMap(([key, child]) =>
+    paths(child, prefix ? `${prefix}.${key}` : key));
+}
+
 describe("Loop workbench messages", () => {
+  it.each([
+    ["Chinese", zhMessages.loopWorkbench],
+    ["German", deMessages.loopWorkbench],
+    ["Spanish", esMessages.loopWorkbench],
+  ])("keeps %s Loop keys aligned with English", (_, messages) => {
+    expect(paths(messages).sort()).toEqual(paths(enMessages.loopWorkbench).sort());
+  });
+
   it("preserves the current Chinese labels", () => {
     const messages = createLoopWorkbenchMessages(
       translator(zhMessages.loopWorkbench),

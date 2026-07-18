@@ -13,6 +13,7 @@ export type {
   LoopAIProjectionMessages,
   LoopAIRepairMessages,
   LoopBlockCatalogMessages,
+  LoopCustomBlockMessages,
   LoopMessageTranslator,
   LoopQuickInsertMessages,
   LoopRuntimeMessages,
@@ -110,11 +111,15 @@ export function createLoopWorkbenchMessages(t: LoopMessageTranslator): LoopWorkb
         loop: t("blockly.toolbox.loop"), control: t("blockly.toolbox.control"),
         agent: t("blockly.toolbox.agent"), verifier: t("blockly.toolbox.verifier"),
         limits: t("blockly.toolbox.limits"), failure: t("blockly.toolbox.failure"),
+        custom: t("blockly.toolbox.custom"),
       },
     },
     quickInsert: {
       close: t("quickInsert.close"),
       title: t("quickInsert.title"),
+      createCustom: t("quickInsert.createCustom"),
+      customEmpty: t("quickInsert.customEmpty"),
+      customTitle: t("quickInsert.customTitle"),
       options: {
         loop: t("quickInsert.options.loop"), repeat: t("quickInsert.options.repeat"),
         agent: t("quickInsert.options.agent"), verifier: t("quickInsert.options.verifier"),
@@ -140,6 +145,19 @@ export function createLoopWorkbenchMessages(t: LoopMessageTranslator): LoopWorkb
       cancel: t("runtime.cancel"), start: t("runtime.start"),
       snapshotLabel: (name, workerType, id) =>
         t("runtime.snapshotLabel", { name, workerType, id }),
+    },
+    customBlock: {
+      title: t("customBlock.title"),
+      description: t("customBlock.description"),
+      label: t("customBlock.label"),
+      slug: t("customBlock.slug"),
+      promptTemplate: t("customBlock.promptTemplate"),
+      commandTemplate: t("customBlock.commandTemplate"),
+      acceptTemplate: t("customBlock.acceptTemplate"),
+      cancel: t("customBlock.cancel"),
+      create: t("customBlock.create"),
+      required: t("customBlock.required"),
+      identifier: t("customBlock.identifier"),
     },
     ai: createLoopAIMessages(t),
   };

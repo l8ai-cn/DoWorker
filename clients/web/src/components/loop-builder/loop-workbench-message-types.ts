@@ -17,12 +17,18 @@ export interface LoopBlockCatalogMessages {
     defaultAccept: string;
   };
   failure: { message0: string; pause: string; fail: string };
-  toolbox: Record<"loop" | "control" | "agent" | "verifier" | "limits" | "failure", string>;
+  toolbox: Record<
+    "loop" | "control" | "agent" | "verifier" | "limits" | "failure" | "custom",
+    string
+  >;
 }
 
 export interface LoopQuickInsertMessages {
   close: string;
   title: string;
+  createCustom: string;
+  customEmpty: string;
+  customTitle: string;
   options: Record<"loop" | "repeat" | "agent" | "verifier" | "limits" | "failure", string>;
 }
 
@@ -66,6 +72,20 @@ export interface LoopRuntimeMessages {
   cancel: string;
   start: string;
   snapshotLabel: (name: string, workerType: string, id: string) => string;
+}
+
+export interface LoopCustomBlockMessages {
+  title: string;
+  description: string;
+  label: string;
+  slug: string;
+  promptTemplate: string;
+  commandTemplate: string;
+  acceptTemplate: string;
+  cancel: string;
+  create: string;
+  required: string;
+  identifier: string;
 }
 
 export interface LoopAIProjectionMessages {
@@ -158,5 +178,6 @@ export interface LoopWorkbenchMessages {
   quickInsert: LoopQuickInsertMessages;
   status: LoopStatusMessages;
   runtime: LoopRuntimeMessages;
+  customBlock: LoopCustomBlockMessages;
   ai: LoopAIMessages;
 }

@@ -1,4 +1,5 @@
 import * as Blockly from "blockly";
+import { customBlockType, type LoopCustomBlockDefinition } from "./loop-custom-block-types";
 import type { LoopBlockCatalogMessages } from "./loop-workbench-messages";
 
 export const LOOP_BLOCK_TYPES = {
@@ -92,8 +93,28 @@ function createDefinitions(messages: LoopBlockCatalogMessages) {
   ];
 }
 
-export function createLoopBlockCatalog(messages: LoopBlockCatalogMessages) {
+function createCustomDefinition(definition: LoopCustomBlockDefinition) {
+  const args = definition.parameters.map((parameter) => ({
+    type: "field_input",
+    name: parameter,
+    text: parameter,
+  }));
+  const fields = args.map((_, index) => `%${index + 1}`).join(" ");
+  return {
+    type: customBlockType(definition),
+    message0: fields ? `${definition.label} ${fields}` : definition.label,
+    args0: args,
+    previousStatement: "LoopAgent",
+    colour: 180,
+  };
+}
+
+export function createLoopBlockCatalog(
+  messages: LoopBlockCatalogMessages,
+  customDefinitions: readonly LoopCustomBlockDefinition[] = [],
+) {
   const definitions = createDefinitions(messages);
+  const custom = customDefinitions.map(createCustomDefinition);
   const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
     kind: "categoryToolbox",
     contents: [
@@ -103,15 +124,32 @@ export function createLoopBlockCatalog(messages: LoopBlockCatalogMessages) {
       { kind: "category", name: messages.toolbox.verifier, colour: "122", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.verifier }] },
       { kind: "category", name: messages.toolbox.limits, colour: "43", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.limits }] },
       { kind: "category", name: messages.toolbox.failure, colour: "8", contents: [{ kind: "block", type: LOOP_BLOCK_TYPES.failure }] },
+      {
+        kind: "category",
+        name: messages.toolbox.custom,
+        colour: "180",
+        contents: customDefinitions.map((definition) => ({
+          kind: "block",
+          type: customBlockType(definition),
+        })),
+      },
     ],
   };
-  return { definitions, toolbox };
+  return { definitions: [...definitions, ...custom], toolbox };
 }
 
-export function registerLoopBlocks(messages?: LoopBlockCatalogMessages): void {
+export function registerLoopBlocks(
+  messages?: LoopBlockCatalogMessages,
+  customDefinitions: readonly LoopCustomBlockDefinition[] = [],
+): void {
   if (messages) {
     for (const type of Object.values(LOOP_BLOCK_TYPES)) delete Blockly.Blocks[type];
-    Blockly.common.defineBlocksWithJsonArray(createDefinitions(messages));
+    for (const type of Object.keys(Blockly.Blocks)) {
+      if (type.startsWith("loop_custom_")) delete Blockly.Blocks[type];
+    }
+    Blockly.common.defineBlocksWithJsonArray(
+      createLoopBlockCatalog(messages, customDefinitions).definitions,
+    );
     return;
   }
   const missing = Object.values(LOOP_BLOCK_TYPES).filter((type) => !Blockly.Blocks[type]);

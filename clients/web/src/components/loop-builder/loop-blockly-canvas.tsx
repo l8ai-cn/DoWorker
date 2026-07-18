@@ -3,57 +3,39 @@
 import * as Blockly from "blockly";
 import { useEffect, useRef, useState } from "react";
 import type { LoopProgram } from "@proto/goalloop/v1/goalloop_pb";
-import { createLoopBlockCatalog, registerLoopBlocks } from "./loop-block-catalog";
+import { setLoopBlockAccess } from "./loop-block-access";
 import {
-  nodeIdForBlock,
-  projectProgramToWorkspace,
-  workspaceToLoopSource,
-} from "./loop-block-projection";
+  insertPointFromDoubleClick,
+  type LoopBlockInsertPoint,
+} from "./loop-block-insert-point";
+import { createLoopBlockCatalog, registerLoopBlocks } from "./loop-block-catalog";
+import { loopBlocklyTheme } from "./loop-blockly-theme";
+import type { LoopCustomBlockDefinition } from "./loop-custom-block-types";
+import { nodeIdForBlock, projectProgramToWorkspace, workspaceToLoopSource } from "./loop-block-projection";
 import { LoopQuickInsert } from "./loop-quick-insert";
-import type {
-  LoopBlockCatalogMessages,
-  LoopQuickInsertMessages,
-} from "./loop-workbench-messages";
-
-interface InsertPoint {
-  menuX: number;
-  menuY: number;
-  workspaceX: number;
-  workspaceY: number;
-}
+import type { LoopBlockCatalogMessages, LoopQuickInsertMessages } from "./loop-workbench-messages";
 
 interface LoopBlocklyCanvasProps {
   program?: LoopProgram;
   semanticRevision: number;
   readOnly: boolean;
+  customDefinitions: readonly LoopCustomBlockDefinition[];
   messages: {
     blockly: LoopBlockCatalogMessages;
     quickInsert: LoopQuickInsertMessages;
   };
+  onCreateCustom: () => void;
   onSourceChange: (source: string) => void;
   onSelectNode: (nodeId?: string) => void;
 }
-
-const loopTheme = Blockly.Theme.defineTheme("loop", {
-  name: "loop",
-  base: Blockly.Themes.Classic,
-  componentStyles: {
-    workspaceBackgroundColour: "#f8fafc",
-    toolboxBackgroundColour: "#ffffff",
-    toolboxForegroundColour: "#334155",
-    flyoutBackgroundColour: "#f1f5f9",
-    flyoutForegroundColour: "#334155",
-    scrollbarColour: "#94a3b8",
-    insertionMarkerColour: "#0f766e",
-    insertionMarkerOpacity: 0.35,
-  },
-});
 
 export function LoopBlocklyCanvas({
   program,
   semanticRevision,
   readOnly,
+  customDefinitions,
   onSourceChange,
+  onCreateCustom,
   onSelectNode,
   messages,
 }: LoopBlocklyCanvasProps) {
@@ -61,8 +43,9 @@ export function LoopBlocklyCanvas({
   const workspaceRef = useRef<Blockly.WorkspaceSvg | undefined>(undefined);
   const programRef = useRef(program);
   const readOnlyRef = useRef(readOnly);
+  const customDefinitionsRef = useRef(customDefinitions);
   const callbackRef = useRef({ onSourceChange, onSelectNode });
-  const [insertPoint, setInsertPoint] = useState<InsertPoint>();
+  const [insertPoint, setInsertPoint] = useState<LoopBlockInsertPoint>();
 
   useEffect(() => {
     callbackRef.current = { onSourceChange, onSelectNode };
@@ -77,14 +60,21 @@ export function LoopBlocklyCanvas({
   }, [readOnly]);
 
   useEffect(() => {
+    customDefinitionsRef.current = customDefinitions;
+  }, [customDefinitions]);
+
+  useEffect(() => {
     if (!hostRef.current) return;
-    registerLoopBlocks(messages.blockly);
-    const { toolbox } = createLoopBlockCatalog(messages.blockly);
+    registerLoopBlocks(messages.blockly, customDefinitionsRef.current);
+    const { toolbox } = createLoopBlockCatalog(
+      messages.blockly,
+      customDefinitionsRef.current,
+    );
     const compact = hostRef.current.clientWidth < 640;
     const workspace = Blockly.inject(hostRef.current, {
       media: "/blockly-media/",
       toolbox,
-      theme: loopTheme,
+      theme: loopBlocklyTheme,
       renderer: "zelos",
       trashcan: true,
       grid: { spacing: 20, length: 1, colour: "#cbd5e1", snap: true },
@@ -106,14 +96,16 @@ export function LoopBlocklyCanvas({
         );
       }
       if (!event.isUiEvent) {
-        callbackRef.current.onSourceChange(workspaceToLoopSource(workspace).source);
+        callbackRef.current.onSourceChange(
+          workspaceToLoopSource(workspace, customDefinitionsRef.current).source,
+        );
       }
     };
     workspace.addChangeListener(listener);
     const currentProgram = programRef.current;
     if (currentProgram) {
-      projectProgramToWorkspace(workspace, currentProgram);
-      setBlockAccess(workspace, readOnlyRef.current);
+      projectProgramToWorkspace(workspace, currentProgram, customDefinitionsRef.current);
+      setLoopBlockAccess(workspace, readOnlyRef.current);
     }
     const observer = new ResizeObserver(() => Blockly.svgResize(workspace));
     observer.observe(hostRef.current);
@@ -129,14 +121,22 @@ export function LoopBlocklyCanvas({
     const workspace = workspaceRef.current;
     const currentProgram = programRef.current;
     if (workspace && currentProgram) {
-      projectProgramToWorkspace(workspace, currentProgram);
+      projectProgramToWorkspace(workspace, currentProgram, customDefinitionsRef.current);
     }
   }, [semanticRevision]);
 
   useEffect(() => {
     const workspace = workspaceRef.current;
     if (!workspace) return;
-    setBlockAccess(workspace, readOnly);
+    registerLoopBlocks(messages.blockly, customDefinitions);
+    workspace.updateToolbox(createLoopBlockCatalog(messages.blockly, customDefinitions).toolbox);
+    callbackRef.current.onSourceChange(workspaceToLoopSource(workspace, customDefinitions).source);
+  }, [customDefinitions, messages.blockly]);
+
+  useEffect(() => {
+    const workspace = workspaceRef.current;
+    if (!workspace) return;
+    setLoopBlockAccess(workspace, readOnly);
   }, [readOnly, semanticRevision]);
 
   function insert(type: string) {
@@ -155,42 +155,25 @@ export function LoopBlocklyCanvas({
       <div
         className="absolute inset-0"
         onDoubleClick={(event) => {
-          const workspace = workspaceRef.current;
-          const target = event.target;
-          if (readOnly || !workspace || !(target instanceof Element) ||
-              !target.classList.contains("blocklyMainBackground")) return;
-          const bounds = event.currentTarget.getBoundingClientRect();
-          const point = Blockly.utils.svgMath.screenToWsCoordinates(
-            workspace,
-            new Blockly.utils.Coordinate(event.clientX, event.clientY),
-          );
-          setInsertPoint({
-            menuX: event.clientX - bounds.left,
-            menuY: event.clientY - bounds.top,
-            workspaceX: point.x,
-            workspaceY: point.y,
-          });
+          setInsertPoint(insertPointFromDoubleClick(event, workspaceRef.current, readOnly));
         }}
         ref={hostRef}
       />
       {readOnly && <div className="absolute inset-0 z-[5] cursor-not-allowed bg-background/5" />}
       {insertPoint && (
         <LoopQuickInsert
+          customDefinitions={customDefinitions}
           messages={messages.quickInsert}
           x={insertPoint.menuX}
           y={insertPoint.menuY}
           onClose={() => setInsertPoint(undefined)}
+          onCreateCustom={() => {
+            setInsertPoint(undefined);
+            onCreateCustom();
+          }}
           onInsert={insert}
         />
       )}
     </div>
   );
-}
-
-function setBlockAccess(workspace: Blockly.WorkspaceSvg, readOnly: boolean) {
-  for (const block of workspace.getAllBlocks(false)) {
-    block.setEditable(!readOnly);
-    block.setMovable(!readOnly);
-    block.setDeletable(!readOnly);
-  }
 }
