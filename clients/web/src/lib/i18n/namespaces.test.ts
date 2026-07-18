@@ -1,7 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { readdirSync } from "node:fs";
 import { resolve } from "node:path";
+import { render, screen } from "@testing-library/react";
+import { NextIntlClientProvider, useTranslations } from "next-intl";
+import { createElement } from "react";
+import enIde from "@/messages/en/ide.json";
+import enVideoWorker from "@/messages/en/video-worker.json";
 import { MESSAGE_NAMESPACES, locales } from "./config";
+import { mergeMessageNamespaces } from "./messageFallback";
 
 // Contract: `MESSAGE_NAMESPACES` drives both web (request.ts) and desktop
 // (IntlProvider.tsx) loaders. Any namespace file on disk that isn't in the
@@ -41,5 +47,28 @@ describe("i18n · namespace coverage", () => {
         `locale "${locale}" is missing namespaces: ${reference.filter((f) => !actual.includes(f)).join(", ")}`,
       ).toEqual(reference);
     }
+  });
+});
+
+function VideoWorkerTab() {
+  return createElement("span", null, useTranslations()("videoWorker.tab"));
+}
+
+describe("video worker messages", () => {
+  it("renders the BottomPanel worker label from the loaded namespace", () => {
+    const messages = mergeMessageNamespaces([
+      enIde,
+      enVideoWorker,
+    ]) as typeof enIde & typeof enVideoWorker;
+
+    render(
+      createElement(
+        NextIntlClientProvider,
+        { locale: "en", messages },
+        createElement(VideoWorkerTab),
+      ),
+    );
+
+    expect(screen.getByText("Worker")).toBeInTheDocument();
   });
 });

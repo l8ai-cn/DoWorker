@@ -39,7 +39,8 @@ type Messages = typeof common &
   typeof automation &
   typeof experts &
   typeof resourceOrchestration &
-  typeof changelogEntries;
+  typeof changelogEntries &
+  typeof videoWorker;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
