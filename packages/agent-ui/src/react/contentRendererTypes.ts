@@ -7,6 +7,7 @@ import type { ContentRendererRegistration } from "../registry/ContentRendererReg
 export interface AgentContentRendererProps {
   filename: string;
   item: AgentArtifactItem;
+  presentation?: "developer" | "user";
   runtime: AgentSessionRuntime;
   sessionId: string;
 }

@@ -1,6 +1,6 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
+import { afterEach, beforeEach, vi } from "vitest";
 
 import { VideoArtifactViewer } from "./VideoArtifactViewer";
 
@@ -13,7 +13,32 @@ const readyProps = {
   status: "ready" as const,
 };
 
+const originalRequestFullscreen = HTMLElement.prototype.requestFullscreen;
+const originalExitFullscreen = document.exitFullscreen;
+
 describe("VideoArtifactViewer", () => {
+  beforeEach(() => {
+    Object.defineProperty(HTMLElement.prototype, "requestFullscreen", {
+      configurable: true,
+      value: vi.fn().mockResolvedValue(undefined),
+    });
+    Object.defineProperty(document, "exitFullscreen", {
+      configurable: true,
+      value: vi.fn().mockResolvedValue(undefined),
+    });
+  });
+
+  afterEach(() => {
+    Object.defineProperty(HTMLElement.prototype, "requestFullscreen", {
+      configurable: true,
+      value: originalRequestFullscreen,
+    });
+    Object.defineProperty(document, "exitFullscreen", {
+      configurable: true,
+      value: originalExitFullscreen,
+    });
+  });
+
   it("完成后使用原生视频控件渲染可播放资源和 MIME 类型", () => {
     render(<VideoArtifactViewer {...readyProps} />);
 
@@ -27,36 +52,84 @@ describe("VideoArtifactViewer", () => {
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 
+  it("用户模式不显示 MIME 和内部版本角色", () => {
+    render(
+      <VideoArtifactViewer
+        {...readyProps}
+        selectedVersionId="playable"
+        technicalMetadata={false}
+        versions={[
+          { id: "playable", label: "playable" },
+          { id: "original", label: "original" },
+        ]}
+      />,
+    );
+
+    expect(screen.queryByText("video/mp4")).not.toBeInTheDocument();
+    expect(screen.queryByText("playable")).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "版本 1" })).toBeVisible();
+    expect(screen.getByRole("option", { name: "版本 2" })).toBeVisible();
+  });
+
   it("支持从结果卡片进入和退出全屏预览", async () => {
     const user = userEvent.setup();
+    let fullscreenElement: Element | null = null;
+    Object.defineProperty(document, "fullscreenElement", {
+      configurable: true,
+      get: () => fullscreenElement,
+    });
+    const requestFullscreen = vi
+      .spyOn(HTMLElement.prototype, "requestFullscreen")
+      .mockImplementation(async function (this: HTMLElement) {
+        fullscreenElement = this;
+        document.dispatchEvent(new Event("fullscreenchange"));
+      });
+    const exitFullscreen = vi
+      .spyOn(document, "exitFullscreen")
+      .mockImplementation(async () => {
+        fullscreenElement = null;
+        document.dispatchEvent(new Event("fullscreenchange"));
+      });
     render(<VideoArtifactViewer {...readyProps} />);
 
     const enter = screen.getByRole("button", { name: "View video fullscreen" });
     await user.click(enter);
     const exit = screen.getByRole("button", { name: "Exit fullscreen" });
-    expect(exit.parentElement).toHaveStyle({
-      inset: "0",
-      position: "fixed",
-      zIndex: "100",
-    });
+    expect(requestFullscreen).toHaveBeenCalledOnce();
     await user.click(exit);
+    expect(exitFullscreen).toHaveBeenCalledOnce();
     expect(
       screen.getByRole("button", { name: "View video fullscreen" }),
     ).toBeVisible();
+    requestFullscreen.mockRestore();
+    exitFullscreen.mockRestore();
   });
 
-  it("支持 Escape 退出全屏预览", async () => {
+  it("浏览器退出全屏时同步恢复按钮状态", async () => {
     const user = userEvent.setup();
+    let fullscreenElement: Element | null = null;
+    Object.defineProperty(document, "fullscreenElement", {
+      configurable: true,
+      get: () => fullscreenElement,
+    });
+    const requestFullscreen = vi
+      .spyOn(HTMLElement.prototype, "requestFullscreen")
+      .mockImplementation(async function (this: HTMLElement) {
+        fullscreenElement = this;
+        document.dispatchEvent(new Event("fullscreenchange"));
+      });
     render(<VideoArtifactViewer {...readyProps} />);
 
     await user.click(
       screen.getByRole("button", { name: "View video fullscreen" }),
     );
-    await user.keyboard("{Escape}");
+    fullscreenElement = null;
+    act(() => document.dispatchEvent(new Event("fullscreenchange")));
 
     expect(
       screen.getByRole("button", { name: "View video fullscreen" }),
     ).toBeVisible();
+    requestFullscreen.mockRestore();
   });
 
   it.each([

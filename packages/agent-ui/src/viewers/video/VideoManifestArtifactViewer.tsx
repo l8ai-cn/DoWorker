@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import type { AgentVideoManifest } from "../../agentArtifactContracts";
+import { useAgentWorkspaceText } from "../../AgentWorkspaceLocaleContext";
 import type { AgentContentRendererProps } from "../../react/contentRendererTypes";
 import { useArtifactRepresentationUrls } from "../../useArtifactRepresentationUrls";
 import {
@@ -19,18 +20,34 @@ import {
 export function VideoManifestArtifactViewer({
   filename,
   item,
+  presentation = "developer",
   runtime,
   sessionId,
 }: AgentContentRendererProps) {
+  const text = useAgentWorkspaceText().artifact;
   const manifest = item.manifest;
   if (manifest?.kind !== "video") {
     return (
-      <ArtifactViewerError filename={filename} message="video_manifest_missing" />
+      <ArtifactViewerError
+        filename={filename}
+        message={
+          presentation === "user"
+            ? text.loadFailed
+            : "video_manifest_missing"
+        }
+      />
     );
   }
   if (manifest.stage === "unknown") {
     return (
-      <ArtifactViewerError filename={filename} message="video_stage_unknown" />
+      <ArtifactViewerError
+        filename={filename}
+        message={
+          presentation === "user"
+            ? text.loadFailed
+            : "video_stage_unknown"
+        }
+      />
     );
   }
   return (
@@ -38,6 +55,7 @@ export function VideoManifestArtifactViewer({
       filename={filename}
       item={item}
       manifest={manifest}
+      presentation={presentation}
       runtime={runtime}
       sessionId={sessionId}
       stage={manifest.stage}
@@ -49,6 +67,7 @@ function VideoManifestArtifactContent({
   filename,
   item,
   manifest,
+  presentation = "developer",
   runtime,
   sessionId,
   stage,
@@ -56,6 +75,7 @@ function VideoManifestArtifactContent({
   manifest: AgentVideoManifest;
   stage: Exclude<AgentVideoManifest["stage"], "unknown">;
 }) {
+  const text = useAgentWorkspaceText().artifact;
   const versionRepresentations = useMemo(
     () => videoRepresentations(item.representations, manifest),
     [item.representations, manifest],
@@ -114,7 +134,9 @@ function VideoManifestArtifactContent({
       <ArtifactViewerError
         filename={filename}
         message={
-          resources[selectedId]?.status === "error"
+          presentation === "user"
+            ? text.loadFailed
+            : resources[selectedId]?.status === "error"
             ? resources[selectedId].message
             : "video_representation_load_failed"
         }
@@ -146,6 +168,7 @@ function VideoManifestArtifactContent({
       selectedVersionId={selectedId}
       src={selected?.src ?? ""}
       status={stage}
+      technicalMetadata={presentation === "developer"}
       versions={versions}
     />
   );

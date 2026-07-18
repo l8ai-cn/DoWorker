@@ -7,6 +7,7 @@ import type {
   AgentToolRendererRegistration,
   AgentToolWorkbenchRendererProps,
 } from "./rendererTypes";
+import { isUserVisibleArtifact } from "../artifactResultTrust";
 
 export type WorkbenchResult =
   | {
@@ -25,12 +26,15 @@ export function collectWorkbenchResults(
   artifacts: readonly AgentArtifactItem[],
   tools: readonly AgentToolActivityItem[],
   toolRenderers?: ToolRendererRegistry<AgentToolRendererRegistration>,
+  verifiedArtifactsOnly = false,
 ): WorkbenchResult[] {
-  const results: WorkbenchResult[] = artifacts.map((item) => ({
-    id: `artifact:${item.id}`,
-    item,
-    kind: "artifact",
-  }));
+  const results: WorkbenchResult[] = artifacts
+    .filter((item) => !verifiedArtifactsOnly || isUserVisibleArtifact(item))
+    .map((item) => ({
+      id: `artifact:${item.id}`,
+      item,
+      kind: "artifact",
+    }));
   for (const item of tools) {
     const Renderer = toolRenderers?.lookup(item.identity)?.workbench;
     if (Renderer) {

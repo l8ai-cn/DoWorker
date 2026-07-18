@@ -20,6 +20,13 @@ import {
   type AgentWorkspaceLocale,
 } from "./agentWorkspaceText";
 import { focusAdjacentTab } from "./react/tabKeyboardNavigation";
+import { UserTaskStatus } from "./UserTaskStatus";
+import {
+  type AgentWorkspacePresentation,
+  userConversationItems,
+  userVisibleArtifacts,
+} from "./userWorkspacePresentation";
+import { WorkspaceViewTab } from "./WorkspaceViewTab";
 
 export interface AgentWorkspaceProps {
   runtime: AgentSessionRuntime;
@@ -29,6 +36,7 @@ export interface AgentWorkspaceProps {
   className?: string;
   contentRenderers?: ContentRendererRegistry<AgentContentRendererRegistration>;
   locale?: AgentWorkspaceLocale;
+  presentation?: AgentWorkspacePresentation;
   readOnly?: boolean;
   toolRenderers?: ToolRendererRegistry<AgentToolRendererRegistration>;
 }
@@ -41,6 +49,7 @@ export function AgentWorkspace({
   className = "",
   contentRenderers,
   locale = "en-US",
+  presentation = "developer",
   readOnly = false,
   toolRenderers,
 }: AgentWorkspaceProps) {
@@ -59,12 +68,25 @@ export function AgentWorkspace({
   const [surfaceError, setSurfaceError] = useState<string | null>(null);
   const { containerRef, mode } = useWorkbenchContainerMode();
   const terminal = snapshot.terminals[0];
-  const artifacts = snapshot.items.filter((item) => item.kind === "artifact");
-  const conversationItems = snapshot.items.filter(
+  const allArtifacts = snapshot.items.filter(
+    (item) => item.kind === "artifact",
+  );
+  const allConversationItems = snapshot.items.filter(
     (item) => item.kind !== "artifact",
   );
+  const artifacts =
+    presentation === "user"
+      ? userVisibleArtifacts(allArtifacts)
+      : allArtifacts;
+  const conversationItems =
+    presentation === "user"
+      ? userConversationItems(allConversationItems)
+      : allConversationItems;
   const terminalEnabled =
-    snapshot.capabilities.terminal && terminalRuntime !== undefined && terminal !== undefined;
+    presentation === "developer" &&
+    snapshot.capabilities.terminal &&
+    terminalRuntime !== undefined &&
+    terminal !== undefined;
 
   return (
     <AgentWorkspaceLocaleProvider locale={locale}>
@@ -73,13 +95,13 @@ export function AgentWorkspace({
         data-agent-workspace={sessionId}
         ref={containerRef}
       >
-      <WorkspaceHeader snapshot={snapshot} />
+      <WorkspaceHeader presentation={presentation} snapshot={snapshot} />
       <nav
         className="flex h-12 items-center gap-1 border-b border-border px-2"
         onKeyDown={focusAdjacentTab}
         role="tablist"
       >
-        <ViewTab
+        <WorkspaceViewTab
           active={view === "conversation"}
           icon={<MessageSquare className="size-3.5" />}
           id={conversationTabId}
@@ -88,7 +110,7 @@ export function AgentWorkspace({
           panelId={conversationPanelId}
         />
         {terminalEnabled && (
-          <ViewTab
+          <WorkspaceViewTab
             active={view === "terminal"}
             icon={<Terminal className="size-3.5" />}
             id={terminalTabId}
@@ -98,9 +120,12 @@ export function AgentWorkspace({
           />
         )}
       </nav>
-      {(snapshot.error || surfaceError) && (
+      {(surfaceError ||
+        (presentation === "developer" && snapshot.error)) && (
         <div className="border-b border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {snapshot.error || surfaceError}
+          {presentation === "user"
+            ? text.taskFailed
+            : snapshot.error || surfaceError}
         </div>
       )}
       {view === "terminal" && terminalEnabled ? (
@@ -123,7 +148,13 @@ export function AgentWorkspace({
           id={conversationPanelId}
           role="tabpanel"
         >
-          <PlanStrip steps={snapshot.plan} />
+          {presentation === "developer" && <PlanStrip steps={snapshot.plan} />}
+          {presentation === "user" && (
+            <UserTaskStatus
+              artifacts={allArtifacts}
+              snapshot={snapshot}
+            />
+          )}
           <ResultWorkbench
             artifacts={artifacts}
             contentRenderers={contentRenderers}
@@ -136,54 +167,27 @@ export function AgentWorkspace({
                     cause instanceof Error ? cause.message : String(cause),
                   )
                 }
+                presentation={presentation}
                 runtime={activeRuntime}
                 snapshot={snapshot}
                 toolRenderers={toolRenderers}
               />
             }
             mode={mode}
+            presentation={presentation}
             runtime={activeRuntime}
             sessionId={sessionId}
             toolRenderers={toolRenderers}
-            tools={conversationItems.filter((item) => item.kind === "tool")}
+            tools={
+              presentation === "developer"
+                ? conversationItems.filter((item) => item.kind === "tool")
+                : []
+            }
+            verifiedArtifactsOnly={presentation === "user"}
           />
         </section>
       )}
       </div>
     </AgentWorkspaceLocaleProvider>
-  );
-}
-
-function ViewTab({
-  active,
-  icon,
-  id,
-  label,
-  onClick,
-  panelId,
-}: {
-  active: boolean;
-  icon: React.ReactNode;
-  id: string;
-  label: string;
-  onClick: () => void;
-  panelId: string;
-}) {
-  return (
-    <button
-      aria-controls={panelId}
-      aria-selected={active}
-      className={`flex h-11 items-center gap-1.5 rounded-md px-3 text-xs ${
-        active ? "bg-muted font-medium" : "text-muted-foreground hover:bg-muted/60"
-      }`}
-      id={id}
-      onClick={onClick}
-      role="tab"
-      tabIndex={active ? 0 : -1}
-      type="button"
-    >
-      {icon}
-      {label}
-    </button>
   );
 }

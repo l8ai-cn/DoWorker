@@ -18,6 +18,7 @@ export interface ArtifactWorkspaceText {
   videoUnsupported: string;
   fullscreenVideo: string;
   exitFullscreen: string;
+  fullscreenUnavailable: string;
   open(filename: string): string;
   download(filename: string): string;
 }
@@ -50,6 +51,7 @@ const enUS: ArtifactWorkspaceText = {
   videoUnsupported: "Your browser does not support video playback.",
   fullscreenVideo: "View video fullscreen",
   exitFullscreen: "Exit fullscreen",
+  fullscreenUnavailable: "Fullscreen is unavailable in this browser context.",
   open: (filename) => `Open ${filename}`,
   download: (filename) => `Download ${filename}`,
 };
@@ -75,6 +77,7 @@ const zhCN: ArtifactWorkspaceText = {
   videoUnsupported: "当前浏览器不支持视频播放。",
   fullscreenVideo: "全屏预览视频",
   exitFullscreen: "退出全屏预览",
+  fullscreenUnavailable: "当前页面环境无法进入全屏预览。",
   open: (filename) => `打开 ${filename}`,
   download: (filename) => `下载 ${filename}`,
 };

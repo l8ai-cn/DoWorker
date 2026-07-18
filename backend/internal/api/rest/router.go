@@ -10,6 +10,7 @@ import (
 	sessionapi "github.com/anthropics/agentsmesh/backend/internal/api/rest/v1/session"
 	"github.com/anthropics/agentsmesh/backend/internal/api/rest/v1/webhooks"
 	"github.com/anthropics/agentsmesh/backend/internal/config"
+	"github.com/anthropics/agentsmesh/backend/internal/infra"
 	"github.com/anthropics/agentsmesh/backend/internal/middleware"
 	itemsvc "github.com/anthropics/agentsmesh/backend/internal/service/conversationitem"
 	permissionpolicysvc "github.com/anthropics/agentsmesh/backend/internal/service/permissionpolicy"
@@ -203,6 +204,7 @@ func NewRouter(cfg *config.Config, svc *v1.Services, db *gorm.DB, logger *slog.L
 		Policies:           permissionpolicysvc.NewService(db),
 		ReadState:          sessionapi.NewReadStateStore(db),
 		SandboxFs:          svc.SandboxFsService,
+		ArtifactSnapshots:  infra.NewAgentWorkbenchRepository(db),
 		SessionFiles:       sessionfilesvc.NewService(db, svc.File),
 		MessageOutbox:      sessionmessagesvc.NewPromptOutbox(db, svc.PendingQueue),
 		SessionComments:    commentsvc.NewService(db),

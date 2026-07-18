@@ -23,6 +23,7 @@ export interface VideoArtifactViewerProps {
   posterSrc?: string;
   durationSeconds?: number;
   status: VideoArtifactStatus;
+  technicalMetadata?: boolean;
   progress?: number;
   versions?: readonly VideoArtifactVersion[];
   selectedVersionId?: string;
@@ -43,6 +44,7 @@ export function VideoArtifactViewer({
   posterSrc,
   durationSeconds,
   status,
+  technicalMetadata = true,
   progress,
   versions = [],
   selectedVersionId,
@@ -76,14 +78,14 @@ export function VideoArtifactViewer({
             {activeFilename}
           </div>
           <div className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
-            <span>{activeMimeType}</span>
+            {technicalMetadata && <span>{activeMimeType}</span>}
             {activeDuration !== undefined && (
               <span>时长 {formatDuration(activeDuration)}</span>
             )}
           </div>
         </div>
 
-        {versions.length > 0 && (
+        {versions.length > 1 && (
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <span>版本</span>
             <select
@@ -95,7 +97,9 @@ export function VideoArtifactViewer({
             >
               {versions.map((version, index) => (
                 <option key={version.id} value={version.id}>
-                  {version.label ?? `版本 ${index + 1}`}
+                  {technicalMetadata
+                    ? version.label ?? `版本 ${index + 1}`
+                    : `版本 ${index + 1}`}
                 </option>
               ))}
             </select>

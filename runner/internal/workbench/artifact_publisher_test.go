@@ -15,7 +15,7 @@ func TestPublishArtifactDeclarationWritesValidatedArtifactAtomically(t *testing.
 	require.NoError(t, os.MkdirAll(filepath.Join(root, "output"), 0o755))
 	require.NoError(t, os.WriteFile(
 		filepath.Join(root, "output", "demo.mp4"),
-		[]byte("video"),
+		[]byte(validMP4Fixture("video")),
 		0o644,
 	))
 
@@ -42,7 +42,7 @@ func TestPublishArtifactDeclarationRejectsInvalidRevisionWithoutReplacingCurrent
 	require.NoError(t, os.MkdirAll(filepath.Join(root, "output"), 0o755))
 	require.NoError(t, os.WriteFile(
 		filepath.Join(root, "output", "demo.mp4"),
-		[]byte("video"),
+		[]byte(validMP4Fixture("video")),
 		0o644,
 	))
 	_, err := PublishArtifactDeclaration(
@@ -72,7 +72,11 @@ func TestPublishArtifactDeclarationAllowsChangedFileAtNextRevision(t *testing.T)
 	root := t.TempDir()
 	output := filepath.Join(root, "output", "demo.mp4")
 	require.NoError(t, os.MkdirAll(filepath.Dir(output), 0o755))
-	require.NoError(t, os.WriteFile(output, []byte("version-one"), 0o644))
+	require.NoError(t, os.WriteFile(
+		output,
+		[]byte(validMP4Fixture("version-one")),
+		0o644,
+	))
 	_, err := PublishArtifactDeclaration(
 		root,
 		json.RawMessage(validPublishedVideoDeclaration(1)),
@@ -80,7 +84,11 @@ func TestPublishArtifactDeclarationAllowsChangedFileAtNextRevision(t *testing.T)
 	require.NoError(t, err)
 	observer, err := NewArtifactObserver(root)
 	require.NoError(t, err)
-	require.NoError(t, os.WriteFile(output, []byte("version-two"), 0o644))
+	require.NoError(t, os.WriteFile(
+		output,
+		[]byte(validMP4Fixture("version-two")),
+		0o644,
+	))
 
 	published, err := PublishArtifactDeclaration(
 		root,
@@ -116,7 +124,7 @@ func TestPublishArtifactDeclarationRejectsAgentSuppliedToolExecutionID(t *testin
 	require.NoError(t, os.MkdirAll(filepath.Join(root, "output"), 0o755))
 	require.NoError(t, os.WriteFile(
 		filepath.Join(root, "output", "demo.mp4"),
-		[]byte("video"),
+		[]byte(validMP4Fixture("video")),
 		0o644,
 	))
 	declaration := validPublishedVideoDeclaration(1)
@@ -130,6 +138,26 @@ func TestPublishArtifactDeclarationRejectsAgentSuppliedToolExecutionID(t *testin
 	_, err := PublishArtifactDeclaration(root, json.RawMessage(declaration))
 
 	require.ErrorContains(t, err, "producer.tool_execution_id")
+}
+
+func TestPublishArtifactDeclarationRejectsNonFinalVideoStage(t *testing.T) {
+	root := t.TempDir()
+	require.NoError(t, os.MkdirAll(filepath.Join(root, "output"), 0o755))
+	require.NoError(t, os.WriteFile(
+		filepath.Join(root, "output", "demo.mp4"),
+		[]byte(validMP4Fixture("video")),
+		0o644,
+	))
+	declaration := strings.Replace(
+		validPublishedVideoDeclaration(1),
+		`"stage":"ready"`,
+		`"stage":"rendering"`,
+		1,
+	)
+
+	_, err := PublishArtifactDeclaration(root, json.RawMessage(declaration))
+
+	require.ErrorContains(t, err, "published video manifest stage must be ready")
 }
 
 func validPublishedVideoDeclaration(revision uint64) string {

@@ -270,7 +270,7 @@ func TestEmbedReadCapabilityReachesArtifactContentRoute(t *testing.T) {
 		embedSessionToken(t, deps, []string{"read"}),
 	)
 
-	assert.Equal(t, http.StatusServiceUnavailable, response.Code, response.Body.String())
+	assert.Equal(t, http.StatusBadRequest, response.Code, response.Body.String())
 }
 
 func TestEmbedWorkspaceRoutesRequireTheirExplicitCapabilities(t *testing.T) {

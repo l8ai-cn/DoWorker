@@ -90,6 +90,18 @@ func (h *RunnerMessageHandler) dispatchSandboxFsOpWorkspace(
 			cmd.Offset,
 			cmd.Length,
 		)
+	case "read_verified_bytes":
+		request, err := parseVerifiedArtifactRead(cmd.Payload)
+		if err != nil {
+			return fsErrResult(err.Error()), nil
+		}
+		return h.sandboxFsReadVerifiedArtifactWorkspace(
+			workspace,
+			cmd.Path,
+			cmd.Offset,
+			cmd.Length,
+			request,
+		)
 	case "write":
 		return h.sandboxFsWrite(root, cmd.Path, cmd.Payload)
 	case "download":

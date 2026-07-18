@@ -2,10 +2,13 @@ import { Bot, CircleAlert, Wifi, WifiOff } from "lucide-react";
 
 import { useAgentWorkspaceText } from "./AgentWorkspaceLocaleContext";
 import type { AgentSessionSnapshot } from "./contracts";
+import type { AgentWorkspacePresentation } from "./userWorkspacePresentation";
 
 export function WorkspaceHeader({
+  presentation,
   snapshot,
 }: {
+  presentation: AgentWorkspacePresentation;
   snapshot: AgentSessionSnapshot;
 }) {
   const connected = snapshot.connection === "connected";
@@ -19,14 +22,15 @@ export function WorkspaceHeader({
         <div className="truncate text-sm font-medium">{snapshot.title}</div>
         <div className="flex min-w-0 items-center gap-1.5 overflow-hidden text-xs text-muted-foreground">
           <span className="shrink-0">{snapshot.agentLabel}</span>
-          {(snapshot.metadata ?? []).map((item) => (
-            <span className="contents" key={item.id}>
-              <span aria-hidden="true">·</span>
-              <span className="truncate" title={`${item.label}: ${item.value}`}>
-                {item.value}
+          {presentation === "developer" &&
+            (snapshot.metadata ?? []).map((item) => (
+              <span className="contents" key={item.id}>
+                <span aria-hidden="true">·</span>
+                <span className="truncate" title={`${item.label}: ${item.value}`}>
+                  {item.value}
+                </span>
               </span>
-            </span>
-          ))}
+            ))}
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">

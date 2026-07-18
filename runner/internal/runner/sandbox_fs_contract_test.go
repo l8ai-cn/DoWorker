@@ -2,10 +2,14 @@ package runner
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
+	runnerv1 "github.com/anthropics/agentsmesh/proto/gen/go/runner/v1"
 	"github.com/anthropics/agentsmesh/runner/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -94,6 +98,127 @@ func TestSandboxFsReadTruncatesFilesAbovePreviewLimit(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, result.GetTruncated())
 	assert.Equal(t, int64(len(content)), result.GetFileBytes())
+}
+
+func TestSandboxFsReadBytesReturnsExactRange(t *testing.T) {
+	root := t.TempDir()
+	require.NoError(t, os.WriteFile(
+		filepath.Join(root, "demo.mp4"),
+		[]byte("0123456789"),
+		0o644,
+	))
+
+	result, err := (&RunnerMessageHandler{}).sandboxFsReadBytes(
+		root,
+		"demo.mp4",
+		2,
+		4,
+	)
+
+	require.NoError(t, err)
+	require.Empty(t, result.GetError())
+	assert.Equal(t, []byte("2345"), result.GetContentBytes())
+	assert.Equal(t, int64(2), result.GetContentOffset())
+	assert.Equal(t, int64(10), result.GetFileBytes())
+	assert.False(t, result.GetEof())
+	assert.Equal(t, "video/mp4", result.GetContentType())
+}
+
+func TestSandboxFsReadBytesClampsAtEndOfFile(t *testing.T) {
+	root := t.TempDir()
+	require.NoError(t, os.WriteFile(
+		filepath.Join(root, "result.bin"),
+		[]byte("0123456789"),
+		0o644,
+	))
+
+	result, err := (&RunnerMessageHandler{}).sandboxFsReadBytes(
+		root,
+		"result.bin",
+		8,
+		4,
+	)
+
+	require.NoError(t, err)
+	require.Empty(t, result.GetError())
+	assert.Equal(t, []byte("89"), result.GetContentBytes())
+	assert.True(t, result.GetEof())
+}
+
+func TestSandboxFsReadBytesRejectsInvalidLength(t *testing.T) {
+	root := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(root, "result.bin"), []byte("x"), 0o644))
+
+	zero, err := (&RunnerMessageHandler{}).sandboxFsReadBytes(root, "result.bin", 0, 0)
+	require.NoError(t, err)
+	assert.NotEmpty(t, zero.GetError())
+
+	large, err := (&RunnerMessageHandler{}).sandboxFsReadBytes(
+		root,
+		"result.bin",
+		0,
+		maxSandboxFsReadChunkBytes+1,
+	)
+	require.NoError(t, err)
+	assert.NotEmpty(t, large.GetError())
+}
+
+func TestSandboxFsVerifiedReadReturnsPublishedBytes(t *testing.T) {
+	root := t.TempDir()
+	data := []byte("published-video")
+	require.NoError(t, os.WriteFile(filepath.Join(root, "result.mp4"), data, 0o644))
+
+	result, err := (&RunnerMessageHandler{}).dispatchSandboxFsOp(
+		root,
+		verifiedArtifactCommand(t, data, 2, 5),
+	)
+
+	require.NoError(t, err)
+	require.Empty(t, result.GetError())
+	assert.Equal(t, []byte("blish"), result.GetContentBytes())
+	assert.Equal(t, int64(len(data)), result.GetFileBytes())
+}
+
+func TestSandboxFsVerifiedReadRejectsSameSizeReplacement(t *testing.T) {
+	root := t.TempDir()
+	original := []byte("original-video")
+	replacement := []byte("replaced-video")
+	require.Equal(t, len(original), len(replacement))
+	require.NoError(t, os.WriteFile(
+		filepath.Join(root, "result.mp4"),
+		replacement,
+		0o644,
+	))
+
+	result, err := (&RunnerMessageHandler{}).dispatchSandboxFsOp(
+		root,
+		verifiedArtifactCommand(t, original, 0, int64(len(original))),
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, "artifact integrity mismatch", result.GetError())
+	assert.Empty(t, result.GetContentBytes())
+}
+
+func TestSandboxFsStatReturnsArtifactMetadataWithoutContent(t *testing.T) {
+	root := t.TempDir()
+	require.NoError(t, os.WriteFile(
+		filepath.Join(root, "slides.pptx"),
+		[]byte("deck"),
+		0o644,
+	))
+
+	result, err := (&RunnerMessageHandler{}).sandboxFsStat(root, "slides.pptx")
+
+	require.NoError(t, err)
+	require.Empty(t, result.GetError())
+	assert.Equal(t, int64(4), result.GetFileBytes())
+	assert.Equal(
+		t,
+		"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+		result.GetContentType(),
+	)
+	assert.Empty(t, result.GetContentBytes())
 }
 
 func TestSandboxFsWriteRejectsSymlinkDirectoryOutsideWorkspace(t *testing.T) {
@@ -192,4 +317,24 @@ func TestDetachedPodWorkspaceRootRejectsSymlinkOutsideRunnerWorkspace(t *testing
 	)
 
 	require.Error(t, err)
+}
+
+func verifiedArtifactCommand(
+	t *testing.T,
+	data []byte,
+	offset int64,
+	length int64,
+) *runnerv1.SandboxFsCommand {
+	t.Helper()
+	request := verifiedArtifactRead{
+		ArtifactID: "video-1", RepresentationID: "playable", Revision: 1,
+		FileBytes: uint64(len(data)),
+		Digest:    fmt.Sprintf("sha256:%x", sha256.Sum256(data)),
+	}
+	payload, err := json.Marshal(request)
+	require.NoError(t, err)
+	return &runnerv1.SandboxFsCommand{
+		Op: "read_verified_bytes", Path: "result.mp4",
+		Offset: offset, Length: length, Payload: string(payload),
+	}
 }

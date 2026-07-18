@@ -1,8 +1,7 @@
-import type {
-  AgentConnectionStatus,
-  AgentSessionStatus,
-} from "./contracts";
+import type { AgentConnectionStatus, AgentSessionStatus } from "./contracts";
 import {
+  englishConfigurationLabel,
+  englishConfigurationOption,
   localizeConfigurationLabel,
   localizeConfigurationOption,
 } from "./configurationLocalization";
@@ -22,10 +21,22 @@ import {
   englishToolActivityGroupSummary,
   type ToolActivityCount,
 } from "./toolActivityGroupText";
+import {
+  artifactWorkspaceText,
+  type ArtifactWorkspaceText,
+} from "./artifactWorkspaceText";
+import {
+  chineseVideoTaskStatus,
+  englishVideoTaskStatus,
+  type VideoTaskStatusText,
+} from "./videoTaskStatusText";
 
 export type AgentWorkspaceLocale = "en-US" | "zh-CN";
 export interface AgentWorkspaceText {
   conversation: string;
+  results: string;
+  artifacts: string;
+  workspaceViews: string;
   terminal: string;
   plan: string;
   agentPlan: string;
@@ -52,6 +63,9 @@ export interface AgentWorkspaceText {
   details: string;
   takeControl: string;
   releaseControl: string;
+  taskFailed: string;
+  videoTaskStatus: VideoTaskStatusText;
+  artifact: ArtifactWorkspaceText;
   generatedArtifact: string;
   emptyHeading(agentLabel: string): string;
   composerPlaceholder(agentLabel: string): string;
@@ -70,7 +84,9 @@ export interface AgentWorkspaceText {
     status: AgentSessionStatus,
     connection: AgentConnectionStatus,
   ): string;
-  activityStatus(status: "pending" | "running" | "completed" | "failed"): string;
+  activityStatus(
+    status: "pending" | "running" | "completed" | "failed",
+  ): string;
   artifactType(kind: string, fallback: string): string;
   toolText(value: string): string;
   toolActivityGroupSummary(counts: ToolActivityCount[]): string;
@@ -85,6 +101,9 @@ export function agentWorkspaceText(
 
 const enUS: AgentWorkspaceText = {
   conversation: "Conversation",
+  results: "Results",
+  artifacts: "Artifacts",
+  workspaceViews: "Workspace views",
   terminal: "Terminal",
   plan: "Plan",
   agentPlan: "Agent plan",
@@ -111,10 +130,12 @@ const enUS: AgentWorkspaceText = {
   details: "Details",
   takeControl: "Take control",
   releaseControl: "Release control",
+  taskFailed: "The task failed. No verified result is available.",
+  videoTaskStatus: englishVideoTaskStatus,
+  artifact: artifactWorkspaceText("en-US"),
   generatedArtifact: "Generated artifact",
   emptyHeading: (agentLabel) => `${agentLabel}, what should we work on?`,
-  composerPlaceholder: (agentLabel) =>
-    `Ask ${agentLabel} to work on a task…`,
+  composerPlaceholder: (agentLabel) => `Ask ${agentLabel} to work on a task…`,
   requiresArgument: (commandLabel) => `${commandLabel} requires an argument`,
   slashCommandAttachmentsUnsupported:
     "Slash commands cannot include attachments. Remove the attachments or send a regular message.",
@@ -125,8 +146,8 @@ const enUS: AgentWorkspaceText = {
   openArtifact: (filename) => `Open ${filename}`,
   downloadArtifact: (filename) => `Download ${filename}`,
   configurationOptions: (label) => `${label} options`,
-  configurationLabel: (_id, fallback) => fallback,
-  configurationOption: (_id, _value, fallback) => fallback,
+  configurationLabel: englishConfigurationLabel,
+  configurationOption: englishConfigurationOption,
   sessionStatus: englishSessionStatus,
   activityStatus: englishActivityStatus,
   artifactType: (_kind, fallback) => fallback,
@@ -137,6 +158,9 @@ const enUS: AgentWorkspaceText = {
 
 const zhCN: AgentWorkspaceText = {
   conversation: "对话",
+  results: "成果",
+  artifacts: "成果列表",
+  workspaceViews: "工作区视图",
   terminal: "终端",
   plan: "执行计划",
   agentPlan: "智能体执行计划",
@@ -163,6 +187,9 @@ const zhCN: AgentWorkspaceText = {
   details: "详细信息",
   takeControl: "接管终端",
   releaseControl: "释放控制",
+  taskFailed: "任务执行失败，当前没有可验证的成果。",
+  videoTaskStatus: chineseVideoTaskStatus,
+  artifact: artifactWorkspaceText("zh-CN"),
   generatedArtifact: "生成的成果",
   emptyHeading: (agentLabel) => `${agentLabel}，我能为你做什么？`,
   composerPlaceholder: (agentLabel) => `让 ${agentLabel} 帮你完成任务…`,

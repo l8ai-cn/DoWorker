@@ -547,6 +547,18 @@ importers:
 
   packages/agent-ui:
     dependencies:
+      '@bufbuild/protobuf':
+        specifier: ^2.2.0
+        version: 2.12.0
+      '@connectrpc/connect':
+        specifier: 2.1.2
+        version: 2.1.2(@bufbuild/protobuf@2.12.0)
+      '@connectrpc/connect-web':
+        specifier: 2.1.2
+        version: 2.1.2(@bufbuild/protobuf@2.12.0)(@connectrpc/connect@2.1.2(@bufbuild/protobuf@2.12.0))
+      '@do-worker/proto':
+        specifier: workspace:*
+        version: link:../../proto
       '@xterm/addon-fit':
         specifier: '*'
         version: 0.11.0
