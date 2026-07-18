@@ -67,7 +67,6 @@ func TestDefinitionSchemasDecodeValidSpecs(t *testing.T) {
 		}`},
 		{KindGoalLoop, `{
 			"workerTemplateRef":{"kind":"WorkerTemplate","name":"reviewer"},
-			"description":"Repair checkout deterministically",
 			"objective":"Fix checkout",
 			"acceptanceCriteria":["Tests pass"],
 			"verificationCommand":"go test ./...",

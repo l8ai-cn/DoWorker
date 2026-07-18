@@ -139,8 +139,21 @@ func orchestrationApplyInitialResource(
 	t *testing.T,
 	repo orchestrationservice.Repository,
 ) orchestrationcontrol.ResourceHead {
+	return orchestrationApplyInitialResourceForActor(t, repo, 7)
+}
+
+func orchestrationApplyInitialResourceForActor(
+	t *testing.T,
+	repo orchestrationservice.Repository,
+	actorID int64,
+) orchestrationcontrol.ResourceHead {
 	t.Helper()
 	plan := orchestrationApplyTestCreatePlan(t)
+	plan.ActorID = actorID
+	plan.Scope.ActorID = actorID
+	var err error
+	plan.PlanHash, err = orchestrationcontrol.ComputePlanHash(plan.HashInput())
+	require.NoError(t, err)
 	require.NoError(t, repo.CreatePlan(context.Background(), plan))
 	head, err := repo.RunApplyTransaction(
 		context.Background(),
@@ -264,6 +277,14 @@ CREATE TABLE organizations (
 	slug VARCHAR(100) NOT NULL UNIQUE
 );
 CREATE TABLE users (id BIGINT PRIMARY KEY);
+CREATE TABLE organization_members (
+	id BIGSERIAL PRIMARY KEY,
+	organization_id BIGINT NOT NULL,
+	user_id BIGINT NOT NULL,
+	role VARCHAR(50) NOT NULL,
+	joined_at TIMESTAMPTZ NOT NULL DEFAULT transaction_timestamp(),
+	UNIQUE (organization_id, user_id)
+);
 CREATE TABLE worker_spec_snapshots (
 	id BIGSERIAL PRIMARY KEY,
 	organization_id BIGINT NOT NULL,
@@ -275,4 +296,6 @@ CREATE TABLE worker_spec_snapshots (
 );
 INSERT INTO organizations (id, slug) VALUES (42, 'team-alpha'), (99, 'team-beta');
 INSERT INTO users (id) VALUES (7), (8);
+INSERT INTO organization_members (organization_id, user_id, role)
+VALUES (42, 7, 'owner');
 `

@@ -19,8 +19,7 @@ import (
 func TestTrigger_AgentActionFiresOnCreate(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -91,8 +90,7 @@ func TestTrigger_AgentActionFiresOnCreate(t *testing.T) {
 func TestTrigger_PredicateFilters(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -173,8 +171,7 @@ func TestTrigger_PredicateFilters(t *testing.T) {
 func TestTrigger_WebhookSSRFGuard(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()

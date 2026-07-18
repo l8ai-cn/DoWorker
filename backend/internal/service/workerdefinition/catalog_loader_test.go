@@ -52,6 +52,18 @@ func TestCursorDefinitionDoesNotRequirePlatformModelResource(t *testing.T) {
 	assert.Empty(t, cursor.ModelRequirement.ProtocolAdapters)
 }
 
+func TestE2EEchoDefinitionIsInternalAndCredentialFree(t *testing.T) {
+	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
+
+	require.NoError(t, err)
+	echo, ok := catalog.Get("e2e-echo")
+	require.True(t, ok)
+	assert.True(t, echo.Internal)
+	assert.False(t, echo.ModelRequirement.Required)
+	assert.Empty(t, echo.CredentialBindings)
+	assert.Equal(t, "e2e-mock-agent", echo.Executable)
+}
+
 func TestGeminiDefinitionUsesGeminiAPIKey(t *testing.T) {
 	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
 
@@ -61,6 +73,18 @@ func TestGeminiDefinitionUsesGeminiAPIKey(t *testing.T) {
 	require.Len(t, gemini.CredentialBindings, 1)
 	assert.Equal(t, "GEMINI_API_KEY", gemini.CredentialBindings[0].Target.Name)
 	assert.Contains(t, gemini.AgentFile, "ENV GEMINI_API_KEY SECRET OPTIONAL")
+}
+
+func TestAiderDefinitionRequiresOneProviderCredential(t *testing.T) {
+	catalog, err := Load(filepath.Join(repositoryRoot(t), "config", "worker-types"))
+
+	require.NoError(t, err)
+	aider, ok := catalog.Get("aider")
+	require.True(t, ok)
+	assert.Equal(t, []CredentialRequirementGroup{{
+		ID:    "provider-api-key",
+		AnyOf: []string{"OPENAI_API_KEY", "ANTHROPIC_API_KEY"},
+	}}, aider.CredentialRequirementGroups)
 }
 
 func TestMiniMaxDefinitionUsesOneShotChatCommand(t *testing.T) {

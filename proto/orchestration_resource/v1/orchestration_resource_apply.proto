@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package proto.orchestration_resource.v1;
+
+import "orchestration_resource/v1/orchestration_resource_types.proto";
+
+option go_package = "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1;orchestrationresourcev1";
+
+message ApplyBindingResourcePlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message ApplyWorkerTemplatePlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message ApplyWorkerTemplatePlanResponse {
+  Resource resource = 1;
+  int64 worker_spec_snapshot_id = 2;
+}
+
+message CreateWorkerFromPlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message CreateWorkerFromPlanResponse {
+  Resource resource = 1;
+  int64 launch_id = 2;
+  int64 pod_id = 3;
+  string pod_key = 4;
+  int64 worker_spec_snapshot_id = 5;
+  int64 resource_revision = 6;
+  int64 runner_id = 7;
+}
+
+message CreateGoalLoopFromPlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message CreateGoalLoopFromPlanResponse {
+  Resource resource = 1;
+  int64 goal_loop_id = 2;
+  int64 worker_spec_snapshot_id = 3;
+  int64 resource_revision = 4;
+}
+
+message ApplyPromptPlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message ApplyExpertPlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message ApplyExpertPlanResponse {
+  Resource resource = 1;
+  int64 expert_id = 2;
+  int64 worker_spec_snapshot_id = 3;
+  int64 resource_revision = 4;
+}
+
+message ApplyWorkflowPlanRequest {
+  string org_slug = 1;
+  string plan_id = 2;
+}
+
+message ApplyWorkflowPlanResponse {
+  Resource resource = 1;
+  int64 workflow_id = 2;
+  int64 worker_spec_snapshot_id = 3;
+  int64 resource_revision = 4;
+}

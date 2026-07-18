@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/anthropics/agentsmesh/tests/mcp-e2e/client"
 	"github.com/anthropics/agentsmesh/tests/mcp-e2e/fixture"
 )
 
@@ -23,9 +24,21 @@ func TestCrossRunner_PodInteractionRoutesThroughBackend(t *testing.T) {
 	if r1.ID == r2.ID {
 		t.Fatalf("expected two distinct runners, got the same: %+v", r1)
 	}
+	restore := func() { restoreRunnerScheduling(t, env, rest, r1, r2) }
+	t.Cleanup(restore)
 
-	podA := fixture.NewEchoPod(t, env, rest, r1.ID)
-	podB := fixture.NewEchoPod(t, env, rest, r2.ID)
+	setOnlyRunnerAvailable(t, env, rest, r1.ID, r2.ID)
+	podA := fixture.NewEchoPod(t, env, rest)
+	setOnlyRunnerAvailable(t, env, rest, r2.ID, r1.ID)
+	podB := fixture.NewEchoPod(t, env, rest)
+	restore()
+	if podA.Pod.RunnerID != r1.ID || podB.Pod.RunnerID != r2.ID {
+		t.Fatalf(
+			"scheduler placement mismatch: podA=%d podB=%d",
+			podA.Pod.RunnerID,
+			podB.Pod.RunnerID,
+		)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -74,8 +87,9 @@ func TestCrossRunner_PodInteractionRoutesThroughBackend(t *testing.T) {
 func TestCrossRunner_BothRunnersListed(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	r1 := fixture.DiscoverRunnerByNode(t, env, rest, "dev-runner")
-	pod := fixture.NewEchoPod(t, env, rest, r1.ID)
+	_ = fixture.DiscoverRunnerByNode(t, env, rest, "dev-runner")
+	_ = fixture.DiscoverRunnerByNode(t, env, rest, "dev-runner-2")
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -87,6 +101,49 @@ func TestCrossRunner_BothRunnersListed(t *testing.T) {
 	for _, want := range []string{"dev-runner", "dev-runner-2"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("expected runner %q in list_runners (cross-runner stack should expose both):\n%s", want, out)
+		}
+	}
+}
+
+func setOnlyRunnerAvailable(
+	t *testing.T,
+	env *fixture.Env,
+	rest *client.REST,
+	enabledRunnerID, disabledRunnerID int64,
+) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := rest.UpdateRunnerScheduling(
+		ctx, env.DevOrgSlug, enabledRunnerID, true, 10,
+	); err != nil {
+		t.Fatalf("enable runner %d for scheduling: %v", enabledRunnerID, err)
+	}
+	if err := rest.UpdateRunnerScheduling(
+		ctx, env.DevOrgSlug, disabledRunnerID, false, 10,
+	); err != nil {
+		t.Fatalf("disable runner %d for scheduling: %v", disabledRunnerID, err)
+	}
+}
+
+func restoreRunnerScheduling(
+	t *testing.T,
+	env *fixture.Env,
+	rest *client.REST,
+	runners ...client.Runner,
+) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	for _, runner := range runners {
+		if err := rest.UpdateRunnerScheduling(
+			ctx,
+			env.DevOrgSlug,
+			runner.ID,
+			runner.IsEnabled,
+			runner.MaxConcurrentPods,
+		); err != nil {
+			t.Errorf("restore runner %d scheduling: %v", runner.ID, err)
 		}
 	}
 }

@@ -47,6 +47,12 @@ func workerDraftFromProto(message *podv1.WorkerSpecDraft) (workercreation.Draft,
 	for index, id := range message.GetEnvBundleIds() {
 		envBundleIDs[index] = specdomain.RuntimeEnvBundleID(id)
 	}
+	configBindings, err := workerConfigDocumentBindingsFromProto(
+		message.GetConfigDocumentBindings(),
+	)
+	if err != nil {
+		return workercreation.Draft{}, err
+	}
 	var customResources *specdomain.ResourceRequestsLimits
 	if resource := message.GetCustomResources(); resource != nil {
 		customResources = &specdomain.ResourceRequestsLimits{
@@ -80,14 +86,14 @@ func workerDraftFromProto(message *podv1.WorkerSpecDraft) (workercreation.Draft,
 				AutomationLevel: specdomain.AutomationLevel(message.GetAutomationLevel()),
 			},
 			Workspace: specdomain.Workspace{
-				RepositoryID:    optionalInt64(message.RepositoryId),
-				Branch:          message.GetBranch(),
-				SkillIDs:        append([]int64{}, message.GetSkillIds()...),
-				KnowledgeMounts: knowledge,
-				EnvBundleIDs:    envBundleIDs,
-				ConfigBundleIDs: append([]int64{}, message.GetConfigBundleIds()...),
-				Instructions:    message.GetInstructions(),
-				InitialTask:     message.GetInitialTask(),
+				RepositoryID:           optionalInt64(message.RepositoryId),
+				Branch:                 message.GetBranch(),
+				SkillIDs:               append([]int64{}, message.GetSkillIds()...),
+				KnowledgeMounts:        knowledge,
+				EnvBundleIDs:           envBundleIDs,
+				ConfigDocumentBindings: configBindings,
+				Instructions:           message.GetInstructions(),
+				InitialTask:            message.GetInitialTask(),
 			},
 			Lifecycle: specdomain.Lifecycle{
 				TerminationPolicy:  specdomain.TerminationPolicy(message.GetTerminationPolicy()),

@@ -19,6 +19,7 @@ type Service interface {
 	Validate(context.Context, service.ValidateRequest) (service.ValidationResult, error)
 	Plan(context.Context, service.PlanRequest) (service.PlanResult, error)
 	GetResource(context.Context, control.Scope, control.ResourceTarget) (control.ResourceHead, error)
+	GetResourceCapabilities(context.Context, control.Scope, control.ResourceTarget) (service.ResourceCapabilities, error)
 	ListResources(context.Context, control.Scope, service.ResourceListFilter) (service.ResourceListPage, error)
 	ExportResource(context.Context, service.ExportResourceRequest) (service.ResourceExport, error)
 	GetResourcePlan(context.Context, control.Scope, string) (control.Plan, error)

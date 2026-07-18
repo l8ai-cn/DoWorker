@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { AlertMessage } from "@/components/ui/alert-message";
 import { FormField } from "@/components/ui/form-field";
@@ -34,8 +35,17 @@ export function ResourceYamlPanel({
           error={error ?? undefined}
         />
       </FormField>
-      <div className="flex justify-end text-xs text-muted-foreground">
-        {bytes.toLocaleString()} / 262,144 bytes
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span>{t("yaml.limits")}</span>
+          <Link
+            href="/docs/concepts/resource-orchestration#yaml"
+            className="font-medium text-primary hover:underline"
+          >
+            {t("yaml.manual")}
+          </Link>
+        </div>
+        <span>{bytes.toLocaleString()} / 262,144 bytes</span>
       </div>
       {error && (
         <AlertMessage type="error" message={t("yaml.invalid")} />

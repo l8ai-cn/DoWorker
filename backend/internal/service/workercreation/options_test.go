@@ -49,6 +49,11 @@ func TestServiceListOptionsReturnsSelectableRuntimeAndBlockingReasons(t *testing
 	assert.Equal(t, runtimedomain.DefaultCatalogRevision(), options.Revision)
 	require.Len(t, options.WorkerTypes, 2)
 	assert.True(t, options.WorkerTypes[0].Selectable)
+	assert.Equal(
+		t,
+		[]string{"openai-compatible"},
+		options.WorkerTypes[0].ModelProtocolAdapters,
+	)
 	assert.False(t, options.WorkerTypes[1].Selectable)
 	assert.Contains(t, options.WorkerTypes[1].BlockingReason, "runtime image")
 	require.Len(t, options.RuntimeImages, 1)
@@ -95,6 +100,32 @@ func TestServiceListOptionsExposesModelRequirement(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, options.WorkerTypes, 1)
 	assert.False(t, options.WorkerTypes[0].RequiresModelResource)
+}
+
+func TestServiceListOptionsExposesInternalWorkerOnlyInE2EEnvironment(t *testing.T) {
+	t.Setenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS", "true")
+	source := "AGENT echo\nEXECUTABLE e2e-mock-agent\nMODE pty\n"
+	echo := activeWorkerTypeAgentFor("e2e-echo", "e2e-mock-agent", source)
+	echo.IsInternal = true
+	echo.SupportedModes = "pty"
+	service := NewService(Deps{
+		Catalog: runtimeCatalogWithE2EEcho(),
+		Definitions: staticWorkerDefinitions{
+			"e2e-echo": workerDefinition("e2e-echo", "e2e-mock-agent", source, "pty"),
+		},
+		Agents:  &workerOptionsAgentProvider{agents: []*agentdomain.Agent{echo}},
+		Runners: workerOptionsRunnerAvailability{available: true},
+	})
+
+	options, err := service.ListOptions(
+		context.Background(),
+		specservice.Scope{OrgID: 77, UserID: 7},
+		OptionsFilter{WorkerTypeSlug: "e2e-echo"},
+	)
+
+	require.NoError(t, err)
+	require.Len(t, options.WorkerTypes, 1)
+	assert.True(t, options.WorkerTypes[0].Selectable)
 }
 
 func TestServiceListOptionsRequiresRunnerAvailabilityResolver(t *testing.T) {

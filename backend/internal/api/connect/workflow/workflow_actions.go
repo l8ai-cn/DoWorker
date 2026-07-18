@@ -97,6 +97,9 @@ func (s *Server) TriggerWorkflow(
 		if errors.Is(err, workflowsvc.ErrWorkflowDisabled) {
 			return nil, connect.NewError(connect.CodeFailedPrecondition, errors.New("workflow is disabled"))
 		}
+		if errors.Is(err, workflowDomain.ErrWorkflowResourceRequired) {
+			return nil, connect.NewError(connect.CodeFailedPrecondition, err)
+		}
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 

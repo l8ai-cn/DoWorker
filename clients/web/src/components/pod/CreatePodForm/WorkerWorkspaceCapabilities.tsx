@@ -29,6 +29,11 @@ export function WorkerWorkspaceCapabilities({
     controller.configBundles.status === "ready"
       ? controller.configBundles.data
       : [];
+  const configRequirements = controller.options.status === "ready"
+    ? controller.options.data.worker_types.find(
+      (option) => option.slug === draft.worker_type_slug,
+    )?.config_document_requirements ?? []
+    : [];
   const selectedSkillSlugs = draft.skill_ids.flatMap((id) => {
     const slug = skills.find((item) => item.id === id)?.slug;
     return slug ? [slug] : [];
@@ -98,13 +103,19 @@ export function WorkerWorkspaceCapabilities({
         }
         t={t}
       />
-      <WorkerConfigFileSelect
-        agentSlug={draft.worker_type_slug}
-        bundles={configBundles}
-        selectedIds={draft.config_bundle_ids}
-        onChange={(config_bundle_ids) => controller.patchDraft({ config_bundle_ids })}
-        t={t}
-      />
+      {controller.configBundles.status === "error" ? (
+        <AlertMessage type="error" message={controller.configBundles.error} />
+      ) : (
+        <WorkerConfigFileSelect
+          agentSlug={draft.worker_type_slug}
+          requirements={configRequirements}
+          bundles={configBundles}
+          bindings={draft.config_document_bindings}
+          onChange={(config_document_bindings) =>
+            controller.patchDraft({ config_document_bindings })}
+          t={t}
+        />
+      )}
     </div>
   );
 }

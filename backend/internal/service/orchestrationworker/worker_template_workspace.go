@@ -55,10 +55,10 @@ func resolveWorkerWorkspace(
 	if err != nil {
 		return workerspec.Workspace{}, err
 	}
-	configIDs, err := resolveEntityIDs(
+	configBindings, err := resolveConfigDocumentBindings(
 		ctx,
 		scope,
-		spec.ConfigBundleRefs,
+		spec.ConfigDocumentBindings,
 		pins,
 		bindings,
 	)
@@ -76,9 +76,39 @@ func resolveWorkerWorkspace(
 	return workerspec.Workspace{
 		RepositoryID: repository, Branch: spec.Branch, SkillIDs: skillIDs,
 		KnowledgeMounts: knowledge, EnvBundleIDs: envBundles,
-		ConfigBundleIDs: configIDs, Instructions: spec.Instructions,
+		ConfigDocumentBindings: configBindings, Instructions: spec.Instructions,
 		InitialTask: "",
 	}, nil
+}
+
+func resolveConfigDocumentBindings(
+	ctx context.Context,
+	scope control.Scope,
+	bindings []resource.WorkerTemplateConfigDocumentBinding,
+	pins pinnedReferenceIndex,
+	resolver BindingResolver,
+) ([]workerspec.ConfigDocumentBinding, error) {
+	resolved := make(
+		[]workerspec.ConfigDocumentBinding,
+		len(bindings),
+	)
+	for index, binding := range bindings {
+		id, err := resolveEntityID(
+			ctx,
+			scope,
+			binding.ConfigBundleRef,
+			pins,
+			resolver,
+		)
+		if err != nil {
+			return nil, err
+		}
+		resolved[index] = workerspec.ConfigDocumentBinding{
+			DocumentID:     binding.DocumentID,
+			ConfigBundleID: id,
+		}
+	}
+	return resolved, nil
 }
 
 func resolveKnowledgeMounts(

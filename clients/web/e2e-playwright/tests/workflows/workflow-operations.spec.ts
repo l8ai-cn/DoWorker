@@ -2,6 +2,7 @@
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
+import { createResourceWorkflow } from "../../helpers/resource-workflow";
 test.describe("Workflow Operations", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
 
@@ -18,14 +19,12 @@ test.describe("Workflow Operations", () => {
 
   test("workflows: list → detail navigation", async ({ page, api }) => {
     const cc = await api.connect();
-    const created = await cc.workflow.createWorkflow({
-      orgSlug: TEST_ORG_SLUG,
+    const created = await createResourceWorkflow(cc, {
       name: `E2E Workflow Nav ${Date.now()}`,
       slug: `e2e-workflow-nav-${Date.now()}`,
-      agentSlug: "claude-code",
       cronExpression: "0 * * * *",
-      promptTemplate: "echo nav test",
-    }) as { slug: string };
+      prompt: "echo nav test",
+    });
     const slug = created.slug;
     expect(slug).toBeTruthy();
     await page.goto(`/${TEST_ORG_SLUG}/workflows`);

@@ -80,7 +80,7 @@ export function createInitialWorkerDraftState(
       skill_ids: [],
       knowledge_mounts: [],
       env_bundle_ids: [],
-      config_bundle_ids: [],
+      config_document_bindings: [],
       instructions: "",
       initial_task: "",
       termination_policy: "manual",
@@ -119,7 +119,7 @@ export function workerCreateDraftReducer(
         secret_refs: [],
         skill_ids: [],
         env_bundle_ids: [],
-        config_bundle_ids: [],
+        config_document_bindings: [],
       });
     case "set_lifecycle":
       return invalidatePreflight(state, {

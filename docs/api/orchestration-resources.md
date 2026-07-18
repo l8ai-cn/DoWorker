@@ -36,12 +36,18 @@ protobuf 类型和 Rust/WASM service runtime，不应手写 JSON REST 请求。
 
 | RPC | 说明 |
 | --- | --- |
+| `GetResourceCapabilities` | 查询资源是否存在，以及当前 actor 是否可查看源码、引用和 Plan |
 | `GetResource` | 按 apiVersion、kind、namespace、name 读取 head |
 | `ListResources` | 按组织列出资源，可按 kind、offset、limit 过滤 |
 | `ExportResource` | 导出 active 或指定 revision 的 YAML/JSON |
 
 `ExportResource.revision` 省略或为 0 时导出 active revision。提交草稿不能包含
 导出结果中的服务器字段。
+
+编辑器在读取或导出已有资源前调用 `GetResourceCapabilities`。资源不存在时，
+`exists=false`，`can_plan` 表示是否允许创建；资源存在时，`can_view_source`、
+`can_reference` 和 `can_plan` 分别控制源码读取、作为 ResourceRef 候选和更新
+Plan。客户端不得把 namespace 相同当作权限已通过。
 
 ## TypeScript 调用
 

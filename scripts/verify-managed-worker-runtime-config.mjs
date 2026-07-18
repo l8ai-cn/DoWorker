@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadPublicWorkerDefinitions } from "./public-worker-definitions.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const clusterRoot = path.join(root, "deploy/kubernetes/cluster-oilan");
@@ -8,7 +9,13 @@ const definitions = readJson(path.join(root, "config/worker-types/catalog.json")
 const lock = readJson(
   path.join(root, "backend/internal/domain/workerruntime/runtime_catalog.lock.json"),
 );
-const formalSlugs = new Set(definitions.worker_types.map((worker) => worker.slug));
+const formalSlugs = new Set(
+  loadPublicWorkerDefinitions({
+    definitionCatalog: definitions,
+    readJson,
+    root,
+  }).map(({ entry }) => entry.slug),
+);
 const released = new Map(
   lock.images
     .filter((image) => image.enabled)

@@ -7,6 +7,7 @@ import (
 
 	control "github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationcontrol"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/orchestrationresource"
+	"github.com/anthropics/agentsmesh/backend/internal/service/workerdefinition"
 )
 
 type SourceFormat string
@@ -38,6 +39,13 @@ type PlanRequest = ValidateRequest
 type PlanResult struct {
 	ValidationResult
 	Plan *control.Plan
+}
+
+type ResourceCapabilities struct {
+	Exists        bool
+	CanViewSource bool
+	CanReference  bool
+	CanPlan       bool
 }
 
 type DraftReference struct {
@@ -83,14 +91,19 @@ type ReferenceResolver interface {
 	) (control.ResolvedReference, error)
 }
 
+type WorkerDefinitionPolicyResolver interface {
+	EnvironmentBundlePolicy(string) (workerdefinition.EnvironmentBundlePolicy, bool)
+}
+
 type ServiceDeps struct {
-	Registry      *orchestrationresource.Registry
-	Repository    Repository
-	Authorizer    Authorizer
-	References    ReferenceResolver
-	Planners      []TargetPlanner
-	RequiredTypes []orchestrationresource.TypeMeta
-	Clock         func() time.Time
-	IDGenerator   func() string
-	PlanTTL       time.Duration
+	Registry          *orchestrationresource.Registry
+	Repository        Repository
+	Authorizer        Authorizer
+	References        ReferenceResolver
+	WorkerDefinitions WorkerDefinitionPolicyResolver
+	Planners          []TargetPlanner
+	RequiredTypes     []orchestrationresource.TypeMeta
+	Clock             func() time.Time
+	IDGenerator       func() string
+	PlanTTL           time.Duration
 }

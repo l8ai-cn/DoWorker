@@ -25,7 +25,7 @@ func (resolver *modelResolver) ResolveToolModel(
 	if err != nil {
 		return specdomain.ToolModelBinding{}, err
 	}
-	resolved, err := resolver.resources.ResolveExact(
+	resolved, err := resolver.resources.ResolveMetadata(
 		ctx,
 		resourceservice.Actor{UserID: scope.UserID},
 		scope.OrgID,

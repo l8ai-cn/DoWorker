@@ -1,5 +1,5 @@
 import type { ApiFixture } from "../fixtures/api.fixture";
-import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "./e2e-echo-runner";
+import { createE2EEchoPod } from "./e2e-worker-spec";
 import { TEST_ORG_SLUG, getApiBaseUrl } from "./env";
 import { pollUntil } from "./retry";
 
@@ -37,34 +37,26 @@ export interface MockAgentPod {
   cleanup: () => Promise<void>;
 }
 
-interface Runner { id: bigint; nodeId?: string }
-interface Pod { podKey: string }
+interface Pod { podKey: string; runnerId: bigint }
 
 // createMockAgentPod spawns a pod backed by the e2e-mock-agent binary via
-// Connect-RPC (PodService.CreatePod). Throws when no runner is online —
-// the e2e suite contract is "dev env has at least one online runner", so
-// returning null here would silently mask a missing prerequisite.
+// the same WorkerSpec contract used by production Pod creation.
 // The returned `cleanup` must be invoked from afterEach to avoid quota bleed.
 export async function createMockAgentPod(
   api: ApiFixture,
   opts: CreateMockPodOptions,
 ): Promise<MockAgentPod> {
   const cc = await api.connect();
-  const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items?: Runner[] };
-  const runnerId = pickE2EEchoRunner(runners).id;
-
-  const input: Record<string, unknown> = {
-    orgSlug: TEST_ORG_SLUG,
-    runnerId,
-    agentSlug: E2E_ECHO_AGENT_SLUG,
-    agentfileLayer: buildAgentfileLayer(opts),
-  };
-  if (opts.alias) input.alias = opts.alias;
-
-  const resp = await cc.pod.createPod(input) as { pod?: Pod };
+  const resp = await createE2EEchoPod(cc, {
+    mode: opts.mode,
+    scenario: opts.scenario,
+    prompt: opts.prompt,
+    alias: opts.alias,
+  }) as { pod?: Pod };
   const podKey = resp.pod?.podKey;
-  if (!podKey) {
-    throw new Error(`createMockAgentPod missing podKey: ${JSON.stringify(resp)}`);
+  const runnerId = resp.pod?.runnerId;
+  if (!podKey || !runnerId) {
+    throw new Error("createMockAgentPod returned incomplete pod placement");
   }
 
   if (opts.waitForRelay !== false) {
@@ -97,24 +89,6 @@ export async function createMockAgentPod(
       }
     },
   };
-}
-
-function buildAgentfileLayer(opts: CreateMockPodOptions): string {
-  // Autonomous policy can force ACP unless the layer declares a mode.
-  const lines: string[] = [`MODE ${opts.mode}`];
-  if (opts.scenario && opts.scenario !== "echo") {
-    lines.push(`CONFIG scenario = "${opts.scenario}"`);
-  }
-  // PROMPT travels through the AgentFile layer in the Connect-RPC create
-  // path — CreatePodRequest does not expose a top-level prompt field.
-  if (opts.prompt) {
-    // Escape backslashes and double-quotes for the AgentFile single-line
-    // string syntax (`PROMPT "..."`). Tests pass plain ASCII so this is
-    // sufficient — no multi-line / unicode-escape handling needed.
-    const safe = opts.prompt.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-    lines.push(`PROMPT "${safe}"`);
-  }
-  return lines.length > 0 ? lines.join("\n") + "\n" : "";
 }
 
 // Returns the workspace URL for a given pod, which renders the

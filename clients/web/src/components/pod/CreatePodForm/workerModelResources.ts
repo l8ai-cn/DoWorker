@@ -15,6 +15,11 @@ const AGENT_PROTOCOLS: Record<string, string[]> = {
 
 const MODEL_RESOURCE_AGENTS = new Set(Object.keys(AGENT_PROTOCOLS));
 
+export interface WorkerModelResourceRequirement {
+  required: boolean;
+  protocolAdapters: string[];
+}
+
 export function agentRequiresModelResource(agentSlug: string | null): boolean {
   return Boolean(agentSlug && MODEL_RESOURCE_AGENTS.has(agentSlug));
 }
@@ -27,8 +32,11 @@ export function compatibleModelResources(
   agentSlug: string | null,
   resources: EffectiveResource[],
   providers: ProviderDefinition[],
+  requirement?: WorkerModelResourceRequirement,
 ): EffectiveResource[] {
-  const allowed = agentSlug ? AGENT_PROTOCOLS[agentSlug] : undefined;
+  const allowed = requirement
+    ? (requirement.required ? requirement.protocolAdapters : [])
+    : (agentSlug ? AGENT_PROTOCOLS[agentSlug] : undefined);
   if (!allowed?.length) return [];
   const protocolByProvider = new Map(providers.map((p) => [p.key, p.protocolAdapter]));
   return resources.filter((item) => {
@@ -41,7 +49,7 @@ export function compatibleModelResources(
         item.resource.modalities.includes("chat") &&
         item.resource.capabilities.includes("text-generation") &&
         protocol &&
-        agentSupportsProtocol(agentSlug ?? "", protocol),
+        allowed.includes(protocol),
     );
   });
 }

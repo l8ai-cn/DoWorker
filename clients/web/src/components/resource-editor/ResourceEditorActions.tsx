@@ -10,6 +10,7 @@ interface ResourceEditorActionsProps {
   state: ResourceDraftState;
   kind: ResourceEditorKind;
   canSubmit: boolean;
+  canPlan: boolean;
   canApply: boolean;
   onValidate: () => void;
   onPlan: () => void;
@@ -20,6 +21,7 @@ export function ResourceEditorActions({
   state,
   kind,
   canSubmit,
+  canPlan,
   canApply,
   onValidate,
   onPlan,
@@ -27,10 +29,11 @@ export function ResourceEditorActions({
 }: ResourceEditorActionsProps) {
   const t = useTranslations("resourceEditor");
   return (
-    <div className="sticky bottom-0 z-10 -mx-1 flex flex-wrap justify-end gap-2 border-t border-border bg-background/95 px-1 py-4 backdrop-blur">
+    <div className="sticky bottom-0 z-10 -mx-1 grid grid-cols-2 gap-2 border-t border-border bg-background/95 px-1 py-4 backdrop-blur sm:flex sm:flex-wrap sm:justify-end">
       <Button
         type="button"
         variant="outline"
+        className="h-11 sm:h-9"
         disabled={!canSubmit}
         loading={state.validation.status === "loading"}
         onClick={onValidate}
@@ -43,7 +46,8 @@ export function ResourceEditorActions({
       <Button
         type="button"
         variant="outline"
-        disabled={!canSubmit}
+        className="h-11 sm:h-9"
+        disabled={!canPlan}
         loading={state.plan.status === "loading"}
         onClick={onPlan}
       >
@@ -54,6 +58,7 @@ export function ResourceEditorActions({
       </Button>
       <Button
         type="button"
+        className="col-span-2 h-11 sm:h-9"
         disabled={!canApply}
         loading={state.apply.status === "loading"}
         onClick={onApply}

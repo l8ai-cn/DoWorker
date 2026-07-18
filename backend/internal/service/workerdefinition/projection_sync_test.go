@@ -48,7 +48,7 @@ func TestSyncAgentProjectionsCreatesAndRepairsAllFormalWorkers(t *testing.T) {
 		assert.Equal(t, strings.Join(definition.Modes, ","), projected.SupportedModes, slug)
 		assert.True(t, projected.IsBuiltin, slug)
 		assert.True(t, projected.IsActive, slug)
-		assert.False(t, projected.IsInternal, slug)
+		assert.Equal(t, definition.Internal, projected.IsInternal, slug)
 		assert.False(t, projected.UsesLegacyColumns, slug)
 	}
 }

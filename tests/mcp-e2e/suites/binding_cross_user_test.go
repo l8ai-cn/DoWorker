@@ -21,12 +21,11 @@ func TestBinding_CrossUserPendingThenAccept(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	primaryREST := fixture.SharedREST(t, env)
 	secondaryREST := fixture.SecondaryREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, primaryREST)
 
 	// Pod A owned by dev (primary), Pod B owned by dev2 (secondary). Both
 	// land in dev-org since dev2 is a member there.
-	podA := fixture.NewEchoPod(t, env, primaryREST, runner.ID)
-	podB := fixture.NewEchoPod(t, env, secondaryREST, runner.ID)
+	podA := fixture.NewEchoPod(t, env, primaryREST)
+	podB := fixture.NewEchoPod(t, env, secondaryREST)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -74,9 +73,8 @@ func TestBinding_CrossUserPendingThenReject(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	primaryREST := fixture.SharedREST(t, env)
 	secondaryREST := fixture.SecondaryREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, primaryREST)
-	podA := fixture.NewEchoPod(t, env, primaryREST, runner.ID)
-	podB := fixture.NewEchoPod(t, env, secondaryREST, runner.ID)
+	podA := fixture.NewEchoPod(t, env, primaryREST)
+	podB := fixture.NewEchoPod(t, env, secondaryREST)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -122,9 +120,8 @@ func TestBinding_AccessControlRequiresBinding(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	primaryREST := fixture.SharedREST(t, env)
 	secondaryREST := fixture.SecondaryREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, primaryREST)
-	podA := fixture.NewEchoPod(t, env, primaryREST, runner.ID)
-	podB := fixture.NewEchoPod(t, env, secondaryREST, runner.ID)
+	podA := fixture.NewEchoPod(t, env, primaryREST)
+	podB := fixture.NewEchoPod(t, env, secondaryREST)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()

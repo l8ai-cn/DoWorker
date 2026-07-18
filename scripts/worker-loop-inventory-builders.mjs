@@ -3,6 +3,7 @@ import {
   hasAvailableRuntime,
   mapRuntimeCatalogEvidence,
 } from "./worker-runtime-catalog-evidence.mjs";
+import { loadPublicWorkerDefinitions } from "./public-worker-definitions.mjs";
 import { assertSameSlugs, mapBySlug } from "./worker-loop-json.mjs";
 
 export function buildInventory(context) {
@@ -17,12 +18,17 @@ export function buildInventory(context) {
     loopRelativeRoot,
   } = context;
   const evidenceBySlug = mapBySlug(evidenceMatrix.workers, "evidence matrix");
-  assertSameSlugs(definitionCatalog.worker_types, evidenceMatrix.workers);
+  const publicDefinitions = loadPublicWorkerDefinitions({
+    definitionCatalog,
+    readJson,
+    root,
+  });
+  const publicEntries = publicDefinitions.map(({ entry }) => entry);
+  assertSameSlugs(publicEntries, evidenceMatrix.workers);
 
   return {
     schema_version: 1,
-    workers: definitionCatalog.worker_types.map((entry) => {
-      const definition = readJson(path.join(root, entry.definition_path));
+    workers: publicDefinitions.map(({ entry, definition }) => {
       const evidence = evidenceBySlug.get(entry.slug);
       const runtimeEvidencePath = runtimeEvidenceRelativePath(entry.slug);
       const runtimeEvidence = readJson(path.join(loopRoot, runtimeEvidencePath));
@@ -67,10 +73,15 @@ export function buildInventory(context) {
 }
 
 export function buildDrift(context) {
-  const { definitionCatalog, runtimeCatalog, evidenceMatrix, lockProbes, readJson, loopRoot } =
-    context;
+  const { definitionCatalog, runtimeCatalog, evidenceMatrix, lockProbes } = context;
+  const { readJson, root, loopRoot } = context;
+  const publicDefinitions = loadPublicWorkerDefinitions({
+    definitionCatalog,
+    readJson,
+    root,
+  });
   const runtimeEvidenceBySlug = new Map(
-    definitionCatalog.worker_types.map((entry) => [
+    publicDefinitions.map(({ entry }) => [
       entry.slug,
       readJson(path.join(loopRoot, runtimeEvidenceRelativePath(entry.slug))),
     ]),

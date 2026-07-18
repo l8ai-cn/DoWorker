@@ -22,9 +22,8 @@ func TestChannel_MentionsAndMentionedPodFilter(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	primaryREST := fixture.SharedREST(t, env)
 	secondaryREST := fixture.SecondaryREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, primaryREST)
-	podA := fixture.NewEchoPod(t, env, primaryREST, runner.ID)
-	podB := fixture.NewEchoPod(t, env, secondaryREST, runner.ID)
+	podA := fixture.NewEchoPod(t, env, primaryREST)
+	podB := fixture.NewEchoPod(t, env, secondaryREST)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -89,8 +88,7 @@ func TestChannel_MentionsAndMentionedPodFilter(t *testing.T) {
 func TestChannel_ReplyToCurrentlyIgnoredByBackend(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -147,8 +145,7 @@ func TestChannel_ReplyToCurrentlyIgnoredByBackend(t *testing.T) {
 func TestChannel_SourceMarkdownRendersAsBlocks(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -190,8 +187,7 @@ func TestChannel_SourceMarkdownRendersAsBlocks(t *testing.T) {
 func TestChannel_SystemMessageType(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()

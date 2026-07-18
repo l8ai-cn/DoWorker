@@ -102,24 +102,19 @@ const goalLoopSummaryJSON = `{
   "lifecycle": {"termination_policy": "manual", "idle_timeout_minutes": 0}
 }`
 
-func NewGoalLoopSnapshot(t *testing.T, env *Env) int64 {
+func NewGoalLoopWorkerTemplate(t *testing.T, env *Env) string {
 	t.Helper()
 	db, err := client.OpenDB(env.PostgresDSN)
 	if err != nil {
-		t.Fatalf("open database for goal loop snapshot: %v", err)
+		t.Fatalf("open database for goal loop worker template: %v", err)
 	}
 	t.Cleanup(func() { _ = db.Close() })
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	t.Cleanup(cancel)
-
-	var id int64
-	err = db.QueryRow(ctx, `
-INSERT INTO worker_spec_snapshots (organization_id, version, spec_json, summary_json)
-VALUES ((SELECT id FROM organizations WHERE slug = $1), 1, $2::jsonb, $3::jsonb)
-RETURNING id`, env.DevOrgSlug, goalLoopSpecJSON, goalLoopSummaryJSON).Scan(&id)
+	defer cancel()
+	name, err := seedGoalLoopWorkerTemplate(ctx, db, env)
 	if err != nil {
-		t.Fatalf("create goal loop worker spec snapshot: %v", err)
+		t.Fatalf("create goal loop worker template: %v", err)
 	}
-	return id
+	return name
 }

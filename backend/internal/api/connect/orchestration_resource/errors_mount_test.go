@@ -170,7 +170,7 @@ func TestResolveOrgScopeInternalErrorDoesNotLeakSQL(t *testing.T) {
 	assert.NotContains(t, err.Error(), "secret")
 }
 
-func TestMountRegistersExactlyThirteenResourceProcedures(t *testing.T) {
+func TestMountRegistersExactlyFourteenResourceProcedures(t *testing.T) {
 	server := newTestServer(&serviceStub{}, testOrganizations())
 	mux := http.NewServeMux()
 	Mount(mux, server)
@@ -179,6 +179,7 @@ func TestMountRegistersExactlyThirteenResourceProcedures(t *testing.T) {
 		"/proto.orchestration_resource.v1.OrchestrationResourceService/ValidateResource",
 		"/proto.orchestration_resource.v1.OrchestrationResourceService/PlanResource",
 		"/proto.orchestration_resource.v1.OrchestrationResourceService/GetResource",
+		"/proto.orchestration_resource.v1.OrchestrationResourceService/GetResourceCapabilities",
 		"/proto.orchestration_resource.v1.OrchestrationResourceService/ListResources",
 		"/proto.orchestration_resource.v1.OrchestrationResourceService/ExportResource",
 		"/proto.orchestration_resource.v1.OrchestrationResourceService/GetResourcePlan",

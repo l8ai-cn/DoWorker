@@ -34,7 +34,6 @@ var freshExecutionInventoryFields = []string{
 	"KnowledgeMounts",
 	"AutomationLevel",
 }
-
 var forbiddenForSnapshotOrPlan = map[string]struct{}{
 	"AgentSlug":       {},
 	"RepositoryID":    {},
@@ -48,13 +47,12 @@ func TestFreshExecutionInventory(t *testing.T) {
 	got := discoverFreshExecutionInventory(t)
 
 	expected := map[string]freshExecutionInventoryEntry{
-		"backend/internal/api/connect/pod/create_pod.go:CreatePod": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "RepositoryID", "AgentfileLayer", "SourcePodKey", "ModelResourceID", "KnowledgeMounts", "AutomationLevel"},
+		"backend/internal/api/connect/pod/create_pod_request.go:buildResumePodRequest": {
+			Mode: "lineage", Fields: []string{"SourcePodKey"},
 		},
-		"backend/internal/api/grpc/runner_adapter_mcp_pod.go:mcpCreatePod": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "RepositoryID", "AgentfileLayer", "SourcePodKey"},
+		"backend/internal/api/connect/pod/create_pod_request.go:buildWorkerSpecPodRequest": {
+			Mode:   "plan",
+			Fields: []string{"WorkerSpecDraft"},
 		},
 		"backend/internal/api/rest/v1/pod_create.go:CreatePod": {
 			Mode:   "legacy",
@@ -105,15 +103,14 @@ func TestFreshExecutionInventory(t *testing.T) {
 			Mode:   "snapshot",
 			Fields: []string{"WorkerSpecSnapshotID", "WorkerSpecPromptOverride"},
 		},
-		"backend/internal/service/workflow/workflow_pod_request.go:buildWorkflowCreatePodRequest": {
-			Mode:   "legacy",
-			Fields: []string{"RunnerID", "AgentSlug", "AgentfileLayer", "SourcePodKey", "ModelResourceID"},
+		"backend/internal/service/workflow/workflow_pod_request.go:buildWorkflowRunLineagePodRequest": {
+			Mode:   "lineage",
+			Fields: []string{"WorkerSpecPromptOverride", "SourcePodKey"},
 		},
-		"backend/internal/service/workflow/workflow_pod_request.go:buildWorkflowRunPodRequest": {Mode: "snapshot", Fields: []string{"WorkerSpecSnapshotID", "WorkerSpecPromptOverride", "SourcePodKey"}},
-	}
-
-	if len(expected) == 0 {
-		t.Fatalf("bootstrap inventory (please paste into expected):\n%s", formatInventory(got))
+		"backend/internal/service/workflow/workflow_pod_request.go:buildWorkflowRunSnapshotPodRequest": {
+			Mode:   "snapshot",
+			Fields: []string{"WorkerSpecSnapshotID", "WorkerSpecPromptOverride"},
+		},
 	}
 
 	assertModeAndFieldRules(t, got)
@@ -260,6 +257,14 @@ func freshExecutionKey(relPath, funcName string, duplicates map[string]int) stri
 }
 
 func classifyMode(relPath, funcName string) string {
+	if strings.HasSuffix(relPath, "internal/api/connect/pod/create_pod_request.go") {
+		switch funcName {
+		case "buildWorkerSpecPodRequest":
+			return "plan"
+		case "buildResumePodRequest":
+			return "lineage"
+		}
+	}
 	if strings.HasSuffix(
 		relPath,
 		"cmd/server/orchestration_worker_launcher.go",
@@ -272,9 +277,13 @@ func classifyMode(relPath, funcName string) string {
 	if strings.HasSuffix(relPath, "internal/service/expert/run.go") && funcName == "Run" {
 		return "snapshot"
 	}
-	if strings.HasSuffix(relPath, "internal/service/workflow/workflow_pod_request.go") &&
-		funcName == "buildWorkflowRunPodRequest" {
-		return "snapshot"
+	if strings.HasSuffix(relPath, "internal/service/workflow/workflow_pod_request.go") {
+		switch funcName {
+		case "buildWorkflowRunSnapshotPodRequest":
+			return "snapshot"
+		case "buildWorkflowRunLineagePodRequest":
+			return "lineage"
+		}
 	}
 	return "legacy"
 }
@@ -348,16 +357,6 @@ func containsField(items []string, target string) bool {
 		}
 	}
 	return false
-}
-
-func formatInventory(inventory map[string]freshExecutionInventoryEntry) string {
-	lines := make([]string, 0, len(inventory))
-	keys := keysFromMap(inventory)
-	sort.Strings(keys)
-	for _, key := range keys {
-		lines = append(lines, fmt.Sprintf("%s: %s", key, toJSON(inventory[key])))
-	}
-	return strings.Join(lines, "\n")
 }
 
 func keysFromMap(values map[string]freshExecutionInventoryEntry) []string {

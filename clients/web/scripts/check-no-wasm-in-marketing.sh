@@ -39,16 +39,21 @@ fi
 
 echo "PASS: no wasm symbols in marketing or (auth) chunks"
 
-# Confirm wasm-bound layouts DO contain WasmProvider (positive check —
-# catches a future regression where someone deletes the (dashboard)
-# WasmProvider import and the lint passes by mistake).
+# Confirm the source dependency chain still boots wasm. Production minification
+# may move WasmProvider into a shared chunk and remove the component name.
+WEB_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 for layout in \
-  "${CHUNKS_DIR}/app/(dashboard)" \
-  "${CHUNKS_DIR}/app/popout"; do
-  if ! grep -lr 'WasmProvider' "${layout}" >/dev/null 2>&1; then
-    echo "FAIL: ${layout} chunks lost WasmProvider reference"
+  "${WEB_ROOT}/src/app/(dashboard)/layout.tsx" \
+  "${WEB_ROOT}/src/app/popout/layout.tsx"; do
+  if ! grep -F 'AuthBootstrap' "${layout}" >/dev/null 2>&1; then
+    echo "FAIL: ${layout} lost AuthBootstrap"
     exit 1
   fi
 done
+if ! grep -F 'WasmProvider' \
+  "${WEB_ROOT}/src/components/auth/AuthBootstrap.tsx" >/dev/null 2>&1; then
+  echo "FAIL: AuthBootstrap lost WasmProvider"
+  exit 1
+fi
 
 echo "PASS: dashboard / popout layouts retain WasmProvider"

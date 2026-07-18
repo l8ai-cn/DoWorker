@@ -44,6 +44,9 @@ func (s *Service) updateExpert(
 	req *UpdateExpertRequest,
 	row *expertdom.Expert,
 ) (*expertdom.Expert, error) {
+	if row.IsResourceManaged() {
+		return nil, ErrExpertManagedByResourceApply
+	}
 	before := *row
 	if err := applyExpertUpdate(row, req); err != nil {
 		return nil, err

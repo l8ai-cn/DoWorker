@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	ErrRunNotFound = errors.New("workflow run not found")
+	ErrRunNotFound  = errors.New("workflow run not found")
+	ErrRunStartLost = errors.New("workflow run is no longer startable")
 )
 
 // WorkflowRunService — read methods resolve effective status from Pod (SSOT).
@@ -96,6 +97,15 @@ func (s *WorkflowRunService) CountActiveRuns(ctx context.Context, workflowID int
 
 func (s *WorkflowRunService) UpdateStatus(ctx context.Context, runID int64, updates map[string]interface{}) error {
 	return s.repo.Update(ctx, runID, updates)
+}
+
+func (s *WorkflowRunService) BindPod(
+	ctx context.Context,
+	runID int64,
+	podKey string,
+	autopilotKey string,
+) (bool, error) {
+	return s.repo.BindPod(ctx, runID, podKey, autopilotKey)
 }
 
 func (s *WorkflowRunService) FinishRun(ctx context.Context, runID int64, updates map[string]interface{}) (bool, error) {

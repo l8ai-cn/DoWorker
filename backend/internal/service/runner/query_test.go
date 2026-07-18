@@ -123,7 +123,7 @@ func TestGetRunner(t *testing.T) {
 		assert.Equal(t, ErrRunnerNotFound, err)
 	})
 
-	t.Run("returns runner from cache when available", func(t *testing.T) {
+	t.Run("returns database state when active cache is stale", func(t *testing.T) {
 		cachedRunner := &runner.Runner{
 			ID:             r.ID,
 			OrganizationID: 1,
@@ -135,6 +135,6 @@ func TestGetRunner(t *testing.T) {
 
 		result, err := service.GetRunner(ctx, r.ID)
 		require.NoError(t, err)
-		assert.Equal(t, "cached-node", result.NodeID)
+		assert.Equal(t, "test-node", result.NodeID)
 	})
 }

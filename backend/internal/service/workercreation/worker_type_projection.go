@@ -2,6 +2,7 @@ package workercreation
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	agentdomain "github.com/anthropics/agentsmesh/backend/internal/domain/agent"
@@ -25,7 +26,7 @@ func validateWorkerTypeProjection(
 	if !agent.IsActive {
 		return invalidWorkerType("worker type is disabled")
 	}
-	if agent.IsInternal {
+	if agent.IsInternal && os.Getenv("AGENTSMESH_INCLUDE_INTERNAL_AGENTS") != "true" {
 		return invalidWorkerType("internal worker type is not selectable")
 	}
 	if agent.AgentfileSource == nil || *agent.AgentfileSource == "" {
@@ -106,7 +107,26 @@ func convertTypeSchema(
 			Description: "引用已有凭据，不在这里填写明文密钥。",
 		}
 	}
-	return specdomain.TypeSchema{Version: workerTypeSchemaVersion, Fields: fields}, nil
+	return specdomain.TypeSchema{
+		Version:                 workerTypeSchemaVersion,
+		Fields:                  fields,
+		SecretRequirementGroups: secretRequirementGroups(definition),
+	}, nil
+}
+
+func secretRequirementGroups(
+	definition workerdefinition.Definition,
+) []specdomain.SecretRequirementGroup {
+	groups := make(
+		[]specdomain.SecretRequirementGroup,
+		len(definition.CredentialRequirementGroups),
+	)
+	for index, group := range definition.CredentialRequirementGroups {
+		groups[index] = specdomain.SecretRequirementGroup{
+			ID: group.ID, AnyOf: append([]string{}, group.AnyOf...),
+		}
+	}
+	return groups
 }
 
 func typeFieldKind(value string) (specdomain.TypeFieldKind, error) {

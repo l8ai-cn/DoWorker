@@ -13,18 +13,21 @@ type Catalog struct {
 }
 
 type Definition struct {
-	Slug                  string
-	Version               string
-	Executable            string
-	AdapterID             string
-	DefinitionHash        string
-	AgentFile             string
-	Modes                 []string
-	ModelRequirement      ModelRequirement
-	ToolModelRequirements []ToolModelRequirement
-	CredentialBindings    []CredentialBinding
-	ConfigDocuments       []ConfigDocument
-	Image                 Image
+	Slug                        string
+	Version                     string
+	Executable                  string
+	AdapterID                   string
+	Internal                    bool
+	DefinitionHash              string
+	DefinitionSource            []byte
+	AgentFile                   string
+	Modes                       []string
+	ModelRequirement            ModelRequirement
+	ToolModelRequirements       []ToolModelRequirement
+	CredentialBindings          []CredentialBinding
+	CredentialRequirementGroups []CredentialRequirementGroup
+	ConfigDocuments             []ConfigDocument
+	Image                       Image
 }
 
 type ModelRequirement struct {
@@ -67,6 +70,7 @@ type ConfigDocument struct {
 	ID         string
 	Format     string
 	TargetPath string
+	Required   bool
 }
 
 type Image struct {
@@ -86,17 +90,19 @@ type catalogWorker struct {
 }
 
 type definitionFile struct {
-	SchemaVersion         int               `json:"schema_version"`
-	Slug                  string            `json:"slug"`
-	DefinitionVersion     string            `json:"definition_version"`
-	Executable            string            `json:"executable"`
-	AdapterID             string            `json:"adapter_id"`
-	InteractionModes      []string          `json:"interaction_modes"`
-	ModelRequirement      json.RawMessage   `json:"model_requirement"`
-	ToolModelRequirements []json.RawMessage `json:"tool_model_requirements"`
-	CredentialBindings    []json.RawMessage `json:"credential_bindings"`
-	ConfigDocuments       []json.RawMessage `json:"config_documents"`
-	Image                 json.RawMessage   `json:"image"`
+	SchemaVersion               int               `json:"schema_version"`
+	Slug                        string            `json:"slug"`
+	DefinitionVersion           string            `json:"definition_version"`
+	Executable                  string            `json:"executable"`
+	AdapterID                   string            `json:"adapter_id"`
+	InteractionModes            []string          `json:"interaction_modes"`
+	Internal                    bool              `json:"internal"`
+	ModelRequirement            json.RawMessage   `json:"model_requirement"`
+	ToolModelRequirements       []json.RawMessage `json:"tool_model_requirements"`
+	CredentialBindings          []json.RawMessage `json:"credential_bindings"`
+	CredentialRequirementGroups []json.RawMessage `json:"credential_requirement_groups"`
+	ConfigDocuments             []json.RawMessage `json:"config_documents"`
+	Image                       json.RawMessage   `json:"image"`
 }
 
 func Load(root string) (*Catalog, error) {
@@ -155,16 +161,12 @@ func (catalog *Catalog) CredentialBundleFields(slug string) ([]string, bool) {
 	if !found {
 		return nil, false
 	}
-	fields := make([]string, 0, len(definition.CredentialBindings))
-	for _, binding := range definition.CredentialBindings {
-		if binding.Source.Kind == "credential_bundle" {
-			fields = append(fields, binding.Target.Name)
-		}
-	}
-	return fields, true
+	policy := BuildEnvironmentBundlePolicy(definition)
+	return policy.CredentialBundleFields, true
 }
 
 func cloneDefinition(definition Definition) Definition {
+	definition.DefinitionSource = append([]byte{}, definition.DefinitionSource...)
 	definition.Modes = append([]string{}, definition.Modes...)
 	definition.ModelRequirement.ProtocolAdapters = append(
 		[]string{},
@@ -182,6 +184,9 @@ func cloneDefinition(definition Definition) Definition {
 	definition.CredentialBindings = append(
 		[]CredentialBinding{},
 		definition.CredentialBindings...,
+	)
+	definition.CredentialRequirementGroups = cloneCredentialRequirementGroups(
+		definition.CredentialRequirementGroups,
 	)
 	definition.ConfigDocuments = append([]ConfigDocument{}, definition.ConfigDocuments...)
 	definition.Image.VersionProbe = append([]string{}, definition.Image.VersionProbe...)

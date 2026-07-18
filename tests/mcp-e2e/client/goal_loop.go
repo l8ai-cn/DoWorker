@@ -7,11 +7,11 @@ import (
 )
 
 type CreateGoalLoopRequest struct {
-	Name                 string
-	WorkerSpecSnapshotID int64
-	Objective            string
-	AcceptanceCriteria   []string
-	VerificationCommand  string
+	Name                string
+	WorkerTemplateName  string
+	Objective           string
+	AcceptanceCriteria  []string
+	VerificationCommand string
 }
 
 type GoalLoop struct {
@@ -33,17 +33,78 @@ func (r *REST) CreateGoalLoop(
 	orgSlug string,
 	req CreateGoalLoopRequest,
 ) (*GoalLoop, error) {
-	wireReq := map[string]any{
-		"orgSlug":              orgSlug,
-		"name":                 req.Name,
-		"workerSpecSnapshotId": strconv.FormatInt(req.WorkerSpecSnapshotID, 10),
-		"objective":            req.Objective,
-		"acceptanceCriteria":   req.AcceptanceCriteria,
-		"verificationCommand":  req.VerificationCommand,
-		"escalationPolicy":     "fail",
+	manifest := map[string]any{
+		"apiVersion": "agentsmesh.io/v1alpha1",
+		"kind":       "GoalLoop",
+		"metadata": map[string]any{
+			"name": req.Name, "namespace": orgSlug,
+			"displayName": req.Name,
+		},
+		"spec": map[string]any{
+			"workerTemplateRef": map[string]any{
+				"kind": "WorkerTemplate", "name": req.WorkerTemplateName,
+			},
+			"objective":           req.Objective,
+			"acceptanceCriteria":  req.AcceptanceCriteria,
+			"verificationCommand": req.VerificationCommand,
+			"maxIterations":       3, "timeoutMinutes": 5,
+			"noProgressLimit": 2, "sameErrorLimit": 2,
+			"escalationPolicy": "fail",
+		},
+	}
+	planID, err := r.validateAndPlanResource(ctx, orgSlug, manifest)
+	if err != nil {
+		return nil, err
+	}
+	wireReq := map[string]string{"orgSlug": orgSlug, "planId": planID}
+	var wire struct {
+		GoalLoopID string `json:"goalLoopId"`
+	}
+	if err := r.connectCall(
+		ctx,
+		"/proto.orchestration_resource.v1."+
+			"OrchestrationResourceService/CreateGoalLoopFromPlan",
+		wireReq,
+		&wire,
+	); err != nil {
+		return nil, err
+	}
+	id, err := strconv.ParseInt(wire.GoalLoopID, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"decode applied goal loop id %q: %w",
+			wire.GoalLoopID,
+			err,
+		)
+	}
+	loop, err := r.GetGoalLoop(ctx, orgSlug, req.Name)
+	if err != nil {
+		return nil, fmt.Errorf("load applied goal loop %q: %w", req.Name, err)
+	}
+	if loop.ID != id {
+		return nil, fmt.Errorf(
+			"applied goal loop id = %d, persisted id = %d",
+			id,
+			loop.ID,
+		)
+	}
+	return loop, nil
+}
+
+func (r *REST) GetGoalLoop(
+	ctx context.Context,
+	orgSlug, loopSlug string,
+) (*GoalLoop, error) {
+	wireReq := map[string]string{
+		"orgSlug": orgSlug, "loopSlug": loopSlug,
 	}
 	var wire goalLoopWire
-	if err := r.connectCall(ctx, "/proto.goalloop.v1.GoalLoopService/CreateGoalLoop", wireReq, &wire); err != nil {
+	if err := r.connectCall(
+		ctx,
+		"/proto.goalloop.v1.GoalLoopService/GetGoalLoop",
+		wireReq,
+		&wire,
+	); err != nil {
 		return nil, err
 	}
 	return decodeGoalLoop(wire)
@@ -69,9 +130,17 @@ func (r *REST) ListGoalLoops(
 	if err := r.connectCall(ctx, "/proto.goalloop.v1.GoalLoopService/ListGoalLoops", wireReq, &wire); err != nil {
 		return nil, err
 	}
-	total, err := strconv.ParseInt(wire.Total, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("decode goal loop total %q: %w", wire.Total, err)
+	var total int64
+	if wire.Total != "" {
+		var err error
+		total, err = strconv.ParseInt(wire.Total, 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"decode goal loop total %q: %w",
+				wire.Total,
+				err,
+			)
+		}
 	}
 	page := &GoalLoopPage{Total: total, Limit: wire.Limit, Offset: wire.Offset}
 	for _, item := range wire.Items {

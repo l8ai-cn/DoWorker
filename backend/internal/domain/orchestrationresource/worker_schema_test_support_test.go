@@ -95,11 +95,14 @@ func validWorkerTemplateSpec() WorkerTemplateSpec {
 					"runtime-environment",
 				),
 			},
-			ConfigBundleRefs: []Reference{
-				workerDraftReference(
-					KindEnvironmentBundle,
-					"codex-configuration",
-				),
+			ConfigDocumentBindings: []WorkerTemplateConfigDocumentBinding{
+				{
+					DocumentID: "settings",
+					ConfigBundleRef: workerDraftReference(
+						KindEnvironmentBundle,
+						"codex-configuration",
+					),
+				},
 			},
 			Instructions: "Review the repository before editing.",
 		},

@@ -30,6 +30,11 @@ const localRuntimeMetadata = {
     name: "DoAgent (local development)",
     workerTypeSlugs: ["do-agent", "seedance-expert"],
   },
+  "e2e-echo": {
+    id: 6,
+    slug: "e2e-echo-local",
+    name: "E2E Echo (local development)",
+  },
 };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

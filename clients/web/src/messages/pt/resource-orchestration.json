@@ -73,6 +73,7 @@
       }
     },
     "yamlTitle": "Exemplo YAML",
+    "yamlLimits": "A origem YAML e o YAML exportado são limitados a 256 KiB por documento e 64 KiB por linha física. O analisador também rejeita vários documentos, aliases, âncoras, tags personalizadas, inteiros inseguros e estruturas acima dos limites suportados de profundidade ou nós.",
     "securityTitle": "Limites de Secret e permissão",
     "securityDescription": "O YAML descreve referências, não credenciais em texto puro. namespace identifica e não substitui autorização.",
     "security": {

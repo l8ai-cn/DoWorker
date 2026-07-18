@@ -77,12 +77,17 @@ WorkerTemplate 保存可复用执行配置：
 - ModelBinding 与 ToolBinding
 - ComputeTarget 和 ResourceProfile 或 custom resources
 - Worker 类型 schema、配置值和 EnvironmentBundle Secret 引用
-- Repository、Skill、KnowledgeBase 和配置包
+- Repository、Skill、KnowledgeBase、运行时环境包和配置文档绑定
 - 交互模式、自动化级别和生命周期
 
 `optionsRevision` 必须来自当前 Worker 创建选项。Plan 会重新执行正式 preflight，
 生成 canonical WorkerSpec artifact；Apply 把它保存为不可变
 `worker_spec_snapshots` 记录。
+
+Worker 创建选项中的 `config_document_requirements` 声明 `document_id`、格式、
+目标路径和 `required`。WorkerTemplate 通过
+`workspace.configDocumentBindings` 把文档 ID 绑定到 config 类型的
+EnvironmentBundle。必需文档必须绑定；可选文档未配置时应省略，不发送空引用。
 
 ## Direct WorkerSpec
 
@@ -109,6 +114,7 @@ type_config_values
 secret_refs
 repository_id / branch
 skill_ids / knowledge_mounts / env_bundle_ids
+config_document_bindings
 automation_level / interaction_mode
 instructions / initial_task / alias
 termination_policy / idle_timeout_minutes
@@ -117,6 +123,9 @@ options_revision
 
 `PreflightWorker` 只有在没有 blocking issue 时才返回 resolved spec。`CreatePod`
 会重新解析同一 draft，不接受客户端伪造或复用其他 revision 的 resolved spec。
+`config_document_bindings` 的 `document_id` 必须由当前 Worker Definition 声明，
+`config_bundle_id` 必须指向当前 actor 可读取、与 Worker 类型兼容的 config
+EnvironmentBundle。
 
 Wire definitions：
 

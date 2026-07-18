@@ -118,12 +118,23 @@ func workerTemplateValidationWorkspace(
 	for index := range envBundleIDs {
 		envBundleIDs[index] = workerspec.RuntimeEnvBundleID(index + 1)
 	}
+	configBindings := make(
+		[]workerspec.ConfigDocumentBinding,
+		len(workspace.ConfigDocumentBindings),
+	)
+	for index, binding := range workspace.ConfigDocumentBindings {
+		configBindings[index] = workerspec.ConfigDocumentBinding{
+			DocumentID:     binding.DocumentID,
+			ConfigBundleID: int64(index + 1),
+		}
+	}
 	return workerspec.Workspace{
-		RepositoryID:    repositoryID,
-		Branch:          workspace.Branch,
-		SkillIDs:        skillIDs,
-		KnowledgeMounts: knowledgeMounts,
-		EnvBundleIDs:    envBundleIDs,
-		Instructions:    workspace.Instructions,
+		RepositoryID:           repositoryID,
+		Branch:                 workspace.Branch,
+		SkillIDs:               skillIDs,
+		KnowledgeMounts:        knowledgeMounts,
+		EnvBundleIDs:           envBundleIDs,
+		ConfigDocumentBindings: configBindings,
+		Instructions:           workspace.Instructions,
 	}
 }

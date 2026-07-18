@@ -13,8 +13,9 @@ import type { WorkerTemplatePanelProps } from "./worker-template-panel-props";
 export function WorkerTemplateIdentityPanel({
   draft,
   catalog,
+  modelRequired,
   onChange,
-}: WorkerTemplatePanelProps) {
+}: WorkerTemplatePanelProps & { modelRequired: boolean }) {
   const t = useTranslations("resourceEditor");
   const setMetadata = (
     patch: Partial<WorkerTemplatePanelProps["draft"]["metadata"]>,
@@ -62,6 +63,7 @@ export function WorkerTemplateIdentityPanel({
         kind="ModelBinding"
         value={draft.spec.modelRef}
         catalog={catalog}
+        required={modelRequired}
         onChange={(modelRef) => setSpec({ modelRef })}
       />
       <FormField label={t("fields.alias")} htmlFor="worker-alias">

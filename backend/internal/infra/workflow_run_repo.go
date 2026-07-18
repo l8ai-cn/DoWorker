@@ -70,6 +70,29 @@ func (r *workflowRunRepo) Update(ctx context.Context, runID int64, updates map[s
 		Updates(updates).Error
 }
 
+func (r *workflowRunRepo) BindPod(
+	ctx context.Context,
+	runID int64,
+	podKey string,
+	autopilotKey string,
+) (bool, error) {
+	updates := map[string]interface{}{
+		"pod_key":    podKey,
+		"updated_at": time.Now(),
+	}
+	if autopilotKey != "" {
+		updates["autopilot_controller_key"] = autopilotKey
+	}
+	result := r.db.WithContext(ctx).
+		Model(&workflow.WorkflowRun{}).
+		Where("id = ? AND finished_at IS NULL AND pod_key IS NULL", runID).
+		Updates(updates)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return result.RowsAffected == 1, nil
+}
+
 // FinishRun atomically marks a run as finished with optimistic locking.
 func (r *workflowRunRepo) FinishRun(ctx context.Context, runID int64, updates map[string]interface{}) (bool, error) {
 	updates["updated_at"] = time.Now()

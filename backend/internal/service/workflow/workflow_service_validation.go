@@ -16,13 +16,16 @@ import (
 var cronParser = cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 
 var (
-	ErrWorkflowNotFound   = errors.New("workflow not found")
-	ErrDuplicateSlug      = errors.New("workflow slug already exists in this organization")
-	ErrWorkflowDisabled   = errors.New("workflow is disabled")
-	ErrInvalidCron        = errors.New("invalid cron expression")
-	ErrInvalidSlug        = errors.New("slug must be lowercase alphanumeric with hyphens, 2-100 chars, not a reserved word")
-	ErrInvalidEnumValue   = errors.New("invalid enum value")
-	ErrInvalidCallbackURL = errors.New("invalid callback URL")
+	ErrWorkflowNotFound               = errors.New("workflow not found")
+	ErrDuplicateSlug                  = errors.New("workflow slug already exists in this organization")
+	ErrWorkflowDisabled               = errors.New("workflow is disabled")
+	ErrInvalidCron                    = errors.New("invalid cron expression")
+	ErrInvalidSlug                    = errors.New("slug must be lowercase alphanumeric with hyphens, 2-100 chars, not a reserved word")
+	ErrInvalidEnumValue               = errors.New("invalid enum value")
+	ErrInvalidCallbackURL             = errors.New("invalid callback URL")
+	ErrWorkflowManagedByResourceApply = errors.New(
+		"workflow definition is managed by orchestration validate-plan-apply",
+	)
 )
 
 func validateCallbackURL(rawURL string) error {

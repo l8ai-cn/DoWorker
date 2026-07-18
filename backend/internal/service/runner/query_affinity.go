@@ -2,7 +2,6 @@ package runner
 
 import (
 	"context"
-	"encoding/json"
 	"log/slog"
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/runner"
@@ -27,25 +26,8 @@ func (s *Service) SelectRunnerWithAffinity(
 		return s.selectWithScoring(cachedRunners, userID, hints, repoHistory)
 	}
 
-	agentJSON, err := json.Marshal([]string{agentSlug})
-	if err != nil {
-		return nil, err
-	}
-	dbRunners, err := s.repo.ListAvailableForAgent(ctx, orgID, userID, string(agentJSON))
-	if err != nil {
-		slog.Error("failed to select runner for agent from DB", "org_id", orgID, "agent_slug", agentSlug, "error", err)
-		return nil, err
-	}
-	if len(dbRunners) == 0 {
-		slog.Warn("no runner available for agent", "org_id", orgID, "agent_slug", agentSlug)
-		return nil, ErrNoRunnerForAgent
-	}
-
-	dbCandidates := make([]*ActiveRunner, len(dbRunners))
-	for i, r := range dbRunners {
-		dbCandidates[i] = &ActiveRunner{Runner: r, PodCount: r.CurrentPods}
-	}
-	return s.selectWithScoring(dbCandidates, userID, hints, repoHistory)
+	slog.Warn("no connected runner available for agent", "org_id", orgID, "agent_slug", agentSlug)
+	return nil, ErrNoRunnerForAgent
 }
 
 func (s *Service) selectWithScoring(

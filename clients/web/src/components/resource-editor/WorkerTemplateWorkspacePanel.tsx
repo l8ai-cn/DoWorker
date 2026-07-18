@@ -6,14 +6,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ResourceReferenceListField } from "./ResourceReferenceListField";
 import { ResourceReferenceField } from "./ResourceReferenceField";
+import { WorkerTemplateConfigDocumentBindingsField } from "./WorkerTemplateConfigDocumentBindingsField";
 import { WorkerTemplateKnowledgeMountsField } from "./WorkerTemplateKnowledgeMountsField";
+import { environmentBundleCatalogKey } from "./resource-reference-options";
 import type { WorkerTemplatePanelProps } from "./worker-template-panel-props";
+import type { WorkerConfigDocumentRequirement } from "@/lib/api/facade/podConnect";
 
 export function WorkerTemplateWorkspacePanel({
   draft,
   catalog,
+  configDocumentRequirements,
   onChange,
-}: WorkerTemplatePanelProps) {
+}: WorkerTemplatePanelProps & {
+  configDocumentRequirements: WorkerConfigDocumentRequirement[];
+}) {
   const t = useTranslations("resourceEditor");
   const setWorkspace = (
     patch: Partial<WorkerTemplatePanelProps["draft"]["spec"]["workspace"]>,
@@ -63,19 +69,20 @@ export function WorkerTemplateWorkspacePanel({
         id="environment-bundle-reference"
         label={t("fields.environmentBundleRefs")}
         kind="EnvironmentBundle"
+        catalogKey={environmentBundleCatalogKey("runtime")}
         value={draft.spec.workspace.environmentBundleRefs}
         catalog={catalog}
         onChange={(environmentBundleRefs) => setWorkspace({
           environmentBundleRefs,
         })}
       />
-      <ResourceReferenceListField
-        id="config-bundle-reference"
-        label={t("fields.configBundleRefs")}
-        kind="EnvironmentBundle"
-        value={draft.spec.workspace.configBundleRefs}
+      <WorkerTemplateConfigDocumentBindingsField
+        requirements={configDocumentRequirements}
+        value={draft.spec.workspace.configDocumentBindings}
         catalog={catalog}
-        onChange={(configBundleRefs) => setWorkspace({ configBundleRefs })}
+        onChange={(configDocumentBindings) => setWorkspace({
+          configDocumentBindings,
+        })}
       />
       <FormField
         label={t("fields.instructions")}

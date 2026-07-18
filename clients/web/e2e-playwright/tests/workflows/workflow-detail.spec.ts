@@ -2,6 +2,7 @@
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
+import { createResourceWorkflow } from "../../helpers/resource-workflow";
 test.describe("Workflow Detail Page", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
 
@@ -17,14 +18,12 @@ test.describe("Workflow Detail Page", () => {
 
   test("API: get workflow detail returns entity", async ({ api }) => {
     const cc = await api.connect();
-    const created = await cc.workflow.createWorkflow({
-      orgSlug: TEST_ORG_SLUG,
+    const created = await createResourceWorkflow(cc, {
       name: `E2E Workflow Detail ${Date.now()}`,
       slug: `e2e-workflow-detail-${Date.now()}`,
-      agentSlug: "claude-code",
       cronExpression: "0 * * * *",
-      promptTemplate: "echo test",
-    }) as { slug: string };
+      prompt: "echo test",
+    });
     createdSlug = created.slug;
 
     const workflow = await cc.workflow.getWorkflow({ orgSlug: TEST_ORG_SLUG, workflowSlug: createdSlug }) as { slug: string };
@@ -33,14 +32,12 @@ test.describe("Workflow Detail Page", () => {
 
   test("UI: workflow detail page renders without errors", async ({ page, api }) => {
     const cc = await api.connect();
-    const created = await cc.workflow.createWorkflow({
-      orgSlug: TEST_ORG_SLUG,
+    const created = await createResourceWorkflow(cc, {
       name: `E2E Workflow UI ${Date.now()}`,
       slug: `e2e-workflow-ui-${Date.now()}`,
-      agentSlug: "claude-code",
       cronExpression: "0 * * * *",
-      promptTemplate: "echo test",
-    }) as { slug: string };
+      prompt: "echo test",
+    });
     createdSlug = created.slug;
     await page.goto(`/${TEST_ORG_SLUG}/workflows/${createdSlug}`);
     await page.waitForLoadState("load");

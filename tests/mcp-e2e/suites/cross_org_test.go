@@ -24,7 +24,6 @@ import (
 func TestCrossOrg_TicketLookupIsolated(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -57,7 +56,7 @@ func TestCrossOrg_TicketLookupIsolated(t *testing.T) {
 
 	// 3) Spawn a pod in dev-org. Its tenant scope is dev-org, NOT
 	//    foreign-org, even though the same human created both.
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	// 4) Try to read the foreign ticket via MCP. Either:
 	//    (a) dev-org has no ticket with that slug → MCP returns an error
@@ -80,7 +79,6 @@ func TestCrossOrg_TicketLookupIsolated(t *testing.T) {
 func TestCrossOrg_PodCannotSearchForeignTickets(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -103,7 +101,7 @@ func TestCrossOrg_PodCannotSearchForeignTickets(t *testing.T) {
 		t.Fatalf("create foreign ticket: %v", err)
 	}
 
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 	out, err := pod.MCP.CallToolText(ctx, "search_tickets", map[string]any{
 		"query": tag,
 		"limit": 50,

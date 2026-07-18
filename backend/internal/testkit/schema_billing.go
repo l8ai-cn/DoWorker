@@ -43,6 +43,7 @@ func workflowTableDDLs() []string {
 			pod_key TEXT, autopilot_controller_key TEXT,
 			trigger_type TEXT NOT NULL DEFAULT 'manual', trigger_source TEXT,
 			trigger_params BLOB DEFAULT NULL, resolved_prompt TEXT,
+			execution_manifest BLOB DEFAULT NULL,
 			orchestration_resource_id INTEGER,
 			orchestration_resource_revision INTEGER,
 			worker_spec_snapshot_id INTEGER,

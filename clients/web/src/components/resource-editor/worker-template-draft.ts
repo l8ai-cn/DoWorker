@@ -37,7 +37,7 @@ export function createWorkerTemplateDraft(
         skillRefs: [],
         knowledgeMounts: [],
         environmentBundleRefs: [],
-        configBundleRefs: [],
+        configDocumentBindings: [],
         instructions: "",
       },
       lifecycle: {

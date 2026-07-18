@@ -43,32 +43,43 @@ func workerDraftToProto(draft workercreation.Draft) (*podv1.WorkerSpecDraft, err
 	for index, id := range draft.WorkerSpec.Workspace.EnvBundleIDs {
 		envBundleIDs[index] = int64(id)
 	}
+	configBindings := make(
+		[]*podv1.WorkerConfigDocumentBinding,
+		0,
+		len(draft.WorkerSpec.Workspace.ConfigDocumentBindings),
+	)
+	for _, binding := range draft.WorkerSpec.Workspace.ConfigDocumentBindings {
+		configBindings = append(configBindings, &podv1.WorkerConfigDocumentBinding{
+			DocumentId: binding.DocumentID, ConfigBundleId: binding.ConfigBundleID,
+		})
+	}
 	return &podv1.WorkerSpecDraft{
-		ModelResourceId:      draft.WorkerSpec.ModelResourceID,
-		ToolModelResourceIds: cloneToolModelResourceIDs(draft.WorkerSpec.ToolModelResourceIDs),
-		WorkerTypeSlug:       draft.WorkerSpec.WorkerTypeSlug.String(),
-		RuntimeImageId:       draft.WorkerSpec.Runtime.RuntimeImageID,
-		PlacementPolicy:      string(draft.WorkerSpec.Runtime.PlacementPolicy),
-		ComputeTargetId:      draft.WorkerSpec.Runtime.ComputeTargetID,
-		DeploymentMode:       string(draft.WorkerSpec.Runtime.DeploymentMode),
-		ResourceProfileId:    draft.WorkerSpec.Runtime.ResourceProfileID,
-		TypeSchemaVersion:    draft.WorkerSpec.TypeConfig.SchemaVersion,
-		TypeConfigValuesJson: string(values),
-		SecretRefs:           secretRefs,
-		InteractionMode:      string(draft.WorkerSpec.TypeConfig.InteractionMode),
-		AutomationLevel:      string(draft.WorkerSpec.TypeConfig.AutomationLevel),
-		RepositoryId:         cloneInt64Pointer(draft.WorkerSpec.Workspace.RepositoryID),
-		Branch:               draft.WorkerSpec.Workspace.Branch,
-		SkillIds:             append([]int64{}, draft.WorkerSpec.Workspace.SkillIDs...),
-		KnowledgeMounts:      knowledge,
-		EnvBundleIds:         envBundleIDs,
-		Instructions:         draft.WorkerSpec.Workspace.Instructions,
-		InitialTask:          draft.WorkerSpec.Workspace.InitialTask,
-		TerminationPolicy:    string(draft.WorkerSpec.Lifecycle.TerminationPolicy),
-		IdleTimeoutMinutes:   draft.WorkerSpec.Lifecycle.IdleTimeoutMinutes,
-		Alias:                draft.WorkerSpec.Metadata.Alias,
-		SourceExpertId:       cloneInt64Pointer(draft.WorkerSpec.Metadata.SourceExpertID),
-		OptionsRevision:      draft.OptionsRevision,
+		ModelResourceId:        draft.WorkerSpec.ModelResourceID,
+		ToolModelResourceIds:   cloneToolModelResourceIDs(draft.WorkerSpec.ToolModelResourceIDs),
+		WorkerTypeSlug:         draft.WorkerSpec.WorkerTypeSlug.String(),
+		RuntimeImageId:         draft.WorkerSpec.Runtime.RuntimeImageID,
+		PlacementPolicy:        string(draft.WorkerSpec.Runtime.PlacementPolicy),
+		ComputeTargetId:        draft.WorkerSpec.Runtime.ComputeTargetID,
+		DeploymentMode:         string(draft.WorkerSpec.Runtime.DeploymentMode),
+		ResourceProfileId:      draft.WorkerSpec.Runtime.ResourceProfileID,
+		TypeSchemaVersion:      draft.WorkerSpec.TypeConfig.SchemaVersion,
+		TypeConfigValuesJson:   string(values),
+		SecretRefs:             secretRefs,
+		InteractionMode:        string(draft.WorkerSpec.TypeConfig.InteractionMode),
+		AutomationLevel:        string(draft.WorkerSpec.TypeConfig.AutomationLevel),
+		RepositoryId:           cloneInt64Pointer(draft.WorkerSpec.Workspace.RepositoryID),
+		Branch:                 draft.WorkerSpec.Workspace.Branch,
+		SkillIds:               append([]int64{}, draft.WorkerSpec.Workspace.SkillIDs...),
+		KnowledgeMounts:        knowledge,
+		EnvBundleIds:           envBundleIDs,
+		ConfigDocumentBindings: configBindings,
+		Instructions:           draft.WorkerSpec.Workspace.Instructions,
+		InitialTask:            draft.WorkerSpec.Workspace.InitialTask,
+		TerminationPolicy:      string(draft.WorkerSpec.Lifecycle.TerminationPolicy),
+		IdleTimeoutMinutes:     draft.WorkerSpec.Lifecycle.IdleTimeoutMinutes,
+		Alias:                  draft.WorkerSpec.Metadata.Alias,
+		SourceExpertId:         cloneInt64Pointer(draft.WorkerSpec.Metadata.SourceExpertID),
+		OptionsRevision:        draft.OptionsRevision,
 	}, nil
 }
 

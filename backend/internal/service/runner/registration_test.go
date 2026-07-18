@@ -11,7 +11,9 @@ import (
 // --- Helper Functions ---
 
 // createTestRunner creates a runner directly in the database for testing
-func createTestRunner(t *testing.T, db interface{ Exec(string, ...any) interface{ Error() error } }, orgID int64, nodeID, description string, maxPods int) *runner.Runner {
+func createTestRunner(t *testing.T, db interface {
+	Exec(string, ...any) interface{ Error() error }
+}, orgID int64, nodeID, description string, maxPods int) *runner.Runner {
 	t.Helper()
 
 	r := &runner.Runner{
@@ -153,6 +155,12 @@ func TestSelectAvailableRunner(t *testing.T) {
 
 	service.Heartbeat(ctx, r1.ID, 3)
 	service.Heartbeat(ctx, r2.ID, 1)
+	if err := service.MarkConnected(ctx, r1.ID); err != nil {
+		t.Fatalf("failed to connect runner 1: %v", err)
+	}
+	if err := service.MarkConnected(ctx, r2.ID); err != nil {
+		t.Fatalf("failed to connect runner 2: %v", err)
+	}
 
 	selected, err := service.SelectAvailableRunner(ctx, 1, 1)
 	if err != nil {
@@ -174,7 +182,7 @@ func TestSelectAvailableRunnerNoneAvailable(t *testing.T) {
 	}
 }
 
-func TestSelectAvailableRunnerFromCache(t *testing.T) {
+func TestSelectAvailableRunnerUsesDatabaseLoadForConnectedRunners(t *testing.T) {
 	db := setupTestDB(t)
 	service := newTestService(db)
 	ctx := context.Background()
@@ -204,15 +212,17 @@ func TestSelectAvailableRunnerFromCache(t *testing.T) {
 	r1Updated, _ := service.GetRunner(ctx, r1.ID)
 	r2Updated, _ := service.GetRunner(ctx, r2.ID)
 
+	storeActiveRunner(t, db, service, r1Updated, time.Now(), 3)
+	storeActiveRunner(t, db, service, r2Updated, time.Now(), 1)
 	service.activeRunners.Store(r1.ID, &ActiveRunner{
 		Runner:   r1Updated,
 		LastPing: time.Now(),
-		PodCount: 3,
+		PodCount: 0,
 	})
 	service.activeRunners.Store(r2.ID, &ActiveRunner{
 		Runner:   r2Updated,
 		LastPing: time.Now(),
-		PodCount: 1,
+		PodCount: 5,
 	})
 
 	selected, err := service.SelectAvailableRunner(ctx, 1, 1)
@@ -248,12 +258,9 @@ func TestSelectAvailableRunnerSkipsInactiveInCache(t *testing.T) {
 		PodCount: 1,
 	})
 
-	selected, err := service.SelectAvailableRunner(ctx, 1, 1)
-	if err != nil {
-		t.Fatalf("failed to select available runner: %v", err)
-	}
-	if selected.ID != r1.ID {
-		t.Errorf("expected runner r1=%d, got ID %d", r1.ID, selected.ID)
+	_, err := service.SelectAvailableRunner(ctx, 1, 1)
+	if err != ErrRunnerOffline {
+		t.Errorf("expected ErrRunnerOffline for stale connection, got %v", err)
 	}
 }
 

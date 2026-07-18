@@ -79,6 +79,40 @@ func TestValidateTypeConfigAgainstSchemaRejectsInvalidAssignments(t *testing.T) 
 	}
 }
 
+func TestValidateTypeConfigAgainstSchemaRejectsMissingRequiredSecretRef(t *testing.T) {
+	schema := workerTypeSchemaForTest()
+	schema.Fields["api_token"] = TypeFieldSchema{
+		Kind:     TypeFieldSecret,
+		Required: true,
+	}
+
+	err := ValidateTypeConfigAgainstSchema(typeConfigForSchemaTest(), schema)
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, `secret ref "api_token" is required`)
+}
+
+func TestValidateTypeConfigAgainstSchemaRejectsMissingCredentialGroup(t *testing.T) {
+	schema := workerTypeSchemaForTest()
+	schema.Fields["anthropic_api_key"] = TypeFieldSchema{
+		Kind: TypeFieldSecret,
+	}
+	schema.SecretRequirementGroups = []SecretRequirementGroup{{
+		ID: "provider-api-key", AnyOf: []string{"api_token", "anthropic_api_key"},
+	}}
+
+	err := ValidateTypeConfigAgainstSchema(typeConfigForSchemaTest(), schema)
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, `credential group "provider-api-key"`)
+
+	config := typeConfigForSchemaTest()
+	config.SecretRefs["anthropic_api_key"] = SecretReference{
+		Kind: slugkit.MustNewForTest("vault-secret"), ID: 92,
+	}
+	require.NoError(t, ValidateTypeConfigAgainstSchema(config, schema))
+}
+
 func typeConfigForSchemaTest() TypeConfig {
 	return TypeConfig{
 		SchemaVersion: 1,

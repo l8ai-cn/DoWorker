@@ -5,10 +5,6 @@ import type { WorkerCreateOptions } from "@/lib/api/facade/podConnect";
 import { createWorkerTemplateDraft } from "./worker-template-draft";
 import { WorkerTemplateRuntimePanel } from "./WorkerTemplateRuntimePanel";
 
-vi.mock("@/components/pod/hooks/useWorkerCreateOptions", () => ({
-  useWorkerCreateOptions: () => ({ status: "ready", data: workerOptions() }),
-}));
-
 describe("WorkerTemplateRuntimePanel", () => {
   it("uses live Worker options instead of a raw runtime image ID", async () => {
     const user = userEvent.setup();
@@ -20,7 +16,13 @@ describe("WorkerTemplateRuntimePanel", () => {
     render(
       <WorkerTemplateRuntimePanel
         draft={draft}
-        catalog={{ loading: false, error: null, byKind: {} }}
+        catalog={{
+          loading: false,
+          error: null,
+          errorsByKind: {},
+          byKind: {},
+        }}
+        workerOptions={{ status: "ready", data: workerOptions() }}
         onChange={onChange}
       />,
     );
@@ -45,7 +47,13 @@ describe("WorkerTemplateRuntimePanel", () => {
     render(
       <WorkerTemplateRuntimePanel
         draft={draft}
-        catalog={{ loading: false, error: null, byKind: {} }}
+        catalog={{
+          loading: false,
+          error: null,
+          errorsByKind: {},
+          byKind: {},
+        }}
+        workerOptions={{ status: "ready", data: workerOptions() }}
         onChange={onChange}
       />,
     );
@@ -64,6 +72,50 @@ describe("WorkerTemplateRuntimePanel", () => {
         }),
       }),
     }));
+  });
+
+  it("associates runtime controls with their labels", () => {
+    const draft = createWorkerTemplateDraft("acme");
+    draft.spec.workerType = "codex-cli";
+    draft.spec.runtime.customResources = {
+      cpuRequestMilliCPU: 500,
+      cpuLimitMilliCPU: 1000,
+      memoryRequestBytes: 536870912,
+      memoryLimitBytes: 1073741824,
+      storageRequestBytes: 1073741824,
+      storageLimitBytes: 10737418240,
+    };
+
+    render(
+      <WorkerTemplateRuntimePanel
+        draft={draft}
+        catalog={{
+          loading: false,
+          error: null,
+          errorsByKind: {},
+          byKind: {},
+        }}
+        workerOptions={{ status: "ready", data: workerOptions() }}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText("Placement policy")).toHaveAttribute(
+      "id",
+      "placement-policy",
+    );
+    expect(screen.getByLabelText("Resource allocation")).toHaveAttribute(
+      "id",
+      "resource-mode",
+    );
+    expect(screen.getByLabelText("CPU request (millicpu)")).toHaveAttribute(
+      "id",
+      "cpu-request",
+    );
+    expect(screen.getByLabelText("GPU limit")).toHaveAttribute(
+      "id",
+      "gpu-limit",
+    );
   });
 });
 
@@ -109,7 +161,10 @@ function workerType(
     config_schema: {},
     supported_interaction_modes: supportedInteractionModes,
     requires_model_resource: false,
+    model_protocol_adapters: [],
     tool_model_requirements: [],
+    credential_requirements: [],
+    config_document_requirements: [],
     selectable,
     blocking_reason: blockingReason,
   };

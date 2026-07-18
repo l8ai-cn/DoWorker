@@ -12,8 +12,8 @@ import {
   CreateGoalLoopFromPlanResponseSchema,
   CreateWorkerFromPlanRequestSchema,
   CreateWorkerFromPlanResponseSchema,
-  ResourceSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_apply_pb";
+import { ResourceSchema } from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import { getOrchestrationResourceService } from "@/lib/wasm-core";
 import { callOrchestrationResource } from "./orchestrationResourceBinaryCall";
 

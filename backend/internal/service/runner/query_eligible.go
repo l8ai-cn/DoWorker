@@ -38,8 +38,16 @@ func (s *Service) ResolveRunnerForCreate(
 	if !ok {
 		return nil, ErrNoRunnerForAgent
 	}
-	active, ok := value.(*ActiveRunner)
-	if !ok || !isRunnerAvailableForAgent(active, orgID, agentSlug) {
+	lease, ok := value.(*ActiveRunner)
+	if !ok {
+		return nil, ErrNoRunnerForAgent
+	}
+	active := &ActiveRunner{
+		Runner:   candidate,
+		LastPing: lease.LastPing,
+		PodCount: candidate.CurrentPods,
+	}
+	if !isRunnerAvailableForAgent(active, orgID, agentSlug) {
 		return nil, ErrNoRunnerForAgent
 	}
 	return candidate, nil
@@ -55,20 +63,42 @@ func (s *Service) collectEligibleRunners(
 		return nil, err
 	}
 
-	var result []*ActiveRunner
+	var (
+		result     []*ActiveRunner
+		collectErr error
+	)
 	s.activeRunners.Range(func(key, value interface{}) bool {
-		ar, ok := value.(*ActiveRunner)
-		if !ok || !isRunnerAvailableForAgent(ar, orgID, agentSlug) {
+		runnerID, ok := key.(int64)
+		if !ok {
 			return true
 		}
-		r := ar.Runner
+		lease, ok := value.(*ActiveRunner)
+		if !ok {
+			return true
+		}
+		r, err := s.repo.GetByID(ctx, runnerID)
+		if err != nil {
+			collectErr = err
+			return false
+		}
+		if r == nil {
+			return true
+		}
+		active := &ActiveRunner{
+			Runner:   r,
+			LastPing: lease.LastPing,
+			PodCount: r.CurrentPods,
+		}
+		if !isRunnerAvailableForAgent(active, orgID, agentSlug) {
+			return true
+		}
 		if !isVisibleToUser(r, userID, grantedIDs) {
 			return true
 		}
-		result = append(result, ar)
+		result = append(result, active)
 		return true
 	})
-	return result, nil
+	return result, collectErr
 }
 
 func isRunnerAvailableForAgent(ar *ActiveRunner, orgID int64, agentSlug string) bool {

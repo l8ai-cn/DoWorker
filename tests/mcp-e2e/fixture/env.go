@@ -16,12 +16,8 @@ import (
 // (see tests/mcp-e2e/README.md). Tests should never read os.Getenv directly
 // so that the env contract stays in one place.
 type Env struct {
-	BackendBaseURL string
-	MCPBaseURL     string
-	// Secondary runner MCP endpoint — only populated when RUNNER_2_MCP_PORT
-	// is set; pods placed on dev-runner-2 are reachable here. Used by the
-	// cross-runner spec so NewEchoPod's `wait registered` poll hits the
-	// right runner's /pods.
+	BackendBaseURL      string
+	MCPBaseURL          string
 	SecondaryMCPBaseURL string
 	PostgresDSN         string
 

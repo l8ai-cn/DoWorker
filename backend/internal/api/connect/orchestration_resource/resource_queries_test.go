@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	service "github.com/anthropics/agentsmesh/backend/internal/service/orchestrationcontrol"
+	"github.com/anthropics/agentsmesh/backend/pkg/slugkit"
 	resourcev1 "github.com/anthropics/agentsmesh/proto/gen/go/orchestration_resource/v1"
 )
 
@@ -113,6 +114,72 @@ func TestListResourcesConvertsExplicitPaginationAndRejectsOverMaximum(t *testing
 	)
 	require.Error(t, err)
 	assert.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
+}
+
+func TestListResourcesConvertsEnvironmentBundleReferenceFilter(t *testing.T) {
+	kind := "EnvironmentBundle"
+	stub := &serviceStub{}
+	server := newTestServer(stub, testOrganizations())
+
+	response, err := server.ListResources(
+		authenticatedContext(42),
+		connect.NewRequest(&resourcev1.ListResourcesRequest{
+			OrgSlug: "acme",
+			Kind:    &kind,
+			EnvironmentBundleFilter: &resourcev1.EnvironmentBundleReferenceFilter{
+				Purpose:    resourcev1.EnvironmentBundlePurpose_ENVIRONMENT_BUNDLE_PURPOSE_CREDENTIAL,
+				WorkerType: "do-agent",
+				TargetName: "DO_API_KEY",
+			},
+		}),
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, service.ResourceListFilter{
+		Kind: "EnvironmentBundle", Limit: 50,
+		EnvironmentBundle: &service.EnvironmentBundleReferenceFilter{
+			Purpose:    service.EnvironmentBundlePurposeCredential,
+			WorkerType: slugkit.Slug("do-agent"),
+			TargetName: "DO_API_KEY",
+		},
+	}, stub.listFilter)
+	assert.Equal(t, requestEnvironmentBundleFilter(
+		resourcev1.EnvironmentBundlePurpose_ENVIRONMENT_BUNDLE_PURPOSE_CREDENTIAL,
+		"do-agent",
+		"DO_API_KEY",
+	), response.Msg.AppliedEnvironmentBundleFilter)
+}
+
+func TestListResourcesRejectsEnvironmentBundleFilterForAnotherKind(t *testing.T) {
+	kind := "Prompt"
+	stub := &serviceStub{}
+	server := newTestServer(stub, testOrganizations())
+
+	_, err := server.ListResources(
+		authenticatedContext(42),
+		connect.NewRequest(&resourcev1.ListResourcesRequest{
+			OrgSlug: "acme",
+			Kind:    &kind,
+			EnvironmentBundleFilter: &resourcev1.EnvironmentBundleReferenceFilter{
+				Purpose:    resourcev1.EnvironmentBundlePurpose_ENVIRONMENT_BUNDLE_PURPOSE_RUNTIME,
+				WorkerType: "do-agent",
+			},
+		}),
+	)
+
+	require.Error(t, err)
+	assert.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
+	assert.Nil(t, stub.listFilter.EnvironmentBundle)
+}
+
+func requestEnvironmentBundleFilter(
+	purpose resourcev1.EnvironmentBundlePurpose,
+	workerType string,
+	targetName string,
+) *resourcev1.EnvironmentBundleReferenceFilter {
+	return &resourcev1.EnvironmentBundleReferenceFilter{
+		Purpose: purpose, WorkerType: workerType, TargetName: targetName,
+	}
 }
 
 func TestExportResourceConvertsTargetRevisionAndFormat(t *testing.T) {

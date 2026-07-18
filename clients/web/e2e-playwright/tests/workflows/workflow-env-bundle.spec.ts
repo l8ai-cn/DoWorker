@@ -1,133 +1,142 @@
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
+import { createResourceWorkflow } from "../../helpers/resource-workflow";
 
-/**
- * Workflow ↔ EnvBundle binding end-to-end.
- *
- * Covers the I4 contract: creating a Workflow with `usedEnvBundles = ["<name>", ...]`
- * persists the ordered list, GetWorkflow round-trips it, UpdateWorkflow clears it via
- * empty list, and unknown-bundle names still create the Workflow (eval is warn-only
- * at run-time).
- *
- * Both Workflow CRUD and EnvBundle CRUD live on Connect-RPC (R6 completion).
- *
- * Pod-level KV injection is left to higher-tier integration tests since it
- * requires a Pod to actually launch and read its env.
- */
-test.describe("Workflow ↔ EnvBundle binding", () => {
+test.describe("Workflow resource EnvBundle binding", () => {
   test.beforeEach(async () => {
     clearAuthRateLimit();
   });
 
-  test("Workflow persists usedEnvBundles (multi) and round-trips on GetWorkflow", async ({ api }) => {
+  test("pins ordered EnvBundle IDs in the WorkerSpec snapshot", async ({
+    api,
+    db,
+  }) => {
     const cc = await api.connect();
     const ts = Date.now();
-    const bundleAName = `e2e-workflow-A-${ts}`;
-    const bundleBName = `e2e-workflow-B-${ts}`;
-
-    const createBundle = async (name: string) =>
-      cc.envBundle.createEnvBundle({
-        agentSlug: "claude-code",
-        name,
-        kind: "credential",
-        data: { ANTHROPIC_API_KEY: "sk-test-e2e" },
-      }) as Promise<{ id: bigint }>;
-
-    const bundleA = await createBundle(bundleAName);
-    const bundleB = await createBundle(bundleBName);
-    expect(bundleA.id).toBeTruthy();
-    expect(bundleB.id).toBeTruthy();
-
-    let slug: string | undefined;
+    const bundleA = await createBundle(cc, `e2e-workflow-A-${ts}`);
+    const bundleB = await createBundle(cc, `e2e-workflow-B-${ts}`);
+    const slug = `e2e-workflow-bundle-${ts}`;
     try {
-      const created = await cc.workflow.createWorkflow({
-        orgSlug: TEST_ORG_SLUG,
+      const created = await createResourceWorkflow(cc, {
+        slug,
         name: `E2E Workflow Bundle ${ts}`,
-        agentSlug: "claude-code",
-        promptTemplate: "echo bound",
-        usedEnvBundles: [bundleAName, bundleBName],
-      }) as { slug: string; usedEnvBundles: string[] };
-      slug = created.slug;
-      expect(slug).toBeTruthy();
-      // Order preserved exactly.
-      expect(created.usedEnvBundles).toEqual([bundleAName, bundleBName]);
-
+        prompt: "echo bound",
+        environmentBundles: [bundleA, bundleB],
+      });
       const fetched = await cc.workflow.getWorkflow({
         orgSlug: TEST_ORG_SLUG,
         workflowSlug: slug,
-      }) as { usedEnvBundles: string[] };
-      expect(fetched.usedEnvBundles).toEqual([bundleAName, bundleBName]);
+      }) as { slug: string };
+      expect(fetched.slug).toBe(slug);
+      expect(workflowSnapshotId(db, slug)).toBe(created.workerSpecSnapshotId);
+      expect(snapshotEnvBundleIds(db, created.workerSpecSnapshotId)).toEqual([
+        Number(bundleA.id),
+        Number(bundleB.id),
+      ]);
     } finally {
-      if (slug) {
-        await cc.workflow.deleteWorkflow({ orgSlug: TEST_ORG_SLUG, workflowSlug: slug }).catch(() => null);
-      }
-      await cc.envBundle.deleteEnvBundle({ id: bundleA.id }).catch(() => null);
-      await cc.envBundle.deleteEnvBundle({ id: bundleB.id }).catch(() => null);
+      await deleteWorkflow(cc, slug);
+      await deleteBundle(cc, bundleA.id);
+      await deleteBundle(cc, bundleB.id);
     }
   });
 
-  test("UpdateWorkflow with usedEnvBundles={names:[]} clears the binding", async ({ api }) => {
+  test("legacy Workflow update rejects resource-managed definitions", async ({
+    api,
+    db,
+  }) => {
     const cc = await api.connect();
     const ts = Date.now();
-    const bundleName = `e2e-clear-${ts}`;
-
-    const bundle = await cc.envBundle.createEnvBundle({
-      agentSlug: "claude-code",
-      name: bundleName,
-      kind: "credential",
-      data: { ANTHROPIC_API_KEY: "sk-test-e2e-clear" },
-    }) as { id: bigint };
-    expect(bundle.id).toBeTruthy();
-
-    let slug: string | undefined;
+    const bundle = await createBundle(cc, `e2e-clear-${ts}`);
+    const slug = `e2e-workflow-clear-${ts}`;
     try {
-      const created = await cc.workflow.createWorkflow({
-        orgSlug: TEST_ORG_SLUG,
+      const created = await createResourceWorkflow(cc, {
+        slug,
         name: `E2E Workflow Clear ${ts}`,
-        agentSlug: "claude-code",
-        promptTemplate: "echo bound",
-        usedEnvBundles: [bundleName],
-      }) as { slug: string };
-      slug = created.slug;
-      expect(slug).toBeTruthy();
-
-      // Wrapper present with empty `names` explicitly clears the binding.
-      await cc.workflow.updateWorkflow({
+        prompt: "echo bound",
+        environmentBundles: [bundle],
+      });
+      const before = snapshotEnvBundleIds(db, created.workerSpecSnapshotId);
+      await expect(cc.workflow.updateWorkflow({
         orgSlug: TEST_ORG_SLUG,
         workflowSlug: slug,
         usedEnvBundles: { names: [] },
-      });
-
-      const after = await cc.workflow.getWorkflow({
-        orgSlug: TEST_ORG_SLUG,
-        workflowSlug: slug,
-      }) as { usedEnvBundles: string[] };
-      // Backend returns [] (not null) for an empty array column.
-      expect(after.usedEnvBundles).toEqual([]);
+      })).rejects.toThrow(/managed by orchestration validate-plan-apply/i);
+      expect(snapshotEnvBundleIds(db, created.workerSpecSnapshotId)).toEqual(
+        before,
+      );
     } finally {
-      if (slug) {
-        await cc.workflow.deleteWorkflow({ orgSlug: TEST_ORG_SLUG, workflowSlug: slug }).catch(() => null);
-      }
-      await cc.envBundle.deleteEnvBundle({ id: bundle.id }).catch(() => null);
+      await deleteWorkflow(cc, slug);
+      await deleteBundle(cc, bundle.id);
     }
   });
 
-  test("Workflow with unknown bundle name is still creatable (warn-only at run-time)", async ({ api }) => {
+  test("rejects a dangling EnvBundle resource during plan", async ({ api }) => {
     const cc = await api.connect();
     const ts = Date.now();
-    // Use a name we know does NOT exist; the AgentFile eval contract is
-    // tolerant of dangling references (USE_ENV_BUNDLE skips silently when
-    // the name isn't in ctx.EnvBundles).
-    const created = await cc.workflow.createWorkflow({
-      orgSlug: TEST_ORG_SLUG,
+    await expect(createResourceWorkflow(cc, {
+      slug: `e2e-workflow-dangling-${ts}`,
       name: `E2E Workflow Dangling ${ts}`,
-      agentSlug: "claude-code",
-      promptTemplate: "echo dangling",
-      usedEnvBundles: [`nonexistent-bundle-${ts}`],
-    }) as { slug: string };
-    const slug = created.slug;
-    expect(slug).toBeTruthy();
-    await cc.workflow.deleteWorkflow({ orgSlug: TEST_ORG_SLUG, workflowSlug: slug }).catch(() => null);
+      prompt: "echo dangling",
+      environmentBundles: [{
+        id: 999_999_999n,
+        name: `nonexistent-bundle-${ts}`,
+      }],
+    })).rejects.toThrow(/EnvBundle|environment bundle|not found|blocked/i);
   });
 });
+
+async function createBundle(
+  client: Awaited<ReturnType<import("../../fixtures/api.fixture").ApiFixture["connect"]>>,
+  name: string,
+) {
+  return client.envBundle.createEnvBundle({
+    agentSlug: "e2e-echo",
+    name,
+    kind: "runtime",
+    data: { E2E_WORKFLOW_VALUE: name },
+  }) as Promise<{ id: bigint; name: string }>;
+}
+
+function snapshotEnvBundleIds(
+  db: import("../../fixtures/db.fixture").DbFixture,
+  snapshotId: bigint,
+): number[] {
+  const raw = db.queryValue(`
+    SELECT spec_json #>> '{workspace,env_bundle_ids}'
+    FROM worker_spec_snapshots
+    WHERE id = ${snapshotId}
+  `);
+  if (!raw) throw new Error(`WorkerSpec snapshot ${snapshotId} is missing`);
+  return (JSON.parse(raw) as number[]).map(Number);
+}
+
+function workflowSnapshotId(
+  db: import("../../fixtures/db.fixture").DbFixture,
+  slug: string,
+): bigint {
+  const value = db.queryValue(`
+    SELECT worker_spec_snapshot_id
+    FROM workflows
+    WHERE slug = '${slug}'
+  `);
+  if (!value) throw new Error(`Workflow ${slug} has no WorkerSpec snapshot`);
+  return BigInt(value);
+}
+
+async function deleteWorkflow(
+  client: Awaited<ReturnType<import("../../fixtures/api.fixture").ApiFixture["connect"]>>,
+  slug: string,
+) {
+  await client.workflow.deleteWorkflow({
+    orgSlug: TEST_ORG_SLUG,
+    workflowSlug: slug,
+  }).catch(() => undefined);
+}
+
+async function deleteBundle(
+  client: Awaited<ReturnType<import("../../fixtures/api.fixture").ApiFixture["connect"]>>,
+  id: bigint,
+) {
+  await client.envBundle.deleteEnvBundle({ id }).catch(() => undefined);
+}

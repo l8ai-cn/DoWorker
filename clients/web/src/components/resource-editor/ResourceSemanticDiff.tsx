@@ -1,7 +1,9 @@
 "use client";
 
-import { SemanticChangeOperation } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
-import type { SemanticChange } from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+import {
+  SemanticChangeOperation,
+  type SemanticChange,
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import { Badge } from "@/components/ui/badge";
 
 interface ResourceSemanticDiffProps {
@@ -21,7 +23,7 @@ export function ResourceSemanticDiff({
       {changes.map((change, index) => (
         <div
           key={`${change.path}-${index}`}
-          className="flex min-w-0 items-center gap-3 px-3 py-2.5"
+          className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-3 px-3 py-2.5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center"
         >
           <Badge variant={change.operation === SemanticChangeOperation.REMOVE
             ? "warning"
@@ -29,10 +31,13 @@ export function ResourceSemanticDiff({
           >
             {SemanticChangeOperation[change.operation]}
           </Badge>
-          <code className="min-w-0 flex-1 truncate text-xs">
+          <code
+            className="min-w-0 break-all whitespace-normal text-xs"
+            title={change.path}
+          >
             {change.path}
           </code>
-          <span className="shrink-0 font-mono text-[11px] text-muted-foreground">
+          <span className="col-span-2 justify-self-end font-mono text-[11px] text-muted-foreground sm:col-span-1">
             {changeDigest(change.before)} → {changeDigest(change.after)}
           </span>
         </div>

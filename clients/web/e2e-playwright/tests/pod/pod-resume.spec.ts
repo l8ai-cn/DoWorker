@@ -5,9 +5,8 @@ import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 
 import { terminateAllPods } from "../../helpers/pod-cleanup";
-import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
+import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
-type Runner = { id: bigint };
 type Pod = { podKey: string; status: string };
 type ConnectClient = Awaited<ReturnType<import("../../fixtures/api.fixture").ApiFixture["connect"]>>;
 
@@ -17,15 +16,7 @@ test.describe("Pod Resume", () => {
 
   /** Helper: get a running pod key. Asserts prerequisites instead of skipping. */
   async function createAndWaitPod(cc: ConnectClient): Promise<string> {
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runnerId = pickE2EEchoRunner(runners).id;
-
-    const resp = await cc.pod.createPod({
-      orgSlug: TEST_ORG_SLUG,
-      runnerId,
-      agentSlug: E2E_ECHO_AGENT_SLUG,
-    }) as { pod: Pod };
+    const resp = await createE2EEchoPod(cc) as { pod: Pod };
     const podKey = resp.pod?.podKey;
     expect(podKey, "createPod must return a pod_key").toBeTruthy();
 
@@ -59,7 +50,6 @@ test.describe("Pod Resume", () => {
 
     const resumeResp = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      agentSlug: E2E_ECHO_AGENT_SLUG,
       sourcePodKey: podKey,
     }) as { pod: Pod };
     const newPodKey = resumeResp.pod?.podKey;
@@ -83,7 +73,6 @@ test.describe("Pod Resume", () => {
     // First resume
     const r1 = await cc.pod.createPod({
       orgSlug: TEST_ORG_SLUG,
-      agentSlug: E2E_ECHO_AGENT_SLUG,
       sourcePodKey: podKey,
     }) as { pod: Pod };
     const newKey = r1.pod?.podKey;
@@ -93,7 +82,6 @@ test.describe("Pod Resume", () => {
     try {
       await cc.pod.createPod({
         orgSlug: TEST_ORG_SLUG,
-        agentSlug: E2E_ECHO_AGENT_SLUG,
         sourcePodKey: podKey,
       });
     } catch (e) {

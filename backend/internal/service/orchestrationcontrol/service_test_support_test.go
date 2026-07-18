@@ -97,7 +97,8 @@ func newOrchestrationServiceFixture(t *testing.T) *orchestrationServiceFixture {
 	fixture.deps = ServiceDeps{
 		Registry: registry, Repository: repository,
 		Authorizer: authorizer, References: references,
-		Planners: []TargetPlanner{planner}, RequiredTypes: []orchestrationresource.TypeMeta{meta},
+		WorkerDefinitions: workerDefinitionPolicyStub{},
+		Planners:          []TargetPlanner{planner}, RequiredTypes: []orchestrationresource.TypeMeta{meta},
 		Clock: func() time.Time { return now },
 		IDGenerator: func() string {
 			return fixture.planID

@@ -14,6 +14,9 @@ func (s *WorkflowService) Update(ctx context.Context, orgID int64, slug string, 
 	if err != nil {
 		return nil, err
 	}
+	if workflow.IsResourceManaged() {
+		return nil, ErrWorkflowManagedByResourceApply
+	}
 
 	updates := make(map[string]interface{})
 	if req.Name != nil {

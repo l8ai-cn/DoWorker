@@ -29,6 +29,7 @@ func TestWorkflowApplyTransactionCreatesPinnedProjectionAndReplays(t *testing.T)
 			ApplyMutation: mutation,
 			Projection: workerplanner.WorkflowApplyProjection{
 				Name: "Nightly Review", Prompt: "Review authorization",
+				Status:        "disabled",
 				ExecutionMode: "direct", CronExpression: "0 2 * * *",
 				SandboxStrategy: "fresh", ConcurrencyPolicy: "skip",
 				MaxConcurrentRuns: 1, MaxRetainedRuns: 30,
@@ -53,14 +54,15 @@ func TestWorkflowApplyTransactionCreatesPinnedProjectionAndReplays(t *testing.T)
 	require.NoError(t, db.Table("workflows").Count(&count).Error)
 	assert.Equal(t, int64(1), count)
 	var resourceID, revision, snapshotID int64
-	var prompt string
+	var prompt, status string
 	require.NoError(t, db.Table("workflows").
-		Select("orchestration_resource_id, orchestration_resource_revision, worker_spec_snapshot_id, prompt_template").
-		Row().Scan(&resourceID, &revision, &snapshotID, &prompt))
+		Select("orchestration_resource_id, orchestration_resource_revision, worker_spec_snapshot_id, prompt_template, status").
+		Row().Scan(&resourceID, &revision, &snapshotID, &prompt, &status))
 	assert.Equal(t, first.Head.ID, resourceID)
 	assert.Equal(t, first.Head.Revision, revision)
 	assert.Equal(t, first.WorkerSpecSnapshotID, snapshotID)
 	assert.Equal(t, "Review authorization", prompt)
+	assert.Equal(t, "disabled", status)
 }
 
 func orchestrationWorkflowApplyPlan(t *testing.T) control.Plan {

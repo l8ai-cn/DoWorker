@@ -2,7 +2,7 @@ import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { CLEANUP } from "../../helpers/test-data";
 import { TEST_ORG_SLUG } from "../../helpers/env";
-import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
+import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 /**
  * CRUD supplement tests — filling gaps in existing modules.
@@ -148,26 +148,17 @@ test.describe("CRUD Supplements", () => {
    */
   test("create pod with repository association", async ({ api }) => {
     const cc = await api.connect();
-    const { items: runners } = await cc.runner.listAvailableRunners({
-      orgSlug: TEST_ORG_SLUG,
-    }) as { items: { id: bigint }[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runnerId = pickE2EEchoRunner(runners).id;
-
     const { items: repos } = await cc.repository.listRepositories({
       orgSlug: TEST_ORG_SLUG,
-    }) as { items: { id: bigint }[] };
+    }) as { items: { id: bigint; defaultBranch: string }[] };
+    const repository = repos[0];
+    expect(repository, "seeded repository must exist").toBeTruthy();
+    expect(repository.defaultBranch, "seeded repository must declare a default branch").toBeTruthy();
 
-    const req: Record<string, unknown> = {
-      orgSlug: TEST_ORG_SLUG,
-      runnerId,
-      agentSlug: E2E_ECHO_AGENT_SLUG,
-    };
-    if (repos?.length) {
-      req.repositoryId = repos[0].id;
-    }
-
-    const created = await cc.pod.createPod(req) as { pod: { podKey: string } };
+    const created = await createE2EEchoPod(cc, {
+      repositoryId: repository.id,
+      branch: repository.defaultBranch,
+    }) as { pod: { podKey: string } };
     const podKey = created.pod?.podKey;
     expect(podKey).toBeTruthy();
 

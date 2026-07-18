@@ -3,20 +3,25 @@ import {
   toBinary,
 } from "@bufbuild/protobuf";
 import {
+  type EnvironmentBundlePurpose,
   ExportResourceRequestSchema,
   ExportResourceResponseSchema,
+  GetResourceCapabilitiesRequestSchema,
+  GetResourceCapabilitiesResponseSchema,
   GetResourcePlanRequestSchema,
   GetResourceRequestSchema,
   ListResourcesRequestSchema,
   ListResourcesResponseSchema,
   PlanResourceRequestSchema,
   PlanResourceResponseSchema,
+  ValidateResourceRequestSchema,
+  ValidateResourceResponseSchema,
+} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
+import {
   ResourcePlanSchema,
   ResourceSchema,
   SourceFormat,
-  ValidateResourceRequestSchema,
-  ValidateResourceResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import { getOrchestrationResourceService } from "@/lib/wasm-core";
 import { callOrchestrationResource as call } from "./orchestrationResourceBinaryCall";
 
@@ -46,6 +51,11 @@ export interface ResourceListInput {
   kind?: string;
   offset?: number;
   limit?: number;
+  environmentBundleFilter?: {
+    purpose: EnvironmentBundlePurpose;
+    workerType: string;
+    targetName?: string;
+  };
 }
 
 function source(document: ResourceDocument) {
@@ -98,6 +108,23 @@ export function getResource(orgSlug: string, input: ResourceTargetInput) {
     ResourceSchema,
     toBinary(GetResourceRequestSchema, request),
     (bytes) => getOrchestrationResourceService().getResourceConnect(bytes),
+  );
+}
+
+export function getResourceCapabilities(
+  orgSlug: string,
+  input: ResourceTargetInput,
+) {
+  const request = create(GetResourceCapabilitiesRequestSchema, {
+    orgSlug,
+    target: target(input),
+  });
+  return call(
+    GetResourceCapabilitiesResponseSchema,
+    toBinary(GetResourceCapabilitiesRequestSchema, request),
+    (bytes) => (
+      getOrchestrationResourceService().getResourceCapabilitiesConnect(bytes)
+    ),
   );
 }
 

@@ -35,6 +35,10 @@ func NewMCP(baseURL, podKey string) *MCPClient {
 	}
 }
 
+func (c *MCPClient) BaseURL() string {
+	return c.baseURL
+}
+
 type mcpRequest struct {
 	JSONRPC string         `json:"jsonrpc"`
 	ID      int64          `json:"id"`

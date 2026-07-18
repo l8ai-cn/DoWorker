@@ -417,6 +417,10 @@
     "status": {
       "draft": "草稿",
       "planReady": "计划就绪",
+      "planApplied": "计划已应用",
+      "planCancelled": "计划已取消",
+      "planExpired": "计划已过期",
+      "planUnavailable": "计划不可用",
       "applied": "已应用"
     },
     "sections": {
@@ -512,7 +516,7 @@
       "knowledgeBase": "知识库",
       "mountMode": "挂载模式",
       "environmentBundleRefs": "环境变量包",
-      "configBundleRefs": "配置包",
+      "configDocumentBindings": "配置文档",
       "instructions": "工作指令",
       "terminationPolicy": "终止策略",
       "idleTimeoutMinutes": "空闲超时（分钟）"
@@ -545,7 +549,10 @@
     "references": {
       "loading": "正在加载可引用资源…",
       "empty": "当前还没有可用的 {kind} 资源。",
-      "available": "可引用 {count} 个资源。"
+      "available": "可引用 {count} 个资源。",
+      "required": "请为 {field} 选择凭据包。",
+      "requiredAnyOf": "请至少为以下一项选择凭据包：{fields}。",
+      "requiredConfigurationDocument": "请为配置文档 {document} 选择配置包。"
     },
     "collections": {
       "add": "添加",
@@ -557,6 +564,10 @@
     },
     "secrets": {
       "referenceOnly": "这里只保存 EnvironmentBundle 资源引用，不录入也不显示任何 Secret 明文。"
+    },
+    "workerOptions": {
+      "loading": "Worker 选项目录正在加载，目录就绪前不能生成 Plan。",
+      "workerTypeUnavailable": "当前运行时目录中没有可用的所选 Worker 类型，请重新选择后再生成 Plan。"
     },
     "valueTypes": {
       "string": "字符串",
@@ -570,11 +581,20 @@
     "yaml": {
       "label": "{kind} YAML",
       "invalid": "请先修复 YAML，才能返回表单或应用。",
+      "limits": "每份文档最大 256 KiB，每个物理行最大 64 KiB。",
       "manual": "YAML 手册"
     },
     "plan": {
       "empty": "生成计划后，可审查语义差异和被固定的资源版本。",
       "operation": "操作",
+      "status": "状态",
+      "statuses": {
+        "pending": "待应用",
+        "applied": "已应用",
+        "cancelled": "已取消",
+        "expired": "已过期",
+        "unavailable": "不可用"
+      },
       "expires": "过期时间",
       "changes": "语义变更",
       "references": "固定引用",

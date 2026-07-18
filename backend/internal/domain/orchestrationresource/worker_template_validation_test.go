@@ -29,26 +29,30 @@ func TestWorkerTemplateRejectsInvalidOptionsRevision(t *testing.T) {
 func TestWorkerTemplateRejectsInvalidMapKeys(t *testing.T) {
 	tests := []struct {
 		name   string
+		input  string
 		mutate func(*WorkerTemplateSpec)
 	}{
 		{
-			name: "tool role",
+			name:  "tool role",
+			input: "Video_Generation",
 			mutate: func(spec *WorkerTemplateSpec) {
 				spec.ToolRefs["Video_Generation"] = spec.ToolRefs["video-generation"]
 				delete(spec.ToolRefs, "video-generation")
 			},
 		},
 		{
-			name: "config value field",
+			name:  "config value field",
+			input: " invalid ",
 			mutate: func(spec *WorkerTemplateSpec) {
-				spec.TypeConfig.Values["Reasoning_Effort"] = "high"
+				spec.TypeConfig.Values[" invalid "] = "high"
 				delete(spec.TypeConfig.Values, "reasoning-effort")
 			},
 		},
 		{
-			name: "secret config field",
+			name:  "secret config field",
+			input: " invalid ",
 			mutate: func(spec *WorkerTemplateSpec) {
-				spec.TypeConfig.SecretRefs["API_TOKEN"] = spec.TypeConfig.SecretRefs["api-token"]
+				spec.TypeConfig.SecretRefs[" invalid "] = spec.TypeConfig.SecretRefs["api-token"]
 				delete(spec.TypeConfig.SecretRefs, "api-token")
 			},
 		},
@@ -57,9 +61,27 @@ func TestWorkerTemplateRejectsInvalidMapKeys(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			spec := validWorkerTemplateSpec()
 			test.mutate(&spec)
-			requireWorkerTemplateError(t, spec, test.name)
+			err := workerTemplateError(t, spec)
+			require.Contains(t, err.Error(), test.name)
+			require.NotContains(t, err.Error(), test.input)
 		})
 	}
+}
+
+func TestWorkerTemplateAcceptsDefinitionConfigFieldNames(t *testing.T) {
+	spec := validWorkerTemplateSpec()
+	spec.TypeConfig.Values["REASONING_EFFORT"] = "high"
+	delete(spec.TypeConfig.Values, "reasoning-effort")
+	spec.TypeConfig.SecretRefs["CURSOR_API_KEY"] =
+		spec.TypeConfig.SecretRefs["api-token"]
+	delete(spec.TypeConfig.SecretRefs, "api-token")
+
+	registry := NewRegistry()
+	require.NoError(t, RegisterWorkerSchemas(registry))
+	_, err := registry.DecodeAndValidate(
+		workerSchemaManifest(t, KindWorkerTemplate, spec),
+	)
+	require.NoError(t, err)
 }
 
 func TestWorkerTemplateRejectsWrongKindCrossNamespaceAndResolvedFields(t *testing.T) {
@@ -167,14 +189,14 @@ func TestWorkerTemplateRejectsDuplicateReferencesInCollections(t *testing.T) {
 			field: "workspace.environmentBundleRefs",
 		},
 		{
-			name: "config bundles",
+			name: "config document bindings",
 			mutate: func(spec *WorkerTemplateSpec) {
-				spec.Workspace.ConfigBundleRefs = append(
-					spec.Workspace.ConfigBundleRefs,
-					spec.Workspace.ConfigBundleRefs[0],
+				spec.Workspace.ConfigDocumentBindings = append(
+					spec.Workspace.ConfigDocumentBindings,
+					spec.Workspace.ConfigDocumentBindings[0],
 				)
 			},
-			field: "workspace.configBundleRefs",
+			field: "workspace.configDocumentBindings",
 		},
 	}
 	for _, test := range tests {
@@ -192,11 +214,17 @@ func requireWorkerTemplateError(
 	message string,
 ) {
 	t.Helper()
+	err := workerTemplateError(t, spec)
+	require.Contains(t, err.Error(), message)
+}
+
+func workerTemplateError(t *testing.T, spec WorkerTemplateSpec) error {
+	t.Helper()
 	registry := NewRegistry()
 	require.NoError(t, RegisterWorkerSchemas(registry))
 	_, err := registry.DecodeAndValidate(
 		workerSchemaManifest(t, KindWorkerTemplate, spec),
 	)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), message)
+	return err
 }

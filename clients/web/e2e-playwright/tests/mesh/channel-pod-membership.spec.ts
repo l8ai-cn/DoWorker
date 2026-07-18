@@ -13,10 +13,9 @@ import type { ApiFixture } from "../../fixtures/api.fixture";
 import { ChannelsPage } from "../../pages/channels.page";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
-import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
+import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
 type ConnectClient = Awaited<ReturnType<ApiFixture["connect"]>>;
-type Runner = { id: bigint };
 type Channel = { id: bigint; memberCount: bigint; agentCount: bigint };
 type ChannelPod = { podKey: string };
 
@@ -27,14 +26,9 @@ const POD_ROW = '[data-testid="channel-rail-pod"]';
 interface CreatedPod { podKey: string }
 interface CreatedChannel { id: bigint; name: string; memberCount: number; agentCount: number }
 
-async function createPod(cc: ConnectClient, _prompt: string): Promise<CreatedPod> {
-  const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-  expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-  const runnerId = pickE2EEchoRunner(runners).id;
-  const resp = await cc.pod.createPod({
-    orgSlug: TEST_ORG_SLUG,
-    runnerId,
-    agentSlug: E2E_ECHO_AGENT_SLUG,
+async function createPod(cc: ConnectClient, prompt: string): Promise<CreatedPod> {
+  const resp = await createE2EEchoPod(cc, {
+    prompt,
   }) as { pod: { podKey: string } };
   const podKey = resp.pod?.podKey;
   expect(podKey, "createPod must return a pod_key").toBeTruthy();

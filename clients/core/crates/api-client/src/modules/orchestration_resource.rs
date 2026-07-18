@@ -40,6 +40,18 @@ impl ApiClient {
         .await
     }
 
+    pub async fn get_resource_capabilities_connect(
+        &self,
+        request: &resource::GetResourceCapabilitiesRequest,
+    ) -> Result<resource::GetResourceCapabilitiesResponse, ApiError> {
+        connect_call(
+            self,
+            "/proto.orchestration_resource.v1.OrchestrationResourceService/GetResourceCapabilities",
+            request,
+        )
+        .await
+    }
+
     pub async fn list_resources_connect(
         &self,
         request: &resource::ListResourcesRequest,

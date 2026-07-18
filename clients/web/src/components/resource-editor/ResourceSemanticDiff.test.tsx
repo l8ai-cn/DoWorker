@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   SemanticChangeOperation,
   SemanticChangeSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import { render, screen } from "@/test/test-utils";
 import { ResourceSemanticDiff } from "./ResourceSemanticDiff";
 
@@ -42,5 +42,20 @@ describe("ResourceSemanticDiff", () => {
     render(<ResourceSemanticDiff changes={[]} emptyLabel="No semantic changes" />);
 
     expect(screen.getByText("No semantic changes")).toBeInTheDocument();
+  });
+
+  it("keeps the full semantic path available", () => {
+    const path = "/spec/workspace/configDocumentBindings/0/configBundleRef";
+    render(
+      <ResourceSemanticDiff
+        emptyLabel="No changes"
+        changes={[create(SemanticChangeSchema, {
+          operation: SemanticChangeOperation.ADD,
+          path,
+        })]}
+      />,
+    );
+
+    expect(screen.getByText(path)).toHaveAttribute("title", path);
   });
 });

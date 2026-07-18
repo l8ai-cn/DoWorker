@@ -8,11 +8,8 @@ import {
 } from "../../helpers/env-bundle-e2e";
 import { uniqueSuffix } from "../../helpers/test-data";
 
-/**
- * EnvBundle selection belongs to AgentFile, and e2e-echo is an internal
- * test-only agent. These tests exercise that supported typed path through the
- * Runner instead of trying to select e2e-echo in the public WorkerSpec form.
- */
+// e2e-echo is selectable only in the E2E environment. These tests verify that
+// EnvBundle references survive the same WorkerSpec resource path used by pods.
 const AGENT_SLUG = "e2e-echo";
 
 test.describe("Pod create — EnvBundle binding", () => {

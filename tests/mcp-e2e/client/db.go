@@ -30,6 +30,13 @@ func OpenDB(dsn string) (*DB, error) {
 
 func (d *DB) Close() error { return d.conn.Close() }
 
+func (d *DB) BeginTx(
+	ctx context.Context,
+	options *sql.TxOptions,
+) (*sql.Tx, error) {
+	return d.conn.BeginTx(ctx, options)
+}
+
 // QueryRow exposes the underlying database connection for ad-hoc fact
 // assertions in specs that need a query the helper methods don't cover.
 // Using this directly is fine for one-off SQL — pull it into a named helper

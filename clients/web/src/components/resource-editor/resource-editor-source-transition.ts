@@ -2,9 +2,14 @@ import type { Dispatch } from "react";
 import {
   IssueSeverity,
   SourceFormat,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
 import { validateResource } from "@/lib/api/facade/orchestrationResource";
+import { safeServiceErrorMessage } from "@/lib/errors/safeServiceErrorMessage";
 import { resourceDraftCanSubmitDraft } from "./resource-draft-selectors";
+import {
+  assertResourceDraftIdentity,
+  type ResourceIdentity,
+} from "./resource-draft-identity";
 import type { ResourceEditorKind } from "./resource-editor-types";
 import type { ResourceDraftAction } from "./resource-draft-reducer";
 
@@ -15,11 +20,13 @@ export async function switchYamlToForm(
   version: number,
   dispatch: Dispatch<ResourceDraftAction>,
   isCurrent: () => boolean,
+  lockedIdentity?: ResourceIdentity,
 ): Promise<boolean> {
   const codec = await import("./resource-yaml-codec");
   if (!isCurrent()) return false;
   try {
     const draft = codec.parseResourceYaml(source, expectedKind);
+    assertResourceDraftIdentity(draft, lockedIdentity);
     if (!resourceDraftCanSubmitDraft(draft)) {
       throw new Error("GoalLoop YAML contains invalid integer fields.");
     }
@@ -63,6 +70,7 @@ export async function switchYamlToForm(
       response.canonicalJson,
       expectedKind,
     );
+    assertResourceDraftIdentity(draft, lockedIdentity);
     if (!isCurrent()) return false;
     dispatch({
       type: "yaml_form_loaded",
@@ -84,9 +92,41 @@ export async function switchYamlToForm(
   }
 }
 
+export async function switchYamlToPlan(
+  source: string,
+  expectedKind: ResourceEditorKind,
+  version: number,
+  dispatch: Dispatch<ResourceDraftAction>,
+  isCurrent: () => boolean,
+  lockedIdentity?: ResourceIdentity,
+): Promise<boolean> {
+  const codec = await import("./resource-yaml-codec");
+  if (!isCurrent()) return false;
+  try {
+    const draft = codec.parseResourceYaml(source, expectedKind);
+    assertResourceDraftIdentity(draft, lockedIdentity);
+    if (!resourceDraftCanSubmitDraft(draft)) {
+      throw new Error("GoalLoop YAML contains invalid integer fields.");
+    }
+    if (!isCurrent()) return false;
+    dispatch({ type: "source_parsed", draft, version });
+    dispatch({ type: "set_mode", mode: "plan" });
+    return true;
+  } catch (error) {
+    if (isCurrent()) {
+      dispatch({
+        type: "source_invalid",
+        error: safeResourceError(error, "YAML validation failed."),
+        version,
+      });
+    }
+    return false;
+  }
+}
+
 export function safeResourceError(
   error: unknown,
   fallback: string,
 ): string {
-  return error instanceof Error && error.message ? error.message : fallback;
+  return safeServiceErrorMessage(error, fallback);
 }

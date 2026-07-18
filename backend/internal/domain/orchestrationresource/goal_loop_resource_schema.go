@@ -41,7 +41,7 @@ func validateGoalLoopResource(
 		"description",
 		spec.Description,
 		4_000,
-		true,
+		false,
 	); err != nil {
 		return err
 	}

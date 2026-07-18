@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file pod/v1/worker_creation.proto.
  */
 export const file_pod_v1_worker_creation: GenFile = /*@__PURE__*/
-  fileDesc("Chxwb2QvdjEvd29ya2VyX2NyZWF0aW9uLnByb3RvEgxwcm90by5wb2QudjEiQAoVV29ya2VyU2VjcmV0UmVmZXJlbmNlEg0KBWZpZWxkGAEgASgJEgwKBGtpbmQYAiABKAkSCgoCaWQYAyABKAMiPwoUV29ya2VyS25vd2xlZGdlTW91bnQSGQoRa25vd2xlZGdlX2Jhc2VfaWQYASABKAMSDAoEbW9kZRgCIAEoCSLHAQoVV29ya2VyUmVzb3VyY2VSZXF1ZXN0EhwKFGNwdV9yZXF1ZXN0X21pbGxpY3B1GAEgASgNEhoKEmNwdV9saW1pdF9taWxsaWNwdRgCIAEoDRIcChRtZW1vcnlfcmVxdWVzdF9ieXRlcxgDIAEoBBIaChJtZW1vcnlfbGltaXRfYnl0ZXMYBCABKAQSHQoVc3RvcmFnZV9yZXF1ZXN0X2J5dGVzGAUgASgEEhsKE3N0b3JhZ2VfbGltaXRfYnl0ZXMYBiABKAQi7AcKD1dvcmtlclNwZWNEcmFmdBIZChFtb2RlbF9yZXNvdXJjZV9pZBgBIAEoAxIYChB3b3JrZXJfdHlwZV9zbHVnGAIgASgJEhgKEHJ1bnRpbWVfaW1hZ2VfaWQYAyABKAMSGAoQcGxhY2VtZW50X3BvbGljeRgEIAEoCRIZChFjb21wdXRlX3RhcmdldF9pZBgFIAEoAxIXCg9kZXBsb3ltZW50X21vZGUYBiABKAkSGwoTcmVzb3VyY2VfcHJvZmlsZV9pZBgHIAEoAxIbChN0eXBlX3NjaGVtYV92ZXJzaW9uGAggASgNEh8KF3R5cGVfY29uZmlnX3ZhbHVlc19qc29uGAkgASgJEjgKC3NlY3JldF9yZWZzGAogAygLMiMucHJvdG8ucG9kLnYxLldvcmtlclNlY3JldFJlZmVyZW5jZRIYChBpbnRlcmFjdGlvbl9tb2RlGAsgASgJEhgKEGF1dG9tYXRpb25fbGV2ZWwYDCABKAkSGgoNcmVwb3NpdG9yeV9pZBgNIAEoA0gAiAEBEg4KBmJyYW5jaBgOIAEoCRIRCglza2lsbF9pZHMYDyADKAMSPAoQa25vd2xlZGdlX21vdW50cxgQIAMoCzIiLnByb3RvLnBvZC52MS5Xb3JrZXJLbm93bGVkZ2VNb3VudBIWCg5lbnZfYnVuZGxlX2lkcxgRIAMoAxIUCgxpbnN0cnVjdGlvbnMYEiABKAkSFAoMaW5pdGlhbF90YXNrGBMgASgJEhoKEnRlcm1pbmF0aW9uX3BvbGljeRgUIAEoCRIcChRpZGxlX3RpbWVvdXRfbWludXRlcxgVIAEoDRINCgVhbGlhcxgWIAEoCRIdChBzb3VyY2VfZXhwZXJ0X2lkGBcgASgDSAGIAQESGAoQb3B0aW9uc19yZXZpc2lvbhgYIAEoCRJYChd0b29sX21vZGVsX3Jlc291cmNlX2lkcxgZIAMoCzI3LnByb3RvLnBvZC52MS5Xb3JrZXJTcGVjRHJhZnQuVG9vbE1vZGVsUmVzb3VyY2VJZHNFbnRyeRJCChBjdXN0b21fcmVzb3VyY2VzGBogASgLMiMucHJvdG8ucG9kLnYxLldvcmtlclJlc291cmNlUmVxdWVzdEgCiAEBEhkKEWNvbmZpZ19idW5kbGVfaWRzGBsgAygDGjsKGVRvb2xNb2RlbFJlc291cmNlSWRzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgDOgI4AUIQCg5fcmVwb3NpdG9yeV9pZEITChFfc291cmNlX2V4cGVydF9pZEITChFfY3VzdG9tX3Jlc291cmNlcyKCAQoaV29ya2VyVG9vbE1vZGVsUmVxdWlyZW1lbnQSDAoEcm9sZRgBIAEoCRIVCg1wcm92aWRlcl9rZXlzGAIgAygJEhkKEXByb3RvY29sX2FkYXB0ZXJzGAMgAygJEhAKCG1vZGFsaXR5GAQgASgJEhIKCmNhcGFiaWxpdHkYBSABKAkitQIKEFdvcmtlclR5cGVPcHRpb24SDAoEc2x1ZxgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhYKDnNjaGVtYV92ZXJzaW9uGAQgASgNEhoKEmNvbmZpZ19zY2hlbWFfanNvbhgFIAEoCRISCgpzZWxlY3RhYmxlGAYgASgIEhcKD2Jsb2NraW5nX3JlYXNvbhgHIAEoCRIfChdyZXF1aXJlc19tb2RlbF9yZXNvdXJjZRgIIAEoCBJJChd0b29sX21vZGVsX3JlcXVpcmVtZW50cxgJIAMoCzIoLnByb3RvLnBvZC52MS5Xb3JrZXJUb29sTW9kZWxSZXF1aXJlbWVudBIjChtzdXBwb3J0ZWRfaW50ZXJhY3Rpb25fbW9kZXMYCiADKAkirQEKGFdvcmtlclJ1bnRpbWVJbWFnZU9wdGlvbhIKCgJpZBgBIAEoAxIMCgRzbHVnGAIgASgJEgwKBG5hbWUYAyABKAkSEQoJcmVmZXJlbmNlGAQgASgJEg4KBmRpZ2VzdBgFIAEoCRIZChF3b3JrZXJfdHlwZV9zbHVncxgGIAMoCRISCgpzZWxlY3RhYmxlGAcgASgIEhcKD2Jsb2NraW5nX3JlYXNvbhgIIAEoCSKzAQoZV29ya2VyQ29tcHV0ZVRhcmdldE9wdGlvbhIKCgJpZBgBIAEoAxIMCgRzbHVnGAIgASgJEgwKBG5hbWUYAyABKAkSDAoEa2luZBgEIAEoCRIXCg9zdXBwb3J0c19wb29sZWQYBSABKAgSGgoSc3VwcG9ydHNfZGVkaWNhdGVkGAYgASgIEhIKCnNlbGVjdGFibGUYByABKAgSFwoPYmxvY2tpbmdfcmVhc29uGAggASgJImYKGldvcmtlckRlcGxveW1lbnRNb2RlT3B0aW9uEg0KBXZhbHVlGAEgASgJEgwKBG5hbWUYAiABKAkSEgoKc2VsZWN0YWJsZRgDIAEoCBIXCg9ibG9ja2luZ19yZWFzb24YBCABKAki8gIKG1dvcmtlclJlc291cmNlUHJvZmlsZU9wdGlvbhIKCgJpZBgBIAEoAxIMCgRzbHVnGAIgASgJEgwKBG5hbWUYAyABKAkSHAoUY3B1X3JlcXVlc3RfbWlsbGljcHUYBCABKA0SGgoSY3B1X2xpbWl0X21pbGxpY3B1GAUgASgNEhwKFG1lbW9yeV9yZXF1ZXN0X2J5dGVzGAYgASgEEhoKEm1lbW9yeV9saW1pdF9ieXRlcxgHIAEoBBIYCgtncHVfcmVxdWVzdBgIIAEoDUgAiAEBEhYKCWdwdV9saW1pdBgJIAEoDUgBiAEBEhIKCnNlbGVjdGFibGUYCiABKAgSFwoPYmxvY2tpbmdfcmVhc29uGAsgASgJEh0KFXN0b3JhZ2VfcmVxdWVzdF9ieXRlcxgMIAEoBBIbChNzdG9yYWdlX2xpbWl0X2J5dGVzGA0gASgEQg4KDF9ncHVfcmVxdWVzdEIMCgpfZ3B1X2xpbWl0Is4BCh5MaXN0V29ya2VyQ3JlYXRlT3B0aW9uc1JlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSHQoQd29ya2VyX3R5cGVfc2x1ZxgCIAEoCUgAiAEBEh4KEWNvbXB1dGVfdGFyZ2V0X2lkGAMgASgDSAGIAQESHAoPZGVwbG95bWVudF9tb2RlGAQgASgJSAKIAQFCEwoRX3dvcmtlcl90eXBlX3NsdWdCFAoSX2NvbXB1dGVfdGFyZ2V0X2lkQhIKEF9kZXBsb3ltZW50X21vZGUi9QIKH0xpc3RXb3JrZXJDcmVhdGVPcHRpb25zUmVzcG9uc2USEAoIcmV2aXNpb24YASABKAkSNAoMd29ya2VyX3R5cGVzGAIgAygLMh4ucHJvdG8ucG9kLnYxLldvcmtlclR5cGVPcHRpb24SPgoOcnVudGltZV9pbWFnZXMYAyADKAsyJi5wcm90by5wb2QudjEuV29ya2VyUnVudGltZUltYWdlT3B0aW9uEkAKD2NvbXB1dGVfdGFyZ2V0cxgEIAMoCzInLnByb3RvLnBvZC52MS5Xb3JrZXJDb21wdXRlVGFyZ2V0T3B0aW9uEkIKEGRlcGxveW1lbnRfbW9kZXMYBSADKAsyKC5wcm90by5wb2QudjEuV29ya2VyRGVwbG95bWVudE1vZGVPcHRpb24SRAoRcmVzb3VyY2VfcHJvZmlsZXMYBiADKAsyKS5wcm90by5wb2QudjEuV29ya2VyUmVzb3VyY2VQcm9maWxlT3B0aW9uIlYKFFdvcmtlclByZWZsaWdodElzc3VlEgwKBGNvZGUYASABKAkSDQoFZmllbGQYAiABKAkSDwoHbWVzc2FnZRgDIAEoCRIQCghzZXZlcml0eRgEIAEoCSJYChZQcmVmbGlnaHRXb3JrZXJSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEiwKBWRyYWZ0GAIgASgLMh0ucHJvdG8ucG9kLnYxLldvcmtlclNwZWNEcmFmdCKfAQoXUHJlZmxpZ2h0V29ya2VyUmVzcG9uc2USMgoGaXNzdWVzGAEgAygLMiIucHJvdG8ucG9kLnYxLldvcmtlclByZWZsaWdodElzc3VlEh8KEnJlc29sdmVkX3NwZWNfanNvbhgCIAEoCUgAiAEBEhgKEG9wdGlvbnNfcmV2aXNpb24YAyABKAlCFQoTX3Jlc29sdmVkX3NwZWNfanNvbiKHAQoWRmlsbFdvcmtlckRyYWZ0UmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIOCgZwcm9tcHQYAiABKAkSOQoNY3VycmVudF9kcmFmdBgDIAEoCzIdLnByb3RvLnBvZC52MS5Xb3JrZXJTcGVjRHJhZnRIAIgBAUIQCg5fY3VycmVudF9kcmFmdCJ7ChdGaWxsV29ya2VyRHJhZnRSZXNwb25zZRIsCgVkcmFmdBgBIAEoCzIdLnByb3RvLnBvZC52MS5Xb3JrZXJTcGVjRHJhZnQSMgoGaXNzdWVzGAIgAygLMiIucHJvdG8ucG9kLnYxLldvcmtlclByZWZsaWdodElzc3VlQjxaOmdpdGh1Yi5jb20vYW50aHJvcGljcy9hZ2VudHNtZXNoL3Byb3RvL2dlbi9nby9wb2QvdjE7cG9kdjFiBnByb3RvMw");
+  fileDesc("Chxwb2QvdjEvd29ya2VyX2NyZWF0aW9uLnByb3RvEgxwcm90by5wb2QudjEiQAoVV29ya2VyU2VjcmV0UmVmZXJlbmNlEg0KBWZpZWxkGAEgASgJEgwKBGtpbmQYAiABKAkSCgoCaWQYAyABKAMiPwoUV29ya2VyS25vd2xlZGdlTW91bnQSGQoRa25vd2xlZGdlX2Jhc2VfaWQYASABKAMSDAoEbW9kZRgCIAEoCSJMChtXb3JrZXJDb25maWdEb2N1bWVudEJpbmRpbmcSEwoLZG9jdW1lbnRfaWQYASABKAkSGAoQY29uZmlnX2J1bmRsZV9pZBgCIAEoAyJ8ChtXb3JrZXJDcmVkZW50aWFsUmVxdWlyZW1lbnQSCgoCaWQYASABKAkSEwoLc291cmNlX2tpbmQYAiABKAkSEgoKc291cmNlX3JlZhgDIAEoCRITCgt0YXJnZXRfa2luZBgEIAEoCRITCgt0YXJnZXRfbmFtZRgFIAEoCSJtCh9Xb3JrZXJDb25maWdEb2N1bWVudFJlcXVpcmVtZW50EhMKC2RvY3VtZW50X2lkGAEgASgJEg4KBmZvcm1hdBgCIAEoCRITCgt0YXJnZXRfcGF0aBgDIAEoCRIQCghyZXF1aXJlZBgEIAEoCCLHAQoVV29ya2VyUmVzb3VyY2VSZXF1ZXN0EhwKFGNwdV9yZXF1ZXN0X21pbGxpY3B1GAEgASgNEhoKEmNwdV9saW1pdF9taWxsaWNwdRgCIAEoDRIcChRtZW1vcnlfcmVxdWVzdF9ieXRlcxgDIAEoBBIaChJtZW1vcnlfbGltaXRfYnl0ZXMYBCABKAQSHQoVc3RvcmFnZV9yZXF1ZXN0X2J5dGVzGAUgASgEEhsKE3N0b3JhZ2VfbGltaXRfYnl0ZXMYBiABKAQipAgKD1dvcmtlclNwZWNEcmFmdBIZChFtb2RlbF9yZXNvdXJjZV9pZBgBIAEoAxIYChB3b3JrZXJfdHlwZV9zbHVnGAIgASgJEhgKEHJ1bnRpbWVfaW1hZ2VfaWQYAyABKAMSGAoQcGxhY2VtZW50X3BvbGljeRgEIAEoCRIZChFjb21wdXRlX3RhcmdldF9pZBgFIAEoAxIXCg9kZXBsb3ltZW50X21vZGUYBiABKAkSGwoTcmVzb3VyY2VfcHJvZmlsZV9pZBgHIAEoAxIbChN0eXBlX3NjaGVtYV92ZXJzaW9uGAggASgNEh8KF3R5cGVfY29uZmlnX3ZhbHVlc19qc29uGAkgASgJEjgKC3NlY3JldF9yZWZzGAogAygLMiMucHJvdG8ucG9kLnYxLldvcmtlclNlY3JldFJlZmVyZW5jZRIYChBpbnRlcmFjdGlvbl9tb2RlGAsgASgJEhgKEGF1dG9tYXRpb25fbGV2ZWwYDCABKAkSGgoNcmVwb3NpdG9yeV9pZBgNIAEoA0gAiAEBEg4KBmJyYW5jaBgOIAEoCRIRCglza2lsbF9pZHMYDyADKAMSPAoQa25vd2xlZGdlX21vdW50cxgQIAMoCzIiLnByb3RvLnBvZC52MS5Xb3JrZXJLbm93bGVkZ2VNb3VudBIWCg5lbnZfYnVuZGxlX2lkcxgRIAMoAxIUCgxpbnN0cnVjdGlvbnMYEiABKAkSFAoMaW5pdGlhbF90YXNrGBMgASgJEhoKEnRlcm1pbmF0aW9uX3BvbGljeRgUIAEoCRIcChRpZGxlX3RpbWVvdXRfbWludXRlcxgVIAEoDRINCgVhbGlhcxgWIAEoCRIdChBzb3VyY2VfZXhwZXJ0X2lkGBcgASgDSAGIAQESGAoQb3B0aW9uc19yZXZpc2lvbhgYIAEoCRJYChd0b29sX21vZGVsX3Jlc291cmNlX2lkcxgZIAMoCzI3LnByb3RvLnBvZC52MS5Xb3JrZXJTcGVjRHJhZnQuVG9vbE1vZGVsUmVzb3VyY2VJZHNFbnRyeRJCChBjdXN0b21fcmVzb3VyY2VzGBogASgLMiMucHJvdG8ucG9kLnYxLldvcmtlclJlc291cmNlUmVxdWVzdEgCiAEBEksKGGNvbmZpZ19kb2N1bWVudF9iaW5kaW5ncxgcIAMoCzIpLnByb3RvLnBvZC52MS5Xb3JrZXJDb25maWdEb2N1bWVudEJpbmRpbmcaOwoZVG9vbE1vZGVsUmVzb3VyY2VJZHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAM6AjgBQhAKDl9yZXBvc2l0b3J5X2lkQhMKEV9zb3VyY2VfZXhwZXJ0X2lkQhMKEV9jdXN0b21fcmVzb3VyY2VzSgQIGxAcIoIBChpXb3JrZXJUb29sTW9kZWxSZXF1aXJlbWVudBIMCgRyb2xlGAEgASgJEhUKDXByb3ZpZGVyX2tleXMYAiADKAkSGQoRcHJvdG9jb2xfYWRhcHRlcnMYAyADKAkSEAoIbW9kYWxpdHkYBCABKAkSEgoKY2FwYWJpbGl0eRgFIAEoCSL3AwoQV29ya2VyVHlwZU9wdGlvbhIMCgRzbHVnGAEgASgJEgwKBG5hbWUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSFgoOc2NoZW1hX3ZlcnNpb24YBCABKA0SGgoSY29uZmlnX3NjaGVtYV9qc29uGAUgASgJEhIKCnNlbGVjdGFibGUYBiABKAgSFwoPYmxvY2tpbmdfcmVhc29uGAcgASgJEh8KF3JlcXVpcmVzX21vZGVsX3Jlc291cmNlGAggASgIEkkKF3Rvb2xfbW9kZWxfcmVxdWlyZW1lbnRzGAkgAygLMigucHJvdG8ucG9kLnYxLldvcmtlclRvb2xNb2RlbFJlcXVpcmVtZW50EiMKG3N1cHBvcnRlZF9pbnRlcmFjdGlvbl9tb2RlcxgKIAMoCRIfChdtb2RlbF9wcm90b2NvbF9hZGFwdGVycxgLIAMoCRJKChdjcmVkZW50aWFsX3JlcXVpcmVtZW50cxgMIAMoCzIpLnByb3RvLnBvZC52MS5Xb3JrZXJDcmVkZW50aWFsUmVxdWlyZW1lbnQSUwocY29uZmlnX2RvY3VtZW50X3JlcXVpcmVtZW50cxgNIAMoCzItLnByb3RvLnBvZC52MS5Xb3JrZXJDb25maWdEb2N1bWVudFJlcXVpcmVtZW50Iq0BChhXb3JrZXJSdW50aW1lSW1hZ2VPcHRpb24SCgoCaWQYASABKAMSDAoEc2x1ZxgCIAEoCRIMCgRuYW1lGAMgASgJEhEKCXJlZmVyZW5jZRgEIAEoCRIOCgZkaWdlc3QYBSABKAkSGQoRd29ya2VyX3R5cGVfc2x1Z3MYBiADKAkSEgoKc2VsZWN0YWJsZRgHIAEoCBIXCg9ibG9ja2luZ19yZWFzb24YCCABKAkiswEKGVdvcmtlckNvbXB1dGVUYXJnZXRPcHRpb24SCgoCaWQYASABKAMSDAoEc2x1ZxgCIAEoCRIMCgRuYW1lGAMgASgJEgwKBGtpbmQYBCABKAkSFwoPc3VwcG9ydHNfcG9vbGVkGAUgASgIEhoKEnN1cHBvcnRzX2RlZGljYXRlZBgGIAEoCBISCgpzZWxlY3RhYmxlGAcgASgIEhcKD2Jsb2NraW5nX3JlYXNvbhgIIAEoCSJmChpXb3JrZXJEZXBsb3ltZW50TW9kZU9wdGlvbhINCgV2YWx1ZRgBIAEoCRIMCgRuYW1lGAIgASgJEhIKCnNlbGVjdGFibGUYAyABKAgSFwoPYmxvY2tpbmdfcmVhc29uGAQgASgJIvICChtXb3JrZXJSZXNvdXJjZVByb2ZpbGVPcHRpb24SCgoCaWQYASABKAMSDAoEc2x1ZxgCIAEoCRIMCgRuYW1lGAMgASgJEhwKFGNwdV9yZXF1ZXN0X21pbGxpY3B1GAQgASgNEhoKEmNwdV9saW1pdF9taWxsaWNwdRgFIAEoDRIcChRtZW1vcnlfcmVxdWVzdF9ieXRlcxgGIAEoBBIaChJtZW1vcnlfbGltaXRfYnl0ZXMYByABKAQSGAoLZ3B1X3JlcXVlc3QYCCABKA1IAIgBARIWCglncHVfbGltaXQYCSABKA1IAYgBARISCgpzZWxlY3RhYmxlGAogASgIEhcKD2Jsb2NraW5nX3JlYXNvbhgLIAEoCRIdChVzdG9yYWdlX3JlcXVlc3RfYnl0ZXMYDCABKAQSGwoTc3RvcmFnZV9saW1pdF9ieXRlcxgNIAEoBEIOCgxfZ3B1X3JlcXVlc3RCDAoKX2dwdV9saW1pdCLOAQoeTGlzdFdvcmtlckNyZWF0ZU9wdGlvbnNSZXF1ZXN0EhAKCG9yZ19zbHVnGAEgASgJEh0KEHdvcmtlcl90eXBlX3NsdWcYAiABKAlIAIgBARIeChFjb21wdXRlX3RhcmdldF9pZBgDIAEoA0gBiAEBEhwKD2RlcGxveW1lbnRfbW9kZRgEIAEoCUgCiAEBQhMKEV93b3JrZXJfdHlwZV9zbHVnQhQKEl9jb21wdXRlX3RhcmdldF9pZEISChBfZGVwbG95bWVudF9tb2RlIvUCCh9MaXN0V29ya2VyQ3JlYXRlT3B0aW9uc1Jlc3BvbnNlEhAKCHJldmlzaW9uGAEgASgJEjQKDHdvcmtlcl90eXBlcxgCIAMoCzIeLnByb3RvLnBvZC52MS5Xb3JrZXJUeXBlT3B0aW9uEj4KDnJ1bnRpbWVfaW1hZ2VzGAMgAygLMiYucHJvdG8ucG9kLnYxLldvcmtlclJ1bnRpbWVJbWFnZU9wdGlvbhJACg9jb21wdXRlX3RhcmdldHMYBCADKAsyJy5wcm90by5wb2QudjEuV29ya2VyQ29tcHV0ZVRhcmdldE9wdGlvbhJCChBkZXBsb3ltZW50X21vZGVzGAUgAygLMigucHJvdG8ucG9kLnYxLldvcmtlckRlcGxveW1lbnRNb2RlT3B0aW9uEkQKEXJlc291cmNlX3Byb2ZpbGVzGAYgAygLMikucHJvdG8ucG9kLnYxLldvcmtlclJlc291cmNlUHJvZmlsZU9wdGlvbiJWChRXb3JrZXJQcmVmbGlnaHRJc3N1ZRIMCgRjb2RlGAEgASgJEg0KBWZpZWxkGAIgASgJEg8KB21lc3NhZ2UYAyABKAkSEAoIc2V2ZXJpdHkYBCABKAkiWAoWUHJlZmxpZ2h0V29ya2VyUmVxdWVzdBIQCghvcmdfc2x1ZxgBIAEoCRIsCgVkcmFmdBgCIAEoCzIdLnByb3RvLnBvZC52MS5Xb3JrZXJTcGVjRHJhZnQinwEKF1ByZWZsaWdodFdvcmtlclJlc3BvbnNlEjIKBmlzc3VlcxgBIAMoCzIiLnByb3RvLnBvZC52MS5Xb3JrZXJQcmVmbGlnaHRJc3N1ZRIfChJyZXNvbHZlZF9zcGVjX2pzb24YAiABKAlIAIgBARIYChBvcHRpb25zX3JldmlzaW9uGAMgASgJQhUKE19yZXNvbHZlZF9zcGVjX2pzb24ihwEKFkZpbGxXb3JrZXJEcmFmdFJlcXVlc3QSEAoIb3JnX3NsdWcYASABKAkSDgoGcHJvbXB0GAIgASgJEjkKDWN1cnJlbnRfZHJhZnQYAyABKAsyHS5wcm90by5wb2QudjEuV29ya2VyU3BlY0RyYWZ0SACIAQFCEAoOX2N1cnJlbnRfZHJhZnQiewoXRmlsbFdvcmtlckRyYWZ0UmVzcG9uc2USLAoFZHJhZnQYASABKAsyHS5wcm90by5wb2QudjEuV29ya2VyU3BlY0RyYWZ0EjIKBmlzc3VlcxgCIAMoCzIiLnByb3RvLnBvZC52MS5Xb3JrZXJQcmVmbGlnaHRJc3N1ZUI8WjpnaXRodWIuY29tL2FudGhyb3BpY3MvYWdlbnRzbWVzaC9wcm90by9nZW4vZ28vcG9kL3YxO3BvZHYxYgZwcm90bzM");
 
 /**
  * @generated from message proto.pod.v1.WorkerSecretReference
@@ -62,6 +62,97 @@ export const WorkerKnowledgeMountSchema: GenMessage<WorkerKnowledgeMount> = /*@_
   messageDesc(file_pod_v1_worker_creation, 1);
 
 /**
+ * @generated from message proto.pod.v1.WorkerConfigDocumentBinding
+ */
+export type WorkerConfigDocumentBinding = Message<"proto.pod.v1.WorkerConfigDocumentBinding"> & {
+  /**
+   * @generated from field: string document_id = 1;
+   */
+  documentId: string;
+
+  /**
+   * @generated from field: int64 config_bundle_id = 2;
+   */
+  configBundleId: bigint;
+};
+
+/**
+ * Describes the message proto.pod.v1.WorkerConfigDocumentBinding.
+ * Use `create(WorkerConfigDocumentBindingSchema)` to create a new message.
+ */
+export const WorkerConfigDocumentBindingSchema: GenMessage<WorkerConfigDocumentBinding> = /*@__PURE__*/
+  messageDesc(file_pod_v1_worker_creation, 2);
+
+/**
+ * @generated from message proto.pod.v1.WorkerCredentialRequirement
+ */
+export type WorkerCredentialRequirement = Message<"proto.pod.v1.WorkerCredentialRequirement"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string source_kind = 2;
+   */
+  sourceKind: string;
+
+  /**
+   * @generated from field: string source_ref = 3;
+   */
+  sourceRef: string;
+
+  /**
+   * @generated from field: string target_kind = 4;
+   */
+  targetKind: string;
+
+  /**
+   * @generated from field: string target_name = 5;
+   */
+  targetName: string;
+};
+
+/**
+ * Describes the message proto.pod.v1.WorkerCredentialRequirement.
+ * Use `create(WorkerCredentialRequirementSchema)` to create a new message.
+ */
+export const WorkerCredentialRequirementSchema: GenMessage<WorkerCredentialRequirement> = /*@__PURE__*/
+  messageDesc(file_pod_v1_worker_creation, 3);
+
+/**
+ * @generated from message proto.pod.v1.WorkerConfigDocumentRequirement
+ */
+export type WorkerConfigDocumentRequirement = Message<"proto.pod.v1.WorkerConfigDocumentRequirement"> & {
+  /**
+   * @generated from field: string document_id = 1;
+   */
+  documentId: string;
+
+  /**
+   * @generated from field: string format = 2;
+   */
+  format: string;
+
+  /**
+   * @generated from field: string target_path = 3;
+   */
+  targetPath: string;
+
+  /**
+   * @generated from field: bool required = 4;
+   */
+  required: boolean;
+};
+
+/**
+ * Describes the message proto.pod.v1.WorkerConfigDocumentRequirement.
+ * Use `create(WorkerConfigDocumentRequirementSchema)` to create a new message.
+ */
+export const WorkerConfigDocumentRequirementSchema: GenMessage<WorkerConfigDocumentRequirement> = /*@__PURE__*/
+  messageDesc(file_pod_v1_worker_creation, 4);
+
+/**
  * @generated from message proto.pod.v1.WorkerResourceRequest
  */
 export type WorkerResourceRequest = Message<"proto.pod.v1.WorkerResourceRequest"> & {
@@ -101,7 +192,7 @@ export type WorkerResourceRequest = Message<"proto.pod.v1.WorkerResourceRequest"
  * Use `create(WorkerResourceRequestSchema)` to create a new message.
  */
 export const WorkerResourceRequestSchema: GenMessage<WorkerResourceRequest> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 2);
+  messageDesc(file_pod_v1_worker_creation, 5);
 
 /**
  * @generated from message proto.pod.v1.WorkerSpecDraft
@@ -238,9 +329,9 @@ export type WorkerSpecDraft = Message<"proto.pod.v1.WorkerSpecDraft"> & {
   customResources?: WorkerResourceRequest | undefined;
 
   /**
-   * @generated from field: repeated int64 config_bundle_ids = 27;
+   * @generated from field: repeated proto.pod.v1.WorkerConfigDocumentBinding config_document_bindings = 28;
    */
-  configBundleIds: bigint[];
+  configDocumentBindings: WorkerConfigDocumentBinding[];
 };
 
 /**
@@ -248,7 +339,7 @@ export type WorkerSpecDraft = Message<"proto.pod.v1.WorkerSpecDraft"> & {
  * Use `create(WorkerSpecDraftSchema)` to create a new message.
  */
 export const WorkerSpecDraftSchema: GenMessage<WorkerSpecDraft> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 3);
+  messageDesc(file_pod_v1_worker_creation, 6);
 
 /**
  * @generated from message proto.pod.v1.WorkerToolModelRequirement
@@ -285,7 +376,7 @@ export type WorkerToolModelRequirement = Message<"proto.pod.v1.WorkerToolModelRe
  * Use `create(WorkerToolModelRequirementSchema)` to create a new message.
  */
 export const WorkerToolModelRequirementSchema: GenMessage<WorkerToolModelRequirement> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 4);
+  messageDesc(file_pod_v1_worker_creation, 7);
 
 /**
  * @generated from message proto.pod.v1.WorkerTypeOption
@@ -340,6 +431,21 @@ export type WorkerTypeOption = Message<"proto.pod.v1.WorkerTypeOption"> & {
    * @generated from field: repeated string supported_interaction_modes = 10;
    */
   supportedInteractionModes: string[];
+
+  /**
+   * @generated from field: repeated string model_protocol_adapters = 11;
+   */
+  modelProtocolAdapters: string[];
+
+  /**
+   * @generated from field: repeated proto.pod.v1.WorkerCredentialRequirement credential_requirements = 12;
+   */
+  credentialRequirements: WorkerCredentialRequirement[];
+
+  /**
+   * @generated from field: repeated proto.pod.v1.WorkerConfigDocumentRequirement config_document_requirements = 13;
+   */
+  configDocumentRequirements: WorkerConfigDocumentRequirement[];
 };
 
 /**
@@ -347,7 +453,7 @@ export type WorkerTypeOption = Message<"proto.pod.v1.WorkerTypeOption"> & {
  * Use `create(WorkerTypeOptionSchema)` to create a new message.
  */
 export const WorkerTypeOptionSchema: GenMessage<WorkerTypeOption> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 5);
+  messageDesc(file_pod_v1_worker_creation, 8);
 
 /**
  * @generated from message proto.pod.v1.WorkerRuntimeImageOption
@@ -399,7 +505,7 @@ export type WorkerRuntimeImageOption = Message<"proto.pod.v1.WorkerRuntimeImageO
  * Use `create(WorkerRuntimeImageOptionSchema)` to create a new message.
  */
 export const WorkerRuntimeImageOptionSchema: GenMessage<WorkerRuntimeImageOption> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 6);
+  messageDesc(file_pod_v1_worker_creation, 9);
 
 /**
  * @generated from message proto.pod.v1.WorkerComputeTargetOption
@@ -451,7 +557,7 @@ export type WorkerComputeTargetOption = Message<"proto.pod.v1.WorkerComputeTarge
  * Use `create(WorkerComputeTargetOptionSchema)` to create a new message.
  */
 export const WorkerComputeTargetOptionSchema: GenMessage<WorkerComputeTargetOption> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 7);
+  messageDesc(file_pod_v1_worker_creation, 10);
 
 /**
  * @generated from message proto.pod.v1.WorkerDeploymentModeOption
@@ -483,7 +589,7 @@ export type WorkerDeploymentModeOption = Message<"proto.pod.v1.WorkerDeploymentM
  * Use `create(WorkerDeploymentModeOptionSchema)` to create a new message.
  */
 export const WorkerDeploymentModeOptionSchema: GenMessage<WorkerDeploymentModeOption> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 8);
+  messageDesc(file_pod_v1_worker_creation, 11);
 
 /**
  * @generated from message proto.pod.v1.WorkerResourceProfileOption
@@ -560,7 +666,7 @@ export type WorkerResourceProfileOption = Message<"proto.pod.v1.WorkerResourcePr
  * Use `create(WorkerResourceProfileOptionSchema)` to create a new message.
  */
 export const WorkerResourceProfileOptionSchema: GenMessage<WorkerResourceProfileOption> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 9);
+  messageDesc(file_pod_v1_worker_creation, 12);
 
 /**
  * @generated from message proto.pod.v1.ListWorkerCreateOptionsRequest
@@ -592,7 +698,7 @@ export type ListWorkerCreateOptionsRequest = Message<"proto.pod.v1.ListWorkerCre
  * Use `create(ListWorkerCreateOptionsRequestSchema)` to create a new message.
  */
 export const ListWorkerCreateOptionsRequestSchema: GenMessage<ListWorkerCreateOptionsRequest> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 10);
+  messageDesc(file_pod_v1_worker_creation, 13);
 
 /**
  * @generated from message proto.pod.v1.ListWorkerCreateOptionsResponse
@@ -634,7 +740,7 @@ export type ListWorkerCreateOptionsResponse = Message<"proto.pod.v1.ListWorkerCr
  * Use `create(ListWorkerCreateOptionsResponseSchema)` to create a new message.
  */
 export const ListWorkerCreateOptionsResponseSchema: GenMessage<ListWorkerCreateOptionsResponse> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 11);
+  messageDesc(file_pod_v1_worker_creation, 14);
 
 /**
  * @generated from message proto.pod.v1.WorkerPreflightIssue
@@ -666,7 +772,7 @@ export type WorkerPreflightIssue = Message<"proto.pod.v1.WorkerPreflightIssue"> 
  * Use `create(WorkerPreflightIssueSchema)` to create a new message.
  */
 export const WorkerPreflightIssueSchema: GenMessage<WorkerPreflightIssue> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 12);
+  messageDesc(file_pod_v1_worker_creation, 15);
 
 /**
  * @generated from message proto.pod.v1.PreflightWorkerRequest
@@ -688,7 +794,7 @@ export type PreflightWorkerRequest = Message<"proto.pod.v1.PreflightWorkerReques
  * Use `create(PreflightWorkerRequestSchema)` to create a new message.
  */
 export const PreflightWorkerRequestSchema: GenMessage<PreflightWorkerRequest> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 13);
+  messageDesc(file_pod_v1_worker_creation, 16);
 
 /**
  * @generated from message proto.pod.v1.PreflightWorkerResponse
@@ -715,7 +821,7 @@ export type PreflightWorkerResponse = Message<"proto.pod.v1.PreflightWorkerRespo
  * Use `create(PreflightWorkerResponseSchema)` to create a new message.
  */
 export const PreflightWorkerResponseSchema: GenMessage<PreflightWorkerResponse> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 14);
+  messageDesc(file_pod_v1_worker_creation, 17);
 
 /**
  * @generated from message proto.pod.v1.FillWorkerDraftRequest
@@ -742,7 +848,7 @@ export type FillWorkerDraftRequest = Message<"proto.pod.v1.FillWorkerDraftReques
  * Use `create(FillWorkerDraftRequestSchema)` to create a new message.
  */
 export const FillWorkerDraftRequestSchema: GenMessage<FillWorkerDraftRequest> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 15);
+  messageDesc(file_pod_v1_worker_creation, 18);
 
 /**
  * @generated from message proto.pod.v1.FillWorkerDraftResponse
@@ -764,4 +870,4 @@ export type FillWorkerDraftResponse = Message<"proto.pod.v1.FillWorkerDraftRespo
  * Use `create(FillWorkerDraftResponseSchema)` to create a new message.
  */
 export const FillWorkerDraftResponseSchema: GenMessage<FillWorkerDraftResponse> = /*@__PURE__*/
-  messageDesc(file_pod_v1_worker_creation, 16);
+  messageDesc(file_pod_v1_worker_creation, 19);

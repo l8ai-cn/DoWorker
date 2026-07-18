@@ -18,7 +18,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:7723ccf2c9eb5c4d3566158d11a54468604ab7204c3eb5da8ccca4ac8faa57d5",
+      "definition_hash": "sha256:9eb65b2ea0e82ebb214d564f42a296525dea8cfa89d23f3c84c078000893d352",
       "executable": "aider",
       "adapter_id": "aider-pty",
       "interaction_modes": [
@@ -200,7 +200,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:338b2fef7a6fefbb9034268f14ecdf529ed99438a3885a93598e607ae4144c5a",
+      "definition_hash": "sha256:8e8284ba68d3a15ed74906926b7491dc8f1ef86e00bd14ac43950188cfe06d2e",
       "executable": "agent",
       "adapter_id": "cursor-acp",
       "interaction_modes": [
@@ -251,7 +251,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:f4348e3bb9baf3973078c475b5ac724fab016d06c10673d927d21dd80a267bb8",
+      "definition_hash": "sha256:e79be1769fe5b2d4de307d3748b9edcfa8a31eafec0a5a51a4b2dfb36b0a8337",
       "executable": "do-agent",
       "adapter_id": "do-agent-acp",
       "interaction_modes": [
@@ -293,7 +293,8 @@
         {
           "id": "settings",
           "format": "json",
-          "target_path": "DO_AGENT_SETTINGS"
+          "target_path": "DO_AGENT_SETTINGS",
+          "required": true
         }
       ],
       "runtime_catalog": {
@@ -606,7 +607,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:6dd46e7bf44d30cd5ececc7e7d87f317559d3892415dec9ab86aabe3b5a57518",
+      "definition_hash": "sha256:d0b3265258c995968bb5e738b1bd535f839075c73faecbad6a8412b0b9d4ab0b",
       "executable": "openclaw",
       "adapter_id": "openclaw-pty",
       "interaction_modes": [
@@ -635,7 +636,8 @@
         {
           "id": "openclaw-json",
           "format": "json",
-          "target_path": "openclaw-home/.openclaw/openclaw.json"
+          "target_path": "openclaw-home/.openclaw/openclaw.json",
+          "required": false
         }
       ],
       "runtime_catalog": {
@@ -664,7 +666,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:734be0fcd980d77c644cbcec4c3add77882c62f80b0c2efba4037ae7253406f6",
+      "definition_hash": "sha256:6681ce02048799d625df1b48fb1834233365eb8d586a28cbe948158eaa26c6f4",
       "executable": "opencode",
       "adapter_id": "opencode-acp",
       "interaction_modes": [
@@ -672,10 +674,24 @@
         "acp"
       ],
       "model_requirement": {
-        "required": false,
-        "protocol_adapters": []
+        "required": true,
+        "protocol_adapters": [
+          "openai-compatible"
+        ]
       },
-      "credential_bindings": [],
+      "credential_bindings": [
+        {
+          "id": "openai",
+          "source": {
+            "kind": "model_resource",
+            "ref": "openai-compatible"
+          },
+          "target": {
+            "kind": "env",
+            "name": "OPENAI_API_KEY"
+          }
+        }
+      ],
       "config_documents": [],
       "runtime_catalog": {
         "status": "blocked_no_published_digest"
@@ -703,7 +719,7 @@
         "runner-evidence",
         "product-evidence"
       ],
-      "definition_hash": "sha256:255c22f71b957d50e656393afa3ca3cd671caa711da32d5ad5a701c2e1903be8",
+      "definition_hash": "sha256:6aee4088b36dca0e499bda8a301a2039f53aaa3a5e9db12ec61d0ce02e9e2348",
       "executable": "do-agent",
       "adapter_id": "do-agent-acp",
       "interaction_modes": [
@@ -745,7 +761,8 @@
         {
           "id": "settings",
           "format": "json",
-          "target_path": "DO_AGENT_SETTINGS"
+          "target_path": "DO_AGENT_SETTINGS",
+          "required": true
         }
       ],
       "runtime_catalog": {

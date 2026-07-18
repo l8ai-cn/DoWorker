@@ -215,7 +215,8 @@
         {
           "id": "settings",
           "format": "json",
-          "target_path": "DO_AGENT_SETTINGS"
+          "target_path": "DO_AGENT_SETTINGS",
+          "required": true
         }
       ],
       "runtimeImage": {
@@ -443,7 +444,8 @@
         {
           "id": "openclaw-json",
           "format": "json",
-          "target_path": "openclaw-home/.openclaw/openclaw.json"
+          "target_path": "openclaw-home/.openclaw/openclaw.json",
+          "required": false
         }
       ],
       "runtimeImage": null,
@@ -459,11 +461,26 @@
         "acp"
       ],
       "modelRequirement": {
-        "required": false,
-        "protocol_adapters": []
+        "required": true,
+        "protocol_adapters": [
+          "openai-compatible"
+        ]
       },
-      "credentialBindings": [],
-      "configFields": [],
+      "credentialBindings": [
+        {
+          "sourceKind": "model_resource",
+          "sourceRef": "openai-compatible",
+          "environmentVariable": "OPENAI_API_KEY"
+        }
+      ],
+      "configFields": [
+        {
+          "name": "model",
+          "kind": "string",
+          "options": [],
+          "defaultValue": "\"\""
+        }
+      ],
       "configDocuments": [],
       "runtimeImage": null,
       "validationStatus": "runtime_image_unavailable"
@@ -528,7 +545,8 @@
         {
           "id": "settings",
           "format": "json",
-          "target_path": "DO_AGENT_SETTINGS"
+          "target_path": "DO_AGENT_SETTINGS",
+          "required": true
         }
       ],
       "runtimeImage": {

@@ -6,6 +6,7 @@ fn orchestration_resource_wasm_surface_exposes_creation_and_calls() {
     let _ = WasmOrchestrationResourceService::validate_resource_connect;
     let _ = WasmOrchestrationResourceService::plan_resource_connect;
     let _ = WasmOrchestrationResourceService::get_resource_connect;
+    let _ = WasmOrchestrationResourceService::get_resource_capabilities_connect;
     let _ = WasmOrchestrationResourceService::list_resources_connect;
     let _ = WasmOrchestrationResourceService::export_resource_connect;
     let _ = WasmOrchestrationResourceService::get_resource_plan_connect;

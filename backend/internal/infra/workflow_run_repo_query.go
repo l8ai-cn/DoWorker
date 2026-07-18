@@ -5,6 +5,7 @@ import (
 
 	"github.com/anthropics/agentsmesh/backend/internal/domain/agentpod"
 	"github.com/anthropics/agentsmesh/backend/internal/domain/workflow"
+	"gorm.io/gorm"
 )
 
 // CountActiveRuns counts runs that are actually active, using Pod status as SSOT.
@@ -40,20 +41,35 @@ func (r *workflowRunRepo) GetActiveRunByPodKey(ctx context.Context, podKey strin
 
 func (r *workflowRunRepo) GetTimedOutRuns(ctx context.Context, orgIDs []int64) ([]*workflow.WorkflowRun, error) {
 	var runs []*workflow.WorkflowRun
+	err := timedOutWorkflowRunsQuery(
+		r.db.WithContext(ctx),
+		orgIDs,
+	).Find(&runs).Error
+	return runs, err
+}
+
+func timedOutWorkflowRunsQuery(
+	db *gorm.DB,
+	orgIDs []int64,
+) *gorm.DB {
 	timedOutEligible := []string{agentpod.StatusInitializing, agentpod.StatusRunning, agentpod.StatusPaused}
-	query := r.db.WithContext(ctx).
+	query := db.
 		Table("workflow_runs").
-		Joins("JOIN workflows ON workflows.id = workflow_runs.workflow_id").
 		Joins("LEFT JOIN pods ON pods.pod_key = workflow_runs.pod_key").
 		Where("workflow_runs.pod_key IS NOT NULL").
 		Where("workflow_runs.finished_at IS NULL").
+		Where("workflow_runs.execution_manifest IS NOT NULL").
 		Where("pods.status IN ?", timedOutEligible).
-		Where("workflow_runs.started_at IS NOT NULL AND workflow_runs.started_at < NOW() - (workflows.timeout_minutes || ' minutes')::INTERVAL")
+		Where(
+			"workflow_runs.started_at IS NOT NULL AND " +
+				"workflow_runs.started_at < NOW() - " +
+				"((workflow_runs.execution_manifest ->> 'timeout_minutes') || " +
+				"' minutes')::INTERVAL",
+		)
 	if len(orgIDs) > 0 {
 		query = query.Where("workflow_runs.organization_id IN ?", orgIDs)
 	}
-	err := query.Find(&runs).Error
-	return runs, err
+	return query
 }
 
 func (r *workflowRunRepo) GetLatestPodKey(ctx context.Context, workflowID int64) *string {
@@ -92,19 +108,36 @@ func (r *workflowRunRepo) GetOrphanPendingRuns(ctx context.Context, orgIDs []int
 
 func (r *workflowRunRepo) GetIdleWorkflowPods(ctx context.Context, orgIDs []int64) ([]*workflow.WorkflowRun, error) {
 	var runs []*workflow.WorkflowRun
-	query := r.db.WithContext(ctx).
+	err := idleWorkflowPodsQuery(
+		r.db.WithContext(ctx),
+		orgIDs,
+	).Find(&runs).Error
+	return runs, err
+}
+
+func idleWorkflowPodsQuery(
+	db *gorm.DB,
+	orgIDs []int64,
+) *gorm.DB {
+	query := db.
 		Table("workflow_runs").
-		Joins("JOIN workflows ON workflows.id = workflow_runs.workflow_id").
 		Joins("JOIN pods ON pods.pod_key = workflow_runs.pod_key").
 		Where("workflow_runs.finished_at IS NULL").
+		Where("workflow_runs.execution_manifest IS NOT NULL").
 		Where("pods.status = ?", agentpod.StatusRunning).
 		Where("pods.agent_status = ?", agentpod.AgentStatusWaiting).
 		Where("pods.agent_waiting_since IS NOT NULL").
-		Where("workflows.idle_timeout_sec > 0").
-		Where("pods.agent_waiting_since < NOW() - (workflows.idle_timeout_sec || ' seconds')::INTERVAL")
+		Where(
+			"(workflow_runs.execution_manifest ->> " +
+				"'idle_timeout_seconds')::INTEGER > 0",
+		).
+		Where(
+			"pods.agent_waiting_since < NOW() - " +
+				"((workflow_runs.execution_manifest ->> " +
+				"'idle_timeout_seconds') || ' seconds')::INTERVAL",
+		)
 	if len(orgIDs) > 0 {
 		query = query.Where("workflow_runs.organization_id IN ?", orgIDs)
 	}
-	err := query.Find(&runs).Error
-	return runs, err
+	return query
 }

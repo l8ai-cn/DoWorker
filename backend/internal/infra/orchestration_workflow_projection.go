@@ -111,7 +111,7 @@ func workflowProjectionRecord(
 		CronExpression:  optionalProjectionText(projection.CronExpression),
 		AutopilotConfig: emptyObject,
 		CallbackURL:     optionalProjectionText(projection.CallbackURL),
-		Status:          "enabled", SandboxStrategy: projection.SandboxStrategy,
+		Status:          projection.Status, SandboxStrategy: projection.SandboxStrategy,
 		SessionPersistence: projection.SessionPersistence,
 		ConcurrencyPolicy:  projection.ConcurrencyPolicy,
 		MaxConcurrentRuns:  projection.MaxConcurrentRuns,
@@ -129,6 +129,7 @@ func workflowProjectionRecord(
 func workflowProjectionUpdates(record orchestrationWorkflowRecord) map[string]any {
 	return map[string]any{
 		"name": record.Name, "prompt_template": record.PromptTemplate,
+		"status":              record.Status,
 		"execution_mode":      record.ExecutionMode,
 		"cron_expression":     record.CronExpression,
 		"sandbox_strategy":    record.SandboxStrategy,
@@ -141,6 +142,8 @@ func workflowProjectionUpdates(record orchestrationWorkflowRecord) map[string]an
 		"callback_url":        record.CallbackURL, "next_run_at": record.NextRunAt,
 		"worker_spec_snapshot_id":         record.WorkerSpecSnapshotID,
 		"orchestration_resource_revision": record.OrchestrationResourceRevision,
+		"last_pod_key":                    nil,
+		"sandbox_path":                    nil,
 		"updated_at":                      record.UpdatedAt,
 	}
 }

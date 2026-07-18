@@ -145,53 +145,10 @@ func (r *runnerRepository) ListAvailableForAgent(ctx context.Context, orgID, use
 	return runners, nil
 }
 
-func (r *runnerRepository) IncrementPods(ctx context.Context, runnerID int64) error {
-	return r.db.WithContext(ctx).Exec(
-		"UPDATE runners SET current_pods = current_pods + 1 WHERE id = ?", runnerID,
-	).Error
-}
-
-func (r *runnerRepository) DecrementPods(ctx context.Context, runnerID int64) error {
-	return r.db.WithContext(ctx).Exec(
-		"UPDATE runners SET current_pods = GREATEST(current_pods - 1, 0) WHERE id = ?", runnerID,
-	).Error
-}
-
 func (r *runnerRepository) MarkOfflineRunners(ctx context.Context, threshold time.Time) error {
 	return r.db.WithContext(ctx).Model(&runner.Runner{}).
 		Where("status = ? AND last_heartbeat < ?", runner.RunnerStatusOnline, threshold).
 		Update("status", runner.RunnerStatusOffline).Error
-}
-
-func (r *runnerRepository) SetPodCount(ctx context.Context, runnerID int64, count int) error {
-	return r.db.WithContext(ctx).Model(&runner.Runner{}).
-		Where("id = ?", runnerID).
-		Update("current_pods", count).Error
-}
-
-func (r *runnerRepository) BatchUpdateHeartbeats(ctx context.Context, items []runner.HeartbeatUpdate) (int, error) {
-	updated := 0
-	for _, item := range items {
-		updates := map[string]interface{}{
-			"last_heartbeat": item.Timestamp,
-			"current_pods":   item.CurrentPods,
-			"status":         item.Status,
-		}
-		if item.Version != "" {
-			updates["runner_version"] = item.Version
-		}
-
-		result := r.db.WithContext(ctx).Model(&runner.Runner{}).
-			Where("id = ?", item.RunnerID).
-			Updates(updates)
-		if result.Error != nil {
-			continue
-		}
-		if result.RowsAffected > 0 {
-			updated++
-		}
-	}
-	return updated, nil
 }
 
 func (r *runnerRepository) GetOrgSlug(ctx context.Context, orgID int64) (string, error) {

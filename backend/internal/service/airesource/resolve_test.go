@@ -26,6 +26,42 @@ func TestResolveExactReturnsOnlySubmittedResourceAndCredentials(t *testing.T) {
 	assert.NotEqual(t, resourceA.ID, resolved.Resource.ID)
 }
 
+func TestResolveMetadataDoesNotDecryptCredentials(t *testing.T) {
+	f := newFixture()
+	connection := createValidConnection(
+		t,
+		f,
+		domain.OwnerScopeUser,
+		1,
+		"connection-a",
+		"secret-a",
+	)
+	resource := createResource(t, f, connection.ID, "model-a")
+	service, err := NewService(Dependencies{
+		Repository: f.repo,
+		Cipher: failingCipher{
+			decryptErr: errors.New("metadata resolution must not decrypt credentials"),
+		},
+		Members:   f.members,
+		Prober:    f.prober,
+		Mutations: f.mutations,
+		Endpoints: allowingEndpoints{},
+	})
+	require.NoError(t, err)
+
+	resolved, err := service.ResolveMetadata(
+		context.Background(),
+		actor(1),
+		0,
+		resource.ID,
+		chatRequirements(),
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, resource.ID, resolved.Resource.ID)
+	assert.Empty(t, resolved.Credentials)
+}
+
 func TestResolveExactRejectsVisibilityAndInvalidStates(t *testing.T) {
 	tests := []struct {
 		name     string

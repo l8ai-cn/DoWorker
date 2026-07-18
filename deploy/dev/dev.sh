@@ -145,6 +145,7 @@ main() {
 
     # Phase 3: docker infrastructure + DB bootstrap.
     docker_compose_up
+    prepare_local_worker_runtime_catalog
     wait_for_postgres
     run_migrations
     run_marketplace_migrations

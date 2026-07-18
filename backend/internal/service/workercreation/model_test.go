@@ -56,6 +56,8 @@ func TestModelResolverBindsExactResourceAndConnectionRevisions(t *testing.T) {
 	assert.Equal(t, resourcedomain.ModalityChat, resources.requirements.Modality)
 	assert.Equal(t, resourcedomain.CapabilityTextGeneration, resources.requirements.Capability)
 	assert.Equal(t, []string{"openai-compatible"}, resources.requirements.AllowedProtocolAdapters)
+	assert.Equal(t, 1, resources.metadataCalls)
+	assert.Zero(t, resources.exactCalls)
 }
 
 func TestModelResolverUsesDefinitionProtocolAdapters(t *testing.T) {
@@ -115,6 +117,7 @@ func TestModelResolverRejectsUnsupportedOrInvalidSelections(t *testing.T) {
 		require.Error(t, err)
 		assert.ErrorIs(t, err, specservice.ErrInvalidDraft)
 		assert.ErrorIs(t, err, resourceservice.ErrForbidden)
+		assert.Equal(t, "model_resource_id", specservice.InvalidDraftField(err))
 	})
 
 	t.Run("infrastructure error is not disguised", func(t *testing.T) {
@@ -131,64 +134,4 @@ func TestModelResolverRejectsUnsupportedOrInvalidSelections(t *testing.T) {
 		assert.ErrorIs(t, err, assert.AnError)
 		assert.NotErrorIs(t, err, specservice.ErrInvalidDraft)
 	})
-}
-
-type modelResourceService struct {
-	resolved     *resourceservice.ResolvedResource
-	resolvedByID map[int64]*resourceservice.ResolvedResource
-	err          error
-	calls        int
-	actor        resourceservice.Actor
-	orgID        int64
-	resourceID   int64
-	requirements resourceservice.ResolutionRequirements
-}
-
-func (service *modelResourceService) ResolveExact(
-	_ context.Context,
-	actor resourceservice.Actor,
-	orgID, resourceID int64,
-	requirements resourceservice.ResolutionRequirements,
-) (*resourceservice.ResolvedResource, error) {
-	service.calls++
-	service.actor = actor
-	service.orgID = orgID
-	service.resourceID = resourceID
-	service.requirements = requirements
-	if resolved := service.resolvedByID[resourceID]; resolved != nil {
-		return resolved, service.err
-	}
-	return service.resolved, service.err
-}
-
-func validModelResourceService() *modelResourceService {
-	return &modelResourceService{
-		resolved: &resourceservice.ResolvedResource{
-			Provider: resourcedomain.ProviderDefinition{
-				ProtocolAdapter: "openai-compatible",
-			},
-			Connection: resourcedomain.Connection{
-				ID:          201,
-				ProviderKey: slugkit.MustNewForTest("openai"),
-				Revision:    9,
-			},
-			Resource: resourcedomain.ModelResource{
-				ID:                   101,
-				ProviderConnectionID: 201,
-				ModelID:              "gpt-5",
-				Revision:             7,
-			},
-		},
-	}
-}
-
-func requiredModelRequirement(adapters ...string) specdomain.ModelRequirement {
-	requirement := specdomain.ModelRequirement{
-		Required:         true,
-		ProtocolAdapters: make([]slugkit.Slug, len(adapters)),
-	}
-	for index, adapter := range adapters {
-		requirement.ProtocolAdapters[index] = slugkit.MustNewForTest(adapter)
-	}
-	return requirement
 }

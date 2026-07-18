@@ -1,12 +1,15 @@
 import { useMemo } from "react";
 import type { EffectiveResource } from "@/lib/api/facade/aiResource";
 import type { EnvBundleSummary } from "@/lib/api";
+import type { WorkerCreateOptions } from "@/lib/api/facade/podConnect";
 import { useWorkerModelResources } from "./useWorkerModelResources";
 import { useWorkerCreateEnvBundles } from "./useWorkerCreateEnvBundles";
 import type { AsyncState } from "./workerCreateDraft";
 import { workerCreateLoadable } from "./workerCreateController";
 import { useWorkerSkills } from "./useWorkerSkills";
 import type { WorkerSkillOption } from "../CreatePodForm/workerSkillOption";
+
+type WorkerTypeOption = WorkerCreateOptions["worker_types"][number];
 
 interface WorkerCreateDependencies {
   modelResources: AsyncState<EffectiveResource[]>;
@@ -18,11 +21,21 @@ interface WorkerCreateDependencies {
 }
 
 export function useWorkerCreateDependencies(
-  workerTypeSlug: string,
+  workerType: WorkerTypeOption | undefined,
   repositoryId?: number,
 ): WorkerCreateDependencies {
-  const model = useWorkerModelResources(workerTypeSlug, null, true);
-  const bundles = useWorkerCreateEnvBundles(workerTypeSlug);
+  const model = useWorkerModelResources(
+    workerType?.slug,
+    null,
+    true,
+    workerType
+      ? {
+        required: workerType.requires_model_resource,
+        protocolAdapters: workerType.model_protocol_adapters,
+      }
+      : undefined,
+  );
+  const bundles = useWorkerCreateEnvBundles(workerType?.slug ?? "");
   const skills = useWorkerSkills(repositoryId ?? null);
   const modelResources = useMemo(
     () =>

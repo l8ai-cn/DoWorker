@@ -19,8 +19,7 @@ import (
 func TestSearchTickets_PaginationPageSkipsRows(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	runner := fixture.DiscoverRunner(t, env, rest)
-	pod := fixture.NewEchoPod(t, env, rest, runner.ID)
+	pod := fixture.NewEchoPod(t, env, rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -80,7 +79,7 @@ func TestSearchTickets_PaginationPageSkipsRows(t *testing.T) {
 func TestGoalLoops_OffsetSkipsRows(t *testing.T) {
 	env := fixture.LoadEnv(t)
 	rest := fixture.SharedREST(t, env)
-	snapshotID := fixture.NewGoalLoopSnapshot(t, env)
+	workerTemplate := fixture.NewGoalLoopWorkerTemplate(t, env)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -89,11 +88,11 @@ func TestGoalLoops_OffsetSkipsRows(t *testing.T) {
 	const seedN = 4
 	for i := 0; i < seedN; i++ {
 		if _, err := rest.CreateGoalLoop(ctx, env.DevOrgSlug, client.CreateGoalLoopRequest{
-			Name:                 fmt.Sprintf("%s-%d", tag, i),
-			WorkerSpecSnapshotID: snapshotID,
-			Objective:            "Verify goal loop pagination.",
-			AcceptanceCriteria:   []string{"The loop can be paginated."},
-			VerificationCommand:  "true",
+			Name:                fmt.Sprintf("%s-%d", tag, i),
+			WorkerTemplateName:  workerTemplate,
+			Objective:           "Verify goal loop pagination.",
+			AcceptanceCriteria:  []string{"The loop can be paginated."},
+			VerificationCommand: "true",
 		}); err != nil {
 			t.Fatalf("seed goal loop %d: %v", i, err)
 		}

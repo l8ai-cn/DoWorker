@@ -85,6 +85,39 @@ func (s *WorkflowService) UpdateRuntimeState(ctx context.Context, workflowID int
 	return s.repo.Update(ctx, workflowID, updates)
 }
 
+func (s *WorkflowService) UpdateRuntimeStateForRevision(
+	ctx context.Context,
+	workflowID int64,
+	resourceRevision int64,
+	lastPodKey *string,
+) (bool, error) {
+	if lastPodKey == nil {
+		return false, nil
+	}
+	return s.repo.UpdateForResourceRevision(
+		ctx,
+		workflowID,
+		resourceRevision,
+		map[string]interface{}{"last_pod_key": *lastPodKey},
+	)
+}
+
+func (s *WorkflowService) ClearRuntimeStateForRevision(
+	ctx context.Context,
+	workflowID int64,
+	resourceRevision int64,
+) (bool, error) {
+	return s.repo.UpdateForResourceRevision(
+		ctx,
+		workflowID,
+		resourceRevision,
+		map[string]interface{}{
+			"sandbox_path": nil,
+			"last_pod_key": nil,
+		},
+	)
+}
+
 func (s *WorkflowService) UpdateNextRunAt(ctx context.Context, workflowID int64, nextRunAt *time.Time) error {
 	return s.repo.Update(ctx, workflowID, map[string]interface{}{
 		"next_run_at": nextRunAt,

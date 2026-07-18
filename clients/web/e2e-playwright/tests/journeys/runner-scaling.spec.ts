@@ -1,107 +1,169 @@
-// Migrated R5+: Connect-RPC only (no REST middle layer).
 import { test, expect } from "../../fixtures/index";
 import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { pollUntil } from "../../helpers/retry";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
-import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
+import {
+  buildE2EEchoWorkerSpec,
+  type E2EWorkerSpecDraft,
+} from "../../helpers/e2e-worker-spec";
 
-type Runner = { id: bigint; currentPods?: number; maxConcurrentPods?: number };
-type Pod = { podKey: string };
+type ConnectClient = Awaited<
+  ReturnType<import("../../fixtures/api.fixture").ApiFixture["connect"]>
+>;
+type Runner = {
+  id: bigint;
+  currentPods: number;
+  maxConcurrentPods: number;
+  isEnabled: boolean;
+};
+type Pod = { podKey: string; runnerId: bigint };
 
-/**
- * Journey: Runner Scaling & Capacity Management
- * Verify capacity limits → Create pods up to limit → Enforce cap → Disable/Enable
- */
 test.describe("Journey: Runner Scaling", () => {
-  test.beforeEach(async () => { clearAuthRateLimit(); });
-
-  test.afterAll(async () => {
+  test.beforeEach(async () => {
+    clearAuthRateLimit();
     await terminateAllPods();
   });
 
-  test("runner capacity enforcement and scaling", async ({ api }) => {
+  test("enforces capacity and schedules onto an enabled runner", async ({ api }) => {
     const cc = await api.connect();
-
-    // ── Step 1: Get available runner and record initial state ──
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runner = pickE2EEchoRunner(runners);
-    const runnerId = runner.id;
-    const initialPods = runner.currentPods || 0;
-
-    // ── Step 2: Create a pod and verify capacity increases ──
-    const pod1Resp = await cc.pod.createPod({
+    const { items: available } = await cc.runner.listAvailableRunners({
       orgSlug: TEST_ORG_SLUG,
-      runnerId,
-      agentSlug: E2E_ECHO_AGENT_SLUG,
-      alias: "E2E Scaling Pod 1",
-    }) as { pod: Pod };
-    const pod1Key = pod1Resp.pod?.podKey;
+    }) as { items: Runner[] };
+    expect(available.length, "dev env must expose two e2e runners").toBeGreaterThanOrEqual(2);
 
-    await pollUntil(
-      async () => {
-        const r = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runnerId }) as { runner: Runner };
-        return (r.runner?.currentPods || 0) > initialPods;
-      },
-      { maxAttempts: 10, intervalMs: 2000, label: "capacity-increase" }
-    ).catch(() => {});
+    const [primary, secondary] = available;
+    const originals = available.map((runner) => ({
+      id: runner.id,
+      isEnabled: runner.isEnabled,
+      maxConcurrentPods: runner.maxConcurrentPods,
+    }));
+    const createdPods: Pod[] = [];
 
-    // ── Step 3: Create second pod ──
-    const pod2Resp = await cc.pod.createPod({
-      orgSlug: TEST_ORG_SLUG,
-      runnerId,
-      agentSlug: E2E_ECHO_AGENT_SLUG,
-      alias: "E2E Scaling Pod 2",
-    }) as { pod: Pod };
-    const pod2Key = pod2Resp.pod?.podKey;
+    try {
+      for (const runner of available) {
+        await cc.runner.updateRunner({
+          orgSlug: TEST_ORG_SLUG,
+          id: runner.id,
+          isEnabled: runner.id === primary.id,
+          maxConcurrentPods: runner.id === primary.id || runner.id === secondary.id
+            ? 1
+            : runner.maxConcurrentPods,
+        });
+      }
+      await expectAvailableRunnerIds(cc, [primary.id]);
+      const primarySpec = await buildE2EEchoWorkerSpec(cc, {
+        mode: "acp",
+        scenario: "echo",
+      });
 
-    // ── Step 4: Verify capacity reflects new pods ──
-    let midPods = initialPods;
-    await pollUntil(
-      async () => {
-        const r = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runnerId }) as { runner: Runner };
-        midPods = r.runner?.currentPods || 0;
-        return midPods > initialPods;
-      },
-      { maxAttempts: 10, intervalMs: 2000, label: "capacity-increase" }
-    ).catch(() => {});
+      const first = await createPod(cc, primarySpec, "E2E capacity primary");
+      createdPods.push(first);
+      expect(first.runnerId).toBe(primary.id);
+      await expectRunnerPods(cc, primary.id, 1);
+      await expectAvailableRunnerIds(cc, []);
+      await expect(createPod(cc, primarySpec, "E2E over capacity")).rejects.toThrow(
+        /no available runner/i,
+      );
 
-    // ── Step 5: Terminate pod 1, verify capacity decreases ──
-    if (pod1Key) await cc.pod.terminatePod({ orgSlug: TEST_ORG_SLUG, podKey: pod1Key });
+      await cc.runner.updateRunner({
+        orgSlug: TEST_ORG_SLUG,
+        id: secondary.id,
+        isEnabled: true,
+        maxConcurrentPods: 1,
+      });
+      await expectAvailableRunnerIds(cc, [secondary.id]);
+      const secondarySpec = await buildE2EEchoWorkerSpec(cc, {
+        mode: "acp",
+        scenario: "echo",
+      });
 
-    await pollUntil(
-      async () => {
-        const r = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runnerId }) as { runner: Runner };
-        return (r.runner?.currentPods || 0) < midPods;
-      },
-      { maxAttempts: 5, intervalMs: 2000, label: "capacity-decrease" }
-    ).catch(() => {});
+      const second = await createPod(cc, secondarySpec, "E2E capacity secondary");
+      createdPods.push(second);
+      expect(second.runnerId).toBe(secondary.id);
+      await expectRunnerPods(cc, secondary.id, 1);
+      await expectAvailableRunnerIds(cc, []);
+      await expect(createPod(cc, secondarySpec, "E2E fully saturated")).rejects.toThrow(
+        /no available runner/i,
+      );
 
-    // ── Step 6: Disable runner, verify not in available list ──
-    await cc.runner.updateRunner({ orgSlug: TEST_ORG_SLUG, id: runnerId, isEnabled: false });
-
-    const { items: available } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    const found = available.find((r) => r.id === runnerId);
-    expect(found).toBeFalsy(); // disabled runner should NOT be available
-
-    // ── Step 7: Re-enable runner ──
-    await cc.runner.updateRunner({ orgSlug: TEST_ORG_SLUG, id: runnerId, isEnabled: true });
-
-    const { items: reAvailable } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    const reFound = reAvailable.find((r) => r.id === runnerId);
-    expect(reFound).toBeTruthy(); // re-enabled runner should be available
-
-    // ── Step 8: Terminate remaining pod ──
-    if (pod2Key) await cc.pod.terminatePod({ orgSlug: TEST_ORG_SLUG, podKey: pod2Key });
-
-    // ── Step 9: Verify capacity restored ──
-    await pollUntil(
-      async () => {
-        const r = await cc.runner.getRunner({ orgSlug: TEST_ORG_SLUG, id: runnerId }) as { runner: Runner };
-        return (r.runner?.currentPods || 0) <= initialPods;
-      },
-      { maxAttempts: 5, intervalMs: 2000, label: "capacity-restored" }
-    ).catch(() => {});
+      await terminatePods(cc, createdPods);
+      await expectRunnerPods(cc, primary.id, 0);
+      await expectRunnerPods(cc, secondary.id, 0);
+      await expectAvailableRunnerIds(cc, [primary.id, secondary.id]);
+      createdPods.length = 0;
+    } finally {
+      await terminatePods(cc, createdPods);
+      for (const runner of originals) {
+        await cc.runner.updateRunner({
+          orgSlug: TEST_ORG_SLUG,
+          id: runner.id,
+          isEnabled: runner.isEnabled,
+          maxConcurrentPods: runner.maxConcurrentPods,
+        });
+      }
+    }
   });
 });
+
+async function createPod(
+  client: ConnectClient,
+  workerSpec: E2EWorkerSpecDraft,
+  alias: string,
+): Promise<Pod> {
+  const created = await client.pod.createPod({
+    orgSlug: TEST_ORG_SLUG,
+    cols: 80,
+    rows: 24,
+    workerSpec: { ...workerSpec, alias },
+  }) as { pod?: Pod };
+  if (!created.pod?.podKey || !created.pod.runnerId) {
+    throw new Error(`CreatePod returned incomplete placement for ${alias}`);
+  }
+  return created.pod;
+}
+
+async function expectRunnerPods(
+  client: ConnectClient,
+  runnerId: bigint,
+  expected: number,
+) {
+  await pollUntil(async () => {
+    const result = await client.runner.getRunner({
+      orgSlug: TEST_ORG_SLUG,
+      id: runnerId,
+    }) as { runner?: Runner };
+    return result.runner?.currentPods === expected;
+  }, {
+    maxAttempts: 10,
+    intervalMs: 1_000,
+    label: `runner-${runnerId}-pods-${expected}`,
+  });
+}
+
+async function expectAvailableRunnerIds(
+  client: ConnectClient,
+  expected: bigint[],
+) {
+  await pollUntil(async () => {
+    const { items } = await client.runner.listAvailableRunners({
+      orgSlug: TEST_ORG_SLUG,
+    }) as { items: Runner[] };
+    const actual = items.map((runner) => runner.id);
+    return actual.length === expected.length &&
+      expected.every((id) => actual.includes(id));
+  }, {
+    maxAttempts: 10,
+    intervalMs: 500,
+    label: `available-runners-${expected.join(",") || "none"}`,
+  });
+}
+
+async function terminatePods(client: ConnectClient, pods: Pod[]) {
+  for (const pod of pods) {
+    await client.pod.terminatePod({
+      orgSlug: TEST_ORG_SLUG,
+      podKey: pod.podKey,
+    }).catch(() => undefined);
+  }
+}

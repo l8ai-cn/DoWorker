@@ -9,6 +9,7 @@ import { test, expect } from "../../fixtures/index";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { TEST_ORG_SLUG } from "../../helpers/env";
+import { createResourceWorkflow } from "../../helpers/resource-workflow";
 
 test.describe("Workflow run · multi-tab UI propagation", () => {
   test.beforeEach(async () => { clearAuthRateLimit(); });
@@ -19,15 +20,13 @@ test.describe("Workflow run · multi-tab UI propagation", () => {
 
     const stamp = Date.now().toString(36);
     const workflowName = `e2e-rt-workflow-${stamp}`;
-    const workflow = (await cc.workflow.createWorkflow({
-      orgSlug: TEST_ORG_SLUG,
+    const workflow = await createResourceWorkflow(cc, {
       name: workflowName,
       slug: workflowName,
-      agentSlug: "e2e-echo",
-      promptTemplate: "echo hi",
+      prompt: "echo hi",
       executionMode: "direct",
       timeoutMinutes: 1,
-    } as never)) as { slug: string };
+    });
 
     const tabA = await context.newPage();
     const tabB = await context.newPage();

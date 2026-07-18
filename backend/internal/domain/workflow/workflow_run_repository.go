@@ -7,6 +7,12 @@ type WorkflowRunRepository interface {
 	GetByID(ctx context.Context, id int64) (*WorkflowRun, error)
 	List(ctx context.Context, filter *WorkflowRunListFilter) ([]*WorkflowRun, int64, error)
 	Update(ctx context.Context, runID int64, updates map[string]interface{}) error
+	BindPod(
+		ctx context.Context,
+		runID int64,
+		podKey string,
+		autopilotKey string,
+	) (bool, error)
 	GetMaxRunNumber(ctx context.Context, workflowID int64) (int, error)
 	GetByAutopilotKey(ctx context.Context, autopilotKey string) (*WorkflowRun, error)
 

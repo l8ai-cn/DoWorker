@@ -4,9 +4,8 @@ import { TEST_ORG_SLUG } from "../../helpers/env";
 import { clearAuthRateLimit } from "../../helpers/redis";
 import { terminateAllPods } from "../../helpers/pod-cleanup";
 import { assertNoWasmRecursiveBorrow } from "../../helpers/console-monitor";
-import { E2E_ECHO_AGENT_SLUG, pickE2EEchoRunner } from "../../helpers/e2e-echo-runner";
+import { createE2EEchoPod } from "../../helpers/e2e-worker-spec";
 
-type Runner = { id: bigint };
 type Pod = { podKey: string };
 
 /**
@@ -34,15 +33,7 @@ test.describe("ACP terminal: no wasm recursive borrow", () => {
 
   test("creating a pod and rendering its terminal does not trigger wasm recursive borrow", async ({ page, api, monitor }) => {
     const cc = await api.connect();
-    const { items: runners } = await cc.runner.listAvailableRunners({ orgSlug: TEST_ORG_SLUG }) as { items: Runner[] };
-    expect(runners.length, "dev env must have an online runner").toBeGreaterThan(0);
-    const runnerId = pickE2EEchoRunner(runners).id;
-
-    const created = await cc.pod.createPod({
-      orgSlug: TEST_ORG_SLUG,
-      runnerId,
-      agentSlug: E2E_ECHO_AGENT_SLUG,
-    }) as { pod: Pod };
+    const created = await createE2EEchoPod(cc, { mode: "acp" }) as { pod: Pod };
     const podKey = created.pod?.podKey;
     expect(podKey, "pod creation must return a pod_key").toBeTruthy();
 

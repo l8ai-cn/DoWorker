@@ -171,7 +171,13 @@ func (m *mockFormatClient) SendPodInput(_ context.Context, _ string, _ string, _
 }
 
 func (m *mockFormatClient) CreatePod(_ context.Context, _ *tools.PodCreateRequest) (*tools.PodCreateResponse, error) {
-	return &tools.PodCreateResponse{PodKey: "new-pod", Status: "initializing"}, nil
+	return &tools.PodCreateResponse{
+		PodKey: "new-pod", Status: "initializing",
+		Resource: &tools.AppliedResourceSummary{
+			Kind: "Worker", Name: "nested-worker", Revision: 2,
+			WorkerSpecSnapshotID: 91,
+		},
+	}, nil
 }
 
 func (m *mockFormatClient) PostComment(_ context.Context, _ string, _ string, _ *int64) (*tools.TicketComment, error) {

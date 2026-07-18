@@ -2,16 +2,15 @@ import { create } from "@bufbuild/protobuf";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  ApplyExpertPlanResponseSchema,
-  ApplyWorkerTemplatePlanResponseSchema,
-  ApplyWorkflowPlanResponseSchema,
-  CreateWorkerFromPlanResponseSchema,
   PlanResourceResponseSchema,
-  ResourceSchema,
-  ResourceOperation,
   ValidateResourceResponseSchema,
-} from "@proto/orchestration_resource/v1/orchestration_resource_pb";
-import { fireEvent, render, screen, waitFor } from "@/test/test-utils";
+} from "@proto/orchestration_resource/v1/orchestration_resource_queries_pb";
+import {
+  PlanStatus,
+  ResourceOperation,
+} from "@proto/orchestration_resource/v1/orchestration_resource_types_pb";
+import { fireEvent, render, screen } from "@/test/test-utils";
+import type { AsyncState } from "@/components/pod/hooks/workerCreateDraft";
 import type { WorkerCreateOptions } from "@/lib/api/facade/podConnect";
 import { createResourceDraft } from "./resource-draft-factory";
 
@@ -26,16 +25,22 @@ const api = vi.hoisted(() => ({
   createWorkerFromPlan: vi.fn(),
   listResources: vi.fn(),
 }));
+const options = vi.hoisted(() => ({
+  state: { status: "loading" } as AsyncState<WorkerCreateOptions>,
+}));
 
 vi.mock("@/lib/api/facade/orchestrationResource", () => ({
   ...api,
 }));
 
 vi.mock("@/components/pod/hooks/useWorkerCreateOptions", () => ({
-  useWorkerCreateOptions: () => ({
-    status: "ready",
-    data: workerOptions(),
-  }),
+  useWorkerCreateOptions: () => options.state,
+  loadWorkerCreateOptions: async () => {
+    if (options.state.status !== "ready") {
+      throw new Error("Worker options are unavailable.");
+    }
+    return options.state.data;
+  },
 }));
 
 import { ResourceEditorShell } from "./ResourceEditorShell";
@@ -61,6 +66,7 @@ describe("ResourceEditorShell", () => {
             }]
           : [],
     }));
+    options.state = { status: "ready", data: workerOptions() };
     api.validateResource.mockResolvedValue(create(
       ValidateResourceResponseSchema,
       {
@@ -86,6 +92,79 @@ describe("ResourceEditorShell", () => {
     expect((editor as HTMLTextAreaElement).value).toContain(
       "workerType: codex-cli",
     );
+  });
+
+  it("adopts edited YAML before planning from the Plan tab", async () => {
+    const user = userEvent.setup();
+    const canonical = createResourceDraft("Prompt", "acme");
+    canonical.metadata.name = "yaml-prompt";
+    canonical.spec.content = "Content from YAML";
+    api.planResource.mockResolvedValue(create(PlanResourceResponseSchema, {
+      operation: ResourceOperation.CREATE,
+      canonicalJson: new TextEncoder().encode(JSON.stringify(canonical)),
+      plan: {
+        planId: "yaml-plan",
+        operation: ResourceOperation.CREATE,
+        expiresAt: "2099-07-14T16:00:00Z",
+        status: PlanStatus.PENDING,
+      },
+    }));
+    render(<ResourceEditorShell orgSlug="acme" kind="Prompt" />);
+
+    await user.type(screen.getByLabelText(/Resource name/), "yaml-prompt");
+    await user.type(screen.getByLabelText(/Prompt content/), "Form content");
+    await user.click(screen.getByRole("tab", { name: "YAML" }));
+    const editor = await screen.findByTestId("resource-yaml-editor");
+    fireEvent.change(editor, {
+      target: {
+        value: (editor as HTMLTextAreaElement).value.replace(
+          "Form content",
+          "Content from YAML",
+        ),
+      },
+    });
+    await user.click(screen.getByRole("tab", { name: "Plan & diff" }));
+    await user.click(screen.getByRole("button", { name: "Generate plan" }));
+
+    await screen.findByText("Plan ready");
+    const document = api.planResource.mock.calls[0][1];
+    expect(JSON.parse(document.content).spec.content).toBe("Content from YAML");
+  });
+
+  it("blocks Plan while Worker options are unavailable", async () => {
+    const user = userEvent.setup();
+    options.state = { status: "loading" };
+    render(<ResourceEditorShell orgSlug="acme" />);
+
+    const plan = screen.getByRole("button", { name: "Generate plan" });
+    expect(plan).toBeDisabled();
+    await user.click(plan);
+    expect(api.planResource).not.toHaveBeenCalled();
+  });
+
+  it("does not plan YAML with a Worker type outside the organization catalog", async () => {
+    const user = userEvent.setup();
+    render(<ResourceEditorShell orgSlug="acme" />);
+
+    await user.type(screen.getByLabelText(/Resource name/), "reviewer");
+    await user.click(screen.getByRole("button", { name: "Worker type" }));
+    await user.click(screen.getByRole("option", { name: "Codex CLI" }));
+    await user.click(screen.getByRole("tab", { name: "YAML" }));
+    const editor = await screen.findByTestId("resource-yaml-editor");
+    fireEvent.change(editor, {
+      target: {
+        value: (editor as HTMLTextAreaElement).value.replace(
+          "workerType: codex-cli",
+          "workerType: unavailable-worker",
+        ),
+      },
+    });
+    await user.click(screen.getByRole("button", { name: "Generate plan" }));
+
+    expect(await screen.findByText(
+      "The selected Worker type is unavailable.",
+    )).toBeInTheDocument();
+    expect(api.planResource).not.toHaveBeenCalled();
   });
 
   it("keeps invalid YAML visible and blocks switching back to the form", async () => {
@@ -122,6 +201,63 @@ describe("ResourceEditorShell", () => {
 
     expect(await screen.findByLabelText(/Resource name/))
       .toHaveValue("code-reviewer");
+  });
+
+  it("adopts the Plan canonical draft before returning to the form", async () => {
+    const user = userEvent.setup();
+    const canonical = createResourceDraft("WorkerTemplate", "acme");
+    canonical.metadata.name = "canonical-reviewer";
+    canonical.metadata.displayName = "Canonical reviewer";
+    api.planResource.mockResolvedValue(create(PlanResourceResponseSchema, {
+      operation: ResourceOperation.CREATE,
+      canonicalJson: new TextEncoder().encode(JSON.stringify(canonical)),
+      plan: {
+        planId: "canonical-plan",
+        operation: ResourceOperation.CREATE,
+        expiresAt: "2099-07-14T16:00:00Z",
+        status: PlanStatus.PENDING,
+      },
+    }));
+    render(<ResourceEditorShell orgSlug="acme" />);
+
+    await user.click(screen.getByRole("tab", { name: "YAML" }));
+    const editor = await screen.findByTestId("resource-yaml-editor");
+    fireEvent.change(editor, {
+      target: {
+        value: (editor as HTMLTextAreaElement).value.replace(
+          'name: ""',
+          "name: yaml-reviewer",
+        ),
+      },
+    });
+    await user.click(screen.getByRole("button", { name: "Generate plan" }));
+    await screen.findByText("Plan ready");
+    await user.click(screen.getByRole("tab", { name: "Configuration" }));
+
+    expect(screen.getByLabelText(/Resource name/))
+      .toHaveValue("canonical-reviewer");
+    expect(screen.getByLabelText(/Display name/))
+      .toHaveValue("Canonical reviewer");
+  });
+
+  it("resets the local draft when the organization identity changes", async () => {
+    const user = userEvent.setup();
+    const view = render(
+      <ResourceEditorShell orgSlug="acme" kind="Prompt" />,
+    );
+    await user.type(screen.getByLabelText(/Resource name/), "acme-prompt");
+
+    view.rerender(
+      <ResourceEditorShell orgSlug="globex" kind="Prompt" />,
+    );
+
+    expect(screen.getByLabelText(/Resource name/)).toHaveValue("");
+    await user.click(screen.getByRole("tab", { name: "YAML" }));
+    expect(
+      (await screen.findByTestId(
+        "resource-yaml-editor",
+      ) as HTMLTextAreaElement).value,
+    ).toContain("namespace: globex");
   });
 
   it("does not plan GoalLoop YAML with invalid integer fields", async () => {
@@ -167,197 +303,21 @@ describe("ResourceEditorShell", () => {
     expect(api.validateResource).not.toHaveBeenCalled();
   });
 
-  it("applies only the current WorkerTemplate plan", async () => {
-    const user = userEvent.setup();
-    api.planResource.mockResolvedValue(create(PlanResourceResponseSchema, {
-      operation: ResourceOperation.CREATE,
-      plan: {
-        planId: "11111111-1111-4111-8111-111111111111",
-        operation: ResourceOperation.CREATE,
-        expiresAt: "2099-07-14T16:00:00Z",
-      },
-    }));
-    api.applyWorkerTemplatePlan.mockResolvedValue(create(
-      ApplyWorkerTemplatePlanResponseSchema,
-      {
-        resource: { revision: 1n },
-        workerSpecSnapshotId: 9n,
-      },
-    ));
-    render(<ResourceEditorShell orgSlug="acme" />);
-
-    const apply = screen.getByRole("button", { name: "Apply template" });
-    expect(apply).toBeDisabled();
-    await user.click(screen.getByRole("button", { name: "Generate plan" }));
-
-    await screen.findByText("Plan ready");
-    expect(apply).toBeEnabled();
-    await user.click(apply);
-
-    await waitFor(() => {
-      expect(api.applyWorkerTemplatePlan).toHaveBeenCalledWith(
-        "acme",
-        "11111111-1111-4111-8111-111111111111",
-      );
-    });
-    expect(await screen.findByText(/WorkerSpec snapshot 9/)).toBeInTheDocument();
-  });
-
-  it("creates a Worker only through its typed plan apply", async () => {
-    const user = userEvent.setup();
-    api.planResource.mockResolvedValue(create(PlanResourceResponseSchema, {
-      operation: ResourceOperation.CREATE,
-      plan: {
-        planId: "22222222-2222-4222-8222-222222222222",
-        operation: ResourceOperation.CREATE,
-        expiresAt: "2099-07-14T16:00:00Z",
-      },
-    }));
-    api.createWorkerFromPlan.mockResolvedValue(create(
-      CreateWorkerFromPlanResponseSchema,
-      {
-        resource: { revision: 1n },
-        launchId: 7n,
-        podId: 8n,
-        podKey: "worker-abcd",
-        workerSpecSnapshotId: 9n,
-        resourceRevision: 1n,
-        runnerId: 10n,
-      },
-    ));
-    render(<ResourceEditorShell orgSlug="acme" kind="Worker" />);
-
-    await user.type(screen.getByLabelText(/Resource name/), "review-run");
-    await selectReference(user, /Worker template/, "Code reviewer code-reviewer");
-    await user.click(screen.getByRole("button", { name: "Generate plan" }));
-    await screen.findByText("Plan ready");
-    await user.click(screen.getByRole("button", { name: "Create Worker" }));
-
-    await waitFor(() => {
-      expect(api.createWorkerFromPlan).toHaveBeenCalledWith(
-        "acme",
-        "22222222-2222-4222-8222-222222222222",
-      );
-    });
-    expect(api.applyWorkerTemplatePlan).not.toHaveBeenCalled();
-    expect(await screen.findByText(/WorkerSpec snapshot 9/)).toBeInTheDocument();
-  });
-
-  it("applies an Expert through the Expert typed apply", async () => {
-    const user = userEvent.setup();
-    api.planResource.mockResolvedValue(readyPlan("expert-plan"));
-    api.applyExpertPlan.mockResolvedValue(create(
-      ApplyExpertPlanResponseSchema,
-      {
-        resource: { revision: 2n },
-        expertId: 12n,
-        workerSpecSnapshotId: 13n,
-        resourceRevision: 2n,
-      },
-    ));
-    render(<ResourceEditorShell orgSlug="acme" kind="Expert" />);
-
-    await user.type(screen.getByLabelText(/Resource name/), "reviewer");
-    await selectReference(user, /Worker template/, "Code reviewer code-reviewer");
-    await user.click(screen.getByRole("button", { name: "Generate plan" }));
-    await screen.findByText("Plan ready");
-    await user.click(screen.getByRole("button", { name: "Apply resource" }));
-
-    await waitFor(() => {
-      expect(api.applyExpertPlan).toHaveBeenCalledWith("acme", "expert-plan");
-    });
-    expect(await screen.findByText(/WorkerSpec snapshot 13/)).toBeInTheDocument();
-  });
-
-  it("applies a Workflow through the Workflow typed apply", async () => {
-    const user = userEvent.setup();
-    api.planResource.mockResolvedValue(readyPlan("workflow-plan"));
-    api.applyWorkflowPlan.mockResolvedValue(create(
-      ApplyWorkflowPlanResponseSchema,
-      {
-        resource: { revision: 3n },
-        workflowId: 14n,
-        workerSpecSnapshotId: 15n,
-        resourceRevision: 3n,
-      },
-    ));
-    render(<ResourceEditorShell orgSlug="acme" kind="Workflow" />);
-
-    await user.type(screen.getByLabelText(/Resource name/), "nightly-review");
-    await selectReference(user, /Worker template/, "Code reviewer code-reviewer");
-    await selectReference(user, /^Prompt/, "Review prompt review-prompt");
-    await user.click(screen.getByRole("button", { name: "Generate plan" }));
-    await screen.findByText("Plan ready");
-    await user.click(screen.getByRole("button", { name: "Apply resource" }));
-
-    await waitFor(() => {
-      expect(api.applyWorkflowPlan).toHaveBeenCalledWith(
-        "acme",
-        "workflow-plan",
-      );
-    });
-  });
-
-  it("applies Prompt and binding resources through their typed apply RPCs", async () => {
-    const user = userEvent.setup();
-    api.planResource
-      .mockResolvedValueOnce(readyPlan("prompt-plan"))
-      .mockResolvedValueOnce(readyPlan("binding-plan"));
-    api.applyPromptPlan.mockResolvedValue(create(ResourceSchema, {
-      revision: 4n,
-    }));
-    api.applyBindingResourcePlan.mockResolvedValue(create(ResourceSchema, {
-      revision: 5n,
-    }));
-    const prompt = render(
-      <ResourceEditorShell orgSlug="acme" kind="Prompt" />,
-    );
-
-    await user.type(screen.getByLabelText(/Resource name/), "review-prompt");
-    await user.type(screen.getByLabelText(/Prompt content/), "Review changes");
-    await user.click(screen.getByRole("button", { name: "Generate plan" }));
-    await screen.findByText("Plan ready");
-    await user.click(screen.getByRole("button", { name: "Apply resource" }));
-    await waitFor(() => {
-      expect(api.applyPromptPlan).toHaveBeenCalledWith("acme", "prompt-plan");
-    });
-    prompt.unmount();
-
-    render(<ResourceEditorShell orgSlug="acme" kind="ModelBinding" />);
-    await user.type(screen.getByLabelText(/Resource name/), "coding-primary");
-    await user.type(screen.getByLabelText(/Model API resource ID/), "101");
-    await user.click(screen.getByRole("button", { name: "Generate plan" }));
-    await screen.findByText("Plan ready");
-    await user.click(screen.getByRole("button", { name: "Apply resource" }));
-    await waitFor(() => {
-      expect(api.applyBindingResourcePlan).toHaveBeenCalledWith(
-        "acme",
-        "binding-plan",
-      );
-    });
-  });
 });
 
 function readyPlan(planId: string) {
+  const draft = createResourceDraft("GoalLoop", "acme");
+  draft.metadata.name = "goal-loop";
   return create(PlanResourceResponseSchema, {
     operation: ResourceOperation.CREATE,
+    canonicalJson: new TextEncoder().encode(JSON.stringify(draft)),
     plan: {
       planId,
       operation: ResourceOperation.CREATE,
       expiresAt: "2099-07-14T16:00:00Z",
+      status: PlanStatus.PENDING,
     },
   });
-}
-
-async function selectReference(
-  user: ReturnType<typeof userEvent.setup>,
-  label: RegExp,
-  optionName: string,
-) {
-  const select = screen.getByRole("combobox", { name: label });
-  await waitFor(() => expect(select).toBeEnabled());
-  await user.click(select);
-  await user.click(screen.getByRole("option", { name: optionName }));
 }
 
 function validManifestJson(): string {
@@ -379,7 +339,10 @@ function workerOptions(): WorkerCreateOptions {
       config_schema: {},
       supported_interaction_modes: ["pty", "acp"],
       requires_model_resource: false,
+      model_protocol_adapters: [],
       tool_model_requirements: [],
+      credential_requirements: [],
+      config_document_requirements: [],
       selectable: true,
       blocking_reason: "",
     }],

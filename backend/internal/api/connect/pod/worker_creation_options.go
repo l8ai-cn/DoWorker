@@ -8,19 +8,6 @@ import (
 	podv1 "github.com/anthropics/agentsmesh/proto/gen/go/pod/v1"
 )
 
-type workerTypeSchemaJSON struct {
-	Version uint32                               `json:"version"`
-	Fields  map[string]workerTypeFieldSchemaJSON `json:"fields"`
-}
-
-type workerTypeFieldSchemaJSON struct {
-	Kind        specdomain.TypeFieldKind `json:"kind"`
-	Options     []string                 `json:"options,omitempty"`
-	Default     any                      `json:"default,omitempty"`
-	Required    bool                     `json:"required,omitempty"`
-	Description string                   `json:"description,omitempty"`
-}
-
 func workerCreateOptionsToProto(
 	options workercreation.CreateOptions,
 ) (*podv1.ListWorkerCreateOptionsResponse, error) {
@@ -40,8 +27,18 @@ func workerCreateOptionsToProto(
 				option.SupportedInteractionModes,
 			),
 			RequiresModelResource: option.RequiresModelResource,
+			ModelProtocolAdapters: append(
+				[]string{},
+				option.ModelProtocolAdapters...,
+			),
 			ToolModelRequirements: workerToolModelRequirementsToProto(
 				option.ToolModelRequirements,
+			),
+			CredentialRequirements: workerCredentialRequirementsToProto(
+				option.CredentialRequirements,
+			),
+			ConfigDocumentRequirements: workerConfigDocumentRequirementsToProto(
+				option.ConfigDocumentRequirements,
 			),
 			Selectable:     option.Selectable,
 			BlockingReason: option.BlockingReason,
@@ -143,9 +140,19 @@ func encodeWorkerTypeSchema(schema specdomain.TypeSchema) (string, error) {
 			Description: field.Description,
 		}
 	}
+	groups := make(
+		[]workerCredentialRequirementGroupJSON,
+		len(schema.SecretRequirementGroups),
+	)
+	for index, group := range schema.SecretRequirementGroups {
+		groups[index] = workerCredentialRequirementGroupJSON{
+			ID: group.ID, AnyOf: append([]string{}, group.AnyOf...),
+		}
+	}
 	data, err := json.Marshal(workerTypeSchemaJSON{
-		Version: schema.Version,
-		Fields:  fields,
+		Version:                     schema.Version,
+		Fields:                      fields,
+		CredentialRequirementGroups: groups,
 	})
 	return string(data), err
 }

@@ -9,12 +9,14 @@ import { WorkflowExecutionFields } from "./WorkflowExecutionFields";
 interface WorkflowConfigurationPanelProps {
   orgSlug: string;
   draft: WorkflowDraft;
+  identityLocked?: boolean;
   onChange: (draft: WorkflowDraft) => void;
 }
 
 export function WorkflowConfigurationPanel({
   orgSlug,
   draft,
+  identityLocked,
   onChange,
 }: WorkflowConfigurationPanelProps) {
   const catalog = useResourceReferenceOptions(orgSlug);
@@ -22,6 +24,7 @@ export function WorkflowConfigurationPanel({
     <div className="space-y-6">
       <ResourceIdentityFields
         metadata={draft.metadata}
+        locked={identityLocked}
         onChange={(metadata) => onChange({ ...draft, metadata })}
       />
       <WorkflowDefinitionFields

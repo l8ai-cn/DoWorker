@@ -38,10 +38,14 @@ func SummarizePersisted(spec Spec) (Summary, error) {
 }
 
 func summarizeNormalized(normalized Spec) Summary {
+	var toolBindings []ToolModelBinding
+	if len(normalized.Runtime.ToolModelBindings) > 0 {
+		toolBindings = cloneToolModelBindings(normalized.Runtime.ToolModelBindings)
+	}
 	return Summary{
 		Version:             normalized.Version,
 		ModelBinding:        normalized.Runtime.ModelBinding,
-		ToolModelBindings:   cloneToolModelBindings(normalized.Runtime.ToolModelBindings),
+		ToolModelBindings:   toolBindings,
 		WorkerType:          normalized.Runtime.WorkerType,
 		RuntimeImage:        normalized.Runtime.Image,
 		Placement:           clonePlacement(normalized.Placement),

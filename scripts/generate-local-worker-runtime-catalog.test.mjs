@@ -7,6 +7,7 @@ const geminiDigest = "sha256:c24d6da11c46954cd617b21ff33581f9821dc07a8506378c7ac
 const minimaxDigest = "sha256:1111111111111111111111111111111111111111111111111111111111111111";
 const openclawDigest = "sha256:2222222222222222222222222222222222222222222222222222222222222222";
 const doAgentDigest = "sha256:3333333333333333333333333333333333333333333333333333333333333333";
+const echoDigest = "sha256:4444444444444444444444444444444444444444444444444444444444444444";
 
 test("builds an explicit local catalog from every verified local runtime", () => {
   const catalog = buildLocalRuntimeCatalog({
@@ -16,6 +17,7 @@ test("builds an explicit local catalog from every verified local runtime", () =>
       ["minimax-cli", "agentsmesh-main-runner-minimax-cli:latest"],
       ["openclaw", "agentsmesh-main-runner-openclaw:latest"],
       ["do-agent", "agentsmesh-main-runner-do-agent:latest"],
+      ["e2e-echo", "agentsmesh-main-runner-e2e-echo:latest"],
     ],
     inspectImage: (image) => ({
       "agentsmesh-main-runner-codex-cli:latest": codexDigest,
@@ -23,10 +25,11 @@ test("builds an explicit local catalog from every verified local runtime", () =>
       "agentsmesh-main-runner-minimax-cli:latest": minimaxDigest,
       "agentsmesh-main-runner-openclaw:latest": openclawDigest,
       "agentsmesh-main-runner-do-agent:latest": doAgentDigest,
+      "agentsmesh-main-runner-e2e-echo:latest": echoDigest,
     })[image],
   });
 
-  assert.equal(catalog.images.length, 5);
+  assert.equal(catalog.images.length, 6);
   assert.deepEqual(
     catalog.images.map((image) => image.worker_type_slugs),
     [
@@ -35,6 +38,7 @@ test("builds an explicit local catalog from every verified local runtime", () =>
       ["minimax-cli"],
       ["openclaw"],
       ["do-agent", "seedance-expert"],
+      ["e2e-echo"],
     ],
   );
   assert.deepEqual(
@@ -45,6 +49,7 @@ test("builds an explicit local catalog from every verified local runtime", () =>
       `docker-daemon://agentsmesh-main-runner-minimax-cli:latest@${minimaxDigest}`,
       `docker-daemon://agentsmesh-main-runner-openclaw:latest@${openclawDigest}`,
       `docker-daemon://agentsmesh-main-runner-do-agent:latest@${doAgentDigest}`,
+      `docker-daemon://agentsmesh-main-runner-e2e-echo:latest@${echoDigest}`,
     ],
   );
   assert.ok(catalog.images.every((image) => image.enabled));

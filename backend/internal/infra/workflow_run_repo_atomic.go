@@ -30,6 +30,18 @@ func (r *workflowRunRepo) TriggerRunAtomic(ctx context.Context, params *workflow
 		if !l.IsEnabled() {
 			return workflow.ErrWorkflowDisabled
 		}
+		if !l.HasCompleteResourceBinding() {
+			return workflow.ErrWorkflowResourceRequired
+		}
+		resolvedPrompt := workflow.ResolvePrompt(
+			l.PromptTemplate,
+			l.PromptVariables,
+			params.TriggerParams,
+		)
+		executionManifest, err := workflow.PinWorkflowRunExecutionManifest(&l)
+		if err != nil {
+			return err
+		}
 
 		// 2. Count active runs using Pod status (SSOT) — within the transaction
 		var activeCount int64
@@ -47,7 +59,14 @@ func (r *workflowRunRepo) TriggerRunAtomic(ctx context.Context, params *workflow
 		}
 
 		if activeCount >= int64(l.MaxConcurrentRuns) {
-			return r.handleConcurrencyPolicy(tx, &l, params, &result)
+			return r.handleConcurrencyPolicy(
+				tx,
+				&l,
+				params,
+				resolvedPrompt,
+				executionManifest,
+				&result,
+			)
 		}
 
 		// 3. Get next run number atomically (inside transaction with lock)
@@ -60,7 +79,6 @@ func (r *workflowRunRepo) TriggerRunAtomic(ctx context.Context, params *workflow
 		}
 		runNumber := maxNumber + 1
 
-		resolvedPrompt := l.PromptTemplate
 		now := time.Now()
 
 		run := &workflow.WorkflowRun{
@@ -72,6 +90,7 @@ func (r *workflowRunRepo) TriggerRunAtomic(ctx context.Context, params *workflow
 			TriggerSource:                 &params.TriggerSource,
 			TriggerParams:                 params.TriggerParams,
 			ResolvedPrompt:                &resolvedPrompt,
+			ExecutionManifest:             executionManifest,
 			StartedAt:                     &now,
 			OrchestrationResourceID:       l.OrchestrationResourceID,
 			OrchestrationResourceRevision: l.OrchestrationResourceRevision,
@@ -93,7 +112,14 @@ func (r *workflowRunRepo) TriggerRunAtomic(ctx context.Context, params *workflow
 	return result, nil
 }
 
-func (r *workflowRunRepo) handleConcurrencyPolicy(tx *gorm.DB, l *workflow.Workflow, params *workflow.TriggerRunAtomicParams, result **workflow.TriggerRunAtomicResult) error {
+func (r *workflowRunRepo) handleConcurrencyPolicy(
+	tx *gorm.DB,
+	l *workflow.Workflow,
+	params *workflow.TriggerRunAtomicParams,
+	resolvedPrompt string,
+	executionManifest []byte,
+	result **workflow.TriggerRunAtomicResult,
+) error {
 	var maxNumber int
 	tx.Model(&workflow.WorkflowRun{}).
 		Where("workflow_id = ?", l.ID).
@@ -108,6 +134,9 @@ func (r *workflowRunRepo) handleConcurrencyPolicy(tx *gorm.DB, l *workflow.Workf
 		Status:                        workflow.RunStatusSkipped,
 		TriggerType:                   params.TriggerType,
 		TriggerSource:                 &params.TriggerSource,
+		TriggerParams:                 params.TriggerParams,
+		ResolvedPrompt:                &resolvedPrompt,
+		ExecutionManifest:             executionManifest,
 		FinishedAt:                    &now,
 		OrchestrationResourceID:       l.OrchestrationResourceID,
 		OrchestrationResourceRevision: l.OrchestrationResourceRevision,

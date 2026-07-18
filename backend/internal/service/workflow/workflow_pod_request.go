@@ -12,84 +12,81 @@ var ErrWorkflowResourceBindingCorrupt = errors.New(
 )
 
 func buildWorkflowRunPodRequest(
-	workflow *workflowDomain.Workflow,
 	run *workflowDomain.WorkflowRun,
 	userID int64,
-	resolvedPrompt string,
-	agentfileLayer string,
-	sourcePodKey string,
-	resumeSession bool,
 ) (*agentpodSvc.OrchestrateCreatePodRequest, error) {
-	if !workflow.IsResourceManaged() {
-		return buildWorkflowCreatePodRequest(
-			workflow,
-			userID,
-			agentfileLayer,
-			sourcePodKey,
-			resumeSession,
-		), nil
-	}
-	if !validWorkflowRunResourceBinding(workflow, run) {
+	manifest, err := validWorkflowRunResourceBinding(run)
+	if err != nil {
 		return nil, ErrWorkflowResourceBindingCorrupt
 	}
-	snapshotID := *run.WorkerSpecSnapshotID
-	prompt := resolvedPrompt
+	prompt := *run.ResolvedPrompt
+	if manifest.SourcePodKey != "" {
+		return buildWorkflowRunLineagePodRequest(
+			manifest,
+			userID,
+			prompt,
+		), nil
+	}
+	return buildWorkflowRunSnapshotPodRequest(
+		manifest,
+		userID,
+		*run.WorkerSpecSnapshotID,
+		prompt,
+	), nil
+}
+
+func buildWorkflowRunSnapshotPodRequest(
+	manifest workflowDomain.WorkflowRunExecutionManifest,
+	userID int64,
+	snapshotID int64,
+	prompt string,
+) *agentpodSvc.OrchestrateCreatePodRequest {
 	return &agentpodSvc.OrchestrateCreatePodRequest{
-		OrganizationID:           workflow.OrganizationID,
+		OrganizationID:           manifest.OrganizationID,
 		UserID:                   userID,
 		WorkerSpecSnapshotID:     &snapshotID,
 		WorkerSpecPromptOverride: &prompt,
 		Cols:                     120,
 		Rows:                     40,
-		SourcePodKey:             sourcePodKey,
-		ResumeAgentSession:       &resumeSession,
-	}, nil
+		ResumeAgentSession:       &manifest.SessionPersistence,
+	}
+}
+
+func buildWorkflowRunLineagePodRequest(
+	manifest workflowDomain.WorkflowRunExecutionManifest,
+	userID int64,
+	prompt string,
+) *agentpodSvc.OrchestrateCreatePodRequest {
+	return &agentpodSvc.OrchestrateCreatePodRequest{
+		OrganizationID:           manifest.OrganizationID,
+		UserID:                   userID,
+		WorkerSpecPromptOverride: &prompt,
+		Cols:                     120,
+		Rows:                     40,
+		SourcePodKey:             manifest.SourcePodKey,
+		ResumeAgentSession:       &manifest.SessionPersistence,
+	}
 }
 
 func validWorkflowRunResourceBinding(
-	workflow *workflowDomain.Workflow,
 	run *workflowDomain.WorkflowRun,
-) bool {
-	if workflow.OrchestrationResourceID == nil ||
-		*workflow.OrchestrationResourceID <= 0 ||
-		workflow.OrchestrationResourceRevision == nil ||
-		*workflow.OrchestrationResourceRevision <= 0 ||
-		workflow.WorkerSpecSnapshotID == nil ||
-		*workflow.WorkerSpecSnapshotID <= 0 ||
+) (workflowDomain.WorkflowRunExecutionManifest, error) {
+	if run == nil ||
+		run.OrganizationID <= 0 ||
 		run.OrchestrationResourceID == nil ||
+		*run.OrchestrationResourceID <= 0 ||
 		run.OrchestrationResourceRevision == nil ||
-		run.WorkerSpecSnapshotID == nil {
-		return false
+		*run.OrchestrationResourceRevision <= 0 ||
+		run.WorkerSpecSnapshotID == nil ||
+		*run.WorkerSpecSnapshotID <= 0 ||
+		run.ResolvedPrompt == nil {
+		return workflowDomain.WorkflowRunExecutionManifest{},
+			ErrWorkflowResourceBindingCorrupt
 	}
-	return *workflow.OrchestrationResourceID ==
-		*run.OrchestrationResourceID &&
-		*workflow.OrchestrationResourceRevision ==
-			*run.OrchestrationResourceRevision &&
-		*workflow.WorkerSpecSnapshotID == *run.WorkerSpecSnapshotID
-}
-
-func buildWorkflowCreatePodRequest(
-	workflow *workflowDomain.Workflow,
-	userID int64,
-	agentfileLayer string,
-	sourcePodKey string,
-	resumeSession bool,
-) *agentpodSvc.OrchestrateCreatePodRequest {
-	var runnerID int64
-	if workflow.RunnerID != nil {
-		runnerID = *workflow.RunnerID
+	manifest, err := run.PinnedExecution()
+	if err != nil || manifest.OrganizationID != run.OrganizationID {
+		return workflowDomain.WorkflowRunExecutionManifest{},
+			ErrWorkflowResourceBindingCorrupt
 	}
-	return &agentpodSvc.OrchestrateCreatePodRequest{
-		OrganizationID:     workflow.OrganizationID,
-		UserID:             userID,
-		RunnerID:           runnerID,
-		AgentSlug:          workflow.AgentSlug,
-		TicketID:           workflow.TicketID,
-		ModelResourceID:    workflow.ModelResourceID,
-		AgentfileLayer:     &agentfileLayer,
-		Cols:               120,
-		Rows:               40,
-		SourcePodKey:       sourcePodKey,
-		ResumeAgentSession: &resumeSession,
-	}
+	return manifest, nil
 }

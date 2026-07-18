@@ -9,7 +9,7 @@ import {
   BindingToolsSection,
   ChannelToolsSection,
   TicketToolsSection,
-  LoopToolsSection,
+  WorkflowToolsSection,
 } from "./_sections/tool-sections";
 
 export default function MCPToolsPage() {
@@ -28,7 +28,7 @@ export default function MCPToolsPage() {
       <BindingToolsSection />
       <ChannelToolsSection />
       <TicketToolsSection />
-      <LoopToolsSection />
+      <WorkflowToolsSection />
 
       <DocNavigation />
     </div>
